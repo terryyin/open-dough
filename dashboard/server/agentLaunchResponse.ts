@@ -1,5 +1,14 @@
 // JSON responses from the local launch boundary, including refused requests.
-import type { ServerResponse } from "node:http";
+// A full shared answer (`./machineSessionObservation.ts`) is negotiated: a
+// caller accepting gzip under HTTP Semantics §12.5.3 receives it gzip-encoded,
+// from bytes encoded at most once per revision and shared by every viewer
+// (`SharedGzip`); any other caller, one sending no `Accept-Encoding` or
+// refusing gzip with `q=0` among them, receives the same JSON unencoded.
+// Either varies by `Accept-Encoding`. Every other answer, an unchanged one
+// among them, is sent as JSON unencoded, and none is stored by the browser.
+import type { IncomingMessage, ServerResponse } from "node:http";
+import { promisify } from "node:util";
+import { gzip } from "node:zlib";
 import type {
   Acceptance,
   ChangedAnswer,
@@ -43,25 +52,112 @@ export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: ChangedAnswer }
   | { readonly status: number; readonly body: ReconciledAnswer }
   | { readonly status: number; readonly body: VerifiedAnswer }
-  // An answer serialized once and shared (`./machineSessionObservation.ts`).
-  | { readonly status: number; readonly serialized: string }
+  // An answer serialized once and shared (`./machineSessionObservation.ts`),
+  // with its shared gzip encoding when it has one.
+  | ({ readonly status: number } & SharedAnswer)
   | { readonly status: number; readonly body: { record: LaunchWithState } }
   | { readonly status: number; readonly body: DeleteRecordAnswer }
   | { readonly status: number; readonly body: RecoverSessionAnswer }
   | { readonly status: number; readonly body: { error: string } };
 
-export function respondToLaunch(
+// A serialized answer, and, for a full one, its encoding shared by viewers.
+export type SharedAnswer = {
+  readonly serialized: string;
+  readonly gzipped?: () => Promise<Buffer>;
+};
+
+const gzipped = promisify(gzip);
+
+// The gzip encoding of one audience's answer, encoded asynchronously at most
+// once per revision and shared by every viewer asking for that revision. It
+// keeps only the latest revision's; a failed encoding is tried again by the
+// next viewer.
+export class SharedGzip {
+  private latest:
+    | { readonly revision: string; readonly encoded: Promise<Buffer> }
+    | undefined;
+
+  // The encoding of `serialized`, the answer under `revision`, on first need.
+  of(revision: string, serialized: () => string): () => Promise<Buffer> {
+    return () => {
+      if (this.latest?.revision === revision) return this.latest.encoded;
+      const latest = { revision, encoded: gzipped(serialized()) };
+      this.latest = latest;
+      latest.encoded.catch(() => {
+        if (this.latest === latest) this.latest = undefined;
+      });
+      return latest.encoded;
+    };
+  }
+}
+
+// An HTTP Semantics §12.5.3 qvalue, or undefined when malformed.
+function qvalue(parameters: readonly string[]): number | undefined {
+  for (const parameter of parameters) {
+    const [name, value] = parameter.split("=").map((part) => part.trim());
+    if (name?.toLowerCase() !== "q") continue;
+    return value !== undefined &&
+      /^(?:0(?:\.[0-9]{0,3})?|1(?:\.0{0,3})?)$/.test(value)
+      ? Number(value)
+      : undefined;
+  }
+  return 1;
+}
+
+// Whether an `Accept-Encoding` field value accepts gzip: named, or `*` when it
+// is not, with a nonzero weight. A request without the field is answered
+// unencoded, as an unknown caller's.
+function acceptsGzip(field: string | undefined): boolean {
+  if (field === undefined) return false;
+  let named: number | undefined;
+  let any: number | undefined;
+  for (const member of field.split(",")) {
+    const [coding = "", ...parameters] = member.split(";");
+    const name = coding.trim().toLowerCase();
+    const weight = qvalue(parameters) ?? 0;
+    if (name === "gzip" || name === "x-gzip") named ??= weight;
+    else if (name === "*") any ??= weight;
+  }
+  return (named ?? any ?? 0) > 0;
+}
+
+async function encodedFor(
+  req: IncomingMessage,
+  answer: SharedAnswer,
+): Promise<Buffer | undefined> {
+  if (!acceptsGzip(req.headers["accept-encoding"])) return undefined;
+  try {
+    return await answer.gzipped?.();
+  } catch {
+    // The same JSON unencoded still answers the caller.
+    return undefined;
+  }
+}
+
+export async function respondToLaunch(
+  req: IncomingMessage,
   res: ServerResponse,
   answer: AgentLaunchAnswer,
-): void {
-  if (res.writableEnded || res.destroyed) {
-    return;
-  }
-  res.writeHead(answer.status, {
+): Promise<void> {
+  const headers = {
     "Cache-Control": "no-store",
     "Content-Type": "application/json",
+  };
+  if (!("serialized" in answer)) {
+    if (res.writableEnded || res.destroyed) return;
+    res.writeHead(answer.status, headers);
+    res.end(JSON.stringify(answer.body));
+    return;
+  }
+  const negotiated = answer.gzipped !== undefined;
+  const encoded = negotiated ? await encodedFor(req, answer) : undefined;
+  if (res.writableEnded || res.destroyed) return;
+  const sent = encoded ?? Buffer.from(answer.serialized);
+  res.writeHead(answer.status, {
+    ...headers,
+    "Content-Length": String(sent.length),
+    ...(negotiated && { Vary: "Accept-Encoding" }),
+    ...(encoded !== undefined && { "Content-Encoding": "gzip" }),
   });
-  res.end(
-    "serialized" in answer ? answer.serialized : JSON.stringify(answer.body),
-  );
+  res.end(sent);
 }

@@ -14,9 +14,15 @@
 // over the span. The trivial request, sent on
 // its own connection to a path no boundary answers, is how long anything
 // else waits meanwhile; it is sent from a process of its own.
+//
+// Every sessions ask accepts gzip as a browser does, and its size is the
+// bytes transferred, read before decoding; its decoded size is the same
+// JSON's unencoded, as a caller refusing gzip receives it
+// (../boundary/agent-launch-sessions-encoding.spec.ts).
 
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { gunzipSync } from "node:zlib";
 import {
   sessionsAudienceParameter,
   sessionsHistoryAudience,
@@ -45,9 +51,15 @@ export type Asked = {
   readonly from: number;
   readonly until: number;
   readonly wallMs: number;
+  // The bytes transferred, and the JSON's own once decoded.
   readonly bytes: number;
+  readonly decodedBytes: number;
+  readonly encoding: string;
   readonly body: string;
 };
+
+// What a browser's `fetch` accepts.
+const browserEncodings = "gzip, deflate, br, zstd";
 
 // The sessions answer to a viewer holding `held`, if any, timed from send
 // to the last byte received; the history's when `history`.
@@ -62,18 +74,25 @@ export async function askSessions(
     url: `${server.baseURL}/__agent-launch${history ? `?${sessionsAudienceParameter}=${sessionsHistoryAudience}` : ""}`,
     headers: {
       Origin: server.origin,
+      "Accept-Encoding": browserEncodings,
       ...(held === undefined ? {} : { [sessionsRevisionHeader]: held }),
     },
   });
   const wallMs = performance.now() - started;
   if (response.status !== 200)
     throw new Error(`The sessions answer was ${String(response.status)}`);
+  const encoding = response.headers["content-encoding"];
+  const decoded = encoding === "gzip" ? gunzipSync(response.raw) : response.raw;
+  if (encoding !== undefined && encoding !== "gzip")
+    throw new Error(`The sessions answer was encoded ${String(encoding)}`);
   return {
     from,
     until: Date.now(),
     wallMs,
-    bytes: Buffer.byteLength(response.body),
-    body: response.body,
+    bytes: response.raw.length,
+    decodedBytes: decoded.length,
+    encoding: typeof encoding === "string" ? encoding : "identity",
+    body: decoded.toString("utf8"),
   };
 }
 

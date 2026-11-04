@@ -3,6 +3,7 @@
 **Identity:** SEED-229#reduce-remote-sessions-traffic
 
 **Source:** [Selected story](../../seeds/SEED-229-reduce-remote-sessions-traffic.md#reduce-remote-sessions-traffic)
+**Source review:** [source-review.md](source-review.md)
 
 **Prepared:** 2026-11-04 in `codex/reduce-remote-sessions-traffic` at
 baseline `83af9a833`.
@@ -83,7 +84,7 @@ the work it adds, as required by
 ### 1. Transfer full Sessions replies using fewer bytes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a gzip-capable browser loads a dashboard with a large retained
 history, sees an attention update, or opens retained detail → the admitted
@@ -132,6 +133,61 @@ Apply the project's
 [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
 as written, including delegated work and repair handoffs through applicable
 final CI.
+
+Accepted proof (2026-11-04, Node 24.21.0, `caffeinate -s -i`):
+
+- Boundary: `dashboard/tests/boundary/agent-launch-sessions-encoding.spec.ts`
+  5/5 against the running boundary over raw HTTP. Gzip-accepting fields
+  (including `x-gzip` and `*;q=0.1`) get `Content-Encoding: gzip`, and
+  `gunzip(raw)` equals the identity JSON with the same revision. Absent
+  encoding, `gzip;q=0`, `identity`, `br, deflate`, `*;q=0` and an invalid
+  `gzip;q=2` get the identity JSON. Full replies carry
+  `Vary: Accept-Encoding` and no-store. Unchanged replies and the cross-site
+  403 stay unencoded. The two full-answer tests fail at `e69e74cf7`.
+- Browser journeys: the session-state-pace, retained-history and done-listing
+  specs pass 5/5. The retained-history step "expanding Recently done sessions
+  reads it once, gzip-encoded" observes the browser's `Content-Encoding: gzip`.
+  It fails at `e69e74cf7`.
+- Replay (`DOUGH_SESSIONS_REPLAY=1`, 1,005 records, 1,034 attempts):
+  - First and changed overviews: 322.3 kB gzip of 2.03 MB, 84% fewer.
+  - Full history: 1,251 kB of 9.88 MB, 87% fewer.
+  - Unchanged polls: still 96 B.
+  - At similar load (about 4–9) across 5 paired runs, trivial-request p99
+    and event-loop time are unchanged under 4 concurrent viewers. The first
+    viewer of a changed revision waits for its single encoding, about
+    +20 ms for the overview and +40–100 ms for the history, off the event
+    loop. That wait buys about 1.4 s saved per changed overview at
+    10 Mbit/s (ADR 0010).
+- Whole `dashboard/tests/boundary` directory: 957 passed.
+  `npm run typecheck:dashboard` exits 0.
+
+Full-suite repairs (2026-11-04, load 30–70 from external work): the full
+dashboard suite and `npm test` each failed in tests this slice does not
+touch. Each failure repeated on `e69e74cf7` and was repaired as a test
+environment defect, without weakening its assertions:
+
+- `authenticated-read-incident-record-bounds.spec.ts`: the settle count
+  also held between the last append and its prune. A scratch run of the
+  product's own append reproduced this deterministically. The poll now
+  also waits for the byte bound. It passed 60 runs under extra CPU load.
+- `story-reference-navigation.spec.ts` and six sibling start specs: a
+  real Take publication took 9–14 s before the host launched, against a
+  5 s poll. These polls now use the shared `launchWaitMs`, the server's
+  own 30 s bound. They passed at load 50–80.
+- `session-terminal-voice-lifecycle.spec.ts` Mark as done: the rename's
+  5 s idle wait raced the 5 s expectation. The done path never reads
+  Sessions. That test now shortens the rename wait as sibling specs
+  already do. It passed 10 of 10, while the base failed 5 of 10.
+- `tests/native-setup.sh`: a 250 ms wall deadline expired before launch
+  under load. The deadlines are now 2 s, against fixtures that stall for
+  30 s.
+
+Learnings:
+
+- Every full answer is negotiated. A minimum-size threshold added a special
+  case for no gain on the fixture's small history.
+- Serialized answers now set `Content-Length`. Without it Node sends the
+  body chunked.
 
 ## Concern evidence
 

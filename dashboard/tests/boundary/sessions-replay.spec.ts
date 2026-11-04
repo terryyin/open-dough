@@ -10,11 +10,15 @@
 // cold, the regular answer's size, unchanged polls (held revision, each
 // past the production one-second reuse window) by wall and event-loop time,
 // the history ask's first full answer and its unchanged asks the same way,
-// one native state change, and the latency of a trivial request during
-// polls and without them (../support/sessionsReplayMeasures.ts,
-// ../support/sessionsReplayTable.ts). It asserts
-// only what makes the numbers meaningful: every record observed, the polls
-// answered unchanged.
+// one native state change, the latency of a trivial request during
+// polls and without them, and full answers to viewers asking at once after
+// each of several changes, with trivial requests beside them. Every ask
+// accepts gzip as a browser does; each full answer's transferred bytes are
+// shown beside its decoded JSON's, which a caller refusing gzip receives
+// (../support/sessionsReplayMeasures.ts, ../support/sessionsReplayTable.ts).
+// It asserts only what makes the numbers meaningful: every record observed,
+// the polls answered unchanged, each concurrent round's viewers answered
+// one changed revision.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { loadavg, tmpdir } from "node:os";
@@ -39,6 +43,9 @@ import {
 import { replayTable } from "../support/sessionsReplayTable.ts";
 
 const polls = 5;
+// Viewers asking for the full answer at once, and how many changes they see.
+const concurrentViewers = 4;
+const concurrentRounds = 5;
 // Past the production reuse window, so each poll observes afresh.
 const reuseMs = 1_000;
 const beyondReuseMs = reuseMs + 200;
@@ -181,12 +188,45 @@ test("the Sessions replay reports the baseline the story's targets measure", asy
       .filter(([key, value]) => coldFields.get(key) !== JSON.stringify(value))
       .map(([key]) => key);
 
+    // Viewers asking at once after each change, with trivial requests
+    // beside them: a second open session alternates its state.
+    const [, alternating] = seed.openSessions;
+    if (alternating === undefined) throw new Error("No second open session");
+    const concurrent: Asked[][] = [];
+    const trivialDuringConcurrent: number[] = [];
+    let previous = revisionOf(change.body);
+    for (let round = 0; round < concurrentRounds; round += 1) {
+      server.claudeSessionBecomes(
+        alternating,
+        round % 2 === 0 ? "blocked" : "working",
+      );
+      await pause(beyondReuseMs);
+      const stop = await trivialTraffic(server);
+      const viewers = await Promise.all(
+        Array.from({ length: concurrentViewers }, () =>
+          askSessions(server, previous),
+        ),
+      );
+      trivialDuringConcurrent.push(...(await stop()));
+      const [revision, ...others] = viewers.map(({ body }) => revisionOf(body));
+      expect(others).toEqual(others.map(() => revision));
+      expect(revision).not.toBe(previous);
+      previous = revision ?? "";
+      concurrent.push(viewers);
+    }
+    const concurrentSpans = concurrent.map((viewers) => ({
+      from: Math.min(...viewers.map(({ from }) => from)),
+      until: Math.max(...viewers.map(({ until }) => until)),
+    }));
+
     const [changeLoop, ...spans] = await loopTimes(machine, [
       change,
       ...quiet,
       ...idle,
       ...quietHistory,
+      ...concurrentSpans,
     ]);
+    const historySpans = spans.slice(polls + idle.length, -concurrentRounds);
     const codexRecords = seed.records.filter(
       ({ session }) => session.host === "codex",
     ).length;
@@ -204,14 +244,19 @@ test("the Sessions replay reports the baseline the story's targets measure", asy
         idleLoop: spans.slice(polls, polls + idle.length),
         history,
         unchangedHistoryWallMs: quietHistory.map((asked) => asked.wallMs),
-        unchangedHistoryLoop: spans.slice(polls + idle.length),
-        changeWallMs: change.wallMs,
+        unchangedHistoryLoop: historySpans,
+        unchangedHistoryBytes: quietHistory[0]?.bytes ?? NaN,
+        change,
         changeLoop: changeLoop ?? { loopMs: NaN, coveredMs: NaN },
         changeRevisionChanged: revisionOf(change.body) !== held,
         changeRecordsDiffering: differing,
         changeFieldsDiffering: changedFields,
         trivialDuringPolls,
         trivialIdle,
+        concurrentViewers,
+        concurrent,
+        concurrentLoop: spans.slice(-concurrentRounds),
+        trivialDuringConcurrent,
       })}\n`,
     );
   } finally {

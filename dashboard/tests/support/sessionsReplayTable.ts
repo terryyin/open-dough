@@ -1,8 +1,10 @@
 // How the Sessions replay (../boundary/sessions-replay.spec.ts) prints what
 // it measured (./sessionsReplayMeasures.ts): one table, a measure a row,
 // beside the baseline the replay measured before the story changed the
-// observation (three runs at f1e43552 on 2026-11-03, load 8–15) and the
-// story's targets.
+// observation (three runs at f1e43552 on 2026-11-03, load 8–15), or, for
+// the transferred bytes and viewers asking at once, before full answers were
+// gzip-encoded (three runs at e69e74cf7 on 2026-11-04, load 3–6), and the
+// targets.
 
 import type { Asked, LoopTime } from "./sessionsReplayMeasures.ts";
 
@@ -19,6 +21,10 @@ const ms = (value: number) => `${String(Math.round(value))} ms`;
 const range = (values: readonly number[]) =>
   `${ms(median(values))} (${ms(Math.min(...values))}–${ms(Math.max(...values))})`;
 const mb = (bytes: number) => `${(bytes / 1e6).toFixed(2)} MB`;
+const kb = (bytes: number) => `${(bytes / 1e3).toFixed(1)} kB`;
+// A full answer's transferred bytes beside its decoded JSON's.
+const sent = ({ bytes, decodedBytes, encoding }: Asked) =>
+  `${kb(bytes)} ${encoding} of ${mb(decodedBytes)} JSON, ${String(Math.round((1 - bytes / decodedBytes) * 100))}% fewer`;
 
 export type ReplayReport = {
   readonly scale: string;
@@ -34,7 +40,8 @@ export type ReplayReport = {
   readonly history: Asked;
   readonly unchangedHistoryWallMs: readonly number[];
   readonly unchangedHistoryLoop: readonly LoopTime[];
-  readonly changeWallMs: number;
+  readonly unchangedHistoryBytes: number;
+  readonly change: Asked;
   readonly changeLoop: LoopTime;
   readonly changeRevisionChanged: boolean;
   // The session entries that differ from the cold answer's, and the
@@ -43,6 +50,11 @@ export type ReplayReport = {
   readonly changeFieldsDiffering: readonly string[];
   readonly trivialDuringPolls: readonly number[];
   readonly trivialIdle: readonly number[];
+  // Each round's full answers to viewers asking at once after a change.
+  readonly concurrentViewers: number;
+  readonly concurrent: readonly (readonly Asked[])[];
+  readonly concurrentLoop: readonly LoopTime[];
+  readonly trivialDuringConcurrent: readonly number[];
 };
 
 // The report as a table, one measure a row, with the story's targets.
@@ -68,8 +80,8 @@ export function replayTable(report: ReplayReport): string {
     [
       "First full answer after start",
       "764–1,125 ms, 9.90 MB",
-      `${ms(report.cold.wallMs)}, ${mb(report.cold.bytes)}`,
-      "reported",
+      `${ms(report.cold.wallMs)}, ${sent(report.cold)}`,
+      "≥ 70% fewer, ≤ 650.0 kB",
     ],
     ["Workspaces found (Git reads)", "—", String(report.workspaces), "—"],
     [
@@ -79,10 +91,10 @@ export function replayTable(report: ReplayReport): string {
       "≤ 300 ms",
     ],
     [
-      "Regular answer size",
-      "9.90 MB",
-      mb(report.regular.bytes),
-      "live overview only",
+      "Regular answer, bytes sent",
+      "9.90 MB; 2.03 MB identity (e69e74cf7)",
+      sent(report.regular),
+      "≥ 70% fewer, ≤ 650.0 kB",
     ],
     [
       "Unchanged poll, wall (median, range)",
@@ -104,9 +116,9 @@ export function replayTable(report: ReplayReport): string {
     ],
     [
       "History ask, first full answer",
-      "none",
-      `${ms(report.history.wallMs)}, ${mb(report.history.bytes)}`,
-      "—",
+      "63–95 ms, 9.88 MB identity (e69e74cf7)",
+      `${ms(report.history.wallMs)}, ${sent(report.history)}`,
+      "≥ 70% fewer",
     ],
     [
       "Unchanged history ask, wall (median, range)",
@@ -121,6 +133,12 @@ export function replayTable(report: ReplayReport): string {
       "as unchanged poll",
     ],
     [
+      "Unchanged history ask, answer size",
+      "none",
+      `${String(report.unchangedHistoryBytes)} B`,
+      "as unchanged poll",
+    ],
+    [
       "Quiet 1 s without polls, event-loop time",
       "54–61 ms",
       range(report.idleLoop.map(({ loopMs }) => loopMs)),
@@ -129,8 +147,14 @@ export function replayTable(report: ReplayReport): string {
     [
       "One state change, wall",
       "335–425 ms",
-      ms(report.changeWallMs),
+      ms(report.change.wallMs),
       "≤ 250 ms + one listing",
+    ],
+    [
+      "One state change, bytes sent",
+      "2.03 MB identity (e69e74cf7)",
+      sent(report.change),
+      "≥ 70% fewer, ≤ 650.0 kB",
     ],
     ["One state change, event-loop time", "—", loop([report.changeLoop]), "—"],
     [
@@ -165,6 +189,30 @@ export function replayTable(report: ReplayReport): string {
       trivial(report.trivialIdle),
       "—",
     ],
+    [
+      `${String(report.concurrentViewers)} viewers at once after a change, wall (median, range)`,
+      "56–57 ms (54–62 ms) (e69e74cf7)",
+      range(report.concurrent.flat().map(({ wallMs }) => wallMs)),
+      "—",
+    ],
+    [
+      `${String(report.concurrentViewers)} viewers at once after a change, event-loop time`,
+      "17–26 ms; net 0–2 ms (e69e74cf7)",
+      loop(report.concurrentLoop),
+      "—",
+    ],
+    [
+      `${String(report.concurrentViewers)} viewers at once after a change, bytes sent`,
+      "2.03 MB identity (e69e74cf7)",
+      sent(report.concurrent[0]?.[0] ?? report.change),
+      "≥ 70% fewer, ≤ 650.0 kB",
+    ],
+    [
+      "Trivial request during viewers at once",
+      "p99 12–14 ms (e69e74cf7)",
+      trivial(report.trivialDuringConcurrent),
+      "—",
+    ],
   ];
   const widths = [0, 1, 2, 3].map((column) =>
     Math.max(...rows.map((row) => row[column]?.length ?? 0)),
@@ -172,7 +220,7 @@ export function replayTable(report: ReplayReport): string {
   const line = (row: readonly string[]) =>
     `| ${row.map((cell, column) => cell.padEnd(widths[column] ?? 0)).join(" | ")} |`;
   return [
-    line(["Measure", "Before (f1e43552)", "Replay", "Target"]),
+    line(["Measure", "Before (f1e43552 unless named)", "Replay", "Target"]),
     `|${widths.map((width) => "-".repeat(width + 2)).join("|")}|`,
     ...rows.map(line),
   ].join("\n");

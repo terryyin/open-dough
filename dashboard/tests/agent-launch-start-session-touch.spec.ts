@@ -1,6 +1,7 @@
 // An unattached session keeps its instruction and policy through touch
 // editing, then cancels or explicitly submits through the real start origin.
 import { expect, test } from "./support/preparationPage.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
 import {
   startSession,
@@ -112,7 +113,9 @@ test.describe(`${name} touch session editing`, () => {
     await expect(page.locator(".start-session-answer")).toContainText(
       "Local startup in progress.",
     );
-    await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+    await expect
+      .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
+      .toHaveLength(1);
     expect(
       dashboard
         .claudeLaunchCalls()[0]

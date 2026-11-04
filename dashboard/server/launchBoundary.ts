@@ -28,8 +28,10 @@
 // (`./machineSessionObservation.ts`), or, asked with `?audience=history`,
 // its retained done sessions and resolved attempts from the same observation
 // (`../src/machineSessionsRevision.ts`); either a retryable 503 past its read
-// wait. A same-origin GET of `/__agent-launch/cursor-sessions` reads whether the
-// Cursor runner is running and which sessions it holds, and starts nothing.
+// wait. A full one is sent gzip-encoded to a caller accepting gzip
+// (`./agentLaunchResponse.ts`). A same-origin GET of
+// `/__agent-launch/cursor-sessions` reads whether the Cursor runner is
+// running and which sessions it holds, and starts nothing.
 // A same-origin POST to
 // `/__agent-launch/done` marks one session it recorded done
 // (`./doneMarks.ts`). A same-origin POST to `/__agent-launch/delete` deletes
@@ -101,9 +103,7 @@ export function installAgentLaunchMiddleware(
       return;
     }
     void answer(req, url, res, launches, doneMarks, sessions).then(
-      (outcome) => {
-        respondToLaunch(res, outcome);
-      },
+      (outcome) => respondToLaunch(req, res, outcome),
       next,
     );
   });

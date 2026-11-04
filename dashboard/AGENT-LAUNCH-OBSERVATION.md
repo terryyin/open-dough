@@ -62,13 +62,25 @@ unavailable/unrecognized may. Each server has its own alert baseline.
 
 The one-second reuse window limits how old an answer may be, not how long
 the server retains it. Each server may keep one parsed copy per machine
-document, each session entry's serialization, and the latest shared
-observation until replacement. Terry accepted
+document, each session entry's serialization, the latest shared
+observation, and each audience's latest gzip-encoded full answer until
+replacement. Terry accepted
 this memory tradeoff on 2026-10-31 and kept `SEED-202#bounded-dashboard-refresh`
 closed: its recorded probe settled at 51 MiB for one, three and eight viewers,
 compared with 22 MiB before the change. The additional working set consists of
 the parsed documents and latest observation; returning to the earlier heap
 baseline or expiring the observation after one second is not required.
+
+A full answer, regular or history, is sent gzip-encoded
+(`Content-Encoding: gzip`) to a caller whose `Accept-Encoding` accepts gzip
+under [HTTP Semantics §12.5.3](https://www.rfc-editor.org/rfc/rfc9110.html#section-12.5.3),
+as a browser's `fetch` does, and as the same JSON unencoded to any other,
+including a caller sending no `Accept-Encoding` or `gzip;q=0`. Both carry
+`Vary: Accept-Encoding` and, like every answer, `Cache-Control: no-store`.
+Each audience's full answer is encoded asynchronously at most once per
+revision, on its first gzip-accepting viewer, and every viewer of that
+revision shares the encoded bytes ([response](server/agentLaunchResponse.ts)).
+Unchanged answers and refusals stay small, unencoded JSON.
 
 ## Measuring the Sessions answer
 
@@ -82,9 +94,11 @@ checkouts hold 44 linked worktrees
 startup, the first full answer cold and warm, the regular answer's size,
 unchanged polls past the one-second reuse window by wall and event-loop time,
 the history ask's first full answer and its unchanged asks the same way,
-one native state change, and a trivial request's latency during polls and
-without them ([measures](tests/support/sessionsReplayMeasures.ts)), each
-beside the baseline three runs measured before this observation was changed
+one native state change, a trivial request's latency during polls and
+without them, and four viewers asking at once after each of five changes with
+trivial requests beside them ([measures](tests/support/sessionsReplayMeasures.ts)),
+each beside the baseline three runs measured before this observation, or
+before the gzip encoding, was changed
 ([table](tests/support/sessionsReplayTable.ts)). The normal
 suites skip it. Run it from the repository root, with the load average beside
 each run, and compare runs relative to that load:
@@ -98,3 +112,20 @@ record: the timer lateness its samples measured while a poll ran, a lower
 bound on time the loop was held, also shown net of the quiet floor the same
 run measures. `DOUGH_SESSIONS_REPLAY_PROFILE=<directory>` additionally writes
 each server-started Node process's CPU profile there.
+
+Every replay ask accepts gzip as a browser's `fetch` does. Each full
+answer's row shows the bytes transferred, read before decoding, beside its
+decoded JSON, which is what a caller refusing gzip receives, and the
+reduction between them; an unchanged answer shows its unencoded size. On
+the replay's fixture each full answer must transfer at least 70% fewer bytes
+than its JSON, and the first and changed overview at most 650,000 bytes.
+Five paired runs on 2026-11-04 against `e69e74cf7` measured a 2.03 MB
+overview sent as 322 kB (84% fewer) and a 9.88 MB history as 1.25 MB (87%
+fewer); unchanged answers stayed 96 B. At load 3–9 the first viewer of a
+changed revision waited for its one encoding, about 20 ms for the overview
+(four viewers at once 73–79 ms against 56–57 ms) and 40–100 ms for the
+history, while event-loop time and the trivial request's p99 during
+viewers at once stayed within the baseline's spread, since the encoding
+runs off the event loop. Compare a latency only between runs at similar
+load, and weigh it against the transferred bytes saved: over a 10 Mbit/s
+connection each changed overview's 1.7 MB saved is about 1.4 s.

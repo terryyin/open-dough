@@ -3,6 +3,7 @@
 
 import { keptStarts } from "./agentLaunchBoundary.ts";
 import { expect, test } from "./support/preparationPage.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { actionsForRuns } from "./support/baseCiActions.ts";
 import { publishLaterHead } from "./support/publishLaterHead.ts";
 const baseCiFailedHeading = "Base CI failed";
@@ -167,7 +168,9 @@ for (const conclusion of ["success", "failure"] as const) {
       .getByRole("button", { name: "Continue while CI runs" })
       .click();
     await expect(dialog).toBeHidden();
-    await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+    await expect
+      .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
+      .toHaveLength(1);
     expect(await origin.takenProfiles()).toHaveLength(1);
   });
 }

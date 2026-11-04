@@ -12,6 +12,7 @@ import { notFoundAnswer } from "./originAnswers.ts";
 import { pausePageClock, passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { writePlanning } from "./storyReadinessCli.ts";
 import { expectReadingTop } from "./readingPlace.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 
 test.setTimeout(120_000);
 test.use({ hasTouch: true });
@@ -126,8 +127,11 @@ test("a reference reveals a starting story without opening its protected inspect
   await expect(
     supplier.getByRole("button", { name: "Inspect story" }),
   ).toBeDisabled();
-  // Inspect protects before mechanical prep invokes the held host.
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  // Inspect protects before mechanical prep invokes the held host; that real
+  // Take publication may take as long as the start's own launch wait.
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
+    .toHaveLength(1);
   const before = dashboard.claudeLaunchCalls().length;
   const consumer = parts(page).backlog.getByRole("article", {
     name: "Story A",

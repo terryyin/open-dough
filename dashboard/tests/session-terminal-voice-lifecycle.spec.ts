@@ -182,24 +182,35 @@ test("switching sessions aborts held transcription and a completed late response
   ).toBe(true);
 });
 
-test("successful Mark as done closes the terminal and cancels its active capture", async ({
-  page,
-  dashboard,
-  provider,
-  launchJourney,
-}) => {
-  seedVoiceKey(dashboard.home);
-  const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
-  await beginTerminalClip(page, panel);
-  await panel
-    .locator("header")
-    .getByRole("button", { name: "Mark as done", exact: true })
-    .click();
-  await panel
-    .getByRole("group", { name: "Mark it done anyway?" })
-    .getByRole("button", { name: "Mark as done", exact: true })
-    .click();
-  await expect(panel).toHaveCount(0);
-  await expect.poll(() => stoppedTracks(page)).toBe(true);
-  expect(provider.calls).toHaveLength(0);
+test.describe(() => {
+  // Mark as done on a session still working waits out the rename's wait for
+  // idle before the terminal closes; the rename is not this test's subject,
+  // so that wait stays well inside one expectation's bound.
+  test.use({
+    extraEnv: async ({ provider }, use) => {
+      await use({ ...provider.extraEnv, DOUGH_DONE_RENAME_WAIT_MS: "300" });
+    },
+  });
+
+  test("successful Mark as done closes the terminal and cancels its active capture", async ({
+    page,
+    dashboard,
+    provider,
+    launchJourney,
+  }) => {
+    seedVoiceKey(dashboard.home);
+    const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
+    await beginTerminalClip(page, panel);
+    await panel
+      .locator("header")
+      .getByRole("button", { name: "Mark as done", exact: true })
+      .click();
+    await panel
+      .getByRole("group", { name: "Mark it done anyway?" })
+      .getByRole("button", { name: "Mark as done", exact: true })
+      .click();
+    await expect(panel).toHaveCount(0);
+    await expect.poll(() => stoppedTracks(page)).toBe(true);
+    expect(provider.calls).toHaveLength(0);
+  });
 });

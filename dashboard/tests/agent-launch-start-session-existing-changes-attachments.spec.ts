@@ -15,6 +15,7 @@ import {
   status,
 } from "./support/defaultCheckoutChanges.ts";
 import { expect, test } from "./support/preparationPage.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { openBacklog, originMain, radio } from "./support/sessionDialog.ts";
 import {
   defaultMainSession,
@@ -89,7 +90,9 @@ test("existing changes Back keeps images; Continue sends them copied once", asyn
     .click();
   await expect(dialog).toBeHidden();
 
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
+    .toHaveLength(1);
   await expect
     .poll(async () => {
       const [record] = (await recordsOf(
