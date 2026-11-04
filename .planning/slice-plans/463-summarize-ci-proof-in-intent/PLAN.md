@@ -114,7 +114,7 @@ as written: a failure that recurs in its own runs is its defect to repair.
 
 ### 1. Open Dough CI publishes one proof summary per run attempt
 Type: Behavior
-Status: planned
+Status: done
 Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs src/skills/dough-test-optimization/scripts/ci-proof-fragments.test.mjs src/skills/dough-test-optimization/scripts/ci-proof-summary.test.mjs tests/support/ci-proof-declaration.test.mjs tests/test-runner-failure-report.sh tests/ci-container.sh tests/ci-lint-setup.sh tests/native-setup.sh src/skills/dough-execute-plan/scripts/ci-workflow-path-policy.test.mjs`; then the story branch's hosted CI run, with its `ci-proof-summary-attempt-1` downloaded through `gh api`, gives `dashboard/tests` 12/12, `tests` 3/3 and `src/skills` 3/3 parts present, with counts equal to the run's.
 
 Behavior: Open Dough's CI runs on a pushed revision. Each test share and
@@ -188,5 +188,4 @@ merge rules the local collector and declaration tests prove first.
 ### G1. Hosted CI summary not yet observed
 Reported: slice 1 — "The story branch's hosted run must upload ci-proof-summary-attempt-<n> with every declared part present; observed only after push."
 Story clause: "It then uploads one versioned, compact summary artifact"
-Disposition: return
-Commitment: S4.2, S8.1, S8.2
+Disposition: proved by slice 1: hosted CI run 41806711276 (90764ef71) artifact ci-proof-summary-attempt-1: schemaVersion 1, repository/runId/runAttempt/revision match; dashboard/tests 12/12 present 1972 passed 0 failed 8 other tests; tests 3/3 present 183 checks; src/skills 3/3 present 290 checks, equal to the discovered checks

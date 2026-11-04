@@ -26,7 +26,7 @@
 | S3.5 | Producers keep their job's failure semantics | slice 1 | observed: ci.yml: suite steps unchanged; fragment steps only add if: !cancelled() && steps.suite.outcome != 'skipped'; no continue-on-error |
 | S3.6 | (Producers) still publish after test failures | slice 1 | observed: tests/support/ci-proof-declaration.test.mjs 'every producer keeps its part's attempt-named fragments whenever its suite ran' (after-failure if) |
 | S4.1 | After the proof jobs settle, including after failures, one collector checks the fragments of the current run attempt against the declared entries and parts. | slice 1 | observed: tests/support/ci-proof-declaration.test.mjs 'the ci-proof job runs after both proof jobs however they ended'; src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'the declaration is the expectation…' |
-| S4.2 | It then uploads one versioned, compact summary artifact |  | G1 |
+| S4.2 | It then uploads one versioned, compact summary artifact | slice 1 | observed: hosted CI run 41806711276 (90764ef71) artifact ci-proof-summary-attempt-1: every declared part present with counts equal to the discovered checks (see G1) |
 | S4.3.1 | (summary) naming the repository | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'two dashboard shards and one tests share total…' deep-equal summary repository |
 | S4.3.2 | (summary naming the) workflow run | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'two dashboard shards and one tests share total…' runId |
 | S4.3.3 | (summary naming the) attempt | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'two dashboard shards and one tests share total…' runAttempt |
@@ -54,8 +54,8 @@
 | S7.2.5 | reason: for another run, attempt or revision | slice 3 | |
 | S7.3 | The same applies when the project's CI is read through a `ciAdapter` rather than GitHub Actions | slice 3 | |
 | S7.4 | The same applies … when no completed run is shown. | slice 3 | |
-| S8.1 | Pilot on Open Dough itself: `dashboard/tests` across 12 Playwright shards |  | G1 |
-| S8.2 | (Pilot) plus `tests` and `src/skills` across the 3 `npm test` shares |  | G1 |
+| S8.1 | Pilot on Open Dough itself: `dashboard/tests` across 12 Playwright shards | slice 1 | observed: hosted CI run 41806711276 (90764ef71) artifact ci-proof-summary-attempt-1: every declared part present with counts equal to the discovered checks (see G1) |
+| S8.2 | (Pilot) plus `tests` and `src/skills` across the 3 `npm test` shares | slice 1 | observed: hosted CI run 41806711276 (90764ef71) artifact ci-proof-summary-attempt-1: every declared part present with counts equal to the discovered checks (see G1) |
 | S9.1 | Ship one standalone recipe with Open Dough's installed guidance. | slice 4 | |
 | S9.2.1 | (recipe) must show how to map a project's test commands to entries | slice 4 | |
 | S9.2.2 | (must show how to) write single-job or uniquely named parallel fragments | slice 4 | |
