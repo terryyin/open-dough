@@ -239,3 +239,10 @@ Commitment: D5
   `:443`→43128, `:8443`→17235); Vite Host + loopback-only
   `__authenticated-read` block direct serve; production reaches Board via
   Caddy Host rewrite — confirm stream quiet-minute bytes after deploy.
+
+## Execution complete
+
+Product advice: Accept the delivered SSE revision stream; no correction plan.
+On wrap-up: confirm Tailscale Board quiet-minute bytes after production deploy
+(Vite preview cannot stand in), keep deferred D1–D5 deferred, leave backlog
+order unchanged.
