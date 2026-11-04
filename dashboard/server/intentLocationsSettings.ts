@@ -6,6 +6,7 @@
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { SuccessfulCaseObservation } from "../src/proofCases.ts";
+import type { RunnerProblem } from "../src/proofKinds.ts";
 import {
   proofGeneration,
   type ProofGeneration,
@@ -58,6 +59,9 @@ export type IntentLocation = {
   // The runner whose proof format a `typescript` or `javascript` location's
   // proof is in, echoed from settings when declared.
   readonly runner?: string;
+  // Why a `typescript` or `javascript` location declaring a proof directory
+  // has no proof kind to read it with (`../src/proofKinds.ts`).
+  readonly runnerProblem?: RunnerProblem;
   // Present only when a location of a proof kind declares a proof directory.
   readonly proof?: IntentLocationProof;
   readonly proofGeneration?: ProofGeneration;

@@ -12,6 +12,7 @@ import {
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "./authenticatedReadRules.ts";
 import { proofGeneration } from "./proofGeneration.ts";
+import { runnerProblems } from "./proofKinds.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 const locationProblem = z.enum(["unsupported-kind", "no-matching-files"]);
@@ -51,6 +52,7 @@ const intentLocation = z.object({
   kind: z.string().min(1),
   include: z.array(z.string().min(1)).optional(),
   runner: z.string().min(1).optional(),
+  runnerProblem: z.enum(runnerProblems).optional(),
   files: z.array(z.string().min(1)),
   problem: locationProblem.optional(),
   proof: locationProof.optional(),

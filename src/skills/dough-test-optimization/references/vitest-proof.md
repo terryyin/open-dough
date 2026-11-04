@@ -80,6 +80,8 @@ recording; do not silently enable recording in normal commands.
 
   A `typescript` or `javascript` location that declares `proof` also
   declares `runner`; `"vitest"` selects this reference's proof format.
+  Without a `runner` Intent reads, it explains that setting on the location
+  and reads none of its proof.
   `proof` is a directory path from the repository root. Commit its files; do
   not ignore it. `proofGeneration` contains exactly one nonempty string:
   `command`, run from the repository root, or `skill`, the invocation of a
@@ -239,15 +241,18 @@ JavaScript source in definition order: every `it` or `test` call, with or
 without a modifier chain such as `.each`, `.for`, `.skip`, `.only`, `.todo`,
 `.concurrent` or `.skipIf(…)`, whose name is a string literal or a template
 literal without substitutions, named by its enclosing `describe` or `suite`
-names under the same rule. An `.each` or `.for` name is a template: observed
-names that fit its placeholders show one row each, in Unicode code-point
-order of the observed name, whatever order the snapshot holds them in; a
-template without placeholders names one case. A test observed under several
+names under the same rule. An `.each` or `.for` name is a template: observed names
+that fit its placeholders show one row each, in Unicode code-point order of
+the observed name, whatever order the snapshot holds them in; an observed
+name that another test of the file names, or that an earlier template
+already fits, is not that template's. A template without placeholders names
+one case. A test observed under several
 projects shows one row per observed project, in code-point order of the
 project name, whatever order the snapshot holds them in. Any other test
 shows one row, its proof or **No successful proof**. Observations whose
 identity the published file no longer defines, such as a renamed test, are
-not shown, and neither are tests or suites whose names are not literals.
+not shown, and neither are tests whose own or enclosing suites' names are
+not literals.
 Missing or unreadable proof remains a distinct explanation. A matching
 `fileBlob` shows only that the test file is unchanged since the case passed,
 not that the product, its components or its fixtures are.

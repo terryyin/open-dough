@@ -409,7 +409,7 @@ three browse specs checking the not-recorded wording.
 
 ### 6. Intent reads Vitest proof for a location that declares the runner
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/intent-vitest-proof.spec.ts` with a fixture
 module (Doughnut-like `frontend/tests` location with `runner: "vitest"`, a
 nested `describe`, an `it.each` with `%s` whose observations the snapshot
@@ -433,6 +433,28 @@ project rows in code-point order and _No successful proof_ rows, the count
 line counts test cases, a location or folder summary gives the Gherkin
 figures with test and test-case words, and the explanations name the Vitest
 reference and the `runner` setting.
+
+Retained (2026-11-04, slice 6): `dashboard/src/vitestProof.ts` parses the
+format (fractional `durationMs`, non-empty `project`; Cucumber- and
+pytest-shaped files malformed and the reverse); `runnerProofKinds` registers
+`vitest` with `vitestRowsOf` and its words (Test case, tests, test cases,
+`Project: <name>`, the family "Vitest tests"); `runnerProblemOf` answers
+`runnerProblem: "undeclared" | "unsupported"` when `proof` is declared, shown
+as "`runner` is not declared for this location's proof. Set `runner` on
+<location> in `.planning/open-dough.json` to the runner that records its
+proof: `vitest`."; every `typescript`/`javascript` location without `proof`
+names the Vitest reference (story E1), so three existing absence expectations
+changed for `typescript`/`javascript` locations only, Open Dough's own
+Playwright `dashboard/tests` included until its runner story; the other-kinds
+sentence is built from the registered families. New journeys
+`dashboard/tests/intent-vitest-proof.spec.ts`, `-summary.spec.ts`,
+`-absent.spec.ts`; unit tests `tests/support/intent-vitest-proof.test.mjs`.
+Both real snapshots parse and match their source rows. Proof: 49 unit tests
+pass; `typecheck:dashboard` clean; 36 focused specs 84 passed before the
+refactor and 26 specs 60 passed after it; `tests/payload-declaration-links.sh`
+pass. The reference's Reading proof was reconciled with the reader (G3). The whole
+dashboard suite before publication: 1999 passed, 1 skipped (56.7 min, load
+4–10, AC power under `caffeinate -s -i`).
 
 ### 7. Intent shows both frontends' published Vitest proof
 Type: Behavior
@@ -498,7 +520,7 @@ Disposition: proved by slice 3: Pygardon `tests/vitest-proof-recorder.test.mjs` 
 ### G3. Reference describes Intent's Vitest reading before the reader exists
 Reported: slice 1 — "The reference describes the `runner` declaration and Intent's Vitest reading ahead of the dashboard slices (5 and 6) that implement them."
 Story clause: "the reference's reading section states the row order Intent applies"
-Disposition: interim until slices 6
+Disposition: proved by slice 6: `src/skills/dough-test-optimization/references/vitest-proof.md` Reading proof and Configure once reread against `dashboard/src/vitestCases.ts`, `vitestProof.ts` and `proofKinds.ts`; `dashboard/tests/intent-vitest-proof*.spec.ts` observe the stated orders, literal-name rule and runner explanation
 
 ### G4. Pygardon CI's command-line reporter does not load the recorder
 Reported: slice 3 — "So CI (the recipe's `--reporter=./vitest-quiet-reporter.ts`) does not load the recorder at all, which is harmless because CI never records."

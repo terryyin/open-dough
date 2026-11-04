@@ -10,7 +10,10 @@
 // view beside Purpose positioned on it; with tabs, Proof keeps its own place.
 
 import { useEffect, useMemo, useRef } from "react";
-import type { IntentLocationProof } from "./authenticatedIntentRead.ts";
+import type {
+  IntentLocation,
+  IntentLocationProof,
+} from "./authenticatedIntentRead.ts";
 import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
 import {
   CaseName,
@@ -118,6 +121,7 @@ export function IntentProof({
   proofKind,
   text,
   proof,
+  location,
   targetLine,
   sideBySide,
   rereading,
@@ -128,6 +132,8 @@ export function IntentProof({
   readonly proofKind: ProofKind | undefined;
   readonly text: string | undefined;
   readonly proof: IntentLocationProof | undefined;
+  // The location owning the file, for explanations of absent proof.
+  readonly location?: IntentLocation | undefined;
   // The line of the case the file was opened at, and whether Proof sits
   // beside Purpose.
   readonly targetLine: number | undefined;
@@ -144,6 +150,7 @@ export function IntentProof({
       <IntentProofAbsence
         proofKind={proofKind}
         proof={proofKind === undefined ? undefined : proof}
+        location={location}
         rereading={rereading}
         onRetry={onRetry}
       />

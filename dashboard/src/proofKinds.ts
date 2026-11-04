@@ -17,6 +17,8 @@ import { scenarioRowsOf } from "./gherkinScenarios.ts";
 import type { CaseObservation, CaseRowsOf } from "./proofCases.ts";
 import { pytestRowsOf } from "./pytestCases.ts";
 import { parsePytestProofFile } from "./pytestProof.ts";
+import { vitestRowsOf } from "./vitestCases.ts";
+import { parseVitestProofFile } from "./vitestProof.ts";
 
 // How a kind names its cases wherever Proof and summaries count or show
 // them.
@@ -37,6 +39,9 @@ export type ProofKindWords = {
   // Where an agent in this project finds how to record proof: the reference
   // as its installed Open Dough skills hold it.
   readonly reference: string;
+  // The files this kind's proof is read for, as the sentence naming every
+  // kind's lists them.
+  readonly family: string;
 };
 
 export type ProofKind = {
@@ -63,22 +68,44 @@ const gherkin: ProofKind = {
     costNote:
       "A sum of separate scenario observations, retries included, not a run's elapsed time.",
     reference: "dough-test-optimization/references/cucumber-proof.md",
+    family: "Gherkin feature files",
   },
 };
+
+const testCases = (count: number) => counted(count, "test case", "test cases");
+
+const testCaseCostNote =
+  "A sum of separate test case observations, retries included, not a run's elapsed time.";
 
 const python: ProofKind = {
   parseFile: parsePytestProofFile,
   rowsOf: pytestRowsOf,
   words: {
-    cases: (count) => counted(count, "test case", "test cases"),
+    cases: testCases,
     inventory: (count) => counted(count, "test function", "test functions"),
     inventoryUnavailable: "Test function total unavailable",
     caseHeader: "Test case",
     slowestCases: "Slowest test cases",
     variant: (ids) => `Parameters: ${ids.join(" | ")}`,
-    costNote:
-      "A sum of separate test case observations, retries included, not a run's elapsed time.",
+    costNote: testCaseCostNote,
     reference: "dough-test-optimization/references/pytest-proof.md",
+    family: "pytest files",
+  },
+};
+
+const vitest: ProofKind = {
+  parseFile: parseVitestProofFile,
+  rowsOf: vitestRowsOf,
+  words: {
+    cases: testCases,
+    inventory: (count) => counted(count, "test", "tests"),
+    inventoryUnavailable: "Test total unavailable",
+    caseHeader: "Test case",
+    slowestCases: "Slowest test cases",
+    variant: (project) => `Project: ${project.join(" | ")}`,
+    costNote: testCaseCostNote,
+    reference: "dough-test-optimization/references/vitest-proof.md",
+    family: "Vitest tests",
   },
 };
 
@@ -91,7 +118,16 @@ const runnerSelectedKinds: ReadonlySet<string> = new Set([
   "typescript",
   "javascript",
 ]);
-const runnerProofKinds: Readonly<Record<string, ProofKind>> = {};
+const runnerProofKinds: Readonly<Record<string, ProofKind>> = { vitest };
+
+// The runners a `typescript` or `javascript` location may declare.
+export const proofRunners: readonly string[] = Object.keys(runnerProofKinds);
+
+// The files Intent reads proof for, one family per proof kind.
+export const proofFamilies: readonly string[] = [
+  ...Object.values(proofKinds),
+  ...Object.values(runnerProofKinds),
+].map((proofKind) => proofKind.words.family);
 
 const registered = (
   kinds: Readonly<Record<string, ProofKind>>,
@@ -108,4 +144,38 @@ export function proofKindOf(
   return kind !== undefined && runnerSelectedKinds.has(kind)
     ? registered(runnerProofKinds, runner)
     : registered(proofKinds, kind);
+}
+
+// Why a location of `kind` declaring proof has no proof kind: its kind
+// leaves the format to a `runner` it does not declare, or declares one Intent
+// reads no proof for. Undefined when the kind implies its runner or the
+// declared one is read.
+export const runnerProblems = ["undeclared", "unsupported"] as const;
+
+export type RunnerProblem = (typeof runnerProblems)[number];
+
+export function runnerProblemOf(
+  kind: string,
+  runner: string | undefined,
+): RunnerProblem | undefined {
+  if (!runnerSelectedKinds.has(kind)) return undefined;
+  if (runner === undefined) return "undeclared";
+  return registered(runnerProofKinds, runner) === undefined
+    ? "unsupported"
+    : undefined;
+}
+
+// The reference a location of `kind` without recorded proof names, whatever
+// runner it declares: its kind's own, or for a kind whose runner selects the
+// format, the reference of the runners Intent reads so far (Vitest's).
+// Undefined for a kind Intent reads no proof for.
+export function unrecordedReferenceOf(
+  kind: string | undefined,
+  runner: string | undefined,
+): string | undefined {
+  const own = proofKindOf(kind, runner);
+  if (own !== undefined) return own.words.reference;
+  return kind !== undefined && runnerSelectedKinds.has(kind)
+    ? vitest.words.reference
+    : undefined;
 }

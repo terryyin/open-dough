@@ -228,6 +228,7 @@ export function IntentFileReading({
                   proofKind={proofKindOf(kind, location?.runner)}
                   text={text}
                   proof={location?.proof}
+                  location={location}
                   targetLine={targetLine}
                   sideBySide={sideBySide}
                   rereading={proofRereading}

@@ -64,6 +64,7 @@ export function IntentSummary({
         <IntentProofAbsence
           proofKind={proofKind}
           proof={location.proof}
+          location={location}
           rereading={proofRereading}
           onRetry={onProofRetry}
           {...(location.problem !== undefined

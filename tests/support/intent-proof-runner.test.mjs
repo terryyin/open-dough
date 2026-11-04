@@ -3,7 +3,11 @@ import { test } from "node:test";
 import { declaredLocations } from "../../dashboard/server/intentLocationsSettings.ts";
 import { proofMeasureOf } from "../../dashboard/src/proofCases.ts";
 import { durationWords } from "../../dashboard/src/proofDurationWords.ts";
-import { proofKindOf } from "../../dashboard/src/proofKinds.ts";
+import {
+  proofKindOf,
+  runnerProblemOf,
+  unrecordedReferenceOf,
+} from "../../dashboard/src/proofKinds.ts";
 
 test("fractional durations are proof measures and read rounded", () => {
   const measure = proofMeasureOf(
@@ -55,8 +59,31 @@ test("gherkin and python imply their proof kind; typescript and javascript take 
   assert.equal(proofKindOf("python", "pytest")?.words.caseHeader, "Test case");
   for (const kind of ["typescript", "javascript"]) {
     assert.equal(proofKindOf(kind, undefined), undefined);
-    assert.equal(proofKindOf(kind, "vitest"), undefined);
+    assert.equal(proofKindOf(kind, "vitest")?.words.inventory(2), "2 tests");
     assert.equal(proofKindOf(kind, "gherkin"), undefined);
   }
   assert.equal(proofKindOf(undefined, "vitest"), undefined);
+});
+
+test("a declared proof's runner problem is its kind's: undeclared or unsupported only where the runner selects the format", () => {
+  for (const kind of ["typescript", "javascript"]) {
+    assert.equal(runnerProblemOf(kind, undefined), "undeclared");
+    assert.equal(runnerProblemOf(kind, "jest"), "unsupported");
+    assert.equal(runnerProblemOf(kind, "vitest"), undefined);
+  }
+  assert.equal(runnerProblemOf("gherkin", undefined), undefined);
+  assert.equal(runnerProblemOf("python", "jest"), undefined);
+  assert.equal(runnerProblemOf("shell", undefined), undefined);
+});
+
+test("unrecorded proof names its kind's reference, Vitest's for a location whose runner selects it", () => {
+  const vitest = "dough-test-optimization/references/vitest-proof.md";
+  assert.equal(unrecordedReferenceOf("typescript", undefined), vitest);
+  assert.equal(unrecordedReferenceOf("javascript", "vitest"), vitest);
+  assert.equal(
+    unrecordedReferenceOf("python", undefined),
+    "dough-test-optimization/references/pytest-proof.md",
+  );
+  assert.equal(unrecordedReferenceOf("shell", undefined), undefined);
+  assert.equal(unrecordedReferenceOf(undefined, undefined), undefined);
 });
