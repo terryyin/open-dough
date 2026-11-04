@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#read-tsx-text-and-trim-vitest-journeys
 **Source:** [correction story](../../seeds/SEED-192-review-product-intent.md#read-tsx-text-and-trim-vitest-journeys)
+**Source review:** [source-review.md](./source-review.md)
 **Prepared:** 2026-11-04. Planning only, handed off by the execution
 retrospective, in the reviewed story's workspace (branch
 `claude/read-frontend-vitest-proof-in-both-projects`); the invoking execution
@@ -88,11 +89,8 @@ and `npm run --silent format` before each commit.
 
 ### 1. The test-call reader keeps JSX text out of code
 Type: Behavior
-Status: planned
-Proof: the unit cases in the table above fail before the change and pass
-after it; the rest of `tests/support/intent-vitest-*.test.mjs` and
-`intent-vitest-proof.spec.ts` stay green; the TypeScript-AST comparison over
-Pygardon `frontend/src` and Doughnut `frontend/tests` still matches.
+Status: done
+Proof: accepted. `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh tests/support/intent-vitest-cases.test.mjs tests/support/intent-vitest-cases-jsx.test.mjs tests/support/intent-vitest-case-templates.test.mjs tests/support/intent-vitest-proof.test.mjs tests/support/intent-proof-runner.test.mjs` (pass); `npm run --silent typecheck:dashboard` (pass); `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/intent-vitest-proof.spec.ts` (4 passed); TypeScript-AST oracle over Pygardon `frontend/src` and Doughnut `frontend/tests` still matches (0 mismatches). Observations: `tests/support/intent-vitest-cases-jsx.test.mjs` JSX apostrophe/URL/backtick rows; `tests/support/intent-vitest-cases.test.mjs` unclosed-string rows; `dashboard/src/scriptTokensJsx.ts` skips JSX text.
 
 Behavior: a `.tsx` test rendering `Don't`, a URL or a backtick in JSX text →
 its rows and every later row keep their own definition lines.
@@ -120,9 +118,24 @@ sentence regains its proof in the specs that owned it.
 
 ## Learnings
 
-None yet.
+- Unclosed strings shifted later rows because `quotedText` advanced past the
+  newline without incrementing `line`; leaving the newline for the main loop
+  fixes counting.
+- Adding JSX scanning pushed `scriptTokens.ts` and the cases file over the
+  250-line limit; split JSX scan (`scriptTokensJsx.ts`) and escape helpers
+  (`scriptTokenEscapes.ts`), and move JSX cases to
+  `intent-vitest-cases-jsx.test.mjs`.
 
 ## Concern evidence
 
 Slice-plan refinement was not needed: two independent corrections, each one
 proof loop in the code it corrects. No slice-specific concern remains.
+
+
+## Story obligations
+
+### X1. Placeholder-only template listing stale siblings stays outside this correction
+Reported: slice 1 — "Awaits Terry decision; not implemented"
+Story clause: "A placeholder-only template listing stale sibling observations is outside this correction: it awaits Terry's decision on that story's promise."
+Disposition: excluded "A placeholder-only template listing stale sibling observations is outside this correction: it awaits Terry's decision on that story's promise."
+Commitment: 9x.1

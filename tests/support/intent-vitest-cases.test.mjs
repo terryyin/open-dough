@@ -140,22 +140,17 @@ test("calls inside comments, strings, template literals and regular expressions 
   assert.deepEqual(rows, [{ name: "real", line: 12 }]);
 });
 
-test("a JSX self-closing tag is not a regular expression", () => {
-  const rows = vitestRowsOf(
-    lines(
-      'it("renders", () => {',
-      "  render(<Card status={status} />)",
-      "})",
-      'it("renders again", () => {',
-      "  render(<Card />)",
-      "})",
+test("an unclosed string on one line does not shift later rows", () => {
+  assert.deepEqual(
+    vitestRowsOf(
+      lines('const s = "oops', 'it("a", () => {});', 'it("b", () => {});'),
+      [],
     ),
-    [],
+    [
+      { name: "a", line: 2 },
+      { name: "b", line: 3 },
+    ],
   );
-  assert.deepEqual(rows, [
-    { name: "renders", line: 1 },
-    { name: "renders again", line: 4 },
-  ]);
 });
 
 test("a test's observed projects are rows in code-point order from reversed input", () => {
