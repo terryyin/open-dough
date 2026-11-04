@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "identity": "SEED-227#protect-long-local-proof-from-maintenance-sleep",
+  "mode": "story-branch",
+  "branch": "claude/protect-long-local-proof-from-maintenance-sleep",
+  "host": "claude",
+  "model": "opus"
+}
