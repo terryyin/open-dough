@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-230#summarize-ci-proof-in-intent",
+  "title": "Summarize CI proof in Intent",
+  "completedAt": "2026-11-04T15:05:29.957Z",
+  "developer": "Terry Yin",
+  "agent": "darren-chan",
+  "host": "claude",
+  "model": "opus"
+}

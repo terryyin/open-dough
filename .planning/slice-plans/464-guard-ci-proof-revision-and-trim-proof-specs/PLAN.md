@@ -5,8 +5,10 @@
 **Source:** [Correction story](../../seeds/SEED-230-summarize-ci-proof-in-intent.md#guard-ci-proof-revision-and-trim-proof-specs)
 
 **Provenance:** execution retrospective (2026-11-04) of
-SEED-230#summarize-ci-proof-in-intent, plan 463, commits `99d0f70e7`,
-`90764ef71`, `adae3482e`, `10a5cf851` and `bf63ed9c1`.
+SEED-230#summarize-ci-proof-in-intent, recoverable at
+`0cef955fb613485ecbafc08a9eb6c33949e64bcd:.planning/slice-plans/463-summarize-ci-proof-in-intent/PLAN.md`
+and `0cef955fb613485ecbafc08a9eb6c33949e64bcd:.planning/seeds/SEED-230-summarize-ci-proof-in-intent.md`;
+commits `99d0f70e7`, `90764ef71`, `adae3482e`, `10a5cf851` and `bf63ed9c1`.
 
 ## Current findings
 
