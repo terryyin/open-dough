@@ -3,6 +3,7 @@
 **Identity:** SEED-231#keep-focused-proof-out-of-suite-admission
 
 **Source:** [Selected story](../../seeds/SEED-231-keep-focused-proof-out-of-suite-admission.md#keep-focused-proof-out-of-suite-admission)
+**Source review:** [source-review.md](./source-review.md)
 
 **Prepared:** 2026-11-04 in `cursor/keep-focused-proof-out-of-full-suite-admission` at
 baseline `838069d47`.
@@ -75,11 +76,18 @@ supports cheap focused feedback. No ADR conflict.
 
 ### 1. Outside-checkout pathless runner fixtures stay off shared admission
 Type: Behavior
-Status: planned
+Status: done
 Proof: With another linked worktree holding admission, a pathless run whose
 `OPEN_DOUGH_TEST_DIR` is outside the checkout starts and finishes without
 waiting; an in-checkout pathless full run still waits; nested inheritance and
 runner-fixture behavior stay green; `local-test-resources.md` matches.
+Accepted proof:
+`PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/local-test-suite.test.mjs tests/test-runner-failure-report.sh`
+(pass; outside-pathless case in serialize independence loop; docs aligned).
+Learnings: Fixture admission harness timeouts needed 60s `until` and 120s
+controlled Playwright timeout so parallel focused proof with runner fixtures
+stays stable when outside-checkout pathless runs no longer serialize on the
+real checkout's admission.
 
 Behavior: Given another worktree holds `refs/dough/local-test-suite`, when a
 developer or focused proof runs pathless `scripts/test.sh` with
@@ -96,3 +104,47 @@ and one common classification rule; no independent second outcome, hidden
 preparation, or cumulative special-case design remains.
 
 Remaining slice-specific concerns: none identified.
+
+
+## Story obligations
+
+### X1. No admission storage redesign
+Reported: slice 1 — "Scope limit excludes admission storage redesign"
+Story clause: "this story does not redesign admission storage, change CI's no-admission rule, or change dashboard selection rules beyond keeping unfiltered dashboard runs as admission takers"
+Disposition: excluded "this story does not redesign admission storage, change CI's no-admission rule, or change dashboard selection rules beyond keeping unfiltered dashboard runs as admission takers"
+Commitment: X1
+### X2. CI no-admission unchanged
+Reported: slice 1 — "Scope limit excludes CI admission rule changes"
+Story clause: "this story does not redesign admission storage, change CI's no-admission rule, or change dashboard selection rules beyond keeping unfiltered dashboard runs as admission takers"
+Disposition: excluded "this story does not redesign admission storage, change CI's no-admission rule, or change dashboard selection rules beyond keeping unfiltered dashboard runs as admission takers"
+Commitment: X2
+### X3. Dashboard selection beyond unfiltered takers unchanged
+Reported: slice 1 — "Scope limit keeps unfiltered dashboard as admission takers only"
+Story clause: "this story does not redesign admission storage, change CI's no-admission rule, or change dashboard selection rules beyond keeping unfiltered dashboard runs as admission takers"
+Disposition: excluded "this story does not redesign admission storage, change CI's no-admission rule, or change dashboard selection rules beyond keeping unfiltered dashboard runs as admission takers"
+Commitment: X3
+### X4. Do not exclude fixtures from focused proofs
+Reported: slice 1 — "Challenge rejects excluding fixtures from focused proofs"
+Story clause: "Excluding those checks from focused proofs would meet a narrow "focused proof never waits" reading while missing the purpose"
+Disposition: excluded "Excluding those checks from focused proofs would meet a narrow "focused proof never waits" reading while missing the purpose"
+Commitment: X4
+### D1. Deferred per-directory locks
+Reported: slice 1 — "Deferred broader admission redesign"
+Story clause: "Deferred: broader admission redesign (per-directory locks, explicit share tokens as the only escape), rewriting every fixture solely to pass paths when a gate-level classification already delivers the promise, and admitting or excluding other pathless callers that are not runner fixtures over substitute directories"
+Disposition: excluded "Deferred: broader admission redesign (per-directory locks, explicit share tokens as the only escape), rewriting every fixture solely to pass paths when a gate-level classification already delivers the promise, and admitting or excluding other pathless callers that are not runner fixtures over substitute directories"
+Commitment: D1
+### D2. Deferred share tokens
+Reported: slice 1 — "Deferred broader admission redesign"
+Story clause: "Deferred: broader admission redesign (per-directory locks, explicit share tokens as the only escape), rewriting every fixture solely to pass paths when a gate-level classification already delivers the promise, and admitting or excluding other pathless callers that are not runner fixtures over substitute directories"
+Disposition: excluded "Deferred: broader admission redesign (per-directory locks, explicit share tokens as the only escape), rewriting every fixture solely to pass paths when a gate-level classification already delivers the promise, and admitting or excluding other pathless callers that are not runner fixtures over substitute directories"
+Commitment: D2
+### D3. Deferred per-fixture path rewrites
+Reported: slice 1 — "Deferred broader admission redesign"
+Story clause: "Deferred: broader admission redesign (per-directory locks, explicit share tokens as the only escape), rewriting every fixture solely to pass paths when a gate-level classification already delivers the promise, and admitting or excluding other pathless callers that are not runner fixtures over substitute directories"
+Disposition: excluded "Deferred: broader admission redesign (per-directory locks, explicit share tokens as the only escape), rewriting every fixture solely to pass paths when a gate-level classification already delivers the promise, and admitting or excluding other pathless callers that are not runner fixtures over substitute directories"
+Commitment: D3
+### D4. Deferred other pathless callers
+Reported: slice 1 — "Deferred broader admission redesign"
+Story clause: "Deferred: broader admission redesign (per-directory locks, explicit share tokens as the only escape), rewriting every fixture solely to pass paths when a gate-level classification already delivers the promise, and admitting or excluding other pathless callers that are not runner fixtures over substitute directories"
+Disposition: excluded "Deferred: broader admission redesign (per-directory locks, explicit share tokens as the only escape), rewriting every fixture solely to pass paths when a gate-level classification already delivers the promise, and admitting or excluding other pathless callers that are not runner fixtures over substitute directories"
+Commitment: D4

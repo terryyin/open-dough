@@ -2,11 +2,14 @@
 
 Only one full repository or dashboard suite runs at a time across this
 repository's linked Git worktrees. `npm test` / `bash scripts/test.sh` with no
-paths and unfiltered dashboard runs share admission, including direct Playwright
-commands using `dashboard/playwright.config.ts`. The next full run waits before
-starting its jobs or dashboard build. Named checks, dashboard path/grep/
-project/shard/test-list selections, list-only runs, and explicit suite shares
-remain independent. Independent repositories do not share admission.
+paths against this checkout's own suite directory and unfiltered dashboard runs
+share admission, including direct Playwright commands using
+`dashboard/playwright.config.ts`. The next full run waits before starting its
+jobs or dashboard build. Named checks, dashboard path/grep/project/shard/
+test-list selections, list-only runs, explicit suite shares, and pathless
+runner fixtures whose `OPEN_DOUGH_TEST_DIR` is an outside-checkout substitute
+checks directory remain independent. Independent repositories and copied
+non-Git runner fixtures do not share admission.
 A full run's shell wall time therefore includes any wait for admission; time
 it from the runner's own reported duration when comparing runs.
 
@@ -19,7 +22,9 @@ These bounds control peak concurrency; no elapsed-time improvement is claimed.
 
 Admission lives in the common Git directory as the private
 `refs/dough/local-test-suite` ref, outside branches and ordinary pushes. Nested
-suite fixtures reuse a live ancestor's admission. Success, failure and signals
+suite fixtures that still use an in-checkout test directory reuse a live
+ancestor's admission; nested pathless runs over an outside-checkout substitute
+directory neither take nor release that admission. Success, failure and signals
 release it; after an abrupt owner death the next run atomically takes over and
 retires surviving marked processes before it starts. No manual lock cleanup is
 needed. Copied runner fixtures outside Git have no cross-worktree admission.
