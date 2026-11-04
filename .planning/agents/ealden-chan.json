@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-192#read-tsx-text-and-trim-vitest-journeys",
+  "mode": "story-branch",
+  "branch": "cursor/read-jsx-text-safely-and-trim-repeated-vitest-jo",
+  "host": "cursor",
+  "model": "auto"
+}
