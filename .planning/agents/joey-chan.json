@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "joey-chan",
+  "email": "joey-chan@example.org",
+  "identity": "SEED-192#read-vitest-proof",
+  "mode": "story-branch",
+  "branch": "claude/read-frontend-vitest-proof-in-both-projects",
+  "host": "claude",
+  "model": "opus"
+}
