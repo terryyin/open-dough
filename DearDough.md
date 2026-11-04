@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 415. Removed numbers are never reused.
+- Highest allocated local number: 417. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -581,3 +581,16 @@ A source-review commitment defined a class with examples in parentheses; slice a
   - Evidence: commitment 2.1 ("planning, execution, finding or research records (plans, seeds, …)") was recorded observed at wrap-up step 1 "touches only plans, seeds, backlog, …"; the slice 3 replay then classed proof records, a candidate catalog, research notes and the North Star as fresh-pass; obligation G1 (`return`, proved by slice 3) in plan 458.
   - Observed effect: one extra correction agent (about 79k reported tokens) and one more refactor pass (about 60k); five of seven replay rows changed classification.
   - Inference: the coordinator matched the example list rather than the stated class; a replay against real cases found what phrase-level acceptance missed.
+
+## DD-416 — A push the remote refused for permission returned `needs-validation` without its reason
+Managed delivery treated GitHub's refusal of a workflow-file push (missing OAuth `workflow` scope) as a rejected push, fetched, reconciled onto the unchanged tip and stopped with `needs-validation`; neither the fresh nor the `deliver --validated-candidate` receipt carried the remote's refusal text, so the retry repeated the same stop.
+
+### Occurrences
+- Execution: SEED-230#summarize-ci-proof-in-intent (plan 463-summarize-ci-proof-in-intent; first implementation commit `99d0f70e7c503bcafb7cc79d3183277eaec28c96`)
+  - Timestamp: unknown (2026-11-04, slice 1 delivery of `99d0f70e7`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: both receipts had `remoteTip` and `suffixBase` `88cf77a06` equal to the published base, `reconciliations: 1`, `status: needs-validation`; `execution-increment-publication.mjs` sends any `rejected` push into `reconcileOnto(..., retry=true)`, whose proof gate never holds on retry; a manual `git push` then printed "refusing to allow an OAuth App to create or update workflow `.github/workflows/ci.yml` without `workflow` scope"; after `gh auth refresh -s workflow` the same `deliver` was accepted.
+  - Observed effect: two refused deliveries and about eight diagnostic tool calls before a credential stop for Terry.
+  - Inference: qualified. A remote refusal (`[remote rejected]` with a reason) is a credential or policy stop, not contention; reporting its text as its own status would have reached the human decision at the first receipt.

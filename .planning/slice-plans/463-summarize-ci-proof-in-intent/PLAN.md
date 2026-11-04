@@ -150,6 +150,21 @@ recipe (`dough-test-optimization/references/ci-proof-summary.md`, linked from
 that skill's `SKILL.md`) to make its CI publish a summary. Intent then shows it
 as in slice 2. The recipe uses only that project's own paths and names.
 
+## Execution complete
+
+Product advice:
+- Queue-neutral correction written:
+  [SEED-230#guard-ci-proof-revision-and-trim-proof-specs](../464-guard-ci-proof-revision-and-trim-proof-specs/PLAN.md)
+  guards the pull-request `CI_PROOF_REVISION`, trims overlapping proof specs
+  and reads the CI configuration once per judgment. No product defect was
+  found.
+- A "Re-run failed jobs" attempt shows every part it did not rerun as
+  missing under a Passed verdict (for example "1 of 12 parts present"). This
+  is the story's no-fill restriction working, but it will be the common real
+  rerun display; consider whether Intent should explain partial reruns.
+- A project without a collector now costs one artifact listing per CI status
+  judgment, as GITHUB-REQUESTS.md records; revisit if request budgets tighten.
+
 ## Current decisions
 
 - Proof entries are Intent location `path`s. The CI's `--expect` arguments
