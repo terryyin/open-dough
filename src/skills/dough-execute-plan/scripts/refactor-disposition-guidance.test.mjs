@@ -106,3 +106,44 @@ test("guarded delivery starts after the refactor or its disposition", () => {
     /refactor or its disposition/i,
   );
 });
+
+// Every other delivery path refers to wrap-up's refactor step instead of
+// requiring its own unconditional pass or keeping a separate exception.
+const refactorStep = /\[wrap-up's refactor step\]\([^)]*wrap-up\.md[^)]*\)/;
+
+test("an owned CI repair reaches the refactor step through wrap-up", () => {
+  const notification = flat(
+    markdownSection(
+      read("dough-execute-plan/references/ci-monitor.md"),
+      "## Handle a notification",
+    ),
+  );
+  assert.match(
+    notification,
+    /coordinator runs \[wrap-up\]\(wrap-up\.md\), including its refactor step/,
+  );
+});
+
+test("one-shot execution runs the refactor step and lands only once it is settled", () => {
+  const oneShot = read("dough-execute-plan/references/one-shot.md");
+  const retain = flat(
+    markdownSection(oneShot, "## Verify and retain the result"),
+  );
+  assert.match(retain, refactorStep);
+  assert.doesNotMatch(retain, /post-change-refactor/);
+  const auto = flat(
+    markdownSection(oneShot, "## Land automatically when selected"),
+  );
+  assert.match(
+    auto,
+    /refactor pass or its \[recorded disposition\]\(wrap-up\.md#deliver-the-change\) is done/,
+  );
+});
+
+test("bug fixing inherits the refactor step from execute-plan delivery", () => {
+  const bug = flat(read("dough-bug-fixing/SKILL.md"));
+  assert.match(bug, refactorStep);
+  assert.match(bug, /settles it for the full uncommitted change/);
+  assert.match(bug, /Repaired:\*\*[^.]*wrap-up's refactor step completed/);
+  assert.doesNotMatch(bug, /already runs \[dough-post-change-refactor\]/);
+});

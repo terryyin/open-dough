@@ -131,7 +131,7 @@ dispositions since the last pass are part of the change under review).
 
 ### 2. Every delivery path follows the one rule
 Type: Behavior
-Status: planned
+Status: done
 Proof: the guidance test asserts that the CI repair sequence
 (`ci-monitor.md` step 4), one-shot execution (`one-shot.md`, both places)
 and bug fixing (`SKILL.md` step 6 and its "Repaired" line) refer to the
@@ -195,6 +195,15 @@ limits → later ordinary use remains a separate observation.
   tests/install-omits-internal.sh` (quiet pass). Refactor disposition: fresh
   pass ran (`## REFACTOR COMPLETE`): clarified "retain the disposition" and
   reduced the new test to meaning-bearing phrases.
+- Slice 2 (accepted 2026-11-04): each path now names "wrap-up's refactor
+  step". The one-shot "Verify and retain" link carries no
+  `#deliver-the-change` anchor because `one-shot-guidance.test.mjs` forbids
+  "deliver" in that section. Read rows that include `ci-monitor.md` grew 32
+  bytes and stay under budget. Accepted proof adds
+  `src/skills/dough-bug-fixing/scripts/retained-artifacts.test.mjs`,
+  `src/skills/dough-story-refinement/scripts/dough-land-guidance.test.mjs` and
+  `tests/payload-declaration-links.sh` to slice 1's command (quiet pass).
+  Refactor disposition: fresh pass ran (`## REFACTOR COMPLETE`, no edits).
 
 ## Concern evidence
 
