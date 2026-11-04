@@ -39,3 +39,4 @@ intent introduced or affected by a newly developed story.
 - [Read Open Dough dashboard Playwright proof](seeds/SEED-192-review-product-intent.md#read-playwright-proof) — SEED-192#read-playwright-proof
 - [Read Node script-test proof](seeds/SEED-192-review-product-intent.md#read-node-test-proof) — SEED-192#read-node-test-proof
 - [Read shell-check proof at its observed granularity](seeds/SEED-192-review-product-intent.md#read-shell-check-proof) — SEED-192#read-shell-check-proof
+- [Consolidate proof recording guidance](seeds/SEED-233-consolidate-proof-recording-guidance.md#consolidate-proof-recording-guidance) — SEED-233#consolidate-proof-recording-guidance
