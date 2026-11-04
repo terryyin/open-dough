@@ -38,7 +38,7 @@ test("the command line writes fragments per entry and one summary from them", (t
   );
   writeFileSync(
     outcomes,
-    "passed\ttests/a.sh\npassed\tsrc/skills/x/scripts/b.test.mjs\n",
+    "passed\ttests/a.sh\npassed\tsrc/skills/x/scripts/b.test.mjs\npassed\tscripts/c.sh\n",
   );
   const identity = (of) => [
     "--part",

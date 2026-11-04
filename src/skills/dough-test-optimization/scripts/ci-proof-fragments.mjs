@@ -53,7 +53,7 @@ function owningEntry(entries, check) {
 // An outcomes file, one `<status><TAB><check path>` line per check, as one
 // fragment per entry; counted unit: checks. Each check counts toward the entry
 // whose path contains it: status `passed` and `failed` as such, any other as
-// other.
+// other. A check in no entry proves no entry, so it counts toward none.
 export function fragmentsFromOutcomes(text, identity) {
   const counts = new Map(
     identity.entries.map((entry) => [entry, zeroCounts()]),
@@ -67,9 +67,7 @@ export function fragmentsFromOutcomes(text, identity) {
     const status = line.slice(0, tab);
     const check = line.slice(tab + 1);
     const entry = owningEntry(identity.entries, check);
-    if (entry === undefined) {
-      throw new Error(`check ${check} is in no --entry`);
-    }
+    if (entry === undefined) continue;
     const field = status === "passed" || status === "failed" ? status : "other";
     counts.get(entry)[field] += 1;
   }

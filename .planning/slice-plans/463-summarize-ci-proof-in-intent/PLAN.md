@@ -156,6 +156,9 @@ as in slice 2. The recipe uses only that project's own paths and names.
   declare which ones the CI proves and with how many parts.
 - Artifact names carry the run attempt. Earlier attempts are never read or
   counted.
+- A check in no declared entry, such as `npm test`'s
+  `scripts/check-self-installation.sh`, proves no entry and counts toward
+  none (CI run 41805064723 repair).
 - Proof is its own read, keyed by the judged run id, attempt and revision.
   It is separate from `intent=ci-status`.
 - The collector ships in `dough-test-optimization/scripts/` as four

@@ -45,7 +45,7 @@ test("a Playwright proof record counts tests: expected passes, unexpected or fla
   );
 });
 
-test("an outcomes file counts each check toward the entry whose path contains it", () => {
+test("an outcomes file counts each check toward the entry whose path contains it, and a check in no entry toward none", () => {
   const identity = {
     entries: ["tests", "src/skills"],
     part: 1,
@@ -58,14 +58,12 @@ test("an outcomes file counts each check toward the entry whose path contains it
     "failed\ttests/support/b.test.mjs",
     "passed\tsrc/skills/x/scripts/c.test.mjs",
     "interrupted\tsrc/skills/y/scripts/d.test.mjs",
+    "failed\tscripts/check-self-installation.sh",
+    "passed\ttestsuite/e.sh",
     "",
   ].join("\n");
   assert.deepEqual(fragmentsFromOutcomes(outcomes, identity), [
     fragment("tests", 1, 3, { passed: 1, failed: 1 }),
     fragment("src/skills", 1, 3, { passed: 1, other: 1 }),
   ]);
-  assert.throws(
-    () => fragmentsFromOutcomes("passed\tscripts/e.test.mjs\n", identity),
-    /check scripts\/e.test.mjs is in no --entry/,
-  );
 });
