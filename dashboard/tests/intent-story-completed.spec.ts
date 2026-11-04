@@ -1,7 +1,7 @@
 // Example 5: a story completed through the real CLI and published
 // (./support/intentCompletedStory.ts) is selected by its Recently done
-// card's empty area. Intent names it by its done record's title and
-// identity, and states the revisions of its published history comparison,
+// card's empty area. Intent's summary names it by its done record's title
+// and, expanded, its identity and the revisions of its published history comparison,
 // which differ from the published revision Intent and its Proof describe
 // (ADR 0008), since trunk has advanced past the completion. The test file the
 // story deleted is absent from the published tree, yet stays in Intent as
@@ -29,11 +29,13 @@ import {
 import {
   folderCaret,
   intentDiff,
+  expandStorySummary,
   intentFile,
-  lens,
   openReviewFromIntent,
   reviewDiff,
+  storyDisclosure,
   storyOnly,
+  storySummary,
 } from "./support/intentStoryPage.ts";
 import { kindStyles, nameStyle } from "./support/changeKindStyle.ts";
 import { git } from "./support/storyReviewWorktree.ts";
@@ -53,7 +55,7 @@ test("Intent overlays a completed story's published history comparison, naming i
   test.slow();
   const { card, intent, completion, published } =
     await selectCompletedStoryInIntent(page, origin);
-  const scoped = lens(intent);
+  const scoped = storySummary(intent);
   // Proof's revision note, after choosing its tab.
   const proofRevision = async () =>
     (await chooseReadingTab(intent, "Proof")).locator(
@@ -63,8 +65,10 @@ test("Intent overlays a completed story's published history comparison, naming i
 
   await test.step("Intent names the completed story by its done record's title and identity", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-    await expect(scoped.locator(".intent-story-name")).toHaveText(
-      "Story Story A SEED-A#a",
+    await expect(storyDisclosure(intent)).toHaveText("Story Story A");
+    const detail = await expandStorySummary(intent);
+    await expect(detail.locator(".intent-story-full-title")).toHaveText(
+      "Story A SEED-A#a",
     );
   });
 
@@ -146,7 +150,7 @@ test("Intent overlays a completed story's published history comparison, naming i
       expect(await reviewDiff(page, name), name).toBe(diff);
   });
 
-  await test.step("the done card's Review changes selects and highlights it for Intent's lens; toggling its selection clears it and leaves the review open", async () => {
+  await test.step("the done card's Review changes selects and highlights it for Intent's summary; toggling its selection clears it and leaves the review open", async () => {
     const review = page.getByRole("region", { name: "Story review" });
     const { development, intentChoice } = parts(page);
     // Beside the review the Board shows one column; the keyboard reaches the
@@ -163,9 +167,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-    await expect(scoped.locator(".intent-story-name")).toHaveText(
-      "Story Story A SEED-A#a",
-    );
+    await expect(storyDisclosure(intent)).toHaveText("Story Story A");
     await development.click();
     await press(selectStory(card));
     await expectSelected(card, false);
@@ -186,12 +188,14 @@ test("a completed story whose published comparison cannot be recovered says why,
     origin,
     "shallow",
   );
-  const scoped = lens(intent);
-  await expect(scoped.locator(".intent-story-name")).toHaveText(
-    "Story Story A SEED-A#a",
+  const scoped = storySummary(intent);
+  await expect(storyDisclosure(intent)).toHaveText("Story Story A");
+  await expect(scoped.getByRole("status")).toHaveText(
+    "No comparison is available.",
   );
-  const problem = scoped.locator(".intent-story-problem");
-  await expect(problem).toHaveAttribute("role", "status");
+  const problem = (await expandStorySummary(intent)).locator(
+    ".intent-story-problem",
+  );
   await expect(problem).toHaveText(
     `${unrecoverable} Intent shows the published tree without the story's changes.`,
   );

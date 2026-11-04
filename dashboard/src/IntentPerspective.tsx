@@ -7,30 +7,33 @@
 // explanations, so CI status (`./IntentCiStatus.tsx`), which does not depend
 // on Intent locations, is offered whatever their state. The chosen mode is
 // kept by the page per project (`./pageIntentMode.tsx`). With a story selected
-// on the page, Intent names it above the strip and reads its default Review
-// changes comparison (`./useIntentStoryLens.ts`), which the browser overlays
-// on the published tree; the lens explains a comparison it cannot show
-// (`./IntentStoryLens.tsx`).
+// on the page, Intent reads its default Review changes comparison
+// (`./useIntentStoryLens.ts`), which the browser overlays on the published
+// tree. The Intent reading mode names the story in one summary
+// (`./IntentStorySummary.tsx`) heading the locations tree or, without one,
+// the explanation in its place; Optimization Candidates and CI status show
+// none.
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  readIntentLocationsAt,
-  type IntentLocations,
-  type IntentSettingsProblem,
-} from "./authenticatedIntentRead.ts";
+import type { IntentSettingsProblem } from "./authenticatedIntentRead.ts";
 import { IntentBrowser } from "./IntentBrowser.tsx";
 import { IntentCiStatusPanel } from "./IntentCiStatus.tsx";
 import { IntentModeTabs } from "./IntentModeTabs.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
-import { IntentStoryLens, type ComparedStory } from "./IntentStoryLens.tsx";
+import {
+  IntentStorySummary,
+  type ComparedStory,
+  type StorySummary,
+} from "./IntentStorySummary.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import { useIntentLocations } from "./useIntentLocations.ts";
 import { useIntentStoryLens } from "./useIntentStoryLens.ts";
 import "./intent-perspective.css";
 import "./intent-proof.css";
@@ -75,67 +78,22 @@ function IntentBody({
   mode,
   modeIdPrefix,
   onModeChange,
+  storySummary,
   story,
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
+  // The selected story as the Intent mode's summary names it, and with its
+  // comparison once compared.
+  readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
 } & ModeChoice) {
-  const [intent, setIntent] = useState<IntentLocations | "loading" | "failed">(
-    work === undefined ? { status: "not-configured" } : "loading",
-  );
-  const [locationsRetry, setLocationsRetry] = useState(0);
-  const [proofRereading, setProofRereading] = useState(false);
-  const proofReread = useRef<AbortController | undefined>(undefined);
-  // Locations are read per revision: the published work's detail completing
-  // at the same revision replaces `work`, but neither reads them again nor
-  // remounts the browser and its selection.
-  const revision = work?.revision;
-
-  useEffect(() => {
-    proofReread.current?.abort();
-    proofReread.current = undefined;
-    setProofRereading(false);
-    if (revision === undefined) {
-      setIntent({ status: "not-configured" });
-      return;
-    }
-    const controller = new AbortController();
-    setIntent("loading");
-    void readIntentLocationsAt(source, revision, controller.signal)
-      .then((locations) => {
-        if (!controller.signal.aborted) setIntent(locations);
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setIntent("failed");
-      });
-    return () => {
-      controller.abort();
-    };
-  }, [source, revision, locationsRetry]);
-
-  // A failed proof read is retried by reading the locations again in place:
-  // the browser keeps its selection and Purpose, and only a configured
-  // answer replaces the locations shown.
-  const retryProof = (revision: string) => {
-    proofReread.current?.abort();
-    const controller = new AbortController();
-    proofReread.current = controller;
-    setProofRereading(true);
-    void readIntentLocationsAt(source, revision, controller.signal)
-      .then((locations) => {
-        if (!controller.signal.aborted && locations.status === "configured") {
-          setIntent(locations);
-        }
-      })
-      .catch(() => undefined)
-      .finally(() => {
-        if (!controller.signal.aborted) setProofRereading(false);
-      });
-  };
+  const { intent, retryLocations, proofRereading, retryProof } =
+    useIntentLocations(source, work?.revision);
 
   // An explanation in place of the locations browser, shown as the panel of
-  // whichever location-reading mode is chosen.
+  // whichever location-reading mode is chosen; the Intent mode's names the
+  // selected story above it.
   const shown = mode === "ci-status" ? "intent" : mode;
   const explained = (children: ReactNode) => (
     <div
@@ -144,6 +102,9 @@ function IntentBody({
       aria-labelledby={intentTabId(modeIdPrefix, shown)}
       hidden={mode === "ci-status"}
     >
+      {mode === "intent" && storySummary !== undefined && (
+        <IntentStorySummary summary={storySummary} />
+      )}
       {children}
     </div>
   );
@@ -160,12 +121,7 @@ function IntentBody({
     return explained(
       <p className="intent-settings-problem" role="alert">
         Intent locations for {source.label} could not be read at this revision.{" "}
-        <button
-          type="button"
-          onClick={() => {
-            setLocationsRetry((n) => n + 1);
-          }}
-        >
+        <button type="button" onClick={retryLocations}>
           Retry
         </button>
       </p>,
@@ -179,9 +135,7 @@ function IntentBody({
       <SettingsProblem
         label={source.label}
         problem={intent.problem}
-        onRetry={() => {
-          setLocationsRetry((n) => n + 1);
-        }}
+        onRetry={retryLocations}
       />,
     );
   }
@@ -200,6 +154,7 @@ function IntentBody({
         mode={mode}
         modeIdPrefix={modeIdPrefix}
         onModeChange={onModeChange}
+        storySummary={storySummary}
         story={story}
       />
     </IntentWorkspaceSelectionProvider>
@@ -220,7 +175,8 @@ export function IntentPerspective({
   readonly workspaces: readonly LocalWorkspace[];
 }) {
   // Intent reads the page's selected story: CI status judges its branch, and
-  // the lens names it and reads its comparison for the browser's overlay.
+  // the lens reads its comparison for the browser's overlay and the Intent
+  // mode's summary.
   const { selectedIdentity } = useStorySelection(source.id);
   const { mode, modeIdPrefix, onModeChange } = useIntentModeChoice(source.id);
   const { story, comparison, compared, retry } = useIntentStoryLens({
@@ -230,6 +186,8 @@ export function IntentPerspective({
     records,
     workspaces,
   });
+  // The story whose summary is expanded; another story's starts collapsed.
+  const [expandedStory, setExpandedStory] = useState<string | undefined>();
   return (
     <main
       className="intent-perspective"
@@ -238,13 +196,6 @@ export function IntentPerspective({
         ? { "data-selected-story": selectedIdentity }
         : {})}
     >
-      {story !== undefined && (
-        <IntentStoryLens
-          story={story}
-          comparison={comparison}
-          onRetry={retry}
-        />
-      )}
       <IntentModeTabs
         mode={mode}
         idPrefix={modeIdPrefix}
@@ -256,6 +207,19 @@ export function IntentPerspective({
         mode={mode}
         modeIdPrefix={modeIdPrefix}
         onModeChange={onModeChange}
+        storySummary={
+          story === undefined
+            ? undefined
+            : {
+                story,
+                comparison,
+                onRetry: retry,
+                expanded: expandedStory === story.identity,
+                onExpand: (expanded) => {
+                  setExpandedStory(expanded ? story.identity : undefined);
+                },
+              }
+        }
         story={compared}
       />
       <IntentCiStatusPanel

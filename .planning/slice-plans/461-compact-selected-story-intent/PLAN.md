@@ -4,6 +4,7 @@
 **Source:** [selected story](../../seeds/SEED-228-compact-selected-story-intent.md#compact-selected-story-intent)
 in SEED-228, refined 2026-11-04 from Terry's annotated screenshot of the
 selected-story Intent view.
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-04. Planning only, in the story's established workspace
 (branch `claude/make-selected-story-intent-easier-to-scan`, agent ebacky-chan).
 
@@ -111,7 +112,7 @@ and on AC power `caffeinate -s -i`
 
 ### 1. The selected story is one compact summary at the top of the Intent tab
 Type: Behavior
-Status: planned
+Status: done
 Proof: examples 1–4 and 8 in the journeys above, with the consumer list
 updated and its trace recorded; a headless screenshot of the compact and
 expanded summary at 1400 px and at a width where the tree stacks above the
@@ -151,9 +152,25 @@ replaces "Folders and locations containing changes share one background".
 - Selection by background, expansion by caret, a location's changes by a
   mark; folder rows keep the shared contains-changes background.
 
+## Accepted proof
+
+- Slice 1 (2026-11-04): `npm run typecheck:dashboard`; `env -u NO_COLOR -u
+  FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts
+  --reporter=list dashboard/tests/intent-*.spec.ts
+  dashboard/tests/story-card-selection.spec.ts` → 83 passed after the refactor
+  (load about 29). Observations per commitment are in
+  [source-review.md](source-review.md). Screenshots of the compact and expanded
+  summary at 1400 px, 700 px and on the not-configured explanation were read
+  before acceptance.
+
 ## Learnings
 
-None yet.
+- The Intent tab renders the summary on two paths in turn (the "Reading
+  Intent locations…" panel, then the browser), so the disclosure's expanded
+  state lives in `IntentPerspective` (`expandedStory`), not in the summary.
+- The refactor split the files that crossed 250 lines: `IntentStoryComparison.tsx`,
+  `useIntentStoryTree.ts`, `useIntentLocations.ts`, and `IntentCandidatesPanel`
+  in `IntentCandidatesRecord.tsx`. Slice 2 starts from those.
 
 ## Concern evidence
 

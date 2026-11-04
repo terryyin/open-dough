@@ -2,7 +2,9 @@
 // (./support/intentStoryWorktree.ts). Off at first; on, only the in-scope
 // changed files and their folders remain, expanded; off again, the whole
 // tree, with the changed folders open and the rest collapsed, however they
-// were arranged by hand in between. Intent unmounts while hidden, so a story
+// were arranged by hand in between. Expanding and collapsing the story's
+// summary keeps the selected file and its reading, the open folders, and the
+// choice. Intent unmounts while hidden, so a story
 // selected in Development applies its expansion, with the toggle off, the
 // next time Intent opens. A story that changed only product code says no
 // test file in a location changed, with the count outside. The highlighted
@@ -10,16 +12,21 @@
 
 import type { Locator } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
-import { intentGroupToggle } from "./intentPerspectivePage.ts";
+import {
+  chooseReadingTab,
+  intentGroupToggle,
+} from "./intentPerspectivePage.ts";
 import { expectSelected } from "./storyCardSelection.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
   folderCaret,
   folderRow,
+  expandStorySummary,
   intentFile,
-  lens,
   selectTakenStoryInIntent,
+  storyDisclosure,
   storyOnly,
+  storySummary,
 } from "./support/intentStoryPage.ts";
 import { changed, changeProductOnly } from "./support/intentStoryWorktree.ts";
 
@@ -75,6 +82,29 @@ test("Selected story only shows just the story's changed files, expanded, and of
     await expect(intent.locator(".intent-story-none")).toHaveCount(0);
   });
 
+  await test.step("expanding and collapsing the summary keeps the selected file, its reading, the open folders, and the choice", async () => {
+    const file = intentFile(intent, changed.modified);
+    await file.click();
+    const purpose = await chooseReadingTab(intent, "Purpose");
+    const diffName = purpose.locator(".intent-story-diff-name");
+    await expect(diffName).toHaveText(changed.modified);
+    const expectKept = async () => {
+      await expect(file).toHaveAttribute("aria-pressed", "true");
+      await expect(diffName).toHaveText(changed.modified);
+      await expectStoryExpansion(intent);
+      await expect(toggle).toBeChecked();
+    };
+    const detail = await expandStorySummary(intent);
+    await expectKept();
+    await storyDisclosure(intent).press("Enter");
+    await expect(storyDisclosure(intent)).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    await expect(detail).toBeHidden();
+    await expectKept();
+  });
+
   await test.step("off, the whole tree shows with changed folders open and the rest collapsed", async () => {
     await folderCaret(intent, "out", true).click();
     await toggle.uncheck();
@@ -97,7 +127,9 @@ test("Selected story only shows just the story's changed files, expanded, and of
       .click();
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-B#b");
-    await expect(lens(intent).locator(".intent-story-problem")).toBeVisible();
+    await expect(storySummary(intent).getByRole("status")).toHaveText(
+      "No comparison is available.",
+    );
     await expect(toggle).toHaveCount(0);
     await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
       "aria-expanded",
@@ -126,7 +158,9 @@ test("a story that changed only product code says Selected story only has no tes
   );
   const outside = intent.locator(".intent-story-outside");
   const none = intent.locator(".intent-story-none");
-  await expect(lens(intent).locator(".intent-story-revisions")).toBeVisible();
+  await expect(
+    (await expandStorySummary(intent)).locator(".intent-story-revisions"),
+  ).toBeVisible();
   const toggle = storyOnly(intent);
   await expect(toggle).not.toBeChecked();
   await expect(outside).toHaveText(

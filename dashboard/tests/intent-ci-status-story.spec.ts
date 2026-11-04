@@ -4,7 +4,8 @@
 // trunk runs of shared commits counting and the run's branch named; another
 // selection replaces the judgment, never showing an earlier branch's result
 // under the new name, even when that answer arrives late; clearing the
-// selection returns to `main` (SEED-219 examples 2, 3, 4, 6, 7). A running
+// selection returns to `main` (SEED-219 examples 2, 3, 4, 6, 7), with no
+// selected-story summary, which belongs to the Intent mode. A running
 // head shows its nearest completed ancestor with its run, and Check again
 // after it finishes shows Passed. A push to the shown story branch, seen by
 // the page's revision check, reads its judgment again by itself; time alone,
@@ -53,6 +54,10 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     await expect(panel.locator(".intent-ci-state")).toHaveText(
       "Failed at fa11ed0 (Break the login)",
     );
+    // CI status names the story itself; the Intent mode's summary is absent.
+    await expect(
+      intent.getByRole("region", { name: "Selected story", exact: true }),
+    ).toHaveCount(0);
     await expect(panel.getByRole("link", { name: failedRun })).toBeVisible();
     await expect(panel).not.toContainText("run on");
     await expectChecked(panel);

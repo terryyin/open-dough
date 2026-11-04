@@ -177,9 +177,18 @@ by path or kind while other locations stay usable; a failed file read says so
 and offers retry. When that setting is absent, Intent says no intent locations
 are configured and names the setting and file; it shows no empty tree. An
 unreadable or malformed settings file is a distinct explanation from absence.
-With a story selected on the page, Intent names it and the revisions its
-default Review changes comparison runs between, and overlays that
-comparison's changed files on the published tree: each is styled by its
+With a story selected on the page, the **Intent** reading mode names it in
+one compact summary at the top of the locations column, or above the
+explanation shown in place of the tree; the mode strip stays directly under
+the banner, and Optimization Candidates and CI status show no summary.
+Compact, the summary gives the story's title on one line (the full title on
+hover) and says briefly while the comparison is reading, unavailable or
+failed, with **Retry** for a failure; a disclosure, collapsed at first and
+not kept across reloads, reveals the full title, the identity, and the revisions its
+default Review changes comparison runs between or the full explanation,
+without changing the selection, the reading pane, the tree's expansion or
+**Selected story only**. Intent overlays that comparison's changed files on
+the published tree: each is styled by its
 change kind, added files are inserted, deleted files stay, and a rename sits
 at its new path where a location selects it, else at its old path. A
 completed story is named by its done record's title and compared through its
@@ -190,13 +199,14 @@ has the comparison, those folders and the first changed location open and
 everything else collapses. **Selected story only**, off at first, leaves
 just the changed files and the locations and folders holding them, or says no
 test file in a location changed; turning it on or off opens the same folders
-again and collapses the rest. Changed files no location selects by either path
-are counted with a way to Review changes, which opens on Intent's comparison
-(All changes, uncommitted changes included) even for a story with a review
+again and collapses the rest. Changed files no location selects by either
+path are counted in the summary with a way to Review changes, which opens on
+Intent's comparison (All changes, uncommitted changes included) even for a story with a review
 mark. A changed file's Purpose is Review changes' diff of it, and its Proof
 says it describes the published revision.
 A story without a comparison, and a failed read with retry, each say so while
-the published tree stays usable; clearing the selected story removes the lens.
+the published tree stays usable; clearing the selected story removes the
+summary.
 The story is a lens on Intent, not a separate definition of it, and its
 changed files are an initial view of its impact: they do not by themselves
 establish every affected behavior or the regression proof it needs.

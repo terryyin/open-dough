@@ -3,16 +3,22 @@
 // Pending and Accepted groups with every recorded field, other sections
 // under their own headings, and distinct explanations for absent,
 // unreadable (with retry), mismatched, and empty records. Intent hosts this
-// view on its Optimization Candidates tab (`./IntentBrowser.tsx`), apart from
-// location browsing.
+// view on its Optimization Candidates tab (`IntentCandidatesPanel`, drawn by
+// `./IntentBrowser.tsx`), apart from location browsing.
 
 import { useEffect, useId, useRef, useState } from "react";
+import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import {
   readIntentCandidatesAt,
   type IntentCandidatesReadResult,
 } from "./authenticatedIntentCandidatesRead.ts";
-import type { IntentConfiguredInventory } from "./intentCandidatesLocationMatch.ts";
+import {
+  inventoryFromIntentLocations,
+  type IntentConfiguredInventory,
+} from "./intentCandidatesLocationMatch.ts";
 import { IntentCandidatesSections } from "./IntentCandidatesSections.tsx";
+import type { IntentMode } from "./IntentModeTabs.tsx";
+import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { OpenCandidateLocation } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { shortRevision } from "./publishedWork.ts";
@@ -128,5 +134,52 @@ export function IntentCandidatesRecord({
       </p>
       {body}
     </section>
+  );
+}
+
+// The Optimization Candidates tab's panel. The record fills the content area
+// without the locations; it is read the first time the tab is chosen and
+// stays mounted after, so opening a test from it and returning does not
+// reread it.
+export function IntentCandidatesPanel({
+  source,
+  revision,
+  locations,
+  mode,
+  modeIdPrefix,
+  returnEntrySlug,
+  onOpenLocation,
+}: {
+  readonly source: PublishedSource;
+  readonly revision: string;
+  readonly locations: readonly IntentLocation[];
+  readonly mode: IntentMode;
+  readonly modeIdPrefix: string;
+  readonly returnEntrySlug: string | undefined;
+  readonly onOpenLocation: OpenCandidateLocation;
+}) {
+  const [chosen, setChosen] = useState(mode === "candidates");
+  if (mode === "candidates" && !chosen) setChosen(true);
+  return (
+    <div
+      className="intent-candidates-panel"
+      role="tabpanel"
+      id={intentTabPanelId(modeIdPrefix, "candidates")}
+      aria-labelledby={intentTabId(modeIdPrefix, "candidates")}
+      hidden={mode !== "candidates"}
+      tabIndex={-1}
+    >
+      {chosen ? (
+        <IntentCandidatesRecord
+          source={source}
+          revision={revision}
+          inventory={inventoryFromIntentLocations(locations)}
+          onOpenLocation={onOpenLocation}
+          {...(mode === "candidates" && returnEntrySlug !== undefined
+            ? { focusEntrySlug: returnEntrySlug }
+            : {})}
+        />
+      ) : null}
+    </div>
   );
 }

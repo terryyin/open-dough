@@ -17,7 +17,7 @@ import { expect, test } from "./support/preparationPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import {
   intentDiff,
-  lens,
+  expandStorySummary,
   openReviewFromIntent,
   reviewDiff,
   selectTakenStoryInIntent,
@@ -45,9 +45,12 @@ test.use({ preparationHost: "codex" });
 const landedRunHeading = (review: Locator) =>
   review.getByRole("heading", { name: "Landed run", exact: true });
 
-// The landed run's tree Intent shows beside the story's changes.
-const intentRunTree = (intent: Locator) =>
-  lens(intent).locator(".intent-story-revisions code").nth(1);
+// The landed run's tree Intent's summary shows, expanded, beside the story's
+// changes.
+const intentRunTree = async (intent: Locator) =>
+  (await expandStorySummary(intent))
+    .locator(".intent-story-revisions code")
+    .nth(1);
 
 // Story A's runs landed through the real one-shot delivery, one per name in
 // order, and a launch record naming the workspace Story A is then taken in,
@@ -159,11 +162,11 @@ test("a review whose workspace is gone shows its own landed run, which Intent sh
   };
 
   await test.step("Intent shows the answer's own landed run's tree", async () => {
-    await expect(intentRunTree(intent)).toHaveAttribute(
-      "title",
-      own.receipt.revision,
+    const tree = await intentRunTree(intent);
+    await expect(tree).toHaveAttribute("title", own.receipt.revision);
+    await expect(tree.locator("xpath=..")).toContainText(
+      "with the landed run's tree",
     );
-    await expect(lens(intent)).toContainText("with the landed run's tree");
   });
 
   await test.step("Intent's link opens the review on that run", async () => {
@@ -184,7 +187,7 @@ test("a review whose workspace is gone shows its own landed run, which Intent sh
 
   await test.step("Intent's link returns the review to the run Intent shows", async () => {
     await intentChoice.click();
-    await expect(intentRunTree(intent)).toHaveAttribute(
+    await expect(await intentRunTree(intent)).toHaveAttribute(
       "title",
       own.receipt.revision,
     );

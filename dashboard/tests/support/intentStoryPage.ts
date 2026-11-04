@@ -1,5 +1,5 @@
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
-// read of the page: the selected story's lens, the contains-changes
+// read of the page: the selected story's summary, the contains-changes
 // background, the "Selected story only" toggle, and a changed file's diff in
 // Intent's Purpose beside the same file's diff in Review changes. A row's
 // change-kind style: ./changeKindStyle.ts.
@@ -49,8 +49,25 @@ export async function selectTakenStoryInIntent(
   };
 }
 
-export const lens = (intent: Locator) =>
+// The selected story's summary heading the Intent mode.
+export const storySummary = (intent: Locator) =>
   intent.getByRole("region", { name: "Selected story", exact: true });
+
+// The summary's disclosure, which names the story compactly.
+export const storyDisclosure = (intent: Locator) =>
+  storySummary(intent).locator("button.intent-story-disclosure");
+
+// Opens the summary's disclosure and returns what it reveals: the full
+// title, identity, and revisions or full explanation.
+export async function expandStorySummary(intent: Locator) {
+  const disclosure = storyDisclosure(intent);
+  if ((await disclosure.getAttribute("aria-expanded")) !== "true")
+    await disclosure.click();
+  await expect(disclosure).toHaveAttribute("aria-expanded", "true");
+  const detail = storySummary(intent).locator(".intent-story-detail");
+  await expect(detail).toBeVisible();
+  return detail;
+}
 
 // The "Selected story only" toggle.
 export const storyOnly = (intent: Locator) =>
@@ -119,7 +136,7 @@ export async function reviewDiff(page: Page, name: string) {
   return code.innerText();
 }
 
-// Opens Review changes from the outside count beside Intent.
+// Opens Review changes from the summary's count outside Intent locations.
 export async function openReviewFromIntent(page: Page, intent: Locator) {
   await intent
     .locator(".intent-story-outside")
