@@ -55,7 +55,7 @@ export type IntentLocation = {
   // revision. Empty when `problem` is set.
   readonly files: readonly string[];
   readonly problem?: IntentLocationProblem;
-  // Present only when a Gherkin location declares a proof directory.
+  // Present only when a location of a proof kind declares a proof directory.
   readonly proof?: IntentLocationProof;
   readonly proofGeneration?: ProofGeneration;
   readonly proofGenerationProblem?: "malformed";
@@ -65,7 +65,7 @@ export type DeclaredLocation = {
   readonly path: string;
   readonly kind: string;
   readonly include?: readonly string[];
-  // The repository directory the location's committed Cucumber proof lives
+  // The repository directory the location's committed proof lives
   // in, when declared as a safe repository path.
   readonly proof?: string;
   readonly proofGeneration?: ProofGeneration;

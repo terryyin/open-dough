@@ -22,9 +22,9 @@ open. Both controls are keyboard-operable, and a selected location or folder
 reads as pressed. Selecting a file still reads its exact published text with
 line numbers and Gherkin syntax styling at the observed revision. A location or
 folder summary names the selection by path and how many matching files it
-holds. For Gherkin it also reads each contained feature's published text at
-the observed revision (with bounded concurrency and "N of M files read"
-progress), counts scenarios and outline rows from successfully read files,
+holds. For Gherkin, and for `python` with pytest's words described below, it
+also reads each contained file's published text at the observed revision
+(with bounded concurrency and "N of M files read" progress), counts scenarios and outline rows from successfully read files,
 and, when the location declares proof, shows one aggregate count line over
 those rows (rows without successful proof counted explicitly) plus a breakdown
 by immediate child in the browser's order. Under the count line, a summed
@@ -64,7 +64,19 @@ a selected file's Proof lists the file's scenarios and outline rows in source
 order, each with its **Last successful proof** (retry-assisted passes marked
 with attempt counts), duration, time since, commit, and whether it was observed
 on this file version, or _No successful proof_, under a count line of those
-successful observations. A final unsuccessful scenario clears its earlier
+successful observations. A `python` location that declares committed pytest
+proof (the
+[pytest proof reference](../src/skills/dough-test-optimization/references/pytest-proof.md))
+reads the same way in pytest's words: a selected file's Proof lists, under a
+**Test case** header, its module-level `def test_*` and `async def test_*`
+functions and the `test_*` methods of its `Test*` classes in definition
+order, a function with observed parameter ids as one row per observed id
+(for example "test_rounding Parameters: up") and any other function as one
+row; observations the published file no longer defines are not listed, and
+the count line counts test cases. Its location and folder summaries give the
+Gherkin figures with an inventory of test functions and count, summed
+duration and **Slowest test cases** lines over test cases. A final
+unsuccessful scenario clears its earlier
 proof during an explicit recording run; a later explicit pass restores it,
 while unexecuted scenarios keep their proof. Normal test runs leave proof
 untouched, including on failure. Proof is a published snapshot whose
@@ -84,8 +96,8 @@ proof, is reported by name as a read
 failure with retry, never as _No successful proof_, and the retry reads the
 locations again without changing the selection or Purpose. Without a
 declared directory, Proof says it is not recorded for the project and names
-the installed reference for configuring deliberate generation; other kinds say Proof is read only for
-Gherkin files so far. The selected perspective choice names the page, so
+the installed reference for configuring deliberate generation; other kinds say Proof is read for
+Gherkin feature files and pytest files so far. The selected perspective choice names the page, so
 Intent shows no heading of its own. Below the banner the page does not
 scroll: the location tree fills the remaining height against the left edge,
 and it and the reading pane each scroll independently. Directly under the

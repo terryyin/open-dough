@@ -12,6 +12,8 @@
 import { parseCucumberProofFile } from "./cucumberProof.ts";
 import { scenarioRowsOf } from "./gherkinScenarios.ts";
 import type { CaseObservation, CaseRowsOf } from "./proofCases.ts";
+import { pytestRowsOf } from "./pytestCases.ts";
+import { parsePytestProofFile } from "./pytestProof.ts";
 
 // How a kind names its cases wherever Proof and summaries count or show
 // them.
@@ -40,8 +42,10 @@ export type ProofKind = {
   readonly words: ProofKindWords;
 };
 
-const scenarios = (count: number) =>
-  `${String(count)} ${count === 1 ? "scenario" : "scenarios"}`;
+const counted = (count: number, one: string, many: string) =>
+  `${String(count)} ${count === 1 ? one : many}`;
+
+const scenarios = (count: number) => counted(count, "scenario", "scenarios");
 
 const gherkin: ProofKind = {
   parseFile: parseCucumberProofFile,
@@ -59,7 +63,23 @@ const gherkin: ProofKind = {
   },
 };
 
-const proofKinds: Readonly<Record<string, ProofKind>> = { gherkin };
+const python: ProofKind = {
+  parseFile: parsePytestProofFile,
+  rowsOf: pytestRowsOf,
+  words: {
+    cases: (count) => counted(count, "test case", "test cases"),
+    inventory: (count) => counted(count, "test function", "test functions"),
+    inventoryUnavailable: "Test function total unavailable",
+    caseHeader: "Test case",
+    slowestCases: "Slowest test cases",
+    variant: (ids) => `Parameters: ${ids.join(" | ")}`,
+    costNote:
+      "A sum of separate test case observations, retries included, not a run's elapsed time.",
+    reference: "dough-test-optimization/references/pytest-proof.md",
+  },
+};
+
+const proofKinds: Readonly<Record<string, ProofKind>> = { gherkin, python };
 
 // The proof kind of an Intent location kind, undefined when Intent reads no
 // proof for it.

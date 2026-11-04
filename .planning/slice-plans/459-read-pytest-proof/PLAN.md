@@ -169,7 +169,7 @@ implementation return: every renamed symbol's importer run or reused.
 
 ### 2. Intent reads pytest proof for a python location
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/tests/intent-pytest-proof.spec.ts` with a fixture
 module (Pygardon-like `tests` location, one parametrized function, one
 `async def`, one function without proof, one renamed function's stale
@@ -187,6 +187,29 @@ or folder summary gives the Gherkin figures with test-function and test-case
 words, and the explanations name the pytest reference. This slice also
 publishes `pytest-proof.md` and its SKILL.md link, and updates
 `docs/dashboard-development-intent.md`.
+
+Accepted proof (2026-11-04): `intent-pytest-proof.spec.ts`,
+`intent-pytest-proof-summary.spec.ts` and `intent-pytest-proof-absent.spec.ts`
+7 passed (rerun after the refactor's fixture split); every
+`dashboard/tests/intent-*.spec.ts` and
+`boundary/authenticated-read-intent-*.spec.ts` 104 passed;
+`npm run typecheck:dashboard`; payload and install shell tests
+(`tests/payload-declaration-links.sh`, `install*.sh`, update payload tests)
+quiet pass. The empty-selection prompts now read "Select a file to see its
+Proof." and "Select a file to read its Purpose."; the slowest table's row key
+includes the variant, since parametrized rows share a line. Per-id
+observations are in [source-review.md](source-review.md).
+
+Behavior review of `pytest-proof.md` (AGENTS.md), examples 1–5 against the
+reference alone: 1 recording run (option checked before any read/write/lock,
+commit at session start, `fileBlob` from `git hash-object`, output and exit
+unchanged), 2 parametrized identity (parameter id from the first `[` after
+the file; a failing id removes only itself), 3 controller-only under xdist
+(`workerinput`), 4 skip/deselection/`--collect-only`/unreached keep proof,
+5 setup/call/teardown failure, xfail and xpass clear: each implementable
+from the text. One gap fixed during review: xpass under `strict` is reported
+as a failure, not with `wasxfail`. Example 3 still rests on the open xdist
+premise slice 5 settles first.
 
 ### 3. A multi-megabyte proof snapshot is read
 Type: Behavior
@@ -274,6 +297,18 @@ describe on real source; nothing is fabricated for the demonstration.
   distinct definition lines, which gives test functions for pytest.
   Remaining Gherkin-only text: the other-kinds sentence in
   `IntentProofProblem.tsx` and `IntentProof`'s "Select a feature file…" prompt.
+- Slice 2: pytest proof parses in `dashboard/src/pytestProof.ts` (only
+  `outcome: "passed"`; a Cucumber-shaped file is malformed, and the reverse)
+  and rows derive in `dashboard/src/pytestCases.ts`. Intent orders a
+  function's parametrized rows by snapshot order, which the reference asks to
+  sort by file, test, parameterId. Rows need the `test_` prefix and `Test*`
+  classes; custom `python_functions`/`python_classes` are not derived. For
+  slice 3, a 2 MB fixture can reuse `passed()` in
+  `dashboard/tests/intentPytestProofFixtures.ts`; the bound sentence belongs
+  beside "one maintained snapshot per proof directory" in the reference. For
+  slice 5, the reference resolves `file` from `git rev-parse --show-toplevel`
+  and runs inner `pytester` sessions with the option set only for them; a
+  lock file must not end in `.json`.
 
 ## Concern evidence
 

@@ -131,7 +131,7 @@ export function IntentProof({
   readonly onRetry: () => void;
 }) {
   if (path === "") {
-    return <p className="quiet">Select a feature file to see its Proof.</p>;
+    return <p className="quiet">Select a file to see its Proof.</p>;
   }
   const proofKind = proofKindOf(kind);
   if (proof === undefined || "problem" in proof || proofKind === undefined) {

@@ -95,7 +95,7 @@ test("Ex 8: a project without declared proof says Proof is not recorded and name
     /no successful proof|could not be read/i,
   );
 
-  await test.step("a non-Gherkin source does not offer Cucumber adoption", async () => {
+  await test.step("a source Intent reads no proof for names the kinds it reads, without Cucumber adoption", async () => {
     await expandIntentGroup(intent, "scripts");
     await intent
       .getByRole("button", { name: doughnutScript, exact: true })
@@ -104,7 +104,7 @@ test("Ex 8: a project without declared proof says Proof is not recorded and name
       "assert.equal",
     );
     await expect(proof).toContainText(
-      "Intent reads Proof only for Gherkin feature files so far.",
+      "Proof is read for Gherkin feature files and pytest files so far.",
     );
     await expect(proof).not.toContainText("cucumber-proof.md");
   });

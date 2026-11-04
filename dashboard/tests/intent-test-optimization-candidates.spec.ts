@@ -52,10 +52,10 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
     await expect(candidatesTab).toHaveAttribute("aria-selected", "false");
     await expect(intentGroupToggle(intent, "dashboard/tests")).toBeVisible();
     await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
-      "Select a feature file to read its Purpose.",
+      "Select a file to read its Purpose.",
     );
     await expect(await chooseReadingTab(intent, "Proof")).toContainText(
-      "Select a feature file to see its Proof.",
+      "Select a file to see its Proof.",
     );
     await expect(
       intent.getByRole("button", { name: "Test Optimization Candidates" }),

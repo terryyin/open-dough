@@ -62,12 +62,10 @@ test("Purpose is chosen first, Proof stays chosen across files, the tabs use Int
       "aria-selected",
       "true",
     );
-    await expect(purpose).toContainText(
-      "Select a feature file to read its Purpose.",
-    );
+    await expect(purpose).toContainText("Select a file to read its Purpose.");
     await expect(proof).toHaveCount(0);
     await expect(await chooseReadingTab(intent, "Proof")).toContainText(
-      "Select a feature file to see its Proof.",
+      "Select a file to see its Proof.",
     );
     await expect(purpose).toHaveCount(0);
     await chooseReadingTab(intent, "Purpose");

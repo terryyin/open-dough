@@ -171,9 +171,7 @@ export function IntentFileReading({
             <h3 className={headingClass}>Purpose</h3>
             <div className="intent-reading-panel-body" ref={purposeBody}>
               {path === "" ? (
-                <p className="quiet">
-                  Select a feature file to read its Purpose.
-                </p>
+                <p className="quiet">Select a file to read its Purpose.</p>
               ) : story !== undefined && change !== undefined ? (
                 <div className="intent-story-diff">
                   <p className="intent-story-diff-name">

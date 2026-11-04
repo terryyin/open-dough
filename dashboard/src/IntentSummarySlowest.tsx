@@ -51,7 +51,7 @@ export function IntentSummarySlowest({
       </thead>
       <tbody>
         {rows.map(({ path: file, row, observation }) => (
-          <tr key={`${file}:${String(row.line)}`}>
+          <tr key={JSON.stringify([file, row.line, row.variant ?? null])}>
             <th scope="row">
               <button
                 type="button"
