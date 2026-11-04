@@ -312,7 +312,7 @@ Individual refinements and their recorded facts below carry current preparation.
 
 **Identity:** SEED-192#read-vitest-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/460-read-vitest-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f33924425a8d02b0284fe2eae9b09cab488c1e938216b53a4b3e9a6586ca06e6","plan":"f30edbde43947541f23843c1feb039bc4ed06a66d0404998c28b9dec82abc204"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/460-read-vitest-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e4d5074b57fc4a312dbf1cc1a77a229546fba615a0015042c28fca27118955de","plan":"8035343dd3b81844c0ece94894172f4880f6ef8981a1394414c201a19dcfa12e"}}
 ```
 
 **Beneficiary:** A Doughnut or Pygardon developer reviewing frontend test
@@ -377,9 +377,8 @@ single-file Vitest runs that changed nothing in either checkout):**
   row of that table runs under one identical name.
 - Pygardon's Cucumber snapshot stores about 415 bytes per observation; a
   Doughnut frontend snapshot of about 2,000 identities with suite paths is
-  therefore around 1 MB, at or above the dashboard's current 1 MiB GitHub
-  answer bound that plan 459 raises. Pygardon's frontend is about a third of
-  that.
+  therefore around 1 MB, well under the 32 MiB proof read bound the pytest
+  story delivered. Pygardon's frontend is about a third of that.
 - Precedent and reuse: plan 446 ran subordinate Doughnut and Pygardon
   workspaces from the Open Dough execution; each project owns a Cucumber
   proof store with atomic snapshot maintenance
@@ -387,15 +386,32 @@ single-file Vitest runs that changed nothing in either checkout):**
   that a Vitest reporter in the same project can share. Open Dough ships no
   recorder. Open Dough's own `dashboard/tests` is a `typescript` location
   whose tests are Playwright, so the kind cannot imply the proof format.
+- From the pytest story, closed 2026-11-04: Intent's case model is on trunk
+  (`dashboard/src/proofCases.ts`; `dashboard/src/proofKinds.ts` registers
+  each kind's proof parser, source-row rule and words, looked up by the
+  location's kind), and the Intent answer still carries every kind's cases
+  in Cucumber-named fields (`featureBlobs`, feature, scenario, example),
+  which that story's execution-complete record asks to decide before the
+  next proof kind. Its retrospective found the reader showing a parametrized
+  function's rows in the snapshot's order, with real Pygardon matching the
+  promised parameter id order only because its plugin sorts the snapshot;
+  the correction SEED-192#order-pytest-parameter-rows (Taken, plan 464)
+  orders parameter ids in the reader by code point, pins the Python
+  definition scanner with a unit test, and restates the Intent guidance's
+  other-kinds and summary sentences. Pygardon's `tests` root summary (1,283
+  files) took 208 s and 1,298 GitHub requests from cold; counting requests
+  needs a private `DOUGH_GITHUB_REQUEST_OWNER_ROOT` for the dev server.
 
 **Selected direction:** Publish a Vitest proof reference beside the Cucumber
 and pytest ones, with the same recording discipline and a Vitest-shaped
 identity of file, name path and project. Each project owns its reporter,
 declares `runner`, `proof` and `proofGeneration` on its frontend location,
 and commits a first real snapshot from a focused explicit run. In the
-dashboard, add Vitest to the kind-neutral case model plan 459 introduces:
-rows derive from the TypeScript test calls, the proof parser is selected by
-the location's declared runner, and the project is the row's variant.
+dashboard, add Vitest to the kind-neutral case model the pytest story
+delivered: rows derive from the TypeScript test calls, the proof parser is
+selected by the location's declared runner, the project is the row's
+variant, and the reader orders a template's rows and a test's project rows
+itself, as the pytest correction orders parameter ids.
 
 **Alternatives considered (explore / borrow):**
 
@@ -451,7 +467,16 @@ Required behavior:
   that passes only when every execution passed, with `attempts` the greatest
   and `durationMs` the sum; a shard records only what it ran; the recording
   command runs the project's configured reporters, with no `--reporter`
-  option, so the recorder is loaded.
+  option, so the recorder is loaded. Rules the pytest reference settled and
+  this one carries: the recorder resolves the repository root with
+  `git rev-parse --show-toplevel`, reads the covered locations (those with
+  `runner: "vitest"` and `proof`) from `.planning/open-dough.json`, records
+  only cases of files under them, with `file` relative to the repository
+  root rather than Vitest's root, and tests itself on fixture projects with
+  the option set only for the inner runs; the snapshot is ordered by `file`,
+  `test` and `project` to limit diff noise, and the reference's reading
+  section states the row order Intent applies without depending on that
+  ordering.
 - **Vitest proof format.** One JSON object `{"version": 1, "observations": […]}`
   whose observations are identified by `file` (repository path with `/`
   separators), `test` (the names from the outermost `describe` to the test,
@@ -476,12 +501,14 @@ Required behavior:
   or `suite` names under the same rule, each with its call's line. A name
   from `.each` or `.for` is a template: observed names that fit its
   placeholders (`%s`, `%d`, `%i`, `%f`, `%j`, `%o`, `%#`, `%$`, `%%`,
-  `$field`, `$field.path`) expand to one row each, as a parametrized pytest
-  function expands to its observed ids; a template without placeholders
-  names one case. A test observed under several projects shows one row per
-  observed project, named with its project as an outline row is named with
-  its example cells; a test with no observation shows one row reading _No
-  successful proof_. Each observed row shows the same cells as a scenario:
+  `$field`, `$field.path`) expand to one row each in code-point order of the
+  observed name, as a parametrized pytest function expands to its observed
+  ids in parameter id order, since Vitest's collection order is not
+  recorded; a template without placeholders names one case. A test observed
+  under several projects shows one row per observed project in code-point
+  order of the project name, named with its project as an outline row is
+  named with its example cells; a test with no observation shows one row
+  reading _No successful proof_. Each observed row shows the same cells as a scenario:
   last successful proof with attempts, duration, time since, commit, and
   whether the test file's published blob is the one observed. The header
   reads **Test case**, and the count line counts test cases.
@@ -534,6 +561,10 @@ Constraints:
 - Identity uses Vitest's own formatted names and project names, never task
   ids or collection order; the reference recommends placeholders in `each`
   names so each row is its own case.
+- Intent orders a template's observed rows and a test's project rows
+  itself, by code point as the pytest correction orders parameter ids; it
+  never depends on the order the snapshot holds
+  (SEED-192#order-pytest-parameter-rows).
 - Existing Cucumber and pytest proof files, reader behavior and wording for
   their locations stay unchanged.
 - Each frontend's output, diagnostics, exit meaning, browser instances,
@@ -555,8 +586,10 @@ Scope limits:
   whose identity the published file no longer defines are not listed.
 - Definition lines come from the source rule; `includeTaskLocation` is not
   required of the projects.
-- A cheaper root summary for a 396-file folder is deferred to the measured
-  result.
+- A cheaper root summary for a 396-file folder is deferred: the pytest story
+  measured Pygardon's 1,283-file root at 208 s and 1,298 GitHub requests and
+  advises a separate story for large-location summaries, which this story
+  measures against and does not create.
 - A full-suite proof refresh of either frontend is Terry's deliberate run
   after the reporters land; the story commits focused selections first.
 
@@ -591,13 +624,15 @@ Scope limits:
    they were.
 5. **Projects.** A touch spec's cases observed under `chromium-touch` → one
    row per case naming that project; a hypothetical file observed under both
-   instances → two rows per test, each with its own proof; a failure in one
+   instances → two rows per test, `chromium` before `chromium-touch` whatever
+   order the snapshot holds them, each with its own proof; a failure in one
    instance clears only that project's observation.
 6. **File Proof.** Select `frontend/tests/utils/titlePatternRender.spec.ts`
    in Doughnut's Intent at the published revision → a table headed Test
    case, Last successful proof, Duration, Observed, Commit, Observed on;
    rows in definition order named by their `describe` path and name; a
-   template row expands to its observed names; the count line reads, for
+   template row expands to its observed names in code-point order from a
+   snapshot that holds them in another order; the count line reads, for
    example, "Last successful proof: 3 test cases: 3 passed"; the Purpose
    pane positions on a row's `it` line when opened from a summary.
 7. **Folder summary.** Select `frontend/tests/utils` (26 files) → "N tests"
@@ -642,7 +677,14 @@ tests and `javascript` can carry `node:test` proof without a second
 settings shape. The project is the variant, which keeps one identity rule
 and one latest-first reduction across families
 ([ADR 0001](../../docs/adrs/0001-ubiquitous-language-accepted.md)). The
-TypeScript row derivation is a nesting-aware reading of test calls in the
+Intent answer, internal to the dashboard's server and client, names cases by
+that model's file, name path and variant from this story on, replacing the
+Cucumber names every kind's cases have carried: the decision the pytest
+story's completion record asked for before a third kind, taken here under
+the same ADR because a Vitest case under feature, scenario and example would
+misname all three; Terry can keep the Cucumber names instead before Take,
+and the plan records the rename as a Structure step with no product
+behavior. The TypeScript row derivation is a nesting-aware reading of test calls in the
 published text, shared by every runner of that call family, not a per-runner
 parser ([ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)).
 Proof stays a repository record the dashboard reads as a published fact,
@@ -658,13 +700,14 @@ statuses agree, and no conflict, exception or North Star topic is needed.
   the pytest story. Three repositories, a nesting-aware TypeScript row rule,
   a `runner` declaration and two real reporters; the first browser-mode
   recording and the root summary costs are the open measurements.
-- **Product prerequisites:** TypeScript source reading, in place. The
-  kind-neutral case model and the raised proof read bound that plan 459
-  (SEED-192#read-pytest-proof, Taken) delivers: this story extends them
-  rather than building them again, so its reader slices start once they
-  are on trunk, while the reference and the two reporters do not wait. No
-  blocking story dependency is recorded; the plan checks the trunk state at
-  Take.
+- **Product prerequisites:** TypeScript source reading, the kind-neutral
+  case model and the 32 MiB proof read bound, all on trunk since the pytest
+  story closed on 2026-11-04. The code-point ordering and the restated
+  Intent guidance sentences of SEED-192#order-pytest-parameter-rows (Taken,
+  plan 464) are what the reader slices reuse for Vitest rows: they start
+  once that correction is on trunk, while the reference and the two
+  reporters do not wait. No blocking story dependency is recorded; the plan
+  checks the trunk state when its reader slices start.
 - **Safe stopping point:** The reference, the generalized reader with
   `runner`, and each project's reporter each keep value alone: Gherkin and
   pytest behavior unchanged, a readable Vitest snapshot wherever one is

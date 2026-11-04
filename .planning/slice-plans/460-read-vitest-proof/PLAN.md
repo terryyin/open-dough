@@ -6,7 +6,10 @@ in SEED-192, refined 2026-11-04 under Terry's instruction that, like the
 pytest story, this story includes Vitest proof generation, declared in the
 project configuration, as well as reading it.
 **Prepared:** 2026-11-04. Planning only, in the story's established workspace
-(branch `claude/read-frontend-vitest-proof-in-both-projects`, agent yilv-chan).
+(branch `claude/read-frontend-vitest-proof-in-both-projects`, agent yilv-chan);
+revised the same day by agent dbs-chan after the pytest story
+(SEED-192#read-pytest-proof) closed and its correction
+(SEED-192#order-pytest-parameter-rows, plan 464) was taken.
 
 ## Goal and boundaries
 
@@ -28,14 +31,17 @@ Included scope, one source each:
   from `src/skills/dough-test-optimization/SKILL.md`;
 - the dashboard's proof reading for a third family: the `runner` declaration
   (`dashboard/server/intentLocationsSettings.ts`, `dashboard/src/authenticatedIntentRead.ts`),
-  the Vitest proof parser and project variant in the kind-neutral case model
-  plan 459 introduces (`dashboard/src/cucumberProof.ts` and its successors,
-  `dashboard/server/intentProofRead.ts`, `dashboard/server/intentLocationsRead.ts`),
-  the TypeScript test-call row derivation beside `dashboard/src/gherkinScenarios.ts`,
-  the unit words (`dashboard/src/proofScenarioCountLine.ts`), the Proof pane and
-  summaries (`dashboard/src/IntentProof.tsx`, `dashboard/src/IntentSummary.tsx`
-  and the summary modules it delegates to) and the explanations
-  (`dashboard/src/IntentProofProblem.tsx`);
+  the case model's own field names in the Intent answer (the Cucumber-named
+  fields `dashboard/src/cucumberProof.ts` maps today and
+  `dashboard/src/authenticatedIntentRead.ts` reads back), the Vitest proof
+  parser and project variant beside `dashboard/src/pytestProof.ts` in the
+  kind registry `dashboard/src/proofKinds.ts` on the case model
+  `dashboard/src/proofCases.ts` (read by `dashboard/server/intentProofRead.ts`
+  and `dashboard/server/intentLocationsRead.ts`), the TypeScript test-call
+  row derivation beside `dashboard/src/pytestCases.ts`, the kind's words in
+  `proofKinds.ts`, the Proof pane and summaries (`dashboard/src/IntentProof.tsx`,
+  `dashboard/src/IntentSummary.tsx` and the summary modules it delegates to)
+  and the explanations (`dashboard/src/IntentProofProblem.tsx`);
 - the Intent guidance `docs/dashboard-development-intent.md`;
 - Doughnut's reporter, its tests, its `.planning/open-dough.json` declaration
   and its first committed snapshot, in a subordinate Doughnut workspace;
@@ -70,10 +76,12 @@ also applies at its boundary. Local full suites follow
 
 ## Direction and PFE
 
-- **Third family of one case model.** Plan 459 (SEED-192#read-pytest-proof,
-  Taken) lifts the Gherkin-only reader into a case model (file, case name
-  path, optional variant, definition line) with per-kind row derivation and
-  proof parsing. This plan adds Vitest to that model: the name path is the
+- **Third family of one case model.** The pytest story (closed 2026-11-04)
+  lifted the Gherkin-only reader into a case model (`dashboard/src/proofCases.ts`:
+  file, case name path, optional variant, definition line) whose kinds
+  (`dashboard/src/proofKinds.ts`) each contribute only `parseFile`, `rowsOf`
+  and `words`, looked up by the location's kind. This plan adds Vitest to
+  that model: the name path is the
   `describe` path plus the test name as Vitest formatted them, the variant
   is the project, and the count, duration-sum and slowest rules are reused
   unchanged. Nothing is duplicated; no second schema, adapter framework or
@@ -85,7 +93,30 @@ also applies at its boundary. Local full suites follow
   `python` keep implying theirs. The settings parser already reads `proof`
   and `proofGeneration` for every kind, so `runner` joins them there and in
   the answer schema, with a `runner` problem explained like a malformed
-  `proofGeneration`.
+  `proofGeneration`. The kind lookup (`proofKindOf`, used by
+  `intentLocationsRead.ts` and `IntentSummary.tsx`) takes the location's
+  kind and runner: `gherkin` and `python` resolve by kind alone,
+  `typescript` and `javascript` by their `runner`.
+- **Row order comes from the reader, not the snapshot.** The pytest
+  retrospective found Intent showing parametrized rows in snapshot order and
+  a real run passing only because the recorder sorted (DD-416); plan 464
+  orders parameter ids in `pytestRowsOf` by code point. Vitest rows take the
+  same rule through the same comparison: a template's observed names and a
+  test's observed projects in code-point order, proved from fixtures whose
+  observations arrive in another order.
+- **The answer names the case model's fields.** The pytest completion record
+  asked for a decision before the next kind: keep the Cucumber names
+  (`featureBlobs`, feature, scenario, example) for every kind or rename them
+  to file, name, variant. This plan renames (ADR 0001): the answer is
+  internal to the dashboard's server and client, five files carry the names,
+  and a Vitest case under feature, scenario and example would misname all
+  three. Terry can keep the Cucumber names instead before Take; the rename is
+  a Structure step with no product behavior.
+- **Unit proof for the source scanner.** The retrospective's third finding
+  was a Python definition scanner proved only through one E2E fixture, which
+  plan 464 pins with `tests/support/intent-pytest-cases.test.mjs`. The
+  nesting-aware TypeScript scanner gets its `node:test` file beside it from
+  the start, through `bash scripts/test.sh`.
 - **Vitest file format and identity** as the story records them: `file`,
   `test` (list of names), optional `project`, `outcome: "passed"`,
   `attempts`, `durationMs`, `finishedAt`, `commit`, `fileBlob`. A
@@ -115,7 +146,7 @@ also applies at its boundary. Local full suites follow
   reuse, this plan selects it as PFE within each project.
 - **Wording.** Test case, tests, test cases, and the project as the row's
   variant beside the existing scenario and pytest words; one place per word,
-  parameterized by kind as plan 459 leaves it.
+  parameterized by kind as the pytest story left it.
 - **Accepted decisions.** [ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md)
   one Proof meaning with each runner's vocabulary; [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
   reuse the reader, the format and each project's store, no generic adapter;
@@ -136,7 +167,8 @@ also applies at its boundary. Local full suites follow
 | Vitest's reporter API delivers per finished case the project name, the module's repository path, the `describe` path and name, final state, `each`, duration and retry count, and one reporter sees every browser instance | Throwaway reporter (`onInit`, `onTestCaseResult`, `onTestRunEnd`) run 2026-11-04 in both default checkouts, writing nothing to them: Doughnut `d761d3f0da`, `./scripts/run.sh pnpm -C frontend exec vitest run --browser=chromium --browser.headless --includeTaskLocation --reporter=<probe> tests/toolbars/DonutMenu.search.touch.spec.ts tests/utils/titlePatternRender.spec.ts`; Pygardon `aac9adb94`, `nix develop -c scripts/check-worktree.sh pnpm -C frontend exec vitest run --includeTaskLocation --reporter=<probe> src/api/__tests__/verifyStatsFormat.test.ts` | Settled: Doughnut reported projects `["chromium","chromium-touch"]`, 3 cases under `chromium` from the plain spec and 2 under `chromium-touch` from the touch spec, each with `fullName`, `location`, `state: "passed"`, `duration`, `retryCount: 0`, `each: true` on the touch table; Pygardon reported project `""` and 17 cases with the same fields | a retried case's `duration` spanning attempts and `onTestCaseResult` firing once after the final attempt: slice 3's first reporter test observes a `retry: 1` pass |
 | An `each` title without placeholders is left unchanged, so a table's rows run under one identical name | `formatTitle` in the installed Vitest 5.0.5 (`dist/chunks/run.*.js`): `%`-formats are substituted only where present and `$field` only for object rows; otherwise the template is returned as given | Settled by reading the consuming formatter; both corpora show 30 of 31 and 5 of 5 such names | none |
 | Both frontends' names are literal enough for a source rule | `grep` over Doughnut `frontend/tests/**/*.spec.ts` at `d761d3f0da` (1839 `it(`, 170 `it.each(`, 568 `describe(`, 5 `describe.each(`, 8 non-literal first arguments, 1 template literal) and Pygardon `frontend/src` tests at `aac9adb94` (757 `it(`, 43 `it.each(`, 217 `describe(`, 0 non-literal) | Settled | none |
-| The settings parser reads `proof` and `proofGeneration` for every kind; proof is read only for `gherkin`; `typescript` and `javascript` are listed kinds | `declaredLocations` in `dashboard/server/intentLocationsSettings.ts`, `proofOfLocation` in `dashboard/server/intentLocationsRead.ts`, `intentSourceKinds` in `dashboard/src/intentLocationSelection.ts` at `0fd49cba4` | Settled by source read; slice 5 replaces the gate through plan 459's model | plan 459's case model and 32 MiB bound are not on trunk at `4cc8cff1d`: slice 5 starts only once they are, see Current decisions |
+| The settings parser reads `proof` and `proofGeneration` for every kind and no `runner`; proof is read for the kinds `proofKinds.ts` registers (`gherkin`, `python`), looked up by `location.kind` in the read and the summary; the case model, the Cucumber-named answer and the 32 MiB bound are on trunk | `declaredLocations` in `dashboard/server/intentLocationsSettings.ts`, `proofOfLocation` in `dashboard/server/intentLocationsRead.ts` (line 154), `dashboard/src/IntentSummary.tsx` (line 38), `proofKinds` in `dashboard/src/proofKinds.ts`, `intentSourceKinds` in `dashboard/src/intentLocationSelection.ts` at `1834fa4c6`, trunk containing the pytest story's close `2533780e0` | Settled by source read on 2026-11-04 | none |
+| Plan 464's code-point ordering, scanner unit test and guidance sentences are not yet on trunk | `git log origin/main..origin/claude/order-pytest-parameter-rows-by-parameter-id` empty and its worktree at the Take commit `462bb38b3` on 2026-11-04 | Settled: taken, not landed | slice 5 checks trunk at its start, see Current decisions |
 | Each project's test commands and reporters stay as they are with the recorder loaded | Doughnut `frontend/vitest.config.ts` (`reporters: isCI ? ["default", orchestratorGcReporter()] : ["default"]`, `retry: isCI ? 1 : 0`, two instances), `frontend/package.json` `test`; Pygardon `frontend/vite.config.ts` (happy-dom, no reporters), `scripts/check-prepared-checkout.sh` (`--reporter=./vitest-quiet-reporter.ts`) | Settled by source read | whether a `--reporter` command-line option drops the configured recorder: slice 3 observes it in Pygardon and records the answer in the reference |
 
 ## Outside-in proof
@@ -146,18 +178,23 @@ also applies at its boundary. Local full suites follow
 | Reference usable by the recording agent | 1, 3 and 4 | AGENTS.md behavior review walking examples 1–5 against the reference text; slices 3 and 4 implement from the reference alone and report every gap they had to fill |
 | 2 focused recording, happy-dom; 3 tables; 4 retry and clearing | 3 | Pygardon reporter tests on fixture projects read `latest.json` after each run: option off leaves no file, nested path, `%i` table expands, placeholder-less table folds (one failing row clears), `retry: 1` pass records `attempts: 2`, failure clears only itself, `skip`/`only` keep, interrupted refresh keeps completed updates, outside Git records nothing, stdout and exit unchanged; one real focused run commits the first snapshot |
 | 1 focused recording, browser mode; 5 projects | 4 | Doughnut reporter tests add the same file under two instances (two observations per test, one instance's failure clears only its own), a shard run, and the browser-mode real run of one plain spec and one touch spec committed as the first snapshot with `chromium` and `chromium-touch` |
-| 10 Cucumber and pytest unchanged | 2 and 5 | The focused Intent proof, summary and generation journeys stay green with unchanged fixtures and expected rows after each dashboard slice |
-| 6 file Proof, 7 folder summary, 8 declaration problems, 9 explanations | 5 | New Playwright journey on a Doughnut-like `typescript` location fixture with `runner: "vitest"`: headers, rows in definition order by `describe` path, template expansion, project rows, a test without proof, count line wording, `runner` missing and wrong-shape proof explanations, absence wording for `typescript` and the other-kinds sentence |
-| 6–7 on real proof, root summary costs | 6 | Intent on projects Doughnut and Pygardon at the revisions that published slices 3 and 4: the recorded files' cases with their projects, a folder summary each, and each frontend root summary opened once with its time and GitHub request count recorded |
+| 10 Cucumber and pytest unchanged | 5 and 6 | The focused Intent proof, summary and generation journeys stay green with unchanged fixtures and expected rows after each dashboard slice, including the pytest journeys with plan 464's ordering assertions |
+| 6 rows and their order, scanner rules | 5 | `tests/support/intent-vitest-cases.test.mjs` pins the TypeScript scanner's rules against small texts and orders a template's observed names and a test's observed projects by code point from observations given in another order |
+| 6 file Proof, 7 folder summary, 8 declaration problems, 9 explanations | 6 | New Playwright journey on a Doughnut-like `typescript` location fixture with `runner: "vitest"`: headers, rows in definition order by `describe` path, template expansion in code-point order from an unsorted snapshot, project rows `chromium` before `chromium-touch` from a snapshot holding them reversed, a test without proof, count line wording, `runner` missing and wrong-shape proof explanations, absence wording for `typescript` and the other-kinds sentence |
+| 6–7 on real proof, root summary costs | 7 | Intent on projects Doughnut and Pygardon at the revisions that published slices 3 and 4: the recorded files' cases with their projects, a folder summary each, and each frontend root summary opened once with its time and GitHub request count recorded against the pytest baseline |
 
-Local gates: the focused Playwright journeys named per slice and
-`npm run typecheck:dashboard` after each dashboard slice; `npm run --silent format`
-before each commit; in the subordinate workspaces, each project's own test
-command for the reporter tests and `pnpm format:changed`. Hosted CI runs the
-full suites after publication and its failures stay owned under the policy
-above. Run the whole dashboard suite before publishing slice 5, since it
-changes the proof answer every Intent journey reads
-(`tests/local-test-resources.md`, with the sleep guard named above).
+Local gates: `PATH=/opt/homebrew/bin:$PATH bash tests/payload-declaration-links.sh`
+for slice 1; the focused Playwright journeys named per slice
+(`env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list <specs>`),
+`PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/intent-vitest-cases.test.mjs`
+and `npm run --silent typecheck:dashboard` after each dashboard slice;
+`npm run --silent format` before each commit; in the subordinate
+workspaces, each project's own test command for the reporter tests and
+`pnpm format:changed`. Hosted CI runs the full suites after publication and
+its failures stay owned under the policy above. Run the whole dashboard suite
+before publishing slices 5 and 6, since each changes the proof answer every
+Intent journey reads (`tests/local-test-resources.md`, with the sleep guard
+named above).
 
 ## Ordered slices
 
@@ -168,10 +205,14 @@ Proof: `src/skills/dough-test-optimization/references/vitest-proof.md` exists
 with the contract the story records (option, reporter placement, identity of
 `file`/`test`/`project`, finished case, attempts and duration, folding of
 repeated identities, clearing and keeping rules, atomic snapshot, one
-snapshot per directory, `runner`/`proof`/`proofGeneration` declaration,
-no `--reporter` on the recording command, commit discipline); the SKILL.md
-links it beside the Cucumber and pytest references; an AGENTS.md behavior
-review walks examples 1–5 against the text and is recorded here;
+snapshot per directory, repository root and covered locations resolved as
+the pytest reference resolves them, `file` relative to the repository root,
+snapshot ordered by `file`, `test` and `project`, a reading section stating
+the code-point row order Intent applies, `runner`/`proof`/`proofGeneration`
+declaration, no `--reporter` on the recording command, commit discipline);
+the SKILL.md links it beside the Cucumber and pytest references; an
+AGENTS.md behavior review walks examples 1–5 against the text and is
+recorded here; `tests/payload-declaration-links.sh` and
 `npm run --silent format` clean.
 
 Behavior: An agent in Doughnut or Pygardon asked to record Vitest proof →
@@ -240,42 +281,82 @@ observation; the ordinary `pnpm frontend:test`, its CI shards and
 declaration and the first snapshot are committed and published under
 Doughnut's rules; reference gaps are fixed as in slice 3.
 
-### 5. Intent reads Vitest proof for a location that declares the runner
+### 5. The case model names its fields for any runner and derives TypeScript test rows
+Type: Structure
+Status: planned
+Proof: The Intent answer and its schema (`dashboard/server/intentProofRead.ts`,
+`dashboard/src/authenticatedIntentRead.ts`, the mapping in
+`dashboard/src/cucumberProof.ts` and the other carriers of the Cucumber
+names) name cases by `file`, `name` and `variant` and the blobs by file,
+with the Gherkin, pytest and summary journeys green on unchanged fixtures
+and `npm run --silent typecheck:dashboard` clean; the proof kind lookup
+takes the location's kind and `runner` (`gherkin` and `python` by kind,
+`typescript` and `javascript` by runner, none registered yet) and
+`declaredLocations` reads `runner` as it reads `proof`; a new
+`dashboard/src/vitestCases.ts` derives rows from TypeScript text, pinned by
+`tests/support/intent-vitest-cases.test.mjs` through `bash scripts/test.sh`:
+`it`/`test` with and without modifier chains (`.each`, `.for`, `.skip`,
+`.only`, `.todo`, `.concurrent`, `.skipIf(…)`), string-literal and
+substitution-free template-literal names, a template literal with a
+substitution and an identifier name skipped, nested `describe`/`suite`
+paths with `describe.each`, calls inside comments, strings and template
+literals not read, each row at its call's 1-based line, template
+placeholders matching observed names, a template's observed rows and a
+test's observed projects in code-point order from observations given in
+another order, and a test without observations as one plain row.
+
+Internal change: the answer carries every kind's cases under the case
+model's own names, the kind registry resolves by kind and runner, and the
+TypeScript scanner exists with direct proof, reusing plan 464's code-point
+comparison for the variant order rather than adding a second one. Enables
+slice 6, which registers the Vitest kind.
+
+### 6. Intent reads Vitest proof for a location that declares the runner
 Type: Behavior
 Status: planned
 Proof: New `dashboard/tests/intent-vitest-proof.spec.ts` with a fixture
 module (Doughnut-like `frontend/tests` location with `runner: "vitest"`, a
-nested `describe`, an `it.each` with `%s`, a placeholder-less `it.each`, a
-touch spec observed under `chromium-touch`, a test without proof, a
+nested `describe`, an `it.each` with `%s` whose observations the snapshot
+holds in reverse code-point order, a placeholder-less `it.each`, a touch
+spec observed under `chromium-touch`, a spec observed under both projects
+with `chromium-touch` first in the snapshot, a test without proof, a
 renamed test's stale observation, a `utils`-like subfolder) asserting
-examples 6, 7, 8 and 9, including a location with `proof` and no `runner`, a
-pytest-shaped proof file under the Vitest location, the `typescript`
-absence wording naming the Vitest reference and the other-kinds sentence;
-the existing Gherkin and pytest journeys unchanged; `npm run typecheck:dashboard`;
-the whole dashboard suite before publication; `docs/dashboard-development-intent.md`
-updated.
+examples 6, 7, 8 and 9, including the rows' code-point order, a location
+with `proof` and no `runner`, a pytest-shaped proof file under the Vitest
+location, the `typescript` absence wording naming the Vitest reference and
+the other-kinds sentence; the existing Gherkin and pytest journeys
+unchanged; `npm run --silent typecheck:dashboard`; the whole dashboard
+suite before publication; `docs/dashboard-development-intent.md` updated,
+adding Vitest to the sentences plan 464 restated rather than rewriting them.
 
 Behavior: A `typescript` location declares `runner: "vitest"`, `proof` and
 `proofGeneration` → Intent reads the Vitest proof files at the revision, a
 selected test file's Proof lists its tests in definition order by `describe`
-path with template rows expanded to observed names, project rows and _No
-successful proof_ rows, the count line counts test cases, a location or
-folder summary gives the Gherkin figures with test and test-case words, and
-the explanations name the Vitest reference and the `runner` setting.
+path with template rows expanded to observed names in code-point order,
+project rows in code-point order and _No successful proof_ rows, the count
+line counts test cases, a location or folder summary gives the Gherkin
+figures with test and test-case words, and the explanations name the Vitest
+reference and the `runner` setting.
 
-### 6. Intent shows both frontends' published Vitest proof
+### 7. Intent shows both frontends' published Vitest proof
 Type: Behavior
 Status: planned
 Proof: Open the dashboard on project Doughnut at the revision that published
 slice 4: `frontend/tests/utils/titlePatternRender.spec.ts` shows example 6's
 cells, `DonutMenu.search.touch.spec.ts` shows its `chromium-touch` rows,
 `frontend/tests/utils` shows example 7's lines, and the `frontend/tests`
-root summary is opened once with its time and GitHub request count recorded
-as a learning. Then project Pygardon at the revision that published slice 3:
+root summary is opened once from cold with its time and GitHub request
+count recorded as a learning, counted through a private
+`DOUGH_GITHUB_REQUEST_OWNER_ROOT` for the dev server as the pytest story
+did. Then project Pygardon at the revision that published slice 3:
 `src/api/__tests__/verifyStatsFormat.test.ts` with its 17 rows, its folder
-summary, and the `frontend/src` root summary measured the same way. Record
-the retained observations in this plan's retained-proof fields; Terry's
-evaluation against `vitest run` plus an editor is the story's acceptance.
+summary, and the `frontend/src` root summary measured the same way. The
+pytest baseline is 208 s and 1,298 requests for 1,283 files, about six
+requests a second, so roughly a minute and 400 requests are expected for
+`frontend/tests` and half that for `frontend/src`; a clear departure is a
+learning for the deferred cheaper root summary. Record the retained
+observations in this plan's retained-proof fields; Terry's evaluation
+against `vitest run` plus an editor is the story's acceptance.
 
 Behavior: Both published snapshots → Intent reads them as examples 6–7
 describe on real source; nothing is fabricated for the demonstration.
@@ -289,14 +370,22 @@ describe on real source; nothing is fabricated for the demonstration.
   and `javascript` locations; `gherkin` and `python` imply theirs.
 - The project is the row's variant; `describe` path plus name is the case
   name path; template placeholders match observed names; a placeholder-less
-  table is one case folded from its executions.
-- Slices 1–4 do not depend on plan 459. Slice 5 extends plan 459's case
-  model and read bound: at its start, confirm trunk contains plan 459's
-  slices 1 and 3; if not, stop at that boundary and report the coordination
-  boundary rather than rebuilding the model, since another execution owns
-  that repair. Slices 1–4 are a safe stopping point.
-- Snapshot sizes stay under plan 459's 32 MiB bound by a wide margin; no
-  further bound change.
+  table is one case folded from its executions; a template's observed rows
+  and a test's project rows are ordered by code point in the reader, never
+  by the snapshot.
+- The Intent answer names cases by file, name and variant from slice 5 on.
+  Terry may keep the Cucumber names instead before Take; slice 5 then keeps
+  the existing mapping and adds only the runner lookup and the scanner.
+- Slices 1–4 depend on nothing beyond trunk at `1834fa4c6`. Slice 5 reuses
+  plan 464's code-point comparison and slice 6 adds Vitest to the guidance
+  sentences plan 464 restates: at slice 5's start, confirm trunk contains
+  SEED-192#order-pytest-parameter-rows's result (its done record, or
+  `tests/support/intent-pytest-cases.test.mjs`); if not, stop at the slice 4
+  stopping point and report the coordination boundary rather than writing a
+  second ordering, since that execution owns it. Slices 1–4 are a safe
+  stopping point.
+- Snapshot sizes stay under the 32 MiB bound by a wide margin; no further
+  bound change.
 
 ## Learnings
 
@@ -304,12 +393,16 @@ None yet.
 
 ## Concern evidence
 
-Slice-plan refinement was not needed: each slice owns one proof loop, the
+Slice-plan refinement was not needed: each slice owns one proof loop, each
 Structure slice sits immediately before the Behaviors it enables, and the
 sequence exercises one case model with one new declaration rather than a
-Vitest-shaped copy. No slice-specific concern remains. Interim behavior:
-between slices 3–4 and 5, both projects publish Vitest proof that Intent
-cannot yet read; their `typescript` locations keep the honest other-kinds
-wording until slice 5 replaces it, so this needs no replacing slice. The
-`--reporter` and retry-duration remainders are bounded by slice 3's first
-tests; the plan 459 ordering is bounded by the stop in Current decisions.
+Vitest-shaped copy. Revised 2026-11-04: slice 5 was split out of the reader
+slice so the answer rename, the runner lookup and the TypeScript scanner
+land with direct proof before the Vitest kind registers, as the pytest
+story's Structure slice did and as its retrospective's scanner finding
+asked. No slice-specific concern remains. Interim behavior: between slices
+3–4 and 6, both projects publish Vitest proof that Intent cannot yet read;
+their `typescript` locations keep the honest other-kinds wording until
+slice 6 replaces it, so this needs no replacing slice. The `--reporter` and
+retry-duration remainders are bounded by slice 3's first tests; the plan
+464 ordering is bounded by the stop in Current decisions.
