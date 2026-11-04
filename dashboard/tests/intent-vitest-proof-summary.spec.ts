@@ -8,7 +8,10 @@
 
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
-import { authenticatedReadRoute } from "./holdAuthenticatedReads.ts";
+import {
+  authenticatedReadRoute,
+  holdAuthenticatedReadsOf,
+} from "./holdAuthenticatedReads.ts";
 import {
   chooseReadingTab,
   intentLocationName,
@@ -37,6 +40,11 @@ import {
 const costNote =
   "A sum of separate test case observations, retries included, not a run's elapsed time.";
 
+const releases: (() => void)[] = [];
+test.afterEach(() => {
+  for (const release of releases.splice(0)) release();
+});
+
 async function openLocation(page: Parameters<typeof parts>[0]) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await pausePageClockAt(page, new Date("2026-11-04T12:00:00.000Z"));
@@ -57,7 +65,13 @@ async function openLocation(page: Parameters<typeof parts>[0]) {
 test("a Vitest location summary counts tests and test cases, sums proof, and lists its slowest test cases and children", async ({
   page,
 }) => {
+  // Render the faster files first so the rows must reorder as reads finish.
+  const held = await holdAuthenticatedReadsOf(page, titlePatternPath, releases);
   const { summary } = await openLocation(page);
+  await expect(
+    summary.getByText("3 of 4 files read", { exact: true }),
+  ).toBeVisible();
+  held.release();
   await expect(summary.getByText("11 tests", { exact: true })).toBeVisible();
   await expect(summary).toContainText(
     "Last successful proof: 16 test cases: 14 passed, 1 passed after retry, 1 without successful proof",
@@ -84,6 +98,7 @@ test("a Vitest location summary counts tests and test cases, sums proof, and lis
     "Observed on",
   ]);
   const rows = slowest.locator("tbody tr");
+  await expect(rows).toHaveCount(10);
   await expect(rows.nth(0).locator("th")).toHaveText(
     "renderTitleFromPattern > renders émile titles Project: chromium",
   );

@@ -12,6 +12,7 @@ import {
   ObservedCells,
   observedCellHeaders,
 } from "./ProofObservationCells.tsx";
+import { proofIdentity } from "./proofCases.ts";
 import type { ProofKindWords } from "./proofKinds.ts";
 import { useTickingNow } from "./useTickingNow.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
@@ -52,7 +53,7 @@ export function IntentSummarySlowest({
         </thead>
         <tbody>
           {rows.map(({ path: file, row, observation }) => (
-            <tr key={JSON.stringify([file, row.line, row.variant ?? null])}>
+            <tr key={`${row.line}:${proofIdentity(observation)}`}>
               <th scope="row">
                 <button
                   type="button"
