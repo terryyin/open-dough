@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-230#guard-ci-proof-revision-and-trim-proof-specs",
+  "title": "Guard the CI proof revision and trim the proof specs",
+  "completedAt": "2026-11-04T15:42:23.739Z",
+  "developer": "Terry Yin",
+  "agent": "stanly-chan",
+  "host": "cursor",
+  "model": "auto"
+}
