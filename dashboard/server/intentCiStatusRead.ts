@@ -12,11 +12,7 @@ import {
   readingCiStatusOf,
 } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import {
-  judgeBranchCi,
-  readsCiThroughAdapter,
-  type BaseCiJudgment,
-} from "./baseCiJudgment.ts";
+import { judgeBranchCi, type BaseCiJudgment } from "./baseCiJudgment.ts";
 import { intentReadMixedParameters } from "./intentReadParameters.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
@@ -29,12 +25,11 @@ export type IntentCiStatusRead = {
 };
 
 // What a CI status read answers: the judged branch, when it was checked,
-// the judgment, and whether the project's CI is read through a ciAdapter,
-// whose results name no run to read CI proof of.
+// and the judgment (including `ciAdapter` from that judgment's own
+// configuration read, so a ciAdapter project needs no second settings read).
 export type IntentCiStatusAnswer = {
   readonly branch: string;
   readonly checkedAt: string;
-  readonly ciAdapter?: true;
 } & BaseCiJudgment;
 
 const ciStatusRefusal =
@@ -86,7 +81,6 @@ export async function performIntentCiStatusRead(
   const answer: IntentCiStatusAnswer = {
     branch,
     checkedAt: new Date().toISOString(),
-    ...(readsCiThroughAdapter(folder) && { ciAdapter: true }),
     ...judgment,
   };
   return answered(answer);

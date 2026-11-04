@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-230_guard-ci-proof-revision-and-trim-proof-specs.json",
+      "identity": "SEED-230#guard-ci-proof-revision-and-trim-proof-specs",
+      "completedAt": "2026-11-04T15:42:23.739Z",
+      "blob": "95d8d4c60c4c5a925cef26c28333402f5a233b99"
+    },
+    {
       "fileName": "SEED-230_summarize-ci-proof-in-intent.json",
       "identity": "SEED-230#summarize-ci-proof-in-intent",
       "completedAt": "2026-11-04T15:05:29.957Z",

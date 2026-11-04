@@ -4,9 +4,11 @@
 // attempt or revision, when the project's CI is read through a ciAdapter,
 // or when no completed run is shown, one line under Proof says why, and the
 // judgment reads exactly as with no summary; Check again reads both again.
-// A run with a summary, a gap, no summary, and the read's refusals:
-// ./intent-ci-proof.spec.ts; a running result's ancestor proof and the
-// per-attempt memory: ./intent-ci-proof-ancestor.spec.ts.
+// A run with a summary or a gap, and one browser refusal:
+// ./intent-ci-proof.spec.ts; query-shape refusals:
+// ../../tests/support/dashboard-ci-proof-parse.test.mjs; a running
+// result's ancestor proof and the per-attempt memory:
+// ./intent-ci-proof-ancestor.spec.ts.
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -131,7 +133,7 @@ test("each proof that cannot be shown gives one reason under Proof, the verdict 
   });
 });
 
-test("a ciAdapter project, and a result with no completed run, each give one reason under Proof without asking GitHub for proof", async ({
+test("a ciAdapter project gives one reason under Proof without asking GitHub for proof", async ({
   page,
   dashboard,
 }) => {
@@ -153,21 +155,19 @@ process.stdout.write(JSON.stringify({ attempts: [{ runId: "a1", attemptId: "1", 
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const panel = await chooseCiStatus(parts(page).intent);
 
-  await test.step("the ciAdapter project's verdict, then why it has no proof", async () => {
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Passed at 4774f60 (Add login)",
-    );
-    await expect(
-      proofOf(panel).locator(".intent-ci-proof-unavailable"),
-    ).toHaveText([
-      "This project's CI is read through a ciAdapter, which publishes no CI proof summary.",
-    ]);
-    expect(
-      ci.published.requests.filter(({ request }) =>
-        request.kind.startsWith("actions-"),
-      ),
-    ).toEqual([]);
-  });
+  await expect(panel.locator(".intent-ci-state")).toHaveText(
+    "Passed at 4774f60 (Add login)",
+  );
+  await expect(
+    proofOf(panel).locator(".intent-ci-proof-unavailable"),
+  ).toHaveText([
+    "This project's CI is read through a ciAdapter, which publishes no CI proof summary.",
+  ]);
+  expect(
+    ci.published.requests.filter(({ request }) =>
+      request.kind.startsWith("actions-"),
+    ),
+  ).toEqual([]);
 });
 
 test("a running result with no completed ancestor shows no completed run, so one line says there is no proof to show", async ({

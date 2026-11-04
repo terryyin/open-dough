@@ -77,6 +77,16 @@ const producers = [
   };
 });
 
+test("the workflow names a pull request's head as CI_PROOF_REVISION before github.sha", () => {
+  // A pull-request run must name head.sha (what Intent judges), not the
+  // merge commit github.sha alone would give; drop the head preference and
+  // every PR summary reads as another revision.
+  assert.match(
+    workflow,
+    /^ {2}CI_PROOF_REVISION: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}$/m,
+  );
+});
+
 test("the ci-proof job runs after both proof jobs however they ended", () => {
   const lines = declared.get("ci-proof").join("\n");
   assert.match(lines, /^ {4}needs: \[test, dashboard\]$/m);

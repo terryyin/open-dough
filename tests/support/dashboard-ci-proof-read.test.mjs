@@ -4,8 +4,8 @@
 // is extracted and checked (../../dashboard/server/zipEntry.ts). An archive
 // the local GitHub request owner passed on as text, as one an earlier Open
 // Dough started does, is unreadable with what the developer can do
-// (../../dashboard/server/ciProofArtifact.ts). The read's refusals are
-// ../../dashboard/tests/intent-ci-proof.spec.ts.
+// (../../dashboard/server/ciProofArtifact.ts). Query-shape refusals:
+// ./dashboard-ci-proof-parse.test.mjs.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { judgeNearest } from "../../dashboard/server/baseCiNearest.ts";
