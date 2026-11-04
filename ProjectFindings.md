@@ -317,8 +317,12 @@ unqueued.
 
 [DD-412](docs/maintainer/project-test-findings.md#dd-412) records two invalidated
 whole-suite runs in one execution and the passing AC-powered retry.
-[SEED-227](.planning/seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md#protect-long-local-proof-from-maintenance-sleep)
-is queued to preserve the local setup in the maintained proof instructions.
+**Response:** `b52c1d3bdad7369fc1042a5f2744e9ebedadecbe` (2026-11-04) adds
+[machine sleep on macOS](tests/local-test-resources.md#machine-sleep-on-macos)
+and points at it from [AGENTS.md](AGENTS.md#failing-and-flaky-tests).
+**Observation criterion:** the next long local run on a macOS laptop follows
+that guard, and a sleep-shaped failure is attributed from `pmset -g log`
+before it is read as a defect. Not yet observed; open, unqueued.
 
 ## Review and recovery
 
