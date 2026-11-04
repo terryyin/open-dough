@@ -5,6 +5,7 @@
 in SEED-192, refined 2026-11-04 under Terry's instruction to use what the
 Cucumber, pytest, Vitest and Node proof stories taught, keep the
 architecture cohesive and add no duplicate.
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-04. Planning only, in the story's established workspace
 (branch `claude/read-open-dough-dashboard-playwright-proof`, agent
 yusuke-chan), continuing the refinement in the same session.
@@ -173,7 +174,7 @@ under the policy above.
 
 ### 1. The `playwright` proof reference tells a project how to record
 Type: Behavior
-Status: planned
+Status: done
 Proof: `src/skills/dough-test-optimization/references/playwright-proof.md`
 exists with the contract the story records (option, configured reporter
 and the `--reporter` warning, runner-process events, final attempt rule,
@@ -197,6 +198,49 @@ Behavior: An agent in a project with a Playwright suite asked to record
 `playwright` proof → reads the installed reference and can configure the
 option, write or extend the reporter, and declare the location without
 asking Open Dough anything else.
+
+**Slice 1 accepted proof (2026-11-04):**
+`PATH=/opt/homebrew/bin:$PATH bash tests/payload-declaration-links.sh`
+exit 0; `npm run --silent format` exit 0; post-change refactor shortened
+`playwright-proof.md` to 250 lines without dropping examples 1–5 contract
+points; source review retained as `source-review.md` with slice 1
+commitments 1, 1a, 1b, 1c, 5l, 16c observed.
+
+**Slice 1 behavior review (AGENTS.md, 2026-11-04, agent YeongSheng-chan):**
+Walked story key examples 1–5 against
+`src/skills/dough-test-optimization/references/playwright-proof.md` as
+written for the recording project's agent (re-walked after the 250-line
+shorten). Outcome: usable for each; no gap that blocks configuring the
+option, extending a reporter, or declaring the location from the
+reference alone.
+
+1. **Explicit focused recording** — Covered: `RECORD_PLAYWRIGHT_PROOF=1`
+   off in every profile including CI; normal runs leave proof untouched;
+   configured `reporter` list and `--reporter` replacement warning;
+   declaration example with `runner: "playwright"`, `proof` and
+   `proofGeneration.command` using the illustration command; identity
+   with `file` from the file suite, `test` as title path, `project`
+   omitted when projects are disjoint; `attempts` / `commit` /
+   `fileBlob`; recorder prints nothing and never changes exit. Option-off,
+   `--list`, CI and full-suite non-recording follow from the off-by-default
+   and "normal runs leave untouched" rules.
+2. **Retries and repetitions fold** — Covered: final-attempt rule;
+   `attempts` = final retry index + 1; `durationMs` sums attempt
+   durations; `--repeat-each` and other same-identity executions fold as
+   the Vitest reference (one observation; fail clears for the rest of the
+   run).
+3. **No verdict keeps / verdict clears** — Covered: keep for `skipped`
+   (`test.skip`, `test.fixme`, body `skip()`), `interrupted`, unselected
+   (selection / project / shard / split) and unreached; clear for
+   `failed`, `timedOut`, `test.fail` and printed-output passes under the
+   strict `passed` + expected `passed` + empty stdout/stderr rule.
+4. **Projects** — Covered: record `project` only when more than one
+   configured project selects the file; omit when projects select disjoint
+   files; reading section shows one row per observed project.
+5. **Nested runs** — Covered: strip `RECORD_PLAYWRIGHT_PROOF` from nested
+   runs of the real configuration; fixture projects record only in their
+   own temporary checkout via covered-location resolution from that
+   checkout's `.planning/open-dough.json`.
 
 ### 2. Open Dough records dashboard proof on explicit request
 Type: Behavior
@@ -335,3 +379,35 @@ runner Intent reads proof for") until slice 3 replaces it, so this needs no
 replacing slice. The overlap with plans 465, 466 and 467 is bounded by the
 Take-time check in Current decisions; the store-sharing rule names which
 plan writes the module in either order.
+
+## Story obligations
+
+### E1. No Playwright commitment on src/skills or tests
+Reported: slice 1 — "Open Dough's `src/skills` and `tests` locations carry no Playwright commitment"
+Story clause: "Open Dough's `src/skills` and `tests` locations carry no Playwright commitment"
+Disposition: excluded "Open Dough's `src/skills` and `tests` locations carry no Playwright commitment"
+Commitment: E1
+
+### E2. No other-project Playwright proof adoption
+Reported: slice 1 — "no other project adopts this reference here"
+Story clause: "no other project adopts this reference here"
+Disposition: excluded "no other project adopts this reference here"
+Commitment: E2
+
+### E3. Deferred template-literal and helper-defined rows
+Reported: slice 1 — "a test or describe named by a template literal with substitutions, and a test defined in a helper module, has no row"
+Story clause: "a test or describe named by a template literal with substitutions, and a test defined in a helper module, has no row"
+Disposition: excluded "Deferred promise, not a rejection: a test or describe named by a template literal with substitutions, and a test defined in a helper module, has no row"
+Commitment: E3
+
+### E4. Deferred shared-discipline consolidation
+Reported: slice 1 — "leaves one consolidation of the shared discipline into a reference the runner pages link to as a separate candidate once both land"
+Story clause: "leaves one consolidation of the shared discipline into a reference the runner pages link to as a separate candidate once both land"
+Disposition: excluded "leaves one consolidation of the shared discipline into a reference the runner pages link to as a separate candidate once both land"
+Commitment: E4
+
+### E5. Excluded evaluation topics
+Reported: slice 1 — "No run wall time, no CI comparison, no per-folder run cost, no staleness rule, no trace or attachment retention, no runtime context beyond what the format carries."
+Story clause: "No run wall time, no CI comparison, no per-folder run cost, no staleness rule, no trace or attachment retention, no runtime context beyond what the format carries."
+Disposition: excluded "No run wall time, no CI comparison, no per-folder run cost, no staleness rule, no trace or attachment retention, no runtime context beyond what the format carries."
+Commitment: E5
