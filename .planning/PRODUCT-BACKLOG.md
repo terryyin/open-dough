@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Reduce remote Sessions traffic](seeds/SEED-229-reduce-remote-sessions-traffic.md#reduce-remote-sessions-traffic) — SEED-229#reduce-remote-sessions-traffic ([plan](slice-plans/462-reduce-remote-sessions-traffic/PLAN.md))
 - [Summarize CI proof in Intent](seeds/SEED-230-summarize-ci-proof-in-intent.md#summarize-ci-proof-in-intent) — SEED-230#summarize-ci-proof-in-intent ([plan](slice-plans/463-summarize-ci-proof-in-intent/PLAN.md))
-- [Order pytest parameter rows by parameter id](seeds/SEED-192-review-product-intent.md#order-pytest-parameter-rows) — SEED-192#order-pytest-parameter-rows ([plan](slice-plans/464-order-pytest-parameter-rows/PLAN.md))
 
 ## Backlog list
 
