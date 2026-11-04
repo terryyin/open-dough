@@ -4,6 +4,7 @@
 **Source:** [selected story](../../seeds/SEED-232-reduce-dashboard-refresh-traffic.md#see-published-changes-over-sse)
 in SEED-232, refined 2026-11-04 with explore, borrow, challenge, clarify,
 investigate, stress-test and architecture.
+**Source review:** [source-review.md](./source-review.md)
 **Prepared:** 2026-11-04. Planning only, in the story's established workspace
 (branch `claude/see-published-changes-without-recurring-browser`, agent
 viktor-chan), continuing the refinement in the same session.
@@ -16,24 +17,20 @@ sends no recurring revision checks, and the stream costs fewer bytes than
 those checks did. The story's seven key examples and its evaluation basis
 are the acceptance.
 
-Included:
-
-- a server-sent event stream at the local read boundary, answering each
-  open stream in today's revision-check shape;
-- an in-process observation per project and request-owner scope, at the
-  current pace, that runs only while a stream for it is open;
-- the page holding a stream instead of its recurring check while it is
-  visible with a settled snapshot and no rate-limit wait, reopening it
-  when its revision or watched branches change;
-- at most two stream holders per browser on a non-multiplexing route, with
-  the other pages keeping today's check;
-- lost freshness shown, and caught up, when a stream fails or goes silent;
-- the two documents that account for checks.
+Included: a server-sent event stream at the local read boundary,
+answering each open stream in today's revision-check shape; an in-process
+observation per project and request-owner scope, at the current pace, only
+while a stream for it is open; the page holding a stream instead of its
+recurring check while visible with a settled snapshot and no rate-limit wait,
+reopening when its revision or watched branches change; at most two stream
+holders per browser on a non-multiplexing route (other pages keep today's
+check); lost freshness shown and caught up when a stream fails or goes silent;
+the two documents that account for checks.
 
 Excluded, as the story records: one shared stream per browser; WebSocket
 delivery; host status, agent launches or local sessions on the stream; a
-faster pace, publication-event checks or webhooks; cross-process sharing;
-any change to what a page shows, how it reads content, reload's fresh ref
+faster pace, publication-event checks or webhooks; cross-process sharing; any
+change to what a page shows, how it reads content, reload's fresh ref
 resolution or the request owner's protocol.
 
 Apply this repository's
@@ -42,132 +39,30 @@ throughout. Local full suites follow `tests/local-test-resources.md`: Bash 5
 on PATH, and on AC power `caffeinate -s -i` around the run
 ([machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos)).
 
-## Direction and PFE
+## Direction, premises, proof and decisions
 
-- **One answer shape, two deliveries.** The stream's events carry exactly
-  what a revision check answers today, its status included: a success, a
-  failure, or a limited answer with its wait. So `checkPublishedRevision`'s
-  parsing (`dashboard/src/authenticatedRead.ts`), `movedBranches`, the
-  failure wording and the limit record stay the page's one interpretation.
-  `useRevisionCheckSchedule` (`dashboard/src/revisionCheckSchedule.ts`)
-  splits into the reaction to an answer and its delivery. The recurring
-  check remains a real delivery for pages without a stream.
-- **The server owns the pace while streams are open.** A per-process
-  observation keyed by catalog source and `GitHubRequests` scope runs
-  `RevisionChecks.check` once per pace and evaluates each open stream
-  through `performRevisionCheck`
-  (`dashboard/server/performedRevisionCheck.ts`) with that stream's
-  `since` and watched branches. When the shared refresh story's
-  `SharedObservation` is on trunk, the observation demands it rather than
-  adding a second cache. Otherwise its own once-per-pace tick is the
-  sharing. Its timers and responses are registered in the boundary's
-  `tracked` lifetime (`dashboard/server/authenticatedRead.ts`), so closing
-  the boundary ends them.
-- **Pace and bounds.** The pace is `checkIntervalMs` (15 s). Tests lower it
-  through `configuredLimit` (`dashboard/server/configuredLimit.ts`, the
-  existing precedent for test-lowered server limits). The page treats
-  silence longer than the pace plus `readWaitLimitMs` (45 s) as lost.
-- **A distinct request.** The stream names its revision with a parameter
-  other than `since`, so `isCheck` (`dashboard/tests/pageRequestNoting.ts`)
-  and the request accounting keep counting checks only.
-- **Connection budget.** The page decides from
-  `performance.getEntriesByType("navigation")[0].nextHopProtocol`. Any
-  protocol other than `h2` or `h3` is capped at two holders through Web
-  Locks slots. A page that gets no slot keeps the check, and a queued slot
-  request lets it take over when a holder hides or closes.
-- **Existing check journeys stay on the check delivery.** About 40 page
-  journeys drive checks through the paused page clock and note `since`
-  requests. The dashboard test fixture's pages therefore pre-hold both
-  slots from an init script, a genuine "other tabs hold the slots"
-  condition, so those journeys keep proving the check delivery. Stream
-  journeys opt out of that init script.
-- **Documentation.** `dashboard/PUBLISHED-OBSERVATION.md` (the 15-second
-  check paragraph, hidden pages, and the sharing paragraph) and
-  `dashboard/GITHUB-REQUESTS.md` (per-page check accounting) say what
-  changes.
-
-Accepted decisions:
-
-- The stream carries observations of origin. It is in-process,
-  demand-driven and rebuildable, and it adds no daemon, database or
-  cross-process scheduler
-  ([ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)).
-- The evaluation basis is stated before the observed run, and the trade-off
-  is explicit
-  ([ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md)).
-- Existing parts are reused before new machinery
-  ([ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)).
-
-No ADR conflict was found, and no North Star topic is needed.
-
-## Decisive premises
-
-| Premise | Consuming operation, observed form, revision | Result | Unverified remainder |
-| --- | --- | --- | --- |
-| The loopback route is HTTP/1.1 and the Tailscale route multiplexes | `curl -s -o /dev/null -w "%{http_version}"` against `https://territory.tailb878f6.ts.net/` and `http://127.0.0.1:43128/`, 2026-11-04 | `2` and `1.1` | — |
-| Open streams to one HTTP/1.1 origin block further pages of the same browser | Scratch Node SSE server and Playwright Chromium (`chromium-1248`), seven pages in one context, each opening `EventSource`, 2026-11-04 | True: pages 0–5 received their event, the seventh page's navigation timed out after 5 s, and a fetch from page 0 never answered | Slice 4's seven-window journey observes the cap preventing it |
-| A same-origin `EventSource` passes the boundary's origin check | Same scratch setup, request headers logged: `Sec-Fetch-Site: same-origin`, `Sec-Fetch-Mode: cors`, loopback Host; `verifyLocalOrigin` returns on `same-origin` (`dashboard/server/localOrigin.ts`) | True at the header level | Slice 2's boundary spec opens a stream through the real boundary, and a cross-site request is refused with no `gh` call |
-| Web Locks and the navigation protocol are available to the page on loopback | Same scratch page: `typeof navigator.locks.request` is `function`, `isSecureContext` is `true`, and `nextHopProtocol` is `http/1.1` | True | — |
-| `EventSource` delivers while the page clock is paused, as journeys install it | Scratch page with `page.clock.install` and `pauseAt`, then `EventSource`: `open` and the message arrived within 0.5 s without advancing page time | True | — |
-| Boundary responses are not buffered by Vite's compression | Vite 8.3.0 `dist/node/chunks/node.js`: preview runs plugin `configurePreviewServer` hooks (where `localBoundaryPlugin` mounts) before `app.use(build_default())`; the only compression use is in preview | True by source | Slice 2's preview-mode case receives the first event promptly with `Accept-Encoding: gzip` |
-| Existing journeys drive checks with the page clock and `since` requests | `grep -l` for `passTimeUntilChecked`, `whileNotingChecks`, `isCheck` and `isHeadsCheck` in `dashboard/tests/*.spec.ts`: 40 spec files | True | Slice 3 runs them green with slots pre-held, and slice 4's whole suite does again |
-| Tailscale's HTTPS proxy delivers each event as it is written | Not observed: adding a probe mapping changes the tailnet's serve configuration | Open | Slice 1 |
-
-## Outside-in proof
-
-| Story example | Owning slice | Observable signal |
-| --- | --- | --- |
-| 1 quiet over Tailscale (harness) | 4 | Journey: a streaming page notes no `since` request over a quiet minute of page and server time and shows no problem |
-| 1 quiet over Tailscale (bytes, route) | 6 | Real dashboard: stream bytes per quiet minute below four checks' bytes, locally and through the Tailscale route |
-| 2 publication arrives | 2, 4 | Boundary: two streams of one source are answered from one listing per tick. Journey: two streaming pages show R' with one backlog read, no later than one pace after publication |
-| 3 each page its own answer | 2, 4, 5 | Boundary: different `since` and watched branches answered their own way. Journey: a watched branch move reads only that entry's plan and last commit time. Slice 5: a `504` listing tells the ref alone and the branch is not removed |
-| 4 dropped across a change | 5 | Journey: the dashboard server is stopped (SIGSTOP), then replaced on its port; within 45 s of page time the failed-check problem shows with R kept; on return the first answer names R', and the problem clears |
-| 5 hidden | 2, 4 | Boundary: the last stream closing ends the listings. Journey: hiding closes the stream; revealing answers at once |
-| 6 seven local windows | 4 | Journey: seven pages of one context all load and read; two hold streams and five check at the pace; hiding a holder lets a checking page stream |
-| 7 rate limit | 5 | Journey: a limited answer over the stream shows today's notice, closes the stream, asks nothing until T, then reopens |
-| Evaluation basis | 6 | Real dashboard measurement against the baseline, recorded as a learning |
-
-Local gates:
-
-- Focused specs per slice run through
-  `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list <specs>`:
-  - slice 2: the new boundary spec plus
-    `dashboard/tests/boundary/authenticated-read-revision-check*.spec.ts`
-    and `shared-observation.spec.ts`;
-  - slices 3–5: `dashboard/tests/auto-refresh*.spec.ts`,
-    `steady-refresh*.spec.ts`, `limit-recovery-*.spec.ts`,
-    `limited-reading-check.spec.ts`, `shared-observer-reads.spec.ts`,
-    `read-turns-across-tabs.spec.ts` and the new journeys.
-- Before each commit, run `npm run --silent typecheck:dashboard` and
-  `npm run --silent format`.
-- For each slice, run the consumer trace
-  (`node .claude/skills/dough-execute-plan/scripts/consumer-trace.mjs --checkout "$PWD" --base <revision> --term 'every 15 seconds' --term 'revision check'`).
-- Run the whole dashboard suite once before publishing slice 4, because the
-  fixture default reaches every page journey (`tests/local-test-resources.md`,
-  with the sleep guard named above).
-- Hosted CI runs the full suites after publication, and its failures stay
-  owned under the policy above.
+Retained in [planning-basis.md](./planning-basis.md).
 
 ## Ordered slices
 
 ### 1. Probe: the Tailscale route delivers each event as written
 Type: Behavior (early probe)
-Status: planned
+Status: done
 Proof:
 
-- First ask Terry to authorize a temporary, tailnet-only
-  `tailscale serve --bg --https=<unused port>` mapping to a scratch SSE
-  server on a free loopback port. Ask once, with slice 6's route
-  measurement in the same request.
-- Through the route, a headless Chromium page and `curl -N` each receive
-  an event written every second within about one second of its writing.
-- Remove the mapping with `--https=<port> off`, and confirm that
-  `tailscale serve status` shows only the two existing mappings again.
-- Record the times as a learning.
-- If events arrive late or in bursts, stop slices 4–6 and change the plan.
-  If authorization is withheld, the observation moves to slice 6's
-  post-deployment measurement, and the execution-complete record names the
-  premise as still open.
+- Terry authorized the temporary mapping and slice 6's Tailscale route
+  measurement (2026-11-04).
+- Mapping: `tailscale serve --bg --https=9443` → scratch SSE on
+  `127.0.0.1:18765` (one event per second with `writtenAt`). Route URL
+  `https://territory.tailb878f6.ts.net:9443/`.
+- Headless Chromium (Playwright): five events, lagMs `[4, 2, 1, 3, 1]`,
+  gapsMs `[1000, 1002, 1004, 999]`.
+- `curl -N`: five events, lagMs ≈ 1001–1003 (steady gaps ≈ 1000–1003 ms;
+  not bursty; within about one second).
+- `tailscale serve --https=9443 off`; `tailscale serve status` matched the
+  pre-probe baseline (only `:443`→43128 and `:8443`→17235).
+- Premise holds; slices 4–6 stay as planned. Slice 6 may reuse this
+  authorization for the Tailscale quiet-minute measurement.
 
 Behavior: An SSE response through the Tailscale HTTPS proxy → each event
 reaches the browser as it is written.
@@ -298,33 +193,46 @@ Behavior: The landed dashboard with one real visible page → no recurring
 check requests, fewer bytes than four checks a minute, and no later
 display.
 
-## Current decisions
-
-- The transport is SSE, as the story decided. WebSocket and a shared
-  per-browser stream are deferred.
-- The cap is two holders per browser on routes whose navigation protocol
-  is not `h2` or `h3`. Pages without a slot keep the recurring check, which
-  stays a maintained delivery.
-- The stream sends the current answer once per pace. That answer is the
-  liveness message, so a stream needs no separate heartbeat or event
-  history. The first answer at every open is the catch-up, and no
-  `Last-Event-ID` is used.
-- The page owns reopening: it closes a failed stream and reopens no more
-  often than the pace.
-- The observation is keyed by catalog source and request-owner scope, and
-  an undefined scope shares nothing. It runs only while a stream for it is
-  open.
-- Slices 2 and 3 are safe stopping points: no page uses the stream before
-  slice 4. Slices 4 and 5 reach trunk together.
-
 ## Concern evidence
 
-Slice-plan refinement was not needed. Each slice owns one proof loop. The
-one Structure slice sits immediately before the Behavior it enables, and
-the sequence reuses the revision check's answer, comparison and failure
-paths rather than adding a second interpretation.
+Slice-plan refinement was not needed. Each slice owns one proof loop; the one
+Structure slice sits before the Behavior it enables. Remaining concern: none
+from slice 1 (Tailscale SSE premise held). Interim behavior between slices 4
+and 5 stays named under slice 4 with its publication constraint.
 
-Remaining concern: slice 1's Tailscale premise is open until its probe
-runs. It is bounded by that early probe slice, whose failure stops slices
-4–6. Interim behavior between slices 4 and 5 is named above with its
-publication constraint.
+## Story obligations
+
+### G1. Deferred shared stream per browser
+Reported: slice 1 — "one shared stream per browser so that every visible page streams on a non-multiplexing route"
+Story clause: "one shared stream per browser so that every visible page streams on a non-multiplexing route"
+Disposition: excluded "one shared stream per browser so that every visible page streams on a non-multiplexing route"
+Commitment: D1
+
+### G2. Deferred WebSocket delivery
+Reported: slice 1 — "WebSocket delivery"
+Story clause: "WebSocket delivery"
+Disposition: excluded "WebSocket delivery"
+Commitment: D2
+
+### G3. Deferred host status, launches and local sessions on the stream
+Reported: slice 1 — "carrying host status, agent launches or local sessions on the stream"
+Story clause: "carrying host status, agent launches or local sessions on the stream (the Board's other two 15-second reads stay as they are)"
+Disposition: excluded "carrying host status, agent launches or local sessions on the stream (the Board's other two 15-second reads stay as they are)"
+Commitment: D3
+
+### G4. Deferred faster pace, publication events and webhooks
+Reported: slice 1 — "a faster server pace, an immediate check on a known publication event, or GitHub webhooks"
+Story clause: "a faster server pace, an immediate check on a known publication event, or GitHub webhooks"
+Disposition: excluded "a faster server pace, an immediate check on a known publication event, or GitHub webhooks"
+Commitment: D4
+
+### G5. Deferred cross-process observation sharing
+Reported: slice 1 — "sharing observations across separately launched dashboard processes"
+Story clause: "sharing observations across separately launched dashboard processes"
+Disposition: excluded "sharing observations across separately launched dashboard processes"
+Commitment: D5
+
+## Learnings
+
+- 2026-11-04 slice 1: Tailscale HTTPS delivered each 1 Hz SSE event as written
+  (Chromium lag 1–4 ms; curl ~1 s steady). Premise holds; slices 4–6 unchanged.
