@@ -10,7 +10,7 @@ records.
 ## Provenance
 
 Execution retrospective of SEED-192#read-pytest-proof (plan
-[459](../459-read-pytest-proof/PLAN.md)), reviewing commits `85ce0030a`,
+459 at `33fe545353b34e2d4028f541e0a922c63286255d:.planning/slice-plans/459-read-pytest-proof/PLAN.md`), reviewing commits `85ce0030a`,
 `d62a2306a`, `d9a94c272`, `d5249a45a` and `5082cb99e`. In `5082cb99e` Terry
 amended the story (2026-11-04): a parametrized function's rows are "ordered
 by parameter id, since pytest's collection order is not recorded", and key
