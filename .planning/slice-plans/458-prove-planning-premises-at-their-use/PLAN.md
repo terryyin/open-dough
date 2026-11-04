@@ -283,3 +283,12 @@ proof loop, no shared preparation, no interim behavior. No remaining
 slice-specific concern was identified. Example 3's retained observation is
 a candidate the executor confirms at its revision; that confirmation is the
 example's own replay, not a readiness gap.
+
+## Execution complete
+
+Product advice: no change. The response is delivered on the story branch and
+unreleased; what remains is the first containing release and later ordinary
+planning use, both recorded at ODF-074. No correction or process finding
+arose: the two wording conflicts found during execution (the read-only
+profile query and reason clearing by citation) were fixed within their
+slices.
