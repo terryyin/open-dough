@@ -1,6 +1,5 @@
 // The CI proof of a running result in Intent's CI status tab
-// (../src/IntentCiProof.tsx, SEED-230#summarize-ci-proof-in-intent example
-// 3): a running story branch shows its completed ancestor's run's proof,
+// (../src/IntentCiProof.tsx): a running story branch shows its completed ancestor's run's proof,
 // naming that ancestor's revision and run, not the running commit's; and a
 // summary already read for that run attempt is remembered, so showing the
 // tab again judges again but never asks GitHub for the proof again

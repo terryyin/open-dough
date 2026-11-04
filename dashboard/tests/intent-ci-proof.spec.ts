@@ -1,5 +1,5 @@
 // The CI proof of the run Intent's CI status tab shows a result of
-// (../src/IntentCiProof.tsx, SEED-230#summarize-ci-proof-in-intent): after
+// (../src/IntentCiProof.tsx): after
 // the judgment, which reads as it always has, Proof names that run once --
 // revision, link and attempt -- then one row per entry the run's CI
 // declared, with counts, unit and any gap. The summary is the collector's

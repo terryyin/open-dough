@@ -1,5 +1,5 @@
-// Why Intent's CI status tab shows no CI proof (../src/IntentCiProof.tsx,
-// SEED-230#summarize-ci-proof-in-intent example 4): when the shown run's
+// Why Intent's CI status tab shows no CI proof (../src/IntentCiProof.tsx):
+// when the shown run's
 // summary has expired, cannot be read, is invalid, or is for another
 // attempt or revision, when the project's CI is read through a ciAdapter,
 // or when no completed run is shown, one line under Proof says why, and the
