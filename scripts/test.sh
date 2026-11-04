@@ -18,9 +18,22 @@ readonly test_bash
 # Re-enter through the local admission owner for full runs. Its immediate child
 # alone skips this wrapper; a nested suite still validates inherited ownership.
 # Keep this before discovery/setup and outside OPEN_DOUGH_TEST_* normalization.
+# Pathless local runs take shared admission only when the resolved test
+# directory lies inside this checkout. Outside-checkout substitutes (runner
+# fixtures over a temporary checks directory) stay independent.
 if (($# == 0)) && [[ -z ${CI:-} && -z ${OPEN_DOUGH_TEST_SPLIT:-} && ${DOUGH_LOCAL_SUITE_RUNNER_PID:-} != "${PPID}" ]]; then
-  exec node "${source_dir}/scripts/local-test-suite.mjs" repository \
-    "${source_dir}" "${caller_dir}" "${test_bash}" "${source_dir}/scripts/test.sh"
+  admission_test_dir=${OPEN_DOUGH_TEST_DIR:-tests}
+  [[ ${admission_test_dir} == /* ]] || admission_test_dir=${source_dir}/${admission_test_dir}
+  checkout=$(pwd -P)
+  if resolved=$(cd -- "${admission_test_dir}" 2> /dev/null && pwd -P); then
+    case ${resolved}/ in
+      "${checkout}"/*)
+        exec node "${source_dir}/scripts/local-test-suite.mjs" repository \
+          "${source_dir}" "${caller_dir}" "${test_bash}" "${source_dir}/scripts/test.sh"
+        ;;
+      *) ;; # outside-checkout substitute: skip shared admission
+    esac
+  fi
 fi
 
 # The runner is the one scheduler: every shell check and every `node --test`

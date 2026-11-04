@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-231#keep-focused-proof-out-of-suite-admission",
+  "title": "Keep focused proof out of full-suite admission",
+  "completedAt": "2026-11-04T14:58:46.845Z",
+  "developer": "Terry Yin",
+  "agent": "mike.li-chan",
+  "host": "cursor",
+  "model": "auto"
+}

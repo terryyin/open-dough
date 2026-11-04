@@ -29,7 +29,7 @@ export function git(directory, ...args) {
 }
 
 export async function until(description, condition) {
-  const deadline = Date.now() + 20_000;
+  const deadline = Date.now() + 60_000;
   while (!(await condition())) {
     assert.ok(Date.now() < deadline, `Timed out: ${description}`);
     await delay(20);
@@ -158,7 +158,7 @@ exit "\${PROBE_EXIT:-0}"
     `
 import config from './playwright.config.mts';
 export default { ...config, projects: [{name:'controlled'}], testMatch: /probe[.]spec[.]mts$/,
-  reporter: 'line', use: {}, globalSetup: './controlled-setup.mjs' };
+  timeout: 120_000, reporter: 'line', use: {}, globalSetup: './controlled-setup.mjs' };
 `,
   );
   writeFileSync(

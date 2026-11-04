@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Summarize CI proof in Intent](seeds/SEED-230-summarize-ci-proof-in-intent.md#summarize-ci-proof-in-intent) — SEED-230#summarize-ci-proof-in-intent ([plan](slice-plans/463-summarize-ci-proof-in-intent/PLAN.md))
 - [Read JSX text safely and trim repeated Vitest journeys](seeds/SEED-192-review-product-intent.md#read-tsx-text-and-trim-vitest-journeys) — SEED-192#read-tsx-text-and-trim-vitest-journeys ([plan](slice-plans/465-read-tsx-text-and-trim-vitest-journeys/PLAN.md))
-- [Keep focused proof out of full-suite admission](seeds/SEED-231-keep-focused-proof-out-of-suite-admission.md#keep-focused-proof-out-of-suite-admission) — SEED-231#keep-focused-proof-out-of-suite-admission ([plan](slice-plans/466-keep-focused-proof-out-of-suite-admission/PLAN.md))
 
 ## Backlog list
 

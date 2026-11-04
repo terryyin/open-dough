@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import {
   cpSync,
   existsSync,
+  mkdirSync,
   readFileSync,
   readdirSync,
   writeFileSync,
@@ -86,10 +87,20 @@ test("repository full suites serialize across spaced worktrees while focused and
     assert.equal(git(project, "rev-parse", gateRef), original);
   }
   const waiter = repository(t, linked, second);
+  const outsideChecks = path.join(
+    path.dirname(project),
+    "outside-checkout-checks",
+  );
+  mkdirSync(outsideChecks);
+  writeFileSync(
+    path.join(outsideChecks, "probe-0.sh"),
+    readFileSync(path.join(project, "checks/probe-0.sh"), "utf8"),
+  );
   for (const [name, env, args] of [
     ["focus", {}, ["checks/probe-0.sh"]],
     ["share", { OPEN_DOUGH_TEST_SPLIT: "1/1" }, []],
     ["ci", { CI: "true" }, []],
+    ["outside-pathless", { OPEN_DOUGH_TEST_DIR: outsideChecks }, []],
   ]) {
     const observation = observe(name);
     writeFileSync(path.join(observation, "release"), "");
