@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "d.kanai-chan",
+  "email": "d.kanai-chan@example.org",
+  "identity": "SEED-229#reduce-remote-sessions-traffic",
+  "mode": "story-branch",
+  "branch": "claude/reduce-remote-sessions-traffic",
+  "host": "claude",
+  "model": "opus"
+}

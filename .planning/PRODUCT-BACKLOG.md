@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Read Pygardon pytest proof](seeds/SEED-192-review-product-intent.md#read-pytest-proof) — SEED-192#read-pytest-proof ([plan](slice-plans/459-read-pytest-proof/PLAN.md))
+- [Reduce remote Sessions traffic](seeds/SEED-229-reduce-remote-sessions-traffic.md#reduce-remote-sessions-traffic) — SEED-229#reduce-remote-sessions-traffic ([plan](slice-plans/462-reduce-remote-sessions-traffic/PLAN.md))
 
 ## Backlog list
 
-- [Reduce remote Sessions traffic](seeds/SEED-229-reduce-remote-sessions-traffic.md#reduce-remote-sessions-traffic) — SEED-229#reduce-remote-sessions-traffic
 - [Summarize CI proof in Intent](seeds/SEED-230-summarize-ci-proof-in-intent.md#summarize-ci-proof-in-intent) — SEED-230#summarize-ci-proof-in-intent
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
