@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Read Pygardon pytest proof](seeds/SEED-192-review-product-intent.md#read-pytest-proof) — SEED-192#read-pytest-proof ([plan](slice-plans/459-read-pytest-proof/PLAN.md))
-- [Make selected-story Intent easier to scan](seeds/SEED-228-compact-selected-story-intent.md#compact-selected-story-intent) — SEED-228#compact-selected-story-intent ([plan](slice-plans/461-compact-selected-story-intent/PLAN.md))
 
 ## Backlog list
 
