@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "yilv-chan",
-  "email": "yilv-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-192#read-vitest-proof",
-  "host": "claude",
-  "model": "fable"
-}
