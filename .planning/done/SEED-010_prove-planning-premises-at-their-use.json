@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#prove-planning-premises-at-their-use",
+  "title": "Prove decisive planning premises where the slice uses them",
+  "completedAt": "2026-11-04T01:33:05.219Z",
+  "developer": "Terry Yin",
+  "agent": "jackson-chan",
+  "host": "claude",
+  "model": "opus"
+}
