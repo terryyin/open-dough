@@ -11,6 +11,11 @@ import type { PublishedSource } from "./publishedSource.ts";
 
 export const authenticatedReadEndpoint = "/__authenticated-read";
 
+// The search parameter a revision stream uses for the revision the page
+// already shows. Distinct from `since` so request accounting and
+// `isCheck` keep counting only today's revision checks.
+export const revisionStreamAtParameter = "at";
+
 // Beside it, the boundary serves the GitHub avatar of the human credited for
 // one listed agent profile at a pinned revision.
 export const authenticatedAvatarEndpoint = "/__authenticated-avatar";

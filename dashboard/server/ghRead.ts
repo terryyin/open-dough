@@ -78,6 +78,12 @@ export function execGh(
   return timedGhWait(() => github.request(args, signal));
 }
 
+// The request-owner scope this process asks under, when it can be named
+// (`github-requests.mjs`); undefined while that endpoint is not established.
+export function requestOwnerScope(): Promise<string | undefined> {
+  return github.scope();
+}
+
 // One `gh` answer's body, and when it was asked of GitHub.
 export async function askGh(
   args: readonly string[],

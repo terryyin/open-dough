@@ -17,10 +17,10 @@ No plan, product, proof or current-slice scope.
 | 4.2 | Visible settled page holds one SSE stream for its shown revision | slice 4 | |
 | 4.3 | Visible settled page holds one SSE stream for its watched story branches; then asks no recurring revision check | slice 4 | |
 | 5 | First message on every open and reopen is the current answer for that revision and those branches (catch-up without replaying events) | slice 4 | |
-| 6 | Dashboard observes origin at 15s pace per project and request-owner scope that has at least one open stream | slice 2 | |
-| 6.1 | Observation asks GitHub at most as often as one page's checks do today | slice 2 | |
-| 6.2 | Observation stops when the last stream for that project and scope closes | slice 2 | |
-| 7 | When observation settles, every open stream for that project and scope gets its own answer from the same branch-head listing, in today's revision-check shape | slice 2 | |
+| 6 | Dashboard observes origin at 15s pace per project and request-owner scope that has at least one open stream | slice 2 | observed: dashboard/server/sourceRevisionStream.ts SourceRevisionStream + authenticated-read-revision-stream.spec.ts one matching-refs per tick |
+| 6.1 | Observation asks GitHub at most as often as one page's checks do today | slice 2 | observed: authenticated-read-revision-stream.spec.ts matchingRefsSince === 1 at open and next pace |
+| 6.2 | Observation stops when the last stream for that project and scope closes | slice 2 | observed: authenticated-read-revision-stream.spec.ts after last close matchingRefsSince === 0; closing boundary stops observation |
+| 7 | When observation settles, every open stream for that project and scope gets its own answer from the same branch-head listing, in today's revision-check shape | slice 2 | observed: authenticated-read-revision-stream.spec.ts two streams different at/watch; each own answer from one listing via performRevisionCheck |
 | 7a | Changed ref leads the page to read exactly the new revision | slice 4 | |
 | 7b | Moved watched branch leads the page to read only that entry's plan and last commit time | slice 4 | |
 | 7c | Any other branch moving sends that page nothing that leads to a read | slice 4 | |
@@ -30,7 +30,7 @@ No plan, product, proof or current-slice scope.
 | 9.3 | Page holds no stream when it starts a new read | slice 4 | |
 | 9.4 | Page holds no stream while waiting out GitHub's rate limit; opens again when the condition ends; first message serves as today's check of a page seen again | slice 5 | |
 | 10 | After a read changes revision or watched branches, the page reopens its stream with them | slice 4 | |
-| 11 | A healthy stream carries the page's current answer once per pace | slice 2 | |
+| 11 | A healthy stream carries the page's current answer once per pace | slice 2 | observed: authenticated-read-revision-stream.spec.ts first at open then nextEvent at pace; revisionStreamPaceMs |
 | 12.1 | Failed/closed/silent stream (longer than pace + 30s wait): snapshot stays with revision and retrieval time | slice 5 | |
 | 12.2 | Existing problem wording says freshness was lost | slice 5 | |
 | 12.3 | Page reopens no more often than the pace | slice 5 | |

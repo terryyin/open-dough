@@ -62,6 +62,86 @@ export function rawRequest(options: RawRequestOptions): Promise<RawResponse> {
 // way a browser tab does when the person navigates away or the page's own
 // controller aborts: the server sees a premature close on this request, not
 // a discarded answer it can keep computing.
+// Opens a GET that stays open and yields each `data:` line of a
+// `text/event-stream` as its JSON payload, for revision-stream boundary
+// specs. Closing ends the request the way a page closes its EventSource.
+export function openEventStream(options: RawRequestOptions): {
+  readonly headers: Promise<
+    Readonly<{
+      status: number;
+      headers: Readonly<Record<string, string | string[] | undefined>>;
+    }>
+  >;
+  readonly nextEvent: () => Promise<unknown>;
+  readonly close: () => void;
+} {
+  const url = new URL(options.url);
+  const events: unknown[] = [];
+  const waiters: Array<(value: unknown) => void> = [];
+  let buffer = "";
+  let headersResolve: (value: {
+    status: number;
+    headers: Readonly<Record<string, string | string[] | undefined>>;
+  }) => void;
+  const headers = new Promise<{
+    status: number;
+    headers: Readonly<Record<string, string | string[] | undefined>>;
+  }>((resolve) => {
+    headersResolve = resolve;
+  });
+  const req = http.request(
+    {
+      agent: false,
+      hostname: url.hostname,
+      port: url.port,
+      path: `${url.pathname}${url.search}`,
+      method: options.method ?? "GET",
+      headers: options.headers,
+    },
+    (res) => {
+      headersResolve({
+        status: res.statusCode ?? 0,
+        headers: res.headers,
+      });
+      res.setEncoding("utf8");
+      res.on("data", (chunk: string) => {
+        buffer += chunk;
+        let split: number;
+        while ((split = buffer.indexOf("\n\n")) !== -1) {
+          const frame = buffer.slice(0, split);
+          buffer = buffer.slice(split + 2);
+          const dataLine = frame
+            .split("\n")
+            .find((line) => line.startsWith("data:"));
+          if (dataLine === undefined) continue;
+          const payload: unknown = JSON.parse(
+            dataLine.slice("data:".length).trim(),
+          );
+          const waiter = waiters.shift();
+          if (waiter !== undefined) waiter(payload);
+          else events.push(payload);
+        }
+      });
+    },
+  );
+  req.on("error", () => {
+    // Destroy races the server ending the stream; only the open is under test.
+  });
+  req.end(options.body);
+  return {
+    headers,
+    nextEvent: () =>
+      events.length > 0
+        ? Promise.resolve(events.shift())
+        : new Promise((resolve) => {
+            waiters.push(resolve);
+          }),
+    close: () => {
+      req.destroy();
+    },
+  };
+}
+
 export function abandonedRequest(options: RawRequestOptions): {
   readonly cutAfter: (ms: number) => void;
 } {

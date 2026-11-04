@@ -52,6 +52,8 @@ import {
 import type { Outcome } from "./readOutcome.ts";
 import { withReadTiming } from "./readTiming.ts";
 import { parseRequestedRead } from "./requestedRead.ts";
+import { parseRequestedRevisionStream } from "./requestedRevisionStream.ts";
+import { RevisionStreamObservation } from "./revisionStreamObservation.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { configuredProject } from "./projectConfiguration.ts";
 // The endpoint paths, shared with the browser.
@@ -181,6 +183,7 @@ export function installAuthenticatedReadMiddleware(
     branches: new BranchHeads(),
     avatars: new AvatarImages(),
   };
+  const streams = new RevisionStreamObservation(boundary);
   const handler: Connect.NextHandleFunction = (req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
     if (
@@ -191,6 +194,22 @@ export function installAuthenticatedReadMiddleware(
       next();
       return;
     }
+    if (url.pathname === authenticatedReadEndpoint) {
+      const stream = parseRequestedRevisionStream(url.searchParams);
+      if (stream !== undefined) {
+        const source = admitted(req, url.searchParams);
+        if ("kind" in source) {
+          respond(res, source, "");
+          return;
+        }
+        if ("kind" in stream) {
+          respond(res, stream, "");
+          return;
+        }
+        void streams.open(source, stream, req, res);
+        return;
+      }
+    }
     void withReadTiming(() => answer(req, boundary, url)).then(
       ({ outcome, serverTiming }) => {
         respond(res, outcome, serverTiming);
@@ -199,6 +218,7 @@ export function installAuthenticatedReadMiddleware(
   };
   middlewares.use(handler);
   return () => {
+    streams.close();
     for (const controller of boundary.tracked) {
       controller.abort();
     }

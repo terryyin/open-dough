@@ -69,25 +69,25 @@ reaches the browser as it is written.
 
 ### 2. The read boundary streams each subscriber's revision answers
 Type: Behavior
-Status: planned
-Proof: A new boundary spec beside
-`authenticated-read-revision-check.spec.ts`, through real HTTP, the
-synthetic `gh` and a lowered pace, shows:
+Status: done
+Proof: `dashboard/tests/boundary/authenticated-read-revision-stream.spec.ts`
+through real HTTP, synthetic `gh`, and `DOUGH_REVISION_STREAM_MS=80`, plus
+existing revision-check and shared-observation specs (21 passed; coordinator
+rerun 2026-11-04). Shows:
 
-- the stream answers `text/event-stream`, uncacheable, with its first
-  answer at open;
-- two streams of one source at different revisions and watched branches
-  cost one `matching-refs` invocation per tick, and each gets its own
-  answer;
-- after the last stream closes, no further listing is asked;
-- a cross-site request is refused before any `gh` call;
-- closing the boundary ends open streams and stops the observation;
-- a `504` listing answers the ref alone without branches;
-- a rate-limited listing answers limited with its wait;
-- a preview-mode case with `Accept-Encoding: gzip` receives the first event
-  promptly.
+- `text/event-stream`, `Cache-Control: no-store`, first answer at open;
+- two streams (`at`+`watch` vs other `at`) share one `matching-refs` per
+  tick and each get their own answer; after both close, no further listing;
+- cross-site Origin refused with 403 and no `gh` call;
+- `server.close` ends the stream and stops further listings;
+- `504` listing → `{ revision, changed }` without branches;
+- rate-limited listing → limited error with `retryAfterSeconds: 120`;
+- preview + `Accept-Encoding: gzip` first event within 2 s.
 
-The existing revision-check boundary specs stay green.
+Implementation: `revisionStreamObservation.ts` / `sourceRevisionStream.ts`
+demand `SharedObservation` per source+scope; `at` parameter (not `since`);
+optional listing into `performRevisionCheck`. `npm run typecheck:dashboard`
+exit 0.
 
 Behavior: A client opens a revision stream for a source, a revision and
 watched branches → the boundary answers at once and then once per pace in

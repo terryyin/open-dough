@@ -86,6 +86,14 @@ export class GitHubRequests {
    * @param {AbortSignal} signal
    * @returns {Promise<GhAnswer>}
    */
+  // How this process names the API host and login it asks under now, without
+  // a secret; undefined while their endpoint cannot be established. Revision
+  // observations key by this so separately logged-in processes share nothing.
+  /** @returns {Promise<string | undefined>} */
+  scope() {
+    return this.#owner.scope();
+  }
+
   async request(args, signal) {
     return this.#outstanding.waitFor(
       JSON.stringify([await this.#owner.scope(), args]),
