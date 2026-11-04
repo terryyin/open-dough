@@ -4,13 +4,12 @@
 // directory (`./ghTrees.ts`), each `.json` file's text by its blob sha
 // (`./pinnedTexts.ts`) parsed by the location's kind (`../src/proofKinds.ts`),
 // and the last successful proof of each case across every file
-// (`../src/proofCases.ts`), answered in the Cucumber fields every kind's
-// answer carries (`../src/cucumberProof.ts`). Rate limits still fail the whole
-// read; any other failed read or malformed proof file leaves the location's
-// Purpose readable and reports which, naming the first such file.
+// (`../src/proofCases.ts`), answered in the case model's own fields whatever
+// the kind. Rate limits still fail the whole read; any other failed read or
+// malformed proof file leaves the location's Purpose readable and reports
+// which, naming the first such file.
 
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
-import { cucumberOfCase } from "../src/cucumberProof.ts";
 import {
   latestSuccessfulObservations,
   type CaseObservation,
@@ -101,11 +100,9 @@ export async function locationProofAt(
   const listed = new Set(files.map((file) => file.path));
   return {
     path: directory,
-    featureBlobs: Object.fromEntries(
-      files.map((file) => [file.path, file.sha]),
-    ),
+    fileBlobs: Object.fromEntries(files.map((file) => [file.path, file.sha])),
     observations: latestSuccessfulObservations(
       read.observations.filter((observation) => listed.has(observation.file)),
-    ).map(cucumberOfCase),
+    ),
   };
 }

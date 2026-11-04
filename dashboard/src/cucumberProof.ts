@@ -3,16 +3,13 @@
 // defines them, read into Intent's case model (`./proofCases.ts`): feature
 // path → file, scenario name → case name, outline example cells → variant,
 // feature blob → file blob. Run files and consolidated files read the same
-// way. The pinned Intent read (`../server/intentProofRead.ts`) answers in the
-// same Cucumber fields, and its answer's schema
-// (`./authenticatedIntentRead.ts`) reads them back into the case model.
+// way.
 
 import {
   isRecord,
   proofFileObservations,
   proofMeasureOf,
   type CaseObservation,
-  type SuccessfulCaseObservation,
 } from "./proofCases.ts";
 
 const cucumberOutcomes = [
@@ -42,51 +39,6 @@ export type CucumberObservation = {
   readonly commit: string;
   readonly featureBlob: string;
 };
-
-export type SuccessfulCucumberObservation = CucumberObservation & {
-  readonly outcome: "passed";
-};
-
-// A retained Cucumber observation as a case observation.
-export function caseOfCucumber({
-  feature,
-  scenario,
-  example,
-  featureBlob,
-  ...measured
-}: SuccessfulCucumberObservation): SuccessfulCaseObservation {
-  const named = { file: feature, name: scenario };
-  const recorded = { ...measured, fileBlob: featureBlob };
-  return example === undefined
-    ? { ...named, ...recorded }
-    : { ...named, variant: example, ...recorded };
-}
-
-// A retained case observation in the Cucumber fields the Intent answer
-// carries.
-export function cucumberOfCase({
-  file,
-  name,
-  variant,
-  fileBlob,
-  outcome,
-  attempts,
-  durationMs,
-  finishedAt,
-  commit,
-}: SuccessfulCaseObservation): SuccessfulCucumberObservation {
-  const named = { feature: file, scenario: name, outcome };
-  const measured = {
-    attempts,
-    durationMs,
-    finishedAt,
-    commit,
-    featureBlob: fileBlob,
-  };
-  return variant === undefined
-    ? { ...named, ...measured }
-    : { ...named, example: variant, ...measured };
-}
 
 function observationOf(value: unknown): CaseObservation | undefined {
   if (!isRecord(value)) return undefined;

@@ -3,6 +3,7 @@
 
 import { keptStarts } from "./agentLaunchBoundary.ts";
 import { expect, test } from "./support/preparationPage.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import {
   actionsForRuns,
   actionsWorkflowAnswer,
@@ -117,6 +118,8 @@ test("an empty Actions listing asks without CI result for no readable check", as
     .getByRole("button", { name: "Continue without CI result" })
     .click();
   await expect(dialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
+    .toHaveLength(1);
   expect(await origin.takenProfiles()).toHaveLength(1);
 });

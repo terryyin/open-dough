@@ -55,12 +55,12 @@ const filesWith = (label: string, runs: number): Files => ({
   ),
 });
 
-const featureBlobs = Object.fromEntries(
+const fileBlobs = Object.fromEntries(
   Object.entries(features).map(([path, text]) => [path, gitBlobSha(text)]),
 );
 
 const proofOf = (body: unknown) =>
-  (body as { locations: { proof?: { featureBlobs?: unknown } }[] }).locations[0]
+  (body as { locations: { proof?: { fileBlobs?: unknown } }[] }).locations[0]
     ?.proof;
 
 // The feature listing at `revision` as an older dashboard retained it: its
@@ -104,7 +104,7 @@ test.describe("authenticated Intent proof file version after a dashboard upgrade
       return read(server, locationsAt(a));
     });
     expect(first.status).toBe(200);
-    expect(proofOf(first.body)).toMatchObject({ featureBlobs });
+    expect(proofOf(first.body)).toMatchObject({ fileBlobs });
     retainedWithoutShas(machine, a);
 
     project.movedTo(b, filesWith(label, 2), [
@@ -122,7 +122,7 @@ test.describe("authenticated Intent proof file version after a dashboard upgrade
       "tree",
       "tree",
     ]);
-    expect(proofOf(second.result.body)).toMatchObject({ featureBlobs });
+    expect(proofOf(second.result.body)).toMatchObject({ fileBlobs });
 
     project.movedTo(c, filesWith(label, 3), [
       { ...madeBy("e5", [modified(proofFile(3))]), committedAt: daysAgo(1) },
@@ -135,6 +135,6 @@ test.describe("authenticated Intent proof file version after a dashboard upgrade
     );
     expect(third.result.status).toBe(200);
     expect(third.calls.filter((call) => call === "tree")).toEqual(["tree"]);
-    expect(proofOf(third.result.body)).toMatchObject({ featureBlobs });
+    expect(proofOf(third.result.body)).toMatchObject({ fileBlobs });
   });
 });

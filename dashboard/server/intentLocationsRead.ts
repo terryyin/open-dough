@@ -30,7 +30,11 @@ import {
   type IntentSettingsProblem,
 } from "./intentLocationsSettings.ts";
 import { locationProofAt, type ListedFile } from "./intentProofRead.ts";
-import { proofKindOf } from "../src/proofKinds.ts";
+import {
+  proofKindOf,
+  runnerProblemOf,
+  type RunnerProblem,
+} from "../src/proofKinds.ts";
 import {
   extensionsOf,
   locationSelectsRelativePath,
@@ -103,16 +107,34 @@ async function filesUnderLocation(
   });
 }
 
+// A declared proof directory's `runner` problem, when the location's kind
+// leaves its proof format to a runner Intent cannot read it with.
+function runnerProblemFields(location: DeclaredLocation): {
+  readonly runnerProblem?: RunnerProblem;
+} {
+  if (location.proof === undefined) return {};
+  const runnerProblem = runnerProblemOf(location.kind, location.runner);
+  return runnerProblem === undefined ? {} : { runnerProblem };
+}
+
 function locationFields(
   location: DeclaredLocation,
 ): Pick<
   IntentLocation,
-  "path" | "kind" | "include" | "proofGeneration" | "proofGenerationProblem"
+  | "path"
+  | "kind"
+  | "include"
+  | "runner"
+  | "runnerProblem"
+  | "proofGeneration"
+  | "proofGenerationProblem"
 > {
   return {
     path: location.path,
     kind: location.kind,
     ...(location.include === undefined ? {} : { include: location.include }),
+    ...(location.runner === undefined ? {} : { runner: location.runner }),
+    ...runnerProblemFields(location),
     ...(location.proofGeneration === undefined
       ? {}
       : { proofGeneration: location.proofGeneration }),
@@ -151,7 +173,7 @@ function proofOfLocation(
   signal: AbortSignal,
   naming: (reading: string) => void,
 ): Promise<IntentLocationProof> | undefined {
-  const proofKind = proofKindOf(location.kind);
+  const proofKind = proofKindOf(location.kind, location.runner);
   if (
     location.proof === undefined ||
     proofKind === undefined ||

@@ -88,7 +88,7 @@ test("slowest test cases with equal durations follow parameter id order", () => 
     [],
     () => "ready",
     () => source,
-    proofKindOf("python").rowsOf,
+    proofKindOf("python", undefined).rowsOf,
     latest,
   );
   assert.deepEqual(

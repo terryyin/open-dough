@@ -105,6 +105,55 @@ export function proofFileObservations(
   return observations;
 }
 
+// Orders sequences item by item, a shorter prefix first.
+function lexicographic<T>(compare: (left: T, right: T) => number) {
+  return (left: readonly T[], right: readonly T[]): number => {
+    for (const [at, item] of left.entries()) {
+      const other = right[at];
+      if (other === undefined) return 1;
+      const difference = compare(item, other);
+      if (difference !== 0) return difference;
+    }
+    return left.length - right.length;
+  };
+}
+
+const codePointsOf = (text: string): number[] =>
+  Array.from(text, (character) => character.codePointAt(0) ?? 0);
+
+// Orders strings by Unicode code point; the default comparison orders UTF-16
+// code units, which differs beyond the Basic Multilingual Plane. Every
+// reader-side order of observed names and variants is this one, whatever
+// order the snapshot holds them in.
+const byCodePoints = lexicographic(
+  (left: number, right: number) => left - right,
+);
+export const byCodePoint = (left: string, right: string): number =>
+  byCodePoints(codePointsOf(left), codePointsOf(right));
+
+// Orders variants, such as parameter ids or a project, compared item by item.
+export const byVariant = lexicographic(byCodePoint);
+
+// How a file's case `name` was observed, for kinds whose variants exist only
+// once run: its variants in variant order, and whether it was also observed
+// without one.
+export function observedVariantsOf(
+  name: string,
+  observed: readonly SuccessfulCaseObservation[],
+): {
+  readonly variants: readonly (readonly string[])[];
+  readonly plain: boolean;
+} {
+  const variants: (readonly string[])[] = [];
+  let plain = false;
+  for (const { name: observedName, variant } of observed) {
+    if (observedName !== name) continue;
+    if (variant === undefined) plain = true;
+    else variants.push(variant);
+  }
+  return { variants: variants.sort(byVariant), plain };
+}
+
 // The identity a case keeps across runs and files.
 export function proofIdentity({ file, name, variant }: ProofCase): string {
   return JSON.stringify([file, name, variant ?? null]);

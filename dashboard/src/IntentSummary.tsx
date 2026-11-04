@@ -35,7 +35,9 @@ export function IntentSummary({
   readonly onOpen: (next: IntentSelection) => void;
 }) {
   const proofKind =
-    location.problem === undefined ? proofKindOf(location.kind) : undefined;
+    location.problem === undefined
+      ? proofKindOf(location.kind, location.runner)
+      : undefined;
   return (
     <section className="intent-summary" aria-label="Summary">
       <h3>Summary</h3>
@@ -60,8 +62,9 @@ export function IntentSummary({
         />
       ) : (
         <IntentProofAbsence
-          kind={location.kind}
+          proofKind={proofKind}
           proof={location.proof}
+          location={location}
           rereading={proofRereading}
           onRetry={onProofRetry}
           {...(location.problem !== undefined

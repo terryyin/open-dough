@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_read-vitest-proof.json",
+      "identity": "SEED-192#read-vitest-proof",
+      "completedAt": "2026-11-04T13:11:13.279Z",
+      "blob": "5ce73de7fefef40cf003517d410cf2a8dd0bd0e7"
+    },
+    {
       "fileName": "SEED-229_reduce-remote-sessions-traffic.json",
       "identity": "SEED-229#reduce-remote-sessions-traffic",
       "completedAt": "2026-11-04T08:41:47.010Z",

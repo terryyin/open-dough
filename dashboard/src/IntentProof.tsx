@@ -10,7 +10,10 @@
 // view beside Purpose positioned on it; with tabs, Proof keeps its own place.
 
 import { useEffect, useMemo, useRef } from "react";
-import type { IntentLocationProof } from "./authenticatedIntentRead.ts";
+import type {
+  IntentLocation,
+  IntentLocationProof,
+} from "./authenticatedIntentRead.ts";
 import { IntentProofAbsence } from "./IntentProofAbsence.tsx";
 import {
   CaseName,
@@ -19,7 +22,7 @@ import {
 } from "./ProofObservationCells.tsx";
 import { latestProofOf, observedRowsOf } from "./proofCases.ts";
 import { noSuccessfulProof, proofCountLine } from "./proofCountLine.ts";
-import { proofKindOf, type ProofKind } from "./proofKinds.ts";
+import type { ProofKind } from "./proofKinds.ts";
 import { useTickingNow } from "./useTickingNow.ts";
 import "./intent-proof.css";
 
@@ -115,18 +118,22 @@ function ProofRows({
 
 export function IntentProof({
   path,
-  kind,
+  proofKind,
   text,
   proof,
+  location,
   targetLine,
   sideBySide,
   rereading,
   onRetry,
 }: {
   readonly path: string;
-  readonly kind: string | undefined;
+  // The file's proof kind, undefined when Intent reads no proof for it.
+  readonly proofKind: ProofKind | undefined;
   readonly text: string | undefined;
   readonly proof: IntentLocationProof | undefined;
+  // The location owning the file, for explanations of absent proof.
+  readonly location?: IntentLocation | undefined;
   // The line of the case the file was opened at, and whether Proof sits
   // beside Purpose.
   readonly targetLine: number | undefined;
@@ -138,12 +145,12 @@ export function IntentProof({
   if (path === "") {
     return <p className="quiet">Select a file to see its Proof.</p>;
   }
-  const proofKind = proofKindOf(kind);
   if (proof === undefined || "problem" in proof || proofKind === undefined) {
     return (
       <IntentProofAbsence
-        kind={kind}
+        proofKind={proofKind}
         proof={proofKind === undefined ? undefined : proof}
+        location={location}
         rereading={rereading}
         onRetry={onRetry}
       />

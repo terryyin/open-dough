@@ -26,7 +26,8 @@ the selected background across its whole width, toggle included, and
 expansion shows only in the toggle. Selecting a file still reads its exact published text with
 line numbers and Gherkin syntax styling at the observed revision. A location or
 folder summary names the selection by path and how many matching files it
-holds. For Gherkin, and for `python` with pytest's words described below, it
+holds. For Gherkin, for `python` with pytest's words and for a Vitest
+location with Vitest's words, both described below, it
 also reads each contained file's published text at the observed revision
 (with bounded concurrency and "N of M files read" progress), counts scenarios and outline rows from successfully read files,
 and, when the location declares proof, shows one aggregate count line over
@@ -60,8 +61,9 @@ with a retry that reads only the failed files, and is never counted as
 passed or without successful proof. A nonempty selection with no readable files
 says its scenario total is unavailable, not zero. Kinds Intent reads no proof
 for and unusable locations reuse the same Proof-absent or location
-explanations as a file; without declared proof a Gherkin or pytest summary
-still gives the statistics it can. When the location also declares a `proof` directory of
+explanations as a file; without declared proof a Gherkin or pytest summary,
+or a Vitest one whose location declares its `runner`, still gives the
+statistics it can. When the location also declares a `proof` directory of
 committed Cucumber proof (the
 [Cucumber proof reference](../src/skills/dough-test-optimization/references/cucumber-proof.md)),
 a selected file's Proof lists the file's scenarios and outline rows in source
@@ -80,7 +82,31 @@ example "test_rounding Parameters: even" before "Parameters: up"), and any
 other function as one row; observations the published file no longer defines are not listed, and
 the count line counts test cases. Its location and folder summaries give the
 Gherkin figures with an inventory of test functions and count, summed
-duration and **Slowest test cases** lines over test cases. A final
+duration and **Slowest test cases** lines over test cases. A `typescript` or
+`javascript` location's kind does not imply its proof format: one that
+declares `proof` also declares `runner`, `"vitest"` for committed Vitest proof
+(the
+[Vitest proof reference](../src/skills/dough-test-optimization/references/vitest-proof.md)),
+and reads the same way in Vitest's words: a selected file's Proof lists,
+under a **Test case** header, every `it` or `test` call (with or without a
+modifier chain such as `.each`, `.skip` or `.skipIf(…)`) whose name, and each
+enclosing `describe` or `suite` name, is a string literal or a template
+literal without substitutions, in definition order and named by its whole
+`describe` path as Vitest's output names it (for example
+"renderTitleFromPattern > replaces every {{date}} occurrence"); an `.each` or
+`.for` name with placeholders as one row per observed name that fits it, in
+code-point order of the observed name, and a test observed under several
+Vitest projects as one row per project, in code-point order of the project
+name (for example "Toolbar > opens the menu Project: chromium" before
+"Project: chromium-touch"), whatever order the snapshot holds them in; any
+other test as one row. Observations the published file no longer defines, and
+tests whose names are not literals, are not listed, and the count line counts
+test cases. Its location and folder summaries give the Gherkin figures with an
+inventory of tests and count, summed duration and **Slowest test cases**
+lines over test cases. A location declaring `proof` without a `runner`, or
+with one Intent reads no proof for, explains that `runner` setting on that
+location in `.planning/open-dough.json` instead of reading its proof, while its
+files and file count stay readable. A final
 unsuccessful scenario clears its earlier
 proof during an explicit recording run; a later explicit pass restores it,
 while unexecuted scenarios keep their proof. Normal test runs leave proof
@@ -101,8 +127,9 @@ proof, is reported by name as a read
 failure with retry, never as _No successful proof_, and the retry reads the
 locations again without changing the selection or Purpose. Without a
 declared directory, Proof says it is not recorded for the project and names
-the installed reference for configuring deliberate generation; other kinds say Proof is read for
-Gherkin feature files and pytest files so far. The selected perspective choice names the page, so
+the installed reference for configuring deliberate generation (for a
+`typescript` or `javascript` location, the Vitest reference); other kinds say Proof is read for
+Gherkin feature files, pytest files and Vitest tests so far. The selected perspective choice names the page, so
 Intent shows no heading of its own. Below the banner the page does not
 scroll: the location tree fills the remaining height against the left edge,
 and it and the reading pane each scroll independently. Directly under the

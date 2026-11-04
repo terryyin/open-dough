@@ -7,10 +7,15 @@
 // from the runner, as the python kind's rows (`./proofKinds.ts`). A
 // function's parameter ids exist only once run, so a function with observed
 // parameter ids gives one row per observed id, varied by it, in parameter id
-// order (by Unicode code point, as Python's `sorted` orders `str`, whatever
-// order the snapshot holds them in), and otherwise one plain row.
+// order (`byVariant`: by Unicode code point, as Python's `sorted` orders
+// `str`, whatever order the snapshot holds them in), and otherwise one plain
+// row.
 
-import type { CaseRow, SuccessfulCaseObservation } from "./proofCases.ts";
+import {
+  observedVariantsOf,
+  type CaseRow,
+  type SuccessfulCaseObservation,
+} from "./proofCases.ts";
 
 const definitionLine = /^(?:async\s+)?def\s+([A-Za-z_]\w*)/;
 const classLine = /^class\s+([A-Za-z_]\w*)/;
@@ -114,43 +119,12 @@ function pytestDefinitionsOf(
   return definitions;
 }
 
-// Orders sequences item by item, a shorter prefix first.
-function lexicographic<T>(compare: (left: T, right: T) => number) {
-  return (left: readonly T[], right: readonly T[]): number => {
-    for (const [at, item] of left.entries()) {
-      const other = right[at];
-      if (other === undefined) return 1;
-      const difference = compare(item, other);
-      if (difference !== 0) return difference;
-    }
-    return left.length - right.length;
-  };
-}
-
-const codePointsOf = (text: string): number[] =>
-  Array.from(text, (character) => character.codePointAt(0) ?? 0);
-
-// Orders strings by Unicode code point; the default comparison orders UTF-16
-// code units, which differs beyond the Basic Multilingual Plane.
-const byCodePoints = lexicographic(
-  (left: number, right: number) => left - right,
-);
-const byCodePoint = (left: string, right: string): number =>
-  byCodePoints(codePointsOf(left), codePointsOf(right));
-
-// A variant's parameter ids in order, compared id by id.
-const byParameterId = lexicographic(byCodePoint);
-
 export function pytestRowsOf(
   text: string,
   observed: readonly SuccessfulCaseObservation[],
 ): CaseRow[] {
   return pytestDefinitionsOf(text).flatMap(({ name, line }) => {
-    const variants = observed
-      .flatMap(({ name: observedName, variant }) =>
-        observedName === name && variant !== undefined ? [variant] : [],
-      )
-      .sort(byParameterId);
+    const { variants } = observedVariantsOf(name, observed);
     return variants.length === 0
       ? [{ name, line }]
       : variants.map((variant) => ({ name, variant, line }));

@@ -179,7 +179,7 @@ export function IntentProofSummary({
       ))}
       {latest === undefined ? (
         <IntentProofAbsence
-          kind={location.kind}
+          proofKind={proofKind}
           proof={proof}
           rereading={proofRereading}
           onRetry={onProofRetry}

@@ -20,6 +20,7 @@ import { resolveCaseTargetLine } from "./intentCaseTargetLine.ts";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentProofGeneration } from "./IntentProofGeneration.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
+import { proofKindOf } from "./proofKinds.ts";
 import type { ComparedStory } from "./IntentStorySummary.tsx";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import {
@@ -224,9 +225,10 @@ export function IntentFileReading({
               ) : (
                 <IntentProof
                   path={path}
-                  kind={kind}
+                  proofKind={proofKindOf(kind, location?.runner)}
                   text={text}
                   proof={location?.proof}
+                  location={location}
                   targetLine={targetLine}
                   sideBySide={sideBySide}
                   rereading={proofRereading}

@@ -2,9 +2,7 @@
 // (`../../src/skills/dough-test-optimization/references/pytest-proof.md`)
 // defines them, read into Intent's case model (`./proofCases.ts`): file
 // path → file, the node id's `::`-joined names after the file → case name,
-// parameter id → variant, file blob → file blob. The pinned Intent read
-// (`../server/intentProofRead.ts`) answers them in the Cucumber fields every
-// kind's answer carries (`./cucumberProof.ts`).
+// parameter id → variant, file blob → file blob.
 
 import {
   isRecord,

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#read-vitest-proof",
+  "title": "Read frontend Vitest proof in both projects",
+  "completedAt": "2026-11-04T13:11:13.279Z",
+  "developer": "Terry Yin",
+  "agent": "joey-chan",
+  "host": "claude",
+  "model": "opus"
+}
