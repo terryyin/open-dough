@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Keep the same project fresh across views with fewer GitHub requests](seeds/SEED-232-reduce-dashboard-refresh-traffic.md#share-published-git-refreshes) — SEED-232#share-published-git-refreshes ([plan](slice-plans/468-share-published-git-refreshes/PLAN.md))
+- [See published changes without recurring browser checks](seeds/SEED-232-reduce-dashboard-refresh-traffic.md#see-published-changes-over-sse) — SEED-232#see-published-changes-over-sse ([plan](slice-plans/469-see-published-changes-over-sse/PLAN.md))
 
 ## Backlog list
 
-- [See published changes without recurring browser checks](seeds/SEED-232-reduce-dashboard-refresh-traffic.md#see-published-changes-over-sse) — SEED-232#see-published-changes-over-sse
 - [Keep Running Cursor sessions current with fewer local requests](seeds/SEED-232-reduce-dashboard-refresh-traffic.md#reduce-running-cursor-session-requests) — SEED-232#reduce-running-cursor-session-requests
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
