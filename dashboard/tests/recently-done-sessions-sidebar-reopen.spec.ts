@@ -3,6 +3,7 @@
 import { launch } from "./agentLaunchBoundary.ts";
 import {
   keepProjectLaunchRecords,
+  pageReadReopened,
   recentlyDoneParts,
   showThreeProjectPage,
 } from "./recentlyDoneSessionsSidebarPage.ts";
@@ -117,10 +118,13 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
   await shown.button.click();
   await expect(shown.sidebar).toBeVisible();
   await shown.header.click();
+  const reopened = pageReadReopened(page, held);
   await shown.entry(title).click();
   await expect(shown.sidebar).toBeHidden();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-rows")).toContainText("ctrl+c to stop");
+  // First paint precedes admission; Close only once the page read the reopen.
+  await reopened;
   // Covering hides the banner Sessions control while the panel is open; Close
   // first, then reopen the overlay to observe Done cleared into the open list.
   await panel.getByRole("button", { name: "Close" }).click();

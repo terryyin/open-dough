@@ -265,6 +265,18 @@ tests collected (23 deselected)"; `node scripts/pygardon-ci-adapter.mjs
 --check terryyin/pygardon main` "Pygardon CI adapter access confirmed". The
 default checkout stayed on clean `main`.
 
+CI repair after slice 3 (run 41771702750, dashboard 9/12):
+`recently-done-sessions-sidebar-reopen.spec.ts` closed the narrow panel
+about 85 ms after first paint, before the server's `attached` readiness let
+the page re-read sessions, so the Done row stayed until the 15 s check. The
+test now waits for the page's own sessions answer showing the reopened record
+(`pageReadReopened` in `dashboard/tests/recentlyDoneSessionsSidebarPage.ts`)
+before Close. Proof: with the `attached` frame held back 2 s the old test
+failed 3/3 as in CI and the fixed one passed 3/3; the spec 60/60 under
+`--repeat-each 20 --workers 4` at load 54; neighbours 16/16. Remaining product
+edge for the developer: a Close in that window leaves the page showing Done
+for up to 15 s.
+
 ### 5. Pygardon records pytest proof on explicit request
 Type: Behavior
 Status: planned
