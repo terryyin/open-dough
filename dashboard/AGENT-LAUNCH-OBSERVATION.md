@@ -44,8 +44,9 @@ config) changed identity; each host's native listing still runs on every
 observation past the reuse window. A read
 not answered within 30 seconds gets a retryable 503 and the page keeps what it
 shows. A hidden or departing page ends only its own wait. Running Cursor
-sessions reads join the one runner read in flight, with no reuse once it
-settles. Attention counts share each entry's reading. The server
+sessions reads join the one runner read in flight, and a settled read answers
+later asks for about one second under the same home and machine documents.
+Attention counts share each entry's reading. The server
 also watches independently every 15 seconds, notifying macOS with Glass when an
 unmarked session enters an alerting native reading, and once, as “Unread report:
 <completion label>”, when its report arrives, whatever the native reading; its

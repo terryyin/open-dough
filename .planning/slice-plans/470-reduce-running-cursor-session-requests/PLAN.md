@@ -4,6 +4,7 @@
 **Source:** [selected story](../../seeds/SEED-232-reduce-dashboard-refresh-traffic.md#reduce-running-cursor-session-requests)
 in SEED-232, refined 2026-11-04 with explore, borrow, challenge, clarify,
 investigate and architecture.
+**Source review:** [source-review.md](./source-review.md)
 **Prepared:** 2026-11-04. Planning only, in the story's established workspace
 (branch `cursor/keep-running-cursor-sessions-current-with-fewer`, agent
 aki-chan), continuing the refinement in the same session.
@@ -103,7 +104,7 @@ publication and its failures stay owned under the policy above.
 
 ### 1. Settled held-session reads answer within one second
 Type: Behavior
-Status: planned
+Status: done
 Proof: `heldSessions.ts` uses `configuredLimit("DOUGH_SESSIONS_REUSE_MS", 1_000)`
 as `SharedObservation`'s reuse window under the existing home and
 machine-document key; `cursor-runner-sessions-sharing.spec.ts` and the
@@ -149,6 +150,42 @@ one second; collapsing the section ends that demand.
   are required for the story's dual-path evaluation. Together they are a safe
   stopping point with fixture proof of the evaluation basis.
 
+## Learnings
+
+- Test harness default `DOUGH_SESSIONS_REUSE_MS=1` (fakeClaude) expires a
+  launch's settled observation almost immediately; proofs of the production
+  one-second window must set `sessionsReuseMs` / `extraEnv` to `1000` and wait
+  past that window before forcing a new in-flight read.
+
+## Accepted proof
+
+### Slice 1
+
+```
+proof:
+  command: env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/cursor-runner-sessions-sharing.spec.ts dashboard/tests/boundary/cursor-held-sessions-revision.spec.ts dashboard/tests/boundary/shared-observation.spec.ts
+  covers: within-window settled reuse; past-window re-read; in-flight sharing; failure keeps no settled answer; revision-while-outstanding labeling
+  boundary: held-session SharedObservation + SharedObservation unit
+  observations:
+    - cursor-runner-sessions-sharing.spec.ts within-window askList: sessionsReads unchanged; past window greater
+    - cursor-held-sessions-revision.spec.ts overlapping asks: same within/past-window; in-flight before+1
+    - cursor-held-sessions-revision.spec.ts record while outstanding: before+2 labeling
+    - shared-observation.spec.ts failed observation: next demand starts===2
+  setup: DOUGH_SESSIONS_REUSE_MS=1000 via sessionsReuseMs / extraEnv; holdRunnerSessionsReads gate
+  result: pass
+```
+
+```
+proof:
+  command: npm run --silent typecheck:dashboard
+  covers: dashboard TypeScript for the change surface
+  boundary: dashboard types
+  observations:
+    - exit_code 0
+  setup: none
+  result: pass
+```
+
 ## Concern evidence
 
 Slice-plan refinement was not needed: each slice owns one proof loop, the
@@ -156,3 +193,81 @@ sequence reuses the existing shared observation rather than a second sharing
 rule, and no slice-specific concern remains. No interim behavior between the
 slices changes the product promise beyond the documents matching slice 1
 before the section's ask gap lands in slice 2.
+
+
+## Story obligations
+
+### X-D1. Deferred SSE/push local sessions
+Reported: slice 1 — "Deferred: delivering local session updates over SSE or another push without recurring browser asks."
+Story clause: "delivering local session updates over SSE or another push without recurring browser asks (sibling published-SSE growth path)"
+Disposition: excluded "delivering local session updates over SSE or another push without recurring browser asks (sibling published-SSE growth path)"
+Commitment: D1
+
+
+### X-D2. Deferred cross-process settled sharing
+Reported: slice 1 — "Deferred: sharing settled runner observations across separately launched dashboard processes."
+Story clause: "sharing settled runner observations across separately launched dashboard processes"
+Disposition: excluded "sharing settled runner observations across separately launched dashboard processes"
+Commitment: D2
+
+### X-D3. Deferred digest answers
+Reported: slice 1 — "Deferred: unchanged / digest answers that shrink quiet response bytes while the ask pace stays high."
+Story clause: "unchanged / digest answers that shrink quiet response bytes while the ask pace stays high"
+Disposition: excluded "unchanged / digest answers that shrink quiet response bytes while the ask pace stays high"
+Commitment: D3
+
+### X-D4. Deferred sub-second continuous watch
+Reported: slice 1 — "Deferred: a sub-second continuous watch."
+Story clause: "a sub-second continuous watch"
+Disposition: excluded "a sub-second continuous watch"
+Commitment: D4
+
+### X-D5. Deferred Board 15-second pace
+Reported: slice 1 — "Deferred: aligning this section to the Board's 15-second pace."
+Story clause: "aligning this section to the Board's 15-second pace"
+Disposition: excluded "aligning this section to the Board's 15-second pace"
+Commitment: D5
+
+### X-S1. No row-content change
+Reported: slice 1 — "Scope limit: no change to what a row shows."
+Story clause: "no change to what a row shows"
+Disposition: excluded "no change to what a row shows"
+Commitment: S1
+
+### X-S2. No terminal-open change
+Reported: slice 1 — "Scope limit: no change to how choosing a row opens the terminal."
+Story clause: "how choosing a row opens the terminal"
+Disposition: excluded "how choosing a row opens the terminal"
+Commitment: S2
+### X-S3. No new daemon
+Reported: slice 1 — "Scope limit: no new daemon."
+Story clause: "no new daemon"
+Disposition: excluded "no new daemon"
+Commitment: S3
+
+### X-S4. No new database
+Reported: slice 1 — "Scope limit: no new database."
+Story clause: "no new daemon, database, or scheduler"
+Disposition: excluded "no new daemon, database, or scheduler"
+Commitment: S4
+### X-S5. No new scheduler
+Reported: slice 1 — "Scope limit: no new scheduler."
+Story clause: "no new daemon, database, or scheduler"
+Disposition: excluded "no new daemon, database, or scheduler"
+Commitment: S5
+### X-S6. No runner-protocol change
+Reported: slice 1 — "Scope limit: no change to the runner protocol."
+Story clause: "no change to the runner protocol"
+Disposition: excluded "no change to the runner protocol"
+Commitment: S6
+
+### X-S7. No machine-session page-pace change
+Reported: slice 1 — "Scope limit: no change to machine-session observation's own 15-second page pace."
+Story clause: "machine-session observation's own 15-second page pace"
+Disposition: excluded "machine-session observation's own 15-second page pace"
+Commitment: S7
+### X-S8. No published-progress list
+Reported: slice 1 — "Scope limit: no carrying of this list on the published-progress stream."
+Story clause: "no carrying of this list on the published-progress stream"
+Disposition: excluded "no carrying of this list on the published-progress stream"
+Commitment: S8
