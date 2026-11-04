@@ -10,7 +10,6 @@ import type {
 import { randomUUID } from "node:crypto";
 import {
   closeSync,
-  existsSync,
   openSync,
   realpathSync,
   renameSync,
@@ -18,21 +17,12 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
+import { canonicalPath } from "../../../tests/support/proofStore.mjs";
 import type {
   Attempt,
   DashboardProofRecord,
   Selection,
 } from "./proofRecordTypes.ts";
-
-function canonicalPath(file: string): string {
-  const missing: string[] = [];
-  let ancestor = path.resolve(file);
-  while (!existsSync(ancestor)) {
-    missing.unshift(path.basename(ancestor));
-    ancestor = path.dirname(ancestor);
-  }
-  return path.join(realpathSync(ancestor), ...missing);
-}
 
 export class ProofRecord {
   private readonly record: DashboardProofRecord;

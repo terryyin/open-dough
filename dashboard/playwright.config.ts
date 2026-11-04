@@ -66,9 +66,10 @@ const suiteTime = remainingSuiteTime(
 // from (tests/shards.md).
 const proofRecord = process.env["OPEN_DOUGH_DASHBOARD_PROOF_RECORD"];
 const times = process.env["OPEN_DOUGH_DASHBOARD_TIMES"];
+const snapshot = process.env["RECORD_PLAYWRIGHT_PROOF"] === "1";
 const quietReporter: [string, QuietReporterOptions] = [
   "./tests/support/quietReporter.ts",
-  { proofRecord, times },
+  { proofRecord, times, snapshot },
 ];
 
 export default defineConfig({

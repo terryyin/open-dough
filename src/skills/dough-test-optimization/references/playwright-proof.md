@@ -5,8 +5,12 @@ recording. Normal test runs leave existing proof byte-for-byte untouched,
 whether they pass or fail, and create no proof files, directories or locks.
 An explicit recording run uses the same tests, selection, projects, workers,
 retries, sharding, reporters, diagnostics and exit meaning as a normal run;
-focused runs are allowed, with no whole-suite requirement. It maintains one
-compact snapshot of the cases it actually ran.
+focused runs are allowed, with no whole-suite requirement. Prefer
+repository-relative paths that uniquely identify each file when selecting a
+focused recording: Playwright treats a bare basename as a substring filter
+(observed in Playwright 1.63.0), so `intent-proof-generation.spec.ts` also
+selects `boundary/authenticated-read-intent-proof-generation.spec.ts`. It
+maintains one compact snapshot of the cases it actually ran.
 
 Retain only plain passing cases as committed proof, with their time,
 attempts, commit and test-file version. During an explicit refresh, an
@@ -150,6 +154,12 @@ lines or collection order:
   `test.location.file`. A helper-defined test still belongs to the importing
   spec's file suite; `test.location.file` names the helper and must not be
   used. Use `/` separators. Record only files under covered locations.
+  Resolve the repository root and the file suite path through the same
+  realpath (or equivalent) before taking the relative path: on some hosts
+  (observed on macOS) `git rev-parse --show-toplevel` and Playwright's
+  suite path disagree on an intermediate symlink such as `/var` versus
+  `/private/var`, and an uncanonical relative path then falls outside every
+  covered location and records nothing.
 - `test`: the title path after the project and file entries, as Playwright
   gives it (`titlePath()` without the leading empty string, project name and
   file): a list from the outermost named describe to the test title, for

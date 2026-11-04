@@ -155,7 +155,7 @@ No ADR conflict; no North Star topic is needed.
 | 6–8 on real proof, root summary cost | 4 | Intent on project Open Dough at the revision that published slice 2's snapshot (or later), reading `accessible-board-touch.spec.ts`, `agent-completion-quiet.spec.ts` and the `boundary` folder; the `dashboard/tests` root summary opened once with its time and request count recorded |
 
 Local gates: `PATH=/opt/homebrew/bin:$PATH bash tests/payload-declaration-links.sh`
-for slice 1; `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/proof-store.test.mjs`
+for slice 1; `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/proof-store.test.mjs tests/support/proof-store-refresh.test.mjs`
 (or the name plan 467 gave it) plus the focused dashboard specs
 `env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/boundary/proof-snapshot-*.spec.ts dashboard/tests/boundary/proof-record-*.spec.ts dashboard/tests/quiet-reporter.spec.ts`
 and `npm run --silent typecheck:dashboard` for slice 2; the focused
@@ -244,12 +244,26 @@ reference alone.
 
 ### 2. Open Dough records dashboard proof on explicit request
 Type: Behavior
-Status: planned
-Proof: `tests/support/proofStore.mjs` with `tests/support/proof-store.test.mjs`
-through `bash scripts/test.sh` (atomic refresh, lock, order, fold of
-repeated identities, clear, outside-Git no-op, covered locations, concurrent
-writers losing nothing), unless plan 467 landed the module, in which case
-its tests are reused and only missing rules are added;
+Status: done
+
+**Slice 2 accepted proof (2026-11-04):** store unit test; focused
+`proof-snapshot-*.spec.ts` + proof-record + quiet-reporter (34 passed);
+`typecheck:dashboard`; Ex1 recording of
+`dashboard/tests/{intent-proof-generation,accessible-board-touch}.spec.ts`
+→ 7 observations in `dashboard/tests/proof/latest.json`; non-recording /
+`--list` / focused / full suite leave snapshot byte-identical; full suite
+under `caffeinate -s -i` on AC Power exit 0 (~64m). Reference gaps fixed:
+canonicalize paths before `path.relative` (macOS `/var` vs `/private/var`);
+prefer unique repo-relative paths for focused recording (basename filters
+are Playwright substrings).
+
+Proof: `tests/support/proofStore.mjs` (with `proofObservationOrder.mjs` and
+`proofDirectoryRefresh.mjs`) with `tests/support/proof-store.test.mjs` and
+`tests/support/proof-store-refresh.test.mjs` through `bash scripts/test.sh`
+(atomic refresh, lock, order, fold of repeated identities, clear, outside-Git
+no-op, covered locations, concurrent writers losing nothing), unless plan 467
+landed the module, in which case its tests are reused and only missing rules
+are added;
 `dashboard/tests/support/proofSnapshot.ts` fed by `quietReporter.ts` and
 optioned by `playwright.config.ts`; new `dashboard/tests/boundary/proof-snapshot-*.spec.ts`
 through `proofRecordRun.ts`'s nested-run route with a temporary Git
