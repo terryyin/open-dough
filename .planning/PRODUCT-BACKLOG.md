@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Keep the same project fresh across views with fewer GitHub requests](seeds/SEED-232-reduce-dashboard-refresh-traffic.md#share-published-git-refreshes) — SEED-232#share-published-git-refreshes ([plan](slice-plans/468-share-published-git-refreshes/PLAN.md))
-- [See published changes without recurring browser checks](seeds/SEED-232-reduce-dashboard-refresh-traffic.md#see-published-changes-over-sse) — SEED-232#see-published-changes-over-sse ([plan](slice-plans/469-see-published-changes-over-sse/PLAN.md))
 
 ## Backlog list
 

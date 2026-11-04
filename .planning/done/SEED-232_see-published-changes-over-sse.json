@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-232#see-published-changes-over-sse",
+  "title": "See published changes without recurring browser checks",
+  "completedAt": "2026-11-04T22:31:23.047Z",
+  "developer": "Terry Yin",
+  "agent": "ziqing-chan",
+  "host": "cursor",
+  "model": "auto"
+}
