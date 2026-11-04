@@ -10,7 +10,7 @@ commits these records.
 ## Provenance
 
 Execution retrospective of SEED-192#read-vitest-proof (plan 460 at
-`30ac552b06fd197838bf4e20714decb46026c8ab:.planning/slice-plans/460-read-vitest-proof/PLAN.md`),
+`134da134afd70acbba0ee7d2856acee660f6025c:.planning/slice-plans/460-read-vitest-proof/PLAN.md`),
 reviewing commits `beadffb07`, `55108e4cc`, `3e5181a35`, `949bda1ca`,
 `b82b8fbd7`, `cfdd94c07`, `311288943` and `30ac552b0`. The original story's
 promises, examples and restrictions stand; this plan only corrects the

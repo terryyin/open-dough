@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Reduce remote Sessions traffic](seeds/SEED-229-reduce-remote-sessions-traffic.md#reduce-remote-sessions-traffic) — SEED-229#reduce-remote-sessions-traffic ([plan](slice-plans/462-reduce-remote-sessions-traffic/PLAN.md))
 - [Summarize CI proof in Intent](seeds/SEED-230-summarize-ci-proof-in-intent.md#summarize-ci-proof-in-intent) — SEED-230#summarize-ci-proof-in-intent ([plan](slice-plans/463-summarize-ci-proof-in-intent/PLAN.md))
-- [Read frontend Vitest proof in both projects](seeds/SEED-192-review-product-intent.md#read-vitest-proof) — SEED-192#read-vitest-proof ([plan](slice-plans/460-read-vitest-proof/PLAN.md))
 
 ## Backlog list
 
