@@ -72,26 +72,24 @@ settled pages that hold a revision stream do not send those recurring checks:
 while any stream for a project and request-owner scope is open, the dashboard
 process asks the same listing once per 15-second pace for that scope and
 answers every open stream from it, so two streaming pages of one project cost
-one listing per pace rather than one per page. On a non-multiplexing route at
-most two pages of one browser stream; the rest keep the check. GitHub documents
-an unchanged `304` as not counting against the primary allowance, but that has
-not been confirmed here, so count each check or stream listing as a request. A newly published
-commit then costs, without resolving `main` again, one read of its backlog,
-which answers its membership without waiting on anything else; then, for its
-details, one comparison of it with the revision at which any dashboard
-process of this user on this machine last read the backlog, one read of each
-commit between them (a commit already asked about is not asked again), and
-reads of only the records, done records, and record listings the comparison or
-those commits changed (a merge's own change list
-names only what differs from its first parent, so the comparison's files
-name what differs between the two revisions), plus one history listing for
-each readable profile they touched and one last-commit-time request for each
-counted plan they touched. A profile or plan neither touched keeps
-its credited human, addition, and last commit time without another request,
-however many assignments credit the same human; one removed and re-added,
-even with identical text, is walked again and credits the re-adding commit. A
-commit that changes no planning record reads none of them. With more than
-ten commits between, a comparison or commit whose change list GitHub cuts at
+one listing per pace rather than one per page. A lost, closed, or silent stream closes itself,
+reports lost freshness as a failed check does, and reopens no more often than the pace (recovery
+does not multiply listings); a rate-limited stream answer closes and asks nothing until the wait
+ends. On a non-multiplexing route at most two pages of one browser stream; the rest keep the check.
+GitHub documents an unchanged `304` as not counting against the primary allowance, but that has not
+been confirmed here, so count each check or stream listing as a request. A newly published commit
+then costs, without resolving `main` again, one read of its backlog, which answers its membership
+without waiting on anything else; then, for its details, one comparison of it with the revision at
+which any dashboard process of this user on this machine last read the backlog, one read of each
+commit between them (a commit already asked about is not asked again), and reads of only the
+records, done records, and record listings the comparison or those commits changed (a merge's own
+change list names only what differs from its first parent, so the comparison's files name what
+differs between the two revisions), plus one history listing for each readable profile they touched
+and one last-commit-time request for each counted plan they touched. A profile or plan neither
+touched keeps its credited human, addition, and last commit time without another request, however
+many assignments credit the same human; one removed and re-added, even with identical text, is
+walked again and credits the re-adding commit. A commit that changes no planning record reads none
+of them. With more than ten commits between, a comparison or commit whose change list GitHub cuts at
 300 files, or a new commit that does not descend from the earlier one, the comparison is not
 asked again and the new commit's records, histories, and last commit times
 are read as before; a

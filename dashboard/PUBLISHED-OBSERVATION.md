@@ -74,14 +74,20 @@ abandons a check under way; when it is seen again a streaming page opens its
 stream again (the first answer is the catch-up), and a checking page checks
 once at once, then resumes the 15-second pace. Hiding or closing a stream
 holder frees its slot so a queued checking page on a capped route can take
-over and stream. Each read
-settles on one revision's facts. A new revision's membership and order show as
-soon as its backlog is read; a story it still lists keeps what the page showed
-for each part, the agent roster and Recently done included, until that
-revision answers for that part, so unchanged work neither blanks nor moves,
-while a story new to the backlog reads as on a first visit. No local
-checkout, unpushed change, or running agent is a source of what it shows:
-Taken means recorded as taken, not that anyone is working now.
+over and stream. A stream that fails, closes, or stays silent longer than one
+15-second pace plus the 30-second read wait bound is reported as a failed
+check is today (snapshot kept; problem says freshness was lost); the page
+closes that EventSource itself, reopens no more often than the pace, and
+clears the problem on the first answer after a reopen. A rate-limited stream
+answer starts today's limit record and notice, closes the stream, and asks
+nothing until that time, then reopens. Each read settles on one revision's
+facts. A new revision's membership and order show as soon as its backlog is
+read; a story it still lists keeps what the page showed for each part, the
+agent roster and Recently done included, until that revision answers for that
+part, so unchanged work neither blanks nor moves, while a story new to the
+backlog reads as on a first visit. No local checkout, unpushed change, or running
+agent is a source of what it shows: Taken means recorded as taken, not that anyone
+is working now.
 
 Pages served by one dashboard process share what they ask GitHub: a request
 that needs an answer another request already waits for waits on that same
@@ -240,29 +246,5 @@ project and missing or inaccessible file, without CLI advice or a full hash.
 Check `gh auth status`, then confirm, for example,
 `gh api repos/terryyin/pygardon/commits/main` answers from a terminal; once it
 does, reload the page (or, with a snapshot shown, let the next check find it).
-The dashboard never logs in on its own.
-
-On the launching machine, a maintainer can inspect the newest failed upstream
-reads without a diagnostics screen. Same-origin loopback
-`GET /__authenticated-read-diagnostics?source=<configured-id>` returns that
-configured source's entries from the newest 100 failures kept in memory for
-this dashboard process (oldest dropped), and those this user's dashboard
-processes kept in the bounded incident record that outlives each of them
-([Dashboard GitHub requests](GITHUB-REQUESTS.md)), and asks GitHub nothing. Unknown
-sources and disallowed origins or methods are refused before any GitHub call,
-under the same local-origin protections as the read boundary. Each shared `gh`
-invocation that failed contributes one entry, attributed to the admitted reader
-that started it — not one per waiter — with time, configured source id, fixed
-request category, pinned revision when the request already knew one, failure
-classification, elapsed time from when that invocation started, and, only when
-GitHub answered, HTTP status, GitHub request id, and validated rate-limit
-limit/remaining/reset/resource and Retry-After values. Each textual metadata
-field is at most 256 characters; numeric values are finite nonnegative safe
-integers. Credentials, request or response bodies, raw CLI output, arbitrary
-headers, and caller-supplied command or path text are never retained or
-returned. A read held back by admission stays identifiable in the ordinary
-limited response and does not invent an upstream diagnostic event; a local
-deadline or lost connection records its cause without inventing a GitHub status
-or request id. Ordinary waiter departure is not recorded as a retryable
-failure. A newly started dashboard has an empty in-memory history; its
-record lists what earlier processes recorded.
+The dashboard never logs in on its own. Failed-read inspection, diagnostics response
+shape, field bounds, and what is never retained are in [Dashboard read diagnostics](READ-DIAGNOSTICS.md).

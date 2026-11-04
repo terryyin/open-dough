@@ -137,22 +137,20 @@ deploys qualifying trunk commits.
 
 ### 5. A lost stream shows lost freshness and catches up
 Type: Behavior
-Status: planned
-Proof: Journeys show:
+Status: done
+Proof (coordinator 2026-11-05):
 
-- with the server process stopped (SIGSTOP on its group), 45 s of page
-  time shows today's failed-check problem with R and its retrieval time
-  kept;
-- reopen attempts come no more often than the pace;
-- after the server is replaced on its port across a publication of R', the
-  first answer names R', the page reads it, and the problem clears;
-- a `504` listing over the stream leaves the watched branch shown, not
-  removed;
-- a rate-limited answer shows today's notice, closes the stream, asks
-  nothing until T, then reopens and resumes.
-
-The page closes a failed `EventSource` itself rather than relying on its
-automatic retry. The documents add the lost-stream wording.
+- `dashboard/tests/revision-stream-lost.spec.ts`: SIGSTOP → lost freshness
+  in 45s page time with R kept; reopen ≤ pace; replace server across R'
+  catches up; 504 leaves branch; rate-limit notice then reopen at T.
+- Focused suite including revision-stream* + refresh/limit journeys: 42
+  passed; `typecheck:dashboard` exit 0.
+- `revisionStreamSchedule.ts`: silence bound `checkIntervalMs +
+  readWaitLimitMs`; onerror/silence close EventSource and reopen at pace;
+  keep effect-level rate-limit guard (do not defer open via page-clock
+  `scheduleOpenAfter` alone — that stranded streams under paused clocks).
+- Docs: lost-stream wording in PUBLISHED-OBSERVATION.md and
+  GITHUB-REQUESTS.md.
 
 Behavior: A streaming page whose stream fails, closes or falls silent → it
 shows lost freshness with its snapshot kept, reopens at the pace, and the

@@ -1,9 +1,6 @@
-// A visible settled Board on a non-multiplexing route with a free stream
-// slot holds an EventSource instead of recurring `since` checks, and reads
-// each published change the stream names. Slots stay free here (no fixture
-// pre-hold); the server pace is lowered so stream ticks are observed on wall
-// time while the page clock stays paused. Check-delivery journeys keep the
-// pre-hold default in ./dashboardTest.ts.
+// Streaming Board journeys: free slots, lowered server pace, EventSource
+// instead of recurring `since` checks. Check-delivery keeps ./dashboardTest.ts
+// pre-hold.
 
 import type { Page } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
@@ -26,6 +23,7 @@ import {
   untilStreamingAt,
   setPageVisibility,
 } from "./revisionStreamJourney.ts";
+import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import {
   backlogB,
   revisionA,
@@ -80,6 +78,9 @@ test("two streaming pages show a publication from one listing with one backlog r
   const pageAtB = untilStreamingAt(page, revisionB);
   const otherAtB = untilStreamingAt(other, revisionB);
   origin.push(revisionB, backlogB, recordsAt("B"));
+  // Transport drop reopens at the pace: advance both page clocks to it.
+  await page.clock.runFor(checkIntervalMs);
+  await other.clock.runFor(checkIntervalMs);
   await expectSettledPage(page, titlesOfB);
   await expectSettledPage(other, titlesOfB);
   const { readRevision } = parts(page);
@@ -134,6 +135,8 @@ test("a watched branch move reads only that entry's plan and commit time; the ot
       [planPath("on-branch")]: new Date(opened.getTime() - 2 * 60_000),
     },
   });
+  await page.clock.runFor(checkIntervalMs);
+  await other.clock.runFor(checkIntervalMs);
   await expect(
     progress.getByRole("img", { name: "7 of 8 slices recorded complete" }),
   ).toBeVisible({ timeout: 15_000 });

@@ -28,15 +28,15 @@ No plan, product, proof or current-slice scope.
 | 9.1 | Page holds no stream when it hides | slice 4 | observed: hiding closes stream; listings stop journey |
 | 9.2 | Page holds no stream when it switches project | slice 4 | observed: revisionCheckSchedule/stream effect ends on project change via publishedObservation deps |
 | 9.3 | Page holds no stream when it starts a new read | slice 4 | observed: readSettled false closes stream effect before new read |
-| 9.4 | Page holds no stream while waiting out GitHub's rate limit; opens again when the condition ends; first message serves as today's check of a page seen again | slice 5 | |
+| 9.4 | Page holds no stream while waiting out GitHub's rate limit; opens again when the condition ends; first message serves as today's check of a page seen again | slice 5 | observed: revision-stream-lost.spec.ts rate-limited: notice, close, wait until T, reopen |
 | 10 | After a read changes revision or watched branches, the page reopens its stream with them | slice 4 | observed: after reading publication reopens stream at new revision journey |
 | 11 | A healthy stream carries the page's current answer once per pace | slice 2 | observed: authenticated-read-revision-stream.spec.ts first at open then nextEvent at pace; revisionStreamPaceMs |
-| 12.1 | Failed/closed/silent stream (longer than pace + 30s wait): snapshot stays with revision and retrieval time | slice 5 | |
-| 12.2 | Existing problem wording says freshness was lost | slice 5 | |
-| 12.3 | Page reopens no more often than the pace | slice 5 | |
-| 12.4 | First answer after a reopen clears the problem | slice 5 | |
-| 13 | Failed branch-head listing yields answer naming the ref alone, never removal of a watched branch | slice 5 | |
-| 14 | Failed checks, rate limits and unanswered checks reach the page as today's check answers do; rate-limited answer starts existing limit record and notice | slice 5 | |
+| 12.1 | Failed/closed/silent stream (longer than pace + 30s wait): snapshot stays with revision and retrieval time | slice 5 | observed: revision-stream-lost.spec.ts SIGSTOP: snapshot R kept with retrieval time |
+| 12.2 | Existing problem wording says freshness was lost | slice 5 | observed: revision-stream-lost.spec.ts problem contains freshness was lost |
+| 12.3 | Page reopens no more often than the pace | slice 5 | observed: revision-stream-lost.spec.ts reopen gaps >= checkIntervalMs |
+| 12.4 | First answer after a reopen clears the problem | slice 5 | observed: revision-stream-lost.spec.ts replaced server: problem clears after R |
+| 13 | Failed branch-head listing yields answer naming the ref alone, never removal of a watched branch | slice 5 | observed: revision-stream-lost.spec.ts 504 listing leaves watched branch shown |
+| 14 | Failed checks, rate limits and unanswered checks reach the page as today's check answers do; rate-limited answer starts existing limit record and notice | slice 5 | observed: stream answers use revisionCheckFromStreamData / reactToRevisionCheckFailure |
 | 15 | Streams never use up the browser's connections to the dashboard | slice 4 | observed: seven-page journey: two stream five check; connections remain usable |
 | 16.1 | Non-multiplexing route: at most two pages of one browser hold a stream at once | slice 4 | observed: revisionStreamSlotCap http/1.1=2; seven-page journey two stream |
 | 16.2 | Visible page without a stream keeps today's recurring check | slice 4 | observed: pages without slot keep check; seven-page five check at pace |
@@ -51,11 +51,11 @@ No plan, product, proof or current-slice scope.
 | 20 | No new daemon, database or scheduler outside the dashboard process | slice 6 | |
 | E1 | Quiet over Tailscale: no revision-check request; fewer stream bytes than four checks; no problem | slice 6 | |
 | E2 | Publication arrives: two pages told R' from same listing within one pace; each reads R' | slice 4 | observed: two streaming pages publication from one listing one backlog |
-| E3 | Each page its own answer; 504 listing leaves watched branch shown | slice 5 | |
-| E4 | Dropped across a change: lost freshness within 45s with R kept; reopen catches up to R' | slice 5 | |
+| E3 | Each page its own answer; 504 listing leaves watched branch shown | slice 5 | observed: 504 over stream leaves branch; branch-move journey from slice 4 |
+| E4 | Dropped across a change: lost freshness within 45s with R kept; reopen catches up to R' | slice 5 | observed: SIGSTOP then replace across R: lost within 45s, catch up to R |
 | E5 | Hidden: last stream closing ends listings; reveal answers at once | slice 4 | observed: hiding closes stream listings stop; reveal answers at once |
 | E6 | Seven local windows: two stream, five check; hide holder lets checker stream | slice 4 | observed: seven pages two stream five check; hide holder transfers stream |
-| E7 | Rate limit: notice, close stream, wait until T, reopen | slice 5 | |
+| E7 | Rate limit: notice, close stream, wait until T, reopen | slice 5 | observed: rate-limited stream journey |
 | M1 | Baseline: four revision-check requests a minute plus response bytes | slice 6 | |
 | M2 | Target: healthy stream sends no revision-check request in a quiet minute | slice 6 | |
 | M3 | Stream bytes (incl. setup) stay below baseline four-check bytes | slice 6 | |

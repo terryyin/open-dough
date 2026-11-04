@@ -6,12 +6,26 @@ it reports them, beside what its reads cost in
 
 Inspecting recent failed upstream reads through
 `GET /__authenticated-read-diagnostics?source=<configured-id>` costs no GitHub
-request: the response is answered from this process's in-memory history and
-this user's incident record under the same local same-origin admission as
-other authenticated-read routes, and a refused diagnostic request never
-launches `gh`. Each dashboard process keeps the failed reads it waited on, one
-entry for a request several of its pages shared; a request two dashboards
-shared is in each one's history.
+request: the response is answered from this process's newest 100 in-memory
+failures (oldest dropped) and this user's incident record under the same local
+same-origin admission as other authenticated-read routes, and a refused
+diagnostic request never launches `gh`. Unknown sources and disallowed origins
+or methods are refused before any GitHub call. Each dashboard process keeps the
+failed reads it waited on, one entry for a shared `gh` invocation — not one per
+waiter — with time, configured source id, fixed request category, pinned
+revision when known, failure classification, elapsed time from when that
+invocation started, and, only when GitHub answered, HTTP status, GitHub request
+id, and validated rate-limit limit/remaining/reset/resource and Retry-After
+values. Each textual metadata field is at most 256 characters; numeric values
+are finite nonnegative safe integers. Credentials, request or response bodies,
+raw CLI output, arbitrary headers, and caller-supplied command or path text are
+never retained or returned. A read held back by admission stays identifiable in
+the ordinary limited response and does not invent an upstream diagnostic event;
+a local deadline or lost connection records its cause without inventing a
+GitHub status or request id. Ordinary waiter departure is not a retryable
+failure. A newly started dashboard has an empty in-memory history; its incident
+record lists what earlier processes recorded. A request two dashboards shared
+is in each one's history.
 
 The incident record ([incidentRecord.ts](server/incidentRecord.ts)) keeps
 that evidence after the process that wrote it is replaced. It lives in
