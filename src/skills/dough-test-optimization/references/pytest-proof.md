@@ -83,7 +83,10 @@ not silently enable recording in normal commands.
   (`git rev-parse --show-toplevel`), not pytest's `rootdir` or the working
   directory.
 - Test the recorder through pytest's `pytester`, setting the option only for
-  the inner runs, so the outer test session never records.
+  the inner runs, so the outer test session never records. Clear
+  `PYTEST_XDIST_WORKER`, `PYTEST_XDIST_WORKER_COUNT` and
+  `PYTEST_XDIST_TESTRUNUID` for inner runs, so an inner session started from
+  an xdist worker is not taken for a worker.
 
 ## Record from pytest's reports
 
@@ -92,9 +95,11 @@ not silently enable recording in normal commands.
   read, write and lock nothing; the controller receives every worker's
   reports through the same hook. Without xdist, the single process is the
   controller.
-- A test case is one collected item, identified by its node id. It has
-  finished when its `teardown` report arrives. Gather its `setup`, `call`
-  and `teardown` reports until then.
+- A test case is one collected item, identified by its node id. Gather its
+  reports until one for a phase other than `setup` or `call` arrives, which
+  finishes the case. That is normally its `teardown` report; pytest-xdist's
+  failed report for an item whose worker crashed also finishes the case and
+  clears its proof.
 - `durationMs` sums the `duration` of the case's own setup, call and
   teardown reports, as pytest reports them, across all its attempts, in
   milliseconds.
@@ -106,7 +111,9 @@ not silently enable recording in normal commands.
   - an expected failure (`xfail`: the call report is skipped with
     `wasxfail` set);
   - an unexpected pass (`xpass`: a call report that passed with `wasxfail`
-    set; under strict xfail pytest reports it as a failure).
+    set; under strict xfail pytest reports it as a failure);
+  - any other report carrying `wasxfail`, including a skipped setup report
+    of an xfail-marked case whose setup failed or of `xfail(run=False)`.
 - A skipped case (skip or skipif marks, or `pytest.skip()`, without
   `wasxfail`) ran nothing: record nothing and keep its proof. Deselected
   cases (for example by `-m`, `-k` or `--deselect`), uncollected cases, a
@@ -143,18 +150,21 @@ parameters are added or reordered, so prefer explicit `ids=` or
   one snapshot of the whole suite stays readable.
 - After every finished executed case, refresh the snapshot atomically: write
   a non-JSON temporary file in the same directory, then rename it over
-  `latest.json`. Re-read the snapshot before each refresh and preserve
-  unrelated observations. A pass replaces that identity's observation; an
-  executed unsuccessful result removes it and persists no failed observation
-  or failure marker. Order observations by `file`, `test` and `parameterId`
-  to limit diff noise. Delete the snapshot when it becomes empty rather than
-  writing an empty replacement. An interrupted recording run keeps completed
-  updates without claiming the remaining cases ran.
+  `latest.json`. Re-read `latest.json` before each refresh and preserve
+  unrelated observations; leave any other file in the directory unchanged.
+  A pass replaces that identity's observation; an executed unsuccessful
+  result removes it and persists no failed observation or failure marker.
+  Order observations by `file`, `test` and `parameterId` to limit diff
+  noise. Delete the snapshot when it becomes empty rather than writing an
+  empty replacement. An interrupted recording run keeps completed updates
+  without claiming the remaining cases ran. A full-suite refresh rewrites
+  the snapshot once per case; expect that cost on the controlling process.
 - Serialize proof mutations by concurrent recording runs sharing this
   checkout, so one run cannot lose another's update or restore a removed
-  success. Keep any lock file without the `.json` extension. Separate
-  worktrees keep separate snapshots; reconcile them by identity, never
-  keeping a removed success from another worktree.
+  success. A lock on the proof directory itself (for example `flock` on its
+  descriptor) leaves no file behind; keep any lock file without the `.json`
+  extension. Separate worktrees keep separate snapshots; reconcile them by
+  identity, never keeping a removed success from another worktree.
 - Every `.json` file in the proof directory, or in any directory below it, is
   read as proof. Keep nothing else there with that extension. One file that is
   not valid pytest proof leaves the whole directory's proof unreadable until it
@@ -193,7 +203,9 @@ above, and:
 - `commit`: full SHA of the commit the run started from (`git rev-parse HEAD`
   at session start).
 - `fileBlob`: Git blob hash of the test file's bytes as tested, as
-  `git hash-object <file>` prints it.
+  `git hash-object <file>` prints it. Compute it once per file per run, when
+  the controller receives the file's first passing case; under pytest-xdist
+  the controller does not collect.
 
 A file holds at most one observation per identity; a run that executes a case
 twice keeps the later result. Keep the snapshot compact: no captured output,

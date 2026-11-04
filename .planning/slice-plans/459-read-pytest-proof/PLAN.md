@@ -279,7 +279,7 @@ for up to 15 s.
 
 ### 5. Pygardon records pytest proof on explicit request
 Type: Behavior
-Status: planned
+Status: done
 Proof: Pygardon `pytester` tests (first the `-n 2` controller observation,
 then serial recording, option off, parametrized clear, `-m` and `skip`
 keep, `xfail`, `xpass`, setup error, teardown failure, `--collect-only`,
@@ -298,6 +298,34 @@ load the plugin with recording off and behave as before. The plugin, its
 tests, the declaration and the first snapshot are committed and published
 under Pygardon's rules. Any rule the reference left unclear is reported
 back and fixed in the reference in the same slice.
+
+Accepted proof (2026-11-04): Pygardon `8dc7cad1a` on `main` (from
+`ac093aea6`): `scripts/pytest_proof.py`, loaded by `tests/conftest.py`
+`pytest_plugins`; `tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py`
+with `tests/pytest_proof_support.py`, 14 passed serial and `-n 2 --dist
+loadfile`, rerun after `pnpm format:changed`; four plugin mutations (ignore
+`wasxfail`, record in workers, print, end at `call`) each failed the intended
+tests. The xdist premise held: an inner `-n 2` run's controller saw each of 8
+cases' teardown exactly once, with `wasxfail` and `duration` intact. Real
+`RECORD_PYTEST_PROOF=1 nix develop -c scripts/check-worktree.sh pytest
+tests/test_cors.py tests/search_run/test_search_run_cli_ranking_span.py`
+wrote 6 observations (commit `ac093aea6`, `fileBlob` = `git hash-object`,
+derived ids `cell-expected0`, `cell,2008-2010-expected1`) with output and exit
+equal to the run without the option, which left the snapshot unchanged; CI's
+own `pytest -p scripts.ci_crash_evidence … -n 2 --dist loadfile` 20 passed
+with the snapshot unchanged; `tests/pygardon-ci-coalesced-pushes.test.mjs`
+15/15. The dashboard's `parsePytestProofFile` accepted the snapshot.
+Reference gaps fixed from the implementation: any `wasxfail` report clears
+(setup of an xfail case, `xfail(run=False)`); a non-setup/call report (xdist
+crash) finishes and clears a case; only `latest.json` is maintained; a
+directory `flock` leaves no file; a full refresh rewrites the snapshot per
+case; `fileBlob` is hashed on the file's first passing case; inner `pytester`
+runs clear inherited `PYTEST_XDIST_*` variables. Untested: two overlapping
+recording sessions (the `flock` serialization). Observed outside this
+change: `tests/test_ci_path_coverage.py::test_service_and_adapter_share_real_history[linear-150]`
+hit the 60 s hang bound at `-n 4` under machine load 20–27 (26.9 s at load
+13; passes alone); the worktree wrapper plus `-p scripts.ci_crash_evidence`
+stops on `PytestAssertRewriteWarning` with or without the plugin.
 
 ### 6. Intent shows Pygardon's published pytest proof
 Type: Behavior

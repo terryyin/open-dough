@@ -14,40 +14,40 @@ and texts are kept below as returned.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | B1 | A Pygardon developer reviewing Python test protection in Intent, such as Terry selecting a file under `tests` and reading what its test cases last proved | slice 6 | |
-| G1 | Pygardon records deliberate pytest proof the way it records Cucumber proof | slice 5 | |
+| G1 | Pygardon records deliberate pytest proof the way it records Cucumber proof | slice 5 | observed: slice 5: Pygardon scripts/pytest_proof.py records under the reference; Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py 14 passed serial and -n 2 |
 | G1a | A published Open Dough reference defines the compact snapshot and the explicit recording run | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md (Configure once, Record from pytest's reports, Identity, Refresh the snapshot, File format, Commit proof) |
-| G1b | The `tests` Intent location declares its proof directory and generation command in `.planning/open-dough.json` | slice 5 | |
-| G1c | A Pygardon-owned pytest plugin maintains the snapshot | slice 5 | |
+| G1b | The `tests` Intent location declares its proof directory and generation command in `.planning/open-dough.json` | slice 5 | observed: slice 5: Pygardon .planning/open-dough.json tests location proof tests/proof and proofGeneration RECORD_PYTEST_PROOF=1 nix develop -c scripts/check-worktree.sh pytest |
+| G1c | A Pygardon-owned pytest plugin maintains the snapshot | slice 5 | observed: slice 5: Pygardon scripts/pytest_proof.py maintains tests/proof/latest.json |
 | G2 | Selecting a pytest file in Intent then shows each test case's last successful committed proof beside its Python source | slice 6 | |
 | G3 | A location or folder summary gives the same figures as for Gherkin | slice 6 | |
-| G4 | Extends Proof to Pygardon's largest test family and tests whether the latest-observation model survives parametrization, marker selection, expected failures, setup/teardown and parallel workers | slice 5 | |
-| G5 | The story includes the generation of pytest proof, like the Cucumber proof, declared in the project configuration and produced when the project generates proof; the rest is reading it | slice 5 | |
+| G4 | Extends Proof to Pygardon's largest test family and tests whether the latest-observation model survives parametrization, marker selection, expected failures, setup/teardown and parallel workers | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py parametrization, selection, xfail/xpass, setup/teardown and two-worker xdist tests |
+| G5 | The story includes the generation of pytest proof, like the Cucumber proof, declared in the project configuration and produced when the project generates proof; the rest is reading it | slice 5 | observed: slice 5: declared proofGeneration plus the real recording run writing tests/proof/latest.json |
 | 1.1 | `src/skills/dough-test-optimization/references/pytest-proof.md` exists | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md |
 | 1.2 | Linked from that skill like the Cucumber reference | slice 2 | observed: slice 2: src/skills/dough-test-optimization/SKILL.md links pytest-proof.md beside cucumber-proof.md; install.sh managed_files declares it |
 | 1.3 | Written for the agent working in the recording project | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md addressed to the agent in the recording project; behavior review of examples 1-5 in the plan's slice 2 proof |
 | 1.4 | It carries the Cucumber contract's recording discipline | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md carries the rule (Configure once, Refresh the snapshot, Commit proof, Record from pytest's reports) |
 | 1.4.1 | An explicit project-owned option such as `RECORD_PYTEST_PROOF=1` | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md carries the rule (Configure once, Refresh the snapshot, Commit proof, Record from pytest's reports) |
-| 1.4.2 | The option is off in every profile including CI | slice 5 | |
-| 1.4.3 | Normal runs leave proof byte-for-byte untouched | slice 5 | |
-| 1.4.4 | The recorder prints nothing | slice 5 | |
-| 1.4.5 | The recorder never fails the run | slice 5 | |
-| 1.4.6 | The recorder records nothing outside a Git checkout | slice 5 | |
+| 1.4.2 | The option is off in every profile including CI | slice 5 | observed: slice 5: option set only by the declared command; not in pyproject addopts, CI scripts or the wrapper |
+| 1.4.3 | Normal runs leave proof byte-for-byte untouched | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_runs_without_the_option_leave_proof_untouched (no tests/proof; seeded bytes identical, serial and -n 2); real run sha256 unchanged without the option |
+| 1.4.4 | The recorder prints nothing | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_output_and_exit_match_runs_without_recording (stdout/stderr/exit equal; print mutation fails it) |
+| 1.4.5 | The recorder never fails the run | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_unreadable_snapshot_stays_and_the_run_is_unchanged |
+| 1.4.6 | The recorder records nothing outside a Git checkout | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_recording_outside_a_git_checkout_records_nothing |
 | 1.4.7 | One maintained snapshot (`latest.json`) | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md carries the rule (Configure once, Refresh the snapshot, Commit proof, Record from pytest's reports) |
-| 1.4.8 | The snapshot is refreshed atomically after each finished case | slice 5 | |
-| 1.4.9 | Passing cases only | slice 5 | |
-| 1.4.10 | An executed final unsuccessful result clears that case's earlier proof | slice 5 | |
-| 1.4.11 | Unexecuted cases keep theirs | slice 5 | |
+| 1.4.8 | The snapshot is refreshed atomically after each finished case | slice 5 | observed: slice 5: plugin _refresh after each finished case via temp file + os.replace; Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_interrupted_run_keeps_completed_updates and only latest.json remains |
+| 1.4.9 | Passing cases only | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_recording_run_observes_each_passing_case |
+| 1.4.10 | An executed final unsuccessful result clears that case's earlier proof | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_executed_non_passes_clear_their_proof, test_later_failure_removes_only_that_parameter |
+| 1.4.11 | Unexecuted cases keep theirs | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_unexecuted_cases_keep_their_proof |
 | 1.4.12 | Deliberate commits | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md carries the rule (Configure once, Refresh the snapshot, Commit proof, Record from pytest's reports) |
 | 1.4.13 | `proof` and `proofGeneration` declared on the `python` location | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md carries the rule (Configure once, Refresh the snapshot, Commit proof, Record from pytest's reports) |
 | 1.5 | Pytest-specific rules | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md carries the rule (Configure once, Refresh the snapshot, Commit proof, Record from pytest's reports) |
-| 1.5.1 | Record on the xdist controller from `pytest_runtest_logreport`, never in workers | slice 5 | |
-| 1.5.2 | A case is finished when its teardown report arrives | slice 5 | |
-| 1.5.3 | `durationMs` sums the case's own setup, call and teardown phases across its attempts | slice 5 | |
-| 1.5.4 | A failure or error in any phase is an executed unsuccessful result that clears proof and records nothing | slice 5 | |
-| 1.5.5 | An expected failure (`xfail`) is an executed unsuccessful result that clears proof and records nothing | slice 5 | |
-| 1.5.6 | An unexpected pass (`xpass`) is an executed unsuccessful result that clears proof and records nothing | slice 5 | |
-| 1.5.7 | `skipped`, deselected (for example by `-m`), uncollected and `--collect-only` cases ran nothing and keep their proof | slice 5 | |
-| 1.5.8 | `attempts` counts executed attempts when the project's runner reports reruns, otherwise 1 | slice 5 | |
+| 1.5.1 | Record on the xdist controller from `pytest_runtest_logreport`, never in workers | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_xdist_controller_sees_every_worker_case_once and test_two_workers_record_each_case_once_from_the_controller (worker-recording mutation fails them) |
+| 1.5.2 | A case is finished when its teardown report arrives | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_duration_sums_the_case_setup_call_and_teardown (ending at call mutation fails it) |
+| 1.5.3 | `durationMs` sums the case's own setup, call and teardown phases across its attempts | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_duration_sums_the_case_setup_call_and_teardown asserts 875 from 250+500+125 |
+| 1.5.4 | A failure or error in any phase is an executed unsuccessful result that clears proof and records nothing | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_executed_non_passes_clear_their_proof: failure, setup error, teardown failure after passing call |
+| 1.5.5 | An expected failure (`xfail`) is an executed unsuccessful result that clears proof and records nothing | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_executed_non_passes_clear_their_proof xfail; xdist test clears seeded xfail proof |
+| 1.5.6 | An unexpected pass (`xpass`) is an executed unsuccessful result that clears proof and records nothing | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_executed_non_passes_clear_their_proof xpass and strict xpass |
+| 1.5.7 | `skipped`, deselected (for example by `-m`), uncollected and `--collect-only` cases ran nothing and keep their proof | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_unexecuted_cases_keep_their_proof (-m not slow, --deselect, skip mark, pytest.skip) and test_collect_only_keeps_proof; real full --collect-only kept sha |
+| 1.5.8 | `attempts` counts executed attempts when the project's runner reports reruns, otherwise 1 | slice 5 | observed: slice 5: attempts 1 asserted in test_recording_run_observes_each_passing_case; no rerun plugin in Pygardon |
 | 2.1 | One JSON object `{"version": 1, "observations": […]}` | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md Identity and File format; dashboard/src/pytestProof.ts parses that format |
 | 2.2 | Observations identified by pytest's own node id parts | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md Identity and File format; dashboard/src/pytestProof.ts parses that format |
 | 2.2.1 | `file` (repository path with `/` separators) | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md Identity and File format; dashboard/src/pytestProof.ts parses that format |
@@ -60,7 +60,7 @@ and texts are kept below as returned.
 | 2.3.4 | `finishedAt` | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md Identity and File format; dashboard/src/pytestProof.ts parses that format |
 | 2.3.5 | `commit` | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md Identity and File format; dashboard/src/pytestProof.ts parses that format |
 | 2.3.6 | `fileBlob` (the test file's Git blob hash as tested) | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md Identity and File format; dashboard/src/pytestProof.ts parses that format |
-| 2.4 | Never record collection order or runner object ids | slice 5 | |
+| 2.4 | Never record collection order or runner object ids | slice 5 | observed: slice 5: test_recording_run_observes_each_passing_case asserts exactly the specified keys |
 | 2.5 | A file holds at most one observation per identity | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md Identity and File format; dashboard/src/pytestProof.ts parses that format |
 | 3.1 | The dashboard reads `proof` and `proofGeneration` on a `python` location exactly as on a Gherkin one | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof.spec.ts "a pytest file's Proof lists its test cases in definition order with observed parameter rows" and dashboard/tests/intent-pytest-proof-summary.spec.ts location summary read tests/proof/latest.json at the pinned revision |
 | 3.1.1 | Committed proof at the pinned revision | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof.spec.ts "a pytest file's Proof lists its test cases in definition order with observed parameter rows" reads committed tests/proof/latest.json at the pinned revision |
@@ -98,44 +98,44 @@ and texts are kept below as returned.
 | 7.2 | A kind with no proof reading yet says Proof is read for Gherkin feature files and pytest files so far | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts typescript location: Proof is read for Gherkin feature files and pytest files so far. |
 | 7.3 | Unreadable and malformed proof keep their retry explanations | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts Proof could not be read: tests/proof/latest.json is not a valid proof file. with Retry; kind mismatch both ways malformed; missing/empty via shared absence path in intent-cucumber-proof-absent.spec.ts |
 | 8.0 | Done in a subordinate Pygardon workspace of this execution, as plan 446 did | slice 4 | observed: slice 4: subordinate worktree /Users/terryyin/git/pygardon/.worktrees/record-pytest-proof (claude/record-pytest-proof at ac093aea6), prepared; default checkout untouched |
-| 8.1 | A Pygardon-owned pytest plugin following the reference | slice 5 | |
-| 8.2 | Registered so the ordinary `pytest`, `scripts/check-worktree.sh pytest` and CI commands load it with recording off | slice 5 | |
-| 8.3 | Its tests through pytest's `pytester` | slice 5 | |
-| 8.3.1 | A two-worker xdist run | slice 5 | |
-| 8.3.2 | Parametrization | slice 5 | |
-| 8.3.3 | `xfail` | slice 5 | |
-| 8.3.4 | `skip` | slice 5 | |
-| 8.3.5 | Deselection | slice 5 | |
-| 8.3.6 | A setup error | slice 5 | |
-| 8.3.7 | An interrupted refresh | slice 5 | |
-| 8.4 | `proof: "tests/proof"` and the real recording command declared on the `tests` location | slice 5 | |
-| 8.5 | One explicit focused recording run committed as the first snapshot | slice 5 | |
-| 8.6 | Pygardon's publication follows Pygardon's own rules | slice 5 | |
+| 8.1 | A Pygardon-owned pytest plugin following the reference | slice 5 | observed: slice 5: Pygardon scripts/pytest_proof.py |
+| 8.2 | Registered so the ordinary `pytest`, `scripts/check-worktree.sh pytest` and CI commands load it with recording off | slice 5 | observed: slice 5: tests/conftest.py pytest_plugins; ordinary pytest, check-worktree.sh pytest and CI-shape pytest -p scripts.ci_crash_evidence -n 2 runs with snapshot unchanged; -o addopts= run still records |
+| 8.3 | Its tests through pytest's `pytester` | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py 14 pytester tests |
+| 8.3.1 | A two-worker xdist run | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py xdist tests with inner -n 2 |
+| 8.3.2 | Parametrization | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_later_failure_removes_only_that_parameter (up, /usr/bin::/bin) |
+| 8.3.3 | `xfail` | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_executed_non_passes_clear_their_proof xfail |
+| 8.3.4 | `skip` | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_unexecuted_cases_keep_their_proof skip mark and pytest.skip |
+| 8.3.5 | Deselection | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_unexecuted_cases_keep_their_proof -m and --deselect |
+| 8.3.6 | A setup error | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_executed_non_passes_clear_their_proof setup error |
+| 8.3.7 | An interrupted refresh | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_interrupted_run_keeps_completed_updates |
+| 8.4 | `proof: "tests/proof"` and the real recording command declared on the `tests` location | slice 5 | observed: slice 5: Pygardon .planning/open-dough.json tests location |
+| 8.5 | One explicit focused recording run committed as the first snapshot | slice 5 | observed: slice 5: real focused recording of tests/test_cors.py and tests/search_run/test_search_run_cli_ranking_span.py, 6 observations, committed in the Pygardon slice commit |
+| 8.6 | Pygardon's publication follows Pygardon's own rules | slice 5 | observed: slice 5: Pygardon pnpm format:changed, staged-lint hook and push to Pygardon main as Pygardon AGENTS.md requires |
 | 9.1 | With that snapshot published, Intent on project Pygardon shows the recorded file's cases with their proof | slice 6 | |
 | 9.2 | And a subfolder summary | slice 6 | |
 | 9.3 | The root `tests` summary is opened once and its read time and GitHub request count recorded as a learning | slice 6 | |
 | 9.4 | Terry evaluates against `pytest -q` output plus an editor | slice 6 | |
 | 10.1 | `docs/dashboard-development-intent.md` describes pytest Proof and summaries beside Gherkin | slice 2 | observed: slice 2: docs/dashboard-development-intent.md pytest Proof paragraph with summaries beside Gherkin |
 | 10.2 | The reference is linked where the Cucumber one is | slice 2 | observed: slice 2: docs/dashboard-development-intent.md and dough-test-optimization SKILL.md link pytest-proof.md where cucumber-proof.md is linked |
-| C1 | Only a plain pass records proof; an executed non-pass clears it | slice 5 | |
-| C1a | Proof must not claim behavior a case did not pass (correctness of Proof) | slice 5 | |
-| C2 | Normal runs never create, change or delete proof (Terry, 2026-11-02) | slice 5 | |
+| C1 | Only a plain pass records proof; an executed non-pass clears it | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_recording_run_observes_each_passing_case and test_executed_non_passes_clear_their_proof |
+| C1a | Proof must not claim behavior a case did not pass (correctness of Proof) | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py non-pass tests: no failed observation persists |
+| C2 | Normal runs never create, change or delete proof (Terry, 2026-11-02) | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_runs_without_the_option_leave_proof_untouched |
 | C3 | Missing, empty, unreadable or malformed proof is never shown as a pass | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts Proof could not be read: tests/proof/latest.json is not a valid proof file. with Retry; kind mismatch both ways malformed; missing/empty via shared absence path in intent-cucumber-proof-absent.spec.ts |
 | C4 | Identity uses pytest's own node id text | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md Identity; dashboard/src/pytestProof.ts reads file/test/parameterId |
-| C4a | Parameter ids that pytest derives from positions (`param0`) are recorded as given | slice 5 | |
+| C4a | Parameter ids that pytest derives from positions (`param0`) are recorded as given | slice 5 | observed: slice 5: real snapshot records derived ids cell-expected0 and cell,2008-2010-expected1 as given |
 | C4b | The reference recommends explicit `ids=` for stable identity | slice 2 | observed: slice 2: src/skills/dough-test-optimization/references/pytest-proof.md Identity recommends ids= / pytest.param(..., id=...) |
-| C4c | No runner object ids | slice 5 | |
+| C4c | No runner object ids | slice 5 | observed: slice 5: test_recording_run_observes_each_passing_case exact keys; no runner ids |
 | C5 | Existing Cucumber proof files, their reader behavior and wording for Gherkin locations stay unchanged | slice 1 | observed: slice 1: intent-cucumber-proof, intent-cucumber-proof-absent, intent-summary-proof-cost, intent-summary-slowest, intent-entry-folder-summaries, intent-proof-generation specs 19 passed with fixtures and expected rows unchanged; 48 consumer specs passed |
 | C5a | The on-disk Cucumber format is not renamed | slice 1 | observed: slice 1: dashboard/src/cucumberProof.ts parseCucumberProofFile reads unchanged feature/scenario/example/featureBlob files; boundary/authenticated-read-intent-proof-retained asserts featureBlobs on the wire |
-| C6 | With the plugin loaded, these stay as they are | slice 5 | |
-| C6.1 | Pygardon's output | slice 5 | |
-| C6.2 | Diagnostics | slice 5 | |
-| C6.3 | Exit meaning | slice 5 | |
-| C6.4 | Progress containment | slice 5 | |
-| C6.5 | Xdist distribution | slice 5 | |
-| C6.6 | `filterwarnings = error` | slice 5 | |
-| X1 | EXCLUSION: Pygardon's `tests` location only | slice 5 | |
-| X1a | EXCLUSION: Legacy Python trees, Doughnut's CLI unittest and other pytest projects are naturally served by the contract and reader but carry no delivery or verification commitment here | slice 5 | |
+| C6 | With the plugin loaded, these stay as they are | slice 5 | observed: slice 5: with the plugin loaded: test_output_and_exit_match_runs_without_recording and real runs |
+| C6.1 | Pygardon's output | slice 5 | observed: slice 5: test_output_and_exit_match_runs_without_recording stdout equal |
+| C6.2 | Diagnostics | slice 5 | observed: slice 5: test_output_and_exit_match_runs_without_recording stderr equal |
+| C6.3 | Exit meaning | slice 5 | observed: slice 5: test_output_and_exit_match_runs_without_recording exit equal; real runs same exits |
+| C6.4 | Progress containment | slice 5 | observed: slice 5: every proof run through scripts/check-worktree.sh pytest, wrapper unchanged |
+| C6.5 | Xdist distribution | slice 5 | observed: slice 5: CI-shape -n 2 --dist loadfile run 20 passed; xdist tests |
+| C6.6 | `filterwarnings = error` | slice 5 | observed: slice 5: inner ini filterwarnings = error; real runs pass under pyproject filterwarnings = [error] |
+| X1 | EXCLUSION: Pygardon's `tests` location only | slice 5 | observed: slice 5: only declared python locations recorded (other/test_elsewhere.py not recorded in Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py) |
+| X1a | EXCLUSION: Legacy Python trees, Doughnut's CLI unittest and other pytest projects are naturally served by the contract and reader but carry no delivery or verification commitment here | slice 5 | observed: slice 5: no other Python tree or project changed |
 | X2 | EXCLUSION: No run wall time | slice 2 | observed: slice 2: no wall time, CI comparison, per-folder run cost or staleness rule added (diff) |
 | X2a | EXCLUSION: No CI comparison | slice 2 | observed: slice 2: no wall time, CI comparison, per-folder run cost or staleness rule added (diff) |
 | X2b | EXCLUSION: No per-folder run cost | slice 2 | observed: slice 2: no wall time, CI comparison, per-folder run cost or staleness rule added (diff) |
@@ -143,31 +143,31 @@ and texts are kept below as returned.
 | X3 | EXCLUSION: Observations whose identity the published file no longer defines (a renamed or removed test) are not listed; listing them as observed but no longer defined is a deferred promise | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof.spec.ts "a pytest file's Proof lists its test cases in definition order with observed parameter rows" stale test_old_origin_name not listed; dashboard/tests/intent-pytest-proof-summary.spec.ts slowest table too |
 | X4 | EXCLUSION: Tests pytest generates dynamically or collects from non-`Test*` classes are not derived from source; their observations stay in the snapshot and are read when the source rule can name them | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof.spec.ts "a pytest file's Proof lists its test cases in definition order with observed parameter rows" test_inside_docstring, test_nested_helper, Helper::test_not_collected not listed |
 | X5 | EXCLUSION: A cheaper root summary for a flat 1024-file folder is deferred to the measured result | slice 6 | |
-| X6 | EXCLUSION: A full-suite proof refresh of Pygardon is Terry's deliberate run after the plugin lands; the story commits a focused selection first | slice 5 | |
-| X7 | EXCLUSION: Rerun plugins and per-attempt detail beyond the attempt count are not added | slice 5 | |
-| E1.T | Pygardon at a prepared worktree, no `tests/proof` → `RECORD_PYTEST_PROOF=1 nix develop -c scripts/check-worktree.sh pytest tests/test_cors.py` | slice 5 | |
-| E1.R1 | `tests/proof/latest.json` holds one passing observation per executed case of that file | slice 5 | |
-| E1.R2 | Each observation has `file`, `test`, `parameterId` where parametrized, `commit` at run start and the file's `fileBlob` | slice 5 | |
-| E1.R3 | The run's output and exit are those of the same run without the option | slice 5 | |
-| E1.T2 | The same command without the option | slice 5 | |
-| E1.R4 | Changes nothing under `tests/proof` | slice 5 | |
-| E2.T | `test_rounding[up]` and `test_rounding[down]` pass | slice 5 | |
-| E2.R1 | Two observations under `test: "test_rounding"` | slice 5 | |
-| E2.T2 | A later explicit run in which `[down]` fails | slice 5 | |
-| E2.R2 | Removes only the `[down]` observation | slice 5 | |
+| X6 | EXCLUSION: A full-suite proof refresh of Pygardon is Terry's deliberate run after the plugin lands; the story commits a focused selection first | slice 5 | observed: slice 5: no full-suite refresh run; focused selection only |
+| X7 | EXCLUSION: Rerun plugins and per-attempt detail beyond the attempt count are not added | slice 5 | observed: slice 5: no rerun plugin; attempts 1 |
+| E1.T | Pygardon at a prepared worktree, no `tests/proof` → `RECORD_PYTEST_PROOF=1 nix develop -c scripts/check-worktree.sh pytest tests/test_cors.py` | slice 5 | observed: slice 5: RECORD_PYTEST_PROOF=1 nix develop -c scripts/check-worktree.sh pytest tests/test_cors.py tests/search_run/test_search_run_cli_ranking_span.py in the prepared worktree |
+| E1.R1 | `tests/proof/latest.json` holds one passing observation per executed case of that file | slice 5 | observed: slice 5: tests/proof/latest.json 6 passing observations, one per executed case |
+| E1.R2 | Each observation has `file`, `test`, `parameterId` where parametrized, `commit` at run start and the file's `fileBlob` | slice 5 | observed: slice 5: inspected: file, test, parameterId for the parametrized function, commit ac093aea6 = HEAD at run start, fileBlob = git hash-object |
+| E1.R3 | The run's output and exit are those of the same run without the option | slice 5 | observed: slice 5: output identical to the same command without the option after timing normalization; exit 0 both |
+| E1.T2 | The same command without the option | slice 5 | observed: slice 5: same command without RECORD_PYTEST_PROOF |
+| E1.R4 | Changes nothing under `tests/proof` | slice 5 | observed: slice 5: tests/proof sha256 cc87a784… and listing unchanged |
+| E2.T | `test_rounding[up]` and `test_rounding[down]` pass | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_later_failure_removes_only_that_parameter |
+| E2.R1 | Two observations under `test: "test_rounding"` | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_later_failure_removes_only_that_parameter |
+| E2.T2 | A later explicit run in which `[down]` fails | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_later_failure_removes_only_that_parameter |
+| E2.R2 | Removes only the `[down]` observation | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_later_failure_removes_only_that_parameter |
 | E2.R3 | Intent shows the `up` row with its proof and no `down` row until a later pass restores it | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof.spec.ts "a pytest file's Proof lists its test cases in definition order with observed parameter rows" up row shown, down row absent |
-| E3.T | `-n 2 --dist loadfile` with recording on | slice 5 | |
-| E3.R1 | Every executed case appears once, recorded by the controller | slice 5 | |
-| E3.R2 | Worker processes write nothing | slice 5 | |
-| E4.T1 | Default `-m 'not slow'` leaves slow cases unexecuted | slice 5 | |
-| E4.R1 | Their earlier proof stays | slice 5 | |
-| E4.T2 | `pytest -m slow` with recording on | slice 5 | |
-| E4.R2 | Adds theirs | slice 5 | |
-| E4.T3 | A `skipped` case and a deselected case | slice 5 | |
-| E4.R3 | Keep their proof | slice 5 | |
-| E5.T | An `xfail` case that fails as expected, an `xpass`, a fixture `setup` error, and a `teardown` failure after a passing call | slice 5 | |
-| E5.R1 | Each remove that case's earlier observation | slice 5 | |
-| E5.R2 | And record nothing | slice 5 | |
+| E3.T | `-n 2 --dist loadfile` with recording on | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_two_workers_record_each_case_once_from_the_controller (-n 2 --dist loadfile) |
+| E3.R1 | Every executed case appears once, recorded by the controller | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_two_workers_record_each_case_once_from_the_controller (-n 2 --dist loadfile) |
+| E3.R2 | Worker processes write nothing | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_two_workers_record_each_case_once_from_the_controller (-n 2 --dist loadfile) |
+| E4.T1 | Default `-m 'not slow'` leaves slow cases unexecuted | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_unexecuted_cases_keep_their_proof |
+| E4.R1 | Their earlier proof stays | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_unexecuted_cases_keep_their_proof |
+| E4.T2 | `pytest -m slow` with recording on | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_unexecuted_cases_keep_their_proof |
+| E4.R2 | Adds theirs | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_unexecuted_cases_keep_their_proof |
+| E4.T3 | A `skipped` case and a deselected case | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_unexecuted_cases_keep_their_proof |
+| E4.R3 | Keep their proof | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_unexecuted_cases_keep_their_proof |
+| E5.T | An `xfail` case that fails as expected, an `xpass`, a fixture `setup` error, and a `teardown` failure after a passing call | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_executed_non_passes_clear_their_proof |
+| E5.R1 | Each remove that case's earlier observation | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_executed_non_passes_clear_their_proof |
+| E5.R2 | And record nothing | slice 5 | observed: slice 5: Pygardon tests/test_pytest_proof_{recording,outcomes,unchanged_runs}.py test_executed_non_passes_clear_their_proof |
 | E5.R3 | Intent reads _No successful proof_ for it | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof.spec.ts "a pytest file's Proof lists its test cases in definition order with observed parameter rows" test_rejects_unknown_origin reads No successful proof |
 | E6.T | Select `tests/test_cors.py` in Pygardon's Intent at the published revision | slice 6 | |
 | E6.R1 | A table headed Test case, Last successful proof, Duration, Observed, Commit, Observed on | slice 6 | |
