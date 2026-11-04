@@ -244,7 +244,7 @@ bound.
 
 ### 4. Pygardon workspace is prepared and its CI route checked
 Type: Structure
-Status: planned
+Status: done
 Proof: `git worktree add` from fetched Pygardon trunk,
 `nix develop -c scripts/prepare-worktree.sh`, then
 `nix develop -c scripts/check-worktree.sh pytest --collect-only -q`
@@ -255,6 +255,15 @@ passes; a `CI deferred` result goes to Terry first (Pygardon AGENTS.md).
 Internal change: the subordinate Pygardon workspace this execution owns, at
 a recorded base, with its prepared environment. Enables slice 5. Keep
 Pygardon's default checkout untouched.
+
+Accepted proof (2026-11-04): worktree
+`/Users/terryyin/git/pygardon/.worktrees/record-pytest-proof`, branch
+`claude/record-pytest-proof`, from fetched `origin/main` at `ac093aea6`;
+`nix develop -c scripts/prepare-worktree.sh` exit 0;
+`nix develop -c scripts/check-worktree.sh pytest --collect-only -q` "6537/6560
+tests collected (23 deselected)"; `node scripts/pygardon-ci-adapter.mjs
+--check terryyin/pygardon main` "Pygardon CI adapter access confirmed". The
+default checkout stayed on clean `main`.
 
 ### 5. Pygardon records pytest proof on explicit request
 Type: Behavior
@@ -329,6 +338,18 @@ describe on real source; nothing is fabricated for the demonstration.
   slice 5, the reference resolves `file` from `git rev-parse --show-toplevel`
   and runs inner `pytester` sessions with the option set only for them; a
   lock file must not end in `.json`.
+- Slice 4: Pygardon collects 6537 cases in 1273 files; 2963 are
+  parametrized, from 890 functions; none come from a class. One parameter id
+  contains `::` (`test_sealing.py::…[/usr/bin::/bin]`), so identity parsing
+  stops at the first `[`. pytest 9.1.1, pytest-xdist 3.8.0, no
+  pytest-asyncio; `filterwarnings = ["error"]`; `addopts = "-m 'not slow'"`.
+  Plugins load by `-p` (CI: `-p scripts.ci_crash_evidence`, with
+  `hasattr(config, "workerinput")` for workers; the wrapper adds
+  `-p scripts.worktree_pytest_progress`) or `pytest_plugins`. `pytester` is
+  enabled per module (`test_private_host_docker_lease.py` pattern with
+  `inline_run("--confcutdir", …, "-o", "addopts=", plugins=[…])`). The worktree
+  wrapper passes the caller's environment to pytest. CI runs `-n auto --dist
+  loadfile`. Pygardon tests use no sleeps or time budgets.
 
 ## Concern evidence
 

@@ -97,7 +97,7 @@ and texts are kept below as returned.
 | 7.1 | A `python` location without `proof` says proof is not recorded and names the pytest reference | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts python without proof: Proof is not recorded ... dough-test-optimization/references/pytest-proof.md, in file Proof and summary |
 | 7.2 | A kind with no proof reading yet says Proof is read for Gherkin feature files and pytest files so far | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts typescript location: Proof is read for Gherkin feature files and pytest files so far. |
 | 7.3 | Unreadable and malformed proof keep their retry explanations | slice 2 | observed: slice 2: dashboard/tests/intent-pytest-proof-absent.spec.ts Proof could not be read: tests/proof/latest.json is not a valid proof file. with Retry; kind mismatch both ways malformed; missing/empty via shared absence path in intent-cucumber-proof-absent.spec.ts |
-| 8.0 | Done in a subordinate Pygardon workspace of this execution, as plan 446 did | slice 4 | |
+| 8.0 | Done in a subordinate Pygardon workspace of this execution, as plan 446 did | slice 4 | observed: slice 4: subordinate worktree /Users/terryyin/git/pygardon/.worktrees/record-pytest-proof (claude/record-pytest-proof at ac093aea6), prepared; default checkout untouched |
 | 8.1 | A Pygardon-owned pytest plugin following the reference | slice 5 | |
 | 8.2 | Registered so the ordinary `pytest`, `scripts/check-worktree.sh pytest` and CI commands load it with recording off | slice 5 | |
 | 8.3 | Its tests through pytest's `pytester` | slice 5 | |
