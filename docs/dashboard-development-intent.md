@@ -115,7 +115,11 @@ _No successful proof_. Without a declared directory, Proof says it is not
 recorded and names the installed reference (for `typescript`/`javascript`,
 the declared runner's reference when Intent reads it, otherwise every such
 runner's); other kinds say Proof is read for Gherkin feature files, pytest
-files, Vitest tests and Playwright tests so far. The selected perspective choice names the page, so Intent shows no heading
+files, Vitest tests and Playwright tests so far. Open Dough's own
+`dashboard/tests` Playwright location lists on the order of seven hundred
+spec files; opening that location's Purpose or Proof summary reads each
+listed file at the pinned revision after the locations answer, so expect a
+noticeable first-open cost on a cold read. The selected perspective choice names the page, so Intent shows no heading
 of its own. Below the banner the page does not scroll: the location tree
 fills the remaining height against the left edge, and it and the reading
 pane each scroll independently. Directly under the banner, a strip of three
