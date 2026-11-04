@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 419. Removed numbers are never reused.
+- Highest allocated local number: 420. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -477,6 +477,15 @@ Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`.
 
 [Evidence and current response](docs/maintainer/findings/ODF-367.md).
 
+### Occurrences
+- Execution: SEED-232#reduce-running-cursor-session-requests (plan 470-reduce-running-cursor-session-requests; first related implementation commit `18ad9cdc77f74a647b97d789d7656fc50c7fb4ea`)
+  - Timestamp: 2026-11-05T05:58:00+07:00
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: coordinator transcript `3bb4f177-6d51-4cc1-bc37-960c9aac4537` delegated slice 1 (subagent `88e91963-42fd-4d56-8fa8-1f5d2e11a93f` at 05:54+07:00) before launching the source-only reviewer (`05ed7080-9e96-414a-b209-6162203edfd3` at 05:58+07:00); source-review.md and Story obligations X-D1–X-S8 were written after that return
+  - Observed effect: slice 1 brief carried only the plan's proof; source commitments 11–15, 25–26, E4 and E6 were recorded at acceptance after the implementer had already returned. No mid-run product correction was required because those commitments matched the plan's rewrite of the sharing proofs
+  - Inference: same ordering as prior ODF-367 rows — the source-only review that acceptance requires still starts after the first Behavior slice is already delegated
+
 ## ODF-399 — Post-change refactor left a production module empty before delivery
 
 Former local code: DD-389.
@@ -640,3 +649,15 @@ Managed delivery treated GitHub's refusal of a workflow-file push (missing OAuth
   - Evidence: both receipts had `remoteTip` and `suffixBase` `88cf77a06` equal to the published base, `reconciliations: 1`, `status: needs-validation`; `execution-increment-publication.mjs` sends any `rejected` push into `reconcileOnto(..., retry=true)`, whose proof gate never holds on retry; a manual `git push` then printed "refusing to allow an OAuth App to create or update workflow `.github/workflows/ci.yml` without `workflow` scope"; after `gh auth refresh -s workflow` the same `deliver` was accepted.
   - Observed effect: two refused deliveries and about eight diagnostic tool calls before a credential stop for Terry.
   - Inference: qualified. A remote refusal (`[remote rejected]` with a reason) is a credential or policy stop, not contention; reporting its text as its own status would have reached the human decision at the first receipt.
+
+## DD-420 — Exclusion story-clause recording still needs hand-matched exact substrings
+`story-obligations.mjs record` for excluded dispositions refuses paraphrased story clauses with `quote-not-in-story`, so the coordinator must rediscover the seed's exact substring even when the disposition meaning is already clear.
+
+### Occurrences
+- Execution: SEED-232#reduce-running-cursor-session-requests (plan 470-reduce-running-cursor-session-requests; first related implementation commit `18ad9cdc77f74a647b97d789d7656fc50c7fb4ea`)
+  - Timestamp: unknown (2026-11-05, between source-review write ~05:58+07:00 and slice 1 delivery `18ad9cdc7` at 06:06+07:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: coordinator transcript `3bb4f177-6d51-4cc1-bc37-960c9aac4537` turns recording X-S2/X-S4/X-S5/X-S7; first exclusion batch used paraphrases such as "no change to how choosing a row opens the terminal" and "no new database"; `record`/`check` refused `quote-not-in-story` until the clauses were shortened to exact Scope substrings ("how choosing a row opens the terminal", "no new daemon, database, or scheduler", "machine-session observation's own 15-second page pace")
+  - Observed effect: two repair rounds on planning records before slice 1 obligation check passed; no product rework and no incorrect exclusion published
+  - Inference: the observation/exclusion writer removed table hand-edits (ODF-391 response) but still leaves exact-substring discovery to trial and error when Scope wording and the disposition title diverge
