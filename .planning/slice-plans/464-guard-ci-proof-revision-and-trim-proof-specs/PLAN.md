@@ -76,3 +76,11 @@ collapsed `BaseCiJudgment.ciAdapter` onto one intersection.
   status judgment without a GitHub proof request.
 - Parser refusals are cheaper as `parseIntentCiProofRead` unit tests; one
   browser refusal proves no GitHub call on refuse.
+
+## Execution complete
+
+Product advice: no product follow-up. The correction met its Goal and Scope:
+pull-request revision is regression-tested, proof specs each document one
+behaviour, and the CI status judgment carries `ciAdapter` from one
+configuration read. Visible tab behaviour and the summary contract are
+unchanged. Process review found no supported findings to record.
