@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-231_keep-focused-proof-out-of-suite-admission.json",
+      "identity": "SEED-231#keep-focused-proof-out-of-suite-admission",
+      "completedAt": "2026-11-04T14:58:46.845Z",
+      "blob": "2f516fb4f787f0d418744bdb4a1d0797cb176c7b"
+    },
+    {
       "fileName": "SEED-192_read-vitest-proof.json",
       "identity": "SEED-192#read-vitest-proof",
       "completedAt": "2026-11-04T13:11:13.279Z",
