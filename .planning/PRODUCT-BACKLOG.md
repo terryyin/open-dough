@@ -30,10 +30,10 @@ intent introduced or affected by a newly developed story.
 
 - [Reduce remote Sessions traffic](seeds/SEED-229-reduce-remote-sessions-traffic.md#reduce-remote-sessions-traffic) — SEED-229#reduce-remote-sessions-traffic ([plan](slice-plans/462-reduce-remote-sessions-traffic/PLAN.md))
 - [Summarize CI proof in Intent](seeds/SEED-230-summarize-ci-proof-in-intent.md#summarize-ci-proof-in-intent) — SEED-230#summarize-ci-proof-in-intent ([plan](slice-plans/463-summarize-ci-proof-in-intent/PLAN.md))
+- [Order pytest parameter rows by parameter id](seeds/SEED-192-review-product-intent.md#order-pytest-parameter-rows) — SEED-192#order-pytest-parameter-rows ([plan](slice-plans/464-order-pytest-parameter-rows/PLAN.md))
 
 ## Backlog list
 
-- [Order pytest parameter rows by parameter id](seeds/SEED-192-review-product-intent.md#order-pytest-parameter-rows) — SEED-192#order-pytest-parameter-rows
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
 - [Read frontend Vitest proof in both projects](seeds/SEED-192-review-product-intent.md#read-vitest-proof) — SEED-192#read-vitest-proof
