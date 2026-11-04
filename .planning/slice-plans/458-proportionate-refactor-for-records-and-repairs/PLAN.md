@@ -165,6 +165,17 @@ Behavior: a maintainer reads ODF-141 or ODF-276 → sees the delivered
 response, its revision, its release status, and the replay evidence with its
 limits → later ordinary use remains a separate observation.
 
+## Execution complete
+
+Product advice: no correction needed; the delivered rule matches the story,
+and its replay names the accepted trade-off (records passes that corrected
+citations and research claims now rely on acceptance review). Two follow-up
+observations for later ordinary use, not new stories: the Clipboard-shape
+repairs that add a regression test still pay the fresh pass, so watch whether
+already-traced repairs occur in practice before widening that class; and the
+execute-plan "Before delivery…" read row is at about 29948 of its 30000-byte
+budget, so the next change to delivery guidance must compact that row first.
+
 ## Current decisions
 
 - Whole-product reach is a required restriction (Terry, 2026-11-04): slices
