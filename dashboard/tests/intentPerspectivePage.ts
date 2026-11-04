@@ -1,7 +1,8 @@
 // What a journey expects of the Development and Intent perspectives
 // (../src/PerspectiveSelect.tsx, ../src/IntentPerspective.tsx,
 // ../src/dashboardRouteUrl.ts): the address that names them, Intent group
-// and folder expand helpers for the locations column, how many Intent locations reads
+// and folder expand helpers for the locations column, how a location header
+// reads, how many Intent locations reads
 // the page asks, Intent's not-configured content when the project publishes
 // no intent locations, Intent's reading-mode tabs (../src/IntentModeTabs.tsx)
 // and the Test Optimization Candidates record they show, and the Purpose and
@@ -35,6 +36,35 @@ export function intentGroupToggle(intent: Locator, locationPath: string) {
   return intent.locator(
     `button.intent-location-toggle[aria-controls="${bodyId}"]`,
   );
+}
+
+// One configured Intent location's header: its caret and selectable name.
+export function intentLocationHeader(intent: Locator, locationPath: string) {
+  return intentGroupToggle(intent, locationPath).locator("xpath=..");
+}
+
+// How a location header reads: its own background, its change mark, whether
+// its caret and name let that background through, and whether it spans its
+// group's full width.
+export function locationHeaderLook(header: Locator) {
+  return header.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const group = element.parentElement ?? element;
+    const groupStyle = getComputedStyle(group);
+    const inner =
+      group.clientWidth -
+      Number.parseFloat(groupStyle.paddingLeft) -
+      Number.parseFloat(groupStyle.paddingRight);
+    return {
+      background: style.backgroundColor,
+      mark: style.boxShadow,
+      controlsShowHeader: [...element.children].every(
+        (child) =>
+          getComputedStyle(child).backgroundColor === "rgba(0, 0, 0, 0)",
+      ),
+      fullWidth: Math.abs(element.getBoundingClientRect().width - inner) < 1,
+    };
+  });
 }
 
 // Selectable name for one configured Intent location path.

@@ -19,7 +19,10 @@ toggles expansion and keeps the selection and summary. Locations still allow
 only one open at a time via caret (or a selected name's toggle); selecting a
 closed location's name leaves it closed and leaves any other open location
 open. Both controls are keyboard-operable, and a selected location or folder
-reads as pressed. Selecting a file still reads its exact published text with
+reads as pressed. Every location header has its own background, distinct
+from the folder and file rows beneath it; a selected location's header takes
+the selected background across its whole width, caret included, and
+expansion shows only in the caret. Selecting a file still reads its exact published text with
 line numbers and Gherkin syntax styling at the observed revision. A location or
 folder summary names the selection by path and how many matching files it
 holds. For Gherkin it also reads each contained feature's published text at
@@ -194,7 +197,9 @@ at its new path where a location selects it, else at its old path. A
 completed story is named by its done record's title and compared through its
 published completion, whose revisions need not be the published revision
 Intent and its Proof describe. Folders
-and locations containing changes share one background; the first time Intent
+containing changes share one background; a location containing changes keeps
+its header's location background and carries a change mark on its leading
+edge instead. The first time Intent
 has the comparison, those folders and the first changed location open and
 everything else collapses. **Selected story only**, off at first, leaves
 just the changed files and the locations and folders holding them, or says no

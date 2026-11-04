@@ -5,7 +5,9 @@
 // Which folders are open is `./useLocationOpenFolders.ts`'s; a `reveal`
 // request inside the location also scrolls the selected row into view. A
 // selected story's overlay (`./intentStoryOverlay.ts`) supplies the files with
-// their change kinds; a group that contains changes is marked as a folder is.
+// their change kinds; a group that contains changes carries a change mark on
+// its header, which keeps its own location background or, when selected, the
+// selected background across the whole header.
 // Selection is the Intent workspace's (`./intentWorkspaceSelection.ts`),
 // passed through the browser. An unsupported kind or a location with no
 // matching files says so by path, kind, and include patterns inside the
@@ -143,7 +145,10 @@ export function IntentLocationGroup({
       aria-labelledby={`${idPrefix}-heading`}
       data-contains-changes={containsChanges || undefined}
     >
-      <div className="intent-location-header">
+      <div
+        className="intent-location-header"
+        data-selected={locationSelected || undefined}
+      >
         <button
           type="button"
           className="intent-location-toggle"

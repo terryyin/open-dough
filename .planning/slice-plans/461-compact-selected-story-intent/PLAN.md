@@ -131,7 +131,7 @@ place of the lens above the strip.
 
 ### 2. Location headers stand apart from rows, and selection fills the header
 Type: Behavior
-Status: planned
+Status: done
 Proof: examples 5–7 in the journeys above, comparing computed backgrounds of
 header, caret, folder row and file row; a headless screenshot with a story
 selected (changed and unchanged locations, one selected, one expanded) in
@@ -162,6 +162,12 @@ replaces "Folders and locations containing changes share one background".
   [source-review.md](source-review.md). Screenshots of the compact and expanded
   summary at 1400 px, 700 px and on the not-configured explanation were read
   before acceptance.
+- Slice 2 (2026-11-04): the same command plus
+  `dashboard/tests/story-review.spec.ts dashboard/tests/story-review-tree.spec.ts`
+  (they share `change-kinds.css` and `story-review-files.css`) → 85 passed after
+  the refactor. Screenshots with and without a selected story, one location
+  selected and one expanded, were read before acceptance; the dashboard has no
+  dark colour scheme, so dark emulation renders the light palette.
 
 ## Learnings
 
@@ -171,6 +177,11 @@ replaces "Folders and locations containing changes share one background".
 - The refactor split the files that crossed 250 lines: `IntentStoryComparison.tsx`,
   `useIntentStoryTree.ts`, `useIntentLocations.ts`, and `IntentCandidatesPanel`
   in `IntentCandidatesRecord.tsx`. Slice 2 starts from those.
+- A location's selected fill is the file browser's shared selected-row rule
+  (`story-review-files.css`), applied to the header; rows are inside `li`,
+  the location name is not, so the name takes no fill of its own.
+- Changed and unchanged headers are compared through the same header before
+  and after deselection, since the story fixture changes both locations.
 
 ## Concern evidence
 

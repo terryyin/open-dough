@@ -6,10 +6,11 @@
 // identity and the revisions its default Review changes comparison runs
 // between. A long title is shortened on one line, in full on hover and when
 // expanded. The whole published tree shows, changed
-// files styled by kind and the added one inserted; the folders and location
-// groups containing changes have the contains-changes background and are
-// open, with the first changed location, while everything else stays
-// collapsed. The changed files outside every location are counted, pointing
+// files styled by kind and the added one inserted; the folders containing
+// changes have the contains-changes background and are open, with the first
+// changed location, while everything else stays collapsed. A location
+// containing changes keeps its own header background with a change mark,
+// distinct from a changed folder's row, and keeps the mark once selected. The changed files outside every location are counted, pointing
 // to Review changes. A changed file's Purpose is the same diff Review
 // changes shows and its Proof says it describes the published revision; an
 // unchanged file shows its published source. Deselecting removes the
@@ -45,6 +46,9 @@ import { changed } from "./support/intentStoryWorktree.ts";
 import {
   chooseReadingTab,
   intentGroupToggle,
+  intentLocationHeader,
+  intentLocationName,
+  locationHeaderLook,
 } from "./intentPerspectivePage.ts";
 
 test.setTimeout(120_000);
@@ -143,7 +147,8 @@ test("Intent highlights a selected Taken story's test changes over the published
     }
   });
 
-  await test.step("folders and groups containing changes have the contains-changes background", async () => {
+  let changedHeader: Awaited<ReturnType<typeof locationHeaderLook>>;
+  await test.step("changed folders share the contains-changes background; a changed location keeps its own with a change mark, kept when selected", async () => {
     const marked = await background(folderRow(intent, "boundary"));
     expect(marked).not.toBe("rgba(0, 0, 0, 0)");
     for (const name of ["arriving", "boundary", "out"]) {
@@ -158,12 +163,36 @@ test("Intent highlights a selected Taken story's test changes over the published
     );
     expect(await background(folderRow(intent, "other"))).not.toBe(marked);
     for (const location of ["dashboard/tests", "tests"]) {
-      const group = locationGroup(intent, location);
-      await expect(group).toHaveAttribute("data-contains-changes", "true");
-      expect(await background(group.locator(".intent-location-header"))).toBe(
-        marked,
+      await expect(locationGroup(intent, location)).toHaveAttribute(
+        "data-contains-changes",
+        "true",
       );
+      const look = await locationHeaderLook(
+        intentLocationHeader(intent, location),
+      );
+      expect(look.background).not.toBe("rgba(0, 0, 0, 0)");
+      expect(look.background).not.toBe(marked);
+      expect(look.mark).not.toBe("none");
+      changedHeader = look;
     }
+    const header = intentLocationHeader(intent, "dashboard/tests");
+    await intentLocationName(intent, "dashboard/tests").click();
+    await expect(intentLocationName(intent, "dashboard/tests")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    const selected = await locationHeaderLook(header);
+    expect(selected.background).not.toBe(changedHeader.background);
+    expect(selected.background).not.toBe(marked);
+    expect(selected).toMatchObject({
+      mark: changedHeader.mark,
+      controlsShowHeader: true,
+      fullWidth: true,
+    });
   });
 
   await test.step("a changed file's Purpose is Review changes' diff, and its Proof describes the published revision", async () => {
@@ -208,6 +237,11 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(intent.locator(".intent-story-outside")).toHaveCount(0);
     await expect(intent.locator("[data-kind]")).toHaveCount(0);
     await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
+    const unchanged = await locationHeaderLook(
+      intentLocationHeader(intent, "tests"),
+    );
+    expect(unchanged.mark).toBe("none");
+    expect(unchanged.background).toBe(changedHeader.background);
     await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
       "aria-expanded",
       "false",

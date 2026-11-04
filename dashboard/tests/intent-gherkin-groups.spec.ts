@@ -2,7 +2,10 @@
 // (../src/IntentPerspective.tsx): start collapsed, one open body at a time,
 // all-closed reachable, Purpose survives caret collapse, empty/unsupported
 // bodies participate, and nested folder caret disclosure stays local to the
-// open group.
+// open group. With no story selected, every location header has its own
+// background apart from folder and file rows; a selected header takes the
+// selected background caret to edge, while an expanded one shows only its
+// open caret.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
@@ -12,7 +15,9 @@ import {
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
+  intentLocationHeader,
   intentLocationName,
+  locationHeaderLook,
 } from "./intentPerspectivePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
@@ -23,7 +28,7 @@ import {
   recallFeature,
 } from "./intentGherkinBrowseFixtures.ts";
 
-test("Intent group sections start collapsed, expand exclusively, keep Purpose across collapse, and leave nested folders local", async ({
+test("Intent group sections start collapsed, expand exclusively, keep Purpose across collapse, leave nested folders local, and stand apart from their rows", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -160,5 +165,67 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
         exact: true,
       }),
     ).toBeVisible();
+  });
+
+  await test.step("with no story selected, headers stand apart from rows; selection fills one header, expansion shows only in the caret", async () => {
+    await expect(
+      intent.getByRole("region", { name: "Selected story", exact: true }),
+    ).toHaveCount(0);
+    const expandedPath = "e2e_test/features";
+    const selectedPath = "e2e_test/packaged/features";
+    const transparent = "rgba(0, 0, 0, 0)";
+    const folderRow = intent.locator(".story-review-folder-row").first();
+    const fileRow = intent.getByRole("button", {
+      name: "e2e_test/features/recall/recall_note.feature",
+      exact: true,
+    });
+    await intentLocationName(intent, selectedPath).click();
+    await expect(intentLocationName(intent, selectedPath)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(fileRow).toHaveAttribute("aria-pressed", "false");
+    const rowBackgrounds = [
+      await folderRow.evaluate((row) => getComputedStyle(row).backgroundColor),
+      await fileRow.evaluate((row) => getComputedStyle(row).backgroundColor),
+    ];
+    expect(rowBackgrounds).toEqual([transparent, transparent]);
+
+    const looks = new Map<
+      string,
+      Awaited<ReturnType<typeof locationHeaderLook>>
+    >();
+    for (const location of [
+      expandedPath,
+      selectedPath,
+      "empty_features",
+      "frontend/src",
+    ])
+      looks.set(
+        location,
+        await locationHeaderLook(intentLocationHeader(intent, location)),
+      );
+    const expanded = looks.get(expandedPath);
+    const selected = looks.get(selectedPath);
+    await expect(intentGroupToggle(intent, expandedPath)).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    await expect(intentGroupToggle(intent, selectedPath)).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    expect(expanded?.background).not.toBe(transparent);
+    expect(rowBackgrounds).not.toContain(expanded?.background);
+    for (const location of ["empty_features", "frontend/src"])
+      expect(looks.get(location)?.background).toBe(expanded?.background);
+    expect(selected?.background).not.toBe(expanded?.background);
+    expect(rowBackgrounds).not.toContain(selected?.background);
+    for (const look of looks.values())
+      expect(look).toMatchObject({
+        mark: "none",
+        controlsShowHeader: true,
+        fullWidth: true,
+      });
   });
 });
