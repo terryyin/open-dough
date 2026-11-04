@@ -357,7 +357,7 @@ same `Isolate` hint fix to Pygardon's output comparison.
 
 ### 5. The case model names its fields for any runner and derives TypeScript test rows
 Type: Structure
-Status: planned
+Status: done
 Proof: The Intent answer and its schema (`dashboard/server/intentProofRead.ts`,
 `dashboard/src/authenticatedIntentRead.ts`, the mapping in
 `dashboard/src/cucumberProof.ts` and the other carriers of the Cucumber
@@ -384,6 +384,28 @@ model's own names, the kind registry resolves by kind and runner, and the
 TypeScript scanner exists with direct proof, reusing plan 464's code-point
 comparison for the variant order rather than adding a second one. Enables
 slice 6, which registers the Vitest kind.
+
+Retained (2026-11-04, slice 5): the answer carries `{path, fileBlobs,
+observations: {file, name, variant?, …}}` with the Cucumber mapping removed
+from `dashboard/src/cucumberProof.ts`; `declaredLocations` reads `runner`;
+`proofKindOf(kind, runner)` resolves `gherkin`/`python` by kind and
+`typescript`/`javascript` through an empty `runnerProofKinds`, and components
+receive the resolved kind. `byCodePoint`, `byVariant` and
+`observedVariantsOf` live in `dashboard/src/proofCases.ts`, shared by
+`pytestRowsOf` and the new `vitestRowsOf` (`dashboard/src/vitestCases.ts`,
+tokenizer `scriptTokens.ts`, names `vitestCaseNames.ts`). For slice 6: a
+Vitest case `name` joins the `test` list with `" > "` (`vitestCaseName`); an
+observed name claimed by a literal test or an earlier template is not matched
+by a later template; a suite with a non-literal name is skipped with its
+contents; `proofDurationWords.ts` now rounds before choosing ms or s. Only
+`dashboard/tests/boundary/authenticated-read-intent-proof-retained.spec.ts`
+changed among fixtures (`featureBlobs` → `fileBlobs` in the literal answer).
+Proof: `bash scripts/test.sh` over `tests/support/intent-pytest-definitions`,
+`intent-vitest-cases`, `intent-vitest-case-templates`, `intent-proof-runner`,
+`intent-pytest-cases` and `intent-summary-proof-cost` tests pass;
+`typecheck:dashboard` clean; 26 Intent proof, summary, selection and boundary
+specs 66 passed after the refactor (68 over 29 specs before it), plus the
+three browse specs checking the not-recorded wording.
 
 ### 6. Intent reads Vitest proof for a location that declares the runner
 Type: Behavior

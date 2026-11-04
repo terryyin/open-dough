@@ -5,10 +5,13 @@
 // read, with a Retry that reads it again.
 
 import type { IntentLocationProof } from "./authenticatedIntentRead.ts";
-import { proofKindOf } from "./proofKinds.ts";
+import type { ProofKind } from "./proofKinds.ts";
 
-export function NotRecorded({ kind }: { readonly kind: string | undefined }) {
-  const proofKind = proofKindOf(kind);
+export function NotRecorded({
+  proofKind,
+}: {
+  readonly proofKind: ProofKind | undefined;
+}) {
   if (proofKind === undefined) {
     return (
       <p className="quiet">

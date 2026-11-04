@@ -3,11 +3,14 @@
 // files parse, how a published file's case rows derive, and the runner's own
 // words for its cases. Every other proof rule (identity, reduction, counts,
 // sums, slowest cases) is the case model's, and the Intent answer carries
-// every kind's cases in one shape (`./cucumberProof.ts`). Read by the pinned
+// every kind's cases in the case model's own fields. A `gherkin` or `python`
+// location implies its runner; a `typescript` or `javascript` location's
+// proof format is the one its declared `runner` records. Read by the pinned
 // Intent read (`../server/intentLocationsRead.ts`,
-// `../server/intentProofRead.ts`), file Proof (`./IntentProof.tsx`),
-// summaries (`./IntentSummary.tsx`) and their explanations
-// (`./IntentProofProblem.tsx`).
+// `../server/intentProofRead.ts`), file Proof
+// (`./IntentFileReading.tsx`), summaries (`./IntentSummary.tsx`) and proof
+// generation (`./IntentProofGeneration.tsx`), which hand the resolved kind to
+// file Proof and the explanations (`./IntentProofAbsence.tsx`).
 
 import { parseCucumberProofFile } from "./cucumberProof.ts";
 import { scenarioRowsOf } from "./gherkinScenarios.ts";
@@ -79,12 +82,30 @@ const python: ProofKind = {
   },
 };
 
+// Proof kinds a location kind implies.
 const proofKinds: Readonly<Record<string, ProofKind>> = { gherkin, python };
 
-// The proof kind of an Intent location kind, undefined when Intent reads no
-// proof for it.
-export function proofKindOf(kind: string | undefined): ProofKind | undefined {
-  return kind !== undefined && Object.hasOwn(proofKinds, kind)
-    ? proofKinds[kind]
-    : undefined;
+// Location kinds whose files several runners test, so that the declared
+// runner selects the proof kind, and the proof kinds those runners select.
+const runnerSelectedKinds: ReadonlySet<string> = new Set([
+  "typescript",
+  "javascript",
+]);
+const runnerProofKinds: Readonly<Record<string, ProofKind>> = {};
+
+const registered = (
+  kinds: Readonly<Record<string, ProofKind>>,
+  name: string | undefined,
+) =>
+  name !== undefined && Object.hasOwn(kinds, name) ? kinds[name] : undefined;
+
+// The proof kind of an Intent location of `kind` declaring `runner`,
+// undefined when Intent reads no proof for it.
+export function proofKindOf(
+  kind: string | undefined,
+  runner: string | undefined,
+): ProofKind | undefined {
+  return kind !== undefined && runnerSelectedKinds.has(kind)
+    ? registered(runnerProofKinds, runner)
+    : registered(proofKinds, kind);
 }

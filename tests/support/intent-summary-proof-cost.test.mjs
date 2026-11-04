@@ -10,7 +10,7 @@ import {
   summaryFiguresFor,
 } from "../../dashboard/src/intentSummaryProofCost.ts";
 
-const gherkin = proofKindOf("gherkin");
+const gherkin = proofKindOf("gherkin", undefined);
 
 const observed = (finishedAt, commit, durationMs = 1000) => ({
   file: "Feature",

@@ -107,12 +107,18 @@ function locationFields(
   location: DeclaredLocation,
 ): Pick<
   IntentLocation,
-  "path" | "kind" | "include" | "proofGeneration" | "proofGenerationProblem"
+  | "path"
+  | "kind"
+  | "include"
+  | "runner"
+  | "proofGeneration"
+  | "proofGenerationProblem"
 > {
   return {
     path: location.path,
     kind: location.kind,
     ...(location.include === undefined ? {} : { include: location.include }),
+    ...(location.runner === undefined ? {} : { runner: location.runner }),
     ...(location.proofGeneration === undefined
       ? {}
       : { proofGeneration: location.proofGeneration }),
@@ -151,7 +157,7 @@ function proofOfLocation(
   signal: AbortSignal,
   naming: (reading: string) => void,
 ): Promise<IntentLocationProof> | undefined {
-  const proofKind = proofKindOf(location.kind);
+  const proofKind = proofKindOf(location.kind, location.runner);
   if (
     location.proof === undefined ||
     proofKind === undefined ||

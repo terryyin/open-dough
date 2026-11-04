@@ -69,7 +69,7 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | F7 | A file holds at most one observation per identity | slice 1 | observed: src/skills/dough-test-optimization/references/vitest-proof.md File format |
 | D1 | A typescript or javascript location that declares proof also declares runner, here "vitest" | slice 6 | |
 | D2 | runner selects how the location's proof files are read | slice 6 | |
-| D3 | Gherkin and python locations keep implying their runner | slice 5 | |
+| D3 | Gherkin and python locations keep implying their runner | slice 5 | observed: dashboard/src/proofKinds.ts proofKindOf: gherkin and python resolve by kind alone; tests/support/intent-vitest-cases.test.mjs proofKindOf tests |
 | D4 | The dashboard reads proof and proofGeneration on the location exactly as on a Gherkin one | slice 6 | |
 | D5 | A declared proof without a usable runner is explained as that setting's problem on that location | slice 6 | |
 | D6 | That explanation does not hide the location's source or inventory | slice 6 | |
@@ -230,18 +230,18 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | U2 | The unit words change to Test case, tests and test cases | slice 6 | |
 | U3 | A row's variant is its project where one is observed, as an outline row shows its example cells | slice 6 | |
 | U4 | Rows are named by the whole describe path | slice 6 | |
-| U5 | The row derivation follows nesting in the TypeScript text rather than scanning lines | slice 5 | |
+| U5 | The row derivation follows nesting in the TypeScript text rather than scanning lines | slice 5 | observed: dashboard/src/vitestCases.ts tokenizer and bracket-matched describe/suite/it/test calls; tests/support/intent-vitest-cases.test.mjs nesting tests |
 | U6 | The full path is kept because a bare it name repeats across suites | slice 6 | |
 | U7 | Selecting frontend/tests reads its source files for the summary; the story keeps the shared behavior and measures it | slice 7 | |
 | X9 | Exclusion: no layout, component or technology is chosen here | slice 6 | |
 | AR1 | The case model gains its third family, the first where a location's kind does not determine its proof format | slice 6 | |
 | AR2 | runner on the location selects the proof parser and, within the kind, the row derivation | slice 6 | |
-| AR3 | Leaves room for typescript Playwright and javascript node:test proof later without a second settings shape | slice 5 | |
+| AR3 | Leaves room for typescript Playwright and javascript node:test proof later without a second settings shape | slice 5 | observed: proofKindOf resolves typescript/javascript through runnerProofKinds keyed by runner; declaredLocations reads runner in the one settings shape |
 | AR4 | The project is the variant: one identity rule and one latest-first reduction across families | slice 6 | |
-| AR5 | The Intent answer names cases by the model's file, name path and variant, replacing the Cucumber names | slice 5 | |
-| AR6 | The TypeScript row derivation is a nesting-aware reading of test calls shared by every runner of that call family | slice 5 | |
+| AR5 | The Intent answer names cases by the model's file, name path and variant, replacing the Cucumber names | slice 5 | observed: Intent answer {path, fileBlobs, observations{file,name,variant}} in dashboard/server/intentProofRead.ts and dashboard/src/authenticatedIntentRead.ts; Cucumber mapping removed from cucumberProof.ts |
+| AR6 | The TypeScript row derivation is a nesting-aware reading of test calls shared by every runner of that call family | slice 5 | observed: dashboard/src/vitestCases.ts vitestRowsOf, runner-neutral reading of the it/test call family |
 | AR7 | Proof stays a repository record read as a published fact | slice 6 | |
-| AR8 | runner is project-owned configuration in the same settings file | slice 5 | |
+| AR8 | runner is project-owned configuration in the same settings file | slice 5 | observed: dashboard/server/intentLocationsSettings.ts declaredLocations reads runner from .planning/open-dough.json |
 | AR9 | In each project, the reporter is the second producer of the project's one proof store | slice 4 | observed: doughnut e2e_test/config/proofStore.mjs, pygardon e2e_test/plugins/proofStore.mts: the reporter is the store's second producer |
 | AR10 | The project generalizes that store to the shared observation shape rather than adding a second store | slice 4 | observed: the shared stores take a ProofFormat (identity, order, identifies) with the Cucumber format kept separate; no second store |
 | X10 | Exclusion: design within the product, not an ADR proposal; no conflict, exception or North Star topic | slice 7 | |

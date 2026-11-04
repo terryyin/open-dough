@@ -19,7 +19,7 @@ import {
 } from "./ProofObservationCells.tsx";
 import { latestProofOf, observedRowsOf } from "./proofCases.ts";
 import { noSuccessfulProof, proofCountLine } from "./proofCountLine.ts";
-import { proofKindOf, type ProofKind } from "./proofKinds.ts";
+import type { ProofKind } from "./proofKinds.ts";
 import { useTickingNow } from "./useTickingNow.ts";
 import "./intent-proof.css";
 
@@ -115,7 +115,7 @@ function ProofRows({
 
 export function IntentProof({
   path,
-  kind,
+  proofKind,
   text,
   proof,
   targetLine,
@@ -124,7 +124,8 @@ export function IntentProof({
   onRetry,
 }: {
   readonly path: string;
-  readonly kind: string | undefined;
+  // The file's proof kind, undefined when Intent reads no proof for it.
+  readonly proofKind: ProofKind | undefined;
   readonly text: string | undefined;
   readonly proof: IntentLocationProof | undefined;
   // The line of the case the file was opened at, and whether Proof sits
@@ -138,11 +139,10 @@ export function IntentProof({
   if (path === "") {
     return <p className="quiet">Select a file to see its Proof.</p>;
   }
-  const proofKind = proofKindOf(kind);
   if (proof === undefined || "problem" in proof || proofKind === undefined) {
     return (
       <IntentProofAbsence
-        kind={kind}
+        proofKind={proofKind}
         proof={proofKind === undefined ? undefined : proof}
         rereading={rereading}
         onRetry={onRetry}

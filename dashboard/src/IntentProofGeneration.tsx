@@ -12,7 +12,7 @@ export function IntentProofGeneration({
 }) {
   if (
     location === undefined ||
-    proofKindOf(location.kind) === undefined ||
+    proofKindOf(location.kind, location.runner) === undefined ||
     location.problem !== undefined
   ) {
     return null;

@@ -5,7 +5,7 @@
 // with the locations read.
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import type { SuccessfulCucumberObservation } from "../src/cucumberProof.ts";
+import type { SuccessfulCaseObservation } from "../src/proofCases.ts";
 import {
   proofGeneration,
   type ProofGeneration,
@@ -25,15 +25,15 @@ export type IntentLocationProblem = "unsupported-kind" | "no-matching-files";
 // The committed proof a location of a proof kind declares
 // (`./intentProofRead.ts`, `../src/proofKinds.ts`): its directory, each
 // listed file's Git blob sha at the revision, and the last successful proof
-// of each case of those files, both in the answer's Cucumber fields
-// (`featureBlobs`, `../src/cucumberProof.ts`) whatever the kind; or the
-// directory, why its proof could not be read, and the first proof file (in
-// path order) that could not be read or is not one, when one is known.
+// of each case of those files in the case model's fields
+// (`../src/proofCases.ts`) whatever the kind; or the directory, why its
+// proof could not be read, and the first proof file (in path order) that
+// could not be read or is not one, when one is known.
 export type IntentLocationProof =
   | {
       readonly path: string;
-      readonly featureBlobs: Readonly<Record<string, string>>;
-      readonly observations: readonly SuccessfulCucumberObservation[];
+      readonly fileBlobs: Readonly<Record<string, string>>;
+      readonly observations: readonly SuccessfulCaseObservation[];
     }
   | {
       readonly path: string;
@@ -55,6 +55,9 @@ export type IntentLocation = {
   // revision. Empty when `problem` is set.
   readonly files: readonly string[];
   readonly problem?: IntentLocationProblem;
+  // The runner whose proof format a `typescript` or `javascript` location's
+  // proof is in, echoed from settings when declared.
+  readonly runner?: string;
   // Present only when a location of a proof kind declares a proof directory.
   readonly proof?: IntentLocationProof;
   readonly proofGeneration?: ProofGeneration;
@@ -68,6 +71,9 @@ export type DeclaredLocation = {
   // The repository directory the location's committed proof lives
   // in, when declared as a safe repository path.
   readonly proof?: string;
+  // The runner that recorded that proof, when declared as a non-empty
+  // string; `gherkin` and `python` imply theirs (`../src/proofKinds.ts`).
+  readonly runner?: string;
   readonly proofGeneration?: ProofGeneration;
   readonly proofGenerationProblem?: "malformed";
 };
@@ -123,18 +129,22 @@ export function declaredLocations(settings: string): DeclaredSettings {
       kind,
       include,
       proof,
+      runner,
       proofGeneration: generation,
     } = entry as {
       path?: unknown;
       kind?: unknown;
       include?: unknown;
       proof?: unknown;
+      runner?: unknown;
       proofGeneration?: unknown;
     };
     if (typeof path !== "string" || !isSafeRepositoryPath(path)) continue;
     if (typeof kind !== "string" || kind.length === 0) continue;
     const proofOf =
       typeof proof === "string" && isSafeRepositoryPath(proof) ? { proof } : {};
+    const runnerOf =
+      typeof runner === "string" && runner.length > 0 ? { runner } : {};
     const parsedGeneration = proofGeneration.safeParse(generation);
     const generationOf = parsedGeneration.success
       ? { proofGeneration: parsedGeneration.data }
@@ -142,7 +152,7 @@ export function declaredLocations(settings: string): DeclaredSettings {
         ? { proofGenerationProblem: "malformed" as const }
         : {};
     if (!("include" in (entry as object))) {
-      declared.push({ path, kind, ...proofOf, ...generationOf });
+      declared.push({ path, kind, ...proofOf, ...runnerOf, ...generationOf });
       continue;
     }
     const patterns = includePatternsOf(include);
@@ -152,6 +162,7 @@ export function declaredLocations(settings: string): DeclaredSettings {
       kind,
       include: patterns,
       ...proofOf,
+      ...runnerOf,
       ...generationOf,
     });
   }
