@@ -11,31 +11,43 @@ import {
 } from "./authenticatedGet.ts";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "./authenticatedReadRules.ts";
+import { caseOfCucumber } from "./cucumberProof.ts";
 import { proofGeneration } from "./proofGeneration.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 const locationProblem = z.enum(["unsupported-kind", "no-matching-files"]);
 const settingsProblem = z.enum(["malformed", "unreadable"]);
 
-const proofObservation = z.object({
-  feature: z.string().min(1),
-  scenario: z.string(),
-  example: z.array(z.string()).optional(),
-  outcome: z.literal("passed"),
-  attempts: z.number().int().min(1),
-  durationMs: z.number().min(0),
-  finishedAt: z.string().min(1),
-  commit: commitSha,
-  featureBlob: commitSha,
-});
+// A retained observation in the Cucumber fields the answer carries, read
+// into the case model (`./proofCases.ts`).
+const proofObservation = z
+  .object({
+    feature: z.string().min(1),
+    scenario: z.string(),
+    example: z.array(z.string()).optional(),
+    outcome: z.literal("passed"),
+    attempts: z.number().int().min(1),
+    durationMs: z.number().min(0),
+    finishedAt: z.string().min(1),
+    commit: commitSha,
+    featureBlob: commitSha,
+  })
+  .transform(caseOfCucumber);
 
-// A Gherkin location's declared proof (`../server/intentProofRead.ts`).
+// A location's declared proof (`../server/intentProofRead.ts`), with each
+// listed file's published blob by path.
 const locationProof = z.union([
-  z.object({
-    path: z.string().min(1),
-    featureBlobs: z.record(z.string(), z.string().min(1)),
-    observations: z.array(proofObservation),
-  }),
+  z
+    .object({
+      path: z.string().min(1),
+      featureBlobs: z.record(z.string(), z.string().min(1)),
+      observations: z.array(proofObservation),
+    })
+    .transform(({ path, featureBlobs, observations }) => ({
+      path,
+      fileBlobs: featureBlobs,
+      observations,
+    })),
   z.object({
     path: z.string().min(1),
     problem: z.enum(["unreadable", "malformed"]),

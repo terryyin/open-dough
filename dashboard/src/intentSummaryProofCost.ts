@@ -1,6 +1,6 @@
-// Summed proof cost of a Gherkin location or folder summary
-// (`./IntentGherkinSummary.tsx`): the last successful proof durations of the
-// read files' scenario rows (`./intentSummaryCoverage.ts`), with how many rows
+// Summed proof cost of a location or folder summary
+// (`./IntentProofSummary.tsx`): the last successful proof durations of the
+// read files' case rows (`./intentSummaryCoverage.ts`), with how many rows
 // that covers, labelled Partial like the count line, and when and from which
 // commits those observations finished, and its slowest counted rows. Rows
 // without successful proof add no duration, and a selection with none says
@@ -8,34 +8,38 @@
 // figures come from one rule over one walk of the read files
 // (`summaryFiguresFor`).
 
-import type { SuccessfulProofObservation } from "./cucumberProof.ts";
 import {
   coverageLabelledLine,
   coverageOf,
   observedRowsForFiles,
-  scenarioWords,
   type CoverageTally,
-  type ObservedRow,
   type SummaryChild,
   type SummaryFileStatus,
 } from "./intentSummaryCoverage.ts";
+import type {
+  CaseRowsOf,
+  LatestProof,
+  ObservedRow,
+  SuccessfulCaseObservation,
+} from "./proofCases.ts";
+import type { ProofKindWords } from "./proofKinds.ts";
 import { durationWords } from "./proofDurationWords.ts";
 import { reviewFileOrder, reviewFileTree } from "./reviewFileTree.ts";
 
-// The summed cost of the scenario rows of read files: counted rows are those
+// The summed cost of the case rows of read files: counted rows are those
 // with a latest successful observation, and the spread is their oldest and
 // newest finish and distinct commits.
 export type ProofCost = {
   readonly summedMs: number;
   readonly covered: number;
-  readonly scenarios: number;
+  readonly cases: number;
   readonly oldest: string | undefined;
   readonly newest: string | undefined;
   readonly commits: readonly string[];
 };
 
 export function proofCostOf(
-  observed: readonly (SuccessfulProofObservation | undefined)[],
+  observed: readonly (SuccessfulCaseObservation | undefined)[],
 ): ProofCost {
   let summedMs = 0;
   let covered = 0;
@@ -58,7 +62,7 @@ export function proofCostOf(
   return {
     summedMs,
     covered,
-    scenarios: observed.length,
+    cases: observed.length,
     oldest,
     newest,
     commits: [...commits],
@@ -68,18 +72,16 @@ export function proofCostOf(
 export function proofCostLineFor(
   coverage: CoverageTally,
   cost: ProofCost,
+  words: ProofKindWords,
 ): string {
   return coverageLabelledLine(
     coverage,
     cost.covered === 0
       ? "Summed duration of last successful proof unknown"
-      : `Summed duration of last successful proof: ${durationWords(cost.summedMs)} over ${String(cost.covered)} of ${scenarioWords(cost.scenarios)}`,
+      : `Summed duration of last successful proof: ${durationWords(cost.summedMs)} over ${String(cost.covered)} of ${words.cases(cost.cases)}`,
     "Summed duration unavailable",
   );
 }
-
-export const proofCostNote =
-  "A sum of separate scenario observations, retries included, not a run's elapsed time.";
 
 const utcDay = (at: string) =>
   new Date(Date.parse(at)).toISOString().slice(0, 10);
@@ -108,9 +110,9 @@ export function proofSpreadLine(cost: ProofCost): string | undefined {
   return `${noun} finished ${when}, from ${from}.`;
 }
 
-// One counted scenario row of a summary's slowest list.
+// One counted case row of a summary's slowest list.
 export type SlowestRow = ObservedRow & {
-  readonly observation: SuccessfulProofObservation;
+  readonly observation: SuccessfulCaseObservation;
 };
 
 const slowestLimit = 10;
@@ -119,17 +121,18 @@ const counted = (row: ObservedRow): row is SlowestRow =>
   row.observation !== undefined;
 
 // The one walk of a summary's read files (`observedRowsForFiles`): each read
-// file's scenario rows matched to the latest observations, by file path. The
+// file's case rows matched to the latest observations, by file path. The
 // selection's and every child's figures are sliced from it.
 type SummaryWalk = ReadonlyMap<string, readonly ObservedRow[]>;
 
 function summaryWalkOf(
   files: readonly string[],
   textOf: (path: string) => string | undefined,
-  latest: ReadonlyMap<string, SuccessfulProofObservation>,
+  rowsOf: CaseRowsOf,
+  latest: LatestProof,
 ): SummaryWalk {
   const byPath = new Map<string, ObservedRow[]>();
-  for (const row of observedRowsForFiles(files, textOf, latest)) {
+  for (const row of observedRowsForFiles(files, textOf, rowsOf, latest)) {
     const rows = byPath.get(row.path);
     if (rows === undefined) byPath.set(row.path, [row]);
     else rows.push(row);
@@ -137,14 +140,15 @@ function summaryWalkOf(
   return byPath;
 }
 
-// The figures a summary shows for a set of files: coverage, scenario total,
-// the observations its count and cost lines read, summed cost, spread, and
-// its slowest counted rows, slowest first; equal durations keep tree order,
-// then source order. At most ten.
+// The figures a summary shows for a set of files: coverage, inventory total
+// (the definitions its rows stand at: one per file and definition line), the
+// observations its count and cost lines read, summed cost, spread, and its
+// slowest counted rows, slowest first; equal durations keep tree order, then
+// source order. At most ten.
 export type SummaryFigures = {
   readonly coverage: CoverageTally;
-  readonly scenarioCount: number;
-  readonly observed: readonly (SuccessfulProofObservation | undefined)[];
+  readonly inventoryCount: number;
+  readonly observed: readonly (SuccessfulCaseObservation | undefined)[];
   readonly cost: ProofCost;
   readonly spread: string | undefined;
   readonly slowest: readonly SlowestRow[];
@@ -163,7 +167,9 @@ function figuresOfWalk(
   const cost = proofCostOf(observed);
   return {
     coverage: coverageOf(files, statusOf),
-    scenarioCount: rows.length,
+    inventoryCount: new Set(
+      rows.map(({ path, row }) => JSON.stringify([path, row.line])),
+    ).size,
     observed,
     cost,
     spread: proofSpreadLine(cost),
@@ -183,12 +189,13 @@ export function summaryFiguresFor(
   childList: readonly SummaryChild[],
   statusOf: (path: string) => SummaryFileStatus,
   textOf: (path: string) => string | undefined,
-  latest: ReadonlyMap<string, SuccessfulProofObservation>,
+  rowsOf: CaseRowsOf,
+  latest: LatestProof,
 ): {
   readonly selection: SummaryFigures;
   readonly children: readonly ChildFigures[];
 } {
-  const walk = summaryWalkOf(files, textOf, latest);
+  const walk = summaryWalkOf(files, textOf, rowsOf, latest);
   return {
     selection: figuresOfWalk(files, statusOf, walk),
     children: childList.map((child) => ({

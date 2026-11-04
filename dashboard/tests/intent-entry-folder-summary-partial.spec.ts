@@ -2,7 +2,7 @@
 // totals while contained files are still reading or unread, name a failed
 // file with a retry that rereads only it, and say scenario total unavailable
 // (not zero) when a nonempty selection has no readable files
-// (../src/IntentGherkinSummary.tsx, ../src/intentSummaryCoverage.ts).
+// (../src/IntentProofSummary.tsx, ../src/intentSummaryCoverage.ts).
 // Companion to ./intent-entry-folder-summaries.spec.ts caret/name and complete
 // aggregation coverage.
 

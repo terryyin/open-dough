@@ -5,6 +5,7 @@
 in SEED-192, refined 2026-11-04 under Terry's instruction that the story
 includes pytest proof generation, declared in the project configuration, as
 well as reading it.
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-04. Planning only, in the story's established workspace
 (branch `claude/read-pygardon-pytest-proof`, agent DavidKo-chan).
 
@@ -38,8 +39,7 @@ Included scope, one source each:
 
 Material exclusions (from the story): other Python trees and projects, run
 wall time, CI comparison, staleness rules, observations the published file no
-longer defines, dynamically generated tests, a cheaper root summary
-([SEED-226](../../seeds/SEED-226-calculate-proof-figures-on-demand.md#calculate-proof-figures-on-demand)),
+longer defines, dynamically generated tests, a cheaper root summary,
 rerun plugins, and a full-suite Pygardon refresh, which is Terry's deliberate
 run after slice 5. Also outside this plan: the installed copies under
 `.agents/skills/` and `.claude/skills/`, which update only from a released
@@ -142,7 +142,7 @@ reader change, since it changes the proof answer every Intent journey reads
 
 ### 1. Proof reading rests on a kind-neutral case model
 Type: Structure
-Status: planned
+Status: done
 Proof: The focused journeys in the decisive-premises table stay green with
 their fixtures and expected rows unchanged; `npm run typecheck:dashboard`
 passes; the consumer-trace record lists every importer of the renamed
@@ -157,6 +157,15 @@ fileBlob) and Gherkin rows derive through the same `ObservedRow` path; the
 unit words come from the kind. The on-disk Cucumber format, the Gherkin
 wording and the server answer's Gherkin fields stay as they are. Enables
 slice 2.
+
+Accepted proof (2026-11-04): the six focused journeys 19 passed with
+unchanged fixtures; 48 consumer specs (folder proof and summaries, Doughnut
+Cucumber, Purpose/Proof tabs, drill-down, candidates, authenticated-read
+boundaries) passed; `npm run typecheck:dashboard`; `bash scripts/test.sh
+tests/support/intent-summary-proof-cost.test.mjs …` quiet pass; after the
+refactor 23 focused passed; whole dashboard suite under `caffeinate -s -i`
+1977 passed, 1 skipped (30.8 min, load 7–9). Consumer trace in the
+implementation return: every renamed symbol's importer run or reused.
 
 ### 2. Intent reads pytest proof for a python location
 Type: Behavior
@@ -249,11 +258,22 @@ describe on real source; nothing is fabricated for the demonstration.
 - Parametrized rows are observation-derived; the inventory line counts test
   functions and the proof lines count test cases.
 - The root `tests` summary keeps the shared read-every-file behavior; its
-  measured cost in slice 6 informs SEED-226 or a follow-up.
+  measured cost in slice 6 informs a follow-up.
 
 ## Learnings
 
-None yet.
+- Slice 1: a proof kind contributes only `parseFile`, `rowsOf` and `words`
+  (`dashboard/src/proofKinds.ts`); identity, reduction, counts, sums and
+  slowest cases are `dashboard/src/proofCases.ts`. The Intent answer carries
+  every kind's cases in one Cucumber-named shape (`featureBlobs`,
+  feature/scenario/example/featureBlob), mapped once in
+  `dashboard/src/cucumberProof.ts`; slice 2 maps pytest cases into that same
+  shape (file → feature, test → scenario, parameterId → example) or changes
+  server and client together. `CaseRowsOf` receives the file's retained
+  observations for parametrized expansion, and the summary inventory counts
+  distinct definition lines, which gives test functions for pytest.
+  Remaining Gherkin-only text: the other-kinds sentence in
+  `IntentProofProblem.tsx` and `IntentProof`'s "Select a feature file…" prompt.
 
 ## Concern evidence
 

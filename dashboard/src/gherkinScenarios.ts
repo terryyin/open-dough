@@ -1,16 +1,13 @@
 // The scenarios and outline example rows a published feature file runs, in
 // source order and named as Cucumber proof names them
-// (`./cucumberProof.ts`): the scenario name as written and, for each row of
-// an outline's Examples tables, that row's cell values, each with the 1-based
-// source line of its Scenario or Examples table row. Read from the text
-// itself, never from runner IDs, for Intent's Proof pane
-// (`./IntentProof.tsx`). English Gherkin keywords only.
+// (`./cucumberProof.ts`): each a case row (`./proofCases.ts`) named by the
+// scenario as written and, for each row of an outline's Examples tables,
+// varied by that row's cell values, each with the 1-based source line of its
+// Scenario or Examples table row. Read from the text itself, never from
+// runner IDs, as the Gherkin kind's rows (`./proofKinds.ts`). English Gherkin
+// keywords only.
 
-export type ScenarioRow = {
-  readonly scenario: string;
-  readonly example?: readonly string[];
-  readonly line: number;
-};
+import type { CaseRow } from "./proofCases.ts";
 
 const scenarioLine =
   /^(?:Scenario Outline|Scenario Template|Scenario|Example):(.*)$/;
@@ -45,8 +42,8 @@ function cellsOf(row: string): string[] {
   return cells;
 }
 
-export function scenarioRowsOf(text: string): ScenarioRow[] {
-  const rows: ScenarioRow[] = [];
+export function scenarioRowsOf(text: string): CaseRow[] {
+  const rows: CaseRow[] = [];
   let scenario: string | undefined;
   // Where the current scenario's plain row stands until Examples make it an
   // outline.
@@ -68,7 +65,7 @@ export function scenarioRowsOf(text: string): ScenarioRow[] {
     if (named !== null) {
       scenario = (named[1] ?? "").trim();
       plainAt = rows.length;
-      rows.push({ scenario, line: at + 1 });
+      rows.push({ name: scenario, line: at + 1 });
       examples = "none";
       continue;
     }
@@ -89,7 +86,11 @@ export function scenarioRowsOf(text: string): ScenarioRow[] {
       if (examples === "header") {
         examples = "rows";
       } else {
-        rows.push({ scenario, example: cellsOf(line), line: at + 1 });
+        rows.push({
+          name: scenario,
+          variant: cellsOf(line),
+          line: at + 1,
+        });
       }
     }
   }

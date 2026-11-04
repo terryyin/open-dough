@@ -572,8 +572,7 @@ Scope limits:
   not derived from source; their observations stay in the snapshot and are
   read when the source rule can name them.
 - A cheaper root summary for a flat 1024-file folder (lazy source inventory,
-  cached parsing, or proof-only figures) is deferred to the measured result
-  and to [SEED-226](SEED-226-calculate-proof-figures-on-demand.md#calculate-proof-figures-on-demand).
+  cached parsing, or proof-only figures) is deferred to the measured result.
 - A full-suite proof refresh of Pygardon is Terry's deliberate run after the
   plugin lands; the story commits a focused selection first. Rerun plugins and
   per-attempt detail beyond the attempt count are not added.
