@@ -273,7 +273,7 @@ Both default checkouts untouched.
 
 ### 3. Pygardon records Vitest proof on explicit request
 Type: Behavior
-Status: planned
+Status: done
 Proof: Pygardon reporter tests (first a `retry: 1` fixture observing one
 result per case with `retryCount`, then serial recording, option off, nested
 `describe` path, `%i` table, placeholder-less table with one failing row,
@@ -295,6 +295,24 @@ the declaration and the first snapshot are committed and published under
 Pygardon's rules. Any rule the reference left unclear, including the
 `--reporter` answer, is reported back and fixed in the reference in the same
 slice.
+
+Retained (2026-11-04, slice 3): published to Pygardon `main` as `2a48f97fd`
+(from `8dc7cad1a`). Reporter `frontend/vitest-proof-reporter.ts` in
+`frontend/vite.config.ts` `reporters: ['default', './vitest-proof-reporter.ts']`;
+shared store `e2e_test/plugins/proofStore.mts` with the Cucumber format kept in
+`e2e_test/plugins/cucumberProofStore.mts`; tests
+`tests/vitest-proof-recorder.test.mjs` (12, retry first) run in CI through
+`tests/test_node_script_tests.py`. Proof: recorder plus Cucumber store tests
+22/22; `tests/test_node_script_tests.py` pass; full frontend suite 1185 passed
+with no proof written; `tests/test_ci_test_output.py -k "vitest or typecheck"`
+3 passed after commit; biome and both `tsc` checks clean; existing Cucumber
+proof byte-identical. First snapshot `frontend/proof/latest.json`: 17
+observations, no `project`, `commit` `8dc7cad1a`, `fileBlob` matching
+`git hash-object`. Observed in Vitest 5.0.3: one result per case after its
+last attempt, its `duration` spanning attempts (G1); a command-line
+`--reporter` replaces the configured reporters (G2), so Pygardon's CI recipe
+does not load the recorder (G4). Durations are fractional: slice 6's parser
+accepts non-integer `durationMs`.
 
 ### 4. Doughnut records Vitest proof on explicit request, per browser instance
 Type: Behavior
@@ -428,17 +446,22 @@ describe on real source; nothing is fabricated for the demonstration.
 ### G1. Retried-case duration and single final result unverified
 Reported: slice 1 — "Retried-case duration and once-per-case delivery: unverified, left for slice 3's retry fixture."
 Story clause: "`durationMs` the case's duration across its attempts as the reporter sees it"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: Pygardon `tests/vitest-proof-recorder.test.mjs` retry test (first test) observes one `onTestCaseResult` with `retryCount: 1` and a duration spanning both attempts; reference Record bullets state the observed fact
 
 ### G2. Command-line reporter option and the configured recorder unverified
 Reported: slice 1 — "`--reporter` dropping configured reporters: unverified, left for slice 3. Once observed, the answer should be written back into the reference."
 Story clause: "the recording command runs the project's configured reporters, with no `--reporter` option, so the recorder is loaded"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: Pygardon `tests/vitest-proof-recorder.test.mjs` `--reporter` test observes that a command-line `--reporter` replaces the configured reporters and records nothing; reference Configure-once bullet states it; the declared recording command passes none
 
 ### G3. Reference describes Intent's Vitest reading before the reader exists
 Reported: slice 1 — "The reference describes the `runner` declaration and Intent's Vitest reading ahead of the dashboard slices (5 and 6) that implement them."
 Story clause: "the reference's reading section states the row order Intent applies"
 Disposition: interim until slices 6
+
+### G4. Pygardon CI's command-line reporter does not load the recorder
+Reported: slice 3 — "So CI (the recipe's `--reporter=./vitest-quiet-reporter.ts`) does not load the recorder at all, which is harmless because CI never records."
+Story clause: "loaded by the ordinary local and CI commands with recording off"
+Disposition: no user cost "a project-owned Vitest reporter maintains the snapshot": CI never records (option off in every profile), so not loading the recorder there leaves CI output, reporters and exit exactly as before, which the story's constraint "Each frontend's output, diagnostics, exit meaning, browser instances, retries, sharding and CI reporters stay as they are with the reporter loaded" requires; the ordinary local command and the worktree wrapper do load it (full suite 1185 passed, no proof written)
 
 ## Learnings
 

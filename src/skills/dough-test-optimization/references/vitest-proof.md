@@ -45,10 +45,10 @@ recording; do not silently enable recording in normal commands.
   each profile's list. The recording command then differs from a normal run
   only by the option.
 - Run the recording command with the configured reporters: give it no
-  command-line `--reporter` option. Do not assume the configured recorder
-  survives a command-line `--reporter`; before declaring a command that
-  passes one, check in this project that the recorder still records under
-  it.
+  command-line `--reporter` option. A command-line `--reporter` replaces the
+  configured `reporters` rather than adding to them (observed in Vitest
+  5.0.3), so a command that passes one loads no recorder and records
+  nothing, even with the option set.
 - Keep existing output, warnings, diagnostics, collection, test order,
   projects, browser instances, retries, sharding and the command's exit
   meaning unchanged with the recorder loaded, recording on or off. The
@@ -109,9 +109,9 @@ recording; do not silently enable recording in normal commands.
   Never record from test files, setup files or code running in a worker or
   browser.
 - A test case is finished when its final result arrives, retries included.
-  Intermediate failed attempts do not clear proof; the final result decides.
-  If this project's Vitest delivers more than one result for a retried case,
-  only the last one finishes it.
+  Vitest delivers one result per case, after its last attempt (observed in
+  Vitest 5.0.3 with `retry: 1`), so intermediate failed attempts never reach
+  the reporter and never clear proof; the final result decides.
 - A final `passed` result records proof. A final `failed` result is an
   executed unsuccessful result: it clears the case's proof and records
   nothing. Any other result ran nothing and keeps the case's proof: a case
@@ -121,10 +121,10 @@ recording; do not silently enable recording in normal commands.
   failed to collect also keep their proof.
 - `attempts` is the result's retry count plus one; `1` without retries.
 - `durationMs` is the case's duration as the reporter's per-case result
-  gives it, in milliseconds, meant to cover all of the case's attempts. Prove
-  with a retried fixture case that this project's Vitest delivers one final
-  result whose duration includes the earlier attempts; when it does not,
-  name that gap in the recorder's tests rather than guessing a sum.
+  gives it (`diagnostic().duration`), in milliseconds and often fractional.
+  It already covers all of the case's attempts: a case passing on its retry
+  reports the time of both attempts (observed in Vitest 5.0.3), so record it
+  as given and add nothing.
 - An identity executed more than once in one run (for example an `each`
   table whose rows share one name, or a file run twice in one project)
   records one observation that passes only when every execution passed,
@@ -161,12 +161,16 @@ observation.
   one snapshot of the whole suite stays readable.
 - After every finished executed case, refresh the snapshot atomically: write
   a non-JSON temporary file in the same directory, then rename it over
-  `latest.json`. Re-read `latest.json` before each refresh and preserve
-  unrelated observations; leave any other file in the directory unchanged.
-  A pass replaces or folds into that identity's observation; an executed
+  `latest.json`. Re-read the directory's proof before each refresh and
+  preserve unrelated observations; leave any file without the `.json`
+  extension unchanged. A store this project shares with another runner's
+  recorder may also fold other `.json` proof files in the directory into
+  `latest.json` and remove them, as Intent reads them as one directory. A
+  pass replaces or folds into that identity's observation; an executed
   unsuccessful result removes it and persists no failed observation or
   failure marker. Order observations by `file`, then `test`, then `project`
-  (a case without one first) to limit diff noise. Delete the snapshot when
+  (a case without one first) to limit diff noise; compare `test` lists name
+  by name, a shorter list that is a prefix first. Delete the snapshot when
   it becomes empty rather than writing an empty replacement. An interrupted
   recording run keeps completed updates without claiming the remaining
   cases ran. A shard records only the cases it ran. A full-suite refresh
@@ -210,8 +214,8 @@ Each observation has `file`, `test` and, when the run names a project,
 - `outcome`: always `passed`.
 - `attempts`: retry count plus one, the greatest over executions folded into
   this observation.
-- `durationMs`: milliseconds across the case's attempts, summed over
-  executions folded into this observation.
+- `durationMs`: milliseconds across the case's attempts, possibly
+  fractional, summed over executions folded into this observation.
 - `finishedAt`: ISO 8601 UTC time the case's final result arrived, the last
   one for folded executions.
 - `commit`: full SHA of the commit the run started from (`git rev-parse HEAD`

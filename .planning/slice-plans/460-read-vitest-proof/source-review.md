@@ -184,10 +184,10 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | K1.7 | Each has the spec's fileBlob | slice 4 | |
 | K1.8 | The run's output and exit match the same run without the option | slice 4 | |
 | K1.9 | The same command without the option changes nothing under frontend/tests/proof | slice 4 | |
-| K2.1 | Pygardon focused run: frontend/proof/latest.json holds that file's 17 cases | slice 3 | |
-| K2.2 | None of them has a project field | slice 3 | |
-| K2.3 | The same command without the option changes nothing under frontend/proof | slice 3 | |
-| K2.4 | scripts/check-prepared-checkout.sh changes nothing under frontend/proof | slice 3 | |
+| K2.1 | Pygardon focused run: frontend/proof/latest.json holds that file's 17 cases | slice 3 | observed: Pygardon frontend/proof/latest.json from the slice 3 real run: version 1, 17 observations of frontend/src/api/__tests__/verifyStatsFormat.test.ts, no project field, commit 8dc7cad1a, fileBlob = git hash-object |
+| K2.2 | None of them has a project field | slice 3 | observed: Pygardon frontend/proof/latest.json from the slice 3 real run: version 1, 17 observations of frontend/src/api/__tests__/verifyStatsFormat.test.ts, no project field, commit 8dc7cad1a, fileBlob = git hash-object |
+| K2.3 | The same command without the option changes nothing under frontend/proof | slice 3 | observed: slice 3 run without the option and the check-prepared-checkout.sh frontend line (vitest run --reporter=./vitest-quiet-reporter.ts): latest.json sha256 unchanged, no lock |
+| K2.4 | scripts/check-prepared-checkout.sh changes nothing under frontend/proof | slice 3 | observed: slice 3 run without the option and the check-prepared-checkout.sh frontend line (vitest run --reporter=./vitest-quiet-reporter.ts): latest.json sha256 unchanged, no lock |
 | K3.1 | it.each([1, 2])("adds %i") passes, giving observations adds 1 and adds 2 | slice 4 | |
 | K3.2 | it.each([a, b])("renders equivalent escapes") with one row failing gives no observation for that name | slice 4 | |
 | K3.3 | In that case, the name's earlier observation is removed | slice 4 | |
