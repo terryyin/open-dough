@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-232#reduce-running-cursor-session-requests",
+  "title": "Keep Running Cursor sessions current with fewer local requests",
+  "completedAt": "2026-11-04T23:33:49.467Z",
+  "developer": "Terry Yin",
+  "agent": "Jane-chan",
+  "host": "cursor",
+  "model": "auto"
+}
