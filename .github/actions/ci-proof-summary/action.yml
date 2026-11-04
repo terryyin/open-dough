@@ -1,0 +1,40 @@
+name: CI proof summary
+description: >-
+  Collects this run attempt's CI proof fragments against the declared proof
+  entries and parts into the attempt's summary, and keeps it as the
+  attempt-named artifact Intent's CI status tab reads. Names the run's
+  revision from CI_PROOF_REVISION.
+inputs:
+  expect:
+    description: >-
+      Space-separated `<entry>=<parts>` declarations, in Intent location
+      order: the expectation, never inferred from the fragments present.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Download this attempt's CI proof fragments
+      uses: actions/download-artifact@v8
+      with:
+        pattern: ci-proof-fragments-*-attempt-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/ci-proof-fragments
+    - name: Summarize CI proof
+      shell: bash
+      env:
+        EXPECT: ${{ inputs.expect }}
+      run: |
+        expect=()
+        read -r -a declarations <<< "${EXPECT}"
+        for declaration in "${declarations[@]}"; do expect+=(--expect "${declaration}"); done
+        mkdir -p -- "${RUNNER_TEMP}/ci-proof-fragments"
+        node src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs summarize \
+          --fragments "${RUNNER_TEMP}/ci-proof-fragments" "${expect[@]}" \
+          --repository "${GITHUB_REPOSITORY}" --run-id "${GITHUB_RUN_ID}" --attempt "${GITHUB_RUN_ATTEMPT}" \
+          --revision "${CI_PROOF_REVISION}" --out "${RUNNER_TEMP}/ci-proof-summary.json"
+    - name: Keep the CI proof summary
+      uses: actions/upload-artifact@v7
+      with:
+        name: ci-proof-summary-attempt-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/ci-proof-summary.json
+        if-no-files-found: error
+        retention-days: 30

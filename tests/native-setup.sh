@@ -62,11 +62,13 @@ refuse npm-unavailable npm healthy 'npm source unavailable:'
 mv -- "${temporary_dir}/bin/npm-hidden" "${temporary_dir}/bin/npm"
 for stage in npm browser; do
   # A real wall deadline tests process termination, including source children.
-  deadline=$("${node}" -e 'console.log(Date.now()+250)')
+  # It leaves Node's startup under load time to launch the source before it
+  # expires, and the bound stays far below the source's 30-second stall.
+  deadline=$("${node}" -e 'console.log(Date.now()+2000)')
   started=${EPOCHREALTIME}
   refuse "${stage}-stalled" "${stage}" stalled "${stage} source stalled: acquisition deadline exceeded" "${deadline}"
   elapsed=$("${node}" -e "console.log(Number('${EPOCHREALTIME}')-Number('${started}'))")
-  "${node}" -e "if (Number('${elapsed}') > 3) process.exit(1)"
+  "${node}" -e "if (Number('${elapsed}') > 10) process.exit(1)"
 done
 refuse browser-failed browser failed 'browser source acquisition failed (23)'
 printf '%s\n' '{"version":"1.62.0"}' > "${temporary_dir}/node_modules/playwright/package.json"
@@ -97,7 +99,8 @@ exports.chromium = { launch: async () => {
 } };
 CHECK
 refuse check-missing check failed 'Chromium prerequisite unavailable: missing fixture browser'
-validation_deadline=$("${node}" -e 'console.log(Date.now()+250)')
+# As for the stalled sources above, the deadline leaves Node's startup time.
+validation_deadline=$("${node}" -e 'console.log(Date.now()+2000)')
 refuse check-stalled check stalled 'Chromium prerequisite validation stalled: deadline exceeded' "${validation_deadline}"
 printf '%s\n' '{"packages":{"node_modules/playwright":{"version":"1.62.0"}}}' > "${temporary_dir}/package-lock.json"
 refuse check-lock-change check healthy 'Playwright prerequisite mismatch: locked 1.62.0, installed 1.63.0'

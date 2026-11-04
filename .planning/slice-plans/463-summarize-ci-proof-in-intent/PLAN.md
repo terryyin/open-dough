@@ -3,6 +3,7 @@
 **Identity:** SEED-230#summarize-ci-proof-in-intent
 
 **Source:** [Selected story](../../seeds/SEED-230-summarize-ci-proof-in-intent.md#summarize-ci-proof-in-intent)
+**Source review:** [source-review.md](source-review.md)
 
 **Prepared:** 2026-11-04 in `claude/summarize-ci-proof-in-intent` at
 baseline `110637df6`.
@@ -47,12 +48,14 @@ the recipe and its collector enter the payload through `install.sh`
     `runAttempt`, `revision`, and `entries[]`. Each entry has its `path`,
     `unit` and total counts, plus `parts[]` with a status of `present`,
     `missing` or `ambiguous`.
-  - Artifact names carry the attempt: `ci-proof-fragment-<entry-slug>-<part>-attempt-<n>`
-    and `ci-proof-summary-attempt-<n>`. Then neither the collector nor the
+  - Artifact names carry the attempt: one `ci-proof-fragments-<job>-<part>-attempt-<n>`
+    per job part, holding that part's fragment for each entry, and
+    `ci-proof-summary-attempt-<n>`. Then neither the collector nor the
     dashboard depends on same-name behaviour across reruns, and earlier
     attempts are excluded by name and by the recorded `attempt`.
-- **Collector.** Add `src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs`,
-  with its `.test.mjs`, beside the existing
+- **Collector.** Add `src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs`
+  (CLI and re-exported API) with its modules `ci-proof-contract.mjs`,
+  `ci-proof-fragments.mjs` and `ci-proof-collect.mjs` and their tests, beside the existing
   [Cucumber proof reference](../../../src/skills/dough-test-optimization/references/cucumber-proof.md).
   Its `--expect <entry>=<parts>` arguments are the declaration. Fragments
   present are never treated as the expectation. Open Dough's `ci.yml` runs it
@@ -112,7 +115,7 @@ as written: a failure that recurs in its own runs is its defect to repair.
 ### 1. Open Dough CI publishes one proof summary per run attempt
 Type: Behavior
 Status: planned
-Proof: `bash scripts/test.sh src/skills/dough-test-optimization/scripts/ci-proof-summary.test.mjs` and the `ci.yml` declaration test; then the story branch's hosted CI run, with its `ci-proof-summary-attempt-1` downloaded through `gh api`, gives `dashboard/tests` 12/12, `tests` 3/3 and `src/skills` 3/3 parts present, with counts equal to the run's.
+Proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs src/skills/dough-test-optimization/scripts/ci-proof-fragments.test.mjs src/skills/dough-test-optimization/scripts/ci-proof-summary.test.mjs tests/support/ci-proof-declaration.test.mjs tests/test-runner-failure-report.sh tests/ci-container.sh tests/ci-lint-setup.sh tests/native-setup.sh src/skills/dough-execute-plan/scripts/ci-workflow-path-policy.test.mjs`; then the story branch's hosted CI run, with its `ci-proof-summary-attempt-1` downloaded through `gh api`, gives `dashboard/tests` 12/12, `tests` 3/3 and `src/skills` 3/3 parts present, with counts equal to the run's.
 
 Behavior: Open Dough's CI runs on a pushed revision. Each test share and
 dashboard shard uploads its attempt-named fragments, including after test
@@ -155,10 +158,18 @@ as in slice 2. The recipe uses only that project's own paths and names.
   counted.
 - Proof is its own read, keyed by the judged run id, attempt and revision.
   It is separate from `intent=ci-status`.
-- The collector script ships in `dough-test-optimization/scripts/`. The
-  recipe tells the adopting project to copy it into its own CI scripts, so its
-  CI does not depend on an installed skill path. Open Dough's CI runs the
-  source copy.
+- The collector ships in `dough-test-optimization/scripts/` as four
+  `ci-proof-*.mjs` modules (Node built-ins only). The recipe tells the
+  adopting project to copy them into its own CI scripts, with steps
+  equivalent to Open Dough's two composite actions
+  (`.github/actions/ci-proof-fragments`, `.github/actions/ci-proof-summary`),
+  so its CI does not depend on an installed skill path. Open Dough's CI runs
+  the source copy.
+- No file-size exception (Terry, 2026-11-04): `ci.yml` stays under 250 lines
+  through those composite actions, YAML anchors for the repeated Node setup,
+  and `scripts/setup-lint-tools.sh`; job ids, check names and matrices stay in
+  `ci.yml`. The runner settings moved from `tests/README.md` to
+  `tests/runner-settings.md`.
 
 ## Concern evidence
 
@@ -167,3 +178,12 @@ loop, and the producer and dashboard sides meet at one versioned schema. This
 review identified no remaining slice-specific concern. Slice 1's final proof
 waits on a hosted CI run of the published story branch, an external wait whose
 merge rules the local collector and declaration tests prove first.
+
+
+## Story obligations
+
+### G1. Hosted CI summary not yet observed
+Reported: slice 1 — "The story branch's hosted run must upload ci-proof-summary-attempt-<n> with every declared part present; observed only after push."
+Story clause: "It then uploads one versioned, compact summary artifact"
+Disposition: return
+Commitment: S4.2, S8.1, S8.2

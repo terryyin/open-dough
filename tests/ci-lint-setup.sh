@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Exercise the workflow's maintained lint acquisition block with controlled
-# sources. GNU timeout is supplied by the real Linux CI runner, not a fixture.
+# Exercise the lint job's acquisition script and the workflow's diagnostic
+# with controlled sources. GNU timeout is supplied by the real Linux CI
+# runner, not a fixture.
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
@@ -18,12 +19,15 @@ extract_run() {
   awk -v name="$1" '
     /^      - name:/ { selected = ($0 == "      - name: " name); running = 0 }
     selected && /^        run: \|$/ { running = 1; next }
+    selected && /^        run: / { print substr($0, 14); next }
     selected && running { print substr($0, 11) }
   ' "${workflow}"
 }
-extract_run 'Install shell lint tools' > "${temporary_dir}/acquire.bash"
+acquire=${source_dir}/scripts/setup-lint-tools.sh
+extract_run 'Install shell lint tools' > "${temporary_dir}/install.bash"
+expect_in_log "${temporary_dir}/install.bash" -Fx -- 'bash scripts/setup-lint-tools.sh'
 extract_run 'Diagnose lint tool acquisition failure' > "${temporary_dir}/diagnose.bash"
-[[ -s ${temporary_dir}/acquire.bash && -s ${temporary_dir}/diagnose.bash ]]
+[[ -s ${temporary_dir}/diagnose.bash ]]
 mkdir -- "${temporary_dir}/bin"
 cat > "${temporary_dir}/bin/curl" << 'CURL'
 #!/usr/bin/env bash
@@ -48,7 +52,7 @@ for behavior in unavailable stalled expired; do
   if PATH="${temporary_dir}/bin:${PATH}" SOURCE_BEHAVIOR="${behavior}" \
     SOURCE_CALL="${temporary_dir}/source-call" LATE_WRITE="${temporary_dir}/late-write" \
     OPEN_DOUGH_SETUP_DEADLINE_MS="${deadline}" SHELLCHECK_VERSION=0.11.0 SHFMT_VERSION=3.14.0 \
-    bash -euo pipefail "${temporary_dir}/acquire.bash" > "${temporary_dir}/${behavior}.log" 2>&1; then
+    bash "${acquire}" > "${temporary_dir}/${behavior}.log" 2>&1; then
     touch "${temporary_dir}/tests-started"
     echo "FAIL: ${behavior} lint acquisition succeeded." >&2
     exit 1
