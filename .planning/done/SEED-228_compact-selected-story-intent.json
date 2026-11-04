@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-228#compact-selected-story-intent",
+  "title": "Make selected-story Intent easier to scan",
+  "completedAt": "2026-11-04T04:51:26.712Z",
+  "developer": "Terry Yin",
+  "agent": "bastiaan-chan",
+  "host": "claude",
+  "model": "opus"
+}

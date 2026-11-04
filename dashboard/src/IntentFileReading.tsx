@@ -20,7 +20,7 @@ import { resolveCaseTargetLine } from "./intentCaseTargetLine.ts";
 import { IntentProof } from "./IntentProof.tsx";
 import { IntentProofGeneration } from "./IntentProofGeneration.tsx";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
-import type { ComparedStory } from "./IntentStoryLens.tsx";
+import type { ComparedStory } from "./IntentStorySummary.tsx";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import {
   IntentTabs,

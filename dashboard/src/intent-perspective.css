@@ -104,13 +104,23 @@
   padding: var(--space-2) var(--space-3);
 }
 
-/* Location folder-icon toggle + selectable name (same split as Intent folder rows). */
+/* Location folder-icon toggle + selectable name (same split as Intent folder
+   rows). The header's own background sets a location apart from the folder
+   and file rows beneath it; a selected location's header takes the file
+   browser's selected fill (./story-review-files.css) across its whole width,
+   toggle included, while expansion shows only in the toggle. A location's
+   changes add a mark (./change-kinds.css) over either background. */
 .intent-location-header {
   display: flex;
   align-items: baseline;
   gap: 0.15rem;
   width: 100%;
   min-width: 0;
+  box-sizing: border-box;
+  padding: 0.15rem 0.25rem 0.15rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--line) 45%, transparent);
 }
 
 .intent-location-toggle {
@@ -136,11 +146,6 @@
   min-width: 0;
   width: auto;
   text-align: start;
-}
-
-.intent-location-name[aria-pressed="true"] {
-  border-color: var(--edge);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 .intent-location-body {

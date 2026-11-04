@@ -1,5 +1,5 @@
 // The page's selected story as Intent's lens reads it (`./IntentPerspective.tsx`,
-// `./IntentStoryLens.tsx`): the story by its published entry, and what is
+// `./IntentStorySummary.tsx`): the story by its published entry, and what is
 // known of its default Review changes comparison (`./useStoryComparison.ts`).
 // Whether the story has a comparison is decided as Review changes offers it
 // (`storyComparisonOffered`), unknown while an active story's records are
@@ -9,11 +9,8 @@
 
 import { useState } from "react";
 import { useDoneDetails } from "./doneDetails.ts";
-import type {
-  ComparedStory,
-  LensComparison,
-  LensStory,
-} from "./IntentStoryLens.tsx";
+import type { LensComparison } from "./IntentStoryComparison.tsx";
+import type { ComparedStory, LensStory } from "./IntentStorySummary.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import type { PublishedSource } from "./publishedSource.ts";

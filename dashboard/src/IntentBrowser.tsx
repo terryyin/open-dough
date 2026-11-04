@@ -8,25 +8,19 @@
 // as tabs or side by side (`./IntentFileReading.tsx`), one reader layout this
 // browser keeps (`./keptPreference.ts`); a location or folder name shows a
 // Summary (`./IntentSummary.tsx`), whose child names and slowest rows open
-// their target as the record's links do. The record fills the content area
-// without the locations; it is read the first time it is chosen and stays
-// mounted after, so opening a test from it and returning does not reread it. A
+// their target as the record's links do (`./IntentCandidatesRecord.tsx`). A
 // failed file read keeps its own explanation and retry; a failed proof read's
 // retry reads the locations again without changing the selection. Selection is
 // owned by the Intent workspace (`./intentWorkspaceSelection.ts`). With a
-// selected story's comparison, the trees are its overlay on the published
-// files (`./intentStoryOverlay.ts`), or with "Selected story only" its changed
-// entries alone, locations without changes left out: the first time this
-// browser has one, and at each toggle either way, it opens the first
-// location and the folders containing changes and collapses the rest. A file
-// the published revision does not list is never read. The browser unmounts
+// selected story's comparison, the trees follow it (`./useIntentStoryTree.ts`)
+// under the story's summary heading the locations (`./IntentStorySummary.tsx`).
+// A file the published revision does not list is never read. The browser unmounts
 // with Intent, so a story selected while Intent is hidden applies when it
 // opens, with the toggle off.
 
 import { useId, useRef, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
-import { inventoryFromIntentLocations } from "./intentCandidatesLocationMatch.ts";
-import { IntentCandidatesRecord } from "./IntentCandidatesRecord.tsx";
+import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import {
   IntentFileReading,
   type IntentReadingLayout,
@@ -44,20 +38,16 @@ import {
   useIntentWorkspaceSelection,
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
-import {
-  intentStoryOverlay,
-  overlayFilesByPath,
-  storyChangesOnly,
-  storyOverlayExpansion,
-  type StoryOverlayExpansion,
-} from "./intentStoryOverlay.ts";
+import { overlayFilesByPath } from "./intentStoryOverlay.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useIntentFileRead } from "./useIntentFileRead.ts";
-import type {
-  LocationExpansion,
-  TreeReveal,
-} from "./useLocationOpenFolders.ts";
-import { StoryChangesScope, type ComparedStory } from "./IntentStoryLens.tsx";
+import { useIntentStoryTree } from "./useIntentStoryTree.ts";
+import type { TreeReveal } from "./useLocationOpenFolders.ts";
+import {
+  IntentStorySummary,
+  type ComparedStory,
+  type StorySummary,
+} from "./IntentStorySummary.tsx";
 
 // The reader layout this browser keeps for every project, tabs where it keeps
 // an unusable one, and otherwise the one chosen on this page, even where the
@@ -77,12 +67,15 @@ export function IntentBrowser({
   mode,
   modeIdPrefix,
   onModeChange,
+  storySummary,
   story,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
-  // The selected story and its comparison, once read.
+  // The selected story as the summary heading the locations names it, and
+  // with its comparison, once read.
+  readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
   // Whether the locations, with their proof, are being read again after a
   // proof read failed; the selection and reader stay as they are.
@@ -94,11 +87,6 @@ export function IntentBrowser({
   const { selection, setSelection } = useIntentWorkspaceSelection();
   const scope = selectionScope(selection);
   const selectedPath = selection.path;
-  // The record is read the first time Candidates is shown, then kept.
-  const [candidatesChosen, setCandidatesChosen] = useState(
-    mode === "candidates",
-  );
-  if (mode === "candidates" && !candidatesChosen) setCandidatesChosen(true);
   const [returnEntrySlug, setReturnEntrySlug] = useState<string | undefined>();
   const [expandedPath, setExpandedPath] = useState<string | null>(null);
   const [reveal, setReveal] = useState<TreeReveal | undefined>();
@@ -111,31 +99,20 @@ export function IntentBrowser({
   const [revealedOpens, setRevealedOpens] = useState(0);
   const readingArea = useRef<HTMLDivElement | null>(null);
   const readingIdPrefix = useId();
-  const inventory = inventoryFromIntentLocations(locations);
   const treeSelection: IntentSelection =
     mode === "intent" ? selection : { path: "" };
-  const overlay = intentStoryOverlay(locations, story?.shown.comparison.files);
-  const [storyOnly, setStoryOnly] = useState(false);
-  const changesOnly = story !== undefined && storyOnly;
-  const shownOverlay = changesOnly ? storyChangesOnly(overlay) : overlay;
-  // The expansion the story's overlay last asked for here: when it first had
-  // one, and at each toggle.
-  const [expansion, setExpansion] = useState<
-    { readonly round: number; readonly plan: StoryOverlayExpansion } | undefined
-  >();
-  function expandStory(round: number) {
-    const plan = storyOverlayExpansion(locations, overlay);
-    setExpansion({ round, plan });
-    setExpandedPath(plan.location ?? null);
-  }
-  if (story !== undefined && expansion === undefined) expandStory(1);
-  const locationExpansion = (index: number): LocationExpansion | undefined =>
-    expansion === undefined
-      ? undefined
-      : {
-          round: expansion.round,
-          folders: expansion.plan.folders[index] ?? [],
-        };
+  const {
+    overlay,
+    shownOverlay,
+    changesOnly,
+    locationExpansion,
+    scope: storyScope,
+  } = useIntentStoryTree({
+    source: source.id,
+    locations,
+    story,
+    onExpandLocation: setExpandedPath,
+  });
 
   function select(next: IntentSelection, entrySlug?: string) {
     setSelection(next);
@@ -190,20 +167,8 @@ export function IntentBrowser({
       >
         <div className="intent-locations">
           <h3 className="visually-hidden">Purpose locations</h3>
-          {story !== undefined && (
-            <StoryChangesScope
-              source={source.id}
-              story={story.lens}
-              outside={overlay.outside}
-              only={storyOnly}
-              noneInLocations={
-                !overlay.locations.some((each) => each.containsChanges)
-              }
-              onOnly={(only) => {
-                setStoryOnly(only);
-                expandStory((expansion?.round ?? 0) + 1);
-              }}
-            />
+          {storySummary !== undefined && (
+            <IntentStorySummary summary={storySummary} scope={storyScope} />
           )}
           {locations.map((location, index) => {
             const shown = shownOverlay.locations[index];
@@ -271,26 +236,15 @@ export function IntentBrowser({
           ) : null}
         </div>
       </div>
-      <div
-        className="intent-candidates-panel"
-        role="tabpanel"
-        id={intentTabPanelId(modeIdPrefix, "candidates")}
-        aria-labelledby={intentTabId(modeIdPrefix, "candidates")}
-        hidden={mode !== "candidates"}
-        tabIndex={-1}
-      >
-        {candidatesChosen ? (
-          <IntentCandidatesRecord
-            source={source}
-            revision={revision}
-            inventory={inventory}
-            onOpenLocation={openRevealed}
-            {...(mode === "candidates" && returnEntrySlug !== undefined
-              ? { focusEntrySlug: returnEntrySlug }
-              : {})}
-          />
-        ) : null}
-      </div>
+      <IntentCandidatesPanel
+        source={source}
+        revision={revision}
+        locations={locations}
+        mode={mode}
+        modeIdPrefix={modeIdPrefix}
+        returnEntrySlug={returnEntrySlug}
+        onOpenLocation={openRevealed}
+      />
     </>
   );
 }

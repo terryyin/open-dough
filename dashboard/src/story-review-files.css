@@ -74,7 +74,11 @@
   white-space: nowrap;
 }
 
-.story-review-files button[aria-pressed="true"] {
+/* A selected row takes the selected fill. Intent gives a selected location
+   that fill across its whole header (./intent-perspective.css), whose name
+   sits outside the rows. */
+.story-review-files li button[aria-pressed="true"],
+.intent-location-header[data-selected] {
   border-color: var(--edge);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
 }

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-228_compact-selected-story-intent.json",
+      "identity": "SEED-228#compact-selected-story-intent",
+      "completedAt": "2026-11-04T04:51:26.712Z",
+      "blob": "07ec51883063627cc28f31f1bc17ff6f70cec324"
+    },
+    {
       "fileName": "SEED-010_proportionate-refactor-for-records-and-repairs.json",
       "identity": "SEED-010#proportionate-refactor-for-records-and-repairs",
       "completedAt": "2026-11-04T01:45:26.042Z",
