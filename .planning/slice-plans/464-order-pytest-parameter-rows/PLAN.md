@@ -187,6 +187,13 @@ test passes; the three pytest Proof journeys stay green.
 Structure: the scanner's rules have direct, fast proof, directly owned by
 retrospective finding 3; no behavior changes.
 
+## Execution complete
+
+Product advice: no change. The correction delivers the amended order with no
+new findings. Scanner differences from pytest's defaults (Learnings) stay
+documented exclusions ("collects under other naming rules"); treat a
+Pygardon test they hide as the evidence for a story, not this review.
+
 ## Concern evidence
 
 Refinement: not needed; two slices with independent proof inside one
