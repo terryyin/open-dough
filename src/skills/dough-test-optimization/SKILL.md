@@ -5,7 +5,8 @@ description: >-
   across related tests. Use to optimize slow tests or test-suite performance.
   Preserves behavioral coverage and confidence while pursuing fewer redundant
   cases, less code, and cleaner design. With --resolve, triages recorded
-  candidates without profiling or optimizing.
+  candidates without profiling or optimizing. Also makes this project's GitHub
+  Actions CI publish the CI proof summary that Intent's CI status tab shows.
 ---
 
 # Speed up local test feedback
@@ -25,6 +26,11 @@ When this project records [Cucumber proof](references/cucumber-proof.md), keep
 its explicit recording option and configured generation command or skill
 usable when an experiment changes Cucumber profiles. Normal experiments leave
 proof untouched; generate or refresh it only when explicitly requested.
+
+A request to make this project's CI publish proof for Intent's **CI status**
+tab, or a tab saying the shown run published no CI proof summary, follows
+only the [CI proof summary](references/ci-proof-summary.md) recipe: it edits
+this project's GitHub Actions workflow and profiles nothing.
 
 Default mode profiles, plans, experiments, and re-profiles. A profile-only request
 ends with findings and records them in the

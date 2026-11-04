@@ -142,7 +142,7 @@ depends on the proof read.
 
 ### 4. Projects can adopt CI proof from the installed recipe
 Type: Behavior
-Status: planned
+Status: done
 Proof: Behavior review (AGENTS.md "Behavior review") walking one adoption: a project with a single-job pytest entry and a 2-shard Playwright entry. The recipe yields fragment steps, an `--expect` declaration, a collector job after failures, retention and `gh` read access. Payload checks pass with the recipe and collector in `managed_files` (focused install/payload tests named by `tests/` that read `managed_files`).
 
 Behavior: An agent working in another project follows the installed
@@ -173,6 +173,10 @@ as in slice 2. The recipe uses only that project's own paths and names.
   and `scripts/setup-lint-tools.sh`; job ids, check names and matrices stay in
   `ci.yml`. The runner settings moved from `tests/README.md` to
   `tests/runner-settings.md`.
+- `install.sh` stays one `managed_files` list (ADR 0003) and reaches 317
+  lines with the recipe and collector modules; Terry allowed it for slice 4
+  (2026-11-04), as it was 312 before this story and splitting the declaration
+  is outside this story.
 
 ## Concern evidence
 
