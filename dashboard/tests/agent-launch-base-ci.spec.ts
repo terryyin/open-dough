@@ -13,6 +13,7 @@
 import { keptStarts } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { expect, test } from "./support/preparationPage.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { actionsForRuns } from "./support/baseCiActions.ts";
 import { publishLaterHead } from "./support/publishLaterHead.ts";
 const baseCiFailedHeading = "Base CI failed";
@@ -48,7 +49,9 @@ test("a passing nearest result starts with no question when the head has none", 
   await expect(
     page.getByRole("heading", { name: baseCiFailedHeading }),
   ).toHaveCount(0);
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
+    .toHaveLength(1);
   expect(head).not.toBe(ancestor);
   expect(await origin.takenProfiles()).toHaveLength(1);
 });
@@ -116,7 +119,9 @@ test("a failed base asks; Back starts nothing; Continue starts", async ({
     .getByRole("button", { name: "Continue on failing base" })
     .click();
   await expect(dialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
+    .toHaveLength(1);
   expect(await origin.takenProfiles()).toHaveLength(1);
   expect(before).not.toBe(head);
 });
@@ -158,7 +163,9 @@ test("confirmed failure then pass starts without asking again", async ({
     .getByRole("button", { name: "Continue on failing base" })
     .click();
   await expect(dialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
+    .toHaveLength(1);
 });
 
 test("confirmed failure then a new failure at another revision asks again", async ({
@@ -244,6 +251,8 @@ test("a kept start resumed is not asked even with a failing base", async ({
     page.getByRole("heading", { name: baseCiFailedHeading }),
   ).toHaveCount(0);
   await expect
-    .poll(() => dashboard.claudeLaunchCalls().length)
+    .poll(() => dashboard.claudeLaunchCalls().length, {
+      timeout: launchWaitMs,
+    })
     .toBeGreaterThanOrEqual(2);
 });

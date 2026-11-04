@@ -507,7 +507,19 @@ Disposition: no user cost "a project-owned Vitest reporter maintains the snapsho
 
 ## Learnings
 
-None yet.
+- Before publishing slice 5 the whole dashboard suite gave 1982 passed and 6
+  failed in `agent-launch-base-ci*.spec.ts` (load 4–10); the three files
+  passed alone. Root cause: their native-launch polls used the 5 s expect
+  default while a real start takes several seconds and longer under parallel
+  load (the service allows 30 s, `dashboard/tests/support/launchWait.ts`).
+  Repaired after slice 5 by waiting `launchWaitMs` there: 18 of 30 failing at
+  `--repeat-each=3 --workers=4` before, 30 of 30 passing after.
+- Subordinate CI on this execution's publications: Pygardon `2a48f97fd`
+  failed in an unrelated settings-profile race and was repaired in
+  `64a16e0b8` (green), with a proof-store tie fix and the startup-hint mask;
+  Doughnut `5b2f8de6ab` failed because Vitest disallows `.only` on GitHub
+  Actions, which trunk repaired in `6e53933393` (green) before this
+  execution's identical fix was pushed, so that duplicate was dropped.
 
 ## Concern evidence
 
