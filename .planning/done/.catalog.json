@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-227_protect-long-local-proof-from-maintenance-sleep.json",
+      "identity": "SEED-227#protect-long-local-proof-from-maintenance-sleep",
+      "completedAt": "2026-11-04T01:30:58.944Z",
+      "blob": "a4a5ed76b5ad1eb0bd4f735255df8b2fdd15e771"
+    },
+    {
       "fileName": "SEED-225_resolve-stuck-attempt-reconciliation.json",
       "identity": "SEED-225#resolve-stuck-attempt-reconciliation",
       "completedAt": "2026-11-04T01:04:20.032Z",

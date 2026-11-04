@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-227#protect-long-local-proof-from-maintenance-sleep",
+  "title": "Protect long local proof from Maintenance Sleep",
+  "completedAt": "2026-11-04T01:30:58.944Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "claude",
+  "model": "opus"
+}
