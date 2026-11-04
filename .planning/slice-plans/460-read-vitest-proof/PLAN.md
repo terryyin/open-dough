@@ -316,7 +316,7 @@ accepts non-integer `durationMs`.
 
 ### 4. Doughnut records Vitest proof on explicit request, per browser instance
 Type: Behavior
-Status: planned
+Status: done
 Proof: Doughnut reporter tests (the same file under two browser instances
 giving two observations per test and one instance's failure clearing only
 its own, a `--shard=1/2` run leaving the other shard's observations, option
@@ -334,6 +334,26 @@ observation; the ordinary `pnpm frontend:test`, its CI shards and
 `orchestratorGcReporter` behave as before. The reporter, its tests, the
 declaration and the first snapshot are committed and published under
 Doughnut's rules; reference gaps are fixed as in slice 3.
+
+Retained (2026-11-04, slice 4): published to Doughnut `main` as `5b2f8de6ab`
+(rebased from `4383b15a42` onto `f05649823d`, no overlapping paths). Reporter
+`frontend/vitestProofReporter.ts` in `frontend/vitest.config.ts` reporters
+(`default`, CI-only `orchestratorGcReporter()`, recorder); shared store
+`e2e_test/config/proofStore.mjs`, Cucumber format in
+`e2e_test/config/cucumberProofStore.mjs`; tests
+`frontend/vitestProofReporter.test.mjs` (12, two named Node projects for the
+project identity) run by `pnpm test:vitest-proof` inside `lint:all`. Proof:
+`test:cucumber-proof` 28/28, `test:vitest-proof` 12/12 and 16/16 under 8×
+concurrency after fixing a load-dependent `Isolate` startup hint in the output
+comparison; `pnpm -C frontend lint` clean; full frontend suite 2457 passed with
+no proof written (load 7–19). First snapshot `frontend/tests/proof/latest.json`:
+3 `chromium` and 2 `chromium-touch` observations, `commit` `f08c51e4ce`,
+`fileBlob`s matching `git hash-object`; the recording run's output matched the
+plain run. The declared command is the general
+`RECORD_VITEST_PROOF=1 ./scripts/run.sh pnpm -C frontend test`.
+Pygardon's hosted CI failed on `2a48f97fd` in an unrelated Python test
+(`tests/test_sharadar_job_settings_api.py`), owned here as a CI repair with the
+same `Isolate` hint fix to Pygardon's output comparison.
 
 ### 5. The case model names its fields for any runner and derives TypeScript test rows
 Type: Structure

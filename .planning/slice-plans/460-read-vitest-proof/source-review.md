@@ -7,17 +7,17 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | B1 | Serves a Doughnut or Pygardon developer reviewing frontend test protection in Intent, reading what a spec's tests last proved and in which browser project | slice 7 | |
-| G1 | Doughnut and Pygardon record deliberate Vitest proof the way they record Cucumber proof | slice 4 | |
+| G1 | Doughnut and Pygardon record deliberate Vitest proof the way they record Cucumber proof | slice 4 | observed: doughnut main 5b2f8de6ab and pygardon main 2a48f97fd record Vitest proof only on explicit RECORD_VITEST_PROOF=1, as their Cucumber recorders record on explicit request |
 | G2 | A published Open Dough reference defines the compact snapshot and the explicit recording run | slice 1 | observed: src/skills/dough-test-optimization/references/vitest-proof.md (whole reference, slice 1) |
-| G3.1 | Each frontend's typescript Intent location declares its runner in .planning/open-dough.json | slice 4 | |
-| G3.2 | It declares its proof directory there | slice 4 | |
-| G3.3 | It declares its generation command there | slice 4 | |
-| G4 | A project-owned Vitest reporter maintains the snapshot | slice 4 | |
+| G3.1 | Each frontend's typescript Intent location declares its runner in .planning/open-dough.json | slice 4 | observed: doughnut .planning/open-dough.json frontend/tests and pygardon .planning/open-dough.json frontend/src: runner vitest, proof frontend/tests/proof / frontend/proof, proofGeneration.command RECORD_VITEST_PROOF=1 … test |
+| G3.2 | It declares its proof directory there | slice 4 | observed: doughnut .planning/open-dough.json frontend/tests and pygardon .planning/open-dough.json frontend/src: runner vitest, proof frontend/tests/proof / frontend/proof, proofGeneration.command RECORD_VITEST_PROOF=1 … test |
+| G3.3 | It declares its generation command there | slice 4 | observed: doughnut .planning/open-dough.json frontend/tests and pygardon .planning/open-dough.json frontend/src: runner vitest, proof frontend/tests/proof / frontend/proof, proofGeneration.command RECORD_VITEST_PROOF=1 … test |
+| G4 | A project-owned Vitest reporter maintains the snapshot | slice 4 | observed: doughnut frontend/vitestProofReporter.ts and pygardon frontend/vitest-proof-reporter.ts maintain latest.json |
 | G5 | Selecting a test file in Intent shows each test's last successful committed proof beside its TypeScript source | slice 7 | |
 | G6 | The Vitest project is named on every observation that has one (chromium, chromium-touch) | slice 7 | |
 | G7 | A location or folder summary gives the same figures as for Gherkin and pytest | slice 7 | |
 | G8 | Extends Proof to both frontends and tests whether one reporting contract serves browser-mode and happy-dom Vitest without conflating their environments | slice 7 | |
-| G9a | The story includes generating Vitest proof, declared in project configuration and produced when the project generates proof | slice 4 | |
+| G9a | The story includes generating Vitest proof, declared in project configuration and produced when the project generates proof | slice 4 | observed: proofGeneration declared on both frontend locations; recording runs produced the committed snapshots |
 | G9b | The rest of the story is reading that proof | slice 7 | |
 | R1 | The reference lives at src/skills/dough-test-optimization/references/vitest-proof.md | slice 1 | observed: src/skills/dough-test-optimization/references/vitest-proof.md exists |
 | R2 | That skill links it the way it links the Cucumber and pytest references | slice 1 | observed: src/skills/dough-test-optimization/SKILL.md links Vitest proof beside Cucumber and pytest; install.sh managed_files; tests/payload-declaration-links.sh pass |
@@ -117,26 +117,26 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | E4 | Unreadable and malformed proof keep their retry explanations | slice 6 | |
 | E5 | A proof file shaped for another family, under a Vitest location, is malformed | slice 6 | |
 | A1 | Adoption happens in subordinate Doughnut and Pygardon workspaces of this execution, as plan 446 did | slice 2 | observed: plan slice 2 retained workspaces: ~/git/doughnut.worktrees/read-vitest-proof and ~/git/pygardon.worktrees/read-vitest-proof, prepared, as plan 446 did |
-| A2 | Each project gets a project-owned Vitest reporter that follows the reference | slice 4 | |
-| A3 | The reporter is loaded by the ordinary local and CI commands, with recording off | slice 4 | |
-| A4 | It shares the project's existing proof store, where that keeps one store per project | slice 4 | |
-| A5.1 | Reporter tests on fixture projects cover option off | slice 4 | |
-| A5.2 | A nested describe path | slice 4 | |
-| A5.3 | An each table with placeholders | slice 4 | |
-| A5.4 | An each table without placeholders | slice 4 | |
-| A5.5 | A retried pass | slice 4 | |
-| A5.6 | A failure clearing only itself | slice 4 | |
-| A5.7 | skip | slice 4 | |
-| A5.8 | only | slice 4 | |
-| A5.9 | A shard | slice 4 | |
-| A5.10 | An interrupted refresh | slice 4 | |
-| A5.11 | In Doughnut only, the same file under two browser instances | slice 4 | |
-| A6.1 | runner is declared on the frontend location | slice 4 | |
-| A6.2 | proof is declared there, for example frontend/tests/proof and frontend/proof | slice 4 | |
-| A6.3 | The real recording command is declared there | slice 4 | |
-| A7 | One explicit focused recording run is committed as the first snapshot | slice 4 | |
-| A8 | In Doughnut, that run covers one plain spec and one touch spec | slice 4 | |
-| A9 | Each project's publication follows that project's own rules | slice 4 | |
+| A2 | Each project gets a project-owned Vitest reporter that follows the reference | slice 4 | observed: doughnut frontend/vitestProofReporter.ts and pygardon frontend/vitest-proof-reporter.ts, each project-owned, following vitest-proof.md |
+| A3 | The reporter is loaded by the ordinary local and CI commands, with recording off |  | G4 |
+| A4 | It shares the project's existing proof store, where that keeps one store per project | slice 4 | observed: doughnut e2e_test/config/proofStore.mjs and pygardon e2e_test/plugins/proofStore.mts shared by each project's Cucumber recorder and Vitest reporter; Cucumber proof byte-identical |
+| A5.1 | Reporter tests on fixture projects cover option off | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs option-off tests: no file, no lock |
+| A5.2 | A nested describe path | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs identity test and pygardon:tests/vitest-proof-recorder.test.mjs nested describe test |
+| A5.3 | An each table with placeholders | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs %i table tests: adds 1, adds 2 |
+| A5.4 | An each table without placeholders | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs placeholder-less table tests: summed duration, one failing row clears |
+| A5.5 | A retried pass | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs retry tests: retryCount 1, attempts 2 |
+| A5.6 | A failure clearing only itself | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs failure-clears-only-itself tests |
+| A5.7 | skip | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs skip/todo/only/filter tests keep proof |
+| A5.8 | only | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs skip/todo/only/filter tests keep proof |
+| A5.9 | A shard | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs --shard=1/2 tests leave the other shard's observation |
+| A5.10 | An interrupted refresh | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs interrupted-refresh tests (SIGKILL after first refresh) |
+| A5.11 | In Doughnut only, the same file under two browser instances | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs two-project test: two observations per test, one project's failure clears only its own (named Node projects chromium/chromium-touch); real browser instances observed in doughnut frontend/tests/proof/latest.json |
+| A6.1 | runner is declared on the frontend location | slice 4 | observed: doughnut .planning/open-dough.json frontend/tests and pygardon .planning/open-dough.json frontend/src: runner vitest, proof frontend/tests/proof / frontend/proof, proofGeneration.command RECORD_VITEST_PROOF=1 … test |
+| A6.2 | proof is declared there, for example frontend/tests/proof and frontend/proof | slice 4 | observed: doughnut .planning/open-dough.json frontend/tests and pygardon .planning/open-dough.json frontend/src: runner vitest, proof frontend/tests/proof / frontend/proof, proofGeneration.command RECORD_VITEST_PROOF=1 … test |
+| A6.3 | The real recording command is declared there | slice 4 | observed: doughnut .planning/open-dough.json frontend/tests and pygardon .planning/open-dough.json frontend/src: runner vitest, proof frontend/tests/proof / frontend/proof, proofGeneration.command RECORD_VITEST_PROOF=1 … test |
+| A7 | One explicit focused recording run is committed as the first snapshot | slice 4 | observed: doughnut frontend/tests/proof/latest.json (5 observations) and pygardon frontend/proof/latest.json (17), each from one focused explicit run |
+| A8 | In Doughnut, that run covers one plain spec and one touch spec | slice 4 | observed: doughnut frontend/tests/proof/latest.json: titlePatternRender.spec.ts (plain) and DonutMenu.search.touch.spec.ts (touch) |
+| A9 | Each project's publication follows that project's own rules | slice 4 | observed: doughnut main 5b2f8de6ab and pygardon main 2a48f97fd, each committed under its AGENTS.md wrap-up (format:changed once, check-only lint hook) and pushed |
 | RR1 | With both snapshots published, Intent on Doughnut shows the recorded specs' cases with their projects | slice 7 | |
 | RR2 | Intent on Doughnut shows a folder summary | slice 7 | |
 | RR3 | Intent on Pygardon shows the recorded file's cases | slice 7 | |
@@ -147,23 +147,23 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | DOC1.2 | It describes the runner declaration | slice 6 | |
 | DOC1.3 | It describes project rows | slice 6 | |
 | DOC2 | The reference is linked wherever the other references are | slice 6 | |
-| C1 | Only a plain pass records proof | slice 4 | |
-| C2 | An executed non-pass clears proof, for that project only | slice 4 | |
-| C3 | Proof must not claim behavior a case did not pass | slice 4 | |
-| C4 | Normal runs never create, change or delete proof | slice 4 | |
+| C1 | Only a plain pass records proof | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs: only passed final results record; failed clears; skipped keeps |
+| C2 | An executed non-pass clears proof, for that project only | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs two-project test: failure clears only that project's observation |
+| C3 | Proof must not claim behavior a case did not pass | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs: only passed final results record; failed clears; skipped keeps |
+| C4 | Normal runs never create, change or delete proof | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs option-off tests; full frontend suites (doughnut 2457, pygardon 1185 passed) wrote no proof |
 | C5 | Missing, empty, unreadable or malformed proof is never shown as a pass | slice 6 | |
 | C6 | Identity uses Vitest's own formatted names and project names, never task ids or collection order | slice 1 | observed: src/skills/dough-test-optimization/references/vitest-proof.md Identity, task-id sentence |
 | C7 | The reference recommends placeholders in each names so that each row is its own case | slice 1 | observed: src/skills/dough-test-optimization/references/vitest-proof.md Identity, placeholder paragraph |
 | C8 | Intent orders a template's observed rows and a test's project rows itself, by code point; never depends on snapshot order | slice 6 | |
 | C9 | Existing Cucumber and pytest proof files, reader behavior, and wording for their locations stay unchanged | slice 6 | |
-| C10.1 | With the reporter loaded, each frontend's output stays as it is | slice 4 | |
-| C10.2 | Diagnostics | slice 4 | |
-| C10.3 | Exit meaning | slice 4 | |
-| C10.4 | Browser instances | slice 4 | |
-| C10.5 | Retries | slice 4 | |
-| C10.6 | Sharding | slice 4 | |
-| C10.7 | CI reporters | slice 4 | |
-| X1 | Exclusion: only the two frontend locations are in scope | slice 4 | |
+| C10.1 | With the reporter loaded, each frontend's output stays as it is | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs output-equality tests (stdout, stderr, exit with recorder loaded, recording on and off); doughnut real run output diff empty |
+| C10.2 | Diagnostics | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs output-equality tests (stdout, stderr, exit with recorder loaded, recording on and off); doughnut real run output diff empty |
+| C10.3 | Exit meaning | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs output-equality tests (stdout, stderr, exit with recorder loaded, recording on and off); doughnut real run output diff empty |
+| C10.4 | Browser instances | slice 4 | observed: doughnut real run kept chromium and chromium-touch instances; vitest.config.ts instances unchanged |
+| C10.5 | Retries | slice 4 | observed: doughnut vitest.config.ts retry: isCI ? 1 : 0 unchanged; pygardon config has no retry |
+| C10.6 | Sharding | slice 4 | observed: doughnut CI shards run pnpm frontend:test --shard unchanged; doughnut:frontend/vitestProofReporter.test.mjs shard test |
+| C10.7 | CI reporters | slice 4 | observed: doughnut vitest.config.ts CI reporters [default, orchestratorGcReporter(), recorder]; pygardon CI --reporter=./vitest-quiet-reporter.ts unchanged (G4) |
+| X1 | Exclusion: only the two frontend locations are in scope | slice 4 | observed: only doughnut frontend/tests and pygardon frontend/src declare runner vitest |
 | X2 | Exclusion: no proof delivery for Doughnut's CLI Vitest, dashboard Playwright tests, or node:test files; row derivation serves them anyway | slice 6 | |
 | X3.1 | Exclusion: no run wall time | slice 6 | |
 | X3.2 | Exclusion: no CI comparison | slice 6 | |
@@ -174,34 +174,34 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | X5 | Exclusion: observations whose identity the published file no longer defines are not listed | slice 6 | |
 | X6 | Exclusion: includeTaskLocation not required; definition lines come from the source rule | slice 6 | |
 | X7 | Exclusion: a cheaper root summary is deferred; this story measures and does not create it | slice 7 | |
-| X8 | Exclusion: full-suite proof refresh is Terry's deliberate run; this story commits focused selections first | slice 4 | |
-| K1.1 | Doughnut focused browser-mode run: latest.json holds one passing observation per executed case | slice 4 | |
-| K1.2 | The plain spec's observations have project "chromium" | slice 4 | |
-| K1.3 | The touch spec's observations have project "chromium-touch" | slice 4 | |
-| K1.4 | Each observation has file | slice 4 | |
-| K1.5 | Each has test as its describe path and name | slice 4 | |
-| K1.6 | Each has commit at run start | slice 4 | |
-| K1.7 | Each has the spec's fileBlob | slice 4 | |
-| K1.8 | The run's output and exit match the same run without the option | slice 4 | |
-| K1.9 | The same command without the option changes nothing under frontend/tests/proof | slice 4 | |
+| X8 | Exclusion: full-suite proof refresh is Terry's deliberate run; this story commits focused selections first | slice 4 | observed: both snapshots are focused selections; no full-suite refresh |
+| K1.1 | Doughnut focused browser-mode run: latest.json holds one passing observation per executed case | slice 4 | observed: doughnut frontend/tests/proof/latest.json: 5 passing observations, one per executed case |
+| K1.2 | The plain spec's observations have project "chromium" | slice 4 | observed: 3 titlePatternRender.spec.ts observations with project chromium |
+| K1.3 | The touch spec's observations have project "chromium-touch" | slice 4 | observed: 2 DonutMenu.search.touch.spec.ts observations with project chromium-touch |
+| K1.4 | Each observation has file | slice 4 | observed: doughnut latest.json observations: file, test [describe, name], commit f08c51e4ce (HEAD at run), fileBlob = git hash-object |
+| K1.5 | Each has test as its describe path and name | slice 4 | observed: doughnut latest.json observations: file, test [describe, name], commit f08c51e4ce (HEAD at run), fileBlob = git hash-object |
+| K1.6 | Each has commit at run start | slice 4 | observed: doughnut latest.json observations: file, test [describe, name], commit f08c51e4ce (HEAD at run), fileBlob = git hash-object |
+| K1.7 | Each has the spec's fileBlob | slice 4 | observed: doughnut latest.json observations: file, test [describe, name], commit f08c51e4ce (HEAD at run), fileBlob = git hash-object |
+| K1.8 | The run's output and exit match the same run without the option | slice 4 | observed: slice 4 real run: stdout/stderr diff with plain run empty after timing mask, exit 0 |
+| K1.9 | The same command without the option changes nothing under frontend/tests/proof | slice 4 | observed: slice 4 run without option: proof tree hash ceecbf4e unchanged, no lock |
 | K2.1 | Pygardon focused run: frontend/proof/latest.json holds that file's 17 cases | slice 3 | observed: Pygardon frontend/proof/latest.json from the slice 3 real run: version 1, 17 observations of frontend/src/api/__tests__/verifyStatsFormat.test.ts, no project field, commit 8dc7cad1a, fileBlob = git hash-object |
 | K2.2 | None of them has a project field | slice 3 | observed: Pygardon frontend/proof/latest.json from the slice 3 real run: version 1, 17 observations of frontend/src/api/__tests__/verifyStatsFormat.test.ts, no project field, commit 8dc7cad1a, fileBlob = git hash-object |
 | K2.3 | The same command without the option changes nothing under frontend/proof | slice 3 | observed: slice 3 run without the option and the check-prepared-checkout.sh frontend line (vitest run --reporter=./vitest-quiet-reporter.ts): latest.json sha256 unchanged, no lock |
 | K2.4 | scripts/check-prepared-checkout.sh changes nothing under frontend/proof | slice 3 | observed: slice 3 run without the option and the check-prepared-checkout.sh frontend line (vitest run --reporter=./vitest-quiet-reporter.ts): latest.json sha256 unchanged, no lock |
-| K3.1 | it.each([1, 2])("adds %i") passes, giving observations adds 1 and adds 2 | slice 4 | |
-| K3.2 | it.each([a, b])("renders equivalent escapes") with one row failing gives no observation for that name | slice 4 | |
-| K3.3 | In that case, the name's earlier observation is removed | slice 4 | |
-| K3.4 | With both rows passing, one observation with the two executions' summed duration | slice 4 | |
-| K4.1 | A case passing on its second attempt under retry: 1 gives one observation with attempts: 2 | slice 4 | |
-| K4.2 | A later explicit run in which it fails removes its observation | slice 4 | |
+| K3.1 | it.each([1, 2])("adds %i") passes, giving observations adds 1 and adds 2 | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs %i table tests |
+| K3.2 | it.each([a, b])("renders equivalent escapes") with one row failing gives no observation for that name | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs placeholder-less table tests |
+| K3.3 | In that case, the name's earlier observation is removed | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs placeholder-less table tests |
+| K3.4 | With both rows passing, one observation with the two executions' summed duration | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs placeholder-less table tests |
+| K4.1 | A case passing on its second attempt under retry: 1 gives one observation with attempts: 2 | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs retry tests: attempts 2 |
+| K4.2 | A later explicit run in which it fails removes its observation | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs failure-clearing tests remove an earlier observation |
 | K4.3 | Intent then reads No successful proof until a later pass restores it | slice 6 | |
-| K4.4 | A skipped or filtered-out case keeps its proof | slice 4 | |
-| K4.5 | A run of one shard leaves the other shard's cases as they were | slice 4 | |
+| K4.4 | A skipped or filtered-out case keeps its proof | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs skip/only/filter tests |
+| K4.5 | A run of one shard leaves the other shard's cases as they were | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs and pygardon:tests/vitest-proof-recorder.test.mjs shard tests |
 | K5.1 | A touch spec's cases observed under chromium-touch give one row per case, naming that project | slice 6 | |
 | K5.2 | A file observed under both instances gives two rows per test | slice 6 | |
 | K5.3 | chromium comes before chromium-touch, whatever order the snapshot holds | slice 6 | |
 | K5.4 | Each of those rows has its own proof | slice 6 | |
-| K5.5 | A failure in one instance clears only that project's observation | slice 4 | |
+| K5.5 | A failure in one instance clears only that project's observation | slice 4 | observed: doughnut:frontend/vitestProofReporter.test.mjs two-project failure test |
 | K6.1.1 | titlePatternRender.spec.ts File Proof column: Test case | slice 7 | |
 | K6.1.2 | Column: Last successful proof | slice 7 | |
 | K6.1.3 | Column: Duration | slice 7 | |
@@ -242,6 +242,6 @@ Launch: a fresh general-purpose reviewer on 2026-11-04 with no conversation inhe
 | AR6 | The TypeScript row derivation is a nesting-aware reading of test calls shared by every runner of that call family | slice 5 | |
 | AR7 | Proof stays a repository record read as a published fact | slice 6 | |
 | AR8 | runner is project-owned configuration in the same settings file | slice 5 | |
-| AR9 | In each project, the reporter is the second producer of the project's one proof store | slice 4 | |
-| AR10 | The project generalizes that store to the shared observation shape rather than adding a second store | slice 4 | |
+| AR9 | In each project, the reporter is the second producer of the project's one proof store | slice 4 | observed: doughnut e2e_test/config/proofStore.mjs, pygardon e2e_test/plugins/proofStore.mts: the reporter is the store's second producer |
+| AR10 | The project generalizes that store to the shared observation shape rather than adding a second store | slice 4 | observed: the shared stores take a ProofFormat (identity, order, identifies) with the Cucumber format kept separate; no second store |
 | X10 | Exclusion: design within the product, not an ADR proposal; no conflict, exception or North Star topic | slice 7 | |

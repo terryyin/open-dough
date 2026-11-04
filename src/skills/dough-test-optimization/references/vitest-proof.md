@@ -99,6 +99,11 @@ recording; do not silently enable recording in normal commands.
 - Test the recorder by running Vitest on fixture projects, each in its own
   temporary Git checkout with its own `.planning/open-dough.json`, setting
   the option only for the inner runs, so the outer test run never records.
+  When a test compares a run's output with and without the recorder, mask
+  what Vitest prints from timing: durations, start times and its
+  worker-startup hint (a line beginning `Isolate` with a following
+  `at least` line), which it prints only when worker startup was slow, so
+  the hint appears or not with machine load (observed in Vitest 5.0.5).
 
 ## Record from the reporter's results
 
