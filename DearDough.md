@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 416. Removed numbers are never reused.
+- Highest allocated local number: 417. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -604,3 +604,16 @@ Acceptance recorded an ordering commitment `observed:` at real data whose order 
   - Evidence: after Terry amended the story ("ordered by parameter id"), source-review rows 4.2.2 and E6.R3 were recorded observed at the dev dashboard on Pygardon `8dc7cad1a`, whose `tests/proof/latest.json` is sorted by the plugin (`sorted(kept, key=_identity_key)`); `dashboard/src/pytestCases.ts` keeps snapshot order and `dashboard/tests/intent-pytest-proof.spec.ts` asserts `up` before `even`. The 4.2.2 cell itself names "snapshot order".
   - Observed effect: an amended promise accepted without reader behavior or proof; one correction story and plan written by the retrospective.
   - Inference: when a promise changes after the product was built, acceptance needs a precondition that would fail without the promised behavior (here an unsorted snapshot), not a real run whose upstream already supplies it.
+
+## DD-417 — A subordinate project's publication went unobserved until a human repaired its CI
+An execution that publishes to another project's trunk (a subordinate Doughnut or Pygardon workspace) had CI observation only for its own repository, so a failure on the subordinate publication surfaced only through a later manual check, after the project's owner had already pushed the same repair.
+
+### Occurrences
+- Execution: SEED-192#read-vitest-proof (plan 460-read-vitest-proof; first related implementation commit `beadffb0780c952a0d0cacc53755020145abc55a`)
+  - Timestamp: 2026-11-04T09:24:10Z (Doughnut CI failure on `5b2f8de6ab`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: the execution's observer (`/tmp/dough-ci-501/watch-l6pc3b`) watched only `terryyin/open-dough`; Doughnut run 41806231388 failed in `pnpm lint:all` ("Unexpected .only modifier", Vitest's CI default under `GITHUB_ACTIONS`); Terry pushed `6e53933393` "Allow the proof reporter's focus fixture to run on CI" at 09:27:24Z; the coordinator found the failure by `gh run list` about 25 minutes after its push, reproduced it, committed the same fix and dropped it as a duplicate when its push met trunk. Pygardon `2a48f97fd` also failed (an unrelated settings race) and was found by a manual adapter `discover`, then repaired in `64a16e0b8`.
+  - Observed effect: a human repaired an agent-published CI failure; the agent spent a reproduction and repair on work already done; the Pygardon failure stayed unknown until the agent happened to look.
+  - Inference: the subordinate publication route ("commit and push under the project's own rules") carries no CI ownership step for that project's CI, and the recorder's fixture runs were never tried with the CI environment variables set locally.

@@ -578,3 +578,37 @@ their `typescript` locations keep the honest other-kinds wording until
 slice 6 replaces it, so this needs no replacing slice. The `--reporter` and
 retry-duration remainders are bounded by slice 3's first tests; the plan
 464 ordering is bounded by the stop in Current decisions.
+
+## Execution complete
+
+Product advice:
+- Decide the promise for placeholder-only templates: a template made only of
+  a placeholder (`"%s"`, `"$label"`) matches any name under its suite, so a
+  renamed or removed sibling test's stale observation is listed as a passed
+  row, against the story's "Observations whose identity the published file no
+  longer defines are not listed". Real exposure: Doughnut
+  `models/joinDictatedSegments.spec.ts`, `lib/book-reading/firstSentenceTitle.spec.ts`,
+  `components/form/RichMarkdownEditor.propertyValueDialog.spec.ts`; Pygardon
+  `clipPlayAsClipped.test.ts`, `clipPlaybackSeekJump.test.ts`. Either the
+  reference and Intent guidance state the limitation (and recommend literal
+  text beside a placeholder), or the promise stands and needs a design.
+  Terry's decision; no correction is planned for it.
+- The correction
+  [SEED-192#read-tsx-text-and-trim-vitest-journeys](../../seeds/SEED-192-review-product-intent.md#read-tsx-text-and-trim-vitest-journeys)
+  (plan 465, ready) fixes JSX text read as code by the TypeScript test-call
+  reader and removes repeated Vitest journeys.
+- Consider a cheaper large-location summary story: root summaries cost about
+  7.5 GitHub requests a second, linear in files (Doughnut `frontend/tests`
+  396 files 54 s and 402 requests; Pygardon `frontend/src` 197 files 26 s and
+  199 requests; pytest's 1,283 files 208 s). Only the SEED-192 deferral note
+  covers it.
+- A shared Open Dough-shipped Vitest reporter is now measurable: the two
+  project reporters differ in about 63 lines, mostly typing and formatting,
+  each beside its own generalized proof store. Terry's choice whether to
+  queue it.
+- Every `typescript`/`javascript` location without proof names the Vitest
+  reference (story E1), including Open Dough's Playwright `dashboard/tests`;
+  the queued SEED-192#read-playwright-proof and SEED-192#read-node-test-proof
+  should give those locations their own reference.
+- Doughnut and Pygardon receive `vitest-proof.md` with the next release; the
+  ordinary release rollout covers it.
