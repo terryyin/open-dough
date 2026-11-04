@@ -20,6 +20,7 @@ import {
   status,
 } from "./support/defaultCheckoutChanges.ts";
 import { expect, test } from "./support/preparationPage.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { openBacklog, originMain, radio } from "./support/sessionDialog.ts";
 
 for (const [workflow, landing, landingLine] of [
@@ -179,7 +180,9 @@ test("a clean default checkout starts without a warning", async ({
   await expect(dialog).toBeHidden();
   await expect(page.getByRole("heading", { name: heading })).toHaveCount(0);
   // Accepted: the launch goes on after the dialog closed.
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
+    .toHaveLength(1);
   const [call] = dashboard.claudeLaunchCalls();
   expect(call?.cwd).toBe(realpathSync(origin.project));
   expect(call?.argv.at(-1)).toContain("--one-shot --default-main\n");

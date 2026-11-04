@@ -22,6 +22,7 @@ import { startSession, startSessionDialog } from "./launchStoryCardPage.ts";
 import { status } from "./support/defaultCheckoutChanges.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, test } from "./support/preparationPage.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 import { expectReportingBlock } from "./support/reportingInputAssertions.ts";
 import { openBacklog, originMain, radio } from "./support/sessionDialog.ts";
 import {
@@ -44,7 +45,9 @@ const worktrees = (project: string) =>
 // The one session started in the project folder, with what it was sent and
 // the record kept.
 async function startedSession(dashboard: DashboardServer, project: string) {
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
+    .toHaveLength(1);
   const [call] = dashboard.claudeLaunchCalls();
   expect(call?.cwd).toBe(realpathSync(project));
   expect(call?.argv.slice(0, 2)).toEqual(["--bg", "--name"]);

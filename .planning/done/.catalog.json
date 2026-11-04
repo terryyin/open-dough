@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-229_reduce-remote-sessions-traffic.json",
+      "identity": "SEED-229#reduce-remote-sessions-traffic",
+      "completedAt": "2026-11-04T08:41:47.010Z",
+      "blob": "c7c7cde137b79db7ad1b0d87144e8e60a0ecb97e"
+    },
+    {
       "fileName": "SEED-192_order-pytest-parameter-rows.json",
       "identity": "SEED-192#order-pytest-parameter-rows",
       "completedAt": "2026-11-04T07:02:05.059Z",

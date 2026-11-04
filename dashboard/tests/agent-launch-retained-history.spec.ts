@@ -1,7 +1,8 @@
 // A page reads the machine's sessions history only when a developer opens or
 // acts on a retained session or expands Recently done sessions: once per such
 // opening, and again only once the overview names a newer history revision.
-// Polls while nothing retained is opened never ask it. A history read that
+// Polls while nothing retained is opened never ask it. The browser's own
+// fetch accepts and decodes the gzip-encoded history. A history read that
 // fails leaves every retained session showing as before, and the next opening
 // asks again.
 
@@ -37,14 +38,20 @@ const isHistoryUrl = (url: URL) =>
 const isHistoryRead = (request: Request) =>
   request.method() === "GET" && isHistoryUrl(new URL(request.url()));
 
-// Every history read the page asks, with the history revision it named.
+// Every history read the page asks, with the history revision it named, and
+// the content coding of each answer it received.
 function historyReads(page: Page) {
   const asked: (string | undefined)[] = [];
+  const codings: (string | undefined)[] = [];
   page.on("request", (request) => {
     if (isHistoryRead(request))
       asked.push(request.headers()[sessionsRevisionHeader]);
   });
-  return asked;
+  page.on("response", (response) => {
+    if (isHistoryRead(response.request()))
+      codings.push(response.headers()["content-encoding"]);
+  });
+  return { asked, codings };
 }
 
 function retained(dashboard: DashboardServer, now: number, title: string) {
@@ -73,11 +80,11 @@ async function showRetained(
   await pausePageClockAt(page, opened);
   const { passOnePace } = await watchRecordReads(page);
   await keepProjectLaunchRecords(dashboard, { "open-dough": records });
-  const asked = historyReads(page);
+  const { asked, codings } = historyReads(page);
   await showPage(page, origin);
   const onBoard = (title: string) =>
     parts(page).recentlyDone.getByRole("article").filter({ hasText: title });
-  return { passOnePace, asked, onBoard };
+  return { passOnePace, asked, codings, onBoard };
 }
 
 test("one history read per opening, none while nothing retained is opened, and again only once its revision moves", async ({
@@ -88,7 +95,7 @@ test("one history read per opening, none while nothing retained is opened, and a
   test.setTimeout(120_000);
   const now = Date.parse("2026-10-28T10:00:00.000Z");
   const first = retained(dashboard, now, "First retained session");
-  const { passOnePace, asked, onBoard } = await showRetained(
+  const { passOnePace, asked, codings, onBoard } = await showRetained(
     page,
     dashboard,
     origin,
@@ -105,11 +112,12 @@ test("one history read per opening, none while nothing retained is opened, and a
     expect(asked).toEqual([]);
   });
 
-  await test.step("expanding Recently done sessions reads it once", async () => {
+  await test.step("expanding Recently done sessions reads it once, gzip-encoded", async () => {
     await sidebar.button.click();
     await sidebar.header.click();
     await expect(sidebar.entries).toHaveCount(1);
     await expect.poll(() => asked).toEqual([undefined]);
+    await expect.poll(() => codings).toEqual(["gzip"]);
   });
 
   await test.step("opening again while its revision stands reads nothing", async () => {

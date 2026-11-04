@@ -67,9 +67,11 @@ test("the incident record keeps its newest entries within its entry and byte bou
       await byCount.close();
     }
 
-    const lineBytes = Math.max(
-      ...entryLines().map((line) => Buffer.byteLength(line) + 1),
-    );
+    // A record line's share of the byte bound includes its newline.
+    const recordBytes = (line: string) => Buffer.byteLength(line) + 1;
+    const keptBytes = (lines: readonly string[]) =>
+      lines.reduce((total, line) => total + recordBytes(line), 0);
+    const lineBytes = Math.max(...entryLines().map(recordBytes));
     const bytes = 2 * lineBytes + 16;
     const byBytes = await startDashboardServer({
       ...developmentBoundary,
@@ -81,18 +83,22 @@ test("the incident record keeps its newest entries within its entry and byte bou
       await failOnce(byBytes, "wave-7");
       // Every entry written is kept or counted once pruning settles: the
       // first server's start, five failures, and end, and this one's start
-      // and two failures.
+      // and two failures. The count alone also holds between the last
+      // append and its prune, so settling waits for the bound too.
       await expect
         .poll(
-          async () =>
-            (await inspect(byBytes)).record.dropped + entryLines().length,
+          async () => {
+            const dropped = (await inspect(byBytes)).record.dropped;
+            const lines = entryLines();
+            return {
+              counted: dropped + lines.length,
+              withinBytes: keptBytes(lines) <= bytes,
+            };
+          },
           { timeout: 10_000 },
         )
-        .toBe(10);
+        .toEqual({ counted: 10, withinBytes: true });
       const kept = entryLines();
-      expect(
-        kept.reduce((total, line) => total + Buffer.byteLength(line) + 1, 0),
-      ).toBeLessThanOrEqual(bytes);
       expect(kept.length).toBeGreaterThanOrEqual(1);
       expect(kept.length).toBeLessThanOrEqual(2);
       const seen = await inspect(byBytes);

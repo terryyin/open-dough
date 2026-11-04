@@ -11,6 +11,9 @@ export type RawResponse = {
   readonly status: number;
   readonly headers: Readonly<Record<string, string | string[] | undefined>>;
   readonly body: string;
+  // The body's bytes as received, before any decoding: a gzip-encoded
+  // answer's encoded bytes, whose `body` is then not its text.
+  readonly raw: Buffer;
 };
 
 export type RawRequestOptions = {
@@ -40,10 +43,12 @@ export function rawRequest(options: RawRequestOptions): Promise<RawResponse> {
         const chunks: Buffer[] = [];
         res.on("data", (chunk: Buffer) => chunks.push(chunk));
         res.on("end", () => {
+          const raw = Buffer.concat(chunks);
           resolve({
             status: res.statusCode ?? 0,
             headers: res.headers,
-            body: Buffer.concat(chunks).toString("utf8"),
+            body: raw.toString("utf8"),
+            raw,
           });
         });
       },

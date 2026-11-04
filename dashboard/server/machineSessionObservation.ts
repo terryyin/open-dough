@@ -40,6 +40,7 @@ import type { LocalWorkspace } from "../src/localWorkspace.ts";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { attemptsNeedingAttention } from "../src/launchAttemptSelection.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
+import { type SharedAnswer, SharedGzip } from "./agentLaunchResponse.ts";
 import { configuredLimit } from "./configuredLimit.ts";
 import type { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
 import { hostOperations } from "./launchHosts.ts";
@@ -146,6 +147,11 @@ async function observeMachineSessions(
 
 export class MachineSessionObservation {
   private readonly shared: SharedObservation<ObservedMachineSessions>;
+  // Each audience's latest full answer gzip-encoded, shared by its viewers.
+  private readonly encoded = {
+    overview: new SharedGzip(),
+    history: new SharedGzip(),
+  };
 
   constructor(
     launches: AgentLaunches,
@@ -179,12 +185,13 @@ export class MachineSessionObservation {
 
   // The serialized answer the viewer's audience asks for, whose wait ends
   // when it leaves: only that it is unchanged when the viewer holds that
-  // answer's revision. When `fresh`, the answer comes from an observation
-  // begun after this ask.
+  // answer's revision, and otherwise in full with its gzip encoding, shared
+  // by every viewer of that revision. When `fresh`, the answer comes from an
+  // observation begun after this ask.
   async answerFor(
     res: ServerResponse,
     { audience, held, fresh }: Omit<AdmittedSessions, "kind">,
-  ): Promise<string> {
+  ): Promise<SharedAnswer> {
     const departed = new AbortController();
     const leave = () => {
       departed.abort();
@@ -193,7 +200,11 @@ export class MachineSessionObservation {
     try {
       const observed = await this.observed(departed.signal, fresh);
       const asked = audience === "history" ? observed.history : observed;
-      return asked.revision === held ? asked.unchanged : asked.serialized();
+      if (asked.revision === held) return { serialized: asked.unchanged };
+      return {
+        serialized: asked.serialized(),
+        gzipped: this.encoded[audience].of(asked.revision, asked.serialized),
+      };
     } finally {
       res.off("close", leave);
     }
