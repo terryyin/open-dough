@@ -7,10 +7,9 @@
 // template's observations in reverse code-point order, the touch spec's
 // under `chromium-touch`, the two-project spec's with `chromium-touch` first,
 // and a renamed test's stale observation, with no proof for "formats an
-// empty pattern"; the same snapshot with one test's proof cleared, a
-// pytest-shaped snapshot, and settings without `proof`, with `proof` but no
-// `runner`, and with a runner Intent reads no proof for, each beside a
-// `shell` location.
+// empty pattern"; a pytest-shaped snapshot, and settings without `proof`,
+// with `proof` but no `runner`, and with a runner Intent reads no proof for,
+// each beside a `shell` location.
 
 import { gitBlobSha } from "./listingAnswers.ts";
 import {
@@ -67,13 +66,6 @@ const title = (...names: string[]) => ["renderTitleFromPattern", ...names];
 const chromium = "chromium";
 const touch = "chromium-touch";
 
-// A test whose proof a later failing run clears.
-const clearable = passed(
-  titlePatternPath,
-  title("unknown placeholders", "leaves them unchanged"),
-  { project: chromium, durationMs: 30 },
-);
-
 // One maintained snapshot: the `%s` template's observations in reverse
 // code-point order, a both-project spec with `chromium-touch` first, and a
 // renamed test's stale observation; "formats an empty pattern" has none.
@@ -82,7 +74,11 @@ const observations: readonly Observation[] = [
     project: chromium,
     durationMs: 120,
   }),
-  clearable,
+  passed(
+    titlePatternPath,
+    title("unknown placeholders", "leaves them unchanged"),
+    { project: chromium, durationMs: 30 },
+  ),
   passed(titlePatternPath, title("renders émile titles"), {
     project: chromium,
     durationMs: 2400,
@@ -160,13 +156,6 @@ const proofFile = (entries: readonly Observation[]) =>
   `${JSON.stringify({ version: 1, observations: entries }, null, 2)}\n`;
 
 export const snapshotFiles = { [snapshotPath]: proofFile(observations) };
-
-// The snapshot after a run in which "leaves them unchanged" failed.
-export const clearedSnapshotFiles = {
-  [snapshotPath]: proofFile(
-    observations.filter((entry) => entry !== clearable),
-  ),
-};
 
 // The same snapshot in pytest's fields: not valid Vitest proof.
 export const pytestShapedFiles = {

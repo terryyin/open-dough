@@ -2,11 +2,14 @@
 // declared proof directory with nothing observed yet for the selected file,
 // and proof that could not be read (../src/IntentProof.tsx,
 // ../server/intentProofRead.ts): a Doughnut-like project without a declared
-// proof directory names the installed reference to follow; a Pygardon-like
-// project's absent proof directory, or proof of its other feature only, says
-// no successful proof is recorded; a truncated proof file and a proof file
-// whose read failed each read as a read failure with a Retry that reads the
-// proof again, distinct from No successful proof. Purpose stays readable in every case.
+// proof directory names the installed reference to follow; a source of a
+// kind Intent reads no proof for names the families Proof is read for; a
+// Pygardon-like project's absent proof directory, or proof of its other
+// feature only, says no successful proof is recorded; a truncated proof
+// file and a proof file whose read failed each read as a read failure with
+// a Retry that reads the proof again, distinct from No successful proof.
+// Purpose stays readable in every case. Vitest reference wording:
+// ./intent-vitest-proof-absent.spec.ts.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
@@ -21,7 +24,6 @@ import { filesOf } from "./catalogProjectRecords.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import {
   doughnut,
-  nodeTest,
   publishIntentProject,
   pygardon,
 } from "./intentCodeBrowseFixtures.ts";
@@ -37,14 +39,15 @@ import {
   truncatedFiles,
   truncatedPath,
 } from "./intentCucumberProofFixtures.ts";
+import { proofReadForFamiliesSoFar } from "./intentProofAbsenceText.ts";
 
 const doughnutFeature = "e2e_test/features/recall.feature";
-const doughnutScript = "scripts/recall.test.mjs";
+const doughnutScript = "scripts/check.sh";
 const doughnutSettings = JSON.stringify({
   intent: {
     locations: [
       { path: "e2e_test/features", kind: "gherkin" },
-      { path: "scripts", kind: "javascript", include: ["**/*.test.mjs"] },
+      { path: "scripts", kind: "shell", include: ["*.sh"] },
     ],
   },
 });
@@ -74,7 +77,7 @@ test("Ex 8: a project without declared proof says Proof is not recorded and name
   await page.setViewportSize({ width: 1280, height: 900 });
   await publishIntentProject(page, doughnut, doughnutSettings, {
     [doughnutFeature]: "Feature: Recall\n  Scenario: Recall a note\n",
-    [doughnutScript]: nodeTest,
+    [doughnutScript]: "echo ok\n",
   });
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
@@ -95,17 +98,15 @@ test("Ex 8: a project without declared proof says Proof is not recorded and name
     /no successful proof|could not be read/i,
   );
 
-  await test.step("a javascript source without proof names the Vitest reference, without Cucumber adoption", async () => {
+  await test.step("a source Intent reads no proof for names the kinds it reads, without Cucumber adoption", async () => {
     await expandIntentGroup(intent, "scripts");
     await intent
       .getByRole("button", { name: doughnutScript, exact: true })
       .click();
     await expect(intent.getByLabel(`${doughnutScript} source`)).toContainText(
-      "assert.equal",
+      "echo ok",
     );
-    await expect(proof).toContainText(
-      "Proof is not recorded for this project. To configure deliberate proof generation, follow dough-test-optimization/references/vitest-proof.md in this project’s installed Open Dough skills.",
-    );
+    await expect(proof).toContainText(proofReadForFamiliesSoFar);
     await expect(proof).not.toContainText("cucumber-proof.md");
   });
 });

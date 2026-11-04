@@ -3,7 +3,8 @@
 // top-level file has a parametrized function, an `async def`, a function
 // without proof, a `Test*` class method, and text that only looks like
 // tests, beside its earlier version with a since-renamed function; a
-// `search_run` subfolder; and a `frontend/src` typescript spec.
+// `search_run` subfolder; a `frontend/src` typescript spec; and a `shell`
+// script for kinds Intent reads no proof for.
 
 export const testsPath = "tests";
 export const searchRunPath = `${testsPath}/search_run`;
@@ -12,6 +13,7 @@ export const healthPath = `${testsPath}/test_health.py`;
 export const searchRunFilePath = `${searchRunPath}/test_search_run.py`;
 export const searchFiltersPath = `${searchRunPath}/test_search_filters.py`;
 export const frontendSpecPath = "frontend/src/App.test.ts";
+export const shellPath = "scripts/check.sh";
 
 export const earlierCors = `"""CORS headers for the API."""
 
@@ -116,10 +118,13 @@ test("renders", () => {
 });
 `;
 
+export const shellSource = "echo ok\n";
+
 export const sources = {
   [corsPath]: corsSource,
   [healthPath]: healthSource,
   [searchRunFilePath]: searchRunSource,
   [searchFiltersPath]: searchFiltersSource,
   [frontendSpecPath]: frontendSpec,
+  [shellPath]: shellSource,
 };

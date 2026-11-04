@@ -1,8 +1,10 @@
 // Summary pages for non-Gherkin, undeclared-proof, and unreadable declared
 // proof reuse the same absent-Proof wording as file Proof
 // (../src/IntentSummary.tsx, ../src/IntentProofAbsence.tsx). Gherkin without
-// proof still gives scenario statistics, including Partial totals. Companion
-// to ./intent-entry-folder-summaries.spec.ts toggle/name selection coverage.
+// proof still gives scenario statistics, including Partial totals. A shell
+// location names the families Proof is read for. Companion to
+// ./intent-entry-folder-summaries.spec.ts toggle/name selection coverage.
+// Vitest reference wording: ./intent-vitest-proof-absent.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
@@ -24,20 +26,22 @@ import {
   featuresPath,
   openDough,
   openDoughSettings,
-  openDoughSpec,
+  openDoughShellPath,
+  openDoughShellSource,
   proofRunPath,
   publishIntentProject,
   pygardon,
   pygardonFeatureSources,
   pygardonSettings,
 } from "./intentEntryFolderSummariesFixtures.ts";
+import { proofReadForFamiliesSoFar } from "./intentProofAbsenceText.ts";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {
   for (const release of releases.splice(0)) release();
 });
 
-test("Gherkin without proof and typescript summaries reuse absent-Proof wording", async ({
+test("Gherkin without proof and shell summaries reuse absent-Proof wording", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -46,8 +50,7 @@ test("Gherkin without proof and typescript summaries reuse absent-Proof wording"
     [doughnutOtherFeaturePath]: doughnutOtherFeature,
   });
   await publishIntentProject(page, openDough, openDoughSettings, {
-    "dashboard/tests/intent-entry-folder-summaries.spec.ts": openDoughSpec,
-    "dashboard/tests/helper.ts": "export const helper = 1;\n",
+    [openDoughShellPath]: openDoughShellSource,
   });
 
   await test.step("Gherkin without proof: summary gives file and scenario counts and Proof is not recorded", async () => {
@@ -97,17 +100,15 @@ test("Gherkin without proof and typescript summaries reuse absent-Proof wording"
     await expect(summary).not.toContainText("Partial:");
   });
 
-  await test.step("typescript location: summary gives file count and names the Vitest reference", async () => {
+  await test.step("shell location: summary gives file count and the kinds Proof is read for", async () => {
     await page.goto("/?project=open-dough&perspective=intent");
     await openUntilRead(page, "/?project=open-dough&perspective=intent");
     const { intent } = parts(page);
-    await intentLocationName(intent, "dashboard/tests").click();
+    await intentLocationName(intent, "scripts").click();
     const summary = intent.getByRole("region", { name: "Summary" });
-    await expect(summary).toContainText("dashboard/tests");
+    await expect(summary).toContainText("scripts");
     await expect(summary).toContainText("1 file");
-    await expect(summary).toContainText(
-      "Proof is not recorded for this project. To configure deliberate proof generation, follow dough-test-optimization/references/vitest-proof.md",
-    );
+    await expect(summary).toContainText(proofReadForFamiliesSoFar);
     await expect(summary).not.toContainText("Summed duration");
   });
 });

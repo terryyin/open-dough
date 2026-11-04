@@ -97,13 +97,17 @@ its rows and every later row keep their own definition lines.
 
 ### 2. Each Vitest rule is proved once
 Type: Structure
-Status: planned
-Proof: `intent-vitest-proof-summary.spec.ts`'s Partial journey and
-`intent-vitest-proof.spec.ts`'s rounding and cleared-proof journeys removed or
-folded into journey 1, each with its surviving proof named in the commit; the
-three retargeted absence steps assert "Proof is read for Gherkin feature
-files, pytest files and Vitest tests so far." for a kind Intent reads no
-proof for; focused Intent journeys green.
+Status: done
+Proof: accepted. Removed Partial/Retry (`intent-vitest-proof-summary.spec.ts`;
+surviving: `intent-entry-folder-summary-partial.spec.ts`,
+`intent-pytest-proof-summary.spec.ts`), rounding/count
+(`intent-vitest-proof.spec.ts`; surviving:
+`tests/support/intent-proof-runner.test.mjs` and journey 1 count line), and
+cleared-proof journey (surviving: journey 1 `_No successful proof_` for
+`formats an empty pattern`). Restored other-kinds sentence on shell in
+`intent-pytest-proof-absent.spec.ts`, `intent-cucumber-proof-absent.spec.ts`,
+`intent-entry-folder-summary-explanations.spec.ts`. Focused:
+`env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list` on those six specs — 18 passed.
 
 Internal change: fewer browser journeys for the same promises; the other-kinds
 sentence regains its proof in the specs that owned it.
@@ -125,6 +129,9 @@ sentence regains its proof in the specs that owned it.
   250-line limit; split JSX scan (`scriptTokensJsx.ts`) and escape helpers
   (`scriptTokenEscapes.ts`), and move JSX cases to
   `intent-vitest-cases-jsx.test.mjs`.
+- Vitest Partial/Retry, rounding, and cleared-proof journeys were redundant
+  with kind-independent or unit proof; absence steps for other kinds belong
+  on shell, not the Vitest reference wording.
 
 ## Concern evidence
 

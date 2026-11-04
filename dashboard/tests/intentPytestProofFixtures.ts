@@ -163,6 +163,12 @@ const frontendLocation = {
   include: ["**/*.test.ts"],
 };
 
+const shellLocation = {
+  path: "scripts",
+  kind: "shell",
+  include: ["*.sh"],
+};
+
 const testsLocation = {
   path: testsPath,
   kind: "python",
@@ -187,7 +193,7 @@ export const settings = JSON.stringify(
 );
 
 export const settingsWithoutProof = JSON.stringify(
-  { intent: { locations: [frontendLocation, testsLocation] } },
+  { intent: { locations: [shellLocation, testsLocation] } },
   null,
   2,
 );
