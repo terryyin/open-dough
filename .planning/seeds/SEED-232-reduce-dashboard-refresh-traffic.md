@@ -183,30 +183,185 @@ browser delivery stays as it is.
 
 **Identity:** SEED-232#see-published-changes-over-sse
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/469-see-published-changes-over-sse/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d2065fee6bac70bea5294c14681f723c15021ec6556b8d070d46a53c57a164e5","plan":"d0e0637ffdf64fa6188ed5119101551a8731e7ddd1014f96487655b25f4dd5e6"}}
 ```
 
-**Who benefits.** A developer watching the Board, including over a limited
-connection, sees published changes as soon as the dashboard observes them.
+**Goal.** A developer watching the Board, especially over the limited
+Tailscale route, sees newly published work as soon as the dashboard process
+observes it, while the page sends no recurring revision-check requests and
+the stream costs fewer bytes than those checks did. Today every visible page
+asks the dashboard every 15 seconds whether the configured ref and its
+watched story branches still name what it shows. With this story, the
+dashboard keeps checking origin at the same pace for each project that a
+page has open. It then tells every streaming page of that project the
+answer for that page's own revision and watched branches. Freshness,
+credential isolation, rate-limit handling and failure behavior stay as they
+are, and a dropped stream loses freshness visibly and catches up.
 
-**Evaluation.** A visible dashboard shows one revision, then origin publishes
-a change. An SSE update leads the view to the affected facts at the exact
-revision, including a watched story-branch change. During a quiet interval a
-healthy stream yields zero recurring browser revision-check requests. Count
-browser requests and transferred bytes, including stream overhead, and
-compare publication-to-display latency with the current route. If the
-connection drops across a change, the view keeps its last good snapshot,
-shows the loss of freshness, and catches up on reconnect. A failed branch
-observation remains distinct from a confirmed branch removal.
+**Scope.**
 
-**Effort hypothesis.** The largest of the three with moderate confidence.
-The main uncertainty is reliable reconnect and catch-up across the existing
-dashboard access paths.
+Required behavior:
 
-**Prerequisite and stopping point.** No blocking story prerequisite. It
-follows the shared refresh story to use its observation if available. A
-developer sees published updates with fewer browser requests even if local
-session updates follow a separate schedule.
+- A visible page showing a settled snapshot holds one server-sent event (SSE)
+  stream for its project, its shown revision and its watched story branches.
+  The page then asks no recurring revision check. Its first message, on every
+  open and reopen, is the current answer for that revision and those branches,
+  so a change missed while disconnected is caught up without replaying events.
+- The dashboard process observes origin at the current 15-second pace for each
+  project and request-owner scope (host and login) that has at least one open
+  stream. That observation asks GitHub at most as often as one page's checks
+  do today, and stops when the last stream for that project and scope closes.
+  When an observation settles, every open stream for that project and scope
+  gets its own answer from the same branch-head listing, in the shape a
+  revision check answers today. A changed ref leads the page to read exactly
+  the new revision. A moved watched branch leads it to read only that entry's
+  plan and last commit time. Any other branch moving sends that page nothing
+  that leads to a read.
+- While a stream's revision or watched branches differ from what origin names,
+  each pace repeats that answer. A page whose read of the new revision failed
+  then reads it again at the pace, as today's recurring check does.
+- A page that hides, switches project, starts a new read, or is waiting out
+  GitHub's rate limit holds no stream. It opens one again when the condition
+  ends, and its first message then serves as today's check of a page seen
+  again. After a read changes the page's revision or watched branches, the
+  page reopens its stream with them.
+- A healthy stream carries the page's current answer once per pace. A stream
+  that fails, closes, or stays silent for longer than one pace plus the
+  30-second wait bound is reported as a failed check is today: the snapshot stays shown with its revision and
+  retrieval time, and the existing problem wording says freshness was lost.
+  The page reopens no more often than the pace. The first answer after a
+  reopen clears the problem, as a successful check does.
+- A failed branch-head listing still yields an answer naming the ref alone,
+  never a removal of a watched branch. Failed checks, rate limits and
+  unanswered checks reach the page as today's check answers do. A
+  rate-limited answer starts the page's existing limit record and notice.
+- Streams never use up the browser's connections to the dashboard. On a route
+  that does not multiplex requests, such as the loopback HTTP/1.1 route, at
+  most two pages of one browser hold a stream at once. A visible page without
+  a stream keeps today's recurring check, and it takes a stream when a holder
+  hides or closes. On a multiplexing route, such as the Tailscale HTTPS route,
+  every visible page streams.
+
+Required restriction, with its reason: the stream cap on a non-multiplexing
+route. Observed on 2026-11-04, six open streams to one loopback dashboard
+origin in Chromium stopped a seventh page from loading at all, because
+HTTP/1.1 browsers share six connections per origin across every tab.
+
+Deferred promises: one shared stream per browser so that every visible page
+streams on a non-multiplexing route; WebSocket delivery; carrying host
+status, agent launches or local sessions on the stream (the Board's other
+two 15-second reads stay as they are); a faster server pace, an immediate
+check on a known publication event, or GitHub webhooks; sharing observations
+across separately launched dashboard processes.
+
+Scope limits: no change to what a page shows, how it reads content at a
+revision, the 15-second pace, reload's fresh resolution of the ref, or the
+request owner's protocol. No new daemon, database or scheduler outside the
+dashboard process.
+
+**Key examples.**
+
+1. *Quiet over Tailscale.* One visible page shows the Open Dough Board at R
+   through the Tailscale route, and origin stays quiet for a minute. The
+   browser sends no revision-check request. The stream transfers fewer bytes
+   than today's four checks in that minute, and the page shows no problem.
+2. *Publication arrives.* Two pages of one dashboard process show R, opened
+   seven seconds apart. Origin publishes R'. Both pages are told R' from the
+   same listing, at the latest one pace after publication. Each reads R' as
+   today, with the cards shown within the current freshness of about 30
+   seconds.
+3. *Each page its own answer.* Page A watches story branch X, and page B
+   watches nothing. Origin moves X. A is told X's new head and reads only X's
+   plan and last commit time, and B is told nothing that leads to a read. A
+   branch-head listing that fails with a `504` tells A only the ref, and X
+   is not shown as removed.
+4. *Dropped across a change.* A page shows R, and its Wi-Fi drops (or the
+   production dashboard is replaced). Within 45 seconds (one pace plus the
+   wait bound) the page reports the lost freshness and keeps R. Origin publishes R'. When the connection
+   returns, the page reopens at its next attempt and is told R' first. It
+   reads R', and the problem clears.
+5. *Hidden.* The only visible page of a project hides. Its stream closes, and
+   the dashboard asks GitHub nothing more for that project. Seen again, it
+   reopens at once and is answered as a page seen again is today.
+6. *Seven local windows.* Seven visible windows show the Board through
+   loopback HTTP/1.1 in one browser. Every page loads and reads. Two of them
+   stream and five check every 15 seconds. When a streaming window hides, a
+   checking window starts streaming.
+7. *Rate limit.* An observation is answered as limited until T. Each
+   streaming page shows today's notice, closes its stream, and asks nothing
+   until T. At T it reopens, and the first answer resumes freshness.
+
+**Evaluation basis.** Set before the observed run, under
+[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+The baseline is today's route: one visible page sends four revision-check
+requests a minute, plus their response bytes. The target is that one visible
+page with a healthy stream sends no revision-check request during a quiet
+minute. The stream's bytes for that minute, connection setup included, stay
+below the baseline's bytes for the four checks. Publication-to-display is no
+later than today's for any streaming page.
+
+Count browser requests and transferred bytes per minute. Measure the
+publication-to-display time from the published commit to each page showing
+it. Measure in the loopback test harness and once through the Tailscale route
+after the change reaches the production dashboard. Disclose that the Board's
+host status and agent launch reads still recur every 15 seconds. The quiet
+Board therefore drops from three recurring 15-second requests to two, not to
+zero. The permitted trade-off is that pages beyond two streams on a
+non-multiplexing route keep today's checks.
+
+**Architecture.** The local read boundary gains a stream request beside the
+revision check. It takes the same inputs (source, `since`, watched branches)
+and answers with a sequence of revision-check answers in today's shape. The
+page therefore keeps one interpretation path: its parsing, moved-branch
+comparison and failure reporting (`dashboard/src/revisionCheckSchedule.ts`,
+`dashboard/src/authenticatedRead.ts`). Delivery becomes the page's choice
+between a stream and today's recurring check, and the reactions to an answer
+do not change.
+
+On the server, the pace moves from each page's timer to an in-process
+observation per project and request-owner scope. It is demand-driven by open
+streams and settles through the revision checks
+(`dashboard/server/revisionChecks.ts`). The observation is the shared
+observation that
+[the shared refresh story](#share-published-git-refreshes) adds when trunk
+holds it, not a second cache. It evaluates each stream through the existing
+per-request comparison (`dashboard/server/performedRevisionCheck.ts`). It is
+in memory, per process and rebuildable from origin. It is neither a daemon,
+database nor cross-process scheduler, and the stream carries observations of
+origin, not a new authority
+([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)).
+
+Facts, observed on 2026-11-04:
+
+- The loopback route answers over HTTP/1.1, and the Tailscale route answers
+  over HTTP/2.
+- Chromium blocks a seventh page once six streams hold one HTTP/1.1 origin.
+- Vite 8.3.0's preview installs its compression middleware after plugin
+  middleware, so boundary responses are not buffered by it. Development
+  installs none.
+
+Hypotheses for the plan's first proof:
+
+- The boundary's origin check admits a same-origin `EventSource` request
+  (`dashboard/server/localOrigin.ts`).
+- Tailscale's HTTPS proxy delivers each event without buffering. The
+  Tailscale measurement settles this.
+
+Growth path: a later push of host status, agent launches or local sessions
+shares a page's one stream rather than opening another, because of the
+connection budget. Machine-local evidence stays distinguishable from
+published facts, as ADR 0008 requires. No conflict with an Accepted decision
+was found.
+
+**Effort hypothesis.** The largest of the three stories, with moderate
+confidence. The main uncertainties are the cross-tab stream cap and reliable
+liveness and reopening on the Tailscale route.
+
+**Prerequisite and stopping point.** No blocking story prerequisite. The plan
+builds on the revision checks as trunk holds them when execution starts,
+including the shared refresh story's observation once it has landed. A
+developer sees published updates with no recurring revision checks even if
+local session updates keep their own schedule.
 
 <a id="reduce-running-cursor-session-requests"></a>
 
