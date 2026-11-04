@@ -188,3 +188,11 @@ replaces "Folders and locations containing changes share one background".
 Refinement was not needed: two independent Behavior slices, each one proof
 loop over existing journeys, with no repeated special case or hidden
 preparation. This review identified no remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: no correction needed; the summary and location headers meet
+the story's examples. Terry may judge on screen whether the grey location
+header band and the muted green changed-folder background contrast enough;
+both are existing-token tints. The dashboard has no dark colour scheme, so
+nothing dark-specific was observed.
