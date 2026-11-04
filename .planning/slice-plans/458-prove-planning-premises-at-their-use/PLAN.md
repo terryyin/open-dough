@@ -206,7 +206,7 @@ open still does not clear it.
 
 ### 3. The brief carries the slice's premise boundary
 Type: Behavior
-Status: planned
+Status: done
 Proof: Behavior review on the revised "Give the agent" list in
 `delegation.md`: walk example 7. A brief for a slice whose row carries an
 unverified host condition names that row; the agent checks the condition in
@@ -225,6 +225,15 @@ a false premise through execution reassessment rather than continuing on it.
 
 Deliver together: one bullet in the "Give the agent" list, phrased like its
 neighbours, with the link above.
+
+Accepted proof (2026-11-04): the focused command above passes; the new brief
+test fails on the base text. Behavior review, one read-through (about 2
+minutes; tokens unavailable): a brief naming a row with an unverified host
+condition has the agent check it in the prescribed form before dependent
+work, reuse a settled row without re-running it, and return a false premise
+through execution reassessment before the dependent run. CI run 41752420616
+on `4165f1f` was cancelled by same-ref `cancel-in-progress` when `ddbc5bb`
+was pushed: proven supersession.
 
 ### 4. ODF-074 records the response and the replay
 Type: Behavior

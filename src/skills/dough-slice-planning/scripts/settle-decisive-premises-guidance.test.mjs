@@ -15,14 +15,30 @@ const flat = (text) => text.replace(/\s+/g, " ");
 const premises = () =>
   flat(read("dough-slice-planning/references/settle-decisive-premises.md"));
 
-// The readiness "Criteria" section of the shared preparation procedure.
-const readinessCriteria = () => {
-  const text = read("dough-product-backlog/references/record-preparation.md");
-  const start = text.indexOf("### Criteria");
-  const end = text.indexOf("\n### ", start + 1);
-  assert.ok(start >= 0 && end > start, "Criteria section not found");
-  return flat(text.slice(start, end));
+// The flattened text of a file from `start` up to the next `end` heading.
+const section = (path, start, end) => {
+  const text = read(path);
+  const from = text.indexOf(start);
+  const to = text.indexOf(end, from + 1);
+  assert.ok(from >= 0 && to > from, `${start} not found in ${path}`);
+  return flat(text.slice(from, to));
 };
+
+// The readiness "Criteria" section of the shared preparation procedure.
+const readinessCriteria = () =>
+  section(
+    "dough-product-backlog/references/record-preparation.md",
+    "### Criteria",
+    "\n### ",
+  );
+
+// The "Give the agent" list of the execute-plan delegation brief.
+const delegationBrief = () =>
+  section(
+    "dough-execute-plan/references/delegation.md",
+    "Give the agent:",
+    "\n## ",
+  );
 
 test("a premise settles only in the same form and profile the slice uses", () => {
   assert.match(
@@ -90,5 +106,25 @@ test("readiness reads premise rows and names an unbounded unverified condition",
   assert.match(
     criteria,
     /Clear a premise-based reason only with an observation of that premise in the form and profile its slice uses, fresh or a matching retained one cited with its time or revision/i,
+  );
+});
+
+test("the delegation brief carries the slice's premise rows and their remainder", () => {
+  const brief = delegationBrief();
+  assert.match(
+    brief,
+    /slice's \[premise rows\]\(\.\.\/\.\.\/dough-slice-planning\/references\/settle-decisive-premises\.md\)[^.]*including each unverified remainder/i,
+  );
+  assert.match(
+    brief,
+    /reuse a settled result without repeating its observation/i,
+  );
+  assert.match(
+    brief,
+    /check a remainder in the form the slice prescribes before work that depends on it/i,
+  );
+  assert.match(
+    brief,
+    /return a false premise through \[execution reassessment\]\(execution-decisions\.md#reassess-before-extending-work\)/i,
   );
 });
