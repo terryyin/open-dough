@@ -2,6 +2,7 @@
 
 **Identity:** SEED-010#proportionate-refactor-for-records-and-repairs
 **Source:** [story 20](../../seeds/SEED-010-learn-from-execution-retrospectives.md#proportionate-refactor-for-records-and-repairs)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -103,7 +104,7 @@ owner's uncommitted repair.
 
 ### 1. Delivery records a disposition instead of a fresh pass for records-only and already-traced changes
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new guidance test asserts that wrap-up's "Deliver the change"
 names the two classifications (records-only; already-traced repair naming
 the accepted return it relies on), the disposition's homes (beside the slice
@@ -178,7 +179,22 @@ limits → later ordinary use remains a separate observation.
 
 ## Learnings
 
-None yet.
+- Slice 1 (accepted 2026-11-04): the execute-plan "Before delivery…" read
+  row was at 29942 of `read-budget-guidance.test.mjs`'s 30000 bytes, so the
+  rule could land only after compacting wrap-up step 8 and the delivery intro.
+  The removed sentences remain in `fresh-increment.md` and
+  `trunk-publication.md` (checked by the refactor pass); the row is now about
+  29885 bytes. Slice 2 must measure its edits against the rows that read
+  `ci-monitor.md` and `one-shot.md`; "Before finishing or stopping" sits at
+  exactly 30000 at the base.
+- Slice 1 accepted proof, reusable while its boundary holds:
+  `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh
+  src/skills/dough-execute-plan/scripts/*guidance*.test.mjs
+  src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs
+  tests/delivery-evidence-amended.sh tests/delivery-evidence-native-routing.sh
+  tests/install-omits-internal.sh` (quiet pass). Refactor disposition: fresh
+  pass ran (`## REFACTOR COMPLETE`): clarified "retain the disposition" and
+  reduced the new test to meaning-bearing phrases.
 
 ## Concern evidence
 
