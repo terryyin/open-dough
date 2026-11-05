@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Remove local proof from Open Dough](seeds/SEED-238-remove-local-proof.md#remove-local-proof) — SEED-238#remove-local-proof ([plan](slice-plans/474-remove-local-proof/PLAN.md))
-
 ## Backlog list
 
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection

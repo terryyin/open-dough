@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-238_remove-local-proof.json",
+      "identity": "SEED-238#remove-local-proof",
+      "completedAt": "2026-11-05T10:27:57.978Z",
+      "blob": "9f0be30800f322d0e00465e2c465ae43276ce74a"
+    },
+    {
       "fileName": "SEED-236_count-repeated-adapter-attempt-ids.json",
       "identity": "SEED-236#count-repeated-adapter-attempt-ids",
       "completedAt": "2026-11-05T08:12:40.340Z",

@@ -549,7 +549,7 @@ Former local code: DD-404.
 [Evidence and current response](docs/maintainer/findings/ODF-396.md).
 
 ### Occurrences
-- Execution: SEED-238#remove-local-proof (plan 474-remove-local-proof, first related implementation commit `7395be5dd6699f1a560e1c6296696196ae139bdf`)
+- Execution: SEED-238#remove-local-proof (before-cleanup `c947e2b48527c25faa5d00ed5f3d64bc71ccba45:.planning/slice-plans/474-remove-local-proof/PLAN.md`; first related implementation commit `7395be5dd6699f1a560e1c6296696196ae139bdf`)
   - Timestamp: 2026-11-05T16:45:26+07:00 (slice 4 commit `1fba715e0`; slices 2 and 5 traced the same day)
   - Tool: Claude Code
   - Model: claude-opus-5-5
