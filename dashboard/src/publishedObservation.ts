@@ -26,11 +26,8 @@ import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { carryOutRead, type ReadRequest } from "./requestedRead.ts";
 import { limitsMetSince } from "./readingLimit.ts";
-import {
-  clearTransientFailure,
-  recordSettledOutcomes,
-  useLimitRecovery,
-} from "./limitRecovery.ts";
+import { recordSettledOutcomes, useLimitRecovery } from "./limitRecovery.ts";
+import { clearAllTransientFailures } from "./transientRecovery.ts";
 import { useObservationRecoveryWait } from "./observationRecoveryWait.ts";
 import { useSnapshotRetrieval } from "./snapshotRetrieval.ts";
 import { shownSnapshotOf } from "./startupReconciliation.ts";
@@ -227,7 +224,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     heldFocus.current = undefined;
     deferredFocus.current = undefined;
     setRecoveryAsk(false);
-    clearTransientFailure();
+    clearAllTransientFailures();
     setSource(next);
     askRead(undefined);
     restart();

@@ -21,18 +21,19 @@ import {
   clearTransientFailure,
   noteTransientFailure,
   useStandingTransientRecovery,
+  useTransientRecoveryDue,
   useTransientRecoveryPending,
 } from "./transientRecovery.ts";
 
-export { clearTransientFailure };
+const publishedObservation = "published-observation";
 
 // After a settled read: schedule project-local recovery when any question is
 // still eligible and unanswered; clear the backoff when none remain.
 export function recordSettledOutcomes(outcomes: ObservationOutcomes): void {
   if (outcomes.hasEligibleUnanswered()) {
-    noteTransientFailure();
+    noteTransientFailure(publishedObservation);
   } else {
-    clearTransientFailure();
+    clearTransientFailure(publishedObservation);
   }
 }
 
@@ -57,15 +58,15 @@ export function useLimitRecovery({
   const standingLimit = useStandingLimit();
   const limitStands = standingLimit !== undefined;
   const transientUntil = useStandingTransientRecovery();
-  const transientPending = useTransientRecoveryPending();
+  const transientPending = useTransientRecoveryPending(publishedObservation);
   const limitRecoveryDue =
     withheld && readSettled && !limitStands && visibility !== "hidden";
-  const transientDue =
-    transientPending &&
-    transientUntil !== undefined &&
-    Date.now() >= transientUntil.getTime();
-  const transientRecoveryDue =
-    transientDue && readSettled && !limitStands && visibility !== "hidden";
+  const transientDue = useTransientRecoveryDue(
+    publishedObservation,
+    visibility,
+    limitStands,
+  );
+  const transientRecoveryDue = transientDue && readSettled;
   useEffect(() => {
     if (limitRecoveryDue || transientRecoveryDue) readAfresh();
   }, [limitRecoveryDue, transientRecoveryDue]);
@@ -73,7 +74,8 @@ export function useLimitRecovery({
     // Settled reads exclude checks while withheld or while transient
     // recovery is still unresolved (empty page or unanswered detail).
     checksMayRun: readSettled && !withheld && !transientPending,
-    recoversAt: standingLimit ?? transientUntil,
+    recoversAt:
+      standingLimit ?? (transientPending ? transientUntil : undefined),
     // Launch reconciliation must not bypass an outstanding recovery wait or
     // the login-wide standing limit; due recovery asks through `readAfresh`
     // above, not this gate.

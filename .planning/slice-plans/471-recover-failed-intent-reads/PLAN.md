@@ -4,6 +4,7 @@
 **Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#recover-failed-intent-reads)
 in SEED-192, refined 2026-11-05 with challenge, clarify, investigate and
 architecture.
+**Source review:** [Independent source commitments](source-review.md)
 **Prepared:** 2026-11-05. Planning only, in the story's established workspace
 (branch `claude/recover-failed-intent-reads-without-retry`, agent
 bastiaan-chan), continuing the refinement in the same session.
@@ -135,7 +136,7 @@ throughout.
 
 ### 1. The recovery schedule keeps each contributor's pending recovery
 Type: Structure
-Status: planned
+Status: done
 Proof: the preserved-behavior transient and limit-recovery specs listed above
 pass unedited; `npm run typecheck:dashboard`.
 
@@ -147,6 +148,25 @@ observation's contribution, and a contributor due-signal hook is exported.
 **External behavior:** the backlog's recovery is unchanged.
 
 **Enables:** slice 2.
+
+**Accepted proof:** The 37 unedited dashboard cases in the transient,
+limit-credit, limited-reading, auto-refresh, project-read-isolation and
+Codex launch-reconciliation cohorts passed. The paused-clock assertions in
+`transient-read-recovery.spec.ts` check the 15/30/60/60 waits and restored
+membership. `transient-recovery-currentness.spec.ts` checks zero heads
+requests before the observation recovers and restored checks after.
+`transient-recovery-lifecycle.spec.ts` checks hide/reveal and clears the
+departed project's wait while the standing login limit remains.
+The independent refactor preserved the wake if effect registration happens
+after the deadline. It reran the 24 transient and credit cases plus five
+auto-refresh and limited-detail cases, all passing. Typecheck passed.
+Slice 2 owns the first proof with Intent pending.
+
+The consumer trace connects the schedule to the published observation's
+recovery notice, check schedule, source selection, and launch reconciliation.
+The change follows [ADR 0002, Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+by extending the existing schedule, and [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+by retaining recovery state in the observing page.
 
 ### 2. Intent locations recover from an unreachable boundary or a GitHub limit
 Type: Behavior
@@ -207,3 +227,22 @@ recovery hook.
   and slice 3 extends slice 2's Intent hook rather than adding a second
   recovery path.
 - No remaining slice-specific concern was identified.
+
+
+## Execution context
+
+- Story Branch Mode in the owned checkout
+  `/Users/terryyin/git/open-dough/.worktrees/recover-failed-intent-reads-without-retry`
+  on `codex/recover-failed-intent-reads-without-retry`, assigned to
+  `ivan-chan` via publisher `dashboard-territory.local-open-dough`.
+  The checkout's creation ref names this story. The default checkout is
+  `/Users/terryyin/git/open-dough`.
+- Starting revision `55594d875cb110d09bc5c07db232e1ed60139a50`.
+  Take `2cec2bfef08c66fad2225d9cef0351c286b3e6b8` confirmed on
+  `origin/main` and the remote execution branch. The Story Branch observer
+  covers increments on the latter. Take CI coverage was unobserved.
+- Checkout setup passed `node scripts/setup-native.mjs npm`, `browser`,
+  `check`, and `npm run typecheck:dashboard` with Node 24.21.0.
+- GitHub Actions selector `ci.yml`, verified as CI. Codex coordinator
+  `ivan-chan-b02a9539`, cell `g11:9`, session `94424`, observer
+  `/tmp/dough-ci-501/watch-8qFkCN` (PID 91401).
