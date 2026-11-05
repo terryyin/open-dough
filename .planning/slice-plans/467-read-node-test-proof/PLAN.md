@@ -274,7 +274,7 @@ references.
 
 ### 4. A subordinate Doughnut workspace is prepared
 Type: Structure
-Status: planned
+Status: done
 Proof: `git worktree add` from fetched Doughnut trunk; `./scripts/run.sh bash scripts/worktree_setup.sh`
 exit 0; `./scripts/run.sh node --version` prints Doughnut's Node (26.13 or
 later); `./scripts/run.sh pnpm test:log-utils` passes; Doughnut's
@@ -282,6 +282,15 @@ publication route is confirmed from its AGENTS.md; the default checkout
 `~/git/doughnut` stays untouched.
 Internal change: the subordinate workspace this execution owns, at a
 recorded base, with a prepared environment. Enables slice 5.
+
+**Slice 4 workspace (2026-11-05):**
+- path: `/Users/terryyin/git/doughnut/.worktrees/SEED-192-read-node-test-proof`
+- branch: `open-dough/SEED-192-read-node-test-proof` tracking `origin/main`
+- base: `af1bfe6496314f1e26d503aa28b4967493bc7dac`
+- Node via `./scripts/run.sh node --version`: v26.13.0
+- `worktree_setup.sh` exit 0; `pnpm test:log-utils` 6 pass
+- Publication route (AGENTS.md Execution wrap-up): format:changed → commit → push
+- Default checkout `~/git/doughnut` left at `236047591a…`, porcelain clean
 
 ### 5. Doughnut records script-test proof on explicit request
 Type: Behavior
