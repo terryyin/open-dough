@@ -41,7 +41,7 @@ Former local code: DD-121. Former local code: DD-206. Former local code: DD-238.
   - Timestamp: 2026-11-05T19:38+07:00 (acceptance returned G3 / E3.2 to the slice implementer)
   - Tool: Cursor
   - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
-  - Evidence: plan direction "Arm the deadline once when the effect starts"; preparation premise table checked failed-opens and that existing stream journeys (including rate-limit) stayed green under a scratch arm-at-start edit, with no discriminating row for story E3.2 ("a new bound starts then" when the rate-limit wait ends); first slice return armed during `waitForLimit > 0`; coordinator source-review acceptance held G3 and required arm-at-wait-end plus a Retry-After 20 discriminating step
+  - Evidence: before-cleanup `6fce1ed12:.planning/slice-plans/477-show-freshness-loss-across-stream-retries/PLAN.md` direction "Arm the deadline once when the effect starts"; preparation premise table checked failed-opens and that existing stream journeys (including rate-limit) stayed green under a scratch arm-at-start edit, with no discriminating row for story E3.2 ("a new bound starts then" when the rate-limit wait ends); first slice return armed during `waitForLimit > 0`; coordinator source-review acceptance held G3 and required arm-at-wait-end plus a Retry-After 20 discriminating step
   - Observed effect: one correction round before acceptance; final schedule uses `scheduleOpenAfter(waitForLimit, "arm-and-open")` and the rate-limit journey proves a full silence bound from reopen
   - Inference: qualified recurrence. "Existing rate-limit journey stays green" did not settle E3.2; arm-at-effect-start was treated as settled without a probe that would fail when the bound was spent during the directed wait
 
@@ -73,7 +73,7 @@ Former local code: DD-155. [Meaning, evidence and response](docs/maintainer/find
   - Timestamp: 2026-11-05T17:58:16+07:00 (this plan commit `177e69c75`; siblings `2c70b22b9` at 18:00:13+07:00 and `2f836d128` at 18:01:29+07:00)
   - Tool: Cursor
   - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
-  - Evidence: `.planning/slice-plans/` holds `477-show-freshness-loss-across-stream-retries/`, `477-load-intent-without-disruption/`, and `477-stop-revision-checks-after-setup-disconnect/`; Taken lists all three as plan 477 with different slugs
+  - Evidence: before-cleanup `6fce1ed12:.planning/slice-plans/` held `477-show-freshness-loss-across-stream-retries/`, `477-load-intent-without-disruption/`, and `477-stop-revision-checks-after-setup-disconnect/`; Taken listed all three as plan 477 with different slugs
   - Observed effect: number-only “plan 477” is ambiguous across three concurrent Taken/prepared stories; this execution used the full plan path and was not misrouted
   - Inference: same concurrent allocation class as the plan-470 row; three preparations within about three minutes reused 477 while directories differ only by slug
 

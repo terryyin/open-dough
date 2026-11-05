@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-240_show-freshness-loss-across-stream-retries.json",
+      "identity": "SEED-240#show-freshness-loss-across-stream-retries",
+      "completedAt": "2026-11-05T13:28:45.398Z",
+      "blob": "78f21e9c73d3b5fb09c84f21547c59c17d4d4578"
+    },
+    {
       "fileName": "SEED-238_remove-local-proof.json",
       "identity": "SEED-238#remove-local-proof",
       "completedAt": "2026-11-05T10:27:57.978Z",

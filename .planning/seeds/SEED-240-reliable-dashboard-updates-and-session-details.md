@@ -25,85 +25,6 @@ developer asks for them. These stories address those three observed paths.
 
 ## Selected Stories
 
-<a id="show-freshness-loss-across-stream-retries"></a>
-
-### Show lost freshness across repeated revision-stream failures
-
-**Identity:** SEED-240#show-freshness-loss-across-stream-retries
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/477-show-freshness-loss-across-stream-retries/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c39f878b8f74c8ac4ca74848e6ebaf42380fa51251b77bef867f58eb830c5e8c","plan":"184071b9ccaa8fc1ecf944ddbabaa14742ee3cd72d821f506cbd416aa05ab859"}}
-```
-
-**Goal.** A developer watching a streaming Board can tell when published
-updates have stopped arriving, including when every connection attempt fails
-before its first answer, and can see freshness recover. This keeps the shown
-snapshot honest while revision streams carry the dashboard's live updates.
-
-**Evidence.** At production revision `68f27aa69c40`, a browser with only revision
-stream requests deliberately failed retained its snapshot through 52 seconds
-and four failed opens, without a freshness warning. A controlled probe of the
-current hook also made 12 opens over 165 seconds without reporting lost
-freshness. The cause is in
-[current retry handling](../../dashboard/src/revisionStreamSchedule.ts): each
-open restarts both the silence timer and the time an unanswered error is
-measured from, and closing a failed attempt clears the timer, so attempts
-that fail within the 15-second pace never reach the 45-second bound. A
-stream that answered and then fell silent or failed is already reported, as
-[the lost-stream journey](../../dashboard/tests/revision-stream-lost.spec.ts)
-proves.
-
-**Scope.**
-
-- *Required behavior.* While a page delivers by stream, the 45-second
-  silence bound (one pace plus the read wait bound) counts from the last
-  successful revision answer, or from when this observation began if none
-  arrived yet. Connection attempts, failed or hung, neither restart nor
-  postpone it. When it passes, the page shows the existing lost-freshness
-  problem, keeping the shown revision, its retrieval time, and the
-  automatic-check sentence.
-- *Kept behavior.* Reopens keep the existing pace, rate-limited answers keep
-  the directed wait and notice, and the first successful answer still clears
-  the problem and catches up. A failure after an answer still reports at once.
-- *Boundary.* An observation restart (the page seen again, a new shown
-  revision after a read settles, a project switch, or the end of a rate-limit
-  wait) starts a new bound. Hidden time does not count, consistent with the
-  existing visibility lifecycle. The shown retrieval time remains the
-  developer's evidence of age across such restarts.
-- *Deferred.* Reporting the first failed open at once, as a failed revision
-  check does, and falling back to revision checks after failed opens were
-  considered. Both change the agreed 45-second bound or traffic, and neither
-  is needed for the goal.
-- No new wording or control. The problem names the stream as "closed or fell
-  silent", which also describes an open that failed.
-
-**Key examples.**
-
-- A snapshot is shown and every stream open after it fails promptly before
-  answering. At 45 seconds of page time from the observation start, the
-  lost-freshness problem is visible with the snapshot's revision and
-  retrieval time. Before 45 seconds it is not shown. Opens keep coming no
-  more often than the 15-second pace, before and after the warning.
-- A stream answers "unchanged", then every reopen fails promptly. The
-  problem appears 45 seconds after that answer and stays across further
-  failed reopens. The first successful answer clears it. When it names a new
-  commit, the page reads and shows that commit.
-- A rate-limited stream answer keeps today's notice and directed wait. The
-  stream opens again when the wait ends, and a new bound starts then.
-
-**Selected approach.** Watchdog instead of per-attempt timer. The idea comes
-from a dead man's switch, which trips unless someone acts in time. Here only
-a successful revision answer counts as acting; reconnecting does not. One
-deadline per observation is armed at its start, re-armed by each successful
-answer, and survives an attempt's close. A watchdog normally does not care
-why it is reset, so this one is reset by the dashboard's existing restart
-rules rather than by elapsed visible time. The change stays inside the
-browser's stream schedule. It adds no server responsibility and touches no
-Accepted decision.
-
-**Prerequisite and safe stopping point.** No blocking story prerequisite.
-The developer gets truthful freshness and recovery even while the setup
-disconnect and session-details stories await delivery.
-
 <a id="stop-revision-checks-after-setup-disconnect"></a>
 
 ### Stop revision checks when a page leaves during stream setup
@@ -152,8 +73,9 @@ observation alive after its last real page leaves.
   no observation, timer, or tracked lifetime and ends its response.
 - Scope limit: the local scope lookup itself is not cancelled; it is shared and
   cached for the process and asks GitHub nothing.
-- Scope limit: browser reconnect and freshness behavior belong to
-  [Show lost freshness across repeated revision-stream failures](#show-freshness-loss-across-stream-retries);
+- Scope limit: browser reconnect and freshness behavior belong to the
+  completed Show lost freshness across repeated revision-stream failures
+  story (`git show 6fce1ed12:.planning/seeds/SEED-240-reliable-dashboard-updates-and-session-details.md`);
   measuring production frequency is not undertaken.
 - No user-visible change: a departed page shows nothing, and a live page's
   stream answers as today.
