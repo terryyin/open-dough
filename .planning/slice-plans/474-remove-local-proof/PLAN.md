@@ -178,8 +178,16 @@ as CI's input; removes deleted files' lines from `tests/longest-first` and
 
 ### 4. Published guidance no longer teaches local proof recording
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/update-removes-dropped-files.sh`; payload/install tests that list the manifest; changed guidance tests (`overdue-delegated-verification-guidance.test.mjs`); `npm run lint`
+Accepted: `bash scripts/test.sh` on update-removes-dropped-files,
+payload-declaration-links, install-public-payload, install-all-tools,
+install-omits-internal, compare-payload, update-adds-new-payload-skill,
+self-installation-baseline, the changed guidance test, CI proof script tests
+and the readers of the changed `SKILL.md` files; lint clean; refactor found
+nothing to change. Update retirement is observed through the generic
+undeclared-file mechanism on both skill roots; the real tagged release is
+separate work.
 
 Behavior: a project installs or updates to a release from this source →
 `dough-test-optimization` carries `ci-proof-summary.md` and its other

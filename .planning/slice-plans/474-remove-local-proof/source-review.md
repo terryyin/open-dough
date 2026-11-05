@@ -47,17 +47,17 @@ Reviewer notes: 3c/3d overlap 3b.2; E2 sets no new rule for unknown keys; E6 nam
 | 4c | Do not hide it. | slice 5 | |
 | 4d | Do not keep compatibility readers. | slice 5 | |
 | 4e | Do not replace its tests with assertions that it is absent. | slice 5 | |
-| 5a.1 | Remove the published Cucumber proof reference under `src/skills/dough-test-optimization/references/` | slice 4 | |
-| 5a.2 | Remove the published pytest proof reference | slice 4 | |
-| 5a.3 | Remove the published Vitest proof reference | slice 4 | |
-| 5a.4 | Remove the published `node:test` proof reference | slice 4 | |
-| 5a.5 | Remove the published Playwright proof reference | slice 4 | |
-| 5b | Remove their links, rules, examples and templates in other skills. | slice 4 | |
-| 5c | Remove their installer/update manifest entries. | slice 4 | |
-| 5d | Remove their payload-test entries. | slice 4 | |
-| 5e.1 | Released installation and update remove the retired managed files on Codex | slice 4 | |
-| 5e.2 | Released installation and update remove the retired managed files on Cursor | slice 4 | |
-| 5e.3 | Released installation and update remove the retired managed files on Claude Code | slice 4 | |
+| 5a.1 | Remove the published Cucumber proof reference under `src/skills/dough-test-optimization/references/` | slice 4 | observed: slice 4: src/skills/dough-test-optimization/references/{cucumber,pytest,vitest,node-test,playwright}-proof.md deleted; git grep of the five names over src/ and install.sh empty |
+| 5a.2 | Remove the published pytest proof reference | slice 4 | observed: slice 4: src/skills/dough-test-optimization/references/{cucumber,pytest,vitest,node-test,playwright}-proof.md deleted; git grep of the five names over src/ and install.sh empty |
+| 5a.3 | Remove the published Vitest proof reference | slice 4 | observed: slice 4: src/skills/dough-test-optimization/references/{cucumber,pytest,vitest,node-test,playwright}-proof.md deleted; git grep of the five names over src/ and install.sh empty |
+| 5a.4 | Remove the published `node:test` proof reference | slice 4 | observed: slice 4: src/skills/dough-test-optimization/references/{cucumber,pytest,vitest,node-test,playwright}-proof.md deleted; git grep of the five names over src/ and install.sh empty |
+| 5a.5 | Remove the published Playwright proof reference | slice 4 | observed: slice 4: src/skills/dough-test-optimization/references/{cucumber,pytest,vitest,node-test,playwright}-proof.md deleted; git grep of the five names over src/ and install.sh empty |
+| 5b | Remove their links, rules, examples and templates in other skills. | slice 4 | observed: slice 4: dough-test-optimization/SKILL.md proof-recording paragraph and ci-proof-summary.md retained-proof link removed; tests/payload-declaration-links.sh passes |
+| 5c | Remove their installer/update manifest entries. | slice 4 | observed: slice 4: install.sh managed_files has no *-proof.md lines; install-public-payload, install-all-tools, compare-payload pass on the real declaration |
+| 5d | Remove their payload-test entries. | slice 4 | observed: slice 4: payload tests read install.sh via tests/helpers/public-payload-fixture.bash read_managed_files_declaration (no separate list); install-omits-internal, update-adds-new-payload-skill, self-installation-baseline pass |
+| 5e.1 | Released installation and update remove the retired managed files on Codex | slice 4 | observed: slice 4: tests/update-removes-dropped-files.sh passes: applying a release that no longer declares files prints the removal listing and deletes them under codex .agents/skills (Codex and Cursor root) and claude .claude/skills; install.sh no longer declares the five pages |
+| 5e.2 | Released installation and update remove the retired managed files on Cursor | slice 4 | observed: slice 4: tests/update-removes-dropped-files.sh passes: applying a release that no longer declares files prints the removal listing and deletes them under codex .agents/skills (Codex and Cursor root) and claude .claude/skills; install.sh no longer declares the five pages |
+| 5e.3 | Released installation and update remove the retired managed files on Claude Code | slice 4 | observed: slice 4: tests/update-removes-dropped-files.sh passes: applying a release that no longer declares files prints the removal listing and deletes them under codex .agents/skills (Codex and Cursor root) and claude .claude/skills; install.sh no longer declares the five pages |
 | 6a | Remove local-proof documentation. | slice 5 | |
 | 6b | Remove local-proof comments. | slice 5 | |
 | 6c | Remove obsolete local-proof planning material. | slice 5 | |
@@ -86,8 +86,8 @@ Reviewer notes: 3c/3d overlap 3b.2; E2 sets no new rule for unknown keys; E6 nam
 | 7i.2 | story selection stays | slice 2 | observed: slice 2: intent-story-*.spec.ts and boundary/intent-story-overlay pass |
 | 7i.3 | shard scheduling from CI test times stays | slice 3 | observed: slice 3: node scripts/test-shares.mjs preview --split-count 12 --spec-dir dashboard/tests exit 0; share-deal and test-shares tests pass |
 | 7i.4 | longest-first scheduling from CI test times stays | slice 3 | observed: slice 3: longest-first files unchanged (named no deleted file); node scripts/test-shares.mjs preview --split-count 3 exit 0 |
-| 7i.5 | the shared test-optimization responsibility stays | slice 4 | |
-| 7i.6 | the CI proof publication responsibility stays | slice 4 | |
+| 7i.5 | the shared test-optimization responsibility stays | slice 4 | observed: slice 4: dough-test-optimization/SKILL.md keeps its optimization responsibility; execution-increment-delivery.test.mjs reading it passes |
+| 7i.6 | the CI proof publication responsibility stays | slice 4 | observed: slice 4: ci-proof-summary.md recipe intact; ci-proof-{collect,fragments,summary}.test.mjs and ci-proof-declaration.test.mjs pass |
 | 8a | Project-owned implementations in Donut, Pygardon and Lizard are out of scope; each has its own removal story. | slice 5 | |
 | 8b | No new proof archive. | slice 5 | |
 | 8c | No CI history product. | slice 5 | |
@@ -111,9 +111,9 @@ Reviewer notes: 3c/3d overlap 3b.2; E2 sets no new rule for unknown keys; E6 nam
 | E4.R1 | The test shares still write `test-outcomes.txt`. | slice 3 | observed: slice 3: OPEN_DOUGH_TEST_OUTCOMES run wrote passed<TAB>file; ci-proof-summary.mjs fragment wrote src-skills-1.json passed 1 |
 | E4.R2 | Dashboard shards still write their run record. | slice 3 | observed: slice 3: OPEN_DOUGH_DASHBOARD_PROOF_RECORD run wrote the shard record; fragment --playwright-record wrote dashboard/tests passed 3 |
 | E4.R3 | The `ci-proof` job publishes a summary the dashboard reads, as before. | target CI | |
-| E5.T | Setup: a project at the previous release updates to the release that contains this removal, on Codex, Cursor or Claude Code. | slice 4 | |
-| E5.R1 | The five runner proof references disappear from its installed `dough-test-optimization`. | slice 4 | |
-| E5.R2 | `ci-proof-summary.md` and the rest of the skill remain. | slice 4 | |
+| E5.T | Setup: a project at the previous release updates to the release that contains this removal, on Codex, Cursor or Claude Code. | slice 4 | observed: slice 4: tests/update-removes-dropped-files.sh passes: applying a release that no longer declares files prints the removal listing and deletes them under codex .agents/skills (Codex and Cursor root) and claude .claude/skills; install.sh no longer declares the five pages |
+| E5.R1 | The five runner proof references disappear from its installed `dough-test-optimization`. | slice 4 | observed: slice 4: tests/update-removes-dropped-files.sh passes: applying a release that no longer declares files prints the removal listing and deletes them under codex .agents/skills (Codex and Cursor root) and claude .claude/skills; install.sh no longer declares the five pages |
+| E5.R2 | `ci-proof-summary.md` and the rest of the skill remain. | slice 4 | observed: slice 4: install.sh still declares ci-proof-summary.md and the other dough-test-optimization files; install/compare payload tests pass |
 | E6.T | Setup: the acceptance sweep finds `proof` in `tests/proof-scheduling-native.sh` and `tests/support/dough-adr-awareness-proof.sh`. | slice 5 | |
 | E6.R1 | These hits are verification vocabulary, not the local proof feature, so they stay. | slice 5 | |
 | E6.R2 | A hit in a CI proof module is kept once its consumer is confirmed to be CI. | slice 5 | |
