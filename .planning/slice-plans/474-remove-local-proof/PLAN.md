@@ -201,8 +201,13 @@ surviving behavior directly, under ADR 0006.
 
 ### 5. Planning and maintainer records describe the product without local proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: the sweep table recorded in this plan; `npm run lint`; backlog recorder `read-state` on SEED-192 and SEED-238 entries
+Accepted: sweep table below; `read-state` keeps SEED-238 and SEED-192's
+remaining stories recorded and Ready (both flagged changed since review);
+`bash scripts/test.sh` on ci-proof-declaration, intent-candidates-location-match,
+product-backlog-done-catalog and start-eligibility tests; lint clean after the
+refactor's one North Star sentence.
 
 Behavior: a maintainer reads the backlog, seeds, docs and findings → no
 local proof story, narrative or live finding remains. Drops
@@ -216,6 +221,42 @@ and local-proof text in `tests/native-*.md` and
 `git grep` sweep over the product and `src/skills` payload and records each
 remaining hit's classification here (verification vocabulary, CI consumer,
 or preserved history below).
+
+#### Sweep
+
+One-time `git grep -i` on 2026-11-05 over the product and `src/skills`
+(excluding `.agents/`, `.claude/`, `.planning/done/`, `CHANGELOG.md`) for
+`proof` and for `latest.json`, `RECORD_NODE_TEST_PROOF`,
+`RECORD_PLAYWRIGHT_PROOF`, `proofGeneration`, `proofStore`, `ProofSnapshot`,
+`last successful proof`, `local proof`, `committed proof`, the five page
+names, `Purpose and Proof`, `Purpose/Proof` and `side by side`, after this
+slice's edits. Classes: (a) verification vocabulary, (b) CI proof consumer,
+(c) preserved history under Current decisions.
+
+| Path or area | Class | Consumer or reason |
+| --- | --- | --- |
+| `.github/workflows/ci.yml`, `.github/actions/ci-proof-*` | b | CI proof fragments and summary jobs |
+| `dashboard/server/{ciAdapterProof,ciProofArtifact,intentCiProofRead,baseCiNearest}.ts`, `dashboard/src/{IntentCiProof.tsx,ciProof,ciProofWording,authenticatedIntentCiProofRead,authenticatedReadRules,intentRequestedRead}.ts`, `intent-ci-status.css` | b | Intent → CI status → Proof read of the CI summary artifact or adapter `proof` |
+| `dashboard/tests/intent-ci-proof*.spec.ts`, `intentCiProofPage.ts`, `intentCiAdapterProofProject.ts`, `support/ciProofArtifacts.ts`; `tests/support/{ci-proof-declaration,dashboard-ci-proof-*,dashboard-ci-adapter-proof}.test.mjs`; `src/skills/dough-test-optimization/{scripts/ci-proof-*,references/ci-proof-summary.md,SKILL.md}`; `dough-execute-plan/{manuals/custom-ci-proof.md,scripts/ci-command-adapter*}` | b | Tests and guidance of CI proof production and reading |
+| `dashboard/tests/support/{proofRecord,proofRecordRun,proofRecordTypes,quietReporter}.ts`, `playwright.config.ts`, `boundary/proof-record*.spec.ts`, `spec-times`, `dashboard-scheduling`, `quiet-reporter.spec.ts`, `fixtures/quiet-reporter/*.proof.ts`, `fixtures/run-processes/*.proof.ts`, `eslint.config.mjs`, `proof-record.md`, `shards.md`, `dashboard/tests/README.md` | b | `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` run record and strict verdict: CI's Playwright fragment input (`ci-proof-fragments.mjs`); every fixture has a live spec consumer; `ordinary repeated runs add no proof record…` is the run record's opt-out behavior |
+| `tests/proof-scheduling-native.sh`, `tests/support/{dough-adr-awareness-proof,native-agent-proof-scheduling,delivery-evidence-*-proof-logger}.sh`, `tests/helpers/publication-update-proof.bash`, other `tests/*.sh` and `tests/support/*` hits (`local observations=`, scenario content) | a | Native and shell checks' own verification steps (example 6) |
+| `dashboard/server/hosts/cursor/runner*.ts`, `dashboard/tests/support/cursorRunner*.ts`, `boundary/cursor-runner-*.spec.ts` | a | Cursor runner build and spawn-helper identity proof |
+| `src/skills/**` other hits (`executable-proof.md`, `applicable-candidate-proof.mjs`, slice/accepted proof, proof tables, closure proofs), `install.sh`, `src/install/*`, `scripts/test-jobs.sh` | a | Planning and delivery verification vocabulary; no local proof recording |
+| `dashboard/src/{StoryDetail.tsx,storyPlan.ts,story-detail.css,PerspectiveMarks.tsx}`; `docs/adrs/*`; `docs/dashboard-*.md`, `dashboard/*.md`, `tests/*.md`, `docs/maintainer/*` research, timing and review notes; `.planning/TEST-OPTIMIZATION-CANDIDATES.md` | a | Proof as ADR 0001/0008 concept, slice proof recipe, test evidence; ADR 0008's open proof storage unchanged (A1–A3) |
+| `side by side` in Board, Side panel, story-review and portrait CSS, specs and docs; `ci-proof-summary.md` modules | a | Layout wording unrelated to Intent |
+| `docs/dashboard-ux-ui-north-star.md`, `docs/project-visibility-requirements.md`, `docs/product-intent-review-memorandum.md`, `docs/dashboard-design-review.md`, `.planning/PRODUCT-BACKLOG.md` direction, `SEED-232` | fixed | Now describe Purpose reading and CI status → Proof; two selectable layouts, Runtime proof and hierarchy, snapshot generation and duration/hierarchy observations deleted |
+| `SEED-192` | fixed | Local-proof framing, producer boundaries, reporting research, producer ordering and story 16 deleted; stories 10 and 11 intact |
+| `SEED-233` | fixed | Seed file and backlog entry deleted |
+| `DearDough.md`, `ProjectFindings.md`, `docs/maintainer/project-test-findings.md`, `docs/maintainer/findings/*`, `finding-names.md` | c | No finding's subject is local proof: execution identities (`read-*-proof`, `deliberate-cucumber-proof`, `last-successful-intent-proof`), DD-416's Pygardon `latest.json` evidence, and "local proof" meaning local verification (ODF-226, 275, 310, 416, DD-312) are incidental; ODF-332 is Pygardon's committed deployment inputs; DD-216 is the run record |
+| `SEED-192` story 10 "Facts observed" and plan 472 premise row (`dashboard/tests/proof/latest.json` at `7c71049b`) | c | Current decisions |
+| `SEED-238`, plan 474 and `source-review.md` | c | This story's own records, cleaned at close |
+
+Orphan check (2f): every remaining module, fixture and CSS class under
+`tests/support`, `dashboard/tests/support`, `dashboard/tests/fixtures`,
+`dashboard/src` and `dashboard/server` whose name contains `proof` has a live
+importer; `package.json` dependencies (`minimatch`, `zod`, `shiki`, …) each
+have a surviving consumer, and the lockfile is unchanged by this story; every
+`longest-first*` row names an existing file.
 
 ## Current decisions
 

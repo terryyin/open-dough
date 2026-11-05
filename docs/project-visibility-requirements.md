@@ -80,17 +80,15 @@ implementation fulfills a Product intent. Verification procedures are
 maintained artifacts; the results of particular executions are observations.
 Storage and presentation remain separate design choices.
 
-Published observations are deliberate snapshots. Normal test runs leave them untouched; each proof-bearing Intent entry supplies its
-project's command or skill for an explicit generation or refresh. The dashboard displays that instruction without executing it. Older proof remains readable when the instruction has not yet been configured.
+Published observations come from CI: Intent's **CI status → Proof** reads
+the CI proof of the judged run.
 
 ##### Interpreting verification evidence
 
 The [initial Intent workspace](dashboard-ux-ui-north-star.md#initial-intent-workspace)
-selects test-file browsing, switchable side-by-side or tabbed Purpose/Proof,
-last-validation and duration observations, hierarchical group statistics, and
-story-scoped inspection. Revision, environment, coverage, freshness, and result
-help interpret available observations. Collecting run identity and wall time,
-and revision matching beyond the file version, remain open design questions.
+selects test-file browsing with Purpose, CI proof, and story-scoped
+inspection. Revision, environment, coverage, freshness, and result help
+interpret available observations.
 
 A passing check supports the claim it actually observed under its conditions.
 A pass on an older revision must be assessed for relevance to the current
@@ -202,12 +200,12 @@ just-in-time principle rather than completing a predetermined visual system.
 
 The following choices remain open:
 
-- How each project identifies its test locations and how proof observations
-  are collected, matched to source revisions, and aggregated. The selected
+- How each project identifies its test locations and how CI proof
+  observations are matched to source revisions and aggregated. The selected
   [initial Intent UX/UI](dashboard-ux-ui-north-star.md#initial-intent-workspace)
-  owns the runtime information, hierarchy, and story-scope direction, settled
-  for design but not yet built beyond the file browser and Purpose reading
-  ([Development and Intent](dashboard-development-intent.md)).
+  owns the browsing and story-scope direction;
+  [Development and Intent](dashboard-development-intent.md) describes what is
+  built.
 - Whether Start session belongs only in Development or remains visible as a
   project-level action across perspectives. Structure is deferred from the
   initial UI; its later UX/UI remains separate design work.

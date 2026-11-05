@@ -8,10 +8,10 @@ intent has been distilled into maintained high-level automated tests, what
 protection those tests provide, and what behavioral and test complexity the
 change introduces.
 
-Make Purpose and Proof reviewable together in story context: test source
-expresses expected behavior, while execution reports show observed results
-and the cost of running the proof. Help developers decide what intent or proof
-to clarify, strengthen, simplify, or retain.
+Make a story's intent reviewable in context: test source expresses expected
+behavior as Purpose, while CI proof shows observed results and the cost of
+running the tests. Help developers decide what intent or proof to clarify,
+strengthen, simplify, or retain.
 
 Discover and validate explainable ways to assess intent protection and
 complexity, including AI-assisted judgment. Treat conventional code coverage as
@@ -34,5 +34,3 @@ intent introduced or affected by a newly developed story.
 
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
-- [Read shell-check proof at its observed granularity](seeds/SEED-192-review-product-intent.md#read-shell-check-proof) — SEED-192#read-shell-check-proof
-- [Consolidate proof recording guidance](seeds/SEED-233-consolidate-proof-recording-guidance.md#consolidate-proof-recording-guidance) — SEED-233#consolidate-proof-recording-guidance

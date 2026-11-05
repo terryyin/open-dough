@@ -73,8 +73,8 @@ its executable verification and supporting evidence. Maintained verification
 procedures are distinct from observations of particular runs. Follow the
 [shared vocabulary](adrs/0001-ubiquitous-language-accepted.md#dashboard-product-concepts)
 and detailed requirements. The initial Intent workspace below records the
-selected browsing, Purpose/Proof, and story-scope direction. Further proof
-collection and representation details remain open.
+selected browsing, Purpose, CI proof and story-scope direction. Further
+proof representation remains open.
 
 This direction follows [ADR 0001 — Ubiquitous language](adrs/0001-ubiquitous-language-accepted.md)
 for Development, Story, and Slice meaning and
@@ -85,9 +85,10 @@ override Accepted decisions. No exception is proposed.
 
 ## Initial Intent workspace
 
-**Decision:** Terry Yin, 2026-10-30. Combine the Split workspace and Tabbed
-reader mockups into one Intent workspace with two selectable layouts. This is
-UX/UI direction, not a story, executable plan, or implementation record.
+**Decision:** Terry Yin, 2026-10-30. Intent is one workspace: a test-file
+browser whose reading pane shows Purpose, with the run's CI proof under
+**CI status → Proof**. This is UX/UI direction, not a story, executable plan,
+or implementation record.
 
 ### Start session placement
 
@@ -100,23 +101,13 @@ remain there or be a project-level action visible across perspectives.
 Each project identifies where its test files are. The initial Intent workspace
 provides a file browser with their folder hierarchy, similar to Review changes.
 Readers can expand folders, select a test file, and read its source. A file
-browser is a useful first increment without requiring runtime proof collection
-or a separate catalogue of authored intent objects.
+browser is a useful first increment without a separate catalogue of authored
+intent objects.
 
 The initial Purpose view is the static test-source file. Show actual source,
 including its maintained descriptions of expected behavior, rather than
 inventing a generated purpose narrative. The mechanism for identifying test
 locations remains open.
-
-### Runtime proof and hierarchy
-
-Distinguish a run's wall time from summed case durations when tests run
-concurrently: summaries sum separate scenario observations, and no run's
-elapsed time is recorded or shown yet. Associate observations with their
-actual run and revision, beyond whether each was observed on the current file
-version. Mockups use real files and observed results, or show that a result is
-unavailable, rather than fabricating values. Collecting run identity and wall
-time, and how a summary would show it, remain open.
 
 ## Questions the Development perspective should answer
 
