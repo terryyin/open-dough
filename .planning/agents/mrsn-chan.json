@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "identity": "SEED-243#improve-intent-home-and-selection-summaries",
+  "mode": "story-branch",
+  "branch": "claude/improve-intent-home-and-selection-summaries",
+  "host": "claude",
+  "model": "opus"
+}
