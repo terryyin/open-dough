@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 423. Removed numbers are never reused.
+- Highest allocated local number: 427. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -746,3 +746,16 @@ A required post-change refactor Task (and `agent` CLI fallback) failed to start 
   - Evidence: coordinator transcript `9bd04639-5f5d-4c74-a32d-150a7eacfef4` turns 34–46: repeated Task refactor spawns and an `agent --print` CLI attempt returned authentication / `agent login` errors; unfinished handoff preserved the worktree; user restored auth and authorized coordinator-local refactor if Task still failed; turn 49 Task then completed `## REFACTOR COMPLETE` (none — already clean) and delivery resumed.
   - Observed effect: delivery stalled with slice 1 implemented and proof-accepted but unpublished until human credential repair; several failed spawn attempts before the stop; no product rework after restore.
   - Inference: distinct from ODF-059 (host-terminated mid-run agents): here fresh agents could not start. A credential stop that preserves the checkout is correct; an authorized coordinator-local refactor fallback unblocks delivery when spawn remains unavailable.
+
+## DD-425 — A Story Branch keep-worktree landing hand-writes its publication script
+Dough Land's history-preserving landing requires the queued-closure check before each reconciliation and a recheck of affected proof, but the installed `history-preserving-publication.mjs integrate` CLI takes neither, so the coordinator wrote a temporary script around `publishHistoryPreservingCandidate`. After acceptance the workspace stayed on the story branch's pre-merge tip, so the trunk step that followed needed a manual fast-forward to the accepted revision.
+
+### Occurrences
+- Execution: SEED-236#show-ci-adapter-proof (plan 470-show-ci-adapter-proof; first implementation commit `64588d69268974f9ff44513239da95ad1bc80b42`)
+  - Timestamp: 2026-11-05T12:30:24+07:00 (landing receipt `8656cb2c-f566-49a2-ac7d-8e35e4e057fa`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.84 (installed `.claude/skills`)
+  - Evidence: `dough-land/references/publish-reviewed-checkout.md` asks for `onFetchedTarget` with `checkQueuedClosures` and an `affectedCheck`; the CLI usage line offers only workspace, published tip, branch, target, remote, backlog path, landing context and supplier identity. The job's `land.mjs` supplied both callbacks; the first run stopped on a `GITHUB-REQUESTS.md` conflict and the rerun published merge `4a8129838`. The workspace HEAD afterwards was `cec7c2f43`, not the merge.
+  - Observed effect: a one-off script per landing (the same pattern is already remembered for preparation keeps), and an extra manual step before the release from trunk.
+  - Inference: CLI flags for the closure guard and an affected-proof command, plus leaving a retained landing's workspace at the accepted revision, would make the documented path directly runnable.

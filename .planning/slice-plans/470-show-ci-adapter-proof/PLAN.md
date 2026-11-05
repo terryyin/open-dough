@@ -279,6 +279,24 @@ checks, 3 of 3; `src/skills` 292 passed checks, 3 of 3 — equal to its
 "This run published no CI proof summary." with "Passed at 6c5702c". No
 regression.
 
+## Execution complete
+
+Product advice:
+- Execute the retrospective correction
+  [SEED-236#count-repeated-adapter-attempt-ids](473-count-repeated-adapter-attempt-ids/PLAN.md)
+  before a second adapter project whose attempt IDs repeat per run adopts
+  proof: the ambiguity rule now counts only each check's newest attempt, so
+  the tab's only independent guard is weaker than the story and docs state.
+  Pygardon's UUID attempts do not exercise the gap.
+- Pygardon's `SEED-20261076#publish-pygardon-ci-proof` should expect a running
+  result to show its completed ancestor's counts, and its rows in `checks`
+  (the slice 4 note above).
+- The 5-second mark-done rename idle wait leaks into journeys as a CI timing
+  liability (repaired once here with `briefDoneRenameWait`); a test-wide
+  default or a product look at that wait would remove the class.
+- Open process findings: DD-425 in `DearDough.md`; DD-426 and DD-427 in
+  `ProjectFindings.md`.
+
 ## Current decisions
 
 - Landing CI repair (2026-11-05): main CI run 41974427615 on the landed

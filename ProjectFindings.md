@@ -404,3 +404,37 @@ DD-171's delivered commit-hook typecheck and red/green evidence are
 [DD-390's original observation and local responsibility](docs/maintainer/project-test-findings.md#dd-390)
 retain the successful option-value probes and their provenance. This observation
 selects no new implementation story.
+
+## A degraded runner cancels the node test job without a named result (open, unqueued)
+
+<a id="dd-426"></a>
+
+### DD-426 — `test (1/3)` hit its 6-minute job limit on a slow hosted runner with no test failing
+
+### Occurrences
+
+- Execution: SEED-236#show-ci-adapter-proof (plan 470, first implementation commit 64588d69268974f9ff44513239da95ad1bc80b42)
+  - Timestamp: 2026-11-05T12:56:05+07:00 (job cancel in run 41976448705)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.84 (installed `.claude/skills`)
+  - Evidence: run 41976448705 on main `514a70a54`, job `test (1/3)`: `npm ci` took 17 s against 4 s in run 41974427615; `scripts/test.sh` was interrupted after 5:13 with `ci-mailbox-launch.test.mjs` at 41.0 s (10.7 s in run 41974427615's `test-times-1`), `install-preserves-open-dough-json.sh` at 32.6 s (14.9 s). The same shard took about 3.3 min in the five runs before. The dashboard job counts a suite deadline from job start (`.github/workflows/ci.yml`); the node test job has only `timeout-minutes: 6`.
+  - Observed effect: a cancelled job with no named test and no timing artifact; Terry chose one rerun as attribution evidence, which passed (attempt 2).
+  - Inference: a suite deadline like the dashboard's would end a slow run with a named, recorded result instead of a silent cancel; whether the budget itself should change is a separate decision.
+
+## Release finalization says "Do not push" while a release slice proves the remote tag (open, unqueued)
+
+<a id="dd-427"></a>
+
+### DD-427 — `release-version` stops at a local tag, but plan 470 slice 5 required `git ls-remote --tags origin v<next>`
+
+### Occurrences
+
+- Execution: SEED-236#show-ci-adapter-proof (plan 470, first implementation commit 64588d69268974f9ff44513239da95ad1bc80b42)
+  - Timestamp: unknown (2026-11-05, release `bc84cc196` after main CI on `514a70a54`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.84 (installed `.claude/skills`)
+  - Evidence: `.agents/skills/release-version/SKILL.md` step 6 "Do not push" and step 7 "do not claim it is Released from a remote source until the tag is available there"; plan 470 slice 5 proof named the remote tag; Terry's checkpoint go-ahead covered "cut the next patch release", so the coordinator pushed `bc84cc196` to main and `v0.3.85`.
+  - Observed effect: the push rested on the checkpoint's wording rather than on the release skill; trunk had moved twice before the release (`66fefb7c8`, then `80029afc9`), so the release covered other stories' payload too.
+  - Inference: the release skill could name the publication step (trunk push and tag push) for a request that includes publishing, and how to describe interleaved trunk payload in the changelog.

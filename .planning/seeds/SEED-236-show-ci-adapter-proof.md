@@ -149,3 +149,34 @@ complete its live Intent check.
   rule shows that as unavailable rather than a wrong proof, so adding `runId`
   is deferred. An adapter without the operation cannot be told apart from a
   failing one, and needs not be: both mean no proof was read.
+
+<a id="count-repeated-adapter-attempt-ids"></a>
+
+### Count a repeated adapter attempt ID as ambiguous
+
+**Identity:** SEED-236#count-repeated-adapter-attempt-ids
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/473-count-repeated-adapter-attempt-ids/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b1bda8fb23c3ed41fa68695cef4524f225088e77de591d22ff5b795ee8d28081","plan":"c095c7b340a050adb532829bae57e29f46f9464dab501c1a5ce38330d80fb4db"}}
+```
+
+**Goal:** A developer opening Intent → CI status for a `ciAdapter` project
+whose attempt IDs repeat across runs at one revision sees that the shown
+attempt is ambiguous at its revision, with no counts, instead of counts from
+a summary that may belong to another run's attempt. This corrects
+`SEED-236#show-ci-adapter-proof`, whose ambiguity rule counted only each
+check's newest attempt.
+
+**Scope:**
+
+- Required: the ambiguity of the shown adapter attempt counts every attempt
+  the adapter's `discover` answered at that revision, before the newest
+  attempt per check is kept, so an earlier run's attempt with the same
+  `attemptId` and check makes the shown one ambiguous. The adapter is then
+  asked no proof.
+- Required: the adapter manual and the dashboard development doc state the
+  rule as built.
+- Preserved: the shown verdict and attempt, the execution observer's and
+  CI status judgment's choice of the newest attempt per check, every other
+  proof reason, and the GitHub Actions path.
+
+**Plan:** [473-count-repeated-adapter-attempt-ids](../slice-plans/473-count-repeated-adapter-attempt-ids/PLAN.md)
