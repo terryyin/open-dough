@@ -318,6 +318,18 @@ activation keeps a pending revision notice (E7.4). Focused dashboard run
 123/123 after refactor (`filesOfSelection` shares `treeHoldsSelection`'s rule;
 spec splits into `-table`, `-kept` and `intent-story-changes-moves`).
 
+## Execution complete
+
+Product advice: no new story. The outcome review's two behavior gaps (G1,
+G2) were returned to slice 3 and fixed with proof before this record. Projects
+reading CI through an adapter cannot carry scope breakdowns for large
+inventories under the 64 KiB answer limit, so `--by-file` stays opt-in;
+revisit adapter breakdown support only when an adapter project asks for it.
+Process findings: DD-431 (third retargeting of cited test locations after
+refactor moves), new DD-434 (overlapping SEED-241 landed mid-execution and
+surfaced only at the final done-mark) and project-owned DD-435 in
+`ProjectFindings.md` (the local CI container lacks the hosted runner's fonts).
+
 ## Current decisions and readiness review
 
 Terry's accepted decisions are recorded in the source. No pre-Take human

@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 433. Removed numbers are never reused.
+- Highest allocated local number: 435. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -856,3 +856,24 @@ Slice acceptance recorded `observed:` locations in `source-review.md` at test fi
   - Evidence: slice 3 acceptance cited `dashboard/tests/intent-selection-reads.spec.ts` in 40 rows; its refactor moved those three tests to `intent-revision-notice.spec.ts`. Slice 4 acceptance cited `intent-revision-notice.spec.ts` in 12 rows; its refactor moved them to `intent-revision-update-outcomes.spec.ts`. Both refactor returns listed the stale rows and plan lines; the coordinator rewrote them before each fresh delivery
   - Observed effect: two extra record-retargeting rounds; nothing stale was published, only because both refactor agents volunteered the list
   - Inference: wrap-up records observations before the refactor pass, so any test move invalidates them silently unless the refactor reports it; asking each refactor pass for stale record citations (practice here) or re-checking observed paths at delivery would make this reliable
+- Execution: SEED-243#improve-intent-home-and-selection-summaries (plan 480-improve-intent-home-and-selection-summaries; first related implementation commit `0332f824ae60b9741732ba2c83e0db505645a805`)
+  - Timestamp: unknown (2026-11-06, slice 3 refactor before `04a149de2` and trunk-merge refactor before `342754ce7`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.86 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: slice 3 acceptance cited `intent-summary-ci-proof.spec.ts` for gap commitments 5.4, 6.4, E5.1, E5.2, E6.4 and E6.5; its refactor moved those tests to `intent-summary-ci-proof-gaps.spec.ts`. The merge refactor moved `executionTimeWords` cited by 5.2 into `ciProofTimeWords.ts`. Both refactor returns named the stale rows; the coordinator rerecorded them before delivery
+  - Observed effect: three retargeting rounds (the third after the retrospective-return refactor split `intent-summary-ci-proof.spec.ts` into `-table`/`-kept` and moved a step into `intent-story-changes-moves.spec.ts`); nothing stale published, again because the refactor agents volunteered it, once only after being asked to list moves
+  - Inference: recurrence in the next story by the same coordinator confirms the gap is structural, not one agent's oversight; asking the refactor brief to list moved cited locations made the report explicit
+
+## DD-434 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
+The plan named SEED-241 as an in-progress sibling sharing Intent files. It landed on trunk (with SEED-238's local-proof removal merged in) while slices 2 and 3 were being built. Execution learned this only when the slice 3 source-freshness check found the seed's link to SEED-241 amended; merging trunk then raised 34 conflicts.
+
+### Occurrences
+- Execution: SEED-243#improve-intent-home-and-selection-summaries (plan 480-improve-intent-home-and-selection-summaries; first related implementation commit `0332f824ae60b9741732ba2c83e0db505645a805`)
+  - Timestamp: unknown (2026-11-06, after slice 3 commit `04a149de2`; merge `342754ce7` of `origin/main` `632e107e8`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.86 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: plan 480 "SEED-241 coordination" premise ("Consume its current landed shape when execution starts"); `source-freshness.mjs check` returned `amended` only at slice 3's done-mark; `git merge --no-commit origin/main` reported 34 CONFLICT lines; slice 2 had made the selection owner identity-held and added `IntentSettingsExplanation.tsx`, both replaced in the merge by trunk's page-held selection and `IntentLocationsUnavailable.tsx`
+  - Observed effect: an extra reconciliation agent (about 183k tokens) and refactor pass (about 112k tokens) after all slices were done; slice 2 and 3 designs built against the pre-SEED-241 shape had to be re-homed
+  - Inference: source freshness compares only the story and plan text; a per-slice check of whether trunk changed the slice's files (or a named coordinating story landed) would have pointed to merging before slice 3 rather than after it

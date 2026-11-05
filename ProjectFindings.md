@@ -438,3 +438,20 @@ selects no new implementation story.
   - Evidence: `.agents/skills/release-version/SKILL.md` step 6 "Do not push" and step 7 "do not claim it is Released from a remote source until the tag is available there"; plan 470 slice 5 proof named the remote tag; Terry's checkpoint go-ahead covered "cut the next patch release", so the coordinator pushed `bc84cc196` to main and `v0.3.85`.
   - Observed effect: the push rested on the checkpoint's wording rather than on the release skill; trunk had moved twice before the release (`66fefb7c8`, then `80029afc9`), so the release covered other stories' payload too.
   - Inference: the release skill could name the publication step (trunk push and tag push) for a request that includes publishing, and how to describe interleaved trunk payload in the changelog.
+
+## The local CI container lacks the hosted runner's fonts (open, unqueued)
+
+<a id="dd-435"></a>
+
+### DD-435 — a narrow-width layout check passed on macOS and in `scripts/ci-container.sh` but failed on CI's DejaVu Sans
+
+### Occurrences
+
+- Execution: SEED-243#improve-intent-home-and-selection-summaries (plan 480-improve-intent-home-and-selection-summaries, first implementation commit 0332f824ae60b9741732ba2c83e0db505645a805)
+  - Timestamp: unknown (2026-11-05, run 42059477099 attempt 1 on `0332f824a`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.86 (installed `.claude/skills`)
+  - Evidence: job `dashboard (9/12)` failed `intent-ci-proof.spec.ts:150` with `sideways: 2`; the repair agent measured a 296.42 px table in a 294.41 px box under DejaVu Sans, 271.98 px on macOS and 252.16 px in the `ci-container.sh` image (Playwright's own fonts); reproduction needed an ad-hoc root container installing `fonts-dejavu-core` (job-local `ci-spec-dejavu.sh`); repair `4ad55b56d`.
+  - Observed effect: one CI failure, a stash/repair/restore cycle and about 102k repair-agent tokens; the local CI container could not reproduce it as maintained.
+  - Inference: installing the hosted runner's default fonts in the `ci-container.sh` image would let layout-measuring browser checks give the CI result locally.
