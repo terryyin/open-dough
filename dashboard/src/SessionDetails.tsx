@@ -21,11 +21,15 @@ import { usePageSessions } from "./pageSessions.ts";
 export function SessionDetails({
   record,
   say,
+  open,
   storyCardAssignments,
   modelInDetails = false,
 }: {
   readonly record: LaunchWithState;
   readonly say: (words: string | undefined) => void;
+  // Historical credit is asked only while Session details are open; other
+  // routine facts stay rendered (and hidden with the disclosure) either way.
+  readonly open: boolean;
   readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
   readonly modelInDetails?: boolean;
 }) {
@@ -49,10 +53,12 @@ export function SessionDetails({
         <Moment at={new Date(record.launchedAt)} />
       </p>
       {modelInDetails && modelWords !== undefined && <p>{modelWords}</p>}
-      <SessionAssignment
-        record={record}
-        storyCardAssignments={storyCardAssignments}
-      />
+      {open && (
+        <SessionAssignment
+          record={record}
+          storyCardAssignments={storyCardAssignments}
+        />
+      )}
       {optionsWords !== undefined && <p>{optionsWords}</p>}
       {policyWords !== undefined && <p>{policyWords}</p>}
       <p className="launch-local">

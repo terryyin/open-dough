@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Load Intent without disruption or bulk source transfer](seeds/SEED-241-intent-loading-and-traffic.md#load-intent-without-disruption-or-bulk-source-transfer) — SEED-241#load-intent-without-disruption-or-bulk-source-transfer ([plan](slice-plans/477-load-intent-without-disruption/PLAN.md))
-- [Read session assignment history when Session details opens](seeds/SEED-240-reliable-dashboard-updates-and-session-details.md#read-session-assignments-on-demand) — SEED-240#read-session-assignments-on-demand ([plan](slice-plans/478-read-session-assignments-on-demand/PLAN.md))
 - [Revive previous Cursor sessions when the runner restarts](seeds/SEED-242-revive-cursor-sessions-when-the-runner-restarts.md#revive-cursor-sessions-when-the-runner-restarts) — SEED-242#revive-cursor-sessions-when-the-runner-restarts ([plan](slice-plans/479-revive-cursor-sessions-on-runner-restart/PLAN.md))
 
 ## Backlog list

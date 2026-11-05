@@ -261,9 +261,11 @@ place. Layout and components remain implementation choices.
   not inherit the older proposal's outage-evidence prerequisite.
 - [Existing published SSE delivery](../done/SEED-232_see-published-changes-over-sse.json)
   and [shared GitHub refreshes](../done/SEED-232_share-published-git-refreshes.json)
-  remain the delivery owners. The three
-  [SEED-240 follow-ups](SEED-240-reliable-dashboard-updates-and-session-details.md)
-  own stream freshness warnings, abandoned setup and hidden Session details;
+  remain the delivery owners. The three completed SEED-240 follow-ups —
+  [freshness loss across stream retries](../done/SEED-240_show-freshness-loss-across-stream-retries.json),
+  [stop revision checks after setup disconnect](../done/SEED-240_stop-revision-checks-after-setup-disconnect.json),
+  and [read session assignments on demand](../done/SEED-240_read-session-assignments-on-demand.json)
+  — own stream freshness warnings, abandoned setup and hidden Session details;
   this story does not duplicate those repairs.
 
 **Architecture and existing solutions.**

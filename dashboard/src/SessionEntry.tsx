@@ -181,6 +181,7 @@ export function SessionEntry({
         <SessionDetails
           record={record}
           say={say}
+          open={detailsOpen}
           storyCardAssignments={storyCardAssignments}
           modelInDetails={repeatedModel}
         />
