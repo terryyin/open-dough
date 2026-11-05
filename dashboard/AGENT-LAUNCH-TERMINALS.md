@@ -55,10 +55,14 @@ alone; two overlapping starts still leave one runner. New Cursor work
 hold) instead reuses an accepting runner only when it proves it runs
 the current runner build and the helper it uses to open a terminal is
 still on disk, and stops and replaces a runner whose proof is missing
-or stale first; the sessions that runner held then stand as
-their launch records, not running and resumable through Recover.
+or stale first; unfinished sessions that runner last held are then
+resumed onto the replacement through the same Recover keep path, so the
+dashboard no longer says the agent is not running for them, without a
+Recover click. A session that fails to resume stays unfinished with
+Recover offered; finished or never-held sessions are not started.
 Listing sessions, reading their state, and joining a client the runner
-still holds are observation: they never start or replace a runner.
+still holds are observation: they never start, replace, or revive a
+runner.
 The dashboard attaches through the runner and does
 not spawn `cursor-agent` itself. The runner applies that keep, including
 while the dashboard server is down. Stopping the runner

@@ -129,13 +129,15 @@ current-runner start or replace.
 
 ### 2. Resume last-held unfinished sessions on the new runner without Recover
 Type: Behavior
-Status: planned
+Status: done
 Proof: Fake-Cursor journeys above — replacement of a stale runner holding two
 unfinished sessions leaves both held on the replacement without Recover while
 the triggering launch stays running; machine-restart shape plus next new work
 holds the prior unfinished session again without Recover; failure and
 not-held/done controls as in the proof table. Observation on a stale runner
 still starts nothing.
+
+Accepted proof (reuse): `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/playwright.config.ts dashboard/tests/cursor-runner-replacement.spec.ts dashboard/tests/cursor-runner-replacement-controls.spec.ts dashboard/tests/cursor-session-recovery-restart.spec.ts dashboard/tests/boundary/cursor-runner-last-held.spec.ts --reporter=list` — 5 passed. Surfaces: `runnerRevive.ts` / `recoveryResume.ts` Recover keep-at-port; `runnerCurrent.ts` revive after start/replace (lock released); `runnerWire.ts` accepting-port keep; controls in `cursor-runner-replacement-controls.spec.ts`.
 
 Behavior: Given unfinished Cursor sessions recorded in last-held and not held
 by the accepting current runner, when new work ensures a current runner
@@ -167,6 +169,11 @@ Recover — is observable end to end through the dashboard.
 - Keep must **union-add** last-held keys (not rewrite from the live held set);
   otherwise a post-restart keep of new work would drop prior last-held
   candidates slice 2 needs to revive.
+- Accepting-port keep lives in `runnerWire.ts` (not through `runnerClient` →
+  `ensureCurrentCursorRunner`) so post-settle revive cannot deadlock or break
+  the server bundle on import cycles.
+- Fake-Cursor attach `pid` is the agent PTY, not the runner pid — journey
+  assertions must not equate them.
 
 ## Concern evidence
 
