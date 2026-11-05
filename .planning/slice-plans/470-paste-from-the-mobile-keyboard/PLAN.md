@@ -1,0 +1,182 @@
+# Paste from the mobile keyboard
+
+**Identity:** SEED-237#paste-from-the-mobile-keyboard
+**Source:** [selected story](../../seeds/SEED-237-paste-from-the-mobile-keyboard.md#paste-from-the-mobile-keyboard)
+in SEED-237, refined 2026-11-05 with explore, borrow, challenge, clarify,
+investigate, UX/UI and architecture.
+**Prepared:** 2026-11-05. Planning only, in the story's established workspace
+(branch `claude/paste-from-the-mobile-keyboard`, agent joseph-chan),
+continuing the refinement in the same session.
+
+## Goal and boundaries
+
+A developer on a phone taps **Paste** on the Side panel terminal's phone key
+toolbar and the phone clipboard reaches the shown session: text as one
+terminal paste, an image as a file stored on this machine whose absolute path
+is pasted. The seed's eight key examples are the acceptance.
+
+Included: the Paste key on the coarse-pointer toolbar; the clipboard read
+from that tap; text delivered through the attachment as a paste (bracketed
+when the native tool asked for it, control sequences removed, no Enter); a
+session-scoped image store under the dashboard home with a loopback upload
+boundary reusing the launch attachment limits and wording; the absolute path
+pasted as text; status-region feedback for nothing to paste, refused
+clipboard access, server refusal and an attachment that cannot accept input;
+documentation of the toolbar's new key. Excluded, as the seed records:
+desktop image paste through the terminal's own paste event, pasting both text
+and image from one clipboard, removal of pasted session images, native receipt
+of the image, physical-device proof, host-specific key bindings, clipboard
+injection on the Mac.
+
+Apply this repository's
+[failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
+throughout. Local gate: each slice runs its own specs and the consumers below
+through `npm run test:dashboard -- <spec paths> --reporter=list`, then
+`npm run lint` and `npm run typecheck:dashboard`; before
+landing, `npm run test:dashboard` with Bash 5 first on PATH under
+`caffeinate -s -i` on AC power
+([machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos)),
+because the toolbar, the attachment input path and the status region are
+shared surfaces every terminal journey passes through.
+
+## Direction and PFE
+
+- **Reuse the toolbar and the attachment offer.** `dashboard/src/TerminalKeyToolbar.tsx`
+  already mounts coarse-pointer keys that keep the soft keyboard (pointerdown
+  `preventDefault`) and call the attachment's `insert`; `dashboard/src/attachedTerminal.ts`
+  owns that offer (`terminal.input`, false when nothing is attached). Paste
+  adds a sibling `paste` offer on the same attachment that calls xterm's
+  `terminal.paste`, which converts line breaks to `\r` and wraps the text in
+  `\x1b[200~ … \x1b[201~` when the native tool enabled bracketed paste
+  (`@xterm/xterm` 5.x `paste()`), then reaches the PTY on the same
+  `{ input }` WebSocket frame.
+- **Reuse dictation's text rule and feedback place.** `terminalDictationText`
+  removes control sequences; the Paste text rule reuses that removal but
+  keeps line breaks (a paste, not a dictated line). Feedback renders in the
+  `terminal-status` region beside dictation's, through a hook shaped like
+  `useTerminalDictation`, without a pending result: the clipboard still holds
+  the content, so nothing is retained or replayed.
+- **Reuse the launch attachment contract for images.** `dashboard/src/launchAttachments.ts`
+  (types, 10 MB limit, refusal wording, `pasted.png` naming) and
+  `dashboard/server/launchAttachmentClaims.ts` (`sanitizeName`, bounded raw
+  body through `readBoundedRawBody`) already carry a phone screenshot to a
+  file under the dashboard home and hand every host its absolute path. The
+  session store is the same idea keyed by host and session id instead of
+  attempt: `~/.open-dough/dashboard/session-attachments/<host>/<session>/<n>-<name>`.
+  Machine-local operational state only (ADR 0008).
+- **Reuse session admission.** `dashboard/server/terminalAdmission.ts`
+  `admittedAttach` resolves `source`, `host` and `session` to a kept record
+  through `recordedSession`; the upload boundary resolves the same query the
+  same way inside the launch boundary middleware (`launchBoundaryPaths`),
+  which already holds `launches`.
+
+## Decisive premises
+
+| Premise | Consuming operation | Observation (form, profile, time) | Result |
+| --- | --- | --- | --- |
+| Headless Chromium with granted clipboard permissions reads `image/png` and `text/plain` through `navigator.clipboard.read()` from a button tap on a loopback origin | both slices' specs | scratch script with the integration checkout's `playwright` 1.63.0, `chromium.launch()`, contexts desktop and `devices["Pixel 7"]` + `hasTouch`, permissions `clipboard-read`/`clipboard-write`, `http://127.0.0.1:<port>`, 2026-11-05 | `ok image/png:88`, `ok text/plain:16` in both contexts |
+| Chromium hands back a written PNG re-encoded, deterministically, and keeps `text/plain` beside `image/png` in one item | slice 2 stored-bytes assertion and image-wins case | same script shape with the `pngA` fixture bytes and a `text/plain` part, 2026-11-05 | `image/png 88` differs from `pngA`; second read identical to first; `text/plain 7` present. The spec compares the stored file with the bytes the page reads back, not with `pngA` |
+| xterm's `paste()` converts `\r?\n` to `\r` and wraps in bracketed-paste markers when the application set mode 2004, then fires the data event the attachment forwards | slice 1 multi-line example | read `node_modules/@xterm/xterm/lib/xterm.mjs` (`Al`, `kl`, `triggerDataEvent` in the paste handler) in the integration checkout, 2026-11-05 | as stated; the fake attach must emit `\x1b[?2004h` for the bracketed case, which slice 1 adds as a control beside `attach-menu` |
+| The synthetic `claude attach` echoes typed characters and the dashboard specs can grant clipboard permissions | both specs | `dashboard/tests/fixtures/fake-claude-attach.cjs` writes each typed key and `echo <line>` on Enter; `agent-launch-ad-hoc-attachments-paste.spec.ts` uses `test.use({ permissions: ["clipboard-read", "clipboard-write"] })`; `agent-terminal-touch-composer.spec.ts` observes sent frames with `noteTerminalTraffic` and a restarted server for the unavailable case | existing routes, reused as they are |
+| The phone reaches the dashboard in a secure context, so `navigator.clipboard` exists there | the story's goal, no slice | `tailscale serve status`, `~/.open-dough/dashboard/tailscale/Caddyfile`, `lsof` on 4173 and 43128, 2026-11-05 | `https://territory.tailb878f6.ts.net` → Caddy 127.0.0.1:43128 → 127.0.0.1:4173 |
+
+No unverified remainder bounds a slice. Whether each host reads a bare pasted
+path as an image mid session is not a premise of this plan: the promised
+outcome ends at the path at the prompt, as the seed records.
+
+## Outside-in proof
+
+| Seed example | Owning slice | Proof |
+| --- | --- | --- |
+| 1 text, 2 bracketed multi-line, 4 nothing to paste, 5 clipboard unavailable, 6 attachment cannot accept input, 8 desktop unchanged | 1 | `dashboard/tests/agent-terminal-touch-paste.spec.ts` (phone viewport, `hasTouch`, clipboard permissions); desktop absence is the existing toolbar-absence assertion in `agent-terminal-touch-keys.spec.ts` |
+| 3 image, image wins over text, 7 image refused | 2 | the same spec's image cases, with the server refusal shown through a `page.route` fulfilment of the upload endpoint; `dashboard/tests/boundary/session-attachment-boundary.spec.ts` for the server's own refusals and store |
+
+## Slices
+
+### 1. Paste key delivers clipboard text as one terminal paste
+Type: Behavior
+Status: planned
+Proof: `agent-terminal-touch-paste.spec.ts`, text cases; consumers
+`agent-terminal-touch-keys.spec.ts`, `agent-terminal-touch-composer.spec.ts`,
+`agent-terminal-touch-keyboard-fit.spec.ts`, `agent-terminal-touch.spec.ts`
+stay green.
+
+Behavior: a session's terminal is shown on a phone and attached, the
+clipboard holds text → tap **Paste** (visible beside Enter without expanding
+More, 44px target, soft keyboard kept) → the attachment sends exactly that
+text as one paste on the `{ input }` path with no `\r` appended, the fake's
+screen shows it at the prompt unsubmitted, xterm's textarea keeps focus. With
+the fake's new bracketed-paste control on and two lines in the clipboard, the
+one sent frame is `\x1b[200~first\rsecond\x1b[201~`. An empty clipboard
+sends nothing and the status region says there was nothing to paste; a
+refused read (the spec revokes clipboard permission, or the API is absent)
+sends nothing and the status region points to Compose with the keyboard's
+own Paste; a disconnected attachment (server closed, as the composer spec
+does) sends nothing, the status region says to reconnect and tap Paste again,
+and reconnecting replays nothing.
+
+Steps: add the `paste` offer to `attachedTerminal.ts` and thread it beside
+`insert` through `useAttachedTerminal.ts` and `Terminal.tsx`; a
+`useTerminalPaste` hook owns the clipboard read (`navigator.clipboard.read()`,
+text when no accepted image), the control-sequence removal that keeps line
+breaks, and the status lines; the toolbar's trailing group gets the Paste
+key; the fake attach gains an `attach-bracketed-paste` control
+(`fakeClaudeControls.ts` flag) that emits `\x1b[?2004h` with the prompt;
+update the touch paragraph of
+`dashboard/AGENT-LAUNCH-TERMINALS.md` and the toolbar sentence in
+`docs/dashboard-navigation.md`.
+
+### 2. Paste key delivers a clipboard image as a stored file's path
+Type: Behavior
+Status: planned
+Proof: `agent-terminal-touch-paste.spec.ts`, image cases;
+`dashboard/tests/boundary/session-attachment-boundary.spec.ts`;
+`boundary/launch-attachment-boundary.spec.ts` and
+`agent-launch-ad-hoc-attachments-paste.spec.ts` stay green after the shared
+helper extraction.
+
+Behavior: the clipboard holds a PNG → tap **Paste** → the page posts the
+bytes as one bounded raw body to the session upload endpoint
+(`/__agent-terminal/attachments?source=&host=&session=`, name header
+`pasted.png`), the server stores them unchanged under
+`session-attachments/<host>/<session>/1-pasted.png` in the machine dashboard
+home and answers the absolute path, the attachment pastes that path with no
+`\r`, and the status region says the image was pasted as that file. A
+clipboard with both `text/plain` and `image/png` pastes the path only. A
+server refusal (route fulfilled with 413 and the too-large wording) pastes
+nothing, shows that wording, and leaves the terminal attached. At the
+boundary: a body over 10 MB answers 413 with `launchAttachmentTooLarge`, a
+non-image type 415 with `launchAttachmentUnsupportedType`, an empty body 400
+with `launchAttachmentEmpty`, an unknown or unavailable session is refused
+before any write, and none of these leaves a folder; a second paste into the
+same session stores `2-pasted.png` beside the first.
+
+Steps: extract the name sanitizing and type/limit checks that
+`launchAttachmentClaims.ts` and the new store share into one module; add
+`dashboard/server/sessionAttachments.ts` (store path, write, numbering) and
+the POST boundary inside the launch boundary middleware, admitting the
+session as `admittedAttach` does (`verifyLocalOrigin`, `knownSource`,
+`recordedSession`); the paste hook prefers an accepted image item, posts it,
+and pastes the answered path; extend the touch paragraph of
+`dashboard/AGENT-LAUNCH-TERMINALS.md` with the image path hand-off and name
+the store beside the launch attachment folder in `dashboard/AGENT-LAUNCH.md`.
+
+## Current decisions
+
+- One `paste` offer for both text and the image path, so the terminal's
+  bracketed-paste handling applies uniformly; `insert` stays for toolbar
+  sequences, Compose and dictation.
+- No pending state for a failed paste: the clipboard is the retained copy.
+- The store is keyed by host and session id, not launch attempt, because
+  launch records do not carry their attempt id and a session outlives its
+  attempt's retention; removal stays deferred as the seed records.
+- The stored-bytes assertion compares with the clipboard bytes the page reads
+  back, since Chromium re-encodes written PNGs.
+
+## Concern evidence
+
+Slice-plan refinement not needed: two Behavior slices with one proof loop
+each, text before image so the toolbar key, attachment offer and feedback
+exist before the store; the shared helper extraction is slice 2's own
+cleanup, not hidden preparation. This review identified no remaining
+slice-specific concern.
