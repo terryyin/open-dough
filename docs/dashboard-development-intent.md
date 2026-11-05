@@ -22,7 +22,7 @@ a selected location or folder reads as pressed. Every location header has its
 own background; a selected location's header takes the selected background
 across its whole width, toggle included, and expansion shows only in the
 toggle. Selecting a file still reads its exact published text with line
-numbers and Gherkin syntax styling at the observed revision. A location or
+numbers and Gherkin syntax styling at Intent's reading revision. A location or
 folder summary names the selection by path and how many matching files it
 holds, gives an unusable location's explanation, and lists its immediate
 folders and files in the browser's order, each folder with its file count.
@@ -32,14 +32,16 @@ no file text.
 The selected perspective choice names the page, so Intent shows no heading of its own. Below
 the banner the page does not scroll: the location tree fills the remaining height against
 the left edge, and it and the reading pane each scroll independently. Directly under the
-banner, a strip of three Intent reading modes, **Intent**, **Optimization Candidates** and
-**CI status**, chooses what that content shows; it belongs to Intent and is not another
+banner, a strip of two Intent reading modes, **Intent** and **Optimization Candidates**,
+chooses what that content shows; it belongs to Intent and is not another
 perspective, and arrow keys, Home and End move between its tabs.
 **Intent** shows the location tree (Purpose locations only) beside the
-reading pane; it is the tab a project's Intent first shows. With a file
-selected, or nothing selected yet, the reading pane shows its **Purpose**.
+reading pane; it is the tab a project's Intent first shows. With nothing
+selected, the reading pane shows **CI status** as Intent's homepage; with a
+file selected it shows its **Purpose**, and **Return to CI status** clears the
+selection.
 **Optimization Candidates** shows the project's published Test Optimization
-Candidates record at the observed revision across the content area without
+Candidates record at Intent's reading revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
 Choosing a location an entry names selects **Intent** with that file's
 **Purpose** positioned on the entry's case where that names one line, with its location and folders opened so the file
@@ -63,8 +65,7 @@ settings, access refusals, unexpected answers and unclassified failures keep
 their manual actions. Absent or mismatched candidates keep their existing
 explanations. Purpose file text offers its own **Retry**.
 
-**CI status** shows, across the
-content area without the location tree, the selected check's judgment of the
+**CI status** shows the selected check's judgment of the
 project's configured trunk (`main` here), or, with a selected story (card or
 Side panel), of that story's published story branch — the branch its single
 agent profile records in Story Branch Mode — by the same rule as the
@@ -110,27 +111,52 @@ attempt, the adapter's own unavailability reason, its failed answer (timeout,
 over-limit answer, nonzero exit with its last stderr line, or an answer that
 is neither `summary` nor `unavailable`), invalid, wrong
 repository/attempt/revision, or ambiguous; or no completed GitHub Actions run
-or CI attempt. Proof is read again with each judgment — when the tab is shown,
+or CI attempt. Proof is read again with each judgment — when the homepage is shown,
 the judged branch changes, the page's revision check finds that head moved
 while shown (new trunk revision, or a watched story-branch head whose story
 progress is read there; a story branch without a counted plan is not watched
 and is re-read on **Check again**), and on **Check again**, with no timed
-polling — and is offered whether Intent locations are configured, absent, or
-unreadable: the strip stands above those explanations, which **Intent** and
-**Optimization Candidates** show when there is no location tree. The chosen
+polling — and is shown whether Intent locations are configured, absent, or
+unreadable: **Intent** shows it beside the explanation in place of the
+location tree, and the strip stands above those explanations, which
+**Optimization Candidates** also shows. The chosen
 tab is kept while the page stays on the project, across switches to
 Development and back and across new revisions, where **Optimization
-Candidates** reads the record at the new revision; a project change starts
+Candidates** reads the record at the new revision once **Show latest** moves
+the reading there; a project change starts
 again on **Intent**. The choice is disposable page state, not on the URL or
-in storage. A location that is missing, holds no `.feature` files, or names
-an unsupported kind says so by path or kind while other locations stay
-usable; a failed file read says so and offers retry. When that setting is
-absent, Intent says no intent locations are configured and names the setting
-and file; it shows no empty tree. An unreadable or malformed settings file is
-a distinct explanation from absence. With a story selected, the **Intent**
+in storage. The reading place is kept the same way, in memory only: the
+selection, the open location and folders, **Selected story only** and the
+reading pane's scroll show again after Development and back without reading
+the locations or the selected file again. Intent reads one published
+revision, the observed one when the project's Intent first opens. A newer
+observed revision changes nothing shown and reads nothing: however many
+arrive, one polite status beside the reading, which takes no focus, says
+"New revision available — showing `<short sha>`" with **Show latest**.
+**Show latest** moves the reading to the latest observed revision: the shown
+reading stays, marked "Updating…", while that revision's locations are read,
+then the selection, the open location and folders and the scroll offset
+stay where the selected path still exists, and only an already selected file
+is read again, its new text replacing the old in place. A selected path the
+revision no longer holds reads "`<path>` is not in revision `<short sha>`" in
+**Purpose**, with nothing else selected. If the latest locations cannot be
+read, the shown reading stays usable and the notice names the failed revision
+beside a **Retry** that applies the update; if the selected file's new text
+cannot be read, its earlier text stays under that failure with its own
+**Retry**. What this page already read at the shown revision appears at once,
+without a reading moment. **CI status** and Development keep
+following the observed revision. A story selected while
+Intent is hidden starts the tree's arrangement afresh, and a project change
+starts that project's reading afresh. A location that is missing, holds no
+`.feature` files, or names an unsupported kind says so by path or kind while
+other locations stay usable; a failed file read says so and offers retry.
+When that setting is absent, Intent says no intent locations are configured
+and names the setting and file; it shows no empty tree. An unreadable or
+malformed settings file is a distinct explanation from absence. With a story
+selected, the **Intent**
 reading mode names it in one compact summary at the top of the locations
 column, or above the explanation shown in place of the tree; the mode strip
-stays under the banner, and Optimization Candidates and CI status show no
+stays under the banner, and Optimization Candidates shows no
 summary. Compact, the summary gives the story's title on one line (full title
 on hover) and says briefly while the comparison is reading, unavailable or
 failed, with **Retry** for a failure; a disclosure, collapsed at first and

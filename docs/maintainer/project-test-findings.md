@@ -559,3 +559,25 @@ If such a failure recurs, the considered responses are an automatic guard,
 (proved with a substitute guard command), and a failing full run printing the
 sleep entries inside its own window. The fuller analysis is recoverable from
 `b52c1d3bdad7369fc1042a5f2744e9ebedadecbe:.planning/seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md`.
+
+## DD-432 — A container run took a live host run's local-suite admission
+
+`scripts/ci-container.sh` mounts the common Git directory, so its
+`scripts/test.sh` shares `refs/dough/local-test-suite` with host runs. Inside
+the container, the host owner's pid is not visible, so `living()` judged the
+host's running dashboard suite dead and replaced the owner. The host run's
+global teardown then failed to release its admission and exited 1 after every
+test had passed.
+
+### Occurrences
+- Execution: SEED-241#load-intent-without-disruption-or-bulk-source-transfer (plan 477-load-intent-without-disruption; first related implementation commit `fa9fd1a0249d41a5c590a0cbf66f40ff0728e028`)
+  - Timestamp: 2026-11-05T23:12:28+07:00 (the replacing owner's `started` field, 16:12:28 UTC)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.86 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: the dashboard suite run for the main-merge of the story branch (22:54–23:26 +07:00, `caffeinate -s -i`) reported 2044 passed, 1 skipped, then global teardown threw "Could not release local test-suite admission." (`scripts/local-test-suite.mjs` `release`); `refs/dough/local-test-suite` afterwards held `{"pid":22,"started":"Thu Nov  5 16:12:28 2026",…}`; no host pid 22 and no container running afterwards
+  - Observed effect: an otherwise green whole-suite gate exited 1; admission did not keep the two suites from running concurrently
+  - Inference: qualified — the replacing owner's pid and UTC start match a container started by another session; the exact command is unknown. Either container runs take no host admission (or a separate ref), or owners record a pid namespace so a foreign-namespace owner is never judged dead; tolerating a taken ref at teardown alone would hide the concurrent run
+
+**Follow-up:** open, unqueued; the remedy needs a decision on how container
+runs share admission.

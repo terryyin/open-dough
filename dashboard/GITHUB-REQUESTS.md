@@ -20,14 +20,20 @@ unauthenticated read of its avatar image from GitHub's avatar host while the das
 which does not use the `gh` allowance; a failed avatar read is asked again when the avatar is next
 shown. Each Taken entry with a counted plan adds one last-commit-time request for its plan, its Take
 time coming from its agent profile's addition already read, and each Story Branch Mode entry adds
-one branch head request and one plan read on that branch. Opening Intent for a project adds, at the
-observed revision, one read of `.planning/open-dough.json` when that file is not already pinned,
-plus one recursive Git trees listing per configured intent location, one contents read of each
-selected feature file not already pinned, and, on selecting a location or folder summary, one
-contents read per contained feature file not already pinned; paths outside those locations are
-refused without a contents read. Opening Intent with nothing selected shows CI
-status as Intent's homepage and costs the same judgment and proof reads the former
-**CI status** tab cost when shown: each time that homepage is shown (including a
+one branch head request and one plan read on that branch. Opening Intent for a project adds, at
+Intent's reading revision, one read of `.planning/open-dough.json` when that file is not already pinned,
+plus one recursive Git trees listing per configured intent location and one contents read of
+each selected feature file not already pinned; a location or folder summary reads no contents,
+a file whose Purpose is the selected story's diff reads no contents, and paths outside those
+locations are refused without a contents read. The page asks the boundary for those locations,
+files and the Test Optimization Candidates record once per answer per page: reopening a file or
+the Test Optimization Candidates record, or leaving Intent and returning at the same revision asks
+nothing more, and a read already in flight is joined; a failed, limited or refused read is asked
+again. A newer observed revision asks Intent for nothing until **Show latest**, which reads the
+locations and, when a file is selected, that file at the latest observed revision, and the Test
+Optimization Candidates record once that tab shows. Opening Intent with nothing selected shows CI
+status as Intent's homepage and costs the same judgment and proof reads the former **CI status**
+tab cost when shown: each time that homepage is shown (including a
 return from a file or folder selection), each time its judged branch changes with
 the selected story, each time a new trunk revision is observed while the trunk is
 shown, each time the revision check finds a new head of the shown story branch it

@@ -8,11 +8,8 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { intentModeTab } from "./intentModePage.ts";
+import { purposeRegion } from "./intentPerspectivePage.ts";
 import { contentReadsOf } from "./intentCodeBrowseFixtures.ts";
-import type { Locator } from "@playwright/test";
-
-const purposeRegion = (intent: Locator) =>
-  intent.getByRole("region", { name: "Purpose", exact: true });
 import {
   doughnutCaseFeaturePath,
   expectDoughnutCasePositioned,

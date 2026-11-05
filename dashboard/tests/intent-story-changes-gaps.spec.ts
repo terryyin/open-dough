@@ -17,6 +17,7 @@ import { parts } from "./dashboardPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
+  purposeRegion,
 } from "./intentPerspectivePage.ts";
 import {
   chooseOptimizationCandidates,
@@ -53,9 +54,7 @@ async function expectPublishedTreeUsable(intent: Locator) {
     intentFile(intent, "dashboard/tests/boundary/kept.spec.ts"),
   ).toBeVisible();
   await intentFile(intent, "dashboard/tests/a.spec.ts").click();
-  await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
-    "a 11",
-  );
+  await expect(purposeRegion(intent)).toContainText("a 11");
 }
 
 test("an active story with no workspace explains that no comparison is available and leaves the tree usable", async ({

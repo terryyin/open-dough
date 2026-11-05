@@ -1,19 +1,19 @@
 // One Intent selection for the project's Intent workspace: a configured
 // location, a folder under one, or a file (with an optional case target later
-// slices position Purpose on). Disposable page state (ADR 0008). The provider
-// remounts on source or revision identity so selection clears with that
-// identity (`./IntentPerspective.tsx`). The location tree and Purpose read and
-// set it through this owner; the candidate-record view shares it when opening
-// a recorded file. A missing `scope` with a non-empty path is a file, so
-// candidate opens stay `{ path }` / `{ path, caseTarget }`.
+// slices position Purpose on). Kept with the project's reading place
+// (`./pageIntentReading.tsx`), so it outlasts leaving Intent and a new
+// revision, and starts empty for each project. The location tree and Purpose
+// read and set it through this owner; the candidate-record view shares it when
+// opening a recorded file. A missing `scope` with a non-empty path is a file,
+// so candidate opens stay `{ path }` / `{ path, caseTarget }`.
 
 import {
   createContext,
   createElement,
   useContext,
-  useState,
   type ReactNode,
 } from "react";
+import { useKeptReading } from "./pageIntentReading.tsx";
 
 export type IntentSelectionScope = "location" | "folder" | "file";
 
@@ -53,7 +53,10 @@ export function IntentWorkspaceSelectionProvider({
 }: {
   readonly children: ReactNode;
 }) {
-  const [selection, setSelection] = useState<IntentSelection>(emptySelection);
+  const [selection, setSelection] = useKeptReading<IntentSelection>(
+    "selection",
+    () => emptySelection,
+  );
   return createElement(
     IntentSelectionContext.Provider,
     { value: { selection, setSelection } },

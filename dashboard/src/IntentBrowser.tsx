@@ -5,32 +5,40 @@
 // shows the locations. Locations (book icon) and folders (folder icon) share
 // toggle (expansion only) and name (select; toggle once selected) controls; a
 // toggle never changes selection or the reading pane. Nothing selected shows
-// CI status as Intent's homepage; a file shows Purpose and Proof; a location
-// or folder name shows a Summary — all in `./IntentSelectionReading.tsx`, whose
-// return-home control clears the selection back to CI status. A failed file
-// read keeps its own explanation and retry; a failed proof read's retry reads
-// the locations again without changing the selection. Selection is owned by
-// the Intent workspace (`./intentWorkspaceSelection.ts`). With a selected
-// story's comparison, the trees follow it (`./useIntentStoryTree.ts`) under
-// the story's summary heading the locations (`./IntentStorySummary.tsx`). A
-// file the published revision does not list is never read. The browser
-// unmounts with Intent, so a story selected while Intent is hidden applies
-// when it opens, with the toggle off.
+// CI status as Intent's homepage; a file shows its Purpose; a location or
+// folder name shows a Summary, whose child names open their target as the
+// record's links do (`./IntentCandidatesRecord.tsx`) — all in
+// `./IntentSelectionReading.tsx`, whose return-home control clears the
+// selection back to CI status. A failed file read keeps its own explanation
+// and retry. Selection is owned by the Intent workspace
+// (`./intentWorkspaceSelection.ts`). With a selected story's comparison, the
+// trees follow it (`./useIntentStoryTree.ts`) under the story's summary
+// heading the locations (`./IntentStorySummary.tsx`). A file the published
+// revision does not list is never read. The browser unmounts with Intent; the
+// selection, the expanded location, the reveal and the reading pane's scroll
+// are kept with the project's reading place (`./pageIntentReading.tsx`) and
+// restored when it opens again. A story selected while Intent is hidden starts
+// the tree's arrangement afresh, so its expansion applies when Intent opens,
+// with the toggle off.
 
-import { useId, useRef, useState } from "react";
+import { useRef } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
-import {
-  type IntentReadingLayout,
-  type IntentReadingTab,
-} from "./IntentFileReading.tsx";
+import { storyDiffOf } from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
-import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
-import { keptChoice } from "./keptPreference.ts";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
+import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
-import { owningLocation } from "./intentSelectionCoverage.ts";
+import {
+  useKeptArrangement,
+  useKeptReading,
+  useKeptReadingScroll,
+} from "./pageIntentReading.tsx";
+import {
+  owningLocation,
+  treeHoldsSelection,
+} from "./intentSelectionCoverage.ts";
 import {
   selectionScope,
   useIntentWorkspaceSelection,
@@ -48,23 +56,12 @@ import {
   type StorySummary,
 } from "./IntentStorySummary.tsx";
 
-// The reader layout this browser keeps for every project, tabs where it keeps
-// an unusable one, and otherwise the one chosen on this page, even where the
-// browser keeps nothing.
-const keptLayout = keptChoice<IntentReadingLayout>(
-  "open-dough.intent.layout",
-  "tabs",
-  (kept) => (kept === "side-by-side" ? "side-by-side" : "tabs"),
-);
-
 export function IntentBrowser({
   source,
   work,
   selectedIdentity,
   revision,
   locations,
-  proofRereading,
-  onProofRetry,
   mode,
   modeIdPrefix,
   onModeChange,
@@ -80,28 +77,30 @@ export function IntentBrowser({
   // with its comparison, once read.
   readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
-  // Whether the locations, with their proof, are being read again after a
-  // proof read failed; the selection and reader stay as they are.
-  readonly proofRereading: boolean;
-  readonly onProofRetry: () => void;
   // The strip's mode and ids; opening a test from the record returns this
   // browser to Intent.
 } & ModeChoice) {
   const { selection, setSelection } = useIntentWorkspaceSelection();
   const scope = selectionScope(selection);
   const selectedPath = selection.path;
-  const [returnEntrySlug, setReturnEntrySlug] = useState<string | undefined>();
-  const [expandedPath, setExpandedPath] = useState<string | null>(null);
-  const [reveal, setReveal] = useState<TreeReveal | undefined>();
-  // Purpose or Proof, kept across file selections (`./IntentFileReading.tsx`).
-  const [readingTab, setReadingTab] = useState<IntentReadingTab>("purpose");
-  // Tabs or side by side, one choice this browser keeps for every project;
-  // held here so a revealed open, which starts a fresh reading, keeps it.
-  const [readingLayout, setReadingLayout] = useState(keptLayout.read);
+  const [returnEntrySlug, setReturnEntrySlug] = useKeptReading<
+    string | undefined
+  >("returnEntrySlug", () => undefined);
+  const [expandedPath, setExpandedPath] = useKeptArrangement<string | null>(
+    "expandedPath",
+    () => null,
+  );
+  const [reveal, setReveal] = useKeptArrangement<TreeReveal | undefined>(
+    "reveal",
+    () => undefined,
+  );
   // Each revealed open starts a fresh reading, positioned on its case.
-  const [revealedOpens, setRevealedOpens] = useState(0);
-  const readingArea = useRef<HTMLDivElement | null>(null);
-  const readingIdPrefix = useId();
+  const [revealedOpens, setRevealedOpens] = useKeptReading(
+    "revealedOpens",
+    () => 0,
+  );
+  const readingPane = useRef<HTMLDivElement>(null);
+  useKeptReadingScroll(readingPane);
   const treeSelection: IntentSelection =
     mode === "intent" ? selection : { path: "" };
   const {
@@ -125,34 +124,46 @@ export function IntentBrowser({
 
   // Opening from the candidate record or drilling down from a summary
   // selects as the tree does (a record entry is a file without a scope),
-  // starts a fresh reading on Purpose, and reveals the target in the tree:
+  // starts a fresh reading of its Purpose, and reveals the target in the tree:
   // its location opens and the folders holding it open.
   function openRevealed(next: IntentSelection, entrySlug?: string) {
     select(
       next.scope === undefined ? { ...next, scope: "file" } : next,
       entrySlug,
     );
-    setReadingTab("purpose");
     setRevealedOpens((n) => n + 1);
     const owning = owningLocation(locations, next);
     if (owning !== undefined) setExpandedPath(owning.path);
     setReveal({ path: next.path });
   }
 
-  // Clearing selection when the project or locations change is owned by the
-  // Intent workspace provider remounting on source/revision identity.
+  // The selection starts empty for each project, its reading place mounted
+  // again for it (`./IntentPerspective.tsx`).
+  const treeFiles = overlayFilesByPath(locations, overlay);
   const selectedFile =
-    scope === "file"
-      ? overlayFilesByPath(locations, overlay).get(selectedPath)
-      : undefined;
-  // A file the published revision does not list has no published text.
-  const unpublished = selectedFile?.published === false;
+    scope === "file" ? treeFiles.get(selectedPath) : undefined;
+  // A selected path the shown revision does not hold, as after moving to a
+  // revision that deleted it, is explained in Purpose and nothing else is
+  // selected. While the story's comparison is still read, a file it adds may
+  // yet appear.
+  const missing =
+    scope !== "none" &&
+    storySummary?.comparison.state !== "reading" &&
+    !treeHoldsSelection(locations, treeFiles, selection);
+  // A file the published revision does not list has no published text, and
+  // one whose Purpose is the story's diff needs none. While the selected
+  // story's comparison is still being read, as when Intent opens again on a
+  // kept selection, whether Purpose is a diff is not yet known.
   const fileRead = useIntentFileRead({
     source,
     revision,
     path: selectedPath,
     file: scope === "file",
-    unpublished,
+    unread:
+      missing ||
+      selectedFile?.published === false ||
+      storyDiffOf(story, selectedFile) !== undefined ||
+      storySummary?.comparison.state === "reading",
   });
 
   const selectedLocation = owningLocation(locations, selection);
@@ -197,34 +208,26 @@ export function IntentBrowser({
             );
           })}
         </div>
-        <div className="intent-reading" tabIndex={-1} ref={readingArea}>
+        <div ref={readingPane} className="intent-reading" tabIndex={-1}>
           <IntentSelectionReading
             source={source}
             work={work}
             selectedIdentity={selectedIdentity}
             revision={revision}
+            fileRevision={fileRead.revision ?? revision}
+            failedRevision={fileRead.failedRevision}
             selection={selection}
+            missing={missing}
             selectedLocation={selectedLocation}
             selectedFile={selectedFile}
             selectedLanguage={selectedLanguage}
             story={story}
             read={fileRead.read}
             onFileRetry={fileRead.retry}
-            proofRereading={proofRereading}
-            onProofRetry={onProofRetry}
             onOpen={openRevealed}
             onClearSelection={() => {
               setSelection({ path: "" });
             }}
-            readingTab={readingTab}
-            onChooseTab={setReadingTab}
-            readingLayout={readingLayout}
-            onChooseLayout={(next) => {
-              setReadingLayout(next);
-              keptLayout.choose(next);
-            }}
-            readingIdPrefix={readingIdPrefix}
-            readingArea={readingArea}
             readingKey={revealedOpens}
           />
         </div>

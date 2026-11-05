@@ -15,10 +15,12 @@ import {
   expandIntentGroup,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
-  intentLocationHeader,
   intentLocationName,
-  locationHeaderLook,
 } from "./intentPerspectivePage.ts";
+import {
+  intentLocationHeader,
+  locationHeaderLook,
+} from "./intentLocationHeaderLook.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   doughnut,

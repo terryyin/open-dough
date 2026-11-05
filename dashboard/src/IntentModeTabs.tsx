@@ -1,6 +1,6 @@
 // The Intent perspective's two reading modes (`./IntentPerspective.tsx`):
 // Intent, its locations with CI status as the empty-selection homepage and
-// Purpose and Proof when a file is selected (`./IntentBrowser.tsx`), and
+// Purpose when a file is selected (`./IntentBrowser.tsx`), and
 // Optimization Candidates, the published record across the content area
 // (`./IntentCandidatesRecord.tsx`). CI status fills Intent's reading when
 // nothing is selected (`./IntentCiStatus.tsx`), offered whether or not

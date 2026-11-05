@@ -5,12 +5,6 @@
 // with the locations read.
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import type { SuccessfulCaseObservation } from "../src/proofCases.ts";
-import type { RunnerProblem } from "../src/proofKinds.ts";
-import {
-  proofGeneration,
-  type ProofGeneration,
-} from "../src/proofGeneration.ts";
 import { isNotFound, rateLimitStop } from "./ghFailure.ts";
 import { isSafeRepositoryPath, type PinnedReader } from "./reachablePaths.ts";
 import {
@@ -27,29 +21,6 @@ export type IntentSettingsProblem = "malformed" | "unreadable";
 // supported, or the path holds none of the kind's selected files.
 export type IntentLocationProblem = "unsupported-kind" | "no-matching-files";
 
-// The committed proof a location of a proof kind declares
-// (`./intentProofRead.ts`, `../src/proofKinds.ts`): its directory, each
-// listed file's Git blob sha at the revision, and the last successful proof
-// of each case of those files in the case model's fields
-// (`../src/proofCases.ts`) whatever the kind; or the directory, why its
-// proof could not be read, and the first proof file (in path order) that
-// could not be read or is not one, when one is known.
-export type IntentLocationProof =
-  | {
-      readonly path: string;
-      readonly fileBlobs: Readonly<Record<string, string>>;
-      readonly observations: readonly SuccessfulCaseObservation[];
-    }
-  | {
-      readonly path: string;
-      readonly problem: IntentProofProblem;
-      readonly file?: string;
-    };
-
-// Why a declared proof directory could not be read: a listing or file read
-// failed, or a file read is not a proof file.
-export type IntentProofProblem = "unreadable" | "malformed";
-
 export type IntentLocation = {
   readonly path: string;
   readonly kind: string;
@@ -60,30 +31,12 @@ export type IntentLocation = {
   // revision. Empty when `problem` is set.
   readonly files: readonly string[];
   readonly problem?: IntentLocationProblem;
-  // The runner whose proof format a `typescript` or `javascript` location's
-  // proof is in, echoed from settings when declared.
-  readonly runner?: string;
-  // Why a `typescript` or `javascript` location declaring a proof directory
-  // has no proof kind to read it with (`../src/proofKinds.ts`).
-  readonly runnerProblem?: RunnerProblem;
-  // Present only when a location of a proof kind declares a proof directory.
-  readonly proof?: IntentLocationProof;
-  readonly proofGeneration?: ProofGeneration;
-  readonly proofGenerationProblem?: "malformed";
 };
 
 export type DeclaredLocation = {
   readonly path: string;
   readonly kind: string;
   readonly include?: readonly string[];
-  // The repository directory the location's committed proof lives
-  // in, when declared as a safe repository path.
-  readonly proof?: string;
-  // The runner that recorded that proof, when declared as a non-empty
-  // string; `gherkin` and `python` imply theirs (`../src/proofKinds.ts`).
-  readonly runner?: string;
-  readonly proofGeneration?: ProofGeneration;
-  readonly proofGenerationProblem?: "malformed";
 };
 
 export type DeclaredSettings =
@@ -132,47 +85,20 @@ export function declaredLocations(settings: string): DeclaredSettings {
     if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
       continue;
     }
-    const {
-      path,
-      kind,
-      include,
-      proof,
-      runner,
-      proofGeneration: generation,
-    } = entry as {
+    const { path, kind, include } = entry as {
       path?: unknown;
       kind?: unknown;
       include?: unknown;
-      proof?: unknown;
-      runner?: unknown;
-      proofGeneration?: unknown;
     };
     if (typeof path !== "string" || !isSafeRepositoryPath(path)) continue;
     if (typeof kind !== "string" || kind.length === 0) continue;
-    const proofOf =
-      typeof proof === "string" && isSafeRepositoryPath(proof) ? { proof } : {};
-    const runnerOf =
-      typeof runner === "string" && runner.length > 0 ? { runner } : {};
-    const parsedGeneration = proofGeneration.safeParse(generation);
-    const generationOf = parsedGeneration.success
-      ? { proofGeneration: parsedGeneration.data }
-      : "proofGeneration" in entry
-        ? { proofGenerationProblem: "malformed" as const }
-        : {};
     if (!("include" in (entry as object))) {
-      declared.push({ path, kind, ...proofOf, ...runnerOf, ...generationOf });
+      declared.push({ path, kind });
       continue;
     }
     const patterns = includePatternsOf(include);
     if (patterns === undefined) continue;
-    declared.push({
-      path,
-      kind,
-      include: patterns,
-      ...proofOf,
-      ...runnerOf,
-      ...generationOf,
-    });
+    declared.push({ path, kind, include: patterns });
   }
   return declared.length === 0
     ? { kind: "absent" }

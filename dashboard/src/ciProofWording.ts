@@ -126,8 +126,7 @@ export const noAttemptLine =
 const minuteMs = 60_000;
 
 // Whole minutes / hours / days for Intent CI wall time and entry test
-// execution time. Distinct from `./proofDurationWords.ts`, which names file
-// Proof observation durations in ms / fractional seconds.
+// execution time.
 function wholeMinuteWords(ms: number): string {
   const minutes = Math.floor(Math.max(0, ms) / minuteMs);
   if (minutes < 1) return "less than 1 min";

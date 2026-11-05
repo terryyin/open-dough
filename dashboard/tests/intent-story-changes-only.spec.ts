@@ -4,16 +4,21 @@
 // tree, with the changed folders open and the rest collapsed, however they
 // were arranged by hand in between. Expanding and collapsing the story's
 // summary keeps the selected file and its reading, the open folders, and the
-// choice. Intent unmounts while hidden, so a story
-// selected in Development applies its expansion, with the toggle off, the
-// next time Intent opens. A story that changed only product code says no
-// test file in a location changed, with the count outside. The highlighted
+// choice. A story selected in Development starts the tree's kept arrangement
+// afresh (../src/pageIntentReading.tsx), so it applies its expansion, with
+// the toggle off, the next time Intent opens. A story that changed only product code says no
+// test file in a location changed, with the count outside. The choice stays
+// through a new trunk revision and through **Show latest**
+// (../src/IntentRevisionNotice.tsx). The highlighted
 // journey: ./intent-story-changes.spec.ts.
 
 import type { Locator } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
-import { intentGroupToggle } from "./intentPerspectivePage.ts";
-import { chooseReadingTab } from "./intentFileReadingPage.ts";
+import {
+  intentGroupToggle,
+  purposeRegion,
+  revisionNotice,
+} from "./intentPerspectivePage.ts";
 import { expectSelected } from "./storyCardSelection.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
@@ -26,7 +31,18 @@ import {
   storyOnly,
   storySummary,
 } from "./support/intentStoryPage.ts";
-import { changed, changeProductOnly } from "./support/intentStoryWorktree.ts";
+import {
+  changed,
+  changeIntentTests,
+  changeProductOnly,
+} from "./support/intentStoryWorktree.ts";
+import { shortRevision } from "./dashboardParts.ts";
+import { commitAll, git, writeAt } from "./support/storyReviewWorktree.ts";
+import {
+  pausePageClock,
+  passTimeUntilCheckedAfterSettled,
+} from "./autoRefreshJourney.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 
 test.setTimeout(120_000);
 
@@ -83,7 +99,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
   await test.step("expanding and collapsing the summary keeps the selected file, its reading, the open folders, and the choice", async () => {
     const file = intentFile(intent, changed.modified);
     await file.click();
-    const purpose = await chooseReadingTab(intent, "Purpose");
+    const purpose = purposeRegion(intent);
     const diffName = purpose.locator(".intent-story-diff-name");
     await expect(diffName).toHaveText(changed.modified);
     const expectKept = async () => {
@@ -187,4 +203,42 @@ test("a story that changed only product code says Selected story only has no tes
     "aria-expanded",
     "false",
   );
+});
+
+test("Selected story only stays on through a new trunk revision and Show latest", async ({
+  page,
+  origin,
+}) => {
+  await pausePageClock(page);
+  const { intent } = await selectTakenStoryInIntent(
+    page,
+    origin,
+    changeIntentTests,
+    true,
+  );
+  const toggle = storyOnly(intent);
+  await toggle.check();
+  await expectStoryExpansion(intent);
+
+  writeAt(origin.project, "docs/later.md", "later\n");
+  commitAll(origin.project, "a later trunk change");
+  git(origin.project, "push", "--quiet", "origin", "main");
+  const later = (await origin.originGit("rev-parse", "main")).trim();
+  await passTimeUntilCheckedAfterSettled(page);
+  await untilPageReadsAnswered(page);
+  await expect(parts(page).status).toContainText(
+    `Published work read at revision ${shortRevision(later)}`,
+  );
+  const notice = revisionNotice(intent);
+  await expect(notice).toHaveCount(1);
+  await expect(toggle).toBeChecked();
+  await expectStoryExpansion(intent);
+
+  await notice.getByRole("button", { name: "Show latest" }).click();
+  await expect(notice).toHaveCount(0);
+  await expect(toggle).toBeChecked();
+  await expectStoryExpansion(intent);
+  await expect(
+    intentFile(intent, "dashboard/tests/other/c.spec.ts"),
+  ).toHaveCount(0);
 });

@@ -1,7 +1,7 @@
 // Intent reads the published Test Optimization Candidates record at the
 // observed revision (../src/IntentCandidatesRecord.tsx) on its own
 // Optimization Candidates tab (../src/IntentModeTabs.tsx): entering Intent
-// shows the Intent tab with locations, Purpose and Proof; the record shows
+// shows the Intent tab with locations and CI status; the record shows
 // labelled Pending and Accepted groups with every recorded field (example 1)
 // across the content area without the locations.
 
@@ -11,6 +11,7 @@ import { parts } from "./dashboardPage.ts";
 import {
   expandIntentGroup,
   intentGroupToggle,
+  purposeRegion,
 } from "./intentPerspectivePage.ts";
 import {
   candidatesRecord,
@@ -18,7 +19,6 @@ import {
   expectCandidatesRevision,
   intentModeTab,
 } from "./intentModePage.ts";
-import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   openDoughCandidatesRecord,
@@ -56,9 +56,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
     await expect(
       intent.getByRole("region", { name: "CI status", exact: true }),
     ).toBeVisible();
-    await expect(intent.getByRole("region", { name: "Purpose" })).toHaveCount(
-      0,
-    );
+    await expect(purposeRegion(intent)).toHaveCount(0);
     await expect(
       intent.getByRole("button", { name: "Test Optimization Candidates" }),
     ).toHaveCount(0);
@@ -67,7 +65,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
 
   await chooseOptimizationCandidates(intent);
   await expect(intentTab).toHaveAttribute("aria-selected", "false");
-  await expect(intent.getByRole("region", { name: "Proof" })).toHaveCount(0);
+  await expect(purposeRegion(intent)).toHaveCount(0);
   await expectCandidatesRevision(intent, openDough.revision);
   const [content, report] = await Promise.all([
     intent.boundingBox(),
@@ -146,7 +144,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
     );
   });
 
-  await test.step("Intent tab brings back the locations with Purpose and Proof; the tabs are keyboard-operable", async () => {
+  await test.step("Intent tab brings back the locations with Purpose; the tabs are keyboard-operable", async () => {
     await intentTab.click();
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
     await expect(record).toBeHidden();
@@ -160,7 +158,6 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
     await expect(
       intent.getByLabel("dashboard/tests/intent-gherkin-browse.spec.ts source"),
     ).toContainText('test("browses"');
-    await chooseReadingTab(intent, "Proof");
 
     await intentTab.focus();
     await page.keyboard.press("ArrowRight");
@@ -173,8 +170,6 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
     await page.keyboard.press("ArrowLeft");
     await expect(intentTab).toBeFocused();
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
-    await expect(intent.getByRole("region", { name: "Proof" })).toBeVisible();
-    await chooseReadingTab(intent, "Purpose");
     await expect(
       intent.getByLabel("dashboard/tests/intent-gherkin-browse.spec.ts source"),
     ).toBeVisible();

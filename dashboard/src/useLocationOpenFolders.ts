@@ -5,9 +5,10 @@
 // (an open from the candidates record or a summary), even for the selection
 // already made, so a test opened from elsewhere shows selected in the tree.
 // Each new expansion a selected story's overlay asks for opens exactly the
-// folders it names.
+// folders it names. The open folders are kept per location with the tree's
+// arrangement (`./pageIntentReading.tsx`), so they outlast leaving Intent.
 
-import { useState } from "react";
+import { useKeptArrangement } from "./pageIntentReading.tsx";
 import {
   reviewFolderPaths,
   reviewFoldersHolding,
@@ -27,11 +28,14 @@ export type LocationExpansion = {
 export type TreeReveal = { readonly path: string };
 
 export function useLocationOpenFolders<T extends PathBearing>({
+  location,
   tree,
   revealPath,
   expansion,
   reveal,
 }: {
+  // The location's path, naming its folders in the kept arrangement.
+  readonly location: string;
   readonly tree: readonly PathTreeNode<T>[];
   // The selected file or folder, relative to the location, or "".
   readonly revealPath: string;
@@ -46,12 +50,22 @@ export function useLocationOpenFolders<T extends PathBearing>({
   // Folders are tracked by the ones open, so a folder not yet seen starts
   // collapsed; the selection last revealed keeps a moved selection opening
   // its folders without reopening one collapsed around it since.
-  const [openFolders, setOpenFolders] = useState<ReadonlySet<string>>(
+  const kept = (name: string) => `folders:${location}:${name}`;
+  const [openFolders, setOpenFolders] = useKeptArrangement<ReadonlySet<string>>(
+    kept("open"),
     () => new Set(reviewFoldersHolding(tree, revealPath)),
   );
-  const [revealed, setRevealed] = useState(revealPath);
-  const [requested, setRequested] = useState(reveal?.request);
-  const [expandedRound, setExpandedRound] = useState<number | undefined>();
+  const [revealed, setRevealed] = useKeptArrangement(
+    kept("revealed"),
+    () => revealPath,
+  );
+  const [requested, setRequested] = useKeptArrangement(
+    kept("requested"),
+    () => reveal?.request,
+  );
+  const [expandedRound, setExpandedRound] = useKeptArrangement<
+    number | undefined
+  >(kept("expandedRound"), () => undefined);
   // The folders open in this render, after a new expansion, a moved
   // selection, and a new reveal request have all been applied.
   let open = openFolders;

@@ -1,0 +1,29 @@
+/* The newer-revision notice and the explanation of a selected path the shown
+   revision lacks (./IntentRevisionNotice.tsx). The notice stands between the
+   reading-mode strip and the reading it describes. It stays in the page while
+   empty, so the status it becomes is announced. */
+.intent-revision-notice {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-1) clamp(0.75rem, 4vw, 1.5rem);
+  border-top: 1px solid var(--line);
+  font-size: var(--text-sm);
+}
+
+.intent-revision-notice:empty {
+  padding: 0;
+  border: 0;
+}
+
+.intent-revision-updating {
+  color: var(--quiet);
+}
+
+.intent-path-missing {
+  margin: 0;
+  max-width: 42rem;
+  line-height: 1.5;
+}

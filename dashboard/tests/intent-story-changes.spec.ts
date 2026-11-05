@@ -4,23 +4,20 @@
 // column under the mode strip, names it, with the "Selected story only"
 // choice and the count outside every location; its disclosure reveals the
 // identity and the revisions its default Review changes comparison runs
-// between. A long title is shortened on one line, in full on hover and when
-// expanded. The whole published tree shows, changed
+// between. The whole published tree shows, changed
 // files styled by kind and the added one inserted; the folders containing
 // changes have the contains-changes background and are open, with the first
 // changed location, while everything else stays collapsed. A location
 // containing changes keeps its own header background with a change mark,
 // distinct from a changed folder's row, and keeps the mark once selected. The changed files outside every location are counted, pointing
 // to Review changes. A changed file's Purpose is the same diff Review
-// changes shows and its Proof says it describes the published revision; an
-// unchanged file shows its published source. Deselecting removes the
-// summary.
+// changes shows; an unchanged file shows its published source. Deselecting removes the
+// summary and leaves the tree as it was.
 // "Selected story only": ./intent-story-changes-only.spec.ts. Deletions and
 // renames: ./intent-story-changes-moves.spec.ts. No
-// comparison and a failed read: ./intent-story-changes-gaps.spec.ts.
+// comparison and a failed read: ./intent-story-changes-gaps.spec.ts. A long
+// title: ./intent-story-summary-title.spec.ts.
 
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import { parts } from "./dashboardPage.ts";
 import { expectSelected } from "./storyCardSelection.ts";
 import { shortRevision } from "./dashboardParts.ts";
@@ -45,11 +42,13 @@ import { kindStyles, nameStyle } from "./support/changeKindStyle.ts";
 import { changed } from "./support/intentStoryWorktree.ts";
 import {
   intentGroupToggle,
-  intentLocationHeader,
   intentLocationName,
-  locationHeaderLook,
+  purposeRegion,
 } from "./intentPerspectivePage.ts";
-import { chooseReadingTab } from "./intentFileReadingPage.ts";
+import {
+  intentLocationHeader,
+  locationHeaderLook,
+} from "./intentLocationHeaderLook.ts";
 
 test.setTimeout(120_000);
 
@@ -195,13 +194,9 @@ test("Intent highlights a selected Taken story's test changes over the published
     });
   });
 
-  await test.step("a changed file's Purpose is Review changes' diff, and its Proof describes the published revision", async () => {
+  await test.step("a changed file's Purpose is Review changes' diff", async () => {
     const inIntent = await intentDiff(intent, changed.modified);
     expect(inIntent).toContain("more");
-    const proof = await chooseReadingTab(intent, "Proof");
-    await expect(proof.locator(".intent-proof-published")).toHaveText(
-      `Proof describes the published revision ${shortRevision(baseline)}, not this story's version of the file.`,
-    );
     await openReviewFromIntent(page, intent);
     const review = page.getByRole("region", { name: "Story review" });
     await expect(
@@ -218,10 +213,9 @@ test("Intent highlights a selected Taken story's test changes over the published
 
   await test.step("an unchanged file shows its published source", async () => {
     await intentFile(intent, "dashboard/tests/boundary/kept.spec.ts").click();
-    const purpose = await chooseReadingTab(intent, "Purpose");
+    const purpose = purposeRegion(intent);
     await expect(purpose).toContainText("kept 11");
     await expect(purpose.locator(".story-review-code")).toHaveCount(0);
-    await expect(intent.locator(".intent-proof-published")).toHaveCount(0);
   });
 
   await test.step("closing the story's review clears the selected story and removes the summary", async () => {
@@ -242,46 +236,11 @@ test("Intent highlights a selected Taken story's test changes over the published
     );
     expect(unchanged.mark).toBe("none");
     expect(unchanged.background).toBe(changedHeader.background);
+    // The story was cleared while Intent showed, so the tree is kept as it
+    // was left (../src/pageIntentReading.tsx).
     await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
       "aria-expanded",
-      "false",
+      "true",
     );
   });
-});
-
-test("a long story title is shortened on one line, in full on hover and when the summary expands", async ({
-  page,
-  origin,
-}) => {
-  const long =
-    "Story A reads frontend Vitest proof in both projects and keeps every location's proof beside the published revision";
-  const backlog = path.join(origin.project, ".planning/PRODUCT-BACKLOG.md");
-  writeFileSync(
-    backlog,
-    readFileSync(backlog, "utf8").replace("[Story A]", `[${long}]`),
-  );
-  const { intent, baseline } = await selectTakenStoryInIntent(page, origin);
-  const disclosure = storyDisclosure(intent);
-  const name = disclosure.locator(".intent-story-name");
-  await expect(name).toHaveText(`Story ${long}`);
-  await expect(disclosure).toHaveAttribute("title", long);
-  // Loading the locations tree replaces the title shown in the loading panel.
-  const loadedName = intent.locator(".intent-locations .intent-story-name");
-  await expect(loadedName).toBeVisible();
-  const box = await loadedName.evaluate((element) => ({
-    overflows: element.scrollWidth > element.clientWidth,
-    lines: Math.round(
-      element.getBoundingClientRect().height /
-        parseFloat(getComputedStyle(element).lineHeight),
-    ),
-  }));
-  expect(box).toEqual({ overflows: true, lines: 1 });
-
-  const detail = await expandStorySummary(intent);
-  await expect(detail.locator(".intent-story-full-title")).toHaveText(
-    `${long} SEED-A#a`,
-  );
-  await expect(detail.locator(".intent-story-revisions")).toContainText(
-    `Compared ${shortRevision(baseline)} with worktree `,
-  );
 });

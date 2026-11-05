@@ -5,9 +5,12 @@
 // browser has a compared story, and at each toggle either way, it opens the
 // first changed location and the folders containing changes and collapses the
 // rest. The toggle, off at first, and the count outside every location are the
-// tree scope the story's summary offers (`./IntentStorySummary.tsx`).
+// tree scope the story's summary offers (`./IntentStorySummary.tsx`). The
+// toggle and the expansion it asked for are kept with the tree's arrangement
+// (`./pageIntentReading.tsx`), so leaving Intent and returning neither turns
+// it off nor expands the story again.
 
-import { useState } from "react";
+import { useKeptArrangement } from "./pageIntentReading.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import type { ComparedStory, StoryTreeScope } from "./IntentStorySummary.tsx";
 import {
@@ -31,14 +34,14 @@ export function useIntentStoryTree({
   readonly onExpandLocation: (path: string | null) => void;
 }) {
   const overlay = intentStoryOverlay(locations, story?.shown.comparison.files);
-  const [only, setOnly] = useState(false);
+  const [only, setOnly] = useKeptArrangement("storyOnly", () => false);
   const changesOnly = story !== undefined && only;
   const shownOverlay = changesOnly ? storyChangesOnly(overlay) : overlay;
   // The expansion the story's overlay last asked for here: when it first had
   // one, and at each toggle.
-  const [expansion, setExpansion] = useState<
+  const [expansion, setExpansion] = useKeptArrangement<
     { readonly round: number; readonly plan: StoryOverlayExpansion } | undefined
-  >();
+  >("storyExpansion", () => undefined);
   function expandStory(round: number) {
     const plan = storyOverlayExpansion(locations, overlay);
     setExpansion({ round, plan });
