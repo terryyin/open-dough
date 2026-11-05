@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-242_revive-cursor-sessions-when-the-runner-restarts.json",
+      "identity": "SEED-242#revive-cursor-sessions-when-the-runner-restarts",
+      "completedAt": "2026-11-05T15:15:20.054Z",
+      "blob": "fc3e6797af7d06b8a4c981bb367c35063f40778b"
+    },
+    {
       "fileName": "SEED-240_stop-revision-checks-after-setup-disconnect.json",
       "identity": "SEED-240#stop-revision-checks-after-setup-disconnect",
       "completedAt": "2026-11-05T13:33:42.021Z",
