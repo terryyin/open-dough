@@ -144,3 +144,7 @@ Commitment: X2
 Reported: slice 1 — "Acceptance: armSilence runs at effect start while waitForLimit > 0, so the bound counts during the directed wait and is partially spent when the stream reopens; story E3.2 requires a new bound when the wait ends."
 Story clause: "The stream opens again when the wait ends, and a new bound starts then."
 Disposition: proved by slice 1: revision-stream-lost.spec.ts rate-limit E3.2 step + revisionStreamSchedule.ts scheduleOpenAfter(waitForLimit, "arm-and-open")
+
+## Execution complete
+
+Product advice: No backlog or follow-up story change. The slice delivered the story goal (lost freshness across failed/hung opens; first answer clears and catches up; browser schedule only). G1/G2 stay deferred as the story already decided; sibling SEED-240 stories are already queued. Near-future direction (intent-protection review) is unaffected by this reliability fix. Process review ran; DearDough.md gained ODF-074 and ODF-106 occurrence rows. No correction plan. Conclusions conditional on unresolved CI for 68874f1c on refs/heads/cursor/show-lost-freshness-across-repeated-revision-str (observer /tmp/dough-ci-501/watch-HsXznM).
