@@ -60,6 +60,8 @@ export type CiProofUnavailableReason =
 
 const count = z.number().int().nonnegative();
 const positive = z.number().int().positive();
+// Optional summed test execution time in milliseconds (collector v1, additive).
+const durationMs = z.number().nonnegative().optional();
 
 const partSchema = z.object({
   part: positive,
@@ -67,7 +69,9 @@ const partSchema = z.object({
   passed: count.optional(),
   failed: count.optional(),
   other: count.optional(),
+  durationMs,
 });
+export type CiProofPart = z.infer<typeof partSchema>;
 
 const entrySchema = z.object({
   path: z.string().min(1),
@@ -77,6 +81,7 @@ const entrySchema = z.object({
   passed: count,
   failed: count,
   other: count,
+  durationMs,
   parts: z.array(partSchema).min(1),
 });
 export type CiProofEntry = z.infer<typeof entrySchema>;

@@ -9,6 +9,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { chooseProject } from "./projectChoice.ts";
 import { shortRevision } from "./dashboardParts.ts";
 import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
+import { ciPanel } from "./intentCiStatusPage.ts";
 import {
   intentGroupToggle,
   purposeRegion,
@@ -172,7 +173,6 @@ test("choosing another project while an update is held shows only that project's
   await expect(intent.getByText(featurePath)).toHaveCount(0);
   await expect(intent).not.toContainText("Purge a job");
   await expect(revisionNotice(intent)).toHaveCount(0);
-  await expect(purposeRegion(intent)).toContainText(
-    "Select a file to read its Purpose.",
-  );
+  await expect(ciPanel(intent)).toBeVisible();
+  await expect(purposeRegion(intent)).toHaveCount(0);
 });

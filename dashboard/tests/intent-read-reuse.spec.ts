@@ -13,9 +13,9 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
-  expandIntentGroup,
   expectIntentModeChosen,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
+import { expandIntentGroup } from "./intentPerspectivePage.ts";
 import { publishOpenDoughWithCandidates } from "./intentCandidatesFixtures.ts";
 import { publishIntentProject, pygardon } from "./intentCodeBrowseFixtures.ts";
 import {

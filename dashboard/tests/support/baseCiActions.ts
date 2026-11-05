@@ -19,6 +19,9 @@ export type CiRunAnswer = {
   readonly id?: number;
   readonly attempt?: number;
   readonly url?: string;
+  // Optional wall-time bounds as GitHub Actions lists them.
+  readonly startedAt?: string;
+  readonly completedAt?: string;
 };
 
 export function actionsWorkflowAnswer(): OriginAnswer {
@@ -51,6 +54,12 @@ export function actionsRunsAnswer(
           html_url:
             run.url ?? `https://ci.invalid/${String(run.id ?? index + 1)}`,
           created_at: `2026-10-01T00:${String(index).padStart(2, "0")}:00Z`,
+          ...(run.startedAt === undefined
+            ? {}
+            : { run_started_at: run.startedAt }),
+          ...(run.completedAt === undefined
+            ? {}
+            : { updated_at: run.completedAt }),
         };
       }),
     }),

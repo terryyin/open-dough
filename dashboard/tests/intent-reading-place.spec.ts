@@ -14,6 +14,7 @@ import {
   storyReviewFileTextEndpoint,
 } from "../src/storyReviewContract.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
+import { ciPanel } from "./intentCiStatusPage.ts";
 import { intentGroupToggle, purposeRegion } from "./intentPerspectivePage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
@@ -159,10 +160,10 @@ test("another project shows none of the reading place, and choosing the project 
   await expect(intent.locator('[aria-pressed="true"]')).toHaveCount(0);
 
   // The story stays selected; its tree is expanded as when first compared,
-  // with the toggle off and nothing selected.
+  // with the toggle off and nothing selected, so CI status is shown.
   await chooseProject(page, "Open Dough");
-  const purpose = purposeRegion(intent);
-  await expect(purpose).toContainText("Select a file to read its Purpose.");
+  await expect(ciPanel(intent)).toBeVisible();
+  await expect(purposeRegion(intent)).toHaveCount(0);
   await expect(storyOnly(intent)).not.toBeChecked();
   await expect(folderToggle(intent, "out", true)).toBeVisible();
   await expect(intentFile(intent, deep)).toHaveAttribute(

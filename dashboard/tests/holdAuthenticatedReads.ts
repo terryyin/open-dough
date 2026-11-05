@@ -1,12 +1,14 @@
 // Holds authenticated reads, of one path or matching a query, until release
 // or failure, for Intent journeys that observe a read still in flight
 // (`./intent-selection-reads.spec.ts`, `./intent-revision-notice.spec.ts`,
-// `./intent-revision-update-outcomes.spec.ts`).
+// `./intent-revision-update-outcomes.spec.ts`). Its route pattern also serves
+// journeys that observe Session details' reads
+// (`./support/historicalCreditReads.ts`).
 
 import type { Page, Route } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 
-const authenticatedReadRoute = `**${authenticatedReadEndpoint}?*`;
+export const authenticatedReadRoute = `**${authenticatedReadEndpoint}?*`;
 
 // Holds the page's reads of `path` until the returned release. Push the
 // release onto `releases` so afterEach can free a held journey that failed.

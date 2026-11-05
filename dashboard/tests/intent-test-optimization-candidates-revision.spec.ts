@@ -11,8 +11,8 @@ import {
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   expectIntentModeChosen,
-  revisionNotice,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
+import { revisionNotice } from "./intentPerspectivePage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import { openDoughCandidatesRecord } from "./intentCandidatesFixtures.ts";
 import { openDough } from "./intentCodeBrowseFixtures.ts";

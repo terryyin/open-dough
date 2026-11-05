@@ -94,8 +94,9 @@ export function headsCheckArgv(
 }
 
 // Page time passes in steps this small; a check is seen once the step in
-// which the page asked for it has passed.
-const pageTimeStepMs = 250;
+// which the page asked for it has passed. One extra step after a silence
+// bound lets an armed deadline callback run under the paused clock.
+export const pageTimeStepMs = 250;
 
 // Advances the page clock in small steps so timers armed for `ms` of page
 // time can fire (silence, reopen, rate-limit waits) without waiting wall time.

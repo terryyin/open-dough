@@ -5,25 +5,25 @@
 // observed work. Unusable locations (`./IntentLocationsUnavailable.tsx`) and
 // failed reads each keep their own explanation; remaining locations stay
 // browseable. The reading strip (`./IntentModeTabs.tsx`) is drawn here, above
-// those explanations, so CI status (`./IntentCiStatus.tsx`), which does not
-// depend on Intent locations, is offered whatever their state. The chosen mode
-// is kept by the page per project (`./pageIntentMode.tsx`), and so is the
-// reading place: the selection, the tree's arrangement and the reading pane's
-// scroll (`./pageIntentReading.tsx`), mounted again for each project. With a
-// story selected on the page, Intent reads its default Review changes
-// comparison (`./useIntentStoryLens.ts`), which the browser overlays on the
-// published tree. The Intent reading mode names the story in one summary
+// those explanations. CI status (`./IntentCiStatus.tsx`) is Intent's homepage
+// when nothing is selected and is shown beside location explanations whether
+// or not locations are configured. The chosen mode is kept by the page per
+// project (`./pageIntentMode.tsx`), and so is the reading place: the
+// selection, the tree's arrangement and the reading pane's scroll
+// (`./pageIntentReading.tsx`), mounted again for each project. With a story
+// selected on the page, Intent reads its default Review changes comparison
+// (`./useIntentStoryLens.ts`), which the browser overlays on the published
+// tree. The Intent reading mode names the story in one summary
 // (`./IntentStorySummary.tsx`) heading the locations tree or, without one,
-// the explanation in its place; Optimization Candidates and CI status show
-// none.
+// the explanation in its place; Optimization Candidates shows none.
 
 import { useState, type ReactNode } from "react";
 import { IntentBrowser } from "./IntentBrowser.tsx";
+import { IntentCiStatus } from "./IntentCiStatus.tsx";
 import {
   LocationsNotConfigured,
   LocationsSettingsProblem,
 } from "./IntentLocationsUnavailable.tsx";
-import { IntentCiStatusPanel } from "./IntentCiStatus.tsx";
 import { IntentModeTabs } from "./IntentModeTabs.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
@@ -51,6 +51,7 @@ import "./intent-candidates.css";
 function IntentBody({
   source,
   work,
+  selectedIdentity,
   mode,
   modeIdPrefix,
   onModeChange,
@@ -59,6 +60,7 @@ function IntentBody({
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
+  readonly selectedIdentity: string | undefined;
   // The selected story as the Intent mode's summary names it, and with its
   // comparison once compared.
   readonly storySummary: StorySummary | undefined;
@@ -75,7 +77,6 @@ function IntentBody({
       observed={observed}
       updating={updating}
       failedUpdate={failedUpdate}
-      hidden={mode === "ci-status"}
       onShowLatest={showLatest}
       onRetry={retryLocations}
     />
@@ -83,36 +84,52 @@ function IntentBody({
 
   // An explanation in place of the locations browser, shown as the panel of
   // whichever location-reading mode is chosen, which takes the reading's
-  // focus; the Intent mode's names the selected story above it.
-  const shown = mode === "ci-status" ? "intent" : mode;
+  // focus; the Intent mode's names the selected story above it. CI status
+  // sits beside terminal location explanations; it is omitted while locations
+  // are still loading so the browser's empty-selection homepage does not
+  // remount a second judgment.
   const withNotice = (body: ReactNode) => (
     <>
       {notice}
       {body}
     </>
   );
-  const explained = (children: ReactNode) =>
+  const explained = (
+    children: ReactNode,
+    options: { readonly withCi: boolean } = { withCi: true },
+  ) =>
     withNotice(
       <div
         role="tabpanel"
-        id={intentTabPanelId(modeIdPrefix, shown)}
-        aria-labelledby={intentTabId(modeIdPrefix, shown)}
-        hidden={mode === "ci-status"}
+        id={intentTabPanelId(modeIdPrefix, mode)}
+        aria-labelledby={intentTabId(modeIdPrefix, mode)}
         tabIndex={-1}
       >
         {mode === "intent" && storySummary !== undefined && (
           <IntentStorySummary summary={storySummary} />
         )}
         {children}
+        {mode === "intent" && options.withCi ? (
+          <IntentCiStatus
+            source={source}
+            work={work}
+            selectedIdentity={selectedIdentity}
+          />
+        ) : null}
       </div>,
     );
   if (work === undefined || intent === "loading") {
+    // Withhold CI until locations settle: a cold Intent open can mount with
+    // work still unread (NotConfigured placeholder), and mounting CI here
+    // would judge once and again when the browser or terminal explanation
+    // replaces it.
     return explained(
       work === undefined ? (
         <LocationsNotConfigured label={source.label} />
       ) : (
         <p className="quiet">Reading Intent locations…</p>
       ),
+      { withCi: false },
     );
   }
   if ("failed" in intent) {
@@ -144,6 +161,8 @@ function IntentBody({
     <IntentWorkspaceSelectionProvider>
       <IntentBrowser
         source={source}
+        work={work}
+        selectedIdentity={selectedIdentity}
         revision={shownRevision ?? work.revision}
         locations={intent.locations}
         mode={mode}
@@ -204,6 +223,7 @@ export function IntentPerspective({
         <IntentBody
           source={source}
           work={work}
+          selectedIdentity={selectedIdentity}
           mode={mode}
           modeIdPrefix={modeIdPrefix}
           onModeChange={onModeChange}
@@ -223,13 +243,6 @@ export function IntentPerspective({
           story={compared}
         />
       </IntentReadingPlace>
-      <IntentCiStatusPanel
-        source={source}
-        work={work}
-        selectedIdentity={selectedIdentity}
-        mode={mode}
-        modeIdPrefix={modeIdPrefix}
-      />
     </main>
   );
 }

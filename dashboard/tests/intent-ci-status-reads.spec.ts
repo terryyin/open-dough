@@ -1,13 +1,12 @@
 // Reading Intent's CI status (../src/IntentCiStatus.tsx) again and from its
 // configured source: a 404 on main's history or runs is Could not be read
-// with its reason, Check again replaces a judgment that could not be read, a
-// ciAdapter project is judged from its discover attempts (SEED-219 example
-// 8) and its story branch also counts main's discover results of shared
-// commits, run on main (SEED-219#ci-status-review-corrections), and the
-// boundary read refuses unsafe judged branch names, the shared
-// branch-read parameter, and a pinned revision before asking GitHub. The tab
-// itself is in ./intent-ci-status.spec.ts; a running head with its nearest
-// completed ancestor, and Check again after it finishes showing Passed
+// with its reason, Check again replaces a judgment that could not be read, and
+// a ciAdapter project is judged from its discover attempts (SEED-219 example
+// 8) with a story branch that also counts main's discover results of shared
+// commits, run on main (SEED-219#ci-status-review-corrections). Boundary
+// refusals and the kept form are in ./intent-ci-status-read-boundary.spec.ts.
+// The tab itself is in ./intent-ci-status.spec.ts; a running head with its
+// nearest completed ancestor, and Check again after it finishes showing Passed
 // (SEED-219 example 7), is the "a running head…" step of
 // ./intent-ci-status-story.spec.ts.
 
@@ -26,7 +25,6 @@ import {
   chooseCiStatus,
   expectChecked,
   judged,
-  judgmentCalls,
   publishProject,
   runUrl,
   trunkCi,
@@ -45,7 +43,6 @@ import {
 } from "./intentCiStoryRecords.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { httpErrorAnswer } from "./originAnswers.ts";
-import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 
 test("CI status that could not be read names main and the reason; Check again reads it again", async ({
   page,
@@ -207,44 +204,4 @@ process.stdout.write(JSON.stringify({ attempts: attempts.map((each) => ({ ...eac
   expect(
     calls.filter(({ request }) => request.kind.startsWith("actions-")),
   ).toEqual([]);
-});
-
-test("the CI status read refuses an unsafe branch name and a pinned revision before asking GitHub", async ({
-  page,
-}) => {
-  const published = publishProject(page, openDough);
-  published.serveCi(trunkCi(openDough.revision, () => []));
-  await openUntilRead(page);
-  const before = published.requests.length;
-  // Asked from the page, as the page's own reads are.
-  const ask = (query: string) =>
-    page.evaluate(async (url) => {
-      const response = await fetch(url);
-      return {
-        status: response.status,
-        body: (await response.json()) as unknown,
-      };
-    }, `${authenticatedReadEndpoint}?source=open-dough&${query}`);
-  for (const query of [
-    "intent=ci-status&judged=main..other",
-    "intent=ci-status&judged=has%20space",
-    "intent=ci-status&judged=main&judged=other",
-    // The shared `branch` parameter names only a branch read.
-    "intent=ci-status&branch=main",
-    `intent=ci-status&revision=${openDough.revision}`,
-  ]) {
-    const answer = await ask(query);
-    expect(answer.status, query).toBe(400);
-  }
-  const answer = await ask("intent=ci-status");
-  expect(answer.status).toBe(200);
-  expect(answer.body).toMatchObject({
-    branch: "main",
-    state: "unread",
-  });
-  expect(judgmentCalls(published.requests.slice(before))).toEqual([
-    "actions-runs",
-    "actions-workflow",
-    "commit-list main",
-  ]);
 });

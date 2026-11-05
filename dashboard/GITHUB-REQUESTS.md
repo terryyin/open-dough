@@ -10,7 +10,9 @@ once per revision, one listing of the done record directory and one read of its 
 one per done record Recently done shows and this dashboard process has not already read (older
 entries cost theirs only once shown), one listing of the agent profile directory plus one per
 profile listed there, and, for each readable profile, one listing of its history and one request per
-commit walked back to its addition (usually one). A history listing is remembered at its revision,
+commit walked back to its addition (usually one). Opening a Session details costs, at that session's
+saved revision, what a first read of that revision's profiles costs, unless the dashboard process
+already remembers it. A history listing is remembered at its revision,
 and what a commit changed is remembered by commit, so a walk a failure or a rate limit ended asks
 again only from the step that failed, and a later revision that must walk a profile's history again
 costs only its history listing. Each GitHub account matched to a credited human costs one
@@ -23,30 +25,43 @@ Intent's reading revision, one read of `.planning/open-dough.json` when that fil
 plus one recursive Git trees listing per configured intent location and one contents read of
 each selected feature file not already pinned; a location or folder summary reads no contents,
 a file whose Purpose is the selected story's diff reads no contents, and paths outside those
-locations are refused without a contents read. The page asks the boundary once per answer per
-page: reopening a file or the Test Optimization Candidates record, or leaving Intent
-and returning at the same revision asks nothing more, and a read already in flight is joined; a
-failed, limited or refused read is asked again. A newer observed revision asks Intent for nothing
-until **Show latest**, which reads the locations and, when a file is selected, that file at the
-latest observed revision, and the Test Optimization Candidates record once that tab shows. Each time Intent's
-**CI status** tab is shown, each time its judged branch changes with the
-selected story, each time a new trunk revision is observed while the trunk is shown, each time the
-revision check finds a new head of the shown story branch it already watches for progress, and on
-each **Check again**, the trunk's judgment costs one listing of the configured ref's commit history
-(up to 30 commits) and one listing of the selected workflow's push runs on that ref, plus one lookup
-of the workflow; a selected story's branch costs four: its history listing, the push runs on that
-branch, the push runs on the configured ref, and the workflow lookup, and only the history listing
-when GitHub has no such branch. With a configured `ciAdapter`, only the history listing is asked,
-the adapter's discover answering the runs. A selected story without a branch to judge asks nothing.
-Nothing of a judgment is kept beyond the read. Once a judgment names the GitHub Actions run whose
-result the tab shows (for a running result, its completed ancestor's), that run's CI proof costs,
-for each run attempt newly shown, one listing of the run's artifacts by that attempt's summary name
-and, when the summary is listed and not expired, one download of its zip. A valid summary is
-remembered by repository, run and attempt for the dashboard process's lifetime (the latest 256
-read), so showing that attempt again, or **Check again**, asks nothing more for its proof; an
-attempt without a valid summary is asked again each time. A `ciAdapter` project asks GitHub
-nothing for its proof: its adapter's `proof` operation answers it, asked again each time. A result
-that names no completed run or attempt asks nothing for its proof. Only the ref and branch head requests are made
+locations are refused without a contents read. The page asks the boundary for those locations,
+files and the Test Optimization Candidates record once per answer per page: reopening a file or
+the Test Optimization Candidates record, or leaving Intent and returning at the same revision asks
+nothing more, and a read already in flight is joined; a failed, limited or refused read is asked
+again. A newer observed revision asks Intent for nothing until **Show latest**, which reads the
+locations and, when a file is selected, that file at the latest observed revision, and the Test
+Optimization Candidates record once that tab shows. Opening Intent with nothing selected shows CI
+status as Intent's homepage and costs the same judgment and proof reads the former **CI status**
+tab cost when shown: each time that homepage is shown (including a
+return from a file or folder selection), each time its judged branch changes with
+the selected story, each time a new trunk revision is observed while the trunk is
+shown, each time the revision check finds a new head of the shown story branch it
+already watches for progress, and on each **Check again**, the trunk's judgment
+costs one listing of the configured ref's commit history (up to 30 commits) and
+one listing of the selected workflow's push runs on that ref, plus one lookup of
+the workflow; a selected story's branch costs four: its history listing, the push
+runs on that branch, the push runs on the configured ref, and the workflow lookup,
+and only the history listing when GitHub has no such branch. With a configured
+`ciAdapter`, only the history listing is asked, the adapter's discover answering
+the runs. A selected story without a branch to judge asks nothing. Each homepage
+show also asks the kept form of that CI status read (`kept=1`), which answers
+from this dashboard process's last keepable judgment for that repository, judged
+branch and CI reading path and asks GitHub nothing; a fresh unread or failed
+judgment does not overwrite that kept answer. Per-show GitHub requests for the
+fresh judgment stay as above — the kept form does not add any. Once a judgment
+names the GitHub Actions run whose result the homepage shows (for a running
+result, its completed ancestor's), that run's CI proof costs, for each run
+attempt newly shown, one listing of the run's artifacts by that attempt's
+summary name and, when the summary is listed and not expired, one download of
+its zip. A valid summary is remembered by repository, run and attempt for the
+dashboard process's lifetime (the latest 256 read), so showing that attempt
+again, or **Check again**, asks nothing more for its proof; an attempt without a
+valid summary is asked again each time. A `ciAdapter` project asks GitHub
+nothing for its proof: its adapter's `proof` operation answers it, and a valid
+summary is remembered by repository and attempt for the process's lifetime the
+same way. A result that names no completed run or attempt asks nothing for its
+proof. Only the ref and branch head requests are made
 on every load: content and history already read at a resolved revision or branch head by any
 dashboard process of this user on this machine are not asked again, so a reload, a return to a
 project, a replaced production dashboard, or a second dashboard process at a ref and branches that

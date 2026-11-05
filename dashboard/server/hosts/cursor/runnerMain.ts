@@ -94,6 +94,8 @@ async function publishAddress(port: number): Promise<void> {
 async function shutdown(): Promise<void> {
   if (stopping) return;
   stopping = true;
+  // Hang up live clients, but leave last-held as it was before this exit:
+  // process-exit hangups are not deliberate Stop (/hangup).
   attachments.close();
   const current = readCursorRunnerAddress();
   if (current?.pid === process.pid) {

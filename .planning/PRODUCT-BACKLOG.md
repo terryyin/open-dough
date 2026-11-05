@@ -28,13 +28,12 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Show CI status and timing on the Intent homepage](seeds/SEED-239-intent-home-ci-status.md#show-ci-status-on-intent-home) — SEED-239#show-ci-status-on-intent-home ([plan](slice-plans/476-show-ci-status-on-intent-home/PLAN.md))
 - [Load Intent without disruption or bulk source transfer](seeds/SEED-241-intent-loading-and-traffic.md#load-intent-without-disruption-or-bulk-source-transfer) — SEED-241#load-intent-without-disruption-or-bulk-source-transfer ([plan](slice-plans/477-load-intent-without-disruption/PLAN.md))
 
 ## Backlog list
 
-- [Show lost freshness across repeated revision-stream failures](seeds/SEED-240-reliable-dashboard-updates-and-session-details.md#show-freshness-loss-across-stream-retries) — SEED-240#show-freshness-loss-across-stream-retries
-- [Stop revision checks when a page leaves during stream setup](seeds/SEED-240-reliable-dashboard-updates-and-session-details.md#stop-revision-checks-after-setup-disconnect) — SEED-240#stop-revision-checks-after-setup-disconnect
-- [Read session assignment history when Session details opens](seeds/SEED-240-reliable-dashboard-updates-and-session-details.md#read-session-assignments-on-demand) — SEED-240#read-session-assignments-on-demand
+- [Improve Intent home and selection summaries](seeds/SEED-243-intent-home-and-selection-summaries.md#improve-intent-home-and-selection-summaries) — SEED-243#improve-intent-home-and-selection-summaries
+- [Compare a story's CI and entry timing changes](seeds/SEED-244-story-ci-timing-changes.md#compare-story-ci-timing-changes) — SEED-244#compare-story-ci-timing-changes
+- [Compare a story's Intent entry, folder, and file summaries](seeds/SEED-245-story-intent-summary-differences.md#compare-story-intent-entry-folder-and-file-summaries) — SEED-245#compare-story-intent-entry-folder-and-file-summaries
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity

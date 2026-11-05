@@ -31,6 +31,8 @@ export const jobsFeatures = {
 
 // Intent's reads of the boundary from here on, as `<what>@<revision>`: the
 // locations, the Optimization Candidates record, or a file under the location.
+// The CI status homepage's reads follow the observed work, not Intent's
+// reading revision, and are not among them.
 export function intentReads(page: Page) {
   const reads: string[] = [];
   page.on("request", (request) => {
@@ -38,6 +40,7 @@ export function intentReads(page: Page) {
     if (url.pathname !== authenticatedReadEndpoint) return;
     const params = url.searchParams;
     const what = params.get("intent") ?? params.get("path") ?? "";
+    if (what.startsWith("ci-")) return;
     if (params.has("intent") || what.startsWith("e2e_test/")) {
       reads.push(`${what}@${params.get("revision")}`);
     }

@@ -51,6 +51,26 @@ test("a provider branch is kept, another target's attempt is dropped, and a lega
     );
 });
 
+test("optional startedAt and completedAt are carried; time stays the ordering stamp", () => {
+  const [withTimes] = targetCommandAttempts(
+    [
+      attempt({
+        time: "2026-11-05T09:59:00Z",
+        startedAt: "2026-11-05T10:00:00Z",
+        completedAt: "2026-11-05T10:03:00Z",
+      }),
+    ],
+    "main",
+  );
+  assert.equal(withTimes.createdAt, "2026-11-05T09:59:00Z");
+  assert.equal(withTimes.startedAt, "2026-11-05T10:00:00Z");
+  assert.equal(withTimes.completedAt, "2026-11-05T10:03:00Z");
+  const [without] = targetCommandAttempts([attempt()], "main");
+  assert.equal(without.startedAt, undefined);
+  assert.equal(without.completedAt, undefined);
+  assert.equal(without.createdAt, undefined);
+});
+
 test("a later attempt of another check never supersedes the required check", () => {
   const runs = targetCommandAttempts(
     [

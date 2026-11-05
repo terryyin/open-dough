@@ -1,6 +1,6 @@
 // Summary reading pane for a selected Intent location or folder
-// (`./IntentBrowser.tsx`): names the selection by path and how many matching
-// files it holds, explains an unusable location
+// (`./IntentSelectionReading.tsx`): names the selection by path and how many
+// matching files it holds, explains an unusable location
 // (`./intentLocationExplanation.ts`), and lists its immediate folders and
 // files (`./IntentSummaryChildren.tsx`).
 

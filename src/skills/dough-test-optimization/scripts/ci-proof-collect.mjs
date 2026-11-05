@@ -43,6 +43,7 @@ export function summarize({ fragments, expect, run }) {
     const found = byPart.get(entry);
     const totals = zeroCounts();
     const units = new Set();
+    let durationMs;
     const parts = [...Array(declaredParts).keys()].map((index) => {
       const part = index + 1;
       const candidates = found.get(part) ?? [];
@@ -54,14 +55,25 @@ export function summarize({ fragments, expect, run }) {
         COUNT_FIELDS.map((field) => [field, only[field]]),
       );
       for (const field of COUNT_FIELDS) totals[field] += counts[field];
-      return { part, status: "present", ...counts };
+      const present = { part, status: "present", ...counts };
+      if (only.durationMs !== undefined) {
+        present.durationMs = only.durationMs;
+        durationMs = (durationMs ?? 0) + only.durationMs;
+      }
+      return present;
     });
     if (units.size > 1) {
       throw new Error(
         `entry ${entry} has parts counted in ${[...units].join(", ")}`,
       );
     }
-    return { path: entry, unit: [...units][0] ?? null, ...totals, parts };
+    return {
+      path: entry,
+      unit: [...units][0] ?? null,
+      ...totals,
+      ...(durationMs === undefined ? {} : { durationMs }),
+      parts,
+    };
   });
   return {
     summary: {

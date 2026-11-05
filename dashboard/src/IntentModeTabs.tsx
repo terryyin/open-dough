@@ -1,20 +1,20 @@
-// The Intent perspective's three reading modes (`./IntentPerspective.tsx`):
-// Intent, its locations with their Purpose (`./IntentBrowser.tsx`),
-// Optimization Candidates, the published record across the content area, and
-// CI status, the trunk's selected-check judgment across the content area
-// (`./IntentCiStatus.tsx`), offered whether or not locations are configured.
-// One segmented strip under the banner, an Intent tablist
-// (`./IntentTabs.tsx`) of Intent's own, not another perspective.
+// The Intent perspective's two reading modes (`./IntentPerspective.tsx`):
+// Intent, its locations with CI status as the empty-selection homepage and
+// Purpose when a file is selected (`./IntentBrowser.tsx`), and
+// Optimization Candidates, the published record across the content area
+// (`./IntentCandidatesRecord.tsx`). CI status fills Intent's reading when
+// nothing is selected (`./IntentCiStatus.tsx`), offered whether or not
+// locations are configured. One segmented strip under the banner, an Intent
+// tablist (`./IntentTabs.tsx`) of Intent's own, not another perspective.
 
 import { IntentTabs, type IntentTabOption } from "./IntentTabs.tsx";
 import "./intent-mode-tabs.css";
 
-export type IntentMode = "intent" | "candidates" | "ci-status";
+export type IntentMode = "intent" | "candidates";
 
 const modes: readonly IntentTabOption<IntentMode>[] = [
   { value: "intent", label: "Intent" },
   { value: "candidates", label: "Optimization Candidates" },
-  { value: "ci-status", label: "CI status" },
 ];
 
 export function IntentModeTabs({

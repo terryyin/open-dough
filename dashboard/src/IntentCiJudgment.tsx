@@ -1,4 +1,4 @@
-// One judgment as Intent's CI status tab shows it (`./IntentCiStatus.tsx`):
+// One judgment as Intent's CI status homepage shows it (`./IntentCiStatus.tsx`):
 // the state with the judged revision, the branch the run was on when it is
 // not the judged one, later commits without their own result, the reason,
 // the run link, and a running judgment's nearest completed ancestor; a

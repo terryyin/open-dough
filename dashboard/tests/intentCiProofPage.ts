@@ -76,10 +76,10 @@ export function proofCalls(calls: readonly GhCall[]): string[] {
   );
 }
 
-// The judgment as the tab shows it: its text without Proof, the checked
+// The judgment as the homepage shows it: its text without Proof, the checked
 // time and Check again.
 export function verdictOf(panel: Locator): Promise<string> {
-  return panel.locator("section.intent-ci-status").evaluate((section) => {
+  return panel.evaluate((section) => {
     const copy = section.cloneNode(true) as HTMLElement;
     for (const shown of copy.querySelectorAll(
       ".intent-ci-proof, [role=status], button",

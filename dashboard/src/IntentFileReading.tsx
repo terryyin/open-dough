@@ -1,12 +1,11 @@
-// Purpose of the selected file, or of nothing selected yet
-// (`./IntentBrowser.tsx`), filling the reading area, which scrolls it.
-// Opening from the candidates record starts a fresh reading positioned on its
-// case. The file read is the browser's. A file the selected story changed
-// (`./intentStoryOverlay.ts`) shows Review changes' own diff of it as its
-// Purpose (`storyDiffOf`), and the browser reads no published text for it;
-// a file the published revision does not list is never read there. Text of an
-// earlier revision whose update failed stays readable under that failure and
-// its Retry.
+// Purpose of the selected file (`./IntentSelectionReading.tsx`), filling the
+// reading area, which scrolls it. Opening from the candidates record starts a
+// fresh reading positioned on its case. The file read is the browser's. A file
+// the selected story changed (`./intentStoryOverlay.ts`) shows Review changes'
+// own diff of it as its Purpose (`storyDiffOf`), and the browser reads no
+// published text for it; a file the published revision does not list is never
+// read there. Text of an earlier revision whose update failed stays readable
+// under that failure and its Retry.
 
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import { resolveCaseTargetLine } from "./intentCaseTargetLine.ts";
@@ -42,7 +41,7 @@ export function IntentFileReading({
   onFileRetry,
   failedRevision,
 }: {
-  // The selected file's path, or "" when nothing is selected.
+  // The selected file's path.
   readonly path: string;
   // The revision of the text shown, and a later one whose read failed.
   readonly revision: string;
@@ -70,9 +69,7 @@ export function IntentFileReading({
   return (
     <section className="intent-purpose" aria-label="Purpose">
       <h3 className="visually-hidden">Purpose</h3>
-      {path === "" ? (
-        <p className="quiet">Select a file to read its Purpose.</p>
-      ) : story !== undefined && change !== undefined ? (
+      {story !== undefined && change !== undefined ? (
         <div className="intent-story-diff">
           <p className="intent-story-diff-name">
             <ReviewedFileName file={change} />

@@ -5,7 +5,10 @@
 // collector's own contract and used only when it names the asked
 // repository, attempt (the text form of its `attemptId`) and revision
 // (ADR 0008: missing, outdated or conflicting evidence is never a result).
-// Asks no `gh`, and keeps nothing: every read asks the adapter again.
+// Asks no `gh`. A valid summary is immutable per attempt, so it is
+// remembered by repository and attempt for this process's lifetime beside
+// the GitHub Actions summary memory (`./ciProofArtifact.ts`); every other
+// answer is asked of the adapter again.
 import { readCommandProof } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import {
   adapterResponseBytes,
@@ -15,6 +18,12 @@ import {
 import { summaryProblems } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import type { CiAdapterProofAttempt, CiProof } from "../src/ciProof.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
+import { rememberedByKey } from "./rememberedByKey.ts";
+
+// Valid summaries read so far, by repository and attempt.
+const remembered = rememberedByKey<Record<string, unknown>>();
+const rememberedKey = (repository: string, attempt: CiAdapterProofAttempt) =>
+  `${repository.toLowerCase()}#${attempt.runId}#${attempt.attemptId}#${attempt.revision}`;
 
 const unavailable = (
   reason: Extract<CiProof, { kind: "unavailable" }>["reason"],
@@ -89,6 +98,10 @@ export async function readCiAdapterProof(
   // shortens it.
   timeoutMs: number = defaultAdapterTimeoutMs,
 ): Promise<CiProof> {
+  const key = rememberedKey(repository, attempt);
+  const rememberedSummary = remembered.get(key);
+  if (rememberedSummary !== undefined)
+    return { kind: "summary", summary: rememberedSummary } as CiProof;
   let answer: { summary?: Record<string, unknown>; unavailable?: string };
   try {
     const { adapter } = ciConfiguration(folder);
@@ -118,5 +131,6 @@ export async function readCiAdapterProof(
   if (problems.length > 0) return unavailable("invalid", problems.join("; "));
   const mismatch = mismatchOf(summary, repository, attempt);
   if (mismatch !== undefined) return unavailable("mismatched", mismatch);
+  remembered.set(key, summary);
   return { kind: "summary", summary } as CiProof;
 }

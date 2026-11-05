@@ -10,7 +10,7 @@ import {
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   intentModeTab,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   doughnutFeaturePath,

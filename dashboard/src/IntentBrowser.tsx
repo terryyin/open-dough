@@ -4,29 +4,30 @@
 // `./IntentPerspective.tsx`, kept per project by `./pageIntentMode.tsx`); Intent
 // shows the locations. Locations (book icon) and folders (folder icon) share
 // toggle (expansion only) and name (select; toggle once selected) controls; a
-// toggle never changes selection or the reading pane. A file, or nothing
-// selected yet, shows its Purpose (`./IntentFileReading.tsx`); a location or
-// folder name shows a Summary (`./IntentSummary.tsx`), whose child names open
-// their target as the record's links do (`./IntentCandidatesRecord.tsx`). A
-// failed file read keeps its own explanation and retry. Selection is owned by
-// the Intent workspace (`./intentWorkspaceSelection.ts`). With a
-// selected story's comparison, the trees follow it (`./useIntentStoryTree.ts`)
-// under the story's summary heading the locations (`./IntentStorySummary.tsx`).
-// A file the published revision does not list is never read. The browser
-// unmounts with Intent; the selection, the expanded location, the reveal and
-// the reading pane's scroll are kept with the project's reading place
-// (`./pageIntentReading.tsx`) and restored when it opens again. A story
-// selected while Intent is hidden starts the tree's arrangement afresh, so its
-// expansion applies when Intent opens, with the toggle off.
+// toggle never changes selection or the reading pane. Nothing selected shows
+// CI status as Intent's homepage; a file shows its Purpose; a location or
+// folder name shows a Summary, whose child names open their target as the
+// record's links do (`./IntentCandidatesRecord.tsx`) — all in
+// `./IntentSelectionReading.tsx`, whose return-home control clears the
+// selection back to CI status. A failed file read keeps its own explanation
+// and retry. Selection is owned by the Intent workspace
+// (`./intentWorkspaceSelection.ts`). With a selected story's comparison, the
+// trees follow it (`./useIntentStoryTree.ts`) under the story's summary
+// heading the locations (`./IntentStorySummary.tsx`). A file the published
+// revision does not list is never read. The browser unmounts with Intent; the
+// selection, the expanded location, the reveal and the reading pane's scroll
+// are kept with the project's reading place (`./pageIntentReading.tsx`) and
+// restored when it opens again. A story selected while Intent is hidden starts
+// the tree's arrangement afresh, so its expansion applies when Intent opens,
+// with the toggle off.
 
 import { useRef } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
-import { IntentFileReading, storyDiffOf } from "./IntentFileReading.tsx";
+import { storyDiffOf } from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
-import { IntentPathNotInRevision } from "./IntentRevisionNotice.tsx";
-import { IntentSummary } from "./IntentSummary.tsx";
+import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
 import {
@@ -35,7 +36,6 @@ import {
   useKeptReadingScroll,
 } from "./pageIntentReading.tsx";
 import {
-  filesOfSelection,
   owningLocation,
   treeHoldsSelection,
 } from "./intentSelectionCoverage.ts";
@@ -46,6 +46,7 @@ import {
 } from "./intentWorkspaceSelection.ts";
 import { overlayFilesByPath } from "./intentStoryOverlay.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import type { PublishedWork } from "./publishedWork.ts";
 import { useIntentFileRead } from "./useIntentFileRead.ts";
 import { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useLocationOpenFolders.ts";
@@ -57,6 +58,8 @@ import {
 
 export function IntentBrowser({
   source,
+  work,
+  selectedIdentity,
   revision,
   locations,
   mode,
@@ -66,6 +69,8 @@ export function IntentBrowser({
   story,
 }: {
   readonly source: PublishedSource;
+  readonly work: PublishedWork;
+  readonly selectedIdentity: string | undefined;
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
   // The selected story as the summary heading the locations names it, and
@@ -204,32 +209,27 @@ export function IntentBrowser({
           })}
         </div>
         <div ref={readingPane} className="intent-reading" tabIndex={-1}>
-          {missing ? (
-            <IntentPathNotInRevision path={selectedPath} revision={revision} />
-          ) : (scope === "location" || scope === "folder") &&
-            selectedLocation !== undefined ? (
-            <IntentSummary
-              key={`${source.id}:${revision}:${selectedPath}`}
-              path={selectedPath}
-              files={filesOfSelection(selectedLocation, selection)}
-              location={selectedLocation}
-              onOpen={openRevealed}
-            />
-          ) : null}
-          {!missing && (scope === "file" || scope === "none") ? (
-            <IntentFileReading
-              key={revealedOpens}
-              path={selectedPath}
-              revision={fileRead.revision ?? revision}
-              read={fileRead.read}
-              failedRevision={fileRead.failedRevision}
-              kind={selectedLanguage}
-              caseTarget={selection.caseTarget}
-              treeFile={selectedFile}
-              story={story}
-              onFileRetry={fileRead.retry}
-            />
-          ) : null}
+          <IntentSelectionReading
+            source={source}
+            work={work}
+            selectedIdentity={selectedIdentity}
+            revision={revision}
+            fileRevision={fileRead.revision ?? revision}
+            failedRevision={fileRead.failedRevision}
+            selection={selection}
+            missing={missing}
+            selectedLocation={selectedLocation}
+            selectedFile={selectedFile}
+            selectedLanguage={selectedLanguage}
+            story={story}
+            read={fileRead.read}
+            onFileRetry={fileRead.retry}
+            onOpen={openRevealed}
+            onClearSelection={() => {
+              setSelection({ path: "" });
+            }}
+            readingKey={revealedOpens}
+          />
         </div>
       </div>
       <IntentCandidatesPanel

@@ -1,8 +1,6 @@
-// One catalog source's open revision streams for a request-owner scope: while
-// at least one subscriber is open, settles one branch-head listing per pace
-// through `./revisionChecks.ts` via `./sharedObservation.ts`, and answers
-// each stream through `./performedRevisionCheck.ts` in today's revision-check
-// shape. Owned by `./revisionStreamObservation.ts`.
+// One source+scope's open revision streams: one listing per pace via
+// `./revisionChecks.ts` / `./sharedObservation.ts`, answered through
+// `./performedRevisionCheck.ts`. Owned by `./revisionStreamObservation.ts`.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import {
@@ -63,7 +61,9 @@ export class SourceRevisionStream {
       () => {
         this.close();
       },
-      { once: true },
+      {
+        once: true,
+      },
     );
     this.shared = new SharedObservation(
       () => this.readers.checks.check(this.source, this.listing.signal),
@@ -75,25 +75,30 @@ export class SourceRevisionStream {
     ask: RevisionStreamAsk,
     req: IncomingMessage,
     res: ServerResponse,
+    // Admission-tracked controller; refuse if departure/registry close raced join.
+    admission: AbortController,
   ): void {
-    const controller = new AbortController();
-    this.readers.tracked.add(controller);
+    if (this.closed || admission.signal.aborted) {
+      this.readers.tracked.delete(admission);
+      endRevisionStream(res);
+      return;
+    }
+    this.readers.tracked.add(admission);
     const subscriber: StreamSubscriber = {
       at: ask.at,
       watched: ask.watched,
       res,
-      controller,
+      controller: admission,
     };
     const leave = () => {
       this.leave(subscriber);
     };
     req.on("close", leave);
     res.on("close", leave);
-    controller.signal.addEventListener("abort", leave, { once: true });
+    admission.signal.addEventListener("abort", leave, { once: true });
     this.subscribers.add(subscriber);
-    // Answer from a shared demand first; schedule the pace only after that
-    // settles so a lowered test pace cannot start a second listing before the
-    // open answers are observed.
+    // Shared demand first; schedule pace only after it settles so a lowered
+    // test pace cannot start a second listing before open answers are observed.
     void this.answerFromDemand(subscriber).finally(() => {
       if (
         !this.closed &&

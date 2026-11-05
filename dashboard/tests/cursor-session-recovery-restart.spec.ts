@@ -1,18 +1,18 @@
 // Machine-restart shape, end to end: the runner is killed with its
 // address left stale (dead pid, freed port), reopening reads the scoped
-// recorded session as not running and starts nothing, and Recover then
-// resumes the same chat under its recorded scope on a freshly started
-// current runner. Deterministic fake-Cursor proof only: real
-// `cursor-agent` resumption after a real runner kill and after a real
-// machine reboot, with a scoped session, remains pending native
-// verification under ADR 0005 and is claimed nowhere here.
+// recorded session as not running and starts nothing, and the next
+// new-work path starts a current runner and holds that previously held
+// unfinished session again without Recover. Deterministic fake-Cursor
+// proof only: real `cursor-agent` resumption after a real runner kill and
+// after a real machine reboot, with a scoped session, remains pending
+// native verification under ADR 0005 and is claimed nowhere here.
 import { cursorRunnerSentence } from "../src/cursorRunnerSessions.ts";
 import { readCursorRunnerAddress } from "../server/hosts/cursor/runnerPaths.ts";
-import { parts } from "./dashboardPage.ts";
+import { parts, sessionStateOf } from "./dashboardPage.ts";
+import { startSessionField } from "./launchStoryCardPage.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 import {
   agentCalls,
-  expectNormalizedReading,
   expectReadingWithoutScreenLabel,
 } from "./support/cursorSessionReading.ts";
 import {
@@ -21,14 +21,18 @@ import {
 } from "./support/cursorScopeAssertions.ts";
 import { killCursorRunnerLeavingAddress } from "./support/cursorRunnerRecordedAddress.ts";
 import {
+  agentNotRunningLabel,
   keptRecords,
   startScopedCursorExecution,
 } from "./support/cursorSessionRecovery.ts";
 import { expect, test } from "./support/cursorStart.ts";
+import { launchWaitMs } from "./support/launchWait.ts";
 
 test.use({ cursorSubmitPaintMs: 300 });
 
-test("runner killed with its address left stale: reopening starts nothing and Recover resumes the scoped session on a fresh runner", async ({
+const newWorkSessionId = "f6a7b8c9-d0e1-4cde-bef0-3456789abcde";
+
+test("runner killed with its address left stale: reopening starts nothing and new work revives the prior unfinished session without Recover", async ({
   page,
   dashboard,
   origin,
@@ -63,10 +67,54 @@ test("runner killed with its address left stale: reopening starts nothing and Re
   expect(agentCalls(cursor)).toEqual(calls);
   expect(cursor.attaches()).toHaveLength(attaches);
 
-  await entry.getByRole("button", { name: "Recover" }).click();
-  await expectNormalizedReading(entry, "Ready for review", true);
-  await expect.poll(() => cursor.attaches().length).toBe(attaches + 1);
-  const resumed = cursor.attaches().at(-1);
+  // New work starts a current runner and revives the prior unfinished
+  // last-held session without a Recover click.
+  cursor.queueCreateChatId(newWorkSessionId);
+  await page
+    .getByRole("button", { name: "Start session in Open Dough" })
+    .click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
+  await startSessionField(dialog).fill(
+    "new work after dead runner should revive prior session",
+  );
+  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await expect
+    .poll(
+      () =>
+        cursor.attaches().filter((each) => each.sessionId === newWorkSessionId)
+          .length,
+      { timeout: launchWaitMs },
+    )
+    .toBe(1);
+
+  const fresh = readCursorRunnerAddress(dashboard.home);
+  expect(fresh?.pid).not.toBe(stale.pid);
+  expect(fresh?.buildId).toBeTruthy();
+
+  await expect
+    .poll(
+      () =>
+        cursor.attaches().filter((each) => each.sessionId === cursor.sessionId)
+          .length,
+      { timeout: launchWaitMs },
+    )
+    .toBe(attaches + 1);
+
+  await reloadUntilRead(page);
+  const prior = parts(page)
+    .taken.locator(".session-entry")
+    .filter({ hasText: cursor.sessionId });
+  await expect(prior.getByRole("button", { name: "Recover" })).toHaveCount(0);
+  await expect(sessionStateOf(prior)).not.toHaveText(agentNotRunningLabel);
+  await expect(sessionStateOf(prior)).not.toHaveText(
+    cursorRunnerSentence("not-running"),
+  );
+
+  const resumed = cursor
+    .attaches()
+    .filter((each) => each.sessionId === cursor.sessionId)
+    .at(-1);
   expect(resumed?.sessionId).toBe(cursor.sessionId);
   expect(resumed?.args).toEqual([
     "--workspace",
@@ -75,7 +123,4 @@ test("runner killed with its address left stale: reopening starts nothing and Re
     cursor.sessionId,
   ]);
   expectContinuationThroughScope(resumed, scope);
-  const fresh = readCursorRunnerAddress(dashboard.home);
-  expect(fresh?.pid).not.toBe(stale.pid);
-  expect(fresh?.buildId).toBeTruthy();
 });

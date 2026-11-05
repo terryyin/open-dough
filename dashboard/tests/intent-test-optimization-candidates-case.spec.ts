@@ -8,7 +8,7 @@ import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   openDoughCaseLineNumber,

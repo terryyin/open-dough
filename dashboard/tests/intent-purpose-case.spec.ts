@@ -7,7 +7,8 @@
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { intentModeTab, purposeRegion } from "./intentPerspectivePage.ts";
+import { intentModeTab } from "./intentModePage.ts";
+import { purposeRegion } from "./intentPerspectivePage.ts";
 import { contentReadsOf } from "./intentCodeBrowseFixtures.ts";
 import {
   doughnutCaseFeaturePath,

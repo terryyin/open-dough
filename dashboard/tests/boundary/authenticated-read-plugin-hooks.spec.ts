@@ -7,12 +7,9 @@
 
 import { expect, test } from "../support/pageTest.ts";
 import { mkdtempSync, rmSync } from "node:fs";
-import http from "node:http";
-import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
-import { localBoundaryPlugin } from "../../server/localBoundaryPlugin.ts";
 import { endFakeGh, fakeGhEnv, installFakeGh } from "../support/fakeGh.ts";
 import { processAlive, readPid } from "../support/processGroup.ts";
 import {
@@ -24,17 +21,9 @@ import { waitUntil } from "../support/waitUntil.ts";
 import { abandonedRequest } from "../support/rawHttp.ts";
 import { withRestoredEnv } from "../support/testEnv.ts";
 import { configureDevelopmentProjects } from "../support/projectConfiguration.ts";
+import { startInProcessBoundaryHttp } from "../support/inProcessBoundaryHttp.ts";
 
 const knownSourceId = "open-dough";
-
-// A minimal stand-in for `Connect.Server`: the plugin's `configureServer`
-// hook only ever calls `.use(handler)` on what it is
-// given, so that is all this needs to provide.
-type StoredHandler = (
-  req: http.IncomingMessage,
-  res: http.ServerResponse,
-  next: () => void,
-) => void;
 
 test.describe("authenticated read boundary: closeServer/closePreviewServer hook wiring", () => {
   // This is the specific defect a coordinator review found: this project's
@@ -65,44 +54,15 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
       HOME: home,
     });
 
-    let storedHandler: StoredHandler | undefined;
-    const connectStub = {
-      use(fn: StoredHandler) {
-        storedHandler = fn;
-      },
-    };
-
-    const plugin = localBoundaryPlugin({
+    const boundary = await startInProcessBoundaryHttp({
       name: "dough-authenticated-read",
       install: installAuthenticatedReadMiddleware,
     });
-    // Cast through the plugin's own actual runtime shape: both hooks are
-    // written as plain functions (object-method shorthand), never Rollup's
-    // alternate `{ handler, order }` object form, so this reflects what
-    // the plugin really is, not its looser declared type.
-    const configureServer = plugin.configureServer as unknown as (server: {
-      middlewares: typeof connectStub;
-    }) => void;
-    const closeServer =
-      plugin.closeServer as unknown as () => void | Promise<void>;
-
-    configureServer({ middlewares: connectStub });
-
-    const rawServer = http.createServer((req, res) => {
-      storedHandler?.(req, res, () => {
-        res.writeHead(404);
-        res.end();
-      });
-    });
-    await new Promise<void>((resolve) => {
-      rawServer.listen(0, "127.0.0.1", resolve);
-    });
-    const { port } = rawServer.address() as AddressInfo;
 
     try {
       abandonedRequest({
-        url: `http://127.0.0.1:${String(port)}/__authenticated-read?source=${knownSourceId}`,
-        headers: { Origin: `http://127.0.0.1:${String(port)}` },
+        url: `${boundary.origin}/__authenticated-read?source=${knownSourceId}`,
+        headers: { Origin: boundary.origin },
       });
       const becameAlive = await waitUntil(
         () => processAlive(readPid(gh.pidPath)),
@@ -113,19 +73,14 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
       // The isolation: this plain `http.Server` is never closed, and this
       // test's own client connection is never destroyed. Only the plugin's
       // `closeServer` hook function is invoked.
-      await closeServer();
+      await boundary.closeBoundary();
 
       const died = await waitUntil(() => !processAlive(readPid(gh.pidPath)), {
         timeoutMs: 5_000,
       });
       expect(died).toBe(true);
     } finally {
-      rawServer.closeAllConnections();
-      await new Promise<void>((resolve) => {
-        rawServer.close(() => {
-          resolve();
-        });
-      });
+      await boundary.closeHttp();
       restoreEnv();
       await endFakeGh(gh);
       await github.close();

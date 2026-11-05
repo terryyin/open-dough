@@ -81,10 +81,11 @@ once at once, under the same listing reuse as a paced check, then resumes the
 15-second pace. Hiding or closing a stream
 holder frees its slot so a queued checking page on a capped route can take
 over and stream. A stream that fails, closes, or stays silent longer than one
-15-second pace plus the 30-second read wait bound is reported as a failed
-check is today (snapshot kept; problem says freshness was lost); the page
-closes that EventSource itself, reopens no more often than the pace, and
-clears the problem on the first answer after a reopen. A rate-limited stream
+15-second pace plus the 30-second read wait bound — counted from the last
+successful answer, or from when the page began observing, across reopens — is
+reported as a failed check is today (snapshot kept; problem says freshness was
+lost); the page closes that EventSource itself, reopens no more often than the
+pace, and clears the problem on the first answer after a reopen. A rate-limited stream
 answer starts today's limit record and notice, closes the stream, and asks
 nothing until that time, then reopens. Each read settles on one revision's
 facts. A new revision's membership and order show as soon as its backlog is
@@ -111,7 +112,9 @@ a read another page still waits for; for an ordinary content or ref read the
 last one leaving ends it, as closing the dashboard does, while a
 revision-check listing runs under its own tracked lifetime so it may still
 settle and serve the next check within the window. The last open stream for a
-project and scope ending also ends that scope's paced observation. A finished
+project and scope ending also ends that scope's paced observation. A stream
+whose page departs, or whose boundary closes, while its open is still resolving
+request-owner scope acquires no listing or paced observation for that open. A finished
 ref answer is never reused for a later open: a later open or return asks again.
 A shared request that GitHub refuses, or leaves unanswered for the 30-second
 bound counted from when it was first asked, fails every page waiting on it

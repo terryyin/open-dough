@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-240#show-freshness-loss-across-stream-retries",
+  "title": "Show lost freshness across repeated revision-stream failures",
+  "completedAt": "2026-11-05T13:28:45.398Z",
+  "developer": "Terry Yin",
+  "agent": "aki-chan",
+  "host": "cursor",
+  "model": "auto"
+}

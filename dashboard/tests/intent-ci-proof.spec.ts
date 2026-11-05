@@ -72,8 +72,8 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
       runUrl,
     );
     await expect(proof.getByRole("listitem")).toHaveText([
-      "dashboard/tests: 19 passed and 1 failed tests; 2 of 2 parts present.",
-      "tests: 5 passed checks; 1 of 1 part present.",
+      "dashboard/tests: 19 passed and 1 failed tests; test execution time not recorded: this summary has no test execution durations; 2 of 2 parts present.",
+      "tests: 5 passed checks; test execution time not recorded: this summary has no test execution durations; 1 of 1 part present.",
     ]);
     await expect(proof.locator(".intent-ci-proof-gap")).toHaveCount(0);
     await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
@@ -100,7 +100,7 @@ test("a missing part is shown as a gap and its counts are not counted", async ({
     () => summaryZipAnswer(summary),
   );
   await expect(proof.getByRole("listitem")).toHaveText([
-    "dashboard/tests: 110 passed tests; 11 of 12 parts present; part 4 of 12 missing.",
+    "dashboard/tests: 110 passed tests; test execution time partial: part 4 of 12 missing; 11 of 12 parts present; part 4 of 12 missing.",
   ]);
   await expect(proof.locator(".intent-ci-proof-gap")).toHaveText([
     "; part 4 of 12 missing",

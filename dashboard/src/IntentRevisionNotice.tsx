@@ -64,7 +64,6 @@ export function IntentRevisionNotice({
   observed,
   updating,
   failedUpdate,
-  hidden,
   onShowLatest,
   onRetry,
 }: {
@@ -75,7 +74,6 @@ export function IntentRevisionNotice({
   readonly updating: boolean;
   // The failed read of the revision the reading is moving to, and its Retry.
   readonly failedUpdate: FailedLocationsUpdate | undefined;
-  readonly hidden: boolean;
   // Moves the reading to the observed revision.
   readonly onShowLatest: (() => void) | undefined;
   readonly onRetry: () => void;
@@ -103,7 +101,6 @@ export function IntentRevisionNotice({
       className="intent-revision-notice"
       role="status"
       aria-live="polite"
-      hidden={hidden}
     >
       {newer && (
         <>
