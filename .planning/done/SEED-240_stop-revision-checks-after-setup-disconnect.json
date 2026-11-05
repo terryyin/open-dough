@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-240#stop-revision-checks-after-setup-disconnect",
+  "title": "Stop revision checks when a page leaves during stream setup",
+  "completedAt": "2026-11-05T13:33:42.021Z",
+  "developer": "Terry Yin",
+  "agent": "YeongSheng-chan",
+  "host": "cursor",
+  "model": "auto"
+}

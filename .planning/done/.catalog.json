@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-240_stop-revision-checks-after-setup-disconnect.json",
+      "identity": "SEED-240#stop-revision-checks-after-setup-disconnect",
+      "completedAt": "2026-11-05T13:33:42.021Z",
+      "blob": "eba0a30dd8b27ebbad936792ca09e866d7257a7e"
+    },
+    {
       "fileName": "SEED-239_show-ci-status-on-intent-home.json",
       "identity": "SEED-239#show-ci-status-on-intent-home",
       "completedAt": "2026-11-05T13:20:53.750Z",
