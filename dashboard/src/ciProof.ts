@@ -1,30 +1,59 @@
-// The CI proof of one GitHub Actions run attempt, as the local authenticated
-// read boundary answers it (`../server/intentCiProofRead.ts`): the run's
-// proof summary, in the collector's versioned summary schema
+// The CI proof of one CI attempt, as the local authenticated read boundary
+// answers it (`../server/intentCiProofRead.ts`): a GitHub Actions run
+// attempt's or a ciAdapter attempt's proof summary, in the collector's
+// versioned summary schema
 // (`../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs`),
-// or the one reason no proof can be shown for that run.
+// or the one reason no proof can be shown for that attempt.
 import { z } from "zod";
 
-// The run a proof read is keyed by: the judged result's run id and attempt,
-// and the revision it tested.
+// The GitHub Actions run a proof read is keyed by: the judged result's run id
+// and attempt, and the revision it tested.
 export type CiProofRun = {
   readonly runId: number;
   readonly runAttempt: number;
   readonly revision: string;
 };
 
+// The ciAdapter attempt a proof read is keyed by: the text form of the
+// discovered attempt's `runId` and `attemptId`, the branch whose discover
+// listed it, and the revision it tested.
+export type CiAdapterProofAttempt = {
+  readonly runId: string;
+  readonly attemptId: string;
+  readonly branch: string;
+  readonly revision: string;
+};
+
+// What one proof read is of.
+export type CiProofSubject = CiProofRun | CiAdapterProofAttempt;
+
+export function isAdapterProofAttempt(
+  subject: CiProofSubject,
+): subject is CiAdapterProofAttempt {
+  return "attemptId" in subject;
+}
+
+// Only the fields that key a proof read of `subject`, without any other
+// field it carries (a read's kind, a shown link).
+export function ciProofSubjectOf(subject: CiProofSubject): CiProofSubject {
+  if (isAdapterProofAttempt(subject)) {
+    const { runId, attemptId, branch, revision } = subject;
+    return { runId, attemptId, branch, revision };
+  }
+  const { runId, runAttempt, revision } = subject;
+  return { runId, runAttempt, revision };
+}
+
 // Why no proof can be shown: the run has no summary, it has expired, it
-// could not be read (GitHub refused or could not answer, or its archive
-// could not be opened), it is not a valid summary, it names another
-// repository, run, attempt or revision, or the project's CI is read through
-// a ciAdapter.
+// could not be read (GitHub or the adapter refused or could not answer, or
+// its archive could not be opened), it is not a valid summary, or it names
+// another repository, run, attempt or revision.
 export const ciProofUnavailableReasons = [
   "none",
   "expired",
   "unreadable",
   "invalid",
   "mismatched",
-  "ci-adapter",
 ] as const;
 export type CiProofUnavailableReason =
   (typeof ciProofUnavailableReasons)[number];
@@ -52,14 +81,17 @@ const entrySchema = z.object({
 });
 export type CiProofEntry = z.infer<typeof entrySchema>;
 
-const summarySchema = z.object({
+// A summary names either a GitHub Actions run attempt or an adapter attempt.
+const summaryFields = z.object({
   schemaVersion: z.literal(1),
   repository: z.string().min(1),
-  runId: positive,
-  runAttempt: positive,
   revision: z.string().min(1),
   entries: z.array(entrySchema),
 });
+const summarySchema = z.union([
+  summaryFields.extend({ runId: positive, runAttempt: positive }),
+  summaryFields.extend({ attemptId: z.string().min(1) }),
+]);
 
 export const ciProofSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("summary"), summary: summarySchema }),

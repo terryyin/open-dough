@@ -16,30 +16,30 @@ are one display reason and also cover 2f; B3 and 4a are the same check; X1 is sh
 | G1.q | ...as GitHub Actions projects already do (parity with the existing GitHub Actions display) | slice 3 | |
 | G2 | When there is no proof to show, one line says why | slice 3 | |
 | G3 | When there is no proof to show, the verdict is unchanged | slice 3 | |
-| G4 | Pygardon is the first such project; its controller identifies attempts with UUIDs (so adapter attempt IDs may be non-numeric text) | slice 2 | |
+| G4 | Pygardon is the first such project; its controller identifies attempts with UUIDs (so adapter attempt IDs may be non-numeric text) | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts UUID attempt 9f1c2d3e-… named and shown |
 | G5 | `SEED-20261076#publish-pygardon-ci-proof` consumes this story's release to complete its live Intent check | slice 5 | |
 | 1a | The CI proof collector accepts a CI-adapter attempt identity | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-summary.test.mjs 'the command line writes an adapter attempt's fragment and summary…' and '…refuses … naming both attempt identities or neither, without writing' |
 | 1b | A fragment can name the adapter's `attemptId` as text, with the full revision and the repository, in place of the GitHub Actions `runId` and `runAttempt` integers | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-fragments.test.mjs 'an adapter attempt's identity names its fragment by attemptId'; CLI --attempt-id fragment included by attemptId in src/skills/dough-test-optimization/scripts/ci-proof-summary.test.mjs 'the command line writes an adapter attempt's fragment and summary…' |
 | 1c | A summary can name the adapter's `attemptId` as text, with the full revision and the repository, in place of `runId`/`runAttempt` | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-summary.test.mjs written summary names O/P, attemptId, revision, no runId, summaryProblems []; src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'an adapter attempt's summary names its attemptId…' |
 | 1d | `summarize` collects only fragments of that same attempt and revision, as it does for a GitHub Actions attempt | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs 'an adapter attempt's summary … keeps only fragments of that attempt and revision' and 'an earlier attempt's, an adapter attempt's or another revision's fragment is excluded…'; CLI exclusion notes in src/skills/dough-test-optimization/scripts/ci-proof-summary.test.mjs |
 | 1e | A GitHub Actions summary written by an already copied collector stays valid | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs example-1 GitHub summary deepEqual unchanged; dashboard intent-ci-proof*.spec.ts (7 passed) validate collector-built GitHub summaries via ciProofArtifact.ts summaryProblems |
-| 2a | The CI adapter protocol gains a `proof` operation | slice 2 | |
-| 2b | The `proof` request names the check and the attempt (`runId`, `attemptId`, `sha`), as `diagnose` does | slice 2 | |
-| 2c | `proof` answers either with the attempt's summary... | slice 2 | |
-| 2d | ...or with `unavailable` and a reason | slice 2 | |
-| 2e | The existing per-invocation timeout and stdout limit apply to `proof` | slice 2 | |
+| 2a | The CI adapter protocol gains a `proof` operation | slice 2 | observed: src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs 'the proof read asks the documented request in its folder and accepts a summary or an unavailability reason' |
+| 2b | The `proof` request names the check and the attempt (`runId`, `attemptId`, `sha`), as `diagnose` does | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts proofRequests() toEqual {operation:proof, check:{repo,branch}, attempt:{runId,attemptId,sha}}; src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs exact stdin line |
+| 2c | `proof` answers either with the attempt's summary... | slice 2 | observed: src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs summary accepted; dashboard/tests/intent-ci-proof-adapter.spec.ts summary shown |
+| 2d | ...or with `unavailable` and a reason | slice 2 | observed: src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs unavailable reason accepted, cut to 600 bytes |
+| 2e | The existing per-invocation timeout and stdout limit apply to `proof` | slice 2 | observed: src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs 'the proof read refuses any other answer and keeps the adapter limits' (>64 KiB maxBuffer, timeout kill) |
 | 2f | A summary that exceeds the timeout or stdout limit reads as unreadable | slice 3 | |
-| 2g | `discover` is unchanged | slice 2 | |
-| 2h | `diagnose` is unchanged | slice 2 | |
-| 2i | The execution observer is unchanged; the observer never asks for proof | slice 2 | |
-| 3a | The CI status judgment of a `ciAdapter` project keeps the shown attempt's identity (today it is stripped) | slice 2 | |
-| 3b | The tab reads that attempt's proof through the project's adapter, run from the project folder like `discover` | slice 2 | |
+| 2g | `discover` is unchanged | slice 2 | observed: ci-command-adapter{,-cli,-failures,-unavailable,-history-coverage}.test.mjs unchanged and passing; discover code unchanged |
+| 2h | `diagnose` is unchanged | slice 2 | observed: diagnose request unchanged (ci-command-adapter.mjs diagnose block); diagnose tests passing |
+| 2i | The execution observer is unchanged; the observer never asks for proof | slice 2 | observed: observer never calls readCommandProof; existing observer test asserts only discover requests |
+| 3a | The CI status judgment of a `ciAdapter` project keeps the shown attempt's identity (today it is stripped) | slice 2 | observed: dashboard/server/baseCiAdapterAttempts.ts asAdapterAttempts → adapterAttempt; tests/support/dashboard-story-branch-ci-adapter.test.mjs numeric ids stay in adapterAttempt, no runId/runAttempt, ambiguous at one sha |
+| 3b | The tab reads that attempt's proof through the project's adapter, run from the project folder like `discover` | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts fixture adapter logs requests relative to project folder; proof read via dashboard/server/ciAdapterProof.ts readCommandProof, no actions-* gh request |
 | 3c | The proof read happens apart from the judgment, so a slow or failed proof read never delays the verdict | slice 3 | |
 | 3d | ...and a slow or failed proof read never alters the verdict | slice 3 | |
-| 3e | A running result's proof is its completed ancestor's, as for GitHub Actions | slice 2 | |
+| 3e | A running result's proof is its completed ancestor's, as for GitHub Actions | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts 'a running ciAdapter story branch shows its completed ancestor attempt's proof' |
 | 4a | The tab shows the summary only when its repository, `attemptId` and full revision equal the displayed attempt's | slice 3 | |
 | 4b | ...and no other discovered attempt has that same `attemptId` and revision | slice 3 | |
-| 4c | A numeric adapter `attemptId` matches the summary's text form of it | slice 2 | |
+| 4c | A numeric adapter `attemptId` matches the summary's text form of it | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts Check again with numeric 7/1 shows 'Attempt 1 at 4774f60.' with the row; request carried "7"/"1" |
 | 4d | Otherwise one line says why Proof is unavailable, for these reasons: | slice 3 | |
 | 4d.1 | The adapter answered no proof read (it failed, timed out, exited nonzero or answered invalid JSON, as an adapter without the operation does), with its error | slice 3 | |
 | 4d.2 | The adapter's own `unavailable` reason | slice 3 | |
@@ -70,14 +70,14 @@ are one display reason and also cover 2f; B3 and 4a are the same check; X1 is sh
 | B3 | The tab checks it again against the attempt it displays | slice 3 | |
 | B4 | The counts are as trustworthy as the project's CI job | slice 4 | |
 | B5 | The dashboard keeps nothing beyond the request (no persisted proof) | slice 3 | |
-| E1.s | Setup: `ciAdapter` project; newest attempt `9f1c…` (UUID) passed at `R`; adapter answers the proof read with a summary naming the same repository, `attemptId` `9f1c…` and `R`, `tests` 1,000 passed, 0 failed, 3 other, part 1 of 1 present | slice 2 | |
-| E1.r | Result: tab shows Passed, the attempt and short revision, and that `tests` row | slice 2 | |
+| E1.s | Setup: `ciAdapter` project; newest attempt `9f1c…` (UUID) passed at `R`; adapter answers the proof read with a summary naming the same repository, `attemptId` `9f1c…` and `R`, `tests` 1,000 passed, 0 failed, 3 other, part 1 of 1 present | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts fixture: newest UUID attempt passed at 4774f60, collector-built summary tests 1000 passed 3 other 1 of 1 |
+| E1.r | Result: tab shows Passed, the attempt and short revision, and that `tests` row | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts verdict 'Passed at 4774f60 (Add login)', 'Attempt 9f1c2d3e-… at 4774f60.', row 'tests: 1000 passed and 3 other tests; 1 of 1 part present.' |
 | E2.s | Setup: attempt `A` failed at `R`; retry `B` passed at `R` | slice 3 | |
 | E2.r1 | Result: tab shows `B`'s verdict and `B`'s proof | slice 3 | |
 | E2.s2 | Variant: the adapter answers `B`'s read with `A`'s summary | slice 3 | |
 | E2.r2 | Result: Proof says it names another attempt and shows no counts | slice 3 | |
-| E3.s | Setup: branch head's attempt still running; its parent's attempt finished | slice 2 | |
-| E3.r | Result: tab shows the running result beside the completed ancestor's verdict and that ancestor attempt's proof | slice 2 | |
+| E3.s | Setup: branch head's attempt still running; its parent's attempt finished | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts running story branch head 70a0001, completed ancestor d4e5f6a |
+| E3.r | Result: tab shows the running result beside the completed ancestor's verdict and that ancestor attempt's proof | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts 'Running at 70a0001', Proof names ancestor UUID at d4e5f6a with the row, no request for the running sha |
 | E4.s | Setup: the project's adapter predates `proof` and exits nonzero for it | slice 3 | |
 | E4.r1 | Result: the verdict reads as before | slice 3 | |
 | E4.r2 | Result: Proof says the adapter answered no proof read, with its error | slice 3 | |

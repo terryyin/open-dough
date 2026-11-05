@@ -40,6 +40,7 @@ import {
 import { performIntentCandidatesRead } from "./intentCandidatesRead.ts";
 import { performIntentCiProofRead } from "./intentCiProofRead.ts";
 import { performIntentCiStatusRead } from "./intentCiStatusRead.ts";
+import { projectFolder } from "./projectFolders.ts";
 import { answered, unreachable, type Outcome } from "./readOutcome.ts";
 import { pathReachableFromRevision } from "./reachablePaths.ts";
 import { listedProfileAddition } from "./recordsBesideBacklog.ts";
@@ -141,7 +142,12 @@ export async function perform(
             case "intent-ci-status":
               return await performIntentCiStatusRead(source, read, signal);
             case "intent-ci-proof":
-              return await performIntentCiProofRead(source, read, signal);
+              return await performIntentCiProofRead(
+                source,
+                read,
+                signal,
+                (asked) => projectFolder(asked).path,
+              );
             case "addition-at": {
               const added = await listedProfileAddition(
                 pinned,

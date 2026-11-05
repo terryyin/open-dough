@@ -1,38 +1,58 @@
-// The CI proof of the run Intent's CI status tab shows a result of
+// The CI proof of the attempt Intent's CI status tab shows a result of
 // (`./IntentCiStatus.tsx`): its own labelled part after the judgment, read
 // apart from it through `./authenticatedIntentCiProofRead.ts` once the
-// judgment names a GitHub Actions run, so the judgment is shown first and
-// never changes with it. It names that run once -- its revision, link and
-// attempt -- then one row per declared entry, in the order the project's CI
+// judgment names a GitHub Actions run or a ciAdapter attempt, so the
+// judgment is shown first and never changes with it. It names that attempt
+// once -- a run's attempt and link, or an adapter's attempt id, and the
+// revision -- then one row per declared entry, in the order the project's CI
 // declares them, with the counts, their unit and any gap
 // (`./ciProofWording.ts`); otherwise one line says why there is no proof to
-// show. A running result's proof is its completed ancestor's run's, the
-// result the tab shows beside it. Proof is read again with each judgment
-// the tab reads, so Check again refreshes both.
+// show. A running result's proof is its completed ancestor's, the result the
+// tab shows beside it. Proof is read again with each judgment the tab reads,
+// so Check again refreshes both.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
 import { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
 import { shortSha } from "./baseCiWording.ts";
-import type { CiProof, CiProofEntry, CiProofRun } from "./ciProof.ts";
+import {
+  ciProofSubjectOf,
+  isAdapterProofAttempt,
+  type CiProof,
+  type CiProofEntry,
+  type CiProofSubject,
+} from "./ciProof.ts";
 import {
   entryCountsLine,
   entryGapLines,
   entryPartsLine,
+  noAttemptLine,
   noRunLine,
   unavailableLine,
 } from "./ciProofWording.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
-type ShownRun = CiProofRun & { readonly runUrl: string | undefined };
+type Shown = CiProofSubject & { readonly runUrl: string | undefined };
 
-// The run whose result the tab shows: a running result's completed
-// ancestor, otherwise the judged result; undefined when it names no GitHub
-// Actions run.
-export function shownRunOf(judgment: Judgment): ShownRun | undefined {
+// The attempt whose result the tab shows: a running result's completed
+// ancestor, otherwise the judged result; undefined when it names neither a
+// GitHub Actions run nor a ciAdapter attempt.
+export function shownRunOf(judgment: Judgment): Shown | undefined {
   const shown =
     judgment.state === "running" ? judgment.completedAncestor : judgment;
-  if (shown?.runId === undefined || shown.runAttempt === undefined)
+  if (shown === undefined) return undefined;
+  const { adapterAttempt } = shown;
+  if (adapterAttempt !== undefined)
+    return shown.runBranch === undefined
+      ? undefined
+      : {
+          runId: String(adapterAttempt.runId),
+          attemptId: String(adapterAttempt.attemptId),
+          branch: shown.runBranch,
+          revision: shown.revision,
+          runUrl: shown.runUrl,
+        };
+  if (shown.runId === undefined || shown.runAttempt === undefined)
     return undefined;
   return {
     runId: shown.runId,
@@ -71,40 +91,55 @@ function ProofEntry({ entry }: { readonly entry: CiProofEntry }) {
   );
 }
 
-function RunNamed({ run }: { readonly run: ShownRun }) {
-  const name = `run ${String(run.runId)}`;
+function Linked({
+  name,
+  url,
+}: {
+  readonly name: string;
+  readonly url: string | undefined;
+}) {
+  return url === undefined ? (
+    name
+  ) : (
+    <a href={url} target="_blank" rel="noreferrer">
+      {name}
+    </a>
+  );
+}
+
+function RunNamed({ run }: { readonly run: Shown }) {
   return (
     <p className="intent-ci-proof-run">
-      Attempt {run.runAttempt} of{" "}
-      {run.runUrl === undefined ? (
-        name
+      {isAdapterProofAttempt(run) ? (
+        <>
+          Attempt <Linked name={run.attemptId} url={run.runUrl} />
+        </>
       ) : (
-        <a href={run.runUrl} target="_blank" rel="noreferrer">
-          {name}
-        </a>
+        <>
+          Attempt {run.runAttempt} of{" "}
+          <Linked name={`run ${String(run.runId)}`} url={run.runUrl} />
+        </>
       )}{" "}
       at <code>{shortSha(run.revision)}</code>.
     </p>
   );
 }
 
+const keyOf = (shown: Shown) => JSON.stringify(ciProofSubjectOf(shown));
+
 function ReadProof({
   source,
   run,
 }: {
   readonly source: PublishedSource;
-  readonly run: ShownRun;
+  readonly run: Shown;
 }) {
-  // Read once per mount: the parent keys it by the run and the judgment.
+  // Read once per mount: the parent keys it by the attempt and the judgment.
   const [proof, setProof] = useState<CiProof | undefined>(undefined);
-  const { runId, runAttempt, revision } = run;
+  const [subject] = useState(() => ciProofSubjectOf(run));
   useEffect(() => {
     const controller = new AbortController();
-    void readIntentCiProof(
-      source,
-      { runId, runAttempt, revision },
-      controller.signal,
-    )
+    void readIntentCiProof(source, subject, controller.signal)
       .then((answer) => {
         if (!controller.signal.aborted) setProof(answer);
       })
@@ -114,7 +149,7 @@ function ReadProof({
     return () => {
       controller.abort();
     };
-  }, [source, runId, runAttempt, revision]);
+  }, [source, subject]);
   return (
     <>
       <RunNamed run={run} />
@@ -149,15 +184,13 @@ export function IntentCiProof({
   return (
     <section className="intent-ci-proof" aria-labelledby={heading}>
       <h4 id={heading}>Proof</h4>
-      {judgment.ciAdapter === true ? (
+      {run === undefined ? (
         <p className="intent-ci-proof-unavailable">
-          {unavailableLine("ci-adapter", undefined)}
+          {judgment.ciAdapter === true ? noAttemptLine : noRunLine}
         </p>
-      ) : run === undefined ? (
-        <p className="intent-ci-proof-unavailable">{noRunLine}</p>
       ) : (
         <ReadProof
-          key={`${String(run.runId)}/${String(run.runAttempt)}/${run.revision}/${judgment.checkedAt}`}
+          key={`${keyOf(run)}/${judgment.checkedAt}`}
           source={source}
           run={run}
         />

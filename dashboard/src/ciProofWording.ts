@@ -51,8 +51,6 @@ const unavailableLines: Readonly<Record<CiProofUnavailableReason, string>> = {
   invalid: "This run's CI proof summary is not a valid summary.",
   mismatched:
     "This run's CI proof summary is for another run, attempt or revision.",
-  "ci-adapter":
-    "This project's CI is read through a ciAdapter, which publishes no CI proof summary.",
 };
 
 // The one line under Proof saying why no proof can be shown, with what the
@@ -68,3 +66,7 @@ export function unavailableLine(
 
 export const noRunLine =
   "No completed GitHub Actions run is shown, so there is no CI proof to show.";
+
+// A ciAdapter project's tab shows no completed attempt.
+export const noAttemptLine =
+  "No completed CI attempt is shown, so there is no CI proof to show.";

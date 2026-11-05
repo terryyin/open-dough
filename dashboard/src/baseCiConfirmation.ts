@@ -21,10 +21,22 @@ const runBranchSchema = z.string().min(1).optional();
 
 // A GitHub Actions run a judged result rests on: its id and attempt, which
 // with the result's revision key the run's CI proof read. A ciAdapter's
-// results name neither.
+// results name neither: they name their discovered attempt as
+// `adapterAttempt`, kept apart so it is never taken for a GitHub run.
+const adapterIdentity = z.union([z.string(), z.number()]);
+const adapterAttemptSchema = z.object({
+  runId: adapterIdentity,
+  attemptId: adapterIdentity,
+  // Another discovered attempt names the same `attemptId` at this revision.
+  ambiguous: z.literal(true).optional(),
+});
+export type BaseCiAdapterAttempt = Readonly<
+  z.infer<typeof adapterAttemptSchema>
+>;
 const runIdentitySchema = z.object({
   runId: z.number().int().positive().optional(),
   runAttempt: z.number().int().positive().optional(),
+  adapterAttempt: adapterAttemptSchema.optional(),
 });
 export const runIdentityShape = runIdentitySchema.shape;
 export type BaseCiRunIdentity = Readonly<z.infer<typeof runIdentitySchema>>;

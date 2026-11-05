@@ -161,7 +161,9 @@ process.stdout.write(JSON.stringify({ attempts: [{ runId: "a1", attemptId: "1", 
   await expect(
     proofOf(panel).locator(".intent-ci-proof-unavailable"),
   ).toHaveText([
-    "This project's CI is read through a ciAdapter, which publishes no CI proof summary.",
+    // Its adapter answers no proof read: interim wording until the adapter
+    // reasons of SEED-236#show-ci-adapter-proof slice 3 replace this test.
+    "This run's CI proof summary could not be read. CI adapter proof must return summary or unavailable.",
   ]);
   expect(
     ci.published.requests.filter(({ request }) =>

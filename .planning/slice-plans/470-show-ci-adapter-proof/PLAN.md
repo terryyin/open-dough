@@ -49,7 +49,7 @@ A fresh worktree needs the native setup before any Playwright run.
   artifact name stays GitHub-only. `schemaVersion` stays 1: every existing
   summary remains valid, and only readers deployed from `main` see the new
   shape.
-- **Adapter runner (reuse):** `ci-command-adapter.mjs`'s private `runAdapter`
+- **Adapter runner (reuse):** `runAdapter` (moved by slice 2's refactor into `ci-command-run.mjs`, a new payload file)
   already enforces the 20 s timeout and 64 KiB stdout limit for
   `discover`/`diagnose`. Export one `readCommandProof` beside it that sends
   `{operation: "proof", check, attempt: {runId, attemptId, sha}}` and accepts
@@ -135,7 +135,7 @@ invalid-summary reason with `.+`). Refactor: tests merged and trimmed under
 
 ### 2. The tab shows a matching adapter attempt's proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright `dashboard/tests/intent-ci-proof-adapter.spec.ts` (examples 1 and 3) plus `intent-ci-proof.spec.ts`; `bash scripts/test.sh src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs tests/support/dashboard-ci-proof-parse.test.mjs`
 
 Behavior: given a `ciAdapter` project whose newest attempt `9f1c…` passed at
@@ -146,6 +146,22 @@ the `tests` row. With the head's attempt still running, Proof shows the
 completed ancestor attempt's summary. The adapter receives the documented
 request; an answer that is neither `summary` nor `unavailable` is refused by
 the runner. The GitHub Actions proof spec is unchanged.
+
+Accepted (2026-11-05): `readCommandProof` in `ci-command-adapter.mjs` over
+`runAdapter` (now `ci-command-run.mjs`); judgment identity in
+`baseCiAdapterAttempts.ts` `adapterAttempt {runId, attemptId, ambiguous?}`;
+adapter proof read in `dashboard/server/ciAdapterProof.ts`, query form
+`run`, `attempt-id`, `run-branch` (the attempt's discovered branch, for the
+request's `check.branch`), `revision`, ids at most 256 characters. Proof:
+`intent-ci-proof-adapter.spec.ts` (examples 1, 3 and a numeric id), the three
+GitHub proof specs, `intent-ci-status*` and `agent-launch-base-ci*` specs
+(34 passed), the `ci-command-adapter*`/`ci-*` node tests,
+`dashboard-story-branch-ci{,-adapter}`, `dashboard-ci-proof-{parse,read}`,
+`tests/execution-payload-update.sh`, and `npm run typecheck:dashboard`. The
+`ci-adapter` short-circuit and reason are gone; until slice 3 the
+`intent-ci-proof-reasons.spec.ts` ciAdapter test expects the interim
+unreadable line, and failures use the "This run's…" wording. An adapter
+project with no completed attempt shows `noAttemptLine`.
 
 ### 3. The tab says why an adapter attempt shows no proof
 Type: Behavior
@@ -206,6 +222,9 @@ this slice.
 
 ## Current decisions
 
+- The `proof` request sends `runId` and `attemptId` as text (the tab's query
+  carries them as text), unlike `diagnose`, which passes discovered values
+  through; slice 4's manual documents this.
 - Story Branch Mode, with the slice 5 checkpoint above as the only trunk step.
 - `schemaVersion` stays 1 with two alternative identities; `runId` is not
   part of the adapter identity (seed deferral).
