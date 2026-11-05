@@ -94,9 +94,27 @@ test("following a live attempt waits past outcome replacement until its writer r
   });
   let following: Promise<unknown> | undefined;
   try {
-    await expect
-      .poll(() => messages.map((message) => message["kind"]))
-      .toEqual(expect.arrayContaining(["replacement", "listening"]));
+    try {
+      await expect
+        .poll(
+          () => {
+            if (child.exitCode !== null || child.signalCode !== null) {
+              throw new Error(
+                `Owner child exited before readiness (code=${String(child.exitCode)}, signal=${String(child.signalCode)}). stderr:\n${stderr}`,
+              );
+            }
+            return messages.map((message) => message["kind"]);
+          },
+          { timeout: 30_000 },
+        )
+        .toEqual(expect.arrayContaining(["replacement", "listening"]));
+    } catch (error) {
+      const detail = `Owner child never reached readiness (code=${String(child.exitCode)}, signal=${String(child.signalCode)}, messages=${JSON.stringify(messages.map((message) => message["kind"]))}). stderr:\n${stderr || "(empty)"}`;
+      throw new Error(
+        `${detail}\n${error instanceof Error ? error.message : String(error)}`,
+        { cause: error },
+      );
+    }
     const listening = messages.find(
       (message) => message["kind"] === "listening",
     );
