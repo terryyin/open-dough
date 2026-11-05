@@ -35,5 +35,6 @@ intent introduced or affected by a newly developed story.
 
 - [Improve Intent home and selection summaries](seeds/SEED-243-intent-home-and-selection-summaries.md#improve-intent-home-and-selection-summaries) — SEED-243#improve-intent-home-and-selection-summaries
 - [Compare a story's CI and entry timing changes](seeds/SEED-244-story-ci-timing-changes.md#compare-story-ci-timing-changes) — SEED-244#compare-story-ci-timing-changes
+- [Compare a story's Intent entry, folder, and file summaries](seeds/SEED-245-story-intent-summary-differences.md#compare-story-intent-entry-folder-and-file-summaries) — SEED-245#compare-story-intent-entry-folder-and-file-summaries
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
