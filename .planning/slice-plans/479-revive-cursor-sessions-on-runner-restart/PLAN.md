@@ -2,6 +2,7 @@
 
 **Identity:** SEED-242#revive-cursor-sessions-when-the-runner-restarts
 **Source:** [selected story](../../seeds/SEED-242-revive-cursor-sessions-when-the-runner-restarts.md#revive-cursor-sessions-when-the-runner-restarts)
+**Source review:** [source-only review](source-review.md)
 **Prepared:** 2026-11-05; preparation only. Execution is not authorized by this plan.
 
 ## Goal and boundaries
@@ -107,7 +108,7 @@ inside existing runner documentation.
 
 ### 1. Remember which Cursor sessions the runner last held
 Type: Structure
-Status: planned
+Status: done
 Proof: Boundary proof that keep publishes session keys into durable
 machine-local last-held evidence under the runner directory; deliberate
 hangup removes that session’s key; killing the runner while leaving its
@@ -120,6 +121,8 @@ and when it is deliberately hung up. On runner shutdown, retain the
 pre-shutdown held set (do not treat process-exit hangups as deliberate Stop).
 Expose a read for the dashboard’s revive path. No user-visible change yet:
 replacement still leaves sessions not-running until slice 2.
+
+Accepted proof (reuse): `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/playwright.config.ts dashboard/tests/boundary/cursor-runner-last-held.spec.ts --reporter=list` — 1 passed; keep publishes both keys into `cursor-runner-last-held.json`, `/hangup` removes one, `killCursorRunnerLeavingAddress` retains the remaining key. Surfaces: `rememberCursorRunnerLastHeld` / `forgetCursorRunnerLastHeld` / `readCursorRunnerLastHeld` in `runnerPaths.ts`; keep/hangup in `runnerKeep.ts`.
 
 Immediate next Behavior: slice 2 resumes unfinished last-held sessions after
 current-runner start or replace.
@@ -161,6 +164,9 @@ Recover — is observable end to end through the dashboard.
   Working-within-wait under concurrency stays deferred as the story records.
 - Native `cursor-agent` revival across a real runner replacement remains
   pending under ADR 0005 and is claimed nowhere in delivery evidence.
+- Keep must **union-add** last-held keys (not rewrite from the live held set);
+  otherwise a post-restart keep of new work would drop prior last-held
+  candidates slice 2 needs to revive.
 
 ## Concern evidence
 
@@ -169,3 +175,55 @@ Recover — is observable end to end through the dashboard.
   second outcome, no disputed constraint, and the re-entrancy constraint is
   settled and named in slice 2.
 - Remaining slice-specific concerns: none identified.
+
+
+## Story obligations
+
+### X1. Deferred Working-within-wait under concurrent revival
+Reported: slice 1 — "source review — deferred promise 18.1"
+Story clause: "Guaranteeing that every revived session reaches Working with an accepted continuation inside the shared launch wait under concurrent revival"
+Disposition: excluded "Guaranteeing that every revived session reaches Working with an accepted continuation inside the shared launch wait under concurrent revival"
+Commitment: 18.1
+
+
+### X2. Deferred auto-revive of never-held unfinished sessions
+Reported: slice 1 — "source review — deferred promise 18.2"
+Story clause: "auto-reviving unfinished not-running sessions that were never held by the replaced runner"
+Disposition: excluded "auto-reviving unfinished not-running sessions that were never held by the replaced runner"
+Commitment: 18.2
+
+### X3. Deferred changing when replacement is triggered
+Reported: slice 1 — "source review — deferred promise 18.3"
+Story clause: "changing when replacement itself is triggered"
+Disposition: excluded "changing when replacement itself is triggered"
+Commitment: 18.3
+
+### X4. No dual live runner generations
+Reported: slice 1 — "source review — scope limit 27a"
+Story clause: "No dual live runner generations."
+Disposition: excluded "No dual live runner generations."
+Commitment: 27a
+
+### X5. No draining held sessions before replacement
+Reported: slice 1 — "source review — scope limit 27b"
+Story clause: "No draining held sessions before replacement."
+Disposition: excluded "No draining held sessions before replacement."
+Commitment: 27b
+
+### X6. No preserving in-flight turn partial output
+Reported: slice 1 — "source review — scope limit 27c"
+Story clause: "No preserving a live in-flight turn's partial output across the process boundary."
+Disposition: excluded "No preserving a live in-flight turn's partial output across the process boundary."
+Commitment: 27c
+
+### X7. No revival of sessions the dashboard did not launch
+Reported: slice 1 — "source review — scope limit 27d"
+Story clause: "No revival of sessions the dashboard did not launch."
+Disposition: excluded "No revival of sessions the dashboard did not launch."
+Commitment: 27d
+
+### X8. No new developer ceremony for runner replaced
+Reported: slice 1 — "source review — scope limit 27e"
+Story clause: "No new developer ceremony or control for "runner was replaced.""
+Disposition: excluded "No new developer ceremony or control for "runner was replaced.""
+Commitment: 27e
