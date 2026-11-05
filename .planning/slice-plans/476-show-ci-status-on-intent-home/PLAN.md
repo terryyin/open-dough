@@ -238,3 +238,11 @@ After the slice, record the ADR 0010 comparison beside slice 1's baseline in
 
 ADR 0010 measurements, learnings, current decisions and concern evidence:
 [execution-notes.md](./execution-notes.md).
+
+## Execution complete
+
+Product advice: no change. Intent's empty-selection homepage now shows the
+judged branch's CI result, proof counts, wall time and per-entry test
+execution time, with a process-local kept answer and visible freshness.
+Source commitments through E7 are observed; DD-428 records the keep/memory
+journey repairs. No bounded product correction.
