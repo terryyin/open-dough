@@ -176,11 +176,17 @@ export function attachTerminal(
   });
   // The current attachment alone owns this offer. Input follows xterm's
   // ordinary onData path; acceptance means a local offer, not a PTY receipt.
+  const acceptsInput = () =>
+    current && shown && !refused && socket.readyState === WebSocket.OPEN;
   const insert = (text: string) => {
-    if (!current || !shown || refused || socket.readyState !== WebSocket.OPEN)
-      return false;
+    if (!acceptsInput()) return false;
     terminal.input(text);
     terminal.focus();
+    return true;
+  };
+  const paste = (text: string) => {
+    if (!acceptsInput()) return false;
+    terminal.paste(text);
     return true;
   };
   const typed = terminal.onData((input) => {
@@ -199,6 +205,7 @@ export function attachTerminal(
   return {
     terminal,
     insert,
+    paste,
     dispose: () => {
       current = false;
       stopTouchScroll();

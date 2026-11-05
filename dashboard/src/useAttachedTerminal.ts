@@ -41,6 +41,8 @@ export function useAttachedTerminal(
     (text: string) => live.current?.insert(text) ?? false,
     [],
   );
+  // Capture the attachment at the tap, before a clipboard read can yield.
+  const getPaste = useCallback(() => live.current?.paste, []);
   useEffect(() => {
     latestTheme.current = theme;
     if (live.current) live.current.terminal.options.theme = theme;
@@ -75,5 +77,5 @@ export function useAttachedTerminal(
     onAttachRefusal,
     takesKeyboard,
   ]);
-  return insertText;
+  return { insertText, getPaste };
 }

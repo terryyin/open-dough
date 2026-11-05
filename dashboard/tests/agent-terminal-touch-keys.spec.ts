@@ -61,6 +61,7 @@ test.describe("phone terminal key toolbar", () => {
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
     const toolbar = terminalKeyToolbar(panel);
+    const primary = toolbar.locator(".terminal-key-toolbar-primary");
     await expect(rows).toContainText("Choose a color");
     await expect(rows).toContainText("› Red");
     await expect(toolbar).toBeVisible();
@@ -72,6 +73,7 @@ test.describe("phone terminal key toolbar", () => {
       "Left",
       "Right",
       "Enter",
+      "Paste",
       "More terminal keys",
     ]) {
       await expect(terminalKey(panel, name)).toBeVisible();
@@ -90,6 +92,10 @@ test.describe("phone terminal key toolbar", () => {
     await test.step("focus stays on the terminal textarea across toolbar taps", async () => {
       await focusByTouch(panel);
       await tapTerminalKey(panel, "Tab");
+      await scrollByTouch(page, primary, -150, "horizontal");
+      await expect
+        .poll(() => primary.evaluate((lane) => lane.scrollLeft))
+        .toBeGreaterThan(0);
       await tapTerminalKey(panel, "Left");
       await tapTerminalKey(panel, "Right");
       await expect.poll(() => sent.join("")).toBe("\t\u001b[D\u001b[C");
@@ -97,6 +103,10 @@ test.describe("phone terminal key toolbar", () => {
     });
 
     await test.step("Esc cancels the open option menu without confirming", async () => {
+      await scrollByTouch(page, primary, 150, "horizontal");
+      await expect
+        .poll(() => primary.evaluate((lane) => lane.scrollLeft))
+        .toBe(0);
       await tapTerminalKey(panel, "Esc");
       await expect.poll(() => sent.join("")).toBe("\t\u001b[D\u001b[C\u001b");
       await expect(rows).toContainText("cancelled");
@@ -181,6 +191,7 @@ test.describe("desktop terminal without phone key toolbar", () => {
   test.use({
     viewport: { width: 1280, height: 800 },
     hasTouch: false,
+    permissions: ["clipboard-read", "clipboard-write"],
   });
 
   test("fine-pointer desktop keeps today's terminal chrome without the toolbar or composer", async ({
@@ -195,16 +206,25 @@ test.describe("desktop terminal without phone key toolbar", () => {
     await opened.settled();
     const sidebar = sessionsSidebarParts(page);
     await sidebar.button.click();
+    const { sent } = noteTerminalTraffic(page);
     await sidebar.entry("Desktop terminal without phone keys").click();
     const panel = page.getByRole("region", { name: "Terminal" });
     await expect(panel.locator(".xterm-rows")).toContainText(
       `attached ${native.shortId}`,
     );
     await expect(terminalKeyToolbar(panel)).toBeHidden();
+    await expect(terminalKey(panel, "Paste")).toBeHidden();
     await expect(composeToggle(panel)).toBeHidden();
     await expect(terminalComposerDraft(panel)).toHaveCount(0);
     await expect(insertDraftButton(panel)).toHaveCount(0);
     await expect(hideKeyboardControl(panel)).toBeHidden();
     await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
+    await page.evaluate(() => navigator.clipboard.writeText("Desktop paste"));
+    await panel
+      .locator("textarea.xterm-helper-textarea")
+      .press("ControlOrMeta+v");
+    await expect.poll(() => sent).toEqual(["Desktop paste"]);
+    await expect(panel.locator(".xterm-rows")).toContainText("Desktop paste");
+    expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
   });
 });

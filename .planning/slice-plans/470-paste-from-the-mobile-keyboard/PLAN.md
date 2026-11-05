@@ -4,6 +4,7 @@
 **Source:** [selected story](../../seeds/SEED-237-paste-from-the-mobile-keyboard.md#paste-from-the-mobile-keyboard)
 in SEED-237, refined 2026-11-05 with explore, borrow, challenge, clarify,
 investigate, UX/UI and architecture.
+**Source review:** [numbered commitments](source-review.md)
 **Prepared:** 2026-11-05. Planning only, in the story's established workspace
 (branch `claude/paste-from-the-mobile-keyboard`, agent joseph-chan),
 continuing the refinement in the same session.
@@ -91,11 +92,28 @@ outcome ends at the path at the prompt, as the seed records.
 | 1 text, 2 bracketed multi-line, 4 nothing to paste, 5 clipboard unavailable, 6 attachment cannot accept input, 8 desktop unchanged | 1 | `dashboard/tests/agent-terminal-touch-paste.spec.ts` (phone viewport, `hasTouch`, clipboard permissions); desktop absence is the existing toolbar-absence assertion in `agent-terminal-touch-keys.spec.ts` |
 | 3 image, image wins over text, 7 image refused | 2 | the same spec's image cases, with the server refusal shown through a `page.route` fulfilment of the upload endpoint; `dashboard/tests/boundary/session-attachment-boundary.spec.ts` for the server's own refusals and store |
 
+## Execution context
+
+- Story Branch Mode, owned workspace `.worktrees/paste-from-the-mobile-keyboard`
+  on `codex/paste-from-the-mobile-keyboard`, publisher
+  `dashboard-territory.local-open-dough`, agent `ebacky-chan`.
+- Start `5d6a7bb4e1560d36c89b731d7e36dc7f6a01dfa1`. Claim
+  `a951e7c226aaf0e18e9f294e33f0c18383df9257` accepted on
+  `origin/main` and published as the execution branch base.
+- GitHub Actions `ci.yml`, story branch push. Codex observer
+  `codex-paste-mobile-314dcf99`, mailbox `/tmp/dough-ci-501/watch-z1QQA9`,
+  PID 38783, stream session 84913, cell `g2:8`.
+- Replanning retains the plan's existing authority. Locked install via
+  `node scripts/setup-native.mjs npm` and the checkout's
+  `npm run typecheck:dashboard` passed.
+- Locked xterm is 6.0.0. The text journey observes its bracketed-paste
+  behavior through the attachment.
+
 ## Slices
 
 ### 1. Paste key delivers clipboard text as one terminal paste
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-terminal-touch-paste.spec.ts`, text cases; consumers
 `agent-terminal-touch-keys.spec.ts`, `agent-terminal-touch-composer.spec.ts`,
 `agent-terminal-touch-keyboard-fit.spec.ts`, `agent-terminal-touch.spec.ts`
@@ -125,6 +143,34 @@ key; the fake attach gains an `attach-bracketed-paste` control
 update the touch paragraph of
 `dashboard/AGENT-LAUNCH-TERMINALS.md` and the toolbar sentence in
 `docs/dashboard-navigation.md`.
+
+Accepted observations are mapped in [source review](source-review.md).
+Both focused commands ran with Bash 5 first on PATH, with the launch's
+inherited Git alternates still set in the parent shell:
+
+```sh
+PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-terminal-touch-paste.spec.ts agent-terminal-touch-keys.spec.ts agent-terminal-touch-composer.spec.ts agent-terminal-touch-keyboard-fit.spec.ts agent-terminal-touch.spec.ts boundary/terminal-dictation.spec.ts session-terminal-voice.spec.ts session-terminal-voice-lifecycle.spec.ts session-terminal-voice-recovery.spec.ts agent-terminal-cursor-page.spec.ts agent-terminal-theme.spec.ts --reporter=list
+PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-terminal-lifetime.spec.ts agent-terminal-codex-page.spec.ts boundary/proof-record-entry.spec.ts --reporter=list
+```
+
+Results: 23 passed in 40.6s and 5 passed in 19.0s. The first attempted run
+failed before test selection because inherited alternate Git objects made the
+fixture clone incomplete. The Playwright config now clears inherited Git
+repository paths before admission, matching the shell runner's isolation.
+The toolbar's primary keys scroll separately so the visible trailing group
+does not cover an arrow's touch target. The journey drives the swipe and the
+arrows without losing focus. Dictation shares escape removal, with its
+existing line and control treatment proved by its boundary and voice journeys.
+
+Independent refactoring moved the dictation and phone-input documentation to
+`dashboard/AGENT-LAUNCH-TERMINAL-INPUT.md`, preserving the parent terminal
+documentation's links and anchors. No code, configuration or test changed in
+that pass. Both focused results remain applicable.
+
+The formatter identified the async React callback and computed environment
+deletes. Both mechanical repairs stay within the accepted refactor trace.
+`PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-terminal-touch-paste.spec.ts boundary/proof-record-entry.spec.ts --reporter=list`
+passed 5 checks in 14.2s after the repair.
 
 ### 2. Paste key delivers a clipboard image as a stored file's path
 Type: Behavior
@@ -158,7 +204,7 @@ the POST boundary inside the launch boundary middleware, admitting the
 session as `admittedAttach` does (`verifyLocalOrigin`, `knownSource`,
 `recordedSession`); the paste hook prefers an accepted image item, posts it,
 and pastes the answered path; extend the touch paragraph of
-`dashboard/AGENT-LAUNCH-TERMINALS.md` with the image path hand-off and name
+`dashboard/AGENT-LAUNCH-TERMINAL-INPUT.md` with the image path hand-off and name
 the store beside the launch attachment folder in `dashboard/AGENT-LAUNCH.md`.
 
 ## Current decisions

@@ -76,6 +76,8 @@ export type FakeClaudeControls = ClaudeListingControls & {
   claudeAttachPromptDelay(ms: number): void;
   // Whether a `claude attach` opens an option menu instead of the composer.
   claudeAttachMenu(menu: boolean): void;
+  // Whether the composer's native terminal enables bracketed paste.
+  claudeAttachBracketedPaste(enabled: boolean): void;
   // The pid of a `hang` launch still holding its answer, and the signal that
   // ended it, once one did.
   heldClaudePid(): number | undefined;
@@ -196,6 +198,7 @@ export function fakeClaudeControls(
       writeFileSync(state("attach-prompt-delay-ms"), String(ms));
     },
     claudeAttachMenu: flag("attach-menu"),
+    claudeAttachBracketedPaste: flag("attach-bracketed-paste"),
     heldClaudePid: () => readPid(state("pid")),
     heldClaudeEndedBy() {
       return readState(state("pid.exited"));

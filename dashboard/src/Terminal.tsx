@@ -3,11 +3,9 @@
 // The header names its session and agent, and offers dictation, Done where
 // supported, maximize/restore and Close. Closing or replacing the view detaches
 // without ending the session; plain Escape still goes to the native terminal.
-// On coarse-pointer phones a key toolbar injects Esc/Tab/arrows/Enter and
-// expandable Ctrl+C on the same input path without dismissing the soft
-// keyboard, an optional text composer Inserts longer drafts without
-// submitting them, and the panel fits the visual viewport when the soft
-// keyboard or orientation changes (with an explicit hide-keyboard control).
+// On coarse-pointer phones the key toolbar, Paste and optional composer
+// share the terminal input path. The panel fits the visual viewport as the
+// soft keyboard or orientation changes.
 // Disconnected or ended attachments can reopen the same session.
 // The saved terminal theme applies to this content and its Side panel border.
 // Done asks first when completion is unknown, closes the view after success,
@@ -56,6 +54,7 @@ import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
 import { useShownTerminalTheme } from "./savedTerminalTheme.ts";
 import { terminalPalette } from "./terminalThemes.ts";
 import { useTerminalDictation } from "./useTerminalDictation.tsx";
+import { useTerminalPaste } from "./useTerminalPaste.ts";
 import { TerminalKeyToolbar } from "./TerminalKeyToolbar.tsx";
 import { useTerminalVisualViewportFit } from "./useTerminalVisualViewportFit.ts";
 
@@ -115,7 +114,7 @@ export function Terminal({
   // While marking, the attachment's ending the mark causes is not shown.
   const { asksFirst, marking, mark } = useDoneMark(current, hostOperations);
   const asking = useAskInPlace(asksFirst, () => mark(onMarkDone(session)));
-  const insertText = useAttachedTerminal(
+  const { insertText, getPaste } = useAttachedTerminal(
     screen,
     session,
     attempt,
@@ -125,6 +124,7 @@ export function Terminal({
     onAttachRefusal,
   );
   const dictation = useTerminalDictation(insertText);
+  const paste = useTerminalPaste(getPaste);
   useTerminalVisualViewportFit(panel);
   useRowsHeight(identity, names);
   usePortraitPreview(identity);
@@ -198,6 +198,7 @@ export function Terminal({
       )}
       <div role="status" className="terminal-status">
         {dictation.feedback}
+        {paste.feedback && <p>{paste.feedback}</p>}
         {marking === "marking" && <p className="quiet">Marking as done…</p>}
         {marking === "unresolved" && <p>{markDoneUnresolved}</p>}
         {marking === "not-marked" && <p>{notMarkedDone}</p>}
@@ -237,7 +238,12 @@ export function Terminal({
         className="terminal-screen"
         style={{ "--terminal-background": background } as CSSProperties}
       />
-      <TerminalKeyToolbar insert={insertText} />
+      <TerminalKeyToolbar
+        insert={insertText}
+        onPaste={() => {
+          void paste.read();
+        }}
+      />
     </section>
   );
 }

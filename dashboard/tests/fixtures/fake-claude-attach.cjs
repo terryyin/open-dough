@@ -7,6 +7,7 @@
 // When attach-menu exists, the prompt is an option menu (↑/↓ move, Enter
 // confirms, Esc cancels) instead of the composer, so phone toolbar tests can
 // separate arrow navigation from scrollback swipes.
+// attach-bracketed-paste enables bracketed paste in the composer.
 // Echoes typing and
 // `echo <line>`, edits with Backspace, clears input on Ctrl+U, prints `resized <cols>x<rows>`, exits
 // on Ctrl+Z. Logs pid and recorded environment (./fake-claude) in
@@ -45,6 +46,9 @@ module.exports = function attach(dir, id, env, renameListed, workspace) {
     // No control: the prompt follows the banner immediately.
   }
   const menuMode = fs.existsSync(path.join(dir, "attach-menu"));
+  const bracketedPaste = fs.existsSync(
+    path.join(dir, "attach-bracketed-paste"),
+  );
   const menuOptions = ["Red", "Blue", "Green"];
   let menuIndex = 0;
   let inMenu = menuMode;
@@ -69,9 +73,9 @@ module.exports = function attach(dir, id, env, renameListed, workspace) {
     inMenu = false;
     ready = true;
     process.stdout.write(
-      " Claude Code ─\r\n" +
-        "❯\u00a0\r\n" +
-        "──────────────────────────────────\r\n\u001b[?25h",
+      `${bracketedPaste ? "\u001b[?2004h" : ""} Claude Code ─\r\n` +
+        `❯\u00a0\r\n` +
+        `──────────────────────────────────\r\n\u001b[?25h`,
     );
   };
   const showPrompt = () => {
@@ -85,6 +89,8 @@ module.exports = function attach(dir, id, env, renameListed, workspace) {
   }
   let line = "";
   let pending = "";
+  const pasteStart = "\u001b[200~";
+  const pasteEnd = "\u001b[201~";
   // The terminal may go before the signal that ends this process arrives.
   process.stdin.on("error", () => {});
   process.stdout.on("error", () => {});
@@ -133,6 +139,16 @@ module.exports = function attach(dir, id, env, renameListed, workspace) {
         pending = pending.slice(1);
         continue;
       }
+      if (bracketedPaste && pending.startsWith(pasteStart)) {
+        const end = pending.indexOf(pasteEnd, pasteStart.length);
+        if (end < 0) return;
+        const text = pending.slice(pasteStart.length, end);
+        line += text;
+        process.stdout.write(text.replace(/\r/g, "\r\n"));
+        pending = pending.slice(end + pasteEnd.length);
+        continue;
+      }
+      if (bracketedPaste && pasteStart.startsWith(pending)) return;
       const key = pending[0];
       pending = pending.slice(1);
       if (key === "\r" || key === "\n") {

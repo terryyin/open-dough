@@ -1,0 +1,114 @@
+# Source review
+
+Fresh, no-context reviewer `/root/source_review` received only the selected
+[story](../../seeds/SEED-237-paste-from-the-mobile-keyboard.md#paste-from-the-mobile-keyboard)
+opening, goal, scope, key examples, and UI wording. The brief asked it to
+use only the supplied source, read no files, change nothing, and return
+individual commitments, qualifications, journeys, and exclusions.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1 | A developer using the dashboard on a phone can paste the device’s current clipboard into the session shown on the phone without using a desktop. | slice 2 | |
+| 2 | The paste preserves the content type wherever the receiving tool supports it. The specified image handoff gives the tool a usable local image file through its absolute path. | slice 2 | |
+| 3 | The observable outcome is the offer in the session terminal. Any subsequent use of the content is the agent’s behavior. | slice 2 | |
+| 4 | Paste is one key on the existing phone toolbar, below the session and above the soft keyboard. | slice 1 | observed: Terminal.tsx renders TerminalKeyToolbar after terminal-screen; TerminalKeyToolbar.tsx places Paste immediately after Enter outside More; agent-terminal-touch-paste.spec.ts observes Paste with More collapsed; agent-terminal-touch-keys.spec.ts observes coarse and fine pointers |
+| 5 | The existing coarse-pointer condition governs toolbar visibility. | slice 1 | observed: Terminal.tsx renders TerminalKeyToolbar after terminal-screen; TerminalKeyToolbar.tsx places Paste immediately after Enter outside More; agent-terminal-touch-paste.spec.ts observes Paste with More collapsed; agent-terminal-touch-keys.spec.ts observes coarse and fine pointers |
+| 6 | Paste is visible without expanding More. | slice 1 | observed: Terminal.tsx renders TerminalKeyToolbar after terminal-screen; TerminalKeyToolbar.tsx places Paste immediately after Enter outside More; agent-terminal-touch-paste.spec.ts observes Paste with More collapsed; agent-terminal-touch-keys.spec.ts observes coarse and fine pointers |
+| 7 | Paste appears beside Enter. | slice 1 | observed: Terminal.tsx renders TerminalKeyToolbar after terminal-screen; TerminalKeyToolbar.tsx places Paste immediately after Enter outside More; agent-terminal-touch-paste.spec.ts observes Paste with More collapsed; agent-terminal-touch-keys.spec.ts observes coarse and fine pointers |
+| 8 | The key is labeled **Paste**. | slice 1 | observed: Terminal.tsx renders TerminalKeyToolbar after terminal-screen; TerminalKeyToolbar.tsx places Paste immediately after Enter outside More; agent-terminal-touch-paste.spec.ts observes Paste with More collapsed; agent-terminal-touch-keys.spec.ts observes coarse and fine pointers |
+| 9 | The key uses the toolbar’s 44px target. | slice 1 | observed: agent-terminal-touch-paste.spec.ts expectMinTouchTarget(paste) and agent-terminal-touch-keyboard-fit.spec.ts reduced-height fit include Paste |
+| 10 | Activating Paste reads the device clipboard through the browser’s asynchronous clipboard API. | slice 1 | observed: useTerminalPaste.ts read calls navigator.clipboard.read from TerminalKeyToolbar.tsx onClick; agent-terminal-touch-paste.spec.ts changes the real clipboard before tapping |
+| 11 | The read originates from the Paste tap. | slice 1 | observed: useTerminalPaste.ts read calls navigator.clipboard.read from TerminalKeyToolbar.tsx onClick; agent-terminal-touch-paste.spec.ts changes the real clipboard before tapping |
+| 12 | The tap preserves the soft keyboard’s current visibility, as the other toolbar keys do. | slice 1 | observed: agent-terminal-touch-paste.spec.ts focused and blurred journeys observe textarea focus on both sides of the tap; seed excludes physical keyboard proof |
+| 13 | The result is offered once to the live attachment. | slice 1 | observed: agent-terminal-touch-paste.spec.ts text journey observes exact one input frame, the prompt echo and no submitted lines; attachedTerminal.ts routes xterm onData through the same socket input |
+| 14 | Paste never appends Enter. Submission remains deliberate. | slice 1 | observed: agent-terminal-touch-paste.spec.ts text journey observes exact one input frame, the prompt echo and no submitted lines; attachedTerminal.ts routes xterm onData through the same socket input |
+| 15 | The text route applies when the clipboard offers text and no accepted image. | slice 2 | |
+| 16 | Text is delivered as one terminal paste. | slice 1 | observed: agent-terminal-touch-paste.spec.ts text journey observes exact one input frame, the prompt echo and no submitted lines; attachedTerminal.ts routes xterm onData through the same socket input |
+| 17 | Text uses the existing attachment input path, from the page through WebSocket to the PTY, as typing does. | slice 1 | observed: agent-terminal-touch-paste.spec.ts text journey observes exact one input frame, the prompt echo and no submitted lines; attachedTerminal.ts routes xterm onData through the same socket input |
+| 18 | When the native tool has enabled bracketed paste, the single paste is wrapped in the markers the tool expects. | slice 1 | observed: agent-terminal-touch-paste.spec.ts bracketed journey sets fake tool mode 2004, types a prefix, and observes both prompt lines, no submission and one cleaned wrapped frame; boundary/terminal-dictation.spec.ts observes shared escape removal |
+| 19 | Under bracketed paste, line breaks stay within the paste and do not submit it. | slice 1 | observed: agent-terminal-touch-paste.spec.ts bracketed journey sets fake tool mode 2004, types a prefix, and observes both prompt lines, no submission and one cleaned wrapped frame; boundary/terminal-dictation.spec.ts observes shared escape removal |
+| 20 | Existing typed input stays. | slice 1 | observed: agent-terminal-touch-paste.spec.ts bracketed journey sets fake tool mode 2004, types a prefix, and observes both prompt lines, no submission and one cleaned wrapped frame; boundary/terminal-dictation.spec.ts observes shared escape removal |
+| 21 | Terminal control sequences in clipboard text are stripped as they are for dictation. | slice 1 | observed: agent-terminal-touch-paste.spec.ts bracketed journey sets fake tool mode 2004, types a prefix, and observes both prompt lines, no submission and one cleaned wrapped frame; boundary/terminal-dictation.spec.ts observes shared escape removal |
+| 22 | An accepted clipboard image takes precedence when the clipboard also offers text. | slice 2 | |
+| 23 | Accepted image types reuse the launch attachment types. The listed alternatives are PNG, JPEG, GIF, and WebP. The source describes PNG as the phone case. | slice 2 | |
+| 24 | The upload reuses the launch attachment size limit of 10 MB. | slice 2 | |
+| 25 | The image bytes are posted to the local dashboard server. | slice 2 | |
+| 26 | The bytes are uploaded as one bounded raw request body. | slice 2 | |
+| 27 | The server stores the image file on the dashboard machine. | slice 2 | |
+| 28 | The storage location is under the dashboard home beside the host-qualified session. | slice 2 | |
+| 29 | The stored bytes are unchanged, as specified in the PNG screenshot journey. | slice 2 | |
+| 30 | The terminal pastes the file’s absolute path as text. | slice 2 | |
+| 31 | The absolute path is the entire pasted payload. | slice 2 | |
+| 32 | The path uses the form already shown in the launch **Attached images:** list. | slice 2 | |
+| 33 | The existing host image handoff convention is reused. The named examples are Claude Code, Codex, and Cursor reading the file as they read launch images. | slice 2 | |
+| 34 | Image bytes are excluded from JSON requests. | slice 2 | |
+| 35 | Image bytes are excluded from JSON storage. | slice 2 | |
+| 36 | Image bytes stay out of repositories. The source cites ADR 0008 for machine-local operational state. | slice 2 | |
+| 37 | The upload endpoint stays on loopback. | slice 2 | |
+| 38 | The upload endpoint uses the existing local-origin check. | slice 2 | |
+| 39 | The size-limit reuse is required because the upload crosses the same bounded raw-body boundary and the same hosts consume the stored file. | slice 2 | |
+| 40 | The type-limit reuse has the same independently stated reason. | slice 2 | |
+| 41 | The endpoint restrictions follow the existing dashboard boundaries. The source describes the Tailscale proxy as already forwarding only same-origin `/__*` requests. | slice 2 | |
+| 42 | Feedback appears in the terminal status region used by dictation. | slice 1 | observed: Terminal.tsx renders one Paste feedback paragraph alongside dictation in terminal-status; agent-terminal-touch-paste.spec.ts observes status text and clearing on successful text paste |
+| 43 | Each feedback message is a short sentence. | slice 1 | observed: Terminal.tsx renders one Paste feedback paragraph alongside dictation in terminal-status; agent-terminal-touch-paste.spec.ts observes status text and clearing on successful text paste |
+| 44 | Feedback occupies one line. | slice 1 | observed: Terminal.tsx renders one Paste feedback paragraph alongside dictation in terminal-status; agent-terminal-touch-paste.spec.ts observes status text and clearing on successful text paste |
+| 45 | Feedback clears on the next successful paste. | slice 1 | observed: Terminal.tsx renders one Paste feedback paragraph alongside dictation in terminal-status; agent-terminal-touch-paste.spec.ts observes status text and clearing on successful text paste |
+| 46 | An empty clipboard produces a nothing-to-paste message. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes empty and HTML-only clipboard feedback with no input |
+| 47 | A clipboard offering only unsupported content produces the same message. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes empty and HTML-only clipboard feedback with no input |
+| 48 | The nothing-to-paste outcome sends no input. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes empty and HTML-only clipboard feedback with no input |
+| 49 | A browser refusal produces clipboard-unavailable feedback. Declined permission is the supplied example. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes absent clipboard API, Compose recovery and no input; useTerminalPaste.ts uses the same catch for a rejected browser read |
+| 50 | A missing clipboard API produces the same clipboard-unavailable feedback. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes absent clipboard API, Compose recovery and no input; useTerminalPaste.ts uses the same catch for a rejected browser read |
+| 51 | A clipboard-unavailable outcome sends no input. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes absent clipboard API, Compose recovery and no input; useTerminalPaste.ts uses the same catch for a rejected browser read |
+| 52 | Clipboard-unavailable feedback points to Compose with the keyboard’s own Paste as recovery. The source describes that existing Compose route as text only. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes absent clipboard API, Compose recovery and no input; useTerminalPaste.ts uses the same catch for a rejected browser read |
+| 53 | An image refusal reports the server’s reason. | slice 2 | |
+| 54 | A too-large image uses the existing launch wording, as specified in the 12 MB example. | slice 2 | |
+| 55 | An unacceptable image type is a server refusal reason. | slice 2 | |
+| 56 | An image storage failure is a server refusal reason. | slice 2 | |
+| 57 | The oversized PNG example pastes nothing. | slice 2 | |
+| 58 | The oversized PNG example leaves the terminal attached. | slice 2 | |
+| 59 | A disconnected attachment is an input failure case. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes disconnect, no input or replay, reconnect guidance and an explicit retry using the retained clipboard; agent-terminal-lifetime.spec.ts observes ending; attachedTerminal.ts also excludes refused attachments and stores no pending data |
+| 60 | An ended attachment is an input failure case. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes disconnect, no input or replay, reconnect guidance and an explicit retry using the retained clipboard; agent-terminal-lifetime.spec.ts observes ending; attachedTerminal.ts also excludes refused attachments and stores no pending data |
+| 61 | An attachment that refuses input is an input failure case. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes disconnect, no input or replay, reconnect guidance and an explicit retry using the retained clipboard; agent-terminal-lifetime.spec.ts observes ending; attachedTerminal.ts also excludes refused attachments and stores no pending data |
+| 62 | Input failure feedback identifies that the attachment could not accept input. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes disconnect, no input or replay, reconnect guidance and an explicit retry using the retained clipboard; agent-terminal-lifetime.spec.ts observes ending; attachedTerminal.ts also excludes refused attachments and stores no pending data |
+| 63 | Input failure feedback tells the developer to reconnect. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes disconnect, no input or replay, reconnect guidance and an explicit retry using the retained clipboard; agent-terminal-lifetime.spec.ts observes ending; attachedTerminal.ts also excludes refused attachments and stores no pending data |
+| 64 | The developer then taps Paste again. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes disconnect, no input or replay, reconnect guidance and an explicit retry using the retained clipboard; agent-terminal-lifetime.spec.ts observes ending; attachedTerminal.ts also excludes refused attachments and stores no pending data |
+| 65 | Nothing is kept pending. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes disconnect, no input or replay, reconnect guidance and an explicit retry using the retained clipboard; agent-terminal-lifetime.spec.ts observes ending; attachedTerminal.ts also excludes refused attachments and stores no pending data |
+| 66 | Nothing is replayed. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes disconnect, no input or replay, reconnect guidance and an explicit retry using the retained clipboard; agent-terminal-lifetime.spec.ts observes ending; attachedTerminal.ts also excludes refused attachments and stores no pending data |
+| 67 | The content remains in the device clipboard for the next tap. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes disconnect, no input or replay, reconnect guidance and an explicit retry using the retained clipboard; agent-terminal-lifetime.spec.ts observes ending; attachedTerminal.ts also excludes refused attachments and stores no pending data |
+| 68 | A successful image paste reports in the status region that the image was pasted as the stored file. | slice 2 | |
+| 69 | Dashboard confirmation is of the local offer. | slice 2 | |
+| 70 | Fine-pointer desktop shows no phone toolbar. | slice 1 | observed: agent-terminal-touch-keys.spec.ts fine-pointer journey observes hidden toolbar and Paste; browser paste shortcut sends one input frame, echoes text and submits nothing |
+| 71 | Paste is absent on fine-pointer desktop. | slice 1 | observed: agent-terminal-touch-keys.spec.ts fine-pointer journey observes hidden toolbar and Paste; browser paste shortcut sends one input frame, echoes text and submits nothing |
+| 72 | Desktop Cmd+V through the terminal keeps its existing text paste behavior. | slice 1 | observed: agent-terminal-touch-keys.spec.ts fine-pointer journey observes hidden toolbar and Paste; browser paste shortcut sends one input frame, echoes text and submits nothing |
+| 73 | Direct typing keeps its existing behavior. | slice 1 | observed: agent-terminal-touch-paste.spec.ts types a prefix through xterm before bracketed paste; session-terminal-voice.spec.ts observes ordinary typing and deliberate submission |
+| 74 | Compose Insert keeps its existing behavior. | slice 1 | observed: agent-terminal-touch-composer.spec.ts observes Compose Insert, deliberate Enter and a retained draft while the attachment is unavailable |
+| 75 | Dictation keeps its existing behavior. | slice 1 | observed: boundary/terminal-dictation.spec.ts observes sanitizer behavior; session-terminal-voice, session-terminal-voice-lifecycle and session-terminal-voice-recovery specs observe offers, failed operations and explicit retries |
+| 76 | Existing toolbar keys keep their behavior. | slice 1 | observed: agent-terminal-touch-keys.spec.ts drives actual toolbar input frames, scroll reach and focus; agent-terminal-touch-keyboard-fit.spec.ts observes reduced-height and orientation behavior |
+| 77 | Existing focus behavior is preserved. | slice 1 | observed: agent-terminal-touch-keys.spec.ts drives actual toolbar input frames, scroll reach and focus; agent-terminal-touch-keyboard-fit.spec.ts observes reduced-height and orientation behavior |
+| 78 | iOS may show a browser-owned paste confirmation before granting the clipboard read. | slice 1 | observed: useTerminalPaste.ts delegates clipboard access to the browser from the click; the source explicitly leaves iOS confirmation to the browser and excludes physical-device proof |
+| 79 | The page adds no special handling for that iOS confirmation. | slice 1 | observed: useTerminalPaste.ts delegates clipboard access to the browser from the click; the source explicitly leaves iOS confirmation to the browser and excludes physical-device proof |
+| 80 | Image paste through the desktop terminal’s own paste event is deferred. | slice 2 | |
+| 81 | Delivering both text and image from a single clipboard is deferred. The current priority rule is in clause 22. | slice 2 | |
+| 82 | Removing pasted images through **Delete record** is deferred. | slice 2 | |
+| 83 | Removing pasted images by age is deferred. | slice 2 | |
+| 84 | Pasted files remain under the dashboard home for that session, analogous to launch files remaining with their attempt. | slice 2 | |
+| 85 | Confirming that the native agent read the image is deferred. | slice 2 | |
+| 86 | Redesigning how hosts receive images is outside scope. | slice 2 | |
+| 87 | Physical-device proof is outside scope. The source bounds proof to the existing local Chromium journeys. | slice 2 | |
+| 88 | Remote-connectivity proof is outside scope under the same bound. | slice 2 | |
+| 89 | New host-specific paste key bindings are outside scope. | slice 2 | |
+| 90 | Clipboard injection on the Mac is outside scope. | slice 2 | |
+| 91 | The source makes no further layout choice. | slice 2 | |
+| 92 | The source makes no further component choice. | slice 2 | |
+| 93 | The source makes no further technology choice. | slice 2 | |
+| J1 | **Text.** The phone displays an attached terminal. The clipboard holds `Why is this card clipped?`. A tap sends exactly that text over the attachment input path. The native prompt displays it unsubmitted, keyboard visibility stays as it was, and no Enter is sent. | slice 1 | observed: agent-terminal-touch-paste.spec.ts text journey observes exact one input frame, the prompt echo and no submitted lines; attachedTerminal.ts routes xterm onData through the same socket input |
+| J2 | **Multiline text.** The native tool has enabled bracketed paste and the clipboard holds two lines. A tap sends one paste with the bracketed-paste markers to the PTY. Both lines appear at the prompt, unsubmitted. | slice 1 | observed: agent-terminal-touch-paste.spec.ts bracketed journey sets fake tool mode 2004, types a prefix, and observes both prompt lines, no submission and one cleaned wrapped frame; boundary/terminal-dictation.spec.ts observes shared escape removal |
+| J3 | **Image.** A tap with a PNG screenshot on the clipboard stores the original bytes under the dashboard home for the host-qualified session. The terminal receives only the absolute path in the launch image path form. Status identifies the file and no Enter is sent. | slice 2 | |
+| J4 | **Nothing to paste.** An empty clipboard or one offering only unsupported content sends nothing and produces the nothing-to-paste status. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes empty and HTML-only clipboard feedback with no input |
+| J5 | **Clipboard unavailable.** Declined permission or an absent clipboard API results in no input. Status says the clipboard could not be read and points to the keyboard’s Paste in Compose. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes absent clipboard API, Compose recovery and no input; useTerminalPaste.ts uses the same catch for a rejected browser read |
+| J6 | **Attachment unavailable.** A disconnected or ended attachment sends nothing and retains nothing for later delivery. Status tells the developer to reconnect and tap again. Reconnecting alone replays nothing. | slice 1 | observed: agent-terminal-touch-paste.spec.ts observes disconnect, no input or replay, reconnect guidance and an explicit retry using the retained clipboard; agent-terminal-lifetime.spec.ts observes ending; attachedTerminal.ts also excludes refused attachments and stores no pending data |
+| J7 | **Image refused.** A 12 MB PNG is refused using the existing launch wording for a too-large image. Nothing is pasted and the terminal stays attached. | slice 2 | |
+| J8 | **Desktop.** On a fine-pointer desktop, the toolbar and Paste are absent and terminal Cmd+V still pastes text. | slice 1 | observed: agent-terminal-touch-keys.spec.ts fine-pointer journey observes hidden toolbar and Paste; browser paste shortcut sends one input frame, echoes text and submits nothing |
+| J9 | **Operating context.** Terry reaches the dashboard from a phone over its Tailscale HTTPS address after copying text or a screenshot on that phone. The proof scope below applies independently of this example. | slice 2 | |
