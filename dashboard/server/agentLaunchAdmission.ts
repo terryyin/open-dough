@@ -1,6 +1,7 @@
 // Local admission for launch, continuation, update-worktree, reconciliation,
 // verification, recovery and session actions.
 
+import { sessionAttachmentEndpoint } from "../src/agentTerminal.ts";
 import {
   landingEndpoint,
   landingPrepareEndpoint,
@@ -200,6 +201,7 @@ const exactReads = new Map<string, (url: URL) => Admitted | Promise<Admitted>>([
 // Every path whose requests this boundary admits or refuses.
 export const launchBoundaryPaths: ReadonlySet<string> = new Set([
   completionEndpoint,
+  sessionAttachmentEndpoint,
   landingEndpoint,
   landingPrepareEndpoint,
   launchHostOptionsEndpoint,

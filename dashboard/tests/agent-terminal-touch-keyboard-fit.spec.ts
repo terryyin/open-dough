@@ -94,6 +94,7 @@ test.describe("phone terminal soft-keyboard and orientation fit", () => {
         hide,
         close,
         terminalKey(panel, "Enter"),
+        terminalKey(panel, "Paste"),
         insert,
         draft,
       ]) {

@@ -98,9 +98,11 @@ function HideKeyboardKey() {
 
 export function TerminalKeyToolbar({
   insert,
+  onPaste,
 }: {
   // Offers one sequence on the live attachment; false when none is attached.
   readonly insert: (sequence: string) => boolean;
+  readonly onPaste: () => void;
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [composeOpen, setComposeOpen] = useState(false);
@@ -111,13 +113,23 @@ export function TerminalKeyToolbar({
         role="toolbar"
         aria-label="Terminal keys"
       >
-        {primaryKeys.map((key) => (
-          <ToolbarKey key={key.name} {...key} insert={insert} />
-        ))}
+        <span className="terminal-key-toolbar-primary">
+          {primaryKeys.map((key) => (
+            <ToolbarKey key={key.name} {...key} insert={insert} />
+          ))}
+        </span>
         <span className="terminal-key-toolbar-trailing">
           {trailingKeys.map((key) => (
             <ToolbarKey key={key.name} {...key} insert={insert} />
           ))}
+          <button
+            type="button"
+            className="terminal-key-toolbar-key"
+            onPointerDown={keepTerminalFocus}
+            onClick={onPaste}
+          >
+            Paste
+          </button>
           <ToolbarToggle
             name="More terminal keys"
             label="More"

@@ -34,6 +34,7 @@ import type { submitCompletion } from "./completionReporting.ts";
 import type { LandingReceipt } from "../src/launchLanding.ts";
 
 export type AgentLaunchAnswer =
+  | { readonly status: number; readonly body: { readonly path: string } }
   | { readonly status: number; readonly body: { readonly drained: true } }
   | { readonly status: number; readonly body: LandingReceipt }
   | {

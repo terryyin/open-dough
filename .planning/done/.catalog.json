@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-237_paste-from-the-mobile-keyboard.json",
+      "identity": "SEED-237#paste-from-the-mobile-keyboard",
+      "completedAt": "2026-11-05T03:45:30.900Z",
+      "blob": "ff79d41836389dedcc6efc7b20cb5c7664e423a1"
+    },
+    {
       "fileName": "SEED-234_verify-live-dashboard-ci-proof.json",
       "identity": "SEED-234#verify-live-dashboard-ci-proof",
       "completedAt": "2026-11-05T02:25:00.884Z",
@@ -1542,18 +1548,6 @@
       "identity": "SEED-114#session-column-membership",
       "completedAt": "2026-10-06T08:19:24.619Z",
       "blob": "f8b2d61acfa1c75d0e190142de17072ba841a203"
-    },
-    {
-      "fileName": "SEED-008_story-branch-delivery-target.json",
-      "identity": "SEED-008#story-branch-delivery-target",
-      "completedAt": "2026-10-06T03:27:09.000Z",
-      "blob": "57e6f9cb5a7082277efa502f1bed43189e8599c7"
-    },
-    {
-      "fileName": "SEED-107_recently-done.json",
-      "identity": "SEED-107#recently-done",
-      "completedAt": "2026-10-06T02:35:43.335Z",
-      "blob": "338ed5536a94dca1fe8199e9915eba80ec57380e"
     }
   ],
   "unreadable": []

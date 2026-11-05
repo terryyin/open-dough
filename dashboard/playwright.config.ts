@@ -8,6 +8,16 @@ import type { QuietReporterOptions } from "./tests/support/quietReporter.ts";
 import { acquireLocalSuite } from "../scripts/local-test-suite.mjs";
 import { fullDashboardSuite } from "./tests/support/fullSuiteSelection.mjs";
 
+// Fixtures create independent Git repositories. Inherited repository paths
+// can redirect their writes or make their local transport miss objects, as in
+// the shell runner's isolation (scripts/test-environment.bash).
+delete process.env["GIT_DIR"];
+delete process.env["GIT_WORK_TREE"];
+delete process.env["GIT_COMMON_DIR"];
+delete process.env["GIT_INDEX_FILE"];
+delete process.env["GIT_OBJECT_DIRECTORY"];
+delete process.env["GIT_ALTERNATE_OBJECT_DIRECTORIES"];
+
 // Config is the shared entry for npm and direct Playwright commands. Workers
 // reload it, but only the runner admits a full local run before global setup.
 if (

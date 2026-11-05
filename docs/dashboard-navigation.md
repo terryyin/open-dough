@@ -200,7 +200,7 @@ Without hover, cards show Start preparation/readiness notes and disabled reasons
 source details; dependencies open in place. Titles and paths wrap without widening the page. Rotation keeps selection and open explanations.
 Hide detail and Close return focus to their originating card or control. On a coarse pointer the Side panel terminal fits the visible area
 when the soft keyboard or orientation changes, keeping controls and Close reachable; see [embedded terminals](../dashboard/AGENT-LAUNCH-TERMINALS.md#embedded-terminals-and-local-record-actions)
-for toolbar, composer Insert, and scroll-versus-navigate behavior. Chromium checks cover phone/tablet viewports, rotation, and desktop;
+for the toolbar’s Paste key, composer Insert, and scroll-versus-navigate behavior. Chromium checks cover phone/tablet viewports, rotation, and desktop;
 they do not establish physical-device keyboard or remote-connectivity behavior.
 
 The selected story's card is highlighted with an inset accent ring and pale blue fill; inspecting a card opens its detail without it. Opening a story's terminal, final report, or review in the Side panel selects that story, and closing the Side panel or showing a session attached to no story clears it. A Session entry the Side panel shows keeps its own outline and "Shown in" mark, which identifies the session.

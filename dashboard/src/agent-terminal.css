@@ -177,15 +177,24 @@
     background: var(--hover);
   }
 
-  /* Keep More / Ctrl+C at the trailing edge while primary keys scroll. */
+  .terminal-key-toolbar-primary,
   .terminal-key-toolbar-trailing {
-    position: sticky;
-    right: 0;
     display: flex;
-    flex: none;
     gap: var(--space-1);
-    padding-inline-start: var(--space-1);
-    background: var(--raised-surface);
+  }
+
+  /* Keep Enter, Paste and More beside the primary keys as those keys scroll. */
+  .terminal-key-toolbar-primary {
+    min-width: var(--control-size);
+    overflow-x: auto;
+  }
+
+  .terminal-key-toolbar-trailing {
+    flex: none;
+  }
+
+  .terminal-key-toolbar-trailing .terminal-key-toolbar-key {
+    padding-inline: var(--space-1);
   }
 
   .terminal-composer-draft {
