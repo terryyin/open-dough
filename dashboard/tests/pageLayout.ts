@@ -116,6 +116,11 @@ const notReadWhole = (cutByDesign: readonly string[]) => `(() => {
 // whole-text checks below always treat it as cut by design.
 export const compactProjectSelectCut = [".project-title-select"] as const;
 
+// The Sessions toggle's count badge overhangs its control corner by design
+// (../src/sessions-sidebar.css); whole-page layout checks skip the group, and
+// the badge's own fit is checked where both counts are present.
+export const sessionsToggleGroupCut = [".sessions-toggle-group"] as const;
+
 // The page fits the window and its text is read whole, apart from parts that
 // are cut by design and read whole elsewhere, such as a Sessions sidebar
 // entry's title, or a terminal's own scrolling screen. The page is measured
@@ -126,7 +131,11 @@ export async function expectNoSidewaysScrollAndWholeText(
   page: Page,
   partsCutByDesign: readonly string[] = [],
 ) {
-  const cutByDesign = [...compactProjectSelectCut, ...partsCutByDesign];
+  const cutByDesign = [
+    ...compactProjectSelectCut,
+    ...sessionsToggleGroupCut,
+    ...partsCutByDesign,
+  ];
   await untilPublishedWorkRead(page);
   // Measure what a frame paints: layout that follows a resize observer,
   // such as the banner's project tabs giving way to the compact select,

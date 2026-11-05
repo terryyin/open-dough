@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-235_see-running-sessions-with-sidebar-closed.json",
+      "identity": "SEED-235#see-running-sessions-with-sidebar-closed",
+      "completedAt": "2026-11-05T04:36:20.302Z",
+      "blob": "3dbc80ffcff59f5b064aae05d5a454e7a2c86995"
+    },
+    {
       "fileName": "SEED-232_share-published-git-refreshes.json",
       "identity": "SEED-232#share-published-git-refreshes",
       "completedAt": "2026-11-05T03:48:26.474Z",

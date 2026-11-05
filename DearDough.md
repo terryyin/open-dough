@@ -52,6 +52,15 @@ Former local code: DD-128. [Evidence and current response](docs/maintainer/findi
 
 Former local code: DD-155. [Meaning, evidence and response](docs/maintainer/findings/ODF-106.md).
 
+### Occurrences
+- Execution: SEED-235#see-running-sessions-with-sidebar-closed (plan 470-see-running-sessions-with-sidebar-closed, first related implementation commit `8e53d30171f12c4dc0a111adc558b794f9ca2387`)
+  - Timestamp: 2026-11-05T09:35:45+07:00 (SEED-235 plan commit `1e8a779d3`; sibling SEED-236 plan commit `7e65b01f9` at 2026-11-05T09:32:12+07:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.84)
+  - Evidence: Taken holds both `.planning/slice-plans/470-see-running-sessions-with-sidebar-closed/` and `.planning/slice-plans/470-show-ci-adapter-proof/`; `.planning/PRODUCT-BACKLOG.md` Taken lists both as plan 470 with different slugs
+  - Observed effect: number-only “plan 470” is ambiguous between two concurrent Taken stories; this execution used the full plan path and was not misrouted
+  - Inference: concurrent planning about three minutes apart reused the same numeric selector while directories differ only by slug; path/slug disambiguation still works, number-only selection does not
+
 ## ODF-141 — Fixed refactor cost on small accepted slices <a id="odf-141"></a>
 
 Former local code: DD-192. [Meaning, evidence and response](docs/maintainer/findings/ODF-141.md).

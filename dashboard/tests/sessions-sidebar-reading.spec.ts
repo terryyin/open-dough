@@ -47,9 +47,13 @@ test.describe("the Sessions sidebar's reading", () => {
     await page.setViewportSize({ width: 1000, height: 1000 });
     const { answer } = await holdSessionReads(page);
     const { settled } = await openStoryColumnsJourney(page, columnsJourney);
-    const { sidebar, button, entries, badge } = sessionsSidebarParts(page);
+    const { sidebar, button, entries, badge, workingBadge } =
+      sessionsSidebarParts(page);
     const { recentlyDone, taken } = parts(page);
     await settled();
+    // Before the first sessions read answers, the closed toggle shows no badge.
+    await expect(badge).toHaveCount(0);
+    await expect(workingBadge).toHaveCount(0);
     await button.click();
     await expect(taken.locator(".column-count")).toHaveText(
       "Entry count incomplete",
