@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "joseph-chan",
+  "email": "joseph-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-244#compare-story-ci-timing-changes",
+  "host": "claude",
+  "model": "opus"
+}
