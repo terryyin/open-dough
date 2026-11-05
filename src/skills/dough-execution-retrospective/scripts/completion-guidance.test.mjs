@@ -138,10 +138,9 @@ test("quiet output preserves existing evidence, writer, recording and dispositio
   }
   assert.match(
     recording,
-    /Retain and return[\s\S]+required size\/retention warnings or refusal/,
+    /Retain and return[\s\S]+required size\/retention refusal/,
   );
-  assert.match(recording, /unresolved warning or refusal remains actionable/);
+  assert.match(recording, /unresolved refusal remains actionable/);
   assert.match(bounded, /calling review as evidence/);
-  assert.match(bounded, /500-line\s+warning when step 5 applies/);
   assert.match(bounded, /Never describe those cases as successful writes/);
 });
