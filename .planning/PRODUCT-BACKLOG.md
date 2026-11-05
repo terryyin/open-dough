@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Count a repeated adapter attempt ID as ambiguous](seeds/SEED-236-show-ci-adapter-proof.md#count-repeated-adapter-attempt-ids) — SEED-236#count-repeated-adapter-attempt-ids ([plan](slice-plans/473-count-repeated-adapter-attempt-ids/PLAN.md))
-
 ## Backlog list
 
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
