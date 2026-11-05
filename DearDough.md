@@ -134,6 +134,15 @@ Former local code: DD-258. [Evidence and current response](docs/maintainer/findi
 
 Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/findings/ODF-150.md).
 
+### Occurrences
+- Execution: SEED-232#share-published-git-refreshes (plan 468-share-published-git-refreshes, first implementation commit `aa37bdf36d4a5b8596d71a6544156186a22dfc5d`)
+  - Timestamp: 2026-11-04T15:51:35Z (CI run 41862069163 attempt 1 on `aa37bdf36`)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: slice 1's plan proof named the new listing/listing-failures specs plus existing revision-check, shared, waiter, `shared-observation`, and `github-requests` cases, and rewrote only the shared-spec "later check asks again" expectation. Giving the listing its own tracked `AbortController` changed disconnect ownership; CI failed `authenticated-read-subprocess-lifecycle.spec.ts` (expected SIGTERM on revision-check abandon) and `auto-refresh-visibility.spec.ts` (expected heads check still conditional on the pre-hide revision). Repair `ec9babc1e` aligned those consumers without product change. Coordinator transcript `73c2f3cf-dcc7-4769-b1b5-b54c5265e809`; repair agent `ce5156b2-a142-4306-a841-80fb98917e9b`.
+  - Observed effect: one failed CI run on the slice-1 SHA, one owned repair/refactor/publish cycle before slice 2, and a stash/restore of in-progress work around the repair.
+  - Inference: qualified. The lifetime change's consumers still asserted last-waiter abort; focused proof followed the named listing reuse surface and left those contracts for CI.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
 Former local code: DD-260. [Evidence and current response](docs/maintainer/findings/ODF-225.md).
@@ -157,6 +166,15 @@ Former local code: DD-264. [Evidence and current response](docs/maintainer/findi
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
 Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
+
+### Occurrences
+- Execution: SEED-232#share-published-git-refreshes (plan 468-share-published-git-refreshes, first implementation commit `aa37bdf36d4a5b8596d71a6544156186a22dfc5d`)
+  - Timestamp: unknown (2026-11-05, after slice-2 Task start ~05:51 +07:00 and before verification Task ~07:26 +07:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: coordinator transcript `73c2f3cf-dcc7-4769-b1b5-b54c5265e809` ("interrupted delegation"; "uncommitted work from the interrupted agent"); slice-2 implementer `610fde17-8b6c-4d61-9e69-4648bf617876` left journey/docs edits without a proof return; verification agent `e9a5df51-ec3b-4aca-8d54-6215e73e7d31` re-established focused and full-dashboard proof from the checkout before acceptance; slice 2 later published as `37e16d3fb`.
+  - Observed effect: one aborted implementation Task with uncommitted product/test/doc edits; coordinator reconstructed proof from the checkout, then accepted and delivered without a dual-writer publish.
+  - Inference: qualified recurrence of interrupted Cursor implementation without return; edits-present case required checkout reconstruction and renewed proof before acceptance. Host termination cause unestablished. Distinct from the later Cursor auth/tool outage that stalled slice-3 delivery after observation was already recorded.
 
 ## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
 

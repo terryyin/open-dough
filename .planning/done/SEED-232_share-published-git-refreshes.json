@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-232#share-published-git-refreshes",
+  "title": "Keep the same project fresh across views with fewer GitHub requests",
+  "completedAt": "2026-11-05T03:48:26.474Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "cursor",
+  "model": "auto"
+}

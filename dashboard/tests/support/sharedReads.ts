@@ -1,12 +1,18 @@
 // Shared support for ../boundary/authenticated-read-shared.spec.ts,
-// ../boundary/authenticated-read-shared-waiters.spec.ts, and
-// ../boundary/authenticated-read-shared-failures.spec.ts: a published
+// ../boundary/authenticated-read-shared-waiters.spec.ts,
+// ../boundary/authenticated-read-shared-failures.spec.ts,
+// ../boundary/authenticated-read-shared-listing.spec.ts, and
+// ../boundary/authenticated-read-shared-listing-failures.spec.ts: a published
 // revision whose backlog names two seeds and two story-branch profiles, the
 // boundary reads a test sends, and how a test sends reads that coincide on
 // one held GitHub answer and observes the questions that reached GitHub.
 
 import { expect } from "@playwright/test";
-import type { DashboardServer } from "./dashboardServer.ts";
+import {
+  developmentBoundary,
+  startDashboardServer,
+  type DashboardServer,
+} from "./dashboardServer.ts";
 import {
   everyRepository,
   publishes,
@@ -17,6 +23,20 @@ import { answeringFirst, holdingAnswer } from "./heldGitHubAnswer.ts";
 import { rawRequest, type RawResponse } from "./rawHttp.ts";
 import { headsAnswer, type OriginAnswer } from "../originAnswers.ts";
 import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+
+// How long a listing-reuse boundary case keeps a settled listing answerable.
+export const listingReuseWindowMs = 60_000;
+
+// A boundary server whose revision-check listings reuse for that window.
+export function listingReuseServer(
+  overrides: { readonly readTimeoutMs?: number } = {},
+): Promise<DashboardServer> {
+  return startDashboardServer({
+    ...developmentBoundary,
+    revisionCheckReuseMs: listingReuseWindowMs,
+    ...overrides,
+  });
+}
 
 export const sharedSeedPath = ".planning/seeds/SEED-shared.md";
 export const otherSeedPath = ".planning/seeds/SEED-other.md";

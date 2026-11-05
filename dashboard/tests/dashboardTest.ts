@@ -99,6 +99,8 @@ export const test = base.extend<{
   startTimeoutMs: number | undefined;
   extraEnv: Readonly<Record<string, string>> | undefined;
   pathPrefix: readonly string[] | undefined;
+  // Listing reuse ms; harness default and meaning live on `startDashboardServer`.
+  revisionCheckReuseMs: number | undefined;
   serverMode: FixtureServerMode;
   // When true (the default), the context pre-holds both stream slots so
   // existing check journeys keep proving check delivery. Stream journeys set
@@ -116,6 +118,7 @@ export const test = base.extend<{
   startTimeoutMs: [undefined, { option: true }],
   extraEnv: [undefined, { option: true }],
   pathPrefix: [undefined, { option: true }],
+  revisionCheckReuseMs: [undefined, { option: true }],
   serverMode: ["preview", { option: true }],
   preholdRevisionStreamSlots: [true, { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
@@ -147,6 +150,7 @@ export const test = base.extend<{
       codexProtocol,
       extraEnv,
       pathPrefix,
+      revisionCheckReuseMs,
       serverMode,
     },
     use,
@@ -159,6 +163,7 @@ export const test = base.extend<{
       launchTimeoutMs,
       machine,
       codexProtocol,
+      revisionCheckReuseMs,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
       extraEnv: {
         ...extraEnv,

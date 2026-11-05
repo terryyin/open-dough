@@ -64,6 +64,13 @@ const github = new GitHubRequests({
   maxBufferBytes: maxAnswerBytes,
 });
 
+// How a request names the API host and login this process asks under now,
+// without a secret; undefined while their endpoint cannot be established.
+// Revision checks key their shared listing by this (`./revisionChecks.ts`).
+export function scope(): Promise<string | undefined> {
+  return github.scope();
+}
+
 // One `gh api` answer, settled whatever its exit: `--include` makes `gh`
 // print GitHub's status line on stdout even when it exits non-zero, so a
 // caller can decide from that status before treating the exit as a failure.

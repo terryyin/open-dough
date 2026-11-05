@@ -96,6 +96,23 @@ test("an api call asks for GitHub's head and settles with its status, headers an
   assert.deepEqual(failed, []);
 });
 
+test("scope names the API host and login without a secret, and a host change asks under another scope", async (t) => {
+  syntheticGh(t);
+  const { github } = requests();
+  const first = await github.scope();
+  assert.equal(typeof first, "string");
+  assert.ok(first && first.length > 0);
+  // The name is a digest of host and login, never the secret or host string.
+  assert.equal(first.includes("github.com"), false);
+  process.env.GH_HOST = "other.example";
+  t.after(() => {
+    delete process.env.GH_HOST;
+  });
+  const second = await github.scope();
+  assert.notEqual(first, second);
+  assert.equal(second.includes("other.example"), false);
+});
+
 test("requesters of one outstanding call share it, and a later requester asks again", async (t) => {
   const gh = syntheticGh(t);
   const { github } = requests();
