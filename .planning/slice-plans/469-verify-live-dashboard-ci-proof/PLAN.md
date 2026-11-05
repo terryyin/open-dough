@@ -78,6 +78,13 @@ under Accepted proof here. On disagreement, stop the observation, diagnose
 the reader or the workflow publication, repair with a failing spec first,
 land, let the dashboard redeploy, and observe again.
 
+## Execution complete
+
+Product advice: no change. The live Proof agreed with the published summary
+and the no-summary line held, so CI proof adoption in Open Dough is closed
+with observed evidence; the next value stays with the backlog's Purpose and
+Proof review direction, with no new story suggested by this observation.
+
 ## Accepted proof
 
 Slice 1, observed 2026-11-05 09:11 (+07) from the execution workspace after
