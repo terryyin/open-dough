@@ -727,9 +727,8 @@ conflict, exception or North Star topic is needed.
 {"schemaVersion":1,"refinement":"refined","approach":"planless"}
 ```
 
-**Goal:** A developer reading Intent sees the published locations again after a
-passing read failure, without pressing Retry, and a failure that remains names
-its actual cause.
+**Goal:** A developer whose Intent locations read failed sees its actual
+cause, and Retry reads the locations again.
 
 - **Reported:** On 2026-11-05 at 8:32, after the 0.3.84 production dashboard
   restarts at 8:19 and 8:22, Intent on a phone over Tailscale showed "Intent
@@ -740,10 +739,38 @@ its actual cause.
   `failed` state, and `IntentPerspective` replaces the read problem with fixed
   wording that blames the revision. Nothing re-reads it, unlike published-work
   reads.
-- **Expected:** A failure that the boundary or the page deems transient (the boundary
-  unreachable, a limited or transient answer) is read again automatically,
-  and the failure shown names the read problem's own message.
-- **Boundary:** Intent locations read only; keep manual Retry.
+- **Expected:** The failure shown names the read problem's own message, for
+  example that the local authenticated read could not be reached.
+- **Boundary:** Intent locations read only; keep manual Retry. Reading again
+  without Retry belongs to
+  [Recover failed Intent reads without Retry](#recover-failed-intent-reads).
+
+
+<a id="recover-failed-intent-reads"></a>
+
+### 18. Recover failed Intent reads without Retry
+
+**Identity:** SEED-192#recover-failed-intent-reads
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** A developer reading Intent sees the published locations and Test
+Optimization Candidates again after a passing read failure, such as the local
+boundary being unreachable during a production dashboard restart, without
+pressing Retry.
+
+- **Evidence:** [Recover a failed Intent locations read](#recover-intent-locations-read)
+  observed a phone left on "could not be read" after the 2026-11-05 restarts
+  while the same read later answered. Intent reads (`useIntentLocations`,
+  `IntentCandidatesRecord`) settle a failure until manual Retry, while
+  published-work reads recover through the page's one recovery schedule
+  (`limitRecovery.ts`, `transientRecovery.ts`), which keeps no second timer.
+- **Expected:** A failure the boundary marks transient, an unreachable
+  boundary, or a GitHub limit is read again when that schedule is due on a
+  visible page; a failure that is not transient still waits for Retry.
+- **Boundary:** Join the existing recovery schedule rather than adding a
+  timer. Keep manual Retry.
 
 ## Ordering, Existing Stories, and Scope Reduction
 
