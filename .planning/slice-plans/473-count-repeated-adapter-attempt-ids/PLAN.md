@@ -94,3 +94,14 @@ node suites. Outcome: clean (file-size + doc seam).
 
 - Slice-plan refinement was not needed: one outcome, one proof loop.
 - No remaining slice-specific concern was identified.
+
+## Execution complete
+
+Product advice: no change. The correction matches the stated Goal and Scope:
+same-check repeated `attemptId`s across runs at one revision mark the shown
+attempt ambiguous with no counts and no adapter `proof` request; ambiguity
+counts discover-answered attempts before newest-per-check retention; docs
+state the rule as built; preserved newest-per-check verdict and GitHub Actions
+path. Process review found no supported new finding (interrupted-refactor
+recovery followed existing guidance). CI for `d9f48a59` was still pending at
+review time.
