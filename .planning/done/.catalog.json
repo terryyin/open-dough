@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_recover-intent-locations-read.json",
+      "identity": "SEED-192#recover-intent-locations-read",
+      "completedAt": "2026-11-05T01:44:58.455Z",
+      "blob": "b863a92c42de91bafdfdb7f06a6b7829d4fe2ab1"
+    },
+    {
       "fileName": "SEED-232_reduce-running-cursor-session-requests.json",
       "identity": "SEED-232#reduce-running-cursor-session-requests",
       "completedAt": "2026-11-04T23:33:49.467Z",

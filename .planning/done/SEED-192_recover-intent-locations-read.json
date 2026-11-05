@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#recover-intent-locations-read",
+  "title": "Recover a failed Intent locations read",
+  "completedAt": "2026-11-05T01:44:58.455Z",
+  "developer": "Terry Yin",
+  "agent": "jackson-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
