@@ -19,8 +19,19 @@ const origin = process.env.FAKE_GH_ORIGIN;
 const pidPath = process.env.FAKE_GH_PIDFILE;
 
 // Asked which login it holds (`gh auth token`), it prints the token its
-// environment names and asks the fake GitHub nothing.
+// environment names and asks the fake GitHub nothing. When FAKE_GH_AUTH_HOLD
+// names a file, this branch records that it was reached (`${hold}.reached`)
+// and waits while that file still exists, so a test can hold request-owner
+// scope resolution; absent the variable, behavior is unchanged.
 if (args[0] === "auth") {
+  const hold = process.env.FAKE_GH_AUTH_HOLD;
+  if (hold) {
+    fs.writeFileSync(`${hold}.reached`, "");
+    const pause = new Int32Array(new SharedArrayBuffer(4));
+    while (fs.existsSync(hold)) {
+      Atomics.wait(pause, 0, 0, 50);
+    }
+  }
   process.stdout.write(process.env.GH_TOKEN || "");
   process.exit(process.env.GH_TOKEN ? 0 : 1);
 }

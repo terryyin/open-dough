@@ -111,7 +111,9 @@ a read another page still waits for; for an ordinary content or ref read the
 last one leaving ends it, as closing the dashboard does, while a
 revision-check listing runs under its own tracked lifetime so it may still
 settle and serve the next check within the window. The last open stream for a
-project and scope ending also ends that scope's paced observation. A finished
+project and scope ending also ends that scope's paced observation. A stream
+whose page departs, or whose boundary closes, while its open is still resolving
+request-owner scope acquires no listing or paced observation for that open. A finished
 ref answer is never reused for a later open: a later open or return asks again.
 A shared request that GitHub refuses, or leaves unanswered for the 30-second
 bound counted from when it was first asked, fails every page waiting on it

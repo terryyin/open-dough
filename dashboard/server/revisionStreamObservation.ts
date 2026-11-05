@@ -9,12 +9,15 @@
 // and scope is `./sourceRevisionStream.ts`. Timers and listing waits are
 // registered in the boundary's `tracked` lifetime so closing the boundary
 // ends them; the last stream closing stops the observation. No daemon,
-// database, or cross-process scheduler.
+// database, or cross-process scheduler. A pending open's controller is
+// tracked from admission so a page departure or boundary close during
+// request-owner scope resolution releases that open before it joins.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { requestOwnerScope } from "./ghRead.ts";
 import type { RevisionStreamAsk } from "./requestedRevisionStream.ts";
+import { endRevisionStream } from "./revisionStreamEvents.ts";
 import {
   SourceRevisionStream,
   type RevisionStreamReaders,
@@ -34,6 +37,7 @@ function observationKey(sourceId: string, scope: string | undefined): string {
 export class RevisionStreamObservation {
   private readonly byKey = new Map<ObservationKey, SourceRevisionStream>();
   private unscoped = 0;
+  private registryClosed = false;
 
   constructor(private readonly readers: RevisionStreamReaders) {}
 
@@ -44,7 +48,19 @@ export class RevisionStreamObservation {
     res: ServerResponse,
   ): Promise<void> {
     if (res.writableEnded || res.destroyed) return;
+    const admission = new AbortController();
+    this.readers.tracked.add(admission);
+    const depart = () => {
+      if (!admission.signal.aborted) admission.abort();
+    };
+    req.on("close", depart);
+    res.on("close", depart);
     const scope = await requestOwnerScope();
+    if (admission.signal.aborted || this.registryClosed) {
+      this.readers.tracked.delete(admission);
+      endRevisionStream(res);
+      return;
+    }
     // An undefined scope shares nothing: each stream observes alone.
     const key =
       scope === undefined
@@ -71,10 +87,11 @@ export class RevisionStreamObservation {
     // Flush before any wait so a preview compression layer cannot hold the
     // first event for a full buffer.
     if (typeof res.flushHeaders === "function") res.flushHeaders();
-    observation.open(ask, req, res);
+    observation.open(ask, req, res, admission);
   }
 
   close(): void {
+    this.registryClosed = true;
     for (const observation of [...this.byKey.values()]) {
       observation.close();
     }

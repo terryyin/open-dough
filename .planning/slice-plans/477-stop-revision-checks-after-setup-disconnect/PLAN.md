@@ -2,6 +2,7 @@
 
 **Identity:** SEED-240#stop-revision-checks-after-setup-disconnect
 **Source:** [selected story](../../seeds/SEED-240-reliable-dashboard-updates-and-session-details.md#stop-revision-checks-after-setup-disconnect)
+**Source review:** [source-review.md](./source-review.md)
 **Prepared:** 2026-11-05; preparation only. Execution is not authorized by this plan.
 
 ## Goal and boundaries
@@ -99,13 +100,10 @@ further listings below fails on today's code.
 ### 1. Departure during stream setup releases its observation demand
 
 Type: Behavior
-Status: planned
-Proof: the new in-process spec (each example above) fails on today's code and
-passes after the change; `dashboard/tests/boundary/authenticated-read-revision-stream.spec.ts`,
-`dashboard/tests/boundary/authenticated-read-plugin-hooks.spec.ts`,
-`dashboard/tests/revision-stream.spec.ts`,
-`dashboard/tests/revision-stream-lost.spec.ts` and
-`dashboard/tests/revision-stream-visibility.spec.ts` stay green.
+Status: done
+Proof: accepted. Focused command
+`export PATH="/opt/homebrew/bin:$PATH" && env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/playwright.config.ts dashboard/tests/boundary/authenticated-read-revision-stream-setup-departure.spec.ts dashboard/tests/boundary/authenticated-read-revision-stream.spec.ts dashboard/tests/boundary/authenticated-read-plugin-hooks.spec.ts dashboard/tests/revision-stream.spec.ts dashboard/tests/revision-stream-lost.spec.ts dashboard/tests/revision-stream-visibility.spec.ts --reporter=list`
+(implementer: 21 passed; coordinator reconfirmed setup-departure 4/4; refactor reconfirmed setup-departure + plugin-hooks 5/5 after helper extract). Observations: depart `matchingRefsSince === 0`; live+depart keeps listings then zero after live close; boundary close zero + `responseEnded`; connected first+paced events. Product: admission `AbortController` in `tracked` before `requestOwnerScope()`; join only while unaborted and `!registryClosed`; `SourceRevisionStream.open(..., admission)` refuses aborted/closed join. Contract sentence in `dashboard/PUBLISHED-OBSERVATION.md`. Lint and `typecheck:dashboard` passed.
 
 Behavior: a stream open is admitted and its scope resolution is held → the
 page departs or the boundary closes, then resolution finishes → no listing,
@@ -117,8 +115,47 @@ and scope keeps its answers, and the observation ends with the last live page.
 - One slice: the fixture hold, the admission change and the spec form one
   observable outcome; neither half is useful alone.
 - The local scope lookup is not cancelled (story scope limit).
+- Admission controller is a required join argument (not optional with fallback).
+- Registry closed state is the field `registryClosed` (not a getter over `closed`).
+- In-process authenticated-read close proofs share `startInProcessBoundaryHttp`.
 
 ## Concern evidence
 
 Refinement not needed: one cohesive slice with settled premises and mapped
 proof. This review identified no remaining slice-specific concern.
+
+## Learnings
+
+- Holding `gh auth token` via `FAKE_GH_AUTH_HOLD` is enough to keep scope
+  resolution pending without cancelling the lookup.
+- Extract shared in-process boundary HTTP wiring when a second authenticated-read
+  close proof would otherwise duplicate plugin-hooks setup.
+
+
+## Story obligations
+
+### Q1. Local scope lookup not cancelled
+Reported: slice 1 — "Source review Q1 — local scope lookup itself is not cancelled"
+Story clause: "the local scope lookup itself is not cancelled; it is shared and cached for the process and asks GitHub nothing"
+Disposition: excluded "the local scope lookup itself is not cancelled; it is shared and cached for the process and asks GitHub nothing"
+Commitment: Q1
+
+
+### X1. Evidence context not acceptance commitment
+Reported: slice 1 — "Source review X1 — evidence/reproduction context only"
+Story clause: "A controlled reproduction using the current server classes"
+Disposition: excluded "A controlled reproduction using the current server classes"
+Commitment: X1
+
+### X2. Browser reconnect and freshness deferred
+Reported: slice 1 — "Source review X2 — browser reconnect and freshness belong elsewhere"
+Story clause: "browser reconnect and freshness behavior belong to
+  [Show lost freshness across repeated revision-stream failures](#show-freshness-loss-across-stream-retries)"
+Disposition: excluded "browser reconnect and freshness behavior belong to
+  [Show lost freshness across repeated revision-stream failures](#show-freshness-loss-across-stream-retries)"
+Commitment: X2
+### X3. Production frequency not measured
+Reported: slice 1 — "Source review X3 — measuring production frequency is not undertaken"
+Story clause: "measuring production frequency is not undertaken"
+Disposition: excluded "measuring production frequency is not undertaken"
+Commitment: X3
