@@ -1,16 +1,15 @@
 // The Intent location kinds whose committed proof Intent reads, and what
 // each contributes to the one case model (`./proofCases.ts`): how its proof
 // files parse, how a published file's case rows derive, and the runner's own
-// words for its cases. Every other proof rule (identity, reduction, counts,
-// sums, slowest cases) is the case model's, and the Intent answer carries
-// every kind's cases in the case model's own fields. A `gherkin` or `python`
-// location implies its runner; a `typescript` or `javascript` location's
-// proof format is the one its declared `runner` records. Read by the pinned
-// Intent read (`../server/intentLocationsRead.ts`,
-// `../server/intentProofRead.ts`), file Proof
-// (`./IntentFileReading.tsx`), summaries (`./IntentSummary.tsx`) and proof
-// generation (`./IntentProofGeneration.tsx`), which hand the resolved kind to
-// file Proof and the explanations (`./IntentProofAbsence.tsx`).
+// words for its cases. Every other proof rule (identity, reduction, counts)
+// is the case model's, and the Intent answer carries every kind's cases in
+// the case model's own fields. A `gherkin` or `python` location implies its
+// runner; a `typescript` or `javascript` location's proof format is the one
+// its declared `runner` records. Read by the pinned Intent read
+// (`../server/intentLocationsRead.ts`, `../server/intentProofRead.ts`), file
+// Proof (`./IntentFileReading.tsx`) and proof generation
+// (`./IntentProofGeneration.tsx`), which hand the resolved kind to file Proof
+// and the explanations (`./IntentProofAbsence.tsx`).
 
 import { parseCucumberProofFile } from "./cucumberProof.ts";
 import { scenarioRowsOf } from "./gherkinScenarios.ts";
@@ -20,22 +19,14 @@ import { parsePytestProofFile } from "./pytestProof.ts";
 import { vitestRowsOf } from "./vitestCases.ts";
 import { parseVitestProofFile } from "./vitestProof.ts";
 
-// How a kind names its cases wherever Proof and summaries count or show
-// them.
+// How a kind names its cases wherever Proof counts or shows them.
 export type ProofKindWords = {
-  // A count of case rows, as the Proof count line and summed duration count
-  // them.
+  // A count of case rows, as the Proof count line counts them.
   readonly cases: (count: number) => string;
-  // A summary's inventory of definitions in its read files, and the line
-  // naming that total as unavailable.
-  readonly inventory: (count: number) => string;
-  readonly inventoryUnavailable: string;
-  // The case column's header in file Proof and the slowest cases.
+  // The case column's header in file Proof.
   readonly caseHeader: string;
-  readonly slowestCases: string;
   // How a varied case's variant reads after its name.
   readonly variant: (variant: readonly string[]) => string;
-  readonly costNote: string;
   // Where an agent in this project finds how to record proof: the reference
   // as its installed Open Dough skills hold it.
   readonly reference: string;
@@ -60,13 +51,8 @@ const gherkin: ProofKind = {
   rowsOf: (text) => scenarioRowsOf(text),
   words: {
     cases: scenarios,
-    inventory: scenarios,
-    inventoryUnavailable: "Scenario total unavailable",
     caseHeader: "Scenario",
-    slowestCases: "Slowest scenarios",
     variant: (cells) => `Example: ${cells.join(" | ")}`,
-    costNote:
-      "A sum of separate scenario observations, retries included, not a run's elapsed time.",
     reference: "dough-test-optimization/references/cucumber-proof.md",
     family: "Gherkin feature files",
   },
@@ -74,35 +60,24 @@ const gherkin: ProofKind = {
 
 const testCases = (count: number) => counted(count, "test case", "test cases");
 
-const testCaseCostNote =
-  "A sum of separate test case observations, retries included, not a run's elapsed time.";
-
 const python: ProofKind = {
   parseFile: parsePytestProofFile,
   rowsOf: pytestRowsOf,
   words: {
     cases: testCases,
-    inventory: (count) => counted(count, "test function", "test functions"),
-    inventoryUnavailable: "Test function total unavailable",
     caseHeader: "Test case",
-    slowestCases: "Slowest test cases",
     variant: (ids) => `Parameters: ${ids.join(" | ")}`,
-    costNote: testCaseCostNote,
     reference: "dough-test-optimization/references/pytest-proof.md",
     family: "pytest files",
   },
 };
 
-// Shared inventory and case words for runners that reuse the Vitest-shaped
-// snapshot and row rule (Vitest, Playwright and node:test).
+// Shared case words for runners that reuse the Vitest-shaped snapshot and row
+// rule (Vitest, Playwright and node:test).
 const runnerTestWords = {
   cases: testCases,
-  inventory: (count: number) => counted(count, "test", "tests"),
-  inventoryUnavailable: "Test total unavailable",
   caseHeader: "Test case",
-  slowestCases: "Slowest test cases",
   variant: (project: readonly string[]) => `Project: ${project.join(" | ")}`,
-  costNote: testCaseCostNote,
 } as const;
 
 const vitest: ProofKind = {

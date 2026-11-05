@@ -170,15 +170,34 @@
   outline-offset: -3px;
 }
 
+/* A link-styled button that opens a target inside Intent: candidate-record
+   locations (`./IntentCandidatesLocationsText.tsx`,
+   `./RecordedMarkdownText.tsx`) and summary drill-down
+   (`./IntentSummaryChildren.tsx`). */
+.intent-open-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link, inherit);
+  font: inherit;
+  text-align: start;
+  text-decoration: underline;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
 .intent-summary {
   min-width: 0;
 }
 
 .intent-summary-path,
-.intent-summary-files,
-.intent-summary-progress,
-.intent-summary-scenarios {
+.intent-summary-files {
   margin: 0 0 var(--space-2);
+}
+
+.intent-summary-children .intent-summary-files {
+  margin: var(--space-1) 0 0;
 }
 
 .intent-summary-children {

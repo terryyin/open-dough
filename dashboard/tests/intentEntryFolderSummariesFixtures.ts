@@ -1,8 +1,8 @@
-// Published Intent locations for the entry and folder summary journey
-// (`./intent-entry-folder-summaries.spec.ts`): a Pygardon-like Gherkin
-// location with a `jobs/` folder and committed proof, a Doughnut-like
-// Gherkin location without proof, and an Open Dough-like typescript
-// location.
+// Published Intent locations for the entry and folder summary journeys
+// (`./intent-entry-folder-summaries*.spec.ts`,
+// `./intent-summary-drill-down.spec.ts`): a Pygardon-like Gherkin location
+// with `jobs/` and `reports/` folders and committed proof, beside a packaged
+// location of one file.
 
 import { filesOf, type Project } from "./catalogProjectRecords.ts";
 import { publishFiles } from "./publishedOrigin.ts";
@@ -21,43 +21,17 @@ export const pygardon: Project = {
   queuedPath: ".planning/seeds/SEED-303-queued.md",
 };
 
-export const doughnut: Project = {
-  label: "Doughnut",
-  ref: "main",
-  repository: "nerds-odd-e/doughnut",
-  revision: "c2".repeat(20),
-  taken: "Doughnut's own taken story",
-  queued: "Doughnut's own queued story",
-  direction: "Show Doughnut's own published direction through local gh.",
-  purpose: "Read Doughnut's queued purpose at its own revision.",
-  takenPath: ".planning/slice-plans/302-taken/PLAN.md",
-  queuedPath: ".planning/seeds/SEED-302-queued.md",
-};
-
-export const openDough: Project = {
-  label: "Open Dough",
-  ref: "main",
-  repository: "terryyin/open-dough",
-  revision: "c3".repeat(20),
-  taken: "Open Dough's own taken story",
-  queued: "Open Dough's own queued story",
-  direction: "Show Open Dough's own published direction through local gh.",
-  purpose: "Read Open Dough's queued purpose at its own revision.",
-  takenPath: ".planning/slice-plans/301-taken/PLAN.md",
-  queuedPath: ".planning/seeds/SEED-301-queued.md",
-};
-
 export const featuresPath = "e2e_test/features";
 export const jobsFolder = `${featuresPath}/jobs`;
 export const reportsFolder = `${featuresPath}/reports`;
 export const stooqPath = `${jobsFolder}/stooq_refresh.feature`;
 export const jobsOtherPath = `${jobsFolder}/batch.feature`;
-export const reportsFeaturePath = `${reportsFolder}/status.feature`;
+const reportsFeaturePath = `${reportsFolder}/status.feature`;
 export const topFeaturePath = `${featuresPath}/disk_space.feature`;
-export const proofDirectory = "e2e_test/proof";
-export const proofRunPath = `${proofDirectory}/20261101T100000Z-worktree-a-1a2b.json`;
+const proofDirectory = "e2e_test/proof";
+const proofRunPath = `${proofDirectory}/20261101T100000Z-worktree-a-1a2b.json`;
 
-export const stooqFeature = `Feature: Stooq refresh
+const stooqFeature = `Feature: Stooq refresh
   Scenario: Refresh quotes
     Given a watchlist
     When I refresh from Stooq
@@ -68,7 +42,7 @@ export const stooqFeature = `Feature: Stooq refresh
     Then quotes stay current
 `;
 
-export const jobsOtherFeature = `Feature: Batch jobs
+const jobsOtherFeature = `Feature: Batch jobs
   Scenario: Run the batch
     Given pending jobs
     When the batch runs
@@ -81,7 +55,7 @@ export const jobsOtherFeature = `Feature: Batch jobs
     Then it is archived
 `;
 
-export const topFeature = `Feature: Disk space
+const topFeature = `Feature: Disk space
   Scenario: Report free space
     Given a disk
     Then I see its free space
@@ -94,7 +68,7 @@ export const topFeature = `Feature: Disk space
       | 5%    |
 `;
 
-export const reportsFeature = `Feature: Status report
+const reportsFeature = `Feature: Status report
   Scenario: Report status
     Given a run
     Then I see its status
@@ -123,13 +97,13 @@ const validProofBody = proofFile([
   passedObservation(stooqPath, "Refresh again", stooqFeature),
 ]);
 
-export const pygardonProofFiles = {
+const pygardonProofFiles = {
   [proofRunPath]: validProofBody,
 };
 
 export const packagedPath = "e2e_test/packaged/features";
-export const packagedFeaturePath = `${packagedPath}/packaged.feature`;
-export const packagedFeature = `Feature: Packaged
+const packagedFeaturePath = `${packagedPath}/packaged.feature`;
+const packagedFeature = `Feature: Packaged
   Scenario: Packaged case
     Given a packaged fixture
 `;
@@ -146,49 +120,6 @@ export const pygardonSettings = JSON.stringify(
   null,
   2,
 );
-
-export const doughnutFeaturePath =
-  "e2e_test/features/recall/recall_note.feature";
-export const doughnutOtherFeaturePath =
-  "e2e_test/features/recall/other_note.feature";
-export const doughnutFeature = `Feature: Recall a note
-  Scenario: Recall
-    Given a note
-  Scenario: Recall again
-    Given the same note
-`;
-export const doughnutOtherFeature = `Feature: Other note
-  Scenario: Other recall
-    Given another note
-`;
-export const doughnutSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [{ path: "e2e_test/features", kind: "gherkin" }],
-    },
-  },
-  null,
-  2,
-);
-
-export const openDoughSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        {
-          path: "scripts",
-          kind: "shell",
-          include: ["*.sh"],
-        },
-      ],
-    },
-  },
-  null,
-  2,
-);
-
-export const openDoughShellPath = "scripts/check.sh";
-export const openDoughShellSource = "echo ok\n";
 
 export function publishIntentProject(
   page: Parameters<typeof publishFiles>[0],

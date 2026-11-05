@@ -1,6 +1,5 @@
-// The selected Intent location's project-owned recording instruction, shared
-// by file Proof and location/folder summaries. Missing configuration never
-// hides readable historical proof.
+// The selected Intent location's project-owned recording instruction for file
+// Proof. Missing configuration never hides readable historical proof.
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { proofKindOf } from "./proofKinds.ts";

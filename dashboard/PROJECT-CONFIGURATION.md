@@ -47,8 +47,7 @@ The command runs from the repository root. Alternatively use
 exactly one nonempty command or skill is required. For example, an entry can
 declare `"proofGeneration": { "command": "RECORD_CUCUMBER_PROOF=1 npm run test:e2e" }`
 when that is the project's actual recording option and command. The dashboard
-shows the instruction in file Proof and location/folder summaries without
-executing it. Missing or malformed instructions leave historical proof readable
+shows the instruction in file Proof without executing it. Missing or malformed instructions leave historical proof readable
 and explain the configuration needed. Follow the installed
 `dough-test-optimization/references/cucumber-proof.md` to implement the
 project's recorder: ordinary tests leave proof untouched, and explicit runs

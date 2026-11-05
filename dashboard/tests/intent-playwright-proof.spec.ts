@@ -4,16 +4,14 @@
 // ../src/proofKinds.ts): rows by `test.describe` path in definition order,
 // Test case header and test words, loop-generated and helper-defined cases
 // absent from the table while kept in the snapshot, stale observations
-// unlisted, folder summary in test words, and explanations naming the
-// Playwright reference and `runner` among Intent's runners. Kind-independent
-// rules are not re-proved here.
+// unlisted, and explanations naming the Playwright reference and `runner`
+// among Intent's runners. Kind-independent rules are not re-proved here.
 
 import { expect, test } from "./dashboardTest.ts";
 import {
   countLocationsReads,
   expandIntentFolders,
   expandIntentGroup,
-  intentFolderName,
   chooseReadingTab,
 } from "./intentPerspectivePage.ts";
 import {
@@ -27,7 +25,6 @@ import {
 } from "./intentPlaywrightProofFixtures.ts";
 import {
   boardPath,
-  boundaryPath,
   helperCasePath,
   locationPath,
   quietPath,
@@ -107,29 +104,6 @@ test("Ex 7: loop-generated and helper-defined proof stay unlisted while Purpose 
     ]);
     await expect(proof).not.toContainText("helper defined elsewhere");
   });
-});
-
-test("Ex 8: a Playwright folder summary uses test words over listed cases", async ({
-  page,
-}) => {
-  const intent = await openProject(page, settings, snapshotFiles);
-  await expandIntentGroup(intent, locationPath);
-  await expandIntentFolders(intent, locationPath);
-  await intentFolderName(intent, "boundary").click();
-  const summary = intent.getByRole("region", { name: "Summary" });
-  await expect(summary.locator(".intent-summary-path")).toHaveText(
-    boundaryPath,
-  );
-  await expect(summary.locator("> .intent-summary-scenarios")).toHaveText(
-    "1 test",
-  );
-  await expect(summary).toContainText(
-    "Last successful proof: 1 test case: 1 passed",
-  );
-  await expect(summary).toContainText(
-    "A sum of separate test case observations, retries included, not a run's elapsed time.",
-  );
-  await expect(summary).not.toContainText(/scenario|helper defined elsewhere/i);
 });
 
 test("Ex 9: proof without a runner names vitest or playwright or node:test", async ({

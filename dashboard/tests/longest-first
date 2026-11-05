@@ -36,10 +36,8 @@
 16.1	development-intent-frame.spec.ts
 16.0	agent-launch-base-ci-unread.spec.ts
 16.0	development-intent-frame-sessions.spec.ts
-16.0	intent-summary-proof-cost.spec.ts
 16.0	recently-done-sessions-sidebar-reopen.spec.ts
 15.9	agent-session-cursor-stop-several.spec.ts
-15.7	intent-pytest-proof-summary.spec.ts
 15.6	agent-terminal-touch-keyboard-fit.spec.ts
 15.2	responsive-session-reconciliation-completed.spec.ts
 14.6	intent-test-optimization-candidates-open.spec.ts
@@ -53,9 +51,7 @@
 12.8	dashboard-header-compact.spec.ts
 12.6	intent-story-changes-only.spec.ts
 12.4	agent-launch-ad-hoc-attachments-paste.spec.ts
-12.4	intent-entry-folder-summary-explanations.spec.ts
 12.3	agent-launch-ad-hoc-attachments-cancel.spec.ts
-11.8	intent-vitest-proof-summary.spec.ts
 11.5	intent-doughnut-cucumber-proof.spec.ts
 11.4	agent-launch-ad-hoc-attachments.spec.ts
 11.4	agent-launch-sessions-unanswered.spec.ts
@@ -73,7 +69,6 @@
 9.9	agent-launch-done-listing.spec.ts
 9.9	agent-launch-held-revision-after-action.spec.ts
 9.9	boundary/story-review-completed-conflicts.spec.ts
-9.8	intent-entry-folder-summary-partial.spec.ts
 9.2	boundary/story-review-completed-driver.spec.ts
 9.1	boundary/git-files-identity.spec.ts
 9.0	agent-launch-base-ci-adapter.spec.ts
@@ -115,7 +110,6 @@
 5.1	recently-done-active-story-sessions.spec.ts
 4.9	development-intent-frame-keyboard.spec.ts
 4.9	intent-purpose-proof-tabs-case.spec.ts
-4.6	intent-summary-slowest.spec.ts
 4.4	intent-gherkin-layout.spec.ts
 4.3	intent-gherkin-groups.spec.ts
 4.3	intent-gherkin-settings-problems.spec.ts
@@ -124,7 +118,6 @@
 3.9	boundary/authenticated-read-intent-proof-retained.spec.ts
 3.9	intent-purpose-proof-side-by-side-case.spec.ts
 3.9	recently-done-sessions-sidebar-touch.spec.ts
-3.8	intent-entry-folder-proof.spec.ts
 3.3	boundary/authenticated-read-incident-record-restart.spec.ts
 3.2	boundary/cursor-held-sessions-revision.spec.ts
 3.2	boundary/story-review-commit-admission.spec.ts

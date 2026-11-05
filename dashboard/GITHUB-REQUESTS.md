@@ -20,10 +20,9 @@ shown. Each Taken entry with a counted plan adds one last-commit-time request fo
 time coming from its agent profile's addition already read, and each Story Branch Mode entry adds
 one branch head request and one plan read on that branch. Opening Intent for a project adds, at the
 observed revision, one read of `.planning/open-dough.json` when that file is not already pinned,
-plus one recursive Git trees listing per configured intent location, one contents read of each
-selected feature file not already pinned, and, on selecting a location or folder summary, one
-contents read per contained feature file not already pinned; paths outside those locations are
-refused without a contents read. Each time Intent's
+plus one recursive Git trees listing per configured intent location and one contents read of
+each selected feature file not already pinned; a location or folder summary reads no contents,
+and paths outside those locations are refused without a contents read. Each time Intent's
 **CI status** tab is shown, each time its judged branch changes with the
 selected story, each time a new trunk revision is observed while the trunk is shown, each time the
 revision check finds a new head of the shown story branch it already watches for progress, and on

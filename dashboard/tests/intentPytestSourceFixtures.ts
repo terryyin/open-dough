@@ -7,7 +7,7 @@
 // script for kinds Intent reads no proof for.
 
 export const testsPath = "tests";
-export const searchRunPath = `${testsPath}/search_run`;
+const searchRunPath = `${testsPath}/search_run`;
 export const corsPath = `${testsPath}/test_cors.py`;
 export const healthPath = `${testsPath}/test_health.py`;
 export const searchRunFilePath = `${searchRunPath}/test_search_run.py`;
@@ -80,9 +80,6 @@ class Helper:
     def test_not_collected(self):
         pass
 `;
-
-// `test_rounding`'s definition line in the published file, 1-based.
-export const roundingLine = 23;
 
 export const healthSource = `def test_health(client):
     assert client.get("/health").ok

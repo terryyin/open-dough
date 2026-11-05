@@ -6,7 +6,7 @@
 // spec run under two Vitest projects; and a `shell` script.
 
 export const locationPath = "frontend/tests";
-export const utilsPath = `${locationPath}/utils`;
+const utilsPath = `${locationPath}/utils`;
 const toolbarsPath = `${locationPath}/toolbars`;
 export const titlePatternPath = `${utilsPath}/titlePatternRender.spec.ts`;
 export const datesPath = `${utilsPath}/dates.spec.ts`;
@@ -41,9 +41,6 @@ describe("renderTitleFromPattern", () => {
   });
 });
 `;
-
-// The 1-based line of the `%s` template's call.
-export const templateLine = 14;
 
 const datesSource = `import { describe, expect, it } from "vitest";
 

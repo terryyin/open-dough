@@ -8,8 +8,8 @@
 // selected yet, shows Purpose and Proof as tabs or side by side
 // (`./IntentFileReading.tsx`), one reader layout this browser keeps
 // (`./keptPreference.ts`); a location or folder name shows a Summary
-// (`./IntentSummary.tsx`), whose child names and slowest rows open
-// their target as the record's links do (`./IntentCandidatesRecord.tsx`). A
+// (`./IntentSummary.tsx`), whose child names open their target as the
+// record's links do (`./IntentCandidatesRecord.tsx`). A
 // failed file read keeps its own explanation and retry; a failed proof read's
 // retry reads the locations again without changing the selection. Selection is
 // owned by the Intent workspace (`./intentWorkspaceSelection.ts`). With a
@@ -203,10 +203,6 @@ export function IntentBrowser({
               path={selectedPath}
               files={filesOfSelection(selectedLocation, selection)}
               location={selectedLocation}
-              source={source}
-              revision={revision}
-              proofRereading={proofRereading}
-              onProofRetry={onProofRetry}
               onOpen={openRevealed}
             />
           ) : null}

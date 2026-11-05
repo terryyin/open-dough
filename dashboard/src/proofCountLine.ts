@@ -1,8 +1,7 @@
-// Shared Proof count line for one file's rows (`./IntentProof.tsx`) and for a
-// location or folder summary (`./IntentSummary.tsx`): categories and order of
-// the last successful proof, with rows without successful proof included,
-// counted in the proof kind's case words (`./proofKinds.ts`). It is never a
-// suite verdict.
+// Proof count line for one file's rows (`./IntentProof.tsx`): categories and
+// order of the last successful proof, with rows without successful proof
+// included, counted in the proof kind's case words (`./proofKinds.ts`). It is
+// never a suite verdict.
 
 import type { SuccessfulCaseObservation } from "./proofCases.ts";
 

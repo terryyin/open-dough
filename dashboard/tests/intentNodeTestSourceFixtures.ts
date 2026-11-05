@@ -4,7 +4,7 @@
 // runs subtests, and a shell script for the other-kinds sentence.
 
 export const locationPath = "src/skills";
-export const scriptsPath = `${locationPath}/dough-story-refinement/scripts`;
+const scriptsPath = `${locationPath}/dough-story-refinement/scripts`;
 export const landRerunPath = `${scriptsPath}/land-rerun.test.mjs`;
 export const hostLoopPath = `${scriptsPath}/host-loop.test.mjs`;
 export const withSubtestsPath = `${scriptsPath}/with-subtests.test.mjs`;

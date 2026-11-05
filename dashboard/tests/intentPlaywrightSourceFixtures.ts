@@ -5,7 +5,7 @@
 // without a row; beside a `shell` script for the other-kinds sentence.
 
 export const locationPath = "dashboard/tests";
-export const boundaryPath = `${locationPath}/boundary`;
+const boundaryPath = `${locationPath}/boundary`;
 export const boardPath = `${locationPath}/accessible-board-touch.spec.ts`;
 export const quietPath = `${locationPath}/agent-completion-quiet.spec.ts`;
 export const helperCasePath = `${boundaryPath}/helper-defined.spec.ts`;

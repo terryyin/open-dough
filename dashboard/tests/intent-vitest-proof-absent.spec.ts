@@ -2,7 +2,7 @@
 // ../server/intentLocationsRead.ts, ../server/intentProofRead.ts): a
 // `typescript` location declaring `proof` without a `runner`, or with one
 // Intent reads no proof for, says the `runner` setting is the problem while
-// its files and inventory stay readable; a pytest-shaped snapshot under a
+// its files stay readable; a pytest-shaped snapshot under a
 // Vitest location reads as not a valid proof file with a Retry; a
 // `typescript` location without `proof` names the Vitest reference; and a
 // `shell` location names the families Proof is read for so far.
@@ -16,7 +16,6 @@ import {
   countLocationsReads,
   expandIntentFolders,
   expandIntentGroup,
-  intentLocationName,
 } from "./intentPerspectivePage.ts";
 import { doughnut, publishIntentProject } from "./intentCodeBrowseFixtures.ts";
 import {
@@ -79,7 +78,7 @@ for (const [situation, problemSettings, problem] of [
     "runner jest is not a runner Intent reads proof for.",
   ],
 ] as const) {
-  test(`a typescript location declaring proof ${situation} explains the runner setting, with its files and inventory readable`, async ({
+  test(`a typescript location declaring proof ${situation} explains the runner setting, with its files readable`, async ({
     page,
   }) => {
     const intent = await openDoughnut(page, problemSettings, snapshotFiles);
@@ -90,14 +89,6 @@ for (const [situation, problemSettings, problem] of [
     await expect(proof).not.toContainText(
       /no successful proof|could not be read|not recorded|so far/i,
     );
-
-    await intentLocationName(intent, locationPath).click();
-    const summary = intent.getByRole("region", { name: "Summary" });
-    await expect(summary.locator(".intent-summary-files")).toHaveText(
-      "4 files",
-    );
-    await expect(summary).toContainText(`${problem} ${setRunner}`);
-    await expect(summary).not.toContainText("Last successful proof");
     await expandIntentFolders(intent, locationPath);
     await expect(
       intent.getByRole("button", { name: datesPath, exact: true }),
@@ -128,20 +119,16 @@ test("a typescript location without proof names the Vitest reference; a shell lo
 }) => {
   const intent = await openDoughnut(page, settingsWithoutProof, {});
 
-  await test.step("typescript file Proof and location summary say proof is not recorded", async () => {
+  await test.step("typescript file Proof says proof is not recorded", async () => {
     const { proof } = await selectDates(intent);
     await expect(proof).toContainText(notRecorded);
     await expect(proof.getByRole("table")).toHaveCount(0);
     await expect(proof).not.toContainText(
       /no successful proof|could not be read|so far/i,
     );
-    await intentLocationName(intent, locationPath).click();
-    const summary = intent.getByRole("region", { name: "Summary" });
-    await expect(summary).toContainText(notRecorded);
-    await expect(summary).not.toContainText("Last successful proof");
   });
 
-  await test.step("a shell file's Proof and location summary name the families Proof is read for", async () => {
+  await test.step("a shell file's Proof names the families Proof is read for", async () => {
     await expandIntentGroup(intent, "scripts");
     await intent.getByRole("button", { name: scriptPath, exact: true }).click();
     await expect(intent.getByLabel(`${scriptPath} source`)).toContainText(
@@ -150,9 +137,5 @@ test("a typescript location without proof names the Vitest reference; a shell lo
     const proof = await chooseReadingTab(intent, "Proof");
     await expect(proof).toContainText(proofReadForFamiliesSoFar);
     await expect(proof).not.toContainText("vitest-proof.md");
-    await intentLocationName(intent, "scripts").click();
-    await expect(intent.getByRole("region", { name: "Summary" })).toContainText(
-      proofReadForFamiliesSoFar,
-    );
   });
 });

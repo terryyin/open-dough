@@ -1,7 +1,5 @@
-// Shared absent-Proof and location-problem wording for Intent's file Proof
-// (`./IntentProof.tsx`) and location or folder Summary
-// (`./IntentSummary.tsx`): undeclared proof, unreadable proof with retry, and
-// an unusable location's explanation.
+// Absent-Proof wording for Intent's file Proof (`./IntentProof.tsx`):
+// undeclared proof, and unreadable proof with retry.
 
 import type {
   IntentLocation,
@@ -16,7 +14,6 @@ export function IntentProofAbsence({
   rereading,
   onRetry,
   location,
-  locationProblem,
 }: {
   // The selection's proof kind, undefined when Intent reads no proof for it.
   readonly proofKind: ProofKind | undefined;
@@ -26,11 +23,7 @@ export function IntentProofAbsence({
   // The selection's location, whose kind and `runner` say which reference an
   // unrecorded proof names, or that the runner is the problem.
   readonly location?: IntentLocation | undefined;
-  readonly locationProblem?: string;
 }) {
-  if (locationProblem !== undefined) {
-    return <p className="intent-location-problem">{locationProblem}</p>;
-  }
   if (proof === undefined) {
     return <NotRecorded proofKind={proofKind} location={location} />;
   }

@@ -1,8 +1,5 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { summaryFiguresFor } from "../../dashboard/src/intentSummaryProofCost.ts";
-import { latestProofOf } from "../../dashboard/src/proofCases.ts";
-import { proofKindOf } from "../../dashboard/src/proofKinds.ts";
 import { pytestRowsOf } from "../../dashboard/src/pytestCases.ts";
 
 const passed = (name, parameterId) => ({
@@ -75,24 +72,4 @@ test("functions keep definition order and an unobserved one is one plain row", (
     { name: "test_rounding", variant: ["up"], line: 1 },
     { name: "test_plain", line: 4 },
   ]);
-});
-
-test("slowest test cases with equal durations follow parameter id order", () => {
-  const file = "tests/test_rounding.py";
-  const latest = latestProofOf([
-    passed("test_rounding", "up"),
-    passed("test_rounding", "even"),
-  ]);
-  const { selection } = summaryFiguresFor(
-    [file],
-    [],
-    () => "ready",
-    () => source,
-    proofKindOf("python", undefined).rowsOf,
-    latest,
-  );
-  assert.deepEqual(
-    selection.slowest.map(({ row }) => row.variant?.[0]),
-    ["even", "up"],
-  );
 });

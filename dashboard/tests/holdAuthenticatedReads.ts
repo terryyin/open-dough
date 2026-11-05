@@ -1,11 +1,11 @@
-// Holds authenticated repository-file reads for one path until release, shared
-// by Intent journeys that assert Partial progress while a contained feature
-// is still reading.
+// Holds authenticated repository-file reads for one path until release, for
+// Intent journeys that observe a read still in flight
+// (`./intent-selection-reads.spec.ts`).
 
 import type { Page, Route } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 
-export const authenticatedReadRoute = `**${authenticatedReadEndpoint}?*`;
+const authenticatedReadRoute = `**${authenticatedReadEndpoint}?*`;
 
 // Holds the page's reads of `path` until the returned release. Push the
 // release onto `releases` so afterEach can free a held journey that failed.

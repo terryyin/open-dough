@@ -2,6 +2,7 @@
 
 **Identity:** SEED-238#remove-local-proof
 **Source:** [selected story](../../seeds/SEED-238-remove-local-proof.md#remove-local-proof)
+**Source review:** [source-review.md](source-review.md)
 
 **Prepared:** 2026-11-05. Planning only, in the story's established workspace
 `claude/remove-local-proof-from-open-dough`.
@@ -93,8 +94,14 @@ applies as written, by link, to every slice, delegation and repair.
 
 ### 1. Folder summaries show no local proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: rewritten folder-summary specs above; `npm run typecheck:dashboard`; `npm run lint`
+Accepted: all 52 `dashboard/tests/intent-*.spec.ts` (121 passed) and
+`bash scripts/test.sh tests/support/intent-proof-runner.test.mjs
+tests/support/intent-pytest-cases.test.mjs tests/support/dashboard-test-files.test.mjs
+tests/support/intent-vitest-cases.test.mjs`; refactor reran the summary,
+drill-down, candidates-open and pytest-proof specs (9 passed); typecheck and
+lint clean.
 
 Behavior: a location or folder is selected in Intent → its summary shows
 location explanation and file counts, with no last-successful-proof line,
@@ -123,6 +130,14 @@ knows those keys. Deletes `intentProofRead.ts`, `proofKinds.ts`,
 specs, fixtures and unit tests; removes the keys from
 `.planning/open-dough.json`; rewrites `dashboard/PROJECT-CONFIGURATION.md` and
 `docs/dashboard-development-intent.md` to the resulting product.
+
+Slice 1 learnings: `.intent-open-link` already moved to
+`intent-perspective.css`, so `intent-proof.css` (imported by `IntentProof.tsx`
+and `IntentPerspective.tsx`) can go whole. `intentEntryFolderSummariesFixtures.ts`
+still carries `pygardonProofFiles` and a `proof:` setting used by the folders
+spec's file-Proof step and `intent-proof-generation.spec.ts`; these go here.
+`intentProofAbsenceText.ts`, `proofDurationWords.ts`, `IntentProofProblem.tsx`
+remain for file Proof only.
 
 ### 3. Local runs record no proof
 Type: Behavior
@@ -194,3 +209,10 @@ or preserved history below).
   linked, then records and the sweep).
 - No remaining slice-specific concern was identified. Slice 1's interim file
   Proof panel is an accepted trade-off replaced by slice 2.
+
+## Story obligations
+
+### G1. Summary children lose per-file case counts
+Reported: slice 1 — "children now show a file count per folder and only a name for files"
+Story clause: "everything that exists only to produce, consume, test or explain it"
+Disposition: no user cost "everything that exists only to produce, consume, test or explain it": the per-child scenario/test counts were parsed through `proofKinds.rowsOf` and the runner case parsers, which only proof kinds import (plan "Direction and PFE"); the summary keeps path, file counts, location explanation and child drill-down, and Purpose still opens each file's source (`intent-summary-drill-down.spec.ts` 16.1/16.2, 121 Intent specs passing in slice 1).

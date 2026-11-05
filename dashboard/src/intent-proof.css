@@ -1,30 +1,8 @@
-/* Proof rows (./IntentProof.tsx) and shared summary count lines: one row per
+/* Proof rows (./IntentProof.tsx) and their count line: one row per
    scenario or outline example, with its last successful proof, time, commit
    and file version, scrolling with the reading pane. */
 .intent-proof-counts {
   margin: 0 0 var(--space-2);
-}
-
-.intent-summary-children .intent-summary-scenarios,
-.intent-summary-children .intent-proof-counts {
-  margin: var(--space-1) 0 0;
-}
-
-/* A link-styled button that opens a target inside Intent: candidate-record
-   locations (`./IntentCandidatesLocationsText.tsx`,
-   `./RecordedMarkdownText.tsx`) and summary drill-down
-   (`./IntentSummaryChildren.tsx`, `./IntentSummarySlowest.tsx`). */
-.intent-open-link {
-  display: inline;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--link, inherit);
-  font: inherit;
-  text-align: start;
-  text-decoration: underline;
-  cursor: pointer;
-  overflow-wrap: anywhere;
 }
 
 .intent-proof-rows {
@@ -40,8 +18,7 @@
 }
 
 /* Headers and observed cells keep whole words, whatever the reading pane
-   inherits. A case name or a file path wraps within its own column, between
-   name parts (`./ProofObservationCells.tsx`) where it can, and the column is
+   inherits. A case name wraps within its own column, between name parts (`./ProofObservationCells.tsx`) where it can, and the column is
    never narrower than its longest part. */
 .intent-proof-rows th,
 .intent-proof-rows td {
@@ -54,26 +31,9 @@
 
 .intent-proof-rows tbody th {
   font-weight: 400;
-}
-
-.intent-proof-rows tbody th,
-.intent-proof-rows tbody .intent-open-link,
-.intent-proof-rows .intent-proof-file {
   overflow-wrap: break-word;
 }
 
 .intent-proof-example {
   color: var(--quiet);
-}
-
-/* A summary's slowest scenarios (./IntentSummarySlowest.tsx): file Proof's
-   row cells under a caption, before the per-child breakdown. */
-.intent-summary-slowest {
-  margin: 0 0 var(--space-3);
-}
-
-.intent-summary-slowest caption {
-  text-align: left;
-  font-weight: 600;
-  padding: 0 0 var(--space-1);
 }

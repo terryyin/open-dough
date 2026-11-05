@@ -3,8 +3,8 @@
 // names the pytest reference; a `shell` location says which files Proof is
 // read for; a snapshot that is not pytest proof, such as one in Cucumber's
 // fields, reads as not a valid proof file with a Retry, and a pytest
-// snapshot under a Gherkin location's proof directory likewise. Purpose and
-// the summary's inventory stay readable in each case. Vitest reference
+// snapshot under a Gherkin location's proof directory likewise. Purpose stays
+// readable in each case. Vitest reference
 // wording: ./intent-vitest-proof-absent.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
@@ -14,7 +14,6 @@ import {
   chooseReadingTab,
   countLocationsReads,
   expandIntentGroup,
-  intentLocationName,
 } from "./intentPerspectivePage.ts";
 import { publishIntentProject, pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
@@ -55,23 +54,16 @@ test("a python location without proof names the pytest reference; a shell locati
   await publishIntentProject(page, pygardon, settingsWithoutProof, sources);
   const intent = await openPygardon(page);
 
-  await test.step("python file Proof and location summary say proof is not recorded", async () => {
+  await test.step("python file Proof says proof is not recorded", async () => {
     const { proof } = await selectCors(intent);
     await expect(proof).toContainText(notRecorded);
     await expect(proof.getByRole("table")).toHaveCount(0);
     await expect(proof).not.toContainText(
       /no successful proof|could not be read|cucumber-proof/i,
     );
-    await intentLocationName(intent, testsPath).click();
-    const summary = intent.getByRole("region", { name: "Summary" });
-    await expect(
-      summary.getByText("11 test functions", { exact: true }),
-    ).toBeVisible();
-    await expect(summary).toContainText(notRecorded);
-    await expect(summary).not.toContainText("Last successful proof");
   });
 
-  await test.step("shell file Proof and location summary name the kinds Proof is read for", async () => {
+  await test.step("shell file Proof names the kinds Proof is read for", async () => {
     await expandIntentGroup(intent, "scripts");
     await intent.getByRole("button", { name: shellPath, exact: true }).click();
     await expect(intent.getByLabel(`${shellPath} source`)).toContainText(
@@ -80,10 +72,6 @@ test("a python location without proof names the pytest reference; a shell locati
     const proof = await chooseReadingTab(intent, "Proof");
     await expect(proof).toContainText(proofReadForFamiliesSoFar);
     await expect(proof).not.toContainText("pytest-proof.md");
-    await intentLocationName(intent, "scripts").click();
-    await expect(intent.getByRole("region", { name: "Summary" })).toContainText(
-      proofReadForFamiliesSoFar,
-    );
   });
 });
 
@@ -108,15 +96,6 @@ test("a pytest snapshot in Cucumber's fields is not a valid proof file, with Ret
   await expect(alert).toContainText(malformed);
   await chooseReadingTab(intent, "Purpose");
   await expect(purpose).toContainText("def test_rounding(direction):");
-
-  await test.step("the location summary keeps its inventory and the same explanation", async () => {
-    await intentLocationName(intent, testsPath).click();
-    const summary = intent.getByRole("region", { name: "Summary" });
-    await expect(
-      summary.getByText("11 test functions", { exact: true }),
-    ).toBeVisible();
-    await expect(summary.getByRole("alert")).toContainText(malformed);
-  });
 });
 
 test("a pytest snapshot under a Gherkin location's proof directory is not a valid proof file", async ({
