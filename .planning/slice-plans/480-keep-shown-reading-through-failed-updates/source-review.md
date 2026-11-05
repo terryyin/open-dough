@@ -20,9 +20,9 @@ proof. Returned numbered commitments below.
 | 1.7 | when that update meets unreadable settings | slice 1 | observed: unreadable settings test: A stays; notice names settings could not be read; no .intent-settings-problem |
 | 2 | including after leaving Intent and returning | slice 1 | observed: remount test Development→Intent during held then failing C: A tree/selection/text + failure+Retry |
 | 3 | This corrects the delivered SEED-241#load-intent-without-disruption-or-bulk-source-transfer story's recovery behavior | slice 1 | observed: same remount/unreadable proofs correct prior recovery that lost A on remount and replaced on unreadable |
-| 4 | it adds no new promise | slice 2 |  |
+| 4 | it adds no new promise | slice 2 | observed: merged intent-read-reuse.spec.ts asserts prior read counts and no reading moment only; no product/API change |
 | 5 | The page-held shown revision and its fallback to the kept answer | slice 1 | observed: useIntentLocations.ts useKeptReading(shown-revision) and shownFromKept fallback |
 | 5.1 | page-held shown revision | slice 1 | observed: useIntentLocations.ts setKeptShownRevision(revision) on successful answer; page key shown-revision |
 | 5.2 | its fallback to the kept answer | slice 1 | observed: shownFromKept falls back to keptIntentLocationsAt(source, keptShownRevision) when reading revision has none |
 | 6 | an unreadable settings answer at the newer revision treated as a failed update | slice 1 | observed: useIntentLocations.ts settings-problem/unreadable → failedUpdate; unreadable test Retry applies C |
-| 7 | consolidation of the overlapping read-reuse journeys | slice 2 |  |
+| 7 | consolidation of the overlapping read-reuse journeys | slice 2 | observed: intent-read-reuse.spec.ts one journey; dropped post-return expand/reopen covered by intent-reading-place.spec.ts test 1; temporary reverts fail on repeat read and reading moment |

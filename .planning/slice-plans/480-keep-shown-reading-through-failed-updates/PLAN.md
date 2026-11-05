@@ -102,10 +102,12 @@ answer when the reading revision has none. Treat a `settings-problem` with
 
 ### 2. One read-reuse journey
 Type: Structure
-Status: planned
-Proof: the merged `intent-read-reuse.spec.ts` test passes and fails when
-either the repeat read or the reading moment is reintroduced (checked by a
-temporary revert); `intent-reading-place.spec.ts` green.
+Status: done
+Proof: merged test
+`reopening a feature and returning from Development ask nothing more and show without a reading moment`
+passes; temporary reverts fail on repeat feature read, remount locations
+re-read, and reading moment; `intent-reading-place.spec.ts` and candidates
+reuse test green; focused Intent suite 123.
 
 Merge the two overlapping journeys and drop the post-return steps that
 `intent-reading-place.spec.ts` covers.
@@ -122,6 +124,8 @@ Merge the two overlapping journeys and drop the post-return steps that
   `read.shown` is component state.
 - Refactor: shared `settleFailedLocationsRead`; split update-outcomes over
   250 lines into keep-shown vs replace/isolation specs.
+- Slice 2: one `intent-read-reuse` journey keeps read-count and no-moment
+  assertions; post-return expand/reopen stays with reading-place.
 
 ## Decisive premises
 

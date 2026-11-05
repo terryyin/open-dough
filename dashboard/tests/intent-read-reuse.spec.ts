@@ -45,61 +45,6 @@ const pathReads = (page: Page, path: string) =>
 const intentReads = (page: Page, intent: string) =>
   boundaryReads(page, (params) => params.get("intent") === intent);
 
-test("reopening a feature and returning from Development ask nothing more at the same revision", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  const featureReads = pathReads(page, featurePath);
-  const locationsReads = intentReads(page, "locations");
-  await publishIntentProject(page, pygardon, settings, {
-    [featurePath]: publishedFeature,
-    [otherPath]: otherFeature,
-  });
-  await openUntilRead(page, "/?project=pygardon&perspective=intent");
-  const { intent, development, intentChoice } = parts(page);
-  await expandIntentGroup(intent, "e2e_test/features");
-  const open = async (path: string, text: string) => {
-    await intent.getByRole("button", { name: path, exact: true }).click();
-    await expect(intent.getByLabel(`${path} source`)).toContainText(text);
-  };
-  await open(featurePath, "Scenario: Archive a job");
-  await open(otherPath, "Report free space");
-  await open(featurePath, "Scenario: Archive a job");
-  expect(featureReads()).toBe(1);
-
-  await development.click();
-  await expect(intent).toBeHidden();
-  await intentChoice.click();
-  await expandIntentGroup(intent, "e2e_test/features");
-  await open(featurePath, "Scenario: Archive a job");
-  expect(locationsReads()).toBe(1);
-  expect(featureReads()).toBe(1);
-});
-
-test("the Test Optimization Candidates record is read once across leaving Intent and returning", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  const recordReads = intentReads(page, "test-optimization-candidates");
-  const locationsReads = intentReads(page, "locations");
-  await publishOpenDoughWithCandidates(page);
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const { intent, development, intentChoice } = parts(page);
-  const entry = candidatesRecord(intent).getByRole("article", {
-    name: "launch-records-poll-waits",
-  });
-  await chooseOptimizationCandidates(intent);
-  await expect(entry).toBeVisible();
-
-  await development.click();
-  await expect(intent).toBeHidden();
-  await intentChoice.click();
-  await expectIntentModeChosen(intent, "Optimization Candidates");
-  await expect(entry).toBeVisible();
-  expect(recordReads()).toBe(1);
-  expect(locationsReads()).toBe(1);
-});
-
 // Every "Reading …" text Intent shows from now on, however briefly: a
 // mutation observer sees each change React commits before anything else runs.
 async function readingMoments(page: Page) {
@@ -125,10 +70,12 @@ async function readingMoments(page: Page) {
     );
 }
 
-test("a feature read before, and Intent opened again, show without a reading moment", async ({
+test("reopening a feature and returning from Development ask nothing more and show without a reading moment", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
+  const featureReads = pathReads(page, featurePath);
+  const locationsReads = intentReads(page, "locations");
   await publishIntentProject(page, pygardon, settings, {
     [featurePath]: publishedFeature,
     [otherPath]: otherFeature,
@@ -146,11 +93,39 @@ test("a feature read before, and Intent opened again, show without a reading mom
   const moments = await readingMoments(page);
   await open(featurePath, "Scenario: Archive a job");
   await open(otherPath, "Report free space");
+  expect(featureReads()).toBe(1);
+
   await development.click();
   await expect(intent).toBeHidden();
   await intentChoice.click();
   await expect(intent.getByLabel(`${otherPath} source`)).toContainText(
     "Report free space",
   );
+  expect(locationsReads()).toBe(1);
+  expect(featureReads()).toBe(1);
   expect(await moments()).toEqual([]);
+});
+
+test("the Test Optimization Candidates record is read once across leaving Intent and returning", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const recordReads = intentReads(page, "test-optimization-candidates");
+  const locationsReads = intentReads(page, "locations");
+  await publishOpenDoughWithCandidates(page);
+  await openUntilRead(page, "/?project=open-dough&perspective=intent");
+  const { intent, development, intentChoice } = parts(page);
+  const entry = candidatesRecord(intent).getByRole("article", {
+    name: "launch-records-poll-waits",
+  });
+  await chooseOptimizationCandidates(intent);
+  await expect(entry).toBeVisible();
+
+  await development.click();
+  await expect(intent).toBeHidden();
+  await intentChoice.click();
+  await expectIntentModeChosen(intent, "Optimization Candidates");
+  await expect(entry).toBeVisible();
+  expect(recordReads()).toBe(1);
+  expect(locationsReads()).toBe(1);
 });
