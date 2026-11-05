@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Show CI status and timing on the Intent homepage](seeds/SEED-239-intent-home-ci-status.md#show-ci-status-on-intent-home) — SEED-239#show-ci-status-on-intent-home ([plan](slice-plans/476-show-ci-status-on-intent-home/PLAN.md))
 - [Load Intent without disruption or bulk source transfer](seeds/SEED-241-intent-loading-and-traffic.md#load-intent-without-disruption-or-bulk-source-transfer) — SEED-241#load-intent-without-disruption-or-bulk-source-transfer ([plan](slice-plans/477-load-intent-without-disruption/PLAN.md))
 - [Show lost freshness across repeated revision-stream failures](seeds/SEED-240-reliable-dashboard-updates-and-session-details.md#show-freshness-loss-across-stream-retries) — SEED-240#show-freshness-loss-across-stream-retries ([plan](slice-plans/477-show-freshness-loss-across-stream-retries/PLAN.md))
-- [Stop revision checks when a page leaves during stream setup](seeds/SEED-240-reliable-dashboard-updates-and-session-details.md#stop-revision-checks-after-setup-disconnect) — SEED-240#stop-revision-checks-after-setup-disconnect ([plan](slice-plans/477-stop-revision-checks-after-setup-disconnect/PLAN.md))
 
 ## Backlog list
 
