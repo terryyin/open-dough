@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Keep the same project fresh across views with fewer GitHub requests](seeds/SEED-232-reduce-dashboard-refresh-traffic.md#share-published-git-refreshes) — SEED-232#share-published-git-refreshes ([plan](slice-plans/468-share-published-git-refreshes/PLAN.md))
 - [Read Node script-test proof](seeds/SEED-192-review-product-intent.md#read-node-test-proof) — SEED-192#read-node-test-proof ([plan](slice-plans/467-read-node-test-proof/PLAN.md))
+- [Recover a failed Intent locations read](seeds/SEED-192-review-product-intent.md#recover-intent-locations-read) — SEED-192#recover-intent-locations-read
 
 ## Backlog list
 

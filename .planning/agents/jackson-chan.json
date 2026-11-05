@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jackson-chan",
+  "email": "jackson-chan@example.org",
+  "identity": "SEED-192#recover-intent-locations-read",
+  "mode": "story-branch",
+  "branch": "recover-intent-locations-read",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

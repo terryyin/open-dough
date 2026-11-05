@@ -718,6 +718,33 @@ conflict, exception or North Star topic is needed.
 - **Safe stopping point:** Honest coarse-grained Proof, labelled as such, remains
   useful without pretending it has the same detail as Cucumber or pytest.
 
+<a id="recover-intent-locations-read"></a>
+
+### 17. Recover a failed Intent locations read
+
+**Identity:** SEED-192#recover-intent-locations-read
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planless"}
+```
+
+**Goal:** A developer reading Intent sees the published locations again after a
+passing read failure, without pressing Retry, and a failure that remains names
+its actual cause.
+
+- **Reported:** On 2026-11-05 at 8:32, after the 0.3.84 production dashboard
+  restarts at 8:19 and 8:22, Intent on a phone over Tailscale showed "Intent
+  locations for Open Dough could not be read at this revision." The same read
+  then answered and parsed at that revision and five earlier ones, and the
+  server recorded no failed read for Open Dough.
+- **Cause in code:** `useIntentLocations` turns every rejection into a terminal
+  `failed` state, and `IntentPerspective` replaces the read problem with fixed
+  wording that blames the revision. Nothing re-reads it, unlike published-work
+  reads.
+- **Expected:** A failure that the boundary or the page deems transient (the boundary
+  unreachable, a limited or transient answer) is read again automatically,
+  and the failure shown names the read problem's own message.
+- **Boundary:** Intent locations read only; keep manual Retry.
+
 ## Ordering, Existing Stories, and Scope Reduction
 
 The numbered sections record the backlog order Terry selected on 2026-10-31;
