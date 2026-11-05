@@ -306,5 +306,12 @@ unsettled finding after the Git fixture isolation and desktop test repairs.
 
 The repair-only run 41960710815 was superseded by the image publication
 under the same branch's concurrency group. Its recorded job conclusions
-were success or cancelled. Completion follows the image revision. The
-guarded full dashboard suite is in progress as the pre-landing gate.
+were success or cancelled. Completion followed the image revision. The story-branch completion receipt
+for `670e9cedf63a548e424a35f7519a5f7d36655790` confirmed the applicable
+image revision passed and the observer shut down with no unread events.
+
+The full pre-landing dashboard gate passed on
+`d762f1bca746e05e22175247a4e47925d2c8438e`.
+`PATH=/opt/homebrew/bin:$PATH caffeinate -s -i npm run test:dashboard -- --workers=4`
+exited 0 with the normal strict reporter. The runner acquired admission and
+started the unfiltered suite at 03:27:36 UTC on AC power.

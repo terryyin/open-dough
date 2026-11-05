@@ -62,8 +62,8 @@ visible height, a long session title and identity scroll independently in the
 header, leaving the input and Maximize/Restore/Close controls reachable.
 Maximize gives the terminal the available window; restoring, changing
 orientation or reducing visible height fits that same attachment without
-launching or reconnecting it. Close and reopening follow the host lifecycles
-above. Local Chromium touch viewport proof covers phone/tablet portrait,
+launching or reconnecting it. Closing and reopening follow the
+[embedded terminal lifecycles](AGENT-LAUNCH-TERMINALS.md#embedded-terminals-and-local-record-actions). Local Chromium touch viewport proof covers phone/tablet portrait,
 landscape and a 240-pixel visible height, including toolbar keys, composer
 Insert, soft-keyboard fit, Backspace, Enter and actual
 browser-to-WebSocket-to-PTY replies. It does not establish physical iOS
