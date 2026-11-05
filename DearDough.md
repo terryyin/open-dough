@@ -711,7 +711,7 @@ The Slice 3 refactor renamed an exported recovery-clock helper after starting th
 
 ### Occurrences
 
-- Execution: SEED-192#recover-failed-intent-reads (plan 471, first implementation `b24ddba9d492298853d08155a6596ec8b8c63530`)
+- Execution: SEED-192#recover-failed-intent-reads (before-cleanup `2cd5b5045afda9a64ed876834b8e59ab973b1aa5:.planning/slice-plans/471-recover-failed-intent-reads/PLAN.md`, first implementation `b24ddba9d492298853d08155a6596ec8b8c63530`)
   - Timestamp: unknown (2026-11-05, Slice 3 refactor before `f1af856faa2de128600aecd4c047e63aaffee463`)
   - Tool: Codex
   - Open Dough release: 0.3.84 (checkout-bound `.agents/skills/dough-update/VERSION`)
