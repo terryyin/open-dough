@@ -1,28 +1,24 @@
 // An applied update that does not simply arrive: a failed update keeps the
-// shown reading with the failure and Retry, an unusable latest settings file
-// takes the reading's focus into its explanation, and a held update of a
-// project left behind never shows in another's reading
+// shown reading with the failure and Retry, including after Development →
+// Intent and when the latest settings are unreadable
 // (../src/useIntentLocations.ts, ../src/useIntentFileRead.ts,
-// ../src/IntentRevisionNotice.tsx).
+// ../src/IntentRevisionNotice.tsx). Malformed settings and held updates
+// across projects: ./intent-revision-update-boundaries.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
-import { chooseProject } from "./projectChoice.ts";
+import { parts } from "./dashboardPage.ts";
 import { shortRevision } from "./dashboardParts.ts";
 import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
-import { ciPanel } from "./intentCiStatusPage.ts";
 import {
   intentGroupToggle,
   purposeRegion,
   revisionNotice,
 } from "./intentPerspectivePage.ts";
-import { holdAuthenticatedReadsWhere } from "./holdAuthenticatedReads.ts";
 import {
-  doughnut,
-  doughnutSettings,
-  publishIntentProject,
-  pygardon,
-} from "./intentCodeBrowseFixtures.ts";
-import { locationFiles } from "./intentReadRecoveryPage.ts";
+  authenticatedReadRoute,
+  holdAuthenticatedReadsWhere,
+} from "./holdAuthenticatedReads.ts";
+import { pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
   featurePath,
   otherPath,
@@ -121,58 +117,119 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
   ]);
 });
 
-test("an unusable settings file at the latest revision takes the reading's focus into its explanation", async ({
+test("Development → Intent during a held then failing update keeps the shown reading with its failure and Retry", async ({
   page,
 }) => {
   const files = publishedFiles(jobsFeatures);
-  const { moveTrunk, intent } = await openWithFeatureSelected(page, files);
-  await moveTrunk("ec".repeat(20), {
-    ...files,
-    ".planning/open-dough.json": "{\n",
-  });
-  await revisionNotice(intent)
-    .getByRole("button", { name: "Show latest" })
-    .click();
-  const explanation = intent.locator(
-    '[role="tabpanel"]:has(.intent-settings-problem)',
+  const reads = intentReads(page);
+  const { moveTrunk, intent, feature, source } = await openWithFeatureSelected(
+    page,
+    files,
   );
-  await expect(explanation).toContainText("is not valid JSON");
-  await expect(explanation).toBeFocused();
-});
-
-test("choosing another project while an update is held shows only that project's reading when it is answered", async ({
-  page,
-}) => {
-  await publishIntentProject(page, doughnut, doughnutSettings, locationFiles);
-  const files = publishedFiles(jobsFeatures);
-  const { moveTrunk, intent } = await openWithFeatureSelected(page, files);
-  const c = "ed".repeat(20);
+  const c = "ee".repeat(20);
   await moveTrunk(c, {
     ...files,
     [featurePath]: publishedFeature.replace("Archive a job", "Purge a job"),
   });
+  const notice = revisionNotice(intent);
   const latest = await holdAuthenticatedReadsWhere(
     page,
     (params) =>
-      params.get("source") === "pygardon" &&
-      params.get("intent") === "locations" &&
-      params.get("revision") === c,
+      params.get("intent") === "locations" && params.get("revision") === c,
     releases,
   );
-  await revisionNotice(intent)
-    .getByRole("button", { name: "Show latest" })
-    .click();
+  await notice.getByRole("button", { name: "Show latest" }).click();
   await expect.poll(latest.held).toBe(1);
+  latest.fail();
+  await expect(notice).toContainText(
+    `Revision ${shortRevision(c)} could not be read`,
+  );
+  await expect(source).toContainText("Scenario: Archive a job");
 
-  await chooseProject(page, "Doughnut");
-  await expect(intentGroupToggle(intent, "scripts")).toBeVisible();
-  latest.release();
-  await untilPageReadsAnswered(page);
-  await expect(intentGroupToggle(intent, "scripts")).toBeVisible();
-  await expect(intentGroupToggle(intent, "e2e_test/features")).toHaveCount(0);
-  await expect(intent.getByText(featurePath)).toHaveCount(0);
-  await expect(intent).not.toContainText("Purge a job");
+  const again = await holdAuthenticatedReadsWhere(
+    page,
+    (params) =>
+      params.get("intent") === "locations" && params.get("revision") === c,
+    releases,
+  );
+  const { development, intentChoice } = parts(page);
+  await development.click();
+  await expect(intent).toHaveCount(0);
+  await intentChoice.click();
+  await expect.poll(again.held).toBe(1);
+  await expect(source).toContainText("Scenario: Archive a job");
+  await expect(feature).toHaveAttribute("aria-pressed", "true");
+  again.fail();
+
+  await expect(revisionNotice(intent)).toContainText(
+    `New revision available — showing ${shortRevision(pygardon.revision)}`,
+  );
+  await expect(revisionNotice(intent)).toContainText(
+    `Revision ${shortRevision(c)} could not be read: The local authenticated read could not be reached`,
+  );
+  await expect(revisionNotice(intent).getByRole("button")).toHaveText([
+    "Retry",
+  ]);
+  await expect(source).toContainText("Scenario: Archive a job");
+  await expect(feature).toHaveAttribute("aria-pressed", "true");
+  await expect(intentGroupToggle(intent, "e2e_test/features")).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+  expect(
+    reads.filter((each) => each === `locations@${pygardon.revision}`),
+  ).toEqual([`locations@${pygardon.revision}`]);
+});
+
+test("an unreadable settings answer at the latest revision keeps the shown reading with Retry, which applies the update", async ({
+  page,
+}) => {
+  const files = publishedFiles(jobsFeatures);
+  const { moveTrunk, intent, feature, source } = await openWithFeatureSelected(
+    page,
+    files,
+  );
+  const c = "ef".repeat(20);
+  await moveTrunk(c, {
+    ...files,
+    [featurePath]: publishedFeature.replace("Archive a job", "Purge a job"),
+  });
+  let unreadable = true;
+  await page.route(authenticatedReadRoute, async (route) => {
+    const params = new URL(route.request().url()).searchParams;
+    if (
+      unreadable &&
+      params.get("intent") === "locations" &&
+      params.get("revision") === c
+    ) {
+      await route.fulfill({
+        json: {
+          revision: c,
+          locations: null,
+          settingsProblem: "unreadable",
+          recovery: "transient",
+        },
+      });
+      return;
+    }
+    await route.fallback();
+  });
+  const notice = revisionNotice(intent);
+  await notice.getByRole("button", { name: "Show latest" }).click();
+  await expect(notice).toContainText(
+    `New revision available — showing ${shortRevision(pygardon.revision)}`,
+  );
+  await expect(notice).toContainText(
+    `Revision ${shortRevision(c)} could not be read: .planning/open-dough.json could not be read.`,
+  );
+  await expect(notice.getByRole("button")).toHaveText(["Retry"]);
+  await expect(source).toContainText("Scenario: Archive a job");
+  await expect(feature).toHaveAttribute("aria-pressed", "true");
+  await expect(intent.locator(".intent-settings-problem")).toHaveCount(0);
+
+  unreadable = false;
+  await notice.getByRole("button", { name: "Retry" }).click();
+  await expect(source).toContainText("Scenario: Purge a job");
   await expect(revisionNotice(intent)).toHaveCount(0);
-  await expect(ciPanel(intent)).toBeVisible();
-  await expect(purposeRegion(intent)).toHaveCount(0);
+  await untilPageReadsAnswered(page);
 });

@@ -6,11 +6,15 @@
 // because a newer revision is observed. An answer already read on this page
 // shows at once. Moving the reading to another revision keeps the shown
 // answer, with the revision it is of, while the new one is read (`updating`),
-// so the browser and its reading stay in place; if that read fails, the shown
-// answer still stays and the failure is the update's (`failedUpdate`), retried
-// with the same Retry.
+// so the browser and its reading stay in place; if that read fails, or
+// answers unreadable settings, the shown answer still stays and the failure
+// is the update's (`failedUpdate`), retried with the same Retry. The shown
+// revision is kept with the page reading place (`./pageIntentReading.tsx`)
+// beside the reading revision, so Development → Intent restores it when the
+// reading revision has no kept answer yet.
 
 import { useEffect, useState } from "react";
+import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   keptIntentLocationsAt,
   readIntentLocationsAt,
@@ -20,6 +24,7 @@ import {
   intentRecoveryOf,
   useIntentReadRecovery,
 } from "./intentReadRecovery.tsx";
+import { useKeptReading } from "./pageIntentReading.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { ReadProblem } from "./readProblem.ts";
 
@@ -56,11 +61,47 @@ const keptWhileReading = (
   shown.revision !== revision &&
   !("failed" in shown.intent);
 
+// A failed read of `revision`: keep `shown` with the failure when it is
+// another revision's answer, otherwise show `replacing` as the reading.
+const settleFailedLocationsRead = (
+  shown: ShownLocations | undefined,
+  revision: string,
+  failed: ReadProblem | undefined,
+  replacing: IntentLocations | IntentLocationsFailure,
+): LocationsRead =>
+  keptWhileReading(shown, revision)
+    ? { shown, failedUpdate: { revision, failed } }
+    : { shown: { revision, intent: replacing } };
+
+// The shown answer already read for `revision`, or for the page-kept shown
+// revision when the reading revision has none yet.
+function shownFromKept(
+  source: PublishedSource,
+  revision: string | undefined,
+  keptShownRevision: string | undefined,
+): ShownLocations | undefined {
+  if (revision === undefined) return undefined;
+  const atReading = keptIntentLocationsAt(source, revision);
+  if (atReading !== undefined) return { revision, intent: atReading };
+  if (keptShownRevision === undefined || keptShownRevision === revision) {
+    return undefined;
+  }
+  const atShown = keptIntentLocationsAt(source, keptShownRevision);
+  return atShown === undefined
+    ? undefined
+    : { revision: keptShownRevision, intent: atShown };
+}
+
 export function useIntentLocations(
   source: PublishedSource,
   revision: string | undefined,
 ) {
-  const [read, setRead] = useState<LocationsRead>({ shown: undefined });
+  const [keptShownRevision, setKeptShownRevision] = useKeptReading<
+    string | undefined
+  >("shown-revision", () => undefined);
+  const [read, setRead] = useState<LocationsRead>(() => ({
+    shown: shownFromKept(source, revision, keptShownRevision),
+  }));
   const { retry, retryRead, recordSettled } = useIntentReadRecovery(
     source,
     revision,
@@ -75,11 +116,30 @@ export function useIntentLocations(
     void readIntentLocationsAt(source, revision, controller.signal)
       .then((locations) => {
         if (controller.signal.aborted) return;
+        // An unreadable settings answer is a failed update, not a replacing
+        // answer; malformed settings still replace the reading.
+        if (
+          locations.status === "settings-problem" &&
+          locations.problem === "unreadable"
+        ) {
+          const recovery = locations.recovery;
+          recordSettled(recovery);
+          const failed = new ReadProblem(
+            `${agentSettingsPath} could not be read.`,
+            undefined,
+            recovery,
+          );
+          setRead(({ shown }) =>
+            settleFailedLocationsRead(shown, revision, failed, locations),
+          );
+          return;
+        }
         recordSettled(
           locations.status === "settings-problem"
             ? locations.recovery
             : undefined,
         );
+        setKeptShownRevision(revision);
         setRead({ shown: { revision, intent: locations } });
       })
       .catch((error: unknown) => {
@@ -87,15 +147,13 @@ export function useIntentLocations(
         const failed = error instanceof ReadProblem ? error : undefined;
         recordSettled(intentRecoveryOf(failed));
         setRead(({ shown }) =>
-          keptWhileReading(shown, revision)
-            ? { shown, failedUpdate: { revision, failed } }
-            : { shown: { revision, intent: { failed } } },
+          settleFailedLocationsRead(shown, revision, failed, { failed }),
         );
       });
     return () => {
       controller.abort();
     };
-  }, [source, revision, retry, recordSettled]);
+  }, [source, revision, retry, recordSettled, setKeptShownRevision]);
 
   // An answer already read shows as it is rendered, before the effect runs.
   const kept =

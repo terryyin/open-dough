@@ -2,6 +2,7 @@
 
 **Identity:** SEED-241#keep-the-shown-reading-through-failed-updates
 **Source:** [correction story](../../seeds/SEED-241-intent-loading-and-traffic.md#keep-the-shown-reading-through-failed-updates)
+**Source review:** [source review](source-review.md)
 **Prepared:** 2026-11-05 by the execution retrospective of
 `SEED-241#load-intent-without-disruption-or-bulk-source-transfer`. Planning
 only; execution needs a separate instruction.
@@ -37,7 +38,7 @@ stays" and U10 "the failure and a retry appear beside the notice".
    only thrown failures keep A. The server marks unreadable settings as a
    recoverable read failure (`dashboard/server/intentLocationsRead.ts`,
    `recovery`). Slice 4 tested only malformed settings
-   (`dashboard/tests/intent-revision-update-outcomes.spec.ts`, "an unusable
+   (`dashboard/tests/intent-revision-update-boundaries.spec.ts`, "an unusable
    settings file at the latest revision …"), which is a real answer and may
    keep replacing the reading.
 3. **Overlapping read-reuse journeys.** `dashboard/tests/intent-read-reuse.spec.ts`
@@ -82,10 +83,13 @@ applies as written.
 
 ### 1. A failed or unreadable update keeps the shown revision
 Type: Behavior
-Status: planned
-Proof: two new tests in `intent-revision-update-outcomes.spec.ts`
-(findings 1 and 2); the existing failed-update and malformed-settings tests
-green; focused Intent suite green.
+Status: done
+Proof: remount and unreadable tests in `intent-revision-update-outcomes.spec.ts`
+(findings 1 and 2); existing failed-update green there; malformed-settings and
+cross-project isolation in `intent-revision-update-boundaries.spec.ts` green;
+focused Intent suite green (124). Product: `useKeptReading("shown-revision")`
+with `shownFromKept` fallback; `settings-problem`/`unreadable` →
+`settleFailedLocationsRead` / `failedUpdate`.
 
 **Behavior:** **Show latest** pressed and C's locations read is held, fails
 or answers unreadable settings → A's reading stays with the failure and
@@ -110,6 +114,14 @@ Merge the two overlapping journeys and drop the post-return steps that
 
 - Malformed settings remain a replacing answer; only unreadable settings and
   thrown failures are failed updates.
+
+## Learnings
+
+- Unreadable settings must be classified on the answered path (`.then`), not
+  only `.catch`; remount needs the shown revision in the page place because
+  `read.shown` is component state.
+- Refactor: shared `settleFailedLocationsRead`; split update-outcomes over
+  250 lines into keep-shown vs replace/isolation specs.
 
 ## Decisive premises
 
