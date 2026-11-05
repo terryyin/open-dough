@@ -190,8 +190,8 @@ leaves this product-intent design in the seed and plan rather than a new ADR.
 The relevant index and in-file statuses agree; no supersession, conflict,
 exception or metadata mismatch was found.
 
-Reconcile navigation with the in-progress
-[Intent loading and reading-state story](SEED-241-intent-loading-and-traffic.md#load-intent-without-disruption-or-bulk-source-transfer):
+Reconcile navigation with the completed
+[Intent loading and reading-state story](../done/SEED-241_load-intent-without-disruption-or-bulk-source-transfer.json):
 an explicit click on Intent returns home, while background observations
 should retain the reading place. Shared files alone establish no blocking
 story dependency. SEED-241 owns background refresh, reading-revision retention

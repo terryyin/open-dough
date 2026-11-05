@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Load Intent without disruption or bulk source transfer](seeds/SEED-241-intent-loading-and-traffic.md#load-intent-without-disruption-or-bulk-source-transfer) — SEED-241#load-intent-without-disruption-or-bulk-source-transfer ([plan](slice-plans/477-load-intent-without-disruption/PLAN.md))
-
 ## Backlog list
 
 - [Keep the shown reading through failed updates](seeds/SEED-241-intent-loading-and-traffic.md#keep-the-shown-reading-through-failed-updates) — SEED-241#keep-the-shown-reading-through-failed-updates

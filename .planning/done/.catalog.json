@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-241_load-intent-without-disruption-or-bulk-source-transfer.json",
+      "identity": "SEED-241#load-intent-without-disruption-or-bulk-source-transfer",
+      "completedAt": "2026-11-05T16:31:39.515Z",
+      "blob": "312da17b7592b27fdc9c97fe007ff173382a7043"
+    },
+    {
       "fileName": "SEED-242_revive-cursor-sessions-when-the-runner-restarts.json",
       "identity": "SEED-242#revive-cursor-sessions-when-the-runner-restarts",
       "completedAt": "2026-11-05T15:15:20.054Z",

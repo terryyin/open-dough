@@ -12,7 +12,9 @@ The reviewed execution delivered plan 477 on
 `claude/load-intent-without-disruption-or-bulk-source-tr` in commits
 `fa9fd1a02` (slice 1), `83589f5ff` (slice 2), `43cc96a50` (slice 3) and
 `027e9a204` (slice 4), on top of its claim `9cd866dee`. Its source promises
-(retained in that plan's `source-review.md` until wrap-up) include S6.4
+(recoverable at
+`1ff9804b9:.planning/slice-plans/477-load-intent-without-disruption/source-review.md`,
+with the plan beside it) include S6.4
 "Preserve the reading place through slow or failed refreshes", S6.3 "Keep the
 rest usable during loading", U9 "If the update fails, the shown reading
 stays" and U10 "the failure and a retry appear beside the notice".
