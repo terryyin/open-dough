@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-241#load-intent-without-disruption-or-bulk-source-transfer
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/477-load-intent-without-disruption/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1612364cbe28f13d46e5aadef8ce9eed559eced01de3b7bb5195b4292ffd3023","plan":"2f99faf90cf96153e851b6c9a560e8cca4200d0fdc63b6ebf9e0253f240d6f31"}}
 ```
 
 **Goal.** A developer can open and browse Intent promptly, keep their reading
@@ -33,43 +33,52 @@ calculations. The accepted proposal is a reader of one published revision,
 with a compact backend index and summaries, stable navigation, and reuse of
 existing caches and revision notifications.
 
-Read-only inspection on 2026-11-05 at `c26dc102453dc17c8338e50dbfeaef2dea9948e2`
-and `a71a33113a4b9634202c4ae0add63c76a7ec83e2` found:
+Observed on 2026-11-05 at `1406517aeb8a3e52b121d8ee119ce08cbe26448e`, after
+local-proof removal (`SEED-238`) landed and while the CI homepage story
+(`SEED-239`) is still executing on its own branch:
 
-- A new observed revision puts `useIntentLocations` into loading;
-  `IntentPerspective` replaces the browser with that explanation and keys its
-  selection owner by source and revision. Leaving Intent also unmounts it in
-  `ConfiguredDashboard`. These paths explain lost reading state. A literal
-  whole-browser reload has not been reproduced; do not claim that diagnosis
-  or a measured frequency.
-- `IntentProofSummary` requests every contained file with concurrency four
-  through `readRepositoryFileAt`, and recomputes figures as answers arrive.
-  Selecting a different folder mounts another summary. The documented large
-  `dashboard/tests` location has roughly seven hundred spec files. This is
-  evidence of repeated work, not a measured current latency or traffic total;
-  the active local-proof removal story already deletes these calculations.
-- Source reading uses published GitHub data through the local authenticated
-  boundary, rather than a cached developer checkout. `PinnedTexts` and
-  `PinnedMemo` cache immutable texts and trees, including blob-SHA reuse;
-  `RetainedAnswers` retains successful answers across processes with a default
-  64 MiB budget. `fileContentCache` provides a bounded 16 MiB browser cache,
-  but Intent's file and summary readers bypass it. Existing upstream request
-  sharing does not eliminate frontend/backend requests or bytes. The HTTP
-  boundary currently answers with `Cache-Control: no-store`.
-- Published-revision SSE already runs at page scope independently of the
-  perspective, with shared backend observations and a 15-second pace; its
-  fallback is revision checking. It conveys revision/branch-head answers,
-  not file text or calculation progress. Source is immutable at a pinned
-  commit; CI can change at that same commit without a branch-head event.
-- The selected-story lens reads comparison metadata, including paths, change
-  kinds, renames and line counts, without sending source or diff bodies.
-  Opening a changed file can additionally request published source that its
-  displayed diff does not use. Preserve the useful metadata path while
-  removing unnecessary content transfers.
+- **Revision observations reset Intent.** A newer observed revision puts
+  `useIntentLocations` into loading, `IntentPerspective` replaces the
+  browser with "Reading Intent locations…", and its selection owner is keyed
+  by source and revision. The maintained spec
+  `dashboard/tests/intent-selection-reads.spec.ts` ("a new published revision
+  reads the locations again and starts with nothing selected") passes and
+  asserts exactly that. Trunk moves with every landing, so this is the
+  likeliest explanation of refreshes that "reload everything". A literal
+  whole-browser reload has not been reproduced.
+- **Leaving Intent loses the place and repeats reads.** In a scratch
+  Playwright journey on the pygardon fixture, opening a file, another file and
+  the first again read the first file twice. Switching to Development and back
+  re-read the locations and returned with the group collapsed and nothing
+  selected (`ConfiguredDashboard` unmounts Intent).
+- **Story diffs add an unused source read.** In the same scratch run with the
+  selected-story fixture, opening a modified file's diff also sent the plain
+  `path=dashboard/tests/a.spec.ts` read that its displayed diff does not use
+  (`useIntentFileRead` reads every selected file the revision lists).
+- **Navigation metadata is already compact and backend-cached.** The
+  locations answer lists each location's file paths. For Open Dough's own
+  trunk it was 67,758 bytes for 1,087 paths (`dashboard/tests` 713,
+  `tests` 82, `src/skills` 292): 2.5 s cold, 9 ms warm from the backend memo,
+  sent uncompressed. A source file read (8,346 bytes) took 2.8 s cold and
+  4 ms warm. Folder Summaries count from that list and make no request. No
+  surviving Intent summary fetches source bodies, since local-proof removal
+  deleted `IntentProofSummary`.
+- **Browser caches are not used by Intent.** `fileContentCache` (16 MiB,
+  LRU) serves only `repositoryFileReads.ts`. Intent's file read, locations
+  read and story-review diff reads (`useReviewRead`, `cache: "no-store"`)
+  keep answers only while their component is mounted. The HTTP boundary
+  answers `Cache-Control: no-store`.
+- **Backend reuse exists.** `PinnedTexts`/`PinnedMemo` keep pinned texts and
+  trees with blob-SHA reuse across revisions, `RetainedAnswers` keeps answers
+  across processes (64 MiB), and a request can await a `gh` call another
+  request began (`dashboard/server/readTiming.ts`).
+- **Revision delivery is page-scoped.** Published-revision SSE runs
+  independently of the perspective, with a 15-second pace and
+  revision-check fallback. It conveys revisions, not file text. CI can change
+  at the same commit without a branch-head event.
 
-These are observations of the product before the two active stories below
-finish. Recheck their integrated result when planning this story; deleted
-local-proof code is diagnostic history, not an implementation target.
+Deleted local-proof code is diagnostic history, not an implementation
+target.
 
 **Scope.**
 
@@ -78,21 +87,25 @@ Required behavior:
 - **Stable reading of one revision.** Keep the selected location, folder or
   file, expansion, reading position and applicable view choices through
   background revision observations and switches between Development and
-  Intent. Keep each project's reading state scoped to that project. A newer
+  Intent. Keep each project's reading state scoped to that project: another
+  project's selection never appears, and a project change starts that
+  project's reading afresh, as the mode choice does today. A newer
   published revision produces a small **New revision available** notice;
   it does not clear the current reading or fetch replacement source bodies.
-  Applying the update deliberately loads the replacement metadata while
-  keeping usable content visible, then preserves navigation by path where
-  valid. Explain a selected path that disappeared. Development's published
-  observation may advance independently of the Intent revision being read.
-- **Metadata first.** Opening Intent with no selected file returns compact
-  location/tree metadata, server-calculated counts and the CI homepage answer
-  from its existing owner. Folder navigation uses that metadata or one compact
-  answer for the requested scope. Return only the structure and summary data
-  useful for the configured Intent locations and current navigation; avoid
-  repeated whole-tree payloads. File counts should use the tree, without
-  fetching and parsing every source file. The initial navigation must not
-  wait for an unrelated source scan or calculation.
+  Several newer revisions give one notice, and applying it moves to the
+  latest observed. Applying the update deliberately loads the replacement
+  metadata while keeping usable content visible, then preserves navigation
+  by path where valid. Explain a selected path that disappeared. The reading
+  revision holds Purpose and Optimization Candidates; the CI homepage keeps
+  following the live observed head under its own triggers, and Development's
+  published observation may advance independently of the Intent revision
+  being read.
+- **Metadata first.** Opening Intent with no selected file asks for the
+  locations answer (paths only) once per reading revision, beside the CI
+  homepage answer from its existing owner. Folder navigation and counts use
+  that answer and make no request. The initial navigation waits for no
+  source scan or calculation. Keep these properties, which the integrated
+  product already has.
 - **Source on demand.** Fetch source or a file's diff only when that file is
   explicitly opened, including a candidate link, a positioned case, a restored
   explicit selection, or applying an update to the file already selected.
@@ -103,16 +116,13 @@ Required behavior:
   story comparison instead. Presentation work such as syntax highlighting
   stays a frontend concern; source-derived inventory and aggregate
   calculations belong in the backend.
-- **Cached backend results.** Any surviving source-derived summary needed
-  by this story is computed in the backend and returned as compact figures,
-  never as a collection of file bodies for frontend calculation. Prefer tree
-  metadata and already published CI summaries over source scans. Reuse the
-  existing bounded, rebuildable caches and upstream request sharing; share
-  concurrent calculations as well. Reuse unchanged content across revisions
-  where its Git identity establishes that it is unchanged. Cache keys must
-  distinguish repository, revision/content identity, relevant Intent settings,
-  selection/comparison identity and calculation/response version as needed.
-  Eviction or restart produces an on-demand miss, not a bulk download.
+- **Backend stays the calculator.** No surviving Intent summary needs
+  source-derived calculation: folder counts and child lists come from the
+  locations answer's paths. Keep it that way. Any count or summary this
+  story shows comes from tree metadata or an existing backend answer, never
+  from file bodies sent for frontend calculation. The existing backend memos
+  and request sharing already answer warm reads in milliseconds; this story
+  adds no backend index, calculation cache or job system.
 - **Avoid repeat transfers.** Keep a bounded browser cache of compact
   navigation, summaries and files actually requested. Revisiting a cached
   item at the same revision, including after a perspective switch, makes no
@@ -187,10 +197,10 @@ Scope limits:
    without blanking the view, a still-present selected path remains selected,
    and only an already selected file may need its new content. A deleted path
    has a clear explanation instead of silently showing another file.
-5. Two pages request the same cold summary. One backend calculation answers
-   both with compact results. One page leaves; the other still receives its
-   answer. Unchanged file identities reuse extracted results at a later
-   revision; changed files/settings produce the appropriate new answer.
+5. Select the 713-file `dashboard/tests` location, then several of its
+   folders. Each Summary shows its count and children from the locations
+   answer; no request leaves the page, and no file body is fetched for a
+   count.
 6. A file, summary or metadata refresh fails. Valid shown content remains
    readable, the affected failure and retry are visible, and initial failure,
    partial evidence and a real empty result stay distinct. A late answer
@@ -203,10 +213,35 @@ Scope limits:
    not establish a fresh CI judgment. Preserve the homepage's show,
    new-observed-head and **Check again** triggers.
 
+Deferred promises (considered, not delivered here; naturally supported
+behavior stays intact):
+
+- Reading state and browser caches across a page reload, or retained per
+  project across a project change. Both are in-memory page state.
+- Keeping a changed file's line anchored after applying an update. The
+  reading pane keeps its scroll offset and the new text replaces the old in
+  place.
+- Reusing a selected file's text across revisions by blob identity in the
+  browser. After an update, the selected file is read again at the new
+  revision; the backend's blob-SHA reuse keeps that read cheap.
+- Response compression or HTTP caching on the read boundary, which keeps
+  `no-store`.
+
+**UI.** The developer reviewing intent decides when to move to newer
+published work. The notice sits with the Intent reading, not over it, and
+names the change in words: "New revision available — showing `<short sha>`"
+with one **Show latest** action. It announces politely (a status, not an
+alert) and takes no focus. While the update loads, the shown reading stays
+and a local "Updating…" indicator marks it. If the update fails, the shown
+reading stays with the failure and a retry beside the notice. A selected
+path that no longer exists after the update reads "`<path>` is not in
+revision `<short sha>`" in Purpose, and no other file is selected in its
+place. Layout and components remain implementation choices.
+
 **Relationship to work already in progress.**
 
-- [Remove local proof from Open Dough](SEED-238-remove-local-proof.md#remove-local-proof)
-  (`SEED-238#remove-local-proof`) owns deleting the expensive committed-proof
+- [Remove local proof from Open Dough](../done/SEED-238_remove-local-proof.json)
+  (`SEED-238#remove-local-proof`, done) deleted the expensive committed-proof
   reads, proof-only summary calculations and their UI. This story preserves
   its surviving Purpose browsing and simple folder counts; it must not move
   the deleted feature into a new backend service.
@@ -236,14 +271,41 @@ Scope limits:
 [ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
 requires rebuildable derived caches and keeps Git origin authoritative,
 without an application database or dependence on a developer checkout.
-The proposed backend index is a derived reading aid. Reuse
-`dashboard/server/pinnedTexts.ts`, `pinnedMemo.ts`, `revisionMemo.ts`,
-`retainedAnswers.ts` and the existing shared `gh` reads before adding a new
-representation. Browser content reuse already has `fileContentCache.ts` and
-`repositoryFileReads.ts`; preserve their bounded retention and revision
-identity when exposing a suitable shared read. SSE belongs to the existing
-published-observation lifecycle. Cache record shape and endpoint organization
-remain implementation-planning choices.
+Browser reading state and caches are disposable
+page state under that decision, kept in memory like the per-project mode
+choice (`dashboard/src/pageIntentMode.tsx`) and story selection
+(`pageStorySelection.tsx`). They hold answers fixed by their identity:
+locations and file text by repository and revision, and a story file's diff
+by its comparison's from and tree revisions. Reuse `fileContentCache.ts`'s
+bounded LRU for file text. Live answers (the story comparison listing, CI)
+keep their own owners and freshness. Server memos (`pinnedTexts.ts`,
+`pinnedMemo.ts`, `revisionMemo.ts`, `retainedAnswers.ts`) and the shared `gh`
+reads stay as they are. SSE stays with the existing published-observation
+lifecycle. No Accepted decision conflicts.
+
+Approaches compared (Explore and Borrow) against the goal and Terry's
+accepted "reader of one revision" proposal:
+
+- **Pinned reading with notice and page-held answers (selected).** It
+  removes every observed disruption and repeat read with browser state
+  only.
+- **Follow new revisions automatically, preserving the selection by path.**
+  It avoids a notice, but content still changes under the reader and every
+  landing re-reads. This would replace the accepted proposal, so it stays
+  Terry's call and is not pursued.
+- **Per-folder tree endpoint or backend index.** This is unnecessary: the
+  whole locations answer is 68 KB once per revision and folders already
+  cost nothing.
+- **HTTP caching of revision-pinned answers.** The browser would serve
+  repeats, but limited and failed answers and the boundary's `no-store`
+  contract make it riskier than the existing in-memory caches. Deferred.
+- **Borrowed: a feed reader's "new posts" banner.** The feed maps to the
+  Intent tree, new posts to a newer revision, and the scroll anchor to the
+  selected path. The pin, the non-blocking banner and the deliberate apply
+  carry over. The analogy breaks because a revision can delete or rename the
+  anchor, which a feed never does, so the missing-path explanation is this
+  story's own. Content-addressed caching (a blob SHA as identity) was also
+  considered; it is the deferred cross-revision reuse above.
 
 **Evaluation.** Follow
 [ADR 0010 — Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md):
@@ -254,13 +316,11 @@ bytes, upstream GitHub reads, backend calculation reuse, and time to first
 usable navigation/selected content. Include cold open, warm revisit,
 perspective return, selected-story navigation, update notification/application,
 and a failed read. Establish the baseline after accounting for the active
-stories so their gains are not attributed to this one. The zero-body,
+stories so their gains are not attributed to this one; the request counts
+in this story's journey exclude CI reads, which the CI homepage story owns. The zero-body,
 single-file and cache-hit examples above are observable acceptance targets;
 latency/byte savings remain unmeasured until evaluated. Reuse relevant browser
 and boundary tests when the executable plan is prepared.
 
 This project's [failing and flaky tests policy](../../AGENTS.md#failing-and-flaky-tests)
-applies as written. This record captures one refined story for the first
-Backlog position; it supplies no executable plan, readiness assessment, Take
-or implementation authority. No unanswered product decision currently blocks
-slice planning.
+applies as written.

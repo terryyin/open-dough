@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "stanly-chan",
-  "email": "stanly-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-241#load-intent-without-disruption-or-bulk-source-transfer",
-  "host": "claude",
-  "model": "opus"
-}
