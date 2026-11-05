@@ -67,6 +67,12 @@ session label is still the launch time. Launch records, attempts and start
 stores never hold image bytes; they keep absolute paths and content digests
 that identify an ad hoc launch's images.
 
+Images pasted from the phone terminal keyboard are kept separately under
+`~/.open-dough/dashboard/session-attachments/<host>/<session>/`. The terminal
+offers the file's absolute path. Session images stay in that directory after
+the launch attempt or the terminal closes. See the [phone keyboard](AGENT-LAUNCH-TERMINAL-INPUT.md#phone-keyboard).
+
+
 The same instruction field offers Record and Stop recording. Configure general
 OpenAI access in System settings → OpenAI first; no environment-key fallback
 is used. Missing-key guidance opens those settings and returns to the same

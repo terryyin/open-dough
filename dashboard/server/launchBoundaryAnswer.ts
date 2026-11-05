@@ -31,9 +31,11 @@ import { markReviewedResponse } from "./storyReviewMarks.ts";
 import { storyReviewRangeResponse } from "./storyReviewRange.ts";
 import { withTerminalHandoff } from "./terminalHandoff.ts";
 import {
+  sessionAttachmentEndpoint,
   terminalHandoffAttach,
   terminalHandoffHeader,
 } from "../src/agentTerminal.ts";
+import { submitSessionAttachment } from "./sessionAttachments.ts";
 import { configuredLimit } from "./configuredLimit.ts";
 
 // How long a wait for an attempt observation to change lasts. A test may
@@ -109,6 +111,12 @@ export async function answer(
       return { status: 200, body: await submitLanding(req, true) };
     if (url.pathname === landingEndpoint)
       return { status: 200, body: await submitLanding(req) };
+    if (url.pathname === sessionAttachmentEndpoint) {
+      return {
+        status: 200,
+        body: await submitSessionAttachment(req, url, res, launches),
+      };
+    }
     if (url.pathname === completionEndpoint)
       return { status: 200, body: await submitCompletion(req, doneMarks) };
     const request = await admitted(req, url, launches);

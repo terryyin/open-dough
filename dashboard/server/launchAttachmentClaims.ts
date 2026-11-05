@@ -6,14 +6,14 @@ import { createHash, randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import {
-  launchAttachmentExtensionFor,
-  launchAttachmentLimitBytes,
   launchAttachmentMaxCount,
-  launchAttachmentTooLarge,
   launchAttachmentTooMany,
-  launchAttachmentTypes,
-  launchAttachmentUnsupportedType,
+  type ImageAttachmentType,
 } from "../src/launchAttachments.ts";
+import {
+  checkedImageAttachmentType,
+  sanitizeImageAttachmentName,
+} from "./imageAttachments.ts";
 import {
   withoutConfirmation,
   type AgentLaunchRequest,
@@ -33,38 +33,21 @@ const attachmentsRoot = (...segments: string[]) =>
 
 type ClaimMeta = {
   readonly name: string;
-  readonly type: (typeof launchAttachmentTypes)[number];
+  readonly type: ImageAttachmentType;
 };
-
-function sanitizeName(name: string, type: ClaimMeta["type"]): string {
-  const extension = `.${launchAttachmentExtensionFor[type]}`;
-  const base = path
-    .basename(name)
-    .replace(/[^\w.\-()+ ]+/g, "_")
-    .trim();
-  const fallback = `image${extension}`;
-  if (base === "" || base === "." || base === "..") return fallback;
-  const hasExtension = /\.[A-Za-z0-9]+$/.test(base);
-  return hasExtension ? base : `${base}${extension}`;
-}
 
 export function claimLaunchAttachment(
   bytes: Buffer,
   type: string,
   name: string,
 ): string {
-  if (!(launchAttachmentTypes as readonly string[]).includes(type)) {
-    throw new RefusedRequest(415, launchAttachmentUnsupportedType);
-  }
-  if (bytes.length > launchAttachmentLimitBytes) {
-    throw new RefusedRequest(413, launchAttachmentTooLarge);
-  }
+  const imageType = checkedImageAttachmentType(type, bytes.length);
   const id = randomUUID();
   const directory = claimsRoot(id);
   mkdirSync(directory, { recursive: true });
   const meta: ClaimMeta = {
-    name: sanitizeName(name, type as ClaimMeta["type"]),
-    type: type as ClaimMeta["type"],
+    name: sanitizeImageAttachmentName(name, imageType),
+    type: imageType,
   };
   writeFileSync(path.join(directory, "meta.json"), JSON.stringify(meta));
   writeFileSync(path.join(directory, "bytes"), bytes);
@@ -159,7 +142,7 @@ export function materializeLaunchAttachments(
       } catch {
         throw new RefusedRequest(400, "An attached image could not be read.");
       }
-      const fileName = `${String(index + 1)}-${sanitizeName(meta.name, meta.type)}`;
+      const fileName = `${String(index + 1)}-${sanitizeImageAttachmentName(meta.name, meta.type)}`;
       const destination = path.join(directory, fileName);
       writeFileSync(destination, bytes);
       rmSync(claimDirectory, { recursive: true, force: true });

@@ -3,28 +3,21 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import { expect, test as base } from "./dashboardTest.ts";
-import { launched } from "./agentTerminalBoundary.ts";
-import {
-  publishStoryColumnsJourney,
-  type StoryColumnsJourney,
-} from "./launchJourney.ts";
+import { expect } from "./dashboardTest.ts";
 import { tapWhereShown } from "./pageLayout.ts";
-import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
-import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
-  type DashboardServer,
 } from "./support/dashboardServer.ts";
-import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
+import { phonePasteJourney, test as base } from "./terminalPastePage.ts";
 import {
   expectMinTouchTarget,
   focusByTouch,
-  noteTerminalTraffic,
   tapTerminalKey,
   terminalKey,
 } from "./touchTerminalPage.ts";
+
+const openPasteTerminal = phonePasteJourney();
 
 const test = base.extend<{ restartMachine: string }>({
   // Playwright's fixture API requires the empty destructuring pattern.
@@ -38,39 +31,6 @@ const test = base.extend<{ restartMachine: string }>({
     }
   },
 });
-
-test.use({
-  projectFolders: ["open-dough"],
-  viewport: phoneLaunchTouchViewport.portrait,
-  hasTouch: true,
-  permissions: ["clipboard-read", "clipboard-write"],
-});
-test.setTimeout(60_000);
-let journey: StoryColumnsJourney;
-test.beforeAll(async () => {
-  test.setTimeout(120_000);
-  journey = await publishStoryColumnsJourney();
-});
-test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
-
-async function openPasteTerminal(page: Page, dashboard: DashboardServer) {
-  const title = "Phone clipboard session";
-  const native = await launched(dashboard, "open-dough", {
-    identity: "SEED-901#phone-terminal-paste",
-    title,
-  });
-  const opened = await openStoryColumnsJourney(page, journey);
-  await opened.settled();
-  const sidebar = sessionsSidebarParts(page);
-  await tapWhereShown(sidebar.button);
-  const { sent } = noteTerminalTraffic(page);
-  await tapWhereShown(sidebar.entry(title));
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
-  await expect(rows).toContainText(`attached ${native.shortId}`);
-  await expect(rows).toContainText("Claude Code");
-  return { panel, rows, sent, native };
-}
 
 const copyText = (page: Page, text: string) =>
   page.evaluate((value) => navigator.clipboard.writeText(value), text);

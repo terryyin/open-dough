@@ -90,7 +90,7 @@ outcome ends at the path at the prompt, as the seed records.
 | Seed example | Owning slice | Proof |
 | --- | --- | --- |
 | 1 text, 2 bracketed multi-line, 4 nothing to paste, 5 clipboard unavailable, 6 attachment cannot accept input, 8 desktop unchanged | 1 | `dashboard/tests/agent-terminal-touch-paste.spec.ts` (phone viewport, `hasTouch`, clipboard permissions); desktop absence is the existing toolbar-absence assertion in `agent-terminal-touch-keys.spec.ts` |
-| 3 image, image wins over text, 7 image refused | 2 | the same spec's image cases, with the server refusal shown through a `page.route` fulfilment of the upload endpoint; `dashboard/tests/boundary/session-attachment-boundary.spec.ts` for the server's own refusals and store |
+| 3 image, image wins over text, 7 image refused | 2 | `agent-terminal-touch-paste-image.spec.ts`, with the server refusal shown through a `page.route` fulfilment of the upload endpoint; `dashboard/tests/boundary/session-attachment-boundary.spec.ts` for the server's own refusals and store |
 
 ## Execution context
 
@@ -183,10 +183,15 @@ deletes. Both mechanical repairs stay within the accepted refactor trace.
 `PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-terminal-touch-paste.spec.ts boundary/proof-record-entry.spec.ts --reporter=list`
 passed 5 checks in 14.2s after the repair.
 
+Guarded delivery completed selective formatting, lint and typecheck and
+published `c039115b5c8253a3ec3530cb7548b354fde750a0` to
+`origin/codex/paste-from-the-mobile-keyboard` over the published claim. It
+reused the retained observer.
+
 ### 2. Paste key delivers a clipboard image as a stored file's path
 Type: Behavior
-Status: planned
-Proof: `agent-terminal-touch-paste.spec.ts`, image cases;
+Status: done
+Proof: `agent-terminal-touch-paste-image.spec.ts`;
 `dashboard/tests/boundary/session-attachment-boundary.spec.ts`;
 `boundary/launch-attachment-boundary.spec.ts` and
 `agent-launch-ad-hoc-attachments-paste.spec.ts` stay green after the shared
@@ -217,6 +222,39 @@ session as `admittedAttach` does (`verifyLocalOrigin`, `knownSource`,
 and pastes the answered path; extend the touch paragraph of
 `dashboard/AGENT-LAUNCH-TERMINAL-INPUT.md` with the image path hand-off and name
 the store beside the launch attachment folder in `dashboard/AGENT-LAUNCH.md`.
+
+Accepted observations are mapped in [source review](source-review.md).
+The image and text journeys share setup and remain separate specs. Browser
+proof observes the raw PNG POST, stored bytes, a single path-only frame,
+mixed clipboard precedence, and a real over-limit clipboard PNG with the
+page wired to the server's refusal shape. The boundary checks the real
+413 response for 12 MiB, unsafe origin, method, unsupported and empty
+bodies, unknown and unavailable sessions, ordered and overlapping writes,
+storage failure and path-safe opaque IDs.
+
+```sh
+PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-terminal-touch-paste.spec.ts agent-terminal-touch-paste-image.spec.ts boundary/session-attachment-boundary.spec.ts boundary/launch-attachment-boundary.spec.ts agent-launch-ad-hoc-attachments-paste.spec.ts boundary/agent-terminal-boundary.spec.ts boundary/agent-terminal-codex.spec.ts boundary/serving-modes.spec.ts --reporter=list
+PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-terminal-touch-paste.spec.ts agent-terminal-touch-paste-image.spec.ts boundary/session-attachment-boundary.spec.ts boundary/launch-attachment-refusals.spec.ts agent-launch-ad-hoc-attachments.spec.ts agent-launch-ad-hoc-attachments-refusal.spec.ts agent-launch-ad-hoc-attachments-cancel.spec.ts agent-launch-ad-hoc-attachments-codex.spec.ts agent-launch-ad-hoc-attachments-cursor.spec.ts agent-launch-ad-hoc-attachments-continuation.spec.ts agent-launch-start-session-existing-changes-attachments.spec.ts agent-launch-story-attachments.spec.ts agent-terminal-codex-page.spec.ts agent-terminal-cursor-page.spec.ts --reporter=list
+```
+
+The first run passed 38 checks in 19.6s. After the desktop-only CI repair,
+the expanded run passed 26 checks in 28.7s. The repair
+`6ab56f9d621e710598a4c50ba5bfaa94b6d33fd3` was published over the text
+increment and registered with the same observer. Slice 2 changes were
+restored without conflict. The launch upload, WebSocket admission and
+serving-mode observations from the first run stayed applicable.
+
+Independent refactoring found no candidate and made no edits. It verified
+that the binary read and filename rules are shared, that launch claims and
+stored session images have separate lifecycles, and that the captured
+attachment is checked again before sending the returned path. Shard preview
+included the text, image and session attachment boundary specs.
+
+The formatter identified one direct mutation through a fixture parameter.
+The test now follows the existing Codex boundary fixture convention. This
+mechanical change stays within the independent review's trace.
+`PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- boundary/session-attachment-boundary.spec.ts --reporter=list`
+passed all four cases in 4.8s.
 
 ## Current decisions
 

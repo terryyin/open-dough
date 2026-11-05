@@ -14,6 +14,14 @@ export const launchAttachmentTypes = [
   "image/webp",
 ] as const;
 
+export type ImageAttachmentType = (typeof launchAttachmentTypes)[number];
+
+export function isImageAttachmentType(
+  type: string,
+): type is ImageAttachmentType {
+  return (launchAttachmentTypes as readonly string[]).includes(type);
+}
+
 export const launchAttachmentTooLarge =
   "Larger than 10 MB. Choose a smaller image or omit it.";
 export const launchAttachmentUnsupportedType =
@@ -33,7 +41,7 @@ export function launchAttachmentRefusalFor(
   file: { readonly name: string; readonly type: string; readonly size: number },
   acceptedCount: number,
 ): string | undefined {
-  if (!(launchAttachmentTypes as readonly string[]).includes(file.type)) {
+  if (!isImageAttachmentType(file.type)) {
     return launchAttachmentUnsupportedType;
   }
   if (file.size > launchAttachmentLimitBytes) {
@@ -75,25 +83,18 @@ export function partitionLaunchAttachments(
 
 // Filename stems for each accepted type (no leading dot). Paste naming and
 // claim sanitization both use this map.
-export const launchAttachmentExtensionFor: Record<
-  (typeof launchAttachmentTypes)[number],
-  string
-> = {
-  "image/png": "png",
-  "image/jpeg": "jpg",
-  "image/gif": "gif",
-  "image/webp": "webp",
-};
+export const launchAttachmentExtensionFor: Record<ImageAttachmentType, string> =
+  {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/gif": "gif",
+    "image/webp": "webp",
+  };
 
 // Clipboard screenshots often arrive as a File with an empty name. Keep a
 // supplied name; otherwise use pasted.<type> (pasted.png for PNG).
-function namedPasteAttachment(file: File): File {
-  if (file.name.trim() !== "") return file;
-  const ext =
-    launchAttachmentExtensionFor[
-      file.type as (typeof launchAttachmentTypes)[number]
-    ];
-  return new File([file], `pasted.${ext}`, { type: file.type });
+export function pastedImageName(type: ImageAttachmentType): string {
+  return `pasted.${launchAttachmentExtensionFor[type]}`;
 }
 
 // Image files from a paste. Empty when the clipboard holds only text (or no
@@ -105,11 +106,16 @@ export function imageFilesFromPaste(
   const files: File[] = [];
   for (const item of clipboardData.items) {
     if (item.kind !== "file") continue;
-    if (!(launchAttachmentTypes as readonly string[]).includes(item.type)) {
-      continue;
-    }
+    const { type } = item;
+    if (!isImageAttachmentType(type)) continue;
     const file = item.getAsFile();
-    if (file !== null) files.push(namedPasteAttachment(file));
+    if (file !== null) {
+      files.push(
+        file.name.trim() === ""
+          ? new File([file], pastedImageName(type), { type: file.type })
+          : file,
+      );
+    }
   }
   return files;
 }

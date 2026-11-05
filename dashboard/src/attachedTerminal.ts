@@ -9,6 +9,7 @@ import {
   terminalAttachRefusalCode,
   terminalAttachRefusalSchema,
   terminalReadinessSchema,
+  terminalSessionQuery,
   terminalReplaySchema,
   terminalWorkspaceUnavailableSchema,
   terminalWorkspaceUnavailableCode,
@@ -19,13 +20,8 @@ import type { SessionOperation, SessionRequest } from "./pageSessions.ts";
 import { listenToTerminalTouchScroll } from "./terminalTouchScroll.ts";
 
 export function terminalUrl(record: LaunchRecord): string {
-  const query = new URLSearchParams({
-    source: record.request.source,
-    session: record.session.sessionId,
-    host: record.session.host,
-  });
   const scheme = window.location.protocol === "https:" ? "wss:" : "ws:";
-  return `${scheme}//${window.location.host}${agentTerminalEndpoint}?${query.toString()}`;
+  return `${scheme}//${window.location.host}${agentTerminalEndpoint}?${terminalSessionQuery(record).toString()}`;
 }
 
 // Why the panel's attachment is no longer open, if it is not.
@@ -184,10 +180,13 @@ export function attachTerminal(
     terminal.focus();
     return true;
   };
-  const paste = (text: string) => {
-    if (!acceptsInput()) return false;
-    terminal.paste(text);
-    return true;
+  const paste = {
+    acceptsInput,
+    offer(text: string) {
+      if (!acceptsInput()) return false;
+      terminal.paste(text);
+      return true;
+    },
   };
   const typed = terminal.onData((input) => {
     send({ input });

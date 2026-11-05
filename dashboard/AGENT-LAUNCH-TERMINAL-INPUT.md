@@ -39,7 +39,11 @@ soft keyboard’s current visibility.
 **Paste** reads the phone clipboard and offers its text as one terminal paste
 with control sequences removed and no trailing Enter. If the browser cannot
 read the clipboard, open Compose and use the keyboard’s own Paste. If the
-terminal is disconnected, reconnect and tap **Paste** again.
+terminal is disconnected, reconnect and tap **Paste** again. When the
+clipboard includes a PNG, JPEG, GIF or WebP image, the terminal offers its
+stored absolute path as one paste instead of the clipboard text. The status
+region identifies the stored file or shows the server’s refusal. Images use
+the launch attachment size limit of 10 MB.
 An optional text composer edits longer drafts with the phone’s native
 selection, autocorrection and dictation; deliberate Insert offers the draft
 once through the same attachment `insert` path dictation uses, without a

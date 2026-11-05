@@ -124,7 +124,7 @@ export function Terminal({
     onAttachRefusal,
   );
   const dictation = useTerminalDictation(insertText);
-  const paste = useTerminalPaste(getPaste);
+  const paste = useTerminalPaste(record, getPaste);
   useTerminalVisualViewportFit(panel);
   useRowsHeight(identity, names);
   usePortraitPreview(identity);

@@ -1,29 +1,9 @@
-import {
-  launchAttachmentEndpoint,
-  launchAttachmentEmpty,
-  launchAttachmentLimitBytes,
-  launchAttachmentNameHeader,
-  launchAttachmentTooLarge,
-  launchAttachmentTypes,
-  launchAttachmentUnsupportedType,
-} from "../src/launchAttachments.ts";
+import { launchAttachmentEndpoint } from "../src/launchAttachments.ts";
+import { readImageAttachment } from "./imageAttachments.ts";
 import type { BoundaryInstall } from "./localBoundary.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
-import { readBoundedRawBody } from "./boundedRawBody.ts";
 import { claimLaunchAttachment } from "./launchAttachmentClaims.ts";
 import { withResponseSignal } from "./responseSignal.ts";
-
-function attachmentName(req: { readonly headers: IncomingMessageHeaders }) {
-  const raw = req.headers[launchAttachmentNameHeader];
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  return typeof value === "string" && value.trim() !== ""
-    ? value.trim()
-    : "image.png";
-}
-
-type IncomingMessageHeaders = {
-  readonly [key: string]: string | string[] | undefined;
-};
 
 export const installLaunchAttachmentMiddleware: BoundaryInstall = (
   middlewares,
@@ -58,16 +38,8 @@ export const installLaunchAttachmentMiddleware: BoundaryInstall = (
         if (req.method !== "POST") {
           throw new RefusedRequest(405, "Only POST is accepted.");
         }
-        const { bytes, type } = await readBoundedRawBody(req, signal, {
-          allowedTypes: launchAttachmentTypes,
-          limitBytes: launchAttachmentLimitBytes,
-          unsupportedType: launchAttachmentUnsupportedType,
-          tooLarge: launchAttachmentTooLarge,
-          empty: launchAttachmentEmpty,
-        });
-        return {
-          claim: claimLaunchAttachment(bytes, type, attachmentName(req)),
-        };
+        const { bytes, type, name } = await readImageAttachment(req, signal);
+        return { claim: claimLaunchAttachment(bytes, type, name) };
       },
       60_000,
     )

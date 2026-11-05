@@ -10,8 +10,26 @@
 // its own, so the page can tell a terminal that ended from a lost connection.
 
 import { z } from "zod";
+import type { LaunchRecord } from "./agentLaunch.ts";
 
 export const agentTerminalEndpoint = "/__agent-terminal";
+export const sessionAttachmentEndpoint = `${agentTerminalEndpoint}/attachments`;
+export const sessionAttachmentStorageFailure = "The image could not be stored.";
+
+export function terminalSessionQuery(record: LaunchRecord): URLSearchParams {
+  return new URLSearchParams({
+    source: record.request.source,
+    session: record.session.sessionId,
+    host: record.session.host,
+  });
+}
+
+export const sessionAttachmentPathSchema = z.strictObject({
+  path: z.string().min(1),
+});
+export const sessionAttachmentRefusalSchema = z.strictObject({
+  error: z.string().min(1),
+});
 
 // Start session sends this on accept. The launch then waits for that page's
 // terminal socket before the idle rule can hang the client up. Other launches
