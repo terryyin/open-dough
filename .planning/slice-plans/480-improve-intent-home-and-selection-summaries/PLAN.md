@@ -175,6 +175,12 @@ Refactor pass: helper renames and unexports in `ciProofWording.ts`, comments
 only elsewhere. Learning: the page-wide Left/Right project shortcut
 (`projectKeyboardNavigation.ts`) takes ArrowRight from sideways-scrolling
 boxes, so tables here fit without horizontal scrolling rather than rely on it.
+CI repair (run 42059477099/1, `dashboard (9/12)`): CI's DejaVu Sans made
+the 320 px table 2 px wider than its box; reproduced in `scripts/ci-container.sh`'s
+image with `fonts-dejavu-core`, fixed by narrower cell padding inside the
+narrow container query. Refactor disposition: within slice 1's accepted
+refactor return (`intent-proof.css`, consumer trace terms
+`intent-ci-proof-box`/`intent-proof-rows`), adding no representation.
 
 ### 2. Return home by deliberately activating Intent
 Type: Behavior

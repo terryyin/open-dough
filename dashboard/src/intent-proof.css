@@ -80,8 +80,10 @@
 
 /* A CI proof table (./CiProofTable.tsx): a scope path wraps only between its
    parts while they fit; in a reading pane too narrow for that, such as a
-   phone or a zoomed window, a part wraps too, so every column still fits
-   with its other words whole and nothing scrolls sideways. */
+   phone or a zoomed window, a part wraps too and the cells narrow their
+   side padding, so every column still fits with its other words whole and
+   nothing scrolls sideways, even in a wider fallback font such as DejaVu
+   Sans. */
 .intent-ci-proof-box {
   container-type: inline-size;
 }
@@ -94,5 +96,10 @@
   .intent-ci-scope-part {
     white-space: normal;
     overflow-wrap: anywhere;
+  }
+
+  .intent-ci-proof-box .intent-proof-rows th,
+  .intent-ci-proof-box .intent-proof-rows td {
+    padding-inline: var(--space-1);
   }
 }
