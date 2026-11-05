@@ -4,6 +4,7 @@
 **Source:** [selected story](../../seeds/SEED-236-show-ci-adapter-proof.md#show-ci-adapter-proof)
 in SEED-236, refined 2026-11-05 with challenge, clarify, investigate and
 architecture.
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-05. Planning only, in the story's established workspace
 (branch `claude/show-the-ci-proof-of-a-ci-adapter-attempt`, agent mrsn-chan),
 continuing the refinement in the same session.
@@ -110,7 +111,7 @@ A fresh worktree needs the native setup before any Playwright run.
 
 ### 1. The collector writes an adapter attempt's summary
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh src/skills/dough-test-optimization/scripts/ci-proof-summary.test.mjs src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs src/skills/dough-test-optimization/scripts/ci-proof-fragments.test.mjs`
 
 Behavior: given an adapter project's job with attempt `9f1c…` at revision
@@ -120,6 +121,17 @@ Behavior: given an adapter project's job with attempt `9f1c…` at revision
 attempt ID, or of a GitHub attempt, is excluded with a note. Naming both or
 neither identity is refused. A GitHub Actions fragment and summary are
 written and validated exactly as before.
+
+Accepted (2026-11-05): `attemptProblems` in `ci-proof-contract.mjs` is the one
+identity rule for fragment, summary and CLI; `attemptOf`/`summaryAttempt`
+select the fields. The slice's proof command plus
+`tests/support/ci-proof-{declaration,dashboard-ci-proof-parse,dashboard-ci-proof-read}`
+node tests passed, and the three `intent-ci-proof*.spec.ts` Playwright specs
+passed (7) unedited. Wording change on the GitHub path: the exclusion note now
+reads `attempt 1, not attempt 2`, and an identity-less summary reports
+`names neither runId and runAttempt nor attemptId` (the dashboard matches the
+invalid-summary reason with `.+`). Refactor: tests merged and trimmed under
+250 lines, no production change.
 
 ### 2. The tab shows a matching adapter attempt's proof
 Type: Behavior

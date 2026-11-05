@@ -1,11 +1,25 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { summarize } from "./ci-proof-collect.mjs";
-import { summaryArtifactName, summaryProblems } from "./ci-proof-contract.mjs";
-import { fragment, revision, run } from "./ci-proof-test-fixtures.mjs";
+import {
+  fragmentProblems,
+  summaryArtifactName,
+  summaryProblems,
+} from "./ci-proof-contract.mjs";
+import {
+  adapterRun,
+  attemptId,
+  fragment,
+  revision,
+  run,
+} from "./ci-proof-test-fixtures.mjs";
 
 const read = (...values) =>
   values.map((value, index) => ({ source: `fragment-${index}.json`, value }));
+
+// An adapter attempt's fragment: the fixture fragment named by ID instead.
+const adapterFragment = (entry, part, of, counts, id = attemptId) =>
+  fragment(entry, part, of, counts, { attempt: undefined, attemptId: id });
 
 test("two dashboard shards and one tests share total without overwriting or double counting (example 1)", () => {
   const { summary, notes } = summarize({
@@ -77,7 +91,7 @@ test("a missing part is a gap, a duplicated part is ambiguous, and neither is co
   assert.deepEqual(summaryProblems(summary), []);
 });
 
-test("an earlier attempt's or another revision's fragment is excluded, never filling a part (example 2)", () => {
+test("an earlier attempt's, an adapter attempt's or another revision's fragment is excluded, never filling a part (example 2)", () => {
   const { summary, notes } = summarize({
     fragments: read(
       fragment("dashboard/tests", 1, 2, { passed: 12 }),
@@ -89,6 +103,7 @@ test("an earlier attempt's or another revision's fragment is excluded, never fil
         { passed: 8 },
         { revision: "b".repeat(40) },
       ),
+      adapterFragment("dashboard/tests", 2, 2, { passed: 8 }, "2"),
     ),
     expect: [{ entry: "dashboard/tests", parts: 2 }],
     run,
@@ -96,8 +111,60 @@ test("an earlier attempt's or another revision's fragment is excluded, never fil
   assert.equal(summary.entries[0].passed, 12);
   assert.deepEqual(summary.entries[0].parts[1], { part: 2, status: "missing" });
   assert.deepEqual(notes, [
-    "excluded fragment-1.json: attempt 1, not 2",
+    "excluded fragment-1.json: attempt 1, not attempt 2",
     `excluded fragment-2.json: revision ${"b".repeat(40)}, not ${revision}`,
+    "excluded fragment-3.json: attemptId 2, not attempt 2",
+  ]);
+});
+
+test("an adapter attempt's summary names its attemptId and keeps only fragments of that attempt and revision", () => {
+  const { summary, notes } = summarize({
+    fragments: read(
+      adapterFragment("tests", 1, 1, { passed: 1000, other: 3 }),
+      adapterFragment("tests", 1, 1, { passed: 9 }, "another"),
+      fragment("tests", 1, 1, { passed: 7 }),
+      { ...adapterFragment("tests", 1, 1, {}), revision: "b".repeat(40) },
+    ),
+    expect: [{ entry: "tests", parts: 1 }],
+    run: adapterRun,
+  });
+  assert.deepEqual(notes, [
+    `excluded fragment-1.json: attemptId another, not attemptId ${attemptId}`,
+    `excluded fragment-2.json: attempt 2, not attemptId ${attemptId}`,
+    `excluded fragment-3.json: revision ${"b".repeat(40)}, not ${revision}`,
+  ]);
+  assert.deepEqual(summaryProblems(summary), []);
+  const { entries, ...attempt } = summary;
+  assert.deepEqual(attempt, {
+    schemaVersion: 1,
+    repository: "O/P",
+    attemptId,
+    revision,
+  });
+  assert.deepEqual(
+    entries.map((entry) => [entry.path, entry.passed, entry.other]),
+    [["tests", 1000, 3]],
+  );
+});
+
+test("a fragment or summary names exactly one attempt identity", () => {
+  const github = fragment("tests", 1, 1, {});
+  const neither = { ...github, attempt: undefined };
+  assert.deepEqual(fragmentProblems({ ...github, attemptId }), [
+    "names both attempt and attemptId",
+  ]);
+  assert.deepEqual(fragmentProblems(neither), [
+    "names neither attempt nor attemptId",
+  ]);
+  assert.deepEqual(fragmentProblems({ ...neither, attemptId: 7 }), [
+    "attemptId is not a string",
+  ]);
+  const { summary } = summarize({ fragments: [], expect: [], run: adapterRun });
+  assert.deepEqual(summaryProblems({ ...summary, runId: 1, runAttempt: 1 }), [
+    "names both runId and runAttempt and attemptId",
+  ]);
+  assert.deepEqual(summaryProblems({ ...summary, attemptId: undefined }), [
+    "names neither runId and runAttempt nor attemptId",
   ]);
 });
 
