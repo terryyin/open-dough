@@ -5,15 +5,14 @@
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
-  chooseReadingTab,
   expandIntentFolders,
   expandIntentGroup,
   expectIntentFoldersCollapsed,
   intentFolderName,
   intentGroupToggle,
   intentLocationName,
-  readingTab,
 } from "./intentPerspectivePage.ts";
+import { chooseReadingTab, readingTab } from "./intentFileReadingPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   featuresPath,

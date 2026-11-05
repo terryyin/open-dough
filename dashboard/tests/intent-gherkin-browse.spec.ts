@@ -7,14 +7,14 @@
 import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts, shortRevision } from "./dashboardPage.ts";
 import {
-  chooseReadingTab,
   expandIntentFolders,
   expandIntentGroup,
   expectAddress,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
-  intentModeTab,
 } from "./intentPerspectivePage.ts";
+import { intentModeTab } from "./intentModePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { colourOf } from "./pageColours.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
@@ -142,8 +142,11 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
       "aria-selected",
       "true",
     );
-    await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
-      "Select a file to read its Purpose.",
+    await expect(
+      intent.getByRole("region", { name: "CI status", exact: true }),
+    ).toBeVisible();
+    await expect(intent.getByRole("region", { name: "Purpose" })).toHaveCount(
+      0,
     );
     await expandIntentGroup(intent, "e2e_test/packaged/features");
     await intent

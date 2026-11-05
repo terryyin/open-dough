@@ -1,24 +1,24 @@
-// Side by side shows Purpose and Proof together for a selected file or
-// nothing selected (../src/IntentFileReading.tsx): a keyboard-operable
-// pressed toggle beside the tabs, two panels that each scroll on their own and
-// follow the selection, stacking Purpose above Proof where the reading area is
-// too narrow, and off bringing back the tab chosen before; switching layouts
-// keeps the selection, the Intent reading tab and the selected story, and
-// reads nothing again. A positioned case across layouts is
-// `./intent-purpose-proof-side-by-side-case.spec.ts`.
+// Side by side shows Purpose and Proof together for a selected file
+// (../src/IntentFileReading.tsx): nothing selected shows CI status instead; a
+// keyboard-operable pressed toggle beside the tabs, two panels that each
+// scroll on their own and follow the selection, stacking Purpose above Proof
+// where the reading area is too narrow, and off bringing back the tab chosen
+// before; switching layouts keeps the selection, the Intent reading tab and
+// the selected story, and reads nothing again. A positioned case across
+// layouts is `./intent-purpose-proof-side-by-side-case.spec.ts`.
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
+import { expandIntentGroup } from "./intentPerspectivePage.ts";
+import { intentModeTab } from "./intentModePage.ts";
 import {
   chooseReadingTab,
-  expandIntentGroup,
   expectSideBySide,
-  intentModeTab,
   readingTab,
   sideBySideToggle,
-} from "./intentPerspectivePage.ts";
+} from "./intentFileReadingPage.ts";
 import {
   contentReadsOf,
   publishIntentProject,
@@ -81,23 +81,14 @@ test("Side by side shows both panels scrolling on their own, follows the selecti
   const fileName = (path: string) =>
     intent.getByRole("button", { name: path, exact: true });
 
-  await test.step("nothing selected: the toggle sits beside the tabs, unpressed, and shows both panels", async () => {
-    await expect(toggle).toHaveAttribute("aria-pressed", "false");
-    await expectOnOneLine([
+  await test.step("nothing selected: CI status fills the reading; Purpose and Proof are absent", async () => {
+    await expect(
+      intent.getByRole("region", { name: "CI status", exact: true }),
+    ).toBeVisible();
+    await expect(
       intent.getByRole("tablist", { name: "Purpose and Proof" }),
-      toggle,
-    ]);
-    await toggle.click();
-    const regions = await expectSideBySide(intent);
-    await expect(regions.purpose).toContainText(
-      "Select a file to read its Purpose.",
-    );
-    await expect(regions.proof).toContainText(
-      "Select a file to see its Proof.",
-    );
-    await expectArranged(regions, "beside");
-    await toggle.click();
-    await expect(toggle).toHaveAttribute("aria-pressed", "false");
+    ).toHaveCount(0);
+    await expect(toggle).toHaveCount(0);
   });
 
   // With tabs on Proof, so turning Side by side off must bring Proof back.
@@ -107,6 +98,11 @@ test("Side by side shows both panels scrolling on their own, follows the selecti
   await expect(intent.getByLabel(`${featurePath} source`)).toContainText(
     "Feature: Jobs",
   );
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await expectOnOneLine([
+    intent.getByRole("tablist", { name: "Purpose and Proof" }),
+    toggle,
+  ]);
   await chooseReadingTab(intent, "Proof");
   const reads = contentReadsOf(requests, featurePath);
   expect(reads).toBe(1);

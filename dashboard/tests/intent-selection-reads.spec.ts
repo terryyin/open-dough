@@ -12,12 +12,12 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import {
-  chooseReadingTab,
   countLocationsReads,
   expandIntentGroup,
   intentGroupToggle,
-  intentModeTab,
 } from "./intentPerspectivePage.ts";
+import { intentModeTab } from "./intentModePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { holdAuthenticatedReadsOf } from "./holdAuthenticatedReads.ts";
 import {
   pausePageClock,
@@ -195,18 +195,15 @@ test("a new published revision reads the locations again and starts with nothing
   await passTimeUntilCheckedAfterSettled(page);
   await untilPageReadsAnswered(page);
   await expect.poll(locationsReads).toBe(2);
-  // Remount clears Intent selection and returns to the Intent tab's
-  // nothing-selected Purpose and Proof.
+  // Remount clears Intent selection and returns to the CI status homepage.
   await expect(intentModeTab(intent, "Intent")).toHaveAttribute(
     "aria-selected",
     "true",
   );
-  await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
-    "Select a file to read its Purpose.",
-  );
-  await expect(await chooseReadingTab(intent, "Proof")).toContainText(
-    "Select a file to see its Proof.",
-  );
+  await expect(
+    intent.getByRole("region", { name: "CI status", exact: true }),
+  ).toBeVisible();
+  await expect(intent.getByRole("region", { name: "Purpose" })).toHaveCount(0);
   await expandIntentGroup(intent, "e2e_test/features");
   await intent.getByRole("button", { name: featurePath, exact: true }).click();
   await expect(intent.getByLabel(`${featurePath} source`)).toContainText(

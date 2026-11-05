@@ -14,8 +14,8 @@ import {
   expandIntentFolders,
   expandIntentGroup,
   intentFolderName,
-  chooseReadingTab,
 } from "./intentPerspectivePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import {
   cucumberShapedFiles,
   generationCommand,

@@ -9,14 +9,16 @@ import { candidateEntryFields } from "../src/testOptimizationCandidates.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
+  expandIntentGroup,
+  intentGroupToggle,
+} from "./intentPerspectivePage.ts";
+import {
   candidatesRecord,
   chooseOptimizationCandidates,
-  chooseReadingTab,
-  expandIntentGroup,
   expectCandidatesRevision,
-  intentGroupToggle,
   intentModeTab,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   openDoughCandidatesRecord,
@@ -44,18 +46,18 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
   const candidatesTab = intentModeTab(intent, "Optimization Candidates");
   const locations = intent.locator(".intent-locations");
 
-  await test.step("entering Intent selects the Intent tab: locations, Purpose and Proof, no locations-column candidates control", async () => {
+  await test.step("entering Intent selects the Intent tab: locations and CI homepage, no locations-column candidates control", async () => {
     await expect(
       intent.getByRole("tablist", { name: "Intent reading" }).getByRole("tab"),
-    ).toHaveText(["Intent", "Optimization Candidates", "CI status"]);
+    ).toHaveText(["Intent", "Optimization Candidates"]);
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
     await expect(candidatesTab).toHaveAttribute("aria-selected", "false");
     await expect(intentGroupToggle(intent, "dashboard/tests")).toBeVisible();
-    await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
-      "Select a file to read its Purpose.",
-    );
-    await expect(await chooseReadingTab(intent, "Proof")).toContainText(
-      "Select a file to see its Proof.",
+    await expect(
+      intent.getByRole("region", { name: "CI status", exact: true }),
+    ).toBeVisible();
+    await expect(intent.getByRole("region", { name: "Purpose" })).toHaveCount(
+      0,
     );
     await expect(
       intent.getByRole("button", { name: "Test Optimization Candidates" }),

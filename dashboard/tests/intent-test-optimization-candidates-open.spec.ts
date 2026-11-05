@@ -8,10 +8,10 @@ import { parts } from "./dashboardPage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
-  chooseReadingTab,
   expectCandidatesRevision,
   intentModeTab,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   doughnutFeaturePath,

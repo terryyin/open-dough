@@ -142,9 +142,6 @@ export function IntentProof({
   readonly rereading: boolean;
   readonly onRetry: () => void;
 }) {
-  if (path === "") {
-    return <p className="quiet">Select a file to see its Proof.</p>;
-  }
   if (proof === undefined || "problem" in proof || proofKind === undefined) {
     return (
       <IntentProofAbsence

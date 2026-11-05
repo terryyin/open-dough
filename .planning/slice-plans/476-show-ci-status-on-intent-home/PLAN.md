@@ -2,6 +2,7 @@
 
 **Identity:** SEED-239#show-ci-status-on-intent-home
 **Source:** [selected story](../../seeds/SEED-239-intent-home-ci-status.md#show-ci-status-on-intent-home)
+**Source review:** [source-review.md](./source-review.md)
 **Prepared:** 2026-11-05; preparation only. Execution is not authorized by this plan.
 
 ## Goal and boundaries
@@ -121,13 +122,17 @@ Observed read-only in the established preparation workspace on 2026-11-05 at
 
 ### 1. CI status is Intent's homepage
 Type: Behavior
-Status: planned
-Proof: new homepage spec plus the existing CI status, CI proof, story CI and
-mode-strip specs (`dashboard/tests/intent-ci-*.spec.ts`,
-`intent-test-optimization-candidates.spec.ts`,
-`intent-story-changes-gaps.spec.ts`) green through updated page objects
-(`intentCiStatusPage.ts`, `intentCiProofPage.ts`, `intentCiStoryRecords.ts`,
-`intentPerspectivePage.ts`).
+Status: done
+Proof: `dashboard/tests/intent-ci-status-homepage.spec.ts` plus existing
+`intent-ci-*.spec.ts`, `intent-test-optimization-candidates.spec.ts`,
+`intent-story-changes-gaps.spec.ts` green through updated page objects;
+after refactor also `intent-purpose-proof-tabs|side-by-side`,
+`intent-selection-reads`, `intent-gherkin-browse` (empty-selection Purpose/Proof
+retired). Commands: `npm run lint`, `npm run typecheck:dashboard`,
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/playwright.config.ts <those specs> --reporter=list`
+(Homebrew Bash 5 first on `PATH`). Consumer trace `--term "CI status"` /
+`--term ci-status` (+ empty-selection retirement terms). ADR 0010 baseline
+recorded above.
 
 **Behavior:** a project with or without Intent locations → the developer opens
 Intent with nothing selected → CI status of the judged branch fills the
@@ -233,6 +238,35 @@ nothing; per-show requests unchanged) and the comment in
 After the slice, record the ADR 0010 comparison in this plan: the same
 journey's requests per show and time until a CI result is on screen, cold and
 warm, beside slice 1's baseline.
+
+## ADR 0010 baseline (slice 1, before product change)
+
+Measured 2026-11-05 locally on a throwaway `npm run dev:dashboard` at
+`http://127.0.0.1:55278` with `PATH` `gh` wrapper counting `gh api`
+invocations and a private `DOUGH_GITHUB_REQUEST_OWNER_ROOT` (mode `0700`),
+against Open Dough's trunk (`main`). Journey: Intent settled → choose
+**CI status** → judgment on screen (`Passed at 68f27aa…`, `Checked at…`).
+
+| Measure | Value |
+| --- | --- |
+| GitHub requests per show | **6** (`commits?sha=main&per_page=30` twice, `actions/workflows/ci.yml`, workflow push runs on `main`, artifacts list for the shown attempt, artifact zip download). The duplicate history listing matches Vite's React StrictMode double-mount on this throwaway dev server; `GITHUB-REQUESTS.md` still accounts trunk judgment as three asks plus proof's list+download when the summary is not already remembered. |
+| Time until judgment on screen | **4822 ms** from the CI status tab click to `.intent-ci-state` with `Checked at` |
+| Machine load average | **5.22 5.95 6.53** (`uptime` / `os.loadavg` at measurement start 2026-11-05T10:07:42Z) |
+
+Evidence: `/tmp/dough-adr0010-baseline-meas/baseline-result.json` (local,
+unpaid). Slice 5 records the warm comparison beside these numbers.
+
+## Learnings (slice 1)
+
+- Cold Intent (`perspective=intent`) can mount with `work === undefined`;
+  showing CI in the terminal-explanation panel while locations are still
+  loading double-judged once work settled — withhold CI until locations settle.
+- CI Proof's accessible name "Proof" is not the Purpose/Proof reading region;
+  empty-selection checks should assert the Purpose region / Purpose-and-Proof
+  tablist, not a bare `Proof` region count.
+- Post-change refactor extracted `IntentSelectionReading` and split
+  `intentModePage` / `intentFileReadingPage` from oversized helpers; removed
+  dead empty-selection Purpose/Proof branches.
 
 ## Current decisions
 

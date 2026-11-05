@@ -11,11 +11,11 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
-  chooseReadingTab,
   countLocationsReads,
   expandIntentGroup,
   intentLocationName,
 } from "./intentPerspectivePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { publishIntentProject, pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
   cucumberShapedFiles,

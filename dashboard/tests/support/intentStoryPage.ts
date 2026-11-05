@@ -8,7 +8,7 @@ import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { parts } from "../dashboardPage.ts";
-import { chooseReadingTab } from "../intentPerspectivePage.ts";
+import { chooseReadingTab } from "../intentFileReadingPage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { expect } from "../dashboardTest.ts";
 import {

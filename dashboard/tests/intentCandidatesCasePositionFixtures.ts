@@ -12,7 +12,7 @@ import { doughnutFeatureSettings } from "./intentCandidatesOtherProjectFixtures.
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
 
 export const doughnutCaseFeaturePath =
   "e2e_test/features/cli/case_position.feature";

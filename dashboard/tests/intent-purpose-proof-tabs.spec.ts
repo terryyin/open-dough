@@ -1,23 +1,25 @@
 // Intent's reading area offers Purpose and Proof as tabs for a selected file
-// or nothing selected (../src/IntentFileReading.tsx): Purpose is chosen when
-// Intent opens, the chosen tab fills the reading area and stays chosen across
-// file selections, the tabs keep Intent's tab keyboard behavior without
-// reaching project cycling or reading again, and a location Summary has no
-// tabs. Case
-// positioning across tabs is `./intent-purpose-proof-tabs-case.spec.ts`.
+// (../src/IntentFileReading.tsx): nothing selected shows CI status instead;
+// Purpose is chosen when a file is selected, the chosen tab fills the reading
+// area and stays chosen across file selections, the tabs keep Intent's tab
+// keyboard behavior without reaching project cycling or reading again, and a
+// location Summary has no tabs. Case positioning across tabs is
+// `./intent-purpose-proof-tabs-case.spec.ts`.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
-  chooseReadingTab,
   expandIntentGroup,
-  expectReadingTabChosen,
   intentLocationName,
-  intentModeTab,
-  readingTab,
 } from "./intentPerspectivePage.ts";
+import { intentModeTab } from "./intentModePage.ts";
+import {
+  chooseReadingTab,
+  expectReadingTabChosen,
+  readingTab,
+} from "./intentFileReadingPage.ts";
 import {
   contentReadsOf,
   publishIntentProject,
@@ -52,7 +54,21 @@ test("Purpose is chosen first, Proof stays chosen across files, the tabs use Int
   const proof = intent.getByRole("region", { name: "Proof", exact: true });
   const source = intent.getByLabel(`${featurePath} source`);
 
-  await test.step("nothing selected: Purpose and Proof tabs, Purpose chosen", async () => {
+  await test.step("nothing selected: CI status fills the reading; Purpose and Proof tabs are absent", async () => {
+    await expect(
+      intent.getByRole("region", { name: "CI status", exact: true }),
+    ).toBeVisible();
+    await expect(
+      intent.getByRole("tablist", { name: "Purpose and Proof" }),
+    ).toHaveCount(0);
+    await expect(purpose).toHaveCount(0);
+  });
+
+  await test.step("a selected file shows Purpose with its source; Proof shows that file's proof", async () => {
+    await expandIntentGroup(intent, "e2e_test/features");
+    await intent
+      .getByRole("button", { name: featurePath, exact: true })
+      .click();
     await expect(
       intent
         .getByRole("tablist", { name: "Purpose and Proof" })
@@ -62,20 +78,6 @@ test("Purpose is chosen first, Proof stays chosen across files, the tabs use Int
       "aria-selected",
       "true",
     );
-    await expect(purpose).toContainText("Select a file to read its Purpose.");
-    await expect(proof).toHaveCount(0);
-    await expect(await chooseReadingTab(intent, "Proof")).toContainText(
-      "Select a file to see its Proof.",
-    );
-    await expect(purpose).toHaveCount(0);
-    await chooseReadingTab(intent, "Purpose");
-  });
-
-  await test.step("a selected file shows Purpose with its source; Proof shows that file's proof", async () => {
-    await expandIntentGroup(intent, "e2e_test/features");
-    await intent
-      .getByRole("button", { name: featurePath, exact: true })
-      .click();
     await expect(source).toBeVisible();
     await expect(source).toContainText("Feature: Jobs");
     await expect(proof).toHaveCount(0);

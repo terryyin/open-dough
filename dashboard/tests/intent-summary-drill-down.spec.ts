@@ -13,13 +13,15 @@ import type { Locator } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
-  chooseReadingTab,
-  expectSideBySide,
   intentFolderName,
   intentGroupToggle,
   intentLocationName,
-  sideBySideToggle,
 } from "./intentPerspectivePage.ts";
+import {
+  chooseReadingTab,
+  expectSideBySide,
+  sideBySideToggle,
+} from "./intentFileReadingPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import { folderToggle } from "./support/intentStoryPage.ts";

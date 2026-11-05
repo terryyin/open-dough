@@ -12,10 +12,8 @@
 
 import type { Locator } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
-import {
-  chooseReadingTab,
-  intentGroupToggle,
-} from "./intentPerspectivePage.ts";
+import { intentGroupToggle } from "./intentPerspectivePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { expectSelected } from "./storyCardSelection.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {

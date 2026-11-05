@@ -1,4 +1,4 @@
-// Which branch Intent's CI status tab judges (`./IntentCiStatus.tsx`): the
+// Which branch Intent's CI status homepage judges (`./IntentCiStatus.tsx`): the
 // source's configured trunk while no story is selected, or, for the page's
 // selected story (`./pageStorySelection.tsx`), the branch the story-branch
 // rule finds for its Taken entry (`./storyBranch.ts`). Any other selected

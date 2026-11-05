@@ -8,12 +8,12 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { pressWhereShown } from "./pageLayout.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
+import { intentModeTab } from "./intentModePage.ts";
 import {
   expectSideBySide,
-  intentModeTab,
   readingTab,
   sideBySideToggle,
-} from "./intentPerspectivePage.ts";
+} from "./intentFileReadingPage.ts";
 import { contentReadsOf } from "./intentCodeBrowseFixtures.ts";
 import {
   doughnutCaseFeaturePath,

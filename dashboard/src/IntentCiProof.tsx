@@ -1,4 +1,4 @@
-// The CI proof of the attempt Intent's CI status tab shows a result of
+// The CI proof of the attempt Intent's CI status homepage shows a result of
 // (`./IntentCiStatus.tsx`): its own labelled part after the judgment, read
 // apart from it through `./authenticatedIntentCiProofRead.ts` once the
 // judgment names a GitHub Actions run or a ciAdapter attempt, so the
@@ -9,9 +9,9 @@
 // (`./ciProofWording.ts`); otherwise one line says why there is no proof to
 // show. An adapter attempt whose attemptId another discovered attempt shares
 // at its revision is ambiguous: no proof is read for it. A running result's
-// proof is its completed ancestor's, the result the
-// tab shows beside it. Proof is read again with each judgment the tab reads,
-// so Check again refreshes both.
+// proof is its completed ancestor's, the result the homepage shows beside it.
+// Proof is read again with each judgment the homepage reads, so Check again
+// refreshes both.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";

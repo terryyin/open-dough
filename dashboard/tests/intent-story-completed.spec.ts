@@ -17,10 +17,8 @@
 import type { Locator } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
 import { shortRevision } from "./dashboardParts.ts";
-import {
-  chooseReadingTab,
-  expandIntentGroup,
-} from "./intentPerspectivePage.ts";
+import { expandIntentGroup } from "./intentPerspectivePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
   completedChanges as changed,

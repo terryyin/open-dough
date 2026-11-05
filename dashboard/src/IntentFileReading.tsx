@@ -1,18 +1,18 @@
-// Purpose and Proof of the selected file, or of nothing selected yet
-// (`./IntentBrowser.tsx`), in one of two reader layouts. With tabs, two tabs
-// of one Intent tablist (`./IntentTabs.tsx`) at the top of the reading area,
-// the chosen tab's panel filling it; side by side, both panels together, each
-// named by its heading and scrolling on its own. The **Side by side** toggle
-// beside the tabs switches layouts. The chosen tab is the reader's page state
-// and the layout one choice this browser keeps, both owned by the Intent
-// browser so selecting another file keeps them, and opening from the
-// candidates record chooses Purpose and starts a fresh reading positioned on
-// its case, side by side with its Proof row in view. The file read and proof
-// are the browser's, so a tab or layout switch reads nothing again, and each returns
-// to where it was read in this file (`./useIntentReadingPlaces.ts`). A file
-// the selected story changed (`./intentStoryOverlay.ts`) shows Review changes'
-// own diff of it as its Purpose, and its Proof says it describes the published
-// revision; a file the published revision does not list is never read there.
+// Purpose and Proof of the selected file (`./IntentSelectionReading.tsx`), in
+// one of two reader layouts. With tabs, two tabs of one Intent tablist
+// (`./IntentTabs.tsx`) at the top of the reading area, the chosen tab's panel
+// filling it; side by side, both panels together, each named by its heading
+// and scrolling on its own. The **Side by side** toggle beside the tabs
+// switches layouts. The chosen tab is the reader's page state and the layout
+// one choice this browser keeps, both owned by the Intent browser so selecting
+// another file keeps them, and opening from the candidates record chooses
+// Purpose and starts a fresh reading positioned on its case, side by side with
+// its Proof row in view. The file read and proof are the browser's, so a tab
+// or layout switch reads nothing again, and each returns to where it was read
+// in this file (`./useIntentReadingPlaces.ts`). A file the selected story
+// changed (`./intentStoryOverlay.ts`) shows Review changes' own diff of it as
+// its Purpose, and its Proof says it describes the published revision; a file
+// the published revision does not list is never read there.
 
 import { useRef, type RefObject } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -76,7 +76,7 @@ export function IntentFileReading({
   readonly idPrefix: string;
   // The reading area that scrolls the chosen panel with tabs.
   readonly readingArea: RefObject<HTMLDivElement | null>;
-  // The selected file's path, or "" when nothing is selected.
+  // The selected file's path.
   readonly path: string;
   readonly revision: string;
   // The answered read of `path`, or undefined while it is being read.
@@ -171,9 +171,7 @@ export function IntentFileReading({
           <section className="intent-purpose" aria-label="Purpose">
             <h3 className={headingClass}>Purpose</h3>
             <div className="intent-reading-panel-body" ref={purposeBody}>
-              {path === "" ? (
-                <p className="quiet">Select a file to read its Purpose.</p>
-              ) : story !== undefined && change !== undefined ? (
+              {story !== undefined && change !== undefined ? (
                 <div className="intent-story-diff">
                   <p className="intent-story-diff-name">
                     <ReviewedFileName file={change} />

@@ -1,4 +1,4 @@
-// Wording of one run attempt's CI proof in Intent's CI status tab
+// Wording of one run attempt's CI proof in Intent's CI status homepage
 // (`./IntentCiProof.tsx`): each entry's counts with their unit, how many of
 // its declared parts are present, each missing or ambiguous part as a gap,
 // and why no proof can be shown. A gap's counts are never part of the

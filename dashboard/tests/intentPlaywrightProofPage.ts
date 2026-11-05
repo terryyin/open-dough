@@ -6,10 +6,10 @@ import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
-  chooseReadingTab,
   expandIntentFolders,
   expandIntentGroup,
 } from "./intentPerspectivePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { doughnut, publishIntentProject } from "./intentCodeBrowseFixtures.ts";
 import {
   recordedCommit,

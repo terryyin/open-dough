@@ -1,11 +1,13 @@
-// Intent's CI status tab journeys (./intent-ci-status.spec.ts,
-// ./intent-ci-status-reads.spec.ts): a published project whose trunk the
-// launch's base-CI rule judges (../server/baseCiJudgment.ts) from served CI
-// answers, the tab and its panel, and the judgment's observed GitHub calls.
+// Intent's CI status homepage journeys (./intent-ci-status.spec.ts,
+// ./intent-ci-status-reads.spec.ts, ./intent-ci-status-homepage.spec.ts): a
+// published project whose trunk the launch's base-CI rule judges
+// (../server/baseCiJudgment.ts) from served CI answers, the homepage region
+// in Intent's empty-selection reading, and the judgment's observed GitHub
+// calls.
 
 import { expect } from "./dashboardTest.ts";
 import { filesOf, type Project } from "./catalogProjectRecords.ts";
-import { intentModeTab } from "./intentPerspectivePage.ts";
+import { intentModeTab } from "./intentModePage.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
 import {
@@ -65,15 +67,28 @@ export function publishProject(
   });
 }
 
+// CI status as Intent's homepage region (empty selection / beside location
+// explanations).
 export function ciPanel(intent: Locator) {
-  return intent.getByRole("tabpanel", { name: "CI status", exact: true });
+  return intent.getByRole("region", { name: "CI status", exact: true });
 }
 
+// Ensure Intent mode so the empty-selection homepage (or explanation+status)
+// shows CI status; returns that region.
 export async function chooseCiStatus(intent: Locator) {
-  const tab = intentModeTab(intent, "CI status");
-  await tab.click();
+  const tab = intentModeTab(intent, "Intent");
+  if ((await tab.getAttribute("aria-selected")) !== "true") {
+    await tab.click();
+  }
   await expect(tab).toHaveAttribute("aria-selected", "true");
-  return ciPanel(intent);
+  const panel = ciPanel(intent);
+  await expect(panel).toBeVisible();
+  return panel;
+}
+
+export async function returnToCiStatus(intent: Locator) {
+  await intent.getByRole("button", { name: "Return to CI status" }).click();
+  return chooseCiStatus(intent);
 }
 
 // The judgment's GitHub calls among those observed: Actions calls and the

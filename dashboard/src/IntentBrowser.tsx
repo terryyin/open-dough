@@ -4,36 +4,33 @@
 // `./IntentPerspective.tsx`, kept per project by `./pageIntentMode.tsx`); Intent
 // shows the locations. Locations (book icon) and folders (folder icon) share
 // toggle (expansion only) and name (select; toggle once selected) controls; a
-// toggle never changes selection or the reading pane. A file, or nothing
-// selected yet, shows Purpose and Proof as tabs or side by side
-// (`./IntentFileReading.tsx`), one reader layout this browser keeps
-// (`./keptPreference.ts`); a location or folder name shows a Summary
-// (`./IntentSummary.tsx`), whose child names and slowest rows open
-// their target as the record's links do (`./IntentCandidatesRecord.tsx`). A
-// failed file read keeps its own explanation and retry; a failed proof read's
-// retry reads the locations again without changing the selection. Selection is
-// owned by the Intent workspace (`./intentWorkspaceSelection.ts`). With a
-// selected story's comparison, the trees follow it (`./useIntentStoryTree.ts`)
-// under the story's summary heading the locations (`./IntentStorySummary.tsx`).
-// A file the published revision does not list is never read. The browser unmounts
-// with Intent, so a story selected while Intent is hidden applies when it
-// opens, with the toggle off.
+// toggle never changes selection or the reading pane. Nothing selected shows
+// CI status as Intent's homepage; a file shows Purpose and Proof; a location
+// or folder name shows a Summary — all in `./IntentSelectionReading.tsx`, whose
+// return-home control clears the selection back to CI status. A failed file
+// read keeps its own explanation and retry; a failed proof read's retry reads
+// the locations again without changing the selection. Selection is owned by
+// the Intent workspace (`./intentWorkspaceSelection.ts`). With a selected
+// story's comparison, the trees follow it (`./useIntentStoryTree.ts`) under
+// the story's summary heading the locations (`./IntentStorySummary.tsx`). A
+// file the published revision does not list is never read. The browser
+// unmounts with Intent, so a story selected while Intent is hidden applies
+// when it opens, with the toggle off.
 
 import { useId, useRef, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import {
-  IntentFileReading,
   type IntentReadingLayout,
   type IntentReadingTab,
 } from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
+import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import { keptChoice } from "./keptPreference.ts";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
-import { IntentSummary } from "./IntentSummary.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
-import { filesOfSelection, owningLocation } from "./intentSelectionCoverage.ts";
+import { owningLocation } from "./intentSelectionCoverage.ts";
 import {
   selectionScope,
   useIntentWorkspaceSelection,
@@ -41,6 +38,7 @@ import {
 } from "./intentWorkspaceSelection.ts";
 import { overlayFilesByPath } from "./intentStoryOverlay.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import type { PublishedWork } from "./publishedWork.ts";
 import { useIntentFileRead } from "./useIntentFileRead.ts";
 import { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useLocationOpenFolders.ts";
@@ -61,6 +59,8 @@ const keptLayout = keptChoice<IntentReadingLayout>(
 
 export function IntentBrowser({
   source,
+  work,
+  selectedIdentity,
   revision,
   locations,
   proofRereading,
@@ -72,6 +72,8 @@ export function IntentBrowser({
   story,
 }: {
   readonly source: PublishedSource;
+  readonly work: PublishedWork;
+  readonly selectedIdentity: string | undefined;
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
   // The selected story as the summary heading the locations names it, and
@@ -196,45 +198,35 @@ export function IntentBrowser({
           })}
         </div>
         <div className="intent-reading" tabIndex={-1} ref={readingArea}>
-          {(scope === "location" || scope === "folder") &&
-          selectedLocation !== undefined ? (
-            <IntentSummary
-              key={`${source.id}:${revision}:${selectedPath}`}
-              path={selectedPath}
-              files={filesOfSelection(selectedLocation, selection)}
-              location={selectedLocation}
-              source={source}
-              revision={revision}
-              proofRereading={proofRereading}
-              onProofRetry={onProofRetry}
-              onOpen={openRevealed}
-            />
-          ) : null}
-          {scope === "file" || scope === "none" ? (
-            <IntentFileReading
-              key={revealedOpens}
-              tab={readingTab}
-              onChooseTab={setReadingTab}
-              layout={readingLayout}
-              onChooseLayout={(next) => {
-                setReadingLayout(next);
-                keptLayout.choose(next);
-              }}
-              idPrefix={readingIdPrefix}
-              readingArea={readingArea}
-              path={selectedPath}
-              revision={revision}
-              read={fileRead.read}
-              kind={selectedLanguage}
-              caseTarget={selection.caseTarget}
-              location={selectedLocation}
-              treeFile={selectedFile}
-              story={story}
-              proofRereading={proofRereading}
-              onFileRetry={fileRead.retry}
-              onProofRetry={onProofRetry}
-            />
-          ) : null}
+          <IntentSelectionReading
+            source={source}
+            work={work}
+            selectedIdentity={selectedIdentity}
+            revision={revision}
+            selection={selection}
+            selectedLocation={selectedLocation}
+            selectedFile={selectedFile}
+            selectedLanguage={selectedLanguage}
+            story={story}
+            read={fileRead.read}
+            onFileRetry={fileRead.retry}
+            proofRereading={proofRereading}
+            onProofRetry={onProofRetry}
+            onOpen={openRevealed}
+            onClearSelection={() => {
+              setSelection({ path: "" });
+            }}
+            readingTab={readingTab}
+            onChooseTab={setReadingTab}
+            readingLayout={readingLayout}
+            onChooseLayout={(next) => {
+              setReadingLayout(next);
+              keptLayout.choose(next);
+            }}
+            readingIdPrefix={readingIdPrefix}
+            readingArea={readingArea}
+            readingKey={revealedOpens}
+          />
         </div>
       </div>
       <IntentCandidatesPanel

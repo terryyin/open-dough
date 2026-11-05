@@ -1,6 +1,6 @@
 // Shared wording of a selected-check judgment (`../server/baseCiJudgment.ts`)
 // for the launch dialog's base-CI confirmation (`./LaunchBaseCi.tsx`) and
-// Intent's CI status tab (`./IntentCiJudgment.tsx`): state names, the judged
+// Intent's CI status homepage (`./IntentCiJudgment.tsx`): state names, the judged
 // revision's short SHA, how many later commits have no result of their own,
 // and a running judgment's nearest completed ancestor.
 

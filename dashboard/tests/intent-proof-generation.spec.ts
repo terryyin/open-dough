@@ -6,12 +6,12 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
-  chooseReadingTab,
   expandIntentFolders,
   expandIntentGroup,
   intentFolderName,
   intentLocationName,
 } from "./intentPerspectivePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import {
   featuresPath,
   publishIntentProject,

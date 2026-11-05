@@ -9,10 +9,8 @@
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { authenticatedReadRoute } from "./holdAuthenticatedReads.ts";
-import {
-  chooseReadingTab,
-  intentLocationName,
-} from "./intentPerspectivePage.ts";
+import { intentLocationName } from "./intentPerspectivePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { publishIntentProject, pygardon } from "./intentCodeBrowseFixtures.ts";
 import {

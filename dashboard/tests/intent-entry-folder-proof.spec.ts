@@ -6,11 +6,11 @@ import type { CucumberObservation } from "../src/cucumberProof.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
-  chooseReadingTab,
   expandIntentFolders,
   expandIntentGroup,
   intentFolderName,
 } from "./intentPerspectivePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import {
   featuresPath,
   proofRunPath,

@@ -44,12 +44,12 @@ import {
 import { kindStyles, nameStyle } from "./support/changeKindStyle.ts";
 import { changed } from "./support/intentStoryWorktree.ts";
 import {
-  chooseReadingTab,
   intentGroupToggle,
   intentLocationHeader,
   intentLocationName,
   locationHeaderLook,
 } from "./intentPerspectivePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 
 test.setTimeout(120_000);
 

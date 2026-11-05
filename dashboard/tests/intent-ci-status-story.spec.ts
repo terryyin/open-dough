@@ -54,10 +54,10 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     await expect(panel.locator(".intent-ci-state")).toHaveText(
       "Failed at fa11ed0 (Break the login)",
     );
-    // CI status names the story itself; the Intent mode's summary is absent.
+    // CI status is Intent's homepage, so the Intent mode's story summary stays.
     await expect(
       intent.getByRole("region", { name: "Selected story", exact: true }),
-    ).toHaveCount(0);
+    ).toBeVisible();
     await expect(panel.getByRole("link", { name: failedRun })).toBeVisible();
     await expect(panel).not.toContainText("run on");
     await expectChecked(panel);
@@ -120,7 +120,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
   });
 
   await test.step("a running head shows its nearest completed ancestor, on main; Check again after it finishes shows Passed", async () => {
-    const panel = parts(page).intent.getByRole("tabpanel", {
+    const panel = parts(page).intent.getByRole("region", {
       name: "CI status",
       exact: true,
     });

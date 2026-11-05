@@ -12,13 +12,13 @@ import { expect, test } from "./dashboardTest.ts";
 import { parts, shortRevision } from "./dashboardPage.ts";
 import { watchPageErrors } from "./pageErrors.ts";
 import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
+import { expandIntentGroup } from "./intentPerspectivePage.ts";
 import {
   chooseReadingTab,
-  expandIntentGroup,
   expectSideBySide,
   readingTab,
   sideBySideToggle,
-} from "./intentPerspectivePage.ts";
+} from "./intentFileReadingPage.ts";
 import {
   doughnut,
   publishIntentProject,

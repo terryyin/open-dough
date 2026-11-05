@@ -1,25 +1,25 @@
-// Intent's CI status tab (`./IntentModeTabs.tsx`): the selected check's
-// judgment of the branch `./intentCiTarget.ts` names (the project's trunk, or
-// the selected story's published story branch) through
-// `./authenticatedIntentCiStatusRead.ts`, across the content area without
-// the location tree. It always names the branch and when it was checked,
-// and shows the judgment as `./IntentCiJudgment.tsx` does, then the shown
-// run's CI proof as `./IntentCiProof.tsx` reads it. A selected story
-// without a branch to judge is named with why, and nothing is judged. It is
-// read each time it is shown, when the judged branch changes, again when the
-// page's revision check finds the judged branch at a new head while it is
-// shown (the head `./intentCiTarget.ts` gives the judged branch), and on
-// Check again; a re-read of the same branch keeps the shown judgment until
-// its answer replaces it, and a judgment of another branch is never shown.
-// Nothing is read on time alone.
+// Intent's CI status homepage (`./IntentPerspective.tsx`,
+// `./IntentBrowser.tsx`): the selected check's judgment of the branch
+// `./intentCiTarget.ts` names (the project's trunk, or the selected story's
+// published story branch) through `./authenticatedIntentCiStatusRead.ts`,
+// filling the Intent reading pane when nothing is selected and shown beside
+// Intent's location explanations when locations are absent or unreadable. It
+// always names the branch and when it was checked, and shows the judgment as
+// `./IntentCiJudgment.tsx` does, then the shown run's CI proof as
+// `./IntentCiProof.tsx` reads it. A selected story without a branch to judge
+// is named with why, and nothing is judged. It is read each time it is
+// shown, when the judged branch changes, again when the page's revision
+// check finds the judged branch at a new head while it is shown (the head
+// `./intentCiTarget.ts` gives the judged branch), and on Check again; a
+// re-read of the same branch keeps the shown judgment until its answer
+// replaces it, and a judgment of another branch is never shown. Nothing is
+// read on time alone.
 
 import { useEffect, useState } from "react";
 import {
   readIntentCiStatus,
   type IntentCiStatus as Judgment,
 } from "./authenticatedIntentCiStatusRead.ts";
-import type { IntentMode } from "./IntentModeTabs.tsx";
-import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { ciTargetOf, type CiTarget } from "./intentCiTarget.ts";
 import { IntentCiProof } from "./IntentCiProof.tsx";
 import { ShownJudgment } from "./IntentCiJudgment.tsx";
@@ -168,39 +168,5 @@ export function IntentCiStatus({
       story={target.story}
       head={target.head}
     />
-  );
-}
-
-// The CI status tab's panel, read only while that tab is chosen.
-export function IntentCiStatusPanel({
-  source,
-  work,
-  selectedIdentity,
-  mode,
-  modeIdPrefix,
-}: {
-  readonly source: PublishedSource;
-  readonly work: PublishedWork | undefined;
-  readonly selectedIdentity: string | undefined;
-  readonly mode: IntentMode;
-  readonly modeIdPrefix: string;
-}) {
-  return (
-    <div
-      className="intent-ci-status-panel"
-      role="tabpanel"
-      id={intentTabPanelId(modeIdPrefix, "ci-status")}
-      aria-labelledby={intentTabId(modeIdPrefix, "ci-status")}
-      hidden={mode !== "ci-status"}
-      tabIndex={-1}
-    >
-      {mode === "ci-status" ? (
-        <IntentCiStatus
-          source={source}
-          work={work}
-          selectedIdentity={selectedIdentity}
-        />
-      ) : null}
-    </div>
   );
 }

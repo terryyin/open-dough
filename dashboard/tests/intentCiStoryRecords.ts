@@ -16,7 +16,7 @@ import {
   running,
   storyBoardFiles,
 } from "./intentCiStoryBoard.ts";
-import { expectIntentModeChosen } from "./intentPerspectivePage.ts";
+import { expectIntentModeChosen } from "./intentModePage.ts";
 import { notFoundAnswer, type OriginAnswer } from "./originAnswers.ts";
 import { publishMovingFiles, type MovingFiles } from "./publishedFiles.ts";
 import {
@@ -187,7 +187,7 @@ export function card(page: Page, title: string): Locator {
 }
 
 // Toggles the selection of `title`'s card on Development by its empty area,
-// then returns to Intent, where CI status is still chosen.
+// then returns to Intent, where CI status is the empty-selection homepage.
 export async function toggleOnDevelopment(
   page: Page,
   title: string,
@@ -196,8 +196,10 @@ export async function toggleOnDevelopment(
   await development.click();
   await card(page, title).locator("h3").first().click();
   await intentChoice.click();
-  await expectIntentModeChosen(intent, "CI status");
-  return ciPanel(intent);
+  await expectIntentModeChosen(intent, "Intent");
+  const panel = ciPanel(intent);
+  await expect(panel).toBeVisible();
+  return panel;
 }
 
 export async function expectNamed(panel: Locator, branch: string) {
