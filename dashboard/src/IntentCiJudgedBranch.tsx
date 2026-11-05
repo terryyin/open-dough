@@ -78,7 +78,8 @@ export function JudgedBranch({
     setRefreshFailed(undefined);
     if (
       judgmentRef.current !== undefined &&
-      judgmentRef.current.branch === branch
+      judgmentRef.current.branch === branch &&
+      judgmentRef.current.state !== "unread"
     ) {
       setPreviouslyRetrieved(true);
     }

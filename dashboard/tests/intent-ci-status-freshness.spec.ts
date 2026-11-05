@@ -161,10 +161,15 @@ test("a late trunk answer never appears after switching to a story branch that h
   const ci = publishStoryCi(page);
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
-  await chooseCiStatus(intent);
-  await expectNamed(await chooseCiStatus(intent), "main");
+  let panel = await chooseCiStatus(intent);
+  await expectNamed(panel, "main");
+  // Settle trunk so this process keeps a Passed answer before any story warm.
+  await expect(panel.locator(".intent-ci-state")).toHaveText(
+    "Passed at 4774f60 (Add login)",
+  );
+  await expectChecked(panel);
   // Warm the failing story's kept answer.
-  let panel = await toggleOnDevelopment(page, failing.title);
+  panel = await toggleOnDevelopment(page, failing.title);
   await expectNamed(panel, failing.branch);
   await expect(panel.locator(".intent-ci-state")).toHaveText(
     "Failed at fa11ed0 (Break the login)",
@@ -172,9 +177,14 @@ test("a late trunk answer never appears after switching to a story branch that h
   await expectChecked(panel);
 
   await test.step("hold trunk refresh, switch to the story: only the story's kept and fresh appear", async () => {
-    // Clear selection → main homepage, then hold trunk's next history listing.
+    // Clear selection → main homepage; wait for the remount's fresh keep before
+    // holding the next history listing (a hold mid-remount would hang Check again).
     panel = await toggleOnDevelopment(page, failing.title);
     await expectNamed(panel, "main");
+    await expect(panel.locator(".intent-ci-state")).toHaveText(
+      "Passed at 4774f60 (Add login)",
+    );
+    await expectChecked(panel);
     const late = ci.hold("main");
     await panel.getByRole("button", { name: "Check again" }).click();
     await expect(panel.getByRole("status")).toContainText(
