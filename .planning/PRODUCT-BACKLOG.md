@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Remove local proof from Open Dough](seeds/SEED-238-remove-local-proof.md#remove-local-proof) — SEED-238#remove-local-proof ([plan](slice-plans/474-remove-local-proof/PLAN.md))
+- [Show CI status and timing on the Intent homepage](seeds/SEED-239-intent-home-ci-status.md#show-ci-status-on-intent-home) — SEED-239#show-ci-status-on-intent-home ([plan](slice-plans/476-show-ci-status-on-intent-home/PLAN.md))
 
 ## Backlog list
 
-- [Show CI status and timing on the Intent homepage](seeds/SEED-239-intent-home-ci-status.md#show-ci-status-on-intent-home) — SEED-239#show-ci-status-on-intent-home
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
 - [Consolidate proof recording guidance](seeds/SEED-233-consolidate-proof-recording-guidance.md#consolidate-proof-recording-guidance) — SEED-233#consolidate-proof-recording-guidance
