@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Read Node script-test proof](seeds/SEED-192-review-product-intent.md#read-node-test-proof) — SEED-192#read-node-test-proof ([plan](slice-plans/467-read-node-test-proof/PLAN.md))
 - [Show the CI proof of a CI-adapter attempt](seeds/SEED-236-show-ci-adapter-proof.md#show-ci-adapter-proof) — SEED-236#show-ci-adapter-proof ([plan](slice-plans/470-show-ci-adapter-proof/PLAN.md))
 
 ## Backlog list

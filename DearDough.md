@@ -650,8 +650,8 @@ Acceptance recorded an ordering commitment `observed:` at real data whose order 
   - Observed effect: an amended promise accepted without reader behavior or proof; one correction story and plan written by the retrospective.
   - Inference: when a promise changes after the product was built, acceptance needs a precondition that would fail without the promised behavior (here an unsorted snapshot), not a real run whose upstream already supplies it.
 
-## DD-417 — A subordinate project's publication went unobserved until a human repaired its CI
-An execution that publishes to another project's trunk (a subordinate Doughnut or Pygardon workspace) had CI observation only for its own repository, so a failure on the subordinate publication surfaced only through a later manual check, after the project's owner had already pushed the same repair.
+## DD-417 — A subordinate project's publication went unobserved by the owning execution
+An execution that publishes to another project's trunk (a subordinate Doughnut or Pygardon workspace) had CI observation only for its own repository, so the subordinate publication's CI outcome was not owned by that execution and surfaced only through a later manual or retrospective check.
 
 ### Occurrences
 - Execution: SEED-192#read-vitest-proof (plan 460-read-vitest-proof; first related implementation commit `beadffb0780c952a0d0cacc53755020145abc55a`)
@@ -662,6 +662,13 @@ An execution that publishes to another project's trunk (a subordinate Doughnut o
   - Evidence: the execution's observer (`/tmp/dough-ci-501/watch-l6pc3b`) watched only `terryyin/open-dough`; Doughnut run 41806231388 failed in `pnpm lint:all` ("Unexpected .only modifier", Vitest's CI default under `GITHUB_ACTIONS`); Terry pushed `6e53933393` "Allow the proof reporter's focus fixture to run on CI" at 09:27:24Z; the coordinator found the failure by `gh run list` about 25 minutes after its push, reproduced it, committed the same fix and dropped it as a duplicate when its push met trunk. Pygardon `2a48f97fd` also failed (an unrelated settings race) and was found by a manual adapter `discover`, then repaired in `64a16e0b8`.
   - Observed effect: a human repaired an agent-published CI failure; the agent spent a reproduction and repair on work already done; the Pygardon failure stayed unknown until the agent happened to look.
   - Inference: the subordinate publication route ("commit and push under the project's own rules") carries no CI ownership step for that project's CI, and the recorder's fixture runs were never tried with the CI environment variables set locally.
+- Execution: SEED-192#read-node-test-proof (plan 467-read-node-test-proof; first related implementation commit `bc26ca5f29591e3c8993e9b985ac63dbacb407a6`)
+  - Timestamp: 2026-11-05T05:15:41Z (Doughnut push of `6c5702cf4d8a29538bc7983ae53a26ad5107c360`)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: coordinator transcript `9bd04639-5f5d-4c74-a32d-150a7eacfef4` turns 78–84 push Doughnut then await only Open Dough observer `/tmp/dough-ci-501/watch-wsC3k0` (`terryyin/open-dough`); no `gh run` / Doughnut CI step after the push; this retrospective found Doughnut run 41972920025 `completed`/`success` for that SHA (`pnpm lint:all` green).
+  - Observed effect: subordinate CI happened to pass; the owning execution never observed it and would have missed a failure the same way as the Vitest occurrence.
+  - Inference: recurrence of the missing subordinate-CI ownership step; green CI does not close the gap.
 
 ## DD-418 — A push the remote refused for permission returned `needs-validation` without its reason
 Managed delivery treated GitHub's refusal of a workflow-file push (missing OAuth `workflow` scope) as a rejected push, fetched, reconciled onto the unchanged tip and stopped with `needs-validation`; neither the fresh nor the `deliver --validated-candidate` receipt carried the remote's refusal text, so the retry repeated the same stop.
@@ -727,3 +734,15 @@ The Slice 3 refactor renamed an exported recovery-clock helper after starting th
   - Evidence: launch `b02a9539-0a08-468e-996f-0178426a4472`, `/root/refactor3` handoff explicitly placed the `advanceRecoveryClock` rename after the 24-case cohort launched and before its terminal result. The final proof command selected `intent-read-recovery.spec.ts`, `intent-read-boundary-recovery.spec.ts` and `intent-candidates-read-recovery.spec.ts`.
   - Observed effect: 14 unaffected boundary/state/browse cases retained their proof. Ten recovery cases ran again on the final helper and passed in 12.9 seconds, followed by typecheck. The coordinator accepted only that final proof for those consumers.
   - Inference: completing refactor edits before verification would have avoided this bounded repeat. The agent identified and corrected the proof mismatch before delivery, and published proof covers the final state.
+
+## DD-424 — Required fresh refactor blocked by host agent authentication failure
+A required post-change refactor Task (and `agent` CLI fallback) failed to start with host authentication errors, so slice delivery stopped with uncommitted accepted work until a human restored login and authorized a coordinator-local refactor if spawn still failed.
+
+### Occurrences
+- Execution: SEED-192#read-node-test-proof (plan 467-read-node-test-proof; first related implementation commit `bc26ca5f29591e3c8993e9b985ac63dbacb407a6`)
+  - Timestamp: unknown (2026-11-05, after slice 1 acceptance; developer resume 10:31+07:00; slice 1 published `bc26ca5f2` at 10:37+07:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: coordinator transcript `9bd04639-5f5d-4c74-a32d-150a7eacfef4` turns 34–46: repeated Task refactor spawns and an `agent --print` CLI attempt returned authentication / `agent login` errors; unfinished handoff preserved the worktree; user restored auth and authorized coordinator-local refactor if Task still failed; turn 49 Task then completed `## REFACTOR COMPLETE` (none — already clean) and delivery resumed.
+  - Observed effect: delivery stalled with slice 1 implemented and proof-accepted but unpublished until human credential repair; several failed spawn attempts before the stop; no product rework after restore.
+  - Inference: distinct from ODF-059 (host-terminated mid-run agents): here fresh agents could not start. A credential stop that preserves the checkout is correct; an authorized coordinator-local refactor fallback unblocks delivery when spawn remains unavailable.

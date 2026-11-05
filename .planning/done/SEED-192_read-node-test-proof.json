@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#read-node-test-proof",
+  "title": "Read Node script-test proof",
+  "completedAt": "2026-11-05T06:14:10.319Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "cursor",
+  "model": "auto"
+}

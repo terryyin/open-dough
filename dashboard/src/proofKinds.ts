@@ -94,7 +94,7 @@ const python: ProofKind = {
 };
 
 // Shared inventory and case words for runners that reuse the Vitest-shaped
-// snapshot and row rule (Vitest and Playwright).
+// snapshot and row rule (Vitest, Playwright and node:test).
 const runnerTestWords = {
   cases: testCases,
   inventory: (count: number) => counted(count, "test", "tests"),
@@ -125,6 +125,16 @@ const playwright: ProofKind = {
   },
 };
 
+const nodeTest: ProofKind = {
+  parseFile: parseVitestProofFile,
+  rowsOf: vitestRowsOf,
+  words: {
+    ...runnerTestWords,
+    reference: "dough-test-optimization/references/node-test-proof.md",
+    family: "Node test files",
+  },
+};
+
 // Proof kinds a location kind implies.
 const proofKinds: Readonly<Record<string, ProofKind>> = { gherkin, python };
 
@@ -137,6 +147,7 @@ const runnerSelectedKinds: ReadonlySet<string> = new Set([
 const runnerProofKinds: Readonly<Record<string, ProofKind>> = {
   vitest,
   playwright,
+  "node:test": nodeTest,
 };
 
 // The runners a `typescript` or `javascript` location may declare.

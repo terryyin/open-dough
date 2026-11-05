@@ -25,7 +25,12 @@
       {
         "path": "src/skills",
         "kind": "javascript",
-        "include": ["**/*.test.mjs"]
+        "include": ["**/*.test.mjs"],
+        "runner": "node:test",
+        "proof": "tests/proof",
+        "proofGeneration": {
+          "command": "RECORD_NODE_TEST_PROOF=1 bash scripts/test.sh <files>"
+        }
       }
     ]
   }

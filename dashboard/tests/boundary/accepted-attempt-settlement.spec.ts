@@ -32,18 +32,20 @@ test("following a live attempt waits past outcome replacement until its writer r
     const {LaunchAttemptOwner} = await vite.ssrLoadModule(${JSON.stringify(ownerModule)});
     const {changedAttempt} = await vite.ssrLoadModule(${JSON.stringify(changesModule)});
     const owner = new LaunchAttemptOwner();
-    const original = promises.rmdir;
+    // Lock release uses rm (the directory holds an owner pid file); hold that
+    // path so followers see the replaced outcome before the writer unlocks.
+    const original = promises.rm;
     let release;
     const held = new Promise(resolve => { release = resolve; });
-    promises.rmdir = async lock => {
-      if (String(lock).endsWith('/launch-attempts.json.lock')) {
-        const kept = JSON.parse(readFileSync(String(lock).slice(0, -5), 'utf8'));
+    promises.rm = async (target, options) => {
+      if (String(target).endsWith('/launch-attempts.json.lock')) {
+        const kept = JSON.parse(readFileSync(String(target).slice(0, -5), 'utf8'));
         if (kept['open-dough'][0].outcome !== undefined) {
-          process.send({kind: 'replacement', lock});
+          process.send({kind: 'replacement', lock: target});
           await held;
         }
       }
-      return original(lock);
+      return original(target, options);
     };
     syncBuiltinESMExports();
     let firstAnswer;

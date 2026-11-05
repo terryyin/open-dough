@@ -132,7 +132,7 @@ test("Ex 8: a Playwright folder summary uses test words over listed cases", asyn
   await expect(summary).not.toContainText(/scenario|helper defined elsewhere/i);
 });
 
-test("Ex 9: proof without a runner names vitest or playwright", async ({
+test("Ex 9: proof without a runner names vitest or playwright or node:test", async ({
   page,
 }) => {
   const intent = await openProject(page, settingsWithoutRunner, snapshotFiles);
