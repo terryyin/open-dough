@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-236#count-repeated-adapter-attempt-ids",
+  "title": "Count a repeated adapter attempt ID as ambiguous",
+  "completedAt": "2026-11-05T08:12:40.340Z",
+  "developer": "Terry Yin",
+  "agent": "jacked-chan",
+  "host": "cursor",
+  "model": "auto"
+}

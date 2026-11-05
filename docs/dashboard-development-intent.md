@@ -209,8 +209,9 @@ it) and `revision`, each identity at most 256 characters, by asking the
 project's adapter its `proof` operation from the project folder under the
 shared adapter limits (`dashboard/server/ciAdapterProof.ts`); it is used only
 when valid and naming the same repository, `attemptId` as text and full
-revision, and when another discovered attempt shares that `attemptId` and
-revision no adapter is asked. Judgment shows first whether proof is shown,
+revision, and when another attempt the adapter's `discover` answered at that
+revision shares that `attemptId` (counted before newest-per-check retention)
+no adapter is asked. Judgment shows first whether proof is shown,
 checking, or unavailable; then one line says why: for a run, no summary,
 expired, unreadable, invalid, or wrong run/attempt/revision; for an adapter
 attempt, the adapter's own unavailability reason, its failed answer (timeout,

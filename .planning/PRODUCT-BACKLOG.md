@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Count a repeated adapter attempt ID as ambiguous](seeds/SEED-236-show-ci-adapter-proof.md#count-repeated-adapter-attempt-ids) — SEED-236#count-repeated-adapter-attempt-ids ([plan](slice-plans/473-count-repeated-adapter-attempt-ids/PLAN.md))
-
 ## Backlog list
 
 - [Remove local proof from Open Dough](seeds/SEED-238-remove-local-proof.md#remove-local-proof) — SEED-238#remove-local-proof

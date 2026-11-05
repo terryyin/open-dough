@@ -124,14 +124,29 @@ export async function judgeCommandAdapter(
       ended.abort();
       throw error;
     }
-    return (
-      (await acquisition.discoverAncestorCandidates()) as DiscoveredAttempt[]
-    ).map((run) => ({ ...run, branch: discoveredBranch }));
+    const withBranch = (run: DiscoveredAttempt) => ({
+      ...run,
+      branch: discoveredBranch,
+    });
+    return {
+      retained: (
+        (await acquisition.discoverAncestorCandidates()) as DiscoveredAttempt[]
+      ).map(withBranch),
+      answered: (
+        (await acquisition.discoverAnsweredAttempts()) as DiscoveredAttempt[]
+      ).map(withBranch),
+    };
   };
   try {
     const branches = branch === source.ref ? [branch] : [source.ref, branch];
     const listed = await Promise.all(branches.map(discovered));
-    return judgeNearest(commits, asAdapterAttempts(listed.flat()));
+    return judgeNearest(
+      commits,
+      asAdapterAttempts(
+        listed.flatMap(({ retained }) => retained),
+        listed.flatMap(({ answered }) => answered),
+      ),
+    );
   } catch (error) {
     return unread(
       error instanceof Error

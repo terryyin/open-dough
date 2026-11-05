@@ -314,7 +314,7 @@ new one. A pruned or expired summary is answered as unavailable.
 ### Answer the adapter's proof request
 
 Implement the adapter's `proof` operation as its
-[CI proof reads](../../dough-execute-plan/manuals/custom-ci.md#ci-proof-reads)
+[CI proof reads](../../dough-execute-plan/manuals/custom-ci-proof.md)
 contract describes, reading the attempt's retained summary. Before answering
 it, check it: `summaryProblems` from the copied `ci-proof-summary.mjs` is
 empty, and its `attemptId` and `revision` equal the attempt record's.
