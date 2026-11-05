@@ -286,3 +286,14 @@ have a surviving consumer, and the lockfile is unchanged by this story; every
 Reported: slice 1 — "children now show a file count per folder and only a name for files"
 Story clause: "everything that exists only to produce, consume, test or explain it"
 Disposition: no user cost "everything that exists only to produce, consume, test or explain it": the per-child scenario/test counts were parsed through `proofKinds.rowsOf` and the runner case parsers, which only proof kinds import (plan "Direction and PFE"); the summary keeps path, file counts, location explanation and child drill-down, and Purpose still opens each file's source (`intent-summary-drill-down.spec.ts` 16.1/16.2, 121 Intent specs passing in slice 1).
+
+## Execution complete
+
+Product advice:
+- Publish a release after this story lands and update installed projects:
+  this repository's own `.agents/skills/` and `.claude/skills/` still carry
+  the five runner proof pages until a released update retires them.
+- SEED-192 stories `assess-story-intent-protection` and
+  `assess-story-test-complexity` read "changed since readiness review" after
+  their seed's local-proof prose was dropped; re-review readiness before
+  starting them.
