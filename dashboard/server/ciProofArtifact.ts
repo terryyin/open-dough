@@ -179,14 +179,13 @@ export async function readCiProofArtifact(
   signal: AbortSignal,
 ): Promise<CiProof> {
   const key = rememberedKey(repository, run);
-  let valid = remembered.get(key);
-  if (valid === undefined) {
-    const read = await readSummary(repository, run, signal);
-    if (read.kind !== "summary") return read;
-    valid = read.summary;
-    remembered.set(key, valid);
-  }
-  const mismatch = mismatchOf(valid, repository, run);
+  const rememberedSummary = remembered.get(key);
+  if (rememberedSummary !== undefined)
+    return { kind: "summary", summary: rememberedSummary } as CiProof;
+  const read = await readSummary(repository, run, signal);
+  if (read.kind !== "summary") return read;
+  const mismatch = mismatchOf(read.summary, repository, run);
   if (mismatch !== undefined) return unavailable("mismatched", mismatch);
-  return { kind: "summary", summary: valid } as CiProof;
+  remembered.set(key, read.summary);
+  return read;
 }

@@ -97,12 +97,16 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     const { development, intentChoice } = parts(page);
     await development.click();
     await intentChoice.click();
+    // Kept answer shows the proof at once; wait for the fresh judgment so
+    // the re-read's actions-runs are counted before asserting.
     await expect(proof.getByRole("listitem")).toHaveText([
       "tests: 5 passed checks; test execution time not recorded: this summary has no test execution durations; 1 of 1 part present.",
     ]);
     await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
       "Attempt 2 of run 12 at d4e5f6a.",
     );
+    await expect(panel.locator(".intent-ci-checking")).toHaveCount(0);
+    await expect(panel.getByRole("status")).toContainText("Checked at");
     expect(
       calls.filter(({ request }) => request.kind === "actions-runs").length,
     ).toBeGreaterThan(judgedBefore);

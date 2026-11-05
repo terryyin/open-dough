@@ -99,39 +99,38 @@ export async function readCiAdapterProof(
   timeoutMs: number = defaultAdapterTimeoutMs,
 ): Promise<CiProof> {
   const key = rememberedKey(repository, attempt);
-  let valid = remembered.get(key);
-  if (valid === undefined) {
-    let answer: { summary?: Record<string, unknown>; unavailable?: string };
-    try {
-      const { adapter } = ciConfiguration(folder);
-      if (adapter === undefined)
-        return unavailable(
-          "unreadable",
-          "this project's CI is not read through a ciAdapter",
-        );
-      answer = await readCommandProof(
-        adapter,
-        { repo: repository, branch: attempt.branch },
-        {
-          runId: attempt.runId,
-          attemptId: attempt.attemptId,
-          sha: attempt.revision,
-        },
-        { signal, cwd: folder, timeoutMs },
+  const rememberedSummary = remembered.get(key);
+  if (rememberedSummary !== undefined)
+    return { kind: "summary", summary: rememberedSummary } as CiProof;
+  let answer: { summary?: Record<string, unknown>; unavailable?: string };
+  try {
+    const { adapter } = ciConfiguration(folder);
+    if (adapter === undefined)
+      return unavailable(
+        "unreadable",
+        "this project's CI is not read through a ciAdapter",
       );
-    } catch (error) {
-      if (signal.aborted) throw error;
-      return unavailable("unreadable", failureOf(error, timeoutMs));
-    }
-    const { summary } = answer;
-    if (summary === undefined)
-      return unavailable("none", answer.unavailable ?? "");
-    const problems = summaryProblems(summary) as readonly string[];
-    if (problems.length > 0) return unavailable("invalid", problems.join("; "));
-    valid = summary;
-    remembered.set(key, valid);
+    answer = await readCommandProof(
+      adapter,
+      { repo: repository, branch: attempt.branch },
+      {
+        runId: attempt.runId,
+        attemptId: attempt.attemptId,
+        sha: attempt.revision,
+      },
+      { signal, cwd: folder, timeoutMs },
+    );
+  } catch (error) {
+    if (signal.aborted) throw error;
+    return unavailable("unreadable", failureOf(error, timeoutMs));
   }
-  const mismatch = mismatchOf(valid, repository, attempt);
+  const { summary } = answer;
+  if (summary === undefined)
+    return unavailable("none", answer.unavailable ?? "");
+  const problems = summaryProblems(summary) as readonly string[];
+  if (problems.length > 0) return unavailable("invalid", problems.join("; "));
+  const mismatch = mismatchOf(summary, repository, attempt);
   if (mismatch !== undefined) return unavailable("mismatched", mismatch);
-  return { kind: "summary", summary: valid } as CiProof;
+  remembered.set(key, summary);
+  return { kind: "summary", summary } as CiProof;
 }
