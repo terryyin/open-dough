@@ -256,6 +256,18 @@ mechanical change stays within the independent review's trace.
 `PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- boundary/session-attachment-boundary.spec.ts --reporter=list`
 passed all four cases in 4.8s.
 
+Guarded delivery passed formatting, lint and typecheck. It published
+`d762f1bca746e05e22175247a4e47925d2c8438e` over the desktop CI repair and
+registered the accepted revision with the story-branch observer.
+
+The full local gate requested admission at 03:23:43 UTC on the AC-powered
+16-core Mac with Bash 5.3.20. It runs the unfiltered dashboard suite with four
+workers under the macOS guard. At launch the machine had 52% idle CPU and
+about 3.9 GB unused with another worktree's full suite and a focused run
+active. The maintained admission serializes full suites, so the runs do not
+share their worker load. Reconsider if the workload changes or the run
+reports resource pressure.
+
 ## Current decisions
 
 - One `paste` offer for both text and the image path, so the terminal's
@@ -275,3 +287,24 @@ each, text before image so the toolbar key, attachment offer and feedback
 exist before the store; the shared helper extraction is slice 2's own
 cleanup, not hidden preparation. This review identified no remaining
 slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. The delivered phone paste uses the existing
+terminal input and launch image contracts. The browser journeys retain
+integrated proof of the tap, clipboard handling and terminal input. The
+HTTP boundary owns the refusal and storage variants. No new queue work is
+supported by the outcome.
+
+The review covered `c039115b5c8253a3ec3530cb7548b354fde750a0` for text,
+`6ab56f9d621e710598a4c50ba5bfaa94b6d33fd3` for the desktop test repair,
+and `d762f1bca746e05e22175247a4e47925d2c8438e` for images. The Take and
+preparation establish provenance. No unrelated trunk work is attributed.
+ADR 0008 governs machine-local files and loopback admission, and ADR 0001
+governs the session and terminal vocabulary. The process review found no
+unsettled finding after the Git fixture isolation and desktop test repairs.
+
+The repair-only run 41960710815 was superseded by the image publication
+under the same branch's concurrency group. Its recorded job conclusions
+were success or cancelled. Completion follows the image revision. The
+guarded full dashboard suite is in progress as the pre-landing gate.
