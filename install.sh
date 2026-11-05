@@ -132,6 +132,7 @@ managed_files=(
   dough-execute-plan/assets/claude-hooks.json
   dough-execute-plan/assets/cursor-hooks.json
   dough-execute-plan/manuals/custom-ci.md
+  dough-execute-plan/manuals/custom-ci-proof.md
   dough-execute-plan/manuals/custom-reuse-ci.md
   dough-execute-plan/manuals/reuse-ci.md
   dough-execute-plan/manuals/custom-ci-queue.md

@@ -103,5 +103,6 @@ attempt ambiguous with no counts and no adapter `proof` request; ambiguity
 counts discover-answered attempts before newest-per-check retention; docs
 state the rule as built; preserved newest-per-check verdict and GitHub Actions
 path. Process review found no supported new finding (interrupted-refactor
-recovery followed existing guidance). CI for `d9f48a59` was still pending at
-review time.
+recovery followed existing guidance). CI for `d9f48a59` failed
+`tests/payload-declaration-links.sh` (undeclared `custom-ci-proof.md`); repaired
+by declaring it in `install.sh` `managed_files`.
