@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "aki-chan",
+  "email": "aki-chan@example.org",
+  "identity": "SEED-240#show-freshness-loss-across-stream-retries",
+  "mode": "story-branch",
+  "branch": "cursor/show-lost-freshness-across-repeated-revision-str",
+  "host": "cursor",
+  "model": "auto"
+}
