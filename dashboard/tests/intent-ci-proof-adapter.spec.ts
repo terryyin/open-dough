@@ -3,108 +3,35 @@
 // adapter, run from the project folder as its discover is, is asked for the
 // proof of the attempt the judgment shows, and its summary is shown below the
 // unchanged verdict, naming the attempt by its attemptId and short revision.
-// A running result's proof is its completed ancestor attempt's. GitHub is
-// asked for no proof. A GitHub Actions run's proof:
-// ./intent-ci-proof.spec.ts.
+// A running result's proof is its completed ancestor attempt's, and a slow
+// proof read never delays the verdict. GitHub is asked for no proof. Why an
+// adapter attempt shows no proof: ./intent-ci-proof-adapter-reasons.spec.ts;
+// a GitHub Actions run's proof: ./intent-ci-proof.spec.ts; the runner's own
+// limits:
+// ../../src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs.
 
-import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import { expect, test } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
-import { chooseCiStatus } from "./intentCiStatusPage.ts";
+import {
+  adapterProject,
+  openAdapterProof,
+  passed,
+  testsRow,
+  testsSummary,
+  uuid,
+  verdict,
+} from "./intentCiAdapterProofProject.ts";
 import { proofOf } from "./intentCiProofPage.ts";
 import { running } from "./intentCiStoryBoard.ts";
 import {
   login,
   mainRun,
-  publishStoryCi,
   repository,
   signup,
   started,
   toggleOnDevelopment,
 } from "./intentCiStoryRecords.ts";
-import { openUntilRead } from "./pageRequestNotes.ts";
-import { counts, proofSummary } from "./support/ciProofArtifacts.ts";
 
 test.setTimeout(90_000);
-
-const uuid = "9f1c2d3e-0000-4000-8000-000000000001";
-
-type Answers = {
-  // Each discover's attempts, by the asked branch.
-  readonly discover: Readonly<Record<string, readonly unknown[]>>;
-  // The answer to every proof read.
-  readonly proof: unknown;
-};
-
-// A ciAdapter project folder in the test home whose adapter records each
-// request it is asked, relative to the folder it runs in, and answers from
-// `answer`.
-function adapterProject(home: string) {
-  const project = path.join(home, "git", "open-dough");
-  const adapter = "scripts/ci-proof-fixture-adapter.mjs";
-  mkdirSync(path.join(project, "scripts"), { recursive: true });
-  mkdirSync(path.join(project, ".planning"), { recursive: true });
-  writeFileSync(
-    path.join(project, adapter),
-    `import { appendFileSync, readFileSync } from "node:fs";
-let input = "";
-for await (const chunk of process.stdin) input += chunk;
-const request = JSON.parse(input);
-appendFileSync("adapter-requests.jsonl", JSON.stringify(request) + "\\n");
-const answers = JSON.parse(readFileSync("adapter-answers.json", "utf8"));
-process.stdout.write(JSON.stringify(
-  request.operation === "proof"
-    ? answers.proof
-    : { attempts: answers.discover[request.check.branch] ?? [] },
-));
-`,
-  );
-  writeFileSync(
-    path.join(project, ".planning", "open-dough.json"),
-    `${JSON.stringify({ ciAdapter: [process.execPath, adapter] })}\n`,
-  );
-  const requestsFile = path.join(project, "adapter-requests.jsonl");
-  writeFileSync(requestsFile, "");
-  return {
-    answer(answers: Answers) {
-      writeFileSync(
-        path.join(project, "adapter-answers.json"),
-        JSON.stringify(answers),
-      );
-    },
-    proofRequests(): unknown[] {
-      return readFileSync(requestsFile, "utf8")
-        .split("\n")
-        .filter((line) => line !== "")
-        .map((line) => JSON.parse(line) as { operation: string })
-        .filter(({ operation }) => operation === "proof");
-    },
-  };
-}
-
-const passed = (
-  runId: string | number,
-  attemptId: string | number,
-  sha: string,
-  branch: string,
-) => ({
-  runId,
-  attemptId,
-  sha,
-  outcome: "success",
-  url: mainRun,
-  time: "2026-10-01T00:00:00Z",
-  branch,
-});
-
-const testsSummary = (attemptId: string, revision: string) => ({
-  summary: proofSummary(
-    { repository, attemptId, revision },
-    [["tests", 1]],
-    [["tests", 1, 1, "tests", counts(1000, 0, 3)]],
-  ),
-});
 
 test("a ciAdapter attempt's proof is read through the project's adapter and shown below its verdict, named by its attemptId", async ({
   page,
@@ -115,15 +42,10 @@ test("a ciAdapter attempt's proof is read through the project's adapter and show
     discover: { main: [passed(uuid, uuid, login, "main")] },
     proof: testsSummary(uuid, login),
   });
-  const ci = publishStoryCi(page);
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const panel = await chooseCiStatus(parts(page).intent);
-  const proof = proofOf(panel);
+  const { ci, panel, proof } = await openAdapterProof(page);
 
   await test.step("the verdict reads as before; Proof names the attempt and shows its row", async () => {
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Passed at 4774f60 (Add login)",
-    );
+    await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
     await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
       `Attempt ${uuid} at 4774f60.`,
     );
@@ -131,9 +53,7 @@ test("a ciAdapter attempt's proof is read through the project's adapter and show
       "href",
       mainRun,
     );
-    await expect(proof.getByRole("listitem")).toHaveText([
-      "tests: 1000 passed and 3 other tests; 1 of 1 part present.",
-    ]);
+    await expect(proof.getByRole("listitem")).toHaveText([testsRow]);
     await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveCount(0);
   });
 
@@ -161,9 +81,7 @@ test("a ciAdapter attempt's proof is read through the project's adapter and show
     await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
       "Attempt 1 at 4774f60.",
     );
-    await expect(proof.getByRole("listitem")).toHaveText([
-      "tests: 1000 passed and 3 other tests; 1 of 1 part present.",
-    ]);
+    await expect(proof.getByRole("listitem")).toHaveText([testsRow]);
     expect(adapter.proofRequests().at(-1)).toEqual({
       operation: "proof",
       check: { repo: repository, branch: "main" },
@@ -195,9 +113,7 @@ test("a running ciAdapter story branch shows its completed ancestor attempt's pr
     },
     proof: testsSummary(ancestor, signup),
   });
-  publishStoryCi(page);
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  await chooseCiStatus(parts(page).intent);
+  await openAdapterProof(page);
   const panel = await toggleOnDevelopment(page, running.title);
   const proof = proofOf(panel);
 
@@ -207,9 +123,7 @@ test("a running ciAdapter story branch shows its completed ancestor attempt's pr
   await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
     `Attempt ${ancestor} at d4e5f6a.`,
   );
-  await expect(proof.getByRole("listitem")).toHaveText([
-    "tests: 1000 passed and 3 other tests; 1 of 1 part present.",
-  ]);
+  await expect(proof.getByRole("listitem")).toHaveText([testsRow]);
   await expect(proof).not.toContainText("70a0001");
   expect(adapter.proofRequests().at(-1)).toEqual({
     operation: "proof",
@@ -221,4 +135,26 @@ test("a running ciAdapter story branch shows its completed ancestor attempt's pr
       attempt: expect.objectContaining({ sha: started }),
     }),
   );
+});
+
+test("a slow adapter proof read never delays the verdict", async ({
+  page,
+  dashboard,
+}) => {
+  const adapter = adapterProject(dashboard.home);
+  adapter.answer({
+    discover: { main: [passed(uuid, uuid, login, "main")] },
+    proof: testsSummary(uuid, login),
+    proofDelayMs: 4_000,
+  });
+  const { panel, proof } = await openAdapterProof(page);
+
+  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+  await expect(proof.locator(".intent-ci-proof-checking")).toHaveText(
+    "Checking the CI proof of this attempt…",
+  );
+  await expect(proof.getByRole("listitem")).toHaveText([testsRow], {
+    timeout: 15_000,
+  });
+  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
 });

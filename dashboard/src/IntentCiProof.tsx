@@ -7,7 +7,9 @@
 // revision -- then one row per declared entry, in the order the project's CI
 // declares them, with the counts, their unit and any gap
 // (`./ciProofWording.ts`); otherwise one line says why there is no proof to
-// show. A running result's proof is its completed ancestor's, the result the
+// show. An adapter attempt whose attemptId another discovered attempt shares
+// at its revision is ambiguous: no proof is read for it. A running result's
+// proof is its completed ancestor's, the result the
 // tab shows beside it. Proof is read again with each judgment the tab reads,
 // so Check again refreshes both.
 
@@ -23,6 +25,9 @@ import {
   type CiProofSubject,
 } from "./ciProof.ts";
 import {
+  adapterReadFailedLine,
+  adapterUnavailableLine,
+  ambiguousAttemptLine,
   entryCountsLine,
   entryGapLines,
   entryPartsLine,
@@ -32,7 +37,12 @@ import {
 } from "./ciProofWording.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
-type Shown = CiProofSubject & { readonly runUrl: string | undefined };
+// The attempt shown, and for a ciAdapter attempt whether another discovered
+// attempt shares its attemptId at its revision.
+type Shown = CiProofSubject & {
+  readonly runUrl: string | undefined;
+  readonly ambiguous?: true;
+};
 
 // The attempt whose result the tab shows: a running result's completed
 // ancestor, otherwise the judged result; undefined when it names neither a
@@ -51,6 +61,9 @@ export function shownRunOf(judgment: Judgment): Shown | undefined {
           branch: shown.runBranch,
           revision: shown.revision,
           runUrl: shown.runUrl,
+          ...(adapterAttempt.ambiguous === true
+            ? { ambiguous: true as const }
+            : {}),
         };
   if (shown.runId === undefined || shown.runAttempt === undefined)
     return undefined;
@@ -62,14 +75,32 @@ export function shownRunOf(judgment: Judgment): Shown | undefined {
   };
 }
 
-function boundaryUnavailable(error: unknown): CiProof {
+// The proof read's answer, or the boundary's own failure to answer it.
+type ProofRead =
+  CiProof | { readonly kind: "unanswered"; readonly detail?: string };
+
+function boundaryUnanswered(error: unknown): ProofRead {
   return {
-    kind: "unavailable",
-    reason: "unreadable",
+    kind: "unanswered",
     ...(error instanceof Error && error.message !== ""
       ? { detail: error.message }
       : {}),
   };
+}
+
+// The one line saying why `proof` shows no counts.
+function unavailableOf(
+  adapter: boolean,
+  proof: Exclude<ProofRead, { kind: "summary" }>,
+): string {
+  if (proof.kind === "unanswered")
+    return adapter
+      ? adapterReadFailedLine(proof.detail)
+      : unavailableLine("unreadable", proof.detail);
+  return (adapter ? adapterUnavailableLine : unavailableLine)(
+    proof.reason,
+    proof.detail,
+  );
 }
 
 function ProofEntry({ entry }: { readonly entry: CiProofEntry }) {
@@ -135,8 +166,9 @@ function ReadProof({
   readonly run: Shown;
 }) {
   // Read once per mount: the parent keys it by the attempt and the judgment.
-  const [proof, setProof] = useState<CiProof | undefined>(undefined);
+  const [proof, setProof] = useState<ProofRead | undefined>(undefined);
   const [subject] = useState(() => ciProofSubjectOf(run));
+  const adapter = isAdapterProofAttempt(subject);
   useEffect(() => {
     const controller = new AbortController();
     void readIntentCiProof(source, subject, controller.signal)
@@ -144,7 +176,7 @@ function ReadProof({
         if (!controller.signal.aborted) setProof(answer);
       })
       .catch((error: unknown) => {
-        if (!controller.signal.aborted) setProof(boundaryUnavailable(error));
+        if (!controller.signal.aborted) setProof(boundaryUnanswered(error));
       });
     return () => {
       controller.abort();
@@ -155,7 +187,7 @@ function ReadProof({
       <RunNamed run={run} />
       {proof === undefined ? (
         <p aria-live="polite" className="intent-ci-proof-checking quiet">
-          Checking the CI proof of this run…
+          Checking the CI proof of this {adapter ? "attempt" : "run"}…
         </p>
       ) : proof.kind === "summary" ? (
         <ul className="intent-ci-proof-entries">
@@ -165,7 +197,7 @@ function ReadProof({
         </ul>
       ) : (
         <p className="intent-ci-proof-unavailable">
-          {unavailableLine(proof.reason, proof.detail)}
+          {unavailableOf(adapter, proof)}
         </p>
       )}
     </>
@@ -188,6 +220,13 @@ export function IntentCiProof({
         <p className="intent-ci-proof-unavailable">
           {judgment.ciAdapter === true ? noAttemptLine : noRunLine}
         </p>
+      ) : run.ambiguous === true && isAdapterProofAttempt(run) ? (
+        <>
+          <RunNamed run={run} />
+          <p className="intent-ci-proof-unavailable">
+            {ambiguousAttemptLine(run.attemptId, shortSha(run.revision))}
+          </p>
+        </>
       ) : (
         <ReadProof
           key={`${keyOf(run)}/${judgment.checkedAt}`}

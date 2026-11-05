@@ -12,10 +12,10 @@ are one display reason and also cover 2f; B3 and 4a are the same check; X1 is sh
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G1 | A developer who opens **Intent → CI status** for a project whose CI is read through a `ciAdapter` sees, below the verdict, the proof counts and parts that the displayed attempt published | slice 3 | |
-| G1.q | ...as GitHub Actions projects already do (parity with the existing GitHub Actions display) | slice 3 | |
-| G2 | When there is no proof to show, one line says why | slice 3 | |
-| G3 | When there is no proof to show, the verdict is unchanged | slice 3 | |
+| G1 | A developer who opens **Intent → CI status** for a project whose CI is read through a `ciAdapter` sees, below the verdict, the proof counts and parts that the displayed attempt published | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts 'a ciAdapter attempt's proof is read through the project's adapter and shown below its verdict…' (counts and parts below the verdict) with slice 3 reasons for no proof |
+| G1.q | ...as GitHub Actions projects already do (parity with the existing GitHub Actions display) | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts rows rendered by the shared ciProofWording.ts rows as the GitHub intent-ci-proof.spec.ts shows them |
+| G2 | When there is no proof to show, one line says why | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' one .intent-ci-proof-unavailable line per case, no list items |
+| G3 | When there is no proof to show, the verdict is unchanged | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' verdict 'Passed at 4774f60 (Add login)' asserted in every case |
 | G4 | Pygardon is the first such project; its controller identifies attempts with UUIDs (so adapter attempt IDs may be non-numeric text) | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts UUID attempt 9f1c2d3e-… named and shown |
 | G5 | `SEED-20261076#publish-pygardon-ci-proof` consumes this story's release to complete its live Intent check | slice 5 | |
 | 1a | The CI proof collector accepts a CI-adapter attempt identity | slice 1 | observed: src/skills/dough-test-optimization/scripts/ci-proof-summary.test.mjs 'the command line writes an adapter attempt's fragment and summary…' and '…refuses … naming both attempt identities or neither, without writing' |
@@ -28,25 +28,25 @@ are one display reason and also cover 2f; B3 and 4a are the same check; X1 is sh
 | 2c | `proof` answers either with the attempt's summary... | slice 2 | observed: src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs summary accepted; dashboard/tests/intent-ci-proof-adapter.spec.ts summary shown |
 | 2d | ...or with `unavailable` and a reason | slice 2 | observed: src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs unavailable reason accepted, cut to 600 bytes |
 | 2e | The existing per-invocation timeout and stdout limit apply to `proof` | slice 2 | observed: src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs 'the proof read refuses any other answer and keeps the adapter limits' (>64 KiB maxBuffer, timeout kill) |
-| 2f | A summary that exceeds the timeout or stdout limit reads as unreadable | slice 3 | |
+| 2f | A summary that exceeds the timeout or stdout limit reads as unreadable | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' 'This attempt's CI adapter answered no proof read: its answer is longer than 64 KiB.'; tests/support/dashboard-ci-adapter-proof.test.mjs timeout case |
 | 2g | `discover` is unchanged | slice 2 | observed: ci-command-adapter{,-cli,-failures,-unavailable,-history-coverage}.test.mjs unchanged and passing; discover code unchanged |
 | 2h | `diagnose` is unchanged | slice 2 | observed: diagnose request unchanged (ci-command-adapter.mjs diagnose block); diagnose tests passing |
 | 2i | The execution observer is unchanged; the observer never asks for proof | slice 2 | observed: observer never calls readCommandProof; existing observer test asserts only discover requests |
 | 3a | The CI status judgment of a `ciAdapter` project keeps the shown attempt's identity (today it is stripped) | slice 2 | observed: dashboard/server/baseCiAdapterAttempts.ts asAdapterAttempts → adapterAttempt; tests/support/dashboard-story-branch-ci-adapter.test.mjs numeric ids stay in adapterAttempt, no runId/runAttempt, ambiguous at one sha |
 | 3b | The tab reads that attempt's proof through the project's adapter, run from the project folder like `discover` | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts fixture adapter logs requests relative to project folder; proof read via dashboard/server/ciAdapterProof.ts readCommandProof, no actions-* gh request |
-| 3c | The proof read happens apart from the judgment, so a slow or failed proof read never delays the verdict | slice 3 | |
-| 3d | ...and a slow or failed proof read never alters the verdict | slice 3 | |
+| 3c | The proof read happens apart from the judgment, so a slow or failed proof read never delays the verdict | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts 'a slow adapter proof read never delays the verdict' (verdict and checking line visible during a 4 s proof read) |
+| 3d | ...and a slow or failed proof read never alters the verdict | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' verdict unchanged after each failed/unavailable/invalid/mismatched read |
 | 3e | A running result's proof is its completed ancestor's, as for GitHub Actions | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts 'a running ciAdapter story branch shows its completed ancestor attempt's proof' |
-| 4a | The tab shows the summary only when its repository, `attemptId` and full revision equal the displayed attempt's | slice 3 | |
-| 4b | ...and no other discovered attempt has that same `attemptId` and revision | slice 3 | |
+| 4a | The tab shows the summary only when its repository, `attemptId` and full revision equal the displayed attempt's | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' other repository and other revision give the mismatch line, no counts; dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts retried-attempt test names another attempt |
+| 4b | ...and no other discovered attempt has that same `attemptId` and revision | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts '…shares at its revision is ambiguous, and no adapter is asked its proof' |
 | 4c | A numeric adapter `attemptId` matches the summary's text form of it | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts Check again with numeric 7/1 shows 'Attempt 1 at 4774f60.' with the row; request carried "7"/"1" |
-| 4d | Otherwise one line says why Proof is unavailable, for these reasons: | slice 3 | |
-| 4d.1 | The adapter answered no proof read (it failed, timed out, exited nonzero or answered invalid JSON, as an adapter without the operation does), with its error | slice 3 | |
-| 4d.2 | The adapter's own `unavailable` reason | slice 3 | |
-| 4d.3 | The summary is not a valid summary | slice 3 | |
-| 4d.4 | The summary names another repository, attempt or revision | slice 3 | |
-| 4d.5 | The attempt is ambiguous at its revision | slice 3 | |
-| 4e | Each reason follows ADR 0008: missing or conflicting evidence is never shown as a negative result | slice 3 | |
+| 4d | Otherwise one line says why Proof is unavailable, for these reasons: | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' one reason line per cause |
+| 4d.1 | The adapter answered no proof read (it failed, timed out, exited nonzero or answered invalid JSON, as an adapter without the operation does), with its error | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' exit 2 with stderr, refused answer, over 64 KiB; tests/support/dashboard-ci-adapter-proof.test.mjs timeout ('it gave no answer within 0.3 seconds') and invalid JSON lines |
+| 4d.2 | The adapter's own `unavailable` reason | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' 'This attempt's CI adapter gave no CI proof summary: no summary retained.' |
+| 4d.3 | The summary is not a valid summary | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' '…is not a valid summary: schemaVersion is not 1.' |
+| 4d.4 | The summary names another repository, attempt or revision | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' repository and revision cases; dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts retried-attempt test 'it names attempt 1' |
+| 4d.5 | The attempt is ambiguous at its revision | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts ambiguity test 'This attempt is ambiguous at its revision: another discovered attempt is also attempt 1 at 4774f60.' |
+| 4e | Each reason follows ADR 0008: missing or conflicting evidence is never shown as a negative result | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' Proof not.toContainText(/failed\|passed/i), no list items, in every reason case |
 | 5a | The adapter manual documents the `proof` operation | slice 4 | |
 | 5b | The adapter manual documents the `proof` operation's answers | slice 4 | |
 | 5c | The CI proof summary reference tells an adapter project how to write fragments and its summary inside its own CI job with the adapter identity | slice 4 | |
@@ -54,36 +54,36 @@ are one display reason and also cover 2f; B3 and 4a are the same check; X1 is sh
 | 6a | Once the changes land on `main`, publish an Open Dough release (the next patch version, through `release-version`) | slice 5 | |
 | 6b | The release contains the collector, protocol and guidance, so Pygardon can install them with `dough-update` | slice 5 | |
 | 6c | The tab itself reaches the production dashboard from `main` (not via the release) | slice 5 | |
-| P1 | The GitHub Actions artifact reader is preserved | slice 3 | |
-| P2 | The GitHub Actions run identity is preserved | slice 3 | |
-| P3 | The GitHub Actions reasons are preserved | slice 3 | |
-| P4 | The GitHub Actions requests are preserved | slice 3 | |
-| P5 | The verdict of every project is preserved | slice 3 | |
-| X1 | Exclusion: proof for an adapter whose attempt IDs repeat across runs at one revision (shown as ambiguous instead) | slice 3 | |
-| X2 | Exclusion: structured adapter reason codes beyond the adapter's own text | slice 3 | |
-| X3 | Exclusion: proof history across attempts | slice 3 | |
-| X4 | Exclusion: the launch's base-CI confirmation showing proof | slice 3 | |
+| P1 | The GitHub Actions artifact reader is preserved | slice 3 | observed: dashboard/tests/intent-ci-proof.spec.ts and intent-ci-proof-ancestor.spec.ts unedited and passing (12-test run 2026-11-05) |
+| P2 | The GitHub Actions run identity is preserved | slice 3 | observed: intent-ci-proof.spec.ts run/attempt link and attempt assertions unedited and passing |
+| P3 | The GitHub Actions reasons are preserved | slice 3 | observed: intent-ci-proof-reasons.spec.ts GitHub reason tests unedited and passing (only the ciAdapter test removed) |
+| P4 | The GitHub Actions requests are preserved | slice 3 | observed: intent-ci-proof.spec.ts 'a CI proof query that omits the attempt is refused before asking GitHub' and request assertions unedited and passing |
+| P5 | The verdict of every project is preserved | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' and E2/E6 tests assert verdicts; intent-ci-status*.spec.ts and agent-launch-base-ci*.spec.ts passing (37-test run) |
+| X1 | Exclusion: proof for an adapter whose attempt IDs repeat across runs at one revision (shown as ambiguous instead) | slice 3 | observed: repeating attempt IDs shown as ambiguous (dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts ambiguity test); no runId added to identity |
+| X2 | Exclusion: structured adapter reason codes beyond the adapter's own text | slice 3 | observed: adapter unavailable text shown as given (dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…'); no reason codes added |
+| X3 | Exclusion: proof history across attempts | slice 3 | observed: no proof history: dashboard/server/ciAdapterProof.ts reads per request, keeps nothing |
+| X4 | Exclusion: the launch's base-CI confirmation showing proof | slice 3 | observed: launch base-CI confirmation unchanged (agent-launch-base-ci*.spec.ts passing, LaunchBaseCi.tsx untouched) |
 | X5 | Exclusion: updating the copied collector or adapter in other projects (each project's own `dough-update` and story) | slice 5 | |
 | X6 | Exclusion: the live Pygardon check (owned by its own story) | slice 5 | |
 | B1 | Boundary assumption: the summary is labelled by the attempt that wrote it | slice 4 | |
 | B2 | The adapter checks the summary against its CI service's attempt record | slice 4 | |
-| B3 | The tab checks it again against the attempt it displays | slice 3 | |
+| B3 | The tab checks it again against the attempt it displays | slice 3 | observed: dashboard/server/ciAdapterProof.ts compares repository, attemptId text and revision; dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' mismatch cases |
 | B4 | The counts are as trustworthy as the project's CI job | slice 4 | |
-| B5 | The dashboard keeps nothing beyond the request (no persisted proof) | slice 3 | |
+| B5 | The dashboard keeps nothing beyond the request (no persisted proof) | slice 3 | observed: dashboard/server/ciAdapterProof.ts keeps no state; Check again rereads (dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' proof request count grows by one each time) |
 | E1.s | Setup: `ciAdapter` project; newest attempt `9f1c…` (UUID) passed at `R`; adapter answers the proof read with a summary naming the same repository, `attemptId` `9f1c…` and `R`, `tests` 1,000 passed, 0 failed, 3 other, part 1 of 1 present | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts fixture: newest UUID attempt passed at 4774f60, collector-built summary tests 1000 passed 3 other 1 of 1 |
 | E1.r | Result: tab shows Passed, the attempt and short revision, and that `tests` row | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts verdict 'Passed at 4774f60 (Add login)', 'Attempt 9f1c2d3e-… at 4774f60.', row 'tests: 1000 passed and 3 other tests; 1 of 1 part present.' |
-| E2.s | Setup: attempt `A` failed at `R`; retry `B` passed at `R` | slice 3 | |
-| E2.r1 | Result: tab shows `B`'s verdict and `B`'s proof | slice 3 | |
-| E2.s2 | Variant: the adapter answers `B`'s read with `A`'s summary | slice 3 | |
-| E2.r2 | Result: Proof says it names another attempt and shows no counts | slice 3 | |
+| E2.s | Setup: attempt `A` failed at `R`; retry `B` passed at `R` | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts retried-attempt test: attempt 1 failed and retry 2 passed in run r1 at R |
+| E2.r1 | Result: tab shows `B`'s verdict and `B`'s proof | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts retried-attempt test shows attempt 2's verdict and proof |
+| E2.s2 | Variant: the adapter answers `B`'s read with `A`'s summary | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts retried-attempt test: adapter answers attempt 2's read with attempt 1's summary |
+| E2.r2 | Result: Proof says it names another attempt and shows no counts | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts retried-attempt test '…is for another repository, attempt or revision: it names attempt 1.', no counts |
 | E3.s | Setup: branch head's attempt still running; its parent's attempt finished | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts running story branch head 70a0001, completed ancestor d4e5f6a |
 | E3.r | Result: tab shows the running result beside the completed ancestor's verdict and that ancestor attempt's proof | slice 2 | observed: dashboard/tests/intent-ci-proof-adapter.spec.ts 'Running at 70a0001', Proof names ancestor UUID at d4e5f6a with the row, no request for the running sha |
-| E4.s | Setup: the project's adapter predates `proof` and exits nonzero for it | slice 3 | |
-| E4.r1 | Result: the verdict reads as before | slice 3 | |
-| E4.r2 | Result: Proof says the adapter answered no proof read, with its error | slice 3 | |
-| E5.s | Setup: adapter answers `{"unavailable": "no summary retained"}` for a pruned attempt | slice 3 | |
-| E5.r | Result: Proof shows that reason; the verdict is unchanged | slice 3 | |
-| E6.s | Setup: two discovered attempts from different runs both have `attemptId` `1` at `R`; the tab displays one of them | slice 3 | |
-| E6.r | Result: Proof says the attempt is ambiguous at its revision and shows no counts | slice 3 | |
+| E4.s | Setup: the project's adapter predates `proof` and exits nonzero for it | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' fixture adapter exits 2 with 'unknown operation: proof' |
+| E4.r1 | Result: the verdict reads as before | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' verdict 'Passed at 4774f60 (Add login)' unchanged |
+| E4.r2 | Result: Proof says the adapter answered no proof read, with its error | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' 'This attempt's CI adapter answered no proof read: it exited with status 2 (unknown operation: proof).' |
+| E5.s | Setup: adapter answers `{"unavailable": "no summary retained"}` for a pruned attempt | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' adapter answers {unavailable: 'no summary retained'} |
+| E5.r | Result: Proof shows that reason; the verdict is unchanged | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts 'an adapter attempt whose adapter answers no proof of it gives one reason under Proof…' reason shown, verdict unchanged |
+| E6.s | Setup: two discovered attempts from different runs both have `attemptId` `1` at `R`; the tab displays one of them | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts ambiguity test: runs r1 and r2 both attemptId 1 at 4774f60 |
+| E6.r | Result: Proof says the attempt is ambiguous at its revision and shows no counts | slice 3 | observed: dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts ambiguity test reason line, no counts, no proof request |
 | E7.s | Setup: a GitHub Actions project's tab | slice 5 | |
 | E7.r | Result: shows its run's proof from the `ci-proof-summary-attempt-<n>` artifact exactly as before | slice 5 | |

@@ -165,7 +165,7 @@ project with no completed attempt shows `noAttemptLine`.
 
 ### 3. The tab says why an adapter attempt shows no proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright `dashboard/tests/intent-ci-proof-adapter.spec.ts` (examples 2, 4, 5 and 6) and `intent-ci-proof-reasons.spec.ts` without its `ci-adapter` test
 
 Behavior: given the slice 2 project, Proof shows one reason line and no
@@ -175,6 +175,21 @@ invalid summary, answers a summary for another repository, attempt or
 revision, or when another discovered attempt shares the shown `attemptId`
 and revision (asked of no adapter). Check again reads both again. The
 `ci-adapter` reason and its wording are gone.
+
+Accepted (2026-11-05): adapter reason lines in `ciProofWording.ts`
+(`adapterUnavailableLine`, `adapterReadFailedLine`, `ambiguousAttemptLine`,
+"This attempt's …: detail."); `ciAdapterProof.ts` `failureOf` words a timeout,
+an over-limit answer and a nonzero exit (last stderr line), else the runner's
+error. Examples 2, 4, 5 and 6, the invalid and other-repository/revision
+summaries and the over-limit answer are in
+`dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts`; the slow read stays
+in `intent-ci-proof-adapter.spec.ts` (shared fixture
+`dashboard/tests/intentCiAdapterProofProject.ts`); timeout and invalid JSON in
+`tests/support/dashboard-ci-adapter-proof.test.mjs`. The `ci-adapter` test is
+gone from `intent-ci-proof-reasons.spec.ts`. Proof: `intent-ci-proof*` specs
+(11–12 passed), with `intent-ci-status*`/`agent-launch-base-ci*` (37 passed),
+the adapter spec `--repeat-each=3` (18 passed), the node tests above and the
+`ci-command*` tests, `tests/execution-payload-update.sh`, typecheck.
 
 ### 4. Guidance tells an adapter project how to publish and serve proof
 Type: Behavior

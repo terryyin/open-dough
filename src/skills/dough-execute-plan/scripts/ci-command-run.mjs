@@ -5,8 +5,10 @@
 import { execFile } from "node:child_process";
 
 export const defaultAdapterTimeoutMs = 20_000;
-const adapterResponseBytes = 64 * 1024;
+export const adapterResponseBytes = 64 * 1024;
 
+// Answers the adapter's parsed JSON answer; a failed run rejects with the
+// child-process error, which keeps what the adapter wrote to stderr.
 export function runAdapter(command, request, { signal, cwd, timeoutMs }) {
   return new Promise((resolve, reject) => {
     const child = execFile(
@@ -19,8 +21,8 @@ export function runAdapter(command, request, { signal, cwd, timeoutMs }) {
         maxBuffer: adapterResponseBytes,
         encoding: "utf8",
       },
-      (error, stdout) => {
-        if (error) return reject(error);
+      (error, stdout, stderr) => {
+        if (error) return reject(Object.assign(error, { stderr }));
         try {
           resolve(JSON.parse(stdout));
         } catch (parseError) {
