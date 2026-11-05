@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Show the CI proof of a CI-adapter attempt](seeds/SEED-236-show-ci-adapter-proof.md#show-ci-adapter-proof) — SEED-236#show-ci-adapter-proof ([plan](slice-plans/470-show-ci-adapter-proof/PLAN.md))
-
 ## Backlog list
 
 - [Count a repeated adapter attempt ID as ambiguous](seeds/SEED-236-show-ci-adapter-proof.md#count-repeated-adapter-attempt-ids) — SEED-236#count-repeated-adapter-attempt-ids

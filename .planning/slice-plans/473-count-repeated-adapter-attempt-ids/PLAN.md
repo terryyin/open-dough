@@ -12,7 +12,8 @@ discovered attempt has that same `attemptId` and revision", and otherwise says
 the attempt is ambiguous at its revision; its deferral reads "proof for an
 adapter whose attempt IDs repeat across runs at one revision (shown as
 ambiguous)". Reviewed commits: `64588d692`, `1df738da4`, `261261eb1`,
-`9e8075f07`, landed in `4a8129838`.
+`9e8075f07`, landed in `4a8129838`. The reviewed story section and plan are
+recoverable from before-cleanup `779d5f96a20dd5ddf671f0eaaf3f3624cefc61cd`.
 
 Current finding (read-only check on `2fd857370`): `asAdapterAttempts` in
 `dashboard/server/baseCiAdapterAttempts.ts` counts shared `attemptId`s over
@@ -25,7 +26,8 @@ not ambiguous and the tab would ask for, and could show, a summary keyed only
 by `attemptId` and revision. The spec
 `dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts` ambiguity test and
 `tests/support/dashboard-story-branch-ci-adapter.test.mjs` use different
-`check` names, the remainder plan 470's premise table left open.
+`check` names, the remainder the reviewed plan's premise table left open
+(before-cleanup `779d5f96a20dd5ddf671f0eaaf3f3624cefc61cd:.planning/slice-plans/470-show-ci-adapter-proof/PLAN.md`).
 `src/skills/dough-execute-plan/manuals/custom-ci.md` "## CI proof reads" and
 `docs/dashboard-development-intent.md` state the unpruned rule.
 

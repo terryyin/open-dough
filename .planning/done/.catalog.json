@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-236_show-ci-adapter-proof.json",
+      "identity": "SEED-236#show-ci-adapter-proof",
+      "completedAt": "2026-11-05T07:04:24.040Z",
+      "blob": "dd8db10ea37210bb4b1a66326828d010f6acfa84"
+    },
+    {
       "fileName": "SEED-192_read-node-test-proof.json",
       "identity": "SEED-192#read-node-test-proof",
       "completedAt": "2026-11-05T06:14:10.319Z",

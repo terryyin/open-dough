@@ -751,7 +751,7 @@ A required post-change refactor Task (and `agent` CLI fallback) failed to start 
 Dough Land's history-preserving landing requires the queued-closure check before each reconciliation and a recheck of affected proof, but the installed `history-preserving-publication.mjs integrate` CLI takes neither, so the coordinator wrote a temporary script around `publishHistoryPreservingCandidate`. After acceptance the workspace stayed on the story branch's pre-merge tip, so the trunk step that followed needed a manual fast-forward to the accepted revision.
 
 ### Occurrences
-- Execution: SEED-236#show-ci-adapter-proof (plan 470-show-ci-adapter-proof; first implementation commit `64588d69268974f9ff44513239da95ad1bc80b42`)
+- Execution: SEED-236#show-ci-adapter-proof (before-cleanup `779d5f96a20dd5ddf671f0eaaf3f3624cefc61cd:.planning/slice-plans/470-show-ci-adapter-proof/PLAN.md`; first implementation commit `64588d69268974f9ff44513239da95ad1bc80b42`)
   - Timestamp: 2026-11-05T12:30:24+07:00 (landing receipt `8656cb2c-f566-49a2-ac7d-8e35e4e057fa`)
   - Tool: Claude Code
   - Model: claude-opus-5-5

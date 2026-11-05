@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-236#show-ci-adapter-proof",
+  "title": "Show the CI proof of a CI-adapter attempt",
+  "completedAt": "2026-11-05T07:04:24.040Z",
+  "developer": "Terry Yin",
+  "agent": "steven-chan",
+  "host": "claude",
+  "model": "opus"
+}

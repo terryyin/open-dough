@@ -413,7 +413,7 @@ selects no new implementation story.
 
 ### Occurrences
 
-- Execution: SEED-236#show-ci-adapter-proof (plan 470, first implementation commit 64588d69268974f9ff44513239da95ad1bc80b42)
+- Execution: SEED-236#show-ci-adapter-proof (before-cleanup `779d5f96a20dd5ddf671f0eaaf3f3624cefc61cd:.planning/slice-plans/470-show-ci-adapter-proof/PLAN.md`, first implementation commit 64588d69268974f9ff44513239da95ad1bc80b42)
   - Timestamp: 2026-11-05T12:56:05+07:00 (job cancel in run 41976448705)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -430,7 +430,7 @@ selects no new implementation story.
 
 ### Occurrences
 
-- Execution: SEED-236#show-ci-adapter-proof (plan 470, first implementation commit 64588d69268974f9ff44513239da95ad1bc80b42)
+- Execution: SEED-236#show-ci-adapter-proof (before-cleanup `779d5f96a20dd5ddf671f0eaaf3f3624cefc61cd:.planning/slice-plans/470-show-ci-adapter-proof/PLAN.md`, first implementation commit 64588d69268974f9ff44513239da95ad1bc80b42)
   - Timestamp: unknown (2026-11-05, release `bc84cc196` after main CI on `514a70a54`)
   - Tool: Claude Code
   - Model: claude-opus-5-5
