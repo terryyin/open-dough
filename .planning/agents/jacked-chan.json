@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jacked-chan",
+  "email": "jacked-chan@example.org",
+  "identity": "SEED-236#count-repeated-adapter-attempt-ids",
+  "mode": "story-branch",
+  "branch": "cursor/count-a-repeated-adapter-attempt-id-as-ambiguous",
+  "host": "cursor",
+  "model": "auto"
+}
