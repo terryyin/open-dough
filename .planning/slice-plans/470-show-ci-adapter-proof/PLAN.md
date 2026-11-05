@@ -4,6 +4,7 @@
 **Source:** [selected story](../../seeds/SEED-236-show-ci-adapter-proof.md#show-ci-adapter-proof)
 in SEED-236, refined 2026-11-05 with challenge, clarify, investigate and
 architecture.
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-05. Planning only, in the story's established workspace
 (branch `claude/show-the-ci-proof-of-a-ci-adapter-attempt`, agent mrsn-chan),
 continuing the refinement in the same session.
@@ -48,7 +49,7 @@ A fresh worktree needs the native setup before any Playwright run.
   artifact name stays GitHub-only. `schemaVersion` stays 1: every existing
   summary remains valid, and only readers deployed from `main` see the new
   shape.
-- **Adapter runner (reuse):** `ci-command-adapter.mjs`'s private `runAdapter`
+- **Adapter runner (reuse):** `runAdapter` (moved by slice 2's refactor into `ci-command-run.mjs`, a new payload file)
   already enforces the 20 s timeout and 64 KiB stdout limit for
   `discover`/`diagnose`. Export one `readCommandProof` beside it that sends
   `{operation: "proof", check, attempt: {runId, attemptId, sha}}` and accepts
@@ -110,7 +111,7 @@ A fresh worktree needs the native setup before any Playwright run.
 
 ### 1. The collector writes an adapter attempt's summary
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh src/skills/dough-test-optimization/scripts/ci-proof-summary.test.mjs src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs src/skills/dough-test-optimization/scripts/ci-proof-fragments.test.mjs`
 
 Behavior: given an adapter project's job with attempt `9f1c…` at revision
@@ -121,9 +122,20 @@ attempt ID, or of a GitHub attempt, is excluded with a note. Naming both or
 neither identity is refused. A GitHub Actions fragment and summary are
 written and validated exactly as before.
 
+Accepted (2026-11-05): `attemptProblems` in `ci-proof-contract.mjs` is the one
+identity rule for fragment, summary and CLI; `attemptOf`/`summaryAttempt`
+select the fields. The slice's proof command plus
+`tests/support/ci-proof-{declaration,dashboard-ci-proof-parse,dashboard-ci-proof-read}`
+node tests passed, and the three `intent-ci-proof*.spec.ts` Playwright specs
+passed (7) unedited. Wording change on the GitHub path: the exclusion note now
+reads `attempt 1, not attempt 2`, and an identity-less summary reports
+`names neither runId and runAttempt nor attemptId` (the dashboard matches the
+invalid-summary reason with `.+`). Refactor: tests merged and trimmed under
+250 lines, no production change.
+
 ### 2. The tab shows a matching adapter attempt's proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright `dashboard/tests/intent-ci-proof-adapter.spec.ts` (examples 1 and 3) plus `intent-ci-proof.spec.ts`; `bash scripts/test.sh src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs tests/support/dashboard-ci-proof-parse.test.mjs`
 
 Behavior: given a `ciAdapter` project whose newest attempt `9f1c…` passed at
@@ -135,9 +147,25 @@ completed ancestor attempt's summary. The adapter receives the documented
 request; an answer that is neither `summary` nor `unavailable` is refused by
 the runner. The GitHub Actions proof spec is unchanged.
 
+Accepted (2026-11-05): `readCommandProof` in `ci-command-adapter.mjs` over
+`runAdapter` (now `ci-command-run.mjs`); judgment identity in
+`baseCiAdapterAttempts.ts` `adapterAttempt {runId, attemptId, ambiguous?}`;
+adapter proof read in `dashboard/server/ciAdapterProof.ts`, query form
+`run`, `attempt-id`, `run-branch` (the attempt's discovered branch, for the
+request's `check.branch`), `revision`, ids at most 256 characters. Proof:
+`intent-ci-proof-adapter.spec.ts` (examples 1, 3 and a numeric id), the three
+GitHub proof specs, `intent-ci-status*` and `agent-launch-base-ci*` specs
+(34 passed), the `ci-command-adapter*`/`ci-*` node tests,
+`dashboard-story-branch-ci{,-adapter}`, `dashboard-ci-proof-{parse,read}`,
+`tests/execution-payload-update.sh`, and `npm run typecheck:dashboard`. The
+`ci-adapter` short-circuit and reason are gone; until slice 3 the
+`intent-ci-proof-reasons.spec.ts` ciAdapter test expects the interim
+unreadable line, and failures use the "This run's…" wording. An adapter
+project with no completed attempt shows `noAttemptLine`.
+
 ### 3. The tab says why an adapter attempt shows no proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright `dashboard/tests/intent-ci-proof-adapter.spec.ts` (examples 2, 4, 5 and 6) and `intent-ci-proof-reasons.spec.ts` without its `ci-adapter` test
 
 Behavior: given the slice 2 project, Proof shows one reason line and no
@@ -148,9 +176,24 @@ revision, or when another discovered attempt shares the shown `attemptId`
 and revision (asked of no adapter). Check again reads both again. The
 `ci-adapter` reason and its wording are gone.
 
+Accepted (2026-11-05): adapter reason lines in `ciProofWording.ts`
+(`adapterUnavailableLine`, `adapterReadFailedLine`, `ambiguousAttemptLine`,
+"This attempt's …: detail."); `ciAdapterProof.ts` `failureOf` words a timeout,
+an over-limit answer and a nonzero exit (last stderr line), else the runner's
+error. Examples 2, 4, 5 and 6, the invalid and other-repository/revision
+summaries and the over-limit answer are in
+`dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts`; the slow read stays
+in `intent-ci-proof-adapter.spec.ts` (shared fixture
+`dashboard/tests/intentCiAdapterProofProject.ts`); timeout and invalid JSON in
+`tests/support/dashboard-ci-adapter-proof.test.mjs`. The `ci-adapter` test is
+gone from `intent-ci-proof-reasons.spec.ts`. Proof: `intent-ci-proof*` specs
+(11–12 passed), with `intent-ci-status*`/`agent-launch-base-ci*` (37 passed),
+the adapter spec `--repeat-each=3` (18 passed), the node tests above and the
+`ci-command*` tests, `tests/execution-payload-update.sh`, typecheck.
+
 ### 4. Guidance tells an adapter project how to publish and serve proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: AGENTS.md behavior review recorded in this plan, walking Pygardon's
 plan (JUnit fragment in its job, summary in `ci-diagnostics/`, adapter
 `proof` read) against the edited guidance; `bash tests/execution-payload-update.sh`
@@ -164,6 +207,34 @@ adapter path (fragments and summary written in its own CI job with
 request, its two answers, its limits, and that a missing operation shows as
 no proof. `docs/dashboard-development-intent.md` describes the adapter proof
 read.
+
+Accepted (2026-11-05): `custom-ci.md` "## CI proof reads" owns the `proof`
+contract (request, ids as strings, record check, two answers, limits, missing
+operation, matching and ambiguity); `ci-proof-summary.md` "## Publish through
+a CI adapter" gives the job's `--attempt-id` commands, the retained location
+the project chooses, and the summary check before answering;
+`dough-test-optimization/SKILL.md`, `docs/dashboard-development-intent.md` and
+`dashboard/GITHUB-REQUESTS.md` updated. The runnable example is unchanged.
+Proof: `bash scripts/test.sh tests/execution-payload-update.sh tests/payload-declaration-links.sh tests/install-preserves-open-dough-json.sh`.
+
+Behavior review (AGENTS.md), walking Pygardon's plan 490 and
+`SEED-20261076#publish-pygardon-ci-proof` (read only):
+1. Invocation: the reference applies to publishing proof for Intent → CI
+   status or to a tab saying an attempt has no summary; a nonempty `ciAdapter`
+   (Pygardon) takes the adapter path; CI that is neither GitHub Actions nor
+   adapter-read still stops.
+2. Required context: Intent locations, a per-test report, Node 20.12+, the
+   discovered `attemptId`, full revision and `OWNER/REPO`; a job that cannot
+   learn its attempt or revision stops. Pygardon's `ci-diagnostics/` fits the
+   project-chosen retained location.
+3. Outcome: in a scratch directory the copied collector with a UUID
+   `--attempt-id` wrote a valid summary, both identities were refused, and a
+   minimal adapter following the steps answered `{summary}` that
+   `readCommandProof` accepted with matching attempt and revision.
+Findings for Pygardon's own story (not edited here): the tab never asks
+`proof` for a running attempt, so a running result shows its completed
+ancestor's counts, not none; `--outcomes` counts the unit `checks`, so its
+row reads "… checks", not "tests".
 
 ### 5. Release the collector, protocol and guidance
 Type: Behavior
@@ -194,6 +265,12 @@ this slice.
 
 ## Current decisions
 
+- Slice 5 checkpoint: Terry gave the go-ahead on 2026-11-05 for the Dough
+  Land `--keep-worktree` landing (after the local suites and branch CI pass),
+  the next patch release from trunk, and the live reading of example 7.
+- The `proof` request sends `runId` and `attemptId` as text (the tab's query
+  carries them as text), unlike `diagnose`, which passes discovered values
+  through; slice 4's manual documents this.
 - Story Branch Mode, with the slice 5 checkpoint above as the only trunk step.
 - `schemaVersion` stays 1 with two alternative identities; `runId` is not
   part of the adapter identity (seed deferral).

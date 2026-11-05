@@ -4,6 +4,7 @@
 // come from more than one branch's listing; each judged result names the
 // branch its run was on (`branch`, as the listing that returned it says).
 import type {
+  BaseCiAdapterAttempt,
   BaseCiCompletedAncestor,
   BaseCiRunIdentity as RunIdentity,
   BaseCiState,
@@ -45,9 +46,11 @@ export type ListedCommit = {
 };
 
 export type ListedRun = {
-  // A GitHub Actions run's id and attempt; a ciAdapter's attempts name none.
+  // A GitHub Actions run's id and attempt; a ciAdapter's attempts name none
+  // and carry their own identity as `adapterAttempt`.
   readonly databaseId?: number;
   readonly attempt?: number;
+  readonly adapterAttempt?: BaseCiAdapterAttempt;
   readonly headSha?: string;
   readonly status?: string;
   readonly conclusion?: string | null;
@@ -66,9 +69,12 @@ function runBranchOf(run: ListedRun): { runBranch?: string } {
 const isPositive = (value: unknown): value is number =>
   Number.isSafeInteger(value) && (value as number) >= 1;
 
-// The run a judged result rests on, when the CI names its id and attempt:
-// what a proof read of that result's run is keyed by.
+// The run a judged result rests on, when the CI names its id and attempt,
+// or the ciAdapter attempt it rests on: what a proof read of that result is
+// keyed by.
 function runIdentityOf(run: ListedRun): RunIdentity {
+  if (run.adapterAttempt !== undefined)
+    return { adapterAttempt: run.adapterAttempt };
   return isPositive(run.databaseId) && isPositive(run.attempt)
     ? { runId: run.databaseId, runAttempt: run.attempt }
     : {};

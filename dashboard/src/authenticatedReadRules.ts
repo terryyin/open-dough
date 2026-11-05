@@ -7,6 +7,7 @@
 // itself imports Node's `child_process` at runtime (through
 // `../server/ghRead.ts`), so nothing under `./` may import that module
 // directly.
+import { isAdapterProofAttempt, type CiProofSubject } from "./ciProof.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 export const authenticatedReadEndpoint = "/__authenticated-read";
@@ -86,12 +87,15 @@ export function readingCiStatusOf(branch: string, repository: string): string {
   return `the CI status of ${readingBranchHeadOf(branch, repository)}`;
 }
 
-// One GitHub Actions run attempt's CI proof (`../server/intentCiProofRead.ts`).
+// One GitHub Actions run attempt's or ciAdapter attempt's CI proof
+// (`../server/intentCiProofRead.ts`).
 export function readingCiProofOf(
-  run: { readonly runId: number; readonly runAttempt: number },
+  subject: CiProofSubject,
   repository: string,
 ): string {
-  return `the CI proof of run ${String(run.runId)} attempt ${String(run.runAttempt)} of ${repository}`;
+  return isAdapterProofAttempt(subject)
+    ? `the CI proof of attempt ${subject.attemptId} of run ${subject.runId} of ${repository}`
+    : `the CI proof of run ${String(subject.runId)} attempt ${String(subject.runAttempt)} of ${repository}`;
 }
 
 export function readingPathAt(path: string, revision: string): string {

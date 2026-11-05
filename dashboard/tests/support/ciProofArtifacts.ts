@@ -2,7 +2,8 @@
 // (../../server/ciProofArtifact.ts): a summary built by the collector itself
 // from fragments (../../../src/skills/dough-test-optimization/scripts/
 // ci-proof-summary.mjs), so it is schema-valid; the run's artifact listing;
-// and the artifact's zip, a real archive as GitHub serves it.
+// and the artifact's zip, a real archive as GitHub serves it. The collector
+// also writes a ciAdapter attempt's summary, named by its `attemptId`.
 
 import { crc32, deflateRawSync } from "node:zlib";
 import {
@@ -19,6 +20,13 @@ export type ProofRun = {
   readonly repository: string;
   readonly runId: number;
   readonly attempt: number;
+  readonly revision: string;
+};
+
+// A ciAdapter attempt, named by its text `attemptId`.
+export type AdapterProofAttempt = {
+  readonly repository: string;
+  readonly attemptId: string;
   readonly revision: string;
 };
 
@@ -40,15 +48,19 @@ export const counts = (passed: number, failed = 0, other = 0): Counts => ({
 // The summary the collector writes for `run` from `parts`, declaring
 // `expect` (`<entry>` and its part count, in declaration order).
 export function proofSummary(
-  run: ProofRun,
+  run: ProofRun | AdapterProofAttempt,
   expect: readonly (readonly [string, number])[],
   parts: readonly ProofPart[],
 ): unknown {
+  const attempt =
+    "attemptId" in run
+      ? { attemptId: run.attemptId }
+      : { attempt: run.attempt };
   const { summary } = (summarize as unknown as SummarizeFragments)({
     fragments: parts.map(([entry, part, of, unit, partCounts], index) => ({
       source: `fragment-${String(index)}.json`,
       value: fragment(
-        { part, of, attempt: run.attempt, revision: run.revision },
+        { part, of, ...attempt, revision: run.revision },
         entry,
         unit,
         partCounts,
@@ -57,8 +69,8 @@ export function proofSummary(
     expect: expect.map(([entry, declared]) => ({ entry, parts: declared })),
     run: {
       repository: run.repository,
-      runId: run.runId,
-      attempt: run.attempt,
+      ...("attemptId" in run ? {} : { runId: run.runId }),
+      ...attempt,
       revision: run.revision,
     },
   });

@@ -51,8 +51,6 @@ const unavailableLines: Readonly<Record<CiProofUnavailableReason, string>> = {
   invalid: "This run's CI proof summary is not a valid summary.",
   mismatched:
     "This run's CI proof summary is for another run, attempt or revision.",
-  "ci-adapter":
-    "This project's CI is read through a ciAdapter, which publishes no CI proof summary.",
 };
 
 // The one line under Proof saying why no proof can be shown, with what the
@@ -62,9 +60,54 @@ export function unavailableLine(
   detail: string | undefined,
 ): string {
   const line = unavailableLines[reason];
-  if (detail === undefined) return line;
-  return `${line} ${detail}${detail.endsWith(".") ? "" : "."}`;
+  return detail === undefined ? line : `${line} ${sentence(detail)}`;
+}
+
+// `text` ending with one full stop.
+const sentence = (text: string) => (text.endsWith(".") ? text : `${text}.`);
+
+const adapterUnavailableLines: Readonly<
+  Record<CiProofUnavailableReason, string>
+> = {
+  none: "This attempt's CI adapter gave no CI proof summary",
+  expired: "This attempt's CI proof summary has expired",
+  unreadable: "This attempt's CI adapter answered no proof read",
+  invalid: "This attempt's CI proof summary is not a valid summary",
+  mismatched:
+    "This attempt's CI proof summary is for another repository, attempt or revision",
+};
+
+// The one line under Proof saying why a ciAdapter attempt shows no proof,
+// with what the adapter or the summary said: the adapter's own reason is
+// shown as it gave it.
+export function adapterUnavailableLine(
+  reason: CiProofUnavailableReason,
+  detail: string | undefined,
+): string {
+  return withDetail(adapterUnavailableLines[reason], detail);
+}
+
+// The dashboard's own read failed before any adapter answer reached the tab.
+export function adapterReadFailedLine(detail: string | undefined): string {
+  return withDetail("This attempt's CI proof could not be read", detail);
+}
+
+function withDetail(line: string, detail: string | undefined): string {
+  return detail === undefined ? `${line}.` : `${line}: ${sentence(detail)}`;
+}
+
+// Another discovered attempt names the shown attempt's attemptId at its
+// revision, so no adapter is asked which one a summary is of.
+export function ambiguousAttemptLine(
+  attemptId: string,
+  revision: string,
+): string {
+  return `This attempt is ambiguous at its revision: another discovered attempt is also attempt ${attemptId} at ${revision}.`;
 }
 
 export const noRunLine =
   "No completed GitHub Actions run is shown, so there is no CI proof to show.";
+
+// A ciAdapter project's tab shows no completed attempt.
+export const noAttemptLine =
+  "No completed CI attempt is shown, so there is no CI proof to show.";

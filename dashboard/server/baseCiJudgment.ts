@@ -21,6 +21,10 @@ import {
 import type { BaseCiFound } from "../src/baseCiConfirmation.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
+  asAdapterAttempts,
+  type DiscoveredAttempt,
+} from "./baseCiAdapterAttempts.ts";
+import {
   githubAcquisitionUnread,
   readBranchHistory,
 } from "./baseCiGitHubReads.ts";
@@ -40,24 +44,15 @@ type CiConfiguration = {
   readonly workflow: string;
 };
 
-function ciConfiguration(folder: string): CiConfiguration {
+// The project folder's CI settings: its configured ciAdapter command, if
+// any, and its GitHub Actions workflow.
+export function ciConfiguration(folder: string): CiConfiguration {
   return readCiConfiguration(folder);
 }
 
 // The runs one listing returns, each named by the branch listed.
 function fromBranch(runs: readonly ListedRun[], branch: string): ListedRun[] {
   return runs.map((run) => ({ ...run, branch }));
-}
-
-// A ciAdapter's attempts, which name no GitHub Actions run to read proof of.
-const runIdentityFields = new Set(["databaseId", "attempt"]);
-function withoutRunIdentity(runs: readonly ListedRun[]): ListedRun[] {
-  return runs.map(
-    (run) =>
-      Object.fromEntries(
-        Object.entries(run).filter(([field]) => !runIdentityFields.has(field)),
-      ) as ListedRun,
-  );
 }
 
 // Judges `branch` from its listed history and `workflow`'s Actions runs. A
@@ -129,17 +124,14 @@ export async function judgeCommandAdapter(
       ended.abort();
       throw error;
     }
-    return fromBranch(
-      withoutRunIdentity(
-        (await acquisition.discoverAncestorCandidates()) as ListedRun[],
-      ),
-      discoveredBranch,
-    );
+    return (
+      (await acquisition.discoverAncestorCandidates()) as DiscoveredAttempt[]
+    ).map((run) => ({ ...run, branch: discoveredBranch }));
   };
   try {
     const branches = branch === source.ref ? [branch] : [source.ref, branch];
     const listed = await Promise.all(branches.map(discovered));
-    return judgeNearest(commits, listed.flat());
+    return judgeNearest(commits, asAdapterAttempts(listed.flat()));
   } catch (error) {
     return unread(
       error instanceof Error

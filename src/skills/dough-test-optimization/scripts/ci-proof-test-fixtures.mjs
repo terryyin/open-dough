@@ -1,5 +1,6 @@
-// Shared construction for the CI proof collector's tests: a run attempt, a
-// valid fragment of it, and a dashboard proof record with chosen outcomes.
+// Shared construction for the CI proof collector's tests: a GitHub Actions
+// run attempt, a CI adapter's attempt, a valid fragment of the run attempt,
+// and a dashboard proof record with chosen outcomes.
 
 export const revision = "a5b0489dd0000000000000000000000000000000";
 export const run = {
@@ -8,6 +9,9 @@ export const run = {
   attempt: 2,
   revision,
 };
+
+export const attemptId = "9f1c2d3e-0000-4000-8000-000000000001";
+export const adapterRun = { repository: "O/P", attemptId, revision };
 
 export function fragment(entry, part, of, counts, overrides = {}) {
   return {

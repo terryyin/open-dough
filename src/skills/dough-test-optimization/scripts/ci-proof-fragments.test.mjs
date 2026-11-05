@@ -6,6 +6,7 @@ import {
   fragmentsFromOutcomes,
 } from "./ci-proof-fragments.mjs";
 import {
+  attemptId,
   fragment,
   playwrightRecord,
   revision,
@@ -66,4 +67,17 @@ test("an outcomes file counts each check toward the entry whose path contains it
     fragment("tests", 1, 3, { passed: 1, failed: 1 }),
     fragment("src/skills", 1, 3, { passed: 1, other: 1 }),
   ]);
+});
+
+test("an adapter attempt's identity names its fragment by attemptId", () => {
+  const [value] = fragmentsFromOutcomes("passed\ttests/a.sh\n", {
+    entries: ["tests"],
+    part: 1,
+    of: 1,
+    attemptId,
+    revision,
+  });
+  assert.equal(value.attemptId, attemptId);
+  assert.equal("attempt" in value, false);
+  assert.deepEqual(fragmentProblems(value), []);
 });
