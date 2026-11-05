@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "DavidKo-chan",
-  "email": "davidko-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-243#improve-intent-home-and-selection-summaries",
-  "host": "codex",
-  "model": "gpt-6.1-sol"
-}
