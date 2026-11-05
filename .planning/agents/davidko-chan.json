@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "DavidKo-chan",
-  "email": "davidko-chan@example.org",
-  "identity": "SEED-234#verify-live-dashboard-ci-proof",
-  "mode": "story-branch",
-  "branch": "claude/verify-open-dough-ci-proof-in-the-live-dashboard",
-  "host": "claude"
-}

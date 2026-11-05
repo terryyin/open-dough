@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-234#verify-live-dashboard-ci-proof",
+  "title": "Verify Open Dough CI proof in the live dashboard",
+  "completedAt": "2026-11-05T02:25:00.884Z",
+  "developer": "Terry Yin",
+  "agent": "DavidKo-chan",
+  "host": "claude"
+}

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-234_verify-live-dashboard-ci-proof.json",
+      "identity": "SEED-234#verify-live-dashboard-ci-proof",
+      "completedAt": "2026-11-05T02:25:00.884Z",
+      "blob": "6387c94e990791607b7c77aec7f25c71cd9351a5"
+    },
+    {
       "fileName": "SEED-192_recover-intent-locations-read.json",
       "identity": "SEED-192#recover-intent-locations-read",
       "completedAt": "2026-11-05T01:44:58.455Z",
