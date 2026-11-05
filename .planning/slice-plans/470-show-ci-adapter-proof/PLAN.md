@@ -238,7 +238,7 @@ row reads "… checks", not "tests".
 
 ### 5. Release the collector, protocol and guidance
 Type: Behavior
-Status: planned
+Status: done
 Checkpoint: before this slice's trunk step, ask Terry for one go-ahead that
 covers a [Dough Land](../../../.agents/skills/dough-land/SKILL.md)
 `--keep-worktree` landing of the story branch on `main` and then the release.
@@ -262,6 +262,22 @@ Behavior: with slices 1–4 landed on `main` and its CI green, follow
 trunk. The tag's payload carries the collector, `proof` operation and
 guidance, so Pygardon can `dough-update` to it. No client rollout is part of
 this slice.
+
+Accepted (2026-11-05): Dough Land `--keep-worktree` landed the story branch on
+`main` at `4a81298` (merge, `GITHUB-REQUESTS.md` conflict resolved with trunk's
+reflow; landing receipt recorded) after full `npm test` and the dashboard suite
+(2054 passed, 1 skipped) passed locally. Main CI then needed the
+Sessions-sidebar repair `514a70a` and one rerun of a node test shard cancelled
+on a degraded runner (Terry's choice); it passed. `v0.3.85` was released from
+trunk as `bc84cc196`: `git ls-remote --tags origin v0.3.85` names
+`134d01db`, and the tagged `ci-proof-contract.mjs` contains `attemptId`.
+Live reading, production deployment `4055e1ab8b43` at 2026-11-05 ~14:00 (+07):
+Open Dough's tab showed run 41979207110 attempt 1 at `4055e1a` with
+`dashboard/tests` 2088 passed and 8 other, 12 of 12 parts; `tests` 201 passed
+checks, 3 of 3; `src/skills` 292 passed checks, 3 of 3 — equal to its
+`ci-proof-summary-attempt-1` artifact. Doughnut run 41972920025 showed
+"This run published no CI proof summary." with "Passed at 6c5702c". No
+regression.
 
 ## Current decisions
 
