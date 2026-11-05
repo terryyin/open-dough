@@ -12,10 +12,7 @@ none, and schema versions stay at 1. Use this reference when the request is
 to make this project's CI publish that summary, or when the tab says the
 shown run or attempt has no CI proof summary.
 
-It adds observations of ordinary CI results beside any deliberately retained
-proof (such as [Cucumber proof](cucumber-proof.md)), which it leaves
-untouched. Every change is to this project's own workflow, CI scripts or CI
-adapter.
+Every change is to this project's own workflow, CI scripts or CI adapter.
 
 ## Check the project first
 
