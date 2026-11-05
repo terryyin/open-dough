@@ -22,6 +22,23 @@ export const sessionActions = (scope: Locator) =>
 export const sessionDetails = (scope: Locator) =>
   disclose(scope, "Session details");
 
+// Collapse Session details when the disclosure is expanded. Opening stays on
+// sessionDetails so callers keep a single open/close pair.
+export async function closeSessionDetails(scope: Locator): Promise<Locator> {
+  await scope.waitFor({ state: "attached" });
+  const control = scope.getByRole("button", {
+    name: "Session details",
+    exact: true,
+  });
+  if (
+    (await control.count()) === 1 &&
+    (await control.getAttribute("aria-expanded")) === "true"
+  ) {
+    await control.click();
+  }
+  return scope;
+}
+
 // The named lifecycle control after its entry disclosure is opened. A panel or
 // in-place question already offering the control follows the same route.
 export async function sessionAction(

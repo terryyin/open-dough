@@ -1,14 +1,20 @@
-import { sessionActions } from "./support/sessionEntryDisclosure.ts";
-import { execFileSync } from "node:child_process";
-import { mkdirSync } from "node:fs";
-import path from "node:path";
+import {
+  closeSessionDetails,
+  sessionActions,
+  sessionDetails,
+} from "./support/sessionEntryDisclosure.ts";
+import {
+  failFirstHistoricalCreditRead,
+  historicalCreditReads,
+  holdFirstHistoricalCreditRead,
+  profileListingsAt,
+  readsAtRevision,
+} from "./support/historicalCreditReads.ts";
+import { openSessionAttributionBoard } from "./support/sessionAttributionFixture.ts";
 import { expect, test } from "./dashboardTest.ts";
-import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { storyCardSessions, parts } from "./dashboardPage.ts";
-import { publishPreparingJourney, storyA, storyC } from "./preparingJourney.ts";
-import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
-import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
+import { storyA, storyC } from "./preparingJourney.ts";
+import { authenticatedReadRoute } from "./holdAuthenticatedReads.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -18,145 +24,93 @@ test("a retained session keeps its allocation credit after release and a later p
   afterGitHubStops,
 }) => {
   test.setTimeout(120_000);
-  const journey = await publishPreparingJourney();
-  afterGitHubStops(journey.cleanup);
-  const reused = await journey.reuseRefiner();
-  const show = async (revision: string) => {
-    execFileSync("git", [
-      "-C",
-      journey.origin,
-      "update-ref",
-      "refs/heads/main",
-      revision,
-    ]);
-    await reloadUntilRead(page);
-  };
-  const workspace = path.join(
-    dashboard.home,
-    "git/open-dough/.worktrees/c-refine",
-  );
-  mkdirSync(workspace, { recursive: true });
-  const sessionId = dashboard.claudeListsSession({
-    name: storyC,
-    cwd: workspace,
-    startedAt: Date.now(),
-  });
-  const record = {
-    request: {
-      source: "open-dough",
-      identity: "SEED-C#c",
-      title: storyC,
-      workflow: "refinement",
-      host: "claude",
-      model: "Fable",
-    },
-    session: {
-      host: "claude",
-      sessionId,
-      shortId: sessionId.slice(0, 8),
-      name: storyC,
-    },
-    preparation: {
-      identity: "SEED-C#c",
-      workspace,
-      branch: "claude/c-refine",
-      remote: "origin",
-      target: "main",
-      agent: journey.preparers.refining,
-      publishedSha: journey.refiningAllocation,
-    },
-    launchedAt: new Date().toISOString(),
-  } satisfies LaunchRecord;
-  const legacy: LaunchRecord = {
-    ...record,
-    request: { ...record.request, model: "claude-opus-5-5" },
-    session: {
-      host: "claude",
-      name: storyC,
-      sessionId: "22222222-aaaa-bbbb-cccc-000000000002",
-      shortId: "22222222",
-    },
-    preparation: { ...record.preparation, publishedSha: undefined },
-  };
-  const unreadable: LaunchRecord = {
-    ...record,
-    request: { ...record.request, model: "claude-opus-5-5" },
-    session: {
-      host: "claude",
-      name: storyC,
-      sessionId: "33333333-aaaa-bbbb-cccc-000000000003",
-      shortId: "33333333",
-    },
-    preparation: { ...record.preparation, publishedSha: "ff".repeat(20) },
-  };
-  const matchingId = dashboard.claudeListsSession({
-    name: storyC,
-    cwd: workspace,
-    startedAt: Date.now(),
-  });
-  const matching: LaunchRecord = {
-    ...record,
-    request: { ...record.request, model: "claude-opus-5-5" },
-    session: {
-      host: "claude",
-      name: storyC,
-      sessionId: matchingId,
-      shortId: matchingId.slice(0, 8),
-    },
-    completion: {
-      receipt: "44444444-aaaa-4bbb-8ccc-000000000005",
-      reference: "44444444-aaaa-4bbb-8ccc-000000000006",
-      outcome: "completed",
-      message: "Ready for slice planning",
-      receivedAt: new Date().toISOString(),
-    },
-  };
-  await keepLaunchRecords(dashboard, [record, legacy, unreadable, matching]);
-  execFileSync("git", [
-    "-C",
-    journey.origin,
-    "update-ref",
-    "refs/heads/main",
-    journey.announced,
-  ]);
-  await publishCommittedOrigin(page, {
-    repoDir: journey.origin,
-    revision: journey.announced,
-    repository: "terryyin/open-dough",
-    follows: true,
-    realHistory: true,
-  });
-  await openUntilRead(page);
-  const card = parts(page).backlog.getByRole("article", { name: storyC });
-  const original = storyCardSessions(card).filter({ hasText: sessionId });
-  const historical = `Session assignment: ${journey.preparers.refining} · Integration Checkout · Claude Code`;
+  const {
+    journey,
+    reused,
+    unreadableRevision,
+    authenticatedReads,
+    show,
+    sessionId,
+    matchingId,
+    card,
+    original,
+    legacySession,
+    missing,
+    duplicate,
+    historical,
+    unknown,
+  } = await openSessionAttributionBoard(page, dashboard, afterGitHubStops);
   await expect(card.locator(".story-card-preparing .owner-line")).toHaveText(
     `${journey.preparers.refining} · Integration Checkout · Claude Code · claude-opus-5-5`,
   );
-  await expect(original).toContainText(historical);
-  await expect(original).toContainText("Model: Fable (requested)");
   await expect(original.locator(".session-entry-host")).toHaveCount(0);
   await expect(original.locator(".session-entry-model")).toHaveText(
     "Model: Fable (requested)",
   );
-  const legacySession = storyCardSessions(card).filter({ hasText: "22222222" });
-  const missing = storyCardSessions(card).filter({ hasText: "33333333" });
-  const unknown = `Session assignment: ${journey.preparers.refining} · Human developer unknown · Claude Code`;
+  await expect(original.locator(".session-assignment")).toHaveCount(0);
+  expect(
+    historicalCreditReads(authenticatedReads, journey.refiningAllocation),
+  ).toEqual([]);
+  expect(historicalCreditReads(authenticatedReads, unreadableRevision)).toEqual(
+    [],
+  );
+  expect(
+    profileListingsAt(authenticatedReads, journey.announced).length,
+  ).toBeGreaterThan(0);
+
+  const beforeOriginalOpen = authenticatedReads.length;
+  await sessionDetails(original);
+  await expect(original).toContainText(historical);
+  await expect(original).toContainText("Model: Fable (requested)");
+  const afterOriginalOpen = authenticatedReads.slice(beforeOriginalOpen);
+  expect(
+    historicalCreditReads(afterOriginalOpen, journey.refiningAllocation).length,
+  ).toBeGreaterThan(0);
+  expect(historicalCreditReads(afterOriginalOpen, unreadableRevision)).toEqual(
+    [],
+  );
+  await closeSessionDetails(original);
+  await expect(original.locator(".session-assignment")).toHaveCount(0);
+
+  await sessionDetails(legacySession);
   await expect(legacySession).toContainText(unknown);
+  await closeSessionDetails(legacySession);
+
+  const beforeMissingOpen = authenticatedReads.length;
+  await sessionDetails(missing);
   await expect(missing).toContainText(unknown);
-  const duplicate = storyCardSessions(card).filter({ hasText: matchingId });
+  await expect(missing).toContainText("Model: claude-opus-5-5 (requested)");
+  expect(
+    readsAtRevision(
+      authenticatedReads.slice(beforeMissingOpen),
+      unreadableRevision,
+    ).length,
+  ).toBeGreaterThan(0);
+  await closeSessionDetails(missing);
+  await expect(missing.locator(".session-assignment")).toHaveCount(0);
+  const beforeMissingReopen = authenticatedReads.length;
+  await sessionDetails(missing);
+  await expect(missing).toContainText(unknown);
+  expect(
+    readsAtRevision(
+      authenticatedReads.slice(beforeMissingReopen),
+      unreadableRevision,
+    ).length,
+  ).toBeGreaterThan(0);
+  await closeSessionDetails(missing);
+
   await expect(duplicate).toContainText("Ready for slice planning");
-  await expect(duplicate.locator(".session-assignment")).toHaveCount(0);
   await expect(duplicate.locator(".session-entry-host")).toHaveCount(0);
   await expect(duplicate.locator(".session-entry-model")).toHaveCount(0);
-  await duplicate.getByRole("button", { name: "Session details" }).click();
+  await sessionDetails(duplicate);
+  await expect(duplicate.locator(".session-assignment")).toHaveCount(0);
   await expect(
     duplicate.getByText("Model: claude-opus-5-5 (requested)", { exact: true }),
   ).toBeVisible();
   await expect(
     duplicate.getByText(/^Refinement started in Claude Code/),
   ).toBeVisible();
-  await duplicate.getByRole("button", { name: "Session details" }).click();
+  await closeSessionDetails(duplicate);
   await expect(duplicate).toContainText(
     "Workspace ~/git/open-dough/.worktrees/c-refine",
   );
@@ -176,11 +130,38 @@ test("a retained session keeps its allocation credit after release and a later p
       .recentlyDone.getByRole("article")
       .filter({ hasText: matchingId }),
   ).toHaveCount(0);
+
+  const held = await holdFirstHistoricalCreditRead(
+    page,
+    journey.refiningAllocation,
+  );
+  await sessionDetails(original);
+  await expect(original).toContainText("Reading human developer…");
+  await closeSessionDetails(original);
+  held.release();
+  await expect(original.locator(".session-assignment")).toHaveCount(0);
+  await page.unroute(authenticatedReadRoute);
+  await sessionDetails(original);
+  await expect(original).toContainText(historical);
+  await closeSessionDetails(original);
+
+  await failFirstHistoricalCreditRead(page, journey.refiningAllocation);
+  await sessionDetails(original);
+  await expect(original).toContainText(unknown);
+  await expect(original).toContainText("Model: Fable (requested)");
+  await closeSessionDetails(original);
+  await page.unroute(authenticatedReadRoute);
+  await sessionDetails(original);
+  await expect(original).toContainText(historical);
+  await closeSessionDetails(original);
+
   await show(journey.refinedLanded);
   await expect(duplicate.locator(".session-entry-host")).toBeVisible();
   await expect(duplicate.locator(".session-entry-model")).toBeVisible();
+  await sessionDetails(duplicate);
   await expect(duplicate).toContainText(historical);
   await expect(duplicate).toContainText("Model: claude-opus-5-5 (requested)");
+  await sessionDetails(original);
   await expect(original).toContainText(historical);
   await expect(original).toContainText("Model: Fable (requested)");
   await expect(original.locator(".session-state")).toHaveText("Working");
@@ -188,27 +169,36 @@ test("a retained session keeps its allocation credit after release and a later p
     original.getByRole("button", { name: "Open terminal" }),
   ).toBeVisible();
   await expect(card.locator(".preparing-activity")).toHaveCount(0);
+  await sessionDetails(legacySession);
   await expect(legacySession).toContainText(unknown);
+  await sessionDetails(missing);
   await expect(missing).toContainText(unknown);
   await expect(missing).toContainText("Model: claude-opus-5-5 (requested)");
   await show(journey.planningAnnounced);
   await expect(card.locator(".story-card-preparing")).toContainText(
     journey.preparers.planning,
   );
+  await sessionDetails(original);
   await expect(original).toContainText(historical);
   await expect(original).not.toContainText(journey.preparers.planning);
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: sessionId });
-  await expect(recent).toHaveCount(0);
+  await expect(
+    parts(page)
+      .recentlyDone.getByRole("article")
+      .filter({ hasText: sessionId }),
+  ).toHaveCount(0);
   await show(reused);
-  const newAssignment = parts(page)
-    .backlog.getByRole("article", { name: storyA })
-    .locator(".owner-line")
-    .filter({ hasText: journey.preparers.refining });
-  await expect(newAssignment).toHaveText(
+  await expect(
+    parts(page)
+      .backlog.getByRole("article", { name: storyA })
+      .locator(".owner-line")
+      .filter({ hasText: journey.preparers.refining }),
+  ).toHaveText(
     `${journey.preparers.refining} · Later Allocator · Cursor · later-model`,
   );
-  await expect(original).toContainText(historical);
-  await expect(original).not.toContainText("Later Allocator");
+  const originalAfterReuse = storyCardSessions(
+    parts(page).backlog.getByRole("article", { name: storyC }),
+  ).filter({ hasText: sessionId });
+  await sessionDetails(originalAfterReuse);
+  await expect(originalAfterReuse).toContainText(historical);
+  await expect(originalAfterReuse).not.toContainText("Later Allocator");
 });

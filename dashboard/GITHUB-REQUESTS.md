@@ -10,7 +10,9 @@ once per revision, one listing of the done record directory and one read of its 
 one per done record Recently done shows and this dashboard process has not already read (older
 entries cost theirs only once shown), one listing of the agent profile directory plus one per
 profile listed there, and, for each readable profile, one listing of its history and one request per
-commit walked back to its addition (usually one). A history listing is remembered at its revision,
+commit walked back to its addition (usually one). Opening a Session details costs, at that session's
+saved revision, what a first read of that revision's profiles costs, unless the dashboard process
+already remembers it. A history listing is remembered at its revision,
 and what a commit changed is remembered by commit, so a walk a failure or a rate limit ended asks
 again only from the step that failed, and a later revision that must walk a profile's history again
 costs only its history listing. Each GitHub account matched to a credited human costs one

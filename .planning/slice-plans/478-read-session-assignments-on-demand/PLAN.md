@@ -2,6 +2,7 @@
 
 **Identity:** SEED-240#read-session-assignments-on-demand
 **Source:** [selected story](../../seeds/SEED-240-reliable-dashboard-updates-and-session-details.md#read-session-assignments-on-demand)
+**Source review:** [source review](source-review.md)
 **Prepared:** 2026-11-05; preparation only. Execution is not authorized by this plan.
 
 ## Goal and boundaries
@@ -87,13 +88,18 @@ Hosted CI on the published revision remains owned under the failure policy.
 ### 1. Session details read historical credit only while open
 
 Type: Behavior
-Status: planned
-Proof: `dashboard/tests/session-attribution.spec.ts` with the examples above
-(its collapsed-request assertion fails on today's code, as observed);
+Status: done
+Proof: `dashboard/tests/session-attribution.spec.ts` with
+`dashboard/tests/support/sessionAttributionFixture.ts`,
+`dashboard/tests/support/historicalCreditReads.ts`, and
+`closeSessionDetails` in `sessionEntryDisclosure.ts` — collapsed historical
+reads empty; open/close/reopen credit and request counts; hold/fail first
+saved-revision read. Keep-green:
 `dashboard/tests/agent-launch-retained-history.spec.ts`,
 `dashboard/tests/recently-done-sessions-sidebar.spec.ts`,
 `dashboard/tests/agent-roster-avatar.spec.ts` and
-`dashboard/tests/published-facts-failures.spec.ts` stay green.
+`dashboard/tests/published-facts-failures.spec.ts`. Literal focused run:
+`PATH=/opt/homebrew/bin:$PATH caffeinate -s -i -- env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/playwright.config.ts dashboard/tests/session-attribution.spec.ts dashboard/tests/agent-launch-retained-history.spec.ts dashboard/tests/recently-done-sessions-sidebar.spec.ts dashboard/tests/agent-roster-avatar.spec.ts dashboard/tests/published-facts-failures.spec.ts --reporter=list` (10 passed); post-refactor attribution-only rerun 1 passed.
 
 Behavior: a Board shows collapsed Session entries saved at different
 publication revisions → the developer opens, closes, and reopens one entry's
@@ -107,8 +113,39 @@ a read abandoned by closing shows nothing, and reopening asks again.
   observable outcome.
 - The assignment line keeps today's rendering while reading, including for a
   line later omitted as a duplicate of the story card (story Kept behavior).
+- Gate in `SessionDetails` via `open && <SessionAssignment/>` fed from
+  `SessionEntry`'s `detailsOpen`; rest of details stay mounted hidden.
+- Refactor: attribution journey fixture and historical-credit request
+  helpers extracted so the spec stays under the 250-line file gate.
 
 ## Concern evidence
 
 Refinement not needed: one cohesive slice with settled premises and mapped
 proof. This review identified no remaining slice-specific concern.
+
+## Learnings
+
+- On-demand credit proof's request shape and disclosure close pair belong in
+  support beside the fixture, or the journey spec exceeds the file-size gate.
+
+
+## Story obligations
+
+### G1. Unreadable vs unrecorded wording deferred
+Reported: slice 1 — "Deferred distinguishing unreadable from unrecorded wording"
+Story clause: "Distinguishing an unreadable history from an unrecorded one in the details' wording"
+Disposition: excluded "Distinguishing an unreadable history from an unrecorded one in the details' wording"
+Commitment: 18
+
+
+### G2. Page-held answer across close deferred
+Reported: slice 1 — "Deferred keeping an answer in the page across close and reopen"
+Story clause: "keeping an answer in the page across close and reopen"
+Disposition: excluded "keeping an answer in the page across close and reopen"
+Commitment: 19
+
+### G3. Credit in local launch record deferred
+Reported: slice 1 — "Deferred recording credit in the local launch record"
+Story clause: "recording credit in the local launch record"
+Disposition: excluded "recording credit in the local launch record"
+Commitment: 20
