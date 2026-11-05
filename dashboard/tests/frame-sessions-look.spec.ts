@@ -22,6 +22,10 @@ import {
 } from "./pageLayout.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
+  expectClosedToggleCounts,
+  expectClosedToggleCountsFit,
+} from "./sessionsTogglePage.ts";
+import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
@@ -52,6 +56,11 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
     dashboard,
   }) => {
     const { sessionId } = await launched(dashboard, "doughnut", work);
+    const { sessionId: needsInput } = await launched(dashboard, "doughnut", {
+      identity: "SEED-901#frame-look-attention",
+      title: "A second session that needs attention for the closed badge",
+    });
+    dashboard.claudeSessionBecomes(needsInput, "blocked");
     await page.setViewportSize(narrowWindow);
     const { settled } = await openStoryColumnsJourney(page, columnsJourney);
     const { sidebar, button, entries, entry } = sessionsSidebarParts(page);
@@ -59,8 +68,10 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
     const control = (name: string) =>
       panel.getByRole("button", { name, exact: true });
     await settled();
+    await expectClosedToggleCounts(page, 1, 1);
+    await expectClosedToggleCountsFit(page);
     await button.click();
-    await expect(entries).toHaveCount(1);
+    await expect(entries).toHaveCount(2);
 
     await test.step("the open sidebar's button, heading, and entry read clearly", async () => {
       await expectFrameIconControl(button, "Sessions", "Sessions (⌘B)");

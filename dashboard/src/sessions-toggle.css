@@ -1,0 +1,53 @@
+/* The banner Sessions toggle (./icon-control.css): product-mark visual;
+   open accent; corner badge with working (closed only, ready green) then
+   attention (problem). */
+
+.sessions-toggle[aria-expanded="true"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.sessions-toggle-counts {
+  position: absolute;
+  top: calc(-1 * var(--space-1));
+  right: calc(-1 * var(--space-1));
+  display: flex;
+  box-sizing: border-box;
+  border: 2px solid var(--raised-surface);
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+}
+
+.sessions-toggle-working,
+.sessions-toggle-attention {
+  box-sizing: border-box;
+  min-width: 1.125rem;
+  padding: 0 0.3rem;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  line-height: 0.875rem;
+  text-align: center;
+  color: #fff;
+}
+
+.sessions-toggle-working {
+  background: var(--ready);
+}
+
+.sessions-toggle-attention {
+  background: var(--problem);
+}
+
+/* Outer corners follow the badge pill; no overflow:hidden (layout reads it). */
+.sessions-toggle-working:first-child {
+  border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+}
+
+.sessions-toggle-attention:last-child {
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+}
+
+.sessions-toggle-working:only-child,
+.sessions-toggle-attention:only-child {
+  border-radius: var(--radius-pill);
+}

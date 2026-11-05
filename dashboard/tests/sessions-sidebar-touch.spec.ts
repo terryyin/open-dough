@@ -15,6 +15,10 @@ import {
   tapWhereShown,
 } from "./pageLayout.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
+import {
+  expectClosedToggleCounts,
+  expectClosedToggleCountsFit,
+} from "./sessionsTogglePage.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
 
@@ -63,6 +67,9 @@ test.describe(`${name} session discovery`, () => {
     await opened.settled();
     const { sidebar, button, badge, entries, entry } =
       sessionsSidebarParts(page);
+    // Closed: working (ordinary) then attention (intended) stay whole in view.
+    await expectClosedToggleCounts(page, 1, 1);
+    await expectClosedToggleCountsFit(page);
     await tapWhereShown(button);
     await expect(entries).toHaveCount(2);
     const row = entries.filter({ hasText: intended.title });
@@ -106,7 +113,6 @@ test.describe(`${name} session discovery`, () => {
     // that parent's scrollWidth is not a text-clipping measurement.
     await expectNoSidewaysScrollAndWholeText(page, [
       ".sessions-sidebar-session-entry-title",
-      ".sessions-toggle-group",
       ...compactProjectSelectCut,
     ]);
     await page.setViewportSize(landscape);

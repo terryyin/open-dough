@@ -47,6 +47,18 @@ type ReadableSession = Pick<LaunchWithState, "sessionState" | "doneAt"> &
 export const sessionDoneMeaning =
   "Mark as done acknowledges this session; it does not complete the story.";
 
+// Native Working or Cursor held "working"; unfinishedIntention and workingCount
+// share this. workingCount also requires the session is not marked done.
+function readsWorking(session: ReadableSession): boolean {
+  const { sessionState } = session;
+  return (
+    (sessionState.kind === "available" &&
+      sessionState.activity === "working") ||
+    (sessionState.kind === "unknown" &&
+      sessionState.label === cursorHeldLabel.working)
+  );
+}
+
 // A completed refinement can leave its native process waiting after retiring
 // its preparation workspace. Only these explicit facts establish completion;
 // actual working activity remains visible.
@@ -56,14 +68,7 @@ function completedRetiredRefinement(session: ReadableSession): boolean {
     session.preparation !== undefined &&
     session.workspaceState?.kind === "missing" &&
     session.completion?.outcome === "completed" &&
-    !(
-      session.sessionState.kind === "available" &&
-      session.sessionState.activity === "working"
-    ) &&
-    !(
-      session.sessionState.kind === "unknown" &&
-      session.sessionState.label === cursorHeldLabel.working
-    )
+    !readsWorking(session)
   );
 }
 
@@ -116,7 +121,7 @@ export function unfinishedIntention(
   const held = sessionState.kind === "unknown" ? sessionState.label : undefined;
   const activity =
     sessionState.kind === "available" ? sessionState.activity : undefined;
-  if (activity === "working" || held === cursorHeldLabel.working) {
+  if (readsWorking(session)) {
     // Where the host boundary says Done is a local acknowledgement only,
     // marking done does not ask the session to stop.
     if (
@@ -178,21 +183,37 @@ export function attentionCount(sessions: readonly ReadableSession[]): number {
     .length;
 }
 
-// What a story's card and the banner's Sessions badge say of listed sessions:
-// how many need attention, or nothing when none do.
+// Open sessions that read working and are not marked done.
+export function workingCount(sessions: readonly ReadableSession[]): number {
+  return sessions.filter(
+    (session) => session.doneAt === undefined && readsWorking(session),
+  ).length;
+}
+
+// Story card and banner Sessions badge: how many need attention, or nothing.
 export function attentionSummary(
   sessions: readonly ReadableSession[],
 ): string | undefined {
   return unlessNone(attentionCount(sessions), attentionWords);
 }
 
-// How many sessions need attention, in words, zero included.
+// Closed Sessions toggle badge: how many are working, or nothing.
+export function workingSummary(
+  sessions: readonly ReadableSession[],
+): string | undefined {
+  return unlessNone(workingCount(sessions), workingWords);
+}
+
 export function attentionWords(count: number): string {
   return countedWords(
     count,
     "session needs attention",
     "sessions need attention",
   );
+}
+
+export function workingWords(count: number): string {
+  return countedWords(count, "session working", "sessions working");
 }
 
 // How many open sessions do not need attention, in words, zero included.

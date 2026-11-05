@@ -1,4 +1,4 @@
-/* The Sessions sidebar and its button. On a wide window the sidebar is a
+/* The Sessions sidebar (toggle: ./sessions-toggle.css). On a wide window the sidebar is a
    fixed-width column left of the page, as tall as the window, while the Board
    scrolls beside it, with the side panel still on the right:
    sidebar | page | panel (./side-panel.css). On a narrow window, where the
@@ -215,31 +215,7 @@
   cursor: pointer;
 }
 
-/* The Sessions button is a frame icon control (./icon-control.css) whose
-   visual is the product mark; open, it is marked in the accent, and its count
-   of sessions needing the developer sits on its corner. */
-.sessions-toggle[aria-expanded="true"] {
-  color: var(--accent);
-  background: var(--accent-soft);
-}
-
-.sessions-toggle-attention {
-  position: absolute;
-  top: calc(-1 * var(--space-1));
-  right: calc(-1 * var(--space-1));
-  box-sizing: border-box;
-  min-width: 1.125rem;
-  padding: 0 0.3rem;
-  border: 2px solid var(--raised-surface);
-  border-radius: var(--radius-pill);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  line-height: 0.875rem;
-  text-align: center;
-  color: #fff;
-  background: var(--problem);
-  pointer-events: none;
-}
+/* Toggle open mark and dual-count badge: ./sessions-toggle.css. */
 
 @media (max-width: 800px) {
   .page-with-sessions-sidebar {

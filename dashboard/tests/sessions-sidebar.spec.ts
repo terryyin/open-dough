@@ -1,6 +1,7 @@
-// Cross-project Sessions sidebar: oldest attention first, then newest others.
-// Title/age rows, project/workflow/time/state tooltips, attention badges; Done removes entries.
-// Wide sits left, narrow overlays. Columns fit their room; real boundaries, fake Claude, paused time.
+// Cross-project Sessions sidebar: attention first, closed toggle working then
+// attention counts, Done removes entries; wide sits left, narrow overlays.
+// Real boundaries, fake Claude, paused time. Order alone:
+// ./sessions-sidebar-order.spec.ts.
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import {
   storyCardSessionOf,
@@ -15,6 +16,7 @@ import {
   takenStory,
   type StoryColumnsJourney,
 } from "./launchJourney.ts";
+import { markDone as markSessionDone } from "./agentLaunchBoundary.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { watchRecordReads } from "./sessionStatePace.ts";
 import {
@@ -23,6 +25,7 @@ import {
   expectSessionsSidebarLayout,
   sessionsSidebarParts,
 } from "./sessionsSidebarPage.ts";
+import { expectClosedToggleCounts } from "./sessionsTogglePage.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { markDoneAnyway } from "./support/markDone.ts";
 import { showColumn } from "./boardPage.ts";
@@ -45,67 +48,6 @@ test.describe("the Sessions sidebar", () => {
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
-  test("leads with the sessions that need the developer, earliest launch first, then the others newest first", async ({
-    page,
-    dashboard,
-  }) => {
-    await pausePageClockAt(page, new Date());
-    const { passOnePace } = await watchRecordReads(page);
-    // Launched in this order, so this is their launch order, earliest first.
-    const story = (letter: string) => ({
-      identity: `SEED-900#story-${letter}`,
-      title: `Story ${letter}`,
-    });
-    const working08 = story("A");
-    const blocked09 = story("B");
-    const failed10 = story("C");
-    const working11 = story("D");
-    const working12 = story("E");
-    let toBlock = "";
-    for (const work of [working08, blocked09, failed10, working11, working12]) {
-      const { sessionId } = await launched(dashboard, "doughnut", work);
-      if (work === blocked09)
-        dashboard.claudeSessionBecomes(sessionId, "blocked");
-      if (work === failed10)
-        dashboard.claudeSessionBecomes(sessionId, "failed");
-      if (work === working11) toBlock = sessionId;
-    }
-    const { settled } = await openStoryColumnsJourney(page, columnsJourney);
-    const { button, entries, badge } = sessionsSidebarParts(page);
-    await settled();
-    await button.click();
-    const titles = () => entries.getByRole("heading", { level: 3 });
-
-    await test.step("a needs-input and a failed session lead, earliest first, then the working ones newest first", async () => {
-      await expect(titles()).toHaveText([
-        blocked09.title,
-        failed10.title,
-        working12.title,
-        working11.title,
-        working08.title,
-      ]);
-      await expect(badge).toHaveText("2");
-    });
-
-    await test.step("a working session that needs input joins the attention group at its launch place, and the count rises", async () => {
-      dashboard.claudeSessionBecomes(toBlock, "blocked");
-      await passOnePace();
-      await expect(badge).toHaveText("3");
-      await expect(titles()).toHaveText([
-        blocked09.title,
-        failed10.title,
-        working11.title,
-        working12.title,
-        working08.title,
-      ]);
-      await expectSessionsSidebarSessionEntryShown(
-        entries.nth(2),
-        "Needs input",
-        "needs-input",
-      );
-    });
-  });
-
   test("lists every project's open sessions with the ones needing attention first, and sits left of the page or over it", async ({
     page,
     dashboard,
@@ -126,8 +68,15 @@ test.describe("the Sessions sidebar", () => {
       page,
       columnsJourney,
     );
-    const { sidebar, button, entries, badge, attentionSentence } =
-      sessionsSidebarParts(page);
+    const {
+      sidebar,
+      button,
+      entries,
+      entry,
+      badge,
+      workingBadge,
+      attentionSentence,
+    } = sessionsSidebarParts(page);
     const queued = [takenStory, readyStory, notRefinedStory];
     await expectMembership(page, { taken: [], backlog: queued });
     await settled();
@@ -139,7 +88,9 @@ test.describe("the Sessions sidebar", () => {
 
     await test.step("Sessions in the banner opens the sidebar, closed at first, on every project's sessions newest first", async () => {
       await expect(button).toHaveText("");
-      await expect(badge).toHaveCount(0);
+      // Four working across projects, none needing attention; no badge before
+      // first read is elsewhere.
+      await expectClosedToggleCounts(page, 4, 0);
       await expect(button.locator("img.product-mark")).toBeVisible();
       await expect(button).toHaveAttribute("aria-expanded", "false");
       await expect(sidebar).toBeHidden();
@@ -164,6 +115,7 @@ test.describe("the Sessions sidebar", () => {
         ],
         since,
       );
+      await expect(workingBadge).toHaveCount(0);
       await expect(badge).toHaveCount(0);
     });
 
@@ -173,6 +125,7 @@ test.describe("the Sessions sidebar", () => {
       await passOnePace();
       await expect(badge).toHaveText("2");
       await expect(badge).toHaveAccessibleName("2 sessions need attention");
+      await expect(workingBadge).toHaveCount(0);
       await expect(attentionSentence).toHaveCount(0);
       await expectEntries(
         entries,
@@ -197,52 +150,74 @@ test.describe("the Sessions sidebar", () => {
         since,
       );
 
+      await launch(takenStory, "Execution");
+      await expect(entries).toHaveCount(5);
+      // Closed: 3 working then 2 attention; open: attention only.
       await button.click();
       await expect(sidebar).toBeHidden();
-      await expect(button).toHaveAttribute("aria-expanded", "false");
-      await expect(badge).toHaveText("2");
+      await expectClosedToggleCounts(page, 3, 2);
+
+      // One working starts waiting for input → 2 working / 3 attention.
+      const taken = await sessionNamedBy(
+        storyCardSessionOf(card(takenStory), "Execution"),
+      );
+      dashboard.claudeSessionBecomes(taken, "blocked");
+      await passOnePace();
+      await expectClosedToggleCounts(page, 2, 3);
+
+      // Open: attention only; closing restores both.
+      await button.click();
+      await expect(sidebar).toBeVisible();
+      await expect(workingBadge).toHaveCount(0);
+      await expect(badge).toHaveText("3");
+      await button.click();
+      await expect(sidebar).toBeHidden();
+      await expectClosedToggleCounts(page, 2, 3);
       await button.click();
       await expect(sidebar).toBeVisible();
       await expectMembership(page, { taken: [], backlog: queued });
     });
 
-    await test.step("a state change moves the entry into the attention group, and a new launch leads the others", async () => {
+    await test.step("a state change moves the entry into the attention group", async () => {
       dashboard.claudeSessionBecomes(ready, "done-live");
       await passOnePace();
-      await expect(badge).toHaveText("3");
+      await expect(badge).toHaveText("4");
+      // Attention by earliest launch: doughnut, pygardon, ready, taken.
       await expectSessionsSidebarSessionEntryShown(
         entries.nth(2),
         "Ready for review",
         "ready",
       );
       await expect(entries.nth(2).getByRole("heading")).toHaveText(readyStory);
-
-      await launch(takenStory, "Execution");
-      await expect(entries).toHaveCount(5);
-      await expect(entries.nth(3).getByRole("heading")).toHaveText(takenStory);
-      await expectSessionsSidebarSessionEntryShown(
-        entries.nth(3),
-        "Working",
-        "working",
-      );
     });
 
-    await test.step("a session marked done leaves the sidebar, and its count", async () => {
+    await test.step("sessions marked done leave the sidebar; closed with only attention shows that count alone", async () => {
       await markDoneAnyway(storyCardSessionOf(card(readyStory), "Execution"));
-      await expect(entries).toHaveCount(4);
-      await expect(badge).toHaveText("2");
+      await markDoneAnyway(storyCardSessionOf(card(takenStory), "Execution"));
+      await markDoneAnyway(
+        storyCardSessionOf(card(notRefinedStory), "Refinement"),
+      );
+      await markSessionDone(dashboard, {
+        source: "pygardon",
+        session: pygardon,
+      });
+      await passOnePace();
+      await expect(entries).toHaveCount(1);
+      await expect(badge).toHaveText("1");
       await expect(
         entries.getByRole("heading", { name: readyStory }),
       ).toHaveCount(0);
+      await button.click();
+      await expect(sidebar).toBeHidden();
+      await expectClosedToggleCounts(page, 0, 1);
+      await button.click();
+      await expect(sidebar).toBeVisible();
     });
 
     await test.step("wide, the sidebar is a column left of the page and the terminal right of it; narrow, it lies over the page", async () => {
       const panel = page.getByRole("region", { name: "Terminal" });
-      // Mark as done returned focus to the moved entry in Recently done.
       await showColumn(page, "Backlog");
-      await storyCardSessionOf(card(notRefinedStory), "Refinement")
-        .getByRole("button", { name: "Open terminal" })
-        .click();
+      await entry(doughnutSharedTitle).click();
       await expect(panel).toBeVisible();
       await expectSessionsSidebarLayout(page, panel);
     });

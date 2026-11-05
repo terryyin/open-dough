@@ -3,7 +3,8 @@ import { sessionKey } from "./sessionReference.ts";
 // first, then other sessions (openSessionsOf). Entries show title/age, native
 // state, unread-report marks, tooltips and coarse-input details. Unavailable
 // macOS alerts are explained only while open. The banner Sessions button and
-// Command+B toggle it with attentionCount (unread reports alone add none).
+// Command+B toggle it with attentionCount (unread reports alone add none);
+// while closed, workingCount joins that badge ahead of attention.
 // Dialogs keep their keyboard; otherwise the shortcut takes the browser key.
 // Focus stays put except closing around focused content returns to Sessions.
 // Entries open their story/session through PageFrame; narrow overlays close.
@@ -28,13 +29,12 @@ import {
   useRef,
   useState,
 } from "react";
-import { Activity, Cpu, Hand, HardDrive, type LucideIcon } from "lucide-react";
 import {
   openSessionsOf,
   type Alerts,
   type LaunchWithState,
 } from "./agentLaunch.ts";
-import { Icon, IconButton } from "./Icon.tsx";
+import { IconButton } from "./Icon.tsx";
 import { ProductMark } from "./ProductMark.tsx";
 import { SessionList } from "./SessionLists.tsx";
 import {
@@ -45,18 +45,19 @@ import {
   SessionsSidebarOptionalSections,
   useOptionalSidebarSectionState,
 } from "./SessionsSidebarOptionalSections.tsx";
-import { cpuShown, freeDiskShown, type HostStatus } from "./hostStatus.ts";
+import { SessionsSidebarStatus } from "./SessionsSidebarStatus.tsx";
 import { useHostStatus } from "./hostStatusReads.ts";
 import { keep, readKept } from "./keptPreference.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import {
-  activeSessionsWords,
   attentionCount,
   attentionSummary,
-  attentionWords,
+  workingCount,
+  workingSummary,
 } from "./sessionShown.ts";
 import "./agent-launch.css";
 import "./sessions-sidebar.css";
+import "./sessions-toggle.css";
 
 const sessionsSidebarId = "sessions-sidebar";
 const sessionsSidebarOpenKey = "open-dough.sessionsSidebar.open";
@@ -141,8 +142,10 @@ const sessionsButton = () =>
 export function SessionsButton() {
   const { open, toggle, records } = useSessionsSidebarContext();
   const sessions = openSessionsOf(records) ?? [];
-  const count = attentionCount(sessions);
-  // Product mark visual; tooltip, ⌘B, expanded state, attention badge, and
+  // Working count only while closed; attention keeps showing either way.
+  const working = open ? 0 : workingCount(sessions);
+  const attention = attentionCount(sessions);
+  // Product mark visual; tooltip, ⌘B, expanded state, count badge, and
   // open background stay the frame Sessions contract via IconButton.
   return (
     <IconButton
@@ -156,80 +159,29 @@ export function SessionsButton() {
       aria-controls={sessionsSidebarId}
       onClick={toggle}
     >
-      {count > 0 && (
-        <span
-          role="img"
-          className="sessions-toggle-attention"
-          aria-label={attentionSummary(sessions)}
-        >
-          {count}
+      {(working > 0 || attention > 0) && (
+        <span className="sessions-toggle-counts">
+          {working > 0 && (
+            <span
+              role="img"
+              className="sessions-toggle-working"
+              aria-label={workingSummary(sessions)}
+            >
+              {working}
+            </span>
+          )}
+          {attention > 0 && (
+            <span
+              role="img"
+              className="sessions-toggle-attention"
+              aria-label={attentionSummary(sessions)}
+            >
+              {attention}
+            </span>
+          )}
         </span>
       )}
     </IconButton>
-  );
-}
-
-// One display-only figure of the title row's status: its icon and its
-// number or amount, with its full wording as its accessible name and tooltip.
-function StatusFigure({
-  icon,
-  shown,
-  words,
-}: {
-  readonly icon: LucideIcon;
-  readonly shown: string;
-  readonly words: string;
-}) {
-  return (
-    <span
-      role="img"
-      className="sessions-sidebar-status-figure"
-      aria-label={words}
-      title={words}
-    >
-      <Icon icon={icon} />
-      {shown}
-    </span>
-  );
-}
-
-// The title row's status beside the Sessions heading: of the open sessions,
-// how many are active and how many need attention (waiting), zeros included,
-// once the machine's sessions are read; then the host's CPU usage and free
-// disk once the host status is read. Each reading shows on its own.
-function SessionsSidebarStatus({
-  sessions,
-  host,
-}: {
-  readonly sessions: readonly LaunchWithState[] | undefined;
-  readonly host: HostStatus | undefined;
-}) {
-  if (sessions === undefined && host === undefined) return null;
-  const waiting = sessions === undefined ? 0 : attentionCount(sessions);
-  const active = (sessions?.length ?? 0) - waiting;
-  return (
-    <span className="sessions-sidebar-status">
-      {sessions !== undefined && (
-        <>
-          <StatusFigure
-            icon={Activity}
-            shown={String(active)}
-            words={activeSessionsWords(active)}
-          />
-          <StatusFigure
-            icon={Hand}
-            shown={String(waiting)}
-            words={attentionWords(waiting)}
-          />
-        </>
-      )}
-      {host !== undefined && (
-        <>
-          <StatusFigure icon={Cpu} {...cpuShown(host.cpuPercent)} />
-          <StatusFigure icon={HardDrive} {...freeDiskShown(host.freeBytes)} />
-        </>
-      )}
-    </span>
   );
 }
 

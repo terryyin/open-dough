@@ -3,6 +3,7 @@
 **Identity:** SEED-235#see-running-sessions-with-sidebar-closed
 **Source:** [selected story](../../seeds/SEED-235-see-running-sessions-with-sidebar-closed.md#see-running-sessions-with-sidebar-closed)
 in SEED-235, refined 2026-11-05 with the UX/UI and architecture focuses.
+**Source review:** [source-review.md](./source-review.md)
 **Prepared:** 2026-11-05. Planning only, in the story's established workspace
 (branch `claude/see-running-sessions-with-the-sidebar-closed`, agent
 steven-chan), continuing the refinement in the same session.
@@ -69,7 +70,7 @@ with "bad tree object". It is this session's environment, not a test defect.
 
 ### 1. The closed toggle shows how many sessions are working
 Type: Behavior
-Status: planned
+Status: done
 Proof: extended `dashboard/tests/sessions-sidebar.spec.ts` journey (examples
 1, 2, 5, 6 across two projects: closed shows working then attention with both
 accessible names and order; a session needing input moves 3/2 → 2/3; opening
@@ -96,6 +97,31 @@ sidebar leaves the attention count alone.
 - Wording is "working", the entry label's word; "running" stays with
   Cursor's runner process.
 - Zero counts are hidden, as the attention count already is.
+
+## Learnings
+
+- Shared `readsWorking` in `sessionShown.ts` covers native Working and Cursor
+  held "working"; `workingCount` also requires no `doneAt`.
+- Closed-only working badge lives in `SessionsButton`; CSS in
+  `sessions-toggle.css` (`--ready` then `--problem`).
+- Playwright in this worktree needs
+  `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR`.
+- Post-change refactor extracted `SessionsSidebarStatus`, `sessions-toggle.css`,
+  `sessionsTogglePage` helpers, and `sessions-sidebar-order.spec.ts` for the
+  250-line gate; closed dual-count assertions share `expectClosedToggleCounts`.
+
+## Accepted proof (slice 1)
+
+- Journey: `dashboard/tests/sessions-sidebar.spec.ts` (closed 3/2 → 2/3;
+  open attention-only; restore; only attention when 0 working) via
+  `expectClosedToggleCounts`.
+- Boundaries: `dashboard/tests/boundary/session-working-count-rule.spec.ts`
+  (awaiting excluded; held working; done excluded; unread; singular).
+- Fit: `sessions-sidebar-touch.spec.ts`, `frame-sessions-look.spec.ts`.
+- Before first read: `sessions-sidebar-reading.spec.ts`.
+- Local gate: `caffeinate -s -i npm run test:dashboard` (AC, Bash 5 on PATH)
+  passed on the implementation return; refactor reran invalidated focused
+  specs only.
 
 ## Proof ownership
 

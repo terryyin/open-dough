@@ -12,14 +12,21 @@ export function sessionsSidebarParts(page: Page) {
     name: "Sessions sidebar",
     exact: true,
   });
+  const banner = page.getByRole("banner");
   return {
     sidebar,
-    button: page.getByRole("banner").getByRole("button", { name: "Sessions" }),
+    button: banner.getByRole("button", { name: "Sessions" }),
     // How many sessions need attention, as the number on the button's badge,
     // when any do.
-    badge: page.getByRole("banner").getByRole("img", {
+    badge: banner.getByRole("img", {
       name: /^\d+ sessions? needs? attention$/,
     }),
+    // How many sessions are working, on the closed toggle's badge only.
+    workingBadge: banner.getByRole("img", {
+      name: /^\d+ sessions? working$/,
+    }),
+    // The one badge holding working and/or attention counts on the toggle.
+    countsBadge: banner.locator(".sessions-toggle-counts"),
     // The open session list's entries, apart from optional section rows.
     entries: sidebar.locator(
       ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
