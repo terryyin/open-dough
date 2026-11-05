@@ -8,6 +8,12 @@
       "blob": "eba0a30dd8b27ebbad936792ca09e866d7257a7e"
     },
     {
+      "fileName": "SEED-240_show-freshness-loss-across-stream-retries.json",
+      "identity": "SEED-240#show-freshness-loss-across-stream-retries",
+      "completedAt": "2026-11-05T13:28:45.398Z",
+      "blob": "78f21e9c73d3b5fb09c84f21547c59c17d4d4578"
+    },
+    {
       "fileName": "SEED-239_show-ci-status-on-intent-home.json",
       "identity": "SEED-239#show-ci-status-on-intent-home",
       "completedAt": "2026-11-05T13:20:53.750Z",

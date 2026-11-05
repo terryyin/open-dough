@@ -6,11 +6,13 @@
 // check answer (`./revisionCheckRead.ts`, `./revisionAnswer.ts`). Closing
 // the page, hiding it, starting a read, losing the slot, waiting out a rate
 // limit, or changing the shown revision or watched branches ends the
-// EventSource; a later settle at a new revision opens again there. A stream
-// that fails, closes, or stays silent longer than the pace plus the read wait
-// bound is reported as a failed check is today; the page closes it itself
-// (so the browser does not retry sooner than the pace) and reopens no more
-// often than the pace. The first answer after a reopen clears the problem.
+// EventSource; a later settle at a new revision opens again there. Silence
+// longer than the pace plus the read wait bound, counted from the last
+// successful answer or from when this observation began, is reported as a
+// failed check is today — including when every open fails before answering.
+// The page closes any held EventSource itself (so the browser does not retry
+// sooner than the pace) and reopens no more often than the pace. The first
+// answer after a reopen clears the problem.
 
 import { useEffect } from "react";
 import { readingRefOf, readWaitLimitMs } from "./authenticatedReadRules.ts";
@@ -31,7 +33,8 @@ import {
 
 // Silence longer than one pace plus the shared read wait bound is lost
 // freshness: the stream should have answered within one observation that may
-// itself wait that long for GitHub.
+// itself wait that long for GitHub. The bound counts from the last successful
+// answer, or from when the observation began, across failed or hung opens.
 export const revisionStreamSilenceMs = checkIntervalMs + readWaitLimitMs;
 
 export function useRevisionStreamSchedule({
@@ -65,10 +68,10 @@ export function useRevisionStreamSchedule({
     let silenceTimer: ReturnType<typeof setTimeout> | undefined;
     let reopenTimer: ReturnType<typeof setTimeout> | undefined;
     // An attempt that never answered: transport errors reopen at the pace
-    // without saying freshness was lost until the silence bound from open.
-    // An answered stream that then errors reports at once.
+    // without saying freshness was lost; the silence deadline from the
+    // observation start (or last answer) covers that report. An answered
+    // stream that then errors reports at once.
     let answered = false;
-    let openedAt = 0;
 
     const clearSilence = () => {
       if (silenceTimer !== undefined) {
@@ -84,8 +87,9 @@ export function useRevisionStreamSchedule({
       }
     };
 
+    // Closing an attempt must leave the silence deadline armed: failed or
+    // hung opens neither restart nor postpone the bound.
     const stopHolding = () => {
-      clearSilence();
       if (stream !== undefined) {
         const closing = stream;
         stream = undefined;
@@ -100,12 +104,38 @@ export function useRevisionStreamSchedule({
         `The revision stream for ${reading} closed or fell silent, so freshness was lost.`,
       );
 
-    const scheduleOpenAfter = (waitMs: number) => {
+    // Arm once per observation; re-arm only on a successful answer or after
+    // the deadline fires (so a later hung-but-connected attempt is still
+    // closed). open() and ordinary pace reopens must not re-arm.
+    const armSilence = () => {
+      clearSilence();
+      silenceTimer = setTimeout(() => {
+        silenceTimer = undefined;
+        if (closed) {
+          return;
+        }
+        loseStream(true);
+        armSilence();
+      }, revisionStreamSilenceMs);
+    };
+
+    // Pace reopens leave the silence deadline alone; a rate-limit wait ending
+    // arms a fresh bound immediately before the first open after T.
+    const scheduleOpenAfter = (
+      waitMs: number,
+      afterWait: "open" | "arm-and-open" = "open",
+    ) => {
       if (closed || reopenTimer !== undefined) {
         return;
       }
       reopenTimer = setTimeout(() => {
         reopenTimer = undefined;
+        if (closed) {
+          return;
+        }
+        if (afterWait === "arm-and-open") {
+          armSilence();
+        }
         open();
       }, waitMs);
     };
@@ -121,25 +151,15 @@ export function useRevisionStreamSchedule({
       scheduleOpenAfter(checkIntervalMs);
     };
 
-    const armSilence = () => {
-      clearSilence();
-      silenceTimer = setTimeout(() => {
-        silenceTimer = undefined;
-        loseStream(true);
-      }, revisionStreamSilenceMs);
-    };
-
     const open = () => {
       if (closed || stream !== undefined) {
         return;
       }
       answered = false;
-      openedAt = Date.now();
       const next = new EventSource(
         revisionStreamUrl(source, shownRevision, watched),
       );
       stream = next;
-      armSilence();
       next.onmessage = (event) => {
         if (closed || stream !== next) {
           return;
@@ -162,6 +182,7 @@ export function useRevisionStreamSchedule({
           ) {
             closed = true;
             clearReopen();
+            clearSilence();
             stopHolding();
           }
         } catch (error: unknown) {
@@ -177,6 +198,7 @@ export function useRevisionStreamSchedule({
           stopHolding();
           if (error instanceof ReadProblem && error.limited !== undefined) {
             clearReopen();
+            clearSilence();
             return;
           }
           scheduleOpenAfter(checkIntervalMs);
@@ -187,26 +209,27 @@ export function useRevisionStreamSchedule({
           return;
         }
         // Close ourselves so the browser does not retry sooner than the pace.
-        // Report when this attempt had answered, or once the silence bound
-        // from open has passed (a connect that never lived).
-        const silentLongEnough =
-          Date.now() - openedAt >= revisionStreamSilenceMs;
-        loseStream(answered || silentLongEnough);
+        // Report at once when this attempt had answered; unanswered errors
+        // leave reporting to the silence deadline.
+        loseStream(answered);
       };
     };
 
-    // While a rate limit stands, wait until T then open (same wait the check
-    // delivery embeds in its timer), so the limit ending reopens without a
-    // separate standing-limit subscription.
+    // While a rate limit stands, wait until T then arm and open (same wait
+    // the check delivery embeds in its timer). The silence bound starts when
+    // that wait ends — not while the directed notice stands — so a long
+    // Retry-After cannot spend or trip the bound during the wait.
     const waitForLimit = Math.max(0, limitedUntil - Date.now());
     if (waitForLimit > 0) {
-      scheduleOpenAfter(waitForLimit);
+      scheduleOpenAfter(waitForLimit, "arm-and-open");
     } else {
+      armSilence();
       open();
     }
     return () => {
       closed = true;
       clearReopen();
+      clearSilence();
       stopHolding();
     };
   }, [

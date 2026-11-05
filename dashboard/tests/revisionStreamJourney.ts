@@ -4,15 +4,23 @@
 // checks. Stream ticks run on wall time; the page clock stays paused for
 // check-delivery pages in the same context.
 
-import type { Page, Request } from "@playwright/test";
-import { githubFor, pausePageClockAt } from "./dashboardTest.ts";
-import { expectOwnersNotRecorded, expectSettledPage } from "./dashboardPage.ts";
+import type { Page, Request, Route } from "@playwright/test";
+import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import {
+  expectMembership,
+  expectOwnersNotRecorded,
+  expectSettledPage,
+  parts,
+} from "./dashboardPage.ts";
+import {
+  pageTimeStepMs,
+  passPageMs,
   pausePageClock,
   recordsAt,
   setPageVisibility,
 } from "./autoRefreshJourney.ts";
 import { revisionStreamAtParameter } from "../src/authenticatedReadRules.ts";
+import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { backlogA, revisionA, titlesOfA } from "./refreshJourney.ts";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
@@ -80,6 +88,67 @@ export function matchingRefsSince(page: Page, from: number): number {
 
 export function callsSince(page: Page, from: number): readonly GhCall[] {
   return githubFor(page).calls.slice(from);
+}
+
+// Fulfill every revision-stream open with HTTP 500 until the returned
+// cleanup runs.
+export async function routeFailingRevisionStreams(
+  page: Page,
+): Promise<() => Promise<void>> {
+  const fail = async (route: Route) => {
+    await route.fulfill({ status: 500, body: "stream failed" });
+  };
+  const match = (url: URL) => isRevisionStream(url.toString());
+  await page.route(match, fail);
+  return async () => {
+    await page.unroute(match, fail);
+  };
+}
+
+// Today's lost-freshness problem: snapshot retrieval time kept, Board
+// membership unchanged, automatic checks still named at the pace.
+export async function expectLostFreshnessProblem(
+  page: Page,
+  retrievedDatetime: string,
+  membershipTitles: { readonly taken: string[]; readonly backlog: string[] },
+): Promise<void> {
+  const { problem } = parts(page);
+  await expect(problem).toContainText("Published work could not be read");
+  await expect(problem).toContainText("freshness was lost");
+  await expect(problem).toContainText(
+    "What is shown is the earlier snapshot, retrieved at",
+  );
+  await expect(problem.locator("time").nth(1)).toHaveAttribute(
+    "datetime",
+    retrievedDatetime,
+  );
+  await expect(problem).toContainText(
+    `Automatic checks continue every ${String(checkIntervalMs / 1000)} seconds while this page is visible.`,
+  );
+  await expectMembership(page, membershipTitles);
+}
+
+// Collect pace-interval open gaps and require each at least the check pace
+// (allowing one page-time step of measurement slack).
+export async function expectStreamOpenGapsAtLeastPace(
+  page: Page,
+  samples = 3,
+): Promise<void> {
+  const gaps: number[] = [];
+  for (let i = 0; i < samples; i += 1) {
+    const before = await page.evaluate(() => Date.now());
+    const opened = page.waitForRequest(
+      (request) => isRevisionStream(request.url()),
+      { timeout: 5_000 },
+    );
+    await passPageMs(page, checkIntervalMs);
+    await opened;
+    gaps.push((await page.evaluate(() => Date.now())) - before);
+    await page.waitForTimeout(streamPaceMs);
+  }
+  for (const gap of gaps) {
+    expect(gap).toBeGreaterThanOrEqual(checkIntervalMs - pageTimeStepMs);
+  }
 }
 
 // Opens a settled Board at A with free stream slots and a lowered server pace.
