@@ -4,6 +4,7 @@
 **Source:** [selected story](../../seeds/SEED-234-verify-live-dashboard-ci-proof.md#verify-live-dashboard-ci-proof)
 in SEED-234, refined 2026-11-05 with explore, borrow, challenge, clarify,
 investigate and architecture.
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-05. Planning only, in the story's established workspace
 (branch `claude/verify-open-dough-ci-proof-in-the-live-dashboard`, agent
 juacompe-chan), continuing the refinement in the same session.
@@ -59,7 +60,7 @@ premise; the slice observes whichever run is shown.
 
 ### 1. Live CI proof agrees with the published summary
 Type: Behavior
-Status: planned
+Status: done
 Proof: the recorded comparison below, with the run link; repair specs only if
 a gap is found.
 
@@ -76,6 +77,40 @@ no-summary project; record the run link, both observations and the verdict
 under Accepted proof here. On disagreement, stop the observation, diagnose
 the reader or the workflow publication, repair with a failing spec first,
 land, let the dashboard redeploy, and observe again.
+
+## Accepted proof
+
+Slice 1, observed 2026-11-05 09:11 (+07) from the execution workspace after
+`setup-native.mjs npm`, `browser` and `check` passed (Chromium 153). Trunk
+`origin/main` was `ce0c426`; its newest completed CI run was still
+[41951088108](https://github.com/terryyin/open-dough/actions/runs/41951088108)
+(the later commits are records-only and started no CI run).
+
+- **Artifact:** `gh api repos/terryyin/open-dough/actions/runs/41951088108/artifacts?per_page=100`
+  listed `ci-proof-summary-attempt-1` (id 13381461023, unexpired, expires
+  2026-12-05); `gh api .../actions/artifacts/13381461023/zip` held
+  `ci-proof-summary.json`: repository `terryyin/open-dough`, run 41951088108,
+  attempt 1, revision `b4ec1c8a469f…`; `dashboard/tests` 2042 passed, 0
+  failed, 8 other, parts 1–12 present; `tests` 196/0/0 checks, parts 1–3
+  present; `src/skills` 291/0/0 checks, parts 1–3 present.
+- **Tab:** headless Playwright Chromium (scratch script, deleted after the
+  run) against `http://127.0.0.1:4173`, project `open-dough`, Intent → CI
+  status: state "Passed at b4ec1c8 (Complete SEED-192#recover-intent-locations-read)";
+  Proof "Attempt 1 of run 41951088108 at b4ec1c8."; rows
+  "dashboard/tests: 2042 passed and 8 other tests; 12 of 12 parts present.",
+  "tests: 196 passed checks; 3 of 3 parts present.",
+  "src/skills: 291 passed checks; 3 of 3 parts present."; run link
+  `https://github.com/terryyin/open-dough/actions/runs/41951088108`.
+  The tab names no failed count because every row's failed count is 0.
+- **No-summary project:** same script, project `doughnut`: state "Passed at
+  61c0a9a (Update Open Dough guidance to 0.3.84)"; Proof "Attempt 1 of run
+  41948058190 at 61c0a9a." and "This run published no CI proof summary.",
+  no counts. `gh api repos/nerds-odd-e/doughnut/actions/runs/41948058190/artifacts`
+  lists only `frontend-dist`, `donut-0.0.1-SNAPSHOT.jar`, `cli-dist`.
+- **Verdict:** agree. Repository, run, attempt, revision and every row's
+  passed, failed, other and present parts match; the no-summary run keeps its
+  verdict with the one reason line. Example 3's repair is not triggered; no
+  product change.
 
 ## Current decisions
 
