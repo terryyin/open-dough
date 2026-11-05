@@ -98,7 +98,10 @@ A fresh worktree needs the native setup before any Playwright run.
   `ci-adapter` test in `intent-ci-proof-reasons.spec.ts`.
 - Example 7 (GitHub Actions unchanged): existing `intent-ci-proof.spec.ts`,
   `intent-ci-proof-reasons.spec.ts` and `intent-ci-proof-ancestor.spec.ts`
-  stay green unedited apart from the removed `ci-adapter` test.
+  stay green unedited apart from the removed `ci-adapter` test; after
+  landing, slice 5 reads Open Dough's live tab once against its run's
+  artifact, the baseline SEED-234 recorded, because `IntentCiProof.tsx` is
+  shared by both paths.
 - Collector and protocol shapes, which Pygardon consumes: the collector's and
   `ci-command-adapter.test.mjs`'s node tests; query refusals in
   `tests/support/dashboard-ci-proof-parse.test.mjs`.
@@ -170,7 +173,18 @@ covers a [Dough Land](../../../.agents/skills/dough-land/SKILL.md)
 `--keep-worktree` landing of the story branch on `main` and then the release.
 Proof: `git ls-remote --tags origin v<next patch>` names the tag, and
 `git show v<next patch>:src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs`
-contains the adapter identity
+contains the adapter identity; and, once the production dashboard at
+`http://127.0.0.1:4173` serves the landed `main`, one live reading of
+example 7: Open Dough's Intent → CI status Proof for its shown trunk run
+equals that run's `ci-proof-summary-attempt-<n>` artifact (run, attempt,
+revision, each row's counts and present parts), and a GitHub Actions project
+whose run published no summary still shows "This run published no CI proof
+summary." with its verdict. Use the headless Playwright Chromium read and the
+`gh api` artifact download from
+`ci-proof-summary.md` step 6. That reading established this baseline on
+2026-11-05 at 09:11 (+07) for run 41951088108 and doughnut run 41948058190
+(SEED-234, completed). Record the reading here; a disagreement is a
+regression this story repairs before closing
 
 Behavior: with slices 1–4 landed on `main` and its CI green, follow
 `release-version` for the next patch version (VERSION, CHANGELOG, tag) from

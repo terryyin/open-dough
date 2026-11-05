@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-236#show-ci-adapter-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/470-show-ci-adapter-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"afac502e0c12b2d9d4b4752dae111341fcb4f5779c656eba430fb8a8ac6e8b9a","plan":"af8bc17be020144ddb9814b85a7f814a9413eee47fc8c2d23024c5b2f6f718d9"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/470-show-ci-adapter-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"afac502e0c12b2d9d4b4752dae111341fcb4f5779c656eba430fb8a8ac6e8b9a","plan":"13cf9edc06dc0df1719a9ecaec5881a2ce4abeb8b28298896421c0e85eb9f88c"}}
 ```
 
 **Goal:** A developer who opens **Intent → CI status** for a project whose CI
