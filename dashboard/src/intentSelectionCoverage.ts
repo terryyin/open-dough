@@ -1,7 +1,7 @@
 // Which configured Intent location owns a workspace selection, and which of
 // its matching files that selection covers: every file for a location, files
 // under a folder path, or the one file. IntentBrowser uses this for Summary
-// file counts and for Purpose's owning location (`./IntentBrowser.tsx`,
+// file counts and for Purpose/Proof's owning location (`./IntentBrowser.tsx`,
 // `./intentWorkspaceSelection.ts`).
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";

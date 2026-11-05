@@ -1,16 +1,16 @@
-// The CI proof of the attempt Intent's CI status tab shows a result of
+// The CI proof of the attempt Intent's CI status homepage shows a result of
 // (`./IntentCiStatus.tsx`): its own labelled part after the judgment, read
 // apart from it through `./authenticatedIntentCiProofRead.ts` once the
 // judgment names a GitHub Actions run or a ciAdapter attempt, so the
 // judgment is shown first and never changes with it. It names that attempt
 // once -- a run's attempt and link, or an adapter's attempt id, and the
 // revision -- then one row per declared entry, in the order the project's CI
-// declares them, with the counts, their unit and any gap
-// (`./ciProofWording.ts`); otherwise one line says why there is no proof to
-// show. An adapter attempt whose attemptId another discovered attempt shares
-// at its revision is ambiguous: no proof is read for it. A running result's
-// proof is its completed ancestor's, the result the
-// tab shows beside it. Proof is read again with each judgment the tab reads,
+// declares them, with the counts, their unit, cumulative test execution time
+// and any gap (`./ciProofWording.ts`); otherwise one line says why there is
+// no proof to show. An adapter attempt whose attemptId another discovered
+// attempt shares at its revision is ambiguous: no proof is read for it. A
+// running result's proof is its completed ancestor's, the result the homepage
+// shows beside it. Proof is read again with each judgment the homepage reads,
 // so Check again refreshes both.
 
 import { useEffect, useId, useState } from "react";
@@ -22,13 +22,14 @@ import {
   isAdapterProofAttempt,
   type CiProof,
   type CiProofEntry,
-  type CiProofSubject,
 } from "./ciProof.ts";
 import {
   adapterReadFailedLine,
   adapterUnavailableLine,
   ambiguousAttemptLine,
+  ciWallTimeLine,
   entryCountsLine,
+  entryExecutionTimeLine,
   entryGapLines,
   entryPartsLine,
   noAttemptLine,
@@ -36,44 +37,9 @@ import {
   unavailableLine,
 } from "./ciProofWording.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { shownRunOf, type ShownCiProofRun } from "./shownCiProofRun.ts";
 
-// The attempt shown, and for a ciAdapter attempt whether another discovered
-// attempt shares its attemptId at its revision.
-type Shown = CiProofSubject & {
-  readonly runUrl: string | undefined;
-  readonly ambiguous?: true;
-};
-
-// The attempt whose result the tab shows: a running result's completed
-// ancestor, otherwise the judged result; undefined when it names neither a
-// GitHub Actions run nor a ciAdapter attempt.
-export function shownRunOf(judgment: Judgment): Shown | undefined {
-  const shown =
-    judgment.state === "running" ? judgment.completedAncestor : judgment;
-  if (shown === undefined) return undefined;
-  const { adapterAttempt } = shown;
-  if (adapterAttempt !== undefined)
-    return shown.runBranch === undefined
-      ? undefined
-      : {
-          runId: String(adapterAttempt.runId),
-          attemptId: String(adapterAttempt.attemptId),
-          branch: shown.runBranch,
-          revision: shown.revision,
-          runUrl: shown.runUrl,
-          ...(adapterAttempt.ambiguous === true
-            ? { ambiguous: true as const }
-            : {}),
-        };
-  if (shown.runId === undefined || shown.runAttempt === undefined)
-    return undefined;
-  return {
-    runId: shown.runId,
-    runAttempt: shown.runAttempt,
-    revision: shown.revision,
-    runUrl: shown.runUrl,
-  };
-}
+export { shownRunOf } from "./shownCiProofRun.ts";
 
 // The proof read's answer, or the boundary's own failure to answer it.
 type ProofRead =
@@ -110,6 +76,10 @@ function ProofEntry({ entry }: { readonly entry: CiProofEntry }) {
       {": "}
       <span className="intent-ci-proof-counts">{entryCountsLine(entry)}</span>
       {"; "}
+      <span className="intent-ci-proof-execution">
+        {entryExecutionTimeLine(entry)}
+      </span>
+      {"; "}
       <span className="intent-ci-proof-parts">{entryPartsLine(entry)}</span>
       {entryGapLines(entry).map((gap) => (
         <span key={gap} className="intent-ci-proof-gap">
@@ -138,32 +108,38 @@ function Linked({
   );
 }
 
-function RunNamed({ run }: { readonly run: Shown }) {
+function RunNamed({ run }: { readonly run: ShownCiProofRun }) {
   return (
-    <p className="intent-ci-proof-run">
-      {isAdapterProofAttempt(run) ? (
-        <>
-          Attempt <Linked name={run.attemptId} url={run.runUrl} />
-        </>
-      ) : (
-        <>
-          Attempt {run.runAttempt} of{" "}
-          <Linked name={`run ${String(run.runId)}`} url={run.runUrl} />
-        </>
-      )}{" "}
-      at <code>{shortSha(run.revision)}</code>.
-    </p>
+    <>
+      <p className="intent-ci-proof-run">
+        {isAdapterProofAttempt(run) ? (
+          <>
+            Attempt <Linked name={run.attemptId} url={run.runUrl} />
+          </>
+        ) : (
+          <>
+            Attempt {run.runAttempt} of{" "}
+            <Linked name={`run ${String(run.runId)}`} url={run.runUrl} />
+          </>
+        )}{" "}
+        at <code>{shortSha(run.revision)}</code>.
+      </p>
+      <p className="intent-ci-wall-time">
+        {ciWallTimeLine(run.startedAt, run.completedAt)}
+      </p>
+    </>
   );
 }
 
-const keyOf = (shown: Shown) => JSON.stringify(ciProofSubjectOf(shown));
+const keyOf = (shown: ShownCiProofRun) =>
+  JSON.stringify(ciProofSubjectOf(shown));
 
 function ReadProof({
   source,
   run,
 }: {
   readonly source: PublishedSource;
-  readonly run: Shown;
+  readonly run: ShownCiProofRun;
 }) {
   // Read once per mount: the parent keys it by the attempt and the judgment.
   const [proof, setProof] = useState<ProofRead | undefined>(undefined);

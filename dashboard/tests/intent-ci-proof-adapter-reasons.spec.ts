@@ -51,6 +51,10 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
       { proof: { summary: { ...summary, repository: "someone/else" } } },
     ],
     [
+      "This attempt's CI proof summary is for another repository, attempt or revision: it names attempt 1.",
+      { proof: { summary: { ...summary, attemptId: "1" } } },
+    ],
+    [
       `This attempt's CI proof summary is for another repository, attempt or revision: it names revision ${signup}.`,
       { proof: { summary: { ...summary, revision: signup } } },
     ],
@@ -88,7 +92,7 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
   }
 });
 
-test("a retried adapter attempt shows the retry's verdict and proof, and a summary of the earlier attempt names another attempt", async ({
+test("a retried adapter attempt shows the retry's verdict and proof, and Check again keeps that attempt's remembered summary", async ({
   page,
   dashboard,
 }) => {
@@ -115,19 +119,19 @@ test("a retried adapter attempt shows the retry's verdict and proof, and a summa
   );
   await expect(proof.getByRole("listitem")).toHaveText([testsRow]);
 
+  // A later adapter answer for another attempt is ignored: the valid summary
+  // for this attempt is immutable and remembered for the process lifetime.
   adapter.answer({ discover, proof: testsSummary("1", login) });
   await panel.getByRole("button", { name: "Check again" }).click();
-  await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText([
-    "This attempt's CI proof summary is for another repository, attempt or revision: it names attempt 1.",
-  ]);
-  await expect(proof.getByRole("listitem")).toHaveCount(0);
+  await expect(proof.getByRole("listitem")).toHaveText([testsRow]);
+  await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveCount(0);
   await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
   const asked = {
     operation: "proof",
     check: { repo: repository, branch: "main" },
     attempt: { runId: "r1", attemptId: "2", sha: login },
   };
-  expect(adapter.proofRequests()).toEqual([asked, asked]);
+  expect(adapter.proofRequests()).toEqual([asked]);
 });
 
 test("an adapter attempt whose attemptId another discovered attempt shares at its revision is ambiguous, and no adapter is asked its proof", async ({

@@ -54,10 +54,10 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     await expect(panel.locator(".intent-ci-state")).toHaveText(
       "Failed at fa11ed0 (Break the login)",
     );
-    // CI status names the story itself; the Intent mode's summary is absent.
+    // CI status is Intent's homepage, so the Intent mode's story summary stays.
     await expect(
       intent.getByRole("region", { name: "Selected story", exact: true }),
-    ).toHaveCount(0);
+    ).toBeVisible();
     await expect(panel.getByRole("link", { name: failedRun })).toBeVisible();
     await expect(panel).not.toContainText("run on");
     await expectChecked(panel);
@@ -85,9 +85,10 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
   });
 
   await test.step("a selection whose answer arrives after the next selection never shows it", async () => {
-    // Back to the failing story, held, then straight on to the running one.
+    // Back to the failing story (kept answer shows at once), held fresh read,
+    // then straight on to the running one; the late failing answer never
+    // appears under the running branch.
     const late = ci.hold(failing.branch);
-    // The page's read of the held judgment ends, answered or given up.
     const lateRead = new Promise<void>((resolve) => {
       const settled = (request: Request) => {
         if (
@@ -100,11 +101,15 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     });
     let panel = await toggleOnDevelopment(page, failing.title);
     await expectNamed(panel, failing.branch);
-    await expect(panel.getByRole("status")).toHaveText(
+    await expect(panel.locator(".intent-ci-state")).toHaveText(
+      "Failed at fa11ed0 (Break the login)",
+    );
+    await expect(panel.getByRole("status")).toContainText(
+      "Previously retrieved",
+    );
+    await expect(panel.locator(".intent-ci-checking")).toContainText(
       `Checking the CI of ${failing.branch}…`,
     );
-    // The earlier branch's judgment is not shown under this name meanwhile.
-    await expect(panel.locator(".intent-ci-state")).toHaveCount(0);
     panel = await toggleOnDevelopment(page, running.title);
     await expectNamed(panel, running.branch);
     await expect(panel.locator(".intent-ci-state")).toHaveText(
@@ -120,7 +125,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
   });
 
   await test.step("a running head shows its nearest completed ancestor, on main; Check again after it finishes shows Passed", async () => {
-    const panel = parts(page).intent.getByRole("tabpanel", {
+    const panel = parts(page).intent.getByRole("region", {
       name: "CI status",
       exact: true,
     });

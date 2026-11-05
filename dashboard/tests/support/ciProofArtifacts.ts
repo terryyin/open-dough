@@ -36,8 +36,11 @@ type Counts = {
   readonly other: number;
 };
 
-// One part's counts for one entry: [entry, part, of, unit, counts].
-export type ProofPart = readonly [string, number, number, string, Counts];
+// One part's counts for one entry: [entry, part, of, unit, counts], with an
+// optional sixth durationMs (summed test execution time for that part).
+export type ProofPart =
+  | readonly [string, number, number, string, Counts]
+  | readonly [string, number, number, string, Counts, number];
 
 export const counts = (passed: number, failed = 0, other = 0): Counts => ({
   passed,
@@ -57,15 +60,19 @@ export function proofSummary(
       ? { attemptId: run.attemptId }
       : { attempt: run.attempt };
   const { summary } = (summarize as unknown as SummarizeFragments)({
-    fragments: parts.map(([entry, part, of, unit, partCounts], index) => ({
-      source: `fragment-${String(index)}.json`,
-      value: fragment(
-        { part, of, ...attempt, revision: run.revision },
-        entry,
-        unit,
-        partCounts,
-      ) as unknown,
-    })),
+    fragments: parts.map((proofPart, index) => {
+      const [entry, part, of, unit, partCounts, durationMs] = proofPart;
+      return {
+        source: `fragment-${String(index)}.json`,
+        value: fragment(
+          { part, of, ...attempt, revision: run.revision },
+          entry,
+          unit,
+          partCounts,
+          durationMs === undefined ? {} : { durationMs },
+        ) as unknown,
+      };
+    }),
     expect: expect.map(([entry, declared]) => ({ entry, parts: declared })),
     run: {
       repository: run.repository,

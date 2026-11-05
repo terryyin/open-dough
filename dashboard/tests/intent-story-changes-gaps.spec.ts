@@ -15,13 +15,14 @@ import type { Locator } from "@playwright/test";
 import { storyReviewEndpoint } from "../src/storyReviewContract.ts";
 import { parts } from "./dashboardPage.ts";
 import {
-  chooseOptimizationCandidates,
   expandIntentFolders,
   expandIntentGroup,
+} from "./intentPerspectivePage.ts";
+import {
+  chooseOptimizationCandidates,
   expectIntentModeChosen,
   intentModeTab,
-  purposeRegion,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
 import { expectSelected } from "./storyCardSelection.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
@@ -52,7 +53,9 @@ async function expectPublishedTreeUsable(intent: Locator) {
     intentFile(intent, "dashboard/tests/boundary/kept.spec.ts"),
   ).toBeVisible();
   await intentFile(intent, "dashboard/tests/a.spec.ts").click();
-  await expect(purposeRegion(intent)).toContainText("a 11");
+  await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
+    "a 11",
+  );
 }
 
 test("an active story with no workspace explains that no comparison is available and leaves the tree usable", async ({
@@ -134,13 +137,17 @@ test("without configured Intent locations the Intent tab names the selected stor
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
   const panel = intent.getByRole("tabpanel", { name: "Intent" });
-  await expect(panel.locator(":scope > *")).toHaveCount(2);
+  await expect(panel.locator(":scope > *")).toHaveCount(3);
   await expect(panel.locator(":scope > *").first()).toHaveAttribute(
     "aria-label",
     "Selected story",
   );
   await expect(panel.locator(":scope > *").nth(1)).toContainText(
     "No intent locations are configured",
+  );
+  await expect(panel.locator(":scope > *").nth(2)).toHaveAttribute(
+    "aria-label",
+    "CI status",
   );
   await expect(storyDisclosure(intent)).toHaveText("Story Story A");
   await expect(storySummary(intent).getByRole("status")).toHaveText(
@@ -158,7 +165,10 @@ test("without configured Intent locations the Intent tab names the selected stor
     intent.getByRole("tabpanel", { name: "Optimization Candidates" }),
   ).toContainText("No intent locations are configured");
   await expect(storySummary(intent)).toHaveCount(0);
-  await intentModeTab(intent, "CI status").click();
-  await expectIntentModeChosen(intent, "CI status");
-  await expect(storySummary(intent)).toHaveCount(0);
+  await intentModeTab(intent, "Intent").click();
+  await expectIntentModeChosen(intent, "Intent");
+  await expect(
+    intent.getByRole("region", { name: "CI status", exact: true }),
+  ).toBeVisible();
+  await expect(storySummary(intent)).toBeVisible();
 });

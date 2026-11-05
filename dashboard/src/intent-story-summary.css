@@ -4,7 +4,8 @@
    "Selected story only" choice, its message when no location's test file
    changed, and the count of changed files outside every location. Expanded,
    the full title, identity, and revisions or explanation. A changed file's
-   Purpose names its diff. */
+   Purpose names its diff and its Proof says it describes the published
+   revision. */
 .intent-story-summary {
   flex: none;
   min-width: 0;
@@ -101,4 +102,9 @@
 
 .intent-story-diff-name {
   margin: 0 0 var(--space-2);
+}
+
+.intent-proof-published {
+  margin: 0 0 var(--space-2);
+  color: var(--quiet);
 }

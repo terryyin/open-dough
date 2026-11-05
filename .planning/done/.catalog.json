@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-239_show-ci-status-on-intent-home.json",
+      "identity": "SEED-239#show-ci-status-on-intent-home",
+      "completedAt": "2026-11-05T13:20:53.750Z",
+      "blob": "64d0e11387580a980e8cf228153bb9e50b4031f8"
+    },
+    {
       "fileName": "SEED-238_remove-local-proof.json",
       "identity": "SEED-238#remove-local-proof",
       "completedAt": "2026-11-05T10:27:57.978Z",

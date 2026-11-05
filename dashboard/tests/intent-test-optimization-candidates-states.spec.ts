@@ -6,13 +6,13 @@
 import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import { filesOf } from "./catalogProjectRecords.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
+import { expandIntentGroup } from "./intentPerspectivePage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
-  expandIntentGroup,
   expectCandidatesRevision,
   intentModeTab,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
 import {
   openUntilRead,
   untilPageRequestsAnswered,

@@ -1,17 +1,16 @@
 // What a journey expects of the Development and Intent perspectives
 // (../src/PerspectiveSelect.tsx, ../src/IntentPerspective.tsx,
 // ../src/dashboardRouteUrl.ts): the address that names them, Intent group
-// and folder expand helpers for the locations column, how many Intent
-// locations reads the page asks, Intent's not-configured content when the
-// project publishes no intent locations, Intent's reading-mode tabs
-// (../src/IntentModeTabs.tsx) and the Test Optimization Candidates record
-// they show, and the Purpose of the selected file. How a location header
-// reads: ./intentLocationHeaderLook.ts.
+// and folder expand helpers for the locations column, how a location header
+// reads, how many Intent locations reads the page asks, and Intent's
+// not-configured content when the project publishes no intent locations.
+// Reading-mode strip helpers: ./intentModePage.ts. Purpose and Proof reading
+// helpers: ./intentFileReadingPage.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { intentLocationIdPrefix } from "../src/intentLocationIds.ts";
-import { parts, shortRevision } from "./dashboardParts.ts";
+import { parts } from "./dashboardParts.ts";
 
 // The project, Development's view and the perspective the address names.
 export function expectAddress(
@@ -36,6 +35,35 @@ export function intentGroupToggle(intent: Locator, locationPath: string) {
   return intent.locator(
     `button.intent-location-toggle[aria-controls="${bodyId}"]`,
   );
+}
+
+// One configured Intent location's header: its toggle and selectable name.
+export function intentLocationHeader(intent: Locator, locationPath: string) {
+  return intentGroupToggle(intent, locationPath).locator("xpath=..");
+}
+
+// How a location header reads: its own background, its change mark, whether
+// its toggle and name let that background through, and whether it spans its
+// group's full width.
+export function locationHeaderLook(header: Locator) {
+  return header.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const group = element.parentElement ?? element;
+    const groupStyle = getComputedStyle(group);
+    const inner =
+      group.clientWidth -
+      Number.parseFloat(groupStyle.paddingLeft) -
+      Number.parseFloat(groupStyle.paddingRight);
+    return {
+      background: style.backgroundColor,
+      mark: style.boxShadow,
+      controlsShowHeader: [...element.children].every(
+        (child) =>
+          getComputedStyle(child).backgroundColor === "rgba(0, 0, 0, 0)",
+      ),
+      fullWidth: Math.abs(element.getBoundingClientRect().width - inner) < 1,
+    };
+  });
 }
 
 // Selectable name for one configured Intent location path.
@@ -113,7 +141,7 @@ export async function expandIntentFolders(
   }
 }
 
-// How many Intent locations reads the page has asked.
+// How many Intent locations reads, with their proof, the page has asked.
 export function countLocationsReads(page: Page) {
   let reads = 0;
   page.on("request", (request) => {
@@ -142,8 +170,10 @@ export async function expectIntentGroupsCollapsed(intent: Locator) {
 
 // Intent shown for this project in place of Development's content: the
 // selected project and perspective are clear, and the content says no intent
-// locations are configured, naming the setting and file, without a claim that
-// tests or Proof are absent, or a Structure destination.
+// locations are configured, naming the setting and file, without that
+// explanation claiming tests or Purpose/Proof are absent, or a Structure
+// destination. CI status of the judged branch sits beside the explanation as
+// Intent's homepage (may name Failed, Proof, Check again).
 export async function expectNotConfiguredIntent(page: Page, label: string) {
   const { board, development, direction, intent, intentChoice, perspective } =
     parts(page);
@@ -154,15 +184,19 @@ export async function expectNotConfiguredIntent(page: Page, label: string) {
   await expect(intentChoice).toBeChecked();
   await expect(development).not.toBeChecked();
   await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
-  await expect(intent).toContainText(
+  const explanation = intent.getByText(
     `No intent locations are configured for ${label}.`,
   );
+  await expect(explanation).toBeVisible();
   await expect(intent).toContainText("intent.locations");
   await expect(intent).toContainText(".planning/open-dough.json");
   await expect(intent.getByRole("list")).toHaveCount(0);
-  await expect(intent).not.toContainText(
+  await expect(explanation).not.toContainText(
     /no (tests|proof)|(tests|proof) (are|is) (absent|missing)|passed|failed/i,
   );
+  // CI status sits beside a settled not-configured explanation; when the
+  // published read has not settled (work unread), Intent withholds it so a
+  // cold open does not double-judge.
   await expect(page.getByText(/Structure/)).toHaveCount(0);
   await expect(page.getByRole("main")).toHaveCount(1);
   await expect(board).toBeHidden();
@@ -170,58 +204,4 @@ export async function expectNotConfiguredIntent(page: Page, label: string) {
   await expect(
     page.getByRole("button", { name: /^Start session in / }),
   ).toBeHidden();
-}
-
-// The candidates record region Intent shows for the selected project.
-export function candidatesRecord(intent: Locator) {
-  return intent.getByRole("region", {
-    name: "Test Optimization Candidates",
-    exact: true,
-  });
-}
-
-export async function expectCandidatesRevision(
-  intent: Locator,
-  revision: string,
-) {
-  const record = candidatesRecord(intent);
-  await expect(record).toContainText(
-    `Recorded at revision ${shortRevision(revision)}`,
-  );
-  await expect(
-    record.locator("code").filter({ hasText: revision }),
-  ).toHaveCount(1);
-}
-
-type IntentModeName = "Intent" | "Optimization Candidates" | "CI status";
-
-// One of Intent's reading-mode tabs under the banner.
-export function intentModeTab(intent: Locator, name: IntentModeName) {
-  return intent
-    .getByRole("tablist", { name: "Intent reading" })
-    .getByRole("tab", { name, exact: true });
-}
-
-export async function expectIntentModeChosen(
-  intent: Locator,
-  name: IntentModeName,
-) {
-  await expect(intentModeTab(intent, name)).toHaveAttribute(
-    "aria-selected",
-    "true",
-  );
-}
-
-// Choose Optimization Candidates: the record fills Intent's content area and
-// the locations browser is gone.
-export async function chooseOptimizationCandidates(intent: Locator) {
-  await intentModeTab(intent, "Optimization Candidates").click();
-  await expectIntentModeChosen(intent, "Optimization Candidates");
-  await expect(intent.locator(".intent-locations")).toBeHidden();
-}
-
-// Intent's Purpose of the selected file, or of nothing selected yet
-// (../src/IntentFileReading.tsx).
-export function purposeRegion(intent: Locator) {
-  return intent.getByRole("region", { name: "Purpose", exact: true });
 }

@@ -5,7 +5,10 @@
 
 import type { ProfileAddition } from "./ghProfileAddition.ts";
 import type { IntentCiProofAnswer } from "./intentCiProofRead.ts";
-import type { IntentCiStatusAnswer } from "./intentCiStatusRead.ts";
+import type {
+  IntentCiStatusAnswer,
+  IntentCiStatusNone,
+} from "./intentCiStatusRead.ts";
 import type {
   IntentLocation,
   IntentSettingsProblem,
@@ -99,8 +102,10 @@ type Answer =
       readonly recovery?: ReportedFailure["recovery"];
     }
   // Intent's CI status: the judged branch, when it was checked, and the
-  // selected check's judgment (`./intentCiStatusRead.ts`).
+  // selected check's judgment (`./intentCiStatusRead.ts`); or `none` when
+  // the kept form finds nothing for that target.
   | IntentCiStatusAnswer
+  | IntentCiStatusNone
   | IntentCiProofAnswer
   // A path read at a branch head: null when that head does not have it.
   | {

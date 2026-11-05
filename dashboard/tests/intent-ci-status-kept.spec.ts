@@ -1,9 +1,8 @@
-// The chosen Intent tab is kept per project by the page
-// (../src/pageIntentMode.tsx): CI status or Optimization Candidates stays
-// chosen across Development and back and across a new trunk revision, where
-// CI status reads the trunk's judgment again, while time alone and another
-// branch moving read none; a project change starts again on Intent
-// (SEED-219 examples 2, 10). Candidates read at a new revision are
+// Intent's CI homepage shows again after a perspective switch; Optimization
+// Candidates stays chosen across Development and back; a project change
+// starts again on Intent (SEED-219 examples 2, 10). A new trunk revision
+// re-reads the homepage judgment at the new head, while time alone and
+// another branch moving read none. Candidates read at a new revision are
 // in ./intent-test-optimization-candidates-revision.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
@@ -28,14 +27,14 @@ import {
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   expectIntentModeChosen,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import {
   pausePageClock,
   passTimeUntilCheckedAfterSettled,
 } from "./autoRefreshJourney.ts";
 
-test("CI status and Optimization Candidates stay chosen across Development and back; a project change starts again on Intent", async ({
+test("CI homepage shows again across Development and back; Optimization Candidates stays chosen; a project change starts again on Intent", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -49,7 +48,7 @@ test("CI status and Optimization Candidates stay chosen across Development and b
   const { intent, intentChoice, development } = parts(page);
   await intentChoice.click();
 
-  await test.step("CI status is kept across Development and back", async () => {
+  await test.step("CI homepage shows again across Development and back", async () => {
     const panel = await chooseCiStatus(intent);
     await expect(panel.locator(".intent-ci-state")).toHaveText(
       "Passed at a1b2c3d (Add login)",
@@ -57,11 +56,11 @@ test("CI status and Optimization Candidates stay chosen across Development and b
     await development.click();
     await expect(intent).toHaveCount(0);
     await intentChoice.click();
-    await expectIntentModeChosen(intent, "CI status");
+    await expectIntentModeChosen(intent, "Intent");
     await expect(ciPanel(intent).locator(".intent-ci-state")).toHaveText(
       "Passed at a1b2c3d (Add login)",
     );
-    await expect(intent.locator(".intent-locations")).toBeHidden();
+    await expect(intent.locator(".intent-locations")).toBeVisible();
   });
 
   await test.step("Optimization Candidates is kept across Development and back", async () => {
@@ -84,10 +83,11 @@ test("CI status and Optimization Candidates stay chosen across Development and b
     await expectIntentModeChosen(intent, "Intent");
     await expect(candidatesRecord(intent)).toBeHidden();
     await expect(intent.locator(".intent-locations")).toBeVisible();
+    await expect(ciPanel(intent)).toBeVisible();
   });
 });
 
-test("a new trunk revision keeps CI status chosen and reads the trunk's judgment again at the new head; time alone and another branch moving read none", async ({
+test("a new trunk revision re-reads the homepage judgment at the new head; time alone and another branch moving read none", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -141,7 +141,7 @@ test("a new trunk revision keeps CI status chosen and reads the trunk's judgment
   await passTimeUntilCheckedAfterSettled(page);
   await untilPageReadsAnswered(page);
 
-  await expectIntentModeChosen(intent, "CI status");
+  await expectIntentModeChosen(intent, "Intent");
   await expect(panel.locator(".intent-ci-state")).toHaveText(
     "Failed at e8e8e8e (Plan the next story)",
   );

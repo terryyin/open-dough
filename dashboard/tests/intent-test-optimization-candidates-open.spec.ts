@@ -10,7 +10,8 @@ import {
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   intentModeTab,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   doughnutFeaturePath,
@@ -62,6 +63,7 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
     ).toHaveAttribute("aria-pressed", "true");
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
     await expect(candidatesTab).toHaveAttribute("aria-selected", "false");
+    await chooseReadingTab(intent, "Proof");
     await expect(record).toBeHidden();
 
     await chooseOptimizationCandidates(intent);

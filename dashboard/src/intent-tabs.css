@@ -1,6 +1,6 @@
-/* Intent's tabs (./IntentTabs.tsx), in the reading-mode strip: a group
-   drawn with the banner's Perspective choice (./project-select.css), the
-   selected tab filled in the accent. */
+/* Intent's tabs (./IntentTabs.tsx), in the reading-mode strip and over
+   Purpose and Proof: a group drawn with the banner's Perspective choice
+   (./project-select.css), the selected tab filled in the accent. */
 .intent-tab {
   box-sizing: border-box;
   min-height: calc(var(--control-size) - 8px);

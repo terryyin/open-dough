@@ -12,7 +12,8 @@
 
 import type { Locator } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
-import { intentGroupToggle, purposeRegion } from "./intentPerspectivePage.ts";
+import { intentGroupToggle } from "./intentPerspectivePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { expectSelected } from "./storyCardSelection.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
@@ -82,7 +83,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
   await test.step("expanding and collapsing the summary keeps the selected file, its reading, the open folders, and the choice", async () => {
     const file = intentFile(intent, changed.modified);
     await file.click();
-    const purpose = purposeRegion(intent);
+    const purpose = await chooseReadingTab(intent, "Purpose");
     const diffName = purpose.locator(".intent-story-diff-name");
     await expect(diffName).toHaveText(changed.modified);
     const expectKept = async () => {

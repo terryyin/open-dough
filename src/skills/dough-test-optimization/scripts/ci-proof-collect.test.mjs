@@ -64,6 +64,8 @@ test("two dashboard shards and one tests share total without overwriting or doub
       },
     ],
   });
+  assert.equal("durationMs" in summary.entries[0], false);
+  assert.equal("durationMs" in summary.entries[0].parts[0], false);
 });
 
 test("a missing part is a gap, a duplicated part is ambiguous, and neither is counted (example 2)", () => {

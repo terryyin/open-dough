@@ -9,7 +9,7 @@ import {
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   expectIntentModeChosen,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import { openDoughCandidatesRecord } from "./intentCandidatesFixtures.ts";
 import { openDough } from "./intentCodeBrowseFixtures.ts";

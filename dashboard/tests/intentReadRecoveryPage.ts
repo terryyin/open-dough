@@ -13,12 +13,12 @@ import {
   openDough,
   openDoughSettings,
 } from "./intentCodeBrowseFixtures.ts";
+import { intentLocationName } from "./intentPerspectivePage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
-  intentLocationName,
-} from "./intentPerspectivePage.ts";
+} from "./intentModePage.ts";
 import {
   openUntilRead,
   untilPageRequestsAnswered,

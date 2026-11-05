@@ -2,7 +2,7 @@
 // (./support/intentCompletedStory.ts) is selected by its Recently done
 // card's empty area. Intent's summary names it by its done record's title
 // and, expanded, its identity and the revisions of its published history comparison,
-// which differ from the published revision Intent describes
+// which differ from the published revision Intent and its Proof describe
 // (ADR 0008), since trunk has advanced past the completion. The test file the
 // story deleted is absent from the published tree, yet stays in Intent as
 // removed in both "Selected story only" states, with the deletion diff
@@ -17,7 +17,8 @@
 import type { Locator } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
 import { shortRevision } from "./dashboardParts.ts";
-import { expandIntentGroup, purposeRegion } from "./intentPerspectivePage.ts";
+import { expandIntentGroup } from "./intentPerspectivePage.ts";
+import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { expect, test } from "./support/preparationPage.ts";
 import {
   completedChanges as changed,
@@ -53,6 +54,11 @@ test("Intent overlays a completed story's published history comparison, naming i
   const { card, intent, completion, published } =
     await selectCompletedStoryInIntent(page, origin);
   const scoped = storySummary(intent);
+  // Proof's revision note, after choosing its tab.
+  const proofRevision = async () =>
+    (await chooseReadingTab(intent, "Proof")).locator(
+      ".intent-proof-published code",
+    );
   let baseline = "";
 
   await test.step("Intent names the completed story by its done record's title and identity", async () => {
@@ -116,10 +122,15 @@ test("Intent overlays a completed story's published history comparison, naming i
   }
 
   const inIntent = new Map<string, string>();
-  await test.step("each changed file opens its diff", async () => {
+  await test.step("each changed file opens its diff, Proof naming the published revision", async () => {
     for (const name of Object.values(changed)) {
       inIntent.set(name, await intentDiff(intent, name));
+      await expect(await proofRevision()).toHaveText(shortRevision(published));
     }
+    await intentFile(intent, changed.deleted).click();
+    await expect(await chooseReadingTab(intent, "Proof")).toContainText(
+      `The published revision has no ${gone}.`,
+    );
   });
 
   await test.step("each changed file's diff in Intent is the one Review changes shows", async () => {
@@ -194,7 +205,9 @@ test("a completed story whose published comparison cannot be recovered says why,
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
   await expandIntentGroup(intent, "dashboard/tests");
   await intentFile(intent, "dashboard/tests/a.spec.ts").click();
-  await expect(purposeRegion(intent)).toContainText("completed");
+  await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
+    "completed",
+  );
   // Review changes gives the completed story the same explanation.
   const { development } = parts(page);
   await development.click();

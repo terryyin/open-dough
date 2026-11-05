@@ -1,23 +1,24 @@
 // The Intent perspective of the selected project: Purpose reads configured
 // test-source locations at the observed revision through the authenticated
-// read boundary (`./IntentBrowser.tsx`). Unusable locations and failed reads
+// read boundary, and Proof shows the last successful proof a location's
+// proof holds (`./IntentBrowser.tsx`). Unusable locations and failed reads
 // each keep their own explanation; remaining locations stay browseable. The
 // reading strip (`./IntentModeTabs.tsx`) is drawn here, above those
-// explanations, so CI status (`./IntentCiStatus.tsx`), which does not depend
-// on Intent locations, is offered whatever their state. The chosen mode is
-// kept by the page per project (`./pageIntentMode.tsx`). With a story selected
-// on the page, Intent reads its default Review changes comparison
-// (`./useIntentStoryLens.ts`), which the browser overlays on the published
-// tree. The Intent reading mode names the story in one summary
-// (`./IntentStorySummary.tsx`) heading the locations tree or, without one,
-// the explanation in its place; Optimization Candidates and CI status show
-// none.
+// explanations. CI status (`./IntentCiStatus.tsx`) is Intent's homepage when
+// nothing is selected and is shown beside location explanations whether or
+// not locations are configured. The chosen mode is kept by the page per
+// project (`./pageIntentMode.tsx`). With a story selected on the page, Intent
+// reads its default Review changes comparison (`./useIntentStoryLens.ts`),
+// which the browser overlays on the published tree. The Intent reading mode
+// names the story in one summary (`./IntentStorySummary.tsx`) heading the
+// locations tree or, without one, the explanation in its place; Optimization
+// Candidates shows none.
 
 import { useState, type ReactNode } from "react";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { IntentSettingsProblem } from "./authenticatedIntentRead.ts";
 import { IntentBrowser } from "./IntentBrowser.tsx";
-import { IntentCiStatusPanel } from "./IntentCiStatus.tsx";
+import { IntentCiStatus } from "./IntentCiStatus.tsx";
 import { IntentModeTabs } from "./IntentModeTabs.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
@@ -35,6 +36,7 @@ import type { PublishedWork } from "./publishedWork.ts";
 import { useIntentLocations } from "./useIntentLocations.ts";
 import { useIntentStoryLens } from "./useIntentStoryLens.ts";
 import "./intent-perspective.css";
+import "./intent-proof.css";
 import "./intent-candidates.css";
 
 function NotConfigured({ label }: { readonly label: string }) {
@@ -73,6 +75,7 @@ function SettingsProblem({
 function IntentBody({
   source,
   work,
+  selectedIdentity,
   mode,
   modeIdPrefix,
   onModeChange,
@@ -81,37 +84,54 @@ function IntentBody({
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
+  readonly selectedIdentity: string | undefined;
   // The selected story as the Intent mode's summary names it, and with its
   // comparison once compared.
   readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
 } & ModeChoice) {
-  const { intent, retryLocations } = useIntentLocations(source, work?.revision);
+  const { intent, retryLocations, proofRereading, retryProof } =
+    useIntentLocations(source, work?.revision);
 
   // An explanation in place of the locations browser, shown as the panel of
   // whichever location-reading mode is chosen; the Intent mode's names the
-  // selected story above it.
-  const shown = mode === "ci-status" ? "intent" : mode;
-  const explained = (children: ReactNode) => (
+  // selected story above it. CI status sits beside terminal location
+  // explanations; it is omitted while locations are still loading so the
+  // browser's empty-selection homepage does not remount a second judgment.
+  const explained = (
+    children: ReactNode,
+    options: { readonly withCi: boolean } = { withCi: true },
+  ) => (
     <div
       role="tabpanel"
-      id={intentTabPanelId(modeIdPrefix, shown)}
-      aria-labelledby={intentTabId(modeIdPrefix, shown)}
-      hidden={mode === "ci-status"}
+      id={intentTabPanelId(modeIdPrefix, mode)}
+      aria-labelledby={intentTabId(modeIdPrefix, mode)}
     >
       {mode === "intent" && storySummary !== undefined && (
         <IntentStorySummary summary={storySummary} />
       )}
       {children}
+      {mode === "intent" && options.withCi ? (
+        <IntentCiStatus
+          source={source}
+          work={work}
+          selectedIdentity={selectedIdentity}
+        />
+      ) : null}
     </div>
   );
   if (work === undefined || intent === "loading") {
+    // Withhold CI until locations settle: a cold Intent open can mount with
+    // work still unread (NotConfigured placeholder), and mounting CI here
+    // would judge once and again when the browser or terminal explanation
+    // replaces it.
     return explained(
       work === undefined ? (
         <NotConfigured label={source.label} />
       ) : (
         <p className="quiet">Reading Intent locations…</p>
       ),
+      { withCi: false },
     );
   }
   if ("failed" in intent) {
@@ -143,8 +163,14 @@ function IntentBody({
     <IntentWorkspaceSelectionProvider key={`${source.id}:${work.revision}`}>
       <IntentBrowser
         source={source}
+        work={work}
+        selectedIdentity={selectedIdentity}
         revision={work.revision}
         locations={intent.locations}
+        proofRereading={proofRereading}
+        onProofRetry={() => {
+          retryProof(work.revision);
+        }}
         mode={mode}
         modeIdPrefix={modeIdPrefix}
         onModeChange={onModeChange}
@@ -198,6 +224,7 @@ export function IntentPerspective({
       <IntentBody
         source={source}
         work={work}
+        selectedIdentity={selectedIdentity}
         mode={mode}
         modeIdPrefix={modeIdPrefix}
         onModeChange={onModeChange}
@@ -215,13 +242,6 @@ export function IntentPerspective({
               }
         }
         story={compared}
-      />
-      <IntentCiStatusPanel
-        source={source}
-        work={work}
-        selectedIdentity={selectedIdentity}
-        mode={mode}
-        modeIdPrefix={modeIdPrefix}
       />
     </main>
   );

@@ -12,17 +12,53 @@ import {
 } from "./authenticatedGet.ts";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "./authenticatedReadRules.ts";
+import { proofGeneration } from "./proofGeneration.ts";
+import { runnerProblems } from "./proofKinds.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 const locationProblem = z.enum(["unsupported-kind", "no-matching-files"]);
 const settingsProblem = z.enum(["malformed", "unreadable"]);
 
+// A retained observation as the case model (`./proofCases.ts`) names it,
+// whatever the kind.
+const proofObservation = z.object({
+  file: z.string().min(1),
+  name: z.string(),
+  variant: z.array(z.string()).optional(),
+  outcome: z.literal("passed"),
+  attempts: z.number().int().min(1),
+  durationMs: z.number().min(0),
+  finishedAt: z.string().min(1),
+  commit: commitSha,
+  fileBlob: commitSha,
+});
+
+// A location's declared proof (`../server/intentProofRead.ts`), with each
+// listed file's published blob by path.
+const locationProof = z.union([
+  z.object({
+    path: z.string().min(1),
+    fileBlobs: z.record(z.string(), z.string().min(1)),
+    observations: z.array(proofObservation),
+  }),
+  z.object({
+    path: z.string().min(1),
+    problem: z.enum(["unreadable", "malformed"]),
+    file: z.string().min(1).optional(),
+  }),
+]);
+
 const intentLocation = z.object({
   path: z.string().min(1),
   kind: z.string().min(1),
   include: z.array(z.string().min(1)).optional(),
+  runner: z.string().min(1).optional(),
+  runnerProblem: z.enum(runnerProblems).optional(),
   files: z.array(z.string().min(1)),
   problem: locationProblem.optional(),
+  proof: locationProof.optional(),
+  proofGeneration: proofGeneration.optional(),
+  proofGenerationProblem: z.literal("malformed").optional(),
 });
 
 const okIntent = z.object({
@@ -33,6 +69,7 @@ const okIntent = z.object({
 });
 
 export type IntentLocation = z.infer<typeof intentLocation>;
+export type IntentLocationProof = z.infer<typeof locationProof>;
 export type IntentSettingsProblem = z.infer<typeof settingsProblem>;
 
 export type IntentLocations =

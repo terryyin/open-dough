@@ -122,6 +122,7 @@ jobs:
           entries: tests src/skills
           report-format: outcomes
           report: ${{ runner.temp }}/test-outcomes.txt
+          times: ${{ runner.temp }}/test-times.txt
 
   # The dashboard's browser suite, which `npm test` never discovers, runs
   # against controlled GitHub responses (no credentials, no live project

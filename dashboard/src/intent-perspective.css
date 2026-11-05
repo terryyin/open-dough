@@ -1,6 +1,6 @@
 /* The Intent perspective (./IntentPerspective.tsx): not-configured prose, or
-   a reading-mode strip over Purpose locations beside their source, or over
-   the candidates record or CI status. The perspective choice already
+   a reading-mode strip over Purpose locations beside source and Proof, or
+   over the candidates record. The perspective choice already
    names the page, so it shows no heading of its own. Below the banner the
    page itself does not scroll: the location browser runs the full remaining
    height against the page's left edge, and it and the reading pane each
@@ -159,6 +159,7 @@
 }
 
 .intent-reading {
+  container: intent-reading / inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -169,34 +170,15 @@
   outline-offset: -3px;
 }
 
-/* A link-styled button that opens a target inside Intent: candidate-record
-   locations (`./IntentCandidatesLocationsText.tsx`,
-   `./RecordedMarkdownText.tsx`) and summary drill-down
-   (`./IntentSummaryChildren.tsx`). */
-.intent-open-link {
-  display: inline;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--link, inherit);
-  font: inherit;
-  text-align: start;
-  text-decoration: underline;
-  cursor: pointer;
-  overflow-wrap: anywhere;
-}
-
 .intent-summary {
   min-width: 0;
 }
 
 .intent-summary-path,
-.intent-summary-files {
+.intent-summary-files,
+.intent-summary-progress,
+.intent-summary-scenarios {
   margin: 0 0 var(--space-2);
-}
-
-.intent-summary-children .intent-summary-files {
-  margin: var(--space-1) 0 0;
 }
 
 .intent-summary-children {

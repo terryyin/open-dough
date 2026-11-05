@@ -1,22 +1,5 @@
-/* Intent's CI status (./IntentCiStatus.tsx): the judged branch across the
-   content area, without the location tree. */
-.intent-ci-status-panel {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
-  padding: var(--space-3) clamp(0.75rem, 4vw, 1.5rem) var(--space-4);
-  border-top: 1px solid var(--line);
-}
-
-.intent-ci-status-panel[hidden] {
-  display: none;
-}
-
-.intent-ci-status-panel:focus-visible {
-  outline-offset: -3px;
-}
-
+/* Intent's CI status homepage (./IntentCiStatus.tsx): the judged branch in
+   the Intent reading pane when nothing is selected. */
 .intent-ci-status {
   max-width: 42rem;
   line-height: 1.5;
@@ -25,6 +8,33 @@
 
 .intent-ci-state {
   font-weight: 600;
+}
+
+.intent-ci-checking::before {
+  content: "";
+  display: inline-block;
+  width: 0.75em;
+  height: 0.75em;
+  margin-right: 0.4em;
+  vertical-align: -0.1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: intent-ci-spin 0.6s linear infinite;
+}
+
+@keyframes intent-ci-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.intent-ci-refresh-failed {
+  color: var(--danger, #a33);
+}
+
+.intent-return-home {
+  margin: 0 0 var(--space-2);
 }
 
 /* The shown run's CI proof (./IntentCiProof.tsx), after the judgment. */
