@@ -80,7 +80,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
       mainRun,
     );
     await expect(proof.getByRole("listitem")).toHaveText([
-      "tests: 5 passed checks; 1 of 1 part present.",
+      "tests: 5 passed checks; test execution time not recorded: this summary has no test execution durations; 1 of 1 part present.",
     ]);
     await expect(proof).not.toContainText("70a0001");
     expect(proofCalls(calls).slice(before)).toEqual([
@@ -98,7 +98,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     await development.click();
     await intentChoice.click();
     await expect(proof.getByRole("listitem")).toHaveText([
-      "tests: 5 passed checks; 1 of 1 part present.",
+      "tests: 5 passed checks; test execution time not recorded: this summary has no test execution durations; 1 of 1 part present.",
     ]);
     await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
       "Attempt 2 of run 12 at d4e5f6a.",

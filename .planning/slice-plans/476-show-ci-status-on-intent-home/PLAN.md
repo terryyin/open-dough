@@ -198,12 +198,11 @@ summary an adapter or project publishes.
 
 ### 4. Test execution time beside each proof entry
 Type: Behavior
-Status: planned
-Proof: dashboard specs through `dashboard/tests/support/ciProofArtifacts.ts`
-fixtures: entries with complete durations show **test execution time 4 min**
-and **2 min** beside their counts; an entry with a missing part shows partial
-with that part named; a summary without durations shows not recorded; no
-case shows zero for a missing duration.
+Status: done
+Proof: `dashboard/tests/intent-ci-status-execution-time.spec.ts` (4 min / 2 min,
+not recorded, partial with part named) plus updated proof/adapter row
+expectations; `npm run lint`, `typecheck:dashboard`. Partial derived from
+parts in `entryExecutionTimeLine` (`ciProofWording.ts`).
 
 **Behavior:** a shown attempt's summary → the homepage shows its proof rows →
 each entry names its cumulative test execution time, partial, or not
@@ -283,6 +282,12 @@ unpaid). Slice 5 records the warm comparison beside these numbers.
   omit the field so entry sums only present parts.
 - Duration collector tests live in `ci-proof-duration.test.mjs` so collect/
   summary files stay within the line budget.
+
+## Learnings (slice 4)
+
+- Entry execution time is derived only from parts (gaps or untimed present
+  parts → partial); Intent CI whole-minute wording stays separate from
+  file-Proof `proofDurationWords`.
 
 ## Current decisions
 

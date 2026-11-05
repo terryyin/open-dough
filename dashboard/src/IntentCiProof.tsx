@@ -5,13 +5,13 @@
 // judgment is shown first and never changes with it. It names that attempt
 // once -- a run's attempt and link, or an adapter's attempt id, and the
 // revision -- then one row per declared entry, in the order the project's CI
-// declares them, with the counts, their unit and any gap
-// (`./ciProofWording.ts`); otherwise one line says why there is no proof to
-// show. An adapter attempt whose attemptId another discovered attempt shares
-// at its revision is ambiguous: no proof is read for it. A running result's
-// proof is its completed ancestor's, the result the homepage shows beside it.
-// Proof is read again with each judgment the homepage reads, so Check again
-// refreshes both.
+// declares them, with the counts, their unit, cumulative test execution time
+// and any gap (`./ciProofWording.ts`); otherwise one line says why there is
+// no proof to show. An adapter attempt whose attemptId another discovered
+// attempt shares at its revision is ambiguous: no proof is read for it. A
+// running result's proof is its completed ancestor's, the result the homepage
+// shows beside it. Proof is read again with each judgment the homepage reads,
+// so Check again refreshes both.
 
 import { useEffect, useId, useState } from "react";
 import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
@@ -29,6 +29,7 @@ import {
   ambiguousAttemptLine,
   ciWallTimeLine,
   entryCountsLine,
+  entryExecutionTimeLine,
   entryGapLines,
   entryPartsLine,
   noAttemptLine,
@@ -74,6 +75,10 @@ function ProofEntry({ entry }: { readonly entry: CiProofEntry }) {
       <code>{entry.path}</code>
       {": "}
       <span className="intent-ci-proof-counts">{entryCountsLine(entry)}</span>
+      {"; "}
+      <span className="intent-ci-proof-execution">
+        {entryExecutionTimeLine(entry)}
+      </span>
       {"; "}
       <span className="intent-ci-proof-parts">{entryPartsLine(entry)}</span>
       {entryGapLines(entry).map((gap) => (

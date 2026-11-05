@@ -1,11 +1,16 @@
 // Wording of one run attempt's CI proof in Intent's CI status homepage
 // (`./IntentCiProof.tsx`): each entry's counts with their unit, how many of
 // its declared parts are present, each missing or ambiguous part as a gap,
-// and why no proof can be shown. A gap's counts are never part of the
-// entry's counts (the collector leaves them out), so the words say how many
-// parts were counted. Nothing relies on colour.
+// that entry's cumulative test execution time (complete, partial, or not
+// recorded), and why no proof can be shown. A gap's counts are never part of
+// the entry's counts (the collector leaves them out), so the words say how
+// many parts were counted. Nothing relies on colour.
 
-import type { CiProofEntry, CiProofUnavailableReason } from "./ciProof.ts";
+import type {
+  CiProofEntry,
+  CiProofPart,
+  CiProofUnavailableReason,
+} from "./ciProof.ts";
 
 function joinedAnd(parts: readonly string[]): string {
   if (parts.length <= 1) return parts.join("");
@@ -36,12 +41,18 @@ export function entryPartsLine(entry: CiProofEntry): string {
   return `${String(present.length)} of ${String(of)} ${of === 1 ? "part" : "parts"} present`;
 }
 
+// "part 4 of 12 missing" / "part 2 of 2 has no duration" — one phrasing for
+// gaps and for partial execution-time reasons.
+function partPhrase(part: CiProofPart, of: number, status: string): string {
+  return `part ${String(part.part)} of ${String(of)} ${status}`;
+}
+
 // "part 4 of 12 missing", one for each part not counted.
 export function entryGapLines(entry: CiProofEntry): string[] {
   const of = entry.parts.length;
   return entry.parts
     .filter((part) => part.status !== "present")
-    .map((part) => `part ${String(part.part)} of ${String(of)} ${part.status}`);
+    .map((part) => partPhrase(part, of, part.status));
 }
 
 const unavailableLines: Readonly<Record<CiProofUnavailableReason, string>> = {
@@ -114,8 +125,10 @@ export const noAttemptLine =
 
 const minuteMs = 60_000;
 
-// Whole minutes / hours / days of an attempt's wall time, as Intent names it.
-function wallTimeWords(ms: number): string {
+// Whole minutes / hours / days for Intent CI wall time and entry test
+// execution time. Distinct from `./proofDurationWords.ts`, which names file
+// Proof observation durations in ms / fractional seconds.
+function wholeMinuteWords(ms: number): string {
   const minutes = Math.floor(Math.max(0, ms) / minuteMs);
   if (minutes < 1) return "less than 1 min";
   if (minutes < 60) return `${String(minutes)} min`;
@@ -136,5 +149,32 @@ export function ciWallTimeLine(
   if (!Number.isFinite(started) || !Number.isFinite(completed)) {
     return "CI wall time not recorded: this attempt's CI read has no start and completion times.";
   }
-  return `CI wall time ${wallTimeWords(completed - started)}.`;
+  return `CI wall time ${wholeMinuteWords(completed - started)}.`;
+}
+
+// Cumulative test execution time beside an entry's counts: complete when every
+// part is present with a duration; not recorded when every present part lacks
+// one and there is no gap (an older summary); otherwise partial from the
+// entry's parts — gaps, and present parts without a duration when another
+// part recorded one. Never invents zero for absence.
+export function entryExecutionTimeLine(entry: CiProofEntry): string {
+  const of = entry.parts.length;
+  const gaps = entry.parts.filter((part) => part.status !== "present");
+  const present = entry.parts.filter((part) => part.status === "present");
+  const timed = present.filter((part) => typeof part.durationMs === "number");
+  const untimed = present.filter((part) => typeof part.durationMs !== "number");
+  if (gaps.length === 0 && untimed.length === 0) {
+    const total = timed.reduce((sum, part) => sum + (part.durationMs ?? 0), 0);
+    return `test execution time ${wholeMinuteWords(total)}`;
+  }
+  if (gaps.length === 0 && timed.length === 0) {
+    return "test execution time not recorded: this summary has no test execution durations";
+  }
+  const named = [
+    ...gaps.map((part) => partPhrase(part, of, part.status)),
+    ...(timed.length > 0
+      ? untimed.map((part) => partPhrase(part, of, "has no duration"))
+      : []),
+  ];
+  return `test execution time partial: ${joinedAnd(named)}`;
 }

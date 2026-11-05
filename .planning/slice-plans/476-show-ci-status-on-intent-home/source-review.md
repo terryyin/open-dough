@@ -26,14 +26,14 @@
 | 15 | That elapsed time covers the whole pipeline including setup, checks and final reporting | slice 2 | observed: wall time from attempt startedAt/completedAt (GHA run_started_at/updated_at via observedRun), not test sums — wall-time + proof specs |
 | 16 | Overlapping jobs count once | slice 2 | observed: same attempt-bound wall clock (not per-job sums); observedRun/normalizeAttempt carry attempt times only |
 | 17 | Wall time comes from the CI read of that attempt, not from summing test or job durations | slice 2 | observed: ci-github-actions observedRun and ci-command-attempts normalizeAttempt → baseCiNearest judgment → Proof |
-| 18 | Beside each declared proof entry's counts, show the sum of that entry's individual test execution durations across its parts, shards or parallel workers | slice 4 |  |
-| 19 | That figure is cumulative execution time and may exceed wall time | slice 4 |  |
-| 20 | It is named so it does not read as elapsed time | slice 4 |  |
+| 18 | Beside each declared proof entry's counts, show the sum of that entry's individual test execution durations across its parts, shards or parallel workers | slice 4 | observed: IntentCiProof entry rows + entryExecutionTimeLine; intent-ci-status-execution-time.spec.ts 4 min / 2 min beside counts |
+| 19 | That figure is cumulative execution time and may exceed wall time | slice 4 | observed: cumulative sum of part durationMs (may exceed wall); E2 wall 3 min with entry 4+2 min |
+| 20 | It is named so it does not read as elapsed time | slice 4 | observed: wording "test execution time" in ciProofWording.entryExecutionTimeLine |
 | 21 | The CI proof publication path (fragments and the attempt's summary) gains the durations it lacks | slice 3 | observed: ci-proof-fragments/collect/summary + --times/OPEN_DOUGH_TEST_TIMES + Playwright durationMs; focused ci-proof-*.test.mjs and ci-proof-declaration.test.mjs; hosted story-branch summary observation remains post-publish |
-| 22 | Timing evidence that was read but not recorded (an older summary, or an adapter attempt without start/completion times) is shown as not recorded with why | slice 4 |  |
-| 23 | An entry whose parts are missing, ambiguous or partly without durations shows its execution time as partial, never as a complete total | slice 4 |  |
-| 24 | An unreadable source keeps the existing unavailable wording | slice 4 |  |
-| 25 | No missing timing is shown as zero | slice 4 |  |
+| 22 | Timing evidence that was read but not recorded (an older summary, or an adapter attempt without start/completion times) is shown as not recorded with why | slice 4 | observed: older summary: test execution time not recorded with why (execution-time spec); adapter wall not-recorded remains slice 2/E7 |
+| 23 | An entry whose parts are missing, ambiguous or partly without durations shows its execution time as partial, never as a complete total | slice 4 | observed: partial from missing/untimed parts with parts named; never complete total — execution-time missing-shard step |
+| 24 | An unreadable source keeps the existing unavailable wording | slice 4 | observed: existing unavailable proof wording unchanged (intent-ci-proof-reasons / prior unavailable paths) |
+| 25 | No missing timing is shown as zero | slice 4 | observed: no zero for missing duration — not recorded / partial paths; execution-time specs |
 | 26 | The dashboard server keeps the last answer it read for each project and judged branch: the judgment, its proof and timings, and when they were retrieved | slice 5 |  |
 | 27 | Each homepage show returns any kept answer at once, labelled previously retrieved with its retrieval time | slice 5 |  |
 | 28 | Each homepage show also reads CI afresh as the tab did | slice 5 |  |
@@ -45,14 +45,14 @@
 | 34 | A kept or fresh answer for a target other than the one now selected is never shown, including when the project or story changes while a read is in progress | slice 5 |  |
 | 35 | The cache lives in the dashboard server process and is rebuilt by reading CI; keeping it across a dashboard server restart is not undertaken | slice 5 |  |
 | 36 | No time-based refresh or polling is added: refresh still happens on show, on a new observed head and on Check again, so the per-show GitHub request count does not grow | slice 5 |  |
-| 37 | No per-job duration breakdown | slice 4 |  |
-| 38 | No trend history | slice 4 |  |
-| 39 | No timing for checks that do not publish CI proof entries | slice 4 |  |
+| 37 | No per-job duration breakdown | slice 4 | observed: no per-job duration UI added; only entry-level test execution time |
+| 38 | No trend history | slice 4 | observed: no trend history added |
+| 39 | No timing for checks that do not publish CI proof entries | slice 4 | observed: no timing for checks outside CI proof entries |
 | 40 | Launch base CI and other CI surfaces keep their current behavior | slice 1 | observed: diff touches dashboard Intent CI homepage only; no Launch base CI surface changes |
 | E1 | Opens Intent with locations configured and nothing selected: CI of main fills content; strip is Intent and Optimization Candidates only; select a test file, read Purpose/Proof, return to CI homepage within Intent | slice 1 | observed: dashboard/tests/intent-ci-status-homepage.spec.ts full journey |
-| E2 | Attempt 10:00–10:03; tests entry 4 min and dashboard/tests 2 min execution; homepage shows CI wall time 3 min and test execution time 4 min and 2 min; wall time is not 6 min | slice 4 |  |
+| E2 | Attempt 10:00–10:03; tests entry 4 min and dashboard/tests 2 min execution; homepage shows CI wall time 3 min and test execution time 4 min and 2 min; wall time is not 6 min | slice 4 | observed: intent-ci-status-execution-time.spec.ts: wall 3 min + test execution 4 min and 2 min |
 | E3 | Reopen after a read 20 minutes ago: kept result appears immediately as previously retrieved with spinner; newer attempt replaces it and spinner stops | slice 5 |  |
 | E4 | After server restart, first visit is spinner only until CI answers; later network-down Check again shows failure while earlier answer stays previously retrieved | slice 5 |  |
 | E5 | Trunk refresh in progress when selecting a story with a kept story-branch answer: only that story branch's kept and fresh answers appear; late trunk answer never shown | slice 5 |  |
-| E6 | Older summary without timing: counts appear, entry execution time not recorded, wall time still from CI read; missing browser-test shard fragment → that entry's execution time partial with the part named | slice 4 |  |
+| E6 | Older summary without timing: counts appear, entry execution time not recorded, wall time still from CI read; missing browser-test shard fragment → that entry's execution time partial with the part named | slice 4 | observed: same spec: older not recorded + missing shard partial with part named |
 | E7 | CI-adapter project without attempt start/completion times: result and counts show with CI wall time not recorded | slice 2 | observed: intent-ci-status-wall-time.spec.ts adapter without startedAt/completedAt shows CI wall time not recorded with why |
