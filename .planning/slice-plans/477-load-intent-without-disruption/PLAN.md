@@ -336,3 +336,38 @@ Reported: slice 3 — "CI homepage judgment, counts, timings with retrieval time
 Story clause: "Return to the CI homepage with a kept answer. The judgment, counts and timings appear with its retrieval time while the existing fresh read runs; failure keeps that answer visibly qualified."
 Disposition: excluded "owns the homepage, CI judgment, proof counts/timings and backend cache with visible freshness"
 Commitment: R2d, R4, R5, E7.T, E7.R1, E7.R2
+
+## Execution complete
+
+CI note: attempt 1 of run 42045586350 on `027e9a204` failed only in setup
+acquisition (lint tools and Node downloads answered HTTP 504 from GitHub
+release hosting in `lint`, `test (1/3)`, `test (3/3)` and `dashboard (7/12)`);
+the other 13 jobs passed. Disposition: external infrastructure, not rerun;
+this record's publication supplies the next applicable run. Local before
+landing: `npm test` passed; `npm run test:dashboard` 2027 passed, 1 skipped
+(31.4 min, AC under `caffeinate -s -i`, no sleep).
+
+Product advice:
+
+- **Decide main's restored local-proof code before integrating this branch.**
+  The SEED-239 landing (merged through `d9bc49ea3`, `3e2596917`, `d1e1ddff6`)
+  was based before SEED-238's close and restored deleted dashboard proof code
+  (`IntentProofSummary.tsx`, `IntentProof.tsx`, `server/intentProofRead.ts`,
+  `proofCases.ts`); `15eac4781` removed only its guidance.
+  `IntentProofSummary.tsx` reads every file of a selected location through
+  `readRepositoryFileAt`, the bulk source transfer this story forbids, and
+  main's locations answer now carries `proof` problems this branch's memo
+  would keep. `git merge-tree origin/main` conflicts in `GITHUB-REQUESTS.md`,
+  `IntentBrowser.tsx`, `IntentFileReading.tsx`, `IntentPerspective.tsx`,
+  `intentSelectionCoverage.ts`, `useIntentLocations.ts` and
+  `tests/holdAuthenticatedReads.ts`; main's `useIntentReadingPlaces.ts` is a
+  second scroll-place mechanism beside `pageIntentReading.tsx`.
+- **Correction written, not queued:**
+  [SEED-241#keep-the-shown-reading-through-failed-updates](../../seeds/SEED-241-intent-loading-and-traffic.md#keep-the-shown-reading-through-failed-updates)
+  with [plan 480](../480-keep-shown-reading-through-failed-updates/PLAN.md):
+  leaving Intent during a held or failed update loses the shown revision, an
+  unreadable settings answer at the newer revision replaces the reading, and
+  two read-reuse journeys overlap. It runs on the integrated shape.
+- Main has since queued `SEED-243#improve-intent-home-and-selection-summaries`
+  and story start-to-end summary work in the same Intent components; plan
+  them against the integrated reading-place and memo design.

@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 427. Removed numbers are never reused.
+- Highest allocated local number: 428. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -368,6 +368,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: slice 1 `execution-increment-delivery.mjs fresh` returned `operation: formatting`, `@typescript-eslint/no-misused-spread` at `dashboard/src/pytestCases.ts` 131 (`[...text]` in the refactor's `codePointsOf`; the implementation's `byCodePoint` had spread strings the same way)
   - Observed effect: implementation and refactor returns both passed focused proof and typecheck with the spread; delivery's formatter refused it, the coordinator replaced it with `Array.from(text, …)`, reran the unit test and typecheck, and the second fresh delivery was accepted.
   - Inference: agents barred from hook-owned lint learn its rules only at delivery; naming a known rule in the brief (done for slice 2) avoided a repeat there.
+- Execution: SEED-241#load-intent-without-disruption-or-bulk-source-transfer (plan 477-load-intent-without-disruption; first related implementation commit `fa9fd1a0249d41a5c590a0cbf66f40ff0728e028`)
+  - Timestamp: unknown (2026-11-05, slices 1–3 between claim `9cd866dee` and `43cc96a50`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.86 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: the plan's local gate required `npm run lint` per slice while each brief forbade `npm run format`; slice 1, 2 and 3 returns each report running `npx prettier --write` on their own files after `npm run lint` failed on Prettier style
+  - Observed effect: every fresh delivery's formatter step then passed first time; the briefs' formatting ban was worked around rather than followed
+  - Inference: qualified match — the read-only lint check is now named, but it fails on formatting the implementer may not fix, so a scoped formatter on authored files is the de facto practice
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 
@@ -503,6 +511,16 @@ Former local code: DD-388.
 Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`.
 
 [Evidence and current response](docs/maintainer/findings/ODF-367.md).
+
+### Occurrences
+- Execution: SEED-241#load-intent-without-disruption-or-bulk-source-transfer (plan 477-load-intent-without-disruption; first related implementation commit `fa9fd1a0249d41a5c590a0cbf66f40ff0728e028`)
+  - Timestamp: unknown (2026-11-05, about 19:25+07:00 by the session's clock, before slice 1 delivery `fa9fd1a02`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.86 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: the coordinator delegated slice 1 with the plan's proof as its brief, then launched the source-only reviewer; `source-review.md` (178 ids) was written and allocated while slice 1 ran
+  - Observed effect: no rework of slice 1; at acceptance S6.1 ("show cached content immediately") did not hold (a kept answer showed "Reading…" for a frame) and was moved to slice 4, which then had to make kept answers render synchronously
+  - Inference: same ordering as the earlier rows; here the miss was absorbed by a later slice rather than returned
 
 ## ODF-399 — Post-change refactor left a production module empty before delivery
 
@@ -769,3 +787,16 @@ Dough Land's history-preserving landing requires the queued-closure check before
   - Evidence: `dough-land/references/publish-reviewed-checkout.md` asks for `onFetchedTarget` with `checkQueuedClosures` and an `affectedCheck`; the CLI usage line offers only workspace, published tip, branch, target, remote, backlog path, landing context and supplier identity. The job's `land.mjs` supplied both callbacks; the first run stopped on a `GITHUB-REQUESTS.md` conflict and the rerun published merge `4a8129838`. The workspace HEAD afterwards was `cec7c2f43`, not the merge.
   - Observed effect: a one-off script per landing (the same pattern is already remembered for preparation keeps), and an extra manual step before the release from trunk.
   - Inference: CLI flags for the closure guard and an affected-proof command, plus leaving a retained landing's workspace at the accepted revision, would make the documented path directly runnable.
+
+## DD-428 — A refactor moved tests after acceptance had cited them, leaving source-review observations stale
+Slice acceptance recorded `observed:` locations in `source-review.md` at test files; the following refactor pass split those files, so the recorded locations named tests no longer there. The refactor agents reported it and the coordinator retargeted the rows before delivery.
+
+### Occurrences
+- Execution: SEED-241#load-intent-without-disruption-or-bulk-source-transfer (plan 477-load-intent-without-disruption; first related implementation commit `fa9fd1a0249d41a5c590a0cbf66f40ff0728e028`)
+  - Timestamp: unknown (2026-11-05, slice 3 refactor before `43cc96a50` and slice 4 refactor before `027e9a204`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.86 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: slice 3 acceptance cited `dashboard/tests/intent-selection-reads.spec.ts` in 40 rows; its refactor moved those three tests to `intent-revision-notice.spec.ts`. Slice 4 acceptance cited `intent-revision-notice.spec.ts` in 12 rows; its refactor moved them to `intent-revision-update-outcomes.spec.ts`. Both refactor returns listed the stale rows and plan lines; the coordinator rewrote them before each fresh delivery
+  - Observed effect: two extra record-retargeting rounds; nothing stale was published, only because both refactor agents volunteered the list
+  - Inference: wrap-up records observations before the refactor pass, so any test move invalidates them silently unless the refactor reports it; asking each refactor pass for stale record citations (practice here) or re-checking observed paths at delivery would make this reliable

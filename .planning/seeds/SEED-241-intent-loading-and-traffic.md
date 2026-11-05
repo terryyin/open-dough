@@ -261,9 +261,11 @@ place. Layout and components remain implementation choices.
   not inherit the older proposal's outage-evidence prerequisite.
 - [Existing published SSE delivery](../done/SEED-232_see-published-changes-over-sse.json)
   and [shared GitHub refreshes](../done/SEED-232_share-published-git-refreshes.json)
-  remain the delivery owners. The three
-  [SEED-240 follow-ups](SEED-240-reliable-dashboard-updates-and-session-details.md)
-  own stream freshness warnings, abandoned setup and hidden Session details;
+  remain the delivery owners. The three completed SEED-240 follow-ups —
+  [freshness loss across stream retries](../done/SEED-240_show-freshness-loss-across-stream-retries.json),
+  [stop revision checks after setup disconnect](../done/SEED-240_stop-revision-checks-after-setup-disconnect.json),
+  and [read session assignments on demand](../done/SEED-240_read-session-assignments-on-demand.json)
+  — own stream freshness warnings, abandoned setup and hidden Session details;
   this story does not duplicate those repairs.
 
 **Architecture and existing solutions.**
@@ -324,3 +326,21 @@ and boundary tests when the executable plan is prepared.
 
 This project's [failing and flaky tests policy](../../AGENTS.md#failing-and-flaky-tests)
 applies as written.
+
+## Correction
+
+### Keep the shown reading through failed updates
+
+**Identity:** SEED-241#keep-the-shown-reading-through-failed-updates
+
+**Goal.** A developer reviewing Intent keeps the revision they are reading,
+with its tree, selection and text, when an update to newer published work is
+slow, fails or meets unreadable settings, including after leaving Intent and
+returning. This corrects the delivered
+[Load Intent without disruption or bulk source transfer](#load-intent-without-disruption-or-bulk-source-transfer)
+story's recovery behavior; it adds no new promise.
+
+**Scope.** The page-held shown revision and its fallback to the kept answer;
+an unreadable settings answer at the newer revision treated as a failed
+update; consolidation of the overlapping read-reuse journeys. Plan:
+[480-keep-shown-reading-through-failed-updates](../slice-plans/480-keep-shown-reading-through-failed-updates/PLAN.md).
