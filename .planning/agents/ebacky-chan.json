@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ebacky-chan",
+  "email": "ebacky-chan@example.org",
+  "identity": "SEED-237#paste-from-the-mobile-keyboard",
+  "mode": "story-branch",
+  "branch": "codex/paste-from-the-mobile-keyboard",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
