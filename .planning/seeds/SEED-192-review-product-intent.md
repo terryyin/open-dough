@@ -246,34 +246,117 @@ Individual refinements and their recorded facts below carry current preparation.
 
 **Identity:** SEED-192#assess-story-intent-protection
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/472-assess-story-intent-protection/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ff429504421f5eedd7d75b7cdecaba0cbe9b138c756c4f6ebbc1ed6f4c94e5da","plan":"e91b10cbb1ff354d468d3e61408853a11eec5193d43e1f5c8ed0e0b0e42c27fd"}}
 ```
 
-- **For / why:** A developer receives an explainable assessment of how clearly
-  one real story's intent is distilled into maintained high-level tests, what
-  those tests protect, and where evidence is insufficient.
-- **Evaluation:** For one newly developed or completed story with recoverable
-  intent and source, state the developer's review basis first. Review an
-  AI-assisted assessment against the actual story, test source, and applicable
-  execution evidence. The developer can follow the reasoning to its sources
-  and make a concrete retain, clarify, or strengthen decision, or reject the
-  assessment as unhelpful with its limitation recorded.
-- **Value / learning:** Tests the direction's hardest assumption before building
-  a general coverage model. Compare useful findings, unsupported claims, and
-  review effort with an ordinary review using the existing tools.
-- **Boundary:** One bounded case with qualitative reasoning and explicit unknowns.
-  A changed-file list, passing run, or line-coverage percentage alone cannot
-  establish intent protection. Existing tools and reports may supply the review;
-  a new dashboard automation or stored intent catalogue is not required.
-- **Effort hypothesis:** Unbanded; bounded exploratory case, low confidence.
-  Selecting a case with recoverable intended behavior limits scope. Assessment
-  reliability is the uncertainty; an inconclusive result is valid learning.
-- **Product prerequisites:** Recoverable story intent, relevant test source,
-  available execution evidence, and a developer able to evaluate the result.
-  No blocking story dependency has been established.
-- **Safe stopping point:** The case retains its useful maintenance decision and
-  evidence limits. Wider automation remains a later choice informed by this
-  result; the judgment does not become a whole-product protection claim.
+- **Beneficiary:** A developer deciding whether one story's intent is worth
+  keeping, clarifying, or strengthening in its maintained high-level tests,
+  here Terry reviewing an Open Dough dashboard story.
+- **Goal:** Terry receives an explainable, per-promise account of how well one
+  completed story's intent is distilled into its tests and protected by them:
+  what each promise's tests express, whether a test would fail if the promise
+  broke, and where evidence is missing. He can follow every claim to its
+  source, and decides retain, clarify, or strengthen per promise, or rejects
+  the method as unhelpful with its limitation recorded. This tests the parent
+  direction's hardest assumption, that such an assessment is reliable and
+  worth its cost, before any general coverage model or automation is built
+  ([ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)).
+
+**Case (selected during refinement, 2026-11-05):**
+story 5, Review a story's impact on test intent
+(SEED-192#review-story-intent-impact, [done record](../done/SEED-192_review-story-intent-impact.json)), assessed at its completion revision
+`7c71049b`. Its intent is recoverable there as the story's seed section and
+plan 441 (`git show 7c71049b:<path>`); its tests are Playwright dashboard
+journeys, the high-level form the memorandum trusts most. The review basis to
+compare against is already recorded: the story's execution retrospective,
+Terry's ordinary review through the existing tools, found two promises the
+tests did not protect: clicks inside an opened disclosure body selected the
+card, and Intent's **Review changes** link showed another comparison for a
+story with a review mark (correction SEED-192#align-intent-story-lens, plan
+448, `git show 168c04473^:.planning/slice-plans/448-align-intent-story-lens/PLAN.md`).
+This gives the case a known answer and a live one: findings that correction
+448 already fixed measure recall, and findings that still hold on current
+trunk need a live decision.
+
+**Facts observed during refinement (2026-11-05):** `7c71049b` is an ancestor
+of trunk and holds story 5's seed section and plan. It holds no committed
+dashboard proof record: `dashboard/tests/proof/latest.json` first appears in
+`2d272e1bb` (2026-11-05). The case's execution evidence is therefore a fresh
+local run of the story's specs at `7c71049b`.
+
+**Scope:**
+
+- **Required:**
+  - An assessment of story 5's intent at `7c71049b`, written before the
+    assessor reads anything recorded after that revision: the retrospective,
+    correction 448, or later commits. Each promise and restriction in story 5's
+    section gets one verdict: *protected*, *partially protected* (naming the
+    uncovered case), *not protected*, or *unknown* (naming the missing
+    evidence). Each verdict cites the story text, the test and support source
+    lines, and the execution evidence it rests on, and says how clearly the
+    test expresses the promise.
+  - Execution evidence: a fresh local run of the story's specs at `7c71049b`,
+    with its command and per-test result. A test that was not run, or not run
+    successfully, supports no *protected* verdict.
+  - Break checks, adapted from mutation testing: a *protected* verdict is
+    either break-checked (a deliberate local fault against the promise, in a
+    scratch copy at `7c71049b`, makes a named test fail; record the fault,
+    command, and failing assertion) or labelled reasoned-only with why it was
+    not checked. At least two verdicts are break-checked, chosen where the
+    reasoning is least certain. Break checks run locally and cost nothing;
+    no paid native-host runs.
+  - A comparison with the review basis: which retrospective findings the
+    assessment recovered or missed, and what it found that the retrospective
+    did not. Each finding still applying on current trunk is rechecked there.
+  - Terry's evaluation: per live finding, retain, clarify, or strengthen;
+    unsupported claims he rejects, counted; the assessor's elapsed time and
+    his reading time. A strengthen or clarify decision becomes a queued story
+    or bounded correction, or is declined with its reason.
+  - The method's lasting learning, its usefulness, unsupported claims, cost,
+    and limits, recorded in the
+    [product intent review memorandum](../../docs/product-intent-review-memorandum.md),
+    including a rejected or inconclusive result.
+- **Keep criterion (proposed, Terry's to judge):** keep the method only if it
+  recovers both retrospective findings, or explains why the evidence at
+  `7c71049b` could not show them, and gives Terry at least one useful verdict
+  the retrospective did not, with few enough unsupported claims that checking
+  them costs less than the review saves. Matching the retrospective's gaps
+  alone favors folding the method into the retrospective instead.
+- **Scope limits:** one case. No product code, test, or project-rule change:
+  strengthening a finding is the follow-up it queues. The assessment uses the
+  existing tools (Git, the checkout, the dashboard's Intent and Review changes,
+  local test runs) and an agent; no new skill, dashboard automation, stored
+  intent catalogue, or numeric score.
+- **Deferred, neither promised nor prevented:** a reusable assessment skill or
+  a retrospective extension, a dashboard action that launches the assessment,
+  a second case such as a story in progress or a Doughnut or Pygardon Cucumber
+  story, and the complexity review of story 11.
+
+**Key examples:**
+
+1. Story 5 promises that clicks on a card's disclosures keep their own
+   behavior → the assessor finds that `story-card-selection.spec.ts` clicks
+   only a disclosure's summary and a link → verdict *partially protected:
+   opened disclosure body not exercised*, matching the retrospective's first
+   finding, already fixed on trunk by correction 448 → counted as recall; no
+   live decision.
+2. Story 5 restricts Intent's changed files to the comparison Review changes
+   shows → no fixture gives the story a review mark → verdict *partially
+   protected: only unmarked stories*, matching the second finding → recall.
+3. A promise the assessor judges protected, such as a changed file showing in
+   place in the full tree → a scratch fault at `7c71049b` drops that overlay →
+   the named spec fails on its assertion → verdict *protected, break-checked*,
+   with the fault, command, and failing assertion recorded.
+4. A promise judged protected where no fault was introduced → *protected,
+   reasoned-only*, with the reason; Terry weighs it as a weaker claim.
+5. A spec of the story fails or cannot run at `7c71049b` → its promises are
+   *unknown*, naming the run, not *protected*.
+6. The assessor reports a gap the retrospective did not, and it still holds on
+   trunk → Terry decides strengthen → a story or correction is queued with the
+   finding; or he decides retain, recorded with his reason.
+7. Terry finds a verdict whose cited source does not say what the verdict
+   claims → it counts as unsupported; if such claims outweigh useful verdicts,
+   he rejects the method and the memorandum records why.
 
 <a id="assess-story-test-complexity"></a>
 
@@ -870,8 +953,9 @@ what the first Proof claims.
 - First Proof's profile, tested basis, publication and retention were settled
   on 2026-11-01 and published as the [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md): proof is
   a latest per-scenario snapshot, not run history.
-- Select a real story and a developer's prior review basis for each assessment
-  case; define what decision and review cost would justify keeping the method.
+- Select a real story and a developer's prior review basis for the complexity
+  assessment case (story 11); define what decision and review cost would justify
+  keeping its method. Story 10 records its own case and keep criterion.
 - Establish Open Dough S/M/L calibration before assigning bands. Comparative
   uncertainty is recorded; no borrowed client-project timing policy applies.
 
