@@ -33,5 +33,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Show lost freshness across repeated revision-stream failures](seeds/SEED-240-reliable-dashboard-updates-and-session-details.md#show-freshness-loss-across-stream-retries) — SEED-240#show-freshness-loss-across-stream-retries
+- [Stop revision checks when a page leaves during stream setup](seeds/SEED-240-reliable-dashboard-updates-and-session-details.md#stop-revision-checks-after-setup-disconnect) — SEED-240#stop-revision-checks-after-setup-disconnect
+- [Read session assignment history when Session details opens](seeds/SEED-240-reliable-dashboard-updates-and-session-details.md#read-session-assignments-on-demand) — SEED-240#read-session-assignments-on-demand
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
