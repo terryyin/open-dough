@@ -54,14 +54,10 @@ stays" and U10 "the failure and a retry appear beside the notice".
 - No server change; answers stay `no-store`; failures, limited and refused
   answers are never kept (`answerMemo.ts`).
 - The CI status mode keeps following the observed head.
-- Precondition: `main` changed after this execution's claim. The SEED-239
-  landing restored local-proof dashboard code (`IntentProofSummary.tsx` reads
-  each file of a selected location; the locations answer carries `proof`
-  problems), and `useIntentLocations.ts`, `IntentPerspective.tsx`,
-  `IntentBrowser.tsx` conflict with this branch. Execute this correction on
-  the integrated shape, after the developer's decision on that code; if
-  proof problems remain in the locations answer, the memo's `fixed` rule
-  must not keep them, and proof Retry must bypass the kept answer.
+- Integrated shape: the reviewed branch merged main at `94ed10204`
+  (Intent CI homepage in `IntentSelectionReading.tsx`, two modes) and
+  removed the local-proof code SEED-239's landing had restored, so the
+  locations answer carries no proof problems.
 
 ## Outside-in proof
 
@@ -115,5 +111,5 @@ Merge the two overlapping journeys and drop the post-return steps that
 
 ## Plan concerns
 
-Slice 1 depends on the integrated shape of `useIntentLocations.ts` after the
-developer's decision on main's restored local-proof code.
+None beyond the findings: slice 1 works on the integrated
+`useIntentLocations.ts` and `IntentSelectionReading.tsx`.

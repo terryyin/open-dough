@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep the shown reading through failed updates](seeds/SEED-241-intent-loading-and-traffic.md#keep-the-shown-reading-through-failed-updates) — SEED-241#keep-the-shown-reading-through-failed-updates
 - [Improve Intent home and selection summaries](seeds/SEED-243-intent-home-and-selection-summaries.md#improve-intent-home-and-selection-summaries) — SEED-243#improve-intent-home-and-selection-summaries
 - [Compare a story's CI and entry timing changes](seeds/SEED-244-story-ci-timing-changes.md#compare-story-ci-timing-changes) — SEED-244#compare-story-ci-timing-changes
 - [Compare a story's Intent entry, folder, and file summaries](seeds/SEED-245-story-intent-summary-differences.md#compare-story-intent-entry-folder-and-file-summaries) — SEED-245#compare-story-intent-entry-folder-and-file-summaries

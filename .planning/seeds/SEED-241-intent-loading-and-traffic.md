@@ -329,6 +329,8 @@ applies as written.
 
 ## Correction
 
+<a id="keep-the-shown-reading-through-failed-updates"></a>
+
 ### Keep the shown reading through failed updates
 
 **Identity:** SEED-241#keep-the-shown-reading-through-failed-updates
