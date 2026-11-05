@@ -22,7 +22,8 @@ export function useIntentFileRead({
   readonly source: PublishedSource;
   readonly revision: string;
   // The selected path, whether it is a file, and whether its published text
-  // is not read: the revision lacks it or its Purpose is the story's diff.
+  // is not read: the revision lacks it, its Purpose is the story's diff, or
+  // that is not yet known.
   readonly path: string;
   readonly file: boolean;
   readonly unread: boolean;

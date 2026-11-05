@@ -174,7 +174,7 @@ showing cached content immediately (S6.1).
 
 ### 2. The reading place survives leaving Intent
 Type: Behavior
-Status: planned
+Status: done
 Proof: a new spec in `intent-read-reuse.spec.ts` or
 `intent-reading-place.spec.ts` (example 2's restored place);
 `intent-ci-status-kept.spec.ts` and `development-intent-frame*.spec.ts`
@@ -194,6 +194,21 @@ project change; slice 3 owns revision changes. Interim behavior until
 slice 3: a new observed revision still re-reads the locations, but the
 selection is kept by path, with `intent-selection-reads.spec.ts`'s third
 test adjusted to that interim. Slice 3 replaces both.
+
+**Accepted (slice 2):** `pageIntentReading.tsx` holds one in-memory reading
+place per project (`IntentReadingProvider` in `PageFrame.tsx`,
+`IntentReadingPlace` keyed by `source.id` in `IntentPerspective.tsx`).
+Components seed from it on mount and write back (`useKeptReading`,
+`useKeptArrangement`, `useKeptReadingScroll`). The tree arrangement belongs
+to the story selected while it was made; a story selected while Intent is
+hidden starts the arrangement afresh. While the selected story's comparison
+is still read, the selected file's published text is not read. Proof:
+`intent-reading-place.spec.ts` (test 1 fails on base), adjusted
+`intent-selection-reads.spec.ts` third test and `intent-story-changes.spec.ts`
+last step, focused Intent suite 97 passed, `--repeat-each=5` 35 passed.
+Interim now: a new observed revision re-reads the locations and reads the
+kept selected file at that revision; a missing path shows the read failure
+with Retry until slice 3 explains it.
 
 ### 3. A newer revision waits behind a notice
 Type: Behavior

@@ -4,9 +4,9 @@
 // tree, with the changed folders open and the rest collapsed, however they
 // were arranged by hand in between. Expanding and collapsing the story's
 // summary keeps the selected file and its reading, the open folders, and the
-// choice. Intent unmounts while hidden, so a story
-// selected in Development applies its expansion, with the toggle off, the
-// next time Intent opens. A story that changed only product code says no
+// choice. A story selected in Development starts the tree's kept arrangement
+// afresh (../src/pageIntentReading.tsx), so it applies its expansion, with
+// the toggle off, the next time Intent opens. A story that changed only product code says no
 // test file in a location changed, with the count outside. The highlighted
 // journey: ./intent-story-changes.spec.ts.
 

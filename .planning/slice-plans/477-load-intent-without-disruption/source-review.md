@@ -26,10 +26,10 @@ trigger/journey examples and exclusions, splitting compound items.
 | S1.1c | Keep expansion through background revision observations | slice 3 | |
 | S1.1d | Keep reading position through background revision observations | slice 3 | |
 | S1.1e | Keep applicable view choices through background revision observations | slice 3 | |
-| S1.2 | Keep the same reading state (S1.1a–e) through switches between Development and Intent | slice 2 | |
-| S1.3 | Each project's reading state is scoped to that project | slice 2 | |
-| S1.4 | Another project's selection never appears | slice 2 | |
-| S1.5 | A project change starts that project's reading afresh, as the mode choice does today | slice 2 | |
+| S1.2 | Keep the same reading state (S1.1a–e) through switches between Development and Intent | slice 2 | observed: dashboard/tests/intent-reading-place.spec.ts test 1: after Development → Intent the deep file is pressed, dashboard/tests expanded, boundary/deep/arriving open and out closed, Selected story only checked, scroll equals saved offset; no locations/path/story reads |
+| S1.3 | Each project's reading state is scoped to that project | slice 2 | observed: dashboard/tests/intent-reading-place.spec.ts test 2: Doughnut shows its own not-configured text with nothing pressed; back to Open Dough shows 'Select a file to read its Purpose.', toggle unchecked, default expansion, scroll 0 |
+| S1.4 | Another project's selection never appears | slice 2 | observed: dashboard/tests/intent-reading-place.spec.ts test 2: Doughnut shows its own not-configured text with nothing pressed; back to Open Dough shows 'Select a file to read its Purpose.', toggle unchecked, default expansion, scroll 0 |
+| S1.5 | A project change starts that project's reading afresh, as the mode choice does today | slice 2 | observed: dashboard/tests/intent-reading-place.spec.ts test 2: Doughnut shows its own not-configured text with nothing pressed; back to Open Dough shows 'Select a file to read its Purpose.', toggle unchecked, default expansion, scroll 0 |
 | S1.6 | A newer published revision produces a small **New revision available** notice | slice 3 | |
 | S1.7 | The notice does not clear the current reading | slice 3 | |
 | S1.8 | The notice does not fetch replacement source bodies | slice 3 | |
@@ -51,7 +51,7 @@ trigger/journey examples and exclusions, splitting compound items.
 | S3.1 | Fetch source or a file's diff only when that file is explicitly opened | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts zero path= and zero diff/text reads until Modified a.spec.ts is opened; dashboard/tests/intent-read-reuse.spec.ts featureReads()==1 only for the opened file |
 | S3.2a | Explicit opening includes a candidate link | slice 1 | observed: focused Intent suite: intent-test-optimization-candidates*.spec.ts case-link/position tests green with the shared cached file read |
 | S3.2b | Explicit opening includes a positioned case | slice 1 | observed: focused Intent suite: intent-test-optimization-candidates*.spec.ts case-link/position tests green with the shared cached file read |
-| S3.2c | Explicit opening includes a restored explicit selection | slice 2 | |
+| S3.2c | Explicit opening includes a restored explicit selection | slice 2 | observed: dashboard/tests/intent-reading-place.spec.ts test 1 restored selection shows its diff with zero new file/diff/text reads; intent-read-reuse.spec.ts one featurePath read across the return |
 | S3.2d | Explicit opening includes applying an update to the file already selected | slice 3 | |
 | S3.3a | Do not prefetch source bodies for sibling files | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts zero path= and zero diff/text reads until Modified a.spec.ts is opened; dashboard/tests/intent-read-reuse.spec.ts featureReads()==1 only for the opened file |
 | S3.3b | Do not prefetch source bodies for folder summaries | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts zero path= and zero diff/text reads until Modified a.spec.ts is opened; dashboard/tests/intent-read-reuse.spec.ts featureReads()==1 only for the opened file |
@@ -135,7 +135,7 @@ trigger/journey examples and exclusions, splitting compound items.
 | E2.T2 | Visit its parent and reopen it, then leave Intent and return, while answers remain within the bounded cache | slice 1 | observed: dashboard/tests/intent-read-reuse.spec.ts: A→B→A then Development→Intent→A gives featureReads()==1, locationsReads()==1; candidates test recordReads()==1 |
 | E2.R3 | Zero repeat content requests | slice 1 | observed: dashboard/tests/intent-read-reuse.spec.ts: A→B→A then Development→Intent→A gives featureReads()==1, locationsReads()==1; candidates test recordReads()==1 |
 | E2.R4 | Zero repeat backend calculations | slice 1 | observed: dashboard/tests/intent-read-reuse.spec.ts: A→B→A then Development→Intent→A gives featureReads()==1, locationsReads()==1; candidates test recordReads()==1 |
-| E2.R5 | Reading place is restored | slice 2 | |
+| E2.R5 | Reading place is restored | slice 2 | observed: dashboard/tests/intent-reading-place.spec.ts test 1 (place restored after leaving and returning; fails on base fa9fd1a) |
 | E3.T | Open a changed file through the selected-story lens or (alternative) a candidate's case link | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts opening Modified dashboard/tests/a.spec.ts twice: text [], diffs [a.spec.ts], texts [a.spec.ts]; IntentBrowser.tsx unread via storyDiffOf |
 | E3.R1 | Only content needed for that selected file is requested | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts opening Modified dashboard/tests/a.spec.ts twice: text [], diffs [a.spec.ts], texts [a.spec.ts]; IntentBrowser.tsx unread via storyDiffOf |
 | E3.R2 | Its comparison/case position stays correct | slice 1 | observed: focused Intent suite: intent-test-optimization-candidates*.spec.ts case-link/position tests green with the shared cached file read |
@@ -175,8 +175,8 @@ trigger/journey examples and exclusions, splitting compound items.
 | E7.R4b | Preserve the homepage's new-observed-head trigger | slice 3 | |
 | E7.R4c | Preserve the homepage's **Check again** trigger | slice 3 | |
 | D0 | Considered, not delivered here; naturally supported behavior stays intact | slice 4 | |
-| D1a | Reading state and browser caches across a page reload (in-memory page state) | slice 2 | |
-| D1b | Reading state and browser caches retained per project across a project change (in-memory page state) | slice 2 | |
+| D1a | Reading state and browser caches across a page reload (in-memory page state) | slice 2 | observed: pageIntentReading.tsx holds the place in memory only; intent-gherkin-unusable.spec.ts reload step still expects collapsed groups |
+| D1b | Reading state and browser caches retained per project across a project change (in-memory page state) | slice 2 | observed: pageIntentReading.tsx IntentReadingProvider replaces the place on a project change (dashboard/tests/intent-reading-place.spec.ts test 2) |
 | D2 | Keeping a changed file's line anchored after applying an update; the reading pane keeps its scroll offset and new text replaces old in place | slice 3 | |
 | D3 | Reusing a selected file's text across revisions by blob identity in the browser; after an update the selected file is read again at the new revision, kept cheap by backend blob-SHA reuse | slice 3 | |
 | D4 | Response compression or HTTP caching on the read boundary, which keeps `no-store` | slice 1 | observed: useReviewRead.ts askReview and authenticatedGet keep cache: no-store; no server header change |

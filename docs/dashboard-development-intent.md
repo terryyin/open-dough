@@ -122,12 +122,19 @@ tab is kept while the page stays on the project, across switches to
 Development and back and across new revisions, where **Optimization
 Candidates** reads the record at the new revision; a project change starts
 again on **Intent**. The choice is disposable page state, not on the URL or
-in storage. A location that is missing, holds no `.feature` files, or names
-an unsupported kind says so by path or kind while other locations stay
-usable; a failed file read says so and offers retry. When that setting is
-absent, Intent says no intent locations are configured and names the setting
-and file; it shows no empty tree. An unreadable or malformed settings file is
-a distinct explanation from absence. With a story selected, the **Intent**
+in storage. The reading place is kept the same way, in memory only: the
+selection, the open location and folders, **Selected story only** and the
+reading pane's scroll show again after Development and back without reading
+the locations or the selected file again, and a new revision reads the
+locations again and keeps the selection by path. A story selected while
+Intent is hidden starts the tree's arrangement afresh, and a project change
+starts that project's reading afresh. A location that is missing, holds no
+`.feature` files, or names an unsupported kind says so by path or kind while
+other locations stay usable; a failed file read says so and offers retry.
+When that setting is absent, Intent says no intent locations are configured
+and names the setting and file; it shows no empty tree. An unreadable or
+malformed settings file is a distinct explanation from absence. With a story
+selected, the **Intent**
 reading mode names it in one compact summary at the top of the locations
 column, or above the explanation shown in place of the tree; the mode strip
 stays under the banner, and Optimization Candidates and CI status show no

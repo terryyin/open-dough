@@ -12,7 +12,7 @@
 // distinct from a changed folder's row, and keeps the mark once selected. The changed files outside every location are counted, pointing
 // to Review changes. A changed file's Purpose is the same diff Review
 // changes shows; an unchanged file shows its published source. Deselecting removes the
-// summary.
+// summary and leaves the tree as it was.
 // "Selected story only": ./intent-story-changes-only.spec.ts. Deletions and
 // renames: ./intent-story-changes-moves.spec.ts. No
 // comparison and a failed read: ./intent-story-changes-gaps.spec.ts. A long
@@ -236,9 +236,11 @@ test("Intent highlights a selected Taken story's test changes over the published
     );
     expect(unchanged.mark).toBe("none");
     expect(unchanged.background).toBe(changedHeader.background);
+    // The story was cleared while Intent showed, so the tree is kept as it
+    // was left (../src/pageIntentReading.tsx).
     await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
       "aria-expanded",
-      "false",
+      "true",
     );
   });
 });

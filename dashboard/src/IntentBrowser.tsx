@@ -12,11 +12,14 @@
 // the Intent workspace (`./intentWorkspaceSelection.ts`). With a
 // selected story's comparison, the trees follow it (`./useIntentStoryTree.ts`)
 // under the story's summary heading the locations (`./IntentStorySummary.tsx`).
-// A file the published revision does not list is never read. The browser unmounts
-// with Intent, so a story selected while Intent is hidden applies when it
-// opens, with the toggle off.
+// A file the published revision does not list is never read. The browser
+// unmounts with Intent; the selection, the expanded location, the reveal and
+// the reading pane's scroll are kept with the project's reading place
+// (`./pageIntentReading.tsx`) and restored when it opens again. A story
+// selected while Intent is hidden starts the tree's arrangement afresh, so its
+// expansion applies when Intent opens, with the toggle off.
 
-import { useState } from "react";
+import { useRef } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { IntentFileReading, storyDiffOf } from "./IntentFileReading.tsx";
@@ -25,6 +28,11 @@ import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentSummary } from "./IntentSummary.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
+import {
+  useKeptArrangement,
+  useKeptReading,
+  useKeptReadingScroll,
+} from "./pageIntentReading.tsx";
 import { filesOfSelection, owningLocation } from "./intentSelectionCoverage.ts";
 import {
   selectionScope,
@@ -65,11 +73,24 @@ export function IntentBrowser({
   const { selection, setSelection } = useIntentWorkspaceSelection();
   const scope = selectionScope(selection);
   const selectedPath = selection.path;
-  const [returnEntrySlug, setReturnEntrySlug] = useState<string | undefined>();
-  const [expandedPath, setExpandedPath] = useState<string | null>(null);
-  const [reveal, setReveal] = useState<TreeReveal | undefined>();
+  const [returnEntrySlug, setReturnEntrySlug] = useKeptReading<
+    string | undefined
+  >("returnEntrySlug", () => undefined);
+  const [expandedPath, setExpandedPath] = useKeptArrangement<string | null>(
+    "expandedPath",
+    () => null,
+  );
+  const [reveal, setReveal] = useKeptArrangement<TreeReveal | undefined>(
+    "reveal",
+    () => undefined,
+  );
   // Each revealed open starts a fresh reading, positioned on its case.
-  const [revealedOpens, setRevealedOpens] = useState(0);
+  const [revealedOpens, setRevealedOpens] = useKeptReading(
+    "revealedOpens",
+    () => 0,
+  );
+  const readingPane = useRef<HTMLDivElement>(null);
+  useKeptReadingScroll(readingPane);
   const treeSelection: IntentSelection =
     mode === "intent" ? selection : { path: "" };
   const {
@@ -106,14 +127,16 @@ export function IntentBrowser({
     setReveal({ path: next.path });
   }
 
-  // Clearing selection when the project or locations change is owned by the
-  // Intent workspace provider remounting on source/revision identity.
+  // The selection starts empty for each project, its reading place mounted
+  // again for it (`./IntentPerspective.tsx`).
   const selectedFile =
     scope === "file"
       ? overlayFilesByPath(locations, overlay).get(selectedPath)
       : undefined;
   // A file the published revision does not list has no published text, and
-  // one whose Purpose is the story's diff needs none.
+  // one whose Purpose is the story's diff needs none. While the selected
+  // story's comparison is still being read, as when Intent opens again on a
+  // kept selection, whether Purpose is a diff is not yet known.
   const fileRead = useIntentFileRead({
     source,
     revision,
@@ -121,7 +144,8 @@ export function IntentBrowser({
     file: scope === "file",
     unread:
       selectedFile?.published === false ||
-      storyDiffOf(story, selectedFile) !== undefined,
+      storyDiffOf(story, selectedFile) !== undefined ||
+      storySummary?.comparison.state === "reading",
   });
 
   const selectedLocation = owningLocation(locations, selection);
@@ -166,7 +190,7 @@ export function IntentBrowser({
             );
           })}
         </div>
-        <div className="intent-reading" tabIndex={-1}>
+        <div ref={readingPane} className="intent-reading" tabIndex={-1}>
           {(scope === "location" || scope === "folder") &&
           selectedLocation !== undefined ? (
             <IntentSummary

@@ -5,8 +5,10 @@
 // reading strip (`./IntentModeTabs.tsx`) is drawn here, above those
 // explanations, so CI status (`./IntentCiStatus.tsx`), which does not depend
 // on Intent locations, is offered whatever their state. The chosen mode is
-// kept by the page per project (`./pageIntentMode.tsx`). With a story selected
-// on the page, Intent reads its default Review changes comparison
+// kept by the page per project (`./pageIntentMode.tsx`), and so is the reading
+// place: the selection, the tree's arrangement and the reading pane's scroll
+// (`./pageIntentReading.tsx`), mounted again for each project. With a story
+// selected on the page, Intent reads its default Review changes comparison
 // (`./useIntentStoryLens.ts`), which the browser overlays on the published
 // tree. The Intent reading mode names the story in one summary
 // (`./IntentStorySummary.tsx`) heading the locations tree or, without one,
@@ -29,6 +31,7 @@ import {
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
+import { IntentReadingPlace } from "./pageIntentReading.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -137,10 +140,10 @@ function IntentBody({
       />,
     );
   }
-  // Remount the selection owner on source/revision so tree and Purpose share
-  // one cleared Intent selection for that identity.
+  // Tree and Purpose share one Intent selection, kept with the project's
+  // reading place.
   return (
-    <IntentWorkspaceSelectionProvider key={`${source.id}:${work.revision}`}>
+    <IntentWorkspaceSelectionProvider>
       <IntentBrowser
         source={source}
         revision={work.revision}
@@ -195,27 +198,33 @@ export function IntentPerspective({
         idPrefix={modeIdPrefix}
         onSelect={onModeChange}
       />
-      <IntentBody
-        source={source}
-        work={work}
-        mode={mode}
-        modeIdPrefix={modeIdPrefix}
-        onModeChange={onModeChange}
-        storySummary={
-          story === undefined
-            ? undefined
-            : {
-                story,
-                comparison,
-                onRetry: retry,
-                expanded: expandedStory === story.identity,
-                onExpand: (expanded) => {
-                  setExpandedStory(expanded ? story.identity : undefined);
-                },
-              }
-        }
-        story={compared}
-      />
+      <IntentReadingPlace
+        key={source.id}
+        project={source.id}
+        story={selectedIdentity}
+      >
+        <IntentBody
+          source={source}
+          work={work}
+          mode={mode}
+          modeIdPrefix={modeIdPrefix}
+          onModeChange={onModeChange}
+          storySummary={
+            story === undefined
+              ? undefined
+              : {
+                  story,
+                  comparison,
+                  onRetry: retry,
+                  expanded: expandedStory === story.identity,
+                  onExpand: (expanded) => {
+                    setExpandedStory(expanded ? story.identity : undefined);
+                  },
+                }
+          }
+          story={compared}
+        />
+      </IntentReadingPlace>
       <IntentCiStatusPanel
         source={source}
         work={work}
