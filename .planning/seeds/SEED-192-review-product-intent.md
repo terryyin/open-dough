@@ -246,7 +246,7 @@ Individual refinements and their recorded facts below carry current preparation.
 
 **Identity:** SEED-192#assess-story-intent-protection
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/472-assess-story-intent-protection/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ff429504421f5eedd7d75b7cdecaba0cbe9b138c756c4f6ebbc1ed6f4c94e5da","plan":"e91b10cbb1ff354d468d3e61408853a11eec5193d43e1f5c8ed0e0b0e42c27fd"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/472-assess-story-intent-protection/PLAN.md","assessment":"not-ready","reasons":["Terry withdrew the story from execution on 2026-11-05: it is not ready to be executed yet and needs further refinement."],"basis":{"document":"ff429504421f5eedd7d75b7cdecaba0cbe9b138c756c4f6ebbc1ed6f4c94e5da","plan":"e91b10cbb1ff354d468d3e61408853a11eec5193d43e1f5c8ed0e0b0e42c27fd"}}
 ```
 
 - **Beneficiary:** A developer deciding whether one story's intent is worth

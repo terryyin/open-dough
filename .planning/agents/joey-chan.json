@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "joey-chan",
-  "email": "joey-chan@example.org",
-  "identity": "SEED-192#assess-story-intent-protection",
-  "mode": "story-branch",
-  "branch": "claude/review-how-well-a-story-s-intent-is-protected",
-  "host": "claude"
-}
