@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-240_read-session-assignments-on-demand.json",
+      "identity": "SEED-240#read-session-assignments-on-demand",
+      "completedAt": "2026-11-05T14:28:57.982Z",
+      "blob": "6fd1ba6c30ddfb85601a62aee3025d84b5f6cb72"
+    },
+    {
       "fileName": "SEED-240_stop-revision-checks-after-setup-disconnect.json",
       "identity": "SEED-240#stop-revision-checks-after-setup-disconnect",
       "completedAt": "2026-11-05T13:33:42.021Z",

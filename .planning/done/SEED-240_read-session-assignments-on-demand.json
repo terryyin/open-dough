@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-240#read-session-assignments-on-demand",
+  "title": "Read session assignment history when Session details opens",
+  "completedAt": "2026-11-05T14:28:57.982Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "cursor",
+  "model": "auto"
+}
