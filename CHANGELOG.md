@@ -1,3 +1,17 @@
+## 0.3.84 - 2026-11-05
+
+- Test optimization gains proof references for pytest, Vitest and Playwright, plus a CI proof summary recipe with collect, fragment and summary scripts, so projects can publish one CI proof summary per run attempt. Pytest parameter rows are ordered by parameter id. Checks outside every proof entry stay out of CI proof counts.
+- Story Wrap Up allocates post-execution commitments to lifecycle owners and carries them through closure, using a new lifecycle-commitments reference. Every delivery path goes through wrap-up's refactor step, and records-only or already-traced deliveries record a refactor disposition.
+- Execute Plan carries a slice's premise rows into the delegation brief, names the retained landing for trunk steps in Story Branch plans, and reports readiness by the unverified input or host condition. Slice planning settles decisive premises in the form and profile the slice uses. GitHub request handling describes only a mid-request owner loss as a lost connection.
+- Dashboard (source only): Intent reads pytest, Vitest and Playwright proof and shows the selected run's CI proof with explanations when it is unavailable. Revision-check answers stream from the authenticated read boundary, and the Board shows when that stream loses freshness. Running Cursor sessions are queried about once per second. Proof snapshots of up to 32 MiB can be read.
+- Test environment (source only): every check clears inherited Git repository-location variables, such as an alternate object store, so local update fixtures behave as they do in CI.
+
+The Promoted payload adds four `dough-test-optimization` references (`pytest-proof.md`, `vitest-proof.md`, `playwright-proof.md`, `ci-proof-summary.md`), four `dough-test-optimization/scripts/ci-proof-*.mjs` runtime scripts, and `dough-story-wrap-up/references/lifecycle-commitments.md`. It also changes existing execute-plan, land, post-change-refactor, bug-fixing, product-backlog, slice-planning, story-wrap-up and test-optimization guidance and scripts. No payload path is removed, and installer, discovery and host-hook mechanisms are unchanged apart from these new payload declarations.
+
+Validation: the self-installation baseline check passed before metadata changes. Fourteen focused checks passed: all-tool installation, verified no-write update, update adding new payload, dropped-file removal, self-installation baseline, release finalization gate, project-settings preservation, guidance payload, payload declaration links, the runner CI-environment check, the CI proof script tests and lifecycle-commitments guidance. Hosted CI is observed separately.
+
+Under ADR 0005, unchanged Codex, Cursor and Claude Code installation, discovery and host-hook mechanisms reuse their existing integration evidence documented in 0.3.82. These deterministic checks are not fresh native-host acceptance; no native exception is claimed.
+
 ## 0.3.83 - 2026-11-02
 
 - Read legacy planning identity evidence without treating readable context as missing allocation data. Preserve numeric reservations from metadata and filenames and recover explicitly declared identities across material historical versions, including nonnumeric identities.
