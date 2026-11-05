@@ -581,3 +581,21 @@ test had passed.
 
 **Follow-up:** open, unqueued; the remedy needs a decision on how container
 runs share admission.
+
+## DD-433 — An artifact upload stall cancelled two passing dashboard shards at the job cap
+
+The dashboard job's `timeout-minutes: 6` leaves about half a minute beyond
+setup and the 320-second suite deadline. When an upload step stalls, GitHub
+cancels the job after its tests passed, and the run reads as incomplete.
+
+### Occurrences
+- Execution: SEED-241#load-intent-without-disruption-or-bulk-source-transfer (plan 477-load-intent-without-disruption; first related implementation commit `fa9fd1a0249d41a5c590a0cbf66f40ff0728e028`)
+  - Timestamp: 2026-11-05T16:42:59Z (`dashboard (1/12)` cancelled; `dashboard (7/12)` at 16:43:45Z)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.86 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: run 42066203283 on `main` at `c9a142ac3` (the story's integration): every test step succeeded; "Keep the CI proof fragments" took 125 s and 110 s in shards 1 and 7 against 1–4 s in the other ten, then the 6-minute job cap cancelled them (6 min 19 s each); the other 15 jobs passed. The coordinator reran only the cancelled jobs for coverage
+  - Observed effect: the integration's completion wait ended unresolved with `basis.state: incomplete`; one extra CI attempt
+  - Inference: the stall is GitHub artifact service latency; the repository exposure is a job cap with no headroom for upload steps. A per-step timeout on uploads, or a job cap above setup plus suite plus uploads, would keep a passing suite from reading as cancelled
+
+**Follow-up:** open, unqueued.
