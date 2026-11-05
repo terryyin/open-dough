@@ -35,14 +35,13 @@ import {
   sources,
 } from "./intentVitestSourceFixtures.ts";
 import {
+  everyRunnerProofReferences,
   notRecordedFollowing,
   proofReadForFamiliesSoFar,
   setRunnerThatRecordsProof,
 } from "./intentProofAbsenceText.ts";
 
-const notRecorded = notRecordedFollowing(
-  "dough-test-optimization/references/vitest-proof.md or dough-test-optimization/references/playwright-proof.md",
-);
+const notRecorded = notRecordedFollowing(everyRunnerProofReferences);
 const setRunner = setRunnerThatRecordsProof(locationPath);
 
 async function openDoughnut(

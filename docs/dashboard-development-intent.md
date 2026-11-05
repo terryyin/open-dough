@@ -25,16 +25,16 @@ toggle. Selecting a file still reads its exact published text with line
 numbers and Gherkin syntax styling at the observed revision. A location or
 folder summary names the selection by path and how many matching files it
 holds. For Gherkin, pytest, and a `typescript`/`javascript` location whose
-declared `runner` Intent reads (Vitest or Playwright words below), it also
-reads each contained file's published text at the observed revision (with
-bounded concurrency and "N of M files read" progress), counts scenarios and
-outline rows from successfully read files, and, when the location declares
-proof, shows one aggregate count line over those rows (rows without
-successful proof counted explicitly) plus a breakdown by immediate child in
-the browser's order. Under the count line, a summed duration line adds the
-last successful proof durations of the rows that have one (a retried row's
-total across attempts included) and says how many of the rows that covers,
-for example "Summed duration of last successful proof: 23.5 s over 6 of 15
+declared `runner` Intent reads (runner words below), it also reads each
+contained file's published text at the observed revision (with bounded
+concurrency and "N of M files read" progress), counts scenarios and outline
+rows from successfully read files, and, when the location declares proof,
+shows one aggregate count line over those rows (rows without successful
+proof counted explicitly) plus a breakdown by immediate child in the
+browser's order. Under the count line, a summed duration line adds the last
+successful proof durations of the rows that have one (a retried row's total
+across attempts included) and says how many of the rows that covers, for
+example "Summed duration of last successful proof: 23.5 s over 6 of 15
 scenarios", noting it is a sum of separate observations and not a run's
 elapsed time, and when those observations finished, oldest to newest in UTC,
 from which commit or how many commits. A "Slowest scenarios" list gives up to
@@ -58,10 +58,10 @@ a retry that reads only the failed files, and is never counted as passed or
 without successful proof. A nonempty selection with no readable files says
 its scenario total is unavailable, not zero. Kinds Intent reads no proof for
 and unusable locations reuse the same Proof-absent or location explanations
-as a file; without declared proof a Gherkin or pytest summary, or a Vitest or
-Playwright one whose location declares its `runner`, still gives the
-statistics it can. When the location
-also declares a `proof` directory of committed Cucumber proof (the
+as a file; without declared proof a Gherkin or pytest summary, or a
+`typescript`/`javascript` one whose location declares a `runner` Intent
+reads, still gives the statistics it can. When the location also declares a
+`proof` directory of committed Cucumber proof (the
 [Cucumber proof reference](../src/skills/dough-test-optimization/references/cucumber-proof.md)),
 a selected file's Proof lists the file's scenarios and outline rows in source
 order, each with its **Last successful proof** (retry-assisted passes marked
@@ -79,53 +79,49 @@ parameter id order, whatever order the snapshot holds them in (for example
 function as one row; observations the published file no longer defines are
 not listed, and the count line counts test cases. Its location and folder
 summaries give the Gherkin figures with an inventory of test functions and
-count, summed duration and **Slowest test cases** lines over test cases. A
-`typescript` or `javascript` location's kind does not imply its proof format:
-one that declares `proof` also declares `runner`, `"vitest"` (the
-[Vitest proof reference](../src/skills/dough-test-optimization/references/vitest-proof.md))
-or `"playwright"` (the
-[Playwright proof reference](../src/skills/dough-test-optimization/references/playwright-proof.md)),
-and reads in that runner's words: under **Test case**, every `it`/`test`
-call — bare or as a member of `test` (`test.describe` / `test.it`), with or
-without modifiers such as `.each`, `.skip`, `.skipIf(…)`, `.serial`,
-`.parallel`, `.fixme` or `.fail` — whose name and enclosing `describe`/
-`suite` names are string or unsubstituted template literals, in definition
-order, named by the whole `describe` path as the runner names it (Vitest
-"renderTitleFromPattern > …" or Playwright "touch reading > …"); an anonymous
-`test.describe(fn)` adds no path segment; `.each`/`.for` placeholders and
-multi-project observations expand to one row each in code-point order of the
-observed name or project; any other test as one row. Non-literal names
-(including loop-generated Playwright titles) and stale observations are not
-listed; the count line counts test cases. Summaries use the Gherkin figures
-with test inventory and **Slowest test cases** wording. A location declaring
-`proof` without a usable `runner` explains that setting in
-`.planning/open-dough.json` instead of reading proof, while its files stay
-readable. A final unsuccessful scenario clears its earlier proof during an
-explicit recording run; a later explicit pass restores it; unexecuted
-scenarios keep theirs. Normal runs leave proof untouched. Proof is a
-published snapshot from deliberate runs, not present health. Every
-proof-bearing location's `proofGeneration` declares one nonempty `command`
-(from the repository root) or `skill`; File Proof and summaries show it as
-text and never execute it. Missing or invalid instructions explain the
-setting without hiding readable proof. Legacy proof reduces to the latest
-result before retaining successes. Proof files are read once with the
-locations at that revision. A file with no successful proof says so; an
-unreadable or invalid proof file is a named read failure with retry, never
-_No successful proof_. Without a declared directory, Proof says it is not
-recorded and names the installed reference (for `typescript`/`javascript`,
-the declared runner's reference when Intent reads it, otherwise every such
-runner's); other kinds say Proof is read for Gherkin feature files, pytest
-files, Vitest tests and Playwright tests so far. Open Dough's own
-`dashboard/tests` Playwright location lists on the order of seven hundred
-spec files; opening that location's Purpose or Proof summary reads each
-listed file at the pinned revision after the locations answer, so expect a
-noticeable first-open cost on a cold read. The selected perspective choice names the page, so Intent shows no heading
-of its own. Below the banner the page does not scroll: the location tree
-fills the remaining height against the left edge, and it and the reading
-pane each scroll independently. Directly under the banner, a strip of three
-Intent reading modes, **Intent**, **Optimization Candidates** and **CI
-status**, chooses what that content shows; it belongs to Intent and is not
-another perspective, and arrow keys, Home and End move between its tabs.
+count, summed duration and **Slowest test cases** lines over test cases. A `typescript` or
+`javascript` location's kind does not imply its proof format: one that declares `proof` also
+declares `runner`: `"vitest"` ([Vitest proof
+reference](../src/skills/dough-test-optimization/references/vitest-proof.md)),
+`"playwright"` ([Playwright proof
+reference](../src/skills/dough-test-optimization/references/playwright-proof.md)), or
+`"node:test"` ([Node test proof
+reference](../src/skills/dough-test-optimization/references/node-test-proof.md)), and reads
+in that runner's words: under **Test case**, every `it`/`test` call — bare or as a member of
+`test` (`test.describe` / `test.it`), with or without modifiers such as `.each`, `.skip`,
+`.skipIf(…)`, `.serial`, `.parallel`, `.fixme` or `.fail` — whose name and enclosing
+`describe`/`suite` names are string or unsubstituted template literals, in definition order,
+named by the whole `describe` path as the runner names it (Vitest "renderTitleFromPattern >
+…", Playwright "touch reading > …", or Node "land rerun > …"); an anonymous
+`test.describe(fn)` adds no path segment; `.each`/`.for` placeholders and multi-project
+observations expand to one row each in code-point order of the observed name or project; any
+other test as one row. Non-literal names (including loop-generated Playwright or Node
+titles) and stale observations are not listed; the count line counts test cases. Summaries
+use the Gherkin figures with test inventory and **Slowest test cases** wording. A location
+declaring `proof` without a usable `runner` explains that setting in
+`.planning/open-dough.json` instead of reading proof, while its files stay readable. A final
+unsuccessful scenario clears its earlier proof during an explicit recording run; a later
+explicit pass restores it; unexecuted scenarios keep theirs. Normal runs leave proof
+untouched. Proof is a published snapshot from deliberate runs, not present health. Every
+proof-bearing location's `proofGeneration` declares one nonempty `command` (from the
+repository root) or `skill`; File Proof and summaries show it as text and never execute it.
+Missing or invalid instructions explain the setting without hiding readable proof. Legacy
+proof reduces to the latest result before retaining successes. Proof files are read once
+with the locations at that revision. A file with no successful proof says so; an unreadable
+or invalid proof file is a named read failure with retry, never _No successful proof_.
+Without a declared directory, Proof says it is not recorded and names the installed
+reference (for `typescript`/`javascript`, the declared runner's reference when Intent reads
+it, otherwise every such runner's); other kinds say Proof is read for Gherkin feature files,
+pytest files, Vitest tests, Playwright tests and Node test files so far. Open Dough's own
+`dashboard/tests` Playwright location lists on the order of seven hundred spec files;
+opening that location's Purpose or Proof summary reads each listed file at the pinned
+revision after the locations answer, so expect a noticeable first-open cost on a cold read.
+The selected perspective choice names the page, so Intent shows no heading of its own. Below
+the banner the page does not scroll: the location tree fills the remaining height against
+the left edge, and it and the reading pane each scroll independently. Directly under the
+banner, a strip of three Intent reading modes, **Intent**, **Optimization Candidates** and
+**CI status**, chooses what that content shows; it belongs to Intent and is not another
+perspective, and arrow keys, Home and End move between its tabs.
 **Intent** shows the location tree (Purpose locations only) beside the
 reading pane; it is the tab a project's Intent first shows. With a file
 selected, or nothing selected yet, the reading pane offers **Purpose** and

@@ -68,6 +68,20 @@ test("gherkin and python imply their proof kind; typescript and javascript take 
       proofKindOf(kind, "playwright")?.words.reference,
       "dough-test-optimization/references/playwright-proof.md",
     );
+    assert.equal(
+      proofKindOf(kind, "node:test")?.words.family,
+      "Node test files",
+    );
+    assert.equal(
+      proofKindOf(kind, "node:test")?.words.reference,
+      "dough-test-optimization/references/node-test-proof.md",
+    );
+    assert.equal(proofKindOf(kind, "node:test")?.words.cases(1), "1 test case");
+    assert.equal(
+      proofKindOf(kind, "node:test")?.words.cases(2),
+      "2 test cases",
+    );
+    assert.equal(proofKindOf(kind, "node:test")?.words.caseHeader, "Test case");
     assert.equal(proofKindOf(kind, "gherkin"), undefined);
   }
   assert.equal(proofKindOf(undefined, "vitest"), undefined);
@@ -79,6 +93,7 @@ test("a declared proof's runner problem is its kind's: undeclared or unsupported
     assert.equal(runnerProblemOf(kind, "jest"), "unsupported");
     assert.equal(runnerProblemOf(kind, "vitest"), undefined);
     assert.equal(runnerProblemOf(kind, "playwright"), undefined);
+    assert.equal(runnerProblemOf(kind, "node:test"), undefined);
   }
   assert.equal(runnerProblemOf("gherkin", undefined), undefined);
   assert.equal(runnerProblemOf("python", "jest"), undefined);
@@ -88,13 +103,18 @@ test("a declared proof's runner problem is its kind's: undeclared or unsupported
 test("unrecorded proof names the declared runner's reference, else every runner's", () => {
   const vitest = "dough-test-optimization/references/vitest-proof.md";
   const playwright = "dough-test-optimization/references/playwright-proof.md";
+  const nodeTest = "dough-test-optimization/references/node-test-proof.md";
   assert.deepEqual(unrecordedReferenceOf("typescript", undefined), [
     vitest,
     playwright,
+    nodeTest,
   ]);
   assert.deepEqual(unrecordedReferenceOf("javascript", "vitest"), [vitest]);
   assert.deepEqual(unrecordedReferenceOf("typescript", "playwright"), [
     playwright,
+  ]);
+  assert.deepEqual(unrecordedReferenceOf("javascript", "node:test"), [
+    nodeTest,
   ]);
   assert.deepEqual(unrecordedReferenceOf("python", undefined), [
     "dough-test-optimization/references/pytest-proof.md",

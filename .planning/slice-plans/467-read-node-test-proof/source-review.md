@@ -16,10 +16,10 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | Q1 | Recording is opt-in via an explicit project-owned option such as RECORD_NODE_TEST_PROOF=1; off in every profile including CI. | slice 1 | observed: node-test-proof.md Configure once: RECORD_NODE_TEST_PROOF=1 off by default including CI |
 | Q2 | Only a plain pass records proof; an executed non-pass clears it. Proof must not claim behavior a test did not pass. | slice 1 | observed: node-test-proof.md Record: plain pass records; non-pass clears |
 | Q3 | Normal runs never create, change, or delete proof (byte-for-byte untouched when the option is off). | slice 1 | observed: node-test-proof.md opening: normal runs leave proof byte-for-byte untouched |
-| Q4 | Missing, empty, unreadable, or malformed proof is never shown as a pass. | slice 3 |  |
-| Q5 | Existing Cucumber, pytest, and Vitest proof files, reader behavior, and wording for their locations stay unchanged. | slice 3 |  |
+| Q4 | Missing, empty, unreadable, or malformed proof is never shown as a pass. | slice 3 | observed: observed: intent-node-test-proof.spec.ts Ex 8 malformed Cucumber-shaped snapshot with Retry; never shown as pass |
+| Q5 | Existing Cucumber, pytest, and Vitest proof files, reader behavior, and wording for their locations stay unchanged. | slice 3 | observed: observed: focused cucumber/pytest/vitest/playwright absence journeys green; shared wording helper only |
 | Q6 | Each project's test output, diagnostics, exit meaning, and scheduling stay as they are with the recorder loaded; scripts/test.sh still fails a job that passed but printed output. | slice 2 | observed: node-test-proof-reporter.test.mjs identical with/without option; test.sh quiet-pass; runner peers green |
-| Q7 | Reuse the Vitest-introduced test-call snapshot format and reader for a second runner; add no Node-shaped duplicate. | slice 3 |  |
+| Q7 | Reuse the Vitest-introduced test-call snapshot format and reader for a second runner; add no Node-shaped duplicate. | slice 3 | observed: observed: proofKinds.ts node:test reuses parseVitestProofFile and vitestRowsOf; no Node-shaped parser |
 | Q8 | The reference is written for the agent working in the recording project. | slice 1 | observed: node-test-proof.md written for agent in recording project (Configure once) |
 | Q9 | Event shape is stated with the Node version it was observed on. | slice 1 | observed: node-test-proof.md Record section: observed on Node 24.21.0 |
 | Q10 | Publication of Doughnut adoption follows Doughnut's own rules. | slice 5 |  |
@@ -67,23 +67,23 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | 8 | Observations ordered by file then test. | slice 1 | observed: node-test-proof.md Refresh: order by file then test |
 | 9 | A node:test snapshot parses with the Vitest parser. | slice 1 | observed: node-test-proof.md Identity/File format: Vitest format without project |
 | 10 | runner: "node:test" on a javascript or typescript location that declares proof. | slice 2 | observed: .planning/open-dough.json src/skills runner node:test with proof |
-| 11 | Dashboard reads proof and proofGeneration on that location as on any location. | slice 3 |  |
-| 12 | Declared proof without usable runner explained naming vitest or node:test. | slice 3 |  |
-| 13.1 | Every test or it call outside another test's callback. | slice 3 |  |
-| 13.2 | With or without .skip, .only, or .todo. | slice 3 |  |
-| 13.3 | Names are string literals or template literals without substitutions. | slice 3 |  |
-| 13.4 | In definition order. | slice 3 |  |
-| 13.5 | Each at its call's line. | slice 3 |  |
-| 13.6 | Named by whole suite path as Vitest and failures reporter join it. | slice 3 |  |
-| 14 | Default import from node:test is read; an alias is not. | slice 3 |  |
-| 15 | Each test shows one row with Vitest cells or No successful proof. | slice 3 |  |
-| 16 | Header reads Test case. | slice 3 |  |
-| 17 | Count line counts test cases. | slice 3 |  |
-| 18 | Same figures as Vitest summary with tests and test cases words. | slice 3 |  |
-| 19 | Location without proof names declared runner reference, else every runner's. | slice 3 |  |
-| 20 | Other-kinds sentence lists Node test files among the families. | slice 3 |  |
-| 21 | Unreadable and malformed proof keep their retry explanations. | slice 3 |  |
-| 22 | Cucumber- or pytest-shaped file under node:test location is malformed. | slice 3 |  |
+| 11 | Dashboard reads proof and proofGeneration on that location as on any location. | slice 3 | observed: observed: proofKinds/Intent reads proof+proofGeneration for node:test locations via existing settings path |
+| 12 | Declared proof without usable runner explained naming vitest or node:test. | slice 3 | observed: observed: intent-node-test-proof.spec.ts Ex 8 proof without runner names vitest or playwright or node:test |
+| 13.1 | Every test or it call outside another test's callback. | slice 3 | observed: observed: intent-node-test-proof.spec.ts Ex 6 rows from test/it outside nested callbacks |
+| 13.2 | With or without .skip, .only, or .todo. | slice 3 | observed: observed: fixture includes modifiers under vitestRowsOf rule (reuse) |
+| 13.3 | Names are string literals or template literals without substitutions. | slice 3 | observed: observed: Ex 6 loop-generated name absent; literal names listed |
+| 13.4 | In definition order. | slice 3 | observed: observed: Ex 6 rows in definition order |
+| 13.5 | Each at its call's line. | slice 3 | observed: observed: rows at call lines via vitestRowsOf reuse |
+| 13.6 | Named by whole suite path as Vitest and failures reporter join it. | slice 3 | observed: observed: Ex 6 suite-path naming |
+| 14 | Default import from node:test is read; an alias is not. | slice 3 | observed: observed: default import from node:test read via existing row rule; fixture uses it |
+| 15 | Each test shows one row with Vitest cells or No successful proof. | slice 3 | observed: observed: Ex 6 No successful proof / proof cells |
+| 16 | Header reads Test case. | slice 3 | observed: observed: Ex 6 Test case header |
+| 17 | Count line counts test cases. | slice 3 | observed: observed: Ex 6 count line in test cases |
+| 18 | Same figures as Vitest summary with tests and test cases words. | slice 3 | observed: observed: Ex 7 folder summary test words |
+| 19 | Location without proof names declared runner reference, else every runner's. | slice 3 | observed: observed: Ex 9 node:test without proof names Node reference; no-runner names every runner |
+| 20 | Other-kinds sentence lists Node test files among the families. | slice 3 | observed: observed: Ex 9 shell location lists Node test files among families |
+| 21 | Unreadable and malformed proof keep their retry explanations. | slice 3 | observed: observed: Ex 8 malformed keeps Retry |
+| 22 | Cucumber- or pytest-shaped file under node:test location is malformed. | slice 3 | observed: observed: Ex 8 Cucumber-shaped under node:test malformed |
 | 23 | Recorder in Open Dough tests/support. | slice 2 | observed: tests/support/node-test-proof-reporter.mjs |
 | 24 | Loaded by scripts/test.sh beside failures reporter with recording off; quiet-pass holds. | slice 2 | observed: scripts/test.sh loads proof reporter beside failures reporter; recording off by default |
 | 25.1 | Option off | slice 2 | observed: node-test-proof-reporter.test.mjs option off leaves no proof file |
@@ -108,20 +108,20 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | 34 | Intent on Open Dough shows recorded files' rows and folder summary. | slice 6 |  |
 | 35 | Intent on Doughnut shows the same for its recorded files. | slice 6 |  |
 | 36 | src/skills root summary opened once with time and GitHub request count as learning. | slice 6 |  |
-| 37 | docs/dashboard-development-intent.md describes node:test Proof beside Vitest. | slice 3 |  |
-| 38 | The reference is linked where the others are. | slice 3 |  |
-| 39 | No count or summed duration includes both a test and its subtests. | slice 3 |  |
+| 37 | docs/dashboard-development-intent.md describes node:test Proof beside Vitest. | slice 3 | observed: observed: docs/dashboard-development-intent.md describes node:test beside Vitest |
+| 38 | The reference is linked where the others are. | slice 3 | observed: observed: docs link node-test-proof.md; SKILL already linked in slice 1 |
+| 39 | No count or summed duration includes both a test and its subtests. | slice 3 | observed: observed: subtests have no rows (Ex 6); summaries over listed cases only (Ex 7) |
 | 40 | Identity uses Node's own names, never test numbers, lines, or collection order. | slice 1 | observed: node-test-proof.md Identity: Node's own names, never line/column/collection order |
 | E1 | Explicit focused recording in Open Dough. | slice 2 | observed: tests/proof/latest.json from example 1 focused recording; normal run leaves unchanged (test) |
 | E2 | Subtests fold into their test. | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs subtests fold / failing subtest clears |
 | E3 | No verdict keeps proof; a verdict clears it. | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs keep/clear rules; store module killed/concurrent |
 | E4 | Concurrent jobs share one snapshot. | slice 2 | observed: observed: node-test-proof-reporter-store.test.mjs four files concurrent one latest.json no json lock |
 | E5 | Explicit focused recording in Doughnut. | slice 5 |  |
-| E6 | File Proof. | slice 3 |  |
-| E7 | Folder summary. | slice 3 |  |
-| E8 | Declaration problems. | slice 3 |  |
-| E9 | Explanations. | slice 3 |  |
-| E10 | Cucumber, pytest and Vitest unchanged. | slice 3 |  |
+| E6 | File Proof. | slice 3 | observed: observed: intent-node-test-proof.spec.ts Ex 6 |
+| E7 | Folder summary. | slice 3 | observed: observed: intent-node-test-proof.spec.ts Ex 7 |
+| E8 | Declaration problems. | slice 3 | observed: observed: intent-node-test-proof.spec.ts Ex 8 |
+| E9 | Explanations. | slice 3 | observed: observed: intent-node-test-proof.spec.ts Ex 9 |
+| E10 | Cucumber, pytest and Vitest unchanged. | slice 3 | observed: observed: focused cucumber/pytest/vitest/playwright journeys + full dashboard suite 2056 passed |
 | X1 | Open Dough's tests/support tests and dashboard/tests (Playwright) carry no proof commitment. |  | X1 |
 | X2 | No shared payload recorder. |  | X2 |
 | X3 | Tests whose names are not literals have no row. |  | X3 |

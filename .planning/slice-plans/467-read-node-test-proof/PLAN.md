@@ -244,7 +244,7 @@ reference in this slice.
 
 ### 3. Intent reads `node:test` proof for a location that declares the runner
 Type: Behavior
-Status: planned
+Status: done
 Proof: `proofKinds.ts` registers `node:test` in `runnerProofKinds` with
 `parseVitestProofFile`, `vitestRowsOf` and Node's words (Test case; tests;
 test cases; family "Node test files"; reference
