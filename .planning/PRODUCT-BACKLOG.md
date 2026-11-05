@@ -30,10 +30,10 @@ intent introduced or affected by a newly developed story.
 
 - [Keep the same project fresh across views with fewer GitHub requests](seeds/SEED-232-reduce-dashboard-refresh-traffic.md#share-published-git-refreshes) — SEED-232#share-published-git-refreshes ([plan](slice-plans/468-share-published-git-refreshes/PLAN.md))
 - [Read Node script-test proof](seeds/SEED-192-review-product-intent.md#read-node-test-proof) — SEED-192#read-node-test-proof ([plan](slice-plans/467-read-node-test-proof/PLAN.md))
+- [Verify Open Dough CI proof in the live dashboard](seeds/SEED-234-verify-live-dashboard-ci-proof.md#verify-live-dashboard-ci-proof) — SEED-234#verify-live-dashboard-ci-proof ([plan](slice-plans/469-verify-live-dashboard-ci-proof/PLAN.md))
 
 ## Backlog list
 
-- [Verify Open Dough CI proof in the live dashboard](seeds/SEED-234-verify-live-dashboard-ci-proof.md#verify-live-dashboard-ci-proof) — SEED-234#verify-live-dashboard-ci-proof
 - [Recover failed Intent reads without Retry](seeds/SEED-192-review-product-intent.md#recover-failed-intent-reads) — SEED-192#recover-failed-intent-reads
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
