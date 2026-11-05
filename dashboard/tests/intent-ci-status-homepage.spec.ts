@@ -5,8 +5,7 @@
 // and directly activating the already chosen Intent tab by click, Enter or
 // Space clears that selection and shows it again, keeping the tree open;
 // not-configured locations still show CI status beside the explanation
-// (SEED-239#show-ci-status-on-intent-home example 1,
-// SEED-243#improve-intent-home-and-selection-summaries examples 4 and 7).
+// (SEED-239#show-ci-status-on-intent-home example 1).
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";

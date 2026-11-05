@@ -3,8 +3,7 @@
 // with a selected story it clears the browsing selection and the homepage
 // still judges that story's branch with its summary kept; arrow keys, Home
 // and End only choose the mode, so a file read before Optimization
-// Candidates is still selected and read, until Intent itself is activated
-// (SEED-243#improve-intent-home-and-selection-summaries examples 4 and 7);
+// Candidates is still selected and read, until Intent itself is activated;
 // with a newer revision waiting behind its notice, returning home keeps that
 // notice and the shown revision, reading nothing newer.
 // The homepage journey from an entry, folder and file by click, Enter and
