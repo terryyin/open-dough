@@ -111,7 +111,17 @@ Merge the two overlapping journeys and drop the post-return steps that
 - Malformed settings remain a replacing answer; only unreadable settings and
   thrown failures are failed updates.
 
+## Decisive premises
+
+| Premise | Consuming operation | Observation | Result |
+| --- | --- | --- | --- |
+| Leaving Intent during a held then failing C locations read loses A's tree, selection and text, with no revision notice | Slice 1 Behavior proof in `intent-revision-update-outcomes.spec.ts` | Scratch Playwright defect journey at workspace HEAD after `npm ci` (2026-11-06): hold/fail C after **Show latest**, hold C again, Development → Intent, fail C; `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/playwright.config.ts dashboard/tests/intent-revision-update-outcomes.spec.ts -g 'SCRATCH' --reporter=list`. Scratch reverted before recording. | Confirmed: no feature source or selection; body shows could-not-be-read; revision notice absent |
+| An unreadable settings answer at C replaces A's reading | Slice 1 Behavior proof for unreadable settings | Same scratch run: move trunk to C with `unanswered: [.planning/open-dough.json]`, **Show latest**, wait for reads | Confirmed: `.intent-settings-problem` names the unreadable settings file; feature source and selection gone |
+| Two `intent-read-reuse.spec.ts` journeys share fixture and remount shape; post-return expand/reopen steps overlap `intent-reading-place.spec.ts` test 1 | Slice 2 Structure merge | Read `dashboard/tests/intent-read-reuse.spec.ts` (tests at lines 48 and 128) and `dashboard/tests/intent-reading-place.spec.ts` test 1 at workspace HEAD | Confirmed: same publish/open/expand/open-feature journey; first test re-expands and reopens after Development return; reading-place test 1 already proves restored place without re-read |
+
 ## Plan concerns
 
-None beyond the findings: slice 1 works on the integrated
-`useIntentLocations.ts` and `IntentSelectionReading.tsx`.
+Slice-plan refinement was not needed: two slices, one Behavior correction and
+one Structure test consolidation within the understood outcome; proof ownership
+maps 1:1; no unresolved integration assumption beyond the settled premises
+above. Remaining concerns: none.

@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-241#keep-the-shown-reading-through-failed-updates
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/480-keep-shown-reading-through-failed-updates/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/480-keep-shown-reading-through-failed-updates/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9ddd97b78569c4b07bbf174bfd49dc9d4335a519be7429dc2e85d4345b62608c","plan":"defa10cb1178e18406d8cd911d1320d3374bdf2a6b38ada8b1f28ed9eec12906"}}
 ```
 
 **Goal.** A developer reviewing Intent keeps the revision they are reading,
