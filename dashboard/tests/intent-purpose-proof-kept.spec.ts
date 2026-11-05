@@ -47,15 +47,17 @@ async function publishTwoProjects(page: Page) {
 async function openIntent(page: Page, project: Project = pygardon) {
   const address = `/?project=${project.repository.split("/")[1]}&perspective=intent`;
   await openUntilRead(page, address);
-  await expect(sideBySideToggle(parts(page).intent)).toBeVisible();
 }
 
 // Select the feature, unless it is selected, and wait for its source.
+// Purpose/Proof (and the Side by side control) appear only after a file is
+// selected; empty selection is the CI status homepage.
 async function selectFeature(intent: Locator) {
   await expandIntentGroup(intent, "e2e_test/features");
   const file = intent.getByRole("button", { name: featurePath, exact: true });
   if ((await file.getAttribute("aria-pressed")) !== "true") await file.click();
   await expect(file).toHaveAttribute("aria-pressed", "true");
+  await expect(sideBySideToggle(intent)).toBeVisible();
   await expect(intent.getByLabel(`${featurePath} source`)).toContainText(
     "Feature: Jobs",
   );
@@ -81,7 +83,9 @@ async function switchToDevelopmentAndBack(page: Page) {
   await development.click();
   await expect(intent).toHaveCount(0);
   await intentChoice.click();
-  await expect(sideBySideToggle(intent)).toBeVisible();
+  // Returning to Intent restores the CI homepage until a file is selected
+  // again; Purpose/Proof (and Side by side) need that selection.
+  await selectFeature(intent);
 }
 
 async function chooseProject(page: Page, project: Project) {
@@ -106,12 +110,12 @@ test("Side by side is kept across perspective switches, reloads, later visits an
   await openIntent(page);
   const { intent } = parts(page);
 
-  await test.step("with nothing kept, Intent starts with tabs on Purpose", async () => {
+  await test.step("with nothing kept, a selected file starts with tabs on Purpose", async () => {
+    await selectFeature(intent);
     await expectTabs(intent, "Purpose");
   });
 
   await test.step("on, Development and back keeps Side by side", async () => {
-    await selectFeature(intent);
     await sideBySideToggle(intent).click();
     await expectSideBySide(intent);
     await switchToDevelopmentAndBack(page);
@@ -120,15 +124,18 @@ test("Side by side is kept across perspective switches, reloads, later visits an
 
   await test.step("a reload and a later visit in this browser keep it", async () => {
     await reloadUntilRead(page);
+    await selectFeature(intent);
     await expectSideBySide(intent);
     const later = await page.context().newPage();
     await openIntent(later);
+    await selectFeature(parts(later).intent);
     await expectSideBySide(parts(later).intent);
     await later.close();
   });
 
   await test.step("another project's Intent opens side by side, under one browser-wide key", async () => {
     await chooseProject(page, doughnut);
+    await selectFeature(intent);
     await expectSideBySide(intent);
     const kept = await page.evaluate(() =>
       Object.entries(window.localStorage).filter(([key]) =>
@@ -142,8 +149,10 @@ test("Side by side is kept across perspective switches, reloads, later visits an
     await sideBySideToggle(intent).click();
     await chooseReadingTab(intent, "Proof");
     await reloadUntilRead(page);
+    await selectFeature(intent);
     await expectTabs(intent, "Purpose");
     await chooseProject(page, pygardon);
+    await selectFeature(intent);
     await expectTabs(intent, "Purpose");
   });
 
@@ -166,10 +175,12 @@ test("an unusable kept layout starts with tabs, and the next choice is kept", as
   }, layoutKey);
   await openIntent(page);
   const { intent } = parts(page);
+  await selectFeature(intent);
   await expectTabs(intent, "Purpose");
   await sideBySideToggle(intent).click();
   await expectSideBySide(intent);
   await reloadUntilRead(page);
+  await selectFeature(intent);
   await expectSideBySide(intent);
   expect(errors).toEqual([]);
 });
@@ -194,6 +205,7 @@ test("where the browser refuses storage, Intent starts with tabs and Side by sid
   await publishTwoProjects(page);
   await openIntent(page);
   const { intent } = parts(page);
+  await selectFeature(intent);
   await expectTabs(intent, "Purpose");
 
   await sideBySideToggle(intent).click();
@@ -204,6 +216,7 @@ test("where the browser refuses storage, Intent starts with tabs and Side by sid
   await expectSideBySide(intent);
 
   await reloadUntilRead(page);
+  await selectFeature(intent);
   await expectTabs(intent, "Purpose");
   expect(errors).toEqual([]);
   expect(consoleErrors).toEqual([]);

@@ -73,6 +73,12 @@ fresh judgment asks stay in the account of `dashboard/GITHUB-REQUESTS.md`.
   parts → partial); Intent CI whole-minute wording stays separate from
   file-Proof `proofDurationWords`.
 
+## Learnings (CI repair after slice 5)
+
+- Specs that asserted Purpose/Proof or Side by side on empty Intent selection
+  must select a file first; empty selection is the CI homepage. Not-configured
+  helpers must not treat CI status "Failed"/"Proof" wording as location noise.
+
 ## Current decisions
 
 - Story Branch Mode; no step must act from trunk.

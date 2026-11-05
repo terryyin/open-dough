@@ -170,8 +170,10 @@ export async function expectIntentGroupsCollapsed(intent: Locator) {
 
 // Intent shown for this project in place of Development's content: the
 // selected project and perspective are clear, and the content says no intent
-// locations are configured, naming the setting and file, without a claim that
-// tests or Proof are absent, or a Structure destination.
+// locations are configured, naming the setting and file, without that
+// explanation claiming tests or Purpose/Proof are absent, or a Structure
+// destination. CI status of the judged branch sits beside the explanation as
+// Intent's homepage (may name Failed, Proof, Check again).
 export async function expectNotConfiguredIntent(page: Page, label: string) {
   const { board, development, direction, intent, intentChoice, perspective } =
     parts(page);
@@ -182,15 +184,19 @@ export async function expectNotConfiguredIntent(page: Page, label: string) {
   await expect(intentChoice).toBeChecked();
   await expect(development).not.toBeChecked();
   await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
-  await expect(intent).toContainText(
+  const explanation = intent.getByText(
     `No intent locations are configured for ${label}.`,
   );
+  await expect(explanation).toBeVisible();
   await expect(intent).toContainText("intent.locations");
   await expect(intent).toContainText(".planning/open-dough.json");
   await expect(intent.getByRole("list")).toHaveCount(0);
-  await expect(intent).not.toContainText(
+  await expect(explanation).not.toContainText(
     /no (tests|proof)|(tests|proof) (are|is) (absent|missing)|passed|failed/i,
   );
+  // CI status sits beside a settled not-configured explanation; when the
+  // published read has not settled (work unread), Intent withholds it so a
+  // cold open does not double-judge.
   await expect(page.getByText(/Structure/)).toHaveCount(0);
   await expect(page.getByRole("main")).toHaveCount(1);
   await expect(board).toBeHidden();

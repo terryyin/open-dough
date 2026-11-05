@@ -227,9 +227,12 @@ test("17, 10.4: a slowest outline row opens its file with Purpose on that Exampl
 test("10, 10.1, 10.2: with Side by side, a slowest scenario below the Proof pane's end opens Purpose on its line and brings its Proof row into view", async ({
   page,
 }) => {
+  // Prefer Side by side before any file is selected (empty selection is CI
+  // home and has no layout toggle).
+  await page.addInitScript(() => {
+    localStorage.setItem("open-dough.intent.layout", "side-by-side");
+  });
   const intent = await openIntent(page, longPublishedFiles);
-  await sideBySideToggle(intent).click();
-  await expectSideBySide(intent);
   const summary = await openSummary(intent, longPath);
   await slowestList(summary)
     .getByRole("button", { name: lastCase, exact: true })

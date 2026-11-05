@@ -28,6 +28,11 @@ test("with Side by side on, a recorded file opens on its case in Purpose, and sw
   // Short enough that the case sits below the start of Purpose.
   await page.setViewportSize({ width: 1280, height: 640 });
   const requests = await publishDoughnutCasePosition(page);
+  // Layout preference applies when a file opens; empty selection is CI home
+  // and has no Side by side control.
+  await page.addInitScript(() => {
+    localStorage.setItem("open-dough.intent.layout", "side-by-side");
+  });
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
@@ -49,9 +54,8 @@ test("with Side by side on, a recorded file opens on its case in Purpose, and sw
   };
 
   await test.step("side by side, opening the recorded file positions Purpose's own panel on its case", async () => {
-    await toggle.click();
-    await expectSideBySide(intent);
     await openDoughnutRecordedCase(intent);
+    await expectSideBySide(intent);
     await expectSideBySide(intent);
     await expectDoughnutCasePositioned(intent);
     expect(
