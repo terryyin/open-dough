@@ -12,46 +12,19 @@ import type { LaunchRecord } from "../../../src/agentLaunch.ts";
 import { showsCursorCannotLoad } from "../../../src/cursorCannotLoad.ts";
 import type { RecoverSessionAnswer } from "../../../src/sessionRecovery.ts";
 import type { AgentLaunches } from "../../agentLaunches.ts";
-import { launchTimeoutMs } from "../../launchRun.ts";
 import type { PublishedSource } from "../../../src/publishedSource.ts";
 import { directoryState } from "../../sessionWorkspace.ts";
 import { cursorAgent } from "./exec.ts";
 import { instructionDeliveryTimedOutExplanation } from "./instructionDelivery.ts";
-import { cursorRecoveryContinuation } from "./recoveryContinuation.ts";
 import { replaceCannotLoadChat } from "./recoveryReplacement.ts";
+import { cursorResumeKeepRequest, untilLaunchWait } from "./recoveryResume.ts";
 import { recordedCursorSessionScope } from "./sessionScope.ts";
 import {
   hangupCursorClient,
   keepCursorClient,
   type CursorKeepResult,
 } from "./runnerClient.ts";
-import { cursorTerminalSize } from "./terminal.ts";
 import { showsCursorWorkspaceTrust } from "./workspaceTrust.ts";
-
-function untilLaunchWait(): Promise<"timed-out"> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve("timed-out");
-    }, launchTimeoutMs());
-  });
-}
-
-function resumeArgs(record: LaunchRecord): {
-  readonly command: string;
-  readonly args: readonly string[];
-  readonly cwd: string;
-} {
-  if (record.session.host !== "cursor") {
-    throw new Error("Only a Cursor session can be recovered.");
-  }
-  const { continuation } = record.session;
-  const [command, ...args] = continuation.args;
-  return {
-    command: command ?? cursorAgent,
-    args,
-    cwd: continuation.workspace,
-  };
-}
 
 async function afterKeep(
   source: PublishedSource,
@@ -151,22 +124,13 @@ export async function recoverCursorSession(
       record: await launches.stateOf(source, record),
     };
   }
-  const { command, args, cwd } = resumeArgs(record);
-  const confirmed = record.firstInput?.state === "confirmed";
-  const instruction = confirmed
-    ? cursorRecoveryContinuation(record)
-    : undefined;
-  const kept = keepCursorClient({
-    command,
-    args: [...args],
-    cwd,
-    cols: cursorTerminalSize.cols,
-    rows: cursorTerminalSize.rows,
-    sourceId: source.id,
-    session: record.session,
-    ...(scope.kind === "ready" ? { configScope: scope.scope } : {}),
-    ...(instruction === undefined ? {} : { instruction, idleComposer: true }),
-  });
+  const kept = keepCursorClient(
+    cursorResumeKeepRequest(
+      record,
+      source.id,
+      scope.kind === "ready" ? { configScope: scope.scope } : {},
+    ),
+  );
   const outcome = await Promise.race([kept, untilLaunchWait()]);
   if (outcome === "timed-out") {
     return {

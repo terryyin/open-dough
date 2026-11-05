@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-242#revive-cursor-sessions-when-the-runner-restarts",
+  "title": "Revive previous Cursor sessions when the runner restarts",
+  "completedAt": "2026-11-05T15:15:20.054Z",
+  "developer": "Terry Yin",
+  "agent": "juacompe-chan",
+  "host": "cursor",
+  "model": "auto"
+}

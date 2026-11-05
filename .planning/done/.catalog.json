@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-242_revive-cursor-sessions-when-the-runner-restarts.json",
+      "identity": "SEED-242#revive-cursor-sessions-when-the-runner-restarts",
+      "completedAt": "2026-11-05T15:15:20.054Z",
+      "blob": "fc3e6797af7d06b8a4c981bb367c35063f40778b"
+    },
+    {
       "fileName": "SEED-240_read-session-assignments-on-demand.json",
       "identity": "SEED-240#read-session-assignments-on-demand",
       "completedAt": "2026-11-05T14:28:57.982Z",

@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 428. Removed numbers are never reused.
+- Highest allocated local number: 430. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -797,3 +797,27 @@ Adding the process-local kept CI status answer and per-attempt proof memory left
   - Evidence: pre-landing `npm run test:dashboard` failed `intent-ci-proof-adapter-reasons` (remembered `someone/else` / valid attempt-2 summary blocked Check again) and `intent-ci-proof-ancestor` (asserted actions-runs before fresh settle); host CI run 42027284312 failed `intent-ci-status-freshness` at the held main Check again with `.intent-ci-state` `Could not be read` while Previously retrieved + spinner showed; repairs `420ac5e1c` (mismatch before remember) and `e4058a7c7` (settle Passed before hold; unread not labelled previously retrieved).
   - Observed effect: two repair publications after slice 5's keep/memory before the story tip was green; local focused freshness passed while shard 1/12 failed.
   - Inference: when a slice adds process keep or dual kept+fresh reads, re-read every journey that reconfigures the adapter on Check again or holds a fixture across a remount, and wait for Checked at before holding.
+
+## DD-429 — Fake-Cursor attach pid equated to runner pid made correct revive look failed
+Slice 2 journey assertions compared fake-Cursor attach `pid` (the agent PTY) to the Cursor runner address `pid`. Product revive was already selecting and resuming last-held candidates while those polls timed out waiting for a held count matched by runner pid.
+
+### Occurrences
+- Execution: SEED-242#revive-cursor-sessions-when-the-runner-restarts (before-cleanup `a07048254e182fef347a6c91739f41da5b743f82`; first related implementation commit `5de83a6202e6c4ed330660bf43f4c049c1ddda02`)
+  - Timestamp: 2026-11-05T21:47+07:00 (coordinator noted three focused revive proofs timed out; diagnosis in slice-2 agent return)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
+  - Evidence: coordinator transcript `0e775890-01a7-485a-90e6-db26302038ef` (~21:47–21:53+07:00): replacement, controls, and restart journeys timed out on held-count waits; debug showed revive selected the prior last-held candidate and logged `done`, with resume attaches present; slice-2 agent `894a78d4-5fc2-45f1-81a2-611e132e72fc` stated attach PIDs were being compared to the runner PID and fixed assertions; before-cleanup plan Current decisions at `.planning/slice-plans/479-revive-cursor-sessions-on-runner-restart/PLAN.md` record that fake-Cursor attach `pid` is the agent PTY
+  - Observed effect: several failed proof rounds and debug instrumentation while the revive path already worked; final proofs passed after assertion identity was corrected (no product keep/revive change for that failure class)
+  - Inference: under fake-Cursor, treat runner address pid and agent attach pid as distinct identities; assert held/resume by session id (or attach presence), not by equating those pids
+
+## DD-430 — Dynamic import to avoid ensure nesting broke the dashboard server bundle
+To keep accepting-port revive from nesting `ensureCurrentCursorRunner`, slice 2 first tried a dynamic import of the revive path. That broke the dashboard server bundle; the durable fix was extracting accepting-port keep/hangup/sessions into `runnerWire.ts` with a static revive import after the start lock released.
+
+### Occurrences
+- Execution: SEED-242#revive-cursor-sessions-when-the-runner-restarts (before-cleanup `a07048254e182fef347a6c91739f41da5b743f82`; first related implementation commit `5de83a6202e6c4ed330660bf43f4c049c1ddda02`)
+  - Timestamp: 2026-11-05T21:46+07:00 (coordinator noted format/lint/typecheck green after the wire split)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
+  - Evidence: slice-2 agent `894a78d4-5fc2-45f1-81a2-611e132e72fc` recorded that dynamic import broke the server bundle and extracted keep-at-port; before-cleanup plan Current decisions name accepting-port keep in `runnerWire.ts` to avoid ensure deadlock and import cycles; delivered surfaces `runnerWire.ts` / `runnerRevive.ts` / post-settle revive in `runnerCurrent.ts`
+  - Observed effect: one mid-slice structural correction before focused revive proofs could run cleanly; final shape matches the plan's settled re-entrancy constraint without dynamic import
+  - Inference: for dashboard server modules that share the ensure lock, prefer a static seam (wire/keep-at-port module) over dynamic import when breaking a keep→ensure cycle

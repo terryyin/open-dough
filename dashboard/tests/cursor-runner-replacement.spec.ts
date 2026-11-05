@@ -1,9 +1,10 @@
 // Sessions a replaced runner held: observation of a stale-proof runner
 // starts or replaces nothing, a third launch replaces it when recorded
-// build proof differs, and its held sessions then stand as resumable
-// launch records — Recover on the scoped one resumes the same chat under
-// its recorded scope on the replacement. Same-build helper-proof survival
-// lives in ./cursor-runner-helper-survival.spec.ts.
+// build proof differs, and unfinished sessions that runner last held are
+// resumed onto the replacement through Recover's keep path without a
+// Recover click. Same-build helper-proof survival lives in
+// ./cursor-runner-helper-survival.spec.ts. Done / never-held / fail
+// controls live in ./cursor-runner-replacement-controls.spec.ts.
 import type { Page } from "@playwright/test";
 import { readCursorRunnerAddress } from "../server/hosts/cursor/runnerPaths.ts";
 import { parts } from "./dashboardPage.ts";
@@ -20,10 +21,13 @@ import {
 } from "./support/cursorScopeAssertions.ts";
 import { makeRecordedRunnerProofStale } from "./support/cursorRunnerRecordedAddress.ts";
 import {
+  expectNotAgentNotRunning,
+  secondSessionId,
+  thirdSessionId,
+} from "./support/cursorRunnerReplacement.ts";
+import {
   agentCalls,
   cursorRecord,
-  expectNormalizedReading,
-  expectReadingWithoutScreenLabel,
   projectedSessions,
 } from "./support/cursorSessionReading.ts";
 import {
@@ -77,12 +81,9 @@ workingCursorTest(
   },
 );
 
-const secondSessionId = "b2c3d4e5-f6a7-489a-bcde-f0123456789a";
-const thirdSessionId = "c3d4e5f6-a7b8-49ab-8def-0123456789ab";
-
 const replacementTest = test.extend({ cursorSubmitPaintMs: 300 });
 replacementTest(
-  "sessions a replaced runner held remain resumable records, and Recover on the scoped one resumes it on the replacement runner",
+  "sessions a replaced runner last held are revived without Recover; the third launch stays running",
   async ({ page, dashboard, origin, cursor }) => {
     replacementTest.setTimeout(180_000);
     await startScopedCursorExecution(page, origin, cursor);
@@ -144,7 +145,9 @@ replacementTest(
     expect(agentCalls(cursor)).toEqual(callsBefore);
     expect(cursor.attaches()).toHaveLength(attachesBefore);
 
-    // A third launch is new work: it replaces the stale runner first.
+    // A third launch is new work: it replaces the stale runner first, then
+    // unfinished last-held sessions resume onto the replacement without
+    // Recover (fake-Cursor uses two unfinished for the five-session journey).
     cursor.queueCreateChatId(thirdSessionId);
     await page
       .getByRole("button", { name: "Start session in Open Dough" })
@@ -174,73 +177,74 @@ replacementTest(
     }
     const replacement = readCursorRunnerAddress(dashboard.home);
     expect(replacement?.pid).not.toBe(stalePid);
-    // The serving dashboard's own build proof: present and no longer the
-    // stale value written above (its digest is of the code that server
-    // would start, which this test process does not resolve the same way).
     expect(replacement?.buildId).toBeTruthy();
     expect(replacement?.buildId).not.toBe("stale-build");
 
-    // Replacement itself mutated no record: both held sessions stand as
-    // their launch records, neither done nor completed nor deleted.
     const recordsAfter = keptRecords(dashboard.home);
     expect(recordsAfter).toHaveLength(3);
     for (const before of recordsBefore) {
       const after = recordsAfter.find(
         (record) => record.session.sessionId === before.session.sessionId,
       );
-      // The session (conversation, workspace, recorded scope) and launch
-      // time are exactly as before; a record's own start settlement may
-      // still have been landing when `before` was read, so it is not
-      // compared here.
       expect(after?.session).toEqual(before.session);
       expect(after?.launchedAt).toBe(before.launchedAt);
       expect(after?.doneAt).toBeUndefined();
       expect(after?.completion).toBeUndefined();
     }
 
+    await expect
+      .poll(
+        () =>
+          cursor
+            .attaches()
+            .filter(
+              (each) =>
+                each.sessionId === cursor.sessionId ||
+                each.sessionId === secondSessionId,
+            ).length,
+        { timeout: launchWaitMs },
+      )
+      .toBe(attachesBefore + 2);
+
     await reloadUntilRead(page);
-    // The two execution entries plus the third launch's own entry.
     await expect(entries).toHaveCount(3);
     for (const [entry, sessionId] of [
       [scopedEntry, cursor.sessionId],
       [otherEntry, secondSessionId],
     ] as const) {
-      await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
       await expect(entry.getByRole("button", { name: "Recover" })).toHaveCount(
-        1,
+        0,
       );
+      await expectNotAgentNotRunning(entry);
       const answer = await projectedSessions(page);
-      expect(cursorRecord(answer, sessionId)?.sessionState).toEqual({
-        kind: "unknown",
-        label: agentNotRunningLabel,
-      });
+      expect(cursorRecord(answer, sessionId)?.sessionState.label).not.toBe(
+        agentNotRunningLabel,
+      );
     }
+    const thirdEntry = entries.filter({ hasText: thirdSessionId });
     await expect(
-      parts(page).recentlyDone.locator(".session-entry"),
+      thirdEntry.getByRole("button", { name: "Recover" }),
     ).toHaveCount(0);
 
-    // Recover on the scoped session resumes the same chat under its
-    // recorded scope, on the replacement runner, which is reused.
-    const attachesBeforeRecover = cursor.attaches().length;
-    await scopedEntry.getByRole("button", { name: "Recover" }).click();
-    await expectNormalizedReading(scopedEntry, "Ready for review", true);
-    await expect
-      .poll(() => cursor.attaches().length)
-      .toBe(attachesBeforeRecover + 1);
-    const resumed = cursor.attaches().at(-1);
-    expect(resumed?.sessionId).toBe(cursor.sessionId);
-    expectContinuationThroughScope(resumed, scope);
-    expect(resumed?.args).toEqual([
+    const revived = cursor
+      .attaches()
+      .filter((each) => each.sessionId === cursor.sessionId)
+      .at(-1);
+    expect(revived?.sessionId).toBe(cursor.sessionId);
+    expectContinuationThroughScope(revived, scope);
+    expect(revived?.args).toEqual([
       "--workspace",
       workspace,
       "--resume",
       cursor.sessionId,
     ]);
-    expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(replacement?.pid);
-    // The other replaced session still stands resumable, untouched.
-    await expectReadingWithoutScreenLabel(otherEntry, agentNotRunningLabel);
+
+    const runningAgain = await openRunningList(page);
+    await expect(runningAgain.region).toContainText(
+      "The Cursor runner is running.",
+    );
     await expect(
-      otherEntry.getByRole("button", { name: "Recover" }),
-    ).toHaveCount(1);
+      runningAgain.region.getByRole("button", { name: /Open Dough/ }),
+    ).toHaveCount(3);
   },
 );

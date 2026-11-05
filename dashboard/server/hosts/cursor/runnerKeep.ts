@@ -1,12 +1,19 @@
 // Runner HTTP answers for keep and hangup. Keep may omit the instruction so
-// recovery waits for a screen or exit without typing.
+// recovery waits for a screen or exit without typing. Successful keep and
+// deliberate /hangup publish last-held session keys under the runner
+// directory; process-exit hangups do not (see runnerMain shutdown).
 import type { CursorSession } from "../../../src/launchRecord.ts";
+import { sessionKey } from "../../../src/sessionReference.ts";
 import { keptSession, updateRecord } from "../../launchRecordStore.ts";
 import type { TerminalAttachments } from "../../terminalAttachments.ts";
 import {
   cursorRunnerHangupRequest,
   cursorRunnerKeepRequest,
 } from "./runnerProtocol.ts";
+import {
+  forgetCursorRunnerLastHeld,
+  rememberCursorRunnerLastHeld,
+} from "./runnerPaths.ts";
 import { showsCursorComposer } from "./idleScreen.ts";
 import { recordedCursorSessionScope } from "./sessionScope.ts";
 import { cursorKeptTerminal, spawnCursorPty } from "./terminal.ts";
@@ -35,6 +42,7 @@ export function answerHangup(
     return;
   }
   attachments.endAttachments(parsed.session);
+  forgetCursorRunnerLastHeld(sessionKey(parsed.session));
   sendJson(200, { kind: "released" });
 }
 
@@ -90,6 +98,9 @@ export async function answerKeep(
             onEntered: () =>
               confirmInstruction(parsed.sourceId, session, instruction),
           });
+    if (outcome.kind === "kept" || outcome.kind === "already-held") {
+      rememberCursorRunnerLastHeld(sessionKey(session));
+    }
     sendJson(200, outcome);
   } catch {
     sendJson(200, { kind: "failed" });
