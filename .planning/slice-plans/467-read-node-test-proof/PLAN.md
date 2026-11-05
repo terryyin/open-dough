@@ -2,6 +2,7 @@
 
 **Identity:** SEED-192#read-node-test-proof
 **Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#read-node-test-proof)
+**Source review:** [source commitments](source-review.md)
 in SEED-192, refined 2026-11-04 under Terry's instruction to use what the
 Cucumber, pytest and Vitest proof stories taught, keep the architecture
 cohesive and add no duplicate.
@@ -146,7 +147,7 @@ publication and its failures stay owned under the policy above.
 
 ### 1. The `node:test` proof reference tells a project how to record
 Type: Behavior
-Status: planned
+Status: done
 Proof: `src/skills/dough-test-optimization/references/node-test-proof.md`
 exists with the contract the story records (option, reporter loading with
 destinations or `NODE_OPTIONS` and its reach into children, main-process
@@ -167,6 +168,50 @@ Behavior: An agent in Open Dough or Doughnut asked to record `node:test`
 proof → reads the installed reference and can configure the option, write
 the reporter, load it and declare the location without asking Open Dough
 anything else.
+
+**Slice 1 AGENTS.md behavior review (2026-11-05, reference text only;
+Status remains planned):** Walked story key examples 1–5 against
+`references/node-test-proof.md`.
+
+1. **Invocation context** — The skill description still selects test
+   optimization; the SKILL body now names Node test proof beside Cucumber,
+   pytest, Vitest and Playwright so an agent asked to record `node:test`
+   proof follows that reference. The reference itself opens with explicit
+   recording only, option off in every profile including CI, and normal
+   runs leaving proof untouched — matching examples 1 and 5's "without the
+   option changes nothing" and example 1's CI/full-suite unchanged clause.
+2. **Required context** — Configure once requires resolving covered
+   locations, `proof` and the recording command from
+   `.planning/open-dough.json`, and stops usefully when they are missing
+   (configure from the existing invocation or name the missing input).
+   Declaration example uses `runner: "node:test"`, `proof` and
+   `proofGeneration` with `RECORD_NODE_TEST_PROOF=1`. Example 1's Open Dough
+   command shape and example 5's Doughnut per-location proof directories are
+   covered by that declaration rule plus "each into its location's proof
+   directory"; Doughnut's choice of flags vs `NODE_OPTIONS` is stated under
+   reporter loading.
+3. **Useful outcome against examples 1–5** —
+   - Ex.1: option, silent recorder, covered locations only, `file` from
+     `git rev-parse --show-toplevel`, `test` as suite path, `attempts: 1`,
+     `commit` at run start, `fileBlob`, one `latest.json`, commit discipline
+     — all stated; agent can configure, write the reporter, load it and
+     declare without further Open Dough questions.
+   - Ex.2: case definition, subtests fold with Node's result and
+     `duration_ms`, subtests record nothing, `subtestsFailed` clears —
+     stated under Record from the reporter's events.
+   - Ex.3: `skip`/`todo`/excluded/`--test-only`/cancelled/unreached keep;
+     every other `test:fail` including timeouts clears — stated; failing
+     `todo` called out as keep.
+   - Ex.4: atomic refresh and serialization against concurrent recording
+     processes, lock without `.json`, wrapper such as `scripts/test.sh`
+     named as load-bearing — stated under Refresh the snapshot.
+   - Ex.5: same contract; loading via recording command alone or
+     `NODE_OPTIONS` reaching children; Node 24.21.0 observed with note that
+     Doughnut may run 26+ — stated.
+4. **Conflict-aware stop** — No conflicting path invented; recorder
+   implementation remains slice 2 / 5. Reading section states row rule,
+   loop-generated names and subtests have no rows (examples 6–7 territory,
+   present so the recording agent does not invent per-subtest rows).
 
 ### 2. Open Dough records skill-script proof on explicit request
 Type: Behavior
@@ -323,3 +368,47 @@ replaces it, so this needs no replacing slice. The Node 26 event shape is
 bounded by slice 5's first fixture test, whose failure changes the reference
 before the Doughnut recorder; the plan 465 and 466 overlap is bounded by the
 Take-time check in Current decisions.
+
+## Story obligations
+
+### X1. tests/support and dashboard/tests carry no proof commitment
+Reported: slice 1 — "Open Dough's tests/support tests and dashboard/tests (Playwright) carry no proof commitment."
+Story clause: "Open Dough's `tests/support` tests and `dashboard/tests` (Playwright) carry no proof commitment"
+Disposition: excluded "Open Dough's `tests/support` tests and `dashboard/tests` (Playwright) carry no proof commitment"
+Commitment: X1
+
+### X2. No shared payload recorder
+Reported: slice 1 — "No shared payload recorder."
+Story clause: "No shared payload recorder"
+Disposition: excluded "No shared payload recorder"
+Commitment: X2
+
+### X3. Non-literal names have no row
+Reported: slice 1 — "Tests whose names are not literals have no row."
+Story clause: "Tests whose names are not literals have no row"
+Disposition: excluded "Tests whose names are not literals have no row"
+Commitment: X3
+
+### X4. Subtests have no rows of their own
+Reported: slice 1 — "A test's subtests have no rows of their own."
+Story clause: "a test's subtests have no rows of their own"
+Disposition: excluded "a test's subtests have no rows of their own"
+Commitment: X4
+
+### X5. Stale observations are not listed
+Reported: slice 1 — "Observations whose identity the published file no longer defines are not listed."
+Story clause: "Observations whose identity the published file no longer defines are not listed"
+Disposition: excluded "Observations whose identity the published file no longer defines are not listed"
+Commitment: X5
+
+### X6. No wall time, CI comparison, folder cost, staleness, or extra runtime context
+Reported: slice 1 — "No run wall time, no CI comparison, no per-folder run cost, no staleness rule, no runtime context beyond what the format carries."
+Story clause: "No run wall time, no CI comparison, no per-folder run cost, no staleness rule, no runtime context beyond what the format carries"
+Disposition: excluded "No run wall time, no CI comparison, no per-folder run cost, no staleness rule, no runtime context beyond what the format carries"
+Commitment: X6
+
+### X7. Full-suite refresh is Terry's deliberate run
+Reported: slice 1 — "A full-suite proof refresh of either project is Terry's deliberate run after the recorders land; the story commits focused selections first."
+Story clause: "A full-suite proof refresh of either project is Terry's deliberate run after the recorders land; the story commits focused selections first"
+Disposition: excluded "A full-suite proof refresh of either project is Terry's deliberate run after the recorders land; the story commits focused selections first"
+Commitment: X7
