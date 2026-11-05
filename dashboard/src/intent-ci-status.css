@@ -47,8 +47,3 @@
 .intent-ci-proof h4 {
   margin: 0 0 var(--space-1);
 }
-
-.intent-ci-proof-entries {
-  margin: 0;
-  padding-left: 1.25rem;
-}

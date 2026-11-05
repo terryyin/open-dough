@@ -15,6 +15,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { judged, runUrl } from "./intentCiStatusPage.ts";
 import {
   artifactId,
+  expectNoProofRows,
   failedVerdict,
   openFailedRun,
   proofCalls,
@@ -70,7 +71,7 @@ test("each proof that cannot be shown gives one reason under Proof, the verdict 
     await panel.getByRole("button", { name: "Check again" }).click();
     await expect(reason).toHaveText(line);
     await expect(reason).toHaveCount(1);
-    await expect(proof.getByRole("listitem")).toHaveCount(0);
+    await expectNoProofRows(proof);
     await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
       `Attempt 1 of run ${String(shownRun.runId)} at a1b2c3d.`,
     );

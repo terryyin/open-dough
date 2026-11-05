@@ -4,11 +4,12 @@
 // judgment names a GitHub Actions run or a ciAdapter attempt, so the
 // judgment is shown first and never changes with it. It names that attempt
 // once -- a run's attempt and link, or an adapter's attempt id, and the
-// revision -- then one row per declared entry, in the order the project's CI
-// declares them, with the counts, their unit, cumulative test execution time
-// and any gap (`./ciProofWording.ts`); otherwise one line says why there is
-// no proof to show. An adapter attempt whose attemptId another discovered
-// attempt shares at its revision is ambiguous: no proof is read for it. A
+// revision -- and its CI wall time, then a table with one row per declared
+// entry, in the order the project's CI declares them, with aligned columns of
+// the counts and their unit, cumulative test execution time and parts present
+// with any gap (`./CiProofTable.tsx`, `./ciProofWording.ts`); otherwise one
+// line says why there is no proof to show. An adapter attempt whose attemptId
+// another discovered attempt shares at its revision is ambiguous: no proof is read for it. A
 // running result's proof is its completed ancestor's, the result the homepage
 // shows beside it. Proof is read again with each judgment the homepage reads,
 // so Check again refreshes both.
@@ -16,6 +17,7 @@
 import { useEffect, useId, useState } from "react";
 import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
 import { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
+import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
 import { shortSha } from "./baseCiWording.ts";
 import {
   ciProofSubjectOf,
@@ -27,11 +29,8 @@ import {
   adapterReadFailedLine,
   adapterUnavailableLine,
   ambiguousAttemptLine,
+  ciProofCellsOf,
   ciWallTimeLine,
-  entryCountsLine,
-  entryExecutionTimeLine,
-  entryGapLines,
-  entryPartsLine,
   noAttemptLine,
   noRunLine,
   unavailableLine,
@@ -69,26 +68,24 @@ function unavailableOf(
   );
 }
 
-function ProofEntry({ entry }: { readonly entry: CiProofEntry }) {
+// Each declared entry's row, in the order the summary lists them; a summary
+// declaring no entry shows no table, as it showed no rows.
+function ProofEntries({
+  entries,
+}: {
+  readonly entries: readonly CiProofEntry[];
+}) {
+  if (entries.length === 0) return null;
   return (
-    <li className="intent-ci-proof-entry">
-      <code>{entry.path}</code>
-      {": "}
-      <span className="intent-ci-proof-counts">{entryCountsLine(entry)}</span>
-      {"; "}
-      <span className="intent-ci-proof-execution">
-        {entryExecutionTimeLine(entry)}
-      </span>
-      {"; "}
-      <span className="intent-ci-proof-parts">{entryPartsLine(entry)}</span>
-      {entryGapLines(entry).map((gap) => (
-        <span key={gap} className="intent-ci-proof-gap">
-          {"; "}
-          {gap}
-        </span>
-      ))}
-      .
-    </li>
+    <CiProofTable
+      label="CI proof by declared entry"
+      scopeHeader="Entry"
+      rows={entries.map((entry) => ({
+        key: entry.path,
+        scope: <ScopePath path={entry.path} />,
+        cells: ciProofCellsOf(entry),
+      }))}
+    />
   );
 }
 
@@ -166,11 +163,7 @@ function ReadProof({
           Checking the CI proof of this {adapter ? "attempt" : "run"}…
         </p>
       ) : proof.kind === "summary" ? (
-        <ul className="intent-ci-proof-entries">
-          {proof.summary.entries.map((entry) => (
-            <ProofEntry key={entry.path} entry={entry} />
-          ))}
-        </ul>
+        <ProofEntries entries={proof.summary.entries} />
       ) : (
         <p className="intent-ci-proof-unavailable">
           {unavailableOf(adapter, proof)}

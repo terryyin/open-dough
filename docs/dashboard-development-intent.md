@@ -89,9 +89,18 @@ trunk whose history GitHub answers `404` for, are **Could not be read** (with
 GitHub's reason); only a story branch is called no longer published. Below
 the judgment, **Proof** shows the CI proof of that run (for a running result,
 the completed ancestor's): revision, link and attempt once (a `ciAdapter`
-attempt named by its `attemptId`), then one row per declared Intent location
-`path` with passed, failed and other counts, how many declared parts are
-present, and each missing or ambiguous part as an uncounted gap. A GitHub
+attempt named by its `attemptId`) with that attempt's **CI wall time** from
+its start and completion (not recorded, with why, when either is absent),
+then a table with one row per declared Intent location `path`, in
+declaration order, under the columns **Entry**, **Counts** (passed, failed
+and other with the runner's unit, tests or checks), **Test execution time**
+(the entry's summed durations: complete, partial naming the parts without
+one, or not recorded for a summary without durations, never zero for
+absence, and never the attempt's wall time) and **Parts** (how many declared
+parts are present, then each missing or ambiguous part as an uncounted gap).
+A path wraps after its `/` separators, and within them only in a reading
+pane too narrow for that, so the columns fit a phone or zoomed window
+without sideways scrolling. A GitHub
 Actions run's summary is its `ci-proof-summary-attempt-<n>` artifact, read
 with `intent=ci-proof` `run`, `attempt` and `revision`
 (`dashboard/server/ciProofArtifact.ts`) and used only when it names the same

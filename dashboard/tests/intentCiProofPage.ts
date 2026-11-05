@@ -5,6 +5,7 @@
 // calls observed; and the judgment's own text, without Proof.
 
 import type { Locator, Page } from "@playwright/test";
+import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import {
   browseSpec,
@@ -62,6 +63,49 @@ export async function openFailedRun(
 
 export function proofOf(panel: Locator): Locator {
   return panel.getByRole("region", { name: "Proof" });
+}
+
+// Proof's table of declared entries (../src/CiProofTable.tsx).
+export function proofTable(proof: Locator): Locator {
+  return proof.getByRole("table", { name: "CI proof by declared entry" });
+}
+
+export const proofColumns = ["Entry", "Counts", "Test execution time", "Parts"];
+
+// One body row as read across its columns: the entry path (its row header),
+// then counts with their unit, test execution time, and parts present with
+// any gap.
+export type ProofRow = readonly [
+  entry: string,
+  counts: string,
+  executionTime: string,
+  parts: string,
+];
+
+// Proof's table has the shared column headers and exactly `rows`, in order,
+// each read cell by cell under its header.
+export async function expectProofRows(
+  proof: Locator,
+  rows: readonly ProofRow[],
+  options?: { readonly timeout?: number },
+) {
+  const table = proofTable(proof);
+  await expect(table.getByRole("columnheader")).toHaveText(
+    proofColumns,
+    options,
+  );
+  const body = table.locator("tbody").getByRole("row");
+  await expect(body).toHaveCount(rows.length);
+  for (const [at, [entry, ...cells]] of rows.entries()) {
+    await expect(body.nth(at).getByRole("rowheader")).toHaveText(entry);
+    await expect(body.nth(at).getByRole("cell")).toHaveText(cells);
+  }
+}
+
+// Proof shows no entry rows at all: no table and no row of one.
+export async function expectNoProofRows(proof: Locator) {
+  await expect(proof.getByRole("table")).toHaveCount(0);
+  await expect(proof.getByRole("row")).toHaveCount(0);
 }
 
 // The proof calls among `calls`: each artifact listing by its run and name,

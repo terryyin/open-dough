@@ -1,8 +1,9 @@
 // Wording of one run attempt's CI proof in Intent's CI status homepage
-// (`./IntentCiProof.tsx`): each entry's counts with their unit, how many of
-// its declared parts are present, each missing or ambiguous part as a gap,
-// that entry's cumulative test execution time (complete, partial, or not
-// recorded), and why no proof can be shown. A gap's counts are never part of
+// (`./IntentCiProof.tsx`): each entry's table cells (`./CiProofTable.tsx`) --
+// its counts with their unit, that entry's cumulative test execution time
+// (complete, partial, or not recorded), how many of its declared parts are
+// present and each missing or ambiguous part as a gap -- the attempt's CI
+// wall time, and why no proof can be shown. A gap's counts are never part of
 // the entry's counts (the collector leaves them out), so the words say how
 // many parts were counted. Nothing relies on colour.
 
@@ -18,7 +19,7 @@ function joinedAnd(parts: readonly string[]): string {
 }
 
 // "19 passed and 1 failed tests": every nonzero outcome, then the unit.
-export function entryCountsLine(entry: CiProofEntry): string {
+function entryCounts(entry: CiProofEntry): string {
   if (entry.unit === null) return "nothing counted";
   const counted = (
     [
@@ -35,7 +36,7 @@ export function entryCountsLine(entry: CiProofEntry): string {
 }
 
 // "2 of 2 parts present".
-export function entryPartsLine(entry: CiProofEntry): string {
+function entryParts(entry: CiProofEntry): string {
   const present = entry.parts.filter((part) => part.status === "present");
   const of = entry.parts.length;
   return `${String(present.length)} of ${String(of)} ${of === 1 ? "part" : "parts"} present`;
@@ -48,7 +49,7 @@ function partPhrase(part: CiProofPart, of: number, status: string): string {
 }
 
 // "part 4 of 12 missing", one for each part not counted.
-export function entryGapLines(entry: CiProofEntry): string[] {
+function entryGaps(entry: CiProofEntry): string[] {
   const of = entry.parts.length;
   return entry.parts
     .filter((part) => part.status !== "present")
@@ -152,12 +153,13 @@ export function ciWallTimeLine(
   return `CI wall time ${wholeMinuteWords(completed - started)}.`;
 }
 
-// Cumulative test execution time beside an entry's counts: complete when every
-// part is present with a duration; not recorded when every present part lacks
-// one and there is no gap (an older summary); otherwise partial from the
-// entry's parts — gaps, and present parts without a duration when another
-// part recorded one. Never invents zero for absence.
-export function entryExecutionTimeLine(entry: CiProofEntry): string {
+// Cumulative test execution time in an entry's row, under its "Test execution
+// time" column: complete when every part is present with a duration; not
+// recorded when every present part lacks one and there is no gap (an older
+// summary); otherwise partial from the entry's parts — gaps, and present
+// parts without a duration when another part recorded one. Never invents zero
+// for absence.
+function entryExecutionTime(entry: CiProofEntry): string {
   const of = entry.parts.length;
   const gaps = entry.parts.filter((part) => part.status !== "present");
   const present = entry.parts.filter((part) => part.status === "present");
@@ -165,10 +167,10 @@ export function entryExecutionTimeLine(entry: CiProofEntry): string {
   const untimed = present.filter((part) => typeof part.durationMs !== "number");
   if (gaps.length === 0 && untimed.length === 0) {
     const total = timed.reduce((sum, part) => sum + (part.durationMs ?? 0), 0);
-    return `test execution time ${wholeMinuteWords(total)}`;
+    return wholeMinuteWords(total);
   }
   if (gaps.length === 0 && timed.length === 0) {
-    return "test execution time not recorded: this summary has no test execution durations";
+    return "not recorded: this summary has no test execution durations";
   }
   const named = [
     ...gaps.map((part) => partPhrase(part, of, part.status)),
@@ -176,5 +178,23 @@ export function entryExecutionTimeLine(entry: CiProofEntry): string {
       ? untimed.map((part) => partPhrase(part, of, "has no duration"))
       : []),
   ];
-  return `test execution time partial: ${joinedAnd(named)}`;
+  return `partial: ${joinedAnd(named)}`;
+}
+
+// One CI proof table row's cells (`./CiProofTable.tsx`): counts with their
+// unit, test execution time, and completeness followed by each gap.
+export type CiProofCells = {
+  readonly counts: string;
+  readonly executionTime: string;
+  readonly completeness: string;
+  readonly gaps: readonly string[];
+};
+
+export function ciProofCellsOf(entry: CiProofEntry): CiProofCells {
+  return {
+    counts: entryCounts(entry),
+    executionTime: entryExecutionTime(entry),
+    completeness: entryParts(entry),
+    gaps: entryGaps(entry),
+  };
 }

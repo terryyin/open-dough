@@ -9,7 +9,14 @@
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { chooseCiStatus, runUrl } from "./intentCiStatusPage.ts";
-import { artifactId, proofCalls, proofOf } from "./intentCiProofPage.ts";
+import {
+  artifactId,
+  expectProofRows,
+  proofCalls,
+  proofOf,
+  type ProofRow,
+} from "./intentCiProofPage.ts";
+
 import { running } from "./intentCiStoryBoard.ts";
 import {
   login,
@@ -29,6 +36,13 @@ import {
 } from "./support/ciProofArtifacts.ts";
 
 test.setTimeout(90_000);
+
+const checksRow: ProofRow = [
+  "tests",
+  "5 passed checks",
+  "not recorded: this summary has no test execution durations",
+  "1 of 1 part present",
+];
 
 test("a running story branch shows its completed ancestor's run's proof, and showing the tab again for that run attempt downloads nothing again", async ({
   page,
@@ -79,9 +93,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
       "href",
       mainRun,
     );
-    await expect(proof.getByRole("listitem")).toHaveText([
-      "tests: 5 passed checks; test execution time not recorded: this summary has no test execution durations; 1 of 1 part present.",
-    ]);
+    await expectProofRows(proof, [checksRow]);
     await expect(proof).not.toContainText("70a0001");
     expect(proofCalls(calls).slice(before)).toEqual([
       "artifacts of run 12: ci-proof-summary-attempt-2",
@@ -99,9 +111,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     await intentChoice.click();
     // Kept answer shows the proof at once; wait for the fresh judgment so
     // the re-read's actions-runs are counted before asserting.
-    await expect(proof.getByRole("listitem")).toHaveText([
-      "tests: 5 passed checks; test execution time not recorded: this summary has no test execution durations; 1 of 1 part present.",
-    ]);
+    await expectProofRows(proof, [checksRow]);
     await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
       "Attempt 2 of run 12 at d4e5f6a.",
     );

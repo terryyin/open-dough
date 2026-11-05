@@ -77,3 +77,22 @@
   font-weight: 600;
   padding: 0 0 var(--space-1);
 }
+
+/* A CI proof table (./CiProofTable.tsx): a scope path wraps only between its
+   parts while they fit; in a reading pane too narrow for that, such as a
+   phone or a zoomed window, a part wraps too, so every column still fits
+   with its other words whole and nothing scrolls sideways. */
+.intent-ci-proof-box {
+  container-type: inline-size;
+}
+
+.intent-ci-scope-part {
+  white-space: nowrap;
+}
+
+@container (max-width: 30rem) {
+  .intent-ci-scope-part {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

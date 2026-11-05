@@ -20,7 +20,7 @@ import {
   uuid,
   verdict,
 } from "./intentCiAdapterProofProject.ts";
-import { proofOf } from "./intentCiProofPage.ts";
+import { expectProofRows, proofOf } from "./intentCiProofPage.ts";
 import { running } from "./intentCiStoryBoard.ts";
 import {
   login,
@@ -53,7 +53,7 @@ test("a ciAdapter attempt's proof is read through the project's adapter and show
       "href",
       mainRun,
     );
-    await expect(proof.getByRole("listitem")).toHaveText([testsRow]);
+    await expectProofRows(proof, [testsRow]);
     await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveCount(0);
   });
 
@@ -81,7 +81,7 @@ test("a ciAdapter attempt's proof is read through the project's adapter and show
     await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
       "Attempt 1 at 4774f60.",
     );
-    await expect(proof.getByRole("listitem")).toHaveText([testsRow]);
+    await expectProofRows(proof, [testsRow]);
     expect(adapter.proofRequests().at(-1)).toEqual({
       operation: "proof",
       check: { repo: repository, branch: "main" },
@@ -123,7 +123,7 @@ test("a running ciAdapter story branch shows its completed ancestor attempt's pr
   await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
     `Attempt ${ancestor} at d4e5f6a.`,
   );
-  await expect(proof.getByRole("listitem")).toHaveText([testsRow]);
+  await expectProofRows(proof, [testsRow]);
   await expect(proof).not.toContainText("70a0001");
   expect(adapter.proofRequests().at(-1)).toEqual({
     operation: "proof",
@@ -153,8 +153,6 @@ test("a slow adapter proof read never delays the verdict", async ({
   await expect(proof.locator(".intent-ci-proof-checking")).toHaveText(
     "Checking the CI proof of this attempt…",
   );
-  await expect(proof.getByRole("listitem")).toHaveText([testsRow], {
-    timeout: 15_000,
-  });
+  await expectProofRows(proof, [testsRow], { timeout: 15_000 });
   await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
 });

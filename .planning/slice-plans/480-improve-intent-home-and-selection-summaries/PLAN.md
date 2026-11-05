@@ -2,6 +2,7 @@
 
 **Identity:** SEED-243#improve-intent-home-and-selection-summaries
 **Source:** [selected story](../../seeds/SEED-243-intent-home-and-selection-summaries.md#improve-intent-home-and-selection-summaries)
+**Source review:** [source-only commitments](source-review.md)
 **Prepared:** 2026-11-05. Preparation only; execution needs its own instruction.
 
 ## Goal and boundaries
@@ -144,7 +145,7 @@ it. Carry these known effects into its `--term` arguments:
 
 ### 1. Compare homepage proof entries in aligned columns
 Type: Behavior
-Status: planned
+Status: done
 Proof: the CI proof, ancestor, adapter, reasons, execution-time and wall-time
 specs, then the focused Intent suite and local gate.
 
@@ -162,6 +163,18 @@ the reading pane. Update the maintained Intent documentation.
 
 **Safe stop:** home comparisons improve; entry/folder reading still uses the
 prior summary until slice 3. No new claim of file-granular CI proof is made.
+
+**Accepted (2026-11-05):** `CiProofTable`/`ScopePath` (`dashboard/src/CiProofTable.tsx`)
+and `ciProofCellsOf` (`ciProofWording.ts`) render the homepage table; slice 3
+reuses them and adds the finer execution-time formatter. Proof: focused Intent
+suite 157/157 (69 files) with `intentCiProofPage.ts` `expectProofRows`
+(headers, exact rows, row header and cells), execution-time cell checks and
+the narrow/200% zoom test in `intent-ci-proof.spec.ts` (a disabled container
+query failed it with sideways overflow); lint and dashboard typecheck pass.
+Refactor pass: helper renames and unexports in `ciProofWording.ts`, comments
+only elsewhere. Learning: the page-wide Left/Right project shortcut
+(`projectKeyboardNavigation.ts`) takes ArrowRight from sideways-scrolling
+boxes, so tables here fit without horizontal scrolling rather than rely on it.
 
 ### 2. Return home by deliberately activating Intent
 Type: Behavior

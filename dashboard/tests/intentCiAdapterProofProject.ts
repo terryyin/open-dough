@@ -20,8 +20,12 @@ export const uuid = "9f1c2d3e-0000-4000-8000-000000000001";
 export const verdict = "Passed at 4774f60 (Add login)";
 
 // The one row of `testsSummary` (older summary shape: no durations).
-export const testsRow =
-  "tests: 1000 passed and 3 other tests; test execution time not recorded: this summary has no test execution durations; 1 of 1 part present.";
+export const testsRow = [
+  "tests",
+  "1000 passed and 3 other tests",
+  "not recorded: this summary has no test execution durations",
+  "1 of 1 part present",
+] as const;
 
 export type Answers = {
   // Each discover's attempts, by the asked branch.

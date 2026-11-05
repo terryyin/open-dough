@@ -18,6 +18,7 @@ import {
   testsSummary,
   verdict,
 } from "./intentCiAdapterProofProject.ts";
+import { expectNoProofRows, expectProofRows } from "./intentCiProofPage.ts";
 import { login, repository, signup } from "./intentCiStoryRecords.ts";
 
 test.setTimeout(90_000);
@@ -86,7 +87,7 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
       await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
         "Attempt 2 at 4774f60.",
       );
-      await expect(proof.getByRole("listitem")).toHaveCount(0);
+      await expectNoProofRows(proof);
       await expect(proof).not.toContainText(/failed|passed/i);
     });
   }
@@ -117,13 +118,13 @@ test("a retried adapter attempt shows the retry's verdict and proof, and Check a
   await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
     "Attempt 2 at 4774f60.",
   );
-  await expect(proof.getByRole("listitem")).toHaveText([testsRow]);
+  await expectProofRows(proof, [testsRow]);
 
   // A later adapter answer for another attempt is ignored: the valid summary
   // for this attempt is immutable and remembered for the process lifetime.
   adapter.answer({ discover, proof: testsSummary("1", login) });
   await panel.getByRole("button", { name: "Check again" }).click();
-  await expect(proof.getByRole("listitem")).toHaveText([testsRow]);
+  await expectProofRows(proof, [testsRow]);
   await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveCount(0);
   await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
   const asked = {
@@ -187,7 +188,7 @@ test("an adapter attempt whose attemptId another discovered attempt shares at it
       await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText([
         ambiguous,
       ]);
-      await expect(proof.getByRole("listitem")).toHaveCount(0);
+      await expectNoProofRows(proof);
       const discovers = adapter.discoverRequests().length;
       await panel.getByRole("button", { name: "Check again" }).click();
       await expect
