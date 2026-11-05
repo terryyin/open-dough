@@ -48,7 +48,8 @@ set (`*` stays in one folder; `**` crosses folders). Without `include`, Intent
 lists every file of the kind under the folder. Absence of the `intent` key
 means Intent shows that no locations are configured. An unreadable settings
 file and malformed JSON are distinct from that absence. The dashboard reads
-that setting and the listed source at the same observed revision as the
-backlog; it does not edit the file.
+that setting and the listed source at Intent's reading revision, a revision
+the backlog observed, which moves to a newer observed one only on **Show
+latest**; it does not edit the file.
 
 [Dashboard overview](README.md) describes project observation and navigation.

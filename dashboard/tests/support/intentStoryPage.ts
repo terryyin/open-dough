@@ -28,12 +28,14 @@ export async function selectTakenStoryInIntent(
   page: Page,
   origin: StartOrigin,
   change: (workspace: string) => void = changeIntentTests,
+  // Whether the published trunk follows the origin's main as it moves.
+  follows = false,
 ) {
   publishIntentTrunk(origin.project);
   await origin.takenByAnotherAgent();
   const workspace = path.join(origin.machine, "another-agent-workspace");
   change(workspace);
-  await openBacklog(page, origin);
+  await openBacklog(page, origin, follows);
   const { taken, intentChoice, intent } = parts(page);
   const card = taken.getByRole("article", { name: "Story A" });
   await card.getByRole("heading", { level: 3 }).click();

@@ -21,27 +21,27 @@ trigger/journey examples and exclusions, splitting compound items.
 | G4 | Intent sends compact navigation and backend-derived summaries to the frontend | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts folders render from the locations answer with zero path= and zero diff reads |
 | G5 | Intent sends source content only for a file the developer asks to read | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts zero path= reads for location/folders and story diff; dashboard/tests/intent-read-reuse.spec.ts one path=A read only on open |
 | G6 | Purpose: reduce interruptions and the network cost of reviewing product intent and its CI evidence | slice 4 | |
-| S1.1a | Keep the selected location through background revision observations | slice 3 | |
-| S1.1b | Keep the selected folder or file through background revision observations | slice 3 | |
-| S1.1c | Keep expansion through background revision observations | slice 3 | |
-| S1.1d | Keep reading position through background revision observations | slice 3 | |
-| S1.1e | Keep applicable view choices through background revision observations | slice 3 | |
+| S1.1a | Keep the selected location through background revision observations | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'newer revisions wait behind one notice…': group aria-expanded=true and file aria-pressed=true after A→B→C and after Show latest |
+| S1.1b | Keep the selected folder or file through background revision observations | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'newer revisions wait behind one notice…': group aria-expanded=true and file aria-pressed=true after A→B→C and after Show latest |
+| S1.1c | Keep expansion through background revision observations | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'newer revisions wait behind one notice…': group aria-expanded=true and file aria-pressed=true after A→B→C and after Show latest |
+| S1.1d | Keep reading position through background revision observations | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: reading pane non-zero scroll offset equal after observations and after apply |
+| S1.1e | Keep applicable view choices through background revision observations | slice 3 | observed: intent-story-changes-only.spec.ts 'Selected story only stays on through a new trunk revision and Show latest'; intent-test-optimization-candidates-revision.spec.ts mode stays Optimization Candidates |
 | S1.2 | Keep the same reading state (S1.1a–e) through switches between Development and Intent | slice 2 | observed: dashboard/tests/intent-reading-place.spec.ts test 1: after Development → Intent the deep file is pressed, dashboard/tests expanded, boundary/deep/arriving open and out closed, Selected story only checked, scroll equals saved offset; no locations/path/story reads |
 | S1.3 | Each project's reading state is scoped to that project | slice 2 | observed: dashboard/tests/intent-reading-place.spec.ts test 2: Doughnut shows its own not-configured text with nothing pressed; back to Open Dough shows 'Select a file to read its Purpose.', toggle unchecked, default expansion, scroll 0 |
 | S1.4 | Another project's selection never appears | slice 2 | observed: dashboard/tests/intent-reading-place.spec.ts test 2: Doughnut shows its own not-configured text with nothing pressed; back to Open Dough shows 'Select a file to read its Purpose.', toggle unchecked, default expansion, scroll 0 |
 | S1.5 | A project change starts that project's reading afresh, as the mode choice does today | slice 2 | observed: dashboard/tests/intent-reading-place.spec.ts test 2: Doughnut shows its own not-configured text with nothing pressed; back to Open Dough shows 'Select a file to read its Purpose.', toggle unchecked, default expansion, scroll 0 |
-| S1.6 | A newer published revision produces a small **New revision available** notice | slice 3 | |
-| S1.7 | The notice does not clear the current reading | slice 3 | |
-| S1.8 | The notice does not fetch replacement source bodies | slice 3 | |
-| S1.9 | Several newer revisions give one notice | slice 3 | |
-| S1.10 | Applying the notice moves to the latest observed revision | slice 3 | |
-| S1.11 | Applying the update deliberately loads the replacement metadata | slice 3 | |
-| S1.12 | Applying keeps usable content visible while loading | slice 3 | |
-| S1.13 | After applying, navigation is preserved by path where valid | slice 3 | |
-| S1.14 | Explain a selected path that disappeared | slice 3 | |
-| S1.15 | The reading revision holds Purpose and Optimization Candidates | slice 3 | |
-| S1.16 | The CI homepage keeps following the live observed head under its own triggers | slice 3 | |
-| S1.17 | Development's published observation may advance independently of the Intent revision being read | slice 3 | |
+| S1.6 | A newer published revision produces a small **New revision available** notice | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: exactly one status 'New revision available — showing <A short>' after two newer revisions, only button 'Show latest' |
+| S1.7 | The notice does not clear the current reading | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: A's text 'Archive a job' still shown until Show latest is clicked |
+| S1.8 | The notice does not fetch replacement source bodies | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: Intent reads stay exactly [locations@A, jobs@A] after B and C observed; 'deleted' test: no read at new revision before apply |
+| S1.9 | Several newer revisions give one notice | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: exactly one status 'New revision available — showing <A short>' after two newer revisions, only button 'Show latest' |
+| S1.10 | Applying the notice moves to the latest observed revision | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: after Show latest reads are exactly [locations@C, jobs@C], nothing at B; C's text 'Purge a job' shows |
+| S1.11 | Applying the update deliberately loads the replacement metadata | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: after Show latest reads are exactly [locations@C, jobs@C], nothing at B; C's text 'Purge a job' shows |
+| S1.12 | Applying keeps usable content visible while loading | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: held C locations read shows 'Updating…' while A's text and selection stay |
+| S1.13 | After applying, navigation is preserved by path where valid | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'newer revisions wait behind one notice…': group aria-expanded=true and file aria-pressed=true after A→B→C and after Show latest |
+| S1.14 | Explain a selected path that disappeared | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'a selected feature the latest revision deleted…': Purpose '`jobs.feature` is not in revision e9e9e9e', nothing aria-pressed, no source, only locations@new read |
+| S1.15 | The reading revision holds Purpose and Optimization Candidates | slice 3 | observed: intent-test-optimization-candidates-revision.spec.ts: record stays at A after the move, new record read only after Show latest; Purpose via dashboard/tests/intent-revision-notice.spec.ts test 1 |
+| S1.16 | The CI homepage keeps following the live observed head under its own triggers | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| S1.17 | Development's published observation may advance independently of the Intent revision being read | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'Development follows a new revision while Intent, opened again, keeps its reading behind the notice': header 'Published work read at revision eaeaeae', Intent keeps A with notice, reads [locations@A, jobs@A] |
 | S2.1 | Opening Intent with no selected file asks for the locations answer (paths only) once per reading revision | slice 1 | observed: dashboard/tests/intent-read-reuse.spec.ts locationsReads()==1 across Development return; dashboard/tests/intent-read-reuse-story.spec.ts zero path=/diff reads while browsing dashboard/tests folders boundary, out; premise row 'Folder Summaries make no request' |
 | S2.2 | The locations request sits beside the CI homepage answer from its existing owner | slice 1 | observed: focused Intent suite incl. intent-ci-status-kept.spec.ts green (CI homepage answer unchanged) |
 | S2.3 | Folder navigation uses the locations answer and makes no request | slice 1 | observed: dashboard/tests/intent-read-reuse.spec.ts locationsReads()==1 across Development return; dashboard/tests/intent-read-reuse-story.spec.ts zero path=/diff reads while browsing dashboard/tests folders boundary, out; premise row 'Folder Summaries make no request' |
@@ -52,7 +52,7 @@ trigger/journey examples and exclusions, splitting compound items.
 | S3.2a | Explicit opening includes a candidate link | slice 1 | observed: focused Intent suite: intent-test-optimization-candidates*.spec.ts case-link/position tests green with the shared cached file read |
 | S3.2b | Explicit opening includes a positioned case | slice 1 | observed: focused Intent suite: intent-test-optimization-candidates*.spec.ts case-link/position tests green with the shared cached file read |
 | S3.2c | Explicit opening includes a restored explicit selection | slice 2 | observed: dashboard/tests/intent-reading-place.spec.ts test 1 restored selection shows its diff with zero new file/diff/text reads; intent-read-reuse.spec.ts one featurePath read across the return |
-| S3.2d | Explicit opening includes applying an update to the file already selected | slice 3 | |
+| S3.2d | Explicit opening includes applying an update to the file already selected | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: after Show latest reads are exactly [locations@C, jobs@C], nothing at B; C's text 'Purge a job' shows |
 | S3.3a | Do not prefetch source bodies for sibling files | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts zero path= and zero diff/text reads until Modified a.spec.ts is opened; dashboard/tests/intent-read-reuse.spec.ts featureReads()==1 only for the opened file |
 | S3.3b | Do not prefetch source bodies for folder summaries | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts zero path= and zero diff/text reads until Modified a.spec.ts is opened; dashboard/tests/intent-read-reuse.spec.ts featureReads()==1 only for the opened file |
 | S3.3c | Do not prefetch source bodies for hidden panes | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts zero path= and zero diff/text reads until Modified a.spec.ts is opened; dashboard/tests/intent-read-reuse.spec.ts featureReads()==1 only for the opened file |
@@ -85,9 +85,9 @@ trigger/journey examples and exclusions, splitting compound items.
 | S6.7 | Retry does not discard valid cached content | slice 4 | |
 | S6.8 | Late answers for a departed project, story, revision or selection cannot replace the current answer | slice 4 | |
 | S6.9 | One reader leaving must not cancel work another reader still needs | slice 1 | observed: dashboard/tests/boundary/intent-shared-reads.spec.ts concurrent readers ask once; departing reader aborts only its wait; shared fetch aborted when last reader leaves |
-| S7.1 | Use the existing shared revision notification for the update notice | slice 3 | |
-| S7.2 | Add no separate persistent Intent source stream | slice 3 | |
-| S7.3 | Add no recurring source/summary polling | slice 3 | |
+| S7.1 | Use the existing shared revision notification for the update notice | slice 3 | observed: IntentRevisionNotice.tsx compares kept reading revision with work.revision from the existing published observation; no new stream, polling or SSE change in diff |
+| S7.2 | Add no separate persistent Intent source stream | slice 3 | observed: IntentRevisionNotice.tsx compares kept reading revision with work.revision from the existing published observation; no new stream, polling or SSE change in diff |
+| S7.3 | Add no recurring source/summary polling | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: Intent reads stay exactly [locations@A, jobs@A] after B and C observed; 'deleted' test: no read at new revision before apply |
 | S7.4 | Finite content requests finish when their answers are ready | slice 1 | observed: dashboard/tests/boundary/intent-shared-reads.spec.ts concurrent readers ask once; departing reader aborts only its wait; shared fetch aborted when last reader leaves |
 | S7.5 | A cold computation can show a local progress indicator | slice 4 | |
 | S7.6 | A separate progress-stream/job system is not part of this story | slice 4 | |
@@ -95,11 +95,11 @@ trigger/journey examples and exclusions, splitting compound items.
 | R2a | Every displayed answer retains its project identity | slice 1 | observed: keys: file+source.id+repository+revision+path; locations/candidates query with source and revision; diff URL with identity, baseline, tree, path |
 | R2b | Every displayed answer retains its revision identity | slice 1 | observed: keys: file+source.id+repository+revision+path; locations/candidates query with source and revision; diff URL with identity, baseline, tree, path |
 | R2c | Where applicable, every displayed answer retains story/comparison identity | slice 1 | observed: keys: file+source.id+repository+revision+path; locations/candidates query with source and revision; diff URL with identity, baseline, tree, path |
-| R2d | Where applicable, every displayed answer retains CI attempt identity | slice 3 | |
+| R2d | Where applicable, every displayed answer retains CI attempt identity |  | O1 |
 | R2e | Reason: prevents mixing products, file versions and observations while work is asynchronous | slice 1 | observed: keys: file+source.id+repository+revision+path; locations/candidates query with source and revision; diff URL with identity, baseline, tree, path |
-| R3 | Cached immutable source metadata and live CI observations have different lifetimes | slice 3 | |
-| R4 | An earlier CI answer must retain the homepage's freshness label | slice 3 | |
-| R5 | A refresh failure cannot make a CI answer newly verified | slice 3 | |
+| R3 | Cached immutable source metadata and live CI observations have different lifetimes | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| R4 | An earlier CI answer must retain the homepage's freshness label |  | O1 |
+| R5 | A refresh failure cannot make a CI answer newly verified |  | O1 |
 | R6 | Failed or partial reads must not become permanently cached successful empty summaries | slice 1 | observed: dashboard/tests/boundary/intent-shared-reads.spec.ts a failed read is asked again; fixed predicate keeps only configured/not-configured, absent/present, diff/text |
 | L1 | Consume the resulting product of local-proof removal | slice 4 | |
 | L2a | Add no replacement local-proof inventory | slice 4 | |
@@ -107,20 +107,20 @@ trigger/journey examples and exclusions, splitting compound items.
 | L2c | Add no duration/cost calculation | slice 4 | |
 | L2d | Add no archive | slice 4 | |
 | L3 | Only surviving navigation/summary responsibilities move or gain caching | slice 1 | observed: diff: no server change, no frontend calculation added; only browser reuse modules sharedRead.ts/answerMemo.ts |
-| L4a | Keep the CI homepage's single cache owner | slice 3 | |
-| L4b | Keep the CI homepage's target checks | slice 3 | |
-| L4c | Keep the CI homepage's timing semantics | slice 3 | |
-| L4d | Keep the CI homepage's process-only retention | slice 3 | |
-| L4e | Keep the CI homepage's existing refresh triggers | slice 3 | |
-| L5a | No live CI-completion subscription | slice 3 | |
-| L5b | No time-based CI polling | slice 3 | |
-| L5c | No persistent CI history | slice 3 | |
+| L4a | Keep the CI homepage's single cache owner | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| L4b | Keep the CI homepage's target checks | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| L4c | Keep the CI homepage's timing semantics | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| L4d | Keep the CI homepage's process-only retention | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| L4e | Keep the CI homepage's existing refresh triggers | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| L5a | No live CI-completion subscription | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| L5b | No time-based CI polling | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| L5c | No persistent CI history | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
 | L6a | No new database | slice 4 | |
 | L6b | No cloned/bare repository mirror | slice 4 | |
 | L6c | No generic indexing platform | slice 4 | |
 | L6d | No cache-management UI | slice 4 | |
 | L6e | No comprehensive progress service | slice 4 | |
-| L6f | No SSE transport rewrite | slice 3 | |
+| L6f | No SSE transport rewrite | slice 3 | observed: IntentRevisionNotice.tsx compares kept reading revision with work.revision from the existing published observation; no new stream, polling or SSE change in diff |
 | L6g | Reuse existing solutions first | slice 4 | |
 | L7 | Repairing an independently reproduced literal browser reload is conditional on evidence that it is part of this loading discrepancy; no claim it has been reproduced | slice 4 | |
 | L8 | Do not turn that uncertainty into a reason to postpone the confirmed reading-state and traffic improvements | slice 4 | |
@@ -142,19 +142,19 @@ trigger/journey examples and exclusions, splitting compound items.
 | E3.R3 | An unused plain-source read does not accompany a displayed diff | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts opening Modified dashboard/tests/a.spec.ts twice: text [], diffs [a.spec.ts], texts [a.spec.ts]; IntentBrowser.tsx unread via storyDiffOf |
 | E3.R4 | Renames retain their existing explanations and explicit reading behavior | slice 1 | observed: intent-story-changes*.spec.ts green in the focused Intent suite (97 passed) |
 | E3.R5 | Deleted files retain their existing explanations and explicit reading behavior | slice 1 | observed: intent-story-changes*.spec.ts green in the focused Intent suite (97 passed) |
-| E4.T1 | While a file or folder is selected, the shared observer detects a new trunk revision | slice 3 | |
-| E4.R1a | Intent keeps the shown revision | slice 3 | |
-| E4.R1b | Intent keeps the shown content | slice 3 | |
-| E4.R1c | Intent keeps the selection | slice 3 | |
-| E4.R1d | Intent keeps the expansion | slice 3 | |
-| E4.R1e | Intent keeps the scroll | slice 3 | |
-| E4.R2 | Displays the update notice | slice 3 | |
-| E4.R3 | Transfers no source just because of the event | slice 3 | |
-| E4.T2 | Apply the update | slice 3 | |
-| E4.R4 | Replacement metadata arrives without blanking the view | slice 3 | |
-| E4.R5 | A still-present selected path remains selected | slice 3 | |
-| E4.R6 | Only an already selected file may need its new content | slice 3 | |
-| E4.R7 | A deleted path has a clear explanation instead of silently showing another file | slice 3 | |
+| E4.T1 | While a file or folder is selected, the shared observer detects a new trunk revision | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: exactly one status 'New revision available — showing <A short>' after two newer revisions, only button 'Show latest' |
+| E4.R1a | Intent keeps the shown revision | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: A's text 'Archive a job' still shown until Show latest is clicked |
+| E4.R1b | Intent keeps the shown content | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: A's text 'Archive a job' still shown until Show latest is clicked |
+| E4.R1c | Intent keeps the selection | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'newer revisions wait behind one notice…': group aria-expanded=true and file aria-pressed=true after A→B→C and after Show latest |
+| E4.R1d | Intent keeps the expansion | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'newer revisions wait behind one notice…': group aria-expanded=true and file aria-pressed=true after A→B→C and after Show latest |
+| E4.R1e | Intent keeps the scroll | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: reading pane non-zero scroll offset equal after observations and after apply |
+| E4.R2 | Displays the update notice | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: exactly one status 'New revision available — showing <A short>' after two newer revisions, only button 'Show latest' |
+| E4.R3 | Transfers no source just because of the event | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: Intent reads stay exactly [locations@A, jobs@A] after B and C observed; 'deleted' test: no read at new revision before apply |
+| E4.T2 | Apply the update | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: after Show latest reads are exactly [locations@C, jobs@C], nothing at B; C's text 'Purge a job' shows |
+| E4.R4 | Replacement metadata arrives without blanking the view | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: held C locations read shows 'Updating…' while A's text and selection stay |
+| E4.R5 | A still-present selected path remains selected | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'newer revisions wait behind one notice…': group aria-expanded=true and file aria-pressed=true after A→B→C and after Show latest |
+| E4.R6 | Only an already selected file may need its new content | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: after Show latest reads are exactly [locations@C, jobs@C], nothing at B; C's text 'Purge a job' shows |
+| E4.R7 | A deleted path has a clear explanation instead of silently showing another file | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'a selected feature the latest revision deleted…': Purpose '`jobs.feature` is not in revision e9e9e9e', nothing aria-pressed, no source, only locations@new read |
 | E5.T | Select the 713-file `dashboard/tests` location, then several of its folders | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts dashboard/tests location folders boundary, out: zero content reads; premise row 'Folder Summaries make no request' (no request besides revision checks) |
 | E5.R1 | Each Summary shows its count and children from the locations answer | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts dashboard/tests location folders boundary, out: zero content reads; premise row 'Folder Summaries make no request' (no request besides revision checks) |
 | E5.R2 | No request leaves the page | slice 1 | observed: dashboard/tests/intent-read-reuse-story.spec.ts dashboard/tests location folders boundary, out: zero content reads; premise row 'Folder Summaries make no request' (no request besides revision checks) |
@@ -167,29 +167,29 @@ trigger/journey examples and exclusions, splitting compound items.
 | E6.R4 | The late answer cannot overwrite the new target | slice 4 | |
 | E6.T3 | A cache entry is evicted | slice 1 | observed: dashboard/tests/boundary/intent-shared-reads.spec.ts LRU budget test (least recently used out) and file-content-cache-budget.spec.ts; evicted entry asked again through readCachedFile/memoizedAnswer |
 | E6.R5 | An evicted entry is read only when needed again | slice 1 | observed: dashboard/tests/boundary/intent-shared-reads.spec.ts LRU budget test (least recently used out) and file-content-cache-budget.spec.ts; evicted entry asked again through readCachedFile/memoizedAnswer |
-| E7.T | Return to the CI homepage with a kept answer | slice 3 | |
-| E7.R1 | Judgment, counts and timings appear with its retrieval time while the existing fresh read runs | slice 3 | |
-| E7.R2 | Failure keeps that answer visibly qualified | slice 3 | |
-| E7.R3 | CI can complete or be rerun at the same commit, so a source cache hit or unchanged revision event does not establish a fresh CI judgment | slice 3 | |
-| E7.R4a | Preserve the homepage's show trigger | slice 3 | |
-| E7.R4b | Preserve the homepage's new-observed-head trigger | slice 3 | |
-| E7.R4c | Preserve the homepage's **Check again** trigger | slice 3 | |
+| E7.T | Return to the CI homepage with a kept answer |  | O1 |
+| E7.R1 | Judgment, counts and timings appear with its retrieval time while the existing fresh read runs |  | O1 |
+| E7.R2 | Failure keeps that answer visibly qualified |  | O1 |
+| E7.R3 | CI can complete or be rerun at the same commit, so a source cache hit or unchanged revision event does not establish a fresh CI judgment | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| E7.R4a | Preserve the homepage's show trigger | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| E7.R4b | Preserve the homepage's new-observed-head trigger | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
+| E7.R4c | Preserve the homepage's **Check again** trigger | slice 3 | observed: IntentPerspective.tsx IntentCiStatusPanel still receives observed work (CI code unchanged); intent-ci-status-kept.spec.ts unchanged incl. new-head test and all intent-ci-status*/intent-ci-proof* specs green in focused suite (98 passed) |
 | D0 | Considered, not delivered here; naturally supported behavior stays intact | slice 4 | |
 | D1a | Reading state and browser caches across a page reload (in-memory page state) | slice 2 | observed: pageIntentReading.tsx holds the place in memory only; intent-gherkin-unusable.spec.ts reload step still expects collapsed groups |
 | D1b | Reading state and browser caches retained per project across a project change (in-memory page state) | slice 2 | observed: pageIntentReading.tsx IntentReadingProvider replaces the place on a project change (dashboard/tests/intent-reading-place.spec.ts test 2) |
-| D2 | Keeping a changed file's line anchored after applying an update; the reading pane keeps its scroll offset and new text replaces old in place | slice 3 | |
-| D3 | Reusing a selected file's text across revisions by blob identity in the browser; after an update the selected file is read again at the new revision, kept cheap by backend blob-SHA reuse | slice 3 | |
+| D2 | Keeping a changed file's line anchored after applying an update; the reading pane keeps its scroll offset and new text replaces old in place | slice 3 | observed: useIntentFileRead.ts keeps previous text until new text replaces it in place; no line anchoring added |
+| D3 | Reusing a selected file's text across revisions by blob identity in the browser; after an update the selected file is read again at the new revision, kept cheap by backend blob-SHA reuse | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: after Show latest reads are exactly [locations@C, jobs@C], nothing at B; C's text 'Purge a job' shows |
 | D4 | Response compression or HTTP caching on the read boundary, which keeps `no-store` | slice 1 | observed: useReviewRead.ts askReview and authenticatedGet keep cache: no-store; no server header change |
-| U1 | The developer reviewing intent decides when to move to newer published work | slice 3 | |
-| U2 | The notice sits with the Intent reading, not over it | slice 3 | |
-| U3 | Notice text: "New revision available — showing `<short sha>`" | slice 3 | |
-| U4 | Notice has one **Show latest** action | slice 3 | |
-| U5 | Notice announces politely (a status, not an alert) | slice 3 | |
-| U6 | Notice takes no focus | slice 3 | |
-| U7 | While the update loads, the shown reading stays | slice 3 | |
-| U8 | While the update loads, a local "Updating…" indicator marks it | slice 3 | |
+| U1 | The developer reviewing intent decides when to move to newer published work | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: A's text 'Archive a job' still shown until Show latest is clicked |
+| U2 | The notice sits with the Intent reading, not over it | slice 3 | observed: IntentRevisionNotice.tsx rendered as a sibling above the reading between mode strip and reading (not an overlay); intent-perspective.css |
+| U3 | Notice text: "New revision available — showing `<short sha>`" | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: exactly one status 'New revision available — showing <A short>' after two newer revisions, only button 'Show latest' |
+| U4 | Notice has one **Show latest** action | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: exactly one status 'New revision available — showing <A short>' after two newer revisions, only button 'Show latest' |
+| U5 | Notice announces politely (a status, not an alert) | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: notice role=status aria-live=polite |
+| U6 | Notice takes no focus | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: document.activeElement unchanged when notice appears; after apply focus on selected feature (fails with focusReading disabled) |
+| U7 | While the update loads, the shown reading stays | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: held C locations read shows 'Updating…' while A's text and selection stay |
+| U8 | While the update loads, a local "Updating…" indicator marks it | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts test 1: held C locations read shows 'Updating…' while A's text and selection stay |
 | U9 | If the update fails, the shown reading stays | slice 4 | |
 | U10 | If the update fails, the failure and a retry appear beside the notice | slice 4 | |
-| U11 | A selected path missing after the update reads "`<path>` is not in revision `<short sha>`" in Purpose | slice 3 | |
-| U12 | No other file is selected in place of the missing path | slice 3 | |
-| U13 | Layout and components remain implementation choices | slice 3 | |
+| U11 | A selected path missing after the update reads "`<path>` is not in revision `<short sha>`" in Purpose | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'a selected feature the latest revision deleted…': Purpose '`jobs.feature` is not in revision e9e9e9e', nothing aria-pressed, no source, only locations@new read |
+| U12 | No other file is selected in place of the missing path | slice 3 | observed: dashboard/tests/intent-revision-notice.spec.ts 'a selected feature the latest revision deleted…': Purpose '`jobs.feature` is not in revision e9e9e9e', nothing aria-pressed, no source, only locations@new read |
+| U13 | Layout and components remain implementation choices | slice 3 | observed: IntentRevisionNotice.tsx layout chosen in implementation |

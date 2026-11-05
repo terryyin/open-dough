@@ -11,11 +11,17 @@ export async function originMain(origin: StartOrigin) {
   return (await origin.originGit("rev-parse", "main")).trim();
 }
 
-export async function openBacklog(page: Page, origin: StartOrigin) {
+// With `follows`, the published trunk follows the origin's main as it moves.
+export async function openBacklog(
+  page: Page,
+  origin: StartOrigin,
+  follows = false,
+) {
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: await originMain(origin),
     repository: "terryyin/open-dough",
+    follows,
   });
   await page.goto("/");
   return parts(page).backlog.getByRole("article", { name: "Story A" });

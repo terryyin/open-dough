@@ -22,7 +22,7 @@ a selected location or folder reads as pressed. Every location header has its
 own background; a selected location's header takes the selected background
 across its whole width, toggle included, and expansion shows only in the
 toggle. Selecting a file still reads its exact published text with line
-numbers and Gherkin syntax styling at the observed revision. A location or
+numbers and Gherkin syntax styling at Intent's reading revision. A location or
 folder summary names the selection by path and how many matching files it
 holds, gives an unusable location's explanation, and lists its immediate
 folders and files in the browser's order, each folder with its file count.
@@ -39,7 +39,7 @@ perspective, and arrow keys, Home and End move between its tabs.
 reading pane; it is the tab a project's Intent first shows. With a file
 selected, or nothing selected yet, the reading pane shows its **Purpose**.
 **Optimization Candidates** shows the project's published Test Optimization
-Candidates record at the observed revision across the content area without
+Candidates record at Intent's reading revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
 Choosing a location an entry names selects **Intent** with that file's
 **Purpose** positioned on the entry's case where that names one line, with its location and folders opened so the file
@@ -120,13 +120,25 @@ unreadable: the strip stands above those explanations, which **Intent** and
 **Optimization Candidates** show when there is no location tree. The chosen
 tab is kept while the page stays on the project, across switches to
 Development and back and across new revisions, where **Optimization
-Candidates** reads the record at the new revision; a project change starts
+Candidates** reads the record at the new revision once **Show latest** moves
+the reading there; a project change starts
 again on **Intent**. The choice is disposable page state, not on the URL or
 in storage. The reading place is kept the same way, in memory only: the
 selection, the open location and folders, **Selected story only** and the
 reading pane's scroll show again after Development and back without reading
-the locations or the selected file again, and a new revision reads the
-locations again and keeps the selection by path. A story selected while
+the locations or the selected file again. Intent reads one published
+revision, the observed one when the project's Intent first opens. A newer
+observed revision changes nothing shown and reads nothing: however many
+arrive, one polite status beside the reading, which takes no focus, says
+"New revision available — showing `<short sha>`" with **Show latest**.
+**Show latest** moves the reading to the latest observed revision: the shown
+reading stays, marked "Updating…", while that revision's locations are read,
+then the selection, the open location and folders and the scroll offset
+stay where the selected path still exists, and only an already selected file
+is read again, its new text replacing the old in place. A selected path the
+revision no longer holds reads "`<path>` is not in revision `<short sha>`" in
+**Purpose**, with nothing else selected. **CI status** and Development keep
+following the observed revision. A story selected while
 Intent is hidden starts the tree's arrangement afresh, and a project change
 starts that project's reading afresh. A location that is missing, holds no
 `.feature` files, or names an unsupported kind says so by path or kind while

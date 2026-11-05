@@ -6,6 +6,9 @@
 // diff (`./IntentFileReading.tsx`), is never read. Text already read on this
 // page at the same revision is not asked again, and a read of it in flight is
 // joined (`./repositoryFileReads.ts`); a failed read is asked again on Retry.
+// When the reading moves to another revision, the selected file's text read at
+// the previous one stays, with the revision it is of, until the new text
+// replaces it in place.
 
 import { useEffect, useState } from "react";
 import type { FileRead } from "./IntentFileReading.tsx";
@@ -27,22 +30,31 @@ export function useIntentFileRead({
   readonly path: string;
   readonly file: boolean;
   readonly unread: boolean;
-}): { readonly read: FileRead | undefined; readonly retry: () => void } {
-  const [fileRead, setFileRead] = useState<FileRead | undefined>(undefined);
+}): {
+  readonly read: FileRead | undefined;
+  // The revision the answered read is of.
+  readonly revision: string | undefined;
+  readonly retry: () => void;
+} {
+  const [fileRead, setFileRead] = useState<
+    (FileRead & { readonly revision: string }) | undefined
+  >(undefined);
   const [fileRetry, setFileRetry] = useState(0);
   useEffect(() => {
     if (!file || path === "" || unread) return;
     const controller = new AbortController();
-    setFileRead(undefined);
+    setFileRead((was) =>
+      was?.path === path && was.state === "ready" ? was : undefined,
+    );
     void readCachedFile(source, revision, path, controller.signal)
       .then((text) => {
         if (!controller.signal.aborted) {
-          setFileRead({ path, state: "ready", text });
+          setFileRead({ path, state: "ready", text, revision });
         }
       })
       .catch(() => {
         if (!controller.signal.aborted) {
-          setFileRead({ path, state: "failed" });
+          setFileRead({ path, state: "failed", revision });
         }
       });
     return () => {
@@ -50,8 +62,10 @@ export function useIntentFileRead({
     };
   }, [source, revision, path, file, fileRetry, unread]);
 
+  const read = file && fileRead?.path === path ? fileRead : undefined;
   return {
-    read: file && fileRead?.path === path ? fileRead : undefined,
+    read,
+    revision: read?.revision,
     retry: () => {
       setFileRetry((n) => n + 1);
     },

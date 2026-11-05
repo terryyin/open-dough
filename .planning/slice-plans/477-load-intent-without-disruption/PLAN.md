@@ -126,7 +126,7 @@ Homebrew Bash 5, Node 24.21.0). The scratch specs were deleted afterwards.
 | No source/diff bodies without an opened file; folders make no request (examples 1, 5) | Slice 1: the same spec opens Intent with a selected story, browses a location and two folders, and counts zero `path=` and zero story-review file reads |
 | Story diff without an unused plain read; renames and deletions keep their explanations (example 3) | Slice 1: the spec counts zero `path=` reads and one diff read when a changed file is opened twice; the existing `intent-story-changes*.spec.ts` stay green |
 | Reading place kept through Development and back, scoped per project (example 2) | Slice 2: a spec keeps the selection, the expanded location and folders, **Selected story only** and the reading pane's scroll offset after Development → Intent. A project change starts that project afresh (`intent-ci-status-kept.spec.ts` stays green) |
-| New revision → notice, nothing read; Show latest keeps the view, keeps the selection by path, re-reads only the selected file, explains a missing path (example 4) | Slice 3: `intent-selection-reads.spec.ts`'s third test is rewritten to this journey. `intent-test-optimization-candidates-revision.spec.ts` reads the new record only after **Show latest**. A new test deletes the selected file at the new revision and expects the explanation. `intent-ci-status-kept.spec.ts`'s new-head test stays green unchanged |
+| New revision → notice, nothing read; Show latest keeps the view, keeps the selection by path, re-reads only the selected file, explains a missing path (example 4) | Slice 3: `intent-selection-reads.spec.ts`'s third test is rewritten to this journey (moved to `intent-revision-notice.spec.ts` by slice 3's refactor). `intent-test-optimization-candidates-revision.spec.ts` reads the new record only after **Show latest**. A new test deletes the selected file at the new revision and expects the explanation. `intent-ci-status-kept.spec.ts`'s new-head test stays green unchanged |
 | Failed refresh keeps the shown content with retry; failures distinct; late answers ignored (example 6) | Slice 4: a held, then failing, locations read on **Show latest** keeps the old reading with failure and Retry; Retry applies. A project change during a held update shows the new project's reading only. The existing `intent-read-recovery*.spec.ts` stay green |
 | CI homepage freshness and triggers preserved (example 7) | Owned by `SEED-239`. This plan proves only that the reading revision does not hold CI: slice 3 keeps `intent-ci-status-kept.spec.ts` green |
 | ADR 0010 before/after | Slice 4 repeats the premise table's counts with the new specs' noting and the live boundary measurements on the same revision and journey, and records both in this plan |
@@ -204,7 +204,7 @@ to the story selected while it was made; a story selected while Intent is
 hidden starts the arrangement afresh. While the selected story's comparison
 is still read, the selected file's published text is not read. Proof:
 `intent-reading-place.spec.ts` (test 1 fails on base), adjusted
-`intent-selection-reads.spec.ts` third test and `intent-story-changes.spec.ts`
+`intent-selection-reads.spec.ts` third test (now in `intent-revision-notice.spec.ts`) and `intent-story-changes.spec.ts`
 last step, focused Intent suite 97 passed, `--repeat-each=5` 35 passed.
 Interim now: a new observed revision re-reads the locations and reads the
 kept selected file at that revision; a missing path shows the read failure
@@ -212,8 +212,9 @@ with Retry until slice 3 explains it.
 
 ### 3. A newer revision waits behind a notice
 Type: Behavior
-Status: planned
-Proof: rewritten third test of `intent-selection-reads.spec.ts` (example 4),
+Status: done
+Proof: rewritten third test of `intent-selection-reads.spec.ts`, now in
+`intent-revision-notice.spec.ts` (example 4),
 a new missing-path test, updated
 `intent-test-optimization-candidates-revision.spec.ts`, unchanged
 `intent-ci-status-kept.spec.ts` new-head test; focused Intent suite green.
@@ -234,10 +235,30 @@ candidates record and story overlays read at the reading revision.
 observation). Consumer trace with `--term "observed revision"` and
 `--term "starts with nothing selected"`.
 
+**Accepted (slice 3):** `useIntentReadingRevision` (`IntentRevisionNotice.tsx`)
+keeps the reading revision in the reading place; Purpose, locations, the
+candidates record and the story overlay base read at it, while
+`IntentCiStatusPanel` keeps the observed work. `useIntentLocations` returns
+`{ intent, shownRevision, updating, retryLocations }` and keeps the shown
+answer through a revision change. `useIntentFileRead` keeps the selected
+file's text, with its revision, until the new text replaces it.
+`treeHoldsSelection` (`intentSelectionCoverage.ts`) decides a missing path.
+After **Show latest**, focus moves to the selected tree item or the reading
+pane (`focusReading`). Proof: `intent-revision-notice.spec.ts` (three tests,
+fail on base), `intent-test-optimization-candidates-revision.spec.ts`,
+`intent-story-changes-only.spec.ts` "Selected story only stays on…", focused
+Intent suite plus side-panel specs 102 passed, `--repeat-each=3` 33 passed;
+`intent-ci-status-kept.spec.ts` unchanged. CI homepage freshness items are
+SEED-239's (obligation O1). Learnings: a failed update after **Show latest**
+still replaces the shown reading, and focus can drop to the body in the
+failure and settings-problem states; slice 4 settles both on
+`shownRevision`/`updating`. The real-origin story fixture pins trunk at open;
+pass `follows` to `openBacklog` / `selectTakenStoryInIntent` to observe a push.
+
 ### 4. A failed update keeps the shown revision readable
 Type: Behavior
 Status: planned
-Proof: a new test in the slice 3 spec file with a held, then failing,
+Proof: a new test in `intent-revision-notice.spec.ts` with a held, then failing,
 locations read (`holdAuthenticatedReads.ts`) (example 6); existing
 `intent-read-recovery*.spec.ts` green; the ADR 0010 comparison recorded
 in this plan.
@@ -271,3 +292,12 @@ target or limit is at risk. This review found no remaining slice-specific
 concern. `SEED-239`'s concurrent edits to the same components are a merge
 coordination step, not a sizing risk: this plan's changes sit in hooks and a
 provider those components consume, as the coordination note above records.
+
+
+## Story obligations
+
+### O1. CI homepage kept-answer freshness is SEED-239's deliverable (coordinator, slice 3 acceptance)
+Reported: slice 3 — "CI homepage judgment, counts, timings with retrieval time and qualified failure are not built by this story's slices"
+Story clause: "Return to the CI homepage with a kept answer. The judgment, counts and timings appear with its retrieval time while the existing fresh read runs; failure keeps that answer visibly qualified."
+Disposition: excluded "owns the homepage, CI judgment, proof counts/timings and backend cache with visible freshness"
+Commitment: R2d, R4, R5, E7.T, E7.R1, E7.R2

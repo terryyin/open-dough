@@ -1,24 +1,28 @@
 // The Intent perspective of the selected project: Purpose reads configured
-// test-source locations at the observed revision through the authenticated
-// read boundary (`./IntentBrowser.tsx`). Unusable locations and failed reads
-// each keep their own explanation; remaining locations stay browseable. The
-// reading strip (`./IntentModeTabs.tsx`) is drawn here, above those
-// explanations, so CI status (`./IntentCiStatus.tsx`), which does not depend
-// on Intent locations, is offered whatever their state. The chosen mode is
-// kept by the page per project (`./pageIntentMode.tsx`), and so is the reading
-// place: the selection, the tree's arrangement and the reading pane's scroll
-// (`./pageIntentReading.tsx`), mounted again for each project. With a story
-// selected on the page, Intent reads its default Review changes comparison
-// (`./useIntentStoryLens.ts`), which the browser overlays on the published
-// tree. The Intent reading mode names the story in one summary
+// test-source locations at Intent's reading revision, behind whose notice a
+// newer observed revision waits (`./IntentRevisionNotice.tsx`), through the
+// authenticated read boundary (`./IntentBrowser.tsx`); CI status follows the
+// observed work. Unusable locations (`./IntentLocationsUnavailable.tsx`) and
+// failed reads each keep their own explanation; remaining locations stay
+// browseable. The reading strip (`./IntentModeTabs.tsx`) is drawn here, above
+// those explanations, so CI status (`./IntentCiStatus.tsx`), which does not
+// depend on Intent locations, is offered whatever their state. The chosen mode
+// is kept by the page per project (`./pageIntentMode.tsx`), and so is the
+// reading place: the selection, the tree's arrangement and the reading pane's
+// scroll (`./pageIntentReading.tsx`), mounted again for each project. With a
+// story selected on the page, Intent reads its default Review changes
+// comparison (`./useIntentStoryLens.ts`), which the browser overlays on the
+// published tree. The Intent reading mode names the story in one summary
 // (`./IntentStorySummary.tsx`) heading the locations tree or, without one,
 // the explanation in its place; Optimization Candidates and CI status show
 // none.
 
 import { useState, type ReactNode } from "react";
-import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import type { IntentSettingsProblem } from "./authenticatedIntentRead.ts";
 import { IntentBrowser } from "./IntentBrowser.tsx";
+import {
+  LocationsNotConfigured,
+  LocationsSettingsProblem,
+} from "./IntentLocationsUnavailable.tsx";
 import { IntentCiStatusPanel } from "./IntentCiStatus.tsx";
 import { IntentModeTabs } from "./IntentModeTabs.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
@@ -32,6 +36,10 @@ import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
 import { IntentReadingPlace } from "./pageIntentReading.tsx";
+import {
+  IntentRevisionNotice,
+  useIntentReadingRevision,
+} from "./IntentRevisionNotice.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -39,39 +47,6 @@ import { useIntentLocations } from "./useIntentLocations.ts";
 import { useIntentStoryLens } from "./useIntentStoryLens.ts";
 import "./intent-perspective.css";
 import "./intent-candidates.css";
-
-function NotConfigured({ label }: { readonly label: string }) {
-  return (
-    <p className="intent-not-configured">
-      No intent locations are configured for {label}. Add an{" "}
-      <code>intent.locations</code> setting to <code>{agentSettingsPath}</code>{" "}
-      to publish test-source folders for Intent to read.
-    </p>
-  );
-}
-
-function SettingsProblem({
-  label,
-  problem,
-  onRetry,
-}: {
-  readonly label: string;
-  readonly problem: IntentSettingsProblem;
-  readonly onRetry: () => void;
-}) {
-  const explanation =
-    problem === "malformed"
-      ? `${agentSettingsPath} is not valid JSON, so Intent locations for ${label} could not be read.`
-      : `${agentSettingsPath} could not be read, so Intent locations for ${label} are unavailable.`;
-  return (
-    <p className="intent-settings-problem" role="alert">
-      {explanation}{" "}
-      <button type="button" onClick={onRetry}>
-        Retry
-      </button>
-    </p>
-  );
-}
 
 function IntentBody({
   source,
@@ -89,29 +64,49 @@ function IntentBody({
   readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
 } & ModeChoice) {
-  const { intent, retryLocations } = useIntentLocations(source, work?.revision);
+  // A newer observed revision waits behind the notice until **Show latest**.
+  const observed = work?.revision;
+  const { reading, showLatest } = useIntentReadingRevision(observed);
+  const { intent, shownRevision, updating, retryLocations } =
+    useIntentLocations(source, reading);
+  const notice = (
+    <IntentRevisionNotice
+      shown={shownRevision}
+      observed={observed}
+      updating={updating}
+      hidden={mode === "ci-status"}
+      onShowLatest={showLatest}
+    />
+  );
 
   // An explanation in place of the locations browser, shown as the panel of
   // whichever location-reading mode is chosen; the Intent mode's names the
   // selected story above it.
   const shown = mode === "ci-status" ? "intent" : mode;
-  const explained = (children: ReactNode) => (
-    <div
-      role="tabpanel"
-      id={intentTabPanelId(modeIdPrefix, shown)}
-      aria-labelledby={intentTabId(modeIdPrefix, shown)}
-      hidden={mode === "ci-status"}
-    >
-      {mode === "intent" && storySummary !== undefined && (
-        <IntentStorySummary summary={storySummary} />
-      )}
-      {children}
-    </div>
+  const withNotice = (body: ReactNode) => (
+    <>
+      {notice}
+      {body}
+    </>
   );
+  const explained = (children: ReactNode) =>
+    withNotice(
+      <div
+        role="tabpanel"
+        id={intentTabPanelId(modeIdPrefix, shown)}
+        aria-labelledby={intentTabId(modeIdPrefix, shown)}
+        hidden={mode === "ci-status"}
+      >
+        {mode === "intent" && storySummary !== undefined && (
+          <IntentStorySummary summary={storySummary} />
+        )}
+        {children}
+      </div>,
+    );
   if (work === undefined || intent === "loading") {
     return explained(
       work === undefined ? (
-        <NotConfigured label={source.label} />
+        <LocationsNotConfigured label={source.label} />
       ) : (
         <p className="quiet">Reading Intent locations…</p>
       ),
@@ -129,11 +124,11 @@ function IntentBody({
     );
   }
   if (intent.status === "not-configured") {
-    return explained(<NotConfigured label={source.label} />);
+    return explained(<LocationsNotConfigured label={source.label} />);
   }
   if (intent.status === "settings-problem") {
     return explained(
-      <SettingsProblem
+      <LocationsSettingsProblem
         label={source.label}
         problem={intent.problem}
         onRetry={retryLocations}
@@ -141,12 +136,12 @@ function IntentBody({
     );
   }
   // Tree and Purpose share one Intent selection, kept with the project's
-  // reading place.
-  return (
+  // reading place, and read the revision shown.
+  return withNotice(
     <IntentWorkspaceSelectionProvider>
       <IntentBrowser
         source={source}
-        revision={work.revision}
+        revision={shownRevision ?? work.revision}
         locations={intent.locations}
         mode={mode}
         modeIdPrefix={modeIdPrefix}
@@ -154,7 +149,7 @@ function IntentBody({
         storySummary={storySummary}
         story={story}
       />
-    </IntentWorkspaceSelectionProvider>
+    </IntentWorkspaceSelectionProvider>,
   );
 }
 

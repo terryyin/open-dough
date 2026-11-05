@@ -25,6 +25,7 @@ import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { IntentFileReading, storyDiffOf } from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
+import { IntentPathNotInRevision } from "./IntentRevisionNotice.tsx";
 import { IntentSummary } from "./IntentSummary.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
@@ -33,7 +34,11 @@ import {
   useKeptReading,
   useKeptReadingScroll,
 } from "./pageIntentReading.tsx";
-import { filesOfSelection, owningLocation } from "./intentSelectionCoverage.ts";
+import {
+  filesOfSelection,
+  owningLocation,
+  treeHoldsSelection,
+} from "./intentSelectionCoverage.ts";
 import {
   selectionScope,
   useIntentWorkspaceSelection,
@@ -129,10 +134,17 @@ export function IntentBrowser({
 
   // The selection starts empty for each project, its reading place mounted
   // again for it (`./IntentPerspective.tsx`).
+  const treeFiles = overlayFilesByPath(locations, overlay);
   const selectedFile =
-    scope === "file"
-      ? overlayFilesByPath(locations, overlay).get(selectedPath)
-      : undefined;
+    scope === "file" ? treeFiles.get(selectedPath) : undefined;
+  // A selected path the shown revision does not hold, as after moving to a
+  // revision that deleted it, is explained in Purpose and nothing else is
+  // selected. While the story's comparison is still read, a file it adds may
+  // yet appear.
+  const missing =
+    scope !== "none" &&
+    storySummary?.comparison.state !== "reading" &&
+    !treeHoldsSelection(locations, treeFiles, selection);
   // A file the published revision does not list has no published text, and
   // one whose Purpose is the story's diff needs none. While the selected
   // story's comparison is still being read, as when Intent opens again on a
@@ -143,6 +155,7 @@ export function IntentBrowser({
     path: selectedPath,
     file: scope === "file",
     unread:
+      missing ||
       selectedFile?.published === false ||
       storyDiffOf(story, selectedFile) !== undefined ||
       storySummary?.comparison.state === "reading",
@@ -191,8 +204,10 @@ export function IntentBrowser({
           })}
         </div>
         <div ref={readingPane} className="intent-reading" tabIndex={-1}>
-          {(scope === "location" || scope === "folder") &&
-          selectedLocation !== undefined ? (
+          {missing ? (
+            <IntentPathNotInRevision path={selectedPath} revision={revision} />
+          ) : (scope === "location" || scope === "folder") &&
+            selectedLocation !== undefined ? (
             <IntentSummary
               key={`${source.id}:${revision}:${selectedPath}`}
               path={selectedPath}
@@ -201,11 +216,11 @@ export function IntentBrowser({
               onOpen={openRevealed}
             />
           ) : null}
-          {scope === "file" || scope === "none" ? (
+          {!missing && (scope === "file" || scope === "none") ? (
             <IntentFileReading
               key={revealedOpens}
               path={selectedPath}
-              revision={revision}
+              revision={fileRead.revision ?? revision}
               read={fileRead.read}
               kind={selectedLanguage}
               caseTarget={selection.caseTarget}

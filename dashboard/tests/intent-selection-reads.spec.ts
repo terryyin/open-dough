@@ -5,9 +5,8 @@
 // previous feature's text, not even for one rendered frame; and the
 // published work's detail completing during startup, at the same revision,
 // neither reads the locations again nor clears the expanded group, the
-// selected feature or its Purpose, while a new published revision reads the
-// locations again and keeps the selection by path, reading its Purpose at
-// that revision (../src/pageIntentReading.tsx).
+// selected feature or its Purpose. Newer revisions:
+// ./intent-revision-notice.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
@@ -16,16 +15,9 @@ import {
   countLocationsReads,
   expandIntentGroup,
   intentGroupToggle,
-  intentModeTab,
   purposeRegion,
 } from "./intentPerspectivePage.ts";
 import { holdAuthenticatedReadsOf } from "./holdAuthenticatedReads.ts";
-import {
-  pausePageClock,
-  passTimeUntilCheckedAfterSettled,
-} from "./autoRefreshJourney.ts";
-import { filesOf } from "./catalogProjectRecords.ts";
-import { publishMovingFiles } from "./publishedFiles.ts";
 import { publishIntentProject, pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
   featurePath,
@@ -137,56 +129,4 @@ test("a feature selected while startup detail completes stays selected with its 
   ).toHaveAttribute("aria-pressed", "true");
   await expect(source).toContainText("Scenario: Archive a job");
   expect(locationsReads()).toBe(1);
-});
-
-test("a new published revision reads the locations again and keeps the selected feature, read at that revision", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await pausePageClock(page);
-  const locationsReads = countLocationsReads(page);
-  const files = {
-    ...filesOf(pygardon),
-    ".planning/open-dough.json": `${settings}\n`,
-    ...features,
-  };
-  const origin = publishMovingFiles(page, {
-    repository: pygardon.repository,
-    ref: pygardon.ref,
-    revision: pygardon.revision,
-    files,
-  });
-  await openUntilRead(page, "/?project=pygardon&perspective=intent");
-  const { intent } = parts(page);
-  await expandIntentGroup(intent, "e2e_test/features");
-  await intent.getByRole("button", { name: featurePath, exact: true }).click();
-  await expect(intent.getByLabel(`${featurePath} source`)).toContainText(
-    "Scenario: Archive a job",
-  );
-  expect(locationsReads()).toBe(1);
-
-  origin.moveTrunk({
-    revision: "e7".repeat(20),
-    files: {
-      ...files,
-      [featurePath]: publishedFeature.replace("Archive a job", "Purge a job"),
-    },
-  });
-  await passTimeUntilCheckedAfterSettled(page);
-  await untilPageReadsAnswered(page);
-  await expect.poll(locationsReads).toBe(2);
-  await expect(intentModeTab(intent, "Intent")).toHaveAttribute(
-    "aria-selected",
-    "true",
-  );
-  await expect(intentGroupToggle(intent, "e2e_test/features")).toHaveAttribute(
-    "aria-expanded",
-    "true",
-  );
-  await expect(
-    intent.getByRole("button", { name: featurePath, exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
-  await expect(intent.getByLabel(`${featurePath} source`)).toContainText(
-    "Scenario: Purge a job",
-  );
 });

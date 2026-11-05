@@ -5,7 +5,8 @@
 // locations reads the page asks, Intent's not-configured content when the
 // project publishes no intent locations, Intent's reading-mode tabs
 // (../src/IntentModeTabs.tsx) and the Test Optimization Candidates record
-// they show, and the Purpose of the selected file. How a location header
+// they show, the Purpose of the selected file, and the notice of a newer
+// revision (../src/IntentRevisionNotice.tsx). How a location header
 // reads: ./intentLocationHeaderLook.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
@@ -224,4 +225,11 @@ export async function chooseOptimizationCandidates(intent: Locator) {
 // (../src/IntentFileReading.tsx).
 export function purposeRegion(intent: Locator) {
   return intent.getByRole("region", { name: "Purpose", exact: true });
+}
+
+// The notice that a newer revision than Intent's reading is available.
+export function revisionNotice(intent: Locator) {
+  return intent
+    .getByRole("status")
+    .filter({ hasText: "New revision available" });
 }
