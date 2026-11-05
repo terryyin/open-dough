@@ -334,7 +334,7 @@ format:changed → commit → push.
 
 ### 6. Intent shows both projects' published `node:test` proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: A throwaway dev server from this checkout (private HOME with a
 Doughnut and Open Dough project list, `GH_TOKEN`, a private
 `DOUGH_GITHUB_REQUEST_OWNER_ROOT`, a `gh` wrapper counting calls) opens
@@ -353,6 +353,48 @@ landing. Screenshots stay outside the repository for Terry's evaluation,
 which is the story's acceptance.
 Behavior: Both published snapshots → Intent reads them as examples 6–7
 describe on real source; nothing is fabricated for the demonstration.
+
+**Slice 6 observation (2026-11-05, Status remains planned):** Throwaway
+`npm run dev:dashboard` from this checkout at `ea4ce35ab585a82b690f54ebef3da4f2aab353f0`
+(private HOME under `/tmp/dough-slice6-intent-obs-58084/`, `GH_TOKEN`,
+`DOUGH_GITHUB_REQUEST_OWNER_ROOT` mode `0700`, PATH `gh` wrapper logging to
+`logs/gh-calls.log`). Screenshots outside the repository at
+`/tmp/dough-slice6-intent-obs-58084/screenshots/01`–`08-*.png` for Terry.
+
+- **Doughnut** project `ref` pinned to slice 5 published SHA
+  `6c5702cf4d8a29538bc7983ae53a26ad5107c360` (live `main` had already moved
+  past that tip during the run). Banner: published work at `6c5702c`.
+  - File Proof `scripts/log-utils.test.mjs`: header **Test case**; count
+    _Last successful proof: 4 test cases: 4 passed_; four rows (suite-path
+    names, Passed, durations 3/1/1/1 ms, commit `af1bfe6`, This file
+    version); recording command shown. (ex. 6)
+  - Location summary `scripts`: 75 files; _351 test cases: 4 passed, 347
+    without successful proof_; summed duration 6 ms over 4 of 351; Slowest
+    test cases list present. (ex. 7)
+  - Location summary `infra`: 3 files; _17 test cases: 9 passed, 8 without
+    successful proof_; summed duration 11 ms over 9 of 17.
+- **Open Dough trunk limit:** `main` still has no `tests/proof/latest.json`
+  and `src/skills` declares no `runner: "node:test"` — Intent on trunk
+  cannot show this story's published proof until slices 2–3 land. Slice 3
+  remains fixture-proved (`intent-node-test-proof.spec.ts`). Supported
+  without fabricating product code: project list `ref` set to the already
+  published execution branch `cursor/read-node-script-test-proof` (tip
+  `ea4ce35…` on origin). Live Open Dough reading below is that branch tip;
+  Terry's post-landing trunk evaluation remains open.
+- **Open Dough** at `ea4ce35` (banner):
+  - File Proof
+    `src/skills/dough-story-refinement/scripts/dough-land-rerun.test.mjs`:
+    **Test case** header; _3 test cases: 3 passed_; three rows for the
+    three top-level tests (2.8 s / 1.3 s / 911 ms, commit `bc26ca5`, This
+    file version). (ex. 6)
+  - Folder summary `dough-story-refinement/scripts`: 30 files; _130 test
+    cases: 5 passed, 125 without successful proof_; summed duration 5.0 s
+    over 5 of 130 (focused snapshot's five observations). (ex. 7)
+  - Cold `src/skills` root summary (fresh dashboard process after deleting
+    private-HOME retained-answers; `gh` log truncated immediately before
+    the location click): **291 files**; _1035 test cases: 5 passed, 1030
+    without successful proof_; wall **39442 ms**; **298** GitHub requests
+    (**≈7.56 req/s**, Vitest baseline ~7.5 req/s).
 
 ## Current decisions
 

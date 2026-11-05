@@ -23,7 +23,7 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | Q8 | The reference is written for the agent working in the recording project. | slice 1 | observed: node-test-proof.md written for agent in recording project (Configure once) |
 | Q9 | Event shape is stated with the Node version it was observed on. | slice 1 | observed: node-test-proof.md Record section: observed on Node 24.21.0 |
 | Q10 | Publication of Doughnut adoption follows Doughnut's own rules. | slice 5 | observed: observed: Doughnut AGENTS.md Execution wrap-up followed for subordinate publication (format:changed → commit → push) |
-| Q11 | Terry evaluates real reading against node --test output plus an editor. | slice 6 |  |
+| Q11 | Terry evaluates real reading against node --test output plus an editor. | slice 6 | observed: observed: slice 6 screenshots outside repo (/tmp/dough-slice6-intent-obs-58084/screenshots) ready for Terry evaluation against node --test + editor |
 | 1 | Publish src/skills/dough-test-optimization/references/node-test-proof.md. | slice 1 | observed: src/skills/dough-test-optimization/references/node-test-proof.md exists |
 | 2 | Link that reference from dough-test-optimization the same way the Cucumber, pytest and Vitest references are linked. | slice 1 | observed: src/skills/dough-test-optimization/SKILL.md links Node test proof beside cucumber/pytest/vitest |
 | 3 | Declare that reference in install.sh. | slice 1 | observed: install.sh managed_files lists node-test-proof.md; payload-declaration-links.sh exit 0 |
@@ -105,9 +105,9 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | 31 | Recording command loads reporter via NODE_OPTIONS or explicit flags. | slice 5 | observed: observed: proofGeneration uses NODE_OPTIONS loading ./e2e_test/config/nodeTestProofReporter.mjs |
 | 32 | Focused recording of cheap files committed as first snapshot. | slice 5 | observed: observed: scripts/proof/latest.json (4) and infra/proof/latest.json (9) from focused recording |
 | 33 | Publication follows Doughnut's own rules. | slice 5 | observed: observed: publication via Doughnut AGENTS Execution wrap-up route |
-| 34 | Intent on Open Dough shows recorded files' rows and folder summary. | slice 6 |  |
-| 35 | Intent on Doughnut shows the same for its recorded files. | slice 6 |  |
-| 36 | src/skills root summary opened once with time and GitHub request count as learning. | slice 6 |  |
+| 34 | Intent on Open Dough shows recorded files' rows and folder summary. | slice 6 | observed: observed: Intent on Open Dough branch tip ea4ce35: dough-land-rerun 3/3 rows; scripts folder summary 30 files |
+| 35 | Intent on Doughnut shows the same for its recorded files. | slice 6 | observed: observed: Intent on Doughnut 6c5702cf4d: log-utils.test.mjs 4/4; scripts and infra folder summaries |
+| 36 | src/skills root summary opened once with time and GitHub request count as learning. | slice 6 | observed: observed: cold src/skills root 291 files 39442ms 298 gh calls ≈7.56 req/s recorded in PLAN.md |
 | 37 | docs/dashboard-development-intent.md describes node:test Proof beside Vitest. | slice 3 | observed: observed: docs/dashboard-development-intent.md describes node:test beside Vitest |
 | 38 | The reference is linked where the others are. | slice 3 | observed: observed: docs link node-test-proof.md; SKILL already linked in slice 1 |
 | 39 | No count or summed duration includes both a test and its subtests. | slice 3 | observed: observed: subtests have no rows (Ex 6); summaries over listed cases only (Ex 7) |
