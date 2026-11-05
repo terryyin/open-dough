@@ -19,7 +19,7 @@
 import { useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
-import { IntentFileReading } from "./IntentFileReading.tsx";
+import { IntentFileReading, storyDiffOf } from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentSummary } from "./IntentSummary.tsx";
@@ -112,14 +112,16 @@ export function IntentBrowser({
     scope === "file"
       ? overlayFilesByPath(locations, overlay).get(selectedPath)
       : undefined;
-  // A file the published revision does not list has no published text.
-  const unpublished = selectedFile?.published === false;
+  // A file the published revision does not list has no published text, and
+  // one whose Purpose is the story's diff needs none.
   const fileRead = useIntentFileRead({
     source,
     revision,
     path: selectedPath,
     file: scope === "file",
-    unpublished,
+    unread:
+      selectedFile?.published === false ||
+      storyDiffOf(story, selectedFile) !== undefined,
   });
 
   const selectedLocation = owningLocation(locations, selection);

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-241#load-intent-without-disruption-or-bulk-source-transfer
 **Source:** [selected story](../../seeds/SEED-241-intent-loading-and-traffic.md#load-intent-without-disruption-or-bulk-source-transfer)
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-05; preparation only. Execution is not authorized by this plan.
 
 ## Goal and boundaries
@@ -134,7 +135,7 @@ Homebrew Bash 5, Node 24.21.0). The scratch specs were deleted afterwards.
 
 ### 1. Intent asks for each fixed answer once per page
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/intent-read-reuse.spec.ts` (examples 1, 2
 counts, 3, 5); unit tests for the shared cached reads (in-flight join,
 failure not kept, LRU budget kept); focused Intent suite green.
@@ -154,6 +155,22 @@ waiting, but a shared in-flight read continues for any other waiter. Update
 `dashboard/GITHUB-REQUESTS.md`'s Intent paragraph: the page asks the
 boundary once per answer per page. Run the consumer trace with
 `--term "no-store"` and `--term readRepositoryFileAt`.
+
+**Accepted (slice 1):** `readCachedFile` (`repositoryFileReads.ts`) is the one
+cached, joined file read; `sharedRead.ts` joins in-flight reads with
+per-reader departure; `answerMemo.ts` (8 MiB) and `fileContentCache.ts`
+(16 MiB) share `byteBudgetedMemo.ts`. Kept answers: locations `configured` /
+`not-configured`, candidates absent / present, story file `diff` / `text`;
+settings problems, unreadable records and unavailable answers are asked
+again. `useReviewRead` takes an options object `{ round, enabled, fixed }`.
+Proof: `intent-read-reuse.spec.ts` and `intent-read-reuse-story.spec.ts`
+(fail on base), `boundary/intent-shared-reads.spec.ts`, focused Intent suite
+(97 passed), story-review consumers (132 passed after refactor).
+Learning: a test that provokes a failed read by reopening the same content
+on one page must use a fresh page or another identity
+(`story-review-diff-context.spec.ts`). A memo hit still resolves through a
+promise, so cached content can show "Reading…" for one frame; slice 4 owns
+showing cached content immediately (S6.1).
 
 ### 2. The reading place survives leaving Intent
 Type: Behavior

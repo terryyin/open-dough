@@ -3,7 +3,8 @@
 // Opening from the candidates record starts a fresh reading positioned on its
 // case. The file read is the browser's. A file the selected story changed
 // (`./intentStoryOverlay.ts`) shows Review changes' own diff of it as its
-// Purpose; a file the published revision does not list is never read there.
+// Purpose (`storyDiffOf`), and the browser reads no published text for it;
+// a file the published revision does not list is never read there.
 
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import { resolveCaseTargetLine } from "./intentCaseTargetLine.ts";
@@ -17,6 +18,15 @@ import "./intent-file-reading.css";
 export type FileRead =
   | { readonly path: string; readonly state: "failed" }
   | { readonly path: string; readonly state: "ready"; readonly text: string };
+
+// The selected story's change of the selected file, when its Purpose is that
+// change's diff rather than the file's published text.
+export function storyDiffOf(
+  story: ComparedStory | undefined,
+  treeFile: IntentTreeFile | undefined,
+) {
+  return story === undefined ? undefined : treeFile?.change;
+}
 
 export function IntentFileReading({
   path,
@@ -46,7 +56,7 @@ export function IntentFileReading({
     text === undefined || caseTarget === undefined
       ? undefined
       : resolveCaseTargetLine(text, caseTarget);
-  const change = treeFile?.change;
+  const change = storyDiffOf(story, treeFile);
   // The selected change's *from* tree, as Review changes reads it.
   const changeFrom =
     story === undefined ? "" : diffStartOf(story.shown.comparison, change);

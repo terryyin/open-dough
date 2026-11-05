@@ -2,7 +2,9 @@
 // snapshot (`./storyReviewContract.ts`) from its *from* tree in the comparison shown:
 // printed hunks via `./StoryReviewDiffLines.tsx`, with omitted unchanged lines
 // available from the same comparison's file text (`./diffContextExpansion.ts`)
-// as disposable presentation state.
+// as disposable presentation state. Both are fixed by the two trees, so the
+// page asks each once (`./useReviewRead.ts`); an unavailable answer is asked
+// again.
 
 import { useState } from "react";
 import { textLines } from "./diffContextExpansion.ts";
@@ -48,6 +50,9 @@ function reviewFileQuery(
   };
 }
 
+const diffFixed = (answer: ReviewedFileDiff) => answer.kind === "diff";
+const textFixed = (answer: ReviewedFileText) => answer.kind === "text";
+
 // The selected file's diff from its *from* tree in the comparison shown to
 // the snapshot's tree.
 export function FileDiff({
@@ -66,6 +71,7 @@ export function FileDiff({
     storyReviewFileEndpoint,
     query,
     reviewedFileDiffSchema,
+    { fixed: diffFixed },
   );
   const [textRound, setTextRound] = useState(0);
   const textEnabled = answer?.kind === "diff";
@@ -73,8 +79,7 @@ export function FileDiff({
     storyReviewFileTextEndpoint,
     query,
     reviewedFileTextSchema,
-    textRound,
-    textEnabled,
+    { round: textRound, enabled: textEnabled, fixed: textFixed },
   );
   const sides =
     textRead.answer?.kind === "text"

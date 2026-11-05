@@ -2,6 +2,8 @@
 // authenticated read boundary (`../server/authenticatedRead.ts`) at a
 // revision already resolved: with `intent=locations`, each configured
 // location and the files its kind lists there (`./IntentPerspective.tsx`).
+// An answer fixed by its revision is asked once per page (`./answerMemo.ts`);
+// a failed read, or a settings problem, is asked again.
 
 import { z } from "zod";
 import {
@@ -10,6 +12,7 @@ import {
   transientReadRecovery,
   unexpectedAnswer,
 } from "./authenticatedGet.ts";
+import { memoizedAnswer } from "./answerMemo.ts";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "./authenticatedReadRules.ts";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -49,17 +52,28 @@ export type IntentLocations =
 
 // The Intent locations published at `revision`, or not-configured / a
 // settings problem when the project has none or the settings are unusable.
-export async function readIntentLocationsAt(
+export function readIntentLocationsAt(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
 ): Promise<IntentLocations> {
-  const reading = readingPathAt(agentSettingsPath, revision);
-  const body = await authenticatedGet(
-    `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&intent=locations`,
-    reading,
+  const query = `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&intent=locations`;
+  return memoizedAnswer(
+    query,
+    (shared) => askIntentLocationsAt(query, revision, shared),
     signal,
+    // Settings problems offer Retry, so they are asked again.
+    (locations) => locations.status !== "settings-problem",
   );
+}
+
+async function askIntentLocationsAt(
+  query: string,
+  revision: string,
+  signal: AbortSignal,
+): Promise<IntentLocations> {
+  const reading = readingPathAt(agentSettingsPath, revision);
+  const body = await authenticatedGet(query, reading, signal);
   const parsed = okIntent.safeParse(body);
   if (!parsed.success || parsed.data.revision !== revision) {
     throw unexpectedAnswer(reading);

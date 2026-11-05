@@ -2,7 +2,9 @@
 // the local authenticated read boundary (`../server/authenticatedRead.ts`)
 // at a revision already resolved: with `intent=test-optimization-candidates`,
 // the fixed record path's text, or distinct absent / unreadable outcomes
-// (`./IntentCandidatesRecord.tsx`).
+// (`./IntentCandidatesRecord.tsx`). An absent or present record is asked
+// once per page per revision (`./answerMemo.ts`); a failed read or an
+// unreadable record is asked again.
 
 import { z } from "zod";
 import {
@@ -11,6 +13,7 @@ import {
   transientReadRecovery,
   unexpectedAnswer,
 } from "./authenticatedGet.ts";
+import { memoizedAnswer } from "./answerMemo.ts";
 import { readingPathAt } from "./authenticatedReadRules.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { testOptimizationCandidatesPath } from "./testOptimizationCandidatesPath.ts";
@@ -32,17 +35,27 @@ export type IntentCandidatesReadResult =
 
 // The candidates record published at `revision`, or absent / unreadable when
 // the fixed path is missing or could not be read.
-export async function readIntentCandidatesAt(
+export function readIntentCandidatesAt(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
 ): Promise<IntentCandidatesReadResult> {
-  const reading = readingPathAt(testOptimizationCandidatesPath, revision);
-  const body = await authenticatedGet(
-    `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&intent=test-optimization-candidates`,
-    reading,
+  const query = `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&intent=test-optimization-candidates`;
+  return memoizedAnswer(
+    query,
+    (shared) => askIntentCandidatesAt(query, revision, shared),
     signal,
+    (read) => read.status !== "unreadable",
   );
+}
+
+async function askIntentCandidatesAt(
+  query: string,
+  revision: string,
+  signal: AbortSignal,
+): Promise<IntentCandidatesReadResult> {
+  const reading = readingPathAt(testOptimizationCandidatesPath, revision);
+  const body = await authenticatedGet(query, reading, signal);
   const parsed = okCandidates.safeParse(body);
   if (!parsed.success || parsed.data.revision !== revision) {
     throw unexpectedAnswer(reading);
