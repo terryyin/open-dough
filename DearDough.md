@@ -36,6 +36,15 @@ Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: 
 
 Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Former local code: DD-307. Former local code: DD-400. Former local code: DD-393 (`6c354905e`), renumbered in merge `966aad8b1`. DD-400's facet: a decisive premise probe proved the capability, not the story's restriction it settled. [Meaning, evidence and response](docs/maintainer/findings/ODF-074.md).
 
+### Occurrences
+- Execution: SEED-240#show-freshness-loss-across-stream-retries (plan 477-show-freshness-loss-across-stream-retries, first related implementation commit `68874f1c2aa85e4e4951e4763025c643a364c989`)
+  - Timestamp: 2026-11-05T19:38+07:00 (acceptance returned G3 / E3.2 to the slice implementer)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
+  - Evidence: plan direction "Arm the deadline once when the effect starts"; preparation premise table checked failed-opens and that existing stream journeys (including rate-limit) stayed green under a scratch arm-at-start edit, with no discriminating row for story E3.2 ("a new bound starts then" when the rate-limit wait ends); first slice return armed during `waitForLimit > 0`; coordinator source-review acceptance held G3 and required arm-at-wait-end plus a Retry-After 20 discriminating step
+  - Observed effect: one correction round before acceptance; final schedule uses `scheduleOpenAfter(waitForLimit, "arm-and-open")` and the rate-limit journey proves a full silence bound from reopen
+  - Inference: qualified recurrence. "Existing rate-limit journey stays green" did not settle E3.2; arm-at-effect-start was treated as settled without a probe that would fail when the bound was spent during the directed wait
+
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
@@ -60,6 +69,13 @@ Former local code: DD-155. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Taken holds both `.planning/slice-plans/470-see-running-sessions-with-sidebar-closed/` and `.planning/slice-plans/470-show-ci-adapter-proof/`; `.planning/PRODUCT-BACKLOG.md` Taken lists both as plan 470 with different slugs
   - Observed effect: number-only “plan 470” is ambiguous between two concurrent Taken stories; this execution used the full plan path and was not misrouted
   - Inference: concurrent planning about three minutes apart reused the same numeric selector while directories differ only by slug; path/slug disambiguation still works, number-only selection does not
+- Execution: SEED-240#show-freshness-loss-across-stream-retries (plan 477-show-freshness-loss-across-stream-retries, first related implementation commit `68874f1c2aa85e4e4951e4763025c643a364c989`)
+  - Timestamp: 2026-11-05T17:58:16+07:00 (this plan commit `177e69c75`; siblings `2c70b22b9` at 18:00:13+07:00 and `2f836d128` at 18:01:29+07:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
+  - Evidence: `.planning/slice-plans/` holds `477-show-freshness-loss-across-stream-retries/`, `477-load-intent-without-disruption/`, and `477-stop-revision-checks-after-setup-disconnect/`; Taken lists all three as plan 477 with different slugs
+  - Observed effect: number-only “plan 477” is ambiguous across three concurrent Taken/prepared stories; this execution used the full plan path and was not misrouted
+  - Inference: same concurrent allocation class as the plan-470 row; three preparations within about three minutes reused 477 while directories differ only by slug
 
 ## ODF-141 — Fixed refactor cost on small accepted slices <a id="odf-141"></a>
 
