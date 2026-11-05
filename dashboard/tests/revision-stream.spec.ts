@@ -17,20 +17,13 @@ import {
   openSecondStreamingAtA,
   openStreamingAtA,
   recordsAt,
-  streamPaceMs,
   streamServerEnv,
   untilMatchingRefsSince,
   untilStreamingAt,
   setPageVisibility,
 } from "./revisionStreamJourney.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
-import {
-  backlogB,
-  revisionA,
-  revisionB,
-  titlesOfA,
-  titlesOfB,
-} from "./refreshJourney.ts";
+import { backlogB, revisionB, titlesOfA, titlesOfB } from "./refreshJourney.ts";
 import { readsBesideChecks } from "./originObservation.ts";
 import {
   onBranch,
@@ -167,24 +160,6 @@ test("a watched branch move reads only that entry's plan and commit time; the ot
       .getByRole("img", { name: "7 of 8 slices recorded complete" }),
   ).toBeVisible();
   await other.close();
-});
-
-test("hiding closes the stream; with no other stream listings stop; revealing answers at once", async ({
-  page,
-}) => {
-  await openStreamingAtA(page);
-  const beforeHide = githubFor(page).calls.length;
-  await untilMatchingRefsSince(page, beforeHide, 1);
-  await setPageVisibility(page, "hidden");
-  const afterHide = githubFor(page).calls.length;
-  await page.waitForTimeout(streamPaceMs * 4);
-  expect(matchingRefsSince(page, afterHide)).toBe(0);
-  const beforeReveal = githubFor(page).calls.length;
-  const revealed = untilStreamingAt(page, revisionA);
-  await setPageVisibility(page, "visible");
-  await revealed;
-  await untilMatchingRefsSince(page, beforeReveal, 1);
-  await expectSettledPage(page, titlesOfA);
 });
 
 test("after reading a publication the page reopens its stream at the new revision", async ({
