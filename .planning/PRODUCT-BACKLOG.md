@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Read Node script-test proof](seeds/SEED-192-review-product-intent.md#read-node-test-proof) — SEED-192#read-node-test-proof ([plan](slice-plans/467-read-node-test-proof/PLAN.md))
 - [Show the CI proof of a CI-adapter attempt](seeds/SEED-236-show-ci-adapter-proof.md#show-ci-adapter-proof) — SEED-236#show-ci-adapter-proof ([plan](slice-plans/470-show-ci-adapter-proof/PLAN.md))
 - [See running sessions with the sidebar closed](seeds/SEED-235-see-running-sessions-with-sidebar-closed.md#see-running-sessions-with-sidebar-closed) — SEED-235#see-running-sessions-with-sidebar-closed ([plan](slice-plans/470-see-running-sessions-with-sidebar-closed/PLAN.md))
-- [Paste from the mobile keyboard](seeds/SEED-237-paste-from-the-mobile-keyboard.md#paste-from-the-mobile-keyboard) — SEED-237#paste-from-the-mobile-keyboard ([plan](slice-plans/470-paste-from-the-mobile-keyboard/PLAN.md))
 
 ## Backlog list
 
