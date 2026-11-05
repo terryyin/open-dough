@@ -78,7 +78,7 @@ recorded, make the overall change understandable at the scope being read.
 
 **Refinement context.** This extends SEED-244's homepage comparisons into
 the entry/folder/file summary views requested by
-[SEED-243](SEED-243-intent-home-and-selection-summaries.md#improve-intent-home-and-selection-summaries).
+[SEED-243](../done/SEED-243_improve-intent-home-and-selection-summaries.json).
 Determine which maintained historical CI evidence supplies each summary
 figure at these scopes and the gaps that must remain visible. Reuse the
 existing story source comparison and path-change evidence. The request

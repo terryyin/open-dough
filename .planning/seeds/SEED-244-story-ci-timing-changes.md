@@ -31,7 +31,7 @@ the story caused them.
 - **Comparison on the homepage.** When a story is selected, Intent's CI status
   homepage shows a timing comparison for it: CI wall time, then one row per CI
   entry in the homepage entry table introduced by
-  [SEED-243](SEED-243-intent-home-and-selection-summaries.md#improve-intent-home-and-selection-summaries).
+  [SEED-243](../done/SEED-243_improve-intent-home-and-selection-summaries.json).
   Each comparable figure shows its before value, its after value and the signed
   difference: positive means longer, negative means shorter. A selected done
   story gets this comparison where the homepage today only explains that the

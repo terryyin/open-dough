@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-243#improve-intent-home-and-selection-summaries",
+  "title": "Improve Intent home and selection summaries",
+  "completedAt": "2026-11-05T18:54:22.433Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "claude",
+  "model": "opus"
+}

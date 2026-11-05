@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Improve Intent home and selection summaries](seeds/SEED-243-intent-home-and-selection-summaries.md#improve-intent-home-and-selection-summaries) — SEED-243#improve-intent-home-and-selection-summaries ([plan](slice-plans/480-improve-intent-home-and-selection-summaries/PLAN.md))
-
 ## Backlog list
 
 - [Keep the shown reading through failed updates](seeds/SEED-241-intent-loading-and-traffic.md#keep-the-shown-reading-through-failed-updates) — SEED-241#keep-the-shown-reading-through-failed-updates

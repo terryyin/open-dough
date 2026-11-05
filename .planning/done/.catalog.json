@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-243_improve-intent-home-and-selection-summaries.json",
+      "identity": "SEED-243#improve-intent-home-and-selection-summaries",
+      "completedAt": "2026-11-05T18:54:22.433Z",
+      "blob": "2dd56681b0fb9de0dd977f6026c7be9588982ca0"
+    },
+    {
       "fileName": "SEED-241_load-intent-without-disruption-or-bulk-source-transfer.json",
       "identity": "SEED-241#load-intent-without-disruption-or-bulk-source-transfer",
       "completedAt": "2026-11-05T16:31:39.515Z",
