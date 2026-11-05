@@ -118,7 +118,13 @@ function parseExpect(declaration) {
 function runFragment(argv) {
   const values = options(argv, {
     required: ["entry", "part", "of", "revision", "out"],
-    optional: ["attempt", "attempt-id", "playwright-record", "outcomes"],
+    optional: [
+      "attempt",
+      "attempt-id",
+      "playwright-record",
+      "outcomes",
+      "times",
+    ],
     multiple: ["entry"],
   });
   const identity = {
@@ -130,13 +136,20 @@ function runFragment(argv) {
   };
   let fragments;
   if (values["playwright-record"] !== undefined) {
+    if (values.times !== undefined) {
+      throw new Error("--times applies only with --outcomes");
+    }
     const record = JSON.parse(
       readFileSync(values["playwright-record"], "utf8"),
     );
     fragments = fragmentFromPlaywrightRecord(record, identity);
   } else if (values.outcomes !== undefined) {
     const text = readFileSync(values.outcomes, "utf8");
-    fragments = fragmentsFromOutcomes(text, identity);
+    const times =
+      values.times === undefined
+        ? undefined
+        : readFileSync(values.times, "utf8");
+    fragments = fragmentsFromOutcomes(text, identity, times);
   } else {
     throw new Error("--playwright-record or --outcomes is required");
   }

@@ -48,8 +48,9 @@ export const summaryAttempt = (run) =>
     ? { attemptId: run.attemptId }
     : { runId: run.runId, runAttempt: run.attempt };
 
-// One entry's fragment for one part of one attempt's revision.
-export function fragment(identity, entry, unit, counts) {
+// One entry's fragment for one part of one attempt's revision. EXTRAS may
+// carry optional `durationMs` (summed test execution time for this part).
+export function fragment(identity, entry, unit, counts, extras = {}) {
   return {
     schemaVersion: FRAGMENT_SCHEMA_VERSION,
     entry,
@@ -59,6 +60,7 @@ export function fragment(identity, entry, unit, counts) {
     revision: identity.revision,
     unit,
     ...counts,
+    ...extras,
   };
 }
 
@@ -67,6 +69,16 @@ const isObject = (value) =>
 const isCount = (value) => Number.isSafeInteger(value) && value >= 0;
 export const isPositive = (value) => Number.isSafeInteger(value) && value >= 1;
 const isText = (value) => typeof value === "string" && value !== "";
+// Optional durationMs: a non-negative finite number when present.
+const isDurationMs = (value) =>
+  typeof value === "number" && Number.isFinite(value) && value >= 0;
+
+function durationProblems(value, where) {
+  if (value.durationMs === undefined) return [];
+  return isDurationMs(value.durationMs)
+    ? []
+    : [`${where}durationMs is not a non-negative number`];
+}
 
 // Why VALUE does not name exactly one attempt identity, where GITHUB are the
 // fields of its GitHub Actions identity; empty when it names one.
@@ -111,7 +123,11 @@ export function fragmentProblems(value) {
   if (isPositive(value.part) && isPositive(value.of) && value.part > value.of) {
     problems.push("part is greater than of");
   }
-  return [...problems, ...countProblems(value, "")];
+  return [
+    ...problems,
+    ...countProblems(value, ""),
+    ...durationProblems(value, ""),
+  ];
 }
 
 function partProblems(part, index, where) {
@@ -123,6 +139,7 @@ function partProblems(part, index, where) {
     problems.push(`${at}status is not ${PART_STATUSES.join(", ")}`);
   } else if (part.status === "present") {
     problems.push(...countProblems(part, at));
+    problems.push(...durationProblems(part, at));
   }
   return problems;
 }
@@ -136,6 +153,7 @@ function entryProblems(entry, index) {
     problems.push(`${where}unit is neither a string nor null`);
   }
   problems.push(...countProblems(entry, where));
+  problems.push(...durationProblems(entry, where));
   if (!Array.isArray(entry.parts) || entry.parts.length === 0) {
     return [...problems, `${where}parts is not a non-empty array`];
   }

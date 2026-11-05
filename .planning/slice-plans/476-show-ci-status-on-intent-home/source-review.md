@@ -29,7 +29,7 @@
 | 18 | Beside each declared proof entry's counts, show the sum of that entry's individual test execution durations across its parts, shards or parallel workers | slice 4 |  |
 | 19 | That figure is cumulative execution time and may exceed wall time | slice 4 |  |
 | 20 | It is named so it does not read as elapsed time | slice 4 |  |
-| 21 | The CI proof publication path (fragments and the attempt's summary) gains the durations it lacks | slice 3 |  |
+| 21 | The CI proof publication path (fragments and the attempt's summary) gains the durations it lacks | slice 3 | observed: ci-proof-fragments/collect/summary + --times/OPEN_DOUGH_TEST_TIMES + Playwright durationMs; focused ci-proof-*.test.mjs and ci-proof-declaration.test.mjs; hosted story-branch summary observation remains post-publish |
 | 22 | Timing evidence that was read but not recorded (an older summary, or an adapter attempt without start/completion times) is shown as not recorded with why | slice 4 |  |
 | 23 | An entry whose parts are missing, ambiguous or partly without durations shows its execution time as partial, never as a complete total | slice 4 |  |
 | 24 | An unreadable source keeps the existing unavailable wording | slice 4 |  |

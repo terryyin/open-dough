@@ -30,18 +30,37 @@ export function fragment(entry, part, of, counts, overrides = {}) {
   };
 }
 
-export function playwrightRecord(outcomes, phase = "completed") {
+// OUTCOMES are per-test Playwright outcomes. Optional DURATIONS are parallel
+// per-test attempt durationMs values: a number for one finished attempt, or an
+// array of numbers when retries are included.
+export function playwrightRecord(
+  outcomes,
+  phase = "completed",
+  durations = [],
+) {
   return {
     schemaVersion: 1,
     phase,
     selectedCount: outcomes.length,
-    tests: outcomes.map((outcome, index) => ({
-      titlePath: [`test ${index}`],
-      executions:
-        outcome === undefined
-          ? [{ testId: `t${index}` }]
-          : [{ testId: `t${index}`, outcome }],
-      attempts: [],
-    })),
+    tests: outcomes.map((outcome, index) => {
+      const duration = durations[index];
+      const attemptDurations = Array.isArray(duration)
+        ? duration
+        : duration === undefined
+          ? []
+          : [duration];
+      return {
+        titlePath: [`test ${index}`],
+        executions:
+          outcome === undefined
+            ? [{ testId: `t${index}` }]
+            : [{ testId: `t${index}`, outcome }],
+        attempts: attemptDurations.map((durationMs, retry) => ({
+          testId: `t${index}`,
+          retry,
+          durationMs,
+        })),
+      };
+    }),
   };
 }

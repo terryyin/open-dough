@@ -177,12 +177,12 @@ fields in `src/skills/dough-execute-plan/manuals/custom-ci.md`. Wording joins
 
 ### 3. Attempt summaries record test execution time
 Type: Behavior
-Status: planned
-Proof: `bash scripts/test.sh src/skills/dough-test-optimization/scripts/`
-covering fragments from an outcomes file with a times file, from a Playwright
-record, without durations (old shape unchanged), and summaries whose entries
-sum present parts' durations; the published story branch's hosted CI summary
-artifact carries entry and part durations.
+Status: done
+Proof: `bash scripts/test.sh` on `ci-proof-{collect,fragments,summary,duration}.test.mjs`
+and `tests/support/ci-proof-declaration.test.mjs` (outcomes+times, Playwright
+`durationMs`, old shape without durations, entry sums of present parts);
+`npm run lint` / `typecheck:dashboard`. Hosted story-branch summary artifact
+with entry/part `durationMs` remains post-publish observation.
 
 **Behavior:** a CI attempt's jobs report their tests → the collector writes
 fragments and the summary → each present part, and each entry, carries its
@@ -276,6 +276,13 @@ unpaid). Slice 5 records the warm comparison beside these numbers.
   always shown on Proof.
 - Shared `attemptTimesOf` / `shownCiProofRun` keep judgment and Proof from
   duplicating start/completion spreading.
+
+## Learnings (slice 3)
+
+- Optional `durationMs` stays additive on schema v1; parts without a duration
+  omit the field so entry sums only present parts.
+- Duration collector tests live in `ci-proof-duration.test.mjs` so collect/
+  summary files stay within the line budget.
 
 ## Current decisions
 
