@@ -1,4 +1,5 @@
-// Unreadable and malformed Intent settings stay distinct from not-configured
+// Unreadable and malformed Intent settings stay distinct from not-configured,
+// and a failed Intent locations read names its cause
 // (../src/IntentPerspective.tsx). Companion to ./intent-gherkin-unusable.spec.ts
 // location-body explanations.
 
@@ -67,4 +68,38 @@ test("unreadable and malformed Intent settings stay distinct from not-configured
       "could not be read, so Intent locations for Pygardon are unavailable.",
     );
   });
+});
+
+test("an Intent locations read that fails names its cause, and Retry reads it again", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const published = { ...doughnut, revision: "c2".repeat(20) };
+  await publishFiles(page, {
+    repository: published.repository,
+    ref: published.ref,
+    revision: published.revision,
+    files: filesOf(published),
+  });
+  let unreachable = true;
+  await page.route(/[?&]intent=locations(&|$)/, async (route) => {
+    if (unreachable) await route.abort("connectionreset");
+    else await route.fallback();
+  });
+
+  await openUntilRead(page, "/?project=doughnut");
+  const { intent, intentChoice } = parts(page);
+  await intentChoice.click();
+
+  const problem = intent.getByRole("alert");
+  await expect(problem).toHaveText(
+    `Intent locations for Doughnut could not be read: The local authenticated read could not be reached while reading .planning/open-dough.json at ${published.revision}. Retry`,
+  );
+
+  unreachable = false;
+  await problem.getByRole("button", { name: "Retry" }).click();
+  await expect(intent.getByRole("alert")).toHaveCount(0);
+  await expect(intent).toContainText(
+    "No intent locations are configured for Doughnut.",
+  );
 });

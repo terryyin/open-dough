@@ -117,10 +117,11 @@ function IntentBody({
       ),
     );
   }
-  if (intent === "failed") {
+  if ("failed" in intent) {
     return explained(
       <p className="intent-settings-problem" role="alert">
-        Intent locations for {source.label} could not be read at this revision.{" "}
+        Intent locations for {source.label} could not be read
+        {intent.failed === undefined ? "." : `: ${intent.failed.message}`}{" "}
         <button type="button" onClick={retryLocations}>
           Retry
         </button>
