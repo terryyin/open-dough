@@ -111,7 +111,7 @@ test("a controlled snapshot write failure leaves incomplete evidence and the ori
   );
 });
 
-test("ordinary repeated runs add no proof store or passing output directories", async () => {
+test("ordinary repeated runs add no proof record or passing output directories", async () => {
   const directory = proofDirectory();
   for (let index = 0; index < 2; index++) {
     const run = startProofRun({

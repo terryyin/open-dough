@@ -12,20 +12,20 @@ Reviewer notes: 3c/3d overlap 3b.2; E2 sets no new rule for unknown keys; E6 nam
 | G2 | CI is the only source of published execution observations. | slice 5 | |
 | G3 | The local proof feature is deleted completely: its committed records, its collection and persistence, the dashboard's reading of them, its published guidance, and everything that exists only to produce, consume, test or explain it. | slice 5 | |
 | G4 | Purpose of the change: keep Open Dough's product and guidance focused on capabilities that are maintained and used. | slice 5 | |
-| 1a | Delete the committed local proof store `tests/proof`. | slice 3 | |
-| 1b | Delete the committed local proof store `dashboard/tests/proof`. | slice 3 | |
-| 1c | Delete local-proof-only copies and fixture records. | slice 3 | |
-| 1d | Keep no archive or replacement history store. | slice 3 | |
-| 2a.1 | Delete local collection and persistence: recorders | slice 3 | |
-| 2a.2 | Delete local collection and persistence: reporters | slice 3 | |
-| 2a.3 | Delete local collection and persistence: stores | slice 3 | |
-| 2a.4 | Delete local collection and persistence: refresh and merge code | slice 3 | |
-| 2a.5 | Delete local collection and persistence: locking | slice 3 | |
-| 2a.6 | Delete local collection and persistence: the `RECORD_NODE_TEST_PROOF` opt-in | slice 3 | |
-| 2a.7 | Delete local collection and persistence: the `RECORD_PLAYWRIGHT_PROOF` opt-in | slice 3 | |
-| 2a.8 | Delete local collection and persistence: commands | slice 3 | |
-| 2a.9 | Delete local collection and persistence: runner wiring | slice 3 | |
-| 2a.10 | Delete local collection and persistence: configuration | slice 3 | |
+| 1a | Delete the committed local proof store `tests/proof`. | slice 3 | observed: slice 3: tests/proof deleted (ls: No such file or directory) |
+| 1b | Delete the committed local proof store `dashboard/tests/proof`. | slice 3 | observed: slice 3: dashboard/tests/proof deleted (ls: No such file or directory) |
+| 1c | Delete local-proof-only copies and fixture records. | slice 3 | observed: slice 3: proof-store-fixture.mjs, node-test-proof-reporter-fixture.mjs, proofSnapshot*.ts, proof-snapshot-*.spec.ts deleted |
+| 1d | Keep no archive or replacement history store. | slice 3 | observed: slice 3: no archive or replacement store added; git status after E3 opt-in runs shows no untracked files |
+| 2a.1 | Delete local collection and persistence: recorders | slice 3 | observed: slice 3: node-test-proof-reporter.mjs, proofStore.mjs, proofDirectoryRefresh.mjs, proofObservationOrder.mjs, ProofSnapshot and snapshot option deleted; scripts/test-run-job.bash loads only the failures reporter; playwright.config.ts reads no RECORD_PLAYWRIGHT_PROOF; git grep of removed terms outside src/skills references and records is empty |
+| 2a.2 | Delete local collection and persistence: reporters | slice 3 | observed: slice 3: node-test-proof-reporter.mjs, proofStore.mjs, proofDirectoryRefresh.mjs, proofObservationOrder.mjs, ProofSnapshot and snapshot option deleted; scripts/test-run-job.bash loads only the failures reporter; playwright.config.ts reads no RECORD_PLAYWRIGHT_PROOF; git grep of removed terms outside src/skills references and records is empty |
+| 2a.3 | Delete local collection and persistence: stores | slice 3 | observed: slice 3: node-test-proof-reporter.mjs, proofStore.mjs, proofDirectoryRefresh.mjs, proofObservationOrder.mjs, ProofSnapshot and snapshot option deleted; scripts/test-run-job.bash loads only the failures reporter; playwright.config.ts reads no RECORD_PLAYWRIGHT_PROOF; git grep of removed terms outside src/skills references and records is empty |
+| 2a.4 | Delete local collection and persistence: refresh and merge code | slice 3 | observed: slice 3: node-test-proof-reporter.mjs, proofStore.mjs, proofDirectoryRefresh.mjs, proofObservationOrder.mjs, ProofSnapshot and snapshot option deleted; scripts/test-run-job.bash loads only the failures reporter; playwright.config.ts reads no RECORD_PLAYWRIGHT_PROOF; git grep of removed terms outside src/skills references and records is empty |
+| 2a.5 | Delete local collection and persistence: locking | slice 3 | observed: slice 3: node-test-proof-reporter.mjs, proofStore.mjs, proofDirectoryRefresh.mjs, proofObservationOrder.mjs, ProofSnapshot and snapshot option deleted; scripts/test-run-job.bash loads only the failures reporter; playwright.config.ts reads no RECORD_PLAYWRIGHT_PROOF; git grep of removed terms outside src/skills references and records is empty |
+| 2a.6 | Delete local collection and persistence: the `RECORD_NODE_TEST_PROOF` opt-in | slice 3 | observed: slice 3: node-test-proof-reporter.mjs, proofStore.mjs, proofDirectoryRefresh.mjs, proofObservationOrder.mjs, ProofSnapshot and snapshot option deleted; scripts/test-run-job.bash loads only the failures reporter; playwright.config.ts reads no RECORD_PLAYWRIGHT_PROOF; git grep of removed terms outside src/skills references and records is empty |
+| 2a.7 | Delete local collection and persistence: the `RECORD_PLAYWRIGHT_PROOF` opt-in | slice 3 | observed: slice 3: node-test-proof-reporter.mjs, proofStore.mjs, proofDirectoryRefresh.mjs, proofObservationOrder.mjs, ProofSnapshot and snapshot option deleted; scripts/test-run-job.bash loads only the failures reporter; playwright.config.ts reads no RECORD_PLAYWRIGHT_PROOF; git grep of removed terms outside src/skills references and records is empty |
+| 2a.8 | Delete local collection and persistence: commands | slice 3 | observed: slice 3: node-test-proof-reporter.mjs, proofStore.mjs, proofDirectoryRefresh.mjs, proofObservationOrder.mjs, ProofSnapshot and snapshot option deleted; scripts/test-run-job.bash loads only the failures reporter; playwright.config.ts reads no RECORD_PLAYWRIGHT_PROOF; git grep of removed terms outside src/skills references and records is empty |
+| 2a.9 | Delete local collection and persistence: runner wiring | slice 3 | observed: slice 3: node-test-proof-reporter.mjs, proofStore.mjs, proofDirectoryRefresh.mjs, proofObservationOrder.mjs, ProofSnapshot and snapshot option deleted; scripts/test-run-job.bash loads only the failures reporter; playwright.config.ts reads no RECORD_PLAYWRIGHT_PROOF; git grep of removed terms outside src/skills references and records is empty |
+| 2a.10 | Delete local collection and persistence: configuration | slice 3 | observed: slice 3: node-test-proof-reporter.mjs, proofStore.mjs, proofDirectoryRefresh.mjs, proofObservationOrder.mjs, ProofSnapshot and snapshot option deleted; scripts/test-run-job.bash loads only the failures reporter; playwright.config.ts reads no RECORD_PLAYWRIGHT_PROOF; git grep of removed terms outside src/skills references and records is empty |
 | 2b | Remove the Intent location `proof` setting. | slice 2 | observed: slice 2: dashboard/server/intentLocationsSettings.ts declaredLocations reads only path/kind/include; IntentLocation model has no proof/proofGeneration/runner; boundary/authenticated-read-intent-locations.spec.ts toEqual {path, kind, files} |
 | 2c | Remove the Intent location `proofGeneration` setting. | slice 2 | observed: slice 2: dashboard/server/intentLocationsSettings.ts declaredLocations reads only path/kind/include; IntentLocation model has no proof/proofGeneration/runner; boundary/authenticated-read-intent-locations.spec.ts toEqual {path, kind, files} |
 | 2d | Remove this repository's entries for those settings in `.planning/open-dough.json`. | slice 2 | observed: slice 2: .planning/open-dough.json locations carry no runner/proof/proofGeneration; tests/support/ci-proof-declaration.test.mjs passes |
@@ -69,23 +69,23 @@ Reviewer notes: 3c/3d overlap 3b.2; E2 sets no new rule for unknown keys; E6 nam
 | 6i | No tombstones. | slice 5 | |
 | 6j | No historical feature narrative. | slice 5 | |
 | 6k | No migration guide. | slice 5 | |
-| 7a | Ordinary local test execution keeps its diagnostics. | slice 3 | |
-| 7b | It keeps its timing. | slice 3 | |
-| 7c | It keeps its selection. | slice 3 | |
-| 7d | It keeps its strict failure semantics. | slice 3 | |
-| 7e.1 | CI proof keeps working end to end: fragments | slice 3 | |
-| 7e.2 | CI proof keeps working end to end: summaries | slice 3 | |
-| 7e.3 | CI proof keeps working end to end: artifacts | slice 3 | |
-| 7e.4 | CI proof keeps working end to end: run/attempt/revision identity checks | slice 3 | |
-| 7e.5 | CI proof keeps working end to end: CI adapters | slice 3 | |
+| 7a | Ordinary local test execution keeps its diagnostics. | slice 3 | observed: slice 3: tests/test-runner-{bash,budget,ci-environment,failure-report,github-requests,interrupt,selection,split}.sh, node-test-failures-reporter.test.mjs, local-test-suite.test.mjs, quiet-reporter.spec.ts, spec-times.spec.ts pass |
+| 7b | It keeps its timing. | slice 3 | observed: slice 3: tests/test-runner-{bash,budget,ci-environment,failure-report,github-requests,interrupt,selection,split}.sh, node-test-failures-reporter.test.mjs, local-test-suite.test.mjs, quiet-reporter.spec.ts, spec-times.spec.ts pass |
+| 7c | It keeps its selection. | slice 3 | observed: slice 3: tests/test-runner-{bash,budget,ci-environment,failure-report,github-requests,interrupt,selection,split}.sh, node-test-failures-reporter.test.mjs, local-test-suite.test.mjs, quiet-reporter.spec.ts, spec-times.spec.ts pass |
+| 7d | It keeps its strict failure semantics. | slice 3 | observed: slice 3: tests/test-runner-{bash,budget,ci-environment,failure-report,github-requests,interrupt,selection,split}.sh, node-test-failures-reporter.test.mjs, local-test-suite.test.mjs, quiet-reporter.spec.ts, spec-times.spec.ts pass |
+| 7e.1 | CI proof keeps working end to end: fragments | slice 3 | observed: slice 3: ci-proof-{collect,fragments,summary}.test.mjs, ci-proof-declaration, dashboard-ci-proof-parse, dashboard-ci-proof-read tests pass; fragment commands on fresh outcomes and run record exit 0 |
+| 7e.2 | CI proof keeps working end to end: summaries | slice 3 | observed: slice 3: ci-proof-{collect,fragments,summary}.test.mjs, ci-proof-declaration, dashboard-ci-proof-parse, dashboard-ci-proof-read tests pass; fragment commands on fresh outcomes and run record exit 0 |
+| 7e.3 | CI proof keeps working end to end: artifacts | slice 3 | observed: slice 3: ci-proof-{collect,fragments,summary}.test.mjs, ci-proof-declaration, dashboard-ci-proof-parse, dashboard-ci-proof-read tests pass; fragment commands on fresh outcomes and run record exit 0 |
+| 7e.4 | CI proof keeps working end to end: run/attempt/revision identity checks | slice 3 | observed: slice 3: ci-proof-{collect,fragments,summary}.test.mjs, ci-proof-declaration, dashboard-ci-proof-parse, dashboard-ci-proof-read tests pass; fragment commands on fresh outcomes and run record exit 0 |
+| 7e.5 | CI proof keeps working end to end: CI adapters | slice 3 | observed: slice 3: ci-proof-{collect,fragments,summary}.test.mjs, ci-proof-declaration, dashboard-ci-proof-parse, dashboard-ci-proof-read tests pass; fragment commands on fresh outcomes and run record exit 0 |
 | 7e.6 | CI proof keeps working end to end: the dashboard's **Intent → CI status → Proof** reading | slice 2 | observed: slice 2: intent-ci-proof*.spec.ts and intent-ci-status*.spec.ts pass unchanged in the 119-spec run |
-| 7f | Where a report serves CI as well as local proof, keep only the responsibility that CI or surviving test execution needs. | slice 3 | |
-| 7g | The dashboard run record (`OPEN_DOUGH_DASHBOARD_PROOF_RECORD`, `dashboard/tests/proof-record.md`) feeds CI's Playwright fragments and survives. | slice 3 | |
-| 7h | The dashboard run record is described as the CI input it is. | slice 3 | |
+| 7f | Where a report serves CI as well as local proof, keep only the responsibility that CI or surviving test execution needs. | slice 3 | observed: slice 3: quietReporter.ts keeps only proofRecord (CI) and times options; proofRecord.ts keeps private canonicalPath |
+| 7g | The dashboard run record (`OPEN_DOUGH_DASHBOARD_PROOF_RECORD`, `dashboard/tests/proof-record.md`) feeds CI's Playwright fragments and survives. | slice 3 | observed: slice 3: boundary/proof-record*.spec.ts pass; OPEN_DOUGH_DASHBOARD_PROOF_RECORD run wrote phase completed record and fragment --playwright-record gave passed 3 |
+| 7h | The dashboard run record is described as the CI input it is. | slice 3 | observed: slice 3: dashboard/tests/proof-record.md and dashboard/tests/README.md describe the record as the input CI proof fragments are written from |
 | 7i.1 | Purpose/test-source browsing stays | slice 2 | observed: slice 2: intent-code-browse*, intent-gherkin-*, intent-selection-reads, intent-purpose-case.spec.ts (Purpose positioned on case), intent-test-optimization-candidates* pass |
 | 7i.2 | story selection stays | slice 2 | observed: slice 2: intent-story-*.spec.ts and boundary/intent-story-overlay pass |
-| 7i.3 | shard scheduling from CI test times stays | slice 3 | |
-| 7i.4 | longest-first scheduling from CI test times stays | slice 3 | |
+| 7i.3 | shard scheduling from CI test times stays | slice 3 | observed: slice 3: node scripts/test-shares.mjs preview --split-count 12 --spec-dir dashboard/tests exit 0; share-deal and test-shares tests pass |
+| 7i.4 | longest-first scheduling from CI test times stays | slice 3 | observed: slice 3: longest-first files unchanged (named no deleted file); node scripts/test-shares.mjs preview --split-count 3 exit 0 |
 | 7i.5 | the shared test-optimization responsibility stays | slice 4 | |
 | 7i.6 | the CI proof publication responsibility stays | slice 4 | |
 | 8a | Project-owned implementations in Donut, Pygardon and Lizard are out of scope; each has its own removal story. | slice 5 | |
@@ -104,12 +104,12 @@ Reviewer notes: 3c/3d overlap 3b.2; E2 sets no new rule for unknown keys; E6 nam
 | E2.T | Setup: a project's `open-dough.json` location still contains an old `proof` or `proofGeneration` key. | slice 2 | observed: slice 2: dashboard/server/intentLocationsSettings.ts declaredLocations reads only path/kind/include; IntentLocation model has no proof/proofGeneration/runner; boundary/authenticated-read-intent-locations.spec.ts toEqual {path, kind, files} |
 | E2.R1 | The key is treated like any other unrecognized location key. | slice 2 | observed: slice 2: dashboard/server/intentLocationsSettings.ts declaredLocations reads only path/kind/include; IntentLocation model has no proof/proofGeneration/runner; boundary/authenticated-read-intent-locations.spec.ts toEqual {path, kind, files} |
 | E2.R2 | No documentation, schema or compatibility reader names it. | slice 2 | observed: slice 2: git grep proofGeneration over dashboard/ docs/ empty; settings parser and zod schema name no old key |
-| E3.T | Setup: a developer runs `bash scripts/test.sh <file>` or `npm run --silent test:dashboard -- <spec>` with `RECORD_NODE_TEST_PROOF=1` or `RECORD_PLAYWRIGHT_PROOF=1` set. | slice 3 | |
-| E3.R1 | The run behaves exactly as it would without the variable: same output and same exit. | slice 3 | |
-| E3.R2 | No proof directory is written. | slice 3 | |
+| E3.T | Setup: a developer runs `bash scripts/test.sh <file>` or `npm run --silent test:dashboard -- <spec>` with `RECORD_NODE_TEST_PROOF=1` or `RECORD_PLAYWRIGHT_PROOF=1` set. | slice 3 | observed: slice 3: bash scripts/test.sh dough-land-guidance.test.mjs and npm run test:dashboard -- boundary/proof-record-verdict.spec.ts with and without RECORD_NODE_TEST_PROOF=1 / RECORD_PLAYWRIGHT_PROOF=1: same exit 0 and byte-identical output, no proof directory |
+| E3.R1 | The run behaves exactly as it would without the variable: same output and same exit. | slice 3 | observed: slice 3: bash scripts/test.sh dough-land-guidance.test.mjs and npm run test:dashboard -- boundary/proof-record-verdict.spec.ts with and without RECORD_NODE_TEST_PROOF=1 / RECORD_PLAYWRIGHT_PROOF=1: same exit 0 and byte-identical output, no proof directory |
+| E3.R2 | No proof directory is written. | slice 3 | observed: slice 3: bash scripts/test.sh dough-land-guidance.test.mjs and npm run test:dashboard -- boundary/proof-record-verdict.spec.ts with and without RECORD_NODE_TEST_PROOF=1 / RECORD_PLAYWRIGHT_PROOF=1: same exit 0 and byte-identical output, no proof directory |
 | E4.T | Setup: CI runs on a published revision. | target CI | |
-| E4.R1 | The test shares still write `test-outcomes.txt`. | slice 3 | |
-| E4.R2 | Dashboard shards still write their run record. | slice 3 | |
+| E4.R1 | The test shares still write `test-outcomes.txt`. | slice 3 | observed: slice 3: OPEN_DOUGH_TEST_OUTCOMES run wrote passed<TAB>file; ci-proof-summary.mjs fragment wrote src-skills-1.json passed 1 |
+| E4.R2 | Dashboard shards still write their run record. | slice 3 | observed: slice 3: OPEN_DOUGH_DASHBOARD_PROOF_RECORD run wrote the shard record; fragment --playwright-record wrote dashboard/tests passed 3 |
 | E4.R3 | The `ci-proof` job publishes a summary the dashboard reads, as before. | target CI | |
 | E5.T | Setup: a project at the previous release updates to the release that contains this removal, on Codex, Cursor or Claude Code. | slice 4 | |
 | E5.R1 | The five runner proof references disappear from its installed `dough-test-optimization`. | slice 4 | |

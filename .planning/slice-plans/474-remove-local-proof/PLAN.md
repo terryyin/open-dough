@@ -154,8 +154,16 @@ remain for file Proof only.
 
 ### 3. Local runs record no proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: scratch opt-in runs (example 3); `proof-record*.spec.ts`; fragment command on fresh outputs (example 4); `bash scripts/test.sh` on the CI proof script tests; `npm run lint`
+Accepted: opt-in comparison runs identical with no store written; fresh
+outcomes and run record produced fragments; `bash scripts/test.sh` on the CI
+proof, runner, share-deal and test-runner-*.sh checks (rerun after refactor
+dropped the single reporter's destination flag); proof-record, spec-times,
+run-processes, dashboard-scheduling and quiet-reporter specs (34 passed);
+typecheck and lint clean. Slice 3 learnings: remaining removed-term hits are
+only in the five `src/skills/dough-test-optimization/references/*-proof.md`
+pages, `SKILL.md`, `install.sh` (slice 4) and records (slice 5).
 
 Behavior: a developer runs a Node test or dashboard spec, with or without
 `RECORD_NODE_TEST_PROOF` / `RECORD_PLAYWRIGHT_PROOF` → identical output and

@@ -1,5 +1,5 @@
-# One job of scripts/test.sh: Node reporters (failures + optional proof) or a
-# Bash check. Sourced after slots, times, and lost_setpgid_race are ready.
+# One job of scripts/test.sh: a Node test file under the failures reporter or
+# a Bash check. Sourced after slots, times, and lost_setpgid_race are ready.
 # shellcheck shell=bash
 # source_dir, output_root, test_bash, and lost_setpgid_race come from
 # scripts/test.sh (see its shellcheck source= directive).
@@ -11,7 +11,6 @@ elapsed_seconds() {
 }
 
 node_reporter="${source_dir}/tests/support/node-test-failures-reporter.mjs"
-node_proof_reporter="${source_dir}/tests/support/node-test-proof-reporter.mjs"
 check_stop_report="${source_dir}/tests/support/check-stop-report.bash"
 # A check that asks GitHub names a request owner root of its own. Each job is
 # given one that admits no owner -- too deep for any socket path, so a consumer
@@ -25,12 +24,8 @@ run_job() {
   local job_status=0 started=${EPOCHREALTIME}
   export DOUGH_GITHUB_REQUEST_OWNER_ROOT="${output_root}/${index}.${ownerless_root}"
   if [[ ${kind} == node ]]; then
-    # Destinations are required when more than one reporter is loaded; both
-    # share stdout. The proof recorder yields nothing, so the quiet-pass rule
-    # holds. RECORD_NODE_TEST_PROOF reaches jobs (only OPEN_DOUGH_TEST_* is unset).
     node --test \
-      --test-reporter="${node_reporter}" --test-reporter-destination=stdout \
-      --test-reporter="${node_proof_reporter}" --test-reporter-destination=stdout \
+      --test-reporter="${node_reporter}" \
       "${label}" > "${log}" 2>&1 \
       || job_status=$?
   else
