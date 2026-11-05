@@ -234,3 +234,16 @@ Reported: slice 1 — "source review — scope limit 27e"
 Story clause: "No new developer ceremony or control for "runner was replaced.""
 Disposition: excluded "No new developer ceremony or control for "runner was replaced.""
 Commitment: 27e
+## Execution complete
+
+Product advice: No backlog change from this delivery. Near-future direction stays
+product-intent review; this story was an incident-driven runner-ops exception
+outside that focus, and that exception still looks justified.
+
+Leave deferred as deferred: Working-within-wait under concurrent revival;
+auto-reviving unfinished not-running sessions that were never held by the
+replaced runner; changing when replacement itself is triggered. Sequential
+revive-before-triggering-keep can delay the new launch under a large last-held
+set — same deferred concurrency concern if production shows pain. Native
+`cursor-agent` revival across a real replacement remains unclaimed under ADR
+0005.
