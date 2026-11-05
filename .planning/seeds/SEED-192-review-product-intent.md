@@ -459,34 +459,6 @@ is established, including on the sibling protection review. The sourced
 assessment and decisions remain useful if no automation or implementation
 follows. Effort is unbanded; no S/M/L calibration is established.
 
-
-<a id="read-shell-check-proof"></a>
-
-### 16. Read shell-check proof at its observed granularity
-
-**Identity:** SEED-192#read-shell-check-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
-
-- **For / why:** An Open Dough developer can review retained evidence for shell
-  checks whose protection is currently visible only through command output.
-- **Evaluation:** Run selected checks through the existing scheduler, review
-  each check's observed result and duration beside its source, within the
-  observed selection.
-- **Value / learning:** Extends the review to a real remaining test family without
-  manufacturing case identities or counts unavailable from the command.
-- **Boundary:** Selected Open Dough shell checks. A shell process can truthfully
-  yield file/check-level evidence; case-level claims require a real producer.
-  Preserve strict command exit and timing semantics. Add Doughnut shell checks
-  only when a concrete runnable target is selected.
-- **Effort hypothesis:** Unbanded; middle, low-to-medium confidence. The existing
-  scheduler already observes job exit/time, but retention and source mapping
-  still need integration; parsing arbitrary scripts is not part of this story.
-- **Product prerequisites:** Configured source and shared Proof semantics.
-- **Safe stopping point:** Honest coarse-grained Proof, labelled as such, remains
-  useful without pretending it has the same detail as Cucumber or pytest.
-
 ## Ordering, Existing Stories, and Scope Reduction
 
 The numbered sections record the backlog order Terry selected on 2026-10-31;
@@ -507,8 +479,7 @@ its source-navigation prerequisites. Story impact (5) keeps the review centered
 on a story. First local Proof (6) precedes Doughnut's second producer (8).
 Folder Proof (9) needs only one producer and may move before 8 if that offers
 earlier value. Preserve the bounded protection/complexity
-learning (10–11) before expanding collection across every remaining family
-(12–16). Those review cases can also use existing tools sooner.
+learning (10–11). Those review cases can also use existing tools sooner.
 
 The kept decomposition differs from Terry's rough sequence in two deliberate ways:
 
@@ -523,7 +494,7 @@ an actual supplier outcome required before work can start.
 
 If investment must shrink, retain the source-only product after 3. Next retain
 one Cucumber producer (6). Drop additional producer
-families in reverse order of demonstrated use; shell/Node and unrequested
+families in reverse order of demonstrated use; Node and unrequested
 Java/CLI expansion are the first candidates to defer, rather than spreading
 partially trustworthy evidence everywhere. Keep an early protection review to
 test the parent direction's hardest assumption. History can be modest; source
