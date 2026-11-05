@@ -123,7 +123,7 @@ from those servers.
 ## When to Surface
 
 Prioritize now on Terry's request. The stories can be evaluated independently
-of the ongoing work on reviewing Purpose and Proof.
+of the ongoing work on reviewing product intent.
 
 ## Breadcrumbs
 

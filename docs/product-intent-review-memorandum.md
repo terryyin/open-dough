@@ -54,9 +54,9 @@ whole project's test files can support a selected review without making a
 comprehensive assessment of the whole product its goal.
 
 The [Intent workspace design](dashboard-ux-ui-north-star.md#initial-intent-workspace)
-provides the file browser, Purpose/Proof views, and story scope for this review.
-Its Purpose and Proof layouts are interface choices; they do not establish an
-intent coverage measure by themselves.
+provides the file browser, Purpose reading, CI proof and story scope for this
+review. These views are interface choices; they do not establish an intent
+coverage measure by themselves.
 
 ## Discovering what intent protection means
 

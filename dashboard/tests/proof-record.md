@@ -5,12 +5,10 @@ run as a JSON record, and how to read that record (the suite itself:
 [README](README.md)).
 
 This file is the run's **transcript**: a caller-owned absolute path for one
-invocation's selection and attempts. It is not committed Proof. Committed
-Playwright Proof is the snapshot under `dashboard/tests/proof/` maintained
-only when `RECORD_PLAYWRIGHT_PROOF=1` is set on an explicit recording run
-(see `dough-test-optimization/references/playwright-proof.md`). Ordinary,
-CI and nested-config runs leave that snapshot untouched. The two writers
-are separate; this transcript's atomic updates are not the proof store.
+invocation's selection and attempts. CI requests one per dashboard shard
+(`OPEN_DOUGH_DASHBOARD_PROOF_RECORD` in `.github/workflows/ci.yml`) and
+writes that shard's CI proof fragment from it
+(`.github/actions/ci-proof-fragments`, `report-format: playwright-record`).
 
 To retain the selection and results of the same strict run, choose an unused
 absolute file path outside `dashboard/test-results/` before invoking it. Its

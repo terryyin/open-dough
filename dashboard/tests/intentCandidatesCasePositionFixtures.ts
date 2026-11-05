@@ -1,6 +1,6 @@
 // Doughnut case-position fixtures for Intent Purpose journeys
 // (`./intent-test-optimization-candidates-case.spec.ts`,
-// `./intent-purpose-proof-*-case.spec.ts`): a unique Gherkin scenario and a
+// `./intent-purpose-case.spec.ts`): a unique Gherkin scenario and a
 // duplicated name that falls back to the file start, with opening the unique
 // one from the record and seeing Purpose positioned on it.
 

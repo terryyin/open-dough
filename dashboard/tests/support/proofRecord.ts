@@ -17,12 +17,27 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
-import { canonicalPath } from "../../../tests/support/proofStore.mjs";
 import type {
   Attempt,
   DashboardProofRecord,
   Selection,
 } from "./proofRecordTypes.ts";
+
+/** Resolve existing ancestors through symlinks; keep missing path segments. */
+function canonicalPath(file: string): string {
+  const missing: string[] = [];
+  let ancestor = path.resolve(file);
+  for (;;) {
+    try {
+      return path.join(realpathSync(ancestor), ...missing);
+    } catch {
+      missing.unshift(path.basename(ancestor));
+      const parent = path.dirname(ancestor);
+      if (parent === ancestor) return path.resolve(file);
+      ancestor = parent;
+    }
+  }
+}
 
 export class ProofRecord {
   private readonly record: DashboardProofRecord;

@@ -101,7 +101,7 @@ test("overdue check reuses expensive-proof and CI lifecycle without a second sup
   assert.match(overdueCheck, /CI_MONITOR_UNAVAILABLE|lost coverage/i);
   assert.match(
     overdueCheck,
-    /lost coverage and outstanding local proof|outstanding local proof separately/i,
+    /lost coverage and outstanding local verification|outstanding local verification separately/i,
   );
   assert.match(
     overdueCheck,

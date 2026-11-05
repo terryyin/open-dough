@@ -293,11 +293,6 @@ managed_files=(
   dough-test-optimization/references/optimization-tactics.md
   dough-test-optimization/references/candidate-record.md
   dough-test-optimization/references/resolving-candidates.md
-  dough-test-optimization/references/cucumber-proof.md
-  dough-test-optimization/references/pytest-proof.md
-  dough-test-optimization/references/vitest-proof.md
-  dough-test-optimization/references/node-test-proof.md
-  dough-test-optimization/references/playwright-proof.md
   dough-test-optimization/references/ci-proof-summary.md
   dough-test-optimization/scripts/ci-proof-collect.mjs
   dough-test-optimization/scripts/ci-proof-contract.mjs

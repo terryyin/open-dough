@@ -8,10 +8,10 @@ intent has been distilled into maintained high-level automated tests, what
 protection those tests provide, and what behavioral and test complexity the
 change introduces.
 
-Make Purpose and Proof reviewable together in story context: test source
-expresses expected behavior, while execution reports show observed results
-and the cost of running the proof. Help developers decide what intent or proof
-to clarify, strengthen, simplify, or retain.
+Make a story's intent reviewable in context: test source expresses expected
+behavior as Purpose, while CI proof shows observed results and the cost of
+running the tests. Help developers decide what intent or proof to clarify,
+strengthen, simplify, or retain.
 
 Discover and validate explainable ways to assess intent protection and
 complexity, including AI-assisted judgment. Treat conventional code coverage as
@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Remove local proof from Open Dough](seeds/SEED-238-remove-local-proof.md#remove-local-proof) — SEED-238#remove-local-proof ([plan](slice-plans/474-remove-local-proof/PLAN.md))
 - [Show CI status and timing on the Intent homepage](seeds/SEED-239-intent-home-ci-status.md#show-ci-status-on-intent-home) — SEED-239#show-ci-status-on-intent-home ([plan](slice-plans/476-show-ci-status-on-intent-home/PLAN.md))
 
 ## Backlog list

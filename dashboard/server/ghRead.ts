@@ -54,8 +54,8 @@ function limitBackoffBaseMs(): number {
 // request owner. A failed call this process waited on is recorded once for
 // local diagnostics (`./readDiagnostics.ts`), including a bound that ends
 // it; held-back and ordinary waiter departures are not. One answer may be up
-// to `maxAnswerBytes`: a repository's whole-suite proof snapshot runs to
-// several megabytes.
+// to `maxAnswerBytes`, which bounds how many branches one unpaginated
+// branch-head listing can name (`../PUBLISHED-OBSERVATION.md`).
 const maxAnswerBytes = 32 * 1024 * 1024;
 const github = new GitHubRequests({
   boundMs: readTimeoutMs(),

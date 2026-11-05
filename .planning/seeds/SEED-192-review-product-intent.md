@@ -13,7 +13,7 @@ scope: epic
 
 For developers reviewing and maintaining product intent, reading test source in
 editors and piecing together separate run output should change to a coherent
-Intent workspace for Purpose and observed Proof. Begin with actual automated
+Intent workspace for Purpose and CI proof. Begin with actual automated
 test source and named real projects, within the
 [near-future direction](../PRODUCT-BACKLOG.md#near-future-direction) and the
 [product intent review memorandum](../../docs/product-intent-review-memorandum.md).
@@ -21,8 +21,7 @@ Terry evaluates the first experience. The cost of today's manual workflow has
 not been measured; usefulness must be judged against that baseline.
 
 **Decomposition kept 2026-10-31:** Terry requested a visible Development/Intent
-frame first, explicit per-project test-folder types, source browsing before
-Proof, bounded rolling run history, folder summaries, and further test families.
+frame first, explicit per-project test-folder types, and source browsing.
 Terry kept this decomposition and directed the backlog to follow the order
 below, with optimization-candidate review after source browsing. Existing story
 identities are preserved. The stories remain preparation input; execution
@@ -40,23 +39,10 @@ Established by Terry's 2026-10-30 and 2026-10-31 discussions:
   deferred. Next consider TypeScript, Python, and script tests.
 - Purpose initially means actual static test source. File and folder browsing
   needs no runtime reports, generated narrative, or authored intent catalogue.
-- Projects produce Proof through their test commands outside CI. Keep a bounded,
-  rolling history, show selected-file Proof, then folder-level observations.
-  CI reports its configured checks separately; it does not produce the retained
-  dashboard Proof history. CPU and other resources can change run time.
-  On 2026-11-01 Terry replaced rolling run history with a latest per-test
-  snapshot that every ordinary run updates, under a published
-  [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md); later stories still to be refined
-  use that latest-observation model. On 2026-11-02 Terry made proof generation
-  deliberate: normal runs leave snapshots untouched, and each proof-bearing
-  Intent entry declares its generation command or skill. Terry also dropped local-proof/CI
-  comparison, including the proposed duration gate and comparison requirements
-  for later producers: retained proof and CI verdicts are independent observations.
-  Earlier direction notes below retain their original historical wording; active
-  guidance and stories use the replacement.
-- Preserve the selected project and the shared frame. Purpose/Proof side-by-side
-  and tabbed layouts share one selection; the switch preserves selection and any
-  story scope. Near-future direction belongs in Development.
+- Proof comes from CI: Intent's **CI status → Proof** shows the judged run's
+  CI proof. CPU and other resources can change run time.
+- Preserve the selected project, the shared frame and any story scope across
+  Intent's reading modes. Near-future direction belongs in Development.
 - The existing optimization-candidate story was requested at priority 2 earlier
   on 2026-10-31. Its links require useful source browsing, not merely an empty
   frame. Terry selected its revised placement after the source-browsing stories,
@@ -67,9 +53,8 @@ Established by Terry's 2026-10-30 and 2026-10-31 discussions:
 
 The first learning question is whether the real frame makes the two perspectives
 understandable without disrupting Development. The next is whether explicit
-locations make real test source easy to find. Before spreading report collection,
-test the more consequential assumption that retained local proof can be associated
-with tested source and honestly interpreted within its observed scope.
+locations make real test source easy to find. The next is whether a story's
+intent protection and test complexity can be assessed reliably at justified cost.
 
 ## Alternatives and Recommendation
 
@@ -78,20 +63,15 @@ with tested source and honestly interpreted within its observed scope.
 - **Use editors, Review changes, and existing reports:** the strongest smaller
   alternative. It remains the comparison and fallback, and can support early
   protection/complexity reviews. It does not supply the requested integrated
-  browsing and latest-observation experience; its quantitative disadvantage is unknown.
+  browsing experience; its quantitative disadvantage is unknown.
 - **One source-browser story for every language:** possible as delivery
   checkpoints, but plain text, folders, and explicit file selection are the same
   observable behavior. A Python-only reader adds no demonstrated independent
   outcome after a configurable text reader exists. Recommend a Cucumber pilot,
   then one general source-browsing increment evaluated with TypeScript, Python,
   Node, and shell examples. Split only if refinement reveals distinct behavior.
-- **One universal reporting story or JUnit-only import:** unnecessarily combines
-  different runner semantics. Reuse native reports and add one real producer
-  family at a time. Avoid a plugin platform or a universal scoring model.
-- **Recommended:** deliver the visible frame, source access, the first project's
-  latest local observations. Extend the shared reading experience by actual
-  runner family, with folder summaries once one family's observations can
-  already be read.
+- **Recommended:** deliver the visible frame and source access, then test the
+  protection and complexity reviews on a real story.
 
 ## Research Basis and Architectural Considerations
 
@@ -141,9 +121,7 @@ schema, executable design, or a newly accepted architecture decision.
 
 1. **Project-owned configuration:** record intent roots, explicit source kind,
    and file selection in each repository's `.planning/open-dough.json`, extending
-   its existing project settings. Identify the execution runner separately when
-   Proof needs it: Gherkin does not mean Cucumber.js, and TypeScript does not mean
-   Vitest. File selection matters for colocated tests and mixed helper folders.
+   its existing project settings. File selection matters for colocated tests and mixed helper folders.
    Read config and source at the same named published revision. Missing config,
    an empty configured location, and a failed read have different meanings.
    Dashboard project registration remains machine-local. A settings editor is
@@ -155,71 +133,6 @@ schema, executable design, or a newly accepted architecture decision.
    published-directory helper lists files only, while story-review text is
    admitted within a particular comparison. Intent needs its own project/root
    reading scope without depending on a live session or story workspace.
-3. **Producer ownership:** a project's explicitly enabled recording workflow
-   produces evidence; normal test runs leave proof untouched. Each proof-bearing
-   Intent entry declares its project-owned generation command or skill; the
-   dashboard displays it and reads compact repository-published snapshot
-   records for shared viewing without a developer clone. Local unpublished
-   results may exist before publication but are not published Proof. Keep the
-   current bounded working set small; deleting old records does not erase Git
-   history or guarantee bounded lifetime repository storage. The exact record
-   path, retention count, and size budget need first-Proof refinement.
-4. **Source association from the first run:** a run identifies the product,
-   tests, relevant dependency/configuration basis, selection, producer, time,
-   terminal outcome, and observed attempts. A feature-file hash or passing exit
-   alone cannot show that current implementation was tested. Dirty source stays
-   identifiable or explicitly unmatched. Publishing an evidence-only commit
-   must not invalidate its tested source merely because the enclosing commit
-   changed. Keep the tested basis distinct from the commit publishing the report.
-5. **Last successful per-test proof:** each explicit recording run maintains proof only
-   for the cases it executed. Retain passing observations with their time,
-   attempts and source association; a final unsuccessful scenario removes its
-   earlier proof, while cases not run keep theirs. A later pass restores proof.
-   A focused run neither claims a full run nor turns a mixture of older passes
-   into a current green suite. Consolidation selects latest observations before
-   retaining only passes; raw screenshots/videos stay outside compact Proof.
-6. **Native reporting before new machinery:** Cucumber.js emits Cucumber
-   Messages, and Doughnut's preprocessor can emit Messages too. This is a
-   promising common input, not proven compatibility of their installed versions.
-   Map source scenarios/outline rows and retry attempts using each run's actual
-   source, not generated runtime IDs across unrelated runs. Keep collection,
-   ordinary diagnostics, and strict pass/fail rules coherent. Open Dough already
-   has an opt-in Playwright proof record, but it has no explicit tested revision
-   and no automatic history/retention policy.
-7. **Folder truth and timing:** summarize last successful proof of the
-   folder's cases, retaining differing times and source versions. Expose cases
-   without successful proof and incomplete reads. These observations may
-   come from different runs; a sum of their durations is neither one run's
-   elapsed wall time nor current suite cost. Attribute shared setup/hooks only
-   where observed. A source listing is not the runner's collected-case inventory.
-8. **Run context and timing:** record relevant runner/browser/runtime and
-   resource context where available. Durations describe the observed execution;
-   they do not establish a cross-environment performance threshold. Actual
-   failures/timeouts retain their observed outcome.
-
-### External reporting research
-
-The following official documentation supports feasibility, not a selected
-implementation. Installed-version compatibility still needs a real run during
-refinement or execution.
-
-- Cucumber.js recommends its [Messages formatter](https://github.com/cucumber/cucumber-js/blob/main/docs/formatters.md)
-  for structured output; legacy JSON is in maintenance mode. The
-  [Messages model](https://github.com/cucumber/messages/blob/main/README.md)
-  retains source/run information and has versioned schemas.
-- The Cypress preprocessor documents [Messages reports](https://github.com/badeball/cypress-cucumber-preprocessor/blob/master/docs/messages-report.md),
-  including optional embedded media, which reinforces the need for compact retention.
-- [Vitest reporters](https://vitest.dev/guide/reporters) provide JSON results and
-  allow multiple reporters. Keep existing quiet/strict reporters rather than
-  accidentally replacing their behavior when collection is added.
-- [Playwright reporters](https://playwright.dev/docs/test-reporters) support JSON
-  and multiple reporters; Open Dough's [existing proof contract](../../dashboard/tests/proof-record.md)
-  is a more directly relevant reuse candidate than replacing its strict reporter.
-- [pytest JUnit output](https://docs.pytest.org/en/stable/how-to/output.html#creating-junitxml-format-files)
-  includes setup/teardown in durations by default; it does not settle our full
-  source association, selection, and latest-observation requirements by itself.
-- [Node test reporters](https://nodejs.org/api/test.html#test-reporters) expose
-  structured events; console output is not a stable programmatic contract.
 
 ## Shared Evidence and Sizing Boundaries
 
@@ -232,9 +145,7 @@ Missing observations remain unknown. No synthetic sample establishes a real pass
 Open Dough has no established S/M/L calibration, as already recorded here and in
 [SEED-052](SEED-052-start-agent-work-from-dashboard.md#open-decisions-before-refinement-or-planning).
 No bands or time commitments are invented. Comparative hypotheses below are
-unbanded; confidence includes integration, verification, and cleanup. The new
-track has three source/frame outcomes and eight Proof outcomes; four existing
-review candidates remain. Most uncertainty lies in the first Proof cases.
+unbanded; confidence includes integration, verification, and cleanup.
 At decomposition, none had an execution approach or readiness assessment.
 Individual refinements and their recorded facts below carry current preparation.
 
@@ -463,10 +374,9 @@ follows. Effort is unbanded; no S/M/L calibration is established.
 
 The numbered sections record the backlog order Terry selected on 2026-10-31;
 they do not establish a mandatory dependency chain. Remaining identities stay
-canonical here. Specifically, the Cucumber source pilot closed as SEED-192#browse-test-purpose;
-`read-observed-test-proof` delivered Pygardon's first local Cucumber case, and
-SEED-192#inspect-hierarchical-proof-cost closed with folder Proof. These are not duplicated
-under new identities. Other existing review candidates retain their outcomes.
+canonical here. Specifically, the Cucumber source pilot closed as
+SEED-192#browse-test-purpose and is not duplicated under a new identity. Other
+existing review candidates retain their outcomes.
 
 The selected order starts with the frame (1), then the Cucumber pilot (2), then
 other configured source (3). The strongest rejected smaller option for the
@@ -476,36 +386,24 @@ learning, not merely as infrastructure for later readers.
 
 The earlier optimization-candidate priority becomes selected position 4, after
 its source-navigation prerequisites. Story impact (5) keeps the review centered
-on a story. First local Proof (6) precedes Doughnut's second producer (8).
-Folder Proof (9) needs only one producer and may move before 8 if that offers
-earlier value. Preserve the bounded protection/complexity
-learning (10–11). Those review cases can also use existing tools sooner.
+on a story. The bounded protection and complexity reviews (10–11) can use
+existing tools.
 
-The kept decomposition differs from Terry's rough sequence in two deliberate ways:
-
-- Combine language-only source extensions when they share the same reading
-  outcome; retain TypeScript, Python, Node, and shell as real evaluation examples.
-- Separate runner-specific collection even where the source language matches.
+The kept decomposition differs from Terry's rough sequence deliberately: it
+combines language-only source extensions when they share the same reading
+outcome, retaining TypeScript, Python, Node, and shell as real evaluation
+examples.
 
 No formal blocking dependency has been recorded: common code and delivery order
 alone do not establish that another story cannot start. Each consumer owns its
 integration. Establish a blocking agreement later only if refinement demonstrates
 an actual supplier outcome required before work can start.
 
-If investment must shrink, retain the source-only product after 3. Next retain
-one Cucumber producer (6). Drop additional producer
-families in reverse order of demonstrated use; Node and unrequested
-Java/CLI expansion are the first candidates to defer, rather than spreading
-partially trustworthy evidence everywhere. Keep an early protection review to
-test the parent direction's hardest assumption. History can be modest; source
-association and truthful selection/outcomes cannot be deferred without weakening
-what the first Proof claims.
+If investment must shrink, retain the source-only product after 3 and keep an
+early protection review to test the parent direction's hardest assumption.
 
 ## Open Decisions Before Refinement or Planning
 
-- First Proof's profile, tested basis, publication and retention were settled
-  on 2026-11-01 and published as the [Cucumber proof reference](../../src/skills/dough-test-optimization/references/cucumber-proof.md): proof is
-  a latest per-scenario snapshot, not run history.
 - Select a real story and a developer's prior review basis for the complexity
   assessment case (story 11); define what decision and review cost would justify
   keeping its method. Story 10 records its own case and keep criterion.
@@ -516,17 +414,16 @@ what the first Proof claims.
 
 Terry kept this revised decomposition and its backlog order on 2026-10-31.
 Refine one selected story before
-execution planning; reevaluate wider producer work from actual early use.
+execution planning.
 
 ## Breadcrumbs
 
-- Terry's 2026-10-30 direction: initial source browser, story scope, Purpose/Proof
-  layouts, timing/hierarchy, and longer-term forms of intent expression.
+- Terry's 2026-10-30 direction: initial source browser, story scope, and
+  longer-term forms of intent expression.
 - Terry's earlier 2026-10-31 request: optimization candidates and accepted slow
   tests at priority 2, with links into the test-source browser.
 - Terry's current 2026-10-31 request: decompose the broad first story, lead with
-  the real frame, use explicit folder types across Open Dough/Doughnut/Pygardon,
-  collect bounded local Proof history and folder observations.
+  the real frame, use explicit folder types across Open Dough/Doughnut/Pygardon.
 - Terry's 2026-10-31 keep and landing instruction: retain this decomposition,
   queue its stories in the proposed order, and place optimization-candidate
   review after source browsing.
@@ -534,9 +431,8 @@ execution planning; reevaluate wider producer work from actual early use.
 - [Initial Intent direction](../../docs/dashboard-ux-ui-north-star.md#initial-intent-workspace).
 - [Project visibility requirements](../../docs/project-visibility-requirements.md#product-intent-perspective-the-current-product).
 - [Current dashboard behavior](../../dashboard/README.md),
-  [source reads](../../dashboard/server/ghContents.ts),
-  [review text](../../dashboard/server/storyReviewFileResponse.ts), and
-  [existing dashboard proof contract](../../dashboard/tests/proof-record.md).
+  [source reads](../../dashboard/server/ghContents.ts), and
+  [review text](../../dashboard/server/storyReviewFileResponse.ts).
 - Doughnut checkout: `package.json`, `frontend/vitest.config.ts`,
   `e2e_test/config/common.ts`, `e2e_test/config/ci.ts`, `backend/build.gradle`.
 - Pygardon checkout: `cucumber.js`, `e2e_test/packaged/cucumber.js`,

@@ -548,6 +548,16 @@ Former local code: DD-404.
 
 [Evidence and current response](docs/maintainer/findings/ODF-396.md).
 
+### Occurrences
+- Execution: SEED-238#remove-local-proof (before-cleanup `c947e2b48527c25faa5d00ed5f3d64bc71ccba45:.planning/slice-plans/474-remove-local-proof/PLAN.md`; first related implementation commit `7395be5dd6699f1a560e1c6296696196ae139bdf`)
+  - Timestamp: 2026-11-05T16:45:26+07:00 (slice 4 commit `1fba715e0`; slices 2 and 5 traced the same day)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
+  - Evidence: deletion-heavy slices traced with `consumer-trace.mjs --base`: slice 2 listed 1,263 files mostly from derived words such as "indent" and "never run"; slice 4's run over five deleted reference pages gave 1,107 lines from page-text terms (path, test, proof); slice 5's `--path` run matched PRODUCT-BACKLOG in 799 files. Each implementer reran with `--path` and named `--term`s, or dispositioned by group.
+  - Observed effect: no consumer was missed; each slice spent an extra trace run and grouped dispositions instead of a per-consumer list.
+  - Inference: terms derived from deleted documentation text and planning basenames, rather than source declarations, drive the flood; deletion-only changes may need derivation limited to removed identifiers.
+
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 
 Former local code: DD-405.

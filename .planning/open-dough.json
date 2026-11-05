@@ -10,12 +10,7 @@
       {
         "path": "dashboard/tests",
         "kind": "typescript",
-        "include": ["**/*.spec.ts"],
-        "runner": "playwright",
-        "proof": "dashboard/tests/proof",
-        "proofGeneration": {
-          "command": "RECORD_PLAYWRIGHT_PROOF=1 npm run --silent test:dashboard -- <files>"
-        }
+        "include": ["**/*.spec.ts"]
       },
       {
         "path": "tests",
@@ -25,12 +20,7 @@
       {
         "path": "src/skills",
         "kind": "javascript",
-        "include": ["**/*.test.mjs"],
-        "runner": "node:test",
-        "proof": "tests/proof",
-        "proofGeneration": {
-          "command": "RECORD_NODE_TEST_PROOF=1 bash scripts/test.sh <files>"
-        }
+        "include": ["**/*.test.mjs"]
       }
     ]
   }

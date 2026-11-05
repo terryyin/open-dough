@@ -23,16 +23,6 @@ Use the task's project. Resolve the selected local test command and scope,
 test locations, runtime/service setup, applicable test and architectural rules,
 and plan conventions from that project. Name genuinely missing context and
 stop only its dependent step; do not invent paths, commands, or a test taxonomy.
-When this project records [Cucumber proof](references/cucumber-proof.md),
-[pytest proof](references/pytest-proof.md),
-[Vitest proof](references/vitest-proof.md),
-[Node test proof](references/node-test-proof.md) or
-[Playwright proof](references/playwright-proof.md), keep its explicit recording
-option and configured generation command or skill usable when an experiment
-changes Cucumber profiles or pytest, Vitest, Node test or Playwright
-configuration.
-Normal experiments leave proof untouched; generate or refresh it only when
-explicitly requested.
 
 A request to make this project's CI publish proof for Intent's **CI status**
 tab, or a tab saying the shown run or attempt has no CI proof summary,

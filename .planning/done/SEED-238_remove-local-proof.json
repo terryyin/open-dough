@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-238#remove-local-proof",
+  "title": "Remove local proof from Open Dough",
+  "completedAt": "2026-11-05T10:27:57.978Z",
+  "developer": "Terry Yin",
+  "agent": "dbs-chan",
+  "host": "claude",
+  "model": "opus"
+}
