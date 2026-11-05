@@ -87,6 +87,7 @@ type Answer =
       readonly revision: string;
       readonly locations: null | readonly IntentLocation[];
       readonly settingsProblem?: IntentSettingsProblem;
+      readonly recovery?: ReportedFailure["recovery"];
     }
   // Test Optimization Candidates at a revision (`./intentCandidatesRead.ts`):
   // null when absent; `candidatesProblem: "unreadable"` when the fixed path
@@ -95,6 +96,7 @@ type Answer =
       readonly revision: string;
       readonly candidates: string | null;
       readonly candidatesProblem?: "unreadable";
+      readonly recovery?: ReportedFailure["recovery"];
     }
   // Intent's CI status: the judged branch, when it was checked, and the
   // selected check's judgment (`./intentCiStatusRead.ts`).

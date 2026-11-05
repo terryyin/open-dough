@@ -1,9 +1,18 @@
 // Intent locations and location-selected file-at admission for the local
-// authenticated read boundary (../../server/intentLocationsRead.ts): a
-// configured Gherkin location lists nested `.feature` files; a `file-at`
-// outside a location's selection is refused without reading its contents.
+// authenticated read boundary. The selected Gherkin files are listed and
+// file-at requests outside that selection are refused.
 
 import { expect, test } from "../support/pageTest.ts";
+import {
+  backlog,
+  featurePath,
+  featureText,
+  knownSourceId,
+  outsidePath,
+  revisionOf,
+  settings,
+  settingsPath,
+} from "../intentLocationsBoundaryFixtures.ts";
 import {
   developmentBoundary,
   startDashboardServer,
@@ -13,25 +22,6 @@ import { everyRepository, publishes } from "../support/fakeGitHub.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
-
-const knownSourceId = "open-dough";
-const backlog = `# Product backlog
-
-## Taken
-
-## Backlog list
-`;
-const settingsPath = ".planning/open-dough.json";
-const featurePath = "e2e_test/features/recall/note.feature";
-const outsidePath = "README.md";
-const featureText = "Feature: Note\n";
-const settings = JSON.stringify({
-  intent: {
-    locations: [{ path: "e2e_test/features", kind: "gherkin" }],
-  },
-});
-
-const revisionOf = (byte: string) => byte.repeat(20);
 
 test.describe("authenticated Intent locations read (development environment)", () => {
   let server: DashboardServer;
@@ -194,54 +184,6 @@ test.describe("authenticated Intent locations read (development environment)", (
           problem: "unsupported-kind",
         },
       ],
-    });
-  });
-
-  test("answers malformed and unreadable settings distinctly from not-configured", async () => {
-    const malformedRevision = revisionOf("a5");
-    server.github.serve(
-      everyRepository,
-      publishes({
-        revision: malformedRevision,
-        backlog,
-        files: { [settingsPath]: "{not json\n" },
-      }),
-    );
-    const malformed = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${malformedRevision}&intent=locations`,
-      headers: { Origin: server.origin },
-    });
-    expect(malformed.status).toBe(200);
-    expect(JSON.parse(malformed.body)).toEqual({
-      revision: malformedRevision,
-      locations: null,
-      settingsProblem: "malformed",
-    });
-
-    const unreadableRevision = revisionOf("a6");
-    const published = publishes({
-      revision: unreadableRevision,
-      backlog,
-      files: { [settingsPath]: "{}\n" },
-    });
-    server.github.serve(everyRepository, async (call) => {
-      if (
-        call.request.kind === "content" &&
-        call.request.path === settingsPath
-      ) {
-        return { exitCode: 1, stderr: "connection reset" };
-      }
-      return published(call);
-    });
-    const unreadable = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${unreadableRevision}&intent=locations`,
-      headers: { Origin: server.origin },
-    });
-    expect(unreadable.status).toBe(200);
-    expect(JSON.parse(unreadable.body)).toEqual({
-      revision: unreadableRevision,
-      locations: null,
-      settingsProblem: "unreadable",
     });
   });
 });

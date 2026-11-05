@@ -156,7 +156,26 @@ Choosing a location an entry names selects **Intent** with that file's
 **Purpose** chosen, or shown side by side, positioned on the entry's case
 where that names one line, with its location and folders opened so the file
 shows selected, and choosing **Optimization Candidates** again returns to
-that entry without reading the record again. **CI status** shows, across the
+that entry without reading the record again.
+
+Intent locations and Optimization Candidates share the page's recovery
+schedule. A local boundary that cannot be reached or a failure classified as
+transient is read again in place after 15, 30, 60, then 60 seconds while it
+remains unanswered. Failures settling during the same wait share its step.
+Each reader retains its pending recovery until it answers or its reading
+view is replaced. Healing the published observation leaves
+Intent's pending recovery in place, and Intent's pending recovery allows the
+backlog's regular revision checks. Once every contributor has an answer,
+the backoff resets.
+
+A standing GitHub rate limit holds recovery until that limit ends. Hidden
+pages wait until they are seen again, then ask once when due. The recovered
+answer replaces its problem through the same path as **Retry**. Malformed
+settings, access refusals, unexpected answers and unclassified failures keep
+their manual actions. Absent or mismatched candidates keep their existing
+explanations. Purpose file text and Proof problems offer their own **Retry**.
+
+**CI status** shows, across the
 content area without the location tree, the selected check's judgment of the
 project's configured trunk (`main` here), or, with a selected story (card or
 Side panel), of that story's published story branch — the branch its single

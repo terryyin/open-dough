@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_recover-failed-intent-reads.json",
+      "identity": "SEED-192#recover-failed-intent-reads",
+      "completedAt": "2026-11-05T05:41:28.806Z",
+      "blob": "5cee184eea31db9c6e44549d8b1b25e6133ab1f0"
+    },
+    {
       "fileName": "SEED-235_see-running-sessions-with-sidebar-closed.json",
       "identity": "SEED-235#see-running-sessions-with-sidebar-closed",
       "completedAt": "2026-11-05T04:36:20.302Z",

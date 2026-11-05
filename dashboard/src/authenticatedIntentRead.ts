@@ -7,6 +7,7 @@ import { z } from "zod";
 import {
   authenticatedGet,
   commitSha,
+  transientReadRecovery,
   unexpectedAnswer,
 } from "./authenticatedGet.ts";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -64,6 +65,7 @@ const okIntent = z.object({
   revision: commitSha,
   locations: z.array(intentLocation).nullable(),
   settingsProblem: settingsProblem.optional(),
+  recovery: transientReadRecovery,
 });
 
 export type IntentLocation = z.infer<typeof intentLocation>;
@@ -75,6 +77,7 @@ export type IntentLocations =
   | {
       readonly status: "settings-problem";
       readonly problem: IntentSettingsProblem;
+      readonly recovery: z.infer<typeof transientReadRecovery>;
     }
   | {
       readonly status: "configured";
@@ -105,6 +108,10 @@ export async function readIntentLocationsAt(
     return {
       status: "settings-problem",
       problem: parsed.data.settingsProblem,
+      recovery:
+        parsed.data.settingsProblem === "unreadable"
+          ? parsed.data.recovery
+          : undefined,
     };
   }
   return parsed.data.locations === null

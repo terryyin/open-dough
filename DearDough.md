@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 422. Removed numbers are never reused.
+- Highest allocated local number: 423. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -713,3 +713,17 @@ Slice 5 first deferred stream open after a rate-limit wait only through `schedul
   - Evidence: coordinator transcript `3bb4f177-6d51-4cc1-bc37-960c9aac4537` turns recording X-S2/X-S4/X-S5/X-S7; first exclusion batch used paraphrases such as "no change to how choosing a row opens the terminal" and "no new database"; `record`/`check` refused `quote-not-in-story` until the clauses were shortened to exact Scope substrings ("how choosing a row opens the terminal", "no new daemon, database, or scheduler", "machine-session observation's own 15-second page pace")
   - Observed effect: two repair rounds on planning records before slice 1 obligation check passed; no product rework and no incorrect exclusion published
   - Inference: the observation/exclusion writer removed table hand-edits (ODF-391 response) but still leaves exact-substring discovery to trial and error when Scope wording and the disposition title diverge
+
+## DD-423 — A refactor renamed a helper while its verification was running
+
+The Slice 3 refactor renamed an exported recovery-clock helper after starting the moved-test cohort. The cohort could support the unaffected cases, while the changed recovery consumers needed a final-state run.
+
+### Occurrences
+
+- Execution: SEED-192#recover-failed-intent-reads (before-cleanup `2cd5b5045afda9a64ed876834b8e59ab973b1aa5:.planning/slice-plans/471-recover-failed-intent-reads/PLAN.md`, first implementation `b24ddba9d492298853d08155a6596ec8b8c63530`)
+  - Timestamp: unknown (2026-11-05, Slice 3 refactor before `f1af856faa2de128600aecd4c047e63aaffee463`)
+  - Tool: Codex
+  - Open Dough release: 0.3.84 (checkout-bound `.agents/skills/dough-update/VERSION`)
+  - Evidence: launch `b02a9539-0a08-468e-996f-0178426a4472`, `/root/refactor3` handoff explicitly placed the `advanceRecoveryClock` rename after the 24-case cohort launched and before its terminal result. The final proof command selected `intent-read-recovery.spec.ts`, `intent-read-boundary-recovery.spec.ts` and `intent-candidates-read-recovery.spec.ts`.
+  - Observed effect: 14 unaffected boundary/state/browse cases retained their proof. Ten recovery cases ran again on the final helper and passed in 12.9 seconds, followed by typecheck. The coordinator accepted only that final proof for those consumers.
+  - Inference: completing refactor edits before verification would have avoided this bounded repeat. The agent identified and corrected the proof mismatch before delivery, and published proof covers the final state.

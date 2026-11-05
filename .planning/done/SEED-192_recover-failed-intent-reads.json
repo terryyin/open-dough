@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#recover-failed-intent-reads",
+  "title": "Recover failed Intent reads without Retry",
+  "completedAt": "2026-11-05T05:41:28.806Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

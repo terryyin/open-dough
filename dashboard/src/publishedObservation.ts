@@ -26,11 +26,8 @@ import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { carryOutRead, type ReadRequest } from "./requestedRead.ts";
 import { limitsMetSince } from "./readingLimit.ts";
-import {
-  clearTransientFailure,
-  recordSettledOutcomes,
-  useLimitRecovery,
-} from "./limitRecovery.ts";
+import { recordSettledOutcomes, useLimitRecovery } from "./limitRecovery.ts";
+import { clearAllTransientFailures } from "./transientRecovery.ts";
 import { useObservationRecoveryWait } from "./observationRecoveryWait.ts";
 import { useSnapshotRetrieval } from "./snapshotRetrieval.ts";
 import { shownSnapshotOf } from "./startupReconciliation.ts";
@@ -169,14 +166,15 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     [work],
   );
 
-  const { checksMayRun, recoversAt, blocksFreshRead } = useLimitRecovery({
-    withheld,
-    readSettled,
-    visibility,
-    readAfresh: () => {
-      askRead(undefined, true);
-    },
-  });
+  const { checksMayRun, recoversAt, blocksFreshRead, limitedUntil } =
+    useLimitRecovery({
+      withheld,
+      readSettled,
+      visibility,
+      readAfresh: () => {
+        askRead(undefined, true);
+      },
+    });
 
   const delivery = useRevisionDelivery(visibility !== "hidden");
   const revisionAnswers = {
@@ -227,7 +225,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     heldFocus.current = undefined;
     deferredFocus.current = undefined;
     setRecoveryAsk(false);
-    clearTransientFailure();
+    clearAllTransientFailures();
     setSource(next);
     askRead(undefined);
     restart();
@@ -242,6 +240,8 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     notice,
     withheld,
     recoversAt,
+    limitedUntil,
+    visibility,
     reading,
     readAfresh,
     selectSource,

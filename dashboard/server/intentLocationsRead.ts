@@ -1,18 +1,8 @@
-// Reads of a project's Intent locations at a pinned revision for the local
-// authenticated read boundary (`./authenticatedRead.ts`): the settings file's
-// `intent.locations`, and each location's nested files of its kind
-// (`intent=locations`). Each names only a pinned revision and is refused here
-// before any `gh` call otherwise. File text of a selected source file is read
-// through the existing `file-at` path once that revision's locations select
-// it (`pathSelectedByIntentLocations`). Nested listing uses one recursive
-// Git trees call per location (`./ghTrees.ts`). The pinned-text memo and
-// project setting path are reused (`./pinnedTexts.ts`,
-// `./recordsBesideBacklog.ts`). Settings parse and text live in
-// `./intentLocationsSettings.ts`; selection in
-// `../src/intentLocationSelection.ts`, admission in
-// `./intentLocationSelection.ts`;
-// declared proof of a location whose kind Intent reads proof for
-// (`../src/proofKinds.ts`) in `./intentProofRead.ts`.
+// Published Intent locations at a pinned revision: settings and nested files
+// through the authenticated read boundary (./authenticatedRead.ts). Settings
+// live in ./intentLocationsSettings.ts, file admission in
+// ./intentLocationSelection.ts, and declared proof in ./intentProofRead.ts.
+// Recursive listing and pinned texts reuse ./ghTrees.ts and ./pinnedTexts.ts.
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
@@ -213,7 +203,12 @@ export async function performIntentLocationsRead(
   }
   if (settings.kind === "unreadable") {
     const settingsProblem: IntentSettingsProblem = "unreadable";
-    return answered({ revision, locations: null, settingsProblem });
+    return answered({
+      revision,
+      locations: null,
+      settingsProblem,
+      recovery: settings.recovery,
+    });
   }
   const declared = declaredLocations(settings.text);
   if (declared.kind === "malformed") {

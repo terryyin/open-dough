@@ -9,6 +9,7 @@ import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
 import {
   authenticatedGet,
   commitSha,
+  transientReadRecovery,
   unexpectedAnswer,
 } from "./authenticatedGet.ts";
 import {
@@ -37,7 +38,7 @@ const streamErrorAnswer = z.object({
     .min(0)
     .max(longestDirectedWaitSeconds)
     .optional(),
-  recovery: z.literal("transient").optional(),
+  recovery: transientReadRecovery,
 });
 
 // Whether the source's ref still names the revision shown, or which commit it

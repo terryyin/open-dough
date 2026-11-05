@@ -18,10 +18,15 @@ import {
 } from "./intentCandidatesLocationMatch.ts";
 import { IntentCandidatesSections } from "./IntentCandidatesSections.tsx";
 import type { IntentMode } from "./IntentModeTabs.tsx";
+import {
+  intentRecoveryOf,
+  useIntentReadRecovery,
+} from "./intentReadRecovery.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { OpenCandidateLocation } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { shortRevision } from "./publishedWork.ts";
+import { ReadProblem } from "./readProblem.ts";
 import {
   parseTestOptimizationCandidates,
   testOptimizationCandidatesPath,
@@ -43,7 +48,10 @@ export function IntentCandidatesRecord({
   const [result, setResult] = useState<
     IntentCandidatesReadResult | "loading" | "failed"
   >("loading");
-  const [retry, setRetry] = useState(0);
+  const { retry, retryRead, recordSettled } = useIntentReadRecovery(
+    source,
+    revision,
+  );
   const [readCount, setReadCount] = useState(0);
   const titleId = useId();
   const activeRead = useRef(0);
@@ -55,27 +63,28 @@ export function IntentCandidatesRecord({
     void readIntentCandidatesAt(source, revision, controller.signal)
       .then((read) => {
         if (!controller.signal.aborted && readId === activeRead.current) {
+          recordSettled(
+            read.status === "unreadable" ? read.recovery : undefined,
+          );
           setReadCount((n) => n + 1);
           setResult(read);
         }
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (!controller.signal.aborted && readId === activeRead.current) {
+          recordSettled(
+            intentRecoveryOf(error instanceof ReadProblem ? error : undefined),
+          );
           setResult("failed");
         }
       });
     return () => {
       controller.abort();
     };
-  }, [source, revision, retry]);
+  }, [source, revision, retry, recordSettled]);
 
   const retryButton = (
-    <button
-      type="button"
-      onClick={() => {
-        setRetry((n) => n + 1);
-      }}
-    >
+    <button type="button" onClick={retryRead}>
       Retry
     </button>
   );
