@@ -135,35 +135,65 @@ test("an adapter attempt whose attemptId another discovered attempt shares at it
   dashboard,
 }) => {
   const adapter = adapterProject(dashboard.home);
-  adapter.answer({
-    discover: {
+  const ambiguous =
+    "This attempt is ambiguous at its revision: another discovered attempt is also attempt 1 at 4774f60.";
+  const cases: readonly {
+    readonly name: string;
+    readonly main: readonly unknown[];
+  }[] = [
+    {
+      // Different checks both keep their newest attempt.
+      name: "different checks",
       main: [
         { ...passed("r1", "1", login, "main"), check: "unit" },
         { ...passed("r2", "1", login, "main"), check: "lint" },
       ],
     },
-    proof: testsSummary("1", login),
-  });
-  const { panel, proof } = await openAdapterProof(page);
-  const ambiguous =
-    "This attempt is ambiguous at its revision: another discovered attempt is also attempt 1 at 4774f60.";
+    {
+      // Same check: only the newer run is retained for the verdict, but the
+      // earlier run's same attemptId still makes the shown attempt ambiguous.
+      name: "same check across runs",
+      main: [
+        {
+          ...passed("r2", "1", login, "main"),
+          check: "unit",
+          time: "2026-10-01T01:00:00Z",
+        },
+        {
+          ...passed("r1", "1", login, "main"),
+          check: "unit",
+          time: "2026-10-01T00:00:00Z",
+        },
+      ],
+    },
+  ];
 
-  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
-  await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-    "Attempt 1 at 4774f60.",
-  );
-  await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText([
-    ambiguous,
-  ]);
-  await expect(proof.getByRole("listitem")).toHaveCount(0);
-  const discovers = adapter.discoverRequests().length;
-  await panel.getByRole("button", { name: "Check again" }).click();
-  await expect
-    .poll(() => adapter.discoverRequests().length)
-    .toBeGreaterThan(discovers);
-  await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText([
-    ambiguous,
-  ]);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
-  expect(adapter.proofRequests()).toEqual([]);
+  for (const { name, main } of cases) {
+    await test.step(name, async () => {
+      adapter.answer({
+        discover: { main },
+        proof: testsSummary("1", login),
+      });
+      const { panel, proof } = await openAdapterProof(page);
+
+      await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+      await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
+        "Attempt 1 at 4774f60.",
+      );
+      await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText([
+        ambiguous,
+      ]);
+      await expect(proof.getByRole("listitem")).toHaveCount(0);
+      const discovers = adapter.discoverRequests().length;
+      await panel.getByRole("button", { name: "Check again" }).click();
+      await expect
+        .poll(() => adapter.discoverRequests().length)
+        .toBeGreaterThan(discovers);
+      await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText([
+        ambiguous,
+      ]);
+      await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+      expect(adapter.proofRequests()).toEqual([]);
+    });
+  }
 });

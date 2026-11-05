@@ -207,4 +207,28 @@ test("a ciAdapter result keeps its attempt's identity apart from a GitHub run, a
     ],
   });
   assert.equal(shared.judgment.adapterAttempt?.ambiguous, true);
+  // Same check across runs: newest retained for the verdict, ambiguity from
+  // every attempt discover answered before that retention.
+  const sameCheck = await judgeWithAdapter("main", {
+    main: [
+      {
+        ...numeric,
+        runId: 8,
+        check: "unit",
+        time: "2026-11-02T01:00:00Z",
+      },
+      {
+        ...numeric,
+        runId: 7,
+        check: "unit",
+        time: "2026-11-02T00:00:00Z",
+      },
+    ],
+  });
+  assert.equal(sameCheck.judgment.state, "pass");
+  assert.deepEqual(sameCheck.judgment.adapterAttempt, {
+    runId: 8,
+    attemptId: 1,
+    ambiguous: true,
+  });
 });

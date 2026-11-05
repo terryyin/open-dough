@@ -4,6 +4,7 @@
 **Source:** [correction story](../../seeds/SEED-236-show-ci-adapter-proof.md#count-repeated-adapter-attempt-ids),
 from the execution retrospective of `SEED-236#show-ci-adapter-proof` on
 2026-11-05.
+**Source review:** [source-review.md](source-review.md)
 
 ## Provenance and findings
 
@@ -55,7 +56,7 @@ observer and CI status tests stay green.
 
 ### 1. A repeated attempt ID of one check is ambiguous
 Type: Behavior
-Status: planned
+Status: done
 Proof: Playwright `dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts` and `intent-ci-proof-adapter.spec.ts`; `bash scripts/test.sh tests/support/dashboard-story-branch-ci-adapter.test.mjs src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs src/skills/dough-execute-plan/scripts/ci-command-attempts.test.mjs`; `npm run typecheck:dashboard`
 
 Behavior: given an adapter whose `discover` answers run r2 attempt `1`
@@ -70,8 +71,24 @@ acquisition), not only the retained newest ones. `custom-ci.md` and
 ## Current decisions
 
 - One slice; Story Branch or Trunk Mode is the executing session's choice. No
-  release is part of this correction: `custom-ci.md` is payload guidance and
-  stays Proposed until the next release.
+  release is part of this correction: `custom-ci.md` / `custom-ci-proof.md` are
+  payload guidance and stay Proposed until the next release.
+- Ambiguity counts `discoverAnsweredAttempts` (pre-retention); verdict still
+  uses `discoverAncestorCandidates` (newest per check).
+
+## Accepted proof (slice 1)
+
+- Playwright: `caffeinate -s -i npx playwright test --config dashboard/playwright.config.ts dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts dashboard/tests/intent-ci-proof-adapter.spec.ts --reporter=list` — 6 passed (same-check ambiguous, no `proof` request; other reasons unchanged).
+- Node: `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh tests/support/dashboard-story-branch-ci-adapter.test.mjs src/skills/dough-execute-plan/scripts/ci-command-adapter.test.mjs src/skills/dough-execute-plan/scripts/ci-command-attempts.test.mjs` — pass (`adapterAttempt.ambiguous` for same-check; answered vs retained).
+- `npm run typecheck:dashboard` — pass.
+
+## Refactor disposition (slice 1)
+
+Interrupted refactor agent split `## CI proof reads` into
+`manuals/custom-ci-proof.md` and renamed `asAdapterAttempts` params to
+`retained`/`answered`. Coordinator finished recovery: file-size ≤250 for
+`custom-ci.md`, updated `ci-proof-summary.md` link, re-proved Playwright and
+node suites. Outcome: clean (file-size + doc seam).
 
 ## Concern evidence
 

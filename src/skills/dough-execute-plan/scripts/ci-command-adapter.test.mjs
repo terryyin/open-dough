@@ -142,6 +142,39 @@ test("command acquisition retains opaque run and attempt identities across polls
   );
 });
 
+test("command acquisition keeps every discover answer beside newest-per-check retained candidates", async (t) => {
+  const root = mkdtempSync(join(tmpdir(), "ci-command-adapter-answered-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const adapter = join(root, "answered-adapter.mjs");
+  writeFileSync(
+    adapter,
+    `process.stdout.write(JSON.stringify({ attempts: [
+  { runId: 'r2', attemptId: '1', sha: ${JSON.stringify(checkedSha)}, outcome: 'success', check: 'unit', time: '2026-09-15T10:01:00Z' },
+  { runId: 'r1', attemptId: '1', sha: ${JSON.stringify(checkedSha)}, outcome: 'success', check: 'unit', time: '2026-09-15T10:00:00Z' },
+] }));
+`,
+  );
+  const acquisition = createCommandAcquisition({
+    command: [process.execPath, adapter],
+    repo: "owner/project",
+    branch: "main",
+    root,
+  });
+  await acquisition.acquireRuns(new AbortController().signal);
+  assert.deepEqual(
+    (await acquisition.discoverAncestorCandidates()).map(
+      ({ databaseId }) => databaseId,
+    ),
+    ["r2"],
+  );
+  assert.deepEqual(
+    (await acquisition.discoverAnsweredAttempts()).map(
+      ({ databaseId }) => databaseId,
+    ),
+    ["r2", "r1"],
+  );
+});
+
 test("command observer treats retained older completed attempts as startup history", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ci-command-adapter-history-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));

@@ -3,9 +3,10 @@
 // GitHub Actions run's (`./baseCiNearest.ts`).
 import type { ListedRun } from "./baseCiNearest.ts";
 
-// One discovered ciAdapter attempt, as the acquisition retains it: its
-// `runId` and `attemptId` as `databaseId` and `attempt`, and the check and
-// context the adapter named.
+// One ciAdapter attempt discover answered: its `runId` and `attemptId` as
+// `databaseId` and `attempt`, and the check and context the adapter named.
+// Judgment maps retained newest-per-check attempts; ambiguity counts over
+// every answered attempt at the revision.
 export type DiscoveredAttempt = Omit<ListedRun, "databaseId" | "attempt"> & {
   readonly databaseId: string | number;
   readonly attempt: string | number;
@@ -22,17 +23,19 @@ const atRevisionKey = (run: DiscoveredAttempt) =>
 
 // A ciAdapter's attempts name no GitHub Actions run: their identity moves to
 // `adapterAttempt`, so a numeric adapter identity is never read as a run,
-// with whether another discovered attempt names the same `attemptId` (in its
-// text form) at that revision.
+// with whether another attempt discover answered (in `answered`, or
+// `retained` when omitted) names the same `attemptId` (in its text form) at
+// that revision — counted before newest-per-check retention.
 export function asAdapterAttempts(
-  runs: readonly DiscoveredAttempt[],
+  retained: readonly DiscoveredAttempt[],
+  answered: readonly DiscoveredAttempt[] = retained,
 ): ListedRun[] {
   const attempts = new Map<string, Set<string>>();
-  for (const run of runs) {
+  for (const run of answered) {
     const key = atRevisionKey(run);
     attempts.set(key, (attempts.get(key) ?? new Set()).add(attemptKey(run)));
   }
-  return runs.map((discovered) => {
+  return retained.map((discovered) => {
     const { databaseId, attempt, ...run } = discovered;
     const shared = attempts.get(atRevisionKey(discovered))?.size ?? 0;
     return {
