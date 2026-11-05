@@ -185,10 +185,12 @@ test("a rate-limited stream answer shows today's notice, closes the stream, wait
   const beforeLimit = githubFor(page).calls.length;
   // Next pace tick delivers the limited answer over the open stream (wall).
   await untilMatchingRefsSince(page, beforeLimit, 1);
-  const arrivedAt = Date.now();
   await expect(problem).toContainText(
     "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429)",
   );
+  // Timed once the page shows the answer, which follows the server starting
+  // its wait (untilReported); the fake's receipt of the call comes before it.
+  const arrivedAt = Date.now();
   await expect(problem).toContainText(
     "GitHub limited the rate of the local GitHub CLI's requests, so this page asks GitHub nothing until",
   );

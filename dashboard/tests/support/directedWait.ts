@@ -11,7 +11,9 @@ import {
 
 // Waiting as a boundary answer told: until the whole seconds it reported
 // (`retryAfterSeconds`) have passed since it arrived, by the same machine's
-// clock the server keeps its wait by.
+// clock the server keeps its wait by. The server starts that wait when
+// GitHub's answer reaches it, so `answeredAtMs` is read once a response or the
+// page shows the answer; a time from when GitHub was asked ends too soon.
 export async function untilReported(
   answeredAtMs: number,
   retryAfterSeconds: number,
