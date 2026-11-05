@@ -215,7 +215,7 @@ Status remains planned):** Walked story key examples 1–5 against
 
 ### 2. Open Dough records skill-script proof on explicit request
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/support/node-test-proof-reporter.test.mjs` runs substitute
 files in child `node --test` processes through `scripts/test.sh` and the
 reporter as the failures reporter's test does: option off leaves no file;

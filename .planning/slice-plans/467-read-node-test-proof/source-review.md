@@ -18,7 +18,7 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | Q3 | Normal runs never create, change, or delete proof (byte-for-byte untouched when the option is off). | slice 1 | observed: node-test-proof.md opening: normal runs leave proof byte-for-byte untouched |
 | Q4 | Missing, empty, unreadable, or malformed proof is never shown as a pass. | slice 3 |  |
 | Q5 | Existing Cucumber, pytest, and Vitest proof files, reader behavior, and wording for their locations stay unchanged. | slice 3 |  |
-| Q6 | Each project's test output, diagnostics, exit meaning, and scheduling stay as they are with the recorder loaded; scripts/test.sh still fails a job that passed but printed output. | slice 2 |  |
+| Q6 | Each project's test output, diagnostics, exit meaning, and scheduling stay as they are with the recorder loaded; scripts/test.sh still fails a job that passed but printed output. | slice 2 | observed: node-test-proof-reporter.test.mjs identical with/without option; test.sh quiet-pass; runner peers green |
 | Q7 | Reuse the Vitest-introduced test-call snapshot format and reader for a second runner; add no Node-shaped duplicate. | slice 3 |  |
 | Q8 | The reference is written for the agent working in the recording project. | slice 1 | observed: node-test-proof.md written for agent in recording project (Configure once) |
 | Q9 | Event shape is stated with the Node version it was observed on. | slice 1 | observed: node-test-proof.md Record section: observed on Node 24.21.0 |
@@ -66,7 +66,7 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | 7 | At most one observation per identity. | slice 1 | observed: node-test-proof.md at most one observation per identity |
 | 8 | Observations ordered by file then test. | slice 1 | observed: node-test-proof.md Refresh: order by file then test |
 | 9 | A node:test snapshot parses with the Vitest parser. | slice 1 | observed: node-test-proof.md Identity/File format: Vitest format without project |
-| 10 | runner: "node:test" on a javascript or typescript location that declares proof. | slice 2 |  |
+| 10 | runner: "node:test" on a javascript or typescript location that declares proof. | slice 2 | observed: .planning/open-dough.json src/skills runner node:test with proof |
 | 11 | Dashboard reads proof and proofGeneration on that location as on any location. | slice 3 |  |
 | 12 | Declared proof without usable runner explained naming vitest or node:test. | slice 3 |  |
 | 13.1 | Every test or it call outside another test's callback. | slice 3 |  |
@@ -84,21 +84,21 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | 20 | Other-kinds sentence lists Node test files among the families. | slice 3 |  |
 | 21 | Unreadable and malformed proof keep their retry explanations. | slice 3 |  |
 | 22 | Cucumber- or pytest-shaped file under node:test location is malformed. | slice 3 |  |
-| 23 | Recorder in Open Dough tests/support. | slice 2 |  |
-| 24 | Loaded by scripts/test.sh beside failures reporter with recording off; quiet-pass holds. | slice 2 |  |
-| 25.1 | Option off | slice 2 |  |
-| 25.2 | A describe path | slice 2 |  |
-| 25.3 | Subtests folding | slice 2 |  |
-| 25.4 | skip and todo | slice 2 |  |
-| 25.5 | A timeout | slice 2 |  |
-| 25.6 | A failure clearing only itself | slice 2 |  |
-| 25.7 | Name-pattern exclusion | slice 2 |  |
-| 25.8 | Concurrent jobs refreshing one snapshot | slice 2 |  |
-| 25.9 | An interrupted refresh | slice 2 |  |
-| 25.10 | Outside-Git no-op | slice 2 |  |
-| 25.11 | Unchanged output and exit | slice 2 |  |
-| 26 | runner, proof, and recording command declared on src/skills. | slice 2 |  |
-| 27 | One explicit focused recording run committed as first snapshot. | slice 2 |  |
+| 23 | Recorder in Open Dough tests/support. | slice 2 | observed: tests/support/node-test-proof-reporter.mjs |
+| 24 | Loaded by scripts/test.sh beside failures reporter with recording off; quiet-pass holds. | slice 2 | observed: scripts/test.sh loads proof reporter beside failures reporter; recording off by default |
+| 25.1 | Option off | slice 2 | observed: node-test-proof-reporter.test.mjs option off leaves no proof file |
+| 25.2 | A describe path | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs a describe path records the suite name list |
+| 25.3 | Subtests folding | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs parent with passing/failing subtests |
+| 25.4 | skip and todo | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs skip and todo keep earlier proof |
+| 25.5 | A timeout | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs timeout and assertion failure clear only themselves |
+| 25.6 | A failure clearing only itself | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs timeout and assertion failure clear only themselves |
+| 25.7 | Name-pattern exclusion | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs name-pattern exclusion keeps proof |
+| 25.8 | Concurrent jobs refreshing one snapshot | slice 2 | observed: observed: node-test-proof-reporter-store.test.mjs four files at once land every pass |
+| 25.9 | An interrupted refresh | slice 2 | observed: observed: node-test-proof-reporter-store.test.mjs killed run keeps completed proof updates |
+| 25.10 | Outside-Git no-op | slice 2 | observed: observed: node-test-proof-reporter-store.test.mjs outside Git the recorder is a no-op |
+| 25.11 | Unchanged output and exit | slice 2 | observed: node-test-proof-reporter.test.mjs stdout stderr and exit identical with and without the option |
+| 26 | runner, proof, and recording command declared on src/skills. | slice 2 | observed: .planning/open-dough.json src/skills proof tests/proof and RECORD_NODE_TEST_PROOF command |
+| 27 | One explicit focused recording run committed as first snapshot. | slice 2 | observed: tests/proof/latest.json five observations attempts 1 commit bc26ca5f fileBlob matches hash-object |
 | 28 | Doughnut JS reporter sharing e2e_test/config/proofStore.mjs. | slice 5 |  |
 | 29 | Tests through pnpm test:* inside lint:all covering same rules on Doughnut Node. | slice 5 |  |
 | 30 | runner, proof, recording command on scripts and infra. | slice 5 |  |
@@ -112,10 +112,10 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | 38 | The reference is linked where the others are. | slice 3 |  |
 | 39 | No count or summed duration includes both a test and its subtests. | slice 3 |  |
 | 40 | Identity uses Node's own names, never test numbers, lines, or collection order. | slice 1 | observed: node-test-proof.md Identity: Node's own names, never line/column/collection order |
-| E1 | Explicit focused recording in Open Dough. | slice 2 |  |
-| E2 | Subtests fold into their test. | slice 2 |  |
-| E3 | No verdict keeps proof; a verdict clears it. | slice 2 |  |
-| E4 | Concurrent jobs share one snapshot. | slice 2 |  |
+| E1 | Explicit focused recording in Open Dough. | slice 2 | observed: tests/proof/latest.json from example 1 focused recording; normal run leaves unchanged (test) |
+| E2 | Subtests fold into their test. | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs subtests fold / failing subtest clears |
+| E3 | No verdict keeps proof; a verdict clears it. | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs keep/clear rules; store module killed/concurrent |
+| E4 | Concurrent jobs share one snapshot. | slice 2 | observed: observed: node-test-proof-reporter-store.test.mjs four files concurrent one latest.json no json lock |
 | E5 | Explicit focused recording in Doughnut. | slice 5 |  |
 | E6 | File Proof. | slice 3 |  |
 | E7 | Folder summary. | slice 3 |  |
