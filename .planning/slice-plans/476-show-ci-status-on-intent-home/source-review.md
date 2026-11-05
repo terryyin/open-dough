@@ -8,7 +8,7 @@
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G | Goal: Intent's first content is the judged branch's CI result, proof counts and attempt cost in time, without first choosing a tab or waiting on a cold CI read when an answer is held; shortens the route and keeps freshness visible | slice 5 |  |
+| G | Goal: Intent's first content is the judged branch's CI result, proof counts and attempt cost in time, without first choosing a tab or waiting on a cold CI read when an answer is held; shortens the route and keeps freshness visible | slice 5 | observed: homepage CI first content + kept freshness: IntentCiStatus kept+fresh; intent-ci-status-freshness.spec.ts; ADR 0010 warm 123 ms kept |
 | 1 | The Intent reading mode with nothing selected shows CI status in the content area, in place of the empty Purpose and Proof panes | slice 1 | observed: dashboard/src/IntentBrowser.tsx empty-selection IntentCiStatus; dashboard/tests/intent-ci-status-homepage.spec.ts nothing-selected step (CI fills reading; Purpose count 0) |
 | 2 | The mode strip keeps Intent and Optimization Candidates | slice 1 | observed: dashboard/src/IntentModeTabs.tsx modes Intent\|Optimization Candidates; homepage spec strip toHaveText |
 | 3 | The mode strip no longer offers a separate CI status mode | slice 1 | observed: dashboard/src/IntentModeTabs.tsx IntentMode has no ci-status; homepage spec strip tabs exclude CI status |
@@ -34,25 +34,25 @@
 | 23 | An entry whose parts are missing, ambiguous or partly without durations shows its execution time as partial, never as a complete total | slice 4 | observed: partial from missing/untimed parts with parts named; never complete total — execution-time missing-shard step |
 | 24 | An unreadable source keeps the existing unavailable wording | slice 4 | observed: existing unavailable proof wording unchanged (intent-ci-proof-reasons / prior unavailable paths) |
 | 25 | No missing timing is shown as zero | slice 4 | observed: no zero for missing duration — not recorded / partial paths; execution-time specs |
-| 26 | The dashboard server keeps the last answer it read for each project and judged branch: the judgment, its proof and timings, and when they were retrieved | slice 5 |  |
-| 27 | Each homepage show returns any kept answer at once, labelled previously retrieved with its retrieval time | slice 5 |  |
-| 28 | Each homepage show also reads CI afresh as the tab did | slice 5 |  |
-| 29 | A spinner shows while that fresh read is in progress, from the start when nothing is kept | slice 5 |  |
-| 30 | The fresh answer replaces the kept one on screen and in the cache and ends the spinner | slice 5 |  |
-| 31 | A failed refresh ends the spinner, shows the failure, and keeps any kept answer labelled previously retrieved, never as newly verified | slice 5 |  |
-| 32 | A failed refresh does not overwrite the kept answer | slice 5 |  |
-| 33 | Counts, timings and the result shown belong to one repository, branch, revision and attempt | slice 5 |  |
-| 34 | A kept or fresh answer for a target other than the one now selected is never shown, including when the project or story changes while a read is in progress | slice 5 |  |
-| 35 | The cache lives in the dashboard server process and is rebuilt by reading CI; keeping it across a dashboard server restart is not undertaken | slice 5 |  |
-| 36 | No time-based refresh or polling is added: refresh still happens on show, on a new observed head and on Check again, so the per-show GitHub request count does not grow | slice 5 |  |
+| 26 | The dashboard server keeps the last answer it read for each project and judged branch: the judgment, its proof and timings, and when they were retrieved | slice 5 | observed: dashboard/server/intentCiStatusAnswers.ts keyed store; dashboard-intent-ci-status-kept.test.mjs |
+| 27 | Each homepage show returns any kept answer at once, labelled previously retrieved with its retrieval time | slice 5 | observed: kept=1 read + Previously retrieved at label; freshness.spec E3 |
+| 28 | Each homepage show also reads CI afresh as the tab did | slice 5 | observed: fresh read still runs with kept; IntentCiStatus dual ask |
+| 29 | A spinner shows while that fresh read is in progress, from the start when nothing is kept | slice 5 | observed: spinner while fresh in progress / cold with nothing kept; freshness.spec |
+| 30 | The fresh answer replaces the kept one on screen and in the cache and ends the spinner | slice 5 | observed: fresh replaces kept on screen and in store; ends spinner; freshness.spec |
+| 31 | A failed refresh ends the spinner, shows the failure, and keeps any kept answer labelled previously retrieved, never as newly verified | slice 5 | observed: failed refresh: failure shown, kept stays previously retrieved; freshness.spec E4 |
+| 32 | A failed refresh does not overwrite the kept answer | slice 5 | observed: intentCiStatusAnswers does not overwrite on unread/failure; unit test |
+| 33 | Counts, timings and the result shown belong to one repository, branch, revision and attempt | slice 5 | observed: answer keyed by repo/branch/path; one attempt identity in shown answer |
+| 34 | A kept or fresh answer for a target other than the one now selected is never shown, including when the project or story changes while a read is in progress | slice 5 | observed: late previous-target answer never shown after story switch; freshness.spec E5 |
+| 35 | The cache lives in the dashboard server process and is rebuilt by reading CI; keeping it across a dashboard server restart is not undertaken | slice 5 | observed: in-process store only; no retained-answers persistence for judgments |
+| 36 | No time-based refresh or polling is added: refresh still happens on show, on a new observed head and on Check again, so the per-show GitHub request count does not grow | slice 5 | observed: GITHUB-REQUESTS.md: no time-based polling; refresh on show/head/Check again; kept asks nothing |
 | 37 | No per-job duration breakdown | slice 4 | observed: no per-job duration UI added; only entry-level test execution time |
 | 38 | No trend history | slice 4 | observed: no trend history added |
 | 39 | No timing for checks that do not publish CI proof entries | slice 4 | observed: no timing for checks outside CI proof entries |
 | 40 | Launch base CI and other CI surfaces keep their current behavior | slice 1 | observed: diff touches dashboard Intent CI homepage only; no Launch base CI surface changes |
 | E1 | Opens Intent with locations configured and nothing selected: CI of main fills content; strip is Intent and Optimization Candidates only; select a test file, read Purpose/Proof, return to CI homepage within Intent | slice 1 | observed: dashboard/tests/intent-ci-status-homepage.spec.ts full journey |
 | E2 | Attempt 10:00–10:03; tests entry 4 min and dashboard/tests 2 min execution; homepage shows CI wall time 3 min and test execution time 4 min and 2 min; wall time is not 6 min | slice 4 | observed: intent-ci-status-execution-time.spec.ts: wall 3 min + test execution 4 min and 2 min |
-| E3 | Reopen after a read 20 minutes ago: kept result appears immediately as previously retrieved with spinner; newer attempt replaces it and spinner stops | slice 5 |  |
-| E4 | After server restart, first visit is spinner only until CI answers; later network-down Check again shows failure while earlier answer stays previously retrieved | slice 5 |  |
-| E5 | Trunk refresh in progress when selecting a story with a kept story-branch answer: only that story branch's kept and fresh answers appear; late trunk answer never shown | slice 5 |  |
+| E3 | Reopen after a read 20 minutes ago: kept result appears immediately as previously retrieved with spinner; newer attempt replaces it and spinner stops | slice 5 | observed: intent-ci-status-freshness.spec.ts kept+spinner then replace |
+| E4 | After server restart, first visit is spinner only until CI answers; later network-down Check again shows failure while earlier answer stays previously retrieved | slice 5 | observed: same: cold spinner; failed Check again keeps previously retrieved |
+| E5 | Trunk refresh in progress when selecting a story with a kept story-branch answer: only that story branch's kept and fresh answers appear; late trunk answer never shown | slice 5 | observed: same: story switch never shows late trunk answer |
 | E6 | Older summary without timing: counts appear, entry execution time not recorded, wall time still from CI read; missing browser-test shard fragment → that entry's execution time partial with the part named | slice 4 | observed: same spec: older not recorded + missing shard partial with part named |
 | E7 | CI-adapter project without attempt start/completion times: result and counts show with CI wall time not recorded | slice 2 | observed: intent-ci-status-wall-time.spec.ts adapter without startedAt/completedAt shows CI wall time not recorded with why |

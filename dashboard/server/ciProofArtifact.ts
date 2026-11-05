@@ -20,6 +20,7 @@ import {
   readGitHubActions,
 } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import type { CiProof, CiProofRun } from "../src/ciProof.ts";
+import { rememberedByKey } from "./rememberedByKey.ts";
 import { onlyZipEntry, ZipEntryProblem } from "./zipEntry.ts";
 
 const summaryFile = "ci-proof-summary.json";
@@ -122,19 +123,10 @@ function chosenArtifact(
   return only.id;
 }
 
-// Valid summaries read so far, by repository, run and attempt; the oldest
-// is forgotten past `rememberedLimit`, far more than one dashboard shows.
-const remembered = new Map<string, Record<string, unknown>>();
-const rememberedLimit = 256;
+// Valid summaries read so far, by repository, run and attempt.
+const remembered = rememberedByKey<Record<string, unknown>>();
 const rememberedKey = (repository: string, run: CiProofRun) =>
   `${repository.toLowerCase()}#${String(run.runId)}#${String(run.runAttempt)}`;
-
-function remember(key: string, summary: Record<string, unknown>) {
-  remembered.set(key, summary);
-  const [oldest] = remembered.keys();
-  if (remembered.size > rememberedLimit && oldest !== undefined)
-    remembered.delete(oldest);
-}
 
 // The valid summary of `run`'s attempt as GitHub has it, not yet checked
 // against the asked run, or why none can be read.
@@ -192,7 +184,7 @@ export async function readCiProofArtifact(
     const read = await readSummary(repository, run, signal);
     if (read.kind !== "summary") return read;
     valid = read.summary;
-    remember(key, valid);
+    remembered.set(key, valid);
   }
   const mismatch = mismatchOf(valid, repository, run);
   if (mismatch !== undefined) return unavailable("mismatched", mismatch);

@@ -36,18 +36,24 @@ the workflow; a selected story's branch costs four: its history listing, the pus
 runs on that branch, the push runs on the configured ref, and the workflow lookup,
 and only the history listing when GitHub has no such branch. With a configured
 `ciAdapter`, only the history listing is asked, the adapter's discover answering
-the runs. A selected story without a branch to judge asks nothing. Nothing of a
-judgment is kept beyond the read. Once a judgment names the GitHub Actions run
-whose result the homepage shows (for a running result, its completed ancestor's),
-that run's CI proof costs, for each run attempt newly shown, one listing of the
-run's artifacts by that attempt's summary name and, when the summary is listed
-and not expired, one download of its zip. A valid summary is remembered by
-repository, run and attempt for the dashboard process's lifetime (the latest 256
-read), so showing that attempt again, or **Check again**, asks nothing more for
-its proof; an attempt without a valid summary is asked again each time. A
-`ciAdapter` project asks GitHub nothing for its proof: its adapter's `proof`
-operation answers it, asked again each time. A result that names no completed run
-or attempt asks nothing for its proof. Only the ref and branch head requests are made
+the runs. A selected story without a branch to judge asks nothing. Each homepage
+show also asks the kept form of that CI status read (`kept=1`), which answers
+from this dashboard process's last keepable judgment for that repository, judged
+branch and CI reading path and asks GitHub nothing; a fresh unread or failed
+judgment does not overwrite that kept answer. Per-show GitHub requests for the
+fresh judgment stay as above — the kept form does not add any. Once a judgment
+names the GitHub Actions run whose result the homepage shows (for a running
+result, its completed ancestor's), that run's CI proof costs, for each run
+attempt newly shown, one listing of the run's artifacts by that attempt's
+summary name and, when the summary is listed and not expired, one download of
+its zip. A valid summary is remembered by repository, run and attempt for the
+dashboard process's lifetime (the latest 256 read), so showing that attempt
+again, or **Check again**, asks nothing more for its proof; an attempt without a
+valid summary is asked again each time. A `ciAdapter` project asks GitHub
+nothing for its proof: its adapter's `proof` operation answers it, and a valid
+summary is remembered by repository and attempt for the process's lifetime the
+same way. A result that names no completed run or attempt asks nothing for its
+proof. Only the ref and branch head requests are made
 on every load: content and history already read at a resolved revision or branch head by any
 dashboard process of this user on this machine are not asked again, so a reload, a return to a
 project, a replaced production dashboard, or a second dashboard process at a ref and branches that

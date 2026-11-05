@@ -5,10 +5,12 @@
 // without asking and every other state is answered for the developer to
 // confirm; Intent's CI status tab judges the same way through the
 // authenticated read boundary (`./intentCiStatusRead.ts`). ADR 0008: observe
-// without owning; nothing is kept beyond the request. GitHub Actions and
-// command-adapter (ciAdapter discover) projects share one judgment rule
-// (`./baseCiNearest.ts`) and history read (`./baseCiGitHubReads.ts`); each
-// judged result names the branch its run was on.
+// without owning; the CI status read keeps the last keepable answer per
+// target in this process only (`./intentCiStatusAnswers.ts`), never as
+// project state. GitHub Actions and command-adapter (ciAdapter discover)
+// projects share one judgment rule (`./baseCiNearest.ts`) and history read
+// (`./baseCiGitHubReads.ts`); each judged result names the branch its run
+// was on.
 // Only a branch name the safe-branch rule accepts reaches `gh api` or the
 // adapter.
 import { createCommandAcquisition } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
