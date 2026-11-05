@@ -14,6 +14,9 @@ scope: story
 ### Keep the shown reading through failed updates
 
 **Identity:** SEED-241#keep-the-shown-reading-through-failed-updates
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/480-keep-shown-reading-through-failed-updates/PLAN.md"}
+```
 
 **Goal.** A developer reviewing Intent keeps the revision they are reading,
 with its tree, selection and text, when an update to newer published work is
