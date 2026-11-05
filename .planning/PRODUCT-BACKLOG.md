@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Paste from the mobile keyboard](seeds/SEED-237-paste-from-the-mobile-keyboard.md#paste-from-the-mobile-keyboard) — SEED-237#paste-from-the-mobile-keyboard
 - [Show the CI proof of a CI-adapter attempt](seeds/SEED-236-show-ci-adapter-proof.md#show-ci-adapter-proof) — SEED-236#show-ci-adapter-proof
 - [See running sessions with the sidebar closed](seeds/SEED-235-see-running-sessions-with-sidebar-closed.md#see-running-sessions-with-sidebar-closed) — SEED-235#see-running-sessions-with-sidebar-closed
 - [Recover failed Intent reads without Retry](seeds/SEED-192-review-product-intent.md#recover-failed-intent-reads) — SEED-192#recover-failed-intent-reads
