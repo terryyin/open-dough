@@ -110,36 +110,78 @@ disconnect and session-details stories await delivery.
 
 **Identity:** SEED-240#stop-revision-checks-after-setup-disconnect
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/477-stop-revision-checks-after-setup-disconnect/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"50186b9bc96ece138201198bef56de53c48b3b4c98cae6a2ea4c0c4c90f024f0","plan":"a39243aa214fff766b63379a15011d4ba9c41613e4870b07fb46bea2087963a8"}}
 ```
 
 **Beneficiary and goal.** A developer can hide or close a dashboard page while
-its update connection is opening, and its abandoned connection releases its
-GitHub observation demand.
+its update connection is opening, and the abandoned connection asks GitHub
+nothing further. The dashboard keeps the published observation contract's
+promise that the last open stream for a project and scope ending also ends that
+scope's paced observation, so request budget is spent only for pages that are
+still watching.
 
 **Evidence.** A controlled reproduction using the current server classes
 paused request-owner scope resolution, closed the request and response, then
 allowed setup to finish. One pace timer and two tracked controllers remained,
-and a second upstream listing followed after the next 15-second pace. This
-reproduces the code path in isolation. Production frequency is unmeasured.
+and a second upstream listing followed after the next 15-second pace. Code
+reading on 2026-11-05 confirms why it never ends: the open's departure
+listeners are attached only after scope resolution, so a close that fired
+during resolution is never heard, and events written to the destroyed response
+are silently skipped, so nothing removes that subscriber before the server
+stops. A boundary closed during resolution has already emptied its streams and
+tracked lifetimes, so the resumed open builds a fresh observation outside them.
 [Asynchronous setup](../../dashboard/server/revisionStreamObservation.ts) ·
-[Subscriber lifecycle](../../dashboard/server/sourceRevisionStream.ts).
+[Subscriber lifecycle](../../dashboard/server/sourceRevisionStream.ts) ·
+[Boundary close](../../dashboard/server/authenticatedRead.ts).
 
-**Outcome and evaluation.** A connection that departs before asynchronous
-setup finishes creates no continuing revision checks when setup resumes.
-Once the last live subscriber leaves, the source's periodic observation ends
-and its owned resources are released. Another live page retains its updates.
-Server shutdown also prevents an unfinished open from starting new demand.
+Resolution is genuinely asynchronous when this process first establishes its
+request-owner endpoint, after the stored `gh` login changes, and while the
+endpoint cannot be established; it runs `gh auth token` locally, bounded at 10
+seconds. Otherwise the cached answer settles before any close can be
+delivered. Production frequency is unmeasured, but each occurrence keeps one
+listing per pace running until the dashboard restarts, and keeps a shared
+observation alive after its last real page leaves.
+
+**Scope.**
+
+- Required: an open whose page departs before setup finishes asks GitHub
+  nothing for that open, starts no pace, and leaves no tracked lifetime.
+- Required: a live page sharing the same source and scope keeps its shared
+  observations, and the observation ends when that last live page leaves.
+- Required: an open still in setup when the dashboard boundary closes acquires
+  no observation, timer, or tracked lifetime and ends its response.
+- Scope limit: the local scope lookup itself is not cancelled; it is shared and
+  cached for the process and asks GitHub nothing.
+- Scope limit: browser reconnect and freshness behavior belong to
+  [Show lost freshness across repeated revision-stream failures](#show-freshness-loss-across-stream-retries);
+  measuring production frequency is not undertaken.
+- No user-visible change: a departed page shows nothing, and a live page's
+  stream answers as today.
 
 **Key examples.**
 
 - Hold scope resolution for a source with no other subscriber, close the
-  page's connection, then finish resolution. Subsequent observation intervals
-  start no GitHub checks for that departed page.
-- Repeat with another live subscriber. That subscriber keeps receiving the
-  shared observations, and closing it ends future periodic checks.
-- Close the dashboard boundary while setup is pending, then allow setup to
-  finish. The closed boundary acquires no new observation demand.
+  page's connection, then finish resolution. That open causes no listing, then
+  or in later pace intervals.
+- A second page is streaming the same source and scope. A third page's open
+  departs during held resolution. The second page keeps one shared listing per
+  pace; once it closes, no further listing is asked.
+- Close the dashboard boundary while an open's scope resolution is held, then
+  finish resolution. No listing, timer, or tracked lifetime follows.
+- Boundary: a page that stays connected through a slow resolution receives
+  its first answer at open and its paced answers as today.
+
+**Architecture.** The departure must be observable from the moment the
+boundary admits a stream, not from when its observation is joined: a close
+event that fires before the listener exists is lost. Treating a pending open
+as a member of the boundary's tracked lifetime, ended by its page's departure
+or by the boundary's close, and joining an observation only while that lifetime
+is still live, covers both departure and shutdown through the same mechanism
+that already ends timers and listing waits. Rechecking only the response's
+state after setup would cover a departed page but not a closed boundary,
+which needs its own closed state. Consistent with
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
+in-process observation, no database.
 
 **Prerequisite and safe stopping point.** No blocking story prerequisite.
 Abandoned opens stop consuming resources independently of browser warning
