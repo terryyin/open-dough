@@ -41,6 +41,28 @@ const runIdentitySchema = z.object({
 export const runIdentityShape = runIdentitySchema.shape;
 export type BaseCiRunIdentity = Readonly<z.infer<typeof runIdentitySchema>>;
 
+// Optional attempt wall-time bounds from the CI read of that attempt.
+const attemptTimesShape = {
+  startedAt: z.iso.datetime().optional(),
+  completedAt: z.iso.datetime().optional(),
+};
+
+// Nonempty start and completion only; Intent shows CI wall time from both,
+// and not recorded when either is absent.
+export function attemptTimesOf(source: {
+  readonly startedAt?: string | undefined;
+  readonly completedAt?: string | undefined;
+}): { startedAt?: string; completedAt?: string } {
+  return {
+    ...(typeof source.startedAt === "string" && source.startedAt !== ""
+      ? { startedAt: source.startedAt }
+      : {}),
+    ...(typeof source.completedAt === "string" && source.completedAt !== ""
+      ? { completedAt: source.completedAt }
+      : {}),
+  };
+}
+
 // Historical context beside a running judgment; it never confirms the base.
 const completedAncestorSchema = z.object({
   revision: z.string().min(1),
@@ -49,6 +71,7 @@ const completedAncestorSchema = z.object({
   runUrl: z.url().optional(),
   runBranch: runBranchSchema,
   ...runIdentityShape,
+  ...attemptTimesShape,
 });
 export type BaseCiCompletedAncestor = z.infer<typeof completedAncestorSchema>;
 
@@ -68,6 +91,7 @@ export const baseCiFoundSchema = z.object({
   runUrl: z.url().optional(),
   runBranch: runBranchSchema,
   completedAncestor: completedAncestorSchema.optional(),
+  ...attemptTimesShape,
 });
 
 export type BaseCiFound = z.infer<typeof baseCiFoundSchema>;

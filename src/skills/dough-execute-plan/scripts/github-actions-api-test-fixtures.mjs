@@ -71,6 +71,8 @@ export const apiRun = (observed) =>
     conclusion: observed.conclusion,
     html_url: observed.url,
     created_at: observed.createdAt,
+    run_started_at: observed.startedAt,
+    updated_at: observed.completedAt,
   });
 
 export const apiJob = ({ databaseId, ...job }) =>

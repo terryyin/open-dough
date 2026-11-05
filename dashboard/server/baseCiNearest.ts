@@ -3,11 +3,12 @@
 // belongs to its commit whichever branch's push produced it, so the runs may
 // come from more than one branch's listing; each judged result names the
 // branch its run was on (`branch`, as the listing that returned it says).
-import type {
-  BaseCiAdapterAttempt,
-  BaseCiCompletedAncestor,
-  BaseCiRunIdentity as RunIdentity,
-  BaseCiState,
+import {
+  attemptTimesOf,
+  type BaseCiAdapterAttempt,
+  type BaseCiCompletedAncestor,
+  type BaseCiRunIdentity as RunIdentity,
+  type BaseCiState,
 } from "../src/baseCiConfirmation.ts";
 
 // One judged result, unread with its reason when no state could be judged.
@@ -37,6 +38,8 @@ export type BaseCiJudgment = (
     } & RunIdentity)
 ) & {
   readonly ciAdapter?: true;
+  readonly startedAt?: string;
+  readonly completedAt?: string;
 };
 
 export type ListedCommit = {
@@ -56,6 +59,10 @@ export type ListedRun = {
   readonly conclusion?: string | null;
   readonly url?: string;
   readonly createdAt?: string;
+  // Optional attempt wall-time bounds from the CI read (`startedAt` /
+  // `completedAt`); without both, Intent shows CI wall time not recorded.
+  readonly startedAt?: string;
+  readonly completedAt?: string;
   // The branch whose listing returned the run.
   readonly branch?: string;
 };
@@ -172,6 +179,7 @@ function nearestCompletedAncestor(
       ...(run.url ? { runUrl: run.url } : {}),
       ...runBranchOf(run),
       ...runIdentityOf(run),
+      ...attemptTimesOf(run),
     };
   }
   return undefined;
@@ -212,6 +220,7 @@ export function judgeNearest(
         : {}),
       ...runBranchOf(run),
       ...runIdentityOf(run),
+      ...attemptTimesOf(run),
     };
   }
   return unread(

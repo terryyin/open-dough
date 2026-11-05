@@ -17,17 +17,16 @@ Create or update `.planning/open-dough.json` in this project's root:
 `ciAdapter` is an argument array, launched directly from the execution checkout
 without a shell. The first item is the executable and the rest are its arguments.
 Use project-relative arguments when appropriate. An absent setting, an absent
-configuration file, or `"ciAdapter": []` selects the GitHub Actions default.
-For another GitHub Actions workflow, use a nonempty `ciWorkflow` string such as
+configuration file, or `"ciAdapter": []` selects the GitHub Actions default. For
+another GitHub Actions workflow, use a nonempty `ciWorkflow` string such as
 `{"ciWorkflow":"checks.yaml"}` in the same project file. `DOUGH_CI_WORKFLOW`
-overrides it; without either selector the workflow is `ci.yml`.
-The observer reads the file once at startup, so restart it after changing the
-setting. Keep endpoint URLs and credentials in this project's normal environment
-or credential store, not in this file.
-
-Before starting observation, verify that the command can access the one selected
-check for the repository and branch receiving pushes. Custom mode needs Node 20+
-and the command's own runtime and credentials; it does not need `gh`.
+overrides it; without either selector the workflow is `ci.yml`. The observer
+reads the file once at startup, so restart it after changing the setting. Keep
+endpoint URLs and credentials in this project's normal environment or credential
+store, not in this file. Before starting observation, verify that the command can
+access the one selected check for the repository and branch receiving pushes.
+Custom mode needs Node 20+ and the command's own runtime and credentials; it does
+not need `gh`.
 
 ## Request and response contract
 
@@ -59,6 +58,8 @@ Return the service query's bounded relevant attempts newest first:
       "outcome": "pending",
       "url": "https://ci.example/runs/opaque-id",
       "time": "2026-09-15T10:00:00Z",
+      "startedAt": "2026-09-15T10:00:00Z",
+      "completedAt": "2026-09-15T10:03:00Z",
       "branch": "BRANCH",
       "check": "project-checks",
       "context": "push"
@@ -71,9 +72,11 @@ Return the service query's bounded relevant attempts newest first:
 identities; do not combine them or assume attempts are sequential. `sha` is the
 exact checked commit. `outcome` is one of `pending`, `success`, `failure`, or
 `incomplete`; use `incomplete` when a finished check supplies neither success nor
-failure proof, such as a cancelled check. `url` and `time` are optional.
-`branch`, `check` and `context` are optional nonempty strings: the branch the
-service validated for that attempt, the check's stable name, and its triggering
+failure proof, such as a cancelled check. `url` and `time` are optional;
+optional `startedAt`/`completedAt` are ISO-8601 pipeline bounds (Intent CI wall
+time when both present, else not recorded; not a `time` substitute). `branch`,
+`check` and `context` are optional nonempty strings: the branch the service
+validated for that attempt, the check's stable name, and its triggering
 context. The observer drops an attempt naming another branch, including for its
 exact SHA. Without `branch`, an attempt keeps counting for its exact SHA but
 never attests the target. When the service checks a SHA once for every branch
@@ -126,9 +129,8 @@ delivered; unknown fields are discarded.
 
 ## CI proof reads
 
-See [Custom CI proof reads](custom-ci-proof.md) for the dashboard `proof`
-operation, summary validity, and attemptId ambiguity before newest-per-check
-retention.
+See [Custom CI proof reads](custom-ci-proof.md) for the dashboard `proof` operation,
+summary validity, and attemptId ambiguity before newest-per-check retention.
 
 ## Runnable minimal adapter
 
@@ -218,16 +220,15 @@ When `.planning/open-dough.json` declares `integratedStateCompletion` (see the
 runtime setup reference), a successful later target snapshot may complete an
 earlier accepted revision it contains. Matching `check` and `context` required;
 `jobs` is unavailable, so name each check in its own attempts. Only attempts
-naming the target `branch` count; the current attempt is the first listed.
-Equal or later `time` on another attempt of that check (or `time` only on the
-other) leaves evidence unresolved. Each poll rejudges from discovery; a failed
-discovery withdraws it. Without the declaration or these fields, completion
-stays exact.
+naming the target `branch` count; the current attempt is the first listed. Equal
+or later `time` on another attempt of that check (or `time` only on the other)
+leaves evidence unresolved. Each poll rejudges from discovery; a failed discovery
+withdraws it. Without the declaration or these fields, completion stays exact.
 
 ## Runnable provider with optional reuse
 
-Follow [custom CI with validation reuse](custom-reuse-ci.md) for provider-side
-reuse: shared gate, target aggregates through the adapter contract above.
+Follow [custom CI with validation reuse](custom-reuse-ci.md) for provider-side reuse:
+shared gate, target aggregates through the adapter contract above.
 
 ## Outcomes, coverage, and failures
 
@@ -240,11 +241,10 @@ ancestor's attempt state. Otherwise a revision stays undiscovered until its
 exact attempt is found; there is no three-poll coverage-unavailable report.
 Pending and success stay quiet; failure and incomplete can require attention.
 Shutdown lists unproved revisions as pending, undiscovered, or incomplete.
-
-Each adapter call has a 20-second timeout and 64 KiB stdout limit. Invalid
-JSON or attempts, nonzero exit, timeout, or oversized stdout is retried under
-the observer's bounded error policy, then unavailable; custom mode never falls
-back to GitHub. Failed diagnosis for a known failure still reports with
-diagnostics unavailable. Stopping the observer cancels its adapter child.
-Bound API calls, handle termination promptly, and leave triggering or retrying
-CI to this project's established delivery process.
+Each adapter call has a 20-second timeout and 64 KiB stdout limit. Invalid JSON
+or attempts, nonzero exit, timeout, or oversized stdout is retried under the
+observer's bounded error policy, then unavailable; custom mode never falls back
+to GitHub. Failed diagnosis for a known failure still reports with diagnostics
+unavailable. Stopping the observer cancels its adapter child. Bound API calls,
+handle termination promptly, and leave triggering or retrying CI to this
+project's established delivery process.

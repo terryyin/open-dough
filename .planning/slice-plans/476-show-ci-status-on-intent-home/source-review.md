@@ -22,10 +22,10 @@
 | 11 | The homepage keeps Check again | slice 1 | observed: existing Check again paths in intent-ci-status-reads.spec.ts and proof reasons specs |
 | 12 | The GitHub Actions reading path keeps working | slice 1 | observed: intent-ci-status*.spec.ts GitHub Actions fixtures green (30 focused) |
 | 13 | The CI-adapter reading path keeps working | slice 1 | observed: intent-ci-proof-adapter*.spec.ts and intent-ci-status-reads ciAdapter path green |
-| 14 | For the attempt whose proof the homepage shows, show the elapsed time from that attempt starting to its completion | slice 2 |  |
-| 15 | That elapsed time covers the whole pipeline including setup, checks and final reporting | slice 2 |  |
-| 16 | Overlapping jobs count once | slice 2 |  |
-| 17 | Wall time comes from the CI read of that attempt, not from summing test or job durations | slice 2 |  |
+| 14 | For the attempt whose proof the homepage shows, show the elapsed time from that attempt starting to its completion | slice 2 | observed: dashboard/src/IntentCiProof.tsx + ciProofWording.ciWallTimeLine; intent-ci-status-wall-time.spec.ts 10:00→10:03 shows CI wall time 3 min |
+| 15 | That elapsed time covers the whole pipeline including setup, checks and final reporting | slice 2 | observed: wall time from attempt startedAt/completedAt (GHA run_started_at/updated_at via observedRun), not test sums — wall-time + proof specs |
+| 16 | Overlapping jobs count once | slice 2 | observed: same attempt-bound wall clock (not per-job sums); observedRun/normalizeAttempt carry attempt times only |
+| 17 | Wall time comes from the CI read of that attempt, not from summing test or job durations | slice 2 | observed: ci-github-actions observedRun and ci-command-attempts normalizeAttempt → baseCiNearest judgment → Proof |
 | 18 | Beside each declared proof entry's counts, show the sum of that entry's individual test execution durations across its parts, shards or parallel workers | slice 4 |  |
 | 19 | That figure is cumulative execution time and may exceed wall time | slice 4 |  |
 | 20 | It is named so it does not read as elapsed time | slice 4 |  |
@@ -55,4 +55,4 @@
 | E4 | After server restart, first visit is spinner only until CI answers; later network-down Check again shows failure while earlier answer stays previously retrieved | slice 5 |  |
 | E5 | Trunk refresh in progress when selecting a story with a kept story-branch answer: only that story branch's kept and fresh answers appear; late trunk answer never shown | slice 5 |  |
 | E6 | Older summary without timing: counts appear, entry execution time not recorded, wall time still from CI read; missing browser-test shard fragment → that entry's execution time partial with the part named | slice 4 |  |
-| E7 | CI-adapter project without attempt start/completion times: result and counts show with CI wall time not recorded | slice 2 |  |
+| E7 | CI-adapter project without attempt start/completion times: result and counts show with CI wall time not recorded | slice 2 | observed: intent-ci-status-wall-time.spec.ts adapter without startedAt/completedAt shows CI wall time not recorded with why |

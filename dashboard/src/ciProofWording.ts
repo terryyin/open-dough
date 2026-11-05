@@ -111,3 +111,30 @@ export const noRunLine =
 // A ciAdapter project's tab shows no completed attempt.
 export const noAttemptLine =
   "No completed CI attempt is shown, so there is no CI proof to show.";
+
+const minuteMs = 60_000;
+
+// Whole minutes / hours / days of an attempt's wall time, as Intent names it.
+function wallTimeWords(ms: number): string {
+  const minutes = Math.floor(Math.max(0, ms) / minuteMs);
+  if (minutes < 1) return "less than 1 min";
+  if (minutes < 60) return `${String(minutes)} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${String(hours)} h ${String(minutes % 60)} min`;
+  return `${String(Math.floor(hours / 24))} d ${String(hours % 24)} h`;
+}
+
+// "CI wall time 3 min" from the attempt's start and completion, or not
+// recorded with why when either bound is absent. Never from summed durations.
+export function ciWallTimeLine(
+  startedAt: string | undefined,
+  completedAt: string | undefined,
+): string {
+  const started = startedAt === undefined ? Number.NaN : Date.parse(startedAt);
+  const completed =
+    completedAt === undefined ? Number.NaN : Date.parse(completedAt);
+  if (!Number.isFinite(started) || !Number.isFinite(completed)) {
+    return "CI wall time not recorded: this attempt's CI read has no start and completion times.";
+  }
+  return `CI wall time ${wallTimeWords(completed - started)}.`;
+}

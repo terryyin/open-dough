@@ -22,12 +22,12 @@ import {
   isAdapterProofAttempt,
   type CiProof,
   type CiProofEntry,
-  type CiProofSubject,
 } from "./ciProof.ts";
 import {
   adapterReadFailedLine,
   adapterUnavailableLine,
   ambiguousAttemptLine,
+  ciWallTimeLine,
   entryCountsLine,
   entryGapLines,
   entryPartsLine,
@@ -36,44 +36,9 @@ import {
   unavailableLine,
 } from "./ciProofWording.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { shownRunOf, type ShownCiProofRun } from "./shownCiProofRun.ts";
 
-// The attempt shown, and for a ciAdapter attempt whether another discovered
-// attempt shares its attemptId at its revision.
-type Shown = CiProofSubject & {
-  readonly runUrl: string | undefined;
-  readonly ambiguous?: true;
-};
-
-// The attempt whose result the tab shows: a running result's completed
-// ancestor, otherwise the judged result; undefined when it names neither a
-// GitHub Actions run nor a ciAdapter attempt.
-export function shownRunOf(judgment: Judgment): Shown | undefined {
-  const shown =
-    judgment.state === "running" ? judgment.completedAncestor : judgment;
-  if (shown === undefined) return undefined;
-  const { adapterAttempt } = shown;
-  if (adapterAttempt !== undefined)
-    return shown.runBranch === undefined
-      ? undefined
-      : {
-          runId: String(adapterAttempt.runId),
-          attemptId: String(adapterAttempt.attemptId),
-          branch: shown.runBranch,
-          revision: shown.revision,
-          runUrl: shown.runUrl,
-          ...(adapterAttempt.ambiguous === true
-            ? { ambiguous: true as const }
-            : {}),
-        };
-  if (shown.runId === undefined || shown.runAttempt === undefined)
-    return undefined;
-  return {
-    runId: shown.runId,
-    runAttempt: shown.runAttempt,
-    revision: shown.revision,
-    runUrl: shown.runUrl,
-  };
-}
+export { shownRunOf } from "./shownCiProofRun.ts";
 
 // The proof read's answer, or the boundary's own failure to answer it.
 type ProofRead =
@@ -138,32 +103,38 @@ function Linked({
   );
 }
 
-function RunNamed({ run }: { readonly run: Shown }) {
+function RunNamed({ run }: { readonly run: ShownCiProofRun }) {
   return (
-    <p className="intent-ci-proof-run">
-      {isAdapterProofAttempt(run) ? (
-        <>
-          Attempt <Linked name={run.attemptId} url={run.runUrl} />
-        </>
-      ) : (
-        <>
-          Attempt {run.runAttempt} of{" "}
-          <Linked name={`run ${String(run.runId)}`} url={run.runUrl} />
-        </>
-      )}{" "}
-      at <code>{shortSha(run.revision)}</code>.
-    </p>
+    <>
+      <p className="intent-ci-proof-run">
+        {isAdapterProofAttempt(run) ? (
+          <>
+            Attempt <Linked name={run.attemptId} url={run.runUrl} />
+          </>
+        ) : (
+          <>
+            Attempt {run.runAttempt} of{" "}
+            <Linked name={`run ${String(run.runId)}`} url={run.runUrl} />
+          </>
+        )}{" "}
+        at <code>{shortSha(run.revision)}</code>.
+      </p>
+      <p className="intent-ci-wall-time">
+        {ciWallTimeLine(run.startedAt, run.completedAt)}
+      </p>
+    </>
   );
 }
 
-const keyOf = (shown: Shown) => JSON.stringify(ciProofSubjectOf(shown));
+const keyOf = (shown: ShownCiProofRun) =>
+  JSON.stringify(ciProofSubjectOf(shown));
 
 function ReadProof({
   source,
   run,
 }: {
   readonly source: PublishedSource;
-  readonly run: Shown;
+  readonly run: ShownCiProofRun;
 }) {
   // Read once per mount: the parent keys it by the attempt and the judgment.
   const [proof, setProof] = useState<ProofRead | undefined>(undefined);

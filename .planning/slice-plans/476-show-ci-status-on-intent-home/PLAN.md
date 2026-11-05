@@ -156,12 +156,13 @@ shown.
 
 ### 2. CI wall time of the shown attempt
 Type: Behavior
-Status: planned
-Proof: unit checks for `observedRun` and adapter attempt normalisation
-carrying start/completion; a dashboard spec with a listed run starting 10:00
-and updated 10:03 shows **CI wall time 3 min** with the attempt, a running
-result shows its completed ancestor's wall time, and an adapter attempt
-without the new fields shows CI wall time not recorded.
+Status: done
+Proof: `ci-github-actions-observed-run.test.mjs` and `ci-command-attempts.test.mjs`
+plus observer consumers; `dashboard/tests/intent-ci-status-wall-time.spec.ts`
+(10:00→10:03 → **CI wall time 3 min**; running → ancestor; adapter without
+fields → not recorded). Gate: `npm run lint`, `npm run typecheck:dashboard`,
+`bash scripts/test.sh` (those units + consumers), Playwright wall-time spec
+(Homebrew Bash 5 first on `PATH`).
 
 **Behavior:** a judged result naming a completed attempt → the homepage shows
 it → CI wall time is that attempt's start-to-completion, or not recorded with
@@ -267,6 +268,14 @@ unpaid). Slice 5 records the warm comparison beside these numbers.
 - Post-change refactor extracted `IntentSelectionReading` and split
   `intentModePage` / `intentFileReadingPage` from oversized helpers; removed
   dead empty-selection Purpose/Proof branches.
+
+## Learnings (slice 2)
+
+- GHA `updated_at` is completion for the listed latest attempt; fixtures
+  without times correctly surface **not recorded** once the wall-time line is
+  always shown on Proof.
+- Shared `attemptTimesOf` / `shownCiProofRun` keep judgment and Proof from
+  duplicating start/completion spreading.
 
 ## Current decisions
 
