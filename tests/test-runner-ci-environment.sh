@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Every check the runner starts sees CI's environment, whatever the caller's:
 # uncolored output, whatever color the caller forces or forbids, and CI's Git
-# state, with no global or system settings, background maintenance off, and no
+# state, with no global or system settings, background maintenance off, no
+# inherited repository location such as an alternate object store, and no
 # identity unless the check sets one, so an identity-less commit fails.
 set -euo pipefail
 
@@ -42,6 +43,8 @@ cd -- '${work}'
   printf 'maintenance.auto=%s\n' "\$(git config --get maintenance.auto || echo unset)"
   printf 'force-color=%s\n' "\${FORCE_COLOR-unset}"
   printf 'no-color=%s\n' "\${NO_COLOR-unset}"
+  printf 'alternates=%s\n' "\${GIT_ALTERNATE_OBJECT_DIRECTORIES-unset}"
+  printf 'object-directory=%s\n' "\${GIT_OBJECT_DIRECTORY-unset}"
   git init --quiet repo 2> init.log
   printf 'branch=%s\n' "\$(git -C repo symbolic-ref --short HEAD)"
   if git -C repo commit --quiet --allow-empty -m identity-less > commit.log 2>&1; then
@@ -58,6 +61,8 @@ env FORCE_COLOR=3 NO_COLOR=1 GIT_AUTHOR_NAME='Inherited Author' GIT_AUTHOR_EMAIL
   HOME="${temporary_dir}/home" XDG_CONFIG_HOME="${temporary_dir}/xdg" \
   GIT_CONFIG_PARAMETERS="'user.name'='Inherited Identity'" \
   GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=user.email GIT_CONFIG_VALUE_0=inherited@example.com \
+  GIT_ALTERNATE_OBJECT_DIRECTORIES="${source_dir}/.git/objects" \
+  GIT_OBJECT_DIRECTORY="${temporary_dir}/objects" \
   OPEN_DOUGH_TEST_DIR="${checks}" "${BASH}" "${source_dir}/scripts/test.sh" \
   > "${temporary_dir}/run.log" 2>&1 || run_status=$?
 if ((run_status != 0)) || [[ -s ${temporary_dir}/run.log ]]; then
@@ -72,6 +77,8 @@ expect_in_log "${record}" -x -F -- 'user.email=unset'
 expect_in_log "${record}" -x -F -- 'maintenance.auto=false'
 expect_in_log "${record}" -x -F -- 'force-color=unset'
 expect_in_log "${record}" -x -F -- 'no-color=unset'
+expect_in_log "${record}" -x -F -- 'alternates=unset'
+expect_in_log "${record}" -x -F -- 'object-directory=unset'
 expect_in_log "${record}" -x -E -- 'branch=[^[:space:]]+'
 if grep -q -x -F -- 'branch=trunk' "${record}"; then
   echo "FAIL: the caller's init.defaultBranch reached the check." >&2

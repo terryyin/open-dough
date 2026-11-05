@@ -35,8 +35,9 @@ environment in `scripts/test-environment.bash`, before any check starts:
 - **CI's uncolored output.** `FORCE_COLOR` and `NO_COLOR` are unset, so a
   check that compares tool output, such as Node's assertion diffs, sees the
   same bytes as in CI.
-- **CI's Git state.** No global, system, or inherited configuration or
-  identity variables; automatic maintenance off, so no detached repack
+- **CI's Git state.** No global, system, or inherited configuration,
+  identity or repository-location variables such as an alternate object
+  store; automatic maintenance off, so no detached repack
   rewrites `.git/objects` while a check snapshots or removes a fixture (a push
   over Git's local transport drops these settings, so a fixture that copies a
   pushed-to bare remote turns maintenance off in that remote's own config); no

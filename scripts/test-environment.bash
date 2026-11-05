@@ -9,15 +9,18 @@ source "$(dirname -- "${BASH_SOURCE[0]}")/bash-floor.bash"
 require_bash_floor 'rerun the tests'
 
 # Every check sees CI's Git state, whatever the caller's configuration: no
-# global, XDG, system, or inherited `git -c` settings or identity variables;
-# this list replaces any inherited GIT_CONFIG_COUNT set. Background maintenance
-# is off so no detached repack outlives a fixture; a push over the local
+# global, XDG, system, or inherited `git -c` settings, identity variables, or
+# repository-location variables (an inherited alternate object store lets a
+# fixture repository skip writing objects it later cannot serve); this list
+# replaces any inherited GIT_CONFIG_COUNT set. Background maintenance is off so no detached repack outlives a fixture; a push over the local
 # transport drops this list, so a pushed-to bare remote needs its own setting
 # (see tests/README.md). No identity or default branch is set, as in CI, and
 # useConfigOnly makes a missing identity fail here as it does there.
 export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
 unset GIT_CONFIG_PARAMETERS GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL \
-  GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL
+  GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL \
+  GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_INDEX_FILE GIT_OBJECT_DIRECTORY \
+  GIT_ALTERNATE_OBJECT_DIRECTORIES
 export GIT_CONFIG_COUNT=3 \
   GIT_CONFIG_KEY_0=maintenance.auto GIT_CONFIG_VALUE_0=false \
   GIT_CONFIG_KEY_1=gc.auto GIT_CONFIG_VALUE_1=0 \
