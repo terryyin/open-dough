@@ -8,7 +8,6 @@ import { parts } from "./dashboardPage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
-  chooseReadingTab,
   expectCandidatesRevision,
   intentModeTab,
 } from "./intentPerspectivePage.ts";
@@ -63,7 +62,6 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
     ).toHaveAttribute("aria-pressed", "true");
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
     await expect(candidatesTab).toHaveAttribute("aria-selected", "false");
-    await chooseReadingTab(intent, "Proof");
     await expect(record).toBeHidden();
 
     await chooseOptimizationCandidates(intent);

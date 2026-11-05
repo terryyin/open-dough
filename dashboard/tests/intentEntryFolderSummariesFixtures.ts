@@ -1,12 +1,11 @@
 // Published Intent locations for the entry and folder summary journeys
 // (`./intent-entry-folder-summaries*.spec.ts`,
 // `./intent-summary-drill-down.spec.ts`): a Pygardon-like Gherkin location
-// with `jobs/` and `reports/` folders and committed proof, beside a packaged
-// location of one file.
+// with `jobs/` and `reports/` folders, beside a packaged location of one
+// file.
 
 import { filesOf, type Project } from "./catalogProjectRecords.ts";
 import { publishFiles } from "./publishedOrigin.ts";
-import { gitBlobSha } from "./listingAnswers.ts";
 
 export const pygardon: Project = {
   label: "Pygardon",
@@ -28,8 +27,6 @@ export const stooqPath = `${jobsFolder}/stooq_refresh.feature`;
 export const jobsOtherPath = `${jobsFolder}/batch.feature`;
 const reportsFeaturePath = `${reportsFolder}/status.feature`;
 export const topFeaturePath = `${featuresPath}/disk_space.feature`;
-const proofDirectory = "e2e_test/proof";
-const proofRunPath = `${proofDirectory}/20261101T100000Z-worktree-a-1a2b.json`;
 
 const stooqFeature = `Feature: Stooq refresh
   Scenario: Refresh quotes
@@ -74,33 +71,6 @@ const reportsFeature = `Feature: Status report
     Then I see its status
 `;
 
-const proofFile = (observations: readonly Record<string, unknown>[]) =>
-  `${JSON.stringify({ version: 1, observations }, null, 2)}\n`;
-
-const passedObservation = (
-  feature: string,
-  scenario: string,
-  featureText: string,
-) => ({
-  feature,
-  scenario,
-  outcome: "passed",
-  attempts: 1,
-  durationMs: 100,
-  finishedAt: "2026-11-01T10:00:00.000Z",
-  commit: "a1b2c3d4".repeat(5),
-  featureBlob: gitBlobSha(featureText),
-});
-
-const validProofBody = proofFile([
-  passedObservation(stooqPath, "Refresh quotes", stooqFeature),
-  passedObservation(stooqPath, "Refresh again", stooqFeature),
-]);
-
-const pygardonProofFiles = {
-  [proofRunPath]: validProofBody,
-};
-
 export const packagedPath = "e2e_test/packaged/features";
 const packagedFeaturePath = `${packagedPath}/packaged.feature`;
 const packagedFeature = `Feature: Packaged
@@ -112,7 +82,7 @@ export const pygardonSettings = JSON.stringify(
   {
     intent: {
       locations: [
-        { path: featuresPath, kind: "gherkin", proof: proofDirectory },
+        { path: featuresPath, kind: "gherkin" },
         { path: packagedPath, kind: "gherkin" },
       ],
     },
@@ -145,5 +115,4 @@ export const pygardonFeatureSources = {
   [reportsFeaturePath]: reportsFeature,
   [topFeaturePath]: topFeature,
   [packagedFeaturePath]: packagedFeature,
-  ...pygardonProofFiles,
 };

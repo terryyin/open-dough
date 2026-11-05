@@ -117,8 +117,21 @@ Proof panel, which still works (interim, removed by slice 2).
 
 ### 2. Intent reads only Purpose for local test source
 Type: Behavior
-Status: planned
+Status: done
 Proof: rewritten Purpose reading specs and surviving Intent specs above; boundary authenticated-read specs; `npm run typecheck:dashboard`; `npm run lint`
+Accepted: 51 Intent, boundary authenticated-read, story-overlay, revision-reuse
+and development-intent-frame specs (119 passed); `bash scripts/test.sh` on
+intent-case-target-line, intent-candidates-location-match, ci-proof-declaration
+and dashboard-test-files tests; refactor reran 11 edited specs (17 passed);
+typecheck (both tsconfigs) and lint clean. `ghRead.ts` keeps its 32 MiB bound:
+`dashboard/PUBLISHED-OBSERVATION.md` relies on it for branch-head listing, so
+it no longer exists solely for proof.
+
+Slice 2 learnings for later slices: `dashboard/tests/support/proofRecord.ts`
+imports `proofStore.mjs`; `dashboard/tests/README.md` lines 8–10 describe
+committed Playwright proof; `docs/dashboard-ux-ui-north-star.md` and
+`docs/product-intent-review-memorandum.md` still describe Purpose/Proof
+layouts and local observations (slice 5).
 
 Behavior: a test file is opened, directly or from a candidate's case → Purpose
 shows the source positioned on the case, with no Proof panel, Purpose/Proof

@@ -1,8 +1,8 @@
 // Published Intent locations at a pinned revision: settings and nested files
 // through the authenticated read boundary (./authenticatedRead.ts). Settings
-// live in ./intentLocationsSettings.ts, file admission in
-// ./intentLocationSelection.ts, and declared proof in ./intentProofRead.ts.
-// Recursive listing and pinned texts reuse ./ghTrees.ts and ./pinnedTexts.ts.
+// live in ./intentLocationsSettings.ts and file admission in
+// ./intentLocationSelection.ts. Recursive listing reuses ./ghTrees.ts through
+// ./pinnedTexts.ts.
 
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
@@ -16,15 +16,8 @@ import {
   intentSettingsTextAt,
   type DeclaredLocation,
   type IntentLocation,
-  type IntentLocationProof,
   type IntentSettingsProblem,
 } from "./intentLocationsSettings.ts";
-import { locationProofAt, type ListedFile } from "./intentProofRead.ts";
-import {
-  proofKindOf,
-  runnerProblemOf,
-  type RunnerProblem,
-} from "../src/proofKinds.ts";
 import {
   extensionsOf,
   locationSelectsRelativePath,
@@ -33,7 +26,6 @@ import {
 export type {
   IntentLocation,
   IntentLocationProblem,
-  IntentLocationProof,
   IntentSettingsProblem,
 } from "./intentLocationsSettings.ts";
 
@@ -78,7 +70,7 @@ async function filesUnderLocation(
   location: DeclaredLocation,
   signal: AbortSignal,
   naming: (reading: string) => void,
-): Promise<readonly ListedFile[]> {
+): Promise<readonly string[]> {
   if (extensionsOf(location.kind) === undefined) return [];
   naming(readingPathAt(location.path, revision));
   const entries = await pinned.treeLister(
@@ -93,94 +85,26 @@ async function filesUnderLocation(
     ) {
       return [];
     }
-    return [{ path: `${location.path}/${entry.path}`, sha: entry.sha }];
+    return [`${location.path}/${entry.path}`];
   });
-}
-
-// A declared proof directory's `runner` problem, when the location's kind
-// leaves its proof format to a runner Intent cannot read it with.
-function runnerProblemFields(location: DeclaredLocation): {
-  readonly runnerProblem?: RunnerProblem;
-} {
-  if (location.proof === undefined) return {};
-  const runnerProblem = runnerProblemOf(location.kind, location.runner);
-  return runnerProblem === undefined ? {} : { runnerProblem };
-}
-
-function locationFields(
-  location: DeclaredLocation,
-): Pick<
-  IntentLocation,
-  | "path"
-  | "kind"
-  | "include"
-  | "runner"
-  | "runnerProblem"
-  | "proofGeneration"
-  | "proofGenerationProblem"
-> {
-  return {
-    path: location.path,
-    kind: location.kind,
-    ...(location.include === undefined ? {} : { include: location.include }),
-    ...(location.runner === undefined ? {} : { runner: location.runner }),
-    ...runnerProblemFields(location),
-    ...(location.proofGeneration === undefined
-      ? {}
-      : { proofGeneration: location.proofGeneration }),
-    ...(location.proofGenerationProblem === undefined
-      ? {}
-      : { proofGenerationProblem: location.proofGenerationProblem }),
-  };
 }
 
 function locationAnswer(
   location: DeclaredLocation,
-  files: readonly ListedFile[],
-  proof: IntentLocationProof | undefined,
+  files: readonly string[],
 ): IntentLocation {
-  const fields = locationFields(location);
+  const fields = {
+    path: location.path,
+    kind: location.kind,
+    ...(location.include === undefined ? {} : { include: location.include }),
+  };
   if (extensionsOf(location.kind) === undefined) {
     return { ...fields, files: [], problem: "unsupported-kind" };
   }
   if (files.length === 0) {
     return { ...fields, files: [], problem: "no-matching-files" };
   }
-  const paths = files.map((file) => file.path);
-  return proof === undefined
-    ? { ...fields, files: paths }
-    : { ...fields, files: paths, proof };
-}
-
-// Proof is read for a location of a proof kind that declares a proof
-// directory and lists files.
-function proofOfLocation(
-  pinned: PinnedTexts,
-  source: PublishedSource,
-  revision: string,
-  location: DeclaredLocation,
-  files: readonly ListedFile[],
-  signal: AbortSignal,
-  naming: (reading: string) => void,
-): Promise<IntentLocationProof> | undefined {
-  const proofKind = proofKindOf(location.kind, location.runner);
-  if (
-    location.proof === undefined ||
-    proofKind === undefined ||
-    files.length === 0
-  ) {
-    return undefined;
-  }
-  return locationProofAt(
-    proofKind,
-    pinned,
-    source,
-    revision,
-    location.proof,
-    files,
-    signal,
-    naming,
-  );
+  return { ...fields, files };
 }
 
 // Performs one Intent locations read: the configured locations and their
@@ -228,21 +152,7 @@ export async function performIntentLocationsRead(
       signal,
       naming,
     );
-    locations.push(
-      locationAnswer(
-        location,
-        files,
-        await proofOfLocation(
-          pinned,
-          source,
-          revision,
-          location,
-          files,
-          signal,
-          naming,
-        ),
-      ),
-    );
+    locations.push(locationAnswer(location, files));
   }
   return answered({ revision, locations });
 }

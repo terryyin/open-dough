@@ -28,56 +28,7 @@ holds, gives an unusable location's explanation, and lists its immediate
 folders and files in the browser's order, each folder with its file count.
 The summary drills down: a child's name selects that folder or file as its
 tree name does and reveals it in the tree, keyboard-operable. A summary reads
-no file text. When a location declares a
-`proof` directory of committed Cucumber proof (the
-[Cucumber proof reference](../src/skills/dough-test-optimization/references/cucumber-proof.md)),
-a selected file's Proof lists the file's scenarios and outline rows in source
-order, each with its **Last successful proof** (retry-assisted passes marked
-with attempt counts), duration, time since, commit, and whether it was
-observed on this file version, or _No successful proof_, under a count line
-of those successful observations. A `python` location that declares committed
-pytest proof (the
-[pytest proof reference](../src/skills/dough-test-optimization/references/pytest-proof.md))
-reads the same way in pytest's words: a selected file's Proof lists, under a
-**Test case** header, its module-level `def test_*` and `async def test_*`
-functions and the `test_*` methods of its `Test*` classes in definition
-order, a function with observed parameter ids as one row per observed id in
-parameter id order, whatever order the snapshot holds them in (for example
-"test_rounding Parameters: even" before "Parameters: up"), and any other
-function as one row; observations the published file no longer defines are
-not listed, and the count line counts test cases. A `typescript` or
-`javascript` location's kind does not imply its proof format: one that declares `proof` also
-declares `runner`: `"vitest"` ([Vitest proof
-reference](../src/skills/dough-test-optimization/references/vitest-proof.md)),
-`"playwright"` ([Playwright proof
-reference](../src/skills/dough-test-optimization/references/playwright-proof.md)), or
-`"node:test"` ([Node test proof
-reference](../src/skills/dough-test-optimization/references/node-test-proof.md)), and reads
-in that runner's words: under **Test case**, every `it`/`test` call — bare or as a member of
-`test` (`test.describe` / `test.it`), with or without modifiers such as `.each`, `.skip`,
-`.skipIf(…)`, `.serial`, `.parallel`, `.fixme` or `.fail` — whose name and enclosing
-`describe`/`suite` names are string or unsubstituted template literals, in definition order,
-named by the whole `describe` path as the runner names it (Vitest "renderTitleFromPattern >
-…", Playwright "touch reading > …", or Node "land rerun > …"); an anonymous
-`test.describe(fn)` adds no path segment; `.each`/`.for` placeholders and multi-project
-observations expand to one row each in code-point order of the observed name or project; any
-other test as one row. Non-literal names (including loop-generated Playwright or Node
-titles) and stale observations are not listed; the count line counts test cases. A location
-declaring `proof` without a usable `runner` explains that setting in
-`.planning/open-dough.json` instead of reading proof, while its files stay readable. A final
-unsuccessful scenario clears its earlier proof during an explicit recording run; a later
-explicit pass restores it; unexecuted scenarios keep theirs. Normal runs leave proof
-untouched. Proof is a published snapshot from deliberate runs, not present health. Every
-proof-bearing location's `proofGeneration` declares one nonempty `command` (from the
-repository root) or `skill`; file Proof shows it as text and never executes it.
-Missing or invalid instructions explain the setting without hiding readable proof. Legacy
-proof reduces to the latest result before retaining successes. Proof files are read once
-with the locations at that revision. A file with no successful proof says so; an unreadable
-or invalid proof file is a named read failure with retry, never _No successful proof_.
-Without a declared directory, Proof says it is not recorded and names the installed
-reference (for `typescript`/`javascript`, the declared runner's reference when Intent reads
-it, otherwise every such runner's); other kinds say Proof is read for Gherkin feature files,
-pytest files, Vitest tests, Playwright tests and Node test files so far.
+no file text.
 The selected perspective choice names the page, so Intent shows no heading of its own. Below
 the banner the page does not scroll: the location tree fills the remaining height against
 the left edge, and it and the reading pane each scroll independently. Directly under the
@@ -86,33 +37,12 @@ banner, a strip of three Intent reading modes, **Intent**, **Optimization Candid
 perspective, and arrow keys, Home and End move between its tabs.
 **Intent** shows the location tree (Purpose locations only) beside the
 reading pane; it is the tab a project's Intent first shows. With a file
-selected, or nothing selected yet, the reading pane offers **Purpose** and
-**Proof** tabs at its top; the chosen tab fills the pane, **Purpose** when
-Intent opens. The chosen tab stays while other files are selected and is
-page state, so leaving Intent or reloading starts on **Purpose**. The tabs
-use the same Arrow, Home and End keys as the mode strip, which never reach
-project cycling. Switching tabs reads nothing again and keeps the selection,
-a positioned case, the reading mode and where each tab was read in that
-file; a location or folder summary has no tabs. A **Side by side** toggle
-beside the tabs shows Purpose and Proof together, each named by its heading
-and scrolling on its own; where the pane is too narrow for two columns
-(including when the tree sits above it), Purpose stacks above Proof with the
-toggle still on. Turning it off restores the prior tab. Like other view
-preferences, this browser keeps the layout as one disposable choice for
-every project across perspective switches, reloads and later visits; the
-chosen tab is not kept. Where the browser keeps none, refuses storage, or
-keeps an unusable value, Intent starts with tabs and a chosen layout lasts
-for the page. Switching the layout reads nothing again and keeps the
-selection, reading mode, selected story and Purpose line, so a positioned
-case stays in view. Opening a file at a case side by side, from an
-Optimization Candidates entry, also brings that case's Proof row into view;
-with tabs, Proof keeps its own place.
+selected, or nothing selected yet, the reading pane shows its **Purpose**.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at the observed revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
 Choosing a location an entry names selects **Intent** with that file's
-**Purpose** chosen, or shown side by side, positioned on the entry's case
-where that names one line, with its location and folders opened so the file
+**Purpose** positioned on the entry's case where that names one line, with its location and folders opened so the file
 shows selected, and choosing **Optimization Candidates** again returns to
 that entry without reading the record again.
 
@@ -131,7 +61,7 @@ pages wait until they are seen again, then ask once when due. The recovered
 answer replaces its problem through the same path as **Retry**. Malformed
 settings, access refusals, unexpected answers and unclassified failures keep
 their manual actions. Absent or mismatched candidates keep their existing
-explanations. Purpose file text and Proof problems offer their own **Retry**.
+explanations. Purpose file text offers its own **Retry**.
 
 **CI status** shows, across the
 content area without the location tree, the selected check's judgment of the
@@ -212,7 +142,7 @@ published tree: styled by change kind, added files inserted, deleted files
 kept, a rename at its new path where a location selects it else at its old
 path. A completed story is named by its done record's title and compared
 through its published completion, whose revisions need not be the published
-revision Intent and its Proof describe. Folders containing changes share one
+revision Intent describes. Folders containing changes share one
 background; a location containing changes keeps its header background and
 carries a change mark on its leading edge. The first time Intent has the
 comparison, those folders and the first changed location open and everything
@@ -222,8 +152,7 @@ file in a location changed; toggling it opens the same folders again and
 collapses the rest. Changed files no location selects by either path are
 counted in the summary with a way to Review changes, which opens on Intent's
 comparison (All changes, uncommitted included) even for a story with a review
-mark. A changed file's Purpose is Review changes' diff of it, and its Proof
-says it describes the published revision. A story without a comparison, and
+mark. A changed file's Purpose is Review changes' diff of it. A story without a comparison, and
 a failed read with retry, each say so while the published tree stays usable;
 clearing the selected story removes the summary. The story is a lens on
 Intent, not a separate definition of it, and its changed files are an initial

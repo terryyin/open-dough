@@ -75,17 +75,14 @@ export class PinnedTexts extends PinnedMemo {
       );
   }
 
-  // A nested Git tree under a location path at a commit, each entry with its
-  // blob sha, remembered under the path with a trailing NUL, `tree`, NUL and
-  // `sha`, which no file path ever has. The key names the entry shape that
-  // carries blob shas, so a listing an older dashboard kept without them
-  // under `\0tree` is never recalled.
+  // A nested Git tree under a location path at a commit, remembered under the
+  // path with a trailing NUL and `tree`, which no file path ever has.
   treeLister(source: PublishedSource, revision: string, signal: AbortSignal) {
     return (directory: string): Promise<readonly TreeEntry[]> =>
       this.recalledOrUnchangedJson(
         source,
         revision,
-        `${directory}\0tree\0sha`,
+        `${directory}\0tree`,
         signal,
         () =>
           listRepositoryTreeViaGh(

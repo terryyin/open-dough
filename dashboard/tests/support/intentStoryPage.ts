@@ -8,7 +8,7 @@ import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { parts } from "../dashboardPage.ts";
-import { chooseReadingTab } from "../intentPerspectivePage.ts";
+import { purposeRegion } from "../intentPerspectivePage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { expect } from "../dashboardTest.ts";
 import {
@@ -111,7 +111,7 @@ export const background = (row: Locator) =>
 // A changed file's diff in Intent's Purpose, as its lines read.
 export async function intentDiff(intent: Locator, name: string) {
   await intentFile(intent, name).click();
-  const purpose = await chooseReadingTab(intent, "Purpose");
+  const purpose = purposeRegion(intent);
   await expect(purpose.locator(".intent-story-diff-name")).toHaveText(name);
   const code = purpose.locator(".story-review-code");
   await expect(code).toBeVisible();

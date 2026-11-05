@@ -1,7 +1,6 @@
 // The Intent perspective of the selected project: Purpose reads configured
 // test-source locations at the observed revision through the authenticated
-// read boundary, and Proof shows the last successful proof a location's
-// proof holds (`./IntentBrowser.tsx`). Unusable locations and failed reads
+// read boundary (`./IntentBrowser.tsx`). Unusable locations and failed reads
 // each keep their own explanation; remaining locations stay browseable. The
 // reading strip (`./IntentModeTabs.tsx`) is drawn here, above those
 // explanations, so CI status (`./IntentCiStatus.tsx`), which does not depend
@@ -36,7 +35,6 @@ import type { PublishedWork } from "./publishedWork.ts";
 import { useIntentLocations } from "./useIntentLocations.ts";
 import { useIntentStoryLens } from "./useIntentStoryLens.ts";
 import "./intent-perspective.css";
-import "./intent-proof.css";
 import "./intent-candidates.css";
 
 function NotConfigured({ label }: { readonly label: string }) {
@@ -88,8 +86,7 @@ function IntentBody({
   readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
 } & ModeChoice) {
-  const { intent, retryLocations, proofRereading, retryProof } =
-    useIntentLocations(source, work?.revision);
+  const { intent, retryLocations } = useIntentLocations(source, work?.revision);
 
   // An explanation in place of the locations browser, shown as the panel of
   // whichever location-reading mode is chosen; the Intent mode's names the
@@ -148,10 +145,6 @@ function IntentBody({
         source={source}
         revision={work.revision}
         locations={intent.locations}
-        proofRereading={proofRereading}
-        onProofRetry={() => {
-          retryProof(work.revision);
-        }}
         mode={mode}
         modeIdPrefix={modeIdPrefix}
         onModeChange={onModeChange}

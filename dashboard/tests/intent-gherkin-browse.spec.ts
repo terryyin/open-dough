@@ -7,13 +7,13 @@
 import { expect, test } from "./dashboardTest.ts";
 import { chooseProject, parts, shortRevision } from "./dashboardPage.ts";
 import {
-  chooseReadingTab,
   expandIntentFolders,
   expandIntentGroup,
   expectAddress,
   expectIntentGroupsCollapsed,
   intentGroupToggle,
   intentModeTab,
+  purposeRegion,
 } from "./intentPerspectivePage.ts";
 import { colourOf } from "./pageColours.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
@@ -76,12 +76,6 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     await expect(intent).toContainText(
       `at revision ${shortRevision(doughnut.revision)}`,
     );
-    const proof = await chooseReadingTab(intent, "Proof");
-    await expect(proof).toContainText(
-      "Proof is not recorded for this project.",
-    );
-    await expect(proof).not.toContainText(/passed|failed|no tests/i);
-    await chooseReadingTab(intent, "Purpose");
   });
 
   await test.step("Gherkin keywords and steps are styled; line text equals the source; copy excludes line numbers", async () => {
@@ -142,7 +136,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
       "aria-selected",
       "true",
     );
-    await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
+    await expect(purposeRegion(intent)).toContainText(
       "Select a file to read its Purpose.",
     );
     await expandIntentGroup(intent, "e2e_test/packaged/features");

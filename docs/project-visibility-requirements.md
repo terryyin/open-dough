@@ -205,10 +205,9 @@ The following choices remain open:
 - How each project identifies its test locations and how proof observations
   are collected, matched to source revisions, and aggregated. The selected
   [initial Intent UX/UI](dashboard-ux-ui-north-star.md#initial-intent-workspace)
-  owns the runtime information, hierarchy, and story-scope direction; those
-  choices are settled for design, while their implementation remains future
-  work. The file browser and the Purpose and Proof layouts are delivered, as
-  [Development and Intent](dashboard-development-intent.md) describes.
+  owns the runtime information, hierarchy, and story-scope direction, settled
+  for design but not yet built beyond the file browser and Purpose reading
+  ([Development and Intent](dashboard-development-intent.md)).
 - Whether Start session belongs only in Development or remains visible as a
   project-level action across perspectives. Structure is deferred from the
   initial UI; its later UX/UI remains separate design work.

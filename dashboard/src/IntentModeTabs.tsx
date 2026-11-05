@@ -1,5 +1,5 @@
 // The Intent perspective's three reading modes (`./IntentPerspective.tsx`):
-// Intent, its locations with Purpose and Proof (`./IntentBrowser.tsx`),
+// Intent, its locations with their Purpose (`./IntentBrowser.tsx`),
 // Optimization Candidates, the published record across the content area, and
 // CI status, the trunk's selected-check judgment across the content area
 // (`./IntentCiStatus.tsx`), offered whether or not locations are configured.

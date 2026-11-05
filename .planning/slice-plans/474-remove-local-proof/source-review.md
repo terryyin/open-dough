@@ -26,22 +26,22 @@ Reviewer notes: 3c/3d overlap 3b.2; E2 sets no new rule for unknown keys; E6 nam
 | 2a.8 | Delete local collection and persistence: commands | slice 3 | |
 | 2a.9 | Delete local collection and persistence: runner wiring | slice 3 | |
 | 2a.10 | Delete local collection and persistence: configuration | slice 3 | |
-| 2b | Remove the Intent location `proof` setting. | slice 2 | |
-| 2c | Remove the Intent location `proofGeneration` setting. | slice 2 | |
-| 2d | Remove this repository's entries for those settings in `.planning/open-dough.json`. | slice 2 | |
-| 2e | Remove the code, schemas and documentation that read or explain `proof` / `proofGeneration`. | slice 2 | |
+| 2b | Remove the Intent location `proof` setting. | slice 2 | observed: slice 2: dashboard/server/intentLocationsSettings.ts declaredLocations reads only path/kind/include; IntentLocation model has no proof/proofGeneration/runner; boundary/authenticated-read-intent-locations.spec.ts toEqual {path, kind, files} |
+| 2c | Remove the Intent location `proofGeneration` setting. | slice 2 | observed: slice 2: dashboard/server/intentLocationsSettings.ts declaredLocations reads only path/kind/include; IntentLocation model has no proof/proofGeneration/runner; boundary/authenticated-read-intent-locations.spec.ts toEqual {path, kind, files} |
+| 2d | Remove this repository's entries for those settings in `.planning/open-dough.json`. | slice 2 | observed: slice 2: .planning/open-dough.json locations carry no runner/proof/proofGeneration; tests/support/ci-proof-declaration.test.mjs passes |
+| 2e | Remove the code, schemas and documentation that read or explain `proof` / `proofGeneration`. | slice 2 | observed: slice 2: git grep proofGeneration\|intentProofRead\|proofKinds over dashboard/ docs/ empty; PROJECT-CONFIGURATION.md and docs/dashboard-development-intent.md describe Purpose-only reading; proofGeneration.ts and client proof schema deleted |
 | 2f | Follow exclusive dependencies through helpers, packages and lockfiles until no orphaned local-proof support remains. | slice 5 | |
-| 3a | Remove the dashboard's reading of committed local proof. | slice 2 | |
-| 3b.1 | Remove dashboard UI that exists solely for local proof | slice 2 | |
+| 3a | Remove the dashboard's reading of committed local proof. | slice 2 | observed: slice 2: server/intentProofRead.ts, proofKinds, proofCases, runner case parsers/proof modules, IntentProof*.tsx, ProofObservationCells, intent-proof.css deleted; IntentFileReading.tsx renders one Purpose section; 119 Intent/boundary specs pass |
+| 3b.1 | Remove dashboard UI that exists solely for local proof | slice 2 | observed: slice 2: server/intentProofRead.ts, proofKinds, proofCases, runner case parsers/proof modules, IntentProof*.tsx, ProofObservationCells, intent-proof.css deleted; IntentFileReading.tsx renders one Purpose section; 119 Intent/boundary specs pass |
 | 3b.2 | Remove dashboard summaries that exist solely for local proof | slice 1 | observed: slice 1: dashboard/src/IntentSummary.tsx renders path, file count, location explanation and children only; IntentProofSummary, IntentSummarySlowest, intentSummaryCoverage, intentSummaryProofCost deleted; intent-entry-folder-summaries*.spec.ts, intent-summary-drill-down.spec.ts pass (121 Intent specs) |
 | 3b.3 | Remove dashboard duration/cost views that exist solely for local proof | slice 1 | observed: slice 1: dashboard/src/IntentSummary.tsx renders path, file count, location explanation and children only; IntentProofSummary, IntentSummarySlowest, intentSummaryCoverage, intentSummaryProofCost deleted; intent-entry-folder-summaries*.spec.ts, intent-summary-drill-down.spec.ts pass (121 Intent specs) |
-| 3b.4 | Remove dashboard endpoints that exist solely for local proof | slice 2 | |
-| 3b.5 | Remove dashboard parsers that exist solely for local proof | slice 2 | |
-| 3b.6 | Remove dashboard data models that exist solely for local proof | slice 2 | |
-| 3b.7 | Remove dashboard configuration paths that exist solely for local proof | slice 2 | |
-| 3c | This includes proof generation prompts. | slice 2 | |
+| 3b.4 | Remove dashboard endpoints that exist solely for local proof | slice 2 | observed: slice 2: server/intentProofRead.ts, proofKinds, proofCases, runner case parsers/proof modules, IntentProof*.tsx, ProofObservationCells, intent-proof.css deleted; IntentFileReading.tsx renders one Purpose section; 119 Intent/boundary specs pass |
+| 3b.5 | Remove dashboard parsers that exist solely for local proof | slice 2 | observed: slice 2: server/intentProofRead.ts, proofKinds, proofCases, runner case parsers/proof modules, IntentProof*.tsx, ProofObservationCells, intent-proof.css deleted; IntentFileReading.tsx renders one Purpose section; 119 Intent/boundary specs pass |
+| 3b.6 | Remove dashboard data models that exist solely for local proof | slice 2 | observed: slice 2: server/intentProofRead.ts, proofKinds, proofCases, runner case parsers/proof modules, IntentProof*.tsx, ProofObservationCells, intent-proof.css deleted; IntentFileReading.tsx renders one Purpose section; 119 Intent/boundary specs pass |
+| 3b.7 | Remove dashboard configuration paths that exist solely for local proof | slice 2 | observed: slice 2: server/intentProofRead.ts, proofKinds, proofCases, runner case parsers/proof modules, IntentProof*.tsx, ProofObservationCells, intent-proof.css deleted; IntentFileReading.tsx renders one Purpose section; 119 Intent/boundary specs pass |
+| 3c | This includes proof generation prompts. | slice 2 | observed: slice 2: server/intentProofRead.ts, proofKinds, proofCases, runner case parsers/proof modules, IntentProof*.tsx, ProofObservationCells, intent-proof.css deleted; IntentFileReading.tsx renders one Purpose section; 119 Intent/boundary specs pass |
 | 3d | This includes last-successful-proof summaries. | slice 1 | observed: slice 1: dashboard/src/IntentSummary.tsx renders path, file count, location explanation and children only; IntentProofSummary, IntentSummarySlowest, intentSummaryCoverage, intentSummaryProofCost deleted; intent-entry-folder-summaries*.spec.ts, intent-summary-drill-down.spec.ts pass (121 Intent specs) |
-| 3e | Per-case views based only on local snapshots go with their source. | slice 2 | |
+| 3e | Per-case views based only on local snapshots go with their source. | slice 2 | observed: slice 2: server/intentProofRead.ts, proofKinds, proofCases, runner case parsers/proof modules, IntentProof*.tsx, ProofObservationCells, intent-proof.css deleted; IntentFileReading.tsx renders one Purpose section; 119 Intent/boundary specs pass |
 | 4a | Remove dedicated tests, fixtures, mocks and test helpers. | slice 5 | |
 | 4b | Delete the feature rather than switching it off. | slice 5 | |
 | 4c | Do not hide it. | slice 5 | |
@@ -78,12 +78,12 @@ Reviewer notes: 3c/3d overlap 3b.2; E2 sets no new rule for unknown keys; E6 nam
 | 7e.3 | CI proof keeps working end to end: artifacts | slice 3 | |
 | 7e.4 | CI proof keeps working end to end: run/attempt/revision identity checks | slice 3 | |
 | 7e.5 | CI proof keeps working end to end: CI adapters | slice 3 | |
-| 7e.6 | CI proof keeps working end to end: the dashboard's **Intent → CI status → Proof** reading | slice 2 | |
+| 7e.6 | CI proof keeps working end to end: the dashboard's **Intent → CI status → Proof** reading | slice 2 | observed: slice 2: intent-ci-proof*.spec.ts and intent-ci-status*.spec.ts pass unchanged in the 119-spec run |
 | 7f | Where a report serves CI as well as local proof, keep only the responsibility that CI or surviving test execution needs. | slice 3 | |
 | 7g | The dashboard run record (`OPEN_DOUGH_DASHBOARD_PROOF_RECORD`, `dashboard/tests/proof-record.md`) feeds CI's Playwright fragments and survives. | slice 3 | |
 | 7h | The dashboard run record is described as the CI input it is. | slice 3 | |
-| 7i.1 | Purpose/test-source browsing stays | slice 2 | |
-| 7i.2 | story selection stays | slice 2 | |
+| 7i.1 | Purpose/test-source browsing stays | slice 2 | observed: slice 2: intent-code-browse*, intent-gherkin-*, intent-selection-reads, intent-purpose-case.spec.ts (Purpose positioned on case), intent-test-optimization-candidates* pass |
+| 7i.2 | story selection stays | slice 2 | observed: slice 2: intent-story-*.spec.ts and boundary/intent-story-overlay pass |
 | 7i.3 | shard scheduling from CI test times stays | slice 3 | |
 | 7i.4 | longest-first scheduling from CI test times stays | slice 3 | |
 | 7i.5 | the shared test-optimization responsibility stays | slice 4 | |
@@ -96,14 +96,14 @@ Reviewer notes: 3c/3d overlap 3b.2; E2 sets no new rule for unknown keys; E6 nam
 | 8f | No permanent removal checker. | slice 5 | |
 | 8g | A one-time whole-product sweep is an acceptance reading, separate from tests of surviving behavior. | slice 5 | |
 | 8h | Spent removal planning is cleaned up at story close. | landing | |
-| E1.T | Setup: a developer opens Intent for `tests` or `dashboard/tests`. | slice 2 | |
-| E1.R1 | Purpose and test source still browse. | slice 2 | |
-| E1.R2 | The **CI status → Proof** tab shows the run's CI proof. | slice 2 | |
-| E1.R3 | No last-successful-proof summary, duration/cost view or proof generation prompt appears. | slice 2 | |
-| E1.R4 | The read returns no local proof field. | slice 2 | |
-| E2.T | Setup: a project's `open-dough.json` location still contains an old `proof` or `proofGeneration` key. | slice 2 | |
-| E2.R1 | The key is treated like any other unrecognized location key. | slice 2 | |
-| E2.R2 | No documentation, schema or compatibility reader names it. | slice 2 | |
+| E1.T | Setup: a developer opens Intent for `tests` or `dashboard/tests`. | slice 2 | observed: slice 2: intent-code-browse*, intent-gherkin-*, intent-selection-reads, intent-purpose-case.spec.ts (Purpose positioned on case), intent-test-optimization-candidates* pass |
+| E1.R1 | Purpose and test source still browse. | slice 2 | observed: slice 2: intent-code-browse*, intent-gherkin-*, intent-selection-reads, intent-purpose-case.spec.ts (Purpose positioned on case), intent-test-optimization-candidates* pass |
+| E1.R2 | The **CI status → Proof** tab shows the run's CI proof. | slice 2 | observed: slice 2: intent-ci-proof*.spec.ts pass (CI status -> Proof shows run CI proof) |
+| E1.R3 | No last-successful-proof summary, duration/cost view or proof generation prompt appears. | slice 2 | observed: slice 2: server/intentProofRead.ts, proofKinds, proofCases, runner case parsers/proof modules, IntentProof*.tsx, ProofObservationCells, intent-proof.css deleted; IntentFileReading.tsx renders one Purpose section; 119 Intent/boundary specs pass |
+| E1.R4 | The read returns no local proof field. | slice 2 | observed: slice 2: boundary/authenticated-read-intent-locations.spec.ts toEqual location {path, kind, files} with no proof field |
+| E2.T | Setup: a project's `open-dough.json` location still contains an old `proof` or `proofGeneration` key. | slice 2 | observed: slice 2: dashboard/server/intentLocationsSettings.ts declaredLocations reads only path/kind/include; IntentLocation model has no proof/proofGeneration/runner; boundary/authenticated-read-intent-locations.spec.ts toEqual {path, kind, files} |
+| E2.R1 | The key is treated like any other unrecognized location key. | slice 2 | observed: slice 2: dashboard/server/intentLocationsSettings.ts declaredLocations reads only path/kind/include; IntentLocation model has no proof/proofGeneration/runner; boundary/authenticated-read-intent-locations.spec.ts toEqual {path, kind, files} |
+| E2.R2 | No documentation, schema or compatibility reader names it. | slice 2 | observed: slice 2: git grep proofGeneration over dashboard/ docs/ empty; settings parser and zod schema name no old key |
 | E3.T | Setup: a developer runs `bash scripts/test.sh <file>` or `npm run --silent test:dashboard -- <spec>` with `RECORD_NODE_TEST_PROOF=1` or `RECORD_PLAYWRIGHT_PROOF=1` set. | slice 3 | |
 | E3.R1 | The run behaves exactly as it would without the variable: same output and same exit. | slice 3 | |
 | E3.R2 | No proof directory is written. | slice 3 | |

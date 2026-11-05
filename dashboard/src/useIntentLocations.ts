@@ -5,11 +5,9 @@
 // are read per revision:
 // the published work's detail completing at the same revision replaces the
 // work, but neither reads them again nor remounts the browser and its
-// selection. A failed proof read is retried by reading the locations again in
-// place: the browser keeps its selection and Purpose, and only a configured
-// answer replaces the locations shown.
+// selection.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   readIntentLocationsAt,
   type IntentLocations,
@@ -38,13 +36,7 @@ export function useIntentLocations(
     source,
     revision,
   );
-  const [proofRereading, setProofRereading] = useState(false);
-  const proofReread = useRef<AbortController | undefined>(undefined);
-
   useEffect(() => {
-    proofReread.current?.abort();
-    proofReread.current = undefined;
-    setProofRereading(false);
     if (revision === undefined) {
       setIntent({ status: "not-configured" });
       return;
@@ -72,22 +64,5 @@ export function useIntentLocations(
     };
   }, [source, revision, retry, recordSettled]);
 
-  const retryProof = (revision: string) => {
-    proofReread.current?.abort();
-    const controller = new AbortController();
-    proofReread.current = controller;
-    setProofRereading(true);
-    void readIntentLocationsAt(source, revision, controller.signal)
-      .then((locations) => {
-        if (!controller.signal.aborted && locations.status === "configured") {
-          setIntent(locations);
-        }
-      })
-      .catch(() => undefined)
-      .finally(() => {
-        if (!controller.signal.aborted) setProofRereading(false);
-      });
-  };
-
-  return { intent, retryLocations: retryRead, proofRereading, retryProof };
+  return { intent, retryLocations: retryRead };
 }

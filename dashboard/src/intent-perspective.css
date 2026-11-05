@@ -1,6 +1,6 @@
 /* The Intent perspective (./IntentPerspective.tsx): not-configured prose, or
-   a reading-mode strip over Purpose locations beside source and Proof, or
-   over the candidates record. The perspective choice already
+   a reading-mode strip over Purpose locations beside their source, or over
+   the candidates record or CI status. The perspective choice already
    names the page, so it shows no heading of its own. Below the banner the
    page itself does not scroll: the location browser runs the full remaining
    height against the page's left edge, and it and the reading pane each
@@ -159,7 +159,6 @@
 }
 
 .intent-reading {
-  container: intent-reading / inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
