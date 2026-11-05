@@ -129,7 +129,7 @@ pace.
 
 ### 3. The gain is observed on a real dashboard
 Type: Behavior
-Status: planned
+Status: done
 Proof: A throwaway dev server from this checkout at the revision that landed
 slice 2 (private HOME with a one-project list, `GH_TOKEN="$(gh auth token)"`, a private
 `DOUGH_GITHUB_REQUEST_OWNER_ROOT`, a `gh` wrapper on PATH appending each invocation to a log), two
@@ -150,6 +150,21 @@ one listing per pace for the project.
 - A listing every requester left still settles under the boundary's own controller; closing the boundary aborts it. The documents state listing reuse and listing lifetime (G1 proved by slice 2).
 - Specs inject `DOUGH_REVISION_CHECK_REUSE_MS` (including zero); `configuredLimit` rejects zero, so that injection stays a dedicated reader.
 - Slices 1 and 2 are a safe stopping point: the saving and the freshness promise hold with fixture proof; slice 3 adds the real observation the evaluation basis names.
+
+## Learnings
+
+- **Slice 3 real-dashboard observation (2026-11-05):** At landed slice-2 revision
+  `37e16d3fb767ac2a4367f2b9e3cf741d593453b4`, a throwaway Vite dev server (private HOME with a
+  one-project Open Dough list, `GH_TOKEN` from `gh auth token`, private
+  `DOUGH_GITHUB_REQUEST_OWNER_ROOT` mode `0700`, `gh` wrapper on PATH logging every invocation)
+  opened two headless Playwright pages of Open Dough about seven seconds apart and kept them
+  visible for one quiet minute after both settled. The wrapper counted **4** `matching-refs`
+  invocations in that minute (baseline eight = four per visible page); three of the four were
+  conditional `If-None-Match` asks. Page A check times (UTC): `01:18:21.152Z`, `01:18:36.705Z`,
+  `01:18:52.340Z`, `01:19:08.013Z`. Page B check times (UTC): `01:18:25.813Z`, `01:18:40.870Z`,
+  `01:18:55.923Z` (three in the minute; B settled ~8 s after A). Quiet window
+  `01:18:10.323Z`–`01:19:10.325Z`. Both pages kept their snapshot with no problem alert. No product
+  source changed for this observation; production on `:4173` was not restarted for the proof.
 
 ## Slice 1 accepted proof (reuse)
 

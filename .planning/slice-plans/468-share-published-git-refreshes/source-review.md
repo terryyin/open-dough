@@ -11,10 +11,10 @@ as supplied in the reviewer prompt (verbatim Goal through Evaluation basis).
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A developer following one published project from several visible dashboard pages of one dashboard process sees newly published work within the current refresh pace. | slice 3 | |
-| 2 | While that process asks GitHub for one branch-head listing per pace for that project, not one per page. | slice 3 | |
-| 3 | Outcome: fewer `gh` requests reach GitHub for the same observation. | slice 3 | |
-| 4 | Freshness, credential isolation, rate-limit handling, and failure behavior remain as they are. | slice 3 | |
+| 1 | A developer following one published project from several visible dashboard pages of one dashboard process sees newly published work within the current refresh pace. | slice 3 | observed: quiet real run at `37e16d3f` shares listings (4 vs 8); publication-to-display within pace proved by slice 2 journey `shared-observer-check-reuse.spec.ts` |
+| 2 | While that process asks GitHub for one branch-head listing per pace for that project, not one per page. | slice 3 | observed: throwaway real dashboard, two staggered pages, one quiet minute: 4 matching-refs (incl. 304s) for 7 page checks |
+| 3 | Outcome: fewer `gh` requests reach GitHub for the same observation. | slice 3 | observed: 4 matching-refs vs baseline 8 for two visible pages |
+| 4 | Freshness, credential isolation, rate-limit handling, and failure behavior remain as they are. | slice 3 | observed: both pages kept snapshot, zero problem alerts; reuse still keyed by owner scope (private owner root); failure/limit paths unchanged from slices 1–2 |
 | 5 | A page's scheduled revision check is answered from the branch-head listing this dashboard process last settled for that project when that listing is younger than the check pace. | slice 1 | observed: dashboard/tests/boundary/authenticated-read-shared-listing.spec.ts: sequential checks within window cost one matching-refs |
 | 6 | The reuse window is the same one host status uses — one second under the pace. | slice 1 | observed: dashboard/src/revisionCheckSchedule.ts:`checkReuseMs`; revisionChecks and hostStatusObservation both read it |
 | 7 | Otherwise (no young enough settled listing), the check joins a listing already outstanding. | slice 1 | observed: dashboard/tests/boundary/authenticated-read-shared.spec.ts: concurrent checks share one outstanding listing |
@@ -66,10 +66,10 @@ as supplied in the reviewer prompt (verbatim Goal through Evaluation basis).
 | E4 | No new database |  | G-excl-limits |
 | E5 | No new scheduler |  | G-excl-limits |
 | E6 | No change to the request owner's protocol |  | G-excl-limits |
-| M1 | Baseline: one visible page costs four listings a minute per project; N staggered pages cost 4N. | slice 3 | |
-| M2 | Target: N visible pages on one process cost four a minute. | slice 3 | |
-| M3 | Target: publication-to-display stays within the current pace. | slice 3 | |
-| M4 | Count `gh` requests that reach GitHub, conditional `304` answers included. | slice 3 | |
-| M5 | Observation (2026-11-04): a `304` left GitHub's `X-RateLimit-Used` unchanged — gain is in `gh` invocations, request-owner turns, and outage exposure, not primary rate-limit allowance. | slice 3 | |
-| M6 | Count latency as time from a published commit to each page showing it. | slice 3 | |
-| M7 | Permitted trade-off: Ex3's bounded extra delay for one page. | slice 3 | |
+| M1 | Baseline: one visible page costs four listings a minute per project; N staggered pages cost 4N. | slice 3 | observed: documented baseline used as eight for N=2; real run fell to four |
+| M2 | Target: N visible pages on one process cost four a minute. | slice 3 | observed: N=2 quiet minute at `37e16d3f` → 4 matching-refs |
+| M3 | Target: publication-to-display stays within the current pace. | slice 3 | observed: quiet-origin run confirms shared listing cadence; within-pace display of a new commit remains slice 2 journey proof |
+| M4 | Count `gh` requests that reach GitHub, conditional `304` answers included. | slice 3 | observed: wrapper counted all matching-refs including three If-None-Match (304) asks |
+| M5 | Observation (2026-11-04): a `304` left GitHub's `X-RateLimit-Used` unchanged — gain is in `gh` invocations, request-owner turns, and outage exposure, not primary rate-limit allowance. | slice 3 | observed: premise retained; real run included conditional listings in the gh count |
+| M6 | Count latency as time from a published commit to each page showing it. | slice 3 | observed: not re-timed on quiet origin; slice 2 journey measured both tabs show B within one pace |
+| M7 | Permitted trade-off: Ex3's bounded extra delay for one page. | slice 3 | observed: unchanged; slice 2 journey covers Ex3 |
