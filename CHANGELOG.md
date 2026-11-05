@@ -1,3 +1,16 @@
+## 0.3.86 - 2026-11-05
+
+- Dashboard test reliability (source only): measure the rate-limited revision-stream journey's retry window after the page shows GitHub's answer, matching when the server starts its wait. The shared directed-wait guidance now explains the same boundary.
+- Complete the SEED-236 CI-adapter proof story records and assign its bounded correction for repeated adapter attempt identities; that correction remains in progress.
+
+The Promoted payload is unchanged from 0.3.85. No payload paths are added or removed; installer, discovery and host-hook mechanisms are unchanged. The rollout installs the same released guidance under the new release identity.
+
+Validation: the self-installation baseline check passed before metadata changes. Eight focused checks passed for all-tool installation, payload comparison, self-installation baseline, release finalization, project-settings preservation, payload declaration links, host-hook registration and latest-release pinning. All three tests in the affected revision-stream dashboard spec passed locally. Hosted CI passed source revision `a166534a864a200a76d6a7ccc7996ad5d29701e6` (run `41984755530`); the subsequent assignment-only commit, release and rollout commits are observed separately.
+
+Under ADR 0005, the unchanged Codex, Cursor and Claude Code installation, discovery and host-hook mechanisms reuse their existing integration evidence documented in 0.3.82, and the unchanged payload retains 0.3.85's behavior evidence. These deterministic checks are not fresh native-host acceptance; no native exception is claimed.
+
+Maintainer exception (Terry, 2026-11-05): correct the erroneous unpublished local `v0.3.86` tag created after a concurrent main advance stopped metadata preparation. The incorrect local tag was deleted with explicit approval before finalization; no incorrect tag was published. This one-time exception does not permit changes to other release tags.
+
 ## 0.3.85 - 2026-11-05
 
 - Test optimization's CI proof collector names a CI adapter's attempt: `fragment` and `summarize` take `--attempt-id <text>` instead of the GitHub Actions `--attempt` and `--run-id`. A fragment or summary names exactly one of the two identities, and `summarize` collects only fragments of the same attempt and revision. Summary `schemaVersion` stays 1, so every existing GitHub Actions summary stays valid.
