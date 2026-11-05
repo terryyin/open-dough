@@ -22,7 +22,7 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | Q7 | Reuse the Vitest-introduced test-call snapshot format and reader for a second runner; add no Node-shaped duplicate. | slice 3 | observed: observed: proofKinds.ts node:test reuses parseVitestProofFile and vitestRowsOf; no Node-shaped parser |
 | Q8 | The reference is written for the agent working in the recording project. | slice 1 | observed: node-test-proof.md written for agent in recording project (Configure once) |
 | Q9 | Event shape is stated with the Node version it was observed on. | slice 1 | observed: node-test-proof.md Record section: observed on Node 24.21.0 |
-| Q10 | Publication of Doughnut adoption follows Doughnut's own rules. | slice 5 |  |
+| Q10 | Publication of Doughnut adoption follows Doughnut's own rules. | slice 5 | observed: observed: Doughnut AGENTS.md Execution wrap-up followed for subordinate publication (format:changed → commit → push) |
 | Q11 | Terry evaluates real reading against node --test output plus an editor. | slice 6 |  |
 | 1 | Publish src/skills/dough-test-optimization/references/node-test-proof.md. | slice 1 | observed: src/skills/dough-test-optimization/references/node-test-proof.md exists |
 | 2 | Link that reference from dough-test-optimization the same way the Cucumber, pytest and Vitest references are linked. | slice 1 | observed: src/skills/dough-test-optimization/SKILL.md links Node test proof beside cucumber/pytest/vitest |
@@ -99,12 +99,12 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | 25.11 | Unchanged output and exit | slice 2 | observed: node-test-proof-reporter.test.mjs stdout stderr and exit identical with and without the option |
 | 26 | runner, proof, and recording command declared on src/skills. | slice 2 | observed: .planning/open-dough.json src/skills proof tests/proof and RECORD_NODE_TEST_PROOF command |
 | 27 | One explicit focused recording run committed as first snapshot. | slice 2 | observed: tests/proof/latest.json five observations attempts 1 commit bc26ca5f fileBlob matches hash-object |
-| 28 | Doughnut JS reporter sharing e2e_test/config/proofStore.mjs. | slice 5 |  |
-| 29 | Tests through pnpm test:* inside lint:all covering same rules on Doughnut Node. | slice 5 |  |
-| 30 | runner, proof, recording command on scripts and infra. | slice 5 |  |
-| 31 | Recording command loads reporter via NODE_OPTIONS or explicit flags. | slice 5 |  |
-| 32 | Focused recording of cheap files committed as first snapshot. | slice 5 |  |
-| 33 | Publication follows Doughnut's own rules. | slice 5 |  |
+| 28 | Doughnut JS reporter sharing e2e_test/config/proofStore.mjs. | slice 5 | observed: observed: e2e_test/config/nodeTestProofReporter.mjs shares proofStore.mjs |
+| 29 | Tests through pnpm test:* inside lint:all covering same rules on Doughnut Node. | slice 5 | observed: observed: package.json test:node-test-proof in lint:all; 12 pass via ./scripts/run.sh pnpm test:node-test-proof |
+| 30 | runner, proof, recording command on scripts and infra. | slice 5 | observed: observed: .planning/open-dough.json scripts and infra runner node:test with proof dirs |
+| 31 | Recording command loads reporter via NODE_OPTIONS or explicit flags. | slice 5 | observed: observed: proofGeneration uses NODE_OPTIONS loading ./e2e_test/config/nodeTestProofReporter.mjs |
+| 32 | Focused recording of cheap files committed as first snapshot. | slice 5 | observed: observed: scripts/proof/latest.json (4) and infra/proof/latest.json (9) from focused recording |
+| 33 | Publication follows Doughnut's own rules. | slice 5 | observed: observed: publication via Doughnut AGENTS Execution wrap-up route |
 | 34 | Intent on Open Dough shows recorded files' rows and folder summary. | slice 6 |  |
 | 35 | Intent on Doughnut shows the same for its recorded files. | slice 6 |  |
 | 36 | src/skills root summary opened once with time and GitHub request count as learning. | slice 6 |  |
@@ -116,7 +116,7 @@ Reviewer agent: 36df6ae3-0fc5-4577-bfbc-3432769747ea (2026-11-05).
 | E2 | Subtests fold into their test. | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs subtests fold / failing subtest clears |
 | E3 | No verdict keeps proof; a verdict clears it. | slice 2 | observed: observed: node-test-proof-reporter-cases.test.mjs keep/clear rules; store module killed/concurrent |
 | E4 | Concurrent jobs share one snapshot. | slice 2 | observed: observed: node-test-proof-reporter-store.test.mjs four files concurrent one latest.json no json lock |
-| E5 | Explicit focused recording in Doughnut. | slice 5 |  |
+| E5 | Explicit focused recording in Doughnut. | slice 5 | observed: observed: focused recording of log-utils and path-routing; pnpm test:log-utils leaves snapshots unchanged |
 | E6 | File Proof. | slice 3 | observed: observed: intent-node-test-proof.spec.ts Ex 6 |
 | E7 | Folder summary. | slice 3 | observed: observed: intent-node-test-proof.spec.ts Ex 7 |
 | E8 | Declaration problems. | slice 3 | observed: observed: intent-node-test-proof.spec.ts Ex 8 |

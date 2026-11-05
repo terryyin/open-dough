@@ -105,7 +105,7 @@ No ADR conflict; no North Star topic is needed.
 
 | Premise | Consuming operation, observed form, revision | Result | Unverified remainder |
 | --- | --- | --- | --- |
-| A `node --test` reporter in the main process receives every file's events with `details.type`, `duration_ms`, `nesting`, `file`, `skip` and `todo`; a subtest's result precedes its parent's and the parent's duration includes it; two reporters need destinations and may share `stdout`; `NODE_OPTIONS` carries `--test-reporter` | Throwaway event-dumping reporter over a sample file (parent with subtests, `describe` with `it`/`it.skip`/`it.todo`, failing, todo-failing, timeout, name pattern) under Node 24.21.0 in the job's temporary directory, 2026-11-04 | True on Node 24: `test:pass`/`test:fail` carry `details.type` `test`/`suite`, `duration_ms` (parent 23 ms over 2.7 ms of children), `line`/`column`; skip and todo arrive as `test:pass` with the flag, a failing todo as `test:fail` with `todo: true` and exit 0; timeout `testTimeoutFailure`; parent of a failed subtest `subtestsFailed`; excluded tests emit nothing; `ERR_INVALID_ARG_VALUE` without destinations; both reporters to `stdout` work; `node -e` under `NODE_OPTIONS` unaffected | Doughnut runs Node 26.13+, which no local toolchain provides: slice 5's first fixture test observes the shape there (early probe) |
+| A `node --test` reporter in the main process receives every file's events with `details.type`, `duration_ms`, `nesting`, `file`, `skip` and `todo`; a subtest's result precedes its parent's and the parent's duration includes it; two reporters need destinations and may share `stdout`; `NODE_OPTIONS` carries `--test-reporter` | Throwaway event-dumping reporter over a sample file (parent with subtests, `describe` with `it`/`it.skip`/`it.todo`, failing, todo-failing, timeout, name pattern) under Node 24.21.0 in the job's temporary directory, 2026-11-04; repeated under Doughnut Node 26.13.0 via `./scripts/run.sh` in the slice 5 workspace, 2026-11-05 | True on Node 24 and Node 26.13.0: same `details.type` `test`/`suite`, `duration_ms` (parent includes children), skip/todo as `test:pass` with the flag, failing todo as `test:fail` with `todo: true`, timeout `testTimeoutFailure`, parent of a failed subtest `subtestsFailed`, name-pattern exclusion emits nothing for the excluded case; no rule change required | — |
 | `scripts/test.sh` hands the option to jobs, loads a second reporter beside the failures reporter, and a silent recorder passes the quiet-pass rule | Scratch edit of the `run_job` line adding a probe reporter with destinations; `PATH=/opt/homebrew/bin:$PATH RECORD_NODE_TEST_PROOF=1 bash scripts/test.sh` on two real `src/skills` files, Bash 5.3.20, 2026-11-04; edit reverted | True: exit 0, no failure report; the probe saw `RECORD_NODE_TEST_PROOF=1`, 2 and 3 `test:pass` results with absolute file paths and the checkout as cwd | — |
 | A `node:test` snapshot in the Vitest format parses and attaches to a real Open Dough file's rows | Scratch script: `vitestRowsOf` over `src/skills/dough-story-refinement/scripts/dough-land-rerun.test.mjs`, a snapshot built from its three names without `project`, `parseVitestProofFile`, `latestProofOf`, `observedRowsOf`, 2026-11-04 | True: 3 parsed, 3 of 3 rows observed, at lines 26, 122, 163 | — |
 | Intent reads no `node:test` proof today and names Vitest's reference for every `javascript` location without proof | Same scratch script: `proofKindOf("javascript", "node:test")`, `runnerProblemOf`, `unrecordedReferenceOf("javascript", undefined)` | True: undefined, `"unsupported"`, `vitest-proof.md`; slice 3 changes all three | — |
@@ -294,7 +294,7 @@ recorded base, with a prepared environment. Enables slice 5.
 
 ### 5. Doughnut records script-test proof on explicit request
 Type: Behavior
-Status: planned
+Status: done
 Proof: First, as the early probe, a fixture test runs Doughnut's Node with a
 throwaway reporter over a sample file and records the event shape here; a
 difference from the Node 24 observations changes the reference (slice 1)
@@ -315,6 +315,22 @@ Behavior: Doughnut's `scripts` and `infra` locations declare the runner,
 proof directories and recording command → an explicit recording run
 maintains each location's snapshot through Doughnut's existing store; the
 ordinary `pnpm test:*` scripts, `lint:all` and CI behave as before.
+
+**Slice 5 early probe (2026-11-05, Status remains planned):** Throwaway
+`dump-reporter.mjs` over a temp sample (parent+subtests, `describe`/`it`/
+`it.skip`/`it.todo`, plain fail, failing todo, timeout, parent with failing
+subtest) under `./scripts/run.sh node --test` (v26.13.0). Event shape matches
+Node 24.21.0 observations in Decisive premise row 1; name-pattern exclusion
+silence re-checked (`--test-name-pattern '^selected$'` emits only `selected`).
+Reference note updated to record the Node 26 confirmation; no rule change.
+**Slice 5 Doughnut publication:** `6c5702cf4d8a29538bc7983ae53a26ad5107c360` on `nerds-odd-e/doughnut` `main` (workspace `/Users/terryyin/git/doughnut/.worktrees/SEED-192-read-node-test-proof`).
+
+Recorder then landed in Doughnut as
+`e2e_test/config/nodeTestProofReporter.mjs` (third `proofStore.mjs` producer),
+`pnpm test:node-test-proof` inside `lint:all`, declarations with
+`NODE_OPTIONS` loading `./e2e_test/config/nodeTestProofReporter.mjs`, and
+focused snapshots for example 5 left uncommitted for the coordinator's
+format:changed → commit → push.
 
 ### 6. Intent shows both projects' published `node:test` proof
 Type: Behavior
@@ -373,10 +389,10 @@ copy. No slice-specific concern remains. Interim behavior: between slices 2
 and 3, Open Dough publishes a `node:test` snapshot Intent cannot yet read,
 and its `src/skills` location shows the honest `runner` explanation
 ("`node:test` is not a runner Intent reads proof for") until slice 3
-replaces it, so this needs no replacing slice. The Node 26 event shape is
-bounded by slice 5's first fixture test, whose failure changes the reference
-before the Doughnut recorder; the plan 465 and 466 overlap is bounded by the
-Take-time check in Current decisions.
+replaces it, so this needs no replacing slice. The Node 26 event shape was
+confirmed matching Node 24 by slice 5's early probe (no reference rule
+change); the plan 465 and 466 overlap is bounded by the Take-time check in
+Current decisions.
 
 ## Story obligations
 

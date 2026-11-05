@@ -136,10 +136,10 @@ before recording; do not silently enable recording in normal commands.
   replaces any earlier proof, a later pass folds into it, and once one
   execution failed the identity stays cleared for the rest of the process.
 
-The event shape above was observed on Node 24.21.0. Doughnut may run Node
-26 or later; confirm the same fields (`details.type`, `duration_ms`, `skip`,
-`todo`, `subtestsFailed`, timeout failure type, and exclusion silence) on
-that runtime before relying on them there.
+The event shape above was observed on Node 24.21.0 and confirmed on Doughnut's
+Node 26.13.0: the same fields (`details.type`, `duration_ms`, `skip`, `todo`,
+`subtestsFailed`, timeout failure type, and exclusion silence) hold; no rule
+change was required.
 
 ## Identity
 
