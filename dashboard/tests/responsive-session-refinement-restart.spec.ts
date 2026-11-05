@@ -13,15 +13,16 @@ import {
   startupUnavailable as unavailable,
   test,
 } from "./responsiveStart.ts";
-import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
+import {
+  briefDoneRenameWait,
+  idleBetweenSteps,
+  markDoneAnyway,
+} from "./support/markDone.ts";
 
-// Mark as done on a session still working waits out the rename's wait for
-// idle before the card lets it go; the rename is not this journey's subject,
-// so that wait stays well inside one expectation's bound.
 test.use({
   projectFolders: ["open-dough"],
   launchTimeoutMs: 60_000,
-  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+  extraEnv: briefDoneRenameWait,
 });
 
 test("a refinement settling on its card leaves a task begun meanwhile focused; starting the card again keeps its Shown in terminal mark beside its own, its session's actions unavailable and said why, while the terminal works", async ({

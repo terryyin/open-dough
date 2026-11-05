@@ -265,6 +265,13 @@ this slice.
 
 ## Current decisions
 
+- Landing CI repair (2026-11-05): main CI run 41974427615 on the landed
+  `4a81298` failed `sessions-sidebar.spec.ts:51` (30 s timeout, shard 11/12).
+  The trace showed two manual marks-as-done on never-idle sessions each waiting
+  out the 5 s rename idle wait. The spec now uses the shared
+  `briefDoneRenameWait` (`dashboard/tests/support/markDone.ts`), which nine other
+  specs also use. Proof: the spec passed `--repeat-each=20` (6 s each) and 10
+  runs under load; the 10 changed specs passed (16 tests); typecheck passed.
 - Slice 5 checkpoint: Terry gave the go-ahead on 2026-11-05 for the Dough
   Land `--keep-worktree` landing (after the local suites and branch CI pass),
   the next patch release from trunk, and the live reading of example 7.

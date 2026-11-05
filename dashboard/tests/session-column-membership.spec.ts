@@ -23,7 +23,11 @@ import {
 } from "./launchStoryCardPage.ts";
 import { emptyBacklog, publishFiles } from "./publishedOrigin.ts";
 import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
-import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
+import {
+  briefDoneRenameWait,
+  idleBetweenSteps,
+  markDoneAnyway,
+} from "./support/markDone.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import {
   at,
@@ -36,10 +40,9 @@ import {
 import { keptSessions } from "./recentlyDoneSessions.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
-// Keep rename waiting within one expectation; timing is not this journey’s subject.
 test.use({
   projectFolders: ["open-dough", "doughnut"],
-  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+  extraEnv: briefDoneRenameWait,
 });
 
 test("one Taken story with two sessions and one local session means two entries; published ordering precedes newest local launches, and another project's session is excluded", async ({

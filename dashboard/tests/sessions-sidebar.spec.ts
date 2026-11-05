@@ -27,10 +27,13 @@ import {
 } from "./sessionsSidebarPage.ts";
 import { expectClosedToggleCounts } from "./sessionsTogglePage.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
-import { markDoneAnyway } from "./support/markDone.ts";
+import { briefDoneRenameWait, markDoneAnyway } from "./support/markDone.ts";
 import { showColumn } from "./boardPage.ts";
 
-test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
+test.use({
+  projectFolders: ["open-dough", "doughnut", "pygardon"],
+  extraEnv: briefDoneRenameWait,
+});
 
 const pygardonStory = {
   identity: "SEED-031#telegram-qr-diagnosis",

@@ -34,16 +34,17 @@ import {
 } from "./launchJourney.ts";
 import { holdSessionReads } from "./sessionStatePace.ts";
 import { openStoryColumnsJourney, type Workflow } from "./storyColumnsPage.ts";
-import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
+import {
+  briefDoneRenameWait,
+  idleBetweenSteps,
+  markDoneAnyway,
+} from "./support/markDone.ts";
 
 test.setTimeout(120_000);
 
-// Mark as done on a session still working waits out the rename's wait for
-// idle before the card lets it go; the rename is not this journey's subject,
-// so that wait stays well inside one expectation's bound.
 test.use({
   projectFolders: ["open-dough", "doughnut"],
-  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+  extraEnv: briefDoneRenameWait,
 });
 
 test.describe("retained launches in their current column homes", () => {

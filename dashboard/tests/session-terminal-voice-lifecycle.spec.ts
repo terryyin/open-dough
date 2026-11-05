@@ -14,6 +14,7 @@ import {
   stopTerminalClip,
 } from "./support/terminalVoicePage.ts";
 import { noteTerminalTraffic } from "./touchTerminalPage.ts";
+import { briefDoneRenameWait } from "./support/markDone.ts";
 import { instructionProblems } from "../src/instructionTranscription.ts";
 
 test.use(voiceBrowserOptions);
@@ -183,12 +184,9 @@ test("switching sessions aborts held transcription and a completed late response
 });
 
 test.describe(() => {
-  // Mark as done on a session still working waits out the rename's wait for
-  // idle before the terminal closes; the rename is not this test's subject,
-  // so that wait stays well inside one expectation's bound.
   test.use({
     extraEnv: async ({ provider }, use) => {
-      await use({ ...provider.extraEnv, DOUGH_DONE_RENAME_WAIT_MS: "300" });
+      await use({ ...provider.extraEnv, ...briefDoneRenameWait });
     },
   });
 

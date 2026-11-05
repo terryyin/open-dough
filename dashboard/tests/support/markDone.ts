@@ -16,6 +16,14 @@ import { sessionActions } from "./sessionEntryDisclosure.ts";
 
 const anyway = "Mark it done anyway?";
 
+// The environment for a journey whose subject is not the rename: Mark as done
+// on a session still working or waiting for input waits out the rename's wait
+// for idle before the session leaves its scope, and this keeps that wait well
+// inside one expectation's bound.
+export const briefDoneRenameWait = {
+  DOUGH_DONE_RENAME_WAIT_MS: "300",
+} as const;
+
 // What the question says of a session that reads working.
 export const stillWorking =
   "This session is still working. Marking it done asks it to stop.";

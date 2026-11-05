@@ -28,14 +28,15 @@ import {
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { expectStartNote, launchGroup } from "./storyCardControls.ts";
 import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
-import { idleBetweenSteps, markDoneAnyway } from "./support/markDone.ts";
+import {
+  briefDoneRenameWait,
+  idleBetweenSteps,
+  markDoneAnyway,
+} from "./support/markDone.ts";
 
-// Mark as done on a session still working waits out the rename's wait for
-// idle before the card lets it go; the rename is not this journey's subject,
-// so that wait stays well inside one expectation's bound.
 test.use({
   projectFolders: ["open-dough"],
-  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+  extraEnv: briefDoneRenameWait,
 });
 
 const openSessionDescription = new RegExp(

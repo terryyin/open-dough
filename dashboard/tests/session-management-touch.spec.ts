@@ -14,7 +14,11 @@ import { openUntilRead, reloadUntilRead } from "./pageRequestNotes.ts";
 import { tapWhereShown } from "./pageLayout.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { messagePartOf } from "./support/sessionMessagePart.ts";
-import { doneQuestion, markAsDone } from "./support/markDone.ts";
+import {
+  briefDoneRenameWait,
+  doneQuestion,
+  markAsDone,
+} from "./support/markDone.ts";
 import { launchedStory, shortIdOf } from "./support/reportedLaunch.ts";
 import { otherQueuedIdentity, queuedIdentity } from "./support/startOrigin.ts";
 import { publishOrigin, test } from "./support/startOriginTest.ts";
@@ -23,7 +27,7 @@ import { phoneLaunchTouchViewport } from "./touchLaunchPage.ts";
 test.use({
   projectFolders: ["open-dough"],
   launchTimeoutMs: 30_000,
-  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+  extraEnv: briefDoneRenameWait,
 });
 const attention =
   "The migration is unfinished. Keep this exact session open until the remaining migration has been checked.";

@@ -24,6 +24,7 @@ import {
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import { setPageVisibility } from "./autoRefreshJourney.ts";
 import {
+  briefDoneRenameWait,
   expectAsked,
   idleBetweenSteps,
   markDone,
@@ -31,12 +32,9 @@ import {
 } from "./support/markDone.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
 
-// Mark as done on a session still working waits out the rename's wait for
-// idle before the card lets it go; the rename is not this journey's subject,
-// so that wait stays well inside one expectation's bound.
 test.use({
   projectFolders: ["open-dough"],
-  extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "300" },
+  extraEnv: briefDoneRenameWait,
 });
 
 test.describe("Mark as done in the terminal asks by the session's current reading", () => {
