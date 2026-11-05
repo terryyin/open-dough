@@ -106,17 +106,14 @@ export async function startDashboardServer(
     readonly limitBackoffMs?: number | undefined;
     // Retained-answer budget (`../../server/retainedAnswers.ts`); 64 MiB unset.
     readonly retainedAnswersBytes?: number | undefined;
-    // Listing reuse ms (`../../server/revisionChecks.ts`); 0 unset (no reuse).
+    // Listing reuse ms (`../../server/revisionChecks.ts`); omitted/undefined forces 0
+    // so fake-clock paced checks see one listing each; pass `checkReuseMs` for settled sharing.
     readonly revisionCheckReuseMs?: number | undefined;
-    // The fake GitHub this server's `gh` asks; a fresh one, closed with the
-    // server, when omitted.
+    // The fake GitHub this server's `gh` asks; a fresh one, closed with the server, when omitted.
     readonly github?: FakeGitHub;
-    // The request owner endpoint this server asks GitHub through, shared
-    // with whatever else the test points there and ended by the test; an
-    // endpoint and owner of this server's own, ended with it, when omitted.
+    // Request-owner endpoint shared with the test's other callers; this server's own when omitted.
     readonly requestOwnerRoot?: string | undefined;
-    // Preview only: serve this already-built directory instead of building a
-    // private copy.
+    // Preview only: serve this already-built directory instead of building a private copy.
     readonly prebuilt?: string | undefined;
     // Extra environment for the spawned server process only, merged over the
     // harness's own PATH/fake-`gh` wiring below. A test uses this to place a

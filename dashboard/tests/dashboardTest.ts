@@ -88,6 +88,8 @@ export const test = base.extend<{
   startTimeoutMs: number | undefined;
   extraEnv: Readonly<Record<string, string>> | undefined;
   pathPrefix: readonly string[] | undefined;
+  // Listing reuse ms; harness default and meaning live on `startDashboardServer`.
+  revisionCheckReuseMs: number | undefined;
   serverMode: FixtureServerMode;
   afterGitHubStops: (removal: Removal) => void;
   github: FakeGitHub;
@@ -101,6 +103,7 @@ export const test = base.extend<{
   startTimeoutMs: [undefined, { option: true }],
   extraEnv: [undefined, { option: true }],
   pathPrefix: [undefined, { option: true }],
+  revisionCheckReuseMs: [undefined, { option: true }],
   serverMode: ["preview", { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
@@ -131,6 +134,7 @@ export const test = base.extend<{
       codexProtocol,
       extraEnv,
       pathPrefix,
+      revisionCheckReuseMs,
       serverMode,
     },
     use,
@@ -143,6 +147,7 @@ export const test = base.extend<{
       launchTimeoutMs,
       machine,
       codexProtocol,
+      revisionCheckReuseMs,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
       extraEnv: {
         ...extraEnv,
