@@ -88,14 +88,19 @@ export function useStandingTransientRecovery(): Date | undefined {
   return until > 0 ? new Date(until) : undefined;
 }
 
+export function transientRecoveryIsDue(
+  contributor: TransientRecoveryContributor,
+): boolean {
+  return pending.has(contributor) && Date.now() >= recoversUntil;
+}
+
 export function useTransientRecoveryDue(
   contributor: TransientRecoveryContributor,
   visibility: Visibility,
   limitStands: boolean,
 ): boolean {
-  const due = useSyncExternalStore(
-    subscribe,
-    () => pending.has(contributor) && Date.now() >= recoversUntil,
+  const due = useSyncExternalStore(subscribe, () =>
+    transientRecoveryIsDue(contributor),
   );
   return due && visibility !== "hidden" && !limitStands;
 }

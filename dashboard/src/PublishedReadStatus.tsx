@@ -8,7 +8,6 @@ import { Moment } from "./Moment.tsx";
 import { PublishedReadFailure } from "./PublishedReadFailure.tsx";
 import type { useObservationAttempt } from "./observationAttempt.ts";
 import { shortRevision, type PublishedWork } from "./publishedWork.ts";
-import { useStandingLimit } from "./readingLimit.ts";
 import { ReadingLimitNotice } from "./ReadingLimitNotice.tsx";
 
 export function PublishedReadStatus({
@@ -17,6 +16,7 @@ export function PublishedReadStatus({
   work,
   withheld,
   recoversAt,
+  limitedUntil,
   notice,
 }: {
   readonly attempt: ReturnType<typeof useObservationAttempt>["attempt"];
@@ -25,9 +25,9 @@ export function PublishedReadStatus({
   // Whether GitHub's rate limit withheld detail of the shown snapshot.
   readonly withheld: boolean;
   readonly recoversAt: Date | undefined;
+  readonly limitedUntil: Date | undefined;
   readonly notice: string;
 }) {
-  const limitedUntil = useStandingLimit();
   return (
     <>
       {/* Both polite regions stay rendered while they have nothing to say:

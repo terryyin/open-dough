@@ -1,7 +1,8 @@
 // The Intent locations of the published work's revision
 // (`./IntentPerspective.tsx`), read through the authenticated read boundary
 // (`./authenticatedIntentRead.ts`): reading, failed with the read problem
-// that says why, or the answer, with retry. Locations are read per revision:
+// that says why, or the answer, with manual or scheduled Retry. Locations
+// are read per revision:
 // the published work's detail completing at the same revision replaces the
 // work, but neither reads them again nor remounts the browser and its
 // selection. A failed proof read is retried by reading the locations again in
@@ -13,6 +14,10 @@ import {
   readIntentLocationsAt,
   type IntentLocations,
 } from "./authenticatedIntentRead.ts";
+import {
+  intentRecoveryOf,
+  useIntentReadRecovery,
+} from "./intentReadRecovery.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { ReadProblem } from "./readProblem.ts";
 
@@ -29,7 +34,10 @@ export function useIntentLocations(
   const [intent, setIntent] = useState<
     IntentLocations | "loading" | IntentLocationsFailure
   >(revision === undefined ? { status: "not-configured" } : "loading");
-  const [locationsRetry, setLocationsRetry] = useState(0);
+  const { retry, retryRead, recordSettled } = useIntentReadRecovery(
+    source,
+    revision,
+  );
   const [proofRereading, setProofRereading] = useState(false);
   const proofReread = useRef<AbortController | undefined>(undefined);
 
@@ -45,18 +53,20 @@ export function useIntentLocations(
     setIntent("loading");
     void readIntentLocationsAt(source, revision, controller.signal)
       .then((locations) => {
-        if (!controller.signal.aborted) setIntent(locations);
+        if (controller.signal.aborted) return;
+        recordSettled(undefined);
+        setIntent(locations);
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
-        setIntent({
-          failed: error instanceof ReadProblem ? error : undefined,
-        });
+        const failed = error instanceof ReadProblem ? error : undefined;
+        recordSettled(intentRecoveryOf(failed));
+        setIntent({ failed });
       });
     return () => {
       controller.abort();
     };
-  }, [source, revision, locationsRetry]);
+  }, [source, revision, retry, recordSettled]);
 
   const retryProof = (revision: string) => {
     proofReread.current?.abort();
@@ -75,9 +85,5 @@ export function useIntentLocations(
       });
   };
 
-  const retryLocations = () => {
-    setLocationsRetry((n) => n + 1);
-  };
-
-  return { intent, retryLocations, proofRereading, retryProof };
+  return { intent, retryLocations: retryRead, proofRereading, retryProof };
 }

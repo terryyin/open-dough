@@ -85,14 +85,14 @@ throughout.
   published observation it also makes an empty page or a detail gap after a
   rejected fetch eligible. The seed allows this without promising it, and
   slice 2's preserved-behavior specs guard it.
-- **Boundary contract (change):** `server/intentCandidatesRead.ts`,
-  `server/intentLocationsRead.ts` and `server/intentLocationsSettings.ts`
-  answer an unreadable record, settings or location listing with the
-  `recovery` that `readFailureMessage.ts` `recoveryOf` gives the same `gh`
-  failure. Reuse that function and do not copy its table. The browser parsers
-  (`authenticatedIntentCandidatesRead.ts`, `authenticatedIntentRead.ts`)
-  accept the optional field and turn an eligible problem into eligible
-  unanswered. The shown problem text does not change.
+- **Boundary contract (change):** candidates and settings currently answer
+  unreadable with HTTP 200 and discard the classified failure. Carry the
+  `recovery` that `readFailureMessage.ts` gives the same `gh` failure.
+  The browser parsers (`authenticatedIntentCandidatesRead.ts`,
+  `authenticatedIntentRead.ts`) accept the optional field. Location-listing
+  failures already propagate through the whole-read response with HTTP 502
+  and its existing `recovery`. Preserve and prove that path. The shown
+  problem text does not change.
 - No Accepted ADR is contradicted. ADR 0008 keeps recovery timing as
   page-local observation state, and ADR 0002 favors reusing the schedule. No
   North Star topic is needed: the change stays inside the existing schedule's
@@ -122,8 +122,9 @@ throughout.
   existing limit fixtures (`limitNotice.ts`, `limitedReadingRecords.ts`).
 - **Boundary contract:** `dashboard/tests/boundary/authenticated-read-intent-candidates.spec.ts`
   and `authenticated-read-intent-locations.spec.ts` assert the `recovery`
-  field for a `gh`-unreachable read and its absence for a non-transient
-  failure.
+  field for transient reads and its absence for non-transient failures.
+  Exercise the settings and candidates problem bodies and the existing
+  location-listing HTTP 502 path.
 - **Preserved behavior:**
   - `transient-read-recovery.spec.ts`, `transient-detail-recovery.spec.ts`,
     `transient-read-exclusions.spec.ts`, `transient-recovery-lifecycle.spec.ts`,
@@ -170,7 +171,7 @@ by retaining recovery state in the observing page.
 
 ### 2. Intent locations recover from an unreachable boundary or a GitHub limit
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-read-recovery.spec.ts` examples 1, 3, 4, 5 and 7 (example 1
 fails without the Intent contributor); the preserved-behavior specs.
 
@@ -188,6 +189,34 @@ fails without the Intent contributor); the preserved-behavior specs.
 **Includes:** the shared `authenticatedGet` classification, and the Intent
 recovery hook wired into `useIntentLocations`.
 
+**Accepted proof:** On Slice 1's product, three new journeys missed the
+reread at the deadline, on reveal, or at the rate-limit expiry. The
+malformed-settings case already stayed actionable. Slice 2 passed all
+five new journeys in `intent-read-recovery.spec.ts`, including an actual
+standing limit at the tree boundary and simultaneous published-detail
+and locations transport failures. The latter initially saw two detail
+requests and three locations requests at the first wake. The live due
+check fixed the duplicate. The final journey observes two of each at the
+shared first wake, no additional request while Intent waits, and a third
+locations request after the 30-second wait.
+
+The unchanged published-recovery, limited-read, Intent browse/Retry and
+selection cohorts passed alongside the new journeys (61 total). Six
+startup-reconciliation cases passed separately. Dashboard typecheck
+passed. The shared classifier is consumed only where a read interprets
+`ReadProblem.recovery`; other Intent readers still present their existing
+failure. The observation passes its existing limit and visibility signals
+to Intent, so Intent mounts no timer of its own.
+
+The independent refactor put the provider at the dashboard's single Intent
+mount. Twelve Intent recovery, Retry, selection, project-switch and
+candidates cases passed. Nine frame and Cucumber proof cases passed,
+including the existing Proof Retry beside the same Purpose. Typecheck
+passed again.
+
+Previous accepted slice: `b24ddba9d492298853d08155a6596ec8b8c63530`
+on the remote story branch.
+
 ### 3. Intent reads recover from failures the boundary marks transient
 Type: Behavior
 Status: planned
@@ -197,17 +226,24 @@ Proof: `intent-read-recovery.spec.ts` examples 2 and 6; the two boundary specs'
 **Behavior:**
 
 - **Pre-condition:** a visible Intent page whose Test Optimization Candidates
-  record, settings or location listing was answered unreadable because `gh`
-  was unreachable, timed out or met a transient HTTP status; or whose
-  candidates read was refused by the unreachable boundary or a limit.
+  record or settings answered unreadable, or whose location listing failed,
+  because `gh` was unreachable, timed out or met a transient HTTP status.
+  Candidates also recover from an unreachable boundary or a rate limit.
 - **Trigger:** the schedule comes due.
 - **Result:** that read happens again in place, and the record's groups or the
   locations appear without Retry.
 - **Unchanged:** non-transient unreadable answers keep waiting for Retry.
 
-**Includes:** the boundary's `recovery` field on Intent problem answers and
-their browser parsers, and `IntentCandidatesRecord` joining the Intent
+**Includes:** the boundary's `recovery` field on settings and candidates
+problem answers and their browser parsers, proof of the existing field on
+location-listing failures, and `IntentCandidatesRecord` joining the Intent
 recovery hook.
+
+**Execution learning:** At `b24ddba9d`, `filesUnderLocation` failures propagate
+out of `performIntentLocationsRead` to the common failed-read response.
+The classification is already on that response. Slice 3 will prove its
+consumption by the locations reader and preserve the existing status and
+message.
 
 ## Current decisions
 

@@ -54,6 +54,7 @@ export function useLimitRecovery({
   readonly checksMayRun: boolean;
   readonly recoversAt: Date | undefined;
   readonly blocksFreshRead: boolean;
+  readonly limitedUntil: Date | undefined;
 } {
   const standingLimit = useStandingLimit();
   const limitStands = standingLimit !== undefined;
@@ -80,5 +81,6 @@ export function useLimitRecovery({
     // the login-wide standing limit; due recovery asks through `readAfresh`
     // above, not this gate.
     blocksFreshRead: withheld || transientPending || limitStands,
+    limitedUntil: standingLimit,
   };
 }

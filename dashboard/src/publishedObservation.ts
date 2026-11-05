@@ -166,14 +166,15 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     [work],
   );
 
-  const { checksMayRun, recoversAt, blocksFreshRead } = useLimitRecovery({
-    withheld,
-    readSettled,
-    visibility,
-    readAfresh: () => {
-      askRead(undefined, true);
-    },
-  });
+  const { checksMayRun, recoversAt, blocksFreshRead, limitedUntil } =
+    useLimitRecovery({
+      withheld,
+      readSettled,
+      visibility,
+      readAfresh: () => {
+        askRead(undefined, true);
+      },
+    });
 
   const delivery = useRevisionDelivery(visibility !== "hidden");
   const revisionAnswers = {
@@ -239,6 +240,8 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     notice,
     withheld,
     recoversAt,
+    limitedUntil,
+    visibility,
     reading,
     readAfresh,
     selectSource,

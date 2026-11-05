@@ -61,9 +61,8 @@ export async function authenticatedGet(
       signal,
     });
   } catch (error) {
-    // Fetch may reject with AbortError before `signal.aborted` is visible;
-    // never rewrite that as a terminal reachability failure, or wait-bound
-    // gaps lose transient recovery eligibility.
+    // Fetch may reject with AbortError before `signal.aborted` is visible.
+    // Leave cancellation intact so the reader can handle its own wait bound.
     if (
       signal.aborted ||
       (error instanceof Error && error.name === "AbortError")
@@ -72,6 +71,8 @@ export async function authenticatedGet(
     }
     throw new ReadProblem(
       `The local authenticated read could not be reached while reading ${reading}.`,
+      undefined,
+      "transient",
     );
   }
   const body: unknown = await response.json().catch(() => undefined);

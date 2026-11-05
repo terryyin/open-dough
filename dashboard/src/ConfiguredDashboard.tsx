@@ -13,6 +13,7 @@ import { StartupAnnouncer } from "./StartupAnnouncer.tsx";
 import { StoryDestination } from "./StoryDestination.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
 import { IntentPerspective } from "./IntentPerspective.tsx";
+import { IntentReadRecovery } from "./intentReadRecovery.tsx";
 import { parseRoute } from "./dashboardRouteUrl.ts";
 import { useDashboardNavigation } from "./dashboardNavigation.ts";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -45,6 +46,8 @@ export function ConfiguredDashboard({
     notice,
     withheld,
     recoversAt,
+    limitedUntil,
+    visibility,
     reading,
     readAfresh,
     selectSource,
@@ -138,6 +141,7 @@ export function ConfiguredDashboard({
                     work={work}
                     withheld={withheld}
                     recoversAt={recoversAt}
+                    limitedUntil={limitedUntil}
                     notice={notice}
                   />
                   {storyNotice}
@@ -169,12 +173,17 @@ export function ConfiguredDashboard({
                   </main>
                 )}
                 {showsIntent && (
-                  <IntentPerspective
-                    source={source}
-                    work={work}
-                    records={launches.records}
-                    workspaces={launches.workspaces}
-                  />
+                  <IntentReadRecovery
+                    visibility={visibility}
+                    limitStands={limitedUntil !== undefined}
+                  >
+                    <IntentPerspective
+                      source={source}
+                      work={work}
+                      records={launches.records}
+                      workspaces={launches.workspaces}
+                    />
+                  </IntentReadRecovery>
                 )}
                 {showsRoster && (
                   <main>
