@@ -265,6 +265,9 @@ this slice.
 
 ## Current decisions
 
+- Slice 5 checkpoint: Terry gave the go-ahead on 2026-11-05 for the Dough
+  Land `--keep-worktree` landing (after the local suites and branch CI pass),
+  the next patch release from trunk, and the live reading of example 7.
 - The `proof` request sends `runId` and `attemptId` as text (the tab's query
   carries them as text), unlike `diagnose`, which passes discovered values
   through; slice 4's manual documents this.
