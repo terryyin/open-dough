@@ -181,14 +181,28 @@ completed ancestor, and when it was checked; a history with no result, and a
 trunk whose history GitHub answers `404` for, are **Could not be read** (with
 GitHub's reason); only a story branch is called no longer published. Below
 the judgment, **Proof** shows the CI proof of that run (for a running result,
-the completed ancestor's): revision, link and attempt once, then one row per
-declared Intent location `path` with passed, failed and other counts, how
-many declared parts are present, and each missing or ambiguous part as an
-uncounted gap. A summary is used only when it names the same repository, run,
-attempt and revision. Judgment shows first whether proof is shown, checking,
-or unavailable; then one line says why (no summary, expired, unreadable,
-invalid, wrong run/attempt/revision, `ciAdapter`, or no completed GitHub
-Actions run). Proof is read again with each judgment — when the tab is shown,
+the completed ancestor's): revision, link and attempt once (a `ciAdapter`
+attempt named by its `attemptId`), then one row per declared Intent location
+`path` with passed, failed and other counts, how many declared parts are
+present, and each missing or ambiguous part as an uncounted gap. A GitHub
+Actions run's summary is its `ci-proof-summary-attempt-<n>` artifact, read
+with `intent=ci-proof` `run`, `attempt` and `revision`
+(`dashboard/server/ciProofArtifact.ts`) and used only when it names the same
+repository, run, attempt and revision. A `ciAdapter` attempt's summary is
+read with `run`, `attempt-id`, `run-branch` (the branch whose discover listed
+it) and `revision`, each identity at most 256 characters, by asking the
+project's adapter its `proof` operation from the project folder under the
+shared adapter limits (`dashboard/server/ciAdapterProof.ts`); it is used only
+when valid and naming the same repository, `attemptId` as text and full
+revision, and when another discovered attempt shares that `attemptId` and
+revision no adapter is asked. Judgment shows first whether proof is shown,
+checking, or unavailable; then one line says why: for a run, no summary,
+expired, unreadable, invalid, or wrong run/attempt/revision; for an adapter
+attempt, the adapter's own unavailability reason, its failed answer (timeout,
+over-limit answer, nonzero exit with its last stderr line, or an answer that
+is neither `summary` nor `unavailable`), invalid, wrong
+repository/attempt/revision, or ambiguous; or no completed GitHub Actions run
+or CI attempt. Proof is read again with each judgment — when the tab is shown,
 the judged branch changes, the page's revision check finds that head moved
 while shown (new trunk revision, or a watched story-branch head whose story
 progress is read there; a story branch without a counted plan is not watched

@@ -193,7 +193,7 @@ the adapter spec `--repeat-each=3` (18 passed), the node tests above and the
 
 ### 4. Guidance tells an adapter project how to publish and serve proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: AGENTS.md behavior review recorded in this plan, walking Pygardon's
 plan (JUnit fragment in its job, summary in `ci-diagnostics/`, adapter
 `proof` read) against the edited guidance; `bash tests/execution-payload-update.sh`
@@ -207,6 +207,34 @@ adapter path (fragments and summary written in its own CI job with
 request, its two answers, its limits, and that a missing operation shows as
 no proof. `docs/dashboard-development-intent.md` describes the adapter proof
 read.
+
+Accepted (2026-11-05): `custom-ci.md` "## CI proof reads" owns the `proof`
+contract (request, ids as strings, record check, two answers, limits, missing
+operation, matching and ambiguity); `ci-proof-summary.md` "## Publish through
+a CI adapter" gives the job's `--attempt-id` commands, the retained location
+the project chooses, and the summary check before answering;
+`dough-test-optimization/SKILL.md`, `docs/dashboard-development-intent.md` and
+`dashboard/GITHUB-REQUESTS.md` updated. The runnable example is unchanged.
+Proof: `bash scripts/test.sh tests/execution-payload-update.sh tests/payload-declaration-links.sh tests/install-preserves-open-dough-json.sh`.
+
+Behavior review (AGENTS.md), walking Pygardon's plan 490 and
+`SEED-20261076#publish-pygardon-ci-proof` (read only):
+1. Invocation: the reference applies to publishing proof for Intent → CI
+   status or to a tab saying an attempt has no summary; a nonempty `ciAdapter`
+   (Pygardon) takes the adapter path; CI that is neither GitHub Actions nor
+   adapter-read still stops.
+2. Required context: Intent locations, a per-test report, Node 20.12+, the
+   discovered `attemptId`, full revision and `OWNER/REPO`; a job that cannot
+   learn its attempt or revision stops. Pygardon's `ci-diagnostics/` fits the
+   project-chosen retained location.
+3. Outcome: in a scratch directory the copied collector with a UUID
+   `--attempt-id` wrote a valid summary, both identities were refused, and a
+   minimal adapter following the steps answered `{summary}` that
+   `readCommandProof` accepted with matching attempt and revision.
+Findings for Pygardon's own story (not edited here): the tab never asks
+`proof` for a running attempt, so a running result shows its completed
+ancestor's counts, not none; `--outcomes` counts the unit `checks`, so its
+row reads "… checks", not "tests".
 
 ### 5. Release the collector, protocol and guidance
 Type: Behavior

@@ -50,8 +50,9 @@ when the summary is listed and not expired, one download of its zip. A valid
 summary is remembered by repository, run and attempt for the dashboard
 process's lifetime (the latest 256 read), so showing that attempt again, or **Check again**, asks
 nothing more for its proof; an attempt without a valid summary is asked
-again each time. A `ciAdapter` project, or a result that names no completed
-run, asks nothing for its proof. Only the ref and branch
+again each time. A `ciAdapter` project asks GitHub nothing for its proof:
+its adapter's `proof` operation answers it, asked again each time. A result
+that names no completed run or attempt asks nothing for its proof. Only the ref and branch
 head requests are made on every load: content and history already read at a
 resolved revision or branch head by any dashboard process of this user on this
 machine are not asked again, so a reload, a return to a project, a replaced
