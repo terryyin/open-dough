@@ -396,6 +396,18 @@ describe on real source; nothing is fabricated for the demonstration.
     without successful proof_; wall **39442 ms**; **298** GitHub requests
     (**≈7.56 req/s**, Vitest baseline ~7.5 req/s).
 
+## Execution complete
+
+Product advice: Outcome matches the story — shared Vitest-shaped snapshot plus
+`node:test` registration; Open Dough and Doughnut recorders; Intent reads both;
+focused snapshots only. Open Dough reused Playwright's `tests/support/proofStore.mjs`
+rather than a second store. Cold `src/skills` root measured at about 7.56 GitHub
+requests per second (291 files), in line with the Vitest baseline. Landing this
+branch unblocks SEED-233's waiting `node:test` dependency. Terry's Intent versus
+`node --test` plus editor evaluation remains open (screenshots outside the
+repository). Trunk Open Dough reading waits on land. No product correction plan.
+Vitest module rename stays deferred with plan 465.
+
 ## Current decisions
 
 - Each project owns its reporter; Open Dough ships the reference and the

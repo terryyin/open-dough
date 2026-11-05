@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 422. Removed numbers are never reused.
+- Highest allocated local number: 423. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -623,8 +623,8 @@ Acceptance recorded an ordering commitment `observed:` at real data whose order 
   - Observed effect: an amended promise accepted without reader behavior or proof; one correction story and plan written by the retrospective.
   - Inference: when a promise changes after the product was built, acceptance needs a precondition that would fail without the promised behavior (here an unsorted snapshot), not a real run whose upstream already supplies it.
 
-## DD-417 — A subordinate project's publication went unobserved until a human repaired its CI
-An execution that publishes to another project's trunk (a subordinate Doughnut or Pygardon workspace) had CI observation only for its own repository, so a failure on the subordinate publication surfaced only through a later manual check, after the project's owner had already pushed the same repair.
+## DD-417 — A subordinate project's publication went unobserved by the owning execution
+An execution that publishes to another project's trunk (a subordinate Doughnut or Pygardon workspace) had CI observation only for its own repository, so the subordinate publication's CI outcome was not owned by that execution and surfaced only through a later manual or retrospective check.
 
 ### Occurrences
 - Execution: SEED-192#read-vitest-proof (plan 460-read-vitest-proof; first related implementation commit `beadffb0780c952a0d0cacc53755020145abc55a`)
@@ -635,6 +635,13 @@ An execution that publishes to another project's trunk (a subordinate Doughnut o
   - Evidence: the execution's observer (`/tmp/dough-ci-501/watch-l6pc3b`) watched only `terryyin/open-dough`; Doughnut run 41806231388 failed in `pnpm lint:all` ("Unexpected .only modifier", Vitest's CI default under `GITHUB_ACTIONS`); Terry pushed `6e53933393` "Allow the proof reporter's focus fixture to run on CI" at 09:27:24Z; the coordinator found the failure by `gh run list` about 25 minutes after its push, reproduced it, committed the same fix and dropped it as a duplicate when its push met trunk. Pygardon `2a48f97fd` also failed (an unrelated settings race) and was found by a manual adapter `discover`, then repaired in `64a16e0b8`.
   - Observed effect: a human repaired an agent-published CI failure; the agent spent a reproduction and repair on work already done; the Pygardon failure stayed unknown until the agent happened to look.
   - Inference: the subordinate publication route ("commit and push under the project's own rules") carries no CI ownership step for that project's CI, and the recorder's fixture runs were never tried with the CI environment variables set locally.
+- Execution: SEED-192#read-node-test-proof (plan 467-read-node-test-proof; first related implementation commit `bc26ca5f29591e3c8993e9b985ac63dbacb407a6`)
+  - Timestamp: 2026-11-05T05:15:41Z (Doughnut push of `6c5702cf4d8a29538bc7983ae53a26ad5107c360`)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: coordinator transcript `9bd04639-5f5d-4c74-a32d-150a7eacfef4` turns 78–84 push Doughnut then await only Open Dough observer `/tmp/dough-ci-501/watch-wsC3k0` (`terryyin/open-dough`); no `gh run` / Doughnut CI step after the push; this retrospective found Doughnut run 41972920025 `completed`/`success` for that SHA (`pnpm lint:all` green).
+  - Observed effect: subordinate CI happened to pass; the owning execution never observed it and would have missed a failure the same way as the Vitest occurrence.
+  - Inference: recurrence of the missing subordinate-CI ownership step; green CI does not close the gap.
 
 ## DD-418 — A push the remote refused for permission returned `needs-validation` without its reason
 Managed delivery treated GitHub's refusal of a workflow-file push (missing OAuth `workflow` scope) as a rejected push, fetched, reconciled onto the unchanged tip and stopped with `needs-validation`; neither the fresh nor the `deliver --validated-candidate` receipt carried the remote's refusal text, so the retry repeated the same stop.
@@ -686,3 +693,15 @@ Slice 5 first deferred stream open after a rate-limit wait only through `schedul
   - Evidence: coordinator transcript `3bb4f177-6d51-4cc1-bc37-960c9aac4537` turns recording X-S2/X-S4/X-S5/X-S7; first exclusion batch used paraphrases such as "no change to how choosing a row opens the terminal" and "no new database"; `record`/`check` refused `quote-not-in-story` until the clauses were shortened to exact Scope substrings ("how choosing a row opens the terminal", "no new daemon, database, or scheduler", "machine-session observation's own 15-second page pace")
   - Observed effect: two repair rounds on planning records before slice 1 obligation check passed; no product rework and no incorrect exclusion published
   - Inference: the observation/exclusion writer removed table hand-edits (ODF-391 response) but still leaves exact-substring discovery to trial and error when Scope wording and the disposition title diverge
+
+## DD-423 — Required fresh refactor blocked by host agent authentication failure
+A required post-change refactor Task (and `agent` CLI fallback) failed to start with host authentication errors, so slice delivery stopped with uncommitted accepted work until a human restored login and authorized a coordinator-local refactor if spawn still failed.
+
+### Occurrences
+- Execution: SEED-192#read-node-test-proof (plan 467-read-node-test-proof; first related implementation commit `bc26ca5f29591e3c8993e9b985ac63dbacb407a6`)
+  - Timestamp: unknown (2026-11-05, after slice 1 acceptance; developer resume 10:31+07:00; slice 1 published `bc26ca5f2` at 10:37+07:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: coordinator transcript `9bd04639-5f5d-4c74-a32d-150a7eacfef4` turns 34–46: repeated Task refactor spawns and an `agent --print` CLI attempt returned authentication / `agent login` errors; unfinished handoff preserved the worktree; user restored auth and authorized coordinator-local refactor if Task still failed; turn 49 Task then completed `## REFACTOR COMPLETE` (none — already clean) and delivery resumed.
+  - Observed effect: delivery stalled with slice 1 implemented and proof-accepted but unpublished until human credential repair; several failed spawn attempts before the stop; no product rework after restore.
+  - Inference: distinct from ODF-059 (host-terminated mid-run agents): here fresh agents could not start. A credential stop that preserves the checkout is correct; an authorized coordinator-local refactor fallback unblocks delivery when spawn remains unavailable.
