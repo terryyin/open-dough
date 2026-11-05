@@ -33,7 +33,11 @@ import {
   type SummaryChild,
 } from "./ciScopeProof.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
-import { EvidenceNamed, scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
+import {
+  EvidenceKept,
+  EvidenceNamed,
+  scopeEvidenceOf,
+} from "./IntentScopeEvidence.tsx";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 
 const outsideRowLabel = "Not in the rows above";
@@ -133,7 +137,7 @@ export function IntentScopeProof({
 }: {
   // The selected entry or folder.
   readonly path: string;
-  // The selection's location's browsable files.
+  // The files the tree lists under the selection.
   readonly inventory: readonly string[];
   // The revision the tree shows.
   readonly revision: string;
@@ -168,6 +172,7 @@ export function IntentScopeProof({
     );
     return (
       <>
+        <EvidenceKept kept={evidence.kept} />
         <p
           className="intent-summary-evidence-absent"
           {...(evidence.checking ? { "aria-live": "polite" as const } : {})}
@@ -199,9 +204,7 @@ export function IntentScopeProof({
     );
   }
   const breakdown = hasFileBreakdown(entry);
-  const outside = breakdown
-    ? outsideOf(entry, path, new Set(inventory))
-    : undefined;
+  const outside = breakdown ? outsideOf(entry, path, children) : undefined;
   const rows = [
     rootRow(
       path === entry.path

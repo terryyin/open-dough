@@ -4,7 +4,9 @@
 // still judges that story's branch with its summary kept; arrow keys, Home
 // and End only choose the mode, so a file read before Optimization
 // Candidates is still selected and read, until Intent itself is activated
-// (SEED-243#improve-intent-home-and-selection-summaries examples 4 and 7).
+// (SEED-243#improve-intent-home-and-selection-summaries examples 4 and 7);
+// with a newer revision waiting behind its notice, returning home keeps that
+// notice and the shown revision, reading nothing newer.
 // The homepage journey from an entry, folder and file by click, Enter and
 // Space: ./intent-ci-status-homepage.spec.ts. Opening a candidate's file:
 // ./intent-test-optimization-candidates-open.spec.ts.
@@ -15,6 +17,7 @@ import {
   browseSpec,
   openDough,
   openDoughSettings,
+  pygardon,
 } from "./intentCodeBrowseFixtures.ts";
 import {
   activateIntentHome,
@@ -35,8 +38,16 @@ import { expectIntentModeChosen, intentModeTab } from "./intentModePage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
+  revisionNotice,
 } from "./intentPerspectivePage.ts";
-import { openUntilRead } from "./pageRequestNotes.ts";
+import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
+import { shortRevision } from "./dashboardParts.ts";
+import {
+  intentReads,
+  jobsFeatures,
+  openWithFeatureSelected,
+  publishedFiles,
+} from "./intentRevisionJourney.ts";
 import type { Locator } from "@playwright/test";
 
 const intentFiles = {
@@ -136,4 +147,29 @@ test("arrow keys, Home and End choose Intent again with the file still read; act
     );
     await expect(fileName(intent)).toHaveAttribute("aria-pressed", "false");
   });
+});
+
+test("with a newer revision waiting behind its notice, activating Intent returns home and keeps the notice and the shown revision", async ({
+  page,
+}) => {
+  const files = publishedFiles(jobsFeatures);
+  const reads = intentReads(page);
+  const { moveTrunk, intent, feature } = await openWithFeatureSelected(
+    page,
+    files,
+  );
+  await moveTrunk("eb".repeat(20), files);
+  const waiting = `New revision available — showing ${shortRevision(pygardon.revision)}`;
+  const notice = revisionNotice(intent);
+  await expect(notice).toContainText(waiting);
+
+  await activateIntentHome(intent);
+  await expect(feature).toHaveAttribute("aria-pressed", "false");
+  await expect(notice).toHaveCount(1);
+  await expect(notice).toContainText(waiting);
+  await expect(notice.getByRole("button")).toHaveText(["Show latest"]);
+  await untilPageReadsAnswered(page);
+  expect(reads.filter((read) => read.startsWith("locations@"))).toEqual([
+    `locations@${pygardon.revision}`,
+  ]);
 });

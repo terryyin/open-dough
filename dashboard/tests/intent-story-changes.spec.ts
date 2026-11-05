@@ -14,7 +14,8 @@
 // changes shows; an unchanged file shows its published source. Deselecting removes the
 // summary and leaves the tree as it was.
 // "Selected story only": ./intent-story-changes-only.spec.ts. Deletions and
-// renames: ./intent-story-changes-moves.spec.ts. No
+// renames, and a folder's Summary of the overlaid tree:
+// ./intent-story-changes-moves.spec.ts. No
 // comparison and a failed read: ./intent-story-changes-gaps.spec.ts. A long
 // title: ./intent-story-summary-title.spec.ts.
 

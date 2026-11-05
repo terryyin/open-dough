@@ -307,6 +307,17 @@ specs), CI-font container 6/6, collector/read/adapter/install checks, lint and
 typecheck clean. Trunk also holds an unrelated
 `480-keep-shown-reading-through-failed-updates` plan under the same number.
 
+**Retrospective returns (2026-11-06):** the execution retrospective's outcome
+review found G1 and G2 below; both were fixed in slice 3 with controls.
+`outsideOf` now counts only results no child row covers, the Summary's
+inventory is the tree's files including story overlay, and the Summary
+carries the homepage's previously-retrieved and refresh-failed wording. The
+adapter `fragment` example names `[--by-file]`, the duplicate 2,000-file
+adapter test was removed, and `intent-home-activation.spec.ts` proves home
+activation keeps a pending revision notice (E7.4). Focused dashboard run
+123/123 after refactor (`filesOfSelection` shares `treeHoldsSelection`'s rule;
+spec splits into `-table`, `-kept` and `intent-story-changes-moves`).
+
 ## Current decisions and readiness review
 
 Terry's accepted decisions are recorded in the source. No pre-Take human
@@ -331,3 +342,19 @@ slice-specific concern. The adapter-size proxy is not an assumption of fit;
 legacy compatibility and existing refusals are preserved, and actual GitHub
 artifact size is an explicit slice-3 acceptance observation. The preparation
 recorder owns the readiness assessment after review; execution is not started.
+
+
+## Story obligations
+
+### G1. Unlisted files under a listed child folder are counted twice (found by execution retrospective)
+Reported: slice 3 — "A file the tree does not list under a listed child folder is summed into that folder's row and again into 'Not in the rows above'; story-added overlay files are called not listed."
+Story clause: "Explain the contribution not represented by child rows"
+Disposition: proved by slice 3: tests/support/intent-scope-proof.test.mjs 'a file the tree does not list under a listed child folder counts once…'; dashboard/tests/intent-summary-ci-proof-table.spec.ts 'a CI file the tree does not list under a listed folder counts once…'; dashboard/tests/intent-story-changes-moves.spec.ts step 'a folder's Summary lists the files its tree shows, the story's added one included'
+Commitment: 6.2, 6.4
+
+
+### G2. Summary evidence omits previously-retrieved and refresh-failed qualification (found by execution retrospective)
+Reported: slice 3 — "The Summary names a kept or failed-refresh judgment's attempt as if current, while the homepage labels it previously retrieved or refresh failed."
+Story clause: "distinguishes missing, outdated and conflicting evidence"
+Disposition: proved by slice 3: dashboard/tests/intent-summary-ci-proof-kept.spec.ts 'a Summary qualifies a previously retrieved judgment and its failed refresh as the homepage does'
+Commitment: 5.6

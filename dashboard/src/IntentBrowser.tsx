@@ -214,6 +214,7 @@ export function IntentBrowser({
             selectedLocation={selectedLocation}
             selectedFile={selectedFile}
             selectedLanguage={selectedLanguage}
+            treeFiles={treeFiles}
             story={story}
             read={fileRead.read}
             onFileRetry={fileRead.retry}

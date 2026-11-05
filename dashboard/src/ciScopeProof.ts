@@ -5,9 +5,12 @@
 // by path over that entry's file breakdown whatever the browsable inventory
 // lists, the immediate folders and files the inventory lists in the
 // browser's tree order (`./reviewFileTree.ts`), each child's figures the same
-// way, and what the scope's figures hold that no child row shows: files the
-// inventory does not list and, for the entry itself, results CI could not
-// place in a file.
+// way, and what the scope's figures hold that no child row shows: files no
+// child row covers, which the inventory therefore does not list, and, for
+// the entry itself, results CI could not place in a file. A file the
+// inventory does not list under a listed child folder counts in that
+// folder's row, and shows as outside only once that folder is selected, so
+// the child rows and the outside row hold each result exactly once.
 
 import type { CiProofEntry, CiProofFigures, CiProofFile } from "./ciProof.ts";
 import { reviewFileTree, type PathBearing } from "./reviewFileTree.ts";
@@ -102,9 +105,9 @@ export function scopeFiguresOf(
   return summedFigures(matched, matched.length);
 }
 
-// What SCOPE's figures in ENTRY hold that no row for INVENTORY's files
-// shows: the broken-down files at or under it that the inventory does not
-// list, and for the entry itself its unassigned results. Undefined when
+// What SCOPE's figures in ENTRY hold that none of its CHILDREN's rows
+// shows: the broken-down files at or under it that no child folder or file
+// covers, and for the entry itself its unassigned results. Undefined when
 // there is none.
 export type ScopeOutside = {
   readonly files: readonly CiProofFile[];
@@ -115,10 +118,12 @@ export type ScopeOutside = {
 export function outsideOf(
   entry: CiProofEntry,
   scope: string,
-  inventory: ReadonlySet<string>,
+  children: readonly SummaryChild[],
 ): ScopeOutside | undefined {
   const files = (entry.files ?? []).filter(
-    (file) => isAtOrUnder(file.path, scope) && !inventory.has(file.path),
+    (file) =>
+      isAtOrUnder(file.path, scope) &&
+      !children.some((child) => isAtOrUnder(file.path, child.path)),
   );
   const unassigned = scope === entry.path ? entry.unassigned : undefined;
   if (files.length === 0 && unassigned === undefined) return undefined;

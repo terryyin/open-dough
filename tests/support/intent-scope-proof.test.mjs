@@ -3,7 +3,7 @@
 // entries (../../dashboard/src/ciProofWording.ts,
 // ../../dashboard/src/ciProofTimeWords.ts): immediate children in the
 // tree's order, figures summed by path whatever the tree lists, what no child
-// row shows, and each gap — no breakdown, no matched result, a measured zero,
+// row shows, each result counted in exactly one row, and each gap — no breakdown, no matched result, a measured zero,
 // an untimed result, a missing part, a part without a breakdown — named
 // rather than shown as zero or complete. Browser journey:
 // ../../dashboard/tests/intent-summary-ci-proof.spec.ts.
@@ -103,7 +103,11 @@ test("a scope's figures sum its entry's files under its path, the longest entry 
   });
   assert.deepEqual(scopeFiguresOf(entry, "tests/support").files, 1);
   assert.deepEqual(scopeFiguresOf(entry, "tests/z.sh").files, 0);
-  const outside = outsideOf(entry, "tests", new Set(inventory));
+  const outside = outsideOf(
+    entry,
+    "tests",
+    immediateChildrenOf("tests", inventory),
+  );
   assert.deepEqual(
     outside?.files.map(({ path }) => path),
     ["tests/support/hidden.sh"],
@@ -118,7 +122,63 @@ test("a scope's figures sum its entry's files under its path, the longest entry 
     [2, 1000, 1],
   );
   // A folder's outside row never holds the entry's unassigned results.
-  assert.equal(outsideOf(entry, "tests/deep", new Set(inventory)), undefined);
+  assert.equal(
+    outsideOf(
+      entry,
+      "tests/deep",
+      immediateChildrenOf("tests/deep", inventory),
+    ),
+    undefined,
+  );
+});
+
+test("a file the tree does not list under a listed child folder counts once, in that folder's row, and is outside only at the folder's own level", () => {
+  const tests = {
+    path: "dashboard/tests",
+    unit: "tests",
+    passed: 3,
+    failed: 0,
+    other: 0,
+    parts: [present(1, { passed: 3 }, { breakdown: true })],
+    files: [
+      file("dashboard/tests/folder/a.spec.ts", { passed: 1 }),
+      file("dashboard/tests/folder/old.spec.ts", { passed: 1 }),
+      file("dashboard/tests/root.spec.ts", { passed: 1 }),
+    ],
+  };
+  const listed = [
+    "dashboard/tests/folder/a.spec.ts",
+    "dashboard/tests/root.spec.ts",
+  ];
+  const rowsOf = (scope) => {
+    const children = immediateChildrenOf(scope, listed);
+    return {
+      children: children.map(
+        (child) => scopeFiguresOf(tests, child.path).passed,
+      ),
+      outside: outsideOf(tests, scope, children),
+    };
+  };
+  const entryRows = rowsOf("dashboard/tests");
+  assert.deepEqual(entryRows.children, [2, 1]);
+  assert.equal(entryRows.outside, undefined);
+  const folderRows = rowsOf("dashboard/tests/folder");
+  assert.deepEqual(folderRows.children, [1]);
+  assert.deepEqual(
+    folderRows.outside?.files.map(({ path }) => path),
+    ["dashboard/tests/folder/old.spec.ts"],
+  );
+  assert.equal(folderRows.outside?.figures.passed, 1);
+  // Child rows and the outside row reconcile with the scope's figures.
+  for (const [scope, rows] of [
+    ["dashboard/tests", entryRows],
+    ["dashboard/tests/folder", folderRows],
+  ])
+    assert.equal(
+      rows.children.reduce((sum, passed) => sum + passed, 0) +
+        (rows.outside?.figures.passed ?? 0),
+      scopeFiguresOf(tests, scope).passed,
+    );
 });
 
 test("each row names its gap: no result, a measured zero, an untimed result, a missing part, no file breakdown", () => {

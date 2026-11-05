@@ -204,7 +204,8 @@ In the attempt's own job, after tests (pass or fail):
 
 ```sh
 node <ci-scripts>/ci-proof-summary.mjs fragment \
-  --outcomes <report> [--times <times>] --entry <entry> [--entry <entry>…] \
+  --outcomes <report> [--times <times>] [--by-file] \
+  --entry <entry> [--entry <entry>…] \
   --part <part> --of <parts> --attempt-id "<attempt id>" \
   --revision "<full revision>" --out <fragments dir>
 node <ci-scripts>/ci-proof-summary.mjs summarize \
@@ -216,8 +217,9 @@ node <ci-scripts>/ci-proof-summary.mjs summarize \
 
 Name the attempt only by `--attempt-id` (text form of discovered `attemptId`).
 An adapter's `proof` answer is read only up to 64 KiB, so add `--by-file`
-here only after checking the summary file stays well under that; without
-it, Intent still shows entry totals.
+to `fragment` only after checking the summary file stays well under that;
+`summarize` keeps whatever breakdown the fragments carry. Without it, Intent
+still shows entry totals.
 `--expect` matches step 4. Keep `<summary file>` where the adapter can read it
 per attempt for as long as developers should see that proof. Implement
 `proof` per

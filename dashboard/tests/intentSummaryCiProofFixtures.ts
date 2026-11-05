@@ -1,14 +1,15 @@
 // The published tree, CI shards and opened Intent of the Summary CI proof
-// specs (./intent-summary-ci-proof.spec.ts,
-// ./intent-summary-ci-proof-gaps.spec.ts): raw runner reports as CI's
-// collector reads them (./support/ciProofCollected.ts), trunk judged running
-// with its completed ancestor's proof, and every source body read Intent
-// makes of its locations.
+// specs (./intent-summary-ci-proof.spec.ts and its -gaps, -table and -kept
+// siblings): raw runner reports as CI's collector reads them
+// (./support/ciProofCollected.ts), trunk judged running with its completed
+// ancestor's proof, and every source body read Intent makes of its
+// locations.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
+import { shortSha } from "../src/baseCiWording.ts";
 import {
   chooseCiStatus,
   judged,
@@ -22,7 +23,7 @@ import { intentLocationName } from "./intentPerspectivePage.ts";
 import { summaryRegion } from "./intentScopeProofPage.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import type { CiRunAnswer } from "./support/baseCiActions.ts";
+import type { CiAnswerer, CiRunAnswer } from "./support/baseCiActions.ts";
 import { runArtifactsAnswer } from "./support/ciProofArtifacts.ts";
 import {
   collectedSummary,
@@ -98,12 +99,13 @@ export async function openIntent(
   await page.setViewportSize({ width: 1280, height: 900 });
   const judgment = trunkCi(openDough.revision, ancestorRuns);
   const project = publishProject(page, openDough, published);
-  project.serveCi((call) => {
+  const ci: CiAnswerer = (call) => {
     const { request } = call;
     if (request.kind === "actions-run-artifacts") return artifacts();
     if (request.kind === "actions-artifact-zip") return zip();
     return judgment(call);
-  });
+  };
+  project.serveCi(ci);
   // Source body reads of Intent's locations: every authenticated read naming
   // a path inside one (the page's own planning reads are not Intent's).
   const bodyReads: string[] = [];
@@ -120,7 +122,7 @@ export async function openIntent(
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   const home = await chooseCiStatus(intent);
-  return { project, intent, home, bodyReads };
+  return { project, ci, intent, home, bodyReads };
 }
 
 export async function openSummary(intent: Locator, location: string) {
@@ -143,3 +145,6 @@ export const bothEntriesSummary = (byFile: boolean) =>
   );
 
 export const allParts = "2 of 2 parts present";
+
+// How a Summary names the completed ancestor's proof.
+export const ancestorEvidence = `CI evidence: Attempt 1 of run 41 at ${shortSha(judged)} on main, the completed ancestor of the running result.`;

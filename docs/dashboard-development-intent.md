@@ -24,19 +24,23 @@ across its whole width, toggle included, and expansion shows only in the
 toggle. Selecting a file still reads its exact published text with line
 numbers and Gherkin syntax styling at Intent's reading revision. A location or
 folder summary names the selection by path and how many matching files the
-tree lists, gives an unusable location's explanation, and shows the CI proof
+tree lists (a selected story's overlaid files included), gives an unusable location's explanation, and shows the CI proof
 that **CI status** shows, never local proof: it names that evidence once
 (attempt and run, revision, judged branch, a selected story's branch, a
-running result's completed ancestor) and, when the tree shows another
+running result's completed ancestor), says when that judgment was
+previously retrieved rather than newly verified and any failed refresh, as
+**CI status** says it, and, when the tree shows another
 revision, says a file added or changed since has no CI result here or an
 earlier one. One table in the homepage's columns (**Scope**, **Counts**,
 **Test execution time**, **Parts**) gives the selection's own row (an entry's
 row is its homepage row, checks outside the tree included), then one row per
 immediate folder (named with a trailing `/`) and file in the browser's order,
 each summing the CI evidence published under its path, and, when the
-selection's figures hold files the tree does not list or results CI could
-not place in a file, a **Not in the rows above** row with a line naming
-them. Execution time is precise enough to compare sub-minute scopes
+selection's figures hold files no child row covers (files the tree does not
+list) or results CI could not place in a file, a **Not in the rows above**
+row with a line naming them. Each result counts in one row: an unlisted
+file under a listed folder is in that folder's row, and outside only in
+that folder's own summary. Execution time is precise enough to compare sub-minute scopes
 (`340 ms`, `12.5 s`, `4 min 5 s`); a measured zero is `0 ms`. A file CI has
 no result for says **no CI result**; a scope with an untimed test, a missing
 or ambiguous part, or a part whose report published no file breakdown is

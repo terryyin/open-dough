@@ -1,8 +1,9 @@
 // Summary reading pane for a selected Intent location or folder
 // (`./IntentSelectionReading.tsx`): names the selection by path and how many
-// matching files the tree lists, explains an unusable location, and shows
-// the selection's CI proof with its immediate folders and files
-// (`./IntentScopeProof.tsx`). It reads no source file.
+// matching files the tree lists, a selected story's overlay included,
+// explains an unusable location, and shows the selection's CI proof with its
+// immediate folders and files among those (`./IntentScopeProof.tsx`). It
+// reads no source file.
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { locationExplanation } from "./intentLocationExplanation.ts";
@@ -18,7 +19,8 @@ export function IntentSummary({
   onOpen,
 }: {
   readonly path: string;
-  // The files the tree lists under the selection.
+  // The files the tree lists under the selection, a selected story's
+  // overlay included.
   readonly files: readonly string[];
   readonly location: IntentLocation;
   readonly revision: string;
@@ -40,7 +42,7 @@ export function IntentSummary({
       )}
       <IntentScopeProof
         path={path}
-        inventory={location.files}
+        inventory={files}
         revision={revision}
         onOpen={onOpen}
       />

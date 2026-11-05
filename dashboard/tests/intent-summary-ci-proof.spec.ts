@@ -9,9 +9,10 @@
 // parts; a child name drills into a folder (revealing it in the tree) or
 // opens a file's reading; a file CI has no result for, a file with an untimed
 // test, a measured zero, contributions the tree does not list and a late
-// proof answer each say what they are, and the table fits a zoomed or narrow
-// window. Summary navigation reads no source file and asks CI nothing again.
-// Missing, partial and absent evidence: ./intent-summary-ci-proof-gaps.spec.ts.
+// proof answer each say what they are. Summary navigation reads no source
+// file and asks CI nothing again. Missing, partial and absent evidence, each
+// result in one row and a zoomed table, and a previously retrieved judgment:
+// ./intent-summary-ci-proof-gaps.spec.ts, -table.spec.ts and -kept.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { shortSha } from "../src/baseCiWording.ts";
@@ -33,17 +34,15 @@ import {
   evidenceLine,
   expectChildNames,
   expectScopeRows,
-  scopeTable,
   summaryRegion,
 } from "./intentScopeProofPage.ts";
 import {
   allParts,
+  ancestorEvidence,
   bothEntriesSummary,
   openIntent,
   openSummary,
 } from "./intentSummaryCiProofFixtures.ts";
-import { twiceZoomedWindow, zoomedWindow } from "./accessibleReading.ts";
-import { wordsBrokenApart } from "./wholeWords.ts";
 import {
   runnerCheckout,
   summaryTextZipAnswer,
@@ -51,7 +50,6 @@ import {
 
 test.setTimeout(90_000);
 
-const ancestorEvidence = `CI evidence: Attempt 1 of run 41 at ${shortSha(judged)} on main, the completed ancestor of the running result.`;
 const otherRevision = `This evidence is of ${shortSha(judged)}; the tree shows ${shortSha(openDough.revision)}. A file added or changed since has no CI result here, or an earlier one.`;
 
 test("an entry's and its folders' CI summaries come from CI's collected file breakdown: root figures, immediate children, drill-down and file reading, with no source read and no second CI read", async ({
@@ -249,59 +247,4 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
     ]);
     expect(bodyReads).toEqual(["dashboard/tests/folder/nested/c.spec.ts"]);
   });
-});
-
-test("at 200% zoom and on a narrow window a folder's Summary table reads whole within the reading pane, nothing scrolling sideways", async ({
-  page,
-}) => {
-  const text = bothEntriesSummary(true);
-  const { intent } = await openIntent(page, () => summaryTextZipAnswer(text));
-  const summary = await openSummary(intent, "dashboard/tests");
-  const rows = [
-    [
-      "dashboard/tests",
-      "5 passed, 1 failed and 1 other tests",
-      "partial: 1 test without a duration",
-      allParts,
-    ],
-    ["folder/", "3 passed, 1 failed and 1 other tests", "595 ms", allParts],
-    ["added.spec.ts", "no CI result", "no CI result", allParts],
-    [
-      "root.spec.ts",
-      "2 passed tests",
-      "partial: 1 test without a duration",
-      allParts,
-    ],
-  ] as const;
-  await expectScopeRows(summary, "dashboard/tests", rows);
-  const table = scopeTable(summary, "dashboard/tests");
-  const box = summary.locator(".intent-proof-table");
-  const fit = () =>
-    box.evaluate((element) => {
-      const pane = element.closest(".intent-reading");
-      if (pane === null) throw new Error("no reading pane");
-      const shown = element.getBoundingClientRect();
-      const reading = pane.getBoundingClientRect();
-      return {
-        sideways: element.scrollWidth - element.clientWidth,
-        inPane: shown.left >= reading.left && shown.right <= reading.right,
-        pageSideways:
-          document.documentElement.scrollWidth >
-          document.documentElement.clientWidth,
-      };
-    });
-  for (const [window, whole] of [
-    [twiceZoomedWindow, "th, td"],
-    [zoomedWindow, "thead th, tbody td"],
-  ] as const) {
-    await page.setViewportSize(window);
-    await expectScopeRows(summary, "dashboard/tests", rows);
-    await table.scrollIntoViewIfNeeded();
-    expect(await fit()).toEqual({
-      sideways: 0,
-      inPane: true,
-      pageSideways: false,
-    });
-    expect(await wordsBrokenApart(table, whole)).toEqual([]);
-  }
 });

@@ -1,7 +1,6 @@
 // The dashboard's proof read of one ciAdapter attempt
 // (`./ci-command-adapter.mjs` `readCommandProof`): the documented request,
-// its two accepted answers, and the shared adapter limits, which a summary
-// broken down by file keeps.
+// its two accepted answers, and the shared adapter limits.
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -9,11 +8,6 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { readCommandProof } from "./ci-command-adapter.mjs";
 import { checkedSha } from "./ci-command-adapter-test-fixtures.mjs";
-import {
-  fragmentsFromOutcomes,
-  summarize,
-  summaryProblems,
-} from "../../dough-test-optimization/scripts/ci-proof-summary.mjs";
 
 // An adapter, run in its own folder, that records its request there and
 // answers `answer.json`'s text, unless that text is `sleep`.
@@ -94,42 +88,4 @@ test("the proof read refuses any other answer and keeps the adapter limits", asy
     /maxBuffer/,
   );
   await assert.rejects(ask("sleep", 300), (error) => error.killed === true);
-});
-
-// The collector's summary of FILES `tests` checks broken down by file.
-function brokenDownSummary(files) {
-  const outcomes = [...Array(files).keys()]
-    .map((index) => `passed\ttests/check-${String(index)}.sh\n`)
-    .join("");
-  const [value] = fragmentsFromOutcomes(
-    outcomes,
-    {
-      entries: ["tests"],
-      part: 1,
-      of: 1,
-      attemptId: "9f1c",
-      revision: checkedSha,
-    },
-    undefined,
-    { byFile: true },
-  );
-  return summarize({
-    fragments: [{ source: "f.json", value }],
-    expect: [{ entry: "tests", parts: 1 }],
-    run: {
-      repository: "owner/project",
-      attemptId: "9f1c",
-      revision: checkedSha,
-    },
-  }).summary;
-}
-
-test("a summary broken down by file passes through whole within the adapter limit, and past it is refused as before", async (t) => {
-  const { ask } = proofAdapter(t);
-  const summary = brokenDownSummary(3);
-  assert.deepEqual(summaryProblems(summary), []);
-  assert.deepEqual(await ask(JSON.stringify({ summary })), { summary });
-  const large = brokenDownSummary(2_000);
-  assert.ok(JSON.stringify({ summary: large }).length > 64 * 1024);
-  await assert.rejects(ask(JSON.stringify({ summary: large })), /maxBuffer/);
 });

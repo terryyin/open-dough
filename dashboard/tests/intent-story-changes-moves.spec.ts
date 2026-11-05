@@ -7,7 +7,8 @@
 // neither path in a location is not listed and counts once, with the
 // product change, among the changed files outside the locations. All of this
 // holds with "Selected story only" off and on, the location's unchanged file
-// left out when it is on. The highlighted journey:
+// left out when it is on. A folder's Summary lists the files the overlaid
+// tree shows, the story's added one included. The highlighted journey:
 // ./intent-story-changes.spec.ts.
 
 import { expect, test } from "./support/preparationPage.ts";
@@ -21,7 +22,11 @@ import {
 } from "./support/intentStoryPage.ts";
 import { kindStyles, nameStyle } from "./support/changeKindStyle.ts";
 import { changed } from "./support/intentStoryWorktree.ts";
-import { expandIntentGroup } from "./intentPerspectivePage.ts";
+import {
+  expandIntentGroup,
+  intentFolderName,
+} from "./intentPerspectivePage.ts";
+import { expectChildNames, summaryRegion } from "./intentScopeProofPage.ts";
 
 test.setTimeout(120_000);
 
@@ -32,6 +37,18 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
   const { intent } = await selectTakenStoryInIntent(page, origin);
   const style = await kindStyles(intent);
   const inIntent = new Map<string, string>();
+
+  await test.step("a folder's Summary lists the files its tree shows, the story's added one included", async () => {
+    await intentFolderName(intent, "boundary").click();
+    const summary = summaryRegion(intent);
+    await expect(summary.locator(".intent-summary-path")).toHaveText(
+      "dashboard/tests/boundary",
+    );
+    await expect(summary.locator(".intent-summary-files")).toHaveText(
+      "2 files",
+    );
+    await expectChildNames(summary, ["b.spec.ts", "kept.spec.ts"]);
+  });
 
   for (const only of [false, true]) {
     const state = only ? "on" : "off";

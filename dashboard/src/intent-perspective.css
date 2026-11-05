@@ -194,10 +194,12 @@
    ./IntentScopeProof.tsx). */
 .intent-summary-path,
 .intent-summary-files,
+.intent-summary-kept,
 .intent-summary-evidence,
 .intent-summary-evidence-absent,
 .intent-summary-revision,
 .intent-summary-breakdown-absent,
+.intent-summary .intent-ci-refresh-failed,
 .intent-summary-outside {
   margin: 0 0 var(--space-2);
 }
