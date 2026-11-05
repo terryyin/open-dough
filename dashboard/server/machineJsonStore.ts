@@ -10,14 +10,17 @@
 // (Linux file times can be coarser than successive writes, and a replacement
 // may reuse a freed inode). A read under the write lock always parses afresh.
 // A directory lock beside the file serializes each read-modify-write across
-// dashboard processes, and replacement remains atomic for readers.
-// Lock waits are bounded; an abandoned lock is never removed automatically.
-// A missing file holds the empty document. A file that does not parse, or does
-// not match the document's schema, is unreadable: a read answers it as such
-// and leaves it as it is, and the next write starts a new document and moves
-// the unreadable one aside as `<file>.unreadable`, or as
-// `<file>.unreadable-<move time>` when an earlier copy already has that name,
-// so nothing is silently lost.
+// dashboard processes, and replacement remains atomic for readers. The lock
+// records its owner's pid; a waiter whose deadline has not passed removes a
+// lock whose owner process is gone (SIGKILL or an unhandled SIGTERM leaves
+// the directory behind). A lock with no owner record, or a live owner, is
+// left until that owner releases it or a human removes it after confirming
+// no writer holds it. Lock waits are bounded. A missing file holds the empty
+// document. A file that does not parse, or does not match the document's
+// schema, is unreadable: a read answers it as such and leaves it as it is,
+// and the next write starts a new document and moves the unreadable one aside
+// as `<file>.unreadable`, or as `<file>.unreadable-<move time>` when an
+// earlier copy already has that name, so nothing is silently lost.
 
 import { randomUUID } from "node:crypto";
 import type { BigIntStats } from "node:fs";
@@ -25,9 +28,9 @@ import {
   access,
   mkdir,
   open,
+  readFile,
   rename,
   rm,
-  rmdir,
   stat,
   writeFile,
 } from "node:fs/promises";
@@ -166,14 +169,53 @@ async function unreadableCopy(file: string): Promise<string> {
   return `${first}-${new Date().toISOString().replaceAll(":", "-")}`;
 }
 
+const lockOwnerFile = "owner";
+
+function processAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function lockOwnerPid(lock: string): Promise<number | undefined> {
+  try {
+    const pid = Number(
+      (await readFile(path.join(lock, lockOwnerFile), "utf8")).trim(),
+    );
+    return Number.isInteger(pid) && pid > 0 ? pid : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// Removes a lock only when its recorded owner is gone. A lock with no owner
+// record stays: a human or test may be holding it without a pid file.
+async function releaseAbandonedLock(lock: string): Promise<boolean> {
+  const owner = await lockOwnerPid(lock);
+  if (owner === undefined || processAlive(owner)) return false;
+  try {
+    await rm(lock, { recursive: true, force: true });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function releaseWriteLock(lock: string): Promise<void> {
+  await rm(lock, { recursive: true, force: true });
+}
+
 async function acquireWriteLock(lock: string): Promise<void> {
   const deadline = Date.now() + 10_000;
   for (;;) {
     try {
       await mkdir(lock);
-      return;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+      if (await releaseAbandonedLock(lock)) continue;
       if (Date.now() >= deadline) {
         throw new Error(
           `The session store is locked: ${lock}. Nothing was written. Retry after the other writer finishes, or remove the lock only after confirming no writer holds it.`,
@@ -181,6 +223,14 @@ async function acquireWriteLock(lock: string): Promise<void> {
         );
       }
       await delay(25);
+      continue;
+    }
+    try {
+      await writeFile(path.join(lock, lockOwnerFile), `${process.pid}\n`);
+      return;
+    } catch (error) {
+      await releaseWriteLock(lock);
+      throw error;
     }
   }
 }
@@ -223,7 +273,7 @@ export async function replaceMachineJson<T>(
     try {
       await rm(temporary, { force: true });
     } finally {
-      await rmdir(lock);
+      await releaseWriteLock(lock);
     }
   }
 }
@@ -240,6 +290,6 @@ export async function readMachineJsonLocked<T, R>(
   try {
     return await observe(await authoritativeMachineJson(store));
   } finally {
-    await rmdir(lock);
+    await releaseWriteLock(lock);
   }
 }

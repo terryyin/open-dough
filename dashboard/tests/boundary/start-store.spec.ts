@@ -110,6 +110,29 @@ test("a held write lock refuses without changing the document or removing the ho
   });
 });
 
+test("a lock whose recorded owner process is gone is reclaimed so the write proceeds", async () => {
+  await keepStart("open-dough", written);
+  const file = path.join(
+    home,
+    ".open-dough",
+    "dashboard",
+    "execution-starts.json",
+  );
+  const lock = `${file}.lock`;
+  mkdirSync(lock);
+  // A pid that cannot be alive on this machine: larger than any kernel pid.
+  writeFileSync(path.join(lock, "owner"), "2147483647\n");
+
+  await updateStart("open-dough", written.identity, {
+    candidateSha: "reclaimed",
+  });
+  expect(await keptStart("open-dough", written.identity)).toEqual({
+    ...written,
+    candidateSha: "reclaimed",
+  });
+  expect(readdirSync(path.dirname(file))).toEqual(["execution-starts.json"]);
+});
+
 test("keeps one start per story, replaced when written again, and removes one alone", async () => {
   await keepStart("open-dough", written);
   await keepStart("open-dough", { ...written, identity: "SEED-B#b" });
