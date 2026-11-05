@@ -13,6 +13,10 @@ import {
 } from "../src/proofGeneration.ts";
 import { isNotFound, rateLimitStop } from "./ghFailure.ts";
 import { isSafeRepositoryPath, type PinnedReader } from "./reachablePaths.ts";
+import {
+  readFailureRecovery,
+  type ReportedFailure,
+} from "./readFailureMessage.ts";
 
 // Why Intent cannot use the settings file: it is not readable JSON, or the
 // file itself could not be read. Absence stays a separate not-configured
@@ -179,18 +183,19 @@ export function declaredLocations(settings: string): DeclaredSettings {
 // unreadable (any failure other than not-found). Rate limits still fail the
 // whole read. `agentSettingsTextAt` keeps conflating absence with unread for
 // other readers that treat either as "no settings".
-export async function intentSettingsTextAt(
-  readPinned: PinnedReader,
-): Promise<
+export async function intentSettingsTextAt(readPinned: PinnedReader): Promise<
   | { readonly kind: "absent" }
   | { readonly kind: "text"; readonly text: string }
-  | { readonly kind: "unreadable" }
+  | {
+      readonly kind: "unreadable";
+      readonly recovery: ReportedFailure["recovery"];
+    }
 > {
   try {
     return { kind: "text", text: await readPinned(agentSettingsPath) };
   } catch (error) {
     if (rateLimitStop(error) !== undefined) throw error;
     if (isNotFound(error)) return { kind: "absent" };
-    return { kind: "unreadable" };
+    return { kind: "unreadable", recovery: readFailureRecovery(error) };
   }
 }

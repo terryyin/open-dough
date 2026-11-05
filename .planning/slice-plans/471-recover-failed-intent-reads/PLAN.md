@@ -2,12 +2,9 @@
 
 **Identity:** SEED-192#recover-failed-intent-reads
 **Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#recover-failed-intent-reads)
-in SEED-192, refined 2026-11-05 with challenge, clarify, investigate and
-architecture.
+in SEED-192, refined 2026-11-05.
 **Source review:** [Independent source commitments](source-review.md)
-**Prepared:** 2026-11-05. Planning only, in the story's established workspace
-(branch `claude/recover-failed-intent-reads-without-retry`, agent
-bastiaan-chan), continuing the refinement in the same session.
+**Prepared:** 2026-11-05, by bastiaan-chan in the established story workspace.
 
 ## Goal and boundaries
 
@@ -16,25 +13,12 @@ eligibly is read again in place when the page's recovery schedule is due on a
 visible page, so a developer sees the locations and candidates again without
 pressing Retry. The seed's seven key examples are the acceptance.
 
-Included, as the seed records:
+The seed defines eligibility and the second schedule contributor. It excludes
+automatic Intent proof/Purpose reads and a recovery-time notice. Shared
+classification may naturally extend published-work recovery while its
+existing proof stays green.
 
-- Eligibility for an unreachable local boundary.
-- Recovery from a GitHub limit once the standing limit ends.
-- Boundary-classified transient failures, which the boundary must now carry on
-  Intent's settings, location-listing and candidates problems.
-- The schedule's second contributor.
-
-Excluded:
-
-- Intent proof and Purpose file-text reads, which keep their Retry.
-- A notice saying when Intent reads again.
-- Any new promise about published-work recovery. A published-work behavior
-  change that the shared classification brings is allowed only while the
-  existing published-work recovery proof stays green.
-
-Apply this repository's
-[failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
-throughout.
+Apply the [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests) throughout.
 
 **Local gate:**
 
@@ -117,11 +101,11 @@ throughout.
   - It counts reads, as `transientRecoveryPage.ts` does for `main`.
   - It counts heads checks through `autoRefreshJourney.ts` `headsChecks`.
 - **Examples 2 and 6** (gh-transient candidates recover; rate-limited
-  candidates wait for the limit): the same spec. It uses the
-  `unanswered`/`noConnection` fixture, and a limited answer through the
-  existing limit fixtures (`limitNotice.ts`, `limitedReadingRecords.ts`).
+  candidates wait for the limit): `intent-candidates-read-recovery.spec.ts`. It uses the
+  held GitHub read followed by a transport failure, and a directed
+  rate-limit answer through the existing limit parser and notice.
 - **Boundary contract:** `dashboard/tests/boundary/authenticated-read-intent-candidates.spec.ts`
-  and `authenticated-read-intent-locations.spec.ts` assert the `recovery`
+  and `authenticated-read-intent-locations-problems.spec.ts` assert the `recovery`
   field for transient reads and its absence for non-transient failures.
   Exercise the settings and candidates problem bodies and the existing
   location-listing HTTP 502 path.
@@ -150,24 +134,13 @@ observation's contribution, and a contributor due-signal hook is exported.
 
 **Enables:** slice 2.
 
-**Accepted proof:** The 37 unedited dashboard cases in the transient,
-limit-credit, limited-reading, auto-refresh, project-read-isolation and
-Codex launch-reconciliation cohorts passed. The paused-clock assertions in
-`transient-read-recovery.spec.ts` check the 15/30/60/60 waits and restored
-membership. `transient-recovery-currentness.spec.ts` checks zero heads
-requests before the observation recovers and restored checks after.
-`transient-recovery-lifecycle.spec.ts` checks hide/reveal and clears the
-departed project's wait while the standing login limit remains.
-The independent refactor preserved the wake if effect registration happens
-after the deadline. It reran the 24 transient and credit cases plus five
-auto-refresh and limited-detail cases, all passing. Typecheck passed.
-Slice 2 owns the first proof with Intent pending.
-
-The consumer trace connects the schedule to the published observation's
-recovery notice, check schedule, source selection, and launch reconciliation.
-The change follows [ADR 0002, Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-by extending the existing schedule, and [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-by retaining recovery state in the observing page.
+**Accepted proof:** 37 unedited transient, limited-read, credit,
+auto-refresh, project-isolation and launch-reconciliation cases passed.
+The independent refactor retained a wake when timer registration occurs
+after its deadline, then reran 29 affected cases and typecheck.
+Timed counts, heads exclusion, visibility and project reset were inspected.
+The changes follow ADR 0002's reuse rule and ADR 0008's page-local observation
+boundary. Slice 2 owns proof with Intent pending.
 
 ### 2. Intent locations recover from an unreachable boundary or a GitHub limit
 Type: Behavior
@@ -189,38 +162,19 @@ fails without the Intent contributor); the preserved-behavior specs.
 **Includes:** the shared `authenticatedGet` classification, and the Intent
 recovery hook wired into `useIntentLocations`.
 
-**Accepted proof:** On Slice 1's product, three new journeys missed the
-reread at the deadline, on reveal, or at the rate-limit expiry. The
-malformed-settings case already stayed actionable. Slice 2 passed all
-five new journeys in `intent-read-recovery.spec.ts`, including an actual
-standing limit at the tree boundary and simultaneous published-detail
-and locations transport failures. The latter initially saw two detail
-requests and three locations requests at the first wake. The live due
-check fixed the duplicate. The final journey observes two of each at the
-shared first wake, no additional request while Intent waits, and a third
-locations request after the 30-second wait.
-
-The unchanged published-recovery, limited-read, Intent browse/Retry and
-selection cohorts passed alongside the new journeys (61 total). Six
-startup-reconciliation cases passed separately. Dashboard typecheck
-passed. The shared classifier is consumed only where a read interprets
-`ReadProblem.recovery`; other Intent readers still present their existing
-failure. The observation passes its existing limit and visibility signals
-to Intent, so Intent mounts no timer of its own.
-
-The independent refactor put the provider at the dashboard's single Intent
-mount. Twelve Intent recovery, Retry, selection, project-switch and
-candidates cases passed. Nine frame and Cucumber proof cases passed,
-including the existing Proof Retry beside the same Purpose. Typecheck
-passed again.
-
-Previous accepted slice: `b24ddba9d492298853d08155a6596ec8b8c63530`
-on the remote story branch.
+**Accepted proof:** Three new journeys failed on Slice 1 and all five passed
+with the implementation. The combined case exposed and fixed a duplicate
+caused by a stale due signal. It now observes a shared first wake and a
+30-second wait for Intent alone. The 61-case main cohort, six reconciliation
+cases, and 21 refactor checks passed, including existing Proof Retry beside
+the same Purpose. Typecheck passed. Per-commitment assertions are recorded
+in the source review. The provider uses the observation's existing limit
+and visibility signals and mounts no timer.
 
 ### 3. Intent reads recover from failures the boundary marks transient
 Type: Behavior
-Status: planned
-Proof: `intent-read-recovery.spec.ts` examples 2 and 6; the two boundary specs'
+Status: done
+Proof: `intent-candidates-read-recovery.spec.ts` examples 2 and 6; the boundary
 `recovery` assertions; `intent-test-optimization-candidates-states.spec.ts`.
 
 **Behavior:**
@@ -245,6 +199,20 @@ The classification is already on that response. Slice 3 will prove its
 consumption by the locations reader and preserve the existing status and
 message.
 
+**Accepted proof:** Five baseline misses covered missing partial-answer
+markers and automatic rereads. The 71-case main cohort, 20 supplemental
+executions and 12 final boundary cases passed with typecheck.
+The timeout response carries the marker, a later transport failure waits
+30 seconds, and both candidate groups restore their actual entry slugs.
+A 45-second standing limit blocks the shorter wait. Boundary proof covers
+unreachable, access-refused and the original unknown CLI failure.
+The incorrect transient fixture used unknown CLI prose. Genuine
+`noConnection` replaced that setup, retaining the unknown case separately.
+Absent and mismatched candidates stay at one read after 70 seconds with
+their established displays. The source review holds detailed assertions.
+Refactoring split the large specs, preserving all 24cases. The 10 recovery
+consumers passed again after the clock helper rename, with typecheck.
+
 ## Current decisions
 
 - Story Branch Mode; no trunk step.
@@ -258,21 +226,15 @@ message.
 
 ## Concern evidence
 
-- Slice-plan refinement was not needed. Slice 1 prepares only slice 2's
-  contributor. Slices 2 and 3 each own one eligibility source and proof loop,
-  and slice 3 extends slice 2's Intent hook rather than adding a second
-  recovery path.
-- No remaining slice-specific concern was identified.
-
+The three slices retain one schedule. The settings/listing distinction is
+recorded above. No unresolved slice concern remains.
 
 ## Execution context
 
-- Story Branch Mode in the owned checkout
-  `/Users/terryyin/git/open-dough/.worktrees/recover-failed-intent-reads-without-retry`
-  on `codex/recover-failed-intent-reads-without-retry`, assigned to
-  `ivan-chan` via publisher `dashboard-territory.local-open-dough`.
-  The checkout's creation ref names this story. The default checkout is
-  `/Users/terryyin/git/open-dough`.
+- Owned checkout `/Users/terryyin/git/open-dough/.worktrees/recover-failed-intent-reads-without-retry`,
+  branch `codex/recover-failed-intent-reads-without-retry`, Story Branch Mode.
+  Its creation ref names this story. Default checkout `/Users/terryyin/git/open-dough`.
+  Agent `ivan-chan`, publisher `dashboard-territory.local-open-dough`.
 - Starting revision `55594d875cb110d09bc5c07db232e1ed60139a50`.
   Take `2cec2bfef08c66fad2225d9cef0351c286b3e6b8` confirmed on
   `origin/main` and the remote execution branch. The Story Branch observer

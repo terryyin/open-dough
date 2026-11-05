@@ -12,6 +12,7 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import { isNotFound, rateLimitStop } from "./ghFailure.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
+import { readFailureRecovery } from "./readFailureMessage.ts";
 import { parsePinnedIntentRead } from "./intentReadParameters.ts";
 import type { RefusedParameters } from "./refusedParameters.ts";
 
@@ -70,6 +71,7 @@ export async function performIntentCandidatesRead(
       revision,
       candidates: null,
       candidatesProblem: "unreadable",
+      recovery: readFailureRecovery(error),
     });
   }
 }

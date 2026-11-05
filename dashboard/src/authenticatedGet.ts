@@ -18,6 +18,9 @@ import { noteLimit, noteWithheld, standingLimit } from "./readingLimit.ts";
 
 export const commitSha = z.string().regex(commitShaPattern);
 
+// Eligibility comes from the boundary's classification.
+export const transientReadRecovery = z.literal("transient").optional();
+
 // A file published at a pinned revision: its repository path and raw text.
 export const publishedFile = z.object({
   path: z.string().min(1),
@@ -33,9 +36,7 @@ const errorAnswer = z.object({
     .min(0)
     .max(longestDirectedWaitSeconds)
     .optional(),
-  // Eligibility for project-local transient recovery, as the boundary
-  // classified it; never inferred from this response's HTTP status.
-  recovery: z.literal("transient").optional(),
+  recovery: transientReadRecovery,
 });
 
 // While the page's limit stands (`./readingLimit.ts`), a read is answered as

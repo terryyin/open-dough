@@ -54,7 +54,11 @@ export function useIntentLocations(
     void readIntentLocationsAt(source, revision, controller.signal)
       .then((locations) => {
         if (controller.signal.aborted) return;
-        recordSettled(undefined);
+        recordSettled(
+          locations.status === "settings-problem"
+            ? locations.recovery
+            : undefined,
+        );
         setIntent(locations);
       })
       .catch((error: unknown) => {

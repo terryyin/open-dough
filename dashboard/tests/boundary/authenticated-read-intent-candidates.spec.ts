@@ -10,7 +10,11 @@ import {
   type DashboardServer,
 } from "../support/dashboardServer.ts";
 import { everyRepository, publishes } from "../support/fakeGitHub.ts";
-import { notFoundAnswer } from "../originAnswers.ts";
+import {
+  httpErrorAnswer,
+  noConnection,
+  notFoundAnswer,
+} from "../originAnswers.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
 
@@ -129,7 +133,7 @@ test.describe("authenticated Intent candidates read (development environment)", 
         call.request.kind === "content" &&
         call.request.path === testOptimizationCandidatesPath
       ) {
-        return { exitCode: 1, stderr: "connection reset" };
+        return noConnection;
       }
       return published(call);
     });
@@ -142,8 +146,43 @@ test.describe("authenticated Intent candidates read (development environment)", 
       revision,
       candidates: null,
       candidatesProblem: "unreadable",
+      recovery: "transient",
     });
   });
+
+  for (const [failure, byte, answer] of [
+    ["an access refusal", "c5", httpErrorAnswer(403)],
+    [
+      "an unknown CLI failure",
+      "c6",
+      { exitCode: 1, stderr: "connection reset" },
+    ],
+  ] as const) {
+    test(`answers unreadable without recovery for ${failure}`, async () => {
+      const revision = revisionOf(byte);
+      const published = publishes({
+        revision,
+        backlog,
+        files: { [settingsPath]: settings },
+      });
+      server.github.serve(everyRepository, (call) =>
+        call.request.kind === "content" &&
+        call.request.path === testOptimizationCandidatesPath
+          ? Promise.resolve(answer)
+          : published(call),
+      );
+      const response = await rawRequest({
+        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&intent=test-optimization-candidates`,
+        headers: { Origin: server.origin },
+      });
+      expect(response.status).toBe(200);
+      expect(JSON.parse(response.body)).toEqual({
+        revision,
+        candidates: null,
+        candidatesProblem: "unreadable",
+      });
+    });
+  }
 
   test("refuses a client-supplied path and any mix with other read parameters", async () => {
     const revision = revisionOf("c4");

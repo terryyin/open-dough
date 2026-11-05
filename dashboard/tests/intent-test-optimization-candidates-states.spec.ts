@@ -3,7 +3,7 @@
 // location browsing stays usable on the Intent tab (example 7;
 // ../src/IntentCandidatesRecord.tsx).
 
-import { expect, test } from "./dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "./dashboardTest.ts";
 import { filesOf } from "./catalogProjectRecords.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
 import {
@@ -13,7 +13,10 @@ import {
   expectCandidatesRevision,
   intentModeTab,
 } from "./intentPerspectivePage.ts";
-import { openUntilRead } from "./pageRequestNotes.ts";
+import {
+  openUntilRead,
+  untilPageRequestsAnswered,
+} from "./pageRequestNotes.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import {
   emptyCandidatesRecord,
@@ -38,6 +41,7 @@ import {
 test("Intent explains absent, unreadable, mismatched, and empty candidate records without disturbing location browsing", async ({
   page,
 }) => {
+  await pausePageClockAt(page, new Date("2026-11-05T08:00:00.000Z"));
   await page.setViewportSize({ width: 1100, height: 800 });
 
   await publishIntentProject(page, doughnut, doughnutSettings, {
@@ -59,6 +63,12 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
     await expectCandidatesRevision(intent, doughnut.revision);
     await expect(candidatesRecord(intent)).toContainText(
       "No Test Optimization Candidates record has been published for Doughnut",
+    );
+    await page.clock.runFor(70_000);
+    await untilPageRequestsAnswered(page);
+    await expect(candidatesRecord(intent)).toHaveAttribute(
+      "data-candidates-reads",
+      "1",
     );
     await intentTab.click();
     await expandIntentGroup(intent, "scripts");
@@ -109,6 +119,12 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
     );
     await expect(candidatesRecord(intent)).not.toContainText(
       "Body that Intent must not partially show",
+    );
+    await page.clock.runFor(70_000);
+    await untilPageRequestsAnswered(page);
+    await expect(candidatesRecord(intent)).toHaveAttribute(
+      "data-candidates-reads",
+      "1",
     );
     await intentTab.click();
     await expandIntentGroup(intent, "tests");

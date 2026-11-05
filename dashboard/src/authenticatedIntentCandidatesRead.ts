@@ -8,6 +8,7 @@ import { z } from "zod";
 import {
   authenticatedGet,
   commitSha,
+  transientReadRecovery,
   unexpectedAnswer,
 } from "./authenticatedGet.ts";
 import { readingPathAt } from "./authenticatedReadRules.ts";
@@ -18,11 +19,15 @@ const okCandidates = z.object({
   revision: commitSha,
   candidates: z.string().nullable(),
   candidatesProblem: z.literal("unreadable").optional(),
+  recovery: transientReadRecovery,
 });
 
 export type IntentCandidatesReadResult =
   | { readonly status: "absent" }
-  | { readonly status: "unreadable" }
+  | {
+      readonly status: "unreadable";
+      readonly recovery: z.infer<typeof transientReadRecovery>;
+    }
   | { readonly status: "present"; readonly text: string };
 
 // The candidates record published at `revision`, or absent / unreadable when
@@ -46,7 +51,7 @@ export async function readIntentCandidatesAt(
     if (parsed.data.candidates !== null) {
       throw unexpectedAnswer(reading);
     }
-    return { status: "unreadable" };
+    return { status: "unreadable", recovery: parsed.data.recovery };
   }
   return parsed.data.candidates === null
     ? { status: "absent" }

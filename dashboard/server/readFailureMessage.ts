@@ -50,6 +50,14 @@ function failureReasonOf(error: unknown): GhFailureReason {
   return error instanceof GhFailure ? error.reason : { kind: "failed" };
 }
 
+// Partial answers keep recovery eligibility without replacing their own
+// problem wording with the whole-read failure message.
+export function readFailureRecovery(
+  error: unknown,
+): ReportedFailure["recovery"] {
+  return recoveryOf(failureReasonOf(error));
+}
+
 export function reportedFailure(
   error: unknown,
   source: PublishedSource,
