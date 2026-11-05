@@ -6,14 +6,15 @@
 // toggle (expansion only) and name (select; toggle once selected) controls; a
 // toggle never changes selection or the reading pane. Nothing selected shows
 // CI status as Intent's homepage; a file shows Purpose and Proof; a location
-// or folder name shows a Summary — all in `./IntentSelectionReading.tsx`, whose
-// return-home control clears the selection back to CI status. A failed file
-// read keeps its own explanation and retry; a failed proof read's retry reads
-// the locations again without changing the selection. Selection is owned by
-// the Intent workspace (`./intentWorkspaceSelection.ts`). With a selected
-// story's comparison, the trees follow it (`./useIntentStoryTree.ts`) under
-// the story's summary heading the locations (`./IntentStorySummary.tsx`). A
-// file the published revision does not list is never read. The browser
+// or folder name shows a Summary — all in `./IntentSelectionReading.tsx`;
+// directly activating the Intent tab clears the selection back to CI status
+// (`./IntentModeTabs.tsx`), while the opens below keep their target. A failed
+// file read keeps its own explanation and retry; a failed proof read's retry
+// reads the locations again without changing the selection. Selection is
+// owned by the Intent workspace (`./intentWorkspaceSelection.ts`). With a
+// selected story's comparison, the trees follow it (`./useIntentStoryTree.ts`)
+// under the story's summary heading the locations (`./IntentStorySummary.tsx`).
+// A file the published revision does not list is never read. The browser
 // unmounts with Intent, so a story selected while Intent is hidden applies
 // when it opens, with the toggle off.
 
@@ -213,9 +214,6 @@ export function IntentBrowser({
             proofRereading={proofRereading}
             onProofRetry={onProofRetry}
             onOpen={openRevealed}
-            onClearSelection={() => {
-              setSelection({ path: "" });
-            }}
             readingTab={readingTab}
             onChooseTab={setReadingTab}
             readingLayout={readingLayout}

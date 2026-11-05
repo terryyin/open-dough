@@ -32,17 +32,24 @@ no file text.
 The selected perspective choice names the page, so Intent shows no heading of its own. Below
 the banner the page does not scroll: the location tree fills the remaining height against
 the left edge, and it and the reading pane each scroll independently. Directly under the
-banner, a strip of three Intent reading modes, **Intent**, **Optimization Candidates** and
-**CI status**, chooses what that content shows; it belongs to Intent and is not another
-perspective, and arrow keys, Home and End move between its tabs.
+banner, a strip of two Intent reading modes, **Intent** and **Optimization Candidates**,
+chooses what that content shows; it belongs to Intent and is not another
+perspective. Arrow keys, Home and End move between its tabs and only choose
+the mode, so returning to **Intent** that way keeps what it was reading.
 **Intent** shows the location tree (Purpose locations only) beside the
-reading pane; it is the tab a project's Intent first shows. With a file
-selected, or nothing selected yet, the reading pane shows its **Purpose**.
+reading pane; it is the tab a project's Intent first shows. With nothing
+selected the reading pane is Intent's homepage, **CI status**; with a file
+selected it shows the file's **Purpose**, and with a location or folder its
+summary. Directly activating the **Intent** tab, by click, Enter or Space and
+even while it is already chosen, returns home: the location, folder or file
+selection clears and CI status shows again for the same selected story,
+while tree expansion and the reading choices stay as they were. There is no
+separate return control.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at the observed revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
-Choosing a location an entry names selects **Intent** with that file's
-**Purpose** positioned on the entry's case where that names one line, with its location and folders opened so the file
+Choosing a location an entry names, an opening rather than a return home,
+selects **Intent** with that file's **Purpose** positioned on the entry's case where that names one line, with its location and folders opened so the file
 shows selected, and choosing **Optimization Candidates** again returns to
 that entry without reading the record again.
 

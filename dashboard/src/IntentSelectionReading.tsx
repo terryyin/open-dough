@@ -1,7 +1,8 @@
 // Intent's selection reading (`./IntentBrowser.tsx`): CI status when nothing
-// is selected (`./IntentCiStatus.tsx`); a return-home control plus Summary
-// (`./IntentSummary.tsx`) or Purpose and Proof (`./IntentFileReading.tsx`)
-// once a location, folder or file is selected.
+// is selected (`./IntentCiStatus.tsx`); Summary (`./IntentSummary.tsx`) or
+// Purpose and Proof (`./IntentFileReading.tsx`) once a location, folder or
+// file is selected. Activating the Intent reading tab returns home
+// (`./IntentModeTabs.tsx`).
 
 import type { RefObject } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -38,7 +39,6 @@ export function IntentSelectionReading({
   proofRereading,
   onProofRetry,
   onOpen,
-  onClearSelection,
   readingTab,
   onChooseTab,
   readingLayout,
@@ -61,7 +61,6 @@ export function IntentSelectionReading({
   readonly proofRereading: boolean;
   readonly onProofRetry: () => void;
   readonly onOpen: (next: IntentSelection) => void;
-  readonly onClearSelection: () => void;
   readonly readingTab: IntentReadingTab;
   readonly onChooseTab: (next: IntentReadingTab) => void;
   readonly readingLayout: IntentReadingLayout;
@@ -83,11 +82,6 @@ export function IntentSelectionReading({
   }
   return (
     <>
-      <p className="intent-return-home">
-        <button type="button" onClick={onClearSelection}>
-          Return to CI status
-        </button>
-      </p>
       {(scope === "location" || scope === "folder") &&
       selectedLocation !== undefined ? (
         <IntentSummary

@@ -86,8 +86,22 @@ export async function chooseCiStatus(intent: Locator) {
   return panel;
 }
 
-export async function returnToCiStatus(intent: Locator) {
-  await intent.getByRole("button", { name: "Return to CI status" }).click();
+// Return home by directly activating the Intent reading tab, even while it
+// is chosen: by click, or by Enter or Space with it focused. The browsing
+// selection clears and CI status shows; returns that region.
+export async function activateIntentHome(
+  intent: Locator,
+  how: "click" | "Enter" | "Space" = "click",
+) {
+  const tab = intentModeTab(intent, "Intent");
+  if (how === "click") {
+    await tab.click();
+  } else {
+    await tab.focus();
+    await tab.press(how);
+  }
+  // Already chosen, so the homepage check below never clicks for us.
+  await expect(tab).toHaveAttribute("aria-selected", "true");
   return chooseCiStatus(intent);
 }
 

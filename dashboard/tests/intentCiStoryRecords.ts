@@ -87,16 +87,21 @@ export type StoryCi = {
   push(branch: string, sha: string, message: string): void;
 };
 
-// The board published for Open Dough with its CI served.
-export function publishStoryCi(page: Page): StoryCi {
+// The board published for Open Dough, with `extra` files on every branch,
+// and its CI served.
+export function publishStoryCi(
+  page: Page,
+  extra: Readonly<Record<string, string>> = {},
+): StoryCi {
+  const files = { ...storyBoardFiles, ...extra };
   const published = publishMovingFiles(page, {
     repository,
     revision,
-    files: storyBoardFiles,
+    files,
     branches: Object.fromEntries(
       [failing, planningOnly, running].map(({ branch }) => [
         branch,
-        { revision: histories[branch]?.[0]?.sha ?? "", files: storyBoardFiles },
+        { revision: histories[branch]?.[0]?.sha ?? "", files },
       ]),
     ),
   });
@@ -156,10 +161,7 @@ export function publishStoryCi(page: Page): StoryCi {
         { sha: pushed, message, parents: [history[0]?.sha ?? ""] },
         ...history,
       ];
-      published.moveBranch(branch, {
-        revision: pushed,
-        files: storyBoardFiles,
-      });
+      published.moveBranch(branch, { revision: pushed, files });
     },
   };
 }

@@ -33,10 +33,6 @@
   color: var(--danger, #a33);
 }
 
-.intent-return-home {
-  margin: 0 0 var(--space-2);
-}
-
 /* The shown run's CI proof (./IntentCiProof.tsx), after the judgment. */
 .intent-ci-proof {
   margin-top: var(--space-3);

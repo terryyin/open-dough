@@ -28,8 +28,8 @@ contents read per contained feature file not already pinned; paths outside those
 refused without a contents read. Opening Intent with nothing selected shows CI
 status as Intent's homepage and costs the same judgment and proof reads the former
 **CI status** tab cost when shown: each time that homepage is shown (including a
-return from a file or folder selection), each time its judged branch changes with
-the selected story, each time a new trunk revision is observed while the trunk is
+return from a file or folder selection by activating the **Intent** tab), each
+time its judged branch changes with the selected story, each time a new trunk revision is observed while the trunk is
 shown, each time the revision check finds a new head of the shown story branch it
 already watches for progress, and on each **Check again**, the trunk's judgment
 costs one listing of the configured ref's commit history (up to 30 commits) and

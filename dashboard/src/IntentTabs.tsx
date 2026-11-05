@@ -3,7 +3,9 @@
 // tabpanel its caller renders under `intentTabPanelId`. The selected tab is
 // the only one in the tab order; Arrow keys, Home and End move between the
 // tabs, choose the one reached and focus it, and the handled keys never reach
-// page-wide project cycling (`./projectKeyboardNavigation.ts`).
+// page-wide project cycling (`./projectKeyboardNavigation.ts`). Directly
+// activating a tab (click, Enter or Space), the selected one included, also
+// tells `onActivate`; moving by those keys only chooses.
 
 import type { KeyboardEvent } from "react";
 import "./project-select.css";
@@ -26,12 +28,14 @@ export function IntentTabs<T extends string>({
   options,
   selected,
   onSelect,
+  onActivate,
   label,
   idPrefix,
 }: {
   readonly options: readonly IntentTabOption<T>[];
   readonly selected: T;
   readonly onSelect: (next: T) => void;
+  readonly onActivate?: (activated: T) => void;
   readonly label: string;
   readonly idPrefix: string;
 }) {
@@ -76,6 +80,7 @@ export function IntentTabs<T extends string>({
             tabIndex={isSelected ? 0 : -1}
             onClick={() => {
               onSelect(option.value);
+              onActivate?.(option.value);
             }}
           >
             {option.label}

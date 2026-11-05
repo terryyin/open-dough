@@ -184,7 +184,7 @@ refactor return (`intent-proof.css`, consumer trace terms
 
 ### 2. Return home by deliberately activating Intent
 Type: Behavior
-Status: planned
+Status: done
 Proof: expanded homepage/story journey plus candidate-open, candidate tab
 keyboard, summary drill-down and focused Intent suites; local gate.
 
@@ -201,6 +201,19 @@ expansion, filters, project state and Selected story independent. Adapt
 Update documentation for direct versus arrow-key selection.
 
 **Safe stop:** navigation is final and independent of evidence granularity.
+
+**Accepted (2026-11-05):** `IntentTabs` `onActivate` (click, Enter or Space,
+selected tab included) drives `clearSelection` from `IntentModeTabs`; the
+selection provider is identity-held at `IntentPerspective` (one
+`browsingIdentity`, also the `IntentBrowser` key). Proof: focused Intent suite
+159/159 (70 files) after refactor; `intent-ci-status-homepage.spec.ts` entry
+click / folder Enter / file Space loop and `intent-home-activation.spec.ts`
+story-branch and arrow/Home/End retention, with discriminating controls
+(no-op `clearSelection`; arrows calling `onActivate`). Refactor pass extracted
+`IntentSettingsExplanation.tsx` and reused `chooseCiStatus` in
+`activateIntentHome`. Coordination: SEED-241's plan 477 describes the old
+keyed remount; whoever reconciles must carry `clearSelection` and the strip's
+`onActivate` into its page-held selection owner.
 
 ### 3. Compare and drill into CI-backed entry and folder tables
 Type: Behavior

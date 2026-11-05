@@ -1,11 +1,13 @@
 // One Intent selection for the project's Intent workspace: a configured
 // location, a folder under one, or a file (with an optional case target later
 // slices position Purpose on). Disposable page state (ADR 0008). The provider
-// remounts on source or revision identity so selection clears with that
-// identity (`./IntentPerspective.tsx`). The location tree and Purpose read and
-// set it through this owner; the candidate-record view shares it when opening
-// a recorded file. A missing `scope` with a non-empty path is a file, so
-// candidate opens stay `{ path }` / `{ path, caseTarget }`.
+// holds it for one source and revision identity, so selection clears with
+// that identity (`./IntentPerspective.tsx`). The location tree and Purpose
+// read and set it through this owner; the candidate-record view shares it
+// when opening a recorded file; directly activating the Intent reading tab
+// clears it to return home (`./IntentModeTabs.tsx`). A missing `scope` with a
+// non-empty path is a file, so candidate opens stay `{ path }` /
+// `{ path, caseTarget }`.
 
 import {
   createContext,
@@ -40,6 +42,9 @@ export type OpenCandidateLocation = (
 export type IntentWorkspaceSelection = {
   readonly selection: IntentSelection;
   readonly setSelection: (next: IntentSelection) => void;
+  // Back to nothing selected, Intent's CI status homepage; nothing changes
+  // when nothing is selected.
+  readonly clearSelection: () => void;
 };
 
 const emptySelection: IntentSelection = { path: "" };
@@ -49,14 +54,33 @@ const IntentSelectionContext = createContext<
 >(undefined);
 
 export function IntentWorkspaceSelectionProvider({
+  identity,
   children,
 }: {
+  // The source and revision the selection belongs to.
+  readonly identity: string;
   readonly children: ReactNode;
 }) {
-  const [selection, setSelection] = useState<IntentSelection>(emptySelection);
+  const [held, hold] = useState<{
+    readonly identity: string;
+    readonly selection: IntentSelection;
+  }>({ identity, selection: emptySelection });
+  const selection =
+    held.identity === identity ? held.selection : emptySelection;
+  const setSelection = (next: IntentSelection) => {
+    hold({ identity, selection: next });
+  };
   return createElement(
     IntentSelectionContext.Provider,
-    { value: { selection, setSelection } },
+    {
+      value: {
+        selection,
+        setSelection,
+        clearSelection: () => {
+          if (selection.path !== "") setSelection(emptySelection);
+        },
+      },
+    },
     children,
   );
 }
