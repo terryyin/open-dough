@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Remove local proof from Open Dough](seeds/SEED-238-remove-local-proof.md#remove-local-proof) — SEED-238#remove-local-proof ([plan](slice-plans/474-remove-local-proof/PLAN.md))
-- [Show CI status and timing on the Intent homepage](seeds/SEED-239-intent-home-ci-status.md#show-ci-status-on-intent-home) — SEED-239#show-ci-status-on-intent-home ([plan](slice-plans/476-show-ci-status-on-intent-home/PLAN.md))
 
 ## Backlog list
 

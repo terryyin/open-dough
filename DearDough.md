@@ -764,7 +764,7 @@ Dough Land's history-preserving landing requires the queued-closure check before
 Adding the process-local kept CI status answer and per-attempt proof memory left existing Check-again journeys wrong until pre-landing and host CI failed: mismatched adapter summaries were remembered as if valid, and a freshness hold placed before the remount's fresh keep settled showed unread as previously retrieved.
 
 ### Occurrences
-- Execution: SEED-239#show-ci-status-on-intent-home (plan `.planning/slice-plans/476-show-ci-status-on-intent-home/PLAN.md`; first related implementation commit `bb9b7128e`)
+- Execution: SEED-239#show-ci-status-on-intent-home (before-cleanup `6581c406d0edf71e4d8a3d210e5b4d7769a624af:.planning/slice-plans/476-show-ci-status-on-intent-home/PLAN.md`; first related implementation commit `bb9b7128e`)
   - Timestamp: 2026-11-05T19:05:05+07:00 (host CI run 42032615133 tip after repairs `e4058a7c7`)
   - Tool: Cursor
   - Open Dough release: 0.3.86 (installed `.claude/skills`; VERSION file)

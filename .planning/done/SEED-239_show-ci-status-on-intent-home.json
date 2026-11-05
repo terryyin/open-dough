@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-239#show-ci-status-on-intent-home",
+  "title": "Show CI status and timing on the Intent homepage",
+  "completedAt": "2026-11-05T13:20:53.750Z",
+  "developer": "Terry Yin",
+  "agent": "yusuke-chan",
+  "host": "cursor",
+  "model": "auto"
+}
