@@ -14,6 +14,7 @@ import {
   expandIntentGroup,
   intentGroupToggle,
   intentLocationName,
+  purposeRegion,
 } from "./intentPerspectivePage.ts";
 import { expectChildNames } from "./intentScopeProofPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
@@ -51,9 +52,7 @@ test("Intent location toggle/name select a summary without opening on first name
     const summary = intent.getByRole("region", { name: "Summary" });
     await expect(summary).toContainText(featuresPath);
     await expect(summary).toContainText("4 files");
-    await expect(intent.getByRole("region", { name: "Purpose" })).toHaveCount(
-      0,
-    );
+    await expect(purposeRegion(intent)).toHaveCount(0);
   });
 
   await test.step("location toggle opens or closes without moving selection; selected name toggles and keeps summary", async () => {

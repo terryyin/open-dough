@@ -1,5 +1,9 @@
 // Bounded, cached reads of distinct repository files for one published-work
-// snapshot, through the local authenticated boundary for every source.
+// snapshot, through the local authenticated boundary for every source. The
+// one cached read of a file (`readCachedFile`) is shared with Intent's
+// selected file (`./useIntentFileRead.ts`): text kept by repository, revision
+// and path (`./fileContentCache.ts`), and a read of the same file already in
+// flight joined (`./sharedRead.ts`).
 // Settled outcomes for the active observation (`./observationOutcomes.ts`)
 // retain each path's validated success or typed failure without storing
 // failure bodies as content.
@@ -16,11 +20,14 @@ import {
   type ReadQuestion,
 } from "./observationOutcomes.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { joinRead } from "./sharedRead.ts";
 import { gapCauseOf, limitGapProblem, type GapCause } from "./readWaitBound.ts";
 
 const fileReadConcurrency = 4;
 
-async function readCachedFile(
+// The text of `repositoryPath` at `revision`: kept, joined while in flight,
+// or read and kept. A failed read keeps nothing.
+export async function readCachedFile(
   source: PublishedSource,
   revision: string,
   repositoryPath: string,
@@ -30,14 +37,20 @@ async function readCachedFile(
   if (hit !== undefined) {
     return hit;
   }
-  const text = await readRepositoryFileAt(
-    source,
-    repositoryPath,
-    revision,
+  return joinRead(
+    `file\0${source.id}\0${source.repository}\0${revision}\0${repositoryPath}`,
+    async (shared) => {
+      const text = await readRepositoryFileAt(
+        source,
+        repositoryPath,
+        revision,
+        shared,
+      );
+      rememberFile(source.repository, revision, repositoryPath, text);
+      return text;
+    },
     signal,
   );
-  rememberFile(source.repository, revision, repositoryPath, text);
-  return text;
 }
 
 function fileQuestion(

@@ -11,8 +11,8 @@ import {
   intentFolderName,
   intentGroupToggle,
   intentLocationName,
+  purposeRegion,
 } from "./intentPerspectivePage.ts";
-import { chooseReadingTab, readingTab } from "./intentFileReadingPage.ts";
 import { expectChildNames } from "./intentScopeProofPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
@@ -153,9 +153,7 @@ test("Intent folder toggle/name, keyboard, and location toggle preserve the read
     await intent
       .getByRole("button", { name: topFeaturePath, exact: true })
       .click();
-    await expect(intent.getByRole("region", { name: "Purpose" })).toContainText(
-      "Feature: Disk space",
-    );
+    await expect(purposeRegion(intent)).toContainText("Feature: Disk space");
     const jobsName = intentFolderName(intent, "jobs");
     await jobsName.press("Enter");
     await expect(jobsName).toHaveAttribute("aria-pressed", "true");
@@ -172,13 +170,11 @@ test("Intent folder toggle/name, keyboard, and location toggle preserve the read
     );
   });
 
-  await test.step("file Purpose and Proof; E10 toggle opens another location without changing reader; E11 closed original name selects summary", async () => {
+  await test.step("file Purpose; E10 toggle opens another location without changing reader; E11 closed original name selects summary", async () => {
     await expandIntentGroup(intent, featuresPath);
     await intent.getByRole("button", { name: stooqPath, exact: true }).click();
     const source = intent.getByLabel(`${stooqPath} source`);
     await expect(source).toContainText("Feature: Stooq refresh");
-    const proof = await chooseReadingTab(intent, "Proof");
-    await expect(proof).toContainText("Refresh quotes");
     await expect(intentFolderName(intent, "jobs")).toHaveAttribute(
       "aria-pressed",
       "false",
@@ -187,7 +183,7 @@ test("Intent folder toggle/name, keyboard, and location toggle preserve the read
       intent.getByRole("button", { name: stooqPath, exact: true }),
     ).toHaveAttribute("aria-pressed", "true");
 
-    // E10: open a different location by toggle; Purpose/Proof stay on the file.
+    // E10: open a different location by toggle; Purpose stays on the file.
     await intentGroupToggle(intent, packagedPath).click();
     await expect(intentGroupToggle(intent, packagedPath)).toHaveAttribute(
       "aria-expanded",
@@ -198,7 +194,6 @@ test("Intent folder toggle/name, keyboard, and location toggle preserve the read
       "false",
     );
     await expect(source).toContainText("Feature: Stooq refresh");
-    await expect(proof).toContainText("Refresh quotes");
     await expect(intent.getByRole("region", { name: "Summary" })).toHaveCount(
       0,
     );
@@ -221,9 +216,6 @@ test("Intent folder toggle/name, keyboard, and location toggle preserve the read
     await expect(summary).toContainText(featuresPath);
     await expect(summary).toContainText("4 files");
     await expect(source).toHaveCount(0);
-    await expect(intent.getByRole("region", { name: "Purpose" })).toHaveCount(
-      0,
-    );
-    await expect(readingTab(intent, "Purpose")).toHaveCount(0);
+    await expect(purposeRegion(intent)).toHaveCount(0);
   });
 });

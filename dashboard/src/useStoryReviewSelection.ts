@@ -24,8 +24,7 @@ export function useStoryReviewSelection(
     storyReviewEndpoint,
     { source, identity, ...(completed ? { completed: "true" } : {}) },
     storyReviewSchema,
-    round,
-    enabled,
+    { round, enabled },
   );
   const [selection, setSelection] = useState<{
     of: StoryReview | undefined;
@@ -65,10 +64,13 @@ export function useStoryReviewSelection(
     storyReviewEndpoint,
     { source, identity, run: selection.run ?? "" },
     storyReviewSchema,
-    round,
-    enabled &&
-      selection.run !== undefined &&
-      answer?.selectedRun !== selection.run,
+    {
+      round,
+      enabled:
+        enabled &&
+        selection.run !== undefined &&
+        answer?.selectedRun !== selection.run,
+    },
   );
   const review =
     selection.run === undefined

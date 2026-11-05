@@ -1,11 +1,11 @@
 // One Intent selection for the project's Intent workspace: a configured
 // location, a folder under one, or a file (with an optional case target later
-// slices position Purpose on). Disposable page state (ADR 0008). The provider
-// holds it for one source and revision identity, so selection clears with
-// that identity (`./IntentPerspective.tsx`). The location tree and Purpose
-// read and set it through this owner; the candidate-record view shares it
-// when opening a recorded file; directly activating the Intent reading tab
-// clears it to return home (`./IntentModeTabs.tsx`). A missing `scope` with a
+// slices position Purpose on). Kept with the project's reading place
+// (`./pageIntentReading.tsx`), so it outlasts leaving Intent and a new
+// revision, and starts empty for each project. The location tree and Purpose
+// read and set it through this owner; the candidate-record view shares it when
+// opening a recorded file; directly activating the Intent reading tab clears
+// it to return home (`./IntentModeTabs.tsx`). A missing `scope` with a
 // non-empty path is a file, so candidate opens stay `{ path }` /
 // `{ path, caseTarget }`.
 
@@ -13,9 +13,9 @@ import {
   createContext,
   createElement,
   useContext,
-  useState,
   type ReactNode,
 } from "react";
+import { useKeptReading } from "./pageIntentReading.tsx";
 
 export type IntentSelectionScope = "location" | "folder" | "file";
 
@@ -54,22 +54,14 @@ const IntentSelectionContext = createContext<
 >(undefined);
 
 export function IntentWorkspaceSelectionProvider({
-  identity,
   children,
 }: {
-  // The source and revision the selection belongs to.
-  readonly identity: string;
   readonly children: ReactNode;
 }) {
-  const [held, hold] = useState<{
-    readonly identity: string;
-    readonly selection: IntentSelection;
-  }>({ identity, selection: emptySelection });
-  const selection =
-    held.identity === identity ? held.selection : emptySelection;
-  const setSelection = (next: IntentSelection) => {
-    hold({ identity, selection: next });
-  };
+  const [selection, setSelection] = useKeptReading<IntentSelection>(
+    "selection",
+    () => emptySelection,
+  );
   return createElement(
     IntentSelectionContext.Provider,
     {

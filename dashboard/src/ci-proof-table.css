@@ -1,0 +1,59 @@
+/* A CI proof table (./CiProofTable.tsx), on Intent's homepage
+   (./IntentCiProof.tsx) and in a Summary (./IntentScopeProof.tsx): one row
+   per scope, its figures in aligned columns. */
+.intent-proof-rows {
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+/* The table stays within its own box when the pane is too narrow for whole
+   words; the pane and page stay put. */
+.intent-proof-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Headers and cells keep whole words, whatever the reading pane inherits. A
+   row header wraps within its own column. */
+.intent-proof-rows th,
+.intent-proof-rows td {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: normal;
+}
+
+.intent-proof-rows tbody th {
+  font-weight: 400;
+}
+
+.intent-proof-rows tbody th,
+.intent-proof-rows tbody .intent-open-link {
+  overflow-wrap: break-word;
+}
+
+/* A scope path wraps only between its parts while they fit; in a reading
+   pane too narrow for that, such as a phone or a zoomed window, a part wraps
+   too and the cells narrow their side padding, so every column still fits
+   with its other words whole and nothing scrolls sideways, even in a wider
+   fallback font such as DejaVu Sans. */
+.intent-ci-proof-box {
+  container-type: inline-size;
+}
+
+.intent-ci-scope-part {
+  white-space: nowrap;
+}
+
+@container (max-width: 30rem) {
+  .intent-ci-scope-part {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .intent-ci-proof-box .intent-proof-rows th,
+  .intent-ci-proof-box .intent-proof-rows td {
+    padding-inline: var(--space-1);
+  }
+}

@@ -57,9 +57,9 @@ names the selected project, with **Development** and **Intent** beside it.
 Development (first-visit default) shows the Board; Intent reads Purpose from
 configured test-source locations in `.planning/open-dough.json` (`gherkin`,
 `typescript`, `javascript`, `python`, or `shell`, optional `include`), or says
-none are configured, without claiming tests or Proof are absent; its tabs
-also show **Optimization Candidates** and **CI status**, of the trunk or the
-selected story's published story branch. The page's one selected story is set
+none are configured, without claiming tests or Proof are absent; with nothing
+selected it shows **CI status** of the trunk or the selected story's published
+story branch, and its tabs also show **Optimization Candidates**. The page's one selected story is set
 by a card's **Select story** or by that story's content in the Side panel
 ([Story cards](STORY-CARDS.md)). Project changes, history, reload
 and System settings keep the perspective; choosing a

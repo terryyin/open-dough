@@ -1,28 +1,35 @@
 // The Intent perspective of the selected project: Purpose reads configured
-// test-source locations at the observed revision through the authenticated
-// read boundary, and Proof shows the last successful proof a location's
-// proof holds (`./IntentBrowser.tsx`). Unusable locations and failed reads
-// each keep their own explanation; remaining locations stay browseable. The
-// reading strip (`./IntentModeTabs.tsx`) is drawn here, above those
-// explanations. CI status (`./IntentCiStatus.tsx`) is Intent's homepage when
-// nothing is selected and is shown beside location explanations whether or
-// not locations are configured. The chosen mode is kept by the page per
-// project (`./pageIntentMode.tsx`). With a story selected on the page, Intent
-// reads its default Review changes comparison (`./useIntentStoryLens.ts`),
-// which the browser overlays on the published tree. The Intent reading mode
-// names the story in one summary (`./IntentStorySummary.tsx`) heading the
-// locations tree or, without one, the explanation in its place; Optimization
-// Candidates shows none.
+// test-source locations at Intent's reading revision, behind whose notice a
+// newer observed revision waits (`./IntentRevisionNotice.tsx`), through the
+// authenticated read boundary (`./IntentBrowser.tsx`); CI status follows the
+// observed work through Intent's one CI evidence owner
+// (`./IntentCiEvidence.tsx`), which CI status and a Summary share. Unusable
+// locations (`./IntentLocationsUnavailable.tsx`) and
+// failed reads each keep their own explanation; remaining locations stay
+// browseable. The reading strip (`./IntentModeTabs.tsx`) is drawn here, above
+// those explanations. CI status (`./IntentCiStatus.tsx`) is Intent's homepage
+// when nothing is selected and is shown beside location explanations whether
+// or not locations are configured. The chosen mode is kept by the page per
+// project (`./pageIntentMode.tsx`), and so is the reading place: the
+// selection, the tree's arrangement and the reading pane's scroll
+// (`./pageIntentReading.tsx`), mounted again for each project. The strip and
+// the browser share that selection, so directly activating the Intent tab
+// returns home (`./IntentModeTabs.tsx`). With a story
+// selected on the page, Intent reads its default Review changes comparison
+// (`./useIntentStoryLens.ts`), which the browser overlays on the published
+// tree. The Intent reading mode names the story in one summary
+// (`./IntentStorySummary.tsx`) heading the locations tree or, without one,
+// the explanation in its place; Optimization Candidates shows none.
 
 import { useState, type ReactNode } from "react";
 import { IntentBrowser } from "./IntentBrowser.tsx";
 import { IntentCiEvidenceProvider } from "./IntentCiEvidence.tsx";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
-import { IntentModeTabs } from "./IntentModeTabs.tsx";
 import {
-  NotConfigured,
-  SettingsProblem,
-} from "./IntentSettingsExplanation.tsx";
+  LocationsNotConfigured,
+  settledLocationsOf,
+} from "./IntentLocationsUnavailable.tsx";
+import { IntentModeTabs } from "./IntentModeTabs.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import {
@@ -33,19 +40,22 @@ import {
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
+import { IntentReadingPlace } from "./pageIntentReading.tsx";
+import {
+  IntentRevisionNotice,
+  useIntentReadingRevision,
+} from "./IntentRevisionNotice.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { useIntentLocations } from "./useIntentLocations.ts";
 import { useIntentStoryLens } from "./useIntentStoryLens.ts";
 import "./intent-perspective.css";
-import "./intent-proof.css";
 import "./intent-candidates.css";
 
 function IntentBody({
   source,
   work,
-  browsingIdentity,
   selectedIdentity,
   mode,
   modeIdPrefix,
@@ -55,51 +65,70 @@ function IntentBody({
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
-  // The source and revision Intent browses, which its selection belongs to.
-  readonly browsingIdentity: string;
   readonly selectedIdentity: string | undefined;
   // The selected story as the Intent mode's summary names it, and with its
   // comparison once compared.
   readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
 } & ModeChoice) {
-  const { intent, retryLocations, proofRereading, retryProof } =
-    useIntentLocations(source, work?.revision);
+  // A newer observed revision waits behind the notice until **Show latest**.
+  const observed = work?.revision;
+  const { reading, showLatest } = useIntentReadingRevision(observed);
+  const { intent, shownRevision, updating, failedUpdate, retryLocations } =
+    useIntentLocations(source, reading);
+  const notice = (
+    <IntentRevisionNotice
+      shown={shownRevision}
+      observed={observed}
+      updating={updating}
+      failedUpdate={failedUpdate}
+      onShowLatest={showLatest}
+      onRetry={retryLocations}
+    />
+  );
 
   // An explanation in place of the locations browser, shown as the panel of
-  // whichever location-reading mode is chosen; the Intent mode's names the
-  // selected story above it. CI status sits beside terminal location
-  // explanations; it is omitted while locations are still loading so the
-  // browser's empty-selection homepage does not remount a second judgment.
+  // whichever location-reading mode is chosen, which takes the reading's
+  // focus; the Intent mode's names the selected story above it. CI status
+  // sits beside terminal location explanations; it is omitted while locations
+  // are still loading so the browser's empty-selection homepage does not
+  // remount a second judgment.
+  const withNotice = (body: ReactNode) => (
+    <>
+      {notice}
+      {body}
+    </>
+  );
   const explained = (
     children: ReactNode,
     options: { readonly withCi: boolean } = { withCi: true },
-  ) => (
-    <div
-      role="tabpanel"
-      id={intentTabPanelId(modeIdPrefix, mode)}
-      aria-labelledby={intentTabId(modeIdPrefix, mode)}
-    >
-      {mode === "intent" && storySummary !== undefined && (
-        <IntentStorySummary summary={storySummary} />
-      )}
-      {children}
-      {mode === "intent" && options.withCi ? <IntentCiStatus /> : null}
-    </div>
-  );
+  ) =>
+    withNotice(
+      <div
+        role="tabpanel"
+        id={intentTabPanelId(modeIdPrefix, mode)}
+        aria-labelledby={intentTabId(modeIdPrefix, mode)}
+        tabIndex={-1}
+      >
+        {mode === "intent" && storySummary !== undefined && (
+          <IntentStorySummary summary={storySummary} />
+        )}
+        {children}
+        {mode === "intent" && options.withCi ? <IntentCiStatus /> : null}
+      </div>,
+    );
+  // Once locations settle (work read, answer shown), their configured
+  // locations to browse or the explanation in their place.
+  const settled =
+    work === undefined || intent === "loading"
+      ? undefined
+      : settledLocationsOf(intent, source.label, retryLocations);
   // Intent's one CI evidence owner reads while CI status or a Summary can
   // show it: once locations settle, while the browser is shown (its home
-  // and Summaries), or beside an explanation in the Intent mode.
-  const browsing =
-    work !== undefined &&
-    intent !== "loading" &&
-    !("failed" in intent) &&
-    intent.status !== "not-configured" &&
-    intent.status !== "settings-problem";
+  // and Summaries), or beside an explanation in the Intent mode. It follows
+  // the observed work, not the reading revision.
   const ciActive =
-    work !== undefined &&
-    intent !== "loading" &&
-    (browsing || mode === "intent");
+    settled !== undefined && ("locations" in settled || mode === "intent");
   return (
     <IntentCiEvidenceProvider
       source={source}
@@ -112,63 +141,33 @@ function IntentBody({
   );
 
   function bodyOf(): ReactNode {
-    if (work === undefined || intent === "loading") {
+    if (work === undefined || settled === undefined) {
       // Withhold CI until locations settle: a cold Intent open can mount with
       // work still unread (NotConfigured placeholder), and mounting CI here
       // would judge once and again when the browser or terminal explanation
       // replaces it.
       return explained(
         work === undefined ? (
-          <NotConfigured label={source.label} />
+          <LocationsNotConfigured label={source.label} />
         ) : (
           <p className="quiet">Reading Intent locations…</p>
         ),
         { withCi: false },
       );
     }
-    if ("failed" in intent) {
-      return explained(
-        <p className="intent-settings-problem" role="alert">
-          Intent locations for {source.label} could not be read
-          {intent.failed === undefined
-            ? "."
-            : `: ${intent.failed.message}`}{" "}
-          <button type="button" onClick={retryLocations}>
-            Retry
-          </button>
-        </p>,
-      );
-    }
-    if (intent.status === "not-configured") {
-      return explained(<NotConfigured label={source.label} />);
-    }
-    if (intent.status === "settings-problem") {
-      return explained(
-        <SettingsProblem
-          label={source.label}
-          problem={intent.problem}
-          onRetry={retryLocations}
-        />,
-      );
-    }
-    // Remount the browser on source/revision so its tree and reading start
-    // again for that identity, as the selection owner's selection does.
-    return (
+    if ("unavailable" in settled) return explained(settled.unavailable);
+    // Tree and Purpose read the revision shown.
+    return withNotice(
       <IntentBrowser
-        key={browsingIdentity}
         source={source}
-        revision={work.revision}
-        locations={intent.locations}
-        proofRereading={proofRereading}
-        onProofRetry={() => {
-          retryProof(work.revision);
-        }}
+        revision={shownRevision ?? work.revision}
+        locations={settled.locations}
         mode={mode}
         modeIdPrefix={modeIdPrefix}
         onModeChange={onModeChange}
         storySummary={storySummary}
         story={story}
-      />
+      />,
     );
   }
 }
@@ -200,7 +199,6 @@ export function IntentPerspective({
   });
   // The story whose summary is expanded; another story's starts collapsed.
   const [expandedStory, setExpandedStory] = useState<string | undefined>();
-  const browsingIdentity = `${source.id}:${work?.revision ?? ""}`;
   return (
     <main
       className="intent-perspective"
@@ -209,38 +207,44 @@ export function IntentPerspective({
         ? { "data-selected-story": selectedIdentity }
         : {})}
     >
-      {/* One Intent selection per source and revision, shared by the strip's
-          return home and the browser's tree and reading. */}
-      <IntentWorkspaceSelectionProvider identity={browsingIdentity}>
-        <IntentModeTabs
-          mode={mode}
-          idPrefix={modeIdPrefix}
-          onSelect={onModeChange}
-        />
-        <IntentBody
-          source={source}
-          work={work}
-          browsingIdentity={browsingIdentity}
-          selectedIdentity={selectedIdentity}
-          mode={mode}
-          modeIdPrefix={modeIdPrefix}
-          onModeChange={onModeChange}
-          storySummary={
-            story === undefined
-              ? undefined
-              : {
-                  story,
-                  comparison,
-                  onRetry: retry,
-                  expanded: expandedStory === story.identity,
-                  onExpand: (expanded) => {
-                    setExpandedStory(expanded ? story.identity : undefined);
-                  },
-                }
-          }
-          story={compared}
-        />
-      </IntentWorkspaceSelectionProvider>
+      <IntentReadingPlace
+        key={source.id}
+        project={source.id}
+        story={selectedIdentity}
+      >
+        {/* One Intent selection, kept with the project's reading place,
+            shared by the strip's return home and the browser's tree and
+            reading. */}
+        <IntentWorkspaceSelectionProvider>
+          <IntentModeTabs
+            mode={mode}
+            idPrefix={modeIdPrefix}
+            onSelect={onModeChange}
+          />
+          <IntentBody
+            source={source}
+            work={work}
+            selectedIdentity={selectedIdentity}
+            mode={mode}
+            modeIdPrefix={modeIdPrefix}
+            onModeChange={onModeChange}
+            storySummary={
+              story === undefined
+                ? undefined
+                : {
+                    story,
+                    comparison,
+                    onRetry: retry,
+                    expanded: expandedStory === story.identity,
+                    onExpand: (expanded) => {
+                      setExpandedStory(expanded ? story.identity : undefined);
+                    },
+                  }
+            }
+            story={compared}
+          />
+        </IntentWorkspaceSelectionProvider>
+      </IntentReadingPlace>
     </main>
   );
 }

@@ -294,6 +294,19 @@ line as earlier payload declarations did) and split oversized modules/specs.
 Learning: returning home no longer re-reads the judgment; it re-reads on head
 or branch change, Check again or perspective remount.
 
+**Trunk reconciliation (2026-11-06):** merged `origin/main` at `632e107e8`
+(completed SEED-238 local-proof removal and SEED-241 page-held reading).
+Trunk's local-proof deletions were taken; the CI table's rules moved to
+`ci-proof-table.css`; the page-held selection (`useKeptReading`) carries
+`clearSelection`, with its provider inside `IntentReadingPlace` around the
+strip and body; `IntentCiEvidenceProvider` stays in `IntentBody`. Refactor
+pass: `settledLocationsOf` in `IntentLocationsUnavailable.tsx` and
+`ciProofTimeWords.ts`. Proof on the merged tree: focused dashboard run 120/120
+(Intent, Development frame, shared-reads boundary, side panel and story card
+specs), CI-font container 6/6, collector/read/adapter/install checks, lint and
+typecheck clean. Trunk also holds an unrelated
+`480-keep-shown-reading-through-failed-updates` plan under the same number.
+
 ## Current decisions and readiness review
 
 Terry's accepted decisions are recorded in the source. No pre-Take human

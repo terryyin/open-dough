@@ -5,12 +5,12 @@
 // (`./IntentCiProof.tsx`) gives one row per declared entry. A scope path
 // wraps after a `/`, or within a part only in a narrow reading pane, so the
 // columns fit with their words whole; the shared Proof table box keeps any
-// overflow inside it (`./intent-proof.css`). CI wall time is the attempt's
+// overflow inside it (`./ci-proof-table.css`). CI wall time is the attempt's
 // own and never a column here.
 
 import { Fragment, type ReactNode } from "react";
 import type { CiProofCells } from "./ciProofWording.ts";
-import "./intent-proof.css";
+import "./ci-proof-table.css";
 
 export type CiProofTableRow = {
   readonly key: string;

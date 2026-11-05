@@ -1,11 +1,12 @@
 // What a journey expects of the Development and Intent perspectives
 // (../src/PerspectiveSelect.tsx, ../src/IntentPerspective.tsx,
 // ../src/dashboardRouteUrl.ts): the address that names them, Intent group
-// and folder expand helpers for the locations column, how a location header
-// reads, how many Intent locations reads the page asks, and Intent's
-// not-configured content when the project publishes no intent locations.
-// Reading-mode strip helpers: ./intentModePage.ts. Purpose and Proof reading
-// helpers: ./intentFileReadingPage.ts.
+// and folder expand helpers for the locations column, how many Intent
+// locations reads the page asks, Intent's not-configured content when the
+// project publishes no intent locations, the Purpose of the selected file,
+// and the notice of a newer revision (../src/IntentRevisionNotice.tsx).
+// Reading-mode strip helpers: ./intentModePage.ts. How a location header
+// reads: ./intentLocationHeaderLook.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
@@ -35,35 +36,6 @@ export function intentGroupToggle(intent: Locator, locationPath: string) {
   return intent.locator(
     `button.intent-location-toggle[aria-controls="${bodyId}"]`,
   );
-}
-
-// One configured Intent location's header: its toggle and selectable name.
-export function intentLocationHeader(intent: Locator, locationPath: string) {
-  return intentGroupToggle(intent, locationPath).locator("xpath=..");
-}
-
-// How a location header reads: its own background, its change mark, whether
-// its toggle and name let that background through, and whether it spans its
-// group's full width.
-export function locationHeaderLook(header: Locator) {
-  return header.evaluate((element) => {
-    const style = getComputedStyle(element);
-    const group = element.parentElement ?? element;
-    const groupStyle = getComputedStyle(group);
-    const inner =
-      group.clientWidth -
-      Number.parseFloat(groupStyle.paddingLeft) -
-      Number.parseFloat(groupStyle.paddingRight);
-    return {
-      background: style.backgroundColor,
-      mark: style.boxShadow,
-      controlsShowHeader: [...element.children].every(
-        (child) =>
-          getComputedStyle(child).backgroundColor === "rgba(0, 0, 0, 0)",
-      ),
-      fullWidth: Math.abs(element.getBoundingClientRect().width - inner) < 1,
-    };
-  });
 }
 
 // Selectable name for one configured Intent location path.
@@ -141,7 +113,7 @@ export async function expandIntentFolders(
   }
 }
 
-// How many Intent locations reads, with their proof, the page has asked.
+// How many Intent locations reads the page has asked.
 export function countLocationsReads(page: Page) {
   let reads = 0;
   page.on("request", (request) => {
@@ -204,4 +176,16 @@ export async function expectNotConfiguredIntent(page: Page, label: string) {
   await expect(
     page.getByRole("button", { name: /^Start session in / }),
   ).toBeHidden();
+}
+
+// Intent's Purpose of the selected file (../src/IntentFileReading.tsx).
+export function purposeRegion(intent: Locator) {
+  return intent.getByRole("region", { name: "Purpose", exact: true });
+}
+
+// The notice that a newer revision than Intent's reading is available.
+export function revisionNotice(intent: Locator) {
+  return intent
+    .getByRole("status")
+    .filter({ hasText: "New revision available" });
 }

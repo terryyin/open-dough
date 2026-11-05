@@ -195,7 +195,6 @@ test.describe("diff context expansion", () => {
     });
 
     await test.step("a failed context read leaves the printed diff and offers retry", async () => {
-      await page.keyboard.press("Meta+Shift+Escape");
       let failures = 0;
       await page.route(`**${storyReviewFileTextEndpoint}?*`, async (route) => {
         if (failures < 1) {
@@ -209,7 +208,11 @@ test.describe("diff context expansion", () => {
         }
         await route.continue();
       });
-      const failed = await openExpandDiff(page, card);
+      // A fresh page: the page keeps the comparison's text once read.
+      const failed = await openExpandDiff(
+        page,
+        await openBacklog(page, origin),
+      );
       await expect(failed.hunkLines(expandFirstHunk)).toHaveText(
         expandFirstHunkPrinted,
       );

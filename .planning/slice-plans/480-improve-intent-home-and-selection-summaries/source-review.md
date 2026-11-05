@@ -35,7 +35,7 @@
 | 4.3 | A child folder's row summarizes that folder's contents. | slice 3 | observed: dashboard/tests/intent-summary-ci-proof.spec.ts main test: nested/ row '1 passed and 1 other tests' equals nested Summary root |
 | 4.4 | Deeper descendants appear after drilling into the child folder, rather than flattening the whole subtree into this table. | slice 3 | observed: dashboard/tests/intent-summary-ci-proof.spec.ts main test Enter step: nested Summary shows only c.spec.ts |
 | 5.1 | These summaries use the CI homepage's proof vocabulary. | slice 3 | observed: intentScopeProofPage.ts expectScopeRows reuses homepage count/parts wording |
-| 5.2 | These summaries use the CI homepage's timing semantics. | slice 3 | observed: ciProofWording.ts executionTimeWords shared by homepage and Summary; tests/support/intent-scope-proof.test.mjs sub-minute case |
+| 5.2 | These summaries use the CI homepage's timing semantics. | slice 3 | observed: dashboard/src/ciProofTimeWords.ts executionTimeWords shared by homepage and Summary; tests/support/intent-scope-proof.test.mjs sub-minute case |
 | 5.3 | Keep the run's CI wall time distinct from cumulative test execution time. | slice 3 | observed: intent-ci-status-wall-time.spec.ts unchanged (whole-minute wall time) while Summary rows use execution time |
 | 5.4 | Identify unavailable or partial proof and timing, rather than treating missing evidence as zero or as complete. | slice 3 | observed: dashboard/tests/intent-summary-ci-proof-gaps.spec.ts 'a run without a CI proof summary…' and missing-shard test |
 | 5.5 | Entry and folder rows must describe the selected scope. | slice 3 | observed: dashboard/tests/intent-summary-ci-proof.spec.ts main test: root row names the selected scope path (.intent-summary-path) |

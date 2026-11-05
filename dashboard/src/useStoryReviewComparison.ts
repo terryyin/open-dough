@@ -99,8 +99,7 @@ export function useStoryReviewComparison({
       ),
     },
     reviewRangeSchema,
-    0,
-    active && shown === "commits",
+    { enabled: active && shown === "commits" },
   );
   const rangeComparison =
     !range.reading && range.answer?.kind === "comparison"

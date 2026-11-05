@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-241#load-intent-without-disruption-or-bulk-source-transfer",
+  "title": "Load Intent without disruption or bulk source transfer",
+  "completedAt": "2026-11-05T16:31:39.515Z",
+  "developer": "Terry Yin",
+  "agent": "ziqing-chan",
+  "host": "claude",
+  "model": "opus"
+}

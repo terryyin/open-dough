@@ -1,7 +1,8 @@
 // Which configured Intent location owns a workspace selection, and which of
 // its matching files that selection covers: every file for a location, files
 // under a folder path, or the one file. IntentBrowser uses this for Summary
-// file counts and for Purpose/Proof's owning location (`./IntentBrowser.tsx`,
+// file counts, for Purpose's owning location, and for whether the shown tree
+// holds the selection at all (`./IntentBrowser.tsx`,
 // `./intentWorkspaceSelection.ts`).
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -37,6 +38,22 @@ export function filesOfSelection(
     return location.files.filter((file) => file.startsWith(prefix));
   }
   return location.files.includes(selection.path) ? [selection.path] : [];
+}
+
+// Whether the shown tree holds the selected path: a configured location, a
+// file, or a folder some file lies under.
+export function treeHoldsSelection(
+  locations: readonly IntentLocation[],
+  files: ReadonlyMap<string, unknown>,
+  selection: IntentSelection,
+): boolean {
+  const scope = selectionScope(selection);
+  if (scope === "location")
+    return owningLocation(locations, selection) !== undefined;
+  if (scope === "file") return files.has(selection.path);
+  const prefix = `${selection.path}/`;
+  for (const each of files.keys()) if (each.startsWith(prefix)) return true;
+  return false;
 }
 
 export const intentFileCountWords = (count: number) =>

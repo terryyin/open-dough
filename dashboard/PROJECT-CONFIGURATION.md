@@ -40,19 +40,6 @@ Each project's repository may also publish Intent locations in
 `.planning/open-dough.json` as
 `"intent": { "locations": [{ "path": "<folder>", "kind": "<kind>", "include": ["<pattern>", ...] }] }`.
 
-For each Gherkin entry with committed Cucumber proof, add `"proof":
-"<proof-directory>"` and `"proofGeneration": { "command": "<explicit-recording-command>" }`.
-The command runs from the repository root. Alternatively use
-`"proofGeneration": { "skill": "<project-owned-skill-invocation>" }`;
-exactly one nonempty command or skill is required. For example, an entry can
-declare `"proofGeneration": { "command": "RECORD_CUCUMBER_PROOF=1 npm run test:e2e" }`
-when that is the project's actual recording option and command. The dashboard
-shows the instruction in file Proof and location/folder summaries without
-executing it. Missing or malformed instructions leave historical proof readable
-and explain the configuration needed. Follow the installed
-`dough-test-optimization/references/cucumber-proof.md` to implement the
-project's recorder: ordinary tests leave proof untouched, and explicit runs
-refresh compact snapshots for executed scenarios only.
 The kind selects which files Intent can list and the syntax grammar of the same
 name: `gherkin` (`.feature`), `typescript` (`.ts`, `.tsx`), `javascript`
 (`.js`, `.mjs`, `.cjs`), `python` (`.py`), or `shell` (`.sh`, `.bash`). An
@@ -61,7 +48,8 @@ set (`*` stays in one folder; `**` crosses folders). Without `include`, Intent
 lists every file of the kind under the folder. Absence of the `intent` key
 means Intent shows that no locations are configured. An unreadable settings
 file and malformed JSON are distinct from that absence. The dashboard reads
-that setting and the listed source at the same observed revision as the
-backlog; it does not edit the file.
+that setting and the listed source at Intent's reading revision, a revision
+the backlog observed, which moves to a newer observed one only on **Show
+latest**; it does not edit the file.
 
 [Dashboard overview](README.md) describes project observation and navigation.

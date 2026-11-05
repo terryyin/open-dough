@@ -1,6 +1,7 @@
 // A selected Intent entry's or folder's CI proof derived from one summary
 // (../../dashboard/src/ciScopeProof.ts) and worded as the homepage words its
-// entries (../../dashboard/src/ciProofWording.ts): immediate children in the
+// entries (../../dashboard/src/ciProofWording.ts,
+// ../../dashboard/src/ciProofTimeWords.ts): immediate children in the
 // tree's order, figures summed by path whatever the tree lists, what no child
 // row shows, and each gap — no breakdown, no matched result, a measured zero,
 // an untimed result, a missing part, a part without a breakdown — named
@@ -17,8 +18,8 @@ import {
 import {
   ciProofCellsOf,
   ciScopeCellsOf,
-  executionTimeWords,
 } from "../../dashboard/src/ciProofWording.ts";
+import { executionTimeWords } from "../../dashboard/src/ciProofTimeWords.ts";
 
 const present = (part, counts, extra = {}) => ({
   part,

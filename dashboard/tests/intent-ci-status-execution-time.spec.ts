@@ -1,9 +1,10 @@
 // Test execution time beside each CI proof entry on Intent's homepage
-// (../src/IntentCiProof.tsx, ../src/ciProofWording.ts): complete durations
-// show test execution time 4 min and 2 min beside entry counts with CI wall
-// time 3 min; an older summary shows not recorded with why while wall time
-// still comes from the CI read; a missing shard shows partial with that part
-// named; missing timing is never shown as zero (SEED-239 examples 2 and 6).
+// (../src/IntentCiProof.tsx, ../src/ciProofWording.ts,
+// ../src/ciProofTimeWords.ts): complete durations show test execution time
+// 4 min and 2 min beside entry counts with CI wall time 3 min; an older
+// summary shows not recorded with why while wall time still comes from the CI
+// read; a missing shard shows partial with that part named; missing timing
+// is never shown as zero (SEED-239 examples 2 and 6).
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";

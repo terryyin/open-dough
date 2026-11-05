@@ -1,6 +1,6 @@
 // Published projects, settings, and source texts for Intent code-kind browse
 // journeys (`./intent-code-browse.spec.ts`); its projects and publisher also
-// serve the Cucumber proof journey (`./intent-cucumber-proof.spec.ts`).
+// serve other Intent journeys.
 
 import { filesOf, type Project } from "./catalogProjectRecords.ts";
 import { publishFiles } from "./publishedOrigin.ts";

@@ -1,5 +1,5 @@
 // CI wall time of the attempt Intent's homepage shows
-// (../src/IntentCiProof.tsx, ../src/ciProofWording.ts): a listed Actions run
+// (../src/IntentCiProof.tsx, ../src/ciProofTimeWords.ts): a listed Actions run
 // 10:00→10:03 shows CI wall time 3 min with the attempt; a running result
 // shows its completed ancestor's wall time; a ciAdapter attempt without
 // startedAt/completedAt shows CI wall time not recorded (SEED-239 examples

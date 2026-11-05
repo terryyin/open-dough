@@ -126,6 +126,7 @@ export function IntentLocationGroup({
     reveal !== undefined &&
     (reveal.path === location.path || reveal.path.startsWith(prefix));
   const { collapsed, toggleFolder } = useLocationOpenFolders({
+    location: location.path,
     tree,
     revealPath,
     expansion,

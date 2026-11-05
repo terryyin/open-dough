@@ -19,7 +19,8 @@ import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRe
 import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
 import { shortSha } from "./baseCiWording.ts";
 import { isAdapterProofAttempt, type CiProofEntry } from "./ciProof.ts";
-import { ciProofCellsOf, ciWallTimeLine } from "./ciProofWording.ts";
+import { ciWallTimeLine } from "./ciProofTimeWords.ts";
+import { ciProofCellsOf } from "./ciProofWording.ts";
 import type { ShownCiProofRun } from "./shownCiProofRun.ts";
 import { shownProofStateOf, type ShownProof } from "./useIntentCiShownProof.ts";
 
