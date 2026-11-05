@@ -191,7 +191,6 @@ test.describe("desktop terminal without phone key toolbar", () => {
   test.use({
     viewport: { width: 1280, height: 800 },
     hasTouch: false,
-    permissions: ["clipboard-read", "clipboard-write"],
   });
 
   test("fine-pointer desktop keeps today's terminal chrome without the toolbar or composer", async ({
@@ -219,12 +218,20 @@ test.describe("desktop terminal without phone key toolbar", () => {
     await expect(insertDraftButton(panel)).toHaveCount(0);
     await expect(hideKeyboardControl(panel)).toBeHidden();
     await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
-    await page.evaluate(() => navigator.clipboard.writeText("Desktop paste"));
-    await panel
-      .locator("textarea.xterm-helper-textarea")
-      .press("ControlOrMeta+v");
-    await expect.poll(() => sent).toEqual(["Desktop paste"]);
-    await expect(panel.locator(".xterm-rows")).toContainText("Desktop paste");
+    const text = "Desktop paste";
+    const input = panel.locator("textarea.xterm-helper-textarea");
+    await expect(input).toBeFocused();
+    // Supply the browser paste payload at xterm's input. The headless runner
+    // can deliver an empty OS clipboard even after navigator.clipboard writes.
+    await input.evaluate((element, value) => {
+      const clipboardData = new DataTransfer();
+      clipboardData.setData("text/plain", value);
+      element.dispatchEvent(
+        new ClipboardEvent("paste", { bubbles: true, clipboardData }),
+      );
+    }, text);
+    await expect.poll(() => sent).toEqual([text]);
+    await expect(panel.locator(".xterm-rows")).toContainText(text);
     expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
   });
 });

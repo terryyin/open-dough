@@ -114,6 +114,17 @@ outcome ends at the path at the prompt, as the seed records.
 ### 1. Paste key delivers clipboard text as one terminal paste
 Type: Behavior
 Status: done
+
+CI repair for run 41959816141, attempt 1, dashboard shard 3. The headless
+Linux shortcut delivered a paste event with an empty clipboard payload.
+The desktop journey now supplies the browser paste event at the focused
+xterm textarea, and still checks the hidden toolbar, exact wire input,
+prompt echo and no submission. The launch composer journey independently
+exercises the browser shortcut. This test-only change is within the prior
+refactor's terminal input and consumer trace.
+
+`PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- agent-terminal-touch-keys.spec.ts agent-terminal-touch-paste.spec.ts agent-launch-ad-hoc-attachments-paste.spec.ts --reporter=list`
+passed 7 checks in 16.6s. The observer owns the Linux result.
 Proof: `agent-terminal-touch-paste.spec.ts`, text cases; consumers
 `agent-terminal-touch-keys.spec.ts`, `agent-terminal-touch-composer.spec.ts`,
 `agent-terminal-touch-keyboard-fit.spec.ts`, `agent-terminal-touch.spec.ts`
