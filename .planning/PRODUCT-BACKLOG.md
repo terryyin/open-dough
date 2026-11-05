@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Compare a story's CI and entry timing changes](seeds/SEED-244-story-ci-timing-changes.md#compare-story-ci-timing-changes) — SEED-244#compare-story-ci-timing-changes ([plan](slice-plans/481-compare-story-ci-timing-changes/PLAN.md))
+- [Keep the shown reading through failed updates](seeds/SEED-241-intent-loading-and-traffic.md#keep-the-shown-reading-through-failed-updates) — SEED-241#keep-the-shown-reading-through-failed-updates ([plan](slice-plans/480-keep-shown-reading-through-failed-updates/PLAN.md))
 
 ## Backlog list
 
-- [Keep the shown reading through failed updates](seeds/SEED-241-intent-loading-and-traffic.md#keep-the-shown-reading-through-failed-updates) — SEED-241#keep-the-shown-reading-through-failed-updates
 - [Compare a story's Intent entry, folder, and file summaries](seeds/SEED-245-story-intent-summary-differences.md#compare-story-intent-entry-folder-and-file-summaries) — SEED-245#compare-story-intent-entry-folder-and-file-summaries
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
