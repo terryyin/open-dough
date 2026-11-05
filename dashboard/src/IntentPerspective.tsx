@@ -67,21 +67,23 @@ function IntentBody({
   // A newer observed revision waits behind the notice until **Show latest**.
   const observed = work?.revision;
   const { reading, showLatest } = useIntentReadingRevision(observed);
-  const { intent, shownRevision, updating, retryLocations } =
+  const { intent, shownRevision, updating, failedUpdate, retryLocations } =
     useIntentLocations(source, reading);
   const notice = (
     <IntentRevisionNotice
       shown={shownRevision}
       observed={observed}
       updating={updating}
+      failedUpdate={failedUpdate}
       hidden={mode === "ci-status"}
       onShowLatest={showLatest}
+      onRetry={retryLocations}
     />
   );
 
   // An explanation in place of the locations browser, shown as the panel of
-  // whichever location-reading mode is chosen; the Intent mode's names the
-  // selected story above it.
+  // whichever location-reading mode is chosen, which takes the reading's
+  // focus; the Intent mode's names the selected story above it.
   const shown = mode === "ci-status" ? "intent" : mode;
   const withNotice = (body: ReactNode) => (
     <>
@@ -96,6 +98,7 @@ function IntentBody({
         id={intentTabPanelId(modeIdPrefix, shown)}
         aria-labelledby={intentTabId(modeIdPrefix, shown)}
         hidden={mode === "ci-status"}
+        tabIndex={-1}
       >
         {mode === "intent" && storySummary !== undefined && (
           <IntentStorySummary summary={storySummary} />

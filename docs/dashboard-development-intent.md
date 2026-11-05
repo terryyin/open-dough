@@ -137,7 +137,12 @@ then the selection, the open location and folders and the scroll offset
 stay where the selected path still exists, and only an already selected file
 is read again, its new text replacing the old in place. A selected path the
 revision no longer holds reads "`<path>` is not in revision `<short sha>`" in
-**Purpose**, with nothing else selected. **CI status** and Development keep
+**Purpose**, with nothing else selected. If the latest locations cannot be
+read, the shown reading stays usable and the notice names the failed revision
+beside a **Retry** that applies the update; if the selected file's new text
+cannot be read, its earlier text stays under that failure with its own
+**Retry**. What this page already read at the shown revision appears at once,
+without a reading moment. **CI status** and Development keep
 following the observed revision. A story selected while
 Intent is hidden starts the tree's arrangement afresh, and a project change
 starts that project's reading afresh. A location that is missing, holds no

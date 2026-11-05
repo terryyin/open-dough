@@ -12,7 +12,7 @@ import {
   transientReadRecovery,
   unexpectedAnswer,
 } from "./authenticatedGet.ts";
-import { memoizedAnswer } from "./answerMemo.ts";
+import { keptAnswer, memoizedAnswer } from "./answerMemo.ts";
 import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "./authenticatedReadRules.ts";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -50,6 +50,18 @@ export type IntentLocations =
       readonly locations: readonly IntentLocation[];
     };
 
+const locationsQuery = (source: PublishedSource, revision: string) =>
+  `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&intent=locations`;
+
+// The Intent locations published at `revision` already read on this page.
+export function keptIntentLocationsAt(
+  source: PublishedSource,
+  revision: string,
+): IntentLocations | undefined {
+  return keptAnswer(locationsQuery(source, revision)) as
+    IntentLocations | undefined;
+}
+
 // The Intent locations published at `revision`, or not-configured / a
 // settings problem when the project has none or the settings are unusable.
 export function readIntentLocationsAt(
@@ -57,7 +69,7 @@ export function readIntentLocationsAt(
   revision: string,
   signal: AbortSignal,
 ): Promise<IntentLocations> {
-  const query = `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&intent=locations`;
+  const query = locationsQuery(source, revision);
   return memoizedAnswer(
     query,
     (shared) => askIntentLocationsAt(query, revision, shared),

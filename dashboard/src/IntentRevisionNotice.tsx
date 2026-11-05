@@ -5,15 +5,18 @@
 // only offers itself here, as a polite status beside the reading that takes
 // no focus; however many arrive, one notice names the revision shown, and
 // **Show latest** moves the reading to the latest observed. While its
-// locations are read the shown reading stays, marked as updating. Applying
-// moves focus from the notice, whose button then goes, into the reading: the
-// selected tree item, else the reading pane or the chosen mode's panel. A path
+// locations are read the shown reading stays, marked as updating; if that read
+// fails, the shown reading still stays and the notice names the failure beside
+// a Retry that applies the update again. Applying or retrying moves focus from
+// the notice, whose button then goes, into the reading: the selected tree
+// item, else the reading pane or the chosen mode's panel. A path
 // selected at the shown revision that the new one lacks is explained in Purpose
 // (`IntentPathNotInRevision`) with nothing else selected in its place.
 
 import { useEffect, useRef, useState } from "react";
 import { useKeptReading } from "./pageIntentReading.tsx";
 import { shortRevision } from "./publishedWork.ts";
+import type { FailedLocationsUpdate } from "./useIntentLocations.ts";
 import "./intent-revision-notice.css";
 
 // Intent's reading revision: the observed one when the project's Intent first
@@ -60,17 +63,22 @@ export function IntentRevisionNotice({
   shown,
   observed,
   updating,
+  failedUpdate,
   hidden,
   onShowLatest,
+  onRetry,
 }: {
   // The revision whose reading is shown, and the page's observed revision.
   readonly shown: string | undefined;
   readonly observed: string | undefined;
   // Whether the reading is moving to another revision.
   readonly updating: boolean;
+  // The failed read of the revision the reading is moving to, and its Retry.
+  readonly failedUpdate: FailedLocationsUpdate | undefined;
   readonly hidden: boolean;
   // Moves the reading to the observed revision.
   readonly onShowLatest: (() => void) | undefined;
+  readonly onRetry: () => void;
 }) {
   const newer =
     shown !== undefined && observed !== undefined && shown !== observed;
@@ -83,6 +91,12 @@ export function IntentRevisionNotice({
     // A selected item the new revision lacks went with its focus.
     if (focusLost()) focusReading(notice.current);
   }, [applying, updating]);
+  // Applies `move`, then moves focus into the reading.
+  const apply = (move: () => void) => {
+    move();
+    setApplying(true);
+    focusReading(notice.current);
+  };
   return (
     <div
       ref={notice}
@@ -97,13 +111,30 @@ export function IntentRevisionNotice({
           {updating ? (
             <span className="intent-revision-updating">Updating…</span>
           ) : null}
+          {failedUpdate !== undefined && (
+            <>
+              <span>
+                Revision <code>{shortRevision(failedUpdate.revision)}</code>{" "}
+                could not be read
+                {failedUpdate.failed === undefined
+                  ? "."
+                  : `: ${failedUpdate.failed.message}`}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  apply(onRetry);
+                }}
+              >
+                Retry
+              </button>
+            </>
+          )}
           {onShowLatest !== undefined && (
             <button
               type="button"
               onClick={() => {
-                onShowLatest();
-                setApplying(true);
-                focusReading(notice.current);
+                apply(onShowLatest);
               }}
             >
               Show latest

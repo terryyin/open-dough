@@ -9,6 +9,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import {
+  keptIntentCandidatesAt,
   readIntentCandidatesAt,
   type IntentCandidatesReadResult,
 } from "./authenticatedIntentCandidatesRead.ts";
@@ -45,9 +46,12 @@ export function IntentCandidatesRecord({
   readonly onOpenLocation: OpenCandidateLocation;
   readonly focusEntrySlug?: string;
 }) {
-  const [result, setResult] = useState<
+  // A record already read on this page shows at once.
+  const kept = keptIntentCandidatesAt(source, revision);
+  const [answered, setResult] = useState<
     IntentCandidatesReadResult | "loading" | "failed"
   >("loading");
+  const result = kept ?? answered;
   const { retry, retryRead, recordSettled } = useIntentReadRecovery(
     source,
     revision,

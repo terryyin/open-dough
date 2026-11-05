@@ -13,7 +13,7 @@ import {
   transientReadRecovery,
   unexpectedAnswer,
 } from "./authenticatedGet.ts";
-import { memoizedAnswer } from "./answerMemo.ts";
+import { keptAnswer, memoizedAnswer } from "./answerMemo.ts";
 import { readingPathAt } from "./authenticatedReadRules.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { testOptimizationCandidatesPath } from "./testOptimizationCandidatesPath.ts";
@@ -33,6 +33,18 @@ export type IntentCandidatesReadResult =
     }
   | { readonly status: "present"; readonly text: string };
 
+const candidatesQuery = (source: PublishedSource, revision: string) =>
+  `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&intent=test-optimization-candidates`;
+
+// The candidates record published at `revision` already read on this page.
+export function keptIntentCandidatesAt(
+  source: PublishedSource,
+  revision: string,
+): IntentCandidatesReadResult | undefined {
+  return keptAnswer(candidatesQuery(source, revision)) as
+    IntentCandidatesReadResult | undefined;
+}
+
 // The candidates record published at `revision`, or absent / unreadable when
 // the fixed path is missing or could not be read.
 export function readIntentCandidatesAt(
@@ -40,7 +52,7 @@ export function readIntentCandidatesAt(
   revision: string,
   signal: AbortSignal,
 ): Promise<IntentCandidatesReadResult> {
-  const query = `source=${encodeURIComponent(source.id)}&revision=${encodeURIComponent(revision)}&intent=test-optimization-candidates`;
+  const query = candidatesQuery(source, revision);
   return memoizedAnswer(
     query,
     (shared) => askIntentCandidatesAt(query, revision, shared),

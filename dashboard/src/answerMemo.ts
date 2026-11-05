@@ -6,7 +6,9 @@
 // A read in flight under the same identity is joined (`./sharedRead.ts`).
 // Only an answer its reader says is fixed is kept: failures, limited and
 // refused reads (`./readProblem.ts`, `./readingLimit.ts`) and answers that
-// would read differently when asked again are asked again. Retained answers
+// would read differently when asked again are asked again. A kept answer can
+// be shown as its reader renders (`keptAnswer`), without waiting a moment for
+// the memo's promise. Retained answers
 // stay within a byte budget, least recently used first out
 // (`./byteBudgetedMemo.ts`). No persistence.
 
@@ -30,7 +32,7 @@ export function memoizedAnswer<T>(
   signal: AbortSignal,
   fixed: (answer: T) => boolean,
 ): Promise<T> {
-  const kept = memo.get(key);
+  const kept = keptAnswer(key);
   if (kept !== undefined) return Promise.resolve(kept as T);
   return joinRead(
     `answer\0${key}`,
@@ -41,6 +43,11 @@ export function memoizedAnswer<T>(
     },
     signal,
   );
+}
+
+// The answer kept under `key`, if any.
+export function keptAnswer(key: string): unknown {
+  return memo.get(key);
 }
 
 export function retainedAnswerBytes(): number {

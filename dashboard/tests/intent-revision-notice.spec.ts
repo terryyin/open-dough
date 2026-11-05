@@ -4,35 +4,29 @@
 // selected feature is explained, with nothing else selected
 // (../src/IntentRevisionNotice.tsx, ../src/pageIntentReading.tsx).
 
-import type { Page } from "@playwright/test";
-import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { shortRevision } from "./dashboardParts.ts";
-import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import {
-  expandIntentGroup,
   intentGroupToggle,
   purposeRegion,
   revisionNotice,
 } from "./intentPerspectivePage.ts";
 import { holdAuthenticatedReadsWhere } from "./holdAuthenticatedReads.ts";
-import {
-  pausePageClock,
-  passTimeUntilCheckedAfterSettled,
-} from "./autoRefreshJourney.ts";
-import { filesOf } from "./catalogProjectRecords.ts";
-import { publishMovingFiles } from "./publishedFiles.ts";
 import { pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
   featurePath,
   otherFeature,
   otherPath,
   publishedFeature,
-  settings,
 } from "./intentJobsFeatureFixtures.ts";
-
-const features = { [featurePath]: publishedFeature, [otherPath]: otherFeature };
+import {
+  intentReads,
+  jobsFeatures,
+  openWithFeatureSelected,
+  publishedFiles,
+} from "./intentRevisionJourney.ts";
 
 // Holds still released after a journey, so a failed one does not hang.
 const releases: (() => void)[] = [];
@@ -40,71 +34,12 @@ test.afterEach(() => {
   for (const release of releases.splice(0)) release();
 });
 
-// Intent's reads of the boundary from here on, as `<what>@<revision>`: the
-// locations, the Optimization Candidates record, or a file under the location.
-function intentReads(page: Page) {
-  const reads: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname !== authenticatedReadEndpoint) return;
-    const params = url.searchParams;
-    const what = params.get("intent") ?? params.get("path") ?? "";
-    if (params.has("intent") || what.startsWith("e2e_test/")) {
-      reads.push(`${what}@${params.get("revision")}`);
-    }
-  });
-  return reads;
-}
-
 // A feature long enough for the reading pane to scroll.
 const longFeature = (scenario: string) =>
   publishedFeature.replace("Archive a job", scenario) +
   [...Array(60).keys()]
     .map((n) => `\n  Scenario: Keep job ${n}\n    Then it stays\n`)
     .join("");
-
-// Pygardon's published files with Intent locations and `features`.
-const publishedFiles = (features: Readonly<Record<string, string>>) => ({
-  ...filesOf(pygardon),
-  ".planning/open-dough.json": `${settings}\n`,
-  ...features,
-});
-
-// Pygardon published at `pygardon.revision` with the jobs feature selected
-// and its Purpose read, on a page whose clock is paused; `moveTrunk` publishes
-// a newer revision and lets the page observe it.
-async function openWithFeatureSelected(
-  page: Page,
-  files: Readonly<Record<string, string>>,
-) {
-  await page.setViewportSize({ width: 1280, height: 600 });
-  await pausePageClock(page);
-  const origin = publishMovingFiles(page, {
-    repository: pygardon.repository,
-    ref: pygardon.ref,
-    revision: pygardon.revision,
-    files,
-  });
-  await openUntilRead(page, "/?project=pygardon&perspective=intent");
-  const { intent } = parts(page);
-  await expandIntentGroup(intent, "e2e_test/features");
-  const feature = intent.getByRole("button", {
-    name: featurePath,
-    exact: true,
-  });
-  await feature.click();
-  const source = intent.getByLabel(`${featurePath} source`);
-  await expect(source).toContainText("Scenario: Archive a job");
-  const moveTrunk = async (
-    revision: string,
-    moved: Readonly<Record<string, string>>,
-  ) => {
-    origin.moveTrunk({ revision, files: moved });
-    await passTimeUntilCheckedAfterSettled(page);
-    await untilPageReadsAnswered(page);
-  };
-  return { moveTrunk, intent, feature, source };
-}
 
 test("newer revisions wait behind one notice, and Show latest keeps the reading while the latest is read", async ({
   page,
@@ -186,7 +121,7 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
 test("Development follows a new revision while Intent, opened again, keeps its reading behind the notice", async ({
   page,
 }) => {
-  const files = publishedFiles(features);
+  const files = publishedFiles(jobsFeatures);
   const reads = intentReads(page);
   const { moveTrunk, intent, feature, source } = await openWithFeatureSelected(
     page,
@@ -221,7 +156,7 @@ test("Development follows a new revision while Intent, opened again, keeps its r
 test("a selected feature the latest revision deleted is explained, with nothing else selected", async ({
   page,
 }) => {
-  const files = publishedFiles(features);
+  const files = publishedFiles(jobsFeatures);
   const reads = intentReads(page);
   const { moveTrunk, intent } = await openWithFeatureSelected(page, files);
 

@@ -257,8 +257,8 @@ pass `follows` to `openBacklog` / `selectTakenStoryInIntent` to observe a push.
 
 ### 4. A failed update keeps the shown revision readable
 Type: Behavior
-Status: planned
-Proof: a new test in `intent-revision-notice.spec.ts` with a held, then failing,
+Status: done
+Proof: a new test in `intent-revision-update-outcomes.spec.ts` with a held, then failing,
 locations read (`holdAuthenticatedReads.ts`) (example 6); existing
 `intent-read-recovery*.spec.ts` green; the ADR 0010 comparison recorded
 in this plan.
@@ -273,6 +273,41 @@ Then repeat the baseline: the scratch-equivalent counts come from the new
 specs. Re-measure the live boundary sizes on the same revision and record
 before and after rows here. The latency and byte savings claimed are only
 those observed.
+
+**Accepted (slice 4):** `useIntentLocations` returns `failedUpdate` and keeps
+the shown answer when the reading revision's read throws; the notice shows
+"Revision `<C>` could not be read: …" with **Retry**. A selected file's failed
+new read keeps its earlier text under an alert with Retry. Kept answers
+render synchronously (`keptAnswer`, `keptIntentLocationsAt`,
+`keptIntentCandidatesAt`, `cachedFile`). A settings problem at the new
+revision replaces the reading, and focus goes to its explanation panel.
+Proof: three new tests in `intent-revision-update-outcomes.spec.ts` and one in
+`intent-read-reuse.spec.ts` (three fail on base; the project-change test is
+a guard that passes on base), focused suite 106 passed, story-review specs
+87 passed, `--repeat-each=3` 48 passed.
+
+**Evaluation (ADR 0010).** Same revision `1406517ae` and journeys as the
+premise table. Live boundary re-measured at `127.0.0.1:4173` (trunk server
+code; 4 read-only same-origin GETs; load 4.8–6.0 against 1.5–2.5 before).
+
+| Measure | Before | After |
+| --- | --- | --- |
+| Live locations answer, per request | 67,758 B; 2.51 s cold, 0.009 s warm | 67,758 B; 1.99 s cold, 0.009 s warm (boundary unchanged) |
+| Live `agent-launch-story-card.spec.ts` read, per request | 8,346 B; 2.79 s cold, 0.004 s warm | 8,346 B; 2.75 s cold, 0.004 s warm (boundary unchanged) |
+| Feature A → B → A, reads of A | 2 | 1 |
+| Development → Intent | +1 locations read, reading place lost | 0 extra reads, reading place kept |
+| Story-changed file opened | 1 plain-source read beside the diff | 0 |
+| Folder Summaries | 0 requests | 0 requests |
+| New revision observed | locations re-read, selection cleared | 0 Intent reads until **Show latest**, then locations and the selected file |
+| Failed update on **Show latest** | reading replaced by the failure | reading kept; Retry reads locations and file once |
+| "Reading…" moments revisiting cached content | 4 | 0 |
+
+The boundary's cost per request is unchanged; the saving is browser requests
+not sent. Each avoided repeat saves the full answer bytes and a warm backend
+hit (about 9 ms for locations, 4 ms for that file), and about 2–2.8 s only
+when the backend cache had expired. Upstream GitHub reads were not measured,
+so no upstream saving is claimed; no latency was measured for first usable
+content on a revisit.
 
 ## Current decisions
 

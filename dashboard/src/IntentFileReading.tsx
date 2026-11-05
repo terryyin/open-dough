@@ -4,10 +4,13 @@
 // case. The file read is the browser's. A file the selected story changed
 // (`./intentStoryOverlay.ts`) shows Review changes' own diff of it as its
 // Purpose (`storyDiffOf`), and the browser reads no published text for it;
-// a file the published revision does not list is never read there.
+// a file the published revision does not list is never read there. Text of an
+// earlier revision whose update failed stays readable under that failure and
+// its Retry.
 
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import { resolveCaseTargetLine } from "./intentCaseTargetLine.ts";
+import { shortRevision } from "./publishedWork.ts";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import type { ComparedStory } from "./IntentStorySummary.tsx";
 import { diffStartOf } from "./storyComparisonShown.ts";
@@ -37,10 +40,13 @@ export function IntentFileReading({
   treeFile,
   story,
   onFileRetry,
+  failedRevision,
 }: {
   // The selected file's path, or "" when nothing is selected.
   readonly path: string;
+  // The revision of the text shown, and a later one whose read failed.
   readonly revision: string;
+  readonly failedRevision?: string | undefined;
   // The answered read of `path`, or undefined while it is being read.
   readonly read: FileRead | undefined;
   readonly kind: string | undefined;
@@ -88,13 +94,25 @@ export function IntentFileReading({
           </button>
         </p>
       ) : text !== undefined ? (
-        <IntentSourceLines
-          text={text}
-          revision={revision}
-          path={path}
-          {...(kind === undefined ? {} : { language: kind })}
-          {...(targetLine === undefined ? {} : { targetLine })}
-        />
+        <>
+          {failedRevision !== undefined && (
+            <p className="intent-file-problem" role="alert">
+              {path} could not be read at revision{" "}
+              <code>{shortRevision(failedRevision)}</code>; showing{" "}
+              <code>{shortRevision(revision)}</code>.{" "}
+              <button type="button" onClick={onFileRetry}>
+                Retry
+              </button>
+            </p>
+          )}
+          <IntentSourceLines
+            text={text}
+            revision={revision}
+            path={path}
+            {...(kind === undefined ? {} : { language: kind })}
+            {...(targetLine === undefined ? {} : { targetLine })}
+          />
+        </>
       ) : (
         <p className="quiet">Reading {path}…</p>
       )}

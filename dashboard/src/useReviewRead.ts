@@ -7,11 +7,12 @@
 // A read whose answers are fixed by its query (`fixed`, as a story file's
 // diff and texts between two trees) is asked once per page for each
 // answer `fixed` accepts, and joined while in flight (`./answerMemo.ts`);
-// anything else, and every failure, is asked again.
+// anything else, and every failure, is asked again. A kept answer shows as
+// the reader renders, without a reading moment.
 
 import { useEffect, useState } from "react";
 import type { z } from "zod";
-import { memoizedAnswer } from "./answerMemo.ts";
+import { keptAnswer, memoizedAnswer } from "./answerMemo.ts";
 
 async function askReview<Answer>(
   url: string,
@@ -54,10 +55,10 @@ export function useReviewRead<Answer>(
   }>({});
   const search = new URLSearchParams(query).toString();
   const of = `${search}#${String(round)}`;
+  const url = `${endpoint}?${search}`;
   useEffect(() => {
     if (!enabled) return;
     const controller = new AbortController();
-    const url = `${endpoint}?${search}`;
     const ask = (signal: AbortSignal) => askReview(url, schema, signal);
     void (
       fixed === undefined
@@ -78,7 +79,12 @@ export function useReviewRead<Answer>(
     return () => {
       controller.abort();
     };
-  }, [endpoint, search, schema, of, enabled, fixed]);
+  }, [url, schema, of, enabled, fixed]);
+  const kept =
+    enabled && fixed !== undefined
+      ? (keptAnswer(url) as Answer | undefined)
+      : undefined;
+  if (kept !== undefined) return { answer: kept, reading: false };
   return {
     ...(read.answer === undefined ? {} : { answer: read.answer }),
     ...(read.problem === undefined ? {} : { problem: read.problem }),

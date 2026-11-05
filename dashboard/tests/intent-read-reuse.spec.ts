@@ -2,7 +2,8 @@
 // shown (../src/answerMemo.ts, ../src/repositoryFileReads.ts): reopening a
 // feature reads its text no more, and leaving for Development and returning
 // reads neither the locations nor the Test Optimization Candidates record
-// again. With a selected story: ./intent-read-reuse-story.spec.ts.
+// again. What was read before shows at once, without a reading moment.
+// With a selected story: ./intent-read-reuse-story.spec.ts.
 
 import type { Page, Request } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
@@ -97,4 +98,59 @@ test("the Test Optimization Candidates record is read once across leaving Intent
   await expect(entry).toBeVisible();
   expect(recordReads()).toBe(1);
   expect(locationsReads()).toBe(1);
+});
+
+// Every "Reading …" text Intent shows from now on, however briefly: a
+// mutation observer sees each change React commits before anything else runs.
+async function readingMoments(page: Page) {
+  await page.evaluate(() => {
+    const seen: string[] = [];
+    (window as unknown as { readingMoments: string[] }).readingMoments = seen;
+    new MutationObserver(() => {
+      for (const quiet of document.querySelectorAll(
+        'main[aria-label="Intent"] .quiet',
+      )) {
+        const text = quiet.textContent;
+        if (text.startsWith("Reading ")) seen.push(text);
+      }
+    }).observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+  });
+  return () =>
+    page.evaluate(
+      () => (window as unknown as { readingMoments: string[] }).readingMoments,
+    );
+}
+
+test("a feature read before, and Intent opened again, show without a reading moment", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await publishIntentProject(page, pygardon, settings, {
+    [featurePath]: publishedFeature,
+    [otherPath]: otherFeature,
+  });
+  await openUntilRead(page, "/?project=pygardon&perspective=intent");
+  const { intent, development, intentChoice } = parts(page);
+  await expandIntentGroup(intent, "e2e_test/features");
+  const open = async (path: string, text: string) => {
+    await intent.getByRole("button", { name: path, exact: true }).click();
+    await expect(intent.getByLabel(`${path} source`)).toContainText(text);
+  };
+  await open(featurePath, "Scenario: Archive a job");
+  await open(otherPath, "Report free space");
+
+  const moments = await readingMoments(page);
+  await open(featurePath, "Scenario: Archive a job");
+  await open(otherPath, "Report free space");
+  await development.click();
+  await expect(intent).toBeHidden();
+  await intentChoice.click();
+  await expect(intent.getByLabel(`${otherPath} source`)).toContainText(
+    "Report free space",
+  );
+  expect(await moments()).toEqual([]);
 });

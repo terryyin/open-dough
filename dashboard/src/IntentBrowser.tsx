@@ -222,6 +222,7 @@ export function IntentBrowser({
               path={selectedPath}
               revision={fileRead.revision ?? revision}
               read={fileRead.read}
+              failedRevision={fileRead.failedRevision}
               kind={selectedLanguage}
               caseTarget={selection.caseTarget}
               treeFile={selectedFile}

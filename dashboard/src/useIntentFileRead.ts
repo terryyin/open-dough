@@ -6,14 +6,23 @@
 // diff (`./IntentFileReading.tsx`), is never read. Text already read on this
 // page at the same revision is not asked again, and a read of it in flight is
 // joined (`./repositoryFileReads.ts`); a failed read is asked again on Retry.
+// Text already kept shows as it is rendered, without a reading moment.
 // When the reading moves to another revision, the selected file's text read at
 // the previous one stays, with the revision it is of, until the new text
-// replaces it in place.
+// replaces it in place; if the new read fails, that text still stays, with the
+// failed revision (`failedRevision`) and Retry.
 
 import { useEffect, useState } from "react";
+import { cachedFile } from "./fileContentCache.ts";
 import type { FileRead } from "./IntentFileReading.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { readCachedFile } from "./repositoryFileReads.ts";
+
+type RevisionRead = FileRead & {
+  readonly revision: string;
+  // The later revision whose read failed while this text stays.
+  readonly failedRevision?: string;
+};
 
 export function useIntentFileRead({
   source,
@@ -32,19 +41,26 @@ export function useIntentFileRead({
   readonly unread: boolean;
 }): {
   readonly read: FileRead | undefined;
-  // The revision the answered read is of.
+  // The revision the answered read is of, and the revision whose read failed
+  // while that text stays.
   readonly revision: string | undefined;
+  readonly failedRevision: string | undefined;
   readonly retry: () => void;
 } {
-  const [fileRead, setFileRead] = useState<
-    (FileRead & { readonly revision: string }) | undefined
-  >(undefined);
+  const [fileRead, setFileRead] = useState<RevisionRead | undefined>(undefined);
   const [fileRetry, setFileRetry] = useState(0);
   useEffect(() => {
     if (!file || path === "" || unread) return;
     const controller = new AbortController();
+    const readyText = (
+      was: RevisionRead | undefined,
+    ): was is RevisionRead & { readonly state: "ready" } =>
+      was?.path === path && was.state === "ready";
+    // Text read before stays while this read runs, without its failure.
     setFileRead((was) =>
-      was?.path === path && was.state === "ready" ? was : undefined,
+      readyText(was)
+        ? { path, state: "ready", text: was.text, revision: was.revision }
+        : undefined,
     );
     void readCachedFile(source, revision, path, controller.signal)
       .then((text) => {
@@ -54,7 +70,11 @@ export function useIntentFileRead({
       })
       .catch(() => {
         if (!controller.signal.aborted) {
-          setFileRead({ path, state: "failed", revision });
+          setFileRead((was) =>
+            readyText(was) && was.revision !== revision
+              ? { ...was, failedRevision: revision }
+              : { path, state: "failed", revision },
+          );
         }
       });
     return () => {
@@ -62,10 +82,20 @@ export function useIntentFileRead({
     };
   }, [source, revision, path, file, fileRetry, unread]);
 
-  const read = file && fileRead?.path === path ? fileRead : undefined;
+  const text =
+    file && path !== "" && !unread
+      ? cachedFile(source.repository, revision, path)
+      : undefined;
+  const read: RevisionRead | undefined =
+    text !== undefined
+      ? { path, state: "ready", text, revision }
+      : file && fileRead?.path === path
+        ? fileRead
+        : undefined;
   return {
     read,
     revision: read?.revision,
+    failedRevision: read?.failedRevision,
     retry: () => {
       setFileRetry((n) => n + 1);
     },
