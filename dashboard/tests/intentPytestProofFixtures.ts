@@ -2,8 +2,7 @@
 // (`./intentPytestSourceFixtures.ts`) and the settings declaring their
 // `tests` location as a `python` location with that proof and its
 // generation command, for the pytest Proof journeys
-// (`./intent-pytest-proof.spec.ts`, `./intent-pytest-proof-summary.spec.ts`,
-// `./intent-pytest-proof-absent.spec.ts`): one snapshot in which only some
+// (`./intent-pytest-proof.spec.ts`, `./intent-pytest-proof-absent.spec.ts`): one snapshot in which only some
 // of a parametrized function's ids passed, a function has no proof, a
 // `Test*` class method was observed on an earlier file version, and a
 // renamed function keeps a stale observation; the same snapshot in

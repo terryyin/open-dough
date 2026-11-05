@@ -2,8 +2,7 @@
 // (`./intentVitestSourceFixtures.ts`) and the settings declaring their
 // `frontend/tests` location as a `typescript` location with `runner:
 // "vitest"`, `proof` and `proofGeneration`, for the Vitest Proof journeys
-// (`./intent-vitest-proof.spec.ts`, `./intent-vitest-proof-summary.spec.ts`,
-// `./intent-vitest-proof-absent.spec.ts`): one snapshot holding the `%s`
+// (`./intent-vitest-proof.spec.ts`, `./intent-vitest-proof-absent.spec.ts`): one snapshot holding the `%s`
 // template's observations in reverse code-point order, the touch spec's
 // under `chromium-touch`, the two-project spec's with `chromium-touch` first,
 // and a renamed test's stale observation, with no proof for "formats an

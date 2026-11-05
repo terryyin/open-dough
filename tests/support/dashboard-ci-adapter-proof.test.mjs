@@ -10,7 +10,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { readCiAdapterProof } from "../../dashboard/server/ciAdapterProof.ts";
-import { adapterUnavailableLine } from "../../dashboard/src/ciProofWording.ts";
+import { adapterUnavailableLine } from "../../dashboard/src/ciProofAbsenceWording.ts";
 
 const revision = "4774f60".padEnd(40, "0");
 

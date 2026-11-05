@@ -3,12 +3,23 @@
 // naming that ancestor's revision and run, not the running commit's; and a
 // summary already read for that run attempt is remembered, so showing the
 // tab again judges again but never asks GitHub for the proof again
-// (../GITHUB-REQUESTS.md). Why no proof can be shown:
+// (../GITHUB-REQUESTS.md). A Summary names that same story-branch and
+// ancestor evidence (../src/IntentScopeProof.tsx). Why no proof can be shown:
 // ./intent-ci-proof-reasons.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
-import { chooseCiStatus, runUrl } from "./intentCiStatusPage.ts";
+import {
+  activateIntentHome,
+  chooseCiStatus,
+  runUrl,
+} from "./intentCiStatusPage.ts";
+import { intentLocationName } from "./intentPerspectivePage.ts";
+import {
+  evidenceLine,
+  scopeTable,
+  summaryRegion,
+} from "./intentScopeProofPage.ts";
 import {
   artifactId,
   expectProofRows,
@@ -49,7 +60,14 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   const ancestor = { repository, runId: 12, attempt: 2, revision: signup };
-  const ci = publishStoryCi(page);
+  const ci = publishStoryCi(page, {
+    ".planning/open-dough.json": `${JSON.stringify({
+      intent: {
+        locations: [{ path: "tests", kind: "shell", include: ["*.sh"] }],
+      },
+    })}\n`,
+    "tests/a.sh": "#!/usr/bin/env bash\n",
+  });
   ci.runs.main = [
     { headSha: login, conclusion: "success", url: mainRun, id: 11 },
     {
@@ -99,6 +117,23 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
       "artifacts of run 12: ci-proof-summary-attempt-2",
       `zip ${String(artifactId)}`,
     ]);
+  });
+
+  await test.step("a Summary names that story branch's ancestor evidence and its counts", async () => {
+    const intent = parts(page).intent;
+    await intentLocationName(intent, "tests").click();
+    const summary = summaryRegion(intent);
+    await expect(evidenceLine(summary)).toHaveText(
+      `CI evidence: Attempt 2 of run 12 at d4e5f6a on ${running.branch}, the story branch of ${running.title}, the completed ancestor of the running result.`,
+    );
+    await expect(
+      scopeTable(summary, "tests")
+        .locator("tbody tr")
+        .first()
+        .getByRole("cell"),
+    ).toHaveText(checksRow.slice(1));
+    expect(proofCalls(calls).slice(before)).toHaveLength(2);
+    await activateIntentHome(intent);
   });
 
   await test.step("shown again, the tab judges again and shows the remembered proof without asking GitHub for it", async () => {

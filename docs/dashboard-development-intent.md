@@ -23,12 +23,30 @@ own background; a selected location's header takes the selected background
 across its whole width, toggle included, and expansion shows only in the
 toggle. Selecting a file still reads its exact published text with line
 numbers and Gherkin syntax styling at the observed revision. A location or
-folder summary names the selection by path and how many matching files it
-holds, gives an unusable location's explanation, and lists its immediate
-folders and files in the browser's order, each folder with its file count.
-The summary drills down: a child's name selects that folder or file as its
-tree name does and reveals it in the tree, keyboard-operable. A summary reads
-no file text.
+folder summary names the selection by path and how many matching files the
+tree lists, gives an unusable location's explanation, and shows the CI proof
+that **CI status** shows, never local proof: it names that evidence once
+(attempt and run, revision, judged branch, a selected story's branch, a
+running result's completed ancestor) and, when the tree shows another
+revision, says a file added or changed since has no CI result here or an
+earlier one. One table in the homepage's columns (**Scope**, **Counts**,
+**Test execution time**, **Parts**) gives the selection's own row (an entry's
+row is its homepage row, checks outside the tree included), then one row per
+immediate folder (named with a trailing `/`) and file in the browser's order,
+each summing the CI evidence published under its path, and, when the
+selection's figures hold files the tree does not list or results CI could
+not place in a file, a **Not in the rows above** row with a line naming
+them. Execution time is precise enough to compare sub-minute scopes
+(`340 ms`, `12.5 s`, `4 min 5 s`); a measured zero is `0 ms`. A file CI has
+no result for says **no CI result**; a scope with an untimed test, a missing
+or ambiguous part, or a part whose report published no file breakdown is
+partial with that named; an entry-only summary keeps the entry's totals and
+says the child breakdown is unavailable. Without usable proof, the rows stay
+for drilling down and one line says why, as the homepage does. The summary
+drills down: a child's name selects that folder or file as its tree name
+does and reveals it in the tree, keyboard-operable. A summary reads no file
+text and asks CI nothing again: home and every summary share one judgment
+and proof read.
 The selected perspective choice names the page, so Intent shows no heading of its own. Below
 the banner the page does not scroll: the location tree fills the remaining height against
 the left edge, and it and the reading pane each scroll independently. Directly under the
@@ -102,8 +120,9 @@ then a table with one row per declared Intent location `path`, in
 declaration order, under the columns **Entry**, **Counts** (passed, failed
 and other with the runner's unit, tests or checks), **Test execution time**
 (the entry's summed durations: complete, partial naming the parts without
-one, or not recorded for a summary without durations, never zero for
-absence, and never the attempt's wall time) and **Parts** (how many declared
+one or how many tests or checks recorded none, or not recorded for a summary
+without durations, never zero for absence, and never the attempt's wall
+time) and **Parts** (how many declared
 parts are present, then each missing or ambiguous part as an uncounted gap).
 A path wraps after its `/` separators, and within them only in a reading
 pane too narrow for that, so the columns fit a phone or zoomed window

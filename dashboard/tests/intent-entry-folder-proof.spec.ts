@@ -1,5 +1,5 @@
-// Successful proof agrees across folder, child and selected-file readings
-// after a later legacy result invalidates one scenario's earlier success.
+// A selected file's Proof keeps its last successful proof after a later
+// legacy result invalidates one scenario's earlier success.
 
 import { expect, test } from "./dashboardTest.ts";
 import type { CucumberObservation } from "../src/cucumberProof.ts";
@@ -8,7 +8,6 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
-  intentFolderName,
 } from "./intentPerspectivePage.ts";
 import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import {
@@ -21,7 +20,7 @@ import {
   stooqPath,
 } from "./intentEntryFolderSummariesFixtures.ts";
 
-test("folder summaries retain last successful proof and clear a newer unsuccessful scenario", async ({
+test("a file's Proof retains last successful proof and clears a newer unsuccessful scenario", async ({
   page,
 }) => {
   const earlier = JSON.parse(pygardonFeatureSources[proofRunPath]) as {
@@ -45,17 +44,6 @@ test("folder summaries retain last successful proof and clear a newer unsuccessf
   await intentChoice.click();
   await expandIntentGroup(intent, featuresPath);
   await expandIntentFolders(intent, featuresPath);
-  await intentFolderName(intent, "jobs").click();
-  const summary = intent.getByRole("region", { name: "Summary" });
-  await expect(summary).toContainText(
-    "Last successful proof: 5 scenarios: 1 passed, 4 without successful proof",
-  );
-  const children = summary.getByRole("list", {
-    name: "Summary by folder and file",
-  });
-  await expect(children.locator(":scope > li").nth(1)).toContainText(
-    "Last successful proof: 2 scenarios: 1 passed, 1 without successful proof",
-  );
   await intent.getByRole("button", { name: stooqPath, exact: true }).click();
   const proof = await chooseReadingTab(intent, "Proof");
   await expect(proof).toContainText(

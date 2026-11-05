@@ -62,6 +62,9 @@ const count = z.number().int().nonnegative();
 const positive = z.number().int().positive();
 // Optional summed test execution time in milliseconds (collector v1, additive).
 const durationMs = z.number().nonnegative().optional();
+// Optional count of counted tests or checks that recorded no duration
+// (collector v1 file breakdown, additive): absent in an older summary.
+const untimed = count.optional();
 
 const partSchema = z.object({
   part: positive,
@@ -70,8 +73,24 @@ const partSchema = z.object({
   failed: count.optional(),
   other: count.optional(),
   durationMs,
+  untimed,
+  // The part's fragment was broken down by file.
+  breakdown: z.literal(true).optional(),
 });
 export type CiProofPart = z.infer<typeof partSchema>;
+
+// One path's (or the unassigned) figures of an entry's file breakdown.
+const figuresSchema = z.object({
+  passed: count,
+  failed: count,
+  other: count,
+  durationMs,
+  untimed,
+});
+export type CiProofFigures = z.infer<typeof figuresSchema>;
+
+const fileSchema = figuresSchema.extend({ path: z.string().min(1) });
+export type CiProofFile = z.infer<typeof fileSchema>;
 
 const entrySchema = z.object({
   path: z.string().min(1),
@@ -82,7 +101,11 @@ const entrySchema = z.object({
   failed: count,
   other: count,
   durationMs,
+  untimed,
   parts: z.array(partSchema).min(1),
+  // Summed over the parts broken down by file; absent when none was.
+  files: z.array(fileSchema).optional(),
+  unassigned: figuresSchema.optional(),
 });
 export type CiProofEntry = z.infer<typeof entrySchema>;
 

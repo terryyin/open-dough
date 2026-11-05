@@ -10,8 +10,7 @@
 // A snapshot of about 2 MB, a whole Pygardon suite's, is read like any other.
 // Long test names wrap within their column while headers and observed cells
 // keep whole words; on a phone only the table scrolls sideways.
-// Summaries: ./intent-pytest-proof-summary.spec.ts. Explanations:
-// ./intent-pytest-proof-absent.spec.ts.
+// Explanations: ./intent-pytest-proof-absent.spec.ts.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";

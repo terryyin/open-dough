@@ -8,8 +8,7 @@
 // test observed under two projects shows one row per project with
 // `chromium` first, a test without an observation reads No successful
 // proof, and a renamed test's stale observation is not listed. The count
-// line counts test cases. Summaries: ./intent-vitest-proof-summary.spec.ts.
-// Explanations: ./intent-vitest-proof-absent.spec.ts.
+// line counts test cases. Explanations: ./intent-vitest-proof-absent.spec.ts.
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./dashboardTest.ts";

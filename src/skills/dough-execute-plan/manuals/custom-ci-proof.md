@@ -44,6 +44,9 @@ it (the `entries` above are abbreviated). Present parts and their entries may
 carry optional `durationMs`: the summed test execution time in milliseconds
 for that part, and the sum of present parts that recorded one for the entry.
 A part written without a duration carries none; schema versions stay at 1.
+A summary collected from fragments written with `--by-file` also carries
+each entry's file breakdown, which the tab uses for a selected entry's or
+folder's figures; keep it unchanged too, and mind the 64 KiB limit below.
 The `unavailable` reason is a nonempty string, shown to the developer as
 given and cut at 600 bytes; never answer a verdict there. Any other answer,
 both fields, a nonzero exit, invalid JSON, the 20-second timeout or more

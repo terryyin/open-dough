@@ -1,6 +1,7 @@
 // Project-owned generation instructions survive the published read and appear
-// with historical proof in file, folder and location views. They are text,
-// while missing or invalid instructions leave successful proof readable.
+// with historical proof in a file's Proof; a location's Summary shows CI's
+// proof instead. They are text, while missing or invalid instructions leave
+// successful proof readable.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
@@ -8,7 +9,6 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
-  intentFolderName,
   intentLocationName,
 } from "./intentPerspectivePage.ts";
 import { chooseReadingTab } from "./intentFileReadingPage.ts";
@@ -64,17 +64,10 @@ for (const [situation, generation, instruction] of [
     await intentChoice.click();
     await expandIntentGroup(intent, featuresPath);
     await expandIntentFolders(intent, featuresPath);
-    await intentFolderName(intent, "jobs").click();
-    const summary = intent.getByRole("region", { name: "Summary" });
-    await expect(summary).toContainText(instruction);
-    await expect(summary).toContainText("normal test runs leave it untouched");
-    await expect(summary).toContainText(
-      "Last successful proof: 5 scenarios: 2 passed",
-    );
-
     await intent.getByRole("button", { name: stooqPath, exact: true }).click();
     const proof = await chooseReadingTab(intent, "Proof");
     await expect(proof).toContainText(instruction);
+    await expect(proof).toContainText("normal test runs leave it untouched");
     await expect(proof).toContainText("Proof is a published snapshot.");
     await expect(proof).toContainText(
       "do not establish present product health",
@@ -85,18 +78,20 @@ for (const [situation, generation, instruction] of [
     );
     await expect(proof.getByRole("button")).toHaveCount(0);
     await expect(proof.getByRole("link")).toHaveCount(0);
-
-    await intentLocationName(intent, featuresPath).click();
-    await expect(summary).toContainText(instruction);
-    await expect(summary).toContainText(
-      "Last successful proof: 9 scenarios: 2 passed",
-    );
     if (
       generation === undefined ||
       ("skill" in generation && "command" in generation)
     ) {
-      await expect(summary).toContainText(".planning/open-dough.json");
-      await expect(summary).toContainText("exactly one command or skill");
+      await expect(proof).toContainText(".planning/open-dough.json");
+      await expect(proof).toContainText("exactly one command or skill");
     }
+
+    // A location's Summary shows CI's proof, not this local instruction.
+    await intentLocationName(intent, featuresPath).click();
+    const summary = intent.getByRole("region", { name: "Summary" });
+    await expect(summary.locator(".intent-summary-path")).toHaveText(
+      featuresPath,
+    );
+    await expect(summary).not.toContainText(instruction);
   });
 }

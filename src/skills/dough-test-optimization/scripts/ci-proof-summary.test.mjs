@@ -1,36 +1,19 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
 import { summaryProblems } from "./ci-proof-summary.mjs";
+import {
+  cli,
+  fragmentTests,
+  summarizeTests,
+  temporary,
+} from "./ci-proof-cli-fixtures.mjs";
 import {
   attemptId,
   playwrightRecord,
   revision,
 } from "./ci-proof-test-fixtures.mjs";
-
-const script = fileURLToPath(
-  new URL("./ci-proof-summary.mjs", import.meta.url),
-);
-
-function temporary(t) {
-  const directory = mkdtempSync(join(tmpdir(), "ci-proof-summary-"));
-  t.after(() => rmSync(directory, { recursive: true, force: true }));
-  return directory;
-}
-
-const cli = (...args) =>
-  spawnSync(process.execPath, [script, ...args], { encoding: "utf8" });
 
 test("the command line writes fragments per entry and one summary from them", (t) => {
   const directory = temporary(t);
@@ -130,40 +113,6 @@ test("the command line writes fragments per entry and one summary from them", (t
     ],
   );
 });
-
-// One `tests` part's fragment from SOURCE, its report option, and a summary
-// of FRAGMENTS declaring EXPECT, each naming the attempt by ATTEMPT options.
-const fragmentTests = (source, attempt, out) =>
-  cli(
-    "fragment",
-    ...source,
-    "--entry",
-    "tests",
-    "--part",
-    "1",
-    "--of",
-    "1",
-    ...attempt,
-    "--revision",
-    revision,
-    "--out",
-    out,
-  );
-const summarizeTests = (fragments, attempt, out, expect = "tests=1") =>
-  cli(
-    "summarize",
-    "--fragments",
-    fragments,
-    "--expect",
-    expect,
-    "--repository",
-    "O/P",
-    ...attempt,
-    "--revision",
-    revision,
-    "--out",
-    out,
-  );
 
 test("the command line writes an adapter attempt's fragment and summary, excluding another attempt's fragments", (t) => {
   const directory = temporary(t);

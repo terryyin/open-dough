@@ -2,6 +2,47 @@
 // entry is a configured Intent location path). Node built-ins only, like the
 // rest of the collector (ci-proof-summary.mjs).
 import { fragment, zeroCounts } from "./ci-proof-contract.mjs";
+import {
+  addedFigures,
+  breakdownOf,
+  emptyFigures,
+  isPathIn,
+} from "./ci-proof-figures.mjs";
+
+// Records one counted result, FIELD, with its optional durationMs
+// (undefined when it recorded none), under PATH in BREAKDOWN, a map from
+// each repository path, or undefined for the unassigned, to its figures.
+function recordResult(breakdown, path, field, durationMs) {
+  breakdown.set(
+    path,
+    addedFigures(breakdown.get(path) ?? emptyFigures(), {
+      ...zeroCounts(),
+      [field]: 1,
+      ...(durationMs === undefined ? { untimed: 1 } : { durationMs }),
+    }),
+  );
+}
+
+// A fragment's breakdown extras from BREAKDOWN (`recordResult`): `untimed`
+// over all of it, then its files and unassigned (`breakdownOf`).
+function breakdownExtras(breakdown) {
+  const untimed = [...breakdown.values()].reduce(
+    (sum, figures) => sum + figures.untimed,
+    0,
+  );
+  return { untimed, ...breakdownOf(breakdown) };
+}
+
+// BREAKDOWN with every label that is not a relative path inside ENTRY folded
+// into the unassigned figures.
+function unassigningUnusable(breakdown, entry) {
+  const kept = new Map();
+  for (const [label, figures] of breakdown) {
+    const path = isPathIn(label, entry) ? label : undefined;
+    kept.set(path, addedFigures(kept.get(path) ?? emptyFigures(), figures));
+  }
+  return kept;
+}
 
 // One Playwright test passes when every execution was expected, fails when
 // any was unexpected or flaky, and is otherwise other (skipped or unfinished).
@@ -34,11 +75,34 @@ function playwrightDurationMs(tests) {
   return durationMs;
 }
 
+// The repository path of a Playwright test's file: its absolute
+// `location.file` relative to the record's own run directory (`run.cwd`,
+// where the run was started: the repository root for `npm run`), when it is
+// a file inside ENTRY. Undefined otherwise, so it is never a machine path.
+function repositoryPathOf(record, test, entry) {
+  const file = test.location?.file;
+  const cwd = record.run?.cwd;
+  if (typeof file !== "string" || typeof cwd !== "string" || cwd === "") {
+    return undefined;
+  }
+  const root = cwd.endsWith("/") ? cwd : `${cwd}/`;
+  if (!file.startsWith(root)) return undefined;
+  const path = file.slice(root.length);
+  return isPathIn(path, entry) ? path : undefined;
+}
+
 // A dashboard proof record (OPEN_DOUGH_DASHBOARD_PROOF_RECORD) as the fragment
 // of its one entry; counted unit: tests. A record that did not complete a run
 // gives no fragment, so its part stays missing. Optional durationMs is the sum
-// of every finished attempt's durationMs when any attempt recorded one.
-export function fragmentFromPlaywrightRecord(record, identity) {
+// of every finished attempt's durationMs when any attempt recorded one. With
+// BY_FILE, the fragment is also broken down by each test's file
+// (`repositoryPathOf`); a test whose file is not one is unassigned, and a
+// test none of whose attempts recorded a duration is untimed.
+export function fragmentFromPlaywrightRecord(
+  record,
+  identity,
+  { byFile = false } = {},
+) {
   if (record?.schemaVersion !== 1) {
     throw new Error("the Playwright proof record is not schemaVersion 1");
   }
@@ -50,19 +114,27 @@ export function fragmentFromPlaywrightRecord(record, identity) {
   if (identity.entries.length !== 1) {
     throw new Error("a Playwright proof record proves exactly one --entry");
   }
+  const [entry] = identity.entries;
   const counts = zeroCounts();
+  const breakdown = new Map();
   for (const test of record.tests) {
-    counts[playwrightTestOutcome(test.executions ?? [])] += 1;
+    const outcome = playwrightTestOutcome(test.executions ?? []);
+    counts[outcome] += 1;
+    if (byFile) {
+      recordResult(
+        breakdown,
+        repositoryPathOf(record, test, entry),
+        outcome,
+        playwrightDurationMs([test]),
+      );
+    }
   }
   const durationMs = playwrightDurationMs(record.tests);
   return [
-    fragment(
-      identity,
-      identity.entries[0],
-      "tests",
-      counts,
-      durationMs === undefined ? {} : { durationMs },
-    ),
+    fragment(identity, entry, "tests", counts, {
+      ...(durationMs === undefined ? {} : { durationMs }),
+      ...(byFile ? breakdownExtras(breakdown) : {}),
+    }),
   ];
 }
 
@@ -86,11 +158,11 @@ function forEachTabLine(text, kind, left, visit) {
   }
 }
 
-// Per-entry summed milliseconds from a times file, one
-// `<seconds><TAB><check path>` line per check. Only entries that own at least
-// one times line appear; a check in no entry contributes to none.
-function durationsFromTimes(text, entries) {
-  const durations = new Map();
+// Per-check summed milliseconds from a times file, one
+// `<seconds><TAB><check path>` line per check, for checks in some entry; a
+// check in no entry contributes to none.
+function checkTimes(text, entries) {
+  const times = new Map();
   forEachTabLine(text, "times", "<seconds>", (secondsText, check, line) => {
     const seconds = Number(secondsText);
     if (!Number.isFinite(seconds) || seconds < 0) {
@@ -98,10 +170,20 @@ function durationsFromTimes(text, entries) {
         `times line ${line} is not a non-negative number of seconds`,
       );
     }
-    const entry = owningEntry(entries, check);
-    if (entry === undefined) return;
-    durations.set(entry, (durations.get(entry) ?? 0) + seconds * 1000);
+    if (owningEntry(entries, check) === undefined) return;
+    times.set(check, (times.get(check) ?? 0) + seconds * 1000);
   });
+  return times;
+}
+
+// Per-entry summed milliseconds of TIMES; only entries that own at least one
+// times line appear.
+function durationsOf(times, entries) {
+  const durations = new Map();
+  for (const [check, ms] of times) {
+    const entry = owningEntry(entries, check);
+    durations.set(entry, (durations.get(entry) ?? 0) + ms);
+  }
   return durations;
 }
 
@@ -110,26 +192,56 @@ function durationsFromTimes(text, entries) {
 // whose path contains it: status `passed` and `failed` as such, any other as
 // other. A check in no entry proves no entry, so it counts toward none.
 // Optional TIMES text, same labels as outcomes, sets each matching entry's
-// durationMs to the sum of its checks' seconds as milliseconds.
-export function fragmentsFromOutcomes(text, identity, timesText) {
+// durationMs to the sum of its checks' seconds as milliseconds. With
+// BY_FILE, each fragment is also broken down by check path (a check's label
+// is its repository path; one that is not a relative path inside its entry
+// is unassigned); a check with no times line is untimed, and a times line
+// without an outcome adds its time to its path alone.
+export function fragmentsFromOutcomes(
+  text,
+  identity,
+  timesText,
+  { byFile = false } = {},
+) {
   const counts = new Map(
     identity.entries.map((entry) => [entry, zeroCounts()]),
+  );
+  const times =
+    timesText === undefined
+      ? new Map()
+      : checkTimes(timesText, identity.entries);
+  const breakdowns = new Map(
+    identity.entries.map((entry) => [entry, new Map()]),
   );
   forEachTabLine(text, "outcomes", "<status>", (status, check) => {
     const entry = owningEntry(identity.entries, check);
     if (entry === undefined) return;
     const field = status === "passed" || status === "failed" ? status : "other";
     counts.get(entry)[field] += 1;
+    if (byFile) recordResult(breakdowns.get(entry), check, field, undefined);
   });
+  if (byFile) {
+    for (const [check, ms] of times) {
+      const breakdown = breakdowns.get(owningEntry(identity.entries, check));
+      // The check's time replaces the untimed mark its outcomes gave it.
+      breakdown.set(check, {
+        ...(breakdown.get(check) ?? emptyFigures()),
+        untimed: 0,
+        durationMs: ms,
+      });
+    }
+    for (const [entry, breakdown] of breakdowns)
+      breakdowns.set(entry, unassigningUnusable(breakdown, entry));
+  }
   const durations =
-    timesText === undefined
-      ? null
-      : durationsFromTimes(timesText, identity.entries);
+    timesText === undefined ? null : durationsOf(times, identity.entries);
   return identity.entries.map((entry) => {
-    const extras =
-      durations !== null && durations.has(entry)
+    const extras = {
+      ...(durations !== null && durations.has(entry)
         ? { durationMs: durations.get(entry) }
-        : {};
+        : {}),
+      ...(byFile ? breakdownExtras(breakdowns.get(entry)) : {}),
+    };
     return fragment(identity, entry, "checks", counts.get(entry), extras);
   });
 }

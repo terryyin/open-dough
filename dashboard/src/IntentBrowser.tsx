@@ -39,7 +39,6 @@ import {
 } from "./intentWorkspaceSelection.ts";
 import { overlayFilesByPath } from "./intentStoryOverlay.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import type { PublishedWork } from "./publishedWork.ts";
 import { useIntentFileRead } from "./useIntentFileRead.ts";
 import { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useLocationOpenFolders.ts";
@@ -60,8 +59,6 @@ const keptLayout = keptChoice<IntentReadingLayout>(
 
 export function IntentBrowser({
   source,
-  work,
-  selectedIdentity,
   revision,
   locations,
   proofRereading,
@@ -73,8 +70,6 @@ export function IntentBrowser({
   story,
 }: {
   readonly source: PublishedSource;
-  readonly work: PublishedWork;
-  readonly selectedIdentity: string | undefined;
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
   // The selected story as the summary heading the locations names it, and
@@ -200,9 +195,6 @@ export function IntentBrowser({
         </div>
         <div className="intent-reading" tabIndex={-1} ref={readingArea}>
           <IntentSelectionReading
-            source={source}
-            work={work}
-            selectedIdentity={selectedIdentity}
             revision={revision}
             selection={selection}
             selectedLocation={selectedLocation}

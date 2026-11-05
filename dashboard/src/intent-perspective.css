@@ -174,21 +174,20 @@
   min-width: 0;
 }
 
+/* A Summary's lines around its CI proof table (./IntentSummary.tsx,
+   ./IntentScopeProof.tsx). */
 .intent-summary-path,
 .intent-summary-files,
-.intent-summary-progress,
-.intent-summary-scenarios {
+.intent-summary-evidence,
+.intent-summary-evidence-absent,
+.intent-summary-revision,
+.intent-summary-breakdown-absent,
+.intent-summary-outside {
   margin: 0 0 var(--space-2);
 }
 
-.intent-summary-children {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.intent-summary-children > li {
-  margin: 0 0 var(--space-3);
+.intent-summary-outside {
+  margin-top: var(--space-2);
 }
 
 /* Narrow, the browser sits above the reading pane and keeps part of the

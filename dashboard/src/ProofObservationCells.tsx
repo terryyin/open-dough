@@ -1,9 +1,8 @@
 // How one case row's last successful proof reads: its name with its variant
 // in the proof kind's words (`./proofKinds.ts`), and its outcome with
 // attempts, duration, time since, short commit, and whether the file's Git
-// blob then was the one published now. Shared by file Proof rows
-// (`./IntentProof.tsx`) and a summary's slowest cases
-// (`./IntentSummarySlowest.tsx`), with the duration wording of
+// blob then was the one published now, for file Proof rows
+// (`./IntentProof.tsx`), with the duration wording of
 // `./proofDurationWords.ts`.
 
 import type { CaseRow, SuccessfulCaseObservation } from "./proofCases.ts";

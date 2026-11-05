@@ -4,8 +4,8 @@
 // ../src/proofKinds.ts): rows by suite path in definition order, Test case
 // header and test words, a loop-generated name and subtests absent from the
 // table while kept or folded in the snapshot, stale observations unlisted,
-// folder summary in test words, and explanations naming the Node reference
-// and `runner` among Intent's runners. Kind-independent rules are not
+// and explanations naming the Node reference and `runner` among Intent's
+// runners. Kind-independent rules are not
 // re-proved here.
 
 import { expect, test } from "./dashboardTest.ts";
@@ -13,7 +13,6 @@ import {
   countLocationsReads,
   expandIntentFolders,
   expandIntentGroup,
-  intentFolderName,
 } from "./intentPerspectivePage.ts";
 import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import {
@@ -31,7 +30,6 @@ import {
   landRerunPath,
   locationPath,
   scriptPath,
-  scriptsPath,
   withSubtestsPath,
 } from "./intentNodeTestSourceFixtures.ts";
 import {
@@ -113,29 +111,6 @@ test("Ex 6: loop-generated names and subtests stay unlisted while Purpose and li
     ]);
     await expect(proof).not.toContainText(/child alpha|child beta/i);
   });
-});
-
-test("Ex 7: a node:test folder summary uses test words over listed cases", async ({
-  page,
-}) => {
-  const intent = await openProject(page, settings, snapshotFiles);
-  await expandIntentGroup(intent, locationPath);
-  await expandIntentFolders(intent, locationPath);
-  await intentFolderName(intent, "scripts").click();
-  const summary = intent.getByRole("region", { name: "Summary" });
-  await expect(summary.locator(".intent-summary-path")).toHaveText(scriptsPath);
-  await expect(summary.locator("> .intent-summary-scenarios")).toHaveText(
-    "7 tests",
-  );
-  await expect(summary).toContainText(
-    "Last successful proof: 7 test cases: 6 passed, 1 without successful proof",
-  );
-  await expect(summary).toContainText(
-    "A sum of separate test case observations, retries included, not a run's elapsed time.",
-  );
-  await expect(summary).not.toContainText(
-    /scenario|renamed away|codex: records|child alpha/i,
-  );
 });
 
 test("Ex 8: proof without a runner names vitest or playwright or node:test", async ({

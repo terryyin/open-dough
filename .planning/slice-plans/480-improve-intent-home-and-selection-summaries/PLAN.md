@@ -217,7 +217,7 @@ keyed remount; whoever reconciles must carry `clearSelection` and the strip's
 
 ### 3. Compare and drill into CI-backed entry and folder tables
 Type: Behavior
-Status: planned
+Status: done
 Proof: one collector-output → validated artifact/adapter read → browser
 summary journey, contract/CLI/boundary checks above, all focused Intent
 consumers and local gate.
@@ -274,6 +274,25 @@ input.
 
 **Safe stop:** all source examples have final behavior. Each slice's proof
 must be green before delivery; no CI-breaking intermediary is publishable.
+
+**Accepted (2026-11-06):** `fragment --by-file` (this project's
+`ci-proof-fragments` action passes it) publishes file aggregates with
+`untimed`/`unassigned` coverage; entry-only summaries stay valid. One CI
+owner (`IntentCiEvidence.tsx` with `useIntentCiJudgment`/`useIntentCiShownProof`)
+serves home and Summary; `ciScopeProof.ts` derives scope figures by path and
+`IntentScopeProof.tsx` renders root, child and "Not in the rows above" rows.
+Local-observation summary code and specs were retired. Proof: focused Intent
+suite 148/148 (64 files) after refactor; `intent-summary-ci-proof.spec.ts`
+main journey (real CLI bytes through the browser parser, late answer, zero
+source reads, one proof read, hidden `tests/support` check) and narrow/zoom
+test, also under CI's DejaVu font; `intent-summary-ci-proof-gaps.spec.ts`;
+collector, read, adapter, payload and install node checks pass. Measured
+summary of the current inventory: 171,542 bytes (16% of 1 MiB); breakdowns
+do not fit the 64 KiB adapter limit, so `--by-file` is opt-in. Refactor pass
+extracted `ci-proof-figures.mjs` (declared in `install.sh`, which grows one
+line as earlier payload declarations did) and split oversized modules/specs.
+Learning: returning home no longer re-reads the judgment; it re-reads on head
+or branch change, Check again or perspective remount.
 
 ## Current decisions and readiness review
 

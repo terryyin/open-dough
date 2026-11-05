@@ -296,6 +296,7 @@ managed_files=(
   dough-test-optimization/references/ci-proof-summary.md
   dough-test-optimization/scripts/ci-proof-collect.mjs
   dough-test-optimization/scripts/ci-proof-contract.mjs
+  dough-test-optimization/scripts/ci-proof-figures.mjs
   dough-test-optimization/scripts/ci-proof-fragments.mjs
   dough-test-optimization/scripts/ci-proof-summary.mjs
   dough-manual-testing/SKILL.md

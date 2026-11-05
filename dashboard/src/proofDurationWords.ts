@@ -1,6 +1,5 @@
-// How long one proof observation, or a sum of them, took: shared by file Proof
-// row cells (`./ProofObservationCells.tsx`) and summary sums
-// (`./intentSummaryProofCost.ts`).
+// How long one proof observation took, in file Proof row cells
+// (`./ProofObservationCells.tsx`).
 
 // Fractional milliseconds, as Vitest proof records them, read rounded.
 export function durationWords(ms: number): string {

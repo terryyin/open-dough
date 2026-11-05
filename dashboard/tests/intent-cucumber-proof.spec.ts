@@ -7,16 +7,13 @@
 // and each its own duration, time, commit and file-version match. A newer
 // legacy failure clears an older pass; a later pass restores proof. Retry
 // counts and outline-row independence survive, and absent successful proof
-// appears consistently in file and location summaries.
+// appears consistently in each file's Proof.
 // Proof files are read once with the locations, not per selection.
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import {
-  expandIntentGroup,
-  intentLocationName,
-} from "./intentPerspectivePage.ts";
+import { expandIntentGroup } from "./intentPerspectivePage.ts";
 import { chooseReadingTab } from "./intentFileReadingPage.ts";
 import { publishIntentProject, pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
@@ -79,27 +76,19 @@ const expectedRows = [
 const ordinaryCounts =
   "5 scenarios: 2 passed, 1 passed after retry, 2 without successful proof";
 
-for (const [layout, proofFiles, expected, counts, summaryCounts] of [
-  [
-    "two legacy run files",
-    runFiles,
-    expectedRows,
-    ordinaryCounts,
-    "6 scenarios: 3 passed, 1 passed after retry, 2 without successful proof",
-  ],
+for (const [layout, proofFiles, expected, counts] of [
+  ["two legacy run files", runFiles, expectedRows, ordinaryCounts],
   [
     "one legacy consolidated file",
     consolidatedFiles,
     expectedRows,
     ordinaryCounts,
-    "6 scenarios: 3 passed, 1 passed after retry, 2 without successful proof",
   ],
   [
     "a legacy pass and failure at the same finish time",
     tiedFiles,
     expectedRows,
     ordinaryCounts,
-    "6 scenarios: 3 passed, 1 passed after retry, 2 without successful proof",
   ],
   [
     "a pass restored after failure",
@@ -117,7 +106,6 @@ for (const [layout, proofFiles, expected, counts, summaryCounts] of [
         : row,
     ),
     "5 scenarios: 3 passed, 1 passed after retry, 1 without successful proof",
-    "6 scenarios: 4 passed, 1 passed after retry, 1 without successful proof",
   ],
   [
     "one outline row's later failure",
@@ -126,14 +114,12 @@ for (const [layout, proofFiles, expected, counts, summaryCounts] of [
       at === 2 ? [row[0], "No successful proof", "", "", "", ""] : row,
     ),
     "5 scenarios: 2 passed, 3 without successful proof",
-    "6 scenarios: 3 passed, 3 without successful proof",
   ],
   [
     "only failed legacy proof",
     failedOnlyFiles,
     expectedRows.map((row) => [row[0], "No successful proof", "", "", "", ""]),
     undefined,
-    "6 scenarios: 6 without successful proof",
   ],
 ] as const) {
   test(`Intent shows last successful proof from ${layout}`, async ({
@@ -178,17 +164,6 @@ for (const [layout, proofFiles, expected, counts, summaryCounts] of [
         ),
       );
     expect(cells).toEqual([header, ...expected]);
-
-    await test.step("the location summary uses the same successful proof", async () => {
-      await intentLocationName(intent, "e2e_test/features").click();
-      const summary = intent.getByRole("region", { name: "Summary" });
-      await expect(summary).toContainText(
-        `Last successful proof: ${summaryCounts}`,
-      );
-      await intent
-        .getByRole("button", { name: featurePath, exact: true })
-        .click();
-    });
 
     await test.step("another feature reads its own rows; proof files are read once, not per selection", async () => {
       await intent

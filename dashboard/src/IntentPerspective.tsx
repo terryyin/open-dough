@@ -16,6 +16,7 @@
 
 import { useState, type ReactNode } from "react";
 import { IntentBrowser } from "./IntentBrowser.tsx";
+import { IntentCiEvidenceProvider } from "./IntentCiEvidence.tsx";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
 import { IntentModeTabs } from "./IntentModeTabs.tsx";
 import {
@@ -83,73 +84,93 @@ function IntentBody({
         <IntentStorySummary summary={storySummary} />
       )}
       {children}
-      {mode === "intent" && options.withCi ? (
-        <IntentCiStatus
-          source={source}
-          work={work}
-          selectedIdentity={selectedIdentity}
-        />
-      ) : null}
+      {mode === "intent" && options.withCi ? <IntentCiStatus /> : null}
     </div>
   );
-  if (work === undefined || intent === "loading") {
-    // Withhold CI until locations settle: a cold Intent open can mount with
-    // work still unread (NotConfigured placeholder), and mounting CI here
-    // would judge once and again when the browser or terminal explanation
-    // replaces it.
-    return explained(
-      work === undefined ? (
-        <NotConfigured label={source.label} />
-      ) : (
-        <p className="quiet">Reading Intent locations…</p>
-      ),
-      { withCi: false },
-    );
-  }
-  if ("failed" in intent) {
-    return explained(
-      <p className="intent-settings-problem" role="alert">
-        Intent locations for {source.label} could not be read
-        {intent.failed === undefined ? "." : `: ${intent.failed.message}`}{" "}
-        <button type="button" onClick={retryLocations}>
-          Retry
-        </button>
-      </p>,
-    );
-  }
-  if (intent.status === "not-configured") {
-    return explained(<NotConfigured label={source.label} />);
-  }
-  if (intent.status === "settings-problem") {
-    return explained(
-      <SettingsProblem
-        label={source.label}
-        problem={intent.problem}
-        onRetry={retryLocations}
-      />,
-    );
-  }
-  // Remount the browser on source/revision so its tree and reading start
-  // again for that identity, as the selection owner's selection does.
+  // Intent's one CI evidence owner reads while CI status or a Summary can
+  // show it: once locations settle, while the browser is shown (its home
+  // and Summaries), or beside an explanation in the Intent mode.
+  const browsing =
+    work !== undefined &&
+    intent !== "loading" &&
+    !("failed" in intent) &&
+    intent.status !== "not-configured" &&
+    intent.status !== "settings-problem";
+  const ciActive =
+    work !== undefined &&
+    intent !== "loading" &&
+    (browsing || mode === "intent");
   return (
-    <IntentBrowser
-      key={browsingIdentity}
+    <IntentCiEvidenceProvider
       source={source}
       work={work}
       selectedIdentity={selectedIdentity}
-      revision={work.revision}
-      locations={intent.locations}
-      proofRereading={proofRereading}
-      onProofRetry={() => {
-        retryProof(work.revision);
-      }}
-      mode={mode}
-      modeIdPrefix={modeIdPrefix}
-      onModeChange={onModeChange}
-      storySummary={storySummary}
-      story={story}
-    />
+      active={ciActive}
+    >
+      {bodyOf()}
+    </IntentCiEvidenceProvider>
   );
+
+  function bodyOf(): ReactNode {
+    if (work === undefined || intent === "loading") {
+      // Withhold CI until locations settle: a cold Intent open can mount with
+      // work still unread (NotConfigured placeholder), and mounting CI here
+      // would judge once and again when the browser or terminal explanation
+      // replaces it.
+      return explained(
+        work === undefined ? (
+          <NotConfigured label={source.label} />
+        ) : (
+          <p className="quiet">Reading Intent locations…</p>
+        ),
+        { withCi: false },
+      );
+    }
+    if ("failed" in intent) {
+      return explained(
+        <p className="intent-settings-problem" role="alert">
+          Intent locations for {source.label} could not be read
+          {intent.failed === undefined
+            ? "."
+            : `: ${intent.failed.message}`}{" "}
+          <button type="button" onClick={retryLocations}>
+            Retry
+          </button>
+        </p>,
+      );
+    }
+    if (intent.status === "not-configured") {
+      return explained(<NotConfigured label={source.label} />);
+    }
+    if (intent.status === "settings-problem") {
+      return explained(
+        <SettingsProblem
+          label={source.label}
+          problem={intent.problem}
+          onRetry={retryLocations}
+        />,
+      );
+    }
+    // Remount the browser on source/revision so its tree and reading start
+    // again for that identity, as the selection owner's selection does.
+    return (
+      <IntentBrowser
+        key={browsingIdentity}
+        source={source}
+        revision={work.revision}
+        locations={intent.locations}
+        proofRereading={proofRereading}
+        onProofRetry={() => {
+          retryProof(work.revision);
+        }}
+        mode={mode}
+        modeIdPrefix={modeIdPrefix}
+        onModeChange={onModeChange}
+        storySummary={storySummary}
+        story={story}
+      />
+    );
+  }
 }
 
 export function IntentPerspective({

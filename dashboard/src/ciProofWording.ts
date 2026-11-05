@@ -1,31 +1,31 @@
 // Wording of one run attempt's CI proof in Intent's CI status homepage
-// (`./IntentCiProof.tsx`): each entry's table cells (`./CiProofTable.tsx`) --
-// its counts with their unit, that entry's cumulative test execution time
-// (complete, partial, or not recorded), how many of its declared parts are
-// present and each missing or ambiguous part as a gap -- the attempt's CI
-// wall time, and why no proof can be shown. A gap's counts are never part of
-// the entry's counts (the collector leaves them out), so the words say how
-// many parts were counted. Nothing relies on colour.
+// (`./IntentCiProof.tsx`) and in a selected entry's or folder's Summary
+// (`./IntentScopeProof.tsx`): each row's table cells (`./CiProofTable.tsx`)
+// -- its counts with their unit, its cumulative test execution time
+// (complete, partial, or not recorded), how many of its entry's declared
+// parts are present and each missing or ambiguous part, or part without a
+// file breakdown, as a gap -- and the attempt's CI wall time; why no proof
+// can be shown is `./ciProofAbsenceWording.ts`'s. A gap's counts are never part of the counts (the collector
+// leaves them out), so the words say how many parts were counted. A missing
+// duration is never a measured zero. Nothing relies on colour.
 
-import type {
-  CiProofEntry,
-  CiProofPart,
-  CiProofUnavailableReason,
-} from "./ciProof.ts";
+import type { CiProofEntry, CiProofFigures, CiProofPart } from "./ciProof.ts";
+import type { CiScopeFigures } from "./ciScopeProof.ts";
 
 function joinedAnd(parts: readonly string[]): string {
   if (parts.length <= 1) return parts.join("");
   return `${parts.slice(0, -1).join(", ")} and ${parts.at(-1) ?? ""}`;
 }
 
-// "19 passed and 1 failed tests": every nonzero outcome, then the unit.
-function entryCounts(entry: CiProofEntry): string {
+// "19 passed and 1 failed tests": every nonzero outcome of FIGURES, then
+// ENTRY's unit.
+function countsWords(entry: CiProofEntry, figures: CiProofFigures): string {
   if (entry.unit === null) return "nothing counted";
   const counted = (
     [
-      ["passed", entry.passed],
-      ["failed", entry.failed],
-      ["other", entry.other],
+      ["passed", figures.passed],
+      ["failed", figures.failed],
+      ["other", figures.other],
     ] as const
   )
     .filter(([, value]) => value > 0)
@@ -34,6 +34,16 @@ function entryCounts(entry: CiProofEntry): string {
     ? `no ${entry.unit}`
     : `${joinedAnd(counted)} ${entry.unit}`;
 }
+
+// "1 test" / "3 checks": COUNT of ENTRY's unit, singular for one.
+function unitCount(entry: CiProofEntry, count: number): string {
+  const unit = entry.unit ?? "results";
+  return `${String(count)} ${count === 1 && unit.endsWith("s") ? unit.slice(0, -1) : unit}`;
+}
+
+// "2 tests without a duration": counted results whose time is unknown.
+const untimedPhrase = (entry: CiProofEntry, untimed: number) =>
+  `${unitCount(entry, untimed)} without a duration`;
 
 // "2 of 2 parts present".
 function entryParts(entry: CiProofEntry): string {
@@ -56,79 +66,32 @@ function entryGaps(entry: CiProofEntry): string[] {
     .map((part) => partPhrase(part, of, part.status));
 }
 
-const unavailableLines: Readonly<Record<CiProofUnavailableReason, string>> = {
-  none: "This run published no CI proof summary.",
-  expired: "This run's CI proof summary has expired.",
-  unreadable: "This run's CI proof summary could not be read.",
-  invalid: "This run's CI proof summary is not a valid summary.",
-  mismatched:
-    "This run's CI proof summary is for another run, attempt or revision.",
-};
-
-// The one line under Proof saying why no proof can be shown, with what the
-// reason observed when it says more.
-export function unavailableLine(
-  reason: CiProofUnavailableReason,
-  detail: string | undefined,
-): string {
-  const line = unavailableLines[reason];
-  return detail === undefined ? line : `${line} ${sentence(detail)}`;
+// The present parts of ENTRY whose fragment was not broken down by file, so
+// no scope inside the entry holds their results.
+export function partsWithoutBreakdown(
+  entry: CiProofEntry,
+): readonly CiProofPart[] {
+  return entry.parts.filter(
+    (part) => part.status === "present" && part.breakdown !== true,
+  );
 }
 
-// `text` ending with one full stop.
-const sentence = (text: string) => (text.endsWith(".") ? text : `${text}.`);
+// Whether any part of ENTRY was broken down by file.
+export const hasFileBreakdown = (entry: CiProofEntry) =>
+  entry.parts.some((part) => part.breakdown === true);
 
-const adapterUnavailableLines: Readonly<
-  Record<CiProofUnavailableReason, string>
-> = {
-  none: "This attempt's CI adapter gave no CI proof summary",
-  expired: "This attempt's CI proof summary has expired",
-  unreadable: "This attempt's CI adapter answered no proof read",
-  invalid: "This attempt's CI proof summary is not a valid summary",
-  mismatched:
-    "This attempt's CI proof summary is for another repository, attempt or revision",
-};
-
-// The one line under Proof saying why a ciAdapter attempt shows no proof,
-// with what the adapter or the summary said: the adapter's own reason is
-// shown as it gave it.
-export function adapterUnavailableLine(
-  reason: CiProofUnavailableReason,
-  detail: string | undefined,
-): string {
-  return withDetail(adapterUnavailableLines[reason], detail);
+// "part 2 of 3 has no file breakdown", one for each such present part.
+function breakdownGaps(entry: CiProofEntry): string[] {
+  const of = entry.parts.length;
+  return partsWithoutBreakdown(entry).map((part) =>
+    partPhrase(part, of, "has no file breakdown"),
+  );
 }
-
-// The dashboard's own read failed before any adapter answer reached the tab.
-export function adapterReadFailedLine(detail: string | undefined): string {
-  return withDetail("This attempt's CI proof could not be read", detail);
-}
-
-function withDetail(line: string, detail: string | undefined): string {
-  return detail === undefined ? `${line}.` : `${line}: ${sentence(detail)}`;
-}
-
-// Another discovered attempt names the shown attempt's attemptId at its
-// revision, so no adapter is asked which one a summary is of.
-export function ambiguousAttemptLine(
-  attemptId: string,
-  revision: string,
-): string {
-  return `This attempt is ambiguous at its revision: another discovered attempt is also attempt ${attemptId} at ${revision}.`;
-}
-
-export const noRunLine =
-  "No completed GitHub Actions run is shown, so there is no CI proof to show.";
-
-// A ciAdapter project's tab shows no completed attempt.
-export const noAttemptLine =
-  "No completed CI attempt is shown, so there is no CI proof to show.";
 
 const minuteMs = 60_000;
 
-// Whole minutes / hours / days for Intent CI wall time and entry test
-// execution time. Distinct from `./proofDurationWords.ts`, which names file
-// Proof observation durations in ms / fractional seconds.
+// Whole minutes / hours / days for Intent CI wall time. Distinct from
+// `./proofDurationWords.ts`, which names file Proof observation durations.
 function wholeMinuteWords(ms: number): string {
   const minutes = Math.floor(Math.max(0, ms) / minuteMs);
   if (minutes < 1) return "less than 1 min";
@@ -153,21 +116,41 @@ export function ciWallTimeLine(
   return `CI wall time ${wholeMinuteWords(completed - started)}.`;
 }
 
+// Cumulative test execution time, precise enough to tell sub-minute scopes
+// apart: "340 ms", "12.5 s", "4 min 5 s", "2 h 3 min". A measured zero is
+// "0 ms". CI wall time keeps its whole minutes (`ciWallTimeLine`).
+export function executionTimeWords(ms: number): string {
+  const rounded = Math.round(Math.max(0, ms));
+  if (rounded < 1000) return `${String(rounded)} ms`;
+  if (rounded < 59_950) return `${(rounded / 1000).toFixed(1)} s`;
+  const seconds = Math.round(rounded / 1000);
+  if (seconds < 3600) {
+    const rest = seconds % 60;
+    return `${String(Math.floor(seconds / 60))} min${rest === 0 ? "" : ` ${String(rest)} s`}`;
+  }
+  return wholeMinuteWords(rounded);
+}
+
 // Cumulative test execution time in an entry's row, under its "Test execution
-// time" column: complete when every part is present with a duration; not
-// recorded when every present part lacks one and there is no gap (an older
-// summary); otherwise partial from the entry's parts — gaps, and present
-// parts without a duration when another part recorded one. Never invents zero
-// for absence.
+// time" column: complete when every part is present with a duration and no
+// counted result lacks one; not recorded when every present part lacks one
+// and there is no gap (an older summary); otherwise partial from the entry's
+// parts — gaps, present parts without a duration when another part recorded
+// one, and counted results without a duration within timed parts. Never
+// invents zero for absence.
 function entryExecutionTime(entry: CiProofEntry): string {
   const of = entry.parts.length;
   const gaps = entry.parts.filter((part) => part.status !== "present");
   const present = entry.parts.filter((part) => part.status === "present");
   const timed = present.filter((part) => typeof part.durationMs === "number");
   const untimed = present.filter((part) => typeof part.durationMs !== "number");
-  if (gaps.length === 0 && untimed.length === 0) {
+  const untimedResults = timed.reduce(
+    (sum, part) => sum + (part.untimed ?? 0),
+    0,
+  );
+  if (gaps.length === 0 && untimed.length === 0 && untimedResults === 0) {
     const total = timed.reduce((sum, part) => sum + (part.durationMs ?? 0), 0);
-    return wholeMinuteWords(total);
+    return executionTimeWords(total);
   }
   if (gaps.length === 0 && timed.length === 0) {
     return "not recorded: this summary has no test execution durations";
@@ -177,8 +160,35 @@ function entryExecutionTime(entry: CiProofEntry): string {
     ...(timed.length > 0
       ? untimed.map((part) => partPhrase(part, of, "has no duration"))
       : []),
+    ...(untimedResults > 0 ? [untimedPhrase(entry, untimedResults)] : []),
   ];
   return `partial: ${joinedAnd(named)}`;
+}
+
+// Cumulative test execution time of a scope inside ENTRY: complete only when
+// every part is present and broken down by file and every counted result
+// recorded a duration; otherwise partial with why, or not recorded when no
+// counted result has one.
+function scopeExecutionTime(
+  entry: CiProofEntry,
+  figures: CiScopeFigures,
+): string {
+  const named = [
+    ...entryGaps(entry),
+    ...breakdownGaps(entry),
+    ...((figures.untimed ?? 0) > 0
+      ? [untimedPhrase(entry, figures.untimed ?? 0)]
+      : []),
+  ];
+  if (figures.durationMs === undefined) {
+    if (named.length === 0) return "not recorded";
+    return (figures.untimed ?? 0) > 0 && named.length === 1
+      ? `not recorded: ${named.join("")}`
+      : `partial: ${joinedAnd(named)}`;
+  }
+  return named.length === 0
+    ? executionTimeWords(figures.durationMs)
+    : `partial: ${joinedAnd(named)}`;
 }
 
 // One CI proof table row's cells (`./CiProofTable.tsx`): counts with their
@@ -192,9 +202,50 @@ export type CiProofCells = {
 
 export function ciProofCellsOf(entry: CiProofEntry): CiProofCells {
   return {
-    counts: entryCounts(entry),
+    counts: countsWords(entry, entry),
     executionTime: entryExecutionTime(entry),
     completeness: entryParts(entry),
     gaps: entryGaps(entry),
   };
 }
+
+const noCiResult = "no CI result";
+const noFileBreakdown = "no file breakdown";
+
+// The cells of a scope inside ENTRY with FIGURES (`CiScopeFigures`): no CI
+// result when no file matched, and no file breakdown when no part of the
+// entry published one, never a zero; its parts cell also names each part
+// without a file breakdown, whose results no scope inside the entry holds.
+export function ciScopeCellsOf(
+  entry: CiProofEntry,
+  figures: CiScopeFigures,
+): CiProofCells {
+  const parts = {
+    completeness: entryParts(entry),
+    gaps: [...entryGaps(entry), ...breakdownGaps(entry)],
+  };
+  if (!hasFileBreakdown(entry)) {
+    return {
+      counts: noFileBreakdown,
+      executionTime: noFileBreakdown,
+      ...parts,
+    };
+  }
+  if (figures.files === 0) {
+    return { counts: noCiResult, executionTime: noCiResult, ...parts };
+  }
+  return {
+    counts: countsWords(entry, figures),
+    executionTime: scopeExecutionTime(entry, figures),
+    ...parts,
+  };
+}
+
+// The cells of a row while no CI proof can be given for it, each saying WHY
+// in a word or two ("checking", "no CI proof").
+export const ciUnavailableCellsOf = (why: string): CiProofCells => ({
+  counts: why,
+  executionTime: why,
+  completeness: why,
+  gaps: [],
+});

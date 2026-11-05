@@ -59,7 +59,7 @@ test("gherkin and python imply their proof kind; typescript and javascript take 
   assert.equal(proofKindOf("python", "pytest")?.words.caseHeader, "Test case");
   for (const kind of ["typescript", "javascript"]) {
     assert.equal(proofKindOf(kind, undefined), undefined);
-    assert.equal(proofKindOf(kind, "vitest")?.words.inventory(2), "2 tests");
+    assert.equal(proofKindOf(kind, "vitest")?.words.family, "Vitest tests");
     assert.equal(
       proofKindOf(kind, "playwright")?.words.family,
       "Playwright tests",

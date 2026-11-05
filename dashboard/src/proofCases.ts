@@ -5,8 +5,8 @@
 // tested. Each proof kind (`./proofKinds.ts`) parses its files into this
 // model and derives source rows from its published text; identity,
 // latest-first reduction, and matching rows to proof live here once, for the
-// pinned Intent read (`../server/intentProofRead.ts`), file Proof
-// (`./IntentProof.tsx`) and summaries (`./intentSummaryCoverage.ts`).
+// pinned Intent read (`../server/intentProofRead.ts`) and file Proof
+// (`./IntentProof.tsx`).
 
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 
@@ -206,8 +206,6 @@ export function latestProofOf(
   }
   return { byIdentity, byFile };
 }
-
-export const noLatestProof: LatestProof = latestProofOf([]);
 
 // How a kind derives a published file's case rows: from its text and, for a
 // kind whose variants exist only once run, the file's observed cases.

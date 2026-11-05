@@ -8,7 +8,10 @@ workflow publishes it as an artifact of the shown run, and a project whose CI
 is read through a `ciAdapter` serves it from that adapter for the shown
 attempt. Present parts and their entries may carry optional `durationMs`
 (summed test execution time in milliseconds); a part without one carries
-none, and schema versions stay at 1. Use this reference when the request is
+none, and schema versions stay at 1. With `fragment --by-file`, each entry is
+also broken down by test file, so selecting an entry or folder in Intent
+shows that scope's figures and its immediate folders' and files'; without it,
+Intent shows entry totals and says the breakdown is unavailable. Use this reference when the request is
 to make this project's CI publish that summary, or when the tab says the
 shown run or attempt has no CI proof summary.
 
@@ -64,12 +67,13 @@ missing and ambiguous parts the same way.
 
 ## 1. Copy the collector into this project
 
-Copy these four modules, unchanged and side by side, from this skill's
+Copy these five modules, unchanged and side by side, from this skill's
 installed `scripts/` directory into the directory this project keeps CI
 scripts in (written `<ci-scripts>` below), and commit them:
 
 - [ci-proof-summary.mjs](../scripts/ci-proof-summary.mjs), the command line;
 - [ci-proof-contract.mjs](../scripts/ci-proof-contract.mjs);
+- [ci-proof-figures.mjs](../scripts/ci-proof-figures.mjs);
 - [ci-proof-fragments.mjs](../scripts/ci-proof-fragments.mjs);
 - [ci-proof-collect.mjs](../scripts/ci-proof-collect.mjs).
 
@@ -103,6 +107,19 @@ entry once, `1` to `n`: two jobs reporting the same part make it ambiguous.
   their sum across tests (retries included). `--times` applies only with
   `--outcomes`.
 
+Add `--by-file` to break each fragment down by test file. Each `--outcomes`
+line's check label is then its repository path (as `tests/a.sh`); a label
+that is not a relative path inside its entry is counted as unassigned, and a
+check with no `--times` line as untimed. A `--playwright-record` test's
+file is its absolute `location.file` relative to the record's `run.cwd`, the
+directory the run started in (the repository root for `npm run`); a test
+whose file is not inside its entry under that directory, or that has no
+location, is counted as unassigned rather than given a path, and a test none
+of whose attempts recorded `durationMs` is untimed. No machine path is
+published. Every count stays accounted for: files plus unassigned equal the
+fragment's counts, and `summarize` keeps each part's breakdown, or its
+absence, so Intent shows a part without one as a gap.
+
 Write the conversion from the runner's own report into `<ci-scripts>` beside
 the collector — for example a JUnit XML `testcase` walk that prints
 `<status>\t<file>`, or a Playwright JSON walk into the record shape above.
@@ -120,7 +137,8 @@ needed and run:
 
 ```sh
 node <ci-scripts>/ci-proof-summary.mjs fragment \
-  --outcomes <report> [--times <times>] --entry <entry> [--entry <entry>…] \
+  --outcomes <report> [--times <times>] [--by-file] \
+  --entry <entry> [--entry <entry>…] \
   --part <part> --of <parts> --attempt "${GITHUB_RUN_ATTEMPT}" \
   --revision "${CI_PROOF_REVISION}" --out "${RUNNER_TEMP}/ci-proof"
 ```
@@ -154,8 +172,10 @@ Upload that file as `ci-proof-summary-attempt-${{ github.run_attempt }}`
 (`if-no-files-found: error`, retention from step 5). `--expect` lists proved
 entries in `intent.locations` order with part counts; fragments present never
 add an entry or part. The tab reads only that artifact name holding
-`ci-proof-summary.json`. The collector log prints per-entry counts and gaps
-plus exclusion notes. A failing collector fails the run but not producer
+`ci-proof-summary.json`, at most 1 MiB; a file breakdown of about 1,400 test
+files measured about 170 KB. A larger summary is still written whole, never
+truncated, and the collector names its size on stderr. The collector log
+prints per-entry counts and gaps plus exclusion notes. A failing collector fails the run but not producer
 results. No extra permission or secret is required.
 
 ## 5. Choose retention
@@ -195,6 +215,9 @@ node <ci-scripts>/ci-proof-summary.mjs summarize \
 ```
 
 Name the attempt only by `--attempt-id` (text form of discovered `attemptId`).
+An adapter's `proof` answer is read only up to 64 KiB, so add `--by-file`
+here only after checking the summary file stays well under that; without
+it, Intent still shows entry totals.
 `--expect` matches step 4. Keep `<summary file>` where the adapter can read it
 per attempt for as long as developers should see that proof. Implement
 `proof` per

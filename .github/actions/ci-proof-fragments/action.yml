@@ -1,8 +1,9 @@
 name: CI proof fragments
 description: >-
   Writes one job part's CI proof fragments, one per proof entry its test
-  report covers, and keeps them as that part's attempt-named artifact for the
-  ci-proof job. Names the run's revision from CI_PROOF_REVISION.
+  report covers, each broken down by test file, and keeps them as that
+  part's attempt-named artifact for the ci-proof job. Names the run's
+  revision from CI_PROOF_REVISION.
 inputs:
   part:
     description: This job's part (its matrix value).
@@ -46,7 +47,7 @@ runs:
         times=()
         if [[ -n "${TIMES}" ]]; then times=(--times "${TIMES}"); fi
         node src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs fragment \
-          "--${FORMAT}" "${REPORT}" "${times[@]}" "${entries[@]}" --part "${PART}" --of "${PARTS}" \
+          "--${FORMAT}" "${REPORT}" "${times[@]}" --by-file "${entries[@]}" --part "${PART}" --of "${PARTS}" \
           --attempt "${GITHUB_RUN_ATTEMPT}" --revision "${CI_PROOF_REVISION}" \
           --out "${RUNNER_TEMP}/ci-proof"
     - name: Keep the CI proof fragments

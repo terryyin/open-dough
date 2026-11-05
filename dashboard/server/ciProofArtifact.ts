@@ -10,6 +10,7 @@
 // lifetime and never asked of GitHub again; every other answer is asked
 // again on the next read.
 import {
+  SUMMARY_READ_LIMIT_BYTES,
   summaryArtifactName,
   summaryProblems,
 } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
@@ -24,8 +25,9 @@ import { rememberedByKey } from "./rememberedByKey.ts";
 import { onlyZipEntry, ZipEntryProblem } from "./zipEntry.ts";
 
 const summaryFile = "ci-proof-summary.json";
-// A summary is a few kilobytes; anything far larger is not one.
-const summaryLimitBytes = 1024 * 1024;
+// A summary, file breakdown included, is at most this large
+// (ci-proof-contract.mjs); anything larger is not read as one.
+const summaryLimitBytes: number = SUMMARY_READ_LIMIT_BYTES;
 
 type ListedArtifact = {
   readonly id?: unknown;

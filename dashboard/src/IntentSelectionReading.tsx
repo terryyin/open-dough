@@ -1,7 +1,8 @@
 // Intent's selection reading (`./IntentBrowser.tsx`): CI status when nothing
 // is selected (`./IntentCiStatus.tsx`); Summary (`./IntentSummary.tsx`) or
 // Purpose and Proof (`./IntentFileReading.tsx`) once a location, folder or
-// file is selected. Activating the Intent reading tab returns home
+// file is selected. CI status and a Summary read Intent's one CI evidence
+// owner (`./IntentCiEvidence.tsx`). Activating the Intent reading tab returns home
 // (`./IntentModeTabs.tsx`).
 
 import type { RefObject } from "react";
@@ -21,13 +22,8 @@ import {
 } from "./intentWorkspaceSelection.ts";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { ComparedStory } from "./IntentStorySummary.tsx";
-import type { PublishedSource } from "./publishedSource.ts";
-import type { PublishedWork } from "./publishedWork.ts";
 
 export function IntentSelectionReading({
-  source,
-  work,
-  selectedIdentity,
   revision,
   selection,
   selectedLocation,
@@ -47,9 +43,6 @@ export function IntentSelectionReading({
   readingArea,
   readingKey,
 }: {
-  readonly source: PublishedSource;
-  readonly work: PublishedWork;
-  readonly selectedIdentity: string | undefined;
   readonly revision: string;
   readonly selection: IntentSelection;
   readonly selectedLocation: IntentLocation | undefined;
@@ -72,27 +65,18 @@ export function IntentSelectionReading({
 }) {
   const scope = selectionScope(selection);
   if (scope === "none") {
-    return (
-      <IntentCiStatus
-        source={source}
-        work={work}
-        selectedIdentity={selectedIdentity}
-      />
-    );
+    return <IntentCiStatus />;
   }
   return (
     <>
       {(scope === "location" || scope === "folder") &&
       selectedLocation !== undefined ? (
         <IntentSummary
-          key={`${source.id}:${revision}:${selection.path}`}
+          key={`${revision}:${selection.path}`}
           path={selection.path}
           files={filesOfSelection(selectedLocation, selection)}
           location={selectedLocation}
-          source={source}
           revision={revision}
-          proofRereading={proofRereading}
-          onProofRetry={onProofRetry}
           onOpen={onOpen}
         />
       ) : null}

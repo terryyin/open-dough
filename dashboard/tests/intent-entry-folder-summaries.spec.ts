@@ -2,14 +2,11 @@
 // (../src/IntentBrowser.tsx, ../src/IntentSummary.tsx,
 // ../src/IntentLocationGroup.tsx): toggle opens or closes without moving selection;
 // unselected name selects keeping open state; selected name toggles and
-// keeps selection; closed location name selects without opening. Gherkin
-// summaries give scenario totals, aggregate count lines, and child
-// breakdown. Partial coverage, unread retry, and unavailable totals:
-// ./intent-entry-folder-summary-partial.spec.ts. Folder controls, keyboard,
-// and toggle reader preservation:
-// ./intent-entry-folder-summaries-folders.spec.ts. Absent-Proof wording:
-// ./intent-entry-folder-summary-explanations.spec.ts. Review changes keeps
-// disclosure-only folders (./story-review-tree*.spec.ts).
+// keeps selection; closed location name selects without opening. A summary
+// lists its immediate folders and files in the tree's order; their CI proof:
+// ./intent-summary-ci-proof.spec.ts. Folder controls, keyboard, and toggle
+// reader preservation: ./intent-entry-folder-summaries-folders.spec.ts.
+// Review changes keeps disclosure-only folders (./story-review-tree*.spec.ts).
 
 import { expect, test } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
@@ -18,6 +15,7 @@ import {
   intentGroupToggle,
   intentLocationName,
 } from "./intentPerspectivePage.ts";
+import { expectChildNames } from "./intentScopeProofPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   featuresPath,
@@ -109,34 +107,13 @@ test("Intent location toggle/name select a summary without opening on first name
     await expect(summary).toContainText(packagedPath);
   });
 
-  await test.step("Gherkin location summary: scenario total, aggregate count line with No successful proof, child breakdown", async () => {
+  await test.step("a location summary lists its immediate folders and files in the tree's order", async () => {
     await intentLocationName(intent, featuresPath).click();
     const summary = intent.getByRole("region", { name: "Summary" });
-    await expect(
-      summary.getByText("9 scenarios", { exact: true }),
-    ).toBeVisible();
-    await expect(summary).toContainText(
-      "9 scenarios: 2 passed, 7 without successful proof",
-    );
-    const children = summary.getByRole("list", {
-      name: "Summary by folder and file",
-    });
-    await expect(children.locator(":scope > li")).toHaveCount(3);
-    await expect(children.locator(":scope > li").nth(0)).toContainText("jobs");
-    await expect(children.locator(":scope > li").nth(0)).toContainText(
-      "5 scenarios: 2 passed, 3 without successful proof",
-    );
-    await expect(children.locator(":scope > li").nth(1)).toContainText(
-      "reports",
-    );
-    await expect(children.locator(":scope > li").nth(1)).toContainText(
-      "1 scenario: 1 without successful proof",
-    );
-    await expect(children.locator(":scope > li").nth(2)).toContainText(
+    await expectChildNames(summary, [
+      "jobs/",
+      "reports/",
       "disk_space.feature",
-    );
-    await expect(children.locator(":scope > li").nth(2)).toContainText(
-      "3 scenarios: 3 without successful proof",
-    );
+    ]);
   });
 });

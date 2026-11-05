@@ -4,7 +4,8 @@
 // is extracted and checked (../../dashboard/server/zipEntry.ts). An archive
 // the local GitHub request owner passed on as text, as one an earlier Open
 // Dough started does, is unreadable with what the developer can do
-// (../../dashboard/server/ciProofArtifact.ts). Query-shape refusals:
+// (../../dashboard/server/ciProofArtifact.ts). Summaries broken down by
+// file: ./dashboard-ci-proof-breakdown-read.test.mjs. Query-shape refusals:
 // ./dashboard-ci-proof-parse.test.mjs.
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -18,7 +19,7 @@ import {
   olderRequestOwnerDetail,
   unreadableBy,
 } from "../../dashboard/server/ciProofArtifact.ts";
-import { unavailableLine } from "../../dashboard/src/ciProofWording.ts";
+import { unavailableLine } from "../../dashboard/src/ciProofAbsenceWording.ts";
 import { archiveBytes } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 
 const sha = (digit) => digit.repeat(40);

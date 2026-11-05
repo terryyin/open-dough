@@ -1,6 +1,7 @@
 // Shared construction for the CI proof collector's tests: a GitHub Actions
 // run attempt, a CI adapter's attempt, a valid fragment of the run attempt,
-// and a dashboard proof record with chosen outcomes.
+// a dashboard proof record with chosen outcomes, and one whose tests name
+// their files.
 
 export const revision = "a5b0489dd0000000000000000000000000000000";
 export const run = {
@@ -64,3 +65,32 @@ export function playwrightRecord(
     }),
   };
 }
+
+// One part of the run attempt proving ENTRIES.
+export const partIdentity = (entries, part = 1, of = 1) => ({
+  entries,
+  part,
+  of,
+  attempt: run.attempt,
+  revision,
+});
+// The converters' option to break fragments down by file.
+export const byFile = { byFile: true };
+
+// A completed dashboard proof record run from CWD whose tests name their
+// files; each test is [file, outcome, durations].
+export const locatedRecord = (cwd, tests) => ({
+  schemaVersion: 1,
+  phase: "completed",
+  run: { cwd, rootDir: `${cwd}/dashboard/tests` },
+  tests: tests.map(([file, outcome, durations = []], index) => ({
+    ...(file === undefined ? {} : { location: { file, line: 1, column: 1 } }),
+    titlePath: [`test ${index}`],
+    executions: [{ testId: `t${index}`, outcome }],
+    attempts: durations.map((durationMs, retry) => ({
+      testId: `t${index}`,
+      retry,
+      ...(durationMs === undefined ? {} : { durationMs }),
+    })),
+  })),
+});

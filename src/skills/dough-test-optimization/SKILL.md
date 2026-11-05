@@ -30,7 +30,9 @@ follows only the [CI proof summary](references/ci-proof-summary.md) recipe:
 it edits this project's GitHub Actions workflow, or its CI job and CI
 adapter, and profiles nothing. A published summary may carry optional
 `durationMs` on present parts and entries (summed test execution time from
-outcomes times or Playwright attempt durations); schema versions stay at 1.
+outcomes times or Playwright attempt durations) and, from `fragment
+--by-file`, a per-file breakdown for Intent's entry and folder summaries;
+schema versions stay at 1.
 
 Default mode profiles, plans, experiments, and re-profiles. A profile-only request
 ends with findings and records them in the

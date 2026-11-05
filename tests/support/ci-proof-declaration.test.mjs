@@ -202,4 +202,9 @@ test("the actions' scripts give the collector each entry and declaration and wri
     [written.runId, written.runAttempt, written.revision],
     [7, 2, "a".repeat(40)],
   );
+  // Each entry is broken down by its checks' files for Intent's summaries.
+  assert.deepEqual(
+    written.entries.map((entry) => entry.files.map((file) => file.path)),
+    [["tests/a.sh"], ["src/skills/x/scripts/b.test.mjs"]],
+  );
 });
