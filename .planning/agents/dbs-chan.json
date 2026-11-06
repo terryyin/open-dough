@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "dbs-chan",
+  "email": "dbs-chan@example.org",
+  "identity": "SEED-247#restore-file-purpose-and-proof",
+  "mode": "story-branch",
+  "branch": "cursor/restore-purpose-and-proof-tabs-for-individual-in",
+  "host": "cursor",
+  "model": "auto"
+}
