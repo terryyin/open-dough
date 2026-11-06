@@ -214,13 +214,6 @@ destructuring; full discovery again preserves 2075 cases. Evidence:
 `feature-refactor-consumers.md`, `refactor-preservation.json`, and
 `after-feature-refactor.json` under the existing temporary proof directory.
 
-Current decision: publish this validated increment with Slice 2 still planned,
-then merge current published main without rewriting history, group its two new
-Intent specs, reconcile its intentional test changes, and verify the combined
-snapshot before declaring Slice 2 complete. This is the same accepted outcome,
-not another story. Final CI includes the integrated current product.
-
-
 Current-main integration accepted locally: run 42256249988 at e6948 is the
 fair updated baseline (305 s workflow, 285 s slowest dashboard job), containing
 SEED-248's concurrent intentional behavior changes. The merged snapshot has
@@ -244,5 +237,14 @@ Final local integration review `/root/integration_refactor` returned
 summary spec changed, with byte-identical comment-free AST and Prettier output.
 All accepted 28-case, typecheck, timing and discovery observations remain valid.
 Merge `199a61b8dd92edb97a79b1b57cfd6818e5743a3e` preserves both published
-histories and the corrected owned assignment. No merge or local work remains
-unresolved. Final branch CI and the actual wall-time comparison remain pending.
+histories and the corrected owned assignment. Branch run 42266531019 at b41d1bf
+passed in 292 s versus current-main baseline 305 s; slowest dashboard job 273 s
+versus 285 s. Both entries have all twelve proof parts, 2080 passed, eight
+unchanged other cases, no failure or untimed case. All 755 per-source counts
+match the current-main baseline after path normalization. Final accepted target
+CI remains the owner of the twelve pending lifecycle commitments.
+
+## Execution complete
+
+Product advice: no change. Retrospective found no implementation correction;
+DearDough DD-436 retains the evidenced concurrent assignment-location finding.

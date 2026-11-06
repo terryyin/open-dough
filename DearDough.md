@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 435. Removed numbers are never reused.
+- Highest allocated local number: 436. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -926,3 +926,17 @@ The plan named SEED-241 as an in-progress sibling sharing Intent files. It lande
   - Evidence: plan 480 "SEED-241 coordination" premise ("Consume its current landed shape when execution starts"); `source-freshness.mjs check` returned `amended` only at slice 3's done-mark; `git merge --no-commit origin/main` reported 34 CONFLICT lines; slice 2 had made the selection owner identity-held and added `IntentSettingsExplanation.tsx`, both replaced in the merge by trunk's page-held selection and `IntentLocationsUnavailable.tsx`
   - Observed effect: an extra reconciliation agent (about 183k tokens) and refactor pass (about 112k tokens) after all slices were done; slice 2 and 3 designs built against the pre-SEED-241 shape had to be re-homed
   - Inference: source freshness compares only the story and plan text; a per-slice check of whether trunk changed the slice's files (or a named coordinating story landed) would have pointed to merging before slice 3 rather than after it
+
+
+## DD-436 — Story integration moved another active agent profile into done
+
+The incoming trunk merge relocated a concurrent story's unchanged agent profile from `.planning/agents/` into `.planning/done/`, leaving an active allocation in the wrong record store. The executing story restored its canonical profile before closure. Integration needs to preserve active assignment locations as well as backlog membership when Git infers directory moves.
+
+### Occurrences
+- Execution: SEED-249#organize-dashboard-tests (plan 486-organize-dashboard-tests; first related implementation commit `906e6e1fd8ca0f3d1d2a8fde8c98a75816855d07`)
+  - Timestamp: unknown (2026-11-07, when integrating `origin/main` at `e6948bfce33e4ff731982cb2f11d9f3f36c29b73`)
+  - Tool: Codex
+  - Open Dough release: 0.3.86 (execution checkout's installed `.agents/skills/dough-update/VERSION` at preparation `ac1b9eebf32ad1e7917e5a85bd2efbe615366a4f`)
+  - Evidence: `git show --summary e6948bfce -- .planning/agents/joey-chan.json .planning/done/joey-chan.json` reports a 100% agents-to-done rename. Claim profile at `ac1b9eebf`, misplaced profile at `e6948bfce`, and restored profile at integration `199a61b8d` share blob `17d871dfaff1a7277331daf15dd97170b0859fd7`, identifying active SEED-249 and its story branch.
+  - Observed effect: the combined revision required restoring the assignment path, removing the invalid done entry, and rebuilding the done catalog; no other execution's profile was changed.
+  - Inference: a post-merge check of active assignment locations could catch this directory-rename result before publication; no general adapter repair was attempted in this test reorganization.
