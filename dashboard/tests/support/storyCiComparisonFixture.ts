@@ -2,8 +2,9 @@
 // (../intent-ci-comparison.spec.ts): publishes a completed Story Branch
 // story whose claim parent is preceded only by planning commits, and serves
 // Actions runs by head_sha for baseline (3:00), branch (3:20) and landed
-// (4:00) wall times. The SEED-236 earlier-landing shape lives in
-// ./storyCiComparisonEarlierLanding.ts.
+// (4:00) wall times with default mixed entry proofs. The SEED-236
+// earlier-landing shape lives in ./storyCiComparisonEarlierLanding.ts;
+// entry-proof Answers live in ./storyCiComparisonEntryProofs.ts.
 
 import { execFileSync } from "node:child_process";
 import type { Page } from "@playwright/test";
@@ -22,6 +23,19 @@ import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
+import {
+  answerComparisonProofRoute,
+  defaultMixedProofs,
+  type ComparisonProofServe,
+} from "./storyCiComparisonEntryProofs.ts";
+
+export type { ComparisonProofServe } from "./storyCiComparisonEntryProofs.ts";
+export {
+  mixedEntryParts,
+  mixedEntrySummary,
+  proofRun,
+  untimedBaselineMixedProofs,
+} from "./storyCiComparisonEntryProofs.ts";
 
 export function wall(
   headSha: string,
@@ -94,13 +108,18 @@ export type StoryCiComparisonSetup = {
   readonly serveRuns: (
     runsBySha: Record<string, readonly CiRunAnswer[]>,
   ) => void;
+  readonly serveProofs: (
+    proofsByRunId: Record<number, ComparisonProofServe>,
+  ) => void;
 };
 
 export function serveActionsFor(
   committed: Awaited<ReturnType<typeof publishCommittedOrigin>>,
   initial: Record<string, readonly CiRunAnswer[]>,
+  initialProofs: Record<number, ComparisonProofServe> = {},
 ) {
   let runsBySha = initial;
+  let proofsByRunId = initialProofs;
   const answerActions = (argv: readonly string[]): OriginAnswer | undefined => {
     const route = argv.find((argument) => argument.startsWith("repos/")) ?? "";
     if (/\/actions\/workflows\/[^/?]+$/.test(route)) {
@@ -136,13 +155,16 @@ export function serveActionsFor(
         };
       }
     }
-    return undefined;
+    return answerComparisonProofRoute(route, proofsByRunId, runsBySha);
   };
   const restoreActions = committed.serveActions(answerActions);
   return {
     restoreActions,
     serveRuns(next: Record<string, readonly CiRunAnswer[]>) {
       runsBySha = next;
+    },
+    serveProofs(next: Record<number, ComparisonProofServe>) {
+      proofsByRunId = next;
     },
   };
 }
@@ -195,17 +217,21 @@ export async function publishComparedStoryBranch(
     realHistory: true,
   });
 
-  const actions = serveActionsFor(committed, {
-    [baseline]: [
-      wall(baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
-    ],
-    [branchSide]: [
-      wall(branchSide, 102, "2026-11-05T13:00:00Z", "2026-11-05T13:03:20Z"),
-    ],
-    [completion]: [
-      wall(completion, 103, "2026-11-05T14:00:00Z", "2026-11-05T14:04:00Z"),
-    ],
-  });
+  const actions = serveActionsFor(
+    committed,
+    {
+      [baseline]: [
+        wall(baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
+      ],
+      [branchSide]: [
+        wall(branchSide, 102, "2026-11-05T13:00:00Z", "2026-11-05T13:03:20Z"),
+      ],
+      [completion]: [
+        wall(completion, 103, "2026-11-05T14:00:00Z", "2026-11-05T14:04:00Z"),
+      ],
+    },
+    defaultMixedProofs({ baseline, branchSide, completion }),
+  );
   return {
     identity: queuedIdentity,
     completion,

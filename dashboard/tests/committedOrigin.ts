@@ -97,11 +97,19 @@ export function publishCommittedOrigin(
     if (
       request.kind === "actions-workflow" ||
       request.kind === "actions-runs" ||
-      request.kind === "actions-run-attempt"
+      request.kind === "actions-run-attempt" ||
+      request.kind === "actions-run-artifacts" ||
+      request.kind === "actions-artifact-zip"
     ) {
       const actionsAnswer = actionsOverride?.(argv, published());
       if (actionsAnswer !== undefined) return actionsAnswer;
-      if (request.kind === "actions-run-attempt") return noConnection;
+      if (
+        request.kind === "actions-run-attempt" ||
+        request.kind === "actions-run-artifacts" ||
+        request.kind === "actions-artifact-zip"
+      ) {
+        return noConnection;
+      }
       return passingActionsAnswer(request.kind, published());
     }
     if (request.kind === "ref" && request.ref === "main") {

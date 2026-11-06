@@ -41,5 +41,3 @@ export function wallTimeDifferenceWords(
 
 export const observedNotAttributed =
   "observed builds; differences are not attributed to the story";
-
-export const entryComparisonNotYetShown = "Entry comparison is not yet shown.";

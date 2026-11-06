@@ -1,14 +1,17 @@
 // A selected done story's CI timing comparison on Intent's homepage
 // (`./IntentCiStatus.tsx`): names the baseline, branch and landed builds with
 // each selection rule and a run link where available (as CI judgment/proof
-// do), shows CI wall time with signed whole-second differences, and states
-// that entry comparison is not yet shown.
+// do), shows CI wall time with signed whole-second differences, then one row
+// per CI entry in the homepage proof table (`./CiProofTable.tsx`) with each
+// endpoint's cumulative test execution time.
 
 import type { ReactNode } from "react";
 import { shortSha } from "./baseCiWording.ts";
+import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
+import type { PublishedSource } from "./publishedSource.ts";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
+import { useIntentCiComparisonEntries } from "./useIntentCiComparisonEntries.ts";
 import {
-  entryComparisonNotYetShown,
   observedNotAttributed,
   selectionWords,
   wallTimeDifferenceWords,
@@ -91,10 +94,45 @@ function EndpointRow({
   );
 }
 
+function EntryComparison({
+  source,
+  reading,
+}: {
+  readonly source: PublishedSource;
+  readonly reading: ComparisonReading;
+}) {
+  const entries = useIntentCiComparisonEntries(source, reading.shown);
+  if (entries.kind === "checking") {
+    return (
+      <p className="intent-ci-reading" role="status">
+        Reading entry comparison…
+      </p>
+    );
+  }
+  if (entries.kind === "empty") {
+    return (
+      <p className="intent-ci-comparison-entries">{entries.explanation}</p>
+    );
+  }
+  return (
+    <CiProofTable
+      label="CI entry timing comparison"
+      scopeHeader="Entry"
+      rows={entries.rows.map((row) => ({
+        key: row.path,
+        scope: <ScopePath path={row.path} />,
+        cells: row.cells,
+      }))}
+    />
+  );
+}
+
 export function IntentCiComparison({
+  source,
   story,
   reading,
 }: {
+  readonly source: PublishedSource;
   readonly story: string;
   readonly reading: ComparisonReading;
 }) {
@@ -159,9 +197,7 @@ export function IntentCiComparison({
           />
         </tbody>
       </table>
-      <p className="intent-ci-comparison-entries">
-        {entryComparisonNotYetShown}
-      </p>
+      <EntryComparison source={source} reading={reading} />
     </section>
   );
 }

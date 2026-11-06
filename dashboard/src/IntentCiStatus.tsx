@@ -7,9 +7,10 @@
 // are absent or unreadable. It always names the branch and when it was
 // checked, and shows the judgment as `./IntentCiJudgment.tsx` does, then the
 // shown run's CI proof (`./IntentCiProof.tsx`). A selected done story shows
-// its CI timing comparison (`./IntentCiComparison.tsx`). A selected story
-// without a branch to judge is named with why, and nothing is judged.
-// Returning home shows what the owner already read; it asks CI nothing again.
+// its CI timing comparison (`./IntentCiComparison.tsx`), including entry rows
+// in the homepage proof table. A selected story without a branch to judge is
+// named with why, and nothing is judged. Returning home shows what the owner
+// already read; it asks CI nothing again.
 
 import { IntentCiComparison } from "./IntentCiComparison.tsx";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
@@ -38,6 +39,7 @@ export function IntentCiStatus() {
   if (evidence.kind === "comparison")
     return (
       <IntentCiComparison
+        source={evidence.source}
         story={evidence.story}
         reading={evidence.comparison}
       />

@@ -36,6 +36,7 @@ export type CiEvidence =
   | Extract<CiTarget, { kind: "gap" }>
   | {
       readonly kind: "comparison";
+      readonly source: PublishedSource;
       readonly story: string;
       readonly identity: string;
       readonly comparison: ComparisonReading;
@@ -88,6 +89,7 @@ export function IntentCiEvidenceProvider({
   else if (active && target.kind === "comparison")
     evidence = {
       kind: "comparison",
+      source,
       story: target.story,
       identity: target.identity,
       comparison,

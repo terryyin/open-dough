@@ -21,8 +21,8 @@ splitting compound items.
 | 3 | The result shows timing changes the story’s builds observed; it does not claim the story caused them. | slice 1 | observed: dashboard/tests/intent-ci-comparison.spec.ts happy path: panel contains observedNotAttributed framing |
 | 4 | When a story is selected, Intent’s CI status homepage shows a timing comparison for it. | slice 1 | observed: dashboard/tests/intent-ci-comparison.spec.ts happy path: heading CI timing changes for <identity> |
 | 5 | That comparison includes CI wall time, then one row per CI entry in the homepage entry table introduced by SEED-243. | slice 2 | G4 |
-| 6.1 | Each comparable figure shows its before value | slice 2 | |
-| 6.2 | Each comparable figure shows its after value | slice 2 | |
+| 6.1 | Each comparable figure shows its before value | slice 2 | observed: dashboard/tests/intent-ci-comparison.spec.ts happy path: baseline cells show before values (4 min) |
+| 6.2 | Each comparable figure shows its after value | slice 2 | observed: dashboard/tests/intent-ci-comparison.spec.ts happy path: branch/landed cells show after values (4 min 30 s, 5 min) |
 | 6.3 | Each comparable figure shows the signed difference (positive = longer, negative = shorter) | slice 1 | observed: dashboard/tests/intent-ci-comparison.spec.ts happy path: Branch +20 s and Landed +1 min |
 | 7 | A selected done story gets this comparison where the homepage today only explains that the story has no branch to judge. | slice 1 | observed: dashboard/tests/intent-ci-status-story-gaps.spec.ts migrated done-story gap; comparison heading replaces no-branch explanation |
 | 8 | With no story selected, the homepage is unchanged. | slice 1 | observed: dashboard/tests/intent-ci-status*.spec.ts no-selection homepage unchanged (consumer suite green in implementation return) |
@@ -54,18 +54,18 @@ splitting compound items.
 | 30.4 | Name each endpoint once with its state | slice 1 | observed: dashboard/src/IntentCiComparison.tsx state passed/failed/running in identity |
 | 30.5 | Name each endpoint once with a link where available | slice 1 | G2 |
 | 30.6 | Name each endpoint once with whether it is the exact revision or a measured ancestor | slice 1 | observed: dashboard/src/IntentCiComparison.tsx selectionWords exact/ancestor; journeys assert labels |
-| 31 | Keep elapsed CI wall time (the attempt’s start to completion) distinct from cumulative entry test execution time. | slice 2 | |
+| 31 | Keep elapsed CI wall time (the attempt’s start to completion) distinct from cumulative entry test execution time. | slice 2 | observed: dashboard/src/IntentCiComparison.tsx wall table distinct from CiProofTable entry execution times |
 | 32 | Show the underlying values beside every difference. | slice 1 | observed: dashboard/tests/intent-ci-comparison.spec.ts walls 3 min / 3 min 20 s / 4 min beside +20 s / +1 min |
 | 33 | Comparison durations and differences use whole seconds (e.g. 3 min 20 s, +20 s) so a small change is not rounded away. | slice 1 | observed: dashboard/src/ciProofTimeWords.ts wholeSecondWords/Difference; comparison journey shows 3 min 20 s and +20 s |
 | 34 | Elsewhere the homepage keeps its existing formatting. | slice 1 | observed: dashboard/tests/intent-ci-status*.spec.ts / intent-ci-proof*.spec.ts whole-minute formatting unchanged (consumer return) |
 | 35.1 | Honest gap: no completed build, or a running build — own explanation; never zero or no change | slice 1 | observed: dashboard/tests/intent-ci-comparison.spec.ts running and missing landed journeys: explanations, wall — not zero |
-| 35.2 | Honest gap: an expired or unavailable proof summary | slice 2 | |
-| 35.3 | Honest gap: a summary with no entry durations | slice 2 | |
-| 35.4 | Honest gap: a part whose duration is missing, which leaves the total partial | slice 2 | |
-| 35.5 | Honest gap: an entry present at only one endpoint, shown as added or removed with no invented difference | slice 2 | |
+| 35.2 | Honest gap: an expired or unavailable proof summary | slice 2 | observed: dashboard/tests/intent-ci-comparison-entries.spec.ts expired entry proofs: wall kept; entry gap explanation |
+| 35.3 | Honest gap: a summary with no entry durations | slice 2 | observed: dashboard/tests/intent-ci-comparison-entries.spec.ts summary without durations: explained, never zero |
+| 35.4 | Honest gap: a part whose duration is missing, which leaves the total partial | slice 2 | observed: dashboard/tests/intent-ci-comparison-entries.spec.ts part without duration: partial explanation |
+| 35.5 | Honest gap: an entry present at only one endpoint, shown as added or removed with no invented difference | slice 2 | observed: dashboard/tests/intent-ci-comparison.spec.ts added entry marked added; unit removed entry marked |
 | 35.6 | Honest gap: an unrecoverable story history, using the published review’s existing explanations | slice 1 | G3 |
 | 36 | When only one comparison is available, it stays readable and the other explains its gap. | slice 1 | observed: dashboard/tests/intent-ci-comparison.spec.ts running landed: branch +20 s still readable beside Landed running |
-| 37 | Wall time comes from the CI run itself, so it can stay available after the entry summaries have expired. | slice 2 | |
+| 37 | Wall time comes from the CI run itself, so it can stay available after the entry summaries have expired. | slice 2 | observed: dashboard/tests/intent-ci-comparison-entries.spec.ts expired proofs: wall times remain while entries explain expiry |
 | 38 | The comparison says that each difference compares two single builds and does not establish the story as its cause. | slice 1 | observed: dashboard/tests/intent-ci-comparison.spec.ts happy path: observedNotAttributed framing text |
 | 39 | No variance band. | slice 1 | G5 |
 | 40 | No durable copies of timing evidence into done records. | slice 1 | G6 |
@@ -74,11 +74,11 @@ splitting compound items.
 | 41.3 | Comparison is not added to story cards | slice 1 | G9 |
 | 42 | No new CI contract (ciAdapter not extended). | slice 1 | G10 |
 | E1 | Done Story Branch story: baseline 3 min, branch 3 min 20 s, landing 4 min → Branch +20 s and Landed +1 min against named baseline; names all three builds. | slice 1 | observed: dashboard/tests/intent-ci-comparison.spec.ts happy path: named builds, +20 s, +1 min |
-| E2 | Mixed entry changes: entry 4 min → 4 min 30 s → 5 min with +30 s and +1 min; faster entry shows a negative difference. | slice 2 | |
+| E2 | Mixed entry changes: entry 4 min → 4 min 30 s → 5 min with +30 s and +1 min; faster entry shows a negative difference. | slice 2 | observed: dashboard/tests/intent-ci-comparison.spec.ts mixed entries +30 s / +1 min and negative diffs |
 | E3 | Measured ancestor (SEED-242): claim and parent have no build; baseline ancestor 4 first-parent revisions before claim parent, marked with count 4; final branch and landing builds named. | slice 1 | observed: dashboard/tests/intent-ci-comparison.spec.ts happy path: baseline ancestor count from planning-only commits |
 | E4 | Done story after cleanup: branch gone, newer trunk; selecting the done story still compares its own builds. | slice 1 | observed: dashboard/tests/intent-ci-comparison.spec.ts happy path fixture advances trunk and deletes branch before selection |
-| E5 | Landed build still running, new entry: branch comparison shown; Landed says still running; entry added by the story shows as added with no invented baseline. | slice 2 | |
-| E6 | Expired proof: wall time still shows; entry rows explain proof expired without differences. | slice 2 | |
+| E5 | Landed build still running, new entry: branch comparison shown; Landed says still running; entry added by the story shows as added with no invented baseline. | slice 2 | observed: dashboard/tests/intent-ci-comparison-gaps.spec.ts running landed with added entry (implementation return) |
+| E6 | Expired proof: wall time still shows; entry rows explain proof expired without differences. | slice 2 | observed: dashboard/tests/intent-ci-comparison-entries.spec.ts expired entry proofs keep wall times and explain entry gap |
 | E7 | Trunk Mode done story: completion has no build; Landed uses last built trunk revision as ancestor; Branch not applicable. | slice 1 | observed: dashboard/tests/intent-ci-comparison.spec.ts Trunk Mode: Branch not applicable; Landed ancestor |
 | E8 | Code landed before completion (SEED-236): Branch uses ancestor of landing merge’s branch side; Landed uses completion build; neither replaced by later trunk. | slice 1 | G1 |
 | E9 | Taken Story Branch story: live CI status kept; provisional comparison against the same pre-story baseline; latest completed branch build labelled provisional; Landed says not landed yet; new branch head re-reads. | slice 3 | |

@@ -1,10 +1,11 @@
 // Gap and selection variants for Intent's CI timing comparison
 // (../src/IntentCiComparison.tsx): Trunk Mode not-applicable Branch, running
-// Landed beside a readable Branch comparison, failed Landed labelling, and a
-// missing Landed explanation without inventing zero
+// Landed beside a readable Branch comparison with an added entry, failed
+// Landed labelling, and a missing Landed explanation without inventing zero
 // (SEED-244#compare-story-ci-timing-changes examples 5 and Trunk Mode). The
 // happy-path, SEED-236 and unrecoverable journeys live in
-// ./intent-ci-comparison.spec.ts.
+// ./intent-ci-comparison.spec.ts; entry-proof expiry and missing durations
+// live in ./intent-ci-comparison-entries.spec.ts.
 
 import { expect, test } from "./support/preparationPage.ts";
 import { shortSha } from "../src/baseCiWording.ts";
@@ -92,7 +93,7 @@ test("a Trunk Mode done story marks Branch not applicable and Landed as an ances
   ).toContainText("ancestor:");
 });
 
-test("a running landed build leaves the branch comparison readable", async ({
+test("a running landed build leaves the branch comparison readable and marks an added entry", async ({
   page,
   origin,
 }) => {
@@ -128,6 +129,15 @@ test("a running landed build leaves the branch comparison readable", async ({
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(2),
   ).toContainText("running");
+  const table = panel.getByRole("table", {
+    name: "CI entry timing comparison",
+  });
+  const added = table.locator("tbody tr").filter({ hasText: "src/skills" });
+  await expect(added.getByRole("cell").nth(1)).toHaveText("added");
+  await expect(added.getByRole("cell").nth(2)).toHaveText("30 s");
+  await expect(added.getByRole("cell").nth(3)).toHaveText(
+    "Build is still running.",
+  );
 });
 
 test("a failed landed build is labelled failed", async ({ page, origin }) => {

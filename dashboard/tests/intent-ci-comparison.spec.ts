@@ -2,21 +2,20 @@
 // (../src/IntentCiComparison.tsx, ../server/intentCiComparisonRead.ts):
 // baseline, branch and landed wall times against the pre-story build, with
 // measured-ancestor labelling, persistence after trunk advance and branch
-// delete, SEED-236 earlier landing, and unrecoverable history
-// (SEED-244#compare-story-ci-timing-changes examples 1, 3, 4, 7, 8 and
-// observed-not-attributed / whole-second). Gap variants for Trunk Mode,
-// running, failed and missing builds live in ./intent-ci-comparison-gaps.spec.ts.
-// Entry rows state that entry comparison is not yet shown. Taken-story and
-// no-selection homepage journeys stay in ./intent-ci-status*.spec.ts.
+// delete, SEED-236 earlier landing, unrecoverable history, and mixed entry
+// rows (SEED-244#compare-story-ci-timing-changes examples 1–4, 8 and
+// observed-not-attributed / whole-second). Entry-proof expiry and missing
+// durations live in ./intent-ci-comparison-entries.spec.ts; Trunk Mode,
+// running, failed and missing builds live in
+// ./intent-ci-comparison-gaps.spec.ts. Taken-story and no-selection homepage
+// journeys stay in ./intent-ci-status*.spec.ts.
 
 import { expect, test } from "./support/preparationPage.ts";
 import { shortSha } from "../src/baseCiWording.ts";
-import {
-  entryComparisonNotYetShown,
-  observedNotAttributed,
-} from "../src/storyCiComparisonWording.ts";
+import { observedNotAttributed } from "../src/storyCiComparisonWording.ts";
 import { publishCodeLandedBeforeCompletion } from "./support/storyCiComparisonEarlierLanding.ts";
 import { publishComparedStoryBranch } from "./support/storyCiComparisonFixture.ts";
+import { expectCiComparisonEntryRows } from "./support/expectCiComparisonEntryRows.ts";
 import { selectDoneStoryForCiComparison } from "./support/selectDoneStoryForCiComparison.ts";
 import { completedPublishedStory } from "./support/completedPublishedStory.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
@@ -28,7 +27,7 @@ const unrecoverable =
 
 test.setTimeout(240_000);
 
-test("a selected done Story Branch story compares named baseline, branch and landed wall times", async ({
+test("a selected done Story Branch story compares named baseline, branch and landed wall times and entry rows", async ({
   page,
   origin,
 }) => {
@@ -87,12 +86,33 @@ test("a selected done Story Branch story compares named baseline, branch and lan
   await expect(
     panel.locator(".intent-ci-comparison-wall").nth(2),
   ).toContainText("+1 min");
-  await expect(panel.locator(".intent-ci-comparison-entries")).toHaveText(
-    entryComparisonNotYetShown,
-  );
-  // The fixture already advanced trunk and deleted the story branch before
-  // selection, so these figures are the story's own endpoints, not today's
-  // trunk or a live branch judgment.
+  await expect(panel).not.toContainText("Entry comparison is not yet shown.");
+  await expectCiComparisonEntryRows(panel, [
+    [
+      "dashboard/tests",
+      "10 passed tests",
+      "4 min",
+      "4 min 30 s +30 s",
+      "5 min +1 min",
+      "1 of 1 part present",
+    ],
+    [
+      "tests",
+      "5 passed checks",
+      "2 min",
+      "1 min 30 s -30 s",
+      "1 min -1 min",
+      "1 of 1 part present",
+    ],
+    [
+      "src/skills",
+      "3 passed checks",
+      "added",
+      "30 s",
+      "30 s",
+      "1 of 1 part present",
+    ],
+  ]);
 });
 
 test("code landed before completion uses the merge branch-side ancestor and the completion build (SEED-236)", async ({
@@ -143,9 +163,6 @@ test("code landed before completion uses the merge branch-side ancestor and the 
   // Later trunk's 10 min build must not replace Branch or Landed.
   await expect(panel).not.toContainText("run 399");
   await expect(panel).not.toContainText("10 min");
-  await expect(panel.locator(".intent-ci-comparison-entries")).toHaveText(
-    entryComparisonNotYetShown,
-  );
 });
 
 test("unrecoverable published history shows the published-review explanation without inventing builds", async ({

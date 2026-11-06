@@ -62,8 +62,6 @@ export const storyCiComparisonAnswerSchema = z.discriminatedUnion("kind", [
     baseline: storyCiComparisonSlotSchema,
     branch: storyCiComparisonSlotSchema,
     landed: storyCiComparisonSlotSchema,
-    // Slice 1: entry comparison is not yet shown.
-    entries: z.literal("not-yet-shown"),
   }),
   z.object({
     kind: z.literal("unavailable"),

@@ -193,7 +193,7 @@ invented.
 
 ### 2. Compare each entry's test execution time across the same builds
 Type: Behavior
-Status: planned
+Status: done
 Proof: the slice-1 journey extended with entry summaries through the real
 artifact read, plus the expiry, missing-duration, partial and
 added-or-removed cases; the CI proof consumer specs; the local gate.
@@ -210,6 +210,16 @@ build, or for the branch build when no landed build exists. A late answer for
 another story or attempt must never render.
 
 **Safe stop:** the story's done-story outcome is complete.
+
+**Accepted proof:**
+- `npm run test:dashboard -- dashboard/tests/intent-ci-comparison.spec.ts dashboard/tests/intent-ci-comparison-entries.spec.ts dashboard/tests/intent-ci-comparison-gaps.spec.ts --workers=1` — 9 passed (entry diffs, expired/partial, SEED-236, gaps).
+- `node --test tests/support/dashboard-ci-comparison-entries.test.mjs tests/support/dashboard-ci-comparison-parse.test.mjs` — 7 passed.
+- Consumers: intent-ci-proof*, intent-ci-status*, story-review-completed* (implementation return).
+- Local gate: format + typecheck during delivery.
+
+**Learnings:** Entry proofs are read client-side per endpoint via intent=ci-proof with full revision; late answers are keyed so they never render.
+
+
 
 ### 3. Show a Taken story's provisional comparison
 Type: Behavior
@@ -286,7 +296,7 @@ Commitment: 35.6
 ### G4. Entry comparison placeholder until entry rows
 Reported: slice 1 — "slice 1 safe stop: Entry comparison is not yet shown."
 Story clause: "then one row per CI entry in the homepage entry table introduced by [SEED-243](../done/SEED-243_improve-intent-home-and-selection-summaries.json)"
-Disposition: interim until slices 2
+Disposition: proved by slice 2: dashboard/tests/intent-ci-comparison.spec.ts + intent-ci-comparison-entries.spec.ts entry rows with signed diffs; placeholder absent
 Commitment: 5
 ### G5. No variance band
 Reported: slice 1 — "acceptance: slice 1 does not implement excluded scope (No variance band)."

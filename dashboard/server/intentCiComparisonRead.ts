@@ -153,7 +153,6 @@ export async function performIntentCiComparisonRead(
       baseline: gap,
       branch: facts.mode === "trunk" ? trunkBranchNotApplicable : gap,
       landed: gap,
-      entries: "not-yet-shown",
     };
     rememberCiComparisonAnswer(key, answer);
     return answered(answer);
@@ -201,7 +200,6 @@ export async function performIntentCiComparisonRead(
     baseline,
     branch,
     landed,
-    entries: "not-yet-shown",
   };
   rememberCiComparisonAnswer(key, answer);
   return answered(answer);
