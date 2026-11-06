@@ -146,9 +146,11 @@ export function useKeptArrangement<T>(
   return useKept(useMounted().arrangement, key, initial);
 }
 
-// Keeps the reading pane's scroll offset, and restores it once its content,
-// which may still be arriving, is tall enough. The developer scrolling,
-// pressing a key or a pointer in the pane first leaves it where they put it.
+// Keeps the reading pane's scroll offset while content still arrives or
+// lengthens (for example a selected story's file summary above Purpose).
+// Restoring stops only when the developer scrolls, presses a key or uses a
+// pointer in the pane; ending on the first successful match let later growth
+// move the place through scroll anchoring.
 export function useKeptReadingScroll(pane: RefObject<HTMLElement | null>) {
   const { place } = useMounted();
   useLayoutEffect(() => {
@@ -158,7 +160,6 @@ export function useKeptReadingScroll(pane: RefObject<HTMLElement | null>) {
     const restore = () => {
       if (restoring === 0) return;
       element.scrollTop = restoring;
-      if (Math.abs(element.scrollTop - restoring) < 1) stop();
     };
     const grown = new ResizeObserver(restore);
     function stop() {

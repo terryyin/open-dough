@@ -66,6 +66,15 @@ function changeWithDeepSpec(workspace: string) {
   );
 }
 
+// File summary (when a story is selected) settles before Purpose scroll is
+// measured, so a late comparison answer does not change the reading pane's
+// height after the place is recorded.
+async function settleFileSummary(intent: Locator) {
+  const summary = intent.getByRole("region", { name: "File summary" });
+  await expect(summary).toBeVisible();
+  await expect(summary.locator(".intent-ci-reading")).toHaveCount(0);
+}
+
 // The deep spec selected with "Selected story only" on and `out` collapsed by
 // hand, its diff shown and Purpose scrolled halfway, as the developer would.
 async function readDeepSpec(intent: Locator) {
@@ -78,6 +87,7 @@ async function readDeepSpec(intent: Locator) {
     "aria-busy",
     "false",
   );
+  await settleFileSummary(intent);
   const offset = await readingPane(intent).evaluate(
     (element) =>
       new Promise<number>((resolve) => {
@@ -136,6 +146,7 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
   for (const name of ["boundary", "deep", "arriving"])
     await expect(folderToggle(intent, name, true)).toBeVisible();
   await expect(folderToggle(intent, "out", false)).toBeVisible();
+  await settleFileSummary(intent);
   await expect.poll(() => scrollOf(intent)).toBe(offset);
   expect(reads).toEqual([]);
 });

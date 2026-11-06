@@ -87,6 +87,12 @@
   overscroll-behavior: contain;
 }
 
+/* Async content above Purpose (file summary) must not move the kept reading
+   place through scroll anchoring once the developer has scrolled. */
+.intent-reading {
+  overflow-anchor: none;
+}
+
 /* The browser pane scrolls as one; its locations are sections within it, not
    boxes that scroll themselves. */
 .intent-locations {
