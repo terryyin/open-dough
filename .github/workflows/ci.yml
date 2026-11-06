@@ -185,7 +185,7 @@ jobs:
           OPEN_DOUGH_DASHBOARD_PROOF_RECORD: ${{ runner.temp }}/dashboard-proof.json
         run: npm run test:dashboard
       # This shard's per-spec-file seconds, written however the run ended, for
-      # refreshing dashboard/tests/longest-first (dashboard/tests/shards.md).
+      # refreshing dashboard/longest-first (dashboard/tests/shards.md).
       - name: Keep per-spec dashboard times
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
@@ -194,7 +194,7 @@ jobs:
           path: ${{ runner.temp }}/dashboard-times.txt
           if-no-files-found: ignore
           retention-days: 7
-      # This shard's part of the dashboard/tests proof entry, from its proof
+      # This shard's part of each dashboard proof entry, from its shared proof
       # record (dashboard/tests/proof-record.md).
       - name: Keep the CI proof fragments
         if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
@@ -202,7 +202,7 @@ jobs:
         with:
           part: ${{ matrix.shard }}
           parts: ${{ strategy.job-total }}
-          entries: dashboard/tests
+          entries: dashboard/tests dashboard/backend-tests
           report-format: playwright-record
           report: ${{ runner.temp }}/dashboard-proof.json
       # The HTML report records how many browser tests the shard executed; on
@@ -244,4 +244,4 @@ jobs:
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
-          expect: dashboard/tests=12 tests=3 src/skills=3
+          expect: dashboard/tests=12 dashboard/backend-tests=12 tests=3 src/skills=3

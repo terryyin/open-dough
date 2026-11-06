@@ -1,6 +1,6 @@
 // The page's recovery from a saved OpenAI credential it cannot use. What the
 // OpenAI configuration boundary refuses, and that no refusal touches the
-// private file or a provider, is ./boundary/openai-configuration-boundary.spec.ts.
+// private file or a provider, is ../backend-tests/openai-configuration-boundary.spec.ts.
 import {
   chmodSync,
   existsSync,

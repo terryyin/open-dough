@@ -1,6 +1,6 @@
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { resolve } from "node:path";
+import { basename, resolve } from "node:path";
 import {
   dealShares,
   parseSplit,
@@ -8,11 +8,19 @@ import {
   shareLabels,
 } from "../../../scripts/share-deal.mjs";
 
-// The suite's spec files under `directory`, as paths relative to it: the
+// The browser and backend specs under the common dashboard `directory`, as
+// paths relative to it: the
 // labels `longest-first` and the `dashboard-times-<shard>` artifacts carry
 // (support/specTimes.ts writes the same relative path).
 export function dashboardSpecFiles(directory) {
-  return readdirSync(directory, { recursive: true })
+  return ["tests", "backend-tests"]
+    .flatMap((root) =>
+      existsSync(resolve(directory, root))
+        ? readdirSync(resolve(directory, root), { recursive: true }).map(
+            (file) => `${root}/${file}`,
+          )
+        : [],
+    )
     .filter((file) => /\.(spec|test)\.[cm]?[jt]sx?$/.test(file))
     .sort();
 }
@@ -50,7 +58,8 @@ function filePatterns(testDir, files) {
 export function dashboardTestProjects(testDir, split) {
   const files = selectedFiles(testDir, split);
   const isProductionChain = (file) =>
-    /^production-watcher(?:-.*)?\.spec\.ts$/.test(file);
+    file.startsWith("tests/") &&
+    /^production-watcher(?:-.*)?\.spec\.ts$/.test(basename(file));
   return [
     {
       name: "chromium-deployments",

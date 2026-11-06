@@ -24,6 +24,8 @@ export type IntentLocationProblem = "unsupported-kind" | "no-matching-files";
 export type IntentLocation = {
   readonly path: string;
   readonly kind: string;
+  // Optional display name; the repository path remains the location's identity.
+  readonly label?: string;
   // Optional include patterns relative to `path`, echoed from settings when
   // the location declared them.
   readonly include?: readonly string[];
@@ -36,6 +38,7 @@ export type IntentLocation = {
 export type DeclaredLocation = {
   readonly path: string;
   readonly kind: string;
+  readonly label?: string;
   readonly include?: readonly string[];
 };
 
@@ -85,20 +88,28 @@ export function declaredLocations(settings: string): DeclaredSettings {
     if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
       continue;
     }
-    const { path, kind, include } = entry as {
+    const { path, kind, include, label } = entry as {
       path?: unknown;
       kind?: unknown;
       include?: unknown;
+      label?: unknown;
     };
     if (typeof path !== "string" || !isSafeRepositoryPath(path)) continue;
     if (typeof kind !== "string" || kind.length === 0) continue;
+    const fields = {
+      path,
+      kind,
+      ...(typeof label === "string" && label.trim() !== ""
+        ? { label: label.trim() }
+        : {}),
+    };
     if (!("include" in (entry as object))) {
-      declared.push({ path, kind });
+      declared.push(fields);
       continue;
     }
     const patterns = includePatternsOf(include);
     if (patterns === undefined) continue;
-    declared.push({ path, kind, include: patterns });
+    declared.push({ ...fields, include: patterns });
   }
   return declared.length === 0
     ? { kind: "absent" }

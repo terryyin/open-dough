@@ -2,7 +2,7 @@
 // icon exports (../../assets/brand/favicon/) for its tab, bookmarks and touch
 // icon, and the built preview answers each declared URL with that canonical
 // file's exact bytes. The dev server's same answer is proved beside the other
-// serving-mode facts (./boundary/serving-modes.spec.ts).
+// serving-mode facts (../backend-tests/serving-modes.spec.ts).
 
 import { expect, test } from "./dashboardTest.ts";
 import { expectSuppliedIcon } from "./support/brandIcons.ts";

@@ -96,6 +96,7 @@ function locationAnswer(
   const fields = {
     path: location.path,
     kind: location.kind,
+    ...(location.label === undefined ? {} : { label: location.label }),
     ...(location.include === undefined ? {} : { include: location.include }),
   };
   if (extensionsOf(location.kind) === undefined) {

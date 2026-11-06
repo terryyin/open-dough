@@ -1,4 +1,4 @@
-// What the Sessions replay (../boundary/sessions-replay.spec.ts) measures on
+// What the Sessions replay (../../backend-tests/sessions-replay.spec.ts) measures on
 // a running boundary server; ./sessionsReplayTable.ts prints them.
 //
 // Event-loop time is the server's own: run with a stall threshold of 1 ms and
@@ -18,7 +18,7 @@
 // Every sessions ask accepts gzip as a browser does, and its size is the
 // bytes transferred, read before decoding; its decoded size is the same
 // JSON's unencoded, as a caller refusing gzip receives it
-// (../boundary/agent-launch-sessions-encoding.spec.ts).
+// (../../backend-tests/agent-launch-sessions-encoding.spec.ts).
 
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";

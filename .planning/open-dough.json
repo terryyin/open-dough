@@ -13,6 +13,12 @@
         "include": ["**/*.spec.ts"]
       },
       {
+        "path": "dashboard/backend-tests",
+        "label": "Dashboard Backend Test",
+        "kind": "typescript",
+        "include": ["**/*.spec.ts"]
+      },
+      {
         "path": "tests",
         "kind": "shell",
         "include": ["*.sh"]

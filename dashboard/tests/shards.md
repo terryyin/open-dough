@@ -10,9 +10,9 @@ Node suite's shares are in [tests/test-shares.md](../../tests/test-shares.md).
 ## The split
 
 CI sets `OPEN_DOUGH_DASHBOARD_SPLIT=i/n` to select shard `i` of `n` whole
-spec files. `longest-first` indexes three duration lists: ordinary journeys,
+spec files. `../longest-first` indexes three duration lists: ordinary journeys,
 agent journeys, and boundary tests. Each part records one
-`<seconds><TAB><file>` row per spec, longest first, with paths relative to this
+`<seconds><TAB><file>` row per spec, longest first, with paths relative to the common `dashboard/`
 directory. Header lines `# Include: <relative-path>` name the parts; the
 reader combines their rows before the unchanged deal. Other `#` lines are comments.
 `support/testFiles.mjs` hands the discovered spec files, that list and the
@@ -24,7 +24,9 @@ configuration naming the file, line and content before any test is selected,
 as a malformed split does. CI uses twelve shards and runs the dashboard
 type-check once, in the last shard, whose predicted browser load the deal
 keeps within one spec file of the others. With the variable unset,
-`npm run test:dashboard` keeps running the whole suite. Independent proof
+`npm run test:dashboard` keeps running both suites. The configuration discovers
+only `dashboard/tests/` and `dashboard/backend-tests/`; labels in the timing lists
+and artifacts are relative to their common `dashboard/` root. Independent proof
 subprocesses choose their own selection; their harness
 (`support/proofRecordRun.ts`) removes the inherited split before launching
 them.
@@ -43,7 +45,7 @@ Before pushing a change that adds, removes or renames a spec file, preview
 the deal CI will run, from the repository root:
 
 ```sh
-node scripts/test-shares.mjs preview --split-count 12 --spec-dir dashboard/tests
+node scripts/test-shares.mjs preview --split-count 12 --spec-dir dashboard
 ```
 
 It discovers the spec files as the configuration does and prints each shard's
@@ -60,7 +62,7 @@ as observed:
 
 ```sh
 gh run download RUN_ID -p 'dashboard-times-*' -D DIR
-node scripts/test-shares.mjs refresh --list dashboard/tests/longest-first \
+node scripts/test-shares.mjs refresh --list dashboard/longest-first \
   --source 'run RUN_ID at REVISION, DATE' DIR/dashboard-times-*/dashboard-times.txt
 ```
 
@@ -83,7 +85,7 @@ durations plus each executed `beforeAll`/`afterAll` hook once, to a tenth.
 Test-scoped setup and teardown are already in each test duration and are never
 added a second time. Tests registered through an imported case module count
 under the spec file Playwright ran, not the module. `<file>` is its path relative
-to this directory, the label `longest-first` carries. A failed or deadline-ended
+to the common `dashboard/` root, the label `longest-first` carries. A failed or deadline-ended
 shard still records
 what completed; a `--list` run writes nothing, and a run without the variable
 writes no times file. CI keeps the file for seven days as artifact

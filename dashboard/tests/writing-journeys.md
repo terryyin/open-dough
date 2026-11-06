@@ -119,9 +119,29 @@ commit time names was added once, by a commit of its own, so every journey's
 Taken and Preparing cards credit a human without a failed read; a fixture that
 wants a missing addition or an unpublished history says so. Which commit added
 a profile is walked at the boundary
-(`boundary/authenticated-read-profile-addition.spec.ts`, its refusals in
-`boundary/authenticated-read-profile-addition-refusal.spec.ts`); the credited human and avatar
+(`../backend-tests/authenticated-read-profile-addition.spec.ts`, its refusals in
+`../backend-tests/authenticated-read-profile-addition-refusal.spec.ts`); the credited human and avatar
 on cards and the roster are `agent-roster-avatar.spec.ts`; how a slow or
 stalled addition read delays only its own profile's clock and human is
 `profile-addition-latency.spec.ts`; the roster itself is
 `agent-roster.spec.ts`, whose locators live in `dashboardPage.ts`.
+
+## Process cleanup
+
+Nothing a run starts survives it: not the servers, synthetic hosts and
+request owners a test starts, nor the children the product starts for them,
+such as detached Cursor runners and the production watcher's deployments.
+Each worker ends what descends from it when it exits
+(`support/processGroup.ts`). Whoever owns a machine HOME stops its Cursor
+runner before removing it: `startDashboardServer` for a machine of its own,
+`publishedMainFixture`'s `cleanup` for the production journeys, and a test
+that passes its own `machine` calls `stopCursorRunner` itself. The run's own
+teardown is the backstop: global setup gives the run an identity,
+`OPEN_DOUGH_DASHBOARD_RUN_ID`, that every process of the run inherits, and
+once the workers have exited the teardown ends every process still carrying
+it and fails the run naming each (`support/globalSetup.ts`,
+`support/runProcesses.ts`). A named process is a leak to stop where it
+starts, never a reason to widen the sweep; processes of other runs, other
+checkouts and this machine's own dashboard carry no such identity and are
+left alone. `../backend-tests/run-processes.spec.ts` proves each of the three, and
+after a local run `pgrep -lf "$PWD"` from this checkout finds nothing of it.

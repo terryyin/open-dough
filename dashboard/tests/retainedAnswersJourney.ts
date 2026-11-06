@@ -1,5 +1,5 @@
 // The journey of the retained-answers specs
-// (./boundary/authenticated-read-retained-answers*.spec.ts): one project
+// (../backend-tests/authenticated-read-retained-answers*.spec.ts): one project
 // published at a revision with a recorded story branch, every read a page
 // makes of it through the local authenticated read boundary, and
 // `developmentBoundary` servers on a machine directory each test owns, so

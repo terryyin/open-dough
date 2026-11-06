@@ -2,7 +2,7 @@
 // problem is shown in System settings with Retry, the sample keeps the default
 // until a usable theme is saved, and choosing a theme replaces the unusable
 // file. What the terminal theme boundary refuses, and that no refusal changes
-// the saved theme, is ./boundary/terminal-theme-boundary.spec.ts.
+// the saved theme, is ../backend-tests/terminal-theme-boundary.spec.ts.
 import { chmodSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "./support/pageTest.ts";

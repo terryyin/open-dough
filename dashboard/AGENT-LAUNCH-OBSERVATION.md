@@ -105,7 +105,7 @@ suites skip it. Run it from the repository root, with the load average beside
 each run, and compare runs relative to that load:
 
 ```sh
-uptime; DOUGH_SESSIONS_REPLAY=1 env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/boundary/sessions-replay.spec.ts
+uptime; DOUGH_SESSIONS_REPLAY=1 env -u NO_COLOR -u FORCE_COLOR npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/backend-tests/sessions-replay.spec.ts
 ```
 
 Event-loop time is the server's own event-loop watch, read from the incident

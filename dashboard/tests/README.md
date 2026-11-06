@@ -1,7 +1,9 @@
 # Dashboard tests
 
 Run the dashboard's single Playwright suite from the repository root with
-`npm run test:dashboard`. Its two tiers share one run and shard selection.
+`npm run test:dashboard`. Its browser and backend suites share one run, build and shard selection.
+The backend suite is a separate **Dashboard Backend Test** Intent entry, backed
+by the sibling `../backend-tests/` directory.
 See [journey writing](writing-journeys.md) for waits, clocks, commands and fake
 GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
 hosts; the per-run [proof record](proof-record.md), the caller-owned
@@ -16,7 +18,7 @@ machine sleep on macOS.
 
 A **browser journey** proves one representative, integrated user journey in
 the real page: an observable precondition, the user's trigger, and the state
-change it causes. Journeys live directly in this directory and run under
+change it causes. Journeys live in this directory and run under
 `dashboardTest.ts` or a fixture module built on it, each against its own
 built-preview server, which the `page` fixture opens.
 
@@ -27,19 +29,19 @@ commands it installs -- or of a module read in-process, without a browser.
 Its collaborators are the real ones; only the external boundaries are
 replaced: GitHub through the synthetic `gh`, the agent hosts through the
 synthetic `claude`, `codex` and `cursor`, and GitHub's avatar host. Boundary
-tests live in `boundary/` and normally use `startDashboardServer({ mode:
+tests live in the sibling `../backend-tests/` and normally use `startDashboardServer({ mode:
 "boundary" })` or `test.use({ serverMode: "boundary" })` on `dashboardTest.ts`.
 `node <run-bundle>/boundaryServer.mjs` mounts Vite's local boundaries
 (`../server/localBoundaries.ts`) on plain HTTP without Vite or a build. It uses
 the preview's production project environment, or the dev server's through
 `developmentBoundary` (`support/dashboardServer.ts`).
-`boundary/boundary-server.spec.ts` shows each environment's own project file
+`../backend-tests/boundary-server.spec.ts` shows each environment's own project file
 (`support/projectConfiguration.ts`) without Vite or a page.
 Boundary and preview use the run's bundled `runnerMain.mjs`; dev and public
-production keep source. `boundary/serving-modes.spec.ts` proves both real Vite
+production keep source. `../backend-tests/serving-modes.spec.ts` proves both real Vite
 servers mount the same boundaries and use those entries.
 
-`boundary/` holds every spec that opens no page, whatever it drives; a spec
+`../backend-tests/` holds every spec that opens no page, whatever it drives; a spec
 that opens a page is a journey, however small, and a journey never repeats a
 variant the boundary tier can answer. Both tiers are one suite, run and
 sharded together (below).
@@ -53,7 +55,7 @@ Put a check where it is cheapest to prove, and prove it once:
   shows that the page does the thing once; the boundary tests own every
   variant.
 - **A journey runs under the fixture's built preview.** The dev server and
-  the preview mount the same local boundaries, and `boundary/serving-modes.spec.ts`
+  the preview mount the same local boundaries, and `../backend-tests/serving-modes.spec.ts`
   is the one spec that proves it: it starts a real server of each, sends
   each boundary the same request from both, and compares the answers
   (status, headers, body), with Vite's own HMR socket, which only the dev
@@ -151,19 +153,19 @@ when `NODE_COMPILE_CACHE` names an existing cache, leave that cache's entries
 intact and add no persistent compile cache to reclaim after a failure. The
 calling Node/npm process can still cache its own startup before the
 configuration loads, and dashboard commands outside the suite keep their own
-policy. `boundary/compile-cache.spec.ts` makes real enable/import/flush
+policy. `../backend-tests/compile-cache.spec.ts` makes real enable/import/flush
 attempts, preserves seeded cache hashes through repetition, overlap, failure
 and signals, and checks an outside-policy child really can write cache; only
 that API probe is skipped on supported Node versions without the API.
 
 ## Adding a test
 
-A **boundary test** goes in `boundary/<behavior>.spec.ts`. It imports `test`
-from `../dashboardTest.ts` with `test.use({ serverMode: "boundary" })`, or
-from `../support/pageTest.ts` and starts `startDashboardServer({ mode:
+A **boundary test** goes in `../backend-tests/<behavior>.spec.ts`. It imports `test`
+from `../tests/dashboardTest.ts` with `test.use({ serverMode: "boundary" })`, or
+from `../tests/support/pageTest.ts` and starts `startDashboardServer({ mode:
 "boundary" })` (or `developmentBoundary`) itself; it sends its requests with
 `support/rawHttp.ts` or the terminal clients and asserts the answer, the
-file or command. Only `boundary/serving-modes.spec.ts` needs a build.
+file or command. Only `../backend-tests/serving-modes.spec.ts` needs a build.
 A spec starting no server still takes `test` from `pageTest.ts`, as lint requires.
 
 A **browser journey** goes in this directory as `<journey>.spec.ts`. It
@@ -182,8 +184,8 @@ once per worker, so such a call applies only to the first spec file that
 loads it there.
 
 Discovery and sharding follow the file: `support/testFiles.mjs` finds every
-`*.spec.ts` under `tests/` recursively and CI's split ([dashboard
-shards](shards.md)) deals whole files by the seconds `longest-first` records
+`*.spec.ts` under `dashboard/tests/` and `dashboard/backend-tests/` recursively and CI's split ([dashboard
+shards](shards.md)) deals whole files by the seconds `../longest-first` records
 for them, so a new file needs no registration; unrecorded there, it is dealt
 after the recorded files at their median duration until that list is next
 refreshed from a hosted run, and the preview in [dashboard shards](shards.md)
@@ -193,7 +195,7 @@ and their assignment to exactly one shard.
 
 ## Running the suite
 
-Run from the repository root; `npm run test:dashboard -- boundary/` or
+Run from the repository root; `npm run test:dashboard -- backend-tests/` or
 `-- --grep 'published Board'` selects files or tests, and `npx playwright
 test` from `tests/` finds no configuration, so it would run without the
 build, the quiet reporter and the run's identity. Local runs default to two
@@ -203,7 +205,7 @@ CI runs the suite as shard jobs, each running the whole spec files
 `OPEN_DOUGH_DASHBOARD_SPLIT=i/n` deals it by recorded duration, keeping its
 spec files' seconds through
 `OPEN_DOUGH_DASHBOARD_TIMES` as artifact `dashboard-times-<shard>`, the source
-`longest-first` is refreshed from, and running under
+`dashboard/longest-first` is refreshed from, and running under
 `OPEN_DOUGH_DASHBOARD_DEADLINE_MS`; [dashboard shards](shards.md) holds the
 split with its preview and refresh, the times file and the deadline. With
 the variables unset, `npm run test:dashboard` runs the whole suite, unbounded,
@@ -235,20 +237,5 @@ the times file and the strict verdict.
 
 ## No process outlives its run
 
-Nothing a run starts survives it: not the servers, synthetic hosts and
-request owners a test starts, nor the children the product starts for them,
-such as detached Cursor runners and the production watcher's deployments.
-Each worker ends what descends from it when it exits
-(`support/processGroup.ts`). Whoever owns a machine HOME stops its Cursor
-runner before removing it: `startDashboardServer` for a machine of its own,
-`publishedMainFixture`'s `cleanup` for the production journeys, and a test
-that passes its own `machine` calls `stopCursorRunner` itself. The run's own
-teardown is the backstop: global setup gives the run an identity,
-`OPEN_DOUGH_DASHBOARD_RUN_ID`, that every process of the run inherits, and
-once the workers have exited the teardown ends every process still carrying
-it and fails the run naming each (`support/globalSetup.ts`,
-`support/runProcesses.ts`). A named process is a leak to stop where it
-starts, never a reason to widen the sweep; processes of other runs, other
-checkouts and this machine's own dashboard carry no such identity and are
-left alone. `boundary/run-processes.spec.ts` proves each of the three, and
-after a local run `pgrep -lf "$PWD"` from this checkout finds nothing of it.
+[Process cleanup](writing-journeys.md#process-cleanup) describes worker and run
+ownership, Cursor runner teardown, leak failures and safe local inspection.

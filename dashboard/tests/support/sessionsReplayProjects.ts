@@ -1,5 +1,5 @@
 // The project catalog and local checkouts the Sessions replay
-// (../boundary/sessions-replay.spec.ts) starts its server with, shaped like
+// (../../backend-tests/sessions-replay.spec.ts) starts its server with, shaped like
 // production's on 2026-11-03: six configured projects whose checkouts hold
 // 44 linked worktrees between them. Every Sessions observation lists each
 // checkout's worktrees and reads each worktree's author; one in six is owned

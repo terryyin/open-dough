@@ -64,7 +64,10 @@ export default defineConfig(
   {
     // Dashboard specs run under the shared page-test base, whose `page`
     // finishes its intercepted reads before teardown.
-    files: ["dashboard/tests/**/*.{ts,mts,tsx}"],
+    files: [
+      "dashboard/tests/**/*.{ts,mts,tsx}",
+      "dashboard/backend-tests/**/*.{ts,mts,tsx}",
+    ],
     ignores: [
       "dashboard/tests/support/pageTest.ts",
       // Run by the quiet-reporter proof under their own configuration; the
@@ -93,6 +96,7 @@ export default defineConfig(
     // from any directory.
     files: [
       "dashboard/tests/**",
+      "dashboard/backend-tests/**",
       "tests/**",
       "src/skills/*/scripts/**/*.test.mjs",
       "src/skills/*/scripts/**/*-cases.mjs",

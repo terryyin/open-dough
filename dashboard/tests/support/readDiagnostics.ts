@@ -1,8 +1,8 @@
 // Shared helpers for local authenticated-read diagnostics inspection
-// (`../boundary/authenticated-read-diagnostics.spec.ts` and
-// `../boundary/authenticated-read-diagnostics-bounds.spec.ts`), and the
+// (`../../backend-tests/authenticated-read-diagnostics.spec.ts` and
+// `../../backend-tests/authenticated-read-diagnostics-bounds.spec.ts`), and the
 // incident record a machine directory holds (`../../server/incidentRecord.ts`,
-// `../boundary/authenticated-read-incident-record*.spec.ts`).
+// `../../backend-tests/authenticated-read-incident-record*.spec.ts`).
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";

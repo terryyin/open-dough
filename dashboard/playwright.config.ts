@@ -72,7 +72,7 @@ const suiteTime = remainingSuiteTime(
 // Only this configuration grants the requested paths to its own reporter.
 // Custom nested configurations do not acquire an outer run's evidence or
 // times path. CI names the times file per shard and keeps it as artifact
-// `dashboard-times-<shard>`, the source `tests/longest-first` is refreshed
+// `dashboard-times-<shard>`, the source `longest-first` is refreshed
 // from (tests/shards.md).
 const proofRecord = process.env["OPEN_DOUGH_DASHBOARD_PROOF_RECORD"];
 const times = process.env["OPEN_DOUGH_DASHBOARD_TIMES"];
@@ -82,7 +82,7 @@ const quietReporter: [string, QuietReporterOptions] = [
 ];
 
 export default defineConfig({
-  testDir: "./tests",
+  testDir: ".",
   outputDir: `./test-results/${runStamp}`,
   fullyParallel: true,
   // Local runs leave room for neighboring projects. CI keeps every core per
@@ -108,7 +108,7 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   projects: dashboardTestProjects(
-    new URL("./tests/", import.meta.url),
+    new URL("./", import.meta.url),
     process.env["OPEN_DOUGH_DASHBOARD_SPLIT"],
   ).map((project) => ({ ...project, use: { ...devices["Desktop Chrome"] } })),
   // Every run builds the production app once; each page journey then serves

@@ -1,4 +1,4 @@
-// The machine state the Sessions replay (../boundary/sessions-replay.spec.ts)
+// The machine state the Sessions replay (../../backend-tests/sessions-replay.spec.ts)
 // starts its server on, written straight into a machine directory the
 // replay owns (./fakeClaude.ts lays it out: `home/` and `claude-state/`):
 // the launch records and attempts (./sessionsReplayRecords.ts), a

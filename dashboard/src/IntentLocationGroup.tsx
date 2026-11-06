@@ -68,7 +68,11 @@ function selectionPhrase(location: IntentLocation): string {
 function LocationLabel({ location }: { readonly location: IntentLocation }) {
   return (
     <>
-      <code>{location.path}</code>{" "}
+      {location.label === undefined ? (
+        <code>{location.path}</code>
+      ) : (
+        <span title={location.path}>{location.label}</span>
+      )}{" "}
       <span className="intent-location-kind">{location.kind}</span>
       {location.include !== undefined && location.include.length > 0
         ? location.include.map((pattern) => (
@@ -158,7 +162,7 @@ export function IntentLocationGroup({
           className="intent-location-toggle"
           aria-expanded={expanded}
           aria-controls={bodyId}
-          aria-label={`${expanded ? "Collapse" : "Expand"} ${location.path}`}
+          aria-label={`${expanded ? "Collapse" : "Expand"} ${location.label ?? location.path}`}
           onClick={onToggle}
         >
           <Icon icon={expanded ? BookOpen : Book} />

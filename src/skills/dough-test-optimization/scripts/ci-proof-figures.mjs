@@ -61,6 +61,41 @@ export function breakdownOf(byPath) {
   };
 }
 
+// Records one counted result, FIELD, with its optional durationMs
+// (undefined when it recorded none), under PATH in BREAKDOWN, a map from
+// each repository path, or undefined for the unassigned, to its figures.
+export function recordResult(breakdown, path, field, durationMs) {
+  breakdown.set(
+    path,
+    addedFigures(breakdown.get(path) ?? emptyFigures(), {
+      ...zeroCounts(),
+      [field]: 1,
+      ...(durationMs === undefined ? { untimed: 1 } : { durationMs }),
+    }),
+  );
+}
+
+// A fragment's breakdown extras from BREAKDOWN (`recordResult`): `untimed`
+// over all of it, then its files and unassigned (`breakdownOf`).
+export function breakdownExtras(breakdown) {
+  const untimed = [...breakdown.values()].reduce(
+    (sum, figures) => sum + figures.untimed,
+    0,
+  );
+  return { untimed, ...breakdownOf(breakdown) };
+}
+
+// BREAKDOWN with every label that is not a relative path inside ENTRY folded
+// into the unassigned figures.
+export function unassigningUnusable(breakdown, entry) {
+  const kept = new Map();
+  for (const [label, figures] of breakdown) {
+    const path = isPathIn(label, entry) ? label : undefined;
+    kept.set(path, addedFigures(kept.get(path) ?? emptyFigures(), figures));
+  }
+  return kept;
+}
+
 export const isObject = (value) =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 export const isText = (value) => typeof value === "string" && value !== "";

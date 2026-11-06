@@ -130,19 +130,20 @@ test("a file a command cannot read fails naming it, without a stack trace", () =
 
 test("preview lists a dashboard spec directory as its configuration discovers it, without a ceiling", () => {
   const specs = join(scratch, "specs");
-  mkdirSync(join(specs, "boundary"), { recursive: true });
+  mkdirSync(join(specs, "backend-tests"), { recursive: true });
   for (const name of [
-    "a.spec.ts",
-    "boundary/b.spec.ts",
-    "c.spec.ts",
-    "support/helper.ts",
+    "tests/a.spec.ts",
+    "backend-tests/b.spec.ts",
+    "tests/c.spec.ts",
+    "tests/support/helper.ts",
+    "src/ignored.spec.ts",
   ]) {
     mkdirSync(join(specs, name, ".."), { recursive: true });
     writeFileSync(join(specs, name), "");
   }
   writeFileSync(
     join(specs, "longest-first"),
-    "# list\n4.0\tboundary/b.spec.ts\n2.0\ta.spec.ts\n",
+    "# list\n4.0\tbackend-tests/b.spec.ts\n2.0\ttests/a.spec.ts\n",
   );
   const previewRun = run([
     "preview",
@@ -160,7 +161,7 @@ test("preview lists a dashboard spec directory as its configuration discovers it
       "share 1/2: 4.0 predicted (1 jobs, 0 unrecorded)\n" +
       "share 2/2: 5.0 predicted (2 jobs, 1 unrecorded)\n" +
       `unrecorded jobs (1), each assumed at 3.0 s; a refresh of ${specs}/longest-first records them:\n` +
-      "  share 2/2  c.spec.ts\n",
+      "  share 2/2  tests/c.spec.ts\n",
   );
   const both = run([
     "preview",

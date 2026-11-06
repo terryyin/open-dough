@@ -3,46 +3,12 @@
 // rest of the collector (ci-proof-summary.mjs).
 import { fragment, zeroCounts } from "./ci-proof-contract.mjs";
 import {
-  addedFigures,
-  breakdownOf,
+  breakdownExtras,
   emptyFigures,
   isPathIn,
+  recordResult,
+  unassigningUnusable,
 } from "./ci-proof-figures.mjs";
-
-// Records one counted result, FIELD, with its optional durationMs
-// (undefined when it recorded none), under PATH in BREAKDOWN, a map from
-// each repository path, or undefined for the unassigned, to its figures.
-function recordResult(breakdown, path, field, durationMs) {
-  breakdown.set(
-    path,
-    addedFigures(breakdown.get(path) ?? emptyFigures(), {
-      ...zeroCounts(),
-      [field]: 1,
-      ...(durationMs === undefined ? { untimed: 1 } : { durationMs }),
-    }),
-  );
-}
-
-// A fragment's breakdown extras from BREAKDOWN (`recordResult`): `untimed`
-// over all of it, then its files and unassigned (`breakdownOf`).
-function breakdownExtras(breakdown) {
-  const untimed = [...breakdown.values()].reduce(
-    (sum, figures) => sum + figures.untimed,
-    0,
-  );
-  return { untimed, ...breakdownOf(breakdown) };
-}
-
-// BREAKDOWN with every label that is not a relative path inside ENTRY folded
-// into the unassigned figures.
-function unassigningUnusable(breakdown, entry) {
-  const kept = new Map();
-  for (const [label, figures] of breakdown) {
-    const path = isPathIn(label, entry) ? label : undefined;
-    kept.set(path, addedFigures(kept.get(path) ?? emptyFigures(), figures));
-  }
-  return kept;
-}
 
 // One Playwright test passes when every execution was expected, fails when
 // any was unexpected or flaky, and is otherwise other (skipped or unfinished).
@@ -78,8 +44,9 @@ function playwrightDurationMs(tests) {
 // The repository path of a Playwright test's file: its absolute
 // `location.file` relative to the record's own run directory (`run.cwd`,
 // where the run was started: the repository root for `npm run`), when it is
-// a file inside ENTRY. Undefined otherwise, so it is never a machine path.
-function repositoryPathOf(record, test, entry) {
+// a file inside one of ENTRIES. Undefined otherwise, so it is never a
+// machine path.
+function repositoryPathOf(record, test, entries) {
   const file = test.location?.file;
   const cwd = record.run?.cwd;
   if (typeof file !== "string" || typeof cwd !== "string" || cwd === "") {
@@ -88,16 +55,17 @@ function repositoryPathOf(record, test, entry) {
   const root = cwd.endsWith("/") ? cwd : `${cwd}/`;
   if (!file.startsWith(root)) return undefined;
   const path = file.slice(root.length);
-  return isPathIn(path, entry) ? path : undefined;
+  return entries.some((entry) => isPathIn(path, entry)) ? path : undefined;
 }
 
-// A dashboard proof record (OPEN_DOUGH_DASHBOARD_PROOF_RECORD) as the fragment
-// of its one entry; counted unit: tests. A record that did not complete a run
-// gives no fragment, so its part stays missing. Optional durationMs is the sum
-// of every finished attempt's durationMs when any attempt recorded one. With
-// BY_FILE, the fragment is also broken down by each test's file
-// (`repositoryPathOf`); a test whose file is not one is unassigned, and a
-// test none of whose attempts recorded a duration is untimed.
+// A dashboard proof record (OPEN_DOUGH_DASHBOARD_PROOF_RECORD) as one fragment
+// per entry; counted unit: tests. Multiple entries partition tests by their
+// most specific owning repository path, like an outcomes report. A single
+// entry keeps whole-record totals, including results without usable paths.
+// A record that did not complete a run gives no fragment, so its part stays
+// missing. Optional durationMs sums every finished attempt of that entry's
+// tests. With BY_FILE, a test without a usable path is unassigned, and a test
+// none of whose attempts recorded a duration is untimed.
 export function fragmentFromPlaywrightRecord(
   record,
   identity,
@@ -111,31 +79,42 @@ export function fragmentFromPlaywrightRecord(
       `the Playwright proof record did not complete a run (phase ${record.phase})`,
     );
   }
-  if (identity.entries.length !== 1) {
-    throw new Error("a Playwright proof record proves exactly one --entry");
+  if (identity.entries.length === 0) {
+    throw new Error("a Playwright proof record needs at least one --entry");
   }
-  const [entry] = identity.entries;
-  const counts = zeroCounts();
-  const breakdown = new Map();
+  const testsByEntry = new Map(identity.entries.map((entry) => [entry, []]));
   for (const test of record.tests) {
-    const outcome = playwrightTestOutcome(test.executions ?? []);
-    counts[outcome] += 1;
-    if (byFile) {
-      recordResult(
-        breakdown,
-        repositoryPathOf(record, test, entry),
-        outcome,
-        playwrightDurationMs([test]),
-      );
-    }
+    const path = repositoryPathOf(record, test, identity.entries);
+    const entry =
+      identity.entries.length === 1
+        ? identity.entries[0]
+        : path === undefined
+          ? undefined
+          : owningEntry(identity.entries, path);
+    if (entry !== undefined) testsByEntry.get(entry).push(test);
   }
-  const durationMs = playwrightDurationMs(record.tests);
-  return [
-    fragment(identity, entry, "tests", counts, {
+  return identity.entries.map((entry) => {
+    const tests = testsByEntry.get(entry);
+    const counts = zeroCounts();
+    const breakdown = new Map();
+    for (const test of tests) {
+      const outcome = playwrightTestOutcome(test.executions ?? []);
+      counts[outcome] += 1;
+      if (byFile) {
+        recordResult(
+          breakdown,
+          repositoryPathOf(record, test, [entry]),
+          outcome,
+          playwrightDurationMs([test]),
+        );
+      }
+    }
+    const durationMs = playwrightDurationMs(tests);
+    return fragment(identity, entry, "tests", counts, {
       ...(durationMs === undefined ? {} : { durationMs }),
       ...(byFile ? breakdownExtras(breakdown) : {}),
-    }),
-  ];
+    });
+  });
 }
 
 function owningEntry(entries, check) {

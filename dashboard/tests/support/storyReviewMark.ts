@@ -1,5 +1,5 @@
 // Story A's review as its marking tests (../story-review-mark.spec.ts,
-// ../boundary/story-review-mark-admission.spec.ts,
+// ../../backend-tests/story-review-mark-admission.spec.ts,
 // ../story-review-since.spec.ts, ../story-review-comparison*.spec.ts) drive
 // it: opening and reopening it from the card, choosing Mark reviewed, and the
 // snapshot each read answers; and what the machine store and the project's

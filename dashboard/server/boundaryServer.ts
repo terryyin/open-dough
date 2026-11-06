@@ -1,5 +1,5 @@
 // This dashboard's local boundaries on a plain HTTP server, without Vite:
-// the server a boundary test starts (`../tests/boundary/`, through
+// the server a backend test starts (`../backend-tests/`, through
 // `../tests/support/dashboardServer.ts` in boundary mode) in place of a dev
 // or built-preview server. It mounts this dashboard's local boundaries
 // (`./localBoundaries.ts`), the list `../vite.config.mts` mounts too, and

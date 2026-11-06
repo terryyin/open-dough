@@ -1,7 +1,7 @@
 // Candidate installed .agents scripts own publication/workspaces. The page
 // chooses Codex; the native substitute supplies only RPC outcomes and IDs.
 // Damage variants of retained-retry refusal live at
-// ./boundary/agent-launch-preparation-codex-retry.spec.ts; this journey proves
+// ../backend-tests/agent-launch-preparation-codex-retry.spec.ts; this journey proves
 // the kept-start dialog surfaces that refusal once.
 import { readFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";

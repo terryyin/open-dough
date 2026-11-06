@@ -40,6 +40,11 @@ Each project's repository may also publish Intent locations in
 `.planning/open-dough.json` as
 `"intent": { "locations": [{ "path": "<folder>", "kind": "<kind>", "include": ["<pattern>", ...] }] }`.
 
+An optional `label` names a location in the browser and its summary, for example
+`"label": "Dashboard Backend Test"`. The repository `path` remains its identity
+for selection, source reads and CI proof. A blank or non-string label falls back
+to the path; omitting the label preserves the path title.
+
 The kind selects which files Intent can list and the syntax grammar of the same
 name: `gherkin` (`.feature`), `typescript` (`.ts`, `.tsx`), `javascript`
 (`.js`, `.mjs`, `.cjs`), `python` (`.py`), or `shell` (`.sh`, `.bash`). An

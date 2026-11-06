@@ -4,7 +4,7 @@
 // opens that server at `/`. So a journey decides only what GitHub would
 // answer the local `gh`, and the page, its local authenticated read
 // boundary, and the `gh` invocation are the production ones. A boundary spec
-// (./boundary/) built on the same fixtures sets `serverMode` to `boundary`
+// (../backend-tests/) built on the same fixtures sets `serverMode` to `boundary`
 // and gets the local boundaries alone, without Vite or the build; it opens
 // no page.
 //

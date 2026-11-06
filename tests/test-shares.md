@@ -68,7 +68,8 @@ The refresh keeps the header and records the source in its `# Source:` line,
 naming the runner factor or that it was unavailable.
 `OPEN_DOUGH_TEST_DIR=<dir>` and `--test-dir <dir>` preview a substitute
 directory with its own list and budget; `--spec-dir <dir>` previews the
-dashboard's spec files under that directory instead, with no budget
+dashboard's browser/backend spec roots under that common directory instead
+(`--spec-dir dashboard`), with no budget
 ([dashboard/tests/shards.md](../dashboard/tests/shards.md)); `--list`,
 `--budget` and `--labels <file>` (labels one per line) name the inputs
 directly, and without a budget the preview prints no headroom.

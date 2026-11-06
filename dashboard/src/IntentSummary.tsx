@@ -34,6 +34,9 @@ export function IntentSummary({
   return (
     <section className="intent-summary" aria-label="Summary">
       <h3>Summary</h3>
+      {path === location.path && location.label !== undefined && (
+        <p className="intent-summary-label">{location.label}</p>
+      )}
       <p className="intent-summary-path">
         <code>{path}</code>
       </p>

@@ -10,7 +10,7 @@
 // project's execution dialog adds no sentence and its card reads "Starting
 // execution in Claude Code…", as a refinement's does. The
 // synthetic `claude` (./fixtures/fake-claude) stands in for the real one, and
-// the kept record with a start is written as ./boundary/agent-launch-start.spec.ts
+// the kept record with a start is written as ../backend-tests/agent-launch-start.spec.ts
 // shows the real start leaves it. The start itself is that spec's.
 
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -121,8 +121,8 @@ test.describe("while the launch request is pending", () => {
   });
 });
 
-// The kept records are written as ./boundary/agent-launch-start.spec.ts and
-// ./boundary/agent-launch-preparation-start.spec.ts show the real starts
+// The kept records are written as ../backend-tests/agent-launch-start.spec.ts and
+// ../backend-tests/agent-launch-preparation-start.spec.ts show the real starts
 // leave them.
 test("a session whose start or preparation established a workspace says Workspace <folder> beneath the project folder, never the home directory, one without says none, and none is listed in Recently done", async ({
   page,

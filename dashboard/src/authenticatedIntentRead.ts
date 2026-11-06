@@ -23,6 +23,7 @@ const settingsProblem = z.enum(["malformed", "unreadable"]);
 const intentLocation = z.object({
   path: z.string().min(1),
   kind: z.string().min(1),
+  label: z.string().min(1).optional(),
   include: z.array(z.string().min(1)).optional(),
   files: z.array(z.string().min(1)),
   problem: locationProblem.optional(),

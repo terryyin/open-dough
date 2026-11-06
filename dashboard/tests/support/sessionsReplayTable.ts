@@ -1,4 +1,4 @@
-// How the Sessions replay (../boundary/sessions-replay.spec.ts) prints what
+// How the Sessions replay (../../backend-tests/sessions-replay.spec.ts) prints what
 // it measured (./sessionsReplayMeasures.ts): one table, a measure a row,
 // beside the baseline the replay measured before the story changed the
 // observation (three runs at f1e43552 on 2026-11-03, load 8–15), or, for

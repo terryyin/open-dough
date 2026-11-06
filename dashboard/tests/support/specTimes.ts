@@ -1,7 +1,7 @@
 // One run's seconds per spec file, the dashboard's counterpart of the Node
 // runner's times file: one `<seconds><TAB><file>` line per spec file that
 // ran, in the times form of scripts/share-deal.mjs (`formatTimes`), from which
-// a duration list such as `dashboard/tests/longest-first` is refreshed. A
+// a duration list such as `dashboard/longest-first` is refreshed. A
 // file's seconds sum test attempts and their beforeAll/afterAll hooks once,
 // including the tests it registers through a module it imports (a case
 // module), which Playwright places under the spec file's suite while their

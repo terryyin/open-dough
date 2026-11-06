@@ -17,7 +17,6 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 import {
   browseSpec,
   openDough,
-  openDoughSettings,
   publishIntentProject,
   shellCheck,
 } from "./intentCodeBrowseFixtures.ts";
@@ -26,12 +25,30 @@ test("Intent lists matched code test files under include patterns, omits helpers
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishIntentProject(page, openDough, openDoughSettings, {
-    "dashboard/tests/intent-gherkin-browse.spec.ts": browseSpec,
+  const settings = JSON.stringify({
+    intent: {
+      locations: [
+        {
+          path: "dashboard/tests",
+          kind: "typescript",
+          include: ["**/*.spec.ts"],
+        },
+        {
+          path: "dashboard/backend-tests",
+          label: "Dashboard Backend Test",
+          kind: "typescript",
+          include: ["**/*.spec.ts"],
+        },
+        { path: "tests", kind: "shell", include: ["*.sh"] },
+      ],
+    },
+  });
+  await publishIntentProject(page, openDough, settings, {
+    "dashboard/tests/intent/intent-gherkin-browse.spec.ts": browseSpec,
     "dashboard/tests/intentPerspectivePage.ts": "export const helper = 1;\n",
-    "dashboard/tests/boundary/authenticated-read-intent-locations.spec.ts":
+    "dashboard/backend-tests/authenticated-read-intent-locations.spec.ts":
       browseSpec,
-    "dashboard/tests/boundary/ownRecordContinuation.ts":
+    "dashboard/backend-tests/ownRecordContinuation.ts":
       "export const continuation = true;\n",
     "tests/compare-versions.sh": shellCheck,
     "tests/support/x.sh": "#!/usr/bin/env bash\necho support\n",
@@ -53,13 +70,7 @@ test("Intent lists matched code test files under include patterns, omits helpers
     await expandIntentFolders(intent, "dashboard/tests");
     await expect(
       intent.getByRole("button", {
-        name: "dashboard/tests/intent-gherkin-browse.spec.ts",
-        exact: true,
-      }),
-    ).toBeVisible();
-    await expect(
-      intent.getByRole("button", {
-        name: "dashboard/tests/boundary/authenticated-read-intent-locations.spec.ts",
+        name: "dashboard/tests/intent/intent-gherkin-browse.spec.ts",
         exact: true,
       }),
     ).toBeVisible();
@@ -69,21 +80,15 @@ test("Intent lists matched code test files under include patterns, omits helpers
         exact: true,
       }),
     ).toHaveCount(0);
-    await expect(
-      intent.getByRole("button", {
-        name: "dashboard/tests/boundary/ownRecordContinuation.ts",
-        exact: true,
-      }),
-    ).toHaveCount(0);
 
     await intent
       .getByRole("button", {
-        name: "dashboard/tests/intent-gherkin-browse.spec.ts",
+        name: "dashboard/tests/intent/intent-gherkin-browse.spec.ts",
         exact: true,
       })
       .click();
     const source = intent.getByLabel(
-      "dashboard/tests/intent-gherkin-browse.spec.ts source",
+      "dashboard/tests/intent/intent-gherkin-browse.spec.ts source",
     );
     await expect(source).toContainText(
       'import { test } from "@playwright/test";',
@@ -97,6 +102,42 @@ test("Intent lists matched code test files under include patterns, omits helpers
       /^import$/,
       /^"@playwright\/test"$/,
     );
+  });
+
+  await test.step("A labelled backend entry keeps its canonical source path", async () => {
+    const locationPath = "dashboard/backend-tests";
+    const heading = intentLocationName(intent, locationPath);
+    await expect(heading).toContainText("Dashboard Backend Test");
+    await expect(intentGroupToggle(intent, locationPath)).toHaveAccessibleName(
+      "Expand Dashboard Backend Test",
+    );
+    await heading.click();
+    const summary = intent.getByRole("region", {
+      name: "Summary",
+      exact: true,
+    });
+    await expect(summary).toContainText("Dashboard Backend Test");
+    await expect(summary).toContainText(locationPath);
+    await expandIntentGroup(intent, locationPath);
+    await expect(
+      intent.getByRole("button", {
+        name: `${locationPath}/ownRecordContinuation.ts`,
+        exact: true,
+      }),
+    ).toHaveCount(0);
+    await intent
+      .getByRole("button", {
+        name: `${locationPath}/authenticated-read-intent-locations.spec.ts`,
+        exact: true,
+      })
+      .click();
+    await expect(
+      intent
+        .getByLabel(
+          `${locationPath}/authenticated-read-intent-locations.spec.ts source`,
+        )
+        .locator(".source-line-text"),
+    ).toHaveText(browseSpec.split("\n"));
   });
 
   await test.step("Ex 4 shell: top-level *.sh listed; support scripts omitted; selecting shows kind styling", async () => {

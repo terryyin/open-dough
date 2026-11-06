@@ -17,7 +17,7 @@
 // teardown past its timeout never reached close, is stopped then, as is the
 // server's own group (./processGroup.ts). A closed server leaves no such stop.
 // Every page journey gets its own server this way (../dashboardTest.ts), and the
-// boundary specs (../boundary/) start their own, so PATH/env mutation and each
+// boundary specs (../../backend-tests/) start their own, so PATH/env mutation and each
 // fake GitHub's answers never leak between tests.
 
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
@@ -85,7 +85,7 @@ export type DashboardServer = {
 export async function startDashboardServer(
   options: FakeClaudeOptions & {
     // `boundary` starts the local boundaries alone, on a plain HTTP server,
-    // for a spec that never opens a page (../boundary/); `dev` and `preview`
+    // for a spec that never opens a page (../../backend-tests/); `dev` and `preview`
     // start Vite.
     readonly mode: DashboardServerMode;
     // Dev only: one the test restarts in place by SIGUSR2 (./serverAddress.ts).

@@ -1,6 +1,6 @@
 // The dashboard configuration's share selection: support/testFiles.mjs
 // deals the spec files through scripts/share-deal.mjs by the seconds in
-// dashboard/tests/longest-first (dashboard/tests/shards.md).
+// dashboard/longest-first (dashboard/tests/shards.md).
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
@@ -38,10 +38,14 @@ const matched = (patterns, path) =>
   patterns.filter((pattern) => pattern.test(path)).length;
 
 test("the config deals recorded specs by their seconds and new specs after them at the median", () => {
-  const files = ["known.spec.ts", "nested/short.spec.ts", "new.spec.ts"];
+  const files = [
+    "tests/known.spec.ts",
+    "backend-tests/short.spec.ts",
+    "tests/new.spec.ts",
+  ];
   // A removed entry is ignored and a repeated one keeps its largest seconds.
   const list =
-    "# header\n9.0\tknown.spec.ts\n1.0\tremoved.spec.ts\n0.5\tnested/short.spec.ts\n1.0\tnested/short.spec.ts\n";
+    "# header\n9.0\ttests/known.spec.ts\n1.0\ttests/removed.spec.ts\n0.5\tbackend-tests/short.spec.ts\n1.0\tbackend-tests/short.spec.ts\n";
   withSpecDirectory(files, list, (directory, path) => {
     const first = dashboardTestMatch(directory, "1/2");
     const second = dashboardTestMatch(directory, "2/2");
@@ -49,52 +53,56 @@ test("the config deals recorded specs by their seconds and new specs after them 
     // the lighter share 2.
     assert.equal(first.length, 1);
     assert.equal(second.length, 2);
-    assert.equal(matched(first, join(path, "known.spec.ts")), 1);
-    assert.equal(matched(second, join(path, "nested/short.spec.ts")), 1);
-    assert.equal(matched(second, join(path, "new.spec.ts")), 1);
+    assert.equal(matched(first, join(path, "tests/known.spec.ts")), 1);
+    assert.equal(matched(second, join(path, "backend-tests/short.spec.ts")), 1);
+    assert.equal(matched(second, join(path, "tests/new.spec.ts")), 1);
     assert.equal(matched(first, join(path, "longest-first")), 0);
   });
 });
 
 test("invalid shares fail before selecting tests", () => {
-  withSpecDirectory(["a.spec.ts"], "1.0\ta.spec.ts\n", (directory) => {
-    for (const invalid of [
-      "",
-      "0/2",
-      "3/2",
-      "1/0",
-      "x",
-      "1/2/3",
-      "1/9007199254740992",
-    ]) {
-      assert.throws(
-        () => dashboardTestMatch(directory, invalid),
-        /OPEN_DOUGH_DASHBOARD_SPLIT=/,
-      );
-    }
-  });
+  withSpecDirectory(
+    ["tests/a.spec.ts"],
+    "1.0\ttests/a.spec.ts\n",
+    (directory) => {
+      for (const invalid of [
+        "",
+        "0/2",
+        "3/2",
+        "1/0",
+        "x",
+        "1/2/3",
+        "1/9007199254740992",
+      ]) {
+        assert.throws(
+          () => dashboardTestMatch(directory, invalid),
+          /OPEN_DOUGH_DASHBOARD_SPLIT=/,
+        );
+      }
+    },
+  );
 });
 
 test("a list line without seconds fails the configuration naming the file, line and content", () => {
   withSpecDirectory(
-    ["a.spec.ts", "b.spec.ts"],
-    "# header\n2.0\ta.spec.ts\nb.spec.ts\n",
+    ["tests/a.spec.ts", "tests/b.spec.ts"],
+    "# header\n2.0\ttests/a.spec.ts\ntests/b.spec.ts\n",
     (directory, path) => {
       assert.throws(
         () => dashboardTestMatch(directory, "1/2"),
         new Error(
-          `FAIL: ${join(path, "longest-first")}:3: "b.spec.ts" is not <seconds><TAB><label>; no check was run.`,
+          `FAIL: ${join(path, "longest-first")}:3: "tests/b.spec.ts" is not <seconds><TAB><label>; no check was run.`,
         ),
       );
     },
   );
 });
 
-const suite = new URL("../../dashboard/tests/", import.meta.url);
+const suite = new URL("../../dashboard/", import.meta.url);
 const shardCount = 12;
 const shardIndices = [...Array(shardCount).keys()].map((index) => index + 1);
 
-test("the twelve CI shards match every actual browser spec exactly once, and the preview lists a new spec as unrecorded in its shard", () => {
+test("the twelve CI shards match every actual dashboard spec exactly once, and the preview lists a new spec as unrecorded in its shard", () => {
   const files = dashboardSpecFiles(fileURLToPath(suite));
   assert.ok(files.length > 0);
   const matches = shardIndices.flatMap((index) =>
@@ -107,7 +115,7 @@ test("the twelve CI shards match every actual browser spec exactly once, and the
   const { seconds } = readDurationList(
     fileURLToPath(new URL("longest-first", suite)),
   );
-  const added = "zz-new.spec.ts";
+  const added = "tests/zz-new.spec.ts";
   assert.equal(files.includes(added), false);
   const deal = dealShares([...files, added], seconds, shardCount);
   const receiving = deal.shares.find((share) =>
@@ -161,9 +169,10 @@ test("native projects queue production chains first and partition every shard wi
     for (const file of files) {
       const path = new URL(file, suite).pathname;
       assert.equal(matched(matches, path), matched(selected, path), file);
-      const expected = /^production-watcher(?:-.*)?\.spec\.ts$/.test(file)
-        ? 0
-        : 1;
+      const expected =
+        /^tests\/(?:[^/]+\/)*production-watcher(?:-.*)?\.spec\.ts$/.test(file)
+          ? 0
+          : 1;
       if (matched(matches, path)) {
         assert.equal(matched(projects[expected].testMatch, path), 1, file);
       }
@@ -177,9 +186,9 @@ test("native projects queue production chains first and partition every shard wi
 
 test("unsharded projects include new specs and an empty shard never expands to every file", () => {
   const files = [
-    "production-watcher-updates.spec.ts",
-    "a.spec.ts",
-    "boundary/production-watcher-refusals.spec.ts",
+    "tests/runtime/production-watcher-updates.spec.ts",
+    "tests/a.spec.ts",
+    "backend-tests/production-watcher-refusals.spec.ts",
   ];
   withSpecDirectory(files, "", (directory, path) => {
     const projects = dashboardTestProjects(directory);

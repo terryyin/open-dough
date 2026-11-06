@@ -100,11 +100,16 @@ entry once, `1` to `n`: two jobs reporting the same part make it ambiguous.
   no duration.
 - `--playwright-record FILE`: JSON
   `{"schemaVersion":1,"phase":"completed","tests":[{"executions":[{"outcome":"expected"}],"attempts":[{"durationMs":42}]}]}`
-  for exactly one `--entry`. The unit is tests. A test passes when every
+  for one or more `--entry` paths. With several entries, each test's absolute
+  `location.file`, relative to the record's `run.cwd`, counts toward the
+  longest containing entry; a test with no usable owning path counts toward
+  none. With one entry, the whole record counts toward that entry, including
+  tests with no usable file path. The unit is tests. A test passes when every
   outcome is `expected`, fails when any is `unexpected` or `flaky`, and is
   otherwise other. Any other `phase` fails the step and writes no fragment.
-  When finished attempts record `durationMs`, the fragment's `durationMs` is
-  their sum across tests (retries included). `--times` applies only with
+  When finished attempts record `durationMs`, each fragment's `durationMs` is
+  their sum across its tests (retries included). An entry with no selected
+  tests still receives its zero-count fragment. `--times` applies only with
   `--outcomes`.
 
 Add `--by-file` to break each fragment down by test file. Each `--outcomes`
@@ -113,8 +118,9 @@ that is not a relative path inside its entry is counted as unassigned, and a
 check with no `--times` line as untimed. A `--playwright-record` test's
 file is its absolute `location.file` relative to the record's `run.cwd`, the
 directory the run started in (the repository root for `npm run`); a test
-whose file is not inside its entry under that directory, or that has no
-location, is counted as unassigned rather than given a path, and a test none
+whose file is not inside its sole entry under that directory, or that has no
+location, is counted as unassigned rather than given a path; several entries
+require a usable owning path to assign a test. A test none
 of whose attempts recorded `durationMs` is untimed. No machine path is
 published. Every count stays accounted for: files plus unassigned equal the
 fragment's counts, and `summarize` keeps each part's breakdown, or its
@@ -145,7 +151,8 @@ node <ci-scripts>/ci-proof-summary.mjs fragment \
 
 `<part>` is `1` and `<parts>` `1` for a single job, or the matrix value and
 `${{ strategy.job-total }}` for a matrix. Use `--playwright-record <record>`
-and one `--entry` instead of `--outcomes` for a Playwright record. Upload
+instead of `--outcomes` for a Playwright record; name every entry the shared
+run proves. Upload
 `${{ runner.temp }}/ci-proof/` as artifact
 `ci-proof-fragments-${{ github.job }}-<part>-attempt-${{ github.run_attempt }}`
 with `if-no-files-found: ignore` and one-day retention (`!cancelled()` so

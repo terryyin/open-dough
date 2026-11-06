@@ -3,7 +3,7 @@
 // restart, when reopening compares with it; worktree index/status stay unchanged.
 // Opening/closing/refreshing/replacing marks nothing. Marking again replaces the
 // story's mark/ref. Mark requests naming paths, malformed objects, or missing
-// objects are in ./boundary/story-review-mark-admission.spec.ts.
+// objects are in ../backend-tests/story-review-mark-admission.spec.ts.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
