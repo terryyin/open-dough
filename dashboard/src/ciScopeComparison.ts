@@ -1,14 +1,15 @@
-// Scope comparison of a selected story's CI endpoints for Intent Summaries
-// and the homepage's entry rows (`./IntentScopeProof.tsx`,
+// Scope comparison of a selected story's CI endpoints for Intent Summaries,
+// a selected file's compact comparison (`./IntentFileComparison.tsx`), and
+// the homepage's entry rows (`./IntentScopeProof.tsx`,
 // `./storyCiComparisonEntries.ts`): for one path and each endpoint's proof
 // summary, take that scope's figures by `./ciScopeProof.ts` (entry totals at
 // the entry's own path; folder and file figures from the file breakdown),
 // classify through `./ciScopeComparisonTiming.ts` and
 // `./ciScopeComparisonCounts.ts`, and word baseline / branch / landed cells
 // and the Counts cell with signed differences. A rename reads its baseline at
-// its old path. Summary uses precise duration words; the homepage keeps
-// whole-second words. Parts completeness stays from the landed summary (or
-// branch when landed has none).
+// its old path. Summary and file use precise duration words; the homepage
+// keeps whole-second words. Parts completeness stays from the landed summary
+// (or branch when landed has none).
 
 import type { CiProofEntry } from "./ciProof.ts";
 import {

@@ -194,7 +194,7 @@ Add counts to the same scope comparison rule. No second rule is needed.
 
 ### 3. Summarize a selected story's comparison for a test file
 Type: Behavior
-Status: planned
+Status: done
 Proof: the file-level journey; the file-reading and story-diff consumer
 specs; the local gate.
 

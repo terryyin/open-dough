@@ -1,5 +1,18 @@
 /* Purpose of the selected file (./IntentFileReading.tsx), scrolled by the
-   Intent reading area (./intent-perspective.css). */
+   Intent reading area (./intent-perspective.css). A selected story's compact
+   file comparison (./IntentFileComparison.tsx) sits above Purpose. */
 .intent-purpose {
   min-width: 0;
+}
+
+.intent-file-comparison {
+  min-width: 0;
+  margin: 0 0 var(--space-3);
+}
+
+.intent-file-comparison .intent-summary-evidence,
+.intent-file-comparison .intent-summary-evidence-absent,
+.intent-file-comparison .intent-ci-comparison-framing,
+.intent-file-comparison .intent-ci-reading {
+  margin: 0 0 var(--space-2);
 }

@@ -1,7 +1,9 @@
 // Summary table comparing a selected story's baseline, branch and landed
 // execution times (`./IntentScopeProof.tsx`) through the shared scope
 // comparison (`./ciScopeComparison.ts`), with change markers from the story
-// overlay and the homepage's observed-not-attributed statement.
+// overlay and the homepage's observed-not-attributed statement. A selected
+// file reuses ComparisonNamed for its compact summary
+// (`./IntentFileComparison.tsx`).
 
 import { shortSha } from "./baseCiWording.ts";
 import {
@@ -23,9 +25,10 @@ import {
 } from "./ciScopeProof.ts";
 import type { ScopeEvidence } from "./IntentScopeEvidence.tsx";
 import { changeKindWords, ChildName } from "./IntentScopeProofChild.tsx";
-import type { IntentTreeFile } from "./intentStoryOverlay.ts";
+import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
+import { comparisonEndpointProofsChecking } from "./storyCiComparisonEntries.ts";
 import { observedNotAttributed } from "./storyCiComparisonWording.ts";
 import type { ComparisonEndpointProofs } from "./useIntentCiComparisonEntries.ts";
 
@@ -68,15 +71,6 @@ function changeOf(
   return treeFiles?.get(path);
 }
 
-function baselineLookupOf(
-  treeFiles: ReadonlyMap<string, IntentTreeFile> | undefined,
-  path: string,
-): string {
-  const file = changeOf(treeFiles, path);
-  if (file?.change?.kind === "renamed") return file.change.oldPath;
-  return path;
-}
-
 export function ComparisonTable({
   path,
   inventory,
@@ -91,10 +85,11 @@ export function ComparisonTable({
   readonly onOpen: (next: IntentSelection) => void;
 }) {
   const children = immediateChildrenOf(path, inventory);
-  const checking =
-    proofs.baseline.kind === "checking" ||
-    proofs.branch.kind === "checking" ||
-    proofs.landed.kind === "checking";
+  const checking = comparisonEndpointProofsChecking(
+    proofs.baseline,
+    proofs.branch,
+    proofs.landed,
+  );
   const primary = primaryProofOf(proofs.landed, proofs.branch, proofs.baseline);
   const entry =
     primary.kind === "summary"
@@ -108,7 +103,7 @@ export function ComparisonTable({
       proofs.branch,
       proofs.landed,
       "precise",
-      baselineLookupOf(treeFiles, scopePath),
+      baselinePathOf(file, scopePath),
       file?.kind,
     );
   };

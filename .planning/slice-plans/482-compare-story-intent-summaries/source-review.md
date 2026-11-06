@@ -11,7 +11,7 @@ No plan, return, product, proof, or suspected omission.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Goal: drill entry→folders→files; see execution time and proof counts across homepage builds | slice 3 | |
+| 1 | Goal: drill entry→folders→files; see execution time and proof counts across homepage builds | slice 3 | observed: intent-summary-story-comparison-file.spec.ts + slices 1–2 journeys |
 | 1a | Builds are baseline, branch result, landed result | slice 1 | observed: IntentScopeProof ComparisonNamed + ciScopeComparison endpoints |
 | 1b | Rows show where change sits and which rows the story changed | slice 1 | observed: change markers + row diffs in intent-summary-story-comparison.spec.ts |
 | 1c | Shows observed build changes; does not claim the story caused them | slice 1 | observed: observedNotAttributed framing in Summary |
@@ -30,9 +30,9 @@ No plan, return, product, proof, or suspected omission.
 | 4 | Compared rows show counted results at each endpoint with signed differences | slice 2 | observed: summaryComparisonExpectedRows count cells + intent-summary-story-comparison.spec.ts |
 | 4a | Outcome counts and parts completeness for homepage's chosen build | slice 2 | observed: Parts column still chosen-build completeness beside count diffs |
 | 4b | Homepage entry rows show the same count differences | slice 2 | observed: intent-ci-comparison.spec.ts entry rows 2,090 → 2,092 +2 |
-| 5 | Selected test file: compact comparison above Purpose | slice 3 | |
-| 5a | Source or diff reading stays primary and unchanged | slice 3 | |
-| 5b | No story → file reading unchanged | slice 3 | |
+| 5 | Selected test file: compact comparison above Purpose | slice 3 | observed: IntentFileComparison above Purpose in file journey |
+| 5a | Source or diff reading stays primary and unchanged | slice 3 | observed: Purpose keeps story diff; no comparison table inside Purpose |
+| 5b | No story → file reading unchanged | slice 3 | observed: intent-story-* / intent-purpose / intent-selection-reads consumers |
 | 6 | Changed rows carry tree change kind (added/modified/removed/renamed) | slice 1 | observed: markers in entryComparisonRows |
 | 6a | Unchanged rows still show observed difference | slice 1 | observed: root.spec.ts / nested c.spec.ts rows |
 | 7a | Added file: no baseline, shown added, no difference | slice 1 | observed: added.spec.ts row |
@@ -50,7 +50,7 @@ No plan, return, product, proof, or suspected omission.
 | 10a | After branch delete and later trunk: same comparison | slice 1 | observed: publishSummaryComparisonStory already cleans up; main journey |
 | 10b | Selecting another story replaces comparison at every scope | slice 1 | observed: gaps replace journey |
 | 10c | Earlier selection's answer never renders | slice 1 | observed: replace journey drops SEED-A#a |
-| 11 | Each Summary and file summary carries observed-not-attributed | slice 3 | |
+| 11 | Each Summary and file summary carries observed-not-attributed | slice 3 | observed: file summary framing + Summary framing from slice 1 |
 | E1 | Entry drill-down timing + counts + markers example | slice 1 | observed: timing/markers in main journey (counts owed by 4 / slice 2) |
 | E2 | File-level precise diffs example | slice 1 | observed: nested a.spec.ts / c.spec.ts Summary rows (file summary owed by 5 / slice 3) |
 | E3 | Branch and landed apart; Trunk Mode Branch N/A | slice 1 | observed: main + trunkEntryRows |

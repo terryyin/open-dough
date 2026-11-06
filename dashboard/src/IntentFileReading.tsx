@@ -5,10 +5,13 @@
 // own diff of it as its Purpose (`storyDiffOf`), and the browser reads no
 // published text for it; a file the published revision does not list is never
 // read there. Text of an earlier revision whose update failed stays readable
-// under that failure and its Retry.
+// under that failure and its Retry. When a story is selected, a compact CI
+// timing comparison for the file (`./IntentFileComparison.tsx`) sits above
+// Purpose; without a story, Purpose alone is unchanged.
 
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import { resolveCaseTargetLine } from "./intentCaseTargetLine.ts";
+import { IntentFileComparison } from "./IntentFileComparison.tsx";
 import { shortRevision } from "./publishedWork.ts";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import type { ComparedStory } from "./IntentStorySummary.tsx";
@@ -67,52 +70,57 @@ export function IntentFileReading({
     story === undefined ? "" : diffStartOf(story.shown.comparison, change);
 
   return (
-    <section className="intent-purpose" aria-label="Purpose">
-      <h3 className="visually-hidden">Purpose</h3>
-      {story !== undefined && change !== undefined ? (
-        <div className="intent-story-diff">
-          <p className="intent-story-diff-name">
-            <ReviewedFileName file={change} />
-          </p>
-          <FileDiff
-            // A new comparison or file is a new read.
-            key={`${changeFrom}:${story.shown.tree}:${change.path}`}
-            reviewed={story.shown.reviewed}
-            from={changeFrom}
-            tree={story.shown.tree}
-            file={change}
-          />
-        </div>
-      ) : read?.state === "failed" ? (
-        <p className="intent-file-problem" role="alert">
-          {path} could not be read.{" "}
-          <button type="button" onClick={onFileRetry}>
-            Retry
-          </button>
-        </p>
-      ) : text !== undefined ? (
-        <>
-          {failedRevision !== undefined && (
-            <p className="intent-file-problem" role="alert">
-              {path} could not be read at revision{" "}
-              <code>{shortRevision(failedRevision)}</code>; showing{" "}
-              <code>{shortRevision(revision)}</code>.{" "}
-              <button type="button" onClick={onFileRetry}>
-                Retry
-              </button>
-            </p>
-          )}
-          <IntentSourceLines
-            text={text}
-            revision={revision}
-            path={path}
-            {...(kind === undefined ? {} : { language: kind })}
-            {...(targetLine === undefined ? {} : { targetLine })}
-          />
-        </>
-      ) : (
-        <p className="quiet">Reading {path}…</p>
+    <>
+      {story !== undefined && (
+        <IntentFileComparison path={path} treeFile={treeFile} />
       )}
-    </section>
+      <section className="intent-purpose" aria-label="Purpose">
+        <h3 className="visually-hidden">Purpose</h3>
+        {story !== undefined && change !== undefined ? (
+          <div className="intent-story-diff">
+            <p className="intent-story-diff-name">
+              <ReviewedFileName file={change} />
+            </p>
+            <FileDiff
+              // A new comparison or file is a new read.
+              key={`${changeFrom}:${story.shown.tree}:${change.path}`}
+              reviewed={story.shown.reviewed}
+              from={changeFrom}
+              tree={story.shown.tree}
+              file={change}
+            />
+          </div>
+        ) : read?.state === "failed" ? (
+          <p className="intent-file-problem" role="alert">
+            {path} could not be read.{" "}
+            <button type="button" onClick={onFileRetry}>
+              Retry
+            </button>
+          </p>
+        ) : text !== undefined ? (
+          <>
+            {failedRevision !== undefined && (
+              <p className="intent-file-problem" role="alert">
+                {path} could not be read at revision{" "}
+                <code>{shortRevision(failedRevision)}</code>; showing{" "}
+                <code>{shortRevision(revision)}</code>.{" "}
+                <button type="button" onClick={onFileRetry}>
+                  Retry
+                </button>
+              </p>
+            )}
+            <IntentSourceLines
+              text={text}
+              revision={revision}
+              path={path}
+              {...(kind === undefined ? {} : { language: kind })}
+              {...(targetLine === undefined ? {} : { targetLine })}
+            />
+          </>
+        ) : (
+          <p className="quiet">Reading {path}…</p>
+        )}
+      </section>
+    </>
   );
 }

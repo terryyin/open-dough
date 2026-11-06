@@ -70,11 +70,11 @@ the mode, so returning to **Intent** that way keeps what it was reading.
 reading pane; it is the tab a project's Intent first shows. With nothing
 selected the reading pane is Intent's homepage, **CI status**; with a file
 selected it shows the file's **Purpose**, and with a location or folder its
-summary. Directly activating the **Intent** tab, by click, Enter or Space and
-even while it is already chosen, returns home: the location, folder or file
-selection clears and CI status shows again for the same selected story,
-while tree expansion and the reading choices stay as they were. There is no
-separate return control.
+summary. With a story selected, a selected test file also shows a compact CI
+timing comparison above Purpose (same Summary comparison; Purpose primary);
+without a story, file reading is unchanged. Directly activating the **Intent**
+tab (click, Enter or Space), even while already chosen, returns home: selection
+clears and CI status shows for the same story; expansion and reading choices stay. No separate return control.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at Intent's reading revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
@@ -229,11 +229,12 @@ changed; toggling it opens the same folders again and collapses the rest.
 Changed files no location selects by either path are counted in the summary
 with a way to Review changes, which opens on Intent's comparison (All
 changes, uncommitted included) even for a story with a review mark. A changed
-file's Purpose is Review changes' diff of it. A story without a comparison,
-and a failed read with retry, each say so while the published tree stays
-usable; clearing the selected story removes the summary. The story is a lens
-on Intent, not a separate definition of it, and its changed files are an
-initial view of its impact: they do not by themselves establish every
+file's Purpose is Review changes' diff of it, with compact comparison above
+Purpose when that comparison is available. A story without a comparison, and a
+failed read with retry, each say so while the published tree stays usable;
+clearing the selected story removes the summary and file comparison. The story
+is a lens on Intent, not a separate definition of it, and its changed files are
+an initial view of its impact: they do not by themselves establish every
 affected behavior or the regression proof it needs. Structure is not offered
 yet. The perspective is disposable presentation state on the URL
 (`perspective=intent`), independent of Development's stories/roster view,

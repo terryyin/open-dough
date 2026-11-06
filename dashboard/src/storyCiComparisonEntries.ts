@@ -17,6 +17,18 @@ export type ComparisonEndpointProof =
   | { readonly kind: "summary"; readonly entries: readonly CiProofEntry[] }
   | { readonly kind: "unavailable"; readonly line: string };
 
+export function comparisonEndpointProofsChecking(
+  baseline: ComparisonEndpointProof,
+  branch: ComparisonEndpointProof,
+  landed: ComparisonEndpointProof,
+): boolean {
+  return (
+    baseline.kind === "checking" ||
+    branch.kind === "checking" ||
+    landed.kind === "checking"
+  );
+}
+
 export type ComparisonEntryCells = {
   readonly counts: string;
   readonly baseline: string;
@@ -83,11 +95,7 @@ export function comparisonEntriesOf(
   branch: ComparisonEndpointProof,
   landed: ComparisonEndpointProof,
 ): ComparisonEntries {
-  if (
-    baseline.kind === "checking" ||
-    branch.kind === "checking" ||
-    landed.kind === "checking"
-  ) {
+  if (comparisonEndpointProofsChecking(baseline, branch, landed)) {
     return { kind: "checking" };
   }
   const primary = primaryProofOf(landed, branch, baseline);
