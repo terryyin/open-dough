@@ -97,3 +97,28 @@ test("a genuine conflict does not authorize added resolution edits outside its p
     ),
   });
 });
+
+test("a non-owning merge resolution on a story file refuses attribution", async ({
+  request,
+  dashboard,
+  origin,
+}) => {
+  await completedPublishedStory(
+    origin,
+    "story-branch",
+    "non-owning-story-file",
+  );
+  const response = await getReview(
+    request,
+    dashboard,
+    storyReviewEndpoint,
+    completedReviewQuery,
+  );
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toMatchObject({
+    kind: "unavailable",
+    explanation: expect.stringContaining(
+      "merge resolutions affecting this story's files whose changes cannot be attributed safely",
+    ),
+  });
+});

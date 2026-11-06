@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Compare story proof through merge resolutions](seeds/SEED-248-story-proof-through-merge-resolutions.md#compare-story-proof-through-merge-resolutions) — SEED-248#compare-story-proof-through-merge-resolutions ([plan](slice-plans/485-compare-story-proof-through-merge-resolutions/PLAN.md))
 - [Organize dashboard tests by feature](seeds/SEED-249-dashboard-test-organization.md#organize-dashboard-tests) — SEED-249#organize-dashboard-tests ([plan](slice-plans/486-organize-dashboard-tests/PLAN.md))
 
 ## Backlog list

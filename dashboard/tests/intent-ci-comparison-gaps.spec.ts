@@ -1,16 +1,21 @@
 // Gap and selection variants for Intent's CI timing comparison
 // (../src/IntentCiComparison.tsx): Trunk Mode not-applicable Branch, running
-// Landed beside a readable Branch comparison with an added entry, failed
-// Landed labelling, and a missing Landed explanation without inventing zero
-// (SEED-244#compare-story-ci-timing-changes examples 5 and Trunk Mode). The
-// happy-path, SEED-236 and unrecoverable journeys live in
-// ./intent-ci-comparison.spec.ts; entry-proof expiry and missing durations
-// live in ./intent-ci-comparison-entries.spec.ts.
+// Landed beside a readable Branch comparison with an added entry, a missing
+// Landed explanation without inventing zero, and SEED-248 no-build gaps at a
+// fast-forward tip with Baseline retained
+// (SEED-244#compare-story-ci-timing-changes examples 5 and Trunk Mode).
+// Failed and cancelled landing-merge gaps live in
+// ./intent-ci-comparison-landing-gaps.spec.ts; the happy-path, SEED-236 and
+// unrecoverable journeys live in ./intent-ci-comparison.spec.ts;
+// fast-forward tip happy paths in ./intent-ci-comparison-fast-forward.spec.ts;
+// entry-proof expiry and missing durations live in
+// ./intent-ci-comparison-entries.spec.ts.
 
 import { expect, test } from "./support/preparationPage.ts";
 import { shortSha } from "../src/baseCiWording.ts";
 import { wall } from "./support/storyCiComparisonFixture.ts";
 import { publishComparedStoryBranch } from "./support/storyCiComparisonDoneFixture.ts";
+import { publishFastForwardLandedStory } from "./support/storyCiComparisonFastForward.ts";
 import { selectDoneStoryForCiComparison } from "./support/selectDoneStoryForCiComparison.ts";
 import {
   advanceCompletedTrunk,
@@ -138,40 +143,6 @@ test("a running landed build leaves the branch comparison readable and marks an 
   );
 });
 
-test("a failed landed build is labelled failed", async ({ page, origin }) => {
-  test.slow();
-  const setup = await publishComparedStoryBranch(page, origin);
-  setup.serveRuns({
-    [setup.baseline]: [
-      wall(setup.baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
-    ],
-    [setup.branchSide]: [
-      wall(
-        setup.branchSide,
-        102,
-        "2026-11-05T13:00:00Z",
-        "2026-11-05T13:03:20Z",
-      ),
-    ],
-    [setup.completion]: [
-      wall(
-        setup.completion,
-        103,
-        "2026-11-05T14:00:00Z",
-        "2026-11-05T14:04:00Z",
-        "failure",
-      ),
-    ],
-  });
-  const { panel } = await selectDoneStoryForCiComparison(page);
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("failed");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("failed build");
-});
-
 test("a missing landed build explains itself without inventing zero", async ({
   page,
   origin,
@@ -199,4 +170,42 @@ test("a missing landed build explains itself without inventing zero", async ({
   await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
     "—",
   );
+});
+
+test("without builds at a fast-forward tip Branch and Landed explain gaps while Baseline stays readable", async ({
+  page,
+  origin,
+}) => {
+  test.slow();
+  const setup = await publishFastForwardLandedStory(page, origin);
+  setup.serveRuns({
+    [setup.baseline]: [
+      wall(setup.baseline, 401, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
+    ],
+    [setup.mainSide]: [
+      wall(setup.mainSide, 498, "2026-11-05T13:30:00Z", "2026-11-05T13:40:00Z"),
+    ],
+    [setup.branchSide]: [],
+  });
+  const { panel } = await selectDoneStoryForCiComparison(page);
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(0),
+  ).toContainText(shortSha(setup.baseline));
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
+    "3 min",
+  );
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(1),
+  ).toContainText("No completed CI build");
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(2),
+  ).toContainText("No completed CI build");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+    "—",
+  );
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "—",
+  );
+  await expect(panel).not.toContainText("run 498");
+  await expect(panel).not.toContainText("10 min");
 });

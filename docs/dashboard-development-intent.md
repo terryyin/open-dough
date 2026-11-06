@@ -112,12 +112,18 @@ with a result decides by its newest result; a failed trunk read leaves
 **Could not be read**. A selected **done** story shows a **CI timing
 comparison** instead of a live branch judgment: baseline (newest completed
 build at or before the story's first claim parent), branch result (final
-story-branch revision's build, or not applicable for Trunk Mode), and landed
-result (completion revision's build), each named with revision, run, attempt,
-state and whether it is exact or a measured ancestor, with CI wall time and
-signed whole-second differences framed as observations between single builds
-(not attributed to the story), then entry rows with each endpoint's cumulative
-test execution time. A selected **Taken** Story Branch story keeps that live
+story-branch revision's build from the landing's story-side parent, or not
+applicable for Trunk Mode), and landed result (build at the story's
+integration: the newest trunk-first owning merge, or the fast-forward tip when
+there is none — never a later completion-only commit, and with no
+measured-ancestor fallback across that landing), each named with revision, run,
+attempt, state and whether it is exact or a measured ancestor, with CI wall
+time and signed whole-second differences framed as observations between single
+builds (not attributed to the story), then entry rows with each endpoint's
+cumulative test execution time. Endpoint recovery for those builds is
+independent of Review changes' merge-resolution attribution; a Review
+attribution refusal does not suppress the comparison at homepage, entry,
+folder or file scopes. A selected **Taken** Story Branch story keeps that live
 judgment and adds the same comparison against the pre-story baseline, with the
 latest completed branch build labelled provisional and Landed saying the story
 has not landed yet; a new branch head re-reads it. A selected **Taken** Trunk

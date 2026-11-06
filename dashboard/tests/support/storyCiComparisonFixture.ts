@@ -1,7 +1,9 @@
 // Shared CI comparison fixture helpers for Intent's timing comparison
 // (../intent-ci-comparison.spec.ts): Actions answers by head_sha, planning
 // commits before a claim, and the done Story Branch publisher. SEED-236
-// lives in ./storyCiComparisonEarlierLanding.ts; Taken shapes in
+// lives in ./storyCiComparisonEarlierLanding.ts; SEED-248 fast-forward tip
+// in ./storyCiComparisonFastForward.ts and later first-parent rewrite in
+// ./storyCiComparisonLaterFastForward.ts; Taken shapes in
 // ./storyCiComparisonTakenFixture.ts; entry-proof Answers in
 // ./storyCiComparisonEntryProofs.ts.
 
@@ -88,6 +90,11 @@ export function claimOf(repo: string, agent: string): string {
 export type StoryCiComparisonSetup = {
   readonly identity: string;
   readonly completion: string;
+  // Trunk-first landing merge when it differs from completion (SEED-236 /
+  // SEED-248); absent when completion is the landing.
+  readonly landingMerge?: string;
+  // First parent of the landing merge (trunk side before the story).
+  readonly trunkSide?: string;
   readonly baseline: string;
   readonly branchSide: string;
   // First-parent ancestor of branchSide that has the branch build, when the

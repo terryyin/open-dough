@@ -13,6 +13,8 @@ for (const variant of [
   undefined,
   "unrelated-merge",
   "ambiguous-merge",
+  "own-conflict-extra",
+  "non-owning-story-file",
 ] as const) {
   test(`completed review reads printing merge drivers with ${variant ?? "clean merges"}`, async ({
     request,
@@ -38,12 +40,18 @@ for (const variant of [
       completedReviewQuery,
     );
     expect(response.status()).toBe(200);
-    if (variant === "ambiguous-merge") {
+    if (
+      variant === "ambiguous-merge" ||
+      variant === "own-conflict-extra" ||
+      variant === "non-owning-story-file"
+    ) {
+      const explanation =
+        variant === "non-owning-story-file"
+          ? "merge resolutions affecting this story's files whose changes cannot be attributed safely"
+          : "merge resolutions whose story changes cannot be attributed safely";
       expect(await response.json()).toMatchObject({
         kind: "unavailable",
-        explanation: expect.stringContaining(
-          "merge resolutions whose story changes cannot be attributed safely",
-        ),
+        explanation: expect.stringContaining(explanation),
       });
       expect(await response.json()).not.toHaveProperty("files");
     } else {
