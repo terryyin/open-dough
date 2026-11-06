@@ -538,6 +538,14 @@ Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`.
   - Observed effect: no rework of slice 1; at acceptance S6.1 ("show cached content immediately") did not hold (a kept answer showed "Reading…" for a frame) and was moved to slice 4, which then had to make kept answers render synchronously
   - Inference: same ordering as the earlier rows; here the miss was absorbed by a later slice rather than returned
 
+- Execution: SEED-241#keep-the-shown-reading-through-failed-updates (plan 480-keep-shown-reading-through-failed-updates; first related implementation commit `86513a4d4154ad24975192c627154d61bdf096c6`)
+  - Timestamp: unknown (2026-11-06, after established start and before slice 1 delivery `86513a4d`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.86 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: coordinator process history for this execution: Established start → npm ci + typecheck ready → delegated slice 1 → source-only review → observed commitments → post-change refactor → fresh delivery `86513a4d`; `source-review.md` commitments observed after that review
+  - Observed effect: no mid-run product correction or replanning; source commitments matched the delivered remount/unreadable and read-reuse proofs; no human-judgment stop
+  - Inference: same ordering as prior ODF-367 rows — the source-only review that acceptance requires still starts after the first Behavior slice is already delegated
+
 ## ODF-399 — Post-change refactor left a production module empty before delivery
 
 Former local code: DD-389.
