@@ -35,8 +35,35 @@ attribution refusal therefore suppresses the entire proof comparison before
 build lookup, even when the required revisions and CI results are recoverable.
 The landed slot also targets the completion revision, which can be later than
 the code's integration merge. The reported story identity and offending merge
-were not supplied; the investigation established the shared rejection path,
-not a reproduction of that particular history.
+were not supplied.
+
+Refinement on 2026-11-06 replayed the shared attribution walk
+(`completedStoryCommits`, then `landingOf`) against this repository's published
+`main` for the 15 done stories SEED-236 through SEED-246. Seven are refused
+before build lookup: SEED-236 show-ci-adapter-proof and SEED-245 with the
+quoted message, and SEED-238, SEED-239, SEED-241 load-intent, SEED-243 and
+SEED-246 with "merge resolutions whose story changes cannot be attributed
+safely". The same replay exposed two history shapes that the refusal currently
+hides:
+
+- **Fast-forward landing.** SEED-243 merged `main` into its branch at
+  `342754ce7` (first parent the story side, second parent `main`) and then
+  landed by fast-forward, as
+  [preserve published history](../../src/skills/dough-execute-plan/references/preserve-published-history.md)
+  permits. Trunk has no landing merge for it. `landingOf` takes the newest
+  owning merge's second parent as the branch side, so it would name the
+  `main`-side `632e107e8` as SEED-243's branch result.
+- **First-parent history rewritten by a later fast-forward.** SEED-241
+  load-intent landed at trunk-first merge `c9a142ac3` (its CI run on `main`
+  was cancelled). SEED-243's fast-forward then put `342754ce7` on trunk's
+  first-parent line, so the first-parent lookup of SEED-241's done record now
+  returns `342754ce7` as its completion instead of a revision of its own
+  landing.
+
+The result-build lookup walks first-parent ancestors of its target. For a
+trunk-first landing merge, the first parent is trunk without the story, so a
+fallback from a cancelled or missing merge build would measure a revision
+that does not contain the story.
 
 ## Story
 
@@ -46,7 +73,7 @@ not a reproduction of that particular history.
 
 **Identity:** SEED-248#compare-story-proof-through-merge-resolutions
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/485-compare-story-proof-through-merge-resolutions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8abb839bcf2b1c5d839977f26b894bb16bc391ec95558975ca139372418a9248","plan":"d24c130fb5adca6b1dc44e1d0f3c7cab6339e961f6fc09eddb534928f41adaf1"}}
 ```
 
 **Beneficiary:** A developer reviewing a completed story's observed results and
@@ -88,8 +115,20 @@ even when merge edits prevent an exclusive attribution of the story's code diff.
   or figure. Keep other recoverable proofs and comparisons readable. Missing
   proof never becomes zero or no change.
 - Keep the comparisons tied to published history after branch/profile cleanup
-  and later trunk advances. Frame their differences as observations between
-  builds; they do not establish that the story caused every difference.
+  and later trunk advances, including a later story's fast-forward that changes
+  which revisions trunk's first-parent line passes through. Frame their
+  differences as observations between builds; they do not establish that the
+  story caused every difference.
+- Identify the landing by the story's own history, not by parent position or
+  by trunk's current first-parent line. A trunk-first landing merge supplies C
+  and, from its story-side parent, B. A fast-forward landing has no integration
+  merge: B and C both name the final story revision that trunk accepted. A merge of trunk into the
+  story branch is a branch revision, never the landing, and its trunk-side
+  parent is never B.
+- C has no measured-ancestor fallback across the landing merge: its trunk-side
+  parent lacks the story and its story-side parent is B. A missing, cancelled
+  or running merge build is C's explicit gap. Branch B keeps its existing
+  story-side ancestor fallback; the Trunk Mode landed fallback is unchanged.
 
 **Key examples / evaluation:**
 
@@ -115,7 +154,17 @@ even when merge edits prevent an exclusive attribution of the story's code diff.
    including count changes and signed execution-time differences supported by
    those summaries. A code-attribution refusal alone does not remove the proof
    comparison.
-6. **Cleanup and missing identities.** Delete the story branch and agent
+6. **Fast-forward landing.** As SEED-243 did, the branch merges `main` at a
+   revision whose first parent is the story side, then trunk fast-forwards to
+   the story tip T. B and C both name T. The `main`-side parent of the branch's merge is never shown as B.
+7. **A later fast-forward moves first-parent history.** As with SEED-241, the
+   story lands at merge M on trunk; a later story then merges trunk into its
+   branch and lands by fast-forward. Selecting the earlier story still names M
+   as C and M's story-side parent as B, and its A is unchanged.
+8. **Cancelled merge build.** M's only CI run on trunk was cancelled. C
+   explains that M's build was cancelled and shows no figures from M's
+   trunk-side parent; B versus A remains readable.
+9. **Cleanup and missing identities.** Delete the story branch and agent
    profile and advance trunk: the same three historical builds remain selected.
    If only one endpoint identity is genuinely unrecoverable, explain that gap
    and retain any other independently established proof and comparison.
@@ -127,8 +176,17 @@ story does not relax source-diff attribution requirements or change the
 no-story-selected CI judgment. Shared consumers do not establish a blocking
 dependency on another queued story.
 
+**Architecture:** Endpoint recovery for a done story (claims, story start,
+recorded mode, landing and its story side) becomes a responsibility separate
+from completed-story code attribution. Review changes keeps requiring
+attribution, with its current refusals; the CI comparison depends only on
+endpoint recovery and its own gaps. Endpoints stay derived from published Git
+and CI evidence under ADR 0008. The local landing context that Dough Land
+retains is machine-local operational state, so it cannot supply them; adding
+landing revisions to done records is a new capability outside this story.
+
 **Preparation:** Capture this correction as the first queued story on Terry's
-instruction. Implementation planning and execution remain later work.
+instruction. Plan: [485](../slice-plans/485-compare-story-proof-through-merge-resolutions/PLAN.md).
 
 ## References
 
