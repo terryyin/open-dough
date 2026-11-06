@@ -30,5 +30,6 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Restore Purpose and Proof tabs for individual Intent files](seeds/SEED-247-restore-file-purpose-and-proof.md#restore-file-purpose-and-proof) — SEED-247#restore-file-purpose-and-proof
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
