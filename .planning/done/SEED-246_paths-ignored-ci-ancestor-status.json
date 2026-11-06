@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-246#paths-ignored-ci-ancestor-status",
+  "title": "Treat paths-ignored CI as the first non-ignored ancestor",
+  "completedAt": "2026-11-06T10:46:44.869Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "cursor",
+  "model": "auto"
+}
