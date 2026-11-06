@@ -171,3 +171,16 @@ Slice-plan refinement not needed: three Behavior slices with one proof loop
 each, sharing one landing rule introduced in slice 2 and generalized in
 slice 3; no structure prepared ahead of its Behavior. This review identified no
 remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: Outcome matches the story — done Story Branch comparison shows
+A, B and C and both diffs when Review refuses merge-resolution attribution; C is
+the trunk-first landing (exact) or the fast-forward tip from the story's own
+history, not parent position, first-parent line, or a later completion. Endpoint
+recovery versus attribution fits ADR 0008 and near-future direction (CI proof as
+observed cost). No backlog change: SEED-247 remains next; no new product
+recommendation from this execution. Pre-land `npm run lint` and full
+`npm run test:dashboard` passed under `caffeinate -s -i`. Process findings
+ODF-074 and ODF-329 recorded in DearDough.md (file above 500-line warning
+threshold at review time).

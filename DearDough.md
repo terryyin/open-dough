@@ -44,6 +44,13 @@ Former local code: DD-121. Former local code: DD-206. Former local code: DD-238.
   - Evidence: before-cleanup `6fce1ed12:.planning/slice-plans/477-show-freshness-loss-across-stream-retries/PLAN.md` direction "Arm the deadline once when the effect starts"; preparation premise table checked failed-opens and that existing stream journeys (including rate-limit) stayed green under a scratch arm-at-start edit, with no discriminating row for story E3.2 ("a new bound starts then" when the rate-limit wait ends); first slice return armed during `waitForLimit > 0`; coordinator source-review acceptance held G3 and required arm-at-wait-end plus a Retry-After 20 discriminating step
   - Observed effect: one correction round before acceptance; final schedule uses `scheduleOpenAfter(waitForLimit, "arm-and-open")` and the rate-limit journey proves a full silence bound from reopen
   - Inference: qualified recurrence. "Existing rate-limit journey stays green" did not settle E3.2; arm-at-effect-start was treated as settled without a probe that would fail when the bound was spent during the directed wait
+- Execution: SEED-248#compare-story-proof-through-merge-resolutions (plan 485-compare-story-proof-through-merge-resolutions, first related implementation commit `854c2c917094ad6cfa80297abe8575e3da91791e`)
+  - Timestamp: unknown (2026-11-06, during slice 1 before publish `854c2c917` at 22:31:28+07:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
+  - Evidence: claim-time plan `2187b4401:.planning/slice-plans/485-compare-story-proof-through-merge-resolutions/PLAN.md` Existing solutions said fixing endpoint slots reaches homepage/entry/folder/file "without client changes"; Decisive premises probed the homepage refusal fixture route but not `IntentFileComparison`'s gate on Review `ComparedStory`; slice 1 return edited `IntentFileComparison.tsx` / `IntentFileReading.tsx` and recorded that the no-client-change assumption was wrong for example 5 at file scope; Current decisions gained the file-CI-evidence rule only in `854c2c917`
+  - Observed effect: mid-slice client edits so file compact comparison follows selected-story CI evidence when Review refuses; no human stop
+  - Inference: qualified. The consumer-surface premise was treated as settled from shared answer shape alone; a probe of the file compact mount gate would have failed under attribution refusal before implementation
 
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
@@ -419,6 +426,13 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: coordinator transcript `f9e21a1d-3b18-4129-bdf8-22c837a576e2` “Fixing lint errors from the format run so delivery can proceed”; repairs in `baseCiRevisionLookup.ts` (`_state` → `void state`, `ciConfiguration` import), `baseCiGithubRevisionLookup.ts` / `storyPublishedEndpointDerived.ts` (typed casts), and `intentCiComparisonRead.ts` (slot field copy); then `npm run format` / typecheck passed and `ab08121d1` published
   - Observed effect: coordinator repaired authored lint after the refactor pass before the first slice publish; slices 2–3 delivery did not repeat the format/lint stop
   - Inference: same ODF-329 class — lint first seen at coordinator format after a lint-forbidden implementation/refactor path
+- Execution: SEED-248#compare-story-proof-through-merge-resolutions (plan 485-compare-story-proof-through-merge-resolutions, first related implementation commit `854c2c917094ad6cfa80297abe8575e3da91791e`)
+  - Timestamp: unknown (2026-11-06, after slice-3 refactor return, before accepted publish `018e14d28` at 23:03:56+07:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
+  - Evidence: coordinator transcript `feafb159-a466-4d85-8c6e-982a1dd7271b` “Fixing the TypeScript error that blocked the slice-3 commit”; first `execution-increment-delivery` attempt refused; `storyCiComparisonLaterFastForward.ts` used `first.trunkSide` as an object key / required field while `StoryCiComparisonSetup.trunkSide` is optional; coordinator made the spreads conditional, re-typechecked, and the second fresh delivery published `018e14d28`
+  - Observed effect: one refused slice-3 delivery; mechanical optional-field fix and retry succeeded; slices 1–2 had published first time
+  - Inference: same ODF-329 class — authored static defect first seen at delivery formatting/typecheck after a lint-forbidden implementation/refactor path
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 
