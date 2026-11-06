@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-249#organize-dashboard-tests
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/486-organize-dashboard-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f6a5f0b1dea50753bd71cae6277a407debc4c9c69fc33a09805c5abb70684da6","plan":"115142547b2da0dc5065aa5f2aa3b16ee499f6af3ea11c49e3430bfc7b01318b"}}
 ```
 
 **Goal:** Make the dashboard's automated behavior inventory navigable through
