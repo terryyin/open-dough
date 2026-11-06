@@ -268,3 +268,13 @@ No numeric slice target or hard limit was supplied. Slice 1 is the largest,
 because it carries the evidence wiring and the rule. Its size depends on how
 SEED-244 delivered its proofs, which the dependency bounds and slice 1's
 first step reads. This review found no remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: No new product recommendation. The delivered comparison matches
+the selected story: one scope-comparison rule shared by entry and folder
+Summaries, the file summary, and homepage entry rows, with SEED-244's endpoints,
+precise Summary diffs, counts, markers, gaps, and the observed-not-attributed
+statement. Variance band stays deferred. Closure of SEED-245 belongs to wrap-up.
+Process: ODF-229 recurrence recorded for interrupted Cursor slice-1 returns.
+CI conclusions on `84a0f9696` remain conditional until the completion wait.

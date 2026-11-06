@@ -193,6 +193,13 @@ Former local code: DD-264. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
 
 ### Occurrences
+- Execution: SEED-245#compare-story-intent-entry-folder-and-file-summaries (plan 482-compare-story-intent-summaries; first related implementation commit `cb9d66dc6b35e326ab4a47be858a68302f9bbcec`)
+  - Timestamp: unknown (2026-11-06; first slice-1 Task after ~16:38 +07:00, developer `continue` 17:45 +07:00; replacement Task after ~17:46 +07:00, developer resume 18:23 +07:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.86 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: coordinator transcript `0b06be43-a5b1-441f-8548-928d2f231b6d` ("partial uncommitted work but no proof specs"; "interrupted-delegation recovery"; "Continuing locally without a new assignment"); first implementer `23753dba-fc5f-4252-8983-24d2dbcccc33` ends mid-work ("Creating the comparison fixture…") with no proof return; replacement `1d79b349-bc96-4790-88d8-42d4c8ef310d` ends mid-tool-use ("Writing the page helper…") with no return; developer resume forbade another assignment; coordinator wrote the missing journey/gap specs from the checkout, accepted, and published `cb9d66dc6`
+  - Observed effect: two aborted slice-1 implementation Tasks with uncommitted product helpers and no proof specs; after recovery guidance, coordinator finished proof locally (no third writer), then delivered without dual-writer publish; slices 2–3 later returned normally
+  - Inference: qualified recurrence of interrupted Cursor implementation without return (ODF-229); edits-present, proof-absent case. Host termination cause unestablished. Distinct from ODF-410 (hand-back while background work still runs) and ODF-059 (refactor interrupt)
 - Execution: SEED-232#share-published-git-refreshes (plan 468-share-published-git-refreshes, first implementation commit `aa37bdf36d4a5b8596d71a6544156186a22dfc5d`)
   - Timestamp: unknown (2026-11-05, after slice-2 Task start ~05:51 +07:00 and before verification Task ~07:26 +07:00)
   - Tool: Cursor
