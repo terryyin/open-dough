@@ -284,6 +284,14 @@ needed for its first observable result. This review found no remaining
 slice-specific concern.
 
 
+
+
+## Execution complete
+
+Product advice: no change. Timing comparison advances near-future CI-cost
+visibility; SEED-245 already queues folder/file diffs; variance band stays
+deferred until real use shows attribution confusion.
+
 ## Story obligations
 
 ### G1. No journey for code-landed-before-completion (SEED-236)

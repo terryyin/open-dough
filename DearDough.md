@@ -343,6 +343,19 @@ Former local code: DD-323. [Meaning, evidence and response](docs/maintainer/find
 
 Former local code: DD-324. [Meaning, evidence and response](docs/maintainer/findings/ODF-307.md).
 
+## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
+
+Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/findings/ODF-314.md).
+
+### Occurrences
+- Execution: SEED-244#compare-story-ci-timing-changes (plan 481-compare-story-ci-timing-changes, first related implementation commit `ab08121d145211b1877ea88ec5ca13f38ef12f3f`)
+  - Timestamp: unknown (2026-11-06, coordinator acceptance return between slice-1 return ~06:30+07:00 and fix return ~06:57+07:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
+  - Evidence: plan 481 outside-in proof owned the SEED-236 (example 8) and unrecoverable-history journeys for slice 1; first implementer return (subagent `750b14ec-4b20-4bf0-85e7-e67a2f0c84e4`) reported “landing recovery supports it; no dedicated fixture journey” and left build identities without `LinkedRun`; coordinator source-review obligations G1–G3; fix return proved `intent-ci-comparison.spec.ts` SEED-236 and unrecoverable journeys plus run-link asserts before `ab08121d1`
+  - Observed effect: one acceptance return on the same implementer before slice 1 acceptance; G2 added missing run links (product), G1/G3 added the missing journeys
+  - Inference: qualified match. Plan-owned proof rows were already in the outside-in table and slice Proof; the first return still treated two journeys as optional and left one source commitment (run links) unimplemented. Slices 2–3 needed no acceptance return.
+
 ## ODF-322 — A projected delivery result drops the running command's handle <a id="odf-322"></a>
 
 Former local code: DD-325. The coordinator reduced a guarded delivery call to its output text, dropping the live command's session handle; the terminal receipt was recovered through checkout inspection and an exact-candidate resume. [Evidence and current response](docs/maintainer/findings/ODF-322.md).
@@ -392,6 +405,13 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: the plan's local gate required `npm run lint` per slice while each brief forbade `npm run format`; slice 1, 2 and 3 returns each report running `npx prettier --write` on their own files after `npm run lint` failed on Prettier style
   - Observed effect: every fresh delivery's formatter step then passed first time; the briefs' formatting ban was worked around rather than followed
   - Inference: qualified match — the read-only lint check is now named, but it fails on formatting the implementer may not fix, so a scoped formatter on authored files is the de facto practice
+- Execution: SEED-244#compare-story-ci-timing-changes (plan 481-compare-story-ci-timing-changes, first related implementation commit `ab08121d145211b1877ea88ec5ca13f38ef12f3f`)
+  - Timestamp: unknown (2026-11-06, after slice-1 refactor return ~07:08+07:00, before publish `ab08121d1` at 07:13:29+07:00)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
+  - Evidence: coordinator transcript `f9e21a1d-3b18-4129-bdf8-22c837a576e2` “Fixing lint errors from the format run so delivery can proceed”; repairs in `baseCiRevisionLookup.ts` (`_state` → `void state`, `ciConfiguration` import), `baseCiGithubRevisionLookup.ts` / `storyPublishedEndpointDerived.ts` (typed casts), and `intentCiComparisonRead.ts` (slot field copy); then `npm run format` / typecheck passed and `ab08121d1` published
+  - Observed effect: coordinator repaired authored lint after the refactor pass before the first slice publish; slices 2–3 delivery did not repeat the format/lint stop
+  - Inference: same ODF-329 class — lint first seen at coordinator format after a lint-forbidden implementation/refactor path
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 

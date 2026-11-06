@@ -17,9 +17,9 @@
 import type { Page } from "@playwright/test";
 import { githubFor } from "./dashboardTest.ts";
 import {
+  asHeadsListing,
   branchRefAnswer,
   commitAnswer,
-  headsAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
@@ -127,11 +127,13 @@ export function publishCommittedOrigin(
     }
     if (request.kind === "matching-refs") {
       await held.get("main");
-      const overridden = instead.get("main");
-      if (overridden !== undefined && "status" in overridden) {
-        if (overridden.status >= 300) return overridden;
-      }
-      return headsAnswer(headsOf(repoDir, published()));
+      // Honor answerWith("main") tip/error overrides (readiness/session
+      // journeys), while still listing other published heads so a Taken
+      // story-branch tip advance is visible through matching-refs.
+      return asHeadsListing(
+        instead.get("main") ?? commitAnswer(published()),
+        headsOf(repoDir, published()),
+      );
     }
     // A story branch head: published when the repository has that ref, else
     // GitHub's 404 (established absence). A lost connection here would start
