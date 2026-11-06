@@ -6,12 +6,15 @@
 // no focus; however many arrive, one notice names the revision shown, and
 // **Show latest** moves the reading to the latest observed. While its
 // locations are read the shown reading stays, marked as updating; if that read
-// fails, the shown reading still stays and the notice names the failure beside
-// a Retry that applies the update again. Applying or retrying moves focus from
-// the notice, whose button then goes, into the reading: the selected tree
-// item, else the reading pane or the chosen mode's panel. A path
-// selected at the shown revision that the new one lacks is explained in Purpose
-// (`IntentPathNotInRevision`) with nothing else selected in its place.
+// fails or answers unreadable settings, the shown reading still stays and the
+// notice names the failure beside a Retry that applies the update again. The
+// shown revision is kept in the reading place beside the reading revision
+// (`./useIntentLocations.ts`), so Development → Intent restores it. Applying
+// or retrying moves focus from the notice, whose button then goes, into the
+// reading: the selected tree item, else the reading pane or the chosen mode's
+// panel. A path selected at the shown revision that the new one lacks is
+// explained in Purpose (`IntentPathNotInRevision`) with nothing else selected
+// in its place.
 
 import { useEffect, useRef, useState } from "react";
 import { useKeptReading } from "./pageIntentReading.tsx";
