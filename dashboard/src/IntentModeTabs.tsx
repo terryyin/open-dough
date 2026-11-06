@@ -1,6 +1,6 @@
 // The Intent perspective's two reading modes (`./IntentPerspective.tsx`):
 // Intent, its locations with CI status as the empty-selection homepage and
-// Purpose when a file is selected (`./IntentBrowser.tsx`), and
+// Purpose and Proof when a file is selected (`./IntentBrowser.tsx`), and
 // Optimization Candidates, the published record across the content area
 // (`./IntentCandidatesRecord.tsx`). CI status fills Intent's reading when
 // nothing is selected (`./IntentCiStatus.tsx`), offered whether or not
@@ -9,8 +9,8 @@
 // Directly activating Intent (click, Enter or Space), even while it is
 // chosen, returns home: the browsing selection clears
 // (`./intentWorkspaceSelection.ts`), leaving the selected story, tree
-// expansion and Purpose reading choices as they were. Arrow keys, Home and
-// End only choose the mode, so the reading stays.
+// expansion and Purpose/Proof reading choices as they were. Arrow keys, Home
+// and End only choose the mode, so the reading stays.
 
 import { IntentTabs, type IntentTabOption } from "./IntentTabs.tsx";
 import { useIntentWorkspaceSelection } from "./intentWorkspaceSelection.ts";

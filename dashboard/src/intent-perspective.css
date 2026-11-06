@@ -87,8 +87,8 @@
   overscroll-behavior: contain;
 }
 
-/* Async content above Purpose (file summary) must not move the kept reading
-   place through scroll anchoring once the developer has scrolled. */
+/* Async Proof content must not move the kept reading place through scroll
+   anchoring once the developer has scrolled. */
 .intent-reading {
   overflow-anchor: none;
 }

@@ -2,8 +2,8 @@
 // execution times (`./IntentScopeProof.tsx`) through the shared scope
 // comparison (`./ciScopeComparison.ts`), with change markers from the story
 // overlay and the homepage's observed-not-attributed statement. A selected
-// file reuses ComparisonNamed for its compact summary
-// (`./IntentFileComparison.tsx`).
+// file reuses ComparisonNamed for its Proof
+// (`./IntentFileProof.tsx`).
 
 import { shortSha } from "./baseCiWording.ts";
 import {

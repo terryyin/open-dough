@@ -7,8 +7,8 @@
 // endpoint's proof summary (`./useIntentCiComparisonEntries.ts`); or a Taken
 // Story Branch story's live judgment plus provisional comparison. Intent's CI
 // status homepage (`./IntentCiStatus.tsx`), a selected entry's or folder's
-// Summary (`./IntentScopeProof.tsx`), and a selected file's compact comparison
-// (`./IntentFileComparison.tsx`) all read it, so selecting, drilling and
+// Summary (`./IntentScopeProof.tsx`), and a selected file's Proof
+// (`./IntentFileProof.tsx`) all read it, so selecting, drilling and
 // returning home ask CI nothing again. The judgment
 // (`./useIntentCiJudgment.ts`) is read again when the judged branch changes,
 // when the page's revision check finds the judged branch at a new head (the

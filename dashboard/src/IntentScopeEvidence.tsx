@@ -1,6 +1,6 @@
 // The CI evidence a selected entry's or folder's Summary
-// (`./IntentScopeProof.tsx`) or a selected file's compact comparison
-// (`./IntentFileComparison.tsx`) names, from Intent's one CI evidence owner
+// (`./IntentScopeProof.tsx`) or a selected file's Proof
+// (`./IntentFileProof.tsx`) names, from Intent's one CI evidence owner
 // (`./IntentCiEvidence.tsx`): the summary of a named attempt -- the attempt,
 // its revision and the judged branch, and when the tree shows another
 // revision, that a file added or changed since has no result or an earlier

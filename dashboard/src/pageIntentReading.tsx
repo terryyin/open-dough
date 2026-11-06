@@ -1,16 +1,16 @@
 // The Intent reading place of the project the page shows: what is selected
 // (`./intentWorkspaceSelection.ts`), the record entry to return to, the reveal
-// round, the reading pane's scroll offset, and the tree's arrangement: the
-// expanded location, each location's open folders
-// (`./useLocationOpenFolders.ts`), the last reveal request, and **Selected
-// story only** with the expansion it asked for (`./useIntentStoryTree.ts`).
-// Disposable page state (ADR 0008), in memory only, kept by the page
-// (`./PageFrame.tsx`) beside the chosen mode (`./pageIntentMode.tsx`) so it
-// outlasts Intent's own mount: switching to Development and back restores it,
-// and a project change starts that project's reading afresh. The arrangement
-// belongs to the story selected while it was made: a story selected while
-// Intent is hidden starts the tree afresh when Intent opens, while the
-// selection and reading stay.
+// round, Purpose/Proof choice (`./IntentFileReading.tsx`), the reading pane's
+// scroll offset, and the tree's arrangement: the expanded location, each
+// location's open folders (`./useLocationOpenFolders.ts`), the last reveal
+// request, and **Selected story only** with the expansion it asked for
+// (`./useIntentStoryTree.ts`). Disposable page state (ADR 0008), in memory
+// only, kept by the page (`./PageFrame.tsx`) beside the chosen mode
+// (`./pageIntentMode.tsx`) so it outlasts Intent's own mount: switching to
+// Development and back restores it, and a project change starts that
+// project's reading afresh. The arrangement belongs to the story selected
+// while it was made: a story selected while Intent is hidden starts the tree
+// afresh when Intent opens, while the selection and reading stay.
 //
 // Each piece is held by the component that uses it, seeded from the place
 // when it mounts and written back once rendered (`useKeptReading`,
@@ -147,7 +147,7 @@ export function useKeptArrangement<T>(
 }
 
 // Keeps the reading pane's scroll offset while content still arrives or
-// lengthens (for example a selected story's file summary above Purpose).
+// lengthens (for example Proof figures settling under the chosen tab).
 // Restoring stops only when the developer scrolls, presses a key or uses a
 // pointer in the pane; ending on the first successful match let later growth
 // move the place through scroll anchoring.

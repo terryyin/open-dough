@@ -1,5 +1,5 @@
 // Scope comparison of a selected story's CI endpoints for Intent Summaries,
-// a selected file's compact comparison (`./IntentFileComparison.tsx`), and
+// a selected file's Proof (`./IntentFileProof.tsx`), and
 // the homepage's entry rows (`./IntentScopeProof.tsx`,
 // `./storyCiComparisonEntries.ts`): for one path and each endpoint's proof
 // summary, take that scope's figures by `./ciScopeProof.ts` (entry totals at

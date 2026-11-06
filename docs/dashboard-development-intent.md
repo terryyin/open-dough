@@ -69,12 +69,14 @@ the mode, so returning to **Intent** that way keeps what it was reading.
 **Intent** shows the location tree (Purpose locations only) beside the
 reading pane; it is the tab a project's Intent first shows. With nothing
 selected the reading pane is Intent's homepage, **CI status**; with a file
-selected it shows the file's **Purpose**, and with a location or folder its
-summary. With a story selected, a selected test file also shows a compact CI
-timing comparison above Purpose (same Summary comparison; Purpose primary);
-without a story, file reading is unchanged. Directly activating the **Intent**
-tab (click, Enter or Space), even while already chosen, returns home: selection
-clears and CI status shows for the same story; expansion and reading choices stay. No separate return control.
+selected it offers **Purpose** and **Proof** tabs (Purpose first; kept across
+file selections in the same Intent visit), and with a location or folder its
+summary. Purpose is the published source or selected story's source diff; Proof
+is that file's published CI evidence from Intent's one evidence owner
+(judged-run results, or a story's baseline / branch / landed comparison).
+Directly activating the **Intent** tab (click, Enter or Space), even while already
+chosen, returns home: selection clears and CI status shows for the same story;
+expansion and reading choices stay. No separate return control.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at Intent's reading revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
@@ -229,14 +231,14 @@ changed; toggling it opens the same folders again and collapses the rest.
 Changed files no location selects by either path are counted in the summary
 with a way to Review changes, which opens on Intent's comparison (All
 changes, uncommitted included) even for a story with a review mark. A changed
-file's Purpose is Review changes' diff of it, with compact comparison above
-Purpose when that comparison is available. A story without a comparison, and a
-failed read with retry, each say so while the published tree stays usable;
-clearing the selected story removes the summary and file comparison. The story
-is a lens on Intent, not a separate definition of it, and its changed files are
-an initial view of its impact: they do not by themselves establish every
-affected behavior or the regression proof it needs. Structure is not offered
-yet. The perspective is disposable presentation state on the URL
+file's Purpose is Review changes' diff of it, and Proof holds that file's
+comparison when available. A story without a comparison, and a failed read
+with retry, each say so while the published tree stays usable; clearing the
+selected story removes the summary and returns Proof to judged-run evidence.
+The story is a lens on Intent, not a separate definition of it, and its
+changed files are an initial view of its impact: they do not by themselves
+establish every affected behavior or the regression proof it needs. Structure
+is not offered yet. The perspective is disposable presentation state on the URL
 (`perspective=intent`), independent of Development's stories/roster view,
 which Intent keeps to return to. Choosing a perspective adds one history
 entry and never selects another project; changing projects keeps the
@@ -244,7 +246,5 @@ perspective, and Back/Forward, reload and System settings restore it. Story
 URLs, story references and choosing a Sessions sidebar entry open
 Development's stories, including from the same project's Intent. Changing
 perspective neither starts, stops, completes nor reattaches a session: the
-mounted Board, Sessions sidebar and Side panel (terminal, final report or
-story review) stay as they were, and a covering panel stays open. When the
-change hides the content holding the keyboard, the keyboard moves to the
-selected perspective's choice.
+mounted Board, Sessions sidebar and Side panel stay as they were, and a
+covering panel stays open. When the change hides the content holding the keyboard, the keyboard moves to the selected perspective's choice.

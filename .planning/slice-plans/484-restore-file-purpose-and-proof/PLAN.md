@@ -2,6 +2,7 @@
 
 **Identity:** SEED-247#restore-file-purpose-and-proof
 **Source:** [selected story](../../seeds/SEED-247-restore-file-purpose-and-proof.md#restore-file-purpose-and-proof)
+**Source review:** [source review](source-review.md)
 **Prepared:** 2026-11-06. This is preparation only; execution needs its own instruction.
 
 ## Goal and boundaries
@@ -132,7 +133,7 @@ reason the effect cannot reach it. Carry these known effects:
 
 ### 1. Offer Purpose and Proof tabs for a selected Intent file
 Type: Behavior
-Status: planned
+Status: done
 Proof: the file Purpose/Proof browser journeys above (no-story Proof, story
 Proof comparison, tab persistence, candidates → Purpose); the consumer specs
 in the table; the local gate.
@@ -173,3 +174,37 @@ and the homepage remain unchanged; local proof stays removed.
 - Side-by-side Purpose/Proof layout remains deferred.
 - No numeric slice target or hard limit is established here; the slice is
   bounded by one proof loop and the Behavior gate above.
+
+## Accepted proof (slice 1)
+
+- `intent-file-purpose-proof.spec.ts`: Purpose first; Proof judged-run row
+  (`1 passed and 1 failed` / `550 ms`); gap `no CI result` without borrowing;
+  Proof tab kept across files; one CI evidence read reused.
+- `intent-summary-story-comparison-file.spec.ts`: Purpose = story diff with no
+  File summary / comparison above it; Proof comparison `14.0 s +4.0 s` with
+  observed-not-attributed; tab keep on next file.
+- Related consumers green: `intent-summary-ci-proof*`,
+  `intent-summary-story-comparison`, `intent-ci-status*`,
+  `intent-home-activation`, `intent-story-*`,
+  `intent-test-optimization-candidates*`.
+- After refactor rename `IntentFileComparison` → `IntentFileProof` and
+  `useKeptFileReadingPlace` extract: reran the three file-reading specs above
+  (plus `intent-reading-place`); Summaries/homepage/candidates reused.
+- Source review retained and observed in `source-review.md`; deferred D1–D4
+  excluded as G1.
+
+## Learnings
+
+- With Proof on its own tab, stacked File summary no longer changes Purpose
+  scroll height — `intent-reading-place` no longer waits on it.
+- File Proof module is `IntentFileProof` (domain Proof), not a stacked
+  comparison above Purpose.
+
+
+## Story obligations
+
+### G1. Deferred side-by-side / durable tab / folder tabs / Structure
+Reported: slice 1 — "source review deferred D1–D4 — neither delivered nor rejected in this story"
+Story clause: "Deferred promises (neither delivered nor rejected): side-by-side Purpose/Proof reading; durable remembered Proof tab across reloads; Purpose/Proof tabs on location or folder selections; Structure."
+Disposition: excluded "Deferred promises (neither delivered nor rejected): side-by-side Purpose/Proof reading; durable remembered Proof tab across reloads; Purpose/Proof tabs on location or folder selections; Structure."
+Commitment: D1, D2, D3, D4

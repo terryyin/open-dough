@@ -183,6 +183,18 @@ export function purposeRegion(intent: Locator) {
   return intent.getByRole("region", { name: "Purpose", exact: true });
 }
 
+// Intent's Proof of the selected file (../src/IntentFileReading.tsx).
+export function proofRegion(intent: Locator) {
+  return intent.getByRole("region", { name: "Proof", exact: true });
+}
+
+// Purpose and Proof tabs of the selected file.
+export function fileReadingTab(intent: Locator, name: "Purpose" | "Proof") {
+  return intent
+    .getByRole("tablist", { name: "Purpose and Proof", exact: true })
+    .getByRole("tab", { name, exact: true });
+}
+
 // The notice that a newer revision than Intent's reading is available.
 export function revisionNotice(intent: Locator) {
   return intent

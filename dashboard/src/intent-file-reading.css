@@ -1,18 +1,39 @@
-/* Purpose of the selected file (./IntentFileReading.tsx), scrolled by the
-   Intent reading area (./intent-perspective.css). A selected story's compact
-   file comparison (./IntentFileComparison.tsx) sits above Purpose. */
-.intent-purpose {
+/* Purpose and Proof of the selected file (./IntentFileReading.tsx) in the
+   Intent reading area, the `intent-reading` size container
+   (./intent-perspective.css), as tabs. The tabs stay in sight while the
+   chosen tab scrolls, and a positioned case comes into view below them. */
+.intent-reading-bar {
+  position: sticky;
+  top: calc(-1 * var(--space-3));
+  z-index: 1;
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: calc(-1 * var(--space-3)) 0 calc(-1 * var(--space-4));
+  padding: var(--space-3) 0;
+  background: var(--surface);
+}
+
+.intent-reading:has(> .intent-reading-bar) {
+  scroll-padding-top: calc(var(--control-size) + 2 * var(--space-3));
+}
+
+.intent-reading-panel,
+.intent-purpose,
+.intent-proof {
   min-width: 0;
 }
 
-.intent-file-comparison {
+.intent-file-proof {
   min-width: 0;
-  margin: 0 0 var(--space-3);
 }
 
-.intent-file-comparison .intent-summary-evidence,
-.intent-file-comparison .intent-summary-evidence-absent,
-.intent-file-comparison .intent-ci-comparison-framing,
-.intent-file-comparison .intent-ci-reading {
+.intent-file-proof .intent-summary-evidence,
+.intent-file-proof .intent-summary-evidence-absent,
+.intent-file-proof .intent-ci-comparison-framing,
+.intent-file-proof .intent-ci-reading,
+.intent-proof > .intent-summary-evidence-absent {
   margin: 0 0 var(--space-2);
 }

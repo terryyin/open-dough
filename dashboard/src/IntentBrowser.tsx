@@ -5,9 +5,9 @@
 // shows the locations. Locations (book icon) and folders (folder icon) share
 // toggle (expansion only) and name (select; toggle once selected) controls; a
 // toggle never changes selection or the reading pane. Nothing selected shows
-// CI status as Intent's homepage; a file shows its Purpose; a location or
-// folder name shows a Summary, whose child names open their target as the
-// record's links do (`./IntentCandidatesRecord.tsx`) — all in
+// CI status as Intent's homepage; a file shows Purpose and Proof tabs; a
+// location or folder name shows a Summary, whose child names open their
+// target as the record's links do (`./IntentCandidatesRecord.tsx`) — all in
 // `./IntentSelectionReading.tsx`; directly activating the Intent tab clears
 // the selection back to CI status (`./IntentModeTabs.tsx`), while the opens
 // below keep their target. A failed file read keeps its own explanation and
@@ -16,26 +16,21 @@
 // trees follow it (`./useIntentStoryTree.ts`) under the story's summary
 // heading the locations (`./IntentStorySummary.tsx`). A file the published
 // revision does not list is never read. The browser unmounts with Intent; the
-// selection, the expanded location, the reveal and the reading pane's scroll
-// are kept with the project's reading place (`./pageIntentReading.tsx`) and
-// restored when it opens again. A story selected while Intent is hidden starts
-// the tree's arrangement afresh, so its expansion applies when Intent opens,
-// with the toggle off.
+// selection, the expanded location, the reveal, Purpose/Proof choice and the
+// reading pane's scroll are kept with the project's reading place
+// (`./pageIntentReading.tsx`) and restored when it opens again. A story
+// selected while Intent is hidden starts the tree's arrangement afresh, so
+// its expansion applies when Intent opens, with the toggle off.
 
-import { useRef } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
-import { storyDiffOf } from "./IntentFileReading.tsx";
+import { storyDiffOf, useKeptFileReadingPlace } from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
-import {
-  useKeptArrangement,
-  useKeptReading,
-  useKeptReadingScroll,
-} from "./pageIntentReading.tsx";
+import { useKeptArrangement, useKeptReading } from "./pageIntentReading.tsx";
 import {
   owningLocation,
   treeHoldsSelection,
@@ -95,8 +90,7 @@ export function IntentBrowser({
     "revealedOpens",
     () => 0,
   );
-  const readingPane = useRef<HTMLDivElement>(null);
-  useKeptReadingScroll(readingPane);
+  const fileReading = useKeptFileReadingPlace();
   const treeSelection: IntentSelection =
     mode === "intent" ? selection : { path: "" };
   const {
@@ -120,13 +114,15 @@ export function IntentBrowser({
 
   // Opening from the candidate record or drilling down from a summary
   // selects as the tree does (a record entry is a file without a scope),
-  // starts a fresh reading of its Purpose, and reveals the target in the tree:
-  // its location opens and the folders holding it open.
+  // chooses Purpose, starts a fresh reading positioned on its case, and
+  // reveals the target in the tree: its location opens and the folders
+  // holding it open.
   function openRevealed(next: IntentSelection, entrySlug?: string) {
     select(
       next.scope === undefined ? { ...next, scope: "file" } : next,
       entrySlug,
     );
+    fileReading.setTab("purpose");
     setRevealedOpens((n) => n + 1);
     const owning = owningLocation(locations, next);
     if (owning !== undefined) setExpandedPath(owning.path);
@@ -204,7 +200,11 @@ export function IntentBrowser({
             );
           })}
         </div>
-        <div ref={readingPane} className="intent-reading" tabIndex={-1}>
+        <div
+          ref={fileReading.readingArea}
+          className="intent-reading"
+          tabIndex={-1}
+        >
           <IntentSelectionReading
             revision={revision}
             fileRevision={fileRead.revision ?? revision}
@@ -220,6 +220,7 @@ export function IntentBrowser({
             onFileRetry={fileRead.retry}
             onOpen={openRevealed}
             readingKey={revealedOpens}
+            fileReading={fileReading.place}
           />
         </div>
       </div>

@@ -5,9 +5,10 @@
 // removed / renamed / later-trunk gaps, and drill into a nested folder
 // (SEED-245#compare-story-intent-entry-folder-and-file-summaries examples 1,
 // 2 timing, 3–4, 6). Gap, Trunk Mode, running Landed and Taken variants live
-// in ./intent-summary-story-comparison-gaps.spec.ts. The file summary journey
-// is ./intent-summary-story-comparison-file.spec.ts. Without a selected
-// story, ./intent-summary-ci-proof*.spec.ts stay the Summary consumers.
+// in ./intent-summary-story-comparison-gaps.spec.ts. The file Purpose/Proof
+// comparison journey is ./intent-summary-story-comparison-file.spec.ts.
+// Without a selected story, ./intent-summary-ci-proof*.spec.ts stay the
+// Summary consumers.
 
 import { expect, test } from "./support/preparationPage.ts";
 import { shortSha } from "../src/baseCiWording.ts";

@@ -1,18 +1,23 @@
-// File-level CI timing comparison for a selected done story
-// (../src/IntentFileComparison.tsx, ../src/IntentFileReading.tsx): opening a
-// changed test file shows a compact summary above Purpose with precise
-// baseline → branch/landed times, counted-results differences, change kind
-// and the observed-not-attributed statement, while the diff beneath stays
-// unchanged (SEED-245#compare-story-intent-entry-folder-and-file-summaries
-// example 2). Added and unchanged files carry the same compact summary;
-// without a selected story, Purpose alone stays the file reading
-// (./intent-story-*.spec.ts and other file-reading consumers).
+// File-level CI Proof for a selected done story
+// (../src/IntentFileProof.tsx, ../src/IntentFileReading.tsx): opening a
+// changed test file shows Purpose as the story diff with no comparison above
+// it, and Proof as a compact comparison with precise baseline → branch/landed
+// times, counted-results differences, change kind and the
+// observed-not-attributed statement
+// (SEED-245#compare-story-intent-entry-folder-and-file-summaries example 2;
+// SEED-247#restore-file-purpose-and-proof). Added and unchanged files carry
+// the same Proof comparison; without a selected story, Purpose is the source
+// and Proof is the judged-run file row (./intent-file-purpose-proof.spec.ts).
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./support/preparationPage.ts";
 import { shortSha } from "../src/baseCiWording.ts";
 import { observedNotAttributed } from "../src/storyCiComparisonWording.ts";
-import { purposeRegion } from "./intentPerspectivePage.ts";
+import {
+  fileReadingTab,
+  proofRegion,
+  purposeRegion,
+} from "./intentPerspectivePage.ts";
 import {
   comparisonScopeColumns,
   type ComparisonScopeRow,
@@ -55,16 +60,12 @@ const unchangedFileRow: ComparisonScopeRow = [
   parts,
 ];
 
-function fileSummary(intent: Locator) {
-  return intent.getByRole("region", { name: "File summary", exact: true });
-}
-
 async function expectFileComparisonRow(
-  summary: Locator,
+  proof: Locator,
   path: string,
   row: ComparisonScopeRow,
 ) {
-  const table = summary.getByRole("table", { name: `CI proof of ${path}` });
+  const table = proof.getByRole("table", { name: `CI proof of ${path}` });
   await expect(table.getByRole("columnheader")).toHaveText([
     ...comparisonScopeColumns,
   ]);
@@ -75,7 +76,7 @@ async function expectFileComparisonRow(
   await expect(body.nth(0).getByRole("cell")).toHaveText([...cells]);
 }
 
-test("a selected done story's changed test file shows a compact comparison above an unchanged Purpose diff", async ({
+test("a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison", async ({
   page,
   origin,
 }) => {
@@ -84,61 +85,77 @@ test("a selected done story's changed test file shows a compact comparison above
   const { intent } = await selectDoneStoryForSummaryComparison(page);
 
   await intentFile(intent, summaryComparisonChanges.modified).click();
-  const summary = fileSummary(intent);
   const purpose = purposeRegion(intent);
+  const purposeTab = fileReadingTab(intent, "Purpose");
+  const proofTab = fileReadingTab(intent, "Proof");
 
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    `CI timing comparison for ${setup.identity}`,
-  );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    shortSha(setup.baseline),
-  );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    shortSha(setup.branchSide),
-  );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    shortSha(setup.completion),
-  );
-  await expect(summary.locator(".intent-ci-comparison-framing")).toContainText(
-    observedNotAttributed,
-  );
-  await expectFileComparisonRow(
-    summary,
-    "dashboard/tests/folder/a.spec.ts",
-    modifiedFileRow,
-  );
-
-  // Diff stays primary beneath: Purpose holds the story change, not the
-  // comparison table.
+  await expect(purposeTab).toHaveAttribute("aria-selected", "true");
   await expect(purpose.locator(".intent-story-diff-name")).toHaveText(
     summaryComparisonChanges.modified,
   );
   await expect(purpose.locator(".story-review-code")).toContainText("changed");
   await expect(purpose.getByRole("table")).toHaveCount(0);
   await expect(purpose.locator(".intent-ci-comparison-framing")).toHaveCount(0);
+  await expect(
+    intent.getByRole("region", { name: "File summary", exact: true }),
+  ).toHaveCount(0);
 
-  await test.step("an added file shows added with no baseline difference", async () => {
+  await proofTab.click();
+  const proof = proofRegion(intent);
+  await expect(proofTab).toHaveAttribute("aria-selected", "true");
+  await expect(proof.locator(".intent-summary-evidence")).toContainText(
+    `CI timing comparison for ${setup.identity}`,
+  );
+  await expect(proof.locator(".intent-summary-evidence")).toContainText(
+    shortSha(setup.baseline),
+  );
+  await expect(proof.locator(".intent-summary-evidence")).toContainText(
+    shortSha(setup.branchSide),
+  );
+  await expect(proof.locator(".intent-summary-evidence")).toContainText(
+    shortSha(setup.completion),
+  );
+  await expect(proof.locator(".intent-ci-comparison-framing")).toContainText(
+    observedNotAttributed,
+  );
+  await expectFileComparisonRow(
+    proof,
+    "dashboard/tests/folder/a.spec.ts",
+    modifiedFileRow,
+  );
+
+  await test.step("an added file keeps Proof selected and shows added with no baseline difference", async () => {
     await intentFile(intent, summaryComparisonChanges.added).click();
+    await expect(fileReadingTab(intent, "Proof")).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
     await expectFileComparisonRow(
-      fileSummary(intent),
+      proofRegion(intent),
       "dashboard/tests/added.spec.ts",
       addedFileRow,
     );
+    await fileReadingTab(intent, "Purpose").click();
     await expect(
       purposeRegion(intent).locator(".intent-story-diff-name"),
     ).toHaveText(summaryComparisonChanges.added);
   });
 
-  await test.step("an unchanged file shows its source with the same compact summary", async () => {
+  await test.step("an unchanged file shows its source on Purpose with the same compact Proof", async () => {
     await intentFile(intent, "dashboard/tests/root.spec.ts").click();
-    await expectFileComparisonRow(
-      fileSummary(intent),
-      "dashboard/tests/root.spec.ts",
-      unchangedFileRow,
+    await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
+      "aria-selected",
+      "true",
     );
     const purposeOnly = purposeRegion(intent);
     await expect(purposeOnly).toContainText("root 11");
     await expect(purposeOnly.locator(".story-review-code")).toHaveCount(0);
     await expect(purposeOnly.getByRole("table")).toHaveCount(0);
+    await fileReadingTab(intent, "Proof").click();
+    await expectFileComparisonRow(
+      proofRegion(intent),
+      "dashboard/tests/root.spec.ts",
+      unchangedFileRow,
+    );
   });
 });

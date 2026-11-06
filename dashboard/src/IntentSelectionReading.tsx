@@ -1,14 +1,18 @@
 // Intent's selection reading (`./IntentBrowser.tsx`): CI status when nothing
 // is selected (`./IntentCiStatus.tsx`); Summary (`./IntentSummary.tsx`) or
-// Purpose (`./IntentFileReading.tsx`) once a location, folder or file is
-// selected. A selection the shown revision does not hold is explained instead
-// (`./IntentRevisionNotice.tsx`). CI status and a Summary read Intent's one CI
-// evidence owner (`./IntentCiEvidence.tsx`). Activating the Intent reading
-// tab returns home (`./IntentModeTabs.tsx`).
+// Purpose and Proof tabs (`./IntentFileReading.tsx`) once a location, folder
+// or file is selected. A selection the shown revision does not hold is
+// explained instead (`./IntentRevisionNotice.tsx`). CI status and a Summary
+// read Intent's one CI evidence owner (`./IntentCiEvidence.tsx`). Activating
+// the Intent reading tab returns home (`./IntentModeTabs.tsx`).
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
-import { IntentFileReading, type FileRead } from "./IntentFileReading.tsx";
+import {
+  IntentFileReading,
+  type FileRead,
+  type IntentFileReadingPlace,
+} from "./IntentFileReading.tsx";
 import { IntentPathNotInRevision } from "./IntentRevisionNotice.tsx";
 import { IntentSummary } from "./IntentSummary.tsx";
 import { filesOfSelection } from "./intentSelectionCoverage.ts";
@@ -34,6 +38,7 @@ export function IntentSelectionReading({
   onFileRetry,
   onOpen,
   readingKey,
+  fileReading,
 }: {
   readonly revision: string;
   // The revision of the file text shown, and a later one whose read failed.
@@ -54,6 +59,8 @@ export function IntentSelectionReading({
   readonly onOpen: (next: IntentSelection) => void;
   // Fresh reading key after a revealed open from the candidate record.
   readonly readingKey: number;
+  // Purpose or Proof, kept across file selections.
+  readonly fileReading: IntentFileReadingPlace;
 }) {
   const scope = selectionScope(selection);
   if (scope === "none") {
@@ -77,8 +84,10 @@ export function IntentSelectionReading({
       ) : scope === "file" ? (
         <IntentFileReading
           key={readingKey}
+          place={fileReading}
           path={selection.path}
           revision={fileRevision}
+          treeRevision={revision}
           failedRevision={failedRevision}
           read={read}
           kind={selectedLanguage}
