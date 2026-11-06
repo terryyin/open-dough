@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-247_restore-file-purpose-and-proof.json",
+      "identity": "SEED-247#restore-file-purpose-and-proof",
+      "completedAt": "2026-11-06T15:22:46.055Z",
+      "blob": "b2175b1c3e2a01146ff45f728eeaf81f0a8aa09f"
+    },
+    {
       "fileName": "SEED-245_compare-story-intent-entry-folder-and-file-summaries.json",
       "identity": "SEED-245#compare-story-intent-entry-folder-and-file-summaries",
       "completedAt": "2026-11-06T13:03:27.880Z",

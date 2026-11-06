@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Compare story proof through merge resolutions](seeds/SEED-248-story-proof-through-merge-resolutions.md#compare-story-proof-through-merge-resolutions) — SEED-248#compare-story-proof-through-merge-resolutions ([plan](slice-plans/485-compare-story-proof-through-merge-resolutions/PLAN.md))
-- [Restore Purpose and Proof tabs for individual Intent files](seeds/SEED-247-restore-file-purpose-and-proof.md#restore-file-purpose-and-proof) — SEED-247#restore-file-purpose-and-proof ([plan](slice-plans/484-restore-file-purpose-and-proof/PLAN.md))
 
 ## Backlog list
 

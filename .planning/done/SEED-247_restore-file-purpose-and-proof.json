@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-247#restore-file-purpose-and-proof",
+  "title": "Restore Purpose and Proof tabs for individual Intent files",
+  "completedAt": "2026-11-06T15:22:46.055Z",
+  "developer": "Terry Yin",
+  "agent": "dbs-chan",
+  "host": "cursor",
+  "model": "auto"
+}
