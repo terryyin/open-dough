@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-241_keep-the-shown-reading-through-failed-updates.json",
+      "identity": "SEED-241#keep-the-shown-reading-through-failed-updates",
+      "completedAt": "2026-11-06T00:11:08.139Z",
+      "blob": "5efc40b03195bc0b13a7278116905d3c89b3e152"
+    },
+    {
       "fileName": "SEED-243_improve-intent-home-and-selection-summaries.json",
       "identity": "SEED-243#improve-intent-home-and-selection-summaries",
       "completedAt": "2026-11-05T18:54:22.433Z",
@@ -1620,12 +1626,6 @@
       "identity": "SEED-113#reuse-unchanged-records-after-publication",
       "completedAt": "2026-10-07T02:12:44.671Z",
       "blob": "387b1ad630f284660295deb0b3ea1d331ba6bb47"
-    },
-    {
-      "fileName": "SEED-117_finished-after-retirement.json",
-      "identity": "SEED-117#finished-after-retirement",
-      "completedAt": "2026-10-06T23:10:33.885Z",
-      "blob": "6de920799c76f5eb14288267d5470fe033047793"
     }
   ],
   "unreadable": []
