@@ -88,3 +88,32 @@ test("listRuns carries start and completion from the Actions listing", async () 
   assert.equal(run.completedAt, "2026-11-05T10:03:00Z");
   assert.equal(run.createdAt, "2026-11-05T09:59:00Z");
 });
+
+test("listRuns omits the branch query parameter for an all-branch listing", async () => {
+  const calls = [];
+  const github = createGitHubActions({
+    repo: "owner/repo",
+    gh: scriptedGithub(
+      [
+        [
+          {
+            databaseId: 41,
+            attempt: 1,
+            headSha: sha,
+            headBranch: "main",
+            event: "push",
+            status: "completed",
+            conclusion: "success",
+            url: "https://ci.invalid/41",
+          },
+        ],
+      ],
+      calls,
+    ),
+  });
+  await github.listRuns({ limit: 1 }, new AbortController().signal);
+  const runsAsk = calls.find(({ kind }) => kind === "runs");
+  assert.equal(runsAsk.branch, undefined);
+  assert.equal(runsAsk.event, "push");
+  assert.equal(runsAsk.limit, 1);
+});

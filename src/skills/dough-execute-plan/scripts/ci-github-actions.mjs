@@ -158,8 +158,11 @@ export function createGitHubActions({
 
     async listRuns({ branch, created, limit = 20 }, signal) {
       const { id, name } = await selectedWorkflow(signal);
+      // Omit `branch` for an all-branch listing (applicability ancestor
+      // discovery). AcquireRuns always supplies the observed branch; keep
+      // `branch` first in that query so existing route assertions stay stable.
       const query = new URLSearchParams({
-        branch,
+        ...(branch !== undefined ? { branch } : {}),
         event: "push",
         ...(created ? { created } : {}),
         per_page: String(limit),

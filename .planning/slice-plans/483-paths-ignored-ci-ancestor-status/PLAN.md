@@ -2,7 +2,16 @@
 
 **Identity:** SEED-246#paths-ignored-ci-ancestor-status
 **Source:** [selected story](../../seeds/SEED-246-paths-ignored-ci-ancestor-status.md#paths-ignored-ci-ancestor-status)
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-06. This is preparation only; execution needs its own instruction.
+
+## Story obligations
+
+### G1. Adapter protocol change deferred
+Reported: slice 1 — "Changing the adapter protocol is a deferred promise."
+Story clause: "changing the adapter protocol is a deferred promise"
+Disposition: excluded "changing the adapter protocol is a deferred promise"
+Commitment: 19
 
 ## Goal and boundaries
 
@@ -91,9 +100,21 @@ integrated-state candidates still filter by branch.
 
 ### 1. Find ignored-only revisions' ancestor runs on any branch
 Type: Behavior
-Status: planned
-Proof: the new coverage cases and variants above; the real-repository
-probe; the local gate.
+Status: done
+Proof: accepted 2026-11-06 —
+`PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh`
+`ci-revision-coverage-not-required-cross-branch.test.mjs`,
+`-inheritance.test.mjs`, `-required.test.mjs` (E1–E4; exit 0);
+`ci-github-actions-observed-run.test.mjs` (omit-branch listing); earlier
+`ci-*.test.mjs` suite green; real-repo probe on
+`cursor/treat-paths-ignored-ci-as-the-first-non-ignored` at claim tip
+→ `not_required` basis `7cde52861` on `main`. Local gate remaining:
+`npm run lint` at delivery.
+
+**Learnings:** `listRuns` query-parameter order keeps `branch` first when
+present (acquisition/journey route assertions). Refactor split the
+cross-branch proof under the 250-line file-size gate and composed
+`matchingCiRuns` on shared push matching.
 
 **Behavior:** an ignored-only revision whose nearest non-ignored ancestor
 ran only on another branch is registered → its coverage records
