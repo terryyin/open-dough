@@ -2,8 +2,9 @@
 // (`./IntentCiComparison.tsx`): match each endpoint's proof summary by path
 // through the shared scope comparison (`./ciScopeComparison.ts`), show
 // baseline / branch / landed execution times with signed whole-second
-// differences, mark added and removed entries, and keep counts and
-// completeness from the landed summary (or branch when landed has none).
+// differences, counted-results differences in Counts, mark added and
+// removed entries, and keep parts completeness from the landed summary (or
+// branch when landed has none).
 
 import type { CiProof, CiProofEntry } from "./ciProof.ts";
 import { unavailableLine } from "./ciProofAbsenceWording.ts";

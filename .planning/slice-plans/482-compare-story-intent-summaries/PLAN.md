@@ -178,7 +178,7 @@ selected story; counts stay as they are for the homepage's chosen build.
 
 ### 2. Compare counted results at every compared scope
 Type: Behavior
-Status: planned
+Status: done
 Proof: the slice-1 journey extended with count assertions on the Summary
 and the homepage entry rows; SEED-244's homepage specs; the local gate.
 

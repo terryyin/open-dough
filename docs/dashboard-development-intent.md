@@ -42,9 +42,11 @@ row with a line naming them. With a story selected, the same Summary names that 
 comparison (baseline, branch and landed, as **CI status** names them; Taken
 labelled provisional) and the observed-not-attributed statement; its table
 uses **Baseline**, **Branch** and **Landed** for precise times with signed
-differences, marks story-changed rows (a rename takes its baseline from its
-old path), and explains per-row gaps. Counts and parts stay for the
-homepage's chosen build. Each result counts in one row: an unlisted file
+differences, shows counted-results differences in **Counts** (a gap endpoint
+shows its gap, not a difference), marks story-changed rows (a rename takes
+its baseline from its old path), and explains per-row gaps. Parts
+completeness stays for the homepage's chosen build (landed, else branch).
+Each result counts in one row: an unlisted file
 under a listed folder is in that folder's row, and outside only in that
 folder's own summary. Execution time is precise enough to compare sub-minute
 scopes (`340 ms`, `12.5 s`, `4 min 5 s`); a measured zero is `0 ms`. A file

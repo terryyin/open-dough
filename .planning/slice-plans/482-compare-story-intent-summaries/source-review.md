@@ -27,9 +27,9 @@ No plan, return, product, proof, or suspected omission.
 | 3b | Same columns and order as homepage | slice 1 | observed: comparisonScopeColumns |
 | 3c | Drilling keeps selected story and endpoints | slice 1 | observed: drillComparisonChild in main journey |
 | 3d | No story selected → Summary unchanged | slice 1 | observed: intent-summary-ci-proof*.spec.ts consumers |
-| 4 | Compared rows show counted results at each endpoint with signed differences | slice 2 | |
-| 4a | Outcome counts and parts completeness for homepage's chosen build | slice 2 | |
-| 4b | Homepage entry rows show the same count differences | slice 2 | |
+| 4 | Compared rows show counted results at each endpoint with signed differences | slice 2 | observed: summaryComparisonExpectedRows count cells + intent-summary-story-comparison.spec.ts |
+| 4a | Outcome counts and parts completeness for homepage's chosen build | slice 2 | observed: Parts column still chosen-build completeness beside count diffs |
+| 4b | Homepage entry rows show the same count differences | slice 2 | observed: intent-ci-comparison.spec.ts entry rows 2,090 → 2,092 +2 |
 | 5 | Selected test file: compact comparison above Purpose | slice 3 | |
 | 5a | Source or diff reading stays primary and unchanged | slice 3 | |
 | 5b | No story → file reading unchanged | slice 3 | |

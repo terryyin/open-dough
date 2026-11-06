@@ -56,8 +56,11 @@ export function mixedEntryParts(at: "baseline" | "branch" | "landed"): {
     ["dashboard/tests", 1],
     ["tests", 1],
   ];
+  // Entry counts differ across endpoints so the homepage Counts cell can
+  // show 2,090 → 2,092 +2 (SEED-245 example 1); checks stay flat.
+  const dashboardCounts = at === "baseline" ? counts(2090) : counts(2092);
   const parts: ProofPart[] = [
-    ["dashboard/tests", 1, 1, "tests", counts(10), slowerMs[at]],
+    ["dashboard/tests", 1, 1, "tests", dashboardCounts, slowerMs[at]],
     ["tests", 1, 1, "checks", counts(5), fasterMs[at]],
   ];
   if (at !== "baseline") {
@@ -96,7 +99,7 @@ export function untimedBaselineMixedProofs(args: {
           ["tests", 2],
         ],
         [
-          ["dashboard/tests", 1, 1, "tests", counts(10)],
+          ["dashboard/tests", 1, 1, "tests", counts(2090)],
           ["tests", 1, 2, "checks", counts(3), 60_000],
           ["tests", 2, 2, "checks", counts(2)],
         ],

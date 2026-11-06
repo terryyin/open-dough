@@ -23,6 +23,7 @@ import {
   type CiScopeFigures,
   type SummaryChild,
 } from "./ciScopeProof.ts";
+import { endpointProofReadOf } from "./ciScopeComparisonEndpoint.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
 import type { ComparisonEndpointProof } from "./storyCiComparisonEntries.ts";
 
@@ -97,11 +98,9 @@ export function scopeEndpointTimingOf(
   proof: ComparisonEndpointProof,
   lookup: string,
 ): ScopeEndpointTiming {
-  if (proof.kind === "checking") return { kind: "checking" };
-  if (proof.kind === "no-build")
-    return { kind: "status", text: proof.explanation };
-  if (proof.kind === "unavailable") return { kind: "status", text: proof.line };
-  const entry = owningEntryOf(proof.entries, lookup);
+  const read = endpointProofReadOf(proof);
+  if (read.kind !== "summary") return read;
+  const entry = owningEntryOf(read.entries, lookup);
   if (entry === undefined) return { kind: "absent" };
   if (lookup === entry.path) {
     const timing = entryTimingOf(entry);
@@ -117,11 +116,9 @@ export function outsideTimingOf(
   path: string,
   children: readonly SummaryChild[],
 ): ScopeEndpointTiming {
-  if (proof.kind === "checking") return { kind: "checking" };
-  if (proof.kind === "no-build")
-    return { kind: "status", text: proof.explanation };
-  if (proof.kind === "unavailable") return { kind: "status", text: proof.line };
-  const entry = owningEntryOf(proof.entries, path);
+  const read = endpointProofReadOf(proof);
+  if (read.kind !== "summary") return read;
+  const entry = owningEntryOf(read.entries, path);
   if (entry === undefined) return { kind: "absent" };
   if (!hasFileBreakdown(entry)) return { kind: "no-breakdown" };
   const outside = outsideOf(entry, path, children);

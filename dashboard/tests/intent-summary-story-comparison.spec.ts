@@ -1,12 +1,13 @@
-// Entry and folder Summary CI timing comparison for a selected done story
-// (../src/IntentScopeProof.tsx, ../src/ciScopeComparison.ts): baseline,
-// branch and landed precise durations with signed differences, change
-// markers, added / removed / renamed / later-trunk gaps, and drill into a
-// nested folder (SEED-245#compare-story-intent-entry-folder-and-file-summaries
-// examples 1, 2 timing, 3–4, 6). Gap, Trunk Mode, running Landed and Taken
-// variants live in ./intent-summary-story-comparison-gaps.spec.ts. Count
-// differences are slice 2; the file summary is slice 3. Without a selected
-// story, ./intent-summary-ci-proof*.spec.ts stay the Summary consumers.
+// Entry and folder Summary CI timing and counted-results comparison for a
+// selected done story (../src/IntentScopeProof.tsx, ../src/ciScopeComparison.ts):
+// baseline, branch and landed precise durations with signed differences,
+// Counts with signed differences (entry 4 → 5 +1), change markers, added /
+// removed / renamed / later-trunk gaps, and drill into a nested folder
+// (SEED-245#compare-story-intent-entry-folder-and-file-summaries examples 1,
+// 2 timing, 3–4, 6). Gap, Trunk Mode, running Landed and Taken variants live
+// in ./intent-summary-story-comparison-gaps.spec.ts. The file summary is
+// slice 3. Without a selected story, ./intent-summary-ci-proof*.spec.ts stay
+// the Summary consumers.
 
 import { expect, test } from "./support/preparationPage.ts";
 import { shortSha } from "../src/baseCiWording.ts";
