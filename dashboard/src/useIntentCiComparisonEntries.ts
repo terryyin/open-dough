@@ -1,8 +1,11 @@
 // Proof summaries of a done story's comparison endpoints
 // (`./useIntentCiComparison.ts`), each read through `./authenticatedIntentCiProofRead.ts`
 // with the build's full revision. A late answer for another story or attempt
-// never becomes the shown proof. Intent's homepage (`./IntentCiComparison.tsx`)
-// turns the three proofs into entry rows (`./storyCiComparisonEntries.ts`).
+// never becomes the shown proof. Intent's one CI evidence owner
+// (`./IntentCiEvidence.tsx`) holds these proofs so the homepage entry rows
+// (`./IntentCiComparison.tsx`) and a selected entry's or folder's Summary
+// (`./IntentScopeProof.tsx`) share them; selecting, drilling and returning
+// home ask CI nothing again.
 
 import { useEffect, useState } from "react";
 import { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
@@ -15,12 +18,19 @@ import type {
 import {
   comparisonEntriesOf,
   comparisonProofOf,
+  type ComparisonEndpointProof,
   type ComparisonEntries,
 } from "./storyCiComparisonEntries.ts";
 
 type SlotProof = {
   readonly proof: CiProof | undefined;
   readonly reading: boolean;
+};
+
+export type ComparisonEndpointProofs = {
+  readonly baseline: ComparisonEndpointProof;
+  readonly branch: ComparisonEndpointProof;
+  readonly landed: ComparisonEndpointProof;
 };
 
 function buildSubject(
@@ -98,10 +108,12 @@ function useSlotProof(
   return { proof: undefined, reading: true };
 }
 
-export function useIntentCiComparisonEntries(
+// The three endpoint proofs for a comparison answer, keyed by story identity
+// and each build's attempt so a late answer never paints another selection.
+export function useIntentCiComparisonEndpointProofs(
   source: PublishedSource,
   answer: StoryCiComparisonAnswer | undefined,
-): ComparisonEntries {
+): ComparisonEndpointProofs | undefined {
   const identity = answer?.kind === "comparison" ? answer.identity : undefined;
   const baseline = useSlotProof(
     source,
@@ -123,17 +135,25 @@ export function useIntentCiComparisonEntries(
     answer?.kind === "comparison" ? answer.landed : undefined,
   );
 
-  if (answer === undefined || answer.kind !== "comparison") {
-    return { kind: "checking" };
-  }
+  if (answer === undefined || answer.kind !== "comparison") return undefined;
 
-  return comparisonEntriesOf(
-    comparisonProofOf(answer.baseline, baseline.proof, baseline.reading),
-    comparisonProofOf(
+  return {
+    baseline: comparisonProofOf(
+      answer.baseline,
+      baseline.proof,
+      baseline.reading,
+    ),
+    branch: comparisonProofOf(
       branchSlot ?? answer.branch,
       branch.proof,
       branch.reading,
     ),
-    comparisonProofOf(answer.landed, landed.proof, landed.reading),
-  );
+    landed: comparisonProofOf(answer.landed, landed.proof, landed.reading),
+  };
+}
+
+export function comparisonEntriesFromProofs(
+  proofs: ComparisonEndpointProofs,
+): ComparisonEntries {
+  return comparisonEntriesOf(proofs.baseline, proofs.branch, proofs.landed);
 }

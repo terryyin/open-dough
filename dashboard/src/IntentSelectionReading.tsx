@@ -69,6 +69,7 @@ export function IntentSelectionReading({
           key={`${revision}:${selection.path}`}
           path={selection.path}
           files={filesOfSelection(treeFiles, selection)}
+          treeFiles={treeFiles}
           location={selectedLocation}
           revision={revision}
           onOpen={onOpen}

@@ -1,16 +1,13 @@
 // Entry rows of a selected done story's CI comparison on Intent's homepage
-// (`./IntentCiComparison.tsx`): match each endpoint's proof summary by path,
-// show baseline / branch / landed execution times with signed whole-second
+// (`./IntentCiComparison.tsx`): match each endpoint's proof summary by path
+// through the shared scope comparison (`./ciScopeComparison.ts`), show
+// baseline / branch / landed execution times with signed whole-second
 // differences, mark added and removed entries, and keep counts and
 // completeness from the landed summary (or branch when landed has none).
 
 import type { CiProof, CiProofEntry } from "./ciProof.ts";
 import { unavailableLine } from "./ciProofAbsenceWording.ts";
-import {
-  wholeSecondDifferenceWords,
-  wholeSecondWords,
-} from "./ciProofTimeWords.ts";
-import { ciProofCellsOf, entryTimingOf } from "./ciProofWording.ts";
+import { primaryProofOf, scopeComparisonCellsOf } from "./ciScopeComparison.ts";
 import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
 
 export type ComparisonEndpointProof =
@@ -38,9 +35,6 @@ export type ComparisonEntries =
   | { readonly kind: "empty"; readonly explanation: string }
   | { readonly kind: "rows"; readonly rows: readonly ComparisonEntryRow[] };
 
-const added = "added";
-const removed = "removed";
-
 export function comparisonProofOf(
   slot: StoryCiComparisonSlot,
   proof: CiProof | undefined,
@@ -58,79 +52,6 @@ export function comparisonProofOf(
   if (slot.kind === "running")
     return { kind: "no-build", explanation: "Build is still running." };
   return { kind: "no-build", explanation: slot.explanation };
-}
-
-function entryOf(
-  proof: ComparisonEndpointProof,
-  path: string,
-): CiProofEntry | undefined {
-  if (proof.kind !== "summary") return undefined;
-  return proof.entries.find((entry) => entry.path === path);
-}
-
-function baselineMsOf(
-  baseline: ComparisonEndpointProof,
-  path: string,
-): number | undefined {
-  const entry = entryOf(baseline, path);
-  if (entry === undefined) return undefined;
-  const timing = entryTimingOf(entry);
-  return timing.kind === "complete" ? timing.ms : undefined;
-}
-
-// Checking / no-build / unavailable wording shared by baseline and after cells.
-function endpointStatusText(
-  proof: ComparisonEndpointProof,
-): string | undefined {
-  if (proof.kind === "checking") return "…";
-  if (proof.kind === "no-build") return proof.explanation;
-  if (proof.kind === "unavailable") return proof.line;
-  return undefined;
-}
-
-function timingWords(entry: CiProofEntry): string {
-  const timing = entryTimingOf(entry);
-  return timing.kind === "complete" ? wholeSecondWords(timing.ms) : timing.text;
-}
-
-function baselineCell(
-  baseline: ComparisonEndpointProof,
-  path: string,
-  presentLater: boolean,
-): string {
-  const status = endpointStatusText(baseline);
-  if (status !== undefined) return status;
-  const entry = entryOf(baseline, path);
-  if (entry === undefined) return presentLater ? added : "—";
-  return timingWords(entry);
-}
-
-function afterCell(
-  proof: ComparisonEndpointProof,
-  path: string,
-  baselineMs: number | undefined,
-  presentInBaseline: boolean,
-): string {
-  const status = endpointStatusText(proof);
-  if (status !== undefined) return status;
-  const entry = entryOf(proof, path);
-  if (entry === undefined) return presentInBaseline ? removed : added;
-  const timing = entryTimingOf(entry);
-  if (timing.kind === "explained") return timing.text;
-  const value = wholeSecondWords(timing.ms);
-  // Diff only when baseline also measured this path; never invent a baseline.
-  if (baselineMs === undefined) return value;
-  return `${value} ${wholeSecondDifferenceWords(timing.ms - baselineMs)}`;
-}
-
-function primaryProofOf(
-  landed: ComparisonEndpointProof,
-  branch: ComparisonEndpointProof,
-  baseline: ComparisonEndpointProof,
-): ComparisonEndpointProof {
-  if (landed.kind === "summary") return landed;
-  if (branch.kind === "summary") return branch;
-  return baseline;
 }
 
 function orderedPaths(
@@ -152,37 +73,6 @@ function orderedPaths(
   take(branch);
   take(baseline);
   return paths;
-}
-
-function cellsForPath(
-  path: string,
-  baseline: ComparisonEndpointProof,
-  branch: ComparisonEndpointProof,
-  landed: ComparisonEndpointProof,
-  primary: ComparisonEndpointProof,
-): ComparisonEntryCells {
-  const presentLater =
-    entryOf(branch, path) !== undefined || entryOf(landed, path) !== undefined;
-  const presentInBaseline = entryOf(baseline, path) !== undefined;
-  const before = baselineMsOf(baseline, path);
-  const primaryEntry = entryOf(primary, path);
-  const sourceEntry =
-    primaryEntry ??
-    entryOf(branch, path) ??
-    entryOf(landed, path) ??
-    entryOf(baseline, path);
-  const proofCells =
-    sourceEntry === undefined
-      ? { counts: "—", completeness: "—", gaps: [] as const }
-      : ciProofCellsOf(sourceEntry);
-  return {
-    counts: proofCells.counts,
-    baseline: baselineCell(baseline, path, presentLater),
-    branch: afterCell(branch, path, before, presentInBaseline),
-    landed: afterCell(landed, path, before, presentInBaseline),
-    completeness: proofCells.completeness,
-    gaps: proofCells.gaps,
-  };
 }
 
 // Rows for the three endpoint proofs once each has settled; checking while any
@@ -217,7 +107,13 @@ export function comparisonEntriesOf(
     kind: "rows",
     rows: paths.map((path) => ({
       path,
-      cells: cellsForPath(path, baseline, branch, landed, primary),
+      cells: scopeComparisonCellsOf(
+        path,
+        baseline,
+        branch,
+        landed,
+        "whole-second",
+      ),
     })),
   };
 }

@@ -86,3 +86,11 @@ export function executionTimeWords(ms: number): string {
   }
   return wholeMinuteWords(rounded);
 }
+
+// Signed precise difference for Summary comparisons: "+70 ms", "+4.0 s",
+// "-300 ms". Never rounds a sub-second change away.
+export function executionTimeDifferenceWords(ms: number): string {
+  if (ms === 0) return "0 ms";
+  const sign = ms > 0 ? "+" : "-";
+  return `${sign}${executionTimeWords(Math.abs(ms))}`;
+}

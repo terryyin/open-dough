@@ -2,6 +2,7 @@
 
 **Identity:** SEED-245#compare-story-intent-entry-folder-and-file-summaries
 **Source:** [selected story](../../seeds/SEED-245-story-intent-summary-differences.md#compare-story-intent-entry-folder-and-file-summaries)
+**Source review:** [source-review.md](./source-review.md)
 **Prepared:** 2026-11-06. This is preparation only; execution needs its own instruction.
 
 ## Goal and boundaries
@@ -155,7 +156,7 @@ with the reason the effect cannot reach it. Carry these known effects:
 
 ### 1. Compare execution time in a selected story's entry and folder Summaries
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new Summary comparison journey and its variants; the consumer
 specs above; the local gate.
 
@@ -207,6 +208,38 @@ Apply the same scope comparison at file scope. Update the file-reading
 description in `docs/dashboard-development-intent.md`.
 
 **Safe stop:** the story is complete.
+
+## Story obligations
+
+### G1. No new evidence beyond SEED-244
+Reported: slice 1 — "No new CI read, adapter contract or stored copy beyond SEED-244's."
+Story clause: "No new CI read, adapter contract or stored copy beyond SEED-244's."
+Disposition: excluded "No new CI read, adapter contract or stored copy beyond SEED-244's."
+
+### G2. Proof-summary retention
+Reported: slice 1 — "Availability follows the provider's retention; this repository keeps proof summaries for 30 days."
+Story clause: "Availability follows the provider's retention; this repository keeps proof summaries for 30 days."
+Disposition: excluded "Availability follows the provider's retention; this repository keeps proof summaries for 30 days."
+
+### G3. No variance band
+Reported: slice 1 — "No variance band or significance judgment, as in SEED-244."
+Story clause: "No variance band or significance judgment, as in SEED-244."
+Disposition: excluded "No variance band or significance judgment, as in SEED-244."
+
+### G4. No file figures without a story
+Reported: slice 1 — "A test file's CI figures without a selected story are not part of this story."
+Story clause: "A test file's CI figures without a selected story, and comparisons in Review changes or story cards, are not part of this story."
+Disposition: excluded "A test file's CI figures without a selected story, and comparisons in Review changes or story cards, are not part of this story."
+
+### G5. No Review or card comparisons
+Reported: slice 1 — "Comparisons in Review changes or story cards are not part of this story."
+Story clause: "A test file's CI figures without a selected story, and comparisons in Review changes or story cards, are not part of this story."
+Disposition: excluded "A test file's CI figures without a selected story, and comparisons in Review changes or story cards, are not part of this story."
+
+### G6. No sorting or filtering by difference
+Reported: slice 1 — "No sorting or filtering by difference. Rows keep the tree's order."
+Story clause: "No sorting or filtering by difference. Rows keep the tree's order."
+Disposition: excluded "No sorting or filtering by difference. Rows keep the tree's order."
 
 ## Current decisions and readiness review
 
