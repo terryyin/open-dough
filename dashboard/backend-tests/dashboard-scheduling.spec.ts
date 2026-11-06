@@ -32,8 +32,10 @@ import { test, expect } from ${JSON.stringify(framework)};
 import { appendFileSync, existsSync, writeFileSync } from "node:fs";
 const note = (text) => appendFileSync(${JSON.stringify(events)}, text + "\\n");
 `;
+  // The first ordinary job gates both workers, so it must precede the later
+  // job in the discovered paths, across the browser and backend roots.
   writeFileSync(
-    path.join(directory, "tests/a-ordinary.spec.ts"),
+    path.join(directory, "backend-tests/a-ordinary.spec.ts"),
     `${preamble}
 test("ordinary work overlaps the chain", async () => {
   note("ordinary:start");
@@ -44,7 +46,7 @@ test("ordinary work overlaps the chain", async () => {
 `,
   );
   writeFileSync(
-    path.join(directory, "backend-tests/b-ordinary.spec.ts"),
+    path.join(directory, "tests/b-ordinary.spec.ts"),
     `${preamble}
 test("later ordinary work", () => note("ordinary:later"));
 `,
@@ -54,7 +56,9 @@ test("later ordinary work", () => note("ordinary:later"));
     `${preamble}
 test.describe.configure({ mode: "serial" });
 let state = 0;
-test.beforeAll(() => {
+test.beforeAll(async () => {
+  // Hold chain startup until ordinary work starts, regardless of worker speed.
+  await expect.poll(() => existsSync(${JSON.stringify(ordinary)})).toBe(true);
   note("chain:setup");
   writeFileSync(${JSON.stringify(chain)}, "");
 });

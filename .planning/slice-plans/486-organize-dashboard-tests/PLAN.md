@@ -96,6 +96,27 @@ Behavior: Opening the dashboard test entry reveals the ten domain groups;
 opening any group reaches its existing tests and CI proof at the moved paths.
 The complete browser/backend suite still runs under the existing CI schedule.
 
+## Story obligations
+
+### G1. CI scheduling fixture depends on incidental path order
+Reported: slice 1 — "CI run 42253102353 failed the scheduling priority assertion: chain setup index 3 was not before the later ordinary job at index 1."
+Story clause: "preserving complete CI execution without increasing CI wall time"
+Disposition: proved by slice 1: scheduling-repair controlled startup gate reproduced the exact failure; intentional fixture ordering passed three guarded runs, reversed production priority still failed the original assertion, and the restored candidate passed. Complete target CI remains owned by the lifecycle commitments.
+
+## CI repair evidence
+
+The failure inventory was complete: one failed dashboard job, no missing logs.
+The sibling backend root sorted the later ordinary fixture before its intended
+first ordinary handshake. The repaired fixture establishes that order and
+waits for causal startup evidence; production dispatch, assertions, retries,
+timeouts and case counts are unchanged. Focused command:
+`caffeinate -s -i npm run --silent test:dashboard -- backend-tests/dashboard-scheduling.spec.ts --workers=2`.
+Controlled red, three candidate passes, negative priority reversal and restored
+candidate pass are retained under `/tmp/open-dough-test-organization-proof/scheduling-*.log`.
+Independent review `/root/scheduling_refactor` returned `## REFACTOR COMPLETE`,
+none already clean, with no edits or extra tests. Consumer dispositions are in
+`scheduling-repair-consumers.md` beside those logs.
+
 ## Execution context
 
 Owned checkout: `/Users/terryyin/git/open-dough-test-organization`, created for
