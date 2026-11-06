@@ -1,7 +1,7 @@
 // A story's CI comparison endpoints: baseline, branch result and landed
 // result. Each is a build identity plus how it was selected, or a named gap.
-// Shared by the authenticated read (`../server/intentCiComparisonRead.ts`)
-// and Intent's homepage. SEED-245 reuses the same endpoints.
+// Shared by the authenticated read (`../server/intentCiComparisonRead.ts`),
+// Intent's homepage, Summaries and the selected-file reading comparison.
 
 import { z } from "zod";
 

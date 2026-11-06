@@ -34,6 +34,15 @@ export type IntentTreeFile = {
   readonly published: boolean;
 };
 
+// Path whose baseline CI figures a rename reads; otherwise `path`.
+export function baselinePathOf(
+  treeFile: IntentTreeFile | undefined,
+  path: string,
+): string {
+  if (treeFile?.change?.kind === "renamed") return treeFile.change.oldPath;
+  return path;
+}
+
 export type LocationOverlay = {
   readonly files: readonly IntentTreeFile[];
   readonly containsChanges: boolean;

@@ -21,6 +21,24 @@ export function scopeTable(summary: Locator, path: string): Locator {
 
 export const scopeColumns = ["Scope", ...proofColumns.slice(1)];
 
+export const comparisonScopeColumns = [
+  "Scope",
+  "Counts",
+  "Baseline",
+  "Branch",
+  "Landed",
+  "Parts",
+] as const;
+
+export type ComparisonScopeRow = readonly [
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+];
+
 // The scope table has the homepage's columns, scoped, and exactly ROWS in
 // order: the scope's own row, its children, then any outside row.
 export async function expectScopeRows(
@@ -35,6 +53,24 @@ export async function expectScopeRows(
   for (const [at, [scope, ...cells]] of rows.entries()) {
     await expect(body.nth(at).getByRole("rowheader")).toHaveText(scope);
     await expect(body.nth(at).getByRole("cell")).toHaveText(cells);
+  }
+}
+
+// The same table with a selected story's Baseline / Branch / Landed columns.
+export async function expectComparisonScopeRows(
+  summary: Locator,
+  path: string,
+  rows: readonly ComparisonScopeRow[],
+) {
+  const table = scopeTable(summary, path);
+  await expect(table.getByRole("columnheader")).toHaveText([
+    ...comparisonScopeColumns,
+  ]);
+  const body = table.locator("tbody").getByRole("row");
+  await expect(body).toHaveCount(rows.length);
+  for (const [at, [scope, ...cells]] of rows.entries()) {
+    await expect(body.nth(at).getByRole("rowheader")).toHaveText(scope);
+    await expect(body.nth(at).getByRole("cell")).toHaveText([...cells]);
   }
 }
 

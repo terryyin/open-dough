@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-245_compare-story-intent-entry-folder-and-file-summaries.json",
+      "identity": "SEED-245#compare-story-intent-entry-folder-and-file-summaries",
+      "completedAt": "2026-11-06T13:03:27.880Z",
+      "blob": "d4e3eb3d3b033669922ed8ffb1101731d2e3b206"
+    },
+    {
       "fileName": "SEED-246_paths-ignored-ci-ancestor-status.json",
       "identity": "SEED-246#paths-ignored-ci-ancestor-status",
       "completedAt": "2026-11-06T10:46:44.869Z",
@@ -1584,12 +1590,6 @@
       "identity": "SEED-106#paged-columns-height-follows-shown",
       "completedAt": "2026-10-07T20:57:35.379Z",
       "blob": "a0731da8c4d5eab28c9d51908fbb977074b93054"
-    },
-    {
-      "fileName": "SEED-113_rate-limit-recovery-residue-correction.json",
-      "identity": "SEED-113#rate-limit-recovery-residue-correction",
-      "completedAt": "2026-10-07T11:39:13.334Z",
-      "blob": "b10f91cca57f7f2155446531299020cf1599343e"
     }
   ],
   "unreadable": []

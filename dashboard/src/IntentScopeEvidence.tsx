@@ -1,12 +1,15 @@
 // The CI evidence a selected entry's or folder's Summary
-// (`./IntentScopeProof.tsx`) names, from Intent's one CI evidence owner
+// (`./IntentScopeProof.tsx`) or a selected file's compact comparison
+// (`./IntentFileComparison.tsx`) names, from Intent's one CI evidence owner
 // (`./IntentCiEvidence.tsx`): the summary of a named attempt -- the attempt,
 // its revision and the judged branch, and when the tree shows another
 // revision, that a file added or changed since has no result or an earlier
-// one -- or the one line saying why there is none, as the homepage says it
-// (`./useIntentCiShownProof.ts`). Either way, a judgment previously
-// retrieved, not newly verified, and a failed refresh beside it are said in
-// the homepage's words (`./IntentCiJudgedBranch.tsx`).
+// one -- or a selected story's CI comparison endpoints with each endpoint's
+// proof summary already held by the owner -- or the one line saying why
+// there is none, as the homepage says it (`./useIntentCiShownProof.ts`).
+// Either way, a judgment previously retrieved, not newly verified, and a
+// failed refresh beside it are said in the homepage's words
+// (`./IntentCiJudgedBranch.tsx`).
 
 import type { ReactNode } from "react";
 import { shortSha } from "./baseCiWording.ts";
@@ -18,6 +21,9 @@ import {
 } from "./IntentCiJudgedBranch.tsx";
 import { AttemptName } from "./IntentCiProof.tsx";
 import type { ShownCiProofRun } from "./shownCiProofRun.ts";
+import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
+import type { ComparisonReading } from "./useIntentCiComparison.ts";
+import type { ComparisonEndpointProofs } from "./useIntentCiComparisonEntries.ts";
 import { unreadReason } from "./useIntentCiJudgment.ts";
 import {
   shownProofStateOf,
@@ -32,7 +38,8 @@ export type KeptEvidence = {
 };
 
 // What the Summary can say from the evidence: a summary of a named attempt,
-// or why there is none (`checking` while it is still being read).
+// a selected story's comparison with its endpoint proofs, or why there is
+// none (`checking` while it is still being read).
 export type ScopeEvidence = (
   | {
       readonly kind: "summary";
@@ -46,11 +53,50 @@ export type ScopeEvidence = (
       readonly ancestor: boolean;
     }
   | {
+      readonly kind: "comparison";
+      readonly story: string;
+      readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
+      readonly proofs: ComparisonEndpointProofs;
+    }
+  | {
       readonly kind: "none";
       readonly checking: boolean;
       readonly line: ReactNode;
     }
 ) & { readonly kept?: KeptEvidence };
+
+function comparisonFrom(
+  story: string,
+  comparison: ComparisonReading,
+  endpointProofs: ComparisonEndpointProofs | undefined,
+): ScopeEvidence {
+  if (comparison.reading && comparison.shown === undefined)
+    return {
+      kind: "none",
+      checking: true,
+      line: "Reading CI comparison…",
+    };
+  if (comparison.failed !== undefined && comparison.shown === undefined)
+    return { kind: "none", checking: false, line: comparison.failed };
+  if (comparison.shown?.kind === "unavailable")
+    return {
+      kind: "none",
+      checking: false,
+      line: comparison.shown.explanation,
+    };
+  if (comparison.shown?.kind !== "comparison" || endpointProofs === undefined)
+    return {
+      kind: "none",
+      checking: true,
+      line: "Reading CI comparison…",
+    };
+  return {
+    kind: "comparison",
+    story,
+    answer: comparison.shown,
+    proofs: endpointProofs,
+  };
+}
 
 export function scopeEvidenceOf(evidence: CiEvidence): ScopeEvidence {
   if (evidence.kind === "inactive")
@@ -58,15 +104,26 @@ export function scopeEvidenceOf(evidence: CiEvidence): ScopeEvidence {
   if (evidence.kind === "gap")
     return { kind: "none", checking: false, line: evidence.why };
   if (evidence.kind === "comparison")
-    return {
-      kind: "none",
-      checking: evidence.comparison.reading,
-      line:
-        evidence.comparison.shown?.kind === "unavailable"
-          ? evidence.comparison.shown.explanation
-          : (evidence.comparison.failed ??
-            "CI proof for a selected scope is not part of a done story's timing comparison."),
-    };
+    return comparisonFrom(
+      evidence.story,
+      evidence.comparison,
+      evidence.endpointProofs,
+    );
+  // Taken Story Branch: prefer the provisional comparison for the Summary
+  // when the story is selected, matching the homepage's comparison columns.
+  if (
+    evidence.comparison !== undefined &&
+    evidence.comparisonStory !== undefined
+  ) {
+    const compared = comparisonFrom(
+      evidence.comparisonStory,
+      evidence.comparison,
+      evidence.endpointProofs,
+    );
+    if (compared.kind === "comparison") return compared;
+    if (compared.kind === "none" && compared.checking) return compared;
+    // Unavailable comparison beside judgment falls through to live proof.
+  }
   const { branch, story, judged, proof } = evidence;
   const { shown } = judged;
   const checkedAt = previouslyRetrievedAt(judged);

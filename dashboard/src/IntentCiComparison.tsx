@@ -10,9 +10,9 @@
 import type { ReactNode } from "react";
 import { shortSha } from "./baseCiWording.ts";
 import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
-import type { PublishedSource } from "./publishedSource.ts";
+import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
-import { useIntentCiComparisonEntries } from "./useIntentCiComparisonEntries.ts";
+import { comparisonEntriesFromProofs } from "./useIntentCiComparisonEntries.ts";
 import {
   observedNotAttributed,
   selectionWords,
@@ -109,14 +109,20 @@ function EndpointRow({
   );
 }
 
-function EntryComparison({
-  source,
-  reading,
-}: {
-  readonly source: PublishedSource;
-  readonly reading: ComparisonReading;
-}) {
-  const entries = useIntentCiComparisonEntries(source, reading.shown);
+function EntryComparison() {
+  const evidence = useIntentCiEvidence();
+  const proofs =
+    evidence.kind === "comparison" || evidence.kind === "judged"
+      ? evidence.endpointProofs
+      : undefined;
+  if (proofs === undefined) {
+    return (
+      <p className="intent-ci-reading" role="status">
+        Reading entry comparison…
+      </p>
+    );
+  }
+  const entries = comparisonEntriesFromProofs(proofs);
   if (entries.kind === "checking") {
     return (
       <p className="intent-ci-reading" role="status">
@@ -194,11 +200,9 @@ function ComparisonBody({
 }
 
 export function IntentCiComparison({
-  source,
   story,
   reading,
 }: {
-  readonly source: PublishedSource;
   readonly story: string;
   readonly reading: ComparisonReading;
 }) {
@@ -235,7 +239,7 @@ export function IntentCiComparison({
       <h3>CI timing changes for {story}</h3>
       <p className="intent-ci-comparison-framing">({observedNotAttributed})</p>
       <ComparisonBody answer={answer} />
-      <EntryComparison source={source} reading={reading} />
+      <EntryComparison />
     </section>
   );
 }

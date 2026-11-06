@@ -91,7 +91,7 @@ test("a selected done Story Branch story compares named baseline, branch and lan
   await expectCiComparisonEntryRows(panel, [
     [
       "dashboard/tests",
-      "10 passed tests",
+      "2,090 → 2,092 +2 tests",
       "4 min",
       "4 min 30 s +30 s",
       "5 min +1 min",
@@ -99,7 +99,7 @@ test("a selected done Story Branch story compares named baseline, branch and lan
     ],
     [
       "tests",
-      "5 passed checks",
+      "5 → 5 0 checks",
       "2 min",
       "1 min 30 s -30 s",
       "1 min -1 min",
@@ -107,7 +107,7 @@ test("a selected done Story Branch story compares named baseline, branch and lan
     ],
     [
       "src/skills",
-      "3 passed checks",
+      "added → 3 checks",
       "added",
       "30 s",
       "30 s",

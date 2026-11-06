@@ -9,11 +9,13 @@ import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { locationExplanation } from "./intentLocationExplanation.ts";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
 import { IntentScopeProof } from "./IntentScopeProof.tsx";
+import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 
 export function IntentSummary({
   path,
   files,
+  treeFiles,
   location,
   revision,
   onOpen,
@@ -22,6 +24,9 @@ export function IntentSummary({
   // The files the tree lists under the selection, a selected story's
   // overlay included.
   readonly files: readonly string[];
+  // The story overlay's files by repository path, for change markers and
+  // rename baselines in the CI comparison.
+  readonly treeFiles: ReadonlyMap<string, IntentTreeFile>;
   readonly location: IntentLocation;
   readonly revision: string;
   readonly onOpen: (next: IntentSelection) => void;
@@ -44,6 +49,7 @@ export function IntentSummary({
         path={path}
         inventory={files}
         revision={revision}
+        treeFiles={treeFiles}
         onOpen={onOpen}
       />
     </section>

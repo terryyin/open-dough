@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-245#compare-story-intent-entry-folder-and-file-summaries",
+  "title": "Compare a story's Intent entry, folder, and file summaries",
+  "completedAt": "2026-11-06T13:03:27.880Z",
+  "developer": "Terry Yin",
+  "agent": "d.kanai-chan",
+  "host": "cursor",
+  "model": "auto"
+}

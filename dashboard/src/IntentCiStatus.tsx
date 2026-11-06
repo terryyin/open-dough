@@ -61,7 +61,6 @@ export function IntentCiStatus() {
   if (evidence.kind === "comparison")
     return (
       <IntentCiComparison
-        source={evidence.source}
         story={evidence.story}
         reading={evidence.comparison}
       />
@@ -77,7 +76,6 @@ export function IntentCiStatus() {
       />
       {provisional !== undefined && evidence.comparisonStory !== undefined && (
         <IntentCiComparison
-          source={evidence.source}
           story={evidence.comparisonStory}
           reading={provisional}
         />
