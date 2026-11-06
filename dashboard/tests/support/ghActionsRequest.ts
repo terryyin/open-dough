@@ -11,11 +11,19 @@ export type GhActionsRequest =
     }
   | {
       // Push runs of a selected Actions workflow on one branch (`branch=`),
-      // "" when none is named.
+      // "" when none is named; or runs of one revision (`head_sha=`).
       readonly kind: "actions-runs";
       readonly repository: string;
       readonly workflowId: string;
       readonly branch: string;
+      readonly headSha: string;
+    }
+  | {
+      // One Actions run attempt (`runs/{id}/attempts/{n}`).
+      readonly kind: "actions-run-attempt";
+      readonly repository: string;
+      readonly runId: number;
+      readonly attempt: number;
     }
   | {
       // One run's artifacts, of one name (`name=`) when one is named.
@@ -46,12 +54,27 @@ export function parseActionsRequest(
       workflow: decodeURIComponent(workflow[2]),
     };
   const runs = pattern("workflows\\/([^/]+)\\/runs(?:\\?(.*))?").exec(endpoint);
-  if (runs?.[1] !== undefined && runs[2] !== undefined)
+  if (runs?.[1] !== undefined && runs[2] !== undefined) {
+    const query = new URLSearchParams(runs[3] ?? "");
     return {
       kind: "actions-runs",
       repository: runs[1],
       workflowId: decodeURIComponent(runs[2]),
-      branch: new URLSearchParams(runs[3] ?? "").get("branch") ?? "",
+      branch: query.get("branch") ?? "",
+      headSha: query.get("head_sha") ?? "",
+    };
+  }
+  const attempt = pattern("runs\\/(\\d+)\\/attempts\\/(\\d+)$").exec(endpoint);
+  if (
+    attempt?.[1] !== undefined &&
+    attempt[2] !== undefined &&
+    attempt[3] !== undefined
+  )
+    return {
+      kind: "actions-run-attempt",
+      repository: attempt[1],
+      runId: Number(attempt[2]),
+      attempt: Number(attempt[3]),
     };
   const artifacts = pattern("runs\\/(\\d+)\\/artifacts(?:\\?(.*))?").exec(
     endpoint,

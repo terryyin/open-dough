@@ -93,9 +93,9 @@ their manual actions. Absent or mismatched candidates keep their existing
 explanations. Purpose file text offers its own **Retry**.
 
 **CI status** shows the selected check's judgment of the
-project's configured trunk (`main` here), or, with a selected story (card or
-Side panel), of that story's published story branch — the branch its single
-agent profile records in Story Branch Mode — by the same rule as the
+project's configured trunk (`main` here), or, with a selected Taken story
+(card or Side panel), of that story's published story branch — the branch its
+single agent profile records in Story Branch Mode — by the same rule as the
 [base-CI check before an execution start](../dashboard/LAUNCH-BASE-CI.md):
 the newest result of the configured `ciWorkflow` (or `ciAdapter` discover) at
 the branch head or its nearest ancestor that has one. For a story branch,
@@ -103,8 +103,16 @@ trunk results of the same check also count when the commit is in the branch's
 history (the run's branch is named, for example "run on `main`"); a trunk
 result for a commit outside that history never counts. The nearest commit
 with a result decides by its newest result; a failed trunk read leaves
-**Could not be read**. A selected story with no published story branch
-(queued or being prepared, Trunk Mode, or Recently done), unreadable or
+**Could not be read**. A selected **done** story shows a **CI timing
+comparison** instead of a live branch judgment: baseline (newest completed
+build at or before the story's first claim parent), branch result (final
+story-branch revision's build, or not applicable for Trunk Mode), and landed
+result (completion revision's build), each named with revision, run, attempt,
+state and whether it is exact or a measured ancestor, with CI wall time and
+signed whole-second differences framed as observations between single builds
+(not attributed to the story). Entry rows state that entry comparison is not
+yet shown until that delivery lands. A selected story with no published story
+branch (queued or being prepared, or Taken in Trunk Mode), unreadable or
 ambiguous agent profiles, an unusable recorded name, or a branch GitHub no
 longer publishes is named with that explanation and shows no status; no other
 branch's judgment stands in. A changed selection replaces the judgment;

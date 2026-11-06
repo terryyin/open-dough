@@ -1,12 +1,11 @@
 // Which branch Intent's CI status homepage judges (`./IntentCiStatus.tsx`): the
 // source's configured trunk while no story is selected, or, for the page's
 // selected story (`./pageStorySelection.tsx`), the branch the story-branch
-// rule finds for its Taken entry (`./storyBranch.ts`). Any other selected
-// story is named with why it has no branch to judge, and nothing is judged
-// in its place: no other branch's status stands in for a story's. A judged
-// branch carries its head as the page last observed it, which its judgment
-// follows: the trunk's revision, or the head of a story branch the page
-// watches for progress (`./progressSource.ts`).
+// rule finds for its Taken entry (`./storyBranch.ts`). A selected done story
+// is a comparison target (`./IntentCiComparison.tsx`): its endpoints come from
+// published history, not a live branch judgment. Any other selected story is
+// named with why it has no branch to judge, and nothing is judged in its
+// place. A judged branch carries its head as the page last observed it.
 
 import { watchedBranchHeads } from "./progressSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -22,6 +21,12 @@ export type CiTarget =
       readonly branch: string;
       readonly story?: string;
       readonly head: string | undefined;
+    }
+  // A selected done story: compare its published CI endpoints.
+  | {
+      readonly kind: "comparison";
+      readonly story: string;
+      readonly identity: string;
     }
   // The selected story `story` has no branch to judge, for `why`.
   | { readonly kind: "gap"; readonly story: string; readonly why: string };
@@ -107,6 +112,10 @@ export function ciTargetOf(
     );
   }
   if (work !== undefined && isDone(work, selectedIdentity))
-    return noBranch(selectedIdentity, "is done");
+    return {
+      kind: "comparison",
+      story: selectedIdentity,
+      identity: selectedIdentity,
+    };
   return noBranch(selectedIdentity, "is not taken at this revision");
 }

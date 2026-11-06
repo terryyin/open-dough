@@ -13,6 +13,10 @@ import {
   type IntentLocationsRead,
 } from "./intentLocationsRead.ts";
 import {
+  parseIntentCiComparisonRead,
+  type IntentCiComparisonRead,
+} from "./intentCiComparisonParse.ts";
+import {
   parseIntentCiProofRead,
   type IntentCiProofRead,
 } from "./intentCiProofRead.ts";
@@ -26,7 +30,8 @@ export type IntentRequestedRead =
   | IntentLocationsRead
   | IntentCandidatesRead
   | IntentCiStatusRead
-  | IntentCiProofRead;
+  | IntentCiProofRead
+  | IntentCiComparisonRead;
 
 const unknownIntentRefusal =
   "An Intent read names only a pinned revision and a known Intent request.";
@@ -43,6 +48,8 @@ export function parseIntentRequestedRead(
   if (ciStatus !== undefined) return ciStatus;
   const ciProof = parseIntentCiProofRead(params);
   if (ciProof !== undefined) return ciProof;
+  const ciComparison = parseIntentCiComparisonRead(params);
+  if (ciComparison !== undefined) return ciComparison;
   if (params.get("intent") !== null) {
     return refused(unknownIntentRefusal);
   }

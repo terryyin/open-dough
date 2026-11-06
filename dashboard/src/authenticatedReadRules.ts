@@ -98,6 +98,14 @@ export function readingCiProofOf(
     : `the CI proof of run ${String(subject.runId)} attempt ${String(subject.runAttempt)} of ${repository}`;
 }
 
+// A selected story's CI comparison (`../server/intentCiComparisonRead.ts`).
+export function readingCiComparisonOf(
+  identity: string,
+  repository: string,
+): string {
+  return `the CI comparison of ${identity} of ${repository}`;
+}
+
 export function readingPathAt(path: string, revision: string): string {
   return `${path} at ${revision}`;
 }

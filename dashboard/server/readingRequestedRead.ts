@@ -13,6 +13,7 @@ import {
 } from "../src/authenticatedReadRules.ts";
 import { readingDoneCatalogOf } from "./doneCatalogRead.ts";
 import { readingIntentCandidatesOf } from "./intentCandidatesRead.ts";
+import { readingIntentCiComparisonOf } from "./intentCiComparisonRead.ts";
 import { readingIntentCiProofOf } from "./intentCiProofRead.ts";
 import { readingIntentCiStatusOf } from "./intentCiStatusRead.ts";
 import { readingIntentLocationsOf } from "./intentLocationsRead.ts";
@@ -49,6 +50,8 @@ export function readingOf(
       return readingIntentCiStatusOf(source, read);
     case "intent-ci-proof":
       return readingIntentCiProofOf(source, read);
+    case "intent-ci-comparison":
+      return readingIntentCiComparisonOf(source, read);
     case "addition-at":
       return readingAdditionAt(read.path, read.revision);
     case "backlog-at":

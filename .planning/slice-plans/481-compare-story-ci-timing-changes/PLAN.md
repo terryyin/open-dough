@@ -2,6 +2,7 @@
 
 **Identity:** SEED-244#compare-story-ci-timing-changes
 **Source:** [selected story](../../seeds/SEED-244-story-ci-timing-changes.md#compare-story-ci-timing-changes)
+**Source review:** [source-review.md](source-review.md)
 **Prepared:** 2026-11-05. This is preparation only; execution needs its own instruction.
 
 ## Goal and boundaries
@@ -161,7 +162,7 @@ with the reason the effect cannot reach it. Carry these known effects:
 
 ### 1. Compare a selected done story's CI wall time with its pre-story build
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new done-story comparison journey, with its Trunk Mode, running,
 cancelled, failed and missing-build variants; the consumer specs above; the
 local gate.
@@ -181,6 +182,14 @@ homepage comparison.
 **Safe stop:** done stories have traceable wall-time comparisons, and their
 entry rows state that entry comparison is not yet shown. No figure is
 invented.
+
+**Accepted proof:**
+- `npm run test:dashboard -- dashboard/tests/intent-ci-comparison.spec.ts dashboard/tests/intent-ci-comparison-gaps.spec.ts --workers=1` — 7 passed (named builds, SEED-236 earlier landing, unrecoverable history, Trunk Mode, running/failed/missing, run links).
+- `node --test tests/support/dashboard-ci-comparison-parse.test.mjs tests/support/dashboard-ci-revision-nearest.test.mjs tests/support/dashboard-story-branch-ci.test.mjs` — parse refusal, cancelled→completed, story-start bound, `judgeNearest` unchanged.
+- `npm run test:dashboard -- dashboard/tests/intent-ci-status-story-gaps.spec.ts` — done-story gap migrated to comparison; other gaps kept.
+- Local gate: `npm run format`, `npm run typecheck:dashboard`.
+
+**Learnings:** Landed/branch ancestor walks stop at story-start; pre-claim builds are baseline-only. Synthetic board done stories can hit local-git gaps — comparison must show that gap, never a live branch judgment. Entry rows remain the slice-2 interim (`G4`).
 
 ### 2. Compare each entry's test execution time across the same builds
 Type: Behavior
@@ -254,3 +263,63 @@ No numeric slice target or hard limit was supplied. Slice 1 is the largest,
 because it carries the shared extraction and the generalized rule; both are
 needed for its first observable result. This review found no remaining
 slice-specific concern.
+
+
+## Story obligations
+
+### G1. No journey for code-landed-before-completion (SEED-236)
+Reported: slice 1 — "landing recovery supports it; no dedicated fixture journey this slice."
+Story clause: "Code landed before completion (SEED-236, observed). The story's landing merge `4a8129838` failed CI, and the story then completed on trunk at `a166534a8`, which passed. Branch uses `9e8075f07` as an ancestor of the landing merge's branch side. Landed uses the completion build. Neither is replaced by a later trunk build."
+Disposition: proved by slice 1: dashboard/tests/intent-ci-comparison.spec.ts code landed before completion… (SEED-236): Branch ancestor of merge branch-side, Landed exact completion, later trunk run 399 / 10 min absent
+Commitment: E8, 15.2
+### G2. Comparison endpoints omit run links
+Reported: slice 1 — "acceptance: IntentCiComparison shows revision/run/attempt/state/selection wording but never renders runUrl; IntentCiJudgment and IntentCiProof already link runs."
+Story clause: "Name each endpoint once: its revision, run and attempt, state, a link where available, and whether it is the exact revision or a measured ancestor."
+Disposition: proved by slice 1: dashboard/src/IntentCiComparison.tsx LinkedRun; intent-ci-comparison.spec.ts happy-path and SEED-236 assert run N #A href
+Commitment: 30.5
+### G3. Unrecoverable published history gap unproved for comparison
+Reported: slice 1 — "acceptance: product returns unavailable with published-review explanations, but intent-ci-comparison.spec.ts has no journey observing that gap on the homepage."
+Story clause: "an unrecoverable story history, using the published review's existing explanations."
+Disposition: proved by slice 1: dashboard/tests/intent-ci-comparison.spec.ts unrecoverable published history… shows published-review explanation, no comparison table/runs/+
+Commitment: 35.6
+
+### G4. Entry comparison placeholder until entry rows
+Reported: slice 1 — "slice 1 safe stop: Entry comparison is not yet shown."
+Story clause: "then one row per CI entry in the homepage entry table introduced by [SEED-243](../done/SEED-243_improve-intent-home-and-selection-summaries.json)"
+Disposition: interim until slices 2
+Commitment: 5
+### G5. No variance band
+Reported: slice 1 — "acceptance: slice 1 does not implement excluded scope (No variance band)."
+Story clause: "This story does not add a variance reference, such as the spread of nearby trunk builds, or any judgment of significance."
+Disposition: excluded "This story does not add a variance reference, such as the spread of nearby trunk builds, or any judgment of significance."
+Commitment: 39
+
+### G6. No durable copies
+Reported: slice 1 — "acceptance: slice 1 does not implement excluded scope (No durable copies)."
+Story clause: "Timing evidence is not copied into done records or other stored files, so its availability follows the CI provider's retention."
+Disposition: excluded "Timing evidence is not copied into done records or other stored files, so its availability follows the CI provider's retention."
+Commitment: 40
+
+### G7. Folder/file differences deferred
+Reported: slice 1 — "acceptance: slice 1 does not implement excluded scope (Folder/file differences deferred)."
+Story clause: "Folder and file differences belong to"
+Disposition: excluded "Folder and file differences belong to"
+Commitment: 41.1
+
+### G8. Comparison not on Review changes
+Reported: slice 1 — "acceptance: slice 1 does not implement excluded scope (Comparison not on Review changes)."
+Story clause: "The comparison is not added to Review changes or story cards."
+Disposition: excluded "The comparison is not added to Review changes or story cards."
+Commitment: 41.2
+
+### G9. Comparison not on story cards
+Reported: slice 1 — "acceptance: slice 1 does not implement excluded scope (Comparison not on story cards)."
+Story clause: "The comparison is not added to Review changes or story cards."
+Disposition: excluded "The comparison is not added to Review changes or story cards."
+Commitment: 41.3
+
+### G10. No new CI contract
+Reported: slice 1 — "acceptance: slice 1 does not implement excluded scope (No new CI contract)."
+Story clause: "The ciAdapter contract is not extended."
+Disposition: excluded "The ciAdapter contract is not extended."
+Commitment: 42

@@ -13,15 +13,24 @@ import {
 // Completion attribution uses the same author/profile rule as live review.
 // Every historical owning agent uses that rule, including story takeovers.
 // Merge resolutions need more evidence and remain explicit gaps.
+export type CompletedStoryEvidence = {
+  readonly commits: PublishedCommit[];
+  readonly resolutions: ReadonlyMap<string, string>;
+  // Execution claims recovered for every owning agent.
+  readonly claims: readonly string[];
+  // Octopus base of the claims' parents: the story-start bound for CI
+  // comparison baseline and result ancestor walks.
+  readonly storyStart: string;
+  // Owning landing merges recovered from published claim history.
+  readonly owningMerges: ReadonlySet<string>;
+};
+
 export async function completedStoryCommits(
   story: ReviewedStory,
   completion: string,
   agent: string,
   call: GitCall,
-): Promise<
-  | { commits: PublishedCommit[]; resolutions: ReadonlyMap<string, string> }
-  | { explanation: string }
-> {
+): Promise<CompletedStoryEvidence | { explanation: string }> {
   const evidence = await publishedStoryEvidence(story, completion, call, agent);
   if (evidence.claims.length === 0 || evidence.commits.length === 0)
     return {
@@ -157,6 +166,11 @@ export async function completedStoryCommits(
           "Published execution history contains merge resolutions affecting this story's files whose changes cannot be attributed safely.",
       };
   }
+  if (before === "")
+    return {
+      explanation:
+        "Published execution history does not establish a complete claim and its attributed commits for this completion.",
+    };
   const byRevision = new Map(commits.map((commit) => [commit.commit, commit]));
   const ordered = (
     await runGit(["rev-list", "--topo-order", completion], call)
@@ -169,5 +183,8 @@ export async function completedStoryCommits(
       const commit = byRevision.get(revision);
       return commit === undefined ? [] : [commit];
     }),
+    claims,
+    storyStart: before,
+    owningMerges,
   };
 }

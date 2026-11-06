@@ -96,10 +96,12 @@ export function publishCommittedOrigin(
     const { request, argv } = call;
     if (
       request.kind === "actions-workflow" ||
-      request.kind === "actions-runs"
+      request.kind === "actions-runs" ||
+      request.kind === "actions-run-attempt"
     ) {
       const actionsAnswer = actionsOverride?.(argv, published());
       if (actionsAnswer !== undefined) return actionsAnswer;
+      if (request.kind === "actions-run-attempt") return noConnection;
       return passingActionsAnswer(request.kind, published());
     }
     if (request.kind === "ref" && request.ref === "main") {

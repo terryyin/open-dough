@@ -6,10 +6,12 @@
 // selected and shown beside Intent's location explanations when locations
 // are absent or unreadable. It always names the branch and when it was
 // checked, and shows the judgment as `./IntentCiJudgment.tsx` does, then the
-// shown run's CI proof (`./IntentCiProof.tsx`). A selected story without a
-// branch to judge is named with why, and nothing is judged. Returning home
-// shows what the owner already read; it asks CI nothing again.
+// shown run's CI proof (`./IntentCiProof.tsx`). A selected done story shows
+// its CI timing comparison (`./IntentCiComparison.tsx`). A selected story
+// without a branch to judge is named with why, and nothing is judged.
+// Returning home shows what the owner already read; it asks CI nothing again.
 
+import { IntentCiComparison } from "./IntentCiComparison.tsx";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { JudgedBranch } from "./IntentCiJudgedBranch.tsx";
 import type { CiTarget } from "./intentCiTarget.ts";
@@ -33,6 +35,13 @@ export function IntentCiStatus() {
   const evidence = useIntentCiEvidence();
   if (evidence.kind === "inactive") return null;
   if (evidence.kind === "gap") return <StoryGap target={evidence} />;
+  if (evidence.kind === "comparison")
+    return (
+      <IntentCiComparison
+        story={evidence.story}
+        reading={evidence.comparison}
+      />
+    );
   return (
     <JudgedBranch
       branch={evidence.branch}

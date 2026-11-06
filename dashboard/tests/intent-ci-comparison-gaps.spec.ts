@@ -1,0 +1,194 @@
+// Gap and selection variants for Intent's CI timing comparison
+// (../src/IntentCiComparison.tsx): Trunk Mode not-applicable Branch, running
+// Landed beside a readable Branch comparison, failed Landed labelling, and a
+// missing Landed explanation without inventing zero
+// (SEED-244#compare-story-ci-timing-changes examples 5 and Trunk Mode). The
+// happy-path, SEED-236 and unrecoverable journeys live in
+// ./intent-ci-comparison.spec.ts.
+
+import { expect, test } from "./support/preparationPage.ts";
+import { shortSha } from "../src/baseCiWording.ts";
+import {
+  publishComparedStoryBranch,
+  wall,
+} from "./support/storyCiComparisonFixture.ts";
+import { selectDoneStoryForCiComparison } from "./support/selectDoneStoryForCiComparison.ts";
+import {
+  advanceCompletedTrunk,
+  completedPublishedStory,
+} from "./support/completedPublishedStory.ts";
+import { publishCommittedOrigin } from "./committedOrigin.ts";
+import { commitAll, git, writeAt } from "./support/storyReviewWorktree.ts";
+import { push } from "./support/storyReviewTrunkCommits.ts";
+import {
+  actionsRunsAnswer,
+  actionsWorkflowAnswer,
+} from "./support/baseCiActions.ts";
+
+test.setTimeout(240_000);
+
+test("a Trunk Mode done story marks Branch not applicable and Landed as an ancestor when needed", async ({
+  page,
+  origin,
+}) => {
+  test.slow();
+  // Baseline before the claim; implementation during the story has the only
+  // post-start build; completion touches .planning/ only and has none.
+  writeAt(origin.project, "src/built.ts", "built before claim\n");
+  commitAll(origin.project, "ship a built revision");
+  const baseline = git(origin.project, "rev-parse", "HEAD");
+  push(origin.project);
+  const story = await completedPublishedStory(origin, "trunk");
+  const implementation = git(
+    origin.project,
+    "log",
+    "--format=%H",
+    "--grep=^story implementation$",
+    "-1",
+    story.completion,
+  );
+  advanceCompletedTrunk(origin);
+  const published = git(origin.origin, "rev-parse", "main");
+  const committed = await publishCommittedOrigin(page, {
+    repoDir: origin.origin,
+    revision: published,
+    repository: "terryyin/open-dough",
+    follows: true,
+    realHistory: true,
+  });
+  committed.serveActions((argv) => {
+    const route = argv.find((a) => a.startsWith("repos/")) ?? "";
+    if (/\/actions\/workflows\/[^/?]+$/.test(route))
+      return actionsWorkflowAnswer();
+    const runs = /\/actions\/workflows\/[^/]+\/runs\?(.*)$/.exec(route);
+    if (runs?.[1] !== undefined) {
+      const headSha = new URLSearchParams(runs[1]).get("head_sha") ?? "";
+      if (headSha === baseline)
+        return actionsRunsAnswer([
+          wall(baseline, 200, "2026-11-05T11:00:00Z", "2026-11-05T11:03:00Z"),
+        ]);
+      if (headSha === implementation)
+        return actionsRunsAnswer([
+          wall(
+            implementation,
+            201,
+            "2026-11-05T12:00:00Z",
+            "2026-11-05T12:03:00Z",
+          ),
+        ]);
+      return actionsRunsAnswer([]);
+    }
+    return undefined;
+  });
+  const { panel } = await selectDoneStoryForCiComparison(page);
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(1),
+  ).toContainText("not applicable");
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(2),
+  ).toContainText(shortSha(implementation));
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(2),
+  ).toContainText("ancestor:");
+});
+
+test("a running landed build leaves the branch comparison readable", async ({
+  page,
+  origin,
+}) => {
+  test.slow();
+  const setup = await publishComparedStoryBranch(page, origin);
+  setup.serveRuns({
+    [setup.baseline]: [
+      wall(setup.baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
+    ],
+    [setup.branchSide]: [
+      wall(
+        setup.branchSide,
+        102,
+        "2026-11-05T13:00:00Z",
+        "2026-11-05T13:03:20Z",
+      ),
+    ],
+    [setup.completion]: [
+      wall(
+        setup.completion,
+        103,
+        "2026-11-05T14:00:00Z",
+        "2026-11-05T14:04:00Z",
+        undefined,
+        "in_progress",
+      ),
+    ],
+  });
+  const { panel } = await selectDoneStoryForCiComparison(page);
+  await expect(
+    panel.locator(".intent-ci-comparison-wall").nth(1),
+  ).toContainText("+20 s");
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(2),
+  ).toContainText("running");
+});
+
+test("a failed landed build is labelled failed", async ({ page, origin }) => {
+  test.slow();
+  const setup = await publishComparedStoryBranch(page, origin);
+  setup.serveRuns({
+    [setup.baseline]: [
+      wall(setup.baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
+    ],
+    [setup.branchSide]: [
+      wall(
+        setup.branchSide,
+        102,
+        "2026-11-05T13:00:00Z",
+        "2026-11-05T13:03:20Z",
+      ),
+    ],
+    [setup.completion]: [
+      wall(
+        setup.completion,
+        103,
+        "2026-11-05T14:00:00Z",
+        "2026-11-05T14:04:00Z",
+        "failure",
+      ),
+    ],
+  });
+  const { panel } = await selectDoneStoryForCiComparison(page);
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(2),
+  ).toContainText("failed");
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(2),
+  ).toContainText("failed build");
+});
+
+test("a missing landed build explains itself without inventing zero", async ({
+  page,
+  origin,
+}) => {
+  test.slow();
+  const setup = await publishComparedStoryBranch(page, origin);
+  setup.serveRuns({
+    [setup.baseline]: [
+      wall(setup.baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
+    ],
+    [setup.branchSide]: [
+      wall(
+        setup.branchSide,
+        102,
+        "2026-11-05T13:00:00Z",
+        "2026-11-05T13:03:20Z",
+      ),
+    ],
+    [setup.completion]: [],
+  });
+  const { panel } = await selectDoneStoryForCiComparison(page);
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(2),
+  ).toContainText("No completed CI build");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "—",
+  );
+});

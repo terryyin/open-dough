@@ -57,6 +57,16 @@ export function scopeEvidenceOf(evidence: CiEvidence): ScopeEvidence {
     return { kind: "none", checking: true, line: "Checking the CI…" };
   if (evidence.kind === "gap")
     return { kind: "none", checking: false, line: evidence.why };
+  if (evidence.kind === "comparison")
+    return {
+      kind: "none",
+      checking: evidence.comparison.reading,
+      line:
+        evidence.comparison.shown?.kind === "unavailable"
+          ? evidence.comparison.shown.explanation
+          : (evidence.comparison.failed ??
+            "CI proof for a selected scope is not part of a done story's timing comparison."),
+    };
   const { branch, story, judged, proof } = evidence;
   const { shown } = judged;
   const checkedAt = previouslyRetrievedAt(judged);
