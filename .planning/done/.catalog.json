@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-244_compare-story-ci-timing-changes.json",
+      "identity": "SEED-244#compare-story-ci-timing-changes",
+      "completedAt": "2026-11-06T01:26:18.393Z",
+      "blob": "c66d1984e37a8cc41178769ebb3ff84869ef5eba"
+    },
+    {
       "fileName": "SEED-241_keep-the-shown-reading-through-failed-updates.json",
       "identity": "SEED-241#keep-the-shown-reading-through-failed-updates",
       "completedAt": "2026-11-06T00:11:08.139Z",

@@ -128,7 +128,7 @@ function judgeAttempt(
 }
 
 // Newest listed run for `sha`, by creation time then listing order.
-function newestRunFor(
+export function newestRunFor(
   runs: readonly ListedRun[],
   sha: string,
   completedOnly = false,

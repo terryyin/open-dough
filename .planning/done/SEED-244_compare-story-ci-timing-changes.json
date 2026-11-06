@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-244#compare-story-ci-timing-changes",
+  "title": "Compare a story's CI and entry timing changes",
+  "completedAt": "2026-11-06T01:26:18.393Z",
+  "developer": "Terry Yin",
+  "agent": "steven-chan",
+  "host": "cursor",
+  "model": "auto"
+}

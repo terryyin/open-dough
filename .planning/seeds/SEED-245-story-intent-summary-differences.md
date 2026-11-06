@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-245#compare-story-intent-entry-folder-and-file-summaries
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-245#compare-story-intent-entry-folder-and-file-summaries","dependencies":[{"supplier":{"identity":"SEED-244#compare-story-ci-timing-changes","href":"seeds/SEED-244-story-ci-timing-changes.md#compare-story-ci-timing-changes"},"implementation":"SEED-245 applies the scope comparison to entry and folder Summaries and the file reading, adds count differences and change markers, and reuses SEED-244's endpoints, read and homepage comparison rows without copying them.","rationale":"SEED-244 is Taken and building the story CI comparison endpoints, their authenticated read and the homepage comparison rows. Starting SEED-245 first would build a second endpoint resolution and comparison read beside that work in progress, which reconciliation could only undo.","condition":"SEED-244's story CI comparison endpoints (baseline, branch result and landed result), their authenticated read with each endpoint's proof summary, and the homepage entry comparison rows are published on main.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-245#compare-story-intent-entry-folder-and-file-summaries","dependencies":[{"supplier":{"identity":"SEED-244#compare-story-ci-timing-changes","href":"done/SEED-244_compare-story-ci-timing-changes.json"},"implementation":"SEED-245 applies the scope comparison to entry and folder Summaries and the file reading, adds count differences and change markers, and reuses SEED-244's endpoints, read and homepage comparison rows without copying them.","rationale":"SEED-244 is Taken and building the story CI comparison endpoints, their authenticated read and the homepage comparison rows. Starting SEED-245 first would build a second endpoint resolution and comparison read beside that work in progress, which reconciliation could only undo.","condition":"SEED-244's story CI comparison endpoints (baseline, branch result and landed result), their authenticated read with each endpoint's proof summary, and the homepage entry comparison rows are published on main.","state":"waiting"}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/482-compare-story-intent-summaries/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"cb0b483f54f1b6351ac65fb018917f061356fc7098574632c3a50a76f4ee7fd3","plan":"1d0689142bef71913d159d35ee337dcf732fa89212e638f5be9a13b63aeb8037"}}
@@ -35,7 +35,7 @@ claim the story caused them.
 
 - **Same endpoints as the homepage.** Every figure comes from the story's CI
   comparison endpoints delivered by
-  [SEED-244](SEED-244-story-ci-timing-changes.md#compare-story-ci-timing-changes):
+  [SEED-244](../done/SEED-244_compare-story-ci-timing-changes.json):
   baseline, branch result and landed result, each with its build identity,
   selection rule, failed-build label, and not-applicable, not-yet-landed,
   running or unavailable state. The figures at a scope are that scope's

@@ -1,10 +1,12 @@
 // Intent's CI status for a selected story without a branch to judge
-// (../src/intentCiTarget.ts): a Recently done, queued, Preparing, or Trunk
-// Mode story is named with no published story branch; conflicting or
-// unreadable agent profiles leave its branch unknown, saying why; a recorded
-// name the dashboard cannot use is that story's gap; and a recorded branch
-// GitHub no longer publishes is said so by name. None shows a status, and none reads
-// another branch's judgment in its place (SEED-219 example 5). Judged story
+// (../src/intentCiTarget.ts): a queued or Preparing story is named with no
+// published story branch; a Taken Trunk Mode story shows its provisional CI
+// timing comparison (./intent-ci-comparison-taken.spec.ts); a Recently done
+// story shows its CI timing comparison instead (./intent-ci-comparison.spec.ts);
+// conflicting or unreadable agent profiles leave its branch unknown, saying
+// why; a recorded name the dashboard cannot use is that story's gap; and a
+// recorded branch GitHub no longer publishes is said so by name. None shows a
+// live branch judgment in another's place (SEED-219 example 5). Judged story
 // branches: ./intent-ci-status-story.spec.ts.
 
 import type { Locator } from "@playwright/test";
@@ -25,6 +27,7 @@ import {
 } from "./intentCiStoryBoard.ts";
 import {
   branchJudgmentCalls,
+  card,
   expectNamed,
   publishStoryCi,
   toggleOnDevelopment,
@@ -54,11 +57,48 @@ test("a selected story without a published story branch is named and explained, 
   );
   const before = calls.length;
 
+  await test.step("a selected done story shows its CI timing comparison, not a no-branch gap", async () => {
+    const { development, intentChoice } = parts(page);
+    await development.click();
+    await card(page, done.title).locator("h3").first().click();
+    await intentChoice.click();
+    const panel = intent.getByRole("region", {
+      name: "CI timing comparison",
+      exact: true,
+    });
+    await expect(panel.getByRole("heading")).toHaveText(
+      `CI timing changes for ${done.identity}`,
+    );
+    // This synthetic board has no recoverable published completion in the
+    // local checkout, so the comparison explains that gap rather than
+    // inventing figures or judging another branch.
+    await expect(panel.locator(".intent-ci-gap")).toBeVisible();
+    await expectNoStatus(panel);
+    await expect(panel).not.toContainText("Passed at");
+    await expect(panel).not.toContainText("no published story branch");
+  });
+
+  await test.step("a Taken Trunk Mode story shows its provisional CI timing comparison, not a no-branch gap", async () => {
+    const { development, intentChoice } = parts(page);
+    await development.click();
+    await card(page, onTrunk.title).locator("h3").first().click();
+    await intentChoice.click();
+    const panel = intent.getByRole("region", {
+      name: "CI timing comparison",
+      exact: true,
+    });
+    await expect(panel.getByRole("heading")).toHaveText(
+      `CI timing changes for ${onTrunk.title}`,
+    );
+    // Synthetic board has no recoverable published claim in the local
+    // checkout, so the comparison explains that gap rather than inventing
+    // figures or judging main as the story's branch.
+    await expect(panel.locator(".intent-ci-gap")).toBeVisible();
+    await expectNoStatus(panel);
+    await expect(panel).not.toContainText("no published story branch");
+  });
+
   for (const [title, why] of [
-    [
-      done.title,
-      `${done.identity} is done, so it has no published story branch and no CI status is shown.`,
-    ],
     [
       queued.title,
       `${queued.title} is queued, not taken, so it has no published story branch and no CI status is shown.`,
@@ -66,10 +106,6 @@ test("a selected story without a published story branch is named and explained, 
     [
       preparing.title,
       `${preparing.title} is being prepared, not taken, so it has no published story branch and no CI status is shown.`,
-    ],
-    [
-      onTrunk.title,
-      `${onTrunk.title} is taken in Trunk Mode, so it has no published story branch and no CI status is shown.`,
     ],
     [
       twoOwners.title,
@@ -83,7 +119,7 @@ test("a selected story without a published story branch is named and explained, 
     await test.step(title, async () => {
       const panel = await toggleOnDevelopment(page, title);
       await expect(panel.getByRole("heading")).toHaveText(
-        `CI status of ${title === done.title ? done.identity : title}`,
+        `CI status of ${title}`,
       );
       await expect(panel.locator(".intent-ci-gap")).toHaveText(why);
       await expectNoStatus(panel);

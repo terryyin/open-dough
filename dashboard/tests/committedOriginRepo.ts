@@ -66,6 +66,37 @@ export function commitOf(repoDir: string, name: string): string | undefined {
   }
 }
 
+// Every published branch head in the bare origin, with `main` forced to the
+// tip the fixture currently publishes (Taken story-branch tip moves stay
+// visible to the page's revision check).
+export function headsOf(
+  repoDir: string,
+  mainSha: string,
+): Record<string, string> {
+  const listed = execFileSync(
+    "git",
+    [
+      "-C",
+      repoDir,
+      "for-each-ref",
+      "--format=%(refname:short) %(objectname)",
+      "refs/heads",
+    ],
+    { encoding: "utf8" },
+  )
+    .trim()
+    .split("\n")
+    .filter(Boolean);
+  const heads: Record<string, string> = {};
+  for (const line of listed) {
+    const space = line.indexOf(" ");
+    if (space <= 0) continue;
+    heads[line.slice(0, space)] = line.slice(space + 1);
+  }
+  heads.main = mainSha;
+  return heads;
+}
+
 // Every file under the directory at the revision, at any depth, with its
 // committed text; undefined once the journey's repository is gone.
 export function filesUnder(

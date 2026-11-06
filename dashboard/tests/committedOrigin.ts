@@ -28,15 +28,15 @@ import {
 import { directoryListingAnswer, treeListingAnswer } from "./listingAnswers.ts";
 import { asksContainment, comparisonIn } from "./comparisonAnswers.ts";
 import { observe, type ObservedRequest } from "./originObservation.ts";
-import { commitAnswerIn, commitListIn } from "./pathHistoryAnswers.ts";
 import { committedHistoryAnswers } from "./committedHistoryAnswers.ts";
 import {
   commitOf,
   filesUnder,
-  listAt,
+  headsOf,
   listedAt,
   showAt,
 } from "./committedOriginRepo.ts";
+import { answerCommittedCommits } from "./committedOriginCommits.ts";
 import {
   passingActionsAnswer,
   targetHistoryAnswer,
@@ -96,10 +96,20 @@ export function publishCommittedOrigin(
     const { request, argv } = call;
     if (
       request.kind === "actions-workflow" ||
-      request.kind === "actions-runs"
+      request.kind === "actions-runs" ||
+      request.kind === "actions-run-attempt" ||
+      request.kind === "actions-run-artifacts" ||
+      request.kind === "actions-artifact-zip"
     ) {
       const actionsAnswer = actionsOverride?.(argv, published());
       if (actionsAnswer !== undefined) return actionsAnswer;
+      if (
+        request.kind === "actions-run-attempt" ||
+        request.kind === "actions-run-artifacts" ||
+        request.kind === "actions-artifact-zip"
+      ) {
+        return noConnection;
+      }
       return passingActionsAnswer(request.kind, published());
     }
     if (request.kind === "ref" && request.ref === "main") {
@@ -117,7 +127,13 @@ export function publishCommittedOrigin(
     }
     if (request.kind === "matching-refs") {
       await held.get("main");
-      return asHeadsListing(instead.get("main") ?? commitAnswer(published()));
+      // Honor answerWith("main") tip/error overrides (readiness/session
+      // journeys), while still listing other published heads so a Taken
+      // story-branch tip advance is visible through matching-refs.
+      return asHeadsListing(
+        instead.get("main") ?? commitAnswer(published()),
+        headsOf(repoDir, published()),
+      );
     }
     // A story branch head: published when the repository has that ref, else
     // GitHub's 404 (established absence). A lost connection here would start
@@ -142,47 +158,17 @@ export function publishCommittedOrigin(
         filesUnder(repoDir, request.revision, request.path) ?? {},
       );
     }
-    // Each agent profile listed at the revision was added by a commit of its
-    // own; these history reads are answered but not observed.
-    const profiles = (at = published()) => ({
-      files: Object.fromEntries(
-        (listAt(repoDir, at, ".planning/agents") ?? []).map((path) => [
-          path,
-          "",
-        ]),
-      ),
-    });
-    if (request.kind === "commit-list") {
-      // Target-head history for base CI (no path): real commits of main/SHA.
-      if (request.path === "") {
-        const tip =
-          request.revision === "main" || request.revision === published()
-            ? published()
-            : readable(request.revision)
-              ? request.revision
-              : undefined;
-        if (tip !== undefined)
-          return targetHistoryAnswer(repoDir, tip, request.perPage);
-      }
-      if (readable(request.revision)) {
-        if (options.realHistory === true) {
-          return history.list(request.revision, request.path, request.perPage);
-        }
-        return commitListIn(
-          profiles(request.revision),
-          request.path,
-          request.perPage,
-        );
-      }
-    }
-    if (request.kind === "commit") {
-      if (
-        options.realHistory === true &&
-        commitOf(repoDir, request.sha) === request.sha
-      ) {
-        return history.commit(request.sha);
-      }
-      return commitAnswerIn([profiles()], request.sha) ?? noConnection;
+    if (request.kind === "commit-list" || request.kind === "commit") {
+      const answered = answerCommittedCommits({
+        request,
+        repoDir,
+        published,
+        readable,
+        realHistory: options.realHistory === true,
+        history,
+        targetHistoryAnswer,
+      });
+      if (answered !== undefined) return answered;
     }
     // Only the currently published revision is readable, or, followed, any
     // commit; any other gets no answer and is not observed.

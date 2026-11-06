@@ -1,9 +1,12 @@
 // Durations in Intent's CI proof (`./ciProofWording.ts`,
 // `./IntentCiProof.tsx`): a scope's cumulative test execution time, precise enough to tell sub-minute
 // scopes apart, and the attempt's CI wall time in whole minutes, read from its
-// start and completion and never from summed durations.
+// start and completion and never from summed durations. Story CI comparison
+// (`./storyCiComparisonWording.ts`) uses whole-second words so sub-minute
+// differences stay distinct.
 
 const minuteMs = 60_000;
+const secondMs = 1_000;
 
 // Whole minutes / hours / days for Intent CI wall time, and for a long test
 // execution time (`executionTimeWords`).
@@ -14,6 +17,44 @@ function wholeMinuteWords(ms: number): string {
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${String(hours)} h ${String(minutes % 60)} min`;
   return `${String(Math.floor(hours / 24))} d ${String(hours % 24)} h`;
+}
+
+// Whole-second duration for story CI comparison: "3 min", "3 min 20 s",
+// "20 s", "1 h 2 min 3 s". Never rounds a sub-minute change away.
+export function wholeSecondWords(ms: number): string {
+  const seconds = Math.round(Math.max(0, ms) / secondMs);
+  if (seconds < 60) return `${String(seconds)} s`;
+  const minutes = Math.floor(seconds / 60);
+  const rest = seconds % 60;
+  if (minutes < 60)
+    return rest === 0
+      ? `${String(minutes)} min`
+      : `${String(minutes)} min ${String(rest)} s`;
+  const hours = Math.floor(minutes / 60);
+  const minuteRest = minutes % 60;
+  const parts = [`${String(hours)} h`];
+  if (minuteRest > 0) parts.push(`${String(minuteRest)} min`);
+  if (rest > 0) parts.push(`${String(rest)} s`);
+  return parts.join(" ");
+}
+
+// Signed whole-second difference for comparison: "+20 s", "+1 min", "-30 s".
+export function wholeSecondDifferenceWords(ms: number): string {
+  if (ms === 0) return "0 s";
+  const sign = ms > 0 ? "+" : "-";
+  return `${sign}${wholeSecondWords(Math.abs(ms))}`;
+}
+
+export function wallTimeMs(
+  startedAt: string | undefined,
+  completedAt: string | undefined,
+): number | undefined {
+  const started = startedAt === undefined ? Number.NaN : Date.parse(startedAt);
+  const completed =
+    completedAt === undefined ? Number.NaN : Date.parse(completedAt);
+  if (!Number.isFinite(started) || !Number.isFinite(completed))
+    return undefined;
+  return Math.max(0, completed - started);
 }
 
 // "CI wall time 3 min" from the attempt's start and completion, or not

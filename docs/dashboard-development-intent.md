@@ -93,9 +93,9 @@ their manual actions. Absent or mismatched candidates keep their existing
 explanations. Purpose file text offers its own **Retry**.
 
 **CI status** shows the selected check's judgment of the
-project's configured trunk (`main` here), or, with a selected story (card or
-Side panel), of that story's published story branch — the branch its single
-agent profile records in Story Branch Mode — by the same rule as the
+project's configured trunk (`main` here), or, with a selected Taken story
+(card or Side panel), of that story's published story branch — the branch its
+single agent profile records in Story Branch Mode — by the same rule as the
 [base-CI check before an execution start](../dashboard/LAUNCH-BASE-CI.md):
 the newest result of the configured `ciWorkflow` (or `ciAdapter` discover) at
 the branch head or its nearest ancestor that has one. For a story branch,
@@ -103,10 +103,23 @@ trunk results of the same check also count when the commit is in the branch's
 history (the run's branch is named, for example "run on `main`"); a trunk
 result for a commit outside that history never counts. The nearest commit
 with a result decides by its newest result; a failed trunk read leaves
-**Could not be read**. A selected story with no published story branch
-(queued or being prepared, Trunk Mode, or Recently done), unreadable or
-ambiguous agent profiles, an unusable recorded name, or a branch GitHub no
-longer publishes is named with that explanation and shows no status; no other
+**Could not be read**. A selected **done** story shows a **CI timing
+comparison** instead of a live branch judgment: baseline (newest completed
+build at or before the story's first claim parent), branch result (final
+story-branch revision's build, or not applicable for Trunk Mode), and landed
+result (completion revision's build), each named with revision, run, attempt,
+state and whether it is exact or a measured ancestor, with CI wall time and
+signed whole-second differences framed as observations between single builds
+(not attributed to the story), then entry rows with each endpoint's cumulative
+test execution time. A selected **Taken** Story Branch story keeps that live
+judgment and adds the same comparison against the pre-story baseline, with the
+latest completed branch build labelled provisional and Landed saying the story
+has not landed yet; a new branch head re-reads it. A selected **Taken** Trunk
+Mode story shows that provisional trunk comparison (Branch not applicable,
+Landed not yet landed) instead of a no-branch gap. A selected story with no
+published story branch (queued or being prepared), unreadable or ambiguous
+agent profiles, an unusable recorded name, or a branch GitHub no longer
+publishes is named with that explanation and shows no status; no other
 branch's judgment stands in. A changed selection replaces the judgment;
 clearing it returns to the trunk. It names the branch and states **Passed**,
 **Failed** (including cancelled or timed out), **Running** or **Could not be

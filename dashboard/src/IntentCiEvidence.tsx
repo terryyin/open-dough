@@ -2,20 +2,27 @@
 // branch is judged (`./intentCiTarget.ts`), its judgment as
 // `./authenticatedIntentCiStatusRead.ts` answers it, and the CI proof of the
 // attempt that judgment shows (`./shownCiProofRun.ts`,
-// `./authenticatedIntentCiProofRead.ts`). Intent's CI status homepage
-// (`./IntentCiStatus.tsx`) and a selected entry's or folder's Summary
-// (`./IntentScopeProof.tsx`) both read it, so selecting, drilling and
+// `./authenticatedIntentCiProofRead.ts`); or a selected done / Taken Trunk
+// Mode story's CI comparison (`./useIntentCiComparison.ts`); or a Taken Story
+// Branch story's live judgment plus provisional comparison. Intent's CI
+// status homepage (`./IntentCiStatus.tsx`) and a selected entry's or folder's
+// Summary (`./IntentScopeProof.tsx`) both read it, so selecting, drilling and
 // returning home ask CI nothing again. The judgment
 // (`./useIntentCiJudgment.ts`) is read again when the judged branch changes,
 // when the page's revision check finds the judged branch at a new head (the
 // head `./intentCiTarget.ts` gives), and on Check again, and its proof
 // (`./useIntentCiShownProof.ts`) with each judgment; nothing is read while
-// it is not active.
+// it is not active. A done-story comparison is read once and remembered; a
+// Taken comparison re-reads when the observed tip moves.
 
 import { createContext, useContext, type ReactNode } from "react";
 import { ciTargetOf, type CiTarget } from "./intentCiTarget.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import {
+  useIntentCiComparison,
+  type ComparisonReading,
+} from "./useIntentCiComparison.ts";
 import {
   useIntentCiJudgment,
   type JudgedReading,
@@ -30,11 +37,22 @@ export type CiEvidence =
   | { readonly kind: "inactive" }
   | Extract<CiTarget, { kind: "gap" }>
   | {
+      readonly kind: "comparison";
+      readonly source: PublishedSource;
+      readonly story: string;
+      readonly identity: string;
+      readonly comparison: ComparisonReading;
+    }
+  | {
       readonly kind: "judged";
+      readonly source: PublishedSource;
       readonly branch: string;
       readonly story: string | undefined;
       readonly judged: JudgedReading;
       readonly proof: ShownProof | undefined;
+      // Taken Story Branch: provisional comparison beside the live judgment.
+      readonly comparison?: ComparisonReading;
+      readonly comparisonStory?: string;
     };
 
 const CiEvidenceContext = createContext<CiEvidence>({ kind: "inactive" });
@@ -42,9 +60,9 @@ const CiEvidenceContext = createContext<CiEvidence>({ kind: "inactive" });
 export const useIntentCiEvidence = (): CiEvidence =>
   useContext(CiEvidenceContext);
 
-// The judged branch's reading and its shown proof, read only while ACTIVE.
-// One element type whatever the target, so a changed target never remounts
-// what it wraps.
+// The judged branch's reading and its shown proof, or a done / Taken story's
+// comparison, read only while ACTIVE. One element type whatever the target,
+// so a changed target never remounts what it wraps.
 export function IntentCiEvidenceProvider({
   source,
   work,
@@ -63,21 +81,53 @@ export function IntentCiEvidenceProvider({
   const target = ciTargetOf(source, work, selectedIdentity);
   const judgedBranch =
     active && target.kind === "judged" ? target.branch : undefined;
+  const comparisonIdentity =
+    active && target.kind === "comparison"
+      ? target.identity
+      : active && target.kind === "judged"
+        ? target.comparisonIdentity
+        : undefined;
+  const comparisonHead =
+    target.kind === "comparison"
+      ? target.head
+      : target.kind === "judged"
+        ? target.head
+        : undefined;
   const judged = useIntentCiJudgment(
     source,
     judgedBranch,
     target.kind === "judged" ? target.head : undefined,
   );
   const proof = useIntentCiShownProof(source, judged.shown);
+  const comparison = useIntentCiComparison(
+    source,
+    comparisonIdentity,
+    comparisonIdentity === undefined ? undefined : comparisonHead,
+  );
   let evidence: CiEvidence = { kind: "inactive" };
   if (active && target.kind === "gap") evidence = target;
+  else if (active && target.kind === "comparison")
+    evidence = {
+      kind: "comparison",
+      source,
+      story: target.story,
+      identity: target.identity,
+      comparison,
+    };
   else if (judgedBranch !== undefined && target.kind === "judged")
     evidence = {
       kind: "judged",
+      source,
       branch: judgedBranch,
       story: target.story,
       judged,
       proof,
+      ...(target.comparisonIdentity === undefined
+        ? {}
+        : {
+            comparison,
+            comparisonStory: target.story ?? target.comparisonIdentity,
+          }),
     };
   return (
     <CiEvidenceContext.Provider value={evidence}>

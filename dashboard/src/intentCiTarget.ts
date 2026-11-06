@@ -1,12 +1,14 @@
 // Which branch Intent's CI status homepage judges (`./IntentCiStatus.tsx`): the
 // source's configured trunk while no story is selected, or, for the page's
 // selected story (`./pageStorySelection.tsx`), the branch the story-branch
-// rule finds for its Taken entry (`./storyBranch.ts`). Any other selected
-// story is named with why it has no branch to judge, and nothing is judged
-// in its place: no other branch's status stands in for a story's. A judged
-// branch carries its head as the page last observed it, which its judgment
-// follows: the trunk's revision, or the head of a story branch the page
-// watches for progress (`./progressSource.ts`).
+// rule finds for its Taken entry (`./storyBranch.ts`). A selected Taken Story
+// Branch story keeps that live judgment and also names a provisional
+// comparison identity. A selected Taken Trunk Mode story is a comparison
+// target (Branch N/A, provisional trunk tip). A selected done story is a
+// comparison target (`./IntentCiComparison.tsx`): its endpoints come from
+// published history, not a live branch judgment. Any other selected story is
+// named with why it has no branch to judge, and nothing is judged in its
+// place. A judged branch carries its head as the page last observed it.
 
 import { watchedBranchHeads } from "./progressSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -16,12 +18,22 @@ import { storyBranchOf } from "./storyBranch.ts";
 export type CiTarget =
   // `branch` is judged; `story` names the selected story whose branch it is;
   // `head` is the branch's head as the page last observed it, undefined
-  // while it observes none.
+  // while it observes none. `comparisonIdentity` asks for a Taken story's
+  // provisional comparison beside the live judgment.
   | {
       readonly kind: "judged";
       readonly branch: string;
       readonly story?: string;
       readonly head: string | undefined;
+      readonly comparisonIdentity?: string;
+    }
+  // A selected done or Taken Trunk Mode story: compare its CI endpoints.
+  // `head` re-reads a Taken comparison when the observed tip moves.
+  | {
+      readonly kind: "comparison";
+      readonly story: string;
+      readonly identity: string;
+      readonly head?: string;
     }
   // The selected story `story` has no branch to judge, for `why`.
   | { readonly kind: "gap"; readonly story: string; readonly why: string };
@@ -38,7 +50,11 @@ const unknownBranch = (story: string, because: string): CiTarget => ({
   why: `The story branch of ${story} is unknown: ${because}. No CI status is shown.`,
 });
 
-function takenTarget(work: PublishedWork, entry: WorkEntry): CiTarget {
+function takenTarget(
+  work: PublishedWork,
+  entry: WorkEntry,
+  identity: string,
+): CiTarget {
   const story = entry.title;
   const branch = storyBranchOf(entry.owner);
   switch (branch.kind) {
@@ -48,6 +64,16 @@ function takenTarget(work: PublishedWork, entry: WorkEntry): CiTarget {
         branch: branch.branch,
         story,
         head: watchedBranchHeads(work).get(branch.branch),
+        comparisonIdentity: identity,
+      };
+    case "trunk":
+      // Taken Trunk Mode: no story branch to judge; provisional trunk
+      // comparison against the same pre-story baseline.
+      return {
+        kind: "comparison",
+        story,
+        identity,
+        head: work.revision,
       };
     case "unknown":
       return unknownBranch(story, "its agent profile is still being read");
@@ -65,8 +91,6 @@ function takenTarget(work: PublishedWork, entry: WorkEntry): CiTarget {
       );
     case "not-recorded":
       return noBranch(story, "is recorded by no agent profile");
-    case "trunk":
-      return noBranch(story, "is taken in Trunk Mode");
     case "unsafe":
       return {
         kind: "gap",
@@ -94,7 +118,7 @@ export function ciTargetOf(
     (entry) => entry.identity === selectedIdentity,
   );
   if (work !== undefined && taken !== undefined)
-    return takenTarget(work, taken);
+    return takenTarget(work, taken, selectedIdentity);
   const queued = work?.backlog.find(
     (entry) => entry.identity === selectedIdentity,
   );
@@ -107,6 +131,10 @@ export function ciTargetOf(
     );
   }
   if (work !== undefined && isDone(work, selectedIdentity))
-    return noBranch(selectedIdentity, "is done");
+    return {
+      kind: "comparison",
+      story: selectedIdentity,
+      identity: selectedIdentity,
+    };
   return noBranch(selectedIdentity, "is not taken at this revision");
 }

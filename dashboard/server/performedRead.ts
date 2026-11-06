@@ -38,6 +38,7 @@ import {
   performIntentLocationsRead,
 } from "./intentLocationsRead.ts";
 import { performIntentCandidatesRead } from "./intentCandidatesRead.ts";
+import { performIntentCiComparisonRead } from "./intentCiComparisonRead.ts";
 import { performIntentCiProofRead } from "./intentCiProofRead.ts";
 import { performIntentCiStatusRead } from "./intentCiStatusRead.ts";
 import { projectFolder } from "./projectFolders.ts";
@@ -148,6 +149,8 @@ export async function perform(
                 signal,
                 (asked) => projectFolder(asked).path,
               );
+            case "intent-ci-comparison":
+              return await performIntentCiComparisonRead(source, read, signal);
             case "addition-at": {
               const added = await listedProfileAddition(
                 pinned,

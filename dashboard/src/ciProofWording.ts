@@ -90,14 +90,17 @@ function breakdownGaps(entry: CiProofEntry): string[] {
   );
 }
 
-// Cumulative test execution time in an entry's row, under its "Test execution
-// time" column: complete when every part is present with a duration and no
-// counted result lacks one; not recorded when every present part lacks one
-// and there is no gap (an older summary); otherwise partial from the entry's
-// parts — gaps, present parts without a duration when another part recorded
-// one, and counted results without a duration within timed parts. Never
-// invents zero for absence.
-function entryExecutionTime(entry: CiProofEntry): string {
+// An entry's cumulative timing: a complete millisecond total when every part
+// is present with a duration and no counted result lacks one; otherwise an
+// explanation (older summary without durations, partial gaps, or a part
+// without a duration). Never invents zero for absence. Story CI comparison
+// (`./storyCiComparisonEntries.ts`) uses the same judgment with whole-second
+// words.
+export type EntryTiming =
+  | { readonly kind: "complete"; readonly ms: number }
+  | { readonly kind: "explained"; readonly text: string };
+
+export function entryTimingOf(entry: CiProofEntry): EntryTiming {
   const of = entry.parts.length;
   const gaps = entry.parts.filter((part) => part.status !== "present");
   const present = entry.parts.filter((part) => part.status === "present");
@@ -109,10 +112,13 @@ function entryExecutionTime(entry: CiProofEntry): string {
   );
   if (gaps.length === 0 && untimed.length === 0 && untimedResults === 0) {
     const total = timed.reduce((sum, part) => sum + (part.durationMs ?? 0), 0);
-    return executionTimeWords(total);
+    return { kind: "complete", ms: total };
   }
   if (gaps.length === 0 && timed.length === 0) {
-    return "not recorded: this summary has no test execution durations";
+    return {
+      kind: "explained",
+      text: "not recorded: this summary has no test execution durations",
+    };
   }
   const named = [
     ...gaps.map((part) => partPhrase(part, of, part.status)),
@@ -121,7 +127,16 @@ function entryExecutionTime(entry: CiProofEntry): string {
       : []),
     ...(untimedResults > 0 ? [untimedPhrase(entry, untimedResults)] : []),
   ];
-  return `partial: ${joinedAnd(named)}`;
+  return { kind: "explained", text: `partial: ${joinedAnd(named)}` };
+}
+
+// Cumulative test execution time in an entry's row, under its "Test execution
+// time" column.
+function entryExecutionTime(entry: CiProofEntry): string {
+  const timing = entryTimingOf(entry);
+  return timing.kind === "complete"
+    ? executionTimeWords(timing.ms)
+    : timing.text;
 }
 
 // Cumulative test execution time of a scope inside ENTRY: complete only when
