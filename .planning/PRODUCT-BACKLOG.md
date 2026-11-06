@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Treat paths-ignored CI as the first non-ignored ancestor](seeds/SEED-246-paths-ignored-ci-ancestor-status.md#paths-ignored-ci-ancestor-status) — SEED-246#paths-ignored-ci-ancestor-status ([plan](slice-plans/483-paths-ignored-ci-ancestor-status/PLAN.md))
-
 ## Backlog list
 
 - [Compare a story's Intent entry, folder, and file summaries](seeds/SEED-245-story-intent-summary-differences.md#compare-story-intent-entry-folder-and-file-summaries) — SEED-245#compare-story-intent-entry-folder-and-file-summaries
