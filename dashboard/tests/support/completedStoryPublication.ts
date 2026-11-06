@@ -72,6 +72,10 @@ export function publishCompletedStory(
   let completion = git(workspace, "rev-parse", "HEAD");
   if (mode === "trunk") push(workspace);
   else {
+    // Agent-authored trunk-first landing so claim history recovers it as an
+    // owning merge (first parent still claims on trunk).
+    const agentName = git(workspace, "config", "--worktree", "author.name");
+    const agentEmail = git(workspace, "config", "--worktree", "author.email");
     git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
     pull(origin.project);
     writeAt(
@@ -91,6 +95,8 @@ export function publishCompletedStory(
       commitAll(origin.project, "trunk edits the story line before completion");
     }
     git(origin.project, "fetch", "--quiet", "origin", branch);
+    git(origin.project, "config", "user.name", agentName);
+    git(origin.project, "config", "user.email", agentEmail);
     if (completionConflict) {
       resolveStoryConflict(
         origin.project,

@@ -10,7 +10,7 @@ import {
   firstParentChain,
   githubRevisionLookup,
 } from "./baseCiGithubRevisionLookup.ts";
-import { unread, type BaseCiJudgment } from "./baseCiNearest.ts";
+import { newestRunFor, unread, type BaseCiJudgment } from "./baseCiNearest.ts";
 import {
   nearestRevisionBuild,
   type RevisionCiBuild,
@@ -104,23 +104,54 @@ export async function lookupBaselineBuild(
   }
 }
 
+export type ExactResultLookup = {
+  readonly exactOnly: true;
+  // Caller-owned wording when the only attempt at `target` is cancelled or
+  // timed out (for example Story Branch Landed at the landing merge).
+  readonly cancelledExplanation: string;
+  readonly timedOutExplanation: string;
+};
+
 // Result endpoint (branch or landed): newest completed or running attempt at
-// `target`, else a measured ancestor not older than `storyStart`.
+// `target`, else a measured ancestor not older than `storyStart`. With
+// `exactOnly`, the walk is limited to `target` itself (no measured-ancestor
+// fallback); a cancelled or timed-out attempt at that revision uses the
+// caller-supplied explanations.
 export async function lookupResultBuild(
   target: string,
   storyStart: string,
   lookup: RevisionCiLookup,
   call: GitCall,
   missingExplanation: string,
+  exact?: ExactResultLookup,
 ): Promise<RevisionBuildSlot> {
   try {
-    const revisions = await firstParentChain(
-      target,
-      call,
-      baselineAncestorLimit + 1,
+    const revisions =
+      exact?.exactOnly === true
+        ? await firstParentChain(target, call, 1)
+        : await firstParentChain(target, call, baselineAncestorLimit + 1);
+    const build = await nearestRevisionBuild(
+      revisions,
+      lookup,
+      exact?.exactOnly === true ? undefined : storyStart,
     );
-    const build = await nearestRevisionBuild(revisions, lookup, storyStart);
-    return asSlot(build, missingExplanation);
+    if (build !== undefined) return asSlot(build, missingExplanation);
+    if (exact?.exactOnly === true) {
+      const newest = newestRunFor(await lookup.listRunsAt(target), target);
+      if (
+        newest?.status === "completed" &&
+        (newest.conclusion === "cancelled" || newest.conclusion === "timed_out")
+      ) {
+        return {
+          kind: "none",
+          explanation:
+            newest.conclusion === "cancelled"
+              ? exact.cancelledExplanation
+              : exact.timedOutExplanation,
+        };
+      }
+    }
+    return asSlot(undefined, missingExplanation);
   } catch (error) {
     return {
       kind: "unavailable",

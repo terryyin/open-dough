@@ -25,9 +25,10 @@ import { defaultMixedProofs } from "./storyCiComparisonEntryProofs.ts";
 export async function publishComparedStoryBranch(
   page: Page,
   origin: StartOrigin,
+  variant?: "own-conflict-extra" | "non-owning-story-file",
 ): Promise<StoryCiComparisonSetup> {
   const baseline = precedeClaimWithPlanning(origin);
-  const story = await completedPublishedStory(origin, "story-branch");
+  const story = await completedPublishedStory(origin, "story-branch", variant);
   const { completion, agent, branch } = story;
   const claim = claimOf(origin.project, agent);
   const storyStart = git(origin.project, "rev-parse", `${claim}^`);

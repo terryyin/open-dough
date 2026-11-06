@@ -106,7 +106,7 @@ Disposition: proved by slice 1: scheduling-repair controlled startup gate reprod
 ### G2. Concurrent trunk tests need final feature ownership
 Reported: slice 2 — "origin/main e6948bfce33e4ff731982cb2f11d9f3f36c29b73 added intent-ci-comparison-fast-forward.spec.ts and intent-ci-comparison-landing-gaps.spec.ts while this reorganization ran; the combined snapshot still needs those tests grouped and verified."
 Story clause: "Group every remaining dashboard spec under exactly one"
-Disposition: return
+Disposition: proved by slice 2: current-main AST equivalence, full 2088-case per-source comparison and guarded eight-file 28-case family pass; both new files now belong to Intent.
 
 ## CI repair evidence
 
@@ -238,3 +238,21 @@ then merge current published main without rewriting history, group its two new
 Intent specs, reconcile its intentional test changes, and verify the combined
 snapshot before declaring Slice 2 complete. This is the same accepted outcome,
 not another story. Final CI includes the integrated current product.
+
+
+Current-main integration accepted locally: run 42256249988 at e6948 is the
+fair updated baseline (305 s workflow, 285 s slowest dashboard job), containing
+SEED-248's concurrent intentional behavior changes. The merged snapshot has
+475 browser plus 268 backend specs, 2088 cases matching that run per all 755
+source paths, and identical main behavior after canonical import normalization
+for its seventeen changed tests/helpers. The guarded eight-file merged family
+passed 28 cases; typecheck and proper discovery/share/declaration checks passed.
+All 743 timings are recorded; raw current-main projection is 799.5–800.2
+seconds per shard versus observed old-layout peak 903.8. Earlier 2075-case
+preservation proves this task removed no original case before integrating the
+separately accepted current product.
+
+The incoming main had moved this story's unchanged joey-chan assignment JSON
+from agents/ to done/. Root restored its exact payload to the canonical agents
+path and rebuilt the catalog; no other work's profile was changed. This data
+repair preserves the owned execution identity through final closure.

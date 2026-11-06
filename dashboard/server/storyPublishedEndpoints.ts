@@ -1,7 +1,9 @@
 // Shared published-story endpoint facts for Review changes and a story's CI
 // comparison: one history walk recovers the completion, claims, owning
-// landing merge, recorded mode and story-start bound. Review continues with
-// file listing; comparison looks up builds at these revisions.
+// landing merge, recorded mode and story-start bound. Endpoint recovery uses
+// claim history without merge-resolution attribution; Review continues with
+// attribution for commits and resolutions, while comparison looks up builds
+// at these revisions.
 import path from "node:path";
 import { realpath } from "node:fs/promises";
 import {
@@ -15,7 +17,10 @@ import {
   agentProfileDirectoryOf,
   doneRecordDirectoryOf,
 } from "./recordsBesideBacklog.ts";
-import { completedStoryCommits } from "./storyCompletedCommits.ts";
+import {
+  completedStoryClaimEvidence,
+  type CompletedStoryClaimEvidence,
+} from "./storyCompletedCommits.ts";
 import {
   landingOf,
   recordedMode,
@@ -24,15 +29,16 @@ import {
 import {
   publishedStoryAgents,
   publishedStoryEvidence,
-  type PublishedCommit,
 } from "./storyPublishedEvidence.ts";
 
 export type { StoryExecutionMode };
 
 // Fixed revisions a story's CI comparison (and Review) derives once from
 // published history: the completion, the story-start bound (octopus base of
-// the claims' parents), recorded mode, and for Story Branch Mode the newest
-// owning landing merge with its branch-side parent.
+// the claims' parents), recorded mode, and for Story Branch Mode the landing
+// from the story's own history (trunk-first merge or fast-forward tip) with
+// its branch side. Commits and resolutions stay with attribution in Review,
+// not here.
 export type PublishedStoryEndpointFacts = {
   readonly identity: string;
   readonly completion: string;
@@ -43,18 +49,24 @@ export type PublishedStoryEndpointFacts = {
   // octopus base — the bound for baseline and result ancestor walks.
   readonly storyStart: string;
   readonly claims: readonly string[];
-  readonly commits: readonly PublishedCommit[];
-  readonly resolutions: ReadonlyMap<string, string>;
-  // Newest owning landing merge and its story-side parent; absent for Trunk
-  // Mode and when published history names no two-parent landing.
+  // Story Branch landing: trunk-first owning merge and story-side parent, or
+  // the fast-forward tip as both slots; absent for Trunk Mode and when
+  // published history names no identifiable landing.
   readonly landing?: {
     readonly merge: string;
     readonly branchSide: string;
   };
 };
 
+// Successful recovery keeps the claim walk beside endpoint facts so Review
+// can attribute commits and resolutions without recovering claims again.
+// Comparison consumers read only `facts`.
 export type PublishedStoryEndpoints =
-  | { readonly kind: "facts"; readonly facts: PublishedStoryEndpointFacts }
+  | {
+      readonly kind: "facts";
+      readonly facts: PublishedStoryEndpointFacts;
+      readonly claim: CompletedStoryClaimEvidence;
+    }
   | { readonly kind: "unavailable"; readonly explanation: string }
   | { readonly kind: "absent" };
 
@@ -165,7 +177,7 @@ export async function publishedStoryEndpoints(
         };
       agent = recovered;
     }
-    const evidence = await completedStoryCommits(
+    const evidence = await completedStoryClaimEvidence(
       story,
       completion,
       agent,
@@ -193,6 +205,7 @@ export async function publishedStoryEndpoints(
             completion,
             evidence.storyStart,
             evidence.owningMerges,
+            evidence.commits.map((commit) => commit.commit),
             call,
           )
         : undefined;
@@ -206,10 +219,9 @@ export async function publishedStoryEndpoints(
         mode,
         storyStart: evidence.storyStart,
         claims: evidence.claims,
-        commits: evidence.commits,
-        resolutions: evidence.resolutions,
         ...(landing === undefined ? {} : { landing }),
       },
+      claim: evidence,
     };
   } catch (error) {
     if (signal.aborted) throw error;

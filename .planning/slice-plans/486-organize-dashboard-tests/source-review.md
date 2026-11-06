@@ -33,10 +33,10 @@ with target CI until the applicable result and diagnosis are known.
 | C01 | Expose the backend suite as a separate entry named Dashboard Backend Test. | slice 1 | observed: IntentLocationGroup/IntentSummary plus intent-code-browse.spec.ts guarded journey: exact backend label selects canonical backend source; .planning/open-dough.json declares the independent location. |
 | C02 | Move browser-free boundary specs out of dashboard/tests/. | slice 1 | observed: dashboard/backend-tests/ contains all 268 former boundary specs; full discovery retains every original case. |
 | C03 | Place those boundary specs in a sibling test directory. | slice 1 | observed: dashboard/tests/ and dashboard/backend-tests/ are siblings under dashboard/. |
-| C04 | Organize the remaining dashboard specs using the accepted ten feature groups. | slice 2 | observed: dashboard/tests/feature-groups.md and physical ten folders contain all 473 browser specs plus eleven case-definition modules. |
-| C05 | Assign every remaining dashboard spec to exactly one accepted feature group. | slice 2 | observed: Physical inventory: no root-level browser specs, 473 assigned once across exactly ten folders; semantic audit placed seven Done/deletion specs in Sessions. |
-| C06 | Retain every existing test case. | slice 2 | observed: after-groups.json compared with before.json: 2075 original cases, missing/added identities none. |
-| C07 | Retain each existing test case’s behavior. | slice 2 | observed: Normalized move AST comparison retained all original case behavior; independent refactor kept 39 test-definition calls and 455 expect matcher/argument records in twelve specs, then all sixteen affected cases and complete 2075-case discovery passed. |
+| C04 | Organize the remaining dashboard specs using the accepted ten feature groups. | slice 2 | observed: Final combined tree contains 475 browser specs plus eleven case-definition modules in the ten feature folders; 268 backend specs remain separate. |
+| C05 | Assign every remaining dashboard spec to exactly one accepted feature group. | slice 2 | observed: All 743 specs have one physical tier/feature owner and one CI shard/project; no browser spec remains at the tests root. |
+| C06 | Retain every existing test case. | slice 2 | observed: Own pre-integration move preserved all original 2075 cases; combined current-main discovery has 2088 cases matching successful run 42256249988 per all 755 source paths, with no count differences. |
+| C07 | Retain each existing test case’s behavior. | slice 2 | observed: Own move/refactor retained all original definitions and assertions; all 17 concurrent-main changed test/helper ASTs match e6948 after canonical import normalization, and the eight-file 28-case merged family passed. |
 | C08 | Keep all existing tests executing properly in CI. | target CI |  |
 | C09 | Keep backend tests within the same CI validation. | target CI |  |
 | C10 | Do not increase CI wall time. | target CI |  |
@@ -48,16 +48,16 @@ with target CI until the applicable result and diagnosis are known.
 | C16 | Update imports as required by the move. | slice 1 | observed: Typecheck and all-case listing passed after target-preserving import/URL rewrites; selected path-sensitive backend harnesses passed. |
 | C17 | Update Intent locations as required by the move. | slice 1 | observed: Independent backend location in .planning/open-dough.json; CI declaration matches configured location paths; label preserves canonical identity. |
 | C18 | Update proof attribution as required by the move. | slice 1 | observed: ci-proof-fragments mixed-entry ownership/time tests and actual composite-action regression: 7 files/37 cases pass, new tests discriminated old behavior. |
-| C19 | Update timing allocation as required by the move. | slice 2 | observed: All 741 current spec labels recorded from successful baseline run 42242723239 via maintained refresh; raw cost projection balanced at 784.7–784.8 seconds per shard. |
+| C19 | Update timing allocation as required by the move. | slice 2 | observed: Final 743-file timing deal uses current-main run 42256249988; raw measured projection 799.5–800.2 seconds per shard versus observed old-layout peak 903.8. |
 | C20 | Update CI configuration as required by the move. | slice 1 | observed: ci.yml declares browser/backend entries across same 12 shards; declaration/action collector tests passed without changing job matrix or worker policy. |
 | C21 | Update maintained documentation as required by the move. | slice 2 | observed: README, feature-groups.md, writing-journeys.md, shards.md and necessary current candidate/source references describe the final layout. |
-| C22 | Carry timing history forward for renamed specs. | slice 2 | observed: Timing refresh consumed all twelve baseline timing artifacts after canonical old-to-new path mapping; zero unrecorded files remain. |
-| C23 | Avoid a CI allocation regression caused by cold timing history. | slice 2 | observed: All 741 files have measured durations; native project partition unchanged, no renamed file falls back to the median. |
-| C24 | Compare discovered cases before and after the move. | slice 2 | observed: before.json versus after-groups.json normalized case inventory and groups-ast-equivalence.json inspected. |
-| C25 | Establish that the resulting inventory has no missing cases. | slice 2 | observed: Case multiset comparison reports no missing original case. |
-| C26 | Establish that the resulting inventory has no duplicate cases. | slice 2 | observed: Case multiset comparison reports no added or duplicated case; unique twelve-shard partition tests pass. |
-| C27 | Compare shard allocation before and after the move. | slice 2 | observed: Old measured peak 885.5 summed test-seconds versus final raw baseline-cost projection 784.7–784.8; normalized current list 846.7–846.8 at factor 0.927, which is a different scale. |
-| C28 | Run the affected local suite. | slice 2 | observed: Proper runner discovery/share/declaration checks and guarded seven-file Playwright batch passed 41 cases; complete 2075-case discovery passed. |
+| C22 | Carry timing history forward for renamed specs. | slice 2 | observed: Every spec timing label carries measured current-main history after canonical source-to-feature mapping; all 743 recorded, zero unrecorded. |
+| C23 | Avoid a CI allocation regression caused by cold timing history. | slice 2 | observed: No renamed or concurrent-main spec falls back to an assumed duration; existing twelve-shard shared build remains. |
+| C24 | Compare discovered cases before and after the move. | slice 2 | observed: after-current-main.json compared with current-main CI proof by source path; all 2088 cases match, plus canonical AST preservation for the changed family. |
+| C25 | Establish that the resulting inventory has no missing cases. | slice 2 | observed: No source-path case-count deficit against the complete current-main proof; original task-only 2075-case preservation remains separately recorded. |
+| C26 | Establish that the resulting inventory has no duplicate cases. | slice 2 | observed: No source-path case-count surplus/duplicate against current-main proof; all spec files remain uniquely selected across twelve shards. |
+| C27 | Compare shard allocation before and after the move. | slice 2 | observed: Measured current-main old-layout peak 903.8 summed test-seconds versus final balanced projection 799.5–800.2; normalized list 886.2–886.4 at factor 0.902 is a different scale. |
+| C28 | Run the affected local suite. | slice 2 | observed: Original guarded 41-case batch, invalidated-fixture 16-case batch, watcher six-case recheck, and final merged-family 28-case batch all passed; full 2088-case discovery and proper Node runner checks passed. |
 | C29 | Use the maintained macOS sleep guard for that local run. | slice 2 | observed: Accepted seven-file local run used caffeinate -s -i on verified AC power with two workers. |
 | C30 | Verify the published revision’s complete CI result. | target CI |  |
 | C31 | Compare its CI wall time against a comparable successful baseline. | target CI |  |
@@ -81,7 +81,7 @@ with target CI until the applicable result and diagnosis are known.
 | T02 | An existing journey opening the real dashboard remains within the dashboard feature classification. | slice 2 | observed: Existing Intent/browser and native-session journeys execute from their feature paths; seven-file batch passed. |
 | T03 | A remaining dashboard spec without a feature assignment violates C05. | slice 2 | observed: No root-level or unassigned browser spec remains. |
 | T04 | A remaining dashboard spec assigned to two feature groups violates C05. | slice 2 | observed: Every moved spec has one physical owner and exactly one CI shard/project selection. |
-| T05 | A renamed spec losing its timing history triggers C22–C23. | slice 2 | observed: All 741 duration labels have measured baseline history after mapping; zero median-fallback files. |
+| T05 | A renamed spec losing its timing history triggers C22–C23. | slice 2 | observed: All 743 final spec paths map to measured current-main duration rows, including the two new Intent files. |
 | T06 | Backend tests disappearing from CI violates C08–C09. | target CI |  |
 | T07 | A slower comparable CI result triggers C32–C33. | target CI |  |
 | T08 | An incomplete CI result triggers C34–C35. | target CI |  |

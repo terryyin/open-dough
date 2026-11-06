@@ -44,13 +44,14 @@ export {
 export async function publishSummaryComparisonStory(
   page: Page,
   origin: StartOrigin,
+  variant?: "own-conflict-extra" | "non-owning-story-file",
 ): Promise<StoryCiComparisonSetup> {
   publishSummaryComparisonTrunk(origin.project);
   const baseline = precedeClaimWithPlanning(origin);
   const story = await completedPublishedStory(
     origin,
     "story-branch",
-    undefined,
+    variant,
     changeSummaryComparisonTests,
   );
   const { completion, agent, branch } = story;

@@ -1,9 +1,12 @@
 // A completed story's immutable comparison comes from published done/profile
 // history in its configured project, independently of local dashboard launches.
+// Endpoint facts name the completion; attribution of commits and merge
+// resolutions stays here with its current refusals.
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
 import { projectFolder } from "./projectFolders.ts";
+import { completedStoryAttribution } from "./storyCompletedCommits.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 import { trunkLess } from "./storyPublishedCommits.ts";
 import { listedFrom } from "./storyReviewComparison.ts";
@@ -28,7 +31,7 @@ export async function publishedStoryReview(
     if (endpoints.kind === "absent") return undefined;
     if (endpoints.kind === "unavailable")
       return unavailable(endpoints.explanation);
-    const { facts } = endpoints;
+    const { facts, claim } = endpoints;
     const directory = projectFolder(source).path;
     const call: GitCall = {
       cwd: directory,
@@ -37,7 +40,14 @@ export async function publishedStoryReview(
     };
     const git = async (...args: string[]) =>
       (await runGit(args, call)).stdout.trim();
-    const less = await trunkLess(facts.commits, facts.completion, call);
+    // Attribution composes on the claim walk endpoints already recovered.
+    const attributed = await completedStoryAttribution(
+      claim,
+      facts.completion,
+      call,
+    );
+    if ("explanation" in attributed) return unavailable(attributed.explanation);
+    const less = await trunkLess(attributed.commits, facts.completion, call);
     if (less === undefined)
       return unavailable(
         "This machine's Git cannot separate this story's published changes from other work.",
@@ -45,7 +55,7 @@ export async function publishedStoryReview(
     const tree = await git("rev-parse", `${facts.completion}^{tree}`);
     // A resolved integration file includes both writers, regardless of whether
     // reversing single-parent story commits could otherwise hide that file.
-    const mixed = new Map([...less.inseparable, ...facts.resolutions]);
+    const mixed = new Map([...less.inseparable, ...attributed.resolutions]);
     return {
       kind: "published",
       completion: facts.completion,
