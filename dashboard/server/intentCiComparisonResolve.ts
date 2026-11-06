@@ -89,15 +89,42 @@ export async function performDoneComparison(
               "No completed CI build was found at the final branch revision or a later story-side ancestor within the story's start bound.",
             ),
           );
-  const landed = asComparisonSlot(
-    await lookupResultBuild(
-      facts.completion,
-      facts.storyStart,
-      lookup,
-      call,
-      "No completed CI build was found at the completion revision or a later trunk ancestor within the story's start bound.",
-    ),
-  );
+  // Story Branch Mode: exact revision at the landing merge only — no
+  // measured-ancestor fallback across the merge (trunk-side lacks the story;
+  // story-side is B). Trunk Mode keeps the completion ancestor walk.
+  const landed: StoryCiComparisonSlot =
+    facts.mode === "trunk"
+      ? asComparisonSlot(
+          await lookupResultBuild(
+            facts.completion,
+            facts.storyStart,
+            lookup,
+            call,
+            "No completed CI build was found at the completion revision or a later trunk ancestor within the story's start bound.",
+          ),
+        )
+      : facts.landing === undefined
+        ? {
+            kind: "none",
+            explanation:
+              "Published history does not name a landing merge for this story's landed result.",
+          }
+        : asComparisonSlot(
+            await lookupResultBuild(
+              facts.landing.merge,
+              facts.storyStart,
+              lookup,
+              call,
+              "No completed CI build was found at the landing merge.",
+              {
+                exactOnly: true,
+                cancelledExplanation:
+                  "The CI build at the landing merge was cancelled.",
+                timedOutExplanation:
+                  "The CI build at the landing merge timed out.",
+              },
+            ),
+          );
   return {
     kind: "comparison",
     phase: "done",

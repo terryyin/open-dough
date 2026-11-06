@@ -136,7 +136,7 @@ for (const variant of [
   });
 }
 
-test("code landed before completion uses the merge branch-side ancestor and the completion build (SEED-236)", async ({
+test("code landed before completion uses the merge branch-side ancestor and the landing merge build (SEED-236)", async ({
   page,
   origin,
 }) => {
@@ -144,6 +144,7 @@ test("code landed before completion uses the merge branch-side ancestor and the 
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
   const branchBuild = setup.branchAncestor ?? setup.branchSide;
+  const landed = setup.landingMerge ?? setup.completion;
 
   await expect(panel.getByRole("heading")).toHaveText(
     `CI timing changes for ${setup.identity}`,
@@ -159,10 +160,19 @@ test("code landed before completion uses the merge branch-side ancestor and the 
   ).not.toContainText(shortSha(setup.completion));
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText(shortSha(setup.completion));
+  ).toContainText(shortSha(landed));
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(2),
   ).toContainText("exact revision");
+  // Completion D and trunk-side parent of M must not replace Landed.
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(2),
+  ).not.toContainText(shortSha(setup.completion));
+  if (setup.trunkSide !== undefined) {
+    await expect(
+      panel.locator(".intent-ci-comparison-identity").nth(2),
+    ).not.toContainText(shortSha(setup.trunkSide));
+  }
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(1).getByRole("link", {
       name: "run 302 #1",
@@ -181,7 +191,9 @@ test("code landed before completion uses the merge branch-side ancestor and the 
   await expect(
     panel.locator(".intent-ci-comparison-wall").nth(2),
   ).toContainText("+1 min");
-  // Later trunk's 10 min build must not replace Branch or Landed.
+  // Completion's later run and later trunk must not replace Branch or Landed.
+  await expect(panel).not.toContainText("run 304");
+  await expect(panel).not.toContainText("run 398");
   await expect(panel).not.toContainText("run 399");
   await expect(panel).not.toContainText("10 min");
 });

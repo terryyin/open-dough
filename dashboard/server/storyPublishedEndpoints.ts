@@ -48,8 +48,8 @@ export type PublishedStoryEndpointFacts = {
   // octopus base — the bound for baseline and result ancestor walks.
   readonly storyStart: string;
   readonly claims: readonly string[];
-  // Newest owning landing merge and its story-side parent; absent for Trunk
-  // Mode and when published history names no two-parent landing.
+  // Newest trunk-first owning landing merge and its story-side parent; absent
+  // for Trunk Mode and when published history names no trunk-first landing.
   readonly landing?: {
     readonly merge: string;
     readonly branchSide: string;
@@ -203,6 +203,7 @@ export async function publishedStoryEndpoints(
             completion,
             evidence.storyStart,
             evidence.owningMerges,
+            evidence.commits.map((commit) => commit.commit),
             call,
           )
         : undefined;

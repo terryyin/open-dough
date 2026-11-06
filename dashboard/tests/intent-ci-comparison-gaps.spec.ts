@@ -1,11 +1,11 @@
 // Gap and selection variants for Intent's CI timing comparison
 // (../src/IntentCiComparison.tsx): Trunk Mode not-applicable Branch, running
-// Landed beside a readable Branch comparison with an added entry, failed
-// Landed labelling, and a missing Landed explanation without inventing zero
-// (SEED-244#compare-story-ci-timing-changes examples 5 and Trunk Mode). The
-// happy-path, SEED-236 and unrecoverable journeys live in
-// ./intent-ci-comparison.spec.ts; entry-proof expiry and missing durations
-// live in ./intent-ci-comparison-entries.spec.ts.
+// Landed beside a readable Branch comparison with an added entry, and a
+// missing Landed explanation without inventing zero (SEED-244#compare-story-ci-timing-changes
+// examples 5 and Trunk Mode). Failed and cancelled landing-merge gaps live in
+// ./intent-ci-comparison-landing-gaps.spec.ts; the happy-path, SEED-236 and
+// unrecoverable journeys live in ./intent-ci-comparison.spec.ts; entry-proof
+// expiry and missing durations live in ./intent-ci-comparison-entries.spec.ts.
 
 import { expect, test } from "./support/preparationPage.ts";
 import { shortSha } from "../src/baseCiWording.ts";
@@ -136,40 +136,6 @@ test("a running landed build leaves the branch comparison readable and marks an 
   await expect(added.getByRole("cell").nth(3)).toHaveText(
     "Build is still running.",
   );
-});
-
-test("a failed landed build is labelled failed", async ({ page, origin }) => {
-  test.slow();
-  const setup = await publishComparedStoryBranch(page, origin);
-  setup.serveRuns({
-    [setup.baseline]: [
-      wall(setup.baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
-    ],
-    [setup.branchSide]: [
-      wall(
-        setup.branchSide,
-        102,
-        "2026-11-05T13:00:00Z",
-        "2026-11-05T13:03:20Z",
-      ),
-    ],
-    [setup.completion]: [
-      wall(
-        setup.completion,
-        103,
-        "2026-11-05T14:00:00Z",
-        "2026-11-05T14:04:00Z",
-        "failure",
-      ),
-    ],
-  });
-  const { panel } = await selectDoneStoryForCiComparison(page);
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("failed");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("failed build");
 });
 
 test("a missing landed build explains itself without inventing zero", async ({

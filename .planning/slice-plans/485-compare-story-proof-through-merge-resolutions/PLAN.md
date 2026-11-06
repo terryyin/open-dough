@@ -81,7 +81,7 @@ log afterwards.
 | Promise (seed example) | Owning slice | Observable proof |
 | --- | --- | --- |
 | 1, 2, 5: merge resolutions keep A, B, C and both comparisons at every scope; Review still refuses | 1 | `dashboard/tests/intent-ci-comparison.spec.ts` new journey on a `completedPublishedStory` resolution variant (owning `own-conflict-extra`, and a non-owning merge resolving a story file for the quoted message): three identities, `+20 s`/`+1 min` style signed walls, entry rows; `intent-summary-story-comparison*.spec.ts` folder and file rows on the same setup; `tests/boundary/story-review-completed-conflicts.spec.ts` and `-driver.spec.ts` still return `unavailable` |
-| 3, 8: C is the landing merge, not a later completion; failed or cancelled merge build is C's own gap without trunk-side fallback | 2 | Updated SEED-236 journey in `intent-ci-comparison.spec.ts` (C names the landing merge's run, not run 303 at the completion); `intent-ci-comparison-gaps.spec.ts` failed and cancelled merge builds: C identifies the merge's state, shows no figures from its trunk-side parent, B versus A readable |
+| 3, 8: C is the landing merge, not a later completion; failed or cancelled merge build is C's own gap without trunk-side fallback | 2 | Updated SEED-236 journey in `intent-ci-comparison.spec.ts` (C names the landing merge's run, not run 303 at the completion); `intent-ci-comparison-landing-gaps.spec.ts` failed and cancelled merge builds: C identifies the merge's state, shows no figures from its trunk-side parent, B versus A readable |
 | 6: fast-forward landing names the story tip as B and C; trunk side of the branch's merge never B | 3 | New journey: branch merges `main` (story-first), trunk fast-forwards; B and C name the tip; the `main`-side parent's run never appears |
 | 7: a later fast-forward of another story keeps this story's A, B, C | 3 | New journey: story lands at trunk-first merge M, a second story merges trunk and fast-forwards; selecting the first story names M and M's story side |
 | 4, 9: one unavailable proof or endpoint keeps the others; cleanup and trunk advance keep the builds | 1–3 (preserved) | Existing `intent-ci-comparison-entries.spec.ts`, `intent-ci-comparison-gaps.spec.ts` and persistence journeys in `intent-ci-comparison.spec.ts` stay green after each slice; slice 3 adds no-landing → B and C gaps with A retained |
@@ -115,7 +115,7 @@ existing variant produces the quoted message.
 
 ### 2. Landed is the story's integration merge
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice-2 rows above.
 
 Behavior: a story landed at trunk-first merge M and completed later at D, or
@@ -154,6 +154,11 @@ while A stays readable.
 
 - Focused: `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/playwright.config.ts dashboard/tests/intent-ci-comparison.spec.ts dashboard/tests/intent-summary-story-comparison.spec.ts dashboard/tests/intent-summary-story-comparison-file.spec.ts dashboard/tests/boundary/story-review-completed-conflicts.spec.ts dashboard/tests/boundary/story-review-completed-driver.spec.ts --reporter=list` → pass (20/20); after refactor, Review boundary consumers re-run 9+16 pass.
 - Preserved: `intent-ci-comparison-gaps.spec.ts` + `intent-ci-comparison-entries.spec.ts` → pass (6/6), including Trunk Mode.
+
+## Accepted proof (slice 2)
+
+- Focused (after refactor): `… intent-ci-comparison.spec.ts intent-ci-comparison-gaps.spec.ts intent-ci-comparison-landing-gaps.spec.ts` → pass (10/10). SEED-236 C = landing merge run 303; failed/cancelled landing gaps hide trunk-side figures.
+- Preserved: entries + summary + file → pass (8/8).
 
 ## Plan review
 
