@@ -101,6 +101,11 @@ test("unconfirmed Codex first input continued from Startup recovery resends the 
   expect(listedMachineDirs(launchAttachmentClaimsRoot(dashboard.home))).toEqual(
     [],
   );
+  // Continuation can finish the turn before the attempt record settles from
+  // running/launch to launched; wait for that before asserting the shape.
+  await expect
+    .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind)
+    .toBe("launched");
   expect(await attempts(dashboard)).toEqual([
     expect.objectContaining({
       id: uncertain?.id,
