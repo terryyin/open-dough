@@ -126,7 +126,7 @@ its own run.
 
 ### 3. Landing identified from the story's own history
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice-3 rows above.
 
 Behavior: a story landed by fast-forward after merging trunk into its branch,
@@ -159,6 +159,11 @@ while A stays readable.
 
 - Focused (after refactor): `… intent-ci-comparison.spec.ts intent-ci-comparison-gaps.spec.ts intent-ci-comparison-landing-gaps.spec.ts` → pass (10/10). SEED-236 C = landing merge run 303; failed/cancelled landing gaps hide trunk-side figures.
 - Preserved: entries + summary + file → pass (8/8).
+
+## Accepted proof (slice 3)
+
+- Focused (after refactor): `… intent-ci-comparison-fast-forward.spec.ts intent-ci-comparison-gaps.spec.ts` → pass (6/6) for E6/E7 + FF tip gaps; broader preserved comparison suite 21/21 before split; Review conflicts/driver 9/9.
+- Landing: newest trunk-first owning merge, else newest own revision (FF tip); story-first merge never landing.
 
 ## Plan review
 

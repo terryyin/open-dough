@@ -51,25 +51,25 @@
 | 41 | Missing proof never becomes zero. | slice 1 | observed: gaps.spec.ts missing landed never invents zero |
 | 42 | Missing proof never becomes no change. | slice 1 | observed: entries.spec.ts missing durations never become no change / zero totals |
 | 43 | Keep the comparisons tied to published history after branch/profile cleanup. | slice 1 | observed: intent-ci-comparison.spec.ts persistence after branch/profile cleanup journey |
-| 44 | Keep the comparisons tied to published history after later trunk advances, including a later story's fast-forward that changes which revisions trunk's first-parent line passes through. | slice 3 |  |
+| 44 | Keep the comparisons tied to published history after later trunk advances, including a later story's fast-forward that changes which revisions trunk's first-parent line passes through. | slice 3 | observed: intent-ci-comparison-fast-forward.spec.ts E7: later FF; earlier story names M/B/A |
 | 45 | Frame comparison differences as observations between builds. | slice 1 | observed: IntentCiComparison + IntentScopeComparisonTable framing via observedNotAttributed |
 | 46 | Comparison differences do not establish that the story caused every difference. | slice 1 | observed: storyCiComparisonWording.observedNotAttributed: observations between builds, never attributed to the story |
-| 47 | Identify the landing by the story's own history. | slice 3 |  |
-| 48 | Do not identify the landing by parent position. | slice 3 |  |
-| 49 | Do not identify the landing by trunk's current first-parent line. | slice 3 |  |
+| 47 | Identify the landing by the story's own history. | slice 3 | observed: landingOf from story commits/owningMerges/newestOwnRevision; not trunk first-parent |
+| 48 | Do not identify the landing by parent position. | slice 3 | observed: storySideOf classifies by exclusive story ancestry, not parent index alone |
+| 49 | Do not identify the landing by trunk's current first-parent line. | slice 3 | observed: intent-ci-comparison-fast-forward.spec.ts E7: later FF does not rewrite earlier landing |
 | 50 | A trunk-first landing merge supplies C. | slice 2 | observed: landingOf returns newest owning merge with story side as second parent |
 | 51 | A trunk-first landing merge supplies B from its story-side parent. | slice 2 | observed: landing.branchSide is that second (story-side) parent |
-| 52 | A fast-forward landing has no integration merge: B and C both name the final story revision that trunk accepted. | slice 3 |  |
-| 53 | A merge of trunk into the story branch is a branch revision, never the landing. | slice 3 |  |
-| 54 | The trunk-side parent of a merge of trunk into the story branch is never B. | slice 3 |  |
+| 52 | A fast-forward landing has no integration merge: B and C both name the final story revision that trunk accepted. | slice 3 | observed: intent-ci-comparison-fast-forward.spec.ts E6: B and C both name tip T |
+| 53 | A merge of trunk into the story branch is a branch revision, never the landing. | slice 3 | observed: intent-ci-comparison-fast-forward.spec.ts E6: story-first merge never landing |
+| 54 | The trunk-side parent of a merge of trunk into the story branch is never B. | slice 3 | observed: intent-ci-comparison-fast-forward.spec.ts E6: main-side parent never B |
 | 55 | C has no measured-ancestor fallback across the landing merge. | slice 2 | observed: lookupResultBuild exactOnly for Story Branch landed; no ancestor across merge |
 | 56 | C's trunk-side parent lacks the story and is not a measured-ancestor fallback for C. | slice 2 | observed: landing-gaps failed/cancelled: no figures from trunk-side parent of M |
 | 57 | C's story-side parent is B and is not a measured-ancestor fallback for C. | slice 2 | observed: B remains story-side; C exact at M without using B as C fallback |
 | 58 | A missing merge build is C's explicit gap. | slice 2 | observed: intentCiComparisonResolve none/exact gap when no build at landing.merge |
 | 59 | A cancelled merge build is C's explicit gap. | slice 2 | observed: landing-gaps cancelled: cancelled + landing merge wording; B vs A +20 s |
 | 60 | A running merge build is C's explicit gap. | slice 2 | observed: gaps running landed: C gap while B vs A readable (preserved) |
-| 61 | Branch B keeps its existing story-side ancestor fallback. | slice 3 |  |
-| 62 | The Trunk Mode landed fallback is unchanged. | slice 3 |  |
+| 61 | Branch B keeps its existing story-side ancestor fallback. | slice 3 | observed: B story-side ancestor fallback preserved (SEED-236 ancestor label still) |
+| 62 | The Trunk Mode landed fallback is unchanged. | slice 3 | observed: gaps Trunk Mode done story preserved Branch N/A + Landed ancestor |
 | 63 | Endpoint recovery for a done story is a responsibility separate from completed-story code attribution. | slice 1 | observed: storyPublishedEndpoints → completedStoryClaimEvidence (claim beside facts); storyReviewPublished → completedStoryAttribution on that claim |
 | 64 | Review changes keeps requiring attribution. | slice 1 | observed: story-review-completed-conflicts + driver: unavailable with attribution messages |
 | 65 | CI comparison depends only on endpoint recovery. | slice 1 | observed: intentCiComparisonResolve / publishedStoryEndpoints without resolutions; file comparison follows CI evidence |
@@ -80,8 +80,8 @@
 | E3 | Completion after integration: Landed names M not D; B remains M's story-side parent; failed M identifiable. | slice 2 | observed: intent-ci-comparison.spec.ts SEED-236: Landed names M/run 303; B is M story-side; landing-gaps failed M |
 | E4 | One unavailable proof: A and B readable while C running or summary expired; B versus A readable; C explains its gap; wall time usable without summary. | slice 1 | observed: intent-ci-comparison-gaps.spec.ts running landed + entries expired summary journeys |
 | E5 | Summary consumers: entry, folder or file with retained proof at all three builds uses same A, B and C as homepage including counts and signed execution-time differences; code-attribution refusal alone does not remove the proof comparison. | slice 1 | observed: intent-summary-story-comparison.spec.ts and -file resolution variants: same A/B/C; refusal does not remove proof comparison |
-| E6 | Fast-forward landing: B and C name tip T; main-side parent of branch's merge never B. | slice 3 |  |
-| E7 | Later fast-forward moves first-parent history: earlier story still names M as C and M's story-side as B; A unchanged. | slice 3 |  |
+| E6 | Fast-forward landing: B and C name tip T; main-side parent of branch's merge never B. | slice 3 | observed: intent-ci-comparison-fast-forward.spec.ts fast-forward landing after story-first merge |
+| E7 | Later fast-forward moves first-parent history: earlier story still names M as C and M's story-side as B; A unchanged. | slice 3 | observed: intent-ci-comparison-fast-forward.spec.ts later fast-forward keeps earlier trunk-first landing |
 | E8 | Cancelled merge build: C explains cancelled; no figures from trunk-side parent; B versus A readable. | slice 2 | observed: intent-ci-comparison-landing-gaps.spec.ts cancelled landing merge journey |
 | E9 | Cleanup and missing identities: after branch/profile delete and trunk advance, same three builds remain; one unrecoverable endpoint gap keeps other proofs. | slice 1 | observed: intent-ci-comparison.spec.ts cleanup/persistence + unrecoverable endpoint gap journeys |
 | X1 | No new proof generation is required. | slice 1 | observed: diff introduces no new proof generation |

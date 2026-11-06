@@ -35,9 +35,10 @@ export type { StoryExecutionMode };
 
 // Fixed revisions a story's CI comparison (and Review) derives once from
 // published history: the completion, the story-start bound (octopus base of
-// the claims' parents), recorded mode, and for Story Branch Mode the newest
-// owning landing merge with its branch-side parent. Commits and resolutions
-// stay with attribution in Review, not here.
+// the claims' parents), recorded mode, and for Story Branch Mode the landing
+// from the story's own history (trunk-first merge or fast-forward tip) with
+// its branch side. Commits and resolutions stay with attribution in Review,
+// not here.
 export type PublishedStoryEndpointFacts = {
   readonly identity: string;
   readonly completion: string;
@@ -48,8 +49,9 @@ export type PublishedStoryEndpointFacts = {
   // octopus base — the bound for baseline and result ancestor walks.
   readonly storyStart: string;
   readonly claims: readonly string[];
-  // Newest trunk-first owning landing merge and its story-side parent; absent
-  // for Trunk Mode and when published history names no trunk-first landing.
+  // Story Branch landing: trunk-first owning merge and story-side parent, or
+  // the fast-forward tip as both slots; absent for Trunk Mode and when
+  // published history names no identifiable landing.
   readonly landing?: {
     readonly merge: string;
     readonly branchSide: string;

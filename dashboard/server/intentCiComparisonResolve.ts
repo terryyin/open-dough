@@ -78,7 +78,7 @@ export async function performDoneComparison(
         ? {
             kind: "none",
             explanation:
-              "Published history does not name a landing merge for this story's branch result.",
+              "Published history does not name a landing for this story's branch result.",
           }
         : asComparisonSlot(
             await lookupResultBuild(
@@ -89,9 +89,13 @@ export async function performDoneComparison(
               "No completed CI build was found at the final branch revision or a later story-side ancestor within the story's start bound.",
             ),
           );
-  // Story Branch Mode: exact revision at the landing merge only — no
-  // measured-ancestor fallback across the merge (trunk-side lacks the story;
-  // story-side is B). Trunk Mode keeps the completion ancestor walk.
+  // Story Branch Mode: exact revision at the landing only — merge for a
+  // trunk-first landing, tip for a fast-forward; no measured-ancestor
+  // fallback across a merge (trunk-side lacks the story; story-side is B).
+  // Trunk Mode keeps the completion ancestor walk.
+  const fastForward =
+    facts.landing !== undefined &&
+    facts.landing.merge === facts.landing.branchSide;
   const landed: StoryCiComparisonSlot =
     facts.mode === "trunk"
       ? asComparisonSlot(
@@ -107,7 +111,7 @@ export async function performDoneComparison(
         ? {
             kind: "none",
             explanation:
-              "Published history does not name a landing merge for this story's landed result.",
+              "Published history does not name a landing for this story's landed result.",
           }
         : asComparisonSlot(
             await lookupResultBuild(
@@ -115,13 +119,17 @@ export async function performDoneComparison(
               facts.storyStart,
               lookup,
               call,
-              "No completed CI build was found at the landing merge.",
+              fastForward
+                ? "No completed CI build was found at the landed story revision."
+                : "No completed CI build was found at the landing merge.",
               {
                 exactOnly: true,
-                cancelledExplanation:
-                  "The CI build at the landing merge was cancelled.",
-                timedOutExplanation:
-                  "The CI build at the landing merge timed out.",
+                cancelledExplanation: fastForward
+                  ? "The CI build at the landed story revision was cancelled."
+                  : "The CI build at the landing merge was cancelled.",
+                timedOutExplanation: fastForward
+                  ? "The CI build at the landed story revision timed out."
+                  : "The CI build at the landing merge timed out.",
               },
             ),
           );

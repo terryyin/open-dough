@@ -4,9 +4,10 @@
 // measured-ancestor labelling, persistence after trunk advance and branch
 // delete, SEED-236 earlier landing, unrecoverable history, and mixed entry
 // rows (SEED-244#compare-story-ci-timing-changes examples 1–4, 8 and
-// observed-not-attributed / whole-second). Entry-proof expiry and missing
-// durations live in ./intent-ci-comparison-entries.spec.ts; Trunk Mode,
-// running, failed and missing builds live in
+// observed-not-attributed / whole-second). SEED-248 fast-forward landings
+// live in ./intent-ci-comparison-fast-forward.spec.ts; entry-proof expiry
+// and missing durations live in ./intent-ci-comparison-entries.spec.ts;
+// Trunk Mode, running, failed and missing builds live in
 // ./intent-ci-comparison-gaps.spec.ts. Taken-story provisional journeys live
 // in ./intent-ci-comparison-taken.spec.ts; no-selection homepage consumers
 // stay in ./intent-ci-status*.spec.ts.
