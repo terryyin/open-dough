@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "joey-chan",
-  "email": "joey-chan@example.org",
-  "identity": "SEED-249#organize-dashboard-tests",
-  "mode": "story-branch",
-  "branch": "story/dashboard-test-organization",
-  "host": "codex"
-}

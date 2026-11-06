@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Organize dashboard tests by feature](seeds/SEED-249-dashboard-test-organization.md#organize-dashboard-tests) — SEED-249#organize-dashboard-tests ([plan](slice-plans/486-organize-dashboard-tests/PLAN.md))
-
 ## Backlog list
 
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
