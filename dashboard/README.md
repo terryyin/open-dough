@@ -126,8 +126,9 @@ them neither toggles the selected story nor opens detail. A **Recently done**
 entry is selected by its empty area or its **Select story** toggle, without a
 detail. The selection is page state, not on the URL, and it scopes Intent:
 Intent overlays the selected story's changes on its published tree, and
-**CI status** judges a Taken story's published story branch or compares a
-done story's published CI endpoints
+**CI status** judges a Taken story's published story branch (and adds its
+provisional timing comparison), compares a Taken Trunk Mode or done story's
+published CI endpoints
 ([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)).
 
 [Agent assignments and roster](AGENT-ASSIGNMENTS.md) describes who holds or

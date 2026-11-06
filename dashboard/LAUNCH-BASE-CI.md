@@ -18,8 +18,9 @@ Refinement, Start session, and kept or established resumes are not asked.
 Observation is per request and kept nowhere
 ([ADR 0008](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)).
 Intent's **CI status** homepage shows the same judgment of the trunk (and of
-a selected Taken story's branch); a selected done story shows a timing
-comparison instead
+a selected Taken story's branch, with that story's provisional timing
+comparison beside it); a selected done story, or Taken Trunk Mode story,
+shows a timing comparison instead
 ([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)). While Start waits:
 “Checking base CI…” beside Starting… (acceptance still uses Starting…).
 

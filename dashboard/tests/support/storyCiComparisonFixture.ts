@@ -1,33 +1,25 @@
-// Combined done-story + CI fixture for Intent's CI timing comparison
-// (../intent-ci-comparison.spec.ts): publishes a completed Story Branch
-// story whose claim parent is preceded only by planning commits, and serves
-// Actions runs by head_sha for baseline (3:00), branch (3:20) and landed
-// (4:00) wall times with default mixed entry proofs. The SEED-236
-// earlier-landing shape lives in ./storyCiComparisonEarlierLanding.ts;
-// entry-proof Answers live in ./storyCiComparisonEntryProofs.ts.
+// Shared CI comparison fixture helpers for Intent's timing comparison
+// (../intent-ci-comparison.spec.ts): Actions answers by head_sha, planning
+// commits before a claim, and the done Story Branch publisher. SEED-236
+// lives in ./storyCiComparisonEarlierLanding.ts; Taken shapes in
+// ./storyCiComparisonTakenFixture.ts; entry-proof Answers in
+// ./storyCiComparisonEntryProofs.ts.
 
 import { execFileSync } from "node:child_process";
-import type { Page } from "@playwright/test";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import {
   actionsRunsAnswer,
   actionsWorkflowAnswer,
   type CiRunAnswer,
 } from "./baseCiActions.ts";
-import {
-  advanceCompletedTrunk,
-  completedPublishedStory,
-} from "./completedPublishedStory.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { queuedIdentity } from "./startOrigin.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
 import {
   answerComparisonProofRoute,
-  defaultMixedProofs,
   type ComparisonProofServe,
 } from "./storyCiComparisonEntryProofs.ts";
+import type { CommittedOrigin } from "../committedOrigin.ts";
 
 export type { ComparisonProofServe } from "./storyCiComparisonEntryProofs.ts";
 export {
@@ -57,7 +49,7 @@ export function wall(
   };
 }
 
-function revList(repo: string, start: string, count: number): string[] {
+export function revList(repo: string, start: string, count: number): string[] {
   return execFileSync(
     "git",
     [
@@ -75,7 +67,7 @@ function revList(repo: string, start: string, count: number): string[] {
     .filter(Boolean);
 }
 
-function claimOf(repo: string, agent: string): string {
+export function claimOf(repo: string, agent: string): string {
   const email = `${agent.replace(/-chan$/, "").toLowerCase()}-chan@example.org`;
   return execFileSync(
     "git",
@@ -114,9 +106,12 @@ export type StoryCiComparisonSetup = {
 };
 
 export function serveActionsFor(
-  committed: Awaited<ReturnType<typeof publishCommittedOrigin>>,
+  committed: CommittedOrigin,
   initial: Record<string, readonly CiRunAnswer[]>,
   initialProofs: Record<number, ComparisonProofServe> = {},
+  // When set, branch= listings for live judgment return every served run on
+  // that branch name (Taken Story Branch journeys keep JudgedBranch).
+  judgedBranch?: string,
 ) {
   let runsBySha = initial;
   let proofsByRunId = initialProofs;
@@ -129,7 +124,18 @@ export function serveActionsFor(
     if (runs?.[1] !== undefined) {
       const query = new URLSearchParams(runs[1]);
       const headSha = query.get("head_sha") ?? "";
-      return actionsRunsAnswer(runsBySha[headSha] ?? [], "main");
+      if (headSha !== "")
+        return actionsRunsAnswer(runsBySha[headSha] ?? [], "main");
+      const branch = query.get("branch") ?? "";
+      if (judgedBranch !== undefined && branch === judgedBranch) {
+        const listed = Object.values(runsBySha).flat();
+        return actionsRunsAnswer(listed, judgedBranch);
+      }
+      if (branch === "main" || branch === "") {
+        const listed = Object.values(runsBySha).flat();
+        return actionsRunsAnswer(listed, branch || "main");
+      }
+      return actionsRunsAnswer([], branch);
     }
     const attempt = /\/actions\/runs\/(\d+)\/attempts\/(\d+)$/.exec(route);
     if (attempt?.[1] !== undefined) {
@@ -187,59 +193,4 @@ export function precedeClaimWithPlanning(origin: StartOrigin): string {
   }
   push(origin.project);
   return baseline;
-}
-
-export async function publishComparedStoryBranch(
-  page: Page,
-  origin: StartOrigin,
-): Promise<StoryCiComparisonSetup> {
-  const baseline = precedeClaimWithPlanning(origin);
-  const story = await completedPublishedStory(origin, "story-branch");
-  const { completion, agent, branch } = story;
-  const claim = claimOf(origin.project, agent);
-  const storyStart = git(origin.project, "rev-parse", `${claim}^`);
-  const parents = git(origin.project, "rev-list", "--parents", "-1", completion)
-    .trim()
-    .split(" ");
-  const branchSide = parents[2] ?? completion;
-  const fromStart = revList(origin.project, storyStart, 20);
-  const baselineIndex = fromStart.indexOf(baseline);
-  const laterWithoutBuild = baselineIndex < 0 ? 0 : baselineIndex;
-
-  advanceCompletedTrunk(origin);
-
-  const published = git(origin.origin, "rev-parse", "main");
-  const committed = await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: published,
-    repository: "terryyin/open-dough",
-    follows: true,
-    realHistory: true,
-  });
-
-  const actions = serveActionsFor(
-    committed,
-    {
-      [baseline]: [
-        wall(baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
-      ],
-      [branchSide]: [
-        wall(branchSide, 102, "2026-11-05T13:00:00Z", "2026-11-05T13:03:20Z"),
-      ],
-      [completion]: [
-        wall(completion, 103, "2026-11-05T14:00:00Z", "2026-11-05T14:04:00Z"),
-      ],
-    },
-    defaultMixedProofs({ baseline, branchSide, completion }),
-  );
-  return {
-    identity: queuedIdentity,
-    completion,
-    baseline,
-    branchSide,
-    laterWithoutBuild,
-    agent,
-    branch,
-    ...actions,
-  };
 }

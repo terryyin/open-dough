@@ -4,7 +4,6 @@
 import { expect } from "./preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
-import { chooseCiStatus } from "../intentCiStatusPage.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 
@@ -22,7 +21,11 @@ export async function selectDoneStoryForCiComparison(
   await expectSelected(card, true);
   await intentChoice.click();
   await expect(intent).toBeVisible();
-  const panel = await chooseCiStatus(intent);
+  const panel = intent.getByRole("region", {
+    name: "CI timing comparison",
+    exact: true,
+  });
+  await expect(panel).toBeVisible({ timeout: readWaitLimitMs + 15_000 });
   // Comparison walks many head_sha lookups; wait through the shared read bound.
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0, {
     timeout: readWaitLimitMs + 15_000,

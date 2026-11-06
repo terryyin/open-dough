@@ -110,11 +110,16 @@ story-branch revision's build, or not applicable for Trunk Mode), and landed
 result (completion revision's build), each named with revision, run, attempt,
 state and whether it is exact or a measured ancestor, with CI wall time and
 signed whole-second differences framed as observations between single builds
-(not attributed to the story). Entry rows state that entry comparison is not
-yet shown until that delivery lands. A selected story with no published story
-branch (queued or being prepared, or Taken in Trunk Mode), unreadable or
-ambiguous agent profiles, an unusable recorded name, or a branch GitHub no
-longer publishes is named with that explanation and shows no status; no other
+(not attributed to the story), then entry rows with each endpoint's cumulative
+test execution time. A selected **Taken** Story Branch story keeps that live
+judgment and adds the same comparison against the pre-story baseline, with the
+latest completed branch build labelled provisional and Landed saying the story
+has not landed yet; a new branch head re-reads it. A selected **Taken** Trunk
+Mode story shows that provisional trunk comparison (Branch not applicable,
+Landed not yet landed) instead of a no-branch gap. A selected story with no
+published story branch (queued or being prepared), unreadable or ambiguous
+agent profiles, an unusable recorded name, or a branch GitHub no longer
+publishes is named with that explanation and shows no status; no other
 branch's judgment stands in. A changed selection replaces the judgment;
 clearing it returns to the trunk. It names the branch and states **Passed**,
 **Failed** (including cancelled or timed out), **Running** or **Could not be

@@ -51,17 +51,45 @@ export const storyCiComparisonSlotSchema = z.discriminatedUnion("kind", [
 
 export type StoryCiComparisonSlot = z.infer<typeof storyCiComparisonSlotSchema>;
 
+// Landed slot while a Taken story has not wrapped up (shared by the read and
+// homepage wording).
+export const notLandedYetExplanation = "The story has not landed yet.";
+
+// Unavailable explanations that Intent hides beside a live judgment: board-
+// only Taken fixtures without a recoverable claim, and an unconfigured
+// project folder. Real claim/history gaps still show.
+export const suppressedBesideJudgmentFragments = [
+  "has no published completion record",
+  "Unknown configured project",
+] as const;
+
+export function suppressesComparisonBesideJudgment(
+  explanation: string,
+): boolean {
+  return suppressedBesideJudgmentFragments.some((fragment) =>
+    explanation.includes(fragment),
+  );
+}
+
 export const storyCiComparisonAnswerSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("comparison"),
     identity: z.string().min(1),
+    // Done answers are immutable; Taken answers are provisional and must not
+    // be remembered past a head change.
+    phase: z.enum(["done", "taken"]),
     mode: z.enum(["trunk", "story-branch"]),
-    completion: z.string().min(1),
+    // Present for a done story's completion revision; absent while Taken.
+    completion: z.string().min(1).optional(),
     storyStart: z.string().min(1),
     checkedAt: z.iso.datetime(),
     baseline: storyCiComparisonSlotSchema,
     branch: storyCiComparisonSlotSchema,
     landed: storyCiComparisonSlotSchema,
+    // Taken Trunk Mode: provisional trunk tip beside Branch N/A and Landed
+    // not-yet-landed. Absent for Story Branch Mode (provisional is Branch)
+    // and for done stories.
+    provisional: storyCiComparisonSlotSchema.optional(),
   }),
   z.object({
     kind: z.literal("unavailable"),

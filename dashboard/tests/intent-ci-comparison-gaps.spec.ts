@@ -9,10 +9,8 @@
 
 import { expect, test } from "./support/preparationPage.ts";
 import { shortSha } from "../src/baseCiWording.ts";
-import {
-  publishComparedStoryBranch,
-  wall,
-} from "./support/storyCiComparisonFixture.ts";
+import { wall } from "./support/storyCiComparisonFixture.ts";
+import { publishComparedStoryBranch } from "./support/storyCiComparisonDoneFixture.ts";
 import { selectDoneStoryForCiComparison } from "./support/selectDoneStoryForCiComparison.ts";
 import {
   advanceCompletedTrunk,

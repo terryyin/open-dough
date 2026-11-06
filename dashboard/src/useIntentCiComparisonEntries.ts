@@ -109,12 +109,13 @@ export function useIntentCiComparisonEntries(
     "baseline",
     answer?.kind === "comparison" ? answer.baseline : undefined,
   );
-  const branch = useSlotProof(
-    source,
-    identity,
-    "branch",
-    answer?.kind === "comparison" ? answer.branch : undefined,
-  );
+  // Taken Trunk Mode puts the live tip in `provisional` beside Branch N/A;
+  // entry rows still compare that tip in the Branch column.
+  const branchSlot =
+    answer?.kind === "comparison"
+      ? (answer.provisional ?? answer.branch)
+      : undefined;
+  const branch = useSlotProof(source, identity, "branch", branchSlot);
   const landed = useSlotProof(
     source,
     identity,
@@ -128,7 +129,11 @@ export function useIntentCiComparisonEntries(
 
   return comparisonEntriesOf(
     comparisonProofOf(answer.baseline, baseline.proof, baseline.reading),
-    comparisonProofOf(answer.branch, branch.proof, branch.reading),
+    comparisonProofOf(
+      branchSlot ?? answer.branch,
+      branch.proof,
+      branch.reading,
+    ),
     comparisonProofOf(answer.landed, landed.proof, landed.reading),
   );
 }

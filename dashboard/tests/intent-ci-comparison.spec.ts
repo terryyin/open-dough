@@ -7,14 +7,15 @@
 // observed-not-attributed / whole-second). Entry-proof expiry and missing
 // durations live in ./intent-ci-comparison-entries.spec.ts; Trunk Mode,
 // running, failed and missing builds live in
-// ./intent-ci-comparison-gaps.spec.ts. Taken-story and no-selection homepage
-// journeys stay in ./intent-ci-status*.spec.ts.
+// ./intent-ci-comparison-gaps.spec.ts. Taken-story provisional journeys live
+// in ./intent-ci-comparison-taken.spec.ts; no-selection homepage consumers
+// stay in ./intent-ci-status*.spec.ts.
 
 import { expect, test } from "./support/preparationPage.ts";
 import { shortSha } from "../src/baseCiWording.ts";
 import { observedNotAttributed } from "../src/storyCiComparisonWording.ts";
 import { publishCodeLandedBeforeCompletion } from "./support/storyCiComparisonEarlierLanding.ts";
-import { publishComparedStoryBranch } from "./support/storyCiComparisonFixture.ts";
+import { publishComparedStoryBranch } from "./support/storyCiComparisonDoneFixture.ts";
 import { expectCiComparisonEntryRows } from "./support/expectCiComparisonEntryRows.ts";
 import { selectDoneStoryForCiComparison } from "./support/selectDoneStoryForCiComparison.ts";
 import { completedPublishedStory } from "./support/completedPublishedStory.ts";

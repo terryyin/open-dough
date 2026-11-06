@@ -6,10 +6,8 @@
 // gaps live in ./intent-ci-comparison-gaps.spec.ts.
 
 import { expect, test } from "./support/preparationPage.ts";
-import {
-  publishComparedStoryBranch,
-  untimedBaselineMixedProofs,
-} from "./support/storyCiComparisonFixture.ts";
+import { untimedBaselineMixedProofs } from "./support/storyCiComparisonFixture.ts";
+import { publishComparedStoryBranch } from "./support/storyCiComparisonDoneFixture.ts";
 import { expectCiComparisonEntryRows } from "./support/expectCiComparisonEntryRows.ts";
 import { selectDoneStoryForCiComparison } from "./support/selectDoneStoryForCiComparison.ts";
 

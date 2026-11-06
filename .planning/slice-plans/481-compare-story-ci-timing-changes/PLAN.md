@@ -223,7 +223,7 @@ another story or attempt must never render.
 
 ### 3. Show a Taken story's provisional comparison
 Type: Behavior
-Status: planned
+Status: done
 Proof: the Taken Story Branch and Trunk Mode journeys; the homepage, story
 and freshness consumer specs; the local gate.
 
@@ -238,6 +238,15 @@ through the same read. Do not remember provisional answers past a head
 change.
 
 **Safe stop:** the story is complete.
+
+**Accepted proof:**
+- `npm run test:dashboard -- dashboard/tests/intent-ci-comparison-taken.spec.ts --workers=1` — Taken Story Branch (live + provisional + head re-read) and Taken Trunk Mode.
+- Comparison + status + proof + Review consumers green (implementation return; Taken journeys re-verified by coordinator).
+- Units: parse + entries 7 passed.
+
+**Learnings:** Taken answers use `phase: "taken"` and are never remembered; board-only Taken without claim history keeps judgment and hides absent comparison.
+
+
 
 ## Current decisions and readiness review
 

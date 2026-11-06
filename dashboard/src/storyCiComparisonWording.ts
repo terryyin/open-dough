@@ -8,19 +8,29 @@ import {
   wholeSecondDifferenceWords,
   wholeSecondWords,
 } from "./ciProofTimeWords.ts";
-import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
+import {
+  notLandedYetExplanation,
+  type StoryCiComparisonSlot,
+} from "./storyCiComparison.ts";
 
 export function selectionWords(
   slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>,
+  provisional = false,
 ): string {
-  if (slot.selection === "exact") {
-    return slot.kind === "running"
-      ? "exact revision (still running)"
-      : "exact revision";
-  }
-  const count = slot.laterWithoutResult;
-  return `ancestor: ${String(count)} later revision${count === 1 ? "" : "s"} without a build`;
+  const base =
+    slot.selection === "exact"
+      ? slot.kind === "running"
+        ? "exact revision (still running)"
+        : "exact revision"
+      : (() => {
+          const count = slot.laterWithoutResult;
+          return `ancestor: ${String(count)} later revision${count === 1 ? "" : "s"} without a build`;
+        })();
+  // Taken stories label the live tip provisional, not final.
+  return provisional ? `provisional · ${base}` : base;
 }
+
+export const notLandedYetWords = notLandedYetExplanation;
 
 export function wallTimeWords(slot: StoryCiComparisonSlot): string | undefined {
   if (slot.kind !== "build") return undefined;

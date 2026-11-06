@@ -212,6 +212,7 @@ export async function publishedStoryEndpoints(
       },
     };
   } catch (error) {
+    if (signal.aborted) throw error;
     return {
       kind: "unavailable",
       explanation: `Published completion history could not be read: ${gitProblem(error)}`,
