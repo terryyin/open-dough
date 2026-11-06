@@ -7,8 +7,8 @@
 // change. A non-owner that has nothing new to tell consumes the configured
 // change bound (`DOUGH_CHANGE_WAIT_MS`, production default 30 seconds) instead
 // of waking at once. What the page says from those answers is
-// ../agent-launch-start-story-card.spec.ts and
-// ../agent-launch-second-server.spec.ts.
+// ../tests/launches/agent-launch-start-story-card.spec.ts and
+// ../tests/launches/agent-launch-second-server.spec.ts.
 
 import { expect, test } from "../tests/support/pageTest.ts";
 import {

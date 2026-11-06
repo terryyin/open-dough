@@ -121,10 +121,10 @@ wants a missing addition or an unpublished history says so. Which commit added
 a profile is walked at the boundary
 (`../backend-tests/authenticated-read-profile-addition.spec.ts`, its refusals in
 `../backend-tests/authenticated-read-profile-addition-refusal.spec.ts`); the credited human and avatar
-on cards and the roster are `agent-roster-avatar.spec.ts`; how a slow or
+on cards and the roster are `stories/agent-roster-avatar.spec.ts`; how a slow or
 stalled addition read delays only its own profile's clock and human is
-`profile-addition-latency.spec.ts`; the roster itself is
-`agent-roster.spec.ts`, whose locators live in `dashboardPage.ts`.
+`observation/profile-addition-latency.spec.ts`; the roster itself is
+`stories/agent-roster.spec.ts`, whose locators live in `dashboardPage.ts`.
 
 ## Process cleanup
 

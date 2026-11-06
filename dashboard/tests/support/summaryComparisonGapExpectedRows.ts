@@ -1,5 +1,5 @@
 // Expected Summary comparison rows for gap variants in
-// ../intent-summary-story-comparison-gaps.spec.ts: baseline without file
+// ../intent/intent-summary-story-comparison-gaps.spec.ts: baseline without file
 // breakdown, running Landed, and Trunk Mode Branch not applicable. Counts
 // show measured differences where both sides measure; a no-breakdown or
 // status endpoint shows its gap, not a difference.

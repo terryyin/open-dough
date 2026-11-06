@@ -43,7 +43,7 @@ for (const entry of [
     const inheritedSplit = process.env[splitVariable];
     const nestedTarget = path.join(
       repoRoot,
-      "dashboard/tests/quiet-reporter.spec.ts",
+      "dashboard/tests/runtime/quiet-reporter.spec.ts",
     );
     const excludingSplit = dashboardTestMatch(
       new URL("../", import.meta.url),
@@ -86,7 +86,10 @@ for (const entry of [
     expect(record.tests[0]).toMatchObject({
       project: "chromium",
       location: {
-        file: path.join(repoRoot, "dashboard/tests/quiet-reporter.spec.ts"),
+        file: path.join(
+          repoRoot,
+          "dashboard/tests/runtime/quiet-reporter.spec.ts",
+        ),
       },
       attempts: [{ status: "passed" }],
     });

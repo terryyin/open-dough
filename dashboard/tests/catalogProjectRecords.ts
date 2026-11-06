@@ -1,5 +1,5 @@
 // Distinct published records for each catalog project, and the pinned `gh`
-// calls reading them must make, for ./authenticated-project-observation.spec.ts.
+// calls reading them must make, for ./observation/authenticated-project-observation.spec.ts.
 
 import { expect } from "./dashboardTest.ts";
 import type { ObservedRequest } from "./publishedOrigin.ts";

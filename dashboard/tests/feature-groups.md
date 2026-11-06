@@ -1,0 +1,28 @@
+# Dashboard feature groups
+
+Every browser spec belongs to one feature folder. Case-definition modules live
+with that same feature; reusable fixtures and support stay outside the groups.
+The sibling `../backend-tests/` suite is the independent **Dashboard Backend
+Test** entry and does not add another browser feature group.
+
+| Folder | Responsibility |
+| --- | --- |
+| `configuration/` | Project registration, machine settings, credentials and preferences. |
+| `stories/` | Published story facts, preparation, dependencies, assignments and progress. |
+| `launches/` | Work initiation, startup choices, reconciliation and automatic triggers. |
+| `sessions/` | Session discovery, status, recovery, completion, reports and history. |
+| `terminals/` | Interactive attachment, input, dictation, resizing and reconnection. |
+| `review/` | Story comparisons, diffs, commit ranges, landed runs and review marks. |
+| `intent/` | Purpose browsing, Proof, CI judgments, timing and optimization candidates. |
+| `navigation/` | Destinations, selection, history, paging, panels and focus. |
+| `observation/` | Published-source consistency, freshness, refresh and read recovery. |
+| `runtime/` | Serving, production updates, browser identity and test harness operation. |
+
+Choose the feature whose behavior the test proves, irrespective of an older
+filename prefix. For example, marking a session Done belongs to Sessions even
+when its filename starts with `agent-terminal`; keyboard input belongs to
+Terminals. Shared navigation mechanisms belong to Navigation; a feature's own
+form or touch variant stays with that feature.
+
+Both test roots retain the [shared run and CI schedule](shards.md); feature
+folders do not create additional builds, workers, shards or test cases.

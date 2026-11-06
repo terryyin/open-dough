@@ -1,5 +1,5 @@
 // Open Dough's supplied icon exports (../../../assets/brand/favicon/) that the
-// dashboard page declares (../browser-identity.spec.ts), and the answer every
+// dashboard page declares (../runtime/browser-identity.spec.ts), and the answer every
 // serving mode gives for each: that canonical file's exact bytes as an image.
 
 import { readFile } from "node:fs/promises";

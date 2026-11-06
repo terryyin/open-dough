@@ -1,5 +1,5 @@
-// Intent's CI status homepage journeys (./intent-ci-status.spec.ts,
-// ./intent-ci-status-reads.spec.ts, ./intent-ci-status-homepage.spec.ts): a
+// Intent's CI status homepage journeys (./intent/intent-ci-status.spec.ts,
+// ./intent/intent-ci-status-reads.spec.ts, ./intent/intent-ci-status-homepage.spec.ts): a
 // published project whose trunk the launch's base-CI rule judges
 // (../server/baseCiJudgment.ts) from served CI answers, the homepage region
 // in Intent's empty-selection reading, and the judgment's observed GitHub

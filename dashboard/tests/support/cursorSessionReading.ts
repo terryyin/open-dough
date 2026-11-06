@@ -2,6 +2,7 @@
 // that entry shows. A held screen is named by the runner's label. Any other
 // reading shows its own words and none of those labels.
 import { readFileSync } from "node:fs";
+import { machineSessions } from "../agentLaunchBoundary.ts";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts, sessionStateOf } from "../dashboardPage.ts";
@@ -38,6 +39,25 @@ type SessionsAnswer = {
     };
   }[];
 };
+
+type SessionState = {
+  readonly kind: string;
+  readonly availability?: string;
+  readonly activity?: string;
+  readonly waitingFor?: string;
+  readonly label?: string;
+};
+
+export async function cursorState(
+  server: Parameters<typeof machineSessions>[0],
+): Promise<SessionState | undefined> {
+  const records = (await machineSessions(server)) as {
+    readonly session: { readonly host: string };
+    readonly sessionState: SessionState;
+  }[];
+  return records.find((record) => record.session.host === "cursor")
+    ?.sessionState;
+}
 
 export function readLog(file: string | undefined): string {
   if (file === undefined) return "";

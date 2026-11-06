@@ -8,7 +8,7 @@ None.
 
 ### story-review-completed-journey-landed-runs-tail
 
-- **Locations / scope:** `story-review-completed.spec.ts` trailing
+- **Locations / scope:** `dashboard/tests/review/story-review-completed.spec.ts` trailing
   `keepUnusableCompletedCapture` + Landed runs radio + gap copy; gaps boundary
   already owns the same server-answer variant.
 - **Observed cost:** focused journey wall ≈9.69–10.00s (1 case) under default
@@ -29,8 +29,8 @@ None.
 ### agent-launch-poles
 
 - **Locations / scope:**
-  `dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts` and the remaining
-  integrated journey in `dashboard/tests/agent-launch-second-server.spec.ts`.
+  `dashboard/tests/terminals/agent-launch-ad-hoc-terminal.spec.ts` and the remaining
+  integrated journey in `dashboard/tests/launches/agent-launch-second-server.spec.ts`.
 - **Observed cost:** the second-server case measured 64.6s before the
   SEED-176 change-wait boundary move and 52.5s / 51.2s after on the developer's
   Mac. Whole-suite runs had unlike or contended load, so these case timings
@@ -58,10 +58,10 @@ None.
 
 ### long-integrated-journeys
 
-- **Locations / scope:** `dashboard/tests/agent-completion-attention.spec.ts`
-  and the production-watcher chains in `dashboard/tests/production-watcher.spec.ts`,
-  `dashboard/tests/production-watcher-updates.spec.ts`, and
-  `dashboard/tests/production-watcher-failures.spec.ts`.
+- **Locations / scope:** `dashboard/tests/sessions/agent-completion-attention.spec.ts`
+  and the production-watcher chains in `dashboard/tests/runtime/production-watcher.spec.ts`,
+  `dashboard/tests/runtime/production-watcher-updates.spec.ts`, and
+  `dashboard/tests/runtime/production-watcher-failures.spec.ts`.
 - **Observed cost:** the SEED-177 local baseline recorded an approximately
   39.6s attention case. Earlier hosted production-update chains, including
   shared hooks, varied from 116.84s to 194.81s on Ubuntu 24.04 with twelve

@@ -1,4 +1,4 @@
-// Shared by ./responsive-session-access.spec.ts: moving the keyboard by Tab,
+// Shared by ./launches/responsive-session-access.spec.ts: moving the keyboard by Tab,
 // beginning another task by keyboard, recording what the startup announcements region says, counting the page's
 // reads of this machine's sessions, and how a card and its startup indicator
 // are drawn.

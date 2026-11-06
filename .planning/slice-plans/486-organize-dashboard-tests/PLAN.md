@@ -103,6 +103,11 @@ Reported: slice 1 — "CI run 42253102353 failed the scheduling priority asserti
 Story clause: "preserving complete CI execution without increasing CI wall time"
 Disposition: proved by slice 1: scheduling-repair controlled startup gate reproduced the exact failure; intentional fixture ordering passed three guarded runs, reversed production priority still failed the original assertion, and the restored candidate passed. Complete target CI remains owned by the lifecycle commitments.
 
+### G2. Concurrent trunk tests need final feature ownership
+Reported: slice 2 — "origin/main e6948bfce33e4ff731982cb2f11d9f3f36c29b73 added intent-ci-comparison-fast-forward.spec.ts and intent-ci-comparison-landing-gaps.spec.ts while this reorganization ran; the combined snapshot still needs those tests grouped and verified."
+Story clause: "Group every remaining dashboard spec under exactly one"
+Disposition: return
+
 ## CI repair evidence
 
 The failure inventory was complete: one failed dashboard job, no missing logs.
@@ -185,3 +190,51 @@ source setup and redundant relocated comments were reduced. The seven-file
 Changed helper boundaries were reverified; prior label, discovery, duration and
 other backend observations remained valid. Consumer dispositions:
 `/tmp/open-dough-test-organization-proof/backend-refactor-consumers.md`.
+
+
+Slice 1 published: `906e6e1fd8ca0f3d1d2a8fde8c98a75816855d07` accepted on
+`origin/refs/heads/story/dashboard-test-organization`; managed delivery reused
+the retained observer. CI is pending, not assumed successful.
+
+Before Slice 2, primary assertions refined four initial filename classifications:
+`story-card-selection`, `story-card-dependency-selection`, and
+`notification-story-navigation` belong to Navigation (selection/destination
+contracts); `browser-identity` belongs to Runtime (served icon exports). The
+remaining grouping is unchanged. The mechanical move map and eleven browser
+case-module owners are retained outside Git in
+`/tmp/open-dough-test-organization-proof/feature-map.json`.
+
+
+Slice 2 implementation acceptance: 473 specs and eleven case-definition modules
+are grouped once; all 2075 cases and original assertions survive. The existing
+Intent journey now renders all ten folders. The guarded seven-file batch passed
+41 cases, and proper discovery/share/declaration checks passed. Evidence is
+`/tmp/open-dough-test-organization-proof/after-groups.json`,
+`groups-ast-equivalence.json`, and `groups-path-consumers.md`.
+
+Measured allocation correction: first split CI run 42253102353 took 302 s versus
+296 s baseline, with slowest dashboard job 281 s versus 269 s. Median per-file
+duration ratio was 1.000, while the observed critical-shard sum rose from 885.5
+to 930.5 test-seconds after path sorting changed. Refreshing the existing lists
+from all twelve successful baseline artifacts records all 741 specs (zero
+unrecorded). Like-for-like raw baseline projection becomes 784.7–784.8
+seconds per shard. Normalized list predictions are 846.7–846.8 with factor
+0.927; these are not directly comparable to raw observed seconds. Actual final
+CI wall time remains an unresolved target-CI commitment, not a predicted pass.
+
+
+Slice 2 independent refactor accepted: `/root/feature_refactor` returned
+`## REFACTOR COMPLETE`; cohesive watcher/host-status setup and existing Cursor
+state helpers preserve all test definitions, 455 matcher records and manual
+launch guards in their specs. The guarded three-spec batch passed 16 cases;
+watcher-only recheck passed six after guard visibility was restored. A callback
+signature collection error was corrected back to Playwright's original object
+destructuring; full discovery again preserves 2075 cases. Evidence:
+`feature-refactor-consumers.md`, `refactor-preservation.json`, and
+`after-feature-refactor.json` under the existing temporary proof directory.
+
+Current decision: publish this validated increment with Slice 2 still planned,
+then merge current published main without rewriting history, group its two new
+Intent specs, reconcile its intentional test changes, and verify the combined
+snapshot before declaring Slice 2 complete. This is the same accepted outcome,
+not another story. Final CI includes the integrated current product.

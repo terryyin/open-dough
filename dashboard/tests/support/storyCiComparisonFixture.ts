@@ -1,5 +1,5 @@
 // Shared CI comparison fixture helpers for Intent's timing comparison
-// (../intent-ci-comparison.spec.ts): Actions answers by head_sha, planning
+// (../intent/intent-ci-comparison.spec.ts): Actions answers by head_sha, planning
 // commits before a claim, and the done Story Branch publisher. SEED-236
 // lives in ./storyCiComparisonEarlierLanding.ts; Taken shapes in
 // ./storyCiComparisonTakenFixture.ts; entry-proof Answers in

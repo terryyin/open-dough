@@ -1,5 +1,5 @@
 // Expected Summary comparison rows for
-// ../intent-summary-story-comparison.spec.ts against
+// ../intent/intent-summary-story-comparison.spec.ts against
 // ./intentSummaryStoryComparisonFixture.ts's breakdown proofs: precise
 // durations, counted-results differences, change markers, added / removed /
 // renamed / later-trunk gaps. Gap variants live in

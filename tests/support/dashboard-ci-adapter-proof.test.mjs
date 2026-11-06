@@ -3,7 +3,7 @@
 // time limit or answers what is not JSON answered no proof read, and the
 // tab's one line says so with that limit and the runner's error. Every other
 // reason, through the tab:
-// ../../dashboard/tests/intent-ci-proof-adapter-reasons.spec.ts.
+// ../../dashboard/tests/intent/intent-ci-proof-adapter-reasons.spec.ts.
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

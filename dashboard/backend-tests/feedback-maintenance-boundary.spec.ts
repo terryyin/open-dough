@@ -4,7 +4,7 @@
 // malformed bodies, unknown fields, hosts and settings, a removal with a body,
 // and the wrong content type; none changes the saved setting or starts a
 // session. The page's journey, including a malformed saved file, is
-// ../system-settings-feedback-maintenance.spec.ts.
+// ../tests/configuration/system-settings-feedback-maintenance.spec.ts.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../tests/support/pageTest.ts";

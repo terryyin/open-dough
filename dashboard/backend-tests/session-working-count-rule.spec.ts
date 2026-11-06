@@ -3,7 +3,7 @@
 // "working" screen count; awaiting first instruction, held waiting, and a
 // session marked done do not; an unread report on a working session still
 // counts. A pure reading of records; the page journey is
-// ../sessions-sidebar.spec.ts.
+// ../tests/sessions/sessions-sidebar.spec.ts.
 
 import { expect, test } from "../tests/support/pageTest.ts";
 import { completionReport } from "../tests/support/completionReport.ts";

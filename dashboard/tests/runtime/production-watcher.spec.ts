@@ -1,0 +1,250 @@
+// The public watcher's serial lifecycle; every test observes the next state.
+import { expect, test } from "../support/pageTest.ts";
+import { readdir } from "node:fs/promises";
+import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
+import { openCursorTerminal } from "../support/cursorTerminal.ts";
+import { processGroup, runnersFor } from "../support/cursorRunnerJourney.ts";
+import { dashboardCommand } from "../support/dashboardCommand.ts";
+import { keptCursor } from "../support/keptCursorTurn.ts";
+import { processRunning } from "../support/processGroup.ts";
+import {
+  deploymentCheckout,
+  productionActivation,
+  productionDeployments,
+  productionReplacement,
+  startProductionWatcher,
+  type ProductionActivation,
+} from "../support/productionWatcher.ts";
+import {
+  occupyProductionPort,
+  sourceMarker,
+  ProductionWatcherMachine,
+} from "./productionWatcherMachine.ts";
+test.describe.configure({ mode: "serial" });
+const machine = new ProductionWatcherMachine();
+const started = () => machine.started();
+let env: NodeJS.ProcessEnv;
+let developmentUrl: string;
+let pinned: string;
+let next: string;
+let served: ProductionActivation;
+let runner: { port: number; pid: number };
+let cursorSessionId: string;
+let cursorClientPid: number;
+const sockets: { close(): void }[] = [];
+test.beforeAll(async ({ browser }) => {
+  test.setTimeout(180_000);
+  ({ env, developmentUrl, pinned, served, runner } =
+    await machine.start(browser));
+});
+test.afterAll(async () => {
+  for (const socket of sockets) socket.close();
+  await machine.close();
+});
+
+test("npm watcher serves published main beside hot-reloaded uncommitted development and enforces the local boundaries", async ({
+  browser,
+  request,
+}) => {
+  test.setTimeout(60_000);
+  const watcher = machine.watcher;
+  if (watcher === undefined) throw new Error("No watcher");
+  const { productionPage, developmentPage } = started();
+  expect(watcher.output()).toContain(
+    `Preparing production dashboard ${pinned}.`,
+  );
+  expect(processRunning(served.pid)).toBe(true);
+  expect(served.url).not.toBe(developmentUrl);
+  await productionPage.goto(served.url);
+  await expect(productionPage).toHaveTitle("PINNED MAIN");
+  await expect(sourceMarker(productionPage)).toHaveText("PINNED SOURCE");
+  await developmentPage.goto(developmentUrl);
+  await expect(developmentPage).toHaveTitle("DEVELOPMENT ONLY");
+  await expect(sourceMarker(developmentPage)).toHaveText("DEVELOPMENT SOURCE");
+  const productionNavigations = await machine.editDevelopmentSource();
+  await expect(sourceMarker(developmentPage)).toHaveText(
+    "EDITED DEVELOPMENT SOURCE",
+  );
+  await expect(sourceMarker(productionPage)).toHaveText("PINNED SOURCE");
+  await expect(productionPage).toHaveTitle("PINNED MAIN");
+  expect(productionNavigations()).toBe(0);
+  expect(
+    await productionPage.evaluate(
+      () => document.documentElement.dataset["openWatcherPage"],
+    ),
+  ).toBe("retained");
+  expect(processRunning(served.pid)).toBe(true);
+  expect(watcher.output().match(/preview PID \d+/g)).toEqual([
+    `preview PID ${served.pid}`,
+  ]);
+  const fresh = await browser.newPage();
+  await fresh.goto(served.url);
+  await expect(fresh).toHaveTitle("PINNED MAIN");
+  await expect(sourceMarker(fresh)).toHaveText("PINNED SOURCE");
+  await fresh.close();
+  const readUrl = `${served.url}/__authenticated-read?source=unknown`;
+  expect((await request.get(readUrl)).status()).toBe(403);
+  expect(
+    (
+      await request.get(readUrl, {
+        headers: { Origin: "https://example.invalid" },
+      })
+    ).status(),
+  ).toBe(403);
+  const sameOrigin = await request.get(readUrl, {
+    headers: { Origin: served.url },
+  });
+  expect(sameOrigin.status()).toBe(404);
+  expect(await sameOrigin.text()).toContain("Unknown catalog source");
+  expect(
+    (
+      await request.post(`${served.url}/__agent-launch/accept`, {
+        data: {},
+        headers: { Origin: "https://example.invalid" },
+      })
+    ).status(),
+  ).toBe(403);
+});
+test("the production command starts one Cursor runner outside the preview's process group, which a launched Cursor session uses", async () => {
+  test.setTimeout(60_000);
+  const { fixture, cursor } = started();
+  expect(processGroup(runner.pid)).toBe(runner.pid);
+  expect(processGroup(served.pid)).toBe(served.pid);
+  expect(processGroup(runner.pid)).not.toBe(processGroup(served.pid));
+  expect(runnersFor(fixture.home)).toBe(1);
+  const launched = await machine.launchCursor(served.url);
+  const answer = JSON.parse(launched.body) as { kind?: string };
+  if (launched.status !== 200 || answer.kind !== "launched") {
+    throw new Error(`Expected a launched session, got ${launched.body}`);
+  }
+  cursorSessionId = keptCursor(fixture.home).session.sessionId;
+  expect(cursor.attaches()).toHaveLength(1);
+  cursorClientPid = cursor.attaches()[0]?.pid ?? 0;
+  expect(processRunning(cursorClientPid)).toBe(true);
+  expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
+});
+
+test("the next published main replaces production at the same URL and leaves the runner and its client in place", async () => {
+  test.setTimeout(90_000);
+  const watcher = machine.watcher;
+  if (watcher === undefined) throw new Error("No watcher");
+  const { fixture, cursor, productionPage } = started();
+  next = await fixture.publish(fixture.markerChanges("NEXT MAIN"), "Next main");
+  const replaced = await productionReplacement(watcher, served, next);
+  await productionPage.reload();
+  await expect(productionPage).toHaveTitle("NEXT MAIN");
+  expect(processRunning(cursorClientPid)).toBe(true);
+  expect(processRunning(runner.pid)).toBe(true);
+  expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(runner.pid);
+  expect(runnersFor(fixture.home)).toBe(1);
+  const terminal = await openCursorTerminal(
+    machine.boundary(replaced.url),
+    cursorSessionId,
+  );
+  sockets.push(terminal.socket);
+  await expect.poll(() => terminal.output()).toContain("ctrl+c to stop");
+  expect(cursor.attaches()).toHaveLength(1);
+  expect(cursor.attaches()[0]?.pid).toBe(cursorClientPid);
+  served = replaced;
+});
+test("stopping the watcher ends production and its checkouts and leaves development, the runner and its client", async ({
+  request,
+}) => {
+  test.setTimeout(60_000);
+  const watcher = machine.watcher;
+  if (watcher === undefined) throw new Error("No watcher");
+  const { fixture, developmentPage } = started();
+  const deployments = productionDeployments(fixture.home);
+  await watcher.stop();
+  machine.watcher = undefined;
+  await expect.poll(() => processRunning(served.pid)).toBe(false);
+  await expect(request.get(served.url, { timeout: 2_000 })).rejects.toThrow();
+  expect(await readdir(deployments)).toEqual([]);
+  await expect(sourceMarker(developmentPage)).toHaveText(
+    "EDITED DEVELOPMENT SOURCE",
+  );
+  expect((await request.get(developmentUrl)).status()).toBe(200);
+  expect(processRunning(runner.pid)).toBe(true);
+  expect(processRunning(cursorClientPid)).toBe(true);
+});
+
+test("an occupied production port is refused rather than moved", async ({
+  request,
+}) => {
+  test.setTimeout(60_000);
+  const { fixture } = started();
+  const deployments = productionDeployments(fixture.home);
+  const occupied = await occupyProductionPort(served.url);
+  const productionPort = occupied.port;
+  try {
+    const refused = dashboardCommand(
+      fixture.development,
+      env,
+      "watch:dashboard",
+      ["--port", productionPort],
+    );
+    expect((await refused.exited).code).toBe(1);
+    expect(refused.output()).toContain(
+      `Port ${productionPort} is already in use`,
+    );
+    expect(refused.output()).not.toMatch(/Production dashboard \w+ at http:/);
+    expect(await (await request.get(served.url)).text()).toBe(
+      "UNOWNED LISTENER",
+    );
+    expect(await readdir(deployments)).toEqual([]);
+  } finally {
+    await occupied.close();
+  }
+});
+
+test("a restart serves current main as its baseline with the same runner, and SIGINT ends it", async ({
+  request,
+}) => {
+  test.setTimeout(90_000);
+  const { fixture, cursor, productionPage } = started();
+  const deployments = productionDeployments(fixture.home);
+  const current = await fixture.publish(
+    { "docs/production-restart-note.md": "# Restart note\n" },
+    "Document restart",
+  );
+  const watcher = startProductionWatcher(fixture.development, env);
+  machine.watcher = watcher;
+  const restarted = await productionActivation(watcher, current);
+  expect(watcher.output()).toContain(
+    `Preparing production dashboard ${current}.`,
+  );
+  expect(watcher.output()).not.toContain(pinned);
+  expect(watcher.output()).not.toContain(next);
+  expect(await readdir(deployments)).toEqual([deploymentCheckout(current)]);
+  await productionPage.goto(restarted.url);
+  await expect(productionPage).toHaveTitle("NEXT MAIN");
+  await expect(sourceMarker(productionPage)).toHaveText("PINNED SOURCE");
+  expect(runnersFor(fixture.home)).toBe(1);
+  expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(runner.pid);
+  expect(processGroup(runner.pid)).toBe(runner.pid);
+  expect(processGroup(runner.pid)).not.toBe(processGroup(restarted.pid));
+  const follow = await openCursorTerminal(
+    machine.boundary(restarted.url),
+    cursorSessionId,
+  );
+  sockets.push(follow.socket);
+  await expect.poll(() => follow.output()).toContain("ctrl+c to stop");
+  follow.send({ input: "after-restart" });
+  await expect
+    .poll(() => cursor.input(cursorClientPid))
+    .toContain("after-restart");
+  expect(cursor.attaches()).toHaveLength(1);
+  expect(cursor.attaches()[0]?.pid).toBe(cursorClientPid);
+  expect(cursor.calls()).toHaveLength(1);
+  if (watcher.child.pid === undefined) throw new Error("Missing watcher PID");
+  process.kill(-watcher.child.pid, "SIGINT");
+  await watcher.exited;
+  await watcher.stop();
+  expect(watcher.output()).not.toContain("could not run");
+  expect(processRunning(restarted.pid)).toBe(false);
+  await expect(
+    request.get(restarted.url, { timeout: 2_000 }),
+  ).rejects.toThrow();
+  expect(await readdir(deployments)).toEqual([]);
+  machine.watcher = undefined;
+});

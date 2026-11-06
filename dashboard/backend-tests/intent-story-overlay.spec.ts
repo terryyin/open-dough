@@ -8,8 +8,8 @@
 // location admits counts once outside. "Selected story only" keeps just the
 // changed entries, and the story opens the first changed location in
 // configured order with the folders holding changes, whether or not it is
-// restricted. The integrated journeys: ../intent-story-changes-moves.spec.ts
-// and ../intent-story-completed.spec.ts.
+// restricted. The integrated journeys: ../tests/intent/intent-story-changes-moves.spec.ts
+// and ../tests/intent/intent-story-completed.spec.ts.
 
 import { expect, test } from "../tests/support/pageTest.ts";
 import type { IntentLocation } from "../src/authenticatedIntentRead.ts";

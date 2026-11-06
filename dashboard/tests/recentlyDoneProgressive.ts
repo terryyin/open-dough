@@ -1,6 +1,6 @@
 // What the progressive Recently done journeys
-// (./recently-done-progressive-loading.spec.ts,
-// ./recently-done-progressive-navigation.spec.ts) publish and keep: a long list
+// (./stories/recently-done-progressive-loading.spec.ts,
+// ./stories/recently-done-progressive-navigation.spec.ts) publish and keep: a long list
 // of done stories and saved Done sessions, one entry an hour apart, newest
 // first. The done records are spelled by the shared done-record renderer and
 // catalogued by the real backlog CLI's `catalog-done`, run on a scratch copy

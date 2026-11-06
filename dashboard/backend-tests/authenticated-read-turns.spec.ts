@@ -10,7 +10,7 @@
 // `gh` calls it had unanswered at once: a call beyond the bound would stay
 // unanswered and be counted. Each request's pinned reads before its held one
 // are made first, as ./authenticated-read-shared.spec.ts makes them. Two tabs
-// across two projects: ../read-turns-across-tabs.spec.ts. Where an answer's
+// across two projects: ../tests/observation/read-turns-across-tabs.spec.ts. Where an answer's
 // time went, in its `Server-Timing`:
 // ./authenticated-read-turns-timing.spec.ts.
 

@@ -32,7 +32,7 @@ subprocesses choose their own selection; their harness
 them.
 
 Within a shard, two complementary native Playwright projects queue the serial
-`production-watcher*.spec.ts` chains before ordinary files. They share one phase
+`tests/runtime/production-watcher*.spec.ts` chains before ordinary files. They share one phase
 and one global setup: there are no project dependencies, so the other workers
 run ordinary checks while a chain builds and replaces its deployments. The
 projects partition the existing selected files; they neither add shards nor

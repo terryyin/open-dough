@@ -4,7 +4,8 @@ Prepare the [native prerequisites](native-setup.md) once, and again when the
 lockfile changes. Repeated checks reuse them without installation.
 
 The separate [dashboard suite](../dashboard/tests/README.md) runs its browser
-tests in `dashboard/tests/` and backend tests in the sibling
+tests in the ten [feature folders](../dashboard/tests/feature-groups.md) under
+`dashboard/tests/` and backend tests in the sibling
 `dashboard/backend-tests/` together through `npm run test:dashboard`; `npm test`
 does not discover those Playwright specs.
 

@@ -1,5 +1,5 @@
 // Intent's CI status tab with the shown run's CI proof
-// (./intent-ci-proof.spec.ts, ./intent-ci-proof-reasons.spec.ts): Open
+// (./intent/intent-ci-proof.spec.ts, ./intent/intent-ci-proof-reasons.spec.ts): Open
 // Dough's trunk, whose judged run 41 failed unless `runs` lists otherwise,
 // with the run's proof calls answered by `artifacts` and `zip`; the proof
 // calls observed; and the judgment's own text, without Proof.

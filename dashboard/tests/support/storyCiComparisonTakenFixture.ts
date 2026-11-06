@@ -1,5 +1,5 @@
 // Taken-story shapes for Intent's provisional CI timing comparison
-// (../intent-ci-comparison-taken.spec.ts): Story Branch keeps a live tip
+// (../intent/intent-ci-comparison-taken.spec.ts): Story Branch keeps a live tip
 // labelled provisional with Landed not yet; Trunk Mode puts the tip in the
 // Provisional row beside Branch N/A. Shared helpers come from
 // ./storyCiComparisonFixture.ts.

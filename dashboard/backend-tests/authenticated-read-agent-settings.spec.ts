@@ -4,7 +4,7 @@
 // profile read, its text returned as published, and null when the revision has
 // none. No client-supplied path reaches it. Tested directly against real HTTP
 // and a synthetic `gh` answering from the fake GitHub. What the roster shows
-// from it is ../agent-roster-collection.spec.ts.
+// from it is ../tests/stories/agent-roster-collection.spec.ts.
 
 import { expect, test } from "../tests/support/pageTest.ts";
 import {

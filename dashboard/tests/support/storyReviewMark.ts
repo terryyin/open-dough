@@ -1,6 +1,6 @@
-// Story A's review as its marking tests (../story-review-mark.spec.ts,
+// Story A's review as its marking tests (../review/story-review-mark.spec.ts,
 // ../../backend-tests/story-review-mark-admission.spec.ts,
-// ../story-review-since.spec.ts, ../story-review-comparison*.spec.ts) drive
+// ../review/story-review-since.spec.ts, ../story-review-comparison*.spec.ts) drive
 // it: opening and reopening it from the card, choosing Mark reviewed, and the
 // snapshot each read answers; and what the machine store and the project's
 // repository keep of a story's review mark. Story A's twelve-file worktree is

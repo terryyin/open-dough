@@ -1,16 +1,6 @@
-// Story A's worktree for its review (../story-review.spec.ts), off a real bare
-// origin (./startOrigin.ts); its kept launch record names that worktree
-// (./storyLaunchRecord.ts). The worktree's story commits rename a trunk file
-// and add one, delete another, and change an image; it merged trunk carrying
-// another story's file, trunk moved on since, and it holds a staged, an
-// unstaged, an untracked, and an ignored file; it can also change the merged
-// trunk file's mode alone. An admission worktree holds only a story commit,
-// a trunk merge, and an edit, with trunk moved on unfetched. A worktree
-// straight off trunk has nothing to review, and a story whose first commit
-// landed on trunk has only its later changes to review. A story changing files in nested folders,
-// at the root, and across folders by a rename shows its files under their
-// folders. A large story changes more files than the file browser holds and
-// files longer than the diff shows.
+// Real Git worktrees for review, off the bare origin in startOrigin.ts.
+// Fixtures cover uncommitted changes, trunk integration, nested files and large
+// diffs; cases remain in ../review/story-review*.spec.ts.
 
 import { execFileSync } from "node:child_process";
 import {
@@ -37,20 +27,17 @@ export function commitAll(cwd: string, message: string) {
 export const lines = (word: string, count = 12) =>
   [...Array(count).keys()].map((line) => `${word} ${String(line)}\n`).join("");
 
-// An image's bytes, which Git reads as binary.
 const image = (last: number) =>
   Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, last]);
 
 // The unstaged edit's added line, too long for the review to show unscrolled.
 export const wideLine = `more ${"wide ".repeat(80)}`;
 
-// A file written at its path under a root, making its folders.
 export function writeAt(root: string, file: string, text: string) {
   mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
   writeFileSync(path.join(root, file), text);
 }
 
-// Story A's worktree on its branch, started from the project's trunk.
 export function addStoryWorktree(project: string) {
   const workspace = path.join(project, ".worktrees", "story-a");
   git(project, "worktree", "add", "--quiet", "-b", branch, workspace, "main");
@@ -61,7 +48,6 @@ export function addStoryWorktree(project: string) {
 // story merged, which is the review's baseline.
 export function storyWorktree(origin: StartOrigin) {
   const project = origin.project;
-  // Trunk's files the story changes.
   writeFileSync(path.join(project, "old.txt"), lines("old"));
   writeFileSync(path.join(project, "staged.txt"), lines("staged"));
   writeFileSync(path.join(project, "unstaged.txt"), lines("unstaged"));
@@ -80,7 +66,6 @@ export function storyWorktree(origin: StartOrigin) {
   writeFileSync(path.join(workspace, "image.png"), image(2));
   commitAll(workspace, "delete a file and redraw the image");
 
-  // Another story lands on trunk, and the story merges trunk.
   const elsewhere = mkdtempSync(path.join(origin.machine, "elsewhere-"));
   git(elsewhere, "clone", "--quiet", origin.origin, ".");
   git(elsewhere, "config", "user.name", "Another Developer");
@@ -99,7 +84,6 @@ export function storyWorktree(origin: StartOrigin) {
   const later = git(elsewhere, "rev-parse", "HEAD");
   rmSync(elsewhere, { recursive: true, force: true });
 
-  // What the worktree holds beyond its commits.
   writeFileSync(path.join(workspace, "staged.txt"), `${lines("staged")}more\n`);
   git(workspace, "add", "staged.txt");
   writeFileSync(
@@ -118,10 +102,7 @@ export function storyWorktree(origin: StartOrigin) {
   return { workspace, merged, later };
 }
 
-// Story A's worktree with only what a review's admission refers to: one story
-// commit, a merge of trunk's next commit, which is the review's baseline, and
-// an unstaged edit. Trunk then moves on in the origin itself, so only a fetch
-// would bring its later commit here.
+// Admission: one story commit, a merged baseline and an edit, with trunk later unfetched.
 export function admissionWorktree(origin: StartOrigin) {
   const project = origin.project;
   const workspace = addStoryWorktree(project);
@@ -149,8 +130,7 @@ export function admissionWorktree(origin: StartOrigin) {
   return { workspace, merged };
 }
 
-// Makes the file another story landed, which Story A's worktree merged,
-// executable there: a change of mode alone against the baseline.
+// A merged trunk file changes mode alone against the baseline.
 export function changeModeOnly(workspace: string) {
   chmodSync(path.join(workspace, "other.txt"), 0o755);
 }
@@ -161,8 +141,7 @@ export function unchangedWorktree(origin: StartOrigin) {
   return { workspace, trunk: git(origin.project, "rev-parse", "main") };
 }
 
-// Story A's worktree whose first commit landed on trunk, which is the
-// review's baseline, then a later commit and an edit trunk does not have.
+// The first story commit landed; trunk lacks its later commit and edit.
 export function landedWorktree(origin: StartOrigin) {
   const project = origin.project;
   writeFileSync(path.join(project, "edited.txt"), lines("edited"));
@@ -180,9 +159,7 @@ export function landedWorktree(origin: StartOrigin) {
   return { workspace, landed };
 }
 
-// Story A's worktree changing files in nested folders, under a chain of
-// single folders, at the root, and by a rename across folders that leaves
-// its old folder's other file alone.
+// Nested changes include a cross-folder rename leaving a sibling unchanged.
 export function nestedWorktree(origin: StartOrigin) {
   const project = origin.project;
   const trunkFiles = {
@@ -213,14 +190,11 @@ export function nestedWorktree(origin: StartOrigin) {
   return { workspace };
 }
 
-// The large story's two long files, the first with a line wider than the
-// diff.
+// Two long files; the first has a line wider than the diff.
 export const longA = "long-a.txt";
 export const longB = "long-b.txt";
 
-// Story A's worktree adding the large story's files: two folders of many
-// small files, a file whose name is wider than the file browser, and the
-// long files.
+// Many files, a name wider than the browser and long diffs.
 export function largeWorktree(origin: StartOrigin) {
   const workspace = addStoryWorktree(origin.project);
   for (const folder of ["many", "more"])
@@ -247,8 +221,7 @@ export const observed = (workspace: string) => ({
   staged: git(workspace, "diff", "--cached", "--name-status"),
 });
 
-// A long file whose default printed diff omits unchanged lines before,
-// between, and after two distant edits — for directional gutter expansion.
+// Default diff context omits lines around two distant edits.
 export const expandContextFile = "expand-context.txt";
 
 export function expandContextLines(word: string, count: number) {
@@ -257,8 +230,7 @@ export function expandContextLines(word: string, count: number) {
     .join("");
 }
 
-// Story A's worktree with one modified file that prints two separated hunks
-// and trailing omitted lines under Git's default context.
+// One modified file has separated hunks and omitted trailing context.
 export function expandContextWorktree(origin: StartOrigin) {
   const project = origin.project;
   writeFileSync(

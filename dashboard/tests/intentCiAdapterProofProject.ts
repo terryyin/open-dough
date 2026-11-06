@@ -1,5 +1,5 @@
 // A ciAdapter project for the CI proof in Intent's CI status tab
-// (./intent-ci-proof-adapter.spec.ts, ./intent-ci-proof-adapter-reasons.spec.ts):
+// (./intent/intent-ci-proof-adapter.spec.ts, ./intent/intent-ci-proof-adapter-reasons.spec.ts):
 // the project folder in the test home whose own adapter records each request
 // it is asked and answers from the test's answers; its attempts, a tests
 // summary of one, and the tab opened on its judged result.

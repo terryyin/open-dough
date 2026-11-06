@@ -6,7 +6,7 @@
 // row shows, each result counted in exactly one row, and each gap — no breakdown, no matched result, a measured zero,
 // an untimed result, a missing part, a part without a breakdown — named
 // rather than shown as zero or complete. Browser journey:
-// ../../dashboard/tests/intent-summary-ci-proof.spec.ts.
+// ../../dashboard/tests/intent/intent-summary-ci-proof.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {

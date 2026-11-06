@@ -1,7 +1,7 @@
 // The unread rule of a session's report (../../src/sessionShown.ts): a report is
 // unread while its session is not marked done and the record keeps no read
 // mark for that report's receipt. A pure reading of one record; the page
-// journey is ../session-unread-report.spec.ts.
+// journey is ../tests/sessions/session-unread-report.spec.ts.
 
 import { expect, test } from "../tests/support/pageTest.ts";
 import { completionReport } from "../tests/support/completionReport.ts";

@@ -1,0 +1,250 @@
+// Each Taken card shows who holds the work, from the agent profiles
+// published beside the backlog at the snapshot's revision. The fake GitHub
+// only publishes the files (takenAgentProfileRecords.ts) and lists the
+// profile directory as GitHub's contents listing would; the local read
+// boundary, the shared profile reader, and the page decide everything shown.
+
+import { expect, test } from "../dashboardTest.ts";
+import { expectMembership, parts } from "../dashboardPage.ts";
+import { showColumn } from "../boardPage.ts";
+import { publishFiles } from "../publishedOrigin.ts";
+import { enlargedView, expectMark, expectPortrait } from "../agentPortrait.ts";
+import {
+  agents,
+  branchStory,
+  files,
+  lastInRotation,
+  modelless,
+  older,
+  queued,
+  repository,
+  revisionA,
+  trunkStory,
+} from "../takenAgentProfileRecords.ts";
+
+test.setTimeout(120_000);
+
+test("each Taken card shows its published agent profile, or says plainly that none is recorded or readable", async ({
+  page,
+}) => {
+  const requests = await publishFiles(page, {
+    repository,
+    revision: revisionA,
+    files,
+  });
+
+  await page.goto("/");
+
+  const { taken, backlog: queue } = parts(page);
+  await expectMembership(page, {
+    taken: [trunkStory, branchStory, modelless, older, lastInRotation],
+    backlog: [queued],
+  });
+  const card = (title: string) => taken.getByRole("article", { name: title });
+  // What an assignment records beyond its agent is in the card's detail,
+  // opened unless already open.
+  const inspected = async (title: string) => {
+    const toggle = card(title).getByRole("button", {
+      name: /^(?:Inspect story|Hide detail)$/,
+    });
+    await expect(toggle).toBeVisible();
+    await showColumn(page, "Taken");
+    if ((await toggle.textContent()) === "Inspect story") await toggle.click();
+    return card(title).getByRole("region", { name: `Detail for ${title}` });
+  };
+  await expect(page.getByText("Reading agent profile…")).toHaveCount(0);
+
+  const scanLine = (title: string) => card(title).locator(".owner-line");
+
+  await test.step("a Trunk Mode profile shows its agent, credited human, tool, and model on the card, and its mode and trunk only in detail", async () => {
+    await expect(scanLine(trunkStory)).toHaveText(
+      "Akiho-chan · Fixture Committer · Claude Code · claude-opus-5-5",
+    );
+    await expect(card(trunkStory)).not.toContainText(
+      /Trunk Mode|Trunk:|Human developer/,
+    );
+    const detail = await inspected(trunkStory);
+    await expect(detail).toContainText(
+      "Akiho-chan · Trunk Mode · Claude Code · claude-opus-5-5",
+    );
+    await expect(detail).toContainText("Trunk: origin/main");
+  });
+
+  await test.step("each recorded agent has its own approved portrait beside its name, and the owner text is unchanged", async () => {
+    await expectPortrait(card(trunkStory), "Akiho-chan", {
+      atlas: 1,
+      position: "50% 12.5%",
+    });
+    await expectPortrait(card(branchStory), "Yuma-chan", {
+      atlas: 1,
+      position: "100% 12.5%",
+    });
+    await expectPortrait(card(modelless), "Sola-chan", {
+      atlas: 1,
+      position: "0% 87.5%",
+    });
+    await expectPortrait(card(lastInRotation), "Rina-chan", {
+      atlas: 5,
+      position: "50% 87.5%",
+    });
+    await expect(await inspected(lastInRotation)).toContainText(
+      "Rina-chan · Story Branch Mode · Claude Code · claude-opus-5-5",
+    );
+    // The portrait is decorative: the card's accessible text is the owner
+    // text alone, with no presence status.
+    for (const title of [trunkStory, branchStory, modelless, lastInRotation]) {
+      await expect(card(title)).not.toContainText(
+        /online|active|offline|away/i,
+      );
+    }
+  });
+
+  await test.step("hovering a portrait shows it larger from where it stands", async () => {
+    const portrait = card(trunkStory).locator(".agent-portrait");
+    const resting = await portrait.boundingBox();
+    expect(resting).not.toBeNull();
+    if (resting === null) return;
+    const enlarged = async () => {
+      const { shown, width, left } = await enlargedView(portrait);
+      return { shown, width, left };
+    };
+    await portrait.hover();
+    await expect.poll(enlarged).toEqual({
+      shown: true,
+      width: resting.width * 3,
+      left: 0,
+    });
+    await page.mouse.move(0, 0);
+    await expect.poll(async () => (await enlarged()).shown).toBe(false);
+  });
+
+  await test.step("every recorded developer's scan line names its human, tool, and model, with gaps as text, and leaves mode and branch to the detail", async () => {
+    await expect(scanLine(branchStory)).toHaveText(
+      "Yuma-chan · Fixture Committer · Codex · gpt-5-codex",
+    );
+    await expect(scanLine(modelless)).toHaveText(
+      "Sola-chan · Fixture Committer · Cursor · model not recorded",
+    );
+    await expect(scanLine(lastInRotation)).toHaveText(
+      "Rina-chan · Fixture Committer · Claude Code · claude-opus-5-5",
+    );
+  });
+
+  await test.step("each recorded mode and host has its own mark beside its label, clear of the portrait, at desktop and narrow widths", async () => {
+    const marked = [
+      [trunkStory, "Trunk Mode", "trunk.svg", "Claude Code", "claude.png"],
+      [
+        branchStory,
+        "Story Branch Mode",
+        "story-branch.svg",
+        "Codex",
+        "codex.png",
+      ],
+      [modelless, "Trunk Mode", "trunk.svg", "Cursor", "cursor.png"],
+      [
+        lastInRotation,
+        "Story Branch Mode",
+        "story-branch.svg",
+        "Claude Code",
+        "claude.png",
+      ],
+    ] as const;
+    for (const width of [1280, 360]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const [title, mode, modeFile, host, hostFile] of marked) {
+        // The scan view's host mark, before the detail opens.
+        await expectMark(
+          card(title).locator(".story-card-owner"),
+          "host",
+          host,
+          `tool-avatars/${hostFile}`,
+        );
+        await inspected(title);
+        await expectMark(card(title), "mode", mode, `mode-icons/${modeFile}`);
+        // The model has no mark, and the owner text is unchanged.
+        await expect(card(title).locator(".owner-model img")).toHaveCount(0);
+      }
+    }
+    await expect(await inspected(trunkStory)).toContainText(
+      "Akiho-chan · Trunk Mode · Claude Code · claude-opus-5-5",
+    );
+  });
+
+  await test.step("a Story Branch Mode profile shows its branch as context, never as work on trunk", async () => {
+    const branch = await inspected(branchStory);
+    await expect(branch).toContainText(
+      "Yuma-chan · Story Branch Mode · Codex · gpt-5-codex",
+    );
+    await expect(branch).toContainText(
+      "Branch context: codex/same-machine-merge-queue (story branch work; not on trunk)",
+    );
+    await expect(branch).not.toContainText("Trunk Mode");
+    await expect(branch).not.toContainText("Trunk:");
+  });
+
+  await test.step("a profile that does not record the model says so", async () => {
+    await expect(await inspected(modelless)).toContainText(
+      "Sola-chan · Trunk Mode · Cursor · model not recorded",
+    );
+  });
+
+  await test.step("a Taken entry without a profile shows that its owner is not recorded", async () => {
+    await expect(card(older)).toContainText("Owner not recorded");
+    await expect(card(older)).not.toContainText("-chan");
+    await expect(card(older).locator(".agent-portrait")).toHaveCount(0);
+    await expect(card(older).locator("img")).toHaveCount(0);
+  });
+
+  await test.step("a malformed profile is shown as unreadable and matched to no entry, while a preparation assignment is neither", async () => {
+    await expect(
+      taken.getByRole("list", { name: "Unreadable agent profiles" }),
+    ).toHaveText([
+      "Agent profile mana-chan.json is unreadable: profile is not JSON. It is not matched to any entry.",
+    ]);
+    for (const agent of ["Mana-chan", "Kirara-chan"])
+      await expect(
+        taken.getByRole("article").filter({ hasText: agent }),
+      ).toHaveCount(0);
+    await expect(taken.locator(".agent-portrait")).toHaveCount(4);
+    // Each recorded assignment's host mark on its scan line, and its mode
+    // and host marks in its detail; the entry without a profile has none.
+    await expect(taken.locator(".story-card-owner .owner-mark")).toHaveCount(4);
+    for (const title of [trunkStory, branchStory, modelless, lastInRotation]) {
+      await inspected(title);
+      await expect(card(title).locator(".owner-mark")).toHaveCount(3);
+    }
+    await inspected(older);
+    await expect(card(older).locator(".owner-mark")).toHaveCount(0);
+  });
+
+  // Its scan line and marks belong to backlog-preparing.spec.ts.
+  await test.step("a queued entry shows its preparation assignment as Preparing, never as an owner", async () => {
+    await showColumn(page, "Backlog");
+    const preparing = queue.getByRole("article", { name: queued });
+    await expect(preparing.locator(".preparing-activity")).toHaveText(
+      "Preparing",
+    );
+    await expectPortrait(preparing, "Kirara-chan", {
+      atlas: 2,
+      position: "0% 12.5%",
+    });
+    await expect(preparing.locator(".owner-mode")).toHaveCount(0);
+    await expect(preparing).not.toContainText("Owner");
+    await expect(preparing).not.toContainText(/Mode|Branch context|Trunk:/);
+  });
+
+  await test.step("the profile directory is listed at the revision, and only profile files are read", () => {
+    const asked = requests.flatMap(({ request }) =>
+      request.kind === "content" || request.kind === "listing"
+        ? [`${request.kind} ${request.path}?ref=${request.revision}`]
+        : [],
+    );
+    expect(asked).toContain(`listing ${agents}?ref=${revisionA}`);
+    for (const agent of ["akiho", "kirara", "mana", "rina", "sola", "yuma"]) {
+      expect(asked).toContain(
+        `content ${agents}/${agent}-chan.json?ref=${revisionA}`,
+      );
+    }
+    expect(asked).not.toContain(`content ${agents}/README.md?ref=${revisionA}`);
+  });
+});

@@ -3,7 +3,7 @@
 // over raw HTTP and a raw terminal socket: once `claude attach` starts for a
 // session marked done, its record answers no done time, also after a restart.
 // An upgrade refused before attaching leaves the session done. How the page
-// shows the reopened session is ../agent-terminal-done.spec.ts, and how the
+// shows the reopened session is ../tests/sessions/agent-terminal-done.spec.ts, and how the
 // boundary marks it done is ./agent-launch-done.spec.ts. The machine directory
 // holds HOME and the synthetic `claude`'s (../fixtures/fake-claude) state; the
 // real one is never reached.

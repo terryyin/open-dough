@@ -1,5 +1,5 @@
 // Fixtures for Intent unusable-location journeys
-// (./intent-gherkin-unusable.spec.ts): mixed usable and problem locations on
+// (./intent/intent-gherkin-unusable.spec.ts): mixed usable and problem locations on
 // Doughnut-like and Pygardon-like projects.
 
 import type { Project } from "./catalogProjectRecords.ts";

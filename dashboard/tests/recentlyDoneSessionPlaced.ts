@@ -1,7 +1,7 @@
 // The list of the journeys in which the saved sessions decide which done
 // stories Recently done's first ten entries hold
-// (./recently-done-progressive-after-sessions.spec.ts,
-// ./recently-done-progressive-added-project.spec.ts): 14 entries
+// (./stories/recently-done-progressive-after-sessions.spec.ts,
+// ./stories/recently-done-progressive-added-project.spec.ts): 14 entries
 // (./recentlyDoneProgressive.ts), ad hoc sessions at 2, 7 and 11. Nothing
 // here chooses which entries show or which records are read.
 

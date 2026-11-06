@@ -1,5 +1,5 @@
-// What the story CI status journeys (./intent-ci-status-story.spec.ts,
-// ./intent-ci-status-story-gaps.spec.ts) publish: the board of
+// What the story CI status journeys (./intent/intent-ci-status-story.spec.ts,
+// ./intent/intent-ci-status-story-gaps.spec.ts) publish: the board of
 // ./intentCiStoryBoard.ts and, beside it, the CI the judgment reads: each
 // published branch's history by name (any other name is not published,
 // GitHub's `404`), the selected check's workflow, and its push runs per

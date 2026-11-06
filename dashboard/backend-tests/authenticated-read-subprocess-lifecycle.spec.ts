@@ -21,7 +21,7 @@
 // held work is the request itself or a shared listing. Every catalog source
 // reaches that ownership through the same code, so each read kind is
 // exercised for one source; which source is asked is covered in
-// ../authenticated-project-observation.spec.ts. A page that abandons a check
+// ../tests/observation/authenticated-project-observation.spec.ts. A page that abandons a check
 // -- on hiding, a new read, or a project switch -- disconnects the same way.
 //
 // This spec's servers are separate processes, each with its own PATH and its

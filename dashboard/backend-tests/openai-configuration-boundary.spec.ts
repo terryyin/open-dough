@@ -4,7 +4,7 @@
 // malformed bodies, the wrong content type and an oversized body; none
 // changes the private credential file or contacts a provider. The page's
 // recovery from a credential it cannot use is
-// ../system-settings-openai-unusable-credential.spec.ts; the size bound in detail is
+// ../tests/configuration/system-settings-openai-unusable-credential.spec.ts; the size bound in detail is
 // ./openai-configuration-size.spec.ts.
 import { existsSync, readFileSync } from "node:fs";
 import { expect, test } from "../tests/support/pageTest.ts";

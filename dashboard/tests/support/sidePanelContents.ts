@@ -1,5 +1,5 @@
 // Story B beside Story A (./storyReviewWorktree.ts) for the page's one side
-// panel (../side-panel-content-switching.spec.ts, ../side-panel-content-replacement.spec.ts):
+// panel (../navigation/side-panel-content-switching.spec.ts, ../navigation/side-panel-content-replacement.spec.ts):
 // Story B's real worktree with one committed file of its own, and its kept
 // launch record, a kept session without an attention message, or a Codex
 // record whose saved workspace is gone, so that its final report is Codex's

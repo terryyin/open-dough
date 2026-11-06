@@ -105,6 +105,21 @@ const shardIndices = [...Array(shardCount).keys()].map((index) => index + 1);
 test("the twelve CI shards match every actual dashboard spec exactly once, and the preview lists a new spec as unrecorded in its shard", () => {
   const files = dashboardSpecFiles(fileURLToPath(suite));
   assert.ok(files.length > 0);
+  const featureGroups = new Set([
+    "configuration",
+    "stories",
+    "launches",
+    "sessions",
+    "terminals",
+    "review",
+    "intent",
+    "navigation",
+    "observation",
+    "runtime",
+  ]);
+  for (const file of files.filter((name) => name.startsWith("tests/"))) {
+    assert.equal(featureGroups.has(file.split("/")[1]), true, file);
+  }
   const matches = shardIndices.flatMap((index) =>
     dashboardTestMatch(suite, `${index}/${shardCount}`),
   );

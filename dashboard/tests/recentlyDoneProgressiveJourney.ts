@@ -1,5 +1,5 @@
 // The journeys onto a done entry beyond Recently done's first ten
-// (./recently-done-progressive-navigation.spec.ts): 35 entries, newest first,
+// (./stories/recently-done-progressive-navigation.spec.ts): 35 entries, newest first,
 // whose 27th is an ad hoc session this machine keeps open, so Taken lists it
 // until the developer marks it done, and a story among the entries before it
 // whose record answers only once released. The publication and sessions are

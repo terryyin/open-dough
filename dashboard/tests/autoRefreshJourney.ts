@@ -1,6 +1,6 @@
 // The auto-refresh journey's published records, its paused page clock, and
 // what it observes of the `gh` calls behind the page: see
-// ./auto-refresh.spec.ts.
+// ./observation/auto-refresh.spec.ts.
 
 import { expect, type Page } from "@playwright/test";
 import { githubFor, pausePageClockAt } from "./dashboardTest.ts";

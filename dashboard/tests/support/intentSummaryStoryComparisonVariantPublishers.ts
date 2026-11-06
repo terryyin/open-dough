@@ -1,5 +1,5 @@
 // Trunk Mode and Taken Story Branch publishers for Intent Summary CI timing
-// comparison gap journeys (../intent-summary-story-comparison-gaps.spec.ts).
+// comparison gap journeys (../intent/intent-summary-story-comparison-gaps.spec.ts).
 // Shares trunk setup and proof builders with
 // ./intentSummaryStoryComparisonFixture.ts.
 

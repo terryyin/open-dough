@@ -18,7 +18,7 @@ machine sleep on macOS.
 
 A **browser journey** proves one representative, integrated user journey in
 the real page: an observable precondition, the user's trigger, and the state
-change it causes. Journeys live in this directory and run under
+change it causes. Journeys live in the ten [feature folders](feature-groups.md) and run under
 `dashboardTest.ts` or a fixture module built on it, each against its own
 built-preview server, which the `page` fixture opens.
 
@@ -68,9 +68,9 @@ Put a check where it is cheapest to prove, and prove it once:
   both environments, and `frame-board-look`'s frame with no project
   configured, a state only development starts in.
 - **A layout rule is proved once per CSS branch**, in the journey whose
-  state change is observed at that width (`dashboard-header.spec.ts` and
-  `dashboard-header-compact.spec.ts` run one journey per container branch of
-  `banner.css`; `side-panel-width*.spec.ts`
+  state change is observed at that width (`navigation/dashboard-header.spec.ts` and
+  `navigation/dashboard-header-compact.spec.ts` run one journey per container branch of
+  `banner.css`; `navigation/side-panel-width*.spec.ts`
   prove the panel's query from each side once), and a font case only where
   a font reproduces a wrap. A presentation-only check, one with no state
   change of its own, joins the journey whose state change shows it or moves
@@ -85,7 +85,7 @@ Put a check where it is cheapest to prove, and prove it once:
   no test writes once per worker (`launchJourney`'s origin); use one fixture per
   serial file for state tests step through (`production-watcher*.spec.ts`'s watcher).
   [Journey writing](writing-journeys.md) explains both. Assert the common shape
-  once (`agent-launch-story-card.spec.ts`, "every Backlog card offers Start
+  once (`launches/agent-launch-story-card.spec.ts`, "every Backlog card offers Start
   execution ..."); siblings assert differences so a regression fails one named
   test. Servers and fake GitHub stay per test: siblings vary `projectFolders`,
   `launchTimeoutMs`, viewport and usually launch or mark done.
@@ -168,10 +168,10 @@ from `../tests/support/pageTest.ts` and starts `startDashboardServer({ mode:
 file or command. Only `../backend-tests/serving-modes.spec.ts` needs a build.
 A spec starting no server still takes `test` from `pageTest.ts`, as lint requires.
 
-A **browser journey** goes in this directory as `<journey>.spec.ts`. It
-imports `test` from `./dashboardTest.ts` or the fixture module of its
-family (`responsiveStart.ts`, `support/preparationPage.ts`,
-`support/voiceTest.ts`, `support/codexLaunch.ts`), takes `page`, `dashboard`
+A **browser journey** goes in `<feature>/<journey>.spec.ts`, with exactly one
+[feature owner](feature-groups.md). It imports `test` from `../dashboardTest.ts`
+or its family fixture (`../responsiveStart.ts`, `../support/preparationPage.ts`,
+`../support/voiceTest.ts`, `../support/codexLaunch.ts`), takes `page`, `dashboard`
 and `github` (and `launchJourney` for the Taken backlog), opens with
 `openUntilRead(page)`, acts as the user, and asserts the state change; a
 sibling of an existing journey joins that file and asserts its delta. A
@@ -195,7 +195,8 @@ and their assignment to exactly one shard.
 
 ## Running the suite
 
-Run from the repository root; `npm run test:dashboard -- backend-tests/` or
+Run from the repository root; `npm run test:dashboard -- tests/intent/`,
+`npm run test:dashboard -- backend-tests/` or
 `-- --grep 'published Board'` selects files or tests, and `npx playwright
 test` from `tests/` finds no configuration, so it would run without the
 build, the quiet reporter and the run's identity. Local runs default to two

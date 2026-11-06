@@ -1,5 +1,5 @@
 // The published backlog the source-navigation journey opens: one entry for
-// each recorded-link shape (./source-navigation.spec.ts), and how the journey
+// each recorded-link shape (./navigation/source-navigation.spec.ts), and how the journey
 // finds its cards, their link destinations, and what the page and the local
 // `gh` were asked for.
 

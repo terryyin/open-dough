@@ -1,5 +1,5 @@
 // The Recently done journeys' view of the column
-// (./recently-done-stories.spec.ts, ./recently-done-story-sessions.spec.ts):
+// (./stories/recently-done-stories.spec.ts, ./sessions/recently-done-story-sessions.spec.ts):
 // the names of the sessions outside any done story, those sessions as the
 // synthetic `claude` lists them, and the column's own entries in order.
 

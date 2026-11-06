@@ -2,7 +2,7 @@
 // the plugin's own `closeServer` hook ends every open attach process with the
 // SIGHUP a closed terminal sends. End to end, a closing server's PTYs hang up
 // their processes anyway, so the hook is called alone here. How the page shows
-// a lost connection or an ended terminal is ../agent-terminal-lifetime.spec.ts.
+// a lost connection or an ended terminal is ../tests/terminals/agent-terminal-lifetime.spec.ts.
 // The synthetic `claude` (../fixtures/fake-claude) stands in for the attached
 // session; the real one is never reached.
 

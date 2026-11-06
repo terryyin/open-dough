@@ -1,0 +1,250 @@
+import { scrollYOf } from "../boardPage.ts";
+import { expect, test } from "../dashboardTest.ts";
+import {
+  expectFocusedAndIndicated,
+  expectImmediateMotion,
+  expectReadableContrast,
+  zoomedWindow,
+} from "../accessibleReading.ts";
+import { publishCommittedOrigin } from "../committedOrigin.ts";
+import {
+  expectProjectChoice,
+  expectSettledPage,
+  parts,
+  shownProjectControl,
+} from "../dashboardPage.ts";
+import { expectFrameIconControl } from "../frameIconControl.ts";
+import { publishMovingOrigin } from "../publishedOrigin.ts";
+import {
+  box,
+  compactProjectSelectCut,
+  expectNoSidewaysScrollAndWholeText,
+  tapWhereShown,
+} from "../pageLayout.ts";
+import {
+  buildOpenDoughReadinessRepo,
+  plannedReady,
+  plannedBlocked,
+  unrefined,
+} from "../storyReadinessFixture.ts";
+import { openUntilRead } from "../pageRequestNotes.ts";
+
+test.describe("touch preparation help", () => {
+  test.use({ hasTouch: true });
+  test("help and Close stay reachable while the phone rotates, preserving the project and reading position", async ({
+    page,
+    afterGitHubStops,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const repo = buildOpenDoughReadinessRepo(afterGitHubStops);
+    const origin = await publishCommittedOrigin(page, {
+      repoDir: repo.directory,
+      revision: repo.revision,
+      repository: "terryyin/open-dough",
+    });
+    await openUntilRead(page);
+    await expectSettledPage(page);
+    const launcher = parts(page).preparationHelp;
+    const reads = origin.requests.length;
+    const scroll = await scrollYOf(page);
+    await tapWhereShown(launcher);
+    const dialog = page.getByRole("dialog", { name: "Preparation badges" });
+    const close = dialog.getByRole("button", { name: "Close", exact: true });
+    await expect(dialog).toBeVisible();
+    for (const size of [
+      { width: 844, height: 390 },
+      { width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize(size);
+      const explanation = dialog.getByText(
+        "Text carries every color meaning.",
+        { exact: false },
+      );
+      await explanation.scrollIntoViewIfNeeded();
+      await expect(explanation).toBeInViewport({ ratio: 1 });
+      await expect(close).toBeInViewport({ ratio: 1 });
+      await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
+    }
+    await tapWhereShown(close);
+    await expect(dialog).not.toBeVisible();
+    await expect(launcher).toBeFocused();
+    await expect.poll(() => scrollYOf(page)).toBe(scroll);
+    await expectProjectChoice(page, "Open Dough");
+    expect(origin.requests.length).toBe(reads);
+  });
+});
+
+for (const viewport of [
+  { name: "desktop", size: { width: 1280, height: 720 } },
+  { name: "320px / 400% zoom with reduced motion", size: zoomedWindow },
+]) {
+  test(`preparation legend is modal help with preserved reading context at ${viewport.name}`, async ({
+    page,
+    afterGitHubStops,
+  }) => {
+    const repo = buildOpenDoughReadinessRepo(afterGitHubStops);
+    const origin = await publishCommittedOrigin(page, {
+      repoDir: repo.directory,
+      revision: repo.revision,
+      repository: "terryyin/open-dough",
+    });
+    await page.setViewportSize(viewport.size);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openUntilRead(page);
+    const { taken } = parts(page);
+    const ready = taken.getByRole("article", { name: plannedReady.title });
+    await expect(
+      ready.getByText("Ready for execution", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByRole("article", { name: unrefined.title })
+        .getByText("Not refined", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByRole("article", { name: plannedBlocked.title })
+        .getByText("Not ready", { exact: true }),
+    ).toBeVisible();
+    const badges = page.locator(".story-card .badge");
+    const originalBadges = await badges.allTextContents();
+    const reads = origin.requests.length;
+    const launcher = parts(page).preparationHelp;
+    const direction = parts(page).directionToggle;
+    const [directionBox, helpBox] = await Promise.all([
+      box(direction),
+      box(launcher),
+    ]);
+    expect(directionBox.y).toBeLessThan(helpBox.y + helpBox.height);
+    expect(helpBox.y).toBeLessThan(directionBox.y + directionBox.height);
+    expect(directionBox.x + directionBox.width).toBeLessThan(helpBox.x);
+    const dialog = page.getByRole("dialog", { name: "Preparation badges" });
+    await expect(dialog).not.toBeVisible();
+    await expect(
+      page.getByRole("region", { name: "Preparation badges" }),
+    ).not.toBeVisible();
+    await expectFrameIconControl(launcher, "Preparation badge legend");
+
+    await launcher.scrollIntoViewIfNeeded();
+    const scroll = await scrollYOf(page);
+    await launcher.click();
+    await expect(dialog).toBeVisible();
+    await expect(
+      dialog.getByRole("heading", { name: "Preparation badges" }),
+    ).toBeVisible();
+    const close = dialog.getByRole("button", { name: "Close", exact: true });
+    await expect(close).toBeFocused();
+    await expect(close).toBeInViewport({ ratio: 1 });
+    for (const label of [
+      "Not refined",
+      "Refined",
+      "Slice planned",
+      "Ready for execution",
+      "Blocked by dependencies",
+      "Preparing",
+    ]) {
+      const badge = dialog.getByText(label, { exact: true });
+      await badge.scrollIntoViewIfNeeded();
+      await expect(badge).toBeInViewport({ ratio: 1 });
+      await expectReadableContrast(badge);
+    }
+    const explanation = dialog.getByText("Text carries every color meaning.", {
+      exact: false,
+    });
+    await explanation.scrollIntoViewIfNeeded();
+    await expect(explanation).toBeInViewport({ ratio: 1 });
+    await expect(close).toBeInViewport({ ratio: 1 });
+    await expectNoSidewaysScrollAndWholeText(
+      page,
+      viewport.size.width <= 400 ? compactProjectSelectCut : [],
+    );
+    await expectImmediateMotion(dialog);
+
+    await page.keyboard.press("Tab");
+    const content = dialog.getByRole("region", {
+      name: "Badge explanations",
+    });
+    await expectFocusedAndIndicated(page, content);
+    await page.keyboard.press("Home");
+    await expect(
+      dialog.getByRole("heading", { name: "Preparation badges" }),
+    ).toBeInViewport({ ratio: 1 });
+    // Keyboard scrolling is animated. A busy browser drops an End pressed
+    // while Home's scroll is still finishing, so End waits until Home has
+    // reached the top and the frames after it have been drawn.
+    await expect
+      .poll(() => content.evaluate((element) => element.scrollTop))
+      .toBe(0);
+    await page.evaluate(
+      () =>
+        new Promise((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(resolve));
+        }),
+    );
+    await page.keyboard.press("End");
+    await expect(explanation).toBeInViewport({ ratio: 1 });
+    await page.keyboard.press("Tab");
+    await expectFocusedAndIndicated(page, close);
+    await page.keyboard.press("Shift+Tab");
+    await expect(content).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect(close).toBeFocused();
+    // Native modal inertness blocks even an explicit attempt to focus the
+    // background. A pointer at the selector likewise cannot interact with it.
+    const selectedProject = shownProjectControl(page);
+    await selectedProject.evaluate((element) => {
+      (element as HTMLElement).focus();
+    });
+    await expect(close).toBeFocused();
+    const projectBox = await box(selectedProject);
+    await page.mouse.click(
+      projectBox.x + 4,
+      projectBox.y + projectBox.height / 2,
+    );
+    await expect(selectedProject).not.toBeFocused();
+    await expect(dialog).toBeVisible();
+    expect(origin.requests.length).toBe(reads);
+    // Hit-testing inside the dialog reaches its content, even where its
+    // viewport rectangle overlaps the pinned banner in the zoomed window.
+    expect(
+      await close.evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        return element.contains(
+          document.elementFromPoint(
+            rect.x + rect.width / 2,
+            rect.y + rect.height / 2,
+          ),
+        );
+      }),
+    ).toBe(true);
+
+    await close.click();
+    await expect(dialog).not.toBeVisible();
+    await expect(launcher).toBeFocused();
+    await expect.poll(() => scrollYOf(page)).toBe(scroll);
+    await page.keyboard.press("Enter");
+    await expect(dialog).toBeVisible();
+    await expect(close).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(dialog).not.toBeVisible();
+    await expectFocusedAndIndicated(page, launcher);
+    await expect.poll(() => scrollYOf(page)).toBe(scroll);
+    expect(await badges.allTextContents()).toEqual(originalBadges);
+    expect(origin.requests.length).toBe(reads);
+  });
+}
+
+test("preparation help is absent when there are no preparation facts", async ({
+  page,
+}) => {
+  const origin = await publishMovingOrigin(page);
+  origin.push(
+    "e1".repeat(20),
+    "# Product backlog\n\n## Taken\n\n## Backlog list\n",
+  );
+  await openUntilRead(page);
+  await expect(parts(page).backlog).toContainText(
+    "No Backlog entries are recorded.",
+  );
+  await expect(parts(page).preparationHelp).toHaveCount(0);
+});

@@ -1,5 +1,5 @@
 // How the progressive Recently done journeys
-// (./recently-done-progressive-loading.spec.ts) open the page over a
+// (./stories/recently-done-progressive-loading.spec.ts) open the page over a
 // published list (./recentlyDoneProgressive.ts) and observe it: which done
 // records' reads reached the fake GitHub, the reveal action, and where the
 // shown entries stand, and the open terminal. Nothing here decides what the page shows or reads.

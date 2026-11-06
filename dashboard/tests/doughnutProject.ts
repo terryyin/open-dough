@@ -1,6 +1,6 @@
 // Doughnut, the second catalog project, as the project-isolation specs
 // publish it: one backlog entry whose recorded identity Open Dough's
-// backlogs also use, following ./project-selection.spec.ts's
+// backlogs also use, following ./navigation/project-selection.spec.ts's
 // `sharedStoryIdentity` pattern. The identity must not be merged across
 // projects, and Doughnut's telling of it must never appear under Open
 // Dough's label, nor Open Dough's under Doughnut's.

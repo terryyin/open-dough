@@ -1,7 +1,7 @@
 // Open Dough with its Test Optimization Candidates record on a trunk that
 // moves while the page is open, for Intent journeys across a new revision
-// (`./intent-ci-status-kept.spec.ts`,
-// `./intent-test-optimization-candidates-revision.spec.ts`).
+// (`./intent/intent-ci-status-kept.spec.ts`,
+// `./intent/intent-test-optimization-candidates-revision.spec.ts`).
 
 import { filesOf } from "./catalogProjectRecords.ts";
 import {

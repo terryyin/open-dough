@@ -1,6 +1,6 @@
 // Setup and admission for a working Cursor terminal client. The boundary
 // spec drives detach, join, and server shutdown against these helpers.
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect } from "@playwright/test";
@@ -40,6 +40,27 @@ export function keptCursor(home: string): LaunchRecord {
     throw new Error("Missing recorded Cursor session.");
   }
   return record;
+}
+
+// Replaces the one kept Cursor record with `change` applied to it.
+export function rewriteKeptCursor(
+  home: string,
+  change: (record: LaunchRecord) => LaunchRecord,
+): void {
+  const recordsFile = path.join(
+    home,
+    ".open-dough",
+    "dashboard",
+    "agent-launches.json",
+  );
+  const kept = JSON.parse(readFileSync(recordsFile, "utf8")) as Record<
+    string,
+    LaunchRecord[]
+  >;
+  const [record] = kept["open-dough"] ?? [];
+  if (record === undefined) throw new Error("No Cursor session recorded.");
+  kept["open-dough"] = [change(record)];
+  writeFileSync(recordsFile, JSON.stringify(kept));
 }
 
 export function codexResumeLog(server: DashboardServer): string {

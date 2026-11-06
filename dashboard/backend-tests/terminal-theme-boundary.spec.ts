@@ -2,7 +2,7 @@
 // refuses, at the boundary server over raw HTTP: another site or Host, a
 // method it does not take, malformed bodies, themes it does not know and the
 // wrong content type; none changes the saved theme. The page's recovery from
-// a saved theme it cannot use is ../system-settings-terminal-theme-recovery.spec.ts.
+// a saved theme it cannot use is ../tests/configuration/system-settings-terminal-theme-recovery.spec.ts.
 import { readFileSync } from "node:fs";
 import { expect, test } from "../tests/support/pageTest.ts";
 import { systemSettingsMachine } from "../tests/support/systemSettingsMachine.ts";

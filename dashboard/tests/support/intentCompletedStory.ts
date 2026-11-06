@@ -1,5 +1,5 @@
 // A completed story whose published history Intent overlays on its tests
-// (../intent-story-completed.spec.ts): trunk publishes Intent locations
+// (../intent/intent-story-completed.spec.ts): trunk publishes Intent locations
 // (./intentStoryWorktree.ts), Story A is claimed and completed through the
 // real CLI (./completedPublishedStory.ts) with its implementation also
 // modifying one spec, adding another, and deleting a third, and trunk then
