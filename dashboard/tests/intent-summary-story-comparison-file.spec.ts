@@ -4,15 +4,17 @@
 // baseline → branch/landed times, counted-results differences, change kind
 // and the observed-not-attributed statement, while the diff beneath stays
 // unchanged (SEED-245#compare-story-intent-entry-folder-and-file-summaries
-// example 2). Added and unchanged files carry the same compact summary;
-// without a selected story, Purpose alone stays the file reading
-// (./intent-story-*.spec.ts and other file-reading consumers).
+// example 2). Merge-resolution attribution refusals keep the same A/B/C file
+// proof from the Intent location tree without Review's overlay or Purpose
+// diff (SEED-248 examples 1, 2, 5). Added and unchanged files carry the same
+// compact summary; without a selected story, Purpose alone stays the file
+// reading (./intent-story-*.spec.ts and other file-reading consumers).
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "./support/preparationPage.ts";
 import { shortSha } from "../src/baseCiWording.ts";
 import { observedNotAttributed } from "../src/storyCiComparisonWording.ts";
-import { purposeRegion } from "./intentPerspectivePage.ts";
+import { expandIntentGroup, purposeRegion } from "./intentPerspectivePage.ts";
 import {
   comparisonScopeColumns,
   type ComparisonScopeRow,
@@ -21,7 +23,7 @@ import {
   publishSummaryComparisonStory,
   summaryComparisonChanges,
 } from "./support/intentSummaryStoryComparisonFixture.ts";
-import { intentFile } from "./support/intentStoryPage.ts";
+import { folderToggle, intentFile } from "./support/intentStoryPage.ts";
 import { selectDoneStoryForSummaryComparison } from "./support/selectDoneStoryForSummaryComparison.ts";
 
 test.setTimeout(240_000);
@@ -37,8 +39,26 @@ const modifiedFileRow: ComparisonScopeRow = [
   parts,
 ];
 
+const fileRowWithoutOverlay: ComparisonScopeRow = [
+  "dashboard/tests/folder/a.spec.ts",
+  "1 → 1 0 tests",
+  "10.0 s",
+  "14.0 s +4.0 s",
+  "14.0 s +4.0 s",
+  parts,
+];
+
 const addedFileRow: ComparisonScopeRow = [
   "dashboard/tests/added.spec.ts added",
+  "added → 1 tests",
+  "added",
+  "800 ms",
+  "800 ms",
+  parts,
+];
+
+const addedFileRowWithoutOverlay: ComparisonScopeRow = [
+  "dashboard/tests/added.spec.ts",
   "added → 1 tests",
   "added",
   "800 ms",
@@ -142,3 +162,75 @@ test("a selected done story's changed test file shows a compact comparison above
     await expect(purposeOnly.getByRole("table")).toHaveCount(0);
   });
 });
+
+for (const variant of [
+  "own-conflict-extra",
+  "non-owning-story-file",
+] as const) {
+  const label =
+    variant === "own-conflict-extra"
+      ? "owning merge-resolution edits"
+      : "non-owning merge resolution on a story file";
+  test(`a selected done story with ${label}: Intent location file keeps A, B, C compact comparison without Review overlay`, async ({
+    page,
+    origin,
+  }) => {
+    test.slow();
+    const setup = await publishSummaryComparisonStory(page, origin, variant);
+    const { intent } = await selectDoneStoryForSummaryComparison(page);
+
+    await expandIntentGroup(intent, "dashboard/tests");
+    await folderToggle(intent, "folder", false).click();
+    await intentFile(intent, "dashboard/tests/folder/a.spec.ts").click();
+    const summary = fileSummary(intent);
+
+    await expect(summary.locator(".intent-summary-evidence")).toContainText(
+      `CI timing comparison for ${setup.identity}`,
+    );
+    await expect(summary.locator(".intent-summary-evidence")).toContainText(
+      shortSha(setup.baseline),
+    );
+    await expect(summary.locator(".intent-summary-evidence")).toContainText(
+      shortSha(setup.branchSide),
+    );
+    await expect(summary.locator(".intent-summary-evidence")).toContainText(
+      shortSha(setup.completion),
+    );
+    await expect(
+      summary.locator(".intent-ci-comparison-framing"),
+    ).toContainText(observedNotAttributed);
+    await expect(summary).not.toContainText(
+      "merge resolutions whose story changes cannot be attributed safely",
+    );
+    await expect(summary).not.toContainText(
+      "merge resolutions affecting this story's files whose changes cannot be attributed safely",
+    );
+    await expectFileComparisonRow(
+      summary,
+      "dashboard/tests/folder/a.spec.ts",
+      fileRowWithoutOverlay,
+    );
+
+    await test.step("an added trunk file keeps its compact comparison", async () => {
+      await intentFile(intent, "dashboard/tests/added.spec.ts").click();
+      await expectFileComparisonRow(
+        fileSummary(intent),
+        "dashboard/tests/added.spec.ts",
+        addedFileRowWithoutOverlay,
+      );
+    });
+
+    await test.step("an unchanged file shows its source with the same compact summary", async () => {
+      await intentFile(intent, "dashboard/tests/root.spec.ts").click();
+      await expectFileComparisonRow(
+        fileSummary(intent),
+        "dashboard/tests/root.spec.ts",
+        unchangedFileRow,
+      );
+      const purposeOnly = purposeRegion(intent);
+      await expect(purposeOnly).toContainText("root 11");
+      await expect(purposeOnly.locator(".story-review-code")).toHaveCount(0);
+      await expect(purposeOnly.getByRole("table")).toHaveCount(0);
+    });
+  });
+}

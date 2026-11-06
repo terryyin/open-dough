@@ -34,7 +34,8 @@ export async function completedPublishedStory(
     | "completion-conflict"
     | "ambiguous-merge"
     | "inseparable"
-    | "unrelated-merge",
+    | "unrelated-merge"
+    | "non-owning-story-file",
   change?: (workspace: string) => void,
 ) {
   const ownConflict =
@@ -89,6 +90,39 @@ export async function completedPublishedStory(
       "resolve another story's conflict",
     );
     git(origin.project, "branch", "--delete", "--force", "unrelated");
+  }
+  if (variant === "non-owning-story-file") {
+    // Another merge resolves a file this story also changed; the story's
+    // later merge of main stays automatic so attribution names the foreign
+    // resolution rather than an owning one.
+    git(origin.project, "checkout", "--quiet", "-b", "foreign");
+    writeAt(
+      origin.project,
+      "shared.txt",
+      lines("line")
+        .replace("line 5\n", "foreign five\n")
+        .replace("line 11\n", "other last\n"),
+    );
+    commitAll(origin.project, "foreign branch edits a story file");
+    git(origin.project, "checkout", "--quiet", "main");
+    writeAt(
+      origin.project,
+      "shared.txt",
+      lines("line")
+        .replace("line 5\n", "trunk five\n")
+        .replace("line 11\n", "other last\n"),
+    );
+    commitAll(origin.project, "trunk edits the same story file");
+    resolveStoryConflict(
+      origin.project,
+      ["merge", "--quiet", "--no-ff", "--no-edit", "foreign"],
+      "shared.txt",
+      lines("line")
+        .replace("line 5\n", "foreign resolution of shared\n")
+        .replace("line 11\n", "other last\n"),
+      "resolve foreign conflict on a story file",
+    );
+    git(origin.project, "branch", "--delete", "--force", "foreign");
   }
   push(origin.project);
   git(workspace, "fetch", "--quiet", "origin", "main");

@@ -28,93 +28,113 @@ const unrecoverable =
 
 test.setTimeout(240_000);
 
-test("a selected done Story Branch story compares named baseline, branch and landed wall times and entry rows", async ({
-  page,
-  origin,
-}) => {
-  test.slow();
-  const setup = await publishComparedStoryBranch(page, origin);
-  const { panel } = await selectDoneStoryForCiComparison(page);
+const comparisonEntryRows = [
+  [
+    "dashboard/tests",
+    "2,090 → 2,092 +2 tests",
+    "4 min",
+    "4 min 30 s +30 s",
+    "5 min +1 min",
+    "1 of 1 part present",
+  ],
+  [
+    "tests",
+    "5 → 5 0 checks",
+    "2 min",
+    "1 min 30 s -30 s",
+    "1 min -1 min",
+    "1 of 1 part present",
+  ],
+  [
+    "src/skills",
+    "added → 3 checks",
+    "added",
+    "30 s",
+    "30 s",
+    "1 of 1 part present",
+  ],
+] as const;
 
-  await expect(panel.getByRole("heading")).toHaveText(
-    `CI timing changes for ${setup.identity}`,
-  );
-  await expect(panel).toContainText(observedNotAttributed);
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(0),
-  ).toContainText(shortSha(setup.baseline));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(0),
-  ).toContainText(
-    `ancestor: ${String(setup.laterWithoutBuild)} later revision`,
-  );
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1),
-  ).toContainText(shortSha(setup.branchSide));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText(shortSha(setup.completion));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(0).getByRole("link", {
-      name: "run 101 #1",
-      exact: true,
-    }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/101");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1).getByRole("link", {
-      name: "run 102 #1",
-      exact: true,
-    }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/102");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2).getByRole("link", {
-      name: "run 103 #1",
-      exact: true,
-    }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/103");
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
-    "3 min",
-  );
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(1),
-  ).toContainText("3 min 20 s");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(1),
-  ).toContainText("+20 s");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(2),
-  ).toContainText("4 min");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(2),
-  ).toContainText("+1 min");
-  await expect(panel).not.toContainText("Entry comparison is not yet shown.");
-  await expectCiComparisonEntryRows(panel, [
-    [
-      "dashboard/tests",
-      "2,090 → 2,092 +2 tests",
-      "4 min",
-      "4 min 30 s +30 s",
-      "5 min +1 min",
-      "1 of 1 part present",
-    ],
-    [
-      "tests",
-      "5 → 5 0 checks",
-      "2 min",
-      "1 min 30 s -30 s",
-      "1 min -1 min",
-      "1 of 1 part present",
-    ],
-    [
-      "src/skills",
-      "added → 3 checks",
-      "added",
-      "30 s",
-      "30 s",
-      "1 of 1 part present",
-    ],
-  ]);
-});
+for (const variant of [
+  undefined,
+  "own-conflict-extra",
+  "non-owning-story-file",
+] as const) {
+  const label =
+    variant === undefined
+      ? "clean landing"
+      : variant === "own-conflict-extra"
+        ? "owning merge-resolution edits"
+        : "non-owning merge resolution on a story file";
+  test(`a selected done Story Branch story with ${label} compares named baseline, branch and landed wall times and entry rows`, async ({
+    page,
+    origin,
+  }) => {
+    test.slow();
+    const setup = await publishComparedStoryBranch(page, origin, variant);
+    const { panel } = await selectDoneStoryForCiComparison(page);
+
+    await expect(panel.getByRole("heading")).toHaveText(
+      `CI timing changes for ${setup.identity}`,
+    );
+    await expect(panel).toContainText(observedNotAttributed);
+    await expect(
+      panel.locator(".intent-ci-comparison-identity").nth(0),
+    ).toContainText(shortSha(setup.baseline));
+    await expect(
+      panel.locator(".intent-ci-comparison-identity").nth(0),
+    ).toContainText(
+      `ancestor: ${String(setup.laterWithoutBuild)} later revision`,
+    );
+    await expect(
+      panel.locator(".intent-ci-comparison-identity").nth(1),
+    ).toContainText(shortSha(setup.branchSide));
+    await expect(
+      panel.locator(".intent-ci-comparison-identity").nth(2),
+    ).toContainText(shortSha(setup.completion));
+    await expect(
+      panel.locator(".intent-ci-comparison-identity").nth(0).getByRole("link", {
+        name: "run 101 #1",
+        exact: true,
+      }),
+    ).toHaveAttribute("href", "https://ci.invalid/runs/101");
+    await expect(
+      panel.locator(".intent-ci-comparison-identity").nth(1).getByRole("link", {
+        name: "run 102 #1",
+        exact: true,
+      }),
+    ).toHaveAttribute("href", "https://ci.invalid/runs/102");
+    await expect(
+      panel.locator(".intent-ci-comparison-identity").nth(2).getByRole("link", {
+        name: "run 103 #1",
+        exact: true,
+      }),
+    ).toHaveAttribute("href", "https://ci.invalid/runs/103");
+    await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
+      "3 min",
+    );
+    await expect(
+      panel.locator(".intent-ci-comparison-wall").nth(1),
+    ).toContainText("3 min 20 s");
+    await expect(
+      panel.locator(".intent-ci-comparison-wall").nth(1),
+    ).toContainText("+20 s");
+    await expect(
+      panel.locator(".intent-ci-comparison-wall").nth(2),
+    ).toContainText("4 min");
+    await expect(
+      panel.locator(".intent-ci-comparison-wall").nth(2),
+    ).toContainText("+1 min");
+    await expect(panel).not.toContainText("Entry comparison is not yet shown.");
+    await expect(panel).not.toContainText(
+      "merge resolutions whose story changes cannot be attributed safely",
+    );
+    await expect(panel).not.toContainText(
+      "merge resolutions affecting this story's files whose changes cannot be attributed safely",
+    );
+    await expectCiComparisonEntryRows(panel, comparisonEntryRows);
+  });
+}
 
 test("code landed before completion uses the merge branch-side ancestor and the completion build (SEED-236)", async ({
   page,

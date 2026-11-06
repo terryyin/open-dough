@@ -2,6 +2,7 @@
 
 **Identity:** SEED-248#compare-story-proof-through-merge-resolutions
 **Source:** [selected story](../../seeds/SEED-248-story-proof-through-merge-resolutions.md#compare-story-proof-through-merge-resolutions)
+**Source review:** [source-review.md](./source-review.md)
 **Prepared:** 2026-11-06; preparation only. Execution is not authorized by this plan.
 
 ## Goal and boundaries
@@ -100,7 +101,7 @@ log afterwards.
 
 ### 1. Proof comparison survives merge-resolution attribution refusals
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice-1 rows above; existing comparison, summary and completed Review specs green.
 
 Behavior: a done Story Branch story whose integration has merge-resolution
@@ -142,6 +143,17 @@ while A stays readable.
   fallback; Trunk Mode landed keeps its completion walk (seed required
   behavior).
 - Review changes keeps all current attribution refusals.
+- File compact CI comparison follows selected-story comparison evidence, not
+  Review's `ComparedStory` success; otherwise example 5 at file scope stays
+  gated on attribution.
+- `publishedStoryEndpoints` success keeps the claim walk beside `facts` so
+  Review attributes without a second claim recovery; comparison reads `facts`
+  only.
+
+## Accepted proof (slice 1)
+
+- Focused: `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/playwright.config.ts dashboard/tests/intent-ci-comparison.spec.ts dashboard/tests/intent-summary-story-comparison.spec.ts dashboard/tests/intent-summary-story-comparison-file.spec.ts dashboard/tests/boundary/story-review-completed-conflicts.spec.ts dashboard/tests/boundary/story-review-completed-driver.spec.ts --reporter=list` → pass (20/20); after refactor, Review boundary consumers re-run 9+16 pass.
+- Preserved: `intent-ci-comparison-gaps.spec.ts` + `intent-ci-comparison-entries.spec.ts` → pass (6/6), including Trunk Mode.
 
 ## Plan review
 

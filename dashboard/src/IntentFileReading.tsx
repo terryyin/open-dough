@@ -5,9 +5,11 @@
 // own diff of it as its Purpose (`storyDiffOf`), and the browser reads no
 // published text for it; a file the published revision does not list is never
 // read there. Text of an earlier revision whose update failed stays readable
-// under that failure and its Retry. When a story is selected, a compact CI
-// timing comparison for the file (`./IntentFileComparison.tsx`) sits above
-// Purpose; without a story, Purpose alone is unchanged.
+// under that failure and its Retry. When a story is selected for CI
+// comparison, a compact timing comparison for the file
+// (`./IntentFileComparison.tsx`) sits above Purpose even if Review
+// attribution is unavailable; without a story comparison target, Purpose
+// alone is unchanged.
 
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import { resolveCaseTargetLine } from "./intentCaseTargetLine.ts";
@@ -71,9 +73,9 @@ export function IntentFileReading({
 
   return (
     <>
-      {story !== undefined && (
-        <IntentFileComparison path={path} treeFile={treeFile} />
-      )}
+      {/* CI file comparison follows the selected story's comparison evidence
+          (`./IntentFileComparison.tsx`), not Review attribution success. */}
+      <IntentFileComparison path={path} treeFile={treeFile} />
       <section className="intent-purpose" aria-label="Purpose">
         <h3 className="visually-hidden">Purpose</h3>
         {story !== undefined && change !== undefined ? (
