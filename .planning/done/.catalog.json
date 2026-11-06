@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-248_compare-story-proof-through-merge-resolutions.json",
+      "identity": "SEED-248#compare-story-proof-through-merge-resolutions",
+      "completedAt": "2026-11-06T16:47:04.264Z",
+      "blob": "847c4bc61aa13058c5d6877e956f8bfa93d72ea7"
+    },
+    {
       "fileName": "SEED-245_compare-story-intent-entry-folder-and-file-summaries.json",
       "identity": "SEED-245#compare-story-intent-entry-folder-and-file-summaries",
       "completedAt": "2026-11-06T13:03:27.880Z",
