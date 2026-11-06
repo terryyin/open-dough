@@ -39,7 +39,7 @@ recorded, make the overall change understandable at the scope being read.
   available proof figures, alongside the existing source/diff reading.
 - **Same comparison throughout.** Use the selected story's start baseline
   and result endpoints established by
-  [the preceding timing-comparison story](SEED-244-story-ci-timing-changes.md#compare-story-ci-timing-changes).
+  [the preceding timing-comparison story](../done/SEED-244_compare-story-ci-timing-changes.json).
   Preserve its distinction between final story-branch and landed results
   where both apply, and identify which comparison each summary describes.
   Entry, folder, and file figures refer to the same builds and revisions
