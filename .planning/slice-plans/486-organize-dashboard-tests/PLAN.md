@@ -85,7 +85,7 @@ job matrix, retry or deadline.
 
 ### 2. Browse dashboard tests through the ten feature groups
 Type: Behavior
-Status: planned
+Status: done
 Proof: Every browser spec lives in exactly one agreed feature folder; full
 discovery retains every original case, all twelve shards partition the result,
 production watcher scheduling remains prioritized, focused path-sensitive
@@ -152,18 +152,6 @@ definitions with their feature owners (including `storyCardTouchStartCases.ts`
 under Launches), so their proof remains inside those feature folders. Truly
 shared fixtures stay in support. The backend case module moved with Slice 1.
 
-Slice 1 implementation proof retained: full discovery preserves 2075 cases and
-741 specs, with zero missing or added identities. The twelve-shard preview
-remains 818.1–828.0 predicted job-seconds with all 688 recorded duration labels
-preserved and the same 53 unrecorded files. Proper Bash runner checks passed
-15 discovery/preview cases and 37 proof-collector/declaration cases. Focused
-backend/harness checks and the browser label/source-path journey passed. A new
-browser assertion initially included line-number DOM in a multiline comparison;
-comparing the exact source-line text repaired that assertion without weakening
-source fidelity. Independent refactoring will retain or renew affected proof
-before delivery.
-
-
 ### Slice 1 retained commands
 
 - `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/support/dashboard-test-files.test.mjs tests/support/test-shares.test.mjs`: 15 cases passed.
@@ -204,13 +192,6 @@ remaining grouping is unchanged. The mechanical move map and eleven browser
 case-module owners are retained outside Git in
 `/tmp/open-dough-test-organization-proof/feature-map.json`.
 
-
-Slice 2 implementation acceptance: 473 specs and eleven case-definition modules
-are grouped once; all 2075 cases and original assertions survive. The existing
-Intent journey now renders all ten folders. The guarded seven-file batch passed
-41 cases, and proper discovery/share/declaration checks passed. Evidence is
-`/tmp/open-dough-test-organization-proof/after-groups.json`,
-`groups-ast-equivalence.json`, and `groups-path-consumers.md`.
 
 Measured allocation correction: first split CI run 42253102353 took 302 s versus
 296 s baseline, with slowest dashboard job 281 s versus 269 s. Median per-file
@@ -256,3 +237,12 @@ The incoming main had moved this story's unchanged joey-chan assignment JSON
 from agents/ to done/. Root restored its exact payload to the canonical agents
 path and rebuilt the catalog; no other work's profile was changed. This data
 repair preserves the owned execution identity through final closure.
+
+
+Final local integration review `/root/integration_refactor` returned
+`## REFACTOR COMPLETE`; only redundant comments/spacing in the conflict-resolved
+summary spec changed, with byte-identical comment-free AST and Prettier output.
+All accepted 28-case, typecheck, timing and discovery observations remain valid.
+Merge `199a61b8dd92edb97a79b1b57cfd6818e5743a3e` preserves both published
+histories and the corrected owned assignment. No merge or local work remains
+unresolved. Final branch CI and the actual wall-time comparison remain pending.
