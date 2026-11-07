@@ -1,0 +1,126 @@
+// Revision build slot for a story CI comparison endpoint: the selected
+// timed build (or gap) plus the requested revision's own status when that
+// revision is not the timed build shown. Proof selection stays in
+// `./baseCiRevisionLookup.ts`; status classification stays in
+// `./requestedRevisionCiStatus.ts`.
+import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
+import { firstParentChain } from "./baseCiGithubRevisionLookup.ts";
+import {
+  nearestRevisionBuild,
+  type RevisionCiBuild,
+  type RevisionCiLookup,
+} from "./baseCiRevisionNearest.ts";
+import type { GitCall } from "./gitRunner.ts";
+import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
+
+export type RevisionBuildSlot =
+  | ({
+      readonly kind: "build";
+      readonly state: "pass" | "failed";
+      readonly requestedStatus?: RequestedRevisionCiStatus;
+    } & Omit<RevisionCiBuild, "state">)
+  | ({
+      readonly kind: "running";
+      readonly state: "running";
+      readonly requestedStatus?: RequestedRevisionCiStatus;
+    } & Omit<RevisionCiBuild, "state">)
+  | {
+      readonly kind: "none";
+      readonly explanation: string;
+      readonly requestedStatus?: RequestedRevisionCiStatus;
+    }
+  | {
+      readonly kind: "unavailable";
+      readonly explanation: string;
+      readonly requestedStatus?: RequestedRevisionCiStatus;
+    };
+
+function withStatus(
+  slot: RevisionBuildSlot,
+  status: RequestedRevisionCiStatus | undefined,
+): RevisionBuildSlot {
+  if (status === undefined) return slot;
+  return { ...slot, requestedStatus: status };
+}
+
+export function asSlot(
+  build: RevisionCiBuild | undefined,
+  noneExplanation: string,
+  status?: RequestedRevisionCiStatus,
+): RevisionBuildSlot {
+  if (build === undefined)
+    return withStatus({ kind: "none", explanation: noneExplanation }, status);
+  const {
+    revision,
+    subject,
+    selection,
+    laterWithoutResult,
+    runUrl,
+    runBranch,
+    runId,
+    runAttempt,
+    startedAt,
+    completedAt,
+  } = build;
+  const identity = {
+    revision,
+    subject,
+    selection,
+    laterWithoutResult,
+    ...(runUrl === undefined ? {} : { runUrl }),
+    ...(runBranch === undefined ? {} : { runBranch }),
+    ...(runId === undefined ? {} : { runId }),
+    ...(runAttempt === undefined ? {} : { runAttempt }),
+    ...(startedAt === undefined ? {} : { startedAt }),
+    ...(completedAt === undefined ? {} : { completedAt }),
+  };
+  if (build.state === "running")
+    return withStatus(
+      { kind: "running", state: "running", ...identity },
+      status,
+    );
+  return withStatus({ kind: "build", state: build.state, ...identity }, status);
+}
+
+// Nearest timed first-parent ancestor build used only to confirm a skip or
+// name a No-build reason — never as the endpoint's proof source.
+export async function nearestAncestorBasisSha(
+  target: string,
+  lookup: RevisionCiLookup,
+  call: GitCall,
+  ancestorLimit: number,
+): Promise<string | undefined> {
+  const revisions = await firstParentChain(target, call, ancestorLimit + 1);
+  const ancestors = revisions.filter((sha) => sha !== target);
+  const build = await nearestRevisionBuild(ancestors, lookup);
+  return build?.state === "pass" || build?.state === "failed"
+    ? build.revision
+    : undefined;
+}
+
+export async function statusWhenNotExact(
+  requestedSha: string,
+  build: RevisionCiBuild | undefined,
+  lookup: RevisionCiLookup,
+  call: GitCall,
+  workflow: string,
+  ancestorLimit: number,
+): Promise<RequestedRevisionCiStatus | undefined> {
+  if (build !== undefined && build.revision === requestedSha) return undefined;
+  const basisSha =
+    build !== undefined && build.revision !== requestedSha
+      ? build.revision
+      : await nearestAncestorBasisSha(
+          requestedSha,
+          lookup,
+          call,
+          ancestorLimit,
+        );
+  return requestedRevisionCiStatus(
+    requestedSha,
+    await lookup.listRunsAt(requestedSha),
+    basisSha,
+    call,
+    workflow,
+  );
+}

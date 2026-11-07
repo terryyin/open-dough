@@ -2,6 +2,7 @@
 
 **Identity:** SEED-254#use-ancestor-ci-proof-for-skipped-builds
 **Source:** [Use the nearest ancestor's CI proof for skipped builds](../../seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-ancestor-ci-proof-for-skipped-builds)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -113,12 +114,16 @@ applies as written.
 
 ### 1. Name each endpoint's requested-revision status
 Type: Behavior
-Status: planned
-Proof: Module tests of the exported classification (unchanged execution
-classifier tests stay green). Module tests of the dashboard status for each
-reason. New `intent-ci-comparison-skipped.spec.ts` covers the status cases.
-Existing comparison specs are updated where an unbuilt revision's wording
-now names its status. Typecheck and lint.
+Status: done
+Proof: Accepted. `classifyPathChanges` exported; dashboard
+`requestedRevisionCiStatus` feeds it via async `runGit`. Homepage
+`EndpointIdentity` and Summary `SlotSha` both show status beside the build.
+Module: `ci-path-applicability*.test.mjs`,
+`requested-revision-ci-status.test.mjs`. Playwright:
+`intent-ci-comparison-skipped.spec.ts` (Skipped / Cancelled / No build +
+Summary evidence) and wording updates in sibling comparison specs.
+Lint + `typecheck:dashboard`. Refactor: split `revisionBuildSlot.ts` and
+`IntentCiComparisonEndpoint.tsx`; shared `requestedStatusPrefix`.
 
 Behavior: The fixture commits `ci.yml` with `paths-ignore`.
 
@@ -218,3 +223,31 @@ No remaining slice-specific concern was identified in this review.
   onto whichever has landed and keep their wording.
 - Execute in Story Branch Mode or Trunk Mode as started. There is no
   trunk-only step.
+
+## Story obligations
+
+### G1. Adapter comparison deferred to SEED-257
+Reported: slice 1 — "Adapter projects get story comparison in SEED-257."
+Story clause: "Adapter projects get story comparison in
+[SEED-257](SEED-257-compare-story-ci-through-adapters.md#compare-story-ci-through-adapters),
+which applies these endpoint rules there."
+Disposition: excluded "Adapter projects get story comparison in
+[SEED-257](SEED-257-compare-story-ci-through-adapters.md#compare-story-ci-through-adapters),
+which applies these endpoint rules there."
+Commitment: 19
+
+### G2. Cancelled-landing later proof deferred
+Reported: slice 1 — "Proof for a cancelled landing from a later trunk build."
+Story clause: "Proof for a cancelled landing from a later trunk build:
+[its own story](#use-later-ci-proof-for-cancelled-landings)."
+Disposition: excluded "Proof for a cancelled landing from a later trunk build:
+[its own story](#use-later-ci-proof-for-cancelled-landings)."
+Commitment: 22
+
+### G3. Passed-over count breakdown deferred
+Reported: slice 1 — "Telling skipped intermediate revisions apart from unexplained ones inside the revisions passed over count."
+Story clause: "Telling skipped intermediate revisions apart from unexplained ones inside
+the "revisions passed over" count."
+Disposition: excluded "Telling skipped intermediate revisions apart from unexplained ones inside
+the "revisions passed over" count."
+Commitment: 23

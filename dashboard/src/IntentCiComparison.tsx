@@ -7,107 +7,13 @@
 // provisional and say Landed has not landed yet; Taken Trunk Mode also names
 // the provisional trunk tip beside Branch N/A.
 
-import type { ReactNode } from "react";
-import { shortSha } from "./baseCiWording.ts";
 import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
+import { EndpointRow } from "./IntentCiComparisonEndpoint.tsx";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
 import { comparisonEntriesFromProofs } from "./useIntentCiComparisonEntries.ts";
-import {
-  observedNotAttributed,
-  selectionWords,
-  wallTimeDifferenceWords,
-  wallTimeWords,
-} from "./storyCiComparisonWording.ts";
-import type {
-  StoryCiComparisonAnswer,
-  StoryCiComparisonSlot,
-} from "./storyCiComparison.ts";
-
-function LinkedRun({
-  name,
-  url,
-}: {
-  readonly name: string;
-  readonly url: string | undefined;
-}) {
-  return url === undefined ? (
-    <>{name}</>
-  ) : (
-    <a href={url} target="_blank" rel="noreferrer">
-      {name}
-    </a>
-  );
-}
-
-function BuildIdentity({
-  slot,
-  provisional,
-}: {
-  readonly slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>;
-  readonly provisional: boolean;
-}): ReactNode {
-  const runName =
-    slot.runId !== undefined && slot.runAttempt !== undefined
-      ? `run ${String(slot.runId)} #${String(slot.runAttempt)}`
-      : "run unknown";
-  const state =
-    slot.kind === "running"
-      ? "running"
-      : slot.state === "pass"
-        ? "passed"
-        : "failed";
-  const failed =
-    slot.kind === "build" && slot.state === "failed" ? " (failed build)" : "";
-  return (
-    <>
-      <code>{shortSha(slot.revision)}</code>
-      {" · "}
-      <LinkedRun name={runName} url={slot.runUrl} />
-      {` · ${state} · ${selectionWords(slot, provisional)}${failed}`}
-    </>
-  );
-}
-
-function EndpointIdentity({
-  slot,
-  provisional,
-}: {
-  readonly slot: StoryCiComparisonSlot;
-  readonly provisional: boolean;
-}) {
-  if (slot.kind === "build" || slot.kind === "running")
-    return <BuildIdentity slot={slot} provisional={provisional} />;
-  return slot.explanation;
-}
-
-function EndpointRow({
-  label,
-  slot,
-  baseline,
-  provisional,
-}: {
-  readonly label: string;
-  readonly slot: StoryCiComparisonSlot;
-  readonly baseline: StoryCiComparisonSlot;
-  readonly provisional: boolean;
-}) {
-  const wall = wallTimeWords(slot);
-  const diff =
-    label === "Baseline" ? undefined : wallTimeDifferenceWords(baseline, slot);
-  return (
-    <tr>
-      <th scope="row">{label}</th>
-      <td className="intent-ci-comparison-identity">
-        <EndpointIdentity slot={slot} provisional={provisional} />
-      </td>
-      <td className="intent-ci-comparison-wall">
-        {wall ?? "—"}
-        {diff !== undefined ? ` ${diff}` : ""}
-      </td>
-    </tr>
-  );
-}
+import { observedNotAttributed } from "./storyCiComparisonWording.ts";
+import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
 
 function EntryComparison() {
   const evidence = useIntentCiEvidence();

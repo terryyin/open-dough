@@ -14,7 +14,8 @@ export const defaultBaseCiRevision = "ab".repeat(20);
 
 export type CiRunAnswer = {
   readonly headSha: string;
-  readonly conclusion?: "success" | "failure" | "cancelled" | "timed_out";
+  readonly conclusion?:
+    "success" | "failure" | "cancelled" | "timed_out" | "skipped";
   readonly status?: "completed" | "in_progress" | "queued";
   readonly id?: number;
   readonly attempt?: number;

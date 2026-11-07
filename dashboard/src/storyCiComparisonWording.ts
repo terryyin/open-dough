@@ -10,8 +10,38 @@ import {
 } from "./ciProofTimeWords.ts";
 import {
   notLandedYetExplanation,
+  type RequestedRevisionCiStatus,
   type StoryCiComparisonSlot,
 } from "./storyCiComparison.ts";
+
+export function requestedStatusWords(
+  status: RequestedRevisionCiStatus,
+): string {
+  return status.explanation;
+}
+
+// Prefix before the selected build's identity or short SHA when the requested
+// revision is not that build (trailing space when present).
+export function requestedStatusPrefix(
+  slot: Pick<StoryCiComparisonSlot, "requestedStatus">,
+): string {
+  return slot.requestedStatus === undefined
+    ? ""
+    : `${requestedStatusWords(slot.requestedStatus)} `;
+}
+
+// Gap slots prefer the requested revision's status wording when present;
+// otherwise the slot's own explanation (N/A, unread, or missing build).
+export function requestedStatusOrExplanation(
+  slot: Extract<
+    StoryCiComparisonSlot,
+    { kind: "none" | "unavailable" | "not-applicable" | "not-landed" }
+  >,
+): string {
+  return slot.requestedStatus === undefined
+    ? slot.explanation
+    : requestedStatusWords(slot.requestedStatus);
+}
 
 export function selectionWords(
   slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>,

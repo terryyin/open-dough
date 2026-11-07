@@ -81,6 +81,12 @@ for (const variant of [
     await expect(panel).toContainText(observedNotAttributed);
     await expect(
       panel.locator(".intent-ci-comparison-identity").nth(0),
+    ).toContainText("No build at");
+    await expect(
+      panel.locator(".intent-ci-comparison-identity").nth(0),
+    ).toContainText("the workflow at that revision could not be read");
+    await expect(
+      panel.locator(".intent-ci-comparison-identity").nth(0),
     ).toContainText(shortSha(setup.baseline));
     await expect(
       panel.locator(".intent-ci-comparison-identity").nth(0),

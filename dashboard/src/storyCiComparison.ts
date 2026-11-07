@@ -15,6 +15,22 @@ const attemptTimes = {
   completedAt: z.iso.datetime().optional(),
 };
 
+// Requested revision's own status when it is not the timed build shown
+// (Skipped, Cancelled, or No build with why). Absent when the endpoint's
+// build is that revision's own.
+export const requestedRevisionCiStatusSchema = z.object({
+  kind: z.enum(["skipped", "cancelled", "no-build"]),
+  explanation: z.string().min(1),
+});
+
+export type RequestedRevisionCiStatus = z.infer<
+  typeof requestedRevisionCiStatusSchema
+>;
+
+const requestedStatusField = {
+  requestedStatus: requestedRevisionCiStatusSchema.optional(),
+};
+
 const buildSlot = z.object({
   kind: z.literal("build"),
   revision: z.string().min(1),
@@ -26,6 +42,7 @@ const buildSlot = z.object({
   runBranch: z.string().min(1).optional(),
   ...runIdentity,
   ...attemptTimes,
+  ...requestedStatusField,
 });
 
 const runningSlot = z.object({
@@ -36,11 +53,13 @@ const runningSlot = z.object({
   laterWithoutResult: z.number().int().nonnegative(),
   runUrl: z.string().min(1).optional(),
   ...runIdentity,
+  ...requestedStatusField,
 });
 
 const gapSlot = z.object({
   kind: z.enum(["none", "unavailable", "not-applicable", "not-landed"]),
   explanation: z.string().min(1),
+  ...requestedStatusField,
 });
 
 export const storyCiComparisonSlotSchema = z.discriminatedUnion("kind", [

@@ -11,7 +11,8 @@ import {
   lookupBaselineBuild,
   lookupResultBuild,
 } from "./baseCiRevisionLookup.ts";
-import { runGit } from "./gitRunner.ts";
+import { ciConfiguration } from "./baseCiJudgment.ts";
+import { runGit, type GitCall } from "./gitRunner.ts";
 import {
   asComparisonSlot,
   gapFromUnread,
@@ -21,6 +22,10 @@ import {
 } from "./intentCiComparisonSlots.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 import { notLandedYet, takenStoryEndpoints } from "./takenStoryEndpoints.ts";
+
+function workflowOf(call: GitCall): string {
+  return ciConfiguration(call.cwd ?? "").workflow;
+}
 
 const [noPublishedCompletionRecord] = suppressedBesideJudgmentFragments;
 
@@ -68,8 +73,9 @@ export async function performDoneComparison(
     };
   }
   const lookup = lookupOrGap;
+  const workflow = workflowOf(call);
   const baseline = asComparisonSlot(
-    await lookupBaselineBuild(facts.storyStart, lookup, call),
+    await lookupBaselineBuild(facts.storyStart, lookup, call, workflow),
   );
   const branch: StoryCiComparisonSlot =
     facts.mode === "trunk"
@@ -86,6 +92,7 @@ export async function performDoneComparison(
               facts.storyStart,
               lookup,
               call,
+              workflow,
               "No completed CI build was found at the final branch revision or a later story-side ancestor within the story's start bound.",
             ),
           );
@@ -104,6 +111,7 @@ export async function performDoneComparison(
             facts.storyStart,
             lookup,
             call,
+            workflow,
             "No completed CI build was found at the completion revision or a later trunk ancestor within the story's start bound.",
           ),
         )
@@ -119,6 +127,7 @@ export async function performDoneComparison(
               facts.storyStart,
               lookup,
               call,
+              workflow,
               fastForward
                 ? "No completed CI build was found at the landed story revision."
                 : "No completed CI build was found at the landing merge.",
@@ -197,8 +206,9 @@ export async function performTakenComparison(
     };
   }
   const lookup = lookupOrGap;
+  const workflow = workflowOf(call);
   const baseline = asComparisonSlot(
-    await lookupBaselineBuild(facts.storyStart, lookup, call),
+    await lookupBaselineBuild(facts.storyStart, lookup, call, workflow),
   );
   const live = asComparisonSlot(
     await lookupResultBuild(
@@ -206,6 +216,7 @@ export async function performTakenComparison(
       facts.storyStart,
       lookup,
       call,
+      workflow,
       facts.mode === "trunk"
         ? "No completed CI build was found at the current trunk tip or a later trunk ancestor within the story's start bound."
         : "No completed CI build was found at the current branch tip or a later story-side ancestor within the story's start bound.",

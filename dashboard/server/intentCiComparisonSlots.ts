@@ -16,6 +16,18 @@ export const trunkBranchNotApplicable: StoryCiComparisonSlot = {
   explanation: "Branch comparison is not applicable for a Trunk Mode story.",
 };
 
+function requestedStatusOf(slot: RevisionBuildSlot):
+  | {
+      readonly requestedStatus: NonNullable<
+        RevisionBuildSlot["requestedStatus"]
+      >;
+    }
+  | Record<string, never> {
+  return slot.requestedStatus === undefined
+    ? {}
+    : { requestedStatus: slot.requestedStatus };
+}
+
 export function asComparisonSlot(
   slot: RevisionBuildSlot,
 ): StoryCiComparisonSlot {
@@ -35,6 +47,7 @@ export function asComparisonSlot(
       ...(slot.completedAt === undefined
         ? {}
         : { completedAt: slot.completedAt }),
+      ...requestedStatusOf(slot),
     };
   }
   if (slot.kind === "running") {
@@ -47,9 +60,14 @@ export function asComparisonSlot(
       ...(slot.runUrl === undefined ? {} : { runUrl: slot.runUrl }),
       ...(slot.runId === undefined ? {} : { runId: slot.runId }),
       ...(slot.runAttempt === undefined ? {} : { runAttempt: slot.runAttempt }),
+      ...requestedStatusOf(slot),
     };
   }
-  return { kind: slot.kind, explanation: slot.explanation };
+  return {
+    kind: slot.kind,
+    explanation: slot.explanation,
+    ...requestedStatusOf(slot),
+  };
 }
 
 export function gapFromUnread(judgment: BaseCiJudgment): StoryCiComparisonSlot {

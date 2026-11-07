@@ -2,9 +2,11 @@
 // first-parent ancestors through local Git and answers baseline / branch /
 // landed slots. GitHub Actions listing lives in
 // `./baseCiGithubRevisionLookup.ts`. The live branch judgment
-// (`./baseCiJudgment.ts`) keeps its branch listing rule unchanged.
-import { ciConfiguration } from "./baseCiJudgment.ts";
+// (`./baseCiJudgment.ts`) keeps its branch listing rule unchanged. Each
+// endpoint names the requested revision's own status beside the selected
+// build without changing proof selection (`./revisionBuildSlot.ts`).
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { ciConfiguration } from "./baseCiJudgment.ts";
 import { githubAcquisitionUnread } from "./baseCiGitHubReads.ts";
 import {
   firstParentChain,
@@ -13,61 +15,22 @@ import {
 import { newestRunFor, unread, type BaseCiJudgment } from "./baseCiNearest.ts";
 import {
   nearestRevisionBuild,
-  type RevisionCiBuild,
   type RevisionCiLookup,
 } from "./baseCiRevisionNearest.ts";
 import type { GitCall } from "./gitRunner.ts";
+import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
+import {
+  asSlot,
+  nearestAncestorBasisSha,
+  statusWhenNotExact,
+  type RevisionBuildSlot,
+} from "./revisionBuildSlot.ts";
+
+export type { RevisionBuildSlot } from "./revisionBuildSlot.ts";
 
 // How far a baseline walk may go beyond the story start when looking for a
 // completed trunk build (claim commits are almost never built).
 const baselineAncestorLimit = 30;
-
-export type RevisionBuildSlot =
-  | ({
-      readonly kind: "build";
-      readonly state: "pass" | "failed";
-    } & Omit<RevisionCiBuild, "state">)
-  | ({
-      readonly kind: "running";
-      readonly state: "running";
-    } & Omit<RevisionCiBuild, "state">)
-  | { readonly kind: "none"; readonly explanation: string }
-  | { readonly kind: "unavailable"; readonly explanation: string };
-
-function asSlot(
-  build: RevisionCiBuild | undefined,
-  noneExplanation: string,
-): RevisionBuildSlot {
-  if (build === undefined)
-    return { kind: "none", explanation: noneExplanation };
-  const {
-    revision,
-    subject,
-    selection,
-    laterWithoutResult,
-    runUrl,
-    runBranch,
-    runId,
-    runAttempt,
-    startedAt,
-    completedAt,
-  } = build;
-  const identity = {
-    revision,
-    subject,
-    selection,
-    laterWithoutResult,
-    ...(runUrl === undefined ? {} : { runUrl }),
-    ...(runBranch === undefined ? {} : { runBranch }),
-    ...(runId === undefined ? {} : { runId }),
-    ...(runAttempt === undefined ? {} : { runAttempt }),
-    ...(startedAt === undefined ? {} : { startedAt }),
-    ...(completedAt === undefined ? {} : { completedAt }),
-  };
-  if (build.state === "running")
-    return { kind: "running", state: "running", ...identity };
-  return { kind: "build", state: build.state, ...identity };
-}
 
 // Baseline: newest completed attempt at or before `storyStart`, walking
 // first-parent ancestors up to the baseline limit.
@@ -75,6 +38,7 @@ export async function lookupBaselineBuild(
   storyStart: string,
   lookup: RevisionCiLookup,
   call: GitCall,
+  workflow: string,
 ): Promise<RevisionBuildSlot> {
   try {
     const revisions = await firstParentChain(
@@ -89,9 +53,21 @@ export async function lookupBaselineBuild(
         explanation:
           "No completed CI build was found at or before the story's start; the nearest attempt is still running.",
       };
+    const timed =
+      build?.state === "pass" || build?.state === "failed" ? build : undefined;
+    const status = await statusWhenNotExact(
+      storyStart,
+      timed,
+      lookup,
+      call,
+      workflow,
+      baselineAncestorLimit,
+    );
     return asSlot(
-      build?.state === "pass" || build?.state === "failed" ? build : undefined,
-      "No completed CI build was found at or before the story's start within the readable history.",
+      timed,
+      status?.explanation ??
+        "No completed CI build was found at or before the story's start within the readable history.",
+      status,
     );
   } catch (error) {
     return {
@@ -116,12 +92,13 @@ export type ExactResultLookup = {
 // `target`, else a measured ancestor not older than `storyStart`. With
 // `exactOnly`, the walk is limited to `target` itself (no measured-ancestor
 // fallback); a cancelled or timed-out attempt at that revision uses the
-// caller-supplied explanations.
+// caller-supplied explanations (Landed keeps those exact-only wordings).
 export async function lookupResultBuild(
   target: string,
   storyStart: string,
   lookup: RevisionCiLookup,
   call: GitCall,
+  workflow: string,
   missingExplanation: string,
   exact?: ExactResultLookup,
 ): Promise<RevisionBuildSlot> {
@@ -135,9 +112,20 @@ export async function lookupResultBuild(
       lookup,
       exact?.exactOnly === true ? undefined : storyStart,
     );
-    if (build !== undefined) return asSlot(build, missingExplanation);
+    if (build !== undefined) {
+      const status = await statusWhenNotExact(
+        target,
+        build,
+        lookup,
+        call,
+        workflow,
+        baselineAncestorLimit,
+      );
+      return asSlot(build, missingExplanation, status);
+    }
     if (exact?.exactOnly === true) {
-      const newest = newestRunFor(await lookup.listRunsAt(target), target);
+      const listed = await lookup.listRunsAt(target);
+      const newest = newestRunFor(listed, target);
       if (
         newest?.status === "completed" &&
         (newest.conclusion === "cancelled" || newest.conclusion === "timed_out")
@@ -150,8 +138,29 @@ export async function lookupResultBuild(
               : exact.timedOutExplanation,
         };
       }
+      const status = await requestedRevisionCiStatus(
+        target,
+        listed,
+        await nearestAncestorBasisSha(
+          target,
+          lookup,
+          call,
+          baselineAncestorLimit,
+        ),
+        call,
+        workflow,
+      );
+      return asSlot(undefined, status.explanation, status);
     }
-    return asSlot(undefined, missingExplanation);
+    const status = await statusWhenNotExact(
+      target,
+      undefined,
+      lookup,
+      call,
+      workflow,
+      baselineAncestorLimit,
+    );
+    return asSlot(undefined, status?.explanation ?? missingExplanation, status);
   } catch (error) {
     return {
       kind: "unavailable",

@@ -3,7 +3,9 @@ import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  classifyPathChanges,
   classifyRevisionApplicability,
+  parseDiffNameStatus,
   readWorkflowContentAtRevision,
 } from "./ci-path-applicability.mjs";
 import {
@@ -14,6 +16,55 @@ import {
   initRepo,
   writeWorkflow,
 } from "./ci-path-applicability-test-fixtures.mjs";
+
+const ignoredOnly = [".planning/**", "docs/**"];
+
+test("classifyPathChanges: ignored-only rows are not_required", () => {
+  assert.deepEqual(
+    classifyPathChanges(
+      [
+        ["A", ".planning/note.md"],
+        ["M", "docs/readme.md"],
+      ],
+      ignoredOnly,
+    ),
+    { verdict: "not_required" },
+  );
+});
+
+test("classifyPathChanges: a clean non-ignored change is required", () => {
+  assert.deepEqual(classifyPathChanges([["M", "app.js"]], ignoredOnly), {
+    verdict: "required",
+  });
+});
+
+test("classifyPathChanges: mixed ignored and non-ignored is indeterminate", () => {
+  assert.deepEqual(
+    classifyPathChanges(
+      [
+        ["A", ".planning/note.md"],
+        ["M", "app.js"],
+      ],
+      ignoredOnly,
+    ),
+    { verdict: "indeterminate", reason: "mixed-paths" },
+  );
+});
+
+test("classifyPathChanges: a null entry list is unreadable-diff", () => {
+  assert.deepEqual(classifyPathChanges(null, ignoredOnly), {
+    verdict: "indeterminate",
+    reason: "unreadable-diff",
+  });
+});
+
+test("parseDiffNameStatus splits name-status -M stdout", () => {
+  assert.deepEqual(parseDiffNameStatus("A\t.planning/note.md\nM\tapp.js\n"), [
+    ["A", ".planning/note.md"],
+    ["M", "app.js"],
+  ]);
+  assert.deepEqual(parseDiffNameStatus(""), []);
+});
 
 test("classifyRevisionApplicability: an ignored-only descendant is not_required with the applicable ancestor as basis", async (t) => {
   const repo = await initRepo();

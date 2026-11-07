@@ -37,12 +37,18 @@ export async function completedPublishedStory(
     | "unrelated-merge"
     | "non-owning-story-file",
   change?: (workspace: string) => void,
+  // When the caller already committed `shared.txt` as lines("line") on the
+  // claim parent (for example a planning-only start after a built baseline),
+  // skip the usual initial shared commit so that parent stays unchanged.
+  options?: { readonly sharedAlreadyReady?: boolean },
 ) {
   const ownConflict =
     variant === "own-conflict" || variant === "own-conflict-extra";
-  writeAt(origin.project, "shared.txt", lines("line"));
-  commitAll(origin.project, "initial shared file");
-  push(origin.project);
+  if (options?.sharedAlreadyReady !== true) {
+    writeAt(origin.project, "shared.txt", lines("line"));
+    commitAll(origin.project, "initial shared file");
+    push(origin.project);
+  }
   const start =
     mode === "trunk"
       ? await origin.takenInTrunkMode("completed-a")
