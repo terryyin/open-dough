@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "DavidKo-chan",
+  "email": "davidko-chan@example.org",
+  "identity": "SEED-256#compare-ci-time-without-runner-waits",
+  "mode": "story-branch",
+  "branch": "codex/compare-ci-time-without-runner-waits",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
