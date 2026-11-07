@@ -49,8 +49,9 @@ test("an expired adapter baseline leaves the newest Branch and Landed retry visi
   });
   const { panel } = await selectDoneStoryForCiComparison(page);
   const builds = panel.locator(".intent-ci-comparison-identity");
+  await expect(builds.first()).toContainText("No build at");
   await expect(builds.first()).toContainText(
-    "No completed CI build was found at or before the story's start",
+    "no ancestor build was found to compare against",
   );
   for (const index of [1, 2]) {
     await expect(builds.nth(index)).toContainText(shortSha(story.branchSide));
