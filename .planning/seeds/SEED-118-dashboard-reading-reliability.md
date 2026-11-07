@@ -96,22 +96,76 @@ Preparation records do not authorize implementation.
 
 **Identity:** SEED-118#retry-unavailable-ci-comparison-slots
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/500-retry-unavailable-ci-comparison-slots/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b904a32d871bafb71d0281c65cc0098f40434544fee166ac9313ed70eec05ac0","plan":"9b4030eeea07c14827f3aaf4ec03388e7f52a5df1efcd41da5dae90f8a7327ec"}}
 ```
 
 **Goal.** A developer reviewing a done story in Intent can use **Check again**
 to recover its CI timing comparison in the same dashboard session after a
-temporary read failure leaves Baseline, Branch, or Landed unavailable.
+temporary read failure leaves Baseline, Branch, Landed, or the whole
+comparison unavailable, instead of restarting the dashboard process.
 
-**Scope.** Treat a comparison with an `unavailable` slot as eligible for a
-fresh read. Route **Check again** from the done comparison to that read, keep
-reusing final answers, and document which reads can make further GitHub
-requests in [GitHub request accounting](../../dashboard/GITHUB-REQUESTS.md).
+**Scope.**
 
-**Evaluation.** Make one endpoint's GitHub run listing fail on the first read,
-then restore it. The comparison shows the reason for the unavailable slot.
-**Check again** reads the slot again and shows its result. Reopening the now
-final comparison reuses the answer. The retry rule covers all three slots.
+- *Finality rule.* A done comparison answer is final, and remembered for the
+  dashboard process, only when nothing it reports is `unavailable`: no
+  Baseline, Branch, or Landed slot and not the whole answer. Any other answer
+  is read afresh by the next read, the same way running endpoints already
+  are. This one rule replaces the current exemption that freezes failures.
+- *Check again on a done comparison.* The done-story comparison on Intent's
+  CI status homepage offers **Check again**, worded and placed as the judged
+  branch's button, disabled while a read is in progress. It re-reads the
+  comparison and the endpoint proofs it shows; a final remembered answer is
+  returned again without further GitHub requests. It also retries after the
+  whole read failed.
+- *Request accounting.* [GitHub request accounting](../../dashboard/GITHUB-REQUESTS.md)
+  states that an answer with an unavailable slot or an unavailable whole
+  answer is not remembered, so each selection or **Check again** walks and
+  lists its endpoints again, and that **Check again** on a final answer asks
+  nothing. It no longer claims **Check again** for a done comparison before
+  the button exists.
+- *Preserved.* Rate-limit cooldown and demand admission, the 30-second read
+  bound, the existing gap wording and reasons, the remembering of final
+  answers and valid proof summaries, and the Taken comparison's head-driven
+  re-reads stay as they are.
+- *Scope limits.* No automatic or timed retry, no per-slot memory that keeps
+  final slots while re-reading only the failed one, and no persistence of
+  comparison answers across dashboard processes. A deterministic whole-answer
+  gap (for example an unreadable completion record) is read again on each
+  selection; that costs local Git only and is not a reason to remember it.
+
+**Key examples.**
+
+1. *Slot failure recovers.* A done Story Branch story's Baseline run
+   listing fails on the first read and succeeds afterwards. Intent shows
+   Baseline unavailable with its reason, Branch and Landed readable. The
+   developer selects **Check again**: Baseline shows its build and the
+   comparison shows its before → after summary.
+2. *Final answer is reused.* After example 1, the developer selects another
+   story and returns, or selects **Check again** again: the comparison is
+   shown with no further GitHub run-listing or proof requests.
+3. *Every slot obeys the rule.* The same first-read failure on Branch, or on
+   Landed (including a cancelled landing's forward walk), recovers the same
+   way; no slot is exempt.
+4. *Whole-answer failure recovers.* Reading the story's published completion
+   history fails once (for example the read bound expires during the origin
+   fetch): Intent shows the comparison unavailable with that reason, and
+   **Check again** shows the comparison.
+5. *Still failing.* While the listing keeps failing, each **Check again**
+   reads again and keeps showing the unavailable reason; nothing is
+   remembered.
+
+**Investigation (2026-11-07, code at `ab156df67`).** Facts:
+`isImmutableCiComparisonAnswer` in `dashboard/server/intentCiComparisonAnswers.ts`
+exempts only running slots and gaps awaiting a later build, so `unavailable`
+slots are remembered, and it treats every non-`comparison` answer, including
+the whole-answer `unavailable`, as final. Any error thrown while reading an
+endpoint, including the read bound's abort, becomes an `unavailable` slot
+(`baseCiRevisionLookup.ts`). The done comparison has no **Check again**: only
+the judged branch view renders one, and `useIntentCiComparison.ts` re-reads a
+done story only when its identity changes. Whole-answer gaps come from local
+Git and the origin fetch, with no GitHub API requests. Hypothesis, not
+observed: a read the browser abandons mid-walk can also freeze an
+`unavailable` answer; the finality rule covers it either way.
 
 **Evidence.** The cancelled-landing retrospective identified the cached
 failure and the additional requests introduced by walking later trunk builds.
