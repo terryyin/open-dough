@@ -29,8 +29,8 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Correct Intent CI label announcements and summary sort fallback](seeds/SEED-259-scan-intent-ci-summaries.md#correct-scan-intent-ci-summaries) — SEED-259#correct-scan-intent-ci-summaries ([plan](slice-plans/504-correct-scan-intent-ci-summaries/PLAN.md))
+- [Invoke Dough Intent Coverage manually across test mixes](seeds/SEED-258-dough-intent-coverage.md#invoke-intent-coverage-manually) — SEED-258#invoke-intent-coverage-manually ([plan](slice-plans/503-invoke-intent-coverage-manually/PLAN.md))
 
 ## Backlog list
 
-- [Invoke Dough Intent Coverage manually across test mixes](seeds/SEED-258-dough-intent-coverage.md#invoke-intent-coverage-manually) — SEED-258#invoke-intent-coverage-manually
 - [Find the intent assessment in a recently done story](seeds/SEED-258-dough-intent-coverage.md#assess-intent-coverage-during-wrap-up) — SEED-258#assess-intent-coverage-during-wrap-up
