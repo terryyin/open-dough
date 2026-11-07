@@ -16,8 +16,11 @@ import {
 import {
   addIntegrationEdit,
   addTrunkAgentProfile,
+  amendIntegrationMerge,
   editIntegrationMerge,
+  foreignOctopusMerge,
   moveAgentsFolder,
+  ownOctopusIntegration,
   placeMergeEditFiles,
   resolveForeignMerge,
 } from "./completedStoryMerges.ts";
@@ -43,8 +46,12 @@ export async function completedPublishedStory(
     | "merge-edit"
     | "inseparable"
     | "unrelated-merge"
-    | "non-owning-story-file",
+    | "non-owning-story-file"
+    | "foreign-octopus"
+    | "own-octopus",
   change?: (workspace: string) => void,
+  // More edits the story's integration merge makes, after the variant's own.
+  integrate?: (workspace: string) => void,
 ) {
   const ownConflict =
     variant === "own-conflict" || variant === "own-conflict-extra";
@@ -87,6 +94,7 @@ export async function completedPublishedStory(
   commitAll(origin.project, "another writer interleaves");
   if (variant === "unrelated-merge" || variant === "non-owning-story-file")
     resolveForeignMerge(origin.project, variant, interleaved);
+  if (variant === "foreign-octopus") foreignOctopusMerge(origin.project);
   push(origin.project);
   git(workspace, "fetch", "--quiet", "origin", "main");
   if (ownConflict) {
@@ -99,11 +107,14 @@ export async function completedPublishedStory(
         .replace("line 11\n", "other last\n"),
       "resolve story integration conflict",
     );
+  } else if (variant === "own-octopus") {
+    ownOctopusIntegration(workspace);
   } else {
     git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
   }
   if (variant === "own-conflict-extra") editIntegrationMerge(workspace);
   if (variant === "merge-edit") addIntegrationEdit(workspace);
+  if (integrate !== undefined) amendIntegrationMerge(workspace, integrate);
   if (variant === "takeover" || variant === "returned-takeover") {
     const previous = agentIdentity(agentNameOf(start.agent) ?? "Yui");
     const name = start.agent === "Yui-chan" ? "Akiho" : "Yui";

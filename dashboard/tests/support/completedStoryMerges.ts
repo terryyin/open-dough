@@ -63,11 +63,53 @@ export function addTrunkAgentProfile(project: string) {
   writeAt(project, "agents/other.json", otherProfile);
 }
 
-// The story's integration merge also adds a file Git did not merge.
-export function addIntegrationEdit(workspace: string) {
-  writeAt(workspace, "merge-resolution.txt", "integration edit\n");
+// The story's integration merge also carries `edit`, which Git did not merge.
+export function amendIntegrationMerge(
+  workspace: string,
+  edit: (workspace: string) => void,
+) {
+  edit(workspace);
   git(workspace, "add", "--all");
   git(workspace, "commit", "--quiet", "--amend", "--no-edit");
+}
+
+export function addIntegrationEdit(workspace: string) {
+  amendIntegrationMerge(workspace, () => {
+    writeAt(workspace, "merge-resolution.txt", "integration edit\n");
+  });
+}
+
+// Another writer merges two side branches into trunk at once.
+export function foreignOctopusMerge(project: string) {
+  for (const side of ["octopus-a", "octopus-b"]) {
+    git(project, "checkout", "--quiet", "-b", side, "main");
+    writeAt(project, `${side}.txt`, `${side}\n`);
+    commitAll(project, `another story's ${side} work`);
+  }
+  git(project, "checkout", "--quiet", "main");
+  git(
+    project,
+    "merge",
+    "--quiet",
+    "--no-ff",
+    "--no-edit",
+    "octopus-a",
+    "octopus-b",
+  );
+  git(project, "branch", "--delete", "--force", "octopus-a", "octopus-b");
+}
+
+// The story integrates trunk together with its own side line, in one merge
+// with three parents.
+export function ownOctopusIntegration(workspace: string) {
+  const branch = git(workspace, "branch", "--show-current");
+  const base = git(workspace, "merge-base", "HEAD", "origin/main");
+  git(workspace, "checkout", "--quiet", "-b", "story-side", base);
+  writeAt(workspace, "story-side.txt", "side line\n");
+  commitAll(workspace, "side line for the story's integration");
+  git(workspace, "checkout", "--quiet", branch);
+  git(workspace, "merge", "--quiet", "--no-edit", "origin/main", "story-side");
+  git(workspace, "branch", "--delete", "--force", "story-side");
 }
 
 // Edits the story's integration merge makes beyond its conflict resolution:

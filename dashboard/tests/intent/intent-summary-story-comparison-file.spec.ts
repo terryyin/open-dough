@@ -1,7 +1,7 @@
 // File-level Purpose and CI Proof (../../src/IntentFileProof.tsx).
 // Purpose shows a changed-file diff without comparison above it; Proof keeps
-// precise A/B/C times, count differences and change kinds, including after
-// owning merge edits or another story's resolution on a story file. Added and
+// precise A/B/C times, count differences and change kinds, including a test
+// file only the story's integration merge edited. Added and
 // unchanged files keep Proof; story-free source Purpose and judged-run Proof
 // are in ./intent-file-purpose-proof.spec.ts.
 
@@ -43,6 +43,14 @@ const addedFileRow: ComparisonScopeRow = [
   "800 ms",
   parts,
 ];
+const mergeEditedFileRow: ComparisonScopeRow = [
+  "dashboard/tests/folder/nested/c.spec.ts modified",
+  "1 → 1 0 tests",
+  "340 ms",
+  "410 ms +70 ms",
+  "410 ms +70 ms",
+  parts,
+];
 const unchangedFileRow: ComparisonScopeRow = [
   "dashboard/tests/root.spec.ts",
   "1 → 1 0 tests",
@@ -68,11 +76,7 @@ async function expectFileComparisonRow(
   await expect(body.nth(0).getByRole("cell")).toHaveText([...cells]);
 }
 
-for (const variant of [
-  undefined,
-  "own-conflict-extra",
-  "non-owning-story-file",
-] as const)
+for (const variant of [undefined, "own-conflict-extra"] as const)
   test(`a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison with ${variant ?? "clean merges"}`, async ({
     page,
     origin,
@@ -141,6 +145,28 @@ for (const variant of [
         purposeRegion(intent).locator(".intent-story-diff-name"),
       ).toHaveText(summaryComparisonChanges.added);
     });
+
+    if (variant !== undefined)
+      await test.step("a test file only the integration merge edited shows that edit and keeps Proof", async () => {
+        await intentFile(intent, summaryComparisonChanges.mergeEdited).click();
+        const edited = purposeRegion(intent);
+        await expect(edited.locator(".intent-story-diff-name")).toHaveText(
+          summaryComparisonChanges.mergeEdited,
+        );
+        await expect(edited.locator(".story-review-code")).toContainText(
+          "merge edit",
+        );
+        await expect(edited.locator(".story-review-code")).not.toContainText(
+          "changed",
+        );
+        await fileReadingTab(intent, "Proof").click();
+        await expectFileComparisonRow(
+          proofRegion(intent),
+          "dashboard/tests/folder/nested/c.spec.ts",
+          mergeEditedFileRow,
+        );
+        await fileReadingTab(intent, "Purpose").click();
+      });
 
     await test.step("an unchanged file shows its source on Purpose with the same compact Proof", async () => {
       await intentFile(intent, "dashboard/tests/root.spec.ts").click();

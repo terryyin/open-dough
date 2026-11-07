@@ -160,6 +160,51 @@ files (`shared.txt`) with `includesTrunkFrom` (“includes trunk's changes”),
 excluding untouched trunk files, and overlaying changed test files in Intent's
 entry, folder, and file Purpose/Proof views.
 
+### 3. Show merge edits in Intent and stop refusing other stories' octopus merges
+Type: Behavior
+Status: done
+Proof: `npx playwright test --config dashboard/playwright.config.ts` on
+`dashboard/tests/intent/intent-summary-story-comparison.spec.ts`,
+`dashboard/tests/intent/intent-summary-story-comparison-file.spec.ts`,
+`dashboard/backend-tests/review/story-review-completed-driver.spec.ts`,
+`dashboard/backend-tests/review/story-review-completed-conflicts.spec.ts`,
+`dashboard/backend-tests/review/story-review-completed-gaps.spec.ts`, plus
+`npm run --silent typecheck:dashboard`.
+
+Behavior: Added after the execution retrospective found that slice 2's Intent
+proof never reached a merge edit (every fixture merge edit lies outside
+Intent's `dashboard/tests` location, so the merge variants asserted the same
+rows as the plain story) and that a non-owning octopus merge still refused the
+whole comparison. A completed story whose integration merge edits or renames a
+test file inside Intent's location → Intent's selected-story overlay shows that
+merge edit's row and diff (commitments 3.3 and K1.2). Another story's merge
+with more than two parents between the story start and its completion → the
+review stays published; only an owning or completion merge with more than two
+parents explains the gap. The `merge-edit` driver variant asserts
+`merge-resolution.txt` with `+integration edit`. An unsupported `git
+merge-tree` (a `PATH` shim exiting 129) explains the resolution-evidence gap
+with no files (commitment 6.1e), durably. Drop Intent merge variants that only
+duplicate the plain journey once one variant observes the merge edit.
+
+### 4. Remove slice 1 and 2 residue in completed-story attribution
+Type: Structure
+Status: planned
+Proof: reuse slice 3's focused set plus
+`dashboard/backend-tests/review/story-review-completed.spec.ts`,
+`dashboard/backend-tests/review/story-review-completed-attribution.spec.ts`,
+`dashboard/tests/intent/intent-ci-comparison*.spec.ts`, and
+`npm run --silent typecheck:dashboard`.
+
+Structure: Delete the uncalled `completedStoryCommits` and its re-export and
+make `doneRecordAdded` required; drop the unreachable `merge !== completion`
+clause and its "different publisher" comment; rename `keptFromTrunk` to what
+it holds; when the story side of an owning merge is unknown, do not apply the
+untouched-trunk exclusion; drop the redundant `unrelated-merge` driver variant
+and fold the `own-conflict` conflicts variant into the `own-conflict-extra`
+test; correct `dashboard/AGENT-LAUNCH-REVIEW.md` (owning or completion octopus
+merge, the `trunkLess` diff-tree command, completion requires a merge authored
+by the claiming agent).
+
 ## Refinement review
 
 Refinement was not needed: the two Behavior slices cleanly separate completion
@@ -201,3 +246,47 @@ direct outside-in proof and no remaining slice-specific concern.
   (no agent profile), SEED-248 33 files 5 mixed at `e6948bfce`, SEED-249 877
   files 2 mixed, about 1 s each. Unsupported `merge-tree` observed only through
   a coordinator real-history probe with a `git` shim; no durable spec forces it.
+
+
+- Execution retrospective after slice 2 (read-only review of
+  `dc81df37b..f496a5137`) reopened the plan with slices 3 and 4: slice 2's
+  Intent merge variants asserted the plain story's rows because every fixture
+  merge edit lies outside Intent's location, so commitments 3.3 and K1.2 were
+  accepted without an Intent observation (G1); a non-owning octopus merge
+  still refuses (G3); unsupported `merge-tree` lacks durable proof (G2); plus
+  dead `completedStoryCommits`, an unreachable completion clause, the
+  misleading `keptFromTrunk`, an unknown-side exclusion edge, redundant driver
+  and conflicts variants, and stale `AGENT-LAUNCH-REVIEW.md` details.
+  Product advice: no change. A Story Branch landing that merges trunk after the
+  done-record commit and then fast-forwards keeps the done-record commit as its
+  completion, so edits in that later merge stay outside review; the only real
+  instance (SEED-234 `8d9b41498` then `66d144b2c`) made no edits. Revisit only
+  if such a merge carries edits.
+
+- Slice 3 accepted: the `own-conflict-extra` Intent variant's integration
+  merge edits `dashboard/tests/folder/nested/c.spec.ts` through the new
+  `integrate` hook of `completedPublishedStory`; Intent's `non-owning-story-file`
+  variants were dropped as duplicates of the plain journey (the backend
+  conflicts spec keeps that case). `foreign-octopus` and `own-octopus` variants
+  live in `story-review-completed-attribution.spec.ts`; the unsupported
+  `merge-tree` spec uses the `pathPrefix` fixture with a `git` shim. Accepted
+  proof: 193-test consumer surface plus typecheck; the foreign octopus test
+  failed on `f496a5137`, and a mutation without merge-edit subtraction failed
+  the Intent and driver merge-edit assertions.
+
+## Story obligations
+
+### G1. Intent overlay never observed a merge edit (first reported in slice 2)
+Reported: slice 3 — "Intent's location is dashboard/tests, so none of them appear there."
+Story clause: "selected-story overlay open with the delivered files and diffs"
+Disposition: proved by slice 3: dashboard/tests/intent/intent-summary-story-comparison.spec.ts own-conflict-extra: nested row "c.spec.ts modified" (mergeEditedNestedComparisonRows) where the plain variant reads "c.spec.ts"; dashboard/tests/intent/intent-summary-story-comparison-file.spec.ts step "a test file only the integration merge edited shows that edit and keeps Proof": Purpose diff contains "merge edit", Proof row modified
+
+### G2. Unsupported merge-tree gap lacks durable proof (first reported in slice 2)
+Reported: slice 3 — "no durable test forces an unsupported git merge-tree"
+Story clause: "explain that specific gap"
+Disposition: proved by slice 3: dashboard/backend-tests/review/story-review-completed-merge-tree.spec.ts (pathPrefix git shim exiting 129 for merge-tree: toEqual unavailable with the resolution-evidence explanation, no files)
+
+### G3. Non-owning octopus merge still refuses the comparison (retrospective)
+Reported: slice 3 — "any octopus merge still refuses the whole review, including another story's"
+Story clause: "Remove the merge-attribution refusals that rejected the whole comparison"
+Disposition: proved by slice 3: dashboard/backend-tests/review/story-review-completed-attribution.spec.ts "another story's octopus merge leaves the completed review published" (published, octopus files absent; red on f496a5137)

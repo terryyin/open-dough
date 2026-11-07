@@ -128,12 +128,13 @@ export async function completedStoryAttribution(
   for (const line of merges) {
     const [merge = "", ...parents] = line.split(" ");
     const [first = "", second = ""] = parents;
+    if (!owningMerges.has(merge) && merge !== completion) continue;
+    // Only the story's own merge must decompose against exactly two parents.
     if (parents.length !== 2)
       return {
         explanation:
           "Published execution history contains a merge whose story changes cannot be attributed safely.",
       };
-    if (!owningMerges.has(merge) && merge !== completion) continue;
     let automatic: ReturnType<typeof mergeTreeOutput>;
     try {
       automatic = mergeTreeOutput(

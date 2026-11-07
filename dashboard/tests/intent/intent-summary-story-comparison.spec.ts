@@ -4,8 +4,8 @@
 // Counts with signed differences (entry 4 → 5 +1), change markers, added /
 // removed / renamed / later-trunk gaps, and drill into a nested folder
 // (SEED-245#compare-story-intent-entry-folder-and-file-summaries examples 1,
-// 2 timing, 3–4, 6). Owning merge edits and another story's resolution on a
-// story file keep the same Review overlay (SEED-253 key examples 1–2). Gap, Trunk Mode,
+// 2 timing, 3–4, 6). An owning integration merge that edits an Intent test file
+// marks it as a story change (SEED-253 key example 1). Gap, Trunk Mode,
 // running Landed and Taken variants live in
 // ./intent-summary-story-comparison-gaps.spec.ts. The file summary journey
 // is ./intent-summary-story-comparison-file.spec.ts. Without a selected
@@ -24,22 +24,17 @@ import { expectComparisonScopeRows } from "../intentScopeProofPage.ts";
 import {
   entryComparisonRows,
   folderComparisonRows,
+  mergeEditedNestedComparisonRows,
   nestedComparisonRows,
 } from "../support/summaryComparisonExpectedRows.ts";
 
 test.setTimeout(240_000);
 
-for (const variant of [
-  undefined,
-  "own-conflict-extra",
-  "non-owning-story-file",
-] as const) {
+for (const variant of [undefined, "own-conflict-extra"] as const) {
   const label =
     variant === undefined
       ? "clean merges"
-      : variant === "own-conflict-extra"
-        ? "owning merge-resolution edits"
-        : "a non-owning merge resolution on a story file";
+      : "owning merge-resolution edits to a test file";
   test(`a selected done story with ${label}: entry and folder Summaries compare precise baseline, branch and landed times with change markers`, async ({
     page,
     origin,
@@ -84,7 +79,9 @@ for (const variant of [
       summary,
       "nested/",
       "dashboard/tests/folder/nested",
-      nestedComparisonRows,
+      variant === undefined
+        ? nestedComparisonRows
+        : mergeEditedNestedComparisonRows,
     );
   });
 }

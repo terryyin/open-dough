@@ -10,6 +10,7 @@ import {
   storyReviewFileEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
+import { git } from "../../tests/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary" });
 
@@ -123,4 +124,55 @@ test("an inseparable file declares included trunk changes and admits only its de
       })
     ).status(),
   ).toBe(409);
+});
+
+test("another story's octopus merge leaves the completed review published", async ({
+  request,
+  dashboard,
+  origin,
+}) => {
+  const { completion } = await completedPublishedStory(
+    origin,
+    "story-branch",
+    "foreign-octopus",
+  );
+  expect(
+    git(origin.project, "rev-list", "--min-parents=3", completion),
+  ).not.toBe("");
+  const response = await get(
+    request,
+    dashboard,
+    storyReviewEndpoint,
+    completed,
+  );
+  expect(response.status()).toBe(200);
+  const review = storyReviewSchema.parse(await response.json());
+  expect(review.kind).toBe("published");
+  if (review.kind !== "published") throw new Error("No published review");
+  const paths = review.files.map((file) => file.path);
+  expect(paths).toEqual(
+    expect.arrayContaining(["[literal]*.txt", "shared.txt"]),
+  );
+  expect(paths).not.toContain("octopus-a.txt");
+  expect(paths).not.toContain("octopus-b.txt");
+});
+
+test("the story's own octopus integration explains why its changes cannot be attributed", async ({
+  request,
+  dashboard,
+  origin,
+}) => {
+  await completedPublishedStory(origin, "story-branch", "own-octopus");
+  const response = await get(
+    request,
+    dashboard,
+    storyReviewEndpoint,
+    completed,
+  );
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toEqual({
+    kind: "unavailable",
+    explanation:
+      "Published execution history contains a merge whose story changes cannot be attributed safely.",
+  });
 });

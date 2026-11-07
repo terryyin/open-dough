@@ -106,3 +106,16 @@ export const nestedComparisonRows: readonly ComparisonScopeRow[] = [
     parts,
   ],
 ];
+
+// After the story's integration merge edits the nested test file
+// (./intentSummaryStoryComparisonShared.ts): the same times, now marked as a
+// story change.
+const [nestedFolderRow, nestedFileRow] = nestedComparisonRows as readonly [
+  ComparisonScopeRow,
+  ComparisonScopeRow,
+];
+const [nestedFile, ...nestedFileCells] = nestedFileRow;
+export const mergeEditedNestedComparisonRows: readonly ComparisonScopeRow[] = [
+  nestedFolderRow,
+  [`${nestedFile} modified`, ...nestedFileCells],
+];
