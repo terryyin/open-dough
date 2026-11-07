@@ -154,7 +154,7 @@ against a slow backlog read; listings are now held in turn (reproduced, then
 
 ### 3. A summary shows its own figures above a sortable breakdown
 Type: Behavior
-Status: planned
+Status: done
 Proof: as mapped above for key example 2.
 
 Behavior: select an entry or folder → its own counts, time (or comparison
@@ -164,6 +164,18 @@ keeps the outside row last; activating a child opens its summary in the
 same layout with the same sort; a sort column the next table lacks falls
 back to default order. Unavailable evidence keeps the rows for drilling down
 with the group showing the unavailable reason.
+
+Accepted proof (2026-11-07): new `intent-summary-ci-proof-sort.spec.ts` and
+`intent-summary-story-comparison-sort.spec.ts`; updated summary specs read the
+scope's own figures from the group (`intentScopeProofPage.ts`); gate (41
+family specs plus file Purpose, entry/folder summaries, reading place and
+story changes) 106 passed in 4.2 min, rerun green after the refactor; units
+and typecheck pass. Key example 2 runs on the fixture tree (`dashboard/tests`
+and `folder/`), and Counts keep their existing words; the example's
+`20 tests · 1 failed` is illustrative. Refactor disposition:
+`## REFACTOR COMPLETE` (`CiProofFigures.tsx` is the one owner of column
+headers and figure words for table rows and the group; `timingCellIn` is the
+one column-to-timing map).
 
 ### 4. Story comparisons show change kind as a sortable column
 Type: Behavior
@@ -216,6 +228,16 @@ matches the shipped wording.
   buttons add keyboard stops: summary zoom/keyboard assertions change when
   summaries opt in. Slice 4 adds a `change` column key with unchanged rows
   valueless. Counts puts failed first among equal totals in both directions.
+
+- 2026-11-07, slice 3: the summary's own figures are `ScopeFigures`
+  (`IntentScopeFigures.tsx`, group `CI proof of <path>`) above the table
+  `CI proof of the immediate folders and files of <path>`; the sort is held
+  by `useKeptReading("summaryCiSort")`; a sort by a column the table lacks is
+  cleared in `CiProofTable`. Slice 4 adds Change's header and words in
+  `CiProofFigures.tsx` and its value in `ciProofSort.valueOf`; child change
+  words now come from `ChildName`'s marker and the
+  `summaryComparison*ExpectedRows.ts` names. Slice 5's evidence lines sit
+  above the group; new label strips join the zoom specs' Verdana override.
 
 ## Refinement review
 

@@ -1,11 +1,12 @@
-// Summary table of one judged CI proof for a selected entry or folder
-// (`./IntentScopeProof.tsx`): the scope's own row, immediate children, and
-// the outside row with its explanation when the proof has a file breakdown.
+// Summary of one judged CI proof for a selected entry or folder
+// (`./IntentScopeProof.tsx`): the scope's own figures above a sortable table
+// of its immediate children and, when the proof has a file breakdown, the
+// outside row (kept last) with its explanation.
 
 import type { ReactNode } from "react";
 import {
   CiProofTable,
-  ScopePath,
+  type CiProofSorting,
   type CiProofTableRow,
 } from "./CiProofTable.tsx";
 import type { CiProofEntry } from "./ciProof.ts";
@@ -23,6 +24,7 @@ import {
   type ScopeOutside,
   type SummaryChild,
 } from "./ciScopeProof.ts";
+import { ScopeFigures, scopeTableLabel } from "./IntentScopeFigures.tsx";
 import { ChildName } from "./IntentScopeProofChild.tsx";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 
@@ -96,11 +98,13 @@ export function SingleProofTable({
   inventory,
   entry,
   onOpen,
+  sorting,
 }: {
   readonly path: string;
   readonly inventory: readonly string[];
   readonly entry: CiProofEntry;
   readonly onOpen: (next: IntentSelection) => void;
+  readonly sorting: CiProofSorting;
 }) {
   const children = immediateChildrenOf(path, inventory);
   const breakdown = hasFileBreakdown(entry);
@@ -111,19 +115,14 @@ export function SingleProofTable({
   ): CiProofTableRow => ({
     key: child.path,
     scope: <ChildName child={child} onOpen={onOpen} />,
+    name: child.name,
     cells,
   });
-  const rootRow = (cells: CiProofCells): CiProofTableRow => ({
-    key: path,
-    scope: <ScopePath path={path} />,
-    cells,
-  });
-  const rows = [
-    rootRow(
-      path === entry.path
-        ? ciProofCellsOf(entry)
-        : ciScopeCellsOf(entry, scopeFiguresOf(entry, path)),
-    ),
+  const own =
+    path === entry.path
+      ? ciProofCellsOf(entry)
+      : ciScopeCellsOf(entry, scopeFiguresOf(entry, path));
+  const rows: CiProofTableRow[] = [
     ...children.map((child) =>
       childRow(child, ciScopeCellsOf(entry, scopeFiguresOf(entry, child.path))),
     ),
@@ -134,11 +133,13 @@ export function SingleProofTable({
             key: "\0outside",
             scope: outsideRowLabel,
             cells: ciScopeCellsOf(entry, outside.figures),
-          },
+            pinned: true,
+          } as const,
         ]),
   ];
   return (
     <>
+      <ScopeFigures path={path} cells={own} />
       {!breakdown && (
         <p className="intent-summary-breakdown-absent">
           Child breakdown unavailable: this CI proof summary does not break{" "}
@@ -146,9 +147,10 @@ export function SingleProofTable({
         </p>
       )}
       <CiProofTable
-        label={`CI proof of ${path} and its immediate folders and files`}
+        label={scopeTableLabel(path)}
         scopeHeader="Scope"
         rows={rows}
+        sorting={sorting}
       />
       <OutsideExplanation entry={entry} path={path} outside={outside} />
     </>

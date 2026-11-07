@@ -13,6 +13,7 @@ import { proofOf, run } from "../intentCiProofPage.ts";
 import {
   childName,
   expectScopeRows,
+  scopeFigures,
   scopeTable,
 } from "../intentScopeProofPage.ts";
 import {
@@ -86,11 +87,17 @@ test("a missing shard and a shard without a file breakdown keep the entry's tota
       .getByRole("cell")
       .nth(1);
   const folderWhy = `Partial: ${missing} and ${noBreakdown}`;
-  await expect(timeCell(0)).toHaveAccessibleDescription(`Partial: ${missing}`);
-  await expect(timeCell(1)).toHaveAccessibleDescription(folderWhy);
-  await expect(timeCell(1)).toHaveAttribute("title", folderWhy);
+  // The entry's own time explains its gap as a table cell does.
+  const ownTime = scopeFigures(summary, "dashboard/tests")
+    .getByRole("definition")
+    .nth(1);
+  await expect(ownTime).toHaveText("Part 3 missing");
+  await expect(ownTime).toHaveAccessibleDescription(`Partial: ${missing}`);
+  await expect(ownTime).toHaveAttribute("title", `Partial: ${missing}`);
+  await expect(timeCell(0)).toHaveAccessibleDescription(folderWhy);
+  await expect(timeCell(0)).toHaveAttribute("title", folderWhy);
   // No CI result is its own word, with no partial explanation.
-  await expect(timeCell(2)).toHaveAccessibleDescription("");
+  await expect(timeCell(1)).toHaveAccessibleDescription("");
   await expect(summary.locator(".intent-summary-outside")).toHaveText(
     "The figures of dashboard/tests include what no folder or file row shows: part 2 of 3, which published no file breakdown.",
   );

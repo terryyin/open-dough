@@ -37,17 +37,26 @@ story's branch, a running result's completed ancestor), says when that
 judgment was previously retrieved rather than newly verified and any failed
 refresh, as **CI status** says it, and, when the tree shows another
 revision, says a file added or changed since has no CI result here or an
-earlier one. One table in the homepage's columns (**Scope**, **Counts**,
-**Test execution time**, **Parts**) gives the selection's own row (an entry's
-row is its homepage row, checks outside the tree included), then one row per
-immediate folder (named with a trailing `/`) and file in the browser's order,
-each summing the CI evidence published under its path, and, when the
-selection's figures hold files no child row covers (files the tree does not
-list) or results CI could not place in a file, a **Not in the rows above**
-row with a line naming them. With a story selected, the same Summary names that story's CI timing
+earlier one. The selection's own figures (an entry's are its homepage row's,
+checks outside the tree included) stand as a labelled group above the table,
+each under its column's name (**Counts**, **Test execution time**,
+**Parts**). One table in the homepage's columns (**Scope**, **Counts**,
+**Test execution time**, **Parts**) then holds one row per immediate folder
+(named with a trailing `/`) and file in the browser's order, each summing the
+CI evidence published under its path, and, when the selection's figures hold
+files no child row covers (files the tree does not list) or results CI could
+not place in a file, a **Not in the rows above** row with a line naming them.
+The table's headers sort it as **CI status** Proof's do, **Scope** by the
+child's name; until one is activated the rows keep the browser's order, and
+**Not in the rows above** stays last under any sort while the group above
+does not move. The sort is kept in memory with Intent's reading place, never
+on the URL or in storage: drilling down or switching to Development and
+back keeps it, and a sorted column the next
+Summary table lacks (a timing column between one run's figures and a story
+comparison) gives way to the browser's order. With a story selected, the same Summary names that story's CI timing
 comparison (baseline, branch and landed, as **CI status** names them; Taken
-labelled provisional) and the observed-not-attributed statement; its table
-uses **Baseline**, **Branch** and **Landed** for precise times with signed
+labelled provisional) and the observed-not-attributed statement; its group
+and table use **Baseline**, **Branch** and **Landed** for precise times with signed
 differences, shows counted-results differences in **Counts** (a gap endpoint
 shows its gap, not a difference), marks story-changed rows (a rename takes
 its baseline from its old path), explains per-row gaps, and shows the same
@@ -61,9 +70,10 @@ scopes (`340 ms`, `12.5 s`, `4 min 5 s`); a measured zero is `0 ms`. A file
 CI has no result for says **no CI result**; a scope with an untimed test, a
 missing or ambiguous part, or a part whose report published no file breakdown
 has partial timing shown as short gap labels (`Part 3 missing`,
-`Part 2 no breakdown`, `1 test untimed`); an entry-only summary keeps the entry's totals
+`Part 2 no breakdown`, `1 test untimed`), in the group as in the rows; an entry-only summary keeps the entry's totals
 and says the child breakdown is unavailable. Without usable proof, the rows
-stay for drilling down and one line says why, as the homepage does. The
+stay for drilling down, the group and rows say why in a word or two
+(`checking`, `no CI proof`), and one line says why, as the homepage does. The
 summary drills down: a child's name selects that folder or file as its tree
 name does and reveals it in the tree, keyboard-operable. A summary reads no
 file text and asks CI nothing again: home and every summary share one

@@ -13,20 +13,24 @@
 // button that sorts the rows by that column's figures (`./ciProofSort.ts`),
 // marking the sorted header with `aria-sort` and a direction arrow; the
 // caller holds the sort choice in memory, as CI status does
-// (`useCiProofSorting`). Without it the headers stay plain.
+// (`useCiProofSorting`) and a Summary does with Intent's reading place
+// (`./IntentScopeProof.tsx`). A sort by a column this table lacks is cleared,
+// so the rows keep their given order. Without `sorting` the headers stay
+// plain. The figure columns and each figure's words come from
+// `./CiProofFigures.tsx`, which a Summary's own figures above the table share
+// (`./IntentScopeFigures.tsx`).
 
-import { Fragment, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { Icon } from "./Icon.tsx";
-import {
-  nextSort,
-  sortedRows,
-  type CiProofColumn,
-  type ColumnSort,
-} from "./ciProofSort.ts";
+import { nextSort, sortedRows, type ColumnSort } from "./ciProofSort.ts";
 import { scopeCueRowAttrs } from "./ciScopeComparisonCuePresentation.ts";
 import type { CiProofCells } from "./ciProofWording.ts";
-import type { TimingCell } from "./ciProofTiming.ts";
+import {
+  figureHeadersFor,
+  figureOf,
+  type FigureHeader,
+} from "./CiProofFigures.tsx";
 import {
   isComparisonCells,
   type ComparisonEntryCells,
@@ -48,7 +52,7 @@ export type CiProofTableRow = {
 // A sortable table's sort choice and how to change it.
 export type CiProofSorting = {
   readonly sort: ColumnSort | undefined;
-  readonly onSort: (sort: ColumnSort) => void;
+  readonly onSort: (sort: ColumnSort | undefined) => void;
 };
 
 // An in-memory sort choice, unsorted until a header is activated.
@@ -72,28 +76,13 @@ export function ScopePath({ path }: { readonly path: string }) {
   );
 }
 
-type Header = { readonly column: CiProofColumn; readonly label: string };
-
-const proofHeaders: readonly Header[] = [
-  { column: "counts", label: "Counts" },
-  { column: "executionTime", label: "Test execution time" },
-  { column: "parts", label: "Parts" },
-];
-const comparisonHeaders: readonly Header[] = [
-  { column: "counts", label: "Counts" },
-  { column: "baseline", label: "Baseline" },
-  { column: "branch", label: "Branch" },
-  { column: "landed", label: "Landed" },
-  { column: "parts", label: "Parts" },
-];
-
 // A column header: plain, or a button sorting by its column whose arrow shows
 // the direction (`aria-sort` announces it, so the arrow stays decorative).
 function ColumnHeader({
   header,
   sorting,
 }: {
-  readonly header: Header;
+  readonly header: FigureHeader;
   readonly sorting: CiProofSorting | undefined;
 }) {
   if (sorting === undefined) return <th scope="col">{header.label}</th>;
@@ -129,54 +118,6 @@ function ColumnHeader({
   );
 }
 
-function PartsCell({
-  completeness,
-  gaps,
-}: {
-  readonly completeness: string;
-  readonly gaps: readonly string[];
-}) {
-  return (
-    <td>
-      {completeness}
-      {gaps.map((gap) => (
-        <Fragment key={gap}>
-          {"; "}
-          <span className="intent-ci-proof-gap">{gap}</span>
-        </Fragment>
-      ))}
-    </td>
-  );
-}
-
-// A timing cell shows its short words; a gap label's full explanation is the
-// cell's hover text and so its accessible description.
-function TimingCellView({ cell }: { readonly cell: TimingCell }) {
-  return <td title={cell.explanation}>{cell.text}</td>;
-}
-
-function ProofCells({ cells }: { readonly cells: CiProofCells }) {
-  return (
-    <>
-      <td>{cells.counts}</td>
-      <TimingCellView cell={cells.executionTime} />
-      <PartsCell completeness={cells.completeness} gaps={cells.gaps} />
-    </>
-  );
-}
-
-function ComparisonCells({ cells }: { readonly cells: ComparisonEntryCells }) {
-  return (
-    <>
-      <td>{cells.counts}</td>
-      <TimingCellView cell={cells.baseline} />
-      <TimingCellView cell={cells.branch} />
-      <TimingCellView cell={cells.landed} />
-      <PartsCell completeness={cells.completeness} gaps={cells.gaps} />
-    </>
-  );
-}
-
 export function CiProofTable({
   label,
   scopeHeader,
@@ -189,8 +130,19 @@ export function CiProofTable({
   readonly sorting?: CiProofSorting;
 }) {
   const comparison = rows.some((row) => isComparisonCells(row.cells));
-  const headers = comparison ? comparisonHeaders : proofHeaders;
-  const shown = sortedRows(rows, sorting?.sort);
+  const headers = figureHeadersFor(comparison);
+  // A sort by a column this table lacks, such as a timing column kept from
+  // another table, gives way to the given order.
+  const lacked =
+    rows.length > 0 &&
+    sorting?.sort !== undefined &&
+    sorting.sort.column !== "scope" &&
+    !headers.some((header) => header.column === sorting.sort?.column);
+  const onSort = sorting?.onSort;
+  useEffect(() => {
+    if (lacked) onSort?.(undefined);
+  }, [lacked, onSort]);
+  const shown = sortedRows(rows, lacked ? undefined : sorting?.sort);
   return (
     <div className="intent-proof-table intent-ci-proof-box">
       <table className="intent-proof-rows">
@@ -217,11 +169,14 @@ export function CiProofTable({
                 : {})}
             >
               <th scope="row">{scope}</th>
-              {isComparisonCells(cells) ? (
-                <ComparisonCells cells={cells} />
-              ) : (
-                <ProofCells cells={cells} />
-              )}
+              {headers.map(({ column }) => {
+                const { words, title } = figureOf(cells, column);
+                return (
+                  <td key={column} title={title}>
+                    {words}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>

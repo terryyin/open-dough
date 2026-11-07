@@ -9,6 +9,7 @@
 // sort. The first activation of a column sorts it ascending, the next reverses
 // it. The sort choice is the caller's in-memory state.
 
+import type { TimingCell } from "./ciProofTiming.ts";
 import type { CiProofCells, CountedResults } from "./ciProofWording.ts";
 import {
   isComparisonCells,
@@ -55,20 +56,24 @@ export function nextSort(
   };
 }
 
-function timingMsOf(
+// The timing cell CELLS show under COLUMN, if COLUMN is one of their timing
+// columns.
+export function timingCellIn(
   cells: CiProofCells | ComparisonEntryCells,
-  column: "executionTime" | "baseline" | "branch" | "landed",
-): number | undefined {
+  column: CiProofColumn,
+): TimingCell | undefined {
   if (!isComparisonCells(cells))
-    return column === "executionTime" ? cells.executionTime.ms : undefined;
-  return column === "executionTime" ? undefined : cells[column].ms;
+    return column === "executionTime" ? cells.executionTime : undefined;
+  return column === "baseline" || column === "branch" || column === "landed"
+    ? cells[column]
+    : undefined;
 }
 
 function valueOf(row: SortableRow, column: CiProofColumn): SortValue {
   if (column === "scope") return row.name;
   if (column === "counts") return row.cells.countedResults;
   if (column === "parts") return row.cells.gapCount;
-  return timingMsOf(row.cells, column);
+  return timingCellIn(row.cells, column)?.ms;
 }
 
 // Signed order of two values in DIRECTION; failed results come first among

@@ -1,14 +1,16 @@
-// Summary table comparing a selected story's baseline, branch and landed
-// execution times (`./IntentScopeProof.tsx`) through the shared scope
-// comparison (`./ciScopeComparison.ts`), with change markers from the story
-// overlay and the homepage's observed-not-attributed statement. A selected
+// Summary comparing a selected story's baseline, branch and landed execution
+// times (`./IntentScopeProof.tsx`) through the shared scope comparison
+// (`./ciScopeComparison.ts`): the scope's own compared figures above a
+// sortable table of its immediate children, with change markers from the
+// story overlay, and the outside row kept last; and the homepage's
+// observed-not-attributed statement. A selected
 // file reuses ComparisonNamed for its Proof
 // (`./IntentFileProof.tsx`).
 
 import { shortSha } from "./baseCiWording.ts";
 import {
   CiProofTable,
-  ScopePath,
+  type CiProofSorting,
   type CiProofTableRow,
 } from "./CiProofTable.tsx";
 import {
@@ -24,7 +26,8 @@ import {
   type SummaryChild,
 } from "./ciScopeProof.ts";
 import type { ScopeEvidence } from "./IntentScopeEvidence.tsx";
-import { changeKindWords, ChildName } from "./IntentScopeProofChild.tsx";
+import { ScopeFigures, scopeTableLabel } from "./IntentScopeFigures.tsx";
+import { ChildName } from "./IntentScopeProofChild.tsx";
 import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import type {
@@ -97,6 +100,7 @@ export function ComparisonTable({
   answer,
   treeFiles,
   onOpen,
+  sorting,
 }: {
   readonly path: string;
   readonly inventory: readonly string[];
@@ -104,6 +108,7 @@ export function ComparisonTable({
   readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
   readonly treeFiles: ReadonlyMap<string, IntentTreeFile> | undefined;
   readonly onOpen: (next: IntentSelection) => void;
+  readonly sorting: CiProofSorting;
 }) {
   const children = immediateChildrenOf(path, inventory);
   const checking = comparisonEndpointProofsChecking(
@@ -141,23 +146,11 @@ export function ComparisonTable({
           {...(file?.kind === undefined ? {} : { marker: file.kind })}
         />
       ),
+      name: child.name,
       cells: cellsFor(child.path),
     };
   };
-  const rootMarker = changeOf(treeFiles, path)?.kind;
-  const rows: CiProofTableRow[] = [
-    {
-      key: path,
-      scope: (
-        <>
-          <ScopePath path={path} />
-          {rootMarker !== undefined ? ` ${changeKindWords[rootMarker]}` : ""}
-        </>
-      ),
-      cells: cellsFor(path),
-    },
-    ...children.map(childRow),
-  ];
+  const rows: CiProofTableRow[] = children.map(childRow);
   if (entry !== undefined && hasFileBreakdown(entry)) {
     const outside = outsideOf(entry, path, children);
     if (outside !== undefined) {
@@ -173,6 +166,7 @@ export function ComparisonTable({
           "precise",
           afterSide,
         ),
+        pinned: true,
       });
     }
   }
@@ -183,10 +177,12 @@ export function ComparisonTable({
           Reading entry comparison…
         </p>
       )}
+      <ScopeFigures path={path} cells={cellsFor(path)} />
       <CiProofTable
-        label={`CI proof of ${path} and its immediate folders and files`}
+        label={scopeTableLabel(path)}
         scopeHeader="Scope"
         rows={rows}
+        sorting={sorting}
       />
     </>
   );

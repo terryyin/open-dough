@@ -17,7 +17,7 @@ import {
 import { intentLocationName } from "../intentPerspectivePage.ts";
 import {
   evidenceLine,
-  scopeTable,
+  scopeFigures,
   summaryRegion,
 } from "../intentScopeProofPage.ts";
 import {
@@ -127,10 +127,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
       `CI evidence: Attempt 2 of run 12 at d4e5f6a on ${running.branch}, the story branch of ${running.title}, the completed ancestor of the running result.`,
     );
     await expect(
-      scopeTable(summary, "tests")
-        .locator("tbody tr")
-        .first()
-        .getByRole("cell"),
+      scopeFigures(summary, "tests").getByRole("definition"),
     ).toHaveText(checksRow.slice(1));
     expect(proofCalls(calls).slice(before)).toHaveLength(2);
     await activateIntentHome(intent);

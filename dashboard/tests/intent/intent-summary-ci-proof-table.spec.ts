@@ -2,14 +2,16 @@
 // file breakdown (../../src/IntentScopeProof.tsx, ../../src/ciScopeProof.ts,
 // ../intentSummaryCiProofFixtures.ts): a file CI ran that the tree does not
 // list counts once, in a listed folder's row, and outside only in that
-// folder's own Summary; and the table fits a zoomed or narrow window. The
-// Summary's journey: ./intent-summary-ci-proof.spec.ts.
+// folder's own Summary; and the scope's own figures and the table fit a
+// zoomed or narrow window. The Summary's journey:
+// ./intent-summary-ci-proof.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
 import { run } from "../intentCiProofPage.ts";
 import {
   childName,
   expectScopeRows,
+  scopeFigures,
   scopeTable,
 } from "../intentScopeProofPage.ts";
 import {
@@ -72,7 +74,7 @@ test("a CI file the tree does not list under a listed folder counts once, in tha
   );
 });
 
-test("at 200% zoom and on a narrow window a folder's Summary table reads whole within the reading pane, nothing scrolling sideways", async ({
+test("at 200% zoom and on a narrow window a folder's Summary figures and table read whole within the reading pane, nothing scrolling sideways", async ({
   page,
 }) => {
   const text = bothEntriesSummary(true);
@@ -90,6 +92,11 @@ test("at 200% zoom and on a narrow window a folder's Summary table reads whole w
     ["root.spec.ts", "2 passed tests", "1 test untimed", allParts],
   ] as const;
   await expectScopeRows(summary, "dashboard/tests", rows);
+  // A wider installed font lays the Summary out as Linux's fallback font does.
+  await page.addStyleTag({
+    content:
+      ".intent-ci-proof-box, .intent-scope-figures { font-family: Verdana, sans-serif; }",
+  });
   const table = scopeTable(summary, "dashboard/tests");
   const box = summary.locator(".intent-proof-table");
   const fit = () =>
@@ -113,11 +120,14 @@ test("at 200% zoom and on a narrow window a folder's Summary table reads whole w
     await page.setViewportSize(window);
     await expectScopeRows(summary, "dashboard/tests", rows);
     await table.scrollIntoViewIfNeeded();
-    expect(await fit()).toEqual({
+    expect(await fit(), JSON.stringify(window)).toEqual({
       sideways: 0,
       inPane: true,
       pageSideways: false,
     });
     expect(await wordsBrokenApart(table, whole)).toEqual([]);
+    expect(
+      await wordsBrokenApart(scopeFigures(summary, "dashboard/tests"), "dd"),
+    ).toEqual([]);
   }
 });

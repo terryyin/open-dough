@@ -24,6 +24,7 @@ import {
 import {
   comparisonScopeColumns,
   expectComparisonScopeRows,
+  scopeTable,
 } from "../intentScopeProofPage.ts";
 import { entryComparisonRows } from "../support/summaryComparisonExpectedRows.ts";
 import {
@@ -151,11 +152,7 @@ test("a Taken Story Branch story's Summary comparison is labelled provisional", 
   await expect(summary.locator(".intent-summary-evidence")).toContainText(
     "has not landed yet",
   );
-  await expect(
-    summary.getByRole("table", {
-      name: "CI proof of dashboard/tests and its immediate folders and files",
-    }),
-  ).toBeVisible();
+  await expect(scopeTable(summary, "dashboard/tests")).toBeVisible();
 });
 
 test("selecting another story replaces the Summary comparison figures", async ({

@@ -25,8 +25,8 @@ direction. GitHub Actions wall time
 spans run creation on attempt one or attempt start on reruns through completion.
 CI time without runner waits measures the longest dependency chain of job
 durations, including carried-over jobs, against the workflow at that build. One classification of each scope's count and duration change
-feeds cues on the overall summary, entry rows, location and folder Summary
-rows, file **Proof**, location headers whose path is a compared entry, and
+feeds cues on the overall summary, entry rows, a location's or folder's own
+Summary figures and its rows, file **Proof**, location headers whose path is a compared entry, and
 file rows in the location tree: a count border (green fewer, red more; any
 change; strong at ≥50% of baseline) and a duration tint (green faster, red
 slower; no tint under 10% or under 1 s; strong at ≥50%; a measured zero
