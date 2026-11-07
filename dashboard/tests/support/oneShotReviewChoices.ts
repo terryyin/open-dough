@@ -35,10 +35,13 @@ export async function capturedChoice(
   ]);
   return { ...run, receipt, key: receipt.reference, name };
 }
-export async function reviewChoices(
+// A legacy run, then each named captured run, beside an open live story A
+// workspace. Each run is marked done before the next can launch.
+export async function reviewChoicesNamed<const Name extends string>(
   dashboard: DashboardServer,
   origin: StartOrigin,
   native: FakeCodex,
+  names: readonly Name[],
 ) {
   const nativeSession = native;
   nativeSession.threadId = "review-legacy";
@@ -53,8 +56,12 @@ export async function reviewChoices(
     old.session,
     new Date().toISOString(),
   ]);
-  const first = await capturedChoice(dashboard, origin, native, "first");
-  const second = await capturedChoice(dashboard, origin, native, "second");
+  const captured = {} as Record<
+    Name,
+    Awaited<ReturnType<typeof capturedChoice>>
+  >;
+  for (const name of names)
+    captured[name] = await capturedChoice(dashboard, origin, native, name);
   git(origin.project, "fetch", "--quiet", "origin", "main");
   const workspace = path.join(origin.project, ".worktrees", "live-review");
   git(
@@ -71,13 +78,17 @@ export async function reviewChoices(
   const live = storyALaunchRecord(workspace);
   await keepLaunchRecords(dashboard, [...stored(dashboard.home), live]);
   return {
-    first,
-    second,
+    ...captured,
     legacy: { ...old, key: sessionKey(old.session) },
     live,
     workspace,
   };
 }
+export const reviewChoices = (
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+  native: FakeCodex,
+) => reviewChoicesNamed(dashboard, origin, native, ["first", "second"]);
 export function addLiveEdit(workspace: string) {
   writeFileSync(
     path.join(workspace, "after-mark.txt"),

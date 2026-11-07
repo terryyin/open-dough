@@ -81,29 +81,33 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     return { ...opened, ...listing, card };
   };
 
-  test("a card lists each unclosed session beside its Start actions through Preparing and Taken, each reloaded", async ({
+  const openSessionDescription = new RegExp(
+    openSessionStartReason.replace(/[.]/g, "\\."),
+  );
+  // Read together: checking a Start action changes nothing on the page.
+  const expectStartsBlocked = (
+    action: Awaited<ReturnType<typeof launchOnEachQueuedCard>>["action"],
+    titles: readonly string[],
+  ) =>
+    Promise.all(
+      titles.flatMap((title) =>
+        (["Execution", "Refinement"] as const).flatMap((workflow) => [
+          expect(action(title, workflow)).toBeDisabled(),
+          expect(action(title, workflow)).toHaveAccessibleDescription(
+            openSessionDescription,
+          ),
+        ]),
+      ),
+    );
+
+  test("a card lists each unclosed session beside its Start actions through Preparing, each reloaded", async ({
     page,
     dashboard,
   }) => {
     const { action, settled, show, card, expectListed } =
       await launchOnEachQueuedCard(page, dashboard);
-    const { taken, recentlyDone } = parts(page);
+    const { recentlyDone } = parts(page);
     const launches = () => dashboard.claudeLaunchCalls();
-    const openSessionDescription = new RegExp(
-      openSessionStartReason.replace(/[.]/g, "\\."),
-    );
-    // Read together: checking a Start action changes nothing on the page.
-    const expectStartsBlocked = (titles: readonly string[]) =>
-      Promise.all(
-        titles.flatMap((title) =>
-          (["Execution", "Refinement"] as const).flatMap((workflow) => [
-            expect(action(title, workflow)).toBeDisabled(),
-            expect(action(title, workflow)).toHaveAccessibleDescription(
-              openSessionDescription,
-            ),
-          ]),
-        ),
-      );
 
     const newest = storyCardSessions(card(readyStory)).first();
     await expect(sessionStateOf(newest)).toHaveText("Working");
@@ -112,7 +116,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     );
     await expect(newest).not.toContainText(readyStory);
     await expectListed();
-    await expectStartsBlocked(queued);
+    await expectStartsBlocked(action, queued);
     await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
     expect(launches()).toHaveLength(3);
 
@@ -123,7 +127,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
         card(readyStory).getByText("Preparing", { exact: true }),
       ).toBeVisible();
       await expectListed();
-      await expectStartsBlocked(queued);
+      await expectStartsBlocked(action, queued);
       await expect(
         action(readyStory, "Refinement"),
       ).toHaveAccessibleDescription(
@@ -144,23 +148,33 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await expectListed();
     });
 
-    await test.step("the published Take shows the story under Taken, whose card keeps every session, set off on the panel in the card's text, and offers no Start", async () => {
-      await show(columnsJourney.taken);
-      const backlog = [takenStory, notRefinedStory];
-      await expectMembership(page, { taken: [readyStory], backlog });
-      const takenStoryCard = taken.getByRole("article", { name: readyStory });
-      await expect(storyCardSessions(takenStoryCard)).toHaveCount(1);
-      await expectListed([readyStory, ...backlog]);
-      await expectStartsBlocked(backlog);
-      await expect(
-        takenStoryCard.getByRole("button", { name: /^Start / }),
-      ).toHaveCount(0);
-      await expectSessionEntrySetOff(storyCardSessions(takenStoryCard).first());
-      await page.reload();
-      await expectMembership(page, { taken: [readyStory], backlog });
-      await settled();
-      await expectListed([readyStory, ...backlog]);
-    });
+    // Nothing was launched again along the way.
+    expect(launches()).toHaveLength(3);
+  });
+
+  test("the published Take shows the story under Taken, whose card keeps every session, set off on the panel in the card's text, and offers no Start, through reload", async ({
+    page,
+    dashboard,
+  }) => {
+    const { action, settled, show, expectListed } =
+      await launchOnEachQueuedCard(page, dashboard);
+    const { taken } = parts(page);
+    const launches = () => dashboard.claudeLaunchCalls();
+    await show(columnsJourney.taken);
+    const backlog = [takenStory, notRefinedStory];
+    await expectMembership(page, { taken: [readyStory], backlog });
+    const takenStoryCard = taken.getByRole("article", { name: readyStory });
+    await expect(storyCardSessions(takenStoryCard)).toHaveCount(1);
+    await expectListed([readyStory, ...backlog]);
+    await expectStartsBlocked(action, backlog);
+    await expect(
+      takenStoryCard.getByRole("button", { name: /^Start / }),
+    ).toHaveCount(0);
+    await expectSessionEntrySetOff(storyCardSessions(takenStoryCard).first());
+    await page.reload();
+    await expectMembership(page, { taken: [readyStory], backlog });
+    await settled();
+    await expectListed([readyStory, ...backlog]);
 
     // Nothing was launched again along the way.
     expect(launches()).toHaveLength(3);

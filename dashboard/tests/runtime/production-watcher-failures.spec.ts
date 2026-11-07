@@ -122,14 +122,18 @@ test("after a failed build the same commit is retried until it builds", async ()
   servedCommit = latestCommit;
 });
 
-test("a failed preview start restores the working commit", async () => {
+// C carries a start cause of its own. The watcher prepares it once it has
+// retired the checkout B replaced; C's staging and failed start are the next
+// test's.
+let cFault: string;
+test("a candidate whose preview start will fail is prepared while the working commit serves", async () => {
   if (watcher === undefined) throw new Error("No watcher");
-  const { fixture, page } = started();
+  const { fixture } = started();
   // The served commit's gate also reads HOME; make the start cause apply to
   // C only.
-  const cFault = path.join(fixture.home, "fault-preview-c");
+  cFault = path.join(fixture.home, "fault-preview-c");
   await writeFile(cFault, "transient candidate start cause");
-  const c = await fixture.publish(
+  latestCommit = await fixture.publish(
     {
       ...fixture.markerChanges("WORKING C"),
       "production-fault.mjs": productionFault.replace(
@@ -139,6 +143,13 @@ test("a failed preview start restores the working commit", async () => {
     },
     "Working C",
   );
+  await expect.poll(() => preparing(latestCommit), { timeout: 60_000 }).toBe(1);
+});
+
+test("a failed preview start restores the working commit", async () => {
+  if (watcher === undefined) throw new Error("No watcher");
+  const { page } = started();
+  const c = latestCommit;
   served = await productionReplacement(watcher, served, servedCommit, true);
   await expect
     .poll(() => watcher?.output() ?? "")
@@ -153,7 +164,6 @@ test("a failed preview start restores the working commit", async () => {
   await page.reload();
   await expect(page).toHaveTitle("WORKING B");
   await rm(cFault);
-  latestCommit = c;
 });
 
 test("after a failed preview start the same commit is retried until it serves", async () => {

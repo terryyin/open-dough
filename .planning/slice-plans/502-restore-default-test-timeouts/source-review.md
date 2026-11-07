@@ -22,12 +22,12 @@ coordinator's allocation.
 | 1a.2 | for the frontend tests | slice 8 | observed: grep -rnE 'test\.slow\|(test\|testInfo\|info)\.setTimeout\(\|describe\.configure\(\{[^}]*timeout\|^\s*(timeout\|globalTimeout):' over dashboard/tests, frontend-tests, backend-tests and playwright.config.ts after slice 8: no slow markers, group or fixture timeouts or config timeout; only case-local allowances auto-refresh-rate-limit.spec.ts:68 and production-deployment.spec.ts:62 (45s, pending candidates) plus nested deadlines under test; slice 8 nested fixtures bounded at the default (mutation: forced nested timeout failed 'Timed out waiting') |
 | 1a.3 | for the backend tests | slice 8 | observed: grep -rnE 'test\.slow\|(test\|testInfo\|info)\.setTimeout\(\|describe\.configure\(\{[^}]*timeout\|^\s*(timeout\|globalTimeout):' over dashboard/tests, frontend-tests, backend-tests and playwright.config.ts after slice 8: no slow markers, group or fixture timeouts or config timeout; only case-local allowances auto-refresh-rate-limit.spec.ts:68 and production-deployment.spec.ts:62 (45s, pending candidates) plus nested deadlines under test; slice 8 nested fixtures bounded at the default (mutation: forced nested timeout failed 'Timed out waiting') |
 | 1a.4 | for their fixtures | slice 8 | observed: grep -rnE 'test\.slow\|(test\|testInfo\|info)\.setTimeout\(\|describe\.configure\(\{[^}]*timeout\|^\s*(timeout\|globalTimeout):' over dashboard/tests, frontend-tests, backend-tests and playwright.config.ts after slice 8: no slow markers, group or fixture timeouts or config timeout; only case-local allowances auto-refresh-rate-limit.spec.ts:68 and production-deployment.spec.ts:62 (45s, pending candidates) plus nested deadlines under test; slice 8 nested fixtures bounded at the default (mutation: forced nested timeout failed 'Timed out waiting') |
-| 1b | "Then" audit and clean up the remaining automated checks (sequenced after 1a) | slice 10 | |
-| 1b.1 | including the shell checks | slice 10 | |
+| 1b | "Then" audit and clean up the remaining automated checks (sequenced after 1a) | slice 10 | observed: slice 10 shell audit: OPEN_DOUGH_TEST_DIR=tests scripts/test-jobs.sh lists 82 shell jobs; grep over 306 tests/scripts *.sh\|*.bash found no case-budget workaround; native-setup.sh and ci-lint-setup.sh elapsed sleeps replaced by wait_for on child pid state (mutation: group kill removed failed both) |
+| 1b.1 | including the shell checks | slice 10 | observed: slice 10 shell audit: OPEN_DOUGH_TEST_DIR=tests scripts/test-jobs.sh lists 82 shell jobs; grep over 306 tests/scripts *.sh\|*.bash found no case-budget workaround; native-setup.sh and ci-lint-setup.sh elapsed sleeps replaced by wait_for on child pid state (mutation: group kill removed failed both) |
 | 1b.2 | including the Node checks | slice 9 | observed: slice 9 audit of the 419 Node jobs (scripts/test-jobs.sh) and 142 helpers: 12 case timeout options removed in 6 src/skills/dough-execute-plan/scripts/*.test.mjs; github-request-owner-start on t.mock.timers (30.7 → 0.4s); runner passes no --test-timeout; product deadlines and whole-run safeguards kept (tmp s9-*) |
-| 1b.3 | including their fixtures | slice 10 | |
-| 1c | Each runner supplies its own default (qualification) | slice 10 | |
-| 1d | The repository's shell runner and `node --test` have no finite default case timeout (qualification) | slice 10 | |
+| 1b.3 | including their fixtures | slice 10 | observed: slice 10 shell audit: OPEN_DOUGH_TEST_DIR=tests scripts/test-jobs.sh lists 82 shell jobs; grep over 306 tests/scripts *.sh\|*.bash found no case-budget workaround; native-setup.sh and ci-lint-setup.sh elapsed sleeps replaced by wait_for on child pid state (mutation: group kill removed failed both) (fixtures included: wait-for.bash, native-* support, release and payload fixtures) |
+| 1c | Each runner supplies its own default (qualification) | slice 10 | observed: scripts/test-run-job.bash run_job runs node --test and bash checks with no per-case timeout; Playwright keeps its 30s default (dashboard/playwright.config.ts sets no timeout) |
+| 1d | The repository's shell runner and `node --test` have no finite default case timeout (qualification) | slice 10 | observed: scripts/test-run-job.bash run_job: no timeout wrapper or --test-timeout; only CI whole-share budget (tests/time-budget) and CI job timeouts bound time |
 | 2a | Remove `test.slow()` | slice 1 | observed: git grep '\.slow(' -- dashboard finds none; 44 markers removed in 16 files (slice 1 diff) |
 | 2b | Remove inherited case-timeout overrides | slice 10 | |
 | 2c | When an affected case approaches or exceeds its default, measure setup, execution and cleanup "as applicable" | slice 10 | |
@@ -64,18 +64,18 @@ coordinator's allocation.
 | E3.1 | Identify the missed event, the fixture cost or the host condition (any of these causes) (example) | slice 10 | |
 | E3.2 | Preserve the check's proof (example) | slice 10 | |
 | E3.3 | Confirm the repair under the profile that exposed the failure (example) | slice 10 | |
-| E4 | A shell watchdog check drives a stalled child through expiration (example) | slice 10 | |
-| E4.1 | Observe termination through the watchdog's contract (example) | slice 10 | |
-| E4.2 | Observe cleanup through the watchdog's contract (example) | slice 10 | |
-| E4.3 | Observe retained evidence through the watchdog's contract (example) | slice 10 | |
-| E4.4 | The expiration under test is part of the scenario, not a case-timeout override (qualification) | slice 10 | |
-| E4.5 | The shell job runs with its normal runner settings (example) | slice 10 | |
+| E4 | A shell watchdog check drives a stalled child through expiration (example) | slice 10 | observed: tests/native-run-timeout.sh unchanged: --deadline 1 --grace 1 against native-agent-hang.sh child that ignores TERM; passed 4.0s at normal runner settings |
+| E4.1 | Observe termination through the watchdog's contract (example) | slice 10 | observed: tests/native-run-timeout.sh:62-74 exit 124; :100-107 hang pid and child gone; :112-116 own process group |
+| E4.2 | Observe cleanup through the watchdog's contract (example) | slice 10 | observed: tests/native-run-timeout.sh:76-81 no scratch left under watched TMPDIR; :108-111 bystander alive |
+| E4.3 | Observe retained evidence through the watchdog's contract (example) | slice 10 | observed: tests/native-run-timeout.sh:151-162 record execution-status timeout, reason deadline expired, not-run assessment, partial events and response kept; :125-143 one launch, earlier attempt byte-identical |
+| E4.4 | The expiration under test is part of the scenario, not a case-timeout override (qualification) | slice 10 | observed: tests/native-run-timeout.sh: expiration is the wrapper's own --deadline 1 scenario input; no case timeout exists in the shell runner |
+| E4.5 | The shell job runs with its normal runner settings (example) | slice 10 | observed: tests/native-run-timeout.sh ran through PATH=/opt/homebrew/bin:$PATH npm test -- tests/native-run-timeout.sh with the normal runner settings (tmp s10-family-*) |
 | A1 | Reuse fixture-owned events and clocks to control inputs to the real boundaries the tests observe (architecture) | slice 10 | |
 | A2 | Keep case timeouts visible in their own profile (architecture) | slice 10 | |
 | A3 | Keep the cost of shared fixture setup and cleanup visible in its own profile (architecture) | slice 10 | |
 | A4 | Keep whole-run safeguards visible in their own profile (architecture) | slice 10 | |
 | A5 | Moving expensive work into shared setup can lower a case's reported duration while increasing the time to a trustworthy suite result (qualification) | slice 10 | |
-| X1 | Exclusion: new timeout enforcement or reporting infrastructure | slice 10 | |
-| X2 | Exclusion: runner replacement | slice 10 | |
-| X3 | Exclusion: redesign of test tiers | slice 10 | |
+| X1 | Exclusion: new timeout enforcement or reporting infrastructure | slice 10 | observed: git diff 2e09e83c0..HEAD adds no timeout enforcement or reporting infrastructure: only test, fixture and test-seam changes (observationClock.ts, ciAdapterTimeout.ts read existing configuredLimit) |
+| X2 | Exclusion: runner replacement | slice 10 | observed: Playwright, node --test and scripts/test-run-job.bash remain the runners (no runner file replaced) |
+| X3 | Exclusion: redesign of test tiers | slice 10 | observed: dashboard tests/, frontend-tests/, backend-tests/ and the repository tiers unchanged; cases only split within their files |
 | X4 | Exclusion (conditional): changes to the existing unique integrated watcher coverage need their own scope decision and replacement proof | slice 7 | observed: unique integrated watcher coverage kept: real install, build, preview, process ownership and cleanup unchanged; splits keep every assertion (dashboard/tests/runtime/productionUpdatePolicies.ts, production-watcher-failures.spec.ts) |

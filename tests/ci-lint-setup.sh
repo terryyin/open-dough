@@ -7,6 +7,12 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
 # shellcheck source=tests/helpers/expect-in-log.bash
 source "${source_dir}/tests/helpers/expect-in-log.bash"
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/wait-for.bash
+source "${source_dir}/tests/helpers/wait-for.bash"
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/process-state.bash
+source "${source_dir}/tests/helpers/process-state.bash"
 platform=$(uname -s)
 if [[ ${platform} != Linux ]] || ! command -v timeout > /dev/null 2>&1; then
   # This is an unobserved boundary on macOS; first Linux CI owns its proof.
@@ -31,6 +37,7 @@ extract_run 'Diagnose lint tool acquisition failure' > "${temporary_dir}/diagnos
 mkdir -- "${temporary_dir}/bin"
 cat > "${temporary_dir}/bin/curl" << 'CURL'
 #!/usr/bin/env bash
+printf '%s\n' "$$" > "${SOURCE_PID}"
 printf '%s\n' "$*" > "${SOURCE_CALL}"
 case ${SOURCE_BEHAVIOR} in
   unavailable)
@@ -45,12 +52,14 @@ esac
 CURL
 chmod +x "${temporary_dir}/bin/curl"
 for behavior in unavailable stalled expired; do
-  rm -f -- "${temporary_dir}/source-call" "${temporary_dir}/late-write" "${temporary_dir}/tests-started"
+  rm -f -- "${temporary_dir}/source-call" "${temporary_dir}/source-pid" \
+    "${temporary_dir}/late-write" "${temporary_dir}/tests-started"
   deadline=$(node -e 'console.log(Date.now()+1500)')
   [[ ${behavior} != expired ]] || deadline=1
   started=${EPOCHREALTIME}
   if PATH="${temporary_dir}/bin:${PATH}" SOURCE_BEHAVIOR="${behavior}" \
-    SOURCE_CALL="${temporary_dir}/source-call" LATE_WRITE="${temporary_dir}/late-write" \
+    SOURCE_CALL="${temporary_dir}/source-call" SOURCE_PID="${temporary_dir}/source-pid" \
+    LATE_WRITE="${temporary_dir}/late-write" \
     OPEN_DOUGH_SETUP_DEADLINE_MS="${deadline}" SHELLCHECK_VERSION=0.11.0 SHFMT_VERSION=3.14.0 \
     bash "${acquire}" > "${temporary_dir}/${behavior}.log" 2>&1; then
     touch "${temporary_dir}/tests-started"
@@ -77,7 +86,10 @@ for behavior in unavailable stalled expired; do
     stalled)
       [[ -e ${temporary_dir}/source-call ]]
       node -e "if (Number('${EPOCHREALTIME}')-Number('${started}') > 4) process.exit(1)"
-      sleep 4.1
+      # A surviving source ends only by writing late; once it is gone, any
+      # late write has already happened.
+      wait_for 'the stalled lint tool source to stop' 10 \
+        "! process_running '$(< "${temporary_dir}/source-pid")'"
       [[ ! -e ${temporary_dir}/late-write ]]
       ;;
     *) exit 1 ;;

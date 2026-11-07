@@ -33,7 +33,8 @@ let cursorSessionId: string;
 let cursorClientPid: number;
 const sockets: { close(): void }[] = [];
 // Setup publishes pinned main and starts the watcher; the first test observes
-// its activation, so the shared hook holds only the preparation.
+// its activation and the next starts development, so the shared hook holds
+// only the preparation.
 test.beforeAll(async ({ browser }) => {
   ({ env, pinned } = await machine.start(browser));
 });
@@ -42,18 +43,24 @@ test.afterAll(async () => {
   await machine.close();
 });
 
+test("npm watcher activates published main and starts the Cursor runner", async () => {
+  const watcher = machine.watcher;
+  if (watcher === undefined) throw new Error("No watcher");
+  ({ served, runner } = await machine.activated(pinned));
+  expect(watcher.output()).toContain(
+    `Preparing production dashboard ${pinned}.`,
+  );
+  expect(processRunning(served.pid)).toBe(true);
+});
+
 test("npm watcher serves published main beside hot-reloaded uncommitted development and enforces the local boundaries", async ({
   browser,
   request,
 }) => {
   const watcher = machine.watcher;
   if (watcher === undefined) throw new Error("No watcher");
-  ({ developmentUrl, served, runner } = await machine.activated(pinned, env));
+  developmentUrl = await machine.developmentStarted(env);
   const { productionPage, developmentPage } = started();
-  expect(watcher.output()).toContain(
-    `Preparing production dashboard ${pinned}.`,
-  );
-  expect(processRunning(served.pid)).toBe(true);
   expect(served.url).not.toBe(developmentUrl);
   await productionPage.goto(served.url);
   await expect(productionPage).toHaveTitle("PINNED MAIN");

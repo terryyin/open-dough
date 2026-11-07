@@ -157,12 +157,11 @@ test("a commit held in its build is served exactly at the same URL while the nex
   await journey.expectSharedRecord(request, state.served.url);
 });
 
-test("a later check replaces the served held commit with the next commit at the same URL, keeping shared records and configuration", async ({
-  request,
-}) => {
+// The watcher first retires the checkout B replaced, then a later check
+// prepares C, whose build stays held; the next test releases it.
+test("a later check prepares the next commit while the held commit stays served", async () => {
   const state = journey.started();
-  const { fixture, page, watcher } = state;
-  const switched = state.served;
+  const { page, watcher } = state;
   await expect
     .poll(() => watcher.output(), { timeout: 60_000 })
     .toContain(`Preparing production dashboard ${c}.`);
@@ -171,6 +170,14 @@ test("a later check replaces the served held commit with the next commit at the 
   );
   await page.reload();
   await expect(page).toHaveTitle("MAIN B");
+});
+
+test("the next commit, released from its build, replaces the held commit at the same URL, keeping shared records and configuration", async ({
+  request,
+}) => {
+  const state = journey.started();
+  const { fixture, page } = state;
+  const switched = state.served;
   await rm(holdBuildPath(fixture.home, 3));
   await journey.replacedBy(c);
   expect(processRunning(switched.pid)).toBe(false);

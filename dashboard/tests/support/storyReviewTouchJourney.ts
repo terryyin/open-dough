@@ -1,5 +1,5 @@
-// One touch review journey: tap-sized controls, pane reading, kept context
-// through rotation. Uncommitted comparison ownership stays with
+// Touch review journeys: tap-sized controls and pane reading, then kept
+// context through rotation and panel controls. Uncommitted comparison ownership stays with
 // story-review-uncommitted-check.spec.ts.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
@@ -48,12 +48,13 @@ import {
 
 const control = (review: Locator, name: string) =>
   review.getByRole("button", { name, exact: true });
-export async function chooseComparisonAndKeepContextThroughTouch(
+type Viewport = { width: number; height: number };
+
+// Opens story A's large real comparison by touch, its review focused.
+async function openReviewByTouch(
   page: Page,
   dashboard: DashboardServer,
   origin: StartOrigin,
-  portrait: { width: number; height: number },
-  landscape: { width: number; height: number },
 ) {
   const { workspace } = largeWorktree(origin);
   writeFileSync(path.join(workspace, "touch-uncommitted.txt"), "uncommitted\n");
@@ -71,6 +72,34 @@ export async function chooseComparisonAndKeepContextThroughTouch(
   ).toBeVisible();
   const comparison = review.getByRole("radiogroup", { name: "Comparison" });
   const all = comparison.locator("label", { hasText: "All changes" });
+  return { action, review, browser, comparison, all };
+}
+
+type TouchReview = Awaited<ReturnType<typeof openReviewByTouch>>;
+
+// After the large-changes commit, All changes by touch, then the long file.
+async function chooseAllChangesFileByTouch({
+  review,
+  browser,
+  comparison,
+  all,
+}: TouchReview) {
+  await chooseLargeChangesCommitByTouch(review, browser);
+  await reachReviewControl(review, all);
+  await tapWhereShown(all);
+  await expect(
+    comparison.getByRole("radio", { name: "All changes" }),
+  ).toBeChecked();
+  return selectAddedFileByTouch(review, longA);
+}
+
+export async function chooseComparisonAndReadByTouch(
+  page: Page,
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+) {
+  const opened = await openReviewByTouch(page, dashboard, origin);
+  const { review, browser, comparison, all } = opened;
   const commits = comparison.locator("label", { hasText: "Commits" });
   const folder = browser.getByRole("button", { name: /^many\b/ });
   const label = uncommittedLabel(review);
@@ -87,13 +116,7 @@ export async function chooseComparisonAndKeepContextThroughTouch(
   await reachReviewControl(review, folder);
   await tapWhereShown(folder);
   await expect(folder).toHaveAttribute("aria-expanded", "true");
-  await chooseLargeChangesCommitByTouch(review, browser);
-  await reachReviewControl(review, all);
-  await tapWhereShown(all);
-  await expect(
-    comparison.getByRole("radio", { name: "All changes" }),
-  ).toBeChecked();
-  const diff = await selectAddedFileByTouch(review, longA);
+  const diff = await chooseAllChangesFileByTouch(opened);
   const code = diff.locator(".story-review-code");
   await expect(code).toContainText("+first 0");
   await expect(code).toContainText(`+${wideLine}`);
@@ -164,6 +187,28 @@ export async function chooseComparisonAndKeepContextThroughTouch(
   await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserAt);
   expect(await scrollTopOf(code)).toBe(codeBeforeBrowserScroll);
   expect(await boxes(fixed)).toEqual(before);
+}
+
+// The chosen file and both panes' reading places, each reached by touch,
+// survive rotation, Maximize, hidden files, Next file and Refresh; explicit
+// Commits keeps its reading place through rotation too.
+export async function keepReviewContextThroughTouch(
+  page: Page,
+  dashboard: DashboardServer,
+  origin: StartOrigin,
+  portrait: Viewport,
+  landscape: Viewport,
+) {
+  const opened = await openReviewByTouch(page, dashboard, origin);
+  const { action, review, browser, comparison } = opened;
+  const diff = await chooseAllChangesFileByTouch(opened);
+  const code = diff.locator(".story-review-code");
+  await expect(code).toContainText("+first 0");
+  await scrollByTouch(page, code, -300);
+  await expect.poll(() => scrollTopOf(code)).toBeGreaterThan(0);
+  const browserAt = await scrollTopOf(browser);
+  await scrollByTouch(page, browser, 100);
+  await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserAt);
   const selected = browser.getByRole("button", { name: `Added ${longA}` });
   const codeAt = await scrollTopOf(code);
   let reads = 0;

@@ -353,6 +353,26 @@ state and controlled expiration where needed. In the watchdog family, observe
 termination, retained diagnostics, exit status and cleanup. Compare each
 changed job under `npm test -- <path…>` and then run the final gate.
 
+Progress: the shell audit found 82 jobs, with no case-budget workaround in
+them or their fixtures. `native-setup.sh` and `ci-lint-setup.sh` now wait on
+the child's process state through the shared `tests/helpers/process-state.bash`
+instead of fixed sleeps. Removing the process-group kill failed both. The
+watchdog family, including `native-run-timeout.sh`, is unchanged and passes
+at normal settings. Hosted runs vary up to about 2× per case, with a p90 ratio
+of 1.53 against the baseline. Nine dashboard journeys reached 22–28.5s hosted
+without an allowance; they were split or had real costs removed, keeping
+every assertion. Under a 24-worker or 16-worker traced stand-in:
+one-shot refresh went from timing out to 26.5s at most, system settings
+14.6 → 9.2s, and touch review 24.4 → 19.9s at most. The watcher-updates,
+watcher and failed-preview steps each now stage at most one deployment.
+Readiness gaps, attention and story-card Taken became separate cases.
+The changed specs and helper consumers ran 52/52 at default limits.
+Still near 22s hosted with no practical cut:
+`productionUpdatePolicies` single-staging cases,
+`responsive-session-reconciliation` and the story-card completion case. The
+one-shot refresh split covers the empty-capture fallback only through
+`story-review-one-shot-unavailable.spec.ts`. The final gate follows.
+
 ## Final gate and safe stops
 
 Each completed slice keeps its affected checks green with the same proof and a

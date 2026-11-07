@@ -6,6 +6,12 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 # shellcheck disable=SC1091
 # shellcheck source=tests/helpers/expect-in-log.bash
 source "${source_dir}/tests/helpers/expect-in-log.bash"
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/wait-for.bash
+source "${source_dir}/tests/helpers/wait-for.bash"
+# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/process-state.bash
+source "${source_dir}/tests/helpers/process-state.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 node=$(command -v node)
@@ -21,7 +27,7 @@ case ${SOURCE_BEHAVIOR} in
   failed) exit 23 ;;
   stalled) exec /bin/sleep 30 ;;
   interrupted)
-    /bin/bash -c '/usr/bin/touch "${CHILD_READY}"; /bin/sleep 1; /usr/bin/touch "${LATE_WRITE}"' &
+    /bin/bash -c 'printf "%s\n" "$$" > "${CHILD_READY}"; /bin/sleep 1; /usr/bin/touch "${LATE_WRITE}"' &
     wait
     ;;
 esac
@@ -157,12 +163,9 @@ for signal in INT TERM; do
     LATE_WRITE="${temporary_dir}/late-write" CHILD_READY="${temporary_dir}/child-ready" \
     "${node}" "${script}" npm) > "${temporary_dir}/interrupt-${signal}.log" 2>&1 &
   setup_pid=$!
-  # ≤5s poll: node→setup→stub→descendant can exceed the old 1s bound under CI load.
-  for ((attempt = 0; attempt < 500; attempt++)); do
-    [[ -e ${temporary_dir}/child-ready ]] && break
-    sleep 0.01
-  done
-  [[ -e ${temporary_dir}/child-ready ]]
+  # node→setup→stub→descendant can exceed 1s under CI load.
+  wait_for 'the setup source descendant to start' 5 "[[ -s '${temporary_dir}/child-ready' ]]"
+  descendant=$(< "${temporary_dir}/child-ready")
   kill -"${signal}" "${setup_pid}"
   result=0
   wait "${setup_pid}" || result=$?
@@ -172,7 +175,9 @@ for signal in INT TERM; do
     *) exit 1 ;;
   esac
   expect_in_log "${temporary_dir}/interrupt-${signal}.log" -F -- "npm source acquisition interrupted (SIG${signal})"
-  sleep 1.1
+  # A surviving descendant ends only by writing late; once it is gone, any
+  # late write has already happened.
+  wait_for "the ${signal}-interrupted setup descendant to stop" 5 "! process_running '${descendant}'"
   if [[ -e ${temporary_dir}/late-write ]]; then
     echo "FAIL: ${signal} interruption left a setup descendant writing." >&2
     exit 1

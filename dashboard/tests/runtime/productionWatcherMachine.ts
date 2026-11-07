@@ -75,15 +75,21 @@ export class ProductionWatcherMachine {
     return { env, pinned };
   }
 
-  // The watcher's first activation, then development beside it. Development
-  // starts only after the production command has started the Cursor runner.
-  async activated(pinned: string, env: NodeJS.ProcessEnv) {
+  // The watcher's first activation and the Cursor runner it started.
+  async activated(pinned: string) {
     const { fixture } = this.started();
     const served = await productionActivation(this.watcher, pinned);
     const runner = await liveRunner(fixture.home);
+    return { served, runner };
+  }
+
+  // Development beside production, started only after the production command
+  // has started the Cursor runner.
+  async developmentStarted(env: NodeJS.ProcessEnv) {
+    const { fixture } = this.started();
     const started = await developmentDashboard(fixture.development, env);
     this.development = started.command;
-    return { developmentUrl: started.url, served, runner };
+    return started.url;
   }
 
   started() {

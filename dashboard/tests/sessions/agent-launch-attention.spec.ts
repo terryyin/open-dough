@@ -1,6 +1,7 @@
 // Cards count local attention independently of published story membership.
 
-import type { Locator } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
+import type { DashboardServer } from "../support/dashboardServer.ts";
 import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import {
   chooseProject,
@@ -71,10 +72,13 @@ test.describe("a story's card counts the sessions that need attention", () => {
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
-  test("counts each card's affected sessions through Backlog, Preparing, and Taken, never another project's or an unknown one, and a story in no list keeps its affected session in local Taken", async ({
-    page,
-    dashboard,
-  }) => {
+  // Opens origin's queued revision on a paused page and launches, from the
+  // Backlog cards, an Execution on the ready and the not-refined story and a
+  // Refinement on takenStory; none needs attention yet.
+  const launchOnEachQueuedCard = async (
+    page: Page,
+    dashboard: DashboardServer,
+  ) => {
     await pausePageClockAt(page, new Date());
     const { passOnePace } = await watchRecordReads(page);
     dashboard.claudeScenario("launched");
@@ -130,6 +134,28 @@ test.describe("a story's card counts the sessions that need attention", () => {
       dashboard.claudeSessionBecomes(session, ...change);
     };
     await expectCounted({});
+    return {
+      passOnePace,
+      settled,
+      show,
+      launch,
+      board,
+      taken,
+      card,
+      entryOf,
+      expectCounted,
+      shows,
+      becomes,
+      queued,
+    };
+  };
+
+  test("counts each card's affected sessions in Backlog and Preparing, never an unknown one or while the listing cannot be read", async ({
+    page,
+    dashboard,
+  }) => {
+    const { passOnePace, show, card, expectCounted, shows, becomes, queued } =
+      await launchOnEachQueuedCard(page, dashboard);
     const facts = await publishedFactsOf(card(readyStory));
     await markNotReloaded(page);
 
@@ -176,7 +202,29 @@ test.describe("a story's card counts the sessions that need attention", () => {
       await expectMembership(page, { taken: [], backlog: queued });
       expect(await publishedFactsOf(card(readyStory))).toBe(preparingFacts);
     });
+  });
 
+  test("counts a Taken card's affected sessions and only the shown project's, and a story in no list keeps its affected session in local Taken", async ({
+    page,
+    dashboard,
+  }) => {
+    const {
+      passOnePace,
+      settled,
+      show,
+      launch,
+      board,
+      taken,
+      card,
+      entryOf,
+      expectCounted,
+      shows,
+      becomes,
+    } = await launchOnEachQueuedCard(page, dashboard);
+    // The states the Backlog and Preparing journey leaves: the not-refined
+    // story's session is ready for review and the Refinement is unavailable.
+    becomes(notRefinedStory, "Execution", "done-live");
+    becomes(takenStory, "Refinement", "forgotten");
     const takenColumns = {
       taken: [readyStory],
       backlog: [takenStory, notRefinedStory],
