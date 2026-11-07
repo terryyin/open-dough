@@ -228,9 +228,13 @@ split 12.3 → 3.2s, shared room 8.5 → 3.9s, layout 5.4 → 3.0s, attribution
 case 15.3 → 6.4s. Setting the sidebar's overflow to hidden failed the
 reachability assertion with the clipped controls listed. Runs: 14/14; 8
 workers `--repeat-each 3` 42/42; the reachability consumers 78/78; the rest of
-the families 56/56. `agent-launch-story-card-sessions` keeps the thinnest
-hosted margin, 25.2–25.3s with no elapsed wait. Slice 10 confirms it at the
-hosted gate and repairs it if it fails.
+the families 56/56. `agent-launch-story-card-sessions` then timed out at 30s in CI run
+42395811294. That runner was CPU-bound: 665 calls, 111 fake host processes,
+plus tracing. The repair split it into two cases with every assertion kept,
+checks the listing's static expectations together, and ends `launch`'s
+dialog wait without a leftover poll. A local stand-in for hosted CI,
+24 workers on 16 cores, measured 28.7s → 20.2s per case. The 59 consumer
+specs ran 120/120.
 
 ### 6. Dashboard deployment proves pinned serving and clean replacement
 

@@ -89,8 +89,8 @@ shows.
 A server that must find no `claude` gets a PATH holding only the fake `gh`
 and Node. Nothing here ever calls the real
 `claude`. The story-card-sessions journey (`agent-launch-story-card-sessions.spec.ts`)
-reaches Preparing, including a refinement launched on the Preparing card, and
-walks on through the Take and completion; the attention journey
+launches from the Backlog cards, reaches Preparing, and walks on through the
+Take and completion; the attention journey
 (`agent-launch-attention.spec.ts`) walks the same board counting the sessions
 that need attention. Each card concern has one owner:
 `agent-launch-story-card.spec.ts` the Start actions, their dialogs, what a launch

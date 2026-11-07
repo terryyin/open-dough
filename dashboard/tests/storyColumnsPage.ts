@@ -73,14 +73,17 @@ export async function openStoryColumnsJourney(
         name: `Start ${workflow} in Claude Code`,
       });
       await dialog.getByRole("button", { name: "Start" }).click();
-      const continueBaseCi = dialog.getByRole("button", {
+      const continueName = {
         name: /Continue (on failing base|while CI runs|without CI result)/,
-      });
-      await Promise.race([
-        dialog.waitFor({ state: "hidden" }),
-        continueBaseCi.waitFor({ state: "visible" }),
-      ]);
-      if (await continueBaseCi.isVisible().catch(() => false)) {
+      };
+      const continueBaseCi = dialog.getByRole("button", continueName);
+      // The dialog counts only while it offers no Continue, so one wait ends
+      // when it closes or when it asks to continue without base CI, and no
+      // second wait is left polling after the other answers.
+      await dialog
+        .filter({ hasNot: page.getByRole("button", continueName) })
+        .waitFor({ state: "hidden" });
+      if ((await continueBaseCi.count()) > 0) {
         await continueBaseCi.click();
       }
       await untilPageRequestsAnswered(page);
