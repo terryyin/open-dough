@@ -77,34 +77,61 @@ wording assertion an independent expected result.
 {"schemaVersion":1,"identity":"SEED-258#invoke-intent-coverage-manually","dependencies":[{"supplier":{"identity":"SEED-258#compare-manual-intent-coverage","href":"seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage"},"implementation":"Generalize the assessment method that the measured manual comparison supports.","rationale":"The public skill needs a demonstrated improvement over ordinary review before it is generalized.","condition":"The measured comparison records verified decisions, consequential misses, and total effort, and Terry records a decision to proceed with generalizing the method.","state":"waiting","resolution":{"revision":"72e0c2f318a4283bff32acd5767a27ecaa576ba8","path":".planning/seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage","summary":"The measured pilot supports one targeted scratch break check on demand during ordinary review. The assessment missed the proofless-then-running Landed defect, and comparable total effort is unavailable. The delegated decision was Narrow. Generalizing a public skill still requires evidence and a decision to proceed. The surviving pilot result links to the pinned comparison.\nCondition remains unresolved: The measured comparison records verified decisions, consequential misses, and total effort, and Terry records a decision to proceed with generalizing the method.\nAccepted integration: 98d9b8512b48ff91f629fb913dd29ba23067ff9e on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/503-invoke-intent-coverage-manually/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"404ae6d3290c03c3534ed92d6a022cc6b5e0287e6f8dc47f325ca3b5d8a023da","plan":"56c66b2e319731adde5b2fbe56b26a9ba46313539110bc0a8a141f988c8ef51a"}}
 ```
 
-- **For / why.** A developer can invoke the public `dough-intent-coverage`
-  skill for a selected story and receive a sourced account of the promises
-  the project's tests protect, along with the time and effort it took to
-  assess them.
-- **Evaluation.** A developer invokes the installed skill in a project with
-  browser and unit tests and in a project with a different test stack. The
-  assessment uses each project's own test commands and relates end-to-end,
-  integration, and unit assertions to the promises they exercise. It
-  distinguishes observed results, gaps, and missing evidence. The skill
-  returns the assessment and its cost evidence as output. The rendered
-  assessment shows measured end-to-end wall-clock time, separate test
-  runtime, and human and agent effort where there is a basis to report it.
-  Show the units and evidence labels for measured and estimated figures and
-  identify unavailable values. The caller decides whether and where to save
-  the result.
-  [Architectural North Star](../NORTH-STAR.md#intent-assessment-results-carry-their-cost).
-- **Prerequisite.** A measured pilot that Terry judges worth generalizing.
-  Use the supported method and project conventions with one shared source
-  for Codex, Cursor, and Claude Code.
-  [AGENTS.md](../../AGENTS.md),
-  [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md),
+**Goal.** A developer can invoke the installed `dough-intent-coverage` skill
+for one selected story and use its sourced assessment to decide which test
+protections to keep, clarify, or strengthen. The developer can see the cost of
+that assessment alongside its findings.
+
+**Scope.**
+
+- Resolve the selected story's recorded promises and the revision being
+  assessed. Use this project's maintained tests and its own focused commands.
+  Cite the test setup and assertions that support each observed result, and
+  describe the boundary of the evidence. Distinguish an evidenced protection,
+  an evidenced gap, and missing evidence. Ask for the specific missing story
+  input when there is no reliable basis to identify the intended behavior.
+- Return the assessment with measured end-to-end wall-clock time including
+  setup, runs, and report preparation. Show test runtime separately when
+  observed. Give human and agent effort separately when supported. For each
+  figure, state the unit and basis and label it measured or estimated. Mark
+  unavailable values explicitly. The caller chooses whether and where to save
+  the result. [Architectural North Star](../NORTH-STAR.md#intent-assessment-results-carry-their-cost).
+- Demonstrate the installed invocation in a project with browser and unit
+  tests and in a project with a different test stack. Use one shared source
+  for Codex, Cursor, and Claude Code and follow the normal versioned delivery
+  path. [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md) ·
+  [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) ·
   [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
-- **Effort and stopping point.** Largest candidate because it needs evidence
-  across real test mixes and supported hosts. Manual invocation is useful
-  on its own if wrap-up integration is deferred.
+- Use the assessment method supported by the recorded prerequisite once it
+  is satisfied. The [pilot result](#pilot-result) supports a targeted break
+  check during ordinary review. This story's broader public scope still
+  awaits evidence and Terry's decision to proceed.
+- Defer automatic invocation, done-record storage, and dashboard rendering to
+  [the wrap-up story](#assess-intent-coverage-during-wrap-up). The manual
+  assessment addresses the selected story's test protection. Product-wide
+  audits, aggregate code coverage, and repairs to the assessed project's
+  tests are separate work.
+
+**Key examples.**
+
+- In a project with browser and unit tests, a developer asks about a selected
+  story whose browser journey checks a visible outcome and whose unit test
+  checks an underlying decision. The assessment cites what each assertion
+  observes. If a maintained fixture exercises a consequential combined path
+  and its assertion misses the promised result, the assessment explains that
+  gap with the setup and assertion evidence.
+- In a Python project using pytest, the developer invokes the same skill on a
+  selected story. The assessment uses that project's command and distinguishes
+  a behavior observed through a component from a claim about a separate entry
+  point, such as the CLI. The invocation returns findings and cost evidence
+  directly to the caller.
+- When a relevant check cannot run, the assessment identifies the missing
+  observation and gives the strongest supported verdict. It reports measured
+  elapsed time for the attempt and marks unavailable test runtime and effort
+  explicitly.
 
 <a id="assess-intent-coverage-during-wrap-up"></a>
 
