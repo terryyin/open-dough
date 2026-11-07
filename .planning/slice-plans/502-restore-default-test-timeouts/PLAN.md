@@ -166,12 +166,23 @@ the request owner's real clock. It is recorded as the pending candidate
 ### 3. Intent comparison produces its actual endpoint verdict promptly
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: In the Intent CI adapter, comparison and summary families, drive
 availability or expiration through the observed request/clock boundary.
 Preserve the successful verdict and the distinct unavailable or timed-out
 endpoint reason. Measure the affected cases, including the Done adapter case
 at 27.524s, at the default or with a recorded case exception.
+
+Result: no Intent allowance remains. The Done adapter case waited out the
+product's 20s adapter limit against a 25s fixture sleep. The dashboard's
+adapter limit now reads `DOUGH_CI_ADAPTER_TIMEOUT_MS` through
+`configuredLimit`, with the same default. The case lowers it to 2s against a
+discovery that never answers, and still asserts each endpoint's distinct
+timed-out reason. It went from 24.3s locally (27.5s in CI) to 6.6s. The slow
+proof-read case now holds the read on an observable release: 5.3 → 1.0s. The
+reason check failed when the limit did not reach the server. Runs: 7/7,
+`--repeat-each 5` 35/35, the adapter family 24/24, and the two repository
+adapter tests passed.
 
 ### 4. Launch and recovery checks follow host progress
 

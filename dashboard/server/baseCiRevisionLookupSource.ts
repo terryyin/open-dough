@@ -3,7 +3,6 @@
 // (`./baseCiAdapterRevisionLookup.ts`); GitHub Actions lists runs as the
 // first-parent walk reaches each revision (`./baseCiGithubRevisionLookup.ts`).
 // Endpoint selection stays in `./baseCiRevisionLookup.ts`.
-import { defaultAdapterTimeoutMs } from "../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { adapterDiscoveryUnread } from "./baseCiAdapterAttempts.ts";
 import { adapterRevisionLookup } from "./baseCiAdapterRevisionLookup.ts";
@@ -12,6 +11,7 @@ import { githubRevisionLookup } from "./baseCiGithubRevisionLookup.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { unread, type BaseCiJudgment } from "./baseCiNearest.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
+import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
 import type { GitCall } from "./gitRunner.ts";
 
 export async function revisionLookupOrGap(
@@ -43,7 +43,7 @@ export async function revisionLookupOrGap(
         );
       if (error instanceof Error && "killed" in error && error.killed === true)
         return unread(
-          `The CI adapter did not answer discovery within ${String(defaultAdapterTimeoutMs / 1000)} seconds.`,
+          `The CI adapter did not answer discovery within ${String(ciAdapterTimeoutMs() / 1000)} seconds.`,
         );
       return adapterDiscoveryUnread(error);
     }

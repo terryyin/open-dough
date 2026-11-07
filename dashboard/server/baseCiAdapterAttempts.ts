@@ -2,6 +2,7 @@
 import { createCommandAcquisition } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { type ListedRun, unread } from "./baseCiNearest.ts";
+import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
 
 // One ciAdapter attempt discover answered: its `runId` and `attemptId` as
 // `databaseId` and `attempt`, and the check and context the adapter named.
@@ -75,6 +76,7 @@ export async function discoverAdapterAttempts(
         branch: listedBranch,
         root,
         includeOtherBranches: comparison,
+        timeoutMs: ciAdapterTimeoutMs(),
       });
       try {
         await acquisition.acquireRuns(asked);

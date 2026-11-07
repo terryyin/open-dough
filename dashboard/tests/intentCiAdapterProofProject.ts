@@ -31,15 +31,16 @@ export type Answers = {
   // Each discover's attempts, by the asked branch.
   readonly discover: Readonly<Record<string, readonly unknown[]>>;
   readonly discoverStderr?: string;
-  readonly discoverDelayMs?: number;
+  // Discover never answers, so the dashboard's adapter limit ends it.
+  readonly discoverHeld?: boolean;
   // Default proof answer, with optional answers by the requested attempt ID.
   readonly proof: unknown;
   readonly proofByAttemptId?: Readonly<Record<string, unknown>>;
   // Instead of answering, the proof read writes this to stderr and exits 2,
   // as an adapter without the operation does.
   readonly proofStderr?: string;
-  // How long the proof read waits before answering.
-  readonly proofDelayMs?: number;
+  // The proof read answers only once the test releases it (`releaseProof`).
+  readonly proofHeld?: boolean;
 };
 
 // A ciAdapter project folder in the test home whose adapter records each
@@ -52,7 +53,15 @@ export function adapterProject(home: string) {
   mkdirSync(path.join(project, ".planning"), { recursive: true });
   writeFileSync(
     path.join(project, adapter),
-    `import { appendFileSync, readFileSync } from "node:fs";
+    `import { appendFileSync, existsSync, readFileSync } from "node:fs";
+const released = (operation) =>
+  new Promise((resolve) => {
+    const check = () =>
+      existsSync("adapter-release-" + operation)
+        ? resolve()
+        : setTimeout(check, 20);
+    check();
+  });
 let input = "";
 for await (const chunk of process.stdin) input += chunk;
 const request = JSON.parse(input);
@@ -62,14 +71,14 @@ if (request.operation === "discover" && answers.discoverStderr !== undefined) {
   process.stderr.write(answers.discoverStderr + "\\n");
   process.exit(2);
 }
-if (request.operation === "discover" && answers.discoverDelayMs !== undefined)
-  await new Promise((resolve) => setTimeout(resolve, answers.discoverDelayMs));
+if (request.operation === "discover" && answers.discoverHeld === true)
+  await released("discover");
 if (request.operation === "proof" && answers.proofStderr !== undefined) {
   process.stderr.write(answers.proofStderr + "\\n");
   process.exit(2);
 }
-if (request.operation === "proof" && answers.proofDelayMs !== undefined)
-  await new Promise((resolve) => setTimeout(resolve, answers.proofDelayMs));
+if (request.operation === "proof" && answers.proofHeld === true)
+  await released("proof");
 const proofByAttemptId = answers.proofByAttemptId ?? {};
 const answer = request.operation === "proof"
   ? Object.hasOwn(proofByAttemptId, request.attempt.attemptId)
@@ -97,6 +106,9 @@ process.stdout.write(JSON.stringify(answer));
         path.join(project, "adapter-answers.json"),
         JSON.stringify(answers),
       );
+    },
+    releaseProof() {
+      writeFileSync(path.join(project, "adapter-release-proof"), "");
     },
     proofRequests(): unknown[] {
       return requestsOf("proof");

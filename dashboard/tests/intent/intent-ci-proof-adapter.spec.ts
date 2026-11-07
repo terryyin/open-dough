@@ -143,7 +143,7 @@ test("a slow adapter proof read never delays the verdict", async ({
   adapter.answer({
     discover: { main: [passed(uuid, uuid, login, "main")] },
     proof: testsSummary(uuid, login),
-    proofDelayMs: 4_000,
+    proofHeld: true,
   });
   const { panel, proof } = await openAdapterProof(page);
 
@@ -151,6 +151,9 @@ test("a slow adapter proof read never delays the verdict", async ({
   await expect(proof.locator(".intent-ci-proof-checking")).toHaveText(
     "Checking the CI proof of this attempt…",
   );
-  await expectProofRows(proof, [testsRow], { timeout: 15_000 });
+  await expect.poll(() => adapter.proofRequests().length).toBeGreaterThan(0);
+  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+  adapter.releaseProof();
+  await expectProofRows(proof, [testsRow]);
   await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
 });

@@ -63,6 +63,20 @@ export function fixtureServerMode(serverMode: FixtureServerMode) {
     : ({ mode: "boundary" } as const);
 }
 
+// The dashboard server's environment from the `extraEnv` and
+// `startTimeoutMs` options.
+export function fixtureExtraEnv(
+  extraEnv: Readonly<Record<string, string>> | undefined,
+  startTimeoutMs: number | undefined,
+) {
+  return {
+    ...extraEnv,
+    ...(startTimeoutMs === undefined
+      ? {}
+      : { DOUGH_START_TIMEOUT_MS: String(startTimeoutMs) }),
+  };
+}
+
 // Page time stands still at `at` until a journey lets it pass. The clock is
 // installed an hour earlier because it runs until paused, and Playwright
 // refuses to pause it in the past; no page is open yet, so that hour fires
@@ -171,12 +185,7 @@ export const test = base.extend<{
       revisionCheckReuseMs,
       observationClock,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
-      extraEnv: {
-        ...extraEnv,
-        ...(startTimeoutMs === undefined
-          ? {}
-          : { DOUGH_START_TIMEOUT_MS: String(startTimeoutMs) }),
-      },
+      extraEnv: fixtureExtraEnv(extraEnv, startTimeoutMs),
     });
     await use(server);
     await server.close();
