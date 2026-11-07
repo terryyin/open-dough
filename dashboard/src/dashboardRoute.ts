@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
-import { useProjects } from "./projectList.tsx";
+import { useVisibleProjects } from "./projectList.tsx";
 import {
   buildRouteUrl,
   parseRoute,
@@ -27,20 +27,22 @@ export function useDashboardRoute({
   onReturnToStories,
   onForwardToRoster,
 }: {
-  sourceId: string;
+  sourceId: string | undefined;
   suspended?: boolean;
-  selectSource: (next: PublishedSource) => void;
+  selectSource: (next: PublishedSource | undefined) => void;
   onReturnToStories: () => void;
   onForwardToRoster: (targetSourceId: string) => void;
 }) {
-  const projects = useProjects();
+  const projects = useVisibleProjects();
   const initial = useRef(parseRoute(window.location, projects));
   if (!suspended && initial.current.normalizedUrl !== undefined) {
     window.history.replaceState(null, "", initial.current.normalizedUrl);
     initial.current = { ...initial.current, normalizedUrl: undefined };
   }
   const [route, setRoute] = useState<DashboardRoute>(initial.current.route);
-  const settingsSelection = useRef<PublishedSource | undefined>(undefined);
+  const settingsSelection = useRef<PublishedSource | null | undefined>(
+    undefined,
+  );
   // Shows a route as one new history entry.
   const pushRoute = (
     next: Omit<DashboardRoute, "story">,
@@ -50,8 +52,32 @@ export function useDashboardRoute({
     setRoute(next);
   };
 
-  const selectProject = (next: PublishedSource) => {
+  const selectProject = (next: PublishedSource | undefined) => {
+    if (next === undefined) {
+      settingsSelection.current = null;
+      const nextRoute: DashboardRoute = {
+        source: undefined,
+        view: "stories",
+        perspective: "development",
+      };
+      if (!suspended) {
+        window.history.replaceState(null, "", "/");
+      } else {
+        const params = new URLSearchParams(window.location.search);
+        params.delete("project");
+        params.delete("story");
+        window.history.replaceState(
+          window.history.state,
+          "",
+          params.size ? `/?${params}` : "/",
+        );
+      }
+      setRoute(nextRoute);
+      selectSource(undefined);
+      return;
+    }
     if (next.id === sourceId && route.story === undefined) {
+      if (suspended) settingsSelection.current = next;
       return;
     }
     const nextRoute = {
@@ -74,7 +100,11 @@ export function useDashboardRoute({
   // Shows the selected project in another perspective, as one history entry,
   // keeping Development's view to return to.
   const selectPerspective = (perspective: DashboardPerspective) => {
-    if (perspective === route.perspective || suspended) {
+    if (
+      sourceId === undefined ||
+      perspective === route.perspective ||
+      suspended
+    ) {
       return;
     }
     pushRoute({ source: route.source, view: route.view, perspective });
@@ -108,7 +138,9 @@ export function useDashboardRoute({
     if (new URLSearchParams(window.location.search).get("view") === "settings")
       return;
     const savedSelection = settingsSelection.current;
-    if (
+    if (savedSelection === null) {
+      window.history.replaceState(null, "", "/");
+    } else if (
       savedSelection &&
       projects.some((project) => project.id === savedSelection.id)
     ) {
@@ -127,7 +159,7 @@ export function useDashboardRoute({
     const targetSource = nextRoute.source;
     const targetView = nextRoute.view;
 
-    if (targetView !== route.view) {
+    if (targetSource !== undefined && targetView !== route.view) {
       if (targetView === "stories" && route.view === "roster") {
         onReturnToStories();
       } else if (targetView === "roster" && route.view === "stories") {
@@ -137,7 +169,7 @@ export function useDashboardRoute({
     // The same project's history may carry a new story, or leave targeting.
     setRoute(nextRoute);
 
-    if (targetSource.id !== sourceId) {
+    if (targetSource?.id !== sourceId) {
       selectSource(targetSource);
     }
   };

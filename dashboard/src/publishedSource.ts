@@ -6,4 +6,5 @@ export type PublishedSource = {
   readonly repository: string;
   readonly ref: string;
   readonly backlogPath: string;
+  readonly hidden?: boolean;
 };

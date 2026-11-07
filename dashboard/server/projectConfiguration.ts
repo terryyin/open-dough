@@ -22,6 +22,7 @@ const projectSchema = z.object({
   ref: z.string().min(1),
   backlogPath: z.string().min(1),
   localPath: z.string().min(1),
+  hidden: z.boolean().optional(),
 });
 const projectsSchema = z.array(projectSchema);
 let environment: ProjectEnvironment | undefined;
@@ -41,6 +42,18 @@ function writeConfiguration(
 ): void {
   mkdirSync(path.dirname(file), { recursive: true });
   replaceFile(file, `${JSON.stringify(saved, null, 2)}\n`);
+}
+
+function withVisibility(
+  {
+    hidden,
+    ...project
+  }: Omit<ConfiguredProject, "hidden"> & {
+    readonly hidden?: boolean | undefined;
+  },
+  nextHidden = hidden,
+): ConfiguredProject {
+  return nextHidden ? { ...project, hidden: true } : project;
 }
 
 export function initializeProjectConfiguration(next: ProjectEnvironment): void {
@@ -63,7 +76,9 @@ export function initializeProjectConfiguration(next: ProjectEnvironment): void {
       projects = initial;
       return;
     }
-    projects = projectsSchema.parse(JSON.parse(text));
+    projects = projectsSchema
+      .parse(JSON.parse(text))
+      .map((project) => withVisibility(project));
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     problem = `The dashboard project configuration could not be read: ${file}. ${reason}`;
@@ -87,12 +102,13 @@ export function configuredProject(id: string): ConfiguredProject | undefined {
 export function publishedProjects(): readonly PublishedSource[] {
   if (problem !== undefined) throw new Error(problem);
   return configuredProjects().map(
-    ({ id, label, repository, ref, backlogPath }) => ({
+    ({ id, label, repository, ref, backlogPath, hidden }) => ({
       id,
       label,
       repository,
       ref,
       backlogPath,
+      ...(hidden ? { hidden: true } : {}),
     }),
   );
 }
@@ -140,6 +156,18 @@ export function removeConfiguredProject(id: string): void {
   if (configurationFile === undefined)
     throw new Error("The dashboard project configuration is not initialized.");
   const saved = projects.filter((project) => project.id !== id);
+  writeConfiguration(configurationFile, saved);
+  projects = saved;
+}
+
+// Hiding or showing updates only this environment's visibility choice.
+export function setConfiguredProjectHidden(id: string, hidden: boolean): void {
+  if (problem !== undefined) throw new Error(problem);
+  if (configurationFile === undefined)
+    throw new Error("The dashboard project configuration is not initialized.");
+  const saved = projects.map((current) =>
+    current.id === id ? withVisibility(current, hidden) : current,
+  );
   writeConfiguration(configurationFile, saved);
   projects = saved;
 }

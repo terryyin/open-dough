@@ -1,18 +1,22 @@
 # Dashboard project configuration
 
 `server/projectConfiguration.ts` owns the saved project list and each project's
-repository, ref, backlog path, and local checkout folder. Each environment keeps
+repository, ref, backlog path, local checkout folder, and optional `hidden`
+flag (absent means visible). Each environment keeps
 its ordered list on this machine in `~/.open-dough/dashboard/projects-production.json`
 or `projects-development.json`, resolved through `HOME`. Built preview uses production;
 the live dev server uses development. Only a missing file seeds production with
 Open Dough, Doughnut, Pygardon, and Terry Talks and their existing refs and folders.
-Development starts empty. An existing empty list stays empty; the first saved
-project is the default selection. An unreadable or malformed file is reported
+Development starts empty. An existing empty list stays empty; the first visible
+saved project is the default selection. An unreadable or malformed file is reported
 with its path and left untouched. The empty page explains that no projects are
-configured and directs to **System settings → Projects**. The global banner
-keeps the project selector and ends with the **System settings** gear at its
-far right, including with no projects. Settings lists each configured name,
-repository and local path; **Add project** opens the existing dialog. Back to
+configured and directs to **System settings → Projects**; when every configured
+project is hidden, the page explains that all projects are hidden and directs to
+**System settings → Projects** without presenting any project's Board or Intent.
+The global banner keeps the project selector for visible projects and ends with
+the **System settings** gear at its far right, including when no project is
+visible or configured. Settings lists each configured name,
+repository, local path, and hidden state; **Add project** opens the existing dialog. Back to
 dashboard and browser Back/Forward return to the preceding project/view with
 useful focus. Opening settings preserves the mounted dashboard, Sessions sidebar
 and attached terminal.
@@ -27,6 +31,15 @@ expands to the home folder, and a different checkout folder is allowed. Cancel o
 saves nothing and returns focus to Add project. An invalid entry keeps its values
 and shows the reason beside the field. Projects added in development do not enter
 production's saved list.
+**Hide project** and **Show project** on each settings row toggle that
+environment's saved visibility without a confirmation dialog. A hidden row
+states `Hidden from dashboard`, stays in the environment's saved list for
+release updates and feedback maintenance, and leaves project tabs, the compact
+selector, and Left/Right cycling. Hiding the selected row selects its next
+visible neighbor or the first remaining visible project; hiding every project
+presents no Board or Intent content while keeping System settings and open
+Sessions sidebar entries reachable. Showing a hidden project restores it to
+navigation without re-adding it.
 **Remove project** on each settings row asks for confirmation naming that
 project. Confirm removes only that environment's configuration entry. Removing
 an unselected row preserves selection; removing the selected row selects its

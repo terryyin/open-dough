@@ -5,7 +5,7 @@ import {
   projectRadioName,
 } from "./ProjectSelect.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
-import { useProjects } from "./projectList.tsx";
+import { useVisibleProjects } from "./projectList.tsx";
 
 // Page-wide Left/Right project cycling. Native project radios, editing, other
 // arrow-operated controls, already-handled keys, modifiers, and an open modal
@@ -175,24 +175,31 @@ export function useProjectKeyboardNavigation({
   enabled = true,
 }: {
   readonly enabled?: boolean;
-  readonly source: PublishedSource;
+  readonly source: PublishedSource | undefined;
   readonly selectProject: (next: PublishedSource) => void;
 }): void {
   const enabledRef = useRef(enabled);
   enabledRef.current = enabled;
-  const projects = useProjects();
+  const projects = useVisibleProjects();
   const projectsRef = useRef(projects);
   projectsRef.current = projects;
   const sourceRef = useRef(source);
   sourceRef.current = source;
   const selectProjectRef = useRef(selectProject);
   selectProjectRef.current = selectProject;
-  const previousSourceId = useRef(source.id);
+  const previousSourceId = useRef(source?.id);
   const focusAfterSwitch = useRef<FocusAfterSwitch | undefined>(undefined);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (!enabledRef.current || !isProjectArrowShortcutEligible(event)) {
+      const currentSource = sourceRef.current;
+      const options = projectsRef.current;
+      if (
+        !enabledRef.current ||
+        currentSource === undefined ||
+        options.length === 0 ||
+        !isProjectArrowShortcutEligible(event)
+      ) {
         return;
       }
       event.preventDefault();
@@ -200,9 +207,8 @@ export function useProjectKeyboardNavigation({
         document.activeElement,
       );
       const step = event.key === "ArrowRight" ? 1 : -1;
-      const options = projectsRef.current;
       const index = options.findIndex(
-        (project) => project.id === sourceRef.current.id,
+        (project) => project.id === currentSource.id,
       );
       const next =
         options[(Math.max(0, index) + step + options.length) % options.length];
@@ -215,7 +221,8 @@ export function useProjectKeyboardNavigation({
   }, []);
 
   useLayoutEffect(() => {
-    if (previousSourceId.current === source.id) {
+    if (source === undefined || previousSourceId.current === source.id) {
+      previousSourceId.current = source?.id;
       return;
     }
     previousSourceId.current = source.id;
@@ -227,5 +234,5 @@ export function useProjectKeyboardNavigation({
     if (planned === "selected-project" || !focusStillUseful()) {
       focusShownProjectControl();
     }
-  }, [source.id]);
+  }, [source?.id]);
 }

@@ -33,11 +33,11 @@ export function useDashboardNavigation({
   suspended,
   selectSource,
 }: {
-  readonly source: PublishedSource;
+  readonly source: PublishedSource | undefined;
   readonly work: PublishedWork | undefined;
   readonly attempt: ReturnType<typeof useObservationAttempt>["attempt"];
   readonly suspended: boolean;
-  readonly selectSource: (source: PublishedSource) => void;
+  readonly selectSource: (source: PublishedSource | undefined) => void;
 }) {
   const [opening, setOpening] = useState<RosterOpening | undefined>();
   const latestOpening = useRef<RosterOpening | undefined>(undefined);
@@ -63,7 +63,7 @@ export function useDashboardNavigation({
     openRoster: navigateToRoster,
     showStories,
   } = useDashboardRoute({
-    sourceId: source.id,
+    sourceId: source?.id,
     suspended,
     selectSource,
     onReturnToStories,
@@ -74,15 +74,16 @@ export function useDashboardNavigation({
     route,
     work,
     attempt,
-    enabled: !suspended,
+    enabled: !suspended && source !== undefined,
   });
   useProjectKeyboardNavigation({
     source,
     selectProject,
-    enabled: !suspended,
+    enabled: !suspended && source !== undefined,
   });
 
   const openRoster: OpenRoster = (agent, element) => {
+    if (source === undefined) return;
     const openingInfo: RosterOpening = {
       agent,
       element,
@@ -95,6 +96,7 @@ export function useDashboardNavigation({
   };
 
   const onBack = () => {
+    if (source === undefined) return;
     if (
       isFromPortrait(window.history.state) &&
       opening?.sourceId === source.id
@@ -107,7 +109,7 @@ export function useDashboardNavigation({
   };
 
   useLayoutEffect(() => {
-    if (route.view === "roster") {
+    if (source === undefined || route.view === "roster") {
       return;
     }
     if (!returningFromRoster.current) {
@@ -129,7 +131,7 @@ export function useDashboardNavigation({
     } else {
       focusBoard();
     }
-  }, [route.view, source.id, work]);
+  }, [route.view, source?.id, work]);
 
   usePerspectiveFocus(route.perspective);
 

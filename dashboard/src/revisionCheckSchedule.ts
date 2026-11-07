@@ -41,7 +41,7 @@ export const checkReuseMs = checkIntervalMs - 1_000;
 
 // Shared inputs for check and stream delivery (`./revisionStreamSchedule.ts`).
 export type RevisionDeliveryAnswers = RevisionAnswerHandlers & {
-  readonly source: PublishedSource;
+  readonly source: PublishedSource | undefined;
   readonly shownRevision: string | undefined;
   // The story branches the shown progress is read from, with the heads shown.
   readonly watchedHeads: StoryBranchHeads;
@@ -81,6 +81,7 @@ export function useRevisionCheckSchedule({
     if (
       delivery !== "check" ||
       !readSettled ||
+      source === undefined ||
       shownRevision === undefined ||
       visibility === "hidden"
     ) {

@@ -1,6 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
-import { useProjects } from "./projectList.tsx";
+import { useVisibleProjects } from "./projectList.tsx";
 import "./project-select.css";
 
 // Shared with page-wide project arrow navigation so native radios and the
@@ -25,7 +25,7 @@ export function ProjectSelect({
   readonly source: PublishedSource;
   readonly onSelect: (next: PublishedSource) => void;
 }) {
-  const projects = useProjects();
+  const projects = useVisibleProjects();
   const { slot, tabs } = useTabsFit();
   return (
     <div className="project-slot" ref={slot}>
@@ -94,7 +94,7 @@ function ProjectCompactSelect({
   readonly source: PublishedSource;
   readonly onSelect: (next: PublishedSource) => void;
 }) {
-  const projects = useProjects();
+  const projects = useVisibleProjects();
   const listId = useId();
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);

@@ -17,7 +17,7 @@ export type DashboardView = "stories" | "roster";
 export type DashboardPerspective = "development" | "intent";
 
 export type DashboardRoute = {
-  readonly source: PublishedSource;
+  readonly source: PublishedSource | undefined;
   readonly view: DashboardView;
   readonly perspective: DashboardPerspective;
   readonly story?: StoryDestination;
@@ -28,6 +28,7 @@ export function buildRouteUrl(
   { source, view, perspective }: Omit<DashboardRoute, "story">,
   projects: readonly PublishedSource[],
 ): string {
+  if (projects.length === 0 || source === undefined) return "/";
   const defaultSource = firstProject(projects);
   const params = new URLSearchParams();
   if (source.id !== defaultSource.id || view === "roster") {
@@ -50,11 +51,24 @@ export function parseRoute(
   readonly route: DashboardRoute;
   readonly normalizedUrl: string | undefined;
 } {
-  const defaultSource = firstProject(projects);
+  const defaultSource = projects[0];
   const params = new URLSearchParams(location.search);
   const projectParam = params.get("project");
   const requestedView = params.get("view");
   const requestedPerspective = params.get("perspective");
+  if (defaultSource === undefined) {
+    return {
+      route: {
+        source: undefined,
+        view: "stories",
+        perspective: "development",
+      },
+      normalizedUrl:
+        requestedView !== "settings" && location.search !== ""
+          ? "/"
+          : undefined,
+    };
+  }
   const story = storyDestinationOf(params);
   // A story URL always names its project and Development's stories view. Retain an unknown
   // project verbatim so the page can explain that destination, never silently

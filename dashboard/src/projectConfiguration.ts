@@ -1,6 +1,7 @@
 export const projectListEndpoint = "/__project-configuration";
 export const projectAddEndpoint = `${projectListEndpoint}/add`;
 export const projectRemoveEndpoint = `${projectListEndpoint}/remove`;
+export const projectVisibilityEndpoint = `${projectListEndpoint}/visibility`;
 
 // Local configuration facts for the machine settings view only.
 export const projectSettingsEndpoint = `${projectListEndpoint}/settings`;

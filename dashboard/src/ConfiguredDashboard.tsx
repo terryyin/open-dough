@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from "react";
-import { useProjects } from "./projectList.tsx";
+import { useVisibleProjects } from "./projectList.tsx";
 import { DashboardBanner } from "./DashboardBanner.tsx";
 import { usePublishedObservation } from "./publishedObservation.ts";
 import { useBoardScrolling } from "./boardScroll.ts";
@@ -20,8 +20,8 @@ import type { PublishedSource } from "./publishedSource.ts";
 import { StoryReferenceNavigation } from "./storyNavigation.tsx";
 
 export type DashboardSelection = {
-  readonly source: PublishedSource;
-  readonly select: (source: PublishedSource) => void;
+  readonly source: PublishedSource | undefined;
+  readonly select: (source: PublishedSource | undefined) => void;
 };
 
 export function ConfiguredDashboard({
@@ -34,7 +34,7 @@ export function ConfiguredDashboard({
   readonly onDashboardReady: (value: DashboardSelection) => void;
 }) {
   useBoardScrolling(settingsOpen);
-  const projects = useProjects();
+  const projects = useVisibleProjects();
   const initialSource = useRef(
     parseRoute(window.location, projects).route.source,
   );
@@ -83,37 +83,45 @@ export function ConfiguredDashboard({
 
   // Intent replaces Development's content and keeps its view to return to;
   // the mounted Board, the Sessions sidebar and the Side panel stay.
-  const showsIntent = route.perspective === "intent";
-  const showsRoster = !showsIntent && route.view === "roster";
-  const showsBoard = !showsIntent && !showsRoster;
+  const showsIntent = source !== undefined && route.perspective === "intent";
+  const showsRoster =
+    source !== undefined && !showsIntent && route.view === "roster";
+  const showsBoard = source !== undefined && !showsIntent && !showsRoster;
   return (
     <PageFrame
       sessions={launches}
       stories={{
-        selected: source.id,
+        selected: source?.id ?? "",
         shown: showsBoard ? work?.source.id : undefined,
         show: showStories,
       }}
     >
-      <StoryReferenceNavigation
-        projects={projects}
-        selected={source.id}
-        work={work}
-        reading={reading}
-        failure={readFailure}
-        show={showStories}
-        retry={readAfresh}
-        suspended={settingsOpen || !showsBoard}
-      >
-        {(storyNotice) => (
-          <>
-            <DashboardBanner
-              source={source}
-              perspective={route.perspective}
-              onOpenSettings={onOpenSettings}
-              onSelect={selectProject}
-              onSelectPerspective={selectPerspective}
-            />
+      <DashboardBanner
+        source={source}
+        perspective={route.perspective}
+        onOpenSettings={onOpenSettings}
+        onSelect={selectProject}
+        onSelectPerspective={selectPerspective}
+      />
+      {source === undefined ? (
+        <main className="frame-state">
+          <h1>All projects are hidden</h1>
+          <p>
+            Open System settings → Projects to show a project on this dashboard.
+          </p>
+        </main>
+      ) : (
+        <StoryReferenceNavigation
+          projects={projects}
+          selected={source.id}
+          work={work}
+          reading={reading}
+          failure={readFailure}
+          show={showStories}
+          retry={readAfresh}
+          suspended={settingsOpen || !showsBoard}
+        >
+          {(storyNotice) => (
             <div
               className={
                 showsIntent
@@ -202,9 +210,9 @@ export function ConfiguredDashboard({
                 )}
               </div>
             </div>
-          </>
-        )}
-      </StoryReferenceNavigation>
+          )}
+        </StoryReferenceNavigation>
+      )}
     </PageFrame>
   );
 }

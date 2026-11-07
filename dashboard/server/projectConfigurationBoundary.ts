@@ -4,6 +4,7 @@ import {
   projectListEndpoint,
   projectSettingsEndpoint,
   projectRemoveEndpoint,
+  projectVisibilityEndpoint,
 } from "../src/projectConfiguration.ts";
 import { ProjectInputProblem } from "../src/projectInput.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -13,9 +14,18 @@ import {
   projectSettings,
   publishedProjects,
   removeConfiguredProject,
+  setConfiguredProjectHidden,
 } from "./projectConfiguration.ts";
 import { addProject } from "./projectAddition.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
+
+function configuredIdFrom(input: Record<string, unknown>): string {
+  if (typeof input["id"] !== "string")
+    throw new RefusedRequest(400, "The project request is malformed.");
+  if (configuredProject(input["id"]) === undefined)
+    throw new RefusedRequest(404, "The project is not configured.");
+  return input["id"];
+}
 
 async function answer(
   req: IncomingMessage,
@@ -35,31 +45,30 @@ async function answer(
   if (req.method !== "POST")
     throw new RefusedRequest(405, "Only POST is accepted.");
   const input = await jsonBody(req, signal);
+  if (typeof input !== "object" || input === null)
+    throw new RefusedRequest(400, "The project request is malformed.");
+  const body = input as Record<string, unknown>;
   if (pathname === projectRemoveEndpoint) {
-    if (
-      typeof input !== "object" ||
-      input === null ||
-      !("id" in input) ||
-      typeof input.id !== "string"
-    )
-      throw new RefusedRequest(400, "The project request is malformed.");
-    if (configuredProject(input.id) === undefined)
-      throw new RefusedRequest(404, "The project is not configured.");
+    const id = configuredIdFrom(body);
     signal.throwIfAborted();
-    removeConfiguredProject(input.id);
+    removeConfiguredProject(id);
+    return { projects: publishedProjects() };
+  }
+  if (pathname === projectVisibilityEndpoint) {
+    if (typeof body["hidden"] !== "boolean")
+      throw new RefusedRequest(400, "The project request is malformed.");
+    const id = configuredIdFrom(body);
+    signal.throwIfAborted();
+    setConfiguredProjectHidden(id, body["hidden"]);
     return { projects: publishedProjects() };
   }
   if (
-    typeof input !== "object" ||
-    input === null ||
-    !("githubUrl" in input) ||
-    !("localPath" in input) ||
-    typeof input.githubUrl !== "string" ||
-    typeof input.localPath !== "string"
+    typeof body["githubUrl"] !== "string" ||
+    typeof body["localPath"] !== "string"
   )
     throw new RefusedRequest(400, "The project request is malformed.");
   return addProject(
-    { githubUrl: input.githubUrl, localPath: input.localPath },
+    { githubUrl: body["githubUrl"], localPath: body["localPath"] },
     signal,
   );
 }
@@ -70,6 +79,7 @@ export const installProjectConfigurationMiddleware = localJsonEndpoints(
     projectSettingsEndpoint,
     projectAddEndpoint,
     projectRemoveEndpoint,
+    projectVisibilityEndpoint,
   ],
   answer,
   (error) =>

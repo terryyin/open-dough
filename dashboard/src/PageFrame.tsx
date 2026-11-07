@@ -17,7 +17,7 @@ import { useCallback, useRef, type CSSProperties, type ReactNode } from "react";
 import { FinalReport } from "./FinalReport.tsx";
 import type { MachineSessions } from "./agentLaunches.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { useProjects } from "./projectList.tsx";
+import { useVisibleProjects } from "./projectList.tsx";
 import {
   SessionsSidebar,
   SessionsSidebarOnPage,
@@ -87,7 +87,7 @@ export function PageFrame({
   };
   readonly children: ReactNode;
 }) {
-  const projects = useProjects();
+  const projects = useVisibleProjects();
   const sidebar = useSessionsSidebar(records, alerts);
   const range = useRecentlyDoneRange(stories.shown);
   const selection = usePageStorySelection();

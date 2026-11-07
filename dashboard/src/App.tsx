@@ -26,7 +26,7 @@ export function App() {
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : undefined;
-    setSelected(dashboard.current?.source.id);
+    setSelected(dashboard.current?.source?.id);
     const params = new URLSearchParams(window.location.search);
     if (params.get("view") === "roster") params.set("returnView", "roster");
     params.set("view", "settings");
@@ -115,8 +115,8 @@ export function App() {
                 settingsOpen={settings}
                 onOpenSettings={openSettings}
                 onDashboardReady={(value) => {
-                  if (dashboard.current?.source.id !== value.source.id)
-                    setSelected(value.source.id);
+                  if (dashboard.current?.source?.id !== value.source?.id)
+                    setSelected(value.source?.id);
                   dashboard.current = value;
                 }}
               />
@@ -124,10 +124,10 @@ export function App() {
           </div>
           {settings && (
             <SystemSettings
-              selectedId={selected ?? dashboard.current?.source.id}
+              selectedId={selected ?? dashboard.current?.source?.id}
               onSelect={(source) => {
                 dashboard.current?.select(source);
-                setSelected(source.id);
+                setSelected(source?.id);
               }}
               onBack={back}
             />

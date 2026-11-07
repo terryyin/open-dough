@@ -2,6 +2,7 @@
 
 **Identity:** SEED-250#hide-client-project-from-dashboard
 **Source:** [selected story](../../seeds/SEED-250-hide-client-project-from-dashboard.md#hide-client-project-from-dashboard)
+**Source review:** [source review](source-review.md)
 **Prepared:** 2026-11-07; preparation only. Execution is not authorized by this plan.
 
 ## Goal and boundaries
@@ -91,14 +92,11 @@ Read-only observations in the established preparation workspace on 2026-11-07.
 
 ### 1. Hide and show from settings with dashboard selection following visibility
 Type: Behavior
-Status: planned
-Proof: Focused Playwright configuration journey(s) under
-`dashboard/tests/configuration/` covering hide/show, persistence and default
-visible, removal from tabs/compact/cycling, selection fallback and all-hidden /
-deep-link rules, and retained JSON membership. Command shape:
-`npm run test:dashboard -- tests/configuration/<hide-journey>.spec.ts`
-(exact file name chosen at implementation). Lint and `git diff --check` on
-touched paths.
+Status: done
+Proof:
+- `npm run typecheck:dashboard` (pass)
+- `npm run test:dashboard -- tests/configuration/project-hide.spec.ts tests/configuration/project-remove.spec.ts tests/configuration/project-configuration.spec.ts tests/configuration/system-settings.spec.ts tests/configuration/system-settings-look.spec.ts tests/configuration/system-settings-project-management.spec.ts tests/configuration/system-settings-project-management-touch.spec.ts backend-tests/project-configuration-boundary.spec.ts backend-tests/project-remove-boundary.spec.ts backend-tests/project-add-boundary.spec.ts tests/navigation/dashboard-header.spec.ts tests/navigation/dashboard-header-compact.spec.ts` (pass)
+- `npm run test:dashboard -- tests/navigation/project-keyboard-navigation.spec.ts` (pass)
 
 Behavior: Several projects are configured in one environment → the maintainer
 hides one in **System settings → Projects** → that project leaves tabs, the
@@ -109,6 +107,11 @@ another visible one; when every project is hidden, no Board or Intent content
 is shown and settings remain usable; a URL or prior selection naming a hidden
 project does not present its Board or Intent; show restores navigation without
 re-adding the project.
+
+Learnings: `PageFrame` already resolves `goToSession` project selection through
+`useVisibleProjects()`, so Slice 2 only needs to add and verify the outside-in
+Playwright journey for opening a hidden project's session from the Sessions
+sidebar.
 
 ### 2. Opening a hidden project's session does not restore Board selection
 Type: Behavior
@@ -139,8 +142,3 @@ or presenting its Board or Intent while it stays hidden.
   model, and stay inside the refined story outcome without fragmented or
   speculative structure.
 - No remaining slice-specific concerns identified in this review.
-
-## Story obligations
-
-None at preparation. During planned execution, report gaps here per
-[story obligations](../../../.agents/skills/dough-execute-plan/references/story-obligations.md).
