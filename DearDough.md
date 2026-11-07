@@ -43,7 +43,7 @@ Former local code: DD-121. Former local code: DD-206. Former local code: DD-238.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.88 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
-  - Evidence: plan 500 Current decisions stated "Endpoint proofs follow the re-read answer as they already follow a changed answer" with no Premises row; slice 2's implementer found proofs keyed by build subject, so an unchanged final answer never re-read them (promise 3e), and added `checkedAgain` to the proof key
+  - Evidence: plan 500 (`8cab734f619f3c373e0416944ef4e19ff1438e0d:.planning/slice-plans/500-retry-unavailable-ci-comparison-slots/PLAN.md`) Current decisions stated "Endpoint proofs follow the re-read answer as they already follow a changed answer" with no Premises row; slice 2's implementer found proofs keyed by build subject, so an unchanged final answer never re-read them (promise 3e), and added `checkedAgain` to the proof key
   - Observed effect: the false claim surfaced inside the slice and cost no replanning; the implementer's red check (removing `checkedAgain`) failed two journeys
   - Inference: a behavioral claim placed under Current decisions escapes the premise table's observation requirement
 
@@ -682,7 +682,7 @@ Former local code: DD-431.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.88 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
-  - Evidence: slice 2's refactor moved the unrecoverable-history journey from `intent-ci-comparison.spec.ts` into `intent-ci-comparison-retry.spec.ts` to keep both under 250 lines; source-review rows 1d, 3g and E4 cited the old file
+  - Evidence: slice 2's refactor moved the unrecoverable-history journey from `intent-ci-comparison.spec.ts` into `intent-ci-comparison-retry.spec.ts` to keep both under 250 lines; source-review rows 1d, 3g and E4 (`8cab734f619f3c373e0416944ef4e19ff1438e0d:.planning/slice-plans/500-retry-unavailable-ci-comparison-slots/source-review.md`) cited the old file
   - Observed effect: the coordinator noticed the move in the refactor report and retargeted the three rows before delivery; no stale citation was published
 
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
