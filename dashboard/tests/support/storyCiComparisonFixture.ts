@@ -18,7 +18,7 @@ import {
 } from "./baseCiActions.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
-import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
+import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import {
   answerComparisonProofRoute,
   type ComparisonProofServe,
@@ -221,11 +221,54 @@ export function serveActionsFor(
   };
 }
 
+// Workflow file whose paths-ignore matches this repository's CI, so a fixture
+// can confirm a skip at a planning-only or docs-only revision.
+export const comparisonCiWorkflow = [
+  "name: CI",
+  "",
+  "on:",
+  "  push:",
+  "    paths-ignore:",
+  "      - '.planning/**'",
+  "      - 'docs/**'",
+  "  pull_request:",
+  "    paths-ignore:",
+  "      - '.planning/**'",
+  "      - 'docs/**'",
+  "  workflow_dispatch:",
+  "",
+  "jobs:",
+  "  check:",
+  "    runs-on: ubuntu-24.04",
+  "    steps:",
+  "      - run: echo ok",
+  "",
+].join("\n");
+
+export function commitComparisonCiWorkflow(project: string): void {
+  writeAt(project, ".github/workflows/ci.yml", comparisonCiWorkflow);
+  commitAll(project, "add CI workflow with paths-ignore");
+}
+
 // Planning-only commits between a built trunk revision and the claim, so the
 // baseline is a measured ancestor.
-export function precedeClaimWithPlanning(origin: StartOrigin): string {
+export function precedeClaimWithPlanning(
+  origin: StartOrigin,
+  options?: {
+    readonly withCiWorkflow?: boolean;
+    // Include shared.txt in the built baseline so a later completed story can
+    // skip its initial shared commit and leave a planning-only claim parent.
+    readonly sharedInBaseline?: boolean;
+  },
+): string {
+  if (options?.withCiWorkflow === true) {
+    commitComparisonCiWorkflow(origin.project);
+  }
   writeAt(origin.project, "src/built.ts", "built before story\n");
   writeAt(origin.project, comparisonWorkflowPath, comparisonWorkflow);
+  if (options?.sharedInBaseline === true) {
+    writeAt(origin.project, "shared.txt", lines("line"));
+  }
   commitAll(origin.project, "ship a built revision");
   const baseline = git(origin.project, "rev-parse", "HEAD");
   push(origin.project);

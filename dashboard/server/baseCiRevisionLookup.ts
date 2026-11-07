@@ -2,56 +2,77 @@
 // first-parent ancestors through local Git and answers baseline / branch /
 // landed slots. GitHub Actions listing lives in
 // `./baseCiGithubRevisionLookup.ts`. The live branch judgment
-// (`./baseCiJudgment.ts`) keeps its branch listing rule unchanged.
+// (`./baseCiJudgment.ts`) keeps its branch listing rule unchanged. Each
+// endpoint names the requested revision's own status beside the selected
+// build. Story Branch Landed may use a confirmed skip's equivalent build
+// proof (`./exactSkippedEquivalent.ts`); Baseline / Branch (and Trunk Mode
+// Landed / provisional tip) walk past builds without usable proof here.
+// A CI adapter supplies a discovery snapshot for the whole comparison.
 import { defaultAdapterTimeoutMs } from "../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
-import { ciConfiguration } from "./baseCiJudgment.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { adapterDiscoveryUnread } from "./baseCiAdapterAttempts.ts";
 import { adapterRevisionLookup } from "./baseCiAdapterRevisionLookup.ts";
+import { ciConfiguration } from "./baseCiJudgment.ts";
 import { githubAcquisitionUnread } from "./baseCiGitHubReads.ts";
 import { githubRevisionLookup } from "./baseCiGithubRevisionLookup.ts";
 import { newestRunFor, unread, type BaseCiJudgment } from "./baseCiNearest.ts";
 import { firstParentChain } from "./baseCiRevisionGit.ts";
 import {
   nearestRevisionBuild,
-  type RevisionCiBuild,
+  proofRunOf,
   type RevisionCiLookup,
+  type RevisionProofUsable,
 } from "./baseCiRevisionNearest.ts";
+import { readCiProofArtifact } from "./ciProofArtifact.ts";
+import {
+  baselineAncestorLimit,
+  exactSkippedEquivalentSlot,
+  type ExactResultLookup,
+} from "./exactSkippedEquivalent.ts";
 import type { GitCall } from "./gitRunner.ts";
+import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
+import {
+  asSlot,
+  nearestAncestorBasisSha,
+  statusWhenNotExact,
+  type RevisionBuildSlot,
+} from "./revisionBuildSlot.ts";
 
-// How far a baseline walk may go beyond the story start when looking for a
-// completed trunk build (claim commits are almost never built).
-const baselineAncestorLimit = 30;
+export type { RevisionBuildSlot } from "./revisionBuildSlot.ts";
+export type { ExactResultLookup } from "./exactSkippedEquivalent.ts";
 
-export type RevisionBuildSlot =
-  | ({
-      readonly kind: "build";
-      readonly state: "pass" | "failed";
-    } & Omit<RevisionCiBuild, "state">)
-  | ({
-      readonly kind: "running";
-      readonly state: "running";
-    } & Omit<RevisionCiBuild, "state">)
-  | { readonly kind: "none" | "not-applicable"; readonly explanation: string }
-  | { readonly kind: "unavailable"; readonly explanation: string };
+export type ComparisonProofSource = {
+  readonly repository: string;
+  readonly signal: AbortSignal;
+};
 
-function asSlot(
-  build: RevisionCiBuild | undefined,
-  noneExplanation: string,
-): RevisionBuildSlot {
-  if (build === undefined)
-    return { kind: "none", explanation: noneExplanation };
-  const { state, ...identity } = build;
-  if (state === "running") return { kind: "running", state, ...identity };
-  return { kind: "build", state, ...identity };
+// Usable-proof gate for walking endpoints: a valid summary remembered by
+// repository, run and attempt so the page's later proof read asks GitHub
+// nothing again.
+function walkingProofUsable(
+  source: ComparisonProofSource,
+): RevisionProofUsable {
+  return async (build) => {
+    const run = proofRunOf(build);
+    if (run === undefined) return false;
+    const proof = await readCiProofArtifact(
+      source.repository,
+      run,
+      source.signal,
+    );
+    return proof.kind === "summary";
+  };
 }
 
 // Baseline: newest completed attempt at or before `storyStart`, walking
-// first-parent ancestors up to the baseline limit.
+// first-parent ancestors up to the baseline limit past builds without
+// usable proof.
 export async function lookupBaselineBuild(
   storyStart: string,
   lookup: RevisionCiLookup,
   call: GitCall,
+  workflow: string,
+  proofSource: ComparisonProofSource,
 ): Promise<RevisionBuildSlot> {
   try {
     const revisions = await firstParentChain(
@@ -59,16 +80,30 @@ export async function lookupBaselineBuild(
       call,
       baselineAncestorLimit,
     );
-    const build = await nearestRevisionBuild(revisions, lookup);
+    const build = await nearestRevisionBuild(revisions, lookup, undefined, {
+      proofUsable: walkingProofUsable(proofSource),
+    });
     if (build?.state === "running")
       return {
         kind: "none",
         explanation:
           "No completed CI build was found at or before the story's start; the nearest attempt is still running.",
       };
+    const timed =
+      build?.state === "pass" || build?.state === "failed" ? build : undefined;
+    const status = await statusWhenNotExact(
+      storyStart,
+      timed,
+      lookup,
+      call,
+      workflow,
+      baselineAncestorLimit,
+    );
     return asSlot(
-      build?.state === "pass" || build?.state === "failed" ? build : undefined,
-      "No completed CI build was found at or before the story's start within the readable history.",
+      timed,
+      status?.explanation ??
+        "No completed CI build was found at or before the story's start within the readable history.",
+      status,
     );
   } catch (error) {
     return {
@@ -81,46 +116,62 @@ export async function lookupBaselineBuild(
   }
 }
 
-export type ExactResultLookup = {
-  readonly exactOnly: true;
-  // Caller-owned wording when the only attempt at `target` is cancelled or
-  // timed out (for example Story Branch Landed at the landing merge).
-  readonly cancelledExplanation: string;
-  readonly timedOutExplanation: string;
+export type ResultLookupOptions = {
+  readonly provisional?: true;
 };
-
-type ResultLookupOptions = ExactResultLookup | { readonly provisional: true };
 
 // Result endpoint (branch or landed): newest completed or running attempt at
 // `target`, else a measured ancestor not older than `storyStart`. With
-// `exactOnly`, the walk is limited to `target` itself (no measured-ancestor
-// fallback); a cancelled or timed-out attempt at that revision uses the
-// caller-supplied explanations.
+// `exactOnly`, the walk is limited to `target` itself except a confirmed
+// skip, which may use that landing's equivalent build proof only; a
+// cancelled or timed-out attempt at that revision uses the caller-supplied
+// explanations (Landed keeps those exact-only wordings). Without
+// `exactOnly`, the walk continues past builds without usable proof.
 export async function lookupResultBuild(
   target: string,
   storyStart: string,
   lookup: RevisionCiLookup,
   call: GitCall,
+  workflow: string,
   missingExplanation: string,
+  exact?: ExactResultLookup,
+  proofSource?: ComparisonProofSource,
   options?: ResultLookupOptions,
 ): Promise<RevisionBuildSlot> {
   try {
-    const exact =
-      options !== undefined && "exactOnly" in options ? options : undefined;
-    const provisional = options !== undefined && "provisional" in options;
+    const provisional = options?.provisional === true;
     const revisions =
       exact?.exactOnly === true
         ? await firstParentChain(target, call, 1)
         : await firstParentChain(target, call, baselineAncestorLimit + 1);
+    const proofUsable =
+      exact?.exactOnly === true || proofSource === undefined
+        ? undefined
+        : walkingProofUsable(proofSource);
     const build = await nearestRevisionBuild(
       revisions,
       lookup,
       exact?.exactOnly === true ? undefined : storyStart,
-      provisional && lookup.preferCompletedAncestor === true,
+      {
+        preferCompletedAncestor:
+          provisional && lookup.preferCompletedAncestor === true,
+        ...(proofUsable === undefined ? {} : { proofUsable }),
+      },
     );
-    if (build !== undefined) return asSlot(build, missingExplanation);
+    if (build !== undefined) {
+      const status = await statusWhenNotExact(
+        target,
+        build,
+        lookup,
+        call,
+        workflow,
+        baselineAncestorLimit,
+      );
+      return asSlot(build, missingExplanation, status);
+    }
     if (exact?.exactOnly === true) {
-      const newest = newestRunFor(await lookup.listRunsAt(target), target);
+      const listed = await lookup.listRunsAt(target);
+      const newest = newestRunFor(listed, target);
       if (
         newest?.status === "completed" &&
         newest.adapterAttempt === undefined &&
@@ -134,8 +185,38 @@ export async function lookupResultBuild(
               : exact.timedOutExplanation,
         };
       }
+      const status = await requestedRevisionCiStatus(
+        target,
+        listed,
+        await nearestAncestorBasisSha(
+          target,
+          lookup,
+          call,
+          baselineAncestorLimit,
+        ),
+        call,
+        workflow,
+      );
+      if (status.kind === "skipped") {
+        return await exactSkippedEquivalentSlot(
+          target,
+          lookup,
+          call,
+          exact,
+          status,
+        );
+      }
+      return asSlot(undefined, status.explanation, status);
     }
-    return asSlot(undefined, missingExplanation);
+    const status = await statusWhenNotExact(
+      target,
+      undefined,
+      lookup,
+      call,
+      workflow,
+      baselineAncestorLimit,
+    );
+    return asSlot(undefined, status?.explanation ?? missingExplanation, status);
   } catch (error) {
     return {
       kind: "unavailable",

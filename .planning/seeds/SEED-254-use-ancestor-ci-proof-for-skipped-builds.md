@@ -26,113 +26,13 @@ Observed on 2026-11-07 against `origin/main`:
 
 ## Stories
 
-<a id="use-ancestor-ci-proof-for-skipped-builds"></a>
-
-### Use the nearest ancestor's CI proof for skipped builds
-
-**Identity:** SEED-254#use-ancestor-ci-proof-for-skipped-builds
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/494-use-ancestor-ci-proof-for-skipped-builds/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e7fed7584a3e25125cefb389efaef8d90fe03d0896f5de03429923449b0e2f5c","plan":"bd661460c7715f71fd377ee45d9b56af97ef0ea6df3d16c1dd9856c110a5e4f7"}}
-```
-
-**Beneficiary:** A developer reviewing a story's CI proof in Intent.
-
-**Goal:** When CI skipped the build of a story's Baseline, Branch or Landed
-revision, the comparison can still use proof from an earlier build in that
-revision's own history. The reviewer sees that the requested revision was
-skipped and which build the proof came from.
-
-**Scope:**
-
-- **Status at the requested revision.** Each comparison endpoint shows its
-  requested revision's own status separately from the build whose proof it
-  uses: its own build, **Cancelled**, **Skipped**, or **No build** with an
-  unknown reason.
-  - **Skipped** means a confirmed skip: the provider reports `skipped`, or
-    every change from the nearest ancestor with a build to the requested
-    revision is excluded by the workflow's path rule at that revision.
-  - A missing run alone is not a skip. A delete or rename of a path CI does
-    not ignore, a mixed or unreadable diff, an unreadable workflow policy, or
-    no ancestor build within the readable history leaves the reason unknown.
-    The endpoint says which of these prevented confirmation.
-- **Baseline and Branch.** The walk on the endpoint's existing first-parent
-  lineage and within its existing bounds uses the nearest build with usable
-  proof. It continues past skipped revisions, revisions without a build, and
-  builds whose proof is absent, expired, unreadable, invalid or mismatched.
-  The label names the source revision, run and attempt and counts the
-  revisions passed over. A revision that already falls back to an ancestor
-  today, whether cancelled or unexplained, keeps that fallback and now also
-  shows its own status.
-- **Landed.** A confirmed-skipped landing uses the proof of its equivalent
-  build only: the nearest ancestor build from which every change to the
-  landing is CI-ignored. If that build has no usable proof, Landed shows
-  **Skipped** and why that build's proof is unavailable, and walks no
-  further. A cancelled or unexplained landing keeps today's exact-only result
-  and explanation, so Landed never shows proof from before the story's code.
-- Proof at the requested revision itself stays authoritative whenever it
-  exists.
-- This story covers GitHub Actions comparisons. Adapter projects use
-  [Intent's shared story comparison](../../docs/dashboard-development-intent.md)
-  and its endpoint rules. The live CI status judgment of a
-  Taken story's branch head, including its running-ancestor proof, is
-  unchanged.
-- Keep [GitHub requests](../../dashboard/GITHUB-REQUESTS.md) accurate for the
-  comparison's per-revision run and proof reads, including the extra proof
-  reads this walk adds.
-
-**Deferred promises:**
-
-- Proof for a cancelled landing from a later trunk build:
-  [its own story](#use-later-ci-proof-for-cancelled-landings).
-- Telling skipped intermediate revisions apart from unexplained ones inside
-  the "revisions passed over" count.
-
-**Examples:**
-
-- *Docs-only landing.* A story's landing merge changes only `.planning/`
-  files relative to its first parent, which has a passing build with proof.
-  Landed shows **Skipped** at the merge and uses the parent's proof, labelled
-  with the parent's revision, run and attempt.
-- *Landing equivalent build without proof.* The same landing, but the
-  parent's build failed before it published proof. Landed shows **Skipped**
-  and that the parent's build at `<rev>` published no CI proof summary. It
-  does not use an older build.
-- *Skipped baseline.* The story starts at a `.planning/`-only "Announce
-  preparation" commit. Its parent has a completed build with no proof
-  artifact, and the grandparent has readable proof. Baseline shows
-  **Skipped** at the start commit and uses the grandparent's proof, counting
-  two revisions passed over. A skipped final branch revision follows the same
-  rule on the story branch.
-- *Cancelled.* A landing merge's push run was cancelled when a later push
-  superseded it. Landed shows **Cancelled** with today's explanation and no
-  proof. A Baseline revision with a cancelled run shows **Cancelled** there
-  and uses its nearest ancestor's proof as above.
-- *Unexplained absence.* A landing merge changes `dashboard/` files but has
-  no run because a later commit headed the same push. Landed shows **No
-  build**, explains that CI's path rule does not account for the absence, and
-  uses no ancestor proof.
-
-**Architecture:** Confirming a skip reuses the execution workflow's
-conservative path classifier
-([`ci-path-applicability.mjs`](../../src/skills/dough-execute-plan/scripts/ci-path-applicability.mjs)),
-which the dashboard server can call as it already calls the execution
-scripts' GitHub Actions reader. It reads the workflow at the requested
-revision from the local repository and diffs it against the nearest ancestor
-build. An equivalent build is only as equivalent as the project's declaration
-that CI-ignored paths cannot change test results. That is the same judgment
-CI made when it did not run. Showing the requested revision's status beside
-the observed proof source follows
-[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
-The before-and-after presentation of these labels belongs to
-[SEED-255](SEED-255-compare-before-and-after-ci-proof.md#compare-before-and-after-ci-proof).
-
 <a id="use-later-ci-proof-for-cancelled-landings"></a>
 
 ### Use a later trunk build's CI proof for cancelled landings
 
 **Identity:** SEED-254#use-later-ci-proof-for-cancelled-landings
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-254#use-later-ci-proof-for-cancelled-landings","dependencies":[{"supplier":{"identity":"SEED-254#use-ancestor-ci-proof-for-skipped-builds","href":"seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-ancestor-ci-proof-for-skipped-builds"},"implementation":"Landed's later-build proof extends the per-endpoint requested-revision status (Cancelled shown apart from the proof source) and the proof-usability walk that the supplier introduces in the comparison lookup.","rationale":"Both stories change the same endpoint selection rule in intentCiComparisonResolve.ts and baseCiRevisionLookup.ts. Building the Cancelled status and the usable-proof walk here first would duplicate the supplier's design and force a conflicting reconciliation of one domain rule; the supplier is already Taken and planned.","condition":"The supplier's comparison on trunk shows each endpoint's requested-revision status, including Cancelled at Landed, apart from its proof source, and its Baseline walk passes over builds without usable proof.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-254#use-later-ci-proof-for-cancelled-landings","dependencies":[{"supplier":{"identity":"SEED-254#use-ancestor-ci-proof-for-skipped-builds","href":"../docs/dashboard-development-intent.md"},"implementation":"Landed's later-build proof extends the per-endpoint requested-revision status (Cancelled shown apart from the proof source) and the proof-usability walk that the supplier introduces in the comparison lookup.","rationale":"Both stories change the same endpoint selection rule in intentCiComparisonResolve.ts and baseCiRevisionLookup.ts. Building the Cancelled status and the usable-proof walk here first would duplicate the supplier's design and force a conflicting reconciliation of one domain rule; the supplier is already Taken and planned.","condition":"The supplier's comparison on trunk shows each endpoint's requested-revision status, including Cancelled at Landed, apart from its proof source, and its Baseline walk passes over builds without usable proof.","state":"waiting"}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/496-use-later-ci-proof-for-cancelled-landings/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6839f116be6dee719287b81a6c9153b9cef0fed7511eef7e0a2737ffe34429fe","plan":"fbaf8720daa1227a8fdd8c021e7b98708c237cd74d882e18b43dbc9454c0863f"}}

@@ -31,12 +31,28 @@ export type CiTimeWithoutRunnerWaits = z.infer<
   typeof timeWithoutRunnerWaitsSchema
 >;
 
+// Requested revision's own status when it is not the timed build shown
+// (Skipped, Cancelled, or No build with why). Absent when the endpoint's
+// build is that revision's own.
+export const requestedRevisionCiStatusSchema = z.object({
+  kind: z.enum(["skipped", "cancelled", "no-build"]),
+  explanation: z.string().min(1),
+});
+
+export type RequestedRevisionCiStatus = z.infer<
+  typeof requestedRevisionCiStatusSchema
+>;
+
+const requestedStatusField = {
+  requestedStatus: requestedRevisionCiStatusSchema.optional(),
+};
+
 const buildSlot = z.object({
   kind: z.literal("build"),
   revision: z.string().min(1),
   subject: z.string().min(1),
   state: z.enum(["pass", "failed"]),
-  selection: z.enum(["exact", "ancestor"]),
+  selection: z.enum(["exact", "ancestor", "equivalent"]),
   laterWithoutResult: z.number().int().nonnegative(),
   laterRunning: z.literal(true).optional(),
   runUrl: z.string().min(1).optional(),
@@ -44,22 +60,25 @@ const buildSlot = z.object({
   ...runIdentity,
   ...attemptTimes,
   timeWithoutRunnerWaits: timeWithoutRunnerWaitsSchema,
+  ...requestedStatusField,
 });
 
 const runningSlot = z.object({
   kind: z.literal("running"),
   revision: z.string().min(1),
   subject: z.string().min(1),
-  selection: z.enum(["exact", "ancestor"]),
+  selection: z.enum(["exact", "ancestor", "equivalent"]),
   laterWithoutResult: z.number().int().nonnegative(),
   runUrl: z.string().min(1).optional(),
   runBranch: z.string().min(1).optional(),
   ...runIdentity,
+  ...requestedStatusField,
 });
 
 const gapSlot = z.object({
   kind: z.enum(["none", "unavailable", "not-applicable", "not-landed"]),
   explanation: z.string().min(1),
+  ...requestedStatusField,
 });
 
 export const storyCiComparisonSlotSchema = z.discriminatedUnion("kind", [

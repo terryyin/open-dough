@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Compare before-and-after CI proof in Intent](seeds/SEED-255-compare-before-and-after-ci-proof.md#compare-before-and-after-ci-proof) — SEED-255#compare-before-and-after-ci-proof ([plan](slice-plans/493-compare-before-and-after-ci-proof/PLAN.md))
-- [Use the nearest ancestor's CI proof for skipped builds](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-ancestor-ci-proof-for-skipped-builds) — SEED-254#use-ancestor-ci-proof-for-skipped-builds ([plan](slice-plans/494-use-ancestor-ci-proof-for-skipped-builds/PLAN.md))
 
 ## Backlog list
 

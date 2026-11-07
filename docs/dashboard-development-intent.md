@@ -111,8 +111,13 @@ the newest completed build at or before the first claim parent. Branch is
 the final branch result from the landing's story-side parent (inapplicable
 in Trunk Mode). Landed uses the newest trunk-first owning merge or the
 fast-forward tip, before any separate completion commit and without falling
-back across the landing. Each build shows its revision, run, attempt, state,
-and exact or measured-ancestor selection. GitHub Actions wall time spans
+back across the landing; a confirmed skip may use only that landing's
+equivalent build and its proof, never past unusable proof, while cancelled
+or unexplained stays exact-only. Each build shows its revision, run, attempt, state,
+and exact, measured-ancestor, or equivalent-build selection, with the
+requested revision's own status (Skipped, Cancelled, or No build) when that
+revision is not the timed build shown. Baseline and Branch walks continue
+past builds without usable proof. GitHub Actions wall time spans
 run creation on attempt one or attempt start on reruns through completion.
 CI time without runner waits measures the longest dependency chain of job
 durations, including carried-over jobs, against the workflow at that build.

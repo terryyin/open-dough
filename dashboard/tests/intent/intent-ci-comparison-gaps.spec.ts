@@ -185,7 +185,10 @@ test("a missing landed build explains itself without inventing zero", async ({
   const { panel } = await selectDoneStoryForCiComparison(page);
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("No completed CI build");
+  ).toContainText("No build at");
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(2),
+  ).toContainText("the workflow at that revision could not be read");
   await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
     "—",
   );
@@ -215,10 +218,13 @@ test("without builds at a fast-forward tip Branch and Landed explain gaps while 
   );
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(1),
-  ).toContainText("No completed CI build");
+  ).toContainText("No build at");
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("No completed CI build");
+  ).toContainText("No build at");
+  await expect(
+    panel.locator(".intent-ci-comparison-identity").nth(2),
+  ).toContainText("the workflow at that revision could not be read");
   await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
     "—",
   );

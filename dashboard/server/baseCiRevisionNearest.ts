@@ -1,12 +1,14 @@
 // Nearest CI build along a revision's first-parent ancestors: newest run per
 // revision, then its newest completed timed attempt (cancelled latest falls
-// back). Used by story CI comparison endpoint lookup
+// back). Walking endpoints may also require usable proof and continue past
+// builds that lack it. Used by story CI comparison endpoint lookup
 // (`./baseCiRevisionLookup.ts`). Live branch judgment keeps `./baseCiNearest.ts`.
 import {
   attemptTimesOf,
   type BaseCiRunIdentity as RunIdentity,
   type BaseCiState,
 } from "../src/baseCiConfirmation.ts";
+import type { CiProofRun } from "../src/ciProof.ts";
 import type { CiTimeWithoutRunnerWaits } from "../src/storyCiComparison.ts";
 import { newestRunFor, type ListedRun } from "./baseCiNearest.ts";
 
@@ -49,7 +51,8 @@ function judgeAttempt(
   return completedStateOf(conclusion);
 }
 
-// Completed conclusions that can supply a comparison build.
+// Whether a completed conclusion yields timing (passed or failed); cancelled
+// and timed_out do not. Exported for adapter revision lookup.
 export function isBuildConclusion(
   conclusion: ListedRun["conclusion"],
 ): conclusion is "success" | "failure" {
@@ -96,12 +99,14 @@ export function selectRevisionAttempt(
 }
 
 // One revision's CI comparison build: exact or measured ancestor, with how
-// many later revisions before the target lacked a completed timed attempt.
+// many later revisions before the target the walk passed over (no timed
+// attempt, or — when a proof gate is set — a timed build whose proof was
+// not usable).
 export type RevisionCiBuild = {
   readonly revision: string;
   readonly subject: string;
   readonly state: "pass" | "failed" | "running";
-  readonly selection: "exact" | "ancestor";
+  readonly selection: "exact" | "ancestor" | "equivalent";
   readonly laterWithoutResult: number;
   readonly laterRunning?: true;
   readonly runUrl?: string;
@@ -109,6 +114,18 @@ export type RevisionCiBuild = {
   readonly startedAt?: string;
   readonly completedAt?: string;
 } & RunIdentity;
+
+// Run identity for a timed GitHub Actions comparison build, when the listing
+// supplied a positive run id and attempt.
+export function proofRunOf(build: RevisionCiBuild): CiProofRun | undefined {
+  return build.runId !== undefined && build.runAttempt !== undefined
+    ? {
+        runId: build.runId,
+        runAttempt: build.runAttempt,
+        revision: build.revision,
+      }
+    : undefined;
+}
 
 export type RevisionCiLookup = {
   // Runs listed for one head_sha (workflow runs?head_sha=).
@@ -129,18 +146,35 @@ export type RevisionCiLookup = {
   readonly subjectOf: (sha: string) => Promise<string>;
 };
 
+// Optional gate: Baseline / Branch (and Trunk Mode Landed / provisional tip)
+// continue past a timed build whose proof is not usable. When every timed
+// build in the bound fails the gate, the walk returns the nearest timed
+// build so the endpoint can still name it. Omit the gate for Landed's
+// equivalent-build search and for skip-confirmation basis walks.
+export type RevisionProofUsable = (build: RevisionCiBuild) => Promise<boolean>;
+
+export type NearestRevisionBuildOptions = {
+  readonly preferCompletedAncestor?: boolean;
+  readonly proofUsable?: RevisionProofUsable;
+};
+
 // Walk `revisions` (newest / target first) and return the first revision that
 // yields a judged attempt. `boundExclusive` when set skips that revision and
 // older ones (story-start exclusive for result endpoints). Baseline walks
 // omit the bound so the story-start revision itself may supply the build.
+// A running attempt stops the walk without a proof check unless
+// `preferCompletedAncestor` continues past it.
 export async function nearestRevisionBuild(
   revisions: readonly string[],
   lookup: RevisionCiLookup,
   boundExclusive?: string,
-  preferCompletedAncestor = false,
+  options?: NearestRevisionBuildOptions,
 ): Promise<RevisionCiBuild | undefined> {
+  const preferCompletedAncestor = options?.preferCompletedAncestor === true;
+  const proofUsable = options?.proofUsable;
   let skipped = 0;
   let running: RevisionCiBuild | undefined;
+  let nearestWithoutUsableProof: RevisionCiBuild | undefined;
   for (const sha of revisions) {
     if (boundExclusive !== undefined && sha === boundExclusive) break;
     const listed = await lookup.listRunsAt(sha);
@@ -207,7 +241,23 @@ export async function nearestRevisionBuild(
       skipped += 1;
       continue;
     }
+    if (build.state === "running") {
+      return running === undefined ? build : { ...build, laterRunning: true };
+    }
+    if (proofUsable !== undefined) {
+      if (await proofUsable(build)) {
+        return running === undefined ? build : { ...build, laterRunning: true };
+      }
+      nearestWithoutUsableProof ??= build;
+      skipped += 1;
+      continue;
+    }
     return running === undefined ? build : { ...build, laterRunning: true };
+  }
+  if (nearestWithoutUsableProof !== undefined) {
+    return running === undefined
+      ? nearestWithoutUsableProof
+      : { ...nearestWithoutUsableProof, laterRunning: true };
   }
   return running;
 }

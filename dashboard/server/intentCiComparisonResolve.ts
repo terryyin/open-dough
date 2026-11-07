@@ -1,27 +1,26 @@
-// Resolves a story's CI comparison answer for Intent's comparison read
-// (`./intentCiComparisonRead.ts`): done stories from published completion
-// history, Taken stories from the live claim and tip.
-import {
-  suppressedBesideJudgmentFragments,
-  type StoryCiComparisonAnswer,
-} from "../src/storyCiComparison.ts";
+// Resolves a done story's CI comparison answer for Intent's comparison read
+// (`./intentCiComparisonRead.ts`): published completion history. Taken stories
+// resolve in `./intentCiComparisonTakenResolve.ts`.
+import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   lookupBaselineBuild,
   lookupResultBuild,
   type RevisionBuildSlot,
 } from "./baseCiRevisionLookup.ts";
+import { storyBranchLandedExactLookup } from "./exactSkippedEquivalent.ts";
+import { runGit } from "./gitRunner.ts";
 import {
   asComparisonSlot,
   gapFromUnread,
   isUnreadJudgment,
   lookupContext,
   trunkBranchNotApplicable,
+  workflowOf,
 } from "./intentCiComparisonSlots.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
-import { notLandedYet, takenStoryEndpoints } from "./takenStoryEndpoints.ts";
 
-const [noPublishedCompletionRecord] = suppressedBesideJudgmentFragments;
+export { performTakenComparison } from "./intentCiComparisonTakenResolve.ts";
 
 export async function performDoneComparison(
   source: PublishedSource,
@@ -50,6 +49,7 @@ export async function performDoneComparison(
     };
   }
   const { call, lookupOrGap } = context;
+  await runGit(["rev-parse", "--verify", `${facts.completion}^{commit}`], call);
   if (isUnreadJudgment(lookupOrGap)) {
     const gap = gapFromUnread(lookupOrGap);
     return {
@@ -66,10 +66,14 @@ export async function performDoneComparison(
     };
   }
   const lookup = lookupOrGap;
+  const workflow = workflowOf(call);
+  const proofSource = { repository: source.repository, signal };
   const baselineBuild = await lookupBaselineBuild(
     facts.storyStart,
     lookup,
     call,
+    workflow,
+    proofSource,
   );
   const branchBuild: RevisionBuildSlot =
     facts.mode === "trunk"
@@ -85,12 +89,14 @@ export async function performDoneComparison(
             facts.storyStart,
             lookup,
             call,
+            workflow,
             "No completed CI build was found at the final branch revision or a later story-side ancestor within the story's start bound.",
+            undefined,
+            proofSource,
           );
-  // Story Branch Mode: exact revision at the landing only — merge for a
-  // trunk-first landing, tip for a fast-forward; no measured-ancestor
-  // fallback across a merge (trunk-side lacks the story; story-side is B).
-  // Trunk Mode keeps the completion ancestor walk.
+  // Story Branch Mode: exact landing (merge or fast-forward tip), except a
+  // confirmed skip may use that landing's equivalent build proof only. Trunk
+  // Mode keeps the completion ancestor walk (usable-proof gate).
   const fastForward =
     facts.landing !== undefined &&
     facts.landing.merge === facts.landing.branchSide;
@@ -101,7 +107,10 @@ export async function performDoneComparison(
           facts.storyStart,
           lookup,
           call,
+          workflow,
           "No completed CI build was found at the completion revision or a later trunk ancestor within the story's start bound.",
+          undefined,
+          proofSource,
         )
       : facts.landing === undefined
         ? {
@@ -114,18 +123,15 @@ export async function performDoneComparison(
             facts.storyStart,
             lookup,
             call,
+            workflow,
             fastForward
               ? "No completed CI build was found at the landed story revision."
               : "No completed CI build was found at the landing merge.",
-            {
-              exactOnly: true,
-              cancelledExplanation: fastForward
-                ? "The CI build at the landed story revision was cancelled."
-                : "The CI build at the landing merge was cancelled.",
-              timedOutExplanation: fastForward
-                ? "The CI build at the landed story revision timed out."
-                : "The CI build at the landing merge timed out.",
-            },
+            storyBranchLandedExactLookup(
+              fastForward,
+              source.repository,
+              signal,
+            ),
           );
   const [baseline, branch, landed] = await Promise.all([
     asComparisonSlot(baselineBuild, lookup),
@@ -143,101 +149,5 @@ export async function performDoneComparison(
     baseline,
     branch,
     landed,
-  };
-}
-
-export async function performTakenComparison(
-  source: PublishedSource,
-  identity: string,
-  signal: AbortSignal,
-  checkedAt: string,
-): Promise<StoryCiComparisonAnswer> {
-  const endpoints = await takenStoryEndpoints(source, identity, signal);
-  if (endpoints.kind === "absent") {
-    return {
-      kind: "unavailable",
-      identity,
-      explanation: `${identity} ${noPublishedCompletionRecord}.`,
-      checkedAt,
-    };
-  }
-  if (endpoints.kind === "unavailable") {
-    return {
-      kind: "unavailable",
-      identity,
-      explanation: endpoints.explanation,
-      checkedAt,
-    };
-  }
-  const { facts } = endpoints;
-  const context = await lookupContext(source, signal, facts.branch);
-  if ("unavailable" in context) {
-    return {
-      kind: "unavailable",
-      identity,
-      explanation: context.unavailable,
-      checkedAt,
-    };
-  }
-  const { call, lookupOrGap } = context;
-  if (isUnreadJudgment(lookupOrGap)) {
-    const gap = gapFromUnread(lookupOrGap);
-    return {
-      kind: "comparison",
-      phase: "taken",
-      identity: facts.identity,
-      mode: facts.mode,
-      storyStart: facts.storyStart,
-      checkedAt,
-      baseline: gap,
-      branch: facts.mode === "trunk" ? trunkBranchNotApplicable : gap,
-      landed: notLandedYet,
-      ...(facts.mode === "trunk" ? { provisional: gap } : {}),
-    };
-  }
-  const lookup = lookupOrGap;
-  const baselineBuild = await lookupBaselineBuild(
-    facts.storyStart,
-    lookup,
-    call,
-  );
-  const liveBuild = await lookupResultBuild(
-    facts.liveTip,
-    facts.storyStart,
-    lookup,
-    call,
-    facts.mode === "trunk"
-      ? "No completed CI build was found at the current trunk tip or a later trunk ancestor within the story's start bound."
-      : "No completed CI build was found at the current branch tip or a later story-side ancestor within the story's start bound.",
-    { provisional: true },
-  );
-  const [baseline, live] = await Promise.all([
-    asComparisonSlot(baselineBuild, lookup),
-    asComparisonSlot(liveBuild, lookup),
-  ]);
-  if (facts.mode === "trunk") {
-    return {
-      kind: "comparison",
-      phase: "taken",
-      identity: facts.identity,
-      mode: facts.mode,
-      storyStart: facts.storyStart,
-      checkedAt,
-      baseline,
-      branch: trunkBranchNotApplicable,
-      landed: notLandedYet,
-      provisional: live,
-    };
-  }
-  return {
-    kind: "comparison",
-    phase: "taken",
-    identity: facts.identity,
-    mode: facts.mode,
-    storyStart: facts.storyStart,
-    checkedAt,
-    baseline,
-    branch: live,
-    landed: notLandedYet,
   };
 }

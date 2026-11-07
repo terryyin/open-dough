@@ -10,6 +10,7 @@ import {
   listedRun,
   policy,
   unreadable,
+  unresolved,
 } from "./ci-integrated-state-judge-test-fixtures.mjs";
 
 const { writer, b, c } = judgeHistory({ after });
@@ -34,8 +35,6 @@ test("a locally containing pending attempt supplies progress only from compatibl
     { headBranch: "other" },
     { check: "other" },
     { context: "other" },
-    { status: "completed", conclusion: "failure" },
-    { status: "completed", conclusion: "success" },
   ]) {
     const poll = judgePoll({
       repoDir: writer,
@@ -45,6 +44,25 @@ test("a locally containing pending attempt supplies progress only from compatibl
     const rejected = (await poll.judge(accepted(b))).integrated;
     assert.equal(rejected.state, "unresolved", JSON.stringify(facts));
     assert.equal(rejected.progress, undefined, JSON.stringify(facts));
+  }
+  // Listing still pending while the authoritative current attempt already
+  // finished: a failure is not_current_success (same contradiction as a
+  // failed listed attempt); a green stays not_current_pending (progress
+  // never comes from a finished attempt).
+  for (const [conclusion, reason] of [
+    ["failure", "not_current_success"],
+    ["success", "not_current_pending"],
+  ]) {
+    const poll = judgePoll({
+      repoDir: writer,
+      runs: [run],
+      read: (listed) =>
+        currentAttempt(listed, { status: "completed", conclusion }),
+    });
+    assert.deepEqual(
+      (await poll.judge(accepted(b))).integrated,
+      unresolved([{ sha: c, reason }]),
+    );
   }
   const unavailable = judgePoll({
     repoDir: writer,

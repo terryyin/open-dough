@@ -327,6 +327,15 @@ Former local code: DD-333. [Meaning, evidence and response](docs/maintainer/find
 
 Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/findings/ODF-329.md).
 
+### Occurrences
+- Execution: SEED-254#use-ancestor-ci-proof-for-skipped-builds (before-cleanup commit `83a71097998b8aee8d486f78eb24027ad148abf8`; first related implementation commit `94a168bef806e6c43a8e7aa3899f5cac49eea263`)
+  - Timestamp: 2026-11-07T16:43:34+08:00 (slice 2 delivery before accepted `b7d1abf4f`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION`; execution used `.claude/skills`)
+  - Evidence: coordinator transcript `a813feec-33b3-4f12-8c74-31a2ede64898` turn 53 "Fixing the lint failure, then retrying delivery"; terminal `636742.txt` `@typescript-eslint/return-await` on `exactSkippedEquivalentSlot` return without `await`; StrReplace added `await` in `dashboard/server/baseCiRevisionLookup.ts` before the successful retry that published `b7d1abf4f`
+  - Observed effect: one refused slice-2 delivery preparation; mechanical `await` fix and second guarded delivery succeeded
+  - Inference: same pattern as prior ODF-329 rows — authored lint first seen at coordinator format/delivery after a lint-forbidden implementation/refactor brief
+
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
@@ -443,6 +452,13 @@ Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`.
   - Evidence: coordinator delegated slice 1 (`85bcdbe9-6b19-4722-a806-4c3a22200093`) after reading the "Before first implementation delegation" boundary, then read "Before accepting a return" (`wrap-up.md#accept-proof`) and launched the source-only reviewer (`fc0018b5-f90a-42c9-8c9b-63d1c2ae89af`) before accepting slice 1 and delegating slice 2
   - Observed effect: no rework of slice 1; all 62 slice 1 commitments matched the delivered implementation and proof, and the 5 slice 2 commitments were passed into slice 2 delegation
   - Inference: same boundary-table ordering as prior ODF-367 rows — `dough-execute-plan/SKILL.md` lists `wrap-up.md#accept-proof` under "Before accepting a return" rather than before first slice delegation
+- Execution: SEED-254#use-ancestor-ci-proof-for-skipped-builds (before-cleanup commit `83a71097998b8aee8d486f78eb24027ad148abf8`; first related implementation commit `94a168bef806e6c43a8e7aa3899f5cac49eea263`)
+  - Timestamp: 2026-11-07T16:26:11+08:00 (between first slice-1 delegation and slice-1 delivery `94a168bef`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION`; execution used `.claude/skills`, which lacks `obtain-source-review.md`)
+  - Evidence: coordinator transcript `a813feec-33b3-4f12-8c74-31a2ede64898`: delegated slice 1 (`Task` "Implement slice 1 status") after reading installed "Before first implementation delegation" (no source-review link), then at acceptance launched source-only reviewer and wrote `source-review.md`; installed `.claude/skills/dough-execute-plan/SKILL.md` still omits `obtain-source-review.md#before-planned-delegation` while unreleased `src/skills/...` already includes it (ODF-367 response; first containing release none yet)
+  - Observed effect: one acceptance rework round for Summary `SlotSha` requested-status (commitment 3) before slice 1 published; later slices received allocated commitments in their briefs
+  - Inference: recurrence under the still-installed 0.3.87 boundary table; the unreleased source guidance that would have obtained the review before delegation was not what this execution read
 
 ## ODF-399 — Post-change refactor left a production module empty before delivery
 
@@ -591,6 +607,15 @@ Former local code: DD-418.
 Former local code: DD-422.
 
 [Evidence and current response](docs/maintainer/findings/ODF-424.md).
+
+### Occurrences
+- Execution: SEED-254#use-ancestor-ci-proof-for-skipped-builds (before-cleanup commit `83a71097998b8aee8d486f78eb24027ad148abf8`; first related implementation commit `94a168bef806e6c43a8e7aa3899f5cac49eea263`)
+  - Timestamp: 2026-11-07T16:26:11+08:00 (slice 1 obligation recording before delivery `94a168bef`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION`; execution used `.claude/skills`)
+  - Evidence: coordinator transcript `a813feec-33b3-4f12-8c74-31a2ede64898` turn 30 "Fixing obligation quotes to match the seed"; StrReplace expanded G1/G2/G3 Story clause / Disposition strings to the seed's full substrings (including the SEED-257 link path and the `"revisions passed over"` count wording) before `story-obligations.mjs` check/record for slice 1 cleared
+  - Observed effect: one planning-record repair pass before slice 1 obligations cleared; no product rework
+  - Inference: same exact-substring discovery cost as the DD-422 / ODF-424 source when deferred exclusion titles diverge from Scope wording
 
 ## ODF-425 — A refactor renamed a helper while its verification was running
 

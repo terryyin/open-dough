@@ -29,15 +29,28 @@ import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
 import { comparisonEndpointProofsChecking } from "./storyCiComparisonEntries.ts";
-import { observedNotAttributed } from "./storyCiComparisonWording.ts";
+import {
+  observedNotAttributed,
+  requestedStatusOrExplanation,
+  requestedStatusPrefix,
+} from "./storyCiComparisonWording.ts";
 import type { ComparisonEndpointProofs } from "./useIntentCiComparisonEntries.ts";
 
 const outsideRowLabel = "Not in the rows above";
 
+// Build/running slots name the requested revision's status (Skipped /
+// Cancelled / No build) beside the short SHA of the build whose proof is
+// used — same status words as Intent's homepage comparison identity.
 function SlotSha({ slot }: { readonly slot: StoryCiComparisonSlot }) {
-  if (slot.kind === "build" || slot.kind === "running")
-    return <code>{shortSha(slot.revision)}</code>;
-  return slot.explanation;
+  if (slot.kind === "build" || slot.kind === "running") {
+    return (
+      <>
+        {requestedStatusPrefix(slot)}
+        <code>{shortSha(slot.revision)}</code>
+      </>
+    );
+  }
+  return requestedStatusOrExplanation(slot);
 }
 
 export function ComparisonNamed({

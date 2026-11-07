@@ -7,22 +7,43 @@ import {
   revisionLookupOrGap,
   type RevisionBuildSlot,
 } from "./baseCiRevisionLookup.ts";
+import { ciConfiguration } from "./baseCiJudgment.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import type { BaseCiJudgment } from "./baseCiNearest.ts";
 import type { GitCall } from "./gitRunner.ts";
 import { projectFolder } from "./projectFolders.ts";
+
+export function workflowOf(call: GitCall): string {
+  return ciConfiguration(call.cwd ?? "").workflow;
+}
 
 export const trunkBranchNotApplicable = {
   kind: "not-applicable",
   explanation: "Branch comparison is not applicable for a Trunk Mode story.",
 } satisfies RevisionBuildSlot;
 
+function requestedStatusOf(slot: RevisionBuildSlot):
+  | {
+      readonly requestedStatus: NonNullable<
+        RevisionBuildSlot["requestedStatus"]
+      >;
+    }
+  | Record<string, never> {
+  return slot.requestedStatus === undefined
+    ? {}
+    : { requestedStatus: slot.requestedStatus };
+}
+
 export async function asComparisonSlot(
   slot: RevisionBuildSlot,
   lookup: RevisionCiLookup,
 ): Promise<StoryCiComparisonSlot> {
   if (slot.kind !== "build" && slot.kind !== "running")
-    return { kind: slot.kind, explanation: slot.explanation };
+    return {
+      kind: slot.kind,
+      explanation: slot.explanation,
+      ...requestedStatusOf(slot),
+    };
   const { adapterAttempt } = slot;
   const adapter =
     adapterAttempt === undefined
@@ -37,6 +58,7 @@ export async function asComparisonSlot(
       ...slot,
       adapterAttempt: adapter,
       timeWithoutRunnerWaits: await lookup.timeWithoutRunnerWaitsOf(slot),
+      ...requestedStatusOf(slot),
     };
   }
   return {
@@ -45,12 +67,14 @@ export async function asComparisonSlot(
     subject: slot.subject,
     selection: slot.selection,
     laterWithoutResult: slot.laterWithoutResult,
+    ...(slot.laterRunning === true ? { laterRunning: true as const } : {}),
     runUrl: slot.runUrl,
     runId: slot.runId,
     runAttempt: slot.runAttempt,
     ...(adapter === undefined
       ? {}
       : { adapterAttempt: adapter, runBranch: slot.runBranch }),
+    ...requestedStatusOf(slot),
   };
 }
 
