@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ebacky-chan",
+  "email": "ebacky-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-254#use-later-ci-proof-for-cancelled-landings",
+  "host": "claude",
+  "model": "opus"
+}
