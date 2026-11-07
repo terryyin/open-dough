@@ -24,7 +24,7 @@ coordinator's allocation.
 | 1a.4 | for their fixtures | slice 8 | observed: grep -rnE 'test\.slow\|(test\|testInfo\|info)\.setTimeout\(\|describe\.configure\(\{[^}]*timeout\|^\s*(timeout\|globalTimeout):' over dashboard/tests, frontend-tests, backend-tests and playwright.config.ts after slice 8: no slow markers, group or fixture timeouts or config timeout; only case-local allowances auto-refresh-rate-limit.spec.ts:68 and production-deployment.spec.ts:62 (45s, pending candidates) plus nested deadlines under test; slice 8 nested fixtures bounded at the default (mutation: forced nested timeout failed 'Timed out waiting') |
 | 1b | "Then" audit and clean up the remaining automated checks (sequenced after 1a) | slice 10 | |
 | 1b.1 | including the shell checks | slice 10 | |
-| 1b.2 | including the Node checks | slice 9 | |
+| 1b.2 | including the Node checks | slice 9 | observed: slice 9 audit of the 419 Node jobs (scripts/test-jobs.sh) and 142 helpers: 12 case timeout options removed in 6 src/skills/dough-execute-plan/scripts/*.test.mjs; github-request-owner-start on t.mock.timers (30.7 → 0.4s); runner passes no --test-timeout; product deadlines and whole-run safeguards kept (tmp s9-*) |
 | 1b.3 | including their fixtures | slice 10 | |
 | 1c | Each runner supplies its own default (qualification) | slice 10 | |
 | 1d | The repository's shell runner and `node --test` have no finite default case timeout (qualification) | slice 10 | |

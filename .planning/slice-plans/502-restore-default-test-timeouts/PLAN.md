@@ -315,13 +315,26 @@ this story's timeout scope. The execution report lists them.
 ### 9. Node checks use native defaults and deterministic progress
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Use the repository runner's Node selection, including `src/skills` and
 `tests/support`, to audit options, helpers and nested invocations. Replace
 case-budget workarounds and implicated elapsed waits with event or controlled
 clock proof. Run each affected file through `npm test -- <path…>` and compare
 the observed lifecycle or failure result and job cost. Preserve the runtime
 deadlines the checks exercise and measure against the CI job budget separately.
+
+Result: the Node selection has 419 jobs, and the runner passes no
+`--test-timeout`. Twelve case `timeout` options in six execute-plan test
+files were stall bounds below Node's infinite default, and each case keeps
+finite assertion or fixture bounds; all twelve are removed.
+`github-request-owner-start` reaches the real 30s owner start limit on
+`t.mock.timers`, 30.7s → 0.4s: 25/25 sequential runs and 36/36 parallel
+runs. `ci-github-diagnostic` asserts the recorded maximum of 8 concurrent
+requests instead of watching a 300ms window. Raising the start limit or the
+concurrency limit failed the changed checks. The seven jobs passed in 8.4s
+of wall time (30.8s before). Product deadlines, command bounds and whole-run
+safeguards are unchanged. Short negative windows remain, such as
+`local-test-suite` `delay(150)`; they have no budget impact.
 
 ### 10. Shell checks surface deterministic results at their normal settings
 

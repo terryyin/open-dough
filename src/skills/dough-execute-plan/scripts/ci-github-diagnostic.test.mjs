@@ -125,13 +125,13 @@ test("the diagnostic entry reads every failed job's log with at most eight reque
   const logsAsked = () =>
     github.asked().filter((asked) => asked.endsWith("/logs"));
 
-  // Eleven logs are wanted at once; the ninth waits for a turn.
-  await until(() => logsAsked().length === 8, "eight log requests under way");
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  assert.equal(logsAsked().length, 8);
-  assert.equal(github.mostUnderWay(), 8);
+  // Eleven logs are wanted at once; the ninth waits for a turn. Held logs stay
+  // under way until released, so the most ever under way, read from GitHub's
+  // whole record once the diagnostic is done, shows that no ninth was asked.
+  await until(() => logsAsked().length >= 8, "eight log requests under way");
   github.releaseLogs();
   assert.equal(await diagnostic.exited, 0, diagnostic.stderr());
+  assert.equal(github.mostUnderWay(), 8);
 
   const answer = JSON.parse(diagnostic.stdout());
   assert.deepEqual(
