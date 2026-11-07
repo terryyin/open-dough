@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Scan CI summaries in dashboard Intent](seeds/SEED-259-scan-intent-ci-summaries.md#scan-intent-ci-summaries) — SEED-259#scan-intent-ci-summaries
 - [Retry unavailable CI comparison slots](seeds/SEED-118-dashboard-reading-reliability.md#retry-unavailable-ci-comparison-slots) — SEED-118#retry-unavailable-ci-comparison-slots
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
 - [Compare a short manual intent assessment with ordinary review](seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage) — SEED-258#compare-manual-intent-coverage
