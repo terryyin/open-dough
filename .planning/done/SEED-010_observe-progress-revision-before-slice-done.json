@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#observe-progress-revision-before-slice-done",
+  "title": "Name the hosted-proof observation step for progress-published slices",
+  "completedAt": "2026-11-07T06:13:46.048Z",
+  "developer": "Terry Yin",
+  "agent": "aki-chan",
+  "host": "cursor",
+  "model": "auto"
+}

@@ -47,7 +47,11 @@ test("review overlaps pending CI and one completion operation owns final handoff
     waitMechanics,
     /supplies only the local[\s\S]+command and receipt[\s\S]+mechanics/,
   );
-  assert.match(waitMechanics, /await-revision[\s\S]+read-only purpose/);
+  assert.match(
+    waitMechanics,
+    /Progress:[\s\S]+`await-revision`[\s\S]+fresh-increment\.md#observe-progress-proof/,
+  );
+  assert.match(waitMechanics, /Keep `complete-revision` at completion/);
 
   assert.match(
     finish,

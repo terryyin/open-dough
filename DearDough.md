@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 436. Removed numbers are never reused.
+- Highest allocated local number: 437. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -618,3 +618,21 @@ Former local code: DD-434.
 Former local code: DD-436.
 
 [Evidence and current response](docs/maintainer/findings/ODF-430.md).
+
+## DD-437 — Near-zero Execute Plan boundary-row headroom forced structural packing on an ordinary guidance story
+
+Adding the progress-observation sequence to maintained Execute Plan guidance
+hit ~52 bytes of delivery-row headroom and zero finish-row headroom in
+`read-budget-guidance.test.mjs`, so the story spent turns splitting
+`fresh-increment.md` into `#publish` / `#observe-progress-proof` and trimming
+pointers for size rather than only naming the observation command.
+
+### Occurrences
+- Execution: SEED-010#observe-progress-revision-before-slice-done / plan 490, first implementation `06cb632ae92d5aa6be2330920f2e2d477c2964da`
+  - Timestamp: 2026-11-07T13:50:00+08:00
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: 0.3.87
+  - Evidence: plan 490 Learnings; `src/skills/dough-execute-plan/SKILL.md` delivery row now links `fresh-increment.md#publish`; `progress-observation-guidance.test.mjs` and `read-budget-guidance.test.mjs`; implementation agent report of packing against ~52/0 byte headroom
+  - Observed effect: Guidance sequence was delivered, but representative edits required a publish/observe heading split and size-neutral finish-row wording to keep the boundary-read budget green
+  - Inference: Boundary-row budgets that leave near-zero headroom turn ordinary guidance stories into structure work; distinct from ODF-264 establishing the budgets themselves
