@@ -103,3 +103,9 @@ brief; acceptance of an unchanged source reuses that review.
 Refinement was not needed: one cohesive guidance move across the delegation
 and acceptance references with one proof loop (guidance test plus walk); no
 remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: no-change — deferred exclusions (quick timing, planning-time
+review, Structure-before-review) stay deferred; ODF-367 remains queued pending
+release and ordinary-use observation.
