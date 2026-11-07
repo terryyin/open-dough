@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Group Dashboard Backend Test by feature](seeds/SEED-251-group-dashboard-backend-tests.md#group-dashboard-backend-tests) — SEED-251#group-dashboard-backend-tests ([plan](slice-plans/487-group-dashboard-backend-tests/PLAN.md))
-- [Hide a client project from the dashboard while keeping it maintained](seeds/SEED-250-hide-client-project-from-dashboard.md#hide-client-project-from-dashboard) — SEED-250#hide-client-project-from-dashboard ([plan](slice-plans/476-hide-client-project-from-dashboard/PLAN.md))
 
 ## Backlog list
 

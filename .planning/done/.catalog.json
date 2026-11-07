@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-250_hide-client-project-from-dashboard.json",
+      "identity": "SEED-250#hide-client-project-from-dashboard",
+      "completedAt": "2026-11-07T06:31:00.295Z",
+      "blob": "2f3f7a81fd13f76ab78ad96c52432a898603935a"
+    },
+    {
       "fileName": "SEED-249_organize-dashboard-tests.json",
       "identity": "SEED-249#organize-dashboard-tests",
       "completedAt": "2026-11-06T18:13:09.594Z",
@@ -1554,60 +1560,6 @@
       "identity": "SEED-088#review-selected-commits",
       "completedAt": "2026-10-08T12:11:34.549Z",
       "blob": "7d75b7beed587879a07e72698c54434506012d8c"
-    },
-    {
-      "fileName": "SEED-119_done-catalog-currency-correction.json",
-      "identity": "SEED-119#done-catalog-currency-correction",
-      "completedAt": "2026-10-08T05:24:46.507Z",
-      "blob": "fdacb8c684196e1265777eb42ff9d5d212f616b2"
-    },
-    {
-      "fileName": "SEED-108_observe-promised-journey.json",
-      "identity": "SEED-108#observe-promised-journey",
-      "completedAt": "2026-10-08T02:51:31.985Z",
-      "blob": "d1a3c19e5b0a8bd17ecd574edd607b80eb0845f8"
-    },
-    {
-      "fileName": "SEED-100_launched-session-development-environment.json",
-      "identity": "SEED-100#launched-session-development-environment",
-      "completedAt": "2026-10-08T02:25:11.961Z",
-      "blob": "12f97f9551379191c87cc1f07c415137c5e6463d"
-    },
-    {
-      "fileName": "SEED-118_reduce-repeated-reads-across-tabs-and-deployments.json",
-      "identity": "SEED-118#reduce-repeated-reads-across-tabs-and-deployments",
-      "completedAt": "2026-10-08T02:22:17.273Z",
-      "blob": "8f501eb9fc77435a11ee242478f48a1ac4b3da59"
-    },
-    {
-      "fileName": "SEED-119_recently-done-progressive-loading.json",
-      "identity": "SEED-119#recently-done-progressive-loading",
-      "completedAt": "2026-10-08T00:11:09.658Z",
-      "blob": "000249dd6ba2082996c15c03f3bf3a9215050d10"
-    },
-    {
-      "fileName": "SEED-106_paged-columns-reveal-and-count-correction.json",
-      "identity": "SEED-106#paged-columns-reveal-and-count-correction",
-      "completedAt": "2026-10-07T23:57:33.192Z",
-      "blob": "77d7ad8cd630c3347de57b379c3ad1664326a6fe"
-    },
-    {
-      "fileName": "SEED-118_recover-from-temporary-github-failures.json",
-      "identity": "SEED-118#recover-from-temporary-github-failures",
-      "completedAt": "2026-10-07T23:55:19.961Z",
-      "blob": "4fc07aaa615d9e596d77dd75c2ba52373f26bc16"
-    },
-    {
-      "fileName": "SEED-118_show-cards-before-expensive-cache-validation.json",
-      "identity": "SEED-118#show-cards-before-expensive-cache-validation",
-      "completedAt": "2026-10-07T21:35:11.133Z",
-      "blob": "a2f770fff188345031cc1f82a0c0d0aae5c19d7f"
-    },
-    {
-      "fileName": "SEED-106_paged-columns-height-follows-shown.json",
-      "identity": "SEED-106#paged-columns-height-follows-shown",
-      "completedAt": "2026-10-07T20:57:35.379Z",
-      "blob": "a0731da8c4d5eab28c9d51908fbb977074b93054"
     }
   ],
   "unreadable": []
