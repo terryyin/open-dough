@@ -151,78 +151,6 @@ Individual refinements and their recorded facts below carry current preparation.
 
 ## Story Decomposition
 
-<a id="assess-story-intent-protection"></a>
-
-### 10. Review how well a story's intent is protected
-
-**Identity:** SEED-192#assess-story-intent-protection
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/472-assess-story-intent-protection/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7230e6e0aa9db3e7ed5e34b8ee4ce527149ce6637dbe11d511b96cf7767522ce","plan":"f61f95e3aaa6bf876566375b13b77ecab0e6704d4a5f7c3eaf021b8e345ae801"}}
-```
-
-**Beneficiary.** Terry, evaluating whether AI-assisted review of story intent
-helps him decide which test protections to retain, clarify, or strengthen.
-
-**Goal.** Trial the proposed Dough Intent Coverage assessment on three recent
-completed Open Dough stories. For each promise and restriction, show how
-clearly the maintained tests express it, what evidence shows a test would catch
-a regression, and which cases are uncovered or uncertain. Terry can review
-the saved reports together and decide whether the method earns further work.
-
-**Scope**
-
-- During this story's execution, run the assessment directly with the AI host
-  executing the story. A fresh assessor uses the original story, the delivered
-  production implementation, and the relevant tests and support at the recorded
-  completion revision. The three cases and their proof routes are in
-  [Plan 472](../slice-plans/472-assess-story-intent-protection/PLAN.md#trial-cases).
-- Give each promise or restriction a verdict of *protected*, *partially
-  protected*, *not protected*, or *unknown*. Cite the story, implementation,
-  test assertion and relevant support, and revision-matched execution evidence.
-  Explain how clearly the tests express the promise. For partial protection name
-  the uncovered case. For unknown name the missing evidence.
-- Run the relevant existing tests at the completion revision and record the
-  command and results. A protected verdict needs a successful baseline and
-  either a break check or an explicit *reasoned-only* explanation. Across at
-  least two different cases, probe one uncertain protected claim per case by
-  deliberately breaking the promised production behavior in a scratch checkout
-  and rerunning the original tests. Record the fault, command, and observed
-  assertion or passing result. Reconsider the verdict if the intended fault
-  goes undetected.
-- Finish the initial verdicts before exposing the assessor to any retrospective
-  or later fixes. Compare against known review findings where available and
-  check which reported gaps still apply on trunk.
-- Commit a Markdown report for each story and a cross-case summary under
-  `docs/intent-coverage-trial/`. Keep these reports available after wrap-up so
-  Terry can review the evidence and the follow-up can use it. Record useful
-  findings, unsupported claims, review effort, and Terry's decision in the
-  summary. Link it from the product intent memorandum.
-- The scope is the three Open Dough cases and their existing test tools. A
-  public skill, cross-project generalization across test types, and automatic
-  invocation during wrap-up belong to the
-  [separate follow-up](SEED-258-dough-intent-coverage.md#dough-intent-coverage).
-  The trial can be executed from Plan 472.
-
-**Key examples**
-
-1. A story promises clicks inside a card's opened disclosure will keep their
-   own behavior. A test clicks the summary and a link but never the disclosure
-   body. The report gives *partially protected* and names that gap. The trial
-   later checks whether this matches the retrospective and whether it still
-   applies on trunk.
-2. A story promises that a changed file appears in place in the full tree.
-   With the original tests passing, a scratch fault drops the changed-file
-   overlay and the named assertion fails. The report gives *protected,
-   break-checked* for that fault and records the evidence. A fault that
-   reproduces the wrong behavior while tests still pass identifies a gap.
-3. A relevant test cannot be run successfully at the case revision. The report
-   identifies the failed or unavailable evidence and gives *unknown* for the
-   promise where that run is needed.
-4. Terry opens three committed reports and compares them. The summary
-   identifies which findings would change a decision, which claims he rejects,
-   and what the work and review cost. He decides whether to pursue the follow-up.
-   The reports remain readable after the trial's plan is removed.
-
 <a id="assess-story-test-complexity"></a>
 
 ### 11. Review complexity introduced by a story's tests
@@ -340,8 +268,7 @@ learning, not merely as infrastructure for later readers.
 
 The earlier optimization-candidate priority becomes selected position 4, after
 its source-navigation prerequisites. Story impact (5) keeps the review centered
-on a story. The protection trial and complexity review (10–11) can use
-existing tools.
+on a story. The complexity review (11) can use existing tools.
 
 The kept decomposition differs from Terry's rough sequence deliberately: it
 combines language-only source extensions when they share the same reading
@@ -360,8 +287,7 @@ early protection review to test the parent direction's hardest assumption.
 
 - Select a real story and a developer's prior review basis for the complexity
   assessment case (story 11); define what decision and review cost would justify
-  keeping its method. Story 10 records its trial cases and evaluation criteria
-  in its scope and plan.
+  keeping its method.
 - Establish Open Dough S/M/L calibration before assigning bands. Comparative
   uncertainty is recorded; no borrowed client-project timing policy applies.
 

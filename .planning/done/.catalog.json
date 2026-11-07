@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-192_assess-story-intent-protection.json",
+      "identity": "SEED-192#assess-story-intent-protection",
+      "completedAt": "2026-11-07T09:06:09.585Z",
+      "blob": "f35393106081d734dc7771906c9f998ad3bf3340"
+    },
+    {
       "fileName": "SEED-010_review-source-promises-before-first-slice.json",
       "identity": "SEED-010#review-source-promises-before-first-slice",
       "completedAt": "2026-11-07T06:32:27.475Z",

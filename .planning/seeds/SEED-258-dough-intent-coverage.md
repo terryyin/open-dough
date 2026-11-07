@@ -32,7 +32,7 @@ or strengthen.
 **Scope to decompose**
 
 - Generalize the method that the
-  [Open Dough trial](SEED-192-review-product-intent.md#assess-story-intent-protection)
+  [Open Dough trial](../../docs/intent-coverage-trial/README.md)
   supports. Resolve the story, delivered implementation, relevant tests,
   and proof commands in the established project. Account for projects that
   use different frameworks and a mix of end-to-end, integration, and unit
