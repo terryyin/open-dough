@@ -198,3 +198,19 @@ No remaining slice-specific concern was identified in this review.
   build and at the read trunk head.
 - Execute in Story Branch Mode or Trunk Mode as started. There is no
   trunk-only step.
+
+## Execution complete
+
+Product advice:
+- Correction planned: [Explain a running later build after a proofless one](../../seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#explain-running-after-proofless-later-build)
+  ([plan 497](../497-explain-running-after-proofless-later-build/PLAN.md)).
+  When the walk passes a proofless later build and then meets a running
+  one, Landed says "no later trunk build has finished yet", which is false,
+  and drops the proof reason that the "No later proof" scope requires.
+- Recommendation, not queued: a comparison answer with any `unavailable`
+  slot (for example a GitHub listing failure or the 30 s read deadline) is
+  remembered for the dashboard process's life, and **Check again** cannot
+  recover it. This predates this story and affects Baseline and Branch too.
+  The forward walk's extra listings raise the exposure. Treating
+  `unavailable` slots as not final in `isImmutableCiComparisonAnswer` would
+  be its own story.

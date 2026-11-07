@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 443. Removed numbers are never reused.
+- Highest allocated local number: 444. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -432,6 +432,16 @@ Former local code: DD-386.
 
 [Evidence and current response](docs/maintainer/findings/ODF-398.md).
 
+### Occurrences
+- Execution: SEED-254#use-later-ci-proof-for-cancelled-landings (plan 496-use-later-ci-proof-for-cancelled-landings; first related implementation commit `85946790e81e11d70d7ef1235a63d8a8d3aae1d2`)
+  - Timestamp: unknown (between trunk repair `84404746f` at 2026-11-07T17:50:10+08:00 and slice 1 commit at 2026-11-07T18:13:39+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.87 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: slice 1's local proof failed `intent-ci-comparison-adapter-gaps.spec.ts:15` and `intent-ci-comparison-skipped.spec.ts:141` at the claim base; trunk `84404746f` (another writer) already repaired both, and hosted run 42360556046 failed them too; trunk had also moved 13 commits, including plan 493's changes to the same spec and Intent doc
+  - Observed effect: the implementation agent correctly did not duplicate the repair; the coordinator chose a temporary WIP commit, a rebase onto `origin/main` with two conflicts and a soft reset, before acceptance and the first publication; then 47/47 comparison specs passed
+  - Inference: same gap, but at local slice proof before any publication rather than at a CI notification; no reference names incorporating trunk into an unpublished story-branch slice either
+
 ## ODF-333 — Story Branch proof requires trunk before closure <a id="odf-333"></a>
 
 Former local code: DD-387. Former local code: DD-401. Former local code: DD-394 (`6c354905e`), renumbered in merge `966aad8b1`. Two local facets enter this gate: closure commitments owned by completion or wrap-up but allocated to the last slice must be observed before its done transition (DD-387), and a Story Branch rollout slice released from trunk without a step landing the earlier slices (DD-401). [Meaning, evidence and response](docs/maintainer/findings/ODF-333.md).
@@ -650,6 +660,13 @@ Former local code: DD-431.
   - Evidence: slice 1 refactor dropped the file-list and `completion !== later` assertions in `dashboard/backend-tests/review/story-review-completed.spec.ts` that rows G4, 1.3, K3.1 and K3.2 cited; slice 2 refactor renamed fixture text `unattributed resolution` to `integration edit` cited by G2.
   - Observed effect: the coordinator retargeted the rows from the refactor reports before each delivery; no stale citation was published.
   - Inference: recurs whenever refactoring tightens or renames cited assertions, not only when files move.
+- Execution: SEED-254#use-later-ci-proof-for-cancelled-landings (plan 496-use-later-ci-proof-for-cancelled-landings; first related implementation commit `85946790e81e11d70d7ef1235a63d8a8d3aae1d2`)
+  - Timestamp: unknown (after slice 2 acceptance, before slice 2 commit at 2026-11-07T18:36:47+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.87 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: slice 2's refactor split `intent-ci-comparison-cancelled-landing.spec.ts` into a `-gaps` spec and `dashboard-later-trunk-build.test.mjs` into a `-landed` test for the 250-line rule; source-review rows 2, 2a, X1, 5a–5c, 9a–9c, E4 and E5 cited the old locations
+  - Observed effect: the refactor report listed the stale rows; the coordinator re-recorded them with `story-obligations.mjs record` before delivery, and no stale citation was published
 
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 
@@ -772,3 +789,18 @@ raced another worktree's tracking-ref update for a different branch.
   - Evidence: `execution-increment-delivery.mjs fresh` returned `delivery-interrupted` after `git fetch origin` could not update `origin/codex/compare-ci-time-without-runner-waits`; its expected old ref had already advanced. The exact remote branch already named `8dcf704f6`. Managed resume classified it `already-published`, reported `pushCount: 0`, and recovered the registered observer.
   - Observed effect: the accepted increment required one remote identity check and managed resume before the next slice could begin.
   - Inference: confirmation that updates unrelated tracking refs adds a concurrency dependency across worktrees. The evidence covers this occurrence.
+
+## DD-444 — A sibling's done-catalog conflict resolution moved an active execution's agent profile into the done records
+
+Another session's Story Branch integration resolved a done-catalog conflict by
+renaming this execution's live agent profile into the done-record directory,
+where the done reader rejects it.
+
+### Occurrences
+- Execution: SEED-254#use-later-ci-proof-for-cancelled-landings (plan 496-use-later-ci-proof-for-cancelled-landings; first related implementation commit `85946790e81e11d70d7ef1235a63d8a8d3aae1d2`)
+  - Timestamp: 2026-11-07T17:51:58+08:00 (trunk commit `0b4ba8d1b`, authored by the SEED-255 integration)
+  - Tool: Cursor (integrating session `mrsn-chan`, agent profile host `cursor`, model `auto`); found by this Claude Code execution's retrospective
+  - Open Dough release: 0.3.87 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: `0b4ba8d1b` renamed `.planning/{agents => done}/bastiaan-chan.json` unchanged ("Keep trunk's bastiaan-chan done record"); `done/.catalog.json` listed it as `unreadable`; `identity-evidence` reported the gap "done record requires a title"
+  - Observed effect: this execution moved the profile back to `.planning/agents/` and rebuilt the catalog with `catalog-done`, in its execution-complete commit
+  - Inference: the integrator likely matched the file by name across `agents/` and `done/`; a profile is not a done record

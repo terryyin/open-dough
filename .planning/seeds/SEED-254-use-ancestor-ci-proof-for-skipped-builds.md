@@ -123,3 +123,27 @@ the 60 latest):
 - *Newest landing.* A cancelled landing is the trunk head the dashboard has
   read, or the next build is still running. Landed shows **Cancelled** and
   says no later trunk build has finished yet.
+
+## Correction
+
+<a id="explain-running-after-proofless-later-build"></a>
+
+### Explain a running later build after a proofless one
+
+**Identity:** SEED-254#explain-running-after-proofless-later-build
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/497-explain-running-after-proofless-later-build/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"afa1667d14e7e40a56f2406054e732eb2741c582c02f4d09588046248ed6684a","plan":"0acd6e9885efc5b7539a1d44539e2bbef0d2e780e61fb3a47599296706be3a84"}}
+```
+
+**Goal.** A developer reviewing a done story's Landed CI proof in Intent sees
+a true explanation when a cancelled landing's forward walk passes a later
+trunk build whose proof is unavailable and then reaches a build that is still
+running: Landed says why that nearest later build's proof is unavailable and
+that a later build is still running, and it does not say no later trunk build
+has finished. This corrects the delivered
+[Use a later trunk build's CI proof for cancelled landings](#use-later-ci-proof-for-cancelled-landings)
+story's "No later proof" explanation; it adds no new promise.
+
+**Scope.** The running stop of the cancelled-landing forward walk and its
+Landed explanation, with focused proof. The answer stays not final. Plan:
+[497-explain-running-after-proofless-later-build](../slice-plans/497-explain-running-after-proofless-later-build/PLAN.md).
