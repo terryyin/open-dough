@@ -4,6 +4,8 @@
 
 **Source:** [Selected story](../../seeds/SEED-192-review-product-intent.md#assess-story-intent-protection)
 
+**Source review:** [Source-only review](source-review.md)
+
 ## Goal and boundaries
 
 Trial Dough Intent Coverage on three recent Open Dough stories. Terry receives
@@ -38,6 +40,35 @@ the host can supply that isolation at the start of slice 1. If it cannot, stop
 the initial assessment until an independent session can take the same bounded
 brief. Record how the separation was achieved and any limits of the host's
 isolation.
+
+## Execution context
+
+- Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent
+  `yilv-chan`, workspace
+  `/Users/terryyin/git/open-dough/.worktrees/review-how-well-a-story-s-intent-is-protected`,
+  branch `codex/review-how-well-a-story-s-intent-is-protected`.
+- Authorized remote `origin`, integration target `refs/heads/main`. The
+  separate default checkout is `/Users/terryyin/git/open-dough`. The
+  dashboard established the worktree, with starting revision
+  `45db12b34ffe4d88ed0e9ae381259e001a25454c`. The published claim and initial
+  candidate `81e8948778517d3d81c6bdeb75800a5dd10b6aa2` were confirmed on both
+  trunk and the story branch. No second claim was made. Claim CI was unobserved.
+- Setup used `caffeinate -s -i node scripts/setup-native.mjs npm` on AC and
+  `npm run --silent lint -- --staged` from the execution checkout. The
+  selective formatter is `npm run format`; the installed pre-commit hook
+  checks staged files and typechecks staged scripts. The workspace author is
+  configured for agent commits. No replanning option was supplied.
+- GitHub Actions `ci.yml` verified as workflow 351271804. The Codex observer
+  watches the remote story branch as coordinator `intent-coverage-192`,
+  mailbox `/tmp/dough-ci-501/watch-mpuEx5`, PID 71950, shell session 38944
+  and yielded cell `g15:10`.
+- Slice 1 assessor `/root/assessor_192` was launched with `fork_turns=none`.
+  The launch linked only the extracted original story and plan examples and
+  a detached shallow checkpoint with one reachable commit and no remote. Its
+  working tree omitted planning, documentation, and finding records. The
+  assessor verified that boundary before reading implementation. This bounds
+  the prompt and supplied Git context. The host shares filesystem access,
+  so the brief also excluded other checkouts and historical planning objects.
 
 ## Evidence and local gate
 
@@ -83,7 +114,7 @@ isolation.
 ### 1. Assess the original calibration story
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `docs/intent-coverage-trial/SEED-192-review-story-intent-impact.md`
 contains one sourced verdict per promise or restriction, fresh test evidence,
 clarity notes, and any break-check result. The execution records how the
@@ -170,3 +201,24 @@ Each report has its own slice and proof, followed by cross-case comparison and
 Terry's evaluation. Further slice-plan refinement was unnecessary. The
 execution host's assessor setup is bounded by the first slice's entry check.
 The review found no remaining slice-specific concern outside that check.
+
+## Accepted evidence
+
+### Slice 1
+
+The [calibration report](../../../docs/intent-coverage-trial/SEED-192-review-story-intent-impact.md)
+records the historical fixture, exact commands and results, verdicts and
+the mutation's separate reachability observation. The baseline passed 11
+tests in 33.6 s, followed by 16 passing supplemental checks. The original
+card selection test passed with the completed-card button out of the Tab
+order. The trace showed the fault in rendered markup, and Chromium skipped
+it in sequential focus. The assessment took 7 min 19 s. The fault was
+restored and the detached worktree retired after verifying clean Git diffs.
+The initial report contains no comparison with the later review.
+
+Refactor disposition is records-only. Consumer trace used `--base HEAD` and
+the report path as the supplied term, then the report alone with `--path`.
+The report has no inbound consumers until the summary links it. The selected
+seed and Taken entry retain the same plan link. The live plan's obligations
+consumer was run. Generic plan and source-review filename matches elsewhere
+refer to their own records or generic behavior and are outside this effect.

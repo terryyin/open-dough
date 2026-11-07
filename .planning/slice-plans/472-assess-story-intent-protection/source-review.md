@@ -1,0 +1,78 @@
+# Source-only review
+
+Codex launched `/root/source_review` with `fork_turns=none` before accepting
+slice 1. The launch supplied only the [selected story's Beneficiary, Goal,
+Scope, and Key examples](../../seeds/SEED-192-review-product-intent.md#assess-story-intent-protection)
+as text. The reviewer was told to read no files, use no tools, change nothing,
+and return numbered source commitments and qualifications without assigning
+owners. The id and source text columns retain its returned list. The
+illustrative journeys govern evidence handling when their setup applies.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1.1 | Terry evaluates whether AI-assisted review helps him decide which test protections to retain, clarify, or strengthen. | slice 5 | |
+| 2.1 | Trial the proposed Dough Intent Coverage assessment on three recent completed Open Dough stories. | slice 3 | |
+| 2.2 | For each promise and restriction, show how clearly the maintained tests express it. | slice 3 | |
+| 2.3 | For each promise and restriction, show what evidence indicates a test would catch a regression. | slice 3 | |
+| 2.4 | Identify uncovered and uncertain cases. | slice 3 | |
+| 2.5 | Save the reports so Terry can review them together and decide whether the method earns further work. | slice 4 | |
+| 3.1 | Run the assessment during this story’s execution, directly with the AI host executing the story. | slice 3 | |
+| 3.2 | Use a fresh assessor. | slice 3 | |
+| 3.3 | Give the assessor the original story. | slice 3 | |
+| 3.4 | Give the assessor the delivered production implementation at the recorded completion revision. | slice 3 | |
+| 3.5 | Give the assessor the relevant tests and support at that revision. | slice 3 | |
+| 3.6 | Plan 472 identifies the three cases and their proof routes. The trial can be executed from that plan. | slice 1 | observed: Plan 472 Trial cases and Evidence and local gate give the three checkpoints and proof routes; the calibration report Commands and results records the first execution. |
+| 4a.1 | Assign every promise and restriction one verdict from *protected*, *partially protected*, *not protected*, and *unknown*. | slice 3 | |
+| 4a.2 | Cite the story. | slice 3 | |
+| 4a.3 | Cite the implementation. | slice 3 | |
+| 4a.4 | Cite the test assertion and relevant support. | slice 3 | |
+| 4a.5 | Cite revision-matched execution evidence. | slice 3 | |
+| 4a.6 | Explain how clearly the tests express the promise. | slice 3 | |
+| 4b.1 | For *partially protected*, name the uncovered case. | slice 3 | |
+| 4b.2 | For *unknown*, name the missing evidence. | slice 3 | |
+| 5a.1 | Run the relevant existing tests at the completion revision. | slice 3 | |
+| 5a.2 | Record the command. | slice 3 | |
+| 5a.3 | Record the results. | slice 3 | |
+| 5b.1 | A *protected* verdict requires a successful baseline. | slice 3 | |
+| 5b.2 | A *protected* verdict also requires either a break check or an explicit *reasoned-only* explanation. | slice 3 | |
+| 5c.1 | Probe one uncertain protected claim per case across at least two different cases. | slice 3 | |
+| 5c.2 | For each probe, deliberately break the promised production behavior in a scratch checkout. | slice 3 | |
+| 5c.3 | Rerun the original tests. | slice 3 | |
+| 5c.4 | Record the fault. | slice 3 | |
+| 5c.5 | Record the command. | slice 3 | |
+| 5c.6 | Record the observed assertion or passing result. | slice 3 | |
+| 5c.7 | Reconsider the verdict if the intended fault goes undetected. | slice 3 | |
+| 6.1 | Finish the initial verdicts before exposing the assessor to any retrospective or later fixes. | slice 3 | |
+| 6.2 | Compare the initial verdicts against known review findings where available. | slice 4 | |
+| 6.3 | Check which reported gaps still apply on trunk. | slice 4 | |
+| 7a.1 | Commit one Markdown report for each story under `docs/intent-coverage-trial/`. | slice 3 | |
+| 7a.2 | Commit a cross-case summary under the same directory. | slice 4 | |
+| 7a.3 | Keep the reports available after wrap-up for Terry’s review and the follow-up’s use. | landing | |
+| 7b.1 | Record useful findings in the summary. | slice 4 | |
+| 7b.2 | Record unsupported claims in the summary. | slice 4 | |
+| 7b.3 | Record review effort in the summary. | slice 4 | |
+| 7b.4 | Record Terry’s decision in the summary. | slice 5 | |
+| 7b.5 | Link the summary from the product intent memorandum. | slice 5 | |
+| 8.1 | The trial covers the three Open Dough cases. | slice 3 | |
+| 8.2 | The trial uses their existing test tools. | slice 3 | |
+| 8.3 | A public skill belongs to the separate SEED-258 follow-up. | slice 5 | |
+| 8.4 | Cross-project generalization across test types belongs to that follow-up. | slice 5 | |
+| 8.5 | Automatic invocation during wrap-up belongs to the follow-up. | slice 5 | |
+| E1.1 | A story promises that clicks inside an opened card disclosure keep their own behavior. | slice 4 | |
+| E1.2 | The test clicks the summary and a link and leaves the disclosure body untested. | slice 4 | |
+| E1.3 | The report gives *partially protected* and names the disclosure-body gap. | slice 4 | |
+| E1.4 | The trial later checks whether the gap matches the retrospective and whether it still applies on trunk. | slice 4 | |
+| E2.1 | A story promises that a changed file appears in place in the full tree. | slice 4 | |
+| E2.2 | The original tests pass. A scratch fault drops the changed-file overlay, and the named assertion fails. | slice 4 | |
+| E2.3 | The report gives *protected, break-checked* for that fault and records the evidence. | slice 4 | |
+| E2.4 | In the alternate result, the fault reproduces the wrong behavior while the tests still pass, identifying a gap. | slice 4 | |
+| E3.1 | A relevant test cannot be run successfully at the case revision. | slice 4 | |
+| E3.2 | The report identifies the failed or unavailable evidence and gives *unknown* where the promise depends on that run. | slice 4 | |
+| E4.1 | Terry opens and compares the three committed reports. | slice 5 | |
+| E4.2 | The summary identifies which findings would change a decision. | slice 5 | |
+| E4.3 | The summary identifies which claims Terry rejects. | slice 5 | |
+| E4.4 | The summary records what the work and review cost. | slice 5 | |
+| E4.5 | Terry decides whether to pursue the follow-up. | slice 5 | |
+| E4.6 | The reports remain readable after the trial plan is removed. | landing | |
