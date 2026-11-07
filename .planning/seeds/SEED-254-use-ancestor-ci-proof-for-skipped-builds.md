@@ -71,9 +71,9 @@ skipped and which build the proof came from.
   and explanation, so Landed never shows proof from before the story's code.
 - Proof at the requested revision itself stays authoritative whenever it
   exists.
-- GitHub Actions comparisons only. Adapter projects get story comparison in
-  [SEED-257](SEED-257-compare-story-ci-through-adapters.md#compare-story-ci-through-adapters),
-  which applies these endpoint rules there. The live CI status judgment of a
+- This story covers GitHub Actions comparisons. Adapter projects use
+  [Intent's shared story comparison](../../docs/dashboard-development-intent.md)
+  and its endpoint rules. The live CI status judgment of a
   Taken story's branch head, including its running-ancestor proof, is
   unchanged.
 - Keep [GitHub requests](../../dashboard/GITHUB-REQUESTS.md) accurate for the
