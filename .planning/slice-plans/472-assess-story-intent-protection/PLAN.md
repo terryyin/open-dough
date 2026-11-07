@@ -69,6 +69,10 @@ isolation.
   assessor verified that boundary before reading implementation. This bounds
   the prompt and supplied Git context. The host shares filesystem access,
   so the brief also excluded other checkouts and historical planning objects.
+  Slice 2 used the same isolation with fresh agent `/root/assessor_248`, the
+  original SEED-248 text and plan examples, and only checkpoint `d03cf60f1`.
+- Slice 1 was accepted on the story branch at
+  `ae07bb07aa1516a7d400cff6496f1c5c1cf0fc8f` with the recorded observer.
 
 ## Evidence and local gate
 
@@ -131,7 +135,7 @@ before comparing it with the known gaps.
 ### 2. Assess story CI proof through merge resolutions
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `docs/intent-coverage-trial/SEED-248-compare-story-proof-through-merge-resolutions.md`
 contains the same evidence for `d03cf60f1`, including the relevant browser and
 Review boundary assertions.
@@ -218,7 +222,22 @@ The initial report contains no comparison with the later review.
 
 Refactor disposition is records-only. Consumer trace used `--base HEAD` and
 the report path as the supplied term, then the report alone with `--path`.
-The report has no inbound consumers until the summary links it. The selected
+The plan is the only inbound reader until the summary links the report. The selected
 seed and Taken entry retain the same plan link. The live plan's obligations
 consumer was run. Generic plan and source-review filename matches elsewhere
 refer to their own records or generic behavior and are outside this effect.
+
+### Slice 2
+
+The [merge comparison report](../../../docs/intent-coverage-trial/SEED-248-compare-story-proof-through-merge-resolutions.md)
+records 37 passing Playwright and seven passing Node tests. An isolated
+production change substituted Branch for Landed figures at precise scopes.
+The 11 original Summary tests still passed. Eight traces reached the
+substitution while distinct proof requests succeeded, verifying that equal
+fixture metrics hide the error. The assessment took about 6 min 52 s, with
+100.24 s for the browser baseline and 39.73 s for the probe. The production
+change was restored and the detached worktree retired after clean Git diffs.
+
+Refactor disposition is records-only. Report-only consumer trace used the
+report path as the supplied term. The active plan reads the report at its
+proof path. No other consumer is affected before the summary links it.
