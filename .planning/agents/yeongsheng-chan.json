@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-253#review-delivered-merge-changes",
+  "mode": "story-branch",
+  "branch": "claude/review-a-completed-story-including-its-merge-cha",
+  "host": "claude",
+  "model": "opus"
+}
