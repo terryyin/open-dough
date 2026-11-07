@@ -70,7 +70,8 @@ does not list builds by revision".
   [SEED-256](SEED-256-compare-ci-time-without-runner-waits.md#compare-ci-time-without-runner-waits),
   whose unavailable-with-reason rule covers attempts without a job graph.
 - Ancestor proof for skipped builds
-  ([SEED-254](SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-ancestor-ci-proof-for-skipped-builds))
+  ([Intent CI comparison](../../docs/dashboard-development-intent.md);
+  delivered as SEED-254#use-ancestor-ci-proof-for-skipped-builds)
   and comparison cues and wording
   ([SEED-255](SEED-255-compare-before-and-after-ci-proof.md#compare-before-and-after-ci-proof))
   keep their own stories; whichever lands later applies to adapter builds

@@ -328,7 +328,7 @@ Former local code: DD-333. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/findings/ODF-329.md).
 
 ### Occurrences
-- Execution: SEED-254#use-ancestor-ci-proof-for-skipped-builds (plan 494-use-ancestor-ci-proof-for-skipped-builds; first related implementation commit `94a168bef806e6c43a8e7aa3899f5cac49eea263`)
+- Execution: SEED-254#use-ancestor-ci-proof-for-skipped-builds (before-cleanup commit `83a71097998b8aee8d486f78eb24027ad148abf8`; first related implementation commit `94a168bef806e6c43a8e7aa3899f5cac49eea263`)
   - Timestamp: 2026-11-07T16:43:34+08:00 (slice 2 delivery before accepted `b7d1abf4f`)
   - Tool: Cursor
   - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION`; execution used `.claude/skills`)
@@ -452,7 +452,7 @@ Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`.
   - Evidence: coordinator delegated slice 1 (`85bcdbe9-6b19-4722-a806-4c3a22200093`) after reading the "Before first implementation delegation" boundary, then read "Before accepting a return" (`wrap-up.md#accept-proof`) and launched the source-only reviewer (`fc0018b5-f90a-42c9-8c9b-63d1c2ae89af`) before accepting slice 1 and delegating slice 2
   - Observed effect: no rework of slice 1; all 62 slice 1 commitments matched the delivered implementation and proof, and the 5 slice 2 commitments were passed into slice 2 delegation
   - Inference: same boundary-table ordering as prior ODF-367 rows — `dough-execute-plan/SKILL.md` lists `wrap-up.md#accept-proof` under "Before accepting a return" rather than before first slice delegation
-- Execution: SEED-254#use-ancestor-ci-proof-for-skipped-builds (plan 494-use-ancestor-ci-proof-for-skipped-builds; first related implementation commit `94a168bef806e6c43a8e7aa3899f5cac49eea263`)
+- Execution: SEED-254#use-ancestor-ci-proof-for-skipped-builds (before-cleanup commit `83a71097998b8aee8d486f78eb24027ad148abf8`; first related implementation commit `94a168bef806e6c43a8e7aa3899f5cac49eea263`)
   - Timestamp: 2026-11-07T16:26:11+08:00 (between first slice-1 delegation and slice-1 delivery `94a168bef`)
   - Tool: Cursor
   - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION`; execution used `.claude/skills`, which lacks `obtain-source-review.md`)
@@ -609,7 +609,7 @@ Former local code: DD-422.
 [Evidence and current response](docs/maintainer/findings/ODF-424.md).
 
 ### Occurrences
-- Execution: SEED-254#use-ancestor-ci-proof-for-skipped-builds (plan 494-use-ancestor-ci-proof-for-skipped-builds; first related implementation commit `94a168bef806e6c43a8e7aa3899f5cac49eea263`)
+- Execution: SEED-254#use-ancestor-ci-proof-for-skipped-builds (before-cleanup commit `83a71097998b8aee8d486f78eb24027ad148abf8`; first related implementation commit `94a168bef806e6c43a8e7aa3899f5cac49eea263`)
   - Timestamp: 2026-11-07T16:26:11+08:00 (slice 1 obligation recording before delivery `94a168bef`)
   - Tool: Cursor
   - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION`; execution used `.claude/skills`)

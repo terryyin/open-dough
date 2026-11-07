@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-254#use-ancestor-ci-proof-for-skipped-builds",
+  "title": "Use the nearest ancestor's CI proof for skipped builds",
+  "completedAt": "2026-11-07T09:29:07.887Z",
+  "developer": "Terry Yin",
+  "agent": "joseph-chan",
+  "host": "cursor",
+  "model": "auto"
+}

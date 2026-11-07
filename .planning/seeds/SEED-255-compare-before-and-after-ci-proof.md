@@ -87,7 +87,8 @@ attributed to the story.
 - A ranked list of the largest contributors.
 - Which build or timing measure each endpoint supplies stays with its own
   stories: ancestor proof for skipped builds is
-  [SEED-254](SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-ancestor-ci-proof-for-skipped-builds),
+  [Intent CI comparison](../../docs/dashboard-development-intent.md)
+  (delivered as SEED-254#use-ancestor-ci-proof-for-skipped-builds),
   and timing without runner waits is
   [SEED-256](SEED-256-compare-ci-time-without-runner-waits.md#compare-ci-time-without-runner-waits).
   This story shows whatever build and overall timing measure the comparison

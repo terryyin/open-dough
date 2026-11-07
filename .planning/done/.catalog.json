@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-254_use-ancestor-ci-proof-for-skipped-builds.json",
+      "identity": "SEED-254#use-ancestor-ci-proof-for-skipped-builds",
+      "completedAt": "2026-11-07T09:29:07.887Z",
+      "blob": "395dc3aa6d7fa55e6ffdc6bd251dc2163bedd14d"
+    },
+    {
       "fileName": "SEED-010_review-source-promises-before-first-slice.json",
       "identity": "SEED-010#review-source-promises-before-first-slice",
       "completedAt": "2026-11-07T06:32:27.475Z",
