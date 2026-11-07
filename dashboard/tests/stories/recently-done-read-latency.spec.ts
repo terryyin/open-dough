@@ -10,7 +10,7 @@
 import type { Page } from "@playwright/test";
 import { renderDoneRecord } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
-import { expectMembership, parts } from "../dashboardPage.ts";
+import { expectMembership, parts, shortRevision } from "../dashboardPage.ts";
 import { publishes } from "../support/fakeGitHub.ts";
 import type { GhRequest } from "../support/ghRequest.ts";
 import { holdingAnswer } from "../support/heldGitHubAnswer.ts";
@@ -113,10 +113,21 @@ async function openedWithHeldDoneRecord(
   await expect
     .poll(() => github.calls.some(({ request }) => isHeld(request)))
     .toBe(true);
-  const { taken, recentlyDone, problem } = parts(page);
+  const { taken, recentlyDone, problem, readRevision } = parts(page);
   // Every Taken card's detail has answered, so the held read is the only one
   // a run to the wait bound can leave unanswered.
   await expect(taken.getByText(/^Reading .*…$/)).toHaveCount(0);
+  // Holding a done-record body leaves membership free to finish. Wait for that
+  // settle before a later `clock.runFor` of the shared wait bound: otherwise a
+  // still-open observation's bound fires and arms project detail recovery even
+  // though only the column's record read was meant to time out. A held catalog
+  // is part of the observation, so settle waits for the bound instead.
+  if (isHeld !== isHeldCatalog) {
+    await expect(readRevision).toContainText(
+      `Published work read at revision ${shortRevision(revision)}`,
+    );
+    await expect(problem).toHaveCount(0);
+  }
   return {
     card: taken.getByRole("article", { name: afterTake }),
     recent: recentlyDone,
