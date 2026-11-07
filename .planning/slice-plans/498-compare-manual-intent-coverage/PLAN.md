@@ -14,7 +14,7 @@ unsupported claims, and effort for each review, with Terry's decision
 recorded in the story.
 
 Exclusions: implementing test changes that decisions call for, including the
-[Branch and Landed test follow-up](../../seeds/SEED-258-dough-intent-coverage.md#distinguish-branch-and-landed-summary-figures).
+Branch and Landed test follow-up.
 Also excluded: a new skill,
 script, or dashboard view, seeded-fault calibration, rerunning the
 retrospective, Cursor-hosted cases, and statistical estimates of total gaps.

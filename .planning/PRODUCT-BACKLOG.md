@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Compare a short manual intent assessment with ordinary review](seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage) — SEED-258#compare-manual-intent-coverage ([plan](slice-plans/498-compare-manual-intent-coverage/PLAN.md))
 - [Scan CI summaries in dashboard Intent](seeds/SEED-259-scan-intent-ci-summaries.md#scan-intent-ci-summaries) — SEED-259#scan-intent-ci-summaries ([plan](slice-plans/499-scan-intent-ci-summaries/PLAN.md))
 - [Retry unavailable CI comparison slots](seeds/SEED-118-dashboard-reading-reliability.md#retry-unavailable-ci-comparison-slots) — SEED-118#retry-unavailable-ci-comparison-slots ([plan](slice-plans/500-retry-unavailable-ci-comparison-slots/PLAN.md))
-- [Distinguish Branch and Landed figures in precise CI summaries](seeds/SEED-258-dough-intent-coverage.md#distinguish-branch-and-landed-summary-figures) — SEED-258#distinguish-branch-and-landed-summary-figures ([plan](slice-plans/501-distinguish-branch-and-landed-summary-figures/PLAN.md))
 
 ## Backlog list
 
