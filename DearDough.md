@@ -14,7 +14,7 @@ evidence. Source and catalog identities do not imply resolution.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
 - Earlier cleanup recovery: `c76322764499936acd42328b5ef4f66f4df6bcf8:DearDough.md`.
-- Project-owned DD-275/DD-309/DD-390, the local facets of DD-406 and DD-411, and repaired DD-283/DD-290/DD-312 remain linked from [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
+- Project-owned DD-275/DD-309/DD-390, the local facets of DD-406 and DD-411, and repaired DD-283/DD-290/DD-312/DD-420/DD-421/DD-428/DD-429/DD-430 remain linked from [ProjectFindings.md](ProjectFindings.md). DD-288 retains the general planning lesson below. Occurrence history is partial.
 
 Each linked finding owns its evidence and response history. The pre-compaction
 source is `19a16c2c6bcbdd0073e1efb10b6531f23b1855fb:DearDough.md`. The former pinned evidence links used the
@@ -586,6 +586,13 @@ Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`.
   - Evidence: coordinator process history for this execution: Established start → npm ci + typecheck ready → delegated slice 1 → source-only review → observed commitments → post-change refactor → fresh delivery `86513a4d`; `source-review.md` commitments observed after that review
   - Observed effect: no mid-run product correction or replanning; source commitments matched the delivered remount/unreadable and read-reuse proofs; no human-judgment stop
   - Inference: same ordering as prior ODF-367 rows — the source-only review that acceptance requires still starts after the first Behavior slice is already delegated
+- Execution: SEED-232#reduce-running-cursor-session-requests (plan 470-reduce-running-cursor-session-requests; first related implementation commit `18ad9cdc77f74a647b97d789d7656fc50c7fb4ea`)
+  - Timestamp: 2026-11-05T05:58:00+07:00
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: coordinator transcript `3bb4f177-6d51-4cc1-bc37-960c9aac4537` delegated slice 1 (subagent `88e91963-42fd-4d56-8fa8-1f5d2e11a93f` at 05:54+07:00) before launching the source-only reviewer (`05ed7080-9e96-414a-b209-6162203edfd3` at 05:58+07:00); source-review.md and Story obligations X-D1–X-S8 were written after that return
+  - Observed effect: slice 1 brief carried only the plan's proof; source commitments 11–15, 25–26, E4 and E6 were recorded at acceptance after the implementer had already returned. No mid-run product correction was required because those commitments matched the plan's rewrite of the sharing proofs
+  - Inference: same ordering as prior ODF-367 rows — the source-only review that acceptance requires still starts after the first Behavior slice is already delegated
 
 ## ODF-399 — Post-change refactor left a production module empty before delivery
 
@@ -690,6 +697,8 @@ kept once as a DD-279 occurrence in
 
 DD-412 moved to [the project test findings](docs/maintainer/project-test-findings.md#dd-412).
 
+DD-420, DD-421, DD-428, DD-429 and DD-430 moved to [the project test findings](docs/maintainer/project-test-findings.md#dd-420).
+
 DD-432 (a container run took a live host run's local-suite admission) is recorded in [the project test findings](docs/maintainer/project-test-findings.md#dd-432).
 
 DD-433 (an artifact upload stall cancelled two passing dashboard shards at the job cap) is recorded in [the project test findings](docs/maintainer/project-test-findings.md#dd-433).
@@ -704,14 +713,6 @@ Former local code: DD-413.
 A return listed a mechanism the slice's restriction depended on as untested; the coordinator asked for focused proof before acceptance, and writing that proof exposed a defect that also affected the already passing case.
 
 ### Occurrences
-- Execution: SEED-232#reduce-running-cursor-session-requests (plan 470-reduce-running-cursor-session-requests; first related implementation commit `18ad9cdc77f74a647b97d789d7656fc50c7fb4ea`)
-  - Timestamp: 2026-11-05T05:58:00+07:00
-  - Tool: Cursor
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
-  - Evidence: coordinator transcript `3bb4f177-6d51-4cc1-bc37-960c9aac4537` delegated slice 1 (subagent `88e91963-42fd-4d56-8fa8-1f5d2e11a93f` at 05:54+07:00) before launching the source-only reviewer (`05ed7080-9e96-414a-b209-6162203edfd3` at 05:58+07:00); source-review.md and Story obligations X-D1–X-S8 were written after that return
-  - Observed effect: slice 1 brief carried only the plan's proof; source commitments 11–15, 25–26, E4 and E6 were recorded at acceptance after the implementer had already returned. No mid-run product correction was required because those commitments matched the plan's rewrite of the sharing proofs
-  - Inference: same ordering as prior ODF-367 rows — the source-only review that acceptance requires still starts after the first Behavior slice is already delegated
-
 - Execution: SEED-225#restore-dashboard-responsiveness (plan 456-restore-dashboard-responsiveness; first implementation commit `fc23efe0c5926dfc7a42aacb8de00e8e3b9fb75d`)
   - Timestamp: unknown (2026-11-03, slice 2 acceptance before `1c986e7f`)
   - Tool: Claude Code
@@ -780,32 +781,6 @@ Managed delivery treated GitHub's refusal of a workflow-file push (missing OAuth
   - Observed effect: two refused deliveries and about eight diagnostic tool calls before a credential stop for Terry.
   - Inference: qualified. A remote refusal (`[remote rejected]` with a reason) is a credential or policy stop, not contention; reporting its text as its own status would have reached the human decision at the first receipt.
 
-## DD-420 — Lowered revision-stream pace listed origin twice before open answers settled
-With `DOUGH_REVISION_STREAM_MS` lowered, `SourceRevisionStream` scheduled its pace timer while the first open demand was still settling, so two streams of one source could each start a `matching-refs` before sharing one listing. Local focused boundary proof had passed; hosted CI failed the one-listing assertion; the fix starts the pace only after the open demand settles.
-
-### Occurrences
-- Execution: SEED-232#see-published-changes-over-sse (before-cleanup `1b37ad486dba725c8e08dceed5af56c9e6848da1:.planning/slice-plans/469-see-published-changes-over-sse/PLAN.md`; first implementation commit `fe83d250eb95a2e02edc3e8b02eccb8d01f92f27`)
-  - Timestamp: 2026-11-04T16:22:39Z (CI failure on `fe83d250eb`)
-  - Tool: Cursor
-  - Model: auto
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
-  - Evidence: observer `/tmp/dough-ci-501/watch-6tNnon` `CI_FAILURE` run 41865901313 (`dashboard (4/12)`); proof fragment `passed:287,failed:1`; report `authenticated-read-revision-stream.spec.ts` expected `matchingRefsSince` 1 received 2 at open; coordinator later called it an open-vs-pace race and fixed it before publishing stream page work (`1e79d44b9` / before-cleanup plan learning (slice 4): pace starts only after first open demand settles); tip coverage `40eb66ce` success / `a5307e4e` not_required.
-  - Observed effect: published slice 2 failed hosted CI on the stream's core sharing promise; later slice repaired the race and the applicable tip validated.
-  - Inference: a lowered-pace boundary proof that only asserts after both opens can miss a race where the pace timer overlaps the first demand; deferring pace start until open settles made the one-listing rule hold under CI timing.
-
-## DD-421 — Revision-stream rate-limit reopen via page-clock timer stranded under paused clocks
-Slice 5 first deferred stream open after a rate-limit wait only through `scheduleOpenAfter` on the page clock. Journey clocks stay paused, so the reopen never fired, focused stream journeys failed, and the page kept the effect-level `limitedUntil` guard that opens at T without relying on that timer alone.
-
-### Occurrences
-- Execution: SEED-232#see-published-changes-over-sse (before-cleanup `1b37ad486dba725c8e08dceed5af56c9e6848da1:.planning/slice-plans/469-see-published-changes-over-sse/PLAN.md`; first implementation commit `fe83d250eb95a2e02edc3e8b02eccb8d01f92f27`)
-  - Timestamp: unknown (2026-11-05, focused slice 5 proof before `40eb66ce52`)
-  - Tool: Cursor
-  - Model: auto
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
-  - Evidence: coordinator return: focused proof 40 passed / 2 stream journeys failed; before-cleanup plan learning and slice 5 proof: keep effect-level rate-limit guard; do not defer open via page-clock `scheduleOpenAfter` alone; `revision-stream-lost.spec.ts` rate-limit journey then passed in the 42-focused run; published at `40eb66ce52`.
-  - Observed effect: lost-freshness / rate-limit stream work blocked until the open path matched how check journeys pause the page clock.
-  - Inference: stream delivery that must reopen while tests pause `page.clock` cannot treat a page-clock timeout as the only gate for a standing limit; wall-clock or effect re-entry is required for those journeys (and matches production when the limit ends without a clock advance).
-
 ## DD-422 — Exclusion story-clause recording still needs hand-matched exact substrings
 `story-obligations.mjs record` for excluded dispositions refuses paraphrased story clauses with `quote-not-in-story`, so the coordinator must rediscover the seed's exact substring even when the disposition meaning is already clear.
 
@@ -856,42 +831,6 @@ Dough Land's history-preserving landing requires the queued-closure check before
   - Evidence: `dough-land/references/publish-reviewed-checkout.md` asks for `onFetchedTarget` with `checkQueuedClosures` and an `affectedCheck`; the CLI usage line offers only workspace, published tip, branch, target, remote, backlog path, landing context and supplier identity. The job's `land.mjs` supplied both callbacks; the first run stopped on a `GITHUB-REQUESTS.md` conflict and the rerun published merge `4a8129838`. The workspace HEAD afterwards was `cec7c2f43`, not the merge.
   - Observed effect: a one-off script per landing (the same pattern is already remembered for preparation keeps), and an extra manual step before the release from trunk.
   - Inference: CLI flags for the closure guard and an affected-proof command, plus leaving a retained landing's workspace at the accepted revision, would make the documented path directly runnable.
-
-## DD-428 — Kept CI answer journeys needed settle-before-hold and mismatch-before-remember
-Adding the process-local kept CI status answer and per-attempt proof memory left existing Check-again journeys wrong until pre-landing and host CI failed: mismatched adapter summaries were remembered as if valid, and a freshness hold placed before the remount's fresh keep settled showed unread as previously retrieved.
-
-### Occurrences
-- Execution: SEED-239#show-ci-status-on-intent-home (before-cleanup `6581c406d0edf71e4d8a3d210e5b4d7769a624af:.planning/slice-plans/476-show-ci-status-on-intent-home/PLAN.md`; first related implementation commit `bb9b7128e`)
-  - Timestamp: 2026-11-05T19:05:05+07:00 (host CI run 42032615133 tip after repairs `e4058a7c7`)
-  - Tool: Cursor
-  - Open Dough release: 0.3.86 (installed `.claude/skills`; VERSION file)
-  - Evidence: pre-landing `npm run test:dashboard` failed `intent-ci-proof-adapter-reasons` (remembered `someone/else` / valid attempt-2 summary blocked Check again) and `intent-ci-proof-ancestor` (asserted actions-runs before fresh settle); host CI run 42027284312 failed `intent-ci-status-freshness` at the held main Check again with `.intent-ci-state` `Could not be read` while Previously retrieved + spinner showed; repairs `420ac5e1c` (mismatch before remember) and `e4058a7c7` (settle Passed before hold; unread not labelled previously retrieved).
-  - Observed effect: two repair publications after slice 5's keep/memory before the story tip was green; local focused freshness passed while shard 1/12 failed.
-  - Inference: when a slice adds process keep or dual kept+fresh reads, re-read every journey that reconfigures the adapter on Check again or holds a fixture across a remount, and wait for Checked at before holding.
-
-## DD-429 — Fake-Cursor attach pid equated to runner pid made correct revive look failed
-Slice 2 journey assertions compared fake-Cursor attach `pid` (the agent PTY) to the Cursor runner address `pid`. Product revive was already selecting and resuming last-held candidates while those polls timed out waiting for a held count matched by runner pid.
-
-### Occurrences
-- Execution: SEED-242#revive-cursor-sessions-when-the-runner-restarts (before-cleanup `a07048254e182fef347a6c91739f41da5b743f82`; first related implementation commit `5de83a6202e6c4ed330660bf43f4c049c1ddda02`)
-  - Timestamp: 2026-11-05T21:47+07:00 (coordinator noted three focused revive proofs timed out; diagnosis in slice-2 agent return)
-  - Tool: Cursor
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
-  - Evidence: coordinator transcript `0e775890-01a7-485a-90e6-db26302038ef` (~21:47–21:53+07:00): replacement, controls, and restart journeys timed out on held-count waits; debug showed revive selected the prior last-held candidate and logged `done`, with resume attaches present; slice-2 agent `894a78d4-5fc2-45f1-81a2-611e132e72fc` stated attach PIDs were being compared to the runner PID and fixed assertions; before-cleanup plan Current decisions at `.planning/slice-plans/479-revive-cursor-sessions-on-runner-restart/PLAN.md` record that fake-Cursor attach `pid` is the agent PTY
-  - Observed effect: several failed proof rounds and debug instrumentation while the revive path already worked; final proofs passed after assertion identity was corrected (no product keep/revive change for that failure class)
-  - Inference: under fake-Cursor, treat runner address pid and agent attach pid as distinct identities; assert held/resume by session id (or attach presence), not by equating those pids
-
-## DD-430 — Dynamic import to avoid ensure nesting broke the dashboard server bundle
-To keep accepting-port revive from nesting `ensureCurrentCursorRunner`, slice 2 first tried a dynamic import of the revive path. That broke the dashboard server bundle; the durable fix was extracting accepting-port keep/hangup/sessions into `runnerWire.ts` with a static revive import after the start lock released.
-
-### Occurrences
-- Execution: SEED-242#revive-cursor-sessions-when-the-runner-restarts (before-cleanup `a07048254e182fef347a6c91739f41da5b743f82`; first related implementation commit `5de83a6202e6c4ed330660bf43f4c049c1ddda02`)
-  - Timestamp: 2026-11-05T21:46+07:00 (coordinator noted format/lint/typecheck green after the wire split)
-  - Tool: Cursor
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
-  - Evidence: slice-2 agent `894a78d4-5fc2-45f1-81a2-611e132e72fc` recorded that dynamic import broke the server bundle and extracted keep-at-port; before-cleanup plan Current decisions name accepting-port keep in `runnerWire.ts` to avoid ensure deadlock and import cycles; delivered surfaces `runnerWire.ts` / `runnerRevive.ts` / post-settle revive in `runnerCurrent.ts`
-  - Observed effect: one mid-slice structural correction before focused revive proofs could run cleanly; final shape matches the plan's settled re-entrancy constraint without dynamic import
-  - Inference: for dashboard server modules that share the ensure lock, prefer a static seam (wire/keep-at-port module) over dynamic import when breaking a keep→ensure cycle
 
 ## DD-431 — A refactor moved tests after acceptance had cited them, leaving source-review observations stale
 Slice acceptance recorded `observed:` locations in `source-review.md` at test files; the following refactor pass split those files, so the recorded locations named tests no longer there. The refactor agents reported it and the coordinator retargeted the rows before delivery.

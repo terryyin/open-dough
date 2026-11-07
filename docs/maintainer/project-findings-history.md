@@ -161,6 +161,24 @@ Neither is a project-only backlog candidate.
 
 ### Earlier reviews
 
+<a id="dd-378"></a>
+
+Resolved and removed on 2026-11-07 (recovery:
+`8e2ec1089abbb24c603889966ddb1bcace54ad93:docs/maintainer/project-maintenance-findings.md#dd-378`
+and `b1fa3b50:DearDough.md`): DD-378 (a prepared plan treating pre-existing
+failures as exclusions from completion, SEED-199#mobile-session-screen,
+`f601fcbd:.planning/slice-plans/425-mobile-session-screen/PLAN.md`,
+2026-10-31). Repair: `482b644e90076052a2f36b9df7977b6f46ce7e89` (merged to
+`main` at `bc72a379b` and released in `v0.3.80`) added `AGENTS.md` "Failing and
+flaky tests" and aligned `executable-proof.md` and `execution-decisions.md` so
+reproducing a failure on base is attribution, not an exemption from repair.
+Outcome: `SEED-229#reduce-remote-sessions-traffic`
+(`e49035d31:.planning/slice-plans/462-reduce-remote-sessions-traffic/PLAN.md`,
+2026-11-04) attributed four full-suite failures in untouched tests to base
+`e69e74cf7` and repaired all four in the same execution, satisfying the stated
+observation criterion. Supported retirement of the plan-exclusion finding;
+DD-374's separate delegation-brief wording check remains open.
+
 Resolved and removed on 2026-11-03 (recovery:
 `b108395049f91f0ed7d3e713a8ca8362b17d1295:ProjectFindings.md`, section "Hosted
 CI npm install stalls at its acquisition deadline"): DD-376

@@ -550,7 +550,10 @@ unknown.
 **Follow-up:** `b52c1d3bdad7369fc1042a5f2744e9ebedadecbe` (2026-11-04)
 delivered the instructions in
 [Machine sleep on macOS](../../tests/local-test-resources.md#machine-sleep-on-macos).
-Subsequent ordinary-use evidence is pending. Two settling observations remain
+In `SEED-241#load-intent-without-disruption-or-bulk-source-transfer`
+(`plan 477-load-intent-without-disruption`, 2026-11-05, see DD-432 below),
+the main-merge dashboard suite ran under `caffeinate -s -i` and reported
+2,044 passed, 1 skipped. Two settling observations remain
 open: whether `caffeinate -s` keeps a run going that starts inside the
 sleep/dark-wake cycle, and the next sleep-attributed failure after adoption.
 If such a failure recurs, the considered responses are an automatic guard,
@@ -559,6 +562,93 @@ If such a failure recurs, the considered responses are an automatic guard,
 (proved with a substitute guard command), and a failing full run printing the
 sleep entries inside its own window. The fuller analysis is recoverable from
 `b52c1d3bdad7369fc1042a5f2744e9ebedadecbe:.planning/seeds/SEED-227-protect-long-local-proof-from-maintenance-sleep.md`.
+
+<a id="dd-420"></a>
+
+## DD-420 — Lowered revision-stream pace listed origin twice before open answers settled
+
+With `DOUGH_REVISION_STREAM_MS` lowered, `SourceRevisionStream` scheduled its pace timer while the first open demand was still settling, so two streams of one source could each start a `matching-refs` before sharing one listing. Local focused boundary proof had passed; hosted CI failed the one-listing assertion; the fix starts the pace only after the open demand settles.
+
+### Occurrences
+- Execution: SEED-232#see-published-changes-over-sse (before-cleanup `1b37ad486dba725c8e08dceed5af56c9e6848da1:.planning/slice-plans/469-see-published-changes-over-sse/PLAN.md`; first implementation commit `fe83d250eb95a2e02edc3e8b02eccb8d01f92f27`)
+  - Timestamp: 2026-11-04T16:22:39Z (CI failure on `fe83d250eb`)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: observer `/tmp/dough-ci-501/watch-6tNnon` `CI_FAILURE` run 41865901313 (`dashboard (4/12)`); proof fragment `passed:287,failed:1`; report `authenticated-read-revision-stream.spec.ts` expected `matchingRefsSince` 1 received 2 at open; coordinator later called it an open-vs-pace race and fixed it before publishing stream page work (`1e79d44b9` / before-cleanup plan learning (slice 4): pace starts only after first open demand settles); tip coverage `40eb66ce` success / `a5307e4e` not_required.
+  - Observed effect: published slice 2 failed hosted CI on the stream's core sharing promise; later slice repaired the race and the applicable tip validated.
+  - Inference: a lowered-pace boundary proof that only asserts after both opens can miss a race where the pace timer overlaps the first demand; deferring pace start until open settles made the one-listing rule hold under CI timing.
+
+**Responsibility and disposition (2026-11-07):** Project-owned dashboard implementation and boundary-test timing (`SourceRevisionStream`), repaired in the same execution (`1e79d44b9`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-420`); no new local story.
+
+<a id="dd-421"></a>
+
+## DD-421 — Revision-stream rate-limit reopen via page-clock timer stranded under paused clocks
+
+Slice 5 first deferred stream open after a rate-limit wait only through `scheduleOpenAfter` on the page clock. Journey clocks stay paused, so the reopen never fired, focused stream journeys failed, and the page kept the effect-level `limitedUntil` guard that opens at T without relying on that timer alone.
+
+### Occurrences
+- Execution: SEED-232#see-published-changes-over-sse (before-cleanup `1b37ad486dba725c8e08dceed5af56c9e6848da1:.planning/slice-plans/469-see-published-changes-over-sse/PLAN.md`; first implementation commit `fe83d250eb95a2e02edc3e8b02eccb8d01f92f27`)
+  - Timestamp: unknown (2026-11-05, focused slice 5 proof before `40eb66ce52`)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
+  - Evidence: coordinator return: focused proof 40 passed / 2 stream journeys failed; before-cleanup plan learning and slice 5 proof: keep effect-level rate-limit guard; do not defer open via page-clock `scheduleOpenAfter` alone; `revision-stream-lost.spec.ts` rate-limit journey then passed in the 42-focused run; published at `40eb66ce52`.
+  - Observed effect: lost-freshness / rate-limit stream work blocked until the open path matched how check journeys pause the page clock.
+  - Inference: stream delivery that must reopen while tests pause `page.clock` cannot treat a page-clock timeout as the only gate for a standing limit; wall-clock or effect re-entry is required for those journeys (and matches production when the limit ends without a clock advance).
+
+**Responsibility and disposition (2026-11-07):** Project-owned dashboard stream reopen and Playwright paused-clock interaction, repaired in the same slice (`40eb66ce52`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-421`); no new local story.
+
+<a id="dd-428"></a>
+
+## DD-428 — Kept CI answer journeys needed settle-before-hold and mismatch-before-remember
+
+Adding the process-local kept CI status answer and per-attempt proof memory left existing Check-again journeys wrong until pre-landing and host CI failed: mismatched adapter summaries were remembered as if valid, and a freshness hold placed before the remount's fresh keep settled showed unread as previously retrieved.
+
+### Occurrences
+- Execution: SEED-239#show-ci-status-on-intent-home (before-cleanup `6581c406d0edf71e4d8a3d210e5b4d7769a624af:.planning/slice-plans/476-show-ci-status-on-intent-home/PLAN.md`; first related implementation commit `bb9b7128e`)
+  - Timestamp: 2026-11-05T19:05:05+07:00 (host CI run 42032615133 tip after repairs `e4058a7c7`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.86 (installed `.claude/skills`; VERSION file)
+  - Evidence: pre-landing `npm run test:dashboard` failed `intent-ci-proof-adapter-reasons` (remembered `someone/else` / valid attempt-2 summary blocked Check again) and `intent-ci-proof-ancestor` (asserted actions-runs before fresh settle); host CI run 42027284312 failed `intent-ci-status-freshness` at the held main Check again with `.intent-ci-state` `Could not be read` while Previously retrieved + spinner showed; repairs `420ac5e1c` (mismatch before remember) and `e4058a7c7` (settle Passed before hold; unread not labelled previously retrieved).
+  - Observed effect: two repair publications after slice 5's keep/memory before the story tip was green; local focused freshness passed while shard 1/12 failed.
+  - Inference: when a slice adds process keep or dual kept+fresh reads, re-read every journey that reconfigures the adapter on Check again or holds a fixture across a remount, and wait for Checked at before holding.
+
+**Responsibility and disposition (2026-11-07):** Project-owned dashboard Intent CI-status keep/memory and journey synchronization, repaired in the same execution (`420ac5e1c`, `e4058a7c7`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-428`); no new local story.
+
+<a id="dd-429"></a>
+
+## DD-429 — Fake-Cursor attach pid equated to runner pid made correct revive look failed
+
+Slice 2 journey assertions compared fake-Cursor attach `pid` (the agent PTY) to the Cursor runner address `pid`. Product revive was already selecting and resuming last-held candidates while those polls timed out waiting for a held count matched by runner pid.
+
+### Occurrences
+- Execution: SEED-242#revive-cursor-sessions-when-the-runner-restarts (before-cleanup `a07048254e182fef347a6c91739f41da5b743f82`; first related implementation commit `5de83a6202e6c4ed330660bf43f4c049c1ddda02`)
+  - Timestamp: 2026-11-05T21:47+07:00 (coordinator noted three focused revive proofs timed out; diagnosis in slice-2 agent return)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
+  - Evidence: coordinator transcript `0e775890-01a7-485a-90e6-db26302038ef` (~21:47–21:53+07:00): replacement, controls, and restart journeys timed out on held-count waits; debug showed revive selected the prior last-held candidate and logged `done`, with resume attaches present; slice-2 agent `894a78d4-5fc2-45f1-81a2-611e132e72fc` stated attach PIDs were being compared to the runner PID and fixed assertions; before-cleanup plan Current decisions at `.planning/slice-plans/479-revive-cursor-sessions-on-runner-restart/PLAN.md` record that fake-Cursor attach `pid` is the agent PTY
+  - Observed effect: several failed proof rounds and debug instrumentation while the revive path already worked; final proofs passed after assertion identity was corrected (no product keep/revive change for that failure class)
+  - Inference: under fake-Cursor, treat runner address pid and agent attach pid as distinct identities; assert held/resume by session id (or attach presence), not by equating those pids
+
+**Responsibility and disposition (2026-11-07):** Project-owned `fake-Cursor` test-harness identity convention, corrected in the same slice (`5de83a620`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-429`); no new local story.
+
+<a id="dd-430"></a>
+
+## DD-430 — Dynamic import to avoid ensure nesting broke the dashboard server bundle
+
+To keep accepting-port revive from nesting `ensureCurrentCursorRunner`, slice 2 first tried a dynamic import of the revive path. That broke the dashboard server bundle; the durable fix was extracting accepting-port keep/hangup/sessions into `runnerWire.ts` with a static revive import after the start lock released.
+
+### Occurrences
+- Execution: SEED-242#revive-cursor-sessions-when-the-runner-restarts (before-cleanup `a07048254e182fef347a6c91739f41da5b743f82`; first related implementation commit `5de83a6202e6c4ed330660bf43f4c049c1ddda02`)
+  - Timestamp: 2026-11-05T21:46+07:00 (coordinator noted format/lint/typecheck green after the wire split)
+  - Tool: Cursor
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
+  - Evidence: slice-2 agent `894a78d4-5fc2-45f1-81a2-611e132e72fc` recorded that dynamic import broke the server bundle and extracted keep-at-port; before-cleanup plan Current decisions name accepting-port keep in `runnerWire.ts` to avoid ensure deadlock and import cycles; delivered surfaces `runnerWire.ts` / `runnerRevive.ts` / post-settle revive in `runnerCurrent.ts`
+  - Observed effect: one mid-slice structural correction before focused revive proofs could run cleanly; final shape matches the plan's settled re-entrancy constraint without dynamic import
+  - Inference: for dashboard server modules that share the ensure lock, prefer a static seam (wire/keep-at-port module) over dynamic import when breaking a keep→ensure cycle
+
+**Responsibility and disposition (2026-11-07):** Project-owned dashboard server bundling seam, repaired in the same slice (`runnerWire.ts`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-430`); no new local story.
 
 ## DD-432 — A container run took a live host run's local-suite admission
 

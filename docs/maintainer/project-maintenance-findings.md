@@ -128,42 +128,8 @@ observation. Open.
 
 <a id="dd-378"></a>
 
-## DD-378 — Planning treats pre-existing failures as exclusions from completion
-
-An execution-ready plan turned correct regression attribution into an instruction to report and leave known failing tests. That instruction propagated into repair briefs and an unfinished completion stop, conflicting with Terry's established Open Dough failing-test policy; later resume repaired the failures.
-
-### Occurrences
-
-- Execution: SEED-199#mobile-session-screen; first implementation eaa0237881d704ee46711d8bc4fb188401b6ec94
-  - Timestamp: unknown (2026-10-31; initial stop preceded the 14:01 +08 follow-up)
-  - Tool: Cursor
-  - Open Dough release: unknown
-  - Evidence: f601fcbd:.planning/slice-plans/425-mobile-session-screen/PLAN.md, Decisive premises 3, says the retirement failures are not owned and should be reported. Coordinator transcript 363e0b94-67d5-49d4-b77d-48deec743aed L48 and L114 carry that exclusion; L126 reverses it and repairs registered revisions. Detailed CI/story analysis: docs/maintainer/ci-retrospective-2026-11-01.md.
-  - Observed effect: execution stopped unfinished and requested a fix-or-waive decision for known failures; repeated resume and fixture repairs were needed before green integration. This is distinct from DD-374's softened implementation brief: the exclusion originated in the prepared plan. Another active repair owner's files still require preservation; pre-existing origin alone is not that ownership evidence.
-
-**Current responsibility (2026-11-01):** The prepared plan substituted a
-project-specific failure-policy exclusion for this repository’s stop-and-fix
-policy. Shared delegation already preserves the project’s failure policy.
-Retain this plan-origin facet separately from DD-374’s softened brief.
-[SEED-208#trustworthy-ci-completion](https://github.com/terryyin/open-dough/blob/0dc909c334be271d24fc37ac0da89980936d799b/.planning/seeds/SEED-208-trustworthy-ci-completion.md#trustworthy-ci-completion)
-already covers the response; **queued, not resolved**. No duplicate local story.
-Original source recovery: `b1fa3b50:DearDough.md`.
-
-**Response (2026-11-01):** SEED-208 slice 1 (`482b644e90076052a2f36b9df7977b6f46ce7e89`)
-on story branch `claude/finish-every-execution-with-trustworthy-ci-and-n`
-added AGENTS.md "Failing and flaky tests": a plan may record that a failure
-predates its story, but that attribution does not exclude the failure from the
-executing agent's repair. `executable-proof.md` gives plans the same rule, and
-`execution-decisions.md` "Diagnose failed proof" applies it during execution.
-In the same execution, run 41261530651 failed on the coordinator's own Markdown-only
-publication with five journeys that also failed on main; the coordinator owned
-and repaired it by merging trunk, without a fix-or-waive stop. That is the
-response's own use, not an ordinary-use observation. The AGENTS.md policy takes
-effect for this repository when the story reaches main; the reusable wording is
-unreleased. **Delivered, awaiting observation in later ordinary executions; not
-resolved.**
-
-**Adoption (2026-11-03 review):** on `main` since `bc72a379b` and released in
-`v0.3.80` (see DD-374). No later plan that attributes a failure to an earlier
-revision has been inspected; such a plan keeping the failure in its executor's
-repair satisfies the observation. Open.
+DD-378 (planning treats pre-existing failures as exclusions from completion)
+was retired on 2026-11-07 after `SEED-229#reduce-remote-sessions-traffic`
+(`e49035d31:.planning/slice-plans/462-reduce-remote-sessions-traffic/PLAN.md`)
+satisfied its observation criterion; see
+[review history](project-findings-history.md#dd-378).

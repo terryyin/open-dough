@@ -15,6 +15,8 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
+**Maintenance assessment (2026-11-07):** No new project story. DD-378 is retired after `SEED-229#reduce-remote-sessions-traffic` (`e49035d31:.planning/slice-plans/462-reduce-remote-sessions-traffic/PLAN.md`, 2026-11-04) attributed four full-suite failures to base `e69e74cf7` and repaired all four in the execution ([history](docs/maintainer/project-findings-history.md#dd-378)). DD-412 records `SEED-241#load-intent-without-disruption-or-bulk-source-transfer` (plan 477, 2026-11-05) running the full dashboard suite under `caffeinate -s -i` (2,044 passed, 1 skipped), while its two settling observations remain open. DD-420, DD-421, DD-428, DD-429 and DD-430 moved here from DearDough.md (`8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md`) as repaired dashboard, fake-Cursor harness and server-bundle observations alongside DD-432 and DD-433; the misplaced `SEED-232#reduce-running-cursor-session-requests` occurrence under DD-414 (`2d80ac1fc`, shifted in merge `bd1b1afbd6`) is restored to ODF-367 in DearDough.md. DD-419/DD-432 (local suite admission across focused and container runs) and DD-426/DD-433 (6-minute job caps on slow runners and upload stalls) remain open pending design and budget decisions.
+
 **Maintenance assessment (2026-11-03):** No new project story. DD-376 is retired after 68 post-repair runs without an install failure ([history](docs/maintainer/project-findings-history.md#earlier-reviews)). DD-406's local facet is already repaired in project documentation and awaits a re-profile. DD-411's slow-setup shard breach is runner speed on a story branch, recorded under DD-279 without counting against its allocator criterion. DD-347's third row-pressure exposure keeps it open; its remedy reshapes shared guidance reads and is not selected here. DD-374 and DD-378's responses are on `main` and released in `v0.3.80`; their observations remain open.
 
 **Maintenance assessment (2026-10-25):** Select one new project response: SEED-151#balance-test-shares (since implemented and closed; story recoverable at `8dd20d66:.planning/seeds/SEED-151-test-share-reliability.md#balance-test-shares`), queued at the time, not resolved, for DD-279's renewed allocation failure in plan 350. This demonstrated CI failure outranks the strongest alternative, DD-336's one loaded-run missing-result failure whose cause remains unknown. The browser-restart and mouse-press repairs have no established post-fix recurrence; DD-320 still awaits a qualifying paid replay and is not duplicated. Direction and existing work remain unchanged. No new occurrence is created by this review.
@@ -339,7 +341,37 @@ whole-suite runs in one execution and the passing AC-powered retry.
 and points at it from [AGENTS.md](AGENTS.md#failing-and-flaky-tests).
 **Observation criterion:** the next long local run on a macOS laptop follows
 that guard, and a sleep-shaped failure is attributed from `pmset -g log`
-before it is read as a defect. Not yet observed; open, unqueued.
+before it is read as a defect. `SEED-241` (plan 477, 2026-11-05) followed
+`caffeinate -s -i` across 2,044 passing tests; the dark-wake and sleep-failure
+observations remain open, unqueued.
+
+## Repaired dashboard stream, keep, harness and bundle observations
+
+<a id="dd-420"></a>
+<a id="dd-421"></a>
+<a id="dd-428"></a>
+<a id="dd-429"></a>
+<a id="dd-430"></a>
+
+[DD-420, DD-421, DD-428, DD-429 and DD-430](docs/maintainer/project-test-findings.md#dd-420)
+retain the repaired revision-stream pace race, paused-clock reopen, kept CI
+answer journeys, fake-Cursor attach-PID assertion, and server-bundle static
+seam, moved from `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md`.
+
+## Container and host local-suite admission collision (open, unqueued)
+
+<a id="dd-432"></a>
+
+[DD-432](docs/maintainer/project-test-findings.md#dd-432) records a
+`scripts/ci-container.sh` run replacing a live host dashboard suite's
+`refs/dough/local-test-suite` admission owner across PID namespaces.
+
+## Artifact upload stall at the 6-minute dashboard job cap (open, unqueued)
+
+<a id="dd-433"></a>
+
+[DD-433](docs/maintainer/project-test-findings.md#dd-433) records two passing
+dashboard shards cancelled at the 6-minute job cap during slow artifact uploads.
 
 ## Review and recovery
 
@@ -393,9 +425,8 @@ DD-171's delivered commit-hook typecheck and red/green evidence are
 
 <a id="dd-378"></a>
 
-### DD-378 — Planning treats pre-existing failures as exclusions from completion
-
-[Original evidence, project-policy responsibility and existing SEED-208 response](docs/maintainer/project-maintenance-findings.md#dd-378).
+DD-378's plan-exclusion response and `SEED-229` retirement evidence are
+[retained in the review history](docs/maintainer/project-findings-history.md#dd-378).
 
 ## Fixture option defaults need direct proof across file order
 
