@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "identity": "SEED-250#hide-client-project-from-dashboard",
+  "mode": "story-branch",
+  "branch": "cursor/hide-a-client-project-from-the-dashboard-while-k",
+  "host": "cursor",
+  "model": "gemini-4-argon"
+}
