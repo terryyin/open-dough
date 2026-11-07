@@ -93,8 +93,8 @@ test("a delegated agent needing a baseline uses a separate checkout instead of s
 });
 
 test("the coordinator isolates a commit beside another writer by staging owned paths only", () => {
-  const wrapUp = reference("wrap-up.md");
-  const stepSix = section(wrapUp, / 6\. Stage only owned/, / 7\. /);
+  const delivery = reference("deliver-the-change.md");
+  const stepSix = section(delivery, / 6\. Stage only owned/, / 7\. /);
 
   assert.match(stepSix, /stag\w* (?:only )?owned (?:files|paths)/i);
   assert.match(stepSix, /owned paths only|only owned (?:files|paths)/i);

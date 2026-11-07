@@ -122,7 +122,10 @@ test("acceptance links the obligation owner and delivery includes its precommit 
   // This checks navigation to the executable record, not prose completeness or
   // follow-through. Original-source acceptance is assessed in native journeys.
   assert.match(acceptance, /\]\(story-obligations\.md(?:#[^)]+)?\)/);
-  const delivery = markdownSection(wrapUp, "## Deliver the change");
+  const delivery = markdownSection(
+    reference("deliver-the-change.md"),
+    "## Deliver the change",
+  );
   const update = delivery.slice(
     delivery.indexOf("5. For planned execution"),
     delivery.indexOf("6. Stage"),
@@ -241,9 +244,4 @@ test("guidance allocates post-execution commitments to their owners and never ob
     /A lifecycle row needs no\s+observation here; each result lists it in `pendingLifecycle` with its `id`,\s+`text` and `owner`/,
   );
   assert.match(boundaries, /still owed to that owner/);
-  const retention = markdownSection(reference("wrap-up.md"), "## Accept proof");
-  assert.match(
-    retention,
-    /allocate every id before the next obligations\s+listing or check: to the slice whose output owes it[\s\S]+\[lifecycle owner\]\(story-obligations\.md#record-the-source-review\)/,
-  );
 });

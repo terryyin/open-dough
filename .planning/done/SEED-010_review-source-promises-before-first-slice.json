@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#review-source-promises-before-first-slice",
+  "title": "Review and allocate source commitments before delegating the first Behavior slice",
+  "completedAt": "2026-11-07T06:32:27.475Z",
+  "developer": "Terry Yin",
+  "agent": "ziqing-chan",
+  "host": "cursor",
+  "model": "auto"
+}

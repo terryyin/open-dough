@@ -27,7 +27,7 @@ function gatesBefore(text, later, referenceLink) {
 
 test("slice delivery checks freshness before the obligations check", () => {
   const delivery = section(
-    read("dough-execute-plan/references/wrap-up.md"),
+    read("dough-execute-plan/references/deliver-the-change.md"),
     "## Deliver the change",
   );
   const update = delivery.slice(
