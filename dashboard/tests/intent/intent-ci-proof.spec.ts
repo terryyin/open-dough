@@ -1,14 +1,15 @@
 // The CI proof of the run Intent's CI status tab shows a result of
 // (../../src/IntentCiProof.tsx): after the judgment, which reads as it always
-// has, Proof names that run once -- revision, link and attempt -- then a
-// table with one row per entry the run's CI declared, in its order, read
-// cell by cell under the Entry, Counts, Test execution time and Parts
-// headers (counts, unit and any gap). The summary is the collector's
-// own, served as a real zip from the run's artifact download through the
-// controlled `gh` (../support/ciProofArtifacts.ts). Each other reason no
-// proof can be shown, a running result's ancestor proof and the per-attempt
-// memory: ./intent-ci-proof-reasons.spec.ts. Query-shape refusals of
-// `parseIntentCiProofRead`: ../../../tests/support/dashboard-ci-proof-parse.test.mjs.
+// has, Proof names that run once as short labels -- its linked run and attempt,
+// revision and CI wall time -- then a table with one row per entry the run's CI
+// declared, in its order, read cell by cell under the Entry, Counts, Test
+// execution time and Parts headers (counts, unit and any gap). The summary is
+// the collector's own, served as a real zip from the run's artifact download
+// through the controlled `gh` (../support/ciProofArtifacts.ts). Each other
+// reason no proof can be shown, a running result's ancestor proof and the
+// per-attempt memory: ./intent-ci-proof-reasons.spec.ts. Query-shape refusals
+// of `parseIntentCiProofRead`:
+// ../../../tests/support/dashboard-ci-proof-parse.test.mjs.
 
 import { expect, test } from "../dashboardTest.ts";
 import { judged, runUrl } from "../intentCiStatusPage.ts";
@@ -24,6 +25,11 @@ import {
 } from "../intentCiProofPage.ts";
 import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
 import { wordsBrokenApart } from "../wholeWords.ts";
+import {
+  evidenceLabels,
+  expectAttemptAt,
+  expectAttemptLinked,
+} from "../ciEvidenceLabelsPage.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import {
   counts,
@@ -72,13 +78,8 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
   });
 
   await test.step("Proof names the run once, then one row per declared entry", async () => {
-    await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-      "Attempt 1 of run 41 at a1b2c3d.",
-    );
-    await expect(proof.getByRole("link", { name: "run 41" })).toHaveAttribute(
-      "href",
-      runUrl,
-    );
+    await expectAttemptAt(proof, "Run 41 · attempt 1", "a1b2c3d");
+    await expectAttemptLinked(proof, "Run 41 · attempt 1", runUrl);
     await expectProofRows(proof, [
       [
         "dashboard/tests",
@@ -181,12 +182,13 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
   await expectProofRows(proof, rows);
   // A wider installed font lays the table out as Linux's fallback font does.
   await page.addStyleTag({
-    content: ".intent-ci-proof-box { font-family: Verdana, sans-serif; }",
+    content:
+      ".intent-ci-proof-box, .intent-evidence-labels { font-family: Verdana, sans-serif; }",
   });
   const table = proofTable(proof);
   const box = proof.locator(".intent-proof-table");
   const again = panel.getByRole("button", { name: "Check again" });
-  const link = proof.getByRole("link", { name: "run 41" });
+  const link = proof.getByRole("link", { name: "Run 41 · attempt 1" });
   // How far the table's box scrolls sideways, and whether the box lies within
   // the reading pane and the page does not scroll sideways.
   const fit = () =>
@@ -223,6 +225,7 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
       pageSideways: false,
     });
     expect(await wordsBrokenApart(table, whole)).toEqual([]);
+    expect(await wordsBrokenApart(evidenceLabels(proof), "li")).toEqual([]);
     await link.focus();
     for (const header of proofColumns) {
       await page.keyboard.press("Tab");

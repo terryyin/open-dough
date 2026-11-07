@@ -3,11 +3,18 @@
 // (`./ciScopeComparison.ts`): the scope's own compared figures above a
 // sortable table of its immediate children, with each child's change from
 // the story overlay under Change, and the outside row kept last; and the
+// comparison's identity as short labels (`./CiEvidenceLabels.tsx`) with the
 // homepage's observed-not-attributed statement. A selected
 // file reuses ComparisonNamed for its Proof
 // (`./IntentFileProof.tsx`).
 
-import { shortSha } from "./baseCiWording.ts";
+import {
+  CircleDashed,
+  Eye,
+  GitCommitHorizontal,
+  Hourglass,
+} from "lucide-react";
+import { EvidenceLabels, type EvidenceLabel } from "./CiEvidenceLabels.tsx";
 import {
   CiProofTable,
   type CiProofSorting,
@@ -35,11 +42,8 @@ import type {
   StoryCiComparisonSlot,
 } from "./storyCiComparison.ts";
 import { comparisonEndpointProofsChecking } from "./storyCiComparisonEntries.ts";
-import {
-  observedNotAttributed,
-  requestedStatusOrExplanation,
-  requestedStatusPrefix,
-} from "./storyCiComparisonWording.ts";
+import { observedNotAttributedInFull } from "./storyCiComparisonWording.ts";
+import { slotShortWords } from "./storyCiComparisonSlotWords.ts";
 import {
   activeComparisonAfterSideOf,
   type ComparisonEndpointProofs,
@@ -47,42 +51,67 @@ import {
 
 const outsideRowLabel = "Not in the rows above";
 
-// Build/running slots name the requested revision's status (Skipped /
-// Cancelled / No build) beside the short SHA of the build whose proof is
-// used — same status words as Intent's homepage comparison identity.
-function SlotSha({ slot }: { readonly slot: StoryCiComparisonSlot }) {
-  if (slot.kind === "build" || slot.kind === "running") {
-    return (
+// An endpoint as a label: "Baseline abc1234", "Landed Skipped def5678" or
+// "Landed Not landed yet", its full status or explanation as description --
+// the status words Intent's homepage comparison identity uses.
+function endpointLabel(
+  endpoint: "Baseline" | "Branch" | "Landed",
+  slot: StoryCiComparisonSlot,
+): EvidenceLabel {
+  const { status, revision, full } = slotShortWords(slot);
+  const name = [endpoint, status, revision]
+    .filter((word) => word !== undefined)
+    .join(" ");
+  return {
+    key: endpoint,
+    icon: revision === undefined ? CircleDashed : GitCommitHorizontal,
+    name,
+    shown: (
       <>
-        {requestedStatusPrefix(slot)}
-        <code>{shortSha(slot.revision)}</code>
+        {endpoint}
+        {status === undefined ? "" : ` ${status}`}
+        {revision === undefined ? "" : " "}
+        {revision !== undefined && <code>{revision}</code>}
       </>
-    );
-  }
-  return requestedStatusOrExplanation(slot);
+    ),
+    ...(full === undefined ? {} : { full }),
+  };
 }
 
+const provisionalLabel: EvidenceLabel = {
+  key: "provisional",
+  icon: Hourglass,
+  name: "Provisional",
+  full: "The story is still Taken: its latest build, not a final result",
+};
+
+const framingLabel: EvidenceLabel = {
+  key: "framing",
+  icon: Eye,
+  name: "Observed, not attributed",
+  full: observedNotAttributedInFull,
+};
+
+// A selected story's comparison identity as labels: the provisional mark
+// while Taken, Baseline, Branch and Landed, and the observed-not-attributed
+// framing.
 export function ComparisonNamed({
   evidence,
 }: {
   readonly evidence: Extract<ScopeEvidence, { kind: "comparison" }>;
 }) {
   const { answer, story } = evidence;
-  const taken = answer.phase === "taken";
-  const branchSlot = answer.provisional ?? answer.branch;
   return (
-    <>
-      <p className="intent-summary-evidence">
-        CI timing comparison for {story}
-        {taken ? " (provisional)" : ""}: Baseline{" "}
-        <SlotSha slot={answer.baseline} />
-        {" · "}
-        Branch <SlotSha slot={branchSlot} />
-        {" · "}
-        Landed <SlotSha slot={answer.landed} />.
-      </p>
-      <p className="intent-ci-comparison-framing">({observedNotAttributed})</p>
-    </>
+    <EvidenceLabels
+      label={`CI timing comparison of ${story}`}
+      labels={[
+        ...(answer.phase === "taken" ? [provisionalLabel] : []),
+        endpointLabel("Baseline", answer.baseline),
+        endpointLabel("Branch", answer.provisional ?? answer.branch),
+        endpointLabel("Landed", answer.landed),
+        framingLabel,
+      ]}
+    />
   );
 }
 

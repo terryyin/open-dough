@@ -10,6 +10,7 @@
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
+import { evidenceLabel } from "../ciEvidenceLabelsPage.ts";
 import {
   artifactId,
   expectProofRows,
@@ -27,7 +28,7 @@ import {
 
 test.setTimeout(90_000);
 
-const wallTime = "CI wall time 3 min.";
+const wallTime = "CI wall time 3 min";
 const noTimings = "No timings";
 const noTimingsWhy =
   "Not recorded: this summary has no test execution durations";
@@ -98,7 +99,7 @@ test("complete entry durations show test execution time 4 min and 2 min beside c
   await page.setViewportSize({ width: 1280, height: 800 });
   const { panel, proof } = await openWithSummary(page, timedSummary());
   await expect(panel.locator(".intent-ci-state")).toContainText("Passed");
-  await expect(proof.locator(".intent-ci-wall-time")).toHaveText(wallTime);
+  await expect(evidenceLabel(proof, wallTime)).toHaveText(wallTime);
   await expectProofRows(proof, [
     ["tests", "5 passed checks", "4 min", "2 of 2 parts present"],
     ["dashboard/tests", "12 passed tests", "2 min", "2 of 2 parts present"],
@@ -114,7 +115,7 @@ test("an older summary without durations shows No timings while wall time still 
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   const { proof } = await openWithSummary(page, olderSummary());
-  await expect(proof.locator(".intent-ci-wall-time")).toHaveText(wallTime);
+  await expect(evidenceLabel(proof, wallTime)).toHaveText(wallTime);
   await expectProofRows(proof, [
     ["tests", "5 passed checks", noTimings, "1 of 1 part present"],
     ["dashboard/tests", "12 passed tests", noTimings, "1 of 1 part present"],

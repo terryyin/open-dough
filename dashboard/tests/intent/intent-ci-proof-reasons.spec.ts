@@ -12,6 +12,7 @@
 // ./intent-ci-proof-ancestor.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
+import { evidenceLabels, expectAttemptAt } from "../ciEvidenceLabelsPage.ts";
 import { judged, runUrl } from "../intentCiStatusPage.ts";
 import {
   artifactId,
@@ -72,8 +73,10 @@ test("each proof that cannot be shown gives one reason under Proof, the verdict 
     await expect(reason).toHaveText(line);
     await expect(reason).toHaveCount(1);
     await expectNoProofRows(proof);
-    await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-      `Attempt 1 of run ${String(shownRun.runId)} at a1b2c3d.`,
+    await expectAttemptAt(
+      proof,
+      `Run ${String(shownRun.runId)} · attempt 1`,
+      "a1b2c3d",
     );
     // One judgment and one proof listing each time.
     expect(listed() - before).toBe(2);
@@ -144,6 +147,6 @@ test("a running result with no completed ancestor shows no completed run, so one
   await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText([
     "No completed GitHub Actions run is shown, so there is no CI proof to show.",
   ]);
-  await expect(proof.locator(".intent-ci-proof-run")).toHaveCount(0);
+  await expect(evidenceLabels(proof)).toHaveCount(0);
   expect(proofCalls(published.requests)).toEqual([]);
 });

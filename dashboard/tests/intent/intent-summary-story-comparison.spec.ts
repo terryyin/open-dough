@@ -11,9 +11,13 @@
 // is ./intent-summary-story-comparison-file.spec.ts. Without a selected
 // story, ./intent-summary-ci-proof*.spec.ts stay the Summary consumers.
 
-import { expect, test } from "../support/preparationPage.ts";
+import { test } from "../support/preparationPage.ts";
+import {
+  comparisonLabels,
+  expectEvidenceLabels,
+  expectObservedNotAttributed,
+} from "../ciEvidenceLabelsPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { observedNotAttributed } from "../../src/storyCiComparisonWording.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
 import {
   drillComparisonChild,
@@ -50,24 +54,14 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     const { intent } = await selectDoneStoryForSummaryComparison(page);
     const summary = await openSummaryComparison(intent, "dashboard/tests");
 
-    await expect(summary.locator(".intent-summary-evidence")).toContainText(
-      `CI timing comparison for ${setup.identity}`,
-    );
-    await expect(summary.locator(".intent-summary-evidence")).toContainText(
-      shortSha(setup.baseline),
-    );
-    await expect(summary.locator(".intent-summary-evidence")).toContainText(
-      shortSha(setup.branchSide),
-    );
-    await expect(summary.locator(".intent-summary-evidence")).toContainText(
-      shortSha(setup.completion),
-    );
-    await expect(
-      summary.locator(".intent-ci-comparison-framing"),
-    ).toContainText(observedNotAttributed);
-    await expect
-      .soft(summary.locator(".intent-summary-evidence"))
-      .not.toContainText("provisional");
+    // Baseline, Branch and Landed read as labels, framed as observed builds.
+    await expectEvidenceLabels(comparisonLabels(summary, setup.identity), [
+      `Baseline No build ${shortSha(setup.baseline)}`,
+      `Branch ${shortSha(setup.branchSide)}`,
+      `Landed ${shortSha(setup.completion)}`,
+      "Observed, not attributed",
+    ]);
+    await expectObservedNotAttributed(summary);
 
     await expectComparisonScopeRows(
       summary,

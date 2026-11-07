@@ -3,8 +3,8 @@
 // read figure by figure under the homepage's column names
 // (../src/IntentScopeFigures.tsx), above its one table of one row per
 // immediate folder and file and any row for what no child row shows, read
-// cell by cell under the homepage's columns; each child's name control; and
-// the evidence lines around it.
+// cell by cell under the homepage's columns; and each child's name control.
+// The evidence labels around it: ./ciEvidenceLabelsPage.ts.
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -131,8 +131,4 @@ export async function expectChildNames(
   await expect(
     summary.getByRole("table").getByRole("rowheader").getByRole("button"),
   ).toHaveText(names);
-}
-
-export function evidenceLine(summary: Locator): Locator {
-  return summary.locator(".intent-summary-evidence");
 }

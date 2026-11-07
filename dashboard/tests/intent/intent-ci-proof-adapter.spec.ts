@@ -12,6 +12,11 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import {
+  expectAttemptAt,
+  expectAttemptLinked,
+  expectLabelInFull,
+} from "../ciEvidenceLabelsPage.ts";
+import {
   adapterProject,
   openAdapterProof,
   passed,
@@ -46,13 +51,8 @@ test("a ciAdapter attempt's proof is read through the project's adapter and show
 
   await test.step("the verdict reads as before; Proof names the attempt and shows its row", async () => {
     await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
-    await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-      `Attempt ${uuid} at 4774f60.`,
-    );
-    await expect(proof.getByRole("link", { name: uuid })).toHaveAttribute(
-      "href",
-      mainRun,
-    );
+    await expectAttemptAt(proof, `Attempt ${uuid}`, "4774f60");
+    await expectAttemptLinked(proof, `Attempt ${uuid}`, mainRun);
     await expectProofRows(proof, [testsRow]);
     await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveCount(0);
   });
@@ -78,9 +78,7 @@ test("a ciAdapter attempt's proof is read through the project's adapter and show
       proof: testsSummary("1", login),
     });
     await panel.getByRole("button", { name: "Check again" }).click();
-    await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-      "Attempt 1 at 4774f60.",
-    );
+    await expectAttemptAt(proof, "Attempt 1", "4774f60");
     await expectProofRows(proof, [testsRow]);
     expect(adapter.proofRequests().at(-1)).toEqual({
       operation: "proof",
@@ -120,8 +118,11 @@ test("a running ciAdapter story branch shows its completed ancestor attempt's pr
   await expect(panel.locator(".intent-ci-state")).toHaveText(
     "Running at 70a0001 (Start the story)",
   );
-  await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-    `Attempt ${ancestor} at d4e5f6a.`,
+  await expectAttemptAt(proof, `Attempt ${ancestor}`, "d4e5f6a");
+  await expectLabelInFull(
+    proof,
+    "Completed ancestor",
+    "The completed ancestor of the running result",
   );
   await expectProofRows(proof, [testsRow]);
   await expect(proof).not.toContainText("70a0001");

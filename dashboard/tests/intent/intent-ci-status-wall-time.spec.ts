@@ -6,6 +6,12 @@
 // 2 and 7).
 
 import { expect, test } from "../dashboardTest.ts";
+import {
+  evidenceLabel,
+  evidenceLabels,
+  expectEvidenceLabels,
+  expectLeadingEvidenceLabels,
+} from "../ciEvidenceLabelsPage.ts";
 import { parts } from "../dashboardPage.ts";
 import {
   adapterProject,
@@ -36,9 +42,8 @@ import { openUntilRead } from "../pageRequestNotes.ts";
 
 test.setTimeout(90_000);
 
-const wallTime = "CI wall time 3 min.";
-const notRecorded =
-  "CI wall time not recorded: this attempt's CI read has no start and completion times.";
+const wallTime = "CI wall time 3 min";
+const notRecorded = "CI wall time not recorded";
 
 test("a listed run from 10:00 to 10:03 shows CI wall time 3 min with the attempt", async ({
   page,
@@ -64,10 +69,11 @@ test("a listed run from 10:00 to 10:03 shows CI wall time 3 min with the attempt
   await expect(panel.locator(".intent-ci-state")).toHaveText(
     "Passed at a1b2c3d (Add login)",
   );
-  await expect(proof.locator(".intent-ci-proof-run")).toContainText(
-    "Attempt 1 of run 41",
-  );
-  await expect(proof.locator(".intent-ci-wall-time")).toHaveText(wallTime);
+  await expectEvidenceLabels(evidenceLabels(proof), [
+    "Run 41 · attempt 1",
+    "Revision a1b2c3d",
+    wallTime,
+  ]);
 });
 
 test("a running result shows its completed ancestor's CI wall time", async ({
@@ -104,10 +110,12 @@ test("a running result shows its completed ancestor's CI wall time", async ({
   await expect(panel.locator(".intent-ci-state")).toHaveText(
     "Running at 70a0001 (Start the story)",
   );
-  await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-    "Attempt 2 of run 12 at d4e5f6a.",
-  );
-  await expect(proof.locator(".intent-ci-wall-time")).toHaveText(wallTime);
+  await expectEvidenceLabels(evidenceLabels(proof), [
+    "Run 12 · attempt 2",
+    "Revision d4e5f6a",
+    "Completed ancestor",
+    wallTime,
+  ]);
 });
 
 test("a ciAdapter attempt without start and completion shows CI wall time not recorded", async ({
@@ -121,8 +129,10 @@ test("a ciAdapter attempt without start and completion shows CI wall time not re
   });
   const { panel, proof } = await openAdapterProof(page);
   await expect(panel.locator(".intent-ci-state")).toContainText("Passed");
-  await expect(proof.locator(".intent-ci-proof-run")).toContainText(
-    `Attempt ${uuid}`,
+  await expectLeadingEvidenceLabels(evidenceLabels(proof), [`Attempt ${uuid}`]);
+  const wall = evidenceLabel(proof, notRecorded);
+  await expect(wall).toHaveText(notRecorded);
+  await expect(wall).toHaveAccessibleDescription(
+    "This attempt's CI read has no start and completion times.",
   );
-  await expect(proof.locator(".intent-ci-wall-time")).toHaveText(notRecorded);
 });

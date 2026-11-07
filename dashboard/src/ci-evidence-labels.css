@@ -1,0 +1,51 @@
+/* Intent's CI evidence as a strip of short labels (./CiEvidenceLabels.tsx):
+   each label its icon beside its words, the strip wrapping a whole label to
+   the next line, and a label's words wrapping within it only when the pane is
+   narrower than the label, so nothing scrolls sideways. */
+.intent-evidence-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+}
+
+.intent-evidence-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  --icon-size: var(--label-icon-size);
+}
+
+.intent-evidence-label-words {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* A fact that changes how the figures read. */
+.intent-evidence-label.intent-evidence-caution {
+  border-color: var(--problem);
+}
+
+/* A strip led by its name, as what Not in the rows above holds after a
+   Summary's table (./IntentScopeSingleProofTable.tsx): the lead wraps with
+   the labels. */
+.intent-summary-outside {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  margin: var(--space-2) 0;
+  font-size: var(--text-sm);
+}
+
+.intent-summary-outside .intent-evidence-labels {
+  margin: 0;
+}

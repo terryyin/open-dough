@@ -6,32 +6,28 @@
 // artifact boundary and the browser's own parser
 // (../intentSummaryCiProofFixtures.ts). The entry shows its root figures and
 // its immediate folders and files with counts, cumulative execution time and
-// parts; a child name drills into a folder (revealing it in the tree) or
-// opens a file's reading; a file CI has no result for, a file with an untimed
-// test, a measured zero, contributions the tree does not list and a late
-// proof answer each say what they are. Summary navigation reads no source
-// file and asks CI nothing again. Missing, partial and absent evidence, each
-// result in one row and a zoomed table, and a previously retrieved judgment:
+// parts; a child name drills into a folder (revealing it in the tree) or opens
+// a file's reading; a file CI has no result for, a file with an untimed test, a
+// measured zero, contributions the tree does not list and a late proof answer
+// each say what they are. Missing, partial and absent evidence, each result in
+// one row and a zoomed table, and a previously retrieved judgment:
 // ./intent-summary-ci-proof-gaps.spec.ts, -table.spec.ts and -kept.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
-import { shortSha } from "../../src/baseCiWording.ts";
 import { ciProofSchema } from "../../src/ciProof.ts";
-import { activateIntentHome, judged } from "../intentCiStatusPage.ts";
+import { activateIntentHome, runUrl } from "../intentCiStatusPage.ts";
 import {
   artifactId,
   expectProofRows,
   proofCalls,
   proofOf,
 } from "../intentCiProofPage.ts";
-import { openDough } from "../intentCodeBrowseFixtures.ts";
 import {
   intentFolderName,
   intentGroupToggle,
 } from "../intentPerspectivePage.ts";
 import {
   childName,
-  evidenceLine,
   expectChildNames,
   expectScopeRows,
   summaryRegion,
@@ -42,15 +38,21 @@ import {
   bothEntriesSummary,
   openIntent,
   openSummary,
+  treeGap,
+  treeGapInFull,
 } from "../intentSummaryCiProofFixtures.ts";
+import {
+  evidenceLabels,
+  expectAttemptLinked,
+  expectEvidenceLabels,
+  expectLabelInFull,
+} from "../ciEvidenceLabelsPage.ts";
 import {
   runnerCheckout,
   summaryTextZipAnswer,
 } from "../support/ciProofCollected.ts";
 
 test.setTimeout(90_000);
-
-const otherRevision = `This evidence is of ${shortSha(judged)}; the tree shows ${shortSha(openDough.revision)}. A file added or changed since has no CI result here, or an earlier one.`;
 
 test("an entry's and its folders' CI summaries come from CI's collected file breakdown: root figures, immediate children, drill-down and file reading, with no source read and no second CI read", async ({
   page,
@@ -138,10 +140,9 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
       // A measured zero stays zero.
       ["b.spec.ts", "1 passed tests", "0 ms", allParts],
     ]);
-    await expect(evidenceLine(summary)).toHaveText(ancestorEvidence);
-    await expect(summary.locator(".intent-summary-revision")).toHaveText(
-      otherRevision,
-    );
+    await expectEvidenceLabels(evidenceLabels(summary), ancestorEvidence);
+    await expectAttemptLinked(summary, "Run 41 · attempt 1", runUrl);
+    await expectLabelInFull(summary, treeGap, treeGapInFull);
     await expect(intentFolderName(intent, "folder")).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -214,8 +215,12 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
         "1 of 1 part present",
       ],
     ]);
-    await expect(summary.locator(".intent-summary-outside")).toHaveText(
-      "The figures of tests include what no folder or file row shows: 1 file this tree does not list: tests/support/check.sh.",
+    const outside = evidenceLabels(summary, "Not in the rows above");
+    await expectEvidenceLabels(outside, ["1 file not in the tree"]);
+    await expectLabelInFull(
+      outside,
+      "1 file not in the tree",
+      "Not in the tree: tests/support/check.sh",
     );
   });
 

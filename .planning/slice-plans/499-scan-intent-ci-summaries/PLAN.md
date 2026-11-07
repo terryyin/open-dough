@@ -200,7 +200,7 @@ Refactor disposition: `## REFACTOR COMPLETE` (`changeIn` beside
 
 ### 5. Evidence identity reads as grouped labels
 Type: Behavior
-Status: planned
+Status: done
 Proof: as mapped above for key example 5, plus the documentation reread.
 
 Behavior: CI status Proof, a summary or a file's Proof with single-run or
@@ -212,6 +212,19 @@ judgment, failed refresh, observed-not-attributed framing, absent child
 breakdown and outside-row contents stay visible as short labels with their
 full words available to assistive technology. Intent's documentation
 matches the shipped wording.
+
+Accepted proof (2026-11-07): `CiEvidenceLabels.tsx` renders every identity
+strip (CI status Proof, Summary and file Proof evidence, story comparison
+identity, Summary notes); specs read each label by accessible name and its
+full words as description through `dashboard/tests/ciEvidenceLabelsPage.ts`;
+the zoom specs add the strips to the Verdana override and whole-word checks;
+gate 106 passed, rerun 106 passed after the refactor; units, typecheck pass;
+retired evidence sentences are gone from `dashboard/src` and docs. Both
+Intent docs reread against slices 1–5. Summaries still show no CI wall time
+(it would be a new figure there). Refactor disposition:
+`## REFACTOR COMPLETE` (label builders owned by `CiEvidenceLabels.tsx`;
+`IntentScopeEvidenceLabels.tsx` and `storyCiComparisonSlotWords.ts` split
+out to keep files within 250 lines).
 
 ## Story obligations
 

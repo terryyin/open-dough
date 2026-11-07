@@ -114,8 +114,8 @@ export async function publishSkippedPlanningBaseline(
   page: Page,
   origin: StartOrigin,
 ): Promise<SkippedComparisonSetup> {
-  // Intent locations so Summary evidence can name Baseline status beside the
-  // ancestor SHA (ComparisonNamed / SlotSha).
+  // Intent locations so the Summary's comparison labels can name Baseline's
+  // status beside the ancestor SHA (ComparisonNamed's endpoint labels).
   publishSummaryComparisonTrunk(origin.project);
   return publishWithPlanningStart(page, origin, true);
 }

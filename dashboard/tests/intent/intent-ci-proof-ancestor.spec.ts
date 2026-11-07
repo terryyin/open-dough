@@ -15,11 +15,14 @@ import {
   runUrl,
 } from "../intentCiStatusPage.ts";
 import { intentLocationName } from "../intentPerspectivePage.ts";
+import { scopeFigures, summaryRegion } from "../intentScopeProofPage.ts";
 import {
-  evidenceLine,
-  scopeFigures,
-  summaryRegion,
-} from "../intentScopeProofPage.ts";
+  evidenceLabels,
+  expectAttemptAt,
+  expectAttemptLinked,
+  expectLeadingEvidenceLabels,
+  expectLabelInFull,
+} from "../ciEvidenceLabelsPage.ts";
 import {
   artifactId,
   expectProofRows,
@@ -104,13 +107,17 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     await expect(panel.locator(".intent-ci-state")).toHaveText(
       "Running at 70a0001 (Start the story)",
     );
-    await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-      "Attempt 2 of run 12 at d4e5f6a.",
+    await expectLeadingEvidenceLabels(evidenceLabels(proof), [
+      "Run 12 · attempt 2",
+      "Revision d4e5f6a",
+      "Completed ancestor",
+    ]);
+    await expectLabelInFull(
+      proof,
+      "Completed ancestor",
+      "The completed ancestor of the running result",
     );
-    await expect(proof.getByRole("link", { name: "run 12" })).toHaveAttribute(
-      "href",
-      mainRun,
-    );
+    await expectAttemptLinked(proof, "Run 12 · attempt 2", mainRun);
     await expectProofRows(proof, [checksRow]);
     await expect(proof).not.toContainText("70a0001");
     expect(proofCalls(calls).slice(before)).toEqual([
@@ -123,8 +130,16 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     const intent = parts(page).intent;
     await intentLocationName(intent, "tests").click();
     const summary = summaryRegion(intent);
-    await expect(evidenceLine(summary)).toHaveText(
-      `CI evidence: Attempt 2 of run 12 at d4e5f6a on ${running.branch}, the story branch of ${running.title}, the completed ancestor of the running result.`,
+    await expectLeadingEvidenceLabels(evidenceLabels(summary), [
+      "Run 12 · attempt 2",
+      "Revision d4e5f6a",
+      `Branch ${running.branch}`,
+      "Completed ancestor",
+    ]);
+    await expectLabelInFull(
+      summary,
+      `Branch ${running.branch}`,
+      `The story branch of ${running.title}`,
     );
     await expect(
       scopeFigures(summary, "tests").getByRole("definition"),
@@ -144,9 +159,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     // Kept answer shows the proof at once; wait for the fresh judgment so
     // the re-read's actions-runs are counted before asserting.
     await expectProofRows(proof, [checksRow]);
-    await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-      "Attempt 2 of run 12 at d4e5f6a.",
-    );
+    await expectAttemptAt(proof, "Run 12 · attempt 2", "d4e5f6a");
     await expect(panel.locator(".intent-ci-checking")).toHaveCount(0);
     await expect(panel.getByRole("status")).toContainText("Checked at");
     expect(

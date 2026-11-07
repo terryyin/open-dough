@@ -1,9 +1,11 @@
 // Summary of one judged CI proof for a selected entry or folder
 // (`./IntentScopeProof.tsx`): the scope's own figures above a sortable table
 // of its immediate children and, when the proof has a file breakdown, the
-// outside row (kept last) with its explanation.
+// outside row (kept last) with what it holds as short labels
+// (`./CiEvidenceLabels.tsx`); an entry without a file breakdown is labelled.
 
-import type { ReactNode } from "react";
+import { CircleHelp, FileQuestion, ListX } from "lucide-react";
+import { EvidenceLabels, type EvidenceLabel } from "./CiEvidenceLabels.tsx";
 import {
   CiProofTable,
   type CiProofSorting,
@@ -30,6 +32,9 @@ import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 
 const outsideRowLabel = "Not in the rows above";
 
+// What the outside row holds, as labels after the table: files the tree
+// does not list (named in full on hover), results CI could not place in a
+// file, and each part of the entry that published no file breakdown.
 function OutsideExplanation({
   entry,
   path,
@@ -40,56 +45,47 @@ function OutsideExplanation({
   readonly outside: ScopeOutside | undefined;
 }) {
   const noBreakdown = path === entry.path ? partsWithoutBreakdown(entry) : [];
-  const lines: ReactNode[] = [];
+  const labels: EvidenceLabel[] = [];
   if (outside !== undefined && outside.files.length > 0) {
-    const shown = outside.files.slice(0, 5);
-    lines.push(
-      <>
-        {outside.files.length === 1
-          ? "1 file this tree does not list"
-          : `${String(outside.files.length)} files this tree does not list`}
-        :{" "}
-        {shown.map((file, at) => (
-          <span key={file.path}>
-            {at > 0 && ", "}
-            <code>{file.path}</code>
-          </span>
-        ))}
-        {outside.files.length > shown.length
-          ? ` and ${String(outside.files.length - shown.length)} more`
-          : ""}
-      </>,
-    );
+    const count = outside.files.length;
+    const files = count === 1 ? "1 file" : `${String(count)} files`;
+    const shown = outside.files.slice(0, 5).map((file) => file.path);
+    const more =
+      count > shown.length ? ` and ${String(count - shown.length)} more` : "";
+    labels.push({
+      key: "files",
+      icon: FileQuestion,
+      name: `${files} not in the tree`,
+      full: `Not in the tree: ${shown.join(", ")}${more}`,
+    });
   }
   if (outside?.unassigned !== undefined) {
-    lines.push(<>results CI could not place in a file</>);
+    labels.push({
+      key: "unassigned",
+      icon: CircleHelp,
+      name: "Unplaced results",
+      full: "Results CI could not place in a file",
+    });
   }
-  if (noBreakdown.length > 0 && hasFileBreakdown(entry)) {
-    lines.push(
-      <>
-        {noBreakdown
-          .map(
-            (part) =>
-              `part ${String(part.part)} of ${String(entry.parts.length)}`,
-          )
-          .join(", ")}
-        , which published no file breakdown
-      </>,
-    );
+  if (hasFileBreakdown(entry)) {
+    for (const part of noBreakdown) {
+      const words = `Part ${String(part.part)} no breakdown`;
+      labels.push({
+        key: `part ${String(part.part)}`,
+        icon: ListX,
+        name: words,
+        full: `Part ${String(part.part)} of ${String(entry.parts.length)} published no file breakdown`,
+      });
+    }
   }
-  if (lines.length === 0) return null;
+  if (labels.length === 0) return null;
   return (
-    <p className="intent-summary-outside">
-      The figures of <code>{path}</code> include what no folder or file row
-      shows:{" "}
-      {lines.map((line, at) => (
-        <span key={at}>
-          {at > 0 && "; "}
-          {line}
-        </span>
-      ))}
-      .
-    </p>
+    <div className="intent-summary-outside">
+      <span className="intent-summary-outside-lead" aria-hidden="true">
+        {outsideRowLabel}:
+      </span>
+      <EvidenceLabels label={outsideRowLabel} labels={labels} />
+    </div>
   );
 }
 
@@ -141,10 +137,17 @@ export function SingleProofTable({
     <>
       <ScopeFigures path={path} cells={own} />
       {!breakdown && (
-        <p className="intent-summary-breakdown-absent">
-          Child breakdown unavailable: this CI proof summary does not break{" "}
-          <code>{entry.path}</code> down by file.
-        </p>
+        <EvidenceLabels
+          label="About these figures"
+          labels={[
+            {
+              key: "no breakdown",
+              icon: ListX,
+              name: "No file breakdown",
+              full: `This CI proof summary does not break ${entry.path} down by file`,
+            },
+          ]}
+        />
       )}
       <CiProofTable
         label={scopeTableLabel(path)}

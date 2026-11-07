@@ -32,12 +32,16 @@ folder summary names the selection by path and how many matching files the
 tree lists (a selected story's overlaid files included), gives an unusable
 location's explanation, and shows the CI proof that **CI status** shows, never
 local proof. With no story selected, it names
-that evidence once (attempt and run, revision, judged branch, a selected
-story's branch, a running result's completed ancestor), says when that
-judgment was previously retrieved rather than newly verified and any failed
-refresh, as **CI status** says it, and, when the tree shows another
-revision, says a file added or changed since has no CI result here or an
-earlier one. The selection's own figures (an entry's are its homepage row's,
+that evidence once as a strip of short labels, each beside an icon whose name
+the label carries, with the full words as the label's hover text and
+accessible description: a judgment previously retrieved rather than newly
+verified (`Previously retrieved at …`, as **CI status** says it) and any
+failed refresh (`Refresh failed`, its failure announced), the linked run and
+attempt (`Run 41 · attempt 2`), revision (`abc1234`), judged branch (`main`,
+described as a selected story's branch), `Completed ancestor` for a running
+result, and, when the tree shows another revision,
+`Tree at def5678 — newer files unproved here` (a file added or changed since
+has no CI result here, or an earlier one). The selection's own figures (an entry's are its homepage row's,
 checks outside the tree included) stand as a labelled group above the table,
 each under its column's name (**Counts**, **Test execution time**,
 **Parts**). One table in the homepage's columns (**Scope**, **Counts**,
@@ -45,7 +49,9 @@ each under its column's name (**Counts**, **Test execution time**,
 (named with a trailing `/`) and file in the browser's order, each summing the
 CI evidence published under its path, and, when the selection's figures hold
 files no child row covers (files the tree does not list) or results CI could
-not place in a file, a **Not in the rows above** row with a line naming them.
+not place in a file, a **Not in the rows above** row, its contents labelled
+after the table (`1 file not in the tree`, `Unplaced results`,
+`Part 2 no breakdown`; the files and parts in full on hover).
 The table's headers sort it as **CI status** Proof's do, **Scope** by the
 child's name; until one is activated the rows keep the browser's order, and
 **Not in the rows above** stays last under any sort while the group above
@@ -53,9 +59,13 @@ does not move. The sort is kept in memory with Intent's reading place, never
 on the URL or in storage: drilling down or switching to Development and
 back keeps it, and a sorted column the next
 Summary table lacks (a timing column or **Change** between one run's figures
-and a story comparison) gives way to the browser's order. With a story selected, the same Summary names that story's CI timing
-comparison (baseline, branch and landed, as **CI status** names them; Taken
-labelled provisional) and the observed-not-attributed statement; its group
+and a story comparison) gives way to the browser's order. With a story selected, the same Summary labels that story's CI timing
+comparison the same way: `Provisional` while the story is Taken; **Baseline**,
+**Branch** and **Landed**, each with the requested revision's status word
+(`Skipped`, `Cancelled`, `No build`) before the short revision whose proof is
+used, or a gap's word (`Not applicable`, `Not landed yet`), its full status as
+description; and `Observed, not attributed` for the observed-not-attributed
+statement; its group
 and table use **Baseline**, **Branch** and **Landed** for precise times with signed
 differences, shows counted-results differences in **Counts** (a gap endpoint
 shows its gap, not a difference), names each child's story change in a
@@ -74,7 +84,7 @@ CI has no result for says **no CI result**; a scope with an untimed test, a
 missing or ambiguous part, or a part whose report published no file breakdown
 has partial timing shown as short gap labels (`Part 3 missing`,
 `Part 2 no breakdown`, `1 test untimed`), in the group as in the rows; an entry-only summary keeps the entry's totals
-and says the child breakdown is unavailable. Without usable proof, the rows
+and is labelled `No file breakdown`. Without usable proof, the rows
 stay for drilling down, the group and rows say why in a word or two
 (`checking`, `no CI proof`), and one line says why, as the homepage does. The
 summary drills down: a child's name selects that folder or file as its tree
@@ -95,7 +105,8 @@ selected it offers **Purpose** and **Proof** tabs (Purpose first; kept across
 file selections in the same Intent visit), and with a location or folder its
 summary. Purpose is the published source or selected story's source diff; Proof
 is that file's published CI evidence from Intent's one evidence owner
-(judged-run results, or a story's baseline / branch / landed comparison).
+(judged-run results, or a story's baseline / branch / landed comparison),
+under the Summary's evidence labels.
 Directly activating the **Intent** tab (click, Enter or Space), even while already
 chosen, returns home: selection clears and CI status shows for the same story;
 expansion and reading choices stay. No separate return control.
@@ -169,10 +180,12 @@ running, and when it was checked. History without a result and trunk history
 GitHub answers `404` for are **Could not be read** with the reason. Only
 story branches can be called no longer published. Below
 the judgment, **Proof** shows the CI proof of that run (for a running result,
-the completed ancestor's): revision, link and attempt once (a `ciAdapter`
-attempt named by its `attemptId`) with that attempt's **CI wall time** from
-its start and completion (not recorded, with why, when either is absent),
-then a table with one row per declared Intent location `path`, in
+the completed ancestor's) as short labels once: the linked run and attempt
+(`Run 41 · attempt 2`, or a `ciAdapter` attempt's `Attempt <attemptId>`), the
+revision, `Completed ancestor` for a running result, and that attempt's
+**CI wall time** from its start and completion (`CI wall time 3 min`, or
+`CI wall time not recorded` with why as its description when either is
+absent), then a table with one row per declared Intent location `path`, in
 declaration order, under the columns **Entry**, **Counts** (passed, failed
 and other with the runner's unit, tests or checks), **Test execution time**
 (the entry's summed durations: measured, a measured zero reading `0 ms`;

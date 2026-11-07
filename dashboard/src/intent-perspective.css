@@ -197,21 +197,12 @@
 }
 
 /* A Summary's lines around its CI proof table (./IntentSummary.tsx,
-   ./IntentScopeProof.tsx). */
+   ./IntentScopeProof.tsx); its evidence labels keep their own spacing
+   (./ci-evidence-labels.css). */
 .intent-summary-path,
 .intent-summary-files,
-.intent-summary-kept,
-.intent-summary-evidence,
-.intent-summary-evidence-absent,
-.intent-summary-revision,
-.intent-summary-breakdown-absent,
-.intent-summary .intent-ci-refresh-failed,
-.intent-summary-outside {
+.intent-summary-evidence-absent {
   margin: 0 0 var(--space-2);
-}
-
-.intent-summary-outside {
-  margin-top: var(--space-2);
 }
 
 /* The selected scope's own figures above its table

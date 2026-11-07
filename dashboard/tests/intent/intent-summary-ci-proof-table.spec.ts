@@ -2,11 +2,16 @@
 // file breakdown (../../src/IntentScopeProof.tsx, ../../src/ciScopeProof.ts,
 // ../intentSummaryCiProofFixtures.ts): a file CI ran that the tree does not
 // list counts once, in a listed folder's row, and outside only in that
-// folder's own Summary; and the scope's own figures and the table fit a
-// zoomed or narrow window. The Summary's journey:
+// folder's own Summary; and the evidence labels, the scope's own figures and
+// the table fit a zoomed or narrow window. The Summary's journey:
 // ./intent-summary-ci-proof.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
+import {
+  evidenceLabels,
+  expectEvidenceLabels,
+  expectLabelInFull,
+} from "../ciEvidenceLabelsPage.ts";
 import { run } from "../intentCiProofPage.ts";
 import {
   childName,
@@ -69,8 +74,12 @@ test("a CI file the tree does not list under a listed folder counts once, in tha
     ["b.spec.ts", "no CI result", "no CI result", one],
     ["Not in the rows above", "1 passed tests", "100 ms", one],
   ]);
-  await expect(summary.locator(".intent-summary-outside")).toHaveText(
-    "The figures of dashboard/tests/folder include what no folder or file row shows: 1 file this tree does not list: dashboard/tests/folder/old.spec.ts.",
+  const outside = evidenceLabels(summary, "Not in the rows above");
+  await expectEvidenceLabels(outside, ["1 file not in the tree"]);
+  await expectLabelInFull(
+    outside,
+    "1 file not in the tree",
+    "Not in the tree: dashboard/tests/folder/old.spec.ts",
   );
 });
 
@@ -95,7 +104,7 @@ test("at 200% zoom and on a narrow window a folder's Summary figures and table r
   // A wider installed font lays the Summary out as Linux's fallback font does.
   await page.addStyleTag({
     content:
-      ".intent-ci-proof-box, .intent-scope-figures { font-family: Verdana, sans-serif; }",
+      ".intent-ci-proof-box, .intent-scope-figures, .intent-evidence-labels { font-family: Verdana, sans-serif; }",
   });
   const table = scopeTable(summary, "dashboard/tests");
   const box = summary.locator(".intent-proof-table");
@@ -129,5 +138,7 @@ test("at 200% zoom and on a narrow window a folder's Summary figures and table r
     expect(
       await wordsBrokenApart(scopeFigures(summary, "dashboard/tests"), "dd"),
     ).toEqual([]);
+    // The evidence labels above wrap whole labels and words, never letters.
+    expect(await wordsBrokenApart(evidenceLabels(summary), "li")).toEqual([]);
   }
 });

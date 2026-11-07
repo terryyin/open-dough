@@ -16,6 +16,7 @@ import {
   type ComparisonScopeRow,
 } from "../intentScopeProofPage.ts";
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
+import { anyComparisonLabels } from "../ciEvidenceLabelsPage.ts";
 
 export async function selectDoneStoryForSummaryComparison(
   page: Page,
@@ -48,7 +49,7 @@ export async function selectDoneStoryForSummaryComparison(
 
 export async function openSummaryComparison(intent: Locator, location: string) {
   const summary = await openSummary(intent, location);
-  await expect(summary.locator(".intent-summary-evidence")).toBeVisible({
+  await expect(anyComparisonLabels(summary)).toBeVisible({
     timeout: readWaitLimitMs + 15_000,
   });
   await expect(summary.locator(".intent-ci-reading")).toHaveCount(0, {

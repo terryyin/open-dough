@@ -1,15 +1,21 @@
 // A selected Intent entry's Summary when Intent's CI judgment is previously
 // retrieved, not newly verified (../../src/IntentScopeEvidence.tsx,
 // ../../src/IntentCiJudgedBranch.tsx, ../intentSummaryCiProofFixtures.ts): after
-// a failed refresh the Summary says when its judgment was retrieved and shows
-// the failure in the homepage's own words. The Summary's journey:
+// a failed refresh the Summary's evidence labels say when its judgment was
+// retrieved and that the refresh failed, announcing the failure in the
+// homepage's own words. The Summary's journey:
 // ./intent-summary-ci-proof.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
 import { httpErrorAnswer } from "../originAnswers.ts";
 import { activateIntentHome } from "../intentCiStatusPage.ts";
 import { expectProofRows, proofOf } from "../intentCiProofPage.ts";
-import { evidenceLine } from "../intentScopeProofPage.ts";
+import {
+  evidenceLabel,
+  evidenceLabels,
+  expectEvidenceLabels,
+  expectLabelInFull,
+} from "../ciEvidenceLabelsPage.ts";
 import {
   allParts,
   ancestorEvidence,
@@ -39,8 +45,7 @@ test("a Summary qualifies a previously retrieved judgment and its failed refresh
   ]);
   await expect(home.getByRole("status")).toContainText("Checked at");
   const freshSummary = await openSummary(intent, "tests");
-  await expect(evidenceLine(freshSummary)).toHaveText(ancestorEvidence);
-  await expect(freshSummary.locator(".intent-summary-kept")).toHaveCount(0);
+  await expectEvidenceLabels(evidenceLabels(freshSummary), ancestorEvidence);
   await expect(freshSummary.getByRole("alert")).toHaveCount(0);
 
   await activateIntentHome(intent);
@@ -58,11 +63,23 @@ test("a Summary qualifies a previously retrieved judgment and its failed refresh
   const failure = (await home.getByRole("alert").textContent()) ?? "";
 
   const summary = await openSummary(intent, "tests");
-  await expect(summary.locator(".intent-summary-kept")).toHaveText(kept);
-  await expect(summary.locator(".intent-summary-kept time")).toHaveAttribute(
+  // Short labels lead the evidence: when it was retrieved, in the homepage's
+  // words, and that the refresh failed, its failure announced in full.
+  const keptLabel = kept.replace(/\.$/, "");
+  await expectEvidenceLabels(evidenceLabels(summary), [
+    keptLabel,
+    "Refresh failed",
+    ...ancestorEvidence,
+  ]);
+  const retrieved = evidenceLabel(summary, keptLabel);
+  await expect(retrieved).toHaveText(kept);
+  await expect(retrieved).toHaveAccessibleDescription(
+    "Previously retrieved, not newly verified",
+  );
+  await expect(retrieved.locator("time")).toHaveAttribute(
     "datetime",
     keptAt ?? "",
   );
+  await expectLabelInFull(summary, "Refresh failed", failure);
   await expect(summary.getByRole("alert")).toHaveText(failure);
-  await expect(evidenceLine(summary)).toHaveText(ancestorEvidence);
 });

@@ -30,11 +30,8 @@ import {
   type SummaryChild,
 } from "./ciScopeProof.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
-import {
-  EvidenceKept,
-  EvidenceNamed,
-  scopeEvidenceOf,
-} from "./IntentScopeEvidence.tsx";
+import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
+import { EvidenceKept, EvidenceNamed } from "./IntentScopeEvidenceLabels.tsx";
 import {
   ComparisonNamed,
   ComparisonTable,

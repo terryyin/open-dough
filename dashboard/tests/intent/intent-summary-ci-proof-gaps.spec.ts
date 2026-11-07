@@ -3,12 +3,18 @@
 // ../../src/ciScopeProof.ts, ../intentSummaryCiProofFixtures.ts): a missing
 // shard and a shard without a file breakdown keep the entry's totals and
 // leave every child partial with short gap labels whose full explanation is
-// the cell's accessible description and hover, an entry-only summary labels the child
-// breakdown unavailable, and a run without a summary keeps the children for
+// the cell's accessible description and hover, an entry-only summary is
+// labelled as having no file breakdown, and a run without a summary keeps the children for
 // drilling down, saying why as the homepage does. Complete evidence:
 // ./intent-summary-ci-proof.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
+import {
+  evidenceLabel,
+  evidenceLabels,
+  expectEvidenceLabels,
+  expectLabelInFull,
+} from "../ciEvidenceLabelsPage.ts";
 import { proofOf, run } from "../intentCiProofPage.ts";
 import {
   childName,
@@ -98,8 +104,13 @@ test("a missing shard and a shard without a file breakdown keep the entry's tota
   await expect(timeCell(0)).toHaveAttribute("title", folderWhy);
   // No CI result is its own word, with no partial explanation.
   await expect(timeCell(1)).toHaveAccessibleDescription("");
-  await expect(summary.locator(".intent-summary-outside")).toHaveText(
-    "The figures of dashboard/tests include what no folder or file row shows: part 2 of 3, which published no file breakdown.",
+  // What the figures hold beyond the rows, as a short label.
+  const outside = evidenceLabels(summary, "Not in the rows above");
+  await expectEvidenceLabels(outside, ["Part 2 no breakdown"]);
+  await expectLabelInFull(
+    outside,
+    "Part 2 no breakdown",
+    "Part 2 of 3 published no file breakdown",
   );
 });
 
@@ -110,8 +121,10 @@ test("an entry-only summary keeps entry totals and labels the child breakdown un
   expect(text).not.toContain('"files"');
   const { intent } = await openIntent(page, () => summaryTextZipAnswer(text));
   const summary = await openSummary(intent, "tests");
-  await expect(summary.locator(".intent-summary-breakdown-absent")).toHaveText(
-    "Child breakdown unavailable: this CI proof summary does not break tests down by file.",
+  const absent = evidenceLabel(summary, "No file breakdown");
+  await expect(absent).toHaveText("No file breakdown");
+  await expect(absent).toHaveAccessibleDescription(
+    "This CI proof summary does not break tests down by file",
   );
   await expectScopeRows(summary, "tests", [
     ["tests", "2 passed checks", "3.0 s", "1 of 1 part present"],

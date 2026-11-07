@@ -9,6 +9,7 @@
 // ../../../tests/support/dashboard-ci-adapter-proof.test.mjs.
 
 import { expect, test } from "../dashboardTest.ts";
+import { expectAttemptAt } from "../ciEvidenceLabelsPage.ts";
 import {
   adapterProject,
   type Answers,
@@ -84,9 +85,7 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
       } else await expect(reason).toHaveText([line]);
       expect(adapter.proofRequests()).toHaveLength(index + 1);
       await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
-      await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-        "Attempt 2 at 4774f60.",
-      );
+      await expectAttemptAt(proof, "Attempt 2", "4774f60");
       await expectNoProofRows(proof);
       await expect(proof).not.toContainText(/failed|passed/i);
     });
@@ -115,9 +114,7 @@ test("a retried adapter attempt shows the retry's verdict and proof, and Check a
   const { panel, proof } = await openAdapterProof(page);
 
   await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
-  await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-    "Attempt 2 at 4774f60.",
-  );
+  await expectAttemptAt(proof, "Attempt 2", "4774f60");
   await expectProofRows(proof, [testsRow]);
 
   // A later adapter answer for another attempt is ignored: the valid summary
@@ -182,9 +179,7 @@ test("an adapter attempt whose attemptId another discovered attempt shares at it
       const { panel, proof } = await openAdapterProof(page);
 
       await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
-      await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-        "Attempt 1 at 4774f60.",
-      );
+      await expectAttemptAt(proof, "Attempt 1", "4774f60");
       await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText([
         ambiguous,
       ]);

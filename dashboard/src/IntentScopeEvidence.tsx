@@ -2,24 +2,17 @@
 // (`./IntentScopeProof.tsx`) or a selected file's Proof
 // (`./IntentFileProof.tsx`) names, from Intent's one CI evidence owner
 // (`./IntentCiEvidence.tsx`): the summary of a named attempt -- the attempt,
-// its revision and the judged branch, and when the tree shows another
-// revision, that a file added or changed since has no result or an earlier
-// one -- or a selected story's CI comparison endpoints with each endpoint's
-// proof summary already held by the owner -- or the one line saying why
-// there is none, as the homepage says it (`./useIntentCiShownProof.ts`).
-// Either way, a judgment previously retrieved, not newly verified, and a
-// failed refresh beside it are said in the homepage's words
-// (`./IntentCiJudgedBranch.tsx`).
+// its revision, the judged branch and whether it is a running result's
+// completed ancestor -- or a selected story's CI comparison endpoints with
+// each endpoint's proof summary already held by the owner -- or the one line
+// saying why there is none, as the homepage says it
+// (`./useIntentCiShownProof.ts`). Either way, a judgment previously
+// retrieved, not newly verified, and a failed refresh beside it are kept
+// (`./IntentCiJudgedBranch.tsx`). Its labels: `./IntentScopeEvidenceLabels.tsx`.
 
 import type { ReactNode } from "react";
-import { shortSha } from "./baseCiWording.ts";
 import type { CiEvidence } from "./IntentCiEvidence.tsx";
-import {
-  PreviouslyRetrieved,
-  previouslyRetrievedAt,
-  RefreshFailed,
-} from "./IntentCiJudgedBranch.tsx";
-import { AttemptName } from "./IntentCiProof.tsx";
+import { previouslyRetrievedAt } from "./IntentCiJudgedBranch.tsx";
 import type { ShownCiProofRun } from "./shownCiProofRun.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
@@ -168,55 +161,4 @@ export function scopeEvidenceOf(evidence: CiEvidence): ScopeEvidence {
     ancestor: shown.state === "running",
     ...kept,
   };
-}
-
-// That the evidence is a previously retrieved judgment, and any failed
-// refresh beside it, as the homepage says it; nothing when newly verified.
-export function EvidenceKept({
-  kept,
-}: {
-  readonly kept: KeptEvidence | undefined;
-}) {
-  if (kept === undefined) return null;
-  return (
-    <>
-      <p className="intent-summary-kept">
-        <PreviouslyRetrieved checkedAt={kept.checkedAt} />
-      </p>
-      {kept.refreshFailed !== undefined && (
-        <RefreshFailed failure={kept.refreshFailed} />
-      )}
-    </>
-  );
-}
-
-// The named evidence: "CI evidence: Attempt 2 of run 41 at abc1234 on main,
-// the completed ancestor of the running result.", and when the tree shows
-// another revision, what that leaves unproved.
-export function EvidenceNamed({
-  evidence,
-  revision,
-}: {
-  readonly evidence: Extract<ScopeEvidence, { kind: "summary" }>;
-  readonly revision: string;
-}) {
-  const { run, branch, story, ancestor, kept } = evidence;
-  return (
-    <>
-      <EvidenceKept kept={kept} />
-      <p className="intent-summary-evidence">
-        CI evidence: <AttemptName run={run} /> at{" "}
-        <code>{shortSha(run.revision)}</code> on <code>{branch}</code>
-        {story === undefined ? "" : `, the story branch of ${story}`}
-        {ancestor ? ", the completed ancestor of the running result" : ""}.
-      </p>
-      {run.revision !== revision && (
-        <p className="intent-summary-revision">
-          This evidence is of <code>{shortSha(run.revision)}</code>; the tree
-          shows <code>{shortSha(revision)}</code>. A file added or changed since
-          has no CI result here, or an earlier one.
-        </p>
-      )}
-    </>
-  );
 }
