@@ -35,8 +35,6 @@ import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { idleBetweenSteps } from "../support/markDone.ts";
 
-test.setTimeout(120_000);
-
 test.use({ projectFolders: ["open-dough"] });
 
 test.describe("deleting a Recently done entry's record", () => {

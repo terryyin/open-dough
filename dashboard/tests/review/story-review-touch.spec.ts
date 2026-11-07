@@ -3,8 +3,6 @@ import { test } from "../support/preparationPage.ts";
 import { chooseComparisonAndKeepContextThroughTouch } from "../support/storyReviewTouchJourney.ts";
 import { launchTouchViewports } from "../touchLaunchPage.ts";
 
-test.setTimeout(120_000);
-
 for (const { name, portrait, landscape } of launchTouchViewports) {
   test.describe(`${name} review by touch`, () => {
     test.use({ viewport: portrait, hasTouch: true, reducedMotion: "reduce" });

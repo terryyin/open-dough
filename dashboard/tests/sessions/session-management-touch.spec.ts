@@ -49,7 +49,6 @@ test.describe(`${name} session management`, () => {
     dashboard,
     origin,
   }) => {
-    test.setTimeout(180_000);
     const ordinary = await launchedStory(
       dashboard,
       origin,

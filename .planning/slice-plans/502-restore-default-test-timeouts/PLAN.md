@@ -212,11 +212,27 @@ workers 72/72, and the launches, sessions and observation family 572/572.
 ### 5. Session and layout checks observe geometry and restored state directly
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Run the affected session, sidebar and frontend layout families. Retain
 geometry, scrolling, resize, keyboard and reload observations at the relevant
 viewport branches. Measure the 37.256s restored split and 30.086s shared-room
 examples and their setup. Reuse observable page state to remove elapsed waits.
+
+Result: all eleven overrides removed, including four file-level ones; no
+allowance remains. The costs were not elapsed waits. The control
+reachability check now measures every control in one browser call, using the
+same visibility and native scroll-if-needed rules (`controlReachability.ts`).
+`session-attribution` builds its shared preparing origin in a `beforeAll`,
+where the 8.9s hook cost stays visible. Local times, before → after: restored
+split 12.3 → 3.2s, shared room 8.5 → 3.9s, layout 5.4 → 3.0s, attribution
+case 15.3 → 6.4s. Setting the sidebar's overflow to hidden failed the
+reachability assertion with the clipped controls listed. Runs: 14/14; 8
+workers `--repeat-each 3` 42/42; the reachability consumers 78/78; the rest of
+the families 56/56. `agent-launch-story-card-sessions` keeps the thinnest
+hosted margin, 25.2–25.3s with no elapsed wait. Slice 10 confirms it at the
+hosted gate and repairs it if it fails. The final inventory also
+owns the elapsed 300ms sleep at
+`session-workspace-retirement-claude-done.spec.ts:50`.
 
 ### 6. Dashboard deployment proves pinned serving and clean replacement
 

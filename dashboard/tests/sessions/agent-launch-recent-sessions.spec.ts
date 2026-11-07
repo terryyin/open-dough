@@ -40,8 +40,6 @@ import {
   markDoneAnyway,
 } from "../support/markDone.ts";
 
-test.setTimeout(120_000);
-
 test.use({
   projectFolders: ["open-dough", "doughnut"],
   extraEnv: briefDoneRenameWait,

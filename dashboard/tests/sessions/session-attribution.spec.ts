@@ -13,17 +13,26 @@ import {
 import { openSessionAttributionBoard } from "../support/sessionAttributionFixture.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
-import { storyA, storyC } from "../preparingJourney.ts";
+import {
+  publishPreparingJourney,
+  storyA,
+  storyC,
+} from "../preparingJourney.ts";
 import { authenticatedReadRoute } from "../holdAuthenticatedReads.ts";
 
 test.use({ projectFolders: ["open-dough"] });
+
+// Publishing the journey runs every production preparation command against a
+// local origin, once per worker; the board below reads it.
+test.beforeAll(async () => {
+  await publishPreparingJourney();
+});
 
 test("a retained session keeps its allocation credit after release and a later preparation, and preserves known facts when history is missing", async ({
   page,
   dashboard,
   afterGitHubStops,
 }) => {
-  test.setTimeout(120_000);
   const {
     journey,
     reused,

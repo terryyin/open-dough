@@ -28,7 +28,6 @@ test("an unusable kept height starts at an equal share, is not replaced by expan
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const errors = watchPageErrors(page);
   const { shown, heldRows, expectNothingChanged } = await expandCrowded(
     page,

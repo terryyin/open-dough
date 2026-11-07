@@ -60,10 +60,6 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     page,
     dashboard,
   }) => {
-    // This multi-reload journey needs its own bound so runner variance cannot
-    // cut it at Playwright's default 30s mid-settled wait (same pattern as
-    // open-session).
-    test.setTimeout(120_000);
     dashboard.claudeScenario("launched");
     const { action, settled, show, launch } = await openStoryColumnsJourney(
       page,
