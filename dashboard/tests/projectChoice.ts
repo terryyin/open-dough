@@ -58,12 +58,20 @@ export async function expectProjectChoice(
   ).toBeVisible(options);
 }
 
+const defaultVisibleProjectLabels = [
+  "Open Dough",
+  "Doughnut",
+  "Pygardon",
+  "Terry Talks",
+] as const;
+
 // Compact title select when the tabs do not fit: tabs are gone, the title control
 // names the project, and Escape leaves the list without a choice while
 // keeping focus on the control.
 export async function expectCompactProjectSelect(
   page: Page,
   label: string,
+  options: readonly string[] = defaultVisibleProjectLabels,
 ): Promise<void> {
   const { project, projectCompact, projectCompactList } = parts(page);
   await expect(project).toHaveCount(0);
@@ -71,12 +79,7 @@ export async function expectCompactProjectSelect(
   await expect(projectCompact).toHaveText(label);
   await projectCompact.click();
   await expect(projectCompactList).toBeVisible();
-  await expect(projectCompactList.getByRole("option")).toHaveText([
-    "Open Dough",
-    "Doughnut",
-    "Pygardon",
-    "Terry Talks",
-  ]);
+  await expect(projectCompactList.getByRole("option")).toHaveText(options);
   await expect(
     projectCompactList.getByRole("option", { selected: true }),
   ).toHaveText(label);

@@ -115,12 +115,10 @@ sidebar.
 
 ### 2. Opening a hidden project's session does not restore Board selection
 Type: Behavior
-Status: planned
-Proof: Focused Playwright journey extending the session + Sessions sidebar
-pattern from `project-remove.spec.ts`: hide a project that has an open/saved
-session, confirm the session can still appear in the sidebar, open it, and
-assert tabs/compact selector and Board/Intent stay without that project until
-it is shown again. Same local gate shape as slice 1.
+Status: done
+Proof:
+- `npm run typecheck:dashboard` (pass)
+- `npm run test:dashboard -- tests/configuration/project-hide.spec.ts tests/configuration/project-hide-sessions.spec.ts tests/navigation/dashboard-header.spec.ts tests/navigation/dashboard-header-compact.spec.ts` (pass)
 
 Behavior: A configured project has an open session and is then hidden → the
 session may remain listed in the Sessions sidebar → choosing it opens the

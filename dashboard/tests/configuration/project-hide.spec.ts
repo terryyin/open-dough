@@ -95,13 +95,7 @@ test("hiding a project removes it from tabs, compact selector and cycling while 
   await expectProjectChoice(page, "Open Dough");
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const { projectCompact, projectCompactList } = parts(page);
-  await expect(projectCompact).toBeVisible();
-  await projectCompact.click();
-  await expect(projectCompactList.getByRole("option")).toHaveText(
-    visibleWithoutDoughnut,
-  );
-  await page.keyboard.press("Escape");
+  await expectCompactProjectSelect(page, "Open Dough", visibleWithoutDoughnut);
   await page.setViewportSize({ width: 1280, height: 720 });
 
   await reloadUntilRead(page);
