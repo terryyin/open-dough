@@ -2,8 +2,9 @@
 // (`./IntentCiEvidence.tsx`), through `./authenticatedIntentCiComparisonRead.ts`.
 // A done story is read once per identity while active; a Taken story re-reads
 // when the observed tip (`head`) moves after the first observation, matching
-// the judged-branch head trigger. Completed done answers are immutable on the
-// server; Taken answers are never remembered past a head change.
+// the judged-branch head trigger. Final done answers are remembered on the
+// server; answers with anything unavailable are read afresh on the next read,
+// and Taken answers are never remembered past a head change.
 
 import { useEffect, useState } from "react";
 import { readIntentCiComparison } from "./authenticatedIntentCiComparisonRead.ts";

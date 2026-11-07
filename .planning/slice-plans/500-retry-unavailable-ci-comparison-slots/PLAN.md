@@ -2,6 +2,7 @@
 
 **Identity:** SEED-118#retry-unavailable-ci-comparison-slots
 **Source:** [Retry unavailable CI comparison slots](../../seeds/SEED-118-dashboard-reading-reliability.md#retry-unavailable-ci-comparison-slots)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -21,7 +22,7 @@ cooldown and demand admission.
 
 | Promise (seed) | Owner | Proof |
 | --- | --- | --- |
-| An answer with an `unavailable` slot or an `unavailable` whole answer is not final; any other done answer still is (finality rule; examples 3, 4 rule part, 5) | Slice 1 | Unit proof in `tests/support/dashboard-later-trunk-landed.test.mjs` (or a sibling unit test beside it) of `isImmutableCiComparisonAnswer`: each of Baseline, Branch and Landed `unavailable` → false, whole-answer `unavailable` → false, a final `none`/`not-applicable` answer → true, existing running and awaiting cases unchanged |
+| An answer with an `unavailable` slot or an `unavailable` whole answer is not final; any other done answer still is (finality rule; examples 3, 4 rule part, 5) | Slice 1 | Unit proof in `tests/support/dashboard-later-trunk-landed.test.mjs` (or a sibling unit test beside it) of `isFinalCiComparisonAnswer`: each of Baseline, Branch and Landed `unavailable` → false, whole-answer `unavailable` → false, a final `none`/`not-applicable` answer → true, existing running and awaiting cases unchanged |
 | A failed first listing recovers on the next read of the same process; a final answer is reused with no further listings (examples 1 read part, 2) | Slice 1 | New Playwright spec `dashboard/tests/intent/intent-ci-comparison-retry.spec.ts`: Baseline `head_sha` listing answers `noConnection` once, then a run; the first selection shows Baseline unavailable with its reason; a reload of the page shows the Baseline build; a further reload makes no further Baseline listing (counted in the answerer) |
 | **Check again** on a done comparison, worded and placed as the judged branch's, disabled while reading; re-reads the comparison and the endpoint proofs it shows; also present after a whole-answer unavailable and after a failed read (examples 1, 2 Check again part, 4 UI part, 5) | Slice 2 | Same spec: after the failed first read, **Check again** (by role and name) shows the Baseline build and the before → after summary without a reload; **Check again** on the now final answer adds no Baseline listing; while the listing keeps failing each **Check again** shows the unavailable reason again; the existing unrecoverable-history journey in `intent-ci-comparison.spec.ts` sees **Check again** beside the whole-answer explanation |
 | Request accounting and Intent documentation describe the rule truthfully | Slice 1 (accounting), slice 2 (Check again wording) | [GitHub request accounting](../../../dashboard/GITHUB-REQUESTS.md) CI timing comparison paragraph and [CI timing comparison](../../../docs/dashboard-development-intent-ci-comparison.md) reread against the shipped behavior at each slice |
@@ -31,7 +32,7 @@ The new spec sets no test, file or group timeout and uses no `test.slow()`
 expectation bounds and observable panel states only.
 
 Consumers of the changed rule, found by searching
-`isImmutableCiComparisonAnswer`, `rememberCiComparisonAnswer` and
+`isFinalCiComparisonAnswer`, `rememberCiComparisonAnswer` and
 `useIntentCiComparison`: `dashboard/server/intentCiComparisonRead.ts`,
 `dashboard/src/IntentCiEvidence.tsx`, `dashboard/src/IntentCiStatus.tsx`,
 `dashboard/src/IntentCiComparison.tsx`, and
@@ -60,7 +61,7 @@ applies as written.
 | Premise | Consuming operation | Observation | Result |
 | --- | --- | --- | --- |
 | A failed first endpoint listing is remembered and a later read in the same process does not recover it; the done comparison has no **Check again** | Slices 1–2 (the symptom) | 2026-11-07 at `ab156df67`, this worktree after `node scripts/setup-native.mjs npm`, `browser`, `check`: a scratch spec built like the Trunk Mode journey in `intent-ci-comparison-gaps.spec.ts`, its `serveActions` answerer returning `noConnection` for the first Baseline `head_sha` listing, run with the Local gates command; selected, counted **Check again** buttons, reselected after `page.goto("/")` | Baseline showed "… runs?head_sha=… failed: GitHub is unreachable"; 0 **Check again** buttons; after reload Baseline still unavailable and the Baseline listing count stayed 1 |
-| Treating `unavailable` slots and whole answers as not final makes the next read list afresh and recover | Slice 1 | Same spec and revision with a scratch edit of `isImmutableCiComparisonAnswer` (whole-answer → false; `slot.kind !== "unavailable"` added), then reverted | After reload Baseline showed run 200 passed; Baseline listing count rose to 3. The scratch spec and edit were removed; `git status` showed only the seed |
+| Treating `unavailable` slots and whole answers as not final makes the next read list afresh and recover | Slice 1 | Same spec and revision with a scratch edit of `isFinalCiComparisonAnswer` (whole-answer → false; `slot.kind !== "unavailable"` added), then reverted | After reload Baseline showed run 200 passed; Baseline listing count rose to 3. The scratch spec and edit were removed; `git status` showed only the seed |
 | The fixture can fail and restore one endpoint's listing within one test | Slices 1–2 proof | Same observation: `CommittedOrigin.serveActions` answerer with `noConnection` from `dashboard/tests/originAnswers.ts` | Confirmed |
 | `useIntentCiComparison` re-reads when its `check` counter changes, so a Check again can reuse it | Slice 2 | Code read at `ab156df67`: the effect depends on `[source, identity, check]`; `check` is bumped only on a Taken head change today | Confirmed by code; slice 2's spec is the behavior proof |
 | The Intent CI comparison family and the rule's unit test pass locally as the proof route | Every slice's gate | 2026-11-07 21:28, this worktree at `ab156df67`: the Local gates Playwright command over `dashboard/tests/intent/*ci-comparison*.spec.ts` under `caffeinate -s -i` on AC power; `bash scripts/test.sh tests/support/dashboard-later-trunk-landed.test.mjs` | 42 passed in 2.7 min (load 5–10, 2 workers); unit test quiet pass, exit 0 |
@@ -69,7 +70,7 @@ No premise is left open.
 
 ## Current decisions
 
-- One finality rule owns remembering: `isImmutableCiComparisonAnswer` in
+- One finality rule owns remembering: `isFinalCiComparisonAnswer` in
   `dashboard/server/intentCiComparisonAnswers.ts` returns false for any
   `unavailable` slot and for the whole-answer `unavailable`; no separate
   retry cache or per-slot memory is added.
@@ -84,7 +85,7 @@ No premise is left open.
 
 ### 1. An unavailable comparison is read again
 Type: Behavior
-Status: planned
+Status: done
 Proof: as mapped above for the finality rule and the reload journey.
 
 Behavior: a done story whose Baseline (or Branch, Landed, or whole
@@ -107,9 +108,25 @@ recovered slot shows its build, a final answer returns with no further
 GitHub requests, and a still-failing read shows its reason again. Intent's
 CI timing comparison documentation names the button and when it reads.
 
+## Accepted proof
+
+- Slice 1 (2026-11-07): `bash scripts/test.sh tests/support/dashboard-later-trunk-landed.test.mjs`
+  ("an answer with anything unavailable is read again; a final gap is
+  remembered") passed; new `intent-ci-comparison-retry.spec.ts` passed and
+  failed at the second read against the old rule; the Intent CI comparison
+  family passed 43/43 in 2.9 min under `caffeinate -s -i` on AC power;
+  `npm run typecheck:dashboard` and `npm run lint` passed. Refactor renamed
+  the rule to `isFinalCiComparisonAnswer` (unit test, typecheck and lint
+  rerun). Branch/Landed and whole-answer recovery rest on the shared rule's
+  unit proof; slice 2's whole-answer journey adds a browser observation.
+
 ## Learnings
 
-None yet.
+- `selectDoneStoryForCiComparison` starts with `page.goto("/")`, so calling
+  it again is the reload; the retry journey runs in about 8 s within the
+  default timeout.
+- GITHUB-REQUESTS.md already names **Check again** among the comparison's
+  re-read triggers; slice 2 makes that true for a done comparison.
 
 ## Refinement review
 

@@ -83,10 +83,13 @@ remembered by repository, run and attempt for the process's lifetime, so the pag
 later proof read of the chosen build asks GitHub nothing again; an attempt without a
 valid summary is asked again when the page reads it. Opening the comparison, changing
 the selected story, or **Check again** re-reads the slots; unchanged remembered answers
-cost no further requests. A done answer is not remembered while an endpoint is running or
-a cancelled landing's forward walk stopped at a running build or the trunk head, so each
-such selection walks and lists those revisions again (proof reads of builds already
-holding a valid summary still ask nothing).
+cost no further requests. A done answer is not remembered while an endpoint is running,
+a cancelled landing's forward walk stopped at a running build or the trunk head, or
+Baseline, Branch or Landed is unavailable, so each such selection walks and lists every
+endpoint's revisions again (proof reads of builds already holding a valid summary still ask
+nothing). A whole comparison that is unavailable is not remembered either: each selection
+reads the story's published history again, and lists every endpoint again once that
+history reads.
 
 A story CI timing comparison also adds one jobs request per 100 jobs for
 each newly shown completed GitHub Actions attempt with a readable workflow

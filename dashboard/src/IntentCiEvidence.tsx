@@ -14,8 +14,9 @@
 // when the page's revision check finds the judged branch at a new head (the
 // head `./intentCiTarget.ts` gives), and on Check again, and its proof
 // (`./useIntentCiShownProof.ts`) with each judgment; nothing is read while
-// it is not active. A done-story comparison is read once and remembered; a
-// Taken comparison re-reads when the observed tip moves.
+// it is not active. A done-story comparison is read on each selection and
+// remembered once final; a Taken comparison re-reads when the observed tip
+// moves.
 
 import { createContext, useContext, type ReactNode } from "react";
 import { ciTargetOf, type CiTarget } from "./intentCiTarget.ts";

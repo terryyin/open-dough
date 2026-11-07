@@ -127,8 +127,8 @@ export const storyCiComparisonAnswerSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("comparison"),
     identity: z.string().min(1),
-    // Done answers are immutable; Taken answers are provisional and must not
-    // be remembered past a head change.
+    // Final done answers are remembered; Taken answers are provisional and
+    // must not be remembered past a head change.
     phase: z.enum(["done", "taken"]),
     mode: z.enum(["trunk", "story-branch"]),
     // Present for a done story's completion revision; absent while Taken.
