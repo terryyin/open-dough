@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "darren-chan",
+  "email": "darren-chan@example.org",
+  "identity": "SEED-258#compare-manual-intent-coverage",
+  "mode": "story-branch",
+  "branch": "codex/compare-a-short-manual-intent-assessment-with-or",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
