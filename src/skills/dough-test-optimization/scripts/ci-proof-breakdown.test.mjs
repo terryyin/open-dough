@@ -139,6 +139,20 @@ test("an outcomes file broken down by file keeps each check's path and leaves a 
   assert.equal(untimed.untimed, 2);
 });
 
+test("timed and untimed outcomes in one file keep a partial duration", () => {
+  const path = "tests/mixed.sh";
+  const [value] = fragmentsFromOutcomes(
+    [`passed\t${path}`, `other\t${path}`, `failed\t${path}`].join("\n"),
+    partIdentity(["tests"]),
+    [`0.125\t${path}`, `0.375\t${path}`].join("\n"),
+    byFile,
+  );
+  assert.equal(value.untimed, 1);
+  assert.deepEqual(value.files, [
+    { path, passed: 1, failed: 1, other: 1, durationMs: 500, untimed: 1 },
+  ]);
+});
+
 test("an outcomes label that is not a path inside its entry is unassigned, keeping its count and time", () => {
   const [value] = fragmentsFromOutcomes(
     "passed\ttests/./odd.sh\nfailed\ttests/a.sh\n",
