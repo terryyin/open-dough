@@ -120,3 +120,155 @@ above.
 | SEED-254 Claude Code subagent `a80a69d7a8e8fc6ae` | 20.545 s | Line 1, initial task at 09:58:02.568Z. Line 19, handback acknowledged at 09:58:23.113Z. |
 | SEED-256 Codex session `01a1b4ec-2e03-7e93-9f02-2c1901514ade` | 62.888 s | Line 2, task started at 07:32:19.648Z. Line 22, task completed at 07:33:22.536Z. |
 | SEED-257 Codex session `01a1b502-3417-7f10-a638-56f0f5cb2296` | 65.621 s | Line 2, task started at 07:56:23.003Z. Line 20, task completed at 07:57:28.624Z. |
+
+## Terry verification
+
+Basis unchanged from Terry's 2026-11-07 confirmation. Each case has one
+10-minute round for reading both reviews and verifying their findings, up to
+30 minutes across the three cases. [Confirmed criteria](PLAN.md#confirmed-comparison-basis)
+
+1. Start a 600-second countdown before reading each case. Reread the ordinary
+   review, then read the assessment verdicts. Use the rows below to find the
+   relevant evidence and open the full reports as needed.
+2. Track ordinary reading, ordinary verification, assessment reading, and
+   assessment verification separately while the countdown runs. Switch the
+   activity timer when you switch review or activity. Record each measured
+   time in seconds, or enter `unavailable`. Include time spent on claims you
+   later judge unsupported.
+3. Verify against the retained evidence and record the row ID, review,
+   evidence and decision. Credit a match when both reviews identify the same
+   specific failure path with evidence that supports a decision. If one review
+   misses a specific consequential finding verified in the other, record the
+   path and the review that missed it. An unknown on that path remains unknown
+   and can also be a consequential miss.
+4. At 600 seconds, stop the case. Mark unchecked rows `unverified at cutoff`
+   and exclude them from verified findings. Use `unsupported after verification`
+   for a checked claim the evidence contradicts, such as a claimed gap with a
+   maintained test that exercises the path. Keep source verdicts of `unknown`
+   and `unassessed` separate from both.
+   Credit pre-existing observations to the review that found them and keep
+   them outside story-attributable counts.
+
+Every row is **pending Terry's verification**. The labels describe what the
+reviews reported. File references in the assessment rows are at the case's
+[checkpoint](PLAN.md#case-checkpoints).
+
+### SEED-254 cancelled landings
+
+[Ordinary retrospective](https://github.com/terryyin/open-dough/blob/8296c54b10b76a6cb654fe565da24a5557bc6025/.planning/slice-plans/496-use-later-ci-proof-for-cancelled-landings/PLAN.md#L202-L216) ·
+[Ordinary source review](https://github.com/terryyin/open-dough/blob/8296c54b10b76a6cb654fe565da24a5557bc6025/.planning/slice-plans/496-use-later-ci-proof-for-cancelled-landings/source-review.md) ·
+[Assessment verdicts](assessment-254.md#verdicts)
+
+| ID | Source and reported status | Evidence to check |
+| --- | --- | --- |
+| 254-01 | Ordinary defect and planned correction. Assessment cites the same fixture for advancement and stopping, and separate browser cases for wording. | In the actual walk fixture, finished run 31 has expired proof, then run 32 is running. The assertions check `running`, run 32 and the listed revisions. Ordinary review says the running result loses the prior proof reason and Landed falsely says no later build has finished. The assessment cites the proofless-only and running-only wording fixtures separately (`intent-ci-comparison-cancelled-landing-gaps.spec.ts:32–83`). [Walk fixture](https://github.com/terryyin/open-dough/blob/1359d6fb76b8ff2b4295e2b4febe0e467ec72be1/tests/support/dashboard-later-trunk-build.test.mjs#L89-L107) · [Plan 497 findings](https://github.com/terryyin/open-dough/blob/8296c54b10b76a6cb654fe565da24a5557bc6025/.planning/slice-plans/497-explain-running-after-proofless-later-build/PLAN.md#L15-L27) |
+| 254-02 | Ordinary pre-existing finding, outside counts. | A listing failure or read deadline can cache an `unavailable` slot for the process lifetime. **Check again** cannot recover it. Baseline and Branch are affected too. [Ordinary recommendation](https://github.com/terryyin/open-dough/blob/8296c54b10b76a6cb654fe565da24a5557bc6025/.planning/slice-plans/496-use-later-ci-proof-for-cancelled-landings/PLAN.md#L210-L216) · [SEED-118 retry story](https://github.com/terryyin/open-dough/blob/c6db7ffcdd721e310baeccbb498b068f44f5d729/.planning/seeds/SEED-118-dashboard-reading-reliability.md#retry-unavailable-ci-comparison-slots) |
+| 254-03 | Assessment break check for a waiting Landed head gap. | Removing the `none`/`awaitingLaterBuild` cache exception in `intentCiComparisonAnswers.ts:38–42` left the second view stale after a push and serving passing run 403 with proof. The journey failed at `intent-ci-comparison-cancelled-landing-gaps.spec.ts:112` and passed after restoration. [Runner and assertion](assessment-254.md#focused-runs) |
+| 254-04 | Assessment gap claim for a selected later rerun. | The later-build journeys check attempt `#1`; the report found no later attempt other than `#1` exercised there. `intent-ci-comparison-cancelled-landing.spec.ts:31,75,129,160`. |
+| 254-05 | Assessment gap claim for later-proof entry figures. | The journey checks selected build wall time and artifact listing. The report found no observing assertion on the later-summary entries or counts supplied through `useIntentCiComparisonEntries.ts`. `intent-ci-comparison-cancelled-landing.spec.ts:31,75,129,160`. |
+| 254-06 | Assessment gap claim for forward handling and Landed wording across proof errors. | The walk injects expired/unreadable reasons and the shared artifact reader tests expired, unreadable, invalid, and wrong-attempt or wrong-revision proof. The report found no cancelled-Landed journey covering the full matrix. `dashboard-later-trunk-build.test.mjs:89–139`, `intent-ci-proof-reasons.spec.ts:35`. |
+| 254-07 | Assessment gap claim for proof-sensitive exact rerun precedence. | A timed exact attempt 2 takes precedence in one fixture; another prefers a timed prior attempt over a cancelled latest. The assessment flags the combination where the prior timed attempt lacks usable proof. Exact lookup disables the proof gate before the cancelled branch. `dashboard-later-trunk-landed.test.mjs:112`, `dashboard-ci-revision-nearest.test.mjs:15`, `baseCiRevisionLookup.ts:152–185`. |
+| 254-08 | Assessment gap claim for the literal 30-revision cutoff. | The long fixture derives its history from `baselineAncestorLimit + 1`; the report found no independent +30 versus +31 usable-build assertion. `dashboard-later-trunk-landed.test.mjs:90`, `exactSkippedEquivalent.ts:22`. |
+| 254-09 | Assessment gap claim for the all-cancelled or unbuilt outcome. | The report found no assertion on the no-finished-build wording when every revision inside the bound is cancelled or unbuilt. The browser gap fixtures cover absent proof, running, and empty head. `intent-ci-comparison-cancelled-landing-gaps.spec.ts:32–100`. |
+| 254-10 | Assessment gap claim for the adapter exclusion. | The adapter tests exercise discovery, ordering, retry and timeout. The report found no cancelled adapter attempt driven through the GitHub-only forward-walk guard. `baseCiRevisionLookup.ts:181–183`, `dashboard-ci-adapter-revision-lookup.test.mjs`. |
+| 254-11 | Assessment gap claim for downstream archive requests. | The request assertions filter artifact listings and do not wait for rendered later-proof entry data before checking calls. The report flags direct coverage of archive request counts. `intent-ci-comparison-cancelled-landing.spec.ts:67,120`, `dashboard/GITHUB-REQUESTS.md:67–89`. |
+| 254-12 | Assessment observation about push-run wording and an untested competing run. | The request doc says push runs. Lookup queries by SHA without an event/ref filter and selection uses SHA/time. The fixtures supply main pushes, leaving a competing same-SHA manual or other-ref run untested. `dashboard/GITHUB-REQUESTS.md:67–89`, `baseCiGithubRevisionLookup.ts:122–152`, `baseCiNearest.ts:130–148`, `storyCiComparisonFixture.ts:156–161`. |
+| 254-13 | Assessment unassessed reread transitions. | The head-gap journey in 254-03 covers a newly pushed proofed build. Browser transitions from running to completed and from proofless at head to new proof were unassessed. [Waiting-answer verdict](assessment-254.md#verdicts) |
+| 254-14 | Assessment scope limits. | Hosted examples and live requests, the full comparison family, and the deferred no-run substitution and ignored-revision features were unassessed. The code-landing regression checks the current No build boundary. [Focused-run scope](assessment-254.md#focused-runs) |
+
+### SEED-256 CI time without runner waits
+
+[Ordinary retrospective](https://github.com/terryyin/open-dough/blob/46d2ea4a40607fb9085ced0bb5087fe4066a0d03/.planning/slice-plans/492-compare-ci-time-without-runner-waits/PLAN.md#L204-L226) ·
+[Ordinary source review](https://github.com/terryyin/open-dough/blob/46d2ea4a40607fb9085ced0bb5087fe4066a0d03/.planning/slice-plans/492-compare-ci-time-without-runner-waits/source-review.md) ·
+[Assessment verdicts](assessment-256.md#promise-verdicts)
+
+| ID | Source and reported status | Evidence to check |
+| --- | --- | --- |
+| 256-01 | Ordinary recommendation of no change. | Credits journeys for endpoint selection and display, focused job evidence, and the shared GitHub reader and cache. It found observed dependency-chain durations and explanations of missing observations consistent with ADR 0008. [Product advice](https://github.com/terryyin/open-dough/blob/46d2ea4a40607fb9085ced0bb5087fe4066a0d03/.planning/slice-plans/492-compare-ci-time-without-runner-waits/PLAN.md#L204-L220) |
+| 256-02 | Assessment break check for the historical workflow revision. | Reading `HEAD:<path>` instead of the selected build revision in `baseCiGithubRevisionLookup.ts:121` reached the fixture's incompatible `jobs: {}`. Three timing cells showed unreadable job definitions instead of the exact estimates at `intent-ci-comparison.spec.ts:138`. [Break check and restoration](assessment-256.md#selective-workflow-revision-break-check) |
+| 256-03 | Assessment gap claim for an unavailable Baseline estimate. | The report flags a possible invented delta against zero. The gap journeys keep Baseline measured and make Landed unavailable. `storyCiComparisonWording.ts:50–54`, `intent-ci-comparison-gaps.spec.ts:101–162`. |
+| 256-04 | Assessment gap claim for noncausal framing. | The browser assertion checks for `observedNotAttributed` imported from production. The report says this observes presence while allowing a shared edit to causal wording. `intent-ci-comparison.spec.ts:17,92`, `storyCiComparisonWording.ts:57–58`. |
+| 256-05 | Assessment gap claim for cache separation of two attempts of one run. | The Taken refresh changes `102/1` to `103/2`, so the report says a cache key missing attempt could pass. The attempt-2 endpoint and timing assertions cover selection. `baseCiGithubRevisionLookup.ts:86–104`, `intent-ci-comparison-taken.spec.ts:29–121`. |
+| 256-06 | Assessment gap claim for transitive chain accumulation. | Successful fixtures use a dashboard shard followed by `ci-proof`. The report says an immediate-predecessor-only calculation could match them. `ciTimeWithoutRunnerWaits.ts:87–104`, `ci-time-without-runner-waits.spec.ts:10–40`. |
+| 256-07 | Assessment gap claim for an unresolvable dependency graph. | Existing unavailable examples use missing files, jobs or names. The report found no assertion for an unresolved dependency ID or cycle. `ciTimeWithoutRunnerWaits.ts:87–104`, `ci-time-without-runner-waits.spec.ts:43–77`. |
+| 256-08 | Assessment gap claim for skipped jobs after failure. | The estimator cases pass `false` for the failed flag, and the failed-landing journey supplies no skipped job rows and requires no Landed estimate. The special path counts a skipped job with missing bounds as zero. `ciTimeWithoutRunnerWaits.ts:25–35`, `ci-time-without-runner-waits.spec.ts:10–77`, `intent-ci-comparison-landing-gaps.spec.ts:17–48`. |
+| 256-09 | Assessment limit on browser evidence for missing job bounds. | The module asserts the missing-bounds reason and the report traces the common UI plumbing. The browser fixtures do not independently serve a row with null start or finish. [Verdicts and limits](assessment-256.md#promise-verdicts) |
+| 256-10 | Assessment scope limits. | Deferred critical-job or per-job wait wording, a no-wait Proof-line figure and later visual cues were unassessed. The report records no full suite, live exercise, cache-eviction/retry probe or cross-tool check. [Verdicts and limits](assessment-256.md#promise-verdicts) |
+
+### SEED-257 adapter comparisons
+
+[Ordinary retrospective](https://github.com/terryyin/open-dough/blob/76565b1c29fa2370a868fbe7c97e46bfbd4d95cf/.planning/slice-plans/495-compare-story-ci-through-adapters/PLAN.md#L305-L326) ·
+[Ordinary source review](https://github.com/terryyin/open-dough/blob/76565b1c29fa2370a868fbe7c97e46bfbd4d95cf/.planning/slice-plans/495-compare-story-ci-through-adapters/source-review.md) ·
+[Assessment verdicts](assessment-257.md#promise-verdicts)
+
+| ID | Source and reported status | Evidence to check |
+| --- | --- | --- |
+| 257-01 | Ordinary recommendation of no change. | The review credits code, focused proof and live observations for both Pygardon stories. The intended endpoints were recovered from retained attempts, the timestamp story settled wall time, and one missing proof summary had a reason. [Product advice](https://github.com/terryyin/open-dough/blob/76565b1c29fa2370a868fbe7c97e46bfbd4d95cf/.planning/slice-plans/495-compare-story-ci-through-adapters/PLAN.md#L305-L319) |
+| 257-02 | Assessment break check for listing-branch identity. | Substituting the provider's validated branch for `listedBranch` in `baseCiAdapterAttempts.ts:87` failed the Branch JSON assertion. Run `402`, attempt `2` carried `ci/another-branch` instead of `claude/another-agent`. The break reached identity at `intent-ci-comparison-adapter.spec.ts:185` before the downstream proof-log assertion. [Break check and restoration](assessment-257.md#selective-break-check) |
+| 257-03 | Assessment gap claim for a settled Done build whose attempt later expires. | The merge starts with missing proof. The report found no adapter journey where retention changes between reads and a cached build stays visible beside a newly unavailable proof. `intentCiComparisonRead.ts:42–64`, `intentCiComparisonAnswers.ts:24–40`, `ciAdapterProof.ts:106–139`. |
+| 257-04 | Assessment gap claim for non-default target-branch discovery. | The code reads `source.ref`. The focused comparison and revision-lookup fixtures use `main`, so the report says a hardwired `main` would satisfy their assertions. `baseCiAdapterAttempts.ts:67–76`. |
+| 257-05 | Assessment unknown for live Pygardon. | Ordinary review used retained live observations. The assessment modeled endpoints in a fixture and left current hosted retention, summaries, wall time and service configuration unassessed. [Historical observation](https://github.com/terryyin/open-dough/blob/76565b1c29fa2370a868fbe7c97e46bfbd4d95cf/.planning/slice-plans/495-compare-story-ci-through-adapters/PLAN.md#L273-L303) · [Assessment limits](assessment-257.md#promise-verdicts) |
+| 257-06 | Assessment limit on adapter browser evidence for a selected failure. | The shared Actions browser checks failed rendering and the adapter module checks selection of a failed completed attempt. The report found no dedicated adapter browser fixture for that result. `dashboard-ci-adapter-revision-lookup.test.mjs:31–77`. |
+| 257-07 | Assessment limit on adapter browser evidence for identity without a URL. | The Done journey checks identity and exact href. The report found no dedicated adapter browser fixture for the absent-URL case. `intent-ci-comparison-adapter.spec.ts:128–200`. |
+| 257-08 | Assessment limit on one-sided wall timestamps. | The fixtures cover both attempt bounds or no recorded time. The report says a one-sided bound is not independently exercised. `intent-ci-comparison-adapter.spec.ts:128–194`, `intent-ci-comparison-adapter-gaps.spec.ts:60–62`, `storyCiComparisonWording.ts:39–44`. |
+| 257-09 | Assessment limit on successful Landed proof figures. | Adapter journeys assert valid Baseline and Branch counts and duration. Successful Landed cells have shared-layer evidence only in the report. `intent-ci-comparison-adapter.spec.ts:212–245`, `dashboard-ci-comparison-entries.test.mjs:33–77,132–145`. |
+| 257-10 | Assessment limit on successful Taken Provisional proof figures. | The Taken adapter journeys do not supply a valid Provisional summary. The report cites shared-layer evidence for the figures. [Proof-figures verdict](assessment-257.md#promise-verdicts) |
+| 257-11 | Assessment limit on an exact adapter landing with a tempting built ancestor. | The report cites shared Actions coverage for missing endpoints and a second-parent decoy. Adapter fixtures do not independently exercise a missing exact landing with a retained build on an otherwise tempting ancestor. `intent-ci-comparison-gaps.spec.ts:165–229`. |
+| 257-12 | Assessment scope limits. | Documentation-specific lint, release checks and the full suite were outside the focused selection. New history operations, runner-wait estimation, skipped-build ancestor proof, comparison cues and the Pygardon timestamp rollout are separate work. [Assessment limits](assessment-257.md#promise-verdicts) |
+
+### Effort for the comparison
+
+All recorded figures in this table are **measured**. Wall spans use the
+historical retrospective's invocation through the published result for
+ordinary review, and case start through returned report, including setup and
+tests, for the assessment. Source-review elapsed spans are recorded
+[separately](#timestamp-and-token-evidence). Agent elapsed includes waits.
+Host token counters have different cache accounting. Active agent and
+coordinator effort is unavailable. [Cost evidence basis](../../NORTH-STAR.md#intent-assessment-results-carry-their-cost)
+
+| Case and review | Wall span | Agent elapsed and token evidence | Separate test runtime |
+| --- | --- | --- | --- |
+| SEED-254 ordinary (exploratory) | 491.551 s | Coordinator 491.551 s, overlapping agent 291.269 s. [Both token records](#timestamp-and-token-evidence) | Unavailable |
+| SEED-254 assessment | 422.023 s | Assessor 379.959 s, 2,387,005 input and 13,523 output tokens. [Host counters](assessment-254.md#effort) | [Runner durations and silent runner limit](assessment-254.md#effort) |
+| SEED-256 ordinary (exploratory) | 74.560 s | Coordinator 74.560 s, subagent elapsed unavailable. 1,491,331 input and 2,292 output tokens. [Host counters](#timestamp-and-token-evidence) | Unavailable |
+| SEED-256 assessment | 464.105 s | Assessor 364.423 s, 2,488,461 input and 11,960 output tokens. [Host counters](assessment-256.md#effort) | [Runner durations and typecheck limit](assessment-256.md#effort) |
+| SEED-257 ordinary (exploratory) | 111.719 s | Coordinator 111.719 s, subagent elapsed unavailable. 2,993,551 input and 3,524 output tokens. [Host counters](#timestamp-and-token-evidence) | Unavailable |
+| SEED-257 assessment | 376.442 s | Assessor 350.553 s, 2,451,094 input and 11,577 output tokens. [Host counters](assessment-257.md#effort) | [Runner durations](assessment-257.md#effort) |
+
+The **measured sum of case wall spans** is **677.830 s** for ordinary review
+and **1,262.570 s** for the assessment. These sums add case intervals, some
+overlapping, and stand separately from active effort and study elapsed time.
+Terry's reading and verification are pending and separate from both methods'
+runtimes. Comparable total effort and any speed savings are unresolved.
+
+### Terry's response
+
+| Case | Ordinary reading (s) | Ordinary verification (s) | Assessment reading (s) | Assessment verification (s) |
+| --- | --- | --- | --- | --- |
+| SEED-254 | Pending | Pending | Pending | Pending |
+| SEED-256 | Pending | Pending | Pending | Pending |
+| SEED-257 | Pending | Pending | Pending | Pending |
+
+For each case, return the fields below by row ID. Use counts by review once
+the decisions are recorded.
+
+| Case | Verified findings, matches and test decisions (ID, review, evidence and decision) | Consequential misses (ID, review that missed it and specific verified path) | Unsupported claims (ID, review and contrary evidence) | Unknown, unassessed, unverified at cutoff and pre-existing IDs, listed separately |
+| --- | --- | --- | --- | --- |
+| SEED-254 | Pending | Pending | Pending | Pending |
+| SEED-256 | Pending | Pending | Pending | Pending |
+| SEED-257 | Pending | Pending | Pending | Pending |
+
+**Overall decision (proceed, narrow, or stop)** — Pending.
+
+**Reasons under the confirmed criteria, including scope if narrowed** — Pending.
+Proceed requires a verified consequential decision that justifies the extra
+effort within the budgets, or equivalent useful decisions at demonstrably
+lower total effort. It also requires zero consequential assessment misses
+and at most one unsupported assessment claim per case. Narrow requires a
+specific use with verified value within its cost when Proceed falls short.
+Stop applies when neither use shows verified value worth the effort.
+[Confirmed criteria](PLAN.md#confirmed-comparison-basis)
+
+Record test decisions here on their own merits. Record the overall decision
+and reasons in the [selected story](../../seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage)
+with a link back to this comparison.

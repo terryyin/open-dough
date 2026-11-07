@@ -145,6 +145,8 @@ trunk.
   and the remote story branch. Publish increments to that story branch.
 - Slice 1 was accepted on the remote story branch at
   `5ddf5ab485dec9cdfb8b426605aa6bf3a8a20497` and attached to this observer.
+- Slice 2 was accepted on the remote story branch at
+  `69a085855e6beab22e3c607221b79abafb5409cf` and attached to this observer.
 - CI source GitHub Actions `ci.yml` (CI), observing the remote story branch.
   Codex coordinator `codex-seed258-be5ad8d1`, mailbox
   `/tmp/dough-ci-501/watch-IeTXzy`, PID `73637`, yielded cell `g46:8`, stream
@@ -236,6 +238,20 @@ everything for all three cases: both reviews per case, and an instruction to
 time his reading and verification separately within the budget, and report
 both figures or mark them unavailable. He records his verified decisions and
 the overall decision. Any unchecked entries are marked unverified.
+
+Progress evidence: the [verification worksheet](comparison.md#terry-verification)
+links both reviews per case, groups the reported findings and unassessed
+paths under stable IDs, and keeps observed wall spans, effort and the pending
+human times separate. `git diff --check` passed. The worksheet's published
+revision is the input to Terry's timed verification. Verified counts and the
+seed decision are pending that round. Refactor disposition `records-only`.
+
+## Story obligations
+
+### H1. Terry verifies the comparison and selects the pilot outcome
+Reported: slice 3 — "Reading and verification times, checked findings and the pilot decision require Terry's timed review."
+Story clause: "Terry records decisions on verified findings and applies the confirmed criteria."
+Disposition: return
 
 ## Refinement review
 
