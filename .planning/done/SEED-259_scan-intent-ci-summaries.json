@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-259#scan-intent-ci-summaries",
+  "title": "Scan CI summaries in dashboard Intent",
+  "completedAt": "2026-11-07T16:18:44.748Z",
+  "developer": "Terry Yin",
+  "agent": "pyo-chan",
+  "host": "claude",
+  "model": "opus"
+}

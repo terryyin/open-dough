@@ -4,8 +4,9 @@
 **Source:** [Correct Intent CI label announcements and summary sort fallback](../../seeds/SEED-259-scan-intent-ci-summaries.md#correct-scan-intent-ci-summaries)
 
 Provenance: execution retrospective of
-[Scan CI summaries in dashboard Intent](../../seeds/SEED-259-scan-intent-ci-summaries.md#scan-intent-ci-summaries)
-(SEED-259#scan-intent-ci-summaries, [plan 499](../499-scan-intent-ci-summaries/PLAN.md)),
+Scan CI summaries in dashboard Intent (SEED-259#scan-intent-ci-summaries:
+`5b4cd8959bc7:.planning/seeds/SEED-259-scan-intent-ci-summaries.md#scan-intent-ci-summaries`
+and `5b4cd8959bc7:.planning/slice-plans/499-scan-intent-ci-summaries/PLAN.md`),
 base `8ecd81f56`, reviewed commits `0ffcc27` (slice 1), `d146a05` (slice 2),
 `68e5f52` (CI repair), `e12188a` (slice 3), `523034a` (slice 4) and
 `b1126e5` (slice 5).
@@ -68,7 +69,7 @@ A developer reviewing Intent CI evidence, including with a screen reader:
   comparison Summaries as in single-run ones.
 
 Preserved promises and constraints are
-[SEED-259's](../../seeds/SEED-259-scan-intent-ci-summaries.md#scan-intent-ci-summaries)
+SEED-259#scan-intent-ci-summaries's
 scope, required restrictions and scope limits:
 
 - no new figures;
