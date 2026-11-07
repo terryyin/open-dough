@@ -578,6 +578,14 @@ With `DOUGH_REVISION_STREAM_MS` lowered, `SourceRevisionStream` scheduled its pa
   - Evidence: observer `/tmp/dough-ci-501/watch-6tNnon` `CI_FAILURE` run 41865901313 (`dashboard (4/12)`); proof fragment `passed:287,failed:1`; report `authenticated-read-revision-stream.spec.ts` expected `matchingRefsSince` 1 received 2 at open; coordinator later called it an open-vs-pace race and fixed it before publishing stream page work (`1e79d44b9` / before-cleanup plan learning (slice 4): pace starts only after first open demand settles); tip coverage `40eb66ce` success / `a5307e4e` not_required.
   - Observed effect: published slice 2 failed hosted CI on the stream's core sharing promise; later slice repaired the race and the applicable tip validated.
   - Inference: a lowered-pace boundary proof that only asserts after both opens can miss a race where the pace timer overlaps the first demand; deferring pace start until open settles made the one-listing rule hold under CI timing.
+- Execution: SEED-259#scan-intent-ci-summaries (plan 499-scan-intent-ci-summaries, first implementation commit 0ffcc27cbb64b570e0bc5dbd8ddc9e5bd83dee03)
+  - Timestamp: unknown (2026-11-07, run 42379612785 attempt 1 on `d146a05d9`; test results stamped 2026-11-07T14:02Z)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.88 (installed `.claude/skills`)
+  - Evidence: job `dashboard (11/12)` failed the same `authenticated-read-revision-stream.spec.ts:60` assertion (`matchingRefsSince` expected 1, received 2) on a story that changed no stream code. The repair agent found the pace still starts per subscriber: the `moved` stream's open settles first and arms the 80 ms test pace while the `watching` stream's open still waits on a backlog `gh` read, so a slow read lets a tick list again; reproduced by holding that read, then made the spec hold matching-refs answers in turn (`heldInTurn`), 140 passed at `--repeat-each=20`; repair `68e5f52b3`.
+  - Observed effect: an unrelated story's CI failed on this check and paid a repair inside its stash/repair/restore cycle.
+  - Inference: the earlier fix settled pace per open demand, not per source, so `sourceRevisionStream.ts`'s comment that a lowered pace cannot list again before open answers are observed still overstates the product; with production paces of minutes the residual race is harmless, and the spec no longer depends on it.
 
 **Responsibility and disposition (2026-11-07):** Project-owned dashboard implementation and boundary-test timing (`SourceRevisionStream`), repaired in the same execution (`1e79d44b9`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-420`); no new local story.
 

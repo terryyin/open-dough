@@ -226,6 +226,24 @@ Intent docs reread against slices 1–5. Summaries still show no CI wall time
 `IntentScopeEvidenceLabels.tsx` and `storyCiComparisonSlotWords.ts` split
 out to keep files within 250 lines).
 
+## Execution complete
+
+Product advice:
+- Correction: [SEED-259#correct-scan-intent-ci-summaries](../504-correct-scan-intent-ci-summaries/PLAN.md)
+  (evidence labels carry their meaning and full words in content rather than
+  `aria-label`/`title` on list items; a sort survives a transient table
+  without its column; one no-breakdown wording; comparison Summaries label
+  the outside row and a missing file breakdown; revision stream spec within
+  250 lines). Planned and ready, not queued.
+- Next product step: SEED-258's Branch and Landed distinction in precise CI
+  summaries should reuse `CiProofFigures.tsx`, `ciProofTiming.ts` and the
+  sort owner rather than new phrasing.
+- Future label work should prefer visible or visually hidden text over
+  names on static elements, and keep shared sort state from being cleared
+  by transient loading tables.
+- SEED-260#restore-default-test-timeouts should cover the touched comparison
+  specs that still set file-level timeouts or `test.slow()`.
+
 ## Story obligations
 
 ### G1. File Proof keeps its trailing change word
