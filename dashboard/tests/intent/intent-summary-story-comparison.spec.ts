@@ -1,7 +1,7 @@
 // Entry and folder Summary CI timing and counted-results comparison for a
 // selected done story (../../src/IntentScopeProof.tsx, ../../src/ciScopeComparison.ts):
 // baseline, branch and landed precise durations with signed differences,
-// Counts with signed differences (entry 4 → 5 +1), change markers, added /
+// Counts with signed differences (entry 4 → 5 tests (+1)), change markers, added /
 // removed / renamed / later-trunk gaps, and drill into a nested folder
 // (SEED-245#compare-story-intent-entry-folder-and-file-summaries examples 1,
 // 2 timing, 3–4, 6). Merge-resolution attribution refusals keep A/B/C proof

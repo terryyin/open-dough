@@ -17,6 +17,12 @@ export type ComparisonEndpointProof =
   | { readonly kind: "summary"; readonly entries: readonly CiProofEntry[] }
   | { readonly kind: "unavailable"; readonly line: string };
 
+export type ComparisonEndpointProofs = {
+  readonly baseline: ComparisonEndpointProof;
+  readonly branch: ComparisonEndpointProof;
+  readonly landed: ComparisonEndpointProof;
+};
+
 export function comparisonEndpointProofsChecking(
   baseline: ComparisonEndpointProof,
   branch: ComparisonEndpointProof,

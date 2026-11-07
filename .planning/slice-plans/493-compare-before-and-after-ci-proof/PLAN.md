@@ -2,6 +2,7 @@
 
 **Identity:** SEED-255#compare-before-and-after-ci-proof
 **Source:** [Compare before-and-after CI proof in Intent](../../seeds/SEED-255-compare-before-and-after-ci-proof.md#compare-before-and-after-ci-proof)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -100,7 +101,7 @@ applies as written.
 
 ### 1. Read the active comparison and every difference as separate text
 Type: Behavior
-Status: planned
+Status: done
 Proof: module tests for the readable cell words, percentage rule and the
 overall sum with units kept apart; the comparison, entries, gaps,
 landing-gaps, taken, fast-forward and summary comparison specs updated to
@@ -177,8 +178,50 @@ No remaining slice-specific concern was identified in this review.
   without runner waits and keep wall time as context; otherwise CI wall
   time. Both plans touch `IntentCiComparison.tsx` and
   `storyCiComparisonWording.ts`; whichever executes second rebases onto the
-  other's landed wording.
+  other's landed wording. At slice 1 delivery SEED-256 was still planned, so
+  the overall timing difference uses CI wall time.
 - Thresholds are the seed's, from the noise observed above: any count
   change shows, strong at ≥50% of the baseline count; no duration tint under
   10% or 1 s, strong at ≥50%; a zero baseline gets at most the light tint.
 - Execute in Story Branch Mode or Trunk Mode as started; no trunk-only step.
+
+## Learnings
+
+- Folder `10.3 s → 14.4 s` is **+39%** from summed milliseconds (10340→14410),
+  not +40% from display rounding; percentage uses measured ms, not rounded
+  display words.
+- Intent CI comparison product docs exceeded the 250-line file-size check;
+  comparison wording lives in
+  [dashboard-development-intent-ci-comparison.md](../../../docs/dashboard-development-intent-ci-comparison.md).
+- Accepted slice 1 proof: module
+  `tests/support/intent-scope-comparison-wording.test.mjs` (cell words,
+  percentage rule, overall units, neither-build total); Playwright
+  `intent-ci-comparison*.spec.ts` including Taken Branch/Provisional active
+  titles, and `intent-summary-story-comparison*.spec.ts` for shared
+  Summary/Proof cells; typecheck.
+
+## Story obligations
+
+### X1. Switch control between Branch and Landed
+Reported: slice 1 — "Deferred: A control to switch the active comparison between Branch and Landed."
+Story clause: "A control to switch the active comparison between Branch and Landed."
+Disposition: excluded "A control to switch the active comparison between Branch and Landed."
+Commitment: 34.1
+
+### X2. Folder-row cues in the tree
+Reported: slice 1 — "Deferred: Cues on folder rows in the tree; folders keep their summary rows."
+Story clause: "Cues on folder rows in the tree; folders keep their summary rows."
+Disposition: excluded "Cues on folder rows in the tree; folders keep their summary rows."
+Commitment: 34.2
+
+### X3. Ranked contributor list
+Reported: slice 1 — "Deferred: A ranked list of the largest contributors."
+Story clause: "A ranked list of the largest contributors."
+Disposition: excluded "A ranked list of the largest contributors."
+Commitment: 34.3
+
+### X4. Endpoint build and timing-measure ownership
+Reported: slice 1 — "Deferred: Which build or timing measure each endpoint supplies stays with its own stories."
+Story clause: "Which build or timing measure each endpoint supplies stays with its own stories"
+Disposition: excluded "Which build or timing measure each endpoint supplies stays with its own stories"
+Commitment: 34.4

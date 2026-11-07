@@ -18,19 +18,15 @@ import type {
 import {
   comparisonEntriesOf,
   comparisonProofOf,
-  type ComparisonEndpointProof,
+  type ComparisonEndpointProofs,
   type ComparisonEntries,
 } from "./storyCiComparisonEntries.ts";
+
+export type { ComparisonEndpointProofs };
 
 type SlotProof = {
   readonly proof: CiProof | undefined;
   readonly reading: boolean;
-};
-
-export type ComparisonEndpointProofs = {
-  readonly baseline: ComparisonEndpointProof;
-  readonly branch: ComparisonEndpointProof;
-  readonly landed: ComparisonEndpointProof;
 };
 
 function buildSubject(

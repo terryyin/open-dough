@@ -32,18 +32,18 @@ test.setTimeout(240_000);
 const comparisonEntryRows = [
   [
     "dashboard/tests",
-    "2,090 → 2,092 +2 tests",
+    "2,090 → 2,092 tests (+2)",
     "4 min",
-    "4 min 30 s +30 s",
-    "5 min +1 min",
+    "4 min → 4 min 30 s (+30 s, +13%)",
+    "4 min → 5 min (+1 min, +25%)",
     "1 of 1 part present",
   ],
   [
     "tests",
-    "5 → 5 0 checks",
+    "5 checks (no change)",
     "2 min",
-    "1 min 30 s -30 s",
-    "1 min -1 min",
+    "2 min → 1 min 30 s (−30 s, −25%)",
+    "2 min → 1 min (−1 min, −50%)",
     "1 of 1 part present",
   ],
   [
@@ -79,6 +79,15 @@ for (const variant of [
       `CI timing changes for ${setup.identity}`,
     );
     await expect(panel).toContainText(observedNotAttributed);
+    await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+      "Baseline compared with Landed",
+    );
+    await expect(
+      panel.locator(".intent-ci-comparison-overall-counts"),
+    ).toHaveText("2,090 → 2,092 tests (+2); 5 → 8 checks (+3)");
+    await expect(
+      panel.locator(".intent-ci-comparison-overall-timing"),
+    ).toHaveText("3 min → 4 min (+1 min, +33%)");
     await expect(
       panel.locator(".intent-ci-comparison-identity").nth(0),
     ).toContainText(shortSha(setup.baseline));

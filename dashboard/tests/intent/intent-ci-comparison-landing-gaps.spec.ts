@@ -56,6 +56,15 @@ test("a cancelled landing merge build explains cancelled without trunk-side figu
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
   serveEarlierLandingWithLandedOutcome(setup, "cancelled");
   const { panel } = await selectDoneStoryForCiComparison(page);
+  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+    "Baseline compared with Branch",
+  );
+  await expect(
+    panel.locator(".intent-ci-comparison-active-reason"),
+  ).toContainText("Landed is not used:");
+  await expect(
+    panel.locator(".intent-ci-comparison-active-reason"),
+  ).toContainText("cancelled");
   await expect(
     panel.locator(".intent-ci-comparison-wall").nth(1),
   ).toContainText("+20 s");

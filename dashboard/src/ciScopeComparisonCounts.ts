@@ -2,9 +2,9 @@
 // (`./ciScopeComparison.ts`): classify measured / absent / no-breakdown /
 // unavailable from `./ciScopeProof.ts` figures the same way timing does in
 // `./ciScopeComparisonTiming.ts`, and word the Summary / homepage Counts
-// cell as baseline → after with a signed difference. A signed difference
-// exists only between two measured totals. Outcome detail and parts stay
-// with the chosen build in `./ciScopeComparison.ts`.
+// cell as baseline → after with a signed difference in parentheses. A signed
+// difference exists only between two measured totals. Outcome detail and
+// parts stay with the chosen build in `./ciScopeComparison.ts`.
 
 import type { CiProofEntry, CiProofFigures } from "./ciProof.ts";
 import { hasFileBreakdown } from "./ciProofWording.ts";
@@ -31,6 +31,7 @@ export type ScopeEndpointCount =
     };
 
 const noFileBreakdown = "no file breakdown";
+const minus = "−";
 
 export function totalCounted(figures: CiProofFigures): number {
   return figures.passed + figures.failed + figures.other;
@@ -40,9 +41,20 @@ function formatTotal(total: number): string {
   return total.toLocaleString("en-US");
 }
 
-function signedCountDifference(delta: number): string {
+function signedCountWords(delta: number): string {
   if (delta === 0) return "0";
-  return delta > 0 ? `+${String(delta)}` : String(delta);
+  return delta > 0 ? `+${String(delta)}` : `${minus}${String(Math.abs(delta))}`;
+}
+
+// "12 → 10 tests (−2)" or "6 tests (no change)". Units stay with the totals;
+// the signed difference is separate text in parentheses.
+export function measuredCountsChangeWords(
+  before: number,
+  after: number,
+  unit: string,
+): string {
+  if (before === after) return `${formatTotal(after)} ${unit} (no change)`;
+  return `${formatTotal(before)} → ${formatTotal(after)} ${unit} (${signedCountWords(after - before)})`;
 }
 
 function measuredOf(
@@ -101,7 +113,6 @@ function baselineCountText(
 
 function afterCountText(
   count: ScopeEndpointCount,
-  baselineTotal: number | undefined,
   presentInBaseline: boolean,
   changeKind?: ChangeKind,
 ): string {
@@ -113,9 +124,7 @@ function afterCountText(
     return "added";
   }
   if (count.kind === "nothing") return "nothing counted";
-  const value = formatTotal(count.total);
-  if (baselineTotal === undefined) return value;
-  return `${value} ${signedCountDifference(count.total - baselineTotal)}`;
+  return formatTotal(count.total);
 }
 
 function unitOf(
@@ -136,14 +145,39 @@ function sameMeasured(
   return (
     left.kind === "measured" &&
     right.kind === "measured" &&
-    left.total === right.total
+    left.total === right.total &&
+    left.unit === right.unit
   );
+}
+
+function countsChangePhrase(
+  before: ScopeEndpointCount,
+  after: ScopeEndpointCount,
+  presentLater: boolean,
+  presentInBaseline: boolean,
+  changeKind: ChangeKind | undefined,
+  unit: string | undefined,
+): string {
+  if (before.kind === "measured" && after.kind === "measured") {
+    return measuredCountsChangeWords(before.total, after.total, after.unit);
+  }
+  const baselineText = baselineCountText(before, presentLater);
+  const afterText = afterCountText(after, presentInBaseline, changeKind);
+  if (baselineText === afterText) {
+    return after.kind === "measured" && unit !== undefined
+      ? `${afterText} ${unit}`
+      : afterText;
+  }
+  // Append the unit only when an after endpoint measured a total, so
+  // "1 → removed" stays a gap and "added → 1 tests" keeps its unit.
+  if (after.kind === "measured" && unit !== undefined) {
+    return `${baselineText} → ${afterText} ${unit}`;
+  }
+  return `${baselineText} → ${afterText}`;
 }
 
 // One Counts cell: baseline → after with signed differences when both sides
 // are measured; a gap endpoint shows its gap, never an invented difference.
-// afterCountText already embeds the signed difference on measured after
-// values, so measured and gap shapes share one assembly path.
 export function countsCellText(
   before: ScopeEndpointCount,
   branch: ScopeEndpointCount,
@@ -152,46 +186,46 @@ export function countsCellText(
   presentInBaseline: boolean,
   changeKind?: ChangeKind,
 ): string {
-  const baselineTotal = before.kind === "measured" ? before.total : undefined;
-  const baselineText = baselineCountText(before, presentLater);
-  const branchText = afterCountText(
-    branch,
-    baselineTotal,
-    presentInBaseline,
-    changeKind,
-  );
-  const landedText = afterCountText(
-    landed,
-    baselineTotal,
-    presentInBaseline,
-    changeKind,
-  );
   const unit = unitOf(before, branch, landed);
-  // Append the unit only when an after endpoint measured a total, so
-  // "1 → removed" stays a gap and "added → 1 tests" keeps its unit.
-  const afterMeasured =
-    branch.kind === "measured" || landed.kind === "measured";
-  const withUnit = (text: string) =>
-    unit === undefined || !afterMeasured || text === "—" || text === "…"
-      ? text
-      : `${text} ${unit}`;
+  const phrase = (after: ScopeEndpointCount) =>
+    countsChangePhrase(
+      before,
+      after,
+      presentLater,
+      presentInBaseline,
+      changeKind,
+      unit,
+    );
+  const branchText = afterCountText(branch, presentInBaseline, changeKind);
+  const landedText = afterCountText(landed, presentInBaseline, changeKind);
 
-  if (baselineText === branchText && branchText === landedText) {
-    return withUnit(baselineText);
+  if (
+    baselineCountText(before, presentLater) === branchText &&
+    branchText === landedText &&
+    !(before.kind === "measured" && branch.kind === "measured")
+  ) {
+    return phrase(branch);
   }
   if (sameMeasured(branch, landed) || landed.kind !== "measured") {
     if (branch.kind === "measured" || branchText === landedText) {
-      return withUnit(`${baselineText} → ${branchText}`);
+      return phrase(branch);
     }
   }
   if (branch.kind === "status" || branch.kind === "checking") {
-    return withUnit(`${baselineText} → ${landedText}`);
+    return phrase(landed);
   }
   if (landed.kind === "status" || landed.kind === "checking") {
-    return withUnit(`${baselineText} → ${branchText}`);
+    return phrase(branch);
   }
   if (branchText === landedText) {
-    return withUnit(`${baselineText} → ${branchText}`);
+    return phrase(branch);
   }
-  return withUnit(`${baselineText} → ${branchText} → ${landedText}`);
+  if (
+    before.kind === "measured" &&
+    branch.kind === "measured" &&
+    landed.kind === "measured"
+  ) {
+    return `${measuredCountsChangeWords(before.total, branch.total, branch.unit)} → ${formatTotal(landed.total)} ${landed.unit} (${signedCountWords(landed.total - before.total)})`;
+  }
+  return `${phrase(branch)} → ${landedText}${landed.kind === "measured" && unit !== undefined ? ` ${unit}` : ""}`;
 }

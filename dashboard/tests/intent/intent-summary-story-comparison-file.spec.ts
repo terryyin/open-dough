@@ -29,10 +29,10 @@ test.setTimeout(240_000);
 const parts = "1 of 1 part present";
 const modifiedFileRow: ComparisonScopeRow = [
   "dashboard/tests/folder/a.spec.ts modified",
-  "1 → 1 0 tests",
+  "1 tests (no change)",
   "10.0 s",
-  "14.0 s +4.0 s",
-  "14.0 s +4.0 s",
+  "10.0 s → 14.0 s (+4.0 s, +40%)",
+  "10.0 s → 14.0 s (+4.0 s, +40%)",
   parts,
 ];
 const addedFileRow: ComparisonScopeRow = [
@@ -45,10 +45,10 @@ const addedFileRow: ComparisonScopeRow = [
 ];
 const fileRowWithoutOverlay: ComparisonScopeRow = [
   "dashboard/tests/folder/a.spec.ts",
-  "1 → 1 0 tests",
+  "1 tests (no change)",
   "10.0 s",
-  "14.0 s +4.0 s",
-  "14.0 s +4.0 s",
+  "10.0 s → 14.0 s (+4.0 s, +40%)",
+  "10.0 s → 14.0 s (+4.0 s, +40%)",
   parts,
 ];
 const addedFileRowWithoutOverlay: ComparisonScopeRow = [
@@ -61,10 +61,10 @@ const addedFileRowWithoutOverlay: ComparisonScopeRow = [
 ];
 const unchangedFileRow: ComparisonScopeRow = [
   "dashboard/tests/root.spec.ts",
-  "1 → 1 0 tests",
+  "1 tests (no change)",
   "1.2 s",
-  "1.2 s 0 ms",
-  "1.2 s 0 ms",
+  "1.2 s (no change)",
+  "1.2 s (no change)",
   parts,
 ];
 

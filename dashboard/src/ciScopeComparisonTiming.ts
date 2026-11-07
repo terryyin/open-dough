@@ -6,6 +6,7 @@
 
 import type { CiProofEntry } from "./ciProof.ts";
 import {
+  durationChangeWords,
   executionTimeDifferenceWords,
   executionTimeWords,
   wholeSecondDifferenceWords,
@@ -171,7 +172,14 @@ export function afterCellText(
     return "added";
   }
   if (timing.kind === "explained") return timing.text;
-  const value = words.value(timing.ms);
-  if (baselineMs === undefined) return value;
-  return `${value} ${words.difference(timing.ms - baselineMs)}`;
+  if (baselineMs === undefined) return words.value(timing.ms);
+  // before → after (Δ[, %]) keeps the baseline column's own value and makes
+  // the difference readable as separate text, with a percentage only when the
+  // baseline is a measured non-zero duration.
+  return durationChangeWords(
+    baselineMs,
+    timing.ms,
+    words.value,
+    words.difference,
+  );
 }
