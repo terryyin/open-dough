@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "identity": "SEED-258#distinguish-branch-and-landed-summary-figures",
+  "mode": "story-branch",
+  "branch": "claude/distinguish-branch-and-landed-figures-in-precise",
+  "host": "claude",
+  "model": "opus"
+}
