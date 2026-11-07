@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-010#review-source-promises-before-first-slice",
+  "mode": "story-branch",
+  "branch": "cursor/review-and-allocate-source-commitments-before-de",
+  "host": "cursor",
+  "model": "auto"
+}
