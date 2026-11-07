@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 441. Removed numbers are never reused.
+- Highest allocated local number: 442. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -707,3 +707,18 @@ Slice acceptance recorded an Intent-overlay commitment as observed by citing the
   - Evidence: `source-review.md` rows 3.3 and K1.2 cited `intent-summary-story-comparison{,-file}.spec.ts`; the implementer's own return said the merge-edit files lie outside Intent's locations; the retrospective found the merge variants assert the same rows as the plain story; plan slices 3 and 4 and obligation G1 were added.
   - Observed effect: one delivered slice carried an unobserved commitment; correction cost two added slices.
   - Inference: a return's own stated gap ("outside Intent's locations") was folded into an observation instead of becoming an obligation; reading the cited spec's distinguishing assertion would have shown it.
+
+## DD-442 — A shared tracking-ref update interrupted confirmation after a successful push
+
+The managed increment pushed its execution branch, then a broad origin fetch
+raced another worktree's tracking-ref update for a different branch.
+
+### Occurrences
+- Execution: SEED-257#compare-story-ci-through-adapters (plan 495; first implementation `8dcf704f628c57e8a2e52e6ecb4846e815423ec0`)
+  - Timestamp: unknown (2026-11-07, slice 1 publication)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.87 (installed checkout guidance)
+  - Evidence: `execution-increment-delivery.mjs fresh` returned `delivery-interrupted` after `git fetch origin` could not update `origin/codex/compare-ci-time-without-runner-waits`; its expected old ref had already advanced. The exact remote branch already named `8dcf704f6`. Managed resume classified it `already-published`, reported `pushCount: 0`, and recovered the registered observer.
+  - Observed effect: the accepted increment required one remote identity check and managed resume before the next slice could begin.
+  - Inference: confirmation that updates unrelated tracking refs adds a concurrency dependency across worktrees. The evidence covers this occurrence.
