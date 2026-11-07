@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "identity": "SEED-255#compare-before-and-after-ci-proof",
+  "mode": "story-branch",
+  "branch": "cursor/compare-before-and-after-ci-proof-in-intent",
+  "host": "cursor",
+  "model": "auto"
+}
