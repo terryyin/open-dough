@@ -40,7 +40,6 @@ export async function completedPublishedStory(
     | "returned"
     | "returned-takeover"
     | "missing-agent"
-    | "own-conflict"
     | "own-conflict-extra"
     | "completion-conflict"
     | "merge-edit"
@@ -53,10 +52,9 @@ export async function completedPublishedStory(
   // More edits the story's integration merge makes, after the variant's own.
   integrate?: (workspace: string) => void,
 ) {
-  const ownConflict =
-    variant === "own-conflict" || variant === "own-conflict-extra";
+  const ownConflict = variant === "own-conflict-extra";
   writeAt(origin.project, "shared.txt", lines("line"));
-  if (variant === "own-conflict-extra") placeMergeEditFiles(origin.project);
+  if (ownConflict) placeMergeEditFiles(origin.project);
   commitAll(origin.project, "initial shared file");
   push(origin.project);
   const start =
@@ -75,7 +73,7 @@ export async function completedPublishedStory(
   );
   writeAt(workspace, "[literal]*.txt", "delivered on another machine\n");
   change?.(workspace);
-  if (variant === "own-conflict-extra") moveAgentsFolder(workspace);
+  if (ownConflict) moveAgentsFolder(workspace);
   commitAll(workspace, "story implementation");
   if (mode === "trunk") push(workspace);
   pull(origin.project);
@@ -90,7 +88,7 @@ export async function completedPublishedStory(
     "shared.txt",
     interleaved.replace("line 0\n", ownConflict ? "trunk first\n" : "line 0\n"),
   );
-  if (variant === "own-conflict-extra") addTrunkAgentProfile(origin.project);
+  if (ownConflict) addTrunkAgentProfile(origin.project);
   commitAll(origin.project, "another writer interleaves");
   if (variant === "unrelated-merge" || variant === "non-owning-story-file")
     resolveForeignMerge(origin.project, variant, interleaved);
@@ -112,7 +110,7 @@ export async function completedPublishedStory(
   } else {
     git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
   }
-  if (variant === "own-conflict-extra") editIntegrationMerge(workspace);
+  if (ownConflict) editIntegrationMerge(workspace);
   if (variant === "merge-edit") addIntegrationEdit(workspace);
   if (integrate !== undefined) amendIntegrationMerge(workspace, integrate);
   if (variant === "takeover" || variant === "returned-takeover") {

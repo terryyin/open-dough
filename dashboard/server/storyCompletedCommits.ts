@@ -35,19 +35,18 @@ export type CompletedStoryEvidence = CompletedStoryClaimEvidence & {
   readonly resolutions: ReadonlyMap<string, string>;
 };
 
-// When `doneRecordAdded` names the commit that added the story's done record,
-// claims count only as its ancestors: a later claim cannot take over a
-// finished story's recovery.
+// Claims count only as ancestors of `doneRecordAdded`, the commit that added
+// the story's done record: a later claim cannot take over a finished story's
+// recovery.
 export async function completedStoryClaimEvidence(
   story: ReviewedStory,
   completion: string,
   agent: string,
   call: GitCall,
-  doneRecordAdded?: string,
+  doneRecordAdded: string,
 ): Promise<CompletedStoryClaimEvidence | { explanation: string }> {
   const evidenceOf = async (owner: string) => {
     const found = await publishedStoryEvidence(story, completion, call, owner);
-    if (doneRecordAdded === undefined) return found;
     const claims: string[] = [];
     for (const claim of found.claims)
       if (await isAncestor(claim, doneRecordAdded, call)) claims.push(claim);
@@ -108,11 +107,11 @@ export async function completedStoryAttribution(
   call: GitCall,
 ): Promise<CompletedStoryEvidence | { explanation: string }> {
   const { commits, claims, storyStart, owningMerges } = evidence;
-  // A merge resolution is not attributable by the single-parent author rule,
-  // whoever authored the merge. Check merges after the execution claims,
-  // including a completion integrated by a different publisher. Other
-  // stories' merges stay trunk's: restating the story's commits through them
-  // isolates its changes or marks the file as mixed.
+  // A merge resolution is not attributable by the single-parent author rule.
+  // Check owning merges after the execution claims; the completion, when a
+  // merge, is one of them. Other stories' merges stay trunk's: restating the
+  // story's commits through them isolates its changes or marks the file as
+  // mixed.
   const merges = (
     await runGit(
       ["rev-list", "--merges", "--parents", completion, `^${storyStart}`],
@@ -128,7 +127,7 @@ export async function completedStoryAttribution(
   for (const line of merges) {
     const [merge = "", ...parents] = line.split(" ");
     const [first = "", second = ""] = parents;
-    if (!owningMerges.has(merge) && merge !== completion) continue;
+    if (!owningMerges.has(merge)) continue;
     // Only the story's own merge must decompose against exactly two parents.
     if (parents.length !== 2)
       return {
@@ -199,20 +198,4 @@ export async function completedStoryAttribution(
     storyStart,
     owningMerges,
   };
-}
-
-export async function completedStoryCommits(
-  story: ReviewedStory,
-  completion: string,
-  agent: string,
-  call: GitCall,
-): Promise<CompletedStoryEvidence | { explanation: string }> {
-  const evidence = await completedStoryClaimEvidence(
-    story,
-    completion,
-    agent,
-    call,
-  );
-  if ("explanation" in evidence) return evidence;
-  return completedStoryAttribution(evidence, completion, call);
 }

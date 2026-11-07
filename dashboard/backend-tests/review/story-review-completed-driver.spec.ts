@@ -16,7 +16,6 @@ test.use({ serverMode: "boundary" });
 
 for (const variant of [
   undefined,
-  "unrelated-merge",
   "merge-edit",
   "own-conflict-extra",
   "non-owning-story-file",
@@ -36,7 +35,7 @@ for (const variant of [
     writeAt(
       origin.project,
       ".git/info/attributes",
-      "shared.txt merge=printing\nunrelated.txt merge=printing\n",
+      "shared.txt merge=printing\n",
     );
     const response = await getReview(
       request,

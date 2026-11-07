@@ -188,7 +188,7 @@ duplicate the plain journey once one variant observes the merge edit.
 
 ### 4. Remove slice 1 and 2 residue in completed-story attribution
 Type: Structure
-Status: planned
+Status: done
 Proof: reuse slice 3's focused set plus
 `dashboard/backend-tests/review/story-review-completed.spec.ts`,
 `dashboard/backend-tests/review/story-review-completed-attribution.spec.ts`,
@@ -273,6 +273,15 @@ direct outside-in proof and no remaining slice-specific concern.
   proof: 193-test consumer surface plus typecheck; the foreign octopus test
   failed on `f496a5137`, and a mutation without merge-edit subtraction failed
   the Intent and driver merge-edit assertions.
+
+- Slice 4 accepted: `completedStoryCommits` deleted and `doneRecordAdded`
+  required; the completion clause is gone because a completion merge is always
+  owning; `changedFromTrunk` names the trunk-differing paths; an unknown story
+  side keeps directory-rename conflicts mixed
+  (`story-review-completed-merge-side.spec.ts`, red on `6d8550321`); a resolved
+  path Git did not flag still reads as a merge edit when the side is unknown.
+  The `unrelated-merge` driver and `own-conflict` variants are dropped (row 5.1
+  retargeted). Accepted proof: 192-test consumer surface plus typecheck.
 
 ## Story obligations
 

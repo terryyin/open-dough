@@ -9,8 +9,11 @@ When no readable workspace or usable captured landing exists, **Published
 completion** shows a fixed comparison reconstructed from the configured
 project's published Git history. The completion revision is the story's own
 delivery: the newest trunk-first owning merge that integrates the commit that
-added its done record, or that commit itself. A later story's merge that carries
-the existing done record onto a new first-parent path never replaces it. Its
+added its done record, or that commit itself. An owning merge is one the
+claiming execution agent authored; a landing merge someone else made is not the
+completion, and review falls back to the commit that added the done record. A
+later story's merge that carries the existing done record onto a new
+first-parent path never replaces it. Its
 recorded agent identifies the execution owner, and claims count only when they
 precede the done record. Without a recorded agent, recovery requires exactly one
 valid authored execution claim owner; preparation-only, missing, shallow, or
@@ -21,8 +24,8 @@ This survives branch and workspace deletion and stays fixed as trunk advances,
 using the same file browser and literal diffs without launch or marking semantics.
 
 A completion with no recoverable agent, incomplete claims, unreadable Git
-objects, a merge with more than two parents, or an unsupported `git merge-tree`
-explains that gap instead of guessing or showing an empty successful
+objects, an owning or completion merge with more than two parents, or an
+unsupported `git merge-tree` explains that gap instead of guessing or showing an empty successful
 comparison. Each of the owner's or the completion's integrations is checked against Git's automatic merge
 tree. Its genuine conflict paths show those files with “includes trunk's
 changes”, compared from before the execution claims. Its edits on paths Git did
@@ -31,7 +34,9 @@ story's: they are taken out like a story commit, against the merge tree with
 only those edits undone, so they appear with their diffs. A path `merge-tree`
 reported only through directory-rename heuristics, which the story branch did
 not change and the merge kept as its trunk parent had it, such as another
-agent's restored profile, is neither listed nor flagged. Other stories'
+agent's restored profile, is neither listed nor flagged; when both of the
+merge's parents hold story commits the other lacks, the story side is unknown
+and such a path stays a genuine conflict. Other stories'
 resolutions stay trunk's: taking the story's commits out through them isolates
 the story's change, or marks the file “includes trunk's changes” when the
 concurrent work overlapped it. Other files keep normal story attribution, and
@@ -90,7 +95,8 @@ whose story change Git cannot take out, because trunk then changed the same
 lines, is conflicted in that restatement: all changes lists it with its kind,
 counts and diff from trunk as it was before the story's first change to it,
 the tree of the first parent of the oldest story commit that changed its path
-(`git diff-tree --no-commit-id -r --name-only -z <commit>`), which is the
+(`git diff-tree -r --name-only --no-renames -z <parent> <commit>`, where a
+merge's own edits use the merge tree without them as `<parent>`), which is the
 file's `includesTrunkFrom`, so the line's net change by both is shown rather
 than hidden. Its control's name, its row, and its diff heading say it
 “includes trunk's changes”, as in the changes since the review, and the

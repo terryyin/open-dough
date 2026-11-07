@@ -3,7 +3,8 @@
 // not report as conflicted are taken out like a story commit, against the
 // merge tree with only those edits undone. Paths `merge-tree` reported only
 // through directory-rename heuristics, which the story branch did not change
-// and the merge kept as trunk had them, are neither.
+// and the merge kept as trunk had them, are neither; that exclusion needs a
+// known story side.
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -32,20 +33,21 @@ export async function owningMergeEdits(
   readonly edit?: PublishedCommit;
 }> {
   const git = async (...args: string[]) => (await runGit(args, call)).stdout;
-  const [trunkParent, storyParent] =
-    (await storySideOf(first, second, storyCommits, call)) === "second"
-      ? [first, second]
-      : [second, first];
-  const base = (await git("merge-base", first, second)).trim();
   const diffed = async (from: string, to: string) =>
     names(await git("diff", "--name-only", "--no-renames", "-z", from, to));
-  const storyChanged = await diffed(base, storyParent);
-  const keptFromTrunk = await diffed(trunkParent, merge);
-  const untouched = new Set(
-    [...automatic.inseparable, ...resolved].filter(
-      (file) => !storyChanged.has(file) && !keptFromTrunk.has(file),
-    ),
-  );
+  const untouched = new Set<string>();
+  const side = await storySideOf(first, second, storyCommits, call);
+  // With the story side unknown, no path counts as untouched trunk.
+  if (side !== undefined) {
+    const [trunkParent, storyParent] =
+      side === "second" ? [first, second] : [second, first];
+    const base = (await git("merge-base", first, second)).trim();
+    const storyChanged = await diffed(base, storyParent);
+    const changedFromTrunk = await diffed(trunkParent, merge);
+    for (const file of [...automatic.inseparable, ...resolved])
+      if (!storyChanged.has(file) && !changedFromTrunk.has(file))
+        untouched.add(file);
+  }
   const conflicts = [...automatic.inseparable].filter(
     (file) => !untouched.has(file),
   );

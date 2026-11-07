@@ -15,7 +15,6 @@ export {
   type PublishedCommit,
   type ReviewedStory,
 } from "./storyPublishedEvidence.ts";
-export { completedStoryCommits } from "./storyCompletedCommits.ts";
 
 // The story's published commits among those `trunk` holds, newest first:
 // none when the worktree names no agent or the agent published nothing since
