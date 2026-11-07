@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-258_compare-manual-intent-coverage.json",
+      "identity": "SEED-258#compare-manual-intent-coverage",
+      "completedAt": "2026-11-07T13:44:27.774Z",
+      "blob": "8241a95c50013dca00106efc3ba313612f33fd2c"
+    },
+    {
       "fileName": "SEED-254_explain-running-after-proofless-later-build.json",
       "identity": "SEED-254#explain-running-after-proofless-later-build",
       "completedAt": "2026-11-07T12:27:24.209Z",
@@ -1614,18 +1620,6 @@
       "identity": "SEED-127#full-width-near-future-direction",
       "completedAt": "2026-10-09T23:16:07.850Z",
       "blob": "64dbbb3503a3f87cab033037b7c62f78e4186488"
-    },
-    {
-      "fileName": "SEED-120_cursor-session-restart-recovery.json",
-      "identity": "SEED-120#cursor-session-restart-recovery",
-      "completedAt": "2026-10-08T13:28:07.957Z",
-      "blob": "1da6fd77a7f37aaee0c407717e76149fbf6e8d35"
-    },
-    {
-      "fileName": "SEED-119_done-catalog-adapter-edge-results-correction.json",
-      "identity": "SEED-119#done-catalog-adapter-edge-results-correction",
-      "completedAt": "2026-10-08T13:26:38.146Z",
-      "blob": "6d73d56c16083a913a8ac22d2654391a951940a0"
     }
   ],
   "unreadable": []
