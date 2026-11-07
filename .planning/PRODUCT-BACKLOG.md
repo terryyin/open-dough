@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Review a completed story including its merge changes](seeds/SEED-253-review-delivered-merge-changes.md#review-delivered-merge-changes) — SEED-253#review-delivered-merge-changes
 - [Review and allocate source commitments before delegating the first Behavior slice](seeds/SEED-010-learn-from-execution-retrospectives.md#review-source-promises-before-first-slice) — SEED-010#review-source-promises-before-first-slice
 - [Name the hosted-proof observation step for progress-published slices](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-progress-revision-before-slice-done) — SEED-010#observe-progress-revision-before-slice-done
 - [Extract Dashboard Frontend Test as a separate entry](seeds/SEED-252-extract-dashboard-frontend-tests.md#extract-dashboard-frontend-tests) — SEED-252#extract-dashboard-frontend-tests
