@@ -30,5 +30,6 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Hide a client project from the dashboard while keeping it maintained](seeds/SEED-250-hide-client-project-from-dashboard.md#hide-client-project-from-dashboard) — SEED-250#hide-client-project-from-dashboard
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
