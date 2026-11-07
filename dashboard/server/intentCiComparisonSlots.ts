@@ -3,10 +3,8 @@
 // build mapping, and Trunk Mode's not-applicable branch slot.
 import type { StoryCiComparisonSlot } from "../src/storyCiComparison.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import {
-  revisionLookupOrGap,
-  type RevisionBuildSlot,
-} from "./baseCiRevisionLookup.ts";
+import type { RevisionBuildSlot } from "./baseCiRevisionLookup.ts";
+import { revisionLookupOrGap } from "./baseCiRevisionLookupSource.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import type { BaseCiJudgment } from "./baseCiNearest.ts";

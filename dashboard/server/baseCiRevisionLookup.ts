@@ -1,21 +1,13 @@
 // CI build lookup by revision for a story's comparison endpoints: walks
 // first-parent ancestors through local Git and answers baseline / branch /
-// landed slots. GitHub Actions listing lives in
-// `./baseCiGithubRevisionLookup.ts`. The live branch judgment
-// (`./baseCiJudgment.ts`) keeps its branch listing rule unchanged. Each
-// endpoint names the requested revision's own status beside the selected
-// build. Story Branch Landed may use a confirmed skip's equivalent build
-// proof (`./exactSkippedEquivalent.ts`); Baseline / Branch (and Trunk Mode
+// landed slots. The live branch judgment (`./baseCiJudgment.ts`) keeps its
+// branch listing rule unchanged. Each endpoint names the requested
+// revision's own status beside the selected build. Story Branch Landed may use a confirmed skip's equivalent build
+// proof (`./exactSkippedEquivalent.ts`) or, when cancelled, a later trunk
+// build's proof (`./laterTrunkBuild.ts`); Baseline / Branch (and Trunk Mode
 // Landed / provisional tip) walk past builds without usable proof here.
-// A CI adapter supplies a discovery snapshot for the whole comparison.
-import { defaultAdapterTimeoutMs } from "../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
-import type { PublishedSource } from "../src/publishedSource.ts";
-import { adapterDiscoveryUnread } from "./baseCiAdapterAttempts.ts";
-import { adapterRevisionLookup } from "./baseCiAdapterRevisionLookup.ts";
-import { ciConfiguration } from "./baseCiJudgment.ts";
-import { githubAcquisitionUnread } from "./baseCiGitHubReads.ts";
-import { githubRevisionLookup } from "./baseCiGithubRevisionLookup.ts";
-import { newestRunFor, unread, type BaseCiJudgment } from "./baseCiNearest.ts";
+// The lookup itself comes from `./baseCiRevisionLookupSource.ts`.
+import { newestRunFor } from "./baseCiNearest.ts";
 import { firstParentChain } from "./baseCiRevisionGit.ts";
 import {
   nearestRevisionBuild,
@@ -30,6 +22,7 @@ import {
   type ExactResultLookup,
 } from "./exactSkippedEquivalent.ts";
 import type { GitCall } from "./gitRunner.ts";
+import { laterTrunkCancelledSlot } from "./laterTrunkBuild.ts";
 import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
 import {
   asSlot,
@@ -123,9 +116,10 @@ export type ResultLookupOptions = {
 // Result endpoint (branch or landed): newest completed or running attempt at
 // `target`, else a measured ancestor not older than `storyStart`. With
 // `exactOnly`, the walk is limited to `target` itself except a confirmed
-// skip, which may use that landing's equivalent build proof only; a
-// cancelled or timed-out attempt at that revision uses the caller-supplied
-// explanations (Landed keeps those exact-only wordings). Without
+// skip, which may use that landing's equivalent build proof only, and a
+// cancelled attempt, which may use the nearest later trunk build's proof up
+// to `exact.laterTrunkHead`. Otherwise a cancelled or timed-out attempt at
+// that revision uses the caller-supplied explanations. Without
 // `exactOnly`, the walk continues past builds without usable proof.
 export async function lookupResultBuild(
   target: string,
@@ -177,6 +171,18 @@ export async function lookupResultBuild(
         newest.adapterAttempt === undefined &&
         (newest.conclusion === "cancelled" || newest.conclusion === "timed_out")
       ) {
+        if (newest.conclusion === "cancelled") {
+          const later = await laterTrunkCancelledSlot(
+            target,
+            listed,
+            lookup,
+            call,
+            workflow,
+            exact,
+            walkingProofUsable(exact),
+          );
+          if (later !== undefined) return later;
+        }
         return {
           kind: "none",
           explanation:
@@ -225,48 +231,5 @@ export async function lookupResultBuild(
           ? error.message
           : "The CI build could not be read",
     };
-  }
-}
-
-// A CI adapter supplies a discovery snapshot for the whole comparison;
-// GitHub Actions lists runs as the first-parent walk reaches each revision.
-export async function revisionLookupOrGap(
-  source: PublishedSource,
-  folderPath: string,
-  call: GitCall,
-  signal: AbortSignal,
-  storyBranch: string | undefined,
-): Promise<RevisionCiLookup | BaseCiJudgment> {
-  const { adapter, workflow } = ciConfiguration(folderPath);
-  if (adapter !== undefined) {
-    try {
-      return await adapterRevisionLookup(
-        source,
-        storyBranch,
-        folderPath,
-        adapter,
-        call,
-        signal,
-      );
-    } catch (error) {
-      if (
-        signal.aborted &&
-        signal.reason instanceof Error &&
-        signal.reason.name === "TimeoutError"
-      )
-        return unread(
-          "The CI adapter did not answer discovery before the comparison deadline.",
-        );
-      if (error instanceof Error && "killed" in error && error.killed === true)
-        return unread(
-          `The CI adapter did not answer discovery within ${String(defaultAdapterTimeoutMs / 1000)} seconds.`,
-        );
-      return adapterDiscoveryUnread(error);
-    }
-  }
-  try {
-    return githubRevisionLookup(source, workflow, call, signal);
-  } catch (error) {
-    return githubAcquisitionUnread(error, "The CI workflow could not be read");
   }
 }

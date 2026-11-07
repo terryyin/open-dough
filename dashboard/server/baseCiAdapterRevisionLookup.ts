@@ -6,10 +6,8 @@ import {
 } from "./baseCiAdapterAttempts.ts";
 import { newestRunFor } from "./baseCiNearest.ts";
 import { revisionSubject } from "./baseCiRevisionGit.ts";
-import {
-  isBuildConclusion,
-  type RevisionCiLookup,
-} from "./baseCiRevisionNearest.ts";
+import { isBuildConclusion } from "./baseCiRevisionAttempt.ts";
+import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import type { GitCall } from "./gitRunner.ts";
 
 export async function adapterRevisionLookup(

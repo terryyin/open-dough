@@ -47,12 +47,22 @@ const requestedStatusField = {
   requestedStatus: requestedRevisionCiStatusSchema.optional(),
 };
 
+// How the build was selected for its endpoint: the requested revision's own
+// (exact), a first-parent ancestor (ancestor), a confirmed skip's equivalent
+// build (equivalent), or a later trunk build containing a cancelled landing
+// (later). `laterWithoutResult` counts the revisions between the requested
+// revision and the build: later revisions passed over for an ancestor, later
+// trunk revisions included for a later build.
+const selection = z.enum(["exact", "ancestor", "equivalent", "later"]);
+
+export type StoryCiBuildSelection = z.infer<typeof selection>;
+
 const buildSlot = z.object({
   kind: z.literal("build"),
   revision: z.string().min(1),
   subject: z.string().min(1),
   state: z.enum(["pass", "failed"]),
-  selection: z.enum(["exact", "ancestor", "equivalent"]),
+  selection,
   laterWithoutResult: z.number().int().nonnegative(),
   laterRunning: z.literal(true).optional(),
   runUrl: z.string().min(1).optional(),
@@ -67,7 +77,7 @@ const runningSlot = z.object({
   kind: z.literal("running"),
   revision: z.string().min(1),
   subject: z.string().min(1),
-  selection: z.enum(["exact", "ancestor", "equivalent"]),
+  selection,
   laterWithoutResult: z.number().int().nonnegative(),
   runUrl: z.string().min(1).optional(),
   runBranch: z.string().min(1).optional(),

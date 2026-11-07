@@ -3,10 +3,8 @@
 // story-start bound for result endpoints.
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  nearestRevisionBuild,
-  selectRevisionAttempt,
-} from "../../dashboard/server/baseCiRevisionNearest.ts";
+import { selectRevisionAttempt } from "../../dashboard/server/baseCiRevisionAttempt.ts";
+import { nearestRevisionBuild } from "../../dashboard/server/baseCiRevisionNearest.ts";
 
 const sha = (n) => n.padEnd(40, "0");
 const a = sha("a");

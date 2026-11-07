@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { adapterRevisionLookup } from "../../dashboard/server/baseCiAdapterRevisionLookup.ts";
-import { revisionLookupOrGap } from "../../dashboard/server/baseCiRevisionLookup.ts";
+import { revisionLookupOrGap } from "../../dashboard/server/baseCiRevisionLookupSource.ts";
 import { checkoutRoot } from "../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 
 const source = { repository: "owner/repo", ref: "main" };

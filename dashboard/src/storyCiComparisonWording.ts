@@ -3,8 +3,9 @@
 // build identity and selection rule, CI wall time and time without runner
 // waits in whole seconds, readable before → after (Δ[, %]) differences for
 // the active comparison's overall timing (without runner waits) and wall-time
-// context, the active comparison name, and overall count summaries framed as
-// observations between single builds, never attributed to the story.
+// context, and the active comparison name, framed as observations between
+// single builds, never attributed to the story. Overall counts live in
+// `./storyCiComparisonCountsWords.ts`.
 
 import {
   durationChangeWords,
@@ -13,13 +14,7 @@ import {
   wholeSecondWords,
 } from "./ciProofTimeWords.ts";
 import {
-  measuredCountsChangeWords,
-  totalCounted,
-} from "./ciScopeComparisonCounts.ts";
-import {
-  overallCountCueOf,
   overallDurationCueOf,
-  type CountCue,
   type DurationCue,
 } from "./ciScopeComparisonCues.ts";
 import {
@@ -65,25 +60,38 @@ export function requestedStatusOrExplanation(
   return `${status} ${slot.explanation}`;
 }
 
+function revisionCountWords(count: number, revision: string): string {
+  return `${String(count)} ${revision}${count === 1 ? "" : "s"}`;
+}
+
+// How the endpoint's build was selected. A cancelled landing's later trunk
+// build counts the later trunk revisions it includes; an ancestor counts the
+// later revisions passed over.
+function selectionRuleWords(
+  slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>,
+): string {
+  switch (slot.selection) {
+    case "exact":
+      return slot.kind === "running"
+        ? "exact revision (still running)"
+        : "exact revision";
+    case "equivalent":
+      return "equivalent build";
+    case "later":
+      return `later trunk build: includes ${revisionCountWords(slot.laterWithoutResult, "later trunk revision")}`;
+    case "ancestor":
+      return `ancestor: ${revisionCountWords(slot.laterWithoutResult, "later revision")} without a build`;
+  }
+}
+
 export function selectionWords(
   slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>,
   provisional = false,
 ): string {
-  const base =
-    slot.selection === "exact"
-      ? slot.kind === "running"
-        ? "exact revision (still running)"
-        : "exact revision"
-      : slot.selection === "equivalent"
-        ? "equivalent build"
-        : (() => {
-            const count = slot.laterWithoutResult;
-            return `ancestor: ${String(count)} later revision${count === 1 ? "" : "s"} without a build`;
-          })();
   const selection =
     slot.kind === "build" && slot.laterRunning === true
       ? `ancestor · a later attempt is still running`
-      : base;
+      : selectionRuleWords(slot);
   // Taken stories label the live tip provisional, not final.
   return provisional ? `provisional · ${selection}` : selection;
 }
@@ -225,101 +233,6 @@ export function activeComparisonOf(
     title: "Baseline compared with Branch",
     landedUnusedReason: reason,
   };
-}
-
-function unitTotalsOf(
-  proof: ComparisonEndpointProof,
-):
-  | { readonly kind: "totals"; readonly byUnit: ReadonlyMap<string, number> }
-  | { readonly kind: "partial"; readonly reason: string }
-  | { readonly kind: "none" } {
-  if (proof.kind === "checking") {
-    return {
-      kind: "partial",
-      reason: "a compared build's proof is still reading",
-    };
-  }
-  if (proof.kind === "unavailable") {
-    return { kind: "partial", reason: proof.line };
-  }
-  if (proof.kind === "no-build") {
-    return { kind: "partial", reason: proof.explanation };
-  }
-  const byUnit = new Map<string, number>();
-  for (const entry of proof.entries) {
-    if (entry.unit === null) continue;
-    byUnit.set(entry.unit, (byUnit.get(entry.unit) ?? 0) + totalCounted(entry));
-  }
-  if (byUnit.size === 0) return { kind: "none" };
-  return { kind: "totals", byUnit };
-}
-
-function orderedUnitsOf(
-  before: ReturnType<typeof unitTotalsOf>,
-  later: ReturnType<typeof unitTotalsOf>,
-): string[] {
-  const units = new Set<string>([
-    ...(before.kind === "totals" ? before.byUnit.keys() : []),
-    ...(later.kind === "totals" ? later.byUnit.keys() : []),
-  ]);
-  // Stable unit order: tests, then checks, then any other unit by name.
-  return [...units].sort((left, right) => {
-    const rank = (unit: string) =>
-      unit === "tests" ? 0 : unit === "checks" ? 1 : 2;
-    const byRank = rank(left) - rank(right);
-    return byRank !== 0 ? byRank : left.localeCompare(right);
-  });
-}
-
-// Overall counted-results difference with units kept apart (tests and checks
-// are never mixed). Partial when either build lacks a usable total.
-export function overallCountsWords(
-  baseline: ComparisonEndpointProof,
-  after: ComparisonEndpointProof,
-): string {
-  const before = unitTotalsOf(baseline);
-  const later = unitTotalsOf(after);
-  const partialLine = (reason: string) =>
-    `Overall count partial: ${reason.replace(/\.$/, "")}.`;
-  if (before.kind === "partial") {
-    return partialLine(before.reason);
-  }
-  if (later.kind === "partial") {
-    return partialLine(later.reason);
-  }
-  if (before.kind === "none" && later.kind === "none") {
-    return "No overall count: neither compared build has a usable total.";
-  }
-  const parts = orderedUnitsOf(before, later).map((unit) => {
-    const from = before.kind === "totals" ? (before.byUnit.get(unit) ?? 0) : 0;
-    const to = later.kind === "totals" ? (later.byUnit.get(unit) ?? 0) : 0;
-    return measuredCountsChangeWords(from, to, unit);
-  });
-  return parts.join("; ");
-}
-
-// Overall count cue from the same unit totals the summary words use.
-export function overallCountsCue(
-  baseline: ComparisonEndpointProof,
-  after: ComparisonEndpointProof,
-): CountCue {
-  const before = unitTotalsOf(baseline);
-  const later = unitTotalsOf(after);
-  if (before.kind === "partial") {
-    return { kind: "none", reason: "partial" };
-  }
-  if (later.kind === "partial") {
-    return { kind: "none", reason: "partial" };
-  }
-  if (before.kind === "none" && later.kind === "none") {
-    return { kind: "none", reason: "no overall count" };
-  }
-  return overallCountCueOf(
-    orderedUnitsOf(before, later).map((unit) => ({
-      before: before.kind === "totals" ? (before.byUnit.get(unit) ?? 0) : 0,
-      after: later.kind === "totals" ? (later.byUnit.get(unit) ?? 0) : 0,
-    })),
-  );
 }
 
 // Overall timing cue uses CI time without runner waits (wall time is context).

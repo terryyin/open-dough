@@ -31,6 +31,9 @@ export type ExactResultLookup = {
   // confirmed skip lets Landed use that one ancestor build only.
   readonly repository: string;
   readonly signal: AbortSignal;
+  // Trunk head the comparison read (for example `origin/main`): a cancelled
+  // landing may use the nearest later trunk build's proof up to it.
+  readonly laterTrunkHead: string;
 };
 
 function unavailableWords(
@@ -45,8 +48,10 @@ export function storyBranchLandedExactLookup(
   fastForward: boolean,
   repository: string,
   signal: AbortSignal,
+  laterTrunkHead: string,
 ): ExactResultLookup {
   return {
+    laterTrunkHead,
     exactOnly: true,
     cancelledExplanation: fastForward
       ? "The CI build at the landed story revision was cancelled."

@@ -1,19 +1,24 @@
-// Nearest CI build along a revision's first-parent ancestors: newest run per
-// revision, then its newest completed timed attempt (cancelled latest falls
-// back). Walking endpoints may also require usable proof and continue past
-// builds that lack it. Used by story CI comparison endpoint lookup
+// Nearest CI build along a revision's first-parent ancestors, using each
+// revision's comparison attempt (`./baseCiRevisionAttempt.ts`). Walking
+// endpoints may also require usable proof and continue past builds that lack
+// it. Used by story CI comparison endpoint lookup
 // (`./baseCiRevisionLookup.ts`). Live branch judgment keeps `./baseCiNearest.ts`.
 import {
   attemptTimesOf,
   type BaseCiRunIdentity as RunIdentity,
-  type BaseCiState,
 } from "../src/baseCiConfirmation.ts";
 import type { CiProofRun } from "../src/ciProof.ts";
-import type { CiTimeWithoutRunnerWaits } from "../src/storyCiComparison.ts";
+import type {
+  CiTimeWithoutRunnerWaits,
+  StoryCiBuildSelection,
+} from "../src/storyCiComparison.ts";
+import {
+  isBuildConclusion,
+  isPositive,
+  judgeAttempt,
+  selectRevisionAttempt,
+} from "./baseCiRevisionAttempt.ts";
 import { newestRunFor, type ListedRun } from "./baseCiNearest.ts";
-
-const isPositive = (value: unknown): value is number =>
-  Number.isSafeInteger(value) && (value as number) >= 1;
 
 function runBranchOf(run: ListedRun): { runBranch?: string } {
   return typeof run.branch === "string" && run.branch !== ""
@@ -29,84 +34,15 @@ function runIdentityOf(run: ListedRun): RunIdentity {
     : {};
 }
 
-function completedStateOf(
-  conclusion: ListedRun["conclusion"],
-): "pass" | "failed" {
-  return conclusion === "success" ? "pass" : "failed";
-}
-
-function judgeAttempt(
-  status: string | undefined,
-  conclusion: string | null | undefined,
-): "pass" | BaseCiState | undefined {
-  if (
-    status === "queued" ||
-    status === "in_progress" ||
-    status === "pending" ||
-    status === "waiting" ||
-    status === "requested"
-  )
-    return "running";
-  if (status !== "completed") return undefined;
-  return completedStateOf(conclusion);
-}
-
-// Whether a completed conclusion yields timing (passed or failed); cancelled
-// and timed_out do not. Exported for adapter revision lookup.
-export function isBuildConclusion(
-  conclusion: ListedRun["conclusion"],
-): conclusion is "success" | "failure" {
-  return conclusion === "success" || conclusion === "failure";
-}
-
-// The attempt a revision's comparison uses: newest run, then its newest
-// completed attempt that passed or failed. A cancelled newest attempt falls
-// back to an earlier completed attempt of that run when the listing or
-// `earlierAttempts` supply one. Running attempts yield no timing.
-export function selectRevisionAttempt(
-  runs: readonly ListedRun[],
-  sha: string,
-  earlierAttempts: readonly ListedRun[] = [],
-): ListedRun | undefined {
-  const newest = newestRunFor(runs, sha);
-  if (newest === undefined) return undefined;
-  const state = judgeAttempt(newest.status, newest.conclusion);
-  if (state === "running") return newest;
-  if (state === "pass" || state === "failed") {
-    if (newest.status === "completed" && isBuildConclusion(newest.conclusion))
-      return newest;
-  }
-  // Cancelled / timed_out / unjudged latest: prefer the newest completed
-  // timed attempt of the same run from the listing or earlier attempts.
-  const sameRun = [...runs, ...earlierAttempts].filter(
-    (run) =>
-      run.headSha === sha &&
-      run.databaseId === newest.databaseId &&
-      run.status === "completed" &&
-      isBuildConclusion(run.conclusion),
-  );
-  if (sameRun.length === 0) return newest;
-  let chosen: ListedRun | undefined;
-  let chosenAttempt = Number.NEGATIVE_INFINITY;
-  for (const run of sameRun) {
-    const attempt = isPositive(run.attempt) ? run.attempt : 0;
-    if (chosen === undefined || attempt >= chosenAttempt) {
-      chosen = run;
-      chosenAttempt = attempt;
-    }
-  }
-  return chosen;
-}
-
-// One revision's CI comparison build: exact or measured ancestor, with how
-// many later revisions before the target the walk passed over (no timed
-// attempt, or — when a proof gate is set — a timed build whose proof was
-// not usable).
+// One revision's CI comparison build with how it was selected
+// (`StoryCiBuildSelection`). For an ancestor, `laterWithoutResult` counts the
+// later revisions before the target the walk passed over (no timed attempt,
+// or — when a proof gate is set — a timed build whose proof was not usable).
 export type RevisionCiBuild = {
   readonly revision: string;
   readonly subject: string;
   readonly state: "pass" | "failed" | "running";
-  readonly selection: "exact" | "ancestor" | "equivalent";
+  readonly selection: StoryCiBuildSelection;
   readonly laterWithoutResult: number;
   readonly laterRunning?: true;
   readonly runUrl?: string;

@@ -69,8 +69,12 @@ a Taken provisional tip) lists the configured workflow's push runs once per firs
 revision the endpoint walks (`head_sha=`), within that endpoint's bound (30 first-parent
 ancestors for Baseline; the story-start bound for Branch, Trunk Mode Landed, and the
 provisional tip). Story Branch Landed is exact at the landing except a confirmed skip,
-which lists runs at the landing and at its equivalent-build ancestor only. For each
-timed build a walking endpoint considers, and for a confirmed skip's equivalent build,
+which lists runs at the landing and at its equivalent-build ancestor only, and a
+cancelled landing, which also lists runs once per later first-parent trunk revision it
+walks forward (up to 30, stopping at a running build, at the first build with usable
+proof, or at the trunk head already fetched). For each timed build a walking endpoint
+considers, including each passed or failed later build a cancelled landing's walk
+checks (never its cancelled builds), and for a confirmed skip's equivalent build,
 the comparison also reads that run attempt's CI proof the same way the homepage does
 (artifact listing by summary name; zip when listed and not expired). The walk continues
 past a build whose proof is absent, expired, unreadable, invalid or mismatched, so those

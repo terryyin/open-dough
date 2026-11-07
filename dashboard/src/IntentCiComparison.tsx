@@ -25,12 +25,14 @@ import {
 import {
   activeComparisonOf,
   observedNotAttributed,
-  overallCountsCue,
-  overallCountsWords,
   overallTimingCue,
   timeWithoutRunnerWaitsChangeWords,
   wallTimeChangeWords,
 } from "./storyCiComparisonWording.ts";
+import {
+  overallCountsCue,
+  overallCountsWords,
+} from "./storyCiComparisonCountsWords.ts";
 import type { ComparisonAfterSide } from "./ciScopeComparisonCues.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
 import "./intent-ci-cues.css";

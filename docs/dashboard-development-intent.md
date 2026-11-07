@@ -124,9 +124,13 @@ landing's story-side parent (inapplicable in Trunk Mode). Landed uses the
 newest trunk-first owning merge or the fast-forward tip, before any separate
 completion commit and without falling back across the landing; a confirmed
 skip may use only that landing's equivalent build and its proof, never past
-unusable proof, while cancelled or unexplained stays exact-only. Each build
-shows its revision, run, attempt, state, and exact, measured-ancestor, or
-equivalent-build selection, with the requested revision's own status
+unusable proof. A cancelled landing keeps Cancelled and may use the nearest
+later trunk build with usable proof, walking trunk's first-parent history
+forward past cancelled, unbuilt and proofless revisions, stopping at a running
+build, the read trunk head or 30 revisions; it is labelled a later trunk build
+with how many later trunk revisions it includes. Timed-out or unexplained stays
+exact-only. Each build shows its revision, run, attempt, state, and exact,
+measured-ancestor, equivalent-build or later-trunk-build selection, with the requested revision's own status
 (Skipped, Cancelled, or No build) when that revision is not the timed build
 shown. Baseline and Branch walks continue past builds without usable proof.
 GitHub Actions wall time, CI time without runner waits, signed differences,

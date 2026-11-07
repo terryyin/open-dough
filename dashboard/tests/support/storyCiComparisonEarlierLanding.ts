@@ -2,8 +2,9 @@
 // an earlier trunk-first owning merge M with its own build; completion is a
 // later single-parent trunk commit D with a different build. Branch uses a
 // measured ancestor of M's story side; Landed uses M exactly — never D, a
-// later trunk build, or M's trunk-side parent. Shared helpers come from
-// ./storyCiComparisonFixture.ts.
+// later trunk build, or M's trunk-side parent. Failed and cancelled Landed
+// outcomes are served by ./storyCiComparisonLandedOutcome.ts; shared helpers
+// come from ./storyCiComparisonFixture.ts.
 
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -186,53 +187,4 @@ function expectBranchSide(actual: string, expected: string) {
       `landing branch side ${actual} does not match tip ${expected}`,
     );
   }
-}
-
-// SEED-236 / SEED-248 gap journeys: same A/B/tempting builds as the happy
-// path, with Landed at M overridden (failed or cancelled) while completion D
-// and the trunk-side parent keep builds that must not become C.
-export function serveEarlierLandingWithLandedOutcome(
-  setup: StoryCiComparisonSetup,
-  landedConclusion: "failure" | "cancelled",
-): void {
-  const landed = setup.landingMerge ?? setup.completion;
-  const branchBuild = setup.branchAncestor ?? setup.branchSide;
-  setup.serveRuns({
-    [setup.baseline]: [
-      wall(setup.baseline, 301, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
-    ],
-    [branchBuild]: [
-      wall(branchBuild, 302, "2026-11-05T13:00:00Z", "2026-11-05T13:03:20Z"),
-    ],
-    [setup.branchSide]: [],
-    ...(setup.trunkSide === undefined
-      ? {}
-      : {
-          [setup.trunkSide]: [
-            wall(
-              setup.trunkSide,
-              398,
-              "2026-11-05T13:30:00Z",
-              "2026-11-05T13:40:00Z",
-            ),
-          ],
-        }),
-    [landed]: [
-      wall(
-        landed,
-        303,
-        "2026-11-05T14:00:00Z",
-        "2026-11-05T14:04:00Z",
-        landedConclusion,
-      ),
-    ],
-    [setup.completion]: [
-      wall(
-        setup.completion,
-        304,
-        "2026-11-05T14:30:00Z",
-        "2026-11-05T14:08:00Z",
-      ),
-    ],
-  });
 }

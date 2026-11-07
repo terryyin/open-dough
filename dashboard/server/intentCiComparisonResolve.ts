@@ -95,7 +95,8 @@ export async function performDoneComparison(
             proofSource,
           );
   // Story Branch Mode: exact landing (merge or fast-forward tip), except a
-  // confirmed skip may use that landing's equivalent build proof only. Trunk
+  // confirmed skip may use that landing's equivalent build proof only and a
+  // cancelled landing the nearest later trunk build's proof. Trunk
   // Mode keeps the completion ancestor walk (usable-proof gate).
   const fastForward =
     facts.landing !== undefined &&
@@ -131,6 +132,7 @@ export async function performDoneComparison(
               fastForward,
               source.repository,
               signal,
+              `origin/${source.ref}`,
             ),
           );
   const [baseline, branch, landed] = await Promise.all([

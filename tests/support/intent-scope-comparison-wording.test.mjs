@@ -19,7 +19,7 @@ import {
   countsCellText,
   measuredCountsChangeWords,
 } from "../../dashboard/src/ciScopeComparisonCounts.ts";
-import { overallCountsWords } from "../../dashboard/src/storyCiComparisonWording.ts";
+import { overallCountsWords } from "../../dashboard/src/storyCiComparisonCountsWords.ts";
 
 const measured = (total, unit = "tests") => ({
   kind: "measured",

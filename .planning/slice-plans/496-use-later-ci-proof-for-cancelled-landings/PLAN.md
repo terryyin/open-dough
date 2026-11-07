@@ -2,6 +2,7 @@
 
 **Identity:** SEED-254#use-later-ci-proof-for-cancelled-landings
 **Source:** [Use a later trunk build's CI proof for cancelled landings](../../seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-later-ci-proof-for-cancelled-landings)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -102,7 +103,7 @@ applies as written.
 
 ### 1. Use the nearest later trunk build's proof for a cancelled landing
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `intent-ci-comparison-cancelled-landing.spec.ts` journeys and the
 rewritten cancelled test in `intent-ci-comparison-landing-gaps.spec.ts`.
 Module tests of the forward chain and selection. The request list asserts
@@ -124,6 +125,29 @@ Behavior:
   rule.
 - A landing with its own usable proof (for example a successful rerun
   attempt) keeps it, as exact.
+
+Accepted proof (on trunk `0b4ba8d1b` plus this slice, after refactor):
+`dashboard/server/laterTrunkBuild.ts` (`laterTrunkChain`,
+`laterTrunkProofBuild`, `laterTrunkCancelledSlot`) is entered from
+`lookupResultBuild`'s cancelled branch only. Selection value `later`, worded
+"later trunk build: includes N later trunk revision(s)".
+`tests/support/dashboard-later-trunk-build.test.mjs` (5 tests, via
+`bash scripts/test.sh` with Homebrew Bash first on PATH) and
+`intent-ci-comparison-cancelled-landing.spec.ts` (4 journeys). All 47
+`intent-ci-comparison*` and `intent-summary-story-comparison*` specs pass.
+Fixture: `serveEarlierLandingWithLandedOutcome(setup, "cancelled", laterTrunk)`
+in `dashboard/tests/support/storyCiComparisonLandedOutcome.ts`.
+
+Learnings for slice 2:
+- On trunk, a Landed build with proof makes the active pair "Baseline
+  compared with Landed"; with no later proof, Landed stays unused with its
+  "Landed is not used:" reason. Slice 2's explanations land in that reason
+  and in the Landed identity.
+- `laterTrunkProofBuild` returns `undefined` for running, head and no proof
+  alike. Slice 2 needs it to say which, and to mark the answer not final when
+  the walk stopped at the head or at a running build.
+- `--reverse` with `--max-count` applies after the limit, so the chain slices
+  the first 30 itself.
 
 ### 2. Explain a cancelled landing with no later proof in reach
 Type: Behavior
