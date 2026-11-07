@@ -9,13 +9,28 @@
 // a part only in a narrow reading pane, so the columns fit with their words
 // whole; the shared Proof table box keeps any overflow inside it
 // (`./ci-proof-table.css`). CI wall time is the attempt's own and never a
-// column here.
+// column here. A caller that gives `sorting` makes each column header a
+// button that sorts the rows by that column's figures (`./ciProofSort.ts`),
+// marking the sorted header with `aria-sort` and a direction arrow; the
+// caller holds the sort choice in memory, as CI status does
+// (`useCiProofSorting`). Without it the headers stay plain.
 
-import { Fragment, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { Icon } from "./Icon.tsx";
+import {
+  nextSort,
+  sortedRows,
+  type CiProofColumn,
+  type ColumnSort,
+} from "./ciProofSort.ts";
 import { scopeCueRowAttrs } from "./ciScopeComparisonCuePresentation.ts";
 import type { CiProofCells } from "./ciProofWording.ts";
 import type { TimingCell } from "./ciProofTiming.ts";
-import type { ComparisonEntryCells } from "./storyCiComparisonEntries.ts";
+import {
+  isComparisonCells,
+  type ComparisonEntryCells,
+} from "./storyCiComparisonEntries.ts";
 import "./ci-proof-table.css";
 import "./intent-ci-cues.css";
 
@@ -23,8 +38,24 @@ export type CiProofTableRow = {
   readonly key: string;
   // The scope the row's figures describe, shown as its row header.
   readonly scope: ReactNode;
+  // The scope's path name, by which its column sorts.
+  readonly name?: string;
   readonly cells: CiProofCells | ComparisonEntryCells;
+  // A row that is not one of the scopes, kept last under any sort.
+  readonly pinned?: true;
 };
+
+// A sortable table's sort choice and how to change it.
+export type CiProofSorting = {
+  readonly sort: ColumnSort | undefined;
+  readonly onSort: (sort: ColumnSort) => void;
+};
+
+// An in-memory sort choice, unsorted until a header is activated.
+export function useCiProofSorting(): CiProofSorting {
+  const [sort, onSort] = useState<ColumnSort>();
+  return { sort, onSort };
+}
 
 // A repository path as a row's scope, breakable after each `/`; each part
 // between them stays on one line, hyphens included, unless the pane is narrow.
@@ -41,19 +72,61 @@ export function ScopePath({ path }: { readonly path: string }) {
   );
 }
 
-const proofHeaders = ["Counts", "Test execution time", "Parts"] as const;
-const comparisonHeaders = [
-  "Counts",
-  "Baseline",
-  "Branch",
-  "Landed",
-  "Parts",
-] as const;
+type Header = { readonly column: CiProofColumn; readonly label: string };
 
-function isComparisonCells(
-  cells: CiProofCells | ComparisonEntryCells,
-): cells is ComparisonEntryCells {
-  return "baseline" in cells;
+const proofHeaders: readonly Header[] = [
+  { column: "counts", label: "Counts" },
+  { column: "executionTime", label: "Test execution time" },
+  { column: "parts", label: "Parts" },
+];
+const comparisonHeaders: readonly Header[] = [
+  { column: "counts", label: "Counts" },
+  { column: "baseline", label: "Baseline" },
+  { column: "branch", label: "Branch" },
+  { column: "landed", label: "Landed" },
+  { column: "parts", label: "Parts" },
+];
+
+// A column header: plain, or a button sorting by its column whose arrow shows
+// the direction (`aria-sort` announces it, so the arrow stays decorative).
+function ColumnHeader({
+  header,
+  sorting,
+}: {
+  readonly header: Header;
+  readonly sorting: CiProofSorting | undefined;
+}) {
+  if (sorting === undefined) return <th scope="col">{header.label}</th>;
+  const direction =
+    sorting.sort?.column === header.column ? sorting.sort.direction : undefined;
+  const arrow =
+    direction === "ascending"
+      ? ArrowUp
+      : direction === "descending"
+        ? ArrowDown
+        : ArrowUpDown;
+  return (
+    <th
+      scope="col"
+      {...(direction === undefined ? {} : { "aria-sort": direction })}
+    >
+      <button
+        type="button"
+        className="intent-ci-sort"
+        onClick={() => {
+          sorting.onSort(nextSort(sorting.sort, header.column));
+        }}
+      >
+        {header.label}
+        <span
+          className="intent-ci-sort-mark"
+          data-direction={direction ?? "none"}
+        >
+          <Icon icon={arrow} />
+        </span>
+      </button>
+    </th>
+  );
 }
 
 function PartsCell({
@@ -108,29 +181,35 @@ export function CiProofTable({
   label,
   scopeHeader,
   rows,
+  sorting,
 }: {
   readonly label: string;
   readonly scopeHeader: string;
   readonly rows: readonly CiProofTableRow[];
+  readonly sorting?: CiProofSorting;
 }) {
   const comparison = rows.some((row) => isComparisonCells(row.cells));
   const headers = comparison ? comparisonHeaders : proofHeaders;
+  const shown = sortedRows(rows, sorting?.sort);
   return (
     <div className="intent-proof-table intent-ci-proof-box">
       <table className="intent-proof-rows">
         <caption className="visually-hidden">{label}</caption>
         <thead>
           <tr>
-            <th scope="col">{scopeHeader}</th>
-            {headers.map((header) => (
-              <th key={header} scope="col">
-                {header}
-              </th>
-            ))}
+            {[{ column: "scope", label: scopeHeader } as const, ...headers].map(
+              (header) => (
+                <ColumnHeader
+                  key={header.column}
+                  header={header}
+                  sorting={sorting}
+                />
+              ),
+            )}
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ key, scope, cells }) => (
+          {shown.map(({ key, scope, cells }) => (
             <tr
               key={key}
               {...(isComparisonCells(cells)

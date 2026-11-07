@@ -182,13 +182,17 @@ test("a file the tree does not list under a listed child folder counts once, in 
 test("each row names its gap: no result, a measured zero, a missing part, no file breakdown", () => {
   const cells = (scope, of = entry) =>
     ciScopeCellsOf(of, scopeFiguresOf(of, scope));
+  // Sort figures sit beside the words; a row without a figure has none.
   assert.deepEqual(cells("tests/a.sh"), {
     counts: "1 passed checks",
+    countedResults: { total: 1, failed: 0 },
     executionTime: { text: "0 ms", ms: 0 },
     completeness: "1 of 1 part present",
     gaps: [],
+    gapCount: 0,
   });
   assert.deepEqual(cells("tests/z.sh").counts, "no CI result");
+  assert.equal(cells("tests/z.sh").countedResults, undefined);
   const missing = {
     ...entry,
     parts: [
@@ -199,6 +203,7 @@ test("each row names its gap: no result, a measured zero, a missing part, no fil
   };
   assert.deepEqual(cells("tests/deep", missing), {
     counts: "1 passed and 1 failed checks",
+    countedResults: { total: 2, failed: 1 },
     executionTime: {
       text: "Part 2 missing, Part 3 no breakdown",
       explanation:
@@ -206,6 +211,7 @@ test("each row names its gap: no result, a measured zero, a missing part, no fil
     },
     completeness: "2 of 3 parts present",
     gaps: ["part 2 of 3 missing", "part 3 of 3 has no file breakdown"],
+    gapCount: 2,
   });
   const entryOnly = {
     ...entry,
@@ -215,9 +221,11 @@ test("each row names its gap: no result, a measured zero, a missing part, no fil
   };
   assert.deepEqual(cells("tests/deep", entryOnly), {
     counts: "no file breakdown",
+    countedResults: undefined,
     executionTime: { text: "no file breakdown" },
     completeness: "1 of 1 part present",
     gaps: ["part 1 of 1 has no file breakdown"],
+    gapCount: 1,
   });
 });
 

@@ -18,6 +18,7 @@ import {
   failedVerdict,
   openFailedRun,
   proofCalls,
+  proofColumns,
   proofTable,
   run,
 } from "../intentCiProofPage.ts";
@@ -200,8 +201,9 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     });
 
   // Every row reads exactly, every column fits the reading pane with nothing
-  // scrolling sideways, `whole` cells keep their words whole, and the table
-  // adds no keyboard stop between the run link above it and Check again.
+  // scrolling sideways, `whole` cells keep their words whole, and between the
+  // run link above it and Check again the keyboard stops only at the table's
+  // sortable column headers, in order.
   const readsAt = async (
     window: { width: number; height: number },
     whole: string,
@@ -217,9 +219,15 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
       pageSideways: false,
     });
     expect(await wordsBrokenApart(table, whole)).toEqual([]);
-    await again.focus();
-    await page.keyboard.press("Shift+Tab");
-    await expect(link).toBeFocused();
+    await link.focus();
+    for (const header of proofColumns) {
+      await page.keyboard.press("Tab");
+      await expect(
+        table
+          .getByRole("columnheader", { name: header, exact: true })
+          .getByRole("button"),
+      ).toBeFocused();
+    }
     await page.keyboard.press("Tab");
     await expect(again).toBeFocused();
   };

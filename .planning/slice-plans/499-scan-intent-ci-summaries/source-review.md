@@ -11,25 +11,25 @@ Returned commitments are recorded below as returned.
 | --- | --- | --- | --- |
 | 1 | Goal: in dashboard Intent, a developer reviewing test evidence can "find the rows they care about" and understand "counts, execution times, and gaps at a glance" across CI status and the entry and folder summaries | slice 5 | |
 | 2a | "Every Intent CI figures table sorts by its columns". Listed tables follow. | slice 3 | |
-| 2a.1 | The CI status Proof table, with "one row per declared entry" | slice 2 | |
-| 2a.2 | The CI status story comparison table | slice 2 | |
+| 2a.1 | The CI status Proof table, with "one row per declared entry" | slice 2 | observed: dashboard/tests/intent/intent-ci-status-sort.spec.ts 'Proof sorts by Test execution time and Counts by click, Enter and Space, unmeasured last' |
+| 2a.2 | The CI status story comparison table | slice 2 | observed: dashboard/tests/intent/intent-ci-comparison-sort.spec.ts 'the entry comparison sorts by Baseline and Counts with the added entry's baseline gap last' |
 | 2a.3 | The entry and folder summary breakdown for a single run | slice 3 | |
 | 2a.4 | The entry and folder summary breakdown for a story comparison | slice 3 | |
 | 2b | "One shared table owns sorting, so every such table behaves the same" | slice 3 | |
-| 2c | Each column header is a "keyboard-operable control" (example: Tab reaches the header, and Enter or Space activates it) | slice 2 | |
-| 2d | The first activation sorts that column ascending | slice 2 | |
-| 2e | The next activation reverses the order (descending) | slice 2 | |
-| 2f | The header carries `aria-sort` | slice 2 | |
-| 2g | The header shows a "visible direction mark" | slice 2 | |
+| 2c | Each column header is a "keyboard-operable control" (example: Tab reaches the header, and Enter or Space activates it) | slice 2 | observed: dashboard/tests/intent/intent-ci-status-sort.spec.ts Tab from Entry header focuses Counts button, Enter and Space activate; dashboard/tests/intent/intent-ci-comparison-sort.spec.ts Enter and Space; intent-ci-proof.spec.ts zoom test tabs through the four header buttons |
+| 2d | The first activation sorts that column ascending | slice 2 | observed: dashboard/tests/intent/intent-ci-status-sort.spec.ts/dashboard/tests/intent/intent-ci-comparison-sort.spec.ts expectSortedBy ascending on first activation; tests/support/intent-ci-proof-sort.test.mjs 'the first activation sorts ascending and the next reverses it' |
+| 2e | The next activation reverses the order (descending) | slice 2 | observed: dashboard/tests/intent/intent-ci-status-sort.spec.ts/dashboard/tests/intent/intent-ci-comparison-sort.spec.ts expectSortedBy descending on second activation; tests/support/intent-ci-proof-sort.test.mjs same test |
+| 2f | The header carries `aria-sort` | slice 2 | observed: dashboard/tests/support/expectSortedColumns.ts: aria-sort on the sorted th only; dashboard/tests/intent/intent-ci-status-sort.spec.ts th[aria-sort] count 0 before activation |
+| 2g | The header shows a "visible direction mark" | slice 2 | observed: dashboard/tests/support/expectSortedColumns.ts: .intent-ci-sort-mark[data-direction] svg visible and aria-hidden |
 | 2h | "Until a header is activated, rows keep today's order": declaration order on CI status and tree order in a summary | slice 3 | |
 | 3 | "Sort keys are the figures, not their words". Listed keys follow. | slice 3 | |
-| 3.1 | **Scope**/**Entry** sort by path name | slice 2 | |
-| 3.2 | **Counts** sorts by the number of counted results | slice 2 | |
-| 3.3 | **Counts** puts "failed first among equal totals" | slice 2 | |
-| 3.4 | A timing column (**Test execution time**, **Baseline**, **Branch**, **Landed**) sorts by its measured time | slice 2 | |
-| 3.5 | **Parts** sorts by the number of gaps | slice 2 | |
-| 3b | A row without a measured value for the sorted column (partial, unavailable, no CI result, or an endpoint gap) "follows the measured rows in either direction", in its default order | slice 2 | |
-| 3c | "Ties keep default order" | slice 2 | |
+| 3.1 | **Scope**/**Entry** sort by path name | slice 2 | observed: tests/support/intent-ci-proof-sort.test.mjs 'Entry sorts by path name and Parts by the number of gaps' |
+| 3.2 | **Counts** sorts by the number of counted results | slice 2 | observed: dashboard/tests/intent/intent-ci-status-sort.spec.ts Counts ascending b(3),c(3),a(4); dashboard/tests/intent/intent-ci-comparison-sort.spec.ts Counts ascending by counted results; tests/support/intent-ci-proof-sort.test.mjs 'Counts sorts by counted results with failed first among equal totals' |
+| 3.3 | **Counts** puts "failed first among equal totals" | slice 2 | observed: dashboard/tests/intent/intent-ci-status-sort.spec.ts b (3, 1 failed) before c (3) both directions; tests/support/intent-ci-proof-sort.test.mjs failed-first test |
+| 3.4 | A timing column (**Test execution time**, **Baseline**, **Branch**, **Landed**) sorts by its measured time | slice 2 | observed: dashboard/tests/intent/intent-ci-status-sort.spec.ts Test execution time; dashboard/tests/intent/intent-ci-comparison-sort.spec.ts Baseline; tests/support/intent-ci-proof-sort.test.mjs Branch, Baseline, Landed with endpoint gap |
+| 3.5 | **Parts** sorts by the number of gaps | slice 2 | observed: tests/support/intent-ci-proof-sort.test.mjs 'Entry sorts by path name and Parts by the number of gaps' |
+| 3b | A row without a measured value for the sorted column (partial, unavailable, no CI result, or an endpoint gap) "follows the measured rows in either direction", in its default order | slice 2 | observed: dashboard/tests/intent/intent-ci-status-sort.spec.ts tests/c Part 2 untimed last both ways; dashboard/tests/intent/intent-ci-comparison-sort.spec.ts src/skills added baseline last both ways; tests/support/intent-ci-proof-sort.test.mjs 'unmeasured rows keep their given order after measured ones in either direction' |
+| 3c | "Ties keep default order" | slice 2 | observed: tests/support/intent-ci-proof-sort.test.mjs 'ties keep the given order' and 'rows keep the given order until a column is sorted' |
 | 4a | In a story comparison, the change kind (added, modified, removed, renamed) moves "from trailing words on the name" into a short **Change** column | slice 4 | |
 | 4b | The **Change** column sorts by kind | slice 4 | |
 | 4c | In a **Change** sort, unchanged rows come last (example: `added` and `modified` rows come together ahead of unchanged rows) | slice 4 | |
@@ -71,14 +71,14 @@ Returned commitments are recorded below as returned.
 | 9b | The same one-term-per-fact rule extends to Intent's documentation (`docs/dashboard-development-intent.md`) | slice 5 | |
 | 9c | The same one-term-per-fact rule extends to the CI timing comparison doc (`docs/dashboard-development-intent-ci-comparison.md`) | slice 5 | |
 | 10a | Exclusion: no new figures, including "no lower-bound time for partial scopes" | slice 1 | observed: dashboard/src/ciProofTiming.ts partial/not-recorded cells carry no ms or lower-bound text; tests/support/intent-ci-proof-timing.test.mjs |
-| 10b | Exclusion: no totals row on CI status | slice 2 | |
+| 10b | Exclusion: no totals row on CI status | slice 2 | observed: dashboard/tests/intent/intent-ci-status-sort.spec.ts row count 4 (header + 3 entries) before and after sorting |
 | 10c | Exclusion: no added counts or filters | slice 5 | |
 | 11 | Exclusion: no change to what CI evidence is read, judged or compared, or when | slice 5 | |
 | 12 | Exclusion: the sort choice is not put on the URL or in storage | slice 3 | |
 | 13a | Exclusion: Optimization Candidates is unchanged | slice 5 | |
 | 13b | Exclusion: file Purpose is unchanged | slice 5 | |
 | 13c | Scope limit: a selected file's Proof changes "only as far as it shares the evidence identity and timing labels" | slice 5 | |
-| 14 | Example 1 (sort journey): Proof times are `tests/a` 12.5 s, `tests/b` 340 ms and `tests/c` `Part 2 untimed`. Ascending gives b, a, c and is announced ascending. Descending gives a, b, c with the partial row still last, announced descending. | slice 2 | |
+| 14 | Example 1 (sort journey): Proof times are `tests/a` 12.5 s, `tests/b` 340 ms and `tests/c` `Part 2 untimed`. Ascending gives b, a, c and is announced ascending. Descending gives a, b, c with the partial row still last, announced descending. | slice 2 | observed: dashboard/tests/intent/intent-ci-status-sort.spec.ts ascending tests/b, tests/a, tests/c announced ascending; descending tests/a, tests/b, tests/c announced descending; tests/support/intent-ci-proof-sort.test.mjs 'measured time sorts both ways with the partial row last' |
 | 15 | Example 2 (folder journey): `features/billing` shows its own `20 tests · 1 failed` (3 tests not in any child row), its time and parts above the table. A **Counts** descending sort gives `refunds.feature`, `invoices/`, then **Not in the rows above**. | slice 3 | |
 | 16 | Example 3 (Done story entry summary): the overall Baseline / Branch / Landed sit above the table. A **Change** column groups changed rows ahead of unchanged ones, and a **Landed** sort puts endpoint-gap rows last. | slice 4 | |
 | 17 | Example 4 (timing labels): partial shows `Part 2 untimed`, every part timed at zero duration shows `0 ms`, and an older summary without durations shows `No timings`. A screen reader and hover give the full explanation. | slice 1 | observed: dashboard/tests/intent/intent-ci-status-execution-time.spec.ts 'an untimed part shows Part 2 untimed while parts timed at zero show 0 ms' and 'an older summary without durations shows No timings…' with description and title |

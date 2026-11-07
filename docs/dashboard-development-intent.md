@@ -169,7 +169,17 @@ durations; never zero for absence, no lower bound for partial timing, and
 never the attempt's wall time; a gap label's full explanation, such as
 “Partial: part 2 of 3 has no duration”, is the cell's hover text and
 accessible description) and **Parts** (how many declared parts are present, then each missing
-or ambiguous part as an uncounted gap). A path wraps after its `/`
+or ambiguous part as an uncounted gap). Each column header is a button,
+reached by Tab and activated by click, Enter or Space: the first activation
+sorts the rows ascending by that column's figures, the next descending, and
+the sorted header carries `aria-sort` and a direction arrow. **Entry** sorts
+by path name, **Counts** by the number of counted results with failed
+results first among equal totals, **Test execution time** by measured time
+and **Parts** by the number of gaps; a row without a measured figure for the
+column (partial, `No timings`) follows the measured rows in either direction,
+and those rows and ties keep declaration order. The sort is kept in memory
+while **CI status** stays shown, never on the URL or in storage; the table
+has no totals row. A path wraps after its `/`
 separators, and within them only in a reading pane too narrow for that, so
 the columns fit a phone or zoomed window without sideways scrolling. A
 GitHub Actions run's summary is its `ci-proof-summary-attempt-<n>` artifact,

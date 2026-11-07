@@ -5,7 +5,8 @@
 // judgment is shown first and never changes with it. It names that attempt
 // once -- a run's attempt and link, or an adapter's attempt id, and the
 // revision -- and its CI wall time, then a table with one row per declared
-// entry, in the order the project's CI declares them, with aligned columns of
+// entry, in the order the project's CI declares them until a column header
+// sorts them, with aligned columns of
 // the counts and their unit, cumulative test execution time and parts present
 // with any gap (`./CiProofTable.tsx`, `./ciProofWording.ts`); otherwise one
 // line says why there is no proof to show (`./useIntentCiShownProof.ts`). An adapter attempt whose attemptId
@@ -16,7 +17,12 @@
 
 import { useId } from "react";
 import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
-import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
+import {
+  CiProofTable,
+  ScopePath,
+  useCiProofSorting,
+  type CiProofSorting,
+} from "./CiProofTable.tsx";
 import { shortSha } from "./baseCiWording.ts";
 import { isAdapterProofAttempt, type CiProofEntry } from "./ciProof.ts";
 import { ciWallTimeLine } from "./ciProofTimeWords.ts";
@@ -24,21 +30,26 @@ import { ciProofCellsOf } from "./ciProofWording.ts";
 import type { ShownCiProofRun } from "./shownCiProofRun.ts";
 import { shownProofStateOf, type ShownProof } from "./useIntentCiShownProof.ts";
 
-// Each declared entry's row, in the order the summary lists them; a summary
-// declaring no entry shows no table, as it showed no rows.
+// Each declared entry's row, in the order the summary lists them until a
+// column is sorted; a summary declaring no entry shows no table, as it showed
+// no rows.
 function ProofEntries({
   entries,
+  sorting,
 }: {
   readonly entries: readonly CiProofEntry[];
+  readonly sorting: CiProofSorting;
 }) {
   if (entries.length === 0) return null;
   return (
     <CiProofTable
       label="CI proof by declared entry"
       scopeHeader="Entry"
+      sorting={sorting}
       rows={entries.map((entry) => ({
         key: entry.path,
         scope: <ScopePath path={entry.path} />,
+        name: entry.path,
         cells: ciProofCellsOf(entry),
       }))}
     />
@@ -97,6 +108,8 @@ export function IntentCiProof({
 }) {
   const state = shownProofStateOf(judgment, proof);
   const heading = useId();
+  // Kept while Check again reads the proof anew.
+  const sorting = useCiProofSorting();
   return (
     <section className="intent-ci-proof" aria-labelledby={heading}>
       <h4 id={heading}>Proof</h4>
@@ -106,7 +119,7 @@ export function IntentCiProof({
         <>
           <RunNamed run={state.run} />
           {state.kind === "summary" ? (
-            <ProofEntries entries={state.summary.entries} />
+            <ProofEntries entries={state.summary.entries} sorting={sorting} />
           ) : state.kind === "checking" ? (
             <p aria-live="polite" className="intent-ci-proof-checking quiet">
               {state.line}

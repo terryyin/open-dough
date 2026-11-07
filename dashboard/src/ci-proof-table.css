@@ -57,3 +57,27 @@
     padding-inline: var(--space-1);
   }
 }
+
+/* A sortable column header is a button reading as the header it replaces,
+   its direction arrow beside the words: faint until the column is sorted. */
+.intent-ci-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.intent-ci-sort-mark {
+  display: inline-flex;
+  --icon-size: 0.875rem;
+}
+
+.intent-ci-sort-mark[data-direction="none"] {
+  color: var(--quiet);
+}

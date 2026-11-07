@@ -75,21 +75,40 @@ function breakdownGaps(entry: CiProofEntry): string[] {
 const executionTimeCell = (timing: CiTiming) =>
   timingCellOf(timing, executionTimeWords);
 
+// The counted results a Counts cell words, as its column sorts them
+// (`./ciProofSort.ts`): how many, and how many of them failed.
+export type CountedResults = {
+  readonly total: number;
+  readonly failed: number;
+};
+
+export const countedResultsOf = (figures: CiProofFigures): CountedResults => ({
+  total: figures.passed + figures.failed + figures.other,
+  failed: figures.failed,
+});
+
 // One CI proof table row's cells (`./CiProofTable.tsx`): counts with their
-// unit, test execution time, and completeness followed by each gap.
+// unit, test execution time, and completeness followed by each gap, with the
+// counted results and the number of gaps beside their words for sorting
+// (none when the row has no such figure).
 export type CiProofCells = {
   readonly counts: string;
+  readonly countedResults: CountedResults | undefined;
   readonly executionTime: TimingCell;
   readonly completeness: string;
   readonly gaps: readonly string[];
+  readonly gapCount: number | undefined;
 };
 
 export function ciProofCellsOf(entry: CiProofEntry): CiProofCells {
+  const gaps = entryGaps(entry);
   return {
     counts: countsWords(entry, entry),
+    countedResults: countedResultsOf(entry),
     executionTime: executionTimeCell(entryTimingOf(entry)),
     completeness: entryParts(entry),
-    gaps: entryGaps(entry),
+    gaps,
+    gapCount: gaps.length,
   };
 }
 
@@ -104,13 +123,16 @@ export function ciScopeCellsOf(
   entry: CiProofEntry,
   figures: CiScopeFigures,
 ): CiProofCells {
+  const gaps = [...entryGaps(entry), ...breakdownGaps(entry)];
   const parts = {
     completeness: entryParts(entry),
-    gaps: [...entryGaps(entry), ...breakdownGaps(entry)],
+    gaps,
+    gapCount: gaps.length,
   };
   if (!hasFileBreakdown(entry)) {
     return {
       counts: noFileBreakdown,
+      countedResults: undefined,
       executionTime: { text: noFileBreakdown },
       ...parts,
     };
@@ -118,12 +140,14 @@ export function ciScopeCellsOf(
   if (figures.files === 0) {
     return {
       counts: noCiResult,
+      countedResults: undefined,
       executionTime: { text: noCiResult },
       ...parts,
     };
   }
   return {
     counts: countsWords(entry, figures),
+    countedResults: countedResultsOf(figures),
     executionTime: executionTimeCell(scopeTimingOf(entry, figures)),
     ...parts,
   };
@@ -133,7 +157,9 @@ export function ciScopeCellsOf(
 // in a word or two ("checking", "no CI proof").
 export const ciUnavailableCellsOf = (why: string): CiProofCells => ({
   counts: why,
+  countedResults: undefined,
   executionTime: { text: why },
   completeness: why,
   gaps: [],
+  gapCount: undefined,
 });

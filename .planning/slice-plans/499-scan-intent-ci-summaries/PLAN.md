@@ -126,7 +126,7 @@ typecheck passes. After the refactor pass, units, typecheck and
 
 ### 2. Sort any Intent CI figures table by its columns
 Type: Behavior
-Status: planned
+Status: done
 Proof: as mapped above for key example 1.
 
 Behavior: CI status Proof or a CI status story comparison with several
@@ -135,6 +135,14 @@ by that column's value, unmeasured rows after measured ones in either
 direction, ties in default order; the header shows its direction and
 `aria-sort`; activating again reverses. Interim: summary tables keep plain
 headers until slice 3 gives them sorting with their own row moved out.
+
+Accepted proof (2026-11-07): new `intent-ci-status-sort.spec.ts` and
+`intent-ci-comparison-sort.spec.ts` (helper `expectSortedColumns.ts`), unit
+`intent-ci-proof-sort.test.mjs` (9 tests); family gate (39 specs) 98 passed in
+3.6 min after `intent-ci-proof.spec.ts`'s keyboard-path assertion was updated
+for the header buttons; typecheck passes. Refactor disposition:
+`## REFACTOR COMPLETE` (`isComparisonCells` has one home in
+`storyCiComparisonEntries.ts`).
 
 ### 3. A summary shows its own figures above a sortable breakdown
 Type: Behavior
@@ -190,6 +198,16 @@ matches the shipped wording.
   `Part N no breakdown`. Slice 3's overall group reuses `timingCellOf`.
   Specs touched here still carry pre-existing file-level `test.setTimeout`
   and `test.slow()`; SEED-260#restore-default-test-timeouts owns removing them.
+
+- 2026-11-07, slice 2: `dashboard/src/ciProofSort.ts` owns the comparator;
+  `CiProofTable` sorts only when a caller passes the controlled
+  `sorting={ sort, onSort }`, rows carry `name` and may be `pinned`. Slice 3
+  holds a `ColumnSort` in Intent's reading place and marks the outside row
+  pinned; a column the table lacks yields no values, so rows keep their order,
+  but no header then carries `aria-sort`, so slice 3 clears that sort. Header
+  buttons add keyboard stops: summary zoom/keyboard assertions change when
+  summaries opt in. Slice 4 adds a `change` column key with unchanged rows
+  valueless. Counts puts failed first among equal totals in both directions.
 
 ## Refinement review
 

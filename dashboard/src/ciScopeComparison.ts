@@ -12,6 +12,7 @@
 // completeness stays from the landed summary (or branch when landed has none).
 
 import {
+  countedResultsOfCount,
   countsCellText,
   outsideCountOf,
   scopeEndpointCountOf,
@@ -92,6 +93,7 @@ export function scopeComparisonCellsOf(
       // No measured count at any endpoint — same words as a scope with no
       // CI result, never a signed difference of zeros.
       counts: "no CI result",
+      countedResults: undefined,
       ...partsForPath(path, baseline, branch, landed),
       baseline: notInCompared,
       branch: notInCompared,
@@ -114,6 +116,7 @@ export function scopeComparisonCellsOf(
       presentInBaseline,
       changeKind,
     ),
+    countedResults: countedResultsOfCount(afterCount),
     ...partsForPath(path, baseline, branch, landed),
     baseline:
       renameNote === ""
@@ -178,6 +181,7 @@ export function outsideComparisonCellsOf(
       presentLater,
       presentInBaseline,
     ),
+    countedResults: countedResultsOfCount(afterCount),
     ...partsCellsOf(primaryEntry, primaryOutside?.figures),
     baseline: baselineCellOf(before, presentLater, precision),
     branch: afterCellOf(

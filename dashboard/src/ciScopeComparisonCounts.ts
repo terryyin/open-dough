@@ -7,7 +7,11 @@
 // parts stay with the chosen build in `./ciScopeComparison.ts`.
 
 import type { CiProofEntry, CiProofFigures } from "./ciProof.ts";
-import { hasFileBreakdown } from "./ciProofWording.ts";
+import {
+  countedResultsOf,
+  hasFileBreakdown,
+  type CountedResults,
+} from "./ciProofWording.ts";
 import { endpointProofReadOf } from "./ciScopeComparisonEndpoint.ts";
 import {
   outsideOf,
@@ -27,14 +31,24 @@ export type ScopeEndpointCount =
   | {
       readonly kind: "measured";
       readonly total: number;
+      readonly failed: number;
       readonly unit: string;
     };
 
 const noFileBreakdown = "no file breakdown";
 const minus = "−";
 
-export function totalCounted(figures: CiProofFigures): number {
-  return figures.passed + figures.failed + figures.other;
+export const totalCounted = (figures: CiProofFigures): number =>
+  countedResultsOf(figures).total;
+
+// The counted results a Counts column sorts COUNT by: none for a gap, and
+// none counted for an entry that counts nothing.
+export function countedResultsOfCount(
+  count: ScopeEndpointCount,
+): CountedResults | undefined {
+  if (count.kind === "measured")
+    return { total: count.total, failed: count.failed };
+  return count.kind === "nothing" ? { total: 0, failed: 0 } : undefined;
 }
 
 function formatTotal(total: number): string {
@@ -64,7 +78,7 @@ function measuredOf(
   if (entry.unit === null) return { kind: "nothing" };
   return {
     kind: "measured",
-    total: totalCounted(figures),
+    ...countedResultsOf(figures),
     unit: entry.unit,
   };
 }

@@ -16,7 +16,12 @@ CI wall time as context; then each endpoint's revision, run, attempt, state and
 exact-or-ancestor selection with CI wall time and CI time without runner waits
 (signed whole-second differences against Baseline; observations between builds,
 not attributed to the story); then entry rows whose Counts and Baseline /
-Branch / Landed cells reuse the before→after words. GitHub Actions wall time
+Branch / Landed cells reuse the before→after words. The entry rows sort by
+their column headers as **CI status** Proof's do: **Counts** by the active
+after endpoint's counted results, and **Baseline**, **Branch** and
+**Landed** by that endpoint's measured time, an endpoint gap (added,
+removed, partial, unavailable) following the measured rows in either
+direction. GitHub Actions wall time
 spans run creation on attempt one or attempt start on reruns through completion.
 CI time without runner waits measures the longest dependency chain of job
 durations, including carried-over jobs, against the workflow at that build. One classification of each scope's count and duration change
