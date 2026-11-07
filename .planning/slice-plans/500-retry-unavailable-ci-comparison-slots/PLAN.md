@@ -108,6 +108,17 @@ recovered slot shows its build, a final answer returns with no further
 GitHub requests, and a still-failing read shows its reason again. Intent's
 CI timing comparison documentation names the button and when it reads.
 
+## Execution complete
+
+Product advice: no change. The delivered rule and **Check again** meet the
+story's goal; SEED-118 has no further queued story, and the default-timeout
+cleanup this execution touched (one `test.slow()` removed with the moved
+journey) is already the leading backlog story SEED-260. Proof limits kept
+for wrap-up: Branch and Landed recovery rest on the shared rule's unit proof
+rather than their own browser journeys, and whole-answer recovery is observed
+through a fail-once 502 and an unreadable-then-readable history, not an
+expired read bound.
+
 ## Accepted proof
 
 - Slice 1 (2026-11-07): `bash scripts/test.sh tests/support/dashboard-later-trunk-landed.test.mjs`
