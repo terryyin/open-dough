@@ -3,11 +3,8 @@
 // state and accessible names match Proof words; selection and keyboard focus
 // stay distinct from count borders and duration tints; a location with story
 // changes keeps its change mark beside a count cue; no story means no cues.
-// Folder rows stay uncued (deferred). Screenshot review paths are written
-// under the plan's screenshots directory for Learnings.
+// Folder rows stay uncued (deferred).
 
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { expect, test } from "../support/preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
 import {
@@ -38,11 +35,6 @@ import { modifiedFileRow } from "../support/summaryComparisonFileExpectedRows.ts
 
 test.setTimeout(120_000);
 
-const screenshotDir = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../.planning/slice-plans/493-compare-before-and-after-ci-proof/screenshots",
-);
-
 const cuedFileLabel = summaryComparisonChanges.modified;
 const cuedFilePath = "dashboard/tests/folder/a.spec.ts";
 const proofCounts = modifiedFileRow[1];
@@ -51,7 +43,7 @@ const proofAfter = modifiedFileRow[4];
 test("tree file rows and location headers show shared CI cues with distinct selection and focus", async ({
   page,
   origin,
-}) => {
+}, testInfo) => {
   await publishSummaryComparisonStory(page, origin);
   const { intent, card } = await selectDoneStoryForSummaryComparison(page);
 
@@ -221,7 +213,11 @@ test("tree file rows and location headers show shared CI cues with distinct sele
   await test.step("screenshot review light and dark at desktop and phone widths", async () => {
     await expandIntentGroup(intent, "dashboard/tests");
     await intentFile(intent, cuedFileLabel).click();
-    await captureTreeCiCueScreenshots(page, intent, screenshotDir);
+    await captureTreeCiCueScreenshots(
+      page,
+      intent,
+      testInfo.outputPath("screenshots"),
+    );
   });
 
   await test.step("no story selected shows no tree cues", async () => {

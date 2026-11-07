@@ -1,5 +1,4 @@
-// Writes Intent tree CI-cue review screenshots for Learnings under a plan
-// screenshots directory (light/dark × desktop/phone).
+// Captures Intent tree CI cues for review (light/dark × desktop/phone).
 
 import type { Locator, Page } from "@playwright/test";
 import path from "node:path";
