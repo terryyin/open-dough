@@ -1,4 +1,4 @@
-// Proof summaries of a done story's comparison endpoints
+// Proof summaries of a story's comparison endpoints
 // (`./useIntentCiComparison.ts`), each read through `./authenticatedIntentCiProofRead.ts`
 // with the build's full revision. A late answer for another story or attempt
 // never becomes the shown proof. Intent's one CI evidence owner
@@ -7,9 +7,9 @@
 // (`./IntentScopeProof.tsx`) share them; selecting, drilling and returning
 // home ask CI nothing again.
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
-import type { CiProof, CiProofRun } from "./ciProof.ts";
+import type { CiProof, CiProofSubject } from "./ciProof.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type {
   StoryCiComparisonAnswer,
@@ -33,40 +33,36 @@ export type ComparisonEndpointProofs = {
   readonly landed: ComparisonEndpointProof;
 };
 
-function buildSubject(
-  slot: Extract<StoryCiComparisonSlot, { kind: "build" }>,
-): CiProofRun | undefined {
-  if (slot.runId === undefined || slot.runAttempt === undefined)
-    return undefined;
-  return {
-    runId: slot.runId,
-    runAttempt: slot.runAttempt,
-    revision: slot.revision,
-  };
-}
-
-function slotKey(
-  identity: string,
-  role: string,
-  slot: StoryCiComparisonSlot,
-): string | undefined {
-  if (slot.kind !== "build") return `${identity}|${role}|${slot.kind}`;
-  const subject = buildSubject(slot);
-  if (subject === undefined) return `${identity}|${role}|no-run`;
-  return `${identity}|${role}|${String(subject.runId)}|${String(subject.runAttempt)}|${subject.revision}`;
-}
-
 function useSlotProof(
   source: PublishedSource,
   identity: string | undefined,
-  role: string,
   slot: StoryCiComparisonSlot | undefined,
 ): SlotProof {
-  const key =
-    identity === undefined || slot === undefined
+  const build = slot?.kind === "build" ? slot : undefined;
+  const adapterAttempt = build?.adapterAttempt;
+  const revision =
+    adapterAttempt?.ambiguous === true ? undefined : build?.revision;
+  const runId = adapterAttempt?.runId ?? build?.runId;
+  const runAttempt =
+    adapterAttempt === undefined ? build?.runAttempt : undefined;
+  const attemptId = adapterAttempt?.attemptId;
+  const branch = adapterAttempt === undefined ? undefined : build?.runBranch;
+  // Capture the proof subject with its key and keep it stable when a fresh
+  // comparison answer still names the same attempt.
+  const subject = useMemo<CiProofSubject | undefined>(() => {
+    if (revision === undefined) return undefined;
+    if (typeof runId === "string")
+      return attemptId === undefined || branch === undefined
+        ? undefined
+        : { runId, attemptId, branch, revision };
+    return runId === undefined || runAttempt === undefined
       ? undefined
-      : slotKey(identity, role, slot);
-  const subject = slot?.kind === "build" ? buildSubject(slot) : undefined;
+      : { runId, runAttempt, revision };
+  }, [attemptId, branch, revision, runId, runAttempt]);
+  const key =
+    identity === undefined || subject === undefined
+      ? undefined
+      : JSON.stringify([source.id, source.repository, identity, subject]);
   const [answer, setAnswer] = useState<
     { readonly key: string; readonly proof: CiProof } | undefined
   >(undefined);
@@ -94,16 +90,15 @@ function useSlotProof(
     return () => {
       controller.abort();
     };
-  }, [source, key, subject?.runId, subject?.runAttempt, subject?.revision]);
+  }, [source, key, subject]);
 
-  if (key === undefined) return { proof: undefined, reading: false };
   if (slot?.kind === "build" && subject === undefined) {
     return {
       proof: { kind: "unavailable", reason: "none" },
       reading: false,
     };
   }
-  if (subject === undefined) return { proof: undefined, reading: false };
+  if (key === undefined) return { proof: undefined, reading: false };
   if (answer?.key === key) return { proof: answer.proof, reading: false };
   return { proof: undefined, reading: true };
 }
@@ -118,7 +113,6 @@ export function useIntentCiComparisonEndpointProofs(
   const baseline = useSlotProof(
     source,
     identity,
-    "baseline",
     answer?.kind === "comparison" ? answer.baseline : undefined,
   );
   // Taken Trunk Mode puts the live tip in `provisional` beside Branch N/A;
@@ -127,11 +121,10 @@ export function useIntentCiComparisonEndpointProofs(
     answer?.kind === "comparison"
       ? (answer.provisional ?? answer.branch)
       : undefined;
-  const branch = useSlotProof(source, identity, "branch", branchSlot);
+  const branch = useSlotProof(source, identity, branchSlot);
   const landed = useSlotProof(
     source,
     identity,
-    "landed",
     answer?.kind === "comparison" ? answer.landed : undefined,
   );
 

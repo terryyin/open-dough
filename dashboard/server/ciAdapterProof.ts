@@ -23,7 +23,12 @@ import { rememberedByKey } from "./rememberedByKey.ts";
 // Valid summaries read so far, by repository and attempt.
 const remembered = rememberedByKey<Record<string, unknown>>();
 const rememberedKey = (repository: string, attempt: CiAdapterProofAttempt) =>
-  `${repository.toLowerCase()}#${attempt.runId}#${attempt.attemptId}#${attempt.revision}`;
+  JSON.stringify([
+    repository.toLowerCase(),
+    attempt.runId,
+    attempt.attemptId,
+    attempt.revision,
+  ]);
 
 const unavailable = (
   reason: Extract<CiProof, { kind: "unavailable" }>["reason"],

@@ -4,10 +4,17 @@
 // Intent's homepage, Summaries and the selected-file reading comparison.
 
 import { z } from "zod";
+import { runIdentityShape } from "./baseCiConfirmation.ts";
 
 const runIdentity = {
-  runId: z.number().int().positive().optional(),
-  runAttempt: z.number().int().positive().optional(),
+  ...runIdentityShape,
+  adapterAttempt: runIdentityShape.adapterAttempt
+    .unwrap()
+    .extend({
+      runId: z.string(),
+      attemptId: z.string(),
+    })
+    .optional(),
 };
 
 const attemptTimes = {
@@ -31,6 +38,7 @@ const buildSlot = z.object({
   state: z.enum(["pass", "failed"]),
   selection: z.enum(["exact", "ancestor"]),
   laterWithoutResult: z.number().int().nonnegative(),
+  laterRunning: z.literal(true).optional(),
   runUrl: z.string().min(1).optional(),
   runBranch: z.string().min(1).optional(),
   ...runIdentity,
@@ -45,6 +53,7 @@ const runningSlot = z.object({
   selection: z.enum(["exact", "ancestor"]),
   laterWithoutResult: z.number().int().nonnegative(),
   runUrl: z.string().min(1).optional(),
+  runBranch: z.string().min(1).optional(),
   ...runIdentity,
 });
 

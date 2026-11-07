@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-257#compare-story-ci-through-adapters",
+  "title": "Compare story CI builds from custom adapters in Intent",
+  "completedAt": "2026-11-07T09:13:35.670Z",
+  "developer": "Terry Yin",
+  "agent": "juacompe-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

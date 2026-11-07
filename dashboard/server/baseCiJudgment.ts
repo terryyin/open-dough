@@ -13,7 +13,6 @@
 // was on.
 // Only a branch name the safe-branch rule accepts reaches `gh api` or the
 // adapter.
-import { createCommandAcquisition } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import { createGitHubActions } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import { readCiConfiguration } from "../../src/skills/dough-execute-plan/scripts/ci-project-configuration.mjs";
 import {
@@ -23,8 +22,8 @@ import {
 import type { BaseCiFound } from "../src/baseCiConfirmation.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
-  asAdapterAttempts,
-  type DiscoveredAttempt,
+  adapterDiscoveryUnread,
+  discoverAdapterAttempts,
 } from "./baseCiAdapterAttempts.ts";
 import {
   githubAcquisitionUnread,
@@ -93,16 +92,7 @@ async function judgeGitHubActions(
   }
 }
 
-// Judges `branch` from its listed history and the ciAdapter's discover
-// attempts, asked in `root`. As with a ciWorkflow, a story branch also asks
-// the discover for the configured ref, so a shared ancestor's trunk result
-// counts as that commit's result; the trunk's attempts are listed first so,
-// at equal times, the branch's own is the newer. The two discovers run at
-// once, so a story branch waits no longer than one; each acquisition keeps
-// its own state and the adapter runs as its own process. The trunk itself
-// asks one discover, as the launch always has. Any failed discover makes the
-// judgment unread with its reason and ends the other. Exported so the
-// discover rule is proved without a GitHub history read.
+// Judges `branch` from its listed history and the ciAdapter's discovery.
 export async function judgeCommandAdapter(
   commits: readonly ListedCommit[],
   source: PublishedSource,
@@ -111,50 +101,13 @@ export async function judgeCommandAdapter(
   adapter: readonly string[],
   signal: AbortSignal,
 ): Promise<BaseCiJudgment> {
-  const ended = new AbortController();
-  const asked = AbortSignal.any([signal, ended.signal]);
-  const discovered = async (discoveredBranch: string) => {
-    const acquisition = createCommandAcquisition({
-      command: adapter,
-      repo: source.repository,
-      branch: discoveredBranch,
-      root,
-    });
-    try {
-      await acquisition.acquireRuns(asked);
-    } catch (error) {
-      ended.abort();
-      throw error;
-    }
-    const withBranch = (run: DiscoveredAttempt) => ({
-      ...run,
-      branch: discoveredBranch,
-    });
-    return {
-      retained: (
-        (await acquisition.discoverAncestorCandidates()) as DiscoveredAttempt[]
-      ).map(withBranch),
-      answered: (
-        (await acquisition.discoverAnsweredAttempts()) as DiscoveredAttempt[]
-      ).map(withBranch),
-    };
-  };
   try {
-    const branches = branch === source.ref ? [branch] : [source.ref, branch];
-    const listed = await Promise.all(branches.map(discovered));
     return judgeNearest(
       commits,
-      asAdapterAttempts(
-        listed.flatMap(({ retained }) => retained),
-        listed.flatMap(({ answered }) => answered),
-      ),
+      await discoverAdapterAttempts(source, branch, root, adapter, signal),
     );
   } catch (error) {
-    return unread(
-      error instanceof Error
-        ? error.message
-        : "The command-adapter discover could not be read",
-    );
+    return adapterDiscoveryUnread(error);
   }
 }
 

@@ -11,7 +11,6 @@ import {
   lookupResultBuild,
   type RevisionBuildSlot,
 } from "./baseCiRevisionLookup.ts";
-import { runGit } from "./gitRunner.ts";
 import {
   asComparisonSlot,
   gapFromUnread,
@@ -41,7 +40,7 @@ export async function performDoneComparison(
     };
   }
   const { facts } = endpoints;
-  const context = lookupContext(source, signal);
+  const context = await lookupContext(source, signal, facts.branch);
   if ("unavailable" in context) {
     return {
       kind: "unavailable",
@@ -51,7 +50,6 @@ export async function performDoneComparison(
     };
   }
   const { call, lookupOrGap } = context;
-  await runGit(["rev-parse", "--verify", `${facts.completion}^{commit}`], call);
   if (isUnreadJudgment(lookupOrGap)) {
     const gap = gapFromUnread(lookupOrGap);
     return {
@@ -172,7 +170,7 @@ export async function performTakenComparison(
     };
   }
   const { facts } = endpoints;
-  const context = lookupContext(source, signal);
+  const context = await lookupContext(source, signal, facts.branch);
   if ("unavailable" in context) {
     return {
       kind: "unavailable",
@@ -211,6 +209,7 @@ export async function performTakenComparison(
     facts.mode === "trunk"
       ? "No completed CI build was found at the current trunk tip or a later trunk ancestor within the story's start bound."
       : "No completed CI build was found at the current branch tip or a later story-side ancestor within the story's start bound.",
+    { provisional: true },
   );
   const [baseline, live] = await Promise.all([
     asComparisonSlot(baselineBuild, lookup),

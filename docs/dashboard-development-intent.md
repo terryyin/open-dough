@@ -98,43 +98,49 @@ answer replaces its problem through the same path as **Retry**. Malformed
 settings, access refusals, unexpected answers and unclassified failures keep
 their manual actions. Absent or mismatched candidates keep their existing
 explanations. Purpose file text offers its own **Retry**.
-**CI status** shows the selected check's judgment of the project's configured
-trunk (`main` here), or, with a selected Taken story (card or Side panel), of
-that story's published story branch — the branch its single agent profile
-records in Story Branch Mode — by the same rule as the
-[base-CI check before an execution start](../dashboard/LAUNCH-BASE-CI.md):
-the newest result of the configured `ciWorkflow` (or `ciAdapter` discover) at
-the branch head or its nearest ancestor that has one. For a story branch,
-trunk results of the same check also count when the commit is in the branch's
-history (the run's branch is named, for example "run on `main`"); a trunk
-result for a commit outside that history never counts. The nearest commit
-with a result decides by its newest result; a failed trunk read leaves
-**Could not be read**. A selected **done** story shows a **CI timing comparison**. Baseline uses the
-newest completed build at or before the first claim parent. Branch starts at the landing's story-side
-parent and is inapplicable in Trunk Mode. In Story Branch Mode, Landed uses the exact build at the
-newest trunk-first owning merge or, in its absence, the fast-forward tip. Each row gives the
-revision, run, attempt, state and exact or measured-ancestor selection.
-**CI wall time** spans run creation on attempt one or attempt start on a rerun through completion.
-**CI time without runner waits** measures the longest dependency chain from individual job durations,
-including carried-over jobs, matched to the workflow at the build's revision. Signed whole-second
-differences from Baseline compare single builds. A running build or one missing timing or dependency
-evidence shows why the estimate is unavailable and any available wall time. Entry rows show cumulative
-test execution time. Build recovery at homepage, entry, folder and file scopes is independent of
-Review changes' merge attribution.
-A selected **Taken** Story Branch story keeps live judgment and compares the latest completed branch
-build with Baseline. The provisional row re-reads at a new head. Taken Trunk Mode shows a provisional
-trunk row with Branch inapplicable. Landed says the story has not landed yet. A selected story with no
-published story branch (queued or being prepared), unreadable or ambiguous
-agent profiles, an unusable recorded name, or a branch GitHub no longer
-publishes is named with that explanation and shows no status; no other
-branch's judgment stands in. A changed selection replaces the judgment;
-clearing it returns to the trunk. It names the branch and states **Passed**,
+**CI status** judges configured trunk (`main` here) or the published branch of
+a Taken story selected by card or Side panel. The story's single Story Branch
+Mode agent profile records that branch. Judgment follows the same rule as the
+[base-CI check](../dashboard/LAUNCH-BASE-CI.md). The newest
+`ciWorkflow` or `ciAdapter` result at the head or nearest ancestor decides.
+Trunk results for the same check count on a story branch when the commit is
+in its history, and the view names the run's branch, for example "run on
+`main`". A failed trunk read leaves **Could not be read**.
+A selected **Done** story shows the **CI timing comparison**. Baseline is
+the newest completed build at or before the first claim parent. Branch is
+the final branch result from the landing's story-side parent (inapplicable
+in Trunk Mode). Landed uses the newest trunk-first owning merge or the
+fast-forward tip, before any separate completion commit and without falling
+back across the landing. Each build shows its revision, run, attempt, state,
+and exact or measured-ancestor selection. GitHub Actions wall time spans
+run creation on attempt one or attempt start on reruns through completion.
+CI time without runner waits measures the longest dependency chain of job
+durations, including carried-over jobs, against the workflow at that build.
+Signed whole-second differences compare observed builds with Baseline. A
+running build or missing timing or dependency evidence gives an unavailable
+reason and any available wall time. Entry rows compare cumulative test execution time.
+With `ciAdapter`, the comparison matches retained `discover` attempts by full
+revision across validated branches. It queries the target and any known
+story branch, and shows both IDs as text. Adapter wall time uses the
+reported start and completion, and the runner-wait estimate says the adapter
+has no job graph. Completed endpoints ask `proof`
+on the listing branch for counts and durations. Unavailable, invalid, or
+ambiguous proof leaves the build visible with its reason. Endpoint recovery is
+independent of Review changes' merge attribution at home, entry, folder and file.
+A selected **Taken** Story Branch story keeps live judgment and compares the
+latest completed branch build as provisional against Baseline. Landed says
+the story has yet to land, and a new branch head refreshes the comparison.
+A Taken Trunk Mode story compares the provisional trunk result, with Branch
+inapplicable and Landed still pending integration. A story without a published
+branch, with unreadable or ambiguous agent profiles, or with an unusable or
+unpublished branch name shows only that reason. Selection replaces the judgment,
+and clearing it returns to trunk. Judgment names the branch, **Passed**,
 **Failed** (including cancelled or timed out), **Running** or **Could not be
-read** with the reason, judged short SHA and subject, how many later commits
-lack their own result, the run link when given, while running the nearest
-completed ancestor, and when it was checked; a history with no result, and a
-trunk whose history GitHub answers `404` for, are **Could not be read** (with
-GitHub's reason); only a story branch is called no longer published. Below
+read** with the reason, the judged short SHA and subject, the number of later
+commits without results, any run link, the nearest completed ancestor while
+running, and when it was checked. History without a result and trunk history
+GitHub answers `404` for are **Could not be read** with the reason. Only
+story branches can be called no longer published. Below
 the judgment, **Proof** shows the CI proof of that run (for a running result,
 the completed ancestor's): revision, link and attempt once (a `ciAdapter`
 attempt named by its `attemptId`) with that attempt's **CI wall time** from

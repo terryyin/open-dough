@@ -12,27 +12,12 @@ import {
   type ReportedAttemptJob,
 } from "./ciTimeWithoutRunnerWaits.ts";
 import type { ListedRun } from "./baseCiNearest.ts";
+import { revisionSubject } from "./baseCiRevisionGit.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 import { rememberedByKey } from "./rememberedByKey.ts";
 
 const rememberedAttemptJobs = rememberedByKey<readonly ReportedAttemptJob[]>();
-
-export async function firstParentChain(
-  start: string,
-  call: GitCall,
-  limit: number,
-): Promise<string[]> {
-  return (
-    await runGit(
-      ["rev-list", "--first-parent", `--max-count=${String(limit)}`, start],
-      call,
-    )
-  ).stdout
-    .trim()
-    .split("\n")
-    .filter(Boolean);
-}
 
 function asListedRun(run: {
   readonly databaseId?: number;
@@ -214,15 +199,6 @@ export function githubRevisionLookup(
       }
       return earlier;
     },
-    async subjectOf(sha) {
-      try {
-        const subject = (
-          await runGit(["log", "-1", "--format=%s", sha], call)
-        ).stdout.trim();
-        return subject === "" ? "(no subject)" : subject;
-      } catch {
-        return "(no subject)";
-      }
-    },
+    subjectOf: (sha) => revisionSubject(sha, call),
   };
 }
