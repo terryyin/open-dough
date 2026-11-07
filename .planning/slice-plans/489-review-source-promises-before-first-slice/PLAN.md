@@ -90,6 +90,10 @@ brief; acceptance of an unchanged source reuses that review.
   `references/deliver-the-change.md`, and retire-owned-watches into its own
   reference so file-size and read-budget limits hold without duplicating
   isolation rules.
+- CI repair (slice 1 already done): declare those three extracted references in
+  `install.sh` `managed_files` so `tests/payload-declaration-links.sh` passes.
+  Disposition: already-traced to the accepted post-change refactor return that
+  created the files; proof `PATH="/opt/homebrew/bin:$PATH" bash tests/payload-declaration-links.sh`.
 
 ## Learnings
 

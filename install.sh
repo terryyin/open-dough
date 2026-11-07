@@ -144,6 +144,7 @@ managed_files=(
   dough-execute-plan/references/ci-notify-codex.md
   dough-execute-plan/references/ci-notify-hosts.md
   dough-execute-plan/references/delegation.md
+  dough-execute-plan/references/deliver-the-change.md
   dough-execute-plan/references/destructive-later-outcome-check.md
   dough-execute-plan/references/disposable-research.md
   dough-execute-plan/references/established-start.md
@@ -154,6 +155,7 @@ managed_files=(
   dough-execute-plan/references/fresh-increment.md
   dough-execute-plan/references/interrupted-delegation.md
   dough-execute-plan/references/maintain-default-checkout.md
+  dough-execute-plan/references/obtain-source-review.md
   dough-execute-plan/references/one-shot.md
   dough-execute-plan/references/one-shot-escalation.md
   dough-execute-plan/references/overdue-delegated-verification.md
@@ -161,6 +163,7 @@ managed_files=(
   dough-execute-plan/references/preserve-published-history.md
   dough-execute-plan/references/publication-rebase-conflict.md
   dough-execute-plan/references/publish-the-candidate.md
+  dough-execute-plan/references/retire-owned-watches.md
   dough-execute-plan/references/runtime-setup.md
   dough-execute-plan/references/source-freshness.md
   dough-execute-plan/references/story-obligations.md
