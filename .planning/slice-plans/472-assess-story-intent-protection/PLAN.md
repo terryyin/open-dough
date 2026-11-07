@@ -82,7 +82,8 @@ isolation.
   and assessed with the alternate unset.
 - Slice 1 was accepted on the story branch at
   `ae07bb07aa1516a7d400cff6496f1c5c1cf0fc8f` and slice 2 at
-  `f15158cfc002322018e07b903846d7fd864d6718`, both with the recorded observer.
+  `f15158cfc002322018e07b903846d7fd864d6718`, and slice 3 at
+  `a47d65b402a1471e7460c0be55506364fb89a391`, all with the recorded observer.
 
 ## Evidence and local gate
 
@@ -175,7 +176,7 @@ Finish the initial report before exposing the assessor to the later review.
 ### 4. Compare the three reports and check findings on trunk
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `docs/intent-coverage-trial/README.md` links the three reports and
 records which known findings were recovered, which claims were unsupported,
 and which gaps still apply on a named trunk revision.
@@ -271,3 +272,20 @@ Git checks had no such unset and did not trace object storage.
 Refactor disposition is records-only. The report-only consumer trace used
 the report path as the supplied term. The active plan reads the report at its
 proof path. No other consumer is affected before the summary links it.
+
+### Slice 4
+
+The [cross-case summary](../../../docs/intent-coverage-trial/README.md)
+links the published reports. It compares the historical calibration verdict
+with both behavior gaps in plan 448 and the two other completion reviews,
+then cites seven source/spec checks at trunk
+`550875ae5c991a1b2811fb40f1e46159bc974cc3`. It preserves historical
+verdicts and distinguishes later corrections, remaining fixture gaps and
+unresolved consumer evidence. The summary records assessor effort and
+test runtime per case and identifies the unmeasured review costs.
+
+Refactor disposition is records-only. The summary consumer trace used the
+summary path, title and ordinary-review heading as terms. The plan's
+summary path is verified. Other README basename matches refer to their own
+files. Verified that the summary's relative links and anchors resolve and
+the Git-pinned source citations remain accessible after plan cleanup.

@@ -17,7 +17,7 @@ illustrative journeys govern evidence handling when their setup applies.
 | 2.2 | For each promise and restriction, show how clearly the maintained tests express it. | slice 3 | observed: The verdict tables in each report compare original promise wording with what the fixture and assertion express, including the focused visibility states and equal Summary fixture values. |
 | 2.3 | For each promise and restriction, show what evidence indicates a test would catch a regression. | slice 3 | observed: The verdict tables cite the observing assertions and fixture inputs. SEED-192 Probe and SEED-248 Executed proof show original tests passing with the verified fault present. |
 | 2.4 | Identify uncovered and uncertain cases. | slice 3 | observed: The verdict tables identify unobserved cases, including disclosure controls, independent precise figures, and visibility consumer paths. |
-| 2.5 | Save the reports so Terry can review them together and decide whether the method earns further work. | slice 4 | |
+| 2.5 | Save the reports so Terry can review them together and decide whether the method earns further work. | slice 4 | observed: docs/intent-coverage-trial/README.md Reports and assessment cost links each of the three committed reports from the same directory. |
 | 3.1 | Run the assessment during this story’s execution, directly with the AI host executing the story. | slice 3 | observed: Plan 472 Execution context names the three independent Codex launches, scoped original inputs, historical checkout boundaries and alternate-store limitation. Each report records its historical source and tests. Comparisons with later records are reserved for slice 4. |
 | 3.2 | Use a fresh assessor. | slice 3 | observed: Plan 472 Execution context names the three independent Codex launches, scoped original inputs, historical checkout boundaries and alternate-store limitation. Each report records its historical source and tests. Comparisons with later records are reserved for slice 4. |
 | 3.3 | Give the assessor the original story. | slice 3 | observed: Plan 472 Execution context names the three independent Codex launches, scoped original inputs, historical checkout boundaries and alternate-store limitation. Each report records its historical source and tests. Comparisons with later records are reserved for slice 4. |
@@ -45,14 +45,14 @@ illustrative journeys govern evidence handling when their setup applies.
 | 5c.6 | Record the observed assertion or passing result. | slice 3 | observed: SEED-192 Probe and SEED-248 Executed proof give the two isolated production faults, exact original reruns, pass results and direct reachability checks, and change both probed protection verdicts to not protected. |
 | 5c.7 | Reconsider the verdict if the intended fault goes undetected. | slice 3 | observed: SEED-192 Probe and SEED-248 Executed proof give the two isolated production faults, exact original reruns, pass results and direct reachability checks, and change both probed protection verdicts to not protected. |
 | 6.1 | Finish the initial verdicts before exposing the assessor to any retrospective or later fixes. | slice 3 | observed: Plan 472 Execution context names the three independent Codex launches, scoped original inputs, historical checkout boundaries and alternate-store limitation. Each report records its historical source and tests. Comparisons with later records are reserved for slice 4. |
-| 6.2 | Compare the initial verdicts against known review findings where available. | slice 4 | |
-| 6.3 | Check which reported gaps still apply on trunk. | slice 4 | |
+| 6.2 | Compare the initial verdicts against known review findings where available. | slice 4 | observed: README What ordinary review found compares the untouched historical verdict with plan 448 and the original dependency test, and gives the opened disclosure a partial verdict because non-link body clicks went unobserved. |
+| 6.3 | Check which reported gaps still apply on trunk. | slice 4 | observed: README Recheck on trunk cites the implementation and observing specs for seven claims at 550875ae5c991a1b2811fb40f1e46159bc974cc3, including opened disclosure text and the marked Intent link. |
 | 7a.1 | Commit one Markdown report for each story under `docs/intent-coverage-trial/`. | slice 3 | observed: The three durable report paths under docs/intent-coverage-trial/ are each owned by a separate guarded story-branch increment. |
-| 7a.2 | Commit a cross-case summary under the same directory. | slice 4 | |
+| 7a.2 | Commit a cross-case summary under the same directory. | slice 4 | observed: docs/intent-coverage-trial/README.md Reports and assessment cost links each of the three committed reports from the same directory. |
 | 7a.3 | Keep the reports available after wrap-up for Terry’s review and the follow-up’s use. | landing | |
-| 7b.1 | Record useful findings in the summary. | slice 4 | |
-| 7b.2 | Record unsupported claims in the summary. | slice 4 | |
-| 7b.3 | Record review effort in the summary. | slice 4 | |
+| 7b.1 | Record useful findings in the summary. | slice 4 | observed: README Findings Terry can act on distinguishes original probe evidence, equal precise figures, and retention versus consumer selection. |
+| 7b.2 | Record unsupported claims in the summary. | slice 4 | observed: README What ordinary review found, Recheck on trunk, and Limits and decision separate supported observations from unproved historical and current claims. |
+| 7b.3 | Record review effort in the summary. | slice 4 | observed: README Reports and assessment cost records each case's runtime and assessor time, separate from coordinator and human effort. |
 | 7b.4 | Record Terry’s decision in the summary. | slice 5 | |
 | 7b.5 | Link the summary from the product intent memorandum. | slice 5 | |
 | 8.1 | The trial covers the three Open Dough cases. | slice 3 | observed: The three SEED-192, SEED-248, and SEED-250 reports under docs/intent-coverage-trial/ identify the completed Open Dough stories and their exact checkpoints. |
@@ -60,16 +60,16 @@ illustrative journeys govern evidence handling when their setup applies.
 | 8.3 | A public skill belongs to the separate SEED-258 follow-up. | slice 5 | |
 | 8.4 | Cross-project generalization across test types belongs to that follow-up. | slice 5 | |
 | 8.5 | Automatic invocation during wrap-up belongs to the follow-up. | slice 5 | |
-| E1.1 | A story promises that clicks inside an opened card disclosure keep their own behavior. | slice 4 | |
-| E1.2 | The test clicks the summary and a link and leaves the disclosure body untested. | slice 4 | |
-| E1.3 | The report gives *partially protected* and names the disclosure-body gap. | slice 4 | |
-| E1.4 | The trial later checks whether the gap matches the retrospective and whether it still applies on trunk. | slice 4 | |
-| E2.1 | A story promises that a changed file appears in place in the full tree. | slice 4 | |
-| E2.2 | The original tests pass. A scratch fault drops the changed-file overlay, and the named assertion fails. | slice 4 | |
-| E2.3 | The report gives *protected, break-checked* for that fault and records the evidence. | slice 4 | |
-| E2.4 | In the alternate result, the fault reproduces the wrong behavior while the tests still pass, identifying a gap. | slice 4 | |
-| E3.1 | A relevant test cannot be run successfully at the case revision. | slice 4 | |
-| E3.2 | The report identifies the failed or unavailable evidence and gives *unknown* where the promise depends on that run. | slice 4 | |
+| E1.1 | A story promises that clicks inside an opened card disclosure keep their own behavior. | slice 4 | observed: README What ordinary review found compares the untouched historical verdict with plan 448 and the original dependency test, and gives the opened disclosure a partial verdict because non-link body clicks went unobserved. |
+| E1.2 | The test clicks the summary and a link and leaves the disclosure body untested. | slice 4 | observed: README What ordinary review found compares the untouched historical verdict with plan 448 and the original dependency test, and gives the opened disclosure a partial verdict because non-link body clicks went unobserved. |
+| E1.3 | The report gives *partially protected* and names the disclosure-body gap. | slice 4 | observed: README What ordinary review found compares the untouched historical verdict with plan 448 and the original dependency test, and gives the opened disclosure a partial verdict because non-link body clicks went unobserved. |
+| E1.4 | The trial later checks whether the gap matches the retrospective and whether it still applies on trunk. | slice 4 | observed: README Recheck on trunk cites the implementation and observing specs for seven claims at 550875ae5c991a1b2811fb40f1e46159bc974cc3, including opened disclosure text and the marked Intent link. |
+| E2.1 | A story promises that a changed file appears in place in the full tree. | slice 4 | observed: README Findings Terry can act on cites the pre-trial overlay-removal calibration, green baseline, failing changed-file lookup and scoped break-checked verdict. |
+| E2.2 | The original tests pass. A scratch fault drops the changed-file overlay, and the named assertion fails. | slice 4 | observed: README Findings Terry can act on cites the pre-trial overlay-removal calibration, green baseline, failing changed-file lookup and scoped break-checked verdict. |
+| E2.3 | The report gives *protected, break-checked* for that fault and records the evidence. | slice 4 | observed: README Findings Terry can act on cites the pre-trial overlay-removal calibration, green baseline, failing changed-file lookup and scoped break-checked verdict. |
+| E2.4 | In the alternate result, the fault reproduces the wrong behavior while the tests still pass, identifying a gap. | slice 4 | observed: README Findings Terry can act on cites both independently confirmed surviving faults and the gap each establishes. |
+| E3.1 | A relevant test cannot be run successfully at the case revision. | slice 4 | observed: README Limits and decision records the conditional unknown rule, all three selected baselines passing, and evidence that remained unavailable beyond those runs. |
+| E3.2 | The report identifies the failed or unavailable evidence and gives *unknown* where the promise depends on that run. | slice 4 | observed: README Limits and decision records the conditional unknown rule, all three selected baselines passing, and evidence that remained unavailable beyond those runs. |
 | E4.1 | Terry opens and compares the three committed reports. | slice 5 | |
 | E4.2 | The summary identifies which findings would change a decision. | slice 5 | |
 | E4.3 | The summary identifies which claims Terry rejects. | slice 5 | |
