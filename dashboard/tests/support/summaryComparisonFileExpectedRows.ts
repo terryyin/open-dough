@@ -11,9 +11,9 @@ const parts = "1 of 1 part present";
 
 export const modifiedFileRow: ComparisonScopeRow = [
   "dashboard/tests/folder/a.spec.ts modified",
-  "1 tests (no change)",
+  "1 → 2 tests (+1) → 1 tests (0)",
   "10.0 s",
-  "10.0 s → 14.0 s (+4.0 s, +40%)",
+  "10.0 s → 17.0 s (+7.0 s, +70%)",
   "10.0 s → 14.0 s (+4.0 s, +40%)",
   parts,
 ];

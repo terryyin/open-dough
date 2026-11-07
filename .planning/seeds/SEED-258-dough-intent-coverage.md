@@ -144,8 +144,6 @@ execution.
 
 ## Separate test follow-up candidates from the trial
 
-- **Queued first among these follow-ups.**
-  [Distinguish Branch and Landed figures in precise CI summaries](#distinguish-branch-and-landed-summary-figures).
 - Reach the Recently done **Select story** control through actual Tab
   navigation while retaining the Enter and Space activation checks.
 - Exercise maintenance selection with an otherwise eligible hidden project
@@ -155,76 +153,5 @@ execution.
 These are test opportunities identified at the trial's trunk recheck.
 [Test follow-up rationale][trial-test-candidates].
 
-## Test follow-up selected from the trial
-
-<a id="distinguish-branch-and-landed-summary-figures"></a>
-
-### Distinguish Branch and Landed figures in precise CI summaries
-
-**Identity:** SEED-258#distinguish-branch-and-landed-summary-figures
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/501-distinguish-branch-and-landed-summary-figures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a3ad46f89ccb64233f3cf02ceb729cbb547f8ebe4a356763f55a44cd4f26118e","plan":"a7ae4540971d2839dc0b70bf48e5b572e492cd04014ac41402c3ef6e0868d609"}}
-```
-
-**Goal.** A developer reviewing a completed story's precise CI comparison
-can trust that the Branch and Landed figures come from their respective
-builds, because the maintained journeys fail when one build's figures are
-shown in the other's column at entry, folder, or file scope. This closes
-the gap the intent-coverage trial verified, independently of the pilot.
-
-**Scope.**
-
-- **Distinct endpoint figures.** In the precise breakdown proofs, give one
-  measured file under `folder/` a different test count and a visibly
-  different duration on Branch than on Landed, so the difference reaches
-  that file, `dashboard/tests/folder`, and the `dashboard/tests` entry.
-- **Assertions.** The precise Summary journey asserts the exact Baseline,
-  Branch, and Landed durations and the Counts cell for those three scopes;
-  the file Proof journey asserts them for that file in its clean and
-  refusal checks. When Branch and Landed counts differ, the Counts cell
-  words Baseline, Branch, and Landed as successive steps, so the count
-  comparison is part of the proof.
-- **Shared fixture consumers.** Other journeys that use the same proofs,
-  such as the Trunk Mode, Taken, and gap variants, keep passing with
-  expected rows updated to the new figures. Implementation chooses which
-  endpoint's figures to change.
-- **Evaluation.** The changed journeys pass with the original production
-  code. In a scratch checkout, replay the trial's substitution (`landed =
-  branch` at the start of `scopeComparisonCellsOf` in
-  `dashboard/src/ciScopeComparison.ts` for precise, distinct summaries);
-  the intended Summary and file assertions fail. Revert the scratch fault.
-- **Scope limits.** No production change; no other SEED-258 test follow-up;
-  no new dashboard behavior or wording.
-- **Boundary assumptions.** The tests run under the project's
-  [test automation rules](../../AGENTS.md#test-automation) and
-  [failure policy](../../AGENTS.md#failing-and-flaky-tests).
-
-**Key examples.**
-
-- *Clean run.* Branch and Landed proofs differ for `folder/a.spec.ts` in
-  count and duration. The Summary's entry, folder, and file rows and the
-  file Proof row show each build's own figures, and the journeys pass.
-- *Landed replaced by Branch.* With the scratch substitution applied, the
-  Landed cells and the Counts cell show Branch's figures; the Summary and
-  file assertions fail on those cells.
-- *Single after-build.* In Trunk Mode or a Taken story with no landed
-  build, the comparison still shows one after-build; its expected rows
-  change only where the new figures reach them.
-
-**Evidence.**
-
-- *Facts.* The breakdown proofs build Branch and Landed from the same
-  producer values ([fixture](../../dashboard/tests/support/intentSummaryStoryComparisonProofs.ts)).
-  In the trial, all eleven targeted tests passed while traces showed the
-  substitution reached the formatter ([trial probe][branch-landed-probe]).
-  `countsCellText` in
-  `dashboard/src/ciScopeComparisonCounts.ts` words distinct measured Branch
-  and Landed counts as a three-step comparison (read 2026-11-07).
-- *Rerun 2026-11-07.* At `302161aa8`, the four specs that load the precise
-  breakdown proofs passed clean (10 tests) and still passed with the
-  substitution applied, which 7 traces showed reaching the cells
-  ([Plan 501 premises](../slice-plans/501-distinguish-branch-and-landed-summary-figures/PLAN.md#decisive-premises)).
-
 [trial-evidence]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md
 [trial-test-candidates]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md#test-follow-up-candidates
-[branch-landed-probe]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/SEED-248-compare-story-proof-through-merge-resolutions.md#executed-proof

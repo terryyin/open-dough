@@ -69,7 +69,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
     });
     await expect(locationName).toHaveAttribute(
       "aria-label",
-      "dashboard/tests, typescript, **/*.spec.ts, 4 → 5 tests (+1), 12.0 s → 18.5 s (+6.5 s, +54%)",
+      "dashboard/tests, typescript, **/*.spec.ts, 4 → 6 tests (+2) → 5 tests (+1), 12.0 s → 18.5 s (+6.5 s, +54%)",
     );
 
     await expectCueState(file, {

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-258#distinguish-branch-and-landed-summary-figures",
+  "title": "Distinguish Branch and Landed figures in precise CI summaries",
+  "completedAt": "2026-11-07T13:59:17.299Z",
+  "developer": "Terry Yin",
+  "agent": "mike.li-chan",
+  "host": "claude",
+  "model": "opus"
+}
