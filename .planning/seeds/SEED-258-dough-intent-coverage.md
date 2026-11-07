@@ -57,7 +57,7 @@ manual skill. [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted
 
 **Identity:** SEED-258#compare-manual-intent-coverage
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/498-compare-manual-intent-coverage/PLAN.md","assessment":"not-ready","reasons":["Terry has not yet confirmed the comparison basis (cases, ordinary-review source, effort budgets, and proceed/narrow/stop criteria) that ADR 0010 requires before the observed run; see the plan's pre-Take decision."],"basis":{"document":"29d2127c60941280604029b7f72aa109bed7a10ec589352699cfb101be10c988","plan":"239db307bb3de5d048898aed841fdc2dd5c694ae35d32e242a874cbf2703d30b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/498-compare-manual-intent-coverage/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fdc81fba912f0082ec457dd9bdc7c7b38a2f01fbfa977fc11078862580c514fc","plan":"91b8c282b6bb2501cbc0376be49f53926539e08b949401f00e3791b1242a0af2"}}
 ```
 
 **Goal.** Terry decides whether to proceed with, narrow, or stop a public
@@ -72,14 +72,14 @@ Terry declines public delivery.
 
 **Scope.**
 
-- **Basis before the run.** Before any assessment runs, Terry confirms the
-  comparison basis: the cases, the ordinary-review source, the effort budget,
-  and the criteria for proceeding, narrowing, or stopping. The plan proposes
-  each one with a recommendation. A later change to the basis is disclosed
-  with the result.
+- **Basis before the run.** Terry confirmed the cases, ordinary-review
+  source, effort budgets, and decision criteria in
+  [Plan 498](../slice-plans/498-compare-manual-intent-coverage/PLAN.md#confirmed-comparison-basis)
+  on 2026-11-07. A later change requires his decision and is disclosed with
+  the result.
 - **Cases.** Three recent completed stories whose recorded execution
   retrospective is recoverable from Git and whose host sessions are on this
-  machine. The recommended cases are
+  machine. The cases are
   SEED-254#use-later-ci-proof-for-cancelled-landings, whose retrospective
   found the running-after-proofless defect, and SEED-256 and SEED-257, whose
   retrospectives advised no change.
@@ -88,22 +88,28 @@ Terry declines public delivery.
   planned, and the source review. Its agent time comes from the recorded
   host session timestamps, or is recorded as unknown. Terry rereads each
   retrospective result, timed, for his reading and verification effort.
+  Credit the pre-existing unavailable-slot retry issue to ordinary review
+  and keep it outside the story-attributable comparison counts.
 - **Short intent assessment.** A fresh agent assesses each case at its last
   attributable implementation revision, before the execution-complete
-  record, using the brief the plan writes. It is time-boxed per story and
-  traces the story's promises to production paths and maintained tests. It
-  runs the relevant existing tests and at most one selective break check per
-  story. It returns brief, sourced findings: protected, protected and
-  break-checked, gap, or unknown. It cannot read the retrospective, the
-  correction, or later trunk. Before it starts, the checkpoint is verified
-  readable with inherited Git object alternates cleared, and a known later
-  object, the case's execution-complete commit, is verified unavailable.
-- **Verification and decisions.** Terry reads each assessment, timed. Every
-  finding from either review becomes one entry, marked found by both, only
-  ordinary, or only assessment. Terry records a decision for each verified
-  entry: retain, clarify, or strengthen a test, accept the gap, or reject it
-  as unsupported. A consequential miss is a verified entry that the other
-  review found and this review did not.
+  record, using the brief the plan writes. Its ten minutes per story cover
+  setup, test runs, and writing the report. It traces the story's promises to
+  production paths and maintained tests. It runs the relevant existing tests
+  and at most one selective break check per story. It returns brief, sourced
+  verdicts of protected, protected and break-checked, gap, or unknown, and
+  identifies promises left unassessed at the limit. Give it a fresh context
+  with a brief limited to the historical
+  inputs. Before it starts, verify the checkpoint is readable with inherited
+  Git object alternates cleared and the case's execution-complete commit is
+  unavailable from that store.
+- **Verification and decisions.** Terry has ten minutes per case to read both
+  reviews and verify findings, timing those activities separately. Each
+  distinct finding becomes one entry. Credit a verified match when both
+  reviews identify the same failure path with evidence. Keep unknown
+  verdicts, unsupported claims, and findings unverified at the time limit
+  distinct. Count a consequential miss when one review fails to identify
+  the specific consequential finding verified in the other. Terry records
+  decisions on verified findings and applies the confirmed criteria.
 - **Time and effort.** Each assessment report, and the comparison for each
   case and review, shows the measured end-to-end wall-clock time from start
   to returned result, including setup and test runs. It shows test runtime
@@ -114,12 +120,14 @@ Terry declines public delivery.
   are reported as different figures. In the comparison, the reviewer's
   reading time and verification time are separate figures, apart from the
   assessment's own runtime. Use counts rather than rates. Label the
-  ordinary-review side exploratory because it is historical.
+  ordinary-review side exploratory because it is historical. Claim lower
+  total effort only with comparable cost evidence.
   [Architectural North Star](../NORTH-STAR.md#intent-assessment-results-carry-their-cost).
 - **Result.** The comparison record lives with the plan. Terry's decision to
   proceed, narrow, or stop, with its reasons and a link to the record, is
-  recorded in this story. That is the condition the next story's dependency
-  waits for.
+  recorded in this story. Wrap-up carries the decision and a pinned
+  comparison link into surviving context or the next story's dependency
+  resolution.
 - **Scope limits.** Implementing test changes the decisions call for, and
   further SEED-258 test follow-ups, are separate queued work. Also out of
   scope: a new skill, script, or dashboard view; seeded-fault calibration of
@@ -134,10 +142,15 @@ Terry declines public delivery.
 
 - *Known ordinary finding.* SEED-254's cancelled-landing retrospective found
   that Landed says no later trunk build has finished when the forward walk
-  passes a proofless build and then meets a running one. The blinded
-  assessment either flags that promise as a gap or unknown (found by both)
-  or rates it protected or omits it. In that case the entry is a
+  passes a proofless build and then meets a running one. Credit the blinded
+  assessment when it identifies that specific sequence and supports the
+  finding. An unknown stays unresolved. If the assessment leaves that
+  verified path unresolved, rates it protected, or omits it, record a
   consequential miss for the assessment.
+- *Pre-existing issue.* The SEED-254 retrospective already reported that
+  **Check again** could not recover a cached unavailable comparison. If the
+  assessment independently spots it, record the observation with the
+  existing retry story and exclude it from the story-attributable counts.
 - *Assessment-only finding.* For a case whose retrospective advised no
   change, the assessment reports that a fixture gives two compared runs
   identical values for a displayed figure. A break check that substitutes one figure
@@ -158,9 +171,11 @@ Terry declines public delivery.
   resolves the case's execution-complete commit. The assessment does not
   start until a store without that object is in place.
 - *Decision.* With the counts and effort table in front of him, Terry
-  records "narrow" with the reason, for example: run only the break-check
-  part on CI-figure stories. The next story's dependency then states what
-  to generalize, or stays waiting after "stop".
+  can proceed on verified added value at justified cost or equivalent
+  useful decisions at demonstrably lower total effort. If the assessment
+  adds a useful break check while missing a consequential gap, he can narrow
+  the method to that technique. The next story's dependency records which
+  scope he authorizes or remains waiting after a stop.
 
 <a id="invoke-intent-coverage-manually"></a>
 
@@ -240,9 +255,8 @@ calibration.
 
 ## Separate test follow-up candidates from the trial
 
-- **First priority.** Give Branch and Landed distinct counts and durations
-  in precise CI Summary tests at entry, folder, and file scope. Replay the
-  Branch-for-Landed substitution and verify the tests catch it.
+- **Queued first among these follow-ups.**
+  [Distinguish Branch and Landed figures in precise CI summaries](#distinguish-branch-and-landed-summary-figures).
 - Reach the Recently done **Select story** control through actual Tab
   navigation while retaining the Enter and Space activation checks.
 - Exercise maintenance selection with an otherwise eligible hidden project
@@ -252,6 +266,39 @@ calibration.
 These are test opportunities identified at the trial's trunk recheck.
 [Test follow-up rationale][trial-test-candidates].
 
+## Test follow-up selected from the trial
+
+<a id="distinguish-branch-and-landed-summary-figures"></a>
+
+### Distinguish Branch and Landed figures in precise CI summaries
+
+**Identity:** SEED-258#distinguish-branch-and-landed-summary-figures
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** A developer reviewing a completed story's precise CI comparison
+has automated proof that the displayed Branch and Landed figures come from
+their respective builds at entry, folder, and file scope.
+
+**Scope.** Strengthen the existing precise Summary and file Proof journeys.
+Give one measured file distinct Branch and Landed counts and visibly
+distinct durations, with differences that reach the enclosing folder and
+entry aggregates. Assert the exact Branch and Landed durations and the
+count comparison the view displays.
+The story is a test change and can proceed independently of the pilot.
+
+**Evaluation.** The existing journeys pass with the original production
+code. In a scratch checkout, replay the trial's Branch-for-Landed
+substitution and verify that it reaches the precise comparison and fails
+the intended assertions. Revert the scratch fault.
+
+**Evidence.** The current fixture gives Branch and Landed identical precise
+figures. All eleven targeted tests passed in the trial even though browser
+traces showed the substitution reached the formatter.
+[Current fixture](../../dashboard/tests/support/intentSummaryStoryComparisonProofs.ts) ·
+[Trial probe][branch-landed-probe].
+
 ## When to surface
 
 Surface the first candidate when Terry selects a measured comparison. Review
@@ -260,3 +307,4 @@ before selecting them.
 
 [trial-evidence]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md
 [trial-test-candidates]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md#test-follow-up-candidates
+[branch-landed-probe]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/SEED-248-compare-story-proof-through-merge-resolutions.md#executed-proof
