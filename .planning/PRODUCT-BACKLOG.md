@@ -39,3 +39,4 @@ intent introduced or affected by a newly developed story.
 - [Use a later trunk build's CI proof for cancelled landings](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-later-ci-proof-for-cancelled-landings) — SEED-254#use-later-ci-proof-for-cancelled-landings
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
+- [Assess story intent coverage across projects and during wrap-up](seeds/SEED-258-dough-intent-coverage.md#dough-intent-coverage) — SEED-258#dough-intent-coverage

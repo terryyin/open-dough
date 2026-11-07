@@ -1,183 +1,172 @@
 # Review how well a story's intent is protected
 
 **Identity:** SEED-192#assess-story-intent-protection
-**Source:** [selected story](../../seeds/SEED-192-review-product-intent.md#assess-story-intent-protection)
 
-**Prepared:** 2026-11-05. Planning only, in the story's established workspace
-`claude/review-how-well-a-story-s-intent-is-protected`.
+**Source:** [Selected story](../../seeds/SEED-192-review-product-intent.md#assess-story-intent-protection)
 
 ## Goal and boundaries
 
-Terry receives an explainable, per-promise assessment of how well story 5,
-SEED-192#review-story-intent-impact, protected its intent at its completion
-revision `7c71049b`. He follows each verdict to its sources, decides retain,
-clarify, or strengthen for each finding that still holds on trunk, and judges
-whether the method is worth keeping. The story section holds the case, the
-known review basis, the keep criterion, and the key examples. This plan does
-not repeat them.
+Trial Dough Intent Coverage on three recent Open Dough stories. Terry receives
+a durable report for each case and can decide from the findings and review
+cost whether to pursue the method. Run the assessment as part of this story
+using the executing AI host, the project's existing test commands, and Git.
+Keep public skill authoring, cross-project generalization, and an automatic
+wrap-up hook in [the follow-up](../../seeds/SEED-258-dough-intent-coverage.md#dough-intent-coverage). Trial changes consist of reports, the link and
+learning in the memorandum, and any expressly agreed backlog decisions.
 
-- **Included:** a blind assessment, one fresh local run of story 5's specs at
-  `7c71049b`, at least two break checks, the comparison with the
-  retrospective, a recheck of each live finding on trunk, Terry's evaluation,
-  follow-ups queued from his decisions, and the method's learning in the
-  memorandum.
-- **Excluded:** product code, test, or project-rule changes; a reusable skill,
-  retrospective extension, or dashboard action; a second case; numeric scores;
-  paid native-host runs.
+## Trial cases
 
-**Failure policy:** this project's
-[failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests) policy
-applies as written. A story-5 spec that fails or flakes at `7c71049b` is an
-observation the assessment reports as *unknown*, since it describes the
-historical revision under review. It is not a defect in current trunk to
-repair under this story, and it is not a reason to rerun until green.
+Use the completion checkpoints below, with their original story section and
+applicable plan examples. They are reachable from trunk, and both the intent
+records and relevant test sources were recovered there during preparation.
+The report uses the full revision and original paths. Add directly relevant
+existing tests where the initial selection leaves a promise unexamined. Use
+the merge and current trunk only in the subsequent comparison.
 
-**Local gate:**
+| Case and completion checkpoint | Intent recovered from | Initial proof selection |
+| --- | --- | --- |
+| SEED-192#review-story-intent-impact at `7c71049b` (2026-11-02) | SEED-192, plan 441 | Story intent changes, completed story, card selection and review tree Playwright specs named below |
+| SEED-248#compare-story-proof-through-merge-resolutions at `d03cf60f1` (2026-11-06) | SEED-248, plan 485 | Intent CI comparison and merge or fast-forward landing journeys, plus the completed story Review boundary specs named in the plan |
+| SEED-250#hide-client-project-from-dashboard at `22fa90aef` (2026-11-07) | SEED-250, plan 476 | Project hide and session journeys and project configuration boundary specs named in the plan |
 
-- This story changes no product code or tests. The checks it runs are the
-  story-5 specs at `7c71049b` in a scratch detached worktree, through the
-  dashboard runner (`npx playwright test --config
-  dashboard/playwright.config.ts <specs> --reporter=list`, with `NO_COLOR`,
-  `FORCE_COLOR` and `GIT_ALTERNATE_OBJECT_DIRECTORIES` unset). Trunk rechecks
-  in slice 2 run named specs the same way in this workspace.
-- Before landing, `npm run lint` covers the plan, seed, and memorandum edits.
-  No full suite is needed: no shared code path changes. The runs here are
-  short and focused, so the
-  [machine sleep](../../../tests/local-test-resources.md#machine-sleep-on-macos)
-  guard is needed only if a run goes past a few minutes. Then run it under
-  `caffeinate -s -i` on AC power.
-- Slice 1 creates the scratch worktree (`git worktree add --detach
-  <job tmp>/case-7c71049b 7c71049b`, then `setup-native.mjs npm` and
-  `browser`). Remove it (`git worktree remove`) once slice 2's evidence is
-  recorded. It is never committed. Preparation removed its own copy.
+The first case calibrates against two already known retrospective gaps. Give
+the assessor only the original goal, promises, restrictions, and examples,
+and access to the corresponding implementation, tests, and support code. Keep
+retrospectives, correction records, later refs, and this coordinating plan out
+of its brief. Start a fresh subagent with those inputs for each case. Confirm
+the host can supply that isolation at the start of slice 1. If it cannot, stop
+the initial assessment until an independent session can take the same bounded
+brief. Record how the separation was achieved and any limits of the host's
+isolation.
 
-## Direction and PFE
+## Evidence and local gate
 
-- **Existing tools:** Git history recovers story 5's section and plan 441 at
-  `7c71049b`, and the dashboard runner runs its specs there. Intent's story
-  lens and Review changes show its changed tests. The execution retrospective
-  is the ordinary review this case is compared against. No new tooling.
-- **Borrowed mechanism:** a break check is mutation testing kept to one fault
-  per checked verdict. It shows that a named test is sensitive to that break
-  of the promise. It does not show how clearly the test expresses the
-  promise, which stays a reasoned judgment.
-- **Result homes:** the assessment and comparison live beside this plan as
-  `assessment.md`. Wrap-up removes them as spent planning records, and Git
-  keeps them. Lasting method learning goes to
-  [the memorandum](../../../docs/product-intent-review-memorandum.md).
-  Decisions go to the backlog as queued stories or corrections. No new record
-  type ([ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)).
-- No Accepted ADR is contradicted. ADR 0010 makes the review's own cost part
-  of the judgment, so slice 3 records elapsed and reading time.
+- **Existing routes.** Use the done records and Git to recover story context,
+  the checkpoint's Playwright runner for execution evidence, and the existing
+  retrospective or completion records for comparison after the first pass.
+  The [product intent memorandum](../../../docs/product-intent-review-memorandum.md#discovering-what-intent-protection-means)
+  provides the assessment direction.
+- **Baseline and break checks.** Use a detached scratch checkout for each case.
+  Prepare it with that revision's `node scripts/setup-native.mjs npm` and
+  `browser` stages. Run its focused specs with
+  `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/playwright.config.ts <specs> --reporter=list`.
+  Record the baseline and any failure to obtain evidence. Select an uncertain
+  protected claim in each of at least two different cases. Change only the
+  production behavior needed to reproduce the fault, rerun the named test
+  against that change, and record the outcome. A build failure supplies no
+  behavioral evidence. If the test passes, verify that the intended fault was
+  reached before treating it as a gap. Revert the fault and remove the scratch
+  checkout after collecting its evidence.
+- **Failure policy.** Follow this project's
+  [failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests) policy as
+  written. Distinguish failures caused by the deliberate fault from a baseline
+  test failure. Investigate baseline failures and environment assumptions. Any
+  evidence still unavailable at a historical revision is recorded as unknown.
+- **Local gate.** Verify report paths, source citations, commands and recorded
+  results, and confirm the committed reports survive removal of the spent plan.
+  Run `git diff --check` and the staged lint gate before committing. A broader
+  local suite is unnecessary for the Markdown deliverables. Start long test
+  runs fully awake under `caffeinate -s -i` on AC power, following the
+  [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos)
+  guidance for battery operation.
 
-## Decisive premises
+### Decisive premises
 
-| Premise | Consuming operation | Observation (form, profile, time) | Result | Remainder |
-| --- | --- | --- | --- | --- |
-| Story 5's intent is recoverable at the case revision | Slice 1 | `git show 7c71049b:.planning/slice-plans/441-review-story-intent-impact/PLAN.md` and the seed at `7c71049b` (section `#review-story-intent-impact`), read 2026-11-05 | Both present. `7c71049b` is an ancestor of trunk | none |
-| Story 5's specs run locally at `7c71049b` | Slice 1 execution evidence | Scratch detached worktree at `7c71049b` in the job's tmp dir, 2026-11-05: `setup-native.mjs npm` and `browser`, then the dashboard runner (list reporter, env unset as above) on `intent-story-changes{,-gaps,-moves,-only}.spec.ts`, `intent-story-completed.spec.ts`, `story-card-selection.spec.ts`, `story-review-tree.spec.ts` | 11 passed in 52.3 s | Slice 1 reruns them for its own record. Other story-5 specs it finds are run then |
-| A scratch fault at `7c71049b` makes a story-5 spec fail (break-check route) | Slice 1 break checks | Same worktree: `overlayFilesByPath` in `dashboard/src/intentStoryOverlay.ts` changed to map `files.slice(0, 0)`, then the runner on `intent-story-changes.spec.ts`; reverted afterwards | Failed at `intent-story-changes.spec.ts:133`: `toHaveText("Modified dashboard/tests/a.spec.ts")`, element not found. Passes without the fault | A fault must compile: the build rejects unreachable code. An empty-array `&&` fault was a no-op, because `[]` is truthy |
-| No committed proof record exists at `7c71049b` | Slice 1 evidence choice | `git show 7c71049b:dashboard/tests/proof/latest.json` | Absent. The record first appears in `2d272e1bb` | none; the fresh run is the evidence |
-
-## Outside-in proof
-
-- **Examples 1–5 (verdicts, run, break checks):** `assessment.md` gives one
-  verdict per story-5 promise and restriction, with citations. It records the
-  run's command and per-test results, and each break check's fault, command,
-  and failing assertion. The slice 2 reviewer opens a sample of citations and
-  confirms that each cited line says what the verdict claims.
-- **Examples 1, 2, 6 (recall and live findings):** `assessment.md`'s
-  comparison table maps each retrospective finding to recovered or missed, and
-  each new finding to its trunk recheck (the named spec or source on trunk).
-- **Examples 6, 7 (decision and rejection):** Terry's recorded decisions and
-  rejected-claim count in `assessment.md`, plus queued backlog entries, or the
-  declined reasons, for strengthen and clarify decisions.
-- **Lasting learning:** the memorandum section added in slice 4.
+| Premise | Observation and result | Consuming slice |
+| --- | --- | --- |
+| Calibration case tests and break check have a working route | On 2026-11-05, the dashboard runner above at `7c71049b` passed 11 tests in 52.3 s across `intent-story-changes{,-gaps,-moves,-only}.spec.ts`, `intent-story-completed.spec.ts`, `story-card-selection.spec.ts` and `story-review-tree.spec.ts`. Dropping the changed-file overlay in `overlayFilesByPath` made `intent-story-changes.spec.ts:133` fail on its expected file assertion. The passing baseline and known fault are calibration evidence. The assessor records its own focused run and chooses its probes independently. | 1 |
+| The two newer cases have focused proof at their checkpoints | Plan 485 at `d03cf60f1` records 20/20 for its initial merge-resolution and Review boundary selection, plus focused passing landing-gap and fast-forward runs. Plan 476 at `22fa90aef` records passing hide, session, navigation, and configuration-boundary selections. The paths and checkout setup scripts were verified at each checkpoint. Fresh trial runs determine which evidence supports verdicts. A failed setup or baseline is itself a reportable limitation. | 2–3 |
+| A fresh assessor can receive a limited brief on the execution host | The execution host is selected when the trial starts. Slice 1 first checks that a fresh assessor can run with the historical inputs before any verdicts are written. | 1 |
 
 ## Slices
 
-### 1. Blind assessment of story 5 at its completion revision
+### 1. Assess the original calibration story
+
 Type: Behavior
 Status: planned
-Proof: `assessment.md` holds verdicts with citations, the fresh run record,
-and at least two break checks, and none of it was written from post-`7c71049b`
-records.
+Proof: `docs/intent-coverage-trial/SEED-192-review-story-intent-impact.md`
+contains one sourced verdict per promise or restriction, fresh test evidence,
+clarity notes, and any break-check result. The execution records how the
+assessor was kept unaware of the later review.
 
-**Behavior:** story 5's section and plan 441 at `7c71049b`, plus that
-checkout's tests and source → a fresh assessor, given only those inputs,
-assesses every promise and restriction → `assessment.md` gives each one a
-verdict (*protected*, *partially protected*, *not protected*, *unknown*), with
-cited story text, test and support lines, run evidence, and a clarity note.
-Each *protected* verdict is break-checked or labelled reasoned-only.
+Start with the scoped fresh-assessor check above. Have the assessor inspect the
+promises, delivered behavior, test assertions, and support at `7c71049b`.
+Label each protected verdict *break-checked* or *reasoned-only* and name the
+uncovered case or missing evidence on other applicable verdicts. Pass the
+project failure policy to the assessor by link. Include a break check on an
+uncertain protected claim. Publish the report as its own reviewable result
+before comparing it with the known gaps.
 
-**How:** delegate to a fresh subagent. The executing agent has read this plan
-and the story section, which name the retrospective's findings, so it is not
-blind and must not write the verdicts. The brief names the detached worktree
-at `7c71049b` and the two intent paths. It forbids reading later history
-(`--all`, other refs, `origin/*`) or anything under the current workspace,
-and states this story's verdict vocabulary, run, and break-check rules. It
-passes on the failure policy above by link. The subagent records the time it
-starts and ends. Blindness cannot be enforced, only instructed. Record that
-limit in `assessment.md`.
+### 2. Assess story CI proof through merge resolutions
 
-### 2. Comparison with the review basis and trunk recheck
 Type: Behavior
 Status: planned
-Proof: the comparison table in `assessment.md`. Each live finding cites the
-trunk source or spec run that shows it still holds.
+Proof: `docs/intent-coverage-trial/SEED-248-compare-story-proof-through-merge-resolutions.md`
+contains the same evidence for `d03cf60f1`, including the relevant browser and
+Review boundary assertions.
 
-**Behavior:** slice 1's verdicts, the retrospective findings in plan 448 (at
-`168c04473^`), and current trunk → the executing agent compares them → each
-retrospective finding is marked recovered or missed. Each new gap is rechecked
-on trunk and marked live or already resolved, with its evidence. A sample of
-at least five citations is opened and checked, and any that does not support
-its verdict is listed as unsupported.
+Apply the same assessment to the merge and landing comparison behavior,
+including its fallback and refusal restrictions. Use the original tests,
+support, and implementation at the checkpoint. Attempt the second case's
+break check here. If no suitable claim is found, record the reason and do
+the second check in slice 3.
 
-### 3. Terry's evaluation and follow-ups
+### 3. Assess dashboard project visibility
+
 Type: Behavior
 Status: planned
-Proof: Terry's per-finding decisions, his rejected-claim count, and his
-reading time recorded in `assessment.md`, and each strengthen or clarify
-decision queued as a story or correction, or declined with a reason.
+Proof: `docs/intent-coverage-trial/SEED-250-hide-client-project-from-dashboard.md`
+contains the same evidence for `22fa90aef`, including coverage of visibility,
+persistence, and maintained inventory. At least two of the three case reports
+now carry an observed break check.
 
-**Behavior:** the assessment and comparison → Terry reads them (published as
-a private Artifact page for reading, at the executor's discretion) and gives
-his judgment → his decisions are recorded, and follow-ups are queued through
-[dough-product-backlog](../../../.claude/skills/dough-product-backlog/SKILL.md)
-in suitable seeds.
+Assess the visible behavior and the promises about persisted configuration and
+maintenance using the relevant existing tests and implementation. Record any
+part of a promise that the test setup or assertion does not exercise. Complete
+the second case's break check here if slice 2 could not. If two cases cannot
+support the required checks, record the limitation for Terry's evaluation.
+Finish the initial report before exposing the assessor to the later review.
 
-**Human checkpoint:** execution stops here for Terry's evaluation and waits.
-It submits the handoff through the dashboard reporting command as
-`--outcome unfinished` with the exact question. It neither substitutes its own
-judgment nor asks again until he answers.
+### 4. Compare the three reports and check findings on trunk
 
-### 4. Method learning in the memorandum
 Type: Behavior
 Status: planned
-Proof: the memorandum's evaluation section names the case, its recall,
-useful new verdicts, unsupported claims, cost, Terry's keep, fold, or reject
-judgment, and the limits (one case, instructed blindness, break checks show
-sensitivity, not clarity).
+Proof: `docs/intent-coverage-trial/README.md` links the three reports and
+records which known findings were recovered, which claims were unsupported,
+and which gaps still apply on a named trunk revision.
 
-**Behavior:** Terry's judgment → the memorandum records what the first
-protection case taught → a later story deciding on automation or a
-retrospective extension reads it there, after this plan is removed.
+Compare the calibration report with the two known findings in plan 448
+(`168c04473^`), then use the other completion reviews as comparison where
+available. Check at least five cited claims across the three reports, with
+at least one from each. Recheck any candidate live gaps against trunk source
+or relevant specs. Keep the historical verdict separate from its current
+status. Record assessment effort and test runtime per case.
 
-## Current decisions
+### 5. Record Terry's evaluation and the trial decision
 
-- Story Branch Mode; no trunk step.
-- The case, its revision, and its review basis are fixed by the story
-  section. Changing them is a scope change for Terry.
-- Verdicts come from a fresh subagent, never from the agent that knows the
-  known answer.
-- Break checks run only in a scratch detached worktree at `7c71049b` and
-  are reverted. Trunk rechecks read source or run existing specs without
-  edits.
+Type: Behavior
+Status: planned
+Proof: The summary records Terry's decisions, useful new findings,
+unsupported claims and review cost, and the memorandum links to the durable
+reports and outcome.
+
+Give Terry the committed report links and wait for his evaluation. Record
+which findings merit retaining, clarifying or strengthening the tests, any
+agreed backlog follow-ups, and whether the method merits public skill work.
+Judge the result against ordinary review, including the calibration gaps,
+additional useful findings, and the work needed to read and check claims,
+following [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+The trial can close with a positive, negative, or inconclusive decision.
+Use that decision and the published reports when visiting the follow-up's
+recorded dependency at closure. When the trial section is removed, update the
+follow-up's prose link to point to the durable summary.
+Wrap-up removes the spent planning records and retains the three reports and
+summary. The separate follow-up owns decomposition and any public skill or
+automatic invocation.
 
 ## Concern evidence
 
-- Slice-plan refinement was not needed. Each slice owns one observable result:
-  the blind verdicts, the comparison, Terry's decisions, and the lasting
-  learning. Slice 3's human checkpoint is the story's own evaluation, not a
-  premise.
-- No remaining slice-specific concern was identified.
+Each report has its own slice and proof, followed by cross-case comparison and
+Terry's evaluation. Further slice-plan refinement was unnecessary. The
+execution host's assessor setup is bounded by the first slice's entry check.
+The review found no remaining slice-specific concern outside that check.
