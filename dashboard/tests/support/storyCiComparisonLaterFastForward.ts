@@ -1,6 +1,8 @@
 // SEED-248 later fast-forward that rewrites first-parent history while an
-// earlier trunk-first landing stays selected. Shared fast-forward landing
-// helper comes from ./storyCiComparisonFastForward.ts.
+// earlier trunk-first landing stays selected, and SEED-253's later branch that
+// started before a Trunk Mode completion and carries its done record onto a
+// new first-parent path. Shared fast-forward landing helper comes from
+// ./storyCiComparisonFastForward.ts.
 
 import path from "node:path";
 import type { Page } from "@playwright/test";
@@ -14,11 +16,14 @@ import { otherQueuedIdentity, queuedIdentity } from "./startOrigin.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import {
+  precedeClaimWithPlanning,
   serveActionsFor,
   wall,
   type StoryCiComparisonSetup,
 } from "./storyCiComparisonFixture.ts";
 import { publishCodeLandedBeforeCompletion } from "./storyCiComparisonEarlierLanding.ts";
+import { completedPublishedStory } from "./completedPublishedStory.ts";
+import { laterBranchMergesTrunkAndFastForwards } from "./laterStoryMergesTrunk.ts";
 import { landBranchByFastForwardOntoTrunk } from "./storyCiComparisonFastForward.ts";
 
 // First story lands at trunk-first M; a second story merges trunk and
@@ -142,5 +147,47 @@ export async function publishEarlierLandingThenLaterFastForward(
     agent: first.agent,
     branch: first.branch,
     ...actions,
+  };
+}
+
+// Trunk Mode Story A completes at C with its own build; another developer's
+// branch, started before C, merges trunk and fast-forwards it with a build at
+// that merge. Selecting Story A still names C as Landed, never the merge.
+export async function publishTrunkCompletionThenEarlierBranchFastForward(
+  page: Page,
+  origin: StartOrigin,
+) {
+  const baseline = precedeClaimWithPlanning(origin);
+  const story = await completedPublishedStory(origin, "trunk");
+  const later = laterBranchMergesTrunkAndFastForwards(
+    origin,
+    git(origin.project, "rev-parse", `${story.completion}^1`),
+  );
+  const committed = await publishCommittedOrigin(page, {
+    repoDir: origin.origin,
+    revision: git(origin.origin, "rev-parse", "main"),
+    repository: "terryyin/open-dough",
+    follows: true,
+    realHistory: true,
+  });
+  serveActionsFor(committed, {
+    [baseline]: [
+      wall(baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
+    ],
+    [story.completion]: [
+      wall(
+        story.completion,
+        103,
+        "2026-11-05T14:00:00Z",
+        "2026-11-05T14:04:00Z",
+      ),
+    ],
+    [later]: [wall(later, 501, "2026-11-05T16:00:00Z", "2026-11-05T16:10:00Z")],
+  });
+  return {
+    identity: queuedIdentity,
+    baseline,
+    completion: story.completion,
+    later,
   };
 }

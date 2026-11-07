@@ -2,17 +2,21 @@ import { expect, test } from "../../tests/support/preparationPage.ts";
 import {
   getReview,
   completedReviewQuery,
+  completedStoryQuery,
 } from "../../tests/support/completedReviewRequests.ts";
 import { completedPublishedStory } from "../../tests/support/completedPublishedStory.ts";
-import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
+import {
+  storyReviewEndpoint,
+  storyReviewFileEndpoint,
+  storyReviewSchema,
+} from "../../src/storyReviewContract.ts";
 import { git, writeAt } from "../../tests/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary" });
 
 for (const variant of [
   undefined,
-  "unrelated-merge",
-  "ambiguous-merge",
+  "merge-edit",
   "own-conflict-extra",
   "non-owning-story-file",
 ] as const) {
@@ -31,7 +35,7 @@ for (const variant of [
     writeAt(
       origin.project,
       ".git/info/attributes",
-      "shared.txt merge=printing\nunrelated.txt merge=printing\n",
+      "shared.txt merge=printing\n",
     );
     const response = await getReview(
       request,
@@ -40,27 +44,28 @@ for (const variant of [
       completedReviewQuery,
     );
     expect(response.status()).toBe(200);
-    if (
-      variant === "ambiguous-merge" ||
-      variant === "own-conflict-extra" ||
-      variant === "non-owning-story-file"
-    ) {
-      const explanation =
-        variant === "non-owning-story-file"
-          ? "merge resolutions affecting this story's files whose changes cannot be attributed safely"
-          : "merge resolutions whose story changes cannot be attributed safely";
-      expect(await response.json()).toMatchObject({
-        kind: "unavailable",
-        explanation: expect.stringContaining(explanation),
-      });
-      expect(await response.json()).not.toHaveProperty("files");
-    } else {
-      expect(await response.json()).toMatchObject({
-        kind: "published",
-        files: expect.arrayContaining([
-          expect.objectContaining({ path: "shared.txt" }),
-        ]),
-      });
-    }
+    const review = storyReviewSchema.parse(await response.json());
+    expect(review).toMatchObject({
+      kind: "published",
+      files: expect.arrayContaining([
+        expect.objectContaining({ path: "shared.txt" }),
+      ]),
+    });
+    if (variant !== "merge-edit") return;
+    if (review.kind !== "published") throw new Error("No published review");
+    expect(review.files.map((file) => file.path)).toContain(
+      "merge-resolution.txt",
+    );
+    const file = await getReview(request, dashboard, storyReviewFileEndpoint, {
+      ...completedStoryQuery,
+      completion: review.completion,
+      baseline: review.baseline,
+      tree: review.tree,
+      path: "merge-resolution.txt",
+    });
+    expect(await file.json()).toMatchObject({
+      kind: "diff",
+      printed: expect.stringContaining("+integration edit"),
+    });
   });
 }

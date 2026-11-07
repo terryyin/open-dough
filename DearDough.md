@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 439. Removed numbers are never reused.
+- Highest allocated local number: 441. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -616,6 +616,16 @@ Former local code: DD-431.
 
 [Evidence and current response](docs/maintainer/findings/ODF-428.md).
 
+### Occurrences
+- Execution: SEED-253#review-delivered-merge-changes (plan 491-review-delivered-merge-changes; first related implementation commit `5cdb4f04d6967e7773a6df0913d3b99ccb79339f`)
+  - Timestamp: 2026-11-07T14:33:07+08:00 (slice 1 commit; slice 2 recurrence before `f496a5137` at 2026-11-07T15:15:45+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.87)
+  - Evidence: slice 1 refactor dropped the file-list and `completion !== later` assertions in `dashboard/backend-tests/review/story-review-completed.spec.ts` that rows G4, 1.3, K3.1 and K3.2 cited; slice 2 refactor renamed fixture text `unattributed resolution` to `integration edit` cited by G2.
+  - Observed effect: the coordinator retargeted the rows from the refactor reports before each delivery; no stale citation was published.
+  - Inference: recurs whenever refactoring tightens or renames cited assertions, not only when files move.
+
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 
 Former local code: DD-434.
@@ -671,3 +681,29 @@ A prepared slice plan included a `## Story obligations` heading followed by plac
   - Evidence: prepared plan `b8e75bc2710e4e868c5937f451f893ec4905f670:.planning/slice-plans/476-hide-client-project-from-dashboard/PLAN.md` lines 143–146 contained `## Story obligations` and two lines of "None at preparation..." prose; `node .agents/skills/dough-execute-plan/scripts/story-obligations.mjs list --plan .planning/slice-plans/476-hide-client-project-from-dashboard/PLAN.md --slice 1` exited 1 with two `malformed-obligations-section` problems until the empty placeholder section was removed
   - Observed effect: one extra read and edit of `PLAN.md` before Slice 1 delegation could proceed; no product impact
   - Inference: either `dough-slice-planning` should omit `## Story obligations` when empty at preparation (as `story-obligations.md` notes "Plans without this section have zero obligations") or `story-obligation-reader.mjs` / readiness check should catch or tolerate an empty placeholder section before execution starts
+
+## DD-440 — Story Branch coordinator started a trunk observer that managed delivery then replaced
+At execution start the coordinator followed the boundary row "Arming observation on other hosts" and the skill's "Arm from the execution checkout against the authorized target branch", starting a detached observer on trunk. Story Branch increments publish to the execution branch, and managed delivery establishes its own observer for that target, so the trunk observer watched nothing this execution published.
+
+### Occurrences
+- Execution: SEED-253#review-delivered-merge-changes (plan 491-review-delivered-merge-changes; first related implementation commit `5cdb4f04d6967e7773a6df0913d3b99ccb79339f`)
+  - Timestamp: 2026-11-07T14:13:53+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.87)
+  - Evidence: manual `ci-mailbox.mjs start --execution terryyin/open-dough main` created `/tmp/dough-ci-501/watch-Rta0mE`; the slice 1 `fresh` delivery receipt then attached a new observer `/tmp/dough-ci-501/watch-H1MRwW` on `refs/heads/claude/review-a-completed-story-including-its-merge-cha`; the coordinator stopped the first (`pendingCi: unobserved`, nothing recorded).
+  - Observed effect: one redundant detached observer for about 20 minutes and three extra tool calls; no lost coverage.
+  - Inference: `trunk-publication.md` says managed delivery establishes observation and not to start it separately, but that reference is read only at the delivery boundary, after the start-time arming row has already applied.
+
+## DD-441 — Acceptance credited a surface commitment through a shared endpoint the surface never showed
+Slice acceptance recorded an Intent-overlay commitment as observed by citing the backend review proof plus "the overlay reads the same endpoint", while the Intent specs' merge variants never reached a merge-edited file; the execution retrospective's independent outcome review caught it and reopened the plan.
+
+### Occurrences
+- Execution: SEED-253#review-delivered-merge-changes (plan 491-review-delivered-merge-changes; first related implementation commit `5cdb4f04d6967e7773a6df0913d3b99ccb79339f`)
+  - Timestamp: 2026-11-07T15:15:45+08:00 (slice 2 delivery `f496a5137` carrying the rows)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.87)
+  - Evidence: `source-review.md` rows 3.3 and K1.2 cited `intent-summary-story-comparison{,-file}.spec.ts`; the implementer's own return said the merge-edit files lie outside Intent's locations; the retrospective found the merge variants assert the same rows as the plain story; plan slices 3 and 4 and obligation G1 were added.
+  - Observed effect: one delivered slice carried an unobserved commitment; correction cost two added slices.
+  - Inference: a return's own stated gap ("outside Intent's locations") was folded into an observation instead of becoming an obligation; reading the cited spec's distinguishing assertion would have shown it.
