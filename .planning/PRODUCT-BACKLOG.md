@@ -35,7 +35,6 @@ intent introduced or affected by a newly developed story.
 ## Backlog list
 
 - [Restore default timeouts across automated tests](seeds/SEED-260-restore-default-test-timeouts.md#restore-default-test-timeouts) — SEED-260#restore-default-test-timeouts
-- [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
 - [Distinguish Branch and Landed figures in precise CI summaries](seeds/SEED-258-dough-intent-coverage.md#distinguish-branch-and-landed-summary-figures) — SEED-258#distinguish-branch-and-landed-summary-figures
 - [Invoke Dough Intent Coverage manually across test mixes](seeds/SEED-258-dough-intent-coverage.md#invoke-intent-coverage-manually) — SEED-258#invoke-intent-coverage-manually
 - [Find the intent assessment in a recently done story](seeds/SEED-258-dough-intent-coverage.md#assess-intent-coverage-during-wrap-up) — SEED-258#assess-intent-coverage-during-wrap-up

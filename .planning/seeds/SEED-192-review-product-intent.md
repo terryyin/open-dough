@@ -146,117 +146,11 @@ Open Dough has no established S/M/L calibration, as already recorded here and in
 [SEED-052](SEED-052-start-agent-work-from-dashboard.md#open-decisions-before-refinement-or-planning).
 No bands or time commitments are invented. Comparative hypotheses below are
 unbanded; confidence includes integration, verification, and cleanup.
-At decomposition, none had an execution approach or readiness assessment.
-Individual refinements and their recorded facts below carry current preparation.
-
-## Story Decomposition
-
-<a id="assess-story-test-complexity"></a>
-
-### 11. Review complexity introduced by a story's tests
-
-**Identity:** SEED-192#assess-story-test-complexity
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/475-assess-story-test-complexity/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e908d27b498ce5b7cfdfc9159bfb32f8eb6666f94b47af98353c11c530e3d2e1","plan":"6d200f3b4c8aa7ea81a8bf8759bf15c4c05bdbd667a68ee6b3a13dda1758f376"}}
-```
-
-- **Beneficiary:** Terry, reviewing the maintenance cost of an Open Dough
-  dashboard story's test expression.
-- **Goal:** Terry can distinguish complexity needed to protect the story's
-  behavior from avoidable complexity in its tests and support, and make a
-  justified retain or simplify decision. The case also tests whether the
-  memorandum's starting criteria improve that decision enough to justify the
-  review's own cost, rather than rewarding short test bodies
-  ([ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)).
-
-**Case (selected during refinement, 2026-11-05):** story 5,
-SEED-192#review-story-intent-impact
-([done record](../done/SEED-192_review-story-intent-impact.json)), at completion
-revision `7c71049bac64d7a6520a33628e485704a21ee855`. Its original intent and plan
-441 are recoverable at that revision. This is the same case as the protection
-review above, but this review stands alone: it assesses the cost of expressing
-and maintaining the tests, without waiting for protection verdicts or claiming
-to establish them. The selection is an agent planning choice, not a prior
-human evaluation of the case.
-
-**Scope:**
-
-- **Required:** identify the test changes actually delivered by this story,
-  including its earlier stopped attempt; read their relevant setup, fixtures,
-  helpers, stand-ins, and lower-level checks, including unchanged support.
-  Explain the behavioral boundary, concepts a maintainer must understand,
-  coupling to implementation, and substituted behavior or assumptions. Apply
-  the [memorandum's criteria](../../docs/product-intent-review-memorandum.md#observable-proof-cost-and-judged-complexity)
-  to the complete expression. Trace costs and benefits to revision-pinned
-  source; distinguish the behavior's inherent complexity, its proof's
-  complexity, and observed execution cost.
-- **Required:** give concrete retain or simplify proposals, naming the intent
-  each protects, what a simplification would remove, what proof must survive,
-  and uncertainty. A justified retain proposal is a useful result; finding
-  something to delete is not an acceptance requirement. Recheck actionable
-  historical findings against current trunk before recommending future work.
-  Record Terry's decisions and his assessment of the review's usefulness and
-  cost. Preserve the method's learning and limitations in the memorandum.
-- **Evidence limits:** brevity, counts, a lower boundary, or mocking alone do
-  not settle a proposal. Lower-level checks and substituted behavior carry
-  costs to explain and weigh against their distinct protection. Source
-  inspection supports a reasoned preservation argument, not an observed claim
-  that a proposed rewrite preserves detection. Missing timing or protection
-  evidence stays unknown; runtime alone measures neither complexity nor value.
-- **Scope limits:** one story and the support needed to understand it; no
-  suite audit, new dashboard UI, metric or scoring system, reusable review
-  skill, automatic rewriting, test optimization, or change to project testing
-  rules. Implementing proposals and queuing follow-ups need a separate
-  instruction. This story does not rerun historical tests or collect timings;
-  it may cite existing execution records with their revision and selection.
-
-**Decision basis:** compare the assessment with ordinary Review changes plus
-source reading and the existing
-[test-value review](../../docs/maintainer/dashboard-test-value-review.md).
-Before writing verdicts, record what those tools already reveal about this
-case. Terry judges the method useful if its sourced reasoning helps him make
-or confidently retain a concrete maintenance decision and merits the time he
-spends reading it. Record unsupported claims and his reading effort, alongside
-the assessor's effort. Rejection or an inconclusive decision with its missing
-evidence recorded is valid learning; one retrospective case cannot validate a
-general heuristic or demonstrate a speedup.
-
-**Key examples:**
-
-1. A short test delegates substantial work to helpers → follow the assertion
-   through those helpers and setup → its cost account includes that support,
-   with citations, instead of calling the body alone simple.
-2. A journey and a lower-level tree check touch related behavior → assess their
-   actual boundaries and distinct observations → a proposal explains what
-   each protects and the coupling cost; apparent overlap alone does not justify
-   deletion.
-3. A fixture substitutes an external response → trace where its answer comes
-   from and what the assertion observes → distinguish real preconditions from
-   supplied behavior and identify the resulting assumption or evidence gap.
-4. A proposed simplification would shorten a test but remove its only
-   observation of a promised distinction → compare protection with the cost
-   removed → recommend retention or specify the equivalent proof a future
-   change must retain, without claiming that replacement was tested.
-5. A historical cost is already gone on trunk → recheck the cited source →
-   retain the historical learning and mark the proposal resolved; do not
-   recommend duplicate work. No recorded runtime → leave execution cost
-   unknown rather than deriving it from source size or summed durations.
-6. Terry reads the proposals and their citations → he decides retain,
-   simplify, or insufficient evidence, and keep, adjust, or reject the method
-   → record his reasons, review cost, and limitations without changing tests
-   or silently starting a follow-up.
-
-**Product prerequisites and stopping point:** the case's intent, attributable
-changes, relevant support, and Terry's evaluation. No blocking story dependency
-is established, including on the sibling protection review. The sourced
-assessment and decisions remain useful if no automation or implementation
-follows. Effort is unbanded; no S/M/L calibration is established.
 
 ## Ordering, Existing Stories, and Scope Reduction
 
-The numbered sections record the backlog order Terry selected on 2026-10-31;
-they do not establish a mandatory dependency chain. Remaining identities stay
-canonical here. Specifically, the Cucumber source pilot closed as
+Terry selected the backlog order on 2026-10-31. That order did not establish
+a mandatory dependency chain. The Cucumber source pilot closed as
 SEED-192#browse-test-purpose and is not duplicated under a new identity. Other
 existing review candidates retain their outcomes.
 
@@ -268,7 +162,7 @@ learning, not merely as infrastructure for later readers.
 
 The earlier optimization-candidate priority becomes selected position 4, after
 its source-navigation prerequisites. Story impact (5) keeps the review centered
-on a story. The complexity review (11) can use existing tools.
+on a story.
 
 The kept decomposition differs from Terry's rough sequence deliberately: it
 combines language-only source extensions when they share the same reading
@@ -285,9 +179,6 @@ early protection review to test the parent direction's hardest assumption.
 
 ## Open Decisions Before Refinement or Planning
 
-- Select a real story and a developer's prior review basis for the complexity
-  assessment case (story 11); define what decision and review cost would justify
-  keeping its method.
 - Establish Open Dough S/M/L calibration before assigning bands. Comparative
   uncertainty is recorded; no borrowed client-project timing policy applies.
 
