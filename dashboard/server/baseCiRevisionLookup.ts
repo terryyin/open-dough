@@ -5,12 +5,12 @@
 // (`./baseCiJudgment.ts`) keeps its branch listing rule unchanged.
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { adapterDiscoveryUnread } from "./baseCiAdapterAttempts.ts";
+import { adapterRevisionLookup } from "./baseCiAdapterRevisionLookup.ts";
 import { githubAcquisitionUnread } from "./baseCiGitHubReads.ts";
-import {
-  firstParentChain,
-  githubRevisionLookup,
-} from "./baseCiGithubRevisionLookup.ts";
-import { newestRunFor, unread, type BaseCiJudgment } from "./baseCiNearest.ts";
+import { githubRevisionLookup } from "./baseCiGithubRevisionLookup.ts";
+import { newestRunFor, type BaseCiJudgment } from "./baseCiNearest.ts";
+import { firstParentChain } from "./baseCiRevisionGit.ts";
 import {
   nearestRevisionBuild,
   type RevisionCiBuild,
@@ -40,33 +40,9 @@ function asSlot(
 ): RevisionBuildSlot {
   if (build === undefined)
     return { kind: "none", explanation: noneExplanation };
-  const {
-    revision,
-    subject,
-    selection,
-    laterWithoutResult,
-    runUrl,
-    runBranch,
-    runId,
-    runAttempt,
-    startedAt,
-    completedAt,
-  } = build;
-  const identity = {
-    revision,
-    subject,
-    selection,
-    laterWithoutResult,
-    ...(runUrl === undefined ? {} : { runUrl }),
-    ...(runBranch === undefined ? {} : { runBranch }),
-    ...(runId === undefined ? {} : { runId }),
-    ...(runAttempt === undefined ? {} : { runAttempt }),
-    ...(startedAt === undefined ? {} : { startedAt }),
-    ...(completedAt === undefined ? {} : { completedAt }),
-  };
-  if (build.state === "running")
-    return { kind: "running", state: "running", ...identity };
-  return { kind: "build", state: build.state, ...identity };
+  const { state, ...identity } = build;
+  if (state === "running") return { kind: "running", state, ...identity };
+  return { kind: "build", state, ...identity };
 }
 
 // Baseline: newest completed attempt at or before `storyStart`, walking
@@ -163,19 +139,30 @@ export async function lookupResultBuild(
   }
 }
 
-// When a folder uses ciAdapter, revision `head_sha` lookups are not available
-// through GitHub Actions; comparison explains that gap.
-export function revisionLookupOrGap(
+// A CI adapter supplies a discovery snapshot for the whole comparison;
+// GitHub Actions lists runs as the first-parent walk reaches each revision.
+export async function revisionLookupOrGap(
   source: PublishedSource,
   folderPath: string,
   call: GitCall,
   signal: AbortSignal,
-): RevisionCiLookup | BaseCiJudgment {
+  storyBranch: string | undefined,
+): Promise<RevisionCiLookup | BaseCiJudgment> {
   const { adapter, workflow } = ciConfiguration(folderPath);
-  if (adapter !== undefined)
-    return unread(
-      "This project's CI adapter does not list builds by revision, so a story CI comparison cannot be read.",
-    );
+  if (adapter !== undefined) {
+    try {
+      return await adapterRevisionLookup(
+        source,
+        storyBranch,
+        folderPath,
+        adapter,
+        call,
+        signal,
+      );
+    } catch (error) {
+      return adapterDiscoveryUnread(error);
+    }
+  }
   try {
     return githubRevisionLookup(source, workflow, call, signal);
   } catch (error) {

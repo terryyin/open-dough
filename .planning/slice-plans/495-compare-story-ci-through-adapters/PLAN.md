@@ -3,6 +3,22 @@
 **Identity:** SEED-257#compare-story-ci-through-adapters
 **Source:** [Compare story CI builds from custom adapters in Intent](../../seeds/SEED-257-compare-story-ci-through-adapters.md#compare-story-ci-through-adapters)
 
+**Source review:** [Independent source review](source-review.md)
+
+## Execution context
+
+- Story Branch Mode in the owned `compare-story-ci-builds-from-custom-adapters-in`
+  worktree on `codex/compare-story-ci-builds-from-custom-adapters-in`, assigned
+  to `juacompe-chan` by publisher `dashboard-territory.local-open-dough`.
+- Starting revision `577b9e62135166386212d9041af1953e2eaf5f28`.
+  Claim `fda495819e4a50af6b91f895d350a5bc78827a7f` is on `origin/main`
+  and was the initial accepted revision on the execution branch.
+- Worktree setup passed `node scripts/setup-native.mjs npm`,
+  `node scripts/setup-native.mjs browser`, and `npm run --silent typecheck:dashboard`.
+- CI observes `terryyin/open-dough`, `ci.yml`, on the execution branch.
+  Coordinator `juacompe-chan-257`, directory `/tmp/dough-ci-501/watch-gRf5dY`,
+  PID `86830`, stream `99544`, cell `g6:8`. The trunk claim predates this observer.
+
 ## Goal and scope
 
 A developer reviewing a Taken or Done story in a `ciAdapter` project sees
@@ -110,7 +126,7 @@ applies as written.
 
 ### 1. Find a done story's builds among the adapter's discovered attempts
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-comparison-adapter.spec.ts` done cases; the six existing
 comparison specs; typecheck and lint.
 
@@ -124,6 +140,23 @@ and Landed at the same exact attempt. The adapter is asked `discover` for
 the target and the story branch, and GitHub nothing. Replaces the refusal
 in `revisionLookupOrGap`; adds adapter identity to the comparison slot
 schema.
+
+Accepted proof: both new adapter Chromium journeys passed. Their real
+published fixtures verify the merge and fast-forward endpoints, IDs, listing
+branches and wall times. The 37 existing comparison, adapter proof, Intent
+summary and completed Review checks passed in the same selection. The first
+run exposed an incorrectly scoped row locator in the two new tests. Both
+passed after the locator fix. Dashboard typecheck and lint passed, as did
+the command-adapter attempts, acquisition and proof module checks with
+Homebrew Bash first on PATH. The source review records the observing
+assertions for each commitment.
+
+Independent refactor shared branch discovery and ambiguity with CI status
+and removed the redundant completion verification after discovery. The
+affected browser selection passed 37 checks, including both new adapter
+journeys, status/proof, comparison/Summary, and launch. The six
+`dashboard-story-branch-ci-adapter.test.mjs` cases and dashboard typecheck
+passed. The timeout journey remains slice 3 proof.
 
 ### 2. Read each endpoint's proof through the adapter
 Type: Behavior
@@ -183,3 +216,15 @@ Slice-plan refinement was not needed: four slices, each one proof loop on
 one boundary (build lookup, proof read, selection and gaps, live
 observation), with no fragmented or combined outcome. This review
 identified no remaining slice-specific concern.
+
+## Story obligations
+
+### G1. Adapter proof in the delivered comparison
+Reported: slice 1 — "Slice 2 owns adapter endpoint proof, which currently shows the existing no-summary message."
+Story clause: "Proof for each completed build through the existing adapter `proof` read"
+Disposition: receiving slice 2
+
+### G2. Preserve the adapter reason on a discovery deadline
+Reported: slice 1 — "If the shared signal itself expires while discovering, lookupOrGap returns the adapter reason then the Git verification can throw and hide that reason."
+Story clause: "A failed or timed-out `discover` makes the endpoints unavailable with the adapter's reason"
+Disposition: receiving slice 3

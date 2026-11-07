@@ -19,12 +19,14 @@ export type PublishedLanding = {
   readonly branchSide: string;
 };
 
-export async function recordedMode(
+export async function recordedExecution(
   story: ReviewedStory,
   claim: string,
   agent: string,
   call: GitCall,
-): Promise<StoryExecutionMode | undefined> {
+): Promise<
+  { readonly mode: StoryExecutionMode; readonly branch?: string } | undefined
+> {
   const name = agentNameOf(agent);
   if (name === undefined) return undefined;
   const fileName = agentIdentity(name).path.split("/").at(-1);
@@ -37,10 +39,17 @@ export async function recordedMode(
     return undefined;
   }
   const { profile } = parseAgentProfileFile(fileName, text) as {
-    readonly profile?: { readonly mode?: unknown };
+    readonly profile?: { readonly mode?: unknown; readonly branch?: unknown };
   };
   const mode = profile?.mode;
-  return mode === "trunk" || mode === "story-branch" ? mode : undefined;
+  if (mode !== "trunk" && mode !== "story-branch") return undefined;
+  const branch = profile?.branch;
+  return {
+    mode,
+    ...(mode === "story-branch" && typeof branch === "string" && branch !== ""
+      ? { branch }
+      : {}),
+  };
 }
 
 async function isAncestor(

@@ -47,10 +47,13 @@ function BuildIdentity({
   readonly slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>;
   readonly provisional: boolean;
 }): ReactNode {
+  const adapter = slot.adapterAttempt;
   const runName =
-    slot.runId !== undefined && slot.runAttempt !== undefined
-      ? `run ${String(slot.runId)} #${String(slot.runAttempt)}`
-      : "run unknown";
+    adapter !== undefined
+      ? `run ${adapter.runId} · attempt ${adapter.attemptId}`
+      : slot.runId !== undefined && slot.runAttempt !== undefined
+        ? `run ${String(slot.runId)} #${String(slot.runAttempt)}`
+        : "run unknown";
   const state =
     slot.kind === "running"
       ? "running"
@@ -63,6 +66,7 @@ function BuildIdentity({
     <>
       <code>{shortSha(slot.revision)}</code>
       {" · "}
+      {adapter !== undefined ? `${slot.subject} · ` : null}
       <LinkedRun name={runName} url={slot.runUrl} />
       {` · ${state} · ${selectionWords(slot, provisional)}${failed}`}
     </>

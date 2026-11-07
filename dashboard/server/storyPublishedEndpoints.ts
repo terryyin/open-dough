@@ -23,7 +23,7 @@ import {
 } from "./storyCompletedCommits.ts";
 import {
   landingOf,
-  recordedMode,
+  recordedExecution,
   type StoryExecutionMode,
 } from "./storyPublishedEndpointDerived.ts";
 import {
@@ -45,6 +45,7 @@ export type PublishedStoryEndpointFacts = {
   readonly completedAt: string;
   readonly agent: string;
   readonly mode: StoryExecutionMode;
+  readonly branch?: string;
   // Newest first-parent trunk revision at or before the claim parents'
   // octopus base — the bound for baseline and result ancestor walks.
   readonly storyStart: string;
@@ -192,15 +193,15 @@ export async function publishedStoryEndpoints(
         explanation:
           "Published execution history does not establish a complete claim and its attributed commits for this completion.",
       };
-    const mode = await recordedMode(story, firstClaim, agent, call);
-    if (mode === undefined)
+    const execution = await recordedExecution(story, firstClaim, agent, call);
+    if (execution === undefined)
       return {
         kind: "unavailable",
         explanation:
           "Published execution claim history does not record a usable execution mode for this completion.",
       };
     const landing =
-      mode === "story-branch"
+      execution.mode === "story-branch"
         ? await landingOf(
             completion,
             evidence.storyStart,
@@ -216,7 +217,7 @@ export async function publishedStoryEndpoints(
         completion,
         completedAt: String(record.completedAt),
         agent,
-        mode,
+        ...execution,
         storyStart: evidence.storyStart,
         claims: evidence.claims,
         ...(landing === undefined ? {} : { landing }),

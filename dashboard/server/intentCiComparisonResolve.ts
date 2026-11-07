@@ -11,7 +11,6 @@ import {
   lookupBaselineBuild,
   lookupResultBuild,
 } from "./baseCiRevisionLookup.ts";
-import { runGit } from "./gitRunner.ts";
 import {
   asComparisonSlot,
   gapFromUnread,
@@ -41,7 +40,7 @@ export async function performDoneComparison(
     };
   }
   const { facts } = endpoints;
-  const context = lookupContext(source, signal);
+  const context = await lookupContext(source, signal, facts.branch);
   if ("unavailable" in context) {
     return {
       kind: "unavailable",
@@ -51,7 +50,6 @@ export async function performDoneComparison(
     };
   }
   const { call, lookupOrGap } = context;
-  await runGit(["rev-parse", "--verify", `${facts.completion}^{commit}`], call);
   if (isUnreadJudgment(lookupOrGap)) {
     const gap = gapFromUnread(lookupOrGap);
     return {
@@ -171,7 +169,7 @@ export async function performTakenComparison(
     };
   }
   const { facts } = endpoints;
-  const context = lookupContext(source, signal);
+  const context = await lookupContext(source, signal, facts.branch);
   if ("unavailable" in context) {
     return {
       kind: "unavailable",

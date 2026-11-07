@@ -19,37 +19,33 @@ export const trunkBranchNotApplicable: StoryCiComparisonSlot = {
 export function asComparisonSlot(
   slot: RevisionBuildSlot,
 ): StoryCiComparisonSlot {
+  if (slot.kind !== "build" && slot.kind !== "running")
+    return { kind: slot.kind, explanation: slot.explanation };
+  const { adapterAttempt } = slot;
+  const adapter =
+    adapterAttempt === undefined
+      ? undefined
+      : {
+          ...adapterAttempt,
+          runId: String(adapterAttempt.runId),
+          attemptId: String(adapterAttempt.attemptId),
+        };
   if (slot.kind === "build") {
-    return {
-      kind: "build",
-      revision: slot.revision,
-      subject: slot.subject,
-      state: slot.state,
-      selection: slot.selection,
-      laterWithoutResult: slot.laterWithoutResult,
-      ...(slot.runUrl === undefined ? {} : { runUrl: slot.runUrl }),
-      ...(slot.runBranch === undefined ? {} : { runBranch: slot.runBranch }),
-      ...(slot.runId === undefined ? {} : { runId: slot.runId }),
-      ...(slot.runAttempt === undefined ? {} : { runAttempt: slot.runAttempt }),
-      ...(slot.startedAt === undefined ? {} : { startedAt: slot.startedAt }),
-      ...(slot.completedAt === undefined
-        ? {}
-        : { completedAt: slot.completedAt }),
-    };
+    return { ...slot, adapterAttempt: adapter };
   }
-  if (slot.kind === "running") {
-    return {
-      kind: "running",
-      revision: slot.revision,
-      subject: slot.subject,
-      selection: slot.selection,
-      laterWithoutResult: slot.laterWithoutResult,
-      ...(slot.runUrl === undefined ? {} : { runUrl: slot.runUrl }),
-      ...(slot.runId === undefined ? {} : { runId: slot.runId }),
-      ...(slot.runAttempt === undefined ? {} : { runAttempt: slot.runAttempt }),
-    };
-  }
-  return { kind: slot.kind, explanation: slot.explanation };
+  return {
+    kind: "running",
+    revision: slot.revision,
+    subject: slot.subject,
+    selection: slot.selection,
+    laterWithoutResult: slot.laterWithoutResult,
+    runUrl: slot.runUrl,
+    runId: slot.runId,
+    runAttempt: slot.runAttempt,
+    ...(adapter === undefined
+      ? {}
+      : { adapterAttempt: adapter, runBranch: slot.runBranch }),
+  };
 }
 
 export function gapFromUnread(judgment: BaseCiJudgment): StoryCiComparisonSlot {
@@ -60,15 +56,17 @@ export function gapFromUnread(judgment: BaseCiJudgment): StoryCiComparisonSlot {
   return { kind: "unavailable", explanation: reason };
 }
 
-export function lookupContext(
+export async function lookupContext(
   source: PublishedSource,
   signal: AbortSignal,
-):
+  storyBranch: string | undefined,
+): Promise<
   | {
       readonly call: GitCall;
-      readonly lookupOrGap: ReturnType<typeof revisionLookupOrGap>;
+      readonly lookupOrGap: Awaited<ReturnType<typeof revisionLookupOrGap>>;
     }
-  | { readonly unavailable: string } {
+  | { readonly unavailable: string }
+> {
   let folder: ReturnType<typeof projectFolder>;
   try {
     folder = projectFolder(source);
@@ -85,12 +83,18 @@ export function lookupContext(
   };
   return {
     call,
-    lookupOrGap: revisionLookupOrGap(source, folder.path, call, signal),
+    lookupOrGap: await revisionLookupOrGap(
+      source,
+      folder.path,
+      call,
+      signal,
+      storyBranch,
+    ),
   };
 }
 
 export function isUnreadJudgment(
-  value: ReturnType<typeof revisionLookupOrGap>,
+  value: Awaited<ReturnType<typeof revisionLookupOrGap>>,
 ): value is BaseCiJudgment {
   return "state" in value;
 }
