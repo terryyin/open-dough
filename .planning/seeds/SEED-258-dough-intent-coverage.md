@@ -25,9 +25,9 @@ story are protected by its project's maintained tests.
 **Outcome.** Open Dough provides a public `dough-intent-coverage` skill that
 developers can invoke manually for a selected story. Story Wrap Up also
 invokes the same assessment automatically while the story's source and
-execution evidence are available. The developer can recover the report
-after closure and use it to decide which protections to retain, clarify,
-or strengthen.
+execution evidence are available. The developer can read the assessment in
+the skill's output or, after wrap-up, in the story's recent done record, and
+use it to decide which protections to retain, clarify, or strengthen.
 
 **Scope to decompose**
 
@@ -43,17 +43,23 @@ or strengthen.
   [AGENTS.md](../../AGENTS.md),
   [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md), and
   [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
-- Have wrap-up call the same assessment before cleaning up the source records.
-  Carry the trial's evidence and developer feedback into the decisions about
-  which stories qualify, the report's durable home, repeat invocation, and
-  how wrap-up reports incomplete assessment evidence.
+- Return the assessment as the skill's output. The caller decides whether
+  and where to persist it.
+- Have wrap-up call the same assessment before cleaning up the source records
+  and store the result in the story's JSON done record beside the backlog
+  ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)).
+  The result is pruned with that record under the existing rolling 30-day
+  retention policy. Carry the trial's evidence and developer feedback into
+  the decisions about which stories qualify, repeat invocation, and how
+  wrap-up reports incomplete assessment evidence.
 
 **Evaluation examples.** A developer invokes the installed skill manually in
-a project with browser tests and unit tests. The report relates both test
-levels to the story's promises and names any gap in the available evidence.
-In a project using a different test stack, completing an eligible story
-triggers the assessment through wrap-up and leaves a report the developer
-can read after closure.
+a project with browser tests and unit tests. The skill returns an assessment
+that relates both test levels to the story's promises and names any gap in the
+available evidence. In a project using a different test stack, wrap-up runs
+the same assessment for an eligible story and records the result in its
+done-story JSON. When the rolling cleanup prunes that record, the result is
+pruned with it.
 
 **Before proceeding.** Use the committed trial reports and Terry's evaluation
 to decide whether the method merits this work. If Terry elects to proceed,
