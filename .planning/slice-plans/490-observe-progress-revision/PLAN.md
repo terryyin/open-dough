@@ -167,3 +167,9 @@ Reported: slice 1 — "Scope excludes this work from the increment"
 Story clause: "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
 Disposition: excluded "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
 Commitment: X5
+
+## Execution complete
+
+Product advice: no change. The guidance names the progress → await-revision →
+done path as scoped; deferred exclusions hold. DD-437 records near-zero
+boundary-row headroom as a process finding without a product correction.
