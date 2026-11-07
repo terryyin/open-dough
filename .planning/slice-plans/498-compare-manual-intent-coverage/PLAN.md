@@ -143,6 +143,8 @@ trunk.
 - Starting revision `7aca698a35ae48304e7ddb56a4ebb63d5f443799`.
   Take `1a80d6b970f72b682e14f43bbaa1857d4bd93756` confirmed on `origin/main`
   and the remote story branch. Publish increments to that story branch.
+- Slice 1 was accepted on the remote story branch at
+  `5ddf5ab485dec9cdfb8b426605aa6bf3a8a20497` and attached to this observer.
 - CI source GitHub Actions `ci.yml` (CI), observing the remote story branch.
   Codex coordinator `codex-seed258-be5ad8d1`, mailbox
   `/tmp/dough-ci-501/watch-IeTXzy`, PID `73637`, yielded cell `g46:8`, stream
@@ -182,7 +184,7 @@ were read without replaying any retrospective. Refactor disposition `records-onl
 
 ### 2. Run the blinded short assessment for each case
 Type: Behavior
-Status: planned
+Status: done
 Proof: three `assessment-<case>.md` reports, each with its store check.
 
 Behavior: a fresh store holds the checkpoint and the story's base, with
@@ -198,6 +200,20 @@ A probe that did not reach the intended path is marked as such. The report
 also shows the effort figures with labels and identifies promises left
 unassessed at the limit. A store that still resolves the later commit stops
 that case's assessment until it is rebuilt.
+
+Accepted proof: the [brief](assessment-brief.md) and reports for
+[SEED-254](assessment-254.md), [SEED-256](assessment-256.md), and
+[SEED-257](assessment-257.md) retain the literal store and focused test
+commands, terminal results, source and assertion locations, scratch
+restoration, and cost evidence. Before dispatch the three stores each
+resolved exactly two commits and rejected the later execution-complete
+object with `git cat-file` exit 128. The final `git rev-parse HEAD`,
+`git rev-list --count --all`, and `git status --porcelain=v1 --untracked-files=no`
+checks under `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES` independently confirmed
+the original checkpoints, two reachable commits, and clean tracked state.
+All three assessors returned within 600 seconds and reached one deliberately
+broken assertion before restoring the changed file. SEED-257 leaves live
+Pygardon evidence unknown. Refactor disposition `records-only`.
 
 ### 3. Let Terry verify and decide from the comparison
 Type: Behavior
