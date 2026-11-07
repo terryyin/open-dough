@@ -1,7 +1,7 @@
 // Wording of a story's CI comparison on Intent's homepage
 // (`./IntentCiComparison.tsx`): each endpoint's build identity and selection
-// rule, CI wall time in whole seconds, and signed differences framed as
-// observations between single builds, never attributed to the story.
+// rule, CI wall time, and time without runner waits in whole seconds.
+// The signed difference compares observations from two builds.
 
 import {
   wallTimeMs,
@@ -38,15 +38,20 @@ export function wallTimeWords(slot: StoryCiComparisonSlot): string | undefined {
   return ms === undefined ? undefined : wholeSecondWords(ms);
 }
 
-export function wallTimeDifferenceWords(
-  baseline: StoryCiComparisonSlot,
-  after: StoryCiComparisonSlot,
-): string | undefined {
-  if (baseline.kind !== "build" || after.kind !== "build") return undefined;
-  const before = wallTimeMs(baseline.startedAt, baseline.completedAt);
-  const later = wallTimeMs(after.startedAt, after.completedAt);
-  if (before === undefined || later === undefined) return undefined;
-  return wholeSecondDifferenceWords(later - before);
+export function timeWithoutRunnerWaitsWords(
+  slot: StoryCiComparisonSlot,
+  baseline?: StoryCiComparisonSlot,
+): string {
+  if (slot.kind === "running") return "Unavailable while the build is running.";
+  if (slot.kind !== "build") return "—";
+  const timing = slot.timeWithoutRunnerWaits;
+  if ("reason" in timing) return `Unavailable. ${timing.reason}`;
+
+  const time = wholeSecondWords(timing.milliseconds);
+  const before =
+    baseline?.kind === "build" ? baseline.timeWithoutRunnerWaits : undefined;
+  if (before === undefined || "reason" in before) return time;
+  return `${time} ${wholeSecondDifferenceWords(timing.milliseconds - before.milliseconds)}`;
 }
 
 export const observedNotAttributed =

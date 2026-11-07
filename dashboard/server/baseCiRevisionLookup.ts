@@ -31,7 +31,7 @@ export type RevisionBuildSlot =
       readonly kind: "running";
       readonly state: "running";
     } & Omit<RevisionCiBuild, "state">)
-  | { readonly kind: "none"; readonly explanation: string }
+  | { readonly kind: "none" | "not-applicable"; readonly explanation: string }
   | { readonly kind: "unavailable"; readonly explanation: string };
 
 function asSlot(

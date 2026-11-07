@@ -38,5 +38,9 @@ export async function adapterRevisionLookup(
   return {
     listRunsAt: (sha) => Promise.resolve(runsByRevision.get(sha) ?? []),
     subjectOf: (sha) => revisionSubject(sha, call),
+    timeWithoutRunnerWaitsOf: () =>
+      Promise.resolve({
+        reason: "The CI adapter does not report a job graph.",
+      }),
   };
 }

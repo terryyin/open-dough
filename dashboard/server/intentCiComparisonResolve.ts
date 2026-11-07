@@ -4,12 +4,12 @@
 import {
   suppressedBesideJudgmentFragments,
   type StoryCiComparisonAnswer,
-  type StoryCiComparisonSlot,
 } from "../src/storyCiComparison.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   lookupBaselineBuild,
   lookupResultBuild,
+  type RevisionBuildSlot,
 } from "./baseCiRevisionLookup.ts";
 import {
   asComparisonSlot,
@@ -66,10 +66,12 @@ export async function performDoneComparison(
     };
   }
   const lookup = lookupOrGap;
-  const baseline = asComparisonSlot(
-    await lookupBaselineBuild(facts.storyStart, lookup, call),
+  const baselineBuild = await lookupBaselineBuild(
+    facts.storyStart,
+    lookup,
+    call,
   );
-  const branch: StoryCiComparisonSlot =
+  const branchBuild: RevisionBuildSlot =
     facts.mode === "trunk"
       ? trunkBranchNotApplicable
       : facts.landing === undefined
@@ -78,14 +80,12 @@ export async function performDoneComparison(
             explanation:
               "Published history does not name a landing for this story's branch result.",
           }
-        : asComparisonSlot(
-            await lookupResultBuild(
-              facts.landing.branchSide,
-              facts.storyStart,
-              lookup,
-              call,
-              "No completed CI build was found at the final branch revision or a later story-side ancestor within the story's start bound.",
-            ),
+        : await lookupResultBuild(
+            facts.landing.branchSide,
+            facts.storyStart,
+            lookup,
+            call,
+            "No completed CI build was found at the final branch revision or a later story-side ancestor within the story's start bound.",
           );
   // Story Branch Mode: exact revision at the landing only — merge for a
   // trunk-first landing, tip for a fast-forward; no measured-ancestor
@@ -94,16 +94,14 @@ export async function performDoneComparison(
   const fastForward =
     facts.landing !== undefined &&
     facts.landing.merge === facts.landing.branchSide;
-  const landed: StoryCiComparisonSlot =
+  const landedBuild: RevisionBuildSlot =
     facts.mode === "trunk"
-      ? asComparisonSlot(
-          await lookupResultBuild(
-            facts.completion,
-            facts.storyStart,
-            lookup,
-            call,
-            "No completed CI build was found at the completion revision or a later trunk ancestor within the story's start bound.",
-          ),
+      ? await lookupResultBuild(
+          facts.completion,
+          facts.storyStart,
+          lookup,
+          call,
+          "No completed CI build was found at the completion revision or a later trunk ancestor within the story's start bound.",
         )
       : facts.landing === undefined
         ? {
@@ -111,26 +109,29 @@ export async function performDoneComparison(
             explanation:
               "Published history does not name a landing for this story's landed result.",
           }
-        : asComparisonSlot(
-            await lookupResultBuild(
-              facts.landing.merge,
-              facts.storyStart,
-              lookup,
-              call,
-              fastForward
-                ? "No completed CI build was found at the landed story revision."
-                : "No completed CI build was found at the landing merge.",
-              {
-                exactOnly: true,
-                cancelledExplanation: fastForward
-                  ? "The CI build at the landed story revision was cancelled."
-                  : "The CI build at the landing merge was cancelled.",
-                timedOutExplanation: fastForward
-                  ? "The CI build at the landed story revision timed out."
-                  : "The CI build at the landing merge timed out.",
-              },
-            ),
+        : await lookupResultBuild(
+            facts.landing.merge,
+            facts.storyStart,
+            lookup,
+            call,
+            fastForward
+              ? "No completed CI build was found at the landed story revision."
+              : "No completed CI build was found at the landing merge.",
+            {
+              exactOnly: true,
+              cancelledExplanation: fastForward
+                ? "The CI build at the landed story revision was cancelled."
+                : "The CI build at the landing merge was cancelled.",
+              timedOutExplanation: fastForward
+                ? "The CI build at the landed story revision timed out."
+                : "The CI build at the landing merge timed out.",
+            },
           );
+  const [baseline, branch, landed] = await Promise.all([
+    asComparisonSlot(baselineBuild, lookup),
+    asComparisonSlot(branchBuild, lookup),
+    asComparisonSlot(landedBuild, lookup),
+  ]);
   return {
     kind: "comparison",
     phase: "done",
@@ -195,20 +196,24 @@ export async function performTakenComparison(
     };
   }
   const lookup = lookupOrGap;
-  const baseline = asComparisonSlot(
-    await lookupBaselineBuild(facts.storyStart, lookup, call),
+  const baselineBuild = await lookupBaselineBuild(
+    facts.storyStart,
+    lookup,
+    call,
   );
-  const live = asComparisonSlot(
-    await lookupResultBuild(
-      facts.liveTip,
-      facts.storyStart,
-      lookup,
-      call,
-      facts.mode === "trunk"
-        ? "No completed CI build was found at the current trunk tip or a later trunk ancestor within the story's start bound."
-        : "No completed CI build was found at the current branch tip or a later story-side ancestor within the story's start bound.",
-    ),
+  const liveBuild = await lookupResultBuild(
+    facts.liveTip,
+    facts.storyStart,
+    lookup,
+    call,
+    facts.mode === "trunk"
+      ? "No completed CI build was found at the current trunk tip or a later trunk ancestor within the story's start bound."
+      : "No completed CI build was found at the current branch tip or a later story-side ancestor within the story's start bound.",
   );
+  const [baseline, live] = await Promise.all([
+    asComparisonSlot(baselineBuild, lookup),
+    asComparisonSlot(liveBuild, lookup),
+  ]);
   if (facts.mode === "trunk") {
     return {
       kind: "comparison",

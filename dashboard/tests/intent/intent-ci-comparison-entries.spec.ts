@@ -25,12 +25,12 @@ test("expired entry proofs keep wall times and explain the entry gap", async ({
     103: { kind: "expired", artifactId: 1003 },
   });
   const { panel } = await selectDoneStoryForCiComparison(page);
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(1),
-  ).toContainText("+20 s");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(2),
-  ).toContainText("+1 min");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+    "3 min 20 s",
+  );
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "4 min",
+  );
   await expect(panel.locator(".intent-ci-comparison-entries")).toContainText(
     "This run's CI proof summary has expired.",
   );

@@ -4,8 +4,8 @@
 // Counts with signed differences (entry 4 → 5 +1), change markers, added /
 // removed / renamed / later-trunk gaps, and drill into a nested folder
 // (SEED-245#compare-story-intent-entry-folder-and-file-summaries examples 1,
-// 2 timing, 3–4, 6). Merge-resolution attribution refusals keep A/B/C proof
-// rows without the Review overlay (SEED-248 examples 1, 2, 5). Gap, Trunk Mode,
+// 2 timing, 3–4, 6). An owning integration merge that edits an Intent test file
+// marks it as a story change (SEED-253 key example 1). Gap, Trunk Mode,
 // running Landed and Taken variants live in
 // ./intent-summary-story-comparison-gaps.spec.ts. The file summary journey
 // is ./intent-summary-story-comparison-file.spec.ts. Without a selected
@@ -23,75 +23,24 @@ import {
 import { expectComparisonScopeRows } from "../intentScopeProofPage.ts";
 import {
   entryComparisonRows,
-  entryComparisonRowsWithoutOverlay,
   folderComparisonRows,
-  folderComparisonRowsWithoutOverlay,
+  mergeEditedNestedComparisonRows,
   nestedComparisonRows,
 } from "../support/summaryComparisonExpectedRows.ts";
 
 test.setTimeout(240_000);
 
-test("a selected done story's entry and folder Summaries compare precise baseline, branch and landed times with change markers", async ({
-  page,
-  origin,
-}) => {
-  test.slow();
-  // Fixture already deletes the branch and advances trunk (example 6).
-  const setup = await publishSummaryComparisonStory(page, origin);
-  const { intent } = await selectDoneStoryForSummaryComparison(page);
-  const summary = await openSummaryComparison(intent, "dashboard/tests");
-
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    `CI timing comparison for ${setup.identity}`,
-  );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    shortSha(setup.baseline),
-  );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    shortSha(setup.branchSide),
-  );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    shortSha(setup.completion),
-  );
-  await expect(summary.locator(".intent-ci-comparison-framing")).toContainText(
-    observedNotAttributed,
-  );
-  await expect
-    .soft(summary.locator(".intent-summary-evidence"))
-    .not.toContainText("provisional");
-
-  await expectComparisonScopeRows(
-    summary,
-    "dashboard/tests",
-    entryComparisonRows,
-  );
-  await drillComparisonChild(
-    summary,
-    "folder/",
-    "dashboard/tests/folder",
-    folderComparisonRows,
-  );
-  await drillComparisonChild(
-    summary,
-    "nested/",
-    "dashboard/tests/folder/nested",
-    nestedComparisonRows,
-  );
-});
-
-for (const variant of [
-  "own-conflict-extra",
-  "non-owning-story-file",
-] as const) {
+for (const variant of [undefined, "own-conflict-extra"] as const) {
   const label =
-    variant === "own-conflict-extra"
-      ? "owning merge-resolution edits"
-      : "non-owning merge resolution on a story file";
-  test(`a selected done story with ${label}: entry and folder Summaries keep A, B, C proof without Review overlay`, async ({
+    variant === undefined
+      ? "clean merges"
+      : "owning merge-resolution edits to a test file";
+  test(`a selected done story with ${label}: entry and folder Summaries compare precise baseline, branch and landed times with change markers`, async ({
     page,
     origin,
   }) => {
     test.slow();
+    // Fixture already deletes the branch and advances trunk (example 6).
     const setup = await publishSummaryComparisonStory(page, origin, variant);
     const { intent } = await selectDoneStoryForSummaryComparison(page);
     const summary = await openSummaryComparison(intent, "dashboard/tests");
@@ -111,29 +60,28 @@ for (const variant of [
     await expect(
       summary.locator(".intent-ci-comparison-framing"),
     ).toContainText(observedNotAttributed);
-    await expect(summary).not.toContainText(
-      "merge resolutions whose story changes cannot be attributed safely",
-    );
-    await expect(summary).not.toContainText(
-      "merge resolutions affecting this story's files whose changes cannot be attributed safely",
-    );
+    await expect
+      .soft(summary.locator(".intent-summary-evidence"))
+      .not.toContainText("provisional");
 
     await expectComparisonScopeRows(
       summary,
       "dashboard/tests",
-      entryComparisonRowsWithoutOverlay,
+      entryComparisonRows,
     );
     await drillComparisonChild(
       summary,
       "folder/",
       "dashboard/tests/folder",
-      folderComparisonRowsWithoutOverlay,
+      folderComparisonRows,
     );
     await drillComparisonChild(
       summary,
       "nested/",
       "dashboard/tests/folder/nested",
-      nestedComparisonRows,
+      variant === undefined
+        ? nestedComparisonRows
+        : mergeEditedNestedComparisonRows,
     );
   });
 }

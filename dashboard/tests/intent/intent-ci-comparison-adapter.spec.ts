@@ -142,7 +142,7 @@ for (const [landing, publish] of [
         attempt: branchAttempt,
         runBranch: setup.branch,
         selection: merged ? "ancestor" : "exact",
-        wall: "3 min 20 s +1 min 20 s",
+        wall: "3 min 20 s",
       },
       {
         role: "Landed",
@@ -151,7 +151,7 @@ for (const [landing, publish] of [
         attempt: landedAttempt,
         runBranch: merged ? "main" : setup.branch,
         selection: "exact",
-        wall: merged ? "4 min +2 min" : "3 min 20 s +1 min 20 s",
+        wall: merged ? "4 min" : "3 min 20 s",
       },
     ];
     const answer: unknown = await (await response).json();
@@ -179,6 +179,9 @@ for (const [landing, publish] of [
       await expect(row.locator(".intent-ci-comparison-wall")).toHaveText(
         entry.wall,
       );
+      await expect(
+        row.locator(".intent-ci-comparison-without-waits"),
+      ).toHaveText("Unavailable. The CI adapter does not report a job graph.");
       expect(answer).toMatchObject({
         [entry.slot]: {
           kind: "build",

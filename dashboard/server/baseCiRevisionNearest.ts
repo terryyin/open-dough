@@ -7,6 +7,7 @@ import {
   type BaseCiRunIdentity as RunIdentity,
   type BaseCiState,
 } from "../src/baseCiConfirmation.ts";
+import type { CiTimeWithoutRunnerWaits } from "../src/storyCiComparison.ts";
 import { newestRunFor, type ListedRun } from "./baseCiNearest.ts";
 
 const isPositive = (value: unknown): value is number =>
@@ -117,6 +118,10 @@ export type RevisionCiLookup = {
     runId: number,
     latestAttempt: number,
   ) => Promise<readonly ListedRun[]>;
+  // Timing for a selected completed attempt, read only after selection.
+  readonly timeWithoutRunnerWaitsOf: (
+    build: RevisionCiBuild,
+  ) => Promise<CiTimeWithoutRunnerWaits>;
   // Subject line of a revision; "(no subject)" when unknown.
   readonly subjectOf: (sha: string) => Promise<string>;
 };
@@ -182,7 +187,11 @@ export async function nearestRevisionBuild(
         : {}),
       ...runBranchOf(run),
       ...runIdentityOf(run),
-      ...attemptTimesOf(run),
+      ...attemptTimesOf({
+        ...run,
+        startedAt:
+          run.attempt === 1 ? (run.createdAt ?? run.startedAt) : run.startedAt,
+      }),
     };
   }
   return undefined;

@@ -7,18 +7,20 @@ import {
   revisionLookupOrGap,
   type RevisionBuildSlot,
 } from "./baseCiRevisionLookup.ts";
+import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import type { BaseCiJudgment } from "./baseCiNearest.ts";
 import type { GitCall } from "./gitRunner.ts";
 import { projectFolder } from "./projectFolders.ts";
 
-export const trunkBranchNotApplicable: StoryCiComparisonSlot = {
+export const trunkBranchNotApplicable = {
   kind: "not-applicable",
   explanation: "Branch comparison is not applicable for a Trunk Mode story.",
-};
+} satisfies RevisionBuildSlot;
 
-export function asComparisonSlot(
+export async function asComparisonSlot(
   slot: RevisionBuildSlot,
-): StoryCiComparisonSlot {
+  lookup: RevisionCiLookup,
+): Promise<StoryCiComparisonSlot> {
   if (slot.kind !== "build" && slot.kind !== "running")
     return { kind: slot.kind, explanation: slot.explanation };
   const { adapterAttempt } = slot;
@@ -31,7 +33,11 @@ export function asComparisonSlot(
           attemptId: String(adapterAttempt.attemptId),
         };
   if (slot.kind === "build") {
-    return { ...slot, adapterAttempt: adapter };
+    return {
+      ...slot,
+      adapterAttempt: adapter,
+      timeWithoutRunnerWaits: await lookup.timeWithoutRunnerWaitsOf(slot),
+    };
   }
   return {
     kind: "running",

@@ -1,14 +1,19 @@
-// Derived facts from a published story's claim history: recorded execution
-// mode and, for Story Branch Mode, the landing from the story's own history —
-// newest trunk-first owning merge with its story-side parent, else the newest
-// own revision (fast-forward tip). Shared by `./storyPublishedEndpoints.ts`.
+// Derived facts from a published story's claim history: the completion tied to
+// the story's own delivery, recorded execution mode and, for Story Branch
+// Mode, the landing from the story's own history — newest trunk-first owning
+// merge with its story-side parent, else the newest own revision (fast-forward
+// tip). Shared by `./storyPublishedEndpoints.ts`.
 import {
   agentIdentity,
   agentNameOf,
   parseAgentProfileFile,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { runGit, type GitCall } from "./gitRunner.ts";
-import type { ReviewedStory } from "./storyPublishedEvidence.ts";
+import { isAncestor, runGit, type GitCall } from "./gitRunner.ts";
+import {
+  publishedStoryAgents,
+  publishedStoryEvidence,
+  type ReviewedStory,
+} from "./storyPublishedEvidence.ts";
 
 export type StoryExecutionMode = "trunk" | "story-branch";
 
@@ -52,21 +57,9 @@ export async function recordedExecution(
   };
 }
 
-async function isAncestor(
-  ancestor: string,
-  descendant: string,
-  call: GitCall,
-): Promise<boolean> {
-  try {
-    await runGit(["merge-base", "--is-ancestor", ancestor, descendant], call);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// The parent that holds story single-parent commits the other parent lacks.
-async function storySideOf(
+// The parent that holds story single-parent commits the other parent lacks;
+// undefined when neither or both do.
+export async function storySideOf(
   first: string,
   second: string,
   storyCommits: readonly string[],
@@ -84,6 +77,31 @@ async function storySideOf(
   if (secondExclusive && !firstExclusive) return "second";
   if (firstExclusive && !secondExclusive) return "first";
   return undefined;
+}
+
+// Owning merges over the rev-list `range`, newest first, whose second parent
+// is the story side: the story's own trunk-first merges.
+async function* trunkFirstOwningMerges(
+  range: readonly string[],
+  owningMerges: ReadonlySet<string>,
+  storyCommits: readonly string[],
+  call: GitCall,
+): AsyncGenerator<{ merge: string; first: string; second: string }> {
+  if (owningMerges.size === 0) return;
+  const lines = (
+    await runGit(["rev-list", "--merges", "--parents", ...range], call)
+  ).stdout
+    .trim()
+    .split("\n")
+    .filter(Boolean);
+  for (const line of lines) {
+    const [merge = "", first, second] = line.split(" ");
+    if (first === undefined || second === undefined) continue;
+    if (!owningMerges.has(merge)) continue;
+    if ((await storySideOf(first, second, storyCommits, call)) !== "second")
+      continue;
+    yield { merge, first, second };
+  }
 }
 
 // Newest own revision reachable from the completion: story single-parent
@@ -121,23 +139,13 @@ export async function landingOf(
   storyCommits: readonly string[],
   call: GitCall,
 ): Promise<PublishedLanding | undefined> {
-  const lines = (
-    await runGit(
-      ["rev-list", "--merges", "--parents", completion, `^${storyStart}`],
-      call,
-    )
-  ).stdout
-    .trim()
-    .split("\n")
-    .filter(Boolean);
-  for (const line of lines) {
-    const [merge = "", first, second] = line.split(" ");
-    if (first === undefined || second === undefined) continue;
-    if (!owningMerges.has(merge)) continue;
-    const side = await storySideOf(first, second, storyCommits, call);
-    if (side !== "second") continue;
+  for await (const { merge, second } of trunkFirstOwningMerges(
+    [completion, `^${storyStart}`],
+    owningMerges,
+    storyCommits,
+    call,
+  ))
     return { merge, branchSide: second };
-  }
   const tip = await newestOwnRevision(
     completion,
     storyCommits,
@@ -146,4 +154,43 @@ export async function landingOf(
   );
   if (tip === undefined) return undefined;
   return { merge: tip, branchSide: tip };
+}
+
+// The story's own completion for a done record added at `doneRecordAdded`,
+// read from published history up to `published`: the newest trunk-first owning
+// merge that integrates that addition (trunk-side first parent lacks it,
+// story-side second parent holds it), else the addition itself — Trunk Mode, a
+// fast-forward landing, or a completion committed on trunk after an earlier
+// merge. A later story's merge that carries the existing done record onto a new
+// first-parent path is not owning, so it never replaces this completion.
+export async function deliveredCompletion(
+  story: ReviewedStory,
+  doneRecordAdded: string,
+  published: string,
+  call: GitCall,
+): Promise<string> {
+  const storyCommits: string[] = [];
+  const owningMerges = new Set<string>();
+  for (const agent of await publishedStoryAgents(story, published, call)) {
+    const evidence = await publishedStoryEvidence(
+      story,
+      published,
+      call,
+      agent,
+    );
+    storyCommits.push(...evidence.commits.map(({ commit }) => commit));
+    for (const merge of evidence.merges) owningMerges.add(merge);
+  }
+  for await (const { merge, first, second } of trunkFirstOwningMerges(
+    ["--topo-order", published, `^${doneRecordAdded}`],
+    owningMerges,
+    storyCommits,
+    call,
+  ))
+    if (
+      (await isAncestor(doneRecordAdded, second, call)) &&
+      !(await isAncestor(doneRecordAdded, first, call))
+    )
+      return merge;
+  return doneRecordAdded;
 }

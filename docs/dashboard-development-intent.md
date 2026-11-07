@@ -112,11 +112,18 @@ the final branch result from the landing's story-side parent (inapplicable
 in Trunk Mode). Landed uses the newest trunk-first owning merge or the
 fast-forward tip, before any separate completion commit and without falling
 back across the landing. Each build shows its revision, run, attempt, state,
-exact or measured ancestor, and wall time. Signed whole-second differences
-describe observed builds. Entry rows compare cumulative test execution time.
+and exact or measured-ancestor selection. GitHub Actions wall time spans
+run creation on attempt one or attempt start on reruns through completion.
+CI time without runner waits measures the longest dependency chain of job
+durations, including carried-over jobs, against the workflow at that build.
+Signed whole-second differences compare observed builds with Baseline. A
+running build or missing timing or dependency evidence gives an unavailable
+reason and any available wall time. Entry rows compare cumulative test execution time.
 With `ciAdapter`, the comparison matches retained `discover` attempts by full
 revision across validated branches. It queries the target and any known
-story branch, and shows both IDs as text. Completed endpoints ask `proof`
+story branch, and shows both IDs as text. Adapter wall time uses the
+reported start and completion, and the runner-wait estimate says the adapter
+has no job graph. Completed endpoints ask `proof`
 on the listing branch for counts and durations. Unavailable, invalid, or
 ambiguous proof leaves the build visible with its reason. Endpoint recovery is
 independent of Review changes' merge attribution at home, entry, folder and file.

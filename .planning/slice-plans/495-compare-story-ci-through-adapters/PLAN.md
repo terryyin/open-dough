@@ -197,6 +197,16 @@ Chromium checks passed after refactoring, as did typecheck, the guidance
 check and whitespace verification. The CI status and cache proof remained
 applicable.
 
+Published to the execution branch at
+`c7432cf1464b3f7efb02cdbf8c7de5e126bf2cf8`, registered with the same observer.
+Before slice 3, the branch merged published trunk
+`550875ae5c991a1b2811fb40f1e46159bc974cc3` to keep SEED-253's completion
+recovery and SEED-256's timing fields. Wall time remains measured for
+adapter builds, and time without runner waits gives the no-job-graph
+reason. The combined comparison, CI status, Summary, runner-wait
+computation and completed Review selection passed 47 Chromium checks.
+Selective formatting and dashboard typecheck passed.
+
 ### 3. Taken stories and named gaps for adapter builds
 Type: Behavior
 Status: planned

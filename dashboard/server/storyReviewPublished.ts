@@ -1,7 +1,7 @@
 // A completed story's immutable comparison comes from published done/profile
 // history in its configured project, independently of local dashboard launches.
-// Endpoint facts name the completion; attribution of commits and merge
-// resolutions stays here with its current refusals.
+// Endpoint facts name the completion; attribution of commits, merge edits
+// and merge conflicts stays here.
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
@@ -65,7 +65,7 @@ export async function publishedStoryReview(
       target: source.ref,
       baseline: less.tree,
       tree,
-      files: await listedFrom(less.tree, tree, mixed, facts.completion, call),
+      files: await listedFrom(less.tree, tree, mixed, less.tree, call),
     };
   } catch (error) {
     return unavailable(
