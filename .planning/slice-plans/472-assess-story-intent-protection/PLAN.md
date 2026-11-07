@@ -61,7 +61,10 @@ isolation.
 - GitHub Actions `ci.yml` verified as workflow 351271804. The Codex observer
   watches the remote story branch as coordinator `intent-coverage-192`,
   mailbox `/tmp/dough-ci-501/watch-mpuEx5`, PID 71950, shell session 38944
-  and yielded cell `g15:10`.
+  and yielded cell `g15:10`. That observer shut down at the evaluation
+  handoff. On resume, coordinator `intent-coverage-192` rearmed the story
+  branch using mailbox `/tmp/dough-ci-501/watch-mCKVZW`, PID 98980, shell
+  session 64885 and cell `g32:5`.
 - Slice 1 assessor `/root/assessor_192` was launched with `fork_turns=none`.
   The launch linked only the extracted original story and plan examples and
   a detached shallow checkpoint with one reachable commit and no remote. Its
@@ -83,7 +86,8 @@ isolation.
 - Slice 1 was accepted on the story branch at
   `ae07bb07aa1516a7d400cff6496f1c5c1cf0fc8f` and slice 2 at
   `f15158cfc002322018e07b903846d7fd864d6718`, and slice 3 at
-  `a47d65b402a1471e7460c0be55506364fb89a391`, all with the recorded observer.
+  `a47d65b402a1471e7460c0be55506364fb89a391`, and slice 4 at
+  `89df778165a2e1ec202dfb9297ed69c2833e761f`, all with the first observer.
 
 ## Evidence and local gate
 
@@ -191,7 +195,7 @@ status. Record assessment effort and test runtime per case.
 ### 5. Record Terry's evaluation and the trial decision
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The summary records Terry's decisions, useful new findings,
 unsupported claims and review cost, and the memorandum links to the durable
 reports and outcome.
@@ -289,3 +293,21 @@ summary path, title and ordinary-review heading as terms. The plan's
 summary path is verified. Other README basename matches refer to their own
 files. Verified that the summary's relative links and anchors resolve and
 the Git-pinned source citations remain accessible after plan cleanup.
+
+### Slice 5
+
+Terry's explicit evaluation names both calibration misses, retained tests,
+three separate follow-up candidates and their priorities, and the conditions
+for revisiting the method. The trial's adoption result is inconclusive.
+SEED-258 remains waiting. The durable summary records these decisions and
+the unmeasured comparison costs, and the memorandum links to the decision
+and reports. Hosted GitHub Actions CI attempt 1 at the exact SEED-248
+checkpoint `d03cf60f11e9f9599ae99db17932a029e854ecf8` passed independently
+of the local fault probe ([run 42254504909](https://github.com/terryyin/open-dough/actions/runs/42254504909)).
+
+Refactor disposition is records-only. Consumer trace covered the summary
+and memorandum, using their paths and changed headings. Verified the
+plan/source-review links and the memorandum links from the backlog, seed
+and Plan 475. Other generic README basename matches refer to unrelated
+files. The new memorandum targets resolve to the published reports and
+the recorded evaluation. No product source or tests changed.

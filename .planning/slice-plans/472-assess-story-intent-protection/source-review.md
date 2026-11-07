@@ -12,7 +12,7 @@ illustrative journeys govern evidence handling when their setup applies.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1.1 | Terry evaluates whether AI-assisted review helps him decide which test protections to retain, clarify, or strengthen. | slice 5 | |
+| 1.1 | Terry evaluates whether AI-assisted review helps him decide which test protections to retain, clarify, or strengthen. | slice 5 | observed: The developer's Slice 5 evaluation compares the three cases, retains named tests, and judges routine adoption inconclusive. The trial README Terry’s evaluation and decision records it and keeps SEED-258 waiting. |
 | 2.1 | Trial the proposed Dough Intent Coverage assessment on three recent completed Open Dough stories. | slice 3 | observed: The three SEED-192, SEED-248, and SEED-250 reports under docs/intent-coverage-trial/ identify the completed Open Dough stories and their exact checkpoints. |
 | 2.2 | For each promise and restriction, show how clearly the maintained tests express it. | slice 3 | observed: The verdict tables in each report compare original promise wording with what the fixture and assertion express, including the focused visibility states and equal Summary fixture values. |
 | 2.3 | For each promise and restriction, show what evidence indicates a test would catch a regression. | slice 3 | observed: The verdict tables cite the observing assertions and fixture inputs. SEED-192 Probe and SEED-248 Executed proof show original tests passing with the verified fault present. |
@@ -53,13 +53,13 @@ illustrative journeys govern evidence handling when their setup applies.
 | 7b.1 | Record useful findings in the summary. | slice 4 | observed: README Findings Terry can act on distinguishes original probe evidence, equal precise figures, and retention versus consumer selection. |
 | 7b.2 | Record unsupported claims in the summary. | slice 4 | observed: README What ordinary review found, Recheck on trunk, and Limits and decision separate supported observations from unproved historical and current claims. |
 | 7b.3 | Record review effort in the summary. | slice 4 | observed: README Reports and assessment cost records each case's runtime and assessor time, separate from coordinator and human effort. |
-| 7b.4 | Record Terry’s decision in the summary. | slice 5 | |
-| 7b.5 | Link the summary from the product intent memorandum. | slice 5 | |
+| 7b.4 | Record Terry’s decision in the summary. | slice 5 | observed: The developer's Slice 5 evaluation compares the three cases, retains named tests, and judges routine adoption inconclusive. The trial README Terry’s evaluation and decision records it and keeps SEED-258 waiting. |
+| 7b.5 | Link the summary from the product intent memorandum. | slice 5 | observed: docs/product-intent-review-memorandum.md Evaluation and remaining choices links to the decision and the three reports via the durable summary. |
 | 8.1 | The trial covers the three Open Dough cases. | slice 3 | observed: The three SEED-192, SEED-248, and SEED-250 reports under docs/intent-coverage-trial/ identify the completed Open Dough stories and their exact checkpoints. |
 | 8.2 | The trial uses their existing test tools. | slice 3 | observed: SEED-192 Commands and results, SEED-248 Executed proof, and SEED-250 Baseline and isolation name the historical Playwright and applicable Node commands, selected specs, runtime, and terminal outcomes. |
-| 8.3 | A public skill belongs to the separate SEED-258 follow-up. | slice 5 | |
-| 8.4 | Cross-project generalization across test types belongs to that follow-up. | slice 5 | |
-| 8.5 | Automatic invocation during wrap-up belongs to the follow-up. | slice 5 | |
+| 8.3 | A public skill belongs to the separate SEED-258 follow-up. | slice 5 | observed: README Terry’s evaluation and decision keeps SEED-258 waiting and limits any next method evaluation to a manual pilot. The separate SEED-258 canonical scope continues to own any public skill, cross-project support, or automatic wrap-up. |
+| 8.4 | Cross-project generalization across test types belongs to that follow-up. | slice 5 | observed: README Terry’s evaluation and decision keeps SEED-258 waiting and limits any next method evaluation to a manual pilot. The separate SEED-258 canonical scope continues to own any public skill, cross-project support, or automatic wrap-up. |
+| 8.5 | Automatic invocation during wrap-up belongs to the follow-up. | slice 5 | observed: README Terry’s evaluation and decision keeps SEED-258 waiting and limits any next method evaluation to a manual pilot. The separate SEED-258 canonical scope continues to own any public skill, cross-project support, or automatic wrap-up. |
 | E1.1 | A story promises that clicks inside an opened card disclosure keep their own behavior. | slice 4 | observed: README What ordinary review found compares the untouched historical verdict with plan 448 and the original dependency test, and gives the opened disclosure a partial verdict because non-link body clicks went unobserved. |
 | E1.2 | The test clicks the summary and a link and leaves the disclosure body untested. | slice 4 | observed: README What ordinary review found compares the untouched historical verdict with plan 448 and the original dependency test, and gives the opened disclosure a partial verdict because non-link body clicks went unobserved. |
 | E1.3 | The report gives *partially protected* and names the disclosure-body gap. | slice 4 | observed: README What ordinary review found compares the untouched historical verdict with plan 448 and the original dependency test, and gives the opened disclosure a partial verdict because non-link body clicks went unobserved. |
@@ -70,9 +70,9 @@ illustrative journeys govern evidence handling when their setup applies.
 | E2.4 | In the alternate result, the fault reproduces the wrong behavior while the tests still pass, identifying a gap. | slice 4 | observed: README Findings Terry can act on cites both independently confirmed surviving faults and the gap each establishes. |
 | E3.1 | A relevant test cannot be run successfully at the case revision. | slice 4 | observed: README Limits and decision records the conditional unknown rule, all three selected baselines passing, and evidence that remained unavailable beyond those runs. |
 | E3.2 | The report identifies the failed or unavailable evidence and gives *unknown* where the promise depends on that run. | slice 4 | observed: README Limits and decision records the conditional unknown rule, all three selected baselines passing, and evidence that remained unavailable beyond those runs. |
-| E4.1 | Terry opens and compares the three committed reports. | slice 5 | |
-| E4.2 | The summary identifies which findings would change a decision. | slice 5 | |
-| E4.3 | The summary identifies which claims Terry rejects. | slice 5 | |
-| E4.4 | The summary records what the work and review cost. | slice 5 | |
-| E4.5 | Terry decides whether to pursue the follow-up. | slice 5 | |
+| E4.1 | Terry opens and compares the three committed reports. | slice 5 | observed: The developer's Slice 5 evaluation compares the three cases, retains named tests, and judges routine adoption inconclusive. The trial README Terry’s evaluation and decision records it and keeps SEED-258 waiting. |
+| E4.2 | The summary identifies which findings would change a decision. | slice 5 | observed: README Test follow-up candidates records three separate candidate decisions, with SEED-248 highest and the eligible hidden maintenance consumer as the priority within SEED-250. |
+| E4.3 | The summary identifies which claims Terry rejects. | slice 5 | observed: README What ordinary review found records both concrete SEED-192 misses. Recheck on trunk records the first-parent fixture mismatch and remaining direct-evidence limits. |
+| E4.4 | The summary records what the work and review cost. | slice 5 | observed: README Reports and assessment cost records summed assessor and trunk recheck time, with unmeasured coordination and developer review. Terry’s evaluation and decision records the absent timed ordinary-review comparison. |
+| E4.5 | Terry decides whether to pursue the follow-up. | slice 5 | observed: The developer's Slice 5 evaluation compares the three cases, retains named tests, and judges routine adoption inconclusive. The trial README Terry’s evaluation and decision records it and keeps SEED-258 waiting. |
 | E4.6 | The reports remain readable after the trial plan is removed. | landing | |

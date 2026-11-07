@@ -121,6 +121,14 @@ response by the worthwhile product outcome or improved ability to change,
 including the cost of the assessment itself, under
 [ADR 0010](adrs/0010-definition-of-improvement-accepted.md).
 
+The three-story trial found test gaps worth acting on. Terry's evaluation was
+inconclusive about routine adoption, so the public skill and its automatic
+invocation during wrap-up remain waiting. If the method is revisited, start
+with a short manual pilot alongside ordinary review on the same stories and
+compare verified decisions, important misses, and total effort.
+[Trial decision](intent-coverage-trial/README.md#terrys-evaluation-and-decision),
+[Assessment reports](intent-coverage-trial/README.md#reports-and-assessment-cost).
+
 The immediate learning questions are how to make a story's distilled intent
 reviewable, how to assess the strength of its protection, and which complexity
 signals help that judgment. The representation of domain/type evidence and
