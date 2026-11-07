@@ -17,7 +17,15 @@ import { shortSha } from "../../src/baseCiWording.ts";
 import { observedNotAttributed } from "../../src/storyCiComparisonWording.ts";
 import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonEarlierLanding.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
-import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
+import {
+  expectCueState,
+  expectEntryRowCues,
+} from "../support/expectCiComparisonCues.ts";
+import {
+  comparedStoryEntryCues,
+  comparedStoryEntryRows,
+  expectCiComparisonEntryRows,
+} from "../support/expectCiComparisonEntryRows.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { completedPublishedStory } from "../support/completedPublishedStory.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
@@ -28,33 +36,6 @@ const unrecoverable =
   "Published execution history does not establish a complete claim and its attributed commits for this completion.";
 
 test.setTimeout(240_000);
-
-const comparisonEntryRows = [
-  [
-    "dashboard/tests",
-    "2,090 → 2,092 tests (+2)",
-    "4 min",
-    "4 min → 4 min 30 s (+30 s, +13%)",
-    "4 min → 5 min (+1 min, +25%)",
-    "1 of 1 part present",
-  ],
-  [
-    "tests",
-    "5 checks (no change)",
-    "2 min",
-    "2 min → 1 min 30 s (−30 s, −25%)",
-    "2 min → 1 min (−1 min, −50%)",
-    "1 of 1 part present",
-  ],
-  [
-    "src/skills",
-    "added → 3 checks",
-    "added",
-    "30 s",
-    "30 s",
-    "1 of 1 part present",
-  ],
-] as const;
 
 for (const variant of [
   undefined,
@@ -85,9 +66,23 @@ for (const variant of [
     await expect(
       panel.locator(".intent-ci-comparison-overall-counts"),
     ).toHaveText("2,090 → 2,092 tests (+2); 5 → 8 checks (+3)");
+    // Checks 5 → 8 (+60%) make the overall count cue strong even though
+    // tests only move +2 of 2,090.
+    await expectCueState(
+      panel.locator(".intent-ci-comparison-overall-counts"),
+      {
+        count: "more-strong",
+      },
+    );
     await expect(
       panel.locator(".intent-ci-comparison-overall-timing"),
     ).toHaveText("3 min → 4 min (+1 min, +33%)");
+    await expectCueState(
+      panel.locator(".intent-ci-comparison-overall-timing"),
+      {
+        duration: "slower-light",
+      },
+    );
     await expect(
       panel.locator(".intent-ci-comparison-identity").nth(0),
     ).toContainText(shortSha(setup.baseline));
@@ -142,7 +137,8 @@ for (const variant of [
     await expect(panel).not.toContainText(
       "merge resolutions affecting this story's files whose changes cannot be attributed safely",
     );
-    await expectCiComparisonEntryRows(panel, comparisonEntryRows);
+    await expectCiComparisonEntryRows(panel, comparedStoryEntryRows);
+    await expectEntryRowCues(panel, comparedStoryEntryCues);
   });
 }
 

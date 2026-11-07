@@ -22,6 +22,11 @@ import {
 } from "../support/selectDoneStoryForSummaryComparison.ts";
 import { expectComparisonScopeRows } from "../intentScopeProofPage.ts";
 import {
+  expectScopeRowCues,
+  summaryEntryComparisonCues,
+  summaryFolderComparisonCues,
+} from "../support/expectCiComparisonCues.ts";
+import {
   entryComparisonRows,
   entryComparisonRowsWithoutOverlay,
   folderComparisonRows,
@@ -65,11 +70,21 @@ test("a selected done story's entry and folder Summaries compare precise baselin
     "dashboard/tests",
     entryComparisonRows,
   );
+  await expectScopeRowCues(
+    summary,
+    "dashboard/tests",
+    summaryEntryComparisonCues,
+  );
   await drillComparisonChild(
     summary,
     "folder/",
     "dashboard/tests/folder",
     folderComparisonRows,
+  );
+  await expectScopeRowCues(
+    summary,
+    "dashboard/tests/folder",
+    summaryFolderComparisonCues,
   );
   await drillComparisonChild(
     summary,

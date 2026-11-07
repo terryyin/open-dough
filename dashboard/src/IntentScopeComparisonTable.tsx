@@ -27,10 +27,16 @@ import type { ScopeEvidence } from "./IntentScopeEvidence.tsx";
 import { changeKindWords, ChildName } from "./IntentScopeProofChild.tsx";
 import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
-import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
+import type {
+  StoryCiComparisonAnswer,
+  StoryCiComparisonSlot,
+} from "./storyCiComparison.ts";
 import { comparisonEndpointProofsChecking } from "./storyCiComparisonEntries.ts";
 import { observedNotAttributed } from "./storyCiComparisonWording.ts";
-import type { ComparisonEndpointProofs } from "./useIntentCiComparisonEntries.ts";
+import {
+  activeComparisonAfterSideOf,
+  type ComparisonEndpointProofs,
+} from "./useIntentCiComparisonEntries.ts";
 
 const outsideRowLabel = "Not in the rows above";
 
@@ -75,12 +81,14 @@ export function ComparisonTable({
   path,
   inventory,
   proofs,
+  answer,
   treeFiles,
   onOpen,
 }: {
   readonly path: string;
   readonly inventory: readonly string[];
   readonly proofs: ComparisonEndpointProofs;
+  readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
   readonly treeFiles: ReadonlyMap<string, IntentTreeFile> | undefined;
   readonly onOpen: (next: IntentSelection) => void;
 }) {
@@ -90,6 +98,7 @@ export function ComparisonTable({
     proofs.branch,
     proofs.landed,
   );
+  const afterSide = activeComparisonAfterSideOf(answer, proofs);
   const primary = primaryProofOf(proofs.landed, proofs.branch, proofs.baseline);
   const entry =
     primary.kind === "summary"
@@ -105,6 +114,7 @@ export function ComparisonTable({
       "precise",
       baselinePathOf(file, scopePath),
       file?.kind,
+      afterSide,
     );
   };
   const childRow = (child: SummaryChild): CiProofTableRow => {
@@ -148,6 +158,7 @@ export function ComparisonTable({
           proofs.branch,
           proofs.landed,
           "precise",
+          afterSide,
         ),
       });
     }

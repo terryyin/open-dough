@@ -45,7 +45,9 @@ labelled provisional) and the observed-not-attributed statement; its table
 uses **Baseline**, **Branch** and **Landed** for precise times with signed
 differences, shows counted-results differences in **Counts** (a gap endpoint
 shows its gap, not a difference), marks story-changed rows (a rename takes
-its baseline from its old path), and explains per-row gaps. Parts
+its baseline from its old path), explains per-row gaps, and shows the same
+count-border and duration-tint cues as the homepage entry table (see
+[CI timing comparison](dashboard-development-intent-ci-comparison.md)). Parts
 completeness stays for the homepage's chosen build (landed, else branch).
 Each result counts in one row: an unlisted file
 under a listed folder is in that folder's row, and outside only in that

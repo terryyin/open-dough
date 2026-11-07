@@ -10,20 +10,29 @@
 // trunk tip beside Branch N/A.
 
 import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
+import {
+  countCueElementAttrs,
+  durationCueElementAttrs,
+} from "./ciScopeComparisonCuePresentation.ts";
 import { ComparisonEndpointsTable } from "./IntentCiComparisonEndpoints.tsx";
 import { useIntentCiEvidence, type CiEvidence } from "./IntentCiEvidence.tsx";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
 import {
+  activeComparisonAfterSideOf,
   comparisonEntriesFromProofs,
   type ComparisonEndpointProofs,
 } from "./useIntentCiComparisonEntries.ts";
 import {
   activeComparisonOf,
   observedNotAttributed,
+  overallCountsCue,
   overallCountsWords,
+  overallTimingCue,
   wallTimeChangeWords,
 } from "./storyCiComparisonWording.ts";
+import type { ComparisonAfterSide } from "./ciScopeComparisonCues.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
+import "./intent-ci-cues.css";
 
 function endpointProofsOf(
   evidence: CiEvidence,
@@ -43,6 +52,8 @@ function ActiveComparisonSummary({
   const active = activeComparisonOf(answer, proofs);
   const overallCounts = overallCountsWords(proofs.baseline, active.proof);
   const overallTiming = wallTimeChangeWords(answer.baseline, active.slot);
+  const countsCue = overallCountsCue(proofs.baseline, active.proof);
+  const timingCue = overallTimingCue(answer.baseline, active.slot);
   return (
     <div className="intent-ci-comparison-summary">
       <p className="intent-ci-comparison-active">{active.title}</p>
@@ -51,24 +62,36 @@ function ActiveComparisonSummary({
           Landed is not used: {active.landedUnusedReason}
         </p>
       )}
-      <p className="intent-ci-comparison-overall-counts">{overallCounts}</p>
+      <p
+        {...countCueElementAttrs(
+          countsCue,
+          "intent-ci-comparison-overall-counts",
+        )}
+      >
+        {overallCounts}
+      </p>
       {overallTiming !== undefined && (
-        <p className="intent-ci-comparison-overall-timing">{overallTiming}</p>
+        <p
+          {...durationCueElementAttrs(
+            timingCue,
+            "intent-ci-comparison-overall-timing",
+          )}
+        >
+          {overallTiming}
+        </p>
       )}
     </div>
   );
 }
 
-function EntryComparison() {
-  const proofs = endpointProofsOf(useIntentCiEvidence());
-  if (proofs === undefined) {
-    return (
-      <p className="intent-ci-reading" role="status">
-        Reading entry comparison…
-      </p>
-    );
-  }
-  const entries = comparisonEntriesFromProofs(proofs);
+function EntryComparison({
+  proofs,
+  afterSide,
+}: {
+  readonly proofs: ComparisonEndpointProofs;
+  readonly afterSide: ComparisonAfterSide;
+}) {
+  const entries = comparisonEntriesFromProofs(proofs, afterSide);
   if (entries.kind === "checking") {
     return (
       <p className="intent-ci-reading" role="status">
@@ -155,12 +178,23 @@ export function IntentCiComparison({
       </section>
     );
   }
+  const afterSide =
+    proofs === undefined
+      ? "landed"
+      : activeComparisonAfterSideOf(answer, proofs);
   return (
     <section className="intent-ci-status" aria-label="CI timing comparison">
       <h3>CI timing changes for {story}</h3>
       <p className="intent-ci-comparison-framing">({observedNotAttributed})</p>
       <ComparisonBody answer={answer} proofs={proofs} />
-      <EntryComparison />
+      {proofs !== undefined && (
+        <EntryComparison proofs={proofs} afterSide={afterSide} />
+      )}
+      {proofs === undefined && (
+        <p className="intent-ci-reading" role="status">
+          Reading entry comparison…
+        </p>
+      )}
     </section>
   );
 }

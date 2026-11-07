@@ -122,7 +122,7 @@ values.
 
 ### 2. Classify each change once and cue it in the summary, table and Proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: module test of the classifier on the seed's examples (−2 of 12 →
 light green border; +4 s of 8 s → strong red tint; −1 s of 4 s → light
 green tint; +7% → no tint; −300 ms of 1.4 s → no tint; zero baseline +2 s →
@@ -199,6 +199,16 @@ No remaining slice-specific concern was identified in this review.
   `intent-ci-comparison*.spec.ts` including Taken Branch/Provisional active
   titles, and `intent-summary-story-comparison*.spec.ts` for shared
   Summary/Proof cells; typecheck.
+- Accepted slice 2 proof: module
+  `tests/support/intent-scope-comparison-cues.test.mjs` (seed thresholds);
+  Playwright cue assertions on
+  `intent-ci-comparison.spec.ts`,
+  `intent-summary-story-comparison.spec.ts`,
+  `intent-summary-story-comparison-file.spec.ts`, and no-cue without a story
+  in `intent-ci-status-story.spec.ts`; typecheck. Classifier lives in
+  `ciScopeComparisonCues.ts` with DOM attrs in
+  `ciScopeComparisonCuePresentation.ts`; overall strength is the max across
+  units.
 
 ## Story obligations
 

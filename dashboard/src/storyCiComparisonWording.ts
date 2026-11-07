@@ -16,6 +16,12 @@ import {
   totalCounted,
 } from "./ciScopeComparisonCounts.ts";
 import {
+  overallCountCueOf,
+  overallDurationCueOf,
+  type CountCue,
+  type DurationCue,
+} from "./ciScopeComparisonCues.ts";
+import {
   notLandedYetExplanation,
   type StoryCiComparisonAnswer,
   type StoryCiComparisonSlot,
@@ -160,6 +166,23 @@ function unitTotalsOf(
   return { kind: "totals", byUnit };
 }
 
+function orderedUnitsOf(
+  before: ReturnType<typeof unitTotalsOf>,
+  later: ReturnType<typeof unitTotalsOf>,
+): string[] {
+  const units = new Set<string>([
+    ...(before.kind === "totals" ? before.byUnit.keys() : []),
+    ...(later.kind === "totals" ? later.byUnit.keys() : []),
+  ]);
+  // Stable unit order: tests, then checks, then any other unit by name.
+  return [...units].sort((left, right) => {
+    const rank = (unit: string) =>
+      unit === "tests" ? 0 : unit === "checks" ? 1 : 2;
+    const byRank = rank(left) - rank(right);
+    return byRank !== 0 ? byRank : left.localeCompare(right);
+  });
+}
+
 // Overall counted-results difference with units kept apart (tests and checks
 // are never mixed). Partial when either build lacks a usable total.
 export function overallCountsWords(
@@ -179,21 +202,47 @@ export function overallCountsWords(
   if (before.kind === "none" && later.kind === "none") {
     return "No overall count: neither compared build has a usable total.";
   }
-  const units = new Set<string>([
-    ...(before.kind === "totals" ? before.byUnit.keys() : []),
-    ...(later.kind === "totals" ? later.byUnit.keys() : []),
-  ]);
-  // Stable unit order: tests, then checks, then any other unit by name.
-  const ordered = [...units].sort((left, right) => {
-    const rank = (unit: string) =>
-      unit === "tests" ? 0 : unit === "checks" ? 1 : 2;
-    const byRank = rank(left) - rank(right);
-    return byRank !== 0 ? byRank : left.localeCompare(right);
-  });
-  const parts = ordered.map((unit) => {
+  const parts = orderedUnitsOf(before, later).map((unit) => {
     const from = before.kind === "totals" ? (before.byUnit.get(unit) ?? 0) : 0;
     const to = later.kind === "totals" ? (later.byUnit.get(unit) ?? 0) : 0;
     return measuredCountsChangeWords(from, to, unit);
   });
   return parts.join("; ");
+}
+
+// Overall count cue from the same unit totals the summary words use.
+export function overallCountsCue(
+  baseline: ComparisonEndpointProof,
+  after: ComparisonEndpointProof,
+): CountCue {
+  const before = unitTotalsOf(baseline);
+  const later = unitTotalsOf(after);
+  if (before.kind === "partial") {
+    return { kind: "none", reason: "partial" };
+  }
+  if (later.kind === "partial") {
+    return { kind: "none", reason: "partial" };
+  }
+  if (before.kind === "none" && later.kind === "none") {
+    return { kind: "none", reason: "no overall count" };
+  }
+  return overallCountCueOf(
+    orderedUnitsOf(before, later).map((unit) => ({
+      before: before.kind === "totals" ? (before.byUnit.get(unit) ?? 0) : 0,
+      after: later.kind === "totals" ? (later.byUnit.get(unit) ?? 0) : 0,
+    })),
+  );
+}
+
+export function overallTimingCue(
+  baseline: StoryCiComparisonSlot,
+  after: StoryCiComparisonSlot,
+): DurationCue {
+  if (baseline.kind !== "build" || after.kind !== "build") {
+    return { kind: "none", reason: "no comparable duration" };
+  }
+  return overallDurationCueOf(
+    wallTimeMs(baseline.startedAt, baseline.completedAt),
+    wallTimeMs(after.startedAt, after.completedAt),
+  );
 }

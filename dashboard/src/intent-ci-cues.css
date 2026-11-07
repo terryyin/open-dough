@@ -1,0 +1,80 @@
+/* Intent CI comparison change cues (./ciScopeComparisonCues.ts): count
+   borders and duration tints with their own tokens, not warning/error
+   styling. Text on the same row carries every cued difference. */
+
+:root {
+  /* Fewer / faster: green distinct from --ready. More / slower: warm red
+     distinct from --problem, so cues never read as evidence failures. */
+  --ci-cue-fewer: #0f6b3c;
+  --ci-cue-more: #b5471d;
+  --ci-cue-faster: #0f6b3c;
+  --ci-cue-slower: #b5471d;
+  --ci-cue-tint-light: 14%;
+  --ci-cue-tint-strong: 28%;
+  --ci-cue-border-light: 3px;
+  --ci-cue-border-strong: 5px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ci-cue-fewer: #3dbe7a;
+    --ci-cue-more: #e07a45;
+    --ci-cue-faster: #3dbe7a;
+    --ci-cue-slower: #e07a45;
+  }
+}
+
+.intent-ci-cue-count-fewer-light {
+  box-shadow: inset var(--ci-cue-border-light) 0 0 var(--ci-cue-fewer);
+}
+
+.intent-ci-cue-count-fewer-strong {
+  box-shadow: inset var(--ci-cue-border-strong) 0 0 var(--ci-cue-fewer);
+}
+
+.intent-ci-cue-count-more-light {
+  box-shadow: inset var(--ci-cue-border-light) 0 0 var(--ci-cue-more);
+}
+
+.intent-ci-cue-count-more-strong {
+  box-shadow: inset var(--ci-cue-border-strong) 0 0 var(--ci-cue-more);
+}
+
+.intent-ci-cue-duration-faster-light {
+  background: color-mix(
+    in srgb,
+    var(--ci-cue-faster) var(--ci-cue-tint-light),
+    transparent
+  );
+}
+
+.intent-ci-cue-duration-faster-strong {
+  background: color-mix(
+    in srgb,
+    var(--ci-cue-faster) var(--ci-cue-tint-strong),
+    transparent
+  );
+}
+
+.intent-ci-cue-duration-slower-light {
+  background: color-mix(
+    in srgb,
+    var(--ci-cue-slower) var(--ci-cue-tint-light),
+    transparent
+  );
+}
+
+.intent-ci-cue-duration-slower-strong {
+  background: color-mix(
+    in srgb,
+    var(--ci-cue-slower) var(--ci-cue-tint-strong),
+    transparent
+  );
+}
+
+/* Overall summary lines reuse the same cue classes on the paragraph. */
+.intent-ci-comparison-overall-counts,
+.intent-ci-comparison-overall-timing {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+}

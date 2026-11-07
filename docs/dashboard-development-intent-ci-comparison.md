@@ -15,7 +15,17 @@ overall summary keeps units apart and shows CI wall time as
 each endpoint's revision, run, attempt, state and exact-or-ancestor selection
 with the same wall-time wording (observations between builds, not attributed to
 the story); then entry rows whose Counts and Baseline / Branch / Landed cells
-reuse those words. Endpoint recovery is independent of Review merge-resolution
+reuse those words. One classification of each scope's count and duration change
+feeds cues on the overall summary, entry rows, location and folder Summary
+rows, and file **Proof**: a count border (green fewer, red more; any change;
+strong at ≥50% of baseline) and a duration tint (green faster, red slower; no
+tint under 10% or under 1 s; strong at ≥50%; a measured zero baseline at most
+light; no tint without comparable measured durations). Added, removed, gap and
+partial sides take no cue on that measure; their text explains why. Cue colours
+use their own tokens, not warning or error styling, and keep the same meanings
+in dark theme. Cues follow the active comparison (Branch when Landed is unused).
+Without a selected story with a comparison there are no cues and no comparison
+wording. Endpoint recovery is independent of Review merge-resolution
 attribution; a Review refusal does not suppress comparison at homepage, entry,
 folder or file scopes. A **Taken** Story Branch story keeps the live judgment
 and adds that comparison (provisional latest branch build; Landed not yet

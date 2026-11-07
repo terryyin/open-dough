@@ -9,6 +9,10 @@
 import type { CiProof, CiProofEntry } from "./ciProof.ts";
 import { unavailableLine } from "./ciProofAbsenceWording.ts";
 import { primaryProofOf, scopeComparisonCellsOf } from "./ciScopeComparison.ts";
+import type {
+  ComparisonAfterSide,
+  ScopeComparisonCues,
+} from "./ciScopeComparisonCues.ts";
 import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
 
 export type ComparisonEndpointProof =
@@ -42,6 +46,9 @@ export type ComparisonEntryCells = {
   readonly landed: string;
   readonly completeness: string;
   readonly gaps: readonly string[];
+  // One classification for the active after endpoint; Summary, entry rows and
+  // Proof all render from this.
+  readonly cues: ScopeComparisonCues;
 };
 
 export type ComparisonEntryRow = {
@@ -100,6 +107,7 @@ export function comparisonEntriesOf(
   baseline: ComparisonEndpointProof,
   branch: ComparisonEndpointProof,
   landed: ComparisonEndpointProof,
+  afterSide: ComparisonAfterSide = "landed",
 ): ComparisonEntries {
   if (comparisonEndpointProofsChecking(baseline, branch, landed)) {
     return { kind: "checking" };
@@ -128,6 +136,9 @@ export function comparisonEntriesOf(
         branch,
         landed,
         "whole-second",
+        path,
+        undefined,
+        afterSide,
       ),
     })),
   };
