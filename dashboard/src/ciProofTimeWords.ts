@@ -38,11 +38,42 @@ export function wholeSecondWords(ms: number): string {
   return parts.join(" ");
 }
 
-// Signed whole-second difference for comparison: "+20 s", "+1 min", "-30 s".
+// Signed whole-second difference for comparison: "+20 s", "+1 min", "−30 s".
 export function wholeSecondDifferenceWords(ms: number): string {
   if (ms === 0) return "0 s";
-  const sign = ms > 0 ? "+" : "-";
+  const sign = ms > 0 ? "+" : "−";
   return `${sign}${wholeSecondWords(Math.abs(ms))}`;
+}
+
+// Percentage of a measured non-zero baseline duration only: "+10%", "−25%".
+// A measured zero baseline yields no percentage.
+export function durationPercentageWords(
+  baselineMs: number,
+  deltaMs: number,
+): string | undefined {
+  if (!(baselineMs > 0)) return undefined;
+  const pct = Math.round((deltaMs / baselineMs) * 100);
+  if (pct === 0) return "0%";
+  return pct > 0 ? `+${String(pct)}%` : `−${String(Math.abs(pct))}%`;
+}
+
+// Readable duration change: "8 s → 12 s (+4 s, +50%)", "4 s (no change)",
+// or "0 s → 2 s (+2 s)" with no percentage for a measured zero baseline.
+export function durationChangeWords(
+  baselineMs: number,
+  afterMs: number,
+  value: (ms: number) => string,
+  difference: (ms: number) => string,
+): string {
+  const before = value(baselineMs);
+  const after = value(afterMs);
+  const delta = afterMs - baselineMs;
+  if (delta === 0) return `${after} (no change)`;
+  const diff = difference(delta);
+  const pct = durationPercentageWords(baselineMs, delta);
+  return pct === undefined
+    ? `${before} → ${after} (${diff})`
+    : `${before} → ${after} (${diff}, ${pct})`;
 }
 
 export function wallTimeMs(
@@ -88,9 +119,9 @@ export function executionTimeWords(ms: number): string {
 }
 
 // Signed precise difference for Summary comparisons: "+70 ms", "+4.0 s",
-// "-300 ms". Never rounds a sub-second change away.
+// "−300 ms". Never rounds a sub-second change away.
 export function executionTimeDifferenceWords(ms: number): string {
   if (ms === 0) return "0 ms";
-  const sign = ms > 0 ? "+" : "-";
+  const sign = ms > 0 ? "+" : "−";
   return `${sign}${executionTimeWords(Math.abs(ms))}`;
 }

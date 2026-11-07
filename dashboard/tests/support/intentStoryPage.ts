@@ -76,11 +76,12 @@ export const storyOnly = (intent: Locator) =>
   intent.getByRole("checkbox", { name: "Selected story only", exact: true });
 
 // A file's control in Intent's tree, by its accessible name: its full path,
-// or for a changed file its kind and path as Review changes names it.
+// or for a changed file its kind and path as Review changes names it. A story
+// comparison may append Proof's Counts and after-side words after a comma.
 export const intentFile = (intent: Locator, name: string) =>
-  intent
-    .locator(".intent-locations")
-    .getByRole("button", { name, exact: true });
+  intent.locator(".intent-locations").getByRole("button", {
+    name: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:,|$)`),
+  });
 
 // A folder's toggle in Intent, by the folder's name and whether it is open.
 export const folderToggle = (intent: Locator, name: string, open: boolean) =>

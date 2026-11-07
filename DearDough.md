@@ -657,6 +657,15 @@ Former local code: DD-434.
 
 [Evidence and current response](docs/maintainer/findings/ODF-429.md).
 
+### Occurrences
+- Execution: SEED-255#compare-before-and-after-ci-proof (plan 493-compare-before-and-after-ci-proof; first related implementation commit `f9af445f43bbc4a9a9e0f69e5aa6ae4f840c1158`)
+  - Timestamp: 2026-11-07T16:59:35+08:00 (slice 3 source-freshness amended-link absorb before delivery commit `9a31e3c393079a644fd1134c73c997a16b68fed7`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.87 (`VERSION` in the execution checkout)
+  - Evidence: plan 493 Current decisions name SEED-256 / plan 492 as the coordinating timing-measure sibling sharing `IntentCiComparison.tsx` and `storyCiComparisonWording.ts`; SEED-256 closed on trunk (`1aa1ddd47`, done record completedAt 2026-11-07T08:20:21.775Z) while this branch's merge-base stayed at claim `200f5104a`; slice 3 `source-freshness.mjs` reported amended and absorb rewrote only the SEED-256 seed/plan links to blob URLs; `git merge-tree` of `HEAD` vs `origin/main` still shows both files changed in both
+  - Observed effect: link amendment absorbed and slice 3 delivered on the pre-SEED-256 shape; product reconciliation of overall timing (wall time vs time without runner waits) and the shared Intent comparison files remains for land onto trunk
+  - Inference: same as ODF-429 — source freshness compares story/plan text, so a named coordinating sibling's product land surfaces as a link amendment (or later merge conflict) rather than a per-slice trunk-file check
+
 ## ODF-430 — Story integration moved another active agent profile into done
 
 Former local code: DD-436.

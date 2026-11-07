@@ -36,3 +36,38 @@
 .intent-location[data-contains-changes] > .intent-location-header {
   box-shadow: inset 4px 0 0 var(--ready);
 }
+
+/* Count cue sits beside the story change mark on the leading edge so both
+   remain visible (./intent-ci-cues.css). Strength and direction set the
+   cue edge; one shadow rule stacks it with the change mark. */
+.intent-location[data-contains-changes]
+  > .intent-location-header.intent-ci-cue-count-fewer-light {
+  --ci-count-beside-mark-width: var(--ci-cue-border-light);
+  --ci-count-beside-mark-color: var(--ci-cue-fewer);
+}
+
+.intent-location[data-contains-changes]
+  > .intent-location-header.intent-ci-cue-count-fewer-strong {
+  --ci-count-beside-mark-width: var(--ci-cue-border-strong);
+  --ci-count-beside-mark-color: var(--ci-cue-fewer);
+}
+
+.intent-location[data-contains-changes]
+  > .intent-location-header.intent-ci-cue-count-more-light {
+  --ci-count-beside-mark-width: var(--ci-cue-border-light);
+  --ci-count-beside-mark-color: var(--ci-cue-more);
+}
+
+.intent-location[data-contains-changes]
+  > .intent-location-header.intent-ci-cue-count-more-strong {
+  --ci-count-beside-mark-width: var(--ci-cue-border-strong);
+  --ci-count-beside-mark-color: var(--ci-cue-more);
+}
+
+.intent-location[data-contains-changes]
+  > .intent-location-header[class*="intent-ci-cue-count-"] {
+  box-shadow:
+    inset 4px 0 0 var(--ready),
+    inset calc(4px + var(--ci-count-beside-mark-width)) 0 0
+      var(--ci-count-beside-mark-color);
+}

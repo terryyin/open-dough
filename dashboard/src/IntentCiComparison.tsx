@@ -1,34 +1,107 @@
 // A selected story's CI timing comparison on Intent's homepage
-// (`./IntentCiStatus.tsx`): names the baseline, branch and landed builds with
-// each selection rule and a run link where available (as CI judgment/proof
-// do), CI wall time, and time without runner waits with signed differences.
-// The homepage proof table (`./CiProofTable.tsx`) compares each CI entry's
-// cumulative test execution time. Taken answers label the live tip
-// provisional and say Landed has not landed yet; Taken Trunk Mode also names
-// the provisional trunk tip beside Branch N/A.
+// (`./IntentCiStatus.tsx`): names the active comparison (Baseline with
+// Landed when Landed has proof, otherwise Branch or Provisional), shows an
+// overall count and CI time without runner waits as before → after (Δ) with
+// CI wall time as context, then each endpoint's build identity, wall time,
+// and time without runner waits (`./IntentCiComparisonEndpoints.tsx`), then
+// one row per CI entry in the homepage proof table (`./CiProofTable.tsx`)
+// with each endpoint's cumulative test execution time. Taken answers label
+// the live tip provisional and say Landed has not landed yet; Taken Trunk
+// Mode also names the provisional trunk tip beside Branch N/A.
 
 import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
-import { EndpointRow } from "./IntentCiComparisonEndpoint.tsx";
-import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
+import {
+  countCueElementAttrs,
+  durationCueElementAttrs,
+} from "./ciScopeComparisonCuePresentation.ts";
+import { ComparisonEndpointsTable } from "./IntentCiComparisonEndpoints.tsx";
+import { useIntentCiEvidence, type CiEvidence } from "./IntentCiEvidence.tsx";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
-import { comparisonEntriesFromProofs } from "./useIntentCiComparisonEntries.ts";
-import { observedNotAttributed } from "./storyCiComparisonWording.ts";
+import {
+  activeComparisonAfterSideOf,
+  comparisonEntriesFromProofs,
+  type ComparisonEndpointProofs,
+} from "./useIntentCiComparisonEntries.ts";
+import {
+  activeComparisonOf,
+  observedNotAttributed,
+  overallCountsCue,
+  overallCountsWords,
+  overallTimingCue,
+  timeWithoutRunnerWaitsChangeWords,
+  wallTimeChangeWords,
+} from "./storyCiComparisonWording.ts";
+import type { ComparisonAfterSide } from "./ciScopeComparisonCues.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
+import "./intent-ci-cues.css";
 
-function EntryComparison() {
-  const evidence = useIntentCiEvidence();
-  const proofs =
-    evidence.kind === "comparison" || evidence.kind === "judged"
-      ? evidence.endpointProofs
-      : undefined;
-  if (proofs === undefined) {
-    return (
-      <p className="intent-ci-reading" role="status">
-        Reading entry comparison…
+function endpointProofsOf(
+  evidence: CiEvidence,
+): ComparisonEndpointProofs | undefined {
+  return evidence.kind === "comparison" || evidence.kind === "judged"
+    ? evidence.endpointProofs
+    : undefined;
+}
+
+function ActiveComparisonSummary({
+  answer,
+  proofs,
+}: {
+  readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
+  readonly proofs: ComparisonEndpointProofs;
+}) {
+  const active = activeComparisonOf(answer, proofs);
+  const overallCounts = overallCountsWords(proofs.baseline, active.proof);
+  const overallTiming = timeWithoutRunnerWaitsChangeWords(
+    answer.baseline,
+    active.slot,
+  );
+  const wallContext = wallTimeChangeWords(answer.baseline, active.slot);
+  const countsCue = overallCountsCue(proofs.baseline, active.proof);
+  const timingCue = overallTimingCue(answer.baseline, active.slot);
+  return (
+    <div className="intent-ci-comparison-summary">
+      <p className="intent-ci-comparison-active">{active.title}</p>
+      {active.landedUnusedReason !== undefined && (
+        <p className="intent-ci-comparison-active-reason">
+          Landed is not used: {active.landedUnusedReason}
+        </p>
+      )}
+      <p
+        {...countCueElementAttrs(
+          countsCue,
+          "intent-ci-comparison-overall-counts",
+        )}
+      >
+        {overallCounts}
       </p>
-    );
-  }
-  const entries = comparisonEntriesFromProofs(proofs);
+      {overallTiming !== undefined && (
+        <p
+          {...durationCueElementAttrs(
+            timingCue,
+            "intent-ci-comparison-overall-timing",
+          )}
+        >
+          {overallTiming}
+        </p>
+      )}
+      {wallContext !== undefined && (
+        <p className="intent-ci-comparison-overall-wall">
+          CI wall time {wallContext}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function EntryComparison({
+  proofs,
+  afterSide,
+}: {
+  readonly proofs: ComparisonEndpointProofs;
+  readonly afterSide: ComparisonAfterSide;
+}) {
+  const entries = comparisonEntriesFromProofs(proofs, afterSide);
   if (entries.kind === "checking") {
     return (
       <p className="intent-ci-reading" role="status">
@@ -56,53 +129,26 @@ function EntryComparison() {
 
 function ComparisonBody({
   answer,
+  proofs,
 }: {
   readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
+  readonly proofs: ComparisonEndpointProofs | undefined;
 }) {
   const taken = answer.phase === "taken";
   const branchProvisional = taken && answer.mode === "story-branch";
   return (
-    <table className="intent-ci-comparison">
-      <caption className="visually-hidden">
-        Baseline, branch and landed CI builds with timing
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">Endpoint</th>
-          <th scope="col">Build</th>
-          <th scope="col">CI wall time</th>
-          <th scope="col">CI time without runner waits</th>
-        </tr>
-      </thead>
-      <tbody>
-        <EndpointRow
-          label="Baseline"
-          slot={answer.baseline}
-          baseline={answer.baseline}
-          provisional={false}
-        />
-        <EndpointRow
-          label="Branch"
-          slot={answer.branch}
-          baseline={answer.baseline}
-          provisional={branchProvisional}
-        />
-        {answer.provisional !== undefined && (
-          <EndpointRow
-            label="Provisional"
-            slot={answer.provisional}
-            baseline={answer.baseline}
-            provisional={true}
-          />
-        )}
-        <EndpointRow
-          label="Landed"
-          slot={answer.landed}
-          baseline={answer.baseline}
-          provisional={false}
-        />
-      </tbody>
-    </table>
+    <>
+      {proofs !== undefined && (
+        <ActiveComparisonSummary answer={answer} proofs={proofs} />
+      )}
+      <ComparisonEndpointsTable
+        baseline={answer.baseline}
+        branch={answer.branch}
+        provisional={answer.provisional}
+        landed={answer.landed}
+        branchProvisional={branchProvisional}
+      />
+    </>
   );
 }
 
@@ -113,6 +159,7 @@ export function IntentCiComparison({
   readonly story: string;
   readonly reading: ComparisonReading;
 }) {
+  const proofs = endpointProofsOf(useIntentCiEvidence());
   if (reading.reading && reading.shown === undefined) {
     return (
       <section className="intent-ci-status" aria-label="CI timing comparison">
@@ -141,12 +188,23 @@ export function IntentCiComparison({
       </section>
     );
   }
+  const afterSide =
+    proofs === undefined
+      ? "landed"
+      : activeComparisonAfterSideOf(answer, proofs);
   return (
     <section className="intent-ci-status" aria-label="CI timing comparison">
       <h3>CI timing changes for {story}</h3>
       <p className="intent-ci-comparison-framing">({observedNotAttributed})</p>
-      <ComparisonBody answer={answer} />
-      <EntryComparison />
+      <ComparisonBody answer={answer} proofs={proofs} />
+      {proofs !== undefined && (
+        <EntryComparison proofs={proofs} afterSide={afterSide} />
+      )}
+      {proofs === undefined && (
+        <p className="intent-ci-reading" role="status">
+          Reading entry comparison…
+        </p>
+      )}
     </section>
   );
 }

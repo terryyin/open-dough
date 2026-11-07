@@ -49,6 +49,12 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
   await expect(panel.getByRole("heading")).toHaveText(
     `CI timing changes for ${setup.title}`,
   );
+  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+    "Baseline compared with Branch",
+  );
+  await expect(panel.locator(".intent-ci-comparison-active-reason")).toHaveText(
+    `Landed is not used: ${notLandedYetWords}`,
+  );
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(0),
   ).toContainText(shortSha(setup.baseline));
@@ -67,7 +73,7 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     "—",
   ]);
   await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
-    ["4 min 55 s", "4 min 47 s -8 s", "—"],
+    ["4 min 55 s", "4 min 47 s −8 s", "—"],
   );
   expect(listedAttemptJobPages(githubFor(page).calls)).toEqual([
     "101/1/1",
@@ -132,6 +138,12 @@ test("a Taken Trunk Mode story shows a provisional trunk result beside Branch N/
   await expect(panel.getByRole("heading")).toHaveText(
     `CI timing changes for ${setup.title}`,
   );
+  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+    "Baseline compared with Provisional",
+  );
+  await expect(panel.locator(".intent-ci-comparison-active-reason")).toHaveText(
+    `Landed is not used: ${notLandedYetWords}`,
+  );
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(1),
   ).toContainText("not applicable");
@@ -151,6 +163,6 @@ test("a Taken Trunk Mode story shows a provisional trunk result beside Branch N/
     "—",
   ]);
   await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
-    ["4 min 55 s", "—", "4 min 47 s -8 s", "—"],
+    ["4 min 55 s", "—", "4 min 47 s −8 s", "—"],
   );
 });

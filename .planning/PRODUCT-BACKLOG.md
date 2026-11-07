@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Compare before-and-after CI proof in Intent](seeds/SEED-255-compare-before-and-after-ci-proof.md#compare-before-and-after-ci-proof) — SEED-255#compare-before-and-after-ci-proof ([plan](slice-plans/493-compare-before-and-after-ci-proof/PLAN.md))
-
 ## Backlog list
 
 - [Use a later trunk build's CI proof for cancelled landings](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-later-ci-proof-for-cancelled-landings) — SEED-254#use-later-ci-proof-for-cancelled-landings

@@ -29,6 +29,7 @@ import {
   comparisonEndpointProofsChecking,
   type ComparisonEntryCells,
 } from "./storyCiComparisonEntries.ts";
+import { activeComparisonAfterSideOf } from "./useIntentCiComparisonEntries.ts";
 
 function FileProofTable({
   path,
@@ -75,6 +76,10 @@ export function IntentFileProof({
 
   if (evidence.kind === "comparison") {
     const marker = treeFile?.kind;
+    const afterSide = activeComparisonAfterSideOf(
+      evidence.answer,
+      evidence.proofs,
+    );
     const cells = scopeComparisonCellsOf(
       path,
       evidence.proofs.baseline,
@@ -83,6 +88,7 @@ export function IntentFileProof({
       "precise",
       baselinePathOf(treeFile, path),
       marker,
+      afterSide,
     );
     const { baseline, branch, landed } = evidence.proofs;
     const checking = comparisonEndpointProofsChecking(baseline, branch, landed);
