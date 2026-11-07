@@ -235,15 +235,15 @@ No remaining slice-specific concern was identified in this review.
 
 ## Story obligations
 
-### G1. Adapter comparison deferred to SEED-257
-Reported: slice 1 — "Adapter projects get story comparison in SEED-257."
-Story clause: "Adapter projects get story comparison in
-[SEED-257](SEED-257-compare-story-ci-through-adapters.md#compare-story-ci-through-adapters),
-which applies these endpoint rules there."
-Disposition: excluded "Adapter projects get story comparison in
-[SEED-257](SEED-257-compare-story-ci-through-adapters.md#compare-story-ci-through-adapters),
-which applies these endpoint rules there."
-Commitment: 19
+### G1. Adapter comparison uses Intent shared rules outside this GHA story
+Reported: slice 1 — "Adapter projects use Intent's shared story comparison."
+Story clause: "This story covers GitHub Actions comparisons. Adapter projects use
+[Intent's shared story comparison](../../docs/dashboard-development-intent.md)
+and its endpoint rules."
+Disposition: excluded "This story covers GitHub Actions comparisons. Adapter projects use
+[Intent's shared story comparison](../../docs/dashboard-development-intent.md)
+and its endpoint rules."
+Commitment: C20
 
 ### G2. Cancelled-landing later proof deferred
 Reported: slice 1 — "Proof for a cancelled landing from a later trunk build."
@@ -251,7 +251,7 @@ Story clause: "Proof for a cancelled landing from a later trunk build:
 [its own story](#use-later-ci-proof-for-cancelled-landings)."
 Disposition: excluded "Proof for a cancelled landing from a later trunk build:
 [its own story](#use-later-ci-proof-for-cancelled-landings)."
-Commitment: 22
+Commitment: X1
 
 ### G3. Passed-over count breakdown deferred
 Reported: slice 1 — "Telling skipped intermediate revisions apart from unexplained ones inside the revisions passed over count."
@@ -259,4 +259,12 @@ Story clause: "Telling skipped intermediate revisions apart from unexplained one
 the "revisions passed over" count."
 Disposition: excluded "Telling skipped intermediate revisions apart from unexplained ones inside
 the "revisions passed over" count."
-Commitment: 23
+Commitment: X2
+
+## Execution complete
+
+Product advice: Leave G3 deferred until a story needs skipped vs unexplained
+count breakdown. Cancelled-landing later proof remains its own queued story
+(SEED-254#use-later-ci-proof-for-cancelled-landings). Coordinate wording with
+sibling Taken SEED-255/256/257 when those land. No product change from this
+retrospective beyond those already-recorded deferrals.
