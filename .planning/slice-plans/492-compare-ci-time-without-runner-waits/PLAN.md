@@ -12,6 +12,7 @@
 - Locked npm install, dashboard typecheck and Chromium setup succeeded in this checkout under the AC sleep guard.
 - Slice 1 published and registered at `10fa0a78c0f048002423198e1ad83d885445e2df` on the story branch, extending the claim. Full lint and the check-only commit hook passed.
 - Slice 2 published and registered at `8f92cfc24c9acddee28cb6d7636206dc838bf31d` on the story branch, extending slice 1. The selective formatter and commit hook passed.
+- Slice 3 published and registered at `6f6d27f0ad119fd1a645b787b28e1c41b066e86e` on the story branch, extending slice 2. The final full lint and commit hook passed.
 
 ## Goal and scope
 
@@ -199,6 +200,24 @@ The consumer trace dispositioned shared transport, fixtures, and docs.
 caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES zsh -c 'npm run --silent typecheck:dashboard && npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts dashboard/tests/intent/intent-ci-comparison*.spec.ts dashboard/tests/intent/intent-summary-story-comparison*.spec.ts'
 caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node --test src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs
 ```
+
+## Execution complete
+
+Product advice: no change. Intent now compares the observed builds by their
+dependency-chain durations and distinguishes missing observations, consistent
+with [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+The related proof-cue and custom-adapter stories already own their respective
+next outcomes.
+
+The retrospective reviewed the original seed and plan at the Take
+`2ca01b598`, then the attributable published changes `10fa0a78c` (measure),
+`8f92cfc2` (gap and provisional proof), and `6f6d27f0` (request reuse).
+Concurrent trunk stories were outside this manifest. The server reuses the
+authenticated GitHub reader and the dashboard's disposable cache. Browser
+journeys cover endpoint selection and displayed outcomes, and focused
+module cases cover job evidence. The process review used the execution's
+conversation, agent returns, and publication receipts. It produced no new
+finding. Branch CI was pending at the review boundary.
 
 ## Plan concerns
 
