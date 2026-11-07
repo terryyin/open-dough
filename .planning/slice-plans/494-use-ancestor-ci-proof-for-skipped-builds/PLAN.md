@@ -217,6 +217,10 @@ No remaining slice-specific concern was identified in this review.
 
 ## Current decisions
 
+- CI repair (run 42356712489/1 at b7d1abf): already-traced disposition —
+  `currentAttemptIneligibility` pending+failed → `not_current_success`
+  in `ci-integrated-state-policy.mjs` (+ judge-progress test). Within the
+  repair return's paths; no new representation. Slice-3 WIP was stashed.
 - Landed walks to the equivalent build only, never past a build without
   proof (Terry, 2026-11-07, during refinement).
 - Trunk Mode Landed and the provisional tip already walk measured
