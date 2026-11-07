@@ -336,6 +336,10 @@ the gap the intent-coverage trial verified, independently of the pilot.
   substitution applied, which 7 traces showed reaching the cells
   ([Plan 501 premises](../slice-plans/501-distinguish-branch-and-landed-summary-figures/PLAN.md#decisive-premises)).
 
+[trial-evidence]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md
+[trial-test-candidates]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md#test-follow-up-candidates
+[branch-landed-probe]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/SEED-248-compare-story-proof-through-merge-resolutions.md#executed-proof
+
 ## When to surface
 
 Surface the first candidate when Terry selects a measured comparison. Review

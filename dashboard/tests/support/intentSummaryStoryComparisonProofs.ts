@@ -21,6 +21,11 @@ function dashboardProducer(at: "baseline" | "branch" | "landed"): Producer {
     ["dashboard/tests/folder/nested/c.spec.ts", "expected", [cMs]],
     ["dashboard/tests/root.spec.ts", "expected", [1_200]],
   ];
+  // Branch measures a second a.spec.ts test, so Branch and Landed differ in
+  // count and duration at that file, its folder and the entry.
+  if (at === "branch") {
+    tests.push(["dashboard/tests/folder/a.spec.ts", "expected", [3_000]]);
+  }
   if (at === "baseline") {
     tests.push(["dashboard/tests/gone.spec.ts", "expected", [500]]);
   } else {

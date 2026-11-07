@@ -12,17 +12,17 @@ const parts = "1 of 1 part present";
 export const entryComparisonRows: readonly ComparisonScopeRow[] = [
   [
     "dashboard/tests",
-    "4 → 5 tests (+1)",
+    "4 → 6 tests (+2) → 5 tests (+1)",
     "12.0 s",
-    "12.0 s → 18.5 s (+6.5 s, +54%)",
+    "12.0 s → 21.5 s (+9.5 s, +79%)",
     "12.0 s → 18.5 s (+6.5 s, +54%)",
     parts,
   ],
   [
     "folder/",
-    "2 tests (no change)",
+    "2 → 3 tests (+1) → 2 tests (0)",
     "10.3 s",
-    "10.3 s → 14.4 s (+4.1 s, +39%)",
+    "10.3 s → 17.4 s (+7.1 s, +68%)",
     "10.3 s → 14.4 s (+4.1 s, +39%)",
     parts,
   ],
@@ -71,9 +71,9 @@ export const entryComparisonRows: readonly ComparisonScopeRow[] = [
 export const folderComparisonRows: readonly ComparisonScopeRow[] = [
   [
     "dashboard/tests/folder",
-    "2 tests (no change)",
+    "2 → 3 tests (+1) → 2 tests (0)",
     "10.3 s",
-    "10.3 s → 14.4 s (+4.1 s, +39%)",
+    "10.3 s → 17.4 s (+7.1 s, +68%)",
     "10.3 s → 14.4 s (+4.1 s, +39%)",
     parts,
   ],
@@ -87,9 +87,9 @@ export const folderComparisonRows: readonly ComparisonScopeRow[] = [
   ],
   [
     "a.spec.ts modified",
-    "1 tests (no change)",
+    "1 → 2 tests (+1) → 1 tests (0)",
     "10.0 s",
-    "10.0 s → 14.0 s (+4.0 s, +40%)",
+    "10.0 s → 17.0 s (+7.0 s, +70%)",
     "10.0 s → 14.0 s (+4.0 s, +40%)",
     parts,
   ],

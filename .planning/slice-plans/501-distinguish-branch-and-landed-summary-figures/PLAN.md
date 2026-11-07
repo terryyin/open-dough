@@ -2,6 +2,7 @@
 
 **Identity:** SEED-258#distinguish-branch-and-landed-summary-figures
 **Source:** [Distinguish Branch and Landed figures in precise CI summaries](../../seeds/SEED-258-dough-intent-coverage.md#distinguish-branch-and-landed-summary-figures)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -56,7 +57,7 @@ if (precision === "precise" && branch.kind === "summary" && landed.kind === "sum
 
 ### 1. Precise journeys tell Branch and Landed figures apart
 Type: Behavior
-Status: planned
+Status: done
 Proof: the four-spec proof command passes on unchanged production code; the scratch probe makes the Summary and file Proof specs fail on the changed scopes' cells; probe reverted.
 
 Behavior: a completed story whose Branch and Landed builds report different
@@ -72,6 +73,22 @@ on one side and a visibly different duration), then update expected rows in
 the gap rows, and any cue expectation the run reports. Implementation picks
 which endpoint to change; changing Branch leaves Trunk Mode rows
 (baseline → landed) untouched.
+
+Accepted proof (2026-11-07): Branch's producer adds a second
+`folder/a.spec.ts` test (3,000 ms). The four-spec proof command passed
+10 of 10 on unchanged production code, and `npm run typecheck:dashboard`
+passed. With the scratch probe, 7 tests failed: both Summary variants
+failed on the entry Counts and Landed cells (`4 → 6 tests (+2) → 5 tests
+(+1)` and `18.5 s` expected; Branch's figures received), and both file
+variants failed on `modifiedFileRow`. Probes narrowed to one path showed
+the same failure for the folder and file rows. The probe was reverted.
+The consumer trace found only these four specs. The refactor pass made
+no changes. Commitment observations are in [source-review.md](source-review.md).
+
+Learnings: the touched specs still call `test.slow()`, which AGENTS.md
+forbids. That predates this story and is outside its scope. Production
+words Landed-equals-Baseline as `1 tests (0)`, and the rows assert that
+as-is.
 
 ## Current decisions
 
