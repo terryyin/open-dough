@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Group Dashboard Backend Test by feature](seeds/SEED-251-group-dashboard-backend-tests.md#group-dashboard-backend-tests) — SEED-251#group-dashboard-backend-tests ([plan](slice-plans/487-group-dashboard-backend-tests/PLAN.md))
-
 ## Backlog list
 
 - [Extract Dashboard Frontend Test as a separate entry](seeds/SEED-252-extract-dashboard-frontend-tests.md#extract-dashboard-frontend-tests) — SEED-252#extract-dashboard-frontend-tests
