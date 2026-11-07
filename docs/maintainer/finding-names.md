@@ -26,7 +26,8 @@ adopted with `Former local code: DD-NNN.` aliases and recoverable pre-compaction
 SHAs. Each project/execution counts once in synthesized comparisons.
 
 Selected shared work:
-[SEED-010#review-source-promises-before-first-slice](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#review-source-promises-before-first-slice)
+SEED-010#review-source-promises-before-first-slice (story recoverable at before-cleanup
+`1815ab836d9f581432b810471f47ed5c8615092f:.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#review-source-promises-before-first-slice`)
 first (ODF-367) and
 [SEED-010#observe-progress-revision-before-slice-done](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#observe-progress-revision-before-slice-done)
 second (ODF-418). Launching the source-only review at slice-1 acceptance left

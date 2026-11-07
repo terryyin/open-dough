@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_review-source-promises-before-first-slice.json",
+      "identity": "SEED-010#review-source-promises-before-first-slice",
+      "completedAt": "2026-11-07T06:32:27.475Z",
+      "blob": "ba78a1be3fd1b0c1d4fb994be0a6704165c3df40"
+    },
+    {
       "fileName": "SEED-251_group-dashboard-backend-tests.json",
       "identity": "SEED-251#group-dashboard-backend-tests",
       "completedAt": "2026-11-07T05:10:25.083Z",
@@ -1560,12 +1566,6 @@
       "identity": "SEED-088#review-selected-commits",
       "completedAt": "2026-10-08T12:11:34.549Z",
       "blob": "7d75b7beed587879a07e72698c54434506012d8c"
-    },
-    {
-      "fileName": "SEED-119_done-catalog-currency-correction.json",
-      "identity": "SEED-119#done-catalog-currency-correction",
-      "completedAt": "2026-10-08T05:24:46.507Z",
-      "blob": "fdacb8c684196e1265777eb42ff9d5d212f616b2"
     }
   ],
   "unreadable": []
