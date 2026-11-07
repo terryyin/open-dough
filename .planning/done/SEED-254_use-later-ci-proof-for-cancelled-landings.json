@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-254#use-later-ci-proof-for-cancelled-landings",
+  "title": "Use a later trunk build's CI proof for cancelled landings",
+  "completedAt": "2026-11-07T10:52:23.234Z",
+  "developer": "Terry Yin",
+  "agent": "bastiaan-chan",
+  "host": "claude",
+  "model": "opus"
+}

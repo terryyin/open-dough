@@ -6,8 +6,8 @@
 ## Source and provenance
 
 Retrospective correction of
-[Use a later trunk build's CI proof for cancelled landings](../../seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-later-ci-proof-for-cancelled-landings)
-(plan 496). Reviewed commits: `85946790e` (slice 1) and `1359d6fb7` (slice 2)
+[Use a later trunk build's CI proof for cancelled landings](https://github.com/terryyin/open-dough/blob/8296c54b10b76a6cb654fe565da24a5557bc6025/.planning/seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-later-ci-proof-for-cancelled-landings)
+(plan 496 at `8296c54b1:.planning/slice-plans/496-use-later-ci-proof-for-cancelled-landings/PLAN.md`). Reviewed commits: `85946790e` (slice 1) and `1359d6fb7` (slice 2)
 on trunk base `0b4ba8d1b`. That story's Scope, "No later proof", asks Landed
 to add why: no later trunk build yet, a later build still running, or the
 nearest later build's proof unavailable and why.

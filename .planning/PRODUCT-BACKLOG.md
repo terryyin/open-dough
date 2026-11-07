@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Use a later trunk build's CI proof for cancelled landings](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-later-ci-proof-for-cancelled-landings) — SEED-254#use-later-ci-proof-for-cancelled-landings ([plan](slice-plans/496-use-later-ci-proof-for-cancelled-landings/PLAN.md))
-
 ## Backlog list
 
 - [Explain a running later build after a proofless one](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#explain-running-after-proofless-later-build) — SEED-254#explain-running-after-proofless-later-build
