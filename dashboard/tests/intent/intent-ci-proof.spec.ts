@@ -179,6 +179,10 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     () => summaryZipAnswer(summary),
   );
   await expectProofRows(proof, rows);
+  // A wider installed font lays the table out as Linux's fallback font does.
+  await page.addStyleTag({
+    content: ".intent-ci-proof-box { font-family: Verdana, sans-serif; }",
+  });
   const table = proofTable(proof);
   const box = proof.locator(".intent-proof-table");
   const again = panel.getByRole("button", { name: "Check again" });

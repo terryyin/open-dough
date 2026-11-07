@@ -143,6 +143,14 @@ Accepted proof (2026-11-07): new `intent-ci-status-sort.spec.ts` and
 for the header buttons; typecheck passes. Refactor disposition:
 `## REFACTOR COMPLETE` (`isComparisonCells` has one home in
 `storyCiComparisonEntries.ts`).
+CI repair (run 42379612785/1 on `d146a05`): the sort header's flex row made
+each header its longest word plus the arrow, scrolling the 320 px zoom pane
+26 px sideways in Linux fonts; the arrow now wraps like a word, and the zoom
+spec forces Verdana to reproduce Linux widths locally (failed 25 px before,
+passes after; family 98 passed). The backend
+`authenticated-read-revision-stream.spec.ts` count raced the 80 ms test pace
+against a slow backlog read; listings are now held in turn (reproduced, then
+140 passed at `--repeat-each=20`). Refactor: `## REFACTOR COMPLETE`, no edits.
 
 ### 3. A summary shows its own figures above a sortable breakdown
 Type: Behavior
