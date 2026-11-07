@@ -10,21 +10,21 @@ implementation. The numbered commitments below are its returned review.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G01 | Compare a short AI intent assessment with the ordinary review already performed on the same completed stories. | slice 3 | |
-| G02 | Compare verified decisions about protecting story intent. | slice 3 | |
-| G03 | Compare consequential misses. | slice 3 | |
-| G04 | Compare unsupported claims. | slice 3 | |
-| G05 | Compare total effort. | slice 3 | |
-| G06 | An equivalent useful outcome at lower total effort can qualify under ADR 0010. | slice 3 | |
-| G07 | Terry decides whether to proceed with, narrow, or stop a public intent-coverage skill. | slice 3 | |
-| G08 | The comparison remains useful on its own if Terry declines public delivery. | slice 3 | |
-| G09 | Any resulting test decisions also stand on their own if Terry declines public delivery. | slice 3 | |
+| G01 | Compare a short AI intent assessment with the ordinary review already performed on the same completed stories. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| G02 | Compare verified decisions about protecting story intent. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| G03 | Compare consequential misses. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| G04 | Compare unsupported claims. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| G05 | Compare total effort. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
+| G06 | An equivalent useful outcome at lower total effort can qualify under ADR 0010. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
+| G07 | Terry decides whether to proceed with, narrow, or stop a public intent-coverage skill. | slice 3 | observed: selected seed, Pilot decision, and comparison.md, delegated Narrow decision and test decision |
+| G08 | The comparison remains useful on its own if Terry declines public delivery. | slice 3 | observed: selected seed, Pilot decision, and comparison.md, delegated Narrow decision and test decision |
+| G09 | Any resulting test decisions also stand on their own if Terry declines public delivery. | slice 3 | observed: selected seed, Pilot decision, and comparison.md, delegated Narrow decision and test decision |
 | B01 | Use the cases Terry confirmed in Plan 498 on 2026-11-07. | slice 1 | observed: comparison.md, Ordinary review introduction and three selected case sections |
 | B02 | Use the ordinary-review source he confirmed there. | slice 1 | observed: comparison.md, Ordinary review case links pinned to the confirmed revisions |
 | B03 | Use the effort budgets he confirmed there. | slice 2 | observed: assessment-254.md, assessment-256.md and assessment-257.md, Effort start and cutoff, all three within 600 seconds |
-| B04 | Use the decision criteria he confirmed there. | slice 3 | |
-| B05 | A subsequent change to that basis requires Terry’s decision. | slice 3 | |
-| B06 | Disclose a subsequent change with the result. | slice 3 | |
+| B04 | Use the decision criteria he confirmed there. | slice 3 | observed: selected seed's delegated verification amendment and comparison.md's delegation, method and timing disclosures |
+| B05 | A subsequent change to that basis requires Terry’s decision. | slice 3 | observed: selected seed's delegated verification amendment and comparison.md's delegation, method and timing disclosures |
+| B06 | Disclose a subsequent change with the result. | slice 3 | observed: selected seed's delegated verification amendment and comparison.md's delegation, method and timing disclosures |
 | C01 | Use three recent completed stories. | slice 1 | observed: comparison.md, SEED-254, SEED-256 and SEED-257 sections |
 | C02 | Each case’s recorded execution retrospective must be recoverable from Git. | slice 1 | observed: comparison.md, all three pinned retrospective and source-review links |
 | C03 | Each case’s host session must be on this machine. | slice 1 | observed: comparison.md, Timestamp and token evidence, three identified local sessions |
@@ -37,9 +37,9 @@ implementation. The numbered commitments below are its returned review.
 | O04 | Include its source review. | slice 1 | observed: comparison.md, each case's linked independent source review |
 | O05 | Derive ordinary-review agent time from recorded host session timestamps when available. | slice 1 | observed: comparison.md, Ordinary-review effort and exact local timestamp boundaries |
 | O06 | Record ordinary-review agent time as unknown when the timestamps cannot establish it. | slice 1 | observed: comparison.md, Ordinary-review effort, active agent time and unrecorded subagent spans explicitly unavailable |
-| O07 | Terry rereads each retrospective result. | slice 3 | |
-| O08 | Time Terry’s reading of each retrospective result. | slice 3 | |
-| O09 | Time Terry’s verification of each retrospective result. | slice 3 | |
+| O07 | Terry rereads each retrospective result. | slice 3 | observed: selected seed's delegated verification amendment and comparison.md's delegation, method and timing disclosures |
+| O08 | Time Terry’s reading of each retrospective result. | slice 3 | observed: selected seed's delegated verification amendment and comparison.md's delegation, method and timing disclosures |
+| O09 | Time Terry’s verification of each retrospective result. | slice 3 | observed: selected seed's delegated verification amendment and comparison.md's delegation, method and timing disclosures |
 | O10 | Credit the pre-existing unavailable-slot retry issue to ordinary review. | slice 1 | observed: comparison.md, SEED-254 pre-existing finding credited to ordinary review |
 | O11 | Exclude that issue from story-attributable comparison counts. | slice 1 | observed: comparison.md, SEED-254 pre-existing finding explicitly outside story-attributable counts |
 | A01 | Use a fresh agent for each case. | slice 2 | observed: each case report, Case provenance and Effort, three distinct fresh assessor records |
@@ -69,73 +69,73 @@ implementation. The numbered commitments below are its returned review.
 | A25 | Make break-check edits in local scratch. | slice 2 | observed: each case report, scratch path and selective break check edit |
 | A26 | Revert those edits. | slice 2 | observed: each case report, restoration exit results and exact HEAD after the check, independently rechecked |
 | A27 | Run break-check tests under the project’s failure policy. | slice 2 | observed: assessment-brief.md, historical failure-policy requirement, and each case report's policy correspondence and guarded proof |
-| V01 | Terry has ten minutes per case to read both reviews and verify findings. | slice 3 | |
-| V02 | Time reading separately. | slice 3 | |
-| V03 | Time verification separately. | slice 3 | |
-| V04 | Use one entry per distinct finding. | slice 3 | |
-| V05 | Credit a verified match when both reviews identify the same failure path with evidence. | slice 3 | |
-| V06 | Keep unknown verdicts distinct. | slice 3 | |
-| V07 | Keep unsupported claims distinct. | slice 3 | |
-| V08 | Keep findings still unverified at the time limit distinct. | slice 3 | |
-| V09 | Count a consequential miss when one review fails to identify a specific consequential finding verified in the other. | slice 3 | |
-| V10 | Terry records decisions on verified findings. | slice 3 | |
-| V11 | Terry applies the confirmed criteria. | slice 3 | |
+| V01 | Terry has ten minutes per case to read both reviews and verify findings. | slice 3 | observed: selected seed's delegated verification amendment and comparison.md's delegation, method and timing disclosures |
+| V02 | Time reading separately. | slice 3 | observed: selected seed's delegated verification amendment and comparison.md's delegation, method and timing disclosures |
+| V03 | Time verification separately. | slice 3 | observed: selected seed's delegated verification amendment and comparison.md's delegation, method and timing disclosures |
+| V04 | Use one entry per distinct finding. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| V05 | Credit a verified match when both reviews identify the same failure path with evidence. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| V06 | Keep unknown verdicts distinct. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| V07 | Keep unsupported claims distinct. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| V08 | Keep findings still unverified at the time limit distinct. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| V09 | Count a consequential miss when one review fails to identify a specific consequential finding verified in the other. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| V10 | Terry records decisions on verified findings. | slice 3 | observed: selected seed's delegated verification amendment and comparison.md's delegation, method and timing disclosures |
+| V11 | Terry applies the confirmed criteria. | slice 3 | observed: selected seed's delegated verification amendment and comparison.md's delegation, method and timing disclosures |
 | T01 | Show measured end-to-end wall-clock time in each assessment report. | slice 2 | observed: each case report, Effort, measured end-to-end seconds |
-| T02 | Show that time in the comparison for each case and review. | slice 3 | |
+| T02 | Show that time in the comparison for each case and review. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
 | T03 | Measure from start to returned result. | slice 2 | observed: each case report, Effort, case-start timestamp and report-ready receipt |
 | T04 | Include setup in the elapsed time. | slice 2 | observed: each case report, Effort, attribution and Git setup as a subset of elapsed time |
 | T05 | Include test runs in the elapsed time. | slice 2 | observed: each case report, Effort, focused command observations included in elapsed span |
 | T06 | Show test runtime separately when observed. | slice 2 | observed: each case report, Effort, printed test durations or explicitly unavailable runner figures |
-| T07 | Show human effort where evidence exists. | slice 3 | |
+| T07 | Show human effort where evidence exists. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
 | T08 | Show agent effort separately where evidence exists. | slice 2 | observed: each case report, Effort, assessor span and token counters, with active effort unavailable |
 | T09 | Give each effort figure its unit. | slice 2 | observed: each case report, Effort, seconds and host tokens |
 | T10 | Give each effort figure its basis. | slice 2 | observed: each case report, Effort, timestamps, log rows, and runner output as measurement bases |
 | T11 | Label available figures measured or estimated. | slice 2 | observed: each case report, Effort, evidence labels |
 | T12 | Show figures that cannot be observed as unavailable, with their place retained and no zero substituted. | slice 2 | observed: each case report, Effort, unavailable active effort, human effort, and unavailable runner durations where applicable |
 | T13 | Report elapsed time separately from effort. | slice 2 | observed: each case report, Effort, end-to-end time distinct from assessor elapsed, test runner durations and tokens |
-| T14 | Give reviewer reading time its own comparison figure. | slice 3 | |
-| T15 | Give reviewer verification time its own comparison figure. | slice 3 | |
-| T16 | Keep both reviewer figures separate from assessment runtime. | slice 3 | |
-| T17 | Use counts in place of rates. | slice 3 | |
+| T14 | Give reviewer reading time its own comparison figure. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
+| T15 | Give reviewer verification time its own comparison figure. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
+| T16 | Keep both reviewer figures separate from assessment runtime. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
+| T17 | Use counts in place of rates. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
 | T18 | Label the ordinary-review side exploratory because it is historical. | slice 1 | observed: comparison.md, Ordinary review (exploratory) |
-| T19 | Claim lower total effort only with comparable cost evidence. | slice 3 | |
-| T20 | Apply the Architectural North Star guidance on carrying cost with intent-assessment results. | slice 3 | |
+| T19 | Claim lower total effort only with comparable cost evidence. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
+| T20 | Apply the Architectural North Star guidance on carrying cost with intent-assessment results. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
 | R01 | Keep the comparison record with the plan. | slice 1 | observed: comparison.md beside Plan 498 |
-| R02 | Record Terry’s decision in the story. | slice 3 | |
-| R03 | Record his reasons there. | slice 3 | |
-| R04 | Link the comparison record from the story. | slice 3 | |
+| R02 | Record Terry’s decision in the story. | slice 3 | observed: selected seed, Pilot decision, and comparison.md, delegated Narrow decision and test decision |
+| R03 | Record his reasons there. | slice 3 | observed: selected seed, Pilot decision, and comparison.md, delegated Narrow decision and test decision |
+| R04 | Link the comparison record from the story. | slice 3 | observed: selected seed, Pilot decision, and comparison.md, delegated Narrow decision and test decision |
 | R05 | Carry the decision forward at wrap-up. | landing | |
 | R06 | Carry a pinned comparison link forward at wrap-up. | landing | |
 | R07 | The wrap-up destination can be surviving context or the next story’s dependency resolution. | landing | |
-| X01 | Implementing test changes arising from the decisions is separate queued work. | slice 3 | |
-| X02 | Further `SEED-258` test follow-ups are separate queued work. | slice 3 | |
-| X03 | A new skill is out of scope. | slice 3 | |
-| X04 | A new script is out of scope. | slice 3 | |
-| X05 | A new dashboard view is out of scope. | slice 3 | |
+| X01 | Implementing test changes arising from the decisions is separate queued work. | slice 3 | observed: selected seed, scope and Pilot decision, and the records-only Slice 3 diff |
+| X02 | Further `SEED-258` test follow-ups are separate queued work. | slice 3 | observed: selected seed, scope and Pilot decision, and the records-only Slice 3 diff |
+| X03 | A new skill is out of scope. | slice 3 | observed: selected seed, scope and Pilot decision, and the records-only Slice 3 diff |
+| X04 | A new script is out of scope. | slice 3 | observed: selected seed, scope and Pilot decision, and the records-only Slice 3 diff |
+| X05 | A new dashboard view is out of scope. | slice 3 | observed: selected seed, scope and Pilot decision, and the records-only Slice 3 diff |
 | X06 | Seeded-fault calibration of either review is out of scope. | slice 2 | observed: assessment-brief.md and all case reports, one exploratory protection probe per case within the observed method |
 | X07 | Rerunning the ordinary retrospective is out of scope. | slice 1 | observed: comparison.md, recovered historical records and local timestamps without rerunning the historical reviews |
 | X08 | Cursor-hosted cases without local session timing are out of scope. | slice 1 | observed: comparison.md, SEED-254 Claude Code and SEED-256 and SEED-257 Codex records |
-| X09 | Statistical estimates of total gaps are out of scope. | slice 3 | |
+| X09 | Statistical estimates of total gaps are out of scope. | slice 3 | observed: selected seed, scope and Pilot decision, and the records-only Slice 3 diff |
 | E01 | For the known `SEED-254` finding, the specific path is a forward walk that passes a proofless build and then meets a running build, after which Landed says no later trunk build has finished. | slice 1 | observed: comparison.md, SEED-254 expired-proof-then-running path, original product advice and Plan 497 |
-| E02 | Credit the blinded assessment for that finding when it identifies the sequence and supports it. | slice 3 | |
-| E03 | An `unknown` on that path remains unresolved. | slice 3 | |
-| E04 | If the assessment leaves the verified path unresolved, count a consequential assessment miss. | slice 3 | |
-| E05 | If it rates that verified path protected, count a consequential assessment miss. | slice 3 | |
-| E06 | If it omits that verified path, count a consequential assessment miss. | slice 3 | |
-| E07 | If the assessment independently spots the cached unavailable comparison that Check again could not recover, record that observation with the existing retry story. O11 governs the counts. | slice 3 | |
-| E08 | In the assessment-only example, a no-change case has a fixture giving two compared runs identical displayed values. The selective substitution reaches the formatter and the test still passes. | slice 3 | |
-| E09 | That evidenced substitution verifies the gap. | slice 3 | |
-| E10 | In the example, count the verified gap as an ordinary-review miss. | slice 3 | |
-| E11 | Terry decides whether to strengthen the test. | slice 3 | |
+| E02 | Credit the blinded assessment for that finding when it identifies the sequence and supports it. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| E03 | An `unknown` on that path remains unresolved. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| E04 | If the assessment leaves the verified path unresolved, count a consequential assessment miss. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| E05 | If it rates that verified path protected, count a consequential assessment miss. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| E06 | If it omits that verified path, count a consequential assessment miss. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| E07 | If the assessment independently spots the cached unavailable comparison that Check again could not recover, record that observation with the existing retry story. O11 governs the counts. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| E08 | In the assessment-only example, a no-change case has a fixture giving two compared runs identical displayed values. The selective substitution reaches the formatter and the test still passes. | slice 3 | observed: comparison.md, observed reached probes and example applicability |
+| E09 | That evidenced substitution verifies the gap. | slice 3 | observed: comparison.md, observed reached probes and example applicability |
+| E10 | In the example, count the verified gap as an ordinary-review miss. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| E11 | Terry decides whether to strengthen the test. | slice 3 | observed: selected seed, Pilot decision, and comparison.md, delegated Narrow decision and test decision |
 | E12 | When the injected fault fails to reach the intended path, record the probe as failing to reach it. A fixture bypassing the changed function is one example. | slice 2 | observed: assessment-brief.md, report unreached probes, and three case reports with specific reached assertions so the unreached branch was inapplicable |
 | E13 | After an unreached probe, retain only the verdict supported by source and passing tests. | slice 2 | observed: assessment-brief.md, source-and-passing-proof verdict rule for unreached probes, and all three reached probes |
-| E14 | If the assessment calls a promise unprotected and Terry finds a maintained test exercising it, count the finding as unsupported. | slice 3 | |
-| E15 | Include the time spent reading that claim in cost. | slice 3 | |
-| E16 | Include the time spent verifying that claim in cost. | slice 3 | |
+| E14 | If the assessment calls a promise unprotected and Terry finds a maintained test exercising it, count the finding as unsupported. | slice 3 | observed: comparison.md, Delegated verification outcomes and evidence by row |
+| E15 | Include the time spent reading that claim in cost. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
+| E16 | Include the time spent verifying that claim in cost. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
 | E17 | If the historical checkpoint cannot run the relevant tests, use `unknown` instead of inferring a verdict from source. Native setup failure is one example. | slice 2 | observed: assessment-brief.md, unknown verdict rule, and assessment-257.md, unrun live Pygardon proof kept unknown |
 | E18 | If the store still resolves the execution-complete commit with alternates cleared, delay the assessment until a store without that object is in place. | slice 2 | observed: assessment-brief.md, failed blinding stops dispatch, and each case report's prior absent-object check |
-| E19 | With the counts and effort table, Terry can proceed on verified added value at justified cost. | slice 3 | |
-| E20 | Alternatively, he can proceed on equivalent useful decisions at demonstrably lower total effort. | slice 3 | |
-| E21 | If the assessment adds a useful break check and misses a consequential gap, Terry can narrow the method to that technique. | slice 3 | |
+| E19 | With the counts and effort table, Terry can proceed on verified added value at justified cost. | slice 3 | observed: selected seed, Pilot decision, and comparison.md, delegated Narrow decision and test decision |
+| E20 | Alternatively, he can proceed on equivalent useful decisions at demonstrably lower total effort. | slice 3 | observed: comparison.md, historical and assessment effort, separate delegated timing and unavailable human effort |
+| E21 | If the assessment adds a useful break check and misses a consequential gap, Terry can narrow the method to that technique. | slice 3 | observed: selected seed, Pilot decision, and comparison.md, delegated Narrow decision and test decision |
 | E22 | The next story’s dependency records the scope Terry authorizes. | landing | |
 | E23 | After a stop, that dependency remains waiting. | landing | |

@@ -177,6 +177,26 @@ Terry declines public delivery.
   the method to that technique. The next story's dependency records which
   scope he authorizes or remains waiting after a stop.
 
+<a id="pilot-result"></a>
+
+**Pilot result — Narrow.** Terry delegated verification and the decision to
+the executing agent. Use one targeted scratch break check on demand during
+ordinary review when a high-consequence promise has an existing assertion
+that may pass under a plausible wrong implementation. Start with a passing
+focused baseline, reach the intended assertion with the scratch edit,
+restore the edit, and record the observed cost and scope. The pilot supports
+this test-design technique. A public full assessment skill and automatic
+wrap-up use would need further evidence.
+
+The assessment missed the SEED-254 proofless-then-running Landed defect.
+All three break checks reached and failed the intended assertions. SEED-256
+also yielded a source-verified decision to strengthen the noncausal wording
+assertion with an independent expectation. The measured sums of case wall
+spans were 677.830 s for ordinary review and 1,262.570 s for assessment.
+Comparable total effort is unavailable. The comparison records the delegated
+review's timing limits, finding dispositions, and test decisions.
+[Comparison record](../slice-plans/498-compare-manual-intent-coverage/comparison.md#delegated-decision)
+
 <a id="invoke-intent-coverage-manually"></a>
 
 ### 2. Invoke Dough Intent Coverage manually across test mixes

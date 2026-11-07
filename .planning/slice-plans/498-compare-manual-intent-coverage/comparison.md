@@ -4,8 +4,8 @@
 
 This historical baseline uses the three completed execution retrospectives and
 their source reviews that Terry confirmed on 2026-11-07. The findings below
-record what ordinary review reported. Terry's verification and comparison
-counts are pending. [Confirmed comparison basis](PLAN.md#confirmed-comparison-basis)
+record what ordinary review reported. The [delegated verification](#terry-verification)
+records what counted in the comparison. [Confirmed comparison basis](PLAN.md#confirmed-comparison-basis)
 
 ### SEED-254#use-later-ci-proof-for-cancelled-landings
 
@@ -81,9 +81,9 @@ for all three cases.
 
 | Case | End-to-end wall clock and coordinator span | Overlapping retrospective agent elapsed | Reported test runtime | Terry reading | Terry verification |
 | --- | --- | --- | --- | --- | --- |
-| SEED-254 | **Measured**, 491.551 s | **Measured**, 291.269 s | **Unavailable** | **Unavailable**, pending (s) | **Unavailable**, pending (s) |
-| SEED-256 | **Measured**, 74.560 s | **Unavailable**, no retrospective subagent recorded | **Unavailable** | **Unavailable**, pending (s) | **Unavailable**, pending (s) |
-| SEED-257 | **Measured**, 111.719 s | **Unavailable**, no retrospective subagent recorded | **Unavailable** | **Unavailable**, pending (s) | **Unavailable**, pending (s) |
+| SEED-254 | **Measured**, 491.551 s | **Measured**, 291.269 s | **Unavailable** | **Unavailable** (s) | **Unavailable** (s) |
+| SEED-256 | **Measured**, 74.560 s | **Unavailable**, no retrospective subagent recorded | **Unavailable** | **Unavailable** (s) | **Unavailable** (s) |
+| SEED-257 | **Measured**, 111.719 s | **Unavailable**, no retrospective subagent recorded | **Unavailable** | **Unavailable** (s) | **Unavailable** (s) |
 
 The retrospective intervals have no test-runner duration to attribute. The
 source reviews reference test evidence from execution. Total human effort
@@ -123,35 +123,21 @@ above.
 
 ## Terry verification
 
-Basis unchanged from Terry's 2026-11-07 confirmation. Each case has one
-10-minute round for reading both reviews and verifying their findings, up to
-30 minutes across the three cases. [Confirmed criteria](PLAN.md#confirmed-comparison-basis)
+Terry delegated verification and the pilot decision to the executing agent
+with “You look for reasonable ideas and decide by yourself.” This replaces
+the timed human review in the basis he confirmed on 2026-11-07. The agent
+checked selected excerpts and evidence within the existing 10-minute per-case
+ceiling. The cases, source selection, assessment budget, and criteria are
+as confirmed. [Confirmed comparison basis](PLAN.md#confirmed-comparison-basis)
 
-1. Start a 600-second countdown before reading each case. Reread the ordinary
-   review, then read the assessment verdicts. Use the rows below to find the
-   relevant evidence and open the full reports as needed.
-2. Track ordinary reading, ordinary verification, assessment reading, and
-   assessment verification separately while the countdown runs. Switch the
-   activity timer when you switch review or activity. Record each measured
-   time in seconds, or enter `unavailable`. Include time spent on claims you
-   later judge unsupported.
-3. Verify against the retained evidence and record the row ID, review,
-   evidence and decision. Credit a match when both reviews identify the same
-   specific failure path with evidence that supports a decision. If one review
-   misses a specific consequential finding verified in the other, record the
-   path and the review that missed it. An unknown on that path remains unknown
-   and can also be a consequential miss.
-4. At 600 seconds, stop the case. Mark unchecked rows `unverified at cutoff`
-   and exclude them from verified findings. Use `unsupported after verification`
-   for a checked claim the evidence contradicts, such as a claimed gap with a
-   maintained test that exercises the path. Keep source verdicts of `unknown`
-   and `unassessed` separate from both.
-   Credit pre-existing observations to the review that found them and keep
-   them outside story-attributable counts.
-
-Every row is **pending Terry's verification**. The labels describe what the
-reviews reported. File references in the assessment rows are at the case's
-[checkpoint](PLAN.md#case-checkpoints).
+The union below preserves each review's reported status. The
+[verification record](#verification-record) gives the agent's dispositions.
+It separates unchecked claims, source verdicts of unknown or unassessed,
+and pre-existing observations. A match requires both reviews to identify
+the same specific failure path with evidence that supports a decision.
+A consequential miss requires a specific consequential finding verified
+in one review and omitted by the other. File references in the assessment
+rows are at the case's [checkpoint](PLAN.md#case-checkpoints).
 
 ### SEED-254 cancelled landings
 
@@ -159,7 +145,7 @@ reviews reported. File references in the assessment rows are at the case's
 [Ordinary source review](https://github.com/terryyin/open-dough/blob/8296c54b10b76a6cb654fe565da24a5557bc6025/.planning/slice-plans/496-use-later-ci-proof-for-cancelled-landings/source-review.md) ·
 [Assessment verdicts](assessment-254.md#verdicts)
 
-| ID | Source and reported status | Evidence to check |
+| ID | Source and reported status | Evidence |
 | --- | --- | --- |
 | 254-01 | Ordinary defect and planned correction. Assessment cites the same fixture for advancement and stopping, and separate browser cases for wording. | In the actual walk fixture, finished run 31 has expired proof, then run 32 is running. The assertions check `running`, run 32 and the listed revisions. Ordinary review says the running result loses the prior proof reason and Landed falsely says no later build has finished. The assessment cites the proofless-only and running-only wording fixtures separately (`intent-ci-comparison-cancelled-landing-gaps.spec.ts:32–83`). [Walk fixture](https://github.com/terryyin/open-dough/blob/1359d6fb76b8ff2b4295e2b4febe0e467ec72be1/tests/support/dashboard-later-trunk-build.test.mjs#L89-L107) · [Plan 497 findings](https://github.com/terryyin/open-dough/blob/8296c54b10b76a6cb654fe565da24a5557bc6025/.planning/slice-plans/497-explain-running-after-proofless-later-build/PLAN.md#L15-L27) |
 | 254-02 | Ordinary pre-existing finding, outside counts. | A listing failure or read deadline can cache an `unavailable` slot for the process lifetime. **Check again** cannot recover it. Baseline and Branch are affected too. [Ordinary recommendation](https://github.com/terryyin/open-dough/blob/8296c54b10b76a6cb654fe565da24a5557bc6025/.planning/slice-plans/496-use-later-ci-proof-for-cancelled-landings/PLAN.md#L210-L216) · [SEED-118 retry story](https://github.com/terryyin/open-dough/blob/c6db7ffcdd721e310baeccbb498b068f44f5d729/.planning/seeds/SEED-118-dashboard-reading-reliability.md#retry-unavailable-ci-comparison-slots) |
@@ -182,7 +168,7 @@ reviews reported. File references in the assessment rows are at the case's
 [Ordinary source review](https://github.com/terryyin/open-dough/blob/46d2ea4a40607fb9085ced0bb5087fe4066a0d03/.planning/slice-plans/492-compare-ci-time-without-runner-waits/source-review.md) ·
 [Assessment verdicts](assessment-256.md#promise-verdicts)
 
-| ID | Source and reported status | Evidence to check |
+| ID | Source and reported status | Evidence |
 | --- | --- | --- |
 | 256-01 | Ordinary recommendation of no change. | Credits journeys for endpoint selection and display, focused job evidence, and the shared GitHub reader and cache. It found observed dependency-chain durations and explanations of missing observations consistent with ADR 0008. [Product advice](https://github.com/terryyin/open-dough/blob/46d2ea4a40607fb9085ced0bb5087fe4066a0d03/.planning/slice-plans/492-compare-ci-time-without-runner-waits/PLAN.md#L204-L220) |
 | 256-02 | Assessment break check for the historical workflow revision. | Reading `HEAD:<path>` instead of the selected build revision in `baseCiGithubRevisionLookup.ts:121` reached the fixture's incompatible `jobs: {}`. Three timing cells showed unreadable job definitions instead of the exact estimates at `intent-ci-comparison.spec.ts:138`. [Break check and restoration](assessment-256.md#selective-workflow-revision-break-check) |
@@ -201,7 +187,7 @@ reviews reported. File references in the assessment rows are at the case's
 [Ordinary source review](https://github.com/terryyin/open-dough/blob/76565b1c29fa2370a868fbe7c97e46bfbd4d95cf/.planning/slice-plans/495-compare-story-ci-through-adapters/source-review.md) ·
 [Assessment verdicts](assessment-257.md#promise-verdicts)
 
-| ID | Source and reported status | Evidence to check |
+| ID | Source and reported status | Evidence |
 | --- | --- | --- |
 | 257-01 | Ordinary recommendation of no change. | The review credits code, focused proof and live observations for both Pygardon stories. The intended endpoints were recovered from retained attempts, the timestamp story settled wall time, and one missing proof summary had a reason. [Product advice](https://github.com/terryyin/open-dough/blob/76565b1c29fa2370a868fbe7c97e46bfbd4d95cf/.planning/slice-plans/495-compare-story-ci-through-adapters/PLAN.md#L305-L319) |
 | 257-02 | Assessment break check for listing-branch identity. | Substituting the provider's validated branch for `listedBranch` in `baseCiAdapterAttempts.ts:87` failed the Branch JSON assertion. Run `402`, attempt `2` carried `ci/another-branch` instead of `claude/another-agent`. The break reached identity at `intent-ci-comparison-adapter.spec.ts:185` before the downstream proof-log assertion. [Break check and restoration](assessment-257.md#selective-break-check) |
@@ -238,37 +224,75 @@ coordinator effort is unavailable. [Cost evidence basis](../../NORTH-STAR.md#int
 The **measured sum of case wall spans** is **677.830 s** for ordinary review
 and **1,262.570 s** for the assessment. These sums add case intervals, some
 overlapping, and stand separately from active effort and study elapsed time.
-Terry's reading and verification are pending and separate from both methods'
-runtimes. Comparable total effort and any speed savings are unresolved.
+Comparable total effort and any speed savings are unresolved.
 
-### Terry's response
+#### Verification effort
 
 | Case | Ordinary reading (s) | Ordinary verification (s) | Assessment reading (s) | Assessment verification (s) |
 | --- | --- | --- | --- | --- |
-| SEED-254 | Pending | Pending | Pending | Pending |
-| SEED-256 | Pending | Pending | Pending | Pending |
-| SEED-257 | Pending | Pending | Pending | Pending |
+| SEED-254 | Unavailable | Unavailable | Unavailable | Unavailable |
+| SEED-256 | Unavailable | Unavailable | Unavailable | Unavailable |
+| SEED-257 | Unavailable | Unavailable | Unavailable | Unavailable |
 
-For each case, return the fields below by row ID. Use counts by review once
-the decisions are recorded.
+Terry delegated this work, so human reading and verification times are
+**unavailable**. The coordinator measured **14.126 s** of initial reading
+of selected excerpts and **13.345 s** of initial grouped evidence checking,
+using UTC wall-clock boundaries around tool groups. Both figures are joint
+across the cases and reviews. Additional source spot checks fall outside
+these measurements. The figures cover a subset of elapsed verification work.
+Full verification cost and active effort are unavailable.
 
-| Case | Verified findings, matches and test decisions (ID, review, evidence and decision) | Consequential misses (ID, review that missed it and specific verified path) | Unsupported claims (ID, review and contrary evidence) | Unknown, unassessed, unverified at cutoff and pre-existing IDs, listed separately |
+### Verification record
+
+| ID | Verified finding and decision |
+| --- | --- |
+| 254-01 | **Ordinary protection decision and assessment consequential miss.** The running walk result drops the prior finished build's unavailable proof reason and makes Landed say no later trunk build has finished. The fixture checks stop and identity. The assessment's separate wording examples never assert the combined sequence. Keep the Plan 497 correction and its combined-path proof. [Running result](https://github.com/terryyin/open-dough/blob/1359d6fb76b8ff2b4295e2b4febe0e467ec72be1/dashboard/server/laterTrunkBuild.ts#L75-L103) · [Wording](https://github.com/terryyin/open-dough/blob/1359d6fb76b8ff2b4295e2b4febe0e467ec72be1/dashboard/server/laterTrunkBuild.ts#L116-L126) |
+| 254-02 | **Ordinary pre-existing finding.** The cache predicate excludes `running` and a `none` slot awaiting a later build, so an `unavailable` slot can be retained. Credit ordinary review and keep it outside story-attributable counts. SEED-118 owns the retry issue. [Cache predicate](https://github.com/terryyin/open-dough/blob/1359d6fb76b8ff2b4295e2b4febe0e467ec72be1/dashboard/server/intentCiComparisonAnswers.ts#L24-L42) |
+| 254-03 | **Assessment protection decision.** Keep the existing second-view head-gap assertion. The scratch edit reached the stale Landed identity, then the restored assertion passed. This was protection already present at the checkpoint. [Break check](assessment-254.md#focused-runs) |
+| 256-01 | **Ordinary no-change context.** The retrospective's product advice is recorded. |
+| 256-02 | **Assessment protection decision.** Keep the historical-workflow selection assertion. The scratch edit reached the exact estimate cells and replaced them with the unavailable-workflow reason. [Break check](assessment-256.md#selective-workflow-revision-break-check) |
+| 256-04 | **Assessment protection decision and ordinary consequential miss.** The story promises that differences stay framed as observations between single builds. The comparison and Summary wording assertions read the same production constant as the UI, so a change to that constant alone can make the text causal while those expectations still agree with it. Strengthen the comparison assertion with an independent noncausal expectation. This gap was verified from source. The workflow-revision break check was the case's only scratch probe. [Story promise](https://github.com/terryyin/open-dough/blob/6f6d27f0ad119fd1a645b787b28e1c41b066e86e/.planning/seeds/SEED-256-compare-ci-time-without-runner-waits.md#L38-L44) · [Comparison assertion](https://github.com/terryyin/open-dough/blob/6f6d27f0ad119fd1a645b787b28e1c41b066e86e/dashboard/tests/intent/intent-ci-comparison.spec.ts#L89-L93) · [Summary assertion](https://github.com/terryyin/open-dough/blob/6f6d27f0ad119fd1a645b787b28e1c41b066e86e/dashboard/tests/intent/intent-summary-story-comparison.spec.ts#L107-L114) |
+| 257-01 | **Ordinary no-change context.** Verified that the retained live observations show the intended endpoints and give a reason for the one missing summary. [Historical observation](https://github.com/terryyin/open-dough/blob/76565b1c29fa2370a868fbe7c97e46bfbd4d95cf/.planning/slice-plans/495-compare-story-ci-through-adapters/PLAN.md#L277-L297) |
+| 257-02 | **Assessment protection decision.** Keep the listing-branch identity assertion. The scratch substitution reached the exact JSON `runBranch` check. Break-check credit ends at that assertion. [Break check](assessment-257.md#selective-break-check) |
+| 257-05 | **Assessment unknown.** The historical live observation was checked. Current hosted retention remains unknown, and the evidence establishes no specific missed defect or protection decision on that path. |
+
+| Case | Verified protection decisions, ordinary / assessment | Consequential misses, ordinary / assessment | Verified matches | Unsupported claims adjudicated, ordinary / assessment |
 | --- | --- | --- | --- | --- |
-| SEED-254 | Pending | Pending | Pending | Pending |
-| SEED-256 | Pending | Pending | Pending | Pending |
-| SEED-257 | Pending | Pending | Pending | Pending |
+| SEED-254 | 1 / 1 | 0 / 1 (254-01) | 0 | 0 / 0 |
+| SEED-256 | 0 / 2 | 1 / 0 (256-04) | 0 | 0 / 0 |
+| SEED-257 | 0 / 1 | 0 / 0 | 0 | 0 / 0 |
+| Total | **1 / 4** | **1 / 1** | **0** | **0 / 0** |
 
-**Overall decision (proceed, narrow, or stop)** — Pending.
+Zero unsupported claims were adjudicated on either side. This count covers
+only the selected verification. The table separates the remaining dispositions.
 
-**Reasons under the confirmed criteria, including scope if narrowed** — Pending.
-Proceed requires a verified consequential decision that justifies the extra
-effort within the budgets, or equivalent useful decisions at demonstrably
-lower total effort. It also requires zero consequential assessment misses
-and at most one unsupported assessment claim per case. Narrow requires a
-specific use with verified value within its cost when Proceed falls short.
-Stop applies when neither use shows verified value worth the effort.
-[Confirmed criteria](PLAN.md#confirmed-comparison-basis)
+| Case | Unverified at cutoff | Unassessed in the source | Unknown | Pre-existing, outside counts |
+| --- | --- | --- | --- | --- |
+| SEED-254 | 254-04 through 254-12 | 254-13, 254-14 | — | 254-02 |
+| SEED-256 | 256-03, 256-05 through 256-08 | 256-09, 256-10 | — | — |
+| SEED-257 | 257-03, 257-04 | 257-06 through 257-12 | 257-05 | — |
 
-Record test decisions here on their own merits. Record the overall decision
-and reasons in the [selected story](../../seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage)
-with a link back to this comparison.
+The seed's illustrative identical-figures substitution did not occur in
+this run. All three actual scratch edits caused their intended assertions
+to fail. The SEED-256 shared-wording gap was verified by reading the fixture
+and source. The Branch and Landed figures remain a separate follow-up.
+[Branch and Landed follow-up](../../seeds/SEED-258-dough-intent-coverage.md#distinguish-branch-and-landed-summary-figures)
+
+### Delegated decision
+
+**Narrow.** Use one targeted scratch break check on demand during ordinary
+review when a high-consequence promise has an existing assertion that may
+pass under a plausible wrong implementation. Start with a passing focused
+baseline, introduce the plausible error in scratch, confirm that it reaches
+the intended assertion, restore the edit, and record the observed cost and
+the scope of the result.
+
+All three break checks reached their intended assertions, giving a concrete
+way to confirm what the existing tests detect. SEED-256 separately yielded
+a consequential test decision from source. The assessment missed the specific
+SEED-254 defect, so Proceed's zero-miss requirement failed. Comparable total
+effort is unavailable. The measured case wall-span sums were 677.830 s for
+ordinary review and 1,262.570 s for assessment. The pilot supports the targeted
+test-design technique. A public full assessment skill and automatic wrap-up
+use would need further evidence. [Confirmed criteria](PLAN.md#confirmed-comparison-basis)
+· [Decision in the story](../../seeds/SEED-258-dough-intent-coverage.md#pilot-result)
