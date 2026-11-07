@@ -1,3 +1,11 @@
+## 0.3.89 - 2026-11-07
+
+- CI proof file breakdowns retain the untimed check count when a file also contains timed checks. The collector sums the recorded durations for that file and marks the subtotal partial.
+
+The Promoted payload updates one collector module. Payload paths, installation, discovery and host-hook behavior are unchanged.
+
+Validation covered the 32 collector tests, a CLI fragment and summary with mixed timed and untimed checks, and the self-installation baseline. Existing Codex, Cursor and Claude Code integration evidence applies to the unchanged delivery mechanisms under ADR 0005.
+
 ## 0.3.88 - 2026-11-07
 
 - Execute Plan obtains an independent review of the original story before the first implementation delegation and allocates each commitment before listing the slice's obligations. It reuses the review at acceptance while the source is unchanged and replaces it after a story amendment.
