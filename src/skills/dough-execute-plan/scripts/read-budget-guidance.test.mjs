@@ -44,7 +44,7 @@ const REQUIRED_LINKS = [
   [
     /delivery/i,
     [
-      "references/fresh-increment.md",
+      "references/fresh-increment.md#publish",
       "references/trunk-publication.md#publish-an-execution-increment-or-repair",
       "references/trunk-publication.md#publish-the-candidate",
       OBLIGATION_INPUTS,

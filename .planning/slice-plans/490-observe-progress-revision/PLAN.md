@@ -2,6 +2,7 @@
 
 **Identity:** SEED-010#observe-progress-revision-before-slice-done
 **Source:** [Selected story](../../seeds/SEED-010-learn-from-execution-retrospectives.md#observe-progress-revision-before-slice-done)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -90,7 +91,7 @@ would repeat historical observations without exercising new runtime behavior.
 ### 1. Observe published proof and settle the slice through guarded delivery
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The three Clipboard walkthroughs and the negative and applicability
 cases above exercise the edited guidance from its existing entry point.
 
@@ -103,9 +104,66 @@ existing proof and source-freshness checks in the delivery checklist. Put the
 whole sequence and its boundary examples in this slice so delivery never
 points at a partial procedure.
 
+**Accepted proof.** Walked SEED-001#bounded-helper-owner-write,
+SEED-003#host-independent-desktop-free-tests, and
+SEED-004#publish-clipboard-ci-proof against
+`fresh-increment.md## Observe progress proof` and the delivery checklist link
+in `wrap-up.md`. Guidance names
+`ci-mailbox.mjs await-revision` on the attached mailbox and `receipt.sha`,
+keeps Intent summary via `custom-ci-proof.md`, leaves failed evidence planned,
+routes repair through `ci-monitor.md`, and keeps `complete-revision` at
+completion only. Focused suites passed:
+`progress-observation-guidance.test.mjs`,
+`ci-completion-lifecycle-guidance.test.mjs`, `read-budget-guidance.test.mjs`,
+`story-obligations-guidance.test.mjs`, plus runtime rechecks
+`ci-mailbox-await`, `execution-increment-fresh-progress`,
+`ci-path-applicability`, `ci-mailbox-complete`, `ci-integrated-state-journey`
+(104 pass). Source review retained and checked; commitment 12 pending
+lifecycle `landing`. Refactor gated the accepted-publication pointer on
+`progress: true`.
+
 ## Concern evidence
 
 Slice-plan refinement was unnecessary. One read, acceptance and delivery
 sequence owns the examples and has one representative proof loop. All
 mechanics already exist and require no preparatory Structure. No remaining
 slice-specific concern was identified.
+
+## Learnings
+
+Delivery and finish read budgets for Execute Plan are tight (~52/0 bytes of
+headroom before this edit). The observe body must stay out of the delivery
+row (`#publish` split); finish-row edits must stay size-neutral.
+
+
+## Story obligations
+
+### X1. X1 deferred by Scope
+Reported: slice 1 — "Scope excludes this work from the increment"
+Story clause: "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
+Disposition: excluded "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
+Commitment: X1
+
+### X2. X2 deferred by Scope
+Reported: slice 1 — "Scope excludes this work from the increment"
+Story clause: "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
+Disposition: excluded "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
+Commitment: X2
+
+### X3. X3 deferred by Scope
+Reported: slice 1 — "Scope excludes this work from the increment"
+Story clause: "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
+Disposition: excluded "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
+Commitment: X3
+
+### X4. X4 deferred by Scope
+Reported: slice 1 — "Scope excludes this work from the increment"
+Story clause: "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
+Disposition: excluded "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
+Commitment: X4
+
+### X5. X5 deferred by Scope
+Reported: slice 1 — "Scope excludes this work from the increment"
+Story clause: "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
+Disposition: excluded "CI trigger changes, observer or delivery API changes, Intent UI changes, eliminating the guarded done publication, and release or rollout are deferred."
+Commitment: X5
