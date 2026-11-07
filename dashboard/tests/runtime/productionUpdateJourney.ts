@@ -16,8 +16,8 @@ import { publishes } from "../support/fakeGitHub.ts";
 import {
   deploymentWork,
   outputCount,
-  productionActivation,
   productionReplacement,
+  shownActivation,
   startProductionWatcher,
   productionDeployments,
   productionInspections,
@@ -155,9 +155,12 @@ export function productionUpdateJourney() {
     activated: async () => {
       if (prepared === undefined)
         throw new Error("The file's setup did not complete");
-      const served = await productionActivation(prepared.watcher, prepared.a);
-      await prepared.page.goto(served.url);
-      await expect(prepared.page).toHaveTitle("MAIN A");
+      const served = await shownActivation(
+        prepared.watcher,
+        prepared.a,
+        prepared.page,
+        "MAIN A",
+      );
       state = { ...prepared, served, built: [prepared.a] };
       return state;
     },
@@ -200,7 +203,7 @@ export function productionUpdateShutdown(journey: ProductionUpdateJourney) {
     await writeFile(holdBuildPath(fixture.home, ordinal), "");
     await fixture.publish(fixture.markerChanges("MAIN X"), "Main X");
     await expect
-      .poll(async () => (await journey.builds()).length, { timeout: 120_000 })
+      .poll(async () => (await journey.builds()).length, { timeout: 0 })
       .toBe(ordinal);
     const heldBuild = (await journey.builds())[ordinal - 1]?.pid;
     expect(processRunning(heldBuild)).toBe(true);

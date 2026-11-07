@@ -90,13 +90,13 @@ test("a commit held in its build is served exactly at the same URL while the nex
   await writeFile(holdBuildPath(fixture.home, 3), "");
   const b = await fixture.publish(fixture.markerChanges("MAIN B"), "Main B");
   await expect
-    .poll(async () => (await journey.builds()).length, { timeout: 120_000 })
+    .poll(async () => (await journey.builds()).length, { timeout: 0 })
     .toBe(2);
   expect((await journey.builds())[1]?.checkout).toEqual(deploymentCheckout(b));
   c = await fixture.publish(fixture.markerChanges("MAIN C"), "Main C");
   await rm(holdBuildPath(fixture.home, 2));
   await expect
-    .poll(() => watcher.output(), { timeout: 120_000 })
+    .poll(() => watcher.output(), { timeout: 0 })
     .toContain("Waiting for accepted dashboard starts before updating.");
   // The watcher's log precedes its request reaching the server. Polling the
   // held request observes closed admission without admitting another start.
@@ -163,7 +163,7 @@ test("a later check prepares the next commit while the held commit stays served"
   const state = journey.started();
   const { page, watcher } = state;
   await expect
-    .poll(() => watcher.output(), { timeout: 60_000 })
+    .poll(() => watcher.output(), { timeout: 0 })
     .toContain(`Preparing production dashboard ${c}.`);
   expect(watcher.output()).not.toMatch(
     new RegExp(`Production dashboard ${c} at`),

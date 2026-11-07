@@ -36,8 +36,12 @@ import {
   takenStory,
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import { storyCardSessionListing } from "../storyCardSessionListing.ts";
+import {
+  launchEachQueuedStory,
+  openQueuedStoryCards,
+  queuedStories as queued,
+  storyCardSessionListing,
+} from "../storyCardSessionListing.ts";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
@@ -57,28 +61,21 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
   test.afterAll(() =>
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
-  const queued = [takenStory, readyStory, notRefinedStory];
-
-  // Opens origin's queued revision and launches, from the Backlog cards, an
-  // Execution on the ready and the not-refined story and a Refinement on
-  // takenStory: each is listed on its own card. Origin later takes the ready
-  // story.
+  // Launches on each queued card (../storyCardSessionListing.ts); each
+  // session is listed on its own card. Origin later takes the ready story.
   const launchOnEachQueuedCard = async (
     page: Page,
     dashboard: DashboardServer,
   ) => {
-    dashboard.claudeScenario("launched");
-    const opened = await openStoryColumnsJourney(page, columnsJourney);
-    // A story's card in whichever column origin shows it.
-    const card = (title: string) =>
-      parts(page).board.getByRole("article", { name: title, exact: true });
-    await expectMembership(page, { taken: [], backlog: queued });
-    await opened.settled();
-    const listing = storyCardSessionListing(page, card, opened.launch, queued);
-    await listing.launchListed(readyStory, "Execution");
-    await listing.launchListed(notRefinedStory, "Execution");
-    await listing.launchListed(takenStory, "Refinement");
-    return { ...opened, ...listing, card };
+    const opened = await openQueuedStoryCards(page, dashboard, columnsJourney);
+    const listing = storyCardSessionListing(
+      page,
+      opened.card,
+      opened.launch,
+      queued,
+    );
+    await launchEachQueuedStory(listing.launchListed);
+    return { ...opened, ...listing };
   };
 
   const openSessionDescription = new RegExp(

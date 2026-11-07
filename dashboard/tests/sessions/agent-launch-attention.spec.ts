@@ -27,7 +27,12 @@ import {
   markNotReloaded,
   watchRecordReads,
 } from "../sessionStatePace.ts";
-import { openStoryColumnsJourney, type Workflow } from "../storyColumnsPage.ts";
+import type { Workflow } from "../storyColumnsPage.ts";
+import {
+  launchEachQueuedStory,
+  openQueuedStoryCards,
+  queuedStories,
+} from "../storyCardSessionListing.ts";
 import type { ClaudeSessionChange } from "../support/fakeClaude.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
 
@@ -72,23 +77,20 @@ test.describe("a story's card counts the sessions that need attention", () => {
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
-  // Opens origin's queued revision on a paused page and launches, from the
-  // Backlog cards, an Execution on the ready and the not-refined story and a
-  // Refinement on takenStory; none needs attention yet.
+  // Launches on each queued card (../storyCardSessionListing.ts) on a
+  // paused page; none needs attention yet.
   const launchOnEachQueuedCard = async (
     page: Page,
     dashboard: DashboardServer,
   ) => {
     await pausePageClockAt(page, new Date());
     const { passOnePace } = await watchRecordReads(page);
-    dashboard.claudeScenario("launched");
-    const { settled, show, launch } = await openStoryColumnsJourney(
+    const { settled, show, launch, card } = await openQueuedStoryCards(
       page,
+      dashboard,
       columnsJourney,
     );
     const { board, taken } = parts(page);
-    const card = (title: string) =>
-      board.getByRole("article", { name: title, exact: true });
     const entryOf = (title: string, workflow: Workflow) =>
       storyCardSessionOf(card(title), workflow);
     // The words each card with affected sessions shows; every other card
@@ -107,23 +109,15 @@ test.describe("a story's card counts the sessions that need attention", () => {
       words: string,
       needsAttention: boolean,
     ) => expectSessionShown(entryOf(title, workflow), words, needsAttention);
-    const queued = [takenStory, readyStory, notRefinedStory];
-    await expectMembership(page, { taken: [], backlog: queued });
-    await settled();
-
     const sessionOf = new Map<string, string>();
-    for (const [title, workflow] of [
-      [readyStory, "Execution"],
-      [notRefinedStory, "Execution"],
-      [takenStory, "Refinement"],
-    ] as const) {
+    await launchEachQueuedStory(async (title, workflow) => {
       await launch(title, workflow);
       await shows(title, workflow, "Working", false);
       sessionOf.set(
         `${title} ${workflow}`,
         await sessionNamedBy(entryOf(title, workflow)),
       );
-    }
+    });
     // Claude Code lists the story's session in this workflow anew.
     const becomes = (
       title: string,
@@ -146,7 +140,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       expectCounted,
       shows,
       becomes,
-      queued,
+      queued: queuedStories,
     };
   };
 

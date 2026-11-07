@@ -138,8 +138,9 @@
   update and the policy case were split into serial steps. Slice 7 split the
   82.1s CI recovery case (27.0s locally) into five serial steps, each at most
   6.1s locally. Its documentation-only commit now reaches main while the
-  failing build is preparing, so the failed commit is not retried and the
-  next commit does not fail first. The failure file's two-build cases became
+  failing commit's build is held, and that build consumes its one-shot cause
+  as it fails, so the failed commit is not retried and the next commit does
+  not fail first; the steps assert both. The failure file's two-build cases became
   serial steps with a separate restart step. Every case override in these
   files was removed.
 - **Unique protection:** attention reporting remains durable and readable

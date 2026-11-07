@@ -90,14 +90,17 @@ kills the group 5 seconds after its signal. Follow the repository's
 inside a test takes effect after fixture setup. The full-source fixture adds
 its copy in one pack: copy, `git add` and first push take about 2 seconds alone
 and 3 when four build it at once. The production journeys (`production-watcher*.spec.ts`)
-build that fixture and start the real watcher once per serial file in
-`beforeAll`. The lifecycle and update files' first tests observe the
-watcher's first activation where they assert it, so those hooks hold only the
-preparation and its development install. Each
-test steps the shared watcher to its next state and asserts the delta it observes
+build that fixture once per serial file in `beforeAll`. The lifecycle and
+update files' hooks also start the real watcher, and their first tests observe
+its first activation where they assert it, so those hooks hold only the
+preparation and its development install. The failure file starts the watcher
+in its first test and again in each test that follows a scenario ending it.
+Each test steps the watcher to its next state and asserts the delta it observes
 (`support/productionWatcher.ts`: reported activations, replacements and skips,
 recorded builds, or successful Git reads recorded through fixture-local Trace2
 events). Routine checks remain quiet; the tests never use a fixed wait.
+A wait on a deployment step polls with `timeout: 0`, so the test timeout
+alone bounds it, as it bounds any answer.
 `afterAll` stops the watcher and cleans the fixture up.
 In a serial file a failing test skips the file's later tests, and a test
 that ends the watcher hands the next one a restart at current main. A

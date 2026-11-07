@@ -5,12 +5,20 @@ import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import {
+  expectMembership,
   storyCardSessionName,
   storyCardSessions,
   parts,
   sessionNamedBy,
 } from "./dashboardPage.ts";
-import type { Workflow } from "./storyColumnsPage.ts";
+import {
+  notRefinedStory,
+  readyStory,
+  takenStory,
+  type StoryColumnsJourney,
+} from "./launchJourney.ts";
+import { openStoryColumnsJourney, type Workflow } from "./storyColumnsPage.ts";
+import type { DashboardServer } from "./support/dashboardServer.ts";
 
 export function storyCardSessionListing(
   page: Page,
@@ -80,4 +88,34 @@ export function storyCardSessionListing(
     }
   };
   return { listed, launchListed, expectListed };
+}
+
+export const queuedStories = [takenStory, readyStory, notRefinedStory];
+
+// Opens origin's queued revision, every story in Backlog, with each launch
+// answered as launched; `card` finds a story's card in whichever column
+// shows it.
+export async function openQueuedStoryCards(
+  page: Page,
+  dashboard: DashboardServer,
+  columnsJourney: StoryColumnsJourney,
+) {
+  dashboard.claudeScenario("launched");
+  const opened = await openStoryColumnsJourney(page, columnsJourney);
+  const card = (title: string) =>
+    parts(page).board.getByRole("article", { name: title, exact: true });
+  await expectMembership(page, { taken: [], backlog: queuedStories });
+  await opened.settled();
+  return { ...opened, card };
+}
+
+// Launches, from the Backlog cards, an Execution on the ready and the
+// not-refined story and a Refinement on takenStory, in that order; each
+// launch is the caller's, which observes it.
+export async function launchEachQueuedStory(
+  launch: (title: string, workflow: Workflow) => Promise<void>,
+) {
+  await launch(readyStory, "Execution");
+  await launch(notRefinedStory, "Execution");
+  await launch(takenStory, "Refinement");
 }

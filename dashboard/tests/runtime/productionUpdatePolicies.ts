@@ -1,11 +1,13 @@
 // Policy qualification and failure recovery step the existing serial watcher;
 // no additional build chain or server is started for these variants.
 import { expect, test } from "../support/pageTest.ts";
+import { existsSync } from "node:fs";
 import { rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { processRunning } from "../support/processGroup.ts";
 import { settledSkip } from "../support/productionWatcher.ts";
 import { builtCommitPrefixes } from "../support/productionBuildGate.ts";
+import { heldOnceFault } from "../support/productionFault.ts";
 import { ciWorkflowPath } from "../../server/productionQualification.mjs";
 import {
   prefixesOf,
@@ -120,7 +122,7 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     const policyError = `Production update failed for ${p}: ${ciWorkflowPath} at ${p} has an unsupported CI push path policy.\nKeeping ${baseline} at ${state.served.url}; retrying on a later check.`;
     await expect
       .poll(() => watcher.output().split(policyError).length - 1, {
-        timeout: 60_000,
+        timeout: 0,
       })
       .toBeGreaterThan(2);
     expect(await journey.work()).toEqual(before);
@@ -155,27 +157,34 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     const { fixture, page, watcher } = state;
     const q = state.built.at(-1) ?? "";
 
-    // R fails its real build. Documentation-only S reaches main while R is
-    // being prepared, so the next check compares S with Q, never with R, and
-    // R is not retried.
+    // R fails its real build once. Documentation-only S reaches main while
+    // R's held fault gate waits, so the next check compares S with Q, never
+    // with R, and R is not retried. R's gate consumes the cause as it fails,
+    // so S does not fail first.
     const buildFault = path.join(fixture.home, "fault-build");
     await writeFile(buildFault, "transient build cause");
-    r = await fixture.publish(fixture.markerChanges("MAIN R"), "Main R");
+    await writeFile(`${buildFault}-held`, "");
+    r = await fixture.publish(
+      {
+        ...fixture.markerChanges("MAIN R"),
+        "production-fault.mjs": heldOnceFault,
+      },
+      "Main R",
+    );
     await expect
-      .poll(() => watcher.output(), { timeout: 60_000 })
+      .poll(() => watcher.output(), { timeout: 0 })
       .toContain(`Preparing production dashboard ${r}.`);
     s = await fixture.publish({ "docs/s.md": "# S\n" }, "Document S");
+    await rm(`${buildFault}-held`);
     await expect
-      .poll(() => watcher.output(), { timeout: 60_000 })
+      .poll(() => watcher.output(), { timeout: 0 })
       .toContain(`Production update failed for ${r}: `);
     expect(watcher.output()).toContain("TRANSIENT build FAILURE");
     expect(watcher.output()).toContain(`Keeping ${q} at ${state.served.url}`);
+    expect(existsSync(buildFault)).toBe(false);
     expect(processRunning(state.served.pid)).toBe(true);
     await page.reload();
     await expect(page).toHaveTitle("MAIN P");
-    // Until the cause is gone, an attempt at S fails the same way and is
-    // retried; the next step waits for S's activation.
-    await rm(buildFault);
   });
 
   test("npm watcher activates the next commit, compared with the last successful activation across the failed build", async () => {
@@ -184,6 +193,10 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
 
     await journey.replacedBy(s);
     expect(watcher.output()).not.toContain(`Skipping production update ${s}`);
+    expect(watcher.output()).not.toContain(`Production update failed for ${s}`);
+    expect(
+      journey.count(new RegExp(`Preparing production dashboard ${r}\\.`, "g")),
+    ).toBe(1);
     expect(watcher.output()).not.toMatch(
       new RegExp(`Production dashboard ${r} at`),
     );

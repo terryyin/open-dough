@@ -390,6 +390,14 @@ largest was the updates hook at 14.98s. With hosted variance up to about 2×,
 the 20–25s cases are the next timeout risk under the failing and flaky test
 policy.
 
+## Story obligations
+
+### G1. One-shot refresh split dropped the evidence-gap fallback (first reported in the execution review)
+Reported: slice 10 — "Nothing in `dashboard/tests` now checks that Refresh falls back to an evidence-gap run when it is the last one left."
+Story clause: "pass locally and in CI with preserved coverage"
+Disposition: proved by slice 10: dashboard/tests/review/story-review-one-shot-choice-refresh.spec.ts second case deletes the last captured run and asserts Refresh falls back to the legacy key with one option and "no captured landing comparison"; dropping `?? runs[0]` in dashboard/src/storyReviewLandedRun.ts failed it (tmp s10r-mut-*)
+Commitment: 4e
+
 ## Final gate and safe stops
 
 Each completed slice keeps its affected checks green with the same proof and a

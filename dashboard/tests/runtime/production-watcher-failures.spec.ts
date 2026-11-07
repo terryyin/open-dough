@@ -21,6 +21,7 @@ import {
   productionActivation,
   productionDeployments,
   productionReplacement,
+  shownActivation,
   startProductionWatcher,
   type ProductionActivation,
   type ProductionWatcher,
@@ -80,9 +81,7 @@ test.afterAll(async () => {
 test("a watcher serves the working commit whose build and start are gated", async () => {
   const { fixture, page } = started();
   watcher = startProductionWatcher(fixture.development, fixture.env);
-  served = await productionActivation(watcher, servedCommit);
-  await page.goto(served.url);
-  await expect(page).toHaveTitle("WORKING A");
+  served = await shownActivation(watcher, servedCommit, page, "WORKING A");
 });
 
 test("a failed build keeps working production", async () => {
@@ -97,7 +96,7 @@ test("a failed build keeps working production", async () => {
     "Working B",
   );
   await expect
-    .poll(() => watcher?.output() ?? "", { timeout: 60_000 })
+    .poll(() => watcher?.output() ?? "", { timeout: 0 })
     .toContain("TRANSIENT build FAILURE");
   expect(watcher.output()).toContain(`Production update failed for ${b}`);
   expect(watcher.output()).toContain(
@@ -143,7 +142,7 @@ test("a candidate whose preview start will fail is prepared while the working co
     },
     "Working C",
   );
-  await expect.poll(() => preparing(latestCommit), { timeout: 60_000 }).toBe(1);
+  await expect.poll(() => preparing(latestCommit), { timeout: 0 }).toBe(1);
 });
 
 test("a failed preview start restores the working commit", async () => {
@@ -183,7 +182,7 @@ test("an unavailable origin keeps production and checks resume when it returns; 
   const { fixture, page } = started();
   await rename(fixture.origin, `${fixture.origin}.unavailable`);
   await expect
-    .poll(() => watcher?.output() ?? "", { timeout: 30_000 })
+    .poll(() => watcher?.output() ?? "", { timeout: 0 })
     .toContain(`git ls-remote -- ${fixture.origin} refs/heads/main failed`);
   expect(processRunning(served.pid)).toBe(true);
   await page.reload();
@@ -211,9 +210,7 @@ test("an unavailable origin keeps production and checks resume when it returns; 
 test("a watcher started after a hang-up serves current main again", async () => {
   const { fixture, page } = started();
   watcher = startProductionWatcher(fixture.development, fixture.env);
-  served = await productionActivation(watcher, latestCommit);
-  await page.goto(served.url);
-  await expect(page).toHaveTitle("WORKING C");
+  served = await shownActivation(watcher, latestCommit, page, "WORKING C");
 });
 
 test("a failed candidate whose restoration also fails reports both causes, exits and cleans up", async ({

@@ -53,6 +53,7 @@ test("Refresh preserves a selected run after a new capture and after its native 
     first.key,
     "first",
   );
+  // Story A's open live launch must finish before the next run can launch.
   await recordOperation(dashboard, "setRecordDoneAt", [
     "open-dough",
     live.session,
@@ -86,50 +87,66 @@ test("Refresh preserves a selected run after a new capture and after its native 
   await expect(added(review)).toHaveText(["+first.txt"]);
 });
 
-test("Refresh replaces a deleted evidence-gap choice with the newest captured run, then an expired one with the remaining run", async ({
+test("Refresh replaces a deleted choice whose native session was replaced with the newest captured run, an expired one with the remaining run, and finally falls back to the evidence gap", async ({
   page,
   dashboard,
   origin,
   codexProtocol,
 }) => {
   if (codexProtocol === undefined) throw new Error("No native fixture");
-  const { first, second, legacy, live } = await reviewChoicesNamed(
+  const { first, second, third, legacy } = await reviewChoicesNamed(
     dashboard,
     origin,
     codexProtocol,
-    ["first", "second"],
+    ["first", "second", "third"],
   );
   const { review, select, refresh } = await chooseLandedRun(
     page,
     origin,
-    legacy.key,
+    first.key,
+    "first",
   );
-  await expect(review).toContainText("no captured landing comparison");
-  await expect(review.getByRole("list")).toHaveCount(0);
-  await expect(
-    review.getByRole("button", { name: "Mark reviewed" }),
-  ).toHaveCount(0);
-  await recordOperation(dashboard, "setRecordDoneAt", [
+  const keptFirst = stored(dashboard.home).find(
+    (record) => record.request.reporting?.reference === first.key,
+  );
+  if (keptFirst === undefined) throw new Error("No retained captured run");
+  const replacement = {
+    ...keptFirst,
+    session: { ...keptFirst.session, sessionId: "review-first-recovered" },
+  };
+  await recordOperation(dashboard, "replaceKeptSession", [
     "open-dough",
-    live.session,
-    new Date().toISOString(),
+    first.record.session,
+    replacement,
   ]);
   // The newest captured run replaces the deleted choice, not the older one.
   await recordOperation(dashboard, "deleteRecord", [
     "open-dough",
-    legacy.session,
+    replacement.session,
+  ]);
+  await refresh();
+  await expect(select).toHaveValue(third.key);
+  await expect(select.locator("option")).toHaveCount(3);
+  await expect(added(review)).toHaveText(["+third.txt"]);
+  await recordOperation(dashboard, "setRecordDoneAt", [
+    "open-dough",
+    third.record.session,
+    "2000-01-01T00:00:00.000Z",
   ]);
   await refresh();
   await expect(select).toHaveValue(second.key);
   await expect(select.locator("option")).toHaveCount(2);
   await expect(added(review)).toHaveText(["+second.txt"]);
-  await recordOperation(dashboard, "setRecordDoneAt", [
+  await recordOperation(dashboard, "deleteRecord", [
     "open-dough",
     second.record.session,
-    "2000-01-01T00:00:00.000Z",
   ]);
   await refresh();
-  await expect(select).toHaveValue(first.key);
+  await expect(select).toHaveValue(legacy.key);
   await expect(select.locator("option")).toHaveCount(1);
-  await expect(added(review)).toHaveText(["+first.txt"]);
+  await expect(review).toContainText("no captured landing comparison");
+  await expect(review.getByRole("list")).toHaveCount(0);
+  await expect(
+    review.getByRole("button", { name: "Mark reviewed" }),
+  ).toHaveCount(0);
 });
