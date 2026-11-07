@@ -20,8 +20,13 @@ name's toggle); selecting a closed location's name leaves it closed and
 leaves any other open location open. Both controls are keyboard-operable, and
 a selected location or folder reads as pressed. Every location header has its
 own background; a selected location's header takes the selected background
-across its whole width, toggle included, and expansion shows only in the
-toggle. Selecting a file still reads its exact published text with line
+across its whole width, toggle included (or an accent border when a CI
+duration tint would be hidden by that fill — see
+[CI timing comparison](dashboard-development-intent-ci-comparison.md)), and
+expansion shows only in the toggle. With a story comparison, file rows and
+location headers whose path is a compared entry show the same count-border
+and duration-tint cues, with Proof's words in their accessible names; folder
+rows do not. Selecting a file still reads its exact published text with line
 numbers and Gherkin syntax styling at Intent's reading revision. A location or
 folder summary names the selection by path and how many matching files the
 tree lists (a selected story's overlaid files included), gives an unusable

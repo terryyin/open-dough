@@ -15,18 +15,18 @@ unchanged since planning.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Identity is SEED-255#compare-before-and-after-ci-proof | slice 3 | |
-| 2 | Beneficiary is a developer reviewing how a selected story changed test counts and execution time | slice 3 | |
+| 1 | Identity is SEED-255#compare-before-and-after-ci-proof | slice 3 | observed: story identity SEED-255#compare-before-and-after-ci-proof retained through plan/source-review; product Intent CI comparison for the selected story |
+| 2 | Beneficiary is a developer reviewing how a selected story changed test counts and execution time | slice 3 | observed: Intent CI comparison cues serve a developer reviewing selected-story test counts and execution time |
 | 3.1 | With a done or Taken story selected, scan the overall CI change on the Intent homepage | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts active title + overall counts/timing on `.intent-ci-comparison-active` / `.intent-ci-comparison-overall-*`; IntentCiComparison ActiveComparisonSummary |
-| 3.2 | Find which test entries and files account for observed differences from cues in the entry table and the location tree | slice 3 | |
-| 3.3 | Read every cued difference as text | slice 3 | |
-| 4 | Serves judging whether a story changed CI proof as intended | slice 3 | |
+| 3.2 | Find which test entries and files account for observed differences from cues in the entry table and the location tree | slice 3 | observed: intent-story-ci-cues.spec.ts finds cued entry/file via location header and tree file cue state |
+| 3.3 | Read every cued difference as text | slice 3 | observed: cued differences readable as text in accessible names matching Proof words; intent-story-ci-cues.spec.ts |
+| 4 | Serves judging whether a story changed CI proof as intended | slice 3 | observed: cues+text support judging CI proof change for the selected story without attributing differences to the story |
 | 5 | Differences remain observations between named builds and are not attributed to the story | slice 1 | observed: dashboard/src/storyCiComparisonWording.ts `observedNotAttributed`; IntentCiComparison still presents that framing with named Baseline/Branch/Landed builds |
 | 6 | Compare Baseline with Landed when landed has a proof summary; otherwise with Branch (provisional tip for Taken Story Branch or Trunk Mode) | slice 1 | observed: dashboard/src/storyCiComparisonWording.ts `activeComparisonOf`; intent-ci-comparison.spec.ts Landed title; intent-ci-comparison-landing-gaps.spec.ts Branch title; intent-ci-comparison-taken.spec.ts Branch and Provisional titles |
 | 7.1 | Homepage names the active comparison | slice 1 | observed: `.intent-ci-comparison-active` in intent-ci-comparison.spec.ts, landing-gaps, taken |
 | 7.2 | Homepage names both builds with revision, run, attempt | slice 1 | observed: intent-ci-comparison.spec.ts identity cells and run 101/102/103 links |
 | 7.3 | Homepage names whether each build is exact or an ancestor | slice 1 | observed: intent-ci-comparison.spec.ts ancestor / exact revision wording |
-| 8 | Overall summary, entry table cues, tree cues, and percentages all use this one comparison | slice 3 | |
+| 8 | Overall summary, entry table cues, tree cues, and percentages all use this one comparison | slice 3 | observed: tree cues use treeComparisonReadingOf → same proofs/afterSide as Summary/Proof; percentages/wording from shared cells |
 | 9 | The table keeps each endpoint's own measurements | slice 1 | observed: EndpointRow still shows each endpoint's wall/identity; entry cells via scopeComparisonCellsOf keep Baseline/Branch/Landed columns |
 | 10.1 | Overall summary shows Baseline and active values and signed differences for overall test count | slice 1 | observed: overallCountsWords + intent-ci-comparison.spec.ts `.intent-ci-comparison-overall-counts` `2,090 → 2,092 tests (+2); 5 → 8 checks (+3)` |
 | 10.2 | Overall summary shows Baseline and active values and signed differences for the CI timing measure the comparison uses | slice 1 | observed: wallTimeChangeWords; intent-ci-comparison.spec.ts `.intent-ci-comparison-overall-timing` `3 min → 4 min (+1 min, +33%)` |
@@ -38,8 +38,8 @@ unchanged since planning.
 | 16 | A measured zero, a missing measurement, and partial proof stay distinct in words and cues | slice 2 | observed: ciScopeComparisonCues countCueOf/durationCueOf + wording cells; module intent-scope-comparison-cues.test.mjs distinct none reasons for zero/partial/gap |
 | 17.1 | Change cues appear on the overall summary | slice 2 | observed: IntentCiComparison ActiveComparisonSummary data-ci-cue attrs; intent-ci-comparison.spec.ts overall cues |
 | 17.2 | Change cues appear on each entry row | slice 2 | observed: CiProofTable entry rows with cue classes; intent-ci-comparison.spec.ts expectCiComparisonCues |
-| 17.3 | Change cues appear on each location header whose entry has a comparison | slice 3 | |
-| 17.4 | Change cues appear on each file row in the location tree | slice 3 | |
+| 17.3 | Change cues appear on each location header whose entry has a comparison | slice 3 | observed: location headers get scopeCueRowAttrs when compared entry; intent-story-ci-cues locationHeader more-light/slower-strong |
+| 17.4 | Change cues appear on each file row in the location tree | slice 3 | observed: file rows get cues; intent-story-ci-cues file none count + slower-light |
 | 18.1 | Count cue border green for fewer | slice 2 | observed: countCueOf fewer + intent-ci-cues.css intent-ci-cue-count-fewer-*; module −2 of 12 light |
 | 18.2 | Count cue border red for more | slice 2 | observed: countCueOf more + css more-*; Playwright entry more cues |
 | 18.3 | Count cue none when unchanged | slice 2 | observed: countCueOf unchanged → none reason unchanged; module test |
@@ -56,10 +56,10 @@ unchanged since planning.
 | 27.2 | Every cued difference visible as text in the entry table | slice 2 | observed: entry table cells keep readable text with cues; intent-ci-comparison.spec.ts |
 | 27.3 | Every cued difference visible as text in a file's Proof | slice 2 | observed: IntentFileProof rows with cues + text; intent-summary-story-comparison-file.spec.ts |
 | 27.4 | Every cued difference visible as text in its folder's or location's summary row | slice 2 | observed: IntentScopeComparisonTable Summary rows with cues + text; intent-summary-story-comparison.spec.ts |
-| 28 | Each cued tree row and location header carries the same words in its accessible name | slice 3 | |
-| 29 | No meaning is only in color or only on hover | slice 3 | |
-| 30 | Selected file/location and keyboard focus stay recognizable and distinct from both cues | slice 3 | |
-| 31 | Distinct selection outline beside inset count edge and duration fill; replaces selection background that would hide the tint | slice 3 | |
+| 28 | Each cued tree row and location header carries the same words in its accessible name | slice 3 | observed: treeComparisonAccessibleName appends counts and after words; spec asserts aria-label matches Proof |
+| 29 | No meaning is only in color or only on hover | slice 3 | observed: accessible names and Proof cells carry cue meaning; color is not the only channel |
+| 30 | Selected file/location and keyboard focus stay recognizable and distinct from both cues | slice 3 | observed: selected cued file uses accent border with tint retained; focus-visible 3px accent outline; cues kept under focus |
+| 31 | Distinct selection outline beside inset count edge and duration fill; replaces selection background that would hide the tint | slice 3 | observed: story-review-files.css: duration cue selected uses border not accent fill that would hide tint |
 | 32 | No cues and no comparison wording without a selected story with a comparison | slice 2 | observed: intent-ci-status-story.spec.ts no cue attrs without comparison |
 | 33 | Cues compare observed builds only (ADR 0008) | slice 2 | observed: cues from observed comparison endpoints only; ADR framing retained; comparisonAfterSideOf from active endpoint |
 | 34.1 | Deferred: control to switch active comparison between Branch and Landed | | X1 |
@@ -69,24 +69,24 @@ unchanged since planning.
 | 34.5 | This story shows whatever build and overall timing measure the comparison supplies | slice 1 | observed: ActiveComparisonSummary uses wallTimeChangeWords on the comparison's CI wall time; SEED-256 still planned so wall time is the supplied measure |
 | 34.6 | Until SEED-256 lands, that measure is CI wall time | slice 1 | observed: storyCiComparisonWording wallTimeChangeWords; docs/dashboard-development-intent-ci-comparison.md names CI wall time |
 | 35.1 | Key example: done story with Landed proof; summary names Baseline and Landed | slice 1 | observed: intent-ci-comparison.spec.ts `.intent-ci-comparison-active` `Baseline compared with Landed` |
-| 35.2 | Key example: entry/location show light green border, strong red tint, and `12 → 10 tests (−2)` with `8 s → 12 s (+4 s, +50%)` | slice 3 |  |
-| 35.3 | Key example: cues stay visible and selection remains distinct when location selected or focused | slice 3 | |
+| 35.2 | Key example: entry/location show light green border, strong red tint, and `12 → 10 tests (−2)` with `8 s → 12 s (+4 s, +50%)` | slice 3 | observed: module still covers −2/12 and +4s/8s; tree journey uses fixture analogous entry/file cues + Proof words (intent-story-ci-cues + classifier) |
+| 35.3 | Key example: cues stay visible and selection remains distinct when location selected or focused | slice 3 | observed: intent-story-ci-cues selection/focus steps keep cues with distinct border; location selected keeps change mark + cues |
 | 36.1 | Key example: cancelled Landed; summary says Baseline with Branch and why Landed is not used | slice 1 | observed: intent-ci-comparison-landing-gaps.spec.ts active title Branch + `Landed is not used:` cancelled |
 | 36.2 | Key example: cues follow Branch | slice 2 | observed: comparisonAfterSideOf(Branch\|Provisional)=branch; IntentCiComparison/Summary/Proof pass afterSide from activeComparisonOf |
-| 37.1 | Key example: file 6 tests 25% faster; tree row no border, light green tint | slice 3 | |
-| 37.2 | Key example: accessible name and Proof say `6 tests (no change)` and `4 s → 3 s (−1 s, −25%)` | slice 3 |  |
+| 37.1 | Key example: file 6 tests 25% faster; tree row no border, light green tint | slice 3 | observed: cued file with unchanged count and duration tint: count none, duration tint, no count border; intent-story-ci-cues |
+| 37.2 | Key example: accessible name and Proof say `6 tests (no change)` and `4 s → 3 s (−1 s, −25%)` | slice 3 | observed: file aria-label and Proof row show same counts and after words; intent-story-ci-cues |
 | 38 | Key example: 7% slower same count; text shows difference; no cue | slice 2 | observed: module +7% below threshold none; Summary renamed small % no tint case |
 | 39 | Key example: no Baseline duration; timing text says why; no tint | slice 2 | observed: module partial baseline duration none reason partial; summary gap rows |
 | 40 | Key example: 1,098+982 tests and 492 checks give overall `2,080 tests and 492 checks`, never one mixed number | slice 1 | observed: wording module test overall `2,080 → 2,082 tests (+2); 492 checks (no change)` keeps units apart |
 | 41.1 | Homepage top-down: active comparison and its two builds | slice 1 | observed: IntentCiComparison ActiveComparisonSummary then endpoint table |
 | 41.2 | Homepage top-down: the overall summary | slice 1 | observed: overall counts and timing paragraphs above the entry table |
 | 41.3 | Homepage top-down: then the entry table | slice 1 | observed: EntryComparison after the endpoint table in IntentCiComparison |
-| 42 | Tree shows same cues on file rows and location headers so a developer can find a cued file and confirm numbers in Proof | slice 3 | |
+| 42 | Tree shows same cues on file rows and location headers so a developer can find a cued file and confirm numbers in Proof | slice 3 | observed: tree cues on files and location headers; Proof confirms numbers in same journey |
 | 43 | Location and folder summaries show cues on child rows as the homepage table does | slice 2 | observed: Summary child rows use scopeComparisonCellsOf cues; intent-summary-story-comparison.spec.ts |
 | 44 | Classify each scope's count and duration change once from Intent's single evidence owner and comparison-endpoint read | slice 2 | observed: ciScopeComparisonCues.ts single classifier consumed via scopeComparisonCellsOf / overall*CueOf; no new CI read |
 | 45 | Classification gives direction, strength, or no-cue with a reason | slice 2 | observed: CountCue/DurationCue kinds border\|tint\|none with direction/strength or reason |
-| 46 | Summary, table, tree, location headers, and Proof all consume that classification | slice 3 | |
-| 47 | The tree gains no CI read of its own | slice 3 | |
-| 48 | Cue meanings stay consistent; drilling and selection ask CI nothing again | slice 3 | |
+| 46 | Summary, table, tree, location headers, and Proof all consume that classification | slice 3 | observed: tree consumes classification via treeScopeCellsOf/scopeComparisonCellsOf; Summary/table/Proof already consume it |
+| 47 | The tree gains no CI read of its own | slice 3 | observed: intentTreeComparison uses IntentCiEvidence only; no new CI read |
+| 48 | Cue meanings stay consistent; drilling and selection ask CI nothing again | slice 3 | observed: drilling/selection keep shared evidence; story-changes specs stay green |
 | 49 | Build on existing Intent proof views (endpoint builds and per-entry differences) by adding readable percentages and overall test count | slice 1 | observed: IntentCiComparison keeps endpoint builds; adds overall summary and before→after (Δ[, %]) wording |
-| 50 | Build on North Star rule that text carries every status shown by color | slice 3 | |
+| 50 | Build on North Star rule that text carries every status shown by color | slice 3 | observed: text (aria-label + Proof) carries every cued status also shown by color; North Star |

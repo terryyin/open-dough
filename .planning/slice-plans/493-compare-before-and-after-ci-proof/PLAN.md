@@ -142,7 +142,7 @@ dark theme keeps the same meanings.
 
 ### 3. Cue tree files and location headers with distinct selection and focus
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/tests/intent/intent-story-ci-cues.spec.ts`: a cued
 file row and location header expose the cue state and an accessible name
 with the same words as **Proof**; selecting and keyboard-focusing a cued
@@ -173,7 +173,7 @@ No remaining slice-specific concern was identified in this review.
 
 - Timing measure: slice 1 uses the measure the comparison supplies for
   timing differences. If
-  [plan 492](../492-compare-ci-time-without-runner-waits/PLAN.md) (SEED-256)
+  [plan 492](https://github.com/terryyin/open-dough/blob/46d2ea4a40607fb9085ced0bb5087fe4066a0d03/.planning/slice-plans/492-compare-ci-time-without-runner-waits/PLAN.md) (SEED-256)
   has landed, the overall summary's difference and cue use its estimate
   without runner waits and keep wall time as context; otherwise CI wall
   time. Both plans touch `IntentCiComparison.tsx` and
@@ -209,6 +209,16 @@ No remaining slice-specific concern was identified in this review.
   `ciScopeComparisonCues.ts` with DOM attrs in
   `ciScopeComparisonCuePresentation.ts`; overall strength is the max across
   units.
+- Accepted slice 3 proof:
+  `dashboard/tests/intent/intent-story-ci-cues.spec.ts` (tree file and
+  location-header cues, accessible names matching Proof, selection border
+  with tint retained, change mark beside count cue, no-story none, folder
+  rows uncued); story-changes selection/mark specs stayed green; typecheck.
+- Screenshot review (light/dark × desktop 1280 / phone 390) under
+  `screenshots/tree-ci-cues-*.png`: location header shows duration tint with
+  ready change mark and count edge; selected `a.spec.ts` keeps tint with
+  accent selection border; folder rows keep contains-changes fill without CI
+  cue attrs; dark `prefers-color-scheme` keeps the same cue meanings.
 
 ## Story obligations
 

@@ -1,6 +1,6 @@
 // DOM class names and data attributes for Intent CI comparison cues
 // (`./ciScopeComparisonCues.ts`, `./intent-ci-cues.css`): one place for the
-// overall summary lines and comparison table rows.
+// overall summary lines, comparison table rows, and tree controls.
 
 import type {
   CountCue,
@@ -79,5 +79,21 @@ export function scopeCueRowAttrs(cues: ScopeComparisonCues): CueDataAttrs {
     ...(cues.duration.kind === "none"
       ? { "data-ci-duration-cue-reason": cues.duration.reason }
       : {}),
+  };
+}
+
+// Same cue attrs on an element that already has a base class (location header).
+export function scopeCueElementAttrs(
+  baseClass: string,
+  cues: ScopeComparisonCues | undefined,
+): CueDataAttrs {
+  if (cues === undefined) return { className: baseClass };
+  const cueAttrs = scopeCueRowAttrs(cues);
+  return {
+    ...cueAttrs,
+    className:
+      cueAttrs.className === undefined
+        ? baseClass
+        : `${baseClass} ${cueAttrs.className}`,
   };
 }

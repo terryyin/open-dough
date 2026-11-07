@@ -74,13 +74,25 @@
   white-space: nowrap;
 }
 
-/* A selected row takes the selected fill. Intent gives a selected location
-   that fill across its whole header (./intent-perspective.css), whose name
-   sits outside the rows. */
-.story-review-files li button[aria-pressed="true"],
-.intent-location-header[data-selected] {
+/* A selected row takes the selected fill when no duration tint is present.
+   A duration tint keeps its fill visible: selection uses a distinct accent
+   border beside the inset count edge instead of an accent background that
+   would hide the tint (./intent-ci-cues.css). Intent gives a selected
+   location that treatment across its whole header (./intent-perspective.css). */
+.story-review-files li button[aria-pressed="true"]:not(
+    [class*="intent-ci-cue-duration-"]
+  ),
+.intent-location-header[data-selected]:not([class*="intent-ci-cue-duration-"]) {
   border-color: var(--edge);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.story-review-files li button[aria-pressed="true"][class*="intent-ci-cue-duration-"],
+.intent-location-header[data-selected][class*="intent-ci-cue-duration-"] {
+  /* Accent border as selection outline; duration tint and any inset count
+     or change-mark shadows stay from their own classes. Keyboard focus
+     keeps the shared :focus-visible ring outside. */
+  border-color: var(--accent);
 }
 
 .story-review-files li code {

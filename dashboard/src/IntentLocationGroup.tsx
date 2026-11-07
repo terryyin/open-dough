@@ -1,26 +1,29 @@
-// One configured Intent location as an expandable group
-// (`./IntentBrowser.tsx`): a toggle showing an open or closed book, unlike the
-// folders inside it, discloses the body without changing selection; the name
-// selects the location (and toggles once selected). Nested folders use the
-// shared FileTree's opt-in folder-icon toggle + selectable name.
-// Which folders are open is `./useLocationOpenFolders.ts`'s; a `reveal`
-// request inside the location also scrolls the selected row into view. A
-// selected story's overlay (`./intentStoryOverlay.ts`) supplies the files with
-// their change kinds; a group that contains changes carries a change mark on
-// its header, which keeps its own location background or, when selected, the
-// selected background across the whole header.
-// Selection is the Intent workspace's (`./intentWorkspaceSelection.ts`),
-// passed through the browser. An unsupported kind or a location with no
-// matching files says so by path, kind, and include patterns inside the
-// expanded body.
+// One configured Intent location as an expandable group (`./IntentBrowser.tsx`):
+// book-icon toggle discloses without changing selection; the name selects (and
+// toggles once selected). Nested folders use FileTree's folder-icon toggle +
+// name. Open folders are `./useLocationOpenFolders.ts`'s; `reveal` also scrolls
+// the selected row into view. Overlay files (`./intentStoryOverlay.ts`) carry
+// change kinds; a group with changes marks its header (own background, selected
+// fill, or accent border when a duration tint would hide that fill). Selection
+// is `./intentWorkspaceSelection.ts`. Unsupported kind or empty match explains
+// inside the body. Story comparison: file rows and compared-entry location
+// headers reuse shared cells/cues (`./intentTreeComparison.ts`); folders uncued.
 
 import { useEffect, useRef } from "react";
 import { Book, BookOpen } from "lucide-react";
+import { scopeCueElementAttrs } from "./ciScopeComparisonCuePresentation.ts";
 import { Icon } from "./Icon.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
+import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { locationExplanation } from "./intentLocationExplanation.ts";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
+import { IntentTreeFileRow } from "./IntentTreeFileRow.tsx";
+import {
+  treeComparisonAccessibleName,
+  treeComparisonReadingOf,
+  treeLocationCellsOf,
+} from "./intentTreeComparison.ts";
 import {
   selectionScope,
   type IntentSelection,
@@ -33,30 +36,7 @@ import {
   type TreeReveal,
 } from "./useLocationOpenFolders.ts";
 import "./story-review-files.css";
-
-function FileRow({
-  label,
-  name,
-  selected,
-  onSelect,
-}: {
-  readonly label: string;
-  readonly name: string;
-  readonly selected: boolean;
-  readonly onSelect: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      aria-pressed={selected}
-      onClick={onSelect}
-    >
-      <code>{name}</code>
-    </button>
-  );
-}
+import "./intent-ci-cues.css";
 
 function selectionPhrase(location: IntentLocation): string {
   if (location.include === undefined || location.include.length === 0) {
@@ -84,6 +64,14 @@ function LocationLabel({ location }: { readonly location: IntentLocation }) {
         : null}
     </>
   );
+}
+
+function locationBaseName(location: IntentLocation): string {
+  const patterns =
+    location.include === undefined || location.include.length === 0
+      ? ""
+      : `, ${location.include.join(", ")}`;
+  return `${location.label ?? location.path}, ${location.kind}${patterns}`;
 }
 
 export function IntentLocationGroup({
@@ -146,6 +134,21 @@ export function IntentLocationGroup({
       ?.scrollIntoView({ block: "nearest" });
   }, [reveal, revealHere]);
 
+  const comparison = treeComparisonReadingOf(useIntentCiEvidence());
+  const locationCells = treeLocationCellsOf(comparison, location.path);
+  const locationHeaderAttrs = scopeCueElementAttrs(
+    "intent-location-header",
+    locationCells?.cues,
+  );
+  const locationName =
+    locationCells === undefined || comparison.kind !== "comparison"
+      ? undefined
+      : treeComparisonAccessibleName(
+          locationBaseName(location),
+          locationCells,
+          comparison.afterSide,
+        );
+
   return (
     <section
       ref={sectionRef}
@@ -154,7 +157,7 @@ export function IntentLocationGroup({
       data-contains-changes={containsChanges || undefined}
     >
       <div
-        className="intent-location-header"
+        {...locationHeaderAttrs}
         data-selected={locationSelected || undefined}
       >
         <button
@@ -173,6 +176,9 @@ export function IntentLocationGroup({
           className="sessions-sidebar-section-header intent-location-name"
           data-location-path={location.path}
           aria-pressed={locationSelected}
+          {...(locationName === undefined
+            ? {}
+            : { "aria-label": locationName })}
           onClick={() => {
             if (locationSelected) {
               onToggle();
@@ -216,7 +222,7 @@ export function IntentLocationGroup({
                 },
               }}
               renderFile={({ file, name, selected, onSelect: select }) => (
-                <FileRow
+                <IntentTreeFileRow
                   label={
                     file.change === undefined
                       ? `${location.path}/${file.path}`
@@ -224,6 +230,9 @@ export function IntentLocationGroup({
                   }
                   name={name}
                   selected={selected}
+                  reading={comparison}
+                  path={`${location.path}/${file.path}`}
+                  treeFile={file}
                   onSelect={() => {
                     select(file.path);
                   }}

@@ -40,7 +40,13 @@
   box-shadow: inset var(--ci-cue-border-strong) 0 0 var(--ci-cue-more);
 }
 
-.intent-ci-cue-duration-faster-light {
+/* Tree file buttons beat `.story-review-files button { background: none }`
+   (./story-review.css). Location headers beat their own background
+   (./intent-perspective.css). Selection fill yields to the tint via :not in
+   ./story-review-files.css. */
+.intent-ci-cue-duration-faster-light,
+.story-review-files button.intent-ci-cue-duration-faster-light,
+.intent-location-header.intent-ci-cue-duration-faster-light {
   background: color-mix(
     in srgb,
     var(--ci-cue-faster) var(--ci-cue-tint-light),
@@ -48,7 +54,9 @@
   );
 }
 
-.intent-ci-cue-duration-faster-strong {
+.intent-ci-cue-duration-faster-strong,
+.story-review-files button.intent-ci-cue-duration-faster-strong,
+.intent-location-header.intent-ci-cue-duration-faster-strong {
   background: color-mix(
     in srgb,
     var(--ci-cue-faster) var(--ci-cue-tint-strong),
@@ -56,7 +64,9 @@
   );
 }
 
-.intent-ci-cue-duration-slower-light {
+.intent-ci-cue-duration-slower-light,
+.story-review-files button.intent-ci-cue-duration-slower-light,
+.intent-location-header.intent-ci-cue-duration-slower-light {
   background: color-mix(
     in srgb,
     var(--ci-cue-slower) var(--ci-cue-tint-light),
@@ -64,7 +74,9 @@
   );
 }
 
-.intent-ci-cue-duration-slower-strong {
+.intent-ci-cue-duration-slower-strong,
+.story-review-files button.intent-ci-cue-duration-slower-strong,
+.intent-location-header.intent-ci-cue-duration-slower-strong {
   background: color-mix(
     in srgb,
     var(--ci-cue-slower) var(--ci-cue-tint-strong),
@@ -76,5 +88,12 @@
 .intent-ci-comparison-overall-counts,
 .intent-ci-comparison-overall-timing {
   padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+/* Tree file rows and location headers: keep cue padding so the tint and
+   inset count edge read on the control, distinct from keyboard focus. */
+.story-review-files li button[class*="intent-ci-cue-"],
+.intent-location-header[class*="intent-ci-cue-"] {
   border-radius: var(--radius-sm);
 }
