@@ -3,7 +3,7 @@
 // Claim evidence (without resolution checks) is shared with endpoint recovery
 // so CI comparison can name builds when Review still refuses attribution.
 import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { gitExitedOne, runGit, type GitCall } from "./gitRunner.ts";
+import { gitExitedOne, isAncestor, runGit, type GitCall } from "./gitRunner.ts";
 import { mergeTreeOutput } from "./mergeTreeOutput.ts";
 import {
   publishedStoryEvidence,
@@ -32,13 +32,25 @@ export type CompletedStoryEvidence = CompletedStoryClaimEvidence & {
   readonly resolutions: ReadonlyMap<string, string>;
 };
 
+// When `doneRecordAdded` names the commit that added the story's done record,
+// claims count only as its ancestors: a later claim cannot take over a
+// finished story's recovery.
 export async function completedStoryClaimEvidence(
   story: ReviewedStory,
   completion: string,
   agent: string,
   call: GitCall,
+  doneRecordAdded?: string,
 ): Promise<CompletedStoryClaimEvidence | { explanation: string }> {
-  const evidence = await publishedStoryEvidence(story, completion, call, agent);
+  const evidenceOf = async (owner: string) => {
+    const found = await publishedStoryEvidence(story, completion, call, owner);
+    if (doneRecordAdded === undefined) return found;
+    const claims: string[] = [];
+    for (const claim of found.claims)
+      if (await isAncestor(claim, doneRecordAdded, call)) claims.push(claim);
+    return { ...found, claims };
+  };
+  const evidence = await evidenceOf(agent);
   if (evidence.claims.length === 0 || evidence.commits.length === 0)
     return {
       explanation:
@@ -54,12 +66,7 @@ export async function completedStoryClaimEvidence(
     call,
   )) {
     if (agentNameOf(otherAgent) === expected) continue;
-    const other = await publishedStoryEvidence(
-      story,
-      completion,
-      call,
-      otherAgent,
-    );
+    const other = await evidenceOf(otherAgent);
     if (other.commits.length > 0 && other.claims.length === 0)
       return {
         explanation:

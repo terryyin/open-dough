@@ -1,5 +1,6 @@
 // Shared published-story endpoint facts for Review changes and a story's CI
-// comparison: one history walk recovers the completion, claims, owning
+// comparison: one history walk recovers the completion (tied to the story's own
+// delivery, not trunk's current first-parent path), claims, owning
 // landing merge, recorded mode and story-start bound. Endpoint recovery uses
 // claim history without merge-resolution attribution; Review continues with
 // attribution for commits and resolutions, while comparison looks up builds
@@ -22,6 +23,7 @@ import {
   type CompletedStoryClaimEvidence,
 } from "./storyCompletedCommits.ts";
 import {
+  deliveredCompletion,
   landingOf,
   recordedMode,
   type StoryExecutionMode,
@@ -122,29 +124,37 @@ export async function publishedStoryEndpoints(
         explanation:
           "The published completion record is unreadable or names another story.",
       };
-    const completion = await git(
+    // The commit that added the done record; a later merge carrying it onto
+    // another first-parent path keeps this addition.
+    const doneRecordAdded = await git(
       "log",
-      "--first-parent",
       "-1",
+      "--diff-filter=A",
       "--format=%H",
       at,
       "--",
       file,
     );
-    if (!completion)
+    if (!doneRecordAdded)
       return {
         kind: "unavailable",
         explanation: "Published history is missing the completion revision.",
-      };
-    if (namedCompletion !== undefined && namedCompletion !== completion)
-      return {
-        kind: "unavailable",
-        explanation: "This revision is not the story's published completion.",
       };
     const story = {
       identity,
       profileDirectory: agentProfileDirectoryOf(source),
     };
+    const completion = await deliveredCompletion(
+      story,
+      doneRecordAdded,
+      at,
+      call,
+    );
+    if (namedCompletion !== undefined && namedCompletion !== completion)
+      return {
+        kind: "unavailable",
+        explanation: "This revision is not the story's published completion.",
+      };
     const recordedAgent: unknown = record.agent;
     let agent = typeof recordedAgent === "string" ? recordedAgent : undefined;
     if (agent === undefined) {
@@ -155,16 +165,19 @@ export async function publishedStoryEndpoints(
             "Published execution claim history is shallow, so a unique execution agent cannot be recovered safely.",
         };
       const claiming: string[] = [];
+      // Claims before the done record was added name the execution agent.
       for (const candidate of await publishedStoryAgents(
         story,
-        completion,
+        doneRecordAdded,
         call,
       )) {
-        if (
-          (await publishedStoryEvidence(story, completion, call, candidate))
-            .claims.length > 0
-        )
-          claiming.push(candidate);
+        const before = await publishedStoryEvidence(
+          story,
+          doneRecordAdded,
+          call,
+          candidate,
+        );
+        if (before.claims.length > 0) claiming.push(candidate);
       }
       const [recovered] = claiming;
       if (claiming.length !== 1 || recovered === undefined)
@@ -182,6 +195,7 @@ export async function publishedStoryEndpoints(
       completion,
       agent,
       call,
+      doneRecordAdded,
     );
     if ("explanation" in evidence)
       return { kind: "unavailable", explanation: evidence.explanation };

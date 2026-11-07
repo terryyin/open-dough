@@ -7,12 +7,15 @@ Every completed-story card in Recently done offers **Review changes**, including
 stories completed in a terminal or on another machine with no local launch.
 When no readable workspace or usable captured landing exists, **Published
 completion** shows a fixed comparison reconstructed from the configured
-project's published Git history. The done record's path history identifies the
-completion revision. Its recorded agent identifies the execution owner. Without
-one, recovery requires exactly one valid authored execution claim owner at or
-before that completion; preparation-only, missing, shallow, or multiple-owner
-history supplies no guess. That owner and all discoverable historical owners'
-profiles attribute the story commits. The published commit rule removes those
+project's published Git history. The completion revision is the story's own
+delivery: the newest trunk-first owning merge that integrates the commit that
+added its done record, or that commit itself. A later story's merge that carries
+the existing done record onto a new first-parent path never replaces it. Its
+recorded agent identifies the execution owner, and claims count only when they
+precede the done record. Without a recorded agent, recovery requires exactly one
+valid authored execution claim owner; preparation-only, missing, shallow, or
+multiple-owner history supplies no guess. That owner and all discoverable
+historical owners' profiles attribute the story commits. The published commit rule removes those
 commits from the fixed revision, leaving other stories' interleaved changes out.
 This survives branch and workspace deletion and stays fixed as trunk advances,
 using the same file browser and literal diffs without launch or marking semantics.

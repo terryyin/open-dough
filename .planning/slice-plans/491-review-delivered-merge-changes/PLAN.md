@@ -2,6 +2,7 @@
 
 **Identity:** SEED-253#review-delivered-merge-changes
 **Source:** [Review a completed story including its merge changes](../../seeds/SEED-253-review-delivered-merge-changes.md#review-delivered-merge-changes)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -117,7 +118,7 @@ Excluded:
 
 ### 1. Keep completed-story endpoints tied to the story's own delivery across later merges
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npx playwright test --config dashboard/playwright.config.ts` on
 `story-review-completed.spec.ts`, `story-review-completed-agent-recovery.spec.ts`,
 `story-review-completed-gaps.spec.ts`, and
@@ -171,3 +172,18 @@ direct outside-in proof and no remaining slice-specific concern.
   (`811b9a1ce`) on `origin/main` relocated
   `dashboard/backend-tests/story-review-completed*.spec.ts` to
   `dashboard/backend-tests/review/story-review-completed*.spec.ts`.
+- Slice 1 accepted: `deliveredCompletion` (`dashboard/server/storyPublishedEndpointDerived.ts`)
+  selects the completion from `doneRecordAdded`; the shared private
+  `trunkFirstOwningMerges` walk now serves both it and `landingOf`; `isAncestor`
+  lives in `dashboard/server/gitRunner.ts`; `completedStoryClaimEvidence` takes
+  an optional `doneRecordAdded` claim bound. The later-merge fixture is
+  `laterBranchMergesTrunkAndFastForwards` in
+  `dashboard/tests/support/laterStoryMergesTrunk.ts`. Accepted proof: 59
+  focused Playwright tests (completed-review backend, Review, Intent completed,
+  CI comparison and summary comparison specs) plus typecheck; the new specs
+  failed on `dc81df37b`. Real history at `34e6b696f`: SEED-248 -> `e6948bfce`,
+  SEED-241 -> `c9a142ac3`, SEED-249 -> `328b316e9`, 0.15–0.4 s per story.
+- Learning for slice 2: on base, Story Branch Mode's Intent Landed was already
+  chosen from owning merges, so only Trunk Mode exposed the hijacked completion
+  in Intent; slice 2 specs still assert the merge-attribution refusals and
+  pass unchanged after slice 1.
