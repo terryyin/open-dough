@@ -9,7 +9,10 @@
 // observation is made under those inputs. A fresh demand is answered only by
 // an observation that began after it arrived: it skips settled reuse from
 // earlier, waits out a running observation begun before it, then shares one
-// suitable observation with concurrent fresh demand.
+// suitable observation with concurrent fresh demand. The reuse window is
+// measured by `./observationClock.ts`.
+
+import { observationNow } from "./observationClock.ts";
 
 export type Demanded<T> =
   | { readonly kind: "observed"; readonly value: T }
@@ -108,7 +111,7 @@ export class SharedObservation<T, K extends Key = Key> {
       if (
         settled !== undefined &&
         sameKey(settled.key, key) &&
-        Date.now() - settled.at < this.reuseMs() &&
+        observationNow() - settled.at < this.reuseMs() &&
         begunAfter(settled.generation, after)
       )
         return { kind: "observed", value: settled.value };
@@ -137,7 +140,7 @@ export class SharedObservation<T, K extends Key = Key> {
       (value) => {
         if (this.running !== running) return;
         this.running = undefined;
-        this.settled = { key, generation, at: Date.now(), value };
+        this.settled = { key, generation, at: observationNow(), value };
       },
       () => {
         if (this.running === running) this.running = undefined;

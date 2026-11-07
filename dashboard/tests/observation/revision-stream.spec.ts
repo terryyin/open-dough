@@ -2,7 +2,7 @@
 // instead of recurring `since` checks. Check-delivery keeps ../dashboardTest.ts
 // pre-hold.
 
-import type { Page } from "@playwright/test";
+import type { Page, Request } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
 import { shortRevision, expectSettledPage, parts } from "../dashboardPage.ts";
 import {
@@ -23,6 +23,7 @@ import {
   setPageVisibility,
 } from "../revisionStreamJourney.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
+import { revisionStreamSlotLockNames } from "../../src/revisionStreamSlot.ts";
 import {
   backlogB,
   revisionB,
@@ -45,7 +46,15 @@ test.use({
   extraEnv: streamServerEnv,
 });
 
-test.setTimeout(120_000);
+// Slot requests the browser has queued, across this origin's pages.
+function queuedSlotRequests(page: Page): Promise<number> {
+  return page.evaluate(async (names) => {
+    const { pending = [] } = await navigator.locks.query();
+    return pending.filter(
+      ({ name }) => name !== undefined && names.includes(name),
+    ).length;
+  }, revisionStreamSlotLockNames());
+}
 
 test("a streaming page sends no since request over a quiet minute", async ({
   page,
@@ -189,18 +198,24 @@ test("seven pages of one context: two stream and five check; hiding a holder let
   for (let i = 0; i < 6; i += 1) {
     const next = await page.context().newPage();
     await pausePageClockAt(next, new Date("2026-09-23T09:00:00.000Z"));
-    const streamOpened = next.waitForRequest(
-      (request) => isRevisionStream(request.url()),
-      { timeout: 5_000 },
-    );
+    const seen = { stream: false };
+    const streamOpened = (request: Request) => {
+      if (isRevisionStream(request.url())) seen.stream = true;
+    };
+    next.on("request", streamOpened);
+    const queuedBefore = await queuedSlotRequests(page);
     await next.goto("/");
     await expectSettledPage(next, titlesOfA);
-    const streamed = await Promise.race([
-      streamOpened.then(() => true),
-      next.waitForTimeout(2_000).then(() => false),
-    ]);
+    // A page that found no free slot queues for every slot, and checks.
+    await expect
+      .poll(
+        async () =>
+          seen.stream || (await queuedSlotRequests(page)) > queuedBefore,
+      )
+      .toBe(true);
+    next.off("request", streamOpened);
     pages.push(next);
-    if (streamed) {
+    if (seen.stream) {
       holders.push(next);
     } else {
       checkers.push(next);

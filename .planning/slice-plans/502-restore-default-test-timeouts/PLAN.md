@@ -137,7 +137,7 @@ CI cost):
 ### 2. Dashboard observation completes on controlled events
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Exercise the observation and frontend cadence families with observable
 request/revision progress or controlled clock advancement. Preserve shared
 listings across tabs, hidden and revealed tab behavior, retry timing and
@@ -146,6 +146,22 @@ Its three 14.05s wall-clock waits cover expiration in the server while the
 page clock is already controlled. Drive the server's reuse window through a
 test-controlled clock and recheck the real requests across that boundary.
 Measure the cases whose timeout or shared fixture changes.
+
+Result: all eight overrides removed; one case-local allowance remains. A
+test-only server clock (`dashboard/server/observationClock.ts`, opt-in
+through the harness's `observationClock`) ends the shared reuse window
+without real waiting. Local times at 2 workers, before → after:
+`shared-observer-check-reuse` 44.1 → 1.7s. `revision-stream` seven pages
+12.7 → 2.4s, now polling observed holders. `revision-stream-lost` 21.2 → 7.2s,
+with `Retry-After` 6s still past the wrong-timer window.
+`cursor-runner-sessions-quiet-rate` 14.5 → 1.7s, on stepped page time; the
+runner's label answer keeps its real-time change bound.
+`story-readiness-accessible` 5.6s with no strategy change. Mutation checks
+failed each changed case at its intended assertion. The observation family and
+its consumers ran 383 cases, 382 passed, 1 existing skip, in 236s. The
+remaining `auto-refresh-rate-limit` allowance, 45s for 25.2s in CI, waits on
+the request owner's real clock. It is recorded as the pending candidate
+`auto-refresh-rate-limit-real-waits`; that clock is released payload code.
 
 ### 3. Intent comparison produces its actual endpoint verdict promptly
 

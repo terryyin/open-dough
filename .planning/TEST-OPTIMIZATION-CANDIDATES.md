@@ -2,7 +2,32 @@
 
 ## Pending candidates
 
-None.
+### auto-refresh-rate-limit-real-waits
+
+- **Locations / scope:** `dashboard/tests/observation/auto-refresh-rate-limit.spec.ts`,
+  the one case, with its case-local `test.setTimeout(45_000)`.
+- **Observed cost:** 25.2s in hosted run 42372706379; 21.7s locally before
+  SEED-260 slice 2 and 21.5s after it (2 workers, load about 4–6,
+  2026-11-07). About 20s is real time passing: a 2s `Retry-After` wait, then
+  a `X-RateLimit-Reset` wait of 16–18s.
+- **Unique protection:** the page asks nothing, even when seen again, before
+  GitHub's directed time; the check at that time reads B and clears the
+  failure; a reset-time wait longer than the 15s pace proves the next check
+  follows the directed time, not the pace; the steady pace then returns.
+- **Alternatives attempted:** the page clock is already paused and stepped.
+  The server cannot pass the waits sooner because the request owner
+  (`src/skills/dough-execute-plan/scripts/github-request-admission.mjs`,
+  a separate released-payload process) holds every read by its real clock.
+  The reset wait cannot be shortened below the 15s pace without losing the
+  directed-time-versus-pace distinction. The shared-observation clock seam
+  added in the same slice (`dashboard/server/observationClock.ts`) does not
+  reach the request owner.
+- **Follow-up:** decide whether the request owner may take a test-controlled
+  clock, as the dashboard server's reuse window now does; with it the case
+  can drop the allowance and the real waits. The same seam would remove the
+  6s directed-wait span left in
+  `revision-stream-lost.spec.ts` (rate-limited stream case).
+- **Date:** 2026-11-07
 
 ## Accepted necessary costs
 

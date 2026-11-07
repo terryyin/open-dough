@@ -101,6 +101,9 @@ export const test = base.extend<{
   pathPrefix: readonly string[] | undefined;
   // Listing reuse ms; harness default and meaning live on `startDashboardServer`.
   revisionCheckReuseMs: number | undefined;
+  // Whether the journey runs the server's reuse-window clock itself
+  // (`dashboard.advanceObservationClock`); harness meaning on `startDashboardServer`.
+  observationClock: boolean;
   serverMode: FixtureServerMode;
   // When true (the default), the context pre-holds both stream slots so
   // existing check journeys keep proving check delivery. Stream journeys set
@@ -119,6 +122,7 @@ export const test = base.extend<{
   extraEnv: [undefined, { option: true }],
   pathPrefix: [undefined, { option: true }],
   revisionCheckReuseMs: [undefined, { option: true }],
+  observationClock: [false, { option: true }],
   serverMode: ["preview", { option: true }],
   preholdRevisionStreamSlots: [true, { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
@@ -151,6 +155,7 @@ export const test = base.extend<{
       extraEnv,
       pathPrefix,
       revisionCheckReuseMs,
+      observationClock,
       serverMode,
     },
     use,
@@ -164,6 +169,7 @@ export const test = base.extend<{
       machine,
       codexProtocol,
       revisionCheckReuseMs,
+      observationClock,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
       extraEnv: {
         ...extraEnv,
