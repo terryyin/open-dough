@@ -71,6 +71,9 @@ applies as written.
   Starting revision `ebaee60713325ea4b0852ebc92afda0707d5c9f3`; accepted Take on
   trunk and initial story branch candidate `3d658e9199b15706f03fd885b4857fbd55de0223`.
   The claim's trunk CI is unobserved.
+- Slice 1 accepted on the remote story branch at
+  `9a6efb29730b63a0f392584d85f305fbaeaaa90b` with the Take as its suffix base.
+  The retained branch observer registered that revision.
 - Codex observer for `terryyin/open-dough`, story branch above, GitHub Actions
   `ci.yml` (CI). Coordinator `codex-2d84a6c9-9aab-4971-9d6c-3a2a7f76e753`,
   cell `g43:11`, session `90429`, directory `/tmp/dough-ci-501/watch-D9sE3d`,
@@ -119,3 +122,13 @@ Accepted proof:
 - Independent refactor review found no edits necessary and confirmed that
   the accepted observations still apply, including the disposable derived
   cache behavior in ADR 0008. `git diff --check` and dashboard typecheck passed.
+
+## Execution complete
+
+Product advice: no change. The correction makes the existing Landed proof
+explanation accurate without adding a product promise. The new browser journey
+drives both the initial explanation and the later re-read, while the focused
+module checks isolate the retained reason and nonfinal slot. Keep both levels
+of proof and assimilate the wording into the maintained Intent documentation.
+No correction or process finding was supported by the delivered slice and
+execution record. Branch CI was pending at review.
