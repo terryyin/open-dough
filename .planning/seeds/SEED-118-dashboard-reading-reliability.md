@@ -88,6 +88,35 @@ Diagnostics belong to the recovery story, not a separate metrics product.
 The recovery story has recorded refinement and an associated Slice Plan.
 Preparation records do not authorize implementation.
 
+## CI Timing Comparison Follow-up
+
+<a id="retry-unavailable-ci-comparison-slots"></a>
+
+### Retry unavailable CI comparison slots
+
+**Identity:** SEED-118#retry-unavailable-ci-comparison-slots
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** A developer reviewing a done story in Intent can use **Check again**
+to recover its CI timing comparison in the same dashboard session after a
+temporary read failure leaves Baseline, Branch, or Landed unavailable.
+
+**Scope.** Treat a comparison with an `unavailable` slot as eligible for a
+fresh read. Route **Check again** from the done comparison to that read, keep
+reusing final answers, and document which reads can make further GitHub
+requests in [GitHub request accounting](../../dashboard/GITHUB-REQUESTS.md).
+
+**Evaluation.** Make one endpoint's GitHub run listing fail on the first read,
+then restore it. The comparison shows the reason for the unavailable slot.
+**Check again** reads the slot again and shows its result. Reopening the now
+final comparison reuses the answer. The retry rule covers all three slots.
+
+**Evidence.** The cancelled-landing retrospective identified the cached
+failure and the additional requests introduced by walking later trunk builds.
+[Plan 496 execution-complete record](https://github.com/terryyin/open-dough/blob/8296c54b10b76a6cb654fe565da24a5557bc6025/.planning/slice-plans/496-use-later-ci-proof-for-cancelled-landings/PLAN.md#L202-L216).
+
 ## Breadcrumbs
 
 - Terry's screenshot and report of recurring timeout and CLI 403 messages,
