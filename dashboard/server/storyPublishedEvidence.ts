@@ -57,7 +57,9 @@ export async function publishedStoryAgents(
   return [...new Set(agents)];
 }
 
-// A published story commit and the first parent it is taken out against.
+// A published story change: its commit and the revision it is taken out
+// against, the commit's first parent or, for a merge's own edits, the merge
+// tree without them.
 export interface PublishedCommit {
   readonly commit: string;
   readonly parent: string;

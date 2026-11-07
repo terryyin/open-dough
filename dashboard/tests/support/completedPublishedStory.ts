@@ -13,6 +13,14 @@ import {
   publishCompletedStory,
   resolveStoryConflict,
 } from "./completedStoryPublication.ts";
+import {
+  addIntegrationEdit,
+  addTrunkAgentProfile,
+  editIntegrationMerge,
+  moveAgentsFolder,
+  placeMergeEditFiles,
+  resolveForeignMerge,
+} from "./completedStoryMerges.ts";
 import { keepLaunchRecords, storyALaunchRecord } from "./storyLaunchRecord.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { randomUUID } from "node:crypto";
@@ -32,7 +40,7 @@ export async function completedPublishedStory(
     | "own-conflict"
     | "own-conflict-extra"
     | "completion-conflict"
-    | "ambiguous-merge"
+    | "merge-edit"
     | "inseparable"
     | "unrelated-merge"
     | "non-owning-story-file",
@@ -41,6 +49,7 @@ export async function completedPublishedStory(
   const ownConflict =
     variant === "own-conflict" || variant === "own-conflict-extra";
   writeAt(origin.project, "shared.txt", lines("line"));
+  if (variant === "own-conflict-extra") placeMergeEditFiles(origin.project);
   commitAll(origin.project, "initial shared file");
   push(origin.project);
   const start =
@@ -59,6 +68,7 @@ export async function completedPublishedStory(
   );
   writeAt(workspace, "[literal]*.txt", "delivered on another machine\n");
   change?.(workspace);
+  if (variant === "own-conflict-extra") moveAgentsFolder(workspace);
   commitAll(workspace, "story implementation");
   if (mode === "trunk") push(workspace);
   pull(origin.project);
@@ -67,63 +77,16 @@ export async function completedPublishedStory(
     mode === "trunk"
       ? lines("line").replace("line 0\n", "story first\n")
       : lines("line");
+  const interleaved = shared.replace("line 11\n", "other last\n");
   writeAt(
     origin.project,
     "shared.txt",
-    shared
-      .replace("line 11\n", "other last\n")
-      .replace("line 0\n", ownConflict ? "trunk first\n" : "line 0\n"),
+    interleaved.replace("line 0\n", ownConflict ? "trunk first\n" : "line 0\n"),
   );
+  if (variant === "own-conflict-extra") addTrunkAgentProfile(origin.project);
   commitAll(origin.project, "another writer interleaves");
-  if (variant === "unrelated-merge") {
-    git(origin.project, "checkout", "--quiet", "-b", "unrelated");
-    writeAt(origin.project, "unrelated.txt", "other branch\n");
-    commitAll(origin.project, "another story's branch work");
-    git(origin.project, "checkout", "--quiet", "main");
-    writeAt(origin.project, "unrelated.txt", "other trunk\n");
-    commitAll(origin.project, "another story's trunk work");
-    resolveStoryConflict(
-      origin.project,
-      ["merge", "--quiet", "--no-ff", "--no-edit", "unrelated"],
-      "unrelated.txt",
-      "other story's resolution\n",
-      "resolve another story's conflict",
-    );
-    git(origin.project, "branch", "--delete", "--force", "unrelated");
-  }
-  if (variant === "non-owning-story-file") {
-    // Another merge resolves a file this story also changed; the story's
-    // later merge of main stays automatic so attribution names the foreign
-    // resolution rather than an owning one.
-    git(origin.project, "checkout", "--quiet", "-b", "foreign");
-    writeAt(
-      origin.project,
-      "shared.txt",
-      lines("line")
-        .replace("line 5\n", "foreign five\n")
-        .replace("line 11\n", "other last\n"),
-    );
-    commitAll(origin.project, "foreign branch edits a story file");
-    git(origin.project, "checkout", "--quiet", "main");
-    writeAt(
-      origin.project,
-      "shared.txt",
-      lines("line")
-        .replace("line 5\n", "trunk five\n")
-        .replace("line 11\n", "other last\n"),
-    );
-    commitAll(origin.project, "trunk edits the same story file");
-    resolveStoryConflict(
-      origin.project,
-      ["merge", "--quiet", "--no-ff", "--no-edit", "foreign"],
-      "shared.txt",
-      lines("line")
-        .replace("line 5\n", "foreign resolution of shared\n")
-        .replace("line 11\n", "other last\n"),
-      "resolve foreign conflict on a story file",
-    );
-    git(origin.project, "branch", "--delete", "--force", "foreign");
-  }
+  if (variant === "unrelated-merge" || variant === "non-owning-story-file")
+    resolveForeignMerge(origin.project, variant, interleaved);
   push(origin.project);
   git(workspace, "fetch", "--quiet", "origin", "main");
   if (ownConflict) {
@@ -139,11 +102,8 @@ export async function completedPublishedStory(
   } else {
     git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
   }
-  if (variant === "ambiguous-merge" || variant === "own-conflict-extra") {
-    writeAt(workspace, "merge-resolution.txt", "unattributed resolution\n");
-    git(workspace, "add", "--all");
-    git(workspace, "commit", "--quiet", "--amend", "--no-edit");
-  }
+  if (variant === "own-conflict-extra") editIntegrationMerge(workspace);
+  if (variant === "merge-edit") addIntegrationEdit(workspace);
   if (variant === "takeover" || variant === "returned-takeover") {
     const previous = agentIdentity(agentNameOf(start.agent) ?? "Yui");
     const name = start.agent === "Yui-chan" ? "Akiho" : "Yui";

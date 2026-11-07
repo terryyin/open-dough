@@ -48,8 +48,9 @@ export async function recordedMode(
   return mode === "trunk" || mode === "story-branch" ? mode : undefined;
 }
 
-// The parent that holds story single-parent commits the other parent lacks.
-async function storySideOf(
+// The parent that holds story single-parent commits the other parent lacks;
+// undefined when neither or both do.
+export async function storySideOf(
   first: string,
   second: string,
   storyCommits: readonly string[],

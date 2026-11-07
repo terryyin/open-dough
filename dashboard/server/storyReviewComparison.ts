@@ -132,8 +132,11 @@ export async function listedFrom(
     [...inseparable.keys()].filter((file) => !differed.has(file)),
   );
   if (keptAsOrigin.size > 0) await flagFrom(keptFrom, keptAsOrigin);
+  // A restated file sharing a path with a flagged one, such as the old path
+  // of a renamed inseparable file, is already listed through it.
+  const listed = new Set([...origins.keys(), ...differed]);
   return [
-    ...restated.filter((file) => !touches(file, new Set(origins.keys()))),
+    ...restated.filter((file) => !touches(file, listed)),
     ...flagged.values(),
   ].sort(byPath);
 }

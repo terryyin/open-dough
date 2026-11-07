@@ -20,16 +20,23 @@ commits from the fixed revision, leaving other stories' interleaved changes out.
 This survives branch and workspace deletion and stays fixed as trunk advances,
 using the same file browser and literal diffs without launch or marking semantics.
 
-A completion with no recoverable agent, incomplete claims, unreadable Git objects,
-or unresolvable merge attribution explains the gap instead of guessing or showing
-an empty successful comparison. Clean merges are checked against Git's automatic
-merge tree. Resolutions in the owner's or completion integrations confined to Git's
-actual conflict paths show those files with “includes trunk's changes”, compared
-from before the execution claims; other files keep normal story attribution.
-Edits outside those conflict paths still refuse the comparison. Inseparable
-changes retain that mixed-work explanation and their own declared comparison base.
-Other stories' resolutions leave the comparison available unless they affect this
-story's attributed paths, which still require evidence to separate their changes.
+A completion with no recoverable agent, incomplete claims, unreadable Git
+objects, a merge with more than two parents, or an unsupported `git merge-tree`
+explains that gap instead of guessing or showing an empty successful
+comparison. Each of the owner's or the completion's integrations is checked against Git's automatic merge
+tree. Its genuine conflict paths show those files with “includes trunk's
+changes”, compared from before the execution claims. Its edits on paths Git did
+not report as conflicted, such as an added file or a renamed test, are the
+story's: they are taken out like a story commit, against the merge tree with
+only those edits undone, so they appear with their diffs. A path `merge-tree`
+reported only through directory-rename heuristics, which the story branch did
+not change and the merge kept as its trunk parent had it, such as another
+agent's restored profile, is neither listed nor flagged. Other stories'
+resolutions stay trunk's: taking the story's commits out through them isolates
+the story's change, or marks the file “includes trunk's changes” when the
+concurrent work overlapped it. Other files keep normal story attribution, and
+inseparable changes retain that mixed-work explanation and their own declared
+comparison base.
 Historical file requests must match the configured project, exact story,
 completion revision, comparison objects, and a literal listed file. Opening
 and Refresh fetch published history; selecting a historical file validates

@@ -127,12 +127,6 @@ for (const variant of [
       panel.locator(".intent-ci-comparison-wall").nth(2),
     ).toContainText("+1 min");
     await expect(panel).not.toContainText("Entry comparison is not yet shown.");
-    await expect(panel).not.toContainText(
-      "merge resolutions whose story changes cannot be attributed safely",
-    );
-    await expect(panel).not.toContainText(
-      "merge resolutions affecting this story's files whose changes cannot be attributed safely",
-    );
     await expectCiComparisonEntryRows(panel, comparisonEntryRows);
   });
 }

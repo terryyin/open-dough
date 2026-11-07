@@ -12,7 +12,7 @@ test.use({ serverMode: "boundary" });
 for (const variant of [
   undefined,
   "unrelated-merge",
-  "ambiguous-merge",
+  "merge-edit",
   "own-conflict-extra",
   "non-owning-story-file",
 ] as const) {
@@ -40,27 +40,11 @@ for (const variant of [
       completedReviewQuery,
     );
     expect(response.status()).toBe(200);
-    if (
-      variant === "ambiguous-merge" ||
-      variant === "own-conflict-extra" ||
-      variant === "non-owning-story-file"
-    ) {
-      const explanation =
-        variant === "non-owning-story-file"
-          ? "merge resolutions affecting this story's files whose changes cannot be attributed safely"
-          : "merge resolutions whose story changes cannot be attributed safely";
-      expect(await response.json()).toMatchObject({
-        kind: "unavailable",
-        explanation: expect.stringContaining(explanation),
-      });
-      expect(await response.json()).not.toHaveProperty("files");
-    } else {
-      expect(await response.json()).toMatchObject({
-        kind: "published",
-        files: expect.arrayContaining([
-          expect.objectContaining({ path: "shared.txt" }),
-        ]),
-      });
-    }
+    expect(await response.json()).toMatchObject({
+      kind: "published",
+      files: expect.arrayContaining([
+        expect.objectContaining({ path: "shared.txt" }),
+      ]),
+    });
   });
 }

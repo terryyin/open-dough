@@ -121,10 +121,9 @@ attempt, state and whether it is exact or a measured ancestor, with CI wall
 time and signed whole-second differences framed as observations between single
 builds (not attributed to the story), then entry rows with each endpoint's
 cumulative test execution time. Endpoint recovery for those builds is
-independent of Review changes' merge-resolution attribution; a Review
-attribution refusal does not suppress the comparison at homepage, entry,
-folder or file scopes. A selected **Taken** Story Branch story keeps that live
-judgment and adds the same comparison against the pre-story baseline, with the
+independent of Review changes' merge attribution; a Review gap does not
+suppress the comparison at homepage, entry, folder or file scopes. A selected
+**Taken** Story Branch story keeps that live judgment and adds the same comparison against the pre-story baseline, with the
 latest completed branch build labelled provisional and Landed saying the story
 has not landed yet; a new branch head re-reads it. A selected **Taken** Trunk
 Mode story shows that provisional trunk comparison (Branch not applicable,

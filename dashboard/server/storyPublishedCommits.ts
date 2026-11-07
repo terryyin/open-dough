@@ -76,9 +76,10 @@ export async function trunkLess(
     for (const file of restated.inseparable) pending.add(file);
     if (pending.size === 0) continue;
     // An older story commit that also changed the path moves its origin
-    // back to that commit's parent.
-    const names = ["diff-tree", "--no-commit-id", "-r", "--name-only", "-z"];
-    const changed = new Set((await git(...names, commit)).split("\0"));
+    // back to that commit's parent, which for a merge's own edits is the
+    // merge tree without them.
+    const names = ["diff-tree", "-r", "--name-only", "--no-renames", "-z"];
+    const changed = new Set((await git(...names, parent, commit)).split("\0"));
     const before = await treeOf(parent);
     for (const file of pending) {
       if (changed.has(file) || !inseparable.has(file)) {

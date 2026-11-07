@@ -136,7 +136,7 @@ explanations remain intact.
 
 ### 2. Include merge and landing edits in completed-story review and mark mixed changes
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npx playwright test --config dashboard/playwright.config.ts` on
 `story-review-completed-conflicts.spec.ts`,
 `story-review-completed-driver.spec.ts`,
@@ -187,3 +187,17 @@ direct outside-in proof and no remaining slice-specific concern.
   chosen from owning merges, so only Trunk Mode exposed the hijacked completion
   in Intent; slice 2 specs still assert the merge-attribution refusals and
   pass unchanged after slice 1.
+- Slice 2 accepted: `owningMergeEdits` (`dashboard/server/storyCompletedMergeEdits.ts`)
+  decomposes each owning or completion merge using the exported `storySideOf`;
+  both merge-attribution refusals are deleted; `trunkLess` diffs with
+  `--no-renames` and accepts a pre-edit merge tree as parent; `listedFrom`
+  keeps from `less.tree` and drops restated old paths already differed.
+  Fixture variants: `own-conflict-extra` covers key example 1 (conflict,
+  integration edit, renamed test, restored `agents/other.json`), `merge-edit`
+  replaces `ambiguous-merge`, `non-owning-story-file` overlaps in Trunk Mode.
+  Accepted proof: 207 focused Playwright tests over completed and live review,
+  Intent overlay, CI comparison and summary comparison specs, plus typecheck;
+  new scenarios failed on `5cdb4f04d`. Real history: SEED-246 20 files 0 mixed
+  (no agent profile), SEED-248 33 files 5 mixed at `e6948bfce`, SEED-249 877
+  files 2 mixed, about 1 s each. Unsupported `merge-tree` observed only through
+  a coordinator real-history probe with a `git` shim; no durable spec forces it.
