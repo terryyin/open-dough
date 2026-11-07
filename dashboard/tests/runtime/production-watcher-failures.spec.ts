@@ -54,7 +54,6 @@ const preparing = (commit: string) =>
   );
 
 test.beforeAll(async ({ browser }) => {
-  test.setTimeout(120_000);
   fixture = await publishedMainFixture(true);
   deployments = productionDeployments(fixture.home);
   page = await browser.newPage();

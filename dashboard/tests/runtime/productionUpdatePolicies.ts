@@ -22,8 +22,7 @@ const publishedPolicy = (workflow: string) =>
   );
 
 export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
-  test("npm watcher skips excluded-only main ranges, builds accumulated and mixed ranges once at the latest commit, and follows the published CI policy over a different local workflow", async () => {
-    test.setTimeout(150_000);
+  test("npm watcher skips an excluded-only main range without install, build or restart", async () => {
     const state = journey.started();
     const { fixture, page, watcher } = state;
     const baseline = state.built.at(-1) ?? "";
@@ -43,6 +42,12 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     expect(processRunning(state.served.pid)).toBe(true);
     await page.reload();
     await expect(page).toHaveTitle("MAIN C");
+  });
+
+  test("npm watcher builds an accumulated and mixed range once at its latest commit", async () => {
+    const state = journey.started();
+    const { fixture, page, watcher } = state;
+    const before = await journey.work();
 
     // The published policy and application, then documentation alone, reach
     // main together. Their whole range builds the latest commit exactly once.
@@ -64,6 +69,12 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
       prefixesOf(state.built),
     );
     expect((await journey.work()).preparing).toBe(before.preparing + 1);
+  });
+
+  test("npm watcher follows the published CI policy over a different local workflow", async () => {
+    const state = journey.started();
+    const { fixture, page, watcher } = state;
+    const e = state.built.at(-1) ?? "";
 
     // The development checkout keeps a different, uncommitted workflow.
     await writeFile(

@@ -237,13 +237,28 @@ owns the elapsed 300ms sleep at
 ### 6. Dashboard deployment proves pinned serving and clean replacement
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Profile the production fixture's copy, install, build, activation and
 cleanup. Remove the hook overrides by reducing the setup cost or sharing only
 read-only prerequisites, then run `production-deployment.spec.ts` and the
 complete `production-watcher*.spec.ts` chains. Verify the real pinned build,
 replacement at the same URL and retirement of the superseded checkout. Retain
 hook and file timings, including when the success cases pass individually.
+
+Result: all three hook overrides and this slice's case overrides removed. One
+case-local allowance remains. The published-main fixture's first add uses one
+pack (`core.bigFileThreshold=1`): `git add` under contention went from about
+6s to 0.8s. The watcher and update hooks now only prepare; their first case
+waits for and asserts the first activation. The held two-build update case
+and the policy case became serial steps with every assertion kept: two tests
+became five, changing three identities. Local hook times, before → after:
+lifecycle 13.9 → 4.5s, updates 13.5 → 5.4s, failures 10.5 → 7.5s. Local file
+times: 36.1 → 30.4s, 78.8 → 67.4s, 52.6 → 48.4s. The seven production specs
+ran 31/31. Under six workers at load 14 the hooks stayed within 20.1s and
+the owned cases within 19.0s. The deployment case keeps `test.setTimeout(45_000)`
+(32.1s hosted before; 7.3s local after) as the pending candidate
+`production-deployment-pinned-build`. Slice 10 reads its new hosted time and
+removes the allowance when the margin supports it.
 
 ### 7. Watcher recovery retains the previous successful baseline
 

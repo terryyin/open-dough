@@ -57,7 +57,9 @@ test("deployment verifies the exact selected commit before running its code", as
 test("deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries", async ({
   request,
 }) => {
-  test.setTimeout(240_000);
+  // Real full-source install, build and preview: 32.1s in hosted CI
+  // (.planning/TEST-OPTIMIZATION-CANDIDATES.md#production-deployment-pinned-build).
+  test.setTimeout(45_000);
   const fixture = await publishedMainFixture(true);
   let staged: Awaited<ReturnType<typeof stageDeployment>> | undefined;
   let preview: Awaited<ReturnType<typeof startDeploymentPreview>> | undefined;

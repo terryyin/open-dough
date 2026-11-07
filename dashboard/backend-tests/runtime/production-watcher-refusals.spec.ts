@@ -4,13 +4,7 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import { dashboardCommand } from "../../tests/support/dashboardCommand.ts";
 import { publishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
 
-// The fixture commits this repository's whole source (about 2s alone, about
-// 20s while other workers commit theirs, most of it in `git add`), and the
-// four commands follow it; give it its own budget, as the other full-source
-// production specs have, so a busy machine cannot starve it inside the
-// default per-test timeout.
 test("npm watcher refuses invalid options and an origin without published main", async () => {
-  test.setTimeout(120_000);
   const fixture = await publishedMainFixture(true);
   try {
     for (const [args, reason] of [

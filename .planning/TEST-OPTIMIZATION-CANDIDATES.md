@@ -29,6 +29,32 @@
   `revision-stream-lost.spec.ts` (rate-limited stream case).
 - **Date:** 2026-11-07
 
+### production-deployment-pinned-build
+
+- **Locations / scope:** `dashboard/tests/runtime/production-deployment.spec.ts`,
+  the pinned install, build and serve case, with its case-local
+  `test.setTimeout(45_000)`.
+- **Observed cost:** 32.1s in hosted run 42372706379. Locally 10.4s before
+  SEED-260 slice 6 and 7.3s after it (2 workers, load about 2–4); 15.5–28.5s
+  in a six-worker repeated family run at load about 14 (2026-11-08).
+- **Unique protection:** the pinned commit, not the later main, is fetched,
+  installed with `npm ci`, built and served from its own checkout outside
+  development, with local cartoons and supplied icons, the preview boundaries,
+  and a clean preview stop recorded in its incident record.
+- **Alternatives attempted:** the full-source fixture now adds its copy in one
+  pack (`core.bigFileThreshold=1`), which removed most of its contended
+  `git add` cost. The remaining cost is the real dependency install (about
+  11,000 files) and Vite build the case proves; a substitute or shared build
+  would lose that proof, and moving staging into a shared hook would only
+  move the cost there.
+- **Disposition / rationale:** pending — the case keeps the smallest
+  allowance above its measured hosted cost until hosted timing after the
+  fixture change shows whether it is still needed.
+- **Date:** 2026-11-08
+- **Evidence / follow-up:** read this case's hosted duration after slice 6. If
+  it stays well inside 30s, drop the allowance; otherwise decide whether a
+  cheaper dependency set may stand in for the full install.
+
 ## Accepted necessary costs
 
 ### story-review-completed-journey-landed-runs-tail
@@ -97,7 +123,12 @@
   additive local suite-wall savings; the chain showed no reliable elapsed
   improvement. After SEED-221 removed the attention journey's two poll waits,
   focused runs took 6.1–7.0s against a 36.1–36.2s baseline (local, load
-  12.6–13.3, 2026-11-02).
+  12.6–13.3, 2026-11-02). SEED-260 slice 6 added the full-source fixture in one
+  pack and moved the first activation from the lifecycle and update hooks into
+  the first test that asserts it. Their hooks went from 24.1s and 28.6s in CI
+  (13.9s and 13.5s locally) to 4.5s and 5.4s locally, and the failure file's
+  hook from 10.5s to 7.5s, all at the default timeout. The two-build held
+  update and the policy case were split into serial steps.
 - **Unique protection:** attention reporting remains durable and readable
   through column changes, retirement, restart, Mark as read, and Mark as done;
   production-watcher journeys retain real activation, published-policy,

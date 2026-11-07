@@ -76,10 +76,11 @@ export function productionUpdateJourney() {
   let development: ReturnType<typeof dashboardCommand> | undefined;
   let watcher: ProductionWatcher | undefined;
   let page: Page | undefined;
+  let prepared: Omit<Started, "served" | "built"> | undefined;
   let state: Started | undefined;
   function started(): Started {
     if (state === undefined)
-      throw new Error("The file's setup did not complete");
+      throw new Error("The watcher's first activation was not observed");
     return state;
   }
   function shared(): Shared {
@@ -88,8 +89,10 @@ export function productionUpdateJourney() {
       throw new Error("The shared record has not been supplied");
     return record;
   }
+  // Setup publishes A and starts the watcher; the first test observes A's
+  // activation through `activated()`, so the shared hook holds only the
+  // preparation.
   test.beforeAll(async ({ browser }) => {
-    test.setTimeout(180_000);
     fixture = await publishedMainFixture(true);
     hosts = await publishedMainHosts(fixture);
     const { env } = hosts;
@@ -126,11 +129,8 @@ export function productionUpdateJourney() {
     const dev = await developmentDashboard(fixture.development, env);
     development = dev.command;
     watcher = startProductionWatcher(fixture.development, env);
-    const served = await productionActivation(watcher, a);
     page = await browser.newPage();
-    await page.goto(served.url);
-    await expect(page).toHaveTitle("MAIN A");
-    state = {
+    prepared = {
       fixture,
       hosts,
       page,
@@ -141,8 +141,6 @@ export function productionUpdateJourney() {
       configured,
       configurationIdentity,
       a,
-      served,
-      built: [a],
     };
   });
   test.afterAll(async () => {
@@ -153,6 +151,16 @@ export function productionUpdateJourney() {
     await hosts?.close();
   });
   return {
+    // Waits for the watcher to serve A and shows A's page.
+    activated: async () => {
+      if (prepared === undefined)
+        throw new Error("The file's setup did not complete");
+      const served = await productionActivation(prepared.watcher, prepared.a);
+      await prepared.page.goto(served.url);
+      await expect(prepared.page).toHaveTitle("MAIN A");
+      state = { ...prepared, served, built: [prepared.a] };
+      return state;
+    },
     started,
     shared,
     stopped: () => {
@@ -180,7 +188,6 @@ export function productionUpdateShutdown(journey: ProductionUpdateJourney) {
   test("SIGTERM while a commit is in its real build ends that build, the served preview and every deployment checkout, and leaves shared records and configuration untouched", async ({
     request,
   }) => {
-    test.setTimeout(90_000);
     const state = journey.started();
     const { fixture, watcher: running } = state;
     const store = path.join(

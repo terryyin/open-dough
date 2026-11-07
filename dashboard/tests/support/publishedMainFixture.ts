@@ -91,7 +91,10 @@ export async function publishedMainFixture(fullSource = false) {
         "-m",
         message,
       );
-    await git("add", "--all");
+    // Streams the whole source straight into one pack instead of thousands of
+    // loose objects, which dominated setup while other workers did the same.
+    // Only this first addition is affected; contents and commits are not.
+    await git("-c", "core.bigFileThreshold=1", "add", "--all");
     await record("Fixture source", "--allow-empty");
     // Commits exactly the requested path changes on local main.
     const commit = async (changes: PathChanges, message: string) => {
