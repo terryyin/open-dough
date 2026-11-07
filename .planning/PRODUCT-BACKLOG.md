@@ -31,10 +31,10 @@ intent introduced or affected by a newly developed story.
 - [Hide a client project from the dashboard while keeping it maintained](seeds/SEED-250-hide-client-project-from-dashboard.md#hide-client-project-from-dashboard) — SEED-250#hide-client-project-from-dashboard ([plan](slice-plans/476-hide-client-project-from-dashboard/PLAN.md))
 - [Extract Dashboard Frontend Test as a separate entry](seeds/SEED-252-extract-dashboard-frontend-tests.md#extract-dashboard-frontend-tests) — SEED-252#extract-dashboard-frontend-tests ([plan](slice-plans/488-extract-dashboard-frontend-tests/PLAN.md))
 - [Review and allocate source commitments before delegating the first Behavior slice](seeds/SEED-010-learn-from-execution-retrospectives.md#review-source-promises-before-first-slice) — SEED-010#review-source-promises-before-first-slice ([plan](slice-plans/489-review-source-promises-before-first-slice/PLAN.md))
+- [Name the hosted-proof observation step for progress-published slices](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-progress-revision-before-slice-done) — SEED-010#observe-progress-revision-before-slice-done ([plan](slice-plans/490-observe-progress-revision/PLAN.md))
 
 ## Backlog list
 
 - [Review a completed story including its merge changes](seeds/SEED-253-review-delivered-merge-changes.md#review-delivered-merge-changes) — SEED-253#review-delivered-merge-changes
-- [Name the hosted-proof observation step for progress-published slices](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-progress-revision-before-slice-done) — SEED-010#observe-progress-revision-before-slice-done
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
