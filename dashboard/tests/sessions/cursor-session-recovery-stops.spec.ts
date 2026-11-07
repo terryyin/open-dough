@@ -29,7 +29,6 @@ test("missing workspace, trust, unreachable runner, and unclassified exit explai
   origin,
   cursor,
 }) => {
-  test.setTimeout(180_000);
   await openTakenCursorSession(page, origin);
   await endHeldClient(page, cursor, dashboard.home);
   const file = path.join(

@@ -40,8 +40,6 @@ import { idleBetweenSteps, markDoneAnyway } from "../support/markDone.ts";
 import { closeSidePanel } from "../pageLayout.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
 
-test.setTimeout(120_000);
-
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
 const openDoughStories = {

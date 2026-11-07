@@ -26,8 +26,6 @@ import { expectSettledPage } from "../dashboardPage.ts";
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 
-test.setTimeout(120_000);
-
 test("a Taken card offers Start with the words while this machine keeps a start with no session, and Start opens the session in the same workspace", async ({
   page,
   dashboard,

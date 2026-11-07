@@ -28,14 +28,11 @@ import {
   unchangedFileRow,
 } from "../support/summaryComparisonFileExpectedRows.ts";
 
-test.setTimeout(240_000);
-
 for (const variant of [undefined, "own-conflict-extra"] as const) {
   test(`a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison with ${variant ?? "clean merges"}`, async ({
     page,
     origin,
   }) => {
-    test.slow();
     const setup = await publishSummaryComparisonStory(page, origin, variant);
     const { intent } = await selectDoneStoryForSummaryComparison(page);
 

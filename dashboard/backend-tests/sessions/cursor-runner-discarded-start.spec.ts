@@ -25,7 +25,6 @@ const runnerMain = path.join(
 );
 
 test("a runner exits when its starter directory was removed before it started", async () => {
-  test.setTimeout(30_000);
   const root = mkdtempSync(path.join(tmpdir(), "dough-runner-discarded-"));
   const home = path.join(root, "home");
   mkdirSync(home);
@@ -52,7 +51,6 @@ test("a runner exits when its starter directory was removed before it started", 
 });
 
 test("a runner started for one home does not remain under another after that home is removed", async () => {
-  test.setTimeout(30_000);
   const root = mkdtempSync(path.join(tmpdir(), "dough-runner-home-"));
   const requested = path.join(root, "home");
   const other = path.join(root, "other");

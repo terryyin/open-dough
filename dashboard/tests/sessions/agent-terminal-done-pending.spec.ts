@@ -35,7 +35,6 @@ const headerMarkAsDone = (panel: Locator) =>
 test.describe("pending Mark as done from the terminal", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

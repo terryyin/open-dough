@@ -23,8 +23,6 @@ import {
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
 
-test.setTimeout(90_000);
-
 const wallTime = "CI wall time 3 min.";
 const notRecorded =
   "not recorded: this summary has no test execution durations";

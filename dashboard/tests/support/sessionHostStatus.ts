@@ -54,7 +54,6 @@ export function noteHostReads(page: Page) {
 export function statusJourney(test: typeof dashboardTest) {
   let journey: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     journey = await publishStoryColumnsJourney();
   });
   test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());

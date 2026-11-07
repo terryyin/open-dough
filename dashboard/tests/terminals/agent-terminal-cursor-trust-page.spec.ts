@@ -18,7 +18,6 @@ test("a fitted terminal restores the held trust rendition and hidden cursor on j
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 780, height: 700 });
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,

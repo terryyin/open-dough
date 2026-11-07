@@ -46,7 +46,6 @@ test("Mark as done in the terminal closes a session with an unread report as any
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const story = await launchedStory(dashboard, origin, queuedIdentity, titleA);
   const { sessionId } = story;
   await story.report();
@@ -94,7 +93,6 @@ test("in the terminal, a session with a read completed report that reads Ready f
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const story = await launchedStory(dashboard, origin, queuedIdentity, titleA);
   await story.report();
   dashboard.claudeSessionBecomes(story.sessionId, "done-live");

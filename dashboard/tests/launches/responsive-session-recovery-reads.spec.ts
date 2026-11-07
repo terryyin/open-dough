@@ -63,7 +63,6 @@ test("no story's Start is offered before this machine's launch evidence answers,
   page,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const { story } = await openStories(page, origin);
   const start = story.getByRole("button", { name: "Start execution" });
   await expect(start).toBeEnabled();
@@ -105,7 +104,6 @@ test("a lost acceptance answer keeps the story protected statically with Recheck
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const push = origin.holdPushes();
   dashboard.claudeScenario("held");
   const { story, takenStory, other } = await openStories(page, origin);

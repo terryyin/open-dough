@@ -96,7 +96,6 @@ test.describe("cross-server accept of one story", () => {
     );
 
   test("while the attempt lock is held, a second server waits, then refuses after the first attempt is written", async () => {
-    test.setTimeout(120_000);
     const waited = path.join(origin.machine, "lock-waited");
     const production = await serverOn(
       "production",
@@ -140,7 +139,6 @@ test.describe("cross-server accept of one story", () => {
   });
 
   test("simultaneous accepts from two servers start one story once", async () => {
-    test.setTimeout(120_000);
     const development = await serverOn("development");
     const production = await serverOn("production");
     development.claudeScenario("held");
@@ -167,7 +165,6 @@ test.describe("cross-server accept of one story", () => {
   });
 
   test("simultaneous accepts for different stories from two servers are both accepted", async () => {
-    test.setTimeout(120_000);
     const development = await serverOn("development");
     const production = await serverOn("production");
     development.claudeScenario("held");

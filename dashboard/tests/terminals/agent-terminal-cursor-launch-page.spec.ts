@@ -21,7 +21,6 @@ test("an instructed Cursor start shows that run and accepts typing", async ({
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const original = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
@@ -73,7 +72,6 @@ test("a session started before the page first read the machine's sessions still 
   page,
   origin,
 }) => {
-  test.setTimeout(120_000);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),

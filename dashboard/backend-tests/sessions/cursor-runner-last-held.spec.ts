@@ -13,7 +13,6 @@ import {
 import { killCursorRunnerLeavingAddress } from "../../tests/support/cursorRunnerRecordedAddress.ts";
 
 test("keep publishes last-held keys; hangup removes one; kill-leaving-address retains them", async () => {
-  test.setTimeout(60_000);
   const fixture = startRunnerProofFixture();
   try {
     const firstId = fixture.cursor.sessionId;

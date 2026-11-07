@@ -23,7 +23,6 @@ import {
 import { processRunning } from "../../tests/support/processGroup.ts";
 
 test("a runner whose recorded helper path drifted is left by start-if-absent and kept for the next launch", async () => {
-  test.setTimeout(60_000);
   test.skip(
     cursorRunnerSpawnHelper() === undefined,
     "this install's node-pty ships no separate terminal helper",
@@ -72,7 +71,6 @@ test("a runner whose recorded helper path drifted is left by start-if-absent and
 });
 
 test("a runner whose wire helper file was deleted is left by start-if-absent and kept when new work restores that file from this install", async () => {
-  test.setTimeout(60_000);
   test.skip(
     cursorRunnerSpawnHelper() === undefined,
     "this install's node-pty ships no separate terminal helper",
@@ -122,7 +120,6 @@ test("a runner whose wire helper file was deleted is left by start-if-absent and
 });
 
 test("the production deployment shape: neither ensure nor the first real launch hangs up a same-build runner after its checkout helper was deleted", async () => {
-  test.setTimeout(60_000);
   test.skip(
     cursorRunnerSpawnHelper() === undefined,
     "this install's node-pty ships no separate terminal helper",

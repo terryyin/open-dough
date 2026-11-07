@@ -63,7 +63,6 @@ const withheldGoal = "Only GitHub's limit keeps this record unread.";
 test("two tabs recover together once the wait ends, each question reaching GitHub once", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   await pausePageClockAt(page, opened);
   const github = githubFor(page);
   const answers = limiting(

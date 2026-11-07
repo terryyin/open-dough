@@ -23,8 +23,6 @@ import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import { httpErrorAnswer } from "../originAnswers.ts";
 import type { CiAnswerer, CiRunAnswer } from "../support/baseCiActions.ts";
 
-test.setTimeout(90_000);
-
 test("a warm Intent show returns the kept answer labelled previously retrieved with a spinner until the fresh answer replaces it", async ({
   page,
 }) => {

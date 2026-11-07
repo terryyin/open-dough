@@ -15,7 +15,6 @@ test("delayed run and file responses leave the later run selected through narrow
   origin,
   codexProtocol,
 }) => {
-  test.setTimeout(90_000);
   if (codexProtocol === undefined) throw new Error("No native fixture");
   const { first, second } = await reviewChoices(
     dashboard,

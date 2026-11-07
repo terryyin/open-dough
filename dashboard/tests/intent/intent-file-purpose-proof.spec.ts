@@ -22,8 +22,6 @@ import {
 } from "../intentSummaryCiProofFixtures.ts";
 import { summaryTextZipAnswer } from "../support/ciProofCollected.ts";
 
-test.setTimeout(90_000);
-
 test("a selected file offers Purpose source and Proof CI results, keeping the chosen tab across files", async ({
   page,
 }) => {

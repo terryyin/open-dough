@@ -29,11 +29,8 @@ import {
 } from "../touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-// Bound the native input journey separately from its beforeAll setup.
-test.setTimeout(60_000);
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
-  test.setTimeout(120_000);
   journey = await publishStoryColumnsJourney();
 });
 test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());

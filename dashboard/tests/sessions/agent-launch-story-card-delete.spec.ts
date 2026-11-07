@@ -38,7 +38,6 @@ const question =
 test.describe("deleting a card's session record", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

@@ -29,7 +29,6 @@ for (const count of [1, 2]) {
     dashboard,
     launchJourney,
   }) => {
-    test.setTimeout(90_000);
     dashboard.claudeScenario("hang");
     const { card, start, acceptedAt } = await uncertainLaunch(
       page,

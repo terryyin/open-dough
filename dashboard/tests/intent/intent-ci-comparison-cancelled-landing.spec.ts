@@ -26,13 +26,10 @@ import {
 import { wall } from "../support/storyCiComparisonFixture.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 
-test.setTimeout(240_000);
-
 test("a cancelled landing merge uses the next trunk push's passing build as a later build", async ({
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
   const landing = setup.landingMerge ?? setup.completion;
   const later = laterTrunkRevisions(origin.origin, landing);
@@ -76,7 +73,6 @@ test("a cancelled landing merge passes two cancelled trunk builds and counts thr
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
   const landing = setup.landingMerge ?? setup.completion;
   const later = laterTrunkRevisions(origin.origin, landing);
@@ -130,7 +126,6 @@ test("a cancelled landing merge uses a failed later trunk build with proof, labe
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
   const landing = setup.landingMerge ?? setup.completion;
   serveEarlierLandingWithLandedOutcome(setup, "cancelled", {
@@ -161,7 +156,6 @@ test("a fast-forward landing whose story tip's run was cancelled uses the next t
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishFastForwardLandedStory(page, origin);
   const tip = setup.completion;
   const later = laterTrunkRevisions(origin.origin, tip);

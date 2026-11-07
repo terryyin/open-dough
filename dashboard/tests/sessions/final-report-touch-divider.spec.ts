@@ -14,7 +14,6 @@ import { dragDivider, expectWidth, keyStep } from "../sidePanelWidthPage.ts";
 test.use({ projectFolders: ["open-dough"], hasTouch: true });
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
-  test.setTimeout(120_000);
   journey = await publishStoryColumnsJourney();
 });
 test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());

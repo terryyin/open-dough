@@ -21,8 +21,6 @@ import {
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 
-test.setTimeout(120_000);
-
 // The accessible disclosure check taps the dependencies summary.
 test.use({ hasTouch: true });
 

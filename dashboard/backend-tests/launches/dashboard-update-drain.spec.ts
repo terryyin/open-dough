@@ -15,7 +15,6 @@ import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { settledOutcome } from "../../tests/acceptedAttempts.ts";
 
 test("update drain closes admission and waits through published execution start and durable native confirmation", async () => {
-  test.setTimeout(90_000);
   const origin = await startOrigin();
   const server = await startDashboardServer({
     mode: "boundary",

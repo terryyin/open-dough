@@ -11,13 +11,10 @@ import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixt
 import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 
-test.setTimeout(240_000);
-
 test("expired entry proofs keep wall times and explain the entry gap", async ({
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishComparedStoryBranch(page, origin);
   setup.serveProofs({
     101: { kind: "expired", artifactId: 1001 },
@@ -43,7 +40,6 @@ test("a summary without durations and a part without duration leave totals expla
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishComparedStoryBranch(page, origin);
   setup.serveProofs(
     untimedBaselineMixedProofs({

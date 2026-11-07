@@ -50,7 +50,6 @@ test.use({
 test.describe("retained launches in their current column homes", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

@@ -52,7 +52,6 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
   dashboard,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   const launched = await launch(dashboard, {

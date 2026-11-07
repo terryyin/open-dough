@@ -16,8 +16,6 @@ import {
   scriptsOf,
 } from "../../tests/support/incompleteReportingInstall.ts";
 
-test.setTimeout(120_000);
-
 test.describe("reporting preparation from a launch-workspace install", () => {
   let home: string;
   let previousHome: string | undefined;

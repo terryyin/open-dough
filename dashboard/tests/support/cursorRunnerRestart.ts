@@ -3,7 +3,7 @@
 import { mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "./pageTest.ts";
+import { expect } from "./pageTest.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { shows } from "../agentTerminalBoundary.ts";
 import { openCursorTerminal } from "./cursorTerminal.ts";
@@ -25,7 +25,6 @@ import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 
 export async function restartedDashboardTypesSameClient(): Promise<void> {
-  test.setTimeout(180_000);
   const cursor = installFakeCursor({ working: true });
   const machine = path.join(
     tmpdir(),
@@ -77,7 +76,6 @@ export async function restartedDashboardTypesSameClient(): Promise<void> {
 }
 
 export async function waitingAnswerSurvivesRestart(): Promise<void> {
-  test.setTimeout(180_000);
   const cursor = installFakeCursor({ screen: "waiting" });
   const machine = path.join(
     tmpdir(),
@@ -118,7 +116,6 @@ export async function waitingAnswerSurvivesRestart(): Promise<void> {
 }
 
 export async function trustScreenSurvivesRestart(): Promise<void> {
-  test.setTimeout(180_000);
   const cursor = installFakeCursor({ screen: "trust", becomeReady: true });
   const machine = path.join(
     tmpdir(),

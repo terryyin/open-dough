@@ -103,7 +103,6 @@ test("worktrees without this story's published claim — the agent's earlier or 
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const story = await storyTakenWithOneSlice(origin);
   const { agent, beforeClaim } = story;
 
@@ -138,7 +137,6 @@ test("two worktrees holding the story's claim open a review that names both and 
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const { agent, workspace } = await origin.takenInTrunkMode("trunk-a");
   const claim = git(workspace, "rev-parse", "HEAD");
   writeFileSync(path.join(workspace, "notes.md"), "notes\n");

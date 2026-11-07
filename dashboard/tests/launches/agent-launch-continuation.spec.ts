@@ -53,7 +53,6 @@ test("an attempt a closed server left unsettled blocks a fresh start of its stor
   machine,
   github,
 }) => {
-  test.setTimeout(120_000);
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
   native.hold = true;

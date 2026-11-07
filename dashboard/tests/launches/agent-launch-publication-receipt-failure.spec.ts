@@ -19,7 +19,6 @@ for (const workflow of ["execution", "refinement"] as const) {
     dashboard,
     origin,
   }) => {
-    test.setTimeout(150_000);
     const { story, takenStory } = await openStories(page, origin);
     const directory = path.join(dashboard.home, ".open-dough/dashboard");
     const hook = path.join(origin.origin, "hooks/post-receive");

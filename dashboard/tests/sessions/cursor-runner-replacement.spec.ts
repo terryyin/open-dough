@@ -52,7 +52,6 @@ async function showHeldSessionPage(
 workingCursorTest(
   "a stale-proof runner is read and joined for its held session, and observation starts or replaces nothing",
   async ({ page, dashboard, origin, cursor }) => {
-    workingCursorTest.setTimeout(120_000);
     const pid = await holdSession(dashboard, cursor);
     await showHeldSessionPage(page, origin);
     const runnerPid = readCursorRunnerAddress(dashboard.home)?.pid;

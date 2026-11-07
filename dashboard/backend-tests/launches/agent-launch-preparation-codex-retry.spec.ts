@@ -13,7 +13,6 @@ import {
 } from "../../tests/support/startOrigin.ts";
 import type { StartRecord } from "../../server/startStore.ts";
 
-test.setTimeout(120_000);
 test.use({ serverMode: "boundary", preparationHost: "codex" });
 
 for (const damage of [

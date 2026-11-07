@@ -48,8 +48,6 @@ import {
   summaryTextZipAnswer,
 } from "../support/ciProofCollected.ts";
 
-test.setTimeout(90_000);
-
 const otherRevision = `This evidence is of ${shortSha(judged)}; the tree shows ${shortSha(openDough.revision)}. A file added or changed since has no CI result here, or an earlier one.`;
 
 test("an entry's and its folders' CI summaries come from CI's collected file breakdown: root figures, immediate children, drill-down and file reading, with no source read and no second CI read", async ({

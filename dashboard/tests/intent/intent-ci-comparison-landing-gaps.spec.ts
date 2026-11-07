@@ -11,13 +11,10 @@ import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonE
 import { serveEarlierLandingWithLandedOutcome } from "../support/storyCiComparisonLandedOutcome.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 
-test.setTimeout(240_000);
-
 test("a failed landing merge build is labelled failed without trunk-side figures", async ({
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
   const landed = setup.landingMerge ?? setup.completion;
   serveEarlierLandingWithLandedOutcome(setup, "failure");

@@ -84,7 +84,6 @@ test("two overlapping chosen-model launches keep separate scopes and models, wit
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   cursor.listModels([
     ...cursorModels,
     { model: "composer-2.5", name: "Composer 2.5" },
@@ -147,7 +146,6 @@ test("a subsequent Default launch follows a deliberate new shared default while 
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   // Scoped Recover through a deliberate default change is proved in
   // cursor-session-scope-continuation.spec.ts; this case asserts only that
   // a later Default launch follows the new shared default without creating
@@ -207,7 +205,6 @@ test("deleting a scoped session's launch record removes exactly its scope, leavi
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await startScopedCursorExecution(page, origin, cursor, "gpt-5.2");
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");

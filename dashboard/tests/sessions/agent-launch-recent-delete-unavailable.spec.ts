@@ -29,14 +29,11 @@ import {
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 
-test.setTimeout(120_000);
-
 test.use({ projectFolders: ["open-dough"] });
 
 test.describe("deleting an unavailable session's record from its current home", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

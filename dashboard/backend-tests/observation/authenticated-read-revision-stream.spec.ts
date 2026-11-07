@@ -28,8 +28,6 @@ import {
 
 test.describe.configure({ mode: "serial" });
 
-test.setTimeout(120_000);
-
 const gatewayTimeout = {
   status: 504,
   contentType: "application/json; charset=utf-8",

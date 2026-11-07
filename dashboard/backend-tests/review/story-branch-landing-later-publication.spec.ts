@@ -25,8 +25,6 @@ import {
 } from "../../tests/support/storyBranchIntegration.ts";
 import { openFirstLandingExpectation } from "../../../src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
 
-test.setTimeout(120_000);
-
 let origin: StartOrigin;
 let server: DashboardServer;
 

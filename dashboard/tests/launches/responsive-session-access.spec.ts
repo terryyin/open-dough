@@ -160,7 +160,6 @@ test("a keyboard Start session hands the keyboard to its progress, and its sessi
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   dashboard.claudeScenario("held");
   const { other } = await openStories(page, origin);

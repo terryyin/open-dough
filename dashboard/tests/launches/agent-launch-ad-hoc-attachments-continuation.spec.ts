@@ -17,7 +17,6 @@ import {
 } from "../support/launchAttachmentFixtures.ts";
 import { expect, stored, test } from "../support/codexLaunch.ts";
 
-test.setTimeout(120_000);
 test.use({ projectFolders: ["open-dough"] });
 
 test("unconfirmed Codex first input continued from Startup recovery resends the same attachment paths", async ({

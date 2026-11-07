@@ -63,7 +63,6 @@ test("an Isolated workspace start that outlasts its wait names its worktree and 
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const starts = recordStarts(origin);
   const hold = holdStarts(origin, "after");
   await openBacklog(page, origin);
@@ -175,7 +174,6 @@ for (const when of ["before", "after"] as const) {
     origin,
     github,
   }) => {
-    test.setTimeout(120_000);
     const starts = recordStarts(origin);
     const hold = holdStarts(origin, when);
     const before = await originMain(origin);

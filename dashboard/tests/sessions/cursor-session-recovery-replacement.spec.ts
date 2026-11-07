@@ -21,7 +21,6 @@ test("cannot-load resume replaces the chat on the same launch", async ({
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await startCursorExecution(page, origin, cursor);
   const [before] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(before?.firstInput?.state).toBe("confirmed");

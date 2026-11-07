@@ -12,8 +12,6 @@ const baseCiUnreadHeading = "Base CI could not be read";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { parts } from "../dashboardPage.ts";
 
-test.setTimeout(120_000);
-
 for (const conclusion of ["success", "failure"] as const) {
   test(`an in-progress nearest result shows its nearest completed ${conclusion} and starts nothing until Continue`, async ({
     page,

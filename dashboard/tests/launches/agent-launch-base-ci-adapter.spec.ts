@@ -16,8 +16,6 @@ const baseCiFailedHeading = "Base CI failed";
 const baseCiUnreadHeading = "Base CI could not be read";
 const adapterRelative = "scripts/base-ci-fixture-adapter.mjs";
 
-test.setTimeout(120_000);
-
 function installAdapter(project: string, body: string): void {
   const adapterPath = path.join(project, adapterRelative);
   mkdirSync(path.dirname(adapterPath), { recursive: true });

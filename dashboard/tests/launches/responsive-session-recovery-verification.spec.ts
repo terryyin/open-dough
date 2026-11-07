@@ -30,7 +30,6 @@ test("Recheck trusts the start's own record after its kept start was removed, ev
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   dashboard.claudeScenario("launched-hang");
   const { story, takenStory } = await openStories(page, origin);
   await startExecution(page, story);
@@ -111,7 +110,6 @@ for (const tracking of ["standard", "one-shot"] as const) {
     dashboard,
     origin,
   }) => {
-    test.setTimeout(120_000);
     dashboard.claudeScenario("launched-hang");
     const { story, takenStory } = await openStories(page, origin);
     const card = tracking === "standard" ? takenStory : story;

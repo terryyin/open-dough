@@ -36,7 +36,6 @@ test("a lost reconciled push result and record write recover the exact original 
   origin,
   codexProtocol: native,
 }) => {
-  test.setTimeout(150000);
   if (native === undefined) throw new Error("No native fixture");
   await launch(dashboard, {
     ...requestFor("refinement", oneShot("isolated", "auto-land")),

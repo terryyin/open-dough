@@ -52,8 +52,6 @@ test.use({
   extraEnv: streamServerEnv,
 });
 
-test.setTimeout(120_000);
-
 async function replaceOnPort(
   dashboard: DashboardServer,
   github: FakeGitHub,

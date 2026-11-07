@@ -29,8 +29,6 @@ for (const mode of ["trunk", "story-branch"] as const) {
     dashboard,
     origin,
   }) => {
-    // This matrix executes real Git attribution separately for each HTTP read.
-    test.slow();
     const { completion } = await completedPublishedStory(origin, mode);
     const response = await get(
       request,
@@ -146,7 +144,6 @@ for (const mode of ["trunk", "story-branch"] as const) {
     dashboard,
     origin,
   }) => {
-    test.slow();
     const { completion } = await completedPublishedStory(origin, mode);
     const delivered = storyReviewSchema.parse(
       await (

@@ -50,7 +50,6 @@ function expectCovers(
 test.describe("maximizing the terminal", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
@@ -61,7 +60,6 @@ test.describe("maximizing the terminal", () => {
     page,
     dashboard,
   }) => {
-    test.setTimeout(120_000);
     dashboard.claudeScenario("launched");
     const { card, settled, launch } = await openStoryColumnsJourney(
       page,

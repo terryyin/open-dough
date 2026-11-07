@@ -31,8 +31,6 @@ import {
   toggleOnDevelopment,
 } from "../intentCiStoryRecords.ts";
 
-test.setTimeout(90_000);
-
 test("a ciAdapter attempt's proof is read through the project's adapter and shown below its verdict, named by its attemptId", async ({
   page,
   dashboard,

@@ -155,7 +155,6 @@ test("retained sessions listed by their listing facts show as the full answer sh
   dashboard,
   origin,
 }) => {
-  test.setTimeout(180_000);
   const retained = retainedSessions(dashboard);
   const message = retained[1]?.completion?.message ?? "";
   expect(message).not.toBe("");

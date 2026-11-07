@@ -28,8 +28,6 @@ import {
 } from "../intentPerspectivePage.ts";
 import { expectChildNames, summaryRegion } from "../intentScopeProofPage.ts";
 
-test.setTimeout(120_000);
-
 test("deletions and renames admitted by either path stay reviewable in Intent with Review changes' diff; a rename neither path admits counts once outside", async ({
   page,
   origin,

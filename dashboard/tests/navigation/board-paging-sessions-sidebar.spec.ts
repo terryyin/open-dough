@@ -30,7 +30,6 @@ test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 test.describe("a Sessions sidebar choice in a hidden column", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

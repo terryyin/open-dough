@@ -30,7 +30,6 @@ test("a retired Story Branch integration is reviewed from its done card on its f
   origin,
   codexProtocol,
 }) => {
-  test.setTimeout(120_000);
   if (codexProtocol === undefined) throw new Error("No native fixture");
   const { refinement, story } = await storyBranchExecutionAfterRefinement(
     dashboard,

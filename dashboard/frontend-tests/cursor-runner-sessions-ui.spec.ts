@@ -83,7 +83,6 @@ test("slow Cursor sessions answers still publish under at most one owned read, a
   page,
   frontendServices,
 }) => {
-  test.setTimeout(120_000);
   holdCursorSession(frontendServices);
   await page.route(
     (url) => url.pathname === cursorRunnerSessionsEndpoint,
@@ -134,7 +133,6 @@ test("while expanded, the list says it is reading, then follows each later read:
   page,
   frontendServices,
 }) => {
-  test.setTimeout(120_000);
   holdCursorSession(frontendServices);
   const replies = {
     held: heldSessions,

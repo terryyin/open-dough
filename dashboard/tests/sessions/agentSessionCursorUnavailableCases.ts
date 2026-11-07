@@ -30,7 +30,6 @@ test("a stopped runner says so, shows no screen label, and starts no agent", asy
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const recent = await openTakenCursorSession(page, origin);
   await expectNormalizedReading(recent, "Ready for review", true);
   const calls = agentCalls(cursor);
@@ -53,7 +52,6 @@ test("an unreachable runner says so, shows no screen label, and starts no agent"
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const recent = await openTakenCursorSession(page, origin);
   await expectNormalizedReading(recent, "Ready for review", true);
   const calls = agentCalls(cursor);
@@ -81,7 +79,6 @@ test("a recorded session the runner does not hold shows the agent is not running
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const again = await openStoppedCursorEntry(
     page,
     origin,

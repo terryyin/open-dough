@@ -160,7 +160,6 @@ test.describe("390×844 touch, held", () => {
     origin,
     dashboard,
   }) => {
-    test.setTimeout(120_000);
     dashboard.claudeScenario("held");
     await openBacklog(page, origin);
     const launcher = startSession(page, "Open Dough");
@@ -198,7 +197,6 @@ for (const { scenario, words, answer } of answers) {
       origin,
       dashboard,
     }) => {
-      test.setTimeout(120_000);
       dashboard.claudeScenario(scenario);
       await openBacklog(page, origin);
       const launcher = startSession(page, "Open Dough");

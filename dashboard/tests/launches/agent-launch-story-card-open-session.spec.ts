@@ -46,7 +46,6 @@ const openSessionDescription = new RegExp(
 test.describe("a story's card while its session is open", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

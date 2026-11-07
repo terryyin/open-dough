@@ -35,8 +35,6 @@ import {
 } from "../../tests/support/incompleteReportingInstall.ts";
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 
-test.setTimeout(120_000);
-
 const fakeHelper = path.join(
   repoRoot,
   "dashboard/tests/support/fakeReleaseApply.sh",

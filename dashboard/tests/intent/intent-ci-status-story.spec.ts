@@ -30,8 +30,6 @@ import {
 } from "../intentCiStoryRecords.ts";
 import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
 
-test.setTimeout(90_000);
-
 test("CI status judges the selected story's branch, counts trunk runs of shared commits, replaces the judgment on a new selection, and returns to main when cleared", async ({
   page,
 }) => {

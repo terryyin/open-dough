@@ -77,7 +77,6 @@ const membership = withRunningCursor({ screen: "working" });
 membership(
   "a held session leaving drops its row in the expanded section within about one second",
   async ({ page, dashboard, origin, cursor }) => {
-    membership.setTimeout(120_000);
     await holdSession(dashboard, cursor);
     await showPageWithTaken(page, origin);
     const { region } = await openRunningList(page);

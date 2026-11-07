@@ -26,8 +26,6 @@ import {
 import { changeIntentTests } from "../support/intentStoryWorktree.ts";
 import { lines, writeAt } from "../support/storyReviewWorktree.ts";
 
-test.setTimeout(120_000);
-
 // The page's reads, from now on, of Intent's locations, of published text in
 // a location, and of a story file's diff and texts.
 function intentReads(page: Page) {

@@ -48,7 +48,6 @@ for (const { screen, label, terminal } of held) {
     origin,
     cursor,
   }) => {
-    test.setTimeout(120_000);
     const pid = await holdSession(dashboard, cursor);
     await showPageWithTaken(page, origin);
     const shownTerminal = page.getByRole("region", { name: "Terminal" });
@@ -81,7 +80,6 @@ const followUp = withRunningCursor({ screen: "working", becomeReady: true });
 followUp(
   "the follow-up prompt is listed on the client the runner still holds",
   async ({ page, dashboard, origin, cursor }) => {
-    followUp.setTimeout(120_000);
     // Working keeps the client. The ordinary prompt is what that same client
     // becomes, and the runner keeps holding that screen.
     const pid = await holdSession(dashboard, cursor);
@@ -107,7 +105,6 @@ const refused = cursorTest;
 refused(
   "a runner that is not running lists nothing and starts no agent",
   async ({ page, dashboard, origin, cursor }) => {
-    refused.setTimeout(120_000);
     await holdSession(dashboard, cursor);
     await showPageWithTaken(page, origin);
     const calls = cursor.calls().length;
@@ -128,7 +125,6 @@ refused(
 refused(
   "a runner that cannot be reached lists nothing and starts no agent",
   async ({ page, dashboard, origin, cursor }) => {
-    refused.setTimeout(120_000);
     await holdSession(dashboard, cursor);
     await showPageWithTaken(page, origin);
     const calls = cursor.calls().length;

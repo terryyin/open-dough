@@ -59,7 +59,6 @@ const test = base.extend<{ machine: string }>({
 test.describe("the terminal's lifetime", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

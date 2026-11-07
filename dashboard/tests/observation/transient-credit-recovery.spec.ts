@@ -139,7 +139,6 @@ async function expectCreditRecovered(
 test("a refused profile history recovers human credit and Take clock from one shared addition without reload", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   const { heal, asked } = await openWithYumaRefused(page, {
     yumaHistory: [yumaAddition],
     solaHistory: [pathChange(0x53, "added", "   ")],
@@ -164,7 +163,6 @@ test("a refused profile history recovers human credit and Take clock from one sh
 test("a refused addition commit mid-walk recovers without re-asking answered history steps", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   const modified = pathChange(0x54, "modified", "Another Committer");
   const { heal, asked } = await openWithYumaRefused(page, {
     yumaHistory: [modified, yumaAddition],

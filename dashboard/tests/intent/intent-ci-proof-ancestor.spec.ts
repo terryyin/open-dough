@@ -46,8 +46,6 @@ import {
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
 
-test.setTimeout(90_000);
-
 const checksRow: ProofRow = [
   "tests",
   "5 passed checks",

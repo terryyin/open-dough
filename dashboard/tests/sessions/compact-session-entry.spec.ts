@@ -162,7 +162,6 @@ test.describe(() => {
 workingCursorTest(
   "a working Cursor entry keeps its resume command selectable and reports copied, refused and unavailable clipboard access truthfully",
   async ({ page, origin }) => {
-    workingCursorTest.setTimeout(120_000);
     const entry = await openTakenCursorSession(page, origin, "auto");
     await page
       .getByRole("region", { name: "Terminal" })

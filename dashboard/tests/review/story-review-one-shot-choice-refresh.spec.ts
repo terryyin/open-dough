@@ -13,7 +13,6 @@ test("Refresh preserves a selected run after a new capture and reconciles deleti
   origin,
   codexProtocol,
 }) => {
-  test.setTimeout(90_000);
   if (codexProtocol === undefined) throw new Error("No native fixture");
   const { first, second, legacy, live } = await reviewChoices(
     dashboard,

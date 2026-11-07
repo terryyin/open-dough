@@ -111,7 +111,6 @@ async function setupDepartureServer(): Promise<SetupServer> {
 }
 
 test.describe.configure({ mode: "serial" });
-test.setTimeout(60_000);
 
 test.describe("revision stream setup departure (in-process boundary)", () => {
   test("a page departing during held setup causes no matching-refs over several paces", async () => {

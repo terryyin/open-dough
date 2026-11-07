@@ -19,7 +19,6 @@ import { takes } from "../sliceClockRecords.ts";
 test("an addition commit limited during the walk is read once the wait ends, reusing the steps already answered", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   // Yuma's profile was modified after the commit that added it.
   const modified = pathChange(0x54, "modified", "Another Committer");
   const { limitSeenAt, asked } = await openedWithYumaWithheld(page, {

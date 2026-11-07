@@ -37,8 +37,6 @@ import {
 import { changed, publishIntentTrunk } from "../support/intentStoryWorktree.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 
-test.setTimeout(120_000);
-
 // The published tree shows as without a story: no change marks, no outside
 // count, no toggle, no claim that nothing changed, and a file reads its
 // source.

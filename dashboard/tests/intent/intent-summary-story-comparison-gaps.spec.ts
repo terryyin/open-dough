@@ -36,13 +36,10 @@ import { parts } from "../dashboardPage.ts";
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 
-test.setTimeout(240_000);
-
 test("a baseline without file breakdown compares the entry and explains folder and file rows", async ({
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishSummaryComparisonStory(page, origin);
   setup.serveProofs(
     noBreakdownBaselineProofs({
@@ -67,7 +64,6 @@ test("a running landed build leaves the branch comparison readable in the Summar
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishSummaryComparisonStory(page, origin);
   setup.serveRuns({
     [setup.baseline]: [
@@ -112,7 +108,6 @@ test("a Trunk Mode done story marks Branch not applicable at every Summary scope
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishSummaryComparisonTrunkStory(page, origin);
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
@@ -132,7 +127,6 @@ test("a Taken Story Branch story's Summary comparison is labelled provisional", 
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishTakenSummaryComparisonStory(page, origin);
   const { intent } = await selectTakenStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
@@ -162,7 +156,6 @@ test("selecting another story replaces the Summary comparison figures", async ({
   page,
   origin,
 }) => {
-  test.slow();
   const first = await publishSummaryComparisonStory(page, origin);
   const { intent, card: storyA } =
     await selectDoneStoryForSummaryComparison(page);

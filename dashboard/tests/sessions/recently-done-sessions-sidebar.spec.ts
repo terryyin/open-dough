@@ -34,7 +34,6 @@ test("finds and opens the newest completed sessions across projects from a colla
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const opened = new Date("2026-10-28T10:00:00.000Z");
   await pausePageClockAt(page, opened);
   const now = opened.getTime();
@@ -213,7 +212,6 @@ test("empty and reading states stay distinct, and fewer than 20 shows every Done
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   await keepProjectLaunchRecords(dashboard, {
     "open-dough": [],
     doughnut: [],

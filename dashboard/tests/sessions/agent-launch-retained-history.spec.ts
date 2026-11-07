@@ -92,7 +92,6 @@ test("one history read per opening, none while nothing retained is opened, and a
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const now = Date.parse("2026-10-28T10:00:00.000Z");
   const first = retained(dashboard, now, "First retained session");
   const { passOnePace, asked, codings, onBoard } = await showRetained(
@@ -151,7 +150,6 @@ test("a failed history read leaves retained sessions as shown and the next openi
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const now = Date.parse("2026-10-28T10:00:00.000Z");
   const record = retained(dashboard, now, "Retained through a failure");
   let failures = 1;

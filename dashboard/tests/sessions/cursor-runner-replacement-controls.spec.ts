@@ -32,7 +32,6 @@ const replacementTest = test.extend({ cursorSubmitPaintMs: 300 });
 replacementTest(
   "done, never-held, and one failing revive leave Recover only where revival failed",
   async ({ page, dashboard, origin, cursor }) => {
-    replacementTest.setTimeout(180_000);
     await startScopedCursorExecution(page, origin, cursor);
     await launchSecondHeldSession(
       page,

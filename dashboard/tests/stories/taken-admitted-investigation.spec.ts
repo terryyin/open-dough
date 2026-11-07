@@ -15,11 +15,8 @@ import {
 
 let admission: Admission;
 const cleanups: Array<() => void> = [];
-// Admitting runs the production commands against Git (about 2s idle, over 15s
-// on a busy machine); give it its own budget so it cannot spend the page's
-// time inside the default per-test timeout.
+// Admitting runs the production commands against Git.
 test.beforeAll(() => {
-  test.setTimeout(60_000);
   admission = admitInvestigation((cleanup) => cleanups.push(cleanup));
 });
 test.afterAll(() => {

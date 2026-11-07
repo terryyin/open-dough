@@ -65,7 +65,6 @@ const publishedFactsOf = async (card: Locator) => {
 test.describe("a story's card counts the sessions that need attention", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

@@ -113,7 +113,6 @@ test("a ciAdapter project is judged from its discover attempts, and a story bran
   page,
   dashboard,
 }) => {
-  test.setTimeout(90_000);
   await page.setViewportSize({ width: 1280, height: 800 });
   const project = path.join(dashboard.home, "git", "open-dough");
   const adapter = "scripts/ci-status-fixture-adapter.mjs";

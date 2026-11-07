@@ -36,7 +36,6 @@ import { publishes } from "../support/fakeGitHub.ts";
 test("limiting a detail read keeps the snapshot, labels what the limit withheld, says once when reading resumes, and asks nothing until then", async ({
   page,
 }) => {
-  test.setTimeout(90_000);
   const { answers, other } = await openedBeside(
     page,
     opened,

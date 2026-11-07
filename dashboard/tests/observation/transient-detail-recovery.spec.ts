@@ -55,7 +55,6 @@ async function expectDetailRecoveryNotice(
 test("eligible preparation recovers beside kept facts, and a terminal missing seed is not asked again", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   await pausePageClockAt(page, opened);
   const terminalFiles = {
     ...filesBesideUnreachable,
@@ -163,7 +162,6 @@ test("eligible preparation recovers beside kept facts, and a terminal missing se
 test("a detail still unread at the wait bound recovers on its own at the same revision while assignments stay shown", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   const { branchCard, queuedCard, doneCard, problem, release } =
     await heldFactGroups(page);
   release("profiles");

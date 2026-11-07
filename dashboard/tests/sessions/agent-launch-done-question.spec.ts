@@ -103,7 +103,6 @@ test("a session not reported complete asks first with its situation; Keep open a
   dashboard,
   origin,
 }) => {
-  test.setTimeout(180_000);
   const { storyA, storyB } = await launchedStories(dashboard, origin);
   const { entryOf } = await openPage(page, origin);
   const entryA = entryOf(titleA);
@@ -174,7 +173,6 @@ test("a completed report marks done at once only while the session neither works
   dashboard,
   origin,
 }) => {
-  test.setTimeout(180_000);
   const { storyA, storyB } = await launchedStories(dashboard, origin);
   await storyA.report();
   await storyB.report({ outcome: "unfinished" });

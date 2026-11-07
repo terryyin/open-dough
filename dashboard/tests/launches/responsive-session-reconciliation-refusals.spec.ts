@@ -59,7 +59,6 @@ test("a start refused because another agent took the story meanwhile publishes n
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   let agent = "";
   const { published, takenStory } = await startAfter(page, origin, async () => {
     agent = await origin.takenByAnotherAgent();
@@ -93,7 +92,6 @@ test("a start refused because another writer removed the story publishes nothing
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const { other } = await startAfter(page, origin, () =>
     removeQueuedStory(origin),
   );
@@ -120,7 +118,6 @@ test("a one-shot refinement publishes nothing: once its session settles, a fresh
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   dashboard.claudeScenario("held");
   const { published, story } = await openStories(page, origin);
 
@@ -170,7 +167,6 @@ test("a Take whose session is refused reconciles with that Take: its Taken card 
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   dashboard.claudeScenario("refused");
   const { story, takenStory } = await openStories(page, origin);
 

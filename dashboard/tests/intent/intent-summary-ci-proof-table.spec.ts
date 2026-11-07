@@ -26,8 +26,6 @@ import {
   summaryTextZipAnswer,
 } from "../support/ciProofCollected.ts";
 
-test.setTimeout(90_000);
-
 test("a CI file the tree does not list under a listed folder counts once, in that folder's row, and is outside only in that folder's own Summary", async ({
   page,
 }) => {

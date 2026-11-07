@@ -94,7 +94,6 @@ test.describe("an accepted launch", () => {
   };
 
   test("is kept before publication and settles after its caller is gone, one start across workflows", async () => {
-    test.setTimeout(120_000);
     server.claudeScenario("held");
 
     const answered = await answerOf(accept(server, request));
@@ -198,7 +197,6 @@ test.describe("an accepted launch", () => {
   });
 
   test("whose publication receipt cannot be kept retains the known recording stop while the server goes on", async () => {
-    test.setTimeout(120_000);
     server.claudeScenario("launched");
     const answered = await answerOf(accept(server, request));
     expect(answered.kind).toBe("accepted");

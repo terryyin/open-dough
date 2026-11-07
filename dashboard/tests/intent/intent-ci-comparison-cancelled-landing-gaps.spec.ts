@@ -27,13 +27,10 @@ import {
 import { wall } from "../support/storyCiComparisonFixture.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 
-test.setTimeout(240_000);
-
 test("a cancelled landing merge whose only later trunk build published no proof names that build without figures", async ({
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
   const landing = setup.landingMerge ?? setup.completion;
   const later = laterTrunkRevisions(origin.origin, landing);
@@ -56,7 +53,6 @@ test("a cancelled landing whose next trunk build is still running says so withou
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishFastForwardLandedStory(page, origin);
   const tip = setup.completion;
   const [next = ""] = laterTrunkRevisions(origin.origin, tip);
@@ -86,7 +82,6 @@ test("a cancelled landing names the proofless build before a running build and r
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
   const landing = setup.landingMerge ?? setup.completion;
   const later = laterTrunkRevisions(origin.origin, landing);
@@ -135,7 +130,6 @@ test("a cancelled landing at the read trunk head waits for a later trunk build a
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishFastForwardLandedStory(page, origin, true);
   const tip = setup.completion;
   expect(laterTrunkRevisions(origin.origin, tip)).toEqual([]);

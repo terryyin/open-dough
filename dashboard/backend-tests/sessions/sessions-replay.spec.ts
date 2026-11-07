@@ -51,7 +51,6 @@ test.skip(
 );
 
 test("the Sessions replay reports the baseline the story's targets measure", async () => {
-  test.setTimeout(240_000);
   const machine = mkdtempSync(path.join(tmpdir(), "dough-sessions-replay-"));
   const codex = await installFakeCodex(
     machine,

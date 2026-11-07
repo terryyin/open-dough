@@ -155,7 +155,6 @@ test("two pages share a recovery read: one hides while the other finishes; the f
 test("switching projects clears project-local recovery while a standing login limit remains", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   await pausePageClockAt(page, limitedOpened);
   const published = publishes({
     revision,

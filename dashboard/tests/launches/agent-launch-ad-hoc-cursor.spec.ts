@@ -29,8 +29,6 @@ import { runnerEnvironment } from "../support/cursorRunnerJourney.ts";
 import { fakeCursorHost } from "../support/fakeCursor.ts";
 import { expectDeveloperShellEnvironment } from "../support/launchEnvironment.ts";
 
-test.setTimeout(120_000);
-
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
 function recordsIn(stored: string | null): LaunchRecord[] {

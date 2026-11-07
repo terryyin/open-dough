@@ -29,13 +29,10 @@ import {
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { openSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
 
-test.setTimeout(240_000);
-
 test("Baseline names Skipped at a planning-only start and keeps the ancestor build", async ({
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishSkippedPlanningBaseline(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
   const skippedAt = `Skipped at ${shortSha(setup.storyStart)} because CI ignores every change since its nearest built ancestor ${shortSha(setup.baseline)}.`;
@@ -68,7 +65,6 @@ test("Baseline names Cancelled at a start whose run was cancelled and keeps the 
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishCancelledBaseline(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
   const baselineIdentity = panel
@@ -88,7 +84,6 @@ test("Baseline walks past a proofless parent to the grandparent's proof and coun
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishSkippedBaselinePastProoflessParent(page, origin);
   expect(setup.laterWithoutBuild).toBe(2);
   const github = githubFor(page);
@@ -125,7 +120,6 @@ test("Baseline names No build with the path reason when the start changes code",
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishCodeStartWithoutBuild(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
   const baselineIdentity = panel
@@ -145,7 +139,6 @@ test("Landed names Skipped at a planning-only merge and uses the equivalent buil
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishSkippedPlanningLanding(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
   const skippedAt = `Skipped at ${shortSha(setup.landingMerge)} because CI ignores every change since its nearest built ancestor ${shortSha(setup.trunkSide)}.`;
@@ -170,7 +163,6 @@ test("Landed names Skipped when the equivalent build published no proof and walk
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishSkippedLandingWithoutProof(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
   const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
@@ -192,7 +184,6 @@ test("Landed names No build for a code landing with no run and uses no ancestor 
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishCodeLandingWithoutBuild(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
   const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);

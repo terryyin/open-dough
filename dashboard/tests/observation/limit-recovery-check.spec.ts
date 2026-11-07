@@ -26,7 +26,6 @@ import { publishes } from "../support/fakeGitHub.ts";
 test("after a limited check, with nothing withheld, the page makes its next check once the wait ends and reads nothing else", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   await pausePageClockAt(page, opened);
   const published = publishes({ revision, files: filesBesideUnreachable });
   const answers = limiting(

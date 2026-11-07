@@ -34,7 +34,6 @@ test.use({ projectFolders: ["open-dough"] });
 test.describe("marking a card's session done", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

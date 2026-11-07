@@ -18,7 +18,6 @@ import { profilePath, revision, takes } from "../sliceClockRecords.ts";
 test("a limited profile history is read once the wait ends, crediting its human and Take clock without a reload", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   const { limitSeenAt, asked } = await openedWithYumaWithheld(page, {
     yumaHistory: [yumaAddition],
     // Sola's addition names no usable committer.

@@ -52,10 +52,8 @@ const test = base.extend<{ machine: string }>({
   },
 });
 
-test.setTimeout(60_000);
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
-  test.setTimeout(120_000);
   journey = await publishStoryColumnsJourney();
 });
 test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());

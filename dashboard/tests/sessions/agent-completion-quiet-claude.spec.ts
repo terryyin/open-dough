@@ -51,7 +51,6 @@ test.describe("within a wait the session outlasts", () => {
     dashboard,
     origin,
   }) => {
-    test.setTimeout(120_000);
     const story = await launchedAdHoc(dashboard, origin, title);
     const { sessionId } = story;
     const shortId = shortIdOf(dashboard, sessionId);
@@ -110,7 +109,6 @@ test.describe("within a wait the session outlasts", () => {
     dashboard,
     origin,
   }) => {
-    test.setTimeout(120_000);
     const story = await launchedAdHoc(dashboard, origin, title);
     const { sessionId } = story;
     const shortId = shortIdOf(dashboard, sessionId);
@@ -161,7 +159,6 @@ test.describe("within a short wait", () => {
     dashboard,
     origin,
   }) => {
-    test.setTimeout(120_000);
     const story = await launchedAdHoc(dashboard, origin, title);
     const { sessionId } = story;
     const shortId = shortIdOf(dashboard, sessionId);
@@ -197,7 +194,6 @@ test.describe("within a short wait", () => {
 });
 
 test("a server closed during the wait leaves the pending mark and hangs up its attachment", async () => {
-  test.setTimeout(120_000);
   const origin = await startOrigin();
   const server = await startDashboardServer({
     mode: "preview",

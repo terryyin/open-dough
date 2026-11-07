@@ -13,8 +13,6 @@ import {
   storyDisclosure,
 } from "../support/intentStoryPage.ts";
 
-test.setTimeout(120_000);
-
 test("a long story title is shortened on one line, in full on hover and when the summary expands", async ({
   page,
   origin,

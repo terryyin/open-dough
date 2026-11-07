@@ -22,7 +22,6 @@ import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
 import { startOrigin } from "../../tests/support/startOrigin.ts";
 
 test("the persisted server worker protects initial preparation and the child-to-native write window", async () => {
-  test.setTimeout(180_000);
   const origin = await startOrigin();
   const hold = path.join(origin.machine, "hold-worker-note");
   const reached = path.join(origin.machine, "worker-note-held");

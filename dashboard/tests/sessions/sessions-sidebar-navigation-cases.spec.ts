@@ -42,7 +42,6 @@ test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 test.describe("opening a Sessions sidebar Session entry, in its other cases", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

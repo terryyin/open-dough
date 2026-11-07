@@ -15,7 +15,6 @@ test("Start and Startup recovery name workspace trust, and answering in the sess
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),

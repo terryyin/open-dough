@@ -46,7 +46,6 @@ test("a held Cursor session at the follow-up prompt after its confirmed first in
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const cursorHost = launchHost("cursor");
   expect(cursorHost).toBeDefined();
   expect(cursorHost).toHaveProperty("stop");
@@ -175,7 +174,6 @@ for (const { screen, reading, needsAttention, state } of heldScreens) {
       origin,
       cursor,
     }) => {
-      test.setTimeout(120_000);
       const recent = await openTakenCursorSession(page, origin);
       await expectNormalizedReading(recent, reading, needsAttention);
       const answer = await projectedSessions(page);
@@ -196,7 +194,6 @@ test.describe("a held trust screen", () => {
     origin,
     cursor,
   }) => {
-    test.setTimeout(120_000);
     const recent = await openTakenCursorSession(page, origin);
     await expectHeldLabel(recent, cursorHeldLabel.waiting);
     const answer = await projectedSessions(page);
@@ -217,7 +214,6 @@ test.describe("a held waiting screen that settles to the follow-up prompt", () =
     origin,
     cursor,
   }) => {
-    test.setTimeout(120_000);
     const recent = await openTakenCursorSession(page, origin);
     await expectNormalizedReading(
       recent,

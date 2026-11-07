@@ -22,7 +22,6 @@ test("a multi-effort Cursor model lists effort choices and Start sends the compo
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   cursor.listModels(effortListing);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
@@ -125,7 +124,6 @@ test("switching Cursor model retains unsupported effort as invalid and blocks St
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   cursor.listModels(effortListing);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,

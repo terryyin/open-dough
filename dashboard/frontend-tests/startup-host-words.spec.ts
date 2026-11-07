@@ -16,8 +16,6 @@ import { parts } from "../tests/dashboardPage.ts";
 import { recoveryOf } from "../tests/responsiveRecovery.ts";
 import { reloadUntilRead } from "../tests/pageRequestNotes.ts";
 
-test.setTimeout(120_000);
-
 test("without a reported phase, story startup keeps its host and the installed start's Preparing versus Starting choice", async ({
   page,
   frontendServices,

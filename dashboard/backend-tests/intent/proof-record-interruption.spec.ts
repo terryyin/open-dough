@@ -8,7 +8,6 @@ import {
 test.afterAll(removeProofDirectories);
 
 test("a deadline preserves finished attempts separately from unfinished work", async () => {
-  test.setTimeout(60_000);
   const run = startProofRun({
     spec: "ordered.proof.ts",
     config: { globalTimeout: 8_000 },

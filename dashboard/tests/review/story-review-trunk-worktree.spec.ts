@@ -35,7 +35,6 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const { agent, workspace, branch } = await origin.takenInTrunkMode("trunk-a");
   expect(agent).not.toBe("undefined");
   const claim = git(workspace, "rev-parse", "HEAD");

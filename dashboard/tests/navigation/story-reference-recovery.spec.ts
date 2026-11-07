@@ -18,7 +18,6 @@ import { startOrigin } from "../support/startOrigin.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
 import { pausePageClock } from "../autoRefreshJourney.ts";
 
-test.setTimeout(120_000);
 test.use({ hasTouch: true });
 
 test("missing, reading and failed reference destinations stay distinct and retry reaches a newly published block", async ({

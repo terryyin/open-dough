@@ -36,8 +36,6 @@ const askSessions = (dashboard: DashboardServer) =>
     headers: { Origin: dashboard.origin },
   });
 
-test.describe.configure({ timeout: 120_000 });
-
 test("a Cursor record written while a held read is outstanding is labeled from a read that includes it", async () => {
   const cursor = installFakeCursor({ screen: "working" });
   await withCursorLaunch({ mode: "boundary" }, cursor, async (dashboard) => {

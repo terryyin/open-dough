@@ -99,7 +99,6 @@ test("on a card, the open question follows the session's reading and goes away o
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const { sessionId, entry } = await reportedWorkingEntry(
     page,
     dashboard,
@@ -124,7 +123,6 @@ test("in the terminal, the open question follows the session's reading and goes 
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const { sessionId, entry } = await reportedWorkingEntry(
     page,
     dashboard,

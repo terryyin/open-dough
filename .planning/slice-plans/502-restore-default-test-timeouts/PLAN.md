@@ -2,6 +2,7 @@
 
 **Identity:** SEED-260#restore-default-test-timeouts
 **Source:** [Restore default timeouts across automated tests](../../seeds/SEED-260-restore-default-test-timeouts.md#restore-default-test-timeouts)
+**Source review:** [source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -84,13 +85,54 @@ for aggregate cost. [Dashboard proof record](../../../dashboard/tests/proof-reco
 ### 1. Ordinary dashboard cases run at the default
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Starting with the Playwright case and fixture inventory, remove every
 slow marker and the surplus overrides in cases or files with measured headroom.
 Include the completed-story review and Intent comparison families. Run the
 affected selections and their fixture consumers under default limits, comparing
 case identities and observed verdicts. Assign the inherited allowances that
 reach expensive setup or cases to the owning slices below.
+
+Result: removed all 44 slow markers and 437 overrides (case, file, group,
+`beforeAll` and the `launchJourney` worker fixture) where every covered case
+and shared hook cost at most 15.0s in run 42372706379. Hosted case durations
+exclude `beforeAll` time; hook steps were read separately. Proof at `2e09e83c0`
+plus the change: list selection unchanged at 2,127 cases. The strict
+`npm run --silent test:dashboard -- <327 changed and consumer specs>` run
+selected 765 cases, 764 passed, 1 existing skip, 2 local workers, 1197s, load
+about 6–9. The slowest de-overridden case was 15.6s. Local runs without
+`--reporter` keep the proof and times files. Remaining allowances by owner (file:
+CI cost):
+
+- Slice 2: `shared-observer-check-reuse` 51.4s, `revision-stream` file 24.8s,
+  `revision-stream-lost` file and case 24.1s, `auto-refresh-rate-limit` 25.2s,
+  `cursor-runner-sessions-quiet-rate` 16.2s, `story-readiness-accessible` file
+  17.1s (fixture publication).
+- Slice 3: `intent-ci-comparison-adapter-gaps` file 27.5s.
+- Slice 4: `agent-launch-second-server` 55.6s and `-orphan` 31.5s,
+  `responsive-session-recovery` 27.8s/23.4s, `-recovery-restart` 22.3s,
+  `-access` 20.1s, `-reconciliation` 17.4s, `-reconciliation-completed` 16.2s,
+  `-reconciliation-kept` 16.0s, `agent-launch-preparation-codex` file 17.2s,
+  `agent-launch-story-card-open-session` 16.0s, `agent-completion-recovery`
+  22.8s, `cursor-runner-replacement` 17.0s.
+- Slice 5: `cursor-sessions-sidebar-resize-lasting` 37.3s,
+  `recently-done-sessions-sidebar-room` 30.1s, `cursor-sessions-sidebar-layout`
+  27.9s, `session-attribution` 25.4s, `agent-launch-story-card-sessions` 25.2s,
+  `story-review-touch` file 23.1s, `side-panel-width` file 19.1s,
+  `cursor-sessions-sidebar-size-unkept` 16.6s, `session-management-touch`
+  16.4s, `agent-launch-recent-sessions` file 15.7s, `agent-launch-recent-delete`
+  file 15.6s.
+- Slice 6: `production-watcher.spec.ts` `beforeAll` 24.1s and its chain cases,
+  `productionUpdateJourney.ts` `beforeAll` 28.6s and case, the
+  `production-watcher-updates` cases (37.1s max), `production-deployment` 32.1s,
+  `productionUpdatePolicies.ts:26` 25.6s, `production-watcher-failures`
+  `beforeAll` 15.9s, backend `production-publication-fixture` and
+  `production-watcher-refusals`.
+- Slice 7: `productionUpdatePolicies.ts:88` 82.1s, `production-watcher-failures`
+  cases (28.0s max).
+- Slice 8: `quiet-reporter` 10.6s, nested `hanging.proof.ts` and
+  `ordered.proof.ts` `setTimeout(0)`, backend `run-processes` four cases (13.0s
+  max), `proof-record-entry` 14.0s.
 
 ### 2. Dashboard observation completes on controlled events
 

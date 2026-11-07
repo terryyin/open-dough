@@ -64,7 +64,6 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
   page,
   dashboard,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   const view = await openedWithHeldStory(page, dashboard, {
     open: [destination],
@@ -148,7 +147,6 @@ test("Show latest 10 while a Running Cursor sessions row's done entry 27 is stil
   dashboard,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   const instruction = "hold this done session";
   const entryName = standaloneSessionName("Ad hoc", instruction);

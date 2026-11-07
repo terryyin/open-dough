@@ -11,8 +11,6 @@ import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 
-test.setTimeout(120_000);
-
 const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
 test.use({ projectFolders: ["open-dough"] });
 

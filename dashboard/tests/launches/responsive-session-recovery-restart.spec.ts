@@ -124,7 +124,6 @@ test("a story removed while its startup needs reconciliation keeps that recovery
   origin,
   github,
 }) => {
-  test.setTimeout(150_000);
   const push = origin.holdPushes();
   const { story, takenStory, other } = await openStories(page, origin);
   await startExecution(page, story);

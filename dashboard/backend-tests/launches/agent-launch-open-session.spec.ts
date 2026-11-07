@@ -76,7 +76,6 @@ test.describe("an open story session on this machine", () => {
     nothingStarted(origin, server, push, keptAttempts);
 
   test("refuses every workflow's start until marked done, and leaves other starts free", async () => {
-    test.setTimeout(120_000);
     const sessionId = "aaaaaaaa-0000-4000-8000-000000000001";
     seedOpen("claude", sessionId);
     server.claudeScenario("launched");

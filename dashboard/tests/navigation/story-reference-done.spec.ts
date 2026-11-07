@@ -15,7 +15,6 @@ import {
   publishDoneReferences,
 } from "../storyReferenceDone.ts";
 
-test.setTimeout(120_000);
 test.use({ hasTouch: true });
 
 test("a Done reference without sessions reveals exactly through its existing destination and keeps a longer range", async ({

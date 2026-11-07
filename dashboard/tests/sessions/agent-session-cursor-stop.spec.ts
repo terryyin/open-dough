@@ -39,7 +39,6 @@ async function closeTerminal(page: Page): Promise<void> {
 workingCursorTest(
   "Stop on an active working Cursor session ends the held fake client, reads stopped, and keeps the record un-done with reopen offered",
   async ({ page, dashboard, origin, cursor }) => {
-    workingCursorTest.setTimeout(120_000);
     const entry = await openTakenCursorSession(page, origin);
     await closeTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
@@ -78,7 +77,6 @@ workingCursorTest(
 workingCursorTest(
   "an unconfirmed stop names the remaining state, is retained on the record, preserves recovery, blocks a replacement in the same workspace, and admits one only on explicit override",
   async ({ page, dashboard, origin, cursor }) => {
-    workingCursorTest.setTimeout(120_000);
     const entry = await openTakenCursorSession(page, origin);
     await closeTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
@@ -120,7 +118,6 @@ workingCursorTest(
 workingCursorTest(
   "an unconfirmed stop on a locally done Cursor session retains its explanation on the done record, blocks a replacement in the same workspace, and admits one only on explicit override",
   async ({ page, dashboard, origin, cursor }) => {
-    workingCursorTest.setTimeout(120_000);
     const entry = await openTakenCursorSession(page, origin);
     await closeTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
@@ -159,7 +156,6 @@ workingCursorTest(
 workingCursorTest(
   "a stop the Cursor runner still holds past confirmation reads unconfirmed with the remaining state named and retains its explanation",
   async ({ page, dashboard, origin, cursor }) => {
-    workingCursorTest.setTimeout(120_000);
     // The runner stand-in is installed before the session opens, so the
     // stop's confirmation reads pass through it; holding them while the
     // runner keeps this session again has it held before the first read
@@ -211,7 +207,6 @@ workingCursorTest(
 workingCursorTest(
   "a later confirmed stop clears a retained unconfirmed stop",
   async ({ page, dashboard, origin, cursor }) => {
-    workingCursorTest.setTimeout(120_000);
     const entry = await openTakenCursorSession(page, origin);
     await closeTerminal(page);
     await expectNormalizedReading(entry, "Working", false);

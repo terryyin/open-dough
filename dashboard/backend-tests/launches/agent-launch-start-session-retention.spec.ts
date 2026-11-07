@@ -34,7 +34,6 @@ test("a completed expired start loses only its pruned attempt's machine evidence
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   await dashboard.close();
   const clock = landingRetentionClock(origin.machine);
   const receiver = await startDashboardServer({

@@ -34,8 +34,6 @@ import {
 } from "../intentCiStoryRecords.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 
-test.setTimeout(90_000);
-
 // No state, no run, nothing to check again.
 async function expectNoStatus(panel: Locator) {
   await expect(panel.locator(".intent-ci-state")).toHaveCount(0);

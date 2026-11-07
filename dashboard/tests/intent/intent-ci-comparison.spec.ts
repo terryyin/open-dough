@@ -37,8 +37,6 @@ import { push } from "../support/storyReviewTrunkCommits.ts";
 const unrecoverable =
   "Published execution history does not establish a complete claim and its attributed commits for this completion.";
 
-test.setTimeout(240_000);
-
 for (const variant of [
   undefined,
   "own-conflict-extra",
@@ -54,7 +52,6 @@ for (const variant of [
     page,
     origin,
   }) => {
-    test.slow();
     const setup = await publishComparedStoryBranch(page, origin, variant);
     // An incompatible workflow at the local tip cannot supply historical
     // dependencies. The selected path exists in each build's own revision.
@@ -178,7 +175,6 @@ test("code landed before completion uses the merge branch-side ancestor and the 
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
   const branchBuild = setup.branchAncestor ?? setup.branchSide;
@@ -240,7 +236,6 @@ test("unrecoverable published history shows the published-review explanation wit
   page,
   origin,
 }) => {
-  test.slow();
   writeAt(origin.project, "src/built.ts", "built\n");
   commitAll(origin.project, "ship a built revision");
   push(origin.project);

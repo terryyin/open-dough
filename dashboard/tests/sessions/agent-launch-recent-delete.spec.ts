@@ -42,7 +42,6 @@ test.use({ projectFolders: ["open-dough"] });
 test.describe("deleting a Recently done entry's record", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

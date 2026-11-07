@@ -74,7 +74,6 @@ test("where the browser refuses storage, the lists start at an equal share and r
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await page.addInitScript(() => {
     const refused = () => {
       throw new DOMException("Storage is refused.", "SecurityError");

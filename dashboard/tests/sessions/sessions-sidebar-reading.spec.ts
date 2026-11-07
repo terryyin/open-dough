@@ -33,7 +33,6 @@ test.use({
 test.describe("the Sessions sidebar's reading", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

@@ -44,7 +44,6 @@ test("the row says running while the automatic session is open and, once it ends
   page,
   github,
 }) => {
-  test.setTimeout(180_000);
   const origin = await startOrigin();
   const moving = await publishMovingOrigin(github);
   const due = dayFromToday(-1);
@@ -130,7 +129,6 @@ test("a cycle that publishes its advanced date and reports quietly is done on th
   page,
   github,
 }) => {
-  test.setTimeout(120_000);
   const origin = await startOrigin();
   const moving = await publishMovingOrigin(github);
   const due = dayFromToday(-1);
@@ -180,7 +178,6 @@ test("an automatic session that ended unavailable without a done mark is, after 
   page,
   github,
 }) => {
-  test.setTimeout(180_000);
   const origin = await startOrigin();
   const moving = await publishMovingOrigin(github);
   const due = dayFromToday(-1);

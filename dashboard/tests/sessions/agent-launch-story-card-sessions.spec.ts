@@ -50,7 +50,6 @@ test.use({
 test.describe("a story's card as origin publishes what its sessions do", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
@@ -61,9 +60,9 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     page,
     dashboard,
   }) => {
-    // beforeAll's setTimeout covers only that hook; this multi-reload journey
-    // needs its own bound so runner variance cannot cut it at Playwright's
-    // default 30s mid-settled wait (same pattern as open-session).
+    // This multi-reload journey needs its own bound so runner variance cannot
+    // cut it at Playwright's default 30s mid-settled wait (same pattern as
+    // open-session).
     test.setTimeout(120_000);
     dashboard.claudeScenario("launched");
     const { action, settled, show, launch } = await openStoryColumnsJourney(

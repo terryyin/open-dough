@@ -181,7 +181,6 @@ test("a refinement's announcement, read before its session settles, keeps the st
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   dashboard.claudeScenario("held");
   await pausePageClock(page);
   const { published, story } = await openStories(page, origin);

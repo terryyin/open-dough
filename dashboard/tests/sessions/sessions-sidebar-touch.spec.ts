@@ -25,7 +25,6 @@ import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
-  test.setTimeout(120_000);
   journey = await publishStoryColumnsJourney();
 });
 test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());

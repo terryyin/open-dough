@@ -12,8 +12,6 @@ import {
   writePickedImages,
 } from "../support/launchAttachmentFixtures.ts";
 
-test.setTimeout(120_000);
-
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
 test("Codex Start session with one attached image ends the text input with its copied path", async ({

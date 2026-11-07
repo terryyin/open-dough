@@ -14,7 +14,6 @@ test("a CLI-completed story without a local launch opens fixed published changes
   dashboard,
   origin,
 }) => {
-  test.slow();
   const story = await completedPublishedStory(origin);
   const { completion } = story;
   await publishCommittedOrigin(page, {

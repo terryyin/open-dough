@@ -13,7 +13,6 @@ import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { startOrigin } from "../support/startOrigin.ts";
 
-test.setTimeout(120_000);
 test.use({ hasTouch: true });
 
 const pygardonHome =

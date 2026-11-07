@@ -26,8 +26,6 @@ import {
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 
-test.setTimeout(120_000);
-
 const workspaceShown = "~/git/open-dough/.worktrees/story-a";
 const establishing = "Start also publishes";
 

@@ -30,7 +30,6 @@ test.describe("Recover keep-wait expiry", () => {
     origin,
     cursor,
   }) => {
-    test.setTimeout(120_000);
     const revision = (await origin.originGit("rev-parse", "main")).trim();
     await publishCommittedOrigin(page, {
       repoDir: origin.origin,

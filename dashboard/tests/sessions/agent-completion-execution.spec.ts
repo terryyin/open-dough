@@ -20,7 +20,6 @@ test("execution completion keeps its Taken terminal available until wrap-up, thr
   origin,
   cursor,
 }) => {
-  test.setTimeout(120000);
   const answer = await launch(dashboard, {
     source: "open-dough",
     host: "cursor",

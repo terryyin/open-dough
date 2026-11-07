@@ -36,7 +36,6 @@ import { publishes } from "../support/fakeGitHub.ts";
 test("withheld detail is read on its own once the wait ends on a visible page, beside the snapshot it keeps, while a gap another failure left stays", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   await pausePageClockAt(page, opened);
   const published = publishes({ revision, files: filesBesideUnreachable });
   const answers = limiting(

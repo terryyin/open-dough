@@ -37,8 +37,6 @@ import {
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";
 
-test.setTimeout(120_000);
-
 test("story readiness keeps evidence gaps and refreshes truthful", async ({
   page,
   afterGitHubStops,

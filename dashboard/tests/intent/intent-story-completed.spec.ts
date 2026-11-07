@@ -38,8 +38,6 @@ import { kindStyles, nameStyle } from "../support/changeKindStyle.ts";
 import { git } from "../support/storyReviewWorktree.ts";
 import { expectSelected, selectStory } from "../storyCardSelection.ts";
 
-test.setTimeout(180_000);
-
 const gone = "dashboard/tests/gone.spec.ts";
 // Why a shallow checkout's published history yields no comparison.
 const unrecoverable =
@@ -49,7 +47,6 @@ test("Intent overlays a completed story's published history comparison, naming i
   page,
   origin,
 }) => {
-  test.slow();
   const { card, intent, completion, published } =
     await selectCompletedStoryInIntent(page, origin);
   const scoped = storySummary(intent);
@@ -169,7 +166,6 @@ test("a completed story whose published comparison cannot be recovered says why,
   page,
   origin,
 }) => {
-  test.slow();
   const { card, intent } = await selectCompletedStoryInIntent(
     page,
     origin,
