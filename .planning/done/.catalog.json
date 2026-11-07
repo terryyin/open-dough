@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-258_compare-manual-intent-coverage.json",
+      "identity": "SEED-258#compare-manual-intent-coverage",
+      "completedAt": "2026-11-07T13:44:27.774Z",
+      "blob": "8241a95c50013dca00106efc3ba313612f33fd2c"
+    },
+    {
       "fileName": "SEED-254_explain-running-after-proofless-later-build.json",
       "identity": "SEED-254#explain-running-after-proofless-later-build",
       "completedAt": "2026-11-07T12:27:24.209Z",

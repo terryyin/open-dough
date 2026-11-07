@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-258#compare-manual-intent-coverage",
+  "title": "Compare a short manual intent assessment with ordinary review",
+  "completedAt": "2026-11-07T13:44:27.774Z",
+  "developer": "Terry Yin",
+  "agent": "darren-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
