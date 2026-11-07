@@ -23,7 +23,7 @@ import {
   scopeEvidenceOf,
 } from "./IntentScopeEvidence.tsx";
 import { ComparisonNamed } from "./IntentScopeComparisonTable.tsx";
-import { changeKindWords } from "./IntentScopeProofChild.tsx";
+import { changeKindWords } from "./CiProofFigures.tsx";
 import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
 import {
   comparisonEndpointProofsChecking,

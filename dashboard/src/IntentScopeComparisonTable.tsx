@@ -1,9 +1,9 @@
 // Summary comparing a selected story's baseline, branch and landed execution
 // times (`./IntentScopeProof.tsx`) through the shared scope comparison
 // (`./ciScopeComparison.ts`): the scope's own compared figures above a
-// sortable table of its immediate children, with change markers from the
-// story overlay, and the outside row kept last; and the homepage's
-// observed-not-attributed statement. A selected
+// sortable table of its immediate children, with each child's change from
+// the story overlay under Change, and the outside row kept last; and the
+// homepage's observed-not-attributed statement. A selected
 // file reuses ComparisonNamed for its Proof
 // (`./IntentFileProof.tsx`).
 
@@ -135,21 +135,12 @@ export function ComparisonTable({
       afterSide,
     );
   };
-  const childRow = (child: SummaryChild): CiProofTableRow => {
-    const file = changeOf(treeFiles, child.path);
-    return {
-      key: child.path,
-      scope: (
-        <ChildName
-          child={child}
-          onOpen={onOpen}
-          {...(file?.kind === undefined ? {} : { marker: file.kind })}
-        />
-      ),
-      name: child.name,
-      cells: cellsFor(child.path),
-    };
-  };
+  const childRow = (child: SummaryChild): CiProofTableRow => ({
+    key: child.path,
+    scope: <ChildName child={child} onOpen={onOpen} />,
+    name: child.name,
+    cells: cellsFor(child.path),
+  });
   const rows: CiProofTableRow[] = children.map(childRow);
   if (entry !== undefined && hasFileBreakdown(entry)) {
     const outside = outsideOf(entry, path, children);
@@ -183,6 +174,7 @@ export function ComparisonTable({
         scopeHeader="Scope"
         rows={rows}
         sorting={sorting}
+        changes
       />
     </>
   );

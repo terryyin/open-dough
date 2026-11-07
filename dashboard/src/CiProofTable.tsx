@@ -5,9 +5,12 @@
 // (`./IntentCiProof.tsx`) gives one row per declared entry. A story CI
 // comparison (`./IntentCiComparison.tsx`) reuses this table with Baseline,
 // Branch and Landed timing columns in place of a single Test execution time
-// column, keeping Counts and Parts. A scope path wraps after a `/`, or within
-// a part only in a narrow reading pane, so the columns fit with their words
-// whole; the shared Proof table box keeps any overflow inside it
+// column, keeping Counts and Parts; a Summary's story comparison
+// (`./IntentScopeComparisonTable.tsx`) adds Change after the scope, its cells
+// narrowing their padding sooner for the extra column. A scope path wraps
+// after a `/`, or within a part only in a narrow reading pane, so the columns
+// fit with their words whole; the shared Proof table box keeps any overflow
+// inside it
 // (`./ci-proof-table.css`). CI wall time is the attempt's own and never a
 // column here. A caller that gives `sorting` makes each column header a
 // button that sorts the rows by that column's figures (`./ciProofSort.ts`),
@@ -123,14 +126,17 @@ export function CiProofTable({
   scopeHeader,
   rows,
   sorting,
+  changes = false,
 }: {
   readonly label: string;
   readonly scopeHeader: string;
   readonly rows: readonly CiProofTableRow[];
   readonly sorting?: CiProofSorting;
+  // Whether a story comparison's rows show their story change under Change.
+  readonly changes?: boolean;
 }) {
   const comparison = rows.some((row) => isComparisonCells(row.cells));
-  const headers = figureHeadersFor(comparison);
+  const headers = figureHeadersFor(comparison, changes);
   // A sort by a column this table lacks, such as a timing column kept from
   // another table, gives way to the given order.
   const lacked =
@@ -144,7 +150,9 @@ export function CiProofTable({
   }, [lacked, onSort]);
   const shown = sortedRows(rows, lacked ? undefined : sorting?.sort);
   return (
-    <div className="intent-proof-table intent-ci-proof-box">
+    <div
+      className={`intent-proof-table intent-ci-proof-box${changes ? " intent-ci-proof-changes" : ""}`}
+    >
       <table className="intent-proof-rows">
         <caption className="visually-hidden">{label}</caption>
         <thead>

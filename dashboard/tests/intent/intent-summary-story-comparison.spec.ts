@@ -1,7 +1,7 @@
 // Entry and folder Summary CI timing and counted-results comparison for a
 // selected done story (../../src/IntentScopeProof.tsx, ../../src/ciScopeComparison.ts):
 // baseline, branch and landed precise durations with signed differences,
-// Counts with signed differences (entry 4 → 5 tests (+1)), change markers, added /
+// Counts with signed differences (entry 4 → 5 tests (+1)), each child's Change, added /
 // removed / renamed / later-trunk gaps, and drill into a nested folder
 // (SEED-245#compare-story-intent-entry-folder-and-file-summaries examples 1,
 // 2 timing, 3–4, 6). An owning integration merge that edits an Intent test file
@@ -40,7 +40,7 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     variant === undefined
       ? "clean merges"
       : "owning merge-resolution edits to a test file";
-  test(`a selected done story with ${label}: entry and folder Summaries compare precise baseline, branch and landed times with change markers`, async ({
+  test(`a selected done story with ${label}: entry and folder Summaries compare precise baseline, branch and landed times with each child's Change`, async ({
     page,
     origin,
   }) => {

@@ -2,15 +2,18 @@
 // sort by the figures beside their words, never by the words: the scope by its
 // path name, Counts by the number of counted results with failed results first
 // among equal totals, a timing column by its measured milliseconds
-// (`./ciProofTiming.ts`), and Parts by the number of gaps. A row without a
-// value for the sorted column (partial or unavailable timing, no CI result, an
-// endpoint gap) follows the rows with one in either direction; such rows, and
-// ties, keep the order the caller gave. A pinned row stays last under any
-// sort. The first activation of a column sorts it ascending, the next reverses
-// it. The sort choice is the caller's in-memory state.
+// (`./ciProofTiming.ts`), Parts by the number of gaps, and a story
+// comparison's Change by kind: added, modified, removed, then renamed. A row
+// without a value for the sorted column (partial or unavailable timing, no CI
+// result, an endpoint gap, a scope the story leaves unchanged) follows the
+// rows with one in either direction; such rows, and ties, keep the order the
+// caller gave. A pinned row stays last under any sort. The first activation of
+// a column sorts it ascending, the next reverses it. The sort choice is the
+// caller's in-memory state.
 
 import type { TimingCell } from "./ciProofTiming.ts";
 import type { CiProofCells, CountedResults } from "./ciProofWording.ts";
+import type { ChangeKind } from "./reviewFileTree.ts";
 import {
   isComparisonCells,
   type ComparisonEntryCells,
@@ -20,6 +23,7 @@ export type SortDirection = "ascending" | "descending";
 
 export type CiProofColumn =
   | "scope"
+  | "change"
   | "counts"
   | "executionTime"
   | "baseline"
@@ -69,8 +73,27 @@ export function timingCellIn(
     : undefined;
 }
 
+// The story change CELLS show under Change: a story comparison's change of
+// its scope, none for a scope the story leaves unchanged or one run's figures.
+export const changeIn = (
+  cells: CiProofCells | ComparisonEntryCells,
+): ChangeKind | undefined =>
+  isComparisonCells(cells) ? cells.change : undefined;
+
+// The order of story change kinds under Change.
+const changeRank: Record<ChangeKind, number> = {
+  added: 0,
+  modified: 1,
+  deleted: 2,
+  renamed: 3,
+};
+
 function valueOf(row: SortableRow, column: CiProofColumn): SortValue {
   if (column === "scope") return row.name;
+  if (column === "change") {
+    const change = changeIn(row.cells);
+    return change === undefined ? undefined : changeRank[change];
+  }
   if (column === "counts") return row.cells.countedResults;
   if (column === "parts") return row.cells.gapCount;
   return timingCellIn(row.cells, column)?.ms;

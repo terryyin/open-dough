@@ -179,13 +179,24 @@ one column-to-timing map).
 
 ### 4. Story comparisons show change kind as a sortable column
 Type: Behavior
-Status: planned
+Status: done
 Proof: as mapped above for key example 3.
 
 Behavior: a selected Done or Taken story's summary or CI status comparison
 → a **Change** column shows added, modified, removed or renamed, names
 carry no trailing change words, the row cues stay → sorting **Change**
 brings changed rows first by kind with unchanged rows last.
+
+Accepted proof (2026-11-07): summary story comparison specs read headers
+`Scope, Change, Counts, Baseline, Branch, Landed, Parts` and names without
+change words; `intent-summary-story-comparison-sort.spec.ts` sorts Change
+both ways (unchanged last) and Landed (gaps last) and checks the table fits
+its box at 200% zoom in Verdana; unit `intent-ci-comparison-sort.test.mjs`;
+gate 106 passed in 4.1 min; comparison specs, units, typecheck and lint
+rerun green after the refactor. The CI status comparison names bare entries,
+so it has no Change column; file Proof keeps its trailing change word (G1).
+Refactor disposition: `## REFACTOR COMPLETE` (`changeIn` beside
+`timingCellIn`; comparison sort units split out).
 
 ### 5. Evidence identity reads as grouped labels
 Type: Behavior
@@ -201,6 +212,13 @@ judgment, failed refresh, observed-not-attributed framing, absent child
 breakdown and outside-row contents stay visible as short labels with their
 full words available to assistive technology. Intent's documentation
 matches the shipped wording.
+
+## Story obligations
+
+### G1. File Proof keeps its trailing change word
+Reported: slice 4 — "File Proof keeps its trailing change word (the decision above)."
+Story clause: "In a story comparison the story's change kind (added, modified, removed, renamed) moves from trailing words on the name into a short **Change** column"
+Disposition: excluded "A selected file's Proof changes only as far as it shares the evidence identity and timing labels."
 
 ## Learnings
 
@@ -238,6 +256,12 @@ matches the shipped wording.
   words now come from `ChildName`'s marker and the
   `summaryComparison*ExpectedRows.ts` names. Slice 5's evidence lines sit
   above the group; new label strips join the zoom specs' Verdana override.
+
+- 2026-11-07, slice 4: the summary comparison table has about 7 px of slack
+  at 200% zoom in Verdana; slice 5's label strips sit outside
+  `.intent-ci-proof-box` or join the zoom-fit steps. Evidence lines live in
+  `ComparisonNamed` (`IntentScopeComparisonTable.tsx`), shared with file
+  Proof.
 
 ## Refinement review
 

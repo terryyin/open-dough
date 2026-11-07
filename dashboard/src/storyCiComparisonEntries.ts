@@ -20,6 +20,7 @@ import type {
   ComparisonAfterSide,
   ScopeComparisonCues,
 } from "./ciScopeComparisonCues.ts";
+import type { ChangeKind } from "./reviewFileTree.ts";
 import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
 
 export type ComparisonEndpointProof =
@@ -62,6 +63,8 @@ export type ComparisonEntryCells = {
   readonly completeness: string;
   readonly gaps: readonly string[];
   readonly gapCount: number | undefined;
+  // The selected story's change of the scope, when it changes it.
+  readonly change?: ChangeKind;
   // One classification for the active after endpoint; Summary, entry rows and
   // Proof all render from this.
   readonly cues: ScopeComparisonCues;

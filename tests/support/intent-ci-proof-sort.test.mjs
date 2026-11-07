@@ -3,13 +3,13 @@
 // words (path name, counted results with failed first among equal totals,
 // measured time, number of gaps); a row without a figure for the sorted column
 // follows the rows with one in either direction; ties and unmeasured rows keep
-// the given order; a pinned row stays last. Browser journey:
+// the given order; a pinned row stays last. Story comparison columns:
+// ./intent-ci-comparison-sort.test.mjs. Browser journey:
 // ../../dashboard/tests/intent/intent-ci-status-sort.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { nextSort, sortedRows } from "../../dashboard/src/ciProofSort.ts";
 import { ciProofCellsOf } from "../../dashboard/src/ciProofWording.ts";
-import { comparisonEntriesOf } from "../../dashboard/src/storyCiComparisonEntries.ts";
 
 const part = (number, extra = {}) => ({
   part: number,
@@ -176,52 +176,4 @@ test("a pinned row stays last under any sort", () => {
   for (const column of ["scope", "counts", "executionTime"])
     for (const direction of ["ascending", "descending"])
       assert.equal(sortBy(rows, column, direction).at(-1), "z/outside");
-});
-
-const timed = (path, durationMs, passed = 1) => ({
-  ...entryOf(path, [part(1, { passed, durationMs })]),
-});
-const summary = (...entries) => ({ kind: "summary", entries });
-
-test("a comparison sorts endpoint columns by measured time with endpoint gaps last, and Counts by the after count", () => {
-  const result = comparisonEntriesOf(
-    summary(timed("e/slow", 300), timed("e/fast", 100)),
-    summary(
-      timed("e/slow", 400, 5),
-      timed("e/fast", 50, 2),
-      timed("e/added", 70, 9),
-    ),
-    { kind: "unavailable", line: "no proof" },
-    "branch",
-  );
-  assert.equal(result.kind, "rows");
-  const rows = result.rows.map((row) => ({ name: row.path, cells: row.cells }));
-  assert.deepEqual(sortBy(rows, "branch", "ascending"), [
-    "e/fast",
-    "e/added",
-    "e/slow",
-  ]);
-  // Baseline has no figure for the added entry.
-  assert.deepEqual(sortBy(rows, "baseline", "descending"), [
-    "e/slow",
-    "e/fast",
-    "e/added",
-  ]);
-  // Landed is an endpoint gap for every row: the given order stays.
-  assert.deepEqual(sortBy(rows, "landed", "ascending"), [
-    "e/slow",
-    "e/fast",
-    "e/added",
-  ]);
-  assert.deepEqual(sortBy(rows, "counts", "descending"), [
-    "e/added",
-    "e/slow",
-    "e/fast",
-  ]);
-  // A column the comparison lacks leaves the given order.
-  assert.deepEqual(sortBy(rows, "executionTime", "ascending"), [
-    "e/slow",
-    "e/fast",
-    "e/added",
-  ]);
 });

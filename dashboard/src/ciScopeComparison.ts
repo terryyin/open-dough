@@ -51,7 +51,8 @@ const notInCompared = { text: "not in the compared builds" };
 
 // Cells for one compared scope path across the three endpoint proofs.
 // `baselineLookup` is the path read at baseline (a rename's old path).
-// `changeKind` is the story overlay's marker when the path is a story change.
+// `changeKind` is the story overlay's change kind when the path is a story
+// change; the cells carry it as their Change.
 // `afterSide` is the active comparison's after endpoint for cues.
 export function scopeComparisonCellsOf(
   path: string,
@@ -63,6 +64,7 @@ export function scopeComparisonCellsOf(
   changeKind?: ChangeKind,
   afterSide: ComparisonAfterSide = "landed",
 ): ComparisonEntryCells {
+  const change = changeKind === undefined ? {} : { change: changeKind };
   const presentLater = presentIn(branch, path) || presentIn(landed, path);
   const presentInBaseline =
     presentIn(baseline, baselineLookup) || changeKind === "deleted";
@@ -99,6 +101,7 @@ export function scopeComparisonCellsOf(
       branch: notInCompared,
       landed: notInCompared,
       cues: noComparisonCues,
+      ...change,
     };
   }
   const renameNote =
@@ -137,6 +140,7 @@ export function scopeComparisonCellsOf(
       changeKind,
     ),
     cues: scopeComparisonCuesOf(beforeCount, afterCount, before, afterTiming),
+    ...change,
   };
 }
 

@@ -57,8 +57,8 @@ async function expectTableRows(
 
 export const scopeColumns = ["Scope", ...proofColumns.slice(1)];
 
-export const comparisonScopeColumns = [
-  "Scope",
+// A story comparison's figure columns after the scope.
+export const comparisonFigureColumns = [
   "Counts",
   "Baseline",
   "Branch",
@@ -66,7 +66,17 @@ export const comparisonScopeColumns = [
   "Parts",
 ] as const;
 
+// A Summary's story comparison table: each child's story change under Change.
+export const comparisonScopeColumns = [
+  "Scope",
+  "Change",
+  ...comparisonFigureColumns,
+] as const;
+
+// A compared scope, its change (empty when the story leaves it unchanged),
+// then its figures.
 export type ComparisonScopeRow = readonly [
+  string,
   string,
   string,
   string,
@@ -89,21 +99,18 @@ export async function expectScopeRows(
   await expectTableRows(summary, path, scopeColumns, rows);
 }
 
-// The same with a selected story's Baseline / Branch / Landed columns.
+// The same with a selected story's Baseline / Branch / Landed columns, the
+// table's rows led by their Change.
 export async function expectComparisonScopeRows(
   summary: Locator,
   path: string,
   [own, ...rows]: readonly ComparisonScopeRow[],
 ) {
   if (own === undefined) throw new Error(`no own figures of ${path}`);
-  const [scope, ...figures] = own;
+  // The scope's own figures carry no Change.
+  const [scope, , ...figures] = own;
   expect(scope).toBe(path);
-  await expectOwnFigures(
-    summary,
-    path,
-    comparisonScopeColumns.slice(1),
-    figures,
-  );
+  await expectOwnFigures(summary, path, comparisonFigureColumns, figures);
   await expectTableRows(summary, path, comparisonScopeColumns, rows);
 }
 

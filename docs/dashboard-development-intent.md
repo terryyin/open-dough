@@ -52,14 +52,17 @@ child's name; until one is activated the rows keep the browser's order, and
 does not move. The sort is kept in memory with Intent's reading place, never
 on the URL or in storage: drilling down or switching to Development and
 back keeps it, and a sorted column the next
-Summary table lacks (a timing column between one run's figures and a story
-comparison) gives way to the browser's order. With a story selected, the same Summary names that story's CI timing
+Summary table lacks (a timing column or **Change** between one run's figures
+and a story comparison) gives way to the browser's order. With a story selected, the same Summary names that story's CI timing
 comparison (baseline, branch and landed, as **CI status** names them; Taken
 labelled provisional) and the observed-not-attributed statement; its group
 and table use **Baseline**, **Branch** and **Landed** for precise times with signed
 differences, shows counted-results differences in **Counts** (a gap endpoint
-shows its gap, not a difference), marks story-changed rows (a rename takes
-its baseline from its old path), explains per-row gaps, and shows the same
+shows its gap, not a difference), names each child's story change in a
+**Change** column after **Scope** (`added`, `modified`, `removed` or
+`renamed`, empty when unchanged; a rename takes its baseline from its old
+path, which its **Baseline** cell names) that sorts by kind in that order
+with unchanged rows last in either direction, explains per-row gaps, and shows the same
 count-border and duration-tint cues as the homepage entry table (see
 [CI timing comparison](dashboard-development-intent-ci-comparison.md)). Parts
 completeness stays for the homepage's chosen build (landed, else branch).
