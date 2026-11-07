@@ -58,11 +58,15 @@ export type LaterProofUnavailable = {
 
 // Where the forward walk ended: the nearest later build with usable proof
 // (`found`), a running build (`running`), or the end of the walk at the read
-// trunk head or the Baseline bound (`ended`), naming the nearest later build
-// whose proof was unavailable and why when it passed one.
+// trunk head or the Baseline bound (`ended`). Stops without usable proof can
+// name the nearest later build whose proof was unavailable and why.
 export type LaterTrunkProofWalk =
   | { readonly kind: "found"; readonly build: RevisionCiBuild }
-  | { readonly kind: "running"; readonly build: RevisionCiBuild }
+  | {
+      readonly kind: "running";
+      readonly build: RevisionCiBuild;
+      readonly unavailable?: LaterProofUnavailable;
+    }
   | {
       readonly kind: "ended";
       readonly at: "head" | "bound";
@@ -86,7 +90,12 @@ export async function laterTrunkProofBuild(
   for (const [index, sha] of chain.entries()) {
     const build = await nearestRevisionBuild([sha], lookup);
     if (build === undefined) continue;
-    if (build.state === "running") return { kind: "running", build };
+    if (build.state === "running")
+      return {
+        kind: "running",
+        build,
+        ...(unavailable === undefined ? {} : { unavailable }),
+      };
     const reason = await proofAbsence(build);
     if (reason !== undefined) {
       unavailable ??= { build, reason };
@@ -117,13 +126,20 @@ function runWords(build: RevisionCiBuild): string {
 function noLaterProofWords(
   walk: Exclude<LaterTrunkProofWalk, { kind: "found" }>,
 ): string {
-  if (walk.kind === "running")
-    return `A later trunk build at ${runWords(walk.build)} is still running, so no later trunk build has finished yet.`;
-  if (walk.unavailable !== undefined)
-    return laterBuildUnavailableLine(
-      runWords(walk.unavailable.build),
-      walk.unavailable.reason,
-    );
+  const unavailable =
+    walk.unavailable === undefined
+      ? undefined
+      : laterBuildUnavailableLine(
+          runWords(walk.unavailable.build),
+          walk.unavailable.reason,
+        );
+  if (walk.kind === "running") {
+    const running = `A later trunk build at ${runWords(walk.build)} is still running`;
+    return unavailable === undefined
+      ? `${running}, so no later trunk build has finished yet.`
+      : `${unavailable} ${running}.`;
+  }
+  if (unavailable !== undefined) return unavailable;
   return walk.at === "head"
     ? "No later trunk build has finished yet."
     : `No later trunk build finished within ${String(baselineAncestorLimit)} later trunk revisions.`;

@@ -128,11 +128,13 @@ unusable proof. A cancelled landing keeps Cancelled and may use the nearest
 later trunk build with usable proof, walking trunk's first-parent history
 forward past cancelled, unbuilt and proofless revisions, stopping at a running
 build, the read trunk head or 30 revisions; it is labelled a later trunk build
-with how many later trunk revisions it includes. Without one, Landed keeps the
-cancelled explanation, adds why (no later trunk build has finished yet, one is
-still running, or the nearest later build's proof is unavailable and why) and
-shows no figures; when the walk stopped at the trunk head or a running build,
-the answer is read again on the next selection instead of remembered.
+with how many later trunk revisions it includes. Without usable later proof,
+Landed keeps the cancelled explanation and shows no figures. If the walk passed
+a build whose proof was unavailable, Landed names the nearest such build and
+explains why. If the walk stopped at a running build, Landed also names that
+build. If neither applies, Landed says no later build finished in the history
+it read. When the walk stopped at the trunk head or a running build, the answer
+is read again on the next selection instead of remembered.
 Timed-out or unexplained stays exact-only. Each build shows its revision, run, attempt, state, and exact,
 measured-ancestor, equivalent-build or later-trunk-build selection, with the requested revision's own status
 (Skipped, Cancelled, or No build) when that revision is not the timed build

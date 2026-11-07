@@ -104,6 +104,8 @@ test("laterTrunkProofBuild says where it stopped: a running build, the read trun
   );
   assert.equal(walk.kind, "running");
   assert.equal(walk.build.runId, 32);
+  assert.equal(walk.unavailable?.build.revision, later1);
+  assert.equal(walk.unavailable?.reason, "expired");
   assert.deepEqual(running.listed, [later1, later2]);
 
   const atHead = lookupOf({});

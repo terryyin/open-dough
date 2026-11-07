@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Explain a running later build after a proofless one](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#explain-running-after-proofless-later-build) — SEED-254#explain-running-after-proofless-later-build ([plan](slice-plans/497-explain-running-after-proofless-later-build/PLAN.md))
-
 ## Backlog list
 
 - [Retry unavailable CI comparison slots](seeds/SEED-118-dashboard-reading-reliability.md#retry-unavailable-ci-comparison-slots) — SEED-118#retry-unavailable-ci-comparison-slots
