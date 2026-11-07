@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 444. Removed numbers are never reused.
+- Highest allocated local number: 445. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -124,6 +124,16 @@ Former local code: DD-258. [Evidence and current response](docs/maintainer/findi
 ## ODF-150 — Implementation proof misses indirect consumers <a id="odf-150"></a>
 
 Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/findings/ODF-150.md).
+
+### Occurrences
+- Execution: SEED-260#restore-default-test-timeouts (plan 502-restore-default-test-timeouts; first related implementation commit `6e6d16cef09551a1bd589ba1ec8be6c5cc970f1c`)
+  - Timestamp: 2026-11-08T00:23:57+08:00 (commit time of slice 5 revision `8aeb3c1cc`; the refactor pass found it before that commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.88 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 5 implementation proof ran 38 `dashboard/tests` consumers of `controlReachability.ts` but not `dashboard/frontend-tests/control-reachability-observation.spec.ts`; the refactor pass ran it and it failed at `:37` ("a control revealed by earlier scrolling is still checked")
+  - Observed effect: the single-pass reachability check silently dropped controls revealed by scrolling until the refactor agent fixed it before commit
+  - Inference: the consumer selection was built from one test root; the coordinator's later briefs added "include frontend-tests and backend-tests consumers"
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
@@ -804,3 +814,19 @@ where the done reader rejects it.
   - Evidence: `0b4ba8d1b` renamed `.planning/{agents => done}/bastiaan-chan.json` unchanged ("Keep trunk's bastiaan-chan done record"); `done/.catalog.json` listed it as `unreadable`; `identity-evidence` reported the gap "done record requires a title"
   - Observed effect: this execution moved the profile back to `.planning/agents/` and rebuilt the catalog with `catalog-done`, in its execution-complete commit
   - Inference: the integrator likely matched the file by name across `agents/` and `done/`; a profile is not a done record
+
+## DD-445 — Timeout headroom judged from one hosted run missed run-to-run variance
+
+Overrides were removed when one hosted run showed a case at or under 15s, but
+the same unchanged cases ran up to about 2x slower in later hosted runs, so
+two removals timed out on CI and a hardening pass followed.
+
+### Occurrences
+- Execution: SEED-260#restore-default-test-timeouts (plan 502-restore-default-test-timeouts; first related implementation commit `6e6d16cef09551a1bd589ba1ec8be6c5cc970f1c`)
+  - Timestamp: 2026-11-08T01:20:03+08:00 (commit time of slice 8 revision `1f9d12446`; its hosted run 42395811294 timed out afterwards)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.88 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 1 margin rule used run 42372706379 only; runs 42395811294 (`agent-launch-story-card-sessions`, 25.2s before) and 42399373902 (`production-watcher-failures.spec.ts:84`) hit 30s; comparing 2,122 matched cases, median ratio 1.02 but p90 1.53, and `story-review-one-shot-choice-refresh` 13.8s → 26.5s unchanged
+  - Observed effect: two CI repairs (`acfe0ca9e`, `665c28053`) with stash and pause cycles, then a nine-journey hardening pass (`aad804b57`); 13 hosted cases still at 20–25s
+  - Inference: hosted shard co-scheduling and CPU contention dominate; a margin judged across several hosted runs, or against a loaded stand-in such as 16–24 traced local workers, would have found these before publication

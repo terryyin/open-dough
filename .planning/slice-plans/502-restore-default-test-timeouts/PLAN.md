@@ -390,6 +390,27 @@ largest was the updates hook at 14.98s. With hosted variance up to about 2×,
 the 20–25s cases are the next timeout risk under the failing and flaky test
 policy.
 
+## Execution complete
+
+Product advice:
+- Hosted margins: in run 42406259249, 13 cases without an allowance took
+  20–25s, and hosted case times vary up to about 2× between runs. A short
+  follow-up should judge margins across several hosted runs, or against a
+  16–24-worker traced local stand-in. The largest cost is fake `gh` and
+  `claude` process starts plus tracing, shared by every journey (DD-445).
+- Decide whether the GitHub request owner, which is released payload code,
+  may take a test-controlled clock. That decision would remove the
+  `auto-refresh-rate-limit-real-waits` allowance and the 6s span still in
+  `revision-stream-lost`.
+- Remove `production-deployment-pinned-build` once at least two hosted runs
+  keep the case at or under 15s, as its follow-up states.
+- Outside this story's scope, explicit wait bounds over 30s remain in other
+  journeys. Examples: `recentlyDoneRefresh.ts` uses `toPass` 45s, and
+  `responsive-session-recovery-verification.spec.ts` uses 60s. About 40
+  short elapsed waits remain in the dashboard tests, such as absence windows
+  and settle delays. They do not approach a timeout, but the test-automation
+  rule against waiting for wall-clock time still applies to them.
+
 ## Story obligations
 
 ### G1. One-shot refresh split dropped the evidence-gap fallback (first reported in the execution review)
