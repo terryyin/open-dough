@@ -1,9 +1,11 @@
 # Dashboard tests
 
 Run the dashboard's single Playwright suite from the repository root with
-`npm run test:dashboard`. Its browser and backend suites share one run, build and shard selection.
-The backend suite is a separate **Dashboard Backend Test** Intent entry, backed
-by the sibling `../backend-tests/` directory.
+`npm run test:dashboard`. Its integrated browser, frontend-only, and backend
+suites share one run, build and shard selection. **Dashboard Frontend Test** is
+backed by `../frontend-tests/` (DOM and synthetic-response UI without starting
+the dashboard backend). **Dashboard Backend Test** is backed by
+`../backend-tests/`.
 See [journey writing](writing-journeys.md) for waits, clocks, commands and fake
 GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
 hosts; the per-run [proof record](proof-record.md), the caller-owned
@@ -14,13 +16,19 @@ See [local resource use](../../tests/local-test-resources.md) for full-suite
 admission across linked worktrees, worker defaults, overrides, cleanup and
 machine sleep on macOS.
 
-## Two tiers: browser journeys and boundary tests
+## Three roots: integrated journeys, frontend-only, and boundary tests
 
 A **browser journey** proves one representative, integrated user journey in
 the real page: an observable precondition, the user's trigger, and the state
 change it causes. Journeys live in the ten [feature folders](feature-groups.md) and run under
 `dashboardTest.ts` or a fixture module built on it, each against its own
 built-preview server, which the `page` fixture opens.
+
+A **frontend-only test** proves DOM geometry or UI recovery, formatting,
+polling, or refusal feedback against synthetic backend answers. Those specs live
+in `../frontend-tests/` (**Dashboard Frontend Test**), import `pageTest.ts` or
+`support/frontendApp.ts`, and never start `dashboardServer`, fake hosts, or
+`FakeGitHub`. See [frontend-tests README](../frontend-tests/README.md).
 
 A **boundary test** proves the detailed variants, failure cases and contract
 details of one behavior at a stable public boundary of the dashboard server
@@ -41,10 +49,10 @@ Boundary and preview use the run's bundled `runnerMain.mjs`; dev and public
 production keep source. `../backend-tests/runtime/serving-modes.spec.ts` proves both real Vite
 servers mount the same boundaries and use those entries.
 
-`../backend-tests/` holds every spec that opens no page, whatever it drives; a spec
-that opens a page is a journey, however small, and a journey never repeats a
-variant the boundary tier can answer. Both tiers are one suite, run and
-sharded together (below).
+`../backend-tests/` holds every spec that opens no page, whatever it drives; a
+frontend-only page spec belongs in `../frontend-tests/`; an integrated page
+journey belongs here. All three roots are one suite, run and sharded together
+(below).
 
 ## Where a check goes
 

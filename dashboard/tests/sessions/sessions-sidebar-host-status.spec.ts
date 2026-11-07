@@ -1,3 +1,7 @@
+// Real host/session reads for the Sessions sidebar title row. Synthetic
+// unread host-figure cases live in
+// dashboard/frontend-tests/sessions-sidebar-host-status.spec.ts.
+
 import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
 import { expectReadableContrast } from "../accessibleReading.ts";
@@ -12,8 +16,6 @@ import {
   noteHostReads,
   story,
   statusJourney,
-  hostStatusAnswer,
-  unreadSessions,
 } from "../support/sessionHostStatus.ts";
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 async function expectFigure(
@@ -153,66 +155,6 @@ test.describe("the Sessions sidebar's title row status", () => {
       await givePageItsTurns(page);
       expect(reads.asked()).toBe(before);
     });
-  });
-
-  test("an unread host figure says it is unavailable while the other figures still show", async ({
-    page,
-    dashboard,
-  }) => {
-    await pausePageClockAt(page, new Date());
-    const { sessionId } = await launched(dashboard, "doughnut", story(7));
-    dashboard.claudeSessionBecomes(sessionId, "blocked");
-    const host = await hostStatusAnswer(page, {
-      cpuPercent: 24,
-      freeBytes: null,
-    });
-    const { passOnePace } = await watchRecordReads(page);
-    const { button, entries, figures, active, waiting, cpu, disk } =
-      await readStatusView(page, columnsJourney());
-    await button.click();
-    await expect(entries).toHaveCount(1);
-    await test.step("free disk unread: it says so, invents no amount, and CPU and the counts still show", async () => {
-      await expect(figures).toHaveCount(4);
-      await expectFigure(disk, "—", "Free disk unavailable");
-      await expectFigure(cpu, "24%", "CPU 24%");
-      await expectFigure(active, 0, "0 active sessions");
-      await expectFigure(waiting, 1, "1 session needs attention");
-    });
-    await test.step("the next host read one check interval later changes both figures to its values", async () => {
-      host.answer = { cpuPercent: 61.4, freeBytes: 1_234_000_000_000 };
-      await passOnePace();
-      await expectFigure(cpu, "61%", "CPU 61%");
-      await expectFigure(disk, "1.2 TB", "1.2 TB free");
-    });
-    await test.step("CPU unread alone: it says so while free disk shows", async () => {
-      host.answer = { cpuPercent: null, freeBytes: 110_000_000_000 };
-      await passOnePace();
-      await expectFigure(cpu, "—", "CPU unavailable");
-      await expectFigure(disk, "110 GB", "110 GB free");
-    });
-    await test.step("the host status unanswered: both host figures say unavailable and the counts still show", async () => {
-      host.answer = undefined;
-      await passOnePace();
-      await expectFigure(cpu, "—", "CPU unavailable");
-      await expectFigure(disk, "—", "Free disk unavailable");
-      await expectFigure(waiting, 1, "1 session needs attention");
-    });
-  });
-
-  test("with the machine's sessions unread, the host figures still show from the host read", async ({
-    page,
-  }) => {
-    await pausePageClockAt(page, new Date());
-    await unreadSessions(page);
-    await hostStatusAnswer(page, { cpuPercent: 37, freeBytes: 52_000_000_000 });
-    const { button, figures, active, waiting, cpu, disk } =
-      await readStatusView(page, columnsJourney());
-    await button.click();
-    await expectFigure(cpu, "37%", "CPU 37%");
-    await expectFigure(disk, "52 GB", "52 GB free");
-    await expect(active).toHaveCount(0);
-    await expect(waiting).toHaveCount(0);
-    await expect(figures).toHaveCount(2);
   });
 
   test("a hidden page asks no host status; seen again, it asks at once and keeps the steady pace", async ({

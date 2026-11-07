@@ -66,6 +66,7 @@ export default defineConfig(
     // finishes its intercepted reads before teardown.
     files: [
       "dashboard/tests/**/*.{ts,mts,tsx}",
+      "dashboard/frontend-tests/**/*.{ts,mts,tsx}",
       "dashboard/backend-tests/**/*.{ts,mts,tsx}",
     ],
     ignores: [
@@ -96,6 +97,7 @@ export default defineConfig(
     // from any directory.
     files: [
       "dashboard/tests/**",
+      "dashboard/frontend-tests/**",
       "dashboard/backend-tests/**",
       "tests/**",
       "src/skills/*/scripts/**/*.test.mjs",

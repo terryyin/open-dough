@@ -636,3 +636,16 @@ pointers for size rather than only naming the observation command.
   - Evidence: plan 490 Learnings; `src/skills/dough-execute-plan/SKILL.md` delivery row now links `fresh-increment.md#publish`; `progress-observation-guidance.test.mjs` and `read-budget-guidance.test.mjs`; implementation agent report of packing against ~52/0 byte headroom
   - Observed effect: Guidance sequence was delivered, but representative edits required a publish/observe heading split and size-neutral finish-row wording to keep the boundary-read budget green
   - Inference: Boundary-row budgets that leave near-zero headroom turn ordinary guidance stories into structure work; distinct from ODF-264 establishing the budgets themselves
+
+## DD-438 — Source-review commitment Ids used en-dash ranges the recorder refuses
+
+A fresh source-review Commitments table named several distinct restrictions under one en-dash range Id (`R5–R8q`, `R9–R12q`). `story-obligations.mjs record` / check treat those range tokens as malformed commitment Ids, so slice acceptance had to split the rows into individual Ids before observations could stick.
+
+### Occurrences
+- Execution: SEED-252#extract-dashboard-frontend-tests (plan `488-extract-dashboard-frontend-tests`; first related implementation commit `17f200208066da890623103609ef49441ad3c835`)
+  - Timestamp: 2026-11-07T13:23:51+08:00 (approx.; between source-review write and slice-1 acceptance)
+  - Tool: Cursor
+  - Open Dough release: unknown (source checkout skills; VERSION 0.3.87)
+  - Evidence: coordinator transcript `402174d0-70cd-415a-99d4-dc5cddd8b62b` narrative "Malformed commitment IDs are blocking the record"; StrReplace splitting `R5–R8q` / `R9–R12q` into `R5q` / `R12q` (and peers) in before-cleanup commit `80c1456f79fb951f5e8d7ceff55db1244e21796e` path `.planning/slice-plans/488-extract-dashboard-frontend-tests/source-review.md` before re-record / `check --slice 1`
+  - Observed effect: one blocked observation pass and a mechanical Id rewrite before slice-1 obligations cleared
+  - Inference: Qualified. Distinct from ODF-381 (Slice-column misuse) and ODF-391 (cell-shape malformations); here the Id column itself carried a range. Source-only review guidance that asks to number compound items separately was not followed for these restriction clusters.

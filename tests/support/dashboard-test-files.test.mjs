@@ -40,20 +40,22 @@ const matched = (patterns, path) =>
 test("the config deals recorded specs by their seconds and new specs after them at the median", () => {
   const files = [
     "tests/known.spec.ts",
+    "frontend-tests/dom.spec.ts",
     "backend-tests/short.spec.ts",
     "tests/new.spec.ts",
   ];
   // A removed entry is ignored and a repeated one keeps its largest seconds.
   const list =
-    "# header\n9.0\ttests/known.spec.ts\n1.0\ttests/removed.spec.ts\n0.5\tbackend-tests/short.spec.ts\n1.0\tbackend-tests/short.spec.ts\n";
+    "# header\n9.0\ttests/known.spec.ts\n1.0\ttests/removed.spec.ts\n3.0\tfrontend-tests/dom.spec.ts\n0.5\tbackend-tests/short.spec.ts\n1.0\tbackend-tests/short.spec.ts\n";
   withSpecDirectory(files, list, (directory, path) => {
     const first = dashboardTestMatch(directory, "1/2");
     const second = dashboardTestMatch(directory, "2/2");
-    // known 9.0 to share 1; short 1.0 to share 2; new at the median 5.0 to
-    // the lighter share 2.
+    // known 9.0 to share 1; dom 3.0 and short 1.0 to share 2; new at the
+    // median 3.0 to the lighter share 2.
     assert.equal(first.length, 1);
-    assert.equal(second.length, 2);
+    assert.equal(second.length, 3);
     assert.equal(matched(first, join(path, "tests/known.spec.ts")), 1);
+    assert.equal(matched(second, join(path, "frontend-tests/dom.spec.ts")), 1);
     assert.equal(matched(second, join(path, "backend-tests/short.spec.ts")), 1);
     assert.equal(matched(second, join(path, "tests/new.spec.ts")), 1);
     assert.equal(matched(first, join(path, "longest-first")), 0);
@@ -202,7 +204,7 @@ test("native projects queue production chains first and partition every shard wi
 test("unsharded projects include new specs and an empty shard never expands to every file", () => {
   const files = [
     "tests/runtime/production-watcher-updates.spec.ts",
-    "tests/a.spec.ts",
+    "frontend-tests/dom.spec.ts",
     "backend-tests/runtime/production-watcher-refusals.spec.ts",
   ];
   withSpecDirectory(files, "", (directory, path) => {

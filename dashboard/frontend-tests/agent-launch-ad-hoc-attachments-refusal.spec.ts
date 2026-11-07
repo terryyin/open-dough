@@ -1,40 +1,36 @@
 // Start session Attach images refusals: PDF, oversized PNG, and a sixth image
 // each name their reason; instruction, other images and Session choices stay
-// (SEED-204 E4 / commitments 4b.3, 11a–11g).
+// (SEED-204 E4 / commitments 4b.3, 11a–11g). Client-side picker validation
+// against the built frontend with explicit service substitutes.
 
-import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
 import {
-  openTakenBacklog,
+  expect,
+  openFrontendTakenBacklog,
+  test,
+} from "../tests/support/frontendApp.ts";
+import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../launchStoryCardPage.ts";
-import type { LaunchJourney } from "../launchJourney.ts";
+} from "../tests/launchStoryCardPage.ts";
 import {
   launchAttachmentLimitBytes,
   launchAttachmentMaxCount,
   launchAttachmentTooLarge,
   launchAttachmentTooMany,
   launchAttachmentUnsupportedType,
-} from "../../src/launchAttachments.ts";
+} from "../src/launchAttachments.ts";
 import {
   pickImagesInDialog,
   pngA,
   pngB,
   writePickedImages,
-} from "../support/launchAttachmentFixtures.ts";
-
-test.use({ projectFolders: ["open-dough"] });
-
-const openJourney = (page: Page, launchJourney: LaunchJourney) =>
-  openTakenBacklog(page, launchJourney);
+} from "../tests/support/launchAttachmentFixtures.ts";
 
 test("PDF, oversized PNG and a sixth image are refused with reasons while the draft stays", async ({
   page,
-  launchJourney,
 }, testInfo) => {
-  await openJourney(page, launchJourney);
+  await openFrontendTakenBacklog(page);
 
   const text = "Why is this card clipped?";
   const dialog = startSessionDialog(page, "Open Dough");

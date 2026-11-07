@@ -1,10 +1,10 @@
 # Dashboard Backend Test
 
-Browser-free dashboard tests live here, beside `../tests/`. They exercise HTTP,
-WebSocket, stored-file, command and module boundaries. Shared fixtures remain in
-`../tests/`.
+Browser-free dashboard tests live here, beside `../tests/` and
+`../frontend-tests/`. They exercise HTTP, WebSocket, stored-file, command and
+module boundaries. Shared fixtures remain in `../tests/`.
 
-Both suites run once through `npm run test:dashboard`, with the same global
+All three roots run once through `npm run test:dashboard`, with the same global
 setup, build and twelve CI shards. Run only this suite with
 `npm run test:dashboard -- backend-tests/`.
 

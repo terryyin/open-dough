@@ -1,6 +1,6 @@
 // Native moves stay real; this records their calls and browser-frame observations.
-import { expect, test } from "../dashboardTest.ts";
-import { scrollByTouch } from "../touchGestures.ts";
+import { expect, test } from "../tests/support/pageTest.ts";
+import { scrollByTouch } from "../tests/touchGestures.ts";
 
 test.use({ hasTouch: true });
 

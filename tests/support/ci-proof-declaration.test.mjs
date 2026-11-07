@@ -175,7 +175,7 @@ test("the actions' scripts give the collector each entry and declaration and wri
   );
 });
 
-test("one dashboard action invocation gives each browser or backend result to its own proof entry", (t) => {
+test("one dashboard action invocation gives each browser, frontend, or backend result to its own proof entry", (t) => {
   const directory = mkdtempSync(join(tmpdir(), "ci-proof-shared-dashboard-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const cwd = fileURLToPath(root).replace(/\/$/, "");
@@ -185,6 +185,7 @@ test("one dashboard action invocation gives each browser or backend result to it
     JSON.stringify(
       locatedRecord(cwd, [
         [`${cwd}/dashboard/tests/browser.spec.ts`, "expected", [35]],
+        [`${cwd}/dashboard/frontend-tests/dom.spec.ts`, "expected", [20]],
         [`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [50]],
         [`${cwd}/dashboard/backend-tests/problem.spec.ts`, "unexpected", [15]],
       ]),
@@ -194,7 +195,7 @@ test("one dashboard action invocation gives each browser or backend result to it
     RUNNER_TEMP: directory,
     GITHUB_RUN_ATTEMPT: "2",
     CI_PROOF_REVISION: "a".repeat(40),
-    ENTRIES: "dashboard/tests dashboard/backend-tests",
+    ENTRIES: "dashboard/tests dashboard/frontend-tests dashboard/backend-tests",
     FORMAT: "playwright-record",
     REPORT: report,
     TIMES: "",
@@ -202,7 +203,11 @@ test("one dashboard action invocation gives each browser or backend result to it
     PARTS: "12",
   });
   assert.deepEqual([result.status, result.stdout, result.stderr], [0, "", ""]);
-  const values = ["dashboard-tests", "dashboard-backend-tests"].map((name) =>
+  const values = [
+    "dashboard-tests",
+    "dashboard-frontend-tests",
+    "dashboard-backend-tests",
+  ].map((name) =>
     JSON.parse(
       readFileSync(join(directory, "ci-proof", `${name}-1.json`), "utf8"),
     ),
@@ -224,6 +229,13 @@ test("one dashboard action invocation gives each browser or backend result to it
         durationMs: 35,
       },
       {
+        entry: "dashboard/frontend-tests",
+        passed: 1,
+        failed: 0,
+        other: 0,
+        durationMs: 20,
+      },
+      {
         entry: "dashboard/backend-tests",
         passed: 1,
         failed: 1,
@@ -236,6 +248,7 @@ test("one dashboard action invocation gives each browser or backend result to it
     values.map((value) => value.files.map((file) => file.path)),
     [
       ["dashboard/tests/browser.spec.ts"],
+      ["dashboard/frontend-tests/dom.spec.ts"],
       [
         "dashboard/backend-tests/problem.spec.ts",
         "dashboard/backend-tests/server.spec.ts",

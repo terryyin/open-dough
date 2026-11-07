@@ -8,12 +8,12 @@ import {
   shareLabels,
 } from "../../../scripts/share-deal.mjs";
 
-// The browser and backend specs under the common dashboard `directory`, as
-// paths relative to it: the
-// labels `longest-first` and the `dashboard-times-<shard>` artifacts carry
-// (support/specTimes.ts writes the same relative path).
+// The browser, frontend, and backend specs under the common dashboard
+// `directory`, as paths relative to it: the labels `longest-first` and the
+// `dashboard-times-<shard>` artifacts carry (support/specTimes.ts writes the
+// same relative path).
 export function dashboardSpecFiles(directory) {
-  return ["tests", "backend-tests"]
+  return ["tests", "frontend-tests", "backend-tests"]
     .flatMap((root) =>
       existsSync(resolve(directory, root))
         ? readdirSync(resolve(directory, root), { recursive: true }).map(

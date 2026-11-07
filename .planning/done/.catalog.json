@@ -14,6 +14,12 @@
       "blob": "337dcc0e88553605a772c7769d35d004ff4fa058"
     },
     {
+      "fileName": "SEED-252_extract-dashboard-frontend-tests.json",
+      "identity": "SEED-252#extract-dashboard-frontend-tests",
+      "completedAt": "2026-11-07T06:02:03.581Z",
+      "blob": "78df1d5f7c0007b9efb00846c7108a0abfd9ca2d"
+    },
+    {
       "fileName": "SEED-251_group-dashboard-backend-tests.json",
       "identity": "SEED-251#group-dashboard-backend-tests",
       "completedAt": "2026-11-07T05:10:25.083Z",

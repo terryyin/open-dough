@@ -1,7 +1,10 @@
 // Exercise every-control observations with real browser scrolling and clipping.
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import { expectEveryControlReachable, tapWhereShown } from "../pageLayout.ts";
+import { expect, test } from "../tests/support/pageTest.ts";
+import {
+  expectEveryControlReachable,
+  tapWhereShown,
+} from "../tests/pageLayout.ts";
 
 test.use({ hasTouch: true });
 

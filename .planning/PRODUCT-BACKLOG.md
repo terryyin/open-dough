@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Hide a client project from the dashboard while keeping it maintained](seeds/SEED-250-hide-client-project-from-dashboard.md#hide-client-project-from-dashboard) — SEED-250#hide-client-project-from-dashboard ([plan](slice-plans/476-hide-client-project-from-dashboard/PLAN.md))
-- [Extract Dashboard Frontend Test as a separate entry](seeds/SEED-252-extract-dashboard-frontend-tests.md#extract-dashboard-frontend-tests) — SEED-252#extract-dashboard-frontend-tests ([plan](slice-plans/488-extract-dashboard-frontend-tests/PLAN.md))
 - [Review a completed story including its merge changes](seeds/SEED-253-review-delivered-merge-changes.md#review-delivered-merge-changes) — SEED-253#review-delivered-merge-changes ([plan](slice-plans/491-review-delivered-merge-changes/PLAN.md))
 
 ## Backlog list

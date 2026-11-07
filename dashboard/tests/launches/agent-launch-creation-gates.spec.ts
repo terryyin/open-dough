@@ -9,11 +9,9 @@ import {
   launchRecordsSchema,
 } from "../../src/agentLaunch.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import { creationSchema } from "../../src/launchCreation.ts";
-import { creationView } from "../../server/launchCreation.ts";
-import { shellCommand } from "../../src/sessionCapabilities.ts";
 
 test.use({ projectFolders: ["open-dough"] });
+// Stand-in host inspection-args UI: dashboard/frontend-tests/agent-launch-creation-gates.spec.ts.
 
 test("unreadable evidence refuses Codex before native creation but admits Claude and preserves the file", async ({
   dashboard,
@@ -93,56 +91,4 @@ test("a saved creation whose host lacks recovery stays visible with unavailable 
   expect(JSON.parse(readFileSync(storeFile(machine), "utf8"))).toEqual({
     "open-dough": [record],
   });
-});
-
-test("the common page displays a stand-in host's supplied inspection arguments", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  const args = ["/native space's tool", "history", "$(literal)", "a'b", ""];
-  const record = creationSchema.parse({
-    request: {
-      source: "open-dough",
-      host: "codex",
-      workflow: "ad-hoc",
-      title: "Stand-in inspection",
-      instruction: "Inspect.",
-    },
-    creation: {
-      workspace: "/saved workspace",
-      endpoint: "unix:///saved endpoint",
-    },
-    launchedAt: "2026-10-01T00:00:00.000Z",
-  });
-  const view = creationView(record, {
-    name: "Stand-in native host",
-    creationEvidence: () => ({
-      inspectionArgs: args,
-      unreadableAdvice: "Inspect native history.",
-    }),
-  });
-  // Override only the returned native facts, retaining the real page/GET parser.
-  await page.route(`**${agentLaunchEndpoint}`, async (route) => {
-    const response = await rawRequest({
-      url: `${dashboard.baseURL}${agentLaunchEndpoint}`,
-      headers: { Origin: dashboard.origin },
-    });
-    expect(response.status).toBe(200);
-    const answer = launchRecordsSchema.parse(JSON.parse(response.body));
-    await route.fulfill({
-      status: 200,
-      json: { ...answer, creations: [view] },
-    });
-  });
-  await openTakenBacklog(page, launchJourney);
-  const entry = page.getByRole("article", {
-    name: "Stand-in inspection unresolved creation",
-  });
-  await expect(entry).toBeVisible();
-  await expect(entry).toContainText(
-    "Conversation creation in Stand-in native host unresolved",
-  );
-  await expect(entry.locator("code").last()).toHaveText(shellCommand(args));
-  await expect(entry).not.toContainText("Codex");
 });

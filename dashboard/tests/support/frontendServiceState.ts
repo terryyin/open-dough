@@ -1,0 +1,159 @@
+// Default substitute answers for frontend-only app journeys: projects,
+// backlog, files, machine, and host status the page reads on open.
+
+import type { MachineAnswer } from "../../src/agentLaunch.ts";
+import type { HostStatus } from "../../src/hostStatus.ts";
+import type { PublishedSource } from "../../src/publishedSource.ts";
+import { notRefinedStory, readyStory, takenStory } from "../launchJourney.ts";
+import { openDough, openDoughSettings } from "../intentCodeBrowseFixtures.ts";
+import {
+  openDoughCandidatesRecord,
+  testOptimizationCandidatesPath,
+} from "../intentCandidatesFixtures.ts";
+
+export const frontendRevision = openDough.revision;
+
+export const openDoughSource: PublishedSource = {
+  id: "open-dough",
+  label: "Open Dough",
+  repository: openDough.repository,
+  ref: openDough.ref,
+  backlogPath: ".planning/PRODUCT-BACKLOG.md",
+};
+
+export const doughnutSource: PublishedSource = {
+  id: "doughnut",
+  label: "Doughnut",
+  repository: "nerds-odd-e/doughnut",
+  ref: "main",
+  backlogPath: ".planning/PRODUCT-BACKLOG.md",
+};
+
+export const takenBacklogMarkdown = `# Product backlog
+
+## Near-future direction
+
+Frontend substitute direction.
+
+## Taken
+
+- [${takenStory}](seeds/SEED-A-taken.md#a) — SEED-A#a
+
+## Backlog list
+
+- [${readyStory}](seeds/SEED-B-ready.md#b) — SEED-B#b
+- [${notRefinedStory}](seeds/SEED-C-queued.md#c) — SEED-C#c
+`;
+
+export const emptyMachineAnswer = (): MachineAnswer => ({
+  hostOperations: {
+    claude: {
+      attach: true,
+      stop: true,
+      doneStop: true,
+      localDone: false,
+      launchedSessions: true,
+    },
+    codex: {
+      attach: true,
+      stop: true,
+      doneStop: false,
+      localDone: false,
+      launchedSessions: true,
+    },
+    cursor: {
+      attach: true,
+      stop: true,
+      doneStop: false,
+      localDone: true,
+      launchedSessions: true,
+    },
+  },
+  attempts: [],
+  attemptsReadable: true,
+  records: [],
+  creations: [],
+  alerts: { available: false, reason: "Alerts are unused in frontend tests." },
+  establishing: [],
+  establishingPreparation: [],
+  keptStarts: [],
+  starts: [],
+  definitions: [],
+  establishingHosts: [],
+  sessionPolicies: [],
+  workspaces: [],
+});
+
+export type FrontendServiceState = {
+  projects: PublishedSource[];
+  revision: string;
+  backlog: string;
+  files: Record<string, string>;
+  locations: unknown;
+  candidates: unknown;
+  machine: MachineAnswer;
+  hostStatus: HostStatus | undefined;
+  hostOptions: unknown;
+};
+
+export function defaultFrontendServiceState(
+  options: {
+    readonly projects?: readonly PublishedSource[];
+    readonly backlog?: string;
+    readonly machine?: MachineAnswer;
+  } = {},
+): FrontendServiceState {
+  return {
+    projects: [...(options.projects ?? [openDoughSource])],
+    revision: frontendRevision,
+    backlog: options.backlog ?? takenBacklogMarkdown,
+    files: {
+      [testOptimizationCandidatesPath]: openDoughCandidatesRecord,
+      ".planning/open-dough.json": openDoughSettings,
+      ".planning/seeds/SEED-A-taken.md": `# Taken\n\n<a id="a"></a>\n\n### ${takenStory}\n\n**Identity:** SEED-A#a\n`,
+      ".planning/seeds/SEED-B-ready.md": `# Ready\n\n<a id="b"></a>\n\n### ${readyStory}\n\n**Identity:** SEED-B#b\n\n**Goal:** Ready goal.\n`,
+      ".planning/seeds/SEED-C-queued.md": `# Queued\n\n<a id="c"></a>\n\n### ${notRefinedStory}\n\n**Identity:** SEED-C#c\n`,
+    },
+    locations: {
+      revision: frontendRevision,
+      locations: [
+        {
+          path: "dashboard/tests",
+          kind: "typescript",
+          include: ["**/*.spec.ts"],
+          files: ["dashboard/tests/example.spec.ts"],
+        },
+      ],
+      recovery: undefined,
+    },
+    candidates: {
+      revision: frontendRevision,
+      candidates: openDoughCandidatesRecord,
+    },
+    machine: options.machine ?? emptyMachineAnswer(),
+    hostStatus: { cpuPercent: 12, freeBytes: 64_000_000_000 },
+    hostOptions: { models: [] },
+  };
+}
+
+// Mutates substitute answers in place; Object.assign keeps no-param-reassign clean.
+export function putFrontendMachine(
+  services: FrontendServiceState,
+  machine: MachineAnswer,
+): void {
+  Object.assign(services, { machine });
+}
+
+export function putFrontendHostStatus(
+  services: FrontendServiceState,
+  hostStatus: HostStatus | undefined,
+): void {
+  Object.assign(services, { hostStatus });
+}
+
+export function putFrontendCandidates(
+  services: FrontendServiceState,
+  candidates: unknown,
+): void {
+  Object.assign(services, { candidates });
+}

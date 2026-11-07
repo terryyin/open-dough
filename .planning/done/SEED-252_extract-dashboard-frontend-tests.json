@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-252#extract-dashboard-frontend-tests",
+  "title": "Extract Dashboard Frontend Test as a separate entry",
+  "completedAt": "2026-11-07T06:02:03.581Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "cursor",
+  "model": "auto"
+}

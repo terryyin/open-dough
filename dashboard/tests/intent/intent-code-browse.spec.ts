@@ -21,6 +21,48 @@ import {
   publishIntentProject,
   shellCheck,
 } from "../intentCodeBrowseFixtures.ts";
+import type { Locator } from "@playwright/test";
+
+// A labelled Intent location lists its include-matched specs, omits helpers,
+// and opens exact source text under that location's canonical path.
+async function expectLabelledEntrySource(
+  intent: Locator,
+  locationPath: string,
+  label: string,
+  listedSpec: string,
+  omittedHelper: string,
+) {
+  const heading = intentLocationName(intent, locationPath);
+  await expect(heading).toContainText(label);
+  await expect(intentGroupToggle(intent, locationPath)).toHaveAccessibleName(
+    `Expand ${label}`,
+  );
+  await heading.click();
+  const summary = intent.getByRole("region", {
+    name: "Summary",
+    exact: true,
+  });
+  await expect(summary).toContainText(label);
+  await expect(summary).toContainText(locationPath);
+  await expandIntentGroup(intent, locationPath);
+  await expect(
+    intent.getByRole("button", {
+      name: `${locationPath}/${omittedHelper}`,
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  await intent
+    .getByRole("button", {
+      name: `${locationPath}/${listedSpec}`,
+      exact: true,
+    })
+    .click();
+  await expect(
+    intent
+      .getByLabel(`${locationPath}/${listedSpec} source`)
+      .locator(".source-line-text"),
+  ).toHaveText(browseSpec.split("\n"));
+}
 
 test("Intent lists matched code test files under include patterns, omits helpers and product files, and reads exact text with the observed revision", async ({
   page,
@@ -31,6 +73,12 @@ test("Intent lists matched code test files under include patterns, omits helpers
       locations: [
         {
           path: "dashboard/tests",
+          kind: "typescript",
+          include: ["**/*.spec.ts"],
+        },
+        {
+          path: "dashboard/frontend-tests",
+          label: "Dashboard Frontend Test",
           kind: "typescript",
           include: ["**/*.spec.ts"],
         },
@@ -74,6 +122,8 @@ test("Intent lists matched code test files under include patterns, omits helpers
       ]),
     ),
     "dashboard/tests/intentPerspectivePage.ts": "export const helper = 1;\n",
+    "dashboard/frontend-tests/touch-reading-observation.spec.ts": browseSpec,
+    "dashboard/frontend-tests/pageLayout.ts": "export const helper = 1;\n",
     ...Object.fromEntries(
       backendGroupedSources.map(([group, file]) => [
         `dashboard/backend-tests/${group}/${file}`,
@@ -142,6 +192,16 @@ test("Intent lists matched code test files under include patterns, omits helpers
       source,
       /^import$/,
       /^"@playwright\/test"$/,
+    );
+  });
+
+  await test.step("A labelled frontend entry keeps its canonical source path", async () => {
+    await expectLabelledEntrySource(
+      intent,
+      "dashboard/frontend-tests",
+      "Dashboard Frontend Test",
+      "touch-reading-observation.spec.ts",
+      "pageLayout.ts",
     );
   });
 
