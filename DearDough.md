@@ -743,7 +743,7 @@ A scratch checkout can show one reachable commit and no remotes while Git can st
   - Tool: Codex
   - Model: gpt-6.1-sol
   - Open Dough release: 0.3.87 (execution checkout's installed guidance)
-  - Evidence: Codex session `01a1b509-fd39-79c2-a8b9-5fc768f51ded` at 08:26–08:27Z; `b0ad4c799d4b659ed072591e8dc0e66b4caefc2e:.planning/slice-plans/472-assess-story-intent-protection/PLAN.md` execution context and Slice 3 proof; [trial evidence limits](docs/intent-coverage-trial/README.md#evidence-limits).
+  - Evidence: Codex session `01a1b509-fd39-79c2-a8b9-5fc768f51ded` at 08:26–08:27Z; `b0ad4c799d4b659ed072591e8dc0e66b4caefc2e:.planning/slice-plans/472-assess-story-intent-protection/PLAN.md` execution context and Slice 3 proof; [trial evidence limits](https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md#evidence-limits).
   - Observed effect: The third assessor could not read HEAD with `GIT_ALTERNATE_OBJECT_DIRECTORIES` unset until the coordinator materialized the checkpoint locally. The corrected preflight resolved HEAD, counted one reachable commit and rejected a later object. The first two assessors' standalone Git checks had inherited the alternate. Their Playwright commands cleared it, and both assessors confirmed they used only their scoped inputs.
   - Inference: Ref and remote checks alone cannot establish object isolation. No access to later evidence was observed, and the rework time was not measured.
 
