@@ -3,17 +3,21 @@
 // (../../src/IntentScopeComparisonTable.tsx SlotSha): Skipped when
 // paths-ignore accounts for the absence, Cancelled when the provider
 // cancelled the run, and No build with the reason when the path rule cannot
-// confirm a skip (SEED-254 slice 1). Proof selection stays today's
-// measured-ancestor / exact-only rules.
+// confirm a skip (SEED-254). Landed uses a confirmed skip's equivalent-build
+// proof only (slice 2).
 
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 import { parts } from "../dashboardPage.ts";
+import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
 import {
   publishCancelledBaseline,
+  publishCodeLandingWithoutBuild,
   publishCodeStartWithoutBuild,
+  publishSkippedLandingWithoutProof,
   publishSkippedPlanningBaseline,
+  publishSkippedPlanningLanding,
 } from "../support/storyCiComparisonSkippedFixture.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { openSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
@@ -90,5 +94,94 @@ test("Baseline names No build with the path reason when the start changes code",
   await expect(baselineIdentity).toContainText("run 101 #1");
   await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
     "3 min",
+  );
+});
+
+test("Landed names Skipped at a planning-only merge and uses the equivalent build proof", async ({
+  page,
+  origin,
+}) => {
+  test.slow();
+  const setup = await publishSkippedPlanningLanding(page, origin);
+  const { panel } = await selectDoneStoryForCiComparison(page);
+  const skippedAt = `Skipped at ${shortSha(setup.landingMerge)} because CI ignores every change since its nearest built ancestor ${shortSha(setup.trunkSide)}.`;
+  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
+  await expect(landedIdentity).toContainText(skippedAt);
+  await expect(landedIdentity).toContainText(shortSha(setup.trunkSide));
+  await expect(landedIdentity).toContainText("run 201 #1");
+  await expect(landedIdentity).toContainText("equivalent build");
+  await expect(landedIdentity).not.toContainText(shortSha(setup.olderBaseline));
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "5 min +2 min",
+  );
+  await expect(
+    panel.getByRole("table", { name: "CI entry timing comparison" }),
+  ).toBeVisible({ timeout: readWaitLimitMs + 15_000 });
+  await expectCiComparisonEntryRows(panel, [
+    [
+      "dashboard/tests",
+      "2,090 → 2,092 +2 tests",
+      "4 min",
+      "4 min 30 s +30 s",
+      "5 min +1 min",
+      "1 of 1 part present",
+    ],
+    [
+      "tests",
+      "5 → 5 0 checks",
+      "2 min",
+      "1 min 30 s -30 s",
+      "1 min -1 min",
+      "1 of 1 part present",
+    ],
+    [
+      "src/skills",
+      "added → 3 checks",
+      "added",
+      "30 s",
+      "30 s",
+      "1 of 1 part present",
+    ],
+  ]);
+});
+
+test("Landed names Skipped when the equivalent build published no proof and walks no further", async ({
+  page,
+  origin,
+}) => {
+  test.slow();
+  const setup = await publishSkippedLandingWithoutProof(page, origin);
+  const { panel } = await selectDoneStoryForCiComparison(page);
+  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
+  await expect(landedIdentity).toContainText(
+    `Skipped at ${shortSha(setup.landingMerge)} because CI ignores every change since its nearest built ancestor ${shortSha(setup.trunkSide)}.`,
+  );
+  await expect(landedIdentity).toContainText(
+    `The equivalent build at ${shortSha(setup.trunkSide)} published no CI proof summary.`,
+  );
+  await expect(landedIdentity).not.toContainText("run 201");
+  await expect(landedIdentity).not.toContainText("run 101");
+  await expect(landedIdentity).not.toContainText(shortSha(setup.olderBaseline));
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "—",
+  );
+});
+
+test("Landed names No build for a code landing with no run and uses no ancestor proof", async ({
+  page,
+  origin,
+}) => {
+  test.slow();
+  const setup = await publishCodeLandingWithoutBuild(page, origin);
+  const { panel } = await selectDoneStoryForCiComparison(page);
+  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
+  await expect(landedIdentity).toContainText(
+    `No build at ${shortSha(setup.landingMerge)}: changes CI does not ignore.`,
+  );
+  await expect(landedIdentity).not.toContainText(shortSha(setup.trunkSide));
+  await expect(landedIdentity).not.toContainText("run 201");
+  await expect(landedIdentity).not.toContainText("equivalent build");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "—",
   );
 });

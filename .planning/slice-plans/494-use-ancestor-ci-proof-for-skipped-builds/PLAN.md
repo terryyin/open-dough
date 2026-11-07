@@ -144,12 +144,17 @@ fed by `runGit`.
 
 ### 2. Use the equivalent build's proof for a skipped landing
 Type: Behavior
-Status: planned
-Proof: `intent-ci-comparison-skipped.spec.ts` covers three Landed cases.
+Status: done
+Proof: Accepted. `exactSkippedEquivalentSlot` /
+`storyBranchLandedExactLookup` use `readCiProofArtifact` for a confirmed
+skip's nearest ancestor build only. Playwright:
+`intent-ci-comparison-skipped.spec.ts` (planning-only + equivalent figures;
+without-proof stop; code No build) plus green
 `intent-ci-comparison-landing-gaps.spec.ts` and
-`intent-ci-comparison-fast-forward.spec.ts` stay green. The
-`docs/dashboard-development-intent.md` Landed rule is updated. Typecheck and
-lint.
+`intent-ci-comparison-fast-forward.spec.ts`. Docs Landed rule updated.
+Lint + typecheck. Refactor: `exactSkippedEquivalent.ts`,
+`storyCiComparisonSkippedLandingFixture.ts`,
+`equivalentBuildUnavailableLine`.
 
 Behavior:
 

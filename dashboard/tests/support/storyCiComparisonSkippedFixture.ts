@@ -1,7 +1,8 @@
 // Done Story Branch publishers for Intent CI comparison requested-revision
 // status (../intent/intent-ci-comparison-skipped.spec.ts): a planning-only
 // start with paths-ignore confirmation, a cancelled start run, and a code
-// start with no run. Proof selection stays today's measured-ancestor rule.
+// start with no run. Landed equivalent-build publishers live in
+// `./storyCiComparisonSkippedLandingFixture.ts` and are re-exported here.
 import type { Page } from "@playwright/test";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
@@ -27,6 +28,13 @@ import { publishSummaryComparisonTrunk } from "./intentSummaryStoryComparisonSha
 export type SkippedComparisonSetup = StoryCiComparisonSetup & {
   readonly storyStart: string;
 };
+
+export {
+  publishCodeLandingWithoutBuild,
+  publishSkippedLandingWithoutProof,
+  publishSkippedPlanningLanding,
+  type SkippedLandingSetup,
+} from "./storyCiComparisonSkippedLandingFixture.ts";
 
 async function publishWithPlanningStart(
   page: Page,

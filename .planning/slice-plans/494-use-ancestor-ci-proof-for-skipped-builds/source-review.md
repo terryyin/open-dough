@@ -33,12 +33,12 @@ Goal, Scope, Deferred promises/exclusions, and Examples from
 | 11.3 | The label names the attempt. | slice 3 |  |
 | 11.4 | The label names the count of revisions passed over. | slice 3 |  |
 | 12 | A revision that already falls back to an ancestor today (cancelled or unexplained) keeps that fallback and now also shows its own status. | slice 1 | observed: skipped.spec Cancelled at start keeps ancestor build run 101 and wall time; unexplained No build keeps ancestor in code-start and gaps specs |
-| 13 | A confirmed-skipped landing uses the proof of its equivalent build only: the nearest ancestor build from which every change to the landing is CI-ignored. | slice 2 |  |
-| 14.1 | If that equivalent build has no usable proof, Landed shows Skipped. | slice 2 |  |
-| 14.2 | If that equivalent build has no usable proof, Landed shows why that build’s proof is unavailable. | slice 2 |  |
-| 14.3 | If that equivalent build has no usable proof, Landed walks no further. | slice 2 |  |
-| 15 | A cancelled or unexplained landing keeps today’s exact-only result and explanation. | slice 2 |  |
-| 16 | Landed never shows proof from before the story’s code. | slice 2 |  |
+| 13 | A confirmed-skipped landing uses the proof of its equivalent build only: the nearest ancestor build from which every change to the landing is CI-ignored. | slice 2 | observed: skipped.spec planning-only Landed: Skipped + trunkSide run 201 #1 equivalent build + entry figures from parent proof; not olderBaseline |
+| 14.1 | If that equivalent build has no usable proof, Landed shows Skipped. | slice 2 | observed: skipped.spec without-proof Landed: Skipped at merge |
+| 14.2 | If that equivalent build has no usable proof, Landed shows why that build’s proof is unavailable. | slice 2 | observed: skipped.spec without-proof: The equivalent build at trunkSide published no CI proof summary |
+| 14.3 | If that equivalent build has no usable proof, Landed walks no further. | slice 2 | observed: skipped.spec without-proof: no run 201/101, no olderBaseline SHA, wall — |
+| 15 | A cancelled or unexplained landing keeps today’s exact-only result and explanation. | slice 2 | observed: landing-gaps.spec cancelled landing exact-only wording unchanged (re-run green) |
+| 16 | Landed never shows proof from before the story’s code. | slice 2 | observed: without-proof and code-landing cases name no olderBaseline; planning-only uses only parent equivalent |
 | 17 | Proof at the requested revision itself stays authoritative whenever it exists. | slice 3 |  |
 | 18 | Applies to GitHub Actions comparisons only. | slice 1 | observed: comparison path uses GitHub Actions run listings and ci.yml workflow file only (requestedRevisionCiStatus + baseCiGithubRevisionLookup) |
 | 19 | Adapter projects get story comparison in SEED-257, which applies these endpoint rules there. |  | G1 |
@@ -46,9 +46,9 @@ Goal, Scope, Deferred promises/exclusions, and Examples from
 | 21 | Keep GitHub requests accurate for the comparison’s per-revision run and proof reads, including the extra proof reads this walk adds. | slice 3 |  |
 | 22 | Deferred: Proof for a cancelled landing from a later trunk build — its own story. |  | G2 |
 | 23 | Excluded / deferred: Telling skipped intermediate revisions apart from unexplained ones inside the “revisions passed over” count. |  | G3 |
-| 24 | Docs-only landing: Landed shows Skipped at the merge and uses the parent’s proof, labelled with the parent’s revision, run, and attempt. | slice 2 |  |
-| 25 | Landing equivalent build without proof: Landed shows Skipped and that the parent’s build at `<rev>` published no CI proof summary; it does not use an older build. | slice 2 |  |
+| 24 | Docs-only landing: Landed shows Skipped at the merge and uses the parent’s proof, labelled with the parent’s revision, run, and attempt. | slice 2 | observed: skipped.spec planning-only Landed docs/planning merge → Skipped + parent proof labelled equivalent build |
+| 25 | Landing equivalent build without proof: Landed shows Skipped and that the parent’s build at `<rev>` published no CI proof summary; it does not use an older build. | slice 2 | observed: skipped.spec without-proof Landed → Skipped + no CI proof summary; no older build |
 | 26 | Skipped baseline: Baseline shows Skipped at the start commit and uses the grandparent’s proof, counting two revisions passed over. Same rule for a skipped final branch revision on the story branch. | slice 3 |  |
-| 27.1 | Cancelled landing: Landed shows Cancelled with today’s explanation and no proof. | slice 2 |  |
+| 27.1 | Cancelled landing: Landed shows Cancelled with today’s explanation and no proof. | slice 2 | observed: landing-gaps.spec cancelled landing merge keeps today explanation and no proof |
 | 27.2 | Baseline revision with a cancelled run shows Cancelled there and uses its nearest ancestor’s proof. | slice 1 | observed: skipped.spec Cancelled at start + ancestor build run 101 retained |
-| 28 | Unexplained absence: Landed shows No build, explains that CI’s path rule does not account for the absence, and uses no ancestor proof. | slice 2 |  |
+| 28 | Unexplained absence: Landed shows No build, explains that CI’s path rule does not account for the absence, and uses no ancestor proof. | slice 2 | observed: skipped.spec code landing No build path reason; no trunkSide/run 201/equivalent build; wall — |

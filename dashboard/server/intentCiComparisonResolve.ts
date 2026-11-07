@@ -12,6 +12,7 @@ import {
   lookupResultBuild,
 } from "./baseCiRevisionLookup.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
+import { storyBranchLandedExactLookup } from "./exactSkippedEquivalent.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 import {
   asComparisonSlot,
@@ -96,10 +97,9 @@ export async function performDoneComparison(
               "No completed CI build was found at the final branch revision or a later story-side ancestor within the story's start bound.",
             ),
           );
-  // Story Branch Mode: exact revision at the landing only — merge for a
-  // trunk-first landing, tip for a fast-forward; no measured-ancestor
-  // fallback across a merge (trunk-side lacks the story; story-side is B).
-  // Trunk Mode keeps the completion ancestor walk.
+  // Story Branch Mode: exact landing (merge or fast-forward tip), except a
+  // confirmed skip may use that landing's equivalent build proof only. Trunk
+  // Mode keeps the completion ancestor walk.
   const fastForward =
     facts.landing !== undefined &&
     facts.landing.merge === facts.landing.branchSide;
@@ -131,15 +131,11 @@ export async function performDoneComparison(
               fastForward
                 ? "No completed CI build was found at the landed story revision."
                 : "No completed CI build was found at the landing merge.",
-              {
-                exactOnly: true,
-                cancelledExplanation: fastForward
-                  ? "The CI build at the landed story revision was cancelled."
-                  : "The CI build at the landing merge was cancelled.",
-                timedOutExplanation: fastForward
-                  ? "The CI build at the landed story revision timed out."
-                  : "The CI build at the landing merge timed out.",
-              },
+              storyBranchLandedExactLookup(
+                fastForward,
+                source.repository,
+                signal,
+              ),
             ),
           );
   return {

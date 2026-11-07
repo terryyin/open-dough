@@ -101,7 +101,7 @@ export type RevisionCiBuild = {
   readonly revision: string;
   readonly subject: string;
   readonly state: "pass" | "failed" | "running";
-  readonly selection: "exact" | "ancestor";
+  readonly selection: "exact" | "ancestor" | "equivalent";
   readonly laterWithoutResult: number;
   readonly runUrl?: string;
   readonly runBranch?: string;

@@ -32,15 +32,18 @@ export function requestedStatusPrefix(
 
 // Gap slots prefer the requested revision's status wording when present;
 // otherwise the slot's own explanation (N/A, unread, or missing build).
+// When both differ, keep the status and the slot's extra reason (for example
+// a skipped landing whose equivalent build published no proof).
 export function requestedStatusOrExplanation(
   slot: Extract<
     StoryCiComparisonSlot,
     { kind: "none" | "unavailable" | "not-applicable" | "not-landed" }
   >,
 ): string {
-  return slot.requestedStatus === undefined
-    ? slot.explanation
-    : requestedStatusWords(slot.requestedStatus);
+  if (slot.requestedStatus === undefined) return slot.explanation;
+  const status = requestedStatusWords(slot.requestedStatus);
+  if (slot.explanation === status) return status;
+  return `${status} ${slot.explanation}`;
 }
 
 export function selectionWords(
@@ -52,10 +55,12 @@ export function selectionWords(
       ? slot.kind === "running"
         ? "exact revision (still running)"
         : "exact revision"
-      : (() => {
-          const count = slot.laterWithoutResult;
-          return `ancestor: ${String(count)} later revision${count === 1 ? "" : "s"} without a build`;
-        })();
+      : slot.selection === "equivalent"
+        ? "equivalent build"
+        : (() => {
+            const count = slot.laterWithoutResult;
+            return `ancestor: ${String(count)} later revision${count === 1 ? "" : "s"} without a build`;
+          })();
   // Taken stories label the live tip provisional, not final.
   return provisional ? `provisional · ${base}` : base;
 }

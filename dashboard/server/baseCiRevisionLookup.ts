@@ -4,7 +4,9 @@
 // `./baseCiGithubRevisionLookup.ts`. The live branch judgment
 // (`./baseCiJudgment.ts`) keeps its branch listing rule unchanged. Each
 // endpoint names the requested revision's own status beside the selected
-// build without changing proof selection (`./revisionBuildSlot.ts`).
+// build. Story Branch Landed may use a confirmed skip's equivalent build
+// proof (`./exactSkippedEquivalent.ts`); Baseline / Branch proof walks stay
+// here.
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { githubAcquisitionUnread } from "./baseCiGitHubReads.ts";
@@ -17,6 +19,11 @@ import {
   nearestRevisionBuild,
   type RevisionCiLookup,
 } from "./baseCiRevisionNearest.ts";
+import {
+  baselineAncestorLimit,
+  exactSkippedEquivalentSlot,
+  type ExactResultLookup,
+} from "./exactSkippedEquivalent.ts";
 import type { GitCall } from "./gitRunner.ts";
 import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
 import {
@@ -27,10 +34,7 @@ import {
 } from "./revisionBuildSlot.ts";
 
 export type { RevisionBuildSlot } from "./revisionBuildSlot.ts";
-
-// How far a baseline walk may go beyond the story start when looking for a
-// completed trunk build (claim commits are almost never built).
-const baselineAncestorLimit = 30;
+export type { ExactResultLookup } from "./exactSkippedEquivalent.ts";
 
 // Baseline: newest completed attempt at or before `storyStart`, walking
 // first-parent ancestors up to the baseline limit.
@@ -80,19 +84,12 @@ export async function lookupBaselineBuild(
   }
 }
 
-export type ExactResultLookup = {
-  readonly exactOnly: true;
-  // Caller-owned wording when the only attempt at `target` is cancelled or
-  // timed out (for example Story Branch Landed at the landing merge).
-  readonly cancelledExplanation: string;
-  readonly timedOutExplanation: string;
-};
-
 // Result endpoint (branch or landed): newest completed or running attempt at
 // `target`, else a measured ancestor not older than `storyStart`. With
-// `exactOnly`, the walk is limited to `target` itself (no measured-ancestor
-// fallback); a cancelled or timed-out attempt at that revision uses the
-// caller-supplied explanations (Landed keeps those exact-only wordings).
+// `exactOnly`, the walk is limited to `target` itself except a confirmed
+// skip, which may use that landing's equivalent build proof only; a
+// cancelled or timed-out attempt at that revision uses the caller-supplied
+// explanations (Landed keeps those exact-only wordings).
 export async function lookupResultBuild(
   target: string,
   storyStart: string,
@@ -150,6 +147,15 @@ export async function lookupResultBuild(
         call,
         workflow,
       );
+      if (status.kind === "skipped") {
+        return await exactSkippedEquivalentSlot(
+          target,
+          lookup,
+          call,
+          exact,
+          status,
+        );
+      }
       return asSlot(undefined, status.explanation, status);
     }
     const status = await statusWhenNotExact(
