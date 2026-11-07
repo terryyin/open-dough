@@ -3,12 +3,12 @@
 // `./ciProofArtifact.ts`. Never walk past a build without usable proof.
 // Baseline / Branch proof walks stay in `./baseCiRevisionLookup.ts`.
 import { equivalentBuildUnavailableLine } from "../src/ciProofAbsenceWording.ts";
-import type { CiProof, CiProofRun } from "../src/ciProof.ts";
+import type { CiProof } from "../src/ciProof.ts";
 import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
 import { firstParentChain } from "./baseCiGithubRevisionLookup.ts";
 import {
   nearestRevisionBuild,
-  type RevisionCiBuild,
+  proofRunOf,
   type RevisionCiLookup,
 } from "./baseCiRevisionNearest.ts";
 import { readCiProofArtifact } from "./ciProofArtifact.ts";
@@ -32,16 +32,6 @@ export type ExactResultLookup = {
   readonly repository: string;
   readonly signal: AbortSignal;
 };
-
-function proofRunOf(build: RevisionCiBuild): CiProofRun | undefined {
-  return build.runId !== undefined && build.runAttempt !== undefined
-    ? {
-        runId: build.runId,
-        runAttempt: build.runAttempt,
-        revision: build.revision,
-      }
-    : undefined;
-}
 
 function unavailableWords(
   revision: string,

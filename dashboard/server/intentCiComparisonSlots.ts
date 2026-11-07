@@ -7,9 +7,14 @@ import {
   revisionLookupOrGap,
   type RevisionBuildSlot,
 } from "./baseCiRevisionLookup.ts";
+import { ciConfiguration } from "./baseCiJudgment.ts";
 import type { BaseCiJudgment } from "./baseCiNearest.ts";
 import type { GitCall } from "./gitRunner.ts";
 import { projectFolder } from "./projectFolders.ts";
+
+export function workflowOf(call: GitCall): string {
+  return ciConfiguration(call.cwd ?? "").workflow;
+}
 
 export const trunkBranchNotApplicable: StoryCiComparisonSlot = {
   kind: "not-applicable",

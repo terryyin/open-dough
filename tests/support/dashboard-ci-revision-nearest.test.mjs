@@ -65,3 +65,54 @@ test("nearestRevisionBuild labels an ancestor and stops at the story-start bound
   const stopped = await nearestRevisionBuild([start, a], lookup, start);
   assert.equal(stopped, undefined);
 });
+
+test("nearestRevisionBuild walks past a timed build whose proof is not usable", async () => {
+  const runs = {
+    [b]: [
+      {
+        databaseId: 2,
+        attempt: 1,
+        headSha: b,
+        status: "completed",
+        conclusion: "success",
+        createdAt: "2026-11-05T12:30:00Z",
+        startedAt: "2026-11-05T12:30:00Z",
+        completedAt: "2026-11-05T12:33:00Z",
+      },
+    ],
+    [a]: [
+      {
+        databaseId: 1,
+        attempt: 1,
+        headSha: a,
+        status: "completed",
+        conclusion: "success",
+        createdAt: "2026-11-05T12:00:00Z",
+        startedAt: "2026-11-05T12:00:00Z",
+        completedAt: "2026-11-05T12:03:00Z",
+      },
+    ],
+  };
+  const lookup = {
+    listRunsAt: async (revision) => runs[revision] ?? [],
+    subjectOf: async () => "subject",
+  };
+  const chosen = await nearestRevisionBuild(
+    [c, b, a],
+    lookup,
+    undefined,
+    async (build) => build.revision === a,
+  );
+  assert.equal(chosen?.revision, a);
+  assert.equal(chosen?.selection, "ancestor");
+  assert.equal(chosen?.laterWithoutResult, 2);
+
+  const fallback = await nearestRevisionBuild(
+    [c, b],
+    lookup,
+    undefined,
+    async () => false,
+  );
+  assert.equal(fallback?.revision, b);
+  assert.equal(fallback?.laterWithoutResult, 1);
+});

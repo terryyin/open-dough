@@ -5,8 +5,8 @@
 // (`./baseCiJudgment.ts`) keeps its branch listing rule unchanged. Each
 // endpoint names the requested revision's own status beside the selected
 // build. Story Branch Landed may use a confirmed skip's equivalent build
-// proof (`./exactSkippedEquivalent.ts`); Baseline / Branch proof walks stay
-// here.
+// proof (`./exactSkippedEquivalent.ts`); Baseline / Branch (and Trunk Mode
+// Landed / provisional tip) walk past builds without usable proof here.
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { githubAcquisitionUnread } from "./baseCiGitHubReads.ts";
@@ -17,8 +17,11 @@ import {
 import { newestRunFor, unread, type BaseCiJudgment } from "./baseCiNearest.ts";
 import {
   nearestRevisionBuild,
+  proofRunOf,
   type RevisionCiLookup,
+  type RevisionProofUsable,
 } from "./baseCiRevisionNearest.ts";
+import { readCiProofArtifact } from "./ciProofArtifact.ts";
 import {
   baselineAncestorLimit,
   exactSkippedEquivalentSlot,
@@ -36,13 +39,38 @@ import {
 export type { RevisionBuildSlot } from "./revisionBuildSlot.ts";
 export type { ExactResultLookup } from "./exactSkippedEquivalent.ts";
 
+export type ComparisonProofSource = {
+  readonly repository: string;
+  readonly signal: AbortSignal;
+};
+
+// Usable-proof gate for walking endpoints: a valid summary remembered by
+// repository, run and attempt so the page's later proof read asks GitHub
+// nothing again.
+function walkingProofUsable(
+  source: ComparisonProofSource,
+): RevisionProofUsable {
+  return async (build) => {
+    const run = proofRunOf(build);
+    if (run === undefined) return false;
+    const proof = await readCiProofArtifact(
+      source.repository,
+      run,
+      source.signal,
+    );
+    return proof.kind === "summary";
+  };
+}
+
 // Baseline: newest completed attempt at or before `storyStart`, walking
-// first-parent ancestors up to the baseline limit.
+// first-parent ancestors up to the baseline limit past builds without
+// usable proof.
 export async function lookupBaselineBuild(
   storyStart: string,
   lookup: RevisionCiLookup,
   call: GitCall,
   workflow: string,
+  proofSource: ComparisonProofSource,
 ): Promise<RevisionBuildSlot> {
   try {
     const revisions = await firstParentChain(
@@ -50,7 +78,12 @@ export async function lookupBaselineBuild(
       call,
       baselineAncestorLimit,
     );
-    const build = await nearestRevisionBuild(revisions, lookup);
+    const build = await nearestRevisionBuild(
+      revisions,
+      lookup,
+      undefined,
+      walkingProofUsable(proofSource),
+    );
     if (build?.state === "running")
       return {
         kind: "none",
@@ -89,7 +122,8 @@ export async function lookupBaselineBuild(
 // `exactOnly`, the walk is limited to `target` itself except a confirmed
 // skip, which may use that landing's equivalent build proof only; a
 // cancelled or timed-out attempt at that revision uses the caller-supplied
-// explanations (Landed keeps those exact-only wordings).
+// explanations (Landed keeps those exact-only wordings). Without
+// `exactOnly`, the walk continues past builds without usable proof.
 export async function lookupResultBuild(
   target: string,
   storyStart: string,
@@ -98,6 +132,7 @@ export async function lookupResultBuild(
   workflow: string,
   missingExplanation: string,
   exact?: ExactResultLookup,
+  proofSource?: ComparisonProofSource,
 ): Promise<RevisionBuildSlot> {
   try {
     const revisions =
@@ -108,6 +143,9 @@ export async function lookupResultBuild(
       revisions,
       lookup,
       exact?.exactOnly === true ? undefined : storyStart,
+      exact?.exactOnly === true || proofSource === undefined
+        ? undefined
+        : walkingProofUsable(proofSource),
     );
     if (build !== undefined) {
       const status = await statusWhenNotExact(

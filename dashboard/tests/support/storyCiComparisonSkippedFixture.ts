@@ -3,6 +3,8 @@
 // start with paths-ignore confirmation, a cancelled start run, and a code
 // start with no run. Landed equivalent-build publishers live in
 // `./storyCiComparisonSkippedLandingFixture.ts` and are re-exported here.
+// Baseline walk past a proofless parent lives in
+// `./storyCiComparisonSkippedBaselineWalkFixture.ts`.
 import type { Page } from "@playwright/test";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
@@ -35,6 +37,11 @@ export {
   publishSkippedPlanningLanding,
   type SkippedLandingSetup,
 } from "./storyCiComparisonSkippedLandingFixture.ts";
+
+export {
+  publishSkippedBaselinePastProoflessParent,
+  type SkippedBaselinePastProoflessSetup,
+} from "./storyCiComparisonSkippedBaselineWalkFixture.ts";
 
 async function publishWithPlanningStart(
   page: Page,

@@ -62,7 +62,26 @@ valid summary is asked again each time. A `ciAdapter` project asks GitHub
 nothing for its proof: its adapter's `proof` operation answers it, and a valid
 summary is remembered by repository and attempt for the process's lifetime the
 same way. A result that names no completed run or attempt asks nothing for its
-proof. Only the ref and branch head requests are made
+proof.
+
+A selected done or Taken story's **CI timing comparison** (Baseline, Branch, Landed, or
+a Taken provisional tip) lists the configured workflow's push runs once per first-parent
+revision the endpoint walks (`head_sha=`), within that endpoint's bound (30 first-parent
+ancestors for Baseline; the story-start bound for Branch, Trunk Mode Landed, and the
+provisional tip). Story Branch Landed is exact at the landing except a confirmed skip,
+which lists runs at the landing and at its equivalent-build ancestor only. For each
+timed build a walking endpoint considers, and for a confirmed skip's equivalent build,
+the comparison also reads that run attempt's CI proof the same way the homepage does
+(artifact listing by summary name; zip when listed and not expired). The walk continues
+past a build whose proof is absent, expired, unreadable, invalid or mismatched, so those
+failed proof reads are extra requests while selecting a source build. A valid summary is
+remembered by repository, run and attempt for the process's lifetime, so the page's
+later proof read of the chosen build asks GitHub nothing again; an attempt without a
+valid summary is asked again when the page reads it. Opening the comparison, changing
+the selected story, or **Check again** re-reads the slots; unchanged remembered answers
+cost no further requests.
+
+Only the ref and branch head requests are made
 on every load: content and history already read at a resolved revision or branch head by any
 dashboard process of this user on this machine are not asked again, so a reload, a return to a
 project, a replaced production dashboard, or a second dashboard process at a ref and branches that

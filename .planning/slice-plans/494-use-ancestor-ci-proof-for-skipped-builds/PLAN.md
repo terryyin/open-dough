@@ -176,15 +176,15 @@ landing (a fast-forward tip uses the same rule). Its proof is read through
 
 ### 3. Walk Baseline and Branch past builds without usable proof
 Type: Behavior
-Status: planned
-Proof: `intent-ci-comparison-skipped.spec.ts` covers the skipped baseline
-whose parent has no proof and the cancelled baseline. It also asserts the
-extra artifact listing for the proofless parent, and that the page's proof
-read of the chosen build adds no GitHub request. `intent-ci-comparison.spec.ts`,
-`intent-ci-comparison-gaps.spec.ts` and `intent-ci-comparison-taken.spec.ts`
-stay green or are updated only for the walk's new count. The
-`dashboard/GITHUB-REQUESTS.md` comparison section is added. Typecheck and
-lint.
+Status: done
+Proof: Accepted. `nearestRevisionBuild` `proofUsable` gate via
+`readCiProofArtifact` on walking endpoints. Playwright:
+`intent-ci-comparison-skipped.spec.ts` (proofless parent → grandparent run
+100, count 2, no repeat zip for chosen build) plus green comparison /
+gaps / taken. Module:
+`dashboard-ci-revision-nearest.test.mjs`. `GITHUB-REQUESTS.md` comparison
+section. Lint + typecheck. Refactor: `proofRunOf`, Taken resolve extract,
+baseline-walk fixture extract.
 
 Behavior:
 

@@ -4,17 +4,21 @@
 // paths-ignore accounts for the absence, Cancelled when the provider
 // cancelled the run, and No build with the reason when the path rule cannot
 // confirm a skip (SEED-254). Landed uses a confirmed skip's equivalent-build
-// proof only (slice 2).
+// proof only (slice 2). Baseline / Branch walk past builds without usable
+// proof (slice 3).
 
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
+import { githubFor } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
+import { proofCalls } from "../intentCiProofPage.ts";
 import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
 import {
   publishCancelledBaseline,
   publishCodeLandingWithoutBuild,
   publishCodeStartWithoutBuild,
+  publishSkippedBaselinePastProoflessParent,
   publishSkippedLandingWithoutProof,
   publishSkippedPlanningBaseline,
   publishSkippedPlanningLanding,
@@ -75,6 +79,43 @@ test("Baseline names Cancelled at a start whose run was cancelled and keeps the 
   await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
     "3 min",
   );
+});
+
+test("Baseline walks past a proofless parent to the grandparent's proof and counts two revisions", async ({
+  page,
+  origin,
+}) => {
+  test.slow();
+  const setup = await publishSkippedBaselinePastProoflessParent(page, origin);
+  expect(setup.laterWithoutBuild).toBe(2);
+  const github = githubFor(page);
+  const { panel } = await selectDoneStoryForCiComparison(page);
+  const skippedAt = `Skipped at ${shortSha(setup.storyStart)} because CI ignores every change since its nearest built ancestor ${shortSha(setup.prooflessParent)}.`;
+  const baselineIdentity = panel
+    .locator(".intent-ci-comparison-identity")
+    .nth(0);
+  await expect(baselineIdentity).toContainText(skippedAt);
+  await expect(baselineIdentity).toContainText(shortSha(setup.baseline));
+  await expect(baselineIdentity).toContainText("run 100 #1");
+  await expect(baselineIdentity).not.toContainText("run 101");
+  await expect(baselineIdentity).toContainText(
+    "ancestor: 2 later revisions without a build",
+  );
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
+    "3 min",
+  );
+  await expect(
+    panel.getByRole("table", { name: "CI entry timing comparison" }),
+  ).toBeVisible({ timeout: readWaitLimitMs + 15_000 });
+  const listed = proofCalls(github.calls);
+  expect(listed).toContain("artifacts of run 101: ci-proof-summary-attempt-1");
+  expect(
+    listed.filter(
+      (call) =>
+        call === "artifacts of run 100: ci-proof-summary-attempt-1" ||
+        call === "zip 1000",
+    ),
+  ).toEqual(["artifacts of run 100: ci-proof-summary-attempt-1", "zip 1000"]);
 });
 
 test("Baseline names No build with the path reason when the start changes code", async ({

@@ -107,15 +107,15 @@ export async function statusWhenNotExact(
   ancestorLimit: number,
 ): Promise<RequestedRevisionCiStatus | undefined> {
   if (build !== undefined && build.revision === requestedSha) return undefined;
-  const basisSha =
-    build !== undefined && build.revision !== requestedSha
-      ? build.revision
-      : await nearestAncestorBasisSha(
-          requestedSha,
-          lookup,
-          call,
-          ancestorLimit,
-        );
+  // Skip confirmation uses the nearest timed build, which may be nearer than
+  // the selected proof source when the walk passed a build without usable
+  // proof.
+  const basisSha = await nearestAncestorBasisSha(
+    requestedSha,
+    lookup,
+    call,
+    ancestorLimit,
+  );
   return requestedRevisionCiStatus(
     requestedSha,
     await lookup.listRunsAt(requestedSha),
