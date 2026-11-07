@@ -19,7 +19,15 @@ import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonE
 import { comparisonWorkflowPath } from "../support/storyCiComparisonFixture.ts";
 import { serveObservedComparisonAttempts } from "../support/storyCiObservedJobs.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
-import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
+import {
+  expectCueState,
+  expectEntryRowCues,
+} from "../support/expectCiComparisonCues.ts";
+import {
+  comparedStoryEntryCues,
+  comparedStoryEntryRows,
+  expectCiComparisonEntryRows,
+} from "../support/expectCiComparisonEntryRows.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { completedPublishedStory } from "../support/completedPublishedStory.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
@@ -30,33 +38,6 @@ const unrecoverable =
   "Published execution history does not establish a complete claim and its attributed commits for this completion.";
 
 test.setTimeout(240_000);
-
-const comparisonEntryRows = [
-  [
-    "dashboard/tests",
-    "2,090 → 2,092 +2 tests",
-    "4 min",
-    "4 min 30 s +30 s",
-    "5 min +1 min",
-    "1 of 1 part present",
-  ],
-  [
-    "tests",
-    "5 → 5 0 checks",
-    "2 min",
-    "1 min 30 s -30 s",
-    "1 min -1 min",
-    "1 of 1 part present",
-  ],
-  [
-    "src/skills",
-    "added → 3 checks",
-    "added",
-    "30 s",
-    "30 s",
-    "1 of 1 part present",
-  ],
-] as const;
 
 for (const variant of [
   undefined,
@@ -90,6 +71,39 @@ for (const variant of [
       `CI timing changes for ${setup.identity}`,
     );
     await expect(panel).toContainText(observedNotAttributed);
+    await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+      "Baseline compared with Landed",
+    );
+    await expect(
+      panel.locator(".intent-ci-comparison-overall-counts"),
+    ).toHaveText("2,090 → 2,092 tests (+2); 5 → 8 checks (+3)");
+    // Checks 5 → 8 (+60%) make the overall count cue strong even though
+    // tests only move +2 of 2,090.
+    await expectCueState(
+      panel.locator(".intent-ci-comparison-overall-counts"),
+      {
+        count: "more-strong",
+      },
+    );
+    if (landedJobsUnavailable) {
+      await expect(
+        panel.locator(".intent-ci-comparison-overall-timing"),
+      ).toHaveCount(0);
+    } else {
+      await expect(
+        panel.locator(".intent-ci-comparison-overall-timing"),
+      ).toHaveText("4 min 55 s → 5 min 12 s (+17 s, +6%)");
+      await expectCueState(
+        panel.locator(".intent-ci-comparison-overall-timing"),
+        {
+          duration: "none",
+          durationReason: "below threshold",
+        },
+      );
+    }
+    await expect(
+      panel.locator(".intent-ci-comparison-overall-wall"),
+    ).toHaveText("CI wall time 4 min 59 s → 5 min 19 s (+20 s, +7%)");
     await expect(
       panel.locator(".intent-ci-comparison-identity").nth(0),
     ).toContainText("No build at");
@@ -143,13 +157,20 @@ for (const variant of [
       panel.locator(".intent-ci-comparison-without-waits"),
     ).toHaveText([
       "4 min 55 s",
-      "4 min 47 s -8 s",
+      "4 min 47 s −8 s",
       landedJobsUnavailable
         ? "Unavailable. The build's attempt jobs could not be read."
         : "5 min 12 s +17 s",
     ]);
     await expect(panel).not.toContainText("Entry comparison is not yet shown.");
-    await expectCiComparisonEntryRows(panel, comparisonEntryRows);
+    await expect(panel).not.toContainText(
+      "merge resolutions whose story changes cannot be attributed safely",
+    );
+    await expect(panel).not.toContainText(
+      "merge resolutions affecting this story's files whose changes cannot be attributed safely",
+    );
+    await expectCiComparisonEntryRows(panel, comparedStoryEntryRows);
+    await expectEntryRowCues(panel, comparedStoryEntryCues);
   });
 }
 

@@ -212,9 +212,9 @@ for (const [landing, publish] of [
       await expectCiComparisonEntryRows(panel, [
         [
           "tests",
-          "5 → 8 +3 tests",
+          "5 → 8 tests (+3)",
           "3 s",
-          "5 s +2 s",
+          "3 s → 5 s (+2 s, +67%)",
           "This attempt's CI adapter gave no CI proof summary: no summary retained for this attempt.",
           "1 of 1 part present",
         ],

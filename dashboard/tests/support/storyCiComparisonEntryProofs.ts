@@ -57,7 +57,7 @@ export function mixedEntryParts(at: "baseline" | "branch" | "landed"): {
     ["tests", 1],
   ];
   // Entry counts differ across endpoints so the homepage Counts cell can
-  // show 2,090 → 2,092 +2 (SEED-245 example 1); checks stay flat.
+  // show 2,090 → 2,092 tests (+2) (SEED-245 example 1); checks stay flat.
   const dashboardCounts = at === "baseline" ? counts(2090) : counts(2092);
   const parts: ProofPart[] = [
     ["dashboard/tests", 1, 1, "tests", dashboardCounts, slowerMs[at]],

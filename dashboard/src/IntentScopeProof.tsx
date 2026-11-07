@@ -107,6 +107,7 @@ export function IntentScopeProof({
           path={path}
           inventory={inventory}
           proofs={evidence.proofs}
+          answer={evidence.answer}
           treeFiles={treeFiles}
           onOpen={onOpen}
         />

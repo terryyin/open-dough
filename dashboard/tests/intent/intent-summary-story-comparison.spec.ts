@@ -1,7 +1,7 @@
 // Entry and folder Summary CI timing and counted-results comparison for a
 // selected done story (../../src/IntentScopeProof.tsx, ../../src/ciScopeComparison.ts):
 // baseline, branch and landed precise durations with signed differences,
-// Counts with signed differences (entry 4 → 5 +1), change markers, added /
+// Counts with signed differences (entry 4 → 5 tests (+1)), change markers, added /
 // removed / renamed / later-trunk gaps, and drill into a nested folder
 // (SEED-245#compare-story-intent-entry-folder-and-file-summaries examples 1,
 // 2 timing, 3–4, 6). An owning integration merge that edits an Intent test file
@@ -21,6 +21,11 @@ import {
   selectDoneStoryForSummaryComparison,
 } from "../support/selectDoneStoryForSummaryComparison.ts";
 import { expectComparisonScopeRows } from "../intentScopeProofPage.ts";
+import {
+  expectScopeRowCues,
+  summaryEntryComparisonCues,
+  summaryFolderComparisonCues,
+} from "../support/expectCiComparisonCues.ts";
 import {
   entryComparisonRows,
   folderComparisonRows,
@@ -69,12 +74,26 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
       "dashboard/tests",
       entryComparisonRows,
     );
+    if (variant === undefined) {
+      await expectScopeRowCues(
+        summary,
+        "dashboard/tests",
+        summaryEntryComparisonCues,
+      );
+    }
     await drillComparisonChild(
       summary,
       "folder/",
       "dashboard/tests/folder",
       folderComparisonRows,
     );
+    if (variant === undefined) {
+      await expectScopeRowCues(
+        summary,
+        "dashboard/tests/folder",
+        summaryFolderComparisonCues,
+      );
+    }
     await drillComparisonChild(
       summary,
       "nested/",

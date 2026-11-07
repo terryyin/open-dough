@@ -158,6 +158,9 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     await expect(panel).toContainText(
       "One later commit has no result of its own.",
     );
+    // No story comparison → no count/duration cue attributes.
+    await expect(panel.locator("[data-ci-count-cue]")).toHaveCount(0);
+    await expect(panel.locator("[data-ci-duration-cue]")).toHaveCount(0);
   });
 });
 

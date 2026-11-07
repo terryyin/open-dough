@@ -1,9 +1,11 @@
-// One Intent CI timing comparison endpoint row: requested-revision status
-// beside the selected build identity, wall time, and CI time without runner
-// waits (`./IntentCiComparison.tsx`).
+// Endpoint table for Intent's story CI timing comparison
+// (`./IntentCiComparison.tsx`): each endpoint's requested-revision status
+// beside build identity (revision, run, state, exact / ancestor / equivalent
+// selection), CI wall time, and CI time without runner waits with a signed
+// difference against Baseline.
+
 import type { ReactNode } from "react";
 import { shortSha } from "./baseCiWording.ts";
-import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
 import {
   requestedStatusOrExplanation,
   requestedStatusPrefix,
@@ -11,6 +13,7 @@ import {
   timeWithoutRunnerWaitsWords,
   wallTimeWords,
 } from "./storyCiComparisonWording.ts";
+import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
 
 function LinkedRun({
   name,
@@ -79,7 +82,7 @@ function EndpointIdentity({
   return requestedStatusOrExplanation(slot);
 }
 
-export function EndpointRow({
+function EndpointRow({
   label,
   slot,
   baseline,
@@ -105,5 +108,63 @@ export function EndpointRow({
         )}
       </td>
     </tr>
+  );
+}
+
+export function ComparisonEndpointsTable({
+  baseline,
+  branch,
+  provisional,
+  landed,
+  branchProvisional,
+}: {
+  readonly baseline: StoryCiComparisonSlot;
+  readonly branch: StoryCiComparisonSlot;
+  readonly provisional: StoryCiComparisonSlot | undefined;
+  readonly landed: StoryCiComparisonSlot;
+  readonly branchProvisional: boolean;
+}) {
+  return (
+    <table className="intent-ci-comparison">
+      <caption className="visually-hidden">
+        Baseline, branch and landed CI builds with timing
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Endpoint</th>
+          <th scope="col">Build</th>
+          <th scope="col">CI wall time</th>
+          <th scope="col">CI time without runner waits</th>
+        </tr>
+      </thead>
+      <tbody>
+        <EndpointRow
+          label="Baseline"
+          slot={baseline}
+          baseline={baseline}
+          provisional={false}
+        />
+        <EndpointRow
+          label="Branch"
+          slot={branch}
+          baseline={baseline}
+          provisional={branchProvisional}
+        />
+        {provisional !== undefined && (
+          <EndpointRow
+            label="Provisional"
+            slot={provisional}
+            baseline={baseline}
+            provisional={true}
+          />
+        )}
+        <EndpointRow
+          label="Landed"
+          slot={landed}
+          baseline={baseline}
+          provisional={false}
+        />
+      </tbody>
+    </table>
   );
 }

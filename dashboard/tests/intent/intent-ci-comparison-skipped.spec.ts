@@ -13,7 +13,10 @@ import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 import { githubFor } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { proofCalls } from "../intentCiProofPage.ts";
-import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
+import {
+  comparedStoryEntryRows,
+  expectCiComparisonEntryRows,
+} from "../support/expectCiComparisonEntryRows.ts";
 import {
   publishCancelledBaseline,
   publishCodeLandingWithoutBuild,
@@ -152,38 +155,15 @@ test("Landed names Skipped at a planning-only merge and uses the equivalent buil
   await expect(landedIdentity).toContainText("run 201 #1");
   await expect(landedIdentity).toContainText("equivalent build");
   await expect(landedIdentity).not.toContainText(shortSha(setup.olderBaseline));
+  // Endpoint wall cells stay absolute; signed wall change is overall context
+  // (SEED-255 before→after presentation).
   await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
     "5 min",
   );
   await expect(
     panel.getByRole("table", { name: "CI entry timing comparison" }),
   ).toBeVisible({ timeout: readWaitLimitMs + 15_000 });
-  await expectCiComparisonEntryRows(panel, [
-    [
-      "dashboard/tests",
-      "2,090 → 2,092 +2 tests",
-      "4 min",
-      "4 min 30 s +30 s",
-      "5 min +1 min",
-      "1 of 1 part present",
-    ],
-    [
-      "tests",
-      "5 → 5 0 checks",
-      "2 min",
-      "1 min 30 s -30 s",
-      "1 min -1 min",
-      "1 of 1 part present",
-    ],
-    [
-      "src/skills",
-      "added → 3 checks",
-      "added",
-      "30 s",
-      "30 s",
-      "1 of 1 part present",
-    ],
-  ]);
+  await expectCiComparisonEntryRows(panel, comparedStoryEntryRows);
 });
 
 test("Landed names Skipped when the equivalent build published no proof and walks no further", async ({

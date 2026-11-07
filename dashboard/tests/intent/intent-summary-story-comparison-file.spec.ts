@@ -5,7 +5,6 @@
 // unchanged files keep Proof; story-free source Purpose and judged-run Proof
 // are in ./intent-file-purpose-proof.spec.ts.
 
-import type { Locator } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { observedNotAttributed } from "../../src/storyCiComparisonWording.ts";
@@ -14,69 +13,24 @@ import {
   proofRegion,
   purposeRegion,
 } from "../intentPerspectivePage.ts";
-import {
-  comparisonScopeColumns,
-  type ComparisonScopeRow,
-} from "../intentScopeProofPage.ts";
+import { expectProofRowCues } from "../support/expectCiComparisonCues.ts";
 import {
   publishSummaryComparisonStory,
   summaryComparisonChanges,
 } from "../support/intentSummaryStoryComparisonFixture.ts";
 import { intentFile } from "../support/intentStoryPage.ts";
 import { selectDoneStoryForSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
+import {
+  addedFileRow,
+  expectFileComparisonRow,
+  mergeEditedFileRow,
+  modifiedFileRow,
+  unchangedFileRow,
+} from "../support/summaryComparisonFileExpectedRows.ts";
 
 test.setTimeout(240_000);
-const parts = "1 of 1 part present";
-const modifiedFileRow: ComparisonScopeRow = [
-  "dashboard/tests/folder/a.spec.ts modified",
-  "1 → 1 0 tests",
-  "10.0 s",
-  "14.0 s +4.0 s",
-  "14.0 s +4.0 s",
-  parts,
-];
-const addedFileRow: ComparisonScopeRow = [
-  "dashboard/tests/added.spec.ts added",
-  "added → 1 tests",
-  "added",
-  "800 ms",
-  "800 ms",
-  parts,
-];
-const mergeEditedFileRow: ComparisonScopeRow = [
-  "dashboard/tests/folder/nested/c.spec.ts modified",
-  "1 → 1 0 tests",
-  "340 ms",
-  "410 ms +70 ms",
-  "410 ms +70 ms",
-  parts,
-];
-const unchangedFileRow: ComparisonScopeRow = [
-  "dashboard/tests/root.spec.ts",
-  "1 → 1 0 tests",
-  "1.2 s",
-  "1.2 s 0 ms",
-  "1.2 s 0 ms",
-  parts,
-];
 
-async function expectFileComparisonRow(
-  proof: Locator,
-  path: string,
-  row: ComparisonScopeRow,
-) {
-  const table = proof.getByRole("table", { name: `CI proof of ${path}` });
-  await expect(table.getByRole("columnheader")).toHaveText([
-    ...comparisonScopeColumns,
-  ]);
-  const body = table.locator("tbody").getByRole("row");
-  await expect(body).toHaveCount(1);
-  const [scope, ...cells] = row;
-  await expect(body.nth(0).getByRole("rowheader")).toHaveText(scope);
-  await expect(body.nth(0).getByRole("cell")).toHaveText([...cells]);
-}
-
-for (const variant of [undefined, "own-conflict-extra"] as const)
+for (const variant of [undefined, "own-conflict-extra"] as const) {
   test(`a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison with ${variant ?? "clean merges"}`, async ({
     page,
     origin,
@@ -128,6 +82,13 @@ for (const variant of [undefined, "own-conflict-extra"] as const)
       "dashboard/tests/folder/a.spec.ts",
       modifiedFileRow,
     );
+    if (variant === undefined) {
+      await expectProofRowCues(proof, "dashboard/tests/folder/a.spec.ts", {
+        count: "none",
+        duration: "slower-light",
+        countReason: "unchanged",
+      });
+    }
 
     await test.step("an added file keeps Proof selected and shows added with no baseline difference", async () => {
       await intentFile(intent, summaryComparisonChanges.added).click();
@@ -135,11 +96,20 @@ for (const variant of [undefined, "own-conflict-extra"] as const)
         "aria-selected",
         "true",
       );
+      const addedProof = proofRegion(intent);
       await expectFileComparisonRow(
-        proofRegion(intent),
+        addedProof,
         "dashboard/tests/added.spec.ts",
         addedFileRow,
       );
+      if (variant === undefined) {
+        await expectProofRowCues(addedProof, "dashboard/tests/added.spec.ts", {
+          count: "none",
+          duration: "none",
+          countReason: "added",
+          durationReason: "added",
+        });
+      }
       await fileReadingTab(intent, "Purpose").click();
       await expect(
         purposeRegion(intent).locator(".intent-story-diff-name"),
@@ -179,10 +149,20 @@ for (const variant of [undefined, "own-conflict-extra"] as const)
       await expect(purposeOnly.locator(".story-review-code")).toHaveCount(0);
       await expect(purposeOnly.getByRole("table")).toHaveCount(0);
       await fileReadingTab(intent, "Proof").click();
+      const rootProof = proofRegion(intent);
       await expectFileComparisonRow(
-        proofRegion(intent),
+        rootProof,
         "dashboard/tests/root.spec.ts",
         unchangedFileRow,
       );
+      if (variant === undefined) {
+        await expectProofRowCues(rootProof, "dashboard/tests/root.spec.ts", {
+          count: "none",
+          duration: "none",
+          countReason: "unchanged",
+          durationReason: "unchanged",
+        });
+      }
     });
   });
+}

@@ -20,12 +20,18 @@ name's toggle); selecting a closed location's name leaves it closed and
 leaves any other open location open. Both controls are keyboard-operable, and
 a selected location or folder reads as pressed. Every location header has its
 own background; a selected location's header takes the selected background
-across its whole width, toggle included, and expansion shows only in the
-toggle. Selecting a file still reads its exact published text with line
+across its whole width, toggle included (or an accent border when a CI
+duration tint would be hidden by that fill — see
+[CI timing comparison](dashboard-development-intent-ci-comparison.md)), and
+expansion shows only in the toggle. With a story comparison, file rows and
+location headers whose path is a compared entry show the same count-border
+and duration-tint cues, with Proof's words in their accessible names; folder
+rows do not. Selecting a file still reads its exact published text with line
 numbers and Gherkin syntax styling at Intent's reading revision. A location or
 folder summary names the selection by path and how many matching files the
-tree lists (a selected story's overlaid files included), gives an unusable location's explanation, and shows the CI proof
-that **CI status** shows, never local proof. With no story selected, it names
+tree lists (a selected story's overlaid files included), gives an unusable
+location's explanation, and shows the CI proof that **CI status** shows, never
+local proof. With no story selected, it names
 that evidence once (attempt and run, revision, judged branch, a selected
 story's branch, a running result's completed ancestor), says when that
 judgment was previously retrieved rather than newly verified and any failed
@@ -44,7 +50,9 @@ labelled provisional) and the observed-not-attributed statement; its table
 uses **Baseline**, **Branch** and **Landed** for precise times with signed
 differences, shows counted-results differences in **Counts** (a gap endpoint
 shows its gap, not a difference), marks story-changed rows (a rename takes
-its baseline from its old path), and explains per-row gaps. Parts
+its baseline from its old path), explains per-row gaps, and shows the same
+count-border and duration-tint cues as the homepage entry table (see
+[CI timing comparison](dashboard-development-intent-ci-comparison.md)). Parts
 completeness stays for the homepage's chosen build (landed, else branch).
 Each result counts in one row: an unlisted file
 under a listed folder is in that folder's row, and outside only in that
@@ -106,40 +114,30 @@ Mode agent profile records that branch. Judgment follows the same rule as the
 Trunk results for the same check count on a story branch when the commit is
 in its history, and the view names the run's branch, for example "run on
 `main`". A failed trunk read leaves **Could not be read**.
-A selected **Done** story shows the **CI timing comparison**. Baseline is
-the newest completed build at or before the first claim parent. Branch is
-the final branch result from the landing's story-side parent (inapplicable
-in Trunk Mode). Landed uses the newest trunk-first owning merge or the
-fast-forward tip, before any separate completion commit and without falling
-back across the landing; a confirmed skip may use only that landing's
-equivalent build and its proof, never past unusable proof, while cancelled
-or unexplained stays exact-only. Each build shows its revision, run, attempt, state,
-and exact, measured-ancestor, or equivalent-build selection, with the
-requested revision's own status (Skipped, Cancelled, or No build) when that
-revision is not the timed build shown. Baseline and Branch walks continue
-past builds without usable proof. GitHub Actions wall time spans
-run creation on attempt one or attempt start on reruns through completion.
-CI time without runner waits measures the longest dependency chain of job
-durations, including carried-over jobs, against the workflow at that build.
-Signed whole-second differences compare observed builds with Baseline. A
-running build or missing timing or dependency evidence gives an unavailable
-reason and any available wall time. Entry rows compare cumulative test execution time.
-With `ciAdapter`, the comparison matches retained `discover` attempts by full
-revision across validated branches. It queries the target and any known
-story branch, and shows both IDs as text. Adapter wall time uses the
-reported start and completion, and the runner-wait estimate says the adapter
-has no job graph. Completed endpoints ask `proof`
-on the listing branch for counts and durations. Unavailable, invalid, or
-ambiguous proof leaves the build visible with its reason. Endpoint recovery is
-independent of Review changes' merge attribution at home, entry, folder and file.
-A selected **Taken** Story Branch story keeps live judgment and compares the
-latest completed branch build as provisional against Baseline. Landed says
-the story has yet to land, and a new branch head refreshes the comparison.
-A Taken Trunk Mode story compares the provisional trunk result, with Branch
-inapplicable and Landed still pending integration. A story without a published
-branch, with unreadable or ambiguous agent profiles, or with an unusable or
-unpublished branch name shows only that reason. Selection replaces the judgment,
-and clearing it returns to trunk. Judgment names the branch, **Passed**,
+A selected **Done** or **Taken** story's
+[CI timing comparison](dashboard-development-intent-ci-comparison.md)
+names the active comparison, overall before→after counts and CI time without
+runner waits (wall time as context), endpoint identities with both timing
+measures, cues, and entry cells. Baseline is the newest completed build at or
+before the first claim parent. Branch is the final branch result from the
+landing's story-side parent (inapplicable in Trunk Mode). Landed uses the
+newest trunk-first owning merge or the fast-forward tip, before any separate
+completion commit and without falling back across the landing; a confirmed
+skip may use only that landing's equivalent build and its proof, never past
+unusable proof, while cancelled or unexplained stays exact-only. Each build
+shows its revision, run, attempt, state, and exact, measured-ancestor, or
+equivalent-build selection, with the requested revision's own status
+(Skipped, Cancelled, or No build) when that revision is not the timed build
+shown. Baseline and Branch walks continue past builds without usable proof.
+GitHub Actions wall time, CI time without runner waits, signed differences,
+adapter discover/proof rules, and endpoint recovery follow that comparison
+page. A selected **Taken** Story Branch story keeps live judgment and compares
+the latest completed branch build as provisional against Baseline. Landed says
+the story has yet to land, and a new branch head refreshes the comparison. A
+Taken Trunk Mode story compares the provisional trunk result, with Branch
+inapplicable and Landed still pending integration. Missing or unusable branch
+publication is named and shows no status. Selection replaces the judgment, and
+clearing it returns to trunk. Judgment names the branch, **Passed**,
 **Failed** (including cancelled or timed out), **Running** or **Could not be
 read** with the reason, the judged short SHA and subject, the number of later
 commits without results, any run link, the nearest completed ancestor while
@@ -259,4 +257,5 @@ URLs, story references and choosing a Sessions sidebar entry open
 Development's stories, including from the same project's Intent. Changing
 perspective neither starts, stops, completes nor reattaches a session: the
 mounted Board, Sessions sidebar and Side panel stay as they were, and a
-covering panel stays open. When the change hides the content holding the keyboard, the keyboard moves to the selected perspective's choice.
+covering panel stays open. When the change hides the content holding the
+keyboard, the keyboard moves to the selected perspective's choice.

@@ -58,7 +58,7 @@ test("a summary without durations and a part without duration leave totals expla
   await expectCiComparisonEntryRows(panel, [
     [
       "dashboard/tests",
-      "2,090 → 2,092 +2 tests",
+      "2,090 → 2,092 tests (+2)",
       "not recorded: this summary has no test execution durations",
       "4 min 30 s",
       "5 min",
@@ -66,7 +66,7 @@ test("a summary without durations and a part without duration leave totals expla
     ],
     [
       "tests",
-      "5 → 5 0 checks",
+      "5 checks (no change)",
       "partial: part 2 of 2 has no duration",
       "1 min 30 s",
       "1 min",

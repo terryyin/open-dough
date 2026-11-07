@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-255#compare-before-and-after-ci-proof",
+  "title": "Compare before-and-after CI proof in Intent",
+  "completedAt": "2026-11-07T09:42:22.590Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "cursor",
+  "model": "auto"
+}

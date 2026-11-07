@@ -16,21 +16,22 @@ import type {
   StoryCiComparisonSlot,
 } from "./storyCiComparison.ts";
 import {
+  comparisonAfterSideOf,
+  type ComparisonAfterSide,
+} from "./ciScopeComparisonCues.ts";
+import {
   comparisonEntriesOf,
   comparisonProofOf,
-  type ComparisonEndpointProof,
+  type ComparisonEndpointProofs,
   type ComparisonEntries,
 } from "./storyCiComparisonEntries.ts";
+import { activeComparisonOf } from "./storyCiComparisonWording.ts";
+
+export type { ComparisonEndpointProofs };
 
 type SlotProof = {
   readonly proof: CiProof | undefined;
   readonly reading: boolean;
-};
-
-export type ComparisonEndpointProofs = {
-  readonly baseline: ComparisonEndpointProof;
-  readonly branch: ComparisonEndpointProof;
-  readonly landed: ComparisonEndpointProof;
 };
 
 function useSlotProof(
@@ -147,6 +148,21 @@ export function useIntentCiComparisonEndpointProofs(
 
 export function comparisonEntriesFromProofs(
   proofs: ComparisonEndpointProofs,
+  afterSide: ComparisonAfterSide = "landed",
 ): ComparisonEntries {
-  return comparisonEntriesOf(proofs.baseline, proofs.branch, proofs.landed);
+  return comparisonEntriesOf(
+    proofs.baseline,
+    proofs.branch,
+    proofs.landed,
+    afterSide,
+  );
+}
+
+// After endpoint the active comparison uses for cues (Landed with proof,
+// otherwise Branch / Provisional).
+export function activeComparisonAfterSideOf(
+  answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>,
+  proofs: ComparisonEndpointProofs,
+): ComparisonAfterSide {
+  return comparisonAfterSideOf(activeComparisonOf(answer, proofs).endpoint);
 }

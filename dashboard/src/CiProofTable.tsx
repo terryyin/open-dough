@@ -12,9 +12,11 @@
 // column here.
 
 import { Fragment, type ReactNode } from "react";
+import { scopeCueRowAttrs } from "./ciScopeComparisonCuePresentation.ts";
 import type { CiProofCells } from "./ciProofWording.ts";
 import type { ComparisonEntryCells } from "./storyCiComparisonEntries.ts";
 import "./ci-proof-table.css";
+import "./intent-ci-cues.css";
 
 export type CiProofTableRow = {
   readonly key: string;
@@ -122,7 +124,12 @@ export function CiProofTable({
         </thead>
         <tbody>
           {rows.map(({ key, scope, cells }) => (
-            <tr key={key}>
+            <tr
+              key={key}
+              {...(isComparisonCells(cells)
+                ? scopeCueRowAttrs(cells.cues)
+                : {})}
+            >
               <th scope="row">{scope}</th>
               {isComparisonCells(cells) ? (
                 <ComparisonCells cells={cells} />
