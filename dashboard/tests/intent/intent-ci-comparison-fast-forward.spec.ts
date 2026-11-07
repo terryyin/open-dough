@@ -8,6 +8,8 @@
 
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
+import { githubFor } from "../dashboardTest.ts";
+import { listedAttemptJobPages } from "../support/storyCiComparisonFixture.ts";
 import { publishFastForwardLandedStory } from "../support/storyCiComparisonFastForward.ts";
 import {
   publishEarlierLandingThenLaterFastForward,
@@ -53,12 +55,16 @@ test("a fast-forward landing after a story-first merge of main names the tip as 
       exact: true,
     }),
   ).toHaveAttribute("href", "https://ci.invalid/runs/402");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(1),
-  ).toContainText("+20 s");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(2),
-  ).toContainText("+20 s");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+    "3 min 20 s",
+  );
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "3 min 20 s",
+  );
+  expect(listedAttemptJobPages(githubFor(page).calls)).toEqual([
+    "401/1/1",
+    "402/1/1",
+  ]);
 });
 
 test("a later fast-forward keeps an earlier story's trunk-first landing and baseline (SEED-248 E7)", async ({
@@ -102,12 +108,12 @@ test("a later fast-forward keeps an earlier story's trunk-first landing and base
   await expect(panel).not.toContainText("run 501");
   await expect(panel).not.toContainText("run 304");
   await expect(panel).not.toContainText("10 min");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(1),
-  ).toContainText("+20 s");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(2),
-  ).toContainText("+1 min");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+    "3 min 20 s",
+  );
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "4 min",
+  );
 });
 
 test("a later branch started before a Trunk Mode completion keeps that completion as Landed after it merges main and fast-forwards (SEED-253)", async ({
@@ -141,7 +147,7 @@ test("a later branch started before a Trunk Mode completion keeps that completio
   ).not.toContainText(shortSha(setup.later));
   await expect(panel).not.toContainText("run 501");
   await expect(panel).not.toContainText("10 min");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(2),
-  ).toContainText("+1 min");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "4 min",
+  );
 });

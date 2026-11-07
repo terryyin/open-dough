@@ -20,15 +20,18 @@ export type CiRunAnswer = {
   readonly attempt?: number;
   readonly url?: string;
   // Optional wall-time bounds as GitHub Actions lists them.
+  readonly createdAt?: string;
   readonly startedAt?: string;
   readonly completedAt?: string;
 };
 
-export function actionsWorkflowAnswer(): OriginAnswer {
+export function actionsWorkflowAnswer(
+  path = ".github/workflows/ci.yml",
+): OriginAnswer {
   return {
     status: 200,
     contentType: "application/json; charset=utf-8",
-    body: JSON.stringify({ id: 7001, name: "CI", state: "active" }),
+    body: JSON.stringify({ id: 7001, name: "CI", state: "active", path }),
   };
 }
 
@@ -53,7 +56,9 @@ export function actionsRunsAnswer(
             run.conclusion ?? (status === "completed" ? "success" : null),
           html_url:
             run.url ?? `https://ci.invalid/${String(run.id ?? index + 1)}`,
-          created_at: `2026-10-01T00:${String(index).padStart(2, "0")}:00Z`,
+          created_at:
+            run.createdAt ??
+            `2026-10-01T00:${String(index).padStart(2, "0")}:00Z`,
           ...(run.startedAt === undefined
             ? {}
             : { run_started_at: run.startedAt }),

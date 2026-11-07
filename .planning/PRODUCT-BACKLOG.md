@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Compare CI time without runner waits](seeds/SEED-256-compare-ci-time-without-runner-waits.md#compare-ci-time-without-runner-waits) — SEED-256#compare-ci-time-without-runner-waits ([plan](slice-plans/492-compare-ci-time-without-runner-waits/PLAN.md))
 - [Compare before-and-after CI proof in Intent](seeds/SEED-255-compare-before-and-after-ci-proof.md#compare-before-and-after-ci-proof) — SEED-255#compare-before-and-after-ci-proof ([plan](slice-plans/493-compare-before-and-after-ci-proof/PLAN.md))
 - [Compare story CI builds from custom adapters in Intent](seeds/SEED-257-compare-story-ci-through-adapters.md#compare-story-ci-through-adapters) — SEED-257#compare-story-ci-through-adapters ([plan](slice-plans/495-compare-story-ci-through-adapters/PLAN.md))
 - [Use the nearest ancestor's CI proof for skipped builds](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-ancestor-ci-proof-for-skipped-builds) — SEED-254#use-ancestor-ci-proof-for-skipped-builds ([plan](slice-plans/494-use-ancestor-ci-proof-for-skipped-builds/PLAN.md))

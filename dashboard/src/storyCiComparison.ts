@@ -15,6 +15,15 @@ const attemptTimes = {
   completedAt: z.iso.datetime().optional(),
 };
 
+const timeWithoutRunnerWaitsSchema = z.union([
+  z.object({ milliseconds: z.number().nonnegative() }),
+  z.object({ reason: z.string().min(1) }),
+]);
+
+export type CiTimeWithoutRunnerWaits = z.infer<
+  typeof timeWithoutRunnerWaitsSchema
+>;
+
 const buildSlot = z.object({
   kind: z.literal("build"),
   revision: z.string().min(1),
@@ -26,6 +35,7 @@ const buildSlot = z.object({
   runBranch: z.string().min(1).optional(),
   ...runIdentity,
   ...attemptTimes,
+  timeWithoutRunnerWaits: timeWithoutRunnerWaitsSchema,
 });
 
 const runningSlot = z.object({

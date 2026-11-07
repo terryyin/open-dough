@@ -26,6 +26,13 @@ export type GhActionsRequest =
       readonly attempt: number;
     }
   | {
+      readonly kind: "actions-attempt-jobs";
+      readonly repository: string;
+      readonly runId: number;
+      readonly attempt: number;
+      readonly page: number;
+    }
+  | {
       // One run's artifacts, of one name (`name=`) when one is named.
       readonly kind: "actions-run-artifacts";
       readonly repository: string;
@@ -75,6 +82,17 @@ export function parseActionsRequest(
       repository: attempt[1],
       runId: Number(attempt[2]),
       attempt: Number(attempt[3]),
+    };
+  const jobs = pattern(
+    "runs\\/(\\d+)\\/attempts\\/(\\d+)\\/jobs(?:\\?(.*))?",
+  ).exec(endpoint);
+  if (jobs?.[1] !== undefined && jobs[2] !== undefined && jobs[3] !== undefined)
+    return {
+      kind: "actions-attempt-jobs",
+      repository: jobs[1],
+      runId: Number(jobs[2]),
+      attempt: Number(jobs[3]),
+      page: Number(new URLSearchParams(jobs[4] ?? "").get("page") ?? "1"),
     };
   const artifacts = pattern("runs\\/(\\d+)\\/artifacts(?:\\?(.*))?").exec(
     endpoint,

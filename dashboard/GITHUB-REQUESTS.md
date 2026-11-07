@@ -62,7 +62,13 @@ valid summary is asked again each time. A `ciAdapter` project asks GitHub
 nothing for its proof: its adapter's `proof` operation answers it, and a valid
 summary is remembered by repository and attempt for the process's lifetime the
 same way. A result that names no completed run or attempt asks nothing for its
-proof. Only the ref and branch head requests are made
+proof. A story CI timing comparison adds one jobs request per 100 jobs for
+each newly shown completed GitHub Actions attempt with a readable workflow
+file. The dashboard process remembers the latest 256 successful listings by
+repository, run and attempt, including Baseline jobs across Taken branch
+head changes. A fresh comparison computes the estimate using those rows and
+the workflow file at the build's revision from local Git. A failed listing
+can be requested again by a fresh comparison. Only the ref and branch head requests are made
 on every load: content and history already read at a resolved revision or branch head by any
 dashboard process of this user on this machine are not asked again, so a reload, a return to a
 project, a replaced production dashboard, or a second dashboard process at a ref and branches that

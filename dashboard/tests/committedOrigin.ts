@@ -98,11 +98,13 @@ export function publishCommittedOrigin(
       request.kind === "actions-workflow" ||
       request.kind === "actions-runs" ||
       request.kind === "actions-run-attempt" ||
+      request.kind === "actions-attempt-jobs" ||
       request.kind === "actions-run-artifacts" ||
       request.kind === "actions-artifact-zip"
     ) {
       const actionsAnswer = actionsOverride?.(argv, published());
       if (actionsAnswer !== undefined) return actionsAnswer;
+      if (request.kind === "actions-attempt-jobs") return notFoundAnswer();
       if (
         request.kind === "actions-run-attempt" ||
         request.kind === "actions-run-artifacts" ||

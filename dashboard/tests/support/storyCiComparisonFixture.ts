@@ -7,7 +7,9 @@
 // ./storyCiComparisonTakenFixture.ts; entry-proof Answers in
 // ./storyCiComparisonEntryProofs.ts.
 
+import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import type { ReportedAttemptJob } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import {
   actionsRunsAnswer,
@@ -22,6 +24,7 @@ import {
   type ComparisonProofServe,
 } from "./storyCiComparisonEntryProofs.ts";
 import type { CommittedOrigin } from "../committedOrigin.ts";
+import type { GhCall } from "./fakeGitHub.ts";
 
 export type { ComparisonProofServe } from "./storyCiComparisonEntryProofs.ts";
 export {
@@ -45,6 +48,7 @@ export function wall(
     attempt: 1,
     conclusion,
     status,
+    createdAt: startedAt,
     startedAt,
     completedAt,
     url: `https://ci.invalid/runs/${String(id)}`,
@@ -87,6 +91,26 @@ export function claimOf(repo: string, agent: string): string {
   ).trim();
 }
 
+export const comparisonWorkflowPath = ".github/workflows/comparison.yml";
+export const comparisonWorkflow = readFileSync(
+  new URL("../../../.github/workflows/ci.yml", import.meta.url),
+  "utf8",
+);
+
+type AttemptJobs = Record<string, readonly ReportedAttemptJob[]>;
+
+export function listedAttemptJobPages(calls: readonly GhCall[]): string[] {
+  return calls
+    .flatMap(({ request }) =>
+      request.kind === "actions-attempt-jobs"
+        ? [
+            `${String(request.runId)}/${String(request.attempt)}/${String(request.page)}`,
+          ]
+        : [],
+    )
+    .sort();
+}
+
 export type StoryCiComparisonSetup = {
   readonly identity: string;
   readonly completion: string;
@@ -107,6 +131,7 @@ export type StoryCiComparisonSetup = {
   readonly serveRuns: (
     runsBySha: Record<string, readonly CiRunAnswer[]>,
   ) => void;
+  readonly serveJobs: (jobs: AttemptJobs) => void;
   readonly serveProofs: (
     proofsByRunId: Record<number, ComparisonProofServe>,
   ) => void;
@@ -122,10 +147,11 @@ export function serveActionsFor(
 ) {
   let runsBySha = initial;
   let proofsByRunId = initialProofs;
+  let jobsByAttempt: AttemptJobs = {};
   const answerActions = (argv: readonly string[]): OriginAnswer | undefined => {
     const route = argv.find((argument) => argument.startsWith("repos/")) ?? "";
     if (/\/actions\/workflows\/[^/?]+$/.test(route)) {
-      return actionsWorkflowAnswer();
+      return actionsWorkflowAnswer(comparisonWorkflowPath);
     }
     const runs = /\/actions\/workflows\/[^/]+\/runs\?(.*)$/.exec(route);
     if (runs?.[1] !== undefined) {
@@ -144,6 +170,16 @@ export function serveActionsFor(
       }
       return actionsRunsAnswer([], branch);
     }
+    const jobs = /\/actions\/runs\/(\d+)\/attempts\/(\d+)\/jobs\?/.exec(route);
+    if (jobs?.[1] !== undefined && jobs[2] !== undefined) {
+      const listed = jobsByAttempt[`${jobs[1]}/${jobs[2]}`];
+      if (listed !== undefined)
+        return {
+          status: 200,
+          contentType: "application/json; charset=utf-8",
+          body: JSON.stringify({ jobs: listed, total_count: listed.length }),
+        };
+    }
     const attempt = /\/actions\/runs\/(\d+)\/attempts\/(\d+)$/.exec(route);
     if (attempt?.[1] !== undefined) {
       const runId = Number(attempt[1]);
@@ -161,7 +197,7 @@ export function serveActionsFor(
             status: found.status ?? "completed",
             conclusion: found.conclusion ?? "success",
             html_url: found.url,
-            created_at: "2026-11-05T12:00:00Z",
+            created_at: found.createdAt ?? "2026-11-05T12:00:00Z",
             run_started_at: found.startedAt,
             updated_at: found.completedAt,
           }),
@@ -176,6 +212,9 @@ export function serveActionsFor(
     serveRuns(next: Record<string, readonly CiRunAnswer[]>) {
       runsBySha = next;
     },
+    serveJobs(next: AttemptJobs) {
+      jobsByAttempt = next;
+    },
     serveProofs(next: Record<number, ComparisonProofServe>) {
       proofsByRunId = next;
     },
@@ -186,6 +225,7 @@ export function serveActionsFor(
 // baseline is a measured ancestor.
 export function precedeClaimWithPlanning(origin: StartOrigin): string {
   writeAt(origin.project, "src/built.ts", "built before story\n");
+  writeAt(origin.project, comparisonWorkflowPath, comparisonWorkflow);
   commitAll(origin.project, "ship a built revision");
   const baseline = git(origin.project, "rev-parse", "HEAD");
   push(origin.project);

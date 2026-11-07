@@ -20,6 +20,7 @@ import { queuedIdentity } from "./startOrigin.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import {
+  comparisonWorkflowPath,
   precedeClaimWithPlanning,
   serveActionsFor,
   wall,
@@ -29,6 +30,7 @@ import {
 export async function publishCodeLandedBeforeCompletion(
   page: Page,
   origin: StartOrigin,
+  workflowRemovedBeforeLanding = false,
 ): Promise<StoryCiComparisonSetup> {
   const baseline = precedeClaimWithPlanning(origin);
   writeAt(origin.project, "shared.txt", lines("line"));
@@ -58,6 +60,9 @@ export async function publishCodeLandedBeforeCompletion(
 
   pull(origin.project);
   writeAt(origin.project, "other-story.txt", "another story\n");
+  if (workflowRemovedBeforeLanding) {
+    rmSync(path.join(origin.project, comparisonWorkflowPath));
+  }
   commitAll(origin.project, "another writer interleaves");
   push(origin.project);
 
