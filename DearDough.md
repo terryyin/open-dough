@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 436. Removed numbers are never reused.
+- Highest allocated local number: 437. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
 - Duplicate-note cleanup recovery: `81f6c3916430cee083ce027cdb62c8aa5e5c2225:DearDough.md`.
@@ -593,6 +593,13 @@ Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`.
   - Evidence: coordinator transcript `3bb4f177-6d51-4cc1-bc37-960c9aac4537` delegated slice 1 (subagent `88e91963-42fd-4d56-8fa8-1f5d2e11a93f` at 05:54+07:00) before launching the source-only reviewer (`05ed7080-9e96-414a-b209-6162203edfd3` at 05:58+07:00); source-review.md and Story obligations X-D1–X-S8 were written after that return
   - Observed effect: slice 1 brief carried only the plan's proof; source commitments 11–15, 25–26, E4 and E6 were recorded at acceptance after the implementer had already returned. No mid-run product correction was required because those commitments matched the plan's rewrite of the sharing proofs
   - Inference: same ordering as prior ODF-367 rows — the source-only review that acceptance requires still starts after the first Behavior slice is already delegated
+- Execution: SEED-250#hide-client-project-from-dashboard (plan 476-hide-client-project-from-dashboard; first related implementation commit `bbdb50295eccda910464a31d47c7ffcc9aadc390`)
+  - Timestamp: unknown (2026-11-07, after established start and before slice 1 delivery `bbdb50295`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: coordinator delegated slice 1 (`85bcdbe9-6b19-4722-a806-4c3a22200093`) after reading the "Before first implementation delegation" boundary, then read "Before accepting a return" (`wrap-up.md#accept-proof`) and launched the source-only reviewer (`fc0018b5-f90a-42c9-8c9b-63d1c2ae89af`) before accepting slice 1 and delegating slice 2
+  - Observed effect: no rework of slice 1; all 62 slice 1 commitments matched the delivered implementation and proof, and the 5 slice 2 commitments were passed into slice 2 delegation
+  - Inference: same boundary-table ordering as prior ODF-367 rows — `dough-execute-plan/SKILL.md` lists `wrap-up.md#accept-proof` under "Before accepting a return" rather than before first slice delegation
 
 ## ODF-399 — Post-change refactor left a production module empty before delivery
 
@@ -879,3 +886,16 @@ The incoming trunk merge relocated a concurrent story's unchanged agent profile 
   - Evidence: `git show --summary e6948bfce -- .planning/agents/joey-chan.json .planning/done/joey-chan.json` reports a 100% agents-to-done rename. Claim profile at `ac1b9eebf`, misplaced profile at `e6948bfce`, and restored profile at integration `199a61b8d` share blob `17d871dfaff1a7277331daf15dd97170b0859fd7`, identifying active SEED-249 and its story branch.
   - Observed effect: the combined revision required restoring the assignment path, removing the invalid done entry, and rebuilding the done catalog; no other execution's profile was changed.
   - Inference: a post-merge check of active assignment locations could catch this directory-rename result before publication; no general adapter repair was attempted in this test reorganization.
+
+## DD-437 — Prepared plan's empty Story obligations prose failed the execution obligations reader
+
+A prepared slice plan included a `## Story obligations` heading followed by placeholder prose (`None at preparation. During planned execution, report gaps here per ...`). At Slice 1 delegation, `story-obligations.mjs list` refused the section with `malformed-obligations-section` because `story-obligation-reader.mjs` rejects any non-`###` line inside `## Story obligations`.
+
+### Occurrences
+- Execution: SEED-250#hide-client-project-from-dashboard (plan 476-hide-client-project-from-dashboard; first related implementation commit `bbdb50295eccda910464a31d47c7ffcc9aadc390`)
+  - Timestamp: 2026-11-07T12:49+08:00 (before slice 1 delegation)
+  - Tool: Cursor
+  - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: prepared plan `b8e75bc2710e4e868c5937f451f893ec4905f670:.planning/slice-plans/476-hide-client-project-from-dashboard/PLAN.md` lines 143–146 contained `## Story obligations` and two lines of "None at preparation..." prose; `node .agents/skills/dough-execute-plan/scripts/story-obligations.mjs list --plan .planning/slice-plans/476-hide-client-project-from-dashboard/PLAN.md --slice 1` exited 1 with two `malformed-obligations-section` problems until the empty placeholder section was removed
+  - Observed effect: one extra read and edit of `PLAN.md` before Slice 1 delegation could proceed; no product impact
+  - Inference: either `dough-slice-planning` should omit `## Story obligations` when empty at preparation (as `story-obligations.md` notes "Plans without this section have zero obligations") or `story-obligation-reader.mjs` / readiness check should catch or tolerate an empty placeholder section before execution starts

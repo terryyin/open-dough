@@ -125,6 +125,14 @@ session may remain listed in the Sessions sidebar → choosing it opens the
 session's terminal or report without restoring the project to selection chrome
 or presenting its Board or Intent while it stays hidden.
 
+## Execution complete
+
+Product advice: no change — the machine-local project visibility split between
+configured inventory and visible dashboard presentation fulfills `SEED-250`
+within ADR 0008 and leaves the current product backlog priorities unchanged.
+
+Refactor disposition: `records-only` (touches only `PLAN.md` and `DearDough.md`).
+
 ## Current decisions
 
 - Visibility is an optional field on each machine-local configured project;
