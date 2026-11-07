@@ -151,7 +151,7 @@ Learnings for slice 2:
 
 ### 2. Explain a cancelled landing with no later proof in reach
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-comparison-cancelled-landing.spec.ts` gap journeys,
 including a re-read after the fixture adds a later trunk build. Module test
 of `isImmutableCiComparisonAnswer` for a waiting Landed slot. Typecheck and
@@ -168,6 +168,18 @@ Behavior:
 - After the fixture pushes a later trunk revision with a passing proofed
   run, re-selecting the story uses it: the waiting answer was not
   remembered. An answer whose walk ended at the 30-revision cap is final.
+
+Accepted proof: `laterTrunkProofBuild` returns found, running, or ended at
+head or bound with the nearest proofless build. `laterTrunkCancelledSlot`
+marks `awaitingLaterBuild` on a gap that stopped at a running build or the
+read trunk head (also after passing a proofless build). The cap is final.
+`isImmutableCiComparisonAnswer` never remembers such a gap. The proof-absence
+wording shares one per-reason table with the equivalent-build line.
+Observed in `intent-ci-comparison-cancelled-landing-gaps.spec.ts` (no proof,
+still running, head then pushed), `tests/support/dashboard-later-trunk-landed.test.mjs`
+and `dashboard-later-trunk-build.test.mjs`. The whole
+`intent-ci-comparison*` and `intent-summary-story-comparison*` family is
+rerun on the final tree before delivery.
 
 ## Refinement review
 

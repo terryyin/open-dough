@@ -89,6 +89,10 @@ const gapSlot = z.object({
   kind: z.enum(["none", "unavailable", "not-applicable", "not-landed"]),
   explanation: z.string().min(1),
   ...requestedStatusField,
+  // A cancelled landing whose later trunk build has not finished yet (the
+  // walk stopped at the read trunk head or a running build): the answer is
+  // read again rather than remembered.
+  awaitingLaterBuild: z.literal(true).optional(),
 });
 
 export const storyCiComparisonSlotSchema = z.discriminatedUnion("kind", [

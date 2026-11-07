@@ -2,7 +2,7 @@
 // (../../src/IntentCiComparison.tsx): a failed build at the trunk-first
 // integration merge stays C's own result without figures from its trunk-side
 // parent, while Branch versus Baseline stays readable (SEED-248 example E3).
-// Cancelled landings live in ./intent-ci-comparison-cancelled-landing.spec.ts;
+// Cancelled landings live in ./intent-ci-comparison-cancelled-landing*.spec.ts;
 // other gap journeys in ./intent-ci-comparison-gaps.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";

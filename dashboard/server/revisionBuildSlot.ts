@@ -28,6 +28,9 @@ export type RevisionBuildSlot =
       readonly kind: "none";
       readonly explanation: string;
       readonly requestedStatus?: RequestedRevisionCiStatus;
+      // A cancelled landing's forward walk stopped at the read trunk head or
+      // a running build (`./laterTrunkBuild.ts`): a later build may come.
+      readonly awaitingLaterBuild?: true;
     }
   | {
       readonly kind: "not-applicable";

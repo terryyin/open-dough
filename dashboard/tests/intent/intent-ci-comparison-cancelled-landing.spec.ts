@@ -2,10 +2,11 @@
 // (../../src/IntentCiComparison.tsx): Landed keeps Cancelled at the landing
 // and uses the nearest later trunk build with usable proof, named as a later
 // trunk build with how many later trunk revisions it includes (SEED-254
-// use-later-ci-proof-for-cancelled-landings). Failed landing gaps live in
-// ./intent-ci-comparison-landing-gaps.spec.ts.
+// use-later-ci-proof-for-cancelled-landings). Cancelled landings without
+// later proof in reach live in
+// ./intent-ci-comparison-cancelled-landing-gaps.spec.ts; failed landing gaps
+// in ./intent-ci-comparison-landing-gaps.spec.ts.
 
-import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { githubFor } from "../dashboardTest.ts";
@@ -17,46 +18,15 @@ import {
 } from "../support/storyCiComparisonLandedOutcome.ts";
 import { publishFastForwardLandedStory } from "../support/storyCiComparisonFastForward.ts";
 import {
-  mixedEntrySummary,
-  proofRun,
-  wall,
-  type ComparisonProofServe,
-} from "../support/storyCiComparisonFixture.ts";
+  cancelledTipRuns,
+  landedOf,
+  laterProof,
+  runListingsAt,
+} from "../support/storyCiComparisonCancelledLanding.ts";
+import { wall } from "../support/storyCiComparisonFixture.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 
 test.setTimeout(240_000);
-
-function laterProof(
-  runId: number,
-  revision: string,
-): Record<number, ComparisonProofServe> {
-  return {
-    [runId]: {
-      kind: "summary",
-      artifactId: runId * 10,
-      summary: mixedEntrySummary(proofRun(runId, revision), "landed"),
-    },
-  };
-}
-
-// Runs listings asked per revision (`head_sha=`).
-function runListingsAt(page: Page, revisions: readonly string[]): number[] {
-  const calls = githubFor(page).calls;
-  return revisions.map(
-    (revision) =>
-      calls.filter(
-        ({ request }) =>
-          request.kind === "actions-runs" && request.headSha === revision,
-      ).length,
-  );
-}
-
-function landedOf(panel: Locator) {
-  return {
-    identity: panel.locator(".intent-ci-comparison-identity").nth(2),
-    wall: panel.locator(".intent-ci-comparison-wall").nth(2),
-  };
-}
 
 test("a cancelled landing merge uses the next trunk push's passing build as a later build", async ({
   page,
@@ -198,20 +168,9 @@ test("a fast-forward landing whose story tip's run was cancelled uses the next t
   expect(later).toHaveLength(1);
   const [next = ""] = later;
   setup.serveRuns({
-    [setup.baseline]: [
-      wall(setup.baseline, 401, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
-    ],
+    ...cancelledTipRuns(setup),
     [setup.mainSide]: [
       wall(setup.mainSide, 498, "2026-11-05T13:30:00Z", "2026-11-05T13:40:00Z"),
-    ],
-    [tip]: [
-      wall(
-        tip,
-        402,
-        "2026-11-05T14:00:00Z",
-        "2026-11-05T14:01:00Z",
-        "cancelled",
-      ),
     ],
     [next]: [wall(next, 403, "2026-11-05T14:30:00Z", "2026-11-05T14:37:00Z")],
   });

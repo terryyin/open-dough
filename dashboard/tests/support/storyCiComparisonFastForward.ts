@@ -85,10 +85,12 @@ export function landBranchByFastForwardOntoTrunk(args: {
 
 // Story Branch lands by fast-forward after a story-first merge of main: tip T
 // is B and C; the main-side parent of that merge has a tempting build that
-// must never appear as B.
+// must never appear as B. Trunk advances one revision past T unless
+// `tipIsTrunkHead` leaves T as the published trunk head.
 export async function publishFastForwardLandedStory(
   page: Page,
   origin: StartOrigin,
+  tipIsTrunkHead = false,
 ): Promise<StoryCiComparisonSetup & { readonly mainSide: string }> {
   const baseline = precedeClaimWithPlanning(origin);
   writeAt(origin.project, "shared.txt", lines("line"));
@@ -143,7 +145,7 @@ export async function publishFastForwardLandedStory(
     completeCommitMessage: "complete the story through CLI",
   });
 
-  advanceCompletedTrunk(origin);
+  if (!tipIsTrunkHead) advanceCompletedTrunk(origin);
 
   const published = git(origin.origin, "rev-parse", "main");
   const committed = await publishCommittedOrigin(page, {

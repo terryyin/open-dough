@@ -22,7 +22,10 @@ import {
   type ExactResultLookup,
 } from "./exactSkippedEquivalent.ts";
 import type { GitCall } from "./gitRunner.ts";
-import { laterTrunkCancelledSlot } from "./laterTrunkBuild.ts";
+import {
+  laterTrunkCancelledSlot,
+  type RevisionProofAbsence,
+} from "./laterTrunkBuild.ts";
 import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
 import {
   asSlot,
@@ -39,22 +42,30 @@ export type ComparisonProofSource = {
   readonly signal: AbortSignal;
 };
 
-// Usable-proof gate for walking endpoints: a valid summary remembered by
-// repository, run and attempt so the page's later proof read asks GitHub
-// nothing again.
-function walkingProofUsable(
+// Why a walking endpoint's build has no usable proof (undefined when its
+// summary is usable): a valid summary is remembered by repository, run and
+// attempt so the page's later proof read asks GitHub nothing again.
+function walkingProofAbsence(
   source: ComparisonProofSource,
-): RevisionProofUsable {
+): RevisionProofAbsence {
   return async (build) => {
     const run = proofRunOf(build);
-    if (run === undefined) return false;
+    if (run === undefined) return "none";
     const proof = await readCiProofArtifact(
       source.repository,
       run,
       source.signal,
     );
-    return proof.kind === "summary";
+    return proof.kind === "summary" ? undefined : proof.reason;
   };
+}
+
+// Usable-proof gate for walking endpoints.
+function walkingProofUsable(
+  source: ComparisonProofSource,
+): RevisionProofUsable {
+  const absence = walkingProofAbsence(source);
+  return async (build) => (await absence(build)) === undefined;
 }
 
 // Baseline: newest completed attempt at or before `storyStart`, walking
@@ -171,25 +182,17 @@ export async function lookupResultBuild(
         newest.adapterAttempt === undefined &&
         (newest.conclusion === "cancelled" || newest.conclusion === "timed_out")
       ) {
-        if (newest.conclusion === "cancelled") {
-          const later = await laterTrunkCancelledSlot(
+        if (newest.conclusion === "cancelled")
+          return await laterTrunkCancelledSlot(
             target,
             listed,
             lookup,
             call,
             workflow,
             exact,
-            walkingProofUsable(exact),
+            walkingProofAbsence(exact),
           );
-          if (later !== undefined) return later;
-        }
-        return {
-          kind: "none",
-          explanation:
-            newest.conclusion === "cancelled"
-              ? exact.cancelledExplanation
-              : exact.timedOutExplanation,
-        };
+        return { kind: "none", explanation: exact.timedOutExplanation };
       }
       const status = await requestedRevisionCiStatus(
         target,

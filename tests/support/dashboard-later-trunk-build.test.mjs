@@ -1,86 +1,22 @@
-// Cancelled-landing forward walk (`../../dashboard/server/laterTrunkBuild.ts`)
-// and its place in Story Branch Landed (`lookupResultBuild`): trunk's
-// first-parent revisions after the landing, nearest first; the nearest later
-// build with usable proof, past cancelled, unbuilt and proofless revisions;
-// stops at a running build. Timed-out and rerun-passed landings stay exact.
+// Cancelled-landing forward walk (`../../dashboard/server/laterTrunkBuild.ts`):
+// trunk's first-parent revisions after the landing, nearest first; the
+// nearest later build with usable proof, past cancelled, unbuilt and
+// proofless revisions; stops at a running build, the read trunk head or the
+// bound, and says which. Landed's use of the walk lives in
+// ./dashboard-later-trunk-landed.test.mjs.
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
+import { rmSync } from "node:fs";
 import test from "node:test";
-import { lookupResultBuild } from "../../dashboard/server/baseCiRevisionLookup.ts";
-import { storyBranchLandedExactLookup } from "../../dashboard/server/exactSkippedEquivalent.ts";
 import {
   laterTrunkChain,
   laterTrunkProofBuild,
 } from "../../dashboard/server/laterTrunkBuild.ts";
-
-function git(cwd, ...args) {
-  return execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
-}
-
-function commit(cwd, name) {
-  writeFileSync(path.join(cwd, `${name}.txt`), `${name}\n`);
-  git(cwd, "add", "-A");
-  git(cwd, "commit", "--quiet", "-m", name);
-  return git(cwd, "rev-parse", "HEAD");
-}
-
-// landing, then four first-parent trunk revisions; the second is a merge
-// whose side commit must never be walked.
-function trunk() {
-  const cwd = mkdtempSync(path.join(tmpdir(), "later-trunk-"));
-  git(cwd, "init", "--quiet", "--initial-branch=main");
-  git(cwd, "config", "user.name", "Test");
-  git(cwd, "config", "user.email", "test@example.org");
-  git(cwd, "config", "commit.gpgsign", "false");
-  const landing = commit(cwd, "landing");
-  const later1 = commit(cwd, "later1");
-  git(cwd, "switch", "--quiet", "-c", "side");
-  const side = commit(cwd, "side");
-  git(cwd, "switch", "--quiet", "main");
-  git(cwd, "merge", "--quiet", "--no-ff", "--no-edit", "side");
-  const later2 = git(cwd, "rev-parse", "HEAD");
-  const later3 = commit(cwd, "later3");
-  const later4 = commit(cwd, "later4");
-  return {
-    cwd,
-    landing,
-    side,
-    later: [later1, later2, later3, later4],
-    call: { cwd },
-  };
-}
-
-function run(sha, id, conclusion, extra = {}) {
-  return {
-    databaseId: id,
-    attempt: 1,
-    headSha: sha,
-    status: "completed",
-    conclusion,
-    createdAt: "2026-11-05T12:00:00Z",
-    startedAt: "2026-11-05T12:00:00Z",
-    completedAt: "2026-11-05T12:03:00Z",
-    ...extra,
-  };
-}
-
-function lookupOf(runs) {
-  const listed = [];
-  return {
-    listed,
-    lookup: {
-      listRunsAt: async (sha) => {
-        listed.push(sha);
-        return runs[sha] ?? [];
-      },
-      subjectOf: async () => "subject",
-      timeWithoutRunnerWaitsOf: async () => ({ reason: "not read" }),
-    },
-  };
-}
+import {
+  lookupOf,
+  run,
+  trunk,
+  usable,
+} from "./dashboard-later-trunk-fixture.mjs";
 
 test("laterTrunkChain lists first-parent trunk revisions after the landing, nearest first, within the bound", async (t) => {
   const repo = trunk();
@@ -106,16 +42,18 @@ test("laterTrunkProofBuild passes cancelled, unbuilt and proofless builds and co
     [later4]: [run(later4, 14, "success")],
   });
   const checked = [];
-  const build = await laterTrunkProofBuild(
+  const walk = await laterTrunkProofBuild(
     repo.landing,
     "main",
     lookup,
     repo.call,
     async (candidate) => {
       checked.push(candidate.runId);
-      return candidate.runId === 14;
+      return candidate.runId === 14 ? undefined : "none";
     },
   );
+  assert.equal(walk.kind, "found");
+  const { build } = walk;
   assert.equal(build?.revision, later4);
   assert.equal(build?.runId, 14);
   assert.equal(build?.state, "pass");
@@ -133,99 +71,92 @@ test("laterTrunkProofBuild uses a failed later build with usable proof", async (
   const { listed, lookup } = lookupOf({
     [later1]: [run(later1, 21, "failure")],
   });
-  const build = await laterTrunkProofBuild(
+  const walk = await laterTrunkProofBuild(
     repo.landing,
     "main",
     lookup,
     repo.call,
-    async () => true,
+    usable,
   );
+  assert.equal(walk.kind, "found");
+  const { build } = walk;
   assert.equal(build?.state, "failed");
   assert.equal(build?.selection, "later");
   assert.equal(build?.laterWithoutResult, 1);
   assert.deepEqual(listed, [later1]);
 });
 
-test("laterTrunkProofBuild stops at a running build and at the read trunk head", async (t) => {
+test("laterTrunkProofBuild says where it stopped: a running build, the read trunk head, or the bound", async (t) => {
   const repo = trunk();
   t.after(() => rmSync(repo.cwd, { recursive: true, force: true }));
-  const [later1, later2] = repo.later;
+  const [later1, later2, later3] = repo.later;
   const running = lookupOf({
-    [later1]: [run(later1, 31, "cancelled")],
+    [later1]: [run(later1, 31, "success")],
     [later2]: [run(later2, 32, null, { status: "in_progress" })],
-    [repo.later[2]]: [run(repo.later[2], 33, "success")],
+    [later3]: [run(later3, 33, "success")],
   });
-  assert.equal(
-    await laterTrunkProofBuild(
-      repo.landing,
-      "main",
-      running.lookup,
-      repo.call,
-      async () => true,
-    ),
-    undefined,
+  const walk = await laterTrunkProofBuild(
+    repo.landing,
+    "main",
+    running.lookup,
+    repo.call,
+    async (build) => (build.runId === 31 ? "expired" : undefined),
   );
+  assert.equal(walk.kind, "running");
+  assert.equal(walk.build.runId, 32);
   assert.deepEqual(running.listed, [later1, later2]);
 
   const atHead = lookupOf({});
-  assert.equal(
+  assert.deepEqual(
     await laterTrunkProofBuild(
       repo.later[3],
       "main",
       atHead.lookup,
       repo.call,
-      async () => true,
+      usable,
     ),
-    undefined,
+    { kind: "ended", at: "head" },
   );
   assert.deepEqual(atHead.listed, []);
-});
 
-test("Story Branch Landed keeps a rerun attempt's own build and a timed-out landing exact without walking forward", async (t) => {
-  const repo = trunk();
-  t.after(() => rmSync(repo.cwd, { recursive: true, force: true }));
-  const [later1] = repo.later;
-  const exact = storyBranchLandedExactLookup(
-    false,
-    "terryyin/open-dough",
-    new AbortController().signal,
+  // Proofless and cancelled builds up to the head: names the nearest proofless.
+  const proofless = lookupOf({
+    [later1]: [run(later1, 41, "cancelled")],
+    [later2]: [run(later2, 42, "success")],
+    [repo.later[3]]: [run(repo.later[3], 44, "success")],
+  });
+  const ended = await laterTrunkProofBuild(
+    repo.landing,
     "main",
-  );
-  const rerun = lookupOf({
-    [repo.landing]: [run(repo.landing, 41, "success", { attempt: 2 })],
-    [later1]: [run(later1, 42, "success")],
-  });
-  const own = await lookupResultBuild(
-    repo.landing,
-    repo.landing,
-    rerun.lookup,
+    proofless.lookup,
     repo.call,
-    "ci.yml",
-    "missing",
-    exact,
+    async (build) => (build.runId === 42 ? "none" : "unreadable"),
   );
-  assert.equal(own.kind, "build");
-  assert.equal(own.runId, 41);
-  assert.equal(own.selection, "exact");
-  assert.equal(own.requestedStatus, undefined);
-  assert.ok(!rerun.listed.includes(later1));
+  assert.equal(ended.kind, "ended");
+  assert.equal(ended.at, "head");
+  assert.equal(ended.unavailable?.build.runId, 42);
+  assert.equal(ended.unavailable?.reason, "none");
 
-  const timedOut = lookupOf({
-    [repo.landing]: [run(repo.landing, 51, "timed_out")],
-    [later1]: [run(later1, 52, "success")],
-  });
-  const slot = await lookupResultBuild(
+  // Bound reached before the head.
+  const bounded = await laterTrunkProofBuild(
     repo.landing,
-    repo.landing,
-    timedOut.lookup,
+    "main",
+    proofless.lookup,
     repo.call,
-    "ci.yml",
-    "missing",
-    exact,
+    async () => "none",
+    2,
   );
-  assert.deepEqual(slot, {
-    kind: "none",
-    explanation: "The CI build at the landing merge timed out.",
-  });
-  assert.ok(!timedOut.listed.includes(later1));
+  assert.equal(bounded.kind, "ended");
+  assert.equal(bounded.at, "bound");
+  assert.equal(bounded.unavailable?.build.runId, 42);
+  // Exactly the bound's revisions up to the head is still the head.
+  const exactBound = await laterTrunkProofBuild(
+    repo.landing,
+    "main",
+    lookupOf({}).lookup,
+    repo.call,
+    usable,
+    4,
+  );
+  assert.deepEqual(exactBound, { kind: "ended", at: "head" });
 });

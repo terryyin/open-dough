@@ -41,6 +41,9 @@ export async function asComparisonSlot(
       kind: slot.kind,
       explanation: slot.explanation,
       ...requestedStatusOf(slot),
+      ...(slot.kind === "none" && slot.awaitingLaterBuild === true
+        ? { awaitingLaterBuild: true as const }
+        : {}),
     };
   const { adapterAttempt } = slot;
   const adapter =

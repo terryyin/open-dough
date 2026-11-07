@@ -3,8 +3,9 @@
 // Summary (`./IntentScopeProof.tsx`), through `./useIntentCiShownProof.ts`:
 // no attempt shown, an ambiguous adapter attempt, and each reason a summary
 // is unavailable, with what the reason observed when it says more. Story
-// Branch Landed's equivalent-build gap uses the same reasons with its own
-// framing (`equivalentBuildUnavailableLine`).
+// Branch Landed's equivalent-build and later-trunk-build gaps use the same
+// reasons with their own framing (`equivalentBuildUnavailableLine`,
+// `laterBuildUnavailableLine`).
 
 import { shortSha } from "./baseCiWording.ts";
 import type { CiProofUnavailableReason } from "./ciProof.ts";
@@ -18,18 +19,17 @@ const unavailableLines: Readonly<Record<CiProofUnavailableReason, string>> = {
     "This run's CI proof summary is for another run, attempt or revision.",
 };
 
-const equivalentUnavailableLines: Readonly<
-  Record<CiProofUnavailableReason, (at: string) => string>
+// Why a named build's proof cannot be used, after the build is named.
+const buildUnavailableLines: Readonly<
+  Record<CiProofUnavailableReason, (build: string) => string>
 > = {
-  none: (at) => `The equivalent build at ${at} published no CI proof summary.`,
-  expired: (at) =>
-    `The equivalent build at ${at} has an expired CI proof summary.`,
-  unreadable: (at) =>
-    `The equivalent build at ${at} has a CI proof summary that could not be read.`,
-  invalid: (at) =>
-    `The equivalent build at ${at} has a CI proof summary that is not valid.`,
-  mismatched: (at) =>
-    `The equivalent build at ${at} has a CI proof summary for another run, attempt or revision.`,
+  none: (build) => `${build} published no CI proof summary.`,
+  expired: (build) => `${build} has an expired CI proof summary.`,
+  unreadable: (build) =>
+    `${build} has a CI proof summary that could not be read.`,
+  invalid: (build) => `${build} has a CI proof summary that is not valid.`,
+  mismatched: (build) =>
+    `${build} has a CI proof summary for another run, attempt or revision.`,
 };
 
 // Landed confirmed-skip path: why the equivalent build's proof cannot be used.
@@ -37,7 +37,20 @@ export function equivalentBuildUnavailableLine(
   revision: string,
   reason: CiProofUnavailableReason,
 ): string {
-  return equivalentUnavailableLines[reason](shortSha(revision));
+  return buildUnavailableLines[reason](
+    `The equivalent build at ${shortSha(revision)}`,
+  );
+}
+
+// Landed cancelled-landing path: why the nearest later trunk build's proof
+// cannot be used (`build` names its revision and run).
+export function laterBuildUnavailableLine(
+  build: string,
+  reason: CiProofUnavailableReason,
+): string {
+  return buildUnavailableLines[reason](
+    `The nearest later trunk build at ${build}`,
+  );
 }
 
 // The one line under Proof saying why no proof can be shown, with what the
