@@ -1,6 +1,67 @@
 # Finding names and current follow-up
 
-## Combined maintenance — 2026-11-04 (Asia/Jakarta)
+## Combined maintenance — 2026-11-07 (Asia/Bangkok)
+
+All six production projects received a local result before shared collection.
+Five supplied readable post-local shared sources; Terry Talks has no project
+findings record and its process retrospective is off. Open Dough retired
+DD-378 after `SEED-229` (`e49035d31`) satisfied its base-failure repair
+observation, recorded `SEED-241`'s `caffeinate -s -i` exposure under DD-412,
+restored `SEED-232`'s misplaced ODF-367 occurrence from DD-414, and moved
+project-owned DD-420, DD-421, DD-428, DD-429 and DD-430 to its project test
+findings. Pygardon restored retired DD-136 (`Former local code: DD-404.`) after
+planning-time recurrence on a bare `cucumber-js` directory argument and moved
+project-owned DD-398 and DD-402 to its project findings. Lizard restored
+`SEED-029#ocaml-support`'s misplaced DD-010 row from DD-012. Clipboard separated
+the local and shared facets of DD-025 (ODF-074) and DD-030 (ODF-445). No new
+project-local story was justified in any repository.
+
+Reconciliation retained new distinct execution evidence at 22 existing owners
+and allocated 26 new identities ODF-420–445. Practice confirmations (Open Dough
+DD-414, Doughnut DD-343, Lizard DD-400/DD-403, Clipboard DD-006/DD-008/DD-011/DD-029)
+allocate nothing; Lizard DD-400 and Clipboard DD-008 also supply ordinary
+progress-increment observations at ODF-275. All 28 unambiguous mappings across
+Open Dough (11), Doughnut (7), Pygardon (5), Lizard (3) and Clipboard (4) were
+adopted with `Former local code: DD-NNN.` aliases and recoverable pre-compaction
+SHAs. Each project/execution counts once in synthesized comparisons.
+
+Selected shared work:
+[SEED-010#review-source-promises-before-first-slice](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#review-source-promises-before-first-slice)
+first (ODF-367) and
+[SEED-010#observe-progress-revision-before-slice-done](../../.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#observe-progress-revision-before-slice-done)
+second (ODF-418). Launching the source-only review at slice-1 acceptance left
+the first Behavior slice's brief without allocated source commitments in twelve
+distinct executions across three projects (six new this cycle across Open Dough
+and Lizard), causing extra return rounds or deferred commitments (`S6.1`). The
+unnamed read-only observation step between a `progress: true` publication and
+its `done` transition recurred in five more Clipboard executions through
+`0.3.86` (six total), each requiring an inferred watch and a second
+records-only publication and CI run. Strongest alternatives: ODF-329's
+delivery-formatter lint refusals (five new executions across Open Dough and
+Pygardon; fast pre-commit stops complicated by Prettier ownership), ODF-415's
+omitted pre-existing over-limit files (two new Clipboard executions; human
+packaging authorization was required either way), ODF-428's post-acceptance test
+splits (two Open Dough executions; retargeted before publication), and ODF-422's
+unobserved subordinate-project publications (two cross-repository Open Dough
+executions).
+
+Response checking verified `v0.3.84` as the first containing release for the
+ODF-074, ODF-141/276 and ODF-333 responses. Connected Pygardon
+`SEED-20261075#story-corrected-jobs-polling` (`0.3.86`) as counterevidence at
+ODF-074 (and `SEED-004` at ODF-415), Pygardon
+`SEED-20261076#publish-pygardon-ci-proof` (`0.3.86`) as counterevidence at
+ODF-333, Open Dough `SEED-245` (`0.3.86`) to ODF-229's interrupted-Task
+recovery, and Lizard `SEED-035` (`0.3.86`) plus five Clipboard executions
+(`0.3.82`–`0.3.86`) to ODF-275's `progress: true` route (with ODF-418
+counterevidence). No encountered execution supplied a qualifying restriction
+decision for the scope watch; next watch review remains due 2026-11-10. Added
+review effort: one pass over about 35 encountered executions, tag containment
+checks for `v0.3.84`–`v0.3.87`, and targeted plan/history reads for Open Dough
+`SEED-229` and Pygardon `DD-136`, with no new native runs.
+
+## Prior reviews
+
+### Previous review — 2026-11-04
 
 All six production projects received a local result. Five supplied readable
 post-local shared sources; Terry Talks has no active findings record and
@@ -33,7 +94,7 @@ execution release unknown. No qualifying event changed the scope watch.
 The added review used existing records for five encountered execution sets
 and no new native runs. Individual unresolved response requests remain open.
 
-## Prior reviews
+### Previous review — 2026-11-03
 
 Reviewed 2026-11-03 (Asia/Bangkok) under the combined feedback-maintenance
 invocation. Local passes preceded shared collection for all six configured
@@ -211,7 +272,7 @@ priority decision, not a claim that discarded problems were fixed or cannot recu
 **Queued** entries name selected follow-up. Released responses without verified relevant use remain active and have no retirement clock. **Open, unqueued** entries retain
 material unresolved consequences; they are not an active implementation commitment.
 Released responses under observation are in [the watch list](near-term-watch-list.md).
-Codes are permanent; highest allocated is ODF-419. Never reuse a removed code.
+Codes are permanent; highest allocated is ODF-445. Never reuse a removed code.
 
 ## Retained evidence
 
@@ -720,3 +781,55 @@ Read and update those records; add new records with anchored entries here.
 ## ODF-418 — [Hosted proof after a progress publication lacks a named observation step](findings/ODF-418.md) <a id="odf-418"></a>
 
 ## ODF-419 — [A delegated smoke check mutates the owner desktop](findings/ODF-419.md) <a id="odf-419"></a>
+
+## ODF-420 — [Acceptance observes a class commitment at text listing only its examples](findings/ODF-420.md) <a id="odf-420"></a>
+
+## ODF-421 — [Real observation passes only because upstream data already supplies the promised order](findings/ODF-421.md) <a id="odf-421"></a>
+
+## ODF-422 — [Subordinate project publication goes unobserved by the owning execution](findings/ODF-422.md) <a id="odf-422"></a>
+
+## ODF-423 — [Permission-refused remote push returns `needs-validation` without the remote's refusal text](findings/ODF-423.md) <a id="odf-423"></a>
+
+## ODF-424 — [Exclusion story-clause recording requires hand-matched exact substrings](findings/ODF-424.md) <a id="odf-424"></a>
+
+## ODF-425 — [Refactor renames a helper while its verification cohort is still running](findings/ODF-425.md) <a id="odf-425"></a>
+
+## ODF-426 — [Required fresh refactor blocked by host agent authentication failure](findings/ODF-426.md) <a id="odf-426"></a>
+
+## ODF-427 — [Story Branch keep-worktree landing requires a hand-written publication script](findings/ODF-427.md) <a id="odf-427"></a>
+
+## ODF-428 — [Post-change refactor moves tests after acceptance cited them in `source-review.md`](findings/ODF-428.md) <a id="odf-428"></a>
+
+## ODF-429 — [Overlapping sibling story lands on trunk mid-execution and surfaces only at the final done-mark](findings/ODF-429.md) <a id="odf-429"></a>
+
+## ODF-430 — [Story integration moves another active agent profile into `done/`](findings/ODF-430.md) <a id="odf-430"></a>
+
+## ODF-431 — [Lettered slice numbers in a plan fail the obligations reader](findings/ODF-431.md) <a id="odf-431"></a>
+
+## ODF-432 — [Plan decision chooses a costlier mechanism than the story's one-step case and fails existing cost guards](findings/ODF-432.md) <a id="odf-432"></a>
+
+## ODF-433 — [Plan no-op shortcut contradicts a story clause and is exposed by the implementer's gap report](findings/ODF-433.md) <a id="odf-433"></a>
+
+## ODF-434 — [Coordinator sends an unsubstituted shell placeholder to the source-only reviewer](findings/ODF-434.md) <a id="odf-434"></a>
+
+## ODF-435 — [Test-removal plan maps story examples to surviving tests without checking a deleted test's other observations](findings/ODF-435.md) <a id="odf-435"></a>
+
+## ODF-436 — [List-item `Source review` link under a `## Source` heading is refused as `unlinked-source-review`](findings/ODF-436.md) <a id="odf-436"></a>
+
+## ODF-437 — [Token-only removal sweep leaves natural-language wording describing the removed feature](findings/ODF-437.md) <a id="odf-437"></a>
+
+## ODF-438 — [Existing-suite premise run does not discriminate cross-read consistency](findings/ODF-438.md) <a id="odf-438"></a>
+
+## ODF-439 — [Deletion planning checks import-only consumers and misses packaging `COPY`](findings/ODF-439.md) <a id="odf-439"></a>
+
+## ODF-440 — [Coordinator resolution requires existing tests to pass unchanged when they encode the changed timing](findings/ODF-440.md) <a id="odf-440"></a>
+
+## ODF-441 — [Fresh-increment delivery retries fail on Darwin `mktemp` suffixes and pre-staged `git rm` paths](findings/ODF-441.md) <a id="odf-441"></a>
+
+## ODF-442 — [Post-change refactor drops a step-`ok` condition that the replaced wrapper asserted](findings/ODF-442.md) <a id="odf-442"></a>
+
+## ODF-443 — [Refactor return reports an oversized module as within the 250-line limit](findings/ODF-443.md) <a id="odf-443"></a>
+
+## ODF-444 — [Single anomalous premise probe is recorded as settled and contradicted by a clean rerun](findings/ODF-444.md) <a id="odf-444"></a>
+
+## ODF-445 — [Multi-OS GitHub Actions CI-proof recipe omits `shell: bash` for Windows runners](findings/ODF-445.md) <a id="odf-445"></a>

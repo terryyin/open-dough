@@ -221,6 +221,105 @@ No architectural exception or new ADR is proposed here.
 
 ## Stories
 
+<a id="review-source-promises-before-first-slice"></a>
+
+### 22. Review and allocate source commitments before delegating the first Behavior slice
+
+**Identity:** SEED-010#review-source-promises-before-first-slice
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** For a coordinator executing a planned story, obtain and allocate the
+independent source-only reviewer's commitments (`source-review.md`) before
+delegating the first Behavior slice, so `story-obligations.mjs list --slice N`
+carries the slice's allocated source commitments into every Behavior slice's
+initial implementation brief instead of surfacing missing source qualifications
+only at first acceptance.
+
+**Evidence.** [ODF-367](../../docs/maintainer/findings/ODF-367.md) retains
+twelve distinct executions across three projects: three in Pygardon (`0.3.71`,
+`0.3.78`, and one unknown release), seven in Open Dough (including `SEED-241`
+plans `477` and `480` on `0.3.86` and `SEED-232` plan `470`), and three in
+Lizard (`SEED-030#compact-callback-report`, `SEED-029#ocaml-support`,
+`SEED-029#fsharp-support` on `0.3.82`). Because `wrap-up.md#accept-proof`
+places the source-only reviewer launch at slice acceptance, the first slice
+brief carries only the plan's proof minimum; omitted compound-scope items and
+story qualifications then require extra return rounds (five in Pygardon plan
+423, one each in Pygardon plan 431 and Lizard `SEED-030` / `SEED-029`),
+mid-flight addenda, or moving an unproved commitment (`S6.1` in Open Dough
+plan `477`) to a later slice.
+
+**Scope.** Move the initial source-only review and `source-review.md`
+allocation ahead of the first Behavior slice's delegation in
+`dough-execute-plan` (while allowing a leading Structure slice that owes no
+source behavior commitment to proceed before the review if needed, or running
+the review once before slice 1 delegation). Reuse the existing `source-review.md`
+table, `story-obligations.mjs record` / `list` / `check` commands, and
+freshness-amendment re-review rules without adding a second review when the
+source is unchanged at acceptance. Do not weaken independent source-only review
+isolation or acceptance verification.
+
+**Evaluation.** Walk the revised startup/delegation and acceptance guidance
+against at least Open Dough plan `477` (`S6.1`), Lizard plan `019`
+(`S9.3`–`S9.7`, `K3`), and Pygardon plan `423`: confirm `list --slice 1`
+includes the allocated source commitments before the first Behavior delegation
+and that unchanged-source acceptance reuses the allocated `source-review.md`
+without a second reviewer launch. At completion, record the actual response
+revision and first containing release (or explicitly unreleased status) at
+[ODF-367](../../docs/maintainer/findings/ODF-367.md); **queued, not resolved**.
+
+<a id="observe-progress-revision-before-slice-done"></a>
+
+### 23. Name the hosted-proof observation step for progress-published slices
+
+**Identity:** SEED-010#observe-progress-revision-before-slice-done
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** For a coordinator whose planned slice requires hosted CI or Intent
+CI-proof observation of its own published revision (`progress: true`), provide
+one explicit read-only observation step in the execution guidance and a clear
+completion transition so the coordinator neither guesses between
+`await-revision`, `complete-revision` and ad-hoc `gh run watch` loops nor
+spends an avoidable duplicate CI wait when recording the accepted observation.
+
+**Evidence.** [ODF-418](../../docs/maintainer/findings/ODF-418.md) retains six
+distinct Clipboard executions through `0.3.86`
+(`SEED-003#host-independent-desktop-free-tests`,
+`SEED-001#bounded-helper-owner-write`, `SEED-001#primary-selection`,
+`SEED-001#primary-selection-polish`, `SEED-001#split-native-wait-support`, and
+`SEED-004#publish-clipboard-ci-proof`). Each used `progress: true`
+([ODF-275](../../docs/maintainer/findings/ODF-275.md)) to publish the slice
+without premature `done`, then had to infer how to wait for the published
+revision's hosted verdict because `fresh-increment.md` names no observation
+command and `ci-completion-wait.md` forbids `complete-revision` after ordinary
+slice delivery, followed by a second records-only commit and full CI run solely
+to flip `Status: done`.
+
+**Scope.** Update `dough-execute-plan` (`references/fresh-increment.md`,
+`references/wrap-up.md`, and related CI observation guidance) to name the
+supported read-only observation command (`ci-mailbox.mjs await-revision` on the
+attached observer, or the project's documented Intent CI-proof read after that
+receipt) between a `progress: true` publication and the slice's `done`
+transition, and clarify how a final or records-only done transition settles
+without an extra ad-hoc watch. Preserve `complete-revision`'s completion-only
+shutdown role and all existing slice-obligation gates.
+
+**Evaluation.** Walk the revised `progress: true` → observation → `done` flow
+against Clipboard's multi-slice (`SEED-001#bounded-helper-owner-write`) and
+final-slice (`SEED-003#host-independent-desktop-free-tests`,
+`SEED-004#publish-clipboard-ci-proof`) cases; confirm the exact read-only
+command is named, `complete-revision` remains reserved for execution
+completion, and the slice's `done` transition and CI applicability follow one
+unambiguous path. At completion, record the actual response revision and first
+containing release (or explicitly unreleased status) at
+[ODF-418](../../docs/maintainer/findings/ODF-418.md) and cross-reference
+[ODF-275](../../docs/maintainer/findings/ODF-275.md); **queued, not resolved**.
+
 <a id="pending-lifecycle-validation-obligations"></a>
 
 ## Separately pending lifecycle validation obligations

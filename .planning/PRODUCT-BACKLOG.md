@@ -33,6 +33,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Review and allocate source commitments before delegating the first Behavior slice](seeds/SEED-010-learn-from-execution-retrospectives.md#review-source-promises-before-first-slice) — SEED-010#review-source-promises-before-first-slice
+- [Name the hosted-proof observation step for progress-published slices](seeds/SEED-010-learn-from-execution-retrospectives.md#observe-progress-revision-before-slice-done) — SEED-010#observe-progress-revision-before-slice-done
 - [Extract Dashboard Frontend Test as a separate entry](seeds/SEED-252-extract-dashboard-frontend-tests.md#extract-dashboard-frontend-tests) — SEED-252#extract-dashboard-frontend-tests
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity

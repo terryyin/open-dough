@@ -1,16 +1,17 @@
 # Near-term watch list
 
 ```json dough-feedback-review
-{"schemaVersion":1,"reviewed":"2026-11-04","reviewAfter":"2026-11-10"}
+{"schemaVersion":1,"reviewed":"2026-11-07","reviewAfter":"2026-11-10"}
 ```
 
-Reviewed 2026-11-04 (Asia/Jakarta): Open Dough, Doughnut, Pygardon,
-Lizard and Clipboard supplied post-local sources and retained evidence.
-Terry Talks skips shared review because its process retrospective is off.
-Doughnut's independent source review caught a narrowing, but the record
-does not establish use of the independent-reason restriction check. No
-encountered execution supplied the qualifying restriction decision.
-Response observations at ODF-139 and ODF-275 do not change the watch state.
+Reviewed 2026-11-07 (Asia/Bangkok): Open Dough, Doughnut, Pygardon,
+Lizard and Clipboard supplied post-local sources and retained evidence;
+production inventory was rechecked unchanged. Terry Talks skips shared
+review because its process retrospective is off and it has no project
+findings record. No encountered execution supplied a qualifying ordinary
+restriction decision using the `30d29640` independent-reason restriction
+check. Response connections at ODF-074, ODF-141/276, ODF-229, ODF-275 and
+ODF-333 do not change the watch state here.
 
 <a id="scope-limits-and-required-restrictions"></a>
 
@@ -53,6 +54,7 @@ Response observations at ODF-139 and ODF-275 do not change the watch state.
 - **Review after:** 2026-11-10 for release/use status at the next shared review;
   assess effects seven calendar days after verified watch start. Without relevant
   use, keep the watch unexercised.
-- **Last assessed:** 2026-11-04 (Asia/Jakarta). All five eligible sources
-  were reviewed, with targeted checks of the encountered executions. No
-  qualifying ordinary restriction decision using the fix was established.
+- **Last assessed:** 2026-11-07 (Asia/Bangkok). All five eligible sources
+  were reviewed after their local passes, with targeted checks of the
+  encountered executions. No qualifying ordinary restriction decision using
+  the fix was established.
