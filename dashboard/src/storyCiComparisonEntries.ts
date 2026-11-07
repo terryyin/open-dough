@@ -13,11 +13,14 @@ import {
   ambiguousAttemptLine,
   unavailableLine,
 } from "./ciProofAbsenceWording.ts";
+import type { TimingCell } from "./ciProofTiming.ts";
+import type { CiProofCells, CountedResults } from "./ciProofWording.ts";
 import { primaryProofOf, scopeComparisonCellsOf } from "./ciScopeComparison.ts";
 import type {
   ComparisonAfterSide,
   ScopeComparisonCues,
 } from "./ciScopeComparisonCues.ts";
+import type { ChangeKind } from "./reviewFileTree.ts";
 import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
 
 export type ComparisonEndpointProof =
@@ -48,17 +51,32 @@ export function comparisonEndpointProofsChecking(
   );
 }
 
+// Cells of one compared scope: Counts words with the active after endpoint's
+// counted results, each endpoint's timing, and Parts with its number of gaps
+// (`./ciProofSort.ts` sorts by these values, none for a gap).
 export type ComparisonEntryCells = {
   readonly counts: string;
-  readonly baseline: string;
-  readonly branch: string;
-  readonly landed: string;
+  readonly countedResults: CountedResults | undefined;
+  readonly baseline: TimingCell;
+  readonly branch: TimingCell;
+  readonly landed: TimingCell;
   readonly completeness: string;
   readonly gaps: readonly string[];
+  readonly gapCount: number | undefined;
+  // The selected story's change of the scope, when it changes it.
+  readonly change?: ChangeKind;
   // One classification for the active after endpoint; Summary, entry rows and
   // Proof all render from this.
   readonly cues: ScopeComparisonCues;
 };
+
+// Whether a CI figures table row's CELLS compare endpoints rather than show
+// one run's figures.
+export function isComparisonCells(
+  cells: CiProofCells | ComparisonEntryCells,
+): cells is ComparisonEntryCells {
+  return "baseline" in cells;
+}
 
 export type ComparisonEntryRow = {
   readonly path: string;

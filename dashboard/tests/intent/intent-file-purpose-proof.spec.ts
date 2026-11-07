@@ -5,6 +5,10 @@
 // selections (SEED-247#restore-file-purpose-and-proof examples 1, 4, 6).
 
 import { expect, test } from "../dashboardTest.ts";
+import {
+  evidenceLabels,
+  expectEvidenceLabels,
+} from "../ciEvidenceLabelsPage.ts";
 import { artifactId, proofCalls } from "../intentCiProofPage.ts";
 import {
   expandIntentFolders,
@@ -44,9 +48,8 @@ test("a selected file offers Purpose source and Proof CI results, keeping the ch
   await proofTab.click();
   const proof = proofRegion(intent);
   await expect(proofTab).toHaveAttribute("aria-selected", "true");
-  await expect(proof.locator(".intent-summary-evidence")).toHaveText(
-    ancestorEvidence,
-  );
+  // The file's Proof shares the Summary's evidence labels.
+  await expectEvidenceLabels(evidenceLabels(proof), ancestorEvidence);
   const table = proof.getByRole("table", {
     name: "CI proof of dashboard/tests/folder/a.spec.ts",
   });

@@ -32,25 +32,47 @@ folder summary names the selection by path and how many matching files the
 tree lists (a selected story's overlaid files included), gives an unusable
 location's explanation, and shows the CI proof that **CI status** shows, never
 local proof. With no story selected, it names
-that evidence once (attempt and run, revision, judged branch, a selected
-story's branch, a running result's completed ancestor), says when that
-judgment was previously retrieved rather than newly verified and any failed
-refresh, as **CI status** says it, and, when the tree shows another
-revision, says a file added or changed since has no CI result here or an
-earlier one. One table in the homepage's columns (**Scope**, **Counts**,
-**Test execution time**, **Parts**) gives the selection's own row (an entry's
-row is its homepage row, checks outside the tree included), then one row per
-immediate folder (named with a trailing `/`) and file in the browser's order,
-each summing the CI evidence published under its path, and, when the
-selection's figures hold files no child row covers (files the tree does not
-list) or results CI could not place in a file, a **Not in the rows above**
-row with a line naming them. With a story selected, the same Summary names that story's CI timing
-comparison (baseline, branch and landed, as **CI status** names them; Taken
-labelled provisional) and the observed-not-attributed statement; its table
-uses **Baseline**, **Branch** and **Landed** for precise times with signed
+that evidence once as a strip of short labels, each beside an icon whose name
+the label carries, with the full words as the label's hover text and
+accessible description: a judgment previously retrieved rather than newly
+verified (`Previously retrieved at …`, as **CI status** says it) and any
+failed refresh (`Refresh failed`, its failure announced), the linked run and
+attempt (`Run 41 · attempt 2`), revision (`abc1234`), judged branch (`main`,
+described as a selected story's branch), `Completed ancestor` for a running
+result, and, when the tree shows another revision,
+`Tree at def5678 — newer files unproved here` (a file added or changed since
+has no CI result here, or an earlier one). The selection's own figures (an entry's are its homepage row's,
+checks outside the tree included) stand as a labelled group above the table,
+each under its column's name (**Counts**, **Test execution time**,
+**Parts**). One table in the homepage's columns (**Scope**, **Counts**,
+**Test execution time**, **Parts**) then holds one row per immediate folder
+(named with a trailing `/`) and file in the browser's order, each summing the
+CI evidence published under its path, and, when the selection's figures hold
+files no child row covers (files the tree does not list) or results CI could
+not place in a file, a **Not in the rows above** row, its contents labelled
+after the table (`1 file not in the tree`, `Unplaced results`,
+`Part 2 no breakdown`; the files and parts in full on hover).
+The table's headers sort it as **CI status** Proof's do, **Scope** by the
+child's name; until one is activated the rows keep the browser's order, and
+**Not in the rows above** stays last under any sort while the group above
+does not move. The sort is kept in memory with Intent's reading place, never
+on the URL or in storage: drilling down or switching to Development and
+back keeps it, and a sorted column the next
+Summary table lacks (a timing column or **Change** between one run's figures
+and a story comparison) gives way to the browser's order. With a story selected, the same Summary labels that story's CI timing
+comparison the same way: `Provisional` while the story is Taken; **Baseline**,
+**Branch** and **Landed**, each with the requested revision's status word
+(`Skipped`, `Cancelled`, `No build`) before the short revision whose proof is
+used, or a gap's word (`Not applicable`, `Not landed yet`), its full status as
+description; and `Observed, not attributed` for the observed-not-attributed
+statement; its group
+and table use **Baseline**, **Branch** and **Landed** for precise times with signed
 differences, shows counted-results differences in **Counts** (a gap endpoint
-shows its gap, not a difference), marks story-changed rows (a rename takes
-its baseline from its old path), explains per-row gaps, and shows the same
+shows its gap, not a difference), names each child's story change in a
+**Change** column after **Scope** (`added`, `modified`, `removed` or
+`renamed`, empty when unchanged; a rename takes its baseline from its old
+path, which its **Baseline** cell names) that sorts by kind in that order
+with unchanged rows last in either direction, explains per-row gaps, and shows the same
 count-border and duration-tint cues as the homepage entry table (see
 [CI timing comparison](dashboard-development-intent-ci-comparison.md)). Parts
 completeness stays for the homepage's chosen build (landed, else branch).
@@ -60,9 +82,11 @@ folder's own summary. Execution time is precise enough to compare sub-minute
 scopes (`340 ms`, `12.5 s`, `4 min 5 s`); a measured zero is `0 ms`. A file
 CI has no result for says **no CI result**; a scope with an untimed test, a
 missing or ambiguous part, or a part whose report published no file breakdown
-is partial with that named; an entry-only summary keeps the entry's totals
-and says the child breakdown is unavailable. Without usable proof, the rows
-stay for drilling down and one line says why, as the homepage does. The
+has partial timing shown as short gap labels (`Part 3 missing`,
+`Part 2 no breakdown`, `1 test untimed`), in the group as in the rows; an entry-only summary keeps the entry's totals
+and is labelled `No file breakdown`. Without usable proof, the rows
+stay for drilling down, the group and rows say why in a word or two
+(`checking`, `no CI proof`), and one line says why, as the homepage does. The
 summary drills down: a child's name selects that folder or file as its tree
 name does and reveals it in the tree, keyboard-operable. A summary reads no
 file text and asks CI nothing again: home and every summary share one
@@ -81,7 +105,8 @@ selected it offers **Purpose** and **Proof** tabs (Purpose first; kept across
 file selections in the same Intent visit), and with a location or folder its
 summary. Purpose is the published source or selected story's source diff; Proof
 is that file's published CI evidence from Intent's one evidence owner
-(judged-run results, or a story's baseline / branch / landed comparison).
+(judged-run results, or a story's baseline / branch / landed comparison),
+under the Summary's evidence labels.
 Directly activating the **Intent** tab (click, Enter or Space), even while already
 chosen, returns home: selection clears and CI status shows for the same story;
 expansion and reading choices stay. No separate return control.
@@ -155,17 +180,32 @@ running, and when it was checked. History without a result and trunk history
 GitHub answers `404` for are **Could not be read** with the reason. Only
 story branches can be called no longer published. Below
 the judgment, **Proof** shows the CI proof of that run (for a running result,
-the completed ancestor's): revision, link and attempt once (a `ciAdapter`
-attempt named by its `attemptId`) with that attempt's **CI wall time** from
-its start and completion (not recorded, with why, when either is absent),
-then a table with one row per declared Intent location `path`, in
+the completed ancestor's) as short labels once: the linked run and attempt
+(`Run 41 · attempt 2`, or a `ciAdapter` attempt's `Attempt <attemptId>`), the
+revision, `Completed ancestor` for a running result, and that attempt's
+**CI wall time** from its start and completion (`CI wall time 3 min`, or
+`CI wall time not recorded` with why as its description when either is
+absent), then a table with one row per declared Intent location `path`, in
 declaration order, under the columns **Entry**, **Counts** (passed, failed
 and other with the runner's unit, tests or checks), **Test execution time**
-(the entry's summed durations: complete, partial naming the parts without
-one or how many tests or checks recorded none, or not recorded for a summary
-without durations, never zero for absence, and never the attempt's wall
-time) and **Parts** (how many declared parts are present, then each missing
-or ambiguous part as an uncounted gap). A path wraps after its `/`
+(the entry's summed durations: measured, a measured zero reading `0 ms`;
+partial as short gap labels joined by commas, such as `Part 2 untimed`,
+`Part 3 missing` or `4 tests untimed`; or `No timings` for a summary without
+durations; never zero for absence, no lower bound for partial timing, and
+never the attempt's wall time; a gap label's full explanation, such as
+“Partial: part 2 of 3 has no duration”, is the cell's hover text and
+accessible description) and **Parts** (how many declared parts are present, then each missing
+or ambiguous part as an uncounted gap). Each column header is a button,
+reached by Tab and activated by click, Enter or Space: the first activation
+sorts the rows ascending by that column's figures, the next descending, and
+the sorted header carries `aria-sort` and a direction arrow. **Entry** sorts
+by path name, **Counts** by the number of counted results with failed
+results first among equal totals, **Test execution time** by measured time
+and **Parts** by the number of gaps; a row without a measured figure for the
+column (partial, `No timings`) follows the measured rows in either direction,
+and those rows and ties keep declaration order. The sort is kept in memory
+while **CI status** stays shown, never on the URL or in storage; the table
+has no totals row. A path wraps after its `/`
 separators, and within them only in a reading pane too narrow for that, so
 the columns fit a phone or zoomed window without sideways scrolling. A
 GitHub Actions run's summary is its `ci-proof-summary-attempt-<n>` artifact,

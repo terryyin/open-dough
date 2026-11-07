@@ -1,6 +1,6 @@
 // Requested-revision status on Intent's CI timing comparison
 // (../../src/IntentCiComparison.tsx) and Summary evidence
-// (../../src/IntentScopeComparisonTable.tsx SlotSha): Skipped when
+// (../../src/IntentScopeComparisonTable.tsx endpointLabel): Skipped when
 // paths-ignore accounts for the absence, Cancelled when the provider
 // cancelled the run, and No build with the reason when the path rule cannot
 // confirm a skip (SEED-254). Landed uses a confirmed skip's equivalent-build
@@ -8,6 +8,7 @@
 // proof (slice 3).
 
 import { expect, test } from "../support/preparationPage.ts";
+import { anyComparisonLabels, evidenceLabel } from "../ciEvidenceLabelsPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 import { githubFor } from "../dashboardTest.ts";
@@ -56,12 +57,13 @@ test("Baseline names Skipped at a planning-only start and keeps the ancestor bui
   ).toBeVisible({ timeout: readWaitLimitMs + 15_000 });
   const { intent } = parts(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    skippedAt,
+  // The Summary labels Baseline Skipped beside the ancestor build's revision,
+  // the full status its description.
+  const baselineLabel = evidenceLabel(
+    anyComparisonLabels(summary),
+    `Baseline Skipped ${shortSha(setup.baseline)}`,
   );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    shortSha(setup.baseline),
-  );
+  await expect(baselineLabel).toHaveAccessibleDescription(skippedAt);
 });
 
 test("Baseline names Cancelled at a start whose run was cancelled and keeps the ancestor build", async ({

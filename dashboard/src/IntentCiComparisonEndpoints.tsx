@@ -9,6 +9,8 @@ import { shortSha } from "./baseCiWording.ts";
 import {
   requestedStatusOrExplanation,
   requestedStatusPrefix,
+} from "./storyCiComparisonSlotWords.ts";
+import {
   selectionWords,
   timeWithoutRunnerWaitsWords,
   wallTimeWords,

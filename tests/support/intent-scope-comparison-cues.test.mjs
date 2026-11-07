@@ -74,7 +74,11 @@ test("added, removed, gap and partial take no cue with a reason", () => {
   });
   assert.deepEqual(
     durationCueOf(
-      { kind: "explained", text: "partial: part 1 of 2 missing" },
+      {
+        kind: "partial",
+        label: "Part 1 missing",
+        explanation: "Partial: part 1 of 2 missing",
+      },
       measuredMs(1_000),
     ),
     { kind: "none", reason: "partial" },

@@ -1,14 +1,15 @@
 // The CI proof of the run Intent's CI status tab shows a result of
 // (../../src/IntentCiProof.tsx): after the judgment, which reads as it always
-// has, Proof names that run once -- revision, link and attempt -- then a
-// table with one row per entry the run's CI declared, in its order, read
-// cell by cell under the Entry, Counts, Test execution time and Parts
-// headers (counts, unit and any gap). The summary is the collector's
-// own, served as a real zip from the run's artifact download through the
-// controlled `gh` (../support/ciProofArtifacts.ts). Each other reason no
-// proof can be shown, a running result's ancestor proof and the per-attempt
-// memory: ./intent-ci-proof-reasons.spec.ts. Query-shape refusals of
-// `parseIntentCiProofRead`: ../../../tests/support/dashboard-ci-proof-parse.test.mjs.
+// has, Proof names that run once as short labels -- its linked run and attempt,
+// revision and CI wall time -- then a table with one row per entry the run's CI
+// declared, in its order, read cell by cell under the Entry, Counts, Test
+// execution time and Parts headers (counts, unit and any gap). The summary is
+// the collector's own, served as a real zip from the run's artifact download
+// through the controlled `gh` (../support/ciProofArtifacts.ts). Each other
+// reason no proof can be shown, a running result's ancestor proof and the
+// per-attempt memory: ./intent-ci-proof-reasons.spec.ts. Query-shape refusals
+// of `parseIntentCiProofRead`:
+// ../../../tests/support/dashboard-ci-proof-parse.test.mjs.
 
 import { expect, test } from "../dashboardTest.ts";
 import { judged, runUrl } from "../intentCiStatusPage.ts";
@@ -18,11 +19,17 @@ import {
   failedVerdict,
   openFailedRun,
   proofCalls,
+  proofColumns,
   proofTable,
   run,
 } from "../intentCiProofPage.ts";
 import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
 import { wordsBrokenApart } from "../wholeWords.ts";
+import {
+  evidenceLabels,
+  expectAttemptAt,
+  expectAttemptLinked,
+} from "../ciEvidenceLabelsPage.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import {
   counts,
@@ -31,8 +38,7 @@ import {
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
 
-const notRecorded =
-  "not recorded: this summary has no test execution durations";
+const notRecorded = "No timings";
 
 test("a failed run with a summary shows Failed as before, then Proof of that run's revision, link and attempt with each entry's counts and parts", async ({
   page,
@@ -72,13 +78,8 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
   });
 
   await test.step("Proof names the run once, then one row per declared entry", async () => {
-    await expect(proof.locator(".intent-ci-proof-run")).toHaveText(
-      "Attempt 1 of run 41 at a1b2c3d.",
-    );
-    await expect(proof.getByRole("link", { name: "run 41" })).toHaveAttribute(
-      "href",
-      runUrl,
-    );
+    await expectAttemptAt(proof, "Run 41 · attempt 1", "a1b2c3d");
+    await expectAttemptLinked(proof, "Run 41 · attempt 1", runUrl);
     await expectProofRows(proof, [
       [
         "dashboard/tests",
@@ -116,7 +117,7 @@ test("a missing part is shown as a gap and its counts are not counted", async ({
     [
       "dashboard/tests",
       "110 passed tests",
-      "partial: part 4 of 12 missing",
+      "Part 4 missing",
       "11 of 12 parts present; part 4 of 12 missing",
     ],
   ]);
@@ -168,7 +169,7 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     [
       longEntry,
       "52 passed, 2 failed and 1 other checks",
-      "partial: part 2 of 3 missing",
+      "Part 2 missing",
       "2 of 3 parts present; part 2 of 3 missing",
     ],
     ["dashboard/tests", "12 passed tests", "2 min", "2 of 2 parts present"],
@@ -179,10 +180,15 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     () => summaryZipAnswer(summary),
   );
   await expectProofRows(proof, rows);
+  // A wider installed font lays the table out as Linux's fallback font does.
+  await page.addStyleTag({
+    content:
+      ".intent-ci-proof-box, .intent-evidence-labels { font-family: Verdana, sans-serif; }",
+  });
   const table = proofTable(proof);
   const box = proof.locator(".intent-proof-table");
   const again = panel.getByRole("button", { name: "Check again" });
-  const link = proof.getByRole("link", { name: "run 41" });
+  const link = proof.getByRole("link", { name: "Run 41 · attempt 1" });
   // How far the table's box scrolls sideways, and whether the box lies within
   // the reading pane and the page does not scroll sideways.
   const fit = () =>
@@ -201,8 +207,9 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     });
 
   // Every row reads exactly, every column fits the reading pane with nothing
-  // scrolling sideways, `whole` cells keep their words whole, and the table
-  // adds no keyboard stop between the run link above it and Check again.
+  // scrolling sideways, `whole` cells keep their words whole, and between the
+  // run link above it and Check again the keyboard stops only at the table's
+  // sortable column headers, in order.
   const readsAt = async (
     window: { width: number; height: number },
     whole: string,
@@ -218,9 +225,16 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
       pageSideways: false,
     });
     expect(await wordsBrokenApart(table, whole)).toEqual([]);
-    await again.focus();
-    await page.keyboard.press("Shift+Tab");
-    await expect(link).toBeFocused();
+    expect(await wordsBrokenApart(evidenceLabels(proof), "li")).toEqual([]);
+    await link.focus();
+    for (const header of proofColumns) {
+      await page.keyboard.press("Tab");
+      await expect(
+        table
+          .getByRole("columnheader", { name: header, exact: true })
+          .getByRole("button"),
+      ).toBeFocused();
+    }
     await page.keyboard.press("Tab");
     await expect(again).toBeFocused();
   };

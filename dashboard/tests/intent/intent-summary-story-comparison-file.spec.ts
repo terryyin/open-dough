@@ -6,8 +6,13 @@
 // are in ./intent-file-purpose-proof.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
+import {
+  comparisonLabels,
+  expectEvidenceLabels,
+  expectNoComparisonFraming,
+  expectObservedNotAttributed,
+} from "../ciEvidenceLabelsPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { observedNotAttributed } from "../../src/storyCiComparisonWording.ts";
 import {
   fileReadingTab,
   proofRegion,
@@ -52,9 +57,7 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
       "changed",
     );
     await expect(purpose.getByRole("table")).toHaveCount(0);
-    await expect(purpose.locator(".intent-ci-comparison-framing")).toHaveCount(
-      0,
-    );
+    await expectNoComparisonFraming(purpose);
     await expect(
       intent.getByRole("region", { name: "File summary", exact: true }),
     ).toHaveCount(0);
@@ -62,21 +65,14 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     await proofTab.click();
     const proof = proofRegion(intent);
     await expect(proofTab).toHaveAttribute("aria-selected", "true");
-    await expect(proof.locator(".intent-summary-evidence")).toContainText(
-      `CI timing comparison for ${setup.identity}`,
-    );
-    await expect(proof.locator(".intent-summary-evidence")).toContainText(
-      shortSha(setup.baseline),
-    );
-    await expect(proof.locator(".intent-summary-evidence")).toContainText(
-      shortSha(setup.branchSide),
-    );
-    await expect(proof.locator(".intent-summary-evidence")).toContainText(
-      shortSha(setup.completion),
-    );
-    await expect(proof.locator(".intent-ci-comparison-framing")).toContainText(
-      observedNotAttributed,
-    );
+    // The file's Proof shares the Summary's comparison labels.
+    await expectEvidenceLabels(comparisonLabels(proof, setup.identity), [
+      `Baseline No build ${shortSha(setup.baseline)}`,
+      `Branch ${shortSha(setup.branchSide)}`,
+      `Landed ${shortSha(setup.completion)}`,
+      "Observed, not attributed",
+    ]);
+    await expectObservedNotAttributed(proof);
     await expectFileComparisonRow(
       proof,
       "dashboard/tests/folder/a.spec.ts",

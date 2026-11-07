@@ -57,3 +57,40 @@
     padding-inline: var(--space-1);
   }
 }
+
+/* A story comparison's table with its Change column has one more column, so
+   its cells narrow their side padding in a wider pane too, such as a window
+   at 200% zoom, to keep every column's words whole without scrolling. */
+@container (max-width: 40rem) {
+  .intent-ci-proof-changes .intent-proof-rows th,
+  .intent-ci-proof-changes .intent-proof-rows td {
+    padding-inline: var(--space-1);
+  }
+}
+
+/* A sortable column header is a button reading as the header it replaces,
+   its direction arrow beside the words: faint until the column is sorted.
+   The arrow wraps like one more word, so in a pane too narrow for the column
+   it moves under the words instead of widening the column into a sideways
+   scroll. */
+.intent-ci-sort {
+  display: inline-block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.intent-ci-sort-mark {
+  display: inline-flex;
+  margin-inline-start: var(--space-1);
+  vertical-align: middle;
+  --icon-size: 0.875rem;
+}
+
+.intent-ci-sort-mark[data-direction="none"] {
+  color: var(--quiet);
+}

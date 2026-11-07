@@ -90,22 +90,22 @@ export function wallTimeMs(
 
 // "CI wall time 3 min" from the attempt's start and completion, or not
 // recorded with why when either bound is absent. Never from summed durations.
-export function ciWallTimeLine(
+export function ciWallTime(
   startedAt: string | undefined,
   completedAt: string | undefined,
-): string {
-  const started = startedAt === undefined ? Number.NaN : Date.parse(startedAt);
-  const completed =
-    completedAt === undefined ? Number.NaN : Date.parse(completedAt);
-  if (!Number.isFinite(started) || !Number.isFinite(completed)) {
-    return "CI wall time not recorded: this attempt's CI read has no start and completion times.";
-  }
-  return `CI wall time ${wholeMinuteWords(completed - started)}.`;
+): { readonly words: string; readonly full?: string } {
+  const ms = wallTimeMs(startedAt, completedAt);
+  if (ms === undefined)
+    return {
+      words: "CI wall time not recorded",
+      full: "This attempt's CI read has no start and completion times.",
+    };
+  return { words: `CI wall time ${wholeMinuteWords(ms)}` };
 }
 
 // Cumulative test execution time, precise enough to tell sub-minute scopes
 // apart: "340 ms", "12.5 s", "4 min 5 s", "2 h 3 min". A measured zero is
-// "0 ms". CI wall time keeps its whole minutes (`ciWallTimeLine`).
+// "0 ms". CI wall time keeps its whole minutes (`ciWallTime`).
 export function executionTimeWords(ms: number): string {
   const rounded = Math.round(Math.max(0, ms));
   if (rounded < 1000) return `${String(rounded)} ms`;

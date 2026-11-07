@@ -58,13 +58,18 @@ export function primaryEntryOf(
 export function partsCellsOf(
   entry: CiProofEntry | undefined,
   figures?: CiScopeFigures,
-): Pick<ComparisonEntryCells, "completeness" | "gaps"> {
-  if (entry === undefined) return { completeness: "—", gaps: [] };
+): Pick<ComparisonEntryCells, "completeness" | "gaps" | "gapCount"> {
+  if (entry === undefined)
+    return { completeness: "—", gaps: [], gapCount: undefined };
   const cells =
     figures === undefined
       ? ciProofCellsOf(entry)
       : ciScopeCellsOf(entry, figures);
-  return { completeness: cells.completeness, gaps: cells.gaps };
+  return {
+    completeness: cells.completeness,
+    gaps: cells.gaps,
+    gapCount: cells.gapCount,
+  };
 }
 
 export function partsForPath(
@@ -72,7 +77,7 @@ export function partsForPath(
   baseline: ComparisonEndpointProof,
   branch: ComparisonEndpointProof,
   landed: ComparisonEndpointProof,
-): Pick<ComparisonEntryCells, "completeness" | "gaps"> {
+): Pick<ComparisonEntryCells, "completeness" | "gaps" | "gapCount"> {
   const entry = primaryEntryOf(path, baseline, branch, landed);
   if (entry === undefined || path === entry.path) return partsCellsOf(entry);
   return partsCellsOf(entry, scopeFiguresOf(entry, path));

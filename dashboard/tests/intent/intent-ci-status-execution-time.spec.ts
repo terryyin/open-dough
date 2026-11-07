@@ -2,12 +2,15 @@
 // (../../src/IntentCiProof.tsx, ../../src/ciProofWording.ts,
 // ../../src/ciProofTimeWords.ts): complete durations show test execution time
 // 4 min and 2 min beside entry counts with CI wall time 3 min; an older
-// summary shows not recorded with why while wall time still comes from the CI
-// read; a missing shard shows partial with that part named; missing timing
-// is never shown as zero (SEED-239 examples 2 and 6).
+// summary shows No timings while wall time still comes from the CI read; a
+// missing shard shows Part 2 missing; an untimed part shows Part 2 untimed
+// while parts timed at zero show 0 ms; each gap label's full explanation is
+// the cell's accessible description and hover; missing timing is never
+// shown as zero (SEED-239 examples 2 and 6, SEED-259 key example 4).
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
+import { evidenceLabel } from "../ciEvidenceLabelsPage.ts";
 import {
   artifactId,
   expectProofRows,
@@ -25,9 +28,10 @@ import {
 
 test.setTimeout(90_000);
 
-const wallTime = "CI wall time 3 min.";
-const notRecorded =
-  "not recorded: this summary has no test execution durations";
+const wallTime = "CI wall time 3 min";
+const noTimings = "No timings";
+const noTimingsWhy =
+  "Not recorded: this summary has no test execution durations";
 
 // The Test execution time column, one cell per entry row.
 const executionCells = (proof: Locator) =>
@@ -95,7 +99,7 @@ test("complete entry durations show test execution time 4 min and 2 min beside c
   await page.setViewportSize({ width: 1280, height: 800 });
   const { panel, proof } = await openWithSummary(page, timedSummary());
   await expect(panel.locator(".intent-ci-state")).toContainText("Passed");
-  await expect(proof.locator(".intent-ci-wall-time")).toHaveText(wallTime);
+  await expect(evidenceLabel(proof, wallTime)).toHaveText(wallTime);
   await expectProofRows(proof, [
     ["tests", "5 passed checks", "4 min", "2 of 2 parts present"],
     ["dashboard/tests", "12 passed tests", "2 min", "2 of 2 parts present"],
@@ -106,20 +110,24 @@ test("complete entry durations show test execution time 4 min and 2 min beside c
   await expect(proofTable(proof)).not.toContainText("3 min");
 });
 
-test("an older summary without durations shows test execution time not recorded while wall time still shows", async ({
+test("an older summary without durations shows No timings while wall time still shows", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   const { proof } = await openWithSummary(page, olderSummary());
-  await expect(proof.locator(".intent-ci-wall-time")).toHaveText(wallTime);
+  await expect(evidenceLabel(proof, wallTime)).toHaveText(wallTime);
   await expectProofRows(proof, [
-    ["tests", "5 passed checks", notRecorded, "1 of 1 part present"],
-    ["dashboard/tests", "12 passed tests", notRecorded, "1 of 1 part present"],
+    ["tests", "5 passed checks", noTimings, "1 of 1 part present"],
+    ["dashboard/tests", "12 passed tests", noTimings, "1 of 1 part present"],
   ]);
-  await expect(executionCells(proof)).toHaveText([notRecorded, notRecorded]);
+  await expect(executionCells(proof)).toHaveText([noTimings, noTimings]);
+  for (const cell of await executionCells(proof).all()) {
+    await expect(cell).toHaveAccessibleDescription(noTimingsWhy);
+    await expect(cell).toHaveAttribute("title", noTimingsWhy);
+  }
 });
 
-test("a missing shard shows test execution time partial with that part named", async ({
+test("a missing shard shows Part 2 missing with the full explanation", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -128,12 +136,52 @@ test("a missing shard shows test execution time partial with that part named", a
     [
       "dashboard/tests",
       "10 passed tests",
-      "partial: part 2 of 2 missing",
+      "Part 2 missing",
       "1 of 2 parts present; part 2 of 2 missing",
     ],
   ]);
   // The present part's 90 s is not shown as if it were the whole entry's.
-  await expect(executionCells(proof)).toHaveText([
-    "partial: part 2 of 2 missing",
-  ]);
+  await expect(executionCells(proof)).toHaveText(["Part 2 missing"]);
+  await expect(executionCells(proof)).toHaveAccessibleDescription(
+    "Partial: part 2 of 2 missing",
+  );
+});
+
+test("an untimed part shows Part 2 untimed while parts timed at zero show 0 ms", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const { proof } = await openWithSummary(
+    page,
+    proofSummary(
+      run,
+      [
+        ["tests", 2],
+        ["dashboard/tests", 3],
+      ],
+      [
+        ["tests", 1, 2, "checks", counts(3), 0],
+        ["tests", 2, 2, "checks", counts(2), 0],
+        ["dashboard/tests", 1, 3, "tests", counts(8), 75_000],
+        ["dashboard/tests", 2, 3, "tests", counts(4)],
+        ["dashboard/tests", 3, 3, "tests", counts(1), 5_000],
+      ],
+    ),
+  );
+  await expect(executionCells(proof)).toHaveText(["0 ms", "Part 2 untimed"]);
+  // A measured zero is a figure with nothing to explain; the gap label's
+  // explanation reaches assistive technology and hover, without a lower bound.
+  await expect(executionCells(proof).first()).not.toHaveAttribute(
+    "title",
+    /./u,
+  );
+  const untimed = executionCells(proof).nth(1);
+  await expect(untimed).toHaveAccessibleDescription(
+    "Partial: part 2 of 3 has no duration",
+  );
+  await expect(untimed).toHaveAttribute(
+    "title",
+    "Partial: part 2 of 3 has no duration",
+  );
+  await expect(proofTable(proof)).not.toContainText("1 min 20 s");
 });

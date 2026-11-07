@@ -357,6 +357,8 @@ observations remain open, unqueued.
 retain the repaired revision-stream pace race, paused-clock reopen, kept CI
 answer journeys, fake-Cursor attach-PID assertion, and server-bundle static
 seam, moved from `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md`.
+DD-420 recurred in plan 499 (2026-11-07) on unrelated work; its spec now
+holds listings in turn, and the per-open pace start remains in the product.
 
 ## Container and host local-suite admission collision (open, unqueued)
 
@@ -486,3 +488,11 @@ selects no new implementation story.
   - Evidence: job `dashboard (9/12)` failed `intent-ci-proof.spec.ts:150` with `sideways: 2`; the repair agent measured a 296.42 px table in a 294.41 px box under DejaVu Sans, 271.98 px on macOS and 252.16 px in the `ci-container.sh` image (Playwright's own fonts); reproduction needed an ad-hoc root container installing `fonts-dejavu-core` (job-local `ci-spec-dejavu.sh`); repair `4ad55b56d`.
   - Observed effect: one CI failure, a stash/repair/restore cycle and about 102k repair-agent tokens; the local CI container could not reproduce it as maintained.
   - Inference: installing the hosted runner's default fonts in the `ci-container.sh` image would let layout-measuring browser checks give the CI result locally.
+- Execution: SEED-259#scan-intent-ci-summaries (plan 499-scan-intent-ci-summaries, first implementation commit 0ffcc27cbb64b570e0bc5dbd8ddc9e5bd83dee03)
+  - Timestamp: unknown (2026-11-07, run 42379612785 attempt 1 on `d146a05d9`; test results stamped 2026-11-07T14:03Z)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.88 (installed `.claude/skills`)
+  - Evidence: job `dashboard (8/12)` failed the same `intent-ci-proof.spec.ts:150` check with `sideways: 26` after slice 2 added sortable header buttons with an arrow; the 106-test local family gate had passed on macOS. The repair agent reproduced 26 px with DejaVu loaded as `@font-face`, then made the spec force Verdana on the table so macOS reproduces Linux widths (failed 25 px before the CSS fix, passed after); repair `68e5f52b3`. Slices 3 and 5 extended the same Verdana override to the summary zoom checks.
+  - Observed effect: a second CI failure of this check, a stash/repair/restore cycle around paused slice 3 work, and about 125k repair-agent tokens.
+  - Inference: forcing a wide font inside each layout-measuring spec is a workable local stand-in, but each new narrow-width check must remember it; the fonts in the `ci-container.sh` image remain the general remedy.

@@ -30,9 +30,7 @@
   min-width: 0;
 }
 
-.intent-file-proof .intent-summary-evidence,
 .intent-file-proof .intent-summary-evidence-absent,
-.intent-file-proof .intent-ci-comparison-framing,
 .intent-file-proof .intent-ci-reading,
 .intent-proof > .intent-summary-evidence-absent {
   margin: 0 0 var(--space-2);

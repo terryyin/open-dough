@@ -6,8 +6,16 @@
 // ./intent-summary-story-comparison.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
+import {
+  anyComparisonLabels,
+  comparisonLabels,
+  expectEvidenceLabels,
+  expectLeadingEvidenceLabels,
+  expectNoComparisonFraming,
+  expectObservedNotAttributed,
+  expectLabelInFull,
+} from "../ciEvidenceLabelsPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { observedNotAttributed } from "../../src/storyCiComparisonWording.ts";
 import { wall } from "../support/storyCiComparisonFixture.ts";
 import {
   breakdownProofs,
@@ -24,6 +32,7 @@ import {
 import {
   comparisonScopeColumns,
   expectComparisonScopeRows,
+  scopeTable,
 } from "../intentScopeProofPage.ts";
 import { entryComparisonRows } from "../support/summaryComparisonExpectedRows.ts";
 import {
@@ -53,9 +62,7 @@ test("a baseline without file breakdown compares the entry and explains folder a
   );
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  await expect(summary.locator(".intent-ci-comparison-framing")).toContainText(
-    observedNotAttributed,
-  );
+  await expectObservedNotAttributed(summary);
   await expectComparisonScopeRows(
     summary,
     "dashboard/tests",
@@ -116,15 +123,11 @@ test("a Trunk Mode done story marks Branch not applicable at every Summary scope
   const setup = await publishSummaryComparisonTrunkStory(page, origin);
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    "not applicable",
-  );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    shortSha(setup.baseline),
-  );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    shortSha(setup.branchSide),
-  );
+  await expectLeadingEvidenceLabels(anyComparisonLabels(summary), [
+    `Baseline No build ${shortSha(setup.baseline)}`,
+    "Branch Not applicable",
+    `Landed No build ${shortSha(setup.branchSide)}`,
+  ]);
   await expectComparisonScopeRows(summary, "dashboard/tests", trunkEntryRows);
 });
 
@@ -136,26 +139,22 @@ test("a Taken Story Branch story's Summary comparison is labelled provisional", 
   const setup = await publishTakenSummaryComparisonStory(page, origin);
   const { intent } = await selectTakenStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    "CI timing comparison for Story A (provisional)",
+  // The provisional mark leads the labels; Landed says it has not landed.
+  const labels = comparisonLabels(summary, "Story A");
+  await expectEvidenceLabels(labels, [
+    "Provisional",
+    `Baseline No build ${shortSha(setup.baseline)}`,
+    `Branch ${shortSha(setup.branchTip)}`,
+    "Landed Not landed yet",
+    "Observed, not attributed",
+  ]);
+  await expectLabelInFull(
+    labels,
+    "Landed Not landed yet",
+    /has not landed yet/,
   );
-  await expect(summary.locator(".intent-ci-comparison-framing")).toContainText(
-    observedNotAttributed,
-  );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    shortSha(setup.baseline),
-  );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    shortSha(setup.branchTip),
-  );
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    "has not landed yet",
-  );
-  await expect(
-    summary.getByRole("table", {
-      name: "CI proof of dashboard/tests and its immediate folders and files",
-    }),
-  ).toBeVisible();
+  await expectObservedNotAttributed(summary);
+  await expect(scopeTable(summary, "dashboard/tests")).toBeVisible();
 });
 
 test("selecting another story replaces the Summary comparison figures", async ({
@@ -167,9 +166,7 @@ test("selecting another story replaces the Summary comparison figures", async ({
   const { intent, card: storyA } =
     await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  await expect(summary.locator(".intent-summary-evidence")).toContainText(
-    first.identity,
-  );
+  await expect(comparisonLabels(summary, first.identity)).toBeVisible();
   await expectComparisonScopeRows(
     summary,
     "dashboard/tests",
@@ -196,7 +193,8 @@ test("selecting another story replaces the Summary comparison figures", async ({
   await openSummary(intent, "dashboard/tests");
   // Queued Story B has no story CI comparison: no framing, no Baseline column,
   // and no evidence line naming the previous story.
-  await expect(summary.locator(".intent-ci-comparison-framing")).toHaveCount(0);
+  await expectNoComparisonFraming(summary);
+  await expect(comparisonLabels(summary, first.identity)).toHaveCount(0);
   await expect(
     summary.getByRole("columnheader", { name: "Baseline" }),
   ).toHaveCount(0);

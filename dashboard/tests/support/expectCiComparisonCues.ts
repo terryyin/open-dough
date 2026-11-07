@@ -1,7 +1,9 @@
-// Assert Intent CI comparison cue state on overall summary lines and table
-// rows (../../src/ciScopeComparisonCuePresentation.ts, ../../src/CiProofTable.tsx).
+// Assert Intent CI comparison cue state on overall summary lines, a Summary's
+// own figures and table rows (../../src/ciScopeComparisonCuePresentation.ts,
+// ../../src/IntentScopeFigures.tsx, ../../src/CiProofTable.tsx).
 
 import { expect, type Locator } from "@playwright/test";
+import { scopeFigures, scopeTable } from "../intentScopeProofPage.ts";
 
 export type ExpectedCues = {
   readonly count?: string;
@@ -106,15 +108,15 @@ export async function expectEntryRowCues(
   }
 }
 
+// PATH's own figures carry the first of CUES, its table rows the rest.
 export async function expectScopeRowCues(
   summary: Locator,
   path: string,
-  rows: readonly ExpectedCues[],
+  [own, ...rows]: readonly ExpectedCues[],
 ) {
-  const table = summary.getByRole("table", {
-    name: `CI proof of ${path} and its immediate folders and files`,
-  });
-  const body = table.locator("tbody").getByRole("row");
+  if (own === undefined) throw new Error(`no own cues of ${path}`);
+  await expectCueState(scopeFigures(summary, path), own);
+  const body = scopeTable(summary, path).locator("tbody").getByRole("row");
   await expect(body).toHaveCount(rows.length);
   for (const [at, cues] of rows.entries()) {
     await expectCueState(body.nth(at), cues);

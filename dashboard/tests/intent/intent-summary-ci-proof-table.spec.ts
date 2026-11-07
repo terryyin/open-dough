@@ -2,14 +2,21 @@
 // file breakdown (../../src/IntentScopeProof.tsx, ../../src/ciScopeProof.ts,
 // ../intentSummaryCiProofFixtures.ts): a file CI ran that the tree does not
 // list counts once, in a listed folder's row, and outside only in that
-// folder's own Summary; and the table fits a zoomed or narrow window. The
-// Summary's journey: ./intent-summary-ci-proof.spec.ts.
+// folder's own Summary; and the evidence labels, the scope's own figures and
+// the table fit a zoomed or narrow window. The Summary's journey:
+// ./intent-summary-ci-proof.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
+import {
+  evidenceLabels,
+  expectEvidenceLabels,
+  expectLabelInFull,
+} from "../ciEvidenceLabelsPage.ts";
 import { run } from "../intentCiProofPage.ts";
 import {
   childName,
   expectScopeRows,
+  scopeFigures,
   scopeTable,
 } from "../intentScopeProofPage.ts";
 import {
@@ -67,12 +74,16 @@ test("a CI file the tree does not list under a listed folder counts once, in tha
     ["b.spec.ts", "no CI result", "no CI result", one],
     ["Not in the rows above", "1 passed tests", "100 ms", one],
   ]);
-  await expect(summary.locator(".intent-summary-outside")).toHaveText(
-    "The figures of dashboard/tests/folder include what no folder or file row shows: 1 file this tree does not list: dashboard/tests/folder/old.spec.ts.",
+  const outside = evidenceLabels(summary, "Not in the rows above");
+  await expectEvidenceLabels(outside, ["1 file not in the tree"]);
+  await expectLabelInFull(
+    outside,
+    "1 file not in the tree",
+    "Not in the tree: dashboard/tests/folder/old.spec.ts",
   );
 });
 
-test("at 200% zoom and on a narrow window a folder's Summary table reads whole within the reading pane, nothing scrolling sideways", async ({
+test("at 200% zoom and on a narrow window a folder's Summary figures and table read whole within the reading pane, nothing scrolling sideways", async ({
   page,
 }) => {
   const text = bothEntriesSummary(true);
@@ -82,19 +93,19 @@ test("at 200% zoom and on a narrow window a folder's Summary table reads whole w
     [
       "dashboard/tests",
       "5 passed, 1 failed and 1 other tests",
-      "partial: 1 test without a duration",
+      "1 test untimed",
       allParts,
     ],
     ["folder/", "3 passed, 1 failed and 1 other tests", "595 ms", allParts],
     ["added.spec.ts", "no CI result", "no CI result", allParts],
-    [
-      "root.spec.ts",
-      "2 passed tests",
-      "partial: 1 test without a duration",
-      allParts,
-    ],
+    ["root.spec.ts", "2 passed tests", "1 test untimed", allParts],
   ] as const;
   await expectScopeRows(summary, "dashboard/tests", rows);
+  // A wider installed font lays the Summary out as Linux's fallback font does.
+  await page.addStyleTag({
+    content:
+      ".intent-ci-proof-box, .intent-scope-figures, .intent-evidence-labels { font-family: Verdana, sans-serif; }",
+  });
   const table = scopeTable(summary, "dashboard/tests");
   const box = summary.locator(".intent-proof-table");
   const fit = () =>
@@ -118,11 +129,16 @@ test("at 200% zoom and on a narrow window a folder's Summary table reads whole w
     await page.setViewportSize(window);
     await expectScopeRows(summary, "dashboard/tests", rows);
     await table.scrollIntoViewIfNeeded();
-    expect(await fit()).toEqual({
+    expect(await fit(), JSON.stringify(window)).toEqual({
       sideways: 0,
       inPane: true,
       pageSideways: false,
     });
     expect(await wordsBrokenApart(table, whole)).toEqual([]);
+    expect(
+      await wordsBrokenApart(scopeFigures(summary, "dashboard/tests"), "dd"),
+    ).toEqual([]);
+    // The evidence labels above wrap whole labels and words, never letters.
+    expect(await wordsBrokenApart(evidenceLabels(summary), "li")).toEqual([]);
   }
 });

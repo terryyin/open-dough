@@ -17,13 +17,10 @@ import {
   type CiProofCells,
 } from "./ciProofWording.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
-import {
-  EvidenceKept,
-  EvidenceNamed,
-  scopeEvidenceOf,
-} from "./IntentScopeEvidence.tsx";
+import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
+import { EvidenceKept, EvidenceNamed } from "./IntentScopeEvidenceLabels.tsx";
 import { ComparisonNamed } from "./IntentScopeComparisonTable.tsx";
-import { changeKindWords } from "./IntentScopeProofChild.tsx";
+import { changeKindWords } from "./CiProofFigures.tsx";
 import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
 import {
   comparisonEndpointProofsChecking,

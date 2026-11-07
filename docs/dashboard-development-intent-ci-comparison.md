@@ -16,18 +16,25 @@ CI wall time as context; then each endpoint's revision, run, attempt, state and
 exact-or-ancestor selection with CI wall time and CI time without runner waits
 (signed whole-second differences against Baseline; observations between builds,
 not attributed to the story); then entry rows whose Counts and Baseline /
-Branch / Landed cells reuse the before→after words. GitHub Actions wall time
+Branch / Landed cells reuse the before→after words. The entry rows sort by
+their column headers as **CI status** Proof's do: **Counts** by the active
+after endpoint's counted results, and **Baseline**, **Branch** and
+**Landed** by that endpoint's measured time, an endpoint gap (added,
+removed, partial, unavailable) following the measured rows in either
+direction. GitHub Actions wall time
 spans run creation on attempt one or attempt start on reruns through completion.
 CI time without runner waits measures the longest dependency chain of job
 durations, including carried-over jobs, against the workflow at that build. One classification of each scope's count and duration change
-feeds cues on the overall summary, entry rows, location and folder Summary
-rows, file **Proof**, location headers whose path is a compared entry, and
+feeds cues on the overall summary, entry rows, a location's or folder's own
+Summary figures and its rows, file **Proof**, location headers whose path is a compared entry, and
 file rows in the location tree: a count border (green fewer, red more; any
 change; strong at ≥50% of baseline) and a duration tint (green faster, red
 slower; no tint under 10% or under 1 s; strong at ≥50%; a measured zero
 baseline at most light; no tint without comparable measured durations).
 Added, removed, gap and partial sides take no cue on that measure; their text
-explains why. Tree file rows and those location headers carry the same Counts
+explains why. Baseline / Branch / Landed cells use the same timing gap labels
+as **Test execution time** (`Part 2 untimed`, `No timings`), with the full
+explanation as hover text and accessible description. Tree file rows and those location headers carry the same Counts
 and after-side words in their accessible names as **Proof**. Folder rows in
 the tree stay without cues. A selected file or location with a duration tint
 keeps that tint and uses an accent border for selection instead of an accent

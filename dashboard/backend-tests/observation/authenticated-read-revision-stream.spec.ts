@@ -12,6 +12,7 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import { commitAnswer, rateLimitedAnswer } from "../../tests/originAnswers.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { everyRepository } from "../../tests/support/fakeGitHub.ts";
+import { heldInTurn } from "../../tests/support/heldGitHubAnswer.ts";
 import {
   heads,
   sharedReadsPublished,
@@ -60,8 +61,17 @@ test.describe("authenticated read boundary revision stream (development environm
   test("two streams of one source at different revisions and watched branches cost one matching-refs per tick, each learning its own answer; after the last closes no further listing is asked", async () => {
     const server = await streamServer();
     try {
-      server.github.serve(everyRepository, sharedReadsPublished(revisionA));
+      const published = sharedReadsPublished(revisionA);
+      server.github.serve(everyRepository, published);
       await warmProfiles(server, revisionA);
+      // Each listing answers only when let, so every count is taken while one
+      // listing is outstanding and no other can start, however long the
+      // watched branch's own reads take against the pace.
+      const listings = heldInTurn(
+        published,
+        (request) => request.kind === "matching-refs",
+      );
+      server.github.serve(everyRepository, listings.answer);
 
       const before = server.github.calls.length;
       // One stream watches a recorded branch at the shown revision; the other
@@ -72,31 +82,28 @@ test.describe("authenticated read boundary revision stream (development environm
         `&at=${revisionA}&watch=${encodeURIComponent("story/one")}`,
       );
       const moved = openStream(server, `&at=${revisionB}`);
-      expect(await watching.nextEvent()).toEqual({
+      const watchingAnswer = {
         revision: revisionA,
         changed: false,
         branches: [{ branch: "story/one", head: heads["story/one"] }],
-      });
-      expect(await moved.nextEvent()).toEqual({
-        revision: revisionA,
-        changed: true,
-        branches: [],
-      });
+      };
+      const movedAnswer = { revision: revisionA, changed: true, branches: [] };
+      // Both open, so both wait on the opening listing.
+      await Promise.all([watching.headers, moved.headers]);
+      await expect.poll(listings.held).toBe(1);
       expect(matchingRefsSince(server, before)).toBe(1);
+      listings.releaseOldest();
+      expect(await watching.nextEvent()).toEqual(watchingAnswer);
+      expect(await moved.nextEvent()).toEqual(movedAnswer);
 
-      const afterOpen = server.github.calls.length;
-      expect(await watching.nextEvent()).toEqual({
-        revision: revisionA,
-        changed: false,
-        branches: [{ branch: "story/one", head: heads["story/one"] }],
-      });
-      expect(await moved.nextEvent()).toEqual({
-        revision: revisionA,
-        changed: true,
-        branches: [],
-      });
-      expect(matchingRefsSince(server, afterOpen)).toBe(1);
+      // The next pace asks one listing, and that one answers both.
+      await expect.poll(listings.held).toBe(1);
+      expect(matchingRefsSince(server, before)).toBe(2);
+      listings.releaseOldest();
+      expect(await watching.nextEvent()).toEqual(watchingAnswer);
+      expect(await moved.nextEvent()).toEqual(movedAnswer);
 
+      listings.releaseAll();
       watching.close();
       moved.close();
       const afterClose = server.github.calls.length;

@@ -23,7 +23,7 @@ export const verdict = "Passed at 4774f60 (Add login)";
 export const testsRow = [
   "tests",
   "1000 passed and 3 other tests",
-  "not recorded: this summary has no test execution durations",
+  "No timings",
   "1 of 1 part present",
 ] as const;
 

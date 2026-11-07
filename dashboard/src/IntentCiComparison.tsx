@@ -5,14 +5,20 @@
 // CI wall time as context, then each endpoint's build identity, wall time,
 // and time without runner waits (`./IntentCiComparisonEndpoints.tsx`), then
 // one row per CI entry in the homepage proof table (`./CiProofTable.tsx`)
-// with each endpoint's cumulative test execution time. Taken answers label
+// with each endpoint's cumulative test execution time, sortable by its
+// columns. Taken answers label
 // the live tip provisional and say Landed has not landed yet; Taken Trunk
 // Mode also names the provisional trunk tip beside Branch N/A. A done
 // comparison ends with the judged branch's Check again
 // (`./IntentCiJudgedBranch.tsx`), disabled while it is read, whatever it
 // shows: the comparison, an unavailable answer, or a failed read.
 
-import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
+import {
+  CiProofTable,
+  ScopePath,
+  useCiProofSorting,
+  type CiProofSorting,
+} from "./CiProofTable.tsx";
 import {
   countCueElementAttrs,
   durationCueElementAttrs,
@@ -103,9 +109,11 @@ function ActiveComparisonSummary({
 function EntryComparison({
   proofs,
   afterSide,
+  sorting,
 }: {
   readonly proofs: ComparisonEndpointProofs;
   readonly afterSide: ComparisonAfterSide;
+  readonly sorting: CiProofSorting;
 }) {
   const entries = comparisonEntriesFromProofs(proofs, afterSide);
   if (entries.kind === "checking") {
@@ -124,9 +132,11 @@ function EntryComparison({
     <CiProofTable
       label="CI entry timing comparison"
       scopeHeader="Entry"
+      sorting={sorting}
       rows={entries.rows.map((row) => ({
         key: row.path,
         scope: <ScopePath path={row.path} />,
+        name: row.path,
         cells: row.cells,
       }))}
     />
@@ -172,6 +182,7 @@ export function IntentCiComparison({
   const checkAgainButton = checkAgain !== undefined && (
     <CheckAgain reading={reading.reading} checkAgain={checkAgain} />
   );
+  const sorting = useCiProofSorting();
   if (reading.reading && reading.shown === undefined) {
     return (
       <section className="intent-ci-status" aria-label="CI timing comparison">
@@ -213,7 +224,11 @@ export function IntentCiComparison({
       <p className="intent-ci-comparison-framing">({observedNotAttributed})</p>
       <ComparisonBody answer={answer} proofs={proofs} />
       {proofs !== undefined && (
-        <EntryComparison proofs={proofs} afterSide={afterSide} />
+        <EntryComparison
+          proofs={proofs}
+          afterSide={afterSide}
+          sorting={sorting}
+        />
       )}
       {proofs === undefined && (
         <p className="intent-ci-reading" role="status">

@@ -1,6 +1,6 @@
 // Wording of a story's CI comparison on Intent's homepage
-// (`./IntentCiComparison.tsx`): each endpoint's requested-revision status,
-// build identity and selection rule, CI wall time and time without runner
+// (`./IntentCiComparison.tsx`): each endpoint's build identity and selection
+// rule, CI wall time and time without runner
 // waits in whole seconds, readable before → after (Δ[, %]) differences for
 // the active comparison's overall timing (without runner waits) and wall-time
 // context, and the active comparison name, framed as observations between
@@ -19,7 +19,6 @@ import {
 } from "./ciScopeComparisonCues.ts";
 import {
   notLandedYetExplanation,
-  type RequestedRevisionCiStatus,
   type StoryCiComparisonAnswer,
   type StoryCiComparisonSlot,
 } from "./storyCiComparison.ts";
@@ -27,38 +26,6 @@ import type {
   ComparisonEndpointProof,
   ComparisonEndpointProofs,
 } from "./storyCiComparisonEntries.ts";
-
-export function requestedStatusWords(
-  status: RequestedRevisionCiStatus,
-): string {
-  return status.explanation;
-}
-
-// Prefix before the selected build's identity or short SHA when the requested
-// revision is not that build (trailing space when present).
-export function requestedStatusPrefix(
-  slot: Pick<StoryCiComparisonSlot, "requestedStatus">,
-): string {
-  return slot.requestedStatus === undefined
-    ? ""
-    : `${requestedStatusWords(slot.requestedStatus)} `;
-}
-
-// Gap slots prefer the requested revision's status wording when present;
-// otherwise the slot's own explanation (N/A, unread, or missing build).
-// When both differ, keep the status and the slot's extra reason (for example
-// a skipped landing whose equivalent build published no proof).
-export function requestedStatusOrExplanation(
-  slot: Extract<
-    StoryCiComparisonSlot,
-    { kind: "none" | "unavailable" | "not-applicable" | "not-landed" }
-  >,
-): string {
-  if (slot.requestedStatus === undefined) return slot.explanation;
-  const status = requestedStatusWords(slot.requestedStatus);
-  if (slot.explanation === status) return status;
-  return `${status} ${slot.explanation}`;
-}
 
 function revisionCountWords(count: number, revision: string): string {
   return `${String(count)} ${revision}${count === 1 ? "" : "s"}`;
@@ -172,6 +139,9 @@ export function timeWithoutRunnerWaitsChangeWords(
 
 export const observedNotAttributed =
   "observed builds; differences are not attributed to the story";
+
+// The same framing as a sentence of its own.
+export const observedNotAttributedInFull = `${observedNotAttributed.charAt(0).toUpperCase()}${observedNotAttributed.slice(1)}`;
 
 export type ActiveComparedEndpoint = "Landed" | "Branch" | "Provisional";
 

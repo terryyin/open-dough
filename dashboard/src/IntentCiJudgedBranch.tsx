@@ -5,7 +5,7 @@
 // newly verified, then the shown judgment and its attempt's proof. A
 // judgment of another branch is never shown. A selected entry's or folder's
 // Summary qualifies its evidence in the same words
-// (`./IntentScopeEvidence.tsx`).
+// (`./IntentScopeEvidenceLabels.tsx`).
 
 import type { ReactNode } from "react";
 import { IntentCiProof } from "./IntentCiProof.tsx";

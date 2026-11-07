@@ -1,15 +1,22 @@
 // Expected Proof rows for the summary comparison file journey
-// (../intent/intent-summary-story-comparison-file.spec.ts).
+// (../intent/intent-summary-story-comparison-file.spec.ts): a selected file's
+// one compared row names its story change after its path.
 
 import { expect, type Locator } from "@playwright/test";
-import {
-  comparisonScopeColumns,
-  type ComparisonScopeRow,
-} from "../intentScopeProofPage.ts";
+import { comparisonFigureColumns } from "../intentScopeProofPage.ts";
+
+type FileComparisonRow = readonly [
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+];
 
 const parts = "1 of 1 part present";
 
-export const modifiedFileRow: ComparisonScopeRow = [
+export const modifiedFileRow: FileComparisonRow = [
   "dashboard/tests/folder/a.spec.ts modified",
   "1 → 2 tests (+1) → 1 tests (0)",
   "10.0 s",
@@ -18,7 +25,7 @@ export const modifiedFileRow: ComparisonScopeRow = [
   parts,
 ];
 
-export const addedFileRow: ComparisonScopeRow = [
+export const addedFileRow: FileComparisonRow = [
   "dashboard/tests/added.spec.ts added",
   "added → 1 tests",
   "added",
@@ -27,7 +34,7 @@ export const addedFileRow: ComparisonScopeRow = [
   parts,
 ];
 
-export const mergeEditedFileRow: ComparisonScopeRow = [
+export const mergeEditedFileRow: FileComparisonRow = [
   "dashboard/tests/folder/nested/c.spec.ts modified",
   "1 tests (no change)",
   "340 ms",
@@ -36,7 +43,7 @@ export const mergeEditedFileRow: ComparisonScopeRow = [
   parts,
 ];
 
-export const unchangedFileRow: ComparisonScopeRow = [
+export const unchangedFileRow: FileComparisonRow = [
   "dashboard/tests/root.spec.ts",
   "1 tests (no change)",
   "1.2 s",
@@ -48,11 +55,12 @@ export const unchangedFileRow: ComparisonScopeRow = [
 export async function expectFileComparisonRow(
   proof: Locator,
   path: string,
-  row: ComparisonScopeRow,
+  row: FileComparisonRow,
 ) {
   const table = proof.getByRole("table", { name: `CI proof of ${path}` });
   await expect(table.getByRole("columnheader")).toHaveText([
-    ...comparisonScopeColumns,
+    "Scope",
+    ...comparisonFigureColumns,
   ]);
   const body = table.locator("tbody").getByRole("row");
   await expect(body).toHaveCount(1);

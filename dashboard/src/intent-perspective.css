@@ -197,21 +197,41 @@
 }
 
 /* A Summary's lines around its CI proof table (./IntentSummary.tsx,
-   ./IntentScopeProof.tsx). */
+   ./IntentScopeProof.tsx); its evidence labels keep their own spacing
+   (./ci-evidence-labels.css). */
 .intent-summary-path,
 .intent-summary-files,
-.intent-summary-kept,
-.intent-summary-evidence,
-.intent-summary-evidence-absent,
-.intent-summary-revision,
-.intent-summary-breakdown-absent,
-.intent-summary .intent-ci-refresh-failed,
-.intent-summary-outside {
+.intent-summary-evidence-absent {
   margin: 0 0 var(--space-2);
 }
 
-.intent-summary-outside {
-  margin-top: var(--space-2);
+/* The selected scope's own figures above its table
+   (./IntentScopeFigures.tsx): each figure's column name over its words,
+   wrapping as a whole figure when the pane is narrow; a comparison's change
+   cues mark the group as they mark a row (./intent-ci-cues.css). */
+.intent-scope-figures {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.intent-scope-figures dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+}
+
+.intent-scope-figure {
+  min-width: 0;
+}
+
+.intent-scope-figure dt {
+  color: var(--quiet);
+}
+
+.intent-scope-figure dd {
+  margin: 0;
 }
 
 /* Narrow, the browser sits above the reading pane and keeps part of the

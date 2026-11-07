@@ -146,5 +146,19 @@ export const bothEntriesSummary = (byFile: boolean) =>
 
 export const allParts = "2 of 2 parts present";
 
-// How a Summary names the completed ancestor's proof.
-export const ancestorEvidence = `CI evidence: Attempt 1 of run 41 at ${shortSha(judged)} on main, the completed ancestor of the running result.`;
+// The label saying the tree shows a newer revision than the evidence.
+export const treeGap = `Tree at ${shortSha(openDough.revision)} — newer files unproved here`;
+
+// That label's full words, as its description.
+export const treeGapInFull = `Evidence at ${shortSha(judged)}, tree at ${shortSha(openDough.revision)}: a file added or changed since has no CI result here, or an earlier one.`;
+
+// How a Summary names the completed ancestor's proof, label by label: its
+// linked run and attempt, revision, branch and ancestor mark, and that the
+// tree shows a newer revision.
+export const ancestorEvidence = [
+  "Run 41 · attempt 1",
+  `Revision ${shortSha(judged)}`,
+  "Branch main",
+  "Completed ancestor",
+  treeGap,
+] as const;
