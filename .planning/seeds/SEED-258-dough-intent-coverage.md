@@ -57,31 +57,110 @@ manual skill. [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted
 
 **Identity:** SEED-258#compare-manual-intent-coverage
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/498-compare-manual-intent-coverage/PLAN.md","assessment":"not-ready","reasons":["Terry has not yet confirmed the comparison basis (cases, ordinary-review source, effort budgets, and proceed/narrow/stop criteria) that ADR 0010 requires before the observed run; see the plan's pre-Take decision."],"basis":{"document":"29d2127c60941280604029b7f72aa109bed7a10ec589352699cfb101be10c988","plan":"239db307bb3de5d048898aed841fdc2dd5c694ae35d32e242a874cbf2703d30b"}}
 ```
 
-- **For / why.** Terry can decide whether an AI-assisted assessment improves
-  decisions about protecting story intent at a worthwhile cost.
-- **Evaluation.** Agree on the effort budget and criteria before reviewing a
-  small shared set of recent completed stories. Compare an independent
-  ordinary review with a short manual AI assessment of the same stories and
-  revisions. Record verified decisions, consequential misses, unsupported
-  claims, and end-to-end effort, including setup, agent and test time, and
-  developer reading and verification. An equivalent useful outcome with
-  lower total effort can qualify. Terry records whether to proceed, narrow
-  the approach, or stop.
-- **Boundary.** Use existing project tools and brief, sourced findings. A
-  selective break check can verify that the test catches a specific fault or
-  expose a gap when the fault reaches the intended path and the test passes.
-  If execution evidence is unavailable, record the uncertainty. If a review
-  is blinded to later evidence, verify the checkpoint remains readable with
-  inherited Git object alternates cleared and a known later object is
-  unavailable.
-- **Prerequisite.** Existing story and test evidence for the chosen cases.
-  The archived trial provides examples and prior findings.
-- **Effort and stopping point.** Smallest candidate, with confidence depending
-  on access to two independent reviews. The comparison and any useful test
-  decisions stand on their own if public delivery is declined.
+**Goal.** Terry decides whether to proceed with, narrow, or stop a public
+intent-coverage skill, based on a measured comparison. The comparison sets a
+short AI intent assessment beside the ordinary review that already ran on the
+same completed stories. It compares verified decisions about protecting story
+intent, consequential misses, unsupported claims, and total effort. An
+equivalent useful outcome with lower total effort can qualify
+([ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md#decision)).
+The comparison and any test decisions it produces stand on their own if
+Terry declines public delivery.
+
+**Scope.**
+
+- **Basis before the run.** Before any assessment runs, Terry confirms the
+  comparison basis: the cases, the ordinary-review source, the effort budget,
+  and the criteria for proceeding, narrowing, or stopping. The plan proposes
+  each one with a recommendation. A later change to the basis is disclosed
+  with the result.
+- **Cases.** Three recent completed stories whose recorded execution
+  retrospective is recoverable from Git and whose host sessions are on this
+  machine. The recommended cases are
+  SEED-254#use-later-ci-proof-for-cancelled-landings, whose retrospective
+  found the running-after-proofless defect, and SEED-256 and SEED-257, whose
+  retrospectives advised no change.
+- **Ordinary review.** The ordinary review is the execution retrospective
+  that already ran for each case: its product advice, any correction it
+  planned, and the source review. Its agent time comes from the recorded
+  host session timestamps, or is recorded as unknown. Terry rereads each
+  retrospective result, timed, for his reading and verification effort.
+- **Short intent assessment.** A fresh agent assesses each case at its last
+  attributable implementation revision, before the execution-complete
+  record, using the brief the plan writes. It is time-boxed per story and
+  traces the story's promises to production paths and maintained tests. It
+  runs the relevant existing tests and at most one selective break check per
+  story. It returns brief, sourced findings: protected, protected and
+  break-checked, gap, or unknown. It cannot read the retrospective, the
+  correction, or later trunk. Before it starts, the checkpoint is verified
+  readable with inherited Git object alternates cleared, and a known later
+  object, the case's execution-complete commit, is verified unavailable.
+- **Verification and decisions.** Terry reads each assessment, timed. Every
+  finding from either review becomes one entry, marked found by both, only
+  ordinary, or only assessment. Terry records a decision for each verified
+  entry: retain, clarify, or strengthen a test, accept the gap, or reject it
+  as unsupported. A consequential miss is a verified entry that the other
+  review found and this review did not.
+- **Time and effort.** Each assessment report, and the comparison for each
+  case and review, shows the measured end-to-end wall-clock time from start
+  to returned result, including setup and test runs. It shows test runtime
+  separately when observed. It also shows human and agent effort separately
+  where there is evidence, each with its unit and basis. Every figure is
+  labelled measured or estimated, and a figure that cannot be observed is
+  shown as unavailable rather than omitted or zero. Elapsed time and effort
+  are reported as different figures. In the comparison, the reviewer's
+  reading time and verification time are separate figures, apart from the
+  assessment's own runtime. Use counts rather than rates. Label the
+  ordinary-review side exploratory because it is historical.
+  [Architectural North Star](../NORTH-STAR.md#intent-assessment-results-carry-their-cost).
+- **Result.** The comparison record lives with the plan. Terry's decision to
+  proceed, narrow, or stop, with its reasons and a link to the record, is
+  recorded in this story. That is the condition the next story's dependency
+  waits for.
+- **Scope limits.** Implementing test changes the decisions call for, and
+  further SEED-258 test follow-ups, are separate queued work. Also out of
+  scope: a new skill, script, or dashboard view; seeded-fault calibration of
+  either review; a rerun of the ordinary retrospective; Cursor-hosted cases
+  with no local session timing; and statistical estimates of total gaps.
+- **Boundary assumptions.** Assessment agents run inside the executing
+  session; they are not paid native host runs. Break checks are local
+  scratch edits that are reverted, and their tests run under the project's
+  [failure policy](../../AGENTS.md#failing-and-flaky-tests).
+
+**Key examples.**
+
+- *Known ordinary finding.* SEED-254's cancelled-landing retrospective found
+  that Landed says no later trunk build has finished when the forward walk
+  passes a proofless build and then meets a running one. The blinded
+  assessment either flags that promise as a gap or unknown (found by both)
+  or rates it protected or omits it. In that case the entry is a
+  consequential miss for the assessment.
+- *Assessment-only finding.* For a case whose retrospective advised no
+  change, the assessment reports that a fixture gives two compared runs
+  identical values for a displayed figure. A break check that substitutes one figure
+  for the other reaches the formatter, and the test still passes. The gap
+  is verified, it counts as a miss for the ordinary review, and Terry
+  decides whether to strengthen the test.
+- *Break check that proves nothing.* The fault never reaches the intended
+  path, for example because the fixture bypasses the changed function. The
+  probe is recorded as not reaching the path, and the verdict stays at what
+  source and passing tests support.
+- *Unsupported claim.* The assessment calls a promise unprotected, but Terry
+  finds a maintained test that exercises it. The finding counts as
+  unsupported, and its reading and verification time counts as cost.
+- *Unavailable evidence.* The historical checkpoint cannot run the relevant
+  tests, for example because native setup fails. The verdict is unknown,
+  not inferred from source.
+- *Blinding fails.* With alternates cleared, the checkpoint store still
+  resolves the case's execution-complete commit. The assessment does not
+  start until a store without that object is in place.
+- *Decision.* With the counts and effort table in front of him, Terry
+  records "narrow" with the reason, for example: run only the break-check
+  part on CI-figure stories. The next story's dependency then states what
+  to generalize, or stays waiting after "stop".
 
 <a id="invoke-intent-coverage-manually"></a>
 
