@@ -35,10 +35,10 @@ tests live in the sibling `../backend-tests/` and normally use `startDashboardSe
 (`../server/localBoundaries.ts`) on plain HTTP without Vite or a build. It uses
 the preview's production project environment, or the dev server's through
 `developmentBoundary` (`support/dashboardServer.ts`).
-`../backend-tests/boundary-server.spec.ts` shows each environment's own project file
+`../backend-tests/runtime/boundary-server.spec.ts` shows each environment's own project file
 (`support/projectConfiguration.ts`) without Vite or a page.
 Boundary and preview use the run's bundled `runnerMain.mjs`; dev and public
-production keep source. `../backend-tests/serving-modes.spec.ts` proves both real Vite
+production keep source. `../backend-tests/runtime/serving-modes.spec.ts` proves both real Vite
 servers mount the same boundaries and use those entries.
 
 `../backend-tests/` holds every spec that opens no page, whatever it drives; a spec
@@ -55,7 +55,7 @@ Put a check where it is cheapest to prove, and prove it once:
   shows that the page does the thing once; the boundary tests own every
   variant.
 - **A journey runs under the fixture's built preview.** The dev server and
-  the preview mount the same local boundaries, and `../backend-tests/serving-modes.spec.ts`
+  the preview mount the same local boundaries, and `../backend-tests/runtime/serving-modes.spec.ts`
   is the one spec that proves it: it starts a real server of each, sends
   each boundary the same request from both, and compares the answers
   (status, headers, body), with Vite's own HMR socket, which only the dev
@@ -153,20 +153,22 @@ when `NODE_COMPILE_CACHE` names an existing cache, leave that cache's entries
 intact and add no persistent compile cache to reclaim after a failure. The
 calling Node/npm process can still cache its own startup before the
 configuration loads, and dashboard commands outside the suite keep their own
-policy. `../backend-tests/compile-cache.spec.ts` makes real enable/import/flush
+policy. `../backend-tests/runtime/compile-cache.spec.ts` makes real enable/import/flush
 attempts, preserves seeded cache hashes through repetition, overlap, failure
 and signals, and checks an outside-policy child really can write cache; only
 that API probe is skipped on supported Node versions without the API.
 
 ## Adding a test
 
-A **boundary test** goes in `../backend-tests/<behavior>.spec.ts`. It imports `test`
-from `../tests/dashboardTest.ts` with `test.use({ serverMode: "boundary" })`, or
-from `../tests/support/pageTest.ts` and starts `startDashboardServer({ mode:
-"boundary" })` (or `developmentBoundary`) itself; it sends its requests with
-`support/rawHttp.ts` or the terminal clients and asserts the answer, the
-file or command. Only `../backend-tests/serving-modes.spec.ts` needs a build.
-A spec starting no server still takes `test` from `pageTest.ts`, as lint requires.
+A **boundary test** goes in `../backend-tests/<feature>/<behavior>.spec.ts`
+under one [backend feature group](feature-groups.md#backend-feature-groups). It
+imports `test` from `../tests/dashboardTest.ts` with `test.use({ serverMode:
+"boundary" })`, or from `../tests/support/pageTest.ts` and starts
+`startDashboardServer({ mode: "boundary" })` (or `developmentBoundary`) itself;
+it sends its requests with `support/rawHttp.ts` or the terminal clients and
+asserts the answer, the file or command. Only
+`../backend-tests/runtime/serving-modes.spec.ts` needs a build. A spec starting
+no server still takes `test` from `pageTest.ts`, as lint requires.
 
 A **browser journey** goes in `<feature>/<journey>.spec.ts`, with exactly one
 [feature owner](feature-groups.md). It imports `test` from `../dashboardTest.ts`

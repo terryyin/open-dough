@@ -1,8 +1,8 @@
 // Both servers observe a real installed start on one machine; the second
 // server's page keeps the card protected through reload and project switch
 // until one session shows. Server-only refusals and the non-owner change-wait
-// bound live in ../../backend-tests/agent-launch-worker-handoff.spec.ts and
-// ../../backend-tests/agent-launch-change-wait.spec.ts.
+// bound live in ../../backend-tests/launches/agent-launch-worker-handoff.spec.ts and
+// ../../backend-tests/launches/agent-launch-change-wait.spec.ts.
 import { type AttemptObservation } from "../../src/agentLaunch.ts";
 import { accept, attempts, launchRequest } from "../agentLaunchBoundary.ts";
 import { answerOf } from "../keptExecutionStart.ts";

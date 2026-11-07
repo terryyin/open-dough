@@ -2,6 +2,7 @@
 
 **Identity:** SEED-251#group-dashboard-backend-tests
 **Source:** [Group Dashboard Backend Test by feature](../../seeds/SEED-251-group-dashboard-backend-tests.md#group-dashboard-backend-tests)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -65,7 +66,7 @@ suite, or create the frontend-test entry.
 
 ### 1. Browse backend tests through service feature groups
 Type: Behavior
-Status: planned
+Status: done
 Proof: Chosen groups (≤10, each one domain concept) are documented; every
 backend spec and case-definition module lives in exactly one feature folder;
 full discovery retains every original case identity once; twelve-shard preview
@@ -93,3 +94,33 @@ story's exclusions. No remaining slice-specific concern was identified.
   protected service behavior accurately.
 - Classify by the behavior assertions protect, not filename prefixes (same rule
   as [feature-groups.md](../../../dashboard/tests/feature-groups.md)).
+- Chosen inventory (eight): `configuration/`, `launches/`, `sessions/`,
+  `terminals/`, `review/`, `intent/`, `observation/`, `runtime/`. No backend
+  `stories/` or `navigation/` owners. Case modules: four under `launches/`,
+  three under `observation/`.
+
+## Learnings
+
+- Nested `backend-tests/<feature>/` imports need `../../tests|server|src` and
+  `../../../src/skills/…`; comment-path bulk deepeners easily over-deepen.
+- Playwright list suite titles embed file paths; compare basename + leaf titles
+  (or mapped paths), not raw list strings, for before/after identity.
+- Dual README / `feature-groups.md` backend tables are intentional (story dual-doc
+  obligation), not duplication to collapse away.
+- Final hosted CI wall-time vs baseline `42269123525` / `42318533230` remains
+  target-CI lifecycle (commitments 4, 29, 43).
+
+## Accepted proof (slice 1)
+
+- Discovery before/after: 2088 cases; basename+title missing=0 added=0; 268
+  nested backend specs once.
+- `npm run --silent typecheck:dashboard` pass.
+- `node scripts/test-shares.mjs preview --split-count 12 --spec-dir dashboard`:
+  743 jobs, 743 recorded, ~886.2–886.4 predicted job-seconds/share.
+- `node --test tests/support/dashboard-test-files.test.mjs tests/support/test-shares.test.mjs`:
+  15 pass (twelve shards match every dashboard spec once).
+- Focused Playwright: Intent code-browse + one representative relocated spec
+  per feature folder: 36 pass under `caffeinate -s -i` on AC Power.
+- consumer-trace vs `99113a3b…` exit 0; decisive consumers updated.
+- Refactor: collapsed Intent `backendGroupedSources`; retargeted stale comment
+  paths; accepted proof boundaries unchanged (no Playwright rerun).

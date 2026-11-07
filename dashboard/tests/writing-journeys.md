@@ -119,8 +119,8 @@ commit time names was added once, by a commit of its own, so every journey's
 Taken and Preparing cards credit a human without a failed read; a fixture that
 wants a missing addition or an unpublished history says so. Which commit added
 a profile is walked at the boundary
-(`../backend-tests/authenticated-read-profile-addition.spec.ts`, its refusals in
-`../backend-tests/authenticated-read-profile-addition-refusal.spec.ts`); the credited human and avatar
+(`../backend-tests/observation/authenticated-read-profile-addition.spec.ts`, its refusals in
+`../backend-tests/observation/authenticated-read-profile-addition-refusal.spec.ts`); the credited human and avatar
 on cards and the roster are `stories/agent-roster-avatar.spec.ts`; how a slow or
 stalled addition read delays only its own profile's clock and human is
 `observation/profile-addition-latency.spec.ts`; the roster itself is
@@ -143,5 +143,5 @@ it and fails the run naming each (`support/globalSetup.ts`,
 `support/runProcesses.ts`). A named process is a leak to stop where it
 starts, never a reason to widen the sweep; processes of other runs, other
 checkouts and this machine's own dashboard carry no such identity and are
-left alone. `../backend-tests/run-processes.spec.ts` proves each of the three, and
+left alone. `../backend-tests/observation/run-processes.spec.ts` proves each of the three, and
 after a local run `pgrep -lf "$PWD"` from this checkout finds nothing of it.

@@ -1,6 +1,6 @@
 // Shared by the specs that drive the terminal boundary without a page
-// (../backend-tests/agent-terminal-boundary.spec.ts, ../backend-tests/agent-terminal-close.spec.ts,
-// ../backend-tests/agent-terminal-reopen.spec.ts, and ../backend-tests/agent-launch-done.spec.ts): a
+// (../backend-tests/terminals/agent-terminal-boundary.spec.ts, ../backend-tests/terminals/agent-terminal-close.spec.ts,
+// ../backend-tests/sessions/agent-terminal-reopen.spec.ts, and ../backend-tests/sessions/agent-launch-done.spec.ts): a
 // session launched through the real launch boundary, in any project and for
 // any story and workflow (as ./sessions/sessions-sidebar.spec.ts launches outside the
 // shown project), and a raw WebSocket to

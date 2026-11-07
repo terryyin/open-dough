@@ -1,5 +1,5 @@
 // What the specs of the local authenticated read boundary's reuse
-// (../backend-tests/revisionReuseBoundary.ts, ./retainedAnswersJourney.ts) observe of the
+// (../backend-tests/observation/revisionReuseBoundary.ts, ./retainedAnswersJourney.ts) observe of the
 // `gh` calls GitHub received from what it publishes (./revisionReuseOrigin.ts).
 
 import type { GhCall } from "./support/fakeGitHub.ts";

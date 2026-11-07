@@ -1,0 +1,149 @@
+// Path-bearing items arrange under their folders (../../src/reviewFileTree.ts):
+// files nest under each folder of their path, root files sit at the top level,
+// single-folder chains are one folder, a rename sits at its new path only,
+// each folder counts its files at any depth, and folders come before files in
+// name order whatever the input order. Review changes coverage uses
+// ReviewedFile; a path-only item uses the same arrangement. An item's change
+// kind is the shared change-kind model: an item without one is unchanged, and
+// each folder knows whether it contains a changed item at any depth.
+
+import { expect, test } from "../../tests/support/pageTest.ts";
+import {
+  reviewContainsChanges,
+  reviewFileTree,
+  type PathBearing,
+  type PathTreeNode,
+} from "../../src/reviewFileTree.ts";
+import type { ReviewedFile } from "../../src/storyReviewContract.ts";
+
+// Each node as `name (count)` for a folder or `name` for a file, its rows
+// indented beneath it.
+const outline = <T extends PathBearing>(
+  nodes: readonly PathTreeNode<T>[],
+  depth = 0,
+): string[] =>
+  nodes.flatMap((node) => {
+    const indent = "  ".repeat(depth);
+    return node.kind === "folder"
+      ? [
+          `${indent}${node.name}/ (${String(node.fileCount)}) at ${node.path}`,
+          ...outline(node.children, depth + 1),
+        ]
+      : [`${indent}${node.name}`];
+  });
+
+const files: readonly ReviewedFile[] = [
+  { kind: "modified", path: "README.md" },
+  { kind: "deleted", path: "dashboard/server/c.ts" },
+  { kind: "modified", path: "dashboard/src/b.ts" },
+  { kind: "added", path: "dashboard/src/a.tsx" },
+  { kind: "added", path: "docs/adrs/drafts/0009-tree.md" },
+  { kind: "renamed", path: "new/a.ts", oldPath: "old/a.ts" },
+  { kind: "added", path: "AGENTS.md" },
+  { kind: "modified", path: "dashboard/index.html" },
+];
+
+test("files nest under their folders with root files at the top level", () => {
+  expect(outline(reviewFileTree(files))).toEqual([
+    "dashboard/ (4) at dashboard",
+    "  server/ (1) at dashboard/server",
+    "    c.ts",
+    "  src/ (2) at dashboard/src",
+    "    a.tsx",
+    "    b.ts",
+    "  index.html",
+    "docs/adrs/drafts/ (1) at docs/adrs/drafts",
+    "  0009-tree.md",
+    "new/ (1) at new",
+    "  a.ts",
+    "AGENTS.md",
+    "README.md",
+  ]);
+});
+
+test("a file node keeps its snapshot file", () => {
+  const [newFolder] = reviewFileTree([
+    { kind: "renamed", path: "new/a.ts", oldPath: "old/a.ts" },
+  ]);
+  expect(newFolder).toEqual({
+    kind: "folder",
+    name: "new",
+    path: "new",
+    fileCount: 1,
+    containsChanges: true,
+    children: [
+      {
+        kind: "file",
+        name: "a.ts",
+        file: { kind: "renamed", path: "new/a.ts", oldPath: "old/a.ts" },
+      },
+    ],
+  });
+});
+
+test("a chain compacts only while each folder holds just one folder", () => {
+  expect(
+    outline(
+      reviewFileTree([
+        { kind: "added", path: "a/b/c/d/deep.ts" },
+        { kind: "added", path: "a/b/top.ts" },
+        { kind: "modified", path: "x/y/one.ts" },
+        { kind: "modified", path: "x/z/two.ts" },
+      ]),
+    ),
+  ).toEqual([
+    "a/b/ (2) at a/b",
+    "  c/d/ (1) at a/b/c/d",
+    "    deep.ts",
+    "  top.ts",
+    "x/ (2) at x",
+    "  y/ (1) at x/y",
+    "    one.ts",
+    "  z/ (1) at x/z",
+    "    two.ts",
+  ]);
+});
+
+test("the same files arrange the same way in any order", () => {
+  const arranged = reviewFileTree(files);
+  expect(reviewFileTree([...files].reverse())).toEqual(arranged);
+  expect(reviewFileTree([])).toEqual([]);
+});
+
+test("a path-only item arranges like a reviewed file at the same path", () => {
+  const paths: readonly PathBearing[] = files.map(({ path }) => ({ path }));
+  expect(outline(reviewFileTree(paths))).toEqual(
+    outline(reviewFileTree(files)),
+  );
+});
+
+test("each folder knows whether it contains a changed item at any depth", () => {
+  const items: readonly PathBearing[] = [
+    { path: "tests/a/unchanged.spec.ts" },
+    { path: "tests/a/deep/changed.spec.ts", kind: "modified" },
+    { path: "tests/b/unchanged.spec.ts" },
+    { path: "tests/c/gone.spec.ts", kind: "deleted" },
+    { path: "root.spec.ts" },
+  ];
+  const marks = (nodes: readonly PathTreeNode[]): string[] =>
+    nodes.flatMap((node) =>
+      node.kind === "folder"
+        ? [
+            `${node.path} ${node.containsChanges ? "changes" : "unchanged"}`,
+            ...marks(node.children),
+          ]
+        : [],
+    );
+  const tree = reviewFileTree(items);
+  expect(marks(tree)).toEqual([
+    "tests changes",
+    "tests/a changes",
+    "tests/a/deep changes",
+    "tests/b unchanged",
+    "tests/c changes",
+  ]);
+  expect(reviewContainsChanges(tree)).toBe(true);
+  expect(
+    reviewContainsChanges(reviewFileTree(items.map(({ path }) => ({ path })))),
+  ).toBe(false);
+});
