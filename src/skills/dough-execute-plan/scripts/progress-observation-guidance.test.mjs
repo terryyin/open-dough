@@ -16,14 +16,17 @@ const read = (path) => readFileSync(join(skills, path), "utf8");
 const flat = (text) => text.replace(/\s+/g, " ");
 
 const fresh = read("dough-execute-plan/references/fresh-increment.md");
-const wrapUp = read("dough-execute-plan/references/wrap-up.md");
+const deliverChange = read(
+  "dough-execute-plan/references/deliver-the-change.md",
+);
 const waitMechanics = read(
   "dough-execute-plan/references/ci-completion-wait.md",
 );
 const observe = flat(section(fresh, "## Observe progress proof"));
 
 test("delivery checklist links progress publication to the named observation sequence", () => {
-  const delivery = section(wrapUp, "## Deliver the change");
+  // wrap-up.md points at deliver-the-change.md; the checklist lives there.
+  const delivery = section(deliverChange, "## Deliver the change");
   const update = flat(
     delivery.slice(
       delivery.indexOf("5. For planned execution"),
