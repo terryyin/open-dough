@@ -346,7 +346,7 @@ safeguards are unchanged. Short negative windows remain, such as
 ### 10. Shell checks surface deterministic results at their normal settings
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Audit the repository runner's shell selection and sourced fixtures.
 Drive the affected checks through their real wrappers with observable child
 state and controlled expiration where needed. In the watchdog family, observe
@@ -371,7 +371,24 @@ Still near 22s hosted with no practical cut:
 `productionUpdatePolicies` single-staging cases,
 `responsive-session-reconciliation` and the story-card completion case. The
 one-shot refresh split covers the empty-capture fallback only through
-`story-review-one-shot-unavailable.spec.ts`. The final gate follows.
+`story-review-one-shot-unavailable.spec.ts`.
+
+Final gate at `aad804b57`, on AC power under `caffeinate -s -i`, run
+sequentially with no sleep in either window:
+- `npm run test:dashboard` selected 2,148 cases: the 2,127 baseline plus 21
+  from splits. 2,147 passed and the existing skip stayed; strict status
+  passed in 1,934s.
+- `npm test` passed all 501 jobs: 419 Node and 82 shell.
+
+Hosted CI run 42406259249 passed all 17 jobs. Across its 2,148 cases the
+largest was `auto-refresh-rate-limit` at 25.4s, under its 45s allowance.
+`production-deployment` took 17.4s under its 45s allowance. Thirteen cases
+without an allowance took 20–25s: the largest was
+`responsive-session-reconciliation` at 23.9s, and seven are single-staging
+watcher steps. Thirty-five took 15–20s. No `beforeAll` reached 15s; the
+largest was the updates hook at 14.98s. With hosted variance up to about 2×,
+the 20–25s cases are the next timeout risk under the failing and flaky test
+policy.
 
 ## Final gate and safe stops
 

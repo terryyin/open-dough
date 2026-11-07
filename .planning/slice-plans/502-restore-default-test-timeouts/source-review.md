@@ -12,11 +12,11 @@ coordinator's allocation.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G1 | Developers get fast, reliable local and CI feedback from automated tests | slice 10 | |
-| G1.1 | Tests pass with their runner's default timeout | slice 10 | |
-| G1.2 | Applies "wherever possible" (qualification) | slice 10 | |
-| G2 | A slow or stalled check surfaces promptly | slice 10 | |
-| G2.1 | The behaviors that make a passing result trustworthy are kept (qualification) | slice 10 | |
+| G1 | Developers get fast, reliable local and CI feedback from automated tests | slice 10 | observed: branch CI run 42406259249 at aad804b57 all 17 jobs green; local full suites green (local full suites at aad804b57 on AC power under caffeinate -s -i, no sleep in window: npm run test:dashboard 2148 selected, 2147 passed, 1 existing skip, strictStatus passed, 1934s (tmp full-dash-*); npm test 501/501 jobs passed (tmp full-repo-*)); slow and stalled cases now fail at runner defaults |
+| G1.1 | Tests pass with their runner's default timeout | slice 10 | observed: no slow markers or group/file/hook/fixture overrides in dashboard (slice 8 inventory); Node and shell runners use their defaults (slices 9, 10) |
+| G1.2 | Applies "wherever possible" (qualification) | slice 10 | observed: two measured case-local allowances remain where faster strategies were tried: auto-refresh-rate-limit-real-waits and production-deployment-pinned-build in .planning/TEST-OPTIMIZATION-CANDIDATES.md |
+| G2 | A slow or stalled check surfaces promptly | slice 10 | observed: at the 30s default two hosted timeouts surfaced promptly (runs 42395811294, 42399373902) and were repaired; Node owner-start 30.7 → 0.4s |
+| G2.1 | The behaviors that make a passing result trustworthy are kept (qualification) | slice 10 | observed: every slice kept its assertions; mutation checks per slice failed the changed checks when the protected behavior was removed (plan slice Results) |
 | 1a | Restore Playwright's 30-second default timeout | slice 8 | observed: grep -rnE 'test\.slow\|(test\|testInfo\|info)\.setTimeout\(\|describe\.configure\(\{[^}]*timeout\|^\s*(timeout\|globalTimeout):' over dashboard/tests, frontend-tests, backend-tests and playwright.config.ts after slice 8: no slow markers, group or fixture timeouts or config timeout; only case-local allowances auto-refresh-rate-limit.spec.ts:68 and production-deployment.spec.ts:62 (45s, pending candidates) plus nested deadlines under test; slice 8 nested fixtures bounded at the default (mutation: forced nested timeout failed 'Timed out waiting') |
 | 1a.1 | for the dashboard journeys | slice 8 | observed: grep -rnE 'test\.slow\|(test\|testInfo\|info)\.setTimeout\(\|describe\.configure\(\{[^}]*timeout\|^\s*(timeout\|globalTimeout):' over dashboard/tests, frontend-tests, backend-tests and playwright.config.ts after slice 8: no slow markers, group or fixture timeouts or config timeout; only case-local allowances auto-refresh-rate-limit.spec.ts:68 and production-deployment.spec.ts:62 (45s, pending candidates) plus nested deadlines under test; slice 8 nested fixtures bounded at the default (mutation: forced nested timeout failed 'Timed out waiting') |
 | 1a.2 | for the frontend tests | slice 8 | observed: grep -rnE 'test\.slow\|(test\|testInfo\|info)\.setTimeout\(\|describe\.configure\(\{[^}]*timeout\|^\s*(timeout\|globalTimeout):' over dashboard/tests, frontend-tests, backend-tests and playwright.config.ts after slice 8: no slow markers, group or fixture timeouts or config timeout; only case-local allowances auto-refresh-rate-limit.spec.ts:68 and production-deployment.spec.ts:62 (45s, pending candidates) plus nested deadlines under test; slice 8 nested fixtures bounded at the default (mutation: forced nested timeout failed 'Timed out waiting') |
@@ -29,28 +29,28 @@ coordinator's allocation.
 | 1c | Each runner supplies its own default (qualification) | slice 10 | observed: scripts/test-run-job.bash run_job runs node --test and bash checks with no per-case timeout; Playwright keeps its 30s default (dashboard/playwright.config.ts sets no timeout) |
 | 1d | The repository's shell runner and `node --test` have no finite default case timeout (qualification) | slice 10 | observed: scripts/test-run-job.bash run_job: no timeout wrapper or --test-timeout; only CI whole-share budget (tests/time-budget) and CI job timeouts bound time |
 | 2a | Remove `test.slow()` | slice 1 | observed: git grep '\.slow(' -- dashboard finds none; 44 markers removed in 16 files (slice 1 diff) |
-| 2b | Remove inherited case-timeout overrides | slice 10 | |
-| 2c | When an affected case approaches or exceeds its default, measure setup, execution and cleanup "as applicable" | slice 10 | |
-| 2d | In that case, try a faster test strategy first | slice 10 | |
-| 2e | Synchronize on observable events or on a controlled clock (either is allowed) | slice 10 | |
-| 2f | Preserve the behaviors covered by the checks | slice 10 | |
-| 2g | Preserve the failure signals covered by the checks | slice 10 | |
-| 2h | Measure the affected cases or jobs under supported local and CI conditions | slice 10 | |
-| 2h.1 | including normal suite load (qualification) | slice 10 | |
-| 3a | The only permitted override is the smallest measured allowance | slice 10 | |
-| 3a.1 | placed on an individual test (qualification) | slice 10 | |
-| 3a.2 | only after a practical faster strategy has been tried (qualification) | slice 10 | |
-| 3b | Record each remaining exception as a pending optimization candidate | slice 10 | |
-| 3b.1 | with its observed cost | slice 10 | |
-| 3b.2 | with the behavior it protects | slice 10 | |
-| 3b.3 | with the approaches tried | slice 10 | |
-| 3b.4 | with a follow-up | slice 10 | |
-| 4a | `npm run test:dashboard` passes locally | slice 10 | |
+| 2b | Remove inherited case-timeout overrides | slice 10 | observed: slice 8 inventory: only two case-local allowances remain; repository runners carry no case budgets (slices 9, 10) |
+| 2c | When an affected case approaches or exceeds its default, measure setup, execution and cleanup "as applicable" | slice 10 | observed: per-slice before/after case, hook and file timings recorded in each slice Result in PLAN.md |
+| 2d | In that case, try a faster test strategy first | slice 10 | observed: faster strategies tried first in slices 2–10 (controlled clocks, observed transitions, single-pass checks, single-pack fixture, step splits) before the two allowances |
+| 2e | Synchronize on observable events or on a controlled clock (either is allowed) | slice 10 | observed: page clock stepping, server observation clock, adapter limit, t.mock.timers, held releases and process-state waits (slices 2, 3, 4, 9, 10) |
+| 2f | Preserve the behaviors covered by the checks | slice 10 | observed: every slice kept its assertions; journey splits keep each assertion (slice Results) |
+| 2g | Preserve the failure signals covered by the checks | slice 10 | observed: mutation checks in slices 2–10 and both repairs failed at the intended assertions |
+| 2h | Measure the affected cases or jobs under supported local and CI conditions | slice 10 | observed: local focused and full runs plus hosted CI runs 42395811294, 42399373902, 42401869566 and 42406259249 |
+| 2h.1 | including normal suite load (qualification) | slice 10 | observed: stress runs at 4–24 workers per slice and full local suites at default load; hosted shards are the CI suite-load profile |
+| 3a | The only permitted override is the smallest measured allowance | slice 10 | observed: auto-refresh-rate-limit 45s (25.2s hosted) and production-deployment 45s (32.1s hosted before slice 6) |
+| 3a.1 | placed on an individual test (qualification) | slice 10 | observed: both are test.setTimeout inside the individual case (auto-refresh-rate-limit.spec.ts:68, production-deployment.spec.ts:62) |
+| 3a.2 | only after a practical faster strategy has been tried (qualification) | slice 10 | observed: candidate entries record the strategies tried: page clock, request-owner clock reach; single-pack fixture and hook scope |
+| 3b | Record each remaining exception as a pending optimization candidate | slice 10 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md#auto-refresh-rate-limit-real-waits and #production-deployment-pinned-build |
+| 3b.1 | with its observed cost | slice 10 | observed: both pending candidate entries carry Observed cost, Unique protection, Alternatives attempted and Follow-up fields (.planning/TEST-OPTIMIZATION-CANDIDATES.md) |
+| 3b.2 | with the behavior it protects | slice 10 | observed: both pending candidate entries carry Observed cost, Unique protection, Alternatives attempted and Follow-up fields (.planning/TEST-OPTIMIZATION-CANDIDATES.md) |
+| 3b.3 | with the approaches tried | slice 10 | observed: both pending candidate entries carry Observed cost, Unique protection, Alternatives attempted and Follow-up fields (.planning/TEST-OPTIMIZATION-CANDIDATES.md) |
+| 3b.4 | with a follow-up | slice 10 | observed: both pending candidate entries carry Observed cost, Unique protection, Alternatives attempted and Follow-up fields (.planning/TEST-OPTIMIZATION-CANDIDATES.md) |
+| 4a | `npm run test:dashboard` passes locally | slice 10 | observed: local full suites at aad804b57 on AC power under caffeinate -s -i, no sleep in window: npm run test:dashboard 2148 selected, 2147 passed, 1 existing skip, strictStatus passed, 1934s (tmp full-dash-*); npm test 501/501 jobs passed (tmp full-repo-*) |
 | 4b | `npm run test:dashboard` passes in CI | target CI | |
-| 4c | `npm test` passes locally | slice 10 | |
+| 4c | `npm test` passes locally | slice 10 | observed: local full suites at aad804b57 on AC power under caffeinate -s -i, no sleep in window: npm run test:dashboard 2148 selected, 2147 passed, 1 existing skip, strictStatus passed, 1934s (tmp full-dash-*); npm test 501/501 jobs passed (tmp full-repo-*) |
 | 4d | `npm test` passes in CI | target CI | |
-| 4e | Coverage is preserved in both full suites | slice 10 | |
-| 4f | Run each full local run on an awake Mac on AC power under `caffeinate -s -i` (qualification) | slice 10 | |
+| 4e | Coverage is preserved in both full suites | slice 10 | observed: case identities: 2,127 baseline selected (slice 1 list compare 0 differences) + 21 from journey splits with every assertion kept (slices 6, 7, 10 and both CI repairs); repository jobs 501 = 419 Node + 82 shell, unchanged; skip set unchanged; one-shot refresh empty-capture fallback covered via story-review-one-shot-unavailable.spec.ts |
+| 4f | Run each full local run on an awake Mac on AC power under `caffeinate -s -i` (qualification) | slice 10 | observed: local full suites at aad804b57 on AC power under caffeinate -s -i, no sleep in window: npm run test:dashboard 2148 selected, 2147 passed, 1 existing skip, strictStatus passed, 1934s (tmp full-dash-*); npm test 501/501 jobs passed (tmp full-repo-*) |
 | E1 | Real-Git completed-story review: it has ample headroom, so its slow marker is removed (example) | slice 1 | observed: slow markers removed from dashboard/backend-tests/review/story-review-completed.spec.ts and dashboard/tests/review/story-review-completed*.spec.ts |
 | E1.1 | With the marker removed, the same HTTP checks still tell the selected story's published files apart from interleaved changes at the default timeout (example) | slice 1 | observed: backend-tests/review/story-review-completed.spec.ts 'completion isolates interleaved work…': files contain shared.txt, exclude other-story.txt and integration-other.txt; passed at default 7.1s/10.4s in strict run (tmp proof.json, 765 selected, strictStatus passed) |
 | E2 | Candidate with an unsupported published policy or a failed build: when the watcher checks it, the last successful preview keeps serving (example) | slice 7 | observed: dashboard/tests/runtime/productionUpdatePolicies.ts:109 baseline kept through unsupported policy, old preview serves; dashboard/tests/runtime/productionUpdatePolicies.ts:158 'Keeping q at', Q preview running, title MAIN P after R's real build failure (s7 after run 37/37 and stress 74/74, tmp s7/) |
@@ -60,21 +60,21 @@ coordinator's allocation.
 | E2.4 | The faster check still observes recovery (example) | slice 7 | observed: dashboard/tests/runtime/productionUpdatePolicies.ts:185 S activates after R's failure, R never activates, built list equals activations; mutation 1 failed at dashboard/tests/runtime/productionUpdatePolicies.ts:158 (s7 after run 37/37 and stress 74/74, tmp s7/) |
 | E2.5 | The faster check still observes cleanup (example) | slice 7 | observed: dashboard/tests/runtime/productionUpdatePolicies.ts:185 via productionReplacement (support/productionWatcher.ts:100-103): same URL, superseded preview process ends, replacement runs; no leftover dough-published-main dirs after the s7 runs |
 | E2.6 | If the measured case still needs more than the default, its own bounded allowance and pending candidate make the cost visible (alternative outcome, not a rejection rule) | slice 7 | observed: not needed: no allowance remains on the recovery or failures cases (dashboard/tests/runtime/productionUpdatePolicies.ts, production-watcher-failures.spec.ts) (s7 after run 37/37 and stress 74/74, tmp s7/) |
-| E3 | A check that passes alone but times out under full suite load counts as a failing check (example) | slice 10 | |
-| E3.1 | Identify the missed event, the fixture cost or the host condition (any of these causes) (example) | slice 10 | |
-| E3.2 | Preserve the check's proof (example) | slice 10 | |
-| E3.3 | Confirm the repair under the profile that exposed the failure (example) | slice 10 | |
+| E3 | A check that passes alone but times out under full suite load counts as a failing check (example) | slice 10 | observed: agent-launch-story-card-sessions passed locally but timed out at 30s on hosted CI run 42395811294; treated as failing and repaired (acfe0ca9e) |
+| E3.1 | Identify the missed event, the fixture cost or the host condition (any of these causes) (example) | slice 10 | observed: repair traced the hosted cost to CPU-bound per-call cost and process starts; the watcher repair traced two real stagings (665c28053) |
+| E3.2 | Preserve the check's proof (example) | slice 10 | observed: both repairs kept every assertion; mutation check for the watcher retry |
+| E3.3 | Confirm the repair under the profile that exposed the failure (example) | slice 10 | observed: both repairs confirmed under a hosted stand-in load (24 workers traced, or 8 workers traced) and then on hosted run 42406259249 green |
 | E4 | A shell watchdog check drives a stalled child through expiration (example) | slice 10 | observed: tests/native-run-timeout.sh unchanged: --deadline 1 --grace 1 against native-agent-hang.sh child that ignores TERM; passed 4.0s at normal runner settings |
 | E4.1 | Observe termination through the watchdog's contract (example) | slice 10 | observed: tests/native-run-timeout.sh:62-74 exit 124; :100-107 hang pid and child gone; :112-116 own process group |
 | E4.2 | Observe cleanup through the watchdog's contract (example) | slice 10 | observed: tests/native-run-timeout.sh:76-81 no scratch left under watched TMPDIR; :108-111 bystander alive |
 | E4.3 | Observe retained evidence through the watchdog's contract (example) | slice 10 | observed: tests/native-run-timeout.sh:151-162 record execution-status timeout, reason deadline expired, not-run assessment, partial events and response kept; :125-143 one launch, earlier attempt byte-identical |
 | E4.4 | The expiration under test is part of the scenario, not a case-timeout override (qualification) | slice 10 | observed: tests/native-run-timeout.sh: expiration is the wrapper's own --deadline 1 scenario input; no case timeout exists in the shell runner |
 | E4.5 | The shell job runs with its normal runner settings (example) | slice 10 | observed: tests/native-run-timeout.sh ran through PATH=/opt/homebrew/bin:$PATH npm test -- tests/native-run-timeout.sh with the normal runner settings (tmp s10-family-*) |
-| A1 | Reuse fixture-owned events and clocks to control inputs to the real boundaries the tests observe (architecture) | slice 10 | |
-| A2 | Keep case timeouts visible in their own profile (architecture) | slice 10 | |
-| A3 | Keep the cost of shared fixture setup and cleanup visible in its own profile (architecture) | slice 10 | |
-| A4 | Keep whole-run safeguards visible in their own profile (architecture) | slice 10 | |
-| A5 | Moving expensive work into shared setup can lower a case's reported duration while increasing the time to a trustworthy suite result (qualification) | slice 10 | |
+| A1 | Reuse fixture-owned events and clocks to control inputs to the real boundaries the tests observe (architecture) | slice 10 | observed: fixture-owned events and clocks drive real boundaries: observationClock, ciAdapterTimeout via configuredLimit, build gates, held proof release, page clock |
+| A2 | Keep case timeouts visible in their own profile (architecture) | slice 10 | observed: case durations reported per slice and in hosted indexes; allowances stay case-local |
+| A3 | Keep the cost of shared fixture setup and cleanup visible in its own profile (architecture) | slice 10 | observed: hook and file timings recorded separately (slices 5, 6, 7 Results; story-readiness and attribution hooks visible) |
+| A4 | Keep whole-run safeguards visible in their own profile (architecture) | slice 10 | observed: whole-run safeguards unchanged: playwright globalTimeout suiteTime, tests/time-budget, scripts/test-budget.sh, CI job timeouts |
+| A5 | Moving expensive work into shared setup can lower a case's reported duration while increasing the time to a trustworthy suite result (qualification) | slice 10 | observed: file-time increases from splits reported (one-shot +49%, touch +29%, attention +26%, story-card +18%, readiness +8%) in slice 10 Progress |
 | X1 | Exclusion: new timeout enforcement or reporting infrastructure | slice 10 | observed: git diff 2e09e83c0..HEAD adds no timeout enforcement or reporting infrastructure: only test, fixture and test-seam changes (observationClock.ts, ciAdapterTimeout.ts read existing configuredLimit) |
 | X2 | Exclusion: runner replacement | slice 10 | observed: Playwright, node --test and scripts/test-run-job.bash remain the runners (no runner file replaced) |
 | X3 | Exclusion: redesign of test tiers | slice 10 | observed: dashboard tests/, frontend-tests/, backend-tests/ and the repository tiers unchanged; cases only split within their files |

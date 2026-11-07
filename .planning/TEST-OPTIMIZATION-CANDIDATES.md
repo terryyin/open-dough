@@ -50,6 +50,10 @@
 - **Disposition / rationale:** pending — the case keeps the smallest
   allowance above its measured hosted cost until hosted timing after the
   fixture change shows whether it is still needed.
+- **Follow-up:** hosted run 42406259249 measured 17.4s (32.1s before
+  SEED-260 slice 6); hosted cases vary up to about 2x between runs. Remove the
+  allowance once two or more hosted runs keep it at 15s or less, or reduce the
+  real install and build cost further.
 - **Date:** 2026-11-08
 - **Evidence / follow-up:** read this case's hosted duration after slice 6. If
   it stays well inside 30s, drop the allowance; otherwise decide whether a
