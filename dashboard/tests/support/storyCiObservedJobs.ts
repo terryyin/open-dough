@@ -89,49 +89,93 @@ export const observedRerunJobs = observed("2026-11-06", "10:05:21", [
   ["ci-proof", "10:10:20", "10:10:37", "10:10:18"],
 ]);
 
+const baselineCreatedAt = "2026-11-07T05:11:50Z";
+
+export function observedFirstAttempts(
+  baseline: string,
+  branch: string,
+  branchRunId: number,
+  baselineStartedAt = baselineCreatedAt,
+) {
+  const baselineRunId = 101;
+  return {
+    runs: {
+      [baseline]: [
+        {
+          ...wall(
+            baseline,
+            baselineRunId,
+            baselineStartedAt,
+            "2026-11-07T05:16:49Z",
+          ),
+          createdAt: baselineCreatedAt,
+        },
+      ],
+      [branch]: [
+        wall(
+          branch,
+          branchRunId,
+          "2026-11-07T06:17:42Z",
+          "2026-11-07T06:31:09Z",
+        ),
+      ],
+    },
+    jobs: {
+      [`${String(baselineRunId)}/1`]: observedBaselineJobs,
+      [`${String(branchRunId)}/1`]: observedBranchJobs,
+    },
+  };
+}
+
 export function serveObservedComparisonAttempts(
   setup: StoryCiComparisonSetup,
-  landedJobsUnavailable: boolean,
+  landed: "rerun" | "jobs-unavailable" | "running" | "ambiguous",
 ): void {
+  const branch = setup.branchAncestor ?? setup.branchSide;
+  const landedRevision = setup.landingMerge ?? setup.completion;
+  // A distinct reported start makes the first attempt's creation bound observable.
+  const firstAttempts = observedFirstAttempts(
+    setup.baseline,
+    branch,
+    102,
+    "2026-11-07T05:11:52Z",
+  );
   setup.serveRuns({
-    [setup.baseline]: [
+    ...firstAttempts.runs,
+    [landedRevision]: [
       {
         ...wall(
-          setup.baseline,
-          101,
-          "2026-11-07T05:11:52Z",
-          "2026-11-07T05:16:49Z",
-        ),
-        // Keep the observed creation time and give the fake a distinct
-        // reported start to make the first-attempt wall bound observable.
-        createdAt: "2026-11-07T05:11:50Z",
-      },
-    ],
-    [setup.branchSide]: [
-      wall(
-        setup.branchSide,
-        102,
-        "2026-11-07T06:17:42Z",
-        "2026-11-07T06:31:09Z",
-      ),
-    ],
-    [setup.completion]: [
-      {
-        ...wall(
-          setup.completion,
+          landedRevision,
           103,
           "2026-11-06T10:05:19Z",
           "2026-11-06T10:10:38Z",
+          undefined,
+          landed === "running" ? "in_progress" : "completed",
         ),
         attempt: 2,
         createdAt: "2026-11-06T10:05:20Z",
       },
     ],
   });
+  const landedJobs =
+    landed === "ambiguous"
+      ? [
+          ...observedRerunJobs,
+          ...observedRerunJobs.slice(0, 1).map((job) => ({ ...job, id: 100 })),
+        ]
+      : observedRerunJobs;
   setup.serveJobs({
-    "101/1": observedBaselineJobs,
-    "102/1": observedBranchJobs,
-    ...(landedJobsUnavailable ? {} : { "103/2": observedRerunJobs }),
+    ...firstAttempts.jobs,
+    ...(landed === "rerun" || landed === "ambiguous"
+      ? { "103/2": landedJobs }
+      : {}),
   });
-  setup.serveProofs(defaultMixedProofs({ ...setup, landedAttempt: 2 }));
+  setup.serveProofs(
+    defaultMixedProofs({
+      baseline: setup.baseline,
+      branchSide: branch,
+      completion: landedRevision,
+      landedAttempt: 2,
+    }),
+  );
 }

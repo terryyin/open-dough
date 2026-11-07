@@ -39,3 +39,39 @@ test("a re-run retains the durations of carried-over jobs even when they started
     milliseconds: 337_000,
   });
 });
+
+const reportedJob = {
+  name: "Build",
+  started_at: "2026-11-07T07:00:00Z",
+  completed_at: "2026-11-07T07:01:00Z",
+};
+const buildWorkflow = "jobs:\n  build:\n    name: Build\n";
+
+test("a job with missing timing bounds leaves the estimate unavailable", () => {
+  expect(
+    timeWithoutRunnerWaits(
+      buildWorkflow,
+      [{ ...reportedJob, completed_at: null }],
+      false,
+    ),
+  ).toEqual({ reason: "Job “Build” has no valid start and completion times." });
+});
+
+test("a reported job must match exactly one workflow definition", () => {
+  expect(
+    timeWithoutRunnerWaits(
+      buildWorkflow,
+      [{ ...reportedJob, name: "Unknown" }],
+      false,
+    ),
+  ).toEqual({
+    reason: "Job “Unknown” does not match a workflow job definition.",
+  });
+  expect(
+    timeWithoutRunnerWaits(
+      `${buildWorkflow}  another:\n    name: Build\n`,
+      [reportedJob],
+      false,
+    ),
+  ).toEqual({ reason: "Job “Build” has an ambiguous workflow job match." });
+});

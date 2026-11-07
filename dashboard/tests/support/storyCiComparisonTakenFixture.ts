@@ -12,12 +12,12 @@ import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
 import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
+import { observedFirstAttempts } from "./storyCiObservedJobs.ts";
 import {
   claimOf,
   precedeClaimWithPlanning,
   revList,
   serveActionsFor,
-  wall,
 } from "./storyCiComparisonFixture.ts";
 
 // Taken Story Branch with a completed branch tip build and the same
@@ -34,6 +34,7 @@ export async function publishTakenComparedStoryBranch(
   readonly agent: string;
   readonly branch: string;
   readonly restoreActions: () => void;
+  readonly initialRuns: Record<string, readonly CiRunAnswer[]>;
   readonly serveRuns: (
     runsBySha: Record<string, readonly CiRunAnswer[]>,
   ) => void;
@@ -61,19 +62,9 @@ export async function publishTakenComparedStoryBranch(
     follows: true,
     realHistory: true,
   });
-  const actions = serveActionsFor(
-    committed,
-    {
-      [baseline]: [
-        wall(baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
-      ],
-      [branchTip]: [
-        wall(branchTip, 102, "2026-11-05T13:00:00Z", "2026-11-05T13:03:20Z"),
-      ],
-    },
-    {},
-    branch,
-  );
+  const firstAttempts = observedFirstAttempts(baseline, branchTip, 102);
+  const actions = serveActionsFor(committed, firstAttempts.runs, {}, branch);
+  actions.serveJobs(firstAttempts.jobs);
   return {
     identity: queuedIdentity,
     title: "Story A",
@@ -82,6 +73,7 @@ export async function publishTakenComparedStoryBranch(
     laterWithoutBuild,
     agent,
     branch,
+    initialRuns: firstAttempts.runs,
     ...actions,
   };
 }
@@ -120,14 +112,9 @@ export async function publishTakenComparedTrunk(
     follows: true,
     realHistory: true,
   });
-  const actions = serveActionsFor(committed, {
-    [baseline]: [
-      wall(baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
-    ],
-    [trunkTip]: [
-      wall(trunkTip, 201, "2026-11-05T13:00:00Z", "2026-11-05T13:03:40Z"),
-    ],
-  });
+  const firstAttempts = observedFirstAttempts(baseline, trunkTip, 201);
+  const actions = serveActionsFor(committed, firstAttempts.runs);
+  actions.serveJobs(firstAttempts.jobs);
   return {
     identity: queuedIdentity,
     title: "Story A",

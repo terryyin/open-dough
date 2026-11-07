@@ -57,11 +57,13 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(2),
   ).toHaveText(notLandedYetWords);
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
-    "3 min",
-  );
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
-    "3 min 20 s",
+  await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
+    "4 min 59 s",
+    "13 min 27 s",
+    "—",
+  ]);
+  await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
+    ["4 min 55 s", "4 min 47 s -8 s", "—"],
   );
 
   await test.step("a new branch head re-reads the provisional comparison", async () => {
@@ -77,24 +79,9 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     );
     const nextTip = git(workspace, "rev-parse", "HEAD");
     setup.serveRuns({
-      [setup.baseline]: [
-        wall(
-          setup.baseline,
-          101,
-          "2026-11-05T12:00:00Z",
-          "2026-11-05T12:03:00Z",
-        ),
-      ],
-      [setup.branchTip]: [
-        wall(
-          setup.branchTip,
-          102,
-          "2026-11-05T13:00:00Z",
-          "2026-11-05T13:03:20Z",
-        ),
-      ],
+      ...setup.initialRuns,
       [nextTip]: [
-        wall(nextTip, 103, "2026-11-05T14:00:00Z", "2026-11-05T14:04:00Z"),
+        wall(nextTip, 103, "2026-11-07T07:00:00Z", "2026-11-07T07:04:00Z"),
       ],
     });
     await passTimeUntilCheckedAfterSettled(page);
@@ -137,10 +124,13 @@ test("a Taken Trunk Mode story shows a provisional trunk result beside Branch N/
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(3),
   ).toHaveText(notLandedYetWords);
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
-    "3 min",
-  );
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "3 min 40 s",
+  await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
+    "4 min 59 s",
+    "—",
+    "13 min 27 s",
+    "—",
+  ]);
+  await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
+    ["4 min 55 s", "—", "4 min 47 s -8 s", "—"],
   );
 });

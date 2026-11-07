@@ -15,7 +15,9 @@ import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { wall } from "../support/storyCiComparisonFixture.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
+import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonEarlierLanding.ts";
 import { publishFastForwardLandedStory } from "../support/storyCiComparisonFastForward.ts";
+import { serveObservedComparisonAttempts } from "../support/storyCiObservedJobs.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import {
   advanceCompletedTrunk,
@@ -102,32 +104,19 @@ test("a running landed build leaves the branch comparison readable and marks an 
 }) => {
   test.slow();
   const setup = await publishComparedStoryBranch(page, origin);
-  setup.serveRuns({
-    [setup.baseline]: [
-      wall(setup.baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
-    ],
-    [setup.branchSide]: [
-      wall(
-        setup.branchSide,
-        102,
-        "2026-11-05T13:00:00Z",
-        "2026-11-05T13:03:20Z",
-      ),
-    ],
-    [setup.completion]: [
-      wall(
-        setup.completion,
-        103,
-        "2026-11-05T14:00:00Z",
-        "2026-11-05T14:04:00Z",
-        undefined,
-        "in_progress",
-      ),
-    ],
-  });
+  serveObservedComparisonAttempts(setup, "running");
   const { panel } = await selectDoneStoryForCiComparison(page);
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
-    "3 min 20 s",
+  await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
+    "4 min 59 s",
+    "13 min 27 s",
+    "—",
+  ]);
+  await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
+    [
+      "4 min 55 s",
+      "4 min 47 s -8 s",
+      "Unavailable while the build is running.",
+    ],
   );
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(2),
@@ -142,6 +131,36 @@ test("a running landed build leaves the branch comparison readable and marks an 
     "Build is still running.",
   );
 });
+
+for (const [workflow, reason] of [
+  ["ambiguous", "Job “lint” has an ambiguous workflow job match."],
+  ["missing", "The workflow file could not be read at this build's revision."],
+] as const) {
+  test(`a Landed build with ${workflow} workflow evidence keeps its wall time and the other builds' estimates`, async ({
+    page,
+    origin,
+  }) => {
+    test.slow();
+    const setup = await publishCodeLandedBeforeCompletion(
+      page,
+      origin,
+      workflow === "missing",
+    );
+    serveObservedComparisonAttempts(
+      setup,
+      workflow === "ambiguous" ? "ambiguous" : "rerun",
+    );
+    const { panel } = await selectDoneStoryForCiComparison(page);
+    await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
+      "4 min 59 s",
+      "13 min 27 s",
+      "5 min 19 s",
+    ]);
+    await expect(
+      panel.locator(".intent-ci-comparison-without-waits"),
+    ).toHaveText(["4 min 55 s", "4 min 47 s -8 s", `Unavailable. ${reason}`]);
+  });
+}
 
 test("a missing landed build explains itself without inventing zero", async ({
   page,

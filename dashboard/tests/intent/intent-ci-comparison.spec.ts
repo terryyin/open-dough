@@ -80,7 +80,10 @@ for (const variant of [
     writeAt(origin.project, comparisonWorkflowPath, "jobs: {}\n");
     commitAll(origin.project, "change the workflow after the compared builds");
     const landedJobsUnavailable = variant === "non-owning-story-file";
-    serveObservedComparisonAttempts(setup, landedJobsUnavailable);
+    serveObservedComparisonAttempts(
+      setup,
+      landedJobsUnavailable ? "jobs-unavailable" : "rerun",
+    );
     const { panel } = await selectDoneStoryForCiComparison(page);
 
     await expect(panel.getByRole("heading")).toHaveText(

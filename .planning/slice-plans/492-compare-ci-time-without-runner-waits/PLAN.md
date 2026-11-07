@@ -10,6 +10,7 @@
 - Story Branch Mode in the linked worktree `/Users/terryyin/git/open-dough/.worktrees/compare-ci-time-without-runner-waits` on `codex/compare-ci-time-without-runner-waits`. Default checkout: `/Users/terryyin/git/open-dough`. Established Take by DavidKo-chan for publisher `dashboard-territory.local-open-dough`, starting revision `c90e30dd1d1202de96facbc3f2bdb30e88051a7a`, accepted claim `2ca01b59800c4fecd262da91c11dc6a26feae39a` on `origin/main` and the story branch. The claim's trunk CI is unobserved by this execution.
 - GitHub Actions `terryyin/open-dough`, selector `ci.yml` (CI), observing the story branch from this checkout. Codex coordinator `DavidKo-chan-492`, mailbox `/tmp/dough-ci-501/watch-BBvPeM`, PID 29311, stream session 98623, cell `g2:7`. Managed delivery registers increments against that stream.
 - Locked npm install, dashboard typecheck and Chromium setup succeeded in this checkout under the AC sleep guard.
+- Slice 1 published and registered at `10fa0a78c0f048002423198e1ad83d885445e2df` on the story branch, extending the claim. Full lint and the check-only commit hook passed.
 
 ## Goal and scope
 
@@ -145,7 +146,7 @@ caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTOR
 
 ### 2. Explain each unavailable estimate and keep the others' differences
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-comparison-gaps.spec.ts` and
 `intent-ci-comparison-taken.spec.ts`; module tests for a job without bounds,
 a name matching no definition and one matching two.
@@ -156,6 +157,21 @@ that row shows its wall time (or running state) and the specific reason its
 time without runner waits is unavailable, with no difference; Baseline and
 Branch keep theirs. A Taken story's Branch or Provisional row compares on the
 same measure.
+
+Accepted proof: the guarded dashboard typecheck and 34 focused tests passed.
+The gaps spec covers a running build, duplicate reported job names, and a
+workflow removed before the landing merge. Exact cell assertions preserve
+Landed wall time and the other rows' timings, with a reason in place of the
+unavailable Landed estimate and delta. The module exercises missing bounds
+and zero or several matching definitions. The Taken spec covers the signed
+difference in both modes. The consumer trace covered the six wall-cell
+specs and all three Summary comparison specs. Independent refactoring shared
+the observed fixture inputs. The guarded typecheck and all 19 comparison
+tests passed again with the module and Summary proof unaffected.
+
+```sh
+caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES zsh -c 'npm run --silent typecheck:dashboard && npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts dashboard/tests/intent/intent-ci-comparison*.spec.ts dashboard/tests/intent/intent-summary-story-comparison*.spec.ts'
+```
 
 ### 3. Remember completed attempts' jobs and document the cost
 Type: Behavior
