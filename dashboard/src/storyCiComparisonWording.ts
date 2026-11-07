@@ -1,9 +1,10 @@
 // Wording of a story's CI comparison on Intent's homepage
 // (`./IntentCiComparison.tsx`): each endpoint's build identity and selection
-// rule, CI wall time in whole seconds, readable before → after (Δ[, %])
-// differences, the active comparison name, and overall count and timing
-// summaries framed as observations between single builds, never attributed
-// to the story.
+// rule, CI wall time and time without runner waits in whole seconds, readable
+// before → after (Δ[, %]) differences for the active comparison's overall
+// timing (without runner waits) and wall-time context, the active comparison
+// name, and overall count summaries framed as observations between single
+// builds, never attributed to the story.
 
 import {
   durationChangeWords,
@@ -44,8 +45,12 @@ export function selectionWords(
           const count = slot.laterWithoutResult;
           return `ancestor: ${String(count)} later revision${count === 1 ? "" : "s"} without a build`;
         })();
+  const selection =
+    slot.kind === "build" && slot.laterRunning === true
+      ? `ancestor · a later attempt is still running`
+      : base;
   // Taken stories label the live tip provisional, not final.
-  return provisional ? `provisional · ${base}` : base;
+  return provisional ? `provisional · ${selection}` : selection;
 }
 
 export const notLandedYetWords = notLandedYetExplanation;
@@ -53,11 +58,13 @@ export const notLandedYetWords = notLandedYetExplanation;
 export function wallTimeWords(slot: StoryCiComparisonSlot): string | undefined {
   if (slot.kind !== "build") return undefined;
   const ms = wallTimeMs(slot.startedAt, slot.completedAt);
-  return ms === undefined ? undefined : wholeSecondWords(ms);
+  if (ms !== undefined) return wholeSecondWords(ms);
+  return slot.adapterAttempt === undefined ? undefined : "Not recorded";
 }
 
 // Readable CI wall-time change between two completed builds. Percentage only
-// when the baseline is a measured non-zero duration.
+// when the baseline is a measured non-zero duration. Shown as context beside
+// the overall without-runner-waits difference.
 export function wallTimeChangeWords(
   baseline: StoryCiComparisonSlot,
   after: StoryCiComparisonSlot,
@@ -65,6 +72,49 @@ export function wallTimeChangeWords(
   if (baseline.kind !== "build" || after.kind !== "build") return undefined;
   const before = wallTimeMs(baseline.startedAt, baseline.completedAt);
   const later = wallTimeMs(after.startedAt, after.completedAt);
+  if (before === undefined || later === undefined) return undefined;
+  return durationChangeWords(
+    before,
+    later,
+    wholeSecondWords,
+    wholeSecondDifferenceWords,
+  );
+}
+
+// Endpoint cell: absolute without-runner-waits time, with a signed difference
+// against Baseline when both sides are measured.
+export function timeWithoutRunnerWaitsWords(
+  slot: StoryCiComparisonSlot,
+  baseline?: StoryCiComparisonSlot,
+): string {
+  if (slot.kind === "running") return "Unavailable while the build is running.";
+  if (slot.kind !== "build") return "—";
+  const timing = slot.timeWithoutRunnerWaits;
+  if ("reason" in timing) return `Unavailable. ${timing.reason}`;
+
+  const time = wholeSecondWords(timing.milliseconds);
+  const before =
+    baseline?.kind === "build" ? baseline.timeWithoutRunnerWaits : undefined;
+  if (before === undefined || "reason" in before) return time;
+  return `${time} ${wholeSecondDifferenceWords(timing.milliseconds - before.milliseconds)}`;
+}
+
+function measuredWithoutRunnerWaitsMs(
+  slot: StoryCiComparisonSlot,
+): number | undefined {
+  if (slot.kind !== "build") return undefined;
+  const timing = slot.timeWithoutRunnerWaits;
+  return "reason" in timing ? undefined : timing.milliseconds;
+}
+
+// Readable overall timing change: CI time without runner waits as
+// before → after (Δ[, %]). Percentage only for a measured non-zero baseline.
+export function timeWithoutRunnerWaitsChangeWords(
+  baseline: StoryCiComparisonSlot,
+  after: StoryCiComparisonSlot,
+): string | undefined {
+  const before = measuredWithoutRunnerWaitsMs(baseline);
+  const later = measuredWithoutRunnerWaitsMs(after);
   if (before === undefined || later === undefined) return undefined;
   return durationChangeWords(
     before,
@@ -234,15 +284,13 @@ export function overallCountsCue(
   );
 }
 
+// Overall timing cue uses CI time without runner waits (wall time is context).
 export function overallTimingCue(
   baseline: StoryCiComparisonSlot,
   after: StoryCiComparisonSlot,
 ): DurationCue {
-  if (baseline.kind !== "build" || after.kind !== "build") {
-    return { kind: "none", reason: "no comparable duration" };
-  }
   return overallDurationCueOf(
-    wallTimeMs(baseline.startedAt, baseline.completedAt),
-    wallTimeMs(after.startedAt, after.completedAt),
+    measuredWithoutRunnerWaitsMs(baseline),
+    measuredWithoutRunnerWaitsMs(after),
   );
 }

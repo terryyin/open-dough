@@ -8,6 +8,7 @@ import {
   completedPublishedStory,
   advanceCompletedTrunk,
 } from "../../tests/support/completedPublishedStory.ts";
+import { laterBranchMergesTrunkAndFastForwards } from "../../tests/support/laterStoryMergesTrunk.ts";
 import { queuedIdentity } from "../../tests/support/startOrigin.ts";
 import { git, writeAt } from "../../tests/support/storyReviewWorktree.ts";
 import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
@@ -136,6 +137,47 @@ for (const mode of ["trunk", "story-branch"] as const) {
     ).toEqual(review);
     const fixed = await get(request, dashboard, storyReviewFileEndpoint, file);
     expect(await fixed.json()).toEqual(await accepted.json());
+  });
+}
+
+for (const mode of ["trunk", "story-branch"] as const) {
+  test(`${mode} completion keeps its own delivery after a later story's branch merges trunk and fast-forwards`, async ({
+    request,
+    dashboard,
+    origin,
+  }) => {
+    test.slow();
+    const { completion } = await completedPublishedStory(origin, mode);
+    const delivered = storyReviewSchema.parse(
+      await (
+        await get(request, dashboard, storyReviewEndpoint, completed)
+      ).json(),
+    );
+    expect(delivered).toMatchObject({ kind: "published", completion });
+    // Started from trunk before Story A's done record arrived.
+    laterBranchMergesTrunkAndFastForwards(
+      origin,
+      git(origin.project, "rev-parse", `${completion}^1`),
+    );
+    const review = storyReviewSchema.parse(
+      await (
+        await get(request, dashboard, storyReviewEndpoint, completed)
+      ).json(),
+    );
+    expect(review).toEqual(delivered);
+    if (review.kind !== "published") throw new Error("No published review");
+    const diff = await get(request, dashboard, storyReviewFileEndpoint, {
+      ...named,
+      completion,
+      baseline: review.baseline,
+      tree: review.tree,
+      path: "shared.txt",
+    });
+    expect(diff.status()).toBe(200);
+    expect(await diff.json()).toMatchObject({
+      kind: "diff",
+      printed: expect.stringContaining("+story first"),
+    });
   });
 }
 

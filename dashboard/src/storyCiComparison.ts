@@ -4,16 +4,32 @@
 // Intent's homepage, Summaries and the selected-file reading comparison.
 
 import { z } from "zod";
+import { runIdentityShape } from "./baseCiConfirmation.ts";
 
 const runIdentity = {
-  runId: z.number().int().positive().optional(),
-  runAttempt: z.number().int().positive().optional(),
+  ...runIdentityShape,
+  adapterAttempt: runIdentityShape.adapterAttempt
+    .unwrap()
+    .extend({
+      runId: z.string(),
+      attemptId: z.string(),
+    })
+    .optional(),
 };
 
 const attemptTimes = {
   startedAt: z.iso.datetime().optional(),
   completedAt: z.iso.datetime().optional(),
 };
+
+const timeWithoutRunnerWaitsSchema = z.union([
+  z.object({ milliseconds: z.number().nonnegative() }),
+  z.object({ reason: z.string().min(1) }),
+]);
+
+export type CiTimeWithoutRunnerWaits = z.infer<
+  typeof timeWithoutRunnerWaitsSchema
+>;
 
 const buildSlot = z.object({
   kind: z.literal("build"),
@@ -22,10 +38,12 @@ const buildSlot = z.object({
   state: z.enum(["pass", "failed"]),
   selection: z.enum(["exact", "ancestor"]),
   laterWithoutResult: z.number().int().nonnegative(),
+  laterRunning: z.literal(true).optional(),
   runUrl: z.string().min(1).optional(),
   runBranch: z.string().min(1).optional(),
   ...runIdentity,
   ...attemptTimes,
+  timeWithoutRunnerWaits: timeWithoutRunnerWaitsSchema,
 });
 
 const runningSlot = z.object({
@@ -35,6 +53,7 @@ const runningSlot = z.object({
   selection: z.enum(["exact", "ancestor"]),
   laterWithoutResult: z.number().int().nonnegative(),
   runUrl: z.string().min(1).optional(),
+  runBranch: z.string().min(1).optional(),
   ...runIdentity,
 });
 

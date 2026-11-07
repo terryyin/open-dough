@@ -23,9 +23,9 @@ test("a failed landing merge build is labelled failed without trunk-side figures
   const landed = setup.landingMerge ?? setup.completion;
   serveEarlierLandingWithLandedOutcome(setup, "failure");
   const { panel } = await selectDoneStoryForCiComparison(page);
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(1),
-  ).toContainText("+20 s");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+    "3 min 20 s",
+  );
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(2),
   ).toContainText(shortSha(landed));
@@ -65,9 +65,9 @@ test("a cancelled landing merge build explains cancelled without trunk-side figu
   await expect(
     panel.locator(".intent-ci-comparison-active-reason"),
   ).toContainText("cancelled");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(1),
-  ).toContainText("+20 s");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+    "3 min 20 s",
+  );
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(2),
   ).toContainText("cancelled");

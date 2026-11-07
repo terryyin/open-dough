@@ -1,13 +1,13 @@
 // A selected story's CI timing comparison on Intent's homepage
 // (`./IntentCiStatus.tsx`): names the active comparison (Baseline with
 // Landed when Landed has proof, otherwise Branch or Provisional), shows an
-// overall count and CI wall-time summary with readable before → after (Δ)
-// text, then each endpoint's build identity and wall time
-// (`./IntentCiComparisonEndpoints.tsx`), then one row per CI entry in the
-// homepage proof table (`./CiProofTable.tsx`) with each endpoint's cumulative
-// test execution time. Taken answers label the live tip provisional and say
-// Landed has not landed yet; Taken Trunk Mode also names the provisional
-// trunk tip beside Branch N/A.
+// overall count and CI time without runner waits as before → after (Δ) with
+// CI wall time as context, then each endpoint's build identity, wall time,
+// and time without runner waits (`./IntentCiComparisonEndpoints.tsx`), then
+// one row per CI entry in the homepage proof table (`./CiProofTable.tsx`)
+// with each endpoint's cumulative test execution time. Taken answers label
+// the live tip provisional and say Landed has not landed yet; Taken Trunk
+// Mode also names the provisional trunk tip beside Branch N/A.
 
 import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
 import {
@@ -28,6 +28,7 @@ import {
   overallCountsCue,
   overallCountsWords,
   overallTimingCue,
+  timeWithoutRunnerWaitsChangeWords,
   wallTimeChangeWords,
 } from "./storyCiComparisonWording.ts";
 import type { ComparisonAfterSide } from "./ciScopeComparisonCues.ts";
@@ -51,7 +52,11 @@ function ActiveComparisonSummary({
 }) {
   const active = activeComparisonOf(answer, proofs);
   const overallCounts = overallCountsWords(proofs.baseline, active.proof);
-  const overallTiming = wallTimeChangeWords(answer.baseline, active.slot);
+  const overallTiming = timeWithoutRunnerWaitsChangeWords(
+    answer.baseline,
+    active.slot,
+  );
+  const wallContext = wallTimeChangeWords(answer.baseline, active.slot);
   const countsCue = overallCountsCue(proofs.baseline, active.proof);
   const timingCue = overallTimingCue(answer.baseline, active.slot);
   return (
@@ -78,6 +83,11 @@ function ActiveComparisonSummary({
           )}
         >
           {overallTiming}
+        </p>
+      )}
+      {wallContext !== undefined && (
+        <p className="intent-ci-comparison-overall-wall">
+          CI wall time {wallContext}
         </p>
       )}
     </div>

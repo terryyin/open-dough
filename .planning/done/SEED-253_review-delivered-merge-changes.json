@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-253#review-delivered-merge-changes",
+  "title": "Review a completed story including its merge changes",
+  "completedAt": "2026-11-07T08:15:33.466Z",
+  "developer": "Terry Yin",
+  "agent": "YeongSheng-chan",
+  "host": "claude",
+  "model": "opus"
+}

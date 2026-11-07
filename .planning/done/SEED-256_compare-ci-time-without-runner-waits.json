@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-256#compare-ci-time-without-runner-waits",
+  "title": "Compare CI time without runner waits",
+  "completedAt": "2026-11-07T08:20:21.775Z",
+  "developer": "Terry Yin",
+  "agent": "DavidKo-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

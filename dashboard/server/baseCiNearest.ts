@@ -128,12 +128,12 @@ function judgeAttempt(
 }
 
 // Newest listed run for `sha`, by creation time then listing order.
-export function newestRunFor(
-  runs: readonly ListedRun[],
+export function newestRunFor<Run extends ListedRun>(
+  runs: readonly Run[],
   sha: string,
   completedOnly = false,
-): ListedRun | undefined {
-  let newest: ListedRun | undefined;
+): Run | undefined {
+  let newest: Run | undefined;
   let newestAt = Number.NEGATIVE_INFINITY;
   for (const run of runs) {
     if (run.headSha !== sha || (completedOnly && run.status !== "completed"))

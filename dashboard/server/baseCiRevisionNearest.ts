@@ -7,6 +7,7 @@ import {
   type BaseCiRunIdentity as RunIdentity,
   type BaseCiState,
 } from "../src/baseCiConfirmation.ts";
+import type { CiTimeWithoutRunnerWaits } from "../src/storyCiComparison.ts";
 import { newestRunFor, type ListedRun } from "./baseCiNearest.ts";
 
 const isPositive = (value: unknown): value is number =>
@@ -48,9 +49,8 @@ function judgeAttempt(
   return completedStateOf(conclusion);
 }
 
-// Whether a completed conclusion yields timing (passed or failed); cancelled
-// and timed_out do not.
-function isTimedConclusion(
+// Completed conclusions that can supply a comparison build.
+export function isBuildConclusion(
   conclusion: ListedRun["conclusion"],
 ): conclusion is "success" | "failure" {
   return conclusion === "success" || conclusion === "failure";
@@ -70,7 +70,7 @@ export function selectRevisionAttempt(
   const state = judgeAttempt(newest.status, newest.conclusion);
   if (state === "running") return newest;
   if (state === "pass" || state === "failed") {
-    if (newest.status === "completed" && isTimedConclusion(newest.conclusion))
+    if (newest.status === "completed" && isBuildConclusion(newest.conclusion))
       return newest;
   }
   // Cancelled / timed_out / unjudged latest: prefer the newest completed
@@ -80,7 +80,7 @@ export function selectRevisionAttempt(
       run.headSha === sha &&
       run.databaseId === newest.databaseId &&
       run.status === "completed" &&
-      isTimedConclusion(run.conclusion),
+      isBuildConclusion(run.conclusion),
   );
   if (sameRun.length === 0) return newest;
   let chosen: ListedRun | undefined;
@@ -103,6 +103,7 @@ export type RevisionCiBuild = {
   readonly state: "pass" | "failed" | "running";
   readonly selection: "exact" | "ancestor";
   readonly laterWithoutResult: number;
+  readonly laterRunning?: true;
   readonly runUrl?: string;
   readonly runBranch?: string;
   readonly startedAt?: string;
@@ -112,11 +113,18 @@ export type RevisionCiBuild = {
 export type RevisionCiLookup = {
   // Runs listed for one head_sha (workflow runs?head_sha=).
   readonly listRunsAt: (sha: string) => Promise<readonly ListedRun[]>;
+  // A provisional adapter result can show its completed ancestor while
+  // a newer attempt is running.
+  readonly preferCompletedAncestor?: true;
   // Optional earlier attempts of a run when its latest is cancelled.
   readonly earlierAttemptsOf?: (
     runId: number,
     latestAttempt: number,
   ) => Promise<readonly ListedRun[]>;
+  // Timing for a selected completed attempt, read only after selection.
+  readonly timeWithoutRunnerWaitsOf: (
+    build: RevisionCiBuild,
+  ) => Promise<CiTimeWithoutRunnerWaits>;
   // Subject line of a revision; "(no subject)" when unknown.
   readonly subjectOf: (sha: string) => Promise<string>;
 };
@@ -129,8 +137,10 @@ export async function nearestRevisionBuild(
   revisions: readonly string[],
   lookup: RevisionCiLookup,
   boundExclusive?: string,
+  preferCompletedAncestor = false,
 ): Promise<RevisionCiBuild | undefined> {
   let skipped = 0;
+  let running: RevisionCiBuild | undefined;
   for (const sha of revisions) {
     if (boundExclusive !== undefined && sha === boundExclusive) break;
     const listed = await lookup.listRunsAt(sha);
@@ -141,7 +151,7 @@ export async function nearestRevisionBuild(
       isPositive(newest.databaseId) &&
       isPositive(newest.attempt) &&
       newest.status === "completed" &&
-      !isTimedConclusion(newest.conclusion) &&
+      !isBuildConclusion(newest.conclusion) &&
       lookup.earlierAttemptsOf !== undefined
     ) {
       earlier = await lookup.earlierAttemptsOf(
@@ -165,12 +175,16 @@ export async function nearestRevisionBuild(
     }
     if (
       state !== "running" &&
-      !(run.status === "completed" && isTimedConclusion(run.conclusion))
+      !(run.status === "completed" && isBuildConclusion(run.conclusion))
     ) {
       skipped += 1;
       continue;
     }
-    return {
+    if (state === "running" && running !== undefined) {
+      skipped += 1;
+      continue;
+    }
+    const build: RevisionCiBuild = {
       revision: sha,
       subject: await lookup.subjectOf(sha),
       state:
@@ -182,8 +196,18 @@ export async function nearestRevisionBuild(
         : {}),
       ...runBranchOf(run),
       ...runIdentityOf(run),
-      ...attemptTimesOf(run),
+      ...attemptTimesOf({
+        ...run,
+        startedAt:
+          run.attempt === 1 ? (run.createdAt ?? run.startedAt) : run.startedAt,
+      }),
     };
+    if (state === "running" && preferCompletedAncestor) {
+      running = build;
+      skipped += 1;
+      continue;
+    }
+    return running === undefined ? build : { ...build, laterRunning: true };
   }
-  return undefined;
+  return running;
 }

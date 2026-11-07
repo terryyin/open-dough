@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "joseph-chan",
+  "email": "joseph-chan@example.org",
+  "identity": "SEED-254#use-ancestor-ci-proof-for-skipped-builds",
+  "mode": "story-branch",
+  "branch": "cursor/use-the-nearest-ancestor-s-ci-proof-for-skipped",
+  "host": "cursor",
+  "model": "auto"
+}

@@ -119,6 +119,7 @@ export function untimedBaselineMixedProofs(args: {
 }
 
 export function defaultMixedProofs(args: {
+  readonly landedAttempt?: number;
   readonly baseline: string;
   readonly branchSide: string;
   readonly completion: string;
@@ -137,7 +138,10 @@ export function defaultMixedProofs(args: {
     103: {
       kind: "summary",
       artifactId: 1003,
-      summary: mixedEntrySummary(proofRun(103, args.completion), "landed"),
+      summary: mixedEntrySummary(
+        proofRun(103, args.completion, args.landedAttempt),
+        "landed",
+      ),
     },
   };
 }
@@ -164,7 +168,11 @@ export function answerComparisonProofRoute(
     const runId = Number(artifacts[1]);
     const proof = proofsByRunId[runId];
     const found = runForId(runsBySha, runId);
-    const run = proofRun(runId, found?.headSha ?? "0".repeat(40));
+    const run = proofRun(
+      runId,
+      found?.headSha ?? "0".repeat(40),
+      found?.attempt,
+    );
     if (proof === undefined || proof.kind === "none")
       return runArtifactsAnswer(run, undefined);
     if (proof.kind === "expired")

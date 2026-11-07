@@ -27,6 +27,7 @@ import {
 import { breakdownProofs } from "./intentSummaryStoryComparisonProofs.ts";
 import {
   changeSummaryComparisonTests,
+  editSummaryComparisonTestInMerge,
   publishSummaryComparisonTrunk,
   summaryComparisonChanges,
 } from "./intentSummaryStoryComparisonShared.ts";
@@ -44,7 +45,9 @@ export {
 export async function publishSummaryComparisonStory(
   page: Page,
   origin: StartOrigin,
-  variant?: "own-conflict-extra" | "non-owning-story-file",
+  // Owning merge-resolution edits, with an Intent test file edited by the
+  // story's integration merge.
+  variant?: "own-conflict-extra",
 ): Promise<StoryCiComparisonSetup> {
   publishSummaryComparisonTrunk(origin.project);
   const baseline = precedeClaimWithPlanning(origin);
@@ -53,6 +56,7 @@ export async function publishSummaryComparisonStory(
     "story-branch",
     variant,
     changeSummaryComparisonTests,
+    variant === undefined ? undefined : editSummaryComparisonTestInMerge,
   );
   const { completion, agent, branch } = story;
   const claim = claimOf(origin.project, agent);

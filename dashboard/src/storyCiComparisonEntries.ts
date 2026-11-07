@@ -1,4 +1,4 @@
-// Entry rows of a selected done story's CI comparison on Intent's homepage
+// Entry rows of a selected story's CI comparison on Intent's homepage
 // (`./IntentCiComparison.tsx`): match each endpoint's proof summary by path
 // through the shared scope comparison (`./ciScopeComparison.ts`), show
 // baseline / branch / landed execution times with signed whole-second
@@ -6,8 +6,13 @@
 // removed entries, and keep parts completeness from the landed summary (or
 // branch when landed has none).
 
+import { shortSha } from "./baseCiWording.ts";
 import type { CiProof, CiProofEntry } from "./ciProof.ts";
-import { unavailableLine } from "./ciProofAbsenceWording.ts";
+import {
+  adapterUnavailableLine,
+  ambiguousAttemptLine,
+  unavailableLine,
+} from "./ciProofAbsenceWording.ts";
 import { primaryProofOf, scopeComparisonCellsOf } from "./ciScopeComparison.ts";
 import type {
   ComparisonAfterSide,
@@ -19,7 +24,11 @@ export type ComparisonEndpointProof =
   | { readonly kind: "checking" }
   | { readonly kind: "no-build"; readonly explanation: string }
   | { readonly kind: "summary"; readonly entries: readonly CiProofEntry[] }
-  | { readonly kind: "unavailable"; readonly line: string };
+  | {
+      readonly kind: "unavailable";
+      readonly line: string;
+      readonly adapter?: true;
+    };
 
 export type ComparisonEndpointProofs = {
   readonly baseline: ComparisonEndpointProof;
@@ -67,13 +76,28 @@ export function comparisonProofOf(
   reading: boolean,
 ): ComparisonEndpointProof {
   if (slot.kind === "build") {
+    if (slot.adapterAttempt?.ambiguous === true)
+      return {
+        kind: "unavailable",
+        adapter: true,
+        line: ambiguousAttemptLine(
+          slot.adapterAttempt.attemptId,
+          shortSha(slot.revision),
+        ),
+      };
     if (reading || proof === undefined) return { kind: "checking" };
     if (proof.kind === "summary")
       return { kind: "summary", entries: proof.summary.entries };
-    return {
-      kind: "unavailable",
-      line: unavailableLine(proof.reason, proof.detail),
-    };
+    return slot.adapterAttempt === undefined
+      ? {
+          kind: "unavailable",
+          line: unavailableLine(proof.reason, proof.detail),
+        }
+      : {
+          kind: "unavailable",
+          adapter: true,
+          line: adapterUnavailableLine(proof.reason, proof.detail),
+        };
   }
   if (slot.kind === "running")
     return { kind: "no-build", explanation: "Build is still running." };
@@ -115,6 +139,18 @@ export function comparisonEntriesOf(
   const primary = primaryProofOf(landed, branch, baseline);
   const paths = orderedPaths(primary, branch, baseline);
   if (paths.length === 0) {
+    const endpoints = [
+      ["Baseline", baseline],
+      ["Branch", branch],
+      ["Landed", landed],
+    ] as const;
+    const adapterGaps = endpoints.flatMap(([label, proof]) =>
+      proof.kind === "unavailable" && proof.adapter === true
+        ? [`${label} — ${proof.line}`]
+        : [],
+    );
+    if (adapterGaps.length > 0)
+      return { kind: "empty", explanation: adapterGaps.join(" ") };
     const gap = [landed, branch, baseline].find(
       (proof) => proof.kind === "unavailable" || proof.kind === "no-build",
     );

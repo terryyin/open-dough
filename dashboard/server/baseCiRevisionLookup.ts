@@ -3,14 +3,15 @@
 // landed slots. GitHub Actions listing lives in
 // `./baseCiGithubRevisionLookup.ts`. The live branch judgment
 // (`./baseCiJudgment.ts`) keeps its branch listing rule unchanged.
+import { defaultAdapterTimeoutMs } from "../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { adapterDiscoveryUnread } from "./baseCiAdapterAttempts.ts";
+import { adapterRevisionLookup } from "./baseCiAdapterRevisionLookup.ts";
 import { githubAcquisitionUnread } from "./baseCiGitHubReads.ts";
-import {
-  firstParentChain,
-  githubRevisionLookup,
-} from "./baseCiGithubRevisionLookup.ts";
+import { githubRevisionLookup } from "./baseCiGithubRevisionLookup.ts";
 import { newestRunFor, unread, type BaseCiJudgment } from "./baseCiNearest.ts";
+import { firstParentChain } from "./baseCiRevisionGit.ts";
 import {
   nearestRevisionBuild,
   type RevisionCiBuild,
@@ -31,7 +32,7 @@ export type RevisionBuildSlot =
       readonly kind: "running";
       readonly state: "running";
     } & Omit<RevisionCiBuild, "state">)
-  | { readonly kind: "none"; readonly explanation: string }
+  | { readonly kind: "none" | "not-applicable"; readonly explanation: string }
   | { readonly kind: "unavailable"; readonly explanation: string };
 
 function asSlot(
@@ -40,33 +41,9 @@ function asSlot(
 ): RevisionBuildSlot {
   if (build === undefined)
     return { kind: "none", explanation: noneExplanation };
-  const {
-    revision,
-    subject,
-    selection,
-    laterWithoutResult,
-    runUrl,
-    runBranch,
-    runId,
-    runAttempt,
-    startedAt,
-    completedAt,
-  } = build;
-  const identity = {
-    revision,
-    subject,
-    selection,
-    laterWithoutResult,
-    ...(runUrl === undefined ? {} : { runUrl }),
-    ...(runBranch === undefined ? {} : { runBranch }),
-    ...(runId === undefined ? {} : { runId }),
-    ...(runAttempt === undefined ? {} : { runAttempt }),
-    ...(startedAt === undefined ? {} : { startedAt }),
-    ...(completedAt === undefined ? {} : { completedAt }),
-  };
-  if (build.state === "running")
-    return { kind: "running", state: "running", ...identity };
-  return { kind: "build", state: build.state, ...identity };
+  const { state, ...identity } = build;
+  if (state === "running") return { kind: "running", state, ...identity };
+  return { kind: "build", state, ...identity };
 }
 
 // Baseline: newest completed attempt at or before `storyStart`, walking
@@ -112,6 +89,8 @@ export type ExactResultLookup = {
   readonly timedOutExplanation: string;
 };
 
+type ResultLookupOptions = ExactResultLookup | { readonly provisional: true };
+
 // Result endpoint (branch or landed): newest completed or running attempt at
 // `target`, else a measured ancestor not older than `storyStart`. With
 // `exactOnly`, the walk is limited to `target` itself (no measured-ancestor
@@ -123,9 +102,12 @@ export async function lookupResultBuild(
   lookup: RevisionCiLookup,
   call: GitCall,
   missingExplanation: string,
-  exact?: ExactResultLookup,
+  options?: ResultLookupOptions,
 ): Promise<RevisionBuildSlot> {
   try {
+    const exact =
+      options !== undefined && "exactOnly" in options ? options : undefined;
+    const provisional = options !== undefined && "provisional" in options;
     const revisions =
       exact?.exactOnly === true
         ? await firstParentChain(target, call, 1)
@@ -134,12 +116,14 @@ export async function lookupResultBuild(
       revisions,
       lookup,
       exact?.exactOnly === true ? undefined : storyStart,
+      provisional && lookup.preferCompletedAncestor === true,
     );
     if (build !== undefined) return asSlot(build, missingExplanation);
     if (exact?.exactOnly === true) {
       const newest = newestRunFor(await lookup.listRunsAt(target), target);
       if (
         newest?.status === "completed" &&
+        newest.adapterAttempt === undefined &&
         (newest.conclusion === "cancelled" || newest.conclusion === "timed_out")
       ) {
         return {
@@ -163,19 +147,42 @@ export async function lookupResultBuild(
   }
 }
 
-// When a folder uses ciAdapter, revision `head_sha` lookups are not available
-// through GitHub Actions; comparison explains that gap.
-export function revisionLookupOrGap(
+// A CI adapter supplies a discovery snapshot for the whole comparison;
+// GitHub Actions lists runs as the first-parent walk reaches each revision.
+export async function revisionLookupOrGap(
   source: PublishedSource,
   folderPath: string,
   call: GitCall,
   signal: AbortSignal,
-): RevisionCiLookup | BaseCiJudgment {
+  storyBranch: string | undefined,
+): Promise<RevisionCiLookup | BaseCiJudgment> {
   const { adapter, workflow } = ciConfiguration(folderPath);
-  if (adapter !== undefined)
-    return unread(
-      "This project's CI adapter does not list builds by revision, so a story CI comparison cannot be read.",
-    );
+  if (adapter !== undefined) {
+    try {
+      return await adapterRevisionLookup(
+        source,
+        storyBranch,
+        folderPath,
+        adapter,
+        call,
+        signal,
+      );
+    } catch (error) {
+      if (
+        signal.aborted &&
+        signal.reason instanceof Error &&
+        signal.reason.name === "TimeoutError"
+      )
+        return unread(
+          "The CI adapter did not answer discovery before the comparison deadline.",
+        );
+      if (error instanceof Error && "killed" in error && error.killed === true)
+        return unread(
+          `The CI adapter did not answer discovery within ${String(defaultAdapterTimeoutMs / 1000)} seconds.`,
+        );
+      return adapterDiscoveryUnread(error);
+    }
+  }
   try {
     return githubRevisionLookup(source, workflow, call, signal);
   } catch (error) {

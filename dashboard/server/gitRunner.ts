@@ -84,3 +84,18 @@ export async function runGit(
   if (error) throw new GitFailure(error, { stdout, stderr });
   return { stdout, stderr };
 }
+
+// Whether `ancestor` is reachable from `descendant`; any failure, including an
+// unknown revision, reads as not an ancestor.
+export async function isAncestor(
+  ancestor: string,
+  descendant: string,
+  call: GitCall,
+): Promise<boolean> {
+  try {
+    await runGit(["merge-base", "--is-ancestor", ancestor, descendant], call);
+    return true;
+  } catch {
+    return false;
+  }
+}

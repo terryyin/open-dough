@@ -1,13 +1,13 @@
 // Endpoint table for Intent's story CI timing comparison
 // (`./IntentCiComparison.tsx`): each endpoint's build identity (revision, run,
-// state, exact-or-ancestor selection) and CI wall time with readable
-// before → after (Δ) wording against Baseline.
+// state, exact-or-ancestor selection), CI wall time, and CI time without
+// runner waits with a signed difference against Baseline.
 
 import type { ReactNode } from "react";
 import { shortSha } from "./baseCiWording.ts";
 import {
   selectionWords,
-  wallTimeChangeWords,
+  timeWithoutRunnerWaitsWords,
   wallTimeWords,
 } from "./storyCiComparisonWording.ts";
 import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
@@ -35,10 +35,13 @@ function BuildIdentity({
   readonly slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>;
   readonly provisional: boolean;
 }): ReactNode {
+  const adapter = slot.adapterAttempt;
   const runName =
-    slot.runId !== undefined && slot.runAttempt !== undefined
-      ? `run ${String(slot.runId)} #${String(slot.runAttempt)}`
-      : "run unknown";
+    adapter !== undefined
+      ? `run ${adapter.runId} · attempt ${adapter.attemptId}`
+      : slot.runId !== undefined && slot.runAttempt !== undefined
+        ? `run ${String(slot.runId)} #${String(slot.runAttempt)}`
+        : "run unknown";
   const state =
     slot.kind === "running"
       ? "running"
@@ -51,6 +54,7 @@ function BuildIdentity({
     <>
       <code>{shortSha(slot.revision)}</code>
       {" · "}
+      {adapter !== undefined ? `${slot.subject} · ` : null}
       <LinkedRun name={runName} url={slot.runUrl} />
       {` · ${state} · ${selectionWords(slot, provisional)}${failed}`}
     </>
@@ -81,15 +85,19 @@ function EndpointRow({
   readonly provisional: boolean;
 }) {
   const wall = wallTimeWords(slot);
-  const change =
-    label === "Baseline" ? undefined : wallTimeChangeWords(baseline, slot);
   return (
     <tr>
       <th scope="row">{label}</th>
       <td className="intent-ci-comparison-identity">
         <EndpointIdentity slot={slot} provisional={provisional} />
       </td>
-      <td className="intent-ci-comparison-wall">{change ?? wall ?? "—"}</td>
+      <td className="intent-ci-comparison-wall">{wall ?? "—"}</td>
+      <td className="intent-ci-comparison-without-waits">
+        {timeWithoutRunnerWaitsWords(
+          slot,
+          label === "Baseline" ? undefined : baseline,
+        )}
+      </td>
     </tr>
   );
 }
@@ -110,13 +118,14 @@ export function ComparisonEndpointsTable({
   return (
     <table className="intent-ci-comparison">
       <caption className="visually-hidden">
-        Baseline, branch and landed CI builds with wall times
+        Baseline, branch and landed CI builds with timing
       </caption>
       <thead>
         <tr>
           <th scope="col">Endpoint</th>
           <th scope="col">Build</th>
           <th scope="col">CI wall time</th>
+          <th scope="col">CI time without runner waits</th>
         </tr>
       </thead>
       <tbody>

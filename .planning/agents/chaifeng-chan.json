@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "chaifeng-chan",
-  "email": "chaifeng-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-254#use-ancestor-ci-proof-for-skipped-builds",
-  "host": "claude",
-  "model": "opus"
-}

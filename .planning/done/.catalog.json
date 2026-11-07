@@ -2,6 +2,30 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-257_compare-story-ci-through-adapters.json",
+      "identity": "SEED-257#compare-story-ci-through-adapters",
+      "completedAt": "2026-11-07T09:13:35.670Z",
+      "blob": "fbe7989120d35df6e9af4eb3d6fc0c2f6b4d4a4b"
+    },
+    {
+      "fileName": "SEED-192_assess-story-intent-protection.json",
+      "identity": "SEED-192#assess-story-intent-protection",
+      "completedAt": "2026-11-07T09:06:09.585Z",
+      "blob": "f35393106081d734dc7771906c9f998ad3bf3340"
+    },
+    {
+      "fileName": "SEED-256_compare-ci-time-without-runner-waits.json",
+      "identity": "SEED-256#compare-ci-time-without-runner-waits",
+      "completedAt": "2026-11-07T08:20:21.775Z",
+      "blob": "bbb419096ef83a3c4c1c13a0ee0c146647b39552"
+    },
+    {
+      "fileName": "SEED-253_review-delivered-merge-changes.json",
+      "identity": "SEED-253#review-delivered-merge-changes",
+      "completedAt": "2026-11-07T08:15:33.466Z",
+      "blob": "281569e22c8b656acfa32da5ce5633c3a23b2dab"
+    },
+    {
       "fileName": "SEED-010_review-source-promises-before-first-slice.json",
       "identity": "SEED-010#review-source-promises-before-first-slice",
       "completedAt": "2026-11-07T06:32:27.475Z",

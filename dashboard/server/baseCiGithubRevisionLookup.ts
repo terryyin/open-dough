@@ -7,25 +7,17 @@ import {
   readGitHubActions,
 } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import {
+  timeWithoutRunnerWaits,
+  type ReportedAttemptJob,
+} from "./ciTimeWithoutRunnerWaits.ts";
 import type { ListedRun } from "./baseCiNearest.ts";
+import { revisionSubject } from "./baseCiRevisionGit.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
+import { rememberedByKey } from "./rememberedByKey.ts";
 
-export async function firstParentChain(
-  start: string,
-  call: GitCall,
-  limit: number,
-): Promise<string[]> {
-  return (
-    await runGit(
-      ["rev-list", "--first-parent", `--max-count=${String(limit)}`, start],
-      call,
-    )
-  ).stdout
-    .trim()
-    .split("\n")
-    .filter(Boolean);
-}
+const rememberedAttemptJobs = rememberedByKey<readonly ReportedAttemptJob[]>();
 
 function asListedRun(run: {
   readonly databaseId?: number;
@@ -71,7 +63,62 @@ export function githubRevisionLookup(
     repo: source.repository,
     workflow,
   });
+  // Slots in one comparison can name the same attempt and share its signal.
+  const pendingAttemptJobs = new Map<
+    string,
+    Promise<readonly ReportedAttemptJob[]>
+  >();
+  const repository = source.repository.toLowerCase();
+  function jobsOf(runId: number, attempt: number) {
+    const key = `${repository}#${String(runId)}#${String(attempt)}`;
+    const remembered = rememberedAttemptJobs.get(key);
+    if (remembered !== undefined) return Promise.resolve(remembered);
+    const pending = pendingAttemptJobs.get(key);
+    if (pending !== undefined) return pending;
+    const read = github
+      .attemptJobs(runId, attempt, signal)
+      .then((jobs: readonly ReportedAttemptJob[]) => {
+        rememberedAttemptJobs.set(key, jobs);
+        return jobs;
+      })
+      .finally(() => {
+        pendingAttemptJobs.delete(key);
+      });
+    pendingAttemptJobs.set(key, read);
+    return read;
+  }
+
   return {
+    async timeWithoutRunnerWaitsOf({ revision, runId, runAttempt, state }) {
+      if (runId === undefined || runAttempt === undefined)
+        return {
+          reason: "The build has no reported run and attempt identity.",
+        };
+      let workflowText: string;
+      try {
+        const { path } = (await github.workflow(signal)) as { path?: unknown };
+        if (
+          typeof path !== "string" ||
+          !/^\.github\/workflows\/[^/\r\n]+\.ya?ml$/.test(path)
+        ) {
+          return { reason: "The selected workflow has no readable file path." };
+        }
+        workflowText = (await runGit(["show", `${revision}:${path}`], call))
+          .stdout;
+      } catch {
+        return {
+          reason:
+            "The workflow file could not be read at this build's revision.",
+        };
+      }
+      let jobs: readonly ReportedAttemptJob[];
+      try {
+        jobs = await jobsOf(runId, runAttempt);
+      } catch {
+        return { reason: "The build's attempt jobs could not be read." };
+      }
+      return timeWithoutRunnerWaits(workflowText, jobs, state === "failed");
+    },
     async listRunsAt(sha) {
       const { id, name } = (await github.workflow(signal)) as {
         readonly id: number;
@@ -152,15 +199,6 @@ export function githubRevisionLookup(
       }
       return earlier;
     },
-    async subjectOf(sha) {
-      try {
-        const subject = (
-          await runGit(["log", "-1", "--format=%s", sha], call)
-        ).stdout.trim();
-        return subject === "" ? "(no subject)" : subject;
-      } catch {
-        return "(no subject)";
-      }
-    },
+    subjectOf: (sha) => revisionSubject(sha, call),
   };
 }

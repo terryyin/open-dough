@@ -10,12 +10,16 @@ fast-forward tip — never a later completion-only commit, no measured-ancestor
 fallback across that landing). The homepage names the active comparison
 (**Baseline compared with Landed** when Landed has proof, else **Branch**, or
 **Provisional** for Taken Trunk Mode) and why Landed is unused when skipped; an
-overall summary keeps units apart and shows CI wall time as
-`before → after (Δ)` (percentage only for a measured non-zero baseline); then
-each endpoint's revision, run, attempt, state and exact-or-ancestor selection
-with the same wall-time wording (observations between builds, not attributed to
-the story); then entry rows whose Counts and Baseline / Branch / Landed cells
-reuse those words. One classification of each scope's count and duration change
+overall summary keeps units apart and shows CI time without runner waits as
+`before → after (Δ)` (percentage only for a measured non-zero baseline), with
+CI wall time as context; then each endpoint's revision, run, attempt, state and
+exact-or-ancestor selection with CI wall time and CI time without runner waits
+(signed whole-second differences against Baseline; observations between builds,
+not attributed to the story); then entry rows whose Counts and Baseline /
+Branch / Landed cells reuse the before→after words. GitHub Actions wall time
+spans run creation on attempt one or attempt start on reruns through completion.
+CI time without runner waits measures the longest dependency chain of job
+durations, including carried-over jobs, against the workflow at that build. One classification of each scope's count and duration change
 feeds cues on the overall summary, entry rows, location and folder Summary
 rows, file **Proof**, location headers whose path is a compared entry, and
 file rows in the location tree: a count border (green fewer, red more; any

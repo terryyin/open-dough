@@ -10,6 +10,7 @@ import { push } from "./storyReviewTrunkCommits.ts";
 
 export const summaryComparisonChanges = {
   modified: "Modified dashboard/tests/folder/a.spec.ts",
+  mergeEdited: "Modified dashboard/tests/folder/nested/c.spec.ts",
   added: "Added dashboard/tests/added.spec.ts",
   deleted: "Deleted dashboard/tests/gone.spec.ts",
   renamed: "Renamed tests/old.sh → dashboard/tests/renamed.spec.ts",
@@ -63,4 +64,14 @@ export function changeSummaryComparisonTests(workspace: string) {
     `${lines("old")}renamed\n`,
   );
   // completedPublishedStory commits these with "story implementation".
+}
+
+// The story's integration merge edits an Intent test file neither side of the
+// merge changed.
+export function editSummaryComparisonTestInMerge(workspace: string) {
+  writeAt(
+    workspace,
+    "dashboard/tests/folder/nested/c.spec.ts",
+    `${lines("c")}merge edit\n`,
+  );
 }

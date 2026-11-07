@@ -27,21 +27,12 @@ export const addedFileRow: ComparisonScopeRow = [
   parts,
 ];
 
-export const fileRowWithoutOverlay: ComparisonScopeRow = [
-  "dashboard/tests/folder/a.spec.ts",
+export const mergeEditedFileRow: ComparisonScopeRow = [
+  "dashboard/tests/folder/nested/c.spec.ts modified",
   "1 tests (no change)",
-  "10.0 s",
-  "10.0 s → 14.0 s (+4.0 s, +40%)",
-  "10.0 s → 14.0 s (+4.0 s, +40%)",
-  parts,
-];
-
-export const addedFileRowWithoutOverlay: ComparisonScopeRow = [
-  "dashboard/tests/added.spec.ts",
-  "added → 1 tests",
-  "added",
-  "800 ms",
-  "800 ms",
+  "340 ms",
+  "340 ms → 410 ms (+70 ms, +21%)",
+  "340 ms → 410 ms (+70 ms, +21%)",
   parts,
 ];
 

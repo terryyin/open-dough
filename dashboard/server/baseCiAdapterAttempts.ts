@@ -1,18 +1,21 @@
-// A ciAdapter's discovered attempts as the CI status judgment
-// (`./baseCiJudgment.ts`) judges them: their identity kept apart from a
-// GitHub Actions run's (`./baseCiNearest.ts`).
-import type { ListedRun } from "./baseCiNearest.ts";
+// Adapter attempts for the dashboard's CI status and story comparison reads.
+import { createCommandAcquisition } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import { type ListedRun, unread } from "./baseCiNearest.ts";
 
 // One ciAdapter attempt discover answered: its `runId` and `attemptId` as
 // `databaseId` and `attempt`, and the check and context the adapter named.
 // Judgment maps retained newest-per-check attempts; ambiguity counts over
 // every answered attempt at the revision.
-export type DiscoveredAttempt = Omit<ListedRun, "databaseId" | "attempt"> & {
+type DiscoveredAttempt = Omit<ListedRun, "databaseId" | "attempt"> & {
   readonly databaseId: string | number;
   readonly attempt: string | number;
   readonly check?: string;
   readonly context?: string;
 };
+
+export type AdapterRun = ListedRun &
+  Pick<DiscoveredAttempt, "check" | "context">;
 
 // The same attempt may be discovered for both the configured ref and a story
 // branch; another attempt differs in run, attempt, check or context.
@@ -26,10 +29,10 @@ const atRevisionKey = (run: DiscoveredAttempt) =>
 // with whether another attempt discover answered (in `answered`, or
 // `retained` when omitted) names the same `attemptId` (in its text form) at
 // that revision — counted before newest-per-check retention.
-export function asAdapterAttempts(
+function asAdapterAttempts(
   retained: readonly DiscoveredAttempt[],
-  answered: readonly DiscoveredAttempt[] = retained,
-): ListedRun[] {
+  answered: readonly DiscoveredAttempt[],
+): AdapterRun[] {
   const attempts = new Map<string, Set<string>>();
   for (const run of answered) {
     const key = atRevisionKey(run);
@@ -47,4 +50,63 @@ export function asAdapterAttempts(
       },
     };
   });
+}
+
+// Ask both branches concurrently and stop the other request if either fails.
+// Keep the target first so ties prefer the story branch's listing. Comparison
+// can use any discovered attempt at an exact SHA, while CI status keeps the
+// adapter's normal target filter. Proof uses the branch whose listing we read.
+export async function discoverAdapterAttempts(
+  source: PublishedSource,
+  branch: string,
+  root: string,
+  command: readonly string[],
+  signal: AbortSignal,
+  { comparison = false } = {},
+): Promise<AdapterRun[]> {
+  const branches = branch === source.ref ? [branch] : [source.ref, branch];
+  const ended = new AbortController();
+  const asked = AbortSignal.any([signal, ended.signal]);
+  const listed = await Promise.all(
+    branches.map(async (listedBranch) => {
+      const acquisition = createCommandAcquisition({
+        command,
+        repo: source.repository,
+        branch: listedBranch,
+        root,
+        includeOtherBranches: comparison,
+      });
+      try {
+        await acquisition.acquireRuns(asked);
+      } catch (error) {
+        ended.abort();
+        throw error;
+      }
+      const fromListing = (run: DiscoveredAttempt) => ({
+        ...run,
+        branch: listedBranch,
+      });
+      const answered = (
+        (await acquisition.discoverAnsweredAttempts()) as DiscoveredAttempt[]
+      ).map(fromListing);
+      const retained = comparison
+        ? answered
+        : (
+            (await acquisition.discoverAncestorCandidates()) as DiscoveredAttempt[]
+          ).map(fromListing);
+      return { retained, answered };
+    }),
+  );
+  return asAdapterAttempts(
+    listed.flatMap(({ retained }) => retained),
+    listed.flatMap(({ answered }) => answered),
+  );
+}
+
+export function adapterDiscoveryUnread(error: unknown) {
+  return unread(
+    error instanceof Error
+      ? error.message
+      : "The command-adapter discover could not be read",
+  );
 }

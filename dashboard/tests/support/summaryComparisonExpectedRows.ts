@@ -114,71 +114,15 @@ export const nestedComparisonRows: readonly ComparisonScopeRow[] = [
   ],
 ];
 
-// When Review refuses attribution, the story overlay is absent: deleted files
-// and change markers drop out of the inventory, while retained A/B/C proof
-// rows for files still on trunk remain.
-export const entryComparisonRowsWithoutOverlay: readonly ComparisonScopeRow[] =
-  [
-    [
-      "dashboard/tests",
-      "4 → 5 tests (+1)",
-      "12.0 s",
-      "12.0 s → 18.5 s (+6.5 s, +54%)",
-      "12.0 s → 18.5 s (+6.5 s, +54%)",
-      parts,
-    ],
-    [
-      "folder/",
-      "2 tests (no change)",
-      "10.3 s",
-      "10.3 s → 14.4 s (+4.1 s, +39%)",
-      "10.3 s → 14.4 s (+4.1 s, +39%)",
-      parts,
-    ],
-    ["added.spec.ts", "added → 1 tests", "added", "800 ms", "800 ms", parts],
-    [
-      "later.spec.ts",
-      "no CI result",
-      "not in the compared builds",
-      "not in the compared builds",
-      "not in the compared builds",
-      parts,
-    ],
-    ["renamed.spec.ts", "added → 1 tests", "added", "2.1 s", "2.1 s", parts],
-    [
-      "root.spec.ts",
-      "1 tests (no change)",
-      "1.2 s",
-      "1.2 s (no change)",
-      "1.2 s (no change)",
-      parts,
-    ],
-  ];
-
-export const folderComparisonRowsWithoutOverlay: readonly ComparisonScopeRow[] =
-  [
-    [
-      "dashboard/tests/folder",
-      "2 tests (no change)",
-      "10.3 s",
-      "10.3 s → 14.4 s (+4.1 s, +39%)",
-      "10.3 s → 14.4 s (+4.1 s, +39%)",
-      parts,
-    ],
-    [
-      "nested/",
-      "1 tests (no change)",
-      "340 ms",
-      "340 ms → 410 ms (+70 ms, +21%)",
-      "340 ms → 410 ms (+70 ms, +21%)",
-      parts,
-    ],
-    [
-      "a.spec.ts",
-      "1 tests (no change)",
-      "10.0 s",
-      "10.0 s → 14.0 s (+4.0 s, +40%)",
-      "10.0 s → 14.0 s (+4.0 s, +40%)",
-      parts,
-    ],
-  ];
+// After the story's integration merge edits the nested test file
+// (./intentSummaryStoryComparisonShared.ts): the same times, now marked as a
+// story change.
+const [nestedFolderRow, nestedFileRow] = nestedComparisonRows as readonly [
+  ComparisonScopeRow,
+  ComparisonScopeRow,
+];
+const [nestedFile, ...nestedFileCells] = nestedFileRow;
+export const mergeEditedNestedComparisonRows: readonly ComparisonScopeRow[] = [
+  nestedFolderRow,
+  [`${nestedFile} modified`, ...nestedFileCells],
+];
