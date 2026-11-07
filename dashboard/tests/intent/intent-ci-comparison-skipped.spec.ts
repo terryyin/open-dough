@@ -153,7 +153,7 @@ test("Landed names Skipped at a planning-only merge and uses the equivalent buil
   await expect(landedIdentity).toContainText("equivalent build");
   await expect(landedIdentity).not.toContainText(shortSha(setup.olderBaseline));
   await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "5 min +2 min",
+    "5 min",
   );
   await expect(
     panel.getByRole("table", { name: "CI entry timing comparison" }),
