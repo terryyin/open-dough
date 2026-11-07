@@ -1,6 +1,5 @@
 // Recovering an unavailable done-story CI timing comparison in the same
-// dashboard process (SEED-118#retry-unavailable-ci-comparison-slots): an
-// answer with an unavailable slot is not remembered
+// dashboard process: an answer with an unavailable slot is not remembered
 // (../../server/intentCiComparisonAnswers.ts), so the next read, by
 // reselecting the story or by its Check again
 // (../../src/IntentCiComparison.tsx), lists the endpoint afresh and reads the
