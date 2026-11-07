@@ -1,7 +1,8 @@
 import { test } from "@playwright/test";
 
-// Never finishes on its own, so only the run's deadline ends it.
+// Never finishes on its own. The run's deadline or a signal stops it well
+// within its own default case timeout, which only bounds a run whose stop
+// never comes.
 test("waits past the deadline", async () => {
-  test.setTimeout(0);
   await new Promise(() => {});
 });

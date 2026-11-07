@@ -69,7 +69,6 @@ for (const failure of ["server", "release"] as const) {
         workers: 1,
         retries: 0,
         reporter: [["json", { outputFile: reportFile }]],
-        timeout: 30_000,
       });
       const status = run.status;
       const outputText = `${run.stdout}${run.stderr}`;

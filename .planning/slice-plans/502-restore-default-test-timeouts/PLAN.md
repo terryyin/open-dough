@@ -230,9 +230,7 @@ reachability assertion with the clipped controls listed. Runs: 14/14; 8
 workers `--repeat-each 3` 42/42; the reachability consumers 78/78; the rest of
 the families 56/56. `agent-launch-story-card-sessions` keeps the thinnest
 hosted margin, 25.2–25.3s with no elapsed wait. Slice 10 confirms it at the
-hosted gate and repairs it if it fails. The final inventory also
-owns the elapsed 300ms sleep at
-`session-workspace-retirement-claude-done.spec.ts:50`.
+hosted gate and repairs it if it fails.
 
 ### 6. Dashboard deployment proves pinned serving and clean replacement
 
@@ -288,12 +286,27 @@ base moved to the failed commit. The seven production specs ran 37/37, and
 ### 8. Nested Playwright watchdog and reporter cases retain useful failure evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Run `quiet-reporter.spec.ts` and the affected process/deadline proof
 specs with their nested fixtures. Distinguish the deliberate nested run
 deadline from the case timeout and exercise the intended failure trigger.
 Check terminal verdict, completed and unfinished case evidence, retained trace
 and process cleanup. Prefer a bounded fixture that observes the stop event.
+
+Result: all eight overrides removed; no new allowance. The nested fixtures'
+`test.setTimeout(0)` was inherited rather than a scenario input. Their stop
+comes from the run's 8s `globalTimeout`, SIGINT or a group kill, and they are
+now bounded by the nested default. The deadline cases now assert that no
+nested case timeout fired. The interruption record expects the unfinished
+attempt rather than an always-true status check. Forcing a 2s nested case
+timeout failed both deadline cases at "Timed out waiting". The run-processes
+config deadlines of 5s and 3s are expirations under test. Runs: 15/15, and
+75/75 with the other reporter consumers at `--repeat-each 3`. The dashboard
+inventory finds no slow marker, group, fixture or configuration timeout.
+Two case-local allowances remain: `auto-refresh-rate-limit` and
+`production-deployment`, 45s each. Fixed elapsed waits that do not approach
+a case timeout, such as absence windows and short settle delays, are outside
+this story's timeout scope. The execution report lists them.
 
 ### 9. Node checks use native defaults and deterministic progress
 
