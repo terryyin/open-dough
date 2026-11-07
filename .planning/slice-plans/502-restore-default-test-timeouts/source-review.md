@@ -53,13 +53,13 @@ coordinator's allocation.
 | 4f | Run each full local run on an awake Mac on AC power under `caffeinate -s -i` (qualification) | slice 10 | |
 | E1 | Real-Git completed-story review: it has ample headroom, so its slow marker is removed (example) | slice 1 | observed: slow markers removed from dashboard/backend-tests/review/story-review-completed.spec.ts and dashboard/tests/review/story-review-completed*.spec.ts |
 | E1.1 | With the marker removed, the same HTTP checks still tell the selected story's published files apart from interleaved changes at the default timeout (example) | slice 1 | observed: backend-tests/review/story-review-completed.spec.ts 'completion isolates interleaved work…': files contain shared.txt, exclude other-story.txt and integration-other.txt; passed at default 7.1s/10.4s in strict run (tmp proof.json, 765 selected, strictStatus passed) |
-| E2 | Candidate with an unsupported published policy or a failed build: when the watcher checks it, the last successful preview keeps serving (example) | slice 7 | |
-| E2.1 | A repair that qualifies only because the failed application's paths remain in the range can activate (example) | slice 7 | |
-| E2.2 | The next excluded range is compared from that successful activation (example) | slice 7 | |
-| E2.3 | The faster check still observes real activation (example) | slice 7 | |
-| E2.4 | The faster check still observes recovery (example) | slice 7 | |
-| E2.5 | The faster check still observes cleanup (example) | slice 7 | |
-| E2.6 | If the measured case still needs more than the default, its own bounded allowance and pending candidate make the cost visible (alternative outcome, not a rejection rule) | slice 7 | |
+| E2 | Candidate with an unsupported published policy or a failed build: when the watcher checks it, the last successful preview keeps serving (example) | slice 7 | observed: dashboard/tests/runtime/productionUpdatePolicies.ts:109 baseline kept through unsupported policy, old preview serves; dashboard/tests/runtime/productionUpdatePolicies.ts:158 'Keeping q at', Q preview running, title MAIN P after R's real build failure (s7 after run 37/37 and stress 74/74, tmp s7/) |
+| E2.1 | A repair that qualifies only because the failed application's paths remain in the range can activate (example) | slice 7 | observed: dashboard/tests/runtime/productionUpdatePolicies.ts:137 policy repair Q activates only through the rejected application's retained paths (s7 after run 37/37 and stress 74/74, tmp s7/) |
+| E2.2 | The next excluded range is compared from that successful activation (example) | slice 7 | observed: dashboard/tests/runtime/productionUpdatePolicies.ts:201 T skipped as 'every change since S' (latest successful activation); mutation 2 (base moved to failed R) failed at S step (s7 after run 37/37 and stress 74/74, tmp s7/) |
+| E2.3 | The faster check still observes real activation (example) | slice 7 | observed: dashboard/tests/runtime/productionUpdatePolicies.ts:137 and dashboard/tests/runtime/productionUpdatePolicies.ts:185 real npm install, Vite build and preview activation via productionActivation/productionReplacement (s7 after run 37/37 and stress 74/74, tmp s7/) |
+| E2.4 | The faster check still observes recovery (example) | slice 7 | observed: dashboard/tests/runtime/productionUpdatePolicies.ts:185 S activates after R's failure, R never activates, built list equals activations; mutation 1 failed at dashboard/tests/runtime/productionUpdatePolicies.ts:158 (s7 after run 37/37 and stress 74/74, tmp s7/) |
+| E2.5 | The faster check still observes cleanup (example) | slice 7 | observed: dashboard/tests/runtime/productionUpdatePolicies.ts:185 via productionReplacement (support/productionWatcher.ts:100-103): same URL, superseded preview process ends, replacement runs; no leftover dough-published-main dirs after the s7 runs |
+| E2.6 | If the measured case still needs more than the default, its own bounded allowance and pending candidate make the cost visible (alternative outcome, not a rejection rule) | slice 7 | observed: not needed: no allowance remains on the recovery or failures cases (dashboard/tests/runtime/productionUpdatePolicies.ts, production-watcher-failures.spec.ts) (s7 after run 37/37 and stress 74/74, tmp s7/) |
 | E3 | A check that passes alone but times out under full suite load counts as a failing check (example) | slice 10 | |
 | E3.1 | Identify the missed event, the fixture cost or the host condition (any of these causes) (example) | slice 10 | |
 | E3.2 | Preserve the check's proof (example) | slice 10 | |
@@ -78,4 +78,4 @@ coordinator's allocation.
 | X1 | Exclusion: new timeout enforcement or reporting infrastructure | slice 10 | |
 | X2 | Exclusion: runner replacement | slice 10 | |
 | X3 | Exclusion: redesign of test tiers | slice 10 | |
-| X4 | Exclusion (conditional): changes to the existing unique integrated watcher coverage need their own scope decision and replacement proof | slice 7 | |
+| X4 | Exclusion (conditional): changes to the existing unique integrated watcher coverage need their own scope decision and replacement proof | slice 7 | observed: unique integrated watcher coverage kept: real install, build, preview, process ownership and cleanup unchanged; splits keep every assertion (dashboard/tests/runtime/productionUpdatePolicies.ts, production-watcher-failures.spec.ts) |

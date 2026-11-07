@@ -128,7 +128,13 @@
   the first test that asserts it. Their hooks went from 24.1s and 28.6s in CI
   (13.9s and 13.5s locally) to 4.5s and 5.4s locally, and the failure file's
   hook from 10.5s to 7.5s, all at the default timeout. The two-build held
-  update and the policy case were split into serial steps.
+  update and the policy case were split into serial steps. Slice 7 split the
+  82.1s CI recovery case (27.0s locally) into five serial steps, each at most
+  6.1s locally. Its documentation-only commit now reaches main while the
+  failing build is preparing, so the failed commit is not retried and the
+  next commit does not fail first. The failure file's two-build cases became
+  serial steps with a separate restart step. Every case override in these
+  files was removed.
 - **Unique protection:** attention reporting remains durable and readable
   through column changes, retirement, restart, Mark as read, and Mark as done;
   production-watcher journeys retain real activation, published-policy,

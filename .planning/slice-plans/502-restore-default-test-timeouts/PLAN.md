@@ -263,7 +263,7 @@ removes the allowance when the margin supports it.
 ### 7. Watcher recovery retains the previous successful baseline
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Start with the measured 82.112s recovery case and its two types of
 rejection. Use the existing watcher gates to drive rejection, repair and retry.
 Measure repeated build and retry costs and try a cheaper path around those
@@ -272,6 +272,18 @@ and qualification checks. Observe the old preview serving on failure, the
 repaired candidate activating, the next excluded range using the new baseline,
 and process/checkout cleanup. If real integrated work still needs a longer case
 budget, record the smallest justified allowance and the cost left to address.
+
+Result: every override removed; no allowance remains. The recovery case
+(27.0s locally, 82.1s in CI) spent its excess on two redundant real stagings:
+R retried and S failing on the still-present fault. It became five serial
+steps with every assertion kept. S is published while R prepares, and the
+fault is removed only after asserting `Keeping q at`, the running Q preview
+and MAIN P. Local times are 3.0/6.1/4.0/6.0/2.4s. Two failures cases became
+steps: the failed preview and the post-hang-up restart. The largest owned
+step under six-worker stress was 20.5s. Mutation checks failed the steps
+twice: when the baseline advanced on a build failure, and when the comparison
+base moved to the failed commit. The seven production specs ran 37/37, and
+74/74 under stress.
 
 ### 8. Nested Playwright watchdog and reporter cases retain useful failure evidence
 

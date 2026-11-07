@@ -4,8 +4,8 @@
 // keeps production and checks resume; SIGHUP, a failed restoration and an
 // unexpectedly ended preview each end the watcher with cleanup. Each test
 // steps the shared watcher to its next state from the watcher's own output
-// and asserts that delta; a scenario that ends the watcher restarts it at
-// current main for the next.
+// and asserts that delta; after a scenario ends the watcher, a restart at
+// current main serves the next.
 import { expect, test } from "../support/pageTest.ts";
 import { readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -82,7 +82,6 @@ test.afterAll(async () => {
 });
 
 test("a failed build keeps working production and the same commit is retried until it builds", async () => {
-  test.setTimeout(90_000);
   if (watcher === undefined) throw new Error("No watcher");
   const { fixture, page } = started();
   const buildFault = path.join(fixture.home, "fault-build");
@@ -110,8 +109,7 @@ test("a failed build keeps working production and the same commit is retried unt
   latestCommit = b;
 });
 
-test("a failed preview start restores the working commit and the same commit is retried until it serves", async () => {
-  test.setTimeout(90_000);
+test("a failed preview start restores the working commit", async () => {
   if (watcher === undefined) throw new Error("No watcher");
   const { fixture, page } = started();
   // The served commit's gate also reads HOME; make the start cause apply to
@@ -142,18 +140,22 @@ test("a failed preview start restores the working commit and the same commit is 
   await page.reload();
   await expect(page).toHaveTitle("WORKING B");
   await rm(cFault);
-  served = await productionReplacement(watcher, served, c);
-  expect(preparing(c)).toBeGreaterThanOrEqual(2);
+  latestCommit = c;
+});
+
+test("after a failed preview start the same commit is retried until it serves", async () => {
+  if (watcher === undefined) throw new Error("No watcher");
+  const { page } = started();
+  served = await productionReplacement(watcher, served, latestCommit);
+  expect(preparing(latestCommit)).toBeGreaterThanOrEqual(2);
   await page.reload();
   await expect(page).toHaveTitle("WORKING C");
-  servedCommit = c;
-  latestCommit = c;
+  servedCommit = latestCommit;
 });
 
 test("an unavailable origin keeps production and checks resume when it returns; SIGHUP ends the watcher without a failure", async ({
   request,
 }) => {
-  test.setTimeout(60_000);
   if (watcher === undefined) throw new Error("No watcher");
   const { fixture, page } = started();
   await rename(fixture.origin, `${fixture.origin}.unavailable`);
@@ -183,15 +185,21 @@ test("an unavailable origin keeps production and checks resume when it returns; 
   watcher = undefined;
 });
 
+test("a watcher started after a hang-up serves current main again", async () => {
+  const { fixture, page } = started();
+  watcher = startProductionWatcher(fixture.development, fixture.env);
+  served = await productionActivation(watcher, latestCommit);
+  await page.goto(served.url);
+  await expect(page).toHaveTitle("WORKING C");
+});
+
 test("a failed candidate whose restoration also fails reports both causes, exits and cleans up", async ({
   request,
 }) => {
-  test.setTimeout(90_000);
+  if (watcher === undefined) throw new Error("No watcher");
   const { fixture } = started();
-  // The next watcher serves current main. Then D's own preview gate and
-  // the served commit's (which reads its own cause) both fail.
-  watcher = startProductionWatcher(fixture.development, fixture.env);
-  served = await productionActivation(watcher, latestCommit);
+  // D's own preview gate and the served commit's (which reads its own
+  // cause) both fail.
   await writeFile(path.join(fixture.home, "fault-preview"), "start cause");
   await writeFile(path.join(fixture.home, "fault-preview-c"), "start cause");
   const d = await fixture.publish(
@@ -221,7 +229,6 @@ test("a failed candidate whose restoration also fails reports both causes, exits
 test("an unexpectedly ended preview ends the watcher with cleanup", async ({
   request,
 }) => {
-  test.setTimeout(90_000);
   const { fixture } = started();
   await rm(path.join(fixture.home, "fault-preview"));
   await rm(path.join(fixture.home, "fault-preview-c"));

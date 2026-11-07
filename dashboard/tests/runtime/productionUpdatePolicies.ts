@@ -95,13 +95,17 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     await expect(page).toHaveTitle("MAIN E");
   });
 
-  test("npm watcher keeps its baseline through an unsupported published policy and failed builds, then compares from the next successful activation", async () => {
-    test.setTimeout(150_000);
+  // The recovery chain below steps one watcher through rejection, repair,
+  // a failed real build and the next comparison. The journey records each
+  // activation; R and S, published before they settle, pass to later steps.
+  let r: string;
+  let s: string;
+
+  test("npm watcher keeps its baseline through an unsupported published policy, reported on each check before any install", async () => {
     const state = journey.started();
     const { fixture, page, watcher } = state;
     const baseline = state.built.at(-1) ?? "";
 
-    // An unsupported policy at P is reported on each check before any install.
     const before = await journey.work();
     const p = await fixture.publish(
       {
@@ -123,6 +127,11 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     expect(processRunning(state.served.pid)).toBe(true);
     await page.reload();
     await expect(page).toHaveTitle("MAIN E");
+  });
+
+  test("npm watcher activates a policy repair that qualifies only through the rejected application's retained paths", async () => {
+    const state = journey.started();
+    const { fixture, page } = state;
 
     // Q repairs only ignored workflow/docs paths. Only retained P application
     // paths can qualify this range; advancing the baseline on P would skip Q.
@@ -133,30 +142,46 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
       },
       "Valid policy Q",
     );
-    const atQ = await journey.replacedBy(q);
+    await journey.replacedBy(q);
     await page.reload();
     await expect(page).toHaveTitle("MAIN P");
     expect(await builtCommitPrefixes(fixture.home)).toEqual(
       prefixesOf(state.built),
     );
+  });
 
-    // R fails its real build; documentation-only S is still compared with Q.
+  test("npm watcher keeps the repaired preview serving when the next commit fails its real build", async () => {
+    const state = journey.started();
+    const { fixture, page, watcher } = state;
+    const q = state.built.at(-1) ?? "";
+
+    // R fails its real build. Documentation-only S reaches main while R is
+    // being prepared, so the next check compares S with Q, never with R, and
+    // R is not retried.
     const buildFault = path.join(fixture.home, "fault-build");
     await writeFile(buildFault, "transient build cause");
-    const r = await fixture.publish(fixture.markerChanges("MAIN R"), "Main R");
+    r = await fixture.publish(fixture.markerChanges("MAIN R"), "Main R");
     await expect
-      .poll(() => watcher.output(), { timeout: 120_000 })
+      .poll(() => watcher.output(), { timeout: 60_000 })
+      .toContain(`Preparing production dashboard ${r}.`);
+    s = await fixture.publish({ "docs/s.md": "# S\n" }, "Document S");
+    await expect
+      .poll(() => watcher.output(), { timeout: 60_000 })
       .toContain(`Production update failed for ${r}: `);
     expect(watcher.output()).toContain("TRANSIENT build FAILURE");
-    const s = await fixture.publish({ "docs/s.md": "# S\n" }, "Document S");
-    await expect
-      .poll(() => watcher.output(), { timeout: 120_000 })
-      .toContain(`Production update failed for ${s}: `);
     expect(watcher.output()).toContain(`Keeping ${q} at ${state.served.url}`);
-    expect(processRunning(atQ.pid)).toBe(true);
+    expect(processRunning(state.served.pid)).toBe(true);
     await page.reload();
     await expect(page).toHaveTitle("MAIN P");
+    // Until the cause is gone, an attempt at S fails the same way and is
+    // retried; the next step waits for S's activation.
     await rm(buildFault);
+  });
+
+  test("npm watcher activates the next commit, compared with the last successful activation across the failed build", async () => {
+    const state = journey.started();
+    const { fixture, page, watcher } = state;
+
     await journey.replacedBy(s);
     expect(watcher.output()).not.toContain(`Skipping production update ${s}`);
     expect(watcher.output()).not.toMatch(
@@ -167,6 +192,11 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     expect(await builtCommitPrefixes(fixture.home)).toEqual(
       prefixesOf(state.built),
     );
+  });
+
+  test("npm watcher compares the next excluded range from its latest successful activation", async () => {
+    const state = journey.started();
+    const { fixture, page, watcher } = state;
 
     // The next comparison starts at S, so documentation-only T is skipped.
     const beforeT = await journey.work();
