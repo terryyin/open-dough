@@ -71,3 +71,26 @@ test("an adapter whose answer is not JSON answered no proof read, with the runne
     /^This attempt's CI adapter answered no proof read: CI adapter returned invalid JSON: .+\.$/,
   );
 });
+
+test("cached proofs distinguish opaque identities containing separators", async (t) => {
+  const repository = "terryyin/open-dough";
+  for (const [runId, attemptId] of [
+    ["pipeline#1", "2"],
+    ["pipeline", "1#2"],
+  ]) {
+    const summary = {
+      schemaVersion: 1,
+      repository,
+      revision,
+      attemptId,
+      entries: [],
+    };
+    const proof = await readCiAdapterProof(
+      repository,
+      adapterProject(t, JSON.stringify({ summary })),
+      { runId, attemptId, branch: "main", revision },
+      new AbortController().signal,
+    );
+    assert.deepEqual(proof, { kind: "summary", summary });
+  }
+});

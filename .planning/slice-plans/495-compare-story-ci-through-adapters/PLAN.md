@@ -158,9 +158,14 @@ journeys, status/proof, comparison/Summary, and launch. The six
 `dashboard-story-branch-ci-adapter.test.mjs` cases and dashboard typecheck
 passed. The timeout journey remains slice 3 proof.
 
+Published to the execution branch at
+`8dcf704f628c57e8a2e52e6ecb4846e815423ec0`. A competing remote tracking ref
+update interrupted the post-push fetch. Managed resume confirmed that SHA
+with zero additional pushes, and the observer had registered it.
+
 ### 2. Read each endpoint's proof through the adapter
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-comparison-adapter.spec.ts` proof cases with the
 fixture's request log; `intent-summary-story-comparison*.spec.ts` stay
 green.
@@ -174,6 +179,23 @@ would be. Each completed endpoint asks `proof` once with its `runId`,
 answered attempt shares at that revision is ambiguous and not asked.
 Updates `custom-ci.md`, `custom-ci-proof.md`,
 `docs/dashboard-development-intent.md` and `dashboard/GITHUB-REQUESTS.md`.
+
+Accepted proof: the adapter comparison spec asserts three exact proof
+requests for the merge, counts (5 to 8 tests, +3), durations (3 s to 5 s,
++2 s) and the retained Landed build beside its missing-summary reason.
+The fast-forward journey observes the invalid Baseline reason and both
+ambiguous endpoint reasons, with no ambiguous proof requests. A focused
+adapter-proof module test proves separator-containing IDs cannot collide in
+the shared proof cache. The focused Chromium group passed 36 comparison,
+Summary and adapter CI status checks, and three status wall-time checks
+also passed. Typecheck, lint, adapter proof, guidance and entry tests
+passed. The adapter fixture exercised the manuals' discover-to-proof request.
+
+Independent refactor bound the request subject and key to the same render
+and retained each journey's assertions. The 30 comparison and Summary
+Chromium checks passed after refactoring, as did typecheck, the guidance
+check and whitespace verification. The CI status and cache proof remained
+applicable.
 
 ### 3. Taken stories and named gaps for adapter builds
 Type: Behavior
@@ -222,7 +244,7 @@ identified no remaining slice-specific concern.
 ### G1. Adapter proof in the delivered comparison
 Reported: slice 1 — "Slice 2 owns adapter endpoint proof, which currently shows the existing no-summary message."
 Story clause: "Proof for each completed build through the existing adapter `proof` read"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: dashboard/tests/intent/intent-ci-comparison-adapter.spec.ts merge proof requests and comparison entries
 
 ### G2. Preserve the adapter reason on a discovery deadline
 Reported: slice 1 — "If the shared signal itself expires while discovering, lookupOrGap returns the adapter reason then the Git verification can throw and hide that reason."

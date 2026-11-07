@@ -98,48 +98,42 @@ answer replaces its problem through the same path as **Retry**. Malformed
 settings, access refusals, unexpected answers and unclassified failures keep
 their manual actions. Absent or mismatched candidates keep their existing
 explanations. Purpose file text offers its own **Retry**.
-**CI status** shows the selected check's judgment of the project's configured
-trunk (`main` here), or, with a selected Taken story (card or Side panel), of
-that story's published story branch — the branch its single agent profile
-records in Story Branch Mode — by the same rule as the
-[base-CI check before an execution start](../dashboard/LAUNCH-BASE-CI.md):
-the newest result of the configured `ciWorkflow` (or `ciAdapter` discover) at
-the branch head or its nearest ancestor that has one. For a story branch,
-trunk results of the same check also count when the commit is in the branch's
-history (the run's branch is named, for example "run on `main`"); a trunk
-result for a commit outside that history never counts. The nearest commit
-with a result decides by its newest result; a failed trunk read leaves
-**Could not be read**. A selected **done** story shows a **CI timing
-comparison** instead of a live branch judgment: baseline (newest completed
-build at or before the story's first claim parent), branch result (final
-story-branch revision's build from the landing's story-side parent, or not
-applicable for Trunk Mode), and landed result (build at the story's
-integration: the newest trunk-first owning merge, or the fast-forward tip when
-there is none — never a later completion-only commit, and with no
-measured-ancestor fallback across that landing), each named with revision, run,
-attempt, state and whether it is exact or a measured ancestor, with CI wall
-time and signed whole-second differences framed as observations between single
-builds (not attributed to the story), then entry rows with each endpoint's
-cumulative test execution time. Endpoint recovery for those builds is
-independent of Review changes' merge-resolution attribution; a Review
-attribution refusal does not suppress the comparison at homepage, entry,
-folder or file scopes. A selected **Taken** Story Branch story keeps that live
-judgment and adds the same comparison against the pre-story baseline, with the
-latest completed branch build labelled provisional and Landed saying the story
-has not landed yet; a new branch head re-reads it. A selected **Taken** Trunk
-Mode story shows that provisional trunk comparison (Branch not applicable,
-Landed not yet landed) instead of a no-branch gap. A selected story with no
-published story branch (queued or being prepared), unreadable or ambiguous
-agent profiles, an unusable recorded name, or a branch GitHub no longer
-publishes is named with that explanation and shows no status; no other
-branch's judgment stands in. A changed selection replaces the judgment;
-clearing it returns to the trunk. It names the branch and states **Passed**,
+**CI status** judges configured trunk (`main` here) or the published branch of
+a Taken story selected by card or Side panel. The story's single Story Branch
+Mode agent profile records that branch. Judgment follows the same rule as the
+[base-CI check](../dashboard/LAUNCH-BASE-CI.md). The newest
+`ciWorkflow` or `ciAdapter` result at the head or nearest ancestor decides.
+Trunk results for the same check count on a story branch when the commit is
+in its history, and the view names the run's branch, for example "run on
+`main`". A failed trunk read leaves **Could not be read**.
+A selected **Done** story shows the **CI timing comparison**. Baseline is
+the newest completed build at or before the first claim parent. Branch is
+the final branch result from the landing's story-side parent (inapplicable
+in Trunk Mode). Landed uses the newest trunk-first owning merge or the
+fast-forward tip, before any separate completion commit and without falling
+back across the landing. Each build shows its revision, run, attempt, state,
+exact or measured ancestor, and wall time. Signed whole-second differences
+describe observed builds. Entry rows compare cumulative test execution time.
+With `ciAdapter`, the comparison matches retained `discover` attempts by full
+revision across validated branches. It queries the target and any known
+story branch, and shows both IDs as text. Completed endpoints ask `proof`
+on the listing branch for counts and durations. Unavailable, invalid, or
+ambiguous proof leaves the build visible with its reason. Endpoint recovery is
+independent of Review changes' merge attribution at home, entry, folder and file.
+A selected **Taken** Story Branch story keeps live judgment and compares the
+latest completed branch build as provisional against Baseline. Landed says
+the story has yet to land, and a new branch head refreshes the comparison.
+A Taken Trunk Mode story compares the provisional trunk result, with Branch
+inapplicable and Landed still pending integration. A story without a published
+branch, with unreadable or ambiguous agent profiles, or with an unusable or
+unpublished branch name shows only that reason. Selection replaces the judgment,
+and clearing it returns to trunk. Judgment names the branch, **Passed**,
 **Failed** (including cancelled or timed out), **Running** or **Could not be
-read** with the reason, judged short SHA and subject, how many later commits
-lack their own result, the run link when given, while running the nearest
-completed ancestor, and when it was checked; a history with no result, and a
-trunk whose history GitHub answers `404` for, are **Could not be read** (with
-GitHub's reason); only a story branch is called no longer published. Below
+read** with the reason, the judged short SHA and subject, the number of later
+commits without results, any run link, the nearest completed ancestor while
+running, and when it was checked. History without a result and trunk history
+GitHub answers `404` for are **Could not be read** with the reason. Only
+story branches can be called no longer published. Below
 the judgment, **Proof** shows the CI proof of that run (for a running result,
 the completed ancestor's): revision, link and attempt once (a `ciAdapter`
 attempt named by its `attemptId`) with that attempt's **CI wall time** from

@@ -1,4 +1,4 @@
-// A ciAdapter project for the CI proof in Intent's CI status tab
+// A ciAdapter project for proof in Intent's CI status and comparison
 // (./intent/intent-ci-proof-adapter.spec.ts, ./intent/intent-ci-proof-adapter-reasons.spec.ts):
 // the project folder in the test home whose own adapter records each request
 // it is asked and answers from the test's answers; its attempts, a tests
@@ -30,8 +30,9 @@ export const testsRow = [
 export type Answers = {
   // Each discover's attempts, by the asked branch.
   readonly discover: Readonly<Record<string, readonly unknown[]>>;
-  // The answer to every proof read.
+  // Default proof answer, with optional answers by the requested attempt ID.
   readonly proof: unknown;
+  readonly proofByAttemptId?: Readonly<Record<string, unknown>>;
   // Instead of answering, the proof read writes this to stderr and exits 2,
   // as an adapter without the operation does.
   readonly proofStderr?: string;
@@ -61,11 +62,13 @@ if (request.operation === "proof" && answers.proofStderr !== undefined) {
 }
 if (request.operation === "proof" && answers.proofDelayMs !== undefined)
   await new Promise((resolve) => setTimeout(resolve, answers.proofDelayMs));
-process.stdout.write(JSON.stringify(
-  request.operation === "proof"
-    ? answers.proof
-    : { attempts: answers.discover[request.check.branch] ?? [] },
-));
+const proofByAttemptId = answers.proofByAttemptId ?? {};
+const answer = request.operation === "proof"
+  ? Object.hasOwn(proofByAttemptId, request.attempt.attemptId)
+    ? proofByAttemptId[request.attempt.attemptId]
+    : answers.proof
+  : { attempts: answers.discover[request.check.branch] ?? [] };
+process.stdout.write(JSON.stringify(answer));
 `,
   );
   writeFileSync(
