@@ -127,7 +127,10 @@
   pack and moved the first activation from the lifecycle and update hooks into
   the first test that asserts it. Their hooks went from 24.1s and 28.6s in CI
   (13.9s and 13.5s locally) to 4.5s and 5.4s locally, and the failure file's
-  hook from 10.5s to 7.5s, all at the default timeout. The two-build held
+  hook from 10.5s to 7.5s, all at the default timeout. The failure file's
+  first activation then also moved from its hook into its first test, since
+  hosted CI showed a single staging costs about 11–15s, so each failure-file
+  test stages at most one deployment. The two-build held
   update and the policy case were split into serial steps. Slice 7 split the
   82.1s CI recovery case (27.0s locally) into five serial steps, each at most
   6.1s locally. Its documentation-only commit now reaches main while the

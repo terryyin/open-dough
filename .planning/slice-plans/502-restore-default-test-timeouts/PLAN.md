@@ -286,6 +286,13 @@ step under six-worker stress was 20.5s. Mutation checks failed the steps
 twice: when the baseline advanced on a build failure, and when the comparison
 base moved to the failed commit. The seven production specs ran 37/37, and
 74/74 under stress.
+In CI run 42399373902 the retried-build case then timed out at 30s. On the
+hosted runner, one staging costs 11–15s, and that case paid for two while
+its hook held a third. Its repair moves the first activation out of the hook
+into the file's first case and splits the failed build from the retry, so
+each test stages at most one deployment. Under eight workers with tracing,
+the three cases took 15.0, 10.1 and 17.0s against 25.2s before. Skipping
+the retry in the watcher failed the retry case.
 
 ### 8. Nested Playwright watchdog and reporter cases retain useful failure evidence
 

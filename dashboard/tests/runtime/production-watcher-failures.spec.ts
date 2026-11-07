@@ -4,8 +4,8 @@
 // keeps production and checks resume; SIGHUP, a failed restoration and an
 // unexpectedly ended preview each end the watcher with cleanup. Each test
 // steps the shared watcher to its next state from the watcher's own output
-// and asserts that delta; after a scenario ends the watcher, a restart at
-// current main serves the next.
+// and asserts that delta, staging at most one deployment of its own; after a
+// scenario ends the watcher, a restart at current main serves the next.
 import { expect, test } from "../support/pageTest.ts";
 import { readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -69,10 +69,6 @@ test.beforeAll(async ({ browser }) => {
     "Working A",
   );
   latestCommit = servedCommit;
-  watcher = startProductionWatcher(fixture.development, fixture.env);
-  served = await productionActivation(watcher, servedCommit);
-  await page.goto(served.url);
-  await expect(page).toHaveTitle("WORKING A");
 });
 
 test.afterAll(async () => {
@@ -81,11 +77,21 @@ test.afterAll(async () => {
   await fixture?.cleanup();
 });
 
-test("a failed build keeps working production and the same commit is retried until it builds", async () => {
+test("a watcher serves the working commit whose build and start are gated", async () => {
+  const { fixture, page } = started();
+  watcher = startProductionWatcher(fixture.development, fixture.env);
+  served = await productionActivation(watcher, servedCommit);
+  await page.goto(served.url);
+  await expect(page).toHaveTitle("WORKING A");
+});
+
+test("a failed build keeps working production", async () => {
   if (watcher === undefined) throw new Error("No watcher");
   const { fixture, page } = started();
-  const buildFault = path.join(fixture.home, "fault-build");
-  await writeFile(buildFault, "transient build cause");
+  await writeFile(
+    path.join(fixture.home, "fault-build"),
+    "transient build cause",
+  );
   const b = await fixture.publish(
     fixture.markerChanges("WORKING B"),
     "Working B",
@@ -100,13 +106,20 @@ test("a failed build keeps working production and the same commit is retried unt
   expect(processRunning(served.pid)).toBe(true);
   await page.reload();
   await expect(page).toHaveTitle("WORKING A");
-  await rm(buildFault);
-  served = await productionReplacement(watcher, served, b);
-  expect(preparing(b)).toBeGreaterThanOrEqual(2);
+  latestCommit = b;
+});
+
+// The watcher keeps retrying the failed commit; once its cause clears, a
+// retry builds and replaces production.
+test("after a failed build the same commit is retried until it builds", async () => {
+  if (watcher === undefined) throw new Error("No watcher");
+  const { fixture, page } = started();
+  await rm(path.join(fixture.home, "fault-build"));
+  served = await productionReplacement(watcher, served, latestCommit);
+  expect(preparing(latestCommit)).toBeGreaterThanOrEqual(2);
   await page.reload();
   await expect(page).toHaveTitle("WORKING B");
-  servedCommit = b;
-  latestCommit = b;
+  servedCommit = latestCommit;
 });
 
 test("a failed preview start restores the working commit", async () => {
