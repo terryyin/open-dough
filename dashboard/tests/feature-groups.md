@@ -24,5 +24,23 @@ when its filename starts with `agent-terminal`; keyboard input belongs to
 Terminals. Shared navigation mechanisms belong to Navigation; a feature's own
 form or touch variant stays with that feature.
 
+## Backend feature groups
+
+`../backend-tests/` uses the same domain vocabulary for service behavior, with
+eight feature folders and no browser-only `stories/` or `navigation/` groups.
+Case-definition modules live with their owning feature; shared fixtures stay in
+this `tests/` tree.
+
+| Folder | Responsibility |
+| --- | --- |
+| `configuration/` | Project registration, machine settings, credentials and preferences. |
+| `launches/` | Work initiation, startup choices, reconciliation and automatic triggers. |
+| `sessions/` | Session discovery, status, recovery, completion, reports and history. |
+| `terminals/` | Interactive attachment, input, dictation, resizing and reconnection. |
+| `review/` | Story comparisons, diffs, commit ranges, landed runs and review marks. |
+| `intent/` | Purpose browsing, Proof, CI judgments, timing and optimization candidates. |
+| `observation/` | Published-source consistency, freshness, refresh and read recovery. |
+| `runtime/` | Serving, production updates and test harness operation. |
+
 Both test roots retain the [shared run and CI schedule](shards.md); feature
 folders do not create additional builds, workers, shards or test cases.

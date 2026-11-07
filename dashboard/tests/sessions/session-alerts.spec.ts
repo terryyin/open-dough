@@ -6,8 +6,8 @@
 // reading stays, after a page reload, or after a server restart that finds it
 // there, even through observation gaps. Only observed working rearms input;
 // missed work and changed reasons stay quiet (full recovery journeys:
-// ../../backend-tests/session-alerts-input-continuity.spec.ts). A session marked done never alerts (a report's arrival:
-// ../../backend-tests/session-alerts-unread-report.spec.ts). The text travels as
+// ../../backend-tests/sessions/session-alerts-input-continuity.spec.ts). A session marked done never alerts (a report's arrival:
+// ../../backend-tests/sessions/session-alerts-unread-report.spec.ts). The text travels as
 // Open Dough notification sender arguments, so quotes and backslashes arrive
 // unchanged. Closing the server ends a sender it started. The synthetic
 // `claude` (./fixtures/fake-claude) and sender

@@ -10,7 +10,7 @@
 // kept attempts cannot be read, nothing tells which startup is unresolved:
 // the machine's sessions say so, the file stays as it is, and starts are
 // refused. A story whose latest attempt settled uncertain blocks a fresh start
-// the same way (../../backend-tests/agent-launch-uncertain-continuation.spec.ts).
+// the same way (../../backend-tests/launches/agent-launch-uncertain-continuation.spec.ts).
 
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { randomUUID } from "node:crypto";

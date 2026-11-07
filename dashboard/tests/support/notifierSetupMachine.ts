@@ -1,5 +1,5 @@
 // An isolated machine for the notification sender setup
-// (../../backend-tests/notifier-setup.spec.ts): its own home, a PATH with only Node,
+// (../../backend-tests/configuration/notifier-setup.spec.ts): its own home, a PATH with only Node,
 // a recording `lsregister` and, when asked, a synthetic installed
 // terminal-notifier app (../fixtures/fake-terminal-notifier-app) in
 // Homebrew's layout, so no test posts a real notification, asks for

@@ -5,7 +5,7 @@
 // `--model`; another proves Default starts without `--model`. Dismiss/reopen
 // still walks every dialog kind. The real `claude` is never reached. How the
 // launch boundary takes a model across request kinds is
-// ../../backend-tests/agent-launch-model-boundary.spec.ts.
+// ../../backend-tests/launches/agent-launch-model-boundary.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";

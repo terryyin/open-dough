@@ -56,6 +56,16 @@ test("Intent lists matched code test files under include patterns, omits helpers
     ["observation", "read-failure.spec.ts"],
     ["runtime", "quiet-reporter.spec.ts"],
   ] as const;
+  const backendGroupedSources = [
+    ["configuration", "project-add-boundary.spec.ts"],
+    ["launches", "agent-launch-start.spec.ts"],
+    ["sessions", "agent-completion-binding.spec.ts"],
+    ["terminals", "agent-terminal-boundary.spec.ts"],
+    ["review", "story-review-refusal.spec.ts"],
+    ["intent", "authenticated-read-intent-locations.spec.ts"],
+    ["observation", "authenticated-read-shared.spec.ts"],
+    ["runtime", "serving-modes.spec.ts"],
+  ] as const;
   await publishIntentProject(page, openDough, settings, {
     ...Object.fromEntries(
       groupedSources.map(([group, file]) => [
@@ -64,9 +74,13 @@ test("Intent lists matched code test files under include patterns, omits helpers
       ]),
     ),
     "dashboard/tests/intentPerspectivePage.ts": "export const helper = 1;\n",
-    "dashboard/backend-tests/authenticated-read-intent-locations.spec.ts":
-      browseSpec,
-    "dashboard/backend-tests/ownRecordContinuation.ts":
+    ...Object.fromEntries(
+      backendGroupedSources.map(([group, file]) => [
+        `dashboard/backend-tests/${group}/${file}`,
+        browseSpec,
+      ]),
+    ),
+    "dashboard/backend-tests/launches/ownRecordContinuation.ts":
       "export const continuation = true;\n",
     "tests/compare-versions.sh": shellCheck,
     "tests/support/x.sh": "#!/usr/bin/env bash\necho support\n",
@@ -131,7 +145,7 @@ test("Intent lists matched code test files under include patterns, omits helpers
     );
   });
 
-  await test.step("A labelled backend entry keeps its canonical source path", async () => {
+  await test.step("A labelled backend entry keeps its canonical source path and feature folders", async () => {
     const locationPath = "dashboard/backend-tests";
     const heading = intentLocationName(intent, locationPath);
     await expect(heading).toContainText("Dashboard Backend Test");
@@ -146,24 +160,26 @@ test("Intent lists matched code test files under include patterns, omits helpers
     await expect(summary).toContainText("Dashboard Backend Test");
     await expect(summary).toContainText(locationPath);
     await expandIntentGroup(intent, locationPath);
+    await expandIntentFolders(intent, locationPath);
+    for (const [group, file] of backendGroupedSources) {
+      await expect(intentFolderName(intent, group)).toBeVisible();
+      await expect(
+        intent.getByRole("button", {
+          name: `${locationPath}/${group}/${file}`,
+          exact: true,
+        }),
+      ).toBeVisible();
+    }
     await expect(
       intent.getByRole("button", {
-        name: `${locationPath}/ownRecordContinuation.ts`,
+        name: `${locationPath}/launches/ownRecordContinuation.ts`,
         exact: true,
       }),
     ).toHaveCount(0);
-    await intent
-      .getByRole("button", {
-        name: `${locationPath}/authenticated-read-intent-locations.spec.ts`,
-        exact: true,
-      })
-      .click();
+    const intentSpec = `${locationPath}/intent/authenticated-read-intent-locations.spec.ts`;
+    await intent.getByRole("button", { name: intentSpec, exact: true }).click();
     await expect(
-      intent
-        .getByLabel(
-          `${locationPath}/authenticated-read-intent-locations.spec.ts source`,
-        )
-        .locator(".source-line-text"),
+      intent.getByLabel(`${intentSpec} source`).locator(".source-line-text"),
     ).toHaveText(browseSpec.split("\n"));
   });
 

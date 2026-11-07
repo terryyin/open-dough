@@ -2,7 +2,7 @@
 // done retains the saved Done entry without duplicating open card sessions.
 // What a session without continuation or workspace offers is
 // ./agent-launch-codex-observation-workspace.spec.ts; the states endpoint's
-// own failures are ../../backend-tests/agent-launch-codex-observation-status.spec.ts.
+// own failures are ../../backend-tests/sessions/agent-launch-codex-observation-status.spec.ts.
 import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { pausePageClockAt } from "../dashboardTest.ts";

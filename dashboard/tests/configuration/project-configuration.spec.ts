@@ -130,7 +130,7 @@ test("production seeds its four projects and shows a previously saved session", 
 });
 
 // Both servers read the saved file through the same boundary
-// (../../backend-tests/serving-modes.spec.ts), so these run once, on the preview.
+// (../../backend-tests/runtime/serving-modes.spec.ts), so these run once, on the preview.
 test("saved projects retain order and default selection across restart", async ({
   page,
 }) => {

@@ -203,7 +203,7 @@ test("unsharded projects include new specs and an empty shard never expands to e
   const files = [
     "tests/runtime/production-watcher-updates.spec.ts",
     "tests/a.spec.ts",
-    "backend-tests/production-watcher-refusals.spec.ts",
+    "backend-tests/runtime/production-watcher-refusals.spec.ts",
   ];
   withSpecDirectory(files, "", (directory, path) => {
     const projects = dashboardTestProjects(directory);
