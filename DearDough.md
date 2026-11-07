@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 436. Removed numbers are never reused.
+- Highest allocated local number: 437. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -618,3 +618,16 @@ Former local code: DD-434.
 Former local code: DD-436.
 
 [Evidence and current response](docs/maintainer/findings/ODF-430.md).
+
+## DD-437 — Source-review commitment Ids used en-dash ranges the recorder refuses
+
+A fresh source-review Commitments table named several distinct restrictions under one en-dash range Id (`R5–R8q`, `R9–R12q`). `story-obligations.mjs record` / check treat those range tokens as malformed commitment Ids, so slice acceptance had to split the rows into individual Ids before observations could stick.
+
+### Occurrences
+- Execution: SEED-252#extract-dashboard-frontend-tests (plan `488-extract-dashboard-frontend-tests`; first related implementation commit `17f200208066da890623103609ef49441ad3c835`)
+  - Timestamp: 2026-11-07T13:23:51+08:00 (approx.; between source-review write and slice-1 acceptance)
+  - Tool: Cursor
+  - Open Dough release: unknown (source checkout skills; VERSION 0.3.87)
+  - Evidence: coordinator transcript `402174d0-70cd-415a-99d4-dc5cddd8b62b` narrative "Malformed commitment IDs are blocking the record"; StrReplace splitting `R5–R8q` / `R9–R12q` into `R5q` / `R12q` (and peers) in `.planning/slice-plans/488-extract-dashboard-frontend-tests/source-review.md` before re-record / `check --slice 1`
+  - Observed effect: one blocked observation pass and a mechanical Id rewrite before slice-1 obligations cleared
+  - Inference: Qualified. Distinct from ODF-381 (Slice-column misuse) and ODF-391 (cell-shape malformations); here the Id column itself carried a range. Source-only review guidance that asks to number compound items separately was not followed for these restriction clusters.

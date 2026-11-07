@@ -139,3 +139,14 @@ loop and no remaining slice-specific concern.
 - Slice 2 kept frontend-tests flat at exactly ten files by combining Cursor
   demand and feedback into `cursor-runner-sessions-ui.spec.ts` rather than
   crossing the grouping threshold.
+
+## Execution complete
+
+Product advice: Outcome matches the seed: Dashboard Frontend Test is a separate
+Intent entry with DOM-only and mocked-backend frontend protection beside the
+integrated and backend suites, without redesigning the shared runner or
+twelve-shard schedule. Optional later hygiene: move `pausePageClockAt` off the
+`dashboardTest.ts` import graph so frontend specs do not load the FakeGitHub /
+dashboardServer module graph. No backlog reorder beyond completing this Taken
+item when target-CI wall time (I.10/R12) is observed. Process findings recorded
+as DD-437 and an ODF-337 occurrence; no correction plan.
