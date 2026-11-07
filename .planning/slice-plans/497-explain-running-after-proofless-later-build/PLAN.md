@@ -2,6 +2,7 @@
 
 **Identity:** SEED-254#explain-running-after-proofless-later-build
 **Source:** [Explain a running later build after a proofless one](../../seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#explain-running-after-proofless-later-build)
+**Source review:** [Independent source review](source-review.md)
 
 ## Source and provenance
 
@@ -60,11 +61,31 @@ applies as written.
 - Carry `unavailable` on the running stop, and reuse `laterBuildUnavailableLine`
   for the reason before the running sentence. No new state.
 
+## Execution context
+
+- Story Branch Mode, execution checkout
+  `/Users/terryyin/git/open-dough/.worktrees/explain-a-running-later-build-after-a-proofless`
+  on `codex/explain-a-running-later-build-after-a-proofless`. Default checkout
+  `/Users/terryyin/git/open-dough`; authorized trunk `origin/main`.
+- Publisher `dashboard-territory.local-open-dough`, agent `ivan-chan`.
+  Starting revision `ebaee60713325ea4b0852ebc92afda0707d5c9f3`; accepted Take on
+  trunk and initial story branch candidate `3d658e9199b15706f03fd885b4857fbd55de0223`.
+  The claim's trunk CI is unobserved.
+- Codex observer for `terryyin/open-dough`, story branch above, GitHub Actions
+  `ci.yml` (CI). Coordinator `codex-2d84a6c9-9aab-4971-9d6c-3a2a7f76e753`,
+  cell `g43:11`, session `90429`, directory `/tmp/dough-ci-501/watch-D9sE3d`,
+  PID `50391`.
+- On AC power, run the two cancelled-landing Playwright files under the sleep
+  guard with at most two workers. The local Mac had 16 logical CPUs, load
+  average 3.50 and 54% free memory before dispatch. No competing test suite
+  was visible. The slice implementer owns the command through its terminal
+  result and reassesses on contention or failure.
+
 ## Ordered slices
 
 ### 1. Name the proofless later build when the walk stops at a running build
 Type: Behavior
-Status: planned
+Status: done
 Proof: As the proof table above.
 
 Behavior:
@@ -75,3 +96,26 @@ Behavior:
   summary and that a later trunk build is still running. It does not say no
   later trunk build has finished yet. There are no figures, and a re-read
   walks again.
+
+Accepted proof:
+
+- `env PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/dashboard-later-trunk-build.test.mjs tests/support/dashboard-later-trunk-landed.test.mjs`
+  passed 6 tests. The walk retains the earlier revision and `expired` reason
+  and stops listing at the running build. The Landed slot names both builds,
+  carries `awaitingLaterBuild`, and is ineligible for remembering.
+- `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run test:dashboard -- dashboard/tests/intent/intent-ci-comparison-cancelled-landing.spec.ts dashboard/tests/intent/intent-ci-comparison-cancelled-landing-gaps.spec.ts`
+  passed 8 Chromium journeys. The new cancelled-merge journey observes the
+  combined explanation and two blank timing cells, then reopens the same Done
+  story after the running build finishes and reads its usable 7-minute proof.
+  The walk, slot, and browser regressions failed on the original production
+  at the missing reason or inaccurate explanation before passing with the fix.
+- The consumer trace follows `laterTrunkCancelledSlot` through
+  `lookupResultBuild`, `performDoneComparison`, `asComparisonSlot`,
+  `performIntentCiComparisonRead`, and `isImmutableCiComparisonAnswer` into
+  the rendered Landed explanation and the real re-read. The same journeys
+  exercise the shared wording, slot model and fixtures. The exact failed
+  landing journey shares setup only. The enduring wording summary belongs in
+  `docs/dashboard-development-intent.md` at wrap-up.
+- Independent refactor review found no edits necessary and confirmed that
+  the accepted observations still apply, including the disposable derived
+  cache behavior in ADR 0008. `git diff --check` and dashboard typecheck passed.

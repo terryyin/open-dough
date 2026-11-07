@@ -82,6 +82,55 @@ test("a cancelled landing whose next trunk build is still running says so withou
   );
 });
 
+test("a cancelled landing names the proofless build before a running build and reads again when it finishes", async ({
+  page,
+  origin,
+}) => {
+  test.slow();
+  const setup = await publishCodeLandedBeforeCompletion(page, origin);
+  const landing = setup.landingMerge ?? setup.completion;
+  const later = laterTrunkRevisions(origin.origin, landing);
+  expect(later).toHaveLength(3);
+  const [proofless = "", running = ""] = later;
+  const runs = {
+    [proofless]: [
+      wall(proofless, 304, "2026-11-05T14:30:00Z", "2026-11-05T14:35:00Z"),
+    ],
+  };
+  const startedAt = "2026-11-05T14:40:00Z";
+  serveEarlierLandingWithLandedOutcome(setup, "cancelled", {
+    ...runs,
+    [running]: [
+      { headSha: running, id: 305, status: "in_progress", startedAt },
+    ],
+  });
+
+  const first = await selectDoneStoryForCiComparison(page);
+  await expectLandedUnusedBecause(
+    first.panel,
+    mergeCancelled,
+    `The nearest later trunk build at ${shortSha(proofless)} (run 304 #1) published no CI proof summary. A later trunk build at ${shortSha(running)} (run 305 #1) is still running.`,
+  );
+  await expect(landedOf(first.panel).identity).not.toContainText(
+    "no later trunk build has finished yet",
+  );
+  await expect(
+    first.panel.locator(".intent-ci-comparison-without-waits").nth(2),
+  ).toHaveText("—");
+
+  serveEarlierLandingWithLandedOutcome(setup, "cancelled", {
+    ...runs,
+    [running]: [wall(running, 305, startedAt, "2026-11-05T14:47:00Z")],
+  });
+  setup.serveProofs(laterProof(305, running));
+  const { panel } = await selectDoneStoryForCiComparison(page);
+  const landed = landedOf(panel);
+  await expect(landed.identity).toContainText(
+    "run 305 #1 · passed · later trunk build: includes 2 later trunk revisions",
+  );
+  await expect(landed.wall).toHaveText("7 min");
+});
+
 test("a cancelled landing at the read trunk head waits for a later trunk build and uses it once pushed", async ({
   page,
   origin,

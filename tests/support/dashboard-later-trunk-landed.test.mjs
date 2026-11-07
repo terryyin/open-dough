@@ -67,7 +67,7 @@ test("a cancelled landing without later proof says why, and only a walk that may
   });
   assert.equal(isImmutableCiComparisonAnswer(answerWith(atHead)), false);
 
-  const [later1] = repo.later;
+  const [later1, later2] = repo.later;
   const stillRunning = await lookupResultBuild(
     repo.landing,
     repo.landing,
@@ -86,6 +86,29 @@ test("a cancelled landing without later proof says why, and only a walk that may
     awaitingLaterBuild: true,
   });
   assert.equal(isImmutableCiComparisonAnswer(answerWith(stillRunning)), false);
+
+  const cancelledRuns = [run(repo.landing, 64, "cancelled")];
+  const prooflessBeforeRunning = await laterTrunkCancelledSlot(
+    repo.landing,
+    cancelledRuns,
+    lookupOf({
+      [later1]: [run(later1, 65, "success")],
+      [later2]: [run(later2, 66, null, { status: "in_progress" })],
+    }).lookup,
+    repo.call,
+    "ci.yml",
+    exactFor(),
+    async () => "none",
+  );
+  assert.deepEqual(prooflessBeforeRunning, {
+    kind: "none",
+    explanation: `${cancelled} The nearest later trunk build at ${short(later1)} (run 65 #1) published no CI proof summary. A later trunk build at ${short(later2)} (run 66 #1) is still running.`,
+    awaitingLaterBuild: true,
+  });
+  assert.equal(
+    isImmutableCiComparisonAnswer(answerWith(prooflessBeforeRunning)),
+    false,
+  );
 
   // Proofless builds over the whole bound: a final answer naming the nearest.
   const deep = trunkOf(baselineAncestorLimit + 1);
