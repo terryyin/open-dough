@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Compare CI time without runner waits](seeds/SEED-256-compare-ci-time-without-runner-waits.md#compare-ci-time-without-runner-waits) — SEED-256#compare-ci-time-without-runner-waits
 - [Use the nearest ancestor's CI proof for skipped builds](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-ancestor-ci-proof-for-skipped-builds) — SEED-254#use-ancestor-ci-proof-for-skipped-builds
 - [Compare before-and-after CI proof in Intent](seeds/SEED-255-compare-before-and-after-ci-proof.md#compare-before-and-after-ci-proof) — SEED-255#compare-before-and-after-ci-proof
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
