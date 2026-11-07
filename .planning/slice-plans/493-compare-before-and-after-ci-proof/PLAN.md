@@ -172,7 +172,7 @@ No remaining slice-specific concern was identified in this review.
 
 - Timing measure: slice 1 uses the measure the comparison supplies for
   timing differences. If
-  [plan 492](../492-compare-ci-time-without-runner-waits/PLAN.md) (SEED-256)
+  [plan 492](https://github.com/terryyin/open-dough/blob/46d2ea4a40607fb9085ced0bb5087fe4066a0d03/.planning/slice-plans/492-compare-ci-time-without-runner-waits/PLAN.md) (SEED-256)
   has landed, the overall summary's difference and cue use its estimate
   without runner waits and keep wall time as context; otherwise CI wall
   time. Both plans touch `IntentCiComparison.tsx` and
