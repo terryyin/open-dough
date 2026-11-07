@@ -22,12 +22,16 @@
   directed-time-versus-pace distinction. The shared-observation clock seam
   added in the same slice (`dashboard/server/observationClock.ts`) does not
   reach the request owner.
-- **Follow-up:** decide whether the request owner may take a test-controlled
-  clock, as the dashboard server's reuse window now does; with it the case
-  can drop the allowance and the real waits. The same seam would remove the
-  6s directed-wait span left in
-  `revision-stream-lost.spec.ts` (rate-limited stream case).
+- **Disposition / rationale:** pending — the case keeps the smallest
+  measured allowance until the request owner's clock can be controlled.
 - **Date:** 2026-11-07
+- **Human decision needed:** whether the request owner, which is released
+  payload code, may take a test-controlled clock, as the dashboard server's
+  reuse window now does.
+- **Evidence / follow-up:** hosted run 42406259249 measured 25.4s. With that
+  seam the case can drop the allowance and the real waits, and the 6s
+  directed-wait span left in `revision-stream-lost.spec.ts` (rate-limited
+  stream case) can go too.
 
 ### production-deployment-pinned-build
 
@@ -50,14 +54,48 @@
 - **Disposition / rationale:** pending — the case keeps the smallest
   allowance above its measured hosted cost until hosted timing after the
   fixture change shows whether it is still needed.
-- **Follow-up:** hosted run 42406259249 measured 17.4s (32.1s before
-  SEED-260 slice 6); hosted cases vary up to about 2x between runs. Remove the
-  allowance once two or more hosted runs keep it at 15s or less, or reduce the
-  real install and build cost further.
 - **Date:** 2026-11-08
-- **Evidence / follow-up:** read this case's hosted duration after slice 6. If
-  it stays well inside 30s, drop the allowance; otherwise decide whether a
-  cheaper dependency set may stand in for the full install.
+- **Evidence / follow-up:** hosted run 42406259249 measured 17.4s, against
+  32.1s before the fixture change. Hosted cases vary by up to about 2x between
+  runs. Remove the allowance once two or more hosted runs keep it at 15s or
+  less; otherwise decide whether a cheaper dependency set may stand in for the
+  full install.
+
+### hosted-margin-dashboard-journeys
+
+- **Locations / scope:** dashboard cases that have no allowance and took
+  20–25s in hosted run 42406259249, against the 30s default. Watcher steps:
+  `production-watcher-updates.spec.ts` (held commit, next-commit
+  replacement); `production-watcher-failures.spec.ts` (preview ended, restart
+  after hang-up, failed preview start); `productionUpdatePolicies.ts`
+  (accumulated range, policy repair, next commit after failure). Other cases:
+  `responsive-session-reconciliation.spec.ts:46`,
+  `agent-completion-recovery.spec.ts:26`,
+  `cursor-runner-replacement.spec.ts:84`, `sessions-sidebar.spec.ts:56`,
+  `agent-launch-attention.spec.ts` (Taken card).
+- **Observed cost:** 20.3–23.9s each in that run, with 35 further cases at
+  15–20s. Across 2,122 cases matched with run 42372706379, the median ratio
+  was 1.02 and p90 was 1.53. One unchanged case went from 13.8s to 26.5s. Two
+  cases that had passed at 25s timed out in runs 42395811294 and 42399373902
+  before being split.
+- **Unique protection:** each case's own journey; watcher steps keep one real
+  install, build and preview staging each.
+- **Alternatives attempted:** journeys that reached 22–28.5s were split or had
+  real costs removed. Single-staging watcher steps cannot be split further.
+  The suite-wide cost is fake `gh` and `claude` Node process starts plus
+  tracing. Locally, one journey used about 10.5s of CPU for 6.4s of wall time.
+- **Disposition / rationale:** pending — they pass with margin in most runs,
+  but hosted variance can push them to the default.
+- **Date:** 2026-11-08
+- **Evidence / follow-up:** judge margins across several hosted runs, or
+  against a 16–24-worker local stand-in with tracing on. Reduce the shared
+  per-journey cost, such as fake-host process starts and trace capture, before
+  splitting more journeys. Repair any case that times out under the failing
+  and flaky test policy. Related: explicit waits over 30s outside the
+  watcher files, such as `recentlyDoneRefresh.ts` `toPass` 45s and
+  `responsive-session-recovery-verification.spec.ts` 60s. About 40 short
+  elapsed waits, such as absence windows and settle delays, still break the
+  rule against waiting for wall-clock time.
 
 ## Accepted necessary costs
 
