@@ -1,3 +1,16 @@
+## 0.3.88 - 2026-11-07
+
+- Execute Plan obtains an independent review of the original story before the first implementation delegation and allocates each commitment before listing the slice's obligations. It reuses the review at acceptance while the source is unchanged and replaces it after a story amendment.
+- When a slice requires hosted proof of its published revision, Execute Plan checks the exact accepted revision through the existing observer before marking the slice done. Failed, pending, unavailable, or mismatched proof leaves the slice planned. Delivery and watch cleanup have dedicated references.
+- CI evidence handling distinguishes a completed failed attempt under a stale pending listing. The shared helpers also let dashboard callers inspect adapter attempts on other branches and classify path changes through the same rules as execution.
+- Dashboard source adds before-and-after CI proof and timing comparisons for GitHub Actions and custom adapters, including time without runner waits. Comparisons distinguish the requested revision's status from the build supplying its proof, can use an equivalent ancestor for skipped landings or the nearest later trunk build for cancelled landings, and explain unavailable proof. The dashboard also lets users hide and show configured projects, includes landing and merge-resolution edits in completed-story review, and separates frontend and backend tests into their own Intent entries.
+
+The Promoted payload adds three Execute Plan references (`deliver-the-change.md`, `obtain-source-review.md`, and `retire-owned-watches.md`) and updates Execute Plan and Story Refinement guidance and shared CI helpers. No payload paths are retired.
+
+Validation: the self-installation baseline, 16 focused installer and release checks, and 82 targeted tests passed locally. Hosted CI passed on `ef97c5ec7465a25989177cefbc9b95952d358eb6` (run `42365856574`). Subsequent changes before finalization are planning records.
+
+Under ADR 0005, the release reuses existing Codex, Cursor, and Claude Code installation, discovery, and hook evidence because these mechanisms are unchanged. The guidance changes retain their representative reviews, and the shared CI changes have regression coverage. The custom-adapter comparison was also exercised against live Pygardon proof. No native exception applies.
+
 ## 0.3.87 - 2026-11-07
 
 - Retire local test-proof recording guidance from `dough-test-optimization`: remove the Cucumber, pytest, Vitest, `node:test`, and Playwright local-proof references from the Promoted payload and keep proof reporting centered on CI proof summaries.
