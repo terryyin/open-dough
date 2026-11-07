@@ -135,7 +135,7 @@ The before-and-after presentation of these labels belongs to
 {"schemaVersion":1,"identity":"SEED-254#use-later-ci-proof-for-cancelled-landings","dependencies":[{"supplier":{"identity":"SEED-254#use-ancestor-ci-proof-for-skipped-builds","href":"seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-ancestor-ci-proof-for-skipped-builds"},"implementation":"Landed's later-build proof extends the per-endpoint requested-revision status (Cancelled shown apart from the proof source) and the proof-usability walk that the supplier introduces in the comparison lookup.","rationale":"Both stories change the same endpoint selection rule in intentCiComparisonResolve.ts and baseCiRevisionLookup.ts. Building the Cancelled status and the usable-proof walk here first would duplicate the supplier's design and force a conflicting reconciliation of one domain rule; the supplier is already Taken and planned.","condition":"The supplier's comparison on trunk shows each endpoint's requested-revision status, including Cancelled at Landed, apart from its proof source, and its Baseline walk passes over builds without usable proof.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/496-use-later-ci-proof-for-cancelled-landings/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9c9040eac4ac2cc780e51bb493af35b84accbeaf912c6f1ecdfb61dca434e9d7","plan":"fbaf8720daa1227a8fdd8c021e7b98708c237cd74d882e18b43dbc9454c0863f"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/496-use-later-ci-proof-for-cancelled-landings/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6839f116be6dee719287b81a6c9153b9cef0fed7511eef7e0a2737ffe34429fe","plan":"fbaf8720daa1227a8fdd8c021e7b98708c237cd74d882e18b43dbc9454c0863f"}}
 ```
 
 **Beneficiary:** A developer reviewing a done story's Landed CI proof in
@@ -186,6 +186,15 @@ build and that it includes changes after the landing.
 - Later-build proof for a code landing with no run whose absence is
   unexplained (for example, not the head of its push).
 - Telling which of the included later revisions CI ignores.
+
+**Considered:** Stopping superseded trunk push runs from being cancelled in
+this repository's [CI workflow](../../.github/workflows/ci.yml) would give
+future landings exact proof, but it does not reach other projects' CI or
+landings already cancelled. A per-ref group without `cancel-in-progress`
+still cancels a queued run superseded by a newer one, so only a per-revision
+group on trunk would avoid every cancellation. The later build is shown as a
+later build, never as the landing's equivalent, because the push that
+cancelled the landing always changed CI-relevant paths.
 
 **Examples:**
 
