@@ -22,7 +22,7 @@ test("cannot-load resume replaces the chat on the same launch", async ({
   cursor,
 }) => {
   test.setTimeout(120_000);
-  await startCursorExecution(page, origin, cursor);
+  await startCursorExecution(page, origin, cursor, dashboard.home);
   const [before] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(before?.firstInput?.state).toBe("confirmed");
   if (before?.session.host !== "cursor") throw new Error("Missing Cursor.");

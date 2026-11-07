@@ -5,8 +5,9 @@
 // fast-forward tip with Baseline retained
 // (SEED-244#compare-story-ci-timing-changes examples 5 and Trunk Mode).
 // Failed and cancelled landing-merge gaps live in
-// ./intent-ci-comparison-landing-gaps.spec.ts; the happy-path, SEED-236 and
-// unrecoverable journeys live in ./intent-ci-comparison.spec.ts;
+// ./intent-ci-comparison-landing-gaps.spec.ts; the happy-path and SEED-236
+// journeys live in ./intent-ci-comparison.spec.ts, unrecoverable history in
+// ./intent-ci-comparison-retry.spec.ts;
 // fast-forward tip happy paths in ./intent-ci-comparison-fast-forward.spec.ts;
 // entry-proof expiry and missing durations live in
 // ./intent-ci-comparison-entries.spec.ts.

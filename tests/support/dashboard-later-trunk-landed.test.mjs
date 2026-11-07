@@ -2,7 +2,8 @@
 // (`lookupResultBuild`, `laterTrunkCancelledSlot`): a cancelled landing
 // without later proof keeps its explanation and says why; its answer is
 // remembered only when the walk cannot gain a later build. Timed-out and
-// rerun-passed landings stay exact. The walk itself lives in
+// rerun-passed landings stay exact. Nothing unavailable, in any slot or as
+// the whole answer, is remembered either. The walk itself lives in
 // ./dashboard-later-trunk-build.test.mjs.
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
@@ -12,7 +13,7 @@ import {
   baselineAncestorLimit,
   storyBranchLandedExactLookup,
 } from "../../dashboard/server/exactSkippedEquivalent.ts";
-import { isImmutableCiComparisonAnswer } from "../../dashboard/server/intentCiComparisonAnswers.ts";
+import { isFinalCiComparisonAnswer } from "../../dashboard/server/intentCiComparisonAnswers.ts";
 import { laterTrunkCancelledSlot } from "../../dashboard/server/laterTrunkBuild.ts";
 import {
   lookupOf,
@@ -30,7 +31,7 @@ function exactFor() {
   );
 }
 
-function answerWith(landed) {
+function answerWith(landed, slots = {}) {
   return {
     kind: "comparison",
     identity: "SEED-1#story",
@@ -41,8 +42,41 @@ function answerWith(landed) {
     baseline: { kind: "none", explanation: "none" },
     branch: { kind: "none", explanation: "none" },
     landed,
+    ...slots,
   };
 }
+
+test("an answer with anything unavailable is read again; a final gap is remembered", () => {
+  const unavailable = {
+    kind: "unavailable",
+    explanation: "GitHub request failed: GitHub is unreachable",
+  };
+  const final = { kind: "none", explanation: "none" };
+  for (const slot of ["baseline", "branch", "landed"])
+    assert.equal(
+      isFinalCiComparisonAnswer(answerWith(final, { [slot]: unavailable })),
+      false,
+      slot,
+    );
+  assert.equal(
+    isFinalCiComparisonAnswer({
+      kind: "unavailable",
+      identity: "SEED-1#story",
+      explanation:
+        "The story's published completion history could not be read.",
+      checkedAt: "2026-11-07T00:00:00.000Z",
+    }),
+    false,
+  );
+  assert.equal(
+    isFinalCiComparisonAnswer(
+      answerWith(final, {
+        branch: { kind: "not-applicable", explanation: "Trunk Mode" },
+      }),
+    ),
+    true,
+  );
+});
 
 test("a cancelled landing without later proof says why, and only a walk that may still gain a build is not remembered", async (t) => {
   const repo = trunk();
@@ -65,7 +99,7 @@ test("a cancelled landing without later proof says why, and only a walk that may
     explanation: `${cancelled} No later trunk build has finished yet.`,
     awaitingLaterBuild: true,
   });
-  assert.equal(isImmutableCiComparisonAnswer(answerWith(atHead)), false);
+  assert.equal(isFinalCiComparisonAnswer(answerWith(atHead)), false);
 
   const [later1, later2] = repo.later;
   const stillRunning = await lookupResultBuild(
@@ -85,7 +119,7 @@ test("a cancelled landing without later proof says why, and only a walk that may
     explanation: `${cancelled} A later trunk build at ${short(later1)} (run 63 #1) is still running, so no later trunk build has finished yet.`,
     awaitingLaterBuild: true,
   });
-  assert.equal(isImmutableCiComparisonAnswer(answerWith(stillRunning)), false);
+  assert.equal(isFinalCiComparisonAnswer(answerWith(stillRunning)), false);
 
   const cancelledRuns = [run(repo.landing, 64, "cancelled")];
   const prooflessBeforeRunning = await laterTrunkCancelledSlot(
@@ -106,7 +140,7 @@ test("a cancelled landing without later proof says why, and only a walk that may
     awaitingLaterBuild: true,
   });
   assert.equal(
-    isImmutableCiComparisonAnswer(answerWith(prooflessBeforeRunning)),
+    isFinalCiComparisonAnswer(answerWith(prooflessBeforeRunning)),
     false,
   );
 
@@ -129,7 +163,7 @@ test("a cancelled landing without later proof says why, and only a walk that may
     kind: "none",
     explanation: `${cancelled} The nearest later trunk build at ${short(deep.later[0])} (run 71 #1) published no CI proof summary.`,
   });
-  assert.equal(isImmutableCiComparisonAnswer(answerWith(capped)), true);
+  assert.equal(isFinalCiComparisonAnswer(answerWith(capped)), true);
 });
 
 test("Story Branch Landed keeps a rerun attempt's own build and a timed-out landing exact without walking forward", async (t) => {

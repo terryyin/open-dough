@@ -39,7 +39,7 @@ test("runner killed with its address left stale: reopening starts nothing and ne
   cursor,
 }) => {
   test.setTimeout(120_000);
-  await startScopedCursorExecution(page, origin, cursor);
+  await startScopedCursorExecution(page, origin, cursor, dashboard.home);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing a held Cursor session.");
   const scope = recordedScope(record);

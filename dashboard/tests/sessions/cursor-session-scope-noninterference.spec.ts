@@ -9,8 +9,6 @@ import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // shared configuration and saved conversation stay untouched.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import type { Page } from "@playwright/test";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { recordedScope } from "../support/cursorScopeAssertions.ts";
@@ -19,12 +17,11 @@ import {
   agentNotRunningLabel,
   endHeldClient,
   keptRecords,
+  launchSecondHeldSession,
   startScopedCursorExecution,
 } from "../support/cursorSessionRecovery.ts";
 import { expect, test } from "../support/cursorStart.ts";
-import { cursorModels, type FakeCursor } from "../support/fakeCursor.ts";
-import { launchWaitMs } from "../support/launchWait.ts";
-import type { StartOrigin } from "../support/startOrigin.ts";
+import { cursorModels } from "../support/fakeCursor.ts";
 
 test.use({ cursorSubmitPaintMs: 300 });
 
@@ -32,50 +29,6 @@ const secondSessionId = "b2c3d4e5-f6a7-489a-bcde-f0123456789a";
 
 function scopesHome(home: string): string {
   return path.join(home, ".open-dough", "dashboard", "cursor-session-scopes");
-}
-
-// A second execution launch (Story B) through the same dialog journey
-// the scoped helper uses for Story A, with its own queued chat id so
-// the two sessions' records stay distinct.
-async function launchSecondExecution(
-  page: Page,
-  origin: StartOrigin,
-  cursor: FakeCursor,
-  home: string,
-  model: string | undefined,
-): Promise<void> {
-  cursor.queueCreateChatId(secondSessionId);
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-    follows: true,
-  });
-  await page.goto("/");
-  await parts(page)
-    .backlog.getByRole("article", { name: "Story B", exact: true })
-    .getByRole("button", { name: "Start execution" })
-    .click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
-  if (model !== undefined) {
-    await dialog.getByRole("combobox", { name: "Model" }).selectOption(model);
-  }
-  await dialog
-    .getByRole("textbox", { name: "Instruction (optional)" })
-    .fill("Implement the selected slice.");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect
-    .poll(() => keptRecords(home).length, { timeout: launchWaitMs })
-    .toBe(2);
-  await expect
-    .poll(
-      () =>
-        cursor.attaches().filter((each) => each.sessionId === secondSessionId)
-          .length,
-      { timeout: launchWaitMs },
-    )
-    .toBe(1);
 }
 
 test("two overlapping chosen-model launches keep separate scopes and models, with the shared configuration untouched", async ({
@@ -90,12 +43,19 @@ test("two overlapping chosen-model launches keep separate scopes and models, wit
     { model: "composer-2.5", name: "Composer 2.5" },
   ]);
   const sharedBefore = cursor.sharedConfig();
-  await startScopedCursorExecution(page, origin, cursor, "gpt-5.2");
-  await launchSecondExecution(
+  await startScopedCursorExecution(
     page,
     origin,
     cursor,
     dashboard.home,
+    "gpt-5.2",
+  );
+  await launchSecondHeldSession(
+    page,
+    origin,
+    cursor,
+    dashboard.home,
+    secondSessionId,
     "composer-2.5",
   );
 
@@ -152,7 +112,13 @@ test("a subsequent Default launch follows a deliberate new shared default while 
   // cursor-session-scope-continuation.spec.ts; this case asserts only that
   // a later Default launch follows the new shared default without creating
   // a scope, leaving the first session's recorded scope alone.
-  await startScopedCursorExecution(page, origin, cursor, "gpt-5.2");
+  await startScopedCursorExecution(
+    page,
+    origin,
+    cursor,
+    dashboard.home,
+    "gpt-5.2",
+  );
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
   const scope = recordedScope(record);
@@ -170,7 +136,13 @@ test("a subsequent Default launch follows a deliberate new shared default while 
 
   // A subsequent Default launch creates no scope and runs against the
   // shared configuration, whose model is now the deliberate new default.
-  await launchSecondExecution(page, origin, cursor, dashboard.home, undefined);
+  await launchSecondHeldSession(
+    page,
+    origin,
+    cursor,
+    dashboard.home,
+    secondSessionId,
+  );
   const records = keptRecords(dashboard.home);
   expect(records).toHaveLength(2);
   const defaulted = records.find(
@@ -208,7 +180,13 @@ test("deleting a scoped session's launch record removes exactly its scope, leavi
   cursor,
 }) => {
   test.setTimeout(120_000);
-  await startScopedCursorExecution(page, origin, cursor, "gpt-5.2");
+  await startScopedCursorExecution(
+    page,
+    origin,
+    cursor,
+    dashboard.home,
+    "gpt-5.2",
+  );
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
   const scope = recordedScope(record);

@@ -37,6 +37,16 @@ Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: 
 
 Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Former local code: DD-307. Former local code: DD-400. Former local code: DD-393 (`6c354905e`), renumbered in merge `966aad8b1`. DD-400's facet: a decisive premise probe proved the capability, not the story's restriction it settled. [Meaning, evidence and response](docs/maintainer/findings/ODF-074.md).
 
+### Occurrences
+- Execution: SEED-118#retry-unavailable-ci-comparison-slots (plan 500-retry-unavailable-ci-comparison-slots; first related implementation commit `829d4170678aeeb8a6c48530669d3ebdea5b620f`)
+  - Timestamp: unknown (during slice 2 implementation, after slice 1 commit at 2026-11-07T21:48:36+08:00 and before slice 2 commit at 2026-11-07T22:19:36+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.88 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: plan 500 (`8cab734f619f3c373e0416944ef4e19ff1438e0d:.planning/slice-plans/500-retry-unavailable-ci-comparison-slots/PLAN.md`) Current decisions stated "Endpoint proofs follow the re-read answer as they already follow a changed answer" with no Premises row; slice 2's implementer found proofs keyed by build subject, so an unchanged final answer never re-read them (promise 3e), and added `checkedAgain` to the proof key
+  - Observed effect: the false claim surfaced inside the slice and cost no replanning; the implementer's red check (removing `checkedAgain`) failed two journeys
+  - Inference: a behavioral claim placed under Current decisions escapes the premise table's observation requirement
+
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
@@ -667,6 +677,13 @@ Former local code: DD-431.
   - Open Dough release: 0.3.87 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
   - Evidence: slice 2's refactor split `intent-ci-comparison-cancelled-landing.spec.ts` into a `-gaps` spec and `dashboard-later-trunk-build.test.mjs` into a `-landed` test for the 250-line rule; source-review rows 2, 2a, X1, 5a–5c, 9a–9c, E4 and E5 cited the old locations
   - Observed effect: the refactor report listed the stale rows; the coordinator re-recorded them with `story-obligations.mjs record` before delivery, and no stale citation was published
+- Execution: SEED-118#retry-unavailable-ci-comparison-slots (plan 500-retry-unavailable-ci-comparison-slots; first related implementation commit `829d4170678aeeb8a6c48530669d3ebdea5b620f`)
+  - Timestamp: unknown (after slice 2 refactor return, before slice 2 commit `d45eee61319fc36bbd7659d659af2826ebc0d82d` at 2026-11-07T22:19:36+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.88 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: slice 2's refactor moved the unrecoverable-history journey from `intent-ci-comparison.spec.ts` into `intent-ci-comparison-retry.spec.ts` to keep both under 250 lines; source-review rows 1d, 3g and E4 (`8cab734f619f3c373e0416944ef4e19ff1438e0d:.planning/slice-plans/500-retry-unavailable-ci-comparison-slots/source-review.md`) cited the old file
+  - Observed effect: the coordinator noticed the move in the refactor report and retargeted the three rows before delivery; no stale citation was published
 
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 

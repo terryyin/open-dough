@@ -7,7 +7,10 @@
 // one row per CI entry in the homepage proof table (`./CiProofTable.tsx`)
 // with each endpoint's cumulative test execution time. Taken answers label
 // the live tip provisional and say Landed has not landed yet; Taken Trunk
-// Mode also names the provisional trunk tip beside Branch N/A.
+// Mode also names the provisional trunk tip beside Branch N/A. A done
+// comparison ends with the judged branch's Check again
+// (`./IntentCiJudgedBranch.tsx`), disabled while it is read, whatever it
+// shows: the comparison, an unavailable answer, or a failed read.
 
 import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
 import {
@@ -15,6 +18,7 @@ import {
   durationCueElementAttrs,
 } from "./ciScopeComparisonCuePresentation.ts";
 import { ComparisonEndpointsTable } from "./IntentCiComparisonEndpoints.tsx";
+import { CheckAgain } from "./IntentCiJudgedBranch.tsx";
 import { useIntentCiEvidence, type CiEvidence } from "./IntentCiEvidence.tsx";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
 import {
@@ -157,11 +161,17 @@ function ComparisonBody({
 export function IntentCiComparison({
   story,
   reading,
+  checkAgain,
 }: {
   readonly story: string;
   readonly reading: ComparisonReading;
+  // Offered for a done comparison only.
+  readonly checkAgain?: () => void;
 }) {
   const proofs = endpointProofsOf(useIntentCiEvidence());
+  const checkAgainButton = checkAgain !== undefined && (
+    <CheckAgain reading={reading.reading} checkAgain={checkAgain} />
+  );
   if (reading.reading && reading.shown === undefined) {
     return (
       <section className="intent-ci-status" aria-label="CI timing comparison">
@@ -169,6 +179,7 @@ export function IntentCiComparison({
         <p className="intent-ci-reading" role="status">
           Reading CI comparison…
         </p>
+        {checkAgainButton}
       </section>
     );
   }
@@ -177,6 +188,7 @@ export function IntentCiComparison({
       <section className="intent-ci-status" aria-label="CI timing comparison">
         <h3>CI timing changes for {story}</h3>
         <p className="intent-ci-gap">{reading.failed}</p>
+        {checkAgainButton}
       </section>
     );
   }
@@ -187,6 +199,7 @@ export function IntentCiComparison({
       <section className="intent-ci-status" aria-label="CI timing comparison">
         <h3>CI timing changes for {story}</h3>
         <p className="intent-ci-gap">{answer.explanation}</p>
+        {checkAgainButton}
       </section>
     );
   }
@@ -207,6 +220,7 @@ export function IntentCiComparison({
           Reading entry comparison…
         </p>
       )}
+      {checkAgainButton}
     </section>
   );
 }

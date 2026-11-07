@@ -3,8 +3,9 @@
 // `identity`. Resolves baseline, branch and landed endpoints from published
 // history (done) or the published claim and live profile (Taken). Malformed
 // identities are refused here before any `gh` or Git call. A done story's
-// completed answer is remembered for this process
-// (`./intentCiComparisonAnswers.ts`); Taken answers are not.
+// final answer is remembered for this process
+// (`./intentCiComparisonAnswers.ts`); Taken answers and answers with anything
+// unavailable are read afresh.
 
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";

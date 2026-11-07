@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-118_retry-unavailable-ci-comparison-slots.json",
+      "identity": "SEED-118#retry-unavailable-ci-comparison-slots",
+      "completedAt": "2026-11-07T14:28:46.495Z",
+      "blob": "05a15ed4f2eef3fef03c313e3f5df65e7d37145c"
+    },
+    {
       "fileName": "SEED-258_distinguish-branch-and-landed-summary-figures.json",
       "identity": "SEED-258#distinguish-branch-and-landed-summary-figures",
       "completedAt": "2026-11-07T13:59:17.299Z",

@@ -14,8 +14,10 @@
 // when the page's revision check finds the judged branch at a new head (the
 // head `./intentCiTarget.ts` gives), and on Check again, and its proof
 // (`./useIntentCiShownProof.ts`) with each judgment; nothing is read while
-// it is not active. A done-story comparison is read once and remembered; a
-// Taken comparison re-reads when the observed tip moves.
+// it is not active. A done-story comparison is read on each selection and on
+// its Check again, which also reads its endpoint proofs again, and is
+// remembered once final; a Taken comparison re-reads when the observed tip
+// moves.
 
 import { createContext, useContext, type ReactNode } from "react";
 import { ciTargetOf, type CiTarget } from "./intentCiTarget.ts";
@@ -44,6 +46,7 @@ export type CiEvidence =
   | Extract<CiTarget, { kind: "gap" }>
   | {
       readonly kind: "comparison";
+      readonly phase: "done" | "taken";
       readonly source: PublishedSource;
       readonly story: string;
       readonly identity: string;
@@ -116,12 +119,14 @@ export function IntentCiEvidenceProvider({
   const endpointProofs = useIntentCiComparisonEndpointProofs(
     source,
     comparison.shown,
+    comparison.checkedAgain,
   );
   let evidence: CiEvidence = { kind: "inactive" };
   if (active && target.kind === "gap") evidence = target;
   else if (active && target.kind === "comparison")
     evidence = {
       kind: "comparison",
+      phase: target.phase,
       source,
       story: target.story,
       identity: target.identity,

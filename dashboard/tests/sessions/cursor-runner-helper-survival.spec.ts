@@ -29,7 +29,7 @@ workingCursorTest(
       cursorRunnerSpawnHelper() === undefined,
       "this install's node-pty ships no separate terminal helper",
     );
-    await startScopedCursorExecution(page, origin, cursor);
+    await startScopedCursorExecution(page, origin, cursor, dashboard.home);
     await launchSecondHeldSession(
       page,
       origin,

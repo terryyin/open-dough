@@ -86,7 +86,7 @@ replacementTest(
   "sessions a replaced runner last held are revived without Recover; the third launch stays running",
   async ({ page, dashboard, origin, cursor }) => {
     replacementTest.setTimeout(180_000);
-    await startScopedCursorExecution(page, origin, cursor);
+    await startScopedCursorExecution(page, origin, cursor, dashboard.home);
     await launchSecondHeldSession(
       page,
       origin,

@@ -2,10 +2,12 @@
 // (../../src/IntentCiComparison.tsx, ../../server/intentCiComparisonRead.ts):
 // baseline, branch and landed wall times against the pre-story build, with
 // measured-ancestor labelling, persistence after trunk advance and branch
-// delete, SEED-236 earlier landing, unrecoverable history, and mixed entry
-// rows (SEED-244#compare-story-ci-timing-changes examples 1–4, 8 and
-// observed-not-attributed / whole-second). SEED-248 fast-forward landings
-// live in ./intent-ci-comparison-fast-forward.spec.ts; entry-proof expiry
+// delete, SEED-236 earlier landing, and mixed entry rows
+// (SEED-244#compare-story-ci-timing-changes examples 1–4, 8 and
+// observed-not-attributed / whole-second). Unrecoverable history and its
+// recovery live in ./intent-ci-comparison-retry.spec.ts; SEED-248
+// fast-forward landings live in
+// ./intent-ci-comparison-fast-forward.spec.ts; entry-proof expiry
 // and missing durations live in ./intent-ci-comparison-entries.spec.ts;
 // Trunk Mode, running, failed and missing builds live in
 // ./intent-ci-comparison-gaps.spec.ts. Taken-story provisional journeys live
@@ -29,13 +31,7 @@ import {
   expectCiComparisonEntryRows,
 } from "../support/expectCiComparisonEntryRows.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
-import { completedPublishedStory } from "../support/completedPublishedStory.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
-import { push } from "../support/storyReviewTrunkCommits.ts";
-
-const unrecoverable =
-  "Published execution history does not establish a complete claim and its attributed commits for this completion.";
+import { commitAll, writeAt } from "../support/storyReviewWorktree.ts";
 
 test.setTimeout(240_000);
 
@@ -234,33 +230,4 @@ test("code landed before completion uses the merge branch-side ancestor and the 
   await expect(panel).not.toContainText("run 398");
   await expect(panel).not.toContainText("run 399");
   await expect(panel).not.toContainText("10 min");
-});
-
-test("unrecoverable published history shows the published-review explanation without inventing builds", async ({
-  page,
-  origin,
-}) => {
-  test.slow();
-  writeAt(origin.project, "src/built.ts", "built\n");
-  commitAll(origin.project, "ship a built revision");
-  push(origin.project);
-  await completedPublishedStory(origin, "story-branch");
-  // Shallow project checkout: claim history cannot be recovered.
-  git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
-  const published = git(origin.origin, "rev-parse", "main");
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: published,
-    repository: "terryyin/open-dough",
-    follows: true,
-    realHistory: true,
-  });
-  const { panel } = await selectDoneStoryForCiComparison(page);
-  await expect(panel.getByRole("heading")).toHaveText(
-    "CI timing changes for SEED-A#a",
-  );
-  await expect(panel.locator(".intent-ci-gap")).toContainText(unrecoverable);
-  await expect(panel.locator(".intent-ci-comparison")).toHaveCount(0);
-  await expect(panel).not.toContainText("run ");
-  await expect(panel).not.toContainText("+");
 });

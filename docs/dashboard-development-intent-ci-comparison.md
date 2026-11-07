@@ -43,3 +43,12 @@ scopes. A **Taken** Story Branch story keeps the live judgment and adds that
 comparison (provisional latest branch build; Landed not yet landed); a new
 branch head re-reads it. A **Taken** Trunk Mode story shows the provisional
 trunk comparison (Branch N/A) instead of a no-branch gap.
+
+A done story's comparison ends with **Check again**, worded and placed as the
+judged branch's button and disabled while it reads. It reads the comparison
+and the endpoint proofs it shows again, whether the panel shows the
+comparison, an unavailable slot, a whole-answer explanation, or a failed read:
+an answer with anything unavailable is read afresh, so a temporary failure
+recovers in the same dashboard process; a final answer and valid proof
+summaries are remembered and return without further GitHub requests
+([request accounting](../dashboard/GITHUB-REQUESTS.md)).

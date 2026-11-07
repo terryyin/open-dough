@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Scan CI summaries in dashboard Intent](seeds/SEED-259-scan-intent-ci-summaries.md#scan-intent-ci-summaries) — SEED-259#scan-intent-ci-summaries ([plan](slice-plans/499-scan-intent-ci-summaries/PLAN.md))
-- [Retry unavailable CI comparison slots](seeds/SEED-118-dashboard-reading-reliability.md#retry-unavailable-ci-comparison-slots) — SEED-118#retry-unavailable-ci-comparison-slots ([plan](slice-plans/500-retry-unavailable-ci-comparison-slots/PLAN.md))
 - [Restore default timeouts across automated tests](seeds/SEED-260-restore-default-test-timeouts.md#restore-default-test-timeouts) — SEED-260#restore-default-test-timeouts ([plan](slice-plans/502-restore-default-test-timeouts/PLAN.md))
 
 ## Backlog list

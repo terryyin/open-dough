@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-118#retry-unavailable-ci-comparison-slots",
+  "title": "Retry unavailable CI comparison slots",
+  "completedAt": "2026-11-07T14:28:46.495Z",
+  "developer": "Terry Yin",
+  "agent": "ealden-chan",
+  "host": "claude",
+  "model": "opus"
+}

@@ -65,7 +65,7 @@ test("Recover on the idle composer with confirmed first input resumes the same c
   cursor,
 }) => {
   test.setTimeout(120_000);
-  await startCursorExecution(page, origin, cursor);
+  await startCursorExecution(page, origin, cursor, dashboard.home);
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(record?.firstInput?.state).toBe("confirmed");
   expect(record?.start).toMatchObject({
