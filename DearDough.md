@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 441. Removed numbers are never reused.
+- Highest allocated local number: 442. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -707,3 +707,17 @@ Slice acceptance recorded an Intent-overlay commitment as observed by citing the
   - Evidence: `source-review.md` rows 3.3 and K1.2 cited `intent-summary-story-comparison{,-file}.spec.ts`; the implementer's own return said the merge-edit files lie outside Intent's locations; the retrospective found the merge variants assert the same rows as the plain story; plan slices 3 and 4 and obligation G1 were added.
   - Observed effect: one delivered slice carried an unobserved commitment; correction cost two added slices.
   - Inference: a return's own stated gap ("outside Intent's locations") was folded into an observation instead of becoming an obligation; reading the cited spec's distinguishing assertion would have shown it.
+
+## DD-442 — A shallow historical checkout still inherited the host Git object store
+
+A scratch checkout can show one reachable commit and no remotes while Git can still read a host object alternate. For a bounded historical assessment, verify that the checkpoint can be read from its local object store with inherited alternates cleared and that a known later object is unavailable.
+
+### Occurrences
+- Execution: SEED-192#assess-story-intent-protection (plan 472, first report commit `ae07bb07aa1516a7d400cff6496f1c5c1cf0fc8f`)
+  - Timestamp: 2026-11-07T08:26:55.778Z (coordinator report during Slice 3 preflight)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.87 (execution checkout's installed guidance)
+  - Evidence: Codex session `01a1b509-fd39-79c2-a8b9-5fc768f51ded` at 08:26–08:27Z; `b0ad4c799d4b659ed072591e8dc0e66b4caefc2e:.planning/slice-plans/472-assess-story-intent-protection/PLAN.md` execution context and Slice 3 proof; [trial evidence limits](docs/intent-coverage-trial/README.md#evidence-limits).
+  - Observed effect: The third assessor could not read HEAD with `GIT_ALTERNATE_OBJECT_DIRECTORIES` unset until the coordinator materialized the checkpoint locally. The corrected preflight resolved HEAD, counted one reachable commit and rejected a later object. The first two assessors' standalone Git checks had inherited the alternate. Their Playwright commands cleared it, and both assessors confirmed they used only their scoped inputs.
+  - Inference: Ref and remote checks alone cannot establish object isolation. No access to later evidence was observed, and the rework time was not measured.

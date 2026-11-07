@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-192#assess-story-intent-protection",
+  "title": "Review how well a story's intent is protected",
+  "completedAt": "2026-11-07T09:06:09.585Z",
+  "developer": "Terry Yin",
+  "agent": "yilv-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
