@@ -2,6 +2,7 @@
 
 **Identity:** SEED-252#extract-dashboard-frontend-tests
 **Source:** [Extract Dashboard Frontend Test as a separate entry](../../seeds/SEED-252-extract-dashboard-frontend-tests.md#extract-dashboard-frontend-tests)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -71,18 +72,21 @@ twelve-shard CI schedule, or regroup `dashboard/backend-tests/`
 
 ### 1. Expose Dashboard Frontend Test and extract DOM-only specs
 Type: Behavior
-Status: planned
-Proof: `.planning/open-dough.json`, `dashboard/tests/support/testFiles.mjs`,
-`dashboard/tsconfig.node.json`, `eslint.config.mjs`, and `.github/workflows/ci.yml`
-include `dashboard/frontend-tests` (`Dashboard Frontend Test`); `touch-reading-observation.spec.ts`,
-`control-reachability-observation.spec.ts`, and the 4 DOM geometry cases of
-`observation-measurements.spec.ts` run from `dashboard/frontend-tests/` on
-`pageTest.ts` without starting `dashboardServer` or `FakeGitHub`, while the
-held-group `githubFor(page)` case stays in
-`dashboard/tests/runtime/observation-measurements.spec.ts`; `intent-code-browse.spec.ts`
-browses `Dashboard Frontend Test`; discovery, CI proof collector, typecheck,
-lint, and focused Playwright runs pass with all 2088 case identities preserved
-once.
+Status: done
+Proof: Accepted at delivery. `.planning/open-dough.json`,
+`dashboard/tests/support/testFiles.mjs`, `dashboard/tsconfig.node.json`,
+`eslint.config.mjs`, and `.github/workflows/ci.yml` include
+`dashboard/frontend-tests` (`Dashboard Frontend Test`);
+`dashboard/frontend-tests/{touch-reading,control-reachability,observation-measurements}.spec.ts`
+run on `pageTest.ts` without `dashboardServer`/`FakeGitHub`; held-group
+`githubFor(page)` case remains in
+`dashboard/tests/runtime/observation-measurements.spec.ts`;
+`intent-code-browse.spec.ts` browses **Dashboard Frontend Test**; unit
+(`ci-proof-fragments`, `ci-proof-declaration`, `dashboard-test-files`,
+`test-shares`), `typecheck:dashboard`, and focused Playwright (13 passed)
+succeeded; `--list` preserved 2088 case identities once (743→744 suites from
+the split). Source review linked and slice-1 commitments observed.
+`story-obligations check --slice 1` ok.
 
 Behavior: A developer opening Intent sees **Dashboard Frontend Test** backed by
 `dashboard/frontend-tests/` beside the existing entries, and DOM-only frontend
@@ -128,3 +132,12 @@ loop and no remaining slice-specific concern.
   actual extracted spec files presented in Intent and apply flat (`<= 10`) or
   concise feature folders (`> 10`, at most ten single-concept groups from the
   existing feature vocabulary) accordingly.
+
+## Learnings
+
+- Slice 1 left one bounded unrecorded duration for the newly split
+  `dashboard/frontend-tests/observation-measurements.spec.ts`; migrate that
+  label with the remaining duration/docs work in slice 2.
+- Post-change refactor collapsed duplicated Intent labelled-entry browse steps
+  and brought `ci-proof-declaration.test.mjs` under the 250-line limit; keep
+  multi-root entry lists at the established Intent/CI/eslint/tsconfig seams.

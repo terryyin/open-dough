@@ -13,6 +13,12 @@
         "include": ["**/*.spec.ts"]
       },
       {
+        "path": "dashboard/frontend-tests",
+        "label": "Dashboard Frontend Test",
+        "kind": "typescript",
+        "include": ["**/*.spec.ts"]
+      },
+      {
         "path": "dashboard/backend-tests",
         "label": "Dashboard Backend Test",
         "kind": "typescript",

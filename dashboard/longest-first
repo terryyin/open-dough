@@ -99,7 +99,7 @@
 9.9	tests/intent/intent-gherkin-unusable.spec.ts
 9.6	tests/terminals/agent-terminal-touch-composer.spec.ts
 9.5	backend-tests/git-files-identity.spec.ts
-9.5	tests/runtime/control-reachability-observation.spec.ts
+9.5	frontend-tests/control-reachability-observation.spec.ts
 9.4	tests/intent/intent-entry-folder-summaries-folders.spec.ts
 9.3	tests/intent/intent-selection-reads.spec.ts
 9.3	tests/observation/owner-replacement-recovery.spec.ts
@@ -164,7 +164,7 @@
 2.5	backend-tests/authenticated-read-revision-stream-setup-departure.spec.ts
 2.3	backend-tests/dashboard-scheduling.spec.ts
 2.3	tests/intent/intent-ci-status-read-boundary.spec.ts
-2.2	tests/runtime/touch-reading-observation.spec.ts
+2.2	frontend-tests/touch-reading-observation.spec.ts
 2.1	backend-tests/authenticated-read-incident-record-bounds.spec.ts
 2.1	backend-tests/story-review-refusal.spec.ts
 1.9	backend-tests/authenticated-read-committed-last.spec.ts

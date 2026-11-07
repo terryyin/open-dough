@@ -142,14 +142,32 @@ test("a shared Playwright record partitions each test and its time into its most
 });
 
 test("a shared Playwright shard emits a zero-count fragment for an entry it selected no tests from", () => {
-  const [browser, backend] = fragmentFromPlaywrightRecord(
+  const [browser, frontend, backend] = fragmentFromPlaywrightRecord(
     locatedRecord("/runner", [
       ["/runner/dashboard/tests/a.spec.ts", "expected", [3]],
     ]),
-    partIdentity(["dashboard/tests", "dashboard/backend-tests"]),
+    partIdentity([
+      "dashboard/tests",
+      "dashboard/frontend-tests",
+      "dashboard/backend-tests",
+    ]),
     byFile,
   );
   assert.equal(browser.passed, 1);
+  assert.deepEqual(
+    frontend,
+    fragment(
+      "dashboard/frontend-tests",
+      1,
+      1,
+      {},
+      {
+        unit: "tests",
+        untimed: 0,
+        files: [],
+      },
+    ),
+  );
   assert.deepEqual(
     backend,
     fragment(
@@ -164,6 +182,7 @@ test("a shared Playwright shard emits a zero-count fragment for an entry it sele
       },
     ),
   );
+  assert.deepEqual(fragmentProblems(frontend), []);
   assert.deepEqual(fragmentProblems(backend), []);
 });
 

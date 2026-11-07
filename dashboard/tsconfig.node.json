@@ -12,6 +12,7 @@
     "playwright.config.ts",
     "server",
     "tests",
+    "frontend-tests",
     "backend-tests"
   ]
 }

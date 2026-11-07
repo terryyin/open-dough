@@ -131,8 +131,10 @@ test("a file a command cannot read fails naming it, without a stack trace", () =
 test("preview lists a dashboard spec directory as its configuration discovers it, without a ceiling", () => {
   const specs = join(scratch, "specs");
   mkdirSync(join(specs, "backend-tests"), { recursive: true });
+  mkdirSync(join(specs, "frontend-tests"), { recursive: true });
   for (const name of [
     "tests/a.spec.ts",
+    "frontend-tests/dom.spec.ts",
     "backend-tests/b.spec.ts",
     "tests/c.spec.ts",
     "tests/support/helper.ts",
@@ -143,7 +145,7 @@ test("preview lists a dashboard spec directory as its configuration discovers it
   }
   writeFileSync(
     join(specs, "longest-first"),
-    "# list\n4.0\tbackend-tests/b.spec.ts\n2.0\ttests/a.spec.ts\n",
+    "# list\n4.0\tbackend-tests/b.spec.ts\n3.0\tfrontend-tests/dom.spec.ts\n2.0\ttests/a.spec.ts\n",
   );
   const previewRun = run([
     "preview",
@@ -153,15 +155,15 @@ test("preview lists a dashboard spec directory as its configuration discovers it
     specs,
   ]);
   assert.equal(previewRun.status, 0, previewRun.stderr);
-  // b (4.0) to share 1, a (2.0) to share 2, c unrecorded at the median 3.0
-  // to share 2; support/helper.ts is no spec file.
+  // b (4.0) to share 1, dom (3.0) and a (2.0) to share 2, c unrecorded at the
+  // median 3.0 to share 1; support/helper.ts is no spec file.
   assert.equal(
     previewRun.stdout,
-    `Predicted job-seconds per share from ${specs}/longest-first: 3 jobs, 2 recorded, 1 unrecorded at 3.0 s each (the recorded median).\n` +
-      "share 1/2: 4.0 predicted (1 jobs, 0 unrecorded)\n" +
-      "share 2/2: 5.0 predicted (2 jobs, 1 unrecorded)\n" +
+    `Predicted job-seconds per share from ${specs}/longest-first: 4 jobs, 3 recorded, 1 unrecorded at 3.0 s each (the recorded median).\n` +
+      "share 1/2: 7.0 predicted (2 jobs, 1 unrecorded)\n" +
+      "share 2/2: 5.0 predicted (2 jobs, 0 unrecorded)\n" +
       `unrecorded jobs (1), each assumed at 3.0 s; a refresh of ${specs}/longest-first records them:\n` +
-      "  share 2/2  tests/c.spec.ts\n",
+      "  share 1/2  tests/c.spec.ts\n",
   );
   const both = run([
     "preview",
