@@ -3,6 +3,14 @@
 **Identity:** SEED-256#compare-ci-time-without-runner-waits
 **Source:** [Compare CI time without runner waits](../../seeds/SEED-256-compare-ci-time-without-runner-waits.md#compare-ci-time-without-runner-waits)
 
+**Source review:** [Independent source review](source-review.md)
+
+## Execution context
+
+- Story Branch Mode in the linked worktree `/Users/terryyin/git/open-dough/.worktrees/compare-ci-time-without-runner-waits` on `codex/compare-ci-time-without-runner-waits`. Default checkout: `/Users/terryyin/git/open-dough`. Established Take by DavidKo-chan for publisher `dashboard-territory.local-open-dough`, starting revision `c90e30dd1d1202de96facbc3f2bdb30e88051a7a`, accepted claim `2ca01b59800c4fecd262da91c11dc6a26feae39a` on `origin/main` and the story branch. The claim's trunk CI is unobserved by this execution.
+- GitHub Actions `terryyin/open-dough`, selector `ci.yml` (CI), observing the story branch from this checkout. Codex coordinator `DavidKo-chan-492`, mailbox `/tmp/dough-ci-501/watch-BBvPeM`, PID 29311, stream session 98623, cell `g2:7`. Managed delivery registers increments against that stream.
+- Locked npm install, dashboard typecheck and Chromium setup succeeded in this checkout under the AC sleep guard.
+
 ## Goal and scope
 
 A developer reviewing a story's **CI timing changes** in Intent sees each
@@ -104,7 +112,7 @@ applies as written.
 
 ### 1. Compare done-story builds by CI time without runner waits
 Type: Behavior
-Status: planned
+Status: done
 Proof: module test of the estimate (example 1 rows and example 2 carried-over
 rows against this repository's `ci.yml` text); `intent-ci-comparison.spec.ts`
 with the source-review timings; the other five comparison specs updated for
@@ -119,6 +127,21 @@ wall-time difference. A build whose jobs cannot be read says so in the new
 column and shows no difference. Adds the fake's `actions-attempt-jobs`
 request kind and workflow `path`, and a committed workflow file in the
 comparison fixtures.
+
+Accepted proof: the guarded typecheck and the six comparison specs, three
+Summary comparison specs, and the timing module passed all 30 tests after
+independent refactoring. The guarded direct revision-selection test passed
+both cases. The comparison proves the configured historical workflow path,
+exact source-review and rerun timings, and the missing jobs response. The
+timing module also lengthens a carried-over shard so its duration must
+contribute. The consumer trace checks all six old wall-cell consumers with
+exact wall text and the three Summary consumers with their entry, folder,
+and file assertions. Shard preview assigns the new module to 6 of 12.
+
+```sh
+caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES zsh -c 'npm run --silent typecheck:dashboard && npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/tests/intent/intent-ci-comparison*.spec.ts dashboard/tests/intent/intent-summary-story-comparison*.spec.ts dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts'
+caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node --test tests/support/dashboard-ci-revision-nearest.test.mjs
+```
 
 ### 2. Explain each unavailable estimate and keep the others' differences
 Type: Behavior

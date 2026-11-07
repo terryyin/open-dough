@@ -1,9 +1,9 @@
 // A selected story's CI timing comparison on Intent's homepage
 // (`./IntentCiStatus.tsx`): names the baseline, branch and landed builds with
 // each selection rule and a run link where available (as CI judgment/proof
-// do), shows CI wall time with signed whole-second differences, then one row
-// per CI entry in the homepage proof table (`./CiProofTable.tsx`) with each
-// endpoint's cumulative test execution time. Taken answers label the live tip
+// do), CI wall time, and time without runner waits with signed differences.
+// The homepage proof table (`./CiProofTable.tsx`) compares each CI entry's
+// cumulative test execution time. Taken answers label the live tip
 // provisional and say Landed has not landed yet; Taken Trunk Mode also names
 // the provisional trunk tip beside Branch N/A.
 
@@ -16,7 +16,7 @@ import { comparisonEntriesFromProofs } from "./useIntentCiComparisonEntries.ts";
 import {
   observedNotAttributed,
   selectionWords,
-  wallTimeDifferenceWords,
+  timeWithoutRunnerWaitsWords,
   wallTimeWords,
 } from "./storyCiComparisonWording.ts";
 import type {
@@ -93,17 +93,18 @@ function EndpointRow({
   readonly provisional: boolean;
 }) {
   const wall = wallTimeWords(slot);
-  const diff =
-    label === "Baseline" ? undefined : wallTimeDifferenceWords(baseline, slot);
   return (
     <tr>
       <th scope="row">{label}</th>
       <td className="intent-ci-comparison-identity">
         <EndpointIdentity slot={slot} provisional={provisional} />
       </td>
-      <td className="intent-ci-comparison-wall">
-        {wall ?? "—"}
-        {diff !== undefined ? ` ${diff}` : ""}
+      <td className="intent-ci-comparison-wall">{wall ?? "—"}</td>
+      <td className="intent-ci-comparison-without-waits">
+        {timeWithoutRunnerWaitsWords(
+          slot,
+          label === "Baseline" ? undefined : baseline,
+        )}
       </td>
     </tr>
   );
@@ -158,13 +159,14 @@ function ComparisonBody({
   return (
     <table className="intent-ci-comparison">
       <caption className="visually-hidden">
-        Baseline, branch and landed CI builds with wall times
+        Baseline, branch and landed CI builds with timing
       </caption>
       <thead>
         <tr>
           <th scope="col">Endpoint</th>
           <th scope="col">Build</th>
           <th scope="col">CI wall time</th>
+          <th scope="col">CI time without runner waits</th>
         </tr>
       </thead>
       <tbody>

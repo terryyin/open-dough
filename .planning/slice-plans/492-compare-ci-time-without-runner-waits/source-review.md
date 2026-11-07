@@ -1,0 +1,71 @@
+# Source-only review of SEED-256
+
+The coordinator launched a fresh `source_review` agent with conversation
+inheritance disabled. The launch supplied the selected [story](../../seeds/SEED-256-compare-ci-time-without-runner-waits.md#compare-ci-time-without-runner-waits)
+from Beneficiary through Architecture and instructed it to use only that
+input, read no other project files, change nothing, and return numbered
+commitments, qualifications, examples and exclusions without assessing
+implementation or ownership. The launch and return are in the execution
+conversation. The allocations below are the coordinator’s.
+
+The reviewer distinguished the stable completed-attempt jobs from the
+estimate derived on read, and the workflow’s dependency evidence from GitHub’s
+created, started and completed timestamps. A carried-over job’s creation can
+come after its start. Jobs finishing before a creation time are only a
+superset of its `needs`. Available differences use both observed values on
+the same measure.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| C01 | Present the timing comparison to a developer reviewing a story in Intent. Baseline, Branch, and Landed are the build roles named in the goal. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts selects the done story and names Baseline, Branch and Landed at their expected revisions |
+| C02 | Show each build’s **CI wall time** as context. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts exact CI wall cells 4 min 59 s, 13 min 27 s and 5 min 19 s without differences |
+| C03 | Measure wall time from the attempt’s start through its completion. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts attempt 2 starts at 10:05:19 and finishes at 10:10:38; Landed wall is 5 min 19 s |
+| C04 | Use the run’s creation as the start of the first attempt. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts first attempt created at 05:11:50 and reported starting at 05:11:52; wall is 4 min 59 s |
+| C05 | Remove the Baseline difference from wall time. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts exact CI wall cells 4 min 59 s, 13 min 27 s and 5 min 19 s without differences |
+| C06 | Show each build’s **CI time without runner waits** when available. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts exact time-without-waits cells 4 min 55 s, 4 min 47 s -8 s, and 5 min 12 s +17 s |
+| C07 | Measure that time as the duration of the longest chain of dependent jobs in the attempt. | slice 1 | observed: dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts observed job bounds and the actual workflow name templates and needs yield 295000 ms and 287000 ms despite runner waits; rerun remains calculable despite later creation times |
+| C08 | Count each job using its own observed start-to-finish duration. | slice 1 | observed: dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts observed job bounds and the actual workflow name templates and needs yield 295000 ms and 287000 ms despite runner waits; rerun remains calculable despite later creation times |
+| C09 | Include required follow-on jobs in the dependency chain. | slice 1 | observed: dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts observed job bounds and the actual workflow name templates and needs yield 295000 ms and 287000 ms despite runner waits; rerun remains calculable despite later creation times |
+| C10 | Exclude the wait for a runner before every job from the measure. | slice 1 | observed: dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts observed job bounds and the actual workflow name templates and needs yield 295000 ms and 287000 ms despite runner waits; rerun remains calculable despite later creation times |
+| C11 | Include jobs GitHub carried over from earlier attempts in the re-run attempt’s job set. | slice 1 | observed: dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts all attempt-2 jobs yield 312000 ms; a longer carried-over shard raises that to 337000 ms |
+| C12 | Count each carried-over job using its own observed duration. | slice 1 | observed: dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts all attempt-2 jobs yield 312000 ms; a longer carried-over shard raises that to 337000 ms |
+| C13 | Show Branch’s difference from Baseline on the time without runner waits when available. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts exact time-without-waits cells 4 min 55 s, 4 min 47 s -8 s, and 5 min 12 s +17 s |
+| C14 | Show Provisional’s difference from Baseline on the time without runner waits when available. | slice 2 | |
+| C15 | Show Landed’s difference from Baseline on the time without runner waits when available. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts exact time-without-waits cells 4 min 55 s, 4 min 47 s -8 s, and 5 min 12 s +17 s |
+| C16 | Express each difference in whole seconds. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts exact time-without-waits cells 4 min 55 s, 4 min 47 s -8 s, and 5 min 12 s +17 s |
+| C17 | Use the existing signed format for each difference. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts exact time-without-waits cells 4 min 55 s, 4 min 47 s -8 s, and 5 min 12 s +17 s |
+| C18 | Base every faster or slower cue in the comparison on the time without runner waits, including cues added by a later story. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts sole signed build-timing cue is -8 s for 4 min 47 s versus 4 min 55 s, with 13 min 27 s versus 4 min 59 s as context |
+| C19 | Frame differences as observations between single builds. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts asserts observedNotAttributed while displaying the three named build rows |
+| C20 | Take dependencies from each workflow job’s `needs`. | slice 1 | observed: dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts observed job bounds and the actual workflow name templates and needs yield 295000 ms and 287000 ms despite runner waits; rerun remains calculable despite later creation times |
+| C21 | Locate the build’s own workflow definition using its workflow `path`. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts fake workflow lookup supplies comparison.yml, present in the configured project Git folder at the builds while its local tip holds incompatible jobs; both estimates are still shown |
+| C22 | Read that definition at the build’s revision. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts fake workflow lookup supplies comparison.yml, present in the configured project Git folder at the builds while its local tip holds incompatible jobs; both estimates are still shown |
+| C23 | Read the definition from the project folder’s local Git, as the comparison already does for commit subjects. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts fake workflow lookup supplies comparison.yml, present in the configured project Git folder at the builds while its local tip holds incompatible jobs; both estimates are still shown |
+| C24 | Match workflow jobs to the attempt’s reported jobs. | slice 1 | observed: dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts observed job bounds and the actual workflow name templates and needs yield 295000 ms and 287000 ms despite runner waits; rerun remains calculable despite later creation times |
+| C25 | Match a matrix or templated job `name` using the template’s literal text. | slice 1 | observed: dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts observed job bounds and the actual workflow name templates and needs yield 295000 ms and 287000 ms despite runner waits; rerun remains calculable despite later creation times |
+| C26 | Treat a required match with zero candidates as unavailable dependency evidence. | slice 2 | |
+| C27 | Treat a required match with several candidates as unavailable dependency evidence. | slice 2 | |
+| C28 | Derive dependencies without inference from job creation timestamps. | slice 1 | observed: dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts observed job bounds and the actual workflow name templates and needs yield 295000 ms and 287000 ms despite runner waits; rerun remains calculable despite later creation times |
+| C29 | Treat time without runner waits as unavailable while the build is still running. | slice 2 | |
+| C30 | Treat time without runner waits as unavailable when job timings are missing. | slice 2 | |
+| C31 | Treat time without runner waits as unavailable when job dependencies cannot be read. | slice 2 | |
+| C32 | Treat time without runner waits as unavailable when job dependencies cannot be matched unambiguously. | slice 2 | |
+| C33 | Show the build’s available wall time when time without runner waits is unavailable. | slice 2 | |
+| C34 | State the reason the build’s time without runner waits is unavailable. | slice 2 | |
+| C35 | Omit the difference for a build whose time without runner waits is unavailable. | slice 2 | |
+| C36 | Preserve the other builds’ available differences. | slice 2 | |
+| C37 | Add one GitHub job listing per 100 jobs for each shown completed attempt. | slice 3 | |
+| C38 | Remember the jobs of a completed attempt as the attempt’s CI proof summary is remembered. | slice 3 | |
+| C39 | Record the added request cost in [GitHub requests](../../../dashboard/GITHUB-REQUESTS.md). | slice 3 | |
+| C40 | Derive the estimate from GitHub’s observations. | slice 1 | observed: dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts observed job bounds and the actual workflow name templates and needs yield 295000 ms and 287000 ms despite runner waits; rerun remains calculable despite later creation times |
+| C41 | Rebuild the estimate on read. | slice 3 | |
+| C42 | Keep missing evidence distinct from measured time, as required by [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md). | slice 2 | |
+| E01 | The source-review story’s Baseline shows **4 min 59 s** wall time and **4 min 55 s** without runner waits. Its chain is `dashboard (9/12)` at **4 min 42 s**, followed by `ci-proof` at **13 s**. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts exact wall and estimate assertions against the observed baseline and branch job data, including -8 s |
+| E02 | The source-review story’s Branch shows **13 min 27 s** wall time and **4 min 47 s** without runner waits. Its shards waited up to eight minutes for runners. Its chain is `dashboard (3/12)` at **4 min 33 s**, followed by `ci-proof` at **14 s**. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts exact wall and estimate assertions against the observed baseline and branch job data, including -8 s |
+| E03 | Intent shows both timing pairs from E01 and E02 and displays Branch as **`-8 s`** on time without runner waits. The wall-time display carries no difference. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts exact wall and estimate assertions against the observed baseline and branch job data, including -8 s |
+| E04 | A failed-jobs re-run re-ran only `dashboard (12/12)`. The re-run’s wall time is **5 min 19 s**. The time without runner waits is **5 min 12 s**, comprising that shard at **4 min 55 s** and `ci-proof` at **17 s**. No carried-over job ran longer than the shard in this example. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts 5 min 19 s wall and 5 min 12 s estimate for run 103 attempt 2, sourced from the observed rerun bounds and jobs; dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts independently checks the 312000 ms chain |
+| E05 | The Landed workflow can name a job that matches two reported jobs, or its workflow definition can be unreadable. Either alternative yields Landed’s wall time, the applicable reason the other measure is unavailable, and no Landed difference. Baseline and Branch retain their available differences. | slice 2 | |
+| D01 | Deferred: Showing the names of jobs on the longest chain. | slice 1 | observed: IntentCiComparison.tsx and storyCiComparisonWording.ts expose aggregate duration, signed difference or unavailable reason. The estimate has no critical-job or wait-detail output. |
+| D02 | Deferred: Showing per-job waits. | slice 1 | observed: IntentCiComparison.tsx and storyCiComparisonWording.ts expose aggregate duration, signed difference or unavailable reason. The estimate has no critical-job or wait-detail output. |
+| D03 | Deferred: Showing the time without runner waits on the judged run’s **Proof** line outside the comparison. | slice 1 | observed: IntentCiProof.tsx remains on the existing proof path; CI time without runner waits is populated only for the story comparison. |

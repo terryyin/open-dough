@@ -7,6 +7,10 @@ import {
   readGitHubActions,
 } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import {
+  timeWithoutRunnerWaits,
+  type ReportedAttemptJob,
+} from "./ciTimeWithoutRunnerWaits.ts";
 import type { ListedRun } from "./baseCiNearest.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
@@ -72,6 +76,36 @@ export function githubRevisionLookup(
     workflow,
   });
   return {
+    async timeWithoutRunnerWaitsOf({ revision, runId, runAttempt, state }) {
+      if (runId === undefined || runAttempt === undefined)
+        return {
+          reason: "The build has no reported run and attempt identity.",
+        };
+      let workflowText: string;
+      try {
+        const { path } = (await github.workflow(signal)) as { path?: unknown };
+        if (
+          typeof path !== "string" ||
+          !/^\.github\/workflows\/[^/\r\n]+\.ya?ml$/.test(path)
+        ) {
+          return { reason: "The selected workflow has no readable file path." };
+        }
+        workflowText = (await runGit(["show", `${revision}:${path}`], call))
+          .stdout;
+      } catch {
+        return {
+          reason:
+            "The workflow file could not be read at this build's revision.",
+        };
+      }
+      let jobs: readonly ReportedAttemptJob[];
+      try {
+        jobs = await github.attemptJobs(runId, runAttempt, signal);
+      } catch {
+        return { reason: "The build's attempt jobs could not be read." };
+      }
+      return timeWithoutRunnerWaits(workflowText, jobs, state === "failed");
+    },
     async listRunsAt(sha) {
       const { id, name } = (await github.workflow(signal)) as {
         readonly id: number;

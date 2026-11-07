@@ -126,9 +126,9 @@ test("a running landed build leaves the branch comparison readable and marks an 
     ],
   });
   const { panel } = await selectDoneStoryForCiComparison(page);
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(1),
-  ).toContainText("+20 s");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+    "3 min 20 s",
+  );
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(2),
   ).toContainText("running");

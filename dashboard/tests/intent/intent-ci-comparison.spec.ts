@@ -16,6 +16,8 @@ import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { observedNotAttributed } from "../../src/storyCiComparisonWording.ts";
 import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonEarlierLanding.ts";
+import { comparisonWorkflowPath } from "../support/storyCiComparisonFixture.ts";
+import { serveObservedComparisonAttempts } from "../support/storyCiObservedJobs.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
 import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
@@ -67,12 +69,18 @@ for (const variant of [
       : variant === "own-conflict-extra"
         ? "owning merge-resolution edits"
         : "non-owning merge resolution on a story file";
-  test(`a selected done Story Branch story with ${label} compares named baseline, branch and landed wall times and entry rows`, async ({
+  test(`a selected done Story Branch story with ${label} compares named builds by CI time without runner waits and compares entry rows`, async ({
     page,
     origin,
   }) => {
     test.slow();
     const setup = await publishComparedStoryBranch(page, origin, variant);
+    // An incompatible workflow at the local tip cannot supply historical
+    // dependencies. The selected path exists in each build's own revision.
+    writeAt(origin.project, comparisonWorkflowPath, "jobs: {}\n");
+    commitAll(origin.project, "change the workflow after the compared builds");
+    const landedJobsUnavailable = variant === "non-owning-story-file";
+    serveObservedComparisonAttempts(setup, landedJobsUnavailable);
     const { panel } = await selectDoneStoryForCiComparison(page);
 
     await expect(panel.getByRole("heading")).toHaveText(
@@ -107,25 +115,30 @@ for (const variant of [
     ).toHaveAttribute("href", "https://ci.invalid/runs/102");
     await expect(
       panel.locator(".intent-ci-comparison-identity").nth(2).getByRole("link", {
-        name: "run 103 #1",
+        name: "run 103 #2",
         exact: true,
       }),
     ).toHaveAttribute("href", "https://ci.invalid/runs/103");
-    await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
-      "3 min",
-    );
     await expect(
-      panel.locator(".intent-ci-comparison-wall").nth(1),
-    ).toContainText("3 min 20 s");
+      panel.getByRole("columnheader", { name: "CI wall time" }),
+    ).toBeVisible();
     await expect(
-      panel.locator(".intent-ci-comparison-wall").nth(1),
-    ).toContainText("+20 s");
+      panel.getByRole("columnheader", { name: "CI time without runner waits" }),
+    ).toBeVisible();
+    await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
+      "4 min 59 s",
+      "13 min 27 s",
+      "5 min 19 s",
+    ]);
     await expect(
-      panel.locator(".intent-ci-comparison-wall").nth(2),
-    ).toContainText("4 min");
-    await expect(
-      panel.locator(".intent-ci-comparison-wall").nth(2),
-    ).toContainText("+1 min");
+      panel.locator(".intent-ci-comparison-without-waits"),
+    ).toHaveText([
+      "4 min 55 s",
+      "4 min 47 s -8 s",
+      landedJobsUnavailable
+        ? "Unavailable. The build's attempt jobs could not be read."
+        : "5 min 12 s +17 s",
+    ]);
     await expect(panel).not.toContainText("Entry comparison is not yet shown.");
     await expect(panel).not.toContainText(
       "merge resolutions whose story changes cannot be attributed safely",
@@ -186,12 +199,12 @@ test("code landed before completion uses the merge branch-side ancestor and the 
       exact: true,
     }),
   ).toHaveAttribute("href", "https://ci.invalid/runs/303");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(1),
-  ).toContainText("+20 s");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(2),
-  ).toContainText("+1 min");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+    "3 min 20 s",
+  );
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "4 min",
+  );
   // Completion's later run and later trunk must not replace Branch or Landed.
   await expect(panel).not.toContainText("run 304");
   await expect(panel).not.toContainText("run 398");

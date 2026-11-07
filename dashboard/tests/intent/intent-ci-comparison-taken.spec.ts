@@ -60,12 +60,9 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
   await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
     "3 min",
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(1),
-  ).toContainText("3 min 20 s");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(1),
-  ).toContainText("+20 s");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+    "3 min 20 s",
+  );
 
   await test.step("a new branch head re-reads the provisional comparison", async () => {
     const workspace = path.join(origin.machine, "another-agent-workspace");
@@ -143,10 +140,7 @@ test("a Taken Trunk Mode story shows a provisional trunk result beside Branch N/
   await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
     "3 min",
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(2),
-  ).toContainText("3 min 40 s");
-  await expect(
-    panel.locator(".intent-ci-comparison-wall").nth(2),
-  ).toContainText("+40 s");
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "3 min 40 s",
+  );
 });
