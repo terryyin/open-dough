@@ -2,6 +2,7 @@
 
 **Identity:** SEED-010#review-source-promises-before-first-slice
 **Source:** [Review and allocate source commitments before delegating the first Behavior slice](../../seeds/SEED-010-learn-from-execution-retrospectives.md#review-source-promises-before-first-slice)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -24,13 +25,12 @@ allocation (premise below).
 
 ## Existing solution and decisions
 
-- Reuse the existing source-only review rules in
-  `src/skills/dough-execute-plan/references/wrap-up.md#accept-proof`, the
+- Reuse the source-only review rules now in
+  `src/skills/dough-execute-plan/references/obtain-source-review.md`, the
   record form in `references/story-obligations.md#record-the-source-review`,
-  and the pre-delegation listing in `references/delegation.md`. Move the
-  launch, retention, link, and allocation instruction to the delegation
-  boundary; leave one statement of the reviewer's isolation and input rules
-  (do not duplicate it in two references) and have acceptance link to it.
+  and the pre-delegation listing in `references/delegation.md`. Keep one
+  statement of the reviewer's isolation and input rules (do not duplicate it
+  in two references); delegation and acceptance link to that home.
 - Update the sentence in
   `src/skills/dough-story-refinement/references/planning.md` (plan element 7)
   that says acceptance adds and allocates the review, and the
@@ -56,27 +56,26 @@ allocation (premise below).
 ## Outside-in proof and ownership
 
 - **Slice 1** owns every key example of the story.
-- **Local gates**: `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/story-obligations-guidance.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-source-review-lifecycle.test.mjs` plus `npm run --silent format` and `npm run lint` on the changed files. No full local suite: only guidance Markdown and its guidance test change. None of these runs long enough to need the [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos) guard; if a broader suite is run, use it as written there (`caffeinate -s -i` on observed AC power).
+- **Local gates**: `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/story-obligations-guidance.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-source-review-guidance.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-source-review-lifecycle.test.mjs` plus `npm run --silent format` and `npm run lint` on the changed files. No full local suite: only guidance Markdown and its guidance test change. None of these runs long enough to need the [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos) guard; if a broader suite is run, use it as written there (`caffeinate -s -i` on observed AC power).
 - **Failure policy**: [Failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests) applies as written.
 
 ## Ordered slices
 
 ### 1. Obtain and allocate the source review before the first delegation
 Type: Behavior
-Status: planned
-Proof: The guidance test asserts that `delegation.md` obtains, retains,
-links, and allocates the source-only review before the first planned
-delegation's listing (and stops that delegation when the reviewer or its
-evidence is unavailable), that `wrap-up.md#accept-proof` reuses the retained
-review for unchanged source without launching another reviewer and obtains
-one only when none is retained, and that `planning.md` no longer assigns the
-review to acceptance; the assertion fails on the baseline text. The guidance
-walk records, against Open Dough plan 477 (`S6.1`), Lizard plan 019
-(`S9.3`–`S9.7`, `K3`) and Pygardon plan 423, that the revised sequence puts
-the slice-1 ids in `list --slice 1` before the first delegation and that
-unchanged-source acceptance reuses `source-review.md`; it also walks key
-examples 4–7 (amendment, resume with a retained review, execution already
-delegated without one, unavailable reviewer).
+Status: done
+Proof: Focused guidance tests pass:
+`PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/story-obligations-guidance.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-source-review-guidance.test.mjs src/skills/dough-execute-plan/scripts/story-obligations-source-review-lifecycle.test.mjs`.
+`story-obligations-source-review-guidance.test.mjs` pins
+`obtain-source-review.md#before-planned-delegation` (obtain/retain/link/allocate
+before the first listing; stop when unavailable) and
+`#at-acceptance` (reuse without a second reviewer; obtain when none retained);
+`planning.md` no longer assigns the review to acceptance. Guidance walk against
+Open Dough plan 477 (`S6.1`), Lizard plan 019 (`S9.3`–`S9.7`, `K3`) and
+Pygardon plan 423: revised sequence puts slice-1 ids in `list --slice 1` before
+the first delegation; unchanged-source acceptance reuses `source-review.md`;
+key examples 4–7 hold. Source review retained as `source-review.md` with all
+ids allocated to slice 1 and observed.
 
 Behavior: A coordinator following the revised execute-plan guidance on a plan
 without a source review → finishes start and reaches the first delegation →
@@ -84,9 +83,20 @@ launches the source-only reviewer, retains, links, and allocates its return,
 and the slice-1 listing carries the allocated commitments into the first
 brief; acceptance of an unchanged source reuses that review.
 
-## Story obligations
+## Current decisions
 
-None at planning.
+- Refactor extracted obtain/retain/allocate into
+  `references/obtain-source-review.md`, Deliver into
+  `references/deliver-the-change.md`, and retire-owned-watches into its own
+  reference so file-size and read-budget limits hold without duplicating
+  isolation rules.
+
+## Learnings
+
+- Anchoring full obtain text into the SKILL first-delegation row and linking
+  full `delegation.md` double-counted past the 30KB read budget; linking the
+  source-review record (and keeping obtain in its own reference) keeps the
+  budget while still naming the source review.
 
 ## Refinement review
 

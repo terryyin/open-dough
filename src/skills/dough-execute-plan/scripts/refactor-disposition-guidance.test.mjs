@@ -16,7 +16,7 @@ const flat = (text) => text.replace(/\s+/g, " ");
 
 const delivery = flat(
   markdownSection(
-    read("dough-execute-plan/references/wrap-up.md"),
+    read("dough-execute-plan/references/deliver-the-change.md"),
     "## Deliver the change",
   ),
 );

@@ -63,6 +63,8 @@ const BOUNDARY_REFERENCES = [
   "references/delegation.md",
   "references/execution-decisions.md",
   "references/wrap-up.md",
+  "references/deliver-the-change.md",
+  "references/obtain-source-review.md",
   "references/ci-monitor.md",
   "references/ci-notify-codex.md",
   "references/ci-notify-hosts.md",
