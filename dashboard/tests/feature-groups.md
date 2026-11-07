@@ -1,9 +1,12 @@
 # Dashboard feature groups
 
-Every browser spec belongs to one feature folder. Case-definition modules live
-with that same feature; reusable fixtures and support stay outside the groups.
-The sibling `../backend-tests/` suite is the independent **Dashboard Backend
-Test** entry and does not add another browser feature group.
+Every integrated browser spec belongs to one feature folder. Case-definition
+modules live with that same feature; reusable fixtures and support stay outside
+the groups. The sibling `../frontend-tests/` suite is the independent
+**Dashboard Frontend Test** entry (flat while it holds ten or fewer files) and
+does not add another browser feature group here. The sibling `../backend-tests/`
+suite is the independent **Dashboard Backend Test** entry and likewise does not
+add a browser feature group.
 
 | Folder | Responsibility |
 | --- | --- |
@@ -24,5 +27,5 @@ when its filename starts with `agent-terminal`; keyboard input belongs to
 Terminals. Shared navigation mechanisms belong to Navigation; a feature's own
 form or touch variant stays with that feature.
 
-Both test roots retain the [shared run and CI schedule](shards.md); feature
+All three test roots retain the [shared run and CI schedule](shards.md); feature
 folders do not create additional builds, workers, shards or test cases.

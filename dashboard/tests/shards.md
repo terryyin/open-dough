@@ -25,8 +25,9 @@ as a malformed split does. CI uses twelve shards and runs the dashboard
 type-check once, in the last shard, whose predicted browser load the deal
 keeps within one spec file of the others. With the variable unset,
 `npm run test:dashboard` keeps running both suites. The configuration discovers
-only `dashboard/tests/` and `dashboard/backend-tests/`; labels in the timing lists
-and artifacts are relative to their common `dashboard/` root. Independent proof
+`dashboard/tests/`, `dashboard/frontend-tests/`, and `dashboard/backend-tests/`;
+labels in the timing lists and artifacts are relative to their common
+`dashboard/` root. Independent proof
 subprocesses choose their own selection; their harness
 (`support/proofRecordRun.ts`) removes the inherited split before launching
 them.

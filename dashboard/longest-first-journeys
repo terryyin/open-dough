@@ -14,7 +14,6 @@
 45.0	tests/stories/story-readiness-gaps.spec.ts
 44.8	tests/navigation/notification-story-navigation.spec.ts
 44.6	tests/sessions/session-workspace-retirement-claude.spec.ts
-43.2	tests/sessions/cursor-runner-sessions.spec.ts
 42.9	tests/navigation/dashboard-header.spec.ts
 42.9	tests/sessions/cursor-session-recovery.spec.ts
 42.7	tests/sessions/cursor-session-scope-noninterference.spec.ts
@@ -24,6 +23,7 @@
 37.2	tests/launches/responsive-session-reconciliation-refusals.spec.ts
 36.7	tests/launches/responsive-session-recovery-restart.spec.ts
 36.6	tests/launches/responsive-session-reconciliation.spec.ts
+36.0	tests/sessions/cursor-runner-sessions.spec.ts
 35.2	tests/configuration/project-remove.spec.ts
 34.5	tests/configuration/project-add.spec.ts
 34.0	tests/launches/responsive-session-recovery-verification.spec.ts
@@ -115,7 +115,7 @@
 16.7	tests/navigation/story-reference-done-cancellation.spec.ts
 16.6	tests/observation/auto-refresh-visibility.spec.ts
 16.6	tests/review/story-review-one-shot-choice-races.spec.ts
-16.4	tests/launches/startup-host-words.spec.ts
+16.4	frontend-tests/startup-host-words.spec.ts
 16.4	tests/observation/auto-refresh-recovery.spec.ts
 16.4	tests/observation/steady-refresh-inspection.spec.ts
 16.4	tests/review/story-review-story-branch-landed.spec.ts
@@ -210,6 +210,7 @@
 7.2	tests/review/story-review-tree-collapse.spec.ts
 7.2	tests/sessions/cursor-session-alerts.spec.ts
 7.2	tests/stories/recently-done-progressive-navigation-cursor.spec.ts
+7.2	frontend-tests/cursor-runner-sessions-ui.spec.ts
 7.1	tests/sessions/session-workspace-retirement-lifetime.spec.ts
 6.9	tests/review/story-review-commit-renames.spec.ts
 6.8	tests/launches/cursor-startup-trust.spec.ts
@@ -217,7 +218,7 @@
 6.5	tests/stories/taken-execution-complete.spec.ts
 6.4	tests/navigation/story-reference-scroll-completion.spec.ts
 6.4	tests/observation/limit-recovery-check.spec.ts
-6.3	tests/runtime/observation-measurements.spec.ts
+6.3	frontend-tests/observation-measurements.spec.ts
 6.2	tests/configuration/system-settings-openai-race.spec.ts
 6.2	tests/configuration/system-settings-project-management-touch.spec.ts
 6.2	tests/review/story-review-comparison-files.spec.ts
@@ -238,5 +239,6 @@
 3.0	tests/configuration/project-add-refusal.spec.ts
 2.9	tests/stories/plan-execution-complete-detail.spec.ts
 2.5	tests/runtime/browser-identity.spec.ts
+2.0	tests/runtime/observation-measurements.spec.ts
 1.9	tests/runtime/settled-page.spec.ts
 0.2	tests/runtime/page-teardown-drain.spec.ts

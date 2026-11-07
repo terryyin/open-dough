@@ -75,7 +75,6 @@
 12.5	tests/launches/agent-launch-start-session-touch.spec.ts
 12.4	tests/sessions/agent-terminal-delete.spec.ts
 12.3	tests/launches/agent-launch-start-phases.spec.ts
-12.2	tests/launches/agent-launch-creation-gates.spec.ts
 12.1	tests/launches/agent-launch-start-session-isolated.spec.ts
 12.1	tests/sessions/agent-launch-codex-observation.spec.ts
 11.6	tests/launches/agent-launch-start-session-failed.spec.ts
@@ -88,6 +87,7 @@
 8.8	tests/sessions/agent-completion-execution.spec.ts
 8.5	tests/launches/agent-launch-codex-recheck.spec.ts
 8.3	tests/launches/agent-launch-start-cursor.spec.ts
+8.0	tests/launches/agent-launch-creation-gates.spec.ts
 7.8	tests/launches/agent-launch-continuation.spec.ts
 7.5	tests/launches/agent-launch-codex-reconciliation.spec.ts
 7.5	tests/launches/agent-launch-session-choices.spec.ts
@@ -101,4 +101,5 @@
 5.7	tests/launches/agent-launch-preparation-codex-recovery.spec.ts
 4.9	tests/launches/agent-launch-start-session-landing-context.spec.ts
 4.8	tests/sessions/agent-launch-codex-observation-workspace.spec.ts
+4.2	frontend-tests/agent-launch-creation-gates.spec.ts
 3.2	tests/launches/agent-launch-unconfirmed-input.spec.ts

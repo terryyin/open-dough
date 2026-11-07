@@ -95,21 +95,16 @@ starting the dashboard backend service.
 
 ### 2. Extract mocked-backend frontend specs with explicit service substitutes
 Type: Behavior
-Status: planned
-Proof: Extracted frontend UI specs (`intent-candidates-read-recovery`,
-`agent-terminal-touch-paste-image`, `startup-host-words`,
-`agent-launch-creation-gates`, `sessions-sidebar-host-status`,
-`cursor-runner-sessions-demand`, `cursor-runner-sessions`,
-`agent-launch-ad-hoc-attachments-refusal`, and any remaining Pure-UI cases from
-the audit) run in `dashboard/frontend-tests/` against the prebuilt frontend with
-explicit route/WebSocket service substitutes and without starting
-`dashboardServer`, `fake-gh`, `fake-claude`, `fake-codex`, or `FakeGitHub`;
-real-service sibling cases remain in `dashboard/tests/` and pass;
-`dashboard/frontend-tests/` is kept flat if `<= 10` files or organized into at
-most ten single-concept feature folders if `> 10` files; full `--list`
-comparison preserves every original case once; `longest-first*` duration labels
-and maintained docs are updated; final published CI passes across all twelve
-shards without increased wall time against the comparable baseline.
+Status: done
+Proof: Accepted at delivery pending target-CI wall time (I.10/R12 lifecycle).
+`frontendApp.ts` / `frontendAppServer.ts` / `frontendServiceSubstitutes.ts`
+serve `builtDashboardDir` with explicit substitutes and no backend servers.
+Extracted mocked-backend specs live flat in `dashboard/frontend-tests/`
+(10 files total including Slice 1 DOM specs); real-service siblings remain in
+`dashboard/tests/` and passed focused Playwright (25 cases in coordinator
+recheck). `--list` preserves 2088 identities; share preview 0 unrecorded;
+duration labels and maintained docs updated. Source-review slice-2 commitments
+observed; `story-obligations check --slice 2` ok.
 
 Behavior: Frontend tests that verify UI recovery, formatting, polling, or
 refusal feedback with synthetic backend responses run in **Dashboard Frontend
@@ -141,3 +136,6 @@ loop and no remaining slice-specific concern.
 - Post-change refactor collapsed duplicated Intent labelled-entry browse steps
   and brought `ci-proof-declaration.test.mjs` under the 250-line limit; keep
   multi-root entry lists at the established Intent/CI/eslint/tsconfig seams.
+- Slice 2 kept frontend-tests flat at exactly ten files by combining Cursor
+  demand and feedback into `cursor-runner-sessions-ui.spec.ts` rather than
+  crossing the grouping threshold.

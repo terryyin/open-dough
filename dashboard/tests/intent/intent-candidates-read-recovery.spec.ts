@@ -1,5 +1,7 @@
 // Candidates recover from classified GitHub and local transport failures,
 // honoring standing limits and retaining manual Retry for terminal answers.
+// Synthetic rate-limit / malformed UI cases live in
+// dashboard/frontend-tests/intent-candidates-read-recovery.spec.ts.
 
 import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
 import { openDough } from "../intentCodeBrowseFixtures.ts";
@@ -12,9 +14,6 @@ import {
   opened,
   publishedCandidates,
 } from "../intentReadRecoveryPage.ts";
-import { noticedResumeTime } from "../limitNotice.ts";
-import { httpErrorAnswer } from "../originAnswers.ts";
-import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { holdingAnswer } from "../support/heldGitHubAnswer.ts";
 
 test.describe("with a short GitHub read bound", () => {
@@ -75,91 +74,4 @@ test.describe("with a short GitHub read bound", () => {
       record.getByRole("region", { name: "Accepted necessary costs" }),
     ).toContainText("story-review-completed-journey-landed-runs-tail");
   });
-});
-
-test("candidates wait for the standing GitHub limit after their shorter backoff is due", async ({
-  page,
-}) => {
-  await pausePageClockAt(page, opened);
-  githubFor(page).serve(openDough.repository, publishedCandidates());
-  const reads = countCandidatesReads(page);
-  let attempt = 0;
-  await page.route(candidatesRequest, async (route) => {
-    attempt += 1;
-    if (attempt === 1) {
-      await route.abort("connectionreset");
-    } else if (attempt === 2) {
-      await route.fulfill({
-        status: 502,
-        json: { error: "GitHub limited the rate", retryAfterSeconds: 45 },
-      });
-    } else {
-      await route.fallback();
-    }
-  });
-
-  const record = await openCandidates(page);
-  await expect(record.getByRole("alert")).toBeVisible();
-  await advanceRecoveryClock(page, 15_250);
-  expect(reads()).toBe(2);
-  const resumesAt = await noticedResumeTime(page);
-  await advanceRecoveryClock(page, 31_000);
-  expect(reads()).toBe(2);
-  await expect(record.getByRole("alert")).toBeVisible();
-
-  const now = await page.evaluate(() => Date.now());
-  await advanceRecoveryClock(page, resumesAt - now - 1);
-  expect(reads()).toBe(2);
-  await advanceRecoveryClock(page, 251);
-  expect(reads()).toBe(3);
-  await expect(record.getByRole("alert")).toHaveCount(0);
-  await expect(
-    record.getByRole("region", { name: "Pending candidates" }),
-  ).toBeVisible();
-});
-
-test("candidate access refusal and unexpected answers wait for manual Retry", async ({
-  page,
-}) => {
-  await pausePageClockAt(page, opened);
-  const published = publishedCandidates();
-  githubFor(page).serve(openDough.repository, (call) =>
-    isCandidatesContent(call.request)
-      ? Promise.resolve(httpErrorAnswer(403))
-      : published(call),
-  );
-  const reads = countCandidatesReads(page);
-  const record = await openCandidates(page);
-  const problem = record.getByRole("alert");
-  const retry = problem.getByRole("button", { name: "Retry" });
-  await expect(retry).toBeVisible();
-  await advanceRecoveryClock(page, 70_000);
-  expect(reads()).toBe(1);
-
-  await page.route(
-    candidatesRequest,
-    (route) =>
-      route.fulfill({
-        json: {
-          revision: openDough.revision,
-          candidates: 42,
-          recovery: "transient",
-        },
-      }),
-    { times: 1 },
-  );
-  await retry.click();
-  await untilPageRequestsAnswered(page);
-  await expect(retry).toBeVisible();
-  await advanceRecoveryClock(page, 70_000);
-  expect(reads()).toBe(2);
-
-  githubFor(page).serve(openDough.repository, published);
-  await retry.click();
-  await untilPageRequestsAnswered(page);
-  expect(reads()).toBe(3);
-  await expect(problem).toHaveCount(0);
-  await expect(
-    record.getByRole("region", { name: "Pending candidates" }),
-  ).toBeVisible();
 });
