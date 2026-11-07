@@ -255,10 +255,11 @@ focused status/proof/entry module checks.
 Independent refactor shared the success/failure predicate between retry
 selection and the nearest-revision walk. Adapter and nearest module proof,
 typecheck and whitespace checks passed. Browser boundaries stayed intact.
+Slice 3 published and registered at `ef486f0fffe9ff0d7b0a83623a1d70850dadd845`.
 
 ### 4. Observe the live Pygardon comparison
 Type: Behavior
-Status: planned
+Status: done
 Proof: a throwaway dev server from this worktree reading the production
 project configuration, driven by the worktree's headless Playwright Chromium,
 selecting `SEED-20261076#publish-pygardon-ci-proof` and
@@ -272,6 +273,34 @@ for each; `SEED-20261075` shows Baseline `b450e5058` and Branch and Landed
 `16b339eb8`. If Pygardon's service has pruned an attempt by then, the
 endpoint shows the named gap and the observation records that instead. No
 code change is expected; a mismatch is a defect in slices 1–3.
+
+Accepted live observation on 2026-11-07 at
+`ef486f0fffe9ff0d7b0a83623a1d70850dadd845`, from an isolated built Vite
+preview at loopback using the production project configuration. The worktree's
+headless Playwright Chromium selected each Done card and opened Intent.
+Both comparison reads and all six proof reads answered HTTP 200.
+
+| Pygardon story | Endpoint | Revision and selection | Wall time | Proof |
+| --- | --- | --- | --- | --- |
+| SEED-20261076 | Baseline | `36191bf8b993d10b6f55807b83f85a906e002795`, ancestor, 3 later | 6 min 37 s | no summary retained for this attempt |
+| SEED-20261076 | Branch | `90038b500fbbce0bd65d3317fc8ec25a7b53f41b`, ancestor, 1 later | 6 min 43 s | 6,387 checks |
+| SEED-20261076 | Landed | `b450e5058a0fde056d15fcec97dbf8c8a9bc1c72`, exact | 6 min 39 s | 6,387 checks |
+| SEED-20261075 | Baseline | `b450e5058a0fde056d15fcec97dbf8c8a9bc1c72`, ancestor, 8 later | 6 min 39 s | 6,387 checks |
+| SEED-20261075 | Branch and Landed | `16b339eb8e11f10f29c65456f23751b64cb9466d`, exact | 6 min 47 s each | 6,402 checks each, +15 |
+
+Both views passed the adapter's listing branch in their proof reads. The
+retained summaries have no `durationMs`, and the view gives the missing test
+execution durations reason with no duration difference. All six build rows
+show the missing-job-graph reason in the runner-wait column.
+Pygardon's own timestamp story had completed at `5ad1d9220` since planning,
+so all six live attempts now carry both wall-time bounds. Slice 3 observes
+the no-timestamp wording with a fixture.
+
+The guarded build passed and both browser observations settled. The first
+driver then used the wrong return-navigation label. The second journey used
+the current Development label and independently passed. Both browser
+instances closed, the preview port was released, and its owned temporary
+directory was removed. Refactor disposition is records-only.
 
 ## Plan concerns
 
