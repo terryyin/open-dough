@@ -39,7 +39,7 @@ test("recovery and terminal open resume a scoped session through its recorded sc
   cursor,
 }) => {
   test.setTimeout(120_000);
-  await startScopedCursorExecution(page, origin, cursor);
+  await startScopedCursorExecution(page, origin, cursor, dashboard.home);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
   const scope = recordedScope(record);
@@ -102,7 +102,7 @@ test("cannot-load replacement for a scoped session keeps the scope and sends no 
   cursor,
 }) => {
   test.setTimeout(120_000);
-  await startScopedCursorExecution(page, origin, cursor);
+  await startScopedCursorExecution(page, origin, cursor, dashboard.home);
   const [before] = keptRecords(dashboard.home);
   if (before?.session.host !== "cursor") throw new Error("Missing Cursor.");
   const scope = recordedScope(before);
@@ -163,7 +163,7 @@ test("a missing or unreadable recorded scope refuses recovery and terminal open,
   cursor,
 }) => {
   test.setTimeout(120_000);
-  await startScopedCursorExecution(page, origin, cursor);
+  await startScopedCursorExecution(page, origin, cursor, dashboard.home);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
   const scope = recordedScope(record);
@@ -210,7 +210,7 @@ test("a Default session's recovery carries no scope, exactly as before", async (
   cursor,
 }) => {
   test.setTimeout(120_000);
-  await startCursorExecution(page, origin, cursor);
+  await startCursorExecution(page, origin, cursor, dashboard.home);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
   await endHeldClient(page, cursor, dashboard.home);

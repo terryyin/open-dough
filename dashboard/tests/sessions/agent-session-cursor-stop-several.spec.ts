@@ -24,7 +24,7 @@ workingCursorTest(
   "Stop on one of several held Cursor sessions ends only that client and leaves the others running under Running Cursor sessions",
   async ({ page, dashboard, origin, cursor }) => {
     workingCursorTest.setTimeout(180_000);
-    await startScopedCursorExecution(page, origin, cursor);
+    await startScopedCursorExecution(page, origin, cursor, dashboard.home);
     await launchSecondHeldSession(
       page,
       origin,

@@ -33,7 +33,7 @@ replacementTest(
   "done, never-held, and one failing revive leave Recover only where revival failed",
   async ({ page, dashboard, origin, cursor }) => {
     replacementTest.setTimeout(180_000);
-    await startScopedCursorExecution(page, origin, cursor);
+    await startScopedCursorExecution(page, origin, cursor, dashboard.home);
     await launchSecondHeldSession(
       page,
       origin,

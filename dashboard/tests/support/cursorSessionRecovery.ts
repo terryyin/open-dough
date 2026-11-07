@@ -79,10 +79,14 @@ export async function openStoppedCursorEntry(
   return entry;
 }
 
+// Returns once the start has settled with its client kept, so a caller may
+// end, stop, or replace that client without leaving the start in need of
+// reconciliation.
 export async function startCursorExecution(
   page: Parameters<typeof openTakenCursorSession>[0],
   origin: Parameters<typeof openTakenCursorSession>[1],
   cursor: FakeCursor,
+  home: string,
   model?: string,
 ) {
   const revision = (await origin.originGit("rev-parse", "main")).trim();
@@ -115,7 +119,21 @@ export async function startCursorExecution(
     timeout: launchWaitMs,
   });
   await expect(entry).toContainText(cursor.sessionId);
+  // The entry can show the accepted first input while the runner still
+  // waits for Cursor's answer to it.
+  await expectRunnerKeeps(home, cursor.sessionId);
   return entry;
+}
+
+// The runner lists a session as last held once it keeps the client, which
+// settles that session's start.
+async function expectRunnerKeeps(
+  home: string,
+  sessionId: string,
+): Promise<void> {
+  await expect
+    .poll(() => readCursorRunnerLastHeld(home), { timeout: launchWaitMs })
+    .toContain(sessionKey({ host: "cursor", sessionId }));
 }
 
 // The same execution launch with a model chosen in the dialog, so the
@@ -124,13 +142,14 @@ export async function startScopedCursorExecution(
   page: Parameters<typeof openTakenCursorSession>[0],
   origin: Parameters<typeof openTakenCursorSession>[1],
   cursor: FakeCursor,
+  home: string,
   model = "gpt-5.2",
 ) {
-  return startCursorExecution(page, origin, cursor, model);
+  return startCursorExecution(page, origin, cursor, home, model);
 }
 
 // A second execution launch (Story B), with its own queued chat id so the
-// two held sessions' records stay distinct. No model: it is the unscoped
+// two sessions' records stay distinct. Without a model it is the unscoped
 // of the two sessions a stale runner can hold.
 export async function launchSecondHeldSession(
   page: Page,
@@ -138,6 +157,7 @@ export async function launchSecondHeldSession(
   cursor: FakeCursor,
   home: string,
   sessionId: string,
+  model?: string,
 ): Promise<void> {
   cursor.queueCreateChatId(sessionId);
   await publishCommittedOrigin(page, {
@@ -153,6 +173,9 @@ export async function launchSecondHeldSession(
     .click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
+  if (model !== undefined) {
+    await dialog.getByRole("combobox", { name: "Model" }).selectOption(model);
+  }
   await dialog
     .getByRole("textbox", { name: "Instruction (optional)" })
     .fill("Implement the selected slice.");
@@ -168,16 +191,7 @@ export async function launchSecondHeldSession(
     )
     .toBe(1);
   // The attach is logged before the runner settles its first instruction.
-  // A caller can safely stop or replace the runner after both keeps settle.
-  await expect
-    .poll(() => readCursorRunnerLastHeld(home), { timeout: launchWaitMs })
-    .toEqual(
-      expect.arrayContaining(
-        [cursor.sessionId, sessionId].map((sessionId) =>
-          sessionKey({ host: "cursor", sessionId }),
-        ),
-      ),
-    );
+  await expectRunnerKeeps(home, sessionId);
 }
 
 export function keptRecords(home: string): LaunchRecord[] {
