@@ -97,14 +97,20 @@ manual skill. [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted
 
 - **For / why.** A developer can invoke the public `dough-intent-coverage`
   skill for a selected story and receive a sourced account of the promises
-  the project's tests protect.
+  the project's tests protect, along with the time and effort it took to
+  assess them.
 - **Evaluation.** A developer invokes the installed skill in a project with
   browser and unit tests and in a project with a different test stack. The
   assessment uses each project's own test commands and relates end-to-end,
   integration, and unit assertions to the promises they exercise. It
   distinguishes observed results, gaps, and missing evidence. The skill
-  returns the assessment as output and the caller decides whether and where
-  to save it.
+  returns the assessment and its cost evidence as output. The rendered
+  assessment shows measured end-to-end wall-clock time, separate test
+  runtime, and human and agent effort where there is a basis to report it.
+  Show the units and evidence labels for measured and estimated figures and
+  identify unavailable values. The caller decides whether and where to save
+  the result.
+  [Architectural North Star](../NORTH-STAR.md#intent-assessment-results-carry-their-cost).
 - **Prerequisite.** A measured pilot that Terry judges worth generalizing.
   Use the supported method and project conventions with one shared source
   for Codex, Cursor, and Claude Code.
@@ -130,9 +136,13 @@ manual skill. [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted
 - **For / why.** A developer can close an eligible story and read the
   assessment afterward without a separate invocation.
 - **Evaluation.** Wrap-up calls the same assessment before cleaning up the
-  story's source records and stores the returned result in the story's
-  done-record JSON beside the backlog. A repeat wrap-up leaves one result.
-  The existing rolling 30-day cleanup prunes the result with the record.
+  story's source records and stores the returned result, including its
+  timing and effort evidence, in the story's done-record JSON beside the
+  backlog. The rendered assessment for the recently done story shows the
+  recorded wall-clock time, separate test runtime, and any reported effort,
+  preserving the units, evidence labels, and unavailable values. A repeat
+  wrap-up leaves one result. The existing rolling 30-day cleanup prunes the
+  result with the record.
   Settle eligibility and the handling of incomplete evidence in refinement.
   [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
 - **Prerequisite.** A usable manual skill and evidence from its use that
