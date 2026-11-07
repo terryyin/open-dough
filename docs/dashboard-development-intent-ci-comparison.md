@@ -27,7 +27,9 @@ change; strong at ≥50% of baseline) and a duration tint (green faster, red
 slower; no tint under 10% or under 1 s; strong at ≥50%; a measured zero
 baseline at most light; no tint without comparable measured durations).
 Added, removed, gap and partial sides take no cue on that measure; their text
-explains why. Tree file rows and those location headers carry the same Counts
+explains why. Baseline / Branch / Landed cells use the same timing gap labels
+as **Test execution time** (`Part 2 untimed`, `No timings`), with the full
+explanation as hover text and accessible description. Tree file rows and those location headers carry the same Counts
 and after-side words in their accessible names as **Proof**. Folder rows in
 the tree stay without cues. A selected file or location with a duration tint
 keeps that tint and uses an accent border for selection instead of an accent

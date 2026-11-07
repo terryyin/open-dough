@@ -31,8 +31,7 @@ import {
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
 
-const notRecorded =
-  "not recorded: this summary has no test execution durations";
+const notRecorded = "No timings";
 
 test("a failed run with a summary shows Failed as before, then Proof of that run's revision, link and attempt with each entry's counts and parts", async ({
   page,
@@ -116,7 +115,7 @@ test("a missing part is shown as a gap and its counts are not counted", async ({
     [
       "dashboard/tests",
       "110 passed tests",
-      "partial: part 4 of 12 missing",
+      "Part 4 missing",
       "11 of 12 parts present; part 4 of 12 missing",
     ],
   ]);
@@ -168,7 +167,7 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     [
       longEntry,
       "52 passed, 2 failed and 1 other checks",
-      "partial: part 2 of 3 missing",
+      "Part 2 missing",
       "2 of 3 parts present; part 2 of 3 missing",
     ],
     ["dashboard/tests", "12 passed tests", "2 min", "2 of 2 parts present"],

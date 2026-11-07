@@ -69,9 +69,8 @@ function timingUnavailableReason(
   if (timing.kind === "checking") return "still reading";
   if (timing.kind === "status") return timing.text;
   if (timing.kind === "no-breakdown") return "no file breakdown";
-  if (timing.kind === "explained") {
-    return timing.text.startsWith("partial") ? "partial" : timing.text;
-  }
+  if (timing.kind === "partial") return "partial";
+  if (timing.kind === "not-recorded") return "not recorded";
   return undefined;
 }
 

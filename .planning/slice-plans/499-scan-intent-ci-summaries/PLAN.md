@@ -2,6 +2,7 @@
 
 **Identity:** SEED-259#scan-intent-ci-summaries
 **Source:** [Scan CI summaries in dashboard Intent](../../seeds/SEED-259-scan-intent-ci-summaries.md#scan-intent-ci-summaries)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -97,7 +98,7 @@ No premise is left open.
 
 ### 1. Timing gaps read as short labels
 Type: Behavior
-Status: planned
+Status: done
 Proof: as mapped above for key example 4.
 
 Behavior: an entry or scope whose timing is partial, missing a part, or
@@ -112,6 +113,16 @@ Also repairs a known gate defect (see Learnings): the family spec
 `intent-story-ci-cues.spec.ts` writes screenshots into the retired plan 493
 directory; it writes them under its Playwright output path instead, so a
 gate run leaves the checkout clean.
+
+Accepted proof (2026-11-07): family gate (37 specs) 96 passed in 3.6 min, plus
+`intent-file-purpose-proof`, `intent-entry-folder-summaries(-folders)`,
+`intent-reading-place`, `intent-story-changes-moves` 6 passed; units
+`intent-ci-proof-timing`, `intent-scope-proof`, `dashboard-ci-comparison-entries`,
+`intent-scope-comparison-cues`, `intent-scope-comparison-wording` pass;
+typecheck passes. After the refactor pass, units, typecheck and
+`intent-summary-ci-proof-gaps.spec.ts` reran green. Refactor disposition:
+`## REFACTOR COMPLETE` (one import home for `partsWithoutBreakdown`,
+`unitCount` private, timing assertions moved into the timing unit test).
 
 ### 2. Sort any Intent CI figures table by its columns
 Type: Behavior
@@ -170,6 +181,15 @@ matches the shipped wording.
   `tree-ci-cues-*.png` files into `.planning/slice-plans/493-compare-before-and-after-ci-proof/screenshots/`,
   a plan wrap-up already removed. The untracked files were deleted after the
   observation; slice 1 owns the repair.
+
+- 2026-11-07, slice 1: `dashboard/src/ciProofTiming.ts` owns timing.
+  `TimingCell { text, explanation?, ms? }` carries `ms` only when measured
+  (for a comparison after-cell, the after value), so slice 2 sorts on `ms`
+  and every cell without it falls after measured rows; `CiTiming.kind`
+  separates partial from not recorded. A part without a file breakdown reads
+  `Part N no breakdown`. Slice 3's overall group reuses `timingCellOf`.
+  Specs touched here still carry pre-existing file-level `test.setTimeout`
+  and `test.slow()`; SEED-260#restore-default-test-timeouts owns removing them.
 
 ## Refinement review
 

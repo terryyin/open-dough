@@ -82,17 +82,12 @@ test("at 200% zoom and on a narrow window a folder's Summary table reads whole w
     [
       "dashboard/tests",
       "5 passed, 1 failed and 1 other tests",
-      "partial: 1 test without a duration",
+      "1 test untimed",
       allParts,
     ],
     ["folder/", "3 passed, 1 failed and 1 other tests", "595 ms", allParts],
     ["added.spec.ts", "no CI result", "no CI result", allParts],
-    [
-      "root.spec.ts",
-      "2 passed tests",
-      "partial: 1 test without a duration",
-      allParts,
-    ],
+    ["root.spec.ts", "2 passed tests", "1 test untimed", allParts],
   ] as const;
   await expectScopeRows(summary, "dashboard/tests", rows);
   const table = scopeTable(summary, "dashboard/tests");

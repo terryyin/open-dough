@@ -13,9 +13,9 @@ import {
   ciProofCellsOf,
   ciScopeCellsOf,
   hasFileBreakdown,
-  partsWithoutBreakdown,
   type CiProofCells,
 } from "./ciProofWording.ts";
+import { partsWithoutBreakdown } from "./ciProofTiming.ts";
 import {
   immediateChildrenOf,
   outsideOf,

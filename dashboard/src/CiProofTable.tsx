@@ -14,6 +14,7 @@
 import { Fragment, type ReactNode } from "react";
 import { scopeCueRowAttrs } from "./ciScopeComparisonCuePresentation.ts";
 import type { CiProofCells } from "./ciProofWording.ts";
+import type { TimingCell } from "./ciProofTiming.ts";
 import type { ComparisonEntryCells } from "./storyCiComparisonEntries.ts";
 import "./ci-proof-table.css";
 import "./intent-ci-cues.css";
@@ -75,11 +76,17 @@ function PartsCell({
   );
 }
 
+// A timing cell shows its short words; a gap label's full explanation is the
+// cell's hover text and so its accessible description.
+function TimingCellView({ cell }: { readonly cell: TimingCell }) {
+  return <td title={cell.explanation}>{cell.text}</td>;
+}
+
 function ProofCells({ cells }: { readonly cells: CiProofCells }) {
   return (
     <>
       <td>{cells.counts}</td>
-      <td>{cells.executionTime}</td>
+      <TimingCellView cell={cells.executionTime} />
       <PartsCell completeness={cells.completeness} gaps={cells.gaps} />
     </>
   );
@@ -89,9 +96,9 @@ function ComparisonCells({ cells }: { readonly cells: ComparisonEntryCells }) {
   return (
     <>
       <td>{cells.counts}</td>
-      <td>{cells.baseline}</td>
-      <td>{cells.branch}</td>
-      <td>{cells.landed}</td>
+      <TimingCellView cell={cells.baseline} />
+      <TimingCellView cell={cells.branch} />
+      <TimingCellView cell={cells.landed} />
       <PartsCell completeness={cells.completeness} gaps={cells.gaps} />
     </>
   );

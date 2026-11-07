@@ -32,7 +32,7 @@ test("a Summary qualifies a previously retrieved judgment and its failed refresh
     [
       "dashboard/tests",
       "5 passed, 1 failed and 1 other tests",
-      "partial: 1 test without a duration",
+      "1 test untimed",
       allParts,
     ],
     ["tests", "2 passed checks", "3.0 s", "1 of 1 part present"],

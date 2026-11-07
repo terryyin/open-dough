@@ -1,8 +1,8 @@
-// Writes Intent tree CI-cue review screenshots for Learnings under a plan
-// screenshots directory (light/dark × desktop/phone).
+// Writes Intent tree CI-cue review screenshots under the running test's
+// Playwright output path (light/dark × desktop/phone), so a run leaves the
+// checkout clean.
 
-import type { Locator, Page } from "@playwright/test";
-import path from "node:path";
+import type { Locator, Page, TestInfo } from "@playwright/test";
 
 const shots = [
   { name: "desktop-light", width: 1280, colorScheme: "light" },
@@ -14,13 +14,13 @@ const shots = [
 export async function captureTreeCiCueScreenshots(
   page: Page,
   intent: Locator,
-  screenshotDir: string,
+  testInfo: TestInfo,
 ): Promise<void> {
   for (const shot of shots) {
     await page.setViewportSize({ width: shot.width, height: 844 });
     await page.emulateMedia({ colorScheme: shot.colorScheme });
     await intent.locator(".intent-locations").screenshot({
-      path: path.join(screenshotDir, `tree-ci-cues-${shot.name}.png`),
+      path: testInfo.outputPath(`tree-ci-cues-${shot.name}.png`),
     });
   }
   await page.emulateMedia({ colorScheme: "light" });

@@ -51,7 +51,7 @@ test.setTimeout(90_000);
 const checksRow: ProofRow = [
   "tests",
   "5 passed checks",
-  "not recorded: this summary has no test execution durations",
+  "No timings",
   "1 of 1 part present",
 ];
 

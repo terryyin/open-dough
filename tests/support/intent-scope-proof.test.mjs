@@ -4,8 +4,9 @@
 // ../../dashboard/src/ciProofTimeWords.ts): immediate children in the
 // tree's order, figures summed by path whatever the tree lists, what no child
 // row shows, each result counted in exactly one row, and each gap — no breakdown, no matched result, a measured zero,
-// an untimed result, a missing part, a part without a breakdown — named
-// rather than shown as zero or complete. Browser journey:
+// a missing part, a part without a breakdown — named rather than shown as
+// zero or complete; timing gaps are ./intent-ci-proof-timing.test.mjs's.
+// Browser journey:
 // ../../dashboard/tests/intent/intent-summary-ci-proof.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -15,10 +16,7 @@ import {
   owningEntryOf,
   scopeFiguresOf,
 } from "../../dashboard/src/ciScopeProof.ts";
-import {
-  ciProofCellsOf,
-  ciScopeCellsOf,
-} from "../../dashboard/src/ciProofWording.ts";
+import { ciScopeCellsOf } from "../../dashboard/src/ciProofWording.ts";
 import { executionTimeWords } from "../../dashboard/src/ciProofTimeWords.ts";
 
 const present = (part, counts, extra = {}) => ({
@@ -181,25 +179,16 @@ test("a file the tree does not list under a listed child folder counts once, in 
     );
 });
 
-test("each row names its gap: no result, a measured zero, an untimed result, a missing part, no file breakdown", () => {
+test("each row names its gap: no result, a measured zero, a missing part, no file breakdown", () => {
   const cells = (scope, of = entry) =>
     ciScopeCellsOf(of, scopeFiguresOf(of, scope));
   assert.deepEqual(cells("tests/a.sh"), {
     counts: "1 passed checks",
-    executionTime: "0 ms",
+    executionTime: { text: "0 ms", ms: 0 },
     completeness: "1 of 1 part present",
     gaps: [],
   });
   assert.deepEqual(cells("tests/z.sh").counts, "no CI result");
-  assert.deepEqual(cells("tests/z.sh").executionTime, "no CI result");
-  assert.equal(
-    cells("tests/support").executionTime,
-    "not recorded: 1 check without a duration",
-  );
-  assert.equal(
-    ciProofCellsOf(entry).executionTime,
-    "partial: 1 check without a duration",
-  );
   const missing = {
     ...entry,
     parts: [
@@ -210,8 +199,11 @@ test("each row names its gap: no result, a measured zero, an untimed result, a m
   };
   assert.deepEqual(cells("tests/deep", missing), {
     counts: "1 passed and 1 failed checks",
-    executionTime:
-      "partial: part 2 of 3 missing and part 3 of 3 has no file breakdown",
+    executionTime: {
+      text: "Part 2 missing, Part 3 no breakdown",
+      explanation:
+        "Partial: part 2 of 3 missing and part 3 of 3 has no file breakdown",
+    },
     completeness: "2 of 3 parts present",
     gaps: ["part 2 of 3 missing", "part 3 of 3 has no file breakdown"],
   });
@@ -223,7 +215,7 @@ test("each row names its gap: no result, a measured zero, an untimed result, a m
   };
   assert.deepEqual(cells("tests/deep", entryOnly), {
     counts: "no file breakdown",
-    executionTime: "no file breakdown",
+    executionTime: { text: "no file breakdown" },
     completeness: "1 of 1 part present",
     gaps: ["part 1 of 1 has no file breakdown"],
   });

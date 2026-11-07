@@ -2,14 +2,19 @@
 // missing, partial or absent (../../src/IntentScopeProof.tsx,
 // ../../src/ciScopeProof.ts, ../intentSummaryCiProofFixtures.ts): a missing
 // shard and a shard without a file breakdown keep the entry's totals and
-// leave every child partial, an entry-only summary labels the child
+// leave every child partial with short gap labels whose full explanation is
+// the cell's accessible description and hover, an entry-only summary labels the child
 // breakdown unavailable, and a run without a summary keeps the children for
 // drilling down, saying why as the homepage does. Complete evidence:
 // ./intent-summary-ci-proof.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
 import { proofOf, run } from "../intentCiProofPage.ts";
-import { childName, expectScopeRows } from "../intentScopeProofPage.ts";
+import {
+  childName,
+  expectScopeRows,
+  scopeTable,
+} from "../intentScopeProofPage.ts";
 import {
   bothEntriesSummary,
   openIntent,
@@ -61,18 +66,31 @@ test("a missing shard and a shard without a file breakdown keep the entry's tota
     [
       "dashboard/tests",
       "2 passed tests",
-      `partial: ${missing}`,
+      "Part 3 missing",
       `2 of 3 parts present; ${missing}`,
     ],
     [
       "folder/",
       "1 passed tests",
-      `partial: ${missing} and ${noBreakdown}`,
+      "Part 3 missing, Part 2 no breakdown",
       mixedParts,
     ],
     ["added.spec.ts", "no CI result", "no CI result", mixedParts],
     ["root.spec.ts", "no CI result", "no CI result", mixedParts],
   ]);
+  const timeCell = (row: number) =>
+    scopeTable(summary, "dashboard/tests")
+      .locator("tbody")
+      .getByRole("row")
+      .nth(row)
+      .getByRole("cell")
+      .nth(1);
+  const folderWhy = `Partial: ${missing} and ${noBreakdown}`;
+  await expect(timeCell(0)).toHaveAccessibleDescription(`Partial: ${missing}`);
+  await expect(timeCell(1)).toHaveAccessibleDescription(folderWhy);
+  await expect(timeCell(1)).toHaveAttribute("title", folderWhy);
+  // No CI result is its own word, with no partial explanation.
+  await expect(timeCell(2)).toHaveAccessibleDescription("");
   await expect(summary.locator(".intent-summary-outside")).toHaveText(
     "The figures of dashboard/tests include what no folder or file row shows: part 2 of 3, which published no file breakdown.",
   );

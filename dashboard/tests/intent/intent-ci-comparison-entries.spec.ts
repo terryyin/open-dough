@@ -1,7 +1,9 @@
 // Entry-proof gap journeys for Intent's CI timing comparison
 // (../../src/IntentCiComparison.tsx): expired summaries keep wall time, and
-// missing or partial entry durations stay explained without inventing zero
-// (SEED-244#compare-story-ci-timing-changes examples 2 and 6). Named-build
+// missing or partial entry durations read as No timings or a gap label, with
+// the full explanation as the cell's accessible description, without
+// inventing zero (SEED-244#compare-story-ci-timing-changes examples 2 and 6,
+// SEED-259#scan-intent-ci-summaries key example 4). Named-build
 // and wall-time journeys live in ./intent-ci-comparison.spec.ts; build-slot
 // gaps live in ./intent-ci-comparison-gaps.spec.ts.
 
@@ -59,7 +61,7 @@ test("a summary without durations and a part without duration leave totals expla
     [
       "dashboard/tests",
       "2,090 → 2,092 tests (+2)",
-      "not recorded: this summary has no test execution durations",
+      "No timings",
       "4 min 30 s",
       "5 min",
       "1 of 1 part present",
@@ -67,7 +69,7 @@ test("a summary without durations and a part without duration leave totals expla
     [
       "tests",
       "5 checks (no change)",
-      "partial: part 2 of 2 has no duration",
+      "Part 2 untimed",
       "1 min 30 s",
       "1 min",
       "1 of 1 part present",
@@ -81,4 +83,22 @@ test("a summary without durations and a part without duration leave totals expla
       "1 of 1 part present",
     ],
   ]);
+  const baselineCell = (row: number) =>
+    panel
+      .getByRole("table", { name: "CI entry timing comparison" })
+      .locator("tbody")
+      .getByRole("row")
+      .nth(row)
+      .getByRole("cell")
+      .nth(1);
+  await expect(baselineCell(0)).toHaveAccessibleDescription(
+    "Not recorded: this summary has no test execution durations",
+  );
+  await expect(baselineCell(1)).toHaveAccessibleDescription(
+    "Partial: part 2 of 2 has no duration",
+  );
+  await expect(baselineCell(1)).toHaveAttribute(
+    "title",
+    "Partial: part 2 of 2 has no duration",
+  );
 });

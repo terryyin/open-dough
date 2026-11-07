@@ -195,7 +195,7 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
       [
         "dashboard/tests",
         "5 passed, 1 failed and 1 other tests",
-        "partial: 1 test without a duration",
+        "1 test untimed",
         allParts,
       ],
       ["tests", "2 passed checks", "3.0 s", "1 of 1 part present"],
@@ -225,17 +225,12 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
       [
         "dashboard/tests",
         "5 passed, 1 failed and 1 other tests",
-        "partial: 1 test without a duration",
+        "1 test untimed",
         allParts,
       ],
       ["folder/", "3 passed, 1 failed and 1 other tests", "595 ms", allParts],
       ["added.spec.ts", "no CI result", "no CI result", allParts],
-      [
-        "root.spec.ts",
-        "2 passed tests",
-        "partial: 1 test without a duration",
-        allParts,
-      ],
+      ["root.spec.ts", "2 passed tests", "1 test untimed", allParts],
     ]);
     await expect(summary.locator(".intent-summary-outside")).toHaveCount(0);
   });

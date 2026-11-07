@@ -50,9 +50,9 @@ test("comparable entries show signed whole-second differences and count diffs", 
     result.rows.map((row) => [
       row.path,
       row.cells.counts,
-      row.cells.baseline,
-      row.cells.branch,
-      row.cells.landed,
+      row.cells.baseline.text,
+      row.cells.branch.text,
+      row.cells.landed.text,
       row.cells.completeness,
     ]),
     [
@@ -87,9 +87,9 @@ test("an added entry has no invented baseline difference", () => {
   assert.deepEqual(
     [
       added.cells.counts,
-      added.cells.baseline,
-      added.cells.branch,
-      added.cells.landed,
+      added.cells.baseline.text,
+      added.cells.branch.text,
+      added.cells.landed.text,
     ],
     ["added → 1 tests", "added", "30 s", "30 s"],
   );
@@ -104,9 +104,9 @@ test("a removed entry is marked without inventing an after value", () => {
   assert.equal(result.kind, "rows");
   const gone = result.rows.find((row) => row.path === "old");
   assert.equal(gone.cells.counts, "1 → removed");
-  assert.equal(gone.cells.baseline, "1 min");
-  assert.equal(gone.cells.branch, "removed");
-  assert.equal(gone.cells.landed, "removed");
+  assert.equal(gone.cells.baseline.text, "1 min");
+  assert.equal(gone.cells.branch.text, "removed");
+  assert.equal(gone.cells.landed.text, "removed");
 });
 
 test("expired proofs keep an explained empty comparison", () => {
@@ -136,10 +136,47 @@ test("a summary without durations never becomes zero", () => {
     summary(entry("tests", 90_000)),
   );
   assert.equal(result.kind, "rows");
-  assert.equal(
-    result.rows[0].cells.baseline,
-    "not recorded: this summary has no test execution durations",
+  assert.deepEqual(result.rows[0].cells.baseline, {
+    text: "No timings",
+    explanation: "Not recorded: this summary has no test execution durations",
+  });
+  assert.deepEqual(result.rows[0].cells.branch, { text: "1 min", ms: 60_000 });
+  assert.deepEqual(result.rows[0].cells.landed, {
+    text: "1 min 30 s",
+    ms: 90_000,
+  });
+});
+
+test("a partial endpoint shows its gap labels and keeps measured zero distinct", () => {
+  const parts = (second) => ({
+    path: "tests",
+    unit: "tests",
+    passed: 2,
+    failed: 0,
+    other: 0,
+    parts: [
+      {
+        part: 1,
+        status: "present",
+        passed: 1,
+        failed: 0,
+        other: 0,
+        durationMs: 0,
+      },
+      { part: 2, status: "present", passed: 1, failed: 0, other: 0, ...second },
+    ],
+  });
+  const result = comparisonEntriesOf(
+    summary(parts({})),
+    summary(parts({ durationMs: 0 })),
+    summary(parts({ durationMs: 0 })),
   );
-  assert.equal(result.rows[0].cells.branch, "1 min");
-  assert.equal(result.rows[0].cells.landed, "1 min 30 s");
+  assert.equal(result.kind, "rows");
+  const [row] = result.rows;
+  assert.deepEqual(row.cells.baseline, {
+    text: "Part 2 untimed",
+    explanation: "Partial: part 2 of 2 has no duration",
+  });
+  assert.deepEqual(row.cells.landed, { text: "0 s", ms: 0 });
+  assert.equal(row.cells.cues.duration.reason, "partial");
 });

@@ -13,6 +13,7 @@ import {
   ambiguousAttemptLine,
   unavailableLine,
 } from "./ciProofAbsenceWording.ts";
+import type { TimingCell } from "./ciProofTiming.ts";
 import { primaryProofOf, scopeComparisonCellsOf } from "./ciScopeComparison.ts";
 import type {
   ComparisonAfterSide,
@@ -50,9 +51,9 @@ export function comparisonEndpointProofsChecking(
 
 export type ComparisonEntryCells = {
   readonly counts: string;
-  readonly baseline: string;
-  readonly branch: string;
-  readonly landed: string;
+  readonly baseline: TimingCell;
+  readonly branch: TimingCell;
+  readonly landed: TimingCell;
   readonly completeness: string;
   readonly gaps: readonly string[];
   // One classification for the active after endpoint; Summary, entry rows and

@@ -68,7 +68,7 @@ function treeAfterWordsOf(
   cells: ComparisonEntryCells,
   afterSide: ComparisonAfterSide,
 ): string {
-  return afterSide === "landed" ? cells.landed : cells.branch;
+  return (afterSide === "landed" ? cells.landed : cells.branch).text;
 }
 
 // Accessible name: existing tree words, then the same Counts and after-side

@@ -60,7 +60,8 @@ folder's own summary. Execution time is precise enough to compare sub-minute
 scopes (`340 ms`, `12.5 s`, `4 min 5 s`); a measured zero is `0 ms`. A file
 CI has no result for says **no CI result**; a scope with an untimed test, a
 missing or ambiguous part, or a part whose report published no file breakdown
-is partial with that named; an entry-only summary keeps the entry's totals
+has partial timing shown as short gap labels (`Part 3 missing`,
+`Part 2 no breakdown`, `1 test untimed`); an entry-only summary keeps the entry's totals
 and says the child breakdown is unavailable. Without usable proof, the rows
 stay for drilling down and one line says why, as the homepage does. The
 summary drills down: a child's name selects that folder or file as its tree
@@ -161,10 +162,13 @@ its start and completion (not recorded, with why, when either is absent),
 then a table with one row per declared Intent location `path`, in
 declaration order, under the columns **Entry**, **Counts** (passed, failed
 and other with the runner's unit, tests or checks), **Test execution time**
-(the entry's summed durations: complete, partial naming the parts without
-one or how many tests or checks recorded none, or not recorded for a summary
-without durations, never zero for absence, and never the attempt's wall
-time) and **Parts** (how many declared parts are present, then each missing
+(the entry's summed durations: measured, a measured zero reading `0 ms`;
+partial as short gap labels joined by commas, such as `Part 2 untimed`,
+`Part 3 missing` or `4 tests untimed`; or `No timings` for a summary without
+durations; never zero for absence, no lower bound for partial timing, and
+never the attempt's wall time; a gap label's full explanation, such as
+“Partial: part 2 of 3 has no duration”, is the cell's hover text and
+accessible description) and **Parts** (how many declared parts are present, then each missing
 or ambiguous part as an uncounted gap). A path wraps after its `/`
 separators, and within them only in a reading pane too narrow for that, so
 the columns fit a phone or zoomed window without sideways scrolling. A
