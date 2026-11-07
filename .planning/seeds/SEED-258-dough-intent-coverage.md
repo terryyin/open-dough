@@ -11,13 +11,7 @@ scope: epic
 
 ### Assess story intent coverage across projects and during wrap-up
 
-**Identity:** SEED-258#dough-intent-coverage
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-258#dough-intent-coverage","dependencies":[{"supplier":{"identity":"SEED-192#assess-story-intent-protection","href":"seeds/SEED-192-review-product-intent.md#assess-story-intent-protection"},"implementation":"Use the completed Open Dough trial's reports and evaluation to decompose and implement public intent coverage.","rationale":"The trial establishes whether the assessment produces useful decisions at a justified cost and which parts merit reuse before generalizing the workflow.","condition":"The three trial reports and cross-case summary are committed and retained, and Terry's recorded evaluation authorizes proceeding with the public skill follow-up.","state":"waiting","resolution":{"revision":"8f830f448f78c4180303af0c773c0d4332961bb2","path":".planning/seeds/SEED-192-review-product-intent.md#assess-story-intent-protection","summary":"The completed trial reports and Terry's evaluation remain recoverable at b0ad4c799d4b659ed072591e8dc0e66b4caefc2e:docs/intent-coverage-trial/README.md. The trial exposed useful test gaps, missed both calibration journeys, and had no timed ordinary-review baseline. Evidence for routine adoption is inconclusive. The SEED-258 decomposition starts with a short manual comparison; public delivery and automatic wrap-up remain conditional on the results and Terry's decision.\nCondition remains unresolved: The three trial reports and cross-case summary are committed and retained, and Terry's recorded evaluation authorizes proceeding with the public skill follow-up.\nAccepted integration: 786a34629fe59747955497e2d963c5ac5cbf2bfe on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
+The three stories below replace the original backlog item `SEED-258#dough-intent-coverage`.
 
 **Parent outcome.** Developers can decide which promises in a completed
 story are protected by its maintained tests and which protections to retain,
@@ -94,6 +88,9 @@ manual skill. [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted
 ### 2. Invoke Dough Intent Coverage manually across test mixes
 
 **Identity:** SEED-258#invoke-intent-coverage-manually
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-258#invoke-intent-coverage-manually","dependencies":[{"supplier":{"identity":"SEED-258#compare-manual-intent-coverage","href":"seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage"},"implementation":"Generalize the assessment method that the measured manual comparison supports.","rationale":"The public skill needs a demonstrated improvement over ordinary review before it is generalized.","condition":"The measured comparison records verified decisions, consequential misses, and total effort, and Terry records a decision to proceed with generalizing the method.","state":"waiting"}]}
+```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
@@ -123,6 +120,9 @@ manual skill. [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted
 ### 3. Find the intent assessment in a recently done story
 
 **Identity:** SEED-258#assess-intent-coverage-during-wrap-up
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-258#assess-intent-coverage-during-wrap-up","dependencies":[{"supplier":{"identity":"SEED-258#invoke-intent-coverage-manually","href":"seeds/SEED-258-dough-intent-coverage.md#invoke-intent-coverage-manually"},"implementation":"Invoke the public manual skill from wrap-up and store the returned result in the done-story record.","rationale":"Wrap-up consumes the same proven assessment that developers can invoke manually.","condition":"The public dough-intent-coverage skill can be invoked manually, returns its assessment as output, and has been demonstrated with different test stacks.","state":"waiting"}]}
+```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
@@ -143,11 +143,11 @@ manual skill. [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted
 
 ## Ordering and scope reduction
 
-Select the comparison first when this work is revisited. Its findings decide
-whether to select the manual skill. Automatic invocation is the first
-candidate to defer if the manual skill gives sufficient value. Effort is
+The backlog lists the comparison first. The manual skill waits for the
+comparison and Terry's decision to generalize. Wrap-up waits for the manual
+skill, and its additional cost is evaluated before execution. Effort is
 comparative and unbanded because Open Dough has no established S/M/L
-calibration. The three sections are decomposition candidates.
+calibration.
 
 ## Separate test follow-up candidates from the trial
 

@@ -32,4 +32,6 @@ intent introduced or affected by a newly developed story.
 
 - [Explain a running later build after a proofless one](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#explain-running-after-proofless-later-build) — SEED-254#explain-running-after-proofless-later-build
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
-- [Assess story intent coverage across projects and during wrap-up](seeds/SEED-258-dough-intent-coverage.md#dough-intent-coverage) — SEED-258#dough-intent-coverage
+- [Compare a short manual intent assessment with ordinary review](seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage) — SEED-258#compare-manual-intent-coverage
+- [Invoke Dough Intent Coverage manually across test mixes](seeds/SEED-258-dough-intent-coverage.md#invoke-intent-coverage-manually) — SEED-258#invoke-intent-coverage-manually
+- [Find the intent assessment in a recently done story](seeds/SEED-258-dough-intent-coverage.md#assess-intent-coverage-during-wrap-up) — SEED-258#assess-intent-coverage-during-wrap-up
