@@ -28,9 +28,10 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
+- [Explain a running later build after a proofless one](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#explain-running-after-proofless-later-build) — SEED-254#explain-running-after-proofless-later-build ([plan](slice-plans/497-explain-running-after-proofless-later-build/PLAN.md))
+
 ## Backlog list
 
-- [Explain a running later build after a proofless one](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#explain-running-after-proofless-later-build) — SEED-254#explain-running-after-proofless-later-build
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
 - [Compare a short manual intent assessment with ordinary review](seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage) — SEED-258#compare-manual-intent-coverage
 - [Invoke Dough Intent Coverage manually across test mixes](seeds/SEED-258-dough-intent-coverage.md#invoke-intent-coverage-manually) — SEED-258#invoke-intent-coverage-manually

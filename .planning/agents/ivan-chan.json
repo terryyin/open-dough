@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ivan-chan",
+  "email": "ivan-chan@example.org",
+  "identity": "SEED-254#explain-running-after-proofless-later-build",
+  "mode": "story-branch",
+  "branch": "codex/explain-a-running-later-build-after-a-proofless",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
