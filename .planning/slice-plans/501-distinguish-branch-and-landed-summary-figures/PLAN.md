@@ -90,6 +90,17 @@ forbids. That predates this story and is outside its scope. Production
 words Landed-equals-Baseline as `1 tests (0)`, and the rows assert that
 as-is.
 
+## Execution complete
+
+Product advice: no change to priorities. Every Branch and Landed scope in
+the precise breakdown is now held by the maintained journeys. The
+`test.slow()` calls left in these specs are already owned by
+[SEED-260](../../seeds/SEED-260-restore-default-test-timeouts.md). One
+hypothesis to review separately: production words a Landed count equal
+to Baseline as `1 tests (0)` after a Branch step, where other cells say
+`(no change)`; whether that reads well is a wording question for the
+Intent summary owner, not a defect this story found.
+
 ## Current decisions
 
 - If [Plan 499](../499-scan-intent-ci-summaries/PLAN.md) lands its reshaped
