@@ -274,7 +274,7 @@ These are test opportunities identified at the trial's trunk recheck.
 
 **Identity:** SEED-258#distinguish-branch-and-landed-summary-figures
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/500-distinguish-branch-and-landed-summary-figures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"901ef9ac3132b224f30d9f5f373b1e2c466def717171d179bcaa57c7e8721eb9","plan":"a7ae4540971d2839dc0b70bf48e5b572e492cd04014ac41402c3ef6e0868d609"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/501-distinguish-branch-and-landed-summary-figures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a3ad46f89ccb64233f3cf02ceb729cbb547f8ebe4a356763f55a44cd4f26118e","plan":"a7ae4540971d2839dc0b70bf48e5b572e492cd04014ac41402c3ef6e0868d609"}}
 ```
 
 **Goal.** A developer reviewing a completed story's precise CI comparison
@@ -334,7 +334,7 @@ the gap the intent-coverage trial verified, independently of the pilot.
 - *Rerun 2026-11-07.* At `302161aa8`, the four specs that load the precise
   breakdown proofs passed clean (10 tests) and still passed with the
   substitution applied, which 7 traces showed reaching the cells
-  ([Plan 500 premises](../slice-plans/500-distinguish-branch-and-landed-summary-figures/PLAN.md#decisive-premises)).
+  ([Plan 501 premises](../slice-plans/501-distinguish-branch-and-landed-summary-figures/PLAN.md#decisive-premises)).
 
 ## When to surface
 
