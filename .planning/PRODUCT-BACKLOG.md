@@ -36,5 +36,6 @@ intent introduced or affected by a newly developed story.
 
 - [Compare story CI builds from custom adapters in Intent](seeds/SEED-257-compare-story-ci-through-adapters.md#compare-story-ci-through-adapters) — SEED-257#compare-story-ci-through-adapters
 - [Use the nearest ancestor's CI proof for skipped builds](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-ancestor-ci-proof-for-skipped-builds) — SEED-254#use-ancestor-ci-proof-for-skipped-builds
+- [Use a later trunk build's CI proof for cancelled landings](seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-later-ci-proof-for-cancelled-landings) — SEED-254#use-later-ci-proof-for-cancelled-landings
 - [Review how well a story's intent is protected](seeds/SEED-192-review-product-intent.md#assess-story-intent-protection) — SEED-192#assess-story-intent-protection
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
