@@ -131,8 +131,11 @@ The before-and-after presentation of these labels belongs to
 ### Use a later trunk build's CI proof for cancelled landings
 
 **Identity:** SEED-254#use-later-ci-proof-for-cancelled-landings
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-254#use-later-ci-proof-for-cancelled-landings","dependencies":[{"supplier":{"identity":"SEED-254#use-ancestor-ci-proof-for-skipped-builds","href":"seeds/SEED-254-use-ancestor-ci-proof-for-skipped-builds.md#use-ancestor-ci-proof-for-skipped-builds"},"implementation":"Landed's later-build proof extends the per-endpoint requested-revision status (Cancelled shown apart from the proof source) and the proof-usability walk that the supplier introduces in the comparison lookup.","rationale":"Both stories change the same endpoint selection rule in intentCiComparisonResolve.ts and baseCiRevisionLookup.ts. Building the Cancelled status and the usable-proof walk here first would duplicate the supplier's design and force a conflicting reconciliation of one domain rule; the supplier is already Taken and planned.","condition":"The supplier's comparison on trunk shows each endpoint's requested-revision status, including Cancelled at Landed, apart from its proof source, and its Baseline walk passes over builds without usable proof.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/496-use-later-ci-proof-for-cancelled-landings/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9c9040eac4ac2cc780e51bb493af35b84accbeaf912c6f1ecdfb61dca434e9d7","plan":"fbaf8720daa1227a8fdd8c021e7b98708c237cd74d882e18b43dbc9454c0863f"}}
 ```
 
 **Beneficiary:** A developer reviewing a done story's Landed CI proof in
@@ -143,7 +146,71 @@ can show proof from the nearest later trunk build that contains the landing.
 The landing still shows as **Cancelled**, and the reviewer can see the later
 build and that it includes changes after the landing.
 
-**Scope:** To be refined. Starting points: the descendant build must contain
-the landing, the changes between them stay visible, and the rule must keep a
-cancellation distinguishable from a skip. 9 of the 60 latest trunk landing
-merges were cancelled (see above).
+**Scope:**
+
+- **Which landings.** A Story Branch Mode landing (the landing merge, or the
+  story tip for a fast-forward) whose own push run was cancelled and that has
+  no usable proof of its own. Proof at the landing itself, including a rerun
+  attempt, stays authoritative.
+- **Which later build.** Walking forward on the trunk's first-parent history
+  from the landing, Landed uses the nearest later build with usable proof.
+  Every revision on that walk contains the landing. The walk passes over
+  cancelled builds, revisions without a build, and builds whose proof is
+  absent, expired, unreadable, invalid or mismatched, under the same proof
+  usability rule as the Baseline walk. It stops at a running build, at the
+  trunk head the dashboard has read, and after 30 revisions.
+- **What the reviewer sees.** Landed keeps **Cancelled** at the landing and
+  names the later build as the proof source: its revision, run, attempt and
+  conclusion, and how many later trunk revisions it includes beyond the
+  landing. The label says the build is later than the landing, so it never
+  reads as a skip's equivalent build.
+- **No later proof.** When the walk finds no usable proof, Landed keeps
+  today's cancelled explanation, adds why (no later trunk build yet, a later
+  build still running, or the nearest later build's proof unavailable and
+  why), and shows no figures.
+- A failed later build with usable proof is used. Its conclusion is shown
+  beside the source.
+- Keep [GitHub requests](../../dashboard/GITHUB-REQUESTS.md) accurate for the
+  forward walk's run listings and proof reads.
+
+**Scope limits:**
+
+- Timed-out landings keep their exact-only result: a timeout is the
+  landing's own outcome, not a supersession.
+- Trunk Mode Landed keeps its ancestor walk, and Baseline and Branch keep
+  theirs.
+- GitHub Actions comparisons only, as in the sibling story.
+
+**Deferred promises:**
+
+- Later-build proof for a code landing with no run whose absence is
+  unexplained (for example, not the head of its push).
+- Telling which of the included later revisions CI ignores.
+
+**Examples:**
+
+Observed on `origin/main` on 2026-11-07 (8 cancelled landing merges among
+the 60 latest):
+
+- *Next push passed.* Landing merge `aeb973a39`'s push run was cancelled.
+  The next trunk revision `83518b9e3` has a passing run 42348289912 with a
+  proof summary. Landed shows **Cancelled** at `aeb973a39` and uses run
+  42348289912 attempt 1 at `83518b9e3`, which includes 1 later trunk
+  revision.
+- *Cancelled chain.* Landing `306277a2b`'s run was cancelled, and so were
+  the runs at `6bfb0a576` (+1) and `1977a75a9` (+3). `d05727aaf` (+5)
+  passed. Landed uses `d05727aaf` and says it includes 5 later trunk
+  revisions.
+- *Later build failed.* Landing `c60d7e720`'s run was cancelled. The next
+  trunk revision `5f90f93af`, another story's merge that also changes
+  `ci.yml`, has a failed run 42347766843 that published a proof summary.
+  Landed shows **Cancelled**, and uses that run labelled failed, including 1
+  later trunk revision.
+- *No later proof in reach.* A cancelled landing where no later build
+  within the walk has usable proof, as for builds that predate CI proof
+  summaries (run 41755363191 at `9377f6d9f`). Landed shows **Cancelled**,
+  names the nearest later build and that it published no CI proof summary,
+  and shows no figures.
+- *Newest landing.* A cancelled landing is the trunk head the dashboard has
+  read, or the next build is still running. Landed shows **Cancelled** and
+  says no later trunk build has finished yet.
