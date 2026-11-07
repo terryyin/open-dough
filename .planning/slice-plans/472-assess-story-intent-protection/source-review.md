@@ -13,41 +13,41 @@ illustrative journeys govern evidence handling when their setup applies.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | 1.1 | Terry evaluates whether AI-assisted review helps him decide which test protections to retain, clarify, or strengthen. | slice 5 | |
-| 2.1 | Trial the proposed Dough Intent Coverage assessment on three recent completed Open Dough stories. | slice 3 | |
-| 2.2 | For each promise and restriction, show how clearly the maintained tests express it. | slice 3 | |
-| 2.3 | For each promise and restriction, show what evidence indicates a test would catch a regression. | slice 3 | |
-| 2.4 | Identify uncovered and uncertain cases. | slice 3 | |
+| 2.1 | Trial the proposed Dough Intent Coverage assessment on three recent completed Open Dough stories. | slice 3 | observed: The three SEED-192, SEED-248, and SEED-250 reports under docs/intent-coverage-trial/ identify the completed Open Dough stories and their exact checkpoints. |
+| 2.2 | For each promise and restriction, show how clearly the maintained tests express it. | slice 3 | observed: The verdict tables in each report compare original promise wording with what the fixture and assertion express, including the focused visibility states and equal Summary fixture values. |
+| 2.3 | For each promise and restriction, show what evidence indicates a test would catch a regression. | slice 3 | observed: The verdict tables cite the observing assertions and fixture inputs. SEED-192 Probe and SEED-248 Executed proof show original tests passing with the verified fault present. |
+| 2.4 | Identify uncovered and uncertain cases. | slice 3 | observed: The verdict tables identify unobserved cases, including disclosure controls, independent precise figures, and visibility consumer paths. |
 | 2.5 | Save the reports so Terry can review them together and decide whether the method earns further work. | slice 4 | |
-| 3.1 | Run the assessment during this story’s execution, directly with the AI host executing the story. | slice 3 | |
-| 3.2 | Use a fresh assessor. | slice 3 | |
-| 3.3 | Give the assessor the original story. | slice 3 | |
-| 3.4 | Give the assessor the delivered production implementation at the recorded completion revision. | slice 3 | |
-| 3.5 | Give the assessor the relevant tests and support at that revision. | slice 3 | |
+| 3.1 | Run the assessment during this story’s execution, directly with the AI host executing the story. | slice 3 | observed: Plan 472 Execution context names the three independent Codex launches, scoped original inputs, historical checkout boundaries and alternate-store limitation. Each report records its historical source and tests. Comparisons with later records are reserved for slice 4. |
+| 3.2 | Use a fresh assessor. | slice 3 | observed: Plan 472 Execution context names the three independent Codex launches, scoped original inputs, historical checkout boundaries and alternate-store limitation. Each report records its historical source and tests. Comparisons with later records are reserved for slice 4. |
+| 3.3 | Give the assessor the original story. | slice 3 | observed: Plan 472 Execution context names the three independent Codex launches, scoped original inputs, historical checkout boundaries and alternate-store limitation. Each report records its historical source and tests. Comparisons with later records are reserved for slice 4. |
+| 3.4 | Give the assessor the delivered production implementation at the recorded completion revision. | slice 3 | observed: Plan 472 Execution context names the three independent Codex launches, scoped original inputs, historical checkout boundaries and alternate-store limitation. Each report records its historical source and tests. Comparisons with later records are reserved for slice 4. |
+| 3.5 | Give the assessor the relevant tests and support at that revision. | slice 3 | observed: Plan 472 Execution context names the three independent Codex launches, scoped original inputs, historical checkout boundaries and alternate-store limitation. Each report records its historical source and tests. Comparisons with later records are reserved for slice 4. |
 | 3.6 | Plan 472 identifies the three cases and their proof routes. The trial can be executed from that plan. | slice 1 | observed: Plan 472 Trial cases and Evidence and local gate give the three checkpoints and proof routes; the calibration report Commands and results records the first execution. |
-| 4a.1 | Assign every promise and restriction one verdict from *protected*, *partially protected*, *not protected*, and *unknown*. | slice 3 | |
-| 4a.2 | Cite the story. | slice 3 | |
-| 4a.3 | Cite the implementation. | slice 3 | |
-| 4a.4 | Cite the test assertion and relevant support. | slice 3 | |
-| 4a.5 | Cite revision-matched execution evidence. | slice 3 | |
-| 4a.6 | Explain how clearly the tests express the promise. | slice 3 | |
-| 4b.1 | For *partially protected*, name the uncovered case. | slice 3 | |
-| 4b.2 | For *unknown*, name the missing evidence. | slice 3 | |
-| 5a.1 | Run the relevant existing tests at the completion revision. | slice 3 | |
-| 5a.2 | Record the command. | slice 3 | |
-| 5a.3 | Record the results. | slice 3 | |
-| 5b.1 | A *protected* verdict requires a successful baseline. | slice 3 | |
-| 5b.2 | A *protected* verdict also requires either a break check or an explicit *reasoned-only* explanation. | slice 3 | |
-| 5c.1 | Probe one uncertain protected claim per case across at least two different cases. | slice 3 | |
-| 5c.2 | For each probe, deliberately break the promised production behavior in a scratch checkout. | slice 3 | |
-| 5c.3 | Rerun the original tests. | slice 3 | |
-| 5c.4 | Record the fault. | slice 3 | |
-| 5c.5 | Record the command. | slice 3 | |
-| 5c.6 | Record the observed assertion or passing result. | slice 3 | |
-| 5c.7 | Reconsider the verdict if the intended fault goes undetected. | slice 3 | |
-| 6.1 | Finish the initial verdicts before exposing the assessor to any retrospective or later fixes. | slice 3 | |
+| 4a.1 | Assign every promise and restriction one verdict from *protected*, *partially protected*, *not protected*, and *unknown*. | slice 3 | observed: The SEED-192 Verdicts, SEED-248 Protection by promise, and SEED-250 visibility, persistence, and runtime verdict tables give explicit protection categories per promise or restriction. |
+| 4a.2 | Cite the story. | slice 3 | observed: Each report opens with links to the original story and plan examples at the checkpoint. |
+| 4a.3 | Cite the implementation. | slice 3 | observed: The verdict tables link or name the relevant production paths and lines at the checkpoint, separately from fixture behavior. |
+| 4a.4 | Cite the test assertion and relevant support. | slice 3 | observed: The verdict tables cite the observing assertions and fixture inputs. SEED-192 Probe and SEED-248 Executed proof show original tests passing with the verified fault present. |
+| 4a.5 | Cite revision-matched execution evidence. | slice 3 | observed: SEED-192 Commands and results, SEED-248 Executed proof, and SEED-250 Baseline and isolation name the historical Playwright and applicable Node commands, selected specs, runtime, and terminal outcomes. |
+| 4a.6 | Explain how clearly the tests express the promise. | slice 3 | observed: The verdict tables in each report compare original promise wording with what the fixture and assertion express, including the focused visibility states and equal Summary fixture values. |
+| 4b.1 | For *partially protected*, name the uncovered case. | slice 3 | observed: The verdict tables identify unobserved cases, including disclosure controls, independent precise figures, and visibility consumer paths. |
+| 4b.2 | For *unknown*, name the missing evidence. | slice 3 | observed: The SEED-192 real-story evaluation verdict names the unavailable developer observation. SEED-250 Other production or development inventory consumers names the missing consumer inventory and absent hidden-entry HTTP proof. |
+| 5a.1 | Run the relevant existing tests at the completion revision. | slice 3 | observed: SEED-192 Commands and results, SEED-248 Executed proof, and SEED-250 Baseline and isolation name the historical Playwright and applicable Node commands, selected specs, runtime, and terminal outcomes. |
+| 5a.2 | Record the command. | slice 3 | observed: SEED-192 Commands and results, SEED-248 Executed proof, and SEED-250 Baseline and isolation name the historical Playwright and applicable Node commands, selected specs, runtime, and terminal outcomes. |
+| 5a.3 | Record the results. | slice 3 | observed: SEED-192 Commands and results, SEED-248 Executed proof, and SEED-250 Baseline and isolation name the historical Playwright and applicable Node commands, selected specs, runtime, and terminal outcomes. |
+| 5b.1 | A *protected* verdict requires a successful baseline. | slice 3 | observed: Each report ties reasoned-only protected verdicts to the successful checkpoint baseline and specific assertions. The two fault probes are distinguished from baseline-based reasoning. |
+| 5b.2 | A *protected* verdict also requires either a break check or an explicit *reasoned-only* explanation. | slice 3 | observed: Each report ties reasoned-only protected verdicts to the successful checkpoint baseline and specific assertions. The two fault probes are distinguished from baseline-based reasoning. |
+| 5c.1 | Probe one uncertain protected claim per case across at least two different cases. | slice 3 | observed: SEED-192 Probe and SEED-248 Executed proof give the two isolated production faults, exact original reruns, pass results and direct reachability checks, and change both probed protection verdicts to not protected. |
+| 5c.2 | For each probe, deliberately break the promised production behavior in a scratch checkout. | slice 3 | observed: SEED-192 Probe and SEED-248 Executed proof give the two isolated production faults, exact original reruns, pass results and direct reachability checks, and change both probed protection verdicts to not protected. |
+| 5c.3 | Rerun the original tests. | slice 3 | observed: SEED-192 Probe and SEED-248 Executed proof give the two isolated production faults, exact original reruns, pass results and direct reachability checks, and change both probed protection verdicts to not protected. |
+| 5c.4 | Record the fault. | slice 3 | observed: SEED-192 Probe and SEED-248 Executed proof give the two isolated production faults, exact original reruns, pass results and direct reachability checks, and change both probed protection verdicts to not protected. |
+| 5c.5 | Record the command. | slice 3 | observed: SEED-192 Probe and SEED-248 Executed proof give the two isolated production faults, exact original reruns, pass results and direct reachability checks, and change both probed protection verdicts to not protected. |
+| 5c.6 | Record the observed assertion or passing result. | slice 3 | observed: SEED-192 Probe and SEED-248 Executed proof give the two isolated production faults, exact original reruns, pass results and direct reachability checks, and change both probed protection verdicts to not protected. |
+| 5c.7 | Reconsider the verdict if the intended fault goes undetected. | slice 3 | observed: SEED-192 Probe and SEED-248 Executed proof give the two isolated production faults, exact original reruns, pass results and direct reachability checks, and change both probed protection verdicts to not protected. |
+| 6.1 | Finish the initial verdicts before exposing the assessor to any retrospective or later fixes. | slice 3 | observed: Plan 472 Execution context names the three independent Codex launches, scoped original inputs, historical checkout boundaries and alternate-store limitation. Each report records its historical source and tests. Comparisons with later records are reserved for slice 4. |
 | 6.2 | Compare the initial verdicts against known review findings where available. | slice 4 | |
 | 6.3 | Check which reported gaps still apply on trunk. | slice 4 | |
-| 7a.1 | Commit one Markdown report for each story under `docs/intent-coverage-trial/`. | slice 3 | |
+| 7a.1 | Commit one Markdown report for each story under `docs/intent-coverage-trial/`. | slice 3 | observed: The three durable report paths under docs/intent-coverage-trial/ are each owned by a separate guarded story-branch increment. |
 | 7a.2 | Commit a cross-case summary under the same directory. | slice 4 | |
 | 7a.3 | Keep the reports available after wrap-up for Terry’s review and the follow-up’s use. | landing | |
 | 7b.1 | Record useful findings in the summary. | slice 4 | |
@@ -55,8 +55,8 @@ illustrative journeys govern evidence handling when their setup applies.
 | 7b.3 | Record review effort in the summary. | slice 4 | |
 | 7b.4 | Record Terry’s decision in the summary. | slice 5 | |
 | 7b.5 | Link the summary from the product intent memorandum. | slice 5 | |
-| 8.1 | The trial covers the three Open Dough cases. | slice 3 | |
-| 8.2 | The trial uses their existing test tools. | slice 3 | |
+| 8.1 | The trial covers the three Open Dough cases. | slice 3 | observed: The three SEED-192, SEED-248, and SEED-250 reports under docs/intent-coverage-trial/ identify the completed Open Dough stories and their exact checkpoints. |
+| 8.2 | The trial uses their existing test tools. | slice 3 | observed: SEED-192 Commands and results, SEED-248 Executed proof, and SEED-250 Baseline and isolation name the historical Playwright and applicable Node commands, selected specs, runtime, and terminal outcomes. |
 | 8.3 | A public skill belongs to the separate SEED-258 follow-up. | slice 5 | |
 | 8.4 | Cross-project generalization across test types belongs to that follow-up. | slice 5 | |
 | 8.5 | Automatic invocation during wrap-up belongs to the follow-up. | slice 5 | |

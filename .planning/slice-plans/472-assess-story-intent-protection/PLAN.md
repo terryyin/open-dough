@@ -71,8 +71,18 @@ isolation.
   so the brief also excluded other checkouts and historical planning objects.
   Slice 2 used the same isolation with fresh agent `/root/assessor_248`, the
   original SEED-248 text and plan examples, and only checkpoint `d03cf60f1`.
+  Slice 3 used fresh agent `/root/assessor_250`, original SEED-250 text and
+  plan examples, and only checkpoint `22fa90aef`. Neither launch inherited
+  the coordinating conversation or earlier case results.
+- Slice 3 preflight found the host exports `GIT_ALTERNATE_OBJECT_DIRECTORIES`.
+  The first two scratch checkouts had no later refs, but their Git object
+  reads could use that shared store. Their browser commands unset the
+  variable. The third checkpoint was re-fetched with the variable unset,
+  verified with one locally stored reachable commit and no later object,
+  and assessed with the alternate unset.
 - Slice 1 was accepted on the story branch at
-  `ae07bb07aa1516a7d400cff6496f1c5c1cf0fc8f` with the recorded observer.
+  `ae07bb07aa1516a7d400cff6496f1c5c1cf0fc8f` and slice 2 at
+  `f15158cfc002322018e07b903846d7fd864d6718`, both with the recorded observer.
 
 ## Evidence and local gate
 
@@ -149,7 +159,7 @@ the second check in slice 3.
 ### 3. Assess dashboard project visibility
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `docs/intent-coverage-trial/SEED-250-hide-client-project-from-dashboard.md`
 contains the same evidence for `22fa90aef`, including coverage of visibility,
 persistence, and maintained inventory. At least two of the three case reports
@@ -240,4 +250,24 @@ change was restored and the detached worktree retired after clean Git diffs.
 
 Refactor disposition is records-only. Report-only consumer trace used the
 report path as the supplied term. The active plan reads the report at its
+proof path. No other consumer is affected before the summary links it.
+
+### Slice 3
+
+The [project visibility report](../../../docs/intent-coverage-trial/SEED-250-hide-client-project-from-dashboard.md)
+records 31 passing Playwright checks in 27.4 s, with about six minutes of
+assessor effort. Tests directly observe hide and show, persisted machine
+configuration, and hidden Claude terminal opening. The release and feedback
+inventory consumers and hidden final-report path lack equivalent direct
+evidence. The assessment used only the original checkpoint inputs. No
+production fault was needed because slices 1 and 2 each ran one confirmed
+fault. The tracked and staged state was clean before removing the checkpoint.
+
+The first two assessors confirmed in follow-up that they did not open other
+checkouts, later refs, planning objects or review records. Their historical
+Playwright commands explicitly unset the host alternate. Their standalone
+Git checks had no such unset and did not trace object storage.
+
+Refactor disposition is records-only. The report-only consumer trace used
+the report path as the supplied term. The active plan reads the report at its
 proof path. No other consumer is affected before the summary links it.
