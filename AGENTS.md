@@ -98,6 +98,14 @@ Open Dough skills and rules must work in Codex, Cursor, and Claude Code.
   tool does not prove another. File presence alone does not prove useful
   behavior.
 
+## Test automation
+
+- Never sleep or wait for wall-clock time to pass. Wait for an observable event
+  or advance a controlled clock.
+- Never use `test.slow()`.
+- Keep the default test timeout. Override it only when essential, inside the
+  individual test. Suite, file, group, and hook overrides are forbidden.
+
 ## Failing and flaky tests
 
 This is this project's failure policy; carry it as written, by link or

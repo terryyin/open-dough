@@ -109,11 +109,11 @@ commits. Servers, browser contexts and fake-service state stay private.
 
 ## Synchronization
 
+Follow the repository's [test automation rules](../../AGENTS.md#test-automation).
 A wait ends on an observed event: a shown fact, a recorded state, an
 answered request, a held request reaching its handler, a watcher's own
-output line. No test sleeps, waits out a deadline, or retries in the hope
-that the event has happened by then; only a check that something does not
-happen waits out a window, because no event marks an absence. A check's
+output line. To check that nothing happens within a window, advance a
+controlled clock and inspect the resulting state or request log. A check's
 bound starts after the answer it depends on: an `expect` waits 5 seconds,
 and under load a `gh` start or a server's own work can take longer, so a
 journey first waits in the page for the request to be answered or to fail

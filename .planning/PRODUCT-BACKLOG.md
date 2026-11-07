@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Restore default timeouts across automated tests](seeds/SEED-260-restore-default-test-timeouts.md#restore-default-test-timeouts) — SEED-260#restore-default-test-timeouts
 - [Scan CI summaries in dashboard Intent](seeds/SEED-259-scan-intent-ci-summaries.md#scan-intent-ci-summaries) — SEED-259#scan-intent-ci-summaries
 - [Retry unavailable CI comparison slots](seeds/SEED-118-dashboard-reading-reliability.md#retry-unavailable-ci-comparison-slots) — SEED-118#retry-unavailable-ci-comparison-slots
 - [Review complexity introduced by a story's tests](seeds/SEED-192-review-product-intent.md#assess-story-test-complexity) — SEED-192#assess-story-test-complexity
