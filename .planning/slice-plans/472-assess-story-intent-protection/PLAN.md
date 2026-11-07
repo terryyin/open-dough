@@ -214,6 +214,22 @@ Wrap-up removes the spent planning records and retains the three reports and
 summary. The separate follow-up owns decomposition and any public skill or
 automatic invocation.
 
+## Execution complete
+
+Product advice: Retain the three test follow-ups as separate candidates in
+the durable summary, with the distinct Branch and Landed Summary figures
+first. Keep SEED-258 waiting. The paired manual pilot is Terry's chosen
+basis for a future evaluation if revisited. The trial's evidence for
+routine adoption is inconclusive under ADR 0010. No additional backlog
+change or execution correction follows from the retrospective.
+
+The process review recorded DD-442 about the inherited Git object
+alternate and the corrected historical checkout preflight. Slice 5 was
+accepted on the story branch at `b0ad4c799d4b659ed072591e8dc0e66b4caefc2e`.
+The execution review judged the report-retention commitments owned by
+landing, and the exact historical SEED-248 run as distinct from this
+execution's CI.
+
 ## Concern evidence
 
 Each report has its own slice and proof, followed by cross-case comparison and

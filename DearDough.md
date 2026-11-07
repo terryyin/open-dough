@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 439. Removed numbers are never reused.
+- Highest allocated local number: 442. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -671,3 +671,17 @@ A prepared slice plan included a `## Story obligations` heading followed by plac
   - Evidence: prepared plan `b8e75bc2710e4e868c5937f451f893ec4905f670:.planning/slice-plans/476-hide-client-project-from-dashboard/PLAN.md` lines 143–146 contained `## Story obligations` and two lines of "None at preparation..." prose; `node .agents/skills/dough-execute-plan/scripts/story-obligations.mjs list --plan .planning/slice-plans/476-hide-client-project-from-dashboard/PLAN.md --slice 1` exited 1 with two `malformed-obligations-section` problems until the empty placeholder section was removed
   - Observed effect: one extra read and edit of `PLAN.md` before Slice 1 delegation could proceed; no product impact
   - Inference: either `dough-slice-planning` should omit `## Story obligations` when empty at preparation (as `story-obligations.md` notes "Plans without this section have zero obligations") or `story-obligation-reader.mjs` / readiness check should catch or tolerate an empty placeholder section before execution starts
+
+## DD-442 — A shallow historical checkout still inherited the host Git object store
+
+A scratch checkout can show one reachable commit and no remotes while Git can still read a host object alternate. For a bounded historical assessment, verify that the checkpoint can be read from its local object store with inherited alternates cleared and that a known later object is unavailable.
+
+### Occurrences
+- Execution: SEED-192#assess-story-intent-protection (plan 472, first report commit `ae07bb07aa1516a7d400cff6496f1c5c1cf0fc8f`)
+  - Timestamp: 2026-11-07T08:26:55.778Z (coordinator report during Slice 3 preflight)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.87 (execution checkout's installed guidance)
+  - Evidence: Codex session `01a1b509-fd39-79c2-a8b9-5fc768f51ded` at 08:26–08:27Z; `b0ad4c799d4b659ed072591e8dc0e66b4caefc2e:.planning/slice-plans/472-assess-story-intent-protection/PLAN.md` execution context and Slice 3 proof; [trial evidence limits](docs/intent-coverage-trial/README.md#evidence-limits).
+  - Observed effect: The third assessor could not read HEAD with `GIT_ALTERNATE_OBJECT_DIRECTORIES` unset until the coordinator materialized the checkpoint locally. The corrected preflight resolved HEAD, counted one reachable commit and rejected a later object. The first two assessors' standalone Git checks had inherited the alternate. Their Playwright commands cleared it, and both assessors confirmed they used only their scoped inputs.
+  - Inference: Ref and remote checks alone cannot establish object isolation. No access to later evidence was observed, and the rework time was not measured.
