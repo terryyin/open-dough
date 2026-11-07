@@ -2,6 +2,7 @@
 
 **Identity:** SEED-258#compare-manual-intent-coverage
 **Source:** [Compare a short manual intent assessment with ordinary review](../../seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -132,11 +133,29 @@ trunk.
 - The assessment brief is written in slice 2 and kept with the reports. It is
   the method the next story would generalize.
 
+## Execution context
+
+- Story Branch Mode. Publisher `dashboard-territory.local-open-dough`, agent
+  `darren-chan`, and launch `be5ad8d1-585e-4c7e-bf63-9f24ddf2c67f`.
+- Owned checkout `/Users/terryyin/git/open-dough/.worktrees/compare-a-short-manual-intent-assessment-with-or`
+  on `codex/compare-a-short-manual-intent-assessment-with-or`. Integration
+  checkout `/Users/terryyin/git/open-dough`.
+- Starting revision `7aca698a35ae48304e7ddb56a4ebb63d5f443799`.
+  Take `1a80d6b970f72b682e14f43bbaa1857d4bd93756` confirmed on `origin/main`
+  and the remote story branch. Publish increments to that story branch.
+- CI source GitHub Actions `ci.yml` (CI), observing the remote story branch.
+  Codex coordinator `codex-seed258-be5ad8d1`, mailbox
+  `/tmp/dough-ci-501/watch-IeTXzy`, PID `73637`, yielded cell `g46:8`, stream
+  session `51037`. The trunk Take was unobserved by this coordinator.
+- Locked `npm ci` and `npm run --silent format` succeeded in this checkout.
+  Use the recorded plan authority for bounded refinement. No overrun replan
+  override was supplied.
+
 ## Ordered slices
 
 ### 1. Record the ordinary review's findings and effort for each case
 Type: Behavior
-Status: planned
+Status: done
 Proof: `comparison.md` ordinary-review section, as in the table above.
 
 Behavior: the retrospective result for each case is recoverable from Git →
@@ -147,6 +166,19 @@ each figure measured, estimated, or unavailable. When historical timing
 is unavailable, assess any added value against its observed cost and leave
 time savings undetermined. This happens before any assessment runs and is
 kept separate from the assessors' brief.
+
+Accepted proof: [comparison.md](comparison.md#ordinary-review-exploratory)
+recovers the three historical reviews and records their product advice,
+source reviews, and the Plan 497 correction. The pre-existing retry finding
+links to SEED-118 and is outside the story-attributable counts. The ordinary
+review sections link to the exact Git records checked with
+`git show 8296c54b1:.planning/slice-plans/496-use-later-ci-proof-for-cancelled-landings/PLAN.md`,
+`git show 1aa1ddd47^:.planning/slice-plans/492-compare-ci-time-without-runner-waits/PLAN.md`,
+and `git show 8b03f3974^:.planning/slice-plans/495-compare-story-ci-through-adapters/PLAN.md`.
+The [timestamp evidence](comparison.md#timestamp-and-token-evidence) gives
+the local session rows and measured spans. Retrospective test runtime and
+active agent effort with waits removed are unavailable. Historical sources
+were read without replaying any retrospective. Refactor disposition `records-only`.
 
 ### 2. Run the blinded short assessment for each case
 Type: Behavior
