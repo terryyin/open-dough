@@ -205,6 +205,15 @@ test; correct `dashboard/AGENT-LAUNCH-REVIEW.md` (owning or completion octopus
 merge, the `trunkLess` diff-tree command, completion requires a merge authored
 by the claiming agent).
 
+## Execution complete
+
+Product advice: no change. A Story Branch landing that merges trunk after the
+done-record commit and then fast-forwards keeps the done-record commit as its
+completion, so edits in that later merge stay outside review; the only real
+instance (SEED-234 `8d9b41498` then `66d144b2c`) made no edits. Revisit only if
+such a merge carries edits. Optional rename of the `own-conflict-extra` fixture
+variant (its sibling is gone) is cosmetic and not recommended.
+
 ## Refinement review
 
 Refinement was not needed: the two Behavior slices cleanly separate completion
