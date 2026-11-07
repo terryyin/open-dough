@@ -228,15 +228,18 @@ No architectural exception or new ADR is proposed here.
 **Identity:** SEED-010#review-source-promises-before-first-slice
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/489-review-source-promises-before-first-slice/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"91d17a44c09cf15d88275abea92a70159dd8485eaa6740356504401be7ebcf47","plan":"b001c9d80193a7d63c3b8654ae85324ab871b40d43277f8af25d4e0479ccd886"}}
 ```
 
-**Goal.** For a coordinator executing a planned story, obtain and allocate the
-independent source-only reviewer's commitments (`source-review.md`) before
-delegating the first Behavior slice, so `story-obligations.mjs list --slice N`
-carries the slice's allocated source commitments into every Behavior slice's
-initial implementation brief instead of surfacing missing source qualifications
-only at first acceptance.
+**Goal.** For a coordinator executing a planned story or planned correction,
+obtain and allocate the independent source-only reviewer's commitments
+(`source-review.md`) before delegating the first slice, so the slice's
+`story-obligations.mjs list --slice N` output carries its allocated source
+commitments into the first implementation brief. Story qualifications that the
+plan's proof never named then reach the implementer up front, not as mid-run
+addenda, extra return rounds, or a promise moved to a later slice at first
+acceptance. This serves ADR 0002's low-cost delivery: the review already runs
+once per execution; only its timing changes.
 
 **Evidence.** [ODF-367](../../docs/maintainer/findings/ODF-367.md) retains
 twelve distinct executions across three projects: three in Pygardon (`0.3.71`,
@@ -251,21 +254,95 @@ story qualifications then require extra return rounds (five in Pygardon plan
 mid-flight addenda, or moving an unproved commitment (`S6.1` in Open Dough
 plan `477`) to a later slice.
 
-**Scope.** Move the initial source-only review and `source-review.md`
-allocation ahead of the first Behavior slice's delegation in
-`dough-execute-plan` (while allowing a leading Structure slice that owes no
-source behavior commitment to proceed before the review if needed, or running
-the review once before slice 1 delegation). Reuse the existing `source-review.md`
-table, `story-obligations.mjs record` / `list` / `check` commands, and
-freshness-amendment re-review rules without adding a second review when the
-source is unchanged at acceptance. Do not weaken independent source-only review
-isolation or acceptance verification.
+**Facts this story rests on** (observed at `de0a1b9e7`):
+
+- `src/skills/dough-execute-plan/references/wrap-up.md#accept-proof` starts the
+  source-only review "before comparing a slice's return" and requires every id
+  allocated before the next listing or check.
+- `references/delegation.md` already runs `list --slice N` before every planned
+  delegation and passes the ids allocated to the slice "when the plan links a
+  source review". Plan 449 slices 2–4 show the briefs carrying them once the
+  review exists.
+- `delegation.md` already passes the selected-story source text to the
+  implementer, yet the ODF-367 omissions still happened: numbered, allocated
+  commitments, not raw source text, are what reach the slice's required
+  observations.
+- `scripts/story-obligation-source-review.mjs` refuses `unobserved-commitment`
+  only for a slice that is done or committing, or at completion, so allocating
+  every id at startup leaves later slices' rows unobserved without a refusal.
+  No script change is expected.
+- `src/skills/dough-story-refinement/references/planning.md` (plan element 7)
+  says acceptance adds and allocates the source review; that sentence moves
+  with the timing.
+- `references/story-obligations.md`, `delegation.md`, `wrap-up.md` and
+  `scripts/story-obligations-guidance.test.mjs` pin the current wording.
+
+**Scope.**
+
+- *Required behavior:* in planned execution, obtain the source-only review
+  under the existing isolation and input rules, retain it as
+  `source-review.md`, link it with `**Source review:**`, and allocate every id
+  (to a slice, a disposing obligation, or a lifecycle owner) before the first
+  implementation delegation, whatever the first slice's type. A plan that
+  already links a retained review for the unchanged source reuses it. After a
+  human story amendment, obtain the fresh review and reallocate before the
+  next delegation. Slice acceptance reuses the retained review while the
+  source is unchanged and launches no second reviewer; it keeps comparing,
+  observing each allocated id, and correcting a wrong allocation as today.
+  An execution that reaches acceptance with no retained review (for example,
+  one already delegated under earlier guidance) still obtains it there.
+- *Required restriction:* when reviewer isolation or its retained evidence is
+  unavailable before the first delegation, name the missing review and stop
+  that delegation. Reason: acceptance already stops on the same absence, and
+  delegating without it reproduces ODF-367.
+- *Preserved constraints:* source-only reviewer isolation (fresh agent, source
+  text and human amendments only, no plan or slicing), the `source-review.md`
+  record form, `record` / `list` / `check` commands and refusals, lifecycle
+  owners, and acceptance verification against the actual product and proof.
+- *Necessary consistency:* update the delegation step, the acceptance step,
+  the story-obligations record section, `planning.md`'s plan-element note, the
+  execute-plan step table's first-delegation row, and the guidance tests that
+  pin the moved wording. Guidance is written for the executing agent
+  ([ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md))
+  and released through
+  [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
+- *Scope limits (deferred promises):* quick (planless) execution keeps its
+  current review timing; obtaining the review during slice planning, so the
+  plan is designed around the commitments, stays a later option; letting a
+  leading Structure slice start before the review is not offered, since one
+  rule is simpler and the review runs once. None of these is rejected.
+
+**Key examples.**
+
+1. Plan with a Behavior slice 1 and no `source-review.md` → coordinator
+   finishes start → it launches the source-only reviewer, retains, links and
+   allocates the return, then runs `list --slice 1` → the listing's
+   `commitments` include the slice-1 ids (in plan 436, `2.4` counts update when
+   the reading updates and `3.3` no visible labels beside the icons), and the
+   first brief carries them; no addendum is sent mid-run.
+2. Slice 1 returns and the story is unchanged → acceptance compares against the
+   retained `source-review.md`, records `observed:` or an obligation for each
+   slice-1 id, and launches no second reviewer.
+3. Plan 477's `S6.1` ("show cached content immediately") is allocated to
+   slice 1, whose output renders kept answers → the slice-1 brief names it;
+   acceptance that finds it unmet returns it to slice 1 rather than moving it
+   to slice 4.
+4. The human amends the story after slice 2 is accepted → before slice 3 is
+   delegated, the coordinator obtains a fresh review, replaces and reallocates
+   it; slice 3's listing reflects the new ids.
+5. Resumed execution whose plan already links a review for the unchanged
+   source → no new review; any unallocated row is allocated before the next
+   listing, as today.
+6. Execution started under earlier guidance whose slice 1 is already delegated
+   without a review → acceptance of slice 1 obtains and allocates it, as today.
+7. Fresh-context delegation is unavailable for the reviewer at start → the
+   coordinator names the missing source review and does not delegate slice 1.
 
 **Evaluation.** Walk the revised startup/delegation and acceptance guidance
 against at least Open Dough plan `477` (`S6.1`), Lizard plan `019`
 (`S9.3`–`S9.7`, `K3`), and Pygardon plan `423`: confirm `list --slice 1`
-includes the allocated source commitments before the first Behavior delegation
-and that unchanged-source acceptance reuses the allocated `source-review.md`
+includes the allocated source commitments before the first delegation and
+that unchanged-source acceptance reuses the allocated `source-review.md`
 without a second reviewer launch. At completion, record the actual response
 revision and first containing release (or explicitly unreleased status) at
 [ODF-367](../../docs/maintainer/findings/ODF-367.md); **queued, not resolved**.
