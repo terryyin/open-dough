@@ -4,7 +4,7 @@
 
 import { attempts } from "../agentLaunchBoundary.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
-import { expect } from "../dashboardTest.ts";
+import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import { noConnection } from "../originAnswers.ts";
 import {
   needsReconciliation,
@@ -19,7 +19,7 @@ import {
   indicatorOf,
   recordAnnouncements,
 } from "../responsiveAccess.ts";
-import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { passCheckPace, reloadUntilRead } from "../pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
@@ -31,8 +31,8 @@ test.describe("a start past its warning threshold", () => {
     dashboard,
     origin,
   }) => {
-    test.setTimeout(150_000);
     const push = origin.holdPushes();
+    await pausePageClockAt(page, new Date());
     const { story, takenStory, other } = await openStories(page, origin);
     const announced = await recordAnnouncements(page);
     const reads = countMachineReads(page);
@@ -40,13 +40,9 @@ test.describe("a start past its warning threshold", () => {
     const [accepted] = await attempts(dashboard);
     if (accepted === undefined) throw new Error("The start was not accepted");
     // Only the browser's elapsed-time display advances; the real start stays held.
-    await page.clock.setFixedTime(
-      new Date(Date.parse(accepted.acceptedAt) + 120_000),
-    );
+    await page.clock.setSystemTime(Date.parse(accepted.acceptedAt) + 120_000);
     await expect
-      .poll(async () => (await attempts(dashboard))[0]?.slowSince, {
-        timeout: 30_000,
-      })
+      .poll(async () => (await attempts(dashboard))[0]?.slowSince)
       .toBeDefined();
     const [slow] = await attempts(dashboard);
     expect(slow).toMatchObject({
@@ -70,7 +66,8 @@ test.describe("a start past its warning threshold", () => {
       )
       .toEqual([`Story A: execution start. ${warning}`]);
     const readsBefore = reads();
-    await expect.poll(reads, { timeout: 30_000 }).toBeGreaterThan(readsBefore);
+    await passCheckPace(page);
+    await expect.poll(reads).toBeGreaterThan(readsBefore);
     expect(
       (await announced()).filter((words) => words.includes(warning)),
     ).toHaveLength(1);
@@ -115,7 +112,7 @@ test("a failed published read after settlement is said beside the project's acti
   dashboard,
   origin,
 }) => {
-  test.setTimeout(150_000);
+  await pausePageClockAt(page, new Date());
   const { published, story, takenStory } = await openStories(page, origin);
   const restore = published.answerWith("main", noConnection);
   await startExecution(page, story);
@@ -136,9 +133,8 @@ test("a failed published read after settlement is said beside the project's acti
 
   restore();
   await recovery.getByRole("button", { name: `Recheck ${subject}` }).click();
-  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
-    timeout: 30_000,
-  });
+  await passCheckPace(page);
+  await expect(storyCardSessions(takenStory)).toHaveCount(1);
   await expect(
     takenStory.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();

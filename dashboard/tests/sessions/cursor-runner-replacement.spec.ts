@@ -84,7 +84,6 @@ const replacementTest = test.extend({ cursorSubmitPaintMs: 300 });
 replacementTest(
   "sessions a replaced runner last held are revived without Recover; the third launch stays running",
   async ({ page, dashboard, origin, cursor }) => {
-    replacementTest.setTimeout(180_000);
     await startScopedCursorExecution(page, origin, cursor);
     await launchSecondHeldSession(
       page,

@@ -61,7 +61,6 @@ test("a reconciled Take whose story is then removed leaves no recovery after a r
   origin,
   github,
 }) => {
-  test.setTimeout(150_000);
   const { published, story, takenStory } = await openStories(page, origin);
   await startExecution(page, story);
   await expectTakenSettled(takenStory);

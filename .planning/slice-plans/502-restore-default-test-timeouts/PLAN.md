@@ -187,12 +187,27 @@ adapter tests passed.
 ### 4. Launch and recovery checks follow host progress
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Use the launch and recovery families to observe one native session
 through the second server, reload and project switch, and the interrupted
 worker's recovery using the same claim. Measure the 55.583s second-server and
 31.483s orphan examples and affected shared fixtures. Wait on observed host
 and process transitions while retaining the same launch and cleanup proof.
+
+Result: all twelve overrides removed; no allowance remains. The expensive
+cases were waiting out the page's 15s read cadence and the server's 10s
+slow-start threshold, not process startup. They now pause the page clock and
+advance one check interval (`passCheckPace`) only after an observed host or
+process transition. The second and restarted servers judge the still-running
+start slow on first answer (`DOUGH_START_TIMEOUT_MS=1`). Real servers, the
+installed start, the owner kill and the live worker are unchanged. Local
+times, before → after: second-server 48.9 → 6.3s, orphan 29.0 → 6.8s,
+recovery 22.0/18.7 → 6.6/4.9s, recovery-restart 20.0 → 7.6s, access
+17.0 → 4.3s. Mutating the slow-start derivation or doubling either read
+cadence failed the paced assertions. Runs: 18/18, `--repeat-each 4` at 4
+workers 72/72, and the launches, sessions and observation family 572/572.
+`agent-completion-recovery` has the thinnest unchanged margin, 22.8s and
+17.8s in CI; its cost is real Git and installed-CLI work.
 
 ### 5. Session and layout checks observe geometry and restored state directly
 

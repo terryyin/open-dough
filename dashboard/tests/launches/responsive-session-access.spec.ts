@@ -10,7 +10,8 @@
 // ./responsive-session-refinement-restart.spec.ts.
 
 import { storyCardSessions, parts } from "../dashboardPage.ts";
-import { expect } from "../dashboardTest.ts";
+import { expect, pausePageClockAt } from "../dashboardTest.ts";
+import { passCheckPace } from "../pageRequestNotes.ts";
 import {
   countMachineReads,
   indicatorOf,
@@ -45,9 +46,9 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   const push = origin.holdPushes();
+  await pausePageClockAt(page, new Date());
   dashboard.claudeScenario("held");
   const { story, takenStory, other } = await openStories(page, origin);
   const announced = await recordAnnouncements(page);
@@ -130,16 +131,16 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
   // story to Taken, and reads that find it still in progress say nothing.
   const readsBefore = reads();
   push.release();
-  await expect(takenStory).toContainText(unavailable, { timeout: 30_000 });
+  await expect.poll(() => origin.takenProfiles()).toHaveLength(1);
+  await passCheckPace(page);
+  await expect(takenStory).toContainText(unavailable);
   await expect.poll(reads).toBeGreaterThan(readsBefore);
   expect(await announced()).toEqual([inProgress]);
   await expect(otherHide).toBeFocused();
 
   // Settled: the session is presented on the card; the keyboard stays.
   dashboard.releaseHeldClaude();
-  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
-    timeout: 30_000,
-  });
+  await expect(storyCardSessions(takenStory)).toHaveCount(1);
   // Its detail stayed open while another card's opened.
   await expect(
     takenStory.getByRole("button", { name: "Hide detail" }),

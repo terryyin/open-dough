@@ -38,7 +38,6 @@ test("a start whose server closed while its session launched reconciles once tha
   origin,
   github,
 }) => {
-  test.setTimeout(180_000);
   dashboard.claudeScenario("held");
   const { published, story, takenStory, other } = await openStories(
     page,

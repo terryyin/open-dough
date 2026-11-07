@@ -3,7 +3,7 @@
 import { attempts, continueAttempt } from "../agentLaunchBoundary.ts";
 import { answerOf, type Problem } from "../keptExecutionStart.ts";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
-import { expect } from "../dashboardTest.ts";
+import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import { expectProtected, openStories, test } from "../responsiveStart.ts";
 import {
   expectRecoveryOffered,
@@ -12,7 +12,7 @@ import {
   startExecution,
   worktrees,
 } from "../responsiveRecovery.ts";
-import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { passCheckPace, reloadUntilRead } from "../pageRequestNotes.ts";
 import { keptAttempts, settledOutcome } from "../acceptedAttempts.ts";
 import {
   builtDashboardDir,
@@ -31,8 +31,8 @@ test("a server killed before the warning leaves a live script running; its exit 
   origin,
   github,
 }) => {
-  test.setTimeout(180_000);
   const push = origin.holdPushes();
+  await pausePageClockAt(page, new Date());
   const { story } = await openStories(page, origin);
   await startExecution(page, story);
   await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
@@ -52,13 +52,13 @@ test("a server killed before the warning leaves a live script running; its exit 
     projectFolders: ["open-dough"],
     launchTimeoutMs: 60_000,
     port: Number(new URL(dashboard.baseURL).port),
-    extraEnv: { DOUGH_START_TIMEOUT_MS: "10000" },
+    // The restarted server judges the orphaned start slow from its first
+    // answer, while the killed owner never noted it.
+    extraEnv: { DOUGH_START_TIMEOUT_MS: "1" },
   });
   try {
     await expect
-      .poll(async () => (await attempts(restarted))[0]?.slowSince, {
-        timeout: 30_000,
-      })
+      .poll(async () => (await attempts(restarted))[0]?.slowSince)
       .toBeDefined();
     expect(keptAttempts(restarted)[0]?.slowSince).toBeUndefined();
     expect((await attempts(restarted))[0]).toMatchObject({
@@ -66,9 +66,7 @@ test("a server killed before the warning leaves a live script running; its exit 
       running: true,
       worker: { pid: child, step: "start" },
     });
-    await page.clock.setFixedTime(
-      new Date(Date.parse(accepted.acceptedAt) + 120_000),
-    );
+    await page.clock.setSystemTime(Date.parse(accepted.acceptedAt) + 120_000);
     await reloadUntilRead(page);
     await expectProtected(story);
     await expect(
@@ -100,7 +98,8 @@ test("a server killed before the warning leaves a live script running; its exit 
     expect((await settledOutcome(restarted, accepted.id)).kind).toBe(
       "launched",
     );
-    await expect(storyCardSessions(taken)).toHaveCount(1, { timeout: 30_000 });
+    await passCheckPace(page);
+    await expect(storyCardSessions(taken)).toHaveCount(1);
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(worktrees(origin)).toEqual(["story-a"]);
     expect(restarted.claudeLaunchCalls()).toHaveLength(1);

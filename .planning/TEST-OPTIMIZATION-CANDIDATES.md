@@ -63,7 +63,10 @@
   timing was retained in the legacy disposition. After SEED-221 removed the
   close/reopen races' poll waits, focused runs of the ad-hoc-terminal spec
   took 1.7–1.9s per race against a 16.4–17.0s baseline (local, load 4.7–5.4,
-  2026-11-02).
+  2026-11-02). SEED-260 slice 4 passed the second-server page's reads with
+  the paused page clock and gave the second server its own short slow-start
+  threshold: 48.9s → 6.3s locally (load 4–6), from 55.6s in CI, at the
+  default case timeout.
 - **Unique protection:** dual-preview page protection through reload and
   project switch, and immediate terminal attachment after an ad hoc launch.
 - **Alternatives attempted:** cheaper server-only refusal and non-owner

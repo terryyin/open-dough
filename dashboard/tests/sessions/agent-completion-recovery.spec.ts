@@ -29,7 +29,6 @@ test("retired closure retries unavailable receiver, real write fault and lost ac
   origin,
   codexProtocol: native,
 }) => {
-  test.setTimeout(120000);
   if (native === undefined) throw new Error("No native fixture");
   expect(
     (

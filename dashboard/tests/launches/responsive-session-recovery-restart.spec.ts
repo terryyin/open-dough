@@ -9,7 +9,7 @@
 
 import { accept, attempts, launchRequest } from "../agentLaunchBoundary.ts";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
-import { expect } from "../dashboardTest.ts";
+import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import {
   continueLabel,
   expectRecoveryOffered,
@@ -24,7 +24,11 @@ import {
 } from "../responsiveRecovery.ts";
 import { openStories, test } from "../responsiveStart.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
-import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
+import {
+  openUntilRead,
+  passCheckPace,
+  reloadUntilRead,
+} from "../pageRequestNotes.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
@@ -34,8 +38,8 @@ test("a start a closed server left unsettled stays protected after restart, relo
   origin,
   github,
 }) => {
-  test.setTimeout(180_000);
   const push = origin.holdPushes();
+  await pausePageClockAt(page, new Date());
   const { story, takenStory, other } = await openStories(page, origin);
   await startExecution(page, story);
   await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
@@ -90,16 +94,13 @@ test("a start a closed server left unsettled stays protected after restart, relo
     await recoveryOf(second)
       .getByRole("button", { name: continueLabel })
       .click();
-    await expect(storyCardSessions(secondTaken)).toHaveCount(1, {
-      timeout: 60_000,
-    });
+    await expect(storyCardSessions(secondTaken)).toHaveCount(1);
     await expect(
       secondTaken.getByRole("button", { name: "Inspect story" }),
     ).toBeEnabled();
     await expect(recoveryOf(second)).toHaveCount(0);
-    await expect(storyCardSessions(takenStory)).toHaveCount(1, {
-      timeout: 60_000,
-    });
+    await passCheckPace(page);
+    await expect(storyCardSessions(takenStory)).toHaveCount(1);
     await expect(takenStory).not.toContainText(needsReconciliation);
 
     expect(await attempts(restarted)).toEqual([

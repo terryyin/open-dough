@@ -48,7 +48,6 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   dashboard,
   origin,
 }) => {
-  test.setTimeout(150_000);
   const before = (await origin.originGit("rev-parse", "main")).trim();
   const push = origin.holdPushes();
   dashboard.claudeScenario("held");

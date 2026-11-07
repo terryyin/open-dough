@@ -7,11 +7,15 @@ import { type AttemptObservation } from "../../src/agentLaunch.ts";
 import { accept, attempts, launchRequest } from "../agentLaunchBoundary.ts";
 import { answerOf } from "../keptExecutionStart.ts";
 import { chooseProject, storyCardSessions, parts } from "../dashboardPage.ts";
-import { expect } from "../dashboardTest.ts";
+import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import { expectProtected, openStories, test } from "../responsiveStart.ts";
 import { recoveryOf, worktrees } from "../responsiveRecovery.ts";
 import { indicatorOf } from "../responsiveAccess.ts";
-import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
+import {
+  openUntilRead,
+  passCheckPace,
+  reloadUntilRead,
+} from "../pageRequestNotes.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 import {
   builtDashboardDir,
@@ -36,8 +40,8 @@ test("a second server follows the live script and native worker, protects its ca
   origin,
   github,
 }) => {
-  test.setTimeout(180_000);
   const push = origin.holdPushes();
+  await pausePageClockAt(page, new Date());
   await openStories(page, origin);
   dashboard.claudeScenario("held");
   const accepted = await answerOf<{ attempt: AttemptObservation }>(
@@ -51,7 +55,9 @@ test("a second server follows the live script and native worker, protects its ca
     github,
     projectFolders: ["open-dough"],
     launchTimeoutMs: 60_000,
-    extraEnv: { DOUGH_START_TIMEOUT_MS: "10000" },
+    // This server judges the running start slow from its first answer; the
+    // owner's own threshold stays the fixture's.
+    extraEnv: { DOUGH_START_TIMEOUT_MS: "1" },
   });
   try {
     const [live] = await attempts(second);
@@ -66,8 +72,9 @@ test("a second server follows the live script and native worker, protects its ca
       },
     });
     expect(live?.outcome).toBeUndefined();
-    await page.clock.setFixedTime(
-      new Date(Date.parse(accepted.attempt.acceptedAt) + 120_000),
+    expect(live?.slowSince).toBeDefined();
+    await page.clock.setSystemTime(
+      Date.parse(accepted.attempt.acceptedAt) + 120_000,
     );
     await openUntilRead(page, second.baseURL);
     const story = parts(page).backlog.getByRole("article", { name: "Story A" });
@@ -75,7 +82,6 @@ test("a second server follows the live script and native worker, protects its ca
       "Still starting after 2 minutes. The start goes on in workspace ~/git/open-dough/.worktrees/story-a on branch claude/story-a; its session starts when it finishes.";
     await expect(story.locator(".story-card-startup-progressing")).toHaveText(
       `Preparing execution… ${warning}`,
-      { timeout: 30_000 },
     );
     await expectProtected(story);
     expect(
@@ -100,10 +106,12 @@ test("a second server follows the live script and native worker, protects its ca
       running: true,
       worker: { pid: dashboard.pid, step: "launch" },
     });
+    await expect.poll(() => origin.takenProfiles()).toHaveLength(1);
+    await passCheckPace(page);
     const taken = parts(page).taken.getByRole("article", { name: "Story A" });
     await expect(
       taken.locator(".story-card-startup-progressing"),
-    ).toContainText("Starting execution in Claude Code…", { timeout: 30_000 });
+    ).toContainText("Starting execution in Claude Code…");
     await expectProtected(taken);
     await expect(recoveryOf(page)).toHaveCount(0);
     dashboard.releaseHeldClaude();
@@ -118,7 +126,8 @@ test("a second server follows the live script and native worker, protects its ca
       running: false,
     });
     expect((await attempts(second))[0]?.worker).toBeUndefined();
-    await expect(storyCardSessions(taken)).toHaveCount(1, { timeout: 30_000 });
+    await passCheckPace(page);
+    await expect(storyCardSessions(taken)).toHaveCount(1);
     expect(await origin.takenProfiles()).toHaveLength(1);
     expect(worktrees(origin)).toEqual(["story-a"]);
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
