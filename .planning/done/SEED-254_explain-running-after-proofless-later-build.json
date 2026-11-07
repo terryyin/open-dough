@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-254#explain-running-after-proofless-later-build",
+  "title": "Explain a running later build after a proofless one",
+  "completedAt": "2026-11-07T12:27:24.209Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
