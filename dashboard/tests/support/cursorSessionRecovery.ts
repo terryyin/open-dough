@@ -6,8 +6,10 @@ import path from "node:path";
 import type { Page } from "@playwright/test";
 import { cursorRunnerSessionsEndpoint } from "../../src/cursorRunnerSessions.ts";
 import { agentNotRunningLabel } from "../../src/sessionRecovery.ts";
+import { sessionKey } from "../../src/sessionReference.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { hangupCursorClient } from "../../server/hosts/cursor/runnerClient.ts";
+import { readCursorRunnerLastHeld } from "../../server/hosts/cursor/runnerPaths.ts";
 import { parts } from "../dashboardPage.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
@@ -165,6 +167,17 @@ export async function launchSecondHeldSession(
       { timeout: launchWaitMs },
     )
     .toBe(1);
+  // The attach is logged before the runner settles its first instruction.
+  // A caller can safely stop or replace the runner after both keeps settle.
+  await expect
+    .poll(() => readCursorRunnerLastHeld(home), { timeout: launchWaitMs })
+    .toEqual(
+      expect.arrayContaining(
+        [cursor.sessionId, sessionId].map((sessionId) =>
+          sessionKey({ host: "cursor", sessionId }),
+        ),
+      ),
+    );
 }
 
 export function keptRecords(home: string): LaunchRecord[] {

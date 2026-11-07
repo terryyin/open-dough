@@ -52,8 +52,8 @@ replacementTest(
       throw new Error("Missing a held Cursor session.");
     }
 
-    // Never-held unfinished: hangup removes it from last-held; the unfinished
-    // record stays on disk and must not gain an agent on replacement.
+    // Hangup removes this unfinished session from last-held. Its record
+    // stays kept and replacement must leave it stopped.
     await hangupCursorClient(other.session, dashboard.home);
 
     const missingWorkspace = path.join(
@@ -115,6 +115,8 @@ replacementTest(
       .attaches()
       .filter((each) => each.sessionId === secondSessionId).length;
 
+    const stalePid = readCursorRunnerAddress(dashboard.home)?.pid;
+    expect(stalePid).toBeGreaterThan(0);
     makeRecordedRunnerProofStale(dashboard.home);
     cursor.queueCreateChatId(thirdSessionId);
     await page
@@ -135,7 +137,9 @@ replacementTest(
       )
       .toBe(1);
 
-    expect(readCursorRunnerAddress(dashboard.home)?.pid).toBeTruthy();
+    const replacement = readCursorRunnerAddress(dashboard.home);
+    expect(replacement?.pid).toBeGreaterThan(0);
+    expect(replacement?.pid).not.toBe(stalePid);
     await expect
       .poll(
         () =>

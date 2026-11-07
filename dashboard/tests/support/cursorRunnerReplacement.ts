@@ -1,5 +1,5 @@
 // Fixtures for stale-runner replacement and last-held revive journeys.
-import { writeFileSync } from "node:fs";
+import { renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
@@ -13,13 +13,22 @@ export const thirdSessionId = "c3d4e5f6-a7b8-49ab-8def-0123456789ab";
 export const doneSessionId = "d4e5f6a7-b8c9-4abc-9def-123456789abc";
 export const failSessionId = "e5f6a7b8-c9d0-4bcd-adef-23456789abcd";
 
+// A running dashboard can read these fixture records while they change.
+function replaceJson(file: string, value: unknown): void {
+  const temporary = `${file}.fixture.tmp`;
+  writeFileSync(temporary, JSON.stringify(value));
+  renameSync(temporary, file);
+}
+
 export function writeKeptRecords(
   home: string,
   records: readonly LaunchRecord[],
 ): void {
-  writeFileSync(
+  replaceJson(
     path.join(home, ".open-dough", "dashboard", "agent-launches.json"),
-    JSON.stringify({ "open-dough": records }),
+    {
+      "open-dough": records,
+    },
   );
 }
 
@@ -27,10 +36,9 @@ export function writeLastHeld(
   home: string,
   sessionKeys: readonly string[],
 ): void {
-  writeFileSync(
-    cursorRunnerLastHeldFile(home),
-    JSON.stringify({ sessionKeys: [...sessionKeys].sort() }),
-  );
+  replaceJson(cursorRunnerLastHeldFile(home), {
+    sessionKeys: [...sessionKeys].sort(),
+  });
 }
 
 export async function expectNotAgentNotRunning(

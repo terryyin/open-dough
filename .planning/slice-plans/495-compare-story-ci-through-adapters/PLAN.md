@@ -207,6 +207,17 @@ reason. The combined comparison, CI status, Summary, runner-wait
 computation and completed Review selection passed 47 Chromium checks.
 Selective formatting and dashboard typecheck passed.
 
+Hosted CI for reconciliation `b4388ccb033a89d1b46048f586015129232b0a07`
+failed only the Cursor replacement controls test (run 42355746170, attempt 1,
+dashboard shard 7). The trace showed the fixture hang up a session before
+its keep settled, and a controlled local schedule reproduced the exit writer
+reading the truncated fixture document and losing the scoped record.
+The repair waits for both durable last-held keys, seeds the fixture records
+atomically, and checks the new runner PID while preserving every attach and
+Recover assertion. Five affected Chromium cases passed. The controls and
+last-held persistence also passed with an 8-second paste repaint challenge,
+after which the original 300 ms fixture setting was restored.
+
 ### 3. Taken stories and named gaps for adapter builds
 Type: Behavior
 Status: planned
