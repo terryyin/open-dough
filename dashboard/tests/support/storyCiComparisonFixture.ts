@@ -5,10 +5,10 @@
 // in ./storyCiComparisonFastForward.ts and later first-parent rewrite in
 // ./storyCiComparisonLaterFastForward.ts; Taken shapes in
 // ./storyCiComparisonTakenFixture.ts; entry-proof Answers in
-// ./storyCiComparisonEntryProofs.ts.
+// ./storyCiComparisonEntryProofs.ts; history readers in
+// ./storyCiComparisonHistory.ts and workflow files in
+// ./storyCiComparisonWorkflows.ts, re-exported here.
 
-import { readFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
 import type { ReportedAttemptJob } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import {
@@ -23,10 +23,22 @@ import {
   answerComparisonProofRoute,
   type ComparisonProofServe,
 } from "./storyCiComparisonEntryProofs.ts";
-import type { CommittedOrigin } from "../committedOrigin.ts";
+import type { ActionsAnswerer, CommittedOrigin } from "../committedOrigin.ts";
 import type { GhCall } from "./fakeGitHub.ts";
+import {
+  commitComparisonCiWorkflow,
+  comparisonWorkflow,
+  comparisonWorkflowPath,
+} from "./storyCiComparisonWorkflows.ts";
 
 export type { ComparisonProofServe } from "./storyCiComparisonEntryProofs.ts";
+export { claimOf, revList } from "./storyCiComparisonHistory.ts";
+export {
+  comparisonCiWorkflow,
+  commitComparisonCiWorkflow,
+  comparisonWorkflow,
+  comparisonWorkflowPath,
+} from "./storyCiComparisonWorkflows.ts";
 export {
   mixedEntryParts,
   mixedEntrySummary,
@@ -54,48 +66,6 @@ export function wall(
     url: `https://ci.invalid/runs/${String(id)}`,
   };
 }
-
-export function revList(repo: string, start: string, count: number): string[] {
-  return execFileSync(
-    "git",
-    [
-      "-C",
-      repo,
-      "rev-list",
-      "--first-parent",
-      `--max-count=${String(count)}`,
-      start,
-    ],
-    { encoding: "utf8" },
-  )
-    .trim()
-    .split("\n")
-    .filter(Boolean);
-}
-
-export function claimOf(repo: string, agent: string): string {
-  const email = `${agent.replace(/-chan$/, "").toLowerCase()}-chan@example.org`;
-  return execFileSync(
-    "git",
-    [
-      "-C",
-      repo,
-      "log",
-      "--all",
-      "--format=%H",
-      `--author=<${email}>`,
-      "--grep=Take queued work",
-      "-1",
-    ],
-    { encoding: "utf8" },
-  ).trim();
-}
-
-export const comparisonWorkflowPath = ".github/workflows/comparison.yml";
-export const comparisonWorkflow = readFileSync(
-  new URL("../../../.github/workflows/ci.yml", import.meta.url),
-  "utf8",
-);
 
 type AttemptJobs = Record<string, readonly ReportedAttemptJob[]>;
 
@@ -135,6 +105,9 @@ export type StoryCiComparisonSetup = {
   readonly serveProofs: (
     proofsByRunId: Record<number, ComparisonProofServe>,
   ) => void;
+  // Sees every Actions request first; its answer replaces the served one,
+  // and undefined falls through to it.
+  readonly interceptActions: (answerer: ActionsAnswerer) => void;
 };
 
 export function serveActionsFor(
@@ -148,7 +121,10 @@ export function serveActionsFor(
   let runsBySha = initial;
   let proofsByRunId = initialProofs;
   let jobsByAttempt: AttemptJobs = {};
-  const answerActions = (argv: readonly string[]): OriginAnswer | undefined => {
+  let intercept: ActionsAnswerer | undefined;
+  const answerActions: ActionsAnswerer = (argv, headSha) =>
+    intercept?.(argv, headSha) ?? answerServed(argv);
+  const answerServed = (argv: readonly string[]): OriginAnswer | undefined => {
     const route = argv.find((argument) => argument.startsWith("repos/")) ?? "";
     if (/\/actions\/workflows\/[^/?]+$/.test(route)) {
       return actionsWorkflowAnswer(comparisonWorkflowPath);
@@ -218,36 +194,10 @@ export function serveActionsFor(
     serveProofs(next: Record<number, ComparisonProofServe>) {
       proofsByRunId = next;
     },
+    interceptActions(answerer: ActionsAnswerer) {
+      intercept = answerer;
+    },
   };
-}
-
-// Workflow file whose paths-ignore matches this repository's CI, so a fixture
-// can confirm a skip at a planning-only or docs-only revision.
-export const comparisonCiWorkflow = [
-  "name: CI",
-  "",
-  "on:",
-  "  push:",
-  "    paths-ignore:",
-  "      - '.planning/**'",
-  "      - 'docs/**'",
-  "  pull_request:",
-  "    paths-ignore:",
-  "      - '.planning/**'",
-  "      - 'docs/**'",
-  "  workflow_dispatch:",
-  "",
-  "jobs:",
-  "  check:",
-  "    runs-on: ubuntu-24.04",
-  "    steps:",
-  "      - run: echo ok",
-  "",
-].join("\n");
-
-export function commitComparisonCiWorkflow(project: string): void {
-  writeAt(project, ".github/workflows/ci.yml", comparisonCiWorkflow);
-  commitAll(project, "add CI workflow with paths-ignore");
 }
 
 // Planning-only commits between a built trunk revision and the claim, so the

@@ -25,6 +25,24 @@ export function previouslyRetrievedAt(
     : undefined;
 }
 
+// Ends a CI panel: reads its evidence again, disabled while it is read. The
+// done-story comparison (`./IntentCiComparison.tsx`) ends with the same.
+export function CheckAgain({
+  reading,
+  checkAgain,
+}: {
+  readonly reading: boolean;
+  readonly checkAgain: () => void;
+}) {
+  return (
+    <p>
+      <button type="button" disabled={reading} onClick={checkAgain}>
+        Check again
+      </button>
+    </p>
+  );
+}
+
 export function PreviouslyRetrieved({
   checkedAt,
 }: {
@@ -107,11 +125,7 @@ export function JudgedBranch({
       {shown !== undefined && proof !== undefined && (
         <IntentCiProof judgment={shown} proof={proof} />
       )}
-      <p>
-        <button type="button" disabled={reading} onClick={judged.checkAgain}>
-          Check again
-        </button>
-      </p>
+      <CheckAgain reading={reading} checkAgain={judged.checkAgain} />
     </section>
   );
 }

@@ -28,9 +28,11 @@ export type CiTarget =
       readonly comparisonIdentity?: string;
     }
   // A selected done or Taken Trunk Mode story: compare its CI endpoints.
-  // `head` re-reads a Taken comparison when the observed tip moves.
+  // `head` re-reads a Taken comparison when the observed tip moves; a done
+  // comparison is read again on Check again.
   | {
       readonly kind: "comparison";
+      readonly phase: "done" | "taken";
       readonly story: string;
       readonly identity: string;
       readonly head?: string;
@@ -71,6 +73,7 @@ function takenTarget(
       // comparison against the same pre-story baseline.
       return {
         kind: "comparison",
+        phase: "taken",
         story,
         identity,
         head: work.revision,
@@ -133,6 +136,7 @@ export function ciTargetOf(
   if (work !== undefined && isDone(work, selectedIdentity))
     return {
       kind: "comparison",
+      phase: "done",
       story: selectedIdentity,
       identity: selectedIdentity,
     };

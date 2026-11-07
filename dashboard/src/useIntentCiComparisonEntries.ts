@@ -1,7 +1,10 @@
 // Proof summaries of a story's comparison endpoints
 // (`./useIntentCiComparison.ts`), each read through `./authenticatedIntentCiProofRead.ts`
 // with the build's full revision. A late answer for another story or attempt
-// never becomes the shown proof. Intent's one CI evidence owner
+// never becomes the shown proof. Each proof is read again when a Check again
+// read of the comparison answers (`checkedAgain`); valid summaries are
+// remembered on the server, so only the others ask GitHub again. Intent's one
+// CI evidence owner
 // (`./IntentCiEvidence.tsx`) holds these proofs so the homepage entry rows
 // (`./IntentCiComparison.tsx`) and a selected entry's or folder's Summary
 // (`./IntentScopeProof.tsx`) share them; selecting, drilling and returning
@@ -38,6 +41,7 @@ function useSlotProof(
   source: PublishedSource,
   identity: string | undefined,
   slot: StoryCiComparisonSlot | undefined,
+  checkedAgain: number,
 ): SlotProof {
   const build = slot?.kind === "build" ? slot : undefined;
   const adapterAttempt = build?.adapterAttempt;
@@ -63,7 +67,13 @@ function useSlotProof(
   const key =
     identity === undefined || subject === undefined
       ? undefined
-      : JSON.stringify([source.id, source.repository, identity, subject]);
+      : JSON.stringify([
+          source.id,
+          source.repository,
+          identity,
+          subject,
+          checkedAgain,
+        ]);
   const [answer, setAnswer] = useState<
     { readonly key: string; readonly proof: CiProof } | undefined
   >(undefined);
@@ -109,12 +119,15 @@ function useSlotProof(
 export function useIntentCiComparisonEndpointProofs(
   source: PublishedSource,
   answer: StoryCiComparisonAnswer | undefined,
+  // Check again reads of the comparison answered so far.
+  checkedAgain: number,
 ): ComparisonEndpointProofs | undefined {
   const identity = answer?.kind === "comparison" ? answer.identity : undefined;
   const baseline = useSlotProof(
     source,
     identity,
     answer?.kind === "comparison" ? answer.baseline : undefined,
+    checkedAgain,
   );
   // Taken Trunk Mode puts the live tip in `provisional` beside Branch N/A;
   // entry rows still compare that tip in the Branch column.
@@ -122,11 +135,12 @@ export function useIntentCiComparisonEndpointProofs(
     answer?.kind === "comparison"
       ? (answer.provisional ?? answer.branch)
       : undefined;
-  const branch = useSlotProof(source, identity, branchSlot);
+  const branch = useSlotProof(source, identity, branchSlot, checkedAgain);
   const landed = useSlotProof(
     source,
     identity,
     answer?.kind === "comparison" ? answer.landed : undefined,
+    checkedAgain,
   );
 
   if (answer === undefined || answer.kind !== "comparison") return undefined;

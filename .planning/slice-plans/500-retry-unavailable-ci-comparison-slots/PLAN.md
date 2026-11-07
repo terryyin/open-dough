@@ -97,7 +97,7 @@ which answers are not remembered and what they cost again.
 
 ### 2. Check again recovers a done comparison
 Type: Behavior
-Status: planned
+Status: done
 Proof: as mapped above for **Check again**.
 
 Behavior: Intent's CI status shows a done story's comparison (with an
@@ -120,11 +120,29 @@ CI timing comparison documentation names the button and when it reads.
   rerun). Branch/Landed and whole-answer recovery rest on the shared rule's
   unit proof; slice 2's whole-answer journey adds a browser observation.
 
+- Slice 2 (2026-11-07): `intent-ci-comparison-retry.spec.ts` Check again
+  journeys (Story Branch Baseline recovery with before → after summary and no
+  further Actions requests; endpoint proof re-read; still-failing listing with
+  the button disabled while held; whole read 502 once; unrecoverable history
+  recovered after unshallow) passed; the Intent CI comparison family passed
+  47/47 (3.6 min, after refactor) and CI status consumers 21/21 under
+  `caffeinate -s -i` on AC power; typecheck and lint passed. Refactor shared
+  `CheckAgain` from `IntentCiJudgedBranch.tsx`, moved the unrecoverable-history
+  journey into the retry spec without its `test.slow()`, and split comparison
+  test support below 250 lines. E4's read-bound cause is not reproduced;
+  whole-answer recovery is observed through a fail-once 502 and an unreadable
+  then readable history.
+
 ## Learnings
 
 - `selectDoneStoryForCiComparison` starts with `page.goto("/")`, so calling
   it again is the reload; the retry journey runs in about 8 s within the
   default timeout.
+- Endpoint proofs are keyed by build subject, so an unchanged final answer
+  never re-read them; Check again keys them on answered Check again reads
+  (`checkedAgain`) so Taken head re-reads cost what they did.
+- `tests/support/ghRequest.ts` `parseRequest` recognises Actions requests in
+  specs; prefer it to new route regexes.
 - GITHUB-REQUESTS.md already names **Check again** among the comparison's
   re-read triggers; slice 2 makes that true for a done comparison.
 
