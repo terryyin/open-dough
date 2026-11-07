@@ -15,7 +15,7 @@ export function DashboardBanner({
   onSelect,
   onSelectPerspective,
 }: {
-  readonly source: PublishedSource;
+  readonly source: PublishedSource | undefined;
   readonly perspective: DashboardPerspective;
   readonly onOpenSettings: () => void;
   readonly onSelect: (next: PublishedSource) => void;
@@ -38,11 +38,15 @@ export function DashboardBanner({
   return (
     <header className="banner" ref={banner}>
       <SessionsButton />
-      <PerspectiveSelect
-        perspective={perspective}
-        onSelect={onSelectPerspective}
-      />
-      <ProjectSelect source={source} onSelect={onSelect} />
+      {source !== undefined && (
+        <>
+          <PerspectiveSelect
+            perspective={perspective}
+            onSelect={onSelectPerspective}
+          />
+          <ProjectSelect source={source} onSelect={onSelect} />
+        </>
+      )}
       <SettingsGear onOpen={onOpenSettings} />
     </header>
   );

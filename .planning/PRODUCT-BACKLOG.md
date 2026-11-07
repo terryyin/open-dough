@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Hide a client project from the dashboard while keeping it maintained](seeds/SEED-250-hide-client-project-from-dashboard.md#hide-client-project-from-dashboard) — SEED-250#hide-client-project-from-dashboard ([plan](slice-plans/476-hide-client-project-from-dashboard/PLAN.md))
 - [Review a completed story including its merge changes](seeds/SEED-253-review-delivered-merge-changes.md#review-delivered-merge-changes) — SEED-253#review-delivered-merge-changes ([plan](slice-plans/491-review-delivered-merge-changes/PLAN.md))
 
 ## Backlog list

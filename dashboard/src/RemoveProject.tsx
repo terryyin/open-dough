@@ -1,7 +1,11 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
 import { projectRemoveEndpoint } from "./projectConfiguration.ts";
-import { useProjects, useReplaceProjects } from "./projectList.tsx";
+import {
+  selectionAfterProjectChange,
+  useVisibleProjects,
+  useReplaceProjects,
+} from "./projectList.tsx";
 import "./frame-controls.css";
 
 export function RemoveProject({
@@ -11,11 +15,11 @@ export function RemoveProject({
 }: {
   readonly source: PublishedSource;
   readonly selectedId: string | undefined;
-  readonly onSelect: (source: PublishedSource) => void;
+  readonly onSelect: (source: PublishedSource | undefined) => void;
 }) {
   const launcher = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
-  const projects = useProjects();
+  const projects = useVisibleProjects();
   const replaceProjects = useReplaceProjects();
   return (
     <>
@@ -41,12 +45,14 @@ export function RemoveProject({
           }}
           onRemoved={(saved) => {
             setOpen(false);
-            const index = projects.findIndex(
-              (project) => project.id === source.id,
-            );
-            const next = saved[index] ?? saved[0];
+            const next = selectionAfterProjectChange({
+              previousVisible: projects,
+              saved,
+              changed: source,
+              selectedId,
+            });
             replaceProjects(saved);
-            if (next && source.id === selectedId) onSelect(next);
+            onSelect(next);
             requestAnimationFrame(() => {
               const destination = document.querySelector<HTMLButtonElement>(
                 "button[aria-label='Add project']",

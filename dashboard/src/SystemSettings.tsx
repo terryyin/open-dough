@@ -7,6 +7,7 @@ import { ProductMark } from "./ProductMark.tsx";
 import { TerminalThemeSettings } from "./TerminalThemeSettings.tsx";
 import { refusalMessage } from "./refusalMessage.ts";
 import { AddProject } from "./AddProject.tsx";
+import { ProjectVisibility } from "./ProjectVisibility.tsx";
 import { RemoveProject } from "./RemoveProject.tsx";
 import { useProjects } from "./projectList.tsx";
 import {
@@ -23,13 +24,14 @@ export function SystemSettings({
   onBack,
 }: {
   readonly selectedId: string | undefined;
-  readonly onSelect: (source: PublishedSource) => void;
+  readonly onSelect: (source: PublishedSource | undefined) => void;
   readonly onBack: () => void;
 }) {
   const projects = useProjects();
   const heading = useRef<HTMLHeadingElement>(null);
   const [facts, setFacts] = useState<readonly ProjectSettings[]>();
   const [problem, setProblem] = useState<string>();
+  const [visibilityProblem, setVisibilityProblem] = useState<string>();
   const [retry, setRetry] = useState(0);
   useEffect(() => {
     heading.current?.focus();
@@ -93,6 +95,11 @@ export function SystemSettings({
             </button>
           </div>
         )}
+        {visibilityProblem && (
+          <div role="alert" className="settings-problem">
+            {visibilityProblem}
+          </div>
+        )}
         {projects.length === 0 ? (
           <p className="settings-empty">
             No projects configured. Add a project to get started.
@@ -100,9 +107,19 @@ export function SystemSettings({
         ) : (
           <ul className="settings-project-list">
             {projects.map((source) => (
-              <li key={source.id}>
+              <li
+                key={source.id}
+                data-project-visibility={source.hidden ? "hidden" : "visible"}
+              >
                 <div>
-                  <h3>{source.label}</h3>
+                  <div className="settings-project-title">
+                    <h3>{source.label}</h3>
+                    {source.hidden && (
+                      <p className="settings-project-status">
+                        Hidden from dashboard
+                      </p>
+                    )}
+                  </div>
                   <dl>
                     <dt>GitHub repository</dt>
                     <dd>{source.repository}</dd>
@@ -113,11 +130,19 @@ export function SystemSettings({
                     </dd>
                   </dl>
                 </div>
-                <RemoveProject
-                  source={source}
-                  selectedId={selectedId}
-                  onSelect={onSelect}
-                />
+                <div className="settings-project-actions">
+                  <ProjectVisibility
+                    source={source}
+                    selectedId={selectedId}
+                    onSelect={onSelect}
+                    onProblem={setVisibilityProblem}
+                  />
+                  <RemoveProject
+                    source={source}
+                    selectedId={selectedId}
+                    onSelect={onSelect}
+                  />
+                </div>
               </li>
             ))}
           </ul>

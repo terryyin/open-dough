@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -10,10 +11,42 @@ import { projectListEndpoint } from "./projectConfiguration.ts";
 import { refusalMessage } from "./refusalMessage.ts";
 
 type ProjectList = {
-  readonly projects: readonly PublishedSource[];
+  readonly configuredProjects: readonly PublishedSource[];
+  readonly visibleProjects: readonly PublishedSource[];
   readonly replaceProjects: (projects: readonly PublishedSource[]) => void;
 };
 const ProjectsContext = createContext<ProjectList | undefined>(undefined);
+
+export function visibleProjectsOf(
+  projects: readonly PublishedSource[],
+): readonly PublishedSource[] {
+  return projects.filter((project) => !project.hidden);
+}
+
+export function selectionAfterProjectChange({
+  previousVisible,
+  saved,
+  changed,
+  selectedId,
+}: {
+  readonly previousVisible: readonly PublishedSource[];
+  readonly saved: readonly PublishedSource[];
+  readonly changed: PublishedSource;
+  readonly selectedId: string | undefined;
+}): PublishedSource | undefined {
+  const visible = visibleProjectsOf(saved);
+  if (selectedId === undefined) {
+    return visible.find((project) => project.id === changed.id) ?? visible[0];
+  }
+  const current = visible.find((project) => project.id === selectedId);
+  if (current !== undefined) {
+    return current;
+  }
+  const index = previousVisible.findIndex(
+    (project) => project.id === selectedId,
+  );
+  return index >= 0 ? (visible[index] ?? visible[0]) : visible[0];
+}
 
 export function ProjectsOnPage({
   projects,
@@ -24,8 +57,18 @@ export function ProjectsOnPage({
   readonly replaceProjects: ProjectList["replaceProjects"];
   readonly children: ReactNode;
 }) {
+  const visibleProjects = useMemo(
+    () => visibleProjectsOf(projects),
+    [projects],
+  );
   return (
-    <ProjectsContext value={{ projects, replaceProjects }}>
+    <ProjectsContext
+      value={{
+        configuredProjects: projects,
+        visibleProjects,
+        replaceProjects,
+      }}
+    >
       {children}
     </ProjectsContext>
   );
@@ -43,7 +86,14 @@ export function useProjects(): readonly PublishedSource[] {
   const projects = useContext(ProjectsContext);
   if (projects === undefined)
     throw new Error("Projects must be loaded before the dashboard opens.");
-  return projects.projects;
+  return projects.configuredProjects;
+}
+
+export function useVisibleProjects(): readonly PublishedSource[] {
+  const projects = useContext(ProjectsContext);
+  if (projects === undefined)
+    throw new Error("Projects must be loaded before the dashboard opens.");
+  return projects.visibleProjects;
 }
 
 export function useReplaceProjects(): ProjectList["replaceProjects"] {

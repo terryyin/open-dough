@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-250#hide-client-project-from-dashboard",
+  "title": "Hide a client project from the dashboard while keeping it maintained",
+  "completedAt": "2026-11-07T06:31:00.295Z",
+  "developer": "Terry Yin",
+  "agent": "yusuke-chan",
+  "host": "cursor",
+  "model": "gemini-4-argon"
+}

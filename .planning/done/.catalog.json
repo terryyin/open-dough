@@ -8,6 +8,12 @@
       "blob": "ba78a1be3fd1b0c1d4fb994be0a6704165c3df40"
     },
     {
+      "fileName": "SEED-250_hide-client-project-from-dashboard.json",
+      "identity": "SEED-250#hide-client-project-from-dashboard",
+      "completedAt": "2026-11-07T06:31:00.295Z",
+      "blob": "2f3f7a81fd13f76ab78ad96c52432a898603935a"
+    },
+    {
       "fileName": "SEED-010_observe-progress-revision-before-slice-done.json",
       "identity": "SEED-010#observe-progress-revision-before-slice-done",
       "completedAt": "2026-11-07T06:13:46.048Z",

@@ -45,10 +45,12 @@ import {
 // No snapshot shown, so no story branch watched.
 const noBranchHeads: StoryBranchHeads = new Map();
 
-export function usePublishedObservation(initialSource: PublishedSource) {
+export function usePublishedObservation(
+  initialSource: PublishedSource | undefined,
+) {
   // The project this dashboard is currently observing. Selecting another
   // project replaces this whole, never merges into what is already shown.
-  const [source, setSource] = useState<PublishedSource>(initialSource);
+  const [source, setSource] = useState(initialSource);
   const {
     retrieval,
     outcomes,
@@ -94,6 +96,7 @@ export function usePublishedObservation(initialSource: PublishedSource) {
     onReleased: onRecoveryReleased,
   });
   useEffect(() => {
+    if (source === undefined) return;
     const reading = new AbortController();
     const unbind = bindRead(reading);
     const limitMet = limitsMetSince();
@@ -211,23 +214,20 @@ export function usePublishedObservation(initialSource: PublishedSource) {
   // Launch reconciliation's fresh read; an in-flight read stands for it.
   // Outstanding recovery or a standing login limit is not bypassed.
   const readAfresh = () => {
-    if (!reading && !blocksFreshRead) {
-      askRead(undefined);
-    }
+    if (!reading && !blocksFreshRead) askRead(undefined);
   };
 
   // Replace the observation whole for another project: clear local recovery
   // and focus while a standing login limit remains; fresh read via `source`.
-  const selectSource = (next: PublishedSource) => {
-    if (next.id === source.id) {
-      return;
-    }
+  const selectSource = (next: PublishedSource | undefined) => {
+    if (next?.id === source?.id) return;
     heldFocus.current = undefined;
     deferredFocus.current = undefined;
     setRecoveryAsk(false);
     clearAllTransientFailures();
     setSource(next);
-    askRead(undefined);
+    if (next !== undefined) askRead(undefined);
+    else setReadSettled(false);
     restart();
     clear();
   };

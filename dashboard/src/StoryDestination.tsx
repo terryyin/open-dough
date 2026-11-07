@@ -19,7 +19,8 @@ export function useStoryDestination({
   readonly enabled: boolean;
 }) {
   const target = route.story;
-  const knownProject = target?.project === route.source.id;
+  const knownProject =
+    target !== undefined && target.project === route.source?.id;
   const failed = attempt.status === "failed" && !attempt.afterMembership;
   const membership = knownProject && work?.source.id === target.project;
   const listed = knownProject && activeStoryAt(target, work) !== undefined;
@@ -75,16 +76,16 @@ export function StoryDestination({
         ) : status === "failed" ? (
           <>
             Story {target.identity} could not be resolved because{" "}
-            {route.source.label}'s published work could not be read.
+            {route.source?.label}'s published work could not be read.
           </>
         ) : status === "absent" ? (
           <>
-            Story {target.identity} is not listed in {route.source.label}'s
+            Story {target.identity} is not listed in {route.source?.label}'s
             published work.
           </>
         ) : (
           <>
-            Waiting to read {route.source.label}'s published work for story{" "}
+            Waiting to read {route.source?.label}'s published work for story{" "}
             {target.identity}.
           </>
         )}

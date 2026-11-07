@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 437. Removed numbers are never reused.
+- Highest allocated local number: 439. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -435,6 +435,15 @@ Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`.
 
 [Evidence and current response](docs/maintainer/findings/ODF-367.md).
 
+### Occurrences
+- Execution: SEED-250#hide-client-project-from-dashboard (plan 476-hide-client-project-from-dashboard; first related implementation commit `bbdb50295eccda910464a31d47c7ffcc9aadc390`)
+  - Timestamp: unknown (2026-11-07, after established start and before slice 1 delivery `bbdb50295`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: coordinator delegated slice 1 (`85bcdbe9-6b19-4722-a806-4c3a22200093`) after reading the "Before first implementation delegation" boundary, then read "Before accepting a return" (`wrap-up.md#accept-proof`) and launched the source-only reviewer (`fc0018b5-f90a-42c9-8c9b-63d1c2ae89af`) before accepting slice 1 and delegating slice 2
+  - Observed effect: no rework of slice 1; all 62 slice 1 commitments matched the delivered implementation and proof, and the 5 slice 2 commitments were passed into slice 2 delegation
+  - Inference: same boundary-table ordering as prior ODF-367 rows — `dough-execute-plan/SKILL.md` lists `wrap-up.md#accept-proof` under "Before accepting a return" rather than before first slice delegation
+
 ## ODF-399 — Post-change refactor left a production module empty before delivery
 
 Former local code: DD-389.
@@ -649,3 +658,16 @@ A fresh source-review Commitments table named several distinct restrictions unde
   - Evidence: coordinator transcript `402174d0-70cd-415a-99d4-dc5cddd8b62b` narrative "Malformed commitment IDs are blocking the record"; StrReplace splitting `R5–R8q` / `R9–R12q` into `R5q` / `R12q` (and peers) in before-cleanup commit `80c1456f79fb951f5e8d7ceff55db1244e21796e` path `.planning/slice-plans/488-extract-dashboard-frontend-tests/source-review.md` before re-record / `check --slice 1`
   - Observed effect: one blocked observation pass and a mechanical Id rewrite before slice-1 obligations cleared
   - Inference: Qualified. Distinct from ODF-381 (Slice-column misuse) and ODF-391 (cell-shape malformations); here the Id column itself carried a range. Source-only review guidance that asks to number compound items separately was not followed for these restriction clusters.
+
+## DD-439 — Prepared plan's empty Story obligations prose failed the execution obligations reader
+
+A prepared slice plan included a `## Story obligations` heading followed by placeholder prose (`None at preparation. During planned execution, report gaps here per ...`). At Slice 1 delegation, `story-obligations.mjs list` refused the section with `malformed-obligations-section` because `story-obligation-reader.mjs` rejects any non-`###` line inside `## Story obligations`.
+
+### Occurrences
+- Execution: SEED-250#hide-client-project-from-dashboard (plan 476-hide-client-project-from-dashboard; first related implementation commit `bbdb50295eccda910464a31d47c7ffcc9aadc390`)
+  - Timestamp: 2026-11-07T12:49+08:00 (before slice 1 delegation)
+  - Tool: Cursor
+  - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: prepared plan `b8e75bc2710e4e868c5937f451f893ec4905f670:.planning/slice-plans/476-hide-client-project-from-dashboard/PLAN.md` lines 143–146 contained `## Story obligations` and two lines of "None at preparation..." prose; `node .agents/skills/dough-execute-plan/scripts/story-obligations.mjs list --plan .planning/slice-plans/476-hide-client-project-from-dashboard/PLAN.md --slice 1` exited 1 with two `malformed-obligations-section` problems until the empty placeholder section was removed
+  - Observed effect: one extra read and edit of `PLAN.md` before Slice 1 delegation could proceed; no product impact
+  - Inference: either `dough-slice-planning` should omit `## Story obligations` when empty at preparation (as `story-obligations.md` notes "Plans without this section have zero obligations") or `story-obligation-reader.mjs` / readiness check should catch or tolerate an empty placeholder section before execution starts

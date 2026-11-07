@@ -55,6 +55,7 @@ export function useRevisionStreamSchedule({
     if (
       delivery !== "stream" ||
       !readSettled ||
+      source === undefined ||
       shownRevision === undefined ||
       visibility === "hidden"
     ) {
