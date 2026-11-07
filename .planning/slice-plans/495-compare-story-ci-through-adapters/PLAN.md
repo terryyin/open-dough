@@ -217,10 +217,13 @@ atomically, and checks the new runner PID while preserving every attach and
 Recover assertion. Five affected Chromium cases passed. The controls and
 last-held persistence also passed with an 8-second paste repaint challenge,
 after which the original 300 ms fixture setting was restored.
+The independent refactor review found no edits needed. The repair was
+published and registered at `893bfc4d8cf02da0f59c61d9953f06caec2cd820`.
+The saved slice 3 edits were restored and verified by their recorded OID.
 
 ### 3. Taken stories and named gaps for adapter builds
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-comparison-adapter.spec.ts` Taken and gap cases; module
 test of per-revision attempt selection.
 
@@ -235,6 +238,23 @@ story's start …" gap while Branch and Landed keep theirs. A `failure` then a
 later `success` at one revision uses the success; a later `incomplete`
 after a `success` still uses the success. A failing `discover` makes the
 endpoints unavailable with the adapter's reason.
+
+Accepted proof: six new Chromium cases passed. Taken Story Branch and
+Trunk Mode preserve a measured 6 min 30 s completed ancestor with a later
+running attempt, show the pending exact tip when no completed ancestor is
+available, and leave Landed unsettled. An isolated comparison read made
+zero GitHub requests. The Done cases passed for Trunk completion ancestry,
+the aged baseline gap with surviving retries, unrecorded wall time,
+adapter stderr and the real 20-second timeout. Focused Node checks passed
+for same-check/context retry fallback, including a failed completed
+attempt, and expiry of the comparison deadline. The 40 existing
+comparison, Summary, adapter-proof and launch tests and three CI status
+wall-time tests passed, along with lint, dashboard typecheck and the
+focused status/proof/entry module checks.
+
+Independent refactor shared the success/failure predicate between retry
+selection and the nearest-revision walk. Adapter and nearest module proof,
+typecheck and whitespace checks passed. Browser boundaries stayed intact.
 
 ### 4. Observe the live Pygardon comparison
 Type: Behavior
@@ -270,4 +290,4 @@ Disposition: proved by slice 2: dashboard/tests/intent/intent-ci-comparison-adap
 ### G2. Preserve the adapter reason on a discovery deadline
 Reported: slice 1 — "If the shared signal itself expires while discovering, lookupOrGap returns the adapter reason then the Git verification can throw and hide that reason."
 Story clause: "A failed or timed-out `discover` makes the endpoints unavailable with the adapter's reason"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: real timeout in dashboard/tests/intent/intent-ci-comparison-adapter-gaps.spec.ts and earlier shared deadline in tests/support/dashboard-ci-adapter-revision-lookup.test.mjs

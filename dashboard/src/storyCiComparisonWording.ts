@@ -26,8 +26,12 @@ export function selectionWords(
           const count = slot.laterWithoutResult;
           return `ancestor: ${String(count)} later revision${count === 1 ? "" : "s"} without a build`;
         })();
+  const selection =
+    slot.kind === "build" && slot.laterRunning === true
+      ? `ancestor · a later attempt is still running`
+      : base;
   // Taken stories label the live tip provisional, not final.
-  return provisional ? `provisional · ${base}` : base;
+  return provisional ? `provisional · ${selection}` : selection;
 }
 
 export const notLandedYetWords = notLandedYetExplanation;
@@ -35,7 +39,8 @@ export const notLandedYetWords = notLandedYetExplanation;
 export function wallTimeWords(slot: StoryCiComparisonSlot): string | undefined {
   if (slot.kind !== "build") return undefined;
   const ms = wallTimeMs(slot.startedAt, slot.completedAt);
-  return ms === undefined ? undefined : wholeSecondWords(ms);
+  if (ms !== undefined) return wholeSecondWords(ms);
+  return slot.adapterAttempt === undefined ? undefined : "Not recorded";
 }
 
 export function timeWithoutRunnerWaitsWords(

@@ -66,7 +66,8 @@ proof. An adapter project's story comparison makes no GitHub API requests for
 CI builds or proof. It looks for endpoint revisions among the attempts
 `discover` lists for the configured target and, when known, the story branch.
 Completed, unambiguous comparison attempts use the same adapter `proof` read
-and summary memory as CI status.
+and summary memory as CI status. The comparison resolves a Taken story's
+published branch tip through the project checkout's Git origin.
 A story CI timing comparison adds one jobs request per 100 jobs for
 each newly shown completed GitHub Actions attempt with a readable workflow
 file. The dashboard process remembers the latest 256 successful listings by

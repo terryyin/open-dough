@@ -30,6 +30,8 @@ export const testsRow = [
 export type Answers = {
   // Each discover's attempts, by the asked branch.
   readonly discover: Readonly<Record<string, readonly unknown[]>>;
+  readonly discoverStderr?: string;
+  readonly discoverDelayMs?: number;
   // Default proof answer, with optional answers by the requested attempt ID.
   readonly proof: unknown;
   readonly proofByAttemptId?: Readonly<Record<string, unknown>>;
@@ -56,6 +58,12 @@ for await (const chunk of process.stdin) input += chunk;
 const request = JSON.parse(input);
 appendFileSync("adapter-requests.jsonl", JSON.stringify(request) + "\\n");
 const answers = JSON.parse(readFileSync("adapter-answers.json", "utf8"));
+if (request.operation === "discover" && answers.discoverStderr !== undefined) {
+  process.stderr.write(answers.discoverStderr + "\\n");
+  process.exit(2);
+}
+if (request.operation === "discover" && answers.discoverDelayMs !== undefined)
+  await new Promise((resolve) => setTimeout(resolve, answers.discoverDelayMs));
 if (request.operation === "proof" && answers.proofStderr !== undefined) {
   process.stderr.write(answers.proofStderr + "\\n");
   process.exit(2);

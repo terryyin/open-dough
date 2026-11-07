@@ -38,6 +38,7 @@ const buildSlot = z.object({
   state: z.enum(["pass", "failed"]),
   selection: z.enum(["exact", "ancestor"]),
   laterWithoutResult: z.number().int().nonnegative(),
+  laterRunning: z.literal(true).optional(),
   runUrl: z.string().min(1).optional(),
   runBranch: z.string().min(1).optional(),
   ...runIdentity,

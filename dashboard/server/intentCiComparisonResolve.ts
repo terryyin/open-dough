@@ -209,6 +209,7 @@ export async function performTakenComparison(
     facts.mode === "trunk"
       ? "No completed CI build was found at the current trunk tip or a later trunk ancestor within the story's start bound."
       : "No completed CI build was found at the current branch tip or a later story-side ancestor within the story's start bound.",
+    { provisional: true },
   );
   const [baseline, live] = await Promise.all([
     asComparisonSlot(baselineBuild, lookup),

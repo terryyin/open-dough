@@ -3,13 +3,14 @@
 // landed slots. GitHub Actions listing lives in
 // `./baseCiGithubRevisionLookup.ts`. The live branch judgment
 // (`./baseCiJudgment.ts`) keeps its branch listing rule unchanged.
+import { defaultAdapterTimeoutMs } from "../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { adapterDiscoveryUnread } from "./baseCiAdapterAttempts.ts";
 import { adapterRevisionLookup } from "./baseCiAdapterRevisionLookup.ts";
 import { githubAcquisitionUnread } from "./baseCiGitHubReads.ts";
 import { githubRevisionLookup } from "./baseCiGithubRevisionLookup.ts";
-import { newestRunFor, type BaseCiJudgment } from "./baseCiNearest.ts";
+import { newestRunFor, unread, type BaseCiJudgment } from "./baseCiNearest.ts";
 import { firstParentChain } from "./baseCiRevisionGit.ts";
 import {
   nearestRevisionBuild,
@@ -88,6 +89,8 @@ export type ExactResultLookup = {
   readonly timedOutExplanation: string;
 };
 
+type ResultLookupOptions = ExactResultLookup | { readonly provisional: true };
+
 // Result endpoint (branch or landed): newest completed or running attempt at
 // `target`, else a measured ancestor not older than `storyStart`. With
 // `exactOnly`, the walk is limited to `target` itself (no measured-ancestor
@@ -99,9 +102,12 @@ export async function lookupResultBuild(
   lookup: RevisionCiLookup,
   call: GitCall,
   missingExplanation: string,
-  exact?: ExactResultLookup,
+  options?: ResultLookupOptions,
 ): Promise<RevisionBuildSlot> {
   try {
+    const exact =
+      options !== undefined && "exactOnly" in options ? options : undefined;
+    const provisional = options !== undefined && "provisional" in options;
     const revisions =
       exact?.exactOnly === true
         ? await firstParentChain(target, call, 1)
@@ -110,12 +116,14 @@ export async function lookupResultBuild(
       revisions,
       lookup,
       exact?.exactOnly === true ? undefined : storyStart,
+      provisional && lookup.preferCompletedAncestor === true,
     );
     if (build !== undefined) return asSlot(build, missingExplanation);
     if (exact?.exactOnly === true) {
       const newest = newestRunFor(await lookup.listRunsAt(target), target);
       if (
         newest?.status === "completed" &&
+        newest.adapterAttempt === undefined &&
         (newest.conclusion === "cancelled" || newest.conclusion === "timed_out")
       ) {
         return {
@@ -160,6 +168,18 @@ export async function revisionLookupOrGap(
         signal,
       );
     } catch (error) {
+      if (
+        signal.aborted &&
+        signal.reason instanceof Error &&
+        signal.reason.name === "TimeoutError"
+      )
+        return unread(
+          "The CI adapter did not answer discovery before the comparison deadline.",
+        );
+      if (error instanceof Error && "killed" in error && error.killed === true)
+        return unread(
+          `The CI adapter did not answer discovery within ${String(defaultAdapterTimeoutMs / 1000)} seconds.`,
+        );
       return adapterDiscoveryUnread(error);
     }
   }

@@ -14,6 +14,9 @@ type DiscoveredAttempt = Omit<ListedRun, "databaseId" | "attempt"> & {
   readonly context?: string;
 };
 
+export type AdapterRun = ListedRun &
+  Pick<DiscoveredAttempt, "check" | "context">;
+
 // The same attempt may be discovered for both the configured ref and a story
 // branch; another attempt differs in run, attempt, check or context.
 const attemptKey = (run: DiscoveredAttempt) =>
@@ -29,7 +32,7 @@ const atRevisionKey = (run: DiscoveredAttempt) =>
 function asAdapterAttempts(
   retained: readonly DiscoveredAttempt[],
   answered: readonly DiscoveredAttempt[],
-): ListedRun[] {
+): AdapterRun[] {
   const attempts = new Map<string, Set<string>>();
   for (const run of answered) {
     const key = atRevisionKey(run);
@@ -59,8 +62,8 @@ export async function discoverAdapterAttempts(
   root: string,
   command: readonly string[],
   signal: AbortSignal,
-  { includeOtherBranches = false } = {},
-): Promise<ListedRun[]> {
+  { comparison = false } = {},
+): Promise<AdapterRun[]> {
   const branches = branch === source.ref ? [branch] : [source.ref, branch];
   const ended = new AbortController();
   const asked = AbortSignal.any([signal, ended.signal]);
@@ -71,7 +74,7 @@ export async function discoverAdapterAttempts(
         repo: source.repository,
         branch: listedBranch,
         root,
-        includeOtherBranches,
+        includeOtherBranches: comparison,
       });
       try {
         await acquisition.acquireRuns(asked);
@@ -83,14 +86,15 @@ export async function discoverAdapterAttempts(
         ...run,
         branch: listedBranch,
       });
-      return {
-        retained: (
-          (await acquisition.discoverAncestorCandidates()) as DiscoveredAttempt[]
-        ).map(fromListing),
-        answered: (
-          (await acquisition.discoverAnsweredAttempts()) as DiscoveredAttempt[]
-        ).map(fromListing),
-      };
+      const answered = (
+        (await acquisition.discoverAnsweredAttempts()) as DiscoveredAttempt[]
+      ).map(fromListing);
+      const retained = comparison
+        ? answered
+        : (
+            (await acquisition.discoverAncestorCandidates()) as DiscoveredAttempt[]
+          ).map(fromListing);
+      return { retained, answered };
     }),
   );
   return asAdapterAttempts(
