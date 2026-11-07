@@ -18,8 +18,6 @@ import {
   writePickedImages,
 } from "../support/launchAttachmentFixtures.ts";
 
-test.setTimeout(120_000);
-
 test("Cursor Start session with one attached image ends the prompt's developer part with its copied path", async ({
   page,
   dashboard,

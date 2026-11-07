@@ -26,8 +26,6 @@ import {
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
 
-test.setTimeout(90_000);
-
 const wallTime = "CI wall time 3 min";
 const noTimings = "No timings";
 const noTimingsWhy =

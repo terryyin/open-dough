@@ -17,7 +17,6 @@ for (const entry of [
   "direct config from another working directory",
 ]) {
   test(`${entry} opts in through normal config and attributes nested runs to their outer invocation`, async () => {
-    test.setTimeout(60_000);
     const directory = proofDirectory();
     const recordPath = path.join(directory, "outer-proof.json");
     const selection = [

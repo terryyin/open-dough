@@ -18,8 +18,6 @@ import {
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 
-test.setTimeout(120_000);
-
 test("a blocker published after the card rendered refuses real startup before claim or native launch", async ({
   page,
   origin,

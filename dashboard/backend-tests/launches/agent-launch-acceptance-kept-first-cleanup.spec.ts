@@ -21,7 +21,6 @@ const specFile = path.join(
 
 for (const failure of ["server", "release"] as const) {
   test(`kept-first teardown cleans acquired resources after ${failure} fails`, async () => {
-    test.setTimeout(60_000);
     const workDir = mkdtempSync(path.join(tmpdir(), "kept-first-cleanup-"));
     writeFileSync(path.join(workDir, "package.json"), '{"type":"module"}\n');
     const machineFile = path.join(workDir, "machine");
@@ -70,7 +69,6 @@ for (const failure of ["server", "release"] as const) {
         workers: 1,
         retries: 0,
         reporter: [["json", { outputFile: reportFile }]],
-        timeout: 30_000,
       });
       const status = run.status;
       const outputText = `${run.stdout}${run.stderr}`;

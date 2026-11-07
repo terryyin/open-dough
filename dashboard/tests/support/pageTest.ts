@@ -44,9 +44,7 @@ export const test = base.extend<{}, { launchJourney: LaunchJourney }>({
   // The launch journeys' origin (../launchJourney.ts says what it publishes),
   // published once per worker and read, never written, by every journey the
   // worker runs from it (../launchStoryCardPage.ts serves it as GitHub would).
-  // Publishing runs real git and the backlog CLI; its own bound keeps a busy
-  // machine from starving it, and only a worker that takes the fixture loads
-  // the publishing code.
+  // Only a worker that takes the fixture loads the publishing code.
   launchJourney: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
@@ -55,7 +53,7 @@ export const test = base.extend<{}, { launchJourney: LaunchJourney }>({
       await use(journey);
       await journey.cleanup();
     },
-    { scope: "worker", timeout: 120_000 },
+    { scope: "worker" },
   ],
   context: async ({ context }, use) => {
     await noteRequestsInEveryPage(context);

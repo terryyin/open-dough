@@ -82,7 +82,6 @@ async function runSubstitute(spec: string): Promise<{
 }
 
 test("a passing run leaves none of its processes running", async () => {
-  test.setTimeout(60_000);
   const run = await runSubstitute("passing.proof.ts");
 
   expect(run.status, run.output).toBe(0);
@@ -90,7 +89,6 @@ test("a passing run leaves none of its processes running", async () => {
 });
 
 test("a run whose teardown outlasts its timeout leaves none of its processes running", async () => {
-  test.setTimeout(90_000);
   const run = await runSubstitute("held-teardown.proof.ts");
 
   expect(run.status, run.output).not.toBe(0);
@@ -99,7 +97,6 @@ test("a run whose teardown outlasts its timeout leaves none of its processes run
 });
 
 test("a run that times out while a production process runs leaves none of its processes running", async () => {
-  test.setTimeout(60_000);
   const run = await runSubstitute("production-timeout.proof.ts");
 
   expect(run.status, run.output).not.toBe(0);
@@ -110,7 +107,6 @@ test("a run that times out while a production process runs leaves none of its pr
 test("a run's own teardown ends a process its workers could not reach and fails naming it", async () => {
   // The inner run is a whole one under the suite's global setup: it builds
   // the dashboard once, takes its own run identity, and sweeps at its end.
-  test.setTimeout(240_000);
   const workDir = mkdtempSync(path.join(tmpdir(), "run-processes-"));
   const record = path.join(workDir, "orphan.json");
   try {

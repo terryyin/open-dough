@@ -48,7 +48,6 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   dashboard,
   origin,
 }) => {
-  test.setTimeout(150_000);
   const before = (await origin.originGit("rev-parse", "main")).trim();
   const push = origin.holdPushes();
   dashboard.claudeScenario("held");
@@ -181,7 +180,6 @@ test("a refinement's announcement, read before its session settles, keeps the st
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   dashboard.claudeScenario("held");
   await pausePageClock(page);
   const { published, story } = await openStories(page, origin);

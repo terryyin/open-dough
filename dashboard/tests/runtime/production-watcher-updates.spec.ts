@@ -35,8 +35,7 @@ const journey = productionUpdateJourney();
 test("repeated checks of unchanged main stay quiet and keep the same preview and build, which reads the shared launch record beside development", async ({
   request,
 }) => {
-  test.setTimeout(60_000);
-  const state = journey.started();
+  const state = await journey.activated();
   const { fixture, watcher } = state;
   expect(await journey.builds()).toEqual([
     { pid: expect.any(Number), checkout: deploymentCheckout(state.a) },
@@ -57,10 +56,11 @@ test("repeated checks of unchanged main stay quiet and keep the same preview and
   expect(await journey.builds()).toHaveLength(1);
 });
 
-test("a commit held in its build is served exactly at the same URL, and a later check replaces it with the next commit, keeping shared records and configuration", async ({
+// B is held in its build while C reaches main; the next test observes C.
+let c: string;
+test("a commit held in its build is served exactly at the same URL while the next commit reaches main, completing an accepted start and keeping shared records", async ({
   request,
 }) => {
-  test.setTimeout(150_000);
   const state = journey.started();
   const { fixture, page, watcher, hosts } = state;
   hosts.claude.controls.claudeScenario("held");
@@ -90,13 +90,13 @@ test("a commit held in its build is served exactly at the same URL, and a later 
   await writeFile(holdBuildPath(fixture.home, 3), "");
   const b = await fixture.publish(fixture.markerChanges("MAIN B"), "Main B");
   await expect
-    .poll(async () => (await journey.builds()).length, { timeout: 120_000 })
+    .poll(async () => (await journey.builds()).length, { timeout: 0 })
     .toBe(2);
   expect((await journey.builds())[1]?.checkout).toEqual(deploymentCheckout(b));
-  const c = await fixture.publish(fixture.markerChanges("MAIN C"), "Main C");
+  c = await fixture.publish(fixture.markerChanges("MAIN C"), "Main C");
   await rm(holdBuildPath(fixture.home, 2));
   await expect
-    .poll(() => watcher.output(), { timeout: 120_000 })
+    .poll(() => watcher.output(), { timeout: 0 })
     .toContain("Waiting for accepted dashboard starts before updating.");
   // The watcher's log precedes its request reaching the server. Polling the
   // held request observes closed admission without admitting another start.
@@ -117,7 +117,7 @@ test("a commit held in its build is served exactly at the same URL, and a later 
   );
   expect(blocked.status()).toBe(503);
   hosts.claude.controls.releaseHeldClaude();
-  const switched = await journey.replacedBy(b);
+  await journey.replacedBy(b);
   const sessions = await request.get(`${state.served.url}/__agent-launch`, {
     headers: { Origin: state.served.url },
   });
@@ -155,14 +155,29 @@ test("a commit held in its build is served exactly at the same URL, and a later 
   await page.reload();
   await expect(page).toHaveTitle("MAIN B");
   await journey.expectSharedRecord(request, state.served.url);
+});
+
+// The watcher first retires the checkout B replaced, then a later check
+// prepares C, whose build stays held; the next test releases it.
+test("a later check prepares the next commit while the held commit stays served", async () => {
+  const state = journey.started();
+  const { page, watcher } = state;
   await expect
-    .poll(() => watcher.output(), { timeout: 60_000 })
+    .poll(() => watcher.output(), { timeout: 0 })
     .toContain(`Preparing production dashboard ${c}.`);
   expect(watcher.output()).not.toMatch(
     new RegExp(`Production dashboard ${c} at`),
   );
   await page.reload();
   await expect(page).toHaveTitle("MAIN B");
+});
+
+test("the next commit, released from its build, replaces the held commit at the same URL, keeping shared records and configuration", async ({
+  request,
+}) => {
+  const state = journey.started();
+  const { fixture, page } = state;
+  const switched = state.served;
   await rm(holdBuildPath(fixture.home, 3));
   await journey.replacedBy(c);
   expect(processRunning(switched.pid)).toBe(false);
@@ -182,7 +197,6 @@ test("a commit held in its build is served exactly at the same URL, and a later 
 test("the served commit's page and boundaries read the backlog at the revision main names and refuse an unknown project", async ({
   request,
 }) => {
-  test.setTimeout(60_000);
   const state = journey.started();
   const { hosts, page } = state;
   const { github, claude } = hosts;
@@ -229,7 +243,6 @@ test("the served commit's page and boundaries read the backlog at the revision m
 });
 
 test("superseded checkouts are retired after the replacement serves, not before", async () => {
-  test.setTimeout(90_000);
   const state = journey.started();
   const { fixture, watcher } = state;
   const c = state.built.at(-1) ?? "";

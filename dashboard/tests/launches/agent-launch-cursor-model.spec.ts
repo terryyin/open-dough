@@ -25,7 +25,6 @@ test("execution on a Cursor-listed model sends it on the prompted run only, scop
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),
@@ -129,7 +128,6 @@ test("an unreadable Cursor list is explained, Retry rereads it, and Default stil
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   cursor.listModels(undefined);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,

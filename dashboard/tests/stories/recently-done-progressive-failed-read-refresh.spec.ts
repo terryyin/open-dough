@@ -99,7 +99,6 @@ test("a newer revision asks once again for the failed records still shown, not f
   page,
   dashboard,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await page.clock.install();
   const demanded = demandedBy(page);

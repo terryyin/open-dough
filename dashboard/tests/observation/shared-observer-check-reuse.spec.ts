@@ -5,9 +5,9 @@
 // within that pace after one backlog read, and a tab revealed after the
 // other's listing settled checks at once from that listing. The page, its
 // local read boundary, and the `gh` invocation are the production ones; the
-// server uses the production reuse window (`checkReuseMs`), and the journey
-// lets that window end in real time between paces so a page's own next check
-// still asks GitHub once under the fake page clock.
+// server uses the production reuse window (`checkReuseMs`), measured by a
+// server clock the journey runs ahead past that window between paces, so a
+// page's own next check still asks GitHub once under the fake page clock.
 
 import { expect, githubFor, test } from "../dashboardTest.ts";
 import { expectSettledPage, parts, shortRevision } from "../dashboardPage.ts";
@@ -30,21 +30,18 @@ import {
   titlesOfB,
 } from "../refreshJourney.ts";
 
-test.use({ revisionCheckReuseMs: checkReuseMs });
-
-// Wall time past the reuse window so the next paced check cannot reuse the
-// listing that just settled (page time and server time diverge under the
-// fake clock).
-async function pastReuseWindow(): Promise<void> {
-  await new Promise<void>((resolve) => {
-    setTimeout(resolve, checkReuseMs + 50);
-  });
-}
+test.use({ revisionCheckReuseMs: checkReuseMs, observationClock: true });
 
 test("staggered tabs share one listing per pace, see a new commit together, and a revealed tab reuses the other's listing", async ({
   page,
+  dashboard,
 }) => {
-  test.setTimeout(120_000);
+  // Runs the server's clock past the reuse window so the next paced check
+  // cannot reuse the listing that just settled (page time and server time
+  // diverge under the fake page clock).
+  const pastReuseWindow = () => {
+    dashboard.advanceObservationClock(checkReuseMs);
+  };
   const origin = await openSettledAtA(page);
   await page.clock.runFor(7_000);
   const other = await page.context().newPage();
@@ -59,7 +56,7 @@ test("staggered tabs share one listing per pace, see a new commit together, and 
     await passTimeUntilChecked(page);
     await passTimeUntilChecked(other);
     expect(headsChecks(callsSince(page, before))).toHaveLength(1);
-    await pastReuseWindow();
+    pastReuseWindow();
     // Page's second check asks again; the other's second reuses it.
     await passTimeUntilChecked(page);
     await passTimeUntilChecked(other);
@@ -71,7 +68,7 @@ test("staggered tabs share one listing per pace, see a new commit together, and 
   });
 
   await test.step("a commit published before the next check appears on both within one pace after one backlog read", async () => {
-    await pastReuseWindow();
+    pastReuseWindow();
     origin.push(revisionB, backlogB, recordsAt("B"));
     const before = githubFor(page).calls.length;
     await passTimeUntilChecked(page);
@@ -100,7 +97,7 @@ test("staggered tabs share one listing per pace, see a new commit together, and 
 
   await test.step("a hidden tab revealed after the other's listing settled checks at once without a listing", async () => {
     await setPageVisibility(other, "hidden");
-    await pastReuseWindow();
+    pastReuseWindow();
     const before = githubFor(page).calls.length;
     await passTimeUntilChecked(page);
     expect(headsChecks(callsSince(page, before))).toHaveLength(1);

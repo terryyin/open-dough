@@ -23,7 +23,6 @@ test("a pasted Cursor instruction delivered in split screens is shown as accepte
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),

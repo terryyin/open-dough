@@ -40,8 +40,6 @@ import {
   storyWorktree,
 } from "../support/storyReviewWorktree.ts";
 
-test.setTimeout(120_000);
-
 const reviewedRef = `refs/open-dough/reviewed/${queuedIdentity}`;
 
 test("Mark reviewed marks the snapshot shown, which outlives Git's housekeeping, and leaves the worktree's index and status alone", async ({

@@ -52,7 +52,6 @@ async function showHeldSessionPage(
 workingCursorTest(
   "a stale-proof runner is read and joined for its held session, and observation starts or replaces nothing",
   async ({ page, dashboard, origin, cursor }) => {
-    workingCursorTest.setTimeout(120_000);
     const pid = await holdSession(dashboard, cursor);
     await showHeldSessionPage(page, origin);
     const runnerPid = readCursorRunnerAddress(dashboard.home)?.pid;
@@ -85,7 +84,6 @@ const replacementTest = test.extend({ cursorSubmitPaintMs: 300 });
 replacementTest(
   "sessions a replaced runner last held are revived without Recover; the third launch stays running",
   async ({ page, dashboard, origin, cursor }) => {
-    replacementTest.setTimeout(180_000);
     await startScopedCursorExecution(page, origin, cursor, dashboard.home);
     await launchSecondHeldSession(
       page,

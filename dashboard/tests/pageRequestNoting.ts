@@ -4,6 +4,7 @@
 // ./pageRequestNotes.ts.
 
 import type { BrowserContext, Page } from "@playwright/test";
+import { agentChangedEndpoint } from "../src/agentLaunch.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { projectListEndpoint } from "../src/projectConfiguration.ts";
@@ -18,7 +19,8 @@ export function isCheck(url: string): boolean {
 
 // What the page notes about its own requests (see `noteRequestsInPage`):
 // the page times at which it asked for revision checks, every request it has
-// sent that is not yet answered, of those its reads of the local read
+// sent that is not yet answered, of those the ones it does not hold open
+// until a running launch attempt changes, of those its reads of the local read
 // boundary other than revision checks, and of those reads the ones of the
 // published work itself: the source's ref and backlog, or the backlog at a
 // revision already resolved, which name a source, at most a revision, and
@@ -29,6 +31,7 @@ export function isCheck(url: string): boolean {
 export type RequestsNoted = {
   revisionChecksAskedAt?: number[];
   requestsUnanswered?: Set<Promise<unknown>>;
+  requestsUnansweredButChangeWaits?: Set<Promise<unknown>>;
   readsUnanswered?: Set<Promise<unknown>>;
   publishedWorkReadsUnanswered?: Set<Promise<unknown>>;
   doneMarksUnanswered?: Set<Promise<unknown>>;
@@ -49,11 +52,13 @@ function noteRequestsInPage({
   readPath,
   projectListPath,
   doneMarkPath,
+  changeWaitPath,
 }: {
   readonly checkParameter: string;
   readonly readPath: string;
   readonly projectListPath: string;
   readonly doneMarkPath: string;
+  readonly changeWaitPath: string;
 }): void {
   const noted = window as RequestsNoted & typeof window;
   if (noted.revisionChecksAskedAt !== undefined) {
@@ -61,11 +66,13 @@ function noteRequestsInPage({
   }
   const askedAt: number[] = [];
   const unanswered = new Set<Promise<unknown>>();
+  const unansweredButChangeWaits = new Set<Promise<unknown>>();
   const readsUnanswered = new Set<Promise<unknown>>();
   const publishedWorkReadsUnanswered = new Set<Promise<unknown>>();
   const doneMarksUnanswered = new Set<Promise<unknown>>();
   noted.revisionChecksAskedAt = askedAt;
   noted.requestsUnanswered = unanswered;
+  noted.requestsUnansweredButChangeWaits = unansweredButChangeWaits;
   noted.readsUnanswered = readsUnanswered;
   noted.publishedWorkReadsUnanswered = publishedWorkReadsUnanswered;
   noted.doneMarksUnanswered = doneMarksUnanswered;
@@ -93,11 +100,15 @@ function noteRequestsInPage({
       .catch(() => undefined)
       .finally(() => {
         unanswered.delete(answered);
+        unansweredButChangeWaits.delete(answered);
         readsUnanswered.delete(answered);
         publishedWorkReadsUnanswered.delete(answered);
         doneMarksUnanswered.delete(answered);
       });
     unanswered.add(answered);
+    if (url.pathname !== changeWaitPath) {
+      unansweredButChangeWaits.add(answered);
+    }
     if (read) {
       readsUnanswered.add(answered);
     }
@@ -116,6 +127,7 @@ const notedRequests = {
   readPath: authenticatedReadEndpoint,
   projectListPath: projectListEndpoint,
   doneMarkPath: agentDoneEndpoint,
+  changeWaitPath: agentChangedEndpoint,
 };
 
 export async function noteRequestsInOpenPage(page: Page): Promise<void> {

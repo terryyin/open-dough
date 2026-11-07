@@ -54,7 +54,6 @@ test("an unread report is its own mark beside the session's native reading", asy
   dashboard,
   origin,
 }) => {
-  test.setTimeout(180_000);
   const storyA = await launchedStory(dashboard, origin, queuedIdentity, titleA);
   const storyB = await launchedStory(
     dashboard,

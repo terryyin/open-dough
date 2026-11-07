@@ -26,7 +26,6 @@ import { expectSelected } from "../storyCardSelection.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
-  test.setTimeout(120_000);
   journey = await publishStoryColumnsJourney();
 });
 test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());

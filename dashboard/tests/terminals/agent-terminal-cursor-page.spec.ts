@@ -35,7 +35,6 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const original = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,

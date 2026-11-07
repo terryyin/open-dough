@@ -24,7 +24,6 @@ const helperGoneThirdId = "b2c3d4e5-f6a7-489a-bcde-f01234567890";
 workingCursorTest(
   "a same-build runner whose helper proof drifted keeps held sessions running when another Cursor session starts",
   async ({ page, dashboard, origin, cursor }) => {
-    workingCursorTest.setTimeout(180_000);
     workingCursorTest.skip(
       cursorRunnerSpawnHelper() === undefined,
       "this install's node-pty ships no separate terminal helper",

@@ -33,7 +33,6 @@ test.use({ projectFolders: ["open-dough"] });
 test.describe("reopening a session marked done from its Recently done entry", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

@@ -43,7 +43,6 @@ async function changedBody(server: DashboardServer, id: string, seen?: number) {
 }
 
 test("a wait naming the changes its asker saw answers at once a change told while nothing waited, and otherwise at the next change", async () => {
-  test.setTimeout(120_000);
   const server = await startDashboardServer({
     mode: "boundary",
     projectFolders: ["open-dough"],
@@ -95,7 +94,6 @@ test("a wait naming the changes its asker saw answers at once a change told whil
 const observedChangeWaitMs = 500;
 
 test("a non-owner with nothing new to tell consumes the configured change bound", async () => {
-  test.setTimeout(120_000);
   const origin = await startOrigin();
   const push = origin.holdPushes();
   let owner: DashboardServer | undefined;

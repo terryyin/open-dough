@@ -32,13 +32,10 @@ import {
   actionsWorkflowAnswer,
 } from "../support/baseCiActions.ts";
 
-test.setTimeout(240_000);
-
 test("a Trunk Mode done story marks Branch not applicable and Landed as an ancestor when needed", async ({
   page,
   origin,
 }) => {
-  test.slow();
   // Baseline before the claim; implementation during the story has the only
   // post-start build; completion touches .planning/ only and has none.
   writeAt(origin.project, "src/built.ts", "built before claim\n");
@@ -103,7 +100,6 @@ test("a running landed build leaves the branch comparison readable and marks an 
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishComparedStoryBranch(page, origin);
   serveObservedComparisonAttempts(setup, "running");
   const { panel } = await selectDoneStoryForCiComparison(page);
@@ -141,7 +137,6 @@ for (const [workflow, reason] of [
     page,
     origin,
   }) => {
-    test.slow();
     const setup = await publishCodeLandedBeforeCompletion(
       page,
       origin,
@@ -167,7 +162,6 @@ test("a missing landed build explains itself without inventing zero", async ({
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishComparedStoryBranch(page, origin);
   setup.serveRuns({
     [setup.baseline]: [
@@ -199,7 +193,6 @@ test("without builds at a fast-forward tip Branch and Landed explain gaps while 
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishFastForwardLandedStory(page, origin);
   setup.serveRuns({
     [setup.baseline]: [

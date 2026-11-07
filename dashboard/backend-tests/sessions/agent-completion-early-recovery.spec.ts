@@ -20,7 +20,6 @@ import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 
 test("deleted early Claude binding cannot be resurrected before attempt settlement", async () => {
-  test.setTimeout(120000);
   const origin = await startOrigin();
   const hold = path.join(origin.machine, "hold-settlement");
   const reached = path.join(origin.machine, "settlement-held");

@@ -44,8 +44,6 @@ import {
 } from "../autoRefreshJourney.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 
-test.setTimeout(120_000);
-
 const changedInFirstLocation = [
   changed.modified,
   changed.added,

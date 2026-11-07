@@ -34,7 +34,6 @@ test("a queued story starts Cursor refinement and the published assignment is wh
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const original = (await origin.originGit("rev-parse", "main")).trim();
   const commitsBefore = Number(
     (await origin.originGit("rev-list", "--count", "main")).trim(),

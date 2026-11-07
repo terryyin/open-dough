@@ -29,7 +29,6 @@ import {
 test("limiting a profile's history leaves its human unknown in the scan view, names the limit and its time in the detail and the roster, keeps another profile's credit, and asks nothing until then", async ({
   page,
 }) => {
-  test.setTimeout(90_000);
   const creditedHuman = "Yuri Credited";
   const { answers, other } = await openedBeside(
     page,

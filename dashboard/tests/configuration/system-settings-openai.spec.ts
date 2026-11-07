@@ -28,7 +28,12 @@ test("empty-project settings saves private general access, shares it across dev/
     )
       browserEgress.push(url.host);
   });
-  const server = await fixture.start("dev");
+  // Both servers start together. The restart is the preview's: a restarted
+  // development server would compile every module of its page again.
+  const [server, preview] = await Promise.all([
+    fixture.start("dev"),
+    fixture.start("preview"),
+  ]);
   await openUntilRead(page, `${server.baseURL}/?view=settings`);
   await expect(
     page.getByText("No projects configured. Add a project to get started."),
@@ -68,16 +73,15 @@ test("empty-project settings saves private general access, shares it across dev/
   await back(page).click();
   await settings(page).click();
   await expect(apiKey(page)).toHaveValue("");
-  const port = Number(new URL(server.baseURL).port);
-  await fixture.stop(server);
-  const restarted = await fixture.start("dev", port);
-  await page.reload();
-  await expect(status(page)).toHaveText("API key: Configured");
-  await expect(apiKey(page)).toHaveValue("");
-  const preview = await fixture.start("preview");
   const second = await context.newPage();
   await second.goto(`${preview.baseURL}/?view=settings&project=doughnut`);
   await expect(status(second)).toHaveText("API key: Configured");
+  const port = Number(new URL(preview.baseURL).port);
+  await fixture.stop(preview);
+  const restarted = await fixture.start("preview", port);
+  await second.reload();
+  await expect(status(second)).toHaveText("API key: Configured");
+  await expect(apiKey(second)).toHaveValue("");
   await apiKey(second).fill(replacement);
   await save(second).click();
   await expect(apiKey(second)).toHaveValue("");

@@ -24,8 +24,6 @@ import {
   uncommittedCheck,
 } from "../support/storyReviewMark.ts";
 
-test.setTimeout(120_000);
-
 // Review changes lists every file Intent counted, the outside ones too.
 async function expectIntentFiles(page: Page) {
   const files = reviewRegion(page).locator(".story-review-files");

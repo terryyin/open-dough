@@ -32,28 +32,35 @@ let runner: { port: number; pid: number };
 let cursorSessionId: string;
 let cursorClientPid: number;
 const sockets: { close(): void }[] = [];
+// Setup publishes pinned main and starts the watcher; the first test observes
+// its activation and the next starts development, so the shared hook holds
+// only the preparation.
 test.beforeAll(async ({ browser }) => {
-  test.setTimeout(180_000);
-  ({ env, developmentUrl, pinned, served, runner } =
-    await machine.start(browser));
+  ({ env, pinned } = await machine.start(browser));
 });
 test.afterAll(async () => {
   for (const socket of sockets) socket.close();
   await machine.close();
 });
 
-test("npm watcher serves published main beside hot-reloaded uncommitted development and enforces the local boundaries", async ({
-  browser,
-  request,
-}) => {
-  test.setTimeout(60_000);
+test("npm watcher activates published main and starts the Cursor runner", async () => {
   const watcher = machine.watcher;
   if (watcher === undefined) throw new Error("No watcher");
-  const { productionPage, developmentPage } = started();
+  ({ served, runner } = await machine.activated(pinned));
   expect(watcher.output()).toContain(
     `Preparing production dashboard ${pinned}.`,
   );
   expect(processRunning(served.pid)).toBe(true);
+});
+
+test("npm watcher serves published main beside hot-reloaded uncommitted development and enforces the local boundaries", async ({
+  browser,
+  request,
+}) => {
+  const watcher = machine.watcher;
+  if (watcher === undefined) throw new Error("No watcher");
+  developmentUrl = await machine.developmentStarted(env);
+  const { productionPage, developmentPage } = started();
   expect(served.url).not.toBe(developmentUrl);
   await productionPage.goto(served.url);
   await expect(productionPage).toHaveTitle("PINNED MAIN");
@@ -106,7 +113,6 @@ test("npm watcher serves published main beside hot-reloaded uncommitted developm
   ).toBe(403);
 });
 test("the production command starts one Cursor runner outside the preview's process group, which a launched Cursor session uses", async () => {
-  test.setTimeout(60_000);
   const { fixture, cursor } = started();
   expect(processGroup(runner.pid)).toBe(runner.pid);
   expect(processGroup(served.pid)).toBe(served.pid);
@@ -125,7 +131,6 @@ test("the production command starts one Cursor runner outside the preview's proc
 });
 
 test("the next published main replaces production at the same URL and leaves the runner and its client in place", async () => {
-  test.setTimeout(90_000);
   const watcher = machine.watcher;
   if (watcher === undefined) throw new Error("No watcher");
   const { fixture, cursor, productionPage } = started();
@@ -150,7 +155,6 @@ test("the next published main replaces production at the same URL and leaves the
 test("stopping the watcher ends production and its checkouts and leaves development, the runner and its client", async ({
   request,
 }) => {
-  test.setTimeout(60_000);
   const watcher = machine.watcher;
   if (watcher === undefined) throw new Error("No watcher");
   const { fixture, developmentPage } = started();
@@ -171,7 +175,6 @@ test("stopping the watcher ends production and its checkouts and leaves developm
 test("an occupied production port is refused rather than moved", async ({
   request,
 }) => {
-  test.setTimeout(60_000);
   const { fixture } = started();
   const deployments = productionDeployments(fixture.home);
   const occupied = await occupyProductionPort(served.url);
@@ -200,7 +203,6 @@ test("an occupied production port is refused rather than moved", async ({
 test("a restart serves current main as its baseline with the same runner, and SIGINT ends it", async ({
   request,
 }) => {
-  test.setTimeout(90_000);
   const { fixture, cursor, productionPage } = started();
   const deployments = productionDeployments(fixture.home);
   const current = await fixture.publish(

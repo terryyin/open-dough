@@ -62,8 +62,10 @@ async function passTimeUntilLimited(page: Page) {
 test("auto refresh rate limit: a rate-limited check waits as GitHub directs before checking again, offers no Retry, and the check at the directed time reads B, clears the failure, and restores the steady pace", async ({
   page,
 }) => {
-  // About twenty seconds of it are GitHub's waits passing by the real clock.
-  test.setTimeout(90_000);
+  // About twenty seconds of it are GitHub's waits passing by the request
+  // owner's real clock; see the pending optimization candidate
+  // `auto-refresh-rate-limit-real-waits`.
+  test.setTimeout(45_000);
   const origin = await openSettledAtA(page);
   const { problem, retrievedAt } = parts(page);
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";

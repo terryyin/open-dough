@@ -16,7 +16,6 @@ import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 
-test.setTimeout(120_000);
 test.use({ preparationHost: "codex" });
 
 test("Codex retained retry refuses lost workspace without replacing its preparation", async ({

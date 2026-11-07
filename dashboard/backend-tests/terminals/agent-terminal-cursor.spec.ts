@@ -78,7 +78,6 @@ test.describe(`Cursor embedded terminal`, () => {
   test("a working Cursor client survives detach and a new socket joins it", async ({
     cursor,
   }) => {
-    test.setTimeout(120_000);
     const machine = mkdtempSync(path.join(tmpdir(), "dough-cursor-terminal-"));
     let server: DashboardServer | undefined;
     try {

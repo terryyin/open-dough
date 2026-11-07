@@ -43,7 +43,6 @@ const detailOf = (record: LaunchRecord | AnsweredEntry) => ({
 });
 
 test("the regular answer lists 1,000 done sessions by their listing facts beside five open ones in full; the history answers them in full", async () => {
-  test.setTimeout(120_000);
   const machine = mkdtempSync(path.join(tmpdir(), "dough-sessions-listing-"));
   const codex = await installFakeCodex(
     machine,

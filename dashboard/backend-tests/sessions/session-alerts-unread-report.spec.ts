@@ -29,7 +29,6 @@ import {
 } from "../../tests/support/startOrigin.ts";
 
 test("a report arriving unread raises one notification in its own words, apart from the native reading, and none once marked done", async () => {
-  test.setTimeout(120_000);
   const origin = await startOrigin();
   const server = await startDashboardServer({
     mode: "boundary",

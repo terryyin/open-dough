@@ -73,6 +73,12 @@ was made only after real network turns (`checksAskedWhilePassing`, or
 `expect.poll`), and give each scenario its own revisions: the boundary answers
 a repeated pinned revision from memory without calling `gh`.
 
+A server's shared-observation reuse window, such as the revision-check
+listing's `checkReuseMs`, runs on the server's clock, not the page's. A
+journey that sets `observationClock` with `test.use` moves that clock past the
+window with `dashboard.advanceObservationClock` instead of waiting it out
+(`observation/shared-observer-check-reuse.spec.ts`).
+
 ## Commands, servers and shared preconditions
 
 A command started with `dashboardCommand` (`support/dashboardCommand.ts`) is
@@ -81,14 +87,20 @@ production watcher finishes removing its deployment checkouts; a directly
 spawned server is ended by `endGroup` (`support/processGroup.ts`), which
 kills the group 5 seconds after its signal. Follow the repository's
 [test automation rules](../../AGENTS.md#test-automation) for timeouts. An override
-inside a test takes effect after fixture setup. The full-source fixture's copy
-and `git add` take about 2 seconds alone and 13 to 20 when eight workers build it
-at once. The production journeys (`production-watcher*.spec.ts`) build that
-fixture and start the real watcher once per serial file in `beforeAll`. Each
-test steps the shared watcher to its next state and asserts the delta it observes
+inside a test takes effect after fixture setup. The full-source fixture adds
+its copy in one pack: copy, `git add` and first push take about 2 seconds alone
+and 3 when four build it at once. The production journeys (`production-watcher*.spec.ts`)
+build that fixture once per serial file in `beforeAll`. The lifecycle and
+update files' hooks also start the real watcher, and their first tests observe
+its first activation where they assert it, so those hooks hold only the
+preparation and its development install. The failure file starts the watcher
+in its first test and again in each test that follows a scenario ending it.
+Each test steps the watcher to its next state and asserts the delta it observes
 (`support/productionWatcher.ts`: reported activations, replacements and skips,
 recorded builds, or successful Git reads recorded through fixture-local Trace2
 events). Routine checks remain quiet; the tests never use a fixed wait.
+A wait on a deployment step polls with `timeout: 0`, so the test timeout
+alone bounds it, as it bounds any answer.
 `afterAll` stops the watcher and cleans the fixture up.
 In a serial file a failing test skips the file's later tests, and a test
 that ends the watcher hands the next one a restart at current main. A

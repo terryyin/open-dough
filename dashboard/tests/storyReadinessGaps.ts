@@ -159,6 +159,8 @@ export async function expectFailedPlanKeepsSupportedFacts(
   openDough: ReadinessRepo,
   origin: CommittedOrigin,
 ) {
+  // A next revision for the page to check while the blocked story's plan
+  // cannot be retrieved; the Taken story's plan association still agrees.
   writePlanning(
     openDough.directory,
     "PRODUCT-BACKLOG.md",
@@ -167,7 +169,7 @@ export async function expectFailedPlanKeepsSupportedFacts(
   const next = commitPaths(
     openDough.directory,
     [".planning/PRODUCT-BACKLOG.md"],
-    "Restore agreeing plan association before plan failure",
+    "Publish an agreeing plan association before plan failure",
   );
   openDough.advanceTo(next);
   origin.advanceTo(next);
@@ -214,7 +216,8 @@ export async function expectFailedPlanKeepsSupportedFacts(
   await expect(
     readyCard.getByText("Plan association conflict", { exact: true }),
   ).toHaveCount(0);
-  // A fresh assessment remains Ready when plan association agrees.
+  // The plan failure stays the blocked story's own gap: the Taken story's
+  // agreeing association shows no conflict and no change since review.
   await expect(
     readyCard.getByText("Changed since readiness review", { exact: true }),
   ).toHaveCount(0);

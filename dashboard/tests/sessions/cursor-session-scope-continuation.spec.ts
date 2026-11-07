@@ -38,7 +38,6 @@ test("recovery and terminal open resume a scoped session through its recorded sc
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await startScopedCursorExecution(page, origin, cursor, dashboard.home);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
@@ -101,7 +100,6 @@ test("cannot-load replacement for a scoped session keeps the scope and sends no 
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await startScopedCursorExecution(page, origin, cursor, dashboard.home);
   const [before] = keptRecords(dashboard.home);
   if (before?.session.host !== "cursor") throw new Error("Missing Cursor.");
@@ -162,7 +160,6 @@ test("a missing or unreadable recorded scope refuses recovery and terminal open,
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await startScopedCursorExecution(page, origin, cursor, dashboard.home);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
@@ -209,7 +206,6 @@ test("a Default session's recovery carries no scope, exactly as before", async (
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await startCursorExecution(page, origin, cursor, dashboard.home);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");

@@ -42,7 +42,6 @@ test("an unfinished not-held Cursor session says the agent is not running, offer
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const entry = await openStoppedCursorEntry(
     page,
     origin,
@@ -64,7 +63,6 @@ test("Recover on the idle composer with confirmed first input resumes the same c
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await startCursorExecution(page, origin, cursor, dashboard.home);
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(record?.firstInput?.state).toBe("confirmed");
@@ -112,7 +110,6 @@ test("Recover on a working screen types nothing", async ({
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const entry = await openStoppedCursorEntry(
     page,
     origin,
@@ -134,7 +131,6 @@ test("Recover with unconfirmed first input types nothing", async ({
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await openTakenCursorSession(page, origin);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
@@ -174,7 +170,6 @@ test("done and completed sessions offer no Recover", async ({
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await openTakenCursorSession(page, origin);
   await endHeldClient(page, cursor, dashboard.home);
   const [record] = keptRecords(dashboard.home);
@@ -229,7 +224,6 @@ test("runner not running offers Recover; the click starts the runner and resumes
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await openTakenCursorSession(page, origin);
   const calls = agentCalls(cursor);
   const attaches = cursor.attaches().length;

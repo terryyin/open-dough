@@ -2,7 +2,100 @@
 
 ## Pending candidates
 
-None.
+### auto-refresh-rate-limit-real-waits
+
+- **Locations / scope:** `dashboard/tests/observation/auto-refresh-rate-limit.spec.ts`,
+  the one case, with its case-local `test.setTimeout(45_000)`.
+- **Observed cost:** 25.2s in hosted run 42372706379; 21.7s locally before
+  SEED-260 slice 2 and 21.5s after it (2 workers, load about 4–6,
+  2026-11-07). About 20s is real time passing: a 2s `Retry-After` wait, then
+  a `X-RateLimit-Reset` wait of 16–18s.
+- **Unique protection:** the page asks nothing, even when seen again, before
+  GitHub's directed time; the check at that time reads B and clears the
+  failure; a reset-time wait longer than the 15s pace proves the next check
+  follows the directed time, not the pace; the steady pace then returns.
+- **Alternatives attempted:** the page clock is already paused and stepped.
+  The server cannot pass the waits sooner because the request owner
+  (`src/skills/dough-execute-plan/scripts/github-request-admission.mjs`,
+  a separate released-payload process) holds every read by its real clock.
+  The reset wait cannot be shortened below the 15s pace without losing the
+  directed-time-versus-pace distinction. The shared-observation clock seam
+  added in the same slice (`dashboard/server/observationClock.ts`) does not
+  reach the request owner.
+- **Disposition / rationale:** pending — the case keeps the smallest
+  measured allowance until the request owner's clock can be controlled.
+- **Date:** 2026-11-07
+- **Human decision needed:** whether the request owner, which is released
+  payload code, may take a test-controlled clock, as the dashboard server's
+  reuse window now does.
+- **Evidence / follow-up:** hosted run 42406259249 measured 25.4s. With that
+  seam the case can drop the allowance and the real waits, and the 6s
+  directed-wait span left in `revision-stream-lost.spec.ts` (rate-limited
+  stream case) can go too.
+
+### production-deployment-pinned-build
+
+- **Locations / scope:** `dashboard/tests/runtime/production-deployment.spec.ts`,
+  the pinned install, build and serve case, with its case-local
+  `test.setTimeout(45_000)`.
+- **Observed cost:** 32.1s in hosted run 42372706379. Locally 10.4s before
+  SEED-260 slice 6 and 7.3s after it (2 workers, load about 2–4); 15.5–28.5s
+  in a six-worker repeated family run at load about 14 (2026-11-08).
+- **Unique protection:** the pinned commit, not the later main, is fetched,
+  installed with `npm ci`, built and served from its own checkout outside
+  development, with local cartoons and supplied icons, the preview boundaries,
+  and a clean preview stop recorded in its incident record.
+- **Alternatives attempted:** the full-source fixture now adds its copy in one
+  pack (`core.bigFileThreshold=1`), which removed most of its contended
+  `git add` cost. The remaining cost is the real dependency install (about
+  11,000 files) and Vite build the case proves; a substitute or shared build
+  would lose that proof, and moving staging into a shared hook would only
+  move the cost there.
+- **Disposition / rationale:** pending — the case keeps the smallest
+  allowance above its measured hosted cost until hosted timing after the
+  fixture change shows whether it is still needed.
+- **Date:** 2026-11-08
+- **Evidence / follow-up:** hosted run 42406259249 measured 17.4s, against
+  32.1s before the fixture change. Hosted cases vary by up to about 2x between
+  runs. Remove the allowance once two or more hosted runs keep it at 15s or
+  less; otherwise decide whether a cheaper dependency set may stand in for the
+  full install.
+
+### hosted-margin-dashboard-journeys
+
+- **Locations / scope:** dashboard cases that have no allowance and took
+  20–25s in hosted run 42406259249, against the 30s default. Watcher steps:
+  `production-watcher-updates.spec.ts` (held commit, next-commit
+  replacement); `production-watcher-failures.spec.ts` (preview ended, restart
+  after hang-up, failed preview start); `productionUpdatePolicies.ts`
+  (accumulated range, policy repair, next commit after failure). Other cases:
+  `responsive-session-reconciliation.spec.ts:46`,
+  `agent-completion-recovery.spec.ts:26`,
+  `cursor-runner-replacement.spec.ts:84`, `sessions-sidebar.spec.ts:56`,
+  `agent-launch-attention.spec.ts` (Taken card).
+- **Observed cost:** 20.3–23.9s each in that run, with 35 further cases at
+  15–20s. Across 2,122 cases matched with run 42372706379, the median ratio
+  was 1.02 and p90 was 1.53. One unchanged case went from 13.8s to 26.5s. Two
+  cases that had passed at 25s timed out in runs 42395811294 and 42399373902
+  before being split.
+- **Unique protection:** each case's own journey; watcher steps keep one real
+  install, build and preview staging each.
+- **Alternatives attempted:** journeys that reached 22–28.5s were split or had
+  real costs removed. Single-staging watcher steps cannot be split further.
+  The suite-wide cost is fake `gh` and `claude` Node process starts plus
+  tracing. Locally, one journey used about 10.5s of CPU for 6.4s of wall time.
+- **Disposition / rationale:** pending — they pass with margin in most runs,
+  but hosted variance can push them to the default.
+- **Date:** 2026-11-08
+- **Evidence / follow-up:** judge margins across several hosted runs, or
+  against a 16–24-worker local stand-in with tracing on. Reduce the shared
+  per-journey cost, such as fake-host process starts and trace capture, before
+  splitting more journeys. Repair any case that times out under the failing
+  and flaky test policy. Related: explicit waits over 30s outside the
+  watcher files, such as `recentlyDoneRefresh.ts` `toPass` 45s and
+  `responsive-session-recovery-verification.spec.ts` 60s. About 40 short
+  elapsed waits, such as absence windows and settle delays, still break the
+  rule against waiting for wall-clock time.
 
 ## Accepted necessary costs
 
@@ -38,7 +131,10 @@ None.
   timing was retained in the legacy disposition. After SEED-221 removed the
   close/reopen races' poll waits, focused runs of the ad-hoc-terminal spec
   took 1.7–1.9s per race against a 16.4–17.0s baseline (local, load 4.7–5.4,
-  2026-11-02).
+  2026-11-02). SEED-260 slice 4 passed the second-server page's reads with
+  the paused page clock and gave the second server its own short slow-start
+  threshold: 48.9s → 6.3s locally (load 4–6), from 55.6s in CI, at the
+  default case timeout.
 - **Unique protection:** dual-preview page protection through reload and
   project switch, and immediate terminal attachment after an ad hoc launch.
 - **Alternatives attempted:** cheaper server-only refusal and non-owner
@@ -69,7 +165,22 @@ None.
   additive local suite-wall savings; the chain showed no reliable elapsed
   improvement. After SEED-221 removed the attention journey's two poll waits,
   focused runs took 6.1–7.0s against a 36.1–36.2s baseline (local, load
-  12.6–13.3, 2026-11-02).
+  12.6–13.3, 2026-11-02). SEED-260 slice 6 added the full-source fixture in one
+  pack and moved the first activation from the lifecycle and update hooks into
+  the first test that asserts it. Their hooks went from 24.1s and 28.6s in CI
+  (13.9s and 13.5s locally) to 4.5s and 5.4s locally, and the failure file's
+  hook from 10.5s to 7.5s, all at the default timeout. The failure file's
+  first activation then also moved from its hook into its first test, since
+  hosted CI showed a single staging costs about 11–15s, so each failure-file
+  test stages at most one deployment. The two-build held
+  update and the policy case were split into serial steps. Slice 7 split the
+  82.1s CI recovery case (27.0s locally) into five serial steps, each at most
+  6.1s locally. Its documentation-only commit now reaches main while the
+  failing commit's build is held, and that build consumes its one-shot cause
+  as it fails, so the failed commit is not retried and the next commit does
+  not fail first; the steps assert both. The failure file's two-build cases became
+  serial steps with a separate restart step. Every case override in these
+  files was removed.
 - **Unique protection:** attention reporting remains durable and readable
   through column changes, retirement, restart, Mark as read, and Mark as done;
   production-watcher journeys retain real activation, published-policy,

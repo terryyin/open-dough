@@ -34,7 +34,6 @@ test("an original kept bound launch first captures and retries after its actual 
   origin,
   codexProtocol: native,
 }) => {
-  test.setTimeout(120000);
   if (native === undefined) throw new Error("No native fixture");
   await dashboard.close();
   const clock = landingRetentionClock(origin.machine);

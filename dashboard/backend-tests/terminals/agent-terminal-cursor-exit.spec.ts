@@ -15,8 +15,6 @@ import { processRunning } from "../../tests/support/processGroup.ts";
 const instruction = "hold this launch";
 
 test.describe(`Cursor client exit`, () => {
-  test.describe.configure({ timeout: 120_000 });
-
   test("a client that exits before the prompt is accepted shows Cursor's text and Continue adds no session", async () => {
     const printed = "Error: No prompt provided for print mode\r\n";
     const cursor = installFakeCursor({

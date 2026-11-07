@@ -102,7 +102,6 @@ test("Cursor installed report offers local Done without a native stop capability
   origin,
   cursor,
 }) => {
-  test.setTimeout(120000);
   const { card, message, receipt } = await reportedCursorCard({
     page,
     dashboard,
@@ -158,7 +157,6 @@ test("a Cursor session with a read completed report whose runner cannot be reach
   origin,
   cursor,
 }) => {
-  test.setTimeout(120000);
   const { card, receipt } = await reportedCursorCard({
     page,
     dashboard,

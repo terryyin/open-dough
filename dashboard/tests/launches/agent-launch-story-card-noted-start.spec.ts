@@ -91,7 +91,6 @@ const launchPaint = (button: Locator) =>
 test.describe("a Backlog card's Starts", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

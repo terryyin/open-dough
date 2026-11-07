@@ -33,8 +33,6 @@ import { selectDoneStoryForSummaryComparison } from "../support/selectDoneStoryF
 import { expectSelected } from "../storyCardSelection.ts";
 import { modifiedFileRow } from "../support/summaryComparisonFileExpectedRows.ts";
 
-test.setTimeout(120_000);
-
 const cuedFileLabel = summaryComparisonChanges.modified;
 const cuedFilePath = "dashboard/tests/folder/a.spec.ts";
 const proofCounts = modifiedFileRow[1];

@@ -42,7 +42,6 @@ test.describe("with the three catalog projects' sessions", () => {
   test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

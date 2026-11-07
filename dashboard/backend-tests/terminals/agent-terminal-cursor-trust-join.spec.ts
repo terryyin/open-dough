@@ -15,8 +15,6 @@ import { processRunning } from "../../tests/support/processGroup.ts";
 const instruction = "hold this trust launch";
 
 test.describe(`Cursor trust screen join`, () => {
-  test.describe.configure({ timeout: 120_000 });
-
   for (const screen of ["trust", "trust-unframed"] as const) {
     test(`a terminal joined after the launch wait shows the ${screen} Cursor trust prompt`, async () => {
       const cursor = installFakeCursor({ screen });

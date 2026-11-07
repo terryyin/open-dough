@@ -25,7 +25,6 @@ import {
 test("not yet due, turned off, no due block, or a failed read starts nothing and notifies nothing; the failed read shows in the read diagnostics", async ({
   github,
 }) => {
-  test.setTimeout(120_000);
   const origin = await startOrigin();
   const moving = await publishMovingOrigin(github);
   const server = await serverOn(origin, github);
@@ -88,7 +87,6 @@ test("not yet due, turned off, no due block, or a failed read starts nothing and
 test("a developer's open session with the cycle's invocation is the machine's feedback maintenance session: nothing more starts while it is open", async ({
   github,
 }) => {
-  test.setTimeout(120_000);
   const origin = await startOrigin();
   const moving = await publishMovingOrigin(github);
   pushWatchList(moving, watchListDue(dayFromToday(-1)));

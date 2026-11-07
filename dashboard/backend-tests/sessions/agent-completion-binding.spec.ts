@@ -33,7 +33,6 @@ const exec = promisify(execFile);
 for (const quiet of [false, true])
   for (const recheck of [false, true])
     test(`Claude early ${quiet ? "quiet completion" : "attention report"} binds through ${recheck ? "native Recheck" : "normal launch"} and survives late native writers`, async () => {
-      test.setTimeout(120000);
       const origin = await startOrigin();
       const server = await startDashboardServer({
         mode: "boundary",

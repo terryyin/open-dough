@@ -29,7 +29,6 @@ test("scrolling Recently done does not eagerly read older Board done-story detai
   page,
   dashboard,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
   // Place the forty-five machine Dones older than Board's progressive entries

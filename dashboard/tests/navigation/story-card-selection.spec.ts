@@ -35,8 +35,6 @@ import {
   storyDetail,
 } from "../storyCardSelection.ts";
 
-test.setTimeout(120_000);
-
 test("Select story and empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async ({
   page,
   dashboard,

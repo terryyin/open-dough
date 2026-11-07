@@ -12,7 +12,6 @@ import {
   publishDoneReferences,
 } from "../storyReferenceDone.ts";
 
-test.setTimeout(120_000);
 test.use({ hasTouch: true });
 
 test("a developer's later move or latest-ten choice supersedes a pending Done reference", async ({

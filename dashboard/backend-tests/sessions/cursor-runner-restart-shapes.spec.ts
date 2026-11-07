@@ -33,7 +33,6 @@ import {
 import { processRunning } from "../../tests/support/processGroup.ts";
 
 test("a dead pid with its stale address left behind starts a fresh current runner, and the recorded session is kept again there", async () => {
-  test.setTimeout(60_000);
   const fixture = startRunnerProofFixture();
   try {
     await keepWorkingClient(fixture);
@@ -61,7 +60,6 @@ test("a dead pid with its stale address left behind starts a fresh current runne
 });
 
 test("a port reused after the runner died does not revive its stale address", async () => {
-  test.setTimeout(60_000);
   const fixture = startRunnerProofFixture();
   const sockets = new Set<net.Socket>();
   const squatter = net.createServer((socket) => {
@@ -106,7 +104,6 @@ test("a port reused after the runner died does not revive its stale address", as
 });
 
 test("an unrelated process reusing the recorded pid and port proves no current build: new work starts no agent and leaves it alone", async () => {
-  test.setTimeout(60_000);
   const fixture = startRunnerProofFixture();
   // This test process itself is the unrelated process: it accepts on
   // the recorded port and its own alive pid is recorded, so the
@@ -152,7 +149,6 @@ test("an unrelated process reusing the recorded pid and port proves no current b
 });
 
 test("a runner whose recorded build proof is stale is left by start-if-absent and replaced before the next launch", async () => {
-  test.setTimeout(60_000);
   const fixture = startRunnerProofFixture();
   try {
     await keepWorkingClient(fixture);

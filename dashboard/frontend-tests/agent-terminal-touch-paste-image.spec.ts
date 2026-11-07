@@ -26,7 +26,6 @@ test.use({
   hasTouch: true,
   permissions: ["clipboard-read", "clipboard-write"],
 });
-test.setTimeout(60_000);
 
 const title = "Phone clipboard session";
 

@@ -100,7 +100,6 @@ test("Recheck records the one session the uncertain launch started, and the card
   dashboard,
   launchJourney,
 }) => {
-  test.setTimeout(90_000);
   dashboard.claudeScenario("launched-hang");
   // The read the uncertain settling asks is still under way when Recheck
   // answers, so the read asked after the launch settled must still follow.
@@ -134,7 +133,6 @@ test("Recheck finding no session this launch started, among others listed, settl
   dashboard,
   launchJourney,
 }) => {
-  test.setTimeout(90_000);
   dashboard.claudeScenario("hang");
   const { card, start, name, cwd, acceptedAt } = await uncertainLaunch(
     page,
@@ -182,7 +180,6 @@ test("Recheck keeps the story protected, saying why, while the listing cannot be
   dashboard,
   launchJourney,
 }) => {
-  test.setTimeout(90_000);
   dashboard.claudeScenario("launched-hang");
   const { card, name, cwd } = await uncertainLaunch(
     page,

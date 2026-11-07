@@ -28,7 +28,6 @@ test("early accepted landing survives a real record EIO and lost receipt before 
   origin,
   codexProtocol,
 }) => {
-  test.setTimeout(120000);
   const native = codexProtocol;
   if (native === undefined) throw new Error("No native fixture");
   await dashboard.close();

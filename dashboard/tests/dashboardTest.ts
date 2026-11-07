@@ -63,6 +63,20 @@ export function fixtureServerMode(serverMode: FixtureServerMode) {
     : ({ mode: "boundary" } as const);
 }
 
+// The dashboard server's environment from the `extraEnv` and
+// `startTimeoutMs` options.
+export function fixtureExtraEnv(
+  extraEnv: Readonly<Record<string, string>> | undefined,
+  startTimeoutMs: number | undefined,
+) {
+  return {
+    ...extraEnv,
+    ...(startTimeoutMs === undefined
+      ? {}
+      : { DOUGH_START_TIMEOUT_MS: String(startTimeoutMs) }),
+  };
+}
+
 // Page time stands still at `at` until a journey lets it pass. The clock is
 // installed an hour earlier because it runs until paused, and Playwright
 // refuses to pause it in the past; no page is open yet, so that hour fires
@@ -101,6 +115,9 @@ export const test = base.extend<{
   pathPrefix: readonly string[] | undefined;
   // Listing reuse ms; harness default and meaning live on `startDashboardServer`.
   revisionCheckReuseMs: number | undefined;
+  // Whether the journey runs the server's reuse-window clock itself
+  // (`dashboard.advanceObservationClock`); harness meaning on `startDashboardServer`.
+  observationClock: boolean;
   serverMode: FixtureServerMode;
   // When true (the default), the context pre-holds both stream slots so
   // existing check journeys keep proving check delivery. Stream journeys set
@@ -119,6 +136,7 @@ export const test = base.extend<{
   extraEnv: [undefined, { option: true }],
   pathPrefix: [undefined, { option: true }],
   revisionCheckReuseMs: [undefined, { option: true }],
+  observationClock: [false, { option: true }],
   serverMode: ["preview", { option: true }],
   preholdRevisionStreamSlots: [true, { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
@@ -151,6 +169,7 @@ export const test = base.extend<{
       extraEnv,
       pathPrefix,
       revisionCheckReuseMs,
+      observationClock,
       serverMode,
     },
     use,
@@ -164,13 +183,9 @@ export const test = base.extend<{
       machine,
       codexProtocol,
       revisionCheckReuseMs,
+      observationClock,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
-      extraEnv: {
-        ...extraEnv,
-        ...(startTimeoutMs === undefined
-          ? {}
-          : { DOUGH_START_TIMEOUT_MS: String(startTimeoutMs) }),
-      },
+      extraEnv: fixtureExtraEnv(extraEnv, startTimeoutMs),
     });
     await use(server);
     await server.close();

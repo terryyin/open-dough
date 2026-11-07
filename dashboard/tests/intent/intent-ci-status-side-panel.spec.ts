@@ -22,8 +22,6 @@ import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
 
-test.setTimeout(90_000);
-
 // A kept execution record of the board's Taken story `anchor`, its saved
 // workspace gone.
 function goneWorkspaceRecord(

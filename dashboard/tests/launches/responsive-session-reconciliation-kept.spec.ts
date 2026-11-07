@@ -61,7 +61,6 @@ test("a reconciled Take whose story is then removed leaves no recovery after a r
   origin,
   github,
 }) => {
-  test.setTimeout(150_000);
   const { published, story, takenStory } = await openStories(page, origin);
   await startExecution(page, story);
   await expectTakenSettled(takenStory);
@@ -104,7 +103,6 @@ test("a Take no page reconciled before its story was removed reconciles on a new
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const push = origin.holdPushes();
   const { published, story } = await openStories(page, origin);
   await startExecution(page, story);

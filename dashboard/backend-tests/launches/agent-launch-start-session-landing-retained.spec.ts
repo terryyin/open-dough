@@ -32,7 +32,6 @@ test("an unattached launch's kept record captures its landing after its startup 
   origin,
   codexProtocol: native,
 }) => {
-  test.setTimeout(120_000);
   if (native === undefined) throw new Error("No native fixture");
   await dashboard.close();
   const clock = landingRetentionClock(origin.machine);

@@ -4,7 +4,7 @@
 import { mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "./pageTest.ts";
+import { expect } from "./pageTest.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { openCursorTerminal } from "./cursorTerminal.ts";
 import { installFakeCursor } from "./fakeCursor.ts";
@@ -29,7 +29,6 @@ import {
 } from "../../server/hosts/cursor/runnerPaths.ts";
 
 export async function detachedPromptStaysWhileDashboardIsDown(): Promise<void> {
-  test.setTimeout(180_000);
   const cursor = installFakeCursor({ screen: "working", becomeReady: true });
   const machine = path.join(
     tmpdir(),
@@ -67,7 +66,6 @@ export async function detachedPromptStaysWhileDashboardIsDown(): Promise<void> {
 }
 
 export async function twoServersLeaveOneRunner(): Promise<void> {
-  test.setTimeout(180_000);
   const cursor = installFakeCursor();
   const machine = path.join(
     tmpdir(),
@@ -102,7 +100,6 @@ export async function twoServersLeaveOneRunner(): Promise<void> {
 }
 
 export async function unreachableRunnerRefusesStart(): Promise<void> {
-  test.setTimeout(180_000);
   const cursor = installFakeCursor();
   const machine = path.join(
     tmpdir(),
@@ -137,7 +134,6 @@ export async function unreachableRunnerRefusesStart(): Promise<void> {
 }
 
 export async function stoppingRunnerResumesOnNextOpen(): Promise<void> {
-  test.setTimeout(180_000);
   const cursor = installFakeCursor({ working: true });
   const machine = path.join(
     tmpdir(),

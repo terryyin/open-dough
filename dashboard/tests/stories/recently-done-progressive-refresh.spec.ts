@@ -52,7 +52,6 @@ test("a refresh keeps twenty entries in their current order, reading only the ne
   page,
   dashboard,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await page.clock.install();
   const main = movingMain();
@@ -141,7 +140,6 @@ test("a refresh while Mark as done's destination is read keeps it included in it
   page,
   dashboard,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await page.clock.install();
   const main = movingMain();

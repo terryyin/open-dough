@@ -53,7 +53,6 @@ for (const start of [
     dashboard,
     origin,
   }) => {
-    test.setTimeout(120_000);
     const push = origin.holdPushes();
     dashboard.claudeScenario("held");
     const { story, takenStory, other } = await openStories(page, origin);
@@ -158,7 +157,6 @@ test("a lost acknowledgment says the launch is uncertain, never accepted, and th
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const push = origin.holdPushes();
   dashboard.claudeScenario("held");
   const { story, takenStory, other } = await openStories(page, origin);
@@ -196,7 +194,6 @@ test("Start session in Claude Code closes at acceptance while its launch is held
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   dashboard.claudeScenario("held");
   const { story, other } = await openStories(page, origin);
   const { backlog, taken } = parts(page);

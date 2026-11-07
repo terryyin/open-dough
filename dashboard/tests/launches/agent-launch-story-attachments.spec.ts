@@ -22,8 +22,6 @@ import {
   writePickedImages,
 } from "../support/launchAttachmentFixtures.ts";
 
-test.setTimeout(120_000);
-
 test("Start execution and Start refinement dialogs offer the same Attach images control", async ({
   page,
   origin,

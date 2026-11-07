@@ -66,7 +66,6 @@ function checkoutWithWorktree(home: string) {
 }
 
 test("a checkout's Git identity changes with every Git change its workspaces depend on", async () => {
-  test.setTimeout(60_000);
   const home = mkdtempSync(path.join(tmpdir(), "dough-git-identity-"));
   try {
     const { git, checkout, worktree } = checkoutWithWorktree(home);
@@ -145,7 +144,6 @@ test("a checkout's Git identity changes with every Git change its workspaces dep
 });
 
 test("Git run in the main checkout keeps the checkout's Git identity", async () => {
-  test.setTimeout(30_000);
   const home = mkdtempSync(path.join(tmpdir(), "dough-git-identity-"));
   try {
     const { git, checkout } = checkoutWithWorktree(home);

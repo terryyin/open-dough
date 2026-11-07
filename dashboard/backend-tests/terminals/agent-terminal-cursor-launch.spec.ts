@@ -22,8 +22,6 @@ const unconfirmed =
   "This launch's recorded conversation has a first input that is not confirmed, so no other conversation was started. Check the recorded conversation for that input.";
 
 test.describe(`Cursor launch turn`, () => {
-  test.describe.configure({ timeout: 120_000 });
-
   test("an instructed launch shows that client and accepts typing", async () => {
     const cursor = installFakeCursor({ screen: "working" });
     await withInstructedCursor(

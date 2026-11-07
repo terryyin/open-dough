@@ -35,7 +35,6 @@ test("installed attention report stays open, durable and readable through column
   origin,
   codexProtocol: native,
 }) => {
-  test.setTimeout(120000);
   if (native === undefined) throw new Error("Missing native fixture");
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,

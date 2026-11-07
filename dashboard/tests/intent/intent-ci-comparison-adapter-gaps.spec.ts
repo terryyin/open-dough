@@ -10,8 +10,6 @@ import { publishFastForwardLandedStory } from "../support/storyCiComparisonFastF
 import { push } from "../support/storyReviewTrunkCommits.ts";
 import { git } from "../support/storyReviewWorktree.ts";
 
-test.setTimeout(90_000);
-
 test("an expired adapter baseline leaves the newest Branch and Landed retry visible", async ({
   page,
   origin,
@@ -99,32 +97,40 @@ test("a Done Trunk Mode adapter story walks back from its completion to Landed",
   await expect(builds.nth(2)).toContainText("ancestor:");
 });
 
-for (const [caseName, failure, reason] of [
+// The adapter limit is lowered for the timed-out case only, so the request
+// it ends is observed at that limit instead of waited out at 20 seconds.
+const adapterLimitMs = 2_000;
+for (const [caseName, failure, reason, extraEnv] of [
   [
     "fails",
     { discoverStderr: "adapter CI service has no discovery access" },
     "adapter CI service has no discovery access",
+    undefined,
   ],
   [
     "times out",
-    { discoverDelayMs: 25_000 },
-    "The CI adapter did not answer discovery within 20 seconds.",
+    { discoverHeld: true },
+    `The CI adapter did not answer discovery within ${String(adapterLimitMs / 1000)} seconds.`,
+    { DOUGH_CI_ADAPTER_TIMEOUT_MS: String(adapterLimitMs) },
   ],
 ] as const) {
-  test(`a Done adapter comparison keeps the endpoint reason when discovery ${caseName}`, async ({
-    page,
-    origin,
-    dashboard,
-  }) => {
-    await publishFastForwardLandedStory(page, origin);
-    const adapter = adapterProject(dashboard.home);
-    adapter.answer({ discover: {}, proof: {}, ...failure });
-    const { panel } = await selectDoneStoryForCiComparison(page);
-    const builds = panel.locator(".intent-ci-comparison-identity");
-    await expect(builds).toHaveCount(3);
-    for (const index of [0, 1, 2]) {
-      await expect(builds.nth(index)).toContainText(reason);
-    }
-    expect(adapter.proofRequests()).toEqual([]);
+  test.describe(`discovery that ${caseName}`, () => {
+    test.use({ extraEnv });
+    test(`a Done adapter comparison keeps the endpoint reason when discovery ${caseName}`, async ({
+      page,
+      origin,
+      dashboard,
+    }) => {
+      await publishFastForwardLandedStory(page, origin);
+      const adapter = adapterProject(dashboard.home);
+      adapter.answer({ discover: {}, proof: {}, ...failure });
+      const { panel } = await selectDoneStoryForCiComparison(page);
+      const builds = panel.locator(".intent-ci-comparison-identity");
+      await expect(builds).toHaveCount(3);
+      for (const index of [0, 1, 2]) {
+        await expect(builds.nth(index)).toContainText(reason);
+      }
+      expect(adapter.proofRequests()).toEqual([]);
+    });
   });
 }

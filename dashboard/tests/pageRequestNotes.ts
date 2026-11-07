@@ -1,9 +1,11 @@
 // What a dashboard page asks of the local boundary, as the page itself notes
 // it (./pageRequestNoting.ts): the page times of its revision checks, the
-// requests, reads and done marks still unanswered, and the message turns on
-// which it acts. See ./autoRefreshJourney.ts and ./dashboardPage.ts.
+// requests, reads and done marks still unanswered, the message turns on
+// which it acts, and one pace of page time let pass once its requests are
+// answered. See ./autoRefreshJourney.ts and ./dashboardPage.ts.
 
 import type { Page } from "@playwright/test";
+import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import {
   noteRequestsInOpenPage,
   type RequestsNoted,
@@ -35,6 +37,18 @@ export async function givePageItsTurns(page: Page): Promise<void> {
 // it answers the page, so after this no `gh` call is on its way.
 export async function untilPageRequestsAnswered(page: Page): Promise<void> {
   await untilNotedAnswered(page, "requestsUnanswered");
+}
+
+// With the page clock paused (`pausePageClockAt` in ./dashboardTest.ts),
+// lets one steady pace of page time pass once every request the page has
+// sent is answered, but for the waits it holds open on a running launch
+// attempt's next change: each recurring ask -- the revision check and the
+// read of the machine's sessions -- is then asked anew, after what the
+// journey has already seen change outside the page, without waiting a real
+// pace.
+export async function passCheckPace(page: Page): Promise<void> {
+  await untilNotedAnswered(page, "requestsUnansweredButChangeWaits");
+  await page.clock.runFor(checkIntervalMs);
 }
 
 // Waits until every read the page has sent the local read boundary, its

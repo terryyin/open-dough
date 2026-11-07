@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Restore default timeouts across automated tests](seeds/SEED-260-restore-default-test-timeouts.md#restore-default-test-timeouts) — SEED-260#restore-default-test-timeouts ([plan](slice-plans/502-restore-default-test-timeouts/PLAN.md))
-
 ## Backlog list
 
 - [Correct Intent CI label announcements and summary sort fallback](seeds/SEED-259-scan-intent-ci-summaries.md#correct-scan-intent-ci-summaries) — SEED-259#correct-scan-intent-ci-summaries

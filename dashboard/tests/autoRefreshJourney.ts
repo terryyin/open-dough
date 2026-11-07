@@ -98,12 +98,32 @@ export function headsCheckArgv(
 // bound lets an armed deadline callback run under the paused clock.
 export const pageTimeStepMs = 250;
 
+async function passPageMsInSteps(
+  page: Page,
+  ms: number,
+  afterEachStep: () => Promise<void>,
+): Promise<void> {
+  for (let passed = 0; passed < ms; passed += pageTimeStepMs) {
+    await page.clock.runFor(Math.min(pageTimeStepMs, ms - passed));
+    await afterEachStep();
+  }
+}
+
 // Advances the page clock in small steps so timers armed for `ms` of page
 // time can fire (silence, reopen, rate-limit waits) without waiting wall time.
 export async function passPageMs(page: Page, ms: number): Promise<void> {
-  for (let passed = 0; passed < ms; passed += pageTimeStepMs) {
-    await page.clock.runFor(Math.min(pageTimeStepMs, ms - passed));
-  }
+  await passPageMsInSteps(page, ms, async () => {});
+}
+
+// Lets `ms` of page time pass in the same small steps, each followed, with
+// page time standing still, by the answers to whatever the page asked
+// meanwhile, so the page schedules its next ask from a settled one as it
+// would in real time.
+export async function passPageMsAnswered(
+  page: Page,
+  ms: number,
+): Promise<void> {
+  await passPageMsInSteps(page, ms, () => untilPageRequestsAnswered(page));
 }
 
 // Lets page time pass in small steps until the page asks for the next

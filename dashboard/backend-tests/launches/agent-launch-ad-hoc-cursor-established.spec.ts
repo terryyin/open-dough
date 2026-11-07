@@ -35,7 +35,6 @@ test("existing changes are confirmed before Cursor creates anything, and an esta
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const revision = (await origin.originGit("rev-parse", "main")).trim();
   dirty(origin.project);
   const changes = status(origin.project);
@@ -91,7 +90,6 @@ test("with no text and a chosen model, a session that lands automatically starts
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const revision = (await origin.originGit("rev-parse", "main")).trim();
   const blank = {
     source: "open-dough",
@@ -140,7 +138,6 @@ test("an isolated session starts Cursor with the new worktree as its workspace a
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const revision = (await origin.originGit("rev-parse", "main")).trim();
   const slug = "tidy-the-readme-wording";
   expect(
@@ -180,7 +177,6 @@ test("a missing Cursor workspace is reported with its path instead of cursor-age
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   // The real start establishes its workspace, but invalid external output
   // keeps the native launch unconfirmed without opening a client.
   cursor.queueCreateChatId("not-a-session-id");

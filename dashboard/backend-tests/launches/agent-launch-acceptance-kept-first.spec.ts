@@ -110,7 +110,6 @@ test.describe("an accepted launch whose change is being kept", () => {
   const keptAttempts = () => keptOfMachine(server);
 
   test("is answered as kept while its reporting context, then its outcome, is being written", async () => {
-    test.setTimeout(120_000);
     server.claudeScenario("held");
     const answered = JSON.parse((await accept(server, request)).body) as {
       kind: string;

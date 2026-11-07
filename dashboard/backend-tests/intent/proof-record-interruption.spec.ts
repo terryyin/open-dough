@@ -8,7 +8,6 @@ import {
 test.afterAll(removeProofDirectories);
 
 test("a deadline preserves finished attempts separately from unfinished work", async () => {
-  test.setTimeout(60_000);
   const run = startProofRun({
     spec: "ordered.proof.ts",
     config: { globalTimeout: 8_000 },
@@ -23,7 +22,12 @@ test("a deadline preserves finished attempts separately from unfinished work", a
     terminal: { runnerStatus: "timedout", strictStatus: "failed" },
   });
   expect(record.tests[0]?.attempts[0]?.status).toBe("passed");
-  expect(record.tests[1]?.attempts[0]?.status).not.toBe("passed");
+  // Started, then stopped by the deadline before its own case timeout: it
+  // never ends on its own, so it has no status or an interrupted one.
+  expect(record.tests[1]?.attempts).toHaveLength(1);
+  expect([undefined, "interrupted"]).toContain(
+    record.tests[1]?.attempts[0]?.status,
+  );
 });
 
 test("graceful interruption records strict failure after one completed assertion", async () => {

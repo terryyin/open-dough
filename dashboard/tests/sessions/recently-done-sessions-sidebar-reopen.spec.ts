@@ -22,7 +22,6 @@ test("a held Cursor attach from Recently done keeps Done membership", async ({
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   const title = "held from recently done";
   const launched = await launch(dashboard, {
@@ -58,7 +57,6 @@ test("a successful Cursor attach from Recently done removes the Done row", async
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   const title = "reopen from recently done";
   const launched = await launch(dashboard, {
@@ -95,7 +93,6 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 700, height: 900 });
   const title = "narrow reopen focus return";

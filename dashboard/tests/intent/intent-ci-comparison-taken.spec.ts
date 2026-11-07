@@ -24,13 +24,10 @@ import { githubFor, pausePageClockAt } from "../dashboardTest.ts";
 import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
 import path from "node:path";
 
-test.setTimeout(240_000);
-
 test("a Taken Story Branch story keeps live CI status and shows a provisional comparison; a new branch head re-reads", async ({
   page,
   origin,
 }) => {
-  test.slow();
   await pausePageClockAt(page, new Date());
   const setup = await publishTakenComparedStoryBranch(page, origin);
   const { status, panel } = await selectTakenStoryForCiComparison(page);
@@ -131,7 +128,6 @@ test("a Taken Trunk Mode story shows a provisional trunk result beside Branch N/
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishTakenComparedTrunk(page, origin);
   const { panel } = await selectTakenStoryForCiComparison(page);
 

@@ -30,7 +30,6 @@ import {
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 
 test("a runner started with a deployment's start-up additions starts cursor-agent without them", async () => {
-  test.setTimeout(60_000);
   const cursor = installFakeCursor({ working: true });
   const root = mkdtempSync(path.join(tmpdir(), "dough-runner-environment-"));
   const home = path.join(root, "home");

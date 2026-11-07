@@ -73,7 +73,6 @@ test.describe("with two projects", () => {
     origin,
     cursor,
   }) => {
-    test.setTimeout(120_000);
     const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
     pygardon.push(
       "e6".repeat(20),
@@ -177,7 +176,6 @@ test("less room fits the shown height, also after a reload, without replacing th
   page,
   origin,
 }) => {
-  test.setTimeout(120_000);
   await showPage(page, origin);
   const shown = runningCursorParts(page);
   const { button, header, divider } = shown;

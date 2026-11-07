@@ -52,8 +52,6 @@ import {
   summaryTextZipAnswer,
 } from "../support/ciProofCollected.ts";
 
-test.setTimeout(90_000);
-
 test("an entry's and its folders' CI summaries come from CI's collected file breakdown: root figures, immediate children, drill-down and file reading, with no source read and no second CI read", async ({
   page,
 }) => {

@@ -16,8 +16,6 @@ import { openUntilRead } from "../pageRequestNotes.ts";
 import { parts } from "../dashboardPage.ts";
 import { rateLimitedAnswer } from "../originAnswers.ts";
 
-test.setTimeout(120_000);
-
 test("a rate-limited Actions answer asks without CI result and never shows a pass", async ({
   page,
   dashboard,

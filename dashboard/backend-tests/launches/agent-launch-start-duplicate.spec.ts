@@ -65,7 +65,6 @@ test.describe("a second start of the same story", () => {
   }
 
   test("is refused while the first is held, with no second claim or workspace", async () => {
-    test.setTimeout(90_000);
     const push = origin.holdPushes();
     server.claudeScenario("launched");
 
@@ -95,7 +94,6 @@ test.describe("a second start of the same story", () => {
   });
 
   test("two launches sent at once make one claim, one workspace, one session", async () => {
-    test.setTimeout(90_000);
     const push = origin.holdPushes();
     server.claudeScenario("launched");
     const pending = [launch(server, request), launch(server, request)];

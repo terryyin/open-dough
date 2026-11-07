@@ -52,7 +52,6 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
   page,
   dashboard,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await page.clock.install();
   const main = movingMain();
@@ -145,7 +144,6 @@ test("choosing another project while a revealed batch is read shows that project
   page,
   dashboard,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
   pygardon.push(

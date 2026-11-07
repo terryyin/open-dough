@@ -15,7 +15,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { test as nodeTest } from "node:test";
+import { test } from "node:test";
 import { until } from "./ci-github-test-fixtures.mjs";
 import { loginMachine } from "./github-request-login-test-fixtures.mjs";
 import {
@@ -30,8 +30,6 @@ const args = (job) => [
   "--include",
   `repos/owner/repo/actions/jobs/${job}/logs`,
 ];
-
-const test = (name, run) => nodeTest(name, { timeout: 30_000 }, run);
 
 // An endpoint directory, and `gh` calls at GitHub that wait there until the
 // test is over, each as a process of this test: `exit` resolves with how it

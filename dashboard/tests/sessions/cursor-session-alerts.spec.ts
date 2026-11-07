@@ -41,7 +41,6 @@ async function launchConfirmed(server: CursorServer): Promise<void> {
 }
 
 test("a follow-up prompt whose first instruction was never confirmed reads Awaiting first instruction and alerts nothing", async () => {
-  test.setTimeout(120_000);
   const cursor = installFakeCursor({ screen: "working" });
   const machine = mkdtempSync(path.join(tmpdir(), "dough-cursor-guard-"));
   let server = await startCursorDashboard(
@@ -77,7 +76,6 @@ test("a follow-up prompt whose first instruction was never confirmed reads Await
 });
 
 test("a held Cursor session alerts once per actionable entry, re-arms after working, and stays quiet when it vanishes or the runner stops", async () => {
-  test.setTimeout(120_000);
   const cursor = installFakeCursor({ screen: "working" });
   await withCursorLaunch(
     { mode: "boundary" },
@@ -164,7 +162,6 @@ test("a held Cursor session alerts once per actionable entry, re-arms after work
 });
 
 test("cancelled and failed history settling to the follow-up prompt reads only Ready for review, alerts no failure, and vanishing stays unknown", async () => {
-  test.setTimeout(120_000);
   const cursor = installFakeCursor({ screen: "working" });
   await withCursorLaunch(
     { mode: "boundary" },
@@ -207,7 +204,6 @@ test("cancelled and failed history settling to the follow-up prompt reads only R
 });
 
 test("a finished Cursor record the runner does not hold stays unknown with no claim and no alert", async () => {
-  test.setTimeout(120_000);
   const cursor = installFakeCursor({ screen: "working" });
   const machine = mkdtempSync(path.join(tmpdir(), "dough-cursor-finished-"));
   let server = await startCursorDashboard(

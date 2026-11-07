@@ -40,7 +40,6 @@ test("where the window is too short for both floors, the divider offers no range
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const { shown, heldRows, expectNothingChanged } = await expandCrowded(
     page,
     dashboard,
@@ -139,7 +138,6 @@ test.describe("with two projects", () => {
     origin,
     cursor,
   }) => {
-    test.setTimeout(120_000);
     await page.setViewportSize(wide);
     const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
     pygardon.push(

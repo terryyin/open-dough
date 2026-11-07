@@ -114,7 +114,6 @@ test("switching projects abandons a late detail answer from the previous observa
 test("outstanding detail recovery excludes revision checks until it settles", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   await pausePageClockAt(page, limitedOpened);
   let withholdFails = true;
   const published = publishes({ revision, files: filesBesideUnreachable });
@@ -163,7 +162,6 @@ test("outstanding detail recovery excludes revision checks until it settles", as
 test("a rate limit during transient recovery postpones recovery demand until the wait ends", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   await pausePageClockAt(page, limitedOpened);
   let withholdFails = true;
   const published = publishes({ revision, files: filesBesideUnreachable });

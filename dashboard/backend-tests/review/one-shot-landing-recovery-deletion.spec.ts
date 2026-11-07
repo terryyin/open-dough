@@ -31,7 +31,6 @@ test("deletion after attempt expiry retains refusal and repository through a rea
   origin,
   codexProtocol,
 }) => {
-  test.setTimeout(120000);
   const native = codexProtocol;
   if (native === undefined) throw new Error("No native fixture");
   await dashboard.close();

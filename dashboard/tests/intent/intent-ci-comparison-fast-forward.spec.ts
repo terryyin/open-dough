@@ -21,7 +21,6 @@ test("a fast-forward landing after a story-first merge of main names the tip as 
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishFastForwardLandedStory(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
 
@@ -71,7 +70,6 @@ test("a later fast-forward keeps an earlier story's trunk-first landing and base
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishEarlierLandingThenLaterFastForward(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
   const branchBuild = setup.firstBranchSide;
@@ -120,7 +118,6 @@ test("a later branch started before a Trunk Mode completion keeps that completio
   page,
   origin,
 }) => {
-  test.slow();
   const setup = await publishTrunkCompletionThenEarlierBranchFastForward(
     page,
     origin,

@@ -44,7 +44,6 @@ const terminalScreen = ".terminal-screen";
 test.describe("the Sessions sidebar and terminal in the frame's look", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

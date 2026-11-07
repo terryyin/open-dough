@@ -16,7 +16,6 @@ import {
   publishDoneReferences,
 } from "../storyReferenceDone.ts";
 
-test.setTimeout(120_000);
 test.use({ hasTouch: true });
 
 test("expired and unlisted references remain unavailable without fabricated blocks or history reads", async ({

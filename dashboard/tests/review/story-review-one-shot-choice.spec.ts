@@ -15,7 +15,6 @@ test("keyboard choices show each retained captured or legacy run beside the live
   origin,
   codexProtocol,
 }) => {
-  test.setTimeout(90_000);
   if (codexProtocol === undefined) throw new Error("No native fixture");
   const choices = await reviewChoices(dashboard, origin, codexProtocol);
   const { card, review: answer } = await openCapturedReview(page, origin);

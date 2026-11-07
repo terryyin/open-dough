@@ -14,8 +14,6 @@ import { parts } from "../dashboardPage.ts";
 import { reachKeptStart, startAction } from "../keptStartJourney.ts";
 import { originMain } from "../support/sessionDialog.ts";
 
-test.setTimeout(120_000);
-
 test("a passing nearest result starts with no question when the head has none", async ({
   page,
   dashboard,

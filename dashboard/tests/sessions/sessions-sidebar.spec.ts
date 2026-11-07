@@ -47,7 +47,6 @@ const pygardonTitle = pygardonStory.title;
 test.describe("the Sessions sidebar", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

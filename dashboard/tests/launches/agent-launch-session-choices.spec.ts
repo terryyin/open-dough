@@ -15,8 +15,6 @@ import {
   untilPageRequestsAnswered,
 } from "../pageRequestNotes.ts";
 
-test.setTimeout(120_000);
-
 test("one-shot is offered only for a host whose installation takes the policy, and a kept start shows its own", async ({
   page,
   dashboard,

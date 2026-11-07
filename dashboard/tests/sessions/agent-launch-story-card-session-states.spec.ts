@@ -68,7 +68,6 @@ const notReadyNote = "Not assessed as ready";
 test.describe("a card's sessions whatever Claude Code lists", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

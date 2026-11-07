@@ -32,10 +32,8 @@ import { reloadUntilRead } from "../pageRequestNotes.ts";
 
 let journey: PreparingJourney;
 // Publishing the journey runs every production preparation command against a
-// local origin (about 6s idle); give it its own budget so a busy machine
-// cannot starve it inside the default per-test timeout.
+// local origin.
 test.beforeAll(async () => {
-  test.setTimeout(120_000);
   journey = await publishPreparingJourney();
 });
 // A setup that failed leaves nothing to clean up.

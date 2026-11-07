@@ -28,8 +28,6 @@ import {
   type KeptPreparation,
 } from "../../tests/support/keptPreparation.ts";
 
-test.setTimeout(120_000);
-
 test.describe("a kept preparation start", () => {
   let preparation: KeptPreparation;
   test.beforeEach(async () => {

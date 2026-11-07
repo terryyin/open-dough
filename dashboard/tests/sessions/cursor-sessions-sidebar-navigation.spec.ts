@@ -30,7 +30,6 @@ for (const { name, size } of [
     origin,
     cursor,
   }) => {
-    test.setTimeout(120_000);
     await page.setViewportSize(size);
     const pid = await holdSession(dashboard, cursor);
     await showPage(page, origin);
@@ -78,7 +77,6 @@ test.describe("with two projects", () => {
     origin,
     cursor,
   }) => {
-    test.setTimeout(120_000);
     await page.setViewportSize(wide);
     const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
     pygardon.push(

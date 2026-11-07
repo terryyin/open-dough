@@ -33,7 +33,6 @@ async function failedRead(server: DashboardServer): Promise<void> {
 }
 
 test("a dev server restarted in place lists both instances' failures, reads the closed instance as ended and the running one as current, and a kill after the restart as lost", async () => {
-  test.setTimeout(120_000);
   const machine = mkdtempSync(path.join(tmpdir(), "dough-incident-restart-"));
   // A loaded machine may add stalls of its own.
   const linesOf = (pid: number) =>

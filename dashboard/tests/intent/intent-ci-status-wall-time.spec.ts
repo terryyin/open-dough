@@ -40,8 +40,6 @@ import {
 } from "../intentCiStoryRecords.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 
-test.setTimeout(90_000);
-
 const wallTime = "CI wall time 3 min";
 const notRecorded = "CI wall time not recorded";
 

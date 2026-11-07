@@ -46,7 +46,6 @@ const launchDialog = {
 test.describe("launch dialogs in the frame's look", () => {
   let published: LongTitleOrigin;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     published = await publishLongTitleOrigin();
   });
   test.afterAll(() => (published as LongTitleOrigin | undefined)?.cleanup());

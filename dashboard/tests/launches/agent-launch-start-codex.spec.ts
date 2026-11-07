@@ -20,8 +20,6 @@ import {
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 
-test.setTimeout(120_000);
-
 test("Codex card start publishes one claim and retries its retained workspace before creating one conversation", async ({
   page,
   dashboard,

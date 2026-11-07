@@ -12,12 +12,12 @@
 import { readCommandProof } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import {
   adapterResponseBytes,
-  defaultAdapterTimeoutMs,
   truncateUtf8,
 } from "../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
 import { summaryProblems } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import type { CiAdapterProofAttempt, CiProof } from "../src/ciProof.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
+import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
 import { rememberedByKey } from "./rememberedByKey.ts";
 
 // Valid summaries read so far, by repository and attempt.
@@ -99,9 +99,9 @@ export async function readCiAdapterProof(
   folder: string,
   attempt: CiAdapterProofAttempt,
   signal: AbortSignal,
-  // The adapter's time limit; the shared adapter limit unless a test
+  // The adapter's time limit; the dashboard's adapter limit unless a test
   // shortens it.
-  timeoutMs: number = defaultAdapterTimeoutMs,
+  timeoutMs: number = ciAdapterTimeoutMs(),
 ): Promise<CiProof> {
   const key = rememberedKey(repository, attempt);
   const rememberedSummary = remembered.get(key);

@@ -29,7 +29,6 @@ test("a launch held because Open Dough's default main has existing changes says 
   page,
   github,
 }) => {
-  test.setTimeout(120_000);
   const origin = await startOrigin();
   const moving = await publishMovingOrigin(github);
   const due = dayFromToday(-1);

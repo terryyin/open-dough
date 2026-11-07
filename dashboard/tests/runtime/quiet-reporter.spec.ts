@@ -145,14 +145,15 @@ test("output from the run itself fails the run and is shown", async () => {
 test("a run that reaches its deadline names it, keeps completed failures' traces, and records unfinished tests", async ({
   page,
 }) => {
-  test.setTimeout(60_000);
   const run = await runSubstitute({
     spec: ["failing.proof.ts", "hanging.proof.ts"],
     globalTimeout: 8_000,
   });
 
   expect(run.status).not.toBe(0);
+  // The run's deadline, not the hanging test's own case timeout, ended it.
   expect(run.stdout).toContain("Timed out waiting");
+  expect(run.stdout).not.toContain("Test timeout of");
   expect(run.stdout).toContain("compares the wrong sum");
   // The completed failure keeps its diagnostics; the interrupted test may
   // keep a trace of its own.

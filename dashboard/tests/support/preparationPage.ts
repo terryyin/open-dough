@@ -1,6 +1,10 @@
 // The existing kept-start page journey shares the real installed script,
 // bare origin and protocol-only vendor fixture for both hosts.
-import { fixtureServerMode, test as base } from "../dashboardTest.ts";
+import {
+  fixtureExtraEnv,
+  fixtureServerMode,
+  test as base,
+} from "../dashboardTest.ts";
 import { startDashboardServer } from "./dashboardServer.ts";
 import { installFakeCodex } from "./fakeCodex.ts";
 import { launchWaitMs } from "./launchWait.ts";
@@ -34,7 +38,15 @@ export const test = base.extend<{
     await native?.close();
   },
   dashboard: async (
-    { github, origin, codexProtocol, pathPrefix, startTimeoutMs, serverMode },
+    {
+      github,
+      origin,
+      codexProtocol,
+      extraEnv,
+      pathPrefix,
+      startTimeoutMs,
+      serverMode,
+    },
     use,
   ) => {
     serveOriginBaseCi(github, origin);
@@ -46,9 +58,7 @@ export const test = base.extend<{
       launchTimeoutMs: launchWaitMs,
       codexProtocol,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
-      ...(startTimeoutMs === undefined
-        ? {}
-        : { extraEnv: { DOUGH_START_TIMEOUT_MS: String(startTimeoutMs) } }),
+      extraEnv: fixtureExtraEnv(extraEnv, startTimeoutMs),
     });
     await use(server);
     await server.close();

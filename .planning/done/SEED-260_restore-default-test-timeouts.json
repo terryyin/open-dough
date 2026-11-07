@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-260#restore-default-test-timeouts",
+  "title": "Restore default timeouts across automated tests",
+  "completedAt": "2026-11-07T20:39:04.124Z",
+  "developer": "Terry Yin",
+  "agent": "yusuke-chan",
+  "host": "claude",
+  "model": "opus"
+}

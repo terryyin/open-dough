@@ -29,7 +29,6 @@ test("Start execution closes at acceptance while its Take is held, and continuin
   origin,
   codexProtocol,
 }) => {
-  test.setTimeout(150_000);
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
   const push = origin.holdPushes();
@@ -113,7 +112,6 @@ test("Start session closes at acceptance while Codex holds its input", async ({
   origin,
   codexProtocol,
 }) => {
-  test.setTimeout(120_000);
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
   native.hold = true;

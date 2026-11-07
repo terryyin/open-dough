@@ -24,8 +24,6 @@ import {
 } from "../support/intentStoryPage.ts";
 import { changed } from "../support/intentStoryWorktree.ts";
 
-test.setTimeout(120_000);
-
 const locationPaths = ["dashboard/tests/", "tests/"];
 const modifiedPath = "dashboard/tests/a.spec.ts";
 

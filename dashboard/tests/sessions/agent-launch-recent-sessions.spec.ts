@@ -40,8 +40,6 @@ import {
   markDoneAnyway,
 } from "../support/markDone.ts";
 
-test.setTimeout(120_000);
-
 test.use({
   projectFolders: ["open-dough", "doughnut"],
   extraEnv: briefDoneRenameWait,
@@ -50,7 +48,6 @@ test.use({
 test.describe("retained launches in their current column homes", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

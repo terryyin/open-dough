@@ -1,7 +1,7 @@
 // Progress is observed through real HTTP and pages while the installed script's
 // bare-origin push and the vendor's native creation are held independently.
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
+import { expect } from "../dashboardTest.ts";
 import { keptStarts, runningStarts } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expectStartNote } from "../storyCardControls.ts";
@@ -36,7 +36,6 @@ export async function expectStartProgress(
   workflow: "execution" | "refinement",
   host: "claude" | "codex",
 ): Promise<void> {
-  test.setTimeout(120_000);
   const push = origin.holdPushes();
   const native = codexProtocol;
   dashboard.claudeScenario("held");

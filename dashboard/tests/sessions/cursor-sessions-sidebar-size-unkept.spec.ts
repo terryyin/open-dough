@@ -28,7 +28,6 @@ test("an unusable kept height starts at an equal share, is not replaced by expan
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const errors = watchPageErrors(page);
   const { shown, heldRows, expectNothingChanged } = await expandCrowded(
     page,
@@ -74,7 +73,6 @@ test("where the browser refuses storage, the lists start at an equal share and r
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await page.addInitScript(() => {
     const refused = () => {
       throw new DOMException("Storage is refused.", "SecurityError");

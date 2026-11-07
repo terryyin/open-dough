@@ -27,7 +27,6 @@ test.use({ projectFolders: ["open-dough", "doughnut"] });
 test.describe("the Sessions sidebar's state edge", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

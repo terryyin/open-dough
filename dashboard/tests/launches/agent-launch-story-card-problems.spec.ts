@@ -102,7 +102,6 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
       dashboard,
       launchJourney,
     }) => {
-      test.setTimeout(120_000);
       dashboard.claudeScenario("hang");
       const { card, start, dialog } = await openTakenBacklog(
         page,

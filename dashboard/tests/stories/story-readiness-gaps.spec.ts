@@ -1,7 +1,8 @@
-// Slice 9: truthful evidence gaps and refreshes. Setup mutates committed Git
+// Truthful readiness evidence, gaps and refreshes. Setup mutates committed Git
 // bytes and fails HTTP routes; shared readers project badges. Gap labels are
 // never planted in fixtures.
 
+import type { Page } from "@playwright/test";
 import { expectChangedQueuedAssociations } from "../queuedPlanGaps.ts";
 import {
   passTimeUntilCheckedAfterSettled,
@@ -37,12 +38,12 @@ import {
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";
 
-test.setTimeout(120_000);
-
-test("story readiness keeps evidence gaps and refreshes truthful", async ({
-  page,
-  afterGitHubStops,
-}) => {
+// Both repositories published from their baselines, with origin's page open
+// on a paused clock and its baseline membership settled.
+async function openReadiness(
+  page: Page,
+  afterGitHubStops: (cleanup: () => void) => void,
+) {
   const openDough = buildOpenDoughReadinessRepo(afterGitHubStops, {
     canonicalOnlyQueued: true,
   });
@@ -61,13 +62,27 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
 
   await pausePageClock(page);
   await page.goto("/");
-  const { project, backlog, taken, problem, readRevision } = parts(page);
+  await expectSettledPage(page, {
+    taken: [plannedReady.title],
+    backlog: [unrefined.title, plannedBlocked.title],
+  });
+  return {
+    openDough,
+    doughnut,
+    openDoughOrigin,
+    doughnutOrigin,
+    ...parts(page),
+  };
+}
+
+test("story readiness keeps changed and conflicting evidence truthful", async ({
+  page,
+  afterGitHubStops,
+}) => {
+  const { openDough, openDoughOrigin, backlog, taken, readRevision } =
+    await openReadiness(page, afterGitHubStops);
 
   await test.step("baseline membership arrives with supported preparation facts", async () => {
-    await expectSettledPage(page, {
-      taken: [plannedReady.title],
-      backlog: [unrefined.title, plannedBlocked.title],
-    });
     await expect(
       taken
         .getByRole("article", { name: plannedReady.title })
@@ -119,6 +134,22 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
       publishConflictingPlanAssociation,
     );
   });
+});
+
+test("story readiness keeps evidence gaps and refreshes truthful", async ({
+  page,
+  afterGitHubStops,
+}) => {
+  const {
+    openDough,
+    doughnut,
+    openDoughOrigin,
+    doughnutOrigin,
+    project,
+    backlog,
+    taken,
+    problem,
+  } = await openReadiness(page, afterGitHubStops);
 
   await test.step("failed plan retrieval keeps supported facts and names only the dependent gap", async () => {
     await expectFailedPlanKeepsSupportedFacts(

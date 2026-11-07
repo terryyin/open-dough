@@ -38,7 +38,6 @@ test("both optional sections share one room: expand, resize, scroll, short windo
   origin,
   cursor,
 }) => {
-  test.setTimeout(180_000);
   const { shown, expectNothingChanged } = await expandThreeCrowded(
     page,
     dashboard,

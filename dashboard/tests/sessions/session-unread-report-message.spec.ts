@@ -44,7 +44,6 @@ test("a card entry's unread message is marked read in its message part, beside t
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const story = await launchedStory(dashboard, origin, queuedIdentity, titleA);
   await story.report();
   await publishOrigin(page, origin);
@@ -116,7 +115,6 @@ test("an ad-hoc session's message is read and marked read on its Recently done e
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const adHoc = await launchedAdHoc(
     dashboard,
     origin,
@@ -146,7 +144,6 @@ test("a long unread message scrolls inside its message part, with Mark as read a
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const lastLine = "Last: confirm the rollback before continuing.";
   const longMessage = [
     ...[...Array(60).keys()].map(

@@ -17,7 +17,6 @@ test.describe("a page outliving its dashboard process (preview launch mode)", ()
     github,
     machine,
   }) => {
-    test.setTimeout(90_000);
     const project = published("page", named("a5"), named("b5"));
     project.serve(github);
     await page.goto("/");

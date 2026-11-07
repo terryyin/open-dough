@@ -35,7 +35,6 @@ async function closeTerminal(page: Page): Promise<void> {
 workingCursorTest(
   "Mark as done on an active unreported working Cursor session moves it to Recently done with local-only wording, sets only the local mark, and does not stop the session",
   async ({ page, dashboard, origin, cursor }) => {
-    workingCursorTest.setTimeout(120_000);
     const entry = await openTakenCursorSession(page, origin);
     await closeTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
@@ -70,7 +69,6 @@ workingCursorTest(
 workingCursorTest(
   "Mark as done from the open terminal moves an active Cursor session to Recently done with local-only wording, sets only the local mark, and does not stop the session",
   async ({ page, dashboard, origin, cursor }) => {
-    workingCursorTest.setTimeout(120_000);
     const entry = await openTakenCursorSession(page, origin);
     const panel = page.getByRole("region", { name: "Terminal" });
     await expect(panel.locator(".xterm-rows")).toContainText(/\S/u);
@@ -101,7 +99,6 @@ workingCursorTest(
 workingCursorTest(
   "a locally done Cursor session later observed still held/working shows Working and offers Stop, and Stop then works",
   async ({ page, dashboard, origin, cursor }) => {
-    workingCursorTest.setTimeout(120_000);
     const entry = await openTakenCursorSession(page, origin);
     await closeTerminal(page);
     await expectNormalizedReading(entry, "Working", false);

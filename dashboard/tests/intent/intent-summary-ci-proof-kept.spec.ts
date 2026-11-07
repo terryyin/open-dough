@@ -25,8 +25,6 @@ import {
 } from "../intentSummaryCiProofFixtures.ts";
 import { summaryTextZipAnswer } from "../support/ciProofCollected.ts";
 
-test.setTimeout(90_000);
-
 test("a Summary qualifies a previously retrieved judgment and its failed refresh as the homepage does", async ({
   page,
 }) => {

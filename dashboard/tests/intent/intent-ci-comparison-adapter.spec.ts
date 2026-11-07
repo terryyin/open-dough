@@ -47,8 +47,6 @@ const proofOf = (
   ),
 });
 
-test.setTimeout(90_000);
-
 for (const [landing, publish] of [
   ["merge", publishCodeLandedBeforeCompletion],
   ["fast-forward", publishFastForwardLandedStory],

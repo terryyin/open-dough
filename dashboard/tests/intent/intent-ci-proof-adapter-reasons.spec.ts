@@ -22,8 +22,6 @@ import {
 import { expectNoProofRows, expectProofRows } from "../intentCiProofPage.ts";
 import { login, repository, signup } from "../intentCiStoryRecords.ts";
 
-test.setTimeout(90_000);
-
 test("an adapter attempt whose adapter answers no proof of it gives one reason under Proof, no counts and an unchanged verdict, and Check again reads both again", async ({
   page,
   dashboard,

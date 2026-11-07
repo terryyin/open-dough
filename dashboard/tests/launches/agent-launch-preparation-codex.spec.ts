@@ -24,7 +24,6 @@ import {
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 
-test.setTimeout(120_000);
 test.use({ preparationHost: "codex" });
 test("Codex refusal retains its published preparation; the page resumes the same assignment after server restart", async ({
   page,

@@ -34,8 +34,6 @@ import {
   summaryTextZipAnswer,
 } from "../support/ciProofCollected.ts";
 
-test.setTimeout(90_000);
-
 const missing = "part 3 of 3 missing";
 const noBreakdown = "part 2 of 3 has no file breakdown";
 const mixedParts = `2 of 3 parts present; ${missing}; ${noBreakdown}`;

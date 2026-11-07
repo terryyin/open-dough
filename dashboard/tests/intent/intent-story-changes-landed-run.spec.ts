@@ -39,7 +39,6 @@ import {
   uncommittedCheck,
 } from "../support/storyReviewMark.ts";
 
-test.setTimeout(150_000);
 test.use({ preparationHost: "codex" });
 
 const landedRunHeading = (review: Locator) =>

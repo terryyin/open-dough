@@ -45,7 +45,6 @@ test.describe("a story start whose launch wait expired", () => {
   test("blocks a fresh start of its story from any workflow, and is resumed only by its own continuation", async ({
     dashboard,
   }) => {
-    test.setTimeout(60_000);
     dashboard.claudeScenario("hang");
     const accepted = answerOf(await accept(dashboard, refinementRequest));
     const id = accepted.attempt?.id ?? "";
@@ -91,7 +90,6 @@ startTest.describe("a story start that crosses its warning threshold", () => {
   startTest(
     "refuses duplicates and Continue while running, then launches automatically",
     async ({ dashboard, origin }) => {
-      startTest.setTimeout(150_000);
       const push = origin.holdPushes();
       const story = {
         ...launchRequest,

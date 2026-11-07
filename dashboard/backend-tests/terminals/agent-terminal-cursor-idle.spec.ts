@@ -64,7 +64,6 @@ async function withOpenedCursor(
 
 test.describe(`detached Cursor screen`, () => {
   test("a detached follow-up prompt keeps the client and the next open joins it", async () => {
-    test.setTimeout(120_000);
     const cursor = installFakeCursor();
     await withOpenedCursor(
       cursor,
@@ -102,7 +101,6 @@ test.describe(`detached Cursor screen`, () => {
   });
 
   test("a detached Cursor client waiting for an answer stays running", async () => {
-    test.setTimeout(120_000);
     const cursor = installFakeCursor({ screen: "waiting" });
     await withOpenedCursor(cursor, async ({ terminal, pid }) => {
       await expect
@@ -119,7 +117,6 @@ test.describe(`detached Cursor screen`, () => {
   });
 
   test("an unrecognized Cursor screen keeps the detached client", async () => {
-    test.setTimeout(120_000);
     const cursor = installFakeCursor({ screen: "unrecognized" });
     await withOpenedCursor(cursor, async ({ terminal, pid }) => {
       await expect.poll(() => terminal.output()).toContain("Cursor Agent");
@@ -133,7 +130,6 @@ test.describe(`detached Cursor screen`, () => {
   });
 
   test("a detached working Cursor screen stays running", async () => {
-    test.setTimeout(120_000);
     const cursor = installFakeCursor({ screen: "working" });
     await withOpenedCursor(cursor, async ({ terminal, pid }) => {
       await expect.poll(() => terminal.output()).toContain("ctrl+c to stop");

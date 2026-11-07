@@ -63,7 +63,6 @@ test("dragging the divider or pressing Up and Down resizes both lists within the
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const { shown, heldRows, expectNothingChanged } = await expandCrowded(
     page,
     dashboard,

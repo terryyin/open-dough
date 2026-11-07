@@ -49,7 +49,6 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
   dashboard,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   const instruction = "sidebar done beyond board ten";
@@ -147,7 +146,6 @@ codexTest.describe("Recently done final-report destination", () => {
   codexTest.use({ projectFolders: ["open-dough"] });
   let journey: StoryColumnsJourney;
   codexTest.beforeAll(async () => {
-    codexTest.setTimeout(120_000);
     journey = await publishStoryColumnsJourney();
   });
   codexTest.afterAll(() =>
@@ -157,7 +155,6 @@ codexTest.describe("Recently done final-report destination", () => {
   codexTest(
     "opening a Done entry whose destination is a final report reaches Final report",
     async ({ page, dashboard, codexProtocol: native }) => {
-      codexTest.setTimeout(120_000);
       if (native === undefined) throw new Error("Missing protocol fixture");
       const { record } = await retained(dashboard, native);
       save(dashboard.home, [

@@ -12,7 +12,6 @@ test("a completed story's integration edits open with their diffs beside its mix
   page,
   origin,
 }) => {
-  test.slow();
   const { completion } = await completedPublishedStory(
     origin,
     "story-branch",

@@ -112,74 +112,70 @@ const running = (index) => ({
   conclusion: null,
 });
 
-test(
-  "an npm setup failure beside a later sibling's assertion is not an infrastructure-only inventory, even while the sibling still runs",
-  { timeout: 20_000 },
-  async (t) => {
-    const github = instrumentedGithubFixture(t, {
-      jobs: [job(0), running(1)],
-      answers: {
-        "jobs/1000/logs": { head: "HTTP/2.0 200 OK", body: npmSetupLog },
-        "jobs/1001/logs": { head: "HTTP/2.0 200 OK", body: assertionLog },
-      },
-    });
+test("an npm setup failure beside a later sibling's assertion is not an infrastructure-only inventory, even while the sibling still runs", async (t) => {
+  const github = instrumentedGithubFixture(t, {
+    jobs: [job(0), running(1)],
+    answers: {
+      "jobs/1000/logs": { head: "HTTP/2.0 200 OK", body: npmSetupLog },
+      "jobs/1001/logs": { head: "HTTP/2.0 200 OK", body: assertionLog },
+    },
+  });
 
-    // The setup job failed first; its sibling has not finished.
-    const early = run(github);
-    assert.equal(await early.exited, 0, early.stderr());
-    const changing = JSON.parse(early.stdout());
-    assert.deepEqual(
-      changing.failedJobs.map(({ jobId, failures }) => [jobId, failures]),
+  // The setup job failed first; its sibling has not finished.
+  const early = run(github);
+  assert.equal(await early.exited, 0, early.stderr());
+  const changing = JSON.parse(early.stdout());
+  assert.deepEqual(
+    changing.failedJobs.map(({ jobId, failures }) => [jobId, failures]),
+    [
       [
+        1000,
         [
-          1000,
-          [
-            { kind: "npm", line: "npm error code ETIMEDOUT" },
-            {
-              kind: "npm",
-              line: "npm error network request to https://registry.npmjs.org/x failed",
-            },
-          ],
+          { kind: "npm", line: "npm error code ETIMEDOUT" },
+          {
+            kind: "npm",
+            line: "npm error network request to https://registry.npmjs.org/x failed",
+          },
         ],
       ],
-    );
-    assert.deepEqual(changing.inventory, {
-      complete: false,
-      failedJobs: 1,
-      gaps: [
-        { jobId: 1000, name: "job 0", reason: "no-test-identity" },
-        {
-          reason: "attempt-unfinished",
-          jobs: [{ jobId: 1001, name: "job 1", status: "in_progress" }],
-        },
-      ],
-    });
-
-    // Once the sibling fails, its assertion is in the inventory.
-    github.set({
-      jobs: [job(0), job(1)],
-      answers: {
-        "jobs/1000/logs": { head: "HTTP/2.0 200 OK", body: npmSetupLog },
-        "jobs/1001/logs": { head: "HTTP/2.0 200 OK", body: assertionLog },
-      },
-    });
-    const settled = run(github);
-    assert.equal(await settled.exited, 0, settled.stderr());
-    const answer = JSON.parse(settled.stdout());
-    assert.deepEqual(answer.failedJobs[1].failures, [
-      { kind: "test", line: "FAIL: tests/sibling.test.mjs" },
+    ],
+  );
+  assert.deepEqual(changing.inventory, {
+    complete: false,
+    failedJobs: 1,
+    gaps: [
+      { jobId: 1000, name: "job 0", reason: "no-test-identity" },
       {
-        kind: "test",
-        line: "not ok: sibling > asserts its result at tests/sibling.test.mjs:4:1",
+        reason: "attempt-unfinished",
+        jobs: [{ jobId: 1001, name: "job 1", status: "in_progress" }],
       },
-    ]);
-    assert.deepEqual(answer.inventory, {
-      complete: false,
-      failedJobs: 2,
-      gaps: [{ jobId: 1000, name: "job 0", reason: "no-test-identity" }],
-    });
-  },
-);
+    ],
+  });
+
+  // Once the sibling fails, its assertion is in the inventory.
+  github.set({
+    jobs: [job(0), job(1)],
+    answers: {
+      "jobs/1000/logs": { head: "HTTP/2.0 200 OK", body: npmSetupLog },
+      "jobs/1001/logs": { head: "HTTP/2.0 200 OK", body: assertionLog },
+    },
+  });
+  const settled = run(github);
+  assert.equal(await settled.exited, 0, settled.stderr());
+  const answer = JSON.parse(settled.stdout());
+  assert.deepEqual(answer.failedJobs[1].failures, [
+    { kind: "test", line: "FAIL: tests/sibling.test.mjs" },
+    {
+      kind: "test",
+      line: "not ok: sibling > asserts its result at tests/sibling.test.mjs:4:1",
+    },
+  ]);
+  assert.deepEqual(answer.inventory, {
+    complete: false,
+    failedJobs: 2,
+    gaps: [{ jobId: 1000, name: "job 0", reason: "no-test-identity" }],
+  });
+});
 
 test("failure lines past each job's bound are counted, not dropped silently", async () => {
   const many = Array.from(

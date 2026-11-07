@@ -60,7 +60,6 @@ const headerMarkAsDone = (panel: Locator) =>
 test.describe("marking a session done from its terminal", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>

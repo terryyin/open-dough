@@ -10,7 +10,6 @@ import {
   publishDoneReferences,
 } from "../storyReferenceDone.ts";
 
-test.setTimeout(120_000);
 test.use({ hasTouch: true });
 
 type NativeCompletion = {

@@ -15,8 +15,6 @@ import {
 } from "../support/storyCiComparisonTakenFixture.ts";
 import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
 
-test.setTimeout(90_000);
-
 for (const mode of ["story-branch", "trunk"] as const) {
   test(`a Taken adapter ${mode} story compares the completed ancestor of its running tip`, async ({
     page,

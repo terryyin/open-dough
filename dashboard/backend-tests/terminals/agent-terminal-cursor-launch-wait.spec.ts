@@ -36,8 +36,6 @@ function expectInstructionDeliveryTimedOut(
 }
 
 test.describe(`Cursor launch wait`, () => {
-  test.describe.configure({ timeout: 120_000 });
-
   test("the launch wait abort leaves the client running and a later ready screen accepts the instruction", async () => {
     const cursor = installFakeCursor({
       screen: "working",

@@ -41,7 +41,6 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   dashboard,
   origin,
 }) => {
-  test.setTimeout(180_000);
   const opened = new Date("2026-10-28T12:00:00.000Z");
   await pausePageClockAt(page, opened);
   const { passOnePace } = await watchRecordReads(page);
@@ -207,7 +206,6 @@ test("delayed first session read and a failed refresh keep existing read semanti
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   const opened = new Date("2026-10-28T12:00:00.000Z");
   await pausePageClockAt(page, opened);
   const { passOnePace } = await watchRecordReads(page);

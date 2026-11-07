@@ -14,7 +14,6 @@ import { writePlanning } from "../storyReadinessCli.ts";
 import { expectReadingTop } from "../readingPlace.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 
-test.setTimeout(120_000);
 test.use({ hasTouch: true });
 
 test("a dependency opens its active story, keeping the dashboard and inspection on repeated activation", async ({

@@ -40,8 +40,6 @@ import {
   scriptsOf,
 } from "../../tests/support/incompleteReportingInstall.ts";
 
-test.setTimeout(120_000);
-
 test.describe("Start-Continue settlement with incomplete launch-workspace support", () => {
   let origin: StartOrigin;
   let server: DashboardServer | undefined;

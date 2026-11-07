@@ -51,8 +51,6 @@ import {
   locationHeaderLook,
 } from "../intentLocationHeaderLook.ts";
 
-test.setTimeout(120_000);
-
 test("Intent highlights a selected Taken story's test changes over the published tree, each changed file with Review changes' own diff", async ({
   page,
   origin,

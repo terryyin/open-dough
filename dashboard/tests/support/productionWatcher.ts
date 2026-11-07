@@ -1,6 +1,6 @@
 // Observe the public production watcher through its own reported activations
 // and its default machine-home deployment checkouts.
-import { expect } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { dashboardCommand } from "./dashboardCommand.ts";
@@ -81,11 +81,25 @@ export async function productionActivation(
 ): Promise<ProductionActivation> {
   const expression = activationPattern(commit, restored);
   await expect
-    .poll(() => watcher?.output() ?? "", { timeout: 180_000 })
+    .poll(() => watcher?.output() ?? "", { timeout: 0 })
     .toMatch(expression);
   const match = expression.exec(watcher?.output() ?? "");
   if (!match?.[1] || !match[2]) throw new Error("Missing preview address/PID");
   return { url: match[1], pid: Number(match[2]) };
+}
+
+// Waits for the watcher to serve the commit, then opens the page at its URL
+// and checks the commit's title.
+export async function shownActivation(
+  watcher: ProductionWatcher | undefined,
+  commit: string,
+  page: Page,
+  title: string,
+): Promise<ProductionActivation> {
+  const served = await productionActivation(watcher, commit);
+  await page.goto(served.url);
+  await expect(page).toHaveTitle(title);
+  return served;
 }
 
 // Waits for the watcher to serve the commit in place of the running preview:
@@ -114,7 +128,7 @@ export async function checkedAfterActivation(
   expect(watcher?.output()).toMatch(activationPattern(commit));
   const checks = watcher?.checks() ?? 0;
   await expect
-    .poll(() => watcher?.checks() ?? 0, { timeout: 60_000 })
+    .poll(() => watcher?.checks() ?? 0, { timeout: 0 })
     .toBeGreaterThan(checks);
 }
 
@@ -146,7 +160,7 @@ export async function settledSkip(
   commit: string,
 ) {
   await expect
-    .poll(() => watcher?.output() ?? "", { timeout: 60_000 })
+    .poll(() => watcher?.output() ?? "", { timeout: 0 })
     .toContain(`Skipping production update ${commit}: `);
   const checks = watcher?.checks() ?? 0;
   await expect.poll(() => watcher?.checks() ?? 0).toBeGreaterThan(checks + 1);

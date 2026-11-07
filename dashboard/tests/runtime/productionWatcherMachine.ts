@@ -70,13 +70,26 @@ export class ProductionWatcherMachine {
     await fixture.installDevelopment();
     configureDevelopmentProjects(fixture.home);
     this.watcher = startProductionWatcher(fixture.development, env);
-    const served = await productionActivation(this.watcher, pinned);
-    const runner = await liveRunner(fixture.home);
-    const started = await developmentDashboard(fixture.development, env);
-    this.development = started.command;
     this.productionPage = await browser.newPage();
     this.developmentPage = await browser.newPage();
-    return { env, developmentUrl: started.url, pinned, served, runner };
+    return { env, pinned };
+  }
+
+  // The watcher's first activation and the Cursor runner it started.
+  async activated(pinned: string) {
+    const { fixture } = this.started();
+    const served = await productionActivation(this.watcher, pinned);
+    const runner = await liveRunner(fixture.home);
+    return { served, runner };
+  }
+
+  // Development beside production, started only after the production command
+  // has started the Cursor runner.
+  async developmentStarted(env: NodeJS.ProcessEnv) {
+    const { fixture } = this.started();
+    const started = await developmentDashboard(fixture.development, env);
+    this.development = started.command;
+    return started.url;
   }
 
   started() {

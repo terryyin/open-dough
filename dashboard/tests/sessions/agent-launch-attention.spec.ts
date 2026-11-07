@@ -1,6 +1,7 @@
 // Cards count local attention independently of published story membership.
 
-import type { Locator } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
+import type { DashboardServer } from "../support/dashboardServer.ts";
 import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import {
   chooseProject,
@@ -26,7 +27,12 @@ import {
   markNotReloaded,
   watchRecordReads,
 } from "../sessionStatePace.ts";
-import { openStoryColumnsJourney, type Workflow } from "../storyColumnsPage.ts";
+import type { Workflow } from "../storyColumnsPage.ts";
+import {
+  launchEachQueuedStory,
+  openQueuedStoryCards,
+  queuedStories,
+} from "../storyCardSessionListing.ts";
 import type { ClaudeSessionChange } from "../support/fakeClaude.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
 
@@ -65,27 +71,26 @@ const publishedFactsOf = async (card: Locator) => {
 test.describe("a story's card counts the sessions that need attention", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     columnsJourney = await publishStoryColumnsJourney();
   });
   test.afterAll(() =>
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
-  test("counts each card's affected sessions through Backlog, Preparing, and Taken, never another project's or an unknown one, and a story in no list keeps its affected session in local Taken", async ({
-    page,
-    dashboard,
-  }) => {
+  // Launches on each queued card (../storyCardSessionListing.ts) on a
+  // paused page; none needs attention yet.
+  const launchOnEachQueuedCard = async (
+    page: Page,
+    dashboard: DashboardServer,
+  ) => {
     await pausePageClockAt(page, new Date());
     const { passOnePace } = await watchRecordReads(page);
-    dashboard.claudeScenario("launched");
-    const { settled, show, launch } = await openStoryColumnsJourney(
+    const { settled, show, launch, card } = await openQueuedStoryCards(
       page,
+      dashboard,
       columnsJourney,
     );
     const { board, taken } = parts(page);
-    const card = (title: string) =>
-      board.getByRole("article", { name: title, exact: true });
     const entryOf = (title: string, workflow: Workflow) =>
       storyCardSessionOf(card(title), workflow);
     // The words each card with affected sessions shows; every other card
@@ -104,23 +109,15 @@ test.describe("a story's card counts the sessions that need attention", () => {
       words: string,
       needsAttention: boolean,
     ) => expectSessionShown(entryOf(title, workflow), words, needsAttention);
-    const queued = [takenStory, readyStory, notRefinedStory];
-    await expectMembership(page, { taken: [], backlog: queued });
-    await settled();
-
     const sessionOf = new Map<string, string>();
-    for (const [title, workflow] of [
-      [readyStory, "Execution"],
-      [notRefinedStory, "Execution"],
-      [takenStory, "Refinement"],
-    ] as const) {
+    await launchEachQueuedStory(async (title, workflow) => {
       await launch(title, workflow);
       await shows(title, workflow, "Working", false);
       sessionOf.set(
         `${title} ${workflow}`,
         await sessionNamedBy(entryOf(title, workflow)),
       );
-    }
+    });
     // Claude Code lists the story's session in this workflow anew.
     const becomes = (
       title: string,
@@ -131,6 +128,28 @@ test.describe("a story's card counts the sessions that need attention", () => {
       dashboard.claudeSessionBecomes(session, ...change);
     };
     await expectCounted({});
+    return {
+      passOnePace,
+      settled,
+      show,
+      launch,
+      board,
+      taken,
+      card,
+      entryOf,
+      expectCounted,
+      shows,
+      becomes,
+      queued: queuedStories,
+    };
+  };
+
+  test("counts each card's affected sessions in Backlog and Preparing, never an unknown one or while the listing cannot be read", async ({
+    page,
+    dashboard,
+  }) => {
+    const { passOnePace, show, card, expectCounted, shows, becomes, queued } =
+      await launchOnEachQueuedCard(page, dashboard);
     const facts = await publishedFactsOf(card(readyStory));
     await markNotReloaded(page);
 
@@ -177,7 +196,29 @@ test.describe("a story's card counts the sessions that need attention", () => {
       await expectMembership(page, { taken: [], backlog: queued });
       expect(await publishedFactsOf(card(readyStory))).toBe(preparingFacts);
     });
+  });
 
+  test("counts a Taken card's affected sessions and only the shown project's, and a story in no list keeps its affected session in local Taken", async ({
+    page,
+    dashboard,
+  }) => {
+    const {
+      passOnePace,
+      settled,
+      show,
+      launch,
+      board,
+      taken,
+      card,
+      entryOf,
+      expectCounted,
+      shows,
+      becomes,
+    } = await launchOnEachQueuedCard(page, dashboard);
+    // The states the Backlog and Preparing journey leaves: the not-refined
+    // story's session is ready for review and the Refinement is unavailable.
+    becomes(notRefinedStory, "Execution", "done-live");
+    becomes(takenStory, "Refinement", "forgotten");
     const takenColumns = {
       taken: [readyStory],
       backlog: [takenStory, notRefinedStory],

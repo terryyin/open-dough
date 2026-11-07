@@ -38,8 +38,6 @@ import {
   nestedComparisonRows,
 } from "../support/summaryComparisonExpectedRows.ts";
 
-test.setTimeout(240_000);
-
 for (const variant of [undefined, "own-conflict-extra"] as const) {
   const label =
     variant === undefined
@@ -49,7 +47,6 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     page,
     origin,
   }) => {
-    test.slow();
     // Fixture already deletes the branch and advances trunk (example 6).
     const setup = await publishSummaryComparisonStory(page, origin, variant);
     const { intent } = await selectDoneStoryForSummaryComparison(page);

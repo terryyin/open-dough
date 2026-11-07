@@ -30,7 +30,6 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
   dashboard,
   origin,
 }) => {
-  test.setTimeout(120_000);
   dashboard.claudeScenario("held");
   const { story, other } = await openStories(page, origin);
   await story.getByRole("button", { name: "Start refinement" }).click();

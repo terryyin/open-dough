@@ -3,7 +3,7 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "./pageTest.ts";
+import { expect } from "./pageTest.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
 import {
   lastAttachEnded,
@@ -27,7 +27,6 @@ import { instruction } from "./cursorRunnerJourney.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 
 export async function serverCloseLeavesCursorAndHangsUpOtherHosts(): Promise<void> {
-  test.setTimeout(180_000);
   const cursor = installFakeCursor({ working: true });
   const machine = path.join(
     tmpdir(),

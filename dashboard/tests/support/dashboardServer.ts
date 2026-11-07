@@ -21,7 +21,7 @@
 // fake GitHub's answers never leak between tests.
 
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
@@ -79,6 +79,10 @@ export type DashboardServer = {
   ghCalls(): string[][];
   ghPid(): number | undefined;
   ghExitedBy(): string | undefined;
+  // Runs the clock this server measures shared-observation reuse windows by
+  // (../../server/observationClock.ts) `ms` further ahead; only on a server
+  // started with `observationClock`.
+  advanceObservationClock(ms: number): void;
   close(): Promise<void>;
 } & FakeClaudeControls;
 
@@ -109,6 +113,9 @@ export async function startDashboardServer(
     // Listing reuse ms (`../../server/revisionChecks.ts`); omitted/undefined forces 0
     // so fake-clock paced checks see one listing each; pass `checkReuseMs` for settled sharing.
     readonly revisionCheckReuseMs?: number | undefined;
+    // Whether the test controls the clock reuse windows are measured by
+    // (`advanceObservationClock`); the machine's own when unset.
+    readonly observationClock?: boolean | undefined;
     // The fake GitHub this server's `gh` asks; a fresh one, closed with the server, when omitted.
     readonly github?: FakeGitHub;
     // Request-owner endpoint shared with the test's other callers; this server's own when omitted.
@@ -186,6 +193,14 @@ export async function startDashboardServer(
   env["DOUGH_REVISION_CHECK_REUSE_MS"] = String(
     options.revisionCheckReuseMs ?? 0,
   );
+  const clockAheadFile = options.observationClock
+    ? path.join(tempRoot, "observation-clock-ahead")
+    : undefined;
+  let clockAheadMs = 0;
+  if (clockAheadFile !== undefined) {
+    writeFileSync(clockAheadFile, "0");
+    env["DOUGH_TEST_OBSERVATION_CLOCK_AHEAD_FILE"] = clockAheadFile;
+  }
 
   const { spawn, outDir } = serverLaunch(
     {
@@ -238,6 +253,13 @@ export async function startDashboardServer(
       } catch {
         return undefined;
       }
+    },
+    advanceObservationClock(ms) {
+      if (clockAheadFile === undefined) {
+        throw new Error("This server was not started with `observationClock`.");
+      }
+      clockAheadMs += ms;
+      writeFileSync(clockAheadFile, String(clockAheadMs));
     },
     ...claude.controls,
     async close() {

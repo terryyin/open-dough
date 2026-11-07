@@ -26,7 +26,6 @@ for (const closure of [
     origin,
     codexProtocol: native,
   }) => {
-    test.setTimeout(120000);
     if (native === undefined) throw new Error("Missing native fixture");
     const nativeSession = native;
     // The native calls of `methods` made since call `from`.

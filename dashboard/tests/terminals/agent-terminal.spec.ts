@@ -60,7 +60,6 @@ async function reportedSize(rows: Locator): Promise<string | undefined> {
 test.describe("the terminal beside the page", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
-    test.setTimeout(120_000);
     start.create();
     columnsJourney = await publishStoryColumnsJourney();
   });

@@ -28,7 +28,6 @@ test("a queued story starts Cursor execution in the dashboard workspace and the 
   origin,
   cursor,
 }) => {
-  test.setTimeout(120_000);
   const original = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,

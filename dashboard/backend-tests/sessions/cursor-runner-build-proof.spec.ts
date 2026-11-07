@@ -30,7 +30,6 @@ import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 
 for (const mode of ["wrong", "missing"] as const) {
   test(`a stand-in runner with ${mode} build proof is replaced before exec answers`, async () => {
-    test.setTimeout(60_000);
     const fixture = startRunnerProofFixture();
     try {
       const standIn = await startStandInRunner(fixture, mode);
@@ -54,7 +53,6 @@ for (const mode of ["wrong", "missing"] as const) {
 }
 
 test("a real runner whose recorded proof turns stale while holding a client is replaced once before new work", async () => {
-  test.setTimeout(60_000);
   const fixture = startRunnerProofFixture();
   try {
     await keepWorkingClient(fixture);
@@ -83,7 +81,6 @@ test("a real runner whose recorded proof turns stale while holding a client is r
 });
 
 test("an accepting process that does not answer the protocol is not replaced and exec starts no agent", async () => {
-  test.setTimeout(60_000);
   const fixture = startRunnerProofFixture();
   const sleeper = spawn(
     process.execPath,
@@ -162,7 +159,6 @@ test("build identity moves with a reached sibling in source mode and with the bu
 });
 
 test("terminal bridge joins a held client on a stale runner but resumes a not-held session on a current runner", async () => {
-  test.setTimeout(60_000);
   const fixture = startRunnerProofFixture();
   let heldBridge: Awaited<ReturnType<typeof bridgedProofTerminal>> | undefined;
   let resumedBridge:

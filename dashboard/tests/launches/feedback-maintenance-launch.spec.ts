@@ -50,7 +50,6 @@ test("a reached due date starts one Feedback maintenance session in Open Dough's
   page,
   github,
 }) => {
-  test.setTimeout(180_000);
   const origin = await startOrigin();
   const moving = await publishMovingOrigin(github);
   const yesterday = dayFromToday(-1);
@@ -127,7 +126,6 @@ test("a reached due date starts one Feedback maintenance session in Open Dough's
 test("an attention report notifies once and keeps the session open with no second launch; ended and deleted without the date advancing, it is not launched again", async ({
   github,
 }) => {
-  test.setTimeout(120_000);
   const origin = await startOrigin();
   const moving = await publishMovingOrigin(github);
   pushWatchList(moving, watchListDue(dayFromToday(-1)));

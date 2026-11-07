@@ -33,7 +33,6 @@ test.describe(`${name} touch session editing`, () => {
     origin,
     dashboard,
   }) => {
-    test.setTimeout(120_000);
     await openBacklog(page, origin);
     const launcher = startSession(page, "Open Dough");
     await tapWhereShown(launcher);
