@@ -628,6 +628,6 @@ A fresh source-review Commitments table named several distinct restrictions unde
   - Timestamp: 2026-11-07T13:23:51+08:00 (approx.; between source-review write and slice-1 acceptance)
   - Tool: Cursor
   - Open Dough release: unknown (source checkout skills; VERSION 0.3.87)
-  - Evidence: coordinator transcript `402174d0-70cd-415a-99d4-dc5cddd8b62b` narrative "Malformed commitment IDs are blocking the record"; StrReplace splitting `R5–R8q` / `R9–R12q` into `R5q` / `R12q` (and peers) in `.planning/slice-plans/488-extract-dashboard-frontend-tests/source-review.md` before re-record / `check --slice 1`
+  - Evidence: coordinator transcript `402174d0-70cd-415a-99d4-dc5cddd8b62b` narrative "Malformed commitment IDs are blocking the record"; StrReplace splitting `R5–R8q` / `R9–R12q` into `R5q` / `R12q` (and peers) in before-cleanup commit `80c1456f79fb951f5e8d7ceff55db1244e21796e` path `.planning/slice-plans/488-extract-dashboard-frontend-tests/source-review.md` before re-record / `check --slice 1`
   - Observed effect: one blocked observation pass and a mechanical Id rewrite before slice-1 obligations cleared
   - Inference: Qualified. Distinct from ODF-381 (Slice-column misuse) and ODF-391 (cell-shape malformations); here the Id column itself carried a range. Source-only review guidance that asks to number compound items separately was not followed for these restriction clusters.
