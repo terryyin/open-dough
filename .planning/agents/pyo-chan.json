@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "pyo-chan",
+  "email": "pyo-chan@example.org",
+  "identity": "SEED-259#scan-intent-ci-summaries",
+  "mode": "story-branch",
+  "branch": "claude/scan-ci-summaries-in-dashboard-intent",
+  "host": "claude",
+  "model": "opus"
+}
