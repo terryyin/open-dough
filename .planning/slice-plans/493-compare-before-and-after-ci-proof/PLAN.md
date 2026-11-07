@@ -245,3 +245,13 @@ Reported: slice 1 — "Deferred: Which build or timing measure each endpoint sup
 Story clause: "Which build or timing measure each endpoint supplies stays with its own stories"
 Disposition: excluded "Which build or timing measure each endpoint supplies stays with its own stories"
 Commitment: 34.4
+
+## Execution complete
+
+Product advice: On land onto current origin/main, rebase or reconcile with
+landed SEED-256 (plan 492) per Current decisions: the overall summary's
+difference and cue should use CI time without runner waits and keep wall
+time as context. Expect conflicts in IntentCiComparison.tsx and
+storyCiComparisonWording.ts. No new product story from this delivery;
+deferred promises stay deferred for wrap-up disposition. Final CI was still
+pending at review.
