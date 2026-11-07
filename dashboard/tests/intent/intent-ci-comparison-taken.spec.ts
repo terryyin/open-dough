@@ -9,14 +9,18 @@
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { notLandedYetWords } from "../../src/storyCiComparisonWording.ts";
-import { wall } from "../support/storyCiComparisonFixture.ts";
+import {
+  listedAttemptJobPages,
+  wall,
+} from "../support/storyCiComparisonFixture.ts";
+import { observedRerunJobs } from "../support/storyCiObservedJobs.ts";
 import {
   publishTakenComparedStoryBranch,
   publishTakenComparedTrunk,
 } from "../support/storyCiComparisonTakenFixture.ts";
 import { selectTakenStoryForCiComparison } from "../support/selectTakenStoryForCiComparison.ts";
 import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
-import { pausePageClockAt } from "../dashboardTest.ts";
+import { githubFor, pausePageClockAt } from "../dashboardTest.ts";
 import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
 import path from "node:path";
 
@@ -65,8 +69,12 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
   await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
     ["4 min 55 s", "4 min 47 s -8 s", "—"],
   );
+  expect(listedAttemptJobPages(githubFor(page).calls)).toEqual([
+    "101/1/1",
+    "102/1/1",
+  ]);
 
-  await test.step("a new branch head re-reads the provisional comparison", async () => {
+  await test.step("a new branch head reads only the newly shown attempt's jobs", async () => {
     const workspace = path.join(origin.machine, "another-agent-workspace");
     writeAt(workspace, "src/story.ts", "taken story work\nnext tip\n");
     commitAll(workspace, "advance the story branch");
@@ -81,9 +89,13 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     setup.serveRuns({
       ...setup.initialRuns,
       [nextTip]: [
-        wall(nextTip, 103, "2026-11-07T07:00:00Z", "2026-11-07T07:04:00Z"),
+        {
+          ...wall(nextTip, 103, "2026-11-06T10:05:19Z", "2026-11-06T10:10:38Z"),
+          attempt: 2,
+        },
       ],
     });
+    setup.serveJobs({ "103/2": observedRerunJobs });
     await passTimeUntilCheckedAfterSettled(page);
     await expect(
       panel.locator(".intent-ci-comparison-identity").nth(1),
@@ -91,9 +103,17 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     await expect(
       panel.locator(".intent-ci-comparison-identity").nth(1),
     ).toContainText("provisional");
+    await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+      "5 min 19 s",
+    );
     await expect(
-      panel.locator(".intent-ci-comparison-wall").nth(1),
-    ).toContainText("4 min");
+      panel.locator(".intent-ci-comparison-without-waits"),
+    ).toHaveText(["4 min 55 s", "5 min 12 s +17 s", "—"]);
+    expect(listedAttemptJobPages(githubFor(page).calls)).toEqual([
+      "101/1/1",
+      "102/1/1",
+      "103/2/1",
+    ]);
     await expect(status.locator(".intent-ci-state")).toContainText(
       shortSha(nextTip),
       { timeout: 60_000 },

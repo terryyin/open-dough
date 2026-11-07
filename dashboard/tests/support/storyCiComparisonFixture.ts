@@ -24,6 +24,7 @@ import {
   type ComparisonProofServe,
 } from "./storyCiComparisonEntryProofs.ts";
 import type { CommittedOrigin } from "../committedOrigin.ts";
+import type { GhCall } from "./fakeGitHub.ts";
 
 export type { ComparisonProofServe } from "./storyCiComparisonEntryProofs.ts";
 export {
@@ -97,6 +98,18 @@ export const comparisonWorkflow = readFileSync(
 );
 
 type AttemptJobs = Record<string, readonly ReportedAttemptJob[]>;
+
+export function listedAttemptJobPages(calls: readonly GhCall[]): string[] {
+  return calls
+    .flatMap(({ request }) =>
+      request.kind === "actions-attempt-jobs"
+        ? [
+            `${String(request.runId)}/${String(request.attempt)}/${String(request.page)}`,
+          ]
+        : [],
+    )
+    .sort();
+}
 
 export type StoryCiComparisonSetup = {
   readonly identity: string;

@@ -11,6 +11,7 @@
 - GitHub Actions `terryyin/open-dough`, selector `ci.yml` (CI), observing the story branch from this checkout. Codex coordinator `DavidKo-chan-492`, mailbox `/tmp/dough-ci-501/watch-BBvPeM`, PID 29311, stream session 98623, cell `g2:7`. Managed delivery registers increments against that stream.
 - Locked npm install, dashboard typecheck and Chromium setup succeeded in this checkout under the AC sleep guard.
 - Slice 1 published and registered at `10fa0a78c0f048002423198e1ad83d885445e2df` on the story branch, extending the claim. Full lint and the check-only commit hook passed.
+- Slice 2 published and registered at `8f92cfc24c9acddee28cb6d7636206dc838bf31d` on the story branch, extending slice 1. The selective formatter and commit hook passed.
 
 ## Goal and scope
 
@@ -175,7 +176,7 @@ caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTOR
 
 ### 3. Remember completed attempts' jobs and document the cost
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-comparison-taken.spec.ts` counts one attempt-jobs request
 per completed attempt across two reads of the same Taken comparison;
 `dashboard/GITHUB-REQUESTS.md` and `docs/dashboard-development-intent.md`
@@ -185,6 +186,19 @@ Behavior: A Taken story's comparison is read, then read again on a new branch
 head whose Baseline attempt is unchanged → the second read lists no jobs for
 the Baseline attempt; the request documentation names one jobs listing per
 newly shown completed attempt (per 100 jobs).
+
+Accepted proof: the guarded typecheck and all 34 focused tests passed. The
+Taken branch-head update lists only new attempt 103/2, leaving Baseline 101/1
+and the earlier branch 102/1 each at one jobs page, and shows the new estimate
+with its signed difference. Branch and Landed share one listing when they
+name the same fast-forward attempt. The GitHub acquisition test passed all
+three checks, including the existing reader's two-page request sequence.
+The consumer trace dispositioned shared transport, fixtures, and docs.
+
+```sh
+caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES zsh -c 'npm run --silent typecheck:dashboard && npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts dashboard/tests/intent/intent-ci-comparison*.spec.ts dashboard/tests/intent/intent-summary-story-comparison*.spec.ts'
+caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node --test src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs
+```
 
 ## Plan concerns
 

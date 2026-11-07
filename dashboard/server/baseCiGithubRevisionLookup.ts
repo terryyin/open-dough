@@ -14,6 +14,9 @@ import {
 import type { ListedRun } from "./baseCiNearest.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
+import { rememberedByKey } from "./rememberedByKey.ts";
+
+const rememberedAttemptJobs = rememberedByKey<readonly ReportedAttemptJob[]>();
 
 export async function firstParentChain(
   start: string,
@@ -75,6 +78,31 @@ export function githubRevisionLookup(
     repo: source.repository,
     workflow,
   });
+  // Slots in one comparison can name the same attempt and share its signal.
+  const pendingAttemptJobs = new Map<
+    string,
+    Promise<readonly ReportedAttemptJob[]>
+  >();
+  const repository = source.repository.toLowerCase();
+  function jobsOf(runId: number, attempt: number) {
+    const key = `${repository}#${String(runId)}#${String(attempt)}`;
+    const remembered = rememberedAttemptJobs.get(key);
+    if (remembered !== undefined) return Promise.resolve(remembered);
+    const pending = pendingAttemptJobs.get(key);
+    if (pending !== undefined) return pending;
+    const read = github
+      .attemptJobs(runId, attempt, signal)
+      .then((jobs: readonly ReportedAttemptJob[]) => {
+        rememberedAttemptJobs.set(key, jobs);
+        return jobs;
+      })
+      .finally(() => {
+        pendingAttemptJobs.delete(key);
+      });
+    pendingAttemptJobs.set(key, read);
+    return read;
+  }
+
   return {
     async timeWithoutRunnerWaitsOf({ revision, runId, runAttempt, state }) {
       if (runId === undefined || runAttempt === undefined)
@@ -100,7 +128,7 @@ export function githubRevisionLookup(
       }
       let jobs: readonly ReportedAttemptJob[];
       try {
-        jobs = await github.attemptJobs(runId, runAttempt, signal);
+        jobs = await jobsOf(runId, runAttempt);
       } catch {
         return { reason: "The build's attempt jobs could not be read." };
       }

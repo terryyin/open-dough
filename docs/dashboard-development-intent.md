@@ -109,26 +109,20 @@ trunk results of the same check also count when the commit is in the branch's
 history (the run's branch is named, for example "run on `main`"); a trunk
 result for a commit outside that history never counts. The nearest commit
 with a result decides by its newest result; a failed trunk read leaves
-**Could not be read**. A selected **done** story shows a **CI timing
-comparison** instead of a live branch judgment: baseline (newest completed
-build at or before the story's first claim parent), branch result (final
-story-branch revision's build from the landing's story-side parent, or not
-applicable for Trunk Mode), and landed result (build at the story's
-integration: the newest trunk-first owning merge, or the fast-forward tip when
-there is none — never a later completion-only commit, and with no
-measured-ancestor fallback across that landing), each named with revision, run,
-attempt, state and whether it is exact or a measured ancestor, with CI wall
-time and signed whole-second differences framed as observations between single
-builds (not attributed to the story), then entry rows with each endpoint's
-cumulative test execution time. Endpoint recovery for those builds is
-independent of Review changes' merge-resolution attribution; a Review
-attribution refusal does not suppress the comparison at homepage, entry,
-folder or file scopes. A selected **Taken** Story Branch story keeps that live
-judgment and adds the same comparison against the pre-story baseline, with the
-latest completed branch build labelled provisional and Landed saying the story
-has not landed yet; a new branch head re-reads it. A selected **Taken** Trunk
-Mode story shows that provisional trunk comparison (Branch not applicable,
-Landed not yet landed) instead of a no-branch gap. A selected story with no
+**Could not be read**. A selected **done** story shows a **CI timing comparison**. Baseline uses the
+newest completed build at or before the first claim parent. Branch starts at the landing's story-side
+parent and is inapplicable in Trunk Mode. In Story Branch Mode, Landed uses the exact build at the
+newest trunk-first owning merge or, in its absence, the fast-forward tip. Each row gives the
+revision, run, attempt, state and exact or measured-ancestor selection.
+**CI wall time** spans run creation on attempt one or attempt start on a rerun through completion.
+**CI time without runner waits** measures the longest dependency chain from individual job durations,
+including carried-over jobs, matched to the workflow at the build's revision. Signed whole-second
+differences from Baseline compare single builds. A running build or one missing timing or dependency
+evidence shows why the estimate is unavailable and any available wall time. Entry rows show cumulative
+test execution time. Build recovery at every scope is independent of Review changes attribution.
+A selected **Taken** Story Branch story keeps live judgment and compares the latest completed branch
+build with Baseline. The provisional row re-reads at a new head. Taken Trunk Mode shows a provisional
+trunk row with Branch inapplicable. Landed says the story has not landed yet. A selected story with no
 published story branch (queued or being prepared), unreadable or ambiguous
 agent profiles, an unusable recorded name, or a branch GitHub no longer
 publishes is named with that explanation and shows no status; no other

@@ -38,6 +38,7 @@ export async function publishTakenComparedStoryBranch(
   readonly serveRuns: (
     runsBySha: Record<string, readonly CiRunAnswer[]>,
   ) => void;
+  readonly serveJobs: ReturnType<typeof serveActionsFor>["serveJobs"];
 }> {
   const baseline = precedeClaimWithPlanning(origin);
   const agent = await origin.takenByAnotherAgent();
