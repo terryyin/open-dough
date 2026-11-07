@@ -212,9 +212,8 @@ No remaining slice-specific concern was identified in this review.
 - Trunk Mode Landed and the provisional tip already walk measured
   ancestors, so they follow slice 3's walking rule rather than slice 2's
   equivalent-build rule.
-- Plans [492](../492-compare-ci-time-without-runner-waits/PLAN.md) and
-  [493](../493-compare-before-and-after-ci-proof/PLAN.md) are Taken and
+- SEED-256 (plan 492) and SEED-255 (plan 493) have landed and already
   touch `IntentCiComparison.tsx` and `storyCiComparisonWording.ts`. Rebase
-  onto whichever has landed and keep their wording.
+  onto current trunk and keep their wording.
 - Execute in Story Branch Mode or Trunk Mode as started. There is no
   trunk-only step.

@@ -124,7 +124,8 @@ CI made when it did not run. Showing the requested revision's status beside
 the observed proof source follows
 [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
 The before-and-after presentation of these labels belongs to
-[SEED-255](SEED-255-compare-before-and-after-ci-proof.md#compare-before-and-after-ci-proof).
+[Intent CI comparison](../../docs/dashboard-development-intent-ci-comparison.md)
+(delivered as SEED-255#compare-before-and-after-ci-proof).
 
 <a id="use-later-ci-proof-for-cancelled-landings"></a>
 
