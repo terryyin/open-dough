@@ -14,6 +14,7 @@ import {
   completeAndCommit,
   completingBranch,
   done,
+  doneRecord,
   entries,
   fileNames,
   items,
@@ -47,9 +48,11 @@ async function replayShape(t, { withCatalog }) {
       })
       .please(),
   );
-  await completingBranch(repo, "feature", ["C"], "2026-10-06T10:00:00.000Z");
-  await completeAndCommit(repo, "A", "2026-10-04T10:00:00.000Z");
-  await completeAndCommit(repo, "B", "2026-10-05T10:00:00.000Z");
+  completingBranch(repo, "feature", [
+    doneRecord("C", "2026-10-06T10:00:00.000Z"),
+  ]);
+  completeAndCommit(repo, doneRecord("A", "2026-10-04T10:00:00.000Z"));
+  completeAndCommit(repo, doneRecord("B", "2026-10-05T10:00:00.000Z"));
   if (!withCatalog) {
     repo.git(["rm", "-q", catalog]);
     repo.git(["commit", "-q", "-m", "publish without a catalog"]);
@@ -134,8 +137,10 @@ async function conflictingRecordShape(t) {
       })
       .please(),
   );
-  await completingBranch(repo, "feature", ["A"], "2026-10-05T10:00:00.000Z");
-  await completeAndCommit(repo, "A", "2026-10-06T10:00:00.000Z");
+  completingBranch(repo, "feature", [
+    doneRecord("A", "2026-10-05T10:00:00.000Z"),
+  ]);
+  completeAndCommit(repo, doneRecord("A", "2026-10-06T10:00:00.000Z"));
   repo.git(["rm", "-q", catalog]);
   repo.git(["commit", "-q", "-m", "publish without a catalog"]);
   checkout(repo, "feature");
@@ -213,14 +218,14 @@ test("a disputed rebase commits nothing beyond the replayed commits", async (t) 
   );
   repo.git(["checkout", "-q", "-b", "feature"]);
   commitOn(repo, shipping("one at a time"), "feature matches main");
-  await completeAndCommit(repo, "C");
+  completeAndCommit(repo, doneRecord("C", "2026-10-06T10:00:00.000Z"));
   repo.write(
     repo.read().replace("Ship one at a time.", "Ship only overnight."),
   );
   repo.git(["commit", "-q", "-am", "feature changes direction again"]);
   checkout(repo, "main");
   commitOn(repo, shipping("one at a time"), "main changes direction");
-  await completeAndCommit(repo, "A");
+  completeAndCommit(repo, doneRecord("A", "2026-10-06T10:00:00.000Z"));
   repo.git(["rm", "-q", catalog]);
   repo.git(["commit", "-q", "-m", "publish without a catalog"]);
   checkout(repo, "feature");

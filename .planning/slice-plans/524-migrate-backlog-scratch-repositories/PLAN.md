@@ -178,11 +178,25 @@ Git on the returned checkout.
 ### 2. Done-catalog branches declare their records and profiles
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Run the five tests that call the setup helpers: done-catalog,
 replay, done-catalog agent credit, driver lifetime and merge live profile. They pass with unchanged
 assertions. A search shows `complete` in setup only where the case proves it.
 Record before and after times.
+
+Accepted 2026-11-08: `completeAndCommit(repo, record, { released })` and
+`completingBranch(repo, branch, records)` commit a declared `doneRecord(name,
+completedAt, facts)`, with the entry removed by production
+`completeEntry` and the catalog rebuilt by production `rebuildDoneCatalog`.
+A scratch equivalence build against the real `complete` gave identical trees,
+authors and subjects. Five-file run: before 6.5 s and 6.7 s (load 9.6), after
+6.7 s (9.8) and 6.2 s (10.1). Learning: `complete` also releases the
+executing profile and copies its agent, host and model into the record, so
+live-profile cases declare that through `completedBy(profile)`. The refactor
+pass dropped the record developer where no case reads it (the adapters credit
+the developer from Git config) and moved the publication-merge case into
+`product-backlog-git-done-catalog-publication.test.mjs`; the six files and the
+done-records publication consumer passed in 6.1 s at load 3.7.
 
 Behavior: a done-catalog case that arranges "feature completed B at
 2026-10-05" → its branch commit holds the declared done record and derived

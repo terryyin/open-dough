@@ -8,14 +8,14 @@ Launched 2026-11-08 by the coordinator as a fresh general-purpose agent (no conv
 | --- | --- | --- | --- |
 | 1 | A maintainer reading a `tests/support` Node test that needs Git can see, at its call site, which repository facts drive the case. | slice 5 | |
 | 1.1 | The facts that drive the case include the published backlog. | slice 1 | observed: tests/support/product-backlog-git-merge.test.mjs call sites declare backlog via makeMe.aRepository.withRevision(ancestor,{backlog}) |
-| 1.2 | They include done records. | slice 2 | |
-| 1.3 | They include agent profiles. | slice 2 | |
+| 1.2 | They include done records. | slice 2 | observed: done-catalog tests call doneRecord(name,{completedAt,developer}) at call sites (e.g. done-catalog-agent-credit.test.mjs agentWorkspaceReplay) |
+| 1.3 | They include agent profiles. | slice 2 | observed: merge-live-profile.test.mjs declares profiles via makeMe.anAgentProfile and completedBy(profile); takeAndCommit writes anAgentProfile |
 | 1.4 | They include seeds. | slice 3 | |
 | 1.5 | They include the ordered revisions the product reads. | slice 5 | |
 | 1.6 | They include the developer and committer the product credits. | slice 3 | |
 | 2 | Today `scratchRepo` commits the starting backlog as "Test", and `gitWorkspace` configures "Terry Yin" as the developer by default (current state to be replaced by call-site declaration). | slice 3 | |
 | 3 | Done record tests assert the developer name although only the fixture states it (current problem to remove). | slice 3 | |
-| 4 | Setup helpers that run the real `complete` or `take` are called 33 times to arrange done records and profiles for cases whose subject is a merge, rebase or cherry-pick (current problem to remove). | slice 2 | |
+| 4 | Setup helpers that run the real `complete` or `take` are called 33 times to arrange done records and profiles for cases whose subject is a merge, rebase or cherry-pick (current problem to remove). | slice 2 | observed: grep of done-catalog fixture and 5 tests: only catalog-done in assertCatalogDoneAgrees (observation), no complete/take in setup |
 | 5 | The story moves these repositories onto the shared repository description (`tests/support/repository-fixture.mjs`). | slice 5 | |
 | 6 | Node test feedback must not get slower. | slice 5 | |
 | 7 | Route the starting repository of each `tests/support` Node test that makes one through the shared description and materializer. | slice 5 | |
@@ -30,10 +30,10 @@ Launched 2026-11-08 by the coordinator as a fresh general-purpose agent (no conv
 | 10 | `backlogOf` stays the independently written byte expectation and is no longer the arrangement. | slice 1 | observed: assertions unchanged (no assert lines in diff); backlogOf/item/items remain expectations |
 | 11 | Exact malformed or legacy lines under proof (such as an entry with no link) stay literal file bytes. | slice 1 | observed: legacy link-only lines stay literal in expectations and branch commits; linkedEntry renders identical bytes |
 | 12 | The configured developer, the committer and an agent author are declared at the call site when the product reads them. | slice 3 | |
-| 13 | Arrange a transition directly when the test does not prove it. | slice 2 | |
-| 13.1 | A done record and catalog come from `aDoneRecord`, `renderDoneRecord` and the catalog derivation instead of running `complete` in setup. | slice 2 | |
-| 13.2 | A profile comes from `anAgentProfile` instead of running `take` in setup. | slice 2 | |
-| 13.3 | A case whose subject is one of those commands still runs it for real. | slice 2 | |
+| 13 | Arrange a transition directly when the test does not prove it. | slice 2 | observed: completeAndCommit/completingBranch commit declared records; 5-file scripts/test.sh run exit 0 |
+| 13.1 | A done record and catalog come from `aDoneRecord`, `renderDoneRecord` and the catalog derivation instead of running `complete` in setup. | slice 2 | observed: completeAndCommit: makeMe.aDoneRecord + writeRevisionFiles(renderDoneRecord) + production rebuildDoneCatalog |
+| 13.2 | A profile comes from `anAgentProfile` instead of running `take` in setup. | slice 2 | observed: takeAndCommit writes anAgentProfile through writeRevisionFiles; no take CLI |
+| 13.3 | A case whose subject is one of those commands still runs it for real. | slice 2 | observed: assertCatalogDoneAgrees still runs real catalog-done where the case proves it |
 | 14 | Branches, merges, rebases, cherry-picks, conflicts, linked worktrees, ongoing operation states and staged or unstaged changes stay Git operations in the test. | slice 5 | |
 | 15 | The file content of those Git-operation cases comes from MakeMe or literal bytes, as the starting revision's does. | slice 5 | |
 | 16 | Copied runner and lint tooling, linked dependencies, the merge driver registration and an init without templates are harness layers or materializer options, not description facts. | slice 4 | |
@@ -47,10 +47,10 @@ Launched 2026-11-08 by the coordinator as a fresh general-purpose agent (no conv
 | 22 | Example 2, developer under proof: the done-record test declares Terry Yin as the configured developer at its call site. | slice 3 | |
 | 22.1 | The real `complete` records Terry Yin. | slice 3 | |
 | 22.2 | No fixture default supplies that name. | slice 3 | |
-| 23 | Example 3, transition declared: a done-catalog rebase case declares a `feature` branch holding Story B's done record, completed at 2026-10-05, and the rebuilt catalog. | slice 2 | |
-| 23.1 | No `complete` runs during setup. | slice 2 | |
-| 23.2 | The real rebase still adds the same catalog commit as the agent. | slice 2 | |
-| 23.3 | The real rebase still credits the developer once. | slice 2 | |
+| 23 | Example 3, transition declared: a done-catalog rebase case declares a `feature` branch holding Story B's done record, completed at 2026-10-05, and the rebuilt catalog. | slice 2 | observed: done-catalog-agent-credit.test.mjs agentWorkspaceReplay: feature branch holds doneRecord B completedAt 2026-10-05 plus rebuilt catalog |
+| 23.1 | No `complete` runs during setup. | slice 2 | observed: same setup runs no complete CLI (grep result) |
+| 23.2 | The real rebase still adds the same catalog commit as the agent. | slice 2 | observed: done-catalog-agent-credit.test.mjs unchanged assertion: catalog commit authored Yui-chan; passes |
+| 23.3 | The real rebase still credits the developer once. | slice 2 | observed: same test unchanged assertion: Dana Developer credited once in Co-authored-by; passes |
 | 24 | Example 4, history the product reads: the identity evidence case declares three revisions. | slice 3 | |
 | 24.1 | "Active work" holds the active seeds. | slice 3 | |
 | 24.2 | "Allocate SEED-090" adds its seed and done record. | slice 3 | |

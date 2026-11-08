@@ -1,24 +1,22 @@
 // Shared precondition and observation for the done catalog through the
-// Git-aware backlog adapters: done records and catalogs written by the real
-// `complete` and `catalog-done` commands on real branches, and a committed
-// catalog checked against the committed record files at Git's own blob
-// hashes and against what `catalog-done` would write from them.
+// Git-aware backlog adapters: declared done records and agent profiles
+// committed on real branches as `complete` and `take` publish them, with the
+// catalog derived from the record files by the product's own rebuild, and a
+// committed catalog checked against the committed record files at Git's own
+// blob hashes and against what the real `catalog-done` would write from them.
 import assert from "node:assert/strict";
 import { execFile, spawnSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import {
-  agentIdentity,
-  renderAgentProfile,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { completeEntry } from "../../src/skills/dough-product-backlog/scripts/product-backlog-complete.mjs";
 import {
   doneCatalogMismatch,
   parseDoneCatalog,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import { makeMe } from "./makeMe.mjs";
 import { checkout } from "./product-backlog-git-fixture.mjs";
+import { writeRevisionFiles } from "./repository-revision-files.mjs";
 
 const exec = promisify(execFile);
 const backlogCli = fileURLToPath(
@@ -45,29 +43,31 @@ export const entries = (...names) =>
       .please(),
   );
 
-// Runs the real backlog command in `directory` at a fixed completion time.
-async function backlogCommand(
-  directory,
-  args,
-  time = "2026-10-06T10:00:00.000Z",
-) {
-  const { stdout } = await exec(process.execPath, [backlogCli, ...args], {
-    cwd: directory,
-    env: { ...process.env, DOUGH_BACKLOG_COMPLETION_TIME: time },
-  });
-  return stdout;
-}
+// The done record of the entry `entries` declares for `name`, completed at
+// `completedAt` with any further `facts` the case reads (`developer`,
+// `agent`, `host`, `model`), as `makeMe.aDoneRecord`.
+export const doneRecord = (name, completedAt, facts = {}) =>
+  makeMe.aDoneRecord
+    .with({
+      identity: `${name}#${name}`,
+      title: `Item ${name}`,
+      completedAt,
+      ...facts,
+    })
+    .please();
 
-// Completes `name` on the checked-out branch with the real command and
-// commits everything it changed.
-export async function completeAndCommit(repo, name, time) {
-  await backlogCommand(
-    repo.directory,
-    ["complete", "--identity", `${name}#${name}`],
-    time,
-  );
+// Commits on the checked-out branch the completion `complete` would publish
+// for `record`: its backlog entry removed, the record written, the
+// `released` agent profile (as `anAgentProfile` builds it) removed, and the
+// catalog rebuilt from the record files.
+export function completeAndCommit(repo, record, { released } = {}) {
+  repo.write(completeEntry(repo.read(), { identity: record.identity }).source);
+  writeRevisionFiles(repo.directory, {
+    doneRecords: [record],
+    remove: released ? [profilePath(released.name)] : [],
+  });
   repo.git(["add", "-A"]);
-  repo.git(["commit", "-q", "-m", `complete ${name}`]);
+  repo.git(["commit", "-q", "-m", `complete ${record.identity.split("#")[0]}`]);
 }
 
 // The profile path, beside the backlog, of the agent `name`.
@@ -76,18 +76,16 @@ export const profilePath = (name) => `.planning/${agentIdentity(name).path}`;
 // Publishes on the checked-out branch the agent profile `profile` (as
 // MakeMe's `anAgentProfile` builds it), as a Take commits it.
 export function takeAndCommit(repo, profile) {
-  const file = join(repo.directory, profilePath(profile.name));
-  mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, renderAgentProfile(profile));
+  writeRevisionFiles(repo.directory, { agentProfiles: [profile] });
   repo.git(["add", "-A"]);
   repo.git(["commit", "-q", "-m", `take ${profile.identity}`]);
 }
 
-// A branch from the current commit holding the completions `names`, returning
-// to `main` afterward.
-export async function completingBranch(repo, branch, names, time) {
+// A branch from the current commit holding the completions of `records`,
+// one commit each, returning to `main` afterward.
+export function completingBranch(repo, branch, records) {
   repo.git(["checkout", "-q", "-b", branch]);
-  for (const name of names) await completeAndCommit(repo, name, time);
+  for (const record of records) completeAndCommit(repo, record);
   checkout(repo, "main");
 }
 
@@ -140,7 +138,9 @@ export function assertCommittedCatalogCurrent(git, rev) {
 // `catalog-done` run over the committed checkout writes nothing new: the
 // committed catalog is exactly what it would produce from the records.
 export async function assertCatalogDoneAgrees(repo) {
-  await backlogCommand(repo.directory, ["catalog-done"]);
+  await exec(process.execPath, [backlogCli, "catalog-done"], {
+    cwd: repo.directory,
+  });
   assert.equal(repo.git(["status", "--porcelain"]), "");
 }
 

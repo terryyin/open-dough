@@ -13,6 +13,7 @@ import {
   catalog,
   completeAndCommit,
   completingBranch,
+  doneRecord,
   entries,
   fileNames,
 } from "./product-backlog-git-done-catalog-fixture.mjs";
@@ -40,8 +41,10 @@ async function agentWorkspaceReplay(t) {
       })
       .please(),
   );
-  await completingBranch(repo, "feature", ["B"], "2026-10-05T10:00:00.000Z");
-  await completeAndCommit(repo, "A", "2026-10-04T10:00:00.000Z");
+  completingBranch(repo, "feature", [
+    doneRecord("B", "2026-10-05T10:00:00.000Z"),
+  ]);
+  completeAndCommit(repo, doneRecord("A", "2026-10-04T10:00:00.000Z"));
   repo.git(["rm", "-q", catalog]);
   repo.git(["commit", "-q", "-m", "publish without a catalog"]);
   const worktree = linkedWorktree(t, repo, "feature");

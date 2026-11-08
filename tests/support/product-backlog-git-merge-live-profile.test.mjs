@@ -2,13 +2,15 @@
 // completes the story whose profile was the last in `agents/`, Git must not
 // read that as the whole directory moving into `done/` and carry the other
 // side's live profile along, and a hand resolution that moved it there anyway
-// is held by `continue`. Real scratch repositories, real `complete`, and the
-// real adapter CLI, asserted on the committed or still-stopped merge.
+// is held by `continue`. Real scratch repositories, completions committed as
+// `complete` publishes them, and the real adapter CLI, asserted on the
+// committed or still-stopped merge.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
+import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "./makeMe.mjs";
 import { direction } from "./product-backlog-fixture.mjs";
 import {
@@ -16,6 +18,7 @@ import {
   assertCommittedCatalogCurrent,
   completeAndCommit,
   done,
+  doneRecord,
   entries,
   fileNames,
   profilePath,
@@ -30,6 +33,7 @@ import {
   refSha,
   run,
 } from "./product-backlog-git-fixture.mjs";
+import { integrationDeveloper } from "./repository-fixture.mjs";
 
 const doneFiles = (repo, rev) =>
   repo
@@ -52,6 +56,16 @@ const executing = (name, identity) =>
       model: "opus",
     })
     .please();
+
+// The record `complete` writes for the story `profile` was executing, by the
+// checkout's configured developer, releasing that profile.
+const completedBy = (profile) =>
+  doneRecord(profile.identity.split("#")[0], "2026-10-06T10:00:00.000Z", {
+    developer: integrationDeveloper.name,
+    agent: agentIdentity(profile.name).agent,
+    host: profile.host,
+    model: profile.model,
+  });
 
 // The adapter's answer, with the index state it left, for a failure message.
 const outcome = (repo, result) =>
@@ -92,14 +106,15 @@ test("merging trunk that completed the story holding the last profile keeps the 
       .please(),
   );
   // Base: agents/ holds only A's profile.
-  takeAndCommit(repo, executing("pyo", "A#A"));
+  const pyo = executing("pyo", "A#A");
+  takeAndCommit(repo, pyo);
   // The story branch takes B, adding its profile beside A's.
   repo.git(["checkout", "-q", "-b", "story-b"]);
   takeAndCommit(repo, executing("joey", "B#B"));
   const blobB = refSha(repo, `HEAD:${profilePath("joey")}`);
   // Trunk completes A: its profile is replaced by A's done record.
   checkout(repo, "main");
-  await completeAndCommit(repo, "A");
+  completeAndCommit(repo, completedBy(pyo), { released: pyo });
   checkout(repo, "story-b");
 
   const merged = await run(repo, ["merge", "--ref", "main"]);
@@ -122,10 +137,11 @@ test("merging trunk that took another story into a branch completing the last pr
       .please(),
   );
   // Base: agents/ holds only B's profile.
-  takeAndCommit(repo, executing("joey", "B#B"));
+  const joey = executing("joey", "B#B");
+  takeAndCommit(repo, joey);
   // The story branch completes B: its profile is replaced by B's done record.
   repo.git(["checkout", "-q", "-b", "story-b"]);
-  await completeAndCommit(repo, "B");
+  completeAndCommit(repo, completedBy(joey), { released: joey });
   // Trunk meanwhile takes C.
   checkout(repo, "main");
   takeAndCommit(repo, executing("Akiho", "C#C"));
@@ -156,12 +172,13 @@ test("continue holds a staged result with a live profile under done/ until it is
       })
       .please(),
   );
-  takeAndCommit(repo, executing("pyo", "A#A"));
+  const pyo = executing("pyo", "A#A");
+  takeAndCommit(repo, pyo);
   repo.git(["checkout", "-q", "-b", "story-b"]);
   takeAndCommit(repo, executing("joey", "B#B"));
   const blobB = refSha(repo, `HEAD:${profilePath("joey")}`);
   checkout(repo, "main");
-  await completeAndCommit(repo, "A");
+  completeAndCommit(repo, completedBy(pyo), { released: pyo });
   checkout(repo, "story-b");
   const misplaced = `${done}/joey-chan.json`;
   // A stopped integration in Git's default directory-rename mode leaves the

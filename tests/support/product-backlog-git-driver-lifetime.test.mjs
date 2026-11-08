@@ -14,6 +14,7 @@ import {
   assertCommittedCatalogCurrent,
   completeAndCommit,
   completingBranch,
+  doneRecord,
   entries,
   fileNames,
 } from "./product-backlog-git-done-catalog-fixture.mjs";
@@ -33,9 +34,13 @@ test("both registered merge drivers survive retiring the registering worktree", 
     join(repo.directory, installed),
     { recursive: true },
   );
-  await completeAndCommit(repo, "A");
-  await completingBranch(repo, "close-b", ["B"]);
-  await completingBranch(repo, "close-c", ["C"]);
+  completeAndCommit(repo, doneRecord("A", "2026-10-06T10:00:00.000Z"));
+  completingBranch(repo, "close-b", [
+    doneRecord("B", "2026-10-06T10:00:00.000Z"),
+  ]);
+  completingBranch(repo, "close-c", [
+    doneRecord("C", "2026-10-06T10:00:00.000Z"),
+  ]);
   const before = repo.git(["rev-parse", "close-b"]).trim();
   const workspace = linkedWorktree(t, repo, "close-b");
   const registered = await runCli(
