@@ -198,6 +198,14 @@ backend specs 20 passed after the refactor pass moved the input-order check
 into `expectFollowUpInput`; typecheck exit 0. No product code changed: Codex
 and Cursor input already route through `unattachedInput`, and Cursor's
 blank-with-model refusal applies only when no prompt exists.
+CI repair: run 42463947610 on `0c793f770` failed
+`github-request-login-secrecy.test.mjs` (alice's gh calls 3, expected 4): its
+stand-in owner resolved before the consumer's connection closed, so the next
+request could be lost as connection-lost. The stand-in now resolves on the
+connection's close; the file passed 70/70 (40 under CPU load) and its
+`github-request-*` siblings pass. The same run's other five failed jobs and
+`ci-proof` stopped at Node or lint-tool acquisition (setup-node timeout, HTTP
+504), as did about six unrelated branches in the same window: infrastructure.
 
 Behavior: A follow-up started with Codex or Cursor, with and without an
 established session → Codex's input, including the one rebuilt from the
