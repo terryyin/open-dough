@@ -22,7 +22,6 @@ import {
   assertCheckoutUnchanged,
   authorizedRemote,
   captureCheckout,
-  createCleanTrunkFixture,
   currentBranch,
   executionBranch,
   git,
@@ -43,6 +42,7 @@ import "./closure-story-fast-forward-cases.mjs";
 import "./closure-story-integrated-state-cases.mjs";
 import "./closure-story-landing-retention-cases.mjs";
 import "./closure-story-uncommitted-merge-cases.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 // Unaffected `trunk.txt` content, which the planted human edit changes and
 // the published candidate keeps, and a story workspace one commit ahead.
@@ -68,7 +68,7 @@ for (const [remote, branch] of [
   ["upstream", "trunk"],
 ]) {
   test(`a racing advance of ${remote}/${branch} publishes one history-preserving candidate there and retries do not publish again`, async (t) => {
-    const fixture = await createCleanTrunkFixture(trunkWithStory);
+    const fixture = await materializeRepository(trunkWithStory);
     t.after(fixture.cleanup);
     const { integration, execution } = fixture;
     const target = `refs/heads/${branch}`;

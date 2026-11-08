@@ -7,7 +7,6 @@ import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   revParse,
@@ -22,6 +21,8 @@ import {
   storyB,
   trunkWithBacklogAt,
 } from "./publication-done-records-fixture.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
 
 // Stories A and B are both Taken on the published trunk, in the backlog at
 // `file`.
@@ -78,7 +79,7 @@ for (const publisher of ["history", "execution", "resume"]) {
 }
 
 test("ordinary publication accepts legacy backlog text beside only an empty done catalog", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(fixture.cleanup);
   const { execution, origin, trunkSha } = fixture;
   const file = "delivery/custom.md";

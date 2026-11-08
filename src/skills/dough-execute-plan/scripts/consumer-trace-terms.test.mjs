@@ -11,8 +11,8 @@ import { repository, section, trace } from "./consumer-trace-test-fixtures.mjs";
 
 const contract = "src/contract/runnerProtocol.ts";
 
-test("a base revision derives terms from the change, so an untouched stand-in and a test of a removed message are found", (t) => {
-  const root = repository(t, {
+test("a base revision derives terms from the change, so an untouched stand-in and a test of a removed message are found", async (t) => {
+  const root = await repository(t, {
     [contract]:
       'export interface RunnerHello {\n  pid: number;\n}\nexport const READY_MESSAGE = "runner is ready";\n',
     "src/contract/legacyHello.ts": "export function legacyHello() {}\n",
@@ -63,12 +63,12 @@ test("a base revision derives terms from the change, so an untouched stand-in an
   assert.doesNotMatch(production, /unrelated/);
 });
 
-test("a derived term found in most files is recorded as too broad and lists no file by itself", (t) => {
+test("a derived term found in most files is recorded as too broad and lists no file by itself", async (t) => {
   const files = { "src/shape.ts": "export const shape = {};\n" };
   for (let index = 0; index < 24; index += 1)
     files[`src/user${index}.ts`] = `export const label = user.title;\n`;
   files["src/reader.ts"] = 'import { shape } from "./shape";\n';
-  const root = repository(t, files);
+  const root = await repository(t, files);
   writeFileSync(
     join(root, "src/shape.ts"),
     "export const shape = {\n  title: 1,\n};\n",
@@ -119,8 +119,8 @@ test("changed lines declare identifiers, keys and exports; an index module is im
   );
 });
 
-test("a file replaced by a symlink still leaves every other changed file its derived terms", (t) => {
-  const root = repository(t, {
+test("a file replaced by a symlink still leaves every other changed file its derived terms", async (t) => {
+  const root = await repository(t, {
     "src/link.ts": "export const linked = 1;\n",
     "src/target.ts": "export const target = 1;\n",
     "src/later.ts": "export const before = 1;\n",

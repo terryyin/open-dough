@@ -12,11 +12,11 @@ import {
   advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   indexLockPath,
   revParse,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 // A published trunk whose tracked trunk.txt the cases edit.
 const publishedTrunk = makeMe.aRepository
@@ -29,7 +29,7 @@ function refresh(checkout) {
 
 test("refresh defers for an index lock and every in-progress merge, cherry-pick, or revert ref, even a dangling one, and stops on a detached HEAD", async (t) => {
   const { integration, trunkSha, cleanup } =
-    await createCleanTrunkFixture(publishedTrunk);
+    await materializeRepository(publishedTrunk);
   t.after(cleanup);
 
   // This fixture stores refs as files, so each in-progress ref is planted
@@ -80,7 +80,7 @@ test("refresh defers for an index lock and every in-progress merge, cherry-pick,
 
 test("refresh defers during a real rebase and advances a clean, behind checkout that kept only a leftover REBASE_HEAD", async (t) => {
   const { origin, integration, trunkSha, cleanup } =
-    await createCleanTrunkFixture(publishedTrunk);
+    await materializeRepository(publishedTrunk);
   t.after(cleanup);
 
   // A conflicting rebase of the checkout's own history stops mid-way.

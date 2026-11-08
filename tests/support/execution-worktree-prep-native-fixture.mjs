@@ -1,12 +1,10 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  createLockedNodeFixture,
-  setupTraceCount,
-} from "../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-test-fixtures.mjs";
+import { setupTraceCount } from "../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-test-fixtures.mjs";
 import { hostPrepareCheckout } from "../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-reuse-test-fixtures.mjs";
-import { createWrapperDrivenFixture } from "../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-wrapper-test-fixtures.mjs";
+import { createLockedNodeFixture } from "./execution-worktree-prep-native-locked-node-repository.mjs";
+import { createWrapperDrivenFixture } from "./execution-worktree-prep-native-wrapper-repository.mjs";
 
 function writeDiscovery(origin) {
   writeFileSync(

@@ -2,7 +2,6 @@ import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   existsSync,
-  mkdirSync,
   mkdtempSync,
   readFileSync,
   realpathSync,
@@ -12,10 +11,12 @@ import {
 import { tmpdir } from "node:os";
 import { join, sep } from "node:path";
 import { promisify } from "node:util";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 const exec = promisify(execFile);
 
-const originInstallMarker = ".origin-install-marker";
+export const originInstallMarker = ".origin-install-marker";
 export const prepTraceRel = ".prep-trace.jsonl";
 export const setupCountRel = ".setup-count";
 
@@ -27,7 +28,7 @@ function digestFile(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
-function npmEnv(tracePath) {
+export function npmEnv(tracePath) {
   return {
     ...process.env,
     PREP_TRACE: tracePath,
@@ -111,58 +112,42 @@ export function setupTraceCount(tracePath) {
   return readTraces(tracePath).filter((entry) => entry.type === "setup").length;
 }
 
-function writeFixtureProject(origin, { failingInstall }) {
-  mkdirSync(join(origin, "packages", "fixture-cli"), { recursive: true });
-  mkdirSync(join(origin, "scripts"));
-  writeFileSync(
-    join(origin, ".gitignore"),
-    `node_modules/\n${prepTraceRel}\n${setupCountRel}\n`,
-  );
-  writeFileSync(
-    join(origin, "CONTRIBUTING.md"),
-    ["Locked setup: `npm ci`", "Applicable command: `npm run prove`", ""].join(
-      "\n",
-    ),
-  );
-  writeFileSync(
-    join(origin, "package.json"),
-    `${JSON.stringify(
-      {
-        name: "execution-worktree-prep-fixture",
-        private: true,
-        type: "module",
-        dependencies: { "fixture-cli": "file:packages/fixture-cli" },
-        scripts: {
-          postinstall: "node scripts/trace.mjs setup",
-          prove: "node scripts/trace.mjs command && fixture-cli",
-        },
-      },
-      null,
-      2,
-    )}\n`,
-  );
+// The locked Node project's own files, byte for byte: a CONTRIBUTING.md naming
+// `npm ci` and `npm run prove`, and a local-file dependency whose executable
+// is unavailable before setup. `failingInstall` makes that dependency's
+// install fail.
+function lockedNodeProject({ failingInstall }) {
   const localPackage = {
     name: "fixture-cli",
     version: "1.0.0",
     type: "module",
     bin: { "fixture-cli": "./cli.mjs" },
+    ...(failingInstall && {
+      scripts: { preinstall: 'node -e "process.exit(1)"' },
+    }),
   };
-  if (failingInstall) {
-    localPackage.scripts = {
-      preinstall: 'node -e "process.exit(1)"',
-    };
-  }
-  writeFileSync(
-    join(origin, "packages/fixture-cli/package.json"),
-    `${JSON.stringify(localPackage, null, 2)}\n`,
-  );
-  writeFileSync(
-    join(origin, "packages/fixture-cli/cli.mjs"),
-    '#!/usr/bin/env node\nprocess.stdout.write("fixture-cli-ok\\n");\n',
-  );
-  writeFileSync(
-    join(origin, "scripts/trace.mjs"),
-    `import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+  const json = (value) => `${JSON.stringify(value, null, 2)}\n`;
+  return {
+    ".gitignore": `node_modules/\n${prepTraceRel}\n${setupCountRel}\n`,
+    "CONTRIBUTING.md": [
+      "Locked setup: `npm ci`",
+      "Applicable command: `npm run prove`",
+      "",
+    ].join("\n"),
+    "package.json": json({
+      name: "execution-worktree-prep-fixture",
+      private: true,
+      type: "module",
+      dependencies: { "fixture-cli": "file:packages/fixture-cli" },
+      scripts: {
+        postinstall: "node scripts/trace.mjs setup",
+        prove: "node scripts/trace.mjs command && fixture-cli",
+      },
+    }),
+    "packages/fixture-cli/package.json": json(localPackage),
+    "packages/fixture-cli/cli.mjs":
+      '#!/usr/bin/env node\nprocess.stdout.write("fixture-cli-ok\\n");\n',
+    "scripts/trace.mjs": `import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const stream = process.env.PREP_TRACE ?? ${JSON.stringify(prepTraceRel)};
 appendFileSync(
@@ -177,13 +162,15 @@ if (process.argv[2] === "setup") {
   writeFileSync(countPath, \`\${current + 1}\\n\`);
 }
 `,
-  );
+  };
 }
 
-// Disposable locked Node fixture: a Git repository plus a separately located
-// execution worktree, a locked local-file dependency whose executable is
-// unavailable before `npm ci`, install and command traces, an
-// originating-checkout marker, lockfile digests, and a failing-install variant.
+// Disposable locked Node fixture: the declared project's integration
+// checkout as the originating checkout, plus a separately located execution
+// worktree, a locked local-file dependency whose executable is unavailable
+// before `npm ci`, install and command traces, an originating-checkout marker,
+// lockfile digests, and a failing-install variant. The lockfile is generated
+// install output: the harness commits it after the declared project.
 export async function createLockedNodeFixture({
   failingInstall = false,
   directory,
@@ -191,27 +178,30 @@ export async function createLockedNodeFixture({
   const fixture = realpathSync(
     directory ?? mkdtempSync(join(tmpdir(), "execution-worktree-prep-")),
   );
-  const origin = join(fixture, "origin");
+  const { integration: origin } = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("project", {
+        backlog: undefined,
+        message: "locked fixture",
+        files: lockedNodeProject({ failingInstall }),
+      })
+      .please(),
+    { parent: fixture },
+  );
   const execution = join(fixture, "execution");
   const tracePath = join(fixture, "prep-trace.jsonl");
   const env = npmEnv(tracePath);
 
-  mkdirSync(origin);
-  await git(origin, "init", "-b", "main");
-  await git(origin, "config", "user.name", "Origin Checkout");
-  await git(origin, "config", "user.email", "origin@example.test");
-  writeFixtureProject(origin, { failingInstall });
   await exec("npm", ["install", "--ignore-scripts"], {
     cwd: origin,
     env,
     timeout: 60_000,
   });
-  await git(origin, "add", ".");
-  await git(origin, "commit", "-m", "locked fixture");
+  await git(origin, "add", "package-lock.json");
+  await git(origin, "commit", "-m", "lock fixture dependencies");
   writeFileSync(join(origin, "node_modules", originInstallMarker), "origin\n");
   writeFileSync(join(origin, "origin-marker"), `${fixture}\n`);
-  await git(origin, "branch", "exec/story");
-  await git(origin, "worktree", "add", execution, "exec/story");
+  await git(origin, "worktree", "add", "-b", "exec/story", execution);
 
   return {
     fixture,

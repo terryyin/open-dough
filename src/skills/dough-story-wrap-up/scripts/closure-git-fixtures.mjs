@@ -9,7 +9,6 @@ import {
   assertCheckoutUnchanged,
   authorizedRemote,
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   messageCount,
@@ -18,13 +17,13 @@ import {
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { configureAgentAuthorship } from "../../dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 export {
   advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
   authorizedRemote,
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   messageCount,
@@ -105,7 +104,7 @@ export async function publishStoryConflictingWithTrunk(origin, execution) {
 // moved past, so integrating it needs a merge commit. `description` is the
 // repository the workspace belongs to.
 export async function agentStoryBehindTrunk(t, description) {
-  const fixture = await createCleanTrunkFixture(description);
+  const fixture = await materializeRepository(description);
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
   await configureAgentAuthorship(execution, agentIdentity("Yui"));

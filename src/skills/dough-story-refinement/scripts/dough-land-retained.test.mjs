@@ -9,7 +9,6 @@ import {
   advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   plantHumanEdit,
@@ -18,6 +17,7 @@ import {
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { landWorktree } from "./dough-land-test-fixtures.mjs";
 import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 const branch = "exec/story";
 const identity = "SEED-1#ongoing";
@@ -70,7 +70,7 @@ const unfinishedExecution = (published) => {
 };
 
 async function ongoing(t, published = false) {
-  const f = await createCleanTrunkFixture(unfinishedExecution(published));
+  const f = await materializeRepository(unfinishedExecution(published));
   t.after(f.cleanup);
   const publishedStoryTip = published ? f.candidateSha : undefined;
   if (published)

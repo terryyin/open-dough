@@ -9,17 +9,15 @@ import {
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import { openFirstLandingExpectation } from "./first-landing-expectation.mjs";
 import { managementContext } from "./publication-git.mjs";
-import {
-  createCleanTrunkFixture,
-  git,
-  lsRemoteSha,
-} from "./publication-test-fixtures.mjs";
+import { git, lsRemoteSha } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
 
 for (const trunkTarget of ["refs/heads/main", "refs/heads/master"]) {
   test(`story publication preserves the pending ${trunkTarget} landing until matching trunk publication`, async (t) => {
     const { origin: dashboard, requests } = await landingReceiver(t);
     const { origin, execution, trunkSha, candidateSha, cleanup } =
-      await createCleanTrunkFixture();
+      await materializeRepository(trunkWithOneUnpublishedIncrement);
     t.after(cleanup);
     if (trunkTarget !== "refs/heads/main")
       await git(execution, "push", "origin", `${trunkSha}:${trunkTarget}`);
@@ -82,8 +80,9 @@ for (const trunkTarget of ["refs/heads/main", "refs/heads/master"]) {
 
 test("an explicit incompatible landing context refuses story publication without consuming its expectation", async (t) => {
   const { origin: dashboard, requests } = await landingReceiver(t);
-  const { origin, execution, trunkSha, cleanup } =
-    await createCleanTrunkFixture();
+  const { origin, execution, trunkSha, cleanup } = await materializeRepository(
+    trunkWithOneUnpublishedIncrement,
+  );
   t.after(cleanup);
   const branch = "exec/story";
   const expectation = {

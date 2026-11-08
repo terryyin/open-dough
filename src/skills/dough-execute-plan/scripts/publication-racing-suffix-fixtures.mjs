@@ -9,13 +9,13 @@ import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
 import {
   cloneAsAnotherWriter,
-  createCleanTrunkFixture,
   exec,
   git,
   lsRemoteSha,
   pushCandidate,
   revParse,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 const rebaseCli = fileURLToPath(
   new URL(
@@ -135,7 +135,7 @@ export async function createBacklogSuffixFixture(ownedBacklog) {
       message: "verified increment",
     })
     .please();
-  return { ...(await createCleanTrunkFixture(description)), description };
+  return { ...(await materializeRepository(description)), description };
 }
 
 export async function advanceOriginBacklog(

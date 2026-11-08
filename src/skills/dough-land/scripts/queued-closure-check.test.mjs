@@ -13,7 +13,10 @@ import {
   lsRemoteSha,
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { createPreparationFixture } from "../../dough-story-refinement/scripts/preparation-publication-test-fixtures.mjs";
+import {
+  createPreparationFixture,
+  preparationRepository,
+} from "../../dough-story-refinement/scripts/preparation-publication-test-fixtures.mjs";
 import {
   landWorktree,
   runClosureCheckCommand,
@@ -22,39 +25,33 @@ import { fileURLToPath } from "node:url";
 
 const identity = "SEED-001#a";
 const entry = "- [A](seeds/SEED-001-a.md#a) — SEED-001#a\n";
+const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const backlog = (queued = "", taken = "") =>
   `# Product backlog\n\n## Taken\n\n${taken}\n## Backlog list\n\n${queued}`;
 
 // Only establishes a retained result whose committed closure removed a queued
 // entry. No ownership checking or landing is supplied by this fixture.
 async function retainedResult(t, { listed = true } = {}) {
-  const fixture = await createPreparationFixture("land-queued-closure-");
-  t.after(fixture.cleanup);
-  const { integration, preparation } = fixture;
-  mkdirSync(join(integration, ".planning"));
-  writeFileSync(
-    join(integration, ".planning/PRODUCT-BACKLOG.md"),
-    backlog(listed ? entry : ""),
+  const fixture = await createPreparationFixture(
+    preparationRepository({
+      trunk: {
+        backlog: undefined,
+        files: { [backlogPath]: backlog(listed ? entry : "") },
+      },
+      record: {
+        files: { [backlogPath]: backlog(), "result.txt": "kept result\n" },
+      },
+    }),
   );
-  await git(integration, "add", ".planning");
-  await git(integration, "commit", "-m", "Queue A");
-  await git(integration, "push", "origin", "main");
-  await git(preparation, "rebase", "main");
-  writeFileSync(join(preparation, ".planning/PRODUCT-BACKLOG.md"), backlog());
-  writeFileSync(join(preparation, "result.txt"), "kept result\n");
-  await git(preparation, "add", "-A");
-  await git(preparation, "commit", "-m", "Complete kept result");
-  return { ...fixture, resultSha: await revParse(preparation, "HEAD") };
+  t.after(fixture.cleanup);
+  return fixture;
 }
 
 async function rival(fixture, kind) {
   const checkout = join(fixture.fixture, "rival");
   await cloneAsAnotherWriter(fixture.origin, checkout);
   if (kind === "take") {
-    writeFileSync(
-      join(checkout, ".planning/PRODUCT-BACKLOG.md"),
-      backlog("", entry),
-    );
+    writeFileSync(join(checkout, backlogPath), backlog("", entry));
   } else {
     mkdirSync(join(checkout, ".planning/agents"));
     const profile = makeMe.anAgentProfile;
@@ -95,7 +92,10 @@ async function assertHeld(fixture, result, remoteSha) {
   assert.equal(result.refresh, "not-attempted");
   assert.equal(result.cleanup, "not-performed");
   assert.equal(await lsRemoteSha(fixture.origin, "refs/heads/main"), remoteSha);
-  assert.equal(await revParse(fixture.preparation, "HEAD"), fixture.resultSha);
+  assert.equal(
+    await revParse(fixture.preparation, "HEAD"),
+    fixture.preparationSha,
+  );
   assert.equal(existsSync(fixture.preparation), true);
 }
 
@@ -112,8 +112,7 @@ test("unchanged queued A reports its closure, lands, and retires the retained wo
     result.publication.receipt.sha,
   );
   assert.equal(
-    (await git(fixture.origin, "show", "main:.planning/PRODUCT-BACKLOG.md"))
-      .stdout,
+    (await git(fixture.origin, "show", `main:${backlogPath}`)).stdout,
     backlog(),
   );
   assert.equal(
@@ -200,7 +199,7 @@ test("a Take racing a published-story landing stops before recomputing its merge
   const attempts = [];
   const result = await land(fixture, {
     keepWorktree: true,
-    publishedStoryTip: fixture.resultSha,
+    publishedStoryTip: fixture.preparationSha,
     beforePush: async ({ attempt }) => {
       attempts.push(attempt);
       if (attempt === 0) remoteSha = await rival(fixture, "take");
@@ -213,7 +212,7 @@ test("a Take racing a published-story landing stops before recomputing its merge
   assert.equal(await lsRemoteSha(fixture.origin, "refs/heads/main"), remoteSha);
   assert.equal(
     await revParse(fixture.preparation, fixture.preparationBranch),
-    fixture.resultSha,
+    fixture.preparationSha,
   );
   assert.equal(existsSync(fixture.preparation), true);
 });

@@ -16,12 +16,12 @@ import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { renderPublishedBacklog } from "../../../../tests/support/published-backlog.mjs";
 import {
   captureCheckout,
-  createCleanTrunkFixture,
   exec,
   git,
   lsRemoteSha,
   revParse,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 const backlogCli = fileURLToPath(
   new URL(
@@ -101,7 +101,7 @@ export async function manualMerge(
   list,
   { description, active = true, misplace = false },
 ) {
-  const fixture = await createCleanTrunkFixture(description);
+  const fixture = await materializeRepository(description);
   t.after(fixture.cleanup);
   const { integration, execution } = fixture;
   const profile = join(dirname(file), agentIdentity(liveProfileOfC.name).path);

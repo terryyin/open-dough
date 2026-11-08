@@ -126,3 +126,29 @@ test("each copy of a described workspace is its own worktree whose later commits
       ].join("\n"),
     );
 });
+
+test("a declared executable is published with the executable mode and other files are not", async (t) => {
+  const { origin, cleanup } = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("project", {
+        files: { wrapper: "#!/bin/sh\n", "notes.txt": "notes\n" },
+        executables: ["wrapper"],
+      })
+      .please(),
+  );
+  t.after(cleanup);
+
+  const modes = (
+    await git(origin, "ls-tree", "main", "wrapper", "notes.txt")
+  ).stdout
+    .trim()
+    .split("\n")
+    .map((line) => {
+      const [mode, , , path] = line.split(/\s+/);
+      return [mode, path];
+    });
+  assert.deepEqual(modes, [
+    ["100644", "notes.txt"],
+    ["100755", "wrapper"],
+  ]);
+});

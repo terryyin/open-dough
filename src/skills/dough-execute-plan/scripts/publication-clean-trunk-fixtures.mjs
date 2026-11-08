@@ -1,8 +1,7 @@
-// The clean-trunk publication fixture and the authorized remotes its
+// The publication family's default repository and the authorized remotes its
 // checkouts know.
 import { join } from "node:path";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { createBareFixtureRemote } from "./bare-remote-test-fixtures.mjs";
 import { git } from "./publication-git.mjs";
 
@@ -16,16 +15,6 @@ export const trunkWithOneUnpublishedIncrement = makeMe.aRepository
     files: { "increment.md": "An unpublished increment.\n" },
   })
   .please();
-
-// Builds a clean-trunk publication fixture from `description`: a disposable
-// repository whose integration checkout is clean on the trunk branch at the
-// same SHA as its bare origin, plus an execution worktree whose unpublished
-// suffix is based on that trunk.
-export async function createCleanTrunkFixture(
-  description = trunkWithOneUnpublishedIncrement,
-) {
-  return materializeRepository(description);
-}
 
 // The URL of `remote`: origin, or a new empty bare repository on `branch` the
 // fixture's checkouts know by that name.

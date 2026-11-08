@@ -16,13 +16,13 @@ import {
   assertCheckoutUnchanged,
   captureCheckout,
   commitFile,
-  createCleanTrunkFixture,
   currentBranch,
   executionBranch,
   git,
   lsRemoteSha,
   plantHumanEdit,
 } from "./closure-git-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 // A trunk holding the `trunk.txt` the planted human edit changes, and a story
 // workspace one commit ahead.
@@ -33,7 +33,7 @@ const trunkWithStory = makeMe.aRepository
   .please();
 
 test("Story Branch cleanup after integration retires the execution worktree, its branch, and the remote execution branch, and nothing else", async (t) => {
-  const fixture = await createCleanTrunkFixture(trunkWithStory);
+  const fixture = await materializeRepository(trunkWithStory);
   t.after(fixture.cleanup);
   const { origin, integration, execution } = fixture;
   const closureSha = await commitFile(

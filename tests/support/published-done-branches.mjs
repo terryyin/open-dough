@@ -2,16 +2,14 @@
 // catalogued records from their common base. An independent trunk writer
 // publishes one more record without refreshing the catalog.
 import { join } from "node:path";
-import {
-  advanceOriginFromAnotherWriter,
-  createCleanTrunkFixture,
-} from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { advanceOriginFromAnotherWriter } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
   doneRecordFileName,
   renderDoneRecord,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { makeMe } from "./makeMe.mjs";
 import { done } from "./product-backlog-git-done-catalog-fixture.mjs";
+import { materializeRepository } from "./repository-fixture.mjs";
 
 function record(name, completedAt) {
   return makeMe.aDoneRecord
@@ -45,7 +43,7 @@ const cataloguedOnBothSides = makeMe.aRepository
   .please();
 
 export async function divergedDoneBranches(t) {
-  const fixture = await createCleanTrunkFixture(cataloguedOnBothSides);
+  const fixture = await materializeRepository(cataloguedOnBothSides);
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
 

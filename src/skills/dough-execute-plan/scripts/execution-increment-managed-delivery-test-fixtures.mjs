@@ -16,7 +16,8 @@ import { publishJson } from "./ci-mailbox-json-file.mjs";
 import { readMailboxEvents } from "./ci-mailbox-store.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
-import { createCleanTrunkFixture, git } from "./publication-test-fixtures.mjs";
+import { git } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   awaitWorkerState,
   deferObserverStop,
@@ -84,7 +85,7 @@ export async function createManagedFixture({
   preferredAlias,
   checkout = "execution",
 } = {}) {
-  const base = await createCleanTrunkFixture(description);
+  const base = await materializeRepository(description);
   const teardown = fixtureTeardown(base.fixture);
   return {
     ...base,

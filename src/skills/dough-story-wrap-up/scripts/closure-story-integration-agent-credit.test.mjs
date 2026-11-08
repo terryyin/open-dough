@@ -13,7 +13,6 @@ import { agentIdentity } from "../../dough-product-backlog/scripts/product-backl
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   agentStoryBehindTrunk,
-  createCleanTrunkFixture,
   executionBranch,
   git,
   lsRemoteSha,
@@ -23,6 +22,7 @@ import {
   stageSharedResolution,
   trunkTarget,
 } from "./closure-git-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 // The developer configured as the Git user of the agent's workspace, who
 // commits there and whom an integration merge credits.
@@ -117,7 +117,7 @@ const agentCommit = fileURLToPath(
 );
 
 test("an agent's conflicted integration merge committed through agent-commit.mjs with Git's prepared message is published as the candidate", async (t) => {
-  const fixture = await createCleanTrunkFixture(agentWorkspace);
+  const fixture = await materializeRepository(agentWorkspace);
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
   await configureAgentAuthorship(execution, agentIdentity("Yui"));

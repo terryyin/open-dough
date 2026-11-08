@@ -8,11 +8,11 @@ import {
   advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   revParse,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 const trunkTarget = "refs/heads/main";
 const recordedStoryBranch = "refs/heads/cursor/story-execution";
@@ -55,7 +55,7 @@ async function ancestor(workspace, ancestorSha, descendant) {
 
 test("Trunk Mode increment returns needs-validation when another writer advances and proof is unconfirmed", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture(trunkWithOneIncrement);
+    await materializeRepository(trunkWithOneIncrement);
   t.after(cleanup);
 
   const disjointSha = await advanceOriginFromAnotherWriter(origin);
@@ -100,7 +100,7 @@ test("Trunk Mode retains a multi-commit comparison before publishing its validat
     revisions: { increment: candidateSha },
     candidateSha: multiCommitCandidate,
     cleanup,
-  } = await createCleanTrunkFixture(
+  } = await materializeRepository(
     trunkWithIncrement
       .withUnpublishedRevision("second increment", {
         files: { "second-increment.txt": "second increment\n" },
@@ -188,8 +188,9 @@ test("Trunk Mode retains a multi-commit comparison before publishing its validat
 });
 
 test("an unpublished candidate already on the advanced target refuses a no-op rebase and pushes nothing", async (t) => {
-  const { origin, execution, trunkSha, cleanup } =
-    await createCleanTrunkFixture(trunkWithOneIncrement);
+  const { origin, execution, trunkSha, cleanup } = await materializeRepository(
+    trunkWithOneIncrement,
+  );
   t.after(cleanup);
   const advancedTip = await advanceOriginFromAnotherWriter(origin);
   // The branch already sits on the advanced tip while the caller still names

@@ -9,7 +9,6 @@ import { test } from "node:test";
 import {
   assertCheckoutUnchanged,
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   remoteHeads,
   revParse,
@@ -17,6 +16,7 @@ import {
 import { landWorktree } from "./dough-land-test-fixtures.mjs";
 import { renderPublishedBacklog } from "../../../../tests/support/published-backlog.mjs";
 import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 const identity = "SEED-1#ongoing";
 const branch = "exec/story";
@@ -62,7 +62,7 @@ Disposition: return
 // `source`, the seed draft, the Taken claim and the agent's assignment. That
 // commit is published to the execution branch.
 async function executionFixture(t, source) {
-  const f = await createCleanTrunkFixture(
+  const f = await materializeRepository(
     makeMe.aRepository
       .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
       .withWorkspace(branch, { from: "trunk" })

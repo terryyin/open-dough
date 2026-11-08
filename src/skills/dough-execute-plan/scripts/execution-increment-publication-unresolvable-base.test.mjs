@@ -8,13 +8,13 @@ import { test } from "node:test";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   remoteHeads,
   revParse,
 } from "./publication-test-fixtures.mjs";
 import { createManagedFixture } from "./execution-increment-managed-delivery-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 const trunkTarget = "refs/heads/main";
 
@@ -109,7 +109,7 @@ function assertRefusal(result, { problem, supplied, candidate }) {
 
 for (const { name, problem, base } of unresolvableBases) {
   test(`${name} as the previously published base is refused before anything is compared, rewritten, or pushed`, async (t) => {
-    const fixture = await createCleanTrunkFixture(trunkWithOneIncrement);
+    const fixture = await materializeRepository(trunkWithOneIncrement);
     t.after(fixture.cleanup);
     const supplied = await base(fixture);
     // The refusal follows the publication's own fetch, so start after one.

@@ -8,8 +8,9 @@ import {
   transportBoundMs,
   transportBoundSetting,
 } from "./publication-git.mjs";
-import { createCleanTrunkFixture } from "./publication-clean-trunk-fixtures.mjs";
 import { installTransportStall } from "./publication-stall-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
 
 // The bound is lowered only once setup's own pushes are done. It leaves room
 // for the work before the stall point on a loaded machine: Git starting the
@@ -18,7 +19,7 @@ const standInStallBoundMs = 1_000;
 const hookStallBoundMs = 2_000;
 
 async function stallFixture(t, boundMs) {
-  const base = await createCleanTrunkFixture();
+  const base = await materializeRepository(trunkWithOneUnpublishedIncrement);
   const stall = await installTransportStall({
     fixture: base.fixture,
     workspace: base.execution,

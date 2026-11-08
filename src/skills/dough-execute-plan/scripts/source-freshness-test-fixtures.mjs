@@ -8,7 +8,6 @@ import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
 import { renderPlanSlice } from "../../../../tests/support/published-plan.mjs";
 import {
-  createCleanTrunkFixture,
   executionBranch,
   git,
   lsRemoteSha,
@@ -16,6 +15,7 @@ import {
   runScriptIn,
   trunkTarget,
 } from "../../dough-story-wrap-up/scripts/closure-git-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 export const cli = fileURLToPath(
   new URL("./source-freshness.mjs", import.meta.url),
@@ -120,7 +120,7 @@ export async function commitTree(checkout, files, message) {
 // execution branch, then a branch increment marking slice 1 done, published
 // only to the execution branch.
 export async function takenStoryBranch(t, entry = takenEntries.linked) {
-  const fixture = await createCleanTrunkFixture(
+  const fixture = await materializeRepository(
     makeMe.aRepository
       .withRevision("before the Take")
       .withRevision("take", {

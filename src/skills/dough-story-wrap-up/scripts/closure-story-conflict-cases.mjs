@@ -17,7 +17,6 @@ import {
   advanceOriginFromAnotherWriter,
   commitFile,
   commitSharedResolution,
-  createCleanTrunkFixture,
   currentBranch,
   executionBranch,
   git,
@@ -29,6 +28,8 @@ import {
   runScript,
   trunkTarget,
 } from "./closure-git-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "../../dough-execute-plan/scripts/publication-clean-trunk-fixtures.mjs";
 
 const mergeAdapter = fileURLToPath(
   new URL(
@@ -48,7 +49,7 @@ const storyWithIncrement = makeMe.aRepository
 const titled = (title) => backlogOf([], [`- [${title}](seeds/C.md#c)`]);
 
 test("a conflicted integration is preserved as Git left it, and its resolved merge commit is published as the candidate", async (t) => {
-  const fixture = await createCleanTrunkFixture(storyWithIncrement);
+  const fixture = await materializeRepository(storyWithIncrement);
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
   const { closureSha, trunkSha } = await publishStoryConflictingWithTrunk(
@@ -141,7 +142,7 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
 });
 
 test("a backlog conflict the merge adapter stops on is published once its `continue` commits the resolution", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
   await advanceOriginBacklog(origin, titled("Item C"), "ancestor backlog");

@@ -31,10 +31,7 @@ import {
   installManagedDelivery,
   watchCount,
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
-import {
-  createCleanTrunkFixture,
-  lsRemoteSha,
-} from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { lsRemoteSha } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
   branchSha,
   commitFinalClosure,
@@ -42,6 +39,8 @@ import {
   installClosureSkills,
   installInIntegration,
 } from "./trunk-closure-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "../../dough-execute-plan/scripts/publication-clean-trunk-fixtures.mjs";
 
 const publisherCoordinator = "publisher-coordinator";
 const attached = /CI observer attached to this coordinator/;
@@ -206,9 +205,9 @@ export async function assertUnresolvedCoverage(
 export async function closureBelowToplevel(
   t,
   coordinator = "below-toplevel",
-  { description } = {},
+  { description = trunkWithOneUnpublishedIncrement } = {},
 ) {
-  const base = await createCleanTrunkFixture(description);
+  const base = await materializeRepository(description);
   const teardown = fixtureTeardown(base.fixture);
   t.after(teardown.cleanup);
   const project = join(base.execution, "proj");

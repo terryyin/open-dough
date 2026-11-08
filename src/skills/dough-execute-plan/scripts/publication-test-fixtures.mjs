@@ -13,10 +13,7 @@ import {
 // cached remote-tracking ref), so proof about "the bare origin itself" is
 // genuine.
 export { exec, git, lsRemoteSha, revParse };
-export {
-  authorizedRemote,
-  createCleanTrunkFixture,
-} from "./publication-clean-trunk-fixtures.mjs";
+export { authorizedRemote } from "./publication-clean-trunk-fixtures.mjs";
 
 export async function indexLockPath(checkout) {
   const printed = (

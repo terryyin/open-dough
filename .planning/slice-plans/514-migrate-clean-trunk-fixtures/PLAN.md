@@ -326,7 +326,7 @@ Learnings for slice 5:
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the `execution-worktree-preparation*`, `default-checkout*`,
 `consumer-trace*` and `preparation-publication*` consumers, `publication`,
@@ -342,6 +342,29 @@ Route the worktree preparation, default checkout, consumer trace and
 preparation publication roots through descriptions, keeping `npm install`
 as a harness step. Migrate the remaining inline starting repositories.
 Delete helpers with no remaining consumer.
+
+Accepted proof (2026-11-08): `createCleanTrunkFixture` is deleted and
+`git grep -n createCleanTrunkFixture -- ':!.planning'` finds nothing. Every
+remaining `git init` is the shared materializer, a harness helper, a native
+helper, an excluded queued or one-shot trunk, or a sibling story's
+repository (`#migrate-backlog-scratch-repositories` owns
+`requested-revision-ci-status.test.mjs`). The 270 reached test files passed
+(295 s at load 5–10), the whole `npm test` suite passed (640 s at load
+10–13) and `npm run typecheck:dashboard` passed. The native worktree
+preparation journey keeps its db42e79a7 repositories (G4); after that
+correction and the refactor pass the worktree preparation, queued closure,
+workspace publication startup, `tests/native-evidence-identity.sh` and
+credential-free `tests/execution-worktree-preparation-native.sh` checks were
+rerun and passed.
+
+Interleaved timing against an archived db42e79a7 copy with its own
+`npm ci`:
+
+| Selection | Before 1 | After 1 | Before 2 | After 2 | Load |
+| --- | --- | --- | --- | --- | --- |
+| Managed delivery (40 files) | 60.9 s | 54.2 s | 60.3 s | 55.3 s | 5.3–7.6 |
+| Closure (21 files) | 45.9 s | 44.1 s | 45.2 s | 42.6 s | 6.8–9.3 |
+| Clean-trunk family (158/159 files) | 268.8 s | 268.0 s | 277.4 s | 276.0 s | 7.9–11.1 |
 
 ## Plan concerns
 
@@ -371,3 +394,8 @@ Disposition: proved by slice 3: the clean-trunk default no longer holds `trunk.t
 Reported: slice 3 — "`dough-land-retained` still builds its unfinished-execution records commit and push with Git, with literal bytes. Its agent-profile path `agents/jackson.json` is non-canonical."
 Story clause: "Published planning facts in this family come from the canonical builders and production encoders."
 Disposition: proved by slice 3: `src/skills/dough-story-refinement/scripts/dough-land-retained.test.mjs` declares the backlog through `makeMe.aBacklogEntry`, the agent profile through the `agentProfiles` fact at its canonical path and the plan as a declared file; its three tests pass with unchanged assertions
+
+### G4. Native worktree-preparation journey sees a changed repository (first reported in slice 5)
+Reported: slice 5 — "Native worktree-preparation fixture changed behavior (needs your decision). Through `createLockedNodeFixture` and `createWrapperDrivenFixture`, its \"origin\" is now `<dir>/workspace-claim-*/integration`. That checkout has an `origin` bare remote and a separate lockfile commit, which it did not have before."
+Story clause: "The owned-context fixture loads two Git helpers whose behavior stays unchanged. So this story needs no paid run"
+Disposition: proved by slice 5: `tests/support/execution-worktree-prep-native-locked-node-repository.mjs` and `execution-worktree-prep-native-wrapper-repository.mjs` hold the db42e79a7 builder bodies verbatim; the native fixture builds identical fresh-node, failed-prep and wrapper repositories from db42e79a7 and this checkout (tree, remotes, commits, modes, config compared); `tests/execution-worktree-preparation-native.sh` credential-free path and `tests/native-evidence-identity.sh` pass

@@ -36,8 +36,8 @@ const consumerShapes = {
   ".gitignore": "build/\n",
 };
 
-test("readers of a changed shared text are found in every kind across the whole checkout, untracked included and ignored excluded", (t) => {
-  const root = repository(t, consumerShapes, {
+test("readers of a changed shared text are found in every kind across the whole checkout, untracked included and ignored excluded", async (t) => {
+  const root = await repository(t, consumerShapes, {
     "src/skills/greet/scripts/draft.mjs": "// untracked: reads message.md\n",
     "build/render.mjs": "// ignored copy reading message.md\n",
   });
@@ -114,8 +114,8 @@ test("readers of a changed shared text are found in every kind across the whole 
   assert.match(output, /`run`, `reused` or `excluded: <reason/);
 });
 
-test("a rename inside one file that nothing else observes yields every kind empty", (t) => {
-  const root = repository(t, {
+test("a rename inside one file that nothing else observes yields every kind empty", async (t) => {
+  const root = await repository(t, {
     "src/calc.mjs": "function total(values) { return values.length }\n",
     "src/calc.test.mjs": 'import { sum } from "./sum.mjs";\n',
     "README.md": "# Calculator\n",
@@ -138,8 +138,8 @@ test("a rename inside one file that nothing else observes yields every kind empt
   assert.match(result.stdout, /2 tracked and untracked non-ignored files/);
 });
 
-test("a missing checkout, no effect to search, or a changed path outside the checkout exits 2", (t) => {
-  const root = repository(t, { "a.mjs": "export {}\n" });
+test("a missing checkout, no effect to search, or a changed path outside the checkout exits 2", async (t) => {
+  const root = await repository(t, { "a.mjs": "export {}\n" });
   const outside = mkdtempSync(join(tmpdir(), "dough-consumer-trace-plain-"));
   t.after(() => rmSync(outside, { recursive: true, force: true }));
   for (const args of [
