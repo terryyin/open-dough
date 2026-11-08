@@ -29,7 +29,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { processAlive, signal } from "./processGroup.ts";
+import { endRunningProcesses, processAlive } from "./processGroup.ts";
 
 export const runIdVariable = "OPEN_DOUGH_DASHBOARD_RUN_ID";
 
@@ -150,12 +150,10 @@ export async function endRunProcesses(
     remaining = processesOfRun(runId);
   }
   if (remaining.length === 0) return [];
-  const running = () => remaining.some(({ pid }) => processIsRunning(pid));
-  for (const { pid } of remaining) signal(pid, "SIGTERM");
-  const terminated = Date.now() + 5_000;
-  while (running() && Date.now() < terminated) await delay(50);
-  for (const { pid } of remaining) signal(pid, "SIGKILL");
-  while (running()) await delay(50);
+  await endRunningProcesses(
+    remaining.map(({ pid }) => pid),
+    { graceMs: 5_000, pollMs: 50 },
+  );
   return remaining;
 }
 
