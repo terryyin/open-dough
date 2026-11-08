@@ -30,7 +30,10 @@ export const listingReuseWindowMs = 60_000;
 
 // A boundary server whose revision-check listings reuse for that window.
 export function listingReuseServer(
-  overrides: { readonly readTimeoutMs?: number } = {},
+  overrides: Pick<
+    Parameters<typeof startDashboardServer>[0],
+    "readTimeoutMs" | "github" | "pathPrefix" | "requestOwnerRoot"
+  > = {},
 ): Promise<DashboardServer> {
   return startDashboardServer({
     ...developmentBoundary,

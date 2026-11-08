@@ -200,17 +200,58 @@ caffeinate -s -i npm run --silent test:dashboard -- --project=chromium --workers
 caffeinate -s -i npm run --silent test:dashboard -- --project=chromium --workers=2 --repeat-each=5 'dashboard/backend-tests/observation/authenticated-read-shared-listing-failures\.spec\.ts$' --grep 'a 504 listing, a timed-out listing, and a rate-limited listing keep nothing'
 ```
 
+The story branch accepted `cc8bb4a880b790c338cb1283e9e59141854d2825`
+with the same observer attached. Its push superseded the prior CI attempt
+42439544494/1. That attempt had no failed jobs or failed steps.
+
 ### 3. The request owner allows a fresh check when its cooldown expires
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Use the private owner clock for the same-server 429 case in place of
 `pause(1_100)`. Assert holdback and zero upstream calls before advancing
 the clock, then the 200 and one fresh listing after. Finish with the
 listing failures spec and affected owner fixture consumers passing. Run
 the two-spec comparison and record the final evidence.
+
+The existing request-owner entry point runs at a private endpoint with a
+fixture-only frozen Date and ordinary process timers. The first HTTP 502
+reports upstream 429 and a one-second directed wait from one matching-refs
+call. With a healthy upstream response available, the same server returns a
+held-back 502 with zero calls. An atomic 1,001 ms advance gives a 200 and
+exactly one fresh matching-refs. The private owner PID is unchanged at all
+three observations. The fixture restores real time before stopping its owner.
+
+The affected strict selection passed 12/12 attempts in 8.828 s and five
+repeats of the combined lifecycle case passed 5/5 in 9.842 s. Dashboard
+typecheck and `git diff --check` passed. The default listing-reuse fixture
+path remains unchanged. The independent refactor needed no edits.
+
+#### Final two-spec comparison
+
+Same Chromium selection, two workers and strict reporter on macOS AC with
+Node 24.21.0. Both runs selected and passed all 10 cases. The final command
+used a fresh absolute `OPEN_DOUGH_DASHBOARD_PROOF_RECORD` destination.
+
+```sh
+caffeinate -s -i npm run --silent test:dashboard -- --project=chromium --workers=2 'dashboard/backend-tests/observation/authenticated-read-(revision-stream|shared-listing-failures)\.spec\.ts$'
+```
+
+| Measurement | Baseline | Final |
+| --- | ---: | ---: |
+| Shell elapsed | 8.105 s | 7.98 s |
+| Playwright elapsed | 7.750 s | 7.606 s |
+| Two streams, cadence and last disconnect | 1.035 s | 0.496 s |
+| Boundary closes an open stream | 0.761 s | 0.189 s |
+| Combined 504, timeout and cooldown | 3.308 s | 1.902 s |
+| One-minute load, before to after | 4.81 to 5.15 | 8.28 to 8.08 |
+
+The two 240 ms shutdown waits, 500 ms listing-settlement pause and 1,100 ms
+cooldown pause are gone. The next cadence is also advanced by the test.
+The remaining elapsed time includes actual request, diagnostic and fixture
+work. Overall timing is a single comparison under different loads.
 
 ## Plan concerns
 
