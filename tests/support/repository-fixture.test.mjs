@@ -177,3 +177,44 @@ test("a declared executable is published with the executable mode and other file
     ["100755", "wrapper"],
   ]);
 });
+
+test("the repository builder refuses a description it cannot materialize, without Git", () => {
+  const refusals = [
+    {
+      refusal: "a name reused across trunk and unpublished revisions",
+      describe: () =>
+        makeMe.aRepository
+          .withRevision("t")
+          .withWorkspace("w", { from: "t" })
+          .withUnpublishedRevision("t"),
+      message: "Duplicate repository revision: t",
+    },
+    {
+      refusal: "a workspace from an unknown trunk revision",
+      describe: () =>
+        makeMe.aRepository
+          .withRevision("t")
+          .withWorkspace("w", { from: "x" })
+          .please(),
+      message: "Workspace w starts from unknown trunk revision x",
+    },
+    {
+      refusal: "an unpublished revision without a workspace",
+      describe: () => makeMe.aRepository.withUnpublishedRevision("u"),
+      message:
+        "Unpublished revision u needs a workspace: call withWorkspace first",
+    },
+    {
+      refusal: "a second workspace",
+      describe: () =>
+        makeMe.aRepository
+          .withRevision("t")
+          .withWorkspace("w", { from: "t" })
+          .withWorkspace("v", { from: "t" }),
+      message: "The repository already has workspace w",
+    },
+  ];
+
+  for (const { refusal, describe, message } of refusals)
+    assert.throws(describe, { message }, refusal);
+});

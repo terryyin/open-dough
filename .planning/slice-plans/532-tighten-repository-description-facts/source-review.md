@@ -28,11 +28,11 @@ Reviewer note: Q2 is reported as a finding; neither Goal nor Scope promises remo
 | 8 | A workspace's declared checkout identity stays with its worktree (does not replace the integration checkout's identity in shared config; matches `withWorkspace` JSDoc). | slice 2 | observed: slice 2: repository-fixture.test.mjs 'a workspace's declared checkout identity stays with its worktree and leaves the integration checkout's own' (integration commit by Integ, execution by Work; red before fix); withWorkspace JSDoc |
 | 9 | The trunk without a backlog becomes an explicit fact (not an accident of spreading `backlog: undefined`). | slice 4 |  |
 | 10 | A revision that declares both a rendered backlog and backlog file bytes is refused. | slice 4 |  |
-| 11 | The builder's refusals get one Git-free test, covering: | slice 3 |  |
-| 11.1 | a duplicate name across trunk and unpublished revisions | slice 3 |  |
-| 11.2 | an unknown `from` | slice 3 |  |
-| 11.3 | an unpublished revision without a workspace | slice 3 |  |
-| 11.4 | a second workspace | slice 3 |  |
+| 11 | The builder's refusals get one Git-free test, covering: | slice 3 | observed: slice 3: repository-fixture.test.mjs 'the repository builder refuses a description it cannot materialize, without Git' (four rows, exact messages, no Git) |
+| 11.1 | a duplicate name across trunk and unpublished revisions | slice 3 | observed: slice 3: repository-fixture.test.mjs 'the repository builder refuses a description it cannot materialize, without Git' row 'a name reused across trunk and unpublished revisions'; fails with guard disabled |
+| 11.2 | an unknown `from` | slice 3 | observed: slice 3: repository-fixture.test.mjs 'the repository builder refuses a description it cannot materialize, without Git' row 'a workspace from an unknown trunk revision'; fails with guard disabled |
+| 11.3 | an unpublished revision without a workspace | slice 3 | observed: slice 3: repository-fixture.test.mjs 'the repository builder refuses a description it cannot materialize, without Git' row 'an unpublished revision without a workspace'; fails with guard disabled |
+| 11.4 | a second workspace | slice 3 | observed: slice 3: repository-fixture.test.mjs 'the repository builder refuses a description it cannot materialize, without Git' row 'a second workspace'; fails with guard disabled |
 | 12 | The test-data architecture (`tests/README.md#test-data-architecture`) describes the current repository facts, including: | slice 5 |  |
 | 12.1 | workspace and unpublished revisions | slice 5 |  |
 | 12.2 | the trunk branch | slice 5 |  |

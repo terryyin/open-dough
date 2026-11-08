@@ -235,7 +235,7 @@ owns enabling `extensions.worktreeConfig`.
 
 Type: Structure
 
-Status: planned
+Status: done
 
 Proof: one table test in `tests/support/repository-fixture.test.mjs` with
 rows for a duplicate name across trunk and unpublished revisions, an unknown
@@ -246,6 +246,10 @@ revert before commit.
 
 Correction: the builder's refusals become proved behavior rather than
 untested branches.
+
+Accepted proof (2026-11-08): the table test asserts all four exact messages
+without Git and passes quietly; each row fails with its own guard disabled.
+Refactor: no change.
 
 ### 4. A trunk without a backlog and a backlog stated twice are explicit
 
