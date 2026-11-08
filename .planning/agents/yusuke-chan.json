@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "yusuke-chan",
-  "email": "yusuke-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-262#pilot-admission-native-evidence-reuse",
-  "host": "codex",
-  "model": "gpt-6.1-sol"
-}
