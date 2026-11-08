@@ -87,6 +87,14 @@ in Learnings: readability, coverage, duplication and maintenance cost before
 and after; what carried across entries; what needed a distinct form; and what
 later SEED-261 stories should reuse.
 
+## Execution complete
+
+Product advice: no change to priorities. Continue with
+SEED-261#map-published-work-test-data next, reusing `makeMe.anAgentProfile`
+and adding variants only with a converting consumer. The retrospective found
+no outcome correction; the one MakeMe file carried across `node:test`,
+Playwright browser fixtures and backend specs without adapters.
+
 ## Decisive premises
 
 | Premise | Consuming operation | Observation | Result |

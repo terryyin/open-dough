@@ -355,6 +355,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: coordinator transcript `a813feec-33b3-4f12-8c74-31a2ede64898` turn 53 "Fixing the lint failure, then retrying delivery"; terminal `636742.txt` `@typescript-eslint/return-await` on `exactSkippedEquivalentSlot` return without `await`; StrReplace added `await` in `dashboard/server/baseCiRevisionLookup.ts` before the successful retry that published `b7d1abf4f`
   - Observed effect: one refused slice-2 delivery preparation; mechanical `await` fix and second guarded delivery succeeded
   - Inference: same pattern as prior ODF-329 rows — authored lint first seen at coordinator format/delivery after a lint-forbidden implementation/refactor brief
+- Execution: SEED-261#share-published-agent-profile-builders (plan 505-share-published-agent-profile-builders; first related implementation commit `ecf97385c2d8bcc9bdd8a5ab068ee02353d7eaa6`)
+  - Timestamp: unknown (slice 1 delivery, before `ecf97385c` at 2026-11-08T09:04:05+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.89 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: guarded fresh delivery returned `operation: formatting` with `no-unused-vars` on `renderAgentProfile` in new `tests/support/makeMe.mjs`, imported only for a JSDoc `typeof`; the implementer reported only a read-only `prettier --check`, and the refactor brief forbade the formatter
+  - Observed effect: one refused slice-1 preparation; the coordinator switched to a JSDoc `import()` type, reran the type-check and two skill tests, and the second delivery published
+  - Inference: same pattern as earlier rows; a type-only import in a `@ts-check` file is a specific trigger
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 
@@ -694,6 +702,13 @@ Former local code: DD-431.
   - Open Dough release: 0.3.88 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
   - Evidence: slice 2's refactor moved the unrecoverable-history journey from `intent-ci-comparison.spec.ts` into `intent-ci-comparison-retry.spec.ts` to keep both under 250 lines; source-review rows 1d, 3g and E4 (`8cab734f619f3c373e0416944ef4e19ff1438e0d:.planning/slice-plans/500-retry-unavailable-ci-comparison-slots/source-review.md`) cited the old file
   - Observed effect: the coordinator noticed the move in the refactor report and retargeted the three rows before delivery; no stale citation was published
+- Execution: SEED-261#share-published-agent-profile-builders (plan 505-share-published-agent-profile-builders; first related implementation commit `ecf97385c2d8bcc9bdd8a5ab068ee02353d7eaa6`)
+  - Timestamp: unknown (after slice 1 acceptance, before `ecf97385c` at 2026-11-08T09:04:05+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.89 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: slice 1's refactor split `dashboard/tests/preparingJourney.ts` into `preparationSteps.ts` for the 250-line rule and replaced the `refiningName` guard that source-review row 30 cited
+  - Observed effect: the refactor report named the stale row; the coordinator re-recorded it with `story-obligations.mjs record` before delivery, and no stale citation was published
 
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 
