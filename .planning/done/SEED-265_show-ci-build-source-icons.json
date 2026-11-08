@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-265#show-ci-build-source-icons",
+  "title": "Show CI build sources with compact icons",
+  "completedAt": "2026-11-08T03:57:14.293Z",
+  "developer": "Terry Yin",
+  "agent": "mike.li-chan",
+  "host": "cursor",
+  "model": "auto"
+}

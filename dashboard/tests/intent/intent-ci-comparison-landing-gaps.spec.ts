@@ -7,6 +7,10 @@
 
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
+import {
+  expectExactSourceCue,
+  expectNoRunOrAttemptIds,
+} from "../support/expectCiComparisonSourceCue.ts";
 import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonEarlierLanding.ts";
 import { serveEarlierLandingWithLandedOutcome } from "../support/storyCiComparisonLandedOutcome.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
@@ -22,24 +26,14 @@ test("a failed landing merge build is labelled failed without trunk-side figures
   await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
     "3 min 20 s",
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText(shortSha(landed));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("failed");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("failed build");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).not.toContainText(shortSha(setup.completion));
+  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
+  await expect(landedIdentity).toContainText(shortSha(landed));
+  await expectExactSourceCue(landedIdentity);
+  await expect(landedIdentity).toContainText("failed build");
+  await expect(landedIdentity).not.toContainText(shortSha(setup.completion));
   if (setup.trunkSide !== undefined) {
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(2),
-    ).not.toContainText(shortSha(setup.trunkSide));
+    await expect(landedIdentity).not.toContainText(shortSha(setup.trunkSide));
   }
-  await expect(panel).not.toContainText("run 398");
-  await expect(panel).not.toContainText("run 304");
+  await expectNoRunOrAttemptIds(landedIdentity);
   await expect(panel).not.toContainText("10 min");
 });

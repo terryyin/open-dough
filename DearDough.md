@@ -38,6 +38,14 @@ Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: 
 Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Former local code: DD-307. Former local code: DD-400. Former local code: DD-393 (`6c354905e`), renumbered in merge `966aad8b1`. DD-400's facet: a decisive premise probe proved the capability, not the story's restriction it settled. [Meaning, evidence and response](docs/maintainer/findings/ODF-074.md).
 
 ### Occurrences
+- Execution: SEED-265#show-ci-build-source-icons (plan 516-show-ci-build-source-icons; first related implementation commit `a365c02ff840ad3fa542885b398066e1d29750a7`)
+  - Timestamp: 2026-11-08T11:20:00+08:00 (acceptance return for commitment 7a.2 during slice 1, before publish of `a365c02ff`)
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: 0.3.90 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: plan 516 at `8a89a4ec7d2cccf2ac722de3f9b6b30fb7b30810:.planning/slice-plans/516-show-ci-build-source-icons/PLAN.md` Outside-in proof row 1 and Decisive premises listed `publishSkippedPlanningBaseline` / skipped-spec routes as covering Baseline and Branch ancestor cues; premise 2 only listed seven chromium tests, without observing Branch selection on that fixture. At acceptance, the fixture still published an exact build at `branchSide`, so the journey asserted Branch exact until a planning-only tip forced the existing ancestor walk.
+  - Observed effect: one acceptance return and fixture-only correction; no selection/walk product change and no replanning
+  - Inference: Outside-in proof named a compound journey shape the decisive premise never observed on the cited fixture
 - Execution: SEED-118#retry-unavailable-ci-comparison-slots (plan 500-retry-unavailable-ci-comparison-slots; first related implementation commit `829d4170678aeeb8a6c48530669d3ebdea5b620f`)
   - Timestamp: unknown (during slice 2 implementation, after slice 1 commit at 2026-11-07T21:48:36+08:00 and before slice 2 commit at 2026-11-07T22:19:36+08:00)
   - Tool: Claude Code

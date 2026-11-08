@@ -32,6 +32,11 @@ import {
 } from "../support/storyCiComparisonSkippedFixture.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { openSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
+import {
+  expectAncestorSourceCue,
+  expectExactSourceCue,
+  expectNoRunOrAttemptIds,
+} from "../support/expectCiComparisonSourceCue.ts";
 
 test("Baseline names Skipped at a planning-only start and keeps the ancestor build", async ({
   page,
@@ -43,14 +48,38 @@ test("Baseline names Skipped at a planning-only start and keeps the ancestor bui
   const baselineIdentity = panel
     .locator(".intent-ci-comparison-identity")
     .nth(0);
-  await expect(baselineIdentity).toContainText(skippedAt);
+  const branchIdentity = panel.locator(".intent-ci-comparison-identity").nth(1);
+  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
+  const branchBuild = setup.branchAncestor ?? setup.branchSide;
+  const branchSkippedAt = `Skipped at ${shortSha(setup.branchSide)} because CI ignores every change since its nearest built ancestor ${shortSha(branchBuild)}.`;
+  // Routine Skipped stays out of the default Build cell; Summary still names it.
+  await expect(baselineIdentity).not.toContainText(skippedAt);
   await expect(baselineIdentity).toContainText(shortSha(setup.baseline));
-  await expect(baselineIdentity).toContainText("run 101 #1");
-  await expect(baselineIdentity).toContainText(
+  await expectAncestorSourceCue(
+    baselineIdentity,
     `ancestor: ${String(setup.laterWithoutBuild)} later revision`,
   );
+  await expectNoRunOrAttemptIds(baselineIdentity);
+  await expect(branchIdentity).not.toContainText(branchSkippedAt);
+  await expect(branchIdentity).toContainText(shortSha(branchBuild));
+  // Tip is complete + planning-only over the integrated ancestor (two later
+  // revisions without a build); selection stays ancestor, not exact.
+  await expectAncestorSourceCue(
+    branchIdentity,
+    "ancestor: 2 later revisions without a build",
+  );
+  await expectNoRunOrAttemptIds(branchIdentity);
+  await expect(landedIdentity).toContainText(shortSha(setup.completion));
+  await expectExactSourceCue(landedIdentity);
+  await expectNoRunOrAttemptIds(landedIdentity);
   await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
     "3 min",
+  );
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+    "3 min 20 s",
+  );
+  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
+    "4 min",
   );
   await expect(
     panel.getByRole("table", { name: "CI entry timing comparison" }),
@@ -79,7 +108,8 @@ test("Baseline names Cancelled at a start whose run was cancelled and keeps the 
     `Cancelled at ${shortSha(setup.storyStart)}.`,
   );
   await expect(baselineIdentity).toContainText(shortSha(setup.baseline));
-  await expect(baselineIdentity).toContainText("run 101 #1");
+  await expectAncestorSourceCue(baselineIdentity);
+  await expectNoRunOrAttemptIds(baselineIdentity);
   await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
     "3 min",
   );
@@ -97,13 +127,13 @@ test("Baseline walks past a proofless parent to the grandparent's proof and coun
   const baselineIdentity = panel
     .locator(".intent-ci-comparison-identity")
     .nth(0);
-  await expect(baselineIdentity).toContainText(skippedAt);
+  await expect(baselineIdentity).not.toContainText(skippedAt);
   await expect(baselineIdentity).toContainText(shortSha(setup.baseline));
-  await expect(baselineIdentity).toContainText("run 100 #1");
-  await expect(baselineIdentity).not.toContainText("run 101");
-  await expect(baselineIdentity).toContainText(
+  await expectAncestorSourceCue(
+    baselineIdentity,
     "ancestor: 2 later revisions without a build",
   );
+  await expectNoRunOrAttemptIds(baselineIdentity);
   await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
     "3 min",
   );
@@ -134,7 +164,8 @@ test("Baseline names No build with the path reason when the start changes code",
     `No build at ${shortSha(setup.storyStart)}: changes CI does not ignore.`,
   );
   await expect(baselineIdentity).toContainText(shortSha(setup.baseline));
-  await expect(baselineIdentity).toContainText("run 101 #1");
+  await expectAncestorSourceCue(baselineIdentity);
+  await expectNoRunOrAttemptIds(baselineIdentity);
   await expect(panel.locator(".intent-ci-comparison-wall").nth(0)).toHaveText(
     "3 min",
   );
@@ -148,10 +179,13 @@ test("Landed names Skipped at a planning-only merge and uses the equivalent buil
   const { panel } = await selectDoneStoryForCiComparison(page);
   const skippedAt = `Skipped at ${shortSha(setup.landingMerge)} because CI ignores every change since its nearest built ancestor ${shortSha(setup.trunkSide)}.`;
   const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
-  await expect(landedIdentity).toContainText(skippedAt);
+  await expect(landedIdentity).not.toContainText(skippedAt);
   await expect(landedIdentity).toContainText(shortSha(setup.trunkSide));
-  await expect(landedIdentity).toContainText("run 201 #1");
   await expect(landedIdentity).toContainText("equivalent build");
+  await expect(
+    landedIdentity.locator(".intent-ci-comparison-source"),
+  ).toHaveCount(0);
+  await expectNoRunOrAttemptIds(landedIdentity);
   await expect(landedIdentity).not.toContainText(shortSha(setup.olderBaseline));
   // Endpoint wall cells stay absolute; signed wall change is overall context
   // (SEED-255 before→after presentation).

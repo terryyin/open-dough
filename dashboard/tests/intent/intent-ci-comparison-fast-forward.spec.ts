@@ -16,6 +16,10 @@ import {
   publishTrunkCompletionThenEarlierBranchFastForward,
 } from "../support/storyCiComparisonLaterFastForward.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
+import {
+  expectExactSourceCue,
+  expectNoRunOrAttemptIds,
+} from "../support/expectCiComparisonSourceCue.ts";
 
 test("a fast-forward landing after a story-first merge of main names the tip as Branch and Landed (SEED-248 E6)", async ({
   page,
@@ -27,33 +31,17 @@ test("a fast-forward landing after a story-first merge of main names the tip as 
   await expect(panel.getByRole("heading")).toHaveText(
     `CI timing changes for ${setup.identity}`,
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1),
-  ).toContainText(shortSha(setup.branchSide));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText(shortSha(setup.branchSide));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("exact revision");
+  const branchIdentity = panel.locator(".intent-ci-comparison-identity").nth(1);
+  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
+  await expect(branchIdentity).toContainText(shortSha(setup.branchSide));
+  await expect(landedIdentity).toContainText(shortSha(setup.branchSide));
+  await expectExactSourceCue(landedIdentity);
+  await expectExactSourceCue(branchIdentity);
   // Main-side parent of the story-first merge is never Branch.
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1),
-  ).not.toContainText(shortSha(setup.mainSide));
-  await expect(panel).not.toContainText("run 498");
+  await expect(branchIdentity).not.toContainText(shortSha(setup.mainSide));
   await expect(panel).not.toContainText("10 min");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1).getByRole("link", {
-      name: "run 402 #1",
-      exact: true,
-    }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/402");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2).getByRole("link", {
-      name: "run 402 #1",
-      exact: true,
-    }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/402");
+  await expectNoRunOrAttemptIds(branchIdentity);
+  await expectNoRunOrAttemptIds(landedIdentity);
   await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
     "3 min 20 s",
   );
@@ -78,33 +66,18 @@ test("a later fast-forward keeps an earlier story's trunk-first landing and base
   await expect(panel.getByRole("heading")).toHaveText(
     `CI timing changes for ${setup.identity}`,
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(0),
-  ).toContainText(shortSha(setup.firstBaseline));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1),
-  ).toContainText(shortSha(branchBuild));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText(shortSha(landed));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("exact revision");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1).getByRole("link", {
-      name: "run 302 #1",
-      exact: true,
-    }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/302");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2).getByRole("link", {
-      name: "run 303 #1",
-      exact: true,
-    }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/303");
+  const baselineIdentity = panel
+    .locator(".intent-ci-comparison-identity")
+    .nth(0);
+  const branchIdentity = panel.locator(".intent-ci-comparison-identity").nth(1);
+  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
+  await expect(baselineIdentity).toContainText(shortSha(setup.firstBaseline));
+  await expect(branchIdentity).toContainText(shortSha(branchBuild));
+  await expect(landedIdentity).toContainText(shortSha(landed));
+  await expectExactSourceCue(landedIdentity);
+  await expectNoRunOrAttemptIds(branchIdentity);
+  await expectNoRunOrAttemptIds(landedIdentity);
   // Later second-story tip and completion D must not replace A/B/C.
-  await expect(panel).not.toContainText("run 501");
-  await expect(panel).not.toContainText("run 304");
   await expect(panel).not.toContainText("10 min");
   await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
     "3 min 20 s",
@@ -127,22 +100,14 @@ test("a later branch started before a Trunk Mode completion keeps that completio
   await expect(panel.getByRole("heading")).toHaveText(
     `CI timing changes for ${setup.identity}`,
   );
+  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(0),
   ).toContainText(shortSha(setup.baseline));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText(shortSha(setup.completion));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2).getByRole("link", {
-      name: "run 103 #1",
-      exact: true,
-    }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/103");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).not.toContainText(shortSha(setup.later));
-  await expect(panel).not.toContainText("run 501");
+  await expect(landedIdentity).toContainText(shortSha(setup.completion));
+  await expectExactSourceCue(landedIdentity);
+  await expectNoRunOrAttemptIds(landedIdentity);
+  await expect(landedIdentity).not.toContainText(shortSha(setup.later));
   await expect(panel).not.toContainText("10 min");
   await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
     "4 min",

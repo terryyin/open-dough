@@ -65,6 +65,18 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* Compact exact / ancestor source cue in a Build cell: icon with heard words. */
+.intent-ci-comparison-source {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: text-bottom;
+  --icon-size: var(--label-icon-size);
+}
+
+.intent-ci-comparison-source-words {
+  font-size: var(--text-sm);
+}
+
 .intent-ci-comparison-entries {
   margin: 0;
   color: var(--muted, #555);

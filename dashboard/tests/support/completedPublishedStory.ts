@@ -58,6 +58,9 @@ export async function completedPublishedStory(
   options?: {
     readonly sharedAlreadyReady?: boolean;
     readonly intentCoverage?: IntentCoverage | undefined;
+    // After the story branch integrates main and before completion publish
+    // (for example a planning-only tip so Branch walks to an ancestor build).
+    readonly beforeComplete?: (workspace: string) => void;
   },
 ) {
   const ownConflict = variant === "own-conflict-extra";
@@ -178,6 +181,7 @@ export async function completedPublishedStory(
     rmSync(path.join(workspace, ".planning", owner.path));
     commitAll(workspace, "return the story and release its execution profile");
   }
+  options?.beforeComplete?.(workspace);
   const completion = publishCompletedStory(origin, {
     workspace,
     branch,

@@ -52,13 +52,24 @@ async function publishWithPlanningStart(
     withCiWorkflow,
     sharedInBaseline: true,
   });
+  // Planning-only tip on the story branch (SEED-236 shape): Branch has no
+  // build at the tip and walks to the integrated ancestor; paths-ignore
+  // confirms Skipped. Landed still uses an exact completion build.
+  let branchAncestor = "";
   const story = await completedPublishedStory(
     origin,
     "story-branch",
     undefined,
     undefined,
     undefined,
-    { sharedAlreadyReady: true },
+    {
+      sharedAlreadyReady: true,
+      beforeComplete: (workspace) => {
+        branchAncestor = git(workspace, "rev-parse", "HEAD");
+        writeAt(workspace, ".planning/branch-wrap.md", "wrap on branch\n");
+        commitAll(workspace, "planning tip before landing");
+      },
+    },
   );
   const { completion, agent, branch } = story;
   const claim = claimOf(origin.project, agent);
@@ -67,6 +78,9 @@ async function publishWithPlanningStart(
     .trim()
     .split(" ");
   const branchSide = parents[2] ?? completion;
+  if (branchAncestor === "") {
+    throw new Error("planning tip did not record the branch ancestor build");
+  }
   const fromStart = revList(origin.project, storyStart, 20);
   const baselineIndex = fromStart.indexOf(baseline);
   const laterWithoutBuild = baselineIndex < 0 ? 0 : baselineIndex;
@@ -88,20 +102,30 @@ async function publishWithPlanningStart(
       [baseline]: [
         wall(baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
       ],
-      [branchSide]: [
-        wall(branchSide, 102, "2026-11-05T13:00:00Z", "2026-11-05T13:03:20Z"),
+      [branchAncestor]: [
+        wall(
+          branchAncestor,
+          102,
+          "2026-11-05T13:00:00Z",
+          "2026-11-05T13:03:20Z",
+        ),
       ],
       [completion]: [
         wall(completion, 103, "2026-11-05T14:00:00Z", "2026-11-05T14:04:00Z"),
       ],
     },
-    defaultMixedProofs({ baseline, branchSide, completion }),
+    defaultMixedProofs({
+      baseline,
+      branchSide: branchAncestor,
+      completion,
+    }),
   );
   return {
     identity: queuedIdentity,
     completion,
     baseline,
     branchSide,
+    branchAncestor,
     storyStart,
     laterWithoutBuild,
     agent,
@@ -125,6 +149,7 @@ export async function publishCancelledBaseline(
   origin: StartOrigin,
 ): Promise<SkippedComparisonSetup> {
   const setup = await publishWithPlanningStart(page, origin, true);
+  const branchBuild = setup.branchAncestor ?? setup.branchSide;
   setup.serveRuns({
     [setup.baseline]: [
       wall(setup.baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
@@ -138,13 +163,8 @@ export async function publishCancelledBaseline(
         "cancelled",
       ),
     ],
-    [setup.branchSide]: [
-      wall(
-        setup.branchSide,
-        102,
-        "2026-11-05T13:00:00Z",
-        "2026-11-05T13:03:20Z",
-      ),
+    [branchBuild]: [
+      wall(branchBuild, 102, "2026-11-05T13:00:00Z", "2026-11-05T13:03:20Z"),
     ],
     [setup.completion]: [
       wall(

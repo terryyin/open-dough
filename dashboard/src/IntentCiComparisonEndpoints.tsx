@@ -1,11 +1,13 @@
 // Endpoint table for Intent's story CI timing comparison
 // (`./IntentCiComparison.tsx`): each endpoint's requested-revision status
-// beside build identity (revision, run, state, exact / ancestor / equivalent
-// selection), CI wall time, and CI time without runner waits with a signed
-// difference against Baseline.
+// beside a compact Build source cue (exact / ancestor icon with accessible
+// words, or concise equivalent / later words), CI wall time, and CI time
+// without runner waits with a signed difference against Baseline.
 
 import type { ReactNode } from "react";
+import { GitCommitHorizontal, History, type LucideIcon } from "lucide-react";
 import { shortSha } from "./baseCiWording.ts";
+import { Icon } from "./Icon.tsx";
 import {
   requestedStatusOrExplanation,
   requestedStatusPrefix,
@@ -17,19 +19,53 @@ import {
 } from "./storyCiComparisonWording.ts";
 import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
 
-function LinkedRun({
-  name,
-  url,
+function exceptionalRequestedStatusPrefix(
+  slot: Pick<StoryCiComparisonSlot, "requestedStatus">,
+): string {
+  // Routine Skipped stays out of the default Build cell; Cancelled and No
+  // build keep their short visible explanation.
+  if (slot.requestedStatus?.kind === "skipped") return "";
+  return requestedStatusPrefix(slot);
+}
+
+function selectionSourceIcon(
+  selection: Extract<
+    StoryCiComparisonSlot,
+    { kind: "build" | "running" }
+  >["selection"],
+): LucideIcon | undefined {
+  switch (selection) {
+    case "exact":
+      return GitCommitHorizontal;
+    case "ancestor":
+      return History;
+    case "equivalent":
+    case "later":
+      return undefined;
+  }
+}
+
+function BuildSourceCue({
+  slot,
+  provisional,
 }: {
-  readonly name: string;
-  readonly url: string | undefined;
-}) {
-  return url === undefined ? (
-    <>{name}</>
-  ) : (
-    <a href={url} target="_blank" rel="noreferrer">
-      {name}
-    </a>
+  readonly slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>;
+  readonly provisional: boolean;
+}): ReactNode {
+  const words = selectionWords(slot, provisional);
+  const glyph = selectionSourceIcon(slot.selection);
+  if (glyph === undefined) {
+    return <span className="intent-ci-comparison-source-words">{words}</span>;
+  }
+  return (
+    <span
+      className="intent-ci-comparison-source"
+      data-selection={slot.selection}
+      title={words}
+    >
+      <Icon icon={glyph} />
+      <span className="visually-hidden">{words}</span>
+    </span>
   );
 }
 
@@ -40,28 +76,13 @@ function BuildIdentity({
   readonly slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>;
   readonly provisional: boolean;
 }): ReactNode {
-  const adapter = slot.adapterAttempt;
-  const runName =
-    adapter !== undefined
-      ? `run ${adapter.runId} · attempt ${adapter.attemptId}`
-      : slot.runId !== undefined && slot.runAttempt !== undefined
-        ? `run ${String(slot.runId)} #${String(slot.runAttempt)}`
-        : "run unknown";
-  const state =
-    slot.kind === "running"
-      ? "running"
-      : slot.state === "pass"
-        ? "passed"
-        : "failed";
   const failed =
-    slot.kind === "build" && slot.state === "failed" ? " (failed build)" : "";
+    slot.kind === "build" && slot.state === "failed" ? " failed build" : "";
   return (
     <>
-      <code>{shortSha(slot.revision)}</code>
-      {" · "}
-      {adapter !== undefined ? `${slot.subject} · ` : null}
-      <LinkedRun name={runName} url={slot.runUrl} />
-      {` · ${state} · ${selectionWords(slot, provisional)}${failed}`}
+      <code>{shortSha(slot.revision)}</code>{" "}
+      <BuildSourceCue slot={slot} provisional={provisional} />
+      {failed}
     </>
   );
 }
@@ -76,7 +97,7 @@ function EndpointIdentity({
   if (slot.kind === "build" || slot.kind === "running") {
     return (
       <>
-        {requestedStatusPrefix(slot)}
+        {exceptionalRequestedStatusPrefix(slot)}
         <BuildIdentity slot={slot} provisional={provisional} />
       </>
     );
