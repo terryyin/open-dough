@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_remove-authenticated-read-wall-clock-waits.json",
+      "identity": "SEED-262#remove-authenticated-read-wall-clock-waits",
+      "completedAt": "2026-11-08T03:22:17.356Z",
+      "blob": "64c28fce15689cc9bd4940866f4bb6adf31df0f7"
+    },
+    {
       "fileName": "SEED-262_refresh-without-unneeded-reloads.json",
       "identity": "SEED-262#refresh-without-unneeded-reloads",
       "completedAt": "2026-11-08T01:43:29.664Z",

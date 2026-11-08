@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Pilot fluent page objects in dashboard Side panel tests](seeds/SEED-263-fluent-dashboard-page-objects.md#pilot-fluent-dashboard-page-objects) — SEED-263#pilot-fluent-dashboard-page-objects ([plan](slice-plans/506-pilot-fluent-dashboard-page-objects/PLAN.md))
 - [Make published work test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-published-work-test-data) — SEED-261#map-published-work-test-data ([plan](slice-plans/508-map-published-work-test-data/PLAN.md))
 - [Find the intent assessment in a recently done story](seeds/SEED-258-dough-intent-coverage.md#assess-intent-coverage-during-wrap-up) — SEED-258#assess-intent-coverage-during-wrap-up ([plan](slice-plans/509-assess-intent-coverage-during-wrap-up/PLAN.md))
-- [Remove wall-clock waits from authenticated-read backend specs](seeds/SEED-262-faster-dashboard-test-feedback.md#remove-authenticated-read-wall-clock-waits) — SEED-262#remove-authenticated-read-wall-clock-waits ([plan](slice-plans/511-remove-authenticated-read-wall-clock-waits/PLAN.md))
 
 ## Backlog list
 

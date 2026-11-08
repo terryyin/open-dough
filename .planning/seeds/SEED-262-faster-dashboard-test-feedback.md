@@ -457,8 +457,9 @@ relevant answer is available, with time-dependent behavior still proven.
 virtual clock steps took 13ms, while observing the session answers took about
 0.42s. Look across session and revision observation tests for repeated waits,
 unnecessary polling, and remaining elapsed waits. Use controlled clocks for
-cadence and observable events for completed requests. The two authenticated-read
-backend specs are covered by [the focused follow-up](#remove-authenticated-read-wall-clock-waits).
+cadence and observable events for completed requests. Follow the
+[authenticated-read backend clock guidance](../../dashboard/tests/writing-journeys.md#authenticated-read-backend-clocks)
+where it applies to the selected cases.
 A clock seam in the released GitHub request owner remains a
 [separate decision](../TEST-OPTIMIZATION-CANDIDATES.md#auto-refresh-rate-limit-real-waits).
 
@@ -467,64 +468,3 @@ across the selected family. Retain checks for the absence of early requests,
 the expected cadence, and failure and recovery. Compare wait duration and
 request count with the ordinary test verdicts and fixtures intact.
 [Synchronization guidance](../../dashboard/tests/writing-journeys.md)
-
-<a id="remove-authenticated-read-wall-clock-waits"></a>
-
-### Remove wall-clock waits from authenticated-read backend specs
-
-**Identity:** SEED-262#remove-authenticated-read-wall-clock-waits
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/511-remove-authenticated-read-wall-clock-waits/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05d4028d4e7690a88244c1de4e435a23ff311c9fb280042bfc4e24e46144ea14","plan":"fa912f68356d6b36f2dde63430f39c603260059656e4528d2776b224ba3f1462"}}
-```
-
-#### Goal
-
-Developers running the authenticated-read backend specs get reliable feedback
-as soon as the relevant event occurs or they advance the test clock. The
-checks still distinguish correct stream shutdown and listing recovery from
-extra or missing GitHub requests.
-
-#### Scope
-
-Replace the fixed shutdown waits in the
-[revision stream spec](../../dashboard/backend-tests/observation/authenticated-read-revision-stream.spec.ts)
-and the listing-settlement and cooldown waits in the
-[shared listing failures spec](../../dashboard/backend-tests/observation/authenticated-read-shared-listing-failures.spec.ts).
-Keep the real HTTP boundary and synthetic GitHub request counts. Observe
-completion at the owner of each operation and control the time needed to
-prove cadence and cooldown. The boundary is these two specs and their
-necessary fixture support. The broader polling story and a released GitHub
-request owner clock seam have [separate scope](#drive-polls-with-time-and-replies).
-
-#### Key examples
-
-1. Two streams for one source open at different revisions and with different
-   watches. They share one opening listing and receive their respective
-   answers. Advancing to the next pace causes exactly one fresh listing for
-   both. Once the server processes the last disconnect, advancing across
-   further paces makes no new listing.
-2. A stream has received its first answer and has another pace scheduled.
-   Closing the authenticated-read boundary ends the HTTP response while
-   the HTTP server can still answer. Advancing across further paces makes
-   no new listing.
-3. A GitHub listing stays unanswered when the HTTP check times out. Once
-   the listing itself has timed out, a later check succeeds with exactly
-   one fresh listing. A 504 still falls back to the ref and leaves the next
-   check eligible to ask for a fresh listing.
-4. GitHub answers a listing with a 429 and a directed wait. During that
-   wait, another check on the same server is held back without a GitHub
-   request. Advancing the private owner's clock past the cooldown lets
-   the next check succeed with exactly one fresh listing.
-
-#### Evaluation
-
-Both specs pass through the normal dashboard backend entry point, including
-their other existing assertions. Compare the same two-spec selection before
-and after, recording elapsed time, executed cases, and the waits removed.
-Keep the request counts and verdicts with no elapsed-time sleeps for shutdown,
-timeout settlement, or cooldown. Follow the
-[test automation rules](../../AGENTS.md#test-automation) and
-[failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
-
-**Evidence.** SEED-259's execution-complete record in
-`7267337bc:.planning/slice-plans/504-correct-scan-intent-ci-summaries/PLAN.md`.
