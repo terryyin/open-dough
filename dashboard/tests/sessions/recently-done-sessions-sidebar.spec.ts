@@ -157,7 +157,7 @@ test("finds and opens the newest completed sessions across projects from a colla
     await expect(panel).toHaveCount(0);
   });
 
-  await test.step("an unavailable Done entry offers no Open, and choosing it selects it without inventing a terminal", async () => {
+  await test.step("an unavailable Done entry offers no Open, and choosing it selects it and brings its Board entry into view in its project without inventing a terminal", async () => {
     await openSessionsSidebar(page);
     if ((await shown.header.getAttribute("aria-expanded")) !== "true")
       await shown.header.click();
@@ -169,7 +169,13 @@ test("finds and opens the newest completed sessions across projects from a colla
       "aria-pressed",
       "true",
     );
-    await expectProjectChoice(page, "Doughnut");
+    await expectProjectChoice(page, "Pygardon");
+    const local = parts(page).recentlyDone.getByRole("article", {
+      name: standaloneSessionName("Ad hoc", olderTitle),
+    });
+    await expect(local).toBeInViewport();
+    await expect(local).toHaveClass(/\bselected-session\b/);
+    await expect(parts(page).development).toBeChecked();
     await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toHaveLength(attaches);
   });

@@ -9,8 +9,10 @@ import {
 // Its native observations and supported controls stay distinct from story facts.
 // A retained (done) session shows its listing facts; any of its controls asks
 // the page's history read for its full entry (`./retainedHistory.ts`).
+// The session chosen as a standalone Recently done sessions row is marked
+// selected (`./recentlyDoneSelection.ts`), apart from the Side panel's mark.
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useContext, useEffect, useId, useRef, useState } from "react";
 import { ChevronRight, Ellipsis } from "lucide-react";
 import { Icon, IconButton } from "./Icon.tsx";
 import {
@@ -36,6 +38,7 @@ import type { AgentAssignment } from "./agentAssignments.ts";
 import { assignedAgent } from "./launchRecord.ts";
 import { useFrameDescription } from "./protectedFrame.ts";
 import { useReadRetainedHistory } from "./retainedHistory.ts";
+import { ChosenSessionOnPage } from "./recentlyDoneSelection.ts";
 import "./agent-launch.css";
 
 export function SessionEntry({
@@ -70,7 +73,9 @@ export function SessionEntry({
   const { entryClass, stateWords } = shownSession(record);
   const { shownSession: shown, hostOperations } = usePageSessions();
   const localDone = marksLocalDone(hostOperations, record.session.host);
-  const current = shown?.key === sessionKey(record.session);
+  const key = sessionKey(record.session);
+  const current = shown?.key === key;
+  const chosen = useContext(ChosenSessionOnPage) === key;
   const inFinalReport = current && shown.kind === "final-report";
   const inTerminal = current && shown.kind === "terminal";
   // The entry's status line, which says what its last mark or delete came to;
@@ -95,12 +100,18 @@ export function SessionEntry({
   return (
     <article
       ref={entry}
-      className={current ? `${entryClass} in-side-panel` : entryClass}
+      className={[
+        entryClass,
+        current && "in-side-panel",
+        chosen && "selected-session",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       aria-label={
         onStoryCard ? `${name} session` : `${name} session for ${title}`
       }
       tabIndex={-1}
-      {...showsSession(sessionKey(record.session))}
+      {...showsSession(key)}
       {...(markedDone ? { onClickCapture: readHistory } : {})}
     >
       {!onStoryCard && (
@@ -151,6 +162,7 @@ export function SessionEntry({
           say={say}
         />
       )}
+      {chosen && <p className="selected-session-content">Selected session</p>}
       {inTerminal && <p className="shown-session-content">Shown in terminal</p>}
       {inFinalReport && (
         <p className="shown-session-content">Shown in final report</p>

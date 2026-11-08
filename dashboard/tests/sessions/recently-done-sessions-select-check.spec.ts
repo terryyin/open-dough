@@ -9,12 +9,14 @@ import { expectProjectChoice } from "../projectChoice.ts";
 import {
   adHoc,
   choiceStatus,
-  holdPygardonCatalog,
-  isPygardonCatalog,
   linked,
   openSelectionPage,
-  pygardonCatalogRead,
 } from "../recentlyDoneSelectionJourney.ts";
+import {
+  holdPygardonCatalog,
+  isPygardonCatalog,
+  pygardonCatalogRead,
+} from "../pygardonCatalogReads.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 

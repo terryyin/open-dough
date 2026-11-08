@@ -111,7 +111,7 @@ in the sidebar. Slice 2 completes the Board response.
 ### 2. Bring the selected work into view in Development
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Development destination from the outside-in table. Check a normal
 linked story and an older standalone row in another project's Board, with
 visible selection and viewport assertions. Retain the explicit Open
@@ -131,6 +131,12 @@ with the four baseline specs and the Recently done sidebar family (28 passed).
 G1 returns the Board reveal assertions of the two rewritten sidebar and paging
 steps under Select.
 
+CI disposition: run 42463320829 attempt 1 on slice 1 revision `2d8fcf4` failed
+only `ci-proof` at `actions/setup-node` (HTTP 504 twice downloading Node
+24.21.0 from GitHub releases, 60 s step bound); all 16 other jobs, including
+every dashboard shard, passed, and other branches acquired Node in the same
+window. Ignored as infrastructure; slice 2 publication runs full CI.
+
 ## Preparation review
 
 Slice-plan refinement was unnecessary. Selection and Board reveal each have
@@ -139,7 +145,7 @@ one selection rule. No slice-specific concerns remain.
 
 ## Story obligations
 
-### G1. A Done row without Open no longer reveals its Board entry (sidebar "an unavailable Done entry" and paging "older cross-project session" steps now assert the project stays)
-Reported: slice 1 — "a Done row without terminal or final-report access no longer goes to its project's Board. Before, row activation switched the project and revealed the Board entry; now it has no Open and Select only selects it."
+### G1. (first reported in slice 1) A Done row without Open no longer reveals its Board entry (sidebar "an unavailable Done entry" and paging "older cross-project session" steps now assert the project stays)
+Reported: slice 2 — "a Done row without terminal or final-report access no longer goes to its project's Board. Before, row activation switched the project and revealed the Board entry; now it has no Open and Select only selects it."
 Story clause: "In Development, selection brings the story card or standalone session into view in its project's Board, extending the Recently done range as needed."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: dashboard/tests/sessions/recently-done-sessions-sidebar.spec.ts step "an unavailable Done entry offers no Open, and choosing it selects it and brings its Board entry into view in its project" and recently-done-sessions-sidebar-paging.spec.ts step "choosing an older cross-project session selects it and brings its Board entry into view in its project" assert the project switch, toBeInViewport and selection under Select

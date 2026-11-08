@@ -10,15 +10,15 @@ import { sessionKey } from "./sessionReference.ts";
 // a done record after native attachment.
 // The page's one Recently done range (`./recentlyDoneRange.ts`) is kept here
 // too, so a journey's destination can ask it for the entry it lands on. A
-// Recently done sessions row selects (`./recentlyDoneSelection.ts`); its Open
-// control, like every other Sessions sidebar row, opens. Every retained
+// Recently done sessions row selects (`./recentlyDoneSelection.ts`), in
+// Development going to what it selected as an Open goes to its session; its
+// Open control, like every other Sessions sidebar row, opens. Every retained
 // session the page opens or acts on asks the page's one history read
 // (`./retainedHistory.ts`).
 
 import { useCallback, useRef, type CSSProperties, type ReactNode } from "react";
 import { FinalReport } from "./FinalReport.tsx";
 import type { MachineSessions } from "./agentLaunches.ts";
-import type { PublishedSource } from "./publishedSource.ts";
 import { useVisibleProjects } from "./projectList.tsx";
 import {
   SessionsSidebar,
@@ -42,6 +42,7 @@ import { StoryInspectionProvider } from "./pageStoryInspection.tsx";
 import { RetainedHistoryOnPage } from "./retainedHistory.ts";
 import { useSessionNavigation } from "./sessionNavigation.ts";
 import {
+  ChosenSessionOnPage,
   useRecentlyDoneSelection,
   type RecentlyDoneProjects,
 } from "./recentlyDoneSelection.ts";
@@ -86,8 +87,6 @@ export function PageFrame({
   readonly stories: RecentlyDoneProjects & {
     // The project whose stories the page shows, once they are read.
     readonly shown: string | undefined;
-    // Shows a project's stories, as one history entry.
-    readonly show: (source: PublishedSource) => void;
   };
   readonly children: ReactNode;
 }) {
@@ -126,11 +125,16 @@ export function PageFrame({
     },
     [readSession],
   );
-  const recentlyDone = useRecentlyDoneSelection(projects, stories, selection);
   const revealSession = useSessionNavigation(
     stories.selected,
     stories.shown,
     range,
+  );
+  const recentlyDone = useRecentlyDoneSelection(
+    projects,
+    stories,
+    selection,
+    revealSession,
   );
   const goToSession: OpenSessionsSidebarSessionEntry = ({
     record,
@@ -184,16 +188,18 @@ export function PageFrame({
                   />
                   <SessionsSidebarOnPage value={sidebar}>
                     <RecentlyDoneRangeOnPage value={range}>
-                      <div
-                        className="page-column"
-                        aria-hidden={shownMaximized ? true : undefined}
-                      >
-                        <IntentModeProvider project={stories.selected}>
-                          <IntentReadingProvider project={stories.selected}>
-                            {children}
-                          </IntentReadingProvider>
-                        </IntentModeProvider>
-                      </div>
+                      <ChosenSessionOnPage value={recentlyDone.chosenSession}>
+                        <div
+                          className="page-column"
+                          aria-hidden={shownMaximized ? true : undefined}
+                        >
+                          <IntentModeProvider project={stories.selected}>
+                            <IntentReadingProvider project={stories.selected}>
+                              {children}
+                            </IntentReadingProvider>
+                          </IntentModeProvider>
+                        </div>
+                      </ChosenSessionOnPage>
                     </RecentlyDoneRangeOnPage>
                   </SessionsSidebarOnPage>
                   {finalReport && (

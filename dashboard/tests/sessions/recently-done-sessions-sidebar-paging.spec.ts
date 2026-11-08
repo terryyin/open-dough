@@ -7,7 +7,12 @@ import {
   recentlyDoneSessionsInitialLimit,
   type LaunchRecord,
 } from "../../src/agentLaunch.ts";
-import { expectProjectChoice, chooseProject, parts } from "../dashboardPage.ts";
+import {
+  expectProjectChoice,
+  chooseProject,
+  standaloneSessionName,
+  parts,
+} from "../dashboardPage.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import {
   fortyFiveDoneSessions,
@@ -120,13 +125,18 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   // Index 40 → doughnut (sources cycle open-dough, doughnut, pygardon).
   const olderCrossProject = titles[40] ?? "";
   expect(olderCrossProject).not.toBe("");
-  await test.step("choosing an older cross-project session selects it within the reached range", async () => {
+  await test.step("choosing an older cross-project session selects it and brings its Board entry into view in its project", async () => {
     await shown.entry(olderCrossProject).click();
     await expect(shown.entry(olderCrossProject)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
-    await expectProjectChoice(page, "Pygardon");
+    await expectProjectChoice(page, "Doughnut");
+    await expect(
+      parts(page).recentlyDone.getByRole("article", {
+        name: standaloneSessionName("Ad hoc", olderCrossProject),
+      }),
+    ).toBeInViewport();
     await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
     await expect(shown.entries).toHaveCount(45);
   });

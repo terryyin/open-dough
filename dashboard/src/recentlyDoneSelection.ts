@@ -16,8 +16,20 @@
 // which selects the session. A later choice, an explicit Open, or another
 // project chosen meanwhile supersedes an unanswered check. A linked row stays
 // chosen while its story is the page's Selected story.
+//
+// In Development the choice also shows its project's stories and brings into
+// view its done story's card, or, for a standalone row, its session's entry,
+// which is marked selected (`ChosenSessionOnPage`); the page's Recently done
+// range extends as far as that entry (`./sessionNavigation.ts`). Only the
+// current choice goes there, as the perspective is when its check answers.
 
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
 import { readDoneCatalogAt } from "./authenticatedDoneRead.ts";
@@ -30,6 +42,7 @@ import {
 } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import type { GoToSession } from "./sessionNavigation.ts";
 import { sessionKey } from "./sessionReference.ts";
 
 // The chosen row, by its session key, and what its choice selected.
@@ -55,7 +68,15 @@ export type RecentlyDoneProjects = {
   readonly work: PublishedWork | undefined;
   // Shows a project in the current perspective, as one history entry.
   readonly select: (source: PublishedSource) => void;
+  // Whether the page shows the Development perspective.
+  readonly development: boolean;
+  // Shows a project's Development stories, as one history entry.
+  readonly show: (source: PublishedSource) => void;
 };
+
+// The session of the standalone row chosen, by its key, which its Board entry
+// marks selected.
+export const ChosenSessionOnPage = createContext<string | undefined>(undefined);
 
 type DoneLink = "linked" | "absent" | { readonly problem: string };
 
@@ -105,9 +126,15 @@ export function useRecentlyDoneSelection(
   projects: readonly PublishedSource[],
   stories: RecentlyDoneProjects,
   selection: ReturnType<typeof usePageStorySelection>,
+  goTo: GoToSession,
 ) {
   const [choice, setChoice] = useState<RecentlyDoneChoice>();
   const checking = useRef<AbortController | undefined>(undefined);
+  // The page as it is when an answer arrives, not as it was when chosen.
+  const now = useRef({ stories, goTo });
+  useLayoutEffect(() => {
+    now.current = { stories, goTo };
+  });
 
   const abandonCheck = useCallback(() => {
     checking.current?.abort();
@@ -128,20 +155,37 @@ export function useRecentlyDoneSelection(
     const key = sessionKey(record.session);
     const { identity } = launchSubject(record.request);
     const source = projects.find(({ id }) => id === record.request.source);
-    if (identity === undefined || source === undefined) {
+    // In Development, shows the session's project's stories and goes to the
+    // session, or its done `story`; elsewhere, gives up an earlier going.
+    const goThere = (story?: string) => {
+      const page = now.current;
+      if (!page.stories.development || source === undefined) {
+        page.goTo();
+        return;
+      }
+      page.stories.show(source);
+      page.goTo(record, story);
+    };
+    const standalone = () => {
       setChoice({ key, kind: "standalone" });
+      goThere();
+    };
+    if (identity === undefined || source === undefined) {
+      standalone();
       return;
     }
     const story = { project: source.id, identity };
     const settle = (link: DoneLink) => {
       if (link === "absent") {
-        setChoice({ key, kind: "standalone" });
+        standalone();
       } else if (link === "linked") {
         setChoice({ key, kind: "linked", story });
         selection.api.select(story);
-        stories.select(source);
+        if (now.current.stories.development) goThere(identity);
+        else now.current.stories.select(source);
       } else {
         setChoice({ key, kind: "unknown", problem: link.problem });
+        now.current.goTo();
       }
     };
     const shown = currentCatalog(stories.work, source.id);
@@ -152,6 +196,7 @@ export function useRecentlyDoneSelection(
     const controller = new AbortController();
     checking.current = controller;
     setChoice({ key, kind: "checking" });
+    goTo();
     void readLink(source, identity, controller.signal).then((link) => {
       if (checking.current !== controller) return;
       checking.current = undefined;
@@ -165,5 +210,6 @@ export function useRecentlyDoneSelection(
       ? undefined
       : choice;
   const row: RecentlyDoneRowSelection = { choice: chosen, onSelect: select };
-  return { choice: chosen, row, supersede };
+  const chosenSession = chosen?.kind === "standalone" ? chosen.key : undefined;
+  return { choice: chosen, row, supersede, chosenSession };
 }

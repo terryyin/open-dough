@@ -6,15 +6,17 @@
 // done story's session, Open Dough's session whose workspace is gone so it
 // opens its final report, a session of Pygardon's Taken story that no done
 // record matches, and a Doughnut ad hoc session. The Pygardon sessions are ones the synthetic
-// `claude` lists, so Open reaches their terminal.
+// `claude` lists, so Open reaches their terminal. A case can keep more ad hoc
+// sessions in Doughnut or Pygardon, done after that project's own entry, so
+// the entry stands beyond the first ten its Board Recently done shows.
 
 import path from "node:path";
-import type { Locator, Page, Route } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { catalogPublications } from "./catalogProjectRecords.ts";
+import { parts } from "./dashboardPage.ts";
 import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 import {
   browseSpec,
@@ -87,9 +89,37 @@ export async function publishSelectionProjects(page: Page, now: number) {
   });
 }
 
+// How many more ad hoc sessions a case keeps in each project, each launched
+// and done after the selection journeys' own Recently done entry there.
+export type NewerSessions = {
+  readonly doughnut?: number;
+  readonly pygardon?: number;
+};
+
+// The `count` more ad hoc sessions a case keeps in `project`, each launched
+// half a minute before it was done, between `from` and `to` minutes before
+// `at(0)`; Board Recently done places a session by its launch.
+function newerIn(
+  project: keyof NewerSessions,
+  count: number,
+  { from, to }: { readonly from: number; readonly to: number },
+  at: (minutes: number) => string,
+) {
+  return Array.from(Array(count).keys(), (index) => {
+    const title = `${project} newer session ${String(index + 1)}`;
+    const done = from - ((from - to) * index) / count;
+    return makeMe.aLaunchRecord
+      .adHoc({ instruction: title, title, source: project })
+      .launchedAt(at(done + 0.5))
+      .markedDoneAt(at(done))
+      .please();
+  });
+}
+
 export async function keepSelectionSessions(
   dashboard: DashboardServer,
   now: number,
+  newer: NewerSessions = {},
 ) {
   const at = (minutes: number) =>
     new Date(now - minutes * minute).toISOString();
@@ -114,6 +144,8 @@ export async function keepSelectionSessions(
         .launchedAt(at(80))
         .markedDoneAt(at(3))
         .please(),
+      // Done after the done story, before every row above.
+      ...newerIn("pygardon", newer.pygardon ?? 0, { from: 50, to: 10 }, at),
     ],
     "open-dough": [
       makeMe.aLaunchRecord
@@ -134,58 +166,42 @@ export async function keepSelectionSessions(
         .launchedAt(at(60))
         .markedDoneAt(at(4))
         .please(),
+      // Done after the ad hoc session above.
+      ...newerIn("doughnut", newer.doughnut ?? 0, { from: 3.5, to: 1.25 }, at),
     ],
   });
 }
-
-// Holds Pygardon's done catalog reads from now on: `asked` resolves once one
-// reaches the page's boundary, and `release` lets every held one through.
-export async function holdPygardonCatalog(page: Page) {
-  let asked: () => void = () => undefined;
-  const askedOnce = new Promise<void>((resolve) => {
-    asked = resolve;
-  });
-  let release: () => void = () => undefined;
-  const released = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  await page.route(isPygardonCatalog, async (route: Route) => {
-    asked();
-    await released;
-    // The page may have abandoned the read meanwhile.
-    await route.fallback().catch(() => undefined);
-  });
-  return { asked: askedOnce, release };
-}
-
-export const isPygardonCatalog = (url: URL) =>
-  url.pathname === authenticatedReadEndpoint &&
-  url.searchParams.get("source") === "pygardon" &&
-  url.searchParams.get("done") === "catalog";
 
 // What a chosen row says while its done story is unread or unknown.
 export const choiceStatus = (row: Locator) =>
   row.locator(".sessions-sidebar-session-entry-choice");
 
-// The page opened on Open Dough with Recently done sessions expanded, by
-// pointer or, given `tap`, by touch at the viewport the case uses.
+// The page opened on Open Dough, at `address` when given, with Recently
+// done sessions expanded, by pointer or, given `tap`, by touch at the
+// viewport the case uses, keeping the `newer` sessions the case asks for.
 export async function openSelectionPage(
   page: Page,
   dashboard: DashboardServer,
   tap?: typeof tapWhereShown,
+  {
+    newer = {},
+    address,
+  }: { readonly newer?: NewerSessions; readonly address?: string } = {},
 ) {
   const now = Date.now();
   if (tap === undefined)
     await page.setViewportSize({ width: 1600, height: 900 });
   await publishSelectionProjects(page, now);
-  await keepSelectionSessions(dashboard, now);
-  await openUntilRead(page);
+  await keepSelectionSessions(dashboard, now, newer);
+  await openUntilRead(page, address);
   const shown = recentlyDoneParts(page);
   if (tap === undefined) await shown.button.click();
   else await tap(shown.button);
   // The section header is a disclosure row, not a 44px touch control.
   await shown.header.click();
-  await expect(shown.entries).toHaveCount(4);
+  await expect(shown.entries).toHaveCount(
+    4 + (newer.doughnut ?? 0) + (newer.pygardon ?? 0),
+  );
   const row = (title: string) =>
     shown.entries.filter({ has: page.getByRole("heading", { name: title }) });
   return { shown, row };
@@ -206,8 +222,26 @@ export async function showReport(
   return panel;
 }
 
-// Resolves once the page has read Pygardon's done catalog.
-export const pygardonCatalogRead = (page: Page) =>
-  page.waitForResponse((response) =>
-    isPygardonCatalog(new URL(response.url())),
-  );
+// Development as it was: still chosen, Intent unopened, nothing attached, and
+// the Side panel still showing the report in `panel`, or, without one, empty.
+export async function expectDevelopmentKept(
+  page: Page,
+  dashboard: DashboardServer,
+  panel?: Locator,
+) {
+  const { development, intent } = parts(page);
+  await expect(development).toBeChecked();
+  await expect(intent).toHaveCount(0);
+  expect(new URL(page.url()).searchParams.get("perspective")).toBeNull();
+  if (panel === undefined) {
+    await expect(
+      page.getByRole("region", { name: /^(Terminal|Final report)$/ }),
+    ).toHaveCount(0);
+  } else {
+    await expect(panel.locator(".final-report-text")).toHaveText(
+      report.message,
+    );
+    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+  }
+  expect(dashboard.claudeAttaches()).toEqual([]);
+}

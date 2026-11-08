@@ -5,8 +5,9 @@
 // its project, keeping Intent and the Side panel; a standalone row, including
 // one whose story is still Taken, selects only the session. Unanswered and
 // failed checks live in ./recently-done-sessions-select-check.spec.ts, touch
-// in ./recently-done-sessions-select-touch.spec.ts. Board reveal of a
-// selection is outside these files.
+// in ./recently-done-sessions-select-touch.spec.ts, Board reveal of a
+// selection from Development in
+// ./recently-done-sessions-select-development.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
@@ -19,12 +20,12 @@ import {
   linked,
   openDoughTaken,
   openSelectionPage,
-  pygardonCatalogRead,
   readSpec,
   report,
   showReport,
   takenElsewhere,
 } from "../recentlyDoneSelectionJourney.ts";
+import { pygardonCatalogRead } from "../pygardonCatalogReads.ts";
 import { expectSelected, selectStory } from "../storyCardSelection.ts";
 import { intentFile, storyDisclosure } from "../support/intentStoryPage.ts";
 

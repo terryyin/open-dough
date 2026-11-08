@@ -218,7 +218,9 @@ the same project's Intent. Choosing a Recently done sessions row only selects
 it and keeps the perspective and Side panel: a row whose project publishes
 its done story recently makes that story the Selected story in its project,
 so Intent shows it there; any other row selects its retained session and
-keeps the project, story and reading. An unread or failed done catalog is
+keeps the project, story and reading in Intent. In Development the row's
+project's stories show instead, with its done story card or selected session
+brought into view, as far down Recently done as it stands. An unread or failed done catalog is
 said on the row, apart from a confirmed miss, and leaves the reading as it
 was. Changing
 perspective neither starts, stops, completes nor reattaches a session: the

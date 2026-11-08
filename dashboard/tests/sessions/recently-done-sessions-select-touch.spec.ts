@@ -1,14 +1,22 @@
 // On coarse input a Recently done sessions row's Select and its Open are
-// separate touch controls (../../src/recentlyDoneSelection.ts).
+// separate touch controls (../../src/recentlyDoneSelection.ts). At phone
+// width the sidebar overlays the page and stays on Select; once it is closed,
+// Development's Board shows what was selected, in view.
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
+import { parts, standaloneSessionName } from "../dashboardPage.ts";
 import { closeSidePanel, tapWhereShown } from "../pageLayout.ts";
+import { expectProjectChoice } from "../projectChoice.ts";
 import {
   adHoc,
+  expectDevelopmentKept,
+  linked,
   openSelectionPage,
   report,
 } from "../recentlyDoneSelectionJourney.ts";
+import { pygardonCatalogRead } from "../pygardonCatalogReads.ts";
+import { expectSelected } from "../storyCardSelection.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
@@ -60,5 +68,54 @@ test.describe("on coarse input", () => {
     await expect(shown.sidebar).toBeHidden();
     await closeSidePanel(panel);
     await expect(shown.button).toBeFocused();
+  });
+
+  test("at phone width a selection in Development is in view, selected, once the Sessions overlay closes", async ({
+    page,
+    dashboard,
+  }) => {
+    const { shown } = await openSelectionPage(page, dashboard, tapWhereShown, {
+      // Twenty rows, the sidebar's first batch.
+      newer: { doughnut: 10, pygardon: 6 },
+    });
+    const { recentlyDone } = parts(page);
+    const reopenSection = async () => {
+      await tapWhereShown(shown.button);
+      if ((await shown.header.getAttribute("aria-expanded")) !== "true")
+        await shown.header.click();
+    };
+
+    await test.step("a standalone session beyond Doughnut's first ten", async () => {
+      await shown.entry(adHoc.title).scrollIntoViewIfNeeded();
+      await tapWhereShown(shown.entry(adHoc.title));
+      await expectProjectChoice(page, "Doughnut");
+      await expect(shown.sidebar).toBeVisible();
+      await tapWhereShown(shown.button);
+      await expect(shown.sidebar).toBeHidden();
+      const entry = recentlyDone.getByRole("article", {
+        name: standaloneSessionName("Ad hoc", adHoc.title),
+      });
+      await expect(entry).toBeInViewport();
+      await expect(entry).toHaveClass(/\bselected-session\b/);
+      await expectDevelopmentKept(page, dashboard);
+    });
+
+    await test.step("a linked done story behind six newer Pygardon sessions", async () => {
+      await reopenSection();
+      const read = pygardonCatalogRead(page);
+      await shown.entry(linked.title).scrollIntoViewIfNeeded();
+      await tapWhereShown(shown.entry(linked.title));
+      await read;
+      await expectProjectChoice(page, "Pygardon");
+      await tapWhereShown(shown.button);
+      await expect(shown.sidebar).toBeHidden();
+      const card = recentlyDone.getByRole("article", {
+        name: linked.title,
+        exact: true,
+      });
+      await expectSelected(card, true);
+      await expect(card).toBeInViewport();
+      await expectDevelopmentKept(page, dashboard);
+    });
   });
 });

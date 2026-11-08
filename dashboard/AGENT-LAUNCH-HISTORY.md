@@ -236,8 +236,12 @@ or Recently done until user navigation; reduced motion skips animation. A Recent
 selects instead of opening (pressed, inset ring, apart from the Side panel's outlined current
 row): a published done record recent in the session's project with its exact story identity
 links it, selecting that story there in the current perspective; otherwise the retained session
-alone is selected, keeping the Selected story. Its Open control (Open terminal or Read final
-report) shows only where that access is available. A foreign catalog is read on demand; an
+alone is selected, keeping the Selected story. In Development a selection also shows its
+project's stories and brings its done story card, or its session's entry, marked selected (inset
+ring, "Selected session"), into view, extending Recently done's range as an Open's reveal does,
+while the keyboard stays on the row and the Side panel stays as it was; Intent reveals nothing.
+Its Open control (Open terminal or Read final report) shows only where that access is
+available. A foreign catalog is read on demand; an
 unread or failed one is said on the row apart from a confirmed miss, and a later choice, Open or
 project change supersedes it. Deleting moves keyboard within the same list, else previous, else done/story
 card, else column. Closing a terminal or report keeps its return control while usable, else the

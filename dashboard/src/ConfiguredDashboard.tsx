@@ -95,6 +95,7 @@ export function ConfiguredDashboard({
         shown: showsBoard ? work?.source.id : undefined,
         show: showStories,
         select: selectProject,
+        development: !showsIntent,
         work,
       }}
     >
