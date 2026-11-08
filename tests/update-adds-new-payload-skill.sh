@@ -23,6 +23,8 @@ new_managed_files=(
   dough-test-optimization/references/optimization-tactics.md
   dough-test-optimization/references/candidate-record.md
   dough-test-optimization/references/resolving-candidates.md
+  dough-intent-coverage/SKILL.md
+  dough-intent-coverage/finish-report.mjs
 )
 
 fixture="${temporary_dir}/fixture.git"

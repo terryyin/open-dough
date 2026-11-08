@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 445. Removed numbers are never reused.
+- Highest allocated local number: 446. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -78,6 +78,15 @@ Former local code: DD-217. [Evidence and current response](docs/maintainer/findi
 ## ODF-152 — File-size gate conflicts with approved intermediate scope <a id="odf-152"></a>
 
 Former local code: DD-219. [Evidence and current response](docs/maintainer/findings/ODF-152.md).
+
+### Occurrences
+- Execution: SEED-258#invoke-intent-coverage-manually (plan 503-invoke-intent-coverage-manually; first related implementation commit `db92104dbf589a9cc9e53f7e1fd067054371b984`)
+  - Timestamp: unknown (2026-11-08, Slice 4 review after promotion approval)
+  - Tool: Codex
+  - Open Dough release: 0.3.89 (installed guidance at `fd3c59811`)
+  - Evidence: `21331660f` added two entries to the authoritative `install.sh` array, taking it from 322 to 324 lines. Existing parsers use its one-entry-per-line format. [Earlier project-local parser evidence](ProjectFindings.md#dd-303)
+  - Observed effect: the coordinator resolved the generic 250-line check only for the approved additions. The independent review explicitly reported the overage and reused accepted proof without code edits or reruns.
+  - Inference: qualified. The added paths needed the existing declaration shape. The execution supplies no basis for a general exception or for redesigning the payload declaration.
 
 ## ODF-209 — Concurrent CI reproduction overloads slice proof <a id="odf-209"></a>
 
@@ -847,3 +856,17 @@ two removals timed out on CI and a hardening pass followed.
   - Evidence: slice 1 margin rule used run 42372706379 only; runs 42395811294 (`agent-launch-story-card-sessions`, 25.2s before) and 42399373902 (`production-watcher-failures.spec.ts:84`) hit 30s; comparing 2,122 matched cases, median ratio 1.02 but p90 1.53, and `story-review-one-shot-choice-refresh` 13.8s → 26.5s unchanged
   - Observed effect: two CI repairs (`acfe0ca9e`, `665c28053`) with stash and pause cycles, then a nine-journey hardening pass (`aad804b57`); 13 hosted cases still at 20–25s
   - Inference: hosted shard co-scheduling and CPU contention dominate; a margin judged across several hosted runs, or against a loaded stand-in such as 16–24 traced local workers, would have found these before publication
+
+## DD-446 — Report-clock changes replayed already-proved scratch journeys
+
+Timing corrections to a native report led to replaying its full scratch check,
+although the test outcomes were stable across both stacks.
+
+### Occurrences
+- Execution: SEED-258#invoke-intent-coverage-manually (plan 503-invoke-intent-coverage-manually; first related implementation commit `db92104dbf589a9cc9e53f7e1fd067054371b984`)
+  - Timestamp: unknown (2026-11-08, Slice 3 reporting rechecks)
+  - Tool: Codex (coordinator), Cursor and Codex (native probes)
+  - Open Dough release: 0.3.89 (installed guidance at `fd3c59811`, distinct from private proof tags)
+  - Evidence: `502069a15:.planning/slice-plans/503-invoke-intent-coverage-manually/PLAN.md`, Slice 3. Private v0.3.90 and v0.3.91 rechecks repeated both scratch sequences. Cursor had an early cutoff or sampled before emitting the body. Codex first labeled a partial cutoff and later claimed a timestamp absent from its trace. The v0.3.92 finisher's controlled check proved output-before-clock order, and both installed native probes returned its elapsed value.
+  - Observed effect: the four intermediate invocations repeated baseline, intended failure, and restoration. Their host-to-terminal measurements were 63.077 s and 83.322 s in Cursor (`3e00a445-1d1a-4a15-9890-f4f0a790f753`, `b90a0993-7aea-4ed8-8749-d8a54814de3a`) and 199.478 s and 175.574 s in Codex (`01a1b889-7519-7b83-ada7-dc01a28a4816`, `01a1b88e-1997-7e50-8ae1-7d17dae464cf`). The invocations overlapped across hosts. These durations do not measure avoidable time or savings.
+  - Inference: qualified. A controlled reporting check can isolate the observed cutoff failure before another full scratch journey. This execution did not compare a narrower proof strategy, and installed native acceptance still needed to show agents using the delivered helper.

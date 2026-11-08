@@ -1,0 +1,6 @@
+source: /tmp/dough-seed258-native.sjfrLgaV/codex/delivery/updated-use/20261107T235610-0195/use-events.jsonl
+stream-status: complete
+response: present
+last-start-line: 6
+command: "/bin/zsh -lc 'cat .agents/skills/dough-adr-awareness/SKILL.md; cat architecture/decisions/CATALOG.md; rg --files architecture/decisions governance'"
+command: "/bin/zsh -lc 'nl -ba architecture/decisions/CATALOG.md; nl -ba architecture/decisions/store-readings-on-each-node.md; nl -ba architecture/decisions/retain-complete-telemetry-history.md; cat governance/architecture-exceptions.md'"

@@ -1,0 +1,48 @@
+host: codex
+case: delivery/updated-use
+origin: fresh
+execution-status: completed
+execution-reason: native command exited 0
+assessment-status: pass
+assessment-reason: named conflicting authorities and stopped
+native-executable: /Users/terryyin/.local/bin/codex
+native-version-command: codex --version
+native-version: codex-cli 0.167.0
+native-model: unknown
+native-runtime-settings: unknown
+source-revision: fd3c598112daf1871eb788afd4ac8d08b50c9131
+fixture-tag: v0.2.2
+fixture-commit: 9e3f294e734e755f5df49c37c228c24c74c20239
+baseline-tag: v0.2.1
+baseline-commit: 6a8b9dfe0725c47200170d3224553bd7a79d1b2f
+update-prompt-identity: 0df6e4e89a990a02b9c0106b1bfdf795a922d36c020739b3e9106070a35e078b
+use-prompt-identity: db00e6a9de1ca1a350ab42ea15314351cf89a7f1c73fcd3c0cbac3114b72db07
+helper-identity: tests/support/dough-adr-awareness-updated-use.sh
+adapter-identity: tests/support/native-codex.sh
+fixture-identity: tests/fixtures/adr-awareness/alternate-layout
+assessor-identity: tests/support/native-journey-state.sh
+artifact-update-events: update-events.jsonl
+artifact-update-response: update-response.md
+artifact-update-stderr: update-stderr.log
+artifact-use-events: use-events.jsonl
+artifact-use-response: use-response.md
+artifact-use-stderr: use-stderr.log
+artifact-observations: observations.txt
+input-hash: b97279cb07c1f65c0536a504b6a6ac3223cd58f7e57bcc3dcd0a313441a26d16 tests/dough-adr-awareness-codex-delivery-to-use.sh
+input-hash: d80fe5b4d50f1eab3866cd3a3c9725ab716eace2ac76175f95437d1eb4e3e172 tests/support/dough-adr-awareness-delivery-to-use.sh
+input-hash: ba56f4a91751ddede76bf598e9344eec8c05ead82a1ce0824bf708a2afc5557d tests/support/dough-adr-awareness-updated-use.sh
+input-hash: 6410f6531604f6208e814e644ad26c77a068156be2c25a956ccc476d714ab116 tests/support/native-result-retain.sh
+input-hash: 61d5921a42f9c4ec1ed0b56a342feb3916030616f32034b06656ec43f0db57d6 tests/support/native-result-identity.sh
+input-hash: ff161f99acd2d06d2a1d28abdba256f21f99ac913ccf7364b94bdc222131c6a7 tests/support/native-result-retain-journey.sh
+input-hash: 8bc08b494ba4743f46d4d4e3e8bbb81c0cd21641c9318ae830176af8212de758 tests/support/native-journey-state.sh
+input-hash: f5457473622f6191d19bf820994315b33e90a1ebdc64a5c08b91d42a69e459fc tests/support/native-adr-behavior.sh
+input-hash: 3d4f39bb5e1674dbbaabc559e859569ec0a9e66b7e0cbf4878d8fb29141490a1 tests/support/native-run-supervise.sh
+input-hash: df4be8a8b26fab523c3fcaf26c2886babfb8d1cace20cccc0c0d66ac2aaf480d tests/support/native-run-stream.sh
+input-hash: a06fcccee40171e0dea3c30f69bbbd82db0120d7bf4e30250c613d6fb4868507 tests/support/native-host-stream.sh
+input-hash: 67fb420e6972d1b836a34c749ade72e4a5266419a60395597a3aff31cdb8bd00 tests/support/native-host-stream.mjs
+input-hash: e55493238d2ecef27fa82cf544feb5a4e6206c414effa7a419388166506a0353 tests/support/native-host-stream-adapters.mjs
+input-hash: 93ff8294ef14b954a9562f05fd997f36b369202688bdb1b4bdad6a2902ecae20 tests/support/native-run-watchdog.sh
+input-hash: 38f4ccdedbad94ed2b1b1377e2559cfe8728e756420e5d52944a37ae2e878e2d tests/helpers/wait-for.bash
+input-hash: 29cbcebac7fd29394dbd91f3e79c121d1eeb1dd1c6202b3319846bb26dc47ce2 tests/support/native-codex.sh
+input-hash: 5ef519f1b044acc2924ed75608f82d2b648d0797e4673b71db61af257a883012 src/skills/dough-update/SKILL.md
+input-hash: 169a108c845c252f976b3c499b493567ca7bce526d8cf9d8c086d7ecdb4fc963 src/skills/dough-adr-awareness/SKILL.md
