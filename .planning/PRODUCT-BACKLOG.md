@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Pilot fluent page objects in dashboard Side panel tests](seeds/SEED-263-fluent-dashboard-page-objects.md#pilot-fluent-dashboard-page-objects) — SEED-263#pilot-fluent-dashboard-page-objects
 - [Share one published agent profile builder across test entries](seeds/SEED-261-share-domain-test-data.md#share-published-agent-profile-builders) — SEED-261#share-published-agent-profile-builders
 - [Make published work test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-published-work-test-data) — SEED-261#map-published-work-test-data
 - [Make launch and session test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data) — SEED-261#map-launch-and-session-test-data
