@@ -30,6 +30,7 @@ export function LaunchDialog({
   heading,
   subject,
   description,
+  context,
   effects,
   details,
   host,
@@ -131,6 +132,7 @@ export function LaunchDialog({
               <p className="launch-dialog-subject">{subject}</p>
             )}
             <p>{description}</p>
+            {context}
             {note !== undefined && <p className="launch-dialog-note">{note}</p>}
             <label htmlFor={`${id}-instruction`}>{fieldLabel}</label>
             <textarea

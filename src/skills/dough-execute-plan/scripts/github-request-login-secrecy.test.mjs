@@ -19,7 +19,9 @@ import { saidToOwner } from "./github-request-owner-test-fixtures.mjs";
 import { protocol } from "./github-request-owner-wire.mjs";
 
 // Stands in `directory` as its owner for one consumer: answers what that
-// consumer said, line by line, once its one read is answered.
+// consumer said, line by line, once its one read is answered and the
+// consumer has closed its side of the connection, so its next request finds
+// the stand-in gone instead of meeting a connection that is still closing.
 function standIn(directory) {
   const socket = "0000000a.s";
   const record = { pid: process.pid, protocol, token: "caller", socket };
@@ -38,7 +40,8 @@ function standIn(directory) {
         consumer.end(`${JSON.stringify({ id, answer })}\n`);
         server.close();
         rmSync(join(directory, "owner.1.json"));
-        resolve(lines.map((line) => JSON.parse(line)));
+        const said = lines.map((line) => JSON.parse(line));
+        consumer.once("close", () => resolve(said));
       });
     });
     server.listen(join(directory, socket), () =>

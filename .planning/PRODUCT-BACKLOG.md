@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Start a follow-up from recently done work](seeds/SEED-273-follow-up-from-done.md#follow-up-from-done) — SEED-273#follow-up-from-done ([plan](slice-plans/526-follow-up-from-done/PLAN.md))
 - [Select recently done sessions from the dashboard sidebar](seeds/SEED-272-select-recently-done-sessions.md#select-recently-done-sessions) — SEED-272#select-recently-done-sessions ([plan](slice-plans/527-select-recently-done-sessions/PLAN.md))
 - [Highlight the destination of a story link](seeds/SEED-270-highlight-linked-story-card.md#highlight-linked-story-card) — SEED-270#highlight-linked-story-card ([plan](slice-plans/525-highlight-linked-story-card/PLAN.md))
 - [Build dashboard test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures) — SEED-262#migrate-dashboard-origin-fixtures ([plan](slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md))
@@ -36,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep follow-up context out of listings and resume it after its source expires](seeds/SEED-273-follow-up-from-done.md#lean-follow-up-listing) — SEED-273#lean-follow-up-listing
 - [Serve fake GitHub planning files from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#declare-fake-github-planning-data) — SEED-262#declare-fake-github-planning-data
 - [Review a selected story in Intent tabs](seeds/SEED-275-story-intent-tabs.md#story-intent-tabs) — SEED-275#story-intent-tabs
 - [Build Node test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-backlog-scratch-repositories) — SEED-262#migrate-backlog-scratch-repositories

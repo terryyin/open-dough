@@ -1,7 +1,7 @@
 // The launches the developer asked for from this page, and the startup of
 // each story and project as the machine's launch attempts show it
-// (`./agentLaunches.ts`). Asking sends the request to the local launch owner,
-// which answers once it accepted the exact request; the page then follows
+// (`./agentLaunches.ts`). Asking sends the action's request
+// (`./launchStarts.ts`) to the local launch owner, which answers once it accepted the exact request; the page then follows
 // that accepted attempt through the machine's sessions until its outcome
 // settles (`./askedLaunches.ts`, `./attemptChangeWaits.ts`). Each story's
 // startup, from whichever page, is told from the same attempts
@@ -12,20 +12,17 @@
 // (`./startupRecoveries.ts`).
 
 import type { HostOperations } from "./sessionCapabilities.ts";
-import { useCallback } from "react";
-import {
-  requestedChoices,
-  requestedSettings,
-  type AttemptObservation,
-  type LaunchChoices,
-  type LaunchWithState,
-  type LaunchWorkflow,
-  type StoryLaunchRequest,
-  type KeptStart,
+import type {
+  AttemptObservation,
+  LaunchChoices,
+  LaunchWithState,
+  LaunchWorkflow,
+  KeptStart,
 } from "./agentLaunch.ts";
 import { useAskedLaunches } from "./askedLaunches.ts";
 import { useAttemptChangeWaits } from "./attemptChangeWaits.ts";
 import type { StartAnswer } from "./useLaunchConfirmation.tsx";
+import type { FollowUpSource } from "./followUpRequest.ts";
 import {
   adHocKey,
   askedRequests,
@@ -34,6 +31,7 @@ import {
   type LaunchAttempt,
   type OnLaunched,
 } from "./pageAttempt.ts";
+import { useLaunchStarts, type LaunchWorkItem } from "./launchStarts.ts";
 import {
   storiesAsked,
   storyStartup,
@@ -50,9 +48,7 @@ import {
 } from "./startupRecoveries.ts";
 
 export type { LaunchAttempt, OnLaunched } from "./pageAttempt.ts";
-
-// The work item a launch is for, as its request names it.
-export type LaunchWorkItem = Pick<StoryLaunchRequest, "identity" | "title">;
+export type { LaunchWorkItem } from "./launchStarts.ts";
 
 export type LaunchAttempts = StartupRecoveries & {
   attemptOf(
@@ -76,15 +72,20 @@ export type LaunchAttempts = StartupRecoveries & {
     onLaunched: OnLaunched,
   ): Promise<StartAnswer>;
   // Asks for an ad hoc session in the project, with the developer's optional
-  // first message, and answers as `start` does.
+  // first message, following up `followUp` when given, and answers as
+  // `start` does.
   startAdHoc(
     sourceId: string,
     choices: LaunchChoices,
     onLaunched: OnLaunched,
+    followUp?: FollowUpSource,
   ): Promise<StartAnswer>;
   // The project's ad hoc launch from this page in flight, or its last failed
-  // or uncertain answer.
-  adHocAttemptOf(sourceId: string): LaunchAttempt | undefined;
+  // or uncertain answer; a follow-up's is its source's own.
+  adHocAttemptOf(
+    sourceId: string,
+    followUp?: FollowUpSource,
+  ): LaunchAttempt | undefined;
 };
 
 // Keeps each launch this page asked for under its key and follows accepted
@@ -136,50 +137,7 @@ export function useLaunchAttempts({
     reread,
   });
 
-  const start = useCallback(
-    (
-      sourceId: string,
-      work: LaunchWorkItem,
-      workflow: LaunchWorkflow,
-      choices: LaunchChoices,
-      onLaunched: OnLaunched,
-    ) =>
-      launch(
-        attemptKey(sourceId, work.identity, workflow),
-        {
-          source: sourceId,
-          identity: work.identity,
-          title: work.title,
-          workflow,
-          ...requestedChoices(choices),
-        },
-        onLaunched,
-        false,
-        choices.images,
-      ),
-    [launch],
-  );
-
-  // An ad hoc session carries no story policy, only its own unattached one
-  // when chosen.
-  const startAdHoc = useCallback(
-    (sourceId: string, choices: LaunchChoices, onLaunched: OnLaunched) =>
-      launch(
-        adHocKey(sourceId),
-        {
-          source: sourceId,
-          workflow: "ad-hoc",
-          ...requestedSettings(choices),
-          ...(choices.unattached === undefined
-            ? {}
-            : { policy: choices.unattached }),
-        },
-        onLaunched,
-        choices.host === "cursor",
-        choices.images,
-      ),
-    [launch],
-  );
+  const { start, startAdHoc } = useLaunchStarts(launch);
 
   // Every attempt the machine's sessions carry as still needing attention,
   // and those this page had accepted that they do not carry, as last observed.
@@ -238,8 +196,8 @@ export function useLaunchAttempts({
     storyStartupOf,
     start,
     startAdHoc,
-    adHocAttemptOf: (sourceId) =>
-      shownAttempt(attempts.get(adHocKey(sourceId)), latest),
+    adHocAttemptOf: (sourceId, followUp) =>
+      shownAttempt(attempts.get(adHocKey(sourceId, followUp)), latest),
     ...recoveries,
   };
 }

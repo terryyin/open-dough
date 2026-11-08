@@ -39,7 +39,7 @@ or failed done-catalog read stays distinct from a confirmed absence. While
 the link is unresolved, the developer can still use the row's session access
 and keep reading where they are. The increment covers **Recently done sessions**.
 Starting a follow-up is covered by
-[SEED-273](SEED-273-follow-up-from-done.md#follow-up-from-done).
+[Follow up from Recently done](../../dashboard/LAUNCH-FOLLOW-UP.md).
 
 **Key examples.**
 

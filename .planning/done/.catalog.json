@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-273_follow-up-from-done.json",
+      "identity": "SEED-273#follow-up-from-done",
+      "completedAt": "2026-11-08T10:13:45.153Z",
+      "blob": "5d3d1774faccaeb65fdd6e52b04e8442e2a6ac7f"
+    },
+    {
       "fileName": "SEED-271_compact-intent-sidebar.json",
       "identity": "SEED-271#compact-intent-sidebar",
       "completedAt": "2026-11-08T10:09:59.421Z",

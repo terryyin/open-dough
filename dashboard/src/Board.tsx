@@ -23,12 +23,14 @@ import "./board.css";
 // add nothing to the Board's scroll range.
 export function Board({
   sourceId,
+  project,
   work,
   launches,
   onOpenRoster,
 }: {
-  // The selected project.
+  // The selected project, and its name.
   sourceId: string;
+  project: string;
   work: PublishedWork;
   launches: MachineSessions;
   onOpenRoster: OpenRoster;
@@ -116,7 +118,8 @@ export function Board({
           <RecentlyDone
             view={recent}
             sourceId={sourceId}
-            launchRecords={launches.records}
+            project={project}
+            launches={launches}
           />
         </div>
       </div>

@@ -150,7 +150,8 @@ why, a choice left from another host disables Start, and the boundary refuses
 such a request before anything starts.
 Default main · Wait for review runs no start and sends no block: the session
 opens in the project folder with only the developer's text and the reporting
-context, or blank. Every other combination runs `execution-start.mjs start
+context, or blank (a [follow-up's](LAUNCH-FOLLOW-UP.md) context still counts
+as input). Every other combination runs `execution-start.mjs start
 --one-shot` with no identity or publisher (`server/unattachedStart.ts`), adding
 `--auto-land --push-authorized` only for Automatically land. Default main
 passes `--default-main` with the project folder on the target branch, and the
@@ -224,10 +225,15 @@ neither. Current and unsettled attempts retain their starts and attachment
 files, and a late script result cannot recreate a pruned start. This removes
 machine records; the Git workspace and branch remain available.
 An ad hoc launch's identity (`sameLaunch` in `src/launchRequest.ts`) is its
-project, host, instruction, Workspace and After checks choices, and image
-content digests (none when absent). Repeating them resumes a retained start or
-recovers unconfirmed first input; differing choices or images start elsewhere
-and leave that conversation and workspace to continue on their own.
+project, host, instruction, Workspace and After checks choices, image
+content digests (none when absent), and the source a follow-up names (none
+otherwise). Repeating them resumes a retained start or
+recovers unconfirmed first input; differing choices, images or sources start
+elsewhere and leave that conversation and workspace to continue on their own.
+
+An entry in Recently done whose conversation can no longer be continued
+starts such a session from its [Follow up](LAUNCH-FOLLOW-UP.md).
+
 ### Existing changes in default main
 
 Default main starts confirm unchanged checkout content through the dialog's

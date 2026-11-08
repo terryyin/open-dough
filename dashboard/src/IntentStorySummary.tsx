@@ -14,7 +14,7 @@
 
 import { useId, useState } from "react";
 import { GitCompare } from "lucide-react";
-import type { DoneStory } from "./doneStories.ts";
+import type { DoneStory } from "./doneRecord.ts";
 import {
   CompactComparisonState,
   ComparisonDetail,

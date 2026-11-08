@@ -12,6 +12,7 @@ import type {
   LaunchWorkflow,
 } from "./agentLaunch.ts";
 import type { AcceptanceAnswer, LaunchProblem } from "./agentLaunchClient.ts";
+import { followUpSourceKey, type FollowUpSource } from "./followUpRequest.ts";
 
 // A launch the developer asked for from this page that has no record:
 // still starting (asked and unanswered, or accepted and unsettled), or
@@ -49,9 +50,15 @@ export const attemptKey = (
   workflow: LaunchWorkflow | "ad-hoc",
 ) => JSON.stringify([sourceId, identity, workflow]);
 
-// An ad hoc launch has no work item, so its attempt is the project's alone.
-export const adHocKey = (sourceId: string) =>
-  attemptKey(sourceId, "", "ad-hoc");
+// An ad hoc launch has no work item, so its attempt is the project's alone,
+// or, for a follow-up, the project's and the source's it follows up, so the
+// project row's Start session and each entry's Follow up stay apart.
+export const adHocKey = (sourceId: string, followUp?: FollowUpSource) =>
+  attemptKey(
+    sourceId,
+    followUp === undefined ? "" : followUpSourceKey(followUp),
+    "ad-hoc",
+  );
 
 // The problem an accepted attempt settled to without a session.
 export function problemOf(
