@@ -15,6 +15,7 @@ import {
   launch,
   recordsOf,
 } from "../../tests/agentLaunchBoundary.ts";
+import { stored } from "../../tests/support/codexLaunch.ts";
 import { expect, test } from "../../tests/support/cursorStart.ts";
 import type { FakeCursor } from "../../tests/support/fakeCursor.ts";
 import { followUpOf } from "../../tests/support/followUpSources.ts";
@@ -153,7 +154,7 @@ test("with Isolated workspace, a start continued after the source record is gone
     request: record?.request,
     server: dashboard,
   });
-  expect(record?.request).toMatchObject({
+  expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
     followUp: { context: reportedContext },
   });
 });

@@ -110,7 +110,7 @@ test("a done story followed up with Codex on Isolated workspace · Wait for revi
     request: launched.record?.request,
     server: dashboard,
   });
-  expect(launched.record?.request).toMatchObject({
+  expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
     instruction: text,
     followUp: { ...storyFollowUpOf(recoverStory, trunk), context },
   });
@@ -190,7 +190,7 @@ test("Continue after Codex refused and the source record is gone rebuilds the in
     request: launched.record?.request,
     server: dashboard,
   });
-  expect(launched.record?.request).toMatchObject({
+  expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
     followUp: { context: reportedContext },
   });
 });

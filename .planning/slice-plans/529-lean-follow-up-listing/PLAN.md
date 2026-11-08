@@ -3,6 +3,18 @@
 **Identity:** SEED-273#lean-follow-up-listing
 
 **Source:** [Keep follow-up context out of listings and resume it after its source expires](../../seeds/SEED-273-follow-up-from-done.md#lean-follow-up-listing)
+**Source review:** [Independent source commitments](source-review.md)
+
+## Execution context
+
+Story Branch Mode in the established linked worktree, publisher
+`dashboard-territory.local-open-dough`, agent `aki-chan`, origin trunk `main`.
+Starting revision `5a1f5834cdc02c776fbbcc7633c18089bdf61ae9`. Claim accepted
+on origin/main and the execution branch at
+`b25aecb9813da1d7c5b78d72a7bb21286ac8c3f4`. Initial candidate is the claim.
+Execution-branch CI uses GitHub Actions `ci.yml`, coordinator
+`aki-lean-follow-up-1cafbc4c`, stream directory `/tmp/dough-ci-501/watch-UTUwnr`,
+PID 69856, session 18844, cell g182:9. Replanning permission is unchanged.
 
 ## Provenance
 
@@ -98,9 +110,21 @@ the retained-history and sessions-overview specs it touches, and
 ### 1. Leave follow-up context out of session listings
 
 Type: Behavior
-Status: planned
-Proof: Listing case for Done and open follow-up records, then the local gate
-selection.
+Status: done
+Proof: `dashboard/backend-tests/sessions/agent-launch-sessions-listing.spec.ts`
+observes an open and a Done Codex follow-up's exact source and first-input state
+in the overview. It checks that the raw payload omits the context, that history
+returns the full Done record, and that reconstruction restores the context and
+input while preserving the current listing title. The regression first failed
+on the original overview. Existing launch specs now read persisted context from
+the machine store, and the page specs still assert the dialog and Recently done
+entries.
+
+The local gate passed 60 tests in 28 files and dashboard typecheck. Independent
+refactoring renamed the projection to `sessionListing.ts`, relocated the
+regression, and shared MakeMe launch-fact composition. The listing and history
+backend specs, Done listing and retained history browser specs, and typecheck
+passed after the refactor.
 
 Behavior: A Done or open follow-up session's overview listing carries its
 source but not its resolved context; opening its history restores the full

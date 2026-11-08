@@ -20,7 +20,7 @@ import {
 /**
  * What an ad hoc launch's request states: the project, the instruction it
  * started with, and the title kept for it.
- * @typedef {{ instruction: string, title: string, source?: string }} AdHocFacts
+ * @typedef {{ instruction: string, title: string, source?: string, followUp?: import("../../dashboard/src/followUpRequest.ts").FollowUp }} AdHocFacts
  */
 
 // The kept launch of one story's execution or refinement, or of an ad hoc
@@ -31,13 +31,15 @@ import {
 // a `claude` one named after the title, the start's claim to fixed published
 // facts, and the launch time to a fixed instant.
 export class LaunchRecordBuilder {
-  /** @type {(Required<StoryFacts> & { workflow: "execution" | "refinement" }) | (Required<AdHocFacts> & { workflow: "ad-hoc" }) | undefined} */
+  /** @type {(Required<StoryFacts> & { workflow: "execution" | "refinement" }) | (AdHocFacts & { source: string, workflow: "ad-hoc" }) | undefined} */
   #requested;
   /** @type {{ workspace: string, branch: string } | undefined} */
   #storyBranch;
   /** @type {((name: string) => LaunchRecord["session"]) | undefined} */
   #session;
   #launchedAt = "2026-01-01T00:00:00.000Z";
+  /** @type {LaunchRecord["firstInput"]} */
+  #firstInput;
   /** @type {{ workspace: string, branch: string } | undefined} */
   #isolated;
   /** @type {LaunchOutcome} */
@@ -68,8 +70,14 @@ export class LaunchRecordBuilder {
    * stated.
    * @param {AdHocFacts} facts
    */
-  adHoc({ instruction, title, source = "open-dough" }) {
-    this.#requested = { instruction, title, source, workflow: "ad-hoc" };
+  adHoc({ instruction, title, source = "open-dough", followUp }) {
+    this.#requested = {
+      instruction,
+      title,
+      source,
+      ...(followUp && { followUp }),
+      workflow: "ad-hoc",
+    };
     return this;
   }
 
@@ -129,6 +137,12 @@ export class LaunchRecordBuilder {
   /** @param {string} at an ISO date-time */
   launchedAt(at) {
     this.#launchedAt = at;
+    return this;
+  }
+
+  /** @param {NonNullable<LaunchRecord["firstInput"]>} firstInput */
+  withFirstInput(firstInput) {
+    this.#firstInput = firstInput;
     return this;
   }
 
@@ -194,6 +208,11 @@ export class LaunchRecordBuilder {
           shortId: slug,
           name: requested.title,
         };
+    const launchFacts = {
+      launchedAt: this.#launchedAt,
+      ...(this.#firstInput && { firstInput: this.#firstInput }),
+      ...launchOutcomeFacts(this.#outcome, this.#launchedAt),
+    };
     if (requested.workflow === "ad-hoc")
       return {
         request: {
@@ -202,6 +221,7 @@ export class LaunchRecordBuilder {
           workflow: requested.workflow,
           title: requested.title,
           instruction: requested.instruction,
+          ...(requested.followUp && { followUp: requested.followUp }),
           ...(isolated && {
             policy: {
               workspace: /** @type {const} */ ("isolated"),
@@ -211,8 +231,7 @@ export class LaunchRecordBuilder {
         },
         session,
         ...isolatedWorkspaceFacts(isolated),
-        launchedAt: this.#launchedAt,
-        ...launchOutcomeFacts(this.#outcome, this.#launchedAt),
+        ...launchFacts,
       };
     return {
       request: {
@@ -224,8 +243,7 @@ export class LaunchRecordBuilder {
       },
       session,
       ...storyBranchFacts(requested, storyBranch),
-      launchedAt: this.#launchedAt,
-      ...launchOutcomeFacts(this.#outcome, this.#launchedAt),
+      ...launchFacts,
     };
   }
 }

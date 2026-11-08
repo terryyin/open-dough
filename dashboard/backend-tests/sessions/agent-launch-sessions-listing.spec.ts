@@ -3,16 +3,28 @@
 // and each done session only as its listing facts -- the whole entry except
 // the launch's reporting handoff, the first input's text, and the landing
 // evidence -- while a history ask answers every done session in full
-// (../../src/doneSessionListing.ts,
+// (../../src/sessionListing.ts,
 // ../../server/machineSessionsFragments.ts). The machine state is the
 // Sessions replay's (../../tests/support/sessionsReplaySeed.ts).
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import {
+  launchRecordsSchema,
+  type LaunchRecord,
+} from "../../src/agentLaunch.ts";
+import { sessionsHistoryReadSchema } from "../../src/machineSessionsRevision.ts";
+import { withRetainedDetail } from "../../src/sessionListing.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
 import { installFakeCodex } from "../../tests/support/fakeCodex.ts";
+import {
+  followUpContextOf,
+  followUpOf,
+  quietSession,
+  quietTitle,
+} from "../../tests/support/followUpSources.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   replayProjectIds,
@@ -24,6 +36,7 @@ import {
   withoutRetainedDetail,
 } from "../../tests/support/retainedDetail.ts";
 import { askSessions } from "../../tests/support/sessionsReplayMeasures.ts";
+import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
 
 const entriesOf = (body: string) =>
   new Map(
@@ -112,6 +125,84 @@ test("the regular answer lists 1,000 done sessions by their listing facts beside
   } finally {
     await server.close();
     await codex.close();
+    rmSync(machine, { recursive: true, force: true });
+  }
+});
+
+test("lists open and Done follow-ups by source and restores the Done context from history", async () => {
+  const machine = mkdtempSync(path.join(tmpdir(), "dough-follow-up-listing-"));
+  const server = await startDashboardServer({
+    mode: "boundary",
+    machine,
+    projectFolders: ["open-dough"],
+  });
+  try {
+    const now = new Date();
+    const source = quietSession("follow-up-source", now);
+    const followUpSource = followUpOf(source);
+    const context = followUpContextOf(quietTitle, [
+      `- Original request: ${quietTitle}`,
+      "- Final report: No final report was submitted.",
+    ]);
+    const instruction = "Check the changelog again";
+    const firstInput = `${context}\n\n${instruction}`;
+    const followUp = (sessionId: string) =>
+      makeMe.aLaunchRecord
+        .adHoc({
+          instruction,
+          title: "Follow up on the changelog",
+          followUp: { ...followUpSource, context },
+        })
+        .inCodexSession({
+          sessionId,
+          continuation: { workspace: server.home, endpoint: "unix://unused" },
+        })
+        .launchedAt(now.toISOString())
+        .withFirstInput({ state: "confirmed", instruction: firstInput });
+    const open = followUp("open-follow-up").please();
+    const done = followUp("done-follow-up")
+      .markedDoneAt(now.toISOString())
+      .please();
+    await keepLaunchRecords(server, [source, open, done]);
+
+    const overview = await askSessions(server);
+    const listed = launchRecordsSchema.parse(JSON.parse(overview.body)).records;
+    expect(listed).toEqual(
+      expect.arrayContaining(
+        [open, done].map(({ session }) =>
+          expect.objectContaining({
+            session,
+            request: expect.objectContaining({ followUp: followUpSource }),
+            firstInput: { state: "confirmed" },
+          }),
+        ),
+      ),
+    );
+    expect(overview.body).not.toContain("Follow-up context:");
+
+    const retained = await askSessions(server, undefined, true);
+    const read = sessionsHistoryReadSchema.parse(JSON.parse(retained.body));
+    if ("unchanged" in read) throw new Error("Expected full history");
+    const full = read.records.find(
+      ({ session }) => session.sessionId === done.session.sessionId,
+    );
+    expect(full).toMatchObject(done);
+    const doneListing = listed.find(
+      ({ session }) => session.sessionId === done.session.sessionId,
+    );
+    if (doneListing === undefined) throw new Error("Missing Done listing");
+    const title = "Current listing title";
+    expect(
+      withRetainedDetail(
+        { ...doneListing, request: { ...doneListing.request, title } },
+        full,
+      ),
+    ).toMatchObject({
+      request: { title, followUp: { ...followUpSource, context } },
+      firstInput: { instruction: firstInput },
+    });
+  } finally {
+    await server.close();
     rmSync(machine, { recursive: true, force: true });
   }
 });

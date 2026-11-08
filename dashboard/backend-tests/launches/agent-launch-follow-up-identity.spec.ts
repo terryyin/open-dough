@@ -106,7 +106,7 @@ test.describe("a follow-up whose established start is kept after the host refuse
     const call = dashboard.claudeLaunchCalls().at(-1);
     const { after } = partsOf(call?.argv.at(-1), reportedContext);
     expect(after).toEqual(["Continue"]);
-    expect(launched.record?.request).toMatchObject({
+    expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
       followUp: { context: reportedContext },
     });
   });
