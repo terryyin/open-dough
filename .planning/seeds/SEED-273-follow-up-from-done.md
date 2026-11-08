@@ -13,7 +13,7 @@ scope: story
 
 **Identity:** SEED-273#follow-up-from-done
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/525-follow-up-from-done/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"53540132c9aacfef4906080225e26307e8b9bbd84a361318ce43128ddeee1453","plan":"e909b78b4c52dab8bd0de3b25af5868f99e6466037c9c825e9ff313883b99655"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/526-follow-up-from-done/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"53540132c9aacfef4906080225e26307e8b9bbd84a361318ce43128ddeee1453","plan":"e909b78b4c52dab8bd0de3b25af5868f99e6466037c9c825e9ff313883b99655"}}
 ```
 
 #### Goal
