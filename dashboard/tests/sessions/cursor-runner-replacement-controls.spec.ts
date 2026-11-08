@@ -2,7 +2,7 @@
 // not started; one failing revive leaves Recover on that entry while
 // siblings resume. Companion to ./cursor-runner-replacement.spec.ts.
 import path from "node:path";
-import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { hangupCursorClient } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import { parts } from "../dashboardPage.ts";
@@ -55,49 +55,30 @@ replacementTest(
     // stays kept and replacement must leave it stopped.
     await hangupCursorClient(other.session, dashboard.home);
 
+    // A finished session in a workspace that still exists, and an
+    // unfinished one whose saved workspace is gone.
+    const doneRecord = makeMe.aLaunchRecord
+      .adHoc({ instruction: "Finish the report.", title: "Finished session" })
+      .inCursorSession({
+        sessionId: doneSessionId,
+        continuation: { workspace: other.session.continuation.workspace },
+      })
+      .launchedAt(new Date(Date.now() - 120_000).toISOString())
+      .markedDoneAt(new Date(Date.now() - 60_000).toISOString())
+      .please();
     const missingWorkspace = path.join(
       dashboard.home,
       "missing-revive-workspace",
       failSessionId,
     );
-    const doneRecord: LaunchRecord = {
-      ...other,
-      session: {
-        ...other.session,
-        sessionId: doneSessionId,
-        continuation: {
-          ...other.session.continuation,
-          args: [
-            other.session.continuation.args[0] ?? "cursor-agent",
-            "--workspace",
-            other.session.continuation.workspace,
-            "--resume",
-            doneSessionId,
-          ],
-        },
-      },
-      doneAt: new Date(Date.now() - 60_000).toISOString(),
-      launchedAt: new Date(Date.now() - 120_000).toISOString(),
-    };
-    const failRecord: LaunchRecord = {
-      ...other,
-      session: {
-        ...other.session,
+    const failRecord = makeMe.aLaunchRecord
+      .adHoc({ instruction: "Keep going.", title: "Failing revival" })
+      .inCursorSession({
         sessionId: failSessionId,
-        continuation: {
-          ...other.session.continuation,
-          workspace: missingWorkspace,
-          args: [
-            other.session.continuation.args[0] ?? "cursor-agent",
-            "--workspace",
-            missingWorkspace,
-            "--resume",
-            failSessionId,
-          ],
-        },
-      },
-      launchedAt: new Date(Date.now() - 90_000).toISOString(),
-    };
+        continuation: { workspace: missingWorkspace },
+      })
+      .launchedAt(new Date(Date.now() - 90_000).toISOString())
+      .please();
     writeKeptRecords(dashboard.home, [scoped, other, doneRecord, failRecord]);
     // last-held names the still-revivable scoped session, a finished one,
     // and a failing workspace — not the hung-up never-held session.

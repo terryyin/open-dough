@@ -3,6 +3,7 @@
 // tail, and is released after a successful keep so later redraw traffic does
 // not accumulate a lifetime string.
 import type { IPty } from "@lydell/node-pty";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   diagnosticCaptureBudgetBytes,
@@ -44,15 +45,13 @@ function syntheticPty(): SyntheticPty {
   };
 }
 
-const session = {
-  host: "cursor" as const,
-  sessionId: "6f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f",
-  name: "Diagnostic capture",
-  continuation: {
-    workspace: "/tmp",
-    args: ["cursor-agent"],
-  },
-};
+const session = makeMe.aHostSession
+  .cursor({
+    sessionId: "6f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f",
+    continuation: { workspace: "/tmp" },
+  })
+  .named("Diagnostic capture")
+  .please();
 
 function watchedClient(pty: IPty, tracked: Map<IPty, LiveTerminalClient>) {
   const client = new LiveTerminalClient({

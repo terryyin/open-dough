@@ -6,8 +6,10 @@ import { parts } from "../dashboardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { recoveryOf } from "../responsiveRecovery.ts";
 import { expect, test, keptRecord } from "../support/cursorStart.ts";
+import { heldOnWorkspaceTrust } from "../support/keptCursorTurn.ts";
 
-test.use({ cursorScreen: "trust-unframed", launchTimeoutMs: 1_500 });
+// Start's wait ends once the runner holds the client on the trust prompt.
+test.use({ cursorScreen: "trust-unframed", launchWaitEnd: true });
 
 test("Start and Startup recovery name workspace trust, and answering in the session terminal delivers the kept first input", async ({
   page,
@@ -29,6 +31,8 @@ test("Start and Startup recovery name workspace trust, and answering in the sess
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
   await startSessionField(dialog).fill("Explain the dashboard");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await heldOnWorkspaceTrust(dashboard);
+  await dashboard.endLaunchWait();
   await expect(dialog).toBeHidden();
 
   const explanation =

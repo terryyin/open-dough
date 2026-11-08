@@ -35,6 +35,7 @@ import {
 } from "../../tests/support/launchEnvironment.ts";
 
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { changeLaunchStore } from "../../tests/support/launchStore.ts";
 const test = base.extend({
   dashboard: async ({ github, machine, codexProtocol }, use) => {
@@ -171,12 +172,11 @@ test.describe(`Codex native terminal boundary`, () => {
         { ...record, doneAt },
         {
           ...record,
-          session: {
-            host: "claude",
-            sessionId: native.threadId,
-            shortId: "another-host",
-            name: "same ID",
-          },
+          // Another host's session with the same ID keeps its own done mark.
+          session: makeMe.aHostSession
+            .claude({ sessionId: native.threadId, shortId: "another-host" })
+            .named("same ID")
+            .please(),
           doneAt,
         },
       ],

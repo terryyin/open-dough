@@ -12,6 +12,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
+  codexEndpoint,
   fakeCodexHost,
   installFakeCodex,
 } from "../../tests/support/fakeCodex.ts";
@@ -31,6 +32,11 @@ import {
 } from "../../tests/support/codexTerminal.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
 import {
+  notRefinedIdentity,
+  notRefinedStory,
+} from "../../tests/launchJourney.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import {
   deploymentLikeStart,
   expectDeveloperShellEnvironment,
 } from "../../tests/support/launchEnvironment.ts";
@@ -43,8 +49,17 @@ test(`saved Codex conversation reconnects after daemon loss at startup`, async (
     "on-start",
   );
   const home = path.join(machine, "home");
-  // These helpers need only HOME: the record exists before the server starts.
-  const saved = observationRecord({ home }, native, "saved-conversation");
+  // A kept Codex thread with its saved workspace and app-server endpoint.
+  const workspace = path.join(home, "git", "open-dough");
+  const endpoint = codexEndpoint(native);
+  const saved = makeMe.aLaunchRecord
+    .refining({ identity: notRefinedIdentity, title: notRefinedStory })
+    .inCodexSession({
+      sessionId: "saved-conversation",
+      continuation: { workspace, endpoint },
+    })
+    .please();
+  // This helper needs only HOME: the record exists before the server starts.
   saveObservations({ home }, [saved]);
   observed(native, "saved-conversation", { type: "notLoaded" }, "completed");
   expect(existsSync(native.env["FAKE_CODEX_SOCKET"] ?? "")).toBe(false);
@@ -86,7 +101,19 @@ test(`saved Codex conversation reconnects after daemon loss at startup`, async (
     const terminal = await openCodexTerminal(server, "saved-conversation");
     try {
       await expect.poll(() => codexAttaches(native).length).toBe(1);
-      expect(codexAttaches(native)[0]?.args).toContain("saved-conversation");
+      // The terminal resumes that thread at the saved endpoint and workspace.
+      expect(codexAttaches(native)[0]).toMatchObject({
+        cwd: realpathSync(workspace),
+        args: [
+          "resume",
+          "--remote",
+          endpoint,
+          "--cd",
+          workspace,
+          "--no-alt-screen",
+          "saved-conversation",
+        ],
+      });
     } finally {
       terminal.socket.close();
     }

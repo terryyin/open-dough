@@ -5,12 +5,14 @@ import { launch } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expect, test } from "../support/cursorStart.ts";
 import {
+  heldOnWorkspaceTrust,
   instructedCursorRequest,
   keptCursor,
 } from "../support/keptCursorTurn.ts";
 import { terminalReplaySchema } from "../../src/agentTerminal.ts";
 
-test.use({ cursorScreen: "trust-unframed", launchTimeoutMs: 1_500 });
+// The launch wait ends once the runner holds the client on the trust prompt.
+test.use({ cursorScreen: "trust-unframed", launchWaitEnd: true });
 
 test("a fitted terminal restores the held trust rendition and hidden cursor on join and reconnect", async ({
   page,
@@ -25,10 +27,13 @@ test("a fitted terminal restores the held trust rendition and hidden cursor on j
     repository: "terryyin/open-dough",
     follows: true,
   });
-  const launched = await launch(
+  const launching = launch(
     dashboard,
     instructedCursorRequest("hold the trust screen"),
   );
+  await heldOnWorkspaceTrust(dashboard);
+  await dashboard.endLaunchWait();
+  const launched = await launching;
   expect(JSON.parse(launched.body)).toMatchObject({ kind: "uncertain" });
   const sizes: { cols: number; rows: number }[] = [];
   const replays: { cols: number; rows: number }[] = [];

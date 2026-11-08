@@ -7,6 +7,7 @@ import { openCursorTerminal } from "../../tests/support/cursorTerminal.ts";
 import { installFakeCursor } from "../../tests/support/fakeCursor.ts";
 import {
   enteredInstruction,
+  heldOnWorkspaceTrust,
   keptCursor,
   withInstructedCursor,
 } from "../../tests/support/keptCursorTurn.ts";
@@ -59,7 +60,9 @@ test.describe(`Cursor trust screen join`, () => {
           expect(keptCursor(server.home).firstInput?.state).toBe("uncertain");
           expect(cursor.input(pid)).toBe("");
         },
-        1_500,
+        // The completed fixture paint settles keep itself; the unframed one
+        // holds it until the launch wait ends.
+        screen === "trust" ? undefined : heldOnWorkspaceTrust,
       );
     });
   }

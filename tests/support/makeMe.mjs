@@ -3,6 +3,7 @@
 // `makeMe.aThing` access starts a fresh builder; its named methods state the
 // facts that drive the case and `.please()` returns the product value.
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
+import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
@@ -184,6 +185,11 @@ export const makeMe = {
   },
   get aLaunchLanding() {
     return new LaunchLandingBuilder();
+  },
+  // A host's session on its own, as a terminal or runner consumes it:
+  // `makeMe.aHostSession.codex({ sessionId, continuation }).please()`.
+  get aHostSession() {
+    return hostSessionChoices;
   },
   get aSessionState() {
     return new SessionStateBuilder();

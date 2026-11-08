@@ -9,18 +9,23 @@ import {
 } from "../../src/launchRecord.ts";
 import { defaultMainSession } from "../../tests/support/startSessionLanding.ts";
 
-const claude = {
-  host: "claude" as const,
-  sessionId: "claude-conversation",
-  shortId: "a1b2",
-  name: "Claude conversation",
-};
-const continuation = {
-  workspace: "/project",
-  endpoint: "ws://127.0.0.1:4321",
-  args: ["codex", "resume", "codex-conversation"],
-  notice: "Native observation ended.",
-};
+const claude = makeMe.aHostSession
+  .claude({ sessionId: "claude-conversation", shortId: "a1b2" })
+  .named("Claude conversation")
+  .please();
+const savedCodex = makeMe.aHostSession
+  .codex({
+    sessionId: "codex-conversation",
+    continuation: {
+      workspace: "/project",
+      endpoint: "ws://127.0.0.1:4321",
+      notice: "Native observation ended.",
+    },
+  })
+  .named("Codex conversation")
+  .please();
+const { continuation } = savedCodex;
+// A predecessor Codex session, kept before its continuation was saved.
 const codex = {
   host: "codex" as const,
   sessionId: "codex-conversation",
@@ -66,8 +71,8 @@ test("refuses a Claude session without its native alias", () => {
 });
 
 test("accepts a Codex continuation with its endpoint and workspace", () => {
-  for (const session of parsedSessions({ ...codex, continuation })) {
-    expect(session).toEqual({ ...codex, continuation });
+  for (const session of parsedSessions(savedCodex)) {
+    expect(session).toEqual(savedCodex);
   }
 });
 

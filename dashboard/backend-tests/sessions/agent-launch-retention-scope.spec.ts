@@ -107,17 +107,7 @@ test.describe("a scoped record dropped by retention expiry", () => {
         .executing({ identity, title })
         .inCursorSession({
           sessionId,
-          continuation: {
-            workspace: "/tmp",
-            args: [
-              "cursor-agent",
-              "--workspace",
-              "/tmp",
-              "--resume",
-              sessionId,
-            ],
-            configScope,
-          },
+          continuation: { workspace: "/tmp", configScope },
         })
         .launchedAt(daysAgo(60));
     const expiredId = "a0000000-0000-4000-8000-000000000031";

@@ -119,6 +119,9 @@ export const test = base.extend<{
   // Whether the journey runs the server's reuse-window clock itself
   // (`dashboard.advanceObservationClock`); harness meaning on `startDashboardServer`.
   observationClock: boolean;
+  // Whether the journey ends launch waits itself (`dashboard.endLaunchWait`);
+  // harness meaning on `startDashboardServer`.
+  launchWaitEnd: boolean;
   // `stand-in` when Cursor operations are outside the proof; default `real`.
   // Same boundary as `startDashboardServer`'s `cursorRunner` option.
   cursorRunner: DashboardCursorRunner;
@@ -141,6 +144,7 @@ export const test = base.extend<{
   pathPrefix: [undefined, { option: true }],
   revisionCheckReuseMs: [undefined, { option: true }],
   observationClock: [false, { option: true }],
+  launchWaitEnd: [false, { option: true }],
   cursorRunner: ["real", { option: true }],
   serverMode: ["preview", { option: true }],
   preholdRevisionStreamSlots: [true, { option: true }],
@@ -175,6 +179,7 @@ export const test = base.extend<{
       pathPrefix,
       revisionCheckReuseMs,
       observationClock,
+      launchWaitEnd,
       cursorRunner,
       serverMode,
     },
@@ -190,6 +195,7 @@ export const test = base.extend<{
       codexProtocol,
       revisionCheckReuseMs,
       observationClock,
+      launchWaitEnd,
       cursorRunner,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
       extraEnv: fixtureExtraEnv(extraEnv, startTimeoutMs),

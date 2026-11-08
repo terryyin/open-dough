@@ -163,17 +163,35 @@ export function keepCrowd(dashboard: DashboardServer, held: LaunchRecord) {
 
 // The runner answers with as many held sessions, for its list to overflow.
 // The answer is a precondition only; the held client is the one session's.
+// Each row is its own resumable Cursor conversation in the held session's
+// workspace, and its saved command resumes that row's UUID.
 export async function answerCrowd(page: Page, held: LaunchRecord) {
+  if (held.session.host !== "cursor") {
+    throw new Error("The crowd is answered beside a held Cursor session.");
+  }
+  const { workspace } = held.session.continuation;
   const sessions = Array.from(Array(crowd).keys(), (index) => ({
     record: {
       ...held,
-      session: {
-        ...held.session,
-        sessionId: `6f1e8c2a-9b34-4d5e-8f70-${String(index).padStart(12, "0")}`,
-      },
+      session: makeMe.aHostSession
+        .cursor({
+          sessionId: `6f1e8c2a-9b34-4d5e-8f70-${String(index).padStart(12, "0")}`,
+          continuation: { workspace },
+        })
+        .named(held.session.name)
+        .please(),
     },
     label: "working",
   }));
+  // Before the list reads them: distinct rows, each resuming its own UUID.
+  const rows = sessions.map(({ record: { session } }) => ({
+    sessionId: session.sessionId,
+    resumes: session.continuation.args.at(
+      session.continuation.args.indexOf("--resume") + 1,
+    ),
+  }));
+  expect(new Set(rows.map(({ sessionId }) => sessionId)).size).toBe(crowd);
+  for (const row of rows) expect(row.resumes).toBe(row.sessionId);
   await page.route(
     (url) => url.pathname === cursorRunnerSessionsEndpoint,
     (route) => route.fulfill({ json: { runner: "running", sessions } }),

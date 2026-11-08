@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { appendedRecords } from "./appendedRecords.ts";
 import { expect } from "../dashboardTest.ts";
+import { codexEndpoint } from "./fakeCodex.ts";
 import type { FakeCodex, FakeCodexObservation } from "./fakeCodex.ts";
 import type {
   CodexSession,
@@ -29,7 +30,7 @@ export function observationRecord(
     source = "open-dough",
     title = notRefinedStory,
     workspace = path.join(server.home, "git", "open-dough"),
-    endpoint = `unix://${native.env["FAKE_CODEX_SOCKET"] ?? ""}`,
+    endpoint = codexEndpoint(native),
   }: {
     source?: string;
     title?: string;
@@ -41,7 +42,7 @@ export function observationRecord(
     .refining({ identity: notRefinedIdentity, title, source })
     .inCodexSession({
       sessionId: id,
-      continuation: { workspace, endpoint, args: ["codex", "resume", id] },
+      continuation: { workspace, endpoint },
     })
     .launchedAt("2026-09-01T00:00:00.000Z")
     .please();

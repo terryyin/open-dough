@@ -1,7 +1,7 @@
 "use strict";
 
 // Terminal client for ./fake-cursor: attach log, fixed screens, paste chip,
-// SIGHUP, paint delay, split paint, and optional silent hold after paste Enter.
+// SIGHUP, held first paint, split paint, and optional silent hold after paste Enter.
 
 const fs = require("node:fs");
 const path = require("node:path");
@@ -197,9 +197,16 @@ module.exports = function attachCursor({ args, resumed, stored, env }) {
     }
   });
   recordAttach();
-  const delay = Number(process.env.FAKE_CURSOR_PAINT_DELAY_MS || 0);
-  if (delay > 0) setTimeout(paint, delay);
-  else paint();
+  // A held first paint waits until the test releases it.
+  const paintRelease = process.env.FAKE_CURSOR_PAINT_RELEASE;
+  if (paintRelease) {
+    const held = setInterval(() => {
+      if (fs.existsSync(paintRelease)) {
+        clearInterval(held);
+        paint();
+      }
+    }, 20);
+  } else paint();
   const readyFile = process.env.FAKE_CURSOR_BECOME_READY;
   if (readyFile) {
     const timer = setInterval(() => {

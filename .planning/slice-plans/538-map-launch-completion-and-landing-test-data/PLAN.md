@@ -211,6 +211,11 @@ and extends `LaunchOutcomeBuilder`, which carries trunk's `doneProblem`.
 tree, `npm run test:dashboard` ran 2257 passed with 1 opt-in skip, and
 `npm test` passed.
 
+After the retrospective, trunk at `8908505e3` also held the host continuation
+sibling, which moved host sessions to `tests/support/hostSessionTestData.mjs`.
+A second merge kept both sides. On that tree, `npm run test:dashboard` ran
+2257 passed with 1 opt-in skip, and `npm test` passed.
+
 ## Concern evidence
 
 Slice-plan refinement was unnecessary. Each slice owns one consuming

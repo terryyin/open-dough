@@ -1,6 +1,6 @@
 // Setup and admission for a working Cursor terminal client. The boundary
 // spec drives detach, join, and server shutdown against these helpers.
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect } from "@playwright/test";
@@ -10,14 +10,22 @@ import { shows } from "../agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
+  type DashboardServerOptions,
 } from "./dashboardServer.ts";
 import { waitUntil } from "./waitUntil.ts";
 import type { FakeCursor } from "./fakeCursor.ts";
 import type { CursorTerminal } from "./cursorTerminal.ts";
 import type { RawResponse } from "./rawHttp.ts";
-import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
+import {
+  readCursorRunnerSessions,
+  stopCursorRunner,
+} from "../../server/hosts/cursor/runnerClient.ts";
 import { processRunning } from "./processGroup.ts";
-import { changeLaunchStore } from "./launchStore.ts";
+import {
+  changeLaunchStore,
+  keptLaunchStore,
+  launchStoreFile,
+} from "./launchStore.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 
 // The boundary server a Cursor test starts around its fake `cursor-agent`:
@@ -30,17 +38,35 @@ export type CursorServer = {
 };
 
 export function keptCursor(home: string): LaunchRecord {
-  const kept = JSON.parse(
-    readFileSync(
-      path.join(home, ".open-dough", "dashboard", "agent-launches.json"),
-      "utf8",
-    ),
-  ) as Record<string, LaunchRecord[]>;
-  const [record] = kept["open-dough"] ?? [];
-  if (record?.session.host !== "cursor") {
+  const [record] = keptLaunchStore(home)["open-dough"] ?? [];
+  if (
+    record === undefined ||
+    !("session" in record) ||
+    record.session.host !== "cursor"
+  ) {
     throw new Error("Missing recorded Cursor session.");
   }
   return record;
+}
+
+// The kept Cursor record's first input state, or undefined before a launch
+// keeps one.
+export function keptFirstInputState(home: string): string | undefined {
+  if (!existsSync(launchStoreFile(home))) return undefined;
+  return keptCursor(home).firstInput?.state;
+}
+
+// Waits until the runner holds a Cursor client on its workspace trust prompt.
+export async function heldOnWorkspaceTrust(server: DashboardServer) {
+  await expect
+    .poll(async () => {
+      const held = await readCursorRunnerSessions(server.home);
+      return (
+        held.kind === "running" &&
+        held.sessions.some((client) => client.workspaceTrust === true)
+      );
+    })
+    .toBe(true);
 }
 
 // Replaces the one kept Cursor record with `change` applied to it.
@@ -83,6 +109,10 @@ export function instructedCursorRequest(instruction: string) {
 
 // Starts one dashboard, launches that instructed session, and requires the
 // launch to be answered. The body observes the settled launch response.
+// With `endWaitAfter`, the launch wait ends only once that observation of the
+// running launch holds (`DashboardServer.endLaunchWait`), so the answer is
+// the one a launch gives when its wait ends then; otherwise the server's own
+// bound applies.
 export async function withInstructedCursor(
   boundary: CursorServer,
   cursor: FakeCursor,
@@ -91,20 +121,22 @@ export async function withInstructedCursor(
     server: DashboardServer,
     launched: RawResponse,
   ) => Promise<void> | void,
-  launchTimeoutMs?: number,
+  endWaitAfter?: (server: DashboardServer) => Promise<void>,
 ): Promise<void> {
   await withCursorLaunch(
     boundary,
     cursor,
     async (server) => {
-      const launched = await launch(
-        server,
-        instructedCursorRequest(instruction),
-      );
+      const launching = launch(server, instructedCursorRequest(instruction));
+      if (endWaitAfter !== undefined) {
+        await endWaitAfter(server);
+        await server.endLaunchWait();
+      }
+      const launched = await launching;
       expect(launched.status).toBe(200);
       await observe(server, launched);
     },
-    launchTimeoutMs,
+    endWaitAfter === undefined ? {} : { launchWaitEnd: true },
   );
 }
 
@@ -114,24 +146,12 @@ export async function withCursorLaunch(
   boundary: CursorServer,
   cursor: FakeCursor,
   body: (server: DashboardServer) => Promise<void>,
-  launchTimeoutMs?: number,
-  options?: {
-    readonly alertCheckMs?: number;
-    readonly sessionsReuseMs?: number;
-  },
+  options?: CursorDashboardOptions,
 ): Promise<void> {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-cursor-launch-"));
   let server: DashboardServer | undefined;
   try {
-    server = await startCursorDashboard(boundary, cursor, machine, {
-      ...(launchTimeoutMs === undefined ? {} : { launchTimeoutMs }),
-      ...(options?.alertCheckMs === undefined
-        ? {}
-        : { alertCheckMs: options.alertCheckMs }),
-      ...(options?.sessionsReuseMs === undefined
-        ? {}
-        : { sessionsReuseMs: options.sessionsReuseMs }),
-    });
+    server = await startCursorDashboard(boundary, cursor, machine, options);
     await body(server);
   } finally {
     await server?.close();
@@ -141,15 +161,16 @@ export async function withCursorLaunch(
   }
 }
 
+type CursorDashboardOptions = Pick<
+  DashboardServerOptions,
+  "launchWaitEnd" | "alertCheckMs" | "sessionsReuseMs"
+>;
+
 export async function startCursorDashboard(
   boundary: CursorServer,
   cursor: FakeCursor,
   machine: string,
-  options?: {
-    readonly launchTimeoutMs?: number;
-    readonly alertCheckMs?: number;
-    readonly sessionsReuseMs?: number;
-  },
+  options?: CursorDashboardOptions,
 ): Promise<DashboardServer> {
   return startDashboardServer({
     ...boundary,
@@ -157,15 +178,7 @@ export async function startCursorDashboard(
     projectFolders: ["open-dough"],
     pathPrefix: [cursor.binDir],
     extraEnv: { ...cursor.env },
-    ...(options?.launchTimeoutMs === undefined
-      ? {}
-      : { launchTimeoutMs: options.launchTimeoutMs }),
-    ...(options?.alertCheckMs === undefined
-      ? {}
-      : { alertCheckMs: options.alertCheckMs }),
-    ...(options?.sessionsReuseMs === undefined
-      ? {}
-      : { sessionsReuseMs: options.sessionsReuseMs }),
+    ...options,
   });
 }
 

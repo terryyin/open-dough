@@ -1,5 +1,6 @@
 import { EventEmitter } from "node:events";
 import type { WebSocket } from "ws";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { JoinedSockets } from "../../server/joinedSockets.ts";
 import type { ScreenReplay } from "../../server/keptClientScreen.ts";
@@ -18,15 +19,13 @@ const session: TerminalSession = {
   sourceId: "open-dough",
   markedDone: false,
   folder: { path: "/tmp", shown: "/tmp" },
-  session: {
-    host: "cursor",
-    sessionId: "6f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f",
-    name: "Joined replay",
-    continuation: {
-      workspace: "/tmp",
-      args: ["--resume", "6f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f"],
-    },
-  },
+  session: makeMe.aHostSession
+    .cursor({
+      sessionId: "6f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f",
+      continuation: { workspace: "/tmp" },
+    })
+    .named("Joined replay")
+    .please(),
 };
 
 test("a joining socket receives its replay before queued live output while the admitted socket receives only live output", async () => {

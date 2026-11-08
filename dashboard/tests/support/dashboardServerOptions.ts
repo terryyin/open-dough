@@ -35,6 +35,9 @@ export type DashboardServerOptions = FakeClaudeOptions & {
   // Whether the test controls the clock reuse windows are measured by
   // (`advanceObservationClock`); the machine's own when unset.
   readonly observationClock?: boolean | undefined;
+  // Whether the test ends launch waits itself (`endLaunchWait`), as well
+  // as the server's bound (`launchTimeoutMs`) ending them.
+  readonly launchWaitEnd?: boolean | undefined;
   // The fake GitHub this server's `gh` asks; a fresh one, closed with the server, when omitted.
   readonly github?: FakeGitHub;
   // Request-owner endpoint shared with the test's other callers; this server's own when omitted.

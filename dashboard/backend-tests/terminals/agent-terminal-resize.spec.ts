@@ -10,6 +10,7 @@ import {
   terminalEndedCode,
 } from "../../src/agentTerminal.ts";
 import type { TerminalSession } from "../../server/agentTerminals.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 const native = createRequire(import.meta.url)(
   "@lydell/node-pty",
 ) as typeof import("@lydell/node-pty");
@@ -91,17 +92,19 @@ for (const state of ["ready", "starting"] as const) {
       sourceId: "open-dough",
       markedDone: false,
       folder: { path: "/tmp", shown: "/tmp" },
-      session: {
-        host: state === "ready" ? "claude" : "codex",
-        sessionId: "resize-race",
-        shortId: "resize-race",
-        name: "Resize race",
-        continuation: {
-          endpoint: "http://localhost:1",
-          workspace: "/tmp",
-          args: [],
-        },
-      },
+      // The ready attachment is a Claude one; a Codex one is still starting.
+      session: (state === "ready"
+        ? makeMe.aHostSession.claude({
+            sessionId: "resize-race",
+            shortId: "resize-race",
+          })
+        : makeMe.aHostSession.codex({
+            sessionId: "resize-race",
+            continuation: { workspace: "/tmp", endpoint: "http://localhost:1" },
+          })
+      )
+        .named("Resize race")
+        .please(),
     };
     try {
       attachments.connect(socket as unknown as WebSocket, session);

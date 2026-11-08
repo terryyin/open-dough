@@ -12,6 +12,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { WebSocket, WebSocketServer } from "ws";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect } from "../support/pageTest.ts";
 import {
   execOnRunner,
@@ -64,25 +65,16 @@ export function startRunnerProofFixture(): RunnerProofFixture {
   };
 }
 
+// The saved Cursor conversation a runner keeps or a terminal joins, in the
+// fixture's workspace; its ID keeps conversations on one runner apart.
 export function cursorProofSession(
   fixture: RunnerProofFixture,
   sessionId = fixture.cursor.sessionId,
 ) {
-  const args = [
-    "--workspace",
-    fixture.workspace,
-    "--resume",
-    sessionId,
-  ] as const;
-  return {
-    host: "cursor" as const,
-    sessionId,
-    name: "proof",
-    continuation: {
-      workspace: fixture.workspace,
-      args: ["cursor-agent", ...args],
-    },
-  };
+  return makeMe.aHostSession
+    .cursor({ sessionId, continuation: { workspace: fixture.workspace } })
+    .named("proof")
+    .please();
 }
 
 export async function keepWorkingClient(

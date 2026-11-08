@@ -1,11 +1,11 @@
 // @ts-check
-import { LaunchOutcomeBuilder } from "./launchOutcomeTestData.mjs";
-import { requestFacts } from "./launchRequestTestData.mjs";
 import {
   claudeSession,
   codexSession,
   cursorSession,
-} from "./launchSessionTestData.mjs";
+} from "./hostSessionTestData.mjs";
+import { LaunchOutcomeBuilder } from "./launchOutcomeTestData.mjs";
+import { requestFacts } from "./launchRequestTestData.mjs";
 import {
   establishedSessionFacts,
   requestedPolicy,
@@ -22,7 +22,7 @@ import {
 
 // The kept launch of one story's execution or refinement, or of an ad hoc
 // session: its request (`./launchRequestTestData.mjs`), its host session
-// (`./launchSessionTestData.mjs`), and the workspace its start established
+// (`./hostSessionTestData.mjs`), and the workspace its start established
 // (`./launchWorkspaceTestData.mjs`): a story branch, an ad hoc session's
 // isolated workspace, or its place in the default checkout. Without one the
 // record keeps no established start, preparation or session. The session
@@ -34,7 +34,7 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
   #requested;
   /** @type {import("./launchWorkspaceTestData.mjs").StoryBranch | undefined} */
   #storyBranch;
-  /** @type {import("./launchSessionTestData.mjs").NamedSession | undefined} */
+  /** @type {((name: string) => LaunchRecord["session"]) | undefined} */
   #session;
   #launchedAt = "2026-01-01T00:00:00.000Z";
   /** @type {LaunchRecord["firstInput"]} */
@@ -113,19 +113,33 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
     return this;
   }
 
-  /** @param {Parameters<typeof claudeSession>[0]} session a `claude` session */
+  /**
+   * A `claude` session, by its ID and short ID, which is otherwise the ID's
+   * first eight characters.
+   * @param {import("./hostSessionTestData.mjs").ClaudeFacts} session
+   */
   inClaudeSession(session) {
     this.#session = claudeSession(session);
     return this;
   }
 
-  /** @param {Parameters<typeof codexSession>[0]} session a Codex thread */
+  /**
+   * A Codex thread and where it continues: the saved workspace and the
+   * app-server endpoint, with the resume arguments and a notice as
+   * `./hostSessionTestData.mjs` states them; a predecessor thread kept none.
+   * @param {import("./hostSessionTestData.mjs").CodexFacts | import("./hostSessionTestData.mjs").PredecessorCodexFacts} session
+   */
   inCodexSession(session) {
     this.#session = codexSession(session);
     return this;
   }
 
-  /** @param {Parameters<typeof cursorSession>[0]} session a Cursor session */
+  /**
+   * A Cursor chat and where it continues: the saved workspace, with the
+   * resume arguments and configuration scope as `./hostSessionTestData.mjs`
+   * states them.
+   * @param {import("./hostSessionTestData.mjs").CursorFacts} session
+   */
   inCursorSession(session) {
     this.#session = cursorSession(session);
     return this;

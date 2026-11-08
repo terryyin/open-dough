@@ -11,7 +11,7 @@ import { sessionKey } from "../../../src/sessionReference.ts";
 import { sessionUnfinished } from "../../../src/sessionRecovery.ts";
 import { keptRecordsByProject } from "../../launchRecordStore.ts";
 import { directoryState } from "../../sessionWorkspace.ts";
-import { cursorResumeKeepRequest, untilLaunchWait } from "./recoveryResume.ts";
+import { cursorResumeKeepRequest, withinLaunchWait } from "./recoveryResume.ts";
 import { readCursorRunnerLastHeld } from "./runnerPaths.ts";
 import { acceptingCursorRunnerPort } from "./runnerProcess.ts";
 import { recordedCursorSessionScope } from "./sessionScope.ts";
@@ -45,7 +45,7 @@ async function reviveOne(
       scope.kind === "ready" ? { configScope: scope.scope } : {},
     ),
   );
-  const outcome = await Promise.race([kept, untilLaunchWait()]);
+  const outcome = await withinLaunchWait(kept);
   if (outcome === "timed-out") {
     // Same as Recover: keep may still finish and hold the session; a kept
     // session whose continuation was not taken in time still counts as

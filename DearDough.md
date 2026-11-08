@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 471. Removed numbers are never reused.
+- Highest allocated local number: 473. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -448,6 +448,24 @@ Former local code: DD-431. [Evidence and current response](docs/maintainer/findi
   - Inference: fourth execution with the same shape; recording observations by file path before the refactor pass remains the structural cause.
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 Former local code: DD-434. [Evidence and current response](docs/maintainer/findings/ODF-429.md).
+
+### Occurrences
+- Execution: SEED-261#map-host-continuation-test-data (plan 539-map-host-continuation-test-data; first related implementation commit `2aabbce26bc9ccc42e3726c0c2d955b31f79c404`)
+  - Timestamp: unknown (2026-11-08, slice 4 delivery, after the full suites ended at 19:23 UTC)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `654edf0b0`, which contains response `2567a7c5f`)
+  - Evidence: The named-sibling check at slice 4 found SEED-261#map-launch-and-session-test-data (`ce96949d8`) and #map-launch-observation-test-data (`94a5456b9`) on fetched trunk `aa559f948`; a trial merge conflicted in 7 files. Slices 1-3 had seen no sibling landing. Reconciled in merge `b630f4a47` before the done mark, with proof rerun; delivered in `ab4e87dfe`.
+  - Observed effect: The check held the done mark, commit and push as intended. Concurrent work had already built a second session constructor (`tests/support/launchSessionTestData.mjs`) beside this story's `hostSessionTestData.mjs`, so the merge consolidated them. One coordinator reapplication error (a duplicate import) was caught by the merged-tree typecheck.
+  - Inference: The check worked on this release. Reconciliation still cost a merge agent (about 10 minutes) plus reruns. Three overlapping sibling stories that change the same MakeMe files and are prepared to run concurrently are likely to duplicate shared builders again.
+- Execution: SEED-261#map-launch-completion-and-landing-test-data (plan 538-map-launch-completion-and-landing-test-data; first related implementation commit `d8961926c19dee65667673596e9f46f61d31869a`)
+  - Timestamp: 2026-11-09T03:31:46+08:00 (slice 4 published as `9addc7c44`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: The named siblings SEED-261#map-launch-observation-test-data and #map-launch-and-session-test-data landed at `20ba2317c` (02:12) and `aa559f948` (02:26), after slice 3 and before slice 4 delivery. Source freshness returned `unchanged` (story and plan text). The coordinator ran the fetched-trunk sibling diff in the same shell command as guarded delivery, so slice 4 was marked done and published before the 363-file overlap was seen. A trial merge showed 11 conflicted files, including the shared builders `launchTestData.mjs`, `launchOutcomeTestData.mjs` and `makeMe.mjs`. Reconciled in merge `060cf2020` with a refactor pass and a second full gate (2257 passed).
+  - Observed effect: The named-sibling check recognized the landings only after the done mark and publication it should have held. Reconciliation and reproof happened before completion and landing, and other work was not interrupted. The second full gate would have been needed after the merge anyway.
+  - Inference: The check exists in the delivery guidance, but nothing stops the coordinator from running it alongside delivery. A structured stop from the freshness or delivery script when a named sibling's done record appears on the fetched trunk would make the hold apply without coordinator ordering.
 ## ODF-430 — Story integration moved another active agent profile into done
 Former local code: DD-436. [Evidence and current response](docs/maintainer/findings/ODF-430.md).
 
@@ -743,3 +761,20 @@ runs before an owner-start request restored the gain.
   - Evidence: `before-run1.trace.jsonl` of the coordinator's baseline recorded `request app` from both workers at 2.863 s and `request server-bundle` at 2.864/2.865 s; plan 535's Options named cold serialization as a measured risk; the implementation agent's `after` and `after2` runs (lazy) matched the baselines and its three-line eager experiment did not; the coordinator's interleaved pairs confirmed eager.
   - Observed effect: the decisive design choice (when the owner starts the build) was made after implementation and about ten measured runs, rather than before delegation from the trace already recorded.
   - Inference: qualified, one execution. When a plan's stop condition depends on a timing structure, the baseline observation taken for it can be read for that structure before the slice is delegated.
+
+## DD-472 — Final full suites ran before the named-sibling check, so a sibling landing forced a second whole run
+The plan required whole `npm run test:dashboard` and `npm test` before final
+delivery. The coordinator ran them on the unmerged branch, and only then
+reached delivery step 5's source-freshness and named-sibling check. That
+check found landed siblings that needed a merge, so the whole runs no longer
+covered the candidate.
+
+### Occurrences
+- Execution: SEED-261#map-host-continuation-test-data (plan 539-map-host-continuation-test-data; first related implementation commit `2aabbce26bc9ccc42e3726c0c2d955b31f79c404`)
+  - Timestamp: unknown (2026-11-08, first whole runs 16:45-19:23 UTC; merged-tree runs 19:34-20:18 UTC)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `654edf0b0`)
+  - Evidence: Plan 539 "Proof and delivery gates" names the whole runs before final delivery. The coordinator started them after slice 4's refactor return. `deliver-the-change.md` step 5 runs the freshness and named-sibling check after acceptance and refactoring. Trunk `aa559f948` then carried both named siblings, and merge `b630f4a47` changed shared MakeMe support.
+  - Observed effect: About 2.6 hours of whole-suite time on the pre-merge tree were superseded; the dashboard suite and `npm test` ran again on the merge (about 45 minutes).
+  - Inference: Fetching trunk and running the named-sibling check immediately before starting the plan's final whole-suite gate, rather than only at the done mark, would likely have merged first and needed one whole run.

@@ -73,11 +73,12 @@ was made only after real network turns (`checksAskedWhilePassing`, or
 `expect.poll`), and give each scenario its own revisions: the boundary answers
 a repeated pinned revision from memory without calling `gh`.
 
-A server's shared-observation reuse window, such as the revision-check
-listing's `checkReuseMs`, runs on the server's clock, not the page's. A
-journey that sets `observationClock` with `test.use` moves that clock past the
-window with `dashboard.advanceObservationClock` instead of waiting it out
-(`observation/shared-observer-check-reuse.spec.ts`).
+Reuse windows, such as `checkReuseMs`, and launch waits run on server time
+(`support/serverTimeControls.ts`). A journey setting `observationClock` moves
+that clock past a window with `dashboard.advanceObservationClock`; one whose
+answer depends on a launch wait ending sets `launchWaitEnd`, observes the kept
+state that answer reports (record, held client or trust prompt), then calls
+`dashboard.endLaunchWait` (`sessions/cursor-session-recovery-wait.spec.ts`).
 
 ### Authenticated-read backend clocks
 

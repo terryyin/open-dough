@@ -2,7 +2,7 @@
 // A spec sets `cursorScreen` to choose the attach screen the fixture paints,
 // `cursorSplitPaintMs` to deliver each screen in two writes that far apart,
 // `cursorSubmitPaintMs` to keep a submitted paste chip on screen that long,
-// and `cursorPaintDelayMs` to delay the first paint.
+// and `cursorHoldPaint` to hold the first paint until `cursor.releasePaint()`.
 // `keptRecord` reads the one session the dashboard kept for the project.
 import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -31,7 +31,7 @@ export const test = base.extend<
     cursorScreen: CursorScreen | undefined;
     cursorSplitPaintMs: number | undefined;
     cursorSubmitPaintMs: number | undefined;
-    cursorPaintDelayMs: number | undefined;
+    cursorHoldPaint: boolean;
     cursor: FakeCursor;
   }
 >({
@@ -42,7 +42,7 @@ export const test = base.extend<
   cursorScreen: [undefined, { option: true }],
   cursorSplitPaintMs: [undefined, { option: true }],
   cursorSubmitPaintMs: [undefined, { option: true }],
-  cursorPaintDelayMs: [undefined, { option: true }],
+  cursorHoldPaint: [false, { option: true }],
   originRepository: queuedOriginRepository,
   origin: async ({ originRepository }, use) => {
     const origin = await startOrigin(originRepository, { host: "cursor" });
@@ -53,12 +53,7 @@ export const test = base.extend<
     await use(origin.machine);
   },
   cursor: async (
-    {
-      cursorScreen,
-      cursorSplitPaintMs,
-      cursorSubmitPaintMs,
-      cursorPaintDelayMs,
-    },
+    { cursorScreen, cursorSplitPaintMs, cursorSubmitPaintMs, cursorHoldPaint },
     use,
   ) => {
     const cursor = installFakeCursor({
@@ -69,9 +64,7 @@ export const test = base.extend<
       ...(cursorSubmitPaintMs === undefined
         ? {}
         : { submitPaintMs: cursorSubmitPaintMs }),
-      ...(cursorPaintDelayMs === undefined
-        ? {}
-        : { paintDelayMs: cursorPaintDelayMs }),
+      holdPaint: cursorHoldPaint,
     });
     await use(cursor);
     cursor.cleanup();
