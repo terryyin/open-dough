@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-262#refresh-without-unneeded-reloads",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
