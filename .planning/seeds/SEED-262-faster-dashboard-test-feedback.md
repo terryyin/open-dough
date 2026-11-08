@@ -99,7 +99,7 @@ through a small Node helper. Shell check feedback must not get slower.
     content belong to
     [installation and native test data](SEED-261-share-domain-test-data.md#map-installation-and-native-test-data).
   - Git-publication native fixtures belong to
-    [git-publication native fixtures](#migrate-git-publication-native-fixtures).
+    [git-publication native fixtures](../../tests/README.md#test-data-architecture).
   - The worktree-preparation native builders stay MakeMe-free under
     [plan 532](../slice-plans/532-tighten-repository-description-facts/PLAN.md).
   - Release sources gain no branch or merge model.
