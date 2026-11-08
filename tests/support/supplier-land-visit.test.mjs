@@ -31,6 +31,7 @@ import {
   main,
   racedLanding,
 } from "./supplier-land-visit-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
 import { publishExecutionIncrement } from "../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs";
 import { publishSelectedSupplier } from "../../src/skills/dough-execute-plan/scripts/supplier-integration.mjs";
 import {
@@ -53,8 +54,10 @@ test("a selected supplier's landing visits a consumer added during its reconcili
   const receiver = await landingReceiver(t);
   const context = await landingContextFile(
     t,
-    receiver.origin,
-    supplier.identity,
+    makeMe.aLandingContext
+      .reportingTo(receiver.origin)
+      .namingStory(supplier.identity)
+      .please(),
   );
   await plantHumanEdit(setup.trunk.integration);
   const defaultBefore = await captureCheckout(setup.trunk.integration);

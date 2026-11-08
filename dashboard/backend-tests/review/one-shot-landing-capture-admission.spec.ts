@@ -1,5 +1,6 @@
 // Exact launch identity, preparation and remote acceptance constrain capture.
 import { randomUUID } from "node:crypto";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test, expect, stored } from "../../tests/support/codexStart.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
 import { oneShot } from "../../tests/support/oneShotLaunch.ts";
@@ -38,17 +39,15 @@ test("capture refuses unaccepted, foreign, malformed and changed launch comparis
   const { established, reporting } = context(first);
   const revision = commit(established.workspace, "first.txt");
   const base = established.startingRevision;
-  const body = {
-    delivery: randomUUID(),
-    reference: reporting.reference,
-    source: "open-dough",
-    host: "codex",
-    identity: established.identity,
-    remote: "origin",
-    target: "refs/heads/main",
-    base,
-    revision,
-  };
+  if (base === undefined) throw new Error("No starting revision");
+  const body = makeMe.aLandingSubmission
+    .forLaunch({
+      host: "codex",
+      reference: reporting.reference,
+      identity: established.identity,
+    })
+    .comparing({ base, revision })
+    .please();
   const post = (payload: unknown, prepare = false) =>
     rawRequest({
       url: `${dashboard.origin}/__agent-launch/landing${prepare ? "/prepare" : ""}`,

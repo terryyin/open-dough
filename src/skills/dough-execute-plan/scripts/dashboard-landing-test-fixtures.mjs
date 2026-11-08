@@ -4,11 +4,12 @@ import { createServer } from "node:http";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { plantFirstLandingExpectation } from "./first-landing-expectation.mjs";
 
-export const landingReference = "6f0e3c0e-6a0c-4b54-9d0b-0d3a3f0f4c11";
-
-// A receiver that keeps each request and answers its comparison as received.
+// A receiver that keeps each request and answers its comparison as received,
+// under a receipt of its own for each request: `prepared` for a preparation
+// and `recorded` otherwise.
 export async function landingReceiver(t) {
   const requests = [];
   const server = createServer((req, res) => {
@@ -21,11 +22,15 @@ export async function landingReceiver(t) {
       requests.push({ url: req.url, report });
       res.setHeader("Content-Type", "application/json");
       res.end(
-        JSON.stringify({
-          ...report,
-          receipt: `receipt-${requests.length}`,
-          state: req.url.endsWith("/prepare") ? "prepared" : "recorded",
-        }),
+        JSON.stringify(
+          makeMe.aLandingReceipt
+            .answering(report)
+            .underReceipt(
+              `00000000-0000-4000-8000-${String(requests.length).padStart(12, "0")}`,
+            )
+            .inState(req.url.endsWith("/prepare") ? "prepared" : "recorded")
+            .please(),
+        ),
       );
     });
   });
@@ -34,25 +39,14 @@ export async function landingReceiver(t) {
   return { origin: `http://127.0.0.1:${server.address().port}`, requests };
 }
 
-// The context file for `origin`, in its own directory; `identity` names the
-// story, when given. When `expectation` is set, also plant a first-landing
-// expectation beside that management context for the named workspace/branch.
-export async function landingContextFile(t, origin, identity, expectation) {
+// The landing context file (`makeMe.aLandingContext`) in its own directory.
+// When `expectation` is set, also plant a first-landing expectation beside
+// that management context for the named workspace/branch.
+export async function landingContextFile(t, context, expectation) {
   const directory = await mkdtemp(path.join(os.tmpdir(), "landing-context-"));
   t.after(() => rm(directory, { recursive: true, force: true }));
   const file = path.join(directory, "landing-context.json");
-  await writeFile(
-    file,
-    JSON.stringify({
-      origin,
-      source: "open-dough",
-      host: "claude",
-      reference: landingReference,
-      ...(identity === undefined ? {} : { identity }),
-      remote: "origin",
-      target: "refs/heads/main",
-    }),
-  );
+  await writeFile(file, JSON.stringify(context));
   if (expectation !== undefined) {
     await mkdir(expectation.repository, { recursive: true });
     await plantFirstLandingExpectation({

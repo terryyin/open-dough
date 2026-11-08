@@ -1,6 +1,5 @@
 // An implicit first-trunk comparison belongs only to its publication target.
 import assert from "node:assert/strict";
-import { readFile, writeFile } from "node:fs/promises";
 import { test } from "node:test";
 import {
   landingContextFile,
@@ -10,6 +9,7 @@ import { publishExecutionIncrement } from "./execution-increment-publication.mjs
 import { openFirstLandingExpectation } from "./first-landing-expectation.mjs";
 import { managementContext } from "./publication-git.mjs";
 import { git, lsRemoteSha } from "./publication-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
 
@@ -27,17 +27,12 @@ for (const trunkTarget of ["refs/heads/main", "refs/heads/master"]) {
       workspace: execution,
       branch,
     };
-    const contextFile = await landingContextFile(
-      t,
-      dashboard,
-      "SEED-1#story",
-      expectation,
-    );
-    const context = JSON.parse(await readFile(contextFile, "utf8"));
-    await writeFile(
-      contextFile,
-      JSON.stringify({ ...context, target: trunkTarget }),
-    );
+    const context = makeMe.aLandingContext
+      .reportingTo(dashboard)
+      .namingStory("SEED-1#story")
+      .landingOn(trunkTarget)
+      .please();
+    await landingContextFile(t, context, expectation);
     const originalExpectation = await openFirstLandingExpectation(expectation);
     const storyTarget = "refs/heads/cursor/story-execution";
 
@@ -92,8 +87,10 @@ test("an explicit incompatible landing context refuses story publication without
   };
   const landingContext = await landingContextFile(
     t,
-    dashboard,
-    "SEED-1#story",
+    makeMe.aLandingContext
+      .reportingTo(dashboard)
+      .namingStory("SEED-1#story")
+      .please(),
     expectation,
   );
   const originalExpectation = await openFirstLandingExpectation(expectation);

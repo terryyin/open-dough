@@ -148,7 +148,7 @@ replacement-session specs. Exact invalid inputs and `malformedRetry` stay litera
 
 ### 3. Landing delivery retains the accepted comparison for its launch
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 3. Run `npm run test:dashboard -- 'backend-tests/review/(one-shot-landing-[^/]+|story-branch-(landing-[^/]+|retained-landing))\.spec\.ts$' 'backend-tests/launches/agent-launch-start-session-landing-[^/]+\.spec\.ts$' 'dashboard/tests/(review/one-shot-landing-recovery|launches/agent-launch-start-session-landing[^/]*)\.spec\.ts$'` and `npm test -- src/skills/dough-execute-plan/scripts/{dashboard-landing,publication-landing-target,publication-resume-story-branch,history-preserving-landing-expectation}.test.mjs`.
 
 A launch prepares a comparison, trunk accepts the revision, and trunk
@@ -161,6 +161,16 @@ construction while keeping the raw request mutations, real publication,
 pinning, retention, and injected Git and receiver failures in the journeys.
 The receiver and publisher continue to produce the receipts these cases
 assert, with completion and Done driven separately.
+
+Accepted proof: the four landing script tests and
+`tests/support/supplier-land-visit.test.mjs` passed through `npm test`, the
+slice's Playwright selection with two `landedAt` consumers passed 32 tests,
+and `npm run typecheck:dashboard` passed. `tests/support/launchLandingTestData.mjs`
+holds the landing context, submission and receipt builders and the stored
+`landingEvidence` that `landedAt` composes; all share the launch's reporting
+reference and the comparison's base and revision. The loopback receiver now
+answers contract-shaped receipts. No slice 3 case arranges stored repository
+authority, so commitment 9 moved to slice 4 with `keepTrackedClosureEvidence`.
 
 ### 4. Readers use retained landing evidence with published fallback
 Type: Behavior

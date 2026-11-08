@@ -6,7 +6,7 @@
 // the installed delivery command given the launch's context still prepares
 // and records its landing, and a request naming a story is refused.
 
-import { randomUUID } from "node:crypto";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { keptAttempts } from "../../tests/acceptedAttempts.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
 import { expect, stored, test } from "../../tests/support/codexStart.ts";
@@ -80,15 +80,11 @@ test("an unattached launch's kept record captures its landing after its startup 
 
     // A story named for the launch that has none is still refused.
     const refused = await postLanding(receiver, {
-      delivery: randomUUID(),
-      reference: reporting.reference,
-      source: "open-dough",
-      host: "codex",
+      ...makeMe.aLandingSubmission
+        .forLaunch({ host: "codex", reference: reporting.reference })
+        .comparing({ base, revision })
+        .please(),
       identity: "SEED-1#a",
-      remote: "origin",
-      target: "refs/heads/main",
-      base,
-      revision,
     });
     expect(refused.status).toBe(409);
     expect(stored(receiver.home)[0]?.landingReporting?.preparations).toEqual(

@@ -10,7 +10,7 @@ Returned exclusions: the common store writer belongs to the kept launch record s
 | --- | --- | --- | --- |
 | 1 | Goal: maintainers can read a launch test's starting facts in the product's vocabulary. | slice 4 | |
 | 1a | The vocabulary covers the whole range "from a retained final report and its receipt to the comparison accepted for a landing." | slice 4 | |
-| 2 | Those facts can be recognized across dashboard tests and the landing delivery script. | slice 3 | |
+| 2 | Those facts can be recognized across dashboard tests and the landing delivery script. | slice 3 | observed: slice 3: tests/support/launchLandingTestData.mjs builders (aLandingContext, aLandingSubmission, aLandingReceipt, landingEvidence) feed dashboard landing specs and dashboard-landing-test-fixtures.mjs for the delivery script tests; LaunchOutcomeBuilder.landedAt composes landingEvidence |
 | 3 | Each test's original proof stays visible. | slice 4 | |
 | 4 | Valid completion reports are arranged through MakeMe. | slice 1 | observed: slice 1: makeMe.aCompletionReport replaces deleted dashboard/tests/support/completionReport.ts in all 7 importers; slice selection 61 passed |
 | 5 | Valid receipts are arranged through MakeMe. | slice 2 | observed: slices 1-2: arranged receipts use makeMe completedWith({receipt})/aCompletionReport.withReceipt (session-unread-rule, final-report-admission); agent-completion journeys arrange submissions via makeMe.aCompletionSubmission and observe receipts from the real reporter/receiver |
@@ -18,14 +18,14 @@ Returned exclusions: the common store writer belongs to the kept launch record s
 | 7 | The existing kept launch builder is extended with the outcome facts the cases need. | slice 1 | observed: slice 1: tests/support/launchOutcomeTestData.mjs completedWith takes receipt/receivedAt, withReportRead() in launchTestData.mjs; base-vs-new launchOutcomeFacts output byte-identical |
 | 7a | Examples of those facts, not a closed list: report identity, receipt time and disposition. | slice 1 | observed: slice 1: completedWith({receipt, receivedAt}), withReportRead(), markedDoneAt; CompletionReportBuilder withReceipt/receivedAt |
 | 8 | The report, the delivery receipt, native terminal evidence and the developer Done mark stay distinct. | slice 2 | observed: slice 2: agent-completion-binding asserts receipt.state pending-native-session and no session separately from bound.completion.receipt, doneAt undefined and native attach/stop; agent-completion-quiet asserts retry toEqual(receipt) separately from doneAt and native thread/name/set |
-| 9 | Valid landing authority is arranged through MakeMe where the dashboard suites and `dashboard-landing.test.mjs` supply those starting facts. | slice 3 | |
-| 10 | Valid submissions are arranged the same way, under the same condition. | slice 3 | |
+| 9 | Valid landing authority is arranged through MakeMe where the dashboard suites and `dashboard-landing.test.mjs` supply those starting facts. | slice 4 |  |
+| 10 | Valid submissions are arranged the same way, under the same condition. | slice 3 | observed: slice 3: one-shot-landing-capture-admission, agent-launch-start-session-landing-admission/-retained specs build valid bodies with makeMe.aLandingSubmission; admission still 409 for unaccepted target then 200 prepared |
 | 11 | Valid retained comparisons are arranged the same way, under the same condition. | slice 4 | |
-| 12 | Valid landing receipts are arranged the same way, under the same condition. | slice 3 | |
-| 13 | The original launch stays explicit when it drives the case. | slice 3 | |
-| 14 | The comparison's base and revision stay explicit when they drive the case. | slice 3 | |
-| 15 | Real Git is used where the test observes publication, pinning or recovery. | slice 3 | |
-| 16 | The actual capture path is used where the test observes publication, pinning or recovery. | slice 3 | |
+| 12 | Valid landing receipts are arranged the same way, under the same condition. | slice 3 | observed: slice 3: dashboard-landing-test-fixtures.mjs landingReceiver answers makeMe.aLandingReceipt (UUID receipt, receivedAt, prepared/recorded); dashboard-landing.test.mjs mismatched-revision still unacknowledged |
+| 13 | The original launch stays explicit when it drives the case. | slice 3 | observed: slice 3: call sites state .forLaunch({reference: reporting.reference, identity}) e.g. one-shot-landing-capture-admission.spec.ts |
+| 14 | The comparison's base and revision stay explicit when they drive the case. | slice 3 | observed: slice 3: .comparing({base, revision}) is required and stated at each call site; one-shot-landing-capture-admission keeps revision: base mutation literal |
+| 15 | Real Git is used where the test observes publication, pinning or recovery. | slice 3 | observed: slice 3: publish/land/deliver/resumeLanding/retirement and pin checks still run real Git in the four dough-execute-plan landing node tests and landing specs (32 passed) |
+| 16 | The actual capture path is used where the test observes publication, pinning or recovery. | slice 3 | observed: slice 3: one-shot-landing-recovery.spec.ts and one-shot-landing-capture.spec.ts still drive the installed capture path |
 | 17 | The completion and landing factories in scope are either removed or made to delegate to MakeMe. These are two allowed alternatives. | slice 4 | |
 | 18a | Facts that drive the case stay visible. | slice 4 | |
 | 18b | Independent expectations stay visible. | slice 4 | |
@@ -40,9 +40,9 @@ Returned exclusions: the common store writer belongs to the kept launch record s
 | E2.1 | Example 2: a completion report accepted before native session binding carries its receipt into the bound record. | slice 2 | observed: slice 2: agent-completion-binding.spec.ts 'Claude early ... binds through' (4 variants): bound.completion toMatchObject {receipt: receipt.receipt}; false-session makeMe submission still 409 |
 | E2.2 | Example 2: when a bound launch loses the acknowledgment for a later delivery, retrying that delivery after a restart returns its original receipt. | slice 2 | observed: slice 2: agent-completion-recovery.spec.ts 'retired closure retries ... lost acknowledgment': restarted-server retry stdout toEqual(receipt) |
 | E2.3 | Example 2: that retry does not repeat Git or retirement. | slice 2 | observed: slice 2: agent-completion-recovery.spec.ts same test: git.log unchanged (toBe(gitBefore)), native controls only two thread/name/set |
-| E3.1 | Example 3: a one-shot or story-branch publication has an accepted base and revision. Both publication kinds are covered. | slice 3 | |
-| E3.2 | Example 3: when landing evidence is captured or recovered after trunk advances, it keeps that comparison for the original launch. | slice 3 | |
-| E3.3 | Example 3: recording the comparison leaves completion and Done to their own operations. | slice 3 | |
+| E3.1 | Example 3: a one-shot or story-branch publication has an accepted base and revision. Both publication kinds are covered. | slice 3 | observed: slice 3: one-shot-landing-capture.spec.ts (execution and refinement) and story-branch-landing-capture/-conflict specs passed |
+| E3.2 | Example 3: when landing evidence is captured or recovered after trunk advances, it keeps that comparison for the original launch. | slice 3 | observed: slice 3: dashboard/tests/review/one-shot-landing-recovery.spec.ts: first matches {reference, delivery, base: anotherWriter, revision} and first.receipt === reserved.receipt after trunk advances |
+| E3.3 | Example 3: recording the comparison leaves completion and Done to their own operations. | slice 3 | observed: slice 3: one-shot-landing-capture.spec.ts saved.completion and saved.doneAt undefined after capture |
 | E4.1 | Example 4: for a completed story whose retained comparison has an unavailable local repository, published evidence can still supply its changes when review opens the story. | slice 4 | |
 | E4.2 | Example 4: the test arranges the unusable local comparison. | slice 4 | |
 | E4.3 | Example 4: the test obtains the fallback through the real published reader. | slice 4 | |

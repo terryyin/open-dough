@@ -46,7 +46,14 @@ test("a retained Story Branch candidate already on that remote stays published a
     workspace: execution,
     branch: "exec/story",
   };
-  await landingContextFile(t, dashboard, "SEED-1#story", expectation);
+  await landingContextFile(
+    t,
+    makeMe.aLandingContext
+      .reportingTo(dashboard)
+      .namingStory("SEED-1#story")
+      .please(),
+    expectation,
+  );
   const originalExpectation = await openFirstLandingExpectation(expectation);
 
   await git(execution, "checkout", "-b", "other-story", trunkSha);
@@ -116,7 +123,14 @@ test("an unpublished Story Branch candidate is pushed only to the recorded remot
     workspace: execution,
     branch: "exec/story",
   };
-  await landingContextFile(t, dashboard, "SEED-1#story", expectation);
+  await landingContextFile(
+    t,
+    makeMe.aLandingContext
+      .reportingTo(dashboard)
+      .namingStory("SEED-1#story")
+      .please(),
+    expectation,
+  );
   const originalExpectation = await openFirstLandingExpectation(expectation);
   const publishedRevisions = [];
   const observer = createObserverStub();

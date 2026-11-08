@@ -3,7 +3,7 @@
 // and a context that names none (a session with no story) is retained and
 // delivered by its launch reference alone.
 import assert from "node:assert/strict";
-import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -16,8 +16,8 @@ import {
 import {
   landingContextFile,
   landingReceiver,
-  landingReference as reference,
 } from "./dashboard-landing-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   firstLandingExpectationPath,
   openFirstLandingExpectation,
@@ -50,7 +50,8 @@ test("this installation says it takes a context that names no story", () => {
 test("a context naming no story is retained before the push and recorded after acceptance by its launch reference alone", async (t) => {
   const { origin, requests } = await landingReceiver(t);
   const expectation = await plantedExpectationKeys(t, "claude/unattached");
-  const file = await landingContextFile(t, origin, undefined, expectation);
+  const context = makeMe.aLandingContext.reportingTo(origin).please();
+  const file = await landingContextFile(t, context, expectation);
   assert.deepEqual(await openFirstLandingExpectation(expectation), {
     workspace: expectation.workspace,
     branch: expectation.branch,
@@ -66,22 +67,12 @@ test("a context naming no story is retained before the push and recorded after a
   assert.equal("identity" in retained, false);
   assert.deepEqual(
     { ...retained, delivery: undefined },
-    {
-      origin,
-      source: "open-dough",
-      host: "claude",
-      reference,
-      remote: "origin",
-      target: "refs/heads/main",
-      base,
-      revision,
-      delivery: undefined,
-    },
+    { ...context, base, revision, delivery: undefined },
   );
 
   const landing = await captureAcceptedLanding(file, accepted);
   assert.equal(landing.state, "recorded");
-  assert.equal(landing.receipt.reference, reference);
+  assert.equal(landing.receipt.reference, context.reference);
   assert.deepEqual(
     requests.map(({ url }) => url),
     ["/__agent-launch/landing/prepare", "/__agent-launch/landing"],
@@ -111,7 +102,14 @@ test("a context naming no story is retained before the push and recorded after a
 test("unacknowledged capture leaves the first-landing expectation open", async (t) => {
   const { origin } = await landingReceiver(t);
   const expectation = await plantedExpectationKeys(t, "claude/unack");
-  const file = await landingContextFile(t, origin, "SEED-1#story", expectation);
+  const file = await landingContextFile(
+    t,
+    makeMe.aLandingContext
+      .reportingTo(origin)
+      .namingStory("SEED-1#story")
+      .please(),
+    expectation,
+  );
   await retainLandingComparison(
     file,
     { candidate: revision, suffixBase: base },
@@ -131,7 +129,13 @@ test("unacknowledged capture leaves the first-landing expectation open", async (
 
 test("a context naming a story still carries its identity, and a comparison trunk did not accept is not recorded", async (t) => {
   const { origin, requests } = await landingReceiver(t);
-  const file = await landingContextFile(t, origin, "SEED-1#story");
+  const file = await landingContextFile(
+    t,
+    makeMe.aLandingContext
+      .reportingTo(origin)
+      .namingStory("SEED-1#story")
+      .please(),
+  );
   await retainLandingComparison(
     file,
     { candidate: revision, suffixBase: base },
@@ -155,21 +159,21 @@ test("a context naming a story still carries its identity, and a comparison trun
 test("a context still needs its launch, its target, and a nonblank identity when it names one", async (t) => {
   const { origin, requests } = await landingReceiver(t);
   const pair = { candidate: revision, suffixBase: base };
-  const blank = await landingContextFile(t, origin, "");
+  const context = makeMe.aLandingContext.reportingTo(origin).please();
+  const blank = await landingContextFile(t, { ...context, identity: "" });
   await assert.rejects(
     retainLandingComparison(blank, pair, publication),
     /Missing landing identity/,
   );
-  const file = await landingContextFile(t, origin);
-  const context = JSON.parse(await readFile(file, "utf8"));
-  delete context.reference;
-  await writeFile(file, JSON.stringify(context));
+  const unlaunched = { ...context };
+  delete unlaunched.reference;
+  const file = await landingContextFile(t, unlaunched);
   await assert.rejects(
     retainLandingComparison(file, pair, publication),
     /Missing landing reference/,
   );
   await assert.rejects(
-    retainLandingComparison(await landingContextFile(t, origin), pair, {
+    retainLandingComparison(await landingContextFile(t, context), pair, {
       ...publication,
       targetRef: "refs/heads/other",
     }),
@@ -186,12 +190,7 @@ test("the reporting command's landing operation takes a comparison with no ident
   const receipt = await reportLanding(
     {
       operation: "landing-prepare",
-      origin,
-      source: "open-dough",
-      host: "claude",
-      reference,
-      remote: "origin",
-      target: "refs/heads/main",
+      ...makeMe.aLandingContext.reportingTo(origin).please(),
       base,
       revision,
     },

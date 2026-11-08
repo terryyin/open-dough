@@ -4,7 +4,13 @@
 // landing and its Done mark, each with fixed receipts and references
 // (`./launchTestData.mjs`). A final report can also be arranged on its own
 // (`CompletionReportBuilder`), as can the submission a session reports it
-// with (`CompletionSubmissionBuilder`).
+// with (`CompletionSubmissionBuilder`). The landing is the evidence
+// `./launchLandingTestData.mjs` describes.
+
+import {
+  landingEvidence,
+  reportingReference,
+} from "./launchLandingTestData.mjs";
 
 /** @typedef {import("../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
 /** @typedef {import("../../dashboard/src/completionReport.ts").CompletionReport} CompletionReport */
@@ -27,8 +33,6 @@
  *   doneAt?: string,
  * }} LaunchOutcome
  */
-
-const reportingReference = "22222222-2222-4222-8222-222222222222";
 
 /**
  * A final report received at `receivedAt` unless it states its own time,
@@ -114,17 +118,10 @@ export class LaunchOutcomeBuilder {
       ...(report && { completion: report }),
       ...(reportRead && report && { reportRead: report.receipt }),
       ...(landedRevision && {
-        landing: {
-          repository: "open-dough",
-          remote: "origin",
-          target: "refs/heads/main",
-          reference: reportingReference,
-          delivery: "33333333-3333-4333-8333-333333333333",
-          receipt: "44444444-4444-4444-8444-444444444444",
-          base: "c3".repeat(20),
-          revision: landedRevision,
-          receivedAt: at,
-        },
+        landing: landingEvidence(
+          { base: "c3".repeat(20), revision: landedRevision },
+          at,
+        ),
       }),
       ...(doneAt !== undefined && { doneAt }),
     };

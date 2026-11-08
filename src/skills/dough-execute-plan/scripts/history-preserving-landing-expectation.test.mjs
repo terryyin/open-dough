@@ -34,7 +34,14 @@ test("omitted landingContext retains landing from an open expectation, and a lat
     workspace: execution,
     branch: executionBranch,
   };
-  await landingContextFile(t, dashboard, "SEED-1#story", expectation);
+  await landingContextFile(
+    t,
+    makeMe.aLandingContext
+      .reportingTo(dashboard)
+      .namingStory("SEED-1#story")
+      .please(),
+    expectation,
+  );
   const originalExpectation = await openFirstLandingExpectation(expectation);
   const intermediate = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,
@@ -95,7 +102,13 @@ test("history-preserving publish without an open expectation still takes no land
   const publishedTip = await revParse(execution, "HEAD");
   await git(execution, "push", "origin", `HEAD:refs/heads/${executionBranch}`);
   // Prepared context exists but no expectation was planted for this workspace.
-  await landingContextFile(t, dashboard, "SEED-1#story");
+  await landingContextFile(
+    t,
+    makeMe.aLandingContext
+      .reportingTo(dashboard)
+      .namingStory("SEED-1#story")
+      .please(),
+  );
 
   const published = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,

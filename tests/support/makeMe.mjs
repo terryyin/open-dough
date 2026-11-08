@@ -9,6 +9,11 @@ import {
   CompletionSubmissionBuilder,
 } from "./launchOutcomeTestData.mjs";
 import {
+  LandingContextBuilder,
+  LandingReceiptBuilder,
+  LandingSubmissionBuilder,
+} from "./launchLandingTestData.mjs";
+import {
   CiAdapterAttemptBuilder,
   CiTimingJobBuilder,
 } from "./ciTimingTestData.mjs";
@@ -134,6 +139,15 @@ export const makeMe = {
   },
   get aCompletionSubmission() {
     return new CompletionSubmissionBuilder();
+  },
+  get aLandingContext() {
+    return new LandingContextBuilder();
+  },
+  get aLandingSubmission() {
+    return new LandingSubmissionBuilder();
+  },
+  get aLandingReceipt() {
+    return new LandingReceiptBuilder();
   },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();

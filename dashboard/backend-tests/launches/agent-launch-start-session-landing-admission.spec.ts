@@ -11,9 +11,9 @@
 // and the capture themselves are in
 // ../../tests/launches/agent-launch-start-session-landing-context.spec.ts.
 
-import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { keptAttempts } from "../../tests/acceptedAttempts.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
@@ -89,40 +89,30 @@ test("a Wait for review session carries the landing context too; a context namin
 
   const base = await originMain(origin);
   const revision = commit(session.workspace, "later.txt");
-  const comparison = {
-    delivery: randomUUID(),
-    source: "open-dough",
-    host: "claude",
-    remote: "origin",
-    target: "refs/heads/main",
-    base,
-    revision,
-  };
+  // The same comparison, landed for one launch or another.
+  const landingFor = (reference: string) =>
+    makeMe.aLandingSubmission
+      .forLaunch({ reference })
+      .comparing({ base, revision })
+      .please();
+  const waitingLanding = landingFor(reporting.reference);
   for (const refused of [
     // A story named for a launch that has none.
-    { ...comparison, reference: reporting.reference, identity: "SEED-1#a" },
-    { ...comparison, reference: reporting.reference, identity: "" },
-    { ...comparison, reference: reporting.reference, remote: "foreign" },
+    { ...waitingLanding, identity: "SEED-1#a" },
+    { ...waitingLanding, identity: "" },
+    { ...waitingLanding, remote: "foreign" },
   ])
     expect((await post(dashboard, refused)).status).toBeGreaterThanOrEqual(400);
   // The launch that established no session, whatever it names.
   expect(
-    (
-      await post(dashboard, {
-        ...comparison,
-        reference: plainReporting.reference,
-      })
-    ).status,
+    (await post(dashboard, landingFor(plainReporting.reference))).status,
   ).toBe(409);
   for (const kept of keptAttempts(dashboard))
     expect(kept).not.toHaveProperty("landingPreparations");
 
   // The developer later asks the waiting session to land: its own context
   // captures that landing.
-  expect(
-    (await post(dashboard, { ...comparison, reference: reporting.reference }))
-      .status,
-  ).toBe(200);
+  expect((await post(dashboard, waitingLanding)).status).toBe(200);
   const delivered = land(waiting.record, origin, dashboard.home).result;
   expect(delivered.landing.receipt).toMatchObject({ base, revision });
   expect(await originMain(origin)).toBe(revision);
