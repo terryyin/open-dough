@@ -3,6 +3,7 @@
 **Identity:** SEED-010#notice-named-sibling-landings-before-delivery
 
 **Source:** [Surface a named sibling landing before delivering against its old shape](../../seeds/SEED-010-learn-from-execution-retrospectives.md#notice-named-sibling-landings-before-delivery)
+**Source review:** [Independent source commitments](source-review.md)
 
 ## Goal and boundaries
 
@@ -86,12 +87,31 @@ awake macOS with AC power and use `caffeinate -s -i`. On battery, plug in or
 start fully awake with the lid open under `caffeinate -i` and inspect the sleep
 log afterward. [Machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos)
 
+## Execution context
+
+- Story Branch Mode, owned linked worktree `surface-a-named-sibling-landing-before-deliverin`,
+  branch `codex/surface-a-named-sibling-landing-before-deliverin`. Publisher
+  `dashboard-territory.local-open-dough`, agent `mrsn-chan`. The separate
+  default checkout is `/Users/terryyin/git/open-dough`.
+- Starting revision `e181f1a1f4a769751553ed63ece2f9867ad4310f`. Published Take
+  and initial story-branch tip `332e905905004c6eaddc92a75968891b365db5cb`.
+  The Take is contained in `origin/main`. Ordinary increments target the
+  story branch on `origin`; source freshness compares against `origin/main`.
+- Locked `npm ci` and `npm pkg get name` succeeded in this checkout. Selective
+  formatter `npm run format`; staged check-only hook `.githooks/pre-commit`.
+  Replanning retains the plan's existing authority. The repository supplies no
+  numeric slice limit.
+- Codex observer for `terryyin/open-dough` and the story branch, workflow
+  `ci.yml` (CI), coordinator `mrsn-chan`, mailbox
+  `/tmp/dough-ci-501/watch-qrRocy`, PID `11484`, session `51274`, cell
+  `g144:9`. The Take on trunk is outside that observer's coverage.
+
 ## Ordered slices
 
 ### 1. Bring the named sibling's landed behavior into the delivery decision
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk the two pinned overlap cases and the proceed controls through the
 delivery passage, record the coordinator decision and evidence at each boundary,
 and run the focused existing freshness tests.
@@ -104,6 +124,25 @@ reachable. Record the finding response with its observed proof and the
 ordinary-use criterion. Any release identification belongs to release
 follow-through. One delivered slice leaves the guidance and proof complete for
 this scope.
+
+#### Accepted evidence
+
+- [ODF-429 response walkthrough](../../../docs/maintainer/findings/ODF-429.md#response-walkthrough)
+  records the pinned Git cases, both holds and the proceed controls. The source
+  review maps each commitment to the inspected product passage or observation.
+- The first-parent diff for `c9a142ac3` bundled several changes. Refactoring
+  made the need for specific attribution explicit and recorded the SEED-241
+  product commits `83589f5ff` and `43cc96a50`. With no sibling named for
+  coordination, step 5 leaves the conditional passage unread.
+- `caffeinate -s -i node --test src/skills/dough-execute-plan/scripts/{source-freshness,source-freshness-guidance,progress-observation-guidance,read-budget-guidance,refactor-disposition-guidance,shared-checkout-writers-guidance,story-obligations-guidance}.test.mjs`
+  passed 59 checks. The first inline draft exceeded the delivery read budget.
+  After independent refactoring, the same command without `source-freshness`
+  passed the 41 affected guidance checks. The 18 CLI checks still apply because
+  the script and its fixtures are unchanged. The guidance checks observe the
+  read budget, freshness before obligations, and the existing delivery guards.
+- Source freshness on `6daa931e3710288823910fa9aa89a7e9a6bbfe7d` returned
+  `unchanged` for this story and plan. Its historical examples identify no
+  coordinating sibling for this execution.
 
 ## Preparation review
 
