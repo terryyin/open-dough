@@ -1,12 +1,14 @@
 // The destination cue: a brief mark on the card a reveal brings into view
 // (`revealStory` in ./pageEntries.ts), so that a developer who follows a story
 // reference or opens a direct story URL sees which card they arrived at, even
-// among similar cards and when it is already in view. It is not the selected
-// story's Highlight: it selects nothing, lies over the Highlight when the
-// story is selected, and leaves inspection, focus and scrolling as the reveal
-// made them. Each reveal cues again, restarting a cue still showing. The cue
-// ends on its own after `destinationCueMs`; with reduced motion it is a
-// static mark for that time (story-cards.css).
+// among similar cards and when it is already in view. Keyboard focus alone
+// does not show this: after a pointer activation, the reveal's programmatic
+// focus does not match `:focus-visible`, so no focus ring appears. It is not
+// the selected story's Highlight: it selects nothing, lies over the Highlight
+// when the story is selected, and leaves inspection, focus and scrolling as
+// the reveal made them. Each reveal cues again, restarting a cue still
+// showing. The cue ends on its own after `destinationCueMs`; with reduced
+// motion it is a static mark for that time (story-cards.css).
 
 export const destinationCueClass = "story-card-destination-cue";
 
