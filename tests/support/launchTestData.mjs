@@ -10,15 +10,21 @@
  * @typedef {{ identity: string, title: string, source?: string }} StoryFacts
  */
 
-// The kept launch of one story's execution or refinement: its request, its
-// host session, and, for an execution whose start established one, the story
-// branch. Without `.onStoryBranch(...)` the record keeps no established start
-// or preparation. The session defaults to a `claude` one named after the
-// title, the start's claim to fixed published facts, and the launch time to a
-// fixed instant.
+/**
+ * What an ad hoc launch's request states: the project, the instruction it
+ * started with, and the title kept for it.
+ * @typedef {{ instruction: string, title: string, source?: string }} AdHocFacts
+ */
+
+// The kept launch of one story's execution or refinement, or of an ad hoc
+// session: its request, its host session, and, for an execution whose start
+// established one, the story branch. Without `.onStoryBranch(...)` the
+// record keeps no established start or preparation. The session defaults to
+// a `claude` one named after the title, the start's claim to fixed published
+// facts, and the launch time to a fixed instant.
 export class LaunchRecordBuilder {
-  /** @type {(Required<StoryFacts> & { workflow: "execution" | "refinement" }) | undefined} */
-  #story;
+  /** @type {(Required<StoryFacts> & { workflow: "execution" | "refinement" }) | (Required<AdHocFacts> & { workflow: "ad-hoc" }) | undefined} */
+  #requested;
   /** @type {{ workspace: string, branch: string } | undefined} */
   #storyBranch;
   /** @type {((name: string) => LaunchRecord["session"]) | undefined} */
@@ -31,7 +37,7 @@ export class LaunchRecordBuilder {
    * @param {StoryFacts} facts
    */
   executing({ identity, title, source = "open-dough" }) {
-    this.#story = { identity, title, source, workflow: "execution" };
+    this.#requested = { identity, title, source, workflow: "execution" };
     return this;
   }
 
@@ -41,7 +47,17 @@ export class LaunchRecordBuilder {
    * @param {StoryFacts} facts
    */
   refining({ identity, title, source = "open-dough" }) {
-    this.#story = { identity, title, source, workflow: "refinement" };
+    this.#requested = { identity, title, source, workflow: "refinement" };
+    return this;
+  }
+
+  /**
+   * An ad hoc launch with this instruction, in the `open-dough` project unless
+   * stated.
+   * @param {AdHocFacts} facts
+   */
+  adHoc({ instruction, title, source = "open-dough" }) {
+    this.#requested = { instruction, title, source, workflow: "ad-hoc" };
     return this;
   }
 
@@ -82,6 +98,21 @@ export class LaunchRecordBuilder {
     return this;
   }
 
+  /**
+   * A Cursor session and where it continues: the saved workspace and the
+   * `cursor-agent` arguments.
+   * @param {{ sessionId: string, continuation: { workspace: string, args?: string[] } }} session
+   */
+  inCursorSession({ sessionId, continuation: { workspace, args = [] } }) {
+    this.#session = (name) => ({
+      host: "cursor",
+      sessionId,
+      name,
+      continuation: { workspace, args },
+    });
+    return this;
+  }
+
   /** @param {string} at an ISO date-time */
   launchedAt(at) {
     this.#launchedAt = at;
@@ -90,33 +121,47 @@ export class LaunchRecordBuilder {
 
   /** @returns {LaunchRecord} */
   please() {
-    const story = this.#story;
+    const requested = this.#requested;
     const storyBranch = this.#storyBranch;
-    if (!story)
-      throw new Error("choose .executing(...) or .refining(...) first");
-    if (storyBranch && story.workflow !== "execution")
+    if (!requested)
+      throw new Error(
+        "choose .executing(...), .refining(...) or .adHoc(...) first",
+      );
+    if (storyBranch && requested.workflow !== "execution")
       throw new Error("only an execution's start establishes a story branch");
-    const slug = story.title.toLowerCase().replaceAll(/\s+/g, "-");
+    const slug = requested.title.toLowerCase().replaceAll(/\s+/g, "-");
     const session = this.#session
-      ? this.#session(story.title)
+      ? this.#session(requested.title)
       : {
           host: /** @type {const} */ ("claude"),
           sessionId: `${slug}-session`,
           shortId: slug,
-          name: story.title,
+          name: requested.title,
         };
+    if (requested.workflow === "ad-hoc")
+      return {
+        request: {
+          source: requested.source,
+          host: session.host,
+          workflow: requested.workflow,
+          title: requested.title,
+          instruction: requested.instruction,
+        },
+        session,
+        launchedAt: this.#launchedAt,
+      };
     return {
       request: {
-        source: story.source,
-        identity: story.identity,
-        title: story.title,
-        workflow: story.workflow,
+        source: requested.source,
+        identity: requested.identity,
+        title: requested.title,
+        workflow: requested.workflow,
         host: session.host,
       },
       session,
       ...(storyBranch && {
         start: {
-          identity: story.identity,
+          identity: requested.identity,
           publisherId: "a1b2c3",
           workspace: storyBranch.workspace,
           branch: storyBranch.branch,

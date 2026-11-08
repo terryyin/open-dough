@@ -4,6 +4,8 @@
 
 **Source:** [Make dashboard polling tests advance on controlled time and observed replies](../../seeds/SEED-262-faster-dashboard-test-feedback.md#drive-polls-with-time-and-replies)
 
+**Source review:** [source review](source-review.md)
+
 ## Goal and scope
 
 Remove real waits from the two [frontend polling cases](../../../dashboard/frontend-tests/cursor-runner-sessions-ui.spec.ts)
@@ -30,7 +32,7 @@ Slice 1 owns all three examples at the browser request and visible UI boundary.
 ### 1. Make the two Running Cursor polling cases advance on replies
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Both cases pass through the existing frontend fixture with the observations
 above. Their matched before-and-after comparison meets the seed's 7 s retention
 threshold without relaxing a request or UI assertion.
@@ -81,6 +83,19 @@ discriminates, then restore it and rerun the case.
 ```sh
 caffeinate -s -i ./node_modules/.bin/playwright test --config dashboard/playwright.config.ts --reporter=json --repeat-each=3 'frontend-tests/cursor-runner-sessions-ui\.spec\.ts$'
 ```
+
+- Matched comparison, 2026-11-08, macOS on AC, load 7–8.6, same command.
+  Baseline on unchanged `91d07d0fb`: 6/6 passed; slow/visibility 14.185,
+  12.582, 12.609 s (median 12.609 s); response-state 5.335, 3.719, 3.731 s
+  (median 3.731 s); runner 34.3 s. Candidate: 6/6 passed; 1.216, 0.521,
+  0.567 s (median 0.567 s) and 1.185, 0.484, 0.508 s (median 0.508 s);
+  runner 4.4 s. Saving 15.27 s across the medians; `--repeat-each=15` gave
+  30/30. Removed waits: the route's real delay, two hidden/collapsed
+  `waitForTimeout` calls and the real follow-up intervals. Request counts at
+  publish, follow-up, hidden, visible and collapse are now exact (1, 1 at
+  gap−1 ms then 2, 2, 3, 3) with peak 1; the response-state case asks 4
+  times. Early-ask, overlap, ignored-visibility, uncleared-collapse,
+  scheduled-reveal and ignored-unreachable faults each failed a case.
 
 Repeat the same selection on the candidate and record the verdicts, case
 medians, runner time, removed waits and request counts at the named transitions.
