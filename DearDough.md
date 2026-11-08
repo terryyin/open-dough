@@ -61,6 +61,14 @@ Former local code: DD-121. Former local code: DD-206. Former local code: DD-238.
   - Evidence: plan 519 was recorded `assessment: ready` with `**Status:** pending` on both slices (`d75797dec:.planning/slice-plans/519-recover-terminal-insert/PLAN.md`); the first `story-obligations.mjs list --slice 1` after linking the source review returned `unreadable-slices` and `unknown-slice`; the coordinator changed both statuses to `planned`. Plan 518 on trunk still records `**Status:** pending`
   - Observed effect: one refusal and one sed edit before delegation; no wrong completion was possible
   - Inference: qualified recurrence. Preparation still writes a status the obligation reader rejects and records readiness without running that reader; the cost here was small
+- Execution: SEED-268#conclude-fluent-side-panel-pilot (plan 521-conclude-fluent-side-panel-pilot; first related implementation `da1478f7d77f1f72490871891ef219f2f859f32a`)
+  - Timestamp: unknown (2026-11-08, before the first slice delegation)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.91 (installed `.agents/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 521 at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6` was recorded ready with `**Status:** pending`. The first `story-obligations.mjs list --slice 1` refused with `unreadable-slices` and `unknown-slice`.
+  - Observed effect: changing only the status word to `planned` let the same listing pass with all 39 allocated source commitments. The selected story and its proof stayed the same.
+  - Inference: the preparation and execution status mismatch observed in Plan 519 recurred under 0.3.91.
 
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
@@ -523,22 +531,6 @@ Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`.
 
 [Evidence and current response](docs/maintainer/findings/ODF-367.md).
 
-### Occurrences
-- Execution: SEED-250#hide-client-project-from-dashboard (plan 476-hide-client-project-from-dashboard; first related implementation commit `bbdb50295eccda910464a31d47c7ffcc9aadc390`)
-  - Timestamp: unknown (2026-11-07, after established start and before slice 1 delivery `bbdb50295`)
-  - Tool: Cursor
-  - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION` in the execution checkout)
-  - Evidence: coordinator delegated slice 1 (`85bcdbe9-6b19-4722-a806-4c3a22200093`) after reading the "Before first implementation delegation" boundary, then read "Before accepting a return" (`wrap-up.md#accept-proof`) and launched the source-only reviewer (`fc0018b5-f90a-42c9-8c9b-63d1c2ae89af`) before accepting slice 1 and delegating slice 2
-  - Observed effect: no rework of slice 1; all 62 slice 1 commitments matched the delivered implementation and proof, and the 5 slice 2 commitments were passed into slice 2 delegation
-  - Inference: same boundary-table ordering as prior ODF-367 rows — `dough-execute-plan/SKILL.md` lists `wrap-up.md#accept-proof` under "Before accepting a return" rather than before first slice delegation
-- Execution: SEED-254#use-ancestor-ci-proof-for-skipped-builds (before-cleanup commit `83a71097998b8aee8d486f78eb24027ad148abf8`; first related implementation commit `94a168bef806e6c43a8e7aa3899f5cac49eea263`)
-  - Timestamp: 2026-11-07T16:26:11+08:00 (between first slice-1 delegation and slice-1 delivery `94a168bef`)
-  - Tool: Cursor
-  - Open Dough release: 0.3.87 (installed `.agents/skills/dough-update/VERSION`; execution used `.claude/skills`, which lacks `obtain-source-review.md`)
-  - Evidence: coordinator transcript `a813feec-33b3-4f12-8c74-31a2ede64898`: delegated slice 1 (`Task` "Implement slice 1 status") after reading installed "Before first implementation delegation" (no source-review link), then at acceptance launched source-only reviewer and wrote `source-review.md`; installed `.claude/skills/dough-execute-plan/SKILL.md` still omits `obtain-source-review.md#before-planned-delegation` while unreleased `src/skills/...` already includes it (ODF-367 response; first containing release none yet)
-  - Observed effect: one acceptance rework round for Summary `SlotSha` requested-status (commitment 3) before slice 1 published; later slices received allocated commitments in their briefs
-  - Inference: recurrence under the still-installed 0.3.87 boundary table; the unreleased source guidance that would have obtained the review before delegation was not what this execution read
-
 ## ODF-399 — Post-change refactor left a production module empty before delivery
 
 Former local code: DD-389.
@@ -930,23 +922,6 @@ plan required to show stability was not rerun on the refactored file.
   - Observed effect: one extra coordinator run before delivery; no wrong result published
   - Inference: the refactor brief said "rerun only what your edits invalidate" without naming that plan-named proof shapes (repeats, filters) carry over to the replacement
 
-## DD-448 — The coordinator delegated a lookup the implementation brief already required
-
-While waiting on the source-only reviewer, the coordinator spawned a read-only
-agent to list every evidence label caller. The slice 1 implementation brief
-then required the implementer to find the same callers through grep and the
-consumer trace.
-
-### Occurrences
-- Execution: SEED-259#correct-scan-intent-ci-summaries (plan 504-correct-scan-intent-ci-summaries; first related implementation commit `850013d247970387910218951efc45b297cc5ee8`)
-  - Timestamp: unknown (2026-11-08, before slice 1 delegation)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.89 (installed `.claude/skills/dough-update/VERSION`)
-  - Evidence: Explore agent "list every caller of EvidenceLabel objects" (about 30k subagent tokens, 5 tool uses); its result was used only as the coordinator's acceptance cross-check
-  - Observed effect: about 30k tokens with no change to delegation or acceptance
-  - Inference: waiting on one agent invited parallel work that duplicated the next agent's required discovery; the Agent guidance's "don't delegate a check you could run inline" already covers it
-
 ## DD-449 — A same-ref cancelled CI run reached the coordinator as unexplained incomplete
 
 The observer delivered `CI_INCOMPLETE` for a Story Branch increment whose run
@@ -1004,6 +979,7 @@ across two runs.
 
 - Highest allocated local number: 452. Removed numbers are never reused.
 - Recovery: four repeated ODF-428 occurrences remain at `bc20663f48b911419be71875a903774a66220db4:DearDough.md`.
+- Recovery: two earlier ODF-367 occurrences and DD-448 remain at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6:DearDough.md`.
 - Occurrence history is partial.
 
 ## DD-452 — A shell check gained a browser its CI job did not install
