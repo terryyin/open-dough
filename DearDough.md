@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 456. Removed numbers are never reused.
+- Highest allocated local number: 457. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -202,6 +202,13 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Guarded delivery on the paths published as `86eb0b883`, `c504c9a15`, and `d577da657` first returned `operation: formatting`. ESLint named unsafe href/writer return values, an unused array callback parameter, and an unsafe `Object.fromEntries` return from non-tuple inference.
   - Observed effect: Three initial formatter gates withheld commit and publication after focused proof and independent refactor. Type annotations or a mechanical callback change cleared them. The affected type-check or Land test passed.
   - Inference: A passing TypeScript build does not cover the ESLint diagnostics observed here. The late placement of the gate was the required handoff.
+- Execution: SEED-262#migrate-dashboard-origin-fixtures (plan 512-migrate-dashboard-origin-fixtures; first related implementation commit `0bcf76c3746a941a01ffc0198f5ad120d3446fdb`)
+  - Timestamp: unknown (slice 2 delivery on 2026-11-08, before `21bf70ea2`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed .claude/skills/dough-update/VERSION at the established Take `db42e79a7`)
+  - Evidence: Slice 2's first guarded fresh delivery returned `operation: formatting` with five `no-unsafe-assignment`/`no-unsafe-call` errors where dashboard callers used the new JSDoc builders `reviewedStorySeed` and `queuedSeedWithDependencies` in `tests/support/queued-repository.mjs`, which lacked `@returns`. The implementation agent's proof included `npm run typecheck:dashboard`; neither it nor the refactor pass ran ESLint.
+  - Observed effect: One withheld commit after focused proof and refactor; the coordinator added two `@returns {string}` lines and the retry published `21bf70ea2`. The slice 3 refactor brief asked for an ESLint check of changed files, and its delivery passed first time.
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
@@ -283,6 +290,13 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Open Dough release: 0.3.90 (installed .agents/skills/dough-update/VERSION at the established Take)
   - Evidence: Slice 1's consumer trace (plan 508, slice 1 proof) included derived `PLAN.md` and `source-review.md` basenames with test changes. The coordinator's full read reported 920 lines and 54,151 original tokens and truncated. Sampled tail entries were unrelated planning and maintainer records.
   - Observed effect: The coordinator had to inspect bounded ranges and the actual fixture importers separately. This evidence establishes excess trace output, with no missed consumer attributed to that output.
+- Execution: SEED-262#migrate-dashboard-origin-fixtures (plan 512-migrate-dashboard-origin-fixtures; first related implementation commit `0bcf76c3746a941a01ffc0198f5ad120d3446fdb`)
+  - Timestamp: unknown (slices 1 and 2 on 2026-11-08)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed .claude/skills/dough-update/VERSION at the established Take `db42e79a7`)
+  - Evidence: The slice 1 implementation agent reported that `consumer-trace.mjs --base db42e79a7 --term …` was very large and noisy because every changed path's basename (PLAN.md, source-review.md, each spec) became a term, and reran with explicit terms only. The slice 2 agent dropped `--base 0bcf76c37` for the same reason.
+  - Observed effect: Two implementation agents each discarded a `--base` trace and reran with explicit `--term` values; the delegation command form names `--base` as the way to run it.
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
@@ -408,3 +422,20 @@ Former local code: DD-451. [Evidence and current response](docs/maintainer/findi
 <a id="dd-452--a-shell-check-gained-a-browser-its-ci-job-did-not-install"></a> DD-452 — A shell check gained a browser its CI job did not install. [Project evidence](docs/maintainer/project-findings-history.md#dd-452).
 ## ODF-456 — Ready plan used an unsupported slice status
 [Evidence and current response](docs/maintainer/findings/ODF-456.md).
+
+## DD-457 — Sequential before and after timings could not judge a no-slowdown promise
+A plan asked for focused times recorded before any edit and again after the
+slice, under comparable load. On a machine with fluctuating external load, the
+runs taken about half an hour apart differed in load and could not show
+whether feedback got slower. Paired back-to-back runs of a base worktree and
+the candidate could.
+
+### Occurrences
+- Execution: SEED-262#migrate-dashboard-origin-fixtures (plan 512-migrate-dashboard-origin-fixtures; first related implementation commit `0bcf76c3746a941a01ffc0198f5ad120d3446fdb`)
+  - Timestamp: unknown (slice 1 on 2026-11-08; slice 3 paired runs before `f78f3e0e6`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed .claude/skills/dough-update/VERSION at the established Take `db42e79a7`)
+  - Evidence: Slice 1's before runs were at load about 10.5 and its after runs at 14.8–16.3 (startOriginTest consumers 60/68 s before, 73/81 s after); the coordinator recorded obligation G3 in plan 512. Slices 2 and 3 measured base-worktree and candidate runs back to back (51/51 s; 47/46 and 47/45 s; 22/20 and 23/20 s).
+  - Observed effect: Slice 1's timing evidence could not close its promise and the comparison was repeated in slice 3 with a temporary base worktree and its setup.
+  - Inference: The plan's wording "record before changing anything" invites sequential measurement; naming paired back-to-back runs from the start would likely have avoided the repeat. One execution only.

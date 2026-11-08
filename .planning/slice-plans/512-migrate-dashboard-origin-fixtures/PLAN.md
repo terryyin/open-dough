@@ -252,6 +252,16 @@ after the refactor, passed with unchanged assertions; the full
 planning edits into its claim, so `intent-story-summary-title.spec.ts` now
 declares its long title instead.
 
+## Execution complete
+
+Product advice: no correction needed. Carry the slice 3 paired baseline
+(refusal 5–6 s, startOriginTest consumers 47 s, standalone readiness and
+admission 22–23 s at `db42e79a7`, load 3.9–5.8, two workers) into
+[faster Git fixture construction](../../seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories)
+as its starting measurement before this plan is removed. The split
+[fake GitHub planning data](../../seeds/SEED-262-faster-dashboard-test-feedback.md#declare-fake-github-planning-data)
+story is already first in the backlog list.
+
 ## Plan concerns
 
 Slice-plan refinement was not needed. Each slice migrates one consumer group
