@@ -86,7 +86,9 @@ get a bare origin, a checkout, named commit IDs, and cleanup, or with
 `materializeLocalCheckout(t, description)` to get one checkout with no origin,
 removed after test `t`, for a case that reads no remote (`gitTemplates: false`
 initializes it without Git's templates; `layer` adds harness files, such as
-runner tooling read with `copiedLayer`, to its first commit). Identical
+runner tooling read with `copiedLayer`, to its first commit; `at` builds it
+in place at that directory without the shared template, as the shell checks'
+release sources do). Identical
 descriptions reuse one template within a process, so they give identical
 commit IDs; each caller gets its own mutable copy. Keep commands and Git
 transitions under proof in the case that observes their result.
@@ -95,6 +97,23 @@ transitions under proof in the case that observes their result.
 `commitDeclaredRevision` adds a later revision to an existing checkout with
 the same author, committer and message defaults.
 [Revision commit](support/repository-revision-commit.mjs)
+
+A revision can also carry one `release`, built with
+`makeMe.aRelease.with({ version, taggedAt, marker }).please()` and, where
+its payload differs, the managed path prefixes it `withheld` from its
+installer declaration, the payload paths it `removed`, and the payload it
+`added`. The materializer writes the working tree's installer and payload as
+a harness layer, then the release's `VERSION`, changelog entry, marker and
+deltas, and tags the commit `v<version>` dated `taggedAt`. A `VERSION` that
+disagrees with its tag, or an extra tag name, is stated literally through
+`files` and `tags`. A shell install or update check states its release source
+as JSON at its call site, read on stdin by
+`tests/support/release-source.mjs <dest>`, or names a shared description in
+`tests/support/release-sources.mjs`, such as `latest`; the helper builds it in
+place with `materializeLocalCheckout`'s `at`. `release-source.mjs --add
+<source>` commits and tags a release that appears after the check has read
+the source.
+[Release](support/releaseTestData.mjs) · [Helper](support/release-source.mjs)
 
 When a case needs another agent's claim only as a starting fact, declare it
 with `takeRevision`: the agent authors it and the developer commits it under
@@ -318,9 +337,10 @@ JavaScript or TypeScript file
 ([commit gate](../docs/installation-platforms-and-update-safety.md)).
 
 Fixture snapshots prune `.git` rather than walking it. A payload-update check
-builds its older and newer tagged releases with `build_upgrade_releases` from
-`tests/helpers/release-fixture.bash`, withholding the older release's
-declarations and sources instead of editing a copied installer by hand.
+states its older and newer tagged releases at its call site, with the older
+release's `withheld` declarations and `removed` sources, instead of editing a
+copied installer by hand, and checks the older release out with
+`checkout_tagged_release` from `tests/helpers/release-fixture.bash`.
 
 ## Native host streams
 

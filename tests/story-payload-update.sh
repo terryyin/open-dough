@@ -15,9 +15,19 @@ fixture="${temporary_dir}/source"
 helper="${source_dir}/src/install/open-dough-release.sh"
 older="${temporary_dir}/older"
 # Model a release before decomposition and refinement, including its declared payload.
-build_upgrade_releases "${fixture}" "${older}" before-stories with-stories \
-  --withhold dough-story-decomposition/ --withhold dough-story-refinement/ \
-  --remove dough-story-decomposition --remove dough-story-refinement
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" << 'JSON'
+{"revisions": [
+  {"name": "release 0.1.1 before-stories", "release": {
+    "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
+    "marker": "before-stories",
+    "withheld": ["dough-story-decomposition/", "dough-story-refinement/"],
+    "removed": ["dough-story-decomposition", "dough-story-refinement"]}},
+  {"name": "release 0.1.2 with-stories", "release": {
+    "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
+    "marker": "with-stories"}}
+]}
+JSON
+checkout_tagged_release "${fixture}" "${older}" 0.1.1
 
 # The codex and cursor hints select the same .agents entry root, so cursor
 # represents both; claude reads the .claude entry root.

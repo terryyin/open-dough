@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_migrate-shell-release-and-native-fixtures.json",
+      "identity": "SEED-262#migrate-shell-release-and-native-fixtures",
+      "completedAt": "2026-11-08T16:46:01.471Z",
+      "blob": "c2d97a30ae2acfa5876132be2838cb1497ca79ef"
+    },
+    {
       "fileName": "SEED-262_declare-fake-github-planning-data.json",
       "identity": "SEED-262#declare-fake-github-planning-data",
       "completedAt": "2026-11-08T16:33:31.465Z",

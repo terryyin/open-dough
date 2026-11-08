@@ -1,42 +1,25 @@
 // @ts-check
-import { cpSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createBareFixtureRemote } from "../../src/skills/dough-execute-plan/scripts/bare-remote-test-fixtures.mjs";
 import { fixtureTeardown } from "../../src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs";
-import {
-  exec,
-  git,
-} from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
-import { writeRevisionFiles } from "./repository-revision-files.mjs";
-import {
+import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { buildRepository, layout } from "./repository-history.mjs";
+
+export {
   commitDeclaredRevision,
-  configureIdentity,
   integrationDeveloper,
 } from "./repository-revision-commit.mjs";
 
-export { commitDeclaredRevision, integrationDeveloper };
-
 /** @typedef {import("./repositoryTestData.mjs").RepositoryDescription} RepositoryDescription */
-
-/** @param {string} fixture */
-const layout = (fixture) => ({
-  origin: join(fixture, "remote.git"),
-  integration: join(fixture, "integration"),
-});
-
-/** @param {string} fixture */
-const workspacePath = (fixture) => join(fixture, "execution");
-
 /** @typedef {import("./repository-revision-files.mjs").HarnessLayer} HarnessLayer */
 
 /**
  * How the harness sets the history up, beside what the description states:
- * whether the checkout publishes to a bare origin, whether `git init`
- * copies Git's templates (an init without them has no `info/` or hooks), and
- * the harness layer its first commit also holds. Per-process reuse keys on
- * the whole shape, layer bytes included.
- * @typedef {{ origin: boolean, gitTemplates: boolean, layer?: HarnessLayer | undefined }} TemplateShape
+ * whether the checkout publishes to a bare origin, and how `git init` and the
+ * first commit are shaped. Per-process reuse keys on the whole shape, layer
+ * bytes included.
+ * @typedef {import("./repository-history.mjs").BuildShape & { origin: boolean }} TemplateShape
  */
 
 /**
@@ -44,71 +27,13 @@ const workspacePath = (fixture) => join(fixture, "execution");
  * @param {RepositoryDescription} description
  * @param {TemplateShape} shape
  */
-async function buildTemplate(
-  fixture,
-  {
-    revisions,
-    trunkBranch = "main",
-    checkoutIdentity = integrationDeveloper,
-    workspace,
-  },
-  { origin: published, gitTemplates, layer },
-) {
-  const { origin, integration } = layout(fixture);
-  if (published) await createBareFixtureRemote(origin, trunkBranch);
-  await exec("git", [
-    "init",
-    ...(gitTemplates ? [] : ["--template="]),
-    "-b",
-    trunkBranch,
-    integration,
-  ]);
-  await git(integration, "config", "maintenance.auto", "false");
-  await configureIdentity(integration, checkoutIdentity);
-  if (published) await git(integration, "remote", "add", "origin", origin);
-
-  /** @type {Map<string, string>} */
-  const commits = new Map();
-  let trunkSha = "";
-  for (const [index, revision] of revisions.entries()) {
-    if (index === 0 && layer) writeRevisionFiles(integration, layer);
-    trunkSha = await commitDeclaredRevision(
-      integration,
-      revision,
-      checkoutIdentity,
-    );
-    if (published)
-      await git(integration, "push", "--quiet", "origin", trunkBranch);
-    commits.set(revision.name, trunkSha);
-  }
-  if (!workspace)
-    return {
-      revisions: Object.fromEntries(commits),
-      trunkSha,
-      candidateSha: undefined,
-    };
-
-  // The workspace is a worktree of the integration checkout. Its revisions
-  // are committed there and never pushed. The builder has checked that it
-  // starts from a trunk revision and that every revision name is new.
-  const start = /** @type {string} */ (commits.get(workspace.from));
-  const execution = workspacePath(fixture);
-  await git(integration, "branch", workspace.branch, start);
-  await git(integration, "worktree", "add", execution, workspace.branch);
-  if (workspace.checkoutIdentity)
-    await configureIdentity(execution, workspace.checkoutIdentity, {
-      worktreeOnly: true,
-    });
-  let candidateSha = start;
-  for (const revision of workspace.revisions) {
-    candidateSha = await commitDeclaredRevision(
-      execution,
-      revision,
-      workspace.checkoutIdentity ?? checkoutIdentity,
-    );
-    commits.set(revision.name, candidateSha);
-  }
-  return { revisions: Object.fromEntries(commits), trunkSha, candidateSha };
+function buildTemplate(fixture, description, { origin: published, ...build }) {
+  const { origin, ...local } = layout(fixture);
+  return buildRepository(
+    published ? { origin, ...local } : local,
+    description,
+    build,
+  );
 }
 
 /** @typedef {Awaited<ReturnType<typeof buildTemplate>>} BuiltTemplate */
@@ -147,23 +72,19 @@ async function copyTemplate(description, { parent, ...shape }) {
   const { root, built } = repositoryTemplate(description, shape);
   const { revisions, trunkSha, candidateSha } = await built;
   const fixture = realpathSync(mkdtempSync(join(parent, "workspace-claim-")));
-  const { origin, integration } = layout(fixture);
+  const { origin, integration, execution } = layout(fixture);
   const { cleanup, defer } = fixtureTeardown(fixture);
   try {
     cpSync(root, fixture, { recursive: true });
-    /** @type {{ execution?: string, candidateSha?: string }} */
-    const workspace =
-      candidateSha === undefined
-        ? {}
-        : { execution: workspacePath(fixture), candidateSha };
     // The copied remote, worktree and its administrative entry still name
     // the template's paths; point them at this copy.
     if (shape.origin)
       await git(integration, "remote", "set-url", "origin", origin);
-    if (workspace.execution)
-      await git(integration, "worktree", "repair", workspace.execution);
+    if (candidateSha !== undefined)
+      await git(integration, "worktree", "repair", execution);
     return {
-      ...workspace,
+      ...(candidateSha === undefined ? {} : { execution, candidateSha }),
+      integration,
       fixture,
       trunkSha,
       revisions: /** @type {Record<Name, string>} */ ({ ...revisions }),
@@ -190,26 +111,64 @@ export async function materializeRepository(
 ) {
   const shape = { origin: true, gitTemplates: true };
   const copy = await copyTemplate(description, { parent, ...shape });
-  return { ...layout(copy.fixture), ...copy };
+  return { origin: layout(copy.fixture).origin, ...copy };
 }
 
 /**
  * The described history in one local checkout on its trunk branch, with no
- * origin, for a case that reads no remote; removed after test `t`. Built once
- * per process like `materializeRepository`, each caller its own mutable copy.
- * `gitTemplates: false` skips Git's templates; `layer` adds harness files.
+ * origin, for a case that reads no remote; removed after test `t` when one is
+ * given. Built once per process like `materializeRepository`, each caller its
+ * own mutable copy. `gitTemplates: false` skips Git's templates; `layer` adds
+ * harness files. `at` builds the checkout in place at that new or existing
+ * directory instead, without the per-process template, for a caller that
+ * builds it once; files already there are committed with the first revision.
  * @template {string} Name
- * @param {{ after: (fn: () => Promise<void>) => void }} t
+ * @param {{ after: (fn: () => Promise<void>) => void } | undefined} t
  * @param {import("./repositoryTestData.mjs").RepositoryDescription<Name>} description
- * @param {{ parent?: string, gitTemplates?: boolean, layer?: HarnessLayer }} [options]
+ * @param {{ parent?: string, gitTemplates?: boolean, layer?: HarnessLayer, at?: string }} [options]
  */
 export async function materializeLocalCheckout(
   t,
   description,
-  { parent = tmpdir(), gitTemplates = true, layer } = {},
+  { parent = tmpdir(), gitTemplates = true, layer, at } = {},
 ) {
   const shape = { origin: false, gitTemplates, layer };
-  const copy = await copyTemplate(description, { parent, ...shape });
-  t.after(copy.cleanup);
-  return { integration: layout(copy.fixture).integration, ...copy };
+  const copy =
+    at === undefined
+      ? await copyTemplate(description, { parent, ...shape })
+      : await buildInPlace(at, description, shape);
+  t?.after(copy.cleanup);
+  return copy;
+}
+
+/**
+ * @template {string} Name
+ * @param {string} at
+ * @param {import("./repositoryTestData.mjs").RepositoryDescription<Name>} description
+ * @param {import("./repository-history.mjs").BuildShape} shape
+ */
+async function buildInPlace(at, description, shape) {
+  mkdirSync(at, { recursive: true });
+  const integration = realpathSync(at);
+  const { cleanup, defer } = fixtureTeardown(integration);
+  try {
+    const execution = layout(integration).execution;
+    const { revisions, trunkSha, candidateSha } = await buildRepository(
+      { integration, execution },
+      description,
+      shape,
+    );
+    return {
+      ...(candidateSha === undefined ? {} : { execution, candidateSha }),
+      integration,
+      fixture: integration,
+      trunkSha,
+      revisions: /** @type {Record<Name, string>} */ ({ ...revisions }),
+      cleanup,
+      defer,
+    };
+  } catch (error) {
+    await cleanup();
+    throw error;
+  }
 }

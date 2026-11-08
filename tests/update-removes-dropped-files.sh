@@ -22,46 +22,32 @@ leftover_a='dough-retired/references/a.md'
 leftover_b='dough-adr-awareness/extras/b.md'
 project_beside_b='dough-adr-awareness/extras/project-notes.md'
 
-# Add each named extra to the fixture's src/skills with bytes naming the
-# release, and declare it in that release's install.sh.
-declare_extras() {
-  local repo=$1 version=$2 extra
-  shift 2
-  for extra in "$@"; do
-    mkdir -p -- "${repo}/src/skills/${extra%/*}"
-    printf '%s from %s\n' "${extra}" "${version}" > "${repo}/src/skills/${extra}"
-    awk -v extra="${extra}" '{ print } /^managed_files=\(/ { print "  " extra }' \
-      "${repo}/install.sh" > "${repo}/install.sh.new"
-    mv -- "${repo}/install.sh.new" "${repo}/install.sh"
-  done
-}
-
-# 0.0.9's declaration is unreadable, as in early real releases; 0.1.0 declares
-# A and B; 0.1.1 drops A; 0.1.2 drops B.
+# 0.0.9's declaration is unreadable, as in early real releases; 0.1.0 adds and
+# declares A and B; 0.1.1 removes A and declares B; 0.1.2 removes B. Each added
+# file's bytes name its release.
 build_dropped_files_fixture() {
-  local repo=$1
-
-  init_fixture_repo "${repo}"
-  write_candidate_payload "${repo}" 0.0.9 payload-0.0.9
-  printf '%s\n' 'managed_files=(dough-update/SKILL.md)' > "${repo}/install.sh"
-  commit_all "${repo}" 'release 0.0.9 with an unreadable declaration'
-  tag_release "${repo}" 0.0.9 '2026-08-30T00:00:00'
-
-  write_candidate_payload "${repo}" 0.1.0 payload-0.1.0
-  declare_extras "${repo}" 0.1.0 "${leftover_a}" "${leftover_b}"
-  commit_all "${repo}" 'release 0.1.0'
-  tag_release "${repo}" 0.1.0 '2026-08-31T00:00:00'
-
-  rm -rf -- "${repo}/src/skills/${leftover_a%%/*}"
-  write_candidate_payload "${repo}" 0.1.1 payload-0.1.1
-  declare_extras "${repo}" 0.1.1 "${leftover_b}"
-  commit_all "${repo}" 'release 0.1.1'
-  tag_release "${repo}" 0.1.1 '2026-09-01T00:00:00'
-
-  rm -rf -- "${repo}/src/skills/${leftover_b%/*}"
-  write_candidate_payload "${repo}" 0.1.2 payload-0.1.2
-  commit_all "${repo}" 'release 0.1.2'
-  tag_release "${repo}" 0.1.2 '2026-09-02T00:00:00'
+  node "${source_dir}/tests/support/release-source.mjs" "$1" << JSON
+{"revisions": [
+  {"name": "release 0.0.9 with an unreadable declaration", "release": {
+    "version": "0.0.9", "taggedAt": "2026-08-30T00:00:00",
+    "marker": "payload-0.0.9"},
+    "files": {"install.sh": "managed_files=(dough-update/SKILL.md)\\n"}},
+  {"name": "release 0.1.0", "release": {
+    "version": "0.1.0", "taggedAt": "2026-08-31T00:00:00",
+    "marker": "payload-0.1.0", "added": {
+      "${leftover_a}": "${leftover_a} from 0.1.0\\n",
+      "${leftover_b}": "${leftover_b} from 0.1.0\\n"}}},
+  {"name": "release 0.1.1", "release": {
+    "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
+    "marker": "payload-0.1.1", "added": {
+      "${leftover_b}": "${leftover_b} from 0.1.1\\n"}},
+    "remove": ["src/skills/${leftover_a%%/*}"]},
+  {"name": "release 0.1.2", "release": {
+    "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
+    "marker": "payload-0.1.2"},
+    "remove": ["src/skills/${leftover_b%/*}"]}
+]}
+JSON
 }
 
 # Install 0.1.1 with its own installer into both roots, then add A with 0.1.0

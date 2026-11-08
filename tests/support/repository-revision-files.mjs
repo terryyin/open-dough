@@ -3,7 +3,6 @@ import {
   chmodSync,
   existsSync,
   mkdirSync,
-  readdirSync,
   readFileSync,
   rmdirSync,
   rmSync,
@@ -22,8 +21,10 @@ import {
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { splitHref } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
 import { recordStoryState } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
+import { checkoutFiles, sameBytes } from "./checkout-files.mjs";
 import { renderPublishedBacklog } from "./published-backlog.mjs";
 import { backlogPath } from "./repositoryTestData.mjs";
+import { releaseExecutables, releaseFiles } from "./revision-release-files.mjs";
 import {
   catalogFile,
   doneDirectory,
@@ -122,9 +123,11 @@ function renderStoryState(files, state) {
 
 /**
  * The files a checkout holds after `revision`, starting from `start`: its
- * removals, backlog, files, story states, agent profiles and done records,
- * and the done catalog rebuilt from the records, each written by the
- * encoder the product uses. Pure: nothing is read from or written to disk.
+ * removals, release, backlog, files, story states, agent profiles and done
+ * records, and the done catalog rebuilt from the records, each written by
+ * the encoder the product uses. Files it states override its release's.
+ * Pure apart from a release reading the payload it ships from the Open Dough
+ * working tree: nothing else is read from disk, and nothing is written.
  * @param {RevisionFiles} start
  * @param {RevisionFacts} revision
  * @returns {Record<string, string | Buffer>}
@@ -132,6 +135,7 @@ function renderStoryState(files, state) {
 export function renderRevisionFiles(start, revision) {
   const {
     backlog,
+    release,
     files: declared = {},
     storyStates = [],
     agentProfiles = [],
@@ -139,12 +143,13 @@ export function renderRevisionFiles(start, revision) {
     remove = [],
   } = revision;
   /** @type {Record<string, string | Buffer>} */
-  const files = { ...start };
+  let files = { ...start };
 
   for (const path of remove.map(fixturePath))
     for (const existing of Object.keys(files))
       if (existing === path || existing.startsWith(`${path}/`))
         delete files[existing];
+  if (release) files = releaseFiles(files, release);
   if (backlog) files[backlogPath] = renderPublishedBacklog(backlog);
   for (const [path, content] of Object.entries(declared))
     files[fixturePath(path)] = content;
@@ -198,30 +203,6 @@ export function renderPublishedRevisions({ revisions }) {
   );
 }
 
-// Every file in the checkout at `root`, by repository-relative path, outside
-// Git's own metadata.
-/** @param {string} root @param {string} [directory] @returns {Record<string, Buffer>} */
-function checkoutFiles(root, directory = "") {
-  /** @type {Record<string, Buffer>} */
-  const files = {};
-  for (const entry of readdirSync(join(root, directory), {
-    withFileTypes: true,
-  })) {
-    if (directory === "" && entry.name === ".git") continue;
-    const path = directory === "" ? entry.name : `${directory}/${entry.name}`;
-    if (entry.isDirectory()) Object.assign(files, checkoutFiles(root, path));
-    else files[path] = readFileSync(join(root, path));
-  }
-  return files;
-}
-
-/** @param {string | Buffer} a @param {string | Buffer} b */
-const sameBytes = (a, b) =>
-  Buffer.compare(
-    Buffer.isBuffer(a) ? a : Buffer.from(a),
-    Buffer.isBuffer(b) ? b : Buffer.from(b),
-  ) === 0;
-
 /**
  * Writes `revision` into the checkout at `integration` through the same
  * renderer that serves it without Git.
@@ -250,7 +231,12 @@ export function writeRevisionFiles(integration, revision) {
     mkdirSync(dirname(join(integration, path)), { recursive: true });
     writeFileSync(join(integration, path), content);
   }
-  // Paths the revision commits with the executable mode.
-  for (const path of revision.executables ?? [])
+  // Paths the revision commits with the executable mode, including the
+  // payload its release ships executable.
+  const executables = [
+    ...(revision.release ? releaseExecutables(after, revision.release) : []),
+    ...(revision.executables ?? []),
+  ];
+  for (const path of executables)
     chmodSync(join(integration, fixturePath(path)), 0o755);
 }

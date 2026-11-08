@@ -14,10 +14,12 @@ import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
+import { release } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
+/** @typedef {import("./releaseTestData.mjs").Release} Release */
 
 /** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
@@ -122,6 +124,17 @@ export const makeMe = {
             condition,
             ...facts,
           }),
+        };
+      },
+    };
+  },
+  get aRelease() {
+    return {
+      /** @param {import("./releaseTestData.mjs").ReleaseFacts} facts */
+      with(facts) {
+        return {
+          /** @returns {Release} */
+          please: () => release(facts),
         };
       },
     };

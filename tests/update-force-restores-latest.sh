@@ -14,17 +14,19 @@ cd -- "${temporary_dir}"
 
 helper="${source_dir}/src/install/open-dough-release.sh"
 fixture="${temporary_dir}/fixture.git"
-build_latest_fixture "${fixture}"
+# The shared "latest" release source in tests/support/release-sources.mjs.
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" latest
 fixture=$(cd -- "${fixture}" && pwd -P)
 expected_source=${fixture}
 
+# The project's own origin remote: a release source whose 9.9.9 must never be
+# read in place of the recorded source.
 decoy="${temporary_dir}/client-origin.git"
-mkdir -p -- "${decoy}"
-git -C "${decoy}" init --quiet -b main
-configure_fixture_git "${decoy}"
-write_candidate_payload "${decoy}" 9.9.9 payload-client-remote
-commit_all "${decoy}" 'client remote decoy'
-tag_release "${decoy}" 9.9.9 '2026-09-08T00:00:00'
+node "${source_dir}/tests/support/release-source.mjs" "${decoy}" << 'JSON'
+{"revisions": [{"name": "client remote decoy", "release": {
+  "version": "9.9.9", "taggedAt": "2026-09-08T00:00:00",
+  "marker": "payload-client-remote"}}]}
+JSON
 
 trace_file="${temporary_dir}/trace.log"
 rm -f -- "${trace_file}"

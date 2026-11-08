@@ -15,18 +15,20 @@ cd -- "${temporary_dir}"
 
 helper="${source_dir}/src/install/open-dough-release.sh"
 fixture="${temporary_dir}/fixture.git"
-build_latest_fixture "${fixture}"
+# The shared "latest" release source in tests/support/release-sources.mjs.
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" latest
 expected_source=$(cd -- "${fixture}" && pwd -P)
 older_checkout="${temporary_dir}/release-0.1.1"
 checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.1
 
+# The project's own origin remote: a release source whose 9.9.9 must never be
+# read in place of the recorded source.
 decoy="${temporary_dir}/client-origin.git"
-mkdir -p -- "${decoy}"
-git -C "${decoy}" init --quiet -b main
-configure_fixture_git "${decoy}"
-write_candidate_payload "${decoy}" 9.9.9 payload-client-remote
-commit_all "${decoy}" 'client remote decoy'
-tag_release "${decoy}" 9.9.9 '2026-09-08T00:00:00'
+node "${source_dir}/tests/support/release-source.mjs" "${decoy}" << 'JSON'
+{"revisions": [{"name": "client remote decoy", "release": {
+  "version": "9.9.9", "taggedAt": "2026-09-08T00:00:00",
+  "marker": "payload-client-remote"}}]}
+JSON
 
 trace_file="${temporary_dir}/trace.log"
 rm -f -- "${trace_file}"
@@ -180,17 +182,18 @@ assert_ordinary_update_refuses_unwritten \
   "${unverifiable_dest}" \
   "${unverifiable_tmp}"
 
+# The recorded 0.1.1 is tagged on a payload whose VERSION says 0.1.8.
 mismatch="${temporary_dir}/mismatch.git"
-mkdir -p -- "${mismatch}"
-git -C "${mismatch}" init --quiet -b main
-configure_fixture_git "${mismatch}"
-write_candidate_payload "${mismatch}" 0.1.1 payload-0.1.1
-printf '%s\n' '0.1.8' > "${mismatch}/VERSION"
-commit_all "${mismatch}" 'tagged 0.1.1 with mismatched VERSION'
-tag_release "${mismatch}" 0.1.1 '2026-06-01T00:00:00'
-write_candidate_payload "${mismatch}" 0.1.10 payload-0.1.10
-commit_all "${mismatch}" 'release 0.1.10'
-tag_release "${mismatch}" 0.1.10 '2020-01-01T00:00:00'
+node "${source_dir}/tests/support/release-source.mjs" "${mismatch}" << 'JSON'
+{"revisions": [
+  {"name": "tagged 0.1.1 with mismatched VERSION", "release": {
+    "version": "0.1.1", "taggedAt": "2026-06-01T00:00:00",
+    "marker": "payload-0.1.1"}, "files": {"VERSION": "0.1.8\n"}},
+  {"name": "release 0.1.10", "release": {
+    "version": "0.1.10", "taggedAt": "2020-01-01T00:00:00",
+    "marker": "payload-0.1.10"}}
+]}
+JSON
 restore_clean_older_cursor
 mismatch_source=$(cd -- "${mismatch}" && pwd -P)
 printf '%s\n' "${mismatch_source}" > "${unverifiable_dest}/SOURCE"

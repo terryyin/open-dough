@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 469. Removed numbers are never reused.
+- Highest allocated local number: 470. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -633,6 +633,15 @@ the candidate could.
   - Observed effect: Slice 3's timings could not judge the promise; the paired comparison was added to slice 4 with a temporary base worktree and its setup.
   - Inference: Same cause as the first row: the plan, written after DD-464's first occurrence, still named sequential before/after runs.
 
+- Execution: SEED-262#migrate-shell-release-and-native-fixtures (plan 533-migrate-shell-release-and-native-fixtures; first related implementation commit `8d7623b7ddfed3e4e727af5843df54eea741e33b`)
+  - Timestamp: unknown (2026-11-08, slice 2, before `75946c1b2` at 2026-11-08T22:36:58+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `766cfa66f`)
+  - Evidence: Plan 533's Local gates said "compare before and after with the same command, back to back". Slice 2's sequential runs gave `story-payload-update.sh` 7.71–7.92 s before and 8.45–9.31 s after at load 10.7–12.6. Interleaved runs against a `git archive HEAD` copy gave 8.68–10.29 s before and 8.62–9.17 s after; the builder alone was 1.17–1.23 s old and 0.88–1.18 s new (plan 533 slice 2 accepted proof, `afb028050:.planning/slice-plans/533-migrate-shell-release-and-native-fixtures/PLAN.md`).
+  - Observed effect: The implementer repeated the timing interleaved before it could judge the promise; slices 1, 3 and 4 alternated old and new from the start.
+  - Inference: "Back to back" was still read as sequential; naming interleaved runs against a base copy in the plan would likely avoid the repeat.
+
 ## DD-465 — An empty focused path list ran the whole local suite
 `scripts/test.sh` with no path arguments runs the whole serialized local suite. A focused command built from a file list that silently came out empty therefore started a full run instead of failing.
 
@@ -677,3 +686,16 @@ writer under an old precondition, and its unchanged spec failed in CI.
   - Evidence: Merge proof selected `git diff --name-only 54cc27451 origin/main -- 'dashboard/*.spec.ts'` plus sidebar specs (74 files, 165 passed). Trunk's `dashboard/tests/support/sessionsReplayProjects.ts` called `writeRevisionFiles` on a missing directory, which slice 1 had made read first; `agent-launch-sessions-listing.spec.ts` failed in CI with ENOENT. Repaired in `e828b4142`.
   - Observed effect: One failed CI run, a stash-and-repair cycle and a repair commit.
   - Inference: Selecting the importers of every trunk-changed module that calls a contract this branch changed (here `writeRevisionFiles`) would have caught it locally.
+
+## DD-470 — A planned discrimination edit did not discriminate
+A plan named the scratch edit that should make a check fail, without observing it. The edit passed both before and after the change, so the planned proof could not show the promise.
+
+### Occurrences
+- Execution: SEED-262#migrate-shell-release-and-native-fixtures (plan 533-migrate-shell-release-and-native-fixtures; first related implementation commit `8d7623b7ddfed3e4e727af5843df54eea741e33b`)
+  - Timestamp: unknown (2026-11-08, slice 2, before `75946c1b2` at 2026-11-08T22:36:58+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `766cfa66f`)
+  - Evidence: Plan 533 (`afb028050:.planning/slice-plans/533-migrate-shell-release-and-native-fixtures/PLAN.md`) slice 2 Proof: "drop the withheld path from `update-adds-new-payload-skill.sh`'s 0.1.1. The check then fails". That edit passed on the candidate and on a `git archive HEAD` copy, because the check installs 0.1.1 by hand without reading its declaration. Dropping `--withhold` in `retrospective-reference-payload.sh` failed at its line 33, and dropping `--remove` in `update-adds-new-payload-skill.sh` failed with `Managed payload mismatch`.
+  - Observed effect: The implementer found the discriminating checks itself; acceptance used them. Slice 4's unplanned "queued as taken" edit also passed, showing that the done-catalog proof does not observe list state.
+  - Inference: A discrimination claim in a plan is a premise; observing it during planning, or marking it unverified, would have pointed slice 2 at the right check.
