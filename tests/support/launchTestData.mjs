@@ -1,5 +1,6 @@
 // @ts-check
 import { launchOutcomeFacts } from "./launchOutcomeTestData.mjs";
+import { requestFacts } from "./launchRequestTestData.mjs";
 import {
   claudeSession,
   codexSession,
@@ -29,14 +30,14 @@ import {
  */
 
 // The kept launch of one story's execution or refinement, or of an ad hoc
-// session: its request, its host session (`./launchSessionTestData.mjs`),
-// and, for an execution or a refinement that established one, the story
-// branch (`./launchWorkspaceTestData.mjs`). Without `.onStoryBranch(...)` the
+// session: its request (`./launchRequestTestData.mjs`), its host session
+// (`./launchSessionTestData.mjs`), and, for an execution or a refinement that
+// established one, the story branch (`./launchWorkspaceTestData.mjs`). Without `.onStoryBranch(...)` the
 // record keeps no established start or preparation. The session defaults to
 // a `claude` one named after the title, the start's claim to fixed published
 // facts, and the launch time to a fixed instant.
 export class LaunchRecordBuilder {
-  /** @type {(Required<StoryFacts> & { workflow: "execution" | "refinement" }) | (AdHocFacts & { source: string, workflow: "ad-hoc" }) | undefined} */
+  /** @type {import("./launchRequestTestData.mjs").Requested | undefined} */
   #requested;
   /** @type {import("./launchWorkspaceTestData.mjs").StoryBranch | undefined} */
   #storyBranch;
@@ -51,6 +52,8 @@ export class LaunchRecordBuilder {
   #outcome = {};
   /** @type {NonNullable<LaunchRecord["request"]["reporting"]> | undefined} */
   #reporting;
+  /** @type {LaunchRecord["request"]["model"]} */
+  #model;
 
   /**
    * A launch of the story by this workflow, in the `open-dough` project
@@ -92,7 +95,8 @@ export class LaunchRecordBuilder {
   /**
    * The execution's start, or the refinement's preparation, established the
    * story's worktree on its story branch; an execution's claim may also name
-   * its agent, its plan and the revision it started from.
+   * its agent, its plan and the revision it started from, and a refinement's
+   * preparation its agent and the revision that published its announcement.
    * @param {import("./launchWorkspaceTestData.mjs").StoryBranch} storyBranch
    */
   onStoryBranch(storyBranch) {
@@ -106,6 +110,15 @@ export class LaunchRecordBuilder {
    */
   reportingThrough(reporting) {
     this.#reporting = reporting;
+    return this;
+  }
+
+  /**
+   * The launch asked its host for this model.
+   * @param {NonNullable<LaunchRecord["request"]["model"]>} model
+   */
+  requestingModel(model) {
+    this.#model = model;
     return this;
   }
 
@@ -208,38 +221,21 @@ export class LaunchRecordBuilder {
       ...(this.#firstInput && { firstInput: this.#firstInput }),
       ...launchOutcomeFacts(this.#outcome, this.#launchedAt),
     };
+    const requestField = requestFacts(requested, {
+      host: session.host,
+      model: this.#model,
+      reporting: this.#reporting,
+      isolated: isolated !== undefined,
+    });
     if (requested.workflow === "ad-hoc")
       return {
-        request: {
-          source: requested.source,
-          host: session.host,
-          workflow: requested.workflow,
-          title: requested.title,
-          ...(requested.instruction !== undefined && {
-            instruction: requested.instruction,
-          }),
-          ...(requested.followUp && { followUp: requested.followUp }),
-          ...(this.#reporting && { reporting: this.#reporting }),
-          ...(isolated && {
-            policy: {
-              workspace: /** @type {const} */ ("isolated"),
-              landing: /** @type {const} */ ("review"),
-            },
-          }),
-        },
+        ...requestField,
         session,
         ...isolatedWorkspaceFacts(isolated),
         ...launchFacts,
       };
     return {
-      request: {
-        source: requested.source,
-        identity: requested.identity,
-        title: requested.title,
-        workflow: requested.workflow,
-        host: session.host,
-        ...(this.#reporting && { reporting: this.#reporting }),
-      },
+      ...requestField,
       session,
       ...storyBranchFacts(requested, storyBranch),
       ...launchFacts,

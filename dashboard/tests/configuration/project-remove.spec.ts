@@ -4,11 +4,11 @@ import { machineRecordNames } from "../support/machineRecordNames.ts";
 import { expect, test } from "../support/pageTest.ts";
 import { projectAddMachine } from "../support/projectAddMachine.ts";
 import { addProjectOnPage } from "../support/projectAddPage.ts";
-import { launchRequest } from "../agentLaunchBoundary.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { identity } from "../agentLaunchBoundary.ts";
 import { expectProjectChoice, parts } from "../dashboardPage.ts";
 import { machineHome, storeFile } from "../machineLaunchRecords.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { openUntilRead, untilPublishedWorkRead } from "../pageRequestNotes.ts";
 import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
 let fixture: ReturnType<typeof projectAddMachine>;
@@ -28,22 +28,17 @@ const back = (page: import("@playwright/test").Page) =>
 test("removing a configured project retains its checkout and records, hides sessions, persists and re-add restores them", async ({
   page,
 }) => {
-  const record = {
-    request: {
-      ...launchRequest,
-      source: "sample-app",
+  const record = makeMe.aLaunchRecord
+    .executing({
+      identity,
       title: "Retained sample session",
-    },
-    session: {
-      host: "claude",
-      sessionId: "01234567-retained",
-      shortId: "01234567",
-      name: "Retained sample session",
-    },
-    launchedAt: new Date().toISOString(),
-  };
+      source: "sample-app",
+    })
+    .inClaudeSession({ sessionId: "01234567-retained" })
+    .launchedAt(new Date().toISOString())
+    .please();
   const records = keepLaunchStore(machineHome(fixture.machine), {
-    "sample-app": [record as LaunchRecord],
+    "sample-app": [record],
   });
   const marker = path.join(fixture.checkout, "keep-this.txt");
   writeFileSync(marker, "local work stays\n");

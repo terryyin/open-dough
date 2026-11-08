@@ -10,6 +10,7 @@
 // (./fixtures/fake-claude). The board is ../intentCiStoryBoard.ts.
 
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { parts, storyCardSessions } from "../dashboardPage.ts";
@@ -22,39 +23,18 @@ import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 
-// A kept execution record of the board's Taken story `anchor`, its saved
-// workspace gone.
+// A kept execution record of the board's Taken story `anchor`, launched
+// now, its saved workspace gone.
 function goneWorkspaceRecord(
   home: string,
   { anchor, title, branch }: typeof failing,
 ): LaunchRecord {
-  const identity = `SEED-219#${anchor}`;
-  return {
-    request: {
-      source: "open-dough",
-      identity,
-      title,
-      workflow: "execution",
-      host: "claude",
-    },
-    session: {
-      host: "claude",
-      sessionId: `${anchor}-session`,
-      shortId: anchor,
-      name: title,
-    },
-    start: {
-      identity,
-      publisherId: "a1b2c3",
-      workspace: path.join(home, "gone", anchor),
-      branch,
-      mode: "story-branch",
-      remote: "origin",
-      target: "main",
-      publishedSha: "b2".repeat(20),
-    },
-    launchedAt: new Date().toISOString(),
-  };
+  return makeMe.aLaunchRecord
+    .executing({ identity: `SEED-219#${anchor}`, title })
+    .inClaudeSession({ sessionId: `${anchor}-session`, shortId: anchor })
+    .onStoryBranch({ workspace: path.join(home, "gone", anchor), branch })
+    .launchedAt(new Date().toISOString())
+    .please();
 }
 
 test("the Side panel's content selects its story for Intent's lens and CI status, and closing it or an ad hoc session clears it to main", async ({

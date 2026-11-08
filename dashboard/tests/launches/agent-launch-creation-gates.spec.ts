@@ -57,7 +57,7 @@ test("a saved creation whose host lacks recovery stays visible with unavailable 
   launchJourney,
 }) => {
   if (machine === undefined) throw new Error("Missing machine fixture.");
-  const record = {
+  const record: CreationRecord = {
     request: {
       source: "open-dough",
       host: "claude",
@@ -72,7 +72,7 @@ test("a saved creation whose host lacks recovery stays visible with unavailable 
     launchedAt: "2026-10-01T00:00:00.000Z",
   };
   keepLaunchStore(machineHome(machine), {
-    "open-dough": [record as CreationRecord],
+    "open-dough": [record],
   });
   const reply = await rawRequest({
     url: `${dashboard.baseURL}${agentLaunchEndpoint}`,

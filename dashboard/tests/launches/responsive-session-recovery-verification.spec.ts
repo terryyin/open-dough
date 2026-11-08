@@ -9,6 +9,7 @@
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { attempts } from "../agentLaunchBoundary.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { policyOf, type LaunchRecord } from "../../src/agentLaunch.ts";
 import type { StartRecord } from "../../server/startStore.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
@@ -39,34 +40,36 @@ test("Recheck trusts the start's own record after its kept start was removed, ev
       timeout: 60_000,
     })
     .toBe("uncertain");
-  const [uncertain] = await attempts(dashboard);
   const [listed] = dashboard.claudeListing();
   expect(listed).toBeDefined();
+  // The session as the synthetic `claude` lists it.
+  const { sessionId, id: shortId } = listed as {
+    sessionId: string;
+    id: string;
+  };
   const startsFile = path.join(
     dashboard.home,
     ".open-dough/dashboard/execution-starts.json",
   );
   const starts = JSON.parse(readFileSync(startsFile, "utf8")) as Record<
     string,
-    Record<string, { start: unknown }>
+    Record<string, StartRecord>
   >;
   const kept = starts["open-dough"]?.[queuedIdentity];
   expect(kept?.start).toBeDefined();
   // State left when keeping the launch and removing its start succeeded,
-  // but noting the attempt's launched outcome failed.
+  // but noting the attempt's launched outcome failed: Story A's execution in
+  // the listed session, launched now, with the start this machine kept.
   const stored = keepLaunchStore(dashboard, {
     "open-dough": [
       {
-        request: uncertain?.request,
-        session: {
-          host: "claude",
-          sessionId: listed?.sessionId,
-          shortId: listed?.id,
-          name: listed?.name,
-        },
+        ...makeMe.aLaunchRecord
+          .executing({ identity: queuedIdentity, title: "Story A" })
+          .inClaudeSession({ sessionId, shortId })
+          .launchedAt(new Date().toISOString())
+          .please(),
         start: kept?.start,
-        launchedAt: new Date().toISOString(),
-      } as LaunchRecord,
+      },
     ],
   });
   writeFileSync(startsFile, JSON.stringify({ "open-dough": {} }));

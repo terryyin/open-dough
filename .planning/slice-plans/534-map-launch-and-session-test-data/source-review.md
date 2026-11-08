@@ -25,23 +25,23 @@ proof and stated at the call site; S6 keeps the existing clock source.
 | G4 | A test cannot keep a launch the dashboard itself would never record. | slice 4 | |
 | S1 | Every valid kept launch record in the machine launch store is built through `makeMe.aLaunchRecord`. | slice 4 | |
 | S1.1 | `makeMe.aLaunchRecord` is extended with the variants its new consumers need. | slice 4 | |
-| S1.2 | Conversion covers cases that keep records in the store across the three dashboard roots, including: | slice 3 | |
+| S1.2 | Conversion covers cases that keep records in the store across the three dashboard roots, including: | slice 3 | observed: slices 2-3: kept records across dashboard/tests and backend-tests built by makeMe.aLaunchRecord; frontend-tests hold only LaunchWithState answers and Codex/Cursor creations (sibling stories); slice 3 runs 57+96 passed (tmp/slice3-1.log, slice3-2.log) |
 | S1.2.1 | launch history | slice 2 | observed: agent-launch-records, retention-scope, open-session(-continue), story-card-open-session, project-configuration/add build kept records with makeMe.aLaunchRecord; slice 2 run 56 specs 128 passed (tmp/slice2-2.log) |
 | S1.2.2 | Recently done | slice 2 | observed: recentlyDoneSessions, recentlyDoneColumn, recentlyDoneProgressive, recentlyDoneReadLatencyFixture and recently-done-* specs build through makeMe.aLaunchRecord; tmp/slice2-2.log |
 | S1.2.3 | the sessions listing | slice 2 | observed: sessionsReplayRecords.recordAt builds through makeMe.aLaunchRecord; agent-launch-sessions-listing and opt-in sessions-replay pass (tmp/slice2-replay*.log) |
-| S1.2.4 | story cards and side panels | slice 3 | |
-| S1.2.5 | review | slice 3 | |
-| S1.2.6 | configuration | slice 3 | |
-| S1.2.7 | runtime cases | slice 3 | |
-| S1.3 | Suite-local record factories displaced by the builder are moved or deleted. Examples, not a closed list: `storyALaunchRecord`, `machineLaunchRecords`, `sharedLaunchRecord`, `sessionsReplay*`, `recentlyDone*`, `localTakenSessions`. | slice 3 | |
+| S1.2.4 | story cards and side panels | slice 3 | observed: start-story-card, accessible-board-touch, story-card-selection, sessionAttributionFixture, intent-ci-status-side-panel build with makeMe.aLaunchRecord; tmp/slice3-1.log |
+| S1.2.5 | review | slice 3 | observed: story-review-nothing, backend story-review-workspace, storyLaunchRecord.storyALaunch build with makeMe.aLaunchRecord; 25 story-review specs in tmp/slice3-2.log |
+| S1.2.6 | configuration | slice 3 | observed: project-remove, project-hide-sessions build with makeMe.aLaunchRecord; tmp/slice3-1.log |
+| S1.2.7 | runtime cases | slice 3 | observed: sharedLaunchRecord.writeSharedLaunchRecord builds with makeMe.aLaunchRecord; production-watcher-updates.spec.ts passes (tmp/slice3-1.log) |
+| S1.3 | Suite-local record factories displaced by the builder are moved or deleted. Examples, not a closed list: `storyALaunchRecord`, `machineLaunchRecords`, `sharedLaunchRecord`, `sessionsReplay*`, `recentlyDone*`, `localTakenSessions`. | slice 3 | observed: deleted recordLaunchedDaysAgo, openStoryRecord, seedEarlierDoneMark, seedOpenSession, sessionAt, start-story-card record(), sharedLaunchRecord/recordHolding/review-workspace literals; storyALaunchRecord is a thin builder call; localTakenSessions only reads records back |
 | S2 | The harness has one owner for keeping records in the machine launch store. | slice 1 | observed: dashboard/tests/support/launchStore.ts keepLaunchStoreText is the single store write; slice 1 run of 301 specs, 796 passed (tmp/slice1-1.log) |
 | S2.1 | That owner writes the store's own document shape. | slice 1 | observed: launchStore.ts LaunchStoreDocument { [project]: (LaunchRecord\|CreationRecord)[] } written with JSON.stringify, no retention |
 | S2.2 | It can write that shape for one project or for several. | slice 1 | observed: launchStore.ts keepLaunchStore(home, byProject) and keepMoreLaunchRecords; agent-launch-open-session writes two projects |
 | S2.3 | The current separate store writers are routed through that owner. | slice 1 | observed: grep of agent-launches.json writes outside launchStore.ts under dashboard/{tests,backend-tests,frontend-tests}: only reads, lock/fault-hook paths and fake-cursor reads remain; 27 byte checks ALL SAME (tmp/bytes/compare.mts) |
 | S2.4 | The store file and its location stay harness layers, not builder facts. | slice 1 | observed: launchStore.ts takes MachineHome (home or server) for location; builder unchanged |
-| S3 | An incoming launch request stays distinct from the request a record keeps. | slice 3 | |
-| S3.1 | Conversions in the style of `launchRequest as LaunchRecord["request"]` are removed from stored setup. | slice 3 | |
-| S3.2 | A record states its request through the builder. | slice 3 | |
+| S3 | An incoming launch request stays distinct from the request a record keeps. | slice 3 | observed: grep 'launchRequest as\|request: launchRequest' in dashboard: only host-identity (slice 4) and agent-launch-boundary.spec.ts:65 expectation remain |
+| S3.1 | Conversions in the style of `launchRequest as LaunchRecord["request"]` are removed from stored setup. | slice 3 | observed: no 'as LaunchRecord["request"]' remains under dashboard/ |
+| S3.2 | A record states its request through the builder. | slice 3 | observed: sharedLaunchRecord, recordHolding, own-record verification, responsive-session-recovery-verification state requests via makeMe.aLaunchRecord.executing |
 | S4 | In valid setup, a record's host and its session's host are the same. | slice 4 | |
 | S4.1 | The launch-record session rules no longer wrap a Claude session in a Codex request, unless that contradiction is what the case proves. | slice 4 | |
 | S5 | Exact store text, malformed records, legacy records and retention-boundary records stay explicit where they are the subject, for example `seedStore` text and the launch-record schema specs. | slice 4 | |
@@ -51,22 +51,22 @@ proof and stated at the call site; S6 keeps the existing clock source.
 | S7.1 | the facts that drive each outcome stay visible; | slice 4 | |
 | S7.2 | assertions catch the same failure; | slice 4 | |
 | S7.3 | the shared setup removes a translation or a second model. | slice 4 | |
-| X1 | Launch request bodies sent to start a launch are test actions and stay as they are. Only a body reused as a kept record's request changes. | slice 3 | |
+| X1 | Launch request bodies sent to start a launch are test actions and stay as they are. Only a body reused as a kept record's request changes. | slice 3 | observed: posted launchRequest bodies untouched (second-server, start-taken, session-alerts, launchDashboard, backend start specs) |
 | X2 | These setup families belong to sibling stories, so this story leaves them alone: | slice 4 | |
 | X2.1 | live observation (`LaunchWithState`, `SessionState`, machine answer) | slice 4 | |
 | X2.2 | accepted attempts | slice 4 | |
 | X2.3 | completion and landing setup | slice 4 | |
 | X2.4 | Codex and Cursor continuation and terminal setup | slice 4 | |
 | X2.5 | machine-local project configuration | slice 4 | |
-| X3 | In a mixed case, the kept record is converted here and the other family's setup is left for its story. | slice 3 | |
+| X3 | In a mixed case, the kept record is converted here and the other family's setup is left for its story. | slice 3 | observed: session-attribution keeps completedWith; responsive-session-recovery-verification keeps the server's kept start; Codex/Cursor/LaunchWithState setup untouched |
 | X4 | Product contracts do not change. | slice 4 | |
 | X5 | UI behavior does not change. | slice 4 | |
 | E1 | Key example 1: two projects each keep an execution launch of one story, and one is marked Done yesterday. When the sessions sidebar loads, Recently done lists only the Done one, under its project. | slice 2 | observed: dashboard/tests/sessions/recently-done-sessions-sidebar-projects.spec.ts test 'of two projects' kept executions, Recently done lists only the one marked Done yesterday, under its project' (tmp/slice2-e1.log, 9/9 with --repeat-each=3) |
 | E1.1 | In that test, both records are stated through `makeMe.aLaunchRecord`. | slice 2 | observed: dashboard/tests/sessions/recently-done-sessions-sidebar-projects.spec.ts E1 case: both records built by makeMe.aLaunchRecord |
 | E1.2 | In that test, both records are written through the one store owner. | slice 2 | observed: dashboard/tests/sessions/recently-done-sessions-sidebar-projects.spec.ts E1 case: one keepLaunchStore(dashboard, {doughnut, pygardon}) call |
 | E1.3 | In that test, the expected rows are written independently of the builder. | slice 2 | observed: dashboard/tests/sessions/recently-done-sessions-sidebar-projects.spec.ts E1 case: literal 'Doughnut story done yesterday' and 'Doughnut · Execution', absence of 'Pygardon story still open' |
-| E2 | Key example 2: a dashboard server starts with a kept launch shared from the machine store. Its record is built as a recorded execution request with a Claude session, not as the incoming launch body cast to a record. | slice 3 | |
-| E2.1 | The server's answer matches that record. | slice 3 | |
+| E2 | Key example 2: a dashboard server starts with a kept launch shared from the machine store. Its record is built as a recorded execution request with a Claude session, not as the incoming launch body cast to a record. | slice 3 | observed: dashboard/tests/support/sharedLaunchRecord.ts builds executing({identity,title}).inClaudeSession(...); production-watcher-updates.spec.ts:46 |
+| E2.1 | The server's answer matches that record. | slice 3 | observed: production-watcher-updates.spec.ts:47-48 -> productionUpdateJourney.ts:175-176 expectSharedLaunchRecord records toEqual [objectContaining(record)] for dev and production (tmp/slice3-1.log) |
 | E3 | Key example 3: the launch-record session rules accept a Claude session with its alias. The record wrapping it is a Claude record. | slice 4 | |
 | E3.1 | A case that proves a mismatched host states that mismatch itself. | slice 4 | |
 | E4 | Key example 4: the store holds text with an older record shape or an invalid entry. The test still writes those exact bytes. | slice 4 | |

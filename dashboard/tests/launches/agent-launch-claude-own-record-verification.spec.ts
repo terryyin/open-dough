@@ -7,14 +7,15 @@ import { storyCardSessions } from "../dashboardPage.ts";
 import {
   openSessionStartReason,
   type LaunchAttemptRecord,
-  type LaunchRecord,
 } from "../../src/agentLaunch.ts";
 import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { readyStory } from "../launchJourney.ts";
+import { identityB } from "../../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import {
   expect,
   test,
   recoveryOf,
-  storyRequest,
   subject,
   useUncertainLaunch,
 } from "../claudeVerification.ts";
@@ -62,16 +63,17 @@ for (const count of [1, 2]) {
       running: false,
       worker: { pid: dashboard.pid },
     });
-    const records = [0, 1].slice(0, count).map((index): LaunchRecord => ({
-      request: storyRequest as LaunchRecord["request"],
-      session: {
-        host: "claude",
-        sessionId: `unlisted-own-session-${String(index)}`,
-        shortId: `own-${String(index)}`,
-        name: "own launch",
-      },
-      launchedAt: new Date(acceptedAt + index + 1).toISOString(),
-    }));
+    // Story B's own executions, each launched after the attempt was accepted.
+    const records = [0, 1].slice(0, count).map((index) =>
+      makeMe.aLaunchRecord
+        .executing({ identity: identityB, title: readyStory })
+        .inClaudeSession({
+          sessionId: `unlisted-own-session-${String(index)}`,
+          shortId: `own-${String(index)}`,
+        })
+        .launchedAt(new Date(acceptedAt + index + 1).toISOString())
+        .please(),
+    );
     const latest = records.at(-1);
     // Deliberately newest first: selection depends on time, not file order.
     const stored = keepLaunchStore(dashboard, {

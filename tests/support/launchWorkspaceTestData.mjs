@@ -9,7 +9,8 @@
 /**
  * A story branch, and what an execution's claim may also name: its
  * publisher and published revision (fixed ones otherwise), its agent, its
- * plan and the revision it started from.
+ * plan and the revision it started from. A refinement's preparation names
+ * only an agent and a published revision given here.
  * @typedef {EstablishedBranch & { publisherId?: string, publishedSha?: string, agent?: string, plan?: string, startingRevision?: string }} StoryBranch
  */
 
@@ -28,7 +29,16 @@ export function storyBranchFacts({ workflow, identity }, storyBranch) {
     remote: "origin",
     target: "main",
   };
-  if (workflow === "refinement") return { preparation: established };
+  if (workflow === "refinement")
+    return {
+      preparation: {
+        ...established,
+        ...(storyBranch.agent !== undefined && { agent: storyBranch.agent }),
+        ...(storyBranch.publishedSha !== undefined && {
+          publishedSha: storyBranch.publishedSha,
+        }),
+      },
+    };
   return {
     start: {
       ...established,

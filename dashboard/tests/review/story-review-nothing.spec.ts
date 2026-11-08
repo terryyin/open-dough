@@ -36,7 +36,7 @@ import {
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   keepLaunchRecord,
-  storyALaunchRecord,
+  storyALaunch,
 } from "../support/storyLaunchRecord.ts";
 
 const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
@@ -111,13 +111,16 @@ test("a launch with its worktree is no landed run, and once Refresh finds the wo
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  const record = storyALaunchRecord(workspace);
   const reference = randomUUID();
-  record.request.reporting = {
-    origin: dashboard.origin,
-    reference,
-    command: "report",
-  };
+  // Story A's execution on its worktree, reporting through this dashboard.
+  const record = storyALaunch()
+    .onStoryBranch({ workspace, branch })
+    .reportingThrough({
+      origin: dashboard.origin,
+      reference,
+      command: "report",
+    })
+    .please();
   keepLaunchRecords(dashboard, [record]);
   const card = await openBacklog(page, origin);
   const open = card.getByRole("button", { name: "Review changes" });
@@ -216,11 +219,8 @@ test("a story whose kept launch record names no workspace offers no review", asy
   dashboard,
   origin,
 }) => {
-  const withoutWorkspace = storyALaunchRecord(
-    `${origin.project}/.worktrees/story-a`,
-  );
-  delete withoutWorkspace.start;
-  keepLaunchRecords(dashboard, [withoutWorkspace]);
+  // Story A's execution, whose start established no worktree.
+  keepLaunchRecords(dashboard, [storyALaunch().please()]);
   const card = await openBacklog(page, origin);
   await expect(storyCardSessions(card)).toHaveCount(1);
   await expect(

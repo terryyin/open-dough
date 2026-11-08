@@ -145,7 +145,7 @@ creation-gates, responsive-session-recovery-verification, avatar) and slice 4
 
 ### 3. Shared and story-card records keep a recorded request, not the launch body
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 2. `sharedLaunchRecord` callers (development/production switch), `agent-launch-story-card-open-session.spec.ts`, `agent-launch-start-story-card.spec.ts`, `agent-launch-claude-verification.spec.ts`, `agent-launch-claude-own-record-verification.spec.ts`, `agent-launch-unconfirmed-input.spec.ts`, `project-remove.spec.ts`, `productionUpdateJourney.ts` callers, `story-review-trunk-worktree.spec.ts`, `agent-launch-held-revision-after-action.spec.ts`, and the trace's other callers pass with unchanged assertions.
 
 A server starts with a kept launch shared from the machine store → it
@@ -159,6 +159,19 @@ alert and second-server specs, and give it a recorded request. A
 `launchRequest` posted to start a launch, and `as LaunchRecord` on a value
 read back from the server, stay. Setup in completion, landing, Codex or
 Cursor families stays for its sibling story. Delete each displaced factory.
+
+Accepted: shared, story-card, side-panel, review, configuration and runtime
+kept records come from the builder (`requestingModel`, refinement claim
+details added); no stored setup reuses `launchRequest`. E2 is observed by
+`production-watcher-updates.spec.ts`. `storyALaunchRecord` stays as the named
+Story A builder call. Left for siblings: `project-restored-session` Codex
+cast, avatar `establish`, `oneShotReviewChoices` legacy, `unconfirmed-input`
+record rewrite. Learning for slice 4: the builder names a session after its
+title; add a session-name variant only where an assertion reads the name.
+Watch: `production-watcher-updates.spec.ts:62` timed out once in the slice 3
+refactor run at load average about 40 during a real build, then passed in a
+1-worker rerun (15/15). Confirm it in branch CI and the pre-landing full run;
+a repeat failure there is a defect to fix.
 
 ### 4. Record rules state coherent host records and keep malformed input explicit
 Type: Behavior
