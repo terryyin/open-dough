@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 449. Removed numbers are never reused.
+- Highest allocated local number: 450. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -942,3 +942,28 @@ had to inspect the run and workflow before it could ignore proven supersession.
   - Evidence: `CI_INCOMPLETE` for run 42436771496 (`df2702f6b`, `cancelled`); `gh run list` showed run 42437158620 for `ce269af5c` on the same branch succeeded; `.github/workflows/ci.yml` `concurrency.group` uses `github.ref` with `cancel-in-progress: true`
   - Observed effect: two inspection commands and a read of the notification guidance before the coordinator recorded supersession and continued; no repair or pause. It recurred for `151281a43` (run 42438254144, cancelled once `c755e3952` was pushed and later succeeded) and needed one more `gh run view`
   - Inference: qualified. The cost was small, but it recurs on every Story Branch execution that pushes slices faster than CI finishes. The observer already holds both registered revisions, so it may be able to classify the cancellation itself.
+- Execution: SEED-262#arrange-prerequisite-state (plan 518-arrange-prerequisite-state; first related implementation commit `a2e224e7e6168b4a282a3132264235709b3b7820`)
+  - Timestamp: 2026-11-08T12:05+08:00 (approximate, notification during the retrospective)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.90 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: `CI_INCOMPLETE` for run 42444119604 (`a2e224e7e`, `cancelled`); `gh run list` showed run 42445052250 for `89ea045e1` queued on the same branch
+  - Observed effect: one `gh run list` before the coordinator recorded supersession and continued; no repair or pause
+
+## DD-450 — A prepared plan used a slice status outside the planned/done vocabulary
+
+The preparation commit wrote each slice as `**Status:** pending`, although
+[planning](src/skills/dough-story-refinement/references/planning.md) defines
+`Status: planned | done`. The story-obligations script refused the plan
+before the first delegation, and the executing coordinator rewrote both
+statuses to `planned` by hand.
+
+### Occurrences
+- Execution: SEED-262#arrange-prerequisite-state (plan 518-arrange-prerequisite-state; first related implementation commit `a2e224e7e6168b4a282a3132264235709b3b7820`)
+  - Timestamp: 2026-11-08T11:35+08:00 (approximate, first `story-obligations.mjs list --slice 1`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.90 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: preparation commit `f21628118` PLAN.md slice status lines; `story-obligations.mjs list` result `unreadable-slices` ("An ordered slice is missing a supported Type or Status: planned|done"); the fix is in `a2e224e7e`
+  - Observed effect: one refused listing and one `sed` edit before delegation; no rework and no delay to proof
+  - Inference: qualified. The readiness review accepted the plan without running the same parser that execution relies on, so a vocabulary slip survived preparation. A preparation-time `story-obligations.mjs check` would surface it earlier.
