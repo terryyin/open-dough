@@ -152,6 +152,16 @@ Slice-plan refinement was unnecessary. Selection and Board reveal each have
 their own observable result and proof, and the second consumes the first's
 one selection rule. No slice-specific concerns remain.
 
+CI repair: run 42469445617 attempt 1 on merge `78f636d` failed two codex tests in
+`dashboard/backend-tests/launches/agent-launch-duplicate.spec.ts` after a
+runner-wide stall: its `expect.poll` waits used the 5 s default (now
+`timeout: 0`, as `dashboard/tests/writing-journeys.md` requires), and the run
+artifact server reset a stale kept-alive socket (now `Connection: close` in
+`dashboard/tests/support/runArtifacts.ts`). Both reproduced by scratch stalls
+before the fix and passed after. Refactor disposition: already traced by the
+repair return (two test-support files, no new representation or helper).
+Other specs keep default `expect.poll` waits that a longer stall could break.
+
 ## Execution complete
 
 Product advice: no backlog change. Select in Development lands the developer on the Board entry where SEED-273#follow-up-from-done adds Follow up, so no sidebar Follow up control is needed now; reconsider a Follow up from the sidebar or Intent only if developers use it from Intent after SEED-273 lands. SEED-273 touches the same Board entry markup in `dashboard/src/SessionEntry.tsx`, so expect a merge there. Retrospective correction: [SEED-272#prove-recently-done-check-supersession](../../seeds/SEED-272-select-recently-done-sessions.md#prove-recently-done-check-supersession) (plan 529, ready, not queued). Open product question for the developer: a standalone choice never clears, so Development can show a selected Story card and a separately marked selected session at once; decide whether selecting another story should clear it.
