@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "identity": "SEED-268#conclude-fluent-side-panel-pilot",
+  "mode": "story-branch",
+  "branch": "codex/draw-a-conclusion-from-the-three-side-panel-pilo",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
