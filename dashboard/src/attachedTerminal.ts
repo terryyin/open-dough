@@ -172,8 +172,10 @@ export function attachTerminal(
   });
   // The current attachment alone owns this offer. Input follows xterm's
   // ordinary onData path; acceptance means a local offer, not a PTY receipt.
+  // Like typing, it does not wait for readiness confirmation, which decides
+  // only reopening and startup-failure handling.
   const acceptsInput = () =>
-    current && shown && !refused && socket.readyState === WebSocket.OPEN;
+    current && !refused && socket.readyState === WebSocket.OPEN;
   const insert = (text: string) => {
     if (!acceptsInput()) return false;
     terminal.input(text);

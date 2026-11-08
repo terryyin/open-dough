@@ -3,6 +3,13 @@
 The [embedded terminal](AGENT-LAUNCH-TERMINALS.md) accepts ordinary typing,
 dictation and input from the phone key toolbar.
 
+Dictation, **Insert transcript**, toolbar keys and **Paste**, and composer
+**Insert** are accepted under the same condition as typing: the panel's current
+attachment is open and was not refused. That includes a visible native prompt
+whose readiness the server has yet to confirm. Such input confirms no
+readiness and clears no Done mark; only a confirmed ready screen reopens the
+session.
+
 ## Dictation
 
 The terminal header offers **Dictate into terminal** immediately before Mark as
@@ -22,10 +29,11 @@ is never replayed automatically.
 Capture and pending results belong to the open session view. Close, switching
 sessions and a successful Mark as done that closes it cancel capture and pending
 requests, including late permission or transcript delivery. A result that cannot
-be offered to its attachment stays visible in full. **Insert transcript** offers
-it once to this session and focuses terminal input; an unavailable attachment
-keeps the text for another deliberate attempt. **Discard transcript** sends
-nothing. Settle it before recording again; closing or switching discards it.
+be offered because its attachment is closed or refused stays visible in full.
+**Insert transcript** offers it once to this session and focuses terminal input;
+an unavailable attachment keeps the text for another deliberate attempt.
+**Discard transcript** sends nothing. Settle it before recording again; closing
+or switching discards it.
 Reconnect leaves unsent text pending and never resends text already offered.
 
 ## Phone keyboard

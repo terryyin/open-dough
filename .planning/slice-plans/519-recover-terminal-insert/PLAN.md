@@ -3,6 +3,7 @@
 **Identity:** SEED-269#recover-terminal-insert
 
 **Source:** [Refined story](../../seeds/SEED-269-recover-terminal-insert.md#recover-terminal-insert)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -110,7 +111,7 @@ not inserted” in Slice 2).
 
 **Type:** Behavior
 
-**Status:** pending
+**Status:** done
 
 Given a Codex attachment whose socket is open and whose readiness is still
 pending, dictation, toolbar **Paste**, composer **Insert**, and toolbar keys
@@ -122,11 +123,26 @@ mark is unchanged until the server confirms readiness. Change
 ordinary taps. Update the [terminal input guide](../../../dashboard/AGENT-LAUNCH-TERMINAL-INPUT.md)
 where it says an attachment cannot accept input. Safe stopping point.
 
+**Accepted proof (2026-11-08, load ≈8–10).** New
+`dashboard/tests/terminals/agent-terminal-pending-readiness-input.spec.ts`
+(voice fixture extended with the exported `codexProtocol` fixture, Codex
+`partial`, done record, phone taps) passes 5/5 repeats and fails at the
+dictation step with `shown &&` restored. Terminal and session families plus
+the touch-paste-image frontend spec and `agent-launch-codex.spec.ts`: 253
+passed. The `codexProtocol` move reaches `dashboard/tests/launches`,
+`dashboard/tests/review` and `dashboard/backend-tests`: 1332 passed, 1
+skipped. Typecheck and lint pass. Refactor pass: doc rewrap only.
+
+**Learning.** The fake Codex echoes nothing until Enter: observe offers
+through `noteTerminalTraffic` input frames and `codexLines`, not rows text.
+The Recently done section header is a ~23px disclosure row, so it is tapped
+with `locator.tap()` rather than `tapWhereShown`.
+
 ### 2. Unavailable input names the panel's recovery
 
 **Type:** Behavior
 
-**Status:** pending
+**Status:** planned
 
 Given an attachment that cannot accept input, dictation's pending-transcript
 feedback and Paste's feedback name the action the panel shows (**Reconnect**
