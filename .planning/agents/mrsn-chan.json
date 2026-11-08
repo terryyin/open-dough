@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "mrsn-chan",
-  "email": "mrsn-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-261#map-launch-and-session-test-data",
-  "host": "claude",
-  "model": "opus"
-}

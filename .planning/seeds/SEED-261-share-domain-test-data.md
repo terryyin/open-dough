@@ -81,9 +81,9 @@ smallest correction that preserves the proof.
   strings in tests that prove the format. The catalog fixture's local `Project`
   also groups source, revision, membership and expected labels. Separate source
   facts from assertions when the setup is converted. [Readiness records](../../dashboard/tests/storyReadinessRecords.ts) · [Readiness fixture](../../dashboard/tests/storyReadinessFixture.ts) · [Backlog document](../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs) · [Catalog fixture](../../dashboard/tests/catalogProjectRecords.ts)
-- **Launch and session.** The Recently done helper combines arbitrary hosts,
-  workflows, and identities through a `LaunchRecord` cast. The launch-record
-  schema tests also wrap Claude input in a recorded Codex request. Use coherent
+- **Launch and session.** The Recently done helper now builds its records with
+  `makeMe.aLaunchRecord`. The launch-record schema tests still wrap Claude
+  input in a recorded Codex request. Use coherent
   host and workflow variants for valid baselines. Keep deliberately contradictory
   cases, omitted legacy continuations, and alias rejection explicit if they are
   under proof. Review the fixture that casts incoming requests to recorded ones
@@ -153,26 +153,175 @@ consumers. No calibrated story effort bands are established.
 
 <a id="map-launch-and-session-test-data"></a>
 
-### Make launch and session test setup map directly to the domain
+### Make kept launch record test setup map directly to the domain
 
 **Identity:** SEED-261#map-launch-and-session-test-data
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/534-map-launch-and-session-test-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d2ac8d7e6f2df641dc123377b9eba40a3615b6e01783d6d38e1ecbe47dad3fb3","plan":"8f430970eba5ce448ba1ccc3a171f304fd2e2862ea289d2f15e46d595925ecea"}}
+```
+
+#### Goal
+
+Maintainers reviewing dashboard tests can see which kept launches a case
+starts from: the story or instruction a launch was requested for, its host
+session, the workspace its start established, and when it was launched, in
+the vocabulary of the persisted `LaunchRecord`. The same kept launch reads the
+same way in frontend, backend, and integrated tests, and a test cannot keep a
+launch the dashboard itself would never record.
+
+#### Scope
+
+- Build every valid kept launch record in the machine launch store through
+  `makeMe.aLaunchRecord`, extending it with the variants its new consumers
+  need. Cover launch history, Recently done, the sessions listing, story
+  cards and side panels, review, configuration and runtime cases that keep
+  records in the store across the three dashboard roots. Move or delete the
+  suite-local record factories this displaces, such as
+  `storyALaunchRecord`, `machineLaunchRecords`, `sharedLaunchRecord`,
+  `sessionsReplay*`, `recentlyDone*` and `localTakenSessions`.
+- Give the harness one owner for keeping records in the machine launch store,
+  writing the store's own document shape for a project or for several, and
+  route the current separate writers through it. The store file and its
+  location stay harness layers, not builder facts.
+- Keep an incoming launch request distinct from the request a record keeps.
+  Remove `launchRequest as LaunchRecord["request"]` style conversions from
+  stored setup; a record states its request through the builder. Keep the
+  record's host and its session's host the same in valid setup: the
+  launch-record session rules no longer wrap a Claude session in a Codex
+  request unless that contradiction is under proof.
+- Keep exact store text, malformed, legacy and retention-boundary records
+  explicit where they are the subject, such as `seedStore` text and the
+  launch-record schema specs. Times that drive retention stay visible at the
+  call site and measured from the server's clock where they are today.
+- Scope limits: launch request bodies sent to start a launch are test actions
+  and stay as they are; only a body reused as a kept record's request
+  changes. Live observation (`LaunchWithState`, `SessionState`, machine
+  answer) and accepted attempts, completion and landing setup, Codex and
+  Cursor continuation and terminal setup, and machine-local project
+  configuration belong to the sibling stories below. In a mixed case, convert
+  the kept record here and leave the other family's setup for its story.
+  Product contracts and UI behavior do not change.
+- Evaluate each converted family against its original cases: the facts that
+  drive each outcome stay visible, assertions catch the same failure, and the
+  shared setup removes a translation or a second model.
+
+#### Key examples
+
+1. Two projects each keep an execution launch of one story, one marked Done
+   yesterday. When the sessions sidebar loads, Recently done lists only the
+   Done one, under its project. The test states both records through
+   `makeMe.aLaunchRecord` and writes them through the one store owner; the
+   expected rows are written independently.
+2. A dashboard server starts with a kept launch shared from the machine store.
+   Its record is built as a recorded execution request with a Claude session,
+   not as the incoming launch body cast to a record, and the server's
+   answer matches that record.
+3. The launch-record session rules accept a Claude session with its alias.
+   The record wrapping it is a Claude record; a case that proves a mismatched
+   host would state that mismatch itself.
+4. The store holds text with an older record shape or an invalid entry. The
+   test still writes those exact bytes, and the dashboard's handling is
+   observed as before.
+
+#### Architecture
+
+Kept launches are machine-local operational evidence under
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state);
+the builder returns the persisted `LaunchRecord` shape and the harness writes
+it where a dashboard server reads it, keeping the record (domain fact) and the
+store file (harness) apart, per
+[ADR 0002 §5](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
+Today about nine helpers write `agent-launches.json` themselves, and nine
+suite-local factories build records, most without the builder. This story
+makes `makeMe.aLaunchRecord` the one record constructor and one harness
+function the one store writer, so the sibling stories compose observation,
+completion, landing and host continuations onto the same record instead of
+adding writers. Planning decides whether that writer uses the server's
+[launch record document](../../dashboard/server/launchRecordDocument.ts) or
+the plain document shape; either keeps the bytes the server reads.
+
+<a id="map-launch-observation-test-data"></a>
+
+### Make live launch observation test setup map directly to the domain
+
+**Identity:** SEED-261#map-launch-observation-test-data
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-**Scope and value.** Convert machine-local configuration, starts and attempts,
-workspace ownership, host sessions, observation, terminal setup, completion and
-landing facts in the three dashboard roots and related skill and Node support.
-Repair contradictory or flattened representations, including host/workflow and
-recorded/live distinctions. Reviewers can then see which real state enables
-each action or refusal across layers.
+**Scope and value.** Convert live observation setup, `LaunchWithState`,
+`SessionState`, the machine answer and accepted launch attempts, across
+the backend session rules, frontend service state and the integrated
+journeys that arrange them (about 35 specs). Compose each observation with
+the kept record it observes rather than restating it. Reviewers can see
+whether a case starts from a working, waiting, review, stale or unknown
+session.
 
-**Evaluation and stopping point.** Valid setup follows the same discriminants
-in frontend, backend, and integrated tests. Cases still show first input,
-workspace ownership, stale or unknown observation, and actual terminal or
-process behavior where they drive the proof. Existing protocol evidence and
-malformed or legacy examples remain explicit. The machine-local families are
-converted independently of later work.
+**Evaluation and stopping point.** Loaded, retained, unknown and unavailable
+observation stay distinct; an accepted attempt stays separate from its kept
+record. The observation and attempt factories are removed or delegate to
+MakeMe.
+
+<a id="map-launch-completion-and-landing-test-data"></a>
+
+### Make launch completion and landing test setup map directly to the domain
+
+**Identity:** SEED-261#map-launch-completion-and-landing-test-data
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Scope and value.** Convert completion reports and receipts, completion
+recovery, retained final reports, landing and one-shot landing receipts in
+the dashboard roots, and the launch data the skill
+`dashboard-landing.test.mjs` arranges (about 43 specs). Extend the kept
+record's outcome facts instead of a second completion model.
+
+**Evaluation and stopping point.** Reports, receipts and terminal protocol
+evidence stay separate; recovery and fault cases keep their injected faults
+explicit. The completion and landing factories are removed or delegate to
+MakeMe.
+
+<a id="map-host-continuation-test-data"></a>
+
+### Make Codex and Cursor session test setup map directly to the domain
+
+**Identity:** SEED-261#map-host-continuation-test-data
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Scope and value.** Convert Codex and Cursor kept sessions, their
+continuations, and terminal setup built on them, across `codexLaunch`,
+`codexObservation`, `cursorStart`, `keptCursorTurn`, `cursorSessionRecovery`,
+`runningCursorSessionsPage` and their consumers (about 55 specs). Each host
+follows its own continuation contract.
+
+**Evaluation and stopping point.** Fake host processes, terminal and process
+behavior stay in the harness. Omitted legacy continuations and alias
+rejections stay explicit where under proof. The host record factories are
+removed or delegate to MakeMe.
+
+<a id="map-project-configuration-test-data"></a>
+
+### Make machine-local project configuration test setup map directly to the domain
+
+**Identity:** SEED-261#map-project-configuration-test-data
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Scope and value.** Convert machine-local project registration and settings
+that tests write to `projects-development.json` and
+`projects-production.json` (about 20 specs), through a shared configured
+project builder typed against
+[project configuration](../../dashboard/server/projectConfiguration.ts).
+Keep a machine setting distinct from the published source it selects.
+
+**Evaluation and stopping point.** Validation, serving-mode and add-project
+cases keep their exact invalid inputs. The configuration writers in
+`projectConfiguration`, `projectAddMachine`, `systemSettingsMachine` and
+`sessionsReplayProjects` are removed or delegate to MakeMe.
 
 <a id="map-intent-and-ci-proof-test-data"></a>
 
@@ -223,7 +372,10 @@ domain constructors or builders without a useful test consumer.
 ## Ordering and scope
 
 Queue published work first, then local launch and session work, Intent and CI
-Proof, and release and native checks. The stories are organized
+Proof, and release and native checks. Terry split the launch and session block
+into five stories, queued in order: kept launch records and the machine
+store, live observation and attempts, completion and landing, Codex and
+Cursor sessions, then machine-local project configuration. The stories are organized
 by the domain facts they own, so each can finish its proof without waiting for
 an entire runner or layer to migrate. Queue order expresses Terry's requested
 priority and learning sequence. No blocking supplier agreement has been
