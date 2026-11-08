@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-264#reconcile-released-intent-coverage",
+  "title": "Reconcile the released Intent Coverage prerequisite",
+  "completedAt": "2026-11-08T01:42:54.664Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "codex"
+}
