@@ -31,24 +31,30 @@ extends them.
 
 ## Current decisions
 
-- **Named shared description, explicit at each call site.** MakeMe gains one
-  named description for the facts every start origin holds today: Stories A
-  and B queued, refined, planned and Ready, with their seeds and plans. Its
-  name states those facts. `queuedIdentity`, `otherQueuedIdentity` and
-  `queuedTitle` move with it. Each `startOrigin` call and each of the seven
+- **Shared description, explicit at each call site.** Reuse the description
+  plan 510 builds for the skill tests: `queuedReadyRepository()` in
+  `tests/support/queued-repository.mjs`, Stories A and B queued, refined,
+  planned and Ready, with their seeds and plans. Its `.planning` files match
+  today's start origin byte for byte, so the dashboard adds no copy of it.
+  `queuedIdentity` and `otherQueuedIdentity` come from its `storyA` and
+  `storyB`. `queuedTitle` is a launch title, not a repository fact, and stays
+  with the launch expectations. Each `startOrigin` call and each of the seven
   origin fixtures (`startOriginTest`, `responsiveStart`, `keptStartJourney`,
   `storyDependencyFixture`, `preparationPage`, `codexStart`, `cursorStart`)
   passes a description. A spec that needs other facts overrides the fixture's
   description with `test.use`. `startOrigin()` with none gets the
   description's default: an empty valid backlog. No implicit default holds
   stories. [Test data architecture](../../../tests/README.md#test-data-architecture)
-- **Installation is a harness layer.** The harness adds the installed skills
-  for the selected layout to the description's first commit, from this run's
-  working-tree source. The origin keeps one root commit with Dashboard
-  Developer as committer, as today. Installation never enters MakeMe.
+- **Installation is a harness layer.** Before materializing, the dashboard
+  harness adds `.gitignore` and the installed skills for the selected layout,
+  from this run's working-tree source, to the first revision's `files`, with
+  Dashboard Developer as author and committer. The origin keeps one root
+  commit, as today. Installation never enters MakeMe or the shared
+  description.
 - **Keep run-wide preparation.** Global setup prepares the default and the
-  named shared description once per layout with the shared materializer and
-  the installation layer. It packs each as today, and each test copies the
+  shared description once per layout through `materializeRepository` with
+  the installation layer. It packs each origin with
+  `git clone --bare --no-local` as today, and each test copies the
   prepared origin and clones its project with the same `insteadOf`, no
   upstream and no `origin/HEAD`. A different description is materialized
   through the materializer's per-process reuse on top of the same
@@ -67,9 +73,17 @@ extends them.
   `start-origin-isolation`, `agent-launch-preparation-resume` and any spec
   whose subject is the start keep the real call. `takenInTrunkMode` stays
   real where the spec reads the worktree and branch that the start leaves.
-- **Coordinate with plans 508 and 510.** Reuse the published-work builders
-  that plan 508 lands and the description and materializer of plan 510.
+- **Build on plan 510 as it lands.** The published-work builders
+  (`aBacklogEntry`, `aStoryPreparation`, `anAgentProfile`,
+  `aSupplierAgreement`, `aDoneRecord`) are on trunk. The names above are plan
+  510's at `eba65e39c`, with its slices 3 and 4 still to run. At execution
+  start, read the landed `makeMe.aRepository`, `materializeRepository` and
+  queued description, and keep these decisions on whatever names landed.
   Extend them rather than adding dashboard copies.
+- **The shared writer outlives this story.** Slice 1 removes the dashboard
+  re-export and use of `writeQueuedStories`. Plan 510 keeps
+  `createQueuedTrunk`, which calls it, for the native fixtures, so the writer
+  stays until its last consumer migrates.
 
 ## Outside-in proof
 
@@ -87,15 +101,17 @@ under a load average near 5.
 
 | Consuming operation | Observation | Result |
 | --- | --- | --- |
-| Slice 1 encodes the named shared description with production encoders | `node <job-tmp>/enc.mjs` imports `writeQueuedStories`, writes the stories into a scratch directory, and renders the backlog again with `parseBacklog`/`renderBacklog`. `renderEntry({identity:"SEED-A#a",title:"Story A",href:"seeds/A.md#a"})` is compared with the queued line. | Both SAME. The seeds already come from `recordStoryState`, so the description can reproduce today's bytes. |
+| Slice 1 reuses plan 510's shared description | On 2026-11-08 at `6d1f994d8`, with plan 510's branch at `eba65e39c` extracted into the job directory, `node <job-tmp>/cmp510.mjs` wrote `queuedReadyRepository().please()`'s one revision with that branch's `writeRevisionFiles`, wrote `writeQueuedStories` from trunk into another directory, and compared every file | The backlog, both seeds and both plans were SAME. The description also adds `trunk.txt`, and its revision message is `base trunk commit`. |
+| Slice 1 encodes the shared description with production encoders | `node <job-tmp>/enc.mjs` imports `writeQueuedStories`, writes the stories into a scratch directory, and renders the backlog again with `parseBacklog`/`renderBacklog`. `renderEntry({identity:"SEED-A#a",title:"Story A",href:"seeds/A.md#a"})` is compared with the queued line. | Both SAME. The seeds already come from `recordStoryState`, so the description can reproduce today's bytes. |
 | Slice 1 keeps run-wide preparation instead of committing stories per test | `<job-tmp>/m.sh`, run twice: 10 copies of a packed skills-only origin with `--no-hardlinks` clones, then one commit of two seeds and a backlog with a push in each | Copy and clone took 94–98 ms per test, and the extra commit and push took 113–120 ms per test. Per-test commits would roughly double origin setup, so preparation stays run-wide. |
-| Slice 1 consumer set | `grep` for `startOrigin(` and for `origin: async` fixtures in `dashboard/` | 47 files call `startOrigin`, 11 of them helpers. Seven fixtures create an origin. 70 helper modules and 95 specs import `startOrigin.ts`. About 200 dashboard test files name Story A or its identity. |
+| Slice 1 consumer set | `grep` for `startOrigin(` and for `origin: async` fixtures in `dashboard/` | 47 files called `startOrigin` at `9f436aba4` and 49 at `6d1f994d8`, 11 of them helpers at the first count. Seven fixtures create an origin. 70 helper modules and 95 specs import `startOrigin.ts`. About 200 dashboard test files name Story A or its identity. |
 | Slice 3 declared claims are found as claims | Read `claimOf` in `storyCiComparisonHistory.ts` | It finds the latest commit on any ref by `<name>-chan@example.org` with `Take queued work` in its message, so a declared revision with that author and message is found the same way. |
 | Slice 3 declared Take matches what start publishes | [Plan 510's premise rows](../510-build-explicit-git-fixtures/PLAN.md#decisive-premises), observed on 2026-11-08 at `3be3f59df` | `renderAgentProfile` and `renderBacklog` reproduced the profile and backlog bytes a real Take published, with the agent as author. |
 | No native evidence changes | `tests/support/*-native-evidence.sh` list their inputs | None lists a dashboard support module, so no paid run is needed. |
 
-Remaining hypothesis: the specs' verdicts with materialized origins. It
-cannot be observed before plan 510's materializer exists. Slice 1's focused
+Remaining hypothesis: the specs' verdicts with materialized origins,
+including the extra `trunk.txt` and first-commit message of the shared
+description. It cannot be observed before plan 510's materializer lands. Slice 1's focused
 run settles it for the default and shared stories before slices 2 and 3 build
 on it. Slice 3's focused run settles it for declared claims.
 
@@ -131,11 +147,11 @@ Then add the backend default-origin case and run every spec importing
 the prepared origin's first-commit file list with the old one. Run
 `npm run typecheck:dashboard` and record the after times.
 
-Add the named shared description to MakeMe. Let `startOrigin` and
-`initializeStartOrigin` take a description, and let global setup prepare the
-default and the shared description per layout through the materializer with
-the installation layer. Pass the description at every call site and in each
-fixture, and remove `writeQueuedStories`.
+Let `startOrigin` and `initializeStartOrigin` take a description, and let
+global setup prepare the default and the shared queued description per layout
+through the materializer with the installation layer. Pass the description at
+every call site and in each fixture, and remove the dashboard's
+`writeQueuedStories` re-export and use.
 
 ### 2. Publishers declare the planning facts they add
 

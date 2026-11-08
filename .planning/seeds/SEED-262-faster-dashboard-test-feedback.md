@@ -171,7 +171,7 @@ times are the baseline for the reuse story.
 {"schemaVersion":1,"identity":"SEED-262#migrate-dashboard-origin-fixtures","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story passes makeMe.aRepository descriptions to startOrigin and its publishers, and materializes them through the shared harness materializer with its per-process reuse.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and checkout with per-process reuse, are published on trunk.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"715e4a34c9c41af039ad2e2beea2654566d9a7cdc696a21e1e015de390a8c92a","plan":"241d1bb68450d2d7abd3c2492d414c8148486af29affb31f2acd8727cf5ff66d"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b5ccc3cc41b0ac32e2efebf0427391e060758b6dcb86e226d0adc780432cc63c","plan":"f4bf88b2cbce44fa2c5ff5b1e3daaefefc0854299e077d523108047f015a6b75"}}
 ```
 
 #### Goal
@@ -190,12 +190,13 @@ feedback must not get slower.
 - `startOrigin` takes a MakeMe repository description. With none, it holds
   the description's default: one commit with an empty valid backlog and the
   installed skills. Every call site and origin fixture that relies on the
-  queued stories passes a named shared description, such as two Ready queued
-  stories, from MakeMe. A Playwright fixture states its description in its
-  fixture file, and a spec that needs other facts overrides it with
-  `test.use`. On 2026-11-08, 47 files called `startOrigin`, including seven
-  Playwright fixtures that create it implicitly. 70 helper modules and 95
-  specs imported it.
+  queued stories passes the shared description of two Ready queued stories
+  that [the shared repository builder](#build-explicit-git-fixtures) provides
+  for the skill tests, not a dashboard copy. A Playwright fixture states its
+  description in its fixture file, and a spec that needs other facts
+  overrides it with `test.use`. On 2026-11-08, 49 files called `startOrigin`,
+  including seven Playwright fixtures that create it implicitly. 70 helper
+  modules and 95 specs imported it.
 - Installed skills stay a harness layer, not a domain fact. The harness adds
   them to the description's first commit, so the origin keeps one root commit
   with the stories and skills together.
@@ -218,8 +219,12 @@ feedback must not get slower.
   isolation and older Git behaviour. A CI comparison or completed-story
   publisher takes its trunk facts from the description and builds the commit
   graph it proves with Git on top.
-- Remove superseded helpers and `writeQueuedStories`. The queued identities
-  and titles live in the named shared description.
+- Remove superseded dashboard helpers and the dashboard's use of
+  `writeQueuedStories`. The queued identities come from the shared
+  description. The shared writer itself goes when its last consumer does; a
+  native execution fixture still uses it until
+  [shell release and native fixtures](#migrate-shell-release-and-native-fixtures)
+  migrate.
 - Boundary assumption: execution starts after
   [the shared repository builder](#build-explicit-git-fixtures) lands
   `makeMe.aRepository` and its materializer on trunk. This story extends that
