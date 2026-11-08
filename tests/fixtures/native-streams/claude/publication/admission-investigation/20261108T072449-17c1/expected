@@ -1,0 +1,20 @@
+source: /tmp/dough-seed262-native.9y8sm9/results/claude-admission-investigation/claude/publication/admission-investigation/20261108T072449-17c1/events.jsonl
+stream-status: complete
+response: present
+last-start-line: 48
+startup-cli-count: 1
+admit-cli-observed: true
+plain-start-observed: false
+existing-receipt-observed: false
+verdict: pass / accepted investigation was admitted to remote Taken before its first probe
+command: "cd .claude/skills/dough-execute-plan/references && cat admit-accepted-work.md"
+command: "cd /private/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/tmp.WS7xzqbYAv/admission-investigation.c8dpaP/workspace-claim-IIHEII/integration && git ls-files && ls -la && cat scripts/probe.js 2>/dev/null; git remote -v; git -C ../native-execution status 2>&1 | head; git worktree list; ls .claude/skills/dough-product-backlog/references .claude/skills/dough-execute-plan/scripts; cat .claude/skills/dough-product-backlog/references/identity.md | head -80"
+command: "cat .planning/PRODUCT-BACKLOG.md; echo ----; cat .planning/seeds/A.md; echo ----; cat .planning/seeds/B.md; echo ---; cat CONTRIBUTING.md scripts/setup.js scripts/command.js; ls .planning; git log --oneline --all; git fetch origin && git log --oneline origin/main | head"
+command: "cd .claude/skills/dough-product-backlog && grep -n -A30 \"Choose a new identity\" SKILL.md | head -60; echo ----; cat references/record-preparation.md"
+command: "cd ../../.. && node .claude/skills/dough-product-backlog/scripts/product-backlog.mjs identity-evidence --file .planning/PRODUCT-BACKLOG.md"
+command: "node .claude/skills/dough-product-backlog/scripts/product-backlog.mjs identity-evidence --file .planning/PRODUCT-BACKLOG.md --identity 'SEED-001#slow-startup' | head -40"
+command: "mkdir -p .planning/seeds && cat > .planning/seeds/001-slow-startup.md <<'EOF'\n---\nid: SEED-001\n---\n\n# Seed 001: Slow startup\n\n<a id=\"slow-startup\"></a>\n\n### Investigate slow startup\n\n**Identity:** SEED-001#slow-startup\n\n**Goal:** Find out why this product's startup is slow and report the findings\nto the developer.\n\n**Scope:** Investigation only. Run `node scripts/probe.js` from the owned\nexecution workspace and report what it shows. No product code changes and no\nfix; any fix is a separate, later decision.\n\n**Known expectations:** The probe leaves a run marker outside the checkouts;\nthat is expected.\nEOF\nnode .claude/skills/dough-product-backlog/scripts/product-backlog.mjs record-state --file .planning/PRODUCT-BACKLOG.md --identity 'SEED-001#slow-startup' --link 'seeds/001-slow-startup.md#slow-startup' --refinement refined --approach unselected; git status --short"
+command: "cat .claude/skills/dough-execute-plan/references/execution-location.md; node .claude/skills/dough-execute-plan/scripts/execution-start.mjs --help 2>&1 | head -60"
+command: "I=$PWD; W=$(dirname $I)/native-execution; node .claude/skills/dough-execute-plan/scripts/execution-start.mjs start --integration \"$I\" --workspace \"$W\" --branch exec/native-admission --identity 'SEED-001#slow-startup' --publisher-id native-admission-investigation --mode trunk --remote origin --target main --push-authorized --workspace-authorized --admit --link 'seeds/001-slow-startup.md#slow-startup' --title 'Investigate slow startup' --host claude --model claude-opus-5-5"
+command: "W=$(dirname $PWD)/native-execution; cd \"$W\" && git status --short && git log --oneline -3 && node scripts/setup.js && node scripts/command.js && echo SETUP_OK && time node scripts/probe.js; ls -la .. | grep -E '\\.(probe|setup|command)-ran'; git status --short; git -C ../integration status --short; git -C ../integration log --oneline -1; git ls-remote ../remote.git main"
+command: "cat .claude/skills/dough-execute-plan/references/finish-or-stop.md | head -120"

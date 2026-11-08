@@ -3,12 +3,13 @@
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { git } from "./publication-test-fixtures.mjs";
-import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import { holdFirstPush } from "./workspace-publication-startup-test-fixtures.mjs";
 
 test("fixture teardown releases a held push that arrived before the test released it", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const barrier = await holdFirstPush(trunk);
   await git(trunk.integration, "switch", "--quiet", "-c", "exec/a");

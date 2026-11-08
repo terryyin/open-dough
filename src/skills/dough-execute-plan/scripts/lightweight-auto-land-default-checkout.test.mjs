@@ -10,6 +10,8 @@ import assert from "node:assert/strict";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { runRetirementCommand } from "../../dough-story-refinement/scripts/dough-land-test-fixtures.mjs";
 import {
   commitAllAndAssertRetained,
@@ -24,7 +26,6 @@ import {
   commitQueuedResult,
   deliverQueued,
   queuedDelivery,
-  createSiblingTrunk,
   identityB,
   identityB2,
   remoteCommitsSince,
@@ -38,7 +39,8 @@ import {
   remoteHeads,
   revParse,
 } from "./publication-test-fixtures.mjs";
-import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
+import { queuedRepositoryWithUnrefinedB2 } from "./one-shot-queued-repository.mjs";
+import { configureDeveloper } from "./workspace-publication-startup-test-fixtures.mjs";
 
 // The file contents trunk holds at `rev` for the occupied checkout's paths.
 async function landedContent(origin, rev) {
@@ -62,7 +64,7 @@ const occupiedContent = {
 };
 
 test("an auto-landed default-checkout result lands all checkout content, reconciled onto an advanced trunk, and the checkout stays", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const checkout = trunk.integration;
   await occupyDefaultCheckout(checkout);
@@ -161,8 +163,9 @@ test("an auto-landed default-checkout result lands all checkout content, reconci
 });
 
 test("a review-default queued result retained in the default checkout lands on request from the merge base under its ownership guard", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const checkout = trunk.integration;
   await occupyDefaultCheckout(checkout);
   const localCommit = await revParse(checkout, "HEAD");

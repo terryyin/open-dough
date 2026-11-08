@@ -5,10 +5,11 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { createdFor, createdForRecords } from "./publication-test-fixtures.mjs";
 import { selectOwnedWorkspace } from "./workspace-publication-select.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   identityB,
   startCliResult,
@@ -29,7 +30,7 @@ async function select(trunk, name, identity) {
 }
 
 test("a workspace created for an identity records that identity at its starting revision", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const selected = await select(trunk, "exec-a", identityA);
   assert.equal(selected.created, true);
@@ -42,7 +43,7 @@ test("a workspace created for an identity records that identity at its starting 
 });
 
 test("a workspace created without an identity has no creation record", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const selected = await select(trunk, "exec-none");
   assert.equal(selected.created, true);
@@ -50,7 +51,7 @@ test("a workspace created without an identity has no creation record", async (t)
 });
 
 test("a workspace created for an identity Git rejects as a ref name is created with no record", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const selected = await select(trunk, "exec-invalid", "SEED-B#b..not-a-ref");
   assert.equal(selected.created, true);
@@ -58,7 +59,7 @@ test("a workspace created for an identity Git rejects as a ref name is created w
 });
 
 test("a reused workspace keeps its creation record and records no new work", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const created = await select(trunk, "exec-reused", identityA);
   const reused = await select(trunk, "exec-reused", identityB);
@@ -70,7 +71,7 @@ test("a reused workspace keeps its creation record and records no new work", asy
 });
 
 test("a queued Take's created workspace records the taken identity", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const { receipt, workspace } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.status, "published", JSON.stringify(receipt));

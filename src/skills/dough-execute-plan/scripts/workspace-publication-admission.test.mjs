@@ -6,11 +6,16 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
-  createQueuedTrunk,
-  startCliResult,
-} from "./workspace-publication-fixtures.mjs";
+  queuedReadyRepository,
+  readyStoryState,
+  storyB,
+  storySeed,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
+import { startCliResult } from "./workspace-publication-fixtures.mjs";
 import { ownedWorktreeOnly } from "./default-checkout-test-fixtures.mjs";
 import {
   admitArgs,
@@ -25,7 +30,7 @@ import {
 import { readStoryState } from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
 
 test("a new seed's unselected investigation is admitted to Taken with its story and agent in one commit", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const identity = "SEED-N#slow-start";
   const link = "seeds/N.md#slow-start";
@@ -100,7 +105,7 @@ test("a new seed's unselected investigation is admitted to Taken with its story 
 });
 
 test("admitting a new seed from an otherwise clean default checkout refreshes it without a draft", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const identity = "SEED-N#slow";
   const link = "seeds/N.md#slow";
@@ -126,33 +131,37 @@ test("admitting a new seed from an otherwise clean default checkout refreshes it
   assert.equal(readFileSync(join(trunk.integration, path), "utf8"), seed);
 });
 
-// Publishes story SEED-B#tidy, unlisted, onto trunk; resolves to the
-// revision that holds it.
-async function publishUnlistedTidy(trunk) {
-  const seedPath = ".planning/seeds/B.md";
-  const seed = withFacts(
-    `${readFileSync(join(trunk.integration, seedPath), "utf8")}\n${storySection("tidy", tidy.identity, "Tidy B", "Tidy the B wording.")}`,
-    tidy.link,
-    tidy.identity,
-    "planless",
-  );
-  writeFileSync(join(trunk.integration, seedPath), seed);
-  await git(trunk.integration, "commit", "-qam", "story tidy");
-  await git(trunk.integration, "push", "-q", "origin", "main");
-  return revParse(trunk.integration, "HEAD");
-}
-
-const tidy = { identity: "SEED-B#tidy", link: "seeds/B.md#tidy" };
-const tidyAdmission = admitArgs(tidy.identity, tidy.link, "Tidy B");
+const tidy = makeMe.aBacklogEntry
+  .with({ identity: "SEED-B#tidy", href: "seeds/B.md#tidy", title: "Tidy B" })
+  .please();
+const tidyAdmission = admitArgs(tidy.identity, tidy.href, tidy.title);
+const unlistedTidyRepository = queuedReadyRepository()
+  .withRevision("unlisted-tidy", {
+    message: "story tidy",
+    files: {
+      ".planning/seeds/B.md": `${storySeed(storyB, "Execute B.")}\n${storySection("tidy", tidy.identity, tidy.title, "Tidy the B wording.")}`,
+    },
+    storyStates: [
+      readyStoryState(storyB),
+      {
+        identity: tidy.identity,
+        href: tidy.href,
+        ...makeMe.aStoryPreparation
+          .with({ refinement: "refined", approach: "planless" })
+          .please(),
+      },
+    ],
+  })
+  .please();
 const claimOnly = [
   "A\t.planning/agents/yui-chan.json",
   "M\t.planning/PRODUCT-BACKLOG.md",
 ];
 
 test("an already published, unlisted planless story is admitted without rewriting its home", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(unlistedTidyRepository);
   t.after(trunk.cleanup);
-  const base = await publishUnlistedTidy(trunk);
+  const base = trunk.revisions["unlisted-tidy"];
   const { receipt } = await startCliResult(trunk, "trunk", tidyAdmission);
   assert.equal(receipt.status, "published", JSON.stringify(receipt));
   assert.deepEqual(receipt.admitted, []);
@@ -162,9 +171,9 @@ test("an already published, unlisted planless story is admitted without rewritin
 });
 
 test("without a default checkout, an owned worktree admits only the published story", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(unlistedTidyRepository);
   t.after(trunk.cleanup);
-  const base = await publishUnlistedTidy(trunk);
+  const base = trunk.revisions["unlisted-tidy"];
   const owned = await ownedWorktreeOnly(trunk, "owned-tidy", "exec/owned-tidy");
   const { receipt, stdout } = await startCliResult(
     trunk,

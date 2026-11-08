@@ -14,10 +14,13 @@ import {
   run,
   supplier,
   supplierPlan,
+  supplierPlanningRevision,
+  third,
   updateDependency,
 } from "./supplier-dependency-fixture.mjs";
+import { queuedReadyRepository } from "./queued-repository.mjs";
+import { materializeRepository } from "./repository-fixture.mjs";
 import { runScript } from "../../src/skills/dough-story-wrap-up/scripts/closure-git-fixtures.mjs";
-import { createQueuedTrunk } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { projectOf } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-dependency-fixtures.mjs";
 import { draftLateStory } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
 import { deploySkill } from "../../src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
@@ -28,16 +31,16 @@ export const executionBranch = "exec/supplier";
 // and publishes its closure tip. Trunk meanwhile gains consumer A waiting
 // on B and THIRD, and the prepared unqueued sibling SEED-A#late waiting on B.
 export async function branchedSupplier(t) {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(
+    queuedReadyRepository({ queued: [consumer, supplier] })
+      .withRevision("supplier-planned", {
+        message: "supplier B is planned",
+        ...supplierPlanningRevision("planned"),
+      })
+      .please(),
+  );
   t.after(trunk.cleanup);
   const project = projectOf(trunk);
-  const third = { identity: "THIRD", href: "seeds/third.md" };
-  writeFileSync(
-    join(trunk.integration, ".planning", third.href),
-    "# Third\n**Identity:** THIRD\n",
-  );
-  writeFileSync(join(trunk.integration, supplierPlan), plan("planned"));
-  await publish(trunk, "supplier B is planned");
   const workspace = join(trunk.fixture, "supplier-workspace");
   await git(
     trunk.integration,

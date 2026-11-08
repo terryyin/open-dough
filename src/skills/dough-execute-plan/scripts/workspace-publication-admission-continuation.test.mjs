@@ -10,16 +10,15 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   createdFor,
   createdForRecords,
   git,
   lsRemoteSha,
 } from "./publication-test-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  startCliResult,
-} from "./workspace-publication-fixtures.mjs";
+import { startCliResult } from "./workspace-publication-fixtures.mjs";
 import {
   admitArgs,
   listed,
@@ -42,7 +41,7 @@ const plan = "# Plan N\n\n### 1. Speed up start\n";
 const continueArgs = ["--identity", identity, "--host", "claude"];
 
 test("an admitted investigation continues into planned implementation under its one claim", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const draft = withFacts(
     `---\nid: SEED-N\n---\n\n# Seed N\n\n${storySection("slow", identity, "Investigate slow start", "Find why startup is slow.")}`,
@@ -196,7 +195,7 @@ test("an admitted investigation continues into planned implementation under its 
 });
 
 test("the same publisher continues its admitted claim; another publisher is refused", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const fix = { identity: "SEED-N#fix", link: "seeds/N.md#fix" };
   writeDraft(

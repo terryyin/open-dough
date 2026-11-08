@@ -8,6 +8,11 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import {
   identityA,
   startCliResult,
 } from "../../dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
@@ -15,7 +20,6 @@ import {
   abandonPreparation,
   backlogCli,
   backlogFile,
-  createPreparationTrunk,
   createWorkspace,
   exec,
   git,
@@ -79,7 +83,9 @@ function assertStopped(release, announced, story) {
 }
 
 test("keeping a preparation whose story was Taken, then completed, stops for the developer with where the story is now", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace, announced } = await preparedStoryA(trunk);
   const kept = await untouched(trunk, workspace, announced.profile);
@@ -143,7 +149,9 @@ test("keeping a preparation whose story was Taken, then completed, stops for the
 });
 
 test("keeping a preparation whose story entry was removed stops, and abandoning it still ends only the assignment", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace, announced } = await preparedStoryA(trunk);
 

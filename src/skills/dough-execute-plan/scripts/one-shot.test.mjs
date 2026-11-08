@@ -7,6 +7,8 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   createdForRecords,
   git,
@@ -15,10 +17,7 @@ import {
   remoteHeads,
   revParse,
 } from "./publication-test-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  startCliResult,
-} from "./workspace-publication-fixtures.mjs";
+import { startCliResult } from "./workspace-publication-fixtures.mjs";
 import { lostPushResponse } from "./workspace-publication-startup-test-fixtures.mjs";
 import { installManagedDelivery } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { deliverThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
@@ -68,7 +67,7 @@ function assertPrepared(started, trunkSha) {
 }
 
 test("an unlisted one-shot result waits for review without publication authority, then an explicit landing publishes it as its only commit", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const headsBefore = await remoteHeads(trunk.origin);
 
@@ -136,7 +135,7 @@ test("an unlisted one-shot result waits for review without publication authority
 });
 
 test("a one-shot start with no change publishes nothing and retires cleanly", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const headsBefore = await remoteHeads(trunk.origin);
 
@@ -154,7 +153,7 @@ test("a one-shot start with no change publishes nothing and retires cleanly", as
 });
 
 test("a lost push response resumes the one-shot result without a duplicate commit", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   // The CLI delivery fixture delivers the exec/story branch.
   const started = await startOneShot(trunk, [], { name: "story" });

@@ -1,10 +1,16 @@
 // A plan declared as the canonical home itself is read as that home: the
 // Taken entry never links it, whether the work was queued or admitted.
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
 import { test } from "node:test";
-import { git } from "./publication-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { direction } from "../../../../tests/support/product-backlog-fixture.mjs";
+import { renderPublishedBacklog } from "../../../../tests/support/published-backlog.mjs";
+import {
+  queuedReadyRepository,
+  storyA,
+  storyB,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   computeBasis,
   recordStoryState,
@@ -15,7 +21,6 @@ import {
   writeDraft,
 } from "./workspace-publication-admission-fixtures.mjs";
 import {
-  createQueuedTrunk,
   remoteBacklog,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
@@ -39,21 +44,6 @@ function readyAsItsOwnPlan(source, href, identity, plan) {
   ).source;
 }
 
-// Publishes `entry` at the top of trunk's backlog list with the drafted home.
-async function queue(trunk, entry) {
-  const backlog = join(trunk.integration, ".planning/PRODUCT-BACKLOG.md");
-  writeFileSync(
-    backlog,
-    readFileSync(backlog, "utf8").replace(
-      "## Backlog list\n\n",
-      `## Backlog list\n\n${entry}\n`,
-    ),
-  );
-  await git(trunk.integration, "add", ".planning");
-  await git(trunk.integration, "commit", "-m", `queue ${entry}`);
-  await git(trunk.integration, "push", "origin", "main");
-}
-
 // Correction C in the legacy shape a correction had before corrections got
 // stories: its backlog link is its own recorded plan. Such work keeps its
 // identity and stays executable without migration.
@@ -62,15 +52,26 @@ test("a legacy correction whose plan is its canonical home is Taken without a pl
   const href = "slice-plans/C/PLAN.md";
   const entry = `- [Correction C](${href}) — ${identity}`;
   const plan = `# Correction C\n\n**Identity:** ${identity}\n\nCorrect C.\n`;
+  const backlog = renderPublishedBacklog({
+    direction,
+    queued: [storyA, storyB],
+  }).replace("## Backlog list\n\n", `## Backlog list\n\n${entry}\n`);
+  const repository = queuedReadyRepository()
+    .withRevision("queue legacy correction", {
+      files: {
+        ".planning/PRODUCT-BACKLOG.md": backlog,
+        [`.planning/${href}`]: readyAsItsOwnPlan(
+          plan,
+          href,
+          identity,
+          "PLAN.md",
+        ),
+      },
+    })
+    .please();
   for (const selectPlan of [false, true]) {
-    const trunk = await createQueuedTrunk();
+    const trunk = await materializeRepository(repository);
     t.after(trunk.cleanup);
-    writeDraft(
-      trunk,
-      `.planning/${href}`,
-      readyAsItsOwnPlan(plan, href, identity, "PLAN.md"),
-    );
-    await queue(trunk, entry);
     const { receipt, workspace } = await startCliResult(trunk, "story-branch", [
       "--identity",
       identity,
@@ -94,17 +95,26 @@ test("a legacy correction whose plan is its canonical home is Taken without a pl
 test("a story whose seed is its own plan is Taken without a plan link, queued or admitted", async (t) => {
   const identity = "SEED-D#d";
   const link = "seeds/D.md#d";
+  const storyD = makeMe.aBacklogEntry
+    .with({ identity, href: link, title: "Story D" })
+    .please();
   const entry = `- [Story D](${link}) — ${identity}`;
   const seed = `---\nid: SEED-D\n---\n\n# Seed D\n\n${storySection("d", identity, "Story D", "Deliver D.")}`;
   for (const admitted of [false, true]) {
-    const trunk = await createQueuedTrunk();
-    t.after(trunk.cleanup);
-    writeDraft(
-      trunk,
-      ".planning/seeds/D.md",
-      readyAsItsOwnPlan(seed, link, identity, "D.md"),
+    const readySeed = readyAsItsOwnPlan(seed, link, identity, "D.md");
+    const repository = queuedReadyRepository();
+    const trunk = await materializeRepository(
+      admitted
+        ? repository.please()
+        : repository
+            .withRevision("queue Story D", {
+              backlog: { direction, queued: [storyD, storyA, storyB] },
+              files: { ".planning/seeds/D.md": readySeed },
+            })
+            .please(),
     );
-    if (!admitted) await queue(trunk, entry);
+    t.after(trunk.cleanup);
+    if (admitted) writeDraft(trunk, ".planning/seeds/D.md", readySeed);
     const { receipt, workspace } = await startCliResult(
       trunk,
       "story-branch",

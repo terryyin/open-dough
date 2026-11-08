@@ -8,6 +8,8 @@ import {
   CiAdapterAttemptBuilder,
   CiTimingJobBuilder,
 } from "./ciTimingTestData.mjs";
+import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
+import { RepositoryBuilder } from "./repositoryTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 
@@ -18,7 +20,6 @@ import {
 /** @typedef {import("./published-plan.mjs").PlanSlice} PlanSlice */
 /** @typedef {import("./published-plan.mjs").PlanCompletion} PlanCompletion */
 /** @typedef {import("./published-plan.mjs").PlanProgress} PlanProgress */
-/** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs").renderDoneRecord>[0]} DoneRecord */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/history-preserving-publish.mjs").publishHistoryPreservingCandidate>[0]} HistoryPreservingPublication */
@@ -48,38 +49,10 @@ function copyFacts(facts) {
   return { please: () => ({ ...facts }) };
 }
 
-class DoneRecordBuilder {
-  /** @type {DoneRecord} */
-  #record = {
-    identity: "SEED-1#completed-story",
-    title: "A completed story",
-    completedAt: "2026-01-01T00:00:00.000Z",
-  };
-
-  /** @param {DoneRecord} facts */
-  with(facts) {
-    return copyFacts(facts);
-  }
-
-  /** @param {Partial<Pick<DoneRecord, "identity" | "title" | "completedAt">>} facts */
-  completed(facts) {
-    this.#record = { ...this.#record, ...facts };
-    return this;
-  }
-
-  /** @param {NonNullable<DoneRecord["intentCoverage"]>} result */
-  withIntentCoverage(result) {
-    this.#record.intentCoverage = result;
-    return this;
-  }
-
-  /** @returns {DoneRecord} */
-  please() {
-    return this.#record;
-  }
-}
-
 export const makeMe = {
+  get aRepository() {
+    return new RepositoryBuilder();
+  },
   get anAgentProfile() {
     return new AgentProfileBuilder();
   },

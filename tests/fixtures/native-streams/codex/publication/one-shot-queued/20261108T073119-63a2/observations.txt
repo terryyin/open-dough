@@ -1,0 +1,26 @@
+journey: one-shot-queued
+stream-status: complete
+one-shot-start-observed: true
+ci-observed-shas: 7194b5af2b595609d8e7e5558e539de86c303fe1
+ci-unobserved-shas: 
+base-sha: ef62eb04164a3fdbda958dbda8d245628ca42501
+remote-sha: 7194b5af2b595609d8e7e5558e539de86c303fe1
+base-ancestor: true
+trunk-commit-count: 1
+planning-paths: .planning/PRODUCT-BACKLOG.md,.planning/seeds/B.md,.planning/slice-plans/B/PLAN.md
+result-changed: true
+workspace-present: false
+branch-present: false
+report-names-kept: true
+human-edit-preserved: true
+ref-update-count: 1
+trunk-push-count: 1
+pushed-tip: 7194b5af2b595609d8e7e5558e539de86c303fe1 taken=
+pushed-taken: 
+forced-trunk-push-count: 0
+other-planning-paths: 
+story-listed: false
+story-section-present: false
+sibling-section-present: true
+plan-present: false
+queue-kept: true

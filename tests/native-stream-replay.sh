@@ -76,7 +76,7 @@ expect_counterexample startup-count-plus-one \
 # A stream-field function that misses the admission call fails that field,
 # and the verdict reassessed from it fails too.
 expect_counterexample admit-unobserved \
-  '^FAIL: cursor/publication/admission-investigation/20260929T035934-4301/events: ' \
+  '^FAIL: (claude|codex|cursor)/publication/admission-investigation/[0-9T]+-[0-9a-f]+/events: (stream field admit-cli-observed is |verdict is )' \
   'cursor/publication/admission-investigation/20260929T035934-4301/events: stream field admit-cli-observed is false, expected true' \
   'cursor/publication/admission-investigation/20260929T035934-4301/events: verdict is fail / investigation started before its admission reached remote trunk, expected pass / accepted investigation was admitted to remote Taken before its first probe'
 

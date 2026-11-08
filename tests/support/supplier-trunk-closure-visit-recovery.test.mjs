@@ -36,7 +36,6 @@ test("a clean visit printed by finish lets its worktree-absent rerun name --visi
   const fixture = await createTrunkClosureFixture(t);
   installInIntegration(fixture);
   const project = await commitCompletedSupplier(
-    t,
     fixture.execution,
     fixture.fixture,
   );

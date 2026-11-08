@@ -10,6 +10,7 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { runRetirementCommand } from "../../dough-story-refinement/scripts/dough-land-test-fixtures.mjs";
 import { refreshDefaultCheckout } from "./maintain-default-checkout.mjs";
 import {
@@ -18,7 +19,6 @@ import {
   deliverQueued,
   queuedDelivery,
   startQueuedOneShot,
-  createSiblingTrunk,
   identityB,
   identityB2,
   remoteCommitsSince,
@@ -35,7 +35,11 @@ import {
   remoteHeads,
   revParse,
 } from "./publication-test-fixtures.mjs";
-import { lostPushResponse } from "./workspace-publication-startup-test-fixtures.mjs";
+import {
+  configureDeveloper,
+  lostPushResponse,
+} from "./workspace-publication-startup-test-fixtures.mjs";
+import { queuedRepositoryWithUnrefinedB2 } from "./one-shot-queued-repository.mjs";
 
 // Starts B with automatic landing and commits its verified result with B's
 // closure; nothing reaches the remote before delivery.
@@ -55,8 +59,9 @@ async function startAndCommit(trunk) {
 }
 
 test("an auto-landed queued result and its closure land as one observed trunk commit, siblings intact, and its created workspace is retired", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const { started, result, fixture, base } = await startAndCommit(trunk);
 
   const { delivered, stderr } = await deliverQueued(fixture, base, [], {
@@ -103,8 +108,9 @@ test("an auto-landed queued result and its closure land as one observed trunk co
 });
 
 test("a Take published between the auto-land start and its landing stops delivery with nothing pushed and the holder intact", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const { started, result, fixture, base } = await startAndCommit(trunk);
   const take = await rivalTake(trunk);
 
@@ -125,8 +131,9 @@ test("a Take published between the auto-land start and its landing stops deliver
 });
 
 test("a lost push response of an auto-landed result resumes the retained candidate without a second commit", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const { started, result, fixture, base } = await startAndCommit(trunk);
 
   const lost = await deliverQueued(fixture, base, [], {

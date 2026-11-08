@@ -5,11 +5,10 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  identityA,
-} from "./workspace-publication-fixtures.mjs";
+import { identityA } from "./workspace-publication-fixtures.mjs";
 import {
   ownedWorktreeOnly,
   startOwned,
@@ -18,7 +17,7 @@ import {
 import { startExecution } from "./execution-start.mjs";
 
 test("without a default checkout, an unusable repository, remote, workspace, or authority starts nothing", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const owned = await ownedWorktreeOnly(trunk, "owned-r", "exec/owned-r");
   const unchanged = async (label) => {

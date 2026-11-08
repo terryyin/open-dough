@@ -22,8 +22,7 @@ import { authenticatedReadRoute } from "../holdAuthenticatedReads.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-// Publishing the journey runs every production preparation command against a
-// local origin, once per worker; the board below reads it.
+// Each worker publishes the preparation history the board reads.
 test.beforeAll(async () => {
   await publishPreparingJourney();
 });

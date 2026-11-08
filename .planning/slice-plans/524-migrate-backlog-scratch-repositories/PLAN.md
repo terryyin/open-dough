@@ -47,10 +47,9 @@ Exclusions:
   The description gains no branch or merge model.
 
 The story records a blocking dependency on
-[the shared repository builder](../../seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures)
-([plan 510](../510-build-explicit-git-fixtures/PLAN.md)). Execution starts
-only after `makeMe.aRepository` and its materializer are on trunk, and then
-extends them.
+[the shared repository builder](../../../tests/support/repository-fixture.mjs).
+Execution starts after `makeMe.aRepository` and its materializer are on trunk,
+then extends them.
 
 ## Current decisions
 

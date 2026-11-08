@@ -5,8 +5,9 @@
 // the edits exactly once. Driven through the real startup CLI.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
-import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import {
   assertOneClaim,
   attemptOverClaim,
@@ -45,7 +46,7 @@ for (const [moment, pattern, options, left] of [
   ],
 ]) {
   test(`an escalation killed ${moment} keeps the edits and finishes once when rerun`, async (t) => {
-    const trunk = await createQueuedTrunk();
+    const trunk = await materializeRepository(queuedReadyRepository().please());
     t.after(trunk.cleanup);
     const { workspace } = await startUnlistedOneShot(trunk);
     growAttempt(workspace);

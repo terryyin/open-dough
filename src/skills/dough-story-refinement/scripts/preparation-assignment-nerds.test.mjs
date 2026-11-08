@@ -2,15 +2,17 @@
 // announcement draws its agent from; a profile of either collection stays held.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { nerdAgentNames } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { publishSettings } from "../../dough-execute-plan/scripts/workspace-publication-startup-test-fixtures.mjs";
 import {
-  createPreparationTrunk,
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { nerdAgentNames } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import {
   createWorkspace,
   identityC,
   lsRemoteSha,
   profileOf,
-  publishAssignment,
   remoteProfileNames,
   startPreparation,
 } from "./preparation-assignment-test-fixtures.mjs";
@@ -24,34 +26,51 @@ async function announcedAgent(trunk) {
 }
 
 test("without the setting the current rotation continues", async (t) => {
-  const trunk = await createPreparationTrunk();
-  t.after(trunk.cleanup);
-  await publishAssignment(
-    trunk,
-    makeMe.anAgentProfile
-      .preparing({ name: "Yui", identity: "SEED-A#a" })
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC)
+      .withRevision("assign-yui", {
+        message: "assign Yui",
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .preparing({ name: "Yui", identity: "SEED-A#a" })
+            .please(),
+        ],
+      })
       .please(),
   );
+  t.after(trunk.cleanup);
   assert.equal(await announcedAgent(trunk), "Akiho-chan");
 });
 
 test("nerds true at trunk gives terry first, then the next free nerds name", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC)
+      .withRevision("settings", {
+        files: { ".planning/open-dough.json": '{"nerds":true}\n' },
+      })
+      .please(),
+  );
   t.after(trunk.cleanup);
-  await publishSettings(trunk, '{"nerds":true}\n');
   assert.equal(await announcedAgent(trunk), "terry-chan");
 });
 
 test("a held current-rotation profile stays held when nerds is set, and the next agent is a nerd", async (t) => {
-  const trunk = await createPreparationTrunk();
-  t.after(trunk.cleanup);
-  await publishAssignment(
-    trunk,
-    makeMe.anAgentProfile
-      .preparing({ name: "Yui", identity: "SEED-A#a" })
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC)
+      .withRevision("assign-yui", {
+        message: "assign Yui",
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .preparing({ name: "Yui", identity: "SEED-A#a" })
+            .please(),
+        ],
+      })
+      .withRevision("settings", {
+        files: { ".planning/open-dough.json": '{"nerds":true}\n' },
+      })
       .please(),
   );
-  await publishSettings(trunk, '{"nerds":true}\n');
+  t.after(trunk.cleanup);
   assert.equal(await announcedAgent(trunk), "terry-chan");
   assert.deepEqual((await remoteProfileNames(trunk)).sort(), [
     profileOf("terry"),
@@ -64,9 +83,14 @@ for (const [label, text] of [
   ["unparseable JSON", "{nope"],
 ]) {
   test(`${label} refuses the announcement, naming the file and key`, async (t) => {
-    const trunk = await createPreparationTrunk();
+    const trunk = await materializeRepository(
+      queuedRepositoryWithRoughStory(roughStoryC)
+        .withRevision("settings", {
+          files: { ".planning/open-dough.json": text },
+        })
+        .please(),
+    );
     t.after(trunk.cleanup);
-    await publishSettings(trunk, text);
     const tip = await lsRemoteSha(trunk.origin, "refs/heads/main");
     const { workspace } = await createWorkspace(trunk, "c");
     const { code, receipt } = await startPreparation(
@@ -87,14 +111,24 @@ for (const [label, text] of [
 }
 
 test("every nerds name held stops with the every-name-held refusal", async (t) => {
-  const trunk = await createPreparationTrunk();
-  t.after(trunk.cleanup);
+  let repository = queuedRepositoryWithRoughStory(roughStoryC);
   for (const name of nerdAgentNames)
-    await publishAssignment(
-      trunk,
-      makeMe.anAgentProfile.preparing({ name, identity: "SEED-A#a" }).please(),
-    );
-  await publishSettings(trunk, '{"nerds":true}\n');
+    repository = repository.withRevision(`assign-${name}`, {
+      message: `assign ${name}`,
+      agentProfiles: [
+        makeMe.anAgentProfile
+          .preparing({ name, identity: "SEED-A#a" })
+          .please(),
+      ],
+    });
+  const trunk = await materializeRepository(
+    repository
+      .withRevision("settings", {
+        files: { ".planning/open-dough.json": '{"nerds":true}\n' },
+      })
+      .please(),
+  );
+  t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   const { receipt } = await startPreparation(trunk, workspace, identityC);
   assert.equal(receipt.status, "agent-unavailable", JSON.stringify(receipt));

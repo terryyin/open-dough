@@ -4,9 +4,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { exec, git } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   identityB,
   remoteBacklog,
@@ -14,7 +16,6 @@ import {
   storyB,
 } from "./workspace-publication-fixtures.mjs";
 import {
-  publishProfiles,
   remoteProfiles,
   startProcess,
 } from "./workspace-publication-startup-test-fixtures.mjs";
@@ -27,10 +28,19 @@ const backlogCli = fileURLToPath(
 );
 
 test("a story completed through the backlog command releases Akiho-chan and the next Take follows it", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
   // Another agent holds Yui-chan for work outside this backlog.
-  await publishProfiles(trunk, ["Yui"], "SEED-C#c");
+  const trunk = await materializeRepository(
+    queuedReadyRepository()
+      .withRevision("hold Yui", {
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .executing({ name: "Yui", identity: "SEED-C#c" })
+            .please(),
+        ],
+      })
+      .please(),
+  );
+  t.after(trunk.cleanup);
   const first = await startCliResult(trunk, "trunk");
   assert.equal(first.receipt.ok, true, JSON.stringify(first.receipt));
   assert.equal(first.receipt.agent, "Akiho-chan");

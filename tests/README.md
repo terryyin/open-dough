@@ -78,6 +78,15 @@ suite-specific models or builders, and defaults that hide facts the test
 depends on when reviewing test changes. Preserve each test's proof boundary
 and assertions during conversion.
 
+For a real Git starting state, describe the published facts with
+`makeMe.aRepository.withRevision(name, facts).please()`. Each revision can
+declare membership, files, story state, profiles, done records, and commit
+identities. Materialize that description with `materializeRepository` to
+get a bare origin, a checkout, named commit IDs, and cleanup. Identical
+descriptions reuse a template within one process, with a private mutable
+copy for each caller. Keep commands and Git transitions under proof in
+the case that observes their result. [Repository harness](support/repository-fixture.mjs)
+
 ## Check environment
 
 The runner gives every check, in the whole suite or a chosen run alike, the

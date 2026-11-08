@@ -6,6 +6,8 @@ import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   agentCommit,
   assertNothingCommitted,
@@ -15,7 +17,6 @@ import {
 } from "./agent-commit-test-fixtures.mjs";
 import { git } from "./publication-test-fixtures.mjs";
 import { installLinkedSkills } from "./symlinked-skill-test-fixtures.mjs";
-import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import {
   coAuthors,
   configureDeveloper,
@@ -128,7 +129,7 @@ test("guided work commit reports commit-failed when a hook rejects before Git re
 });
 
 test("guided work commit is refused and commits nothing in a checkout that names no agent", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   await configureDeveloper(trunk.integration);
   await stageWork(trunk.integration, "slice.txt");

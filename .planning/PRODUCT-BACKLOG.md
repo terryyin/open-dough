@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Build each test’s Git repository from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures) — SEED-262#build-explicit-git-fixtures ([plan](slice-plans/510-build-explicit-git-fixtures/PLAN.md))
 - [Make the Intent sidebar easier to scan and hide](seeds/SEED-271-compact-intent-sidebar.md#compact-intent-sidebar) — SEED-271#compact-intent-sidebar ([plan](slice-plans/525-compact-intent-sidebar/PLAN.md))
 - [Start a follow-up from recently done work](seeds/SEED-273-follow-up-from-done.md#follow-up-from-done) — SEED-273#follow-up-from-done ([plan](slice-plans/526-follow-up-from-done/PLAN.md))
 

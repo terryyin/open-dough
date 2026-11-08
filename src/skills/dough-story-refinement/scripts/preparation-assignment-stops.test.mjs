@@ -7,13 +7,16 @@ import { chmodSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
-  createPreparationTrunk,
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import {
   createWorkspace,
   git,
   identityC,
   lsRemoteSha,
   profileOf,
-  publishAssignment,
   read,
   refineStoryC,
   releasePreparation,
@@ -25,7 +28,7 @@ import {
 } from "./preparation-assignment-test-fixtures.mjs";
 import {
   loseNextResponse,
-  occupyAllBut,
+  oldExecutionAssignmentsExcept,
   raceNextPush,
   remoteSubjects,
   snapshot,
@@ -33,7 +36,9 @@ import {
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 test("a rejected announcement reports no assignment, publishes nothing, and leaves the workspace as found", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   const hook = join(trunk.origin, "hooks/pre-receive");
@@ -59,7 +64,9 @@ test("a rejected announcement reports no assignment, publishes nothing, and leav
 });
 
 test("a workspace already holding draft edits is not announced from, and the draft stays unpublished", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   refineStoryC(workspace);
@@ -76,7 +83,9 @@ test("a workspace already holding draft edits is not announced from, and the dra
 });
 
 test("only a queued story is announced", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "x");
   const { receipt } = await startPreparation(trunk, workspace, "SEED-X#x");
@@ -88,14 +97,19 @@ test("only a queued story is announced", async (t) => {
 });
 
 test("another developer's assignment for the same story is neither continued nor released from this workspace", async (t) => {
-  const trunk = await createPreparationTrunk();
-  t.after(trunk.cleanup);
-  await publishAssignment(
-    trunk,
-    makeMe.anAgentProfile
-      .preparing({ name: "Yui", identity: identityC })
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC)
+      .withRevision("assign-yui", {
+        message: "assign Yui",
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .preparing({ name: "Yui", identity: identityC })
+            .please(),
+        ],
+      })
       .please(),
   );
+  t.after(trunk.cleanup);
   const rival = await remoteFile(trunk, "main", profileOf("Yui"));
   // This workspace starts exactly at Yui's announcement.
   const { workspace } = await createWorkspace(trunk, "c");
@@ -110,9 +124,12 @@ test("another developer's assignment for the same story is neither continued nor
 });
 
 test("when a rival claims the last free name during the push, the full rotation is reported with its occupants and the rival is kept", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC)
+      .withRevision("occupied", oldExecutionAssignmentsExcept("Yui"))
+      .please(),
+  );
   t.after(trunk.cleanup);
-  await occupyAllBut(trunk, "Yui");
   const { workspace } = await createWorkspace(trunk, "c");
   const before = await snapshot(workspace, [seedC]);
   const rival = '{"rival": "Yui is mine"}\n';
@@ -138,7 +155,9 @@ test("when a rival claims the last free name during the push, the full rotation 
 });
 
 test("an announcement whose accepted push loses its response is confirmed from the remote, and a rerun continues it", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   const lost = loseNextResponse(trunk);
@@ -156,7 +175,9 @@ test("an announcement whose accepted push loses its response is confirmed from t
 });
 
 test("a workspace still holding one story's assignment announces no other story until that one ends", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   const { receipt: c } = await startPreparation(trunk, workspace, identityC);

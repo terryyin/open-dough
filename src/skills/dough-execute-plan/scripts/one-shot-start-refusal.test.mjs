@@ -5,9 +5,13 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { remoteHeads } from "./publication-test-fixtures.mjs";
+import { queuedRepositoryWithTakenStoryA } from "../../../../tests/support/queued-repository.mjs";
 import {
-  createQueuedTrunk,
+  integrationDeveloper,
+  materializeRepository,
+} from "../../../../tests/support/repository-fixture.mjs";
+import { lsRemoteSha, remoteHeads } from "./publication-test-fixtures.mjs";
+import {
   identityA,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
@@ -22,10 +26,17 @@ function startOneShot(trunk, extra, options) {
 }
 
 test("one-shot refuses admission, automatic landing without publication authority, tracked automatic landing, missing workspace authority, and Taken work without creating a workspace", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithTakenStoryA({
+      agent: "Yui",
+      committer: integrationDeveloper,
+    }).please(),
+  );
   t.after(trunk.cleanup);
-  const taken = await startCliResult(trunk, "trunk");
-  assert.equal(taken.receipt.ok, true, taken.stdout);
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    trunk.revisions.taken,
+  );
   const headsBefore = await remoteHeads(trunk.origin);
 
   const refusals = [

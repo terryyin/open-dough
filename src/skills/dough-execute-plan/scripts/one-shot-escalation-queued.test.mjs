@@ -5,6 +5,7 @@
 // CLI against a local bare remote.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   git,
   lsRemoteSha,
@@ -18,7 +19,6 @@ import {
   pushFromElsewhere,
 } from "./workspace-publication-admission-fixtures.mjs";
 import {
-  createSiblingTrunk,
   identityB,
   identityB2,
   remoteLists,
@@ -36,12 +36,15 @@ import {
   growAttempt,
   workspaceBytes,
 } from "./one-shot-escalation-test-fixtures.mjs";
+import { queuedRepositoryWithUnrefinedB2 } from "./one-shot-queued-repository.mjs";
+import { configureDeveloper } from "./workspace-publication-startup-test-fixtures.mjs";
 
 const queued = { identity: identityB, link: "seeds/B.md#b", title: "Story B" };
 
 test("a grown queued attempt moves its entry to Taken and keeps its edits over the claim", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const started = await startQueuedOneShot(trunk);
   assert.equal(started.receipt.status, "prepared", started.stdout);
   const { workspace } = started;
@@ -87,8 +90,9 @@ test("a grown queued attempt moves its entry to Taken and keeps its edits over t
 });
 
 test("escalation takes a queued Ready story changed since review, and continuation reports the change without renewing its review", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const { workspace } = await startQueuedOneShot(trunk);
   growAttempt(workspace);
   const revised = await pushFromElsewhere(trunk, seedB, (text) =>
@@ -128,8 +132,11 @@ for (const [holder, rival, status] of [
   ["another developer's Take", rivalTake, "conflict"],
 ]) {
   test(`${holder} that appeared during the attempt refuses its escalation with the edits untouched`, async (t) => {
-    const trunk = await createSiblingTrunk();
+    const trunk = await materializeRepository(
+      queuedRepositoryWithUnrefinedB2(),
+    );
     t.after(trunk.cleanup);
+    await configureDeveloper(trunk.integration);
     const { workspace } = await startQueuedOneShot(trunk);
     growAttempt(workspace);
     const attempt = workspaceBytes(workspace);

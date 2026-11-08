@@ -4,6 +4,9 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { startupCommandFiles } from "../../../../tests/support/startup-command-files.mjs";
 import {
   captureCheckout,
   git,
@@ -11,7 +14,6 @@ import {
   revParse,
 } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   readyContributing,
   remoteBacklog,
@@ -79,7 +81,7 @@ async function assertPublishedSourcesTaken(trunk, started, local) {
 }
 
 test("startup preserves unrelated staged, tracked, untracked, and sibling source edits", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const seed = join(trunk.integration, seedFile);
   writeFileSync(
@@ -114,7 +116,11 @@ test("startup preserves unrelated staged, tracked, untracked, and sibling source
 });
 
 test("a start beside different local selected sources carries setup and the first delivery", async (t) => {
-  const trunk = await createQueuedTrunk({ contributing: readyContributing });
+  const trunk = await materializeRepository(
+    queuedReadyRepository({
+      files: startupCommandFiles({ contributing: readyContributing }),
+    }).please(),
+  );
   t.after(trunk.cleanup);
   await commitSelectedSourceEdits(trunk);
   const seed = join(trunk.integration, seedFile);

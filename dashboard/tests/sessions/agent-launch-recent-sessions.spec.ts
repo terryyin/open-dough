@@ -1,6 +1,6 @@
 // Recently done, under its heading and describing text, retains the closed
 // session while active story cards hold their open sessions, on a
-// committed origin the production commands publish (../launchJourney.ts): an
+// committed origin from ../launchJourney.ts: an
 // retained entry names its story, workflow, launch time, and session with Open
 // terminal; two launches of one story remain distinct in their current homes;
 // and another project's launches are not listed, through

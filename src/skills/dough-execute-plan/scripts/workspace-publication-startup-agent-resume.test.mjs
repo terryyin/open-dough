@@ -4,16 +4,14 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { git, lsRemoteSha } from "./publication-test-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  identityA,
-  identityB,
-} from "./workspace-publication-fixtures.mjs";
+import { identityA, identityB } from "./workspace-publication-fixtures.mjs";
 import {
   assertPublishedAgent,
   interruptFirstPush,
-  publishProfiles,
   remoteProfiles,
   resumeArgs,
   startProcess,
@@ -22,9 +20,14 @@ import {
 const akiho = "Akiho-chan <akiho-chan@example.org>";
 
 // Another agent already holds Yui-chan, so the claim under test is Akiho's.
-async function holdYui(trunk) {
-  await publishProfiles(trunk, ["Yui"], identityB);
-  return lsRemoteSha(trunk.origin, "refs/heads/main");
+function repositoryHoldingYui() {
+  return queuedReadyRepository().withRevision("hold Yui", {
+    agentProfiles: [
+      makeMe.anAgentProfile
+        .executing({ name: "Yui", identity: identityB })
+        .please(),
+    ],
+  });
 }
 
 async function workspaceCommitAuthor(workspace) {
@@ -37,9 +40,9 @@ async function workspaceCommitAuthor(workspace) {
 }
 
 test("Akiho-chan is interrupted and resumes with its authorship restored", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(repositoryHoldingYui().please());
   t.after(trunk.cleanup);
-  const base = await holdYui(trunk);
+  const base = trunk.revisions["hold Yui"];
   await interruptFirstPush(trunk);
   const interrupted = await startProcess(trunk, "a", identityA).result;
   assert.equal(interrupted.receipt.status, "unpublished");
@@ -65,9 +68,8 @@ test("Akiho-chan is interrupted and resumes with its authorship restored", async
 });
 
 test("an owned published claim resumes naming its agent and restores missing worktree config", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(repositoryHoldingYui().please());
   t.after(trunk.cleanup);
-  await holdYui(trunk);
   const first = await startProcess(trunk, "a", identityA).result;
   assert.equal(first.receipt.agent, "Akiho-chan", JSON.stringify(first));
   const published = await lsRemoteSha(trunk.origin, "refs/heads/main");
@@ -97,7 +99,7 @@ test("an owned published claim resumes naming its agent and restores missing wor
 });
 
 test("a claim whose profile commit the developer authored with the agent as co-author still resumes under that agent", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   await interruptFirstPush(trunk);
   const interrupted = await startProcess(trunk, "a", identityA).result;
@@ -136,7 +138,7 @@ test("a claim whose profile commit the developer authored with the agent as co-a
 });
 
 test("a resumed Story Branch claim publishes the branch its interrupted start left unpublished", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const first = await startProcess(trunk, "b", identityA).result;
   assert.equal(first.receipt.ok, true, JSON.stringify(first));

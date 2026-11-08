@@ -6,8 +6,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
-import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import {
   appendSiblingElsewhere,
   assertAdmittedOnce,
@@ -26,7 +27,7 @@ import {
 } from "./workspace-publication-startup-test-fixtures.mjs";
 
 test("an interrupted admission resumes its preserved candidate onto trunk that gained a sibling story", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const story = draftLateStory(trunk);
   await interruptFirstPush(trunk);
@@ -69,7 +70,7 @@ test("an interrupted admission resumes its preserved candidate onto trunk that g
 });
 
 test("an admission accepted behind a lost response resumes as owned without another claim", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const story = draftLateStory(trunk);
   const first = await startProcess(
@@ -111,7 +112,7 @@ async function admitDuringRival(trunk, story, rival) {
 }
 
 test("an admission racing a sibling story on trunk is reconciled onto it", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const story = draftLateStory(trunk);
   const { result, rivalSha, tip } = await admitDuringRival(trunk, story, () =>
@@ -132,7 +133,7 @@ test("an admission racing a sibling story on trunk is reconciled onto it", async
 // drafts untouched unless a rival successfully admitted them, and returns the
 // stop's receipt and that trunk tip.
 async function admissionStoppedBy(t, rival, preserved = true) {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const story = draftLateStory(trunk);
   const drafted = await git(trunk.integration, "status", "--porcelain");
