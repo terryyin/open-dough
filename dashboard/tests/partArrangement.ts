@@ -11,6 +11,18 @@ export async function box(locator: Locator) {
   return found;
 }
 
+// Where a part lies in the window, in CSS px.
+export type Room = Awaited<ReturnType<typeof box>>;
+
+// The part fills a room measured earlier, to the pixel.
+export async function expectFills(part: Locator, room: Room) {
+  const found = await box(part);
+  expect(found.x).toBeCloseTo(room.x, 0);
+  expect(found.y).toBeCloseTo(room.y, 0);
+  expect(found.width).toBeCloseTo(room.width, 0);
+  expect(found.height).toBeCloseTo(room.height, 0);
+}
+
 // Relative placement needs one browser turn: independent boundingBox calls can
 // straddle a scroll or a snapshot update even when the parts never overlap.
 async function boxesTogether(parts: Locator[]) {

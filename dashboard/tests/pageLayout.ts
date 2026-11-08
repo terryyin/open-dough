@@ -15,12 +15,14 @@ export {
 
 export {
   box,
+  expectFills,
   expectInReadingOrder,
   expectInside,
   expectOnOneLine,
   expectOnOneLineWhenRoom,
   expectSideBySideInOrder,
   expectStackedInOrder,
+  type Room,
 } from "./partArrangement.ts";
 
 // Text held in a box of one pixel is shown to no one by sight: it is kept for

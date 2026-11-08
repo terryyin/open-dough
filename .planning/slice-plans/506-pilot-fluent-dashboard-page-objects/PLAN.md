@@ -151,7 +151,7 @@ sidebar objects.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 With a running session, opening a review detaches the Terminal. Reopening the
 same session from the Sessions sidebar reattaches it in the split. Extend the
@@ -167,6 +167,56 @@ locator owner. Run the same two specs and restore both edits. Count the pilot
 locator sites separately from the temporary product edit and other suites.
 Compare the converted call sites and diagnostics with the procedural baseline
 and record a keep, adjust or extend recommendation and its evidence in this plan.
+
+Accepted proof (2026-11-08): the switching journey runs as 12 phases.
+`storyCardPages.ts` now owns the Board and Story card, `terminalPages.ts` the
+Terminal and Sessions sidebar, and `SidePanel` the shared frame controls,
+maximize and restore, and fill geometry (`expectFills` in
+`partArrangement.ts`). Both specs use the same Board, Story card, Side panel
+and Story review objects. Passed: both pilot specs (3), 25 tests across the
+pilot and affected consumers (width and covering, review action, Sessions
+sidebar navigation, terminal maximize, card selection, and samples of
+layout importers) under `caffeinate -s -i`, and `npm run typecheck:dashboard`.
+The refactor pass replaced `agent-terminal-maximize.spec.ts`'s identical local
+`expectCovers` with `expectFills`, and that spec passed.
+
+## Pilot evaluation
+
+**Rename.** Temporarily renaming the Story card's `Review changes` label in
+`dashboard/src/StoryReviewAction.tsx` needed one pilot edit, `StoryCard`'s
+`#reviewChanges` getter, against three sites at `d597e56f7`. Both pilot specs
+passed under the rename. With the old locator restored and the rename kept,
+the run failed at `› Story A's review opens with a file chosen › Story card
+"Story A": Review changes`, which shows the renamed build was under test. Both
+edits were reverted. Outside the pilot, 40 uses in 28 test files name the
+label.
+
+**Reading.** The spec lengths are about the same: 248 to 250 and 236 to 239
+lines. Every action and observation is a named step at its own spec line:
+13 phases replace 5 steps in the replacement spec and 12 replace 6 in the
+switching spec. Raw `expect` calls in the switching spec fell from 74 to 7,
+all at native, record or request boundaries. Each journey took 4.2–4.7 s,
+against 3.9–4.8 s before.
+
+**Failures.** A failure is reported as test › phase › named cue with its real
+expected and received values, and later steps do not run. The code frame
+points at the page-object line, so a reader finds the spec line through the
+step title or the trace.
+
+**Cost.** The runner and page objects total 709 lines. Shared layout added 13
+lines, `makeMe.mjs` 118 and `holdReviewResponse.ts` 52. Each observation costs
+about five helper lines. Values read while the test runs must sit between
+phases. The Side panel and its contents navigate to each other, so they must
+stay in one module, which is at 246 of 250 lines. For the same reason, a
+content object has no route back to the Board or Terminal. Negative checks
+take a boolean, as in `expectSelected(false)`.
+
+**Recommendation: keep, and adjust before extending.** Keep the phase runner,
+the domain page objects, one locator owner per shared control, the named-cue
+diagnostics and MakeMe facts at the call site. Before adding page objects,
+resolve navigation through the phase's own page-object set instead of
+getters across modules, and prefer explicit negative methods. Wider adoption
+is still a separate decision.
 
 ## Design and readiness review
 

@@ -18,23 +18,23 @@ noted that 8's alternatives are context for the choice, not rejection rules.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Goal: a developer reviewing a dashboard browser test can read setup, user actions and expected outcomes in order at the call site | slice 3 | |
-| 2 | Goal: a developer changing a shared Side panel control can find the page object that owns it | slice 3 | |
-| 3 | Goal: use the three existing journeys to decide whether clearer tests justify the cost of the abstraction and its failure diagnostics | slice 3 | |
-| 4 | Convert all three integrated journeys in the two Side panel content specs (Content replacement spec, Content switching spec) to a fluent TypeScript API | slice 3 | |
-| 5 | Reuse the same page objects across both specs for their shared interactions | slice 3 | |
-| 6 | The pilot ends at these journeys and the shared UI responsibilities they exercise | slice 3 | |
-| 7a | Preserve all existing assertions | slice 3 | |
-| 7b | Preserve the existing Git integration boundary | slice 3 | |
-| 7c | Preserve the existing browser integration boundary | slice 3 | |
-| 7d | Preserve the existing synthetic native integration boundary | slice 3 | |
+| 1 | Goal: a developer reviewing a dashboard browser test can read setup, user actions and expected outcomes in order at the call site | slice 3 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts and dashboard/tests/navigation/side-panel-content-switching.spec.ts: setup through makeMe at the top, then named phases whose fluent chains state actions and expected values in order; raw expect only at native/record/request boundaries (switching spec 74 → 7) |
+| 2 | Goal: a developer changing a shared Side panel control can find the page object that owns it | slice 3 | observed: dashboard/tests/storyCardPages.ts StoryCard #reviewChanges (one owner, rename proved one edit site); sidePanelContentPages.ts SidePanel frame controls; terminalPages.ts Terminal and SessionsSidebar |
+| 3 | Goal: use the three existing journeys to decide whether clearer tests justify the cost of the abstraction and its failure diagnostics | slice 3 | observed: PLAN.md Pilot evaluation: Rename, Reading, Failures, Cost and Recommendation from the three converted journeys |
+| 4 | Convert all three integrated journeys in the two Side panel content specs (Content replacement spec, Content switching spec) to a fluent TypeScript API | slice 3 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts both tests and dashboard/tests/navigation/side-panel-content-switching.spec.ts converted to journey.phase fluent phases; all three passed in the final pilot run |
+| 5 | Reuse the same page objects across both specs for their shared interactions | slice 3 | observed: Board, StoryCard (storyCardPages.ts), SidePanel and StoryReview (sidePanelContentPages.ts) used by both dashboard/tests/navigation/side-panel-content-replacement.spec.ts and dashboard/tests/navigation/side-panel-content-switching.spec.ts |
+| 6 | The pilot ends at these journeys and the shared UI responsibilities they exercise | slice 3 | observed: Changed paths limited to the two pilot specs, their page objects and harness support, plus the refactor pass's same-concept expectFills consolidation in agent-terminal-maximize.spec.ts; no product source change (rename reverted, git diff dashboard/src empty) |
+| 7a | Preserve all existing assertions | slice 3 | observed: Slice 1–3 acceptance compared each converted phase with the baseline test at d597e56f7; every original assertion kept, with noted stronger or narrower scoping (expectInSplit also checks Maximize; Enter scoped to the 1 changed file list) |
+| 7b | Preserve the existing Git integration boundary | slice 3 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts and dashboard/tests/navigation/side-panel-content-switching.spec.ts still arrange storyWorktree/storyBWorktree real Git worktrees; review reads go through the real story review endpoint |
+| 7c | Preserve the existing browser integration boundary | slice 3 | observed: Both specs still run in Playwright Chromium against the production build (final pilot run 3 passed) |
+| 7d | Preserve the existing synthetic native integration boundary | slice 3 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts retiredCodexSession uses codexProtocol native history; dashboard/tests/navigation/side-panel-content-switching.spec.ts checks dashboard.claudeAttaches() counts, endedBy poll and the synthetic claude echo between phases |
 | 8 | Approach: use the cue-sheet discipline with fluent page objects (chosen over plain `await` + locator helpers + `test.step`, and over explicit lists of named callbacks) | slice 1 | observed: dashboard/tests/support/cueSheet.ts phase/CueSheet with dashboard/tests/sidePanelPages.ts fluent page objects; dashboard/tests/navigation/side-panel-content-replacement.spec.ts first test written as eight phases |
 | 9 | Typed operations name the dashboard action or observation and share its mechanics | slice 1 | observed: dashboard/tests/sidePanelPages.ts StoryCard.reviewChanges/readFinalReport, StoryReview.expect*, PanelDivider.drag/press/expectSidePanelWidth name each action or observation and own its mechanics |
 | 10 | Each awaited phase keeps the order visible | slice 1 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts first test: eight journey.phase calls awaited in source order |
 | 11 | The cue-sheet analogy models only the test's own actions; browser requests and native processes advance independently and still need observable evidence | slice 1 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts first test: holdReviewOf hold, await heldA.reached, releaseAndDrain, reviewReads counts and keptSession doneAt sit between phases, not in cues |
 | 12a | Use the Board vocabulary | slice 1 | observed: dashboard/tests/sidePanelPages.ts Board class; StoryCard scoped by parts(page).board |
 | 12b | Use the Story card vocabulary | slice 1 | observed: dashboard/tests/sidePanelPages.ts StoryCard class, cue names 'Story card "<title>": …' |
-| 12c | Use the Sessions sidebar vocabulary | slice 3 | |
+| 12c | Use the Sessions sidebar vocabulary | slice 3 | observed: dashboard/tests/terminalPages.ts SessionsSidebar (toggle, expectEntry, expectEntryCurrent, openEntry); dashboard/tests/navigation/side-panel-content-switching.spec.ts phase names use Sessions sidebar |
 | 12d | Use the Side panel vocabulary | slice 1 | observed: dashboard/tests/sidePanelPages.ts and sidePanelContentPages.ts SidePanel class (expectItems, expectNotShowing, storyReview, finalReport) |
 | 12e | Use the Panel divider vocabulary | slice 1 | observed: dashboard/tests/sidePanelPages.ts PanelDivider class (drag, press, expectSidePanelWidth) |
 | 13a | Page objects own scoped locators | slice 1 | observed: dashboard/tests/sidePanelPages.ts and sidePanelContentPages.ts private #card, #reviewChanges, #review, #files, #report locators |
@@ -46,9 +46,9 @@ noted that 8's alternatives are context for the choice, not rejection rules.
 | 15b | Operations run through Playwright `test.step` | slice 1 | observed: dashboard/tests/support/cueSheet.ts play(): each cue is test.step(name, run, {location}) inside the phase's test.step |
 | 15c | The phase stops on failure | slice 1 | observed: Slice 1 diagnostic: expectItems(2) mismatch failed at '› a final report replaces the review › Side panel: shows 2 items'; next cue 'Side panel: shows no Story review' and the Panel divider phase did not run (trace test.trace) |
 | 16a | Reuse existing UI helpers | slice 1 | observed: dashboard/tests/sidePanelPages.ts and sidePanelContentPages.ts imports parts/storyCardSessions, control/dragDivider/expectWidth/expectDividerSays/panelDivider, reviewBody/reviewFeedback, reviewRegion, sidePanelContents |
-| 16b | Consolidate any duplicated locator for the same shared control | slice 3 | |
+| 16b | Consolidate any duplicated locator for the same shared control | slice 3 | observed: Story card Review changes and Read final report each have one locator owner in storyCardPages.ts; the spec's expectCovers and the maximize spec's copy are now partArrangement.ts expectFills |
 | 17 | Keep meaningful inputs and expected values visible | slice 1 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts first test: titles, list and file names, storyBReport, identities, drag(-100) and width+100-keyStep stay in the spec |
-| 18 | Arrange valid domain facts through shared MakeMe | slice 3 | |
+| 18 | Arrange valid domain facts through shared MakeMe | slice 3 | observed: Both specs arrange launch records with makeMe.aLaunchRecord at the call site (tests/support/makeMe.mjs) |
 | 19a | The test harness owns Git | slice 1 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts first test: storyWorktree/storyBWorktree real Git worktrees in the harness, unchanged |
 | 19b | The test harness owns transport holds | slice 1 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts first test + dashboard/tests/support/holdReviewResponse.ts holdReviewOf: hold opened before phase 1, released and drained in finally |
 | 19c | The test harness owns native protocol evidence | slice 1 | observed: dashboard/tests/support/sidePanelContents.ts retiredCodexSession keeps Codex native final report; keptSession doneAt checked between phases |
@@ -64,24 +64,24 @@ noted that 8's alternatives are context for the choice, not rejection rules.
 | E2e | With a file selected in a review, switching to Intent and back keeps the review and its selection | slice 2 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts second test phase 'the review keeps its story, chosen file and diff on Intent and back': for Intent then Development, expectChosen, storyReview.expectStory('Story A'), Modified unstaged.txt chosen, its diff visible, expectItems(1); then intent.expectNotShown() |
 | E2f | Intent reads its own comparison | slice 2 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts second test: expect(reviewReads.slice(reads)).toEqual([queuedIdentity]) after the Intent-and-back phase |
 | E2g | The final report similarly retains its content and session | slice 2 | observed: dashboard/tests/navigation/side-panel-content-replacement.spec.ts second test phases 'the final report keeps its session's report on Intent' (Intent says no locations configured, report storyBReport, 1 item) and '…back on the Board' (Story B card shown, report, 1 item); keptSession doneAt undefined after |
-| E3a | Example (Terminal): opening a review replaces the Terminal and detaches it while the native session stays open | slice 3 | |
-| E3b | Reopening the same session from the Sessions sidebar reattaches it in the normal split | slice 3 | |
-| E3c | Preserve the proof for selection | slice 3 | |
-| E3d | Preserve the proof for maximization | slice 3 | |
-| E3e | Preserve the proof for session identity | slice 3 | |
-| E3f | Preserve the proof for continued access to the Board | slice 3 | |
-| V1 | Compare the converted specs with their current versions | slice 3 | |
-| V2a | Check the three journeys | slice 3 | |
-| V2b | Check affected consumers | slice 3 | |
-| V2c | Check dashboard type-check | slice 3 | |
+| E3a | Example (Terminal): opening a review replaces the Terminal and detaches it while the native session stays open | slice 3 | observed: dashboard/tests/navigation/side-panel-content-switching.spec.ts phase 'a story's review replaces the terminal, which detaches without ending or marking the session done' plus, between phases, attachesOfA() length 1, endedBy poll, keptSession equals keptA |
+| E3b | Reopening the same session from the Sessions sidebar reattaches it in the normal split | slice 3 | observed: dashboard/tests/navigation/side-panel-content-switching.spec.ts phases 'the review maximizes beside the open Sessions sidebar' and 'opening the session from the sidebar…': attached echo, one item, no Story review, expectInSplit, expectEntryCurrent('Story A'); attaches attachedBefore + 1 and kept record unchanged between phases |
+| E3c | Preserve the proof for selection | slice 3 | observed: dashboard/tests/navigation/side-panel-content-switching.spec.ts: expectSelected/expectInspected across the first, inspection, reattach and empty-area phases; Intent selection via intentReads(queuedIdentity / otherQueuedIdentity) |
+| E3d | Preserve the proof for maximization | slice 3 | observed: dashboard/tests/navigation/side-panel-content-switching.spec.ts: splitPanel and maximizedRoom measured with journey.shownRoom(); maximize/restore phases check expectMaximized, expectFills(maximizedRoom) and expectInSplit/expectFills(splitPanel) |
+| E3e | Preserve the proof for session identity | slice 3 | observed: dashboard/tests/navigation/side-panel-content-switching.spec.ts: attached ${sessionA.slice(0, 8)} echo on first open, reattach and after card selection; attaches and kept record at phase boundaries |
+| E3f | Preserve the proof for continued access to the Board | slice 3 | observed: dashboard/tests/navigation/side-panel-content-switching.spec.ts phase 'the dashboard stays usable beside the review': Sessions focus, sidebar and Story A entry shown, review still Story B, one item |
+| V1 | Compare the converted specs with their current versions | slice 3 | observed: PLAN.md Pilot evaluation Reading and Cost: spec lengths, phases versus steps, raw expect counts and timings against d597e56f7 |
+| V2a | Check the three journeys | slice 3 | observed: Final pilot run of both specs: 3 passed (s3-final.log) |
+| V2b | Check affected consumers | slice 3 | observed: Slice 3 consumer set: 25 passed under caffeinate -s -i (s3-consumers.log); refactor rerun of agent-terminal-maximize.spec.ts passed |
+| V2c | Check dashboard type-check | slice 3 | observed: npm run typecheck:dashboard clean after conversion, rename restore and the refactor pass |
 | V3a | Inspect a controlled assertion failure for its named step in the retained Playwright trace | slice 1 | observed: Slice 1 diagnostic trace dashboard/test-results/…/trace.zip test.trace: step 'Side panel: shows 2 items' located at the spec's .expectItems(2) line, inside phase step 'a final report replaces the review', with Expected 2 / Received 1 |
 | V3b | Inspect the same failure for its underlying assertion in the failure output | slice 1 | observed: Slice 1 diagnostic failure output: 'Error: expect(locator).toHaveCount(expected) failed, Expected: 2, Received: 1' under the title path '› a final report replaces the review › Side panel: shows 2 items'; restored run passed (run2.log) |
-| V4 | Compare the three existing Story card `Review changes` locator sites with the pilot's shared owner by trying a reversible rename | slice 3 | |
-| V5a | Record whether developers can follow the setup, actions and expectations | slice 3 | |
-| V5b | Record whether developers can find the failing step | slice 3 | |
-| V5c | Record whether developers can make the rename from one site in the pilot | slice 3 | |
-| V5d | Record the maintenance cost of the helpers | slice 3 | |
-| V6 | Use those observations to recommend keeping, adjusting, or extending the pattern | slice 3 | |
-| V7a | Follow the test automation rules | slice 3 | |
-| V7b | Follow the failing and flaky test policy | slice 3 | |
-| V7c | Follow the macOS sleep guard | slice 3 | |
+| V4 | Compare the three existing Story card `Review changes` locator sites with the pilot's shared owner by trying a reversible rename | slice 3 | observed: PLAN.md Pilot evaluation Rename: one pilot edit (StoryCard #reviewChanges) against three baseline sites; pilot passed under the rename; a control run failed; both edits reverted |
+| V5a | Record whether developers can follow the setup, actions and expectations | slice 3 | observed: PLAN.md Pilot evaluation Reading |
+| V5b | Record whether developers can find the failing step | slice 3 | observed: PLAN.md Pilot evaluation Failures |
+| V5c | Record whether developers can make the rename from one site in the pilot | slice 3 | observed: PLAN.md Pilot evaluation Rename |
+| V5d | Record the maintenance cost of the helpers | slice 3 | observed: PLAN.md Pilot evaluation Cost |
+| V6 | Use those observations to recommend keeping, adjusting, or extending the pattern | slice 3 | observed: PLAN.md Pilot evaluation Recommendation: keep, and adjust before extending |
+| V7a | Follow the test automation rules | slice 3 | observed: MakeMe setup, no sleeps, no test.slow, no timeout overrides in the changed specs and page objects |
+| V7b | Follow the failing and flaky test policy | slice 3 | observed: No failing or flaky test left: every pilot and consumer run passed; the cancelled df2702f6b CI run was superseded by the successful ce269af5c run |
+| V7c | Follow the macOS sleep guard | slice 3 | observed: Slice 3 consumer run under caffeinate -s -i |
