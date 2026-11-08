@@ -63,10 +63,10 @@ Exclusions:
 - **A release source is one local checkout, built in place.** Installers read
   the source by path, so there is no bare origin or push. The source is not
   copied from a template, because each shell build is its own process. This
-  is a materializer option. [Plan 524](../524-migrate-backlog-scratch-repositories/PLAN.md)
-  plans a checkout without an origin for Node tests. If 524 has landed first,
-  reuse its option and add building in place. Otherwise add the option here
-  with a name 524 can reuse, and do not add a second one.
+  is a materializer option. `materializeLocalCheckout` in the
+  [repository harness](../../../tests/support/repository-fixture.mjs) already
+  gives Node tests a checkout without an origin. Reuse that option and add
+  building in place; do not add a second one.
 - **One Node helper.** `tests/support/release-source.mjs <dest>` reads JSON
   release-source facts on stdin, builds them with MakeMe, and materializes
   them at `<dest>`. `tests/support/release-sources.mjs` exports the shared

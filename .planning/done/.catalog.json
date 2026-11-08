@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_migrate-backlog-scratch-repositories.json",
+      "identity": "SEED-262#migrate-backlog-scratch-repositories",
+      "completedAt": "2026-11-08T14:31:13.006Z",
+      "blob": "0fe531aa8f0b6eb8f48f8cfa29f70124e19de790"
+    },
+    {
       "fileName": "SEED-262_migrate-dashboard-origin-fixtures.json",
       "identity": "SEED-262#migrate-dashboard-origin-fixtures",
       "completedAt": "2026-11-08T13:07:31.452Z",
