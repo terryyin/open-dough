@@ -18,7 +18,8 @@
   `9eeecc159add3cb43a8b0fb5fb53f8a05abdebde` on `origin`. Integration
   target `main`.
 - Slice 1 published to the story branch at
-  `970d3d7e56de1590d8069782a0224e72c1a3cddc` with CI registration attached.
+  `970d3d7e56de1590d8069782a0224e72c1a3cddc`, and slice 2 at
+  `30b8d55546de40d42a02cbeadda1158d50167339`, both with CI attached.
 - Checkout setup: locked `npm ci` and `npm run lint -- --help` passed
   with Homebrew Bash on PATH. The check-only commit hook checks staged lint
   and dashboard types when scripts are staged.
@@ -207,7 +208,7 @@ Accepted proof (Homebrew Bash on PATH):
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: The AGENTS.md
 [behavior review](../../../AGENTS.md#behavior-review) of the changed
@@ -225,6 +226,11 @@ Behavior: a completed planned feature story at wrap-up → wrap-up invokes
 `dough-intent-coverage` before the before-cleanup commit, saves the
 returned report, and passes it to `complete` → the done record holds the
 result. A bounded correction at wrap-up → no check runs.
+
+Accepted behavior walk: an established planned or planless feature story requests one installed check before the before-cleanup commit with its source, optional plan, revision, and review-backed gap or key example. A returned Caught or Insufficient evidence report goes from a file outside the checkout through `complete --intent-coverage`. An interrupted or still-pending check supplies a reason to `--intent-coverage-unavailable` at completion, with cleanup decisions continuing while it runs. Corrections and contextual work skip the step. Repeating closure preserves an existing published or local-only committed result; the real CLI repeat assertion confirms the record stays intact.
+
+- `bash scripts/test.sh tests/payload-declaration-links.sh tests/dough-update-guidance-payload.sh tests/install-repeat-force-public-payload.sh tests/install-public-payload.sh src/skills/dough-story-wrap-up/scripts/lifecycle-commitments-guidance.test.mjs src/skills/dough-execute-plan/scripts/planned-wrap-up-continuation-guidance.test.mjs src/skills/dough-execute-plan/scripts/source-freshness-guidance.test.mjs src/skills/dough-execute-plan/scripts/execution-completion-record-guidance.test.mjs src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs src/skills/dough-execute-plan/scripts/supplier-visit-guidance.test.mjs src/skills/dough-land/scripts/process-retrospective-guidance.test.mjs src/skills/dough-land/scripts/completion-attention-guidance.test.mjs src/skills/dough-manual-testing/scripts/workspace-ownership-lifecycle.test.mjs tests/support/product-backlog-complete-intent-coverage.test.mjs` passed with Homebrew Bash on PATH.
+- `npm run test:dashboard -- dashboard/tests/sessions/agent-completion-quiet.spec.ts` passed the three installed closure cases, and `git diff --check` passed. The behavior walk reuses Plan 503's native invocation premise.
 
 ## Plan concerns
 
