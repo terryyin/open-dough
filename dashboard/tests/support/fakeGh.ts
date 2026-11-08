@@ -14,7 +14,7 @@ import {
   withdrawRequestOwners,
 } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
-import { endAtExit, endRunningProcesses, readPid } from "./processGroup.ts";
+import { endAtExit, endRunningProcesses } from "./processGroup.ts";
 
 export type FakeGhPaths = {
   binDir: string;
@@ -45,12 +45,11 @@ const ownerEndsAtExit = new Map<string, () => void>();
 
 const callRecordName = /^call\.\d+\.\d+\.json$/;
 
-// Pids of `gh` calls still recorded under an owner endpoint, plus the last
-// one the synthetic `gh` wrote into its pid file.
-function recordedGhPids(root: string, pidPath: string): number[] {
+// Pids of `gh` calls still recorded under this installation's owner endpoint.
+// The synthetic `gh` pid file is not included: another live dashboard can
+// share one request owner whose `gh` wrote that file while serving both.
+function recordedCallPids(root: string): number[] {
   const pids = new Set<number>();
-  const fromFile = readPid(pidPath);
-  if (fromFile !== undefined) pids.add(fromFile);
   if (!existsSync(root)) return [...pids];
   for (const entry of readdirSync(root, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
@@ -73,12 +72,14 @@ function recordedGhPids(root: string, pidPath: string): number[] {
 }
 
 // Ends every request owner started at this installation's endpoint, waits
-// until its process is gone, ends any `gh` that owner left running, and
+// until its process is gone, ends any `gh` that owner left recorded here, and
 // removes the endpoint. An owner that ends after its two-second bound can
 // leave held `gh` processes running outside the dashboard server's process
-// group; end those before the fixture removes their pid file and temp root.
+// group; end those orphans before the fixture removes their temp root. Do not
+// kill a pid-file `gh` that still belongs to a shared owner another live
+// dashboard needs.
 export async function endFakeGh(gh: FakeGhPaths): Promise<void> {
-  const leftover = recordedGhPids(gh.requestOwnerRoot, gh.pidPath);
+  const leftover = recordedCallPids(gh.requestOwnerRoot);
   await endRequestOwners(gh.requestOwnerRoot);
   await endRunningProcesses(leftover);
   ownerEndsAtExit.get(gh.requestOwnerRoot)?.();

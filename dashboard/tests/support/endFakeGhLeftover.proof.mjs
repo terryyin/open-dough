@@ -1,5 +1,7 @@
-// Focused proof: endFakeGh ends a held synthetic `gh` that outlived its
-// request owner — the processAlive race authenticated-read-turns hit in CI.
+// Focused proof: endFakeGh ends a held synthetic `gh` still recorded under
+// this owner endpoint after the owner is gone — the processAlive race
+// authenticated-read-turns hit in CI. Shared-owner dashboards keep their
+// live call records under the shared root, so closing one does not kill them.
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
