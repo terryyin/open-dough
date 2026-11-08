@@ -165,7 +165,7 @@ working HTTP increment and the attention journeys on their original fixture.
 
 **Type:** Behavior
 
-**Status:** planned
+**Status:** done
 
 Expose the same explicit selection through the page fixture and apply it to
 the two attention cases. Keep their private contexts, servers, fake answers,
@@ -213,6 +213,19 @@ Already-traced: dashboard (2/12) failed because listed-read
 returns `The pinned revision is not a commit sha.` Restored
 `unpinnedRevision` on those cases. Focused proof:
 `authenticated-read-refusal` strict passed (22). No broader concept change.
+Repair SHA: `572b4f4dab518d35ccbde584aeffd428685d8360`.
+
+### Slice 2 accepted proof
+
+- Page fixture exposes `cursorRunner` (default real); attention selects
+  stand-in; `expectCursorRunnerStandIn` / `runnersFor===0`.
+- Matched selection 24 strict passed after restore
+  (`/tmp/seed262-s2-accept-bLF9wn/matched.json` and resume run).
+- Real owners session-states + serving-modes: 7 strict passed.
+- Measurement keep: ~100 ms setup saving; ~2 s average wall gain vs
+  `/tmp/seed262-baseline-3qXP8h`; fixture contract in
+  `dashboard/tests/native-host-fixtures.md`.
+- Post-change refactor: shared stand-in expect helper; README under 250.
 
 
 ## Story obligations

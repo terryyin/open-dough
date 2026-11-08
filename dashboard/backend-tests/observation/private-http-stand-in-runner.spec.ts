@@ -15,7 +15,10 @@ import {
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-import { runnersFor } from "../../tests/support/cursorRunnerJourney.ts";
+import {
+  expectCursorRunnerStandIn,
+  runnersFor,
+} from "../../tests/support/cursorRunnerJourney.ts";
 
 const knownSourceId = "open-dough";
 const withStandIn = {
@@ -33,9 +36,7 @@ async function readRevision(baseURL: string, origin: string) {
 test("a stand-in private HTTP fixture has no real Cursor runner", async () => {
   const server = await startDashboardServer(withStandIn);
   try {
-    const address = readCursorRunnerAddress(server.home);
-    expect(address?.pid).toBe(process.pid);
-    expect(runnersFor(server.home)).toBe(0);
+    expectCursorRunnerStandIn(server.home);
     expect(
       (
         await rawRequest({
@@ -125,8 +126,7 @@ test("overlapping stand-in fixtures keep private answers and retire only their o
 test("a failed stand-in fixture still retires its owned resources", async () => {
   const server = await startDashboardServer(withStandIn);
   const home = server.home;
-  expect(runnersFor(home)).toBe(0);
-  expect(readCursorRunnerAddress(home)?.pid).toBe(process.pid);
+  expectCursorRunnerStandIn(home);
   // Simulate the case failing after the fixture started: close still owns
   // retirement of the listener, address, server, request owner and scratch.
   await expect(async () => {

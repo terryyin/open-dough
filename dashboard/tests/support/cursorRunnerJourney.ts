@@ -47,6 +47,13 @@ export function runnersFor(home: string): number {
     .length;
 }
 
+// Harness `cursorRunner: "stand-in"`: accepting address owned by this worker,
+// with no real runnerMain process for the home.
+export function expectCursorRunnerStandIn(home: string): void {
+  expect(runnersFor(home)).toBe(0);
+  expect(readCursorRunnerAddress(home)?.pid).toBe(process.pid);
+}
+
 export function runnerCommand(pid: number): string {
   return spawnSync("ps", ["-o", "command=", "-p", String(pid)], {
     encoding: "utf8",

@@ -147,24 +147,25 @@ and a browser request to GitHub itself fails the test that made it. Nothing
 here ever calls the real `gh` CLI or contacts GitHub: every process a test
 starts that can run `gh` asks it through a GitHub request owner of that
 test's own, and a run in which a process asked without one fails at its end
-naming that. Every server binds a port the operating system chooses, so the
-suite can run beside another checkout's suite on the same machine, and a
-server that cannot start fails its test with its own output
+naming that. The machine-local Cursor runner stays real by default; the
+stand-in opt-in for proofs that omit Cursor operations is in
+[native-host fixtures](native-host-fixtures.md#cursor-runner-stand-in). Every
+server binds a port the operating system chooses, so the suite can run
+beside another checkout's suite on the same machine, and a server that
+cannot start fails its test with its own output
 (`support/dashboardServer.ts`). Test support takes the repository root from
 `support/repositoryRoot.ts`, never the working directory (lint refuses
-`process.cwd()` in test code), so `--config <repository>/dashboard/playwright.config.ts`
-gives the same result from anywhere.
+`process.cwd()` in test code), so
+`--config <repository>/dashboard/playwright.config.ts` gives the same result
+from anywhere.
 
 The configuration sets `NODE_DISABLE_COMPILE_CACHE=1` before global setup and
-workers start; builds, servers and deployment descendants inherit it, even
-when `NODE_COMPILE_CACHE` names an existing cache, leave that cache's entries
-intact and add no persistent compile cache to reclaim after a failure. The
-calling Node/npm process can still cache its own startup before the
-configuration loads, and dashboard commands outside the suite keep their own
-policy. `../backend-tests/runtime/compile-cache.spec.ts` makes real enable/import/flush
-attempts, preserves seeded cache hashes through repetition, overlap, failure
-and signals, and checks an outside-policy child really can write cache; only
-that API probe is skipped on supported Node versions without the API.
+workers start so builds, servers and deployment descendants inherit it and add
+no persistent compile cache after failure; the calling Node/npm process and
+commands outside the suite keep their own policy.
+`../backend-tests/runtime/compile-cache.spec.ts` proves enable/import/flush,
+seeded-hash preservation, and outside-policy writes (API probe skipped when
+unsupported).
 
 ## Adding a test
 
@@ -241,15 +242,8 @@ its own `npm ci`), prints each run's exit status, seconds, load average
 before and after, failing locations and kept directory, and exits 0 only
 when every run passed.
 
-## Measuring a run
+## Measuring and process cleanup
 
 Retain a strict JSON selection with `OPEN_DOUGH_DASHBOARD_PROOF_RECORD`; see
-[proof record](proof-record.md) for fields, wall versus `durationMs`, load
-comparison, and shard timing artifacts ([dashboard shards](shards.md)).
-Pass no `--reporter`: it replaces the quiet reporter, which writes the record,
-the times file and the strict verdict.
-
-## No process outlives its run
-
-[Process cleanup](writing-journeys.md#process-cleanup) describes worker and run
-ownership, Cursor runner teardown, leak failures and safe local inspection.
+[proof record](proof-record.md). Pass no `--reporter`. Worker and run process
+ownership is in [process cleanup](writing-journeys.md#process-cleanup).

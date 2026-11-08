@@ -64,6 +64,16 @@ services still close. Public attachment observations remain machine-wide; the
 exit check selects only that server's attachments. Retained Cursor clients belong
 to their runner, which is stopped by the owner of the machine directory.
 
+## Cursor runner stand-in
+
+The machine-local Cursor runner stays real by default so checks of startup,
+use, survival, restart, and cleanup keep a live process. Specs whose proof
+does not cover Cursor operations may select `cursorRunner: "stand-in"` on
+`startDashboardServer` or the page fixture (`dashboardTest.ts`); that
+accepting loopback address is owned with the fixture and never stopped
+through the real runner path. Caller-owned restart machines keep the real
+runner.
+
 The terminal boundary specs drive it over a raw socket
 (`agent-terminal-boundary.spec.ts`; `agent-terminal-close.spec.ts` for the
 server's close hook; `agent-terminal-reopen.spec.ts` for reopening a session

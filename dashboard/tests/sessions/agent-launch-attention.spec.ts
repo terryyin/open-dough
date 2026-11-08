@@ -25,9 +25,15 @@ import {
   launchOnEachQueuedCard,
   publishedFactsOf,
 } from "../storyCardAttention.ts";
+import { expectCursorRunnerStandIn } from "../support/cursorRunnerJourney.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
 
-test.use({ projectFolders: ["open-dough", "doughnut"] });
+// Cursor operations are outside this journey's proof; the page fixture's
+// stand-in skips an unused real runner while keeping the built preview.
+test.use({
+  projectFolders: ["open-dough", "doughnut"],
+  cursorRunner: "stand-in",
+});
 
 const one = "1 session needs attention";
 
@@ -44,6 +50,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     page,
     dashboard,
   }) => {
+    expectCursorRunnerStandIn(dashboard.home);
     const { passOnePace, show, card, expectCounted, shows, becomes, queued } =
       await launchOnEachQueuedCard(page, dashboard, columnsJourney);
     const facts = await publishedFactsOf(card(readyStory));
