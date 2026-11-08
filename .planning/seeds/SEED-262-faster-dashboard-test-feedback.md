@@ -373,23 +373,87 @@ mutates its repository leaves a concurrent test's repository independent.
 
 **Identity:** SEED-262#prepare-artifacts-on-demand
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/513-prepare-dashboard-artifacts-on-demand/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"43ea1e6f0114da1fa6c77ae9ff04baa02c03808551c17934c105320201b4451f","plan":"1b4bc395a76d0d91077b298b9bdb7acc2fff1466f815ef25675f1181ab6b0c4c"}}
 ```
 
-**Goal.** A developer can run a focused backend, frontend, or integrated
-selection without paying to produce run-wide artifacts the selection never uses.
+#### Goal
 
-**Scope.** Start with the setup charged to the attention spec and the
-in-process count checks. Three count checks took 4ms combined and 3.31s from
-the command line. Cover the build, server bundle, and installed-start origin
-preparation in the common entry point. Keep required outputs fresh from the
-current checkout, shared within their run when safe, and cleaned up.
+Developers get faster feedback from focused dashboard tests because the run
+prepares only the app build, server bundle, and installed-start origins its
+selected cases use. A developer still runs the same Playwright command and
+gets the same proof from the selected cases.
 
-**Evaluation.** Compare an in-process selection, a frontend-only selection,
-and mixed and installed-start selections. Observe which artifacts each
-produces and when. Show lower focused wall time and measure mixed-run time
-to catch costs that move from startup into the tests.
-[Global setup](../../dashboard/tests/support/globalSetup.ts)
+#### Scope
+
+- Apply demand at the fixture or operation that needs the artifact. Keep the
+  production app build and the existing server bundle separate. The installed
+  origin uses the selected installation layout. A run shares each completed
+  artifact safely across its workers, from the current checkout, and removes
+  its own artifacts after success, failure, or graceful interruption.
+- Preserve private mutable Git copies, the actual preview and boundary
+  entry points, and deliberate fixture overrides. A failed producer must
+  surface its error and leave no partial output for consumers. Keep the run's
+  process cleanup, synthetic GitHub isolation, and admission rules.
+- Scope limits include faster build or Git production, splitting the server
+  bundle into entries, persistence across runs, and per-test fixture speed.
+  The [MakeMe migration](#migrate-dashboard-origin-fixtures) owns the Git
+  descriptions. This story owns when the run prepares its shared copies.
+
+#### Key examples
+
+1. A developer selects the three in-process session count cases. All three
+   pass and the run invokes none of the three producers.
+2. A developer selects a frontend journey that serves the built app with
+   stubbed boundary replies. It uses one production build and prepares
+   neither the server bundle nor any installed-start origin. A frontend case
+   using only page content needs none.
+3. A boundary-only selection starts the real bundled Node entry without
+   building the app. A mixed selection that adds preview or the attention
+   journey gets the app and bundle once, even across workers. A source-dev
+   or in-process case does not acquire those artifacts merely by loading
+   helpers that can start a preview.
+4. A developer filters the installed-start isolation spec to the case that
+   uses Codex and Cursor. Both use the prepared layout they share and get
+   independent Git repositories. The filtered-out Claude cases do not cause
+   its layout to be prepared. No app or server bundle is produced for that case.
+5. Two workers first need the same artifact while it is still being made.
+   Both receive the same completed output or see the producer's failure.
+   If the run fails or is interrupted, its cleanup leaves the other run's
+   outputs and `dashboard/dist` alone.
+
+#### Architecture
+
+Use first use to request an artifact from the existing run lifecycle owner.
+This borrows from demand paging: the first access starts a fill and later
+accesses share the completed read-only result. Here the workers and runner
+must coordinate explicitly and return a producer error to callers. A later
+run must prepare from its own checkout.
+
+Eager preparation is simple and keeps production outside test waits, but the
+current [global setup](../../dashboard/tests/support/globalSetup.ts) runs
+before final case selection. A discovery pass with explicit declarations could
+prebuild for selected cases, at the cost of maintaining those declarations
+and predicting conditional uses. Filename and project patterns cannot make
+that prediction. Worker-local preparation follows actual demand but
+duplicates work at parallel first use. Prefer shared preparation on demand.
+Keep the existing producers
+and the installed-start fixture's real Git origins and histories, following
+[ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
+Use isolated deterministic checks under
+[ADR 0005, Cross-tool validation through native acceptance stories](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+
+#### Evaluation
+
+Compare matching in-process, built-frontend, mixed, and installed-start
+selections with the same worker settings and comparable load. Record which
+producers ran, when they ran, case verdicts, and command wall time. A scratch
+omission trial kept 3, 2, 11, and 1 cases green while skipping the unused
+producers. It did not move production into a test's wait. The main risk is
+that first-use waits can eat the test timeout or move enough cost into workers
+to slow mixed runs. Show lower focused wall time, preserve timeout settings
+and coverage, and measure mixed end-to-end time so any material regression is
+visible before acceptance.
+[ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md)
 
 <a id="arrange-prerequisite-state"></a>
 
