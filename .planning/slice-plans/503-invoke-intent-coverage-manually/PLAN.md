@@ -13,13 +13,12 @@
 - Publisher `dashboard-territory.local-open-dough`, agent `viktor-chan`,
   starting revision `915e70ae51a823ad5a7cbb82f9c1fb05b0090a0e`, and confirmed
   claim and first publication base `fd3c598112daf1871eb788afd4ac8d08b50c9131`.
-- Codex observer `viktor-seed258`, GitHub Actions `ci.yml` (CI) on the
-  execution branch of `terryyin/open-dough`, mailbox
-  `/tmp/dough-ci-501/watch-iouCtG`, PID `36703`, session `97985`, cell `12`.
-- Slice 1 was accepted on the execution branch at
-  `db92104dbf589a9cc9e53f7e1fd067054371b984` with observation attached.
-- Slice 2 was accepted at `761599d9271a6e250a0fb060e29baef918275e0c`
-  with observation attached.
+- Codex observer `viktor-seed258`, GitHub Actions `ci.yml` on the story branch
+  of `terryyin/open-dough`. The pre-approval mailbox `watch-iouCtG` stopped.
+  Resumed at `/tmp/dough-ci-501/watch-N0lv82`, PID `32615`, session `71230`, cell `g15:3`.
+- Accepted slices 1–3: `db92104dbf589a9cc9e53f7e1fd067054371b984`,
+  `761599d9271a6e250a0fb060e29baef918275e0c`, `502069a1586f416be0a801b883f91f635f206ab3`.
+- CI run `42430795390/1` exposed a fresh CI-proof read replacing the Summary during a layout assertion. The test now waits for the existing request-settlement signal before the preserved assertions. Five focused Chromium cases passed.
 
 ## Goal and boundaries
 

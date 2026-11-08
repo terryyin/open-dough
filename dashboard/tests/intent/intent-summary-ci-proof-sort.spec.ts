@@ -20,6 +20,7 @@ import {
   summaryRegion,
 } from "../intentScopeProofPage.ts";
 import { openIntent, openSummary } from "../intentSummaryCiProofFixtures.ts";
+import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import {
   collectedSummary,
   playwrightRecord,
@@ -164,6 +165,9 @@ test("a folder's Summary shows its own figures above its children and keeps a Co
     await expect(
       summaryRegion(intent).locator(".intent-summary-path"),
     ).toHaveText(folderPath);
+    // The fresh judgment and its proof can replace the previously retrieved
+    // proof after the folder first reappears.
+    await untilPageReadsAnswered(page);
     await folderSorted();
     expect(page.url()).toBe(startUrl);
     const stored = await page.evaluate(() =>
