@@ -28,9 +28,10 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
+- [Choose Claude Code effort when starting a session](seeds/SEED-280-choose-claude-code-effort.md#choose-claude-code-effort) — SEED-280#choose-claude-code-effort ([plan](slice-plans/545-choose-claude-code-effort/PLAN.md))
+
 ## Backlog list
 
-- [Choose Claude Code effort when starting a session](seeds/SEED-280-choose-claude-code-effort.md#choose-claude-code-effort) — SEED-280#choose-claude-code-effort
 - [Verify stale-reclaimer exclusion without a fixed wait](seeds/SEED-279-observe-stale-reclaimer-handoff.md#observe-stale-reclaimer-handoff) — SEED-279#observe-stale-reclaimer-handoff
 - [Pilot native evidence reuse for Git publication admission](seeds/SEED-262-faster-dashboard-test-feedback.md#pilot-admission-native-evidence-reuse) — SEED-262#pilot-admission-native-evidence-reuse
 - [Guard native fixture identity inputs against drift](seeds/SEED-262-faster-dashboard-test-feedback.md#guard-native-fixture-identity-inputs) — SEED-262#guard-native-fixture-identity-inputs
