@@ -10,6 +10,7 @@ import {
  * Write an ordinary published backlog from its membership facts. Tests that
  * exercise particular input bytes can supply those directly to their harness.
  * @param {{ taken?: readonly BacklogEntry[], queued?: readonly BacklogEntry[], direction?: string }} facts
+ * @returns {string}
  */
 export function renderPublishedBacklog({
   taken = [],

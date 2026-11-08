@@ -106,7 +106,7 @@ test("a feature selected while startup detail completes stays selected with its 
   // it keeps startup unfinished while the developer picks a feature.
   const detail = await holdAuthenticatedReadsOf(
     page,
-    pygardon.queuedPath,
+    ".planning/seeds/SEED-303-queued.md",
     releases,
   );
   await page.goto("/?project=pygardon&perspective=intent");

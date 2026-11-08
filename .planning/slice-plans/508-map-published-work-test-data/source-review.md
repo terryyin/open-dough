@@ -16,7 +16,7 @@ The numbered return is retained below.
 | P05 | A story’s published revision is recognizable across test entries without decoding fixture-specific fields. | slice 9 |  |
 | P06 | A story’s preparation is recognizable across test entries without decoding fixture-specific fields. | slice 3 |  |
 | P07 | A story’s progress is recognizable across test entries without decoding fixture-specific fields. | slice 6 |  |
-| P08 | Convert remaining valid setup for published project sources. | slice 2 |  |
+| P08 | Convert remaining valid setup for published project sources. | slice 2 | observed: catalogProjectRecords.ts declares the four canonical PublishedSource inputs and pinned revisions and serves their encoded files through publishFiles. |
 | P09 | Convert remaining valid setup for story homes. | slice 1 | observed: product-backlog-refresh-fixture.mjs adoptedHomes and afterMove, exercised by the renamed and reanchored home tests in product-backlog-refresh.test.mjs |
 | P10 | Convert remaining valid setup for backlog membership. | slice 1 | observed: product-backlog-fixture.mjs arrangedBacklog and product-backlog-merge-fixture.mjs mergeBacklog arrange Taken and queue facts; product-backlog-take.test.mjs and product-backlog-merge-order.test.mjs assert ordered membership |
 | P11 | Convert remaining valid setup for published assignments. | slice 5 |  |
@@ -39,10 +39,10 @@ The numbered return is retained below.
 | P28 | Carry readiness `href` through the existing preparation commands. | slice 3 |  |
 | P29 | Carry the product backlog entry’s plan link through the existing renderer. | slice 3 |  |
 | P30 | Carry the product backlog entry’s plan link through the existing preparation commands. | slice 3 |  |
-| P31 | Keep catalog pinned source facts distinct from expected card text. | slice 2 |  |
-| P32 | Keep catalog pinned source facts distinct from expected card paths. | slice 2 |  |
-| P33 | Keep catalog work records distinct from expected card text. | slice 2 |  |
-| P34 | Keep catalog work records distinct from expected card paths. | slice 2 |  |
+| P31 | Keep catalog pinned source facts distinct from expected card text. | slice 2 | observed: catalogProjectRecords.ts builds PublishedSource with no expected card data; catalogProjectExpectations.ts independently states the card text. |
+| P32 | Keep catalog pinned source facts distinct from expected card paths. | slice 2 | observed: catalogProjectRecords.ts builds PublishedSource with the backlog path; catalogProjectExpectations.ts independently lists expected home paths. |
+| P33 | Keep catalog work records distinct from expected card text. | slice 2 | observed: catalogProjectRecords.ts builds separate Take and queue facts, while authenticated-project-observation.spec.ts checks independent titles and purpose. |
+| P34 | Keep catalog work records distinct from expected card paths. | slice 2 | observed: catalogProjectRecords.ts writes files from entry hrefs; the observation spec verifies independent canonical hrefs. |
 | P35 | Carry identities explicitly where they drive a case. | slice 9 |  |
 | P36 | Carry homes explicitly where they drive a case. | slice 9 |  |
 | P37 | Preserve independent expectations. | slice 9 |  |
@@ -78,18 +78,18 @@ The numbered return is retained below.
 | X09 | Native-runner setup belongs to later conversion stories where applicable. | slice 9 |  |
 | X10 | The Git fixture migration owns the shared repository description. | slice 9 |  |
 | X11 | The Git fixture migration owns the shared repository materializer. | slice 9 |  |
-| J1.01 | The catalog project is pinned. | slice 2 |  |
-| J1.02 | Its work includes a Taken correction. | slice 2 |  |
-| J1.03 | Its work includes a queued story with a purpose. | slice 2 |  |
-| J1.04 | Selecting the project triggers the dashboard read. | slice 2 |  |
-| J1.05 | The dashboard reads the configured repository. | slice 2 |  |
-| J1.06 | The dashboard reads the configured ref. | slice 2 |  |
-| J1.07 | The dashboard then reads that revision. | slice 2 |  |
-| J1.08 | The two cards show the selected project’s titles. | slice 2 |  |
-| J1.09 | The cards show the selected project’s purpose as arranged in the example. | slice 2 |  |
-| J1.10 | The fixture supplies source facts distinct from work facts. | slice 2 |  |
-| J1.11 | The test checks the requests independently of the fixture’s source and work facts. | slice 2 |  |
-| J1.12 | The test checks the visible text independently of the fixture’s source and work facts. | slice 2 |  |
+| J1.01 | The catalog project is pinned. | slice 2 | observed: catalogProjectRecords.ts builds each selected repository and ref with a distinct pinned revision. |
+| J1.02 | Its work includes a Taken correction. | slice 2 | observed: catalogProjectRecords.ts declares an explicit correction identity and plan home in Taken; the observation spec reads the card with no assessment. |
+| J1.03 | Its work includes a queued story with a purpose. | slice 2 | observed: catalogProjectRecords.ts writes a queued entry with an anchored home and Goal; the observation spec opens and checks its detail. |
+| J1.04 | Selecting the project triggers the dashboard read. | slice 2 | observed: authenticated-project-observation.spec.ts selects each project radio and observes its own cards and local gh calls. |
+| J1.05 | The dashboard reads the configured repository. | slice 2 | observed: catalogProjectExpectations.ts expectPinnedGhCalls checks each argv names the independently supplied repository. |
+| J1.06 | The dashboard reads the configured ref. | slice 2 | observed: catalogProjectExpectations.ts expectPinnedGhCalls verifies the exact commits request uses the configured ref; the reload step verifies ref resolution again. |
+| J1.07 | The dashboard then reads that revision. | slice 2 | observed: catalogProjectExpectations.ts expectPinnedGhCalls verifies that each raw or listing read after ref resolution includes the expected revision. |
+| J1.08 | The two cards show the selected project’s titles. | slice 2 | observed: authenticated-project-observation.spec.ts expectMembership checks each selected project’s independently expected Taken and queued card titles. |
+| J1.09 | The cards show the selected project’s purpose as arranged in the example. | slice 2 | observed: authenticated-project-observation.spec.ts opens the queued detail and checks the independently expected purpose. |
+| J1.10 | The fixture supplies source facts distinct from work facts. | slice 2 | observed: catalogProjectRecords.ts composes PublishedSource and revision with separately declared Taken and queued facts, direction, and purpose. |
+| J1.11 | The test checks the requests independently of the fixture’s source and work facts. | slice 2 | observed: catalogProjectExpectations.ts expectPinnedGhCalls verifies resolved refs, pinned contents, and the exact set of reachable paths independently of the served fixtures. |
+| J1.12 | The test checks the visible text independently of the fixture’s source and work facts. | slice 2 | observed: authenticated-project-observation.spec.ts checks membership, direction, revision and detail purpose from catalogProjectExpectations.ts and excludes the other projects’ titles. |
 | J2.01 | An existing story moves to a different home. | slice 1 | observed: product-backlog-refresh.test.mjs refresh reference carries the identity to a renamed canonical home, with afterMove planting the new file and removing the old |
 | J2.02 | The move preserves the story’s identity. | slice 1 | observed: product-backlog-refresh.test.mjs renamed and reanchored cases compare the original identity in refreshed bytes and still address the entry by that identity |
 | J2.03 | Refreshing the backlog makes the entry follow the moved home. | slice 1 | observed: product-backlog-refresh.test.mjs real refresh compares the updated href in the original queue position and confirms unchanged canonical home bytes |

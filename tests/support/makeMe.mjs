@@ -74,6 +74,9 @@ const withReport = (profile, { host, model }) => ({
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 
+/** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
+/** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
+
 export const makeMe = {
   get anAgentProfile() {
     return new AgentProfileBuilder();
@@ -81,6 +84,26 @@ export const makeMe = {
   get aBacklogEntry() {
     return {
       /** @param {BacklogEntry} facts */
+      with(facts) {
+        return { please: () => ({ ...facts }) };
+      },
+    };
+  },
+  get aPublishedSource() {
+    return {
+      /** @param {Omit<PublishedSource, "ref" | "backlogPath"> & Partial<Pick<PublishedSource, "ref" | "backlogPath">>} facts */
+      with({
+        ref = "main",
+        backlogPath = ".planning/PRODUCT-BACKLOG.md",
+        ...facts
+      }) {
+        return { please: () => ({ ...facts, ref, backlogPath }) };
+      },
+    };
+  },
+  get aPublishedRevision() {
+    return {
+      /** @param {PublishedRevision} facts */
       with(facts) {
         return { please: () => ({ ...facts }) };
       },

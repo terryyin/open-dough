@@ -134,7 +134,7 @@ Full runner discovery includes both files.
 
 ### 2. Catalog observation reads each pinned project's own work
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 1. Run `authenticated-project-observation.spec.ts` and the affected navigation and Intent callers of `catalogProjectRecords.ts`. Verify selection and reload read the expected ref, pin the expected revision, and show that project's Taken and queued cards and purpose.
 
 Replace the local aggregate in
@@ -143,6 +143,34 @@ with separate published source and revision facts, canonical work entries,
 and independent expectations. Carry the Taken correction's identity and home
 directly into setup. Serve the encoded files through the existing read
 harness.
+
+Accepted proof on the macOS execution checkout:
+
+```zsh
+export PATH="/opt/homebrew/bin:$PATH"
+dough_slice_specs=( "${(@f)$(< /tmp/od-seed261-slice2-bxlTQT/specs.txt)}" )
+[[ ${#dough_slice_specs} -eq 52 ]] && npm run test:dashboard -- "${dough_slice_specs[@]}"
+npm run typecheck:dashboard
+```
+
+All 103 selected tests passed, along with the type-check. The catalog
+observation selects and reloads all four projects through the local
+authenticated read path. Its independent expectations check repository, ref,
+revision, canonical links, membership, and queued purpose. A comparison
+against `8ea16d198` confirmed the four served file sets and transport values
+are byte-identical. Navigation and Intent callers passed through the existing
+publish harness. The selected specs and consumer dispositions are under
+`/tmp/od-seed261-slice2-bxlTQT`. No native scenario uses this fixture.
+
+The refactor consolidated the identical Intent publication composition in
+`dashboard/tests/publishIntentProject.ts`. The refactor's 17 affected specs
+passed through the shared publisher, with their selection and dispositions
+in `/tmp/od-seed261-refactor2-consumer-trace-with-dispositions.md`.
+The type-check and whitespace check passed.
+
+The formatting gate exposed missing types on the existing href split and
+the backlog writer. The annotations describe their existing behavior.
+Dashboard type-check passed after the repair.
 
 ### 3. Readiness reads the assessment and the associated plan from published bytes
 Type: Behavior

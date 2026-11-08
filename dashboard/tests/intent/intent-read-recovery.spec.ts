@@ -3,7 +3,6 @@
 
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { headsChecks, setPageVisibility } from "../autoRefreshJourney.ts";
-import { filesOf } from "../catalogProjectRecords.ts";
 import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
 import {
   doughnut,
@@ -122,7 +121,7 @@ test("published detail and Intent locations share a wait, and healing detail lea
   await page.route(
     (url) =>
       url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("path") === doughnut.queuedPath,
+      url.searchParams.get("path") === ".planning/seeds/SEED-302-queued.md",
     async (route) => {
       detailReads += 1;
       if (detailUnreachable) await route.abort("connectionreset");
@@ -192,7 +191,7 @@ test("rate-limited Intent locations reread when the standing limit ends", async 
   const published = publishes({
     revision: doughnut.revision,
     files: {
-      ...filesOf(doughnut),
+      ...doughnut.files,
       ".planning/open-dough.json": doughnutSettings,
       ...locationFiles,
     },
