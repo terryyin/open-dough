@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-280#choose-claude-code-effort",
+  "host": "claude",
+  "model": "opus"
+}
