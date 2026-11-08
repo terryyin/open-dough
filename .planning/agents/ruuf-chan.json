@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ruuf-chan",
-  "email": "ruuf-chan@example.org",
-  "identity": "SEED-261#align-kept-launch-store-setup",
-  "mode": "story-branch",
-  "branch": "codex/align-kept-launch-store-setup",
-  "host": "codex"
-}
