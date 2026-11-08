@@ -70,7 +70,7 @@ auto-land tests, and `dashboard/tests/preparingJourney.ts`.
 
 ### 2. Dashboard profile setup uses the same builder, with no superseded helper
 Type: Behavior
-Status: planned
+Status: done
 Proof: The dashboard specs in rows 1–2 pass, the type-check passes and the consumer trace is clean.
 
 Behavior: the published-facts isolation fixture builds the owner as an
@@ -133,3 +133,36 @@ review found no remaining slice-specific concern.
   `backlog-preparing.spec.ts` and `session-attribution.spec.ts` (rerun after
   the refactor); `npm run typecheck:dashboard` exit 0, exit 2 with a scratch
   numeric identity, reverted.
+- Slice 2 (accepted 2026-11-08): `preparing` gained a deterministic default
+  identity, `SEED-1#queued-story`, consumed by the names-only profile-addition
+  spec. The isolation fixture's `factsAt` builds Akiho/Yuma as `executing` and
+  Kirara/Sola as `preparing`; a `node` comparison against the `13a5ddd90`
+  literals rendered identical bytes for revisions A and B. The spec's local
+  `profile(name)` helper is gone.
+- Evaluation. Readability: call sites name the activity (`executing` or
+  `preparing`) instead of an `activity:` string or its absence, and incidental
+  Trunk Mode, `origin/main` and unused identities left the call sites; a
+  single-name render is a little longer than the old one-word helper.
+  Coverage: unchanged, with the same assertions and reads. Duplication: three
+  profile-shape definitions in scope (the spec helper, the `factsAt` literals
+  and `publishAssignment`'s facts) became one builder. Maintenance cost: a
+  profile-shape change is made in `makeMe.mjs` and type-checked through
+  `renderAgentProfile`, at the cost of one import per file.
+- What carried across entries: one `@ts-check` `.mjs` builder loads unchanged
+  in `node:test`, Playwright browser fixtures and Playwright backend specs, and
+  its parsed-profile shape goes straight into `renderAgentProfile` with no
+  per-runner adapter. What needed a distinct form: the TypeScript preparing
+  journey needed a narrowed agent name, and `preparing` needed an optional
+  identity while `executing` keeps it required.
+- What later SEED-261 stories should reuse: `makeMe.anAgentProfile`, adding a
+  variant such as a story-branch `executing` only with the converting story's
+  consumer. Keep facts the assertions read at the call site, and prove byte
+  identity against the base literals before relying on unchanged assertions.
+  `authenticated-read-committed-last.spec.ts` has a matching preparation
+  profile whose identity is tied to its seed, so it should state the identity
+  rather than take the default.
+- Accepted slice 2 proof: `npm run typecheck:dashboard`; the dashboard command
+  over `published-facts-isolation.spec.ts`,
+  `runtime/observation-measurements.spec.ts` and
+  `backend-tests/observation/authenticated-read-profile-addition.spec.ts`
+  (10 passed); `bash scripts/test.sh` over the announce and reuse tests.

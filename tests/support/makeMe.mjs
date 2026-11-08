@@ -23,9 +23,10 @@ class AgentProfileBuilder {
 
   /**
    * Preparation of a queued story, which records no execution mode or branch.
-   * @param {AssignmentFacts} facts
+   * The story identity defaults when the case does not depend on it.
+   * @param {Omit<AssignmentFacts, "identity"> & Partial<Pick<AgentProfile, "identity">>} facts
    */
-  preparing({ name, identity, host, model }) {
+  preparing({ name, identity = "SEED-1#queued-story", host, model }) {
     this.#profile = withReport(
       { name, identity, activity: "preparation" },
       { host, model },
