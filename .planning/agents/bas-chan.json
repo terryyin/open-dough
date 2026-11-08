@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bas-chan",
+  "email": "bas-chan@example.org",
+  "identity": "SEED-262#pilot-admission-native-evidence-reuse",
+  "mode": "story-branch",
+  "branch": "codex/pilot-native-evidence-reuse-for-git-publication",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
