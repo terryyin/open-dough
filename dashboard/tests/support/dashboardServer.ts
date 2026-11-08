@@ -16,128 +16,59 @@
 // itself. A runner still running when the test process exits, because a
 // teardown past its timeout never reached close, is stopped then, as is the
 // server's own group (./processGroup.ts). A closed server leaves no such stop.
-// Every page journey gets its own server this way (../dashboardTest.ts), and the
-// boundary specs (../../backend-tests/) start their own, so PATH/env mutation and each
-// fake GitHub's answers never leak between tests.
+// Specs that do not prove Cursor operations may select `cursorRunner:
+// "stand-in"` (./cursorRunnerStandIn.ts) so ensureCursorRunner finds an
+// accepting address without a real runner; that stand-in is owned here and
+// never stopped through the real runner path. Caller-owned restart machines
+// keep the real runner. Every page journey gets its own server this way
+// (../dashboardTest.ts), and the boundary specs (../../backend-tests/) start
+// their own, so PATH/env mutation and each fake GitHub's answers never leak
+// between tests.
 
-import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
+import { installFakeCodex } from "./fakeCodex.ts";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import {
-  installFakeClaude,
-  type FakeClaudeControls,
-  type FakeClaudeOptions,
-} from "./fakeClaude.ts";
+import { installFakeClaude } from "./fakeClaude.ts";
 import { requestOwnerEnvironmentAt } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { readPid } from "./processGroup.ts";
-import {
-  everyRepository,
-  startFakeGitHub,
-  type FakeGitHub,
-} from "./fakeGitHub.ts";
+import { everyRepository, startFakeGitHub } from "./fakeGitHub.ts";
 import { defaultBaseCiRevision } from "./baseCiActions.ts";
 import { publishes } from "./publishedRepository.ts";
 import { dashboardFixtureLifetime } from "./dashboardFixtureLifetime.ts";
-import {
-  serverLaunch,
-  startOnOwnAddress,
-  type DashboardServerMode,
-} from "./serverAddress.ts";
+import { standInCursorRunner } from "./cursorRunnerStandIn.ts";
+import { serverLaunch, startOnOwnAddress } from "./serverAddress.ts";
 import {
   configureDevelopmentProjects,
   projectEnvironmentOf,
 } from "./projectConfiguration.ts";
-import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
+import type {
+  DashboardServer,
+  StartDashboardServerOptions,
+} from "./dashboardServerTypes.ts";
 
 // Callers find the run's build, and the modes, where they find the server.
 export { builtDashboardDir } from "./dashboardBuild.ts";
-export type { DashboardServerMode };
-
-// The boundary server in the dev server's environment: what a spec that
-// moved off a dev server starts, keeping the environment it observed there
-// (../README.md, "Two tiers").
-export const developmentBoundary = {
-  mode: "boundary",
-  environment: "development",
-} as const;
-
-export type DashboardServer = {
-  readonly baseURL: string;
-  readonly origin: string;
-  // The server process. Its process group is the one `close` ends.
-  readonly pid: number;
-  // The directory this preview-mode server serves, so a test can inspect the
-  // actual static assets -- for example, to confirm no credential-like
-  // marker was ever written into them. `undefined` in dev mode, which serves
-  // source on the fly and writes no build, and in boundary mode, no assets.
-  readonly outDir: string | undefined;
-  readonly github: FakeGitHub;
-  readonly codex: FakeCodex;
-  output(): string;
-  ghCalls(): string[][];
-  ghPid(): number | undefined;
-  ghExitedBy(): string | undefined;
-  // Runs the clock this server measures shared-observation reuse windows by
-  // (../../server/observationClock.ts) `ms` further ahead; only on a server
-  // started with `observationClock`.
-  advanceObservationClock(ms: number): void;
-  close(): Promise<void>;
-} & FakeClaudeControls;
+export {
+  developmentBoundary,
+  type DashboardCursorRunner,
+  type DashboardServer,
+  type DashboardServerMode,
+  type StartDashboardServerOptions,
+} from "./dashboardServerTypes.ts";
 
 export async function startDashboardServer(
-  options: FakeClaudeOptions & {
-    // `boundary` starts the local boundaries alone, on a plain HTTP server,
-    // for a spec that never opens a page (../../backend-tests/); `dev` and `preview`
-    // start Vite.
-    readonly mode: DashboardServerMode;
-    // Dev only: one the test restarts in place by SIGUSR2 (./serverAddress.ts).
-    readonly restartable?: boolean;
-    // Boundary only: the project environment the server keeps its project
-    // list in (./projectConfiguration.ts); production when unset. Dev is
-    // always development and preview always production.
-    readonly environment?: ProjectEnvironment | undefined;
-    // A development-environment server gets its known projects, as existing
-    // dev journeys expect; false observes a genuine empty first start.
-    // Existing files are always kept, including empty lists.
-    readonly configureDevelopmentProjects?: boolean;
-    readonly codex?: boolean;
-    readonly codexProtocol?: FakeCodex | undefined;
-    // The server's own bound when unset.
-    readonly readTimeoutMs?: number | undefined;
-    // Rate-limit backoff base (`github-request-admission.mjs`); 1 min unset.
-    readonly limitBackoffMs?: number | undefined;
-    // Retained-answer budget (`../../server/retainedAnswers.ts`); 64 MiB unset.
-    readonly retainedAnswersBytes?: number | undefined;
-    // Listing reuse ms (`../../server/revisionChecks.ts`); omitted/undefined forces 0
-    // so fake-clock paced checks see one listing each; pass `checkReuseMs` for settled sharing.
-    readonly revisionCheckReuseMs?: number | undefined;
-    // Whether the test controls the clock reuse windows are measured by
-    // (`advanceObservationClock`); the machine's own when unset.
-    readonly observationClock?: boolean | undefined;
-    // The fake GitHub this server's `gh` asks; a fresh one, closed with the server, when omitted.
-    readonly github?: FakeGitHub;
-    // Request-owner endpoint shared with the test's other callers; this server's own when omitted.
-    readonly requestOwnerRoot?: string | undefined;
-    // Preview only: serve this already-built directory instead of building a private copy.
-    readonly prebuilt?: string | undefined;
-    // Extra environment for the spawned server process only, merged over the
-    // harness's own PATH/fake-`gh` wiring below. A test uses this to place a
-    // credential-shaped value somewhere the production code's own subprocess
-    // invocation (`../../server/ghRead.ts`, which forwards its whole
-    // environment to `gh`) would see it, without touching this process's own
-    // real environment.
-    readonly extraEnv?: Readonly<Record<string, string>>;
-    // Directories placed ahead of the harness binaries on PATH.
-    readonly pathPrefix?: readonly string[];
-    // This port, which must be free, instead of any free one: a server
-    // restarted on a closed one's port answers the page that server opened.
-    readonly port?: number | undefined;
-  },
+  options: StartDashboardServerOptions,
 ): Promise<DashboardServer> {
   const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-dashboard-"));
   const ownsMachine = options.machine === undefined;
+  const cursorRunner = options.cursorRunner ?? "real";
+  if (cursorRunner === "stand-in" && !ownsMachine) {
+    throw new Error(
+      "A Cursor runner stand-in needs a harness-owned machine; caller-owned restart machines keep the real runner.",
+    );
+  }
   const ownsGitHub = options.github === undefined;
   const github = options.github ?? (await startFakeGitHub());
   if (ownsGitHub) {
@@ -214,6 +145,12 @@ export async function startDashboardServer(
     env,
   );
 
+  // Install before listening so ensureCursorRunner accepts the stand-in.
+  const standIn =
+    cursorRunner === "stand-in"
+      ? await standInCursorRunner(claude.controls.home)
+      : undefined;
+
   const closeOwned = dashboardFixtureLifetime({
     tempRoot,
     home: claude.controls.home,
@@ -222,6 +159,7 @@ export async function startDashboardServer(
     codex: options.codexProtocol === undefined ? codex : undefined,
     gh,
     github: ownsGitHub ? github : undefined,
+    standIn,
   });
 
   const { launched: server, url: baseURL } = await startOnOwnAddress(
