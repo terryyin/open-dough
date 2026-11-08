@@ -179,7 +179,7 @@ last-held cases.
 
 ### 4. Every synthetic held row names its own resumable Cursor session
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 4. Run `npm run test:dashboard -- 'dashboard/tests/sessions/cursor-(sessions-sidebar[^/]*|runner-sessions[^/]*)\.spec\.ts$' 'dashboard/tests/[^/]+/recently-done-sessions-sidebar[^/]*\.spec\.ts$' 'frontend-tests/cursor-runner-sessions-ui\.spec\.ts$' 'backend-tests/sessions/cursor-held-sessions-revision\.spec\.ts$'`. Compare each substituted row's UUID with the resume argument before the list is read.
 
 Use shared session facts in `runningCursorSessionsPage.answerCrowd` and
@@ -188,6 +188,26 @@ has distinct UUIDs and the saved command of each row targets that UUID.
 Preserve the real `heldSessionsAnswer` route precondition and the layout,
 scrolling and no-write observations. General kept Claude crowd records
 stay with the kept-record story.
+
+Accepted: `answerCrowd` builds each held row through
+`makeMe.aHostSession.cursor` and checks, before the route serves the list,
+that the UUIDs are distinct and each row's `--resume` argument names its own
+UUID. Previously every row resumed the held session's UUID; restoring that
+shape failed the check. The frontend held record dropped its synthetic
+`agent resume` arguments. Selection 37 passed; consumers 20 passed.
+
+The kept-record and observation sibling stories landed on trunk during this
+slice. Merge `b630f4a47` reconciles them: trunk's duplicate
+`launchSessionTestData.mjs` session construction now delegates to
+`hostSessionTestData.mjs`, which also builds a predecessor Codex session
+without continuation, `observationRecord` keeps the sibling's record with
+this story's default resume arguments, and `keptCursorTurn` reads through
+`launchStore`. On the merged tree, on AC power under `caffeinate -s -i`:
+typecheck passed, the four slice selections passed (22, 47, 41, 38),
+sibling consumers 88 passed, the whole `npm test` exited 0 (19:34 UTC) and
+the whole `npm run test:dashboard` exited 0 (19:44-20:18 UTC on
+2026-11-08). Remaining hand-built Codex and Cursor session literals belong
+to the kept-record, completion and observation stories.
 
 ## Readiness review
 
