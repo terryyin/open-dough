@@ -12,6 +12,8 @@ import { sessionKey } from "../src/sessionReference.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { chooseProject, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { describedBacklog } from "./describedRevisions.ts";
+import { publishOnePygardonStory } from "./pygardonProject.ts";
 import { box } from "./pageLayout.ts";
 import {
   answerCrowd,
@@ -90,33 +92,31 @@ export function pageReadReopened(page: Page, held: LaunchRecord) {
   });
 }
 
-// Publishes Doughnut and Pygardon beside the Open Dough origin already shown.
+// Publishes Doughnut and Pygardon, each queuing one story, beside the Open
+// Dough origin already shown.
 export async function publishSiblingProjects(page: Page) {
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
   doughnut.push(
     "d4".repeat(20),
-    `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [A Doughnut story](seeds/SEED-401.md#s) — SEED-401#s
-`,
+    describedBacklog(
+      makeMe.aRepository
+        .withRevision("published", {
+          backlog: {
+            queued: [
+              makeMe.aBacklogEntry
+                .with({
+                  identity: "SEED-401#s",
+                  title: "A Doughnut story",
+                  href: "seeds/SEED-401.md#s",
+                })
+                .please(),
+            ],
+          },
+        })
+        .please(),
+    ),
   );
-  const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
-  pygardon.push(
-    "e6".repeat(20),
-    `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [A Pygardon story](seeds/SEED-301.md#s) — SEED-301#s
-`,
-  );
-  return { doughnut, pygardon };
+  await publishOnePygardonStory(page);
 }
 
 export async function showThreeProjectPage(page: Page, origin: StartOrigin) {

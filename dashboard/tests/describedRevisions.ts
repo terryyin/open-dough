@@ -85,6 +85,15 @@ export function backlogApart(at: PublishedRevision): {
   };
 }
 
+// A published revision that keeps its backlog among its files and also
+// answers it for any path it does not publish
+// (./support/publishedRepository.ts).
+export function withBacklogFallback(
+  at: PublishedRevision,
+): PublishedRevision & { backlog: string } {
+  return { ...at, backlog: publishedFile(at, backlogPath) };
+}
+
 // The text `at` publishes at `path`; a fixture that publishes none is wrong.
 export function publishedFile(at: PublishedRevision, path: string): string {
   const content = at.files[path];

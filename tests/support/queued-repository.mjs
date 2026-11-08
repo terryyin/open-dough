@@ -51,13 +51,9 @@ export function readyStoryState(entry) {
     identity: entry.identity,
     href: entry.href,
     ...makeMe.aStoryPreparation
-      .with({
-        refinement: "refined",
-        approach: "planned",
-        plan: `../${storyPlanPath(entry)}`,
-        assessment: "ready",
-      })
+      .plannedIn(`../${storyPlanPath(entry)}`)
       .please(),
+    assessment: /** @type {const} */ ("ready"),
   };
 }
 

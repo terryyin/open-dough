@@ -18,7 +18,10 @@ import {
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import {
+  describedRevision,
+  withBacklogFallback,
+} from "../../tests/describedRevisions.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
@@ -31,14 +34,36 @@ const profilePath = ".planning/agents/yui-chan.json";
 const secretsPath = ".planning/secrets/not-in-backlog.md";
 const settingsPath = ".planning/open-dough.json";
 const updatedAt = "2026-09-23T08:30:00Z";
-const backlogTaken = `# Product backlog
-
-## Taken
-
-- [Clock story](seeds/SEED-clock.md#story) — SEED-clock#story
-
-## Backlog list
-`;
+// Yui holds the Taken clock story on trunk.
+const published = describedRevision(
+  makeMe.aRepository
+    .withRevision("clock", {
+      backlog: {
+        taken: [
+          makeMe.aBacklogEntry
+            .with({
+              title: "Clock story",
+              identity: "SEED-clock#story",
+              href: "seeds/SEED-clock.md#story",
+            })
+            .please(),
+        ],
+      },
+      files: { [seedPath]: "# Seed\n\n**Identity:** SEED-clock#story\n" },
+      agentProfiles: [
+        makeMe.anAgentProfile
+          .executing({
+            name: "Yui",
+            identity: "SEED-clock#story",
+            mode: "trunk",
+            branch: "origin/main",
+          })
+          .please(),
+      ],
+    })
+    .please(),
+  revision,
+);
 
 test.describe("authenticated read committed=last (development environment)", () => {
   let server: DashboardServer;
@@ -55,22 +80,7 @@ test.describe("authenticated read committed=last (development environment)", () 
     server.github.serve(
       everyRepository,
       publishes({
-        revision,
-        backlog: backlogTaken,
-        files: {
-          ".planning/PRODUCT-BACKLOG.md": backlogTaken,
-          [seedPath]: "# Seed\n\n**Identity:** SEED-clock#story\n",
-          [profilePath]: renderAgentProfile(
-            makeMe.anAgentProfile
-              .executing({
-                name: "Yui",
-                identity: "SEED-clock#story",
-                mode: "trunk",
-                branch: "origin/main",
-              })
-              .please(),
-          ),
-        },
+        ...withBacklogFallback(published),
         committed: {
           [seedPath]: new Date(updatedAt),
           [profilePath]: new Date(updatedAt),

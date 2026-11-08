@@ -22,8 +22,11 @@ import type { GhRequest } from "./ghRequest.ts";
 import { answeringFirst, holdingAnswer } from "./heldGitHubAnswer.ts";
 import { rawRequest, type RawResponse } from "./rawHttp.ts";
 import { headsAnswer, type OriginAnswer } from "../originAnswers.ts";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import {
+  describedRevision,
+  withBacklogFallback,
+} from "../describedRevisions.ts";
 
 // How long a listing-reuse boundary case keeps a settled listing answerable.
 export const listingReuseWindowMs = 60_000;
@@ -57,44 +60,39 @@ export const heads: Readonly<Record<string, string>> = {
   "story/two": "e2".repeat(20),
 };
 
-const backlog = `# Product backlog
-
-## Taken
-
-- [One](seeds/SEED-shared.md#one) — SEED-shared#one
-- [Two](seeds/SEED-other.md#two) — SEED-other#two
-
-## Backlog list
-`;
-
+const story = (title: string, identity: string, href: string) =>
+  makeMe.aBacklogEntry.with({ title, identity, href }).please();
 const onBranch = (name: string, identity: string, branch: string) =>
-  renderAgentProfile(
-    makeMe.anAgentProfile
-      .executing({ name, identity, mode: "story-branch", branch })
-      .please(),
-  );
+  makeMe.anAgentProfile
+    .executing({ name, identity, mode: "story-branch", branch })
+    .please();
 
 // `revision` as every repository's ref and trunk head names it, with the
 // story branches' heads listed beside it.
 export function sharedReadsPublished(revision: string): RepositoryAnswerer {
-  const published = publishes({
+  const at = describedRevision(
+    makeMe.aRepository
+      .withRevision("shared", {
+        backlog: {
+          taken: [
+            story("One", "SEED-shared#one", "seeds/SEED-shared.md#one"),
+            story("Two", "SEED-other#two", "seeds/SEED-other.md#two"),
+          ],
+        },
+        files: {
+          [sharedSeedPath]: sharedSeedText,
+          [otherSeedPath]: otherSeedText,
+        },
+        agentProfiles: [
+          onBranch("Yui", "SEED-shared#one", "story/one"),
+          onBranch("Akiho", "SEED-other#two", "story/two"),
+        ],
+      })
+      .please(),
     revision,
-    backlog,
-    files: {
-      ".planning/PRODUCT-BACKLOG.md": backlog,
-      [sharedSeedPath]: sharedSeedText,
-      [otherSeedPath]: otherSeedText,
-      ".planning/agents/yui-chan.json": onBranch(
-        "Yui",
-        "SEED-shared#one",
-        "story/one",
-      ),
-      ".planning/agents/akiho-chan.json": onBranch(
-        "Akiho",
-        "SEED-other#two",
-        "story/two",
-      ),
-    },
+  );
+  const published = publishes({
+    ...withBacklogFallback(at),
     committed: { [sharedSeedPath]: new Date("2026-10-01T08:00:00Z") },
   });
   return (call) =>

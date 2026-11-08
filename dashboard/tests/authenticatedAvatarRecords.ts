@@ -1,8 +1,9 @@
 // The agent profiles and avatar images the authenticated avatar read spec
-// (authenticated-avatar.spec.ts) publishes. At the first revision each listed
-// profile's addition matched an account, or none, whose avatar source GitHub
-// names usably or not, and whose image the avatar host serves or fails to. At
-// a later revision GitHub names a newer version of Yui's human's avatar.
+// (authenticated-avatar.spec.ts) publishes beside an empty backlog. At the
+// first revision each listed profile's addition matched an account, or none,
+// whose avatar source GitHub names usably or not, and whose image the avatar
+// host serves or fails to. At a later revision GitHub names a newer version of
+// Yui's human's avatar.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
@@ -18,12 +19,11 @@ import {
   avatarsAt,
   onAvatarHost,
 } from "./avatarAnswers.ts";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { backlogApart, describedRevision } from "./describedRevisions.ts";
 
 export const revision = "f1".repeat(20);
 export const laterRevision = "f2".repeat(20);
 export const agents = ".planning/agents";
-const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
 
 type Account = Parameters<typeof pathChange>[3];
 
@@ -94,29 +94,36 @@ export const avatarHost: AvatarAnswerer = (requested) =>
     ? newerAvatar
     : avatarsByPath(requested);
 
+// The revision `at` publishing an empty backlog and a preparing profile for
+// each agent in `profiles`, each added by its own commit from `firstCommit` on.
 function publication(
   at: string,
   profiles: Readonly<Record<string, Account>>,
   firstCommit: number,
 ) {
-  const files: Record<string, string> = {};
   const history: Record<string, readonly PathChange[]> = {};
-  let n = firstCommit;
-  for (const [file, account] of Object.entries(profiles)) {
+  const names = Object.keys(profiles).map((file) => {
     const name = file.split("-")[0] ?? "";
-    const path = `${agents}/${file}`;
-    files[path] = renderAgentProfile(
-      makeMe.anAgentProfile
-        .preparing({
-          name: `${name.charAt(0).toUpperCase()}${name.slice(1)}`,
-          identity: "SEED-avatar#story",
-        })
-        .please(),
-    );
-    n += 1;
-    history[path] = [pathChange(n, "added", "Some Human", account)];
-  }
-  return { revision: at, backlog, files, history };
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+  });
+  Object.entries(profiles).forEach(([file, account], index) => {
+    history[`${agents}/${file}`] = [
+      pathChange(firstCommit + index + 1, "added", "Some Human", account),
+    ];
+  });
+  const published = describedRevision(
+    makeMe.aRepository
+      .withRevision("avatars", {
+        agentProfiles: names.map((name) =>
+          makeMe.anAgentProfile
+            .preparing({ name, identity: "SEED-avatar#story" })
+            .please(),
+        ),
+      })
+      .please(),
+    at,
+  );
+  return { ...backlogApart(published), history };
 }
 
 // Each revision's own publication, told apart by the revision a request names

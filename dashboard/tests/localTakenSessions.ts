@@ -7,29 +7,12 @@ import { parts } from "./dashboardPage.ts";
 import { describedBacklog } from "./describedRevisions.ts";
 import { backlogPath, publishFiles } from "./publishedOrigin.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import {
-  queuedIdentity,
-  queuedTitle,
-  repository,
-  revision,
-} from "./recentlyDoneRecords.ts";
+import { repository, revision, workspaceEntry } from "./recentlyDoneRecords.ts";
 
 // The queued story of ./recentlyDoneRecords.ts, recorded in Taken instead.
 export const queuedStoryTaken = describedBacklog(
   makeMe.aRepository
-    .withRevision("taken", {
-      backlog: {
-        taken: [
-          makeMe.aBacklogEntry
-            .with({
-              identity: queuedIdentity,
-              title: queuedTitle,
-              href: "seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure",
-            })
-            .please(),
-        ],
-      },
-    })
+    .withRevision("taken", { backlog: { taken: [workspaceEntry] } })
     .please(),
 );
 

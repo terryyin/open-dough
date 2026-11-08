@@ -23,6 +23,8 @@ import {
 } from "../../tests/originAnswers.ts";
 import { directoryListingAnswer } from "../../tests/listingAnswers.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { describedBacklog } from "../../tests/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -31,6 +33,7 @@ const knownSourceId = "open-dough";
 // at a pinned revision.
 const revisionOf = (pair: string) => pair.repeat(20);
 const settingsPath = ".planning/open-dough.json";
+const emptyBacklog = describedBacklog(makeMe.aRepository.please());
 
 // A revision with an empty backlog and no agent profiles whose setting file
 // holds `settings`, is absent (undefined), or cannot be read (null: a
@@ -57,7 +60,7 @@ function publishedRevision(
     }
     return Promise.resolve(
       request.kind === "content"
-        ? rawFileAnswer("# Product backlog\n\n## Taken\n\n## Backlog list\n")
+        ? rawFileAnswer(emptyBacklog)
         : notFoundAnswer(),
     );
   };

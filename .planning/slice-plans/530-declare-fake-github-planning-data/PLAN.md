@@ -18,8 +18,8 @@ Exclusions:
 - Helpers that build a Git repository (`admittedWork.ts`,
   `recentlyDoneSessionsSidebarPage.ts`, `support/retainedReport.ts`, and the
   Git origin of `support/projectAddMachine.ts`) belong to
-  [dashboard test repositories](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures)
-  (plan 512). `projectAddMachine.ts` migrates its fake GitHub files here.
+  dashboard test repositories (completed
+  `SEED-262#migrate-dashboard-origin-fixtures`). `projectAddMachine.ts` migrates its fake GitHub files here.
 - No dashboard product behavior, fake GitHub answer shape, observation or
   failure injection changes. Revision SHAs, commit dates and path histories
   stay harness inputs.
@@ -69,8 +69,9 @@ Exclusions:
 | Navigation, session and board journeys declare their facts | Slice 2 | Specs importing the migrated navigation, notification, doughnut, accessible-board, Intent-location and read-support helpers, and the `navigation`, `sessions`, `configuration`, `runtime` and backlog-only `stories` specs, pass unchanged. |
 | Seed example 3: profiles and done records | Slice 3 | Profile, roster, avatar, recently done, catalog-project and execution-complete specs pass unchanged; their served profiles, records and catalog come from the description. |
 | Seed example 5: superseded templates removed | Slice 3 | `grep -rlE '# Product backlog\|## Backlog list' dashboard` lists only the Git helpers owned by plan 512 and call sites whose spec proves those bytes; each remaining literal names that reason in its comment or is a spec under proof. |
+| Remaining helpers compose no planning files outside a description | Slice 4 | The slice-4 encoder search lists only Git helpers owned by plan 512, encoders' own tests and call sites whose spec proves those bytes; `withDoneCatalog` and `doneCatalogOf` are deleted; specs importing the migrated helpers pass unchanged. |
 | Served path sets unchanged | Each slice | Before editing a helper, a scratch script in the job directory records the sorted served paths of each exported revision; after the migration the lists are equal. |
-| Feedback does not get slower | Slices 1 and 3 | Before and after focused times, two runs each under comparable load, for the refresh family (slice 1) and the recently done and profile family (slice 3) differ by no more than run-to-run noise. |
+| Feedback does not get slower | Slices 1, 3 and 4 | Before and after focused times, two runs each under comparable load, for the refresh family (slice 1) and the recently done and profile family (slice 3) differ by no more than run-to-run noise. |
 
 ## Decisive premises
 
@@ -206,13 +207,12 @@ queued workspace story shared by `queuedStoryTaken` and
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Record path lists and two focused runs of the recently done and
 profile family before editing. Run specs importing the migrated helpers and
 the migrated specs; compare path lists and after times; run the removal
-search from the proof table; run `npm run typecheck:dashboard`; then the
-whole `npm run test:dashboard` and `npm test` once.
+search from the proof table; run `npm run typecheck:dashboard`.
 
 Behavior: a journey declares agent profiles, story states with plans, or done
 records → the page reads them → profile, roster, avatar, slice progress,
@@ -230,10 +230,68 @@ serve literal backlogs through the fake GitHub (`grep -rlE '# Product
 backlog|## Backlog list' dashboard/backend-tests`), keeping literal only the
 bytes a spec proves. Delete templates and catalog helpers that become unused.
 
+Accepted proof (2026-11-08): 188 spec files importing a migrated helper
+plus the migrated page and backend specs passed 524 of 524 after editing
+(516 before); served-path logs of 470 tests have equal paths; profiles are
+byte-identical and rebuilt catalogs equal the former `withDoneCatalog` output
+at a fixed time; typecheck clean. The recently done and profile family (57
+specs) took 151.8 s and 161.3 s before (load 3.7, 7.8) and 168.9 s and 156.2 s
+after (load 21.1, 14.0); the loads differ, so slice 4 repeats the comparison
+paired.
+
+Learnings: acceptance found fake GitHub helpers and specs outside this
+slice's list that still compose published planning files from encoder calls
+and literal seed prose without a description (for example
+`publishedFactsIsolation.ts`, `revisionReuseOrigin.ts`,
+`unchangedRecordsRefresh.ts`, `intentCiStoryBoard.ts`,
+`recentlyDoneSelectionJourney.ts`, `support/followUpStories.ts` and the
+backend `authenticated-read-done-catalog*` and `listed-records` specs), so
+`withDoneCatalog` and `doneCatalogOf` keep consumers. Slice 4 takes them.
+When an old fixture listed the backlog among its files, serve
+`withBacklogFallback(at)` rather than `backlogApart(at)` so served paths stay
+equal. A refined, planned story state is
+`makeMe.aStoryPreparation.plannedIn(plan)`.
+
+### 4. Remaining fake GitHub helpers declare their planning files
+
+Type: Behavior
+
+Status: planned
+
+Proof: Record served path lists and two paired before/after runs of the
+recently done and profile family (alternate the published slice-3 revision,
+in a temporary worktree, with the candidate under the same load). Run specs
+importing the migrated helpers and the migrated specs; compare path lists;
+run the removal searches below; run `npm run typecheck:dashboard`; then the
+whole `npm run test:dashboard` and `npm test` once.
+
+Behavior: a fake GitHub journey that publishes seeds, plans, story states,
+profiles, done records or a catalog states them in a description → the page
+reads them → its views and verdicts are unchanged, and no fake GitHub helper
+or spec assembles published planning files outside a description except
+bytes a spec proves.
+
+Find the set with `grep -rlE
+'renderPublishedBacklog|renderPublishedPreparation|dough-story-state|renderAgentProfile|renderDoneRecord|withDoneCatalog|doneCatalogOf'
+dashboard` and keep the files whose output the fake GitHub serves; the Git
+helpers owned by plan 512 stay excluded. Migrate them to descriptions,
+keeping literal only bytes a spec proves, with the reason in a comment.
+Delete `withDoneCatalog`, `doneCatalogOf` and other helpers that become
+unused. After the migration that search lists only Git helpers, encoders'
+own tests and call sites whose spec proves those bytes.
+
 ## Plan concerns
 
-Slice-plan refinement was not needed: the three slices are one proof loop
+Slice-plan refinement was not needed: the slices are one proof loop
 each, split by helper family, and share one renderer with no special cases.
-This review found no remaining slice-specific concern. Plan 512 executing on
+This review found no remaining slice-specific concern. Slice 4 was added at
+slice 3's acceptance for helpers the original inventory missed. Plan 512 executing on
 the same support modules is ordinary reconciliation, handled by the first
 current decision.
+
+## Story obligations
+
+### G1. Helpers outside the inventory still compose published planning files (found at slice 3 acceptance)
+Reported: slice 3 — "withDoneCatalog and doneCatalogOf stay: 15 files outside this slice still use them"
+Story clause: "Helpers that already call `renderPublishedBacklog` but hand-write seeds or records, such as `catalogProjectRecords.ts`, move to the same description."
+Disposition: receiving slice 4

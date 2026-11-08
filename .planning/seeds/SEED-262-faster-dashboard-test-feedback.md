@@ -536,7 +536,8 @@ must not get slower.
 - Remove superseded literal templates, such as `emptyBacklog` in
   `originAnswers.ts`, once their last consumer declares its facts.
 - Boundary assumption: a helper that builds a Git repository belongs to
-  [dashboard test repositories](#migrate-dashboard-origin-fixtures). A helper
+  dashboard test repositories (completed
+  `SEED-262#migrate-dashboard-origin-fixtures`). A helper
   doing both migrates its fake GitHub files here and its Git origin there.
 - Scope limits: this story adds no new MakeMe concept beyond what the
   description already states, except what a migrated case needs to state its
