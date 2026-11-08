@@ -7,6 +7,7 @@
 // answering from the fake GitHub, observing the `gh` calls that reach it
 // (../../tests/support/doneCatalogReads.ts).
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   developmentBoundary,
@@ -95,11 +96,15 @@ test.describe("authenticated done catalog gaps (development environment)", () =>
       gap: "a catalog describing an earlier record",
       files: {
         ...withDoneCatalog(records, doneDirectory),
-        [changed]: renderDoneRecord({
-          identity: identityOf("gap", 1),
-          title: "Rewritten by an older writer",
-          completedAt: "2026-10-01T01:00:00.000Z",
-        }),
+        [changed]: renderDoneRecord(
+          makeMe.aDoneRecord
+            .with({
+              identity: identityOf("gap", 1),
+              title: "Rewritten by an older writer",
+              completedAt: "2026-10-01T01:00:00.000Z",
+            })
+            .please(),
+        ),
       },
       problem: `done catalog describes an earlier ${changed.replace(".planning/", "")}`,
     },
@@ -107,11 +112,15 @@ test.describe("authenticated done catalog gaps (development environment)", () =>
       gap: "a catalog missing a published record",
       files: {
         ...withDoneCatalog(records, doneDirectory),
-        [pathOf("SEED-300#unlisted")]: renderDoneRecord({
-          identity: "SEED-300#unlisted",
-          title: "Completed by an older writer",
-          completedAt: "2026-10-03T00:00:00.000Z",
-        }),
+        [pathOf("SEED-300#unlisted")]: renderDoneRecord(
+          makeMe.aDoneRecord
+            .with({
+              identity: "SEED-300#unlisted",
+              title: "Completed by an older writer",
+              completedAt: "2026-10-03T00:00:00.000Z",
+            })
+            .please(),
+        ),
       },
       problem: `done catalog does not list ${doneRecordPath("SEED-300#unlisted")}`,
     },

@@ -171,11 +171,15 @@ export const storyBoardFiles: Record<string, string> = withDoneCatalog(
         })
         .please(),
     ),
-    [`.planning/${doneRecordPath(done.identity)}`]: renderDoneRecord({
-      ...done,
-      completedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-      developer: "Terry Yin",
-    }),
+    [`.planning/${doneRecordPath(done.identity)}`]: renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          ...done,
+          completedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+          developer: "Terry Yin",
+        })
+        .please(),
+    ),
   },
   ".planning/done",
 );

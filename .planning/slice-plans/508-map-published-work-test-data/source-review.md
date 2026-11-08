@@ -24,7 +24,7 @@ The numbered return is retained below.
 | P13 | Convert remaining valid setup for supplier agreements. | slice 4 | observed: storyDependencyFixture.ts, supplier-dependency-fixture.mjs and workspace-publication-startup-dependencies-cases.mjs give canonical MakeMe supplier agreements to the real writers; compare-agreements.mjs retained representative bytes. |
 | P14 | Convert remaining valid setup for slice plans. | slice 6 | observed: tests/support/published-plan.mjs writes ordinary plan facts for dashboard, obligation and publication consumers; the eleven fixture comparisons preserve byte layouts and the raw example. |
 | P15 | Convert remaining valid setup for slice progress. | slice 6 | observed: branchProgressRecords.ts and taken-execution-complete.spec.ts arrange ordered slice status and completion separately; the fresh delivery tests still use the actual selected-slice status mutation. |
-| P16 | Convert remaining valid setup for done records. | slice 7 |  |
+| P16 | Convert remaining valid setup for done records. | slice 7 | observed: makeMe.aDoneRecord feeds renderDoneRecord in dashboard, CLI, skill publication and installed-shell setup; six parity comparisons preserved published bytes and the separate malformed and stale cases. |
 | P17 | Convert remaining valid setup for published Git comparison inputs. | slice 9 |  |
 | P18 | Cover dashboard consumers that arrange these facts. | slice 9 |  |
 | P19 | Cover skill consumers that arrange these facts. | slice 9 |  |
@@ -109,9 +109,9 @@ The numbered return is retained below.
 | J4.05 | Reading the profile and plan makes the dashboard show the published owner. | slice 5 | observed: published-facts-arrival.spec.ts and taken-agent-profile-refresh.spec.ts observe the assigned owner on the Taken card from published profile and plan; the attribution cases separately track profile modification and re-addition. |
 | J4.06 | Reading the profile and plan makes the dashboard show progress. | slice 6 | observed: branch-progress-reading.spec.ts and story-readiness.spec.ts verify progress from the published owner profile and selected plan, including the branch revision and 0→2 of five slices. |
 | J4.07 | The execution-complete indication depends on its own proof even when the slices appear done. | slice 6 | observed: taken-execution-complete.spec.ts and plan-execution-complete-detail.spec.ts distinguish all done without completion, recorded advice, and the missing-advice gap. |
-| J5.01 | Completing a Taken item through the product command leaves a durable done record. | slice 7 |  |
-| J5.02 | A later read still shows the work after the plan or assignment has been removed. | slice 7 |  |
-| J5.03 | A later read still shows its recorded attribution after the plan or assignment has been removed. | slice 7 |  |
+| J5.01 | Completing a Taken item through the product command leaves a durable done record. | slice 7 | observed: product-backlog-complete-done-record.test.mjs invokes the real complete command, asserts Taken removal, and reads the separately checked durable JSON record; Git replay checks the committed catalog. |
+| J5.02 | A later read still shows the work after the plan or assignment has been removed. | slice 7 | observed: product-backlog-complete-done-record.test.mjs checks that both assignment profiles are released before reading the record; authenticated-read-done-catalog.spec.ts verifies later revision-specific reads and Recently done observes the completed title. |
+| J5.03 | A later read still shows its recorded attribution after the plan or assignment has been removed. | slice 7 | observed: product-backlog-complete-done-record.test.mjs independently checks the credited execution agent and developer after both releases, and recently-done-stories.spec.ts checks published title, time, developer, agent and host from the done record. |
 | J6.01 | A reviewed story has published work. | slice 8 |  |
 | J6.02 | Another author’s trunk commit is present alongside that work. | slice 8 |  |
 | J6.03 | An unpublished worktree edit is present alongside that work. | slice 8 |  |

@@ -10,6 +10,7 @@
 // reveal a hidden column whole is ./board-paging.spec.ts and
 // ./board-paging-sessions-sidebar.spec.ts.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { renderDoneRecord } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { inspectedDetail } from "../storyCardControls.ts";
 import { expect, test } from "../dashboardTest.ts";
@@ -55,12 +56,16 @@ test.describe("in a two-column Board", () => {
         const identity = `SEED-2${index + 1}#closed`;
         return [
           doneRecordAt(identity),
-          renderDoneRecord({
-            identity,
-            title: doneTitle(index + 1),
-            completedAt: at(now, (index + 1) * 60 * 60 * 1000),
-            developer: "Terry Yin",
-          }),
+          renderDoneRecord(
+            makeMe.aDoneRecord
+              .with({
+                identity,
+                title: doneTitle(index + 1),
+                completedAt: at(now, (index + 1) * 60 * 60 * 1000),
+                developer: "Terry Yin",
+              })
+              .please(),
+          ),
         ];
       }),
     );

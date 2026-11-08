@@ -6,6 +6,7 @@
 // ./pathHistoryAnswers.ts); that answerer is ./revisionReuseAnswers.ts.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import type {
   ChangedFile,
   MadeCommit,
@@ -59,9 +60,15 @@ export const seedText = (label: string) => `# Reuse fixture ${label}
 ### Reuse ${label}
 
 **Identity:** SEED-301#reuse
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/301-reuse/PLAN.md"}
-\`\`\`
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/301-reuse/PLAN.md",
+    })
+    .please(),
+)}
 `;
 
 // Every record a project shows at one revision, each text naming `label`, so

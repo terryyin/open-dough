@@ -82,6 +82,7 @@ const withReport = (profile, { host, model }) => ({
 /** @typedef {import("./published-plan.mjs").PlanSlice} PlanSlice */
 /** @typedef {import("./published-plan.mjs").PlanCompletion} PlanCompletion */
 /** @typedef {import("./published-plan.mjs").PlanProgress} PlanProgress */
+/** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs").renderDoneRecord>[0]} DoneRecord */
 
 /**
  * @param {Omit<PlanSlice, "type" | "status"> & Partial<Pick<PlanSlice, "type" | "status">>} facts
@@ -153,6 +154,14 @@ export const makeMe = {
             ...facts,
           }),
         };
+      },
+    };
+  },
+  get aDoneRecord() {
+    return {
+      /** @param {DoneRecord} facts */
+      with(facts) {
+        return { please: () => ({ ...facts }) };
       },
     };
   },

@@ -2,18 +2,15 @@
 // before push; validated reconciled candidates publish the rewritten SHA; a
 // suffix changing only done records replays through the backlog adapter.
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { recordText } from "../../../../tests/support/product-backlog-done-fixture.mjs";
-import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
+import { divergedDoneBranches } from "../../../../tests/support/published-done-branches.mjs";
 import {
   assertCatalogDescribes,
-  backlogCommand,
   catalog,
   done,
   fileNames,
-  items,
 } from "../../../../tests/support/product-backlog-git-done-catalog-fixture.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
@@ -198,44 +195,7 @@ test("an unpublished candidate already on the advanced target refuses a no-op re
 });
 
 test("Trunk Mode increment replays a suffix changing only done records through the backlog adapter, publishing a current catalog", async (t) => {
-  const fixture = await createCleanTrunkFixture();
-  t.after(fixture.cleanup);
-  const { origin, integration, execution } = fixture;
-  const run = async (directory, ...args) =>
-    (await git(directory, ...args)).stdout.trim();
-  const writeRecord = (directory, name, time) => {
-    mkdirSync(join(directory, done), { recursive: true });
-    writeFileSync(
-      join(directory, done, `${name}_${name}.json`),
-      recordText(`${name}#${name}`, `Item ${name}`, time),
-    );
-  };
-
-  mkdirSync(join(integration, ".planning"), { recursive: true });
-  writeFileSync(
-    join(integration, ".planning/PRODUCT-BACKLOG.md"),
-    backlogOf([], items("Q")),
-  );
-  writeRecord(integration, "X", "2026-10-01T00:00:00.000Z");
-  await backlogCommand(integration, ["catalog-done"]);
-  await run(integration, "add", "-A");
-  await run(integration, "commit", "-m", "backlog and catalogued record");
-  await run(integration, "push", "origin", "main");
-  const publishedBase = await revParse(integration, "main");
-
-  await run(execution, "rebase", publishedBase);
-  writeRecord(execution, "Y", "2026-10-03T00:00:00.000Z");
-  await backlogCommand(execution, ["catalog-done"]);
-  await run(execution, "add", "-A");
-  await run(execution, "commit", "-m", "story record");
-
-  // Another writer publishes a record without rebuilding the catalog, which a
-  // raw replay of the suffix would leave uncatalogued.
-  await advanceOriginFromAnotherWriter(origin, {
-    file: `${done}/Z_Z.json`,
-    body: recordText("Z#Z", "Item Z", "2026-10-02T00:00:00.000Z"),
-    message: "record without catalog",
-  });
+  const { origin, execution, publishedBase } = await divergedDoneBranches(t);
 
   const published = await publishExecutionIncrement({
     workspace: execution,
@@ -250,12 +210,12 @@ test("Trunk Mode increment replays a suffix changing only done records through t
   const { sha } = published.receipt;
   assert.equal(await lsRemoteSha(origin, trunkTarget), sha);
   assert.equal(
-    await run(origin, "log", "-1", "--format=%s", sha),
+    (await git(origin, "log", "-1", "--format=%s", sha)).stdout.trim(),
     "Rebuild the done catalog from its record files",
   );
   const publishedCatalog = assertCatalogDescribes(
-    await run(origin, "show", `${sha}:${catalog}`),
-    await run(origin, "ls-tree", `${sha}:${done}`),
+    (await git(origin, "show", `${sha}:${catalog}`)).stdout,
+    (await git(origin, "ls-tree", `${sha}:${done}`)).stdout,
   );
   assert.deepEqual(fileNames(publishedCatalog), [
     "X_X.json",

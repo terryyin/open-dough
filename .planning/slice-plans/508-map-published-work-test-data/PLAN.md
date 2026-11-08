@@ -377,7 +377,7 @@ candidate. Proof and dispositions are under `/tmp/od-seed261-refactor6`.
 
 ### 7. Completing work leaves a durable done record
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 5. Run `product-backlog-complete-done-record.test.mjs`, `product-backlog-git-done-catalog-replay.test.mjs`, `authenticated-read-done-catalog.spec.ts`, the gaps and refusal specs, and affected Recently done consumers. Verify membership removal, persistence, revision-specific catalog reads and attribution.
 
 Convert valid done-record setup using the canonical facts accepted by
@@ -385,6 +385,37 @@ Convert valid done-record setup using the canonical facts accepted by
 Derive catalog entries through the product path where the test needs a
 normal catalog. Preserve deliberately absent, stale or unreadable evidence.
 Keep real completion, replay, and read operations in the tests.
+
+Accepted proof on the macOS execution checkout:
+
+```zsh
+export PATH="/opt/homebrew/bin:$PATH"
+dough_slice7_dir=/tmp/od-seed261-slice7-wKFZq8
+checks=( "${(@f)$(< "$dough_slice7_dir/node-and-shell.txt")}" )
+specs=( "${(@f)$(< "$dough_slice7_dir/specs.txt")}" )
+OPEN_DOUGH_TEST_JOBS=2 OPEN_DOUGH_TEST_OUTCOMES="$dough_slice7_dir/node-outcomes.tsv" \
+  caffeinate -s -i bash scripts/test.sh "${checks[@]}"
+OPEN_DOUGH_DASHBOARD_PROOF_RECORD="$dough_slice7_dir/dashboard-proof.json" \
+  caffeinate -s -i npm run test:dashboard -- "${specs[@]}"
+npm run typecheck:dashboard && git diff --check
+node --experimental-transform-types "$dough_slice7_dir/compare-fixtures.mjs" \
+  "$dough_slice7_dir/prior" "$PWD"
+```
+
+All 11 Node and shell jobs and 158 Playwright tests passed. The real
+completion removes Taken membership and both assignments, and the durable
+record contains independently checked attribution. Git replay checks the
+committed catalog against actual blob hashes. The dashboard reads the
+correct revision's record and shows the completed title and attribution
+without a live assignment. Six dashboard fixtures and the installed
+shell's pre-catalog record retained identical bytes, including G4 revision
+reuse. Results and dispositions are under `/tmp/od-seed261-slice7-wKFZq8`.
+
+The independent refactor shared the diverged done-branch arrangement and
+extracted existing catalog, admission, and dashboard setup. Four affected
+Node jobs and 18 Playwright tests passed, together with byte comparisons,
+dashboard type-check, and whitespace. The original test registration and
+assertions remain in effect. Dispositions are under `/tmp/od-seed261-refactor7`.
 
 ### 8. Review separates the story's published changes from trunk and local edits
 Type: Behavior
@@ -453,7 +484,7 @@ Disposition: proved by slice 6: five plan fixtures use renderPublishedPreparatio
 ### G4. Done catalog revision reuse includes preparation facts
 Reported: slice 3 — "revisionReuseOrigin.ts still arranges preparation within its done catalog and revision reuse setup."
 Story clause: "In mixed cases, convert the published facts here and verify the existing journey."
-Disposition: receiving slice 7
+Disposition: proved by slice 7: revisionReuseOrigin.ts uses the preparation writer, its fixture byte comparison passed, and the affected revision reuse specs observed changed backlog and added records
 
 ### G5. Admission and review include preparation facts
 Reported: slice 3 — "workspace-publication-admission-fixtures.mjs withFacts still arranges preparation within its admission setup."

@@ -11,7 +11,6 @@ import {
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
   readStoryState,
   recordStoryState,
@@ -21,11 +20,8 @@ import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import { branchRefAnswer } from "./originAnswers.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
 import { withDoneCatalog } from "./doneCatalogAnswers.ts";
-import {
-  doneDirectory,
-  doneRecordAt,
-  executed,
-} from "./recentlyDoneRecords.ts";
+import { doneDirectory, executed } from "./recentlyDoneRecords.ts";
+import { heldDoneRecords } from "./publishedFactsDoneRecords.ts";
 import {
   afterTake,
   backlogPath,
@@ -48,6 +44,7 @@ import {
 } from "./support/heldFactGroupAnswers.ts";
 
 export type { FactGroup } from "./support/heldFactGroupAnswers.ts";
+export { moreDoneTitle } from "./publishedFactsDoneRecords.ts";
 export const takenCanonicalPath = ".planning/seeds/SEED-091-clock.md";
 export const preparing = "Prepare beside independently read work";
 const preparingIdentity = "SEED-091#preparing";
@@ -58,7 +55,6 @@ export const purpose =
 const plan = files[planPath("after-take")] ?? "";
 const branch = "story/available-facts";
 const branchHead = "b4".repeat(20);
-const donePath = doneRecordAt(executed.identity);
 export const preparer = "Pat Preparer";
 const minutesBefore = (minutes: number) =>
   new Date(opened.getTime() - minutes * 60_000);
@@ -125,26 +121,6 @@ const groupOf = (request: GhRequest): FactGroup | undefined => {
   return undefined;
 };
 
-// Further done stories, completed in the hours before the page opened.
-export const moreDoneTitle = (place: number) =>
-  `Finished work number ${place} rests in Recently done`;
-function moreDoneRecords(count: number): Record<string, string> {
-  return Object.fromEntries(
-    [...Array(count).keys()].map((index) => {
-      const identity = `SEED-3${index + 1}#finished`;
-      return [
-        doneRecordAt(identity),
-        renderDoneRecord({
-          identity,
-          title: moreDoneTitle(index + 1),
-          completedAt: minutesBefore(90 + index * 10).toISOString(),
-          developer: "Terry Yin",
-        }),
-      ];
-    }),
-  );
-}
-
 export async function heldFactGroups(
   page: Page,
   { moreDone = 0 }: { readonly moreDone?: number } = {},
@@ -179,12 +155,7 @@ export async function heldFactGroups(
             })
             .please(),
         ),
-        [donePath]: renderDoneRecord({
-          ...executed,
-          completedAt: minutesBefore(60).toISOString(),
-          developer: "Terry Yin",
-        }),
-        ...moreDoneRecords(moreDone),
+        ...heldDoneRecords(moreDone, minutesBefore),
       },
       doneDirectory,
     ),

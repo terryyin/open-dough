@@ -4,6 +4,7 @@
 // at times before the journey starts, with the done catalog completion
 // publishes beside them (./doneCatalogAnswers.ts). What this machine keeps for
 // them is ./recentlyDoneSessions.ts.
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
   doneRecordPath,
   renderDoneRecord,
@@ -85,27 +86,39 @@ export const doneDirectory = ".planning/done";
 // them, completed `placed` before `now`, with no catalog yet.
 function recordFiles(now: number): Record<string, string> {
   return {
-    [doneRecordAt(executed.identity)]: renderDoneRecord({
-      ...executed,
-      completedAt: at(now, placed.executedDone),
-      developer: "Terry Yin",
-      agent: "Yui-chan",
-      host: "claude",
-      model: "claude-opus-5-5",
-    }),
+    [doneRecordAt(executed.identity)]: renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          ...executed,
+          completedAt: at(now, placed.executedDone),
+          developer: "Terry Yin",
+          agent: "Yui-chan",
+          host: "claude",
+          model: "claude-opus-5-5",
+        })
+        .please(),
+    ),
     // A queued story removed with no execution agent profile.
-    [doneRecordAt(removedQueued.identity)]: renderDoneRecord({
-      ...removedQueued,
-      completedAt: at(now, placed.queuedRemovedDone),
-      developer: "Terry Yin",
-    }),
-    [doneRecordAt(expired.identity)]: renderDoneRecord({
-      ...expired,
-      completedAt: at(now, placed.expiredDone),
-      developer: "Terry Yin",
-      agent: "Akiho-chan",
-      host: "codex",
-    }),
+    [doneRecordAt(removedQueued.identity)]: renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          ...removedQueued,
+          completedAt: at(now, placed.queuedRemovedDone),
+          developer: "Terry Yin",
+        })
+        .please(),
+    ),
+    [doneRecordAt(expired.identity)]: renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          ...expired,
+          completedAt: at(now, placed.expiredDone),
+          developer: "Terry Yin",
+          agent: "Akiho-chan",
+          host: "codex",
+        })
+        .please(),
+    ),
     // Not a done record by its name, so never read.
     ".planning/done/README.md": "Not a done record.\n",
   };
@@ -119,11 +132,15 @@ export function doneRecordFiles(now: number): Record<string, string> {
 // The story done last week's record file, as `complete` would publish it.
 function lastWeekRecordFile(now: number): Record<string, string> {
   return {
-    [doneRecordAt(lastWeek.identity)]: renderDoneRecord({
-      ...lastWeek,
-      completedAt: at(now, placed.lastWeekDone),
-      developer: "Terry Yin",
-    }),
+    [doneRecordAt(lastWeek.identity)]: renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          ...lastWeek,
+          completedAt: at(now, placed.lastWeekDone),
+          developer: "Terry Yin",
+        })
+        .please(),
+    ),
   };
 }
 

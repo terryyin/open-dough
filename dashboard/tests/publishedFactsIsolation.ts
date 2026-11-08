@@ -130,12 +130,16 @@ ${renderPublishedPreparation(
           })
           .please(),
       ),
-      [donePath]: renderDoneRecord({
-        identity: doneIdentity,
-        title: doneTitle,
-        developer,
-        completedAt: new Date(opened.getTime() - 60_000).toISOString(),
-      }),
+      [donePath]: renderDoneRecord(
+        makeMe.aDoneRecord
+          .with({
+            identity: doneIdentity,
+            title: doneTitle,
+            developer,
+            completedAt: new Date(opened.getTime() - 60_000).toISOString(),
+          })
+          .please(),
+      ),
     },
     doneDirectory,
   );

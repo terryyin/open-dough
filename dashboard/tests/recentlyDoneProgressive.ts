@@ -8,6 +8,7 @@
 // This machine keeps the ad hoc Done sessions and a story's nested sessions.
 // Nothing here chooses which entries show or which records are read.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import {
   mkdirSync,
@@ -109,12 +110,16 @@ export function publishedWithCatalog(
       if (entry.kind !== "story") continue;
       writeFileSync(
         join(project, entry.path),
-        renderDoneRecord({
-          identity: entry.identity,
-          title: entry.title,
-          completedAt: placedAt(now, entry.place),
-          developer: "Terry Yin",
-        }),
+        renderDoneRecord(
+          makeMe.aDoneRecord
+            .with({
+              identity: entry.identity,
+              title: entry.title,
+              completedAt: placedAt(now, entry.place),
+              developer: "Terry Yin",
+            })
+            .please(),
+        ),
       );
     }
     for (const [path, text] of Object.entries(beside)) {

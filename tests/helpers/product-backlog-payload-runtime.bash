@@ -202,9 +202,13 @@ run_offline_done_catalog_proof() {
 
 - [Finish catalog proof](seeds/CAT.md#finish) — CAT#finish
 BACKLOG
-  printf '%s\n' '{' '  "schemaVersion": 1,' '  "identity": "OLD#legacy",' \
-    '  "title": "Written before catalogs",' \
-    '  "completedAt": "2026-10-01T00:00:00.000Z"' '}' > "${legacy}"
+  node "${source_dir}/tests/support/render-done-record.mjs" > "${legacy}" << 'RECORD'
+{
+  "identity": "OLD#legacy",
+  "title": "Written before catalogs",
+  "completedAt": "2026-10-01T00:00:00.000Z"
+}
+RECORD
   record_before=$(cat "${legacy}")
   backlog_before=$(cat "${backlog}")
 
