@@ -605,7 +605,7 @@ mutates its repository leaves a concurrent test's repository independent.
 
 **Identity:** SEED-262#drive-polls-with-time-and-replies
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/524-drive-cursor-session-polls/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b144e1c67944869faf136c55cbbfc7cbd656763459ae865200f4e0c9d43b1026","plan":"c7c0d0b0f15ca69f52e9e91e942157e5eb0c85d521ca131cc708deb395fa471b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/525-drive-cursor-session-polls/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b144e1c67944869faf136c55cbbfc7cbd656763459ae865200f4e0c9d43b1026","plan":"c7c0d0b0f15ca69f52e9e91e942157e5eb0c85d521ca131cc708deb395fa471b"}}
 ```
 
 #### Goal
