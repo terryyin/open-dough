@@ -413,7 +413,7 @@ Former local code: DD-451. [Evidence and current response](docs/maintainer/findi
 The implementation brief linked the full source-review commitment table, but its own one-line restatement of a key example dropped one of the example's triggers. The implementer proved the restated form, and the dropped branch came back at acceptance.
 
 ### Occurrences
-- Execution: SEED-270#highlight-linked-story-card (plan 525-highlight-linked-story-card; first related implementation `24eeb2e210d6816af7d052ce3917dfc5b1b9cfa6`)
+- Execution: SEED-270#highlight-linked-story-card (plan 525-highlight-linked-story-card, recoverable with its seed and source review at `bbcab61e80c618951fd642a7e0805a82572d2191`; first related implementation `24eeb2e210d6816af7d052ce3917dfc5b1b9cfa6`)
   - Timestamp: 2026-11-08 (slice 1 delegation and acceptance; exact time unknown)
   - Tool: Claude Code
   - Model: claude-opus-5-5
