@@ -35,20 +35,16 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
 import { makeMe } from "./makeMe.mjs";
 import { renderSlicePlan } from "./published-plan.mjs";
 import { writeEscalationProduct } from "./git-publication-native-one-shot-escalation-fixture.mjs";
+import {
+  createQueuedTrunk,
+  readyContributing,
+} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import * as queued from "../../src/skills/dough-execute-plan/scripts/one-shot-queued-test-fixtures.mjs";
 
-const [sourceDir, journey, parent] = process.argv.slice(2);
-const scripts = join(sourceDir, "src/skills/dough-execute-plan/scripts");
-const { createQueuedTrunk, readyContributing } = await import(
-  pathToFileURL(join(scripts, "workspace-publication-fixtures.mjs")).href
-);
-const queued = await import(
-  pathToFileURL(join(scripts, "one-shot-queued-test-fixtures.mjs")).href
-);
-
+const [, journey, parent] = process.argv.slice(2);
 const git = (cwd, ...args) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
 const isRefinement = journey.startsWith("one-shot-refinement");

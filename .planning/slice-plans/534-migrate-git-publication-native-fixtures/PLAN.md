@@ -1,6 +1,7 @@
 # Build Git publication native fixtures from explicit MakeMe data
 
 **Source:** [Build Git publication native fixture repositories from explicit MakeMe data](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-git-publication-native-fixtures)
+**Source review:** [source review](source-review.md)
 
 **Identity:** SEED-262#migrate-git-publication-native-fixtures
 
@@ -85,13 +86,21 @@ OPEN_DOUGH_TEST_JOBS=2 PATH=/opt/homebrew/bin:$PATH caffeinate -s -i \
   tests/git-publication-native-owned-context.sh tests/native-evidence-identity.sh
 ```
 
+Before run at Take `23d29ac79` (trunk had changed `queued-repository.mjs` and
+`repository-fixture.mjs` since the preparation observation): exit 0, six
+passed, 148.49 s real on AC, load averages 16.77 at start and 12.83 at end.
+Job seconds were 72.9 one-shot results, 60.8 admission, 55.8 publication,
+43.6 one-shot workspaces, 31.9 owned-context and 29.4 identity. Slice 1 moved
+the family identity checks into `tests/git-publication-fixture-identity.sh`;
+the after run adds that check and attributes its time to identity work.
+
 ## Slices
 
 ### 1. Native records identify the inputs that build their fixtures
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Behavior: A startup, admission, one-shot or owned-context attempt records
 identity → the writer hashes the fixture's actual inputs, including transitive
@@ -110,6 +119,21 @@ changed hash. Remove a required input and observe a failed identity rather
 than a successful partial record. Assert closure exit status directly. The
 retained hashes in replay fixtures stay historical. Run that identity check
 and the one-shot escalation fixture check.
+
+Accepted: family identities live in
+`tests/support/git-publication-native-fixture-identity.sh`; their checks moved
+to `tests/git-publication-fixture-identity.sh`, while
+`tests/native-evidence-identity.sh` keeps the all-writer checks with startup
+and one-shot added. Retention failure fails the journey even with `errexit`
+off. The closure tool blanks template-literal text, so generated notes stay
+data; every previously successful closure is byte-identical. Input rows:
+publication 22, startup 377, admission 384, one-shot 410, owned-context 390.
+Six native checks with the escalation test, the four routing, scheduling,
+replay and backlog consumers, and the refactored identity checks passed.
+Learning: every family record now hashes the installed payload, so any payload,
+`VERSION` or `CHANGELOG.md` edit makes those records stale for reuse judgment.
+Later slices update their family's roots in
+`git_publication_fixture_family_identity`.
 
 ### 2. Startup cases name their queued and Ready trunk
 

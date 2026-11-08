@@ -21,30 +21,21 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import {
+  createQueuedTrunk,
+  readyContributing,
+  identityA,
+} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { ownedWorktreeOnly } from "../../src/skills/dough-execute-plan/scripts/default-checkout-test-fixtures.mjs";
+import { advanceOriginFromAnotherWriter } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { createdForRef } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs";
+import {
+  computeBasis,
+  recordStoryState,
+} from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
+import * as preparation from "../../src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs";
 
 const [sourceDir, journey, parent, host] = process.argv.slice(2);
-const load = (path) => import(pathToFileURL(join(sourceDir, path)).href);
-const scripts = "src/skills/dough-execute-plan/scripts";
-const { createQueuedTrunk, readyContributing, identityA } = await load(
-  `${scripts}/workspace-publication-fixtures.mjs`,
-);
-const { ownedWorktreeOnly } = await load(
-  `${scripts}/default-checkout-test-fixtures.mjs`,
-);
-const { advanceOriginFromAnotherWriter } = await load(
-  `${scripts}/publication-test-fixtures.mjs`,
-);
-const { createdForRef } = await load(
-  `${scripts}/workspace-publication-ownership.mjs`,
-);
-const { computeBasis, recordStoryState } = await load(
-  "src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs",
-);
-const preparation = await load(
-  "src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs",
-);
-
 const git = (cwd, ...args) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
 const isStartup = journey === "startup-owned-context";

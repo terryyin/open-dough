@@ -14,7 +14,8 @@ trap 'rm -rf -- "${work_dir}"' EXIT
 identity_source="${work_dir}/identity-source"
 identity_out="${work_dir}/identity-hashes"
 mkdir -p -- "${identity_source}" "${identity_out}"
-cp -R -- "${source_dir}/tests" "${source_dir}/src" "${identity_source}/"
+cp -R -- "${source_dir}/tests" "${source_dir}/src" "${source_dir}/install.sh" \
+  "${source_dir}/VERSION" "${source_dir}/CHANGELOG.md" "${identity_source}/"
 supervision_inputs=(
   tests/support/native-run-supervise.sh
   tests/support/native-run-stream.sh
@@ -42,7 +43,9 @@ identity_writers=(
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity scheduling'
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity amended'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity publication'
+  'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity startup'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity admission'
+  'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity one-shot'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity owned-context'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity land-default-checkout'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity execution-review'
@@ -206,14 +209,20 @@ for index in "${!identity_writers[@]}"; do
   mapfile -t modules < <(awk '$3 ~ /\.mjs$/ { print $3 }' \
     "${identity_out}/baseline/${index}")
   ((${#modules[@]})) || continue
+  if ! node "${identity_source}/tests/support/native-import-closure.mjs" \
+    "${identity_source}" "${modules[@]}" > "${identity_out}/closure"; then
+    printf 'FAIL: evidence identity %s lists modules whose closure cannot be traced.\n' \
+      "${identity_writers[index]}" >&2
+    identity_failures=1
+    continue
+  fi
   while IFS= read -r module; do
     if ! lists_input "${identity_out}/baseline/${index}" "${module}"; then
       printf 'FAIL: evidence identity %s omits %s, which a listed command imports or spawns.\n' \
         "${identity_writers[index]}" "${module}" >&2
       identity_failures=1
     fi
-  done < <(node "${identity_source}/tests/support/native-import-closure.mjs" \
-    "${identity_source}" "${modules[@]}")
+  done < "${identity_out}/closure"
 done
 
 # Changing any guidance or command input an identity lists changes that

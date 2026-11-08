@@ -1,0 +1,62 @@
+# Source review
+
+Fresh general-purpose reviewer launched 2026-11-08 by the execution coordinator without conversation inheritance, given only the Goal, Scope, Key examples, Architecture and Evaluation text of SEED-262#migrate-git-publication-native-fixtures, told to read no other files and change nothing. The commitments below are its numbered return; example ids are normalized to their number. Its explicit exclusions: dashboard origins, release-source fixtures and the MakeMe-free native worktree-preparation fixtures remain separate; normalized repository hashing as an evidence key is deferred; paid native runs stay manual; historical records are not rehashed; dashboard uses of `writeQueuedStories` are outside the last-non-dashboard-use removal.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1 | (Goal) A maintainer reading a Git publication native check can tell which published facts its starting repository contains. | slice 5 | |
+| 2 | (Goal) The maintainer can tell which Git operations the check exercises. | slice 5 | |
+| 3 | (Goal) The maintainer can assess whether retained native evidence still applies when an input that builds that fixture changes. | slice 5 | |
+| 4a.1 | Startup fixtures declare their starting repository facts through the shared MakeMe description and materializer. | slice 2 | |
+| 4a.2 | Admission fixtures declare their starting repository facts through the same shared MakeMe description and materializer. | slice 3 | |
+| 4a.3 | One-shot fixtures declare their starting repository facts through the same shared MakeMe description and materializer. | slice 4 | |
+| 4a.4 | Owned-context fixtures declare their starting repository facts through the same shared MakeMe description and materializer. | slice 5 | |
+| 4b.1 | Name the stories at the call site or in the named fixture it selects. | slice 5 | |
+| 4b.2 | Name their readiness at the call site or in the named fixture it selects. | slice 5 | |
+| 4b.3 | Name the relevant revisions at the call site or in the named fixture it selects. | slice 5 | |
+| 4c.1 | Preserve the Git histories that each journey depends on. | slice 5 | |
+| 4c.2 | Preserve the working state that each journey depends on. | slice 5 | |
+| 4c.3 | Preserve the existing assessor verdicts that each journey depends on. | slice 5 | |
+| 5a.1 | Keep real Git for owned worktrees. | slice 5 | |
+| 5a.2 | Keep real Git for competing writers. | slice 5 | |
+| 5a.3 | Keep real Git for interrupted and resumed publication. | slice 2 | |
+| 5a.4 | Keep real Git for other transitions observed by the checks. | slice 5 | |
+| 5b | Keep real installed commands for the prior admissions and claims whose receipts or ownership the scenarios consume. | slice 3 | |
+| 5c | Keep literal divergent or dirty data visible where the check depends on those exact inputs. | slice 5 | |
+| 6a.1 | Remove `createQueuedTrunk` and its legacy setup. | slice 5 | |
+| 6a.2 | Remove `createPreparationTrunk` and its legacy setup. | slice 5 | |
+| 6a.3 | Remove `createSiblingTrunk` and its legacy setup. | slice 4 | |
+| 6b | Remove the last non-dashboard use of `writeQueuedStories`. | slice 5 | |
+| 6c | Remove the writer (`writeQueuedStories`) itself when no caller remains. | slice 5 | |
+| 7a | Each affected evidence identity covers the repository inputs that its fixture uses, including transitive builders and writer helpers. | slice 5 | |
+| 7b | A failed required input read cannot yield an apparently complete current identity. | slice 1 | observed: tests/git-publication-fixture-identity.sh missing-input family checks (repositoryTestData.mjs, claude-hooks.json removed, errexit off) and startup-trunk retention under set +e: fail status, no record, observations.txt kept; tests/support/git-publication-native-run.sh git_publication_run_journey |
+| 7c.1 | Historical records retain their original hashes. | slice 1 | observed: git diff -- tests/fixtures empty at slice 1; tests/native-stream-replay.sh passed |
+| 7c.2 | Historical records remain available for replay and evidence assessment. | slice 5 | |
+| 7d | Paid native runs remain manual-only. | slice 5 | |
+| 8a | Normalized repository hashing's comparison technique serves as migration proof. | slice 5 | |
+| 9 | (Ex.1) A startup fixture names Ready queued A and B and the setup and command files. When the claim proceeds in a new workspace, the real commands leave root markers after the claim, including when the workspace is gone. | slice 2 | |
+| 10a | (Ex.2) An admission fixture names its queued trunk and the startup probe. | slice 3 | |
+| 10b | (Ex.2) The existing investigation still starts with no queued mission. | slice 3 | |
+| 10c | (Ex.2) Continuation and closure still observe real prior admissions and their ownership. | slice 3 | |
+| 11a | (Ex.3) A queued one-shot fixture names Ready B and its unfinished sibling B2. | slice 4 | |
+| 11b | (Ex.3) Refinement selects B2 while keeping B Ready. | slice 4 | |
+| 11c | (Ex.3) The default-main case still observes the staged, unstaged and untracked human edits in that checkout. | slice 4 | |
+| 12a | (Ex.4) The preparation-land fixture names rough C. | slice 5 | |
+| 12b | (Ex.4) Its real retained worktree holds the creation ref and the competing writer advances trunk. | slice 5 | |
+| 12c | (Ex.4) The existing landing verdict still checks that topology and publication. | slice 5 | |
+| 13a | (Ex.5) The evidence writer runs after a fixture or transitive input changes; the corresponding input hash changes. | slice 1 | observed: tests/git-publication-fixture-identity.sh scratch changes to transitive fixture helper, generated notes source, installer helper and declared hook payload each change the matching family input-hash |
+| 13b | (Ex.5) Generated notes source remains fixture data, so its embedded imports cannot break the one-shot identity. | slice 1 | observed: tests/git-publication-fixture-identity.sh one-shot closure exits 0, includes the escalation module, excludes src/notes.mjs; tests/support/native-import-closure.mjs withoutTemplateText |
+| 14a | (Arch) Use the existing source-hash closure with traceable imports. | slice 1 | observed: fixture entries import helpers statically; tests/support/native-import-closure.mjs reused; tests/git-publication-fixture-identity.sh named family inputs and tests/native-evidence-identity.sh closure completeness |
+| 14b | (Arch) Use explicit roots for inputs loaded outside JavaScript imports. | slice 1 | observed: tests/support/git-publication-native-fixture-identity.sh git_publication_fixture_family_identity (startup roots, shell-launched modules) and git_publication_installer_input_hash_lines |
+| 14c | (Arch) Follows the same dependency mapping as compiler depfiles: the fixture entry point names the build, its import and spawn edges identify dependencies, and the retained hashes record the inputs. | slice 1 | observed: tests/native-evidence-identity.sh closure completeness over every writer (every listed .mjs closure hashed, closure failure is a FAIL); tests/git-publication-fixture-identity.sh record input-hash lines equal identity |
+| 14d | (Arch) When a byte change in shared MakeMe invalidates a record even though the built fixture behaves identically, apply the evidence reuse judgment in ADR 0005 to that case. | slice 5 | |
+| 14e | (Arch) An input identity establishes provenance for a recorded result. | slice 1 | observed: tests/git-publication-fixture-identity.sh startup journey record carries exactly the startup identity input-hash lines |
+| 14f | (Arch) Keeping the existing identities without expanding their input coverage leaves the observed gaps in startup, one-shot and owned-context (input coverage must be expanded for these). | slice 5 | |
+| 15a | (Eval) Compare the same credential-free startup and admission selections before and after under comparable load. | slice 5 | |
+| 15b.1 | (Eval) Record elapsed time, following the epic's evaluation rule. | slice 5 | |
+| 15b.2 | (Eval) Record the executed cases. | slice 5 | |
+| 15b.3 | (Eval) Record the fixture construction or identity work that changed. | slice 5 | |
+| 15c | (Eval) Preserve the corresponding one-shot and owned-context verdicts. | slice 5 | |
+| 15d | (Eval) Verify input sensitivity without credentials. | slice 1 | observed: tests/git-publication-fixture-identity.sh and tests/native-evidence-identity.sh use scratch copies and stub hosts only; no native host run |

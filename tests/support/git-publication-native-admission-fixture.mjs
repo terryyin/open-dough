@@ -22,23 +22,20 @@
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
-
-const [sourceDir, journey, parent] = process.argv.slice(2);
-const scripts = join(sourceDir, "src/skills/dough-execute-plan/scripts");
-const load = (name) => import(pathToFileURL(join(scripts, name)).href);
-const { createQueuedTrunk, readyContributing } = await load(
-  "workspace-publication-fixtures.mjs",
-);
-const {
+import {
+  createQueuedTrunk,
+  readyContributing,
+} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import {
   draftLateStory,
   publishPlannedPreparation,
   storySection,
   withFacts,
   writeDraft,
-} = await load("workspace-publication-admission-fixtures.mjs");
-const { startExecution } = await load("execution-start.mjs");
+} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
+import { startExecution } from "../../src/skills/dough-execute-plan/scripts/execution-start.mjs";
 
+const [, journey, parent] = process.argv.slice(2);
 const git = (cwd, ...args) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
 const trunk = await createQueuedTrunk({

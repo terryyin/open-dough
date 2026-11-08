@@ -233,10 +233,14 @@ git_publication_run_journey() {
     git_publication_assess_reason="native host exited ${run_status} before completing the journey"
   fi
 
-  if [[ -n ${native_case_results_dir:-} ]]; then
-    git_publication_retain_attempt "${source_dir}" "${prompt}" \
+  # A retention failure fails the journey, even under a caller's `set +e`.
+  if [[ -n ${native_case_results_dir:-} ]] \
+    && ! git_publication_retain_attempt "${source_dir}" "${prompt}" \
       "${transcript}" "${output_file}" "${native_stderr}" \
-      "${observations_file}" "$(git_publication_evidence_profile "${journey}")"
+      "${observations_file}" "$(git_publication_evidence_profile "${journey}")"; then
+    git_publication_assess_status=fail
+    git_publication_assess_reason="evidence identity failed; no record retained"
+    ((run_status)) || run_status=1
   fi
 
   if [[ -z ${GIT_PUBLICATION_KEEP:-} ]]; then
