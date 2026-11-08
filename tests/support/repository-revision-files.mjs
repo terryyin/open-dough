@@ -21,6 +21,7 @@ import {
 import { splitHref } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
 import { recordStoryState } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { renderPublishedBacklog } from "./published-backlog.mjs";
+import { backlogPath } from "./repositoryTestData.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RevisionFacts} RevisionFacts */
 /** @typedef {import("./repositoryTestData.mjs").StoryState} StoryState */
@@ -89,9 +90,9 @@ export function writeRevisionFiles(integration, revision) {
 
   for (const path of remove)
     rmSync(fixturePath(integration, path), { recursive: true, force: true });
-  if (backlog !== undefined)
+  if (backlog)
     writeFixtureFile(
-      join(planning, "PRODUCT-BACKLOG.md"),
+      fixturePath(integration, backlogPath),
       renderPublishedBacklog(backlog),
     );
   for (const [path, content] of Object.entries(files))

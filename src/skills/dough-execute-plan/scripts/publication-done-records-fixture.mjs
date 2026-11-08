@@ -61,7 +61,7 @@ export function trunkWithBacklogAt(file, { backlog, agentProfiles = [] }) {
     file === ".planning/PRODUCT-BACKLOG.md"
       ? { backlog, agentProfiles }
       : {
-          backlog: undefined,
+          backlog: null,
           files: {
             [file]: renderPublishedBacklog(backlog),
             ...Object.fromEntries(

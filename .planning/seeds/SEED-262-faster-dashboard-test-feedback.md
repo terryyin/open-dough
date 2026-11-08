@@ -168,31 +168,6 @@ run-to-run noise.
   native evidence, so no paid run is needed
   ([native family layers](../../tests/native-family-layers.md)).
 
-<a id="tighten-repository-description-facts"></a>
-
-### State each repository description fact once and keep native preparation evidence MakeMe-free
-
-**Identity:** SEED-262#tighten-repository-description-facts
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/532-tighten-repository-description-facts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1f49d1e3e3497c8e7ba50e0cc8a3b11d256a2d8dc4d04c8b9cb68a3dd652b67e","plan":"050536afd538c4f9b596573aaf3165ba290be94f13606861c0120c7429628e50"}}
-```
-
-**Goal.** A maintainer reading a
-[shared repository description](../../tests/support/repositoryTestData.mjs)
-gets exactly the repository it declares, and MakeMe edits no longer change
-the native worktree-preparation journey's evidence identity. This corrects
-the clean-trunk migration (`SEED-262#migrate-clean-trunk-fixtures`,
-recoverable at `42717b7da:.planning/seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures`).
-
-**Scope.** The native worktree-preparation modules stop loading MakeMe and
-the materializer while their repositories stay as they are. A workspace's
-declared checkout identity stays with its worktree. The trunk without a
-backlog becomes an explicit fact. A revision that declares both a rendered
-backlog and backlog file bytes is refused. The builder's refusals get one
-Git-free test. The test-data architecture describes the current repository
-facts. No paid or native host run, and no change to the sibling stories'
-scope. [Plan](../slice-plans/532-tighten-repository-description-facts/PLAN.md)
-
 <a id="migrate-backlog-scratch-repositories"></a>
 
 ### Build Node test repositories from explicit MakeMe data

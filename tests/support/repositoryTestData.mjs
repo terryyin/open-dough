@@ -19,7 +19,7 @@
 
 /**
  * @typedef {{
- *   backlog?: Backlog | undefined,
+ *   backlog?: Backlog | null,
  *   files?: Readonly<Record<string, string | Buffer>>,
  *   executables?: readonly string[],
  *   storyStates?: readonly StoryState[],
@@ -37,6 +37,33 @@
  * @template {string} Name
  * @typedef {RepositoryRevision & { name: Name }} NamedRevision
  */
+
+// Where a revision's backlog lives, whether stated as membership or bytes.
+export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
+
+/** @param {RepositoryRevision} revision */
+function statesBacklogBytes(revision) {
+  return (
+    revision.files !== undefined && Object.hasOwn(revision.files, backlogPath)
+  );
+}
+
+/** @param {RepositoryRevision} revision */
+function assertOneBacklogFact(revision) {
+  if (Object.hasOwn(revision, "backlog") && revision.backlog === undefined)
+    throw new Error(
+      `Repository revision ${revision.name} states an undefined backlog; state backlog: null for a revision without a backlog`,
+    );
+  if (revision.backlog && statesBacklogBytes(revision))
+    throw new Error(
+      `Repository revision ${revision.name} states its backlog twice: as backlog and as files["${backlogPath}"]`,
+    );
+}
+
+/** @param {RepositoryRevision} revision */
+function statesBacklog(revision) {
+  return Object.hasOwn(revision, "backlog") || statesBacklogBytes(revision);
+}
 
 /**
  * The execution workspace: a branch that starts from a named trunk revision
@@ -102,7 +129,8 @@ export class RepositoryBuilder {
   /**
    * A named commit's changes, in publication order. The first commit has
    * an empty backlog unless the description supplies its membership or bytes,
-   * or states `backlog: undefined` for a trunk without one.
+   * or states `backlog: null` for a trunk without one. A revision states its
+   * backlog once: as `backlog` or as bytes at `.planning/PRODUCT-BACKLOG.md`.
    * @template {string} NewName
    * @param {NewName} name
    * @param {RevisionFacts} [facts]
@@ -143,7 +171,8 @@ export class RepositoryBuilder {
   /**
    * An execution workspace on `branch`, starting from the named trunk
    * revision. Its `checkoutIdentity`, when stated, is the committer Git
-   * configures for that worktree and the default committer of its revisions.
+   * configures for that worktree only and the default committer of its
+   * revisions; the integration checkout keeps its own identity.
    * @param {string} branch
    * @param {{ from: Name, checkoutIdentity?: GitPerson }} facts
    * @returns {RepositoryBuilder<Name>}
@@ -189,10 +218,15 @@ export class RepositoryBuilder {
       throw new Error(
         `Workspace ${workspace.branch} starts from unknown trunk revision ${workspace.from}`,
       );
+    for (const revision of [...this.#revisions, ...this.#unpublished])
+      assertOneBacklogFact(revision);
     /** @type {RepositoryDescription<Name | "base">} */
     const result = {
       ...facts,
-      revisions: [{ backlog: {}, ...first }, ...later],
+      revisions: [
+        statesBacklog(first) ? first : { backlog: {}, ...first },
+        ...later,
+      ],
       ...(workspace && {
         workspace: {
           ...workspace,

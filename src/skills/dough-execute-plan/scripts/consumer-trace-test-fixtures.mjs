@@ -17,7 +17,7 @@ const script = join(
 export async function repository(t, files, untracked = {}) {
   const described = await materializeRepository(
     makeMe.aRepository
-      .withRevision("fixture", { backlog: undefined, files })
+      .withRevision("fixture", { backlog: null, files })
       .please(),
   );
   t.after(described.cleanup);

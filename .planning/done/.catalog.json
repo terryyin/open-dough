@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_tighten-repository-description-facts.json",
+      "identity": "SEED-262#tighten-repository-description-facts",
+      "completedAt": "2026-11-08T12:53:52.748Z",
+      "blob": "2da5ac630d8b6c71087b030b29941dce39f594b7"
+    },
+    {
       "fileName": "SEED-276_guard-intent-per-file-highlighting.json",
       "identity": "SEED-276#guard-intent-per-file-highlighting",
       "completedAt": "2026-11-08T12:50:48.041Z",

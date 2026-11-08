@@ -39,7 +39,7 @@ test("ignored-only story branch inherits a successful trunk ancestor run as not_
   } = await materializeRepository(
     makeMe.aRepository
       .withRevision("a", {
-        backlog: undefined,
+        backlog: null,
         files: {
           "src/app.js": "console.log('A');\n",
           [workflowPath]: acceptedWorkflow,
@@ -135,7 +135,7 @@ test("a nearer own-branch ancestor run wins over a main ancestor in the all-bran
   } = await materializeRepository(
     makeMe.aRepository
       .withRevision("a", {
-        backlog: undefined,
+        backlog: null,
         files: {
           "src/app.js": "console.log('A');\n",
           [workflowPath]: acceptedWorkflow,

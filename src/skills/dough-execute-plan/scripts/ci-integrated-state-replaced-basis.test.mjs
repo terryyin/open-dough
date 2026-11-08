@@ -125,7 +125,7 @@ test("without a declared policy, docs-only B on a replaced ancestor stays incomp
     t,
     makeMe.aRepository
       .withRevision("a", {
-        backlog: undefined,
+        backlog: null,
         files: { [workflowPath]: acceptedWorkflow, "app.js": "a\n" },
       })
       .withRevision("b", { files: { "docs/b.md": "b\n" } })
