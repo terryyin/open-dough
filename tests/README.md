@@ -95,7 +95,7 @@ as an `execution` worktree beside the checkout and commits its revisions
 without pushing; `candidateSha` names its tip. A workspace identity is written
 to the configuration both checkouts share. A revision's `executables` lists
 files to commit with the executable mode. A first revision gets an empty
-backlog unless it states one or states `backlog: undefined`. Because templates
+backlog unless it states one or states `backlog: null`. Because templates
 are reused, identical descriptions give identical commit IDs within a process.
 Other branches, merges, competing writers, stashes, dirty files, submodules
 and removed worktrees stay Git operations in the case. Installed skills, CI

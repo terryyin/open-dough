@@ -255,7 +255,7 @@ Refactor: no change.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: add rows to the slice 3 table: `backlog: undefined` is refused, and a
 revision stating both a non-null `backlog` and a `files` entry at
@@ -272,6 +272,16 @@ file; a revision stating a backlog twice → `please()` → refused with the
 revision named. Replace every `backlog: undefined` with `backlog: null`
 mechanically. Premise P4 found no revision stating both explicitly; the
 racing-suffix trunk keeps its bytes because it no longer gets the default.
+
+Accepted proof (2026-11-08): the new refusal rows and the materialized
+`backlog: null` case failed before the change and pass after it; the
+double-backlog row did not throw before. `git grep "backlog: undefined"` is
+empty. 45 files reaching the changed modules, both consumer-trace tests and
+the 15 supplier tests passed quietly; typecheck and lint pass. Refactor:
+`backlogPath` exported once and used by the writer, one `statesBacklogBytes`
+check, and the Git-free refusal table moved to
+`tests/support/repository-description.test.mjs`, keeping
+`repository-fixture.test.mjs` under the size limit.
 
 ### 5. The test-data architecture describes the repository description
 

@@ -80,7 +80,7 @@ export async function createWrapperDrivenFixture({
   const { integration: origin } = await materializeRepository(
     makeMe.aRepository
       .withRevision("project", {
-        backlog: undefined,
+        backlog: null,
         message: "wrapper fixture",
         files: wrapperProject(artifactCache, { missingConvention }),
         executables: ["wrapper"],

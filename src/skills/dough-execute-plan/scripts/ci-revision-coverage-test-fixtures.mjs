@@ -47,7 +47,7 @@ export async function git(root, ...args) {
 const revisionA = makeMe.aRepository
   .withTrunkBranch(customCiBranch)
   .withRevision("a", {
-    backlog: undefined,
+    backlog: null,
     files: { "application.txt": "A\n" },
   })
   .please();

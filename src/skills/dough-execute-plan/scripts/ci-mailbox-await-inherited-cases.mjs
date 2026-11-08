@@ -41,7 +41,7 @@ test("ignored-only coverage follows successful and failed unregistered ancestors
   } = await materializeRepository(
     makeMe.aRepository
       .withRevision("successfulAncestor", {
-        backlog: undefined,
+        backlog: null,
         files: {
           "application.js": "console.log('A');\n",
           [workflowPath]: acceptedWorkflow,

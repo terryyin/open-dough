@@ -178,43 +178,31 @@ test("a declared executable is published with the executable mode and other file
   ]);
 });
 
-test("the repository builder refuses a description it cannot materialize, without Git", () => {
-  const refusals = [
-    {
-      refusal: "a name reused across trunk and unpublished revisions",
-      describe: () =>
-        makeMe.aRepository
-          .withRevision("t")
-          .withWorkspace("w", { from: "t" })
-          .withUnpublishedRevision("t"),
-      message: "Duplicate repository revision: t",
-    },
-    {
-      refusal: "a workspace from an unknown trunk revision",
-      describe: () =>
-        makeMe.aRepository
-          .withRevision("t")
-          .withWorkspace("w", { from: "x" })
-          .please(),
-      message: "Workspace w starts from unknown trunk revision x",
-    },
-    {
-      refusal: "an unpublished revision without a workspace",
-      describe: () => makeMe.aRepository.withUnpublishedRevision("u"),
-      message:
-        "Unpublished revision u needs a workspace: call withWorkspace first",
-    },
-    {
-      refusal: "a second workspace",
-      describe: () =>
-        makeMe.aRepository
-          .withRevision("t")
-          .withWorkspace("w", { from: "t" })
-          .withWorkspace("v", { from: "t" }),
-      message: "The repository already has workspace w",
-    },
-  ];
+test("a first revision states no backlog with backlog: null, or the backlog bytes it publishes", async (t) => {
+  const bytes = "# Product Backlog\n\nStated bytes.\n";
+  const withoutBacklog = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("bare", { backlog: null, files: { "trunk.txt": "base\n" } })
+      .please(),
+  );
+  t.after(withoutBacklog.cleanup);
+  const withBytes = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("stated", {
+        files: { ".planning/PRODUCT-BACKLOG.md": bytes },
+      })
+      .please(),
+  );
+  t.after(withBytes.cleanup);
 
-  for (const { refusal, describe, message } of refusals)
-    assert.throws(describe, { message }, refusal);
+  assert.equal(
+    (await git(withoutBacklog.origin, "ls-tree", "-r", "--name-only", "main"))
+      .stdout,
+    "trunk.txt\n",
+  );
+  assert.equal(
+    (await git(withBytes.origin, "show", "main:.planning/PRODUCT-BACKLOG.md"))
+      .stdout,
+    bytes,
+  );
 });

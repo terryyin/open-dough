@@ -35,7 +35,7 @@ async function retainedResult(t, { listed = true } = {}) {
   const fixture = await createPreparationFixture(
     preparationRepository({
       trunk: {
-        backlog: undefined,
+        backlog: null,
         files: { [backlogPath]: backlog(listed ? entry : "") },
       },
       record: {

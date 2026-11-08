@@ -32,7 +32,7 @@ import { retainBugTriageArtifacts } from "./retained-artifacts.mjs";
 // A trunk with no backlog record yet, whose tracked trunk.txt a planted human
 // edit changes.
 const trunkWithoutBacklog = preparationRepository({
-  trunk: { backlog: undefined, files: { "trunk.txt": "base\n" } },
+  trunk: { backlog: null, files: { "trunk.txt": "base\n" } },
 });
 
 const durablePath = ".planning/PRODUCT-BACKLOG.md";

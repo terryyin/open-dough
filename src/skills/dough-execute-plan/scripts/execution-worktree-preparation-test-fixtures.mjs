@@ -52,7 +52,7 @@ export async function createLockedNodeFixture({
   const { integration: origin } = await materializeRepository(
     makeMe.aRepository
       .withRevision("project", {
-        backlog: undefined,
+        backlog: null,
         message: "locked fixture",
         files: lockedNodeProject({ failingInstall }),
       })
