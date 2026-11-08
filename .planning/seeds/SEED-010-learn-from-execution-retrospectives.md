@@ -301,18 +301,61 @@ Scope limits:
 <a id="notice-named-sibling-landings-before-delivery"></a>
 
 ### 2. Surface a named sibling landing before delivering against its old shape
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/523-notice-named-sibling-landings/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d8b5205e105964f0e0f2ada6efc397265caf59e94a7fc0904fe8c5696375d7fd","plan":"090e0794609fbe127f40a3e61dce12755f4cb4430c7fcde3edae0c0dc0c1fcdf"}}
+```
 
-For developers coordinating a Story Branch with a named, overlapping sibling,
-surface the sibling’s accepted trunk change while the affected increment is
-still under review. [ODF-429](../../docs/maintainer/findings/ODF-429.md) records
-the late conflicts and the amendment that updated links alone.
+#### Goal
 
-Evaluate the two retained cases. When the named sibling has landed and the
-affected product paths diverge, the coordinator can identify the affected
-slice and decide how to incorporate the new shape before delivering it.
-An unrelated or non-overlapping landing should leave the slice able to
-proceed. Record the delivered response, containing release and ordinary-use
-criterion at the finding.
+Developers coordinating planned work in Story Branch Mode can account for a
+named sibling's accepted change while the affected slice is still under review.
+Seeing the new product shape before delivery reduces late reconciliation and
+rework. [ODF-429](../../docs/maintainer/findings/ODF-429.md) records two cases
+where ordinary source freshness surfaced a link amendment and the overlap
+remained.
+
+#### Scope
+
+- Before marking the affected slice done or committing or publishing its
+  delivery, check the sibling explicitly named for coordination against the
+  fetched authorized trunk. Assess the shared product paths and behavior the
+  current slice relies on, including code delivered by earlier slices.
+- When accepted evidence shows the sibling changed that product shape and
+  the slice still relies on its earlier form, surface the sibling identity,
+  trunk revision, affected slice, and shared paths or behavior. Keep the
+  increment recoverable while the coordinator reconciles the affected work
+  and reviews its proof, or seeks a developer decision under the existing
+  escalation rule when one is needed.
+- A source-link amendment leaves the product question open. A named landing
+  outside the slice's affected behavior, an unrelated landing, or a change
+  the slice already accounts for adds no hold. Existing source review and
+  delivery checks still apply.
+- The commitment covers coordination already named in planned Story Branch
+  work. Automatic discovery, new dependency or Take rules, automatic merging,
+  and additional delivery checks in Trunk Mode are outside this increment.
+- Record the delivered response, its containing release, and the ordinary-use
+  criterion at ODF-429. In the next observed qualifying execution, check
+  whether the coordinator addressed the overlap before delivery, how much
+  late reconciliation remained, and whether disjoint work was interrupted.
+
+#### Key examples
+
+1. **Intent reading moves to a new owner.** SEED-243 reaches slice 3 after
+   its named sibling SEED-241 lands the page-held reading state on trunk.
+   The affected slice still uses the old shape. The coordinator sees the
+   landing and affected Intent code before delivering slice 3, and can
+   reconcile the slice while its increment is recoverable.
+2. **A link update leaves an old timing measure in use.** SEED-255 reaches
+   slice 3 after its named sibling SEED-256 lands comparison timing without
+   runner waits. Absorbing the updated links clears the source amendment.
+   The comparison component and wording still diverge, even though the
+   current increment need not edit them directly. The coordinator sees and
+   addresses that overlap before delivery.
+3. **Delivery can proceed.** A named sibling lands a disjoint change while
+   another landing touches a shared path. The coordinator finds no relevant
+   product change attributable to the named sibling and proceeds through
+   ordinary checks. A branch that has already incorporated the sibling's
+   affected behavior also proceeds.
 
 <a id="pending-lifecycle-validation-obligations"></a>
 
