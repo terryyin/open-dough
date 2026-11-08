@@ -42,19 +42,22 @@ is none:
 ```
 
 The `summary` value is the summary file's JSON object as the collector wrote
-it (the `entries` above are abbreviated). Present parts and their entries may
-carry optional `durationMs`: the summed test execution time in milliseconds
-for that part, and the sum of present parts that recorded one for the entry.
-A part written without a duration carries none; schema versions stay at 1.
-A summary collected from fragments written with `--by-file` also carries
-each entry's file breakdown, which the tab uses for a selected entry's or
-folder's figures; keep it unchanged too, and mind the 64 KiB limit below.
-The `unavailable` reason is a nonempty string, shown to the developer as
-given and cut at 600 bytes; never answer a verdict there. Any other answer,
-both fields, a nonzero exit, invalid JSON, the 20-second timeout or more
-than 64 KiB of stdout is shown as the adapter having answered no proof read,
-with the adapter's last stderr line for a nonzero exit. An adapter that does
-not implement `proof`, such as the
+it (the `entries` above are abbreviated). A successful answer carries that
+complete summary; never trim entries or breakdowns for size, and never
+substitute `unavailable` because the summary is large. Present parts and
+their entries may carry optional `durationMs`: the summed test execution
+time in milliseconds for that part, and the sum of present parts that
+recorded one for the entry. A part written without a duration carries none;
+schema versions stay at 1. A summary collected from fragments written with
+`--by-file` also carries each entry's file breakdown, which the tab uses
+for a selected entry's or folder's figures; keep it unchanged too. Intent
+reads a `proof` answer up to 1 MiB (the collector contract's summary read
+limit). The `unavailable` reason is a nonempty string, shown to the
+developer as given and cut at 600 bytes; never answer a verdict there. Any
+other answer, both fields, a nonzero exit, invalid JSON, the 20-second
+timeout or more than 1 MiB of stdout is shown as the adapter having
+answered no proof read, with the adapter's last stderr line for a nonzero
+exit. An adapter that does not implement `proof`, such as the
 [runnable minimal adapter](custom-ci.md#runnable-minimal-adapter), exits
 nonzero for it and shows that line; nothing is retried, and the verdict,
 `discover` and `diagnose` are unaffected.

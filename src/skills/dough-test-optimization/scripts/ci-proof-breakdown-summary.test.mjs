@@ -1,12 +1,10 @@
 // The optional file breakdown of CI proof summaries
 // (ci-proof-figures.mjs "File breakdown"): the collector sums fragments'
-// breakdowns per path over the parts that published one, validation refuses
-// a breakdown that does not account for its counts or names a path outside
-// its entry, and the command line writes a broken-down summary whole however
-// large. Converters: ci-proof-breakdown.test.mjs.
+// breakdowns per path over the parts that published one, and validation
+// refuses a breakdown that does not account for its counts or names a path
+// outside its entry. Command line: ci-proof-breakdown-summary-cli.test.mjs.
+// Converters: ci-proof-breakdown.test.mjs.
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
 import test from "node:test";
 import { summarize } from "./ci-proof-collect.mjs";
 import { fragmentProblems, summaryProblems } from "./ci-proof-contract.mjs";
@@ -14,11 +12,6 @@ import {
   fragmentFromPlaywrightRecord,
   fragmentsFromOutcomes,
 } from "./ci-proof-fragments.mjs";
-import {
-  fragmentTests,
-  summarizeTests,
-  temporary,
-} from "./ci-proof-cli-fixtures.mjs";
 import {
   byFile,
   locatedRecord,
@@ -199,72 +192,5 @@ test("a breakdown that does not account for its counts, or names a path outside 
   assert.deepEqual(
     refusedEntry({ parts: [{ ...entry.parts[0], breakdown: false }] }),
     ["entries[0].parts[0].breakdown is not true"],
-  );
-});
-
-test("the command line breaks fragments down by file with --by-file", (t) => {
-  const directory = temporary(t);
-  const outcomes = join(directory, "outcomes.txt");
-  const times = join(directory, "times.txt");
-  const fragments = join(directory, "fragments");
-  writeFileSync(outcomes, "passed\ttests/a.sh\npassed\ttests/support/b.sh\n");
-  writeFileSync(times, "0.5\ttests/a.sh\n");
-  const fragment = fragmentTests(
-    ["--outcomes", outcomes, "--times", times, "--by-file"],
-    ["--attempt", "2"],
-    fragments,
-  );
-  assert.deepEqual([fragment.status, fragment.stderr], [0, ""]);
-  const out = join(directory, "summary.json");
-  const summary = summarizeTests(
-    fragments,
-    ["--run-id", "7", "--attempt", "2"],
-    out,
-  );
-  assert.deepEqual([summary.status, summary.stderr], [0, ""]);
-  const [entry] = JSON.parse(readFileSync(out, "utf8")).entries;
-  assert.deepEqual(entry.files, [
-    { path: "tests/a.sh", passed: 1, failed: 0, other: 0, durationMs: 500 },
-    { path: "tests/support/b.sh", passed: 1, failed: 0, other: 0, untimed: 1 },
-  ]);
-  assert.equal(entry.untimed, 1);
-});
-
-test("the command line names a summary too large to read, writing it whole without truncating it", (t) => {
-  const directory = temporary(t);
-  const many = join(directory, "many.txt");
-  const name = "x".repeat(100);
-  writeFileSync(
-    many,
-    [...Array(12_000).keys()]
-      .map((index) => `passed\ttests/${name}-${index}.sh\n`)
-      .join(""),
-  );
-  const fragments = join(directory, "fragments");
-  assert.equal(
-    fragmentTests(
-      ["--outcomes", many, "--by-file"],
-      ["--attempt", "2"],
-      fragments,
-    ).status,
-    0,
-  );
-  const out = join(directory, "summary.json");
-  const summary = summarizeTests(
-    fragments,
-    ["--run-id", "7", "--attempt", "2"],
-    out,
-  );
-  const bytes = readFileSync(out).length;
-  assert.equal(summary.status, 0);
-  assert.ok(bytes > 1024 * 1024, String(bytes));
-  assert.equal(
-    summary.stderr,
-    `the summary is ${bytes} bytes, more than the ${1024 * 1024} a GitHub Actions summary may be read as; Intent will not show it\n`,
-  );
-  // Written whole: every file is kept, none truncated.
-  assert.equal(
-    JSON.parse(readFileSync(out, "utf8")).entries[0].files.length,
-    12_000,
   );
 });

@@ -1,7 +1,7 @@
 // The CI proof of one ciAdapter attempt (`./intentCiProofRead.ts`): asked of
 // the project's configured adapter (`proof`), run from the project folder
-// with the shared adapter limits as discover is
-// (`ci-command-adapter.mjs` `readCommandProof`), then validated with the
+// (`ci-command-adapter.mjs` `readCommandProof`) with the collector
+// contract's summary read limit as `answerBytes`, then validated with the
 // collector's own contract and used only when it names the asked
 // repository, attempt (the text form of its `attemptId`) and revision
 // (ADR 0008: missing, outdated or conflicting evidence is never a result).
@@ -10,11 +10,11 @@
 // the GitHub Actions summary memory (`./ciProofArtifact.ts`); every other
 // answer is asked of the adapter again.
 import { readCommandProof } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
+import { truncateUtf8 } from "../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
 import {
-  adapterResponseBytes,
-  truncateUtf8,
-} from "../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
-import { summaryProblems } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+  SUMMARY_READ_LIMIT_BYTES,
+  summaryProblems,
+} from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import type { CiAdapterProofAttempt, CiProof } from "../src/ciProof.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
@@ -48,14 +48,18 @@ type AdapterRunError = Error & {
 // Why the adapter answered no proof read: it ran past the shared limits,
 // exited nonzero (with its last stderr line), or otherwise failed with the
 // runner's own error, such as an answer the runner refuses or a command that
-// could not start.
-function failureOf(error: unknown, timeoutMs: number): string {
+// could not start. `answerBytes` is the stdout limit this proof call used.
+function failureOf(
+  error: unknown,
+  timeoutMs: number,
+  answerBytes: number,
+): string {
   if (!(error instanceof Error)) return String(error);
   const { code, killed, stderr } = error as AdapterRunError;
   if (killed === true)
     return `it gave no answer within ${String(timeoutMs / 1000)} seconds`;
   if (code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER")
-    return `its answer is longer than ${String(adapterResponseBytes / 1024)} KiB`;
+    return `its answer is longer than ${String(answerBytes / 1024)} KiB`;
   if (typeof code === "number") {
     const line = (stderr ?? "")
       .split("\n")
@@ -123,11 +127,19 @@ export async function readCiAdapterProof(
         attemptId: attempt.attemptId,
         sha: attempt.revision,
       },
-      { signal, cwd: folder, timeoutMs },
+      {
+        signal,
+        cwd: folder,
+        timeoutMs,
+        answerBytes: SUMMARY_READ_LIMIT_BYTES,
+      },
     );
   } catch (error) {
     if (signal.aborted) throw error;
-    return unavailable("unreadable", failureOf(error, timeoutMs));
+    return unavailable(
+      "unreadable",
+      failureOf(error, timeoutMs, SUMMARY_READ_LIMIT_BYTES),
+    );
   }
   const { summary } = answer;
   if (summary === undefined)

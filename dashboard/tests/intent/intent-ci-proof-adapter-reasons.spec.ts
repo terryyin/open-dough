@@ -8,6 +8,7 @@
 // time limit or non-JSON answer:
 // ../../../tests/support/dashboard-ci-adapter-proof.test.mjs.
 
+import { SUMMARY_READ_LIMIT_BYTES } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { expectAttemptAt } from "../ciEvidenceLabelsPage.ts";
 import {
@@ -59,9 +60,16 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
       { proof: { summary: { ...summary, revision: signup } } },
     ],
     [
-      // Past the runner's answer limit.
-      "This attempt's CI adapter answered no proof read: its answer is longer than 64 KiB.",
-      { proof: { summary: { ...summary, padding: "x".repeat(64 * 1024) } } },
+      // Past the proof call's answer limit (the collector contract's 1 MiB).
+      `This attempt's CI adapter answered no proof read: its answer is longer than ${String(SUMMARY_READ_LIMIT_BYTES / 1024)} KiB.`,
+      {
+        proof: {
+          summary: {
+            ...summary,
+            padding: "x".repeat(SUMMARY_READ_LIMIT_BYTES),
+          },
+        },
+      },
     ],
     [
       "This attempt's CI adapter answered no proof read: CI adapter proof must return summary or unavailable.",

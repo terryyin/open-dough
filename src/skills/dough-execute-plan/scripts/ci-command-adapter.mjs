@@ -171,15 +171,16 @@ function createCommandFailureAcquisition({
   };
 }
 
-// The dashboard's proof read of one discovered attempt, asked in `cwd` under
-// the same per-invocation limits as discover and diagnose. The observer never
-// asks it. The adapter answers the attempt's CI proof summary, unchecked here,
-// or why it has none; anything else is refused.
+// The dashboard's proof read of one discovered attempt, asked in `cwd`. The
+// observer never asks it. `answerBytes` defaults with every other adapter
+// call to 64 KiB; the dashboard passes the collector contract's summary
+// read limit. The adapter answers the attempt's CI proof summary, unchecked
+// here, or why it has none; anything else is refused.
 export async function readCommandProof(
   command,
   check,
   attempt,
-  { signal, cwd, timeoutMs = defaultAdapterTimeoutMs },
+  { signal, cwd, timeoutMs = defaultAdapterTimeoutMs, answerBytes },
 ) {
   const response = await runAdapter(
     command,
@@ -192,7 +193,7 @@ export async function readCommandProof(
         sha: attempt.sha,
       },
     },
-    { signal, cwd, timeoutMs },
+    { signal, cwd, timeoutMs, answerBytes },
   );
   const { summary, unavailable } = isObject(response) ? response : {};
   if (isObject(summary) && unavailable === undefined) return { summary };

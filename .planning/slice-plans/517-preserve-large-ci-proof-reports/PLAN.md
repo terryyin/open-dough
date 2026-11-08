@@ -3,6 +3,7 @@
 **Identity:** SEED-267#preserve-large-ci-proof-reports
 
 **Source:** [Preserve large CI proof reports and surface size failures](../../seeds/SEED-267-preserve-large-ci-proof-reports.md#preserve-large-ci-proof-reports)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and boundaries
 
@@ -111,7 +112,7 @@ runner's per-call limit and the proof wording.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: seed examples 1 and 4 and the guidance, as mapped above.
 
@@ -122,6 +123,12 @@ and remembers it; a `discover` answer over 64 KiB is still refused. Includes
 the runner's per-call `answerBytes`, the dashboard passing the contract
 limit, the failure line naming the limit the call used, the contract
 comment and collector warning, and the adapter and collector guidance.
+
+Accepted proof (reuse):
+- `PATH=/opt/homebrew/bin:$PATH env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i bash scripts/test.sh` on `ci-command-adapter*.test.mjs`, `ci-proof-*.test.mjs`, `dashboard-ci-*.test.mjs`, `dashboard-later-trunk-landed.test.mjs` — pass (post-refactor).
+- From `dashboard/`: Playwright on `intent-ci-proof-adapter.spec.ts` and `intent-ci-proof-adapter-reasons.spec.ts` — 7 passed, including “over 64 KiB… remembered” with 1,213 passed checks and Check again asking no second `proof`.
+- `npm run typecheck:dashboard` — pass.
+- Learning: reasons fixtures that pad past the proof limit must exceed 1 MiB now that proof uses `SUMMARY_READ_LIMIT_BYTES`; interim quiet line names 1024 KiB until slice 2.
 
 ### 2. A proof over the limit is a prominent size error
 
@@ -152,3 +159,41 @@ Accepted interim behavior: until slice 2, an adapter answer over 1 MiB shows
 the existing quiet "answered no proof read: its answer is longer than
 1024 KiB" line, and an oversized GitHub Actions summary keeps its current
 "could not be opened" line. Slice 2 replaces both.
+
+## Story obligations
+
+### G1. No proof summary schema change
+Reported: slice 1 — "No change to the proof summary schema."
+Story clause: "No change to the proof summary schema"
+Disposition: excluded "No change to the proof summary schema, its collector, or how proof sources are chosen"
+Commitment: 7.1
+
+### G2. No proof summary collector change
+Reported: slice 1 — "No change to the proof summary collector."
+Story clause: "its collector"
+Disposition: excluded "No change to the proof summary schema, its collector, or how proof sources are chosen"
+Commitment: 7.2
+
+### G3. No proof-source selection change
+Reported: slice 1 — "No change to how proof sources are chosen."
+Story clause: "how proof sources are chosen"
+Disposition: excluded "No change to the proof summary schema, its collector, or how proof sources are chosen"
+Commitment: 7.3
+
+### G4. Other unavailable reasons keep presentation
+Reported: slice 1 — "Other unavailable reasons keep their current presentation."
+Story clause: "Other unavailable reasons keep their current presentation"
+Disposition: excluded "Other unavailable reasons keep their current presentation"
+Commitment: 7.4
+
+### G5. Pygardon adapter change deferred
+Reported: slice 1 — "Pygardon's own adapter change to stop stripping belongs to that project, after it updates its Open Dough guidance."
+Story clause: "Pygardon's own adapter change to stop stripping belongs to that project, after it updates its Open Dough guidance"
+Disposition: excluded "Pygardon's own adapter change to stop stripping belongs to that project, after it updates its Open Dough guidance"
+Commitment: 7.5
+
+### G6. Prominent size error deferred to slice 2
+Reported: slice 1 — "until slice 2, an adapter answer over 1 MiB shows the existing quiet line, and an oversized GitHub Actions summary keeps its current could not be opened line"
+Story clause: "When a proof is over that limit, from either source, Intent shows it under the affected attempt's or run's Proof as an error, styled as an evidence problem rather than the quiet line of "published no CI proof summary""
+Disposition: interim until slices 2
+Commitment: 2, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 5.2, 5.3, 6.2, 8.4, 8.5, 8.6, 10, 11
