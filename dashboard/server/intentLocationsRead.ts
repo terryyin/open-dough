@@ -19,8 +19,8 @@ import {
   type IntentSettingsProblem,
 } from "./intentLocationsSettings.ts";
 import {
-  extensionsOf,
-  locationSelectsRelativePath,
+  matchingSourceEntry,
+  sourceEntriesOf,
 } from "../src/intentLocationSelection.ts";
 
 export type {
@@ -71,7 +71,8 @@ async function filesUnderLocation(
   signal: AbortSignal,
   naming: (reading: string) => void,
 ): Promise<readonly string[]> {
-  if (extensionsOf(location.kind) === undefined) return [];
+  const sources = sourceEntriesOf(location);
+  if (sources === undefined) return [];
   naming(readingPathAt(location.path, revision));
   const entries = await pinned.treeLister(
     source,
@@ -80,11 +81,7 @@ async function filesUnderLocation(
   )(location.path);
   return entries.flatMap((entry) => {
     if (entry.type !== "blob") return [];
-    if (
-      !locationSelectsRelativePath(entry.path, location.kind, location.include)
-    ) {
-      return [];
-    }
+    if (matchingSourceEntry(entry.path, sources) === undefined) return [];
     return [`${location.path}/${entry.path}`];
   });
 }
@@ -99,7 +96,7 @@ function locationAnswer(
     ...(location.label === undefined ? {} : { label: location.label }),
     ...(location.include === undefined ? {} : { include: location.include }),
   };
-  if (extensionsOf(location.kind) === undefined) {
+  if (sourceEntriesOf(location) === undefined) {
     return { ...fields, files: [], problem: "unsupported-kind" };
   }
   if (files.length === 0) {

@@ -1,9 +1,9 @@
 // On-demand source highlighting for the shared source-lines view
 // (`./SourceLines.tsx`): Shiki's core and JavaScript engine, with each
-// Intent kind's grammar and github-light loaded only when first needed.
-// `sourceLanguage` maps Intent kind (+ path for typescript/.tsx) to the
-// Shiki language id. Failure leaves the caller with plain text and no
-// error surface.
+// Intent syntax hint's grammar and github-light loaded only when first
+// needed. `sourceLanguage` maps an Intent syntax hint (+ path for
+// typescript/.tsx) to the Shiki language id. Failure leaves the caller
+// with plain text and no error surface.
 
 import { createHighlighterCore, type HighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
@@ -37,15 +37,15 @@ function loadHighlighter(): Promise<HighlighterCore> {
   return highlighter;
 }
 
-// Intent kind (+ path for typescript/.tsx) → Shiki language id.
+// Intent syntax hint (+ path for typescript/.tsx) → Shiki language id.
 // `shell` is an alias registered by the shellscript grammar.
-export function sourceLanguage(kind: string, path: string): string | undefined {
-  switch (kind) {
+export function sourceLanguage(hint: string, path: string): string | undefined {
+  switch (hint) {
     case "gherkin":
     case "javascript":
     case "python":
     case "shell":
-      return kind;
+      return hint;
     case "typescript":
       return path.endsWith(".tsx") ? "tsx" : "typescript";
     default:

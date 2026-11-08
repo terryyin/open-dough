@@ -3,6 +3,7 @@
 **Identity:** SEED-274#declare-intent-test-sources
 
 **Source:** [Let projects declare which tests Intent shows](../../seeds/SEED-274-declare-intent-test-sources.md#declare-intent-test-sources)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and boundaries
 
@@ -91,7 +92,7 @@ tests](../../../AGENTS.md#failing-and-flaky-tests).
 ### 1. Express location selection as source entries
 
 Type: Structure
-Status: planned
+Status: done
 Proof: Existing declarations row; consumer-trace record for the changed
 selection module.
 
@@ -100,6 +101,14 @@ source entries and answers the matching entry (selection plus hint) for a
 path. The server listing, `file-at` admission, story overlay and reading pane
 use it; `IntentBrowser` takes the selected file's hint from it. External
 behavior is unchanged. Enables slice 2.
+
+Accepted proof: `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npx playwright test --config dashboard/playwright.config.ts --reporter=list dashboard/backend-tests/intent/ dashboard/tests/intent/intent-code-browse.spec.ts`
+(65 passed, specs unchanged) and the same prefix on `dashboard/tests/intent/`
+(173 passed, rerun after refactor); dashboard typecheck and lint clean.
+`intentLocationSelection.ts` now exports `SourceEntry`, `sourceEntriesOf`,
+`matchingSourceEntry` and `sourceEntryOfRepositoryPath`; a `sources` entry is
+an entry without `extensions`. Refactor: the reading-pane value is
+`syntaxHint` from `IntentBrowser` through `sourceLanguage(hint, path)`.
 
 ### 2. Declare a location's files by sources and syntax hints
 
@@ -112,6 +121,13 @@ location's tree, opens it at its path with its hint's styling or as plain
 text, and sees a selected story's added matching files there. Includes
 settings parsing, the answer and client schema, header and explanation
 wording, the MakeMe builder and the documentation.
+
+## Story obligations
+
+### G1. A file selection the rule does not select gets no syntax
+Reported: slice 1 — "a file-scope selection under a location that the rule does not select now gets no language, where it used to get the location's kind."
+Story clause: "The same selection serves the tree, opening a file (`file-at` admission), and placing a selected story's changed tests"
+Disposition: no user cost "A developer can tell Intent which test files to show by publishing configuration in their project.": the tree never lists such a path, `file-at` refuses it, and a kept or URL selection naming it reads as missing, so no source text renders with either language (slice 1 return; admission refusal observed by `authenticated-read-intent-selection.spec.ts` "admits file-at for a selected path and refuses an unmatched file inside a pattern location").
 
 ## Preparation review
 
