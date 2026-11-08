@@ -2,7 +2,7 @@
 // done (`./followUpContext.ts` composes the context): the source it follows
 // up, a retained session or a done story at the revision the page showed it,
 // and, once the server resolved it at admission, the context text it sends
-// (`../server/agentLaunchAdmission.ts`). A page names only the source; one
+// (`../server/followUpAdmission.ts`). A page names only the source; one
 // carrying context text is refused. The source, never the text or the
 // revision a story was shown at, belongs to the launch's identity
 // (`./launchRequest.ts`).

@@ -2,6 +2,30 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_tighten-repository-description-facts.json",
+      "identity": "SEED-262#tighten-repository-description-facts",
+      "completedAt": "2026-11-08T12:53:52.748Z",
+      "blob": "2da5ac630d8b6c71087b030b29941dce39f594b7"
+    },
+    {
+      "fileName": "SEED-276_guard-intent-per-file-highlighting.json",
+      "identity": "SEED-276#guard-intent-per-file-highlighting",
+      "completedAt": "2026-11-08T12:50:48.041Z",
+      "blob": "1ec9df7c369f3f85b7a8ba74152201576b54a718"
+    },
+    {
+      "fileName": "SEED-273_lean-follow-up-listing.json",
+      "identity": "SEED-273#lean-follow-up-listing",
+      "completedAt": "2026-11-08T12:14:49.097Z",
+      "blob": "67982cbc851d8189833e439c14ebc64b5cfc9cd6"
+    },
+    {
+      "fileName": "SEED-272_prove-recently-done-check-supersession.json",
+      "identity": "SEED-272#prove-recently-done-check-supersession",
+      "completedAt": "2026-11-08T12:06:12.256Z",
+      "blob": "a44fbe791796f9743e8a22a2dafe4b3525728015"
+    },
+    {
       "fileName": "SEED-262_migrate-clean-trunk-fixtures.json",
       "identity": "SEED-262#migrate-clean-trunk-fixtures",
       "completedAt": "2026-11-08T11:13:39.094Z",

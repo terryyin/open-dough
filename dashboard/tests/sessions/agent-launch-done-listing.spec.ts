@@ -6,7 +6,7 @@
 // every done session in full (the history's entries put back into each
 // regular answer). Retained sessions here carry everything the overview
 // leaves to the history: the reporting handoff, the first input's text, and
-// the landing evidence (../../src/doneSessionListing.ts).
+// the landing evidence (../../src/sessionListing.ts).
 
 import type { Page, Route } from "@playwright/test";
 import {

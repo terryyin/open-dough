@@ -21,23 +21,21 @@ export const colourOf = (element: Locator) =>
 export const backgroundOf = (element: Locator) =>
   element.evaluate((node) => getComputedStyle(node).backgroundColor);
 
+// The first highlighted token in a source reading whose text matches `text`.
+export const sourceToken = (source: Locator, text: RegExp) =>
+  source.locator(".source-line-text span").filter({ hasText: text }).first();
+
 // Kind styling: a keyword token and a string token must not share one colour.
 export async function expectKeywordAndStringColours(
   source: Locator,
   keyword: RegExp,
   stringLiteral: RegExp,
 ) {
-  const keywordToken = source
-    .locator(".source-line-text span")
-    .filter({ hasText: keyword });
-  const stringToken = source
-    .locator(".source-line-text span")
-    .filter({ hasText: stringLiteral });
-  await expect(keywordToken.first()).toBeVisible();
-  await expect(stringToken.first()).toBeVisible();
-  expect(await colourOf(keywordToken.first())).not.toBe(
-    await colourOf(stringToken.first()),
-  );
+  const keywordToken = sourceToken(source, keyword);
+  const stringToken = sourceToken(source, stringLiteral);
+  await expect(keywordToken).toBeVisible();
+  await expect(stringToken).toBeVisible();
+  expect(await colourOf(keywordToken)).not.toBe(await colourOf(stringToken));
 }
 
 // A session entry inside a card is set off from the card on the shared raised surface

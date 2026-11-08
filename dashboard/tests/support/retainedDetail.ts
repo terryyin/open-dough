@@ -1,6 +1,6 @@
 // The detail a retained done session's overview entry leaves to the sessions
 // history, stated here apart from the product's own rule
-// (../../src/doneSessionListing.ts) so the boundary specs check it: the
+// (../../src/sessionListing.ts) so the boundary specs check it: the
 // launch's reporting handoff, the first input's text, and the landing
 // evidence.
 

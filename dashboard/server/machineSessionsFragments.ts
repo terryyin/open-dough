@@ -1,12 +1,11 @@
 // The machine's sessions answers (`./machineSessionObservation.ts`) kept as
 // fragments, each with the digest of its serialization: every session entry
 // and every attempt on its own, and the rest of each answer. The regular
-// answer holds every open entry in full and every retained done entry as its
-// listing facts (`../src/doneSessionListing.ts`), each with its own digest
-// beside its full one, and the attempts that still need attention; the
-// history holds the retained done entries in full, in the same order, and
-// every other attempt, and has
-// its own revision, which the regular answer's rest names. An entry whose
+// answer holds each session's listing (`../src/sessionListing.ts`), each
+// with its own digest beside its full one, and the attempts that still need
+// attention. The history holds the retained done entries in full, in the same
+// order, and every other attempt. It has its own revision, which the regular
+// answer's rest names. An entry whose
 // kept record is the same document the machine store still holds
 // (`./machineJsonStore.ts`) and whose observed facts -- shown workspace,
 // workspace state, session state -- read the same keeps the serialization
@@ -21,7 +20,7 @@ import type {
   AttemptObservation,
   LaunchWithState,
 } from "../src/agentLaunch.ts";
-import { doneListing } from "../src/doneSessionListing.ts";
+import { sessionListing } from "../src/sessionListing.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 
 const digestOf = (text: string) =>
@@ -48,7 +47,7 @@ const serialized = (value: unknown): Serialized => {
 };
 
 // An entry in full, as the history gives it, and as the regular answer lists
-// it: a done entry's listing facts, an open entry in full.
+// it.
 type HeldEntry = {
   readonly entry: LaunchWithState;
   readonly facts: string;
@@ -74,7 +73,7 @@ function sameKept(a: LaunchWithState, b: LaunchWithState): boolean {
 
 function serializedEntry(entry: LaunchWithState, facts: string): HeldEntry {
   const full = serialized(entry);
-  const listing = doneListing(entry);
+  const listing = sessionListing(entry);
   const listed = listing === entry ? full : serialized(listing);
   return { entry, facts, full, listed };
 }
@@ -131,7 +130,7 @@ type SessionsAnswers = {
 export class SessionsAnswerFragments {
   private entries = new Map<string, HeldEntry>();
 
-  // The regular answer of `records`, retained done ones as listing facts,
+  // The regular answer of `records` as listings,
   // followed by `rest`'s fields and the history's revision as
   // `historyRevision`, carrying only the attempts of `rest` that are
   // `attending`; and the history of the retained done `records` in full and

@@ -59,7 +59,7 @@ test("Default main · Wait for review sends the context, then the request, then 
     request: launched.record?.request,
     server: dashboard,
   });
-  expect(launched.record?.request).toMatchObject({
+  expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
     title: text,
     instruction: text,
     followUp: { ...followUpOf(source), context: reportedContext },

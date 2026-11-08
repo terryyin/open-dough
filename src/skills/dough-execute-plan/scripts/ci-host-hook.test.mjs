@@ -170,7 +170,7 @@ for (const host of ["cursor", "claude"]) {
 test("claude: a worktree binding and the main-checkout hook share one coordinator owner", async (t) => {
   const repository = await materializeRepository(
     makeMe.aRepository
-      .withRevision("init", { backlog: undefined })
+      .withRevision("init", { backlog: null })
       .withWorkspace("exec/story", { from: "init" })
       .please(),
   );

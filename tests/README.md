@@ -83,20 +83,25 @@ For a real Git starting state, describe the published facts with
 declare membership, files, story state, profiles, done records, and commit
 identities. Materialize that description with `materializeRepository` to
 get a bare origin, a checkout, named commit IDs, and cleanup. Identical
-descriptions reuse a template within one process, with a private mutable
-copy for each caller. Keep commands and Git transitions under proof in
-the case that observes their result. [Repository harness](support/repository-fixture.mjs)
+descriptions reuse one template within a process, so they give identical
+commit IDs; each caller gets its own mutable copy. Keep commands and Git
+transitions under proof in the case that observes their result.
+[Builder](support/repositoryTestData.mjs) ·
+[Repository harness](support/repository-fixture.mjs)
 
 A description can also name its trunk branch (`withTrunkBranch`, default
-`main`), the checkout's configured committer (`withCheckoutIdentity`), and one
-execution workspace: `withWorkspace(branch, { from, checkoutIdentity })` with
-ordered `withUnpublishedRevision` commits. The materializer adds that workspace
-as an `execution` worktree beside the checkout and commits its revisions
-without pushing; `candidateSha` names its tip. A workspace identity is written
-to the configuration both checkouts share. A revision's `executables` lists
-files to commit with the executable mode. A first revision gets an empty
-backlog unless it states one or states `backlog: undefined`. Because templates
-are reused, identical descriptions give identical commit IDs within a process.
+`main`), the integration checkout's committer (`withCheckoutIdentity`), and
+one execution workspace: `withWorkspace(branch, { from, checkoutIdentity })`
+with ordered `withUnpublishedRevision` commits. The materializer adds that
+workspace as an `execution` worktree with its own committer and commits its
+revisions without pushing; `candidateSha` names its tip. A revision's
+`executables` lists files to commit with the executable mode. The first
+revision gets an empty backlog unless it states one, as `backlog` or as bytes
+at `.planning/PRODUCT-BACKLOG.md`; `backlog: null` states a trunk without
+one. The builder refuses a backlog stated both ways and other descriptions it
+cannot materialize, before any Git runs; its comments hold each method's
+defaults. [Refusal test](support/repository-description.test.mjs)
+
 Other branches, merges, competing writers, stashes, dirty files, submodules
 and removed worktrees stay Git operations in the case. Installed skills, CI
 adapters, mailboxes, ignored local configuration and generated install output

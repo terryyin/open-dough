@@ -21,6 +21,7 @@ import {
 import { splitHref } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
 import { recordStoryState } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { renderPublishedBacklog } from "./published-backlog.mjs";
+import { backlogPath } from "./repositoryTestData.mjs";
 import {
   catalogFile,
   doneDirectory,
@@ -117,8 +118,7 @@ export function renderRevisionFiles(start, revision) {
     for (const existing of Object.keys(files))
       if (existing === path || existing.startsWith(`${path}/`))
         delete files[existing];
-  if (backlog !== undefined)
-    files[`${planning}/PRODUCT-BACKLOG.md`] = renderPublishedBacklog(backlog);
+  if (backlog) files[backlogPath] = renderPublishedBacklog(backlog);
   for (const [path, content] of Object.entries(declared))
     files[fixturePath(path)] = content;
   for (const state of storyStates) {

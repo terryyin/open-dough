@@ -4,7 +4,9 @@
 // session's project publishes a matching done story selects that story in
 // its project, keeping Intent and the Side panel; a standalone row, including
 // one whose story is still Taken, selects only the session. Unanswered and
-// failed checks live in ./recently-done-sessions-select-check.spec.ts, touch
+// failed checks live in ./recently-done-sessions-select-check.spec.ts, an
+// unanswered check abandoned by navigation in
+// ./recently-done-sessions-select-supersede.spec.ts, touch
 // in ./recently-done-sessions-select-touch.spec.ts, Board reveal of a
 // selection from Development in
 // ./recently-done-sessions-select-development.spec.ts.
@@ -22,9 +24,9 @@ import {
   openSelectionPage,
   readSpec,
   report,
-  showReport,
   takenElsewhere,
 } from "../recentlyDoneSelectionJourney.ts";
+import { showReport } from "../recentlyDoneSelectionReport.ts";
 import { pygardonCatalogRead } from "../pygardonCatalogReads.ts";
 import { expectSelected, selectStory } from "../storyCardSelection.ts";
 import { intentFile, storyDisclosure } from "../support/intentStoryPage.ts";
