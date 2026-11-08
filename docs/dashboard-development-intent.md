@@ -18,8 +18,13 @@ selected name toggles expansion and keeps the selection and summary.
 Locations still allow only one open at a time via toggle (or a selected
 name's toggle); selecting a closed location's name leaves it closed and
 leaves any other open location open. Both controls are keyboard-operable, and
-a selected location or folder reads as pressed. Every location header has its
-own background; a selected location's header takes the selected background
+a selected location or folder reads as pressed. Every location header reads
+as a section header: it spans the locations column edge to edge in its own
+band colour, in light and dark themes alike, with its toggle and bold label
+padded inside, while the folders and files beneath it read as rows without
+that colour. The band colour stays apart from the selected background, the
+change mark, the CI cues and the background of folders containing changes. A
+selected location's header takes the selected background
 across its whole width, toggle included (or an accent border when a CI
 duration tint would be hidden by that fill — see
 [CI timing comparison](dashboard-development-intent-ci-comparison.md)), and
@@ -126,6 +131,20 @@ under the Summary's evidence labels.
 Directly activating the **Intent** tab (click, Enter or Space), even while already
 chosen, returns home: selection clears and CI status shows for the same story;
 expansion and reading choices stay. No separate return control.
+While **Intent** shows the location tree, the strip also offers Review
+changes' **Hide files** / **Show files** toggle, reached by Tab after the
+tabs and stating whether the locations column is shown. Hiding removes the
+whole column (story summary and tree) and gives the reading pane the full
+width, or on a narrow screen, where the tree sits above it, the full height;
+it changes no selection or reading. While the column is hidden the strip
+shows nothing from the summary: no story title, comparison state, **Retry**
+or outside count. **Show files** returns the column as it
+was: summary disclosure, selection, open location and folders, **Selected
+story only** and the tree's scroll. The choice is kept with Intent's reading
+place across selections, **Optimization Candidates** and back, Development
+and back and new revisions; a project change shows the column again. It is
+not on the URL or in storage and is not remembered across reloads; the
+explanation shown in place of the tree offers no toggle.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at Intent's reading revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
@@ -204,9 +223,13 @@ folders and the first changed location open and everything else collapses.
 **Selected story only**, off at first, leaves just the changed files and the
 locations and folders holding them, or says no test file in a location
 changed; toggling it opens the same folders again and collapses the rest.
-Changed files no location selects by either path are counted in the summary
-with a way to Review changes, which opens on Intent's comparison (All
-changes, uncommitted included) even for a story with a review mark. A changed
+Changed files no location selects by either path are counted at the end of
+the summary's title line, expanded or not, as one compact button: an icon and
+the number, whose accessible name and hover text explain it (for example "2
+changed files outside Intent locations — open Review changes"). It is absent
+when no changed file is outside the locations. Activating it opens Review
+changes on Intent's comparison (All changes, uncommitted included) even for a
+story with a review mark, without toggling the disclosure. A changed
 file's Purpose is Review changes' diff of it, and Proof holds that file's
 comparison when available. A story without a comparison, and a failed read
 with retry, each say so while the published tree stays usable; clearing the

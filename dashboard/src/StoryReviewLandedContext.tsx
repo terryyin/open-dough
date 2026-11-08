@@ -3,7 +3,7 @@ import type { LandedReviewContext } from "./storyReviewLandedRun.ts";
 import {
   FileBrowserToggle,
   type FileBrowserPlace,
-} from "./StoryReviewBrowserToggle.tsx";
+} from "./FileBrowserToggle.tsx";
 import { launchKindName } from "./launchWorkflow.ts";
 import { reviewTargetName } from "./storyReviewContract.ts";
 export function LandedContext({

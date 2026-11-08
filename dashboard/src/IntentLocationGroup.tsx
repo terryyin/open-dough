@@ -42,6 +42,7 @@ import {
 } from "./useLocationOpenFolders.ts";
 import "./story-review-files.css";
 import "./intent-ci-cues.css";
+import "./intent-location-group.css";
 
 function LocationLabel({ location }: { readonly location: IntentLocation }) {
   const kind = declaredKindOf(location);

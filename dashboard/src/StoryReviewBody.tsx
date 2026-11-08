@@ -1,6 +1,6 @@
 // Workspace snapshots and fixed historical comparisons share one browser and
 // diff, over the comparison shown (`./storyComparisonShown.ts`).
-import type { FileBrowserPlace } from "./StoryReviewContextLine.tsx";
+import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
 import type {
   ReviewComparison,
   ReviewItem,

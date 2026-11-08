@@ -251,6 +251,15 @@ Former local code: DD-369. Former local code: DD-392. [Meaning, evidence and res
 Former local code: DD-372. [Meaning, evidence and response](docs/maintainer/findings/ODF-382.md).
 ## ODF-383 — A deletion-only story amendment mid-execution forced a full source re-review and re-allocation
 Former local code: DD-375. [Meaning, evidence and response](docs/maintainer/findings/ODF-383.md).
+### Occurrences
+- Execution: SEED-271#compact-intent-sidebar (plan 525-compact-intent-sidebar; first related implementation commit `b0a8970657fbd30272851011ab26973abb7eb835`)
+  - Timestamp: unknown (2026-11-08, during slice 3 acceptance before `efce7d0ee`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.91)
+  - Evidence: Terry's mid-slice amendment (trunk `9367c5b44`) removed the mode-bar story-title clause and rewrote one deferred promise. `source-freshness.mjs check` returned `amended`; the renewed reviewer used a new id scheme (83 rows `1`–`62` → 90 rows `G1`, `1.1`…, `E1`…, `A1`…). Replacement record: `.planning/slice-plans/525-compact-intent-sidebar/source-review.md` at `efce7d0ee`.
+  - Observed effect: one extra reviewer run (about 47k subagent tokens) and a hand-built 90-row table re-citing slices 1–2's observations before slice 3 could be delivered; only the removed title rows (old `29`–`34`) and the rewritten exclusion (old `48`–`52` → `4.7`–`4.9`) needed new judgment.
+  - Inference: as in the earlier occurrences, settling the affected rows in the retained review would have sufficed.
 ## ODF-384 — CI layout repair iterates successive assertions without one full-journey check
 Former local code: DD-377. [Meaning, evidence and response](docs/maintainer/findings/ODF-384.md).
 ## ODF-142 — Abbreviated validated candidate stops delivery as candidate-mismatch
@@ -265,6 +274,14 @@ Former local code: DD-388. Former local code: DD-379 (`6085b6eed`), renumbered i
 Former local code: DD-389. [Evidence and current response](docs/maintainer/findings/ODF-399.md).
 ## ODF-337 — Fresh delivery ownedPaths cannot stage a deleted rename source
 Former local code: DD-391. [Evidence and current response](docs/maintainer/findings/ODF-337.md).
+### Occurrences
+- Execution: SEED-271#compact-intent-sidebar (plan 525-compact-intent-sidebar; first related implementation commit `b0a8970657fbd30272851011ab26973abb7eb835`)
+  - Timestamp: unknown (2026-11-08, slice 3 delivery before `efce7d0ee`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.91)
+  - Evidence: the implementer's `git mv dashboard/src/StoryReviewBrowserToggle.tsx dashboard/src/FileBrowserToggle.tsx` left the old path staged as deleted; `fresh` with both paths in `ownedPaths` returned `preparation-failed`, `operation: staging`, `fatal: pathspec 'dashboard/src/StoryReviewBrowserToggle.tsx' did not match any files`. Moving the old path to `stagedPaths` committed `efce7d0ee`.
+  - Observed effect: one refused delivery attempt and a hand-edited preparation file; formatting reran on retry. Confirms the DD-391 mechanism (a path already absent from the working tree fails the literal add).
 ## ODF-400 — Foreign unpublished commits on an execution tip block story-branch publish
 Former local code: DD-398. [Evidence and current response](docs/maintainer/findings/ODF-400.md).
 ## ODF-401 — Multi-done planning-only slices force temporary Status mutation for ordered delivery

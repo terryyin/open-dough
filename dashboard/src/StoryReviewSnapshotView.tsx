@@ -34,7 +34,7 @@ import {
   type TakenStoryReview,
 } from "./storyReviewContract.ts";
 import { diffStartOf } from "./storyComparisonShown.ts";
-import type { FileBrowserPlace } from "./StoryReviewContextLine.tsx";
+import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
 import { FileMoves, revealRow } from "./StoryReviewFileMoves.tsx";
 import {

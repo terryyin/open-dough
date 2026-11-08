@@ -15,8 +15,7 @@ import {
 import {
   FileBrowserToggle,
   type FileBrowserPlace,
-} from "./StoryReviewBrowserToggle.tsx";
-export type { FileBrowserPlace } from "./StoryReviewBrowserToggle.tsx";
+} from "./FileBrowserToggle.tsx";
 
 // The review's context in one line that never wraps: branch, short baseline
 // with the `<remote>/<target>` it meets, worktree, and, while the comparison
