@@ -113,3 +113,12 @@ and read the sleep log afterwards. See the
 
 **Slice-plan refinement.** Unneeded because the two cases share one polling
 boundary, one setup, and one proof loop. No remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. The story's retention threshold is met (15.27 s
+saved across the two case medians) and every source commitment is observed.
+The new `.adHoc(...)` and `.inCursorSession(...)` launch-builder steps make
+later migration of hand-built ad hoc kept records possible; the story
+excluded fixture migrations, so treat that as a hypothesis for a future
+test-optimization candidate rather than a queued need.
