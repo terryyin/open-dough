@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
-import { rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   classifyPathChanges,
   classifyRevisionApplicability,
@@ -11,10 +10,9 @@ import {
 import {
   acceptedWorkflow,
   allBranchesWorkflow,
-  commitAll,
-  exec,
-  initRepo,
-  writeWorkflow,
+  applicableBase,
+  describedRepository,
+  workflowPath,
 } from "./ci-path-applicability-test-fixtures.mjs";
 
 const ignoredOnly = [".planning/**", "docs/**"];
@@ -67,53 +65,48 @@ test("parseDiffNameStatus splits name-status -M stdout", () => {
 });
 
 test("classifyRevisionApplicability: an ignored-only descendant is not_required with the applicable ancestor as basis", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, acceptedWorkflow);
-  const shaA = await commitAll(repo, "base code and workflow");
-
   // Ignored-only descendant: only .planning/** and docs/** change.
-  await exec("mkdir", ["-p", join(repo, ".planning")]);
-  writeFileSync(join(repo, ".planning", "note.md"), "note\n");
-  await exec("mkdir", ["-p", join(repo, "docs")]);
-  writeFileSync(join(repo, "docs", "readme.md"), "docs\n");
-  const shaB = await commitAll(repo, "ignored-only change");
+  const { repo, revisions } = await describedRepository(
+    t,
+    applicableBase()
+      .withRevision("ignored", {
+        files: { ".planning/note.md": "note\n", "docs/readme.md": "docs\n" },
+      })
+      .please(),
+  );
 
   const result = classifyRevisionApplicability({
     repoDir: repo,
     event: "push",
-    registeredSha: shaB,
-    candidateShas: [shaA],
+    registeredSha: revisions.ignored,
+    candidateShas: [revisions.base],
   });
-  assert.deepEqual(result, { result: "not_required", basis: { sha: shaA } });
+  assert.deepEqual(result, {
+    result: "not_required",
+    basis: { sha: revisions.base },
+  });
 });
 
 test("classifyRevisionApplicability: a clean non-ignored change is required", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, acceptedWorkflow);
-  const shaA = await commitAll(repo, "base");
-
-  writeFileSync(join(repo, "app.js"), "console.log('changed');\n");
-  const shaB = await commitAll(repo, "code-only change");
+  const { repo, revisions } = await describedRepository(
+    t,
+    applicableBase()
+      .withRevision("code", {
+        files: { "app.js": "console.log('changed');\n" },
+      })
+      .please(),
+  );
 
   const result = classifyRevisionApplicability({
     repoDir: repo,
     event: "push",
-    registeredSha: shaB,
-    candidateShas: [shaA],
+    registeredSha: revisions.code,
+    candidateShas: [revisions.base],
   });
   assert.deepEqual(result, { result: "required" });
 });
 
 test("classifyRevisionApplicability: an event trigger without any paths-ignore filter is always required", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-
   const noFilterWorkflow = [
     "name: CI",
     "",
@@ -127,30 +120,30 @@ test("classifyRevisionApplicability: an event trigger without any paths-ignore f
     "    runs-on: ubuntu-24.04",
     "",
   ].join("\n");
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, noFilterWorkflow);
-  const shaA = await commitAll(repo, "base");
-
-  await exec("mkdir", ["-p", join(repo, ".planning")]);
-  writeFileSync(join(repo, ".planning", "note.md"), "note\n");
-  const shaB = await commitAll(repo, "ignored-shaped change, but no filter");
+  const { repo, revisions } = await describedRepository(
+    t,
+    applicableBase(noFilterWorkflow)
+      .withRevision("ignoredShaped", {
+        files: { ".planning/note.md": "note\n" },
+      })
+      .please(),
+  );
 
   const result = classifyRevisionApplicability({
     repoDir: repo,
     event: "push",
-    registeredSha: shaB,
-    candidateShas: [shaA],
+    registeredSha: revisions.ignoredShaped,
+    candidateShas: [revisions.base],
   });
   assert.deepEqual(result, { result: "required" });
 });
 
 test("readWorkflowContentAtRevision reads the workflow text at a named revision and returns null when unreadable", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, acceptedWorkflow);
-  const shaA = await commitAll(repo, "base");
+  const { repo, revisions } = await describedRepository(
+    t,
+    applicableBase(acceptedWorkflow).please(),
+  );
+  const shaA = revisions.base;
 
   assert.equal(readWorkflowContentAtRevision(repo, shaA), acceptedWorkflow);
   assert.equal(readWorkflowContentAtRevision(repo, "f".repeat(40)), null);
@@ -162,15 +155,22 @@ test("readWorkflowContentAtRevision reads the workflow text at a named revision 
 
 for (const paths of [[".planning"], ["docs"], [".planning", "docs"], ["src"]]) {
   test(`all-branches push policy classifies changes under ${paths.join(" and ")} using ancestor evidence`, async (t) => {
-    const repo = await initRepo();
-    t.after(() => rmSync(repo, { recursive: true, force: true }));
-    writeWorkflow(repo, allBranchesWorkflow);
-    const ancestor = await commitAll(repo, "workflow");
-    for (const path of paths) {
-      await exec("mkdir", ["-p", join(repo, path)]);
-      writeFileSync(join(repo, path, "note.md"), "changed\n");
-    }
-    const registeredSha = await commitAll(repo, "change");
+    const { repo, revisions } = await describedRepository(
+      t,
+      makeMe.aRepository
+        .withRevision("workflow", {
+          backlog: undefined,
+          files: { [workflowPath]: allBranchesWorkflow },
+        })
+        .withRevision("change", {
+          files: Object.fromEntries(
+            paths.map((path) => [`${path}/note.md`, "changed\n"]),
+          ),
+        })
+        .please(),
+    );
+    const ancestor = revisions.workflow;
+    const registeredSha = revisions.change;
     assert.deepEqual(
       classifyRevisionApplicability({
         repoDir: repo,

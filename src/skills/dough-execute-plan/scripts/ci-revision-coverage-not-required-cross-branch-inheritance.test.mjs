@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -20,35 +20,43 @@ import {
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
 import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   acceptedWorkflow,
-  commitAll,
-  exec,
-  git,
-  initRepo,
-  writeWorkflow,
+  workflowPath,
 } from "./ci-path-applicability-test-fixtures.mjs";
 import { crossBranchHistoryGithub } from "./ci-revision-coverage-not-required-cross-branch-test-fixtures.mjs";
 
 test("pending, failed, and cancelled trunk ancestors inherit exactly; cancelled never falls back to an older green main run", async (t) => {
   for (const stage of ["pending", "failed", "cancelled"]) {
     await t.test(stage, async (t) => {
-      const repo = await initRepo();
       const storage = mkdtempSync(join(tmpdir(), `ci-cross-branch-${stage}-`));
-      const teardown = fixtureTeardown(storage, repo);
-      t.after(teardown.cleanup);
-
-      await exec("mkdir", ["-p", join(repo, "src")]);
-      writeFileSync(join(repo, "src", "app.js"), "console.log('G');\n");
-      writeWorkflow(repo, acceptedWorkflow);
-      const shaG = await commitAll(repo, "older green on main");
-      writeFileSync(join(repo, "src", "app.js"), "console.log('A');\n");
-      const shaA = await commitAll(repo, "nearest trunk ancestor");
       const storyBranch = `feature/cross-branch-${stage}`;
-      await git(repo, "checkout", "-q", "-b", storyBranch);
-      await exec("mkdir", ["-p", join(repo, ".planning")]);
-      writeFileSync(join(repo, ".planning", "note.md"), "note\n");
-      const shaB = await commitAll(repo, "ignored-only story tip");
+      // Older green G and nearest trunk ancestor A on main, then the
+      // ignored-only story tip B on the story branch's checkout.
+      const {
+        execution: repo,
+        fixture,
+        revisions: { g: shaG, a: shaA, b: shaB },
+      } = await materializeRepository(
+        makeMe.aRepository
+          .withRevision("g", {
+            backlog: undefined,
+            files: {
+              "src/app.js": "console.log('G');\n",
+              [workflowPath]: acceptedWorkflow,
+            },
+          })
+          .withRevision("a", { files: { "src/app.js": "console.log('A');\n" } })
+          .withWorkspace(storyBranch, { from: "a" })
+          .withUnpublishedRevision("b", {
+            files: { ".planning/note.md": "note\n" },
+          })
+          .please(),
+      );
+      const teardown = fixtureTeardown(storage, fixture);
+      t.after(teardown.cleanup);
 
       const directory = createMailbox(
         {

@@ -284,7 +284,7 @@ Learnings for later slices:
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the `ci-path-applicability*`, `ci-revision-coverage*`,
 `ci-integrated-state*`, `ci-target-branch-worktree*`,
@@ -296,6 +296,31 @@ integrated-state judge's starting history and the installed-checkout and
 repair-stash roots with descriptions. Workflow text is declared verbatim.
 Pushes after the first, sibling branches, stashes, the dirty submodule and
 removed worktrees stay Git operations.
+
+Accepted proof (2026-11-08): every transitive importer of a changed CI
+fixture module (35 files, plus the split-out
+`ci-host-hook-cursor-turns.test.mjs` after refactoring) passed with
+unchanged assertions; 39.8 s at load 9–12 against 46.5 s at 8f7f8443f under
+comparable load. The refactor pass shared `applicableBase` for the path
+applicability base revision, dropped dead fixture exports and split the
+Cursor turn cases out of `ci-host-hook.test.mjs`; the 36-file set was rerun
+and passed.
+
+The hosted CI attempt for 8f7f8443f (run 42465845181) failed only in
+`actions/setup-node`: GitHub's Node 24.21.0 release download returned HTTP
+504 in every failed job, and runs on three other branches failed the same
+way in the same window. It was recorded as infrastructure, with no repair.
+
+Learnings for slice 5:
+
+- Revision coverage now starts with revision A on origin; no case depends
+  on an empty remote.
+- `tests/support/requested-revision-ci-status.test.mjs` still has its own
+  `initRepo` and `git init`; the slice 5 search decides whether it is a
+  starting repository in scope.
+- A case that stops a worker on its own `fixtureTeardown` lists
+  `repository.fixture` among that teardown's roots instead of
+  `t.after(repository.cleanup)`.
 
 ### 5. Checkout and preparation fixtures declare their repositories, and superseded setup is removed
 

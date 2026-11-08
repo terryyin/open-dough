@@ -56,20 +56,20 @@ branch or merge model.
 | 14 | Published planning facts in this family come from the canonical builders and the production encoders. Examples are the backlog, story state and done records used by the completed-identity, done-catalog and Dough Land completion cases. | slice 3 | observed: dough-land-completion.test.mjs and dough-land-retained.test.mjs (backlog via makeMe.aBacklogEntry, agentProfiles fact); publication-completed-identity trunkWithBacklogAt; published-done-branches.mjs done records via doneRecords fact; G3 proved |
 | 15 | Qualification: exact malformed or legacy bytes that are under proof stay literal. | slice 3 | observed: publication-completed-identity legacy backlog and empty catalog, racing-suffix and source-freshness entry bytes stay literal |
 | 16 | Route the other skill fixtures that make their own starting repository through the description. | slice 5 | |
-| 16a.1 | CI path applicability. | slice 4 | |
-| 16a.2 | Revision coverage. | slice 4 | |
-| 16a.3 | Integrated-state judge. | slice 4 | |
+| 16a.1 | CI path applicability. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-path-applicability-test-fixtures.mjs describedRepository; initRepo removed; path-applicability tests pass |
+| 16a.2 | Revision coverage. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-revision-coverage-test-fixtures.mjs revisionA (withTrunkBranch feature/custom); 8 consumers pass |
+| 16a.3 | Integrated-state judge. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-integrated-state-judge-test-fixtures.mjs judgeHistory materializes base and B; judge tests pass |
 | 16a.4 | Consumer trace. | slice 5 | |
-| 16a.5 | Repair stash. | slice 4 | |
+| 16a.5 | Repair stash. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-repair-stash-test-fixtures.mjs createSharedStashFixture materializes tracked files and other workspace; ci-repair-stash passes |
 | 16a.6 | Worktree preparation. | slice 5 | |
 | 16a.7 | The worktree preparation wrapper. | slice 5 | |
 | 16a.8 | Default checkout. | slice 5 | |
-| 16a.9 | Target-branch worktree. | slice 4 | |
-| 16a.10 | Installed checkouts. | slice 4 | |
+| 16a.9 | Target-branch worktree. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-target-branch-worktree-test-fixtures.mjs claim + exec/story increment description; target-branch tests pass |
+| 16a.10 | Installed checkouts. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-installed-checkouts-test-fixtures.mjs checkout, exec/story worktree and unrelated repo materialized |
 | 16a.11 | Preparation publication. | slice 5 | |
 | 17 | Migrate the inline starting repositories in the six skill tests that run `git init`. | slice 5 | |
-| 18 | CI workflow text, lockfiles and project configuration that a case proves are declared files with their exact bytes. | slice 4 | |
-| 18a.1 | CI workflow text. | slice 4 | |
+| 18 | CI workflow text, lockfiles and project configuration that a case proves are declared files with their exact bytes. | slice 4 | observed: workflow text declared verbatim as trunk files at workflowPath in path-applicability and revision-coverage-not-required cases |
+| 18a.1 | CI workflow text. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-path-applicability.test.mjs declares exact ci.yml text per case |
 | 18a.2 | Lockfiles. | slice 5 | |
 | 18a.3 | Project configuration. | slice 5 | |
 | 19 | The following stay harness layers added to the materialized checkout and are not description facts. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs installManagedDelivery unchanged, applied to the materialized checkout |
@@ -83,10 +83,10 @@ branch or merge model.
 | 20a.3 | Rebases. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs rebase by the publisher stays Git |
 | 20a.4 | Merges. | slice 3 | observed: src/skills/dough-story-wrap-up/scripts/closure-story-integration*.test.mjs merges stay Git; publication-completed-identity manualMerge |
 | 20a.5 | Ongoing merge or rebase states. | slice 1 | observed: publication-checkout-ongoing-operation.test.mjs keeps merge/rebase states as Git; passed in slice 1 run |
-| 20a.6 | Stashes. | slice 4 | |
-| 20a.7 | Dirty and untracked files. | slice 4 | |
-| 20a.8 | Submodules. | slice 4 | |
-| 20a.9 | Locked or removed worktrees. | slice 4 | |
+| 20a.6 | Stashes. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-repair-stash.test.mjs stashes created with Git in the test |
+| 20a.7 | Dirty and untracked files. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-repair-stash.test.mjs dirt and untracked files written with Git/fs in the test |
+| 20a.8 | Submodules. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-repair-stash-test-fixtures.mjs addDirtySubmodule adds a materialized repository as submodule with Git |
+| 20a.9 | Locked or removed worktrees. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-mailbox-removed-worktree.test.mjs worktree removal stays Git |
 | 20a.10 | Maintenance states. | slice 5 | |
 | 21 | Remove a superseded helper or root builder once no consumer needs it. | slice 5 | |
 | 22 | Qualification: `ownedWorktreeOnly` and `advanceOriginFromAnotherWriter` keep their behavior for the native owned-context fixture, which loads them. | slice 5 | |
@@ -103,10 +103,10 @@ branch or merge model.
 | 28 | Example, product facts: the completed-identity test declares Story A as Taken in its trunk's backlog through MakeMe. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-completed-identity.test.mjs bothTaken(file) = trunkWithBacklogAt(file, { backlog: { taken: [storyA, storyB] } }) |
 | 28a.1 | The real backlog `complete` still runs on the materialized checkout. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-completed-identity.test.mjs manualMerge runs real complete on the materialized checkout |
 | 28a.2 | The done record that the test asserts is unchanged. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-completed-identity.test.mjs A#A done-record assertion unchanged, passes |
-| 29 | Example, literal configuration: a path applicability test declares its exact `ci.yml` text as a trunk file, and its classification is unchanged. | slice 4 | |
+| 29 | Example, literal configuration: a path applicability test declares its exact `ci.yml` text as a trunk file, and its classification is unchanged. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-path-applicability.test.mjs declares its exact ci.yml as a trunk file; classifications unchanged, tests pass |
 | 30 | Example, Git under proof: a racing-suffix test takes its trunk and owned backlog suffix from the description. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-racing-suffix-fixtures.mjs trunk backlog A–D and owned backlog suffix from description |
 | 30a.1 | The other writer's advance, the rejected push and the rebase stay in the test. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs advance, rejected push and rebase stay in the test |
-| 30a.2 | The repair-stash test's stash entries and dirty submodule stay Git operations. | slice 4 | |
+| 30a.2 | The repair-stash test's stash entries and dirty submodule stay Git operations. | slice 4 | observed: src/skills/dough-execute-plan/scripts/ci-repair-stash.test.mjs stash entries and dirty submodule stay Git; passes |
 | 31 | Example, superseded setup removed: no non-native test calls `createCleanTrunkFixture`. | slice 5 | |
 | 31a.1 | No non-native test keeps its own `git init` for a starting repository. | slice 5 | |
 | 31a.2 | The native owned-context fixture still runs, with unchanged helper behavior. | slice 5 | |

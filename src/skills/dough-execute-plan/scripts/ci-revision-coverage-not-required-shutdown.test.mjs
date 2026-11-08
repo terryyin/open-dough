@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { promisify } from "node:util";
 import {
   createMailbox,
   readMailboxEvents,
@@ -21,14 +19,12 @@ import {
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
 import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   allBranchesWorkflow,
-  commitAll,
-  initRepo,
-  writeWorkflow,
+  workflowPath,
 } from "./ci-path-applicability-test-fixtures.mjs";
-
-const exec = promisify(execFile);
 
 // A real temporary Git repository supplies the accepted workflow filter and
 // ancestry, the same way ci-revision-coverage-not-required.test.mjs and
@@ -82,39 +78,46 @@ function fourAncestorsGithub({ branch, ancestors }) {
 }
 
 test("shutdown retains a not_required revision's pending/incomplete applicable-ancestor evidence and omits proved terminal cases, without a discovery event", async (t) => {
-  const repo = await initRepo();
   const storage = mkdtempSync(join(tmpdir(), "ci-not-required-shutdown-"));
-  const teardown = fixtureTeardown(storage, repo);
+  // Each code change An (A1 pending, A2 cancelled/incomplete, A3 success, A4
+  // failure) has an ignored-only descendant Bn.
+  const pairs = [1, 2, 3, 4];
+  const {
+    integration: repo,
+    fixture,
+    revisions: {
+      a1: shaA1,
+      b1: shaB1,
+      a2: shaA2,
+      b2: shaB2,
+      a3: shaA3,
+      b3: shaB3,
+      a4: shaA4,
+      b4: shaB4,
+    },
+  } = await materializeRepository(
+    pairs
+      .reduce(
+        (repository, n) =>
+          repository
+            .withRevision(`a${n}`, {
+              files: { "app.js": `console.log('a${n}');\n` },
+            })
+            .withRevision(`b${n}`, {
+              files: { [`.planning/b${n}.md`]: `b${n}\n` },
+            }),
+        makeMe.aRepository.withRevision("base", {
+          backlog: undefined,
+          files: {
+            "app.js": "console.log('base');\n",
+            [workflowPath]: allBranchesWorkflow,
+          },
+        }),
+      )
+      .please(),
+  );
+  const teardown = fixtureTeardown(storage, fixture);
   t.after(teardown.cleanup);
-
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, allBranchesWorkflow);
-  await commitAll(repo, "base code and workflow");
-
-  // A1 (pending) -> B1 (ignored-only descendant of A1)
-  writeFileSync(join(repo, "app.js"), "console.log('a1');\n");
-  const shaA1 = await commitAll(repo, "A1: code change, CI still pending");
-  await exec("mkdir", ["-p", join(repo, ".planning")]);
-  writeFileSync(join(repo, ".planning", "b1.md"), "b1\n");
-  const shaB1 = await commitAll(repo, "B1: ignored-only");
-
-  // A2 (cancelled/incomplete) -> B2
-  writeFileSync(join(repo, "app.js"), "console.log('a2');\n");
-  const shaA2 = await commitAll(repo, "A2: code change, CI cancelled");
-  writeFileSync(join(repo, ".planning", "b2.md"), "b2\n");
-  const shaB2 = await commitAll(repo, "B2: ignored-only");
-
-  // A3 (success) -> B3
-  writeFileSync(join(repo, "app.js"), "console.log('a3');\n");
-  const shaA3 = await commitAll(repo, "A3: code change, CI succeeded");
-  writeFileSync(join(repo, ".planning", "b3.md"), "b3\n");
-  const shaB3 = await commitAll(repo, "B3: ignored-only");
-
-  // A4 (failure) -> B4
-  writeFileSync(join(repo, "app.js"), "console.log('a4');\n");
-  const shaA4 = await commitAll(repo, "A4: code change, CI failed");
-  writeFileSync(join(repo, ".planning", "b4.md"), "b4\n");
-  const shaB4 = await commitAll(repo, "B4: ignored-only");
 
   const branch = "feature/shutdown-applicability";
   const directory = createMailbox(

@@ -11,6 +11,8 @@ import {
 import { join } from "node:path";
 import { test } from "node:test";
 import { promisify } from "node:util";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   deployRuntime,
   installedCheckouts,
@@ -108,10 +110,13 @@ test("stop still reaches the observer after the removed worktree's path is recre
 });
 
 test("a different repository created at the removed worktree's path is refused the observer its predecessor armed", async (t) => {
-  const { worktree, directory, stop, stopped } =
+  const { fixture, worktree, directory, stop, stopped } =
     await armedFromRemovedWorktree(t);
-  mkdirSync(worktree);
-  await exec("git", ["init", "-b", "main"], { cwd: worktree });
+  const { integration: another } = await materializeRepository(
+    makeMe.aRepository.withRevision("another", { backlog: undefined }).please(),
+    { parent: fixture },
+  );
+  renameSync(another, worktree);
   deployRuntime(worktree);
 
   await assert.rejects(stop(directory, "worktree"), refused);

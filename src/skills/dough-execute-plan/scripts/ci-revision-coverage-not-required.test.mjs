@@ -19,12 +19,11 @@ import {
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
 import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   acceptedWorkflow,
-  commitAll,
-  exec,
-  initRepo,
-  writeWorkflow,
+  workflowPath,
 } from "./ci-path-applicability-test-fixtures.mjs";
 
 // A real temporary Git repository supplies the workflow content and ancestry
@@ -82,29 +81,41 @@ function ignoredOnlyGithub({ repo, branch, shaA, databaseIdA }) {
 // mixed descendant has no descendant candidate, so it stays undiscovered.
 for (const declared of [false, true])
   test(`an ignored-only descendant of a successful ancestor records not_required and stays quiet, a mixed descendant stays undiscovered, and a late exact attempt wins over reuse${declared ? " under a declared integrated-state policy" : ""}`, async (t) => {
-    const repo = await initRepo();
     const storage = mkdtempSync(join(tmpdir(), "ci-not-required-"));
-    const teardown = fixtureTeardown(storage, repo);
+    const {
+      integration: repo,
+      fixture,
+      revisions: { a: shaA, b: shaB, c: shaC },
+    } = await materializeRepository(
+      makeMe.aRepository
+        .withRevision("a", {
+          backlog: undefined,
+          files: {
+            "app.js": "console.log('base');\n",
+            [workflowPath]: acceptedWorkflow,
+          },
+        })
+        // Ignored-only descendant of A: ancestor's applicable attempt should
+        // be reused as B's basis.
+        .withRevision("b", {
+          files: {
+            ".planning/note.md": "note\n",
+            "docs/readme.md": "docs\n",
+          },
+        })
+        // Mixed descendant of B: touches both an ignored path and app.js, so
+        // no ancestor basis can safely cover it; it must stay undiscovered
+        // rather than being wrongly marked not_required.
+        .withRevision("c", {
+          files: {
+            "app.js": "console.log('changed');\n",
+            ".planning/note2.md": "note2\n",
+          },
+        })
+        .please(),
+    );
+    const teardown = fixtureTeardown(storage, fixture);
     t.after(teardown.cleanup);
-
-    writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-    writeWorkflow(repo, acceptedWorkflow);
-    const shaA = await commitAll(repo, "base code and workflow");
-
-    // Ignored-only descendant of A: ancestor's applicable attempt should be
-    // reused as B's basis.
-    await exec("mkdir", ["-p", join(repo, ".planning")]);
-    writeFileSync(join(repo, ".planning", "note.md"), "note\n");
-    await exec("mkdir", ["-p", join(repo, "docs")]);
-    writeFileSync(join(repo, "docs", "readme.md"), "docs\n");
-    const shaB = await commitAll(repo, "ignored-only change");
-
-    // Mixed descendant of B: touches both an ignored path and app.js, so no
-    // ancestor basis can safely cover it; it must stay undiscovered rather than
-    // being wrongly marked not_required.
-    writeFileSync(join(repo, "app.js"), "console.log('changed');\n");
-    writeFileSync(join(repo, ".planning", "note2.md"), "note2\n");
-    const shaC = await commitAll(repo, "mixed change");
 
     if (declared)
       writeFileSync(
