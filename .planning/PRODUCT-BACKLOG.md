@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Build each test’s Git repository from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures) — SEED-262#build-explicit-git-fixtures ([plan](slice-plans/510-build-explicit-git-fixtures/PLAN.md))
-- [Preserve live agent profiles when integrating stories](seeds/SEED-010-learn-from-execution-retrospectives.md#preserve-live-profiles-during-integration) — SEED-010#preserve-live-profiles-during-integration ([plan](slice-plans/522-preserve-live-profiles-during-integration/PLAN.md))
 
 ## Backlog list
 
