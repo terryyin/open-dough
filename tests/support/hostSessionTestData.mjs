@@ -3,10 +3,12 @@
 // it (`./launchTestData.mjs`) or as a terminal or runner consumes it on its
 // own (`makeMe.aHostSession`). Each host keeps its own identity and
 // continuation: a Claude alias, a Codex thread's saved workspace and
-// app-server endpoint.
+// app-server endpoint, a Cursor chat's workspace and saved configuration
+// scope.
 
 /** @typedef {import("../../dashboard/src/hostSession.ts").ClaudeSession} ClaudeSession */
 /** @typedef {import("../../dashboard/src/hostSession.ts").CodexSession} CodexSession */
+/** @typedef {import("../../dashboard/src/hostSession.ts").CursorSession} CursorSession */
 /**
  * A Codex session with its saved continuation; only a predecessor record
  * lacks one.
@@ -28,6 +30,18 @@
  *   sessionId: string,
  *   continuation: { workspace: string, endpoint: string, args?: string[], notice?: string },
  * }} CodexFacts
+ */
+
+/**
+ * A Cursor chat by its native UUID and where it continues: the saved
+ * workspace, the resume arguments, which are otherwise the current
+ * `cursor-agent --workspace <workspace> --resume <id>` command, and the
+ * session's own configuration scope when a chosen model saved one. The scope
+ * is never part of the resume arguments.
+ * @typedef {{
+ *   sessionId: string,
+ *   continuation: { workspace: string, args?: string[], configScope?: string },
+ * }} CursorFacts
  */
 
 /**
@@ -73,8 +87,32 @@ export function codexSession({
 }
 
 /**
+ * @param {CursorFacts} facts
+ * @returns {(name: string) => CursorSession}
+ */
+export function cursorSession({
+  sessionId,
+  continuation: {
+    workspace,
+    args = ["cursor-agent", "--workspace", workspace, "--resume", sessionId],
+    configScope,
+  },
+}) {
+  return (name) => ({
+    host: "cursor",
+    sessionId,
+    name,
+    continuation: {
+      workspace,
+      args,
+      ...(configScope !== undefined && { configScope }),
+    },
+  });
+}
+
+/**
  * A host session on its own, named by its ID unless stated.
- * @template {ClaudeSession | SavedCodexSession} Session
+ * @template {ClaudeSession | SavedCodexSession | CursorSession} Session
  */
 export class HostSessionBuilder {
   /** @type {(name: string) => Session} */
@@ -111,4 +149,7 @@ export const hostSessionChoices = {
   /** @param {CodexFacts} facts */
   codex: (facts) =>
     new HostSessionBuilder(codexSession(facts), facts.sessionId),
+  /** @param {CursorFacts} facts */
+  cursor: (facts) =>
+    new HostSessionBuilder(cursorSession(facts), facts.sessionId),
 };

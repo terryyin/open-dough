@@ -124,7 +124,7 @@ listing, side panel, Codex launch) 26 passed; typecheck passed.
 
 ### 2. Cursor recovery resumes the saved conversation and configuration
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 2. Run `npm run test:dashboard -- 'dashboard/tests/sessions/(cursor-session-recovery[^/]*|cursor-session-scope[^/]*|cursor-runner-replacement[^/]*)\.spec\.ts$' 'backend-tests/terminals/agent-terminal-cursor[^/]*\.spec\.ts$'`.
 
 A maintainer arranges kept Cursor continuations → recovery or replacement
@@ -136,6 +136,19 @@ visible. Keep live records from `cursorStart` and `cursorSessionRecovery`
 and the `keptCursorTurn` rewrite where the case is injecting a failure into
 a record produced by a launch. Preserve the observed resume command,
 scope, process controls and the Recover and Recently done assertions.
+
+Accepted: `makeMe.aHostSession.cursor` arranges a Cursor UUID, workspace,
+resume arguments (default `cursor-agent --workspace <ws> --resume <uuid>`)
+and an optional configuration scope kept apart from them; `inCursorSession`
+delegates to it. `cursorStart`, `cursorSessionRecovery` and `keptCursorTurn`
+arrange no session facts and stay live evidence. The replacement controls'
+finished and failed-revival records and the retention scope case's session
+now come from MakeMe; break checks on `markedDoneAt` and `configScope`
+failed them. The selection plus retention passed. The retained native
+stream records' `input-hash` lines for MakeMe support files already
+differed from the files before this story; they identify the revision each
+paid run used, so they stay unchanged. The selection exposed a launch-wait
+race in the Cursor wait cases, repaired separately after this slice.
 
 ### 3. A held terminal joins the intended Cursor session
 Type: Behavior

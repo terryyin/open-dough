@@ -17,6 +17,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
 import {
@@ -105,17 +106,17 @@ test.describe("a scoped record dropped by retention expiry", () => {
       doneDaysAgo: number | undefined,
     ): object => {
       const seeded = openStoryRecord("cursor", sessionId) as {
-        session: {
-          continuation: { workspace: string; args: string[] };
-        };
+        session: { name: string };
       };
-      seeded.session.continuation = {
-        workspace: "/tmp",
-        args: ["cursor-agent", "--workspace", "/tmp", "--resume", sessionId],
-        configScope,
-      } as typeof seeded.session.continuation;
       return {
         ...seeded,
+        session: makeMe.aHostSession
+          .cursor({
+            sessionId,
+            continuation: { workspace: "/tmp", configScope },
+          })
+          .named(seeded.session.name)
+          .please(),
         ...(doneDaysAgo === undefined ? {} : { doneAt: daysAgo(doneDaysAgo) }),
       };
     };

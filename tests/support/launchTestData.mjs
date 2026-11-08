@@ -1,5 +1,9 @@
 // @ts-check
-import { claudeSession, codexSession } from "./hostSessionTestData.mjs";
+import {
+  claudeSession,
+  codexSession,
+  cursorSession,
+} from "./hostSessionTestData.mjs";
 import { launchOutcomeFacts } from "./launchOutcomeTestData.mjs";
 import {
   isolatedWorkspaceFacts,
@@ -114,17 +118,13 @@ export class LaunchRecordBuilder {
   }
 
   /**
-   * A Cursor session and where it continues: the saved workspace and the
-   * `cursor-agent` arguments.
-   * @param {{ sessionId: string, continuation: { workspace: string, args?: string[] } }} session
+   * A Cursor chat and where it continues: the saved workspace, with the
+   * resume arguments and configuration scope as `./hostSessionTestData.mjs`
+   * states them.
+   * @param {import("./hostSessionTestData.mjs").CursorFacts} session
    */
-  inCursorSession({ sessionId, continuation: { workspace, args = [] } }) {
-    this.#session = (name) => ({
-      host: "cursor",
-      sessionId,
-      name,
-      continuation: { workspace, args },
-    });
+  inCursorSession(session) {
+    this.#session = cursorSession(session);
     return this;
   }
 
