@@ -35,6 +35,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Make fluent Side panel page objects easier to extend](seeds/SEED-268-fluent-side-panel-pilot-follow-up.md#adjust-fluent-side-panel-page-objects) — SEED-268#adjust-fluent-side-panel-page-objects
+- [Draw a conclusion from the three Side panel pilot journeys and plan the next step](seeds/SEED-268-fluent-side-panel-pilot-follow-up.md#conclude-fluent-side-panel-pilot) — SEED-268#conclude-fluent-side-panel-pilot
 - [Show CI time without runner waits for custom adapters](seeds/SEED-266-ci-job-timing-from-adapters.md#show-ci-time-without-runner-waits-for-adapters) — SEED-266#show-ci-time-without-runner-waits-for-adapters
 - [Show CI build sources with compact icons](seeds/SEED-265-show-ci-build-source-icons.md#show-ci-build-source-icons) — SEED-265#show-ci-build-source-icons
 - [Preserve large CI proof reports and surface size failures](seeds/SEED-267-preserve-large-ci-proof-reports.md#preserve-large-ci-proof-reports) — SEED-267#preserve-large-ci-proof-reports
