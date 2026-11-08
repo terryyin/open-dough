@@ -1,3 +1,4 @@
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   accept,
@@ -15,7 +16,7 @@ import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { settledOutcome } from "../../tests/acceptedAttempts.ts";
 
 test("update drain closes admission and waits through published execution start and durable native confirmation", async () => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const server = await startDashboardServer({
     mode: "boundary",
     machine: origin.machine,

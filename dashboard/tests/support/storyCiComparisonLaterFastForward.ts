@@ -4,13 +4,10 @@
 // new first-parent path. Shared fast-forward landing helper comes from
 // ./storyCiComparisonFastForward.ts.
 
-import path from "node:path";
 import type { Page } from "@playwright/test";
+import { storyB } from "../../../tests/support/queued-repository.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import {
-  agentIdentity,
-  agentNameOf,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import { otherQueuedIdentity, queuedIdentity } from "./startOrigin.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
@@ -52,12 +49,15 @@ export async function publishEarlierLandingThenLaterFastForward(
   commitAll(origin.project, "shared file for story B");
   push(origin.project);
 
-  const agent = await origin.takenByAnotherAgent(otherQueuedIdentity);
-  const workspace = path.join(origin.machine, "another-agent-workspace");
-  const branch = "claude/another-agent";
-  const name = agentNameOf(agent);
-  if (name === undefined) throw new Error(`unknown agent ${agent}`);
-  const profile = agentIdentity(name);
+  // Story A is done, so Story B is all that the Backlog list held.
+  const claimant = "Yui";
+  const profile = agentIdentity(claimant);
+  const { workspace, branch } = await origin.publishTake({
+    agent: claimant,
+    story: storyB,
+    queued: [],
+    mode: "story-branch",
+  });
 
   writeAt(workspace, "story-b.txt", "second story work\n");
   commitAll(workspace, "story B implementation");
@@ -157,7 +157,7 @@ export async function publishTrunkCompletionThenEarlierBranchFastForward(
   page: Page,
   origin: StartOrigin,
 ) {
-  const baseline = precedeClaimWithPlanning(origin);
+  const baseline = await precedeClaimWithPlanning(origin);
   const story = await completedPublishedStory(origin, "trunk");
   const later = laterBranchMergesTrunkAndFastForwards(
     origin,

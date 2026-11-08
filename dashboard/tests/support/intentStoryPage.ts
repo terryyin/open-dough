@@ -4,8 +4,8 @@
 // Intent's Purpose beside the same file's diff in Review changes. A row's
 // change-kind style: ./changeKindStyle.ts.
 
-import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
+import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { parts } from "../dashboardPage.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
@@ -19,9 +19,10 @@ import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { git } from "./storyReviewWorktree.ts";
 
-// Story A taken in Story Branch Mode by a real start, its worktree changing
-// the tests Intent publishes, or as `change` changes it; its Taken card
-// selected by an empty-area click, and Intent shown. The baseline is the
+// Story A, or `story` as the Take names it, taken in Story Branch Mode by
+// Yui's declared Take, its worktree changing the tests Intent publishes, or
+// as `change` changes it; its Taken card selected by an empty-area click, and
+// Intent shown. The baseline is the
 // claim, where the worktree meets trunk; the head is the worktree's last
 // commit.
 export async function selectTakenStoryInIntent(
@@ -30,14 +31,19 @@ export async function selectTakenStoryInIntent(
   change: (workspace: string) => void = changeIntentTests,
   // Whether the published trunk follows the origin's main as it moves.
   follows = false,
+  story = storyA,
 ) {
   publishIntentTrunk(origin.project);
-  await origin.takenByAnotherAgent();
-  const workspace = path.join(origin.machine, "another-agent-workspace");
+  const { workspace } = await origin.publishTake({
+    agent: "Yui",
+    story,
+    queued: [storyB],
+    mode: "story-branch",
+  });
   change(workspace);
   await openBacklog(page, origin, follows);
   const { taken, intentChoice, intent } = parts(page);
-  const card = taken.getByRole("article", { name: "Story A" });
+  const card = taken.getByRole("article", { name: story.title });
   await card.getByRole("heading", { level: 3 }).click();
   await expectSelected(card, true);
   await intentChoice.click();

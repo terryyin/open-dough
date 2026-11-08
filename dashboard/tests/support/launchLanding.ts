@@ -26,6 +26,9 @@ export function commit(workspace: string, name: string) {
   git(workspace, "commit", "-m", `Result ${name}`);
   return git(workspace, "rev-parse", "HEAD");
 }
+// The absolute common Git directory every worktree of a checkout shares.
+export const commonGitDir = (checkout: string) =>
+  git(checkout, "rev-parse", "--path-format=absolute", "--git-common-dir");
 export const refs = (workspace: string) =>
   git(workspace, "for-each-ref", "--format=%(refname) %(objectname)");
 // Retires a launch's owned worktree and branch with the installed retirement.
@@ -40,12 +43,7 @@ export function retireLaunchWorkspace(
   // The branch as separately published on the remote, removed with it.
   remoteBranch?: string,
 ) {
-  const repository = git(
-    established.workspace,
-    "rev-parse",
-    "--path-format=absolute",
-    "--git-common-dir",
-  );
+  const repository = commonGitDir(established.workspace);
   const answer: unknown = JSON.parse(
     execFileSync(
       process.execPath,

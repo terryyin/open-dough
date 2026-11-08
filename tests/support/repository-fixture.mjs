@@ -12,7 +12,7 @@ import {
 import { writeRevisionFiles } from "./repository-revision-files.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RepositoryDescription} RepositoryDescription */
-/** @typedef {import("./repositoryTestData.mjs").RepositoryRevision} RepositoryRevision */
+/** @typedef {import("./repositoryTestData.mjs").RevisionFacts} RevisionFacts */
 /** @typedef {import("./repositoryTestData.mjs").GitPerson} GitPerson */
 
 /** @type {GitPerson} */
@@ -51,14 +51,23 @@ async function configureIdentity(
 }
 
 /**
+ * Write a declared revision's files in a checkout and commit them: the
+ * committer named, or else the checkout's identity; the author named, or else
+ * the committer; the message given, or else the revision's name.
  * @param {string} checkout
- * @param {RepositoryRevision} revision
- * @param {GitPerson} checkoutIdentity
+ * @param {RevisionFacts & { name?: string }} revision
+ * @param {GitPerson} [checkoutIdentity]
+ * @returns {Promise<string>} the new commit
  */
-async function commitRevision(checkout, revision, checkoutIdentity) {
+export async function commitDeclaredRevision(
+  checkout,
+  revision,
+  checkoutIdentity = integrationDeveloper,
+) {
+  writeRevisionFiles(checkout, revision);
   const {
     name,
-    message = name,
+    message = name ?? "Publish declared revision",
     committer = checkoutIdentity,
     author = committer,
   } = revision;
@@ -68,8 +77,8 @@ async function commitRevision(checkout, revision, checkoutIdentity) {
     GIT_AUTHOR_EMAIL: author.email,
     GIT_COMMITTER_NAME: committer.name,
     GIT_COMMITTER_EMAIL: committer.email,
-    ...("date" in author && { GIT_AUTHOR_DATE: author.date }),
-    ...("date" in committer && { GIT_COMMITTER_DATE: committer.date }),
+    ...(author.date !== undefined && { GIT_AUTHOR_DATE: author.date }),
+    ...(committer.date !== undefined && { GIT_COMMITTER_DATE: committer.date }),
   };
   await git(checkout, "add", "--all");
   await exec("git", ["commit", "--allow-empty", "--quiet", "-m", message], {
@@ -100,8 +109,11 @@ async function buildTemplate(
   const commits = new Map();
   let trunkSha = "";
   for (const revision of revisions) {
-    writeRevisionFiles(integration, revision);
-    trunkSha = await commitRevision(integration, revision, checkoutIdentity);
+    trunkSha = await commitDeclaredRevision(
+      integration,
+      revision,
+      checkoutIdentity,
+    );
     await git(integration, "push", "--quiet", "origin", trunkBranch);
     commits.set(revision.name, trunkSha);
   }
@@ -125,8 +137,7 @@ async function buildTemplate(
     });
   let candidateSha = start;
   for (const revision of workspace.revisions) {
-    writeRevisionFiles(execution, revision);
-    candidateSha = await commitRevision(
+    candidateSha = await commitDeclaredRevision(
       execution,
       revision,
       workspace.checkoutIdentity ?? checkoutIdentity,

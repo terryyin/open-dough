@@ -1,6 +1,7 @@
 // A retained refinement start fixture. It drives the real HTTP launch and
 // continuation surfaces and observes the installed command's workspace,
 // published profile, launch instruction, and machine-local start record.
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { chmodSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "./pageTest.ts";
@@ -29,7 +30,7 @@ type Answer = { kind: string; reason?: string; explanation: string };
 export type KeptPreparation = Awaited<ReturnType<typeof keptPreparation>>;
 
 export async function keptPreparation() {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   let server: DashboardServer | undefined;
 
   function activeServer(): DashboardServer {

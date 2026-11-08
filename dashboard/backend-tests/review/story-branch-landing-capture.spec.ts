@@ -6,6 +6,7 @@
 // Raw HTTP against the real installed start and a real bare origin
 // (../../tests/support/startOrigin.ts) with the synthetic `claude`.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import path from "node:path";
 import { z } from "zod";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -18,6 +19,7 @@ import {
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
   capturedPublicationSchema,
+  commonGitDir,
   git,
   refs,
 } from "../../tests/support/launchLanding.ts";
@@ -41,7 +43,7 @@ test.describe("a claimed Story Branch Mode launch's trunk integration", () => {
   let server: DashboardServer;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     server = await startBoundary(origin);
   });
 
@@ -107,12 +109,7 @@ test.describe("a claimed Story Branch Mode launch's trunk integration", () => {
       revision: accepted,
     });
     const landed = await claimedRecord(server);
-    const repository = git(
-      origin.project,
-      "rev-parse",
-      "--path-format=absolute",
-      "--git-common-dir",
-    );
+    const repository = commonGitDir(origin.project);
     expect(landed.landing).toMatchObject({
       repository,
       reference: reporting.reference,

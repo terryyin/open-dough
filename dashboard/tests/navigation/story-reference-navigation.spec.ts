@@ -1,16 +1,15 @@
+import {
+  queuedReadyRepository,
+  storyB,
+  storySeed,
+} from "../../../tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
-import {
-  test,
-  twoDependencies,
-  supplierB,
-  publishDependencies,
-} from "../storyDependencyFixture.ts";
+import { test, twoDependencies, supplierB } from "../storyDependencyFixture.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
 import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
-import { writePlanning } from "../storyReadinessCli.ts";
 import { expectReadingTop } from "../readingPlace.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { expectSelected, selectStory } from "../storyCardSelection.ts";
@@ -20,7 +19,13 @@ import {
   passPartOfCue,
 } from "../destinationCue.ts";
 
-test.use({ hasTouch: true });
+// Story A waits on Story B and needs a decision about Story C.
+test.use({
+  hasTouch: true,
+  originRepository: queuedReadyRepository()
+    .withRevision("dependencies", twoDependencies())
+    .please(),
+});
 
 test("a dependency opens its active story, keeping the dashboard and inspection on repeated activation", async ({
   page,
@@ -28,13 +33,17 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   dashboard,
 }) => {
   await page.setViewportSize({ width: 1280, height: 500 });
-  await twoDependencies(origin);
-  writePlanning(
-    origin.project,
-    "seeds/B.md",
-    `---\nid: SEED-B\n---\n\n# Seed B\n\n<a id="b"></a>\n\n### Story B\n\n**Identity:** SEED-B#b\n\n${"A detailed example of the published endpoint contract.\n\n".repeat(24)}`,
-  );
-  const revision = await publishDependencies(origin);
+  // Story B's seed long enough to scroll to its section.
+  const revision = await origin.publishRevision({
+    files: {
+      ".planning/seeds/B.md": storySeed(
+        storyB,
+        "A detailed example of the published endpoint contract.\n\n"
+          .repeat(24)
+          .trimEnd(),
+      ),
+    },
+  });
   await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,
@@ -106,12 +115,12 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   await evidence.close();
   await supplier.getByRole("button", { name: "Hide detail" }).click();
   await consumer.getByRole("button", { name: "Inspect story" }).focus();
-  writePlanning(
-    origin.project,
-    "observation-change.md",
-    "A new revision for focus retention.\n",
-  );
-  const refreshed = await publishDependencies(origin);
+  const refreshed = await origin.publishRevision({
+    files: {
+      ".planning/observation-change.md":
+        "A new revision for focus retention.\n",
+    },
+  });
   await passTimeUntilChecked(page);
   await expect(parts(page).readRevision).toContainText(
     shortRevision(refreshed),
@@ -131,7 +140,7 @@ test("a reference reveals a starting story without opening its protected inspect
   origin,
   dashboard,
 }) => {
-  const revision = await twoDependencies(origin);
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,
@@ -180,7 +189,7 @@ test("an identified active block with unreadable detail still opens with its exi
   page,
   origin,
 }) => {
-  const revision = await twoDependencies(origin);
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,

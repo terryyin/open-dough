@@ -25,6 +25,7 @@ import { removeQueuedStory } from "../responsiveRecovery.ts";
 import { expectProtected, openStories, test } from "../responsiveStart.ts";
 import { radio } from "../support/sessionDialog.ts";
 import type { StartOrigin } from "../support/startOrigin.ts";
+import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 
 const openSessionDescription = new RegExp(
   openSessionStartReason.replace(/[.]/g, "\\."),
@@ -61,7 +62,12 @@ test("a start refused because another agent took the story meanwhile publishes n
 }) => {
   let agent = "";
   const { published, takenStory } = await startAfter(page, origin, async () => {
-    agent = await origin.takenByAnotherAgent();
+    ({ agent } = await origin.publishTake({
+      agent: "Yui",
+      story: storyA,
+      queued: [storyB],
+      mode: "story-branch",
+    }));
   });
 
   await expect(takenStory).toBeVisible({ timeout: 30_000 });

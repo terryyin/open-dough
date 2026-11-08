@@ -11,6 +11,7 @@
 // GitHub and the notification sender are fakes. Checks run every 100 ms,
 // except where a quiet report must be shown before the next check.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { markDone } from "../agentLaunchBoundary.ts";
 import { expect, test } from "../dashboardTest.ts";
 import {
@@ -44,7 +45,7 @@ test("the row says running while the automatic session is open and, once it ends
   page,
   github,
 }) => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const moving = await publishMovingOrigin(github);
   const due = dayFromToday(-1);
   const served = pushWatchList(moving, watchListDue(due));
@@ -129,7 +130,7 @@ test("a cycle that publishes its advanced date and reports quietly is done on th
   page,
   github,
 }) => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const moving = await publishMovingOrigin(github);
   const due = dayFromToday(-1);
   const served = pushWatchList(moving, watchListDue(due));
@@ -178,7 +179,7 @@ test("an automatic session that ended unavailable without a done mark is, after 
   page,
   github,
 }) => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const moving = await publishMovingOrigin(github);
   const due = dayFromToday(-1);
   pushWatchList(moving, watchListDue(due));

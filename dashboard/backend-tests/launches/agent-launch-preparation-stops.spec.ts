@@ -7,6 +7,7 @@
 // leaves no session and no progress phase. The table's mapping of the
 // remaining stop statuses is ./preparation-start-result.spec.ts.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFile } from "node:child_process";
@@ -44,7 +45,7 @@ test.describe("refinement preparation start that stops", () => {
   let server: DashboardServer;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     server = await startDashboardServer({
       mode: "boundary",
       machine: origin.machine,

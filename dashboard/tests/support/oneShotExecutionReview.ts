@@ -1,7 +1,7 @@
 // Queued closure and accepted capture are produced by the installed workflow.
 // GitHub and native protocol fixtures supply only their external boundaries.
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import type { DashboardServer } from "./dashboardServer.ts";
@@ -17,6 +17,7 @@ import { captureReviewRun, retireReviewRun } from "./oneShotReview.ts";
 import { quote, reportingChild } from "./completionRecovery.ts";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import { doneRecordPath } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 
 export async function completedExecution(
   dashboard: DashboardServer,
@@ -80,8 +81,12 @@ export async function completedExecution(
   const seed = path.join(workspace, ".planning/seeds/A.md");
   const plan = path.resolve(path.dirname(seed), state.approach.plan);
   expect(readFileSync(seed, "utf8")).toContain('<a id="a"></a>');
-  rmSync(seed);
-  rmSync(path.dirname(plan), { recursive: true });
+  writeRevisionFiles(workspace, {
+    remove: [
+      path.relative(workspace, seed),
+      path.relative(workspace, path.dirname(plan)),
+    ],
+  });
   git(workspace, "add", "-A");
   git(
     workspace,

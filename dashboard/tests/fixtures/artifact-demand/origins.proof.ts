@@ -15,7 +15,7 @@ test("a completed Claude layout remains usable after the Codex pack fails", asyn
     assert(prepared);
     const before = fixtureFiles(prepared);
     const baseline = await first.originGit("rev-parse", "main");
-    await expect(startOrigin(undefined, undefined, "codex")).rejects.toThrow(
+    await expect(startOrigin(undefined, { host: "codex" })).rejects.toThrow(
       /Could not prepare dashboard artifact start-origin-codex:.*already exists and is not an empty directory/s,
     );
     const brokenRecord = process.env["DOUGH_ARTIFACT_PROOF_BROKEN_ORIGIN"];

@@ -1,3 +1,4 @@
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import {
@@ -40,11 +41,21 @@ test("concurrent installed starts edit, publish and clean private repositories w
   const origins: StartOrigin[] = [];
   try {
     const [first, second] = await Promise.all([
-      startOrigin("someone/first", "first", "codex"),
-      startOrigin("someone/second", "second", "cursor"),
+      startOrigin(queuedReadyRepository().please(), {
+        repository: "someone/first",
+        projectId: "first",
+        host: "codex",
+      }),
+      startOrigin(queuedReadyRepository().please(), {
+        repository: "someone/second",
+        projectId: "second",
+        host: "cursor",
+      }),
     ]);
     origins.push(first, second);
-    const prepared = await requestRunArtifact(startOriginArtifactKey("codex"));
+    const prepared = await requestRunArtifact(
+      startOriginArtifactKey("codex", "queued"),
+    );
     assert(prepared);
     const before = snapshot(prepared);
     for (const origin of origins) {
@@ -106,7 +117,11 @@ test("concurrent installed starts edit, publish and clean private repositories w
     expect(existsSync(first.machine)).toBe(false);
     expect(snapshot(second.machine)).toEqual(peerFiles);
     await second.originGit("fsck", "--full");
-    const later = await startOrigin("someone/later", "later", "cursor");
+    const later = await startOrigin(queuedReadyRepository().please(), {
+      repository: "someone/later",
+      projectId: "later",
+      host: "cursor",
+    });
     origins.push(later);
     expect(await later.originGit("rev-parse", "main")).toBe(baseline);
     expect(await later.takenProfiles()).toEqual([]);
@@ -146,9 +161,14 @@ test("successive preparations install current working-tree source without a pers
       );
       const prepared = createStartOriginPreparationDirectory();
       try {
-        await prepareStartOrigin(prepared, "claude", source);
+        await prepareStartOrigin(
+          prepared,
+          "claude",
+          queuedReadyRepository().please(),
+          source,
+        );
         process.env[startOriginPreparationVariable] = prepared;
-        const origin = await startOrigin();
+        const origin = await startOrigin(queuedReadyRepository().please());
         origins.push(origin);
         expect(
           readFileSync(path.join(origin.project, installedMarker), "utf8"),
@@ -164,7 +184,7 @@ test("successive preparations install current working-tree source without a pers
     ).toBe("first run");
     Reflect.deleteProperty(process.env, startOriginPreparationVariable);
     delete process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"];
-    const fresh = await startOrigin();
+    const fresh = await startOrigin(queuedReadyRepository().please());
     origins.push(fresh);
     expect(existsSync(path.join(fresh.project, installedMarker))).toBe(false);
     await fresh.takenByAnotherAgent();
@@ -186,16 +206,19 @@ test("failed preparation and initialization remove only owned state and retain u
   );
   const inherited = process.env[startOriginPreparationVariable];
   const previousTmp = process.env["TMPDIR"];
-  const peer = await startOrigin();
+  const peer = await startOrigin(queuedReadyRepository().please());
   const peerFiles = snapshot(peer.machine);
   try {
-    const shared = await requestRunArtifact(startOriginArtifactKey("claude"));
+    const shared = await requestRunArtifact(
+      startOriginArtifactKey("claude", "queued"),
+    );
     assert(shared);
     const prepared = createStartOriginPreparationDirectory();
     await expect(
       prepareStartOrigin(
         prepared,
         "claude",
+        queuedReadyRepository().please(),
         path.join(directory, "missing-source"),
       ),
     ).rejects.toMatchObject({ code: "ENOENT" });
@@ -205,7 +228,9 @@ test("failed preparation and initialization remove only owned state and retain u
       directory,
       "missing-preparation",
     );
-    await expect(startOrigin()).rejects.toMatchObject({ code: "ENOENT" });
+    await expect(
+      startOrigin(queuedReadyRepository().please()),
+    ).rejects.toMatchObject({ code: "ENOENT" });
     expect(readdirSync(directory)).toEqual([]);
     const broken = path.join(directory, "broken");
     cpSync(path.join(shared, "claude"), path.join(broken, "claude"), {
@@ -216,7 +241,9 @@ test("failed preparation and initialization remove only owned state and retain u
       "broken configuration\n",
     );
     process.env[startOriginPreparationVariable] = broken;
-    await expect(startOrigin()).rejects.toMatchObject({
+    await expect(
+      startOrigin(queuedReadyRepository().please()),
+    ).rejects.toMatchObject({
       code: 128,
       stderr: expect.stringContaining("bad config line"),
     });

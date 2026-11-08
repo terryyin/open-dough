@@ -1,5 +1,6 @@
 // Slow execution starts keep running through their warning threshold and launch
 // automatically; real installed commands against a bare origin prove recovery.
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -39,7 +40,7 @@ test.describe("a kept execution start", () => {
   let server: DashboardServer;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
   });
 
   async function serve(startWaitMs: number): Promise<void> {

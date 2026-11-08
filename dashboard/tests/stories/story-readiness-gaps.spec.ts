@@ -44,10 +44,10 @@ async function openReadiness(
   page: Page,
   afterGitHubStops: (cleanup: () => void) => void,
 ) {
-  const openDough = buildOpenDoughReadinessRepo(afterGitHubStops, {
+  const openDough = await buildOpenDoughReadinessRepo(afterGitHubStops, {
     canonicalOnlyQueued: true,
   });
-  const doughnut = buildDoughnutReadinessRepo(afterGitHubStops);
+  const doughnut = await buildDoughnutReadinessRepo(afterGitHubStops);
 
   const openDoughOrigin = await publishCommittedOrigin(page, {
     repoDir: openDough.directory,
@@ -197,7 +197,7 @@ test("queued plan navigation follows changed associations and qualifies unsuppor
   page,
   afterGitHubStops,
 }) => {
-  const repo = buildOpenDoughReadinessRepo(afterGitHubStops, {
+  const repo = await buildOpenDoughReadinessRepo(afterGitHubStops, {
     canonicalOnlyQueued: true,
   });
   const origin = await publishCommittedOrigin(page, {

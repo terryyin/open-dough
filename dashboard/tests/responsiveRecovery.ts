@@ -6,10 +6,13 @@
 // removal of Story A from origin's backlog.
 
 import { execFile } from "node:child_process";
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
 import type { Locator, Page } from "@playwright/test";
+import { direction } from "../../tests/support/product-backlog-fixture.mjs";
+import { storyB } from "../../tests/support/queued-repository.mjs";
+import { writeRevisionFiles } from "../../tests/support/repository-revision-files.mjs";
 import { expect } from "./dashboardTest.ts";
 import { expectProtected } from "./responsiveStart.ts";
 import {
@@ -123,19 +126,13 @@ function restartedOn(
   });
 }
 
-// Another writer removes Story A from origin's backlog.
+// Another writer removes Story A from origin's backlog, queued or Taken,
+// leaving Story B queued.
 export async function removeQueuedStory(origin: StartOrigin): Promise<void> {
   const clone = path.join(origin.machine, "another-writer");
   const git = (...args: string[]) => exec("git", ["-C", clone, ...args]);
   await exec("git", ["clone", "--quiet", origin.origin, clone]);
-  const backlog = path.join(clone, ".planning/PRODUCT-BACKLOG.md");
-  writeFileSync(
-    backlog,
-    readFileSync(backlog, "utf8")
-      .split("\n")
-      .filter((line) => !line.includes(queuedIdentity))
-      .join("\n"),
-  );
+  writeRevisionFiles(clone, { backlog: { direction, queued: [storyB] } });
   await git(
     "-c",
     "user.name=Writer",

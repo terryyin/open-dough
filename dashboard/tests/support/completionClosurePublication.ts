@@ -1,11 +1,13 @@
 // Real first landing followed by published story closure for installed completion journeys.
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import { parseBacklog } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
-import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
+import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
+import { storyB } from "../../../tests/support/queued-repository.mjs";
+import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import type { StartOrigin } from "./startOrigin.ts";
 
 const exec = promisify(execFile);
 
@@ -67,16 +69,9 @@ export async function publishCompletionClosure(
     expect(JSON.parse(captured.stdout)).toMatchObject({ state: "recorded" });
   }
   await observeKept?.();
-  const backlog = path.join(workspace, ".planning/PRODUCT-BACKLOG.md");
-  const backlogDocument = readFileSync(backlog, "utf8");
-  // Final closure removes the accepted story from the active backlog.
-  const entry = parseBacklog(backlogDocument).entries.find(
-    (item: { identity: string }) => item.identity === queuedIdentity,
-  );
-  if (entry === undefined) throw new Error("Missing closing story");
-  const backlogLines = backlogDocument.split("\n");
-  backlogLines.splice(entry.index as number, 1);
-  writeFileSync(backlog, backlogLines.join("\n"));
+  // Final closure removes the accepted Story A from the active backlog,
+  // leaving Story B queued.
+  writeRevisionFiles(workspace, { backlog: { direction, queued: [storyB] } });
   await git("add", ".planning/PRODUCT-BACKLOG.md");
   await git("commit", "-m", "Close accepted story");
   const beforeCleanup = await git("rev-parse", "HEAD");

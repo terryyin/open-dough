@@ -19,17 +19,22 @@ import {
   type DeploymentLikeStart,
 } from "./launchEnvironment.ts";
 import { launchWaitMs } from "./launchWait.ts";
-import { startOrigin, type StartOrigin } from "./startOrigin.ts";
+import {
+  queuedOriginRepository,
+  startOrigin,
+  type StartOriginFixtures,
+} from "./startOrigin.ts";
 export { expect } from "../dashboardTest.ts";
 
-export const test = base.extend<{
-  origin: StartOrigin;
-  cursorScreen: CursorScreen | undefined;
-  cursorSplitPaintMs: number | undefined;
-  cursorSubmitPaintMs: number | undefined;
-  cursorPaintDelayMs: number | undefined;
-  cursor: FakeCursor;
-}>({
+export const test = base.extend<
+  StartOriginFixtures & {
+    cursorScreen: CursorScreen | undefined;
+    cursorSplitPaintMs: number | undefined;
+    cursorSubmitPaintMs: number | undefined;
+    cursorPaintDelayMs: number | undefined;
+    cursor: FakeCursor;
+  }
+>({
   // Option defaults here, not a module-level test.use, which would reach only
   // the first file a worker loads this module for. A file's test.use still wins.
   projectFolders: ["open-dough"],
@@ -38,13 +43,9 @@ export const test = base.extend<{
   cursorSplitPaintMs: [undefined, { option: true }],
   cursorSubmitPaintMs: [undefined, { option: true }],
   cursorPaintDelayMs: [undefined, { option: true }],
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin(
-      "terryyin/open-dough",
-      "open-dough",
-      "cursor",
-    );
+  originRepository: queuedOriginRepository,
+  origin: async ({ originRepository }, use) => {
+    const origin = await startOrigin(originRepository, { host: "cursor" });
     await use(origin);
     origin.cleanup();
   },

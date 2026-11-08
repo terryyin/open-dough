@@ -62,26 +62,55 @@ export function readyStoryState(entry) {
 }
 
 /**
+ * The A/B fixture seed with its readiness recorded on its own seed and plan.
+ * @param {BacklogEntry} entry
+ * @param {Assessment} [assessment]
+ * @returns {string}
+ */
+export function reviewedStorySeed(entry, assessment = {}) {
+  const seed = storySeed(entry, `Execute ${seedKey(entry)}.`);
+  const planSource = storyPlan(entry);
+  const state = { ...readyStoryState(entry), ...assessment };
+  return recordStoryState(
+    seed,
+    { ...state, expectedBasis: computeBasis(seed, planSource) },
+    { planSource },
+  ).source;
+}
+
+/**
+ * Encode published agreements, in order, on the previously assessed A/B
+ * fixture seed.
+ * @param {BacklogEntry} entry
+ * @param {readonly SupplierAgreement[]} dependencies
+ * @param {Assessment} [assessment]
+ * @returns {string}
+ */
+export function queuedSeedWithDependencies(
+  entry,
+  dependencies,
+  assessment = {},
+) {
+  return dependencies.reduce(
+    (source, dependency) =>
+      updateStoryDependency(source, {
+        identity: entry.identity,
+        href: entry.href,
+        dependency,
+        expectedBasis: readStoryDependencies(source, entry.href).basis,
+      }).source,
+    reviewedStorySeed(entry, assessment),
+  );
+}
+
+/**
  * Encode a published agreement on the previously assessed A/B fixture seed.
  * @param {BacklogEntry} entry
  * @param {SupplierAgreement} dependency
  * @param {Assessment} [assessment]
  */
 export function queuedSeedWithDependency(entry, dependency, assessment = {}) {
-  const seed = storySeed(entry, `Execute ${seedKey(entry)}.`);
-  const planSource = storyPlan(entry);
-  const state = { ...readyStoryState(entry), ...assessment };
-  const reviewed = recordStoryState(
-    seed,
-    { ...state, expectedBasis: computeBasis(seed, planSource) },
-    { planSource },
-  ).source;
-  return updateStoryDependency(reviewed, {
-    identity: entry.identity,
-    href: entry.href,
-    dependency,
-    expectedBasis: readStoryDependencies(reviewed, entry.href).basis,
-  }).source;
+  return queuedSeedWithDependencies(entry, [dependency], assessment);
 }
 
 /** @param {readonly BacklogEntry[]} queued */
@@ -132,12 +161,25 @@ export function queuedRepositoryWithRoughStory(roughStory) {
 }
 
 /**
- * @param {{ story: BacklogEntry, queued: readonly BacklogEntry[], agent: string, committer: import("./repositoryTestData.mjs").GitPerson }} facts
+ * The revision an agent's start publishes when it takes `story`: the story
+ * Taken with its plan, `queued` left in the Backlog list, and the agent's
+ * execution profile, authored by the agent and committed by the developer
+ * under the claim message. Trunk Mode unless a story `branch` is named.
+ * @param {{ story: BacklogEntry, queued: readonly BacklogEntry[], agent: string, committer: import("./repositoryTestData.mjs").GitPerson, branch?: string, host?: string, publisher?: string }} facts
  */
-export function trunkTakeRevision({ story, queued, agent, committer }) {
+export function takeRevision({
+  story,
+  queued,
+  agent,
+  committer,
+  branch,
+  host,
+  publisher = "publisher-trunk",
+}) {
   const { agent: author, email } = agentIdentity(agent);
+  const assignment = { name: agent, identity: story.identity, host };
   return {
-    message: `${claimCommitMessage(story.identity, "publisher-trunk")}Co-authored-by: ${committer.name} <${committer.email}>`,
+    message: `${claimCommitMessage(story.identity, publisher)}Co-authored-by: ${committer.name} <${committer.email}>`,
     backlog: {
       direction,
       taken: [
@@ -151,14 +193,14 @@ export function trunkTakeRevision({ story, queued, agent, committer }) {
       queued,
     },
     agentProfiles: [
-      makeMe.anAgentProfile
-        .executing({
-          name: agent,
-          identity: story.identity,
-          mode: "trunk",
-          branch: "origin/main",
-        })
-        .please(),
+      (branch === undefined
+        ? makeMe.anAgentProfile.executing(assignment)
+        : makeMe.anAgentProfile.executing({
+            ...assignment,
+            mode: "story-branch",
+            branch,
+          })
+      ).please(),
     ],
     author: { name: author, email },
     committer,
@@ -169,6 +211,6 @@ export function trunkTakeRevision({ story, queued, agent, committer }) {
 export function queuedRepositoryWithTakenStoryA(facts) {
   return queuedReadyRepository().withRevision(
     "taken",
-    trunkTakeRevision({ story: storyA, queued: [storyB], ...facts }),
+    takeRevision({ story: storyA, queued: [storyB], ...facts }),
   );
 }

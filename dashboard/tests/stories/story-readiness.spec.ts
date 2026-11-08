@@ -46,10 +46,10 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
   page,
   afterGitHubStops,
 }) => {
-  const openDough = buildOpenDoughReadinessRepo(afterGitHubStops, {
+  const openDough = await buildOpenDoughReadinessRepo(afterGitHubStops, {
     canonicalOnlyQueued: true,
   });
-  const doughnut = buildDoughnutReadinessRepo(afterGitHubStops);
+  const doughnut = await buildDoughnutReadinessRepo(afterGitHubStops);
 
   const openDoughOrigin = await publishCommittedOrigin(page, {
     repoDir: openDough.directory,
