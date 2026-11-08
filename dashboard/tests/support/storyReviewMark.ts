@@ -63,8 +63,13 @@ export async function nextSnapshot(page: Page): Promise<TakenStoryReview> {
   return review;
 }
 
-// Opens the card's review and answers the snapshot the review shows.
+// Opens the card's review and answers the snapshot the review shows. A card
+// still reading its facts (its agent profile, plan slices) grows as each
+// arrives and moves its actions, so a press could land on the action and its
+// release elsewhere on the card, which then opens no review; the action is
+// pressed once the card reads nothing more.
 export async function openStoryReview(page: Page, card: Locator) {
+  await expect(card).not.toContainText(/Reading [^…]*…/);
   const snapshot = nextSnapshot(page);
   await card.getByRole("button", { name: "Review changes" }).click();
   return snapshot;

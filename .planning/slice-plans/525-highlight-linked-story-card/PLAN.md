@@ -116,6 +116,17 @@ reduced-motion `animation: none`, or cueing only a card's first reveal, each
 failed the matching spec. Refactor: duration lives only in `destinationCueMs`
 (CSS fallback removed); one duplicated focus/detail check removed.
 
+CI repair (run 42461690145, dashboard 11/12, at `df0b6e7`):
+`story-review-trunk-own-since.spec.ts:172` timed out because `openStoryReview`
+pressed "Review changes" while the Taken card was still reading its agent
+profile. The card grew between press and release, so no click reached the
+button (trace and screencast evidence). The cue change is not on this path.
+The fix: `openStoryReview` (`dashboard/tests/support/storyReviewMark.ts`) waits
+until the card shows no "Reading …" placeholder before pressing. A scratch
+held-profile spec failed 3/3 before the fix and passed 3/3 after; all 23
+helper-using specs passed (64). Refactor disposition: already-traced repair
+within this repair return.
+
 ## Execution complete
 
 Product advice: no change. The Destination cue meets the story through the one
