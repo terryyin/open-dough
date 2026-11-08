@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 464. Removed numbers are never reused.
+- Highest allocated local number: 465. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -403,6 +403,16 @@ Former local code: DD-424. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
 ## ODF-428 — A refactor moved tests after acceptance had cited them, leaving source-review observations stale
 Former local code: DD-431. [Evidence and current response](docs/maintainer/findings/ODF-428.md).
+
+### Occurrences
+- Execution: SEED-262#reuse-immutable-git-histories (plan 535-reuse-story-columns-git-history; first related implementation commit `08d208fd080d143e60dfe0d011609e3a0060d2ca`)
+  - Timestamp: unknown (2026-11-08, about 15:55Z, after the refactor return and before the full-suite run stamped `2026-11-08T16-01-12.478Z`)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: acceptance recorded all 63 source-review observations with `story-obligations.mjs record`, 50 of them citing the four new cases in `tests/support/repository-fixture.test.mjs`; the refactor pass then moved those cases to `repository-snapshot.test.mjs` and `repository-snapshot-isolation.test.mjs` and split the cited materializer into `repository-template.mjs` and `repository-snapshot.mjs`. The refactor return listed the moves; the coordinator rewrote the rows by text substitution before delivery and `check --slice 1` passed.
+  - Observed effect: one retargeting round over 50 rows; nothing stale published.
+  - Inference: fourth execution with the same shape; recording observations by file path before the refactor pass remains the structural cause.
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 Former local code: DD-434. [Evidence and current response](docs/maintainer/findings/ODF-429.md).
 ## ODF-430 — Story integration moved another active agent profile into done
@@ -590,3 +600,29 @@ the candidate could.
   - Evidence: Slice 1's before runs were at load about 10.5 and its after runs at 14.8–16.3 (startOriginTest consumers 60/68 s before, 73/81 s after); the coordinator recorded obligation G3 in plan 512. Slices 2 and 3 measured base-worktree and candidate runs back to back (51/51 s; 47/46 and 47/45 s; 22/20 and 23/20 s).
   - Observed effect: Slice 1's timing evidence could not close its promise and the comparison was repeated in slice 3 with a temporary base worktree and its setup.
   - Inference: The plan's wording "record before changing anything" invites sequential measurement; naming paired back-to-back runs from the start would likely have avoided the repeat. One execution only.
+- Execution: SEED-262#reuse-immutable-git-histories (plan 535-reuse-story-columns-git-history; first related implementation commit `08d208fd080d143e60dfe0d011609e3a0060d2ca`)
+  - Timestamp: unknown (2026-11-08, baseline 14:11Z–14:13Z, implementation measurements about 14:30Z–15:10Z)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: the plan's gate read "re-establish a comparable baseline in the execution checkout, then use the same ordinary selection before and after"; the coordinator ran three baseline runs at load 12.9 before delegating, the implementation agent's first after runs fell at load 12.7–15.6 and could not be compared, and it then built a detached clean worktree of the Take (copied `node_modules`) to run nine more before runs beside its after runs; the coordinator's final interleaved lazy/eager pairs on one checkout were decisive (recorded in plan 535's Measurement record).
+  - Observed effect: twelve extra selection runs and a temporary base worktree before the comparison could be judged.
+  - Inference: second execution in the same seed; the gate wording again invited a sequential baseline, and the paired form had to be rediscovered.
+
+## DD-465 — A baseline trace in hand already showed the request timing that made the planned lazy build neutral
+The pre-change artifact trace the coordinator recorded before delegation showed
+both dashboard workers requesting the run's artifacts within 1 ms of each other.
+A single-flight owner build started on the first request therefore had to
+serialize both cold workers, which the plan had named as a risk with a stop
+condition but left to end-to-end measurement; the slice measured it over seven
+runs before an owner-start request restored the gain.
+
+### Occurrences
+- Execution: SEED-262#reuse-immutable-git-histories (plan 535-reuse-story-columns-git-history; first related implementation commit `08d208fd080d143e60dfe0d011609e3a0060d2ca`)
+  - Timestamp: unknown (2026-11-08; baseline trace at 14:11Z, delegation shortly after, eager variant adopted about 15:20Z)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: `before-run1.trace.jsonl` of the coordinator's baseline recorded `request app` from both workers at 2.863 s and `request server-bundle` at 2.864/2.865 s; plan 535's Options named cold serialization as a measured risk; the implementation agent's `after` and `after2` runs (lazy) matched the baselines and its three-line eager experiment did not; the coordinator's interleaved pairs confirmed eager.
+  - Observed effect: the decisive design choice (when the owner starts the build) was made after implementation and about ten measured runs, rather than before delegation from the trace already recorded.
+  - Inference: qualified, one execution. When a plan's stop condition depends on a timing structure, the baseline observation taken for it can be read for that structure before the slice is delegated.

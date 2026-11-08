@@ -187,6 +187,19 @@ distinguish duplicate builds, leaked state or an incomplete snapshot.
 Keep the slice together through the timing comparison, since the owner,
 copy and suffix costs jointly determine whether to retain it.
 
+## Execution complete
+
+Product advice: the run-start prefix holds for the story-columns family at
+about 7% of the two-worker attention and recent-sessions selection; keep
+cross-run reuse and other families deferred until measured. The launch
+journey that `pageTest.ts` supplies to about 108 specs is identical in every
+worker and is the natural next family to measure with the same owner
+mechanism. Local feedback on this story was dominated by the whole-suite gate,
+43 min of runner time plus about 50 min of admission wait behind another
+suite, against a 0.7 s gain per selection, and its three failures were
+load-induced timeouts that passed in isolation. Observe the 12-shard hosted
+times for `08d208fd0` against its predecessor before extending the mechanism.
+
 ## Learnings
 
 - Full dashboard suite before publication (2026-11-08, this checkout, two
