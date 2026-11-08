@@ -2,10 +2,11 @@
 // that opens it, as fluent page objects for the Side panel journeys
 // (./sidePanelPages.ts). Each method writes one named cue on the phase's cue
 // sheet (./support/cueSheet.ts) and returns the page object the reader is
-// then at; the phase runs the cues. The Sessions sidebar's parts are found
-// where every journey finds them (./sessionsSidebarPage.ts).
+// then at (./fluentPageObject.ts), the Terminal taken from the phase's
+// page-object set; the phase runs the cues. The Sessions sidebar's parts are
+// found where every journey finds them (./sessionsSidebarPage.ts).
 
-import { PageObject } from "./sidePanelContentPages.ts";
+import { PageObject } from "./fluentPageObject.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect } from "./support/preparationPage.ts";
 
@@ -90,7 +91,7 @@ export class SessionsSidebar extends PageObject {
     return this.cue(
       `Sessions sidebar: open ${title}`,
       () => this.#parts.entry(title).click(),
-      new Terminal(this.page, this.cues),
+      this.pages.terminal,
     );
   }
 }

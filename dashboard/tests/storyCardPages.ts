@@ -1,26 +1,22 @@
 // The Board and its Story cards as fluent page objects for the Side panel
 // journeys (./sidePanelPages.ts): what a reader does on a card, which Side
-// panel content that opens, and how the card shows its selection,
-// inspection and Terminal. Each method writes one named cue on the phase's
-// cue sheet (./support/cueSheet.ts) and returns the page object the reader
-// is then at; the phase runs the cues.
+// panel content that opens, taken from the phase's page-object set, and how
+// the card shows its selection, inspection and Terminal. Each method writes
+// one named cue on the phase's cue sheet (./support/cueSheet.ts) and returns
+// the page object the reader is then at (./fluentPageObject.ts); the phase
+// runs the cues.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 import { parts, storyCardSessions } from "./dashboardParts.ts";
-import {
-  FinalReport,
-  PageObject,
-  StoryReview,
-} from "./sidePanelContentPages.ts";
+import { PageObject } from "./fluentPageObject.ts";
+import type { SidePanelPages } from "./sidePanelPages.ts";
 import { expectInspected, expectSelected } from "./storyCardSelection.ts";
-import type { CueSheet } from "./support/cueSheet.ts";
 import { expect } from "./support/preparationPage.ts";
-import { Terminal } from "./terminalPages.ts";
 
 export class Board extends PageObject {
   // A Story card on the Board, by its story's title.
   storyCard(title: string) {
-    return new StoryCard(this.page, this.cues, title);
+    return new StoryCard(this.pages, title);
   }
 
   // No Story card shows its inline detail.
@@ -37,10 +33,10 @@ export class StoryCard extends PageObject {
   readonly #title: string;
   readonly #card: Locator;
 
-  constructor(page: Page, cues: CueSheet, title: string) {
-    super(page, cues);
+  constructor(pages: SidePanelPages, title: string) {
+    super(pages);
     this.#title = title;
-    this.#card = parts(page).board.getByRole("article", {
+    this.#card = parts(pages.page).board.getByRole("article", {
       name: title,
       exact: true,
     });
@@ -49,6 +45,10 @@ export class StoryCard extends PageObject {
   // The card's one Review changes action.
   get #reviewChanges() {
     return this.#card.getByRole("button", { name: "Review changes" });
+  }
+
+  get #shownInTerminal() {
+    return storyCardSessions(this.#card).getByText("Shown in terminal");
   }
 
   get #named() {
@@ -69,7 +69,7 @@ export class StoryCard extends PageObject {
     return this.cue(
       `${this.#named}: Review changes`,
       () => this.#reviewChanges.click(),
-      new StoryReview(this.page, this.cues),
+      this.pages.storyReview,
     );
   }
 
@@ -81,7 +81,7 @@ export class StoryCard extends PageObject {
         await this.#reviewChanges.focus();
         await this.#reviewChanges.press("Enter");
       },
-      new StoryReview(this.page, this.cues),
+      this.pages.storyReview,
     );
   }
 
@@ -93,7 +93,7 @@ export class StoryCard extends PageObject {
         storyCardSessions(this.#card)
           .getByRole("button", { name: "Read final report" })
           .click(),
-      new FinalReport(this.page, this.cues),
+      this.pages.finalReport,
     );
   }
 
@@ -105,7 +105,7 @@ export class StoryCard extends PageObject {
         storyCardSessions(this.#card)
           .getByRole("button", { name: "Open terminal" })
           .click(),
-      new Terminal(this.page, this.cues),
+      this.pages.terminal,
     );
   }
 
@@ -135,27 +135,39 @@ export class StoryCard extends PageObject {
     );
   }
 
-  // Its story is the Selected story, highlighted, or is not.
-  expectSelected(selected = true) {
-    return this.#expect(selected ? "selected" : "not selected", () =>
-      expectSelected(this.#card, selected),
+  // Its story is the Selected story, highlighted.
+  expectSelected() {
+    return this.#expect("selected", () => expectSelected(this.#card, true));
+  }
+
+  expectNotSelected() {
+    return this.#expect("not selected", () =>
+      expectSelected(this.#card, false),
     );
   }
 
-  // Its inline detail is open, or is not.
-  expectInspected(inspected = true) {
-    return this.#expect(inspected ? "inspected" : "not inspected", () =>
-      expectInspected(this.#card, inspected),
+  // Its inline detail is open.
+  expectInspected() {
+    return this.#expect("inspected", () => expectInspected(this.#card, true));
+  }
+
+  expectNotInspected() {
+    return this.#expect("not inspected", () =>
+      expectInspected(this.#card, false),
     );
   }
 
-  // Its session entry says that the Terminal shows its session, or no
-  // entry says so.
-  expectShownInTerminal(shown = true) {
-    const mark = storyCardSessions(this.#card).getByText("Shown in terminal");
-    return this.#expect(
-      shown ? "Shown in terminal" : "not shown in terminal",
-      () => (shown ? expect(mark).toBeVisible() : expect(mark).toHaveCount(0)),
+  // Its session entry says that the Terminal shows its session.
+  expectShownInTerminal() {
+    return this.#expect("Shown in terminal", () =>
+      expect(this.#shownInTerminal).toBeVisible(),
+    );
+  }
+
+  // No session entry says that the Terminal shows its session.
+  expectNotShownInTerminal() {
+    return this.#expect("not shown in terminal", () =>
+      expect(this.#shownInTerminal).toHaveCount(0),
     );
   }
 }

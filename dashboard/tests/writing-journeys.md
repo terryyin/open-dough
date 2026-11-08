@@ -151,17 +151,26 @@ The two Side panel content journeys
 (`navigation/side-panel-content-replacement.spec.ts` and
 `navigation/side-panel-content-switching.spec.ts`) are written as phases
 over fluent page objects. `sidePanelPages(page).phase(title, write)` in
-`sidePanelPages.ts` hands `write` the Board, Side panel, Panel divider,
-perspective choice, Intent, Terminal and Sessions sidebar objects. Each
-method writes one named cue without touching the page and returns the object
-the reader reaches next. The phase then runs those cues in order, each as its
-own `test.step` located at the spec line that wrote it, and stops at the
-first failure. `support/cueSheet.ts` is the runner. `storyCardPages.ts`,
-`sidePanelContentPages.ts` and `terminalPages.ts` own the parts' scoped
-locators, so a shared control such as the Story card's `Review changes` has
-one locator. A cue must not read a value it needs later. Measured widths and
-rooms, review read counts, transport holds (`holdReviewOf`), native attach
-evidence and kept records are read in the spec between phases.
+`sidePanelPages.ts` builds the phase's page-object set and hands `write` its
+Board, Side panel, Story review, Final report, Panel divider, perspective
+choice, Intent, Terminal and Sessions sidebar objects. Each method writes one
+named cue without touching the page and returns the object the reader
+reaches next, taken from that set rather than constructed: a Story card's
+`reviewChanges()` returns the phase's Story review, and the Story review's
+`close()` returns the phase's Side panel. The phase then runs those cues in
+order, each as its own `test.step` located at the spec line that wrote it,
+and stops at the first failure. `support/cueSheet.ts` is the runner. Every
+object extends the base in `fluentPageObject.ts`. `storyCardPages.ts`,
+`sidePanelFramePages.ts`, `storyReviewPages.ts`, `finalReportPages.ts` and
+`terminalPages.ts` own their parts' scoped locators, so a shared control
+such as the Story card's `Review changes` has one locator; they import the
+base at run time and name the set only with `import type`, and only
+`sidePanelPages.ts` imports every class. A new hand-off is a method on the
+object the reader leaves that returns `this.pages.<object>`; a new object is
+a module of its own and a member of the set. A cue must not read a value it
+needs later. Measured widths and rooms, review read counts, transport holds
+(`holdReviewOf`), native attach evidence and kept records are read in the
+spec between phases.
 
 ## Process cleanup
 

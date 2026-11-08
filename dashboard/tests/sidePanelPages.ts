@@ -1,19 +1,25 @@
 // The Perspective choice, the Intent perspective's content and the Panel
 // divider, as fluent page objects for the Side panel journeys
 // (./navigation/side-panel-content-replacement.spec.ts,
-// ./navigation/side-panel-content-switching.spec.ts), beside the Board and
-// its Story cards (./storyCardPages.ts), the Side panel and its content
-// (./sidePanelContentPages.ts), and the Terminal and Sessions sidebar
-// (./terminalPages.ts); and the phases those journeys run them in. Each method
-// writes one named cue on the phase's cue sheet (./support/cueSheet.ts) and
-// returns the page object the reader is then at; the phase runs the cues. The
-// objects own their parts' scoped locators, how the page is operated, and what
-// each observation waits for; the spec keeps the inputs and expected values.
+// ./navigation/side-panel-content-switching.spec.ts); and the phases those
+// journeys run them in, each with its own page-object set. The set is built
+// here, the one module that knows every class: the Board and its Story cards
+// (./storyCardPages.ts), the Side panel (./sidePanelFramePages.ts), its Story
+// review (./storyReviewPages.ts) and Final report (./finalReportPages.ts)
+// contents, and the Terminal and Sessions sidebar (./terminalPages.ts). Each
+// object shares the base (./fluentPageObject.ts) and hands off through the
+// set. Each method writes one named cue on the phase's cue sheet
+// (./support/cueSheet.ts) and returns the page object the reader is then at;
+// the phase runs the cues. The objects own their parts' scoped locators, how
+// the page is operated, and what each observation waits for; the spec keeps
+// the inputs and expected values.
 
 import type { Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
+import { FinalReport } from "./finalReportPages.ts";
+import { PageObject } from "./fluentPageObject.ts";
 import { box } from "./pageLayout.ts";
-import { PageObject, SidePanel } from "./sidePanelContentPages.ts";
+import { SidePanel } from "./sidePanelFramePages.ts";
 import {
   dragDivider,
   expectDividerSays,
@@ -24,20 +30,10 @@ import { type CueSheet, phase } from "./support/cueSheet.ts";
 import { expect } from "./support/preparationPage.ts";
 import { sidePanelContents } from "./support/sidePanelContents.ts";
 import { Board } from "./storyCardPages.ts";
+import { StoryReview } from "./storyReviewPages.ts";
 import { SessionsSidebar, Terminal } from "./terminalPages.ts";
 
 type Perspective = "Development" | "Intent";
-
-// The page objects a phase writes its cues on.
-export interface SidePanelPages {
-  readonly board: Board;
-  readonly perspective: PerspectiveChoice;
-  readonly intent: Intent;
-  readonly sidePanel: SidePanel;
-  readonly terminal: Terminal;
-  readonly sessionsSidebar: SessionsSidebar;
-  readonly panelDivider: PanelDivider;
-}
 
 // The banner's choice between the Development and Intent perspectives.
 export class PerspectiveChoice extends PageObject {
@@ -114,22 +110,34 @@ export class PanelDivider extends PageObject {
   }
 }
 
-const pagesOf = (page: Page, cues: CueSheet): SidePanelPages => ({
-  board: new Board(page, cues),
-  perspective: new PerspectiveChoice(page, cues),
-  intent: new Intent(page, cues),
-  sidePanel: new SidePanel(page, cues),
-  terminal: new Terminal(page, cues),
-  sessionsSidebar: new SessionsSidebar(page, cues),
-  panelDivider: new PanelDivider(page, cues),
-});
+// One phase's set: the page objects a phase writes its cues on, with the
+// page and the cue sheet they share. Every object is handed this same set,
+// so a hand-off returns the phase's own object.
+export class SidePanelPages {
+  readonly page: Page;
+  readonly cues: CueSheet;
+  readonly board = new Board(this);
+  readonly perspective = new PerspectiveChoice(this);
+  readonly intent = new Intent(this);
+  readonly sidePanel = new SidePanel(this);
+  readonly storyReview = new StoryReview(this);
+  readonly finalReport = new FinalReport(this);
+  readonly terminal = new Terminal(this);
+  readonly sessionsSidebar = new SessionsSidebar(this);
+  readonly panelDivider = new PanelDivider(this);
+
+  constructor(page: Page, cues: CueSheet) {
+    this.page = page;
+    this.cues = cues;
+  }
+}
 
 // The journey's page: its phases, and what it measures between them.
 export function sidePanelPages(page: Page) {
   return {
     // Runs one named phase whose cues `write` writes on the page objects.
     phase: (title: string, write: (pages: SidePanelPages) => unknown) =>
-      phase(title, (cues) => pagesOf(page, cues), write),
+      phase(title, (cues) => new SidePanelPages(page, cues), write),
     // The width of the Side panel's one shown content, in CSS px, now.
     shownWidth: async () =>
       Math.round((await box(sidePanelContents(page))).width),

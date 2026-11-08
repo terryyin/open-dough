@@ -86,7 +86,7 @@ test("review and terminal take turns in the one side panel beside a usable Board
         .sidePanel.expectItems(1);
       terminal.typeLine("keep this line").expectText("echo keep this line");
       board.storyCard("Story A").expectShownInTerminal().expectSelected();
-      board.storyCard("Story B").expectSelected(false);
+      board.storyCard("Story B").expectNotSelected();
       intentReads(pages, queuedIdentity);
     },
   );
@@ -114,9 +114,9 @@ test("review and terminal take turns in the one side panel beside a usable Board
         .expectFills(splitPanel);
       // A review is no session: no session entry is marked as shown. Story
       // B's review moves the selection to Story B.
-      board.storyCard("Story A").expectShownInTerminal(false);
+      board.storyCard("Story A").expectNotShownInTerminal();
       board.storyCard("Story B").expectSelected();
-      board.storyCard("Story A").expectSelected(false);
+      board.storyCard("Story A").expectNotSelected();
     },
   );
   // The detached terminal ended its one attachment; the session stays open
@@ -139,9 +139,9 @@ test("review and terminal take turns in the one side panel beside a usable Board
         .inspect()
         .expectInspected()
         .hideDetail()
-        .expectInspected(false);
+        .expectNotInspected();
       board.storyCard("Story B").expectSelected();
-      board.storyCard("Story A").expectSelected(false);
+      board.storyCard("Story A").expectNotSelected();
       board.storyCard("Story B").reviewChanges();
       board.storyCard("Story B").expectSelected();
     },
@@ -218,7 +218,7 @@ test("review and terminal take turns in the one side panel beside a usable Board
     ({ sessionsSidebar, board }) => {
       sessionsSidebar.toggle().expectHidden();
       board.storyCard("Story A").expectSelected();
-      board.storyCard("Story B").expectSelected(false);
+      board.storyCard("Story B").expectNotSelected();
     },
   );
 
@@ -227,11 +227,11 @@ test("review and terminal take turns in the one side panel beside a usable Board
     (pages) => {
       const { board, terminal } = pages;
       board.storyCard("Story B").clickEmptyArea().expectSelected();
-      board.storyCard("Story A").expectSelected(false);
+      board.storyCard("Story A").expectNotSelected();
       terminal.expectText(attachedA);
       intentReads(pages, otherQueuedIdentity);
-      board.storyCard("Story B").clickEmptyArea().expectSelected(false);
-      board.storyCard("Story A").expectSelected(false);
+      board.storyCard("Story B").clickEmptyArea().expectNotSelected();
+      board.storyCard("Story A").expectNotSelected();
       terminal.expectShown();
       board.expectNoStoryDetail();
     },
