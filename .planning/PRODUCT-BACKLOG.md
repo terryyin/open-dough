@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Make published work test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-published-work-test-data) — SEED-261#map-published-work-test-data ([plan](slice-plans/508-map-published-work-test-data/PLAN.md))
 - [Reduce the cost of private dashboard test fixtures](seeds/SEED-262-faster-dashboard-test-feedback.md#reduce-private-fixture-lifecycle-cost) — SEED-262#reduce-private-fixture-lifecycle-cost ([plan](slice-plans/520-reduce-private-fixture-lifecycle-cost/PLAN.md))
-- [Draw a conclusion from the three Side panel pilot journeys and plan the next step](seeds/SEED-268-fluent-side-panel-pilot-follow-up.md#conclude-fluent-side-panel-pilot) — SEED-268#conclude-fluent-side-panel-pilot ([plan](slice-plans/521-conclude-fluent-side-panel-pilot/PLAN.md))
 
 ## Backlog list
 

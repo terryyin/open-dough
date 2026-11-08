@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-268_conclude-fluent-side-panel-pilot.json",
+      "identity": "SEED-268#conclude-fluent-side-panel-pilot",
+      "completedAt": "2026-11-08T05:36:09.962Z",
+      "blob": "85207797270fd0e5f9ee2b20bb8c454739e033b8"
+    },
+    {
       "fileName": "SEED-269_recover-terminal-insert.json",
       "identity": "SEED-269#recover-terminal-insert",
       "completedAt": "2026-11-08T04:55:33.281Z",
