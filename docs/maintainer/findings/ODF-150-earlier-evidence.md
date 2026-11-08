@@ -1,0 +1,246 @@
+# ODF-150 — Implementation proof misses indirect consumers — earlier evidence
+
+[Current finding and later observations](ODF-150.md#odf-150).
+
+### Retained source evidence — open-dough (2026-10-09)
+
+**Source:** [open-dough / ODF-150 — Slice proof chosen by the changed components missed page-wide invariant specs](https://github.com/terryyin/open-dough/blob/e904c1f589516a2595023ce1dfe7dd0e7193a3de/DearDough.md#odf-150--slice-proof-chosen-by-the-changed-components-missed-page-wide-invariant-specs).
+
+Former local code: DD-177.
+
+- Execution: `SEED-052#keep-story-session-links` / plan 157, first related implementation commit `30bdc002` - Timestamp: 2026-09-29T17:36:06+08:00 (CI run 36550218994 on `08f217af`) - Tool: Claude Code; Model: claude-opus-5-5[1m] - Open Dough release: unknown; installed guidance VERSION 0.3.46, last updated by `b37292dd` - Evidence: slice 2 delegation's spec list; the failure at `accessible-overview-keyboard.spec.ts:72` (expected 5, received 6); repair `76e6dce3`. Slice 1's list had included that spec. - Evidence (recurrence in the same execution): slice 3's retention sentence put "done" in Recent sessions' always-shown intro; `published-work.spec.ts:151` forbids completion words anywhere on a page without sessions and failed only in CI run 36551022132 on `32e554d5`; the full dashboard suite (286 tests, 46 s) then passed locally with the repair. - Observed effect: two failed CI runs, two repair commits, and two extra refactor agents. - Inference: Qualified. Selecting proof by the names of changed components misses specs that assert a whole-page property. The whole dashboard suite takes under a minute locally, so running it before delivering a page change costs less than one CI repair.
+- Execution: `SEED-052#start-ad-hoc-project-session` / plan 172, first related implementation commit `689970f7` - Timestamp: 2026-09-30T10:29:14+08:00 (slice 5, commit `5c09cc85`; CI run 36660072699) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.47 - Evidence: slice 5 added an always-rendered `role="status"` line in `StartSession.tsx`; its delegated proof ran only the ad hoc, terminal, sidebar and card specs; CI failed on `getByRole('status')` matching two elements in six page-wide specs (`accessible-overview-keyboard`, `auto-refresh`, `auto-refresh-recovery`, `published-work`, `read-failure`, `refresh`). `aria-live="polite"` also collided with `dashboardPage.ts`'s `notice` locator, so the repair `ed7e1aa1` uses `role="log"`. From slice 6 the whole suite (351 tests, about 1 min) ran before delivery. - Observed effect: one failed CI run, one repair commit, one repair agent, and a stash and restore of slice 6's unfinished work. - Inference: Qualified. The cause recurred in a new execution; slice 4's implementer had run the whole suite once, slice 5's delegation named a spec list instead.
+- Execution: `SEED-052#script-execution-preparation` / plan 178, first related implementation commit `821cd555` - Timestamp: 2026-09-30T15:12:54+08:00 (repair `f9927f40`; later `66cb5a25`, 2026-09-30T16:01:20+08:00) - Tool: Claude Code - Model: claude-sonnet-5-5 - Open Dough release: unknown; installed guidance VERSION 0.3.47 - Evidence: plan 178's outside-in proof said to run only the new focused specs locally ("the whole suite is CI's"). Slice 2 made every launch run a start first, so the launch became slower; `agent-launch-card-delete.spec.ts` (`f9927f40`) and, one slice later, `agent-launch-recent-delete.spec.ts` (`66cb5a25`) each changed session states while the last launch was still writing the fake listing (lost update). Further unreproduced load-sensitive local failures followed (`agent-launch-card-problems.spec.ts:82`, an ad hoc launch spec). - Observed effect: two repair commits, one found by CI and one later locally, for one root cause discovered one spec at a time. - Inference: Qualified. The changed operation (launch) has a whole family of `agent-launch-*` callers, and the earlier row here records the whole dashboard suite at about a minute; the plan's focused-files-only instruction repeated the changed-area proof selection.
+- Execution: `SEED-052#use-cursor-from-dashboard` / plan 210, first related implementation commit `71764841` - Timestamp: 2026-10-02T09:27:33+08:00 (CI run 36950863895 `updatedAt` 2026-10-02T01:27:33Z) - Tool: Cursor - Open Dough release: modified; revision `0ae15498`; base 0.3.52 - Evidence: slice 1's proof named `agent-launch-start-cursor.spec.ts`, `agent-launch-start.spec.ts`, and `agent-launch-start-codex.spec.ts`. Job `dashboard (3/9)` on `71764841` failed four tests that still expected HTTP 400 for `host: "cursor"` in `agent-launch-refusal.spec.ts` and `agent-launch-ad-hoc-boundary.spec.ts`. Repair `2f21a7be`. - Observed effect: one failed CI run and one repair commit before slice 2. - Inference: Qualified. Offering Cursor invalidated the old unoffered-host rows; the slice proof followed the new start specs and missed those consumers.
+- Execution: `SEED-041#deliberate-implementation-dependencies` / plan 216, first related implementation commit `8bb73be064a7778470389bd5a458fb70f5a96962`
+  - Timestamp: unknown (slice 2 publication and CI repair) · Tool: Codex · Open Dough release: 0.3.54 (installed execution guidance; product guidance edited separately)
+  - Evidence: run 36997893525/attempt 1 on `29bd2aa` failed keyboard/page-wide and cross-project launch fixtures; focused slice 2 proof omitted those callers. Repair `a049909` supplied the existing canonical Doughnut fixture and traversed enabled actions, retaining the production guard. Recovery `4dc3860a587ec3f95ee590134b88fb5d5d10a8a7:.planning/slice-plans/216-blocking-story-dependencies/CONTEXT.md` records six affected browser files and independent fixture consolidation proof.
+  - Observed effect: two owned CI repair cycles with independent refactors, including a pause/stash/restore of slice 3's draft. Completion also exposed direct keyboard focus before canonical availability in run 37003387678; the passing repair observes enabled execution and canceled-dialog removal without changing production guards.
+  - Inference: qualified recurrence of changed-operation caller selection; unavailable dependency facts now affect every new execution action, including legacy fixture callers. No full-suite timing or generalized cost measured.
+
+- Execution: `SEED-083#persistent-dashboard-project-configuration` / plan 215, first related implementation commit `62c03b0083f1e6a65f42a2151c800eaa8923bc9f`
+  - Timestamp: unknown (2026-10-02 CI failures) · Tool: Codex · Open Dough release: 0.3.54 (installed at published start `db6b0da`; unchanged throughout execution)
+  - Evidence: published slice 5 `9c5b4fd`, PLAN accepted 15-spec proof plus startup/restoration refactor proof. Runs 36997568980/1 and 36998319791/1 failed accessible-overview-keyboard (Remove missing from exact tab order), agent-launch-codex-options (two service starts expected, three observed), and agent-launch-codex-observation (expected no service preparation after records arrived). Full affected specs reproduced four failures locally; tests-only alignment and shared observation refactor passed the complete affected/startup/restoration selection and typecheck. Trunk integration 46b0431/run37001581515/1 additionally exposed production-watcher and production-watcher-updates development journeys without configured-project preconditions. Both original journeys reproduced red; four lines reuse configureDevelopmentProjects in isolated HOME. Complete watcher/configuration specs and typecheck passed, preserving real releases/HMR/records/boundaries/shutdown and genuine empty development; independent review needed no edits.
+  - Observed effect: three failed CI runs and two additional implementation/refactor pairs; completion receipts retained observation instead of permitting handoff.
+  - Inference: proof followed the new behavior and selected neighbors, but missed existing whole-page keyboard and native-lifecycle consumers. This matches ODF-150; no full-suite duration or universal test-selection rule is inferred.
+
+- Execution: `SEED-008#installed-story-branch-integration` / plan 220, first related implementation commit `d213f1efec373b098bddd4e83030db2c08693571`
+  - Timestamp: unknown (2026-10-02–03 execution; failed run 37021271369/attempt 1) · Tool: Codex · Open Dough release: 0.3.54 (installed guidance at established claim `418e5e52`; managed copies unchanged)
+  - Evidence: slices 2–4 changed shared launch reporting input, attempt evidence and completion guidance. Focused proof missed existing model/preparation/one-shot/acceptance and lifecycle consumers; CI on `4ef5e2e` failed seven dashboard jobs and test (2/3). Repair `41fee026` aligned those consumers with an independent input oracle, preserving native grammar/settings and chmod-fault assertions; the latter exposed reporting bootstrap outside launch-progress cleanup finally. Final literal red/green commands and 42-test consumer selection live in plan 220 at `41fee026`.
+  - Observed effect: one failed CI attempt and owned pause/repair/refactor cycle; the preserved fault scenario found and fixed a real stale launching-progress defect.
+  - Inference: qualified match to changed-operation caller-flow selection, rather than a file-type premise. Select proof from the shared contract's current consumers, including test-support callers; retain independent observations. No guidance change or full-suite mandate is authorized here.
+
+- Execution: `SEED-098#story-card-actions-read-at-a-glance` / plan 244, recoverable at `aa7a3eec7d5f48f3ac84d1c3afce18b0e0939ed3:.planning/slice-plans/244-story-card-actions-read-at-a-glance/PLAN.md`; first related implementation commit `2d9347c1b1fd90372afd9c6a51ac9af734fbbef5`
+  - Timestamp: 2026-10-04T21:09:46+08:00 (CI run 37204384263 `updatedAt` on `4ed30458`) · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: unknown; installed guidance VERSION 0.3.56, last updated by `b0bc3a08`
+  - Evidence: plan 244's Current decisions set the local gate to "the focused Playwright specs named per slice". Slice 2 (`4ed30458`) ran 24 note- and tooltip-reading specs. CI failed `accessible-overview.spec.ts:190` (Inspect story under the sticky stage heading; `.card button` lacked `scroll-margin-top`), `agent-launch-attention.spec.ts:79` (snapshot before the credited human slice 1 added to the scan line loaded), and `agent-launch-ad-hoc-sessions.spec.ts:215` (shorter cards let Recent sessions into the 720px window). Slice 3's implementer ran the full dashboard suite (1036 passed, about 6 min) and repaired all three in `670e776f`.
+  - Observed effect: one failed CI run; no separate repair cycle, because the next slice found and fixed them before its own delivery.
+  - Inference: Qualified recurrence. Shorter cards and a new scan-line fact changed page-wide layout and loading, which the selected specs did not exercise. The planner wrote the focused-only gate while the ODF-150 follow-up was still unreleased.
+
+- Execution: `SEED-107#recently-done` / plan 253, recoverable at `1f929859491bc26285d64eface2d147f1ceee4a2:.planning/slice-plans/253-dashboard-recently-done/PLAN.md`; first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
+  - Timestamp: 2026-10-05T22:37:47Z (CI run 37383488386 jobs test (2/3) and test (3/3) on `0f334e41`) · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: 0.3.56 (installed `dough-update/VERSION`, last updated by `b0bc3a08`)
+  - Evidence: slice 1 made `product-backlog complete` write an untracked `.planning/done/<id>.json`. Its return listed the node script tests that run `complete` as consumers and updated three of them; the installed `executable-proof.md` already names stand-ins. The shell substitute `native_one_shot_close_story` (`tests/support/native-agent-one-shot.sh`) committed with `commit -qam`, so `tests/git-publication-native-one-shot-results.sh` and `-workspaces.sh` failed on a dirty workspace. Repair `0b669ed2`.
+  - Observed effect: one failed CI run and one pause/repair/refactor cycle; slice 2's uncommitted work was saved and restored around it.
+  - Inference: Qualified recurrence with the stand-in rule installed: the consumer search followed `.mjs` callers and missed shell stand-ins of the same contract.
+
+**Source:** [open-dough / ODF-150 — Shared readiness caller analysis missed queued escalation continuation](https://github.com/terryyin/open-dough/blob/e904c1f589516a2595023ce1dfe7dd0e7193a3de/DearDough.md#odf-150--shared-readiness-caller-analysis-missed-queued-escalation-continuation).
+
+Former local code: DD-212.
+
+Changing the shared readiness reader aligned its normal startup consumers but left a queued one-shot escalation test asserting refusal on historical digest mismatch. The implementation report excluded one-shot starts as lacking the assessment fact; that exclusion did not account for the normal continuation invoked after escalation. The focused proof selected startup publication cases, not this reached continuation caller, and the coordinator accepted the exclusion.
+
+- Execution: `SEED-080#readiness-change-indicator` / plan 209, first related implementation commit `dc1f5e0dd0ebeef5ceff0ee80de35a411f72036c`
+  - Timestamp: 2026-10-02T00:49:32Z (CI failure log) · Tool: Codex · Open Dough release: 0.3.52
+  - Evidence: original implementation return stated admission/one-shot starts lack the assessment fact. CI run `36947799549`, attempt 1, `test (3/3)` at integrated `e0f41806` failed `one-shot-escalation-queued.test.mjs:107`: expected `source-refused`, actual `existing` with `changedSinceReview: true`. The focused runner reproduced that exact failure; updated assertions passed with the queued and startup-refusal suites.
+  - Observed effect: trunk CI caught an affected consuming assertion omitted from accepted focused proof. Repair changed only the test; Ready continuation, ownership, genuine Not ready refusal and authorization safeguards stayed intact.
+  - Inference: a mode-level exemption hid a reached shared consumer. The green initial startup suites were valid evidence for their boundaries, not for this additional continuation path.
+
+### Retained source evidence — pygardon (2026-10-09)
+
+**Source:** [pygardon / ODF-150 — Focused slice proof missed consumers of a changed shared default, caught only by coordinator-run wider suites](https://github.com/terryyin/pygardon/blob/00fed21223e3558332d2db3a5c166972c25d373d/DearDough.md#odf-150--focused-slice-proof-missed-consumers-of-a-changed-shared-default-caught-only-by-coordinator-run-wider-suites).
+
+Former local code: DD-209.
+
+When a slice changed a rule every caller shares (caps default on in `VerifyCommon`), the implementation agents' focused commands passed while E2E features and other modules were unrun, and several existing tests had silently become vacuous (passing on an empty universe).
+
+- Execution: `SEED-069#story-consistent-classification` (`.planning/slice-plans/299-sharadar-classification/PLAN.md`, removed at wrap-up, recoverable at `c7c3544ac`; Take `5dce13078`; first implementation commit `650f1623e`)
+  - Timestamp: unknown (2026-10-03, slices 4 and 5, about 13:00 to 13:15 +08:00). · Tool: Claude Code. · Model: claude-opus-5-5. · Open Dough release: 0.3.54.
+  - Evidence: slice 4's agent reported E2E "not run"; the coordinator ran eight affected features (47 scenarios). Slice 5's agent reported 102 focused tests passing; the coordinator's `pytest -n 2 tests/search_run tests/strategies tests/test_live_strateg*.py` found `test_every_calculation_read_goes_through_the_run_environment` at 0 trades; the follow-up instrumented sweep found `test_search_run_cli_workers_evals_a_generation_in_a_pool_with_single_worker_verify` and `test_tfdc_verify_enforce_industries_reads_from_db` passing on empty universes. The retrospective later found `label_every_daily_bar_symbol` also masked a product gap (labels never reach bars-only symbols).
+  - Observed effect: one broken test and two vacuous tests caught before delivery; one masked product gap reached the retrospective.
+  - Inference: useful practice — after a shared-default change, the coordinator's bounded wider run caught what focused proof could not; asking agents for a vacuity check (assert scanned counts) when a default narrows the universe would make it explicit. Generality to other stories is unassessed.
+
+### Retained source evidence — doughnut (2026-10-09)
+
+**Source:** [doughnut / ODF-150 — An implementer's slice proof ran only the specs it chose, missing consumers of the store method it changed](https://github.com/nerds-odd-e/doughnut/blob/b009b6cb5b048e02ee55927447857e50e233bddd/DearDough.md#odf-150--an-implementers-slice-proof-ran-only-the-specs-it-chose-missing-consumers-of-the-store-method-it-changed).
+
+Former local code: DD-136.
+
+- Execution: SEED-047#story-1 / `edfd7ba92a:.planning/slice-plans/014-continue-to-neighboring-note-after-deletion/PLAN.md` / a41b1e0507; Timestamp: unknown (before slice 1 commit 2026-09-27T10:59:16+08:00); Tool: Claude Code; Open Dough release: 0.3.42 (VERSION in the execution checkout). - Evidence: coordinator summary to the retrospective (subagent transcripts not supplied): coordinator consumer check found 2 failing tests in `NoteMoreOptionsForm.trashNote.spec.ts`; fixed by an empty listing mock in `tests/notes/noteMoreOptionsTrashTestSupport.ts` (in a41b1e0507), then `tests/notes tests/store tests/toolbars` 353/353. - Observed effect: one coordinator repair before commit; no defect shipped. - Inference: a `grep` for callers of the changed method across `tests/` when choosing slice proof would have included the spec.
+- Execution: SEED-059#story-16 / `dfec19ca03:.planning/slice-plans/058-current-block-same-in-pdf-and-epub/PLAN.md` / d3eec9db16; Timestamp: 2026-09-30T00:01:40Z (CI job log time of the failure); Tool: Claude Code; Model: claude-sonnet-5-5; Open Dough release: unknown. - Evidence: slice 2 removed the 40-point landing padding; its delegation named `book_browsing.feature` and `reading_record.feature`, and the report ran only those. CI run 36647846005 attempt 1 failed `phone_reading.feature` "Choosing a book block closes the book layout and moves the book there" (`expected ... to contain '2 /'`); the slice 3 agent ran `phone_reading` (7/7 locally at 390*844); the repair agent reproduced the failure only at 390*900 and repaired in 5206b08370. - Observed effect: one failed published E2E job, a paused slice 3 (stash, repair agent about 10 min, restore) and one test repair. - Inference: `phone_reading.feature` also chooses PDF blocks, so a search of `e2e_test/features/book_reading/` for scenarios that choose a block would have listed it. Same root cause as the entries above (proof chosen by edited area); the actor was the coordinator's delegation. The failure itself needed a taller-than-stock window, so local runs could not have shown it.
+- Earlier occurrence details: 2 additional recorded rows in `8830c682704aac3bbb34bf9b1204da8feba042ca:DearDough.md`; these are historical evidence, not new occurrences.
+- Execution: SEED-063#story-1 / slice-plans/007-track-property-values-separately / 8eaaf2b720; Timestamp: 2026-09-30T21:39:52+08:00 (slice 8 commit eead7350eb; failure reported after publication); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.50. - Evidence: slice 8 changed reduce from writing a suffixed `key 2` to appending a value; its delegation and plan named only backend tests (`RelationControllerReduce*`, `*Relation*`, ...). CI run 36723317159 attempt 1 failed `e2e_test/features/relationships/relationship_edit_and_remove.feature` "Reducing to source property uses a suffixed key when the property already exists" (expected the list content to include `a part of 2: '[[Mars]]'`); repaired in f07ff79425. - Observed effect: one failed published E2E job; slice 9 paused (repair stash, repair agent, refactor agent, restore). - Inference: a search of `e2e_test/features/` for the retired behavior (`suffixed`, `a part of 2`) when planning or delegating slice 8 would have listed the scenario; the plan's "Tests to extend" list covered unit and controller tests only.
+
+### Retained source evidence — open-dough (2026-10-12)
+
+**Source:** [open-dough / DD-259 — A slice's consumer search followed selectors and helpers and missed a spec that reads the whole page's text](https://github.com/terryyin/open-dough/blob/c76322764499936acd42328b5ef4f66f4df6bcf8/DearDough.md#dd-259--a-slices-consumer-search-followed-selectors-and-helpers-and-missed-a-spec-that-reads-the-whole-pages-text).
+**Source mapping:** Open Dough / DD-259 → ODF-150. unambiguous same indirect/page-wide consumer selection mechanism; 0.3.57 response explicitly includes rendered/page-wide consumers plan 279 is supported post-0.3.57 recurrence; plan 300 release unknown, not independently a dated post-fix recurrence
+
+Slice 1 moved the Sessions sidebar's “Running Cursor sessions” header below the
+session list. Its consumer search grepped class names, helper imports and the
+section's name, and ran 42 then 51 specs. `published-work.spec.ts` matches none
+of those: it checks the whole `body` text, hidden sidebar included, against a
+word-boundary pattern, and the reorder put a boundary before “Running”.
+
+- Execution: `SEED-122#running-cursor-sessions-sidebar-panel` / plan 279, first implementation `426c42fb`; plan recoverable at `92bd830f72096b558eca7870dc553b8ef14be951:.planning/slice-plans/279-running-cursor-sidebar/PLAN.md`.
+  - Timestamp: 2026-10-10T09:43:50+09:00 (CI failure; slice commit `426c42fb` at 09:40:36). · Tool: Claude Code coordinator and delegated agents. · Model: `claude-opus-5-5`. · Open Dough release: 0.3.57 installed in the execution checkout; provenance otherwise unknown.
+  - Evidence: run 38010086816 `dashboard (3/9)`, `published-work.spec.ts:175`; repair `f64da99b`; plan 279 slice 1 learnings. The plan's verification section says the hosted dashboard checks are not an extra local all-suite gate.
+  - Observed effect: one CI failure on a published slice, one stash/repair/refactor/publish cycle while slice 2 was in progress.
+  - Inference: qualified to this execution. A change to where text sits in the page reaches assertions over a container's whole text; a search by selector cannot find them. Possibly the same family as ODF-110, whose rows concern plan premises rather than a slice's own search.
+
+- Execution: `SEED-063#request-owner-says-why` / plan 300, first implementation `bbc0b6f2280377363b4c903ff22433ab7334bd83`. Plan and correction source recoverable at `79a991b8ac325d6ebfa636276a7ca3bbc3241f5e:.planning/slice-plans/300-request-owner-says-why/PLAN.md`.
+  - Timestamp: 2026-10-11T22:33:26.3432757Z (CI failure). · Tool: Codex. · Open Dough release: unknown.
+  - Evidence: slice 2 `e169cd39` changed `references/ci-monitor.md`; the selected consumer proof omitted `ci-custom-guidance.test.mjs`, whose prose assertions failed in [run 38180782958/1](https://github.com/terryyin/open-dough/actions/runs/38180782958). `e9a3b231` reproduced the assertion and repaired assessment with equivalent prose and independently missing-safeguard counterexamples.
+  - Observed effect: one owned CI failure and a pause/stash/repair/refactor/publication/restoration cycle while slice 3 was unfinished.
+  - Inference: searches of changed failure/log/recovery consumers missed an assertion over the guidance text itself; this repeats the whole-text consumer omission rather than a product-plan premise.
+
+### Retained source evidence — pygardon (2026-10-12)
+
+**Source:** [pygardon / DD-226 — A slice made a storage read unconditional and ran only the plan's named consumers](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#dd-226--a-slice-made-a-storage-read-unconditional-and-ran-only-the-plans-named-consumers).
+**Source mapping:** pygardon / DD-226 → ODF-150. Exact implementation consumer-proof omission: a default/conditional I/O behavior changed, only three named consumer files ran, 27 endpoint consumers later found. Reported execution 0.3.57 supports recurrence after the 0.3.57 consumer-selection response; not a new identity merely because the rule shipped.
+
+Slice 3 moved the latest-update read in exit settings from "only for a Sharadar-evaluated strategy" to once per computation, unconditionally. The slice ran the plan's exit-settings files but not the other exit-settings consumers, some of which use profiles with no data-source store. The regression first failed in CI.
+
+- Execution: SEED-070#story-classification-single-read-correction (plan 321, first implementation commit `b76c40a7c`) Timestamp: 2026-10-10T09:00:00+09:00 Tool: Claude Code Model: claude-opus-5-5 Open Dough release: 0.3.57 Evidence: slice 3 commit `8980468563`; CI run `edd470c2` on `a0f2b270b` failed `test_missing_and_blank_preset_refs_remain_observable` and `test_exit_settings_named_genome_holding_returns_error_row` with `FileNotFoundError: .../data_sources.duckdb`; repair `7633dacb1`; the repair's grep found 27 exit-settings consumer files, against 3 named in the slice command Observed effect: A second CI repair cycle after the execution-complete record was already published. Inference: Hoisting a conditional I/O call to an unconditional one changes when the store must exist. The slice's consumer search was by function name, not by the endpoint's test surface. The timestamp is approximate, between the slice 3 hand-back and its commit.
+
+### Additional retained source evidence — Open Dough (2026-10-20)
+
+**Source:** [ODF-150 at the post-local snapshot](https://github.com/terryyin/open-dough/blob/327b6fa255b84ba8a2552ca41dba37a46fadf4d9/DearDough.md#odf-150). Distinct effects remain qualified as supplied; related findings do not add executions.
+
+- Execution: SEED-132#accept-indirect-consumer-proof-natively / plan 306; first implementation commit `ef69d8d588d972ed5321488632e60d5fae1c2784`
+  - Timestamp: unknown (2026-10-12) · Tool: Codex · Open Dough release: unknown; coordinator used the established checkout's installed guidance.
+  - Evidence: CI `38212557255`, attempt 1, failed `tests/native-stream-replay.sh` and `tests/native-assessor-counterexample-guard.sh` after the selected `tests/git-publication-native.sh` passed. Both guards scan new native test support. Repair `ccd70eaecdf324b8fb5db71ca01d92ebeed089fe` registered the exact host-shape writer and removed an ignored-input assessor rejection loop; all three suites then passed.
+  - Observed effect: slice 2 paused, its unfinished work was saved/restored through the CI repair operation, and one repair publication was required.
+  - Inference: proof selection omitted repository-wide test-support guards consuming the new fixture. This is a coordinator execution miss, separate from the candidate guidance's completed native acceptance; it does not restart ODF-150's failed watch.
+
+### Additional retained source evidence — Pygardon / ODF-150 (2026-10-20)
+
+**Source:** [Pygardon / ODF-150](https://github.com/terryyin/pygardon/blob/b36d93788d6a5b4f5c86dfc3760a2538a94cf91e/DearDough.md#L198).
+
+- Execution: SEED-084#story-settings-format-error-handler; first implementation `9637a19987680bc2568e97b034aa4177bc2ee69b`
+  - Timestamp: unknown; before commit `9637a1998` (2026-10-14T22:30:31+09:00) · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: 0.3.62
+  - Evidence: slice 1 removed `ProfileSettingsFormatError` conversions found by a named-exception grep; the plan's learning that the error is also a `ValueError` was not carried into that delegation. The fresh refactor pass found `POST /api/audio-transcription/transcribe` returning 422 through its broad `ValueError` catch; the coordinator then found `PUT /api/model-settings` the same way. Neither appeared in the slice's planned proof command.
+  - Observed effect: Two routes would have reported unreadable settings as invalid requests; both were corrected and tested inside slice 1 before commit.
+  - Inference: Removing a conversion changes the error the caller's enclosing catch receives; proof followed the edited functions instead of each route's whole catch chain. A later `except Exception` path (manual DB backup) was also missed by the coordinator's `ValueError`-only scan.
+
+- Execution: SEED-128#story-two-five-hour-sharadar-searches; first implementation `0bb79a9a94b14dbd5f156aa01d4ca61877293fcf`
+  - Timestamp: unknown (2026-10-19 CI failure); Tool: Codex; Open Dough release: unknown.
+  - Evidence: `0bb79a9a:scripts/overnight_readiness.py` added builder `exec` to the sealed inventory, but its focused proof omitted preparation; `1d880131:tests/overnight_ga/test_preparation.py` adds that operation to the consumer assertion. `c9a18971:.planning/slice-plans/363-two-five-hour-sharadar-searches/PLAN.md`, slice 7 CI record, retains the failed check and the subsequent 229-case/30.17-second proof.
+  - Observed effect: Slice 5 reached CI with the preparation inventory test failing; slice 6 already held the correction when the notification paused startup. Inference: tracing the new operation through preparation before publication would have caught this consumer; a later full-suite obligation did not make the earlier increment CI-safe.
+
+<a id="odf-240"></a>
+
+### Additional retained source evidence — Open Dough (2026-10-21)
+
+**Source:** [post-local source snapshot](https://github.com/terryyin/open-dough/blob/77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805/DearDough.md#odf-150). Source execution identities, timestamps and reported guidance remain as supplied; rereview adds no occurrence.
+
+- Execution: SEED-145#quiet-land-and-wrap-up / plan 331, first implementation `94c6c3767a9f9048ad8e05c8b5ec6306f6b53dc5`
+  - Timestamp: unknown (2026-10-20, CI run 39396964033/1) · Tool: Codex · Open Dough release: 0.3.66 (checkout-bound installed execution guidance, unchanged)
+  - Evidence: plan 331 accepted the two Land guidance suites, closure substitutes and five dashboard journeys; independent refactoring also missed `src/skills/dough-execute-plan/scripts/ci-completion-lifecycle-guidance.test.mjs:102`, which reads the changed shared Markdown and still required literal `no recap`. [CI 39396964033/1](https://github.com/terryyin/open-dough/actions/runs/39396964033) failed `test (2/3)` on that assertion; repair `e939292dd144bf21a6c11dea1efbe7cc06ffcf2a` aligned it with quiet success/minimum native response after a reproducing baseline and 12 passing related checks.
+  - Observed effect: one owned CI failure and a fresh repair/refactor cycle before completion; the product rule and operational gates needed no change.
+  - Inference: qualified recurrence of proof selection missing a consumer outside the named guidance suites. Searching banners and reminder phrases did not find the old quiet-response regex; tracing every reader of the changed guidance would reach it. No elapsed-time or token cost is measured.
+
+**Assessment:** The supplied 0.3.66 quiet-completion execution is a consumer-selection failure after the 0.3.61 response. Preserve its earlier failed-watch history; no new successful watch starts from installation or this review.
+
+### Additional retained source evidence — 2026-10-22 cycle
+
+Source execution identities, timestamps and reported guidance remain as supplied; these are new distinct project/executions unless stated. Review time adds no occurrence.
+
+[Open Dough source, line 202](https://github.com/terryyin/open-dough/blob/e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5/DearDough.md#L202) under ODF-150:
+
+- Execution: SEED-052#cursor-runner-restart-resume / plan 334, first implementation `79a1f1ec`
+  - Timestamp: unknown (2026-10-21, CI failure on `79a1f1ec`; repair `614b490e`) · Tool: Cursor · Open Dough release: unknown
+  - Evidence: slice 1 made `exec`/keep require current runner build proof in the address and wire answers. CI on `79a1f1ec` failed through `dashboard/tests/support/cursorRunnerHeldReads.ts`, a stand-in of that same runner contract that presented no build proof: new work rightly treated it as stale, stopped the address pid (the test worker's own pid) and started a bundled runner that leaked. Repair `614b490e` is test-support only: the stand-in presents the proof the serving dashboard expects (bundled versus source identity), and its re-keep posts directly because the current-runner probe is itself a held sessions read.
+  - Observed effect: one owned CI failure and repair cycle on slice 1; slice 2's in-progress work was stashed and restored around the repair. No production defect was found in the repair.
+  - Inference: qualified recurrence of this finding's stand-in clause. Slice 1's proof built its own stand-in (`cursorRunnerProof.ts`) but did not trace every existing stand-in of the changed address/wire contract before publication. No elapsed-time or token cost is measured.
+
+[Open Dough source, line 212](https://github.com/terryyin/open-dough/blob/e2e7bfcd2f90e775cb23d9aa8a54073dae06f4c5/DearDough.md#L212) under ODF-150:
+
+- Execution: `SEED-010#check-shared-host-proof-headroom` (first implementation `97e2c9388437a49a752a1dfa64b7bb2ed1d1c542`)
+  - Timestamp: unknown · Tool: Codex · Open Dough release: 0.3.67 (checkout-bound installed guidance at claim `9064e7ea`; unchanged).
+  - Evidence: CI `39555788657/1` at `37eed762` and `39555975066/1` at `fdea7f42`; `shared-checkout-writers-guidance.test.mjs:154` rejected a shortened pause clause. Initial consumer searching in `tests/` missed guidance-test consumers under `src/`.
+  - Observed effect: the existing human/other-session ownership assertion failed in both published revisions. Focused red reproduced it; restoring explicit source wording passed all eight direct ci-monitor consumer test files through the project runner.
+  - Inference: prose walkthroughs did not replace existing deterministic consumer contracts. The repair broadened the search across `src tests`; no test assertion was weakened and no native-compliance claim follows.
+
+[Doughnut source, line 347](https://github.com/nerds-odd-e/doughnut/blob/0c25e73cfa672359d493549a8930851bba72f8a8/DearDough.md#L347) under Doughnut DD-319:
+
+- Execution: SEED-081#story-2 (first implementation `07606012773257fbb71ba09491cc96907e127b6a`)
+  - Timestamp: unknown · Tool: Codex · Open Dough release: unknown
+  - Evidence: [CI run 39583877557, attempt 1](https://github.com/nerds-odd-e/doughnut/actions/runs/39583877557), job 119167858550; first-slice plan's E2E consumer assumption at `07606012773257fbb71ba09491cc96907e127b6a:.planning/slice-plans/002-recover-recall-question/PLAN.md`; repair `e46d23deacb110a1cd861519810c311b5faeddbd`.
+  - Observed effect: browse/resume, Daily probe and scheduling produced seven missing-question/note failures. Local untouched-HEAD probe reproduction had 0/3 passing; after explicit choices and preservation of existing assertions, the three-feature batch passed 9/9. Slice 2 was safely paused, saved and restored around the published repair.
+  - Inference: source compatibility must include changed UI journey preconditions even when the transport API is unchanged; incidence and savings outside this execution are unmeasured.
+
+**Source finding (Doughnut / DD-319 → ODF-150):** Explicit recovery changes missed E2E journey preconditions — A question-load failure changed from immediate self-review to deliberate Self-review, but acceptance treated the unchanged backend API as sufficient to preserve existing E2E consumers. AI-disabled journeys still expected the note/question surface without choosing it. Seven failures escaped the first slice to CI. The test journeys were repaired within the execution; no shared prevention is established. This differs from ODF-272's accessible-name collision and ODF-310's direct moved-control lookup, though their consumer-tracing relationship may be relevant.
+
+**Assessment (2026-10-22):** Doughnut / DD-319 is mapped here: acceptance traced the unchanged transport API but not the existing E2E journeys whose preconditions the changed UI path altered, the same changed-operation-to-consumer gap. Its execution release is unknown, so it is not verified post-fix recurrence; the source's distinction from ODF-272 and ODF-310 is preserved. With plan 334 and the shared-host proof execution (0.3.67, after the 0.3.61 response), three more distinct executions reached CI with an untraced consumer. Plan 331 was already retained above; its re-added source copy adds no occurrence.
+
+### Additional retained evidence — Open Dough (2026-10-25)
+
+**Source snapshot:** `f274a3d0c729504bf8ce00614bf3cd236b7e088b:DearDough.md`. Distinct project/execution identities count once; additional effects do not add executions.
+
+- Execution: `SEED-010#run-due-feedback-maintenance` / plan 341, first related implementation commit `ca410794`
+  - Timestamp: 2026-10-22T00:06:21+09:00 (CI run 39622654934 failed job "dashboard (9/12)") · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: 0.3.67
+  - Evidence: slice 4 (`755d8920`) added an optional `feedbackMaintenance` field to the machine sessions answer; its consumer batch named the sessions-answer routes and parsers but not `dashboard/tests/boundary/serving-modes.spec.ts`, whose `expect(listed.preview).toEqual(listed.dev)` pins that answer across serving modes. CI caught it; repair `7a17013d`.
+  - Observed effect: one failed hosted CI run and one repair increment; the coordinator accepted the implementer's chosen consumer subset without the whole dashboard suite, which then ran only in the repair.
+  - Inference: tracing "who parses this answer" missed a spec that compares the whole answer between servers; a whole-suite run before publishing a shared answer contract would have caught it locally.
+
+### Additional retained evidence — Pygardon (2026-10-25)
+
+**Source snapshot:** `d52a15b73182864bde8daba5498936c170d05380:docs/process-findings/proof-and-acceptance.md`. Distinct project/execution identities count once; additional effects do not add executions.
+
+- Execution: SEED-144#story-live-portfolio-limit-enforcement (plan `411-live-capacity-envelope`, first implementation commit `48a8a25f6ab8659229a44a6a8c8067f952bd7439`; plan and story recoverable at `5996699d8abfebfd8933c6ca53e543a31414b165`)
+  - Provenance: Timestamp: unknown (2026-10-24); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.69
+  - Evidence: plan 411 slice 4 Proof `grep -rl 'fake_ibkr_gateway\|FakeIbkrGateway' tests --include='test_*.py'`; CI attempt `8d21641c` on `2b50430` failed `tests/test_auto_trading_sync_broker_flat_api.py::test_broker_flat_cancels_resting_managed_exit_and_clears_holding`; repaired in `9c7d0dc`
+  - Observed effect: The plan's import-grep selection missed a test that reaches the fake through support modules; the changed cancel behavior failed only in CI.
+  - Inference: Selecting by the changed boundary's callers (here every auto-trading test) rather than by a file importing the fake would have caught it locally.
+
+**Additional effect within the same project/execution (counted once):**
+  - Provenance: Timestamp: 2026-10-25 (time unknown); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.69
+  - Evidence: slice 11 refactor removed `history` from the signals response; its consumer grep was piped through `head -60`; coordinator sweep then failed `tests/search_run/test_search_candidate_order_intent.py` and `test_retained_initial_risk_live_intent.py` with `KeyError: 'history'`
+  - Observed effect: Two consumers of a removed response field were missed by the refactor and caught by the coordinator's wider rerun before delivery.
+  - Inference: A truncated consumer listing is not a trace; the removal's proof needs the complete match set or the consumers' suites.
+
+### Retained source evidence — Pygardon (2026-10-25)
+
+**Source:** [Pygardon / DD-329](https://github.com/terryyin/pygardon/blob/d52a15b73182864bde8daba5498936c170d05380/docs/process-findings/proof-and-acceptance.md).
+**Source mapping:** pygardon / DD-329 → ODF-150.
+
+Both slices of a release-command correction changed owner-visible outcomes (exit 2 for a missing hosts declaration; a new `<Type>: <message>` not-ready entry). Planning, implementation, refactor and coordinator acceptance traced consumers by code symbols and test files only, so the release page and release skill that document those exit codes and output lines were left stale and found only by the retrospective. Matching uncertainty: close to ODF-107 (missed message consumers) and ODF-150 (indirect consumers), which name test and caller consumers rather than documentation.
+
+- Execution: SEED-120#story-release-report-every-host-fix
+  - Provenance: Timestamp: 2026-10-23T08:20:00+09:00; Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.68
+  - Evidence: plan 390 (`0c13a7b9:.planning/slice-plans/390-release-report-every-host/PLAN.md`) slices 1–2 consumer traces (`grep HostRelease|status_error|_release_on|release_to_hosts`, `CandidateClaimRefused|configured_hosts`); stale `docs/docker-release-publication.md` § Exit status, `.agents/skills/release/reference.md` § Output lines and `verify-and-recover.md` at `329a06e0`; correction plan 395
+  - Observed effect: Delivered behavior was correct and tested, but its documented contract drifted, costing a follow-up correction story and plan. Inference: A consumer search for a changed exit code or output line that also greps the documented strings (old message text, exit-code tables) would have found these in the same slice.
+
+**Identity assessment (2026-10-25):** Same concrete responsibility as this retained identity; the supplied historical execution is not a new issue merely because guidance versions differ. The source and maintained contract were compared at their stated revisions; current follow-through is not established as repaired by intervening wording or a related tool change.
+
+**Verified release state (2026-10-25):** Inspected the response revisions `291995f1`, `1f5178c7`, `f6b530b2` and their tagged/current implementation of the installed consumer-trace script and its delegation/acceptance contract. The complete response first ships in `v0.3.69` (individual containment: 291995f1 → v0.3.69, 1f5178c7 → v0.3.69, f6b530b2 → v0.3.69). This supersedes the dated pending-release statements above. It establishes release containment, not a source execution's adoption or useful outcome. No duplicate implementation response is queued from the stale release label.
+
+### Collected response observation — Pygardon (2026-10-25)
+
+The first containing response release is 0.3.69. The collected execution
+SEED-144#story-live-portfolio-limit-enforcement / plan 411 reports that release
+(first implementation `48a8a25f6ab8659229a44a6a8c8067f952bd7439`). Its slice 4
+import-grep population omitted the fake's indirect consumer; owned CI attempt
+`8d21641c` failed `test_auto_trading_sync_broker_flat_api.py`, repaired at
+`9c7d0dc`. Slice 11's truncated grep omitted two response-field consumers,
+which the coordinator's wider rerun caught before delivery. These are two
+effects of one execution, already retained above and counted once.
+
+This meets the open ordinary-use request's project, containing release and
+missed-consumer/owned-CI event conditions: counterevidence, not a passed watch.
+The record does not establish a complete conforming script trace; it supports
+failure of the released workflow's application, not proof that the script would
+miss the consumer when used correctly. The older plan 341 (0.3.67) and DD-329
+(0.3.68) reports predate this successor; the unknown-release TimesFM and startup
+reports establish no successor outcome. No duplicate implementation of the
+already-delivered tracing tool is selected. The new trace-noise mechanisms
+ODF-350/352 remain separate and have no causal claim over this CI failure.

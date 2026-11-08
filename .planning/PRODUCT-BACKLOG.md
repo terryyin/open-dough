@@ -33,6 +33,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Preserve live agent profiles when integrating stories](seeds/SEED-010-learn-from-execution-retrospectives.md#preserve-live-profiles-during-integration) — SEED-010#preserve-live-profiles-during-integration
+- [Surface a named sibling landing before delivering against its old shape](seeds/SEED-010-learn-from-execution-retrospectives.md#notice-named-sibling-landings-before-delivery) — SEED-010#notice-named-sibling-landings-before-delivery
 - [Build each test’s Git repository from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures) — SEED-262#build-explicit-git-fixtures
 - [Build dashboard start origins from explicit MakeMe repository data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures) — SEED-262#migrate-dashboard-origin-fixtures
 - [Build clean-trunk and managed delivery repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures) — SEED-262#migrate-clean-trunk-fixtures

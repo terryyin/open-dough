@@ -1,0 +1,279 @@
+# ODF-074 — Unverified planning premises — earlier evidence
+
+[Current finding and later observations](ODF-074.md#odf-074).
+
+### Retained source evidence — open-dough (2026-10-09)
+
+**Source:** [open-dough / ODF-074 — A ready plan named a validation command the backlog tool does not have](https://github.com/terryyin/open-dough/blob/c76322764499936acd42328b5ef4f66f4df6bcf8/DearDough.md#odf-074--a-ready-plan-named-a-validation-command-the-backlog-tool-does-not-have).
+
+Former local code: DD-121.
+
+- Execution: SEED-044#verify-planning-premises (plan 115; first implementation commit `2c5ff71f`) - Timestamp: 2026-09-27T14:17:23+08:00 - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: modified; revision `6882aeb3` guidance at planning time - Evidence: plan 115 slice 2 text at `6882aeb3`; `product-backlog.mjs` usage lists add, place, take, complete, refresh, direction, adopt, merge, record-state, read-state - Observed effect: small detour and an equivalent-proof judgment at acceptance; no rework - Inference: same class as the unobserved planning premises this story addresses (catalog ODF-074); plan 115 was written before its own rule
+- Execution: `SEED-093#expose-timing-races-locally` / plan 233, first related implementation commit `7b6ddcce` - Timestamp: 2026-10-03T18:08:39+08:00 (commit `0b5253cf` recording the contradicted premise; the slice 4 premise was settled before `14745390` at 18:18:30+08:00) - Tool: Claude Code - Model: claude-opus-5-5 - Open Dough release: 0.3.54 (installed `dough-update/VERSION`) - Evidence: plan 233 premise rows. The slice 3 row was observed by reading spec lines 186-191 only, but `dashboard/server/hosts/cursor/launch.ts:130-140` writes `uncertain` before the client spawns, so the sleep was an absence window. The slice 4 row said "no event is known", but `agent-completion-early-recovery.spec.ts:30-53` already injects a `promises.mkdir` loader for the same lock. - Observed effect: slice 3's implementation agent stopped on the contradiction (about 77k subagent tokens, no code kept), and the slice closed as a plan record; slice 4's probe found the existing pattern quickly. No rework. - Inference: Qualified. Both premises described a sleep's purpose from the spec alone, without reading the state's write site or searching the suite for an existing observation of the same seam.
+- Execution: `SEED-100#dashboard-specs-pass-unchanged-code` / plan 251, first related implementation commit `3a0ff700` - Timestamp: unknown (slices 3 and 4 returns, between `3a0ff700` at 2026-10-05T19:19:01+09:00 and `759f9134`) - Tool: Claude Code (delegated implementation agents) - Model: claude-opus-5-5 - Open Dough release: 0.3.56 (installed `dough-update/VERSION`) - Evidence: plan 251's premise row "The two named specs still fail on a revision with every repair so far" was observed for the acceptance spec as "no commit to the spec since `7b6ddcce`". The slice 3 agent found the `:157` cause already repaired in the product by `9e3aff60` (after both failing revisions); the slice 4 agent found the path best fitting run 37245324663's trace already closed by `4f6d9f89`. Slice 2's 20 repetitions failed neither spec. The coordinator's slice 3 brief also named run 37245324663 as an acceptance failure; it failed only on the Cursor spec. - Observed effect: no rework; both agents spent part of their investigation (about 130k and 159k subagent tokens in total) separating repaired paths from open ones, and each still found and forced one open path (`launchRun.ts` reporting order; the paste-chip frame). - Inference: Qualified. A "still fails" premise was checked against the spec's history, not against product commits after the last failing revision on the paths the failure ran through.
+
+**Source:** [open-dough / ODF-074 — A plan left a decisive browser-delivery premise open for the developer though it was locally observable](https://github.com/terryyin/open-dough/blob/c76322764499936acd42328b5ef4f66f4df6bcf8/DearDough.md#odf-074--a-plan-left-a-decisive-browser-delivery-premise-open-for-the-developer-though-it-was-locally-observable).
+
+Former local code: DD-206.
+
+The plan's decisive premise "real browsers deliver ⌘Esc to the page" was marked open and assigned to a first probe slice in which the developer would press keys, because Playwright's CDP input bypasses OS and browser reservations. Execution settled it in minutes without the developer: real keystrokes sent through macOS System Events (`osascript … key code 53 using {command down}`) to a scratch page logging capture-phase keydowns. Both Chrome and Safari withheld ⌘Esc. The story's chosen shortcut was already refined and planned around it, so execution had to stop for a shortcut decision.
+
+- Execution: `SEED-071#session-panel-header-controls` / plan 197, first related implementation commit `4699ad18`
+  - Timestamp: 2026-10-01T16:44:22+08:00 (probe recorded in `a98f7e5f`; plan written in `74639b9d` at 2026-10-01T16:36:57+08:00) · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: modified; revision `9ebc123e`; base 0.3.51
+  - Evidence: plan 197 Decisive premises row "Real browsers deliver ⌘Esc … **Open: slice 1 probe**"; slice 1 result in `a98f7e5f`; developer chose ⌘⇧Esc via a coordinator question with probed alternatives.
+  - Observed effect: one mid-execution developer decision and a story/plan shortcut rewrite after refinement and planning had both fixed ⌘Esc.
+  - Inference: Qualified. Running the same probe during refinement or planning would have let the developer choose the shortcut with the rest of the story; whether planning agents may drive OS keystrokes depends on host permission.
+
+**Source:** [open-dough / ODF-074 — A plan gave a shared operation a story-specific effect without checking callers that use it with another meaning](https://github.com/terryyin/open-dough/blob/c76322764499936acd42328b5ef4f66f4df6bcf8/DearDough.md#odf-074--a-plan-gave-a-shared-operation-a-story-specific-effect-without-checking-callers-that-use-it-with-another-meaning).
+
+Former local code: DD-238.
+
+- Execution: `SEED-107#recently-done` / plan 253, recoverable at `1f929859491bc26285d64eface2d147f1ceee4a2:.planning/slice-plans/253-dashboard-recently-done/PLAN.md`; first related implementation commit `0f334e41e1114aa609cbea0091836448ef1eb0de`
+  - Timestamp: unknown (slice 1 implementation return, 2026-10-06) · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: 0.3.56 (installed `dough-update/VERSION`, last updated by `b0bc3a08`)
+  - Evidence: plan 253's PFE chose "Change `complete`" to write a done record. `dough-story-wrap-up/references/follow-up-disposition.md` and backlog maintenance also use `complete` to drop work ("Dropping does not claim that the follow-up was implemented"). The slice 1 return raised it as gap 1; the coordinator added `complete --dropped` in the same slice (`0f334e41`).
+  - Observed effect: caught before delivery at the cost of one resumed implementation round; without it, dropped work would have shown as Recently done.
+  - Inference: Qualified. The planning premise checked what `complete` holds, not every caller's meaning of it.
+
+### Retained source evidence — pygardon (2026-10-09)
+
+**Source:** [pygardon / ODF-074 — Plan statements about existing code and host state were not verified at planning time](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#odf-074--plan-statements-about-existing-code-and-host-state-were-not-verified-at-planning-time).
+
+Former local code: DD-061.
+
+- Execution: `.planning/slice-plans/145-docker-space-cleanup/PLAN.md` at `c0c7bb2c7`; Timestamp: 2026-09-17T20:12:20+08:00; Tool: Claude Code; Model: claude-fable-5-1; Open Dough release: unknown.
+- Execution: `.planning/slice-plans/285-strategy-verify-fixture-trading-days/PLAN.md` (recoverable at `68c09ace8`; Take `7e8a9128e`; first implementation commit `757b5d7cc`); Timestamp: unknown (2026-09-29, first slice 1 hand-back, before `757b5d7cc` at 2026-09-29T17:34:57+08:00); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.46. Evidence: the plan's premise row "Broken trade expectations move only by bar index" explained the ad-hoc exit failure as "its entry date/price literal now names a different bar" without running the row-mapped literal; after mapping it still failed (`2020-12-31 close_below_ma_2d` vs `2021-01-29 nth_day_open`) because `history_from_date` sizes exit warmup in calendar days. Observed effect: one owner decision (entry moved to DCS1 2020-12-10; new story SEED-066#story-exit-warmup-trading-sessions) and one resumed implementation round (about 140 s). Inference: the throwaway re-date used during planning could have run the mapped literal once; the stop surfaced a real product defect rather than a wrong fixture edit.
+- Execution: `.planning/slice-plans/287-e2e-typescript-checks/PLAN.md` (recoverable at `3688fe8c4`; Take `197be582b`; first implementation commit `513eb0118`); Timestamp: unknown (2026-09-29, slice 2 and slice 3 hand-backs before `27b7cac72` and `17f564266`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: unknown. Evidence: slice 2's key example 1 literal `const broken: number = 'x'` fails `lint:changed` on Biome `noUnusedVariables` before `tsc` runs, so TS2322 is never named (the implementer substituted `export const`); slice 3's decision that `scripts/prepare-worktree.sh` "no longer installs anything" missed that `deployment/automatic_deploy.py` runs a tag worktree's `scripts/prepare-worktree.sh` directly outside `nix develop` (implementer kept it delegating to `scripts/prepare-node-env.sh`). Observed effect: one extra `lint:changed` run and one in-scope decision change, no stop. Inference: small cost; running the demonstration literal once and grepping callers of the script while planning would have shown both.
+- Execution: SEED-075#story-dependency-refresh (`00e506b23:.planning/slice-plans/182-dependency-refresh/PLAN.md`; Take `164181b68`; first implementation commit `40900d6b6`); Timestamp: unknown (2026-09-30, CI run `47fb24c7` on `40900d6b6`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.51. Evidence: the plan's premise row "Playwright and pnpm are pinned in several places" and slice 1's lint premise named Nix and the venv as the biome/ruff sources; CI's check image installs biome from `requirements/check-tools/package.json` (2.4.10), which rejected the `biome.json` migrated to 2.5.14 (repair `0ffd5e0ca`). Observed effect: one CI failure, a pause/stash/repair/restore cycle around the running slice 2 agent, and one repair commit. Inference: a dependency-pin inventory recalled from known files misses pins; a repository-wide search for each moved version literal before planning would have found it. The repair now ties that pin to the `biome.json` schema in a test.
+- Execution: SEED-085#story-automatic-deployment-reuses-dev-shell (`.planning/slice-plans/307-automatic-deployment-rooted-dev-shell/PLAN.md`, removed at wrap-up, recoverable at `c9c4fd2c7`; Take `92418a7b4`; first implementation commit `cfceb8b6a`); Timestamp: 2026-10-03T18:45+08:00 (CI-machine inspection over ssh); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.56. Evidence: slice 3's ready commands assumed the followed checkout `/Users/lia/git/pygardon` would "hold the published revision" and that both launch agents were installed; inspection showed the checkout on `main` 592 commits behind (`deployment/automatic_deploy.py` only fetches tags, so nothing ever advances it) and no `com.pygardon.production-engine-startup.plist`. Observed effect: one owner decision mid-execution (land, then fast-forward the checkout, which also moved the deploy agent's own code 592 commits) and a first-run shell download of 206 paths that the plan did not foresee. Inference: slice 1's owner-held probe covered plists and Nix settings but not the checkout's revision; one `git status -sb` in that probe would have surfaced the decision at planning time.
+- Execution: `SEED-088#story-slice-proof-covers-wide-reach` (`.planning/slice-plans/313-slice-proof-covers-wide-reach/PLAN.md`, removed at wrap-up, recoverable at `f01d6c42b`; Take `40ecdd0f4`; first implementation commit `f4ed72bc1`); Timestamp: unknown (2026-10-04, first slice 1 hand-back, before `f4ed72bc1`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.56. Evidence: slice 1 said to replace `assert len(tasks) == 5` and to "keep the existing assertion that every collected wait is cancelled after the lifespan exits" for Example 2. The file held `== 4`. With the Stooq wake cancel removed (`pass` at `service_lifecycle_shutdown.py:29`) the test stayed green, because the post-`with` assertions run after TestClient loop teardown, which cancels every leftover task. Observed effect: the coordinator returned the gap against the story's key example 2, which cost one more implementation round (about 255 s, 71k subagent tokens). The test now observes cancellation in a wrapper around the real `lifespan_context`. Inference: one planning-time mutation of the shutdown cancel would have shown that the kept assertion proves nothing.
+- Execution: SEED-094#story-production-observations-without-round-trips (`.planning/slice-plans/315-production-observations-without-round-trips/PLAN.md`, removed at wrap-up, recoverable at `8c16de57e`; Take `2451f59c7`; first implementation commit `b33a4bd4f`); Timestamp: unknown (2026-10-05, slice 2 probe before `655f21ec2`); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.56. Evidence: the plan's premise row "`deployment.installation_status` prints no credential" was checked by reading `installed_status` and `main` only; the probe's output carried the ready API's settings body, including the broker account name and a password-configured flag. Observed effect: one owner decision and a settings commit (`655f21ec2`) dropping that rule after it was already on `main`. Inference: running the command once over a non-production installation, or reading the ready-API body it embeds, at planning time would have shown the field.
+- Earlier occurrence details: 12 additional recorded rows in `27b607506abdfc53e62a20833ed499d8d781d0a5:DearDough.md`; these are historical evidence, not new occurrences.
+
+**Source:** [pygardon / ODF-074 — Shared listing analysis overlooked random setup's explicit history rule](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#odf-074--shared-listing-analysis-overlooked-random-setups-explicit-history-rule).
+
+Former local code: DD-197.
+
+Removing TFDC's historical candidate minimum also removed random setup's only enforcement of its public pre-scan history knob. Independent refactor review caught the changed contract before publication.
+
+- Execution: `SEED-078#story-delisted-reach-engine` (plan recoverable at `e3ce1aab5b30d30b9d16d2b12d6d30d3ec7d345e:.planning/slice-plans/296-delisted-evaluation/PLAN.md`; first implementation `619b40f037f45ef1c477df7385259f2d25e31346`).
+  - Timestamp: unknown (2026-10-02, slice 4 before `6cee19444db1165b9576a519f7d7c1aa7a7d8234`). · Tool: Codex. · Open Dough release: unknown.
+  - Evidence: slice-4 refactor stopped acceptance when tracing `min_history_bars` from the random public schema through composition and its Bernoulli detector showed no enforcement outside listing. The plan's slice-4 execution learning records the correction; native random 10-versus-9 history, session-cap and all-under refusal proof was added. Final 54-test replacement proof passed before delivery.
+  - Observed effect: an additional implementation and independent review were needed; the published increment preserves the existing random history rule while admitting overlapping TFDC histories.
+  - Inference: preparation traced the current-signal consumer but missed a different strategy's declared admission contract. Shared-policy changes need consumer contract analysis, not only caller enumeration.
+
+### Retained source evidence — doughnut (2026-10-09)
+
+**Source:** [doughnut / ODF-074 — A plan said the changed script had no test, and nobody searched for one before delivery, so CI caught the stale test](https://github.com/nerds-odd-e/doughnut/blob/0a8878e98be76b8e92203515d8f4719489b24169/DearDough.md#odf-074--a-plan-said-the-changed-script-had-no-test-and-nobody-searched-for-one-before-delivery-so-ci-caught-the-stale-test).
+
+Former local code: DD-126.
+Former local code: DD-130.
+Former local code: DD-134.
+Former local code: DD-139.
+Former local code: DD-147.
+Former local code: DD-162.
+Former local code: DD-167.
+
+- Execution: SEED-043 story 1 / slice-plans/045-commit-gate-checks-committed-content / 574d61b52c; Timestamp: 2026-09-26T16:06:02+08:00 (CI step failure); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.40. - Evidence: plan "Current decisions" before 120753a097; CI run 36228685291 job "Other Unit Tests" failed `quality_changed.test` ("shared biome config selects every affected component": expected `pnpm frontend:lint`, got the install line after `ln` failed); repair 120753a097 updated and extended the test. - Observed effect: one red story-branch CI run, a stash/repair/restore cycle around slice 2, and two extra agents (repair ~49k and refactor ~48k subagent tokens). - Inference: a negative claim that code has no test needs a search of the test tree (here `grep -rl quality_changed scripts/test`) at planning or delegation; naming the stack skill for `scripts/` in the delegation would likely have surfaced it.
+- Execution: SEED-059#story-3 / slice-plans/051-pdf-layout-from-bookmarks / 946e2a70e3; Timestamp: 2026-09-29 (slice 1); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.46. - Evidence: plan *Decisive premises* row "Backend tests attach fake PDF bytes" (`grep -rn "0x25, 0x50"`); slice 1 refactor report item 2 (`BooksControllerTest`, `NotebookGitWebAttachmentDeleteControllerTest` back to HEAD). - Observed effect: two files changed and reverted within one slice; small cost. - Inference: the premise matched a symptom (fake bytes) rather than the path (attach callers). Related to the planning-premise family (DD-128, DD-137).
+- Execution: SEED-059#story-14 / `.planning/slice-plans/055-epub-resume-tests-and-rendered-view/PLAN.md` / 09ca632dea; Timestamp: 2026-09-29 (slice 2 first attempt; exact time unknown); Tool: Claude Code; Model: claude-opus-5-5; Open Dough release: 0.3.46. - Evidence: slice 2 Decision paragraph in plan 055 at 0e9048812c; `epubSpinePathMatches` suffix rule in `frontend/src/lib/book-reading/epubHrefMatch.ts`. - Observed effect: one implementation-agent round of about 57k tokens returned no change, and the owner was asked one question. The recommended option was accepted and no work was lost. - Inference: reading the two matching rules while planning the correction (a few minutes) would have found the difference and taken the decision to the owner before the plan. Qualified: one occurrence.
+- Earlier occurrence details: 4 additional recorded rows in `8830c682704aac3bbb34bf9b1204da8feba042ca:DearDough.md`; these are historical evidence, not new occurrences.
+
+**Source:** [doughnut / ODF-074 — A slice made the conversion step reject on failure; the existing catch also covered a save the story excluded](https://github.com/nerds-odd-e/doughnut/blob/0a8878e98be76b8e92203515d8f4719489b24169/DearDough.md#odf-074--a-slice-made-the-conversion-step-reject-on-failure-the-existing-catch-also-covered-a-save-the-story-excluded).
+
+Former local code: DD-209.
+
+The plan's Goal excluded "a failure while saving the note after conversion
+succeeded", but slice 1 said only that the conversion callback rejects on
+failure. In the code, one `try` covered both the conversion request and the
+note save, so the plain reading made a save failure reject too.
+
+- Execution: SEED-066#recover-failed-transcription / `212e428968:.planning/slice-plans/005-recover-failed-transcription/PLAN.md` / 9eb06ed0bd
+  - Timestamp: unknown (slice 1, before commit 2026-10-05T14:48:15+09:00) · Tool: Claude Code · Open Dough release: 0.3.56 (execution-checkout VERSION, unchanged during execution)
+  - Evidence: coordinator summary to the retrospective (subagent transcripts not supplied): the first implementation rejected for any failure, including a save failure after a good conversion; the coordinator returned the slice. Plan at 212e428968, slice 1: "The conversion callback rejects on failure instead of resolving `undefined`"; Decisive premises read `useNoteAudioProcessing.ts` for the toast, not for what its catch covered. Delivered code in 9eb06ed0bd adds an inner `try` around `appendDictatedText`; plan Learnings record "Only a failed conversion rejects".
+  - Observed effect: one extra implementation round; the rejected version would have let audio already joined to the note be sent and joined again after a save failure.
+  - Inference: when a slice changes what a catch does, the plan could name which excluded paths that catch also covers. Qualified: one occurrence; the coordinator caught it at acceptance.
+
+### Retained source evidence — open-dough (2026-10-12)
+
+**Source:** [open-dough / ODF-074 — A plan left a decisive browser-delivery premise open for the developer though it was locally observable](https://github.com/terryyin/open-dough/blob/c76322764499936acd42328b5ef4f66f4df6bcf8/DearDough.md#odf-074--a-plan-left-a-decisive-browser-delivery-premise-open-for-the-developer-though-it-was-locally-observable).
+
+- Execution: `SEED-121#settle-observer-owner-edges` / plan 288, first implementation `1ff314d3`.
+  - Timestamp: unknown (2026-10-10; the plan was published not-ready in `17c33bd2` and made ready in `c6aa657b` at 17:16 +09:00). · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: modified; revision `c6aa657b`; base 0.3.57
+  - Evidence: `17c33bd2:.planning/slice-plans/288-observer-owner-edges/PLAN.md` ends "Remaining concern: slice 1's proof for a project below its Git toplevel depends on whether closure supports that layout, which this review did not observe", and the seed's state block records `not-ready` for it. The developer's next instruction was "Why is the plan not ready for running? Please make it ready for running." Two scratch runs of the installed `deliver` and `finish` on existing fixtures (1–2 s each) settled it; "Observed premises" in `2d373a2e:.planning/slice-plans/288-observer-owner-edges/PLAN.md`.
+  - Observed effect: a planned correction waited for a developer round trip and a second preparation session over a premise the existing closure fixtures could run.
+  - Inference: qualified. The plan was written by an execution retrospective, which may have treated the observation as outside a review's read-only limits; an unpaid scratch run outside the checkout changes no product file.
+
+### Retained source evidence — open-dough (2026-10-12)
+
+**Source:** [open-dough / DD-271 — A plan added a file and assertions without checking the declaration and size limit they would meet](https://github.com/terryyin/open-dough/blob/c76322764499936acd42328b5ef4f66f4df6bcf8/DearDough.md#dd-271--a-plan-added-a-file-and-assertions-without-checking-the-declaration-and-size-limit-they-would-meet).
+**Source mapping:** Open Dough / DD-271 → ODF-074. unambiguous unverified existing declaration/caller and file-size premises; modified .58/.58 reports preserve existing planning mandate low observed cost: existing execution consumer search corrected both before delivery; do not rank as shipped failure
+
+A plan's first slice created a reference file and said "No script changes"; a
+later slice placed all its new assertions in an existing test file. The
+project declares payload files in its installer and limits files to 250
+lines, and the plan settled neither as a premise.
+
+- Execution: `SEED-128#land-planning-without-coordinator-questions` / plan 290, first implementation `89ca7d25`
+  - Timestamp: unknown (2026-10-10, between 19:45 and 20:10 +09:00) · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: modified; revision `650918e4`; base 0.3.58
+  - Evidence: plan 290 "Goal and boundaries" ("No script changes") and its proof-ownership table naming `preparation-journey-guidance.test.mjs` (`650918e4:.planning/slice-plans/290-land-planning-without-coordinator-questions/PLAN.md`); `tests/payload-declaration-links.sh` ("declared dough-slice-planning/SKILL.md links to undeclared references/settle-decisive-premises.md"); slice 1's `install.sh` line in `89ca7d25`; slice 2's return (journey test at 328 lines, split into `preparation-landing-guidance.test.mjs`) and slice 2's Accepted note in the delivered plan (`34b9b429:` same path).
+  - Observed effect: slice 1's agent found the failing payload check through its consumer search and added the declaration; slice 2's agent split the test file, after which the plan's proof table and slice 3's proof command named the wrong file until the coordinator corrected them. No rework or failed delivery followed.
+  - Inference: the delegation's consumer-search requirement caught both; the cost was small. The plan's premise table covered the skill's own line limit but not the limit on the test file it would grow or the declaration a new file needs.
+
+- Execution: `SEED-088#landing-capture-after-integration-conflict` / plan 294 (spent plan recoverable at `961c03c285141f2ad7f9fbfd80d099197fce0373:.planning/slice-plans/294-landing-capture-after-integration-conflict/PLAN.md`), first implementation `9aa4ec9f`
+  - Timestamp: unknown (2026-10-11, between the Take `aa5bcb17` and `a5c55a56` at 08:16 +09:00) · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: modified; revision `491cf102`; base 0.3.58
+  - Evidence: plan 294 proof-ownership rows naming `story-branch-landing-capture.spec.ts` (235 lines) for two new journeys, and slice 4's "split `install.sh`'s declarations" (`491cf102:.planning/slice-plans/294-landing-capture-after-integration-conflict/PLAN.md`); slice 1 and 2 returns (journeys placed in `story-branch-landing-conflict.spec.ts` and `story-branch-landing-later-publication.spec.ts`); slice 4's return (`read_managed_files_declaration` and the release tooling read the declaration from `install.sh` itself); plan 294 slice Learnings.
+  - Observed effect: both journeys went to sibling specs and the plan's proof table named the wrong file; slice 4 relieved `install.sh` by moving request checks into the sourced request helper (244 lines) and left the declaration inline, reported as an undecided installer question. No rework followed.
+  - Inference: the same two premises as before, a size limit on a file the plan grows and who reads a declaration the plan moves, each observable with `wc -l` and one search during planning.
+
+### Retained source evidence — open-dough (2026-10-12)
+
+**Source:** [open-dough / DD-285 — A plan declared a neighbouring rule unchanged by reasoning from one state, and a mark taken in the other state contradicted it](https://github.com/terryyin/open-dough/blob/c76322764499936acd42328b5ef4f66f4df6bcf8/DearDough.md#dd-285--a-plan-declared-a-neighbouring-rule-unchanged-by-reasoning-from-one-state-and-a-mark-taken-in-the-other-state-contradicted-it).
+**Source mapping:** Open Dough / DD-285 → ODF-074. same unverified state premise: unchanged comparison asserted from only new/new representation, old/new case not checked 0.3.59 at7b941f04 preserves3d148f25 rule; caught at acceptance before publication
+
+The plan generalized a review baseline from a commit to a tree and decided
+the page's "trunk was integrated since the mark" rule, which compared the
+two baselines' ids, stayed unchanged. It reasoned from a mark already taken
+on a tree baseline. A mark taken before the first publication holds a commit.
+
+- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297 (spent plan recoverable at `6fef8b6869a532a7a127d755fb3326b6dddd8ebd:.planning/slice-plans/297-trunk-mode-own-changes-review/PLAN.md`), first implementation `0b6138cc`
+  - Timestamp: unknown (2026-10-11, slice 3 implementation, between `58e5386e` at 11:20:13+09:00 and `15685dc7` at 11:44:40+09:00) · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: 0.3.59 (installed guidance at `7b941f04`)
+  - Evidence: plan 297 "Current decisions", Mark: "`trunkIntegratedSince` is unchanged: only a change on trunk other than the story's own publication changes the baseline tree"; its observed premises cover `merge-tree` on a tree and pruning, none a commit-baseline mark compared with a later tree baseline. Slice 3's return: a probe (published 0, mark, `s3` alone) "failed with the heading present", reported "Not fixed … beyond this slice". The coordinator returned it; `baselinesDiffer` in `dashboard/server/storyReviewPoints.ts` and `since.trunkIntegrated` replaced the page rule; plan 297 slice 3 Learnings.
+  - Observed effect: one extra implementation round in slice 3 (about 4.5 minutes and 17k subagent tokens by the task notifications) and a contract change the plan had not listed (`since.trunkIntegrated`); the defect did not reach a published increment.
+  - Inference: the decision named the states the new baseline creates but checked the rule in one of them. Listing each pairing of old and new representation that a comparison can meet (commit with commit, commit with tree, tree with tree) when the plan was written would have put the case in slice 3's proof. One sample.
+
+### Retained source evidence — pygardon (2026-10-12)
+
+**Source:** [pygardon / DD-223 — Execution stopped on an unverified "session started before setup" premise that the host docs settle](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#dd-223--execution-stopped-on-an-unverified-session-started-before-setup-premise-that-the-host-docs-settle).
+**Source mapping:** pygardon / DD-223 → ODF-074. Unverified host reload premise was planned as a mandatory fresh-session stop; a bounded documentation check resolved it. Historical 0.3.57 feedback predates the new premise response; do not count against a later containing release.
+
+The plan avoided an unobserved premise (whether a running session reloads a changed local settings file) by requiring a new session, and the coordinator stopped for it. A docs lookup later showed permission edits reload into a running session and a worktree session uses the main checkout's local file.
+
+- Execution: SEED-098#story-production-read-permission-confidence (plan 320, first implementation commit `035dc5f1e`) Timestamp: 2026-10-09T09:36:00+09:00 Tool: Claude Code Model: claude-opus-5-5 Open Dough release: 0.3.57 Evidence: plan 320 premise row "The settings a session applies"; Claude Code settings.md "When edits take effect", worktrees.md Observed effect: Two owner turns before slice 1 started. Inference: A bounded documentation check at planning time would have removed the stop; asking the docs helper is a practice worth keeping.
+
+### Retained source evidence — pygardon (2026-10-12)
+
+**Source:** [pygardon / DD-228 — An operations-only plan named observation readings whose actual output was not checked at planning](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#dd-228--an-operations-only-plan-named-observation-readings-whose-actual-output-was-not-checked-at-planning).
+**Source mapping:** pygardon / DD-228 → ODF-074. Observation commands and states were prescribed without an actual reading; four factual premise errors produced a 34-minute wait and substituted proof. Same unverified-premise meaning; 0.3.57 historical relative to new response.
+
+A plan with no product change rested its collision rule and two proofs on readings described from source or memory rather than from the reading itself. Three did not behave as the plan said, and one premise row was miscounted.
+
+- Execution: SEED-093#story-sharadar-real-data-probe (plan 325; no implementation commit, first record commit `be1e6a946`) Timestamp: 2026-10-11T08:34:45+09:00 Tool: Claude Code Model: claude-opus-5-5 Open Dough release: 0.3.57 Evidence: plan 325 at `c72ccb9fc`: "`current_observation` null means no backup holds the warehouse", slice 1 proof by `installation_status`, slice 2 proof by "the container log's verdict", premise "44 runs, all `completed`". Observed: `GET /api/jobs/backup` returned `current_observation` `{"reason":"backup_current"}` with nothing running; `deployment/installation_status.py` prints the system-settings body; `docker logs sharadar-probe` held 0 lines after a `completed` run; the list held 32 `completed` and 12 `failed`. Results in plan 325 Learnings at `120afd6b2`. Observed effect: The coordinator's first wait for the midnight backup required a null observation and was replaced after 34 minutes when the non-null benign value appeared; slice 1 proof was substituted by targeted reads without `image_id`; the log proof carried no positive verdict, so the run detail alone is the evidence. Inference: A one-time dry read of each named reading at planning would have shown all four. Whether the first wait would actually have hung is not known: the observation was null again after the backup ran.
+
+### Retained source evidence — pygardon (2026-10-12)
+
+**Source:** [pygardon / DD-233 — Three decisive plan premises recorded as observed were false, adding a regeneration, three slices and an unreachable branch](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#dd-233--three-decisive-plan-premises-recorded-as-observed-were-false-adding-a-regeneration-three-slices-and-an-unreachable-branch).
+**Source mapping:** pygardon / DD-233 → ODF-074. Three falsely observed code premises changed the implementation and grew the plan from five to eight slices. Same factual-premise issue; the fixture failure explicitly did not reach the intended operation. On 0.3.58, relevant to later response effectiveness once its release is verified.
+
+The plan's premise table and gates stated three facts as observed that execution disproved: the exclusion record's response model "already carries any `dimension` string" (it was a closed `Literal`), "Exit management never consults the candidate listing" (the probe failed in its fixture before reaching the exit path, which runs the dataset pre-flight for a Sharadar-basis holding), and a Stooq search source that is `None` when no cap reads labels (search projection pins sector caps, so every search run reads labels).
+
+- Execution: SEED-069#story-tradable-instruments (plan 326, first implementation commit `00a95967d`) Timestamp: 2026-10-11T11:40:00+09:00 Tool: Claude Code Model: claude-opus-5-5 Open Dough release: 0.3.58 Evidence: plan at `ad3b84794` ("Decisive premises", "Local gates": "no API generation is needed"); slice 2 return: `GET /api/strategies/live-strategies` raised a pydantic `ValidationError` on a stored `excluded_instrument` record, `dimension: Literal["sector", "industry"]`; slice 4 return: `_searched_strategies` forces `benchmark_weight=1.0` and projection pins `sector_spy_qqq`; slice 5 return: `exit_settings._resolve_daily_source` → `live_strategy_daily_source` → `dataset_run_inputs` → `read_excluded_instruments`, with a malformed list giving the holding's row `status: "error"`; plan Learnings and obligations G11, G13 at `d0dcb18f6`; timestamp is the slice 5 return, approximate within the half hour Observed effect: Slice 2 gained a response-model change and API generation; the exit finding went to the owner, who chose a behaviour that became slice 6, and the plan grew from five to eight slices; slice 4's no-label gate is observed only by replacing `reads_labels` in a test. Inference: The exit premise's own row recorded that its one failing test "failed in its fixture", which is the sign the probe had not reached the path; reading the response model's field type and the search projection at planning would probably have shown the other two. The saving is not measured, and the exit behaviour needed an owner decision either way.
+
+### Retained source evidence — pygardon (2026-10-12)
+
+**Source:** [pygardon / ODF-074 — Plan statements about existing code and host state were not verified at planning time](https://github.com/terryyin/pygardon/blob/9751952fe19dc48ead34987157c9909e9ff9a10c/DearDough.md#odf-074--plan-statements-about-existing-code-and-host-state-were-not-verified-at-planning-time).
+
+- Execution: SEED-093#story-sharadar-strategy-cycle (plan 322, first implementation commit `dfff7c6bb`) Timestamp: unknown Tool: Claude Code Model: claude-opus-5-5 Open Dough release: 0.3.57 Evidence: plan 322 premise "Named genome rows have no Apply (4)" read only `LiveStrategyCard.tsx` and its spec; `groupLiveStrategyRows` (`liveStrategyGroups.ts`) emitted only pairs and single live strategies, so the E2E fixture genome "native owner ATR 30" had no card; slice 4 commit `06bd44415` (2026-10-10, between 17:30 and 17:56 +09:00) added a `'named-genome'` list item; its implementation agent ran about 20 minutes against a five-minute target Observed effect: The slice added an unplanned, owner-visible list change (every unlinked Named genome now shows on the Verify page), accepted by the coordinator and reported to the owner afterwards. Inference: The premise checked the control on the card but not that the journey's starting state (a freshly persisted, unlinked genome) reaches a card at all.
+- Execution: SEED-100#story-exclusion-requires-verdict (plan 324, first implementation commit `f9aeaf116`) Timestamp: 2026-10-10, between 21:10 and 21:40 +09:00 Tool: Claude Code Model: claude-opus-5-5 Open Dough release: unknown Evidence: plan 324 "Local gates" named `ls tests/test_ci_*.py | xargs -r nix develop -c scripts/check-worktree.sh pytest -q` as a gate before slice 2's commit; its Decisive premises ran only two focused files. The coordinator delegated it with `-o addopts='' -n 2 --dist loadfile`. The 53 files include five `host_docker` tests; `~/.colima/work/docker.sock` was absent, so the run ended 246 passed, 1 failed, 4 errors. The same selection with `-m 'not host_docker'` passed (241 passed, 2 skipped). Observed effect: The named gate could not go green on the host; the coordinator accepted the engine-free selection with the five tests recorded as unrun, and the implementation agent spent a second family run confirming it. Inference: The gate command was written from the file list, not run at planning time, so its dependence on a running host engine went unnoticed.
+
+### Retained source evidence — doughnut (2026-10-12)
+
+**Source:** [doughnut / ODF-074 — A plan said the changed script had no test, and nobody searched for one before delivery, so CI caught the stale test](https://github.com/nerds-odd-e/doughnut/blob/0a8878e98be76b8e92203515d8f4719489b24169/DearDough.md#odf-074--a-plan-said-the-changed-script-had-no-test-and-nobody-searched-for-one-before-delivery-so-ci-caught-the-stale-test).
+
+- Execution: SEED-066#simplify-voice-input-feedback (first implementation commit dd22b17de2)
+  - Timestamp: 2026-10-10T19:57:33+09:00 · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: 0.3.58
+  - Evidence: `6f6f3d32c9:.planning/slice-plans/063-simplify-voice-input-feedback/PLAN.md` slice 2 ("Delete … `noteAudioToolsSavedContentTestSupport.ts`"), slice 4 ("cut from `e2e_test/fixtures/harvard.wav` or `lecture.wav`", "2026-10-06 measurement"), slice 2 proof ("no toast"); slice 2, 3 and 4 agent returns in the execution conversation
+  - Observed effect: the test-support file named for deletion is imported by the preservation and language-joining specs, so the implementer kept it; neither fixture holds 60 s of speech (18.4 s and 3.1 s), so the probe looped one; the cited measurement is dated 2026-10-03 in the seed; "no toast" could not be observed in slice 2 because no panel code raised a toast until slice 3, so it moved there as a story obligation
+  - Inference: each premise was a one-command check at planning time (an import search, a duration read, a date read); none stopped a slice, and each cost a plan correction during delivery
+
+### Retained source evidence — Open Dough / DD-307 (2026-10-20)
+
+**Source:** [Open Dough / DD-307](https://github.com/terryyin/open-dough/blob/327b6fa255b84ba8a2552ca41dba37a46fadf4d9/DearDough.md#L522). Former local code: DD-307.
+
+Plan 309's preparation observed the provider and the readers, but not the mechanics its own proof steps assumed. Execution disproved three of them:
+- A second Donut worktree would lack C's objects. Worktrees share one object store, so a `git clone --shared` replaced it.
+- Creating the proof refs from the slice 1 commit would start no run. Any new ref holding that commit starts one, so an empty `[skip ci]` commit opened them instead.
+- `complete-revision` could be invoked for B and then for T and T2. It shuts its observer down, so B used the read-only `await-revision`.
+
+Each was caught before a push, at no paid cost. Each still needed an in-execution design decision that a cheap preparation check (a `git worktree` object probe, the GitHub new-branch path rule, the `completeRevision` source) would have settled.
+
+- Execution: `SEED-008#donut-coalesced-ci-adoption` / plan 309, first related commit `341733adf0bcdf424699232a062c020b3686b122`
+  - Timestamp: unknown (2026-10-16 JST, slice 2 setup) · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: 0.3.63
+  - Evidence: `f0f40bb0:.planning/slice-plans/309-donut-coalesced-ci-adoption/PLAN.md` slice 2 text ("second isolated Donut worktree", "invoke `complete-revision` for B") against its Current decisions for slice 2.
+  - Observed effect: three mid-execution adaptations, recorded in that plan. None changed the story's promises.
+  - Inference: qualified. Planning for live probes would gain from checking each mechanical step's premise with one local observation, the way the plan already did for provider behavior.
+
+- Execution: `SEED-136#restore-ci-under-three-minutes` / plan 315 (`d7b6ce89d4a33b218f6212a9a3da2ea788b892e0:.planning/slice-plans/315-restore-ci-under-three-minutes/PLAN.md`), first implementation `f4466c10ffcfe3697a51a0f829a7ed063d06f2ba`
+  - Timestamp: unknown (2026-10-19 JST; events described below). · Tool: Codex · Open Dough release: 0.3.63 (checkout-bound installed dough-update/VERSION at claim `c0fa9c15`; installed guidance unchanged).
+  - Evidence: plan 315 original slice 2 and `/tmp/seed136-hosted-measurement-20261019/`: creating a temporary candidate ref at already-published `0133c0bf` produced only CreateEvent and zero workflow runs. The unpaired parent dispatch 39180107803 was cancelled; one ordinary fast-forward from original control `f4466c10` to candidate produced genuine push run 39180260655, paired with dispatch 39180257177 three seconds apart. Failed-launch metadata and the cancelled attempt were retained.
+  - Observed effect: one unpaired baseline run and an in-execution launch-mechanics repair; no measured result was discarded or repeated.
+  - Inference: observing the actual push/event path before dispatch would avoid that loss. This occurrence does not establish a universal new-ref rule; the historical statement above that any new ref holding a commit starts CI did not hold for this observed path.
+
+### Additional retained source evidence — Open Dough (2026-10-20)
+
+**Source:** [ODF-074 at the post-local snapshot](https://github.com/terryyin/open-dough/blob/327b6fa255b84ba8a2552ca41dba37a46fadf4d9/DearDough.md#odf-074). Distinct effects remain qualified as supplied; related findings do not add executions.
+
+- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
+  - Timestamp: 2026-10-17 (slice 1 measurement) to 2026-10-18T05:11+09:00 (slice 9 record) · Tool: Claude Code · Model: claude-fable-5-1 · Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
+  - Evidence: the story's measured targets (half the baseline: ≤ 380 s local, ≤ 1,244 s hosted) and the plan premise row "Relocation shortens the browserless families: Hypothesis"; slice 1 measured the relocated family at −16 % and the plan's own threshold was 30 %; the hosted report-artifact analysis (plan Learnings, slice 9 Measured) puts the per-test floor over four workers at 1,790–2,045 s and the local floor near 530 s.
+  - Observed effect: both time targets unmet at completion (600 s local, 2,519 s hosted on the published revision) while the count target and every behavioral promise were met; the number decision is with the developer.
+  - Inference: the targets were set from the baseline before anyone measured where the time went; a one-run profile by family (which the proof record already supports) would have set reachable numbers or a different story shape.
+
+### Additional retained source evidence — Pygardon / ODF-074 (2026-10-20)
+
+**Source:** [Pygardon / ODF-074](https://github.com/terryyin/pygardon/blob/b36d93788d6a5b4f5c86dfc3760a2538a94cf91e/DearDough.md#L14).
+
+- Execution: SEED-112#story-finish-downside-study; first implementation `25d6986ed1f0e3e17ee308b81d910cb9c0e420e3`
+  - Timestamp: 2026-10-13T11:21:46.611720+00:00 · Tool: Codex · Open Dough release: unknown
+  - Evidence: Coordinator delegation selected the frozen model interpreter for reporting without checking `docs/timesfm-downside-information.md:90–91`; native failed receipt and `report-environment-disposition-20261013T111315Z.json` remain under the retained continuation home named in `98c6b040e226bdff64f552e5593596fa3ba73ff4:.planning/slice-plans/189-timesfm-study-completion/PLAN.md`.
+  - Observed effect: That interpreter lacked exchange_calendars; the extra report attempt failed before producing an artifact and its 4.01 seconds were charged. The original project-environment report and replay were accepted under the documented method.
+  - Inference: This execution-delegation occurrence shares the unverified host/runtime premise; model and reporting environments have different responsibilities. Checking the documented boundary before delegation would avoid the extra attempt.
+
+- Execution: Codex thread `01a137ad-0ba0-7412-938d-b1013bf8f746`; patch request `2026-10-14T11:46:38Z`
+  - Timestamp: unknown · Tool: Codex · Open Dough release: unknown
+  - Evidence: Tiger repair preflights and `tmp/tiger-image-v2.6.9-transfer-attempt-2.log` / `tmp/tiger-image-v2.6.9-transfer-attempt-3.log`; review `.planning/reviews/release-readiness-2026-10-15/REPORT.md`.
+  - Observed effect: Generated operational helpers assumed launchctl output and Docker top support, matched an idle builder as active CI, and let a resource probe consume image-stream stdin. These checks/transfer stopped and required correction before activation; no failed candidate was activated by them.
+  - Inference: Platform output, worker identity and subprocess input ownership were decisive unverified premises. Reusable operations with bounded proof of those seams would reduce per-incident glue. This record does not assign the whole release duration to those mistakes.
+
+- Execution: SEED-106#story-terminal-capacity-reconciliation; first implementation `36d65eaf6fd39ab01a7ecaa292fca4dcb2b858d6`
+  - Timestamp: 2026-10-16T08:11:00+09:00 (approximate; slice 2 return) · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: 0.3.63
+  - Evidence: `cffbd3264:.planning/slice-plans/340-terminal-capacity-reconciliation/PLAN.md` "Hook seam premise" recorded released 20bps CAGR 0.11943507 as Settled; the slice 2 replay, asserting each δ against `economics.json` within 1e−15, measured 0.11918299; the refinement probe added XEC's δ in its event loop and again through its sale tuple. Correction recorded in `8efcd3de8` plan learnings and key example 6.
+  - Observed effect: Key example 6 and a preparation observation carried a wrong expected value; it was caught only because the replay asserted against the sibling record rather than the probe number. No published result used the wrong figure.
+  - Inference: A scratch probe's metrics were promoted to Settled without being reconciled with the sibling record's per-event values that were already available.
+
+- Execution: SEED-120#story-historical-upgrade-fixtures; first implementation `b9f4806035272dbf2879256c78ec3f3a1d145dd4`
+  - Timestamp: unknown (2026-10-16, during slices 2 and 4) · Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: 0.3.63
+  - Evidence: `8b11c64cb:.planning/slice-plans/339-historical-upgrade-stores/PLAN.md` named `7a4a660e2` as the two-kind capture and its "Historical-capture premise" inserted per-bar membership rows by hand; `git grep -c "INSERT INTO stooq_intraday_evidence"` finds no writer before `da1241930`, and `adc2e78d3` still has the two-kind CHECK. The same plan's slice 4 proof expected removing the schema `ROLLBACK` to fail the reopen test; it passed 5/5 because DuckDB discards an uncommitted transaction at process exit. Corrections recorded in `262ff9d5d` plan Current decisions.
+  - Observed effect: Slice 2 was returned once to recapture from `adc2e78d3`, since the story requires captures "from the real code of the revision"; slice 4 substituted a `COMMIT`-for-`ROLLBACK` discriminator. Both cost one extra agent round of a few minutes.
+  - Inference: Capture revision and discriminator were settled from what a probe could produce, not checked against the story's provenance clause or the observation's process boundary.
+
+<a id="odf-107"></a>
+
+### Additional retained source evidence — Open Dough (2026-10-21)
+
+**Source:** [post-local source snapshot](https://github.com/terryyin/open-dough/blob/77f9c3f6d0bf64446a26368b7e7a1b5dfcdff805/DearDough.md#odf-074). Source execution identities, timestamps and reported guidance remain as supplied; rereview adds no occurrence.
+
+- Execution: SEED-052#cursor-session-model-scope / plan 329, first related commit `230b9018`
+  - Timestamp: unknown (2026-10-20, slice 5 native attempt; recorded in `7d110ef8`) · Tool: Cursor · Open Dough release: unknown (checkout-bound guidance in the execution worktree)
+  - Evidence: plan 329 slice 5 proof named a native run "from the dashboard on this machine" without a runner-freshness premise; its Learnings (`7d110ef8`, disposition `08fbe909`) record that the machine's single reused Cursor runner predated slices 2–4 and held 11 unrelated sessions, so spawned clients carried no `CURSOR_CONFIG_DIR`, the chosen model persisted into the shared config (restored afterwards), and the scope was stranded on record deletion (removed manually).
+  - Observed effect: the native attempt failed as proof, Terry was asked to decide on restarting the runner over 11 unrelated sessions (first chose restart; the call was interrupted; then skipped native confirmation by decision), and native end-to-end verification closed as the story's explicit limit rather than passed.
+  - Inference: qualified. The plan verified the `CURSOR_CONFIG_DIR` hook in slice 1 but never checked that the final native journey would run through current dashboard code; observing the reused runner's provenance at planning or slice 1 would have surfaced the restart decision before the attempt wrote to the shared config.
+
+### Additional retained source evidence — 2026-10-22 cycle
+
+Source execution identities, timestamps and reported guidance remain as supplied; these are new distinct project/executions unless stated. Review time adds no occurrence.
+
+[Doughnut source, line 40](https://github.com/nerds-odd-e/doughnut/blob/0c25e73cfa672359d493549a8930851bba72f8a8/DearDough.md#L40) under ODF-074:
+
+- Execution: SEED-081#story-1
+  - Timestamp: unknown · Tool: Codex · Open Dough release: unknown
+  - Evidence: 2026-10-21 retrospective; `a8b2d2d66cc196dff803fb6f4915dd5823bee1e2:.planning/slice-plans/001-recover-recall-answer/PLAN.md:58` claimed no CLI callers. `cli/src/commands/recall/recallMcqStageSupport.tsx:117` and `spellingRecallStageSupport.tsx:44` call the two answer routes.
+  - Observed effect: The coordinator corrected the premise and expanded consumer verification during retrospective after all five slices had been published. CLI stages guard concurrent input and leave recall on submission failure; their response shapes are unchanged.
+  - Inference: The original whole-product search was insufficient. This caused late verification rather than a changed implementation decision; no production impact or quantitative cost was established.
+
+[Pygardon source, line 25](https://github.com/terryyin/pygardon/blob/ca031afaf4b5b530adcc7982285cf19fc4e78f4e/DearDough.md#L25) under ODF-074:
+
+- Execution: SEED-120#story-preparation-follow-through; first implementation 8e1fc082bebb4e11f886d787971bdb24fa56f3cf
+  - Timestamp: unknown · Tool: Codex · Open Dough release: unknown
+  - Evidence: 2026-10-21 execution, plan384 preparation premise and G4; 600f97a2e9ff483e047e1294290058ef078f2576:.planning/slice-plans/384-preparation-follow-through/EVIDENCE.md (slice4). The original consumer census named generated/docs/test consumers but omitted scripts/overnight_launch_status.py, which directly read Backup waiting_reason.
+  - Observed effect: whole-product execution tracing found the reader before acceptance, migrated its real access/fixture producers and added two nested-wait launch-gate cases; 92 overnight consumer tests passed. The omission added necessary compatibility work and proof, with no broken publication.
+  - Inference: the preparation search scope was incomplete; naming searched roots and following all external-status consumers would expose this premise earlier. No elapsed or token cost measured.

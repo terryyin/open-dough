@@ -221,6 +221,38 @@ No architectural exception or new ADR is proposed here.
 
 ## Stories
 
+<a id="preserve-live-profiles-during-integration"></a>
+
+### 1. Preserve live agent profiles when integrating stories
+
+For developers integrating a story while another is Taken, preserve the other
+story’s live agent profile and keep the done catalog readable. Evidence:
+[ODF-430](../../docs/maintainer/findings/ODF-430.md) and
+[ODF-451](../../docs/maintainer/findings/ODF-451.md).
+
+Evaluate a concurrent integration that induces Git’s directory rename and one
+that resolves a catalog conflict with a misplaced profile. Before publication,
+both must preserve the live assignment in its existing path or identify and
+hold the exact invalid result. A valid story completion must still publish its
+done record and release its own assignment. Record the delivered response,
+containing release and ordinary-use criterion at both findings.
+
+<a id="notice-named-sibling-landings-before-delivery"></a>
+
+### 2. Surface a named sibling landing before delivering against its old shape
+
+For developers coordinating a Story Branch with a named, overlapping sibling,
+surface the sibling’s accepted trunk change while the affected increment is
+still under review. [ODF-429](../../docs/maintainer/findings/ODF-429.md) records
+the late conflicts and the amendment that updated links alone.
+
+Evaluate the two retained cases. When the named sibling has landed and the
+affected product paths diverge, the coordinator can identify the affected
+slice and decide how to incorporate the new shape before delivering it.
+An unrelated or non-overlapping landing should leave the slice able to
+proceed. Record the delivered response, containing release and ordinary-use
+criterion at the finding.
+
 <a id="pending-lifecycle-validation-obligations"></a>
 
 ## Separately pending lifecycle validation obligations

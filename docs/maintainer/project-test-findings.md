@@ -399,6 +399,8 @@ To keep accepting-port revive from nesting `ensureCurrentCursorRunner`, slice 2 
 
 **Responsibility and disposition (2026-11-07):** Project-owned dashboard server bundling seam, repaired in the same slice (`runnerWire.ts`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-430`); no new local story.
 
+<a id="dd-432"></a>
+
 ## DD-432 — A container run took a live host run's local-suite admission
 
 `scripts/ci-container.sh` mounts the common Git directory, so its
@@ -418,6 +420,8 @@ test had passed.
 
 **Follow-up:** open, unqueued; the remedy needs a decision on how container
 runs share admission.
+
+<a id="dd-433"></a>
 
 ## DD-433 — An artifact upload stall cancelled two passing dashboard shards at the job cap
 
