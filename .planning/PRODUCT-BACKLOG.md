@@ -39,6 +39,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Recover dictation and Paste in the embedded terminal](seeds/SEED-269-recover-terminal-insert.md#recover-terminal-insert) — SEED-269#recover-terminal-insert
 - [Draw a conclusion from the three Side panel pilot journeys and plan the next step](seeds/SEED-268-fluent-side-panel-pilot-follow-up.md#conclude-fluent-side-panel-pilot) — SEED-268#conclude-fluent-side-panel-pilot
 - [Build each test’s Git repository from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures) — SEED-262#build-explicit-git-fixtures
 - [Build dashboard start origins from explicit MakeMe repository data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures) — SEED-262#migrate-dashboard-origin-fixtures
