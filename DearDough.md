@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 456. Removed numbers are never reused.
+- Highest allocated local number: 457. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -408,3 +408,16 @@ Former local code: DD-451. [Evidence and current response](docs/maintainer/findi
 <a id="dd-452--a-shell-check-gained-a-browser-its-ci-job-did-not-install"></a> DD-452 — A shell check gained a browser its CI job did not install. [Project evidence](docs/maintainer/project-findings-history.md#dd-452).
 ## ODF-456 — Ready plan used an unsupported slice status
 [Evidence and current response](docs/maintainer/findings/ODF-456.md).
+
+## DD-457 — A coordinator's prose brief narrowed a key example the attached source review still carried
+The implementation brief linked the full source-review commitment table, but its own one-line restatement of a key example dropped one of the example's triggers. The implementer proved the restated form, and the dropped branch came back at acceptance.
+
+### Occurrences
+- Execution: SEED-270#highlight-linked-story-card (plan 525-highlight-linked-story-card; first related implementation `24eeb2e210d6816af7d052ce3917dfc5b1b9cfa6`)
+  - Timestamp: 2026-11-08 (slice 1 delegation and acceptance; exact time unknown)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91
+  - Evidence: Seed example 2 reads "follows a link or opens a direct story URL to that same identity again"; source-review ids 4.1, 5, 5.1 and 12 were allocated to slice 1 and the brief named the file. The brief's proof line said "E2 follow again to an already-selected in-view card re-cues", omitting the direct-URL trigger. The first return listed "E2 by direct URL to an already-selected card is not separately proved" as a gap.
+  - Observed effect: one extra delegation round (about 5 minutes) added `story-destination-repeat-cue.spec.ts`; no product change was needed.
+  - Inference: a restated example in the brief carries more weight with the implementer than a linked commitment table; quoting key examples verbatim, or relying on the table alone, would likely have avoided the round. The ODF-367 response (review before first delegation) held here.

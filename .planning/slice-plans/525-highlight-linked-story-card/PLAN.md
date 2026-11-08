@@ -116,6 +116,13 @@ reduced-motion `animation: none`, or cueing only a card's first reveal, each
 failed the matching spec. Refactor: duration lives only in `destinationCueMs`
 (CSS fallback removed); one duplicated focus/detail check removed.
 
+## Execution complete
+
+Product advice: no change. The Destination cue meets the story through the one
+shared reveal path, without new navigation state. Adding "Destination cue" to
+ADR 0008's Dashboard UI vocabulary stays the human vocabulary step the story
+excludes. Process: DD-457 (prose brief narrowed a key example).
+
 ## Concern evidence
 
 - Slice-plan refinement: not needed — one Behavior owns one cohesive reveal
