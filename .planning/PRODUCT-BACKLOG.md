@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Make launch completion and landing test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-completion-and-landing-test-data) — SEED-261#map-launch-completion-and-landing-test-data ([plan](slice-plans/538-map-launch-completion-and-landing-test-data/PLAN.md))
-
 ## Backlog list
 
 - [Keep one launch store vocabulary and coherent kept records in dashboard tests](seeds/SEED-261-share-domain-test-data.md#align-kept-launch-store-setup) — SEED-261#align-kept-launch-store-setup
