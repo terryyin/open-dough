@@ -97,6 +97,16 @@
   elapsed waits, such as absence windows and settle delays, still break the
   rule against waiting for wall-clock time.
 
+  Local follow-up on 2026-11-08 at `fd3c59811` used two workers and the strict
+  reporter with a second reporter for step timing. A 34-case selection across
+  14 specs passed in 34.81s and 32.96s with the default trace and in 31.25s
+  between those runs with `--trace=off`. All 12 integrated cases still took
+  over 1s each with tracing off, excluding shared hooks. The sample focused on
+  sessions, with additional backend runtime and browser navigation checks.
+  Machine load varied and another worktree was running tests. Evaluate lighter
+  capture with failure evidence preserved and measure subprocess costs
+  separately.
+
 ## Accepted necessary costs
 
 ### story-review-completed-journey-landed-runs-tail
@@ -210,4 +220,53 @@ None.
 
 ## Transferred obligations
 
-None.
+### card-attention-launch-and-origin-setup
+
+- **Locations / scope:** `dashboard/tests/sessions/agent-launch-attention.spec.ts`
+  and its shared story-column origin and launch helpers.
+- **Observed cost:** two ordinary focused runs at `fd3c59811` passed in 13.01s
+  and 12.02s wall with two workers on macOS, Node 24.21.0 and Playwright 1.63.0.
+  The cases took 3.19s and 4.72s excluding shared hooks. A separate step profile
+  measured about 3s per worker in `beforeAll` and 1.7s per case opening the
+  board and launching its first three sessions. Seven launches and six full
+  page loads drain real reads. The eight 15s advances took 13ms to step on
+  the paused page clock, with about 0.42s separately spent on session answers.
+  A one-worker profile shared the origin build, observed 116 synthetic GitHub
+  CLI API calls, and took 14.27s wall with the cases running sequentially.
+- **Unique protection:** visible attention counts across published columns,
+  failed or missing native observations, Mark as done, project switching and
+  reload, and the local entry after a story leaves all published lists.
+- **Alternatives attempted:** profiled the original journey. Existing helpers
+  can seed native listings and persisted open launch records. The launch-dialog
+  journey already owns coverage of starting from a card.
+- **Disposition / rationale:** transferred to
+  [Reuse immutable Git histories across dashboard tests](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories)
+  and [Set up test preconditions without replaying unrelated workflows](seeds/SEED-262-faster-dashboard-test-feedback.md#arrange-prerequisite-state).
+  The stories own the separate origin and launch costs and their proof.
+- **Date:** 2026-11-08
+- **Evidence / follow-up:** run the named spec with `npm run test:dashboard --`
+  and the repository-relative path. Compare default two-worker wall time,
+  shared hook time, and both cases' durations.
+
+### dashboard-eager-setup-for-focused-runs
+
+- **Locations / scope:** `dashboard/tests/support/globalSetup.ts` and the
+  common Playwright entry point for all three test tiers.
+- **Observed cost:** the focused attention profile at `fd3c59811` spent
+  2.9s between reporter creation and test dispatch. Instrumented children
+  accounted for about 1.7s preparing both installed-start layouts and 0.7s
+  in the production build. The isolated count-rule selection passed three
+  in-process cases in a combined 4ms, with 2.67s between reporter creation
+  and dispatch and 3.31s wall for the command.
+- **Unique protection:** consumers need fresh source or build artifacts and
+  private fixtures. The suite also verifies cleanup and fake-service isolation.
+- **Alternatives attempted:** measured setup in the normal configuration.
+  No lazy setup variant was evaluated.
+- **Disposition / rationale:** transferred to
+  [Prepare dashboard test artifacts only when selected tests need them](seeds/SEED-262-faster-dashboard-test-feedback.md#prepare-artifacts-on-demand).
+  That story owns focused and mixed-run measurements and fixture isolation.
+- **Date:** 2026-11-08
+- **Evidence / follow-up:** use the in-process
+  `dashboard/backend-tests/sessions/session-working-count-rule.spec.ts`,
+  a frontend-only selection, and a mixed selection to distinguish their
+  artifact needs and compare startup costs.
