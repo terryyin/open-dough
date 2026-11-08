@@ -9,11 +9,20 @@
    choice or covering), the panel takes the page column's room, the page with
    its banner hidden behind it, pinned to the window's height. */
 
+/* The page frame lays out as a grid whether or not the Sessions sidebar or
+   the panel is open; each only changes its tracks. Changing the frame's
+   display instead rebuilds the Board's scrolling region, which silently ends
+   a smooth reveal still under way there (`./pageMovement.ts`), as when the
+   sidebar overlay closes during one. */
+:where(.page-frame) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .page-split {
   --panel-divider-room: 0.4rem;
   --side-panel-track: var(--side-panel-width, minmax(0, 1fr));
 
-  display: grid;
   grid-template-columns: minmax(0, 1fr) var(--side-panel-track);
 }
 

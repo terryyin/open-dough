@@ -16,7 +16,7 @@ import { sessionKey } from "./sessionReference.ts";
 // session the page opens or acts on asks the page's one history read
 // (`./retainedHistory.ts`).
 
-import { useCallback, useRef, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useRef, type ReactNode } from "react";
 import { FinalReport } from "./FinalReport.tsx";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { useVisibleProjects } from "./projectList.tsx";
@@ -51,6 +51,7 @@ import {
   useRecentlyDoneRange,
 } from "./recentlyDoneRange.ts";
 import { PanelDividerOnPage, useSidePanelWidth } from "./sidePanelWidth.ts";
+import { pageFrameLayout } from "./pageFrameLayout.ts";
 import "./side-panel.css";
 
 export function PageFrame({
@@ -164,22 +165,13 @@ export function PageFrame({
               <PanelDividerOnPage value={shownMaximized ? undefined : divider}>
                 <div
                   ref={frame}
-                  className={
-                    [
-                      sidebar.open && "page-with-sessions-sidebar",
-                      panelOpen && "page-split",
-                      panelOpen && covering && "page-covering",
-                      shownMaximized && "page-maximized",
-                    ]
-                      .filter(Boolean)
-                      .join(" ") || undefined
-                  }
-                  style={
-                    divider &&
-                    ({
-                      "--side-panel-width": `${String(divider.width)}px`,
-                    } as CSSProperties)
-                  }
+                  {...pageFrameLayout({
+                    sidebarOpen: sidebar.open,
+                    panelOpen,
+                    covering,
+                    maximized: shownMaximized,
+                    divider,
+                  })}
                 >
                   <SessionsSidebar
                     {...sidebar}

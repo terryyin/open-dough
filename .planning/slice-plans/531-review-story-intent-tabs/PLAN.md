@@ -217,6 +217,14 @@ SEED-277#dashboard-dark-theme because the dashboard has no dark theme. Bars
 use the existing faster and slower CI cue colors, and "Counts" and lowercase
 "added" stay consistent with the file and folder proof wording.
 
+CI repair (run 42492512032 on `a9b839e`): the frame switched `display`
+when the Sessions overlay opened or closed. In Chrome that silently ended
+`keepInView`'s smooth scroll, so `recently-done-sessions-select-touch.spec.ts:73`
+was flaky. The frame now always lays out as a grid (`pageFrameLayout.ts`).
+At CPU throttle 8, the spec failed 4/10 before the fix and 3/10 at the base
+`5a1f5834c`; it passed 30/30 after. Sidebar, layout and narrow specs passed
+(87), as did navigation, terminals and sessions (370).
+
 ## Proof and delivery gates
 
 Arrange domain data through [MakeMe](../../../tests/README.md#test-data-architecture),
