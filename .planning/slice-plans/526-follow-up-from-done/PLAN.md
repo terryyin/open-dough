@@ -3,6 +3,7 @@
 **Identity:** SEED-273#follow-up-from-done
 
 **Source:** [Start a follow-up from recently done work](../../seeds/SEED-273-follow-up-from-done.md#follow-up-from-done)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and boundaries
 
@@ -120,10 +121,28 @@ the slice that changes the behavior they describe.
 ### 1. Follow up a standalone Done session
 
 Type: Behavior
-Status: planned
-Proof: New `tests/launches/agent-launch-follow-up-session.spec.ts` and
-`backend-tests/launches/agent-launch-follow-up-boundary.spec.ts`, then the
-local gate selection.
+Status: done
+Proof: New `tests/launches/agent-launch-follow-up-session.spec.ts`,
+`backend-tests/launches/agent-launch-follow-up-boundary.spec.ts` (first input)
+and `backend-tests/launches/agent-launch-follow-up-identity.spec.ts` (identity,
+resume, Continue after the source is gone, refusals), then the local gate
+selection.
+Accepted: after the refactor pass, the gate selection plus
+`agent-launch-host-switch-fresh`, `agent-launch-story-card`,
+`agent-launch-start-story-card` and `agent-launch-story-attachments` passed
+137/137 at `--workers=3`; `npm run typecheck:dashboard` exit 0.
+Learnings for slices 2–3: the follow-up source lives in
+`dashboard/src/followUpRequest.ts` (`followUpSchema`, `followUpSourceKey`);
+the context rule in `dashboard/src/followUpContext.ts` already takes a list of
+sessions, so a story adds a preamble item; admission resolves it in
+`dashboard/server/followUpAdmission.ts`. `StartSession` takes `launches` and an
+optional `followUp`. Recently done listings lack `landing` until the entry's
+history read, so a card-level Follow up needs the same read. Shared fixtures:
+`dashboard/tests/support/followUpSources.ts` and
+`dashboard/backend-tests/launches/followUpBoundaryCases.ts`. A blank Cursor
+follow-up must be admitted where the page passes `choices.host === "cursor"`
+to `launch` and where `AGENT-LAUNCH-HOSTS.md` describes the blank-with-model
+refusal.
 
 Behavior: A standalone Done Claude Code session in Recently done whose
 workspace is missing, with a request and a final report → it shows **Read

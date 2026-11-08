@@ -1,4 +1,7 @@
 // @ts-check
+import { launchOutcomeFacts } from "./launchOutcomeTestData.mjs";
+
+/** @typedef {import("./launchOutcomeTestData.mjs").LaunchOutcome} LaunchOutcome */
 /**
  * A launch the dashboard's machine store keeps, as the store holds it.
  * @typedef {import("../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord
@@ -30,6 +33,10 @@ export class LaunchRecordBuilder {
   /** @type {((name: string) => LaunchRecord["session"]) | undefined} */
   #session;
   #launchedAt = "2026-01-01T00:00:00.000Z";
+  /** @type {{ workspace: string, branch: string } | undefined} */
+  #isolated;
+  /** @type {LaunchOutcome} */
+  #outcome = {};
 
   /**
    * An execution launch of the story, in the `open-dough` project unless
@@ -119,6 +126,44 @@ export class LaunchRecordBuilder {
     return this;
   }
 
+  /**
+   * The ad hoc launch's start established an isolated workspace of the
+   * project on this branch, waiting for review.
+   * @param {{ workspace: string, branch: string }} isolated
+   */
+  inIsolatedWorkspace({ workspace, branch }) {
+    this.#isolated = { workspace, branch };
+    return this;
+  }
+
+  /**
+   * The session reported its completion, with this final report message
+   * (empty for a quiet completion).
+   * @param {{ message: string, outcome?: "completed" | "unfinished" }} report
+   */
+  completedWith({ message, outcome = "completed" }) {
+    this.#outcome = { ...this.#outcome, completion: { message, outcome } };
+    return this;
+  }
+
+  /**
+   * The session's work landed on `main` at this revision.
+   * @param {string} revision a 40-character commit id
+   */
+  landedAt(revision) {
+    this.#outcome = { ...this.#outcome, landedRevision: revision };
+    return this;
+  }
+
+  /**
+   * The developer marked the session Done at this time.
+   * @param {string} at an ISO date-time
+   */
+  markedDoneAt(at) {
+    this.#outcome = { ...this.#outcome, doneAt: at };
+    return this;
+  }
+
   /** @returns {LaunchRecord} */
   please() {
     const requested = this.#requested;
@@ -129,6 +174,9 @@ export class LaunchRecordBuilder {
       );
     if (storyBranch && requested.workflow !== "execution")
       throw new Error("only an execution's start establishes a story branch");
+    const isolated = this.#isolated;
+    if (isolated && requested.workflow !== "ad-hoc")
+      throw new Error("only an ad hoc start establishes an isolated workspace");
     const slug = requested.title.toLowerCase().replaceAll(/\s+/g, "-");
     const session = this.#session
       ? this.#session(requested.title)
@@ -146,9 +194,26 @@ export class LaunchRecordBuilder {
           workflow: requested.workflow,
           title: requested.title,
           instruction: requested.instruction,
+          ...(isolated && {
+            policy: {
+              workspace: /** @type {const} */ ("isolated"),
+              landing: /** @type {const} */ ("review"),
+            },
+          }),
         },
         session,
+        ...(isolated && {
+          establishedSession: {
+            workspace: isolated.workspace,
+            role: /** @type {const} */ ("isolated"),
+            branch: isolated.branch,
+            remote: "origin",
+            target: "main",
+            landing: /** @type {const} */ ("review"),
+          },
+        }),
         launchedAt: this.#launchedAt,
+        ...launchOutcomeFacts(this.#outcome, this.#launchedAt),
       };
     return {
       request: {
@@ -172,6 +237,7 @@ export class LaunchRecordBuilder {
         },
       }),
       launchedAt: this.#launchedAt,
+      ...launchOutcomeFacts(this.#outcome, this.#launchedAt),
     };
   }
 }

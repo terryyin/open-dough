@@ -70,6 +70,7 @@ import {
   type AdmittedFinalReport,
 } from "./finalReportAdmission.ts";
 import { sessionsRequest, type AdmittedSessions } from "./sessionsAdmission.ts";
+import { withFollowUpContext } from "./followUpAdmission.ts";
 
 export type Admitted =
   | AdmittedSessions
@@ -161,7 +162,10 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   }
   const project = projectFolder(source);
   await admitLaunchSettings(request, host);
-  const selected = await withSelectedOptions(request, project);
+  const selected = await withSelectedOptions(
+    await withFollowUpContext(request, source),
+    project,
+  );
   return {
     kind: "accept",
     source,

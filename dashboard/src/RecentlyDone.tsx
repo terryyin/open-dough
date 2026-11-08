@@ -15,7 +15,8 @@ import { columnMark } from "./columnPaging.ts";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { ShowLatest, ShownRange } from "./RecentlyDoneRangeActions.tsx";
 import type { DoneDetail } from "./doneDetails.ts";
-import type { LaunchRecord } from "./launchRecord.ts";
+import type { MachineSessions } from "./agentLaunches.ts";
+import { SessionFollowUp } from "./FollowUp.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import { useHeldEntryFocus } from "./recentlyDoneFocus.ts";
 import {
@@ -85,19 +86,34 @@ function ListedEntry({
   each,
   detailOf,
   sourceId,
-  launchRecords,
+  project,
+  launches,
   selectedIdentity,
   onSelect,
 }: {
   readonly each: Listed;
   readonly detailOf: (record: CataloguedDoneRecord) => DoneDetail;
   readonly sourceId: string;
-  readonly launchRecords: readonly LaunchRecord[] | undefined;
+  readonly project: string;
+  readonly launches: MachineSessions;
   readonly selectedIdentity: string | undefined;
   readonly onSelect: (identity: string) => void;
 }) {
   if (!("record" in each)) {
-    return <SessionEntry record={each.session} onStoryCard={false} />;
+    return (
+      <SessionEntry
+        record={each.session}
+        onStoryCard={false}
+        followUp={
+          <SessionFollowUp
+            record={each.session}
+            project={project}
+            sourceId={sourceId}
+            launches={launches}
+          />
+        }
+      />
+    );
   }
   const { record, sessions } = each;
   const detail = detailOf(record);
@@ -109,7 +125,7 @@ function ListedEntry({
       said={unreadWords(detail, record.fileName)}
       sessions={sessions}
       sourceId={sourceId}
-      launchRecords={launchRecords}
+      launchRecords={launches.records}
       selected={selectedIdentity === record.identity}
       onSelect={onSelect}
     />
@@ -119,11 +135,14 @@ function ListedEntry({
 export function RecentlyDone({
   view,
   sourceId,
-  launchRecords,
+  project,
+  launches,
 }: {
   readonly view: RecentlyDoneView;
   readonly sourceId: string;
-  readonly launchRecords: readonly LaunchRecord[] | undefined;
+  // The project's name.
+  readonly project: string;
+  readonly launches: MachineSessions;
 }) {
   const section = useRef<HTMLElement>(null);
   const { selectedIdentity, toggle } = useStorySelection(sourceId);
@@ -181,7 +200,8 @@ export function RecentlyDone({
                 each={each}
                 detailOf={details.detailOf}
                 sourceId={sourceId}
-                launchRecords={launchRecords}
+                project={project}
+                launches={launches}
                 selectedIdentity={selectedIdentity}
                 onSelect={toggle}
               />

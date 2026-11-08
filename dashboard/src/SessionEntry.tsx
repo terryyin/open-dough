@@ -10,7 +10,7 @@ import {
 // A retained (done) session shows its listing facts; any of its controls asks
 // the page's history read for its full entry (`./retainedHistory.ts`).
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { ChevronRight, Ellipsis } from "lucide-react";
 import { Icon, IconButton } from "./Icon.tsx";
 import {
@@ -43,6 +43,7 @@ export function SessionEntry({
   onStoryCard,
   takesFocus,
   storyCardAssignments,
+  followUp,
 }: {
   readonly record: LaunchWithState;
   // Set where the entry is listed on its story's card, which names the story.
@@ -51,6 +52,9 @@ export function SessionEntry({
   // can land on it; set, it takes the keyboard.
   readonly takesFocus?: boolean;
   readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
+  // Given where the entry offers Follow up beside its primary action
+  // (`./FollowUp.tsx`).
+  readonly followUp?: ReactNode;
 }) {
   const entry = useRef<HTMLElement>(null);
   const { title, identity, name, modelWords } = launchSubject(record.request);
@@ -158,6 +162,7 @@ export function SessionEntry({
       <LaunchSessionNotice record={record} />
       <div className="session-entry-controls">
         <LaunchSession record={record} />
+        {followUp}
         <RecoverSession record={record} say={say} />
         <button
           type="button"

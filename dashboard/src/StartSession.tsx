@@ -18,6 +18,12 @@
 // belong to `LaunchDialog`. A launch that did not start, or may not have, says so
 // beside the button, which stays enabled to start again. Nothing here makes
 // a card or a story.
+//
+// An entry in Recently done that no longer offers Open terminal opens the
+// same dialog from its Follow up (`followUp`), with the same choices and
+// defaults: it also names the entry it follows up and lists, read-only, the
+// context the server will send with the request (`./followUpContext.ts`).
+// Its launch is the entry's own beside its button (`./launchAttempts.ts`).
 
 import { hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
@@ -26,55 +32,44 @@ import {
   adHocName,
   establishesSession,
   unattachedPolicyOf,
-  type LaunchChoices,
 } from "./agentLaunch.ts";
-import type { SessionPolicyOffer } from "./launchOffers.ts";
+import type { MachineSessions } from "./agentLaunches.ts";
 import { unattachedSession } from "./UnattachedSessionPolicy.tsx";
 import {
   unattachedEffect,
   unattachedSummary,
   unattachedWhere,
 } from "./sessionPolicyWords.ts";
-import type { LaunchAttempt, OnLaunched } from "./launchAttempts.ts";
 import { LaunchDialog } from "./LaunchDialog.tsx";
-import type { StartAnswer } from "./useLaunchConfirmation.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { usePageSessions } from "./pageSessions.ts";
 import { keyboardRestsOn } from "./launchHandoff.ts";
-import { SquareTerminal } from "lucide-react";
+import { MessageSquarePlus, SquareTerminal } from "lucide-react";
+import { FollowUpSubject, type FollowUpShown } from "./FollowUpSubject.tsx";
 import { Icon } from "./Icon.tsx";
 import "./agent-launch.css";
 import "./frame-controls.css";
 
+// The selected host's installed skills decide whether a session with no story
+// is established (`sessionPolicyOffer`); without it only the default choices
+// are offered. Another host's offers are read again (`rereadOffers`). The last
+// launch from this button that has not started a session is its own
+// (`adHocAttemptOf`), the project's or, for a follow-up, its source's.
 export function StartSession({
   project,
   sourceId,
-  attempt,
-  sessionPolicy,
-  onHostChanged,
-  onStart,
+  launches,
+  followUp,
 }: {
   // The selected project's name.
   readonly project: string;
   readonly sourceId: string;
-  // The last launch from this row that has not started a session.
-  readonly attempt: LaunchAttempt | undefined;
-  // Whether the selected host's installed skills establish a session with no
-  // story; without it only the default choices are offered.
-  readonly sessionPolicy: (
-    host: AgentLaunchRequest["host"],
-  ) => SessionPolicyOffer;
-  // The developer chose another host, whose offers are read again.
-  readonly onHostChanged: () => void;
-  // Answers whether the launch was accepted, or the existing changes to
-  // confirm; its session, once launched, is presented (`onLaunched`) and then
-  // takes the keyboard.
-  readonly onStart: (
-    choices: LaunchChoices,
-    onLaunched: OnLaunched,
-  ) => Promise<StartAnswer>;
+  readonly launches: MachineSessions;
+  // Set where an entry's Follow up opens the dialog.
+  readonly followUp?: FollowUpShown | undefined;
 }) {
+  const attempt = launches.adHocAttemptOf(sourceId, followUp?.source);
   const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
   // Each opening starts from the default choices.
   const [policy, setPolicy] = useState(unattachedPolicyOf({}));
@@ -94,13 +89,19 @@ export function StartSession({
         type="button"
         className="frame-button"
         aria-haspopup="dialog"
-        aria-label={`Start session in ${project}`}
+        aria-label={
+          followUp === undefined
+            ? `Start session in ${project}`
+            : `Follow up ${followUp.name}`
+        }
         aria-describedby={attempt !== undefined ? answerId : undefined}
         disabled={starting}
         onClick={openDialog}
       >
-        <Icon icon={SquareTerminal} />
-        Start session
+        <Icon
+          icon={followUp === undefined ? SquareTerminal : MessageSquarePlus}
+        />
+        {followUp === undefined ? "Start session" : "Follow up"}
       </button>
       {attempt?.kind === "starting" && (
         <p
@@ -126,15 +127,20 @@ export function StartSession({
           host={host}
           onHost={(next) => {
             setHost(next);
-            onHostChanged();
+            launches.rereadOffers();
           }}
           heading={`Start a session in ${project} in ${hostName(host)}`}
-          description={`${hostName(host)} starts a background session on this machine, in ${policy.workspace === "isolated" ? "a new workspace of this project" : "this project's folder"}, with no story or skill. It is listed as ${project} · ${adHocName}.`}
+          context={
+            followUp === undefined ? undefined : (
+              <FollowUpSubject followUp={followUp} />
+            )
+          }
+          description={`${hostName(host)} starts a background session on this machine, in ${policy.workspace === "isolated" ? "a new workspace of this project" : "this project's folder"}, with no story or skill${followUp === undefined ? "" : ", sending this context with your request"}. It is listed as ${project} · ${adHocName}.`}
           fieldLabel="What would you like to talk about? (optional)"
           session={unattachedSession({
             policy,
             onPolicy: setPolicy,
-            offer: sessionPolicy(host),
+            offer: launches.sessionPolicyOffer(sourceId, "ad-hoc", host),
           })}
           effects={
             <>
@@ -148,19 +154,24 @@ export function StartSession({
             <p>{unattachedWhere(policy, establishesSession({ policy }))}</p>
           }
           onStart={(choices) =>
-            onStart(choices, (record) => {
-              if (launcher.current !== null)
-                presentTerminal({
-                  record,
-                  control: launcher.current,
-                  // The button holds the keyboard once the startup ends,
-                  // if it rested on the startup's progress.
-                  takesKeyboard: keyboardRestsOn(
-                    progress.current,
-                    launcher.current,
-                  ),
-                });
-            })
+            launches.startAdHoc(
+              sourceId,
+              choices,
+              (record) => {
+                if (launcher.current !== null)
+                  presentTerminal({
+                    record,
+                    control: launcher.current,
+                    // The button holds the keyboard once the startup ends,
+                    // if it rested on the startup's progress.
+                    takesKeyboard: keyboardRestsOn(
+                      progress.current,
+                      launcher.current,
+                    ),
+                  });
+              },
+              followUp?.source,
+            )
           }
           onClose={(accepted) => {
             setPolicy(unattachedPolicyOf({}));

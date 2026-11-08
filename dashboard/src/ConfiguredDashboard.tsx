@@ -174,6 +174,7 @@ export function ConfiguredDashboard({
                   <main hidden={!showsBoard}>
                     <Board
                       sourceId={source.id}
+                      project={source.label}
                       work={work}
                       launches={launches}
                       onOpenRoster={openRoster}
