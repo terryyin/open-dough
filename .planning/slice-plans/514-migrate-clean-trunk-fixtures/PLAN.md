@@ -34,7 +34,7 @@ Exclusions:
 
 - Queued and preparation trunks, including the supplier visit fixtures'
   queued trunk and the one-shot refinement trunks, belong to
-  [plan 510](../510-build-explicit-git-fixtures/PLAN.md). Where a file uses
+  [the shared queued fixtures](../../../tests/support/queued-repository.mjs). Where a file uses
   both, this plan changes only the clean-trunk side.
 - The one-shot payload installation repository is a harness layer and stays.
 - Dashboard start origins, Node backlog repositories and shell or native
@@ -44,10 +44,9 @@ Exclusions:
 - The description gains no general branch or merge model.
 
 The story records a blocking dependency on
-[the shared repository builder](../../seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures)
-([plan 510](../510-build-explicit-git-fixtures/PLAN.md)). Execution starts
-only after `makeMe.aRepository` and its materializer are on trunk, and then
-extends them.
+[the shared repository builder](../../../tests/support/repository-fixture.mjs).
+Execution starts after `makeMe.aRepository` and its materializer are on trunk,
+then extends them.
 
 ## Current decisions
 

@@ -24,10 +24,9 @@ Exclusions:
   [faster Git fixture construction](../../seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories).
 
 The story records a blocking dependency on
-[the shared repository builder](../../seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures)
-([plan 510](../510-build-explicit-git-fixtures/PLAN.md)). Execution starts
-only after `makeMe.aRepository` and its materializer are on trunk, and then
-extends them.
+[the shared repository builder](../../../tests/support/repository-fixture.mjs).
+Execution starts after `makeMe.aRepository` and its materializer are on trunk,
+then extends them.
 
 ## Current decisions
 
@@ -115,7 +114,7 @@ under a load average near 5.
 | Slice 1 consumer set | `grep` for `startOrigin(` and for `origin: async` fixtures in `dashboard/` | 47 files called `startOrigin` at `9f436aba4` and 49 at `6d1f994d8`, 11 of them helpers at the first count. Seven fixtures create an origin. 70 helper modules and 95 specs import `startOrigin.ts`. About 200 dashboard test files name Story A or its identity. |
 | Slice 2 preserves the standalone publication boundary | Read `storyReadinessFixture.ts`, `committedOriginRepo.ts`, `admittedWork.ts` and `taken-admitted-investigation.spec.ts` at `fe1b9d4bf` | Readiness serves committed bytes and local branch heads from the checkout at a chosen revision. Admission serves the bare origin at the revision accepted by the production command. Keep both inputs to the publisher and check the landed materializer against the focused specs. |
 | Slice 3 declared claims are found as claims | Read `claimOf` in `storyCiComparisonHistory.ts` | It finds the latest commit on any ref by `<name>-chan@example.org` with `Take queued work` in its message, so a declared revision with that author and message is found the same way. |
-| Slice 3 declared Take matches what start publishes | [Plan 510's premise rows](../510-build-explicit-git-fixtures/PLAN.md#decisive-premises), observed on 2026-11-08 at `3be3f59df` | `renderAgentProfile` and `renderBacklog` reproduced the profile and backlog bytes a real Take published, with the agent as author. |
+| Slice 3 declared Take matches what start publishes | `0eb86657:.planning/slice-plans/510-build-explicit-git-fixtures/proof.md`, decisive premise observations, observed on 2026-11-08 at `3be3f59df` | `renderAgentProfile` and `renderBacklog` reproduced the profile and backlog bytes a real Take published, with the agent as author. |
 | No native evidence changes | `tests/support/*-native-evidence.sh` list their inputs | None lists a dashboard support module, so no paid run is needed. |
 
 The migrated verdicts cannot be observed before plan 510's materializer
