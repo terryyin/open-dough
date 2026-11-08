@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-259_correct-scan-intent-ci-summaries.json",
+      "identity": "SEED-259#correct-scan-intent-ci-summaries",
+      "completedAt": "2026-11-08T01:30:12.638Z",
+      "blob": "d77ff9616877acbdd4d73ecca7b3f192f472e26a"
+    },
+    {
       "fileName": "SEED-260_restore-default-test-timeouts.json",
       "identity": "SEED-260#restore-default-test-timeouts",
       "completedAt": "2026-11-07T20:39:04.124Z",

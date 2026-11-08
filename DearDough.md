@@ -860,7 +860,7 @@ plan required to show stability was not rerun on the refactored file.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.89 (installed `.claude/skills/dough-update/VERSION`)
-  - Evidence: plan 504 slice 4 proof row "passes, and so does `--repeat-each=5` of its listing-count test"; the refactor return listed the repeat as invalidated and offered "14 passed" across three specs instead; the coordinator reran `--repeat-each=5` on `authenticated-read-revision-stream.spec.ts:59` (5 passed)
+  - Evidence: plan 504 slice 4 proof row (`7267337bc:.planning/slice-plans/504-correct-scan-intent-ci-summaries/PLAN.md`) "passes, and so does `--repeat-each=5` of its listing-count test"; the refactor return listed the repeat as invalidated and offered "14 passed" across three specs instead; the coordinator reran `--repeat-each=5` on `authenticated-read-revision-stream.spec.ts:59` (5 passed)
   - Observed effect: one extra coordinator run before delivery; no wrong result published
   - Inference: the refactor brief said "rerun only what your edits invalidate" without naming that plan-named proof shapes (repeats, filters) carry over to the replacement
 
