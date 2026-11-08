@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-273_lean-follow-up-listing.json",
+      "identity": "SEED-273#lean-follow-up-listing",
+      "completedAt": "2026-11-08T12:14:49.097Z",
+      "blob": "67982cbc851d8189833e439c14ebc64b5cfc9cd6"
+    },
+    {
       "fileName": "SEED-262_migrate-clean-trunk-fixtures.json",
       "identity": "SEED-262#migrate-clean-trunk-fixtures",
       "completedAt": "2026-11-08T11:13:39.094Z",

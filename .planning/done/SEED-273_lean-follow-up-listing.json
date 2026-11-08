@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-273#lean-follow-up-listing",
+  "title": "Keep follow-up context out of listings and resume it after its source expires",
+  "completedAt": "2026-11-08T12:14:49.097Z",
+  "developer": "Terry Yin",
+  "agent": "aki-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
