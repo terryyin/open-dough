@@ -214,3 +214,23 @@ Reported: slice 4 — "final-report-admission.spec.ts:24-33 re-wraps a Codex ret
 Story clause: "completion and landing setup, Codex and Cursor continuation and terminal setup"
 Disposition: excluded "completion and landing setup, Codex and Cursor continuation and terminal setup"
 Commitment: E3.1, G4
+## Execution complete
+
+Product advice:
+- Correction planned: [SEED-261#align-kept-launch-store-setup](../../seeds/SEED-261-share-domain-test-data.md#align-kept-launch-store-setup)
+  ([plan 543](../543-align-kept-launch-store-setup/PLAN.md)) makes the avatar
+  terminal case keep coherent story records and gives the store one read and
+  write vocabulary. Its plan changes one expected text in the avatar spec's
+  rows check, because a record with an agent must be a story launch.
+- Hand over to sibling stories before this plan is removed: completion and
+  landing owns `final-report-admission.spec.ts:24-33` (a Claude session
+  around Codex and Cursor records without stating the mismatch); host
+  continuation owns `agent-terminal-codex.spec.ts:164-180`,
+  `project-restored-session.spec.ts:44` (Codex cast) and the
+  `oneShotReviewChoices` legacy record. Siblings converting cases that assert
+  a native session name need a builder session-name variant; the builder
+  names a session after its title.
+- The dedicated key-example spec `recently-done-sessions-sidebar-projects.spec.ts`
+  stays as the deliberate proof of example 1.
+- Pre-landing full local suites at `3e177c0ef`: `npm run test:dashboard` 2242
+  passed, 1 opt-in skipped; `npm test` passed.

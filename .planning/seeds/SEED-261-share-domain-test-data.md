@@ -240,6 +240,37 @@ adding writers. Planning decides whether that writer uses the server's
 [launch record document](../../dashboard/server/launchRecordDocument.ts) or
 the plain document shape; either keeps the bytes the server reads.
 
+<a id="align-kept-launch-store-setup"></a>
+
+### Keep one launch store vocabulary and coherent kept records in dashboard tests
+
+**Identity:** SEED-261#align-kept-launch-store-setup
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/543-align-kept-launch-store-setup/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9ce295d450793e951fbf3c67c86e844d1f4cea5215164331252f17ba4738e700","plan":"ab0277ad1e6f3b472089a0b84e5b96f5a6544dd767fc130e99d555407b74113d"}}
+```
+
+Correction of SEED-261#map-launch-and-session-test-data
+(`3e177c0ef59a0d5a4045a0fa167979845324c873:.planning/seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data`).
+
+#### Goal
+
+Maintainers reading dashboard tests find the machine launch store written and
+read through one harness owner, with one name for each operation, and no test
+outside the sibling stories' setup keeps a launch the dashboard would never
+record.
+
+#### Scope
+
+- Tests read the kept store back through its owner instead of building the
+  store file's path, and the forwarders that give the store a second
+  vocabulary go. Exact, malformed and legacy store text stays explicit at the
+  call site. The sibling stories' helpers keep their own setup.
+- The terminal header portrait case keeps a story's execution or refinement
+  record naming its agent, not an ad hoc record given a story's start or
+  preparation.
+- Assertions catch the same failures, and product behavior does not change.
+- Plan: [543-align-kept-launch-store-setup](../slice-plans/543-align-kept-launch-store-setup/PLAN.md)
+
 <a id="map-launch-observation-test-data"></a>
 
 ### Make live launch observation test setup map directly to the domain
