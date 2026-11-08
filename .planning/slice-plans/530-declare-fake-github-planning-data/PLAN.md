@@ -160,6 +160,14 @@ in the four publishers (`publishMovingOrigin.push`, `publishOrigin`,
 comparison. `revision-stream.spec.ts:186` exceeded its 20 000 ms page-time
 bound once at load 32 and passed 20 of 20 on rerun; watch it in the full run.
 
+CI repair (run 42487558040, `7bec63357`): `writeRevisionFiles` read the
+target checkout before writing, so the merged `sessionsReplayProjects.ts`,
+which writes before the directory exists, failed with ENOENT. A missing
+checkout now starts from no files; the case "a revision written into a
+checkout that does not exist yet starts from no files" failed with that
+ENOENT before the fix. Refactor disposition: already traced by the repair
+return (one guard and one test case, no new helper or path).
+
 ### 2. Navigation, session and board journeys declare their published facts
 
 Type: Behavior

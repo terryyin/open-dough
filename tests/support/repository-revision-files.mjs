@@ -1,6 +1,7 @@
 // @ts-check
 import {
   chmodSync,
+  existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
@@ -202,7 +203,8 @@ const sameBytes = (a, b) =>
  * @param {RevisionFacts} revision
  */
 export function writeRevisionFiles(integration, revision) {
-  const start = checkoutFiles(integration);
+  // A checkout not created yet starts from no files, as a fresh clone would.
+  const start = existsSync(integration) ? checkoutFiles(integration) : {};
   const after = renderRevisionFiles(start, revision);
   for (const path of Object.keys(start)) {
     if (Object.hasOwn(after, path)) continue;

@@ -1,10 +1,16 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
 import { makeMe } from "./makeMe.mjs";
 import { renderPublishedBacklog } from "./published-backlog.mjs";
 import { materializeRepository } from "./repository-fixture.mjs";
-import { renderPublishedRevisions } from "./repository-revision-files.mjs";
+import {
+  renderPublishedRevisions,
+  writeRevisionFiles,
+} from "./repository-revision-files.mjs";
 import {
   agentIdentity,
   renderAgentProfile,
@@ -125,4 +131,29 @@ test("each revision a description renders without Git holds the same files and b
   assert.deepEqual(catalogued(A), ["SEED-D#second", "SEED-D#first"]);
   assert.deepEqual(catalogued(B), ["SEED-D#second"]);
   assert.equal(B["trunk.txt"], undefined);
+});
+
+test("a revision written into a checkout that does not exist yet starts from no files", (t) => {
+  const story = makeMe.aBacklogEntry
+    .with({ identity: "SEED-A#a", href: "seeds/A.md#a", title: "Story A" })
+    .please();
+  const description = makeMe.aRepository
+    .withRevision("A", {
+      backlog: { queued: [story] },
+      files: { "trunk.txt": "base\n" },
+    })
+    .please();
+  const parent = mkdtempSync(join(tmpdir(), "revision-files-"));
+  t.after(() => rmSync(parent, { recursive: true, force: true }));
+  const checkout = join(parent, "git", "project");
+
+  writeRevisionFiles(checkout, description.revisions[0]);
+
+  const { A } = renderPublishedRevisions(description);
+  for (const [path, content] of Object.entries(A))
+    assert.equal(
+      Buffer.compare(readFileSync(join(checkout, path)), Buffer.from(content)),
+      0,
+      path,
+    );
 });
