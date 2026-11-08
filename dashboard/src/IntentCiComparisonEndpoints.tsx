@@ -1,8 +1,9 @@
 // Endpoint table for Intent's story CI timing comparison
 // (`./IntentCiComparison.tsx`): each endpoint's requested-revision status
 // beside a compact Build source cue (exact / ancestor icon with accessible
-// words, or concise equivalent / later words), CI wall time, and CI time
-// without runner waits with a signed difference against Baseline.
+// words, or concise equivalent / later words), and its measured CI wall time
+// and CI time without runner waits. The active comparison's changes are the
+// summary's (`./IntentCiComparison.tsx`).
 
 import type { ReactNode } from "react";
 import { GitCommitHorizontal, History, type LucideIcon } from "lucide-react";
@@ -108,12 +109,10 @@ function EndpointIdentity({
 function EndpointRow({
   label,
   slot,
-  baseline,
   provisional,
 }: {
   readonly label: string;
   readonly slot: StoryCiComparisonSlot;
-  readonly baseline: StoryCiComparisonSlot;
   readonly provisional: boolean;
 }) {
   const wall = wallTimeWords(slot);
@@ -125,10 +124,7 @@ function EndpointRow({
       </td>
       <td className="intent-ci-comparison-wall">{wall ?? "—"}</td>
       <td className="intent-ci-comparison-without-waits">
-        {timeWithoutRunnerWaitsWords(
-          slot,
-          label === "Baseline" ? undefined : baseline,
-        )}
+        {timeWithoutRunnerWaitsWords(slot)}
       </td>
     </tr>
   );
@@ -161,32 +157,20 @@ export function ComparisonEndpointsTable({
         </tr>
       </thead>
       <tbody>
-        <EndpointRow
-          label="Baseline"
-          slot={baseline}
-          baseline={baseline}
-          provisional={false}
-        />
+        <EndpointRow label="Baseline" slot={baseline} provisional={false} />
         <EndpointRow
           label="Branch"
           slot={branch}
-          baseline={baseline}
           provisional={branchProvisional}
         />
         {provisional !== undefined && (
           <EndpointRow
             label="Provisional"
             slot={provisional}
-            baseline={baseline}
             provisional={true}
           />
         )}
-        <EndpointRow
-          label="Landed"
-          slot={landed}
-          baseline={baseline}
-          provisional={false}
-        />
+        <EndpointRow label="Landed" slot={landed} provisional={false} />
       </tbody>
     </table>
   );

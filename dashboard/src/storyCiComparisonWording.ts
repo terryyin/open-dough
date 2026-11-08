@@ -1,14 +1,14 @@
 // Wording of a story's CI comparison on Intent's homepage
 // (`./IntentCiComparison.tsx`): each endpoint's Build source cue (exact /
-// ancestor accessible words, or concise equivalent / later wording), CI wall
-// time and time without runner waits in whole seconds, readable before → after
-// (Δ[, %]) differences for the active comparison's overall timing (without
-// runner waits) and wall-time context, and the active comparison name, framed
-// as observations between single builds, never attributed to the story.
+// ancestor accessible words, or concise equivalent / later wording), each
+// build's measured CI wall time and time without runner waits in whole
+// seconds, one signed whole-second change for each of the active
+// comparison's overall timings (without runner waits, and wall time), and the
+// active comparison name, framed as observations between single builds,
+// never attributed to the story.
 // Overall counts live in `./storyCiComparisonCountsWords.ts`.
 
 import {
-  durationChangeWords,
   wallTimeMs,
   wholeSecondDifferenceWords,
   wholeSecondWords,
@@ -72,44 +72,44 @@ export function wallTimeWords(slot: StoryCiComparisonSlot): string | undefined {
   return slot.adapterAttempt === undefined ? undefined : "Not recorded";
 }
 
-// Readable CI wall-time change between two completed builds. Percentage only
-// when the baseline is a measured non-zero duration. Shown as context beside
-// the overall without-runner-waits difference.
+// Signed whole-second change from a measured BEFORE to a measured LATER
+// ("+17 s", "−8 s", "0 s"); none when either is not measured. A measured
+// zero before still gives a change.
+function signedChangeWords(
+  before: number | undefined,
+  later: number | undefined,
+): string | undefined {
+  if (before === undefined || later === undefined) return undefined;
+  return wholeSecondDifferenceWords(later - before);
+}
+
+function measuredWallTimeMs(slot: StoryCiComparisonSlot): number | undefined {
+  return slot.kind === "build"
+    ? wallTimeMs(slot.startedAt, slot.completedAt)
+    : undefined;
+}
+
+// The active comparison's CI wall-time change between two completed builds.
 export function wallTimeChangeWords(
   baseline: StoryCiComparisonSlot,
   after: StoryCiComparisonSlot,
 ): string | undefined {
-  if (baseline.kind !== "build" || after.kind !== "build") return undefined;
-  const before = wallTimeMs(baseline.startedAt, baseline.completedAt);
-  const later = wallTimeMs(after.startedAt, after.completedAt);
-  if (before === undefined || later === undefined) return undefined;
-  return durationChangeWords(
-    before,
-    later,
-    wholeSecondWords,
-    wholeSecondDifferenceWords,
+  return signedChangeWords(
+    measuredWallTimeMs(baseline),
+    measuredWallTimeMs(after),
   );
 }
 
-/** @deprecated Prefer wallTimeChangeWords (before → after with optional %). */
-export const wallTimeDifferenceWords = wallTimeChangeWords;
-
-// Endpoint cell: absolute without-runner-waits time, with a signed difference
-// against Baseline when both sides are measured.
+// Endpoint cell: the build's measured time without runner waits, or why it
+// has none. The change from Baseline is the summary's.
 export function timeWithoutRunnerWaitsWords(
   slot: StoryCiComparisonSlot,
-  baseline?: StoryCiComparisonSlot,
 ): string {
   if (slot.kind === "running") return "Unavailable while the build is running.";
   if (slot.kind !== "build") return "—";
   const timing = slot.timeWithoutRunnerWaits;
   if ("reason" in timing) return `Unavailable. ${timing.reason}`;
-
-  const time = wholeSecondWords(timing.milliseconds);
-  const before =
-    baseline?.kind === "build" ? baseline.timeWithoutRunnerWaits : undefined;
-  if (before === undefined || "reason" in before) return time;
-  return `${time} ${wholeSecondDifferenceWords(timing.milliseconds - before.milliseconds)}`;
+  return wholeSecondWords(timing.milliseconds);
 }
 
 function measuredWithoutRunnerWaitsMs(
@@ -120,20 +120,14 @@ function measuredWithoutRunnerWaitsMs(
   return "reason" in timing ? undefined : timing.milliseconds;
 }
 
-// Readable overall timing change: CI time without runner waits as
-// before → after (Δ[, %]). Percentage only for a measured non-zero baseline.
+// The active comparison's change in CI time without runner waits.
 export function timeWithoutRunnerWaitsChangeWords(
   baseline: StoryCiComparisonSlot,
   after: StoryCiComparisonSlot,
 ): string | undefined {
-  const before = measuredWithoutRunnerWaitsMs(baseline);
-  const later = measuredWithoutRunnerWaitsMs(after);
-  if (before === undefined || later === undefined) return undefined;
-  return durationChangeWords(
-    before,
-    later,
-    wholeSecondWords,
-    wholeSecondDifferenceWords,
+  return signedChangeWords(
+    measuredWithoutRunnerWaitsMs(baseline),
+    measuredWithoutRunnerWaitsMs(after),
   );
 }
 

@@ -25,22 +25,28 @@ proof. The story's **CI comparison** view names the active comparison
 (**Baseline compared with
 Landed** when Landed has proof, else **Branch**, or **Provisional** for Taken
 Trunk Mode) and why Landed is unused when skipped; an overall summary keeps
-units apart and shows CI time without runner waits as `before → after (Δ)`
-(percentage only for a measured non-zero baseline), with CI wall time as
-context; then each endpoint's Build cell with a compact exact or ancestor
+units apart in **Counts** and shows one signed whole-second change each for
+**CI time without runner waits** and **CI wall time** when both compared
+builds measured it (a measured zero included; omitted otherwise); then each
+endpoint's Build cell with a compact exact or ancestor
 source icon (accessible label for that distinction) or concise equivalent /
 later wording, without commit subjects, run or attempt IDs, or routine skip
 explanations in the default cell, keeping short exceptional explanations when
 present (failed or cancelled runs, missing proof, unexplained absences;
 Cancelled or No build when the requested revision is not the timed build
-shown), with CI wall time and CI time without runner waits (signed
-whole-second differences against Baseline; observations between builds, not
-attributed to the story); then entry rows whose Counts and Baseline / Branch /
-Landed cells reuse the before→after words. The entry rows sort by their column
-headers as **CI status** Proof's do: **Counts** by the active after endpoint's
-counted results, and **Baseline**, **Branch** and **Landed** by that
-endpoint's measured time, an endpoint gap (added, removed, partial,
-unavailable) following the measured rows in either direction. GitHub Actions
+shown), with its measured CI wall time and CI time without runner waits, or
+why it has none (observations between builds, not attributed to the story);
+then entry rows whose Counts cell keeps the before→after words, whose
+Baseline cell shows its measured time, and whose Branch and Landed cells show
+one signed whole-second change from a measured Baseline (`+30 s`, `−1 min`,
+`0 s`; a measured zero Baseline still gives one). An entry added after
+Baseline shows its measured time without a change; a gap keeps its label and
+explanation. The entry rows sort by their column headers: **Counts** by the
+active after endpoint's counted results, **Baseline** by its measured time,
+and **Branch** and **Landed** by the signed change they show. A row without
+that value (added, removed, partial, unavailable) follows the others in
+either direction. A selected entry's, folder's or file's comparison keeps
+`before → after (Δ, %)` words and sorts by measured time. GitHub Actions
 wall time spans run creation on attempt one or attempt start on reruns through
 completion. CI time without runner waits measures the longest dependency chain
 of job durations. GitHub Actions uses the workflow at that build, including

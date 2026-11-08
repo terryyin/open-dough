@@ -1,10 +1,11 @@
 // Entry rows of a selected story's CI comparison on Intent's homepage
 // (`./IntentCiComparison.tsx`): match each endpoint's proof summary by path
-// through the shared scope comparison (`./ciScopeComparison.ts`), show
-// baseline / branch / landed execution times with signed whole-second
-// differences, counted-results differences in Counts, mark added and
-// removed entries, and keep parts completeness from the homepage's chosen
-// build (`./ciScopeComparisonPrimary.ts`).
+// through the shared scope comparison (`./ciScopeComparison.ts`), show the
+// measured Baseline execution time and, in Branch and Landed, one signed
+// whole-second change from it when both ends are measured (a new entry keeps
+// its measured time; a gap keeps its words), counted-results differences in
+// Counts, mark added and removed entries, and keep parts completeness from
+// the homepage's chosen build (`./ciScopeComparisonPrimary.ts`).
 
 import { shortSha } from "./baseCiWording.ts";
 import type { CiProof, CiProofEntry } from "./ciProof.ts";
@@ -13,6 +14,7 @@ import {
   ambiguousAttemptLine,
   unavailableLine,
 } from "./ciProofAbsenceWording.ts";
+import { wholeSecondDifferenceWords } from "./ciProofTimeWords.ts";
 import type { TimingCell } from "./ciProofTiming.ts";
 import type { CiProofCells, CountedResults } from "./ciProofWording.ts";
 import { primaryProofOf, scopeComparisonCellsOf } from "./ciScopeComparison.ts";
@@ -56,10 +58,14 @@ export function comparisonEndpointProofsChecking(
 
 // A compared scope's Counts words, the active after endpoint's counted
 // results and each endpoint's timing. Counts and timing sort by their
-// measured values. Parts completeness belongs to the selected scope's own
-// figures.
+// measured values, except that Branch and Landed sort by their signed change
+// when the cells show it (`showsChange`). Parts completeness belongs to the
+// selected scope's own figures.
 export type ComparisonEntryCells = {
   readonly counts: string;
+  // Branch and Landed show and sort by their change from Baseline (a story
+  // CI comparison's entry rows); otherwise by their measured time.
+  readonly showsChange?: true;
   readonly countedResults: CountedResults | undefined;
   readonly baseline: TimingCell;
   readonly branch: TimingCell;
@@ -187,16 +193,40 @@ export function comparisonEntriesOf(
     kind: "rows",
     rows: paths.map((path) => ({
       path,
-      cells: scopeComparisonCellsOf(
-        path,
-        baseline,
-        branch,
-        landed,
-        "whole-second",
-        path,
-        undefined,
-        afterSide,
+      cells: changeCellsOf(
+        scopeComparisonCellsOf(
+          path,
+          baseline,
+          branch,
+          landed,
+          "whole-second",
+          path,
+          undefined,
+          afterSide,
+        ),
       ),
     })),
+  };
+}
+
+// AFTER's signed change from a measured BASELINE when AFTER is measured too;
+// otherwise AFTER as it is: a new entry's measured time or a gap's words.
+// A measured zero baseline still gives a change.
+function changeCellOf(baseline: TimingCell, after: TimingCell): TimingCell {
+  if (baseline.ms === undefined || after.ms === undefined) return after;
+  const changeMs = after.ms - baseline.ms;
+  return {
+    text: wholeSecondDifferenceWords(changeMs),
+    ms: after.ms,
+    changeMs,
+  };
+}
+
+function changeCellsOf(cells: ComparisonEntryCells): ComparisonEntryCells {
+  return {
+    ...cells,
+    showsChange: true,
+    branch: changeCellOf(cells.baseline, cells.branch),
+    landed: changeCellOf(cells.baseline, cells.landed),
   };
 }

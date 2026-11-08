@@ -92,7 +92,7 @@ for (const variant of [
     } else {
       await expect(
         panel.locator(".intent-ci-comparison-overall-timing"),
-      ).toHaveText("4 min 55 s → 5 min 12 s (+17 s, +6%)");
+      ).toHaveText("+17 s");
       await expectCueState(
         panel.locator(".intent-ci-comparison-overall-timing"),
         {
@@ -103,7 +103,13 @@ for (const variant of [
     }
     await expect(
       panel.locator(".intent-ci-comparison-overall-wall"),
-    ).toHaveText("CI wall time 4 min 59 s → 5 min 19 s (+20 s, +7%)");
+    ).toHaveText("+20 s");
+    // One signed change per comparable summary metric, each under its label.
+    await expect(panel.locator(".intent-ci-comparison-metrics dt")).toHaveText(
+      landedJobsUnavailable
+        ? ["Counts", "CI wall time"]
+        : ["Counts", "CI time without runner waits", "CI wall time"],
+    );
     const baselineIdentity = panel
       .locator(".intent-ci-comparison-identity")
       .nth(0);
@@ -144,10 +150,10 @@ for (const variant of [
       panel.locator(".intent-ci-comparison-without-waits"),
     ).toHaveText([
       "4 min 55 s",
-      "4 min 47 s −8 s",
+      "4 min 47 s",
       landedJobsUnavailable
         ? "Unavailable. The build's attempt jobs could not be read."
-        : "5 min 12 s +17 s",
+        : "5 min 12 s",
     ]);
     await expect(panel).not.toContainText("Entry comparison is not yet shown.");
     await expect(panel).not.toContainText(

@@ -63,6 +63,31 @@
   font-size: 0.95em;
 }
 
+/* The active comparison's overall metrics side by side, stacked when narrow. */
+.intent-ci-comparison-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  margin: 0 0 var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.intent-ci-comparison-metrics > div {
+  min-width: 0;
+  padding: var(--space-2);
+}
+
+.intent-ci-comparison-metrics dt {
+  color: var(--muted, #555);
+  font-size: var(--text-sm);
+}
+
+.intent-ci-comparison-metrics dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
 .intent-ci-comparison {
   width: 100%;
   border-collapse: collapse;

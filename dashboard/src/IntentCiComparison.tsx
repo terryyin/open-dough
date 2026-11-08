@@ -1,17 +1,15 @@
 // A selected story's CI timing comparison on Intent's homepage
-// (`./IntentCiStatus.tsx`): names the active comparison (Baseline with
-// Landed when Landed has proof, otherwise Branch or Provisional), shows an
-// overall count and CI time without runner waits as before → after (Δ) with
-// CI wall time as context, then each endpoint's build identity, wall time,
-// and time without runner waits (`./IntentCiComparisonEndpoints.tsx`), then
-// one row per CI entry in the homepage proof table (`./CiProofTable.tsx`)
-// with each endpoint's cumulative test execution time, sortable by its
-// columns. Taken answers label
-// the live tip provisional and say Landed has not landed yet; Taken Trunk
-// Mode also names the provisional trunk tip beside Branch N/A. A done
-// comparison ends with the judged branch's Check again
-// (`./IntentCiJudgedBranch.tsx`), disabled while it is read, whatever it
-// shows: the comparison, an unavailable answer, or a failed read.
+// (`./IntentCiStatus.tsx`): the active comparison's summary
+// (`./IntentCiComparisonSummary.tsx`), then each endpoint's build identity
+// and measured wall time and time without runner waits
+// (`./IntentCiComparisonEndpoints.tsx`), then one row per CI entry in the
+// homepage proof table (`./CiProofTable.tsx`) with Baseline's cumulative test
+// execution time and Branch's and Landed's signed change from it, sortable by
+// its columns. Taken answers label the live tip provisional and say Landed
+// has not landed yet; Taken Trunk Mode also names the provisional trunk tip
+// beside Branch N/A. A done comparison ends with the judged branch's Check
+// again (`./IntentCiJudgedBranch.tsx`), disabled while it is read, whatever
+// it shows: the comparison, an unavailable answer, or a failed read.
 
 import {
   CiProofTable,
@@ -19,11 +17,8 @@ import {
   useCiProofSorting,
   type CiProofSorting,
 } from "./CiProofTable.tsx";
-import {
-  countCueElementAttrs,
-  durationCueElementAttrs,
-} from "./ciScopeComparisonCuePresentation.ts";
 import { ComparisonEndpointsTable } from "./IntentCiComparisonEndpoints.tsx";
+import { ActiveComparisonSummary } from "./IntentCiComparisonSummary.tsx";
 import { CheckAgain } from "./IntentCiJudgedBranch.tsx";
 import { useIntentCiEvidence, type CiEvidence } from "./IntentCiEvidence.tsx";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
@@ -32,17 +27,7 @@ import {
   comparisonEntriesFromProofs,
   type ComparisonEndpointProofs,
 } from "./useIntentCiComparisonEntries.ts";
-import {
-  activeComparisonOf,
-  observedNotAttributed,
-  overallTimingCue,
-  timeWithoutRunnerWaitsChangeWords,
-  wallTimeChangeWords,
-} from "./storyCiComparisonWording.ts";
-import {
-  overallCountsCue,
-  overallCountsWords,
-} from "./storyCiComparisonCountsWords.ts";
+import { observedNotAttributed } from "./storyCiComparisonWording.ts";
 import type { ComparisonAfterSide } from "./ciScopeComparisonCues.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
 import "./intent-ci-cues.css";
@@ -53,57 +38,6 @@ function endpointProofsOf(
   return evidence.kind === "comparison" || evidence.kind === "judged"
     ? evidence.endpointProofs
     : undefined;
-}
-
-function ActiveComparisonSummary({
-  answer,
-  proofs,
-}: {
-  readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
-  readonly proofs: ComparisonEndpointProofs;
-}) {
-  const active = activeComparisonOf(answer, proofs);
-  const overallCounts = overallCountsWords(proofs.baseline, active.proof);
-  const overallTiming = timeWithoutRunnerWaitsChangeWords(
-    answer.baseline,
-    active.slot,
-  );
-  const wallContext = wallTimeChangeWords(answer.baseline, active.slot);
-  const countsCue = overallCountsCue(proofs.baseline, active.proof);
-  const timingCue = overallTimingCue(answer.baseline, active.slot);
-  return (
-    <div className="intent-ci-comparison-summary">
-      <p className="intent-ci-comparison-active">{active.title}</p>
-      {active.landedUnusedReason !== undefined && (
-        <p className="intent-ci-comparison-active-reason">
-          Landed is not used: {active.landedUnusedReason}
-        </p>
-      )}
-      <p
-        {...countCueElementAttrs(
-          countsCue,
-          "intent-ci-comparison-overall-counts",
-        )}
-      >
-        {overallCounts}
-      </p>
-      {overallTiming !== undefined && (
-        <p
-          {...durationCueElementAttrs(
-            timingCue,
-            "intent-ci-comparison-overall-timing",
-          )}
-        >
-          {overallTiming}
-        </p>
-      )}
-      {wallContext !== undefined && (
-        <p className="intent-ci-comparison-overall-wall">
-          CI wall time {wallContext}
-        </p>
-      )}
-    </div>
-  );
 }
 
 function EntryComparison({

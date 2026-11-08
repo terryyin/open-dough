@@ -48,14 +48,14 @@ example)" and their sibling rows.
 | 8.7 | Provisional evidence stays recognizable. | slice 1 | observed: intent-ci-comparison-taken.spec.ts provisional states through the CI comparison default |
 | 8.8 | Missing evidence stays recognizable. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts compares-named-builds variants (locations read held): existing endpoint, source, wall/runner-wait, count, attribution and missing-evidence assertions in the default panel |
 | 8.9 | Recovery actions are preserved. | slice 1 | observed: intent-ci-comparison-retry.spec.ts Check again recovery through the CI comparison default |
-| 9 | The CI summary shows one signed elapsed-time delta when both timings are measured. | slice 4 | |
-| 9a | Branch entry cells show one signed elapsed-time delta when both timings are measured. | slice 4 | |
-| 9b | Landed entry cells show one signed elapsed-time delta when both timings are measured. | slice 4 | |
-| 10 | The measured Baseline time stays in its own column. | slice 4 | |
-| 11 | Branch and Landed columns sort by their numeric delta. | slice 4 | |
-| 11a | Entries without comparable timings sort after the measured deltas. | slice 4 | |
-| 12 | A new entry shows its measured time instead of a change mark. | slice 4 | |
-| 13 | The existing explanation is kept when timing evidence is missing. | slice 4 | |
+| 9 | The CI summary shows one signed elapsed-time delta when both timings are measured. | slice 4 | observed: dashboard/tests/intent/intent-ci-comparison.spec.ts summary +17 s / +20 s under CI time without runner waits and CI wall time; intent-ci-comparison-taken.spec.ts provisional |
+| 9a | Branch entry cells show one signed elapsed-time delta when both timings are measured. | slice 4 | observed: dashboard/tests/support/expectCiComparisonEntryRows.ts comparedStoryEntryRows Branch +30 s / −30 s; intent-ci-comparison-sort.spec.ts |
+| 9b | Landed entry cells show one signed elapsed-time delta when both timings are measured. | slice 4 | observed: dashboard/tests/support/expectCiComparisonEntryRows.ts comparedStoryEntryRows Landed +1 min / −1 min |
+| 10 | The measured Baseline time stays in its own column. | slice 4 | observed: comparedStoryEntryRows Baseline column 4 min / 2 min / 10 min; build table plain measured values in intent-ci-comparison*.spec.ts |
+| 11 | Branch and Landed columns sort by their numeric delta. | slice 4 | observed: dashboard/tests/intent/intent-ci-comparison-sort.spec.ts Branch and Landed sort by signed change, not by time or relative change (both directions); tests/support/intent-ci-comparison-sort.test.mjs |
+| 11a | Entries without comparable timings sort after the measured deltas. | slice 4 | observed: intent-ci-comparison-sort.spec.ts untimed and added entries last in both directions |
+| 12 | A new entry shows its measured time instead of a change mark. | slice 4 | observed: intent-ci-comparison-sort.spec.ts and -entries.spec.ts Added row shows 5 s / 30 s with no change mark |
+| 13 | The existing explanation is kept when timing evidence is missing. | slice 4 | observed: dashboard/tests/intent/intent-ci-comparison-entries.spec.ts No timings / untimed with accessible descriptions; build table unavailable text in -gaps and -adapter-unavailable specs |
 | 14 | Relative change appears with a visible zero mark. | slice 5 | |
 | 15 | Comparable timings share one scale. | slice 5 | |
 | 16 | Faster extends left and slower extends right. | slice 5 | |
@@ -65,7 +65,7 @@ example)" and their sibling rows.
 | 19 | Zero change stays at the center. | slice 5 | |
 | 20 | An absent baseline supplies no relative change. | slice 5 | |
 | 20a | A zero baseline supplies no relative change. | slice 5 | |
-| 21 | A measured zero baseline can still supply an elapsed delta. | slice 4 | |
+| 21 | A measured zero baseline can still supply an elapsed delta. | slice 4 | observed: tests/support/dashboard-ci-comparison-entries.test.mjs a measured zero baseline still gives a signed change +30 s |
 | 22 | The shared scale handles values beyond those shown in the mockup. | slice 5 | |
 | 23 | **Hide files** / **Show files** sits at the trailing end of the tab row. | slice 1 | observed: intent-sidebar-toggle.spec.ts toggle at the end of the story tab row, absent from the mode bar |
 | 23a | It reuses the existing control and the kept reading place. | slice 1 | observed: intent-sidebar-toggle.spec.ts kept choice survives Candidates, Development and project change via FileBrowserToggle |

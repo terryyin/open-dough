@@ -163,7 +163,7 @@ The pane is `IntentStoryCoverage.tsx`. Its states are new targets for slice
 ### 4. Read and sort signed CI timing changes
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Signed time changes row above. Extend entry comparison and sort
 journeys. Run shared timing, sort, and file/folder comparison consumers.
 
@@ -172,6 +172,24 @@ comparable summary metric and entry cell, can look up measured build times,
 and can order entries by the change shown in Branch or Landed. Keep measured
 Added values and meaningful gaps. This slice can stop with readable signed
 changes. Slice 5 adds relative bars and optional percentages.
+
+Accepted proof: `tests/intent` (260 passed); 13 CI support node tests;
+`tests/native-evidence-identity.sh`; the refactor's five comparison specs
+(21 passed); typecheck and ESLint. `intent-ci-comparison-sort.spec.ts`
+uses data where absolute time, elapsed change and relative change each imply
+a different order. `dashboard-ci-comparison-entries.test.mjs` observes the
+measured zero baseline.
+
+Decision: the build table shows only measured times. The story asks for
+one signed delta in the summary and entry cells, and the mockup shows
+plain build values, so the old change suffix was removed.
+
+Learnings for slice 5: entry cells carry `changeMs` and the Baseline cell's
+`ms`. Derive the relative value from them only for a positive baseline. The
+summary's signed changes come from `storyCiComparisonWording.ts` and render
+in `IntentCiComparisonSummary.tsx`. Review the summary's "Counts" label, the
+mockup's "Tests and checks", the "vs baseline" notes, "Added"
+capitalization, and the metrics grid at narrow width and in dark mode.
 
 ### 5. Compare the size of relative timing changes
 

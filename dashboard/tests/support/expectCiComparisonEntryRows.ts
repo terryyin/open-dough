@@ -9,20 +9,8 @@ import type { ExpectedCues } from "./expectCiComparisonCues.ts";
 const entryColumns = ["Entry", ...comparisonTableColumns];
 
 export const comparedStoryEntryRows = [
-  [
-    "dashboard/tests",
-    "2,090 → 2,092 tests (+2)",
-    "4 min",
-    "4 min → 4 min 30 s (+30 s, +13%)",
-    "4 min → 5 min (+1 min, +25%)",
-  ],
-  [
-    "tests",
-    "5 checks (no change)",
-    "2 min",
-    "2 min → 1 min 30 s (−30 s, −25%)",
-    "2 min → 1 min (−1 min, −50%)",
-  ],
+  ["dashboard/tests", "2,090 → 2,092 tests (+2)", "4 min", "+30 s", "+1 min"],
+  ["tests", "5 checks (no change)", "2 min", "−30 s", "−1 min"],
   ["src/skills", "added → 3 checks", "added", "30 s", "30 s"],
 ] as const;
 
