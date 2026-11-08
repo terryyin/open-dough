@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-264_reconcile-released-intent-coverage.json",
+      "identity": "SEED-264#reconcile-released-intent-coverage",
+      "completedAt": "2026-11-08T01:42:54.664Z",
+      "blob": "31965f5ea229c996d27069283e6f9feab7e0d912"
+    },
+    {
       "fileName": "SEED-261_share-published-agent-profile-builders.json",
       "identity": "SEED-261#share-published-agent-profile-builders",
       "completedAt": "2026-11-08T01:16:39.832Z",
