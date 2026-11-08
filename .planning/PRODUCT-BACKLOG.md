@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Build each test’s Git repository from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures) — SEED-262#build-explicit-git-fixtures ([plan](slice-plans/510-build-explicit-git-fixtures/PLAN.md))
-- [Surface a named sibling landing before delivering against its old shape](seeds/SEED-010-learn-from-execution-retrospectives.md#notice-named-sibling-landings-before-delivery) — SEED-010#notice-named-sibling-landings-before-delivery ([plan](slice-plans/523-notice-named-sibling-landings/PLAN.md))
 
 ## Backlog list
 
