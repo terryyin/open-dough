@@ -15,7 +15,12 @@ import { scopeCueElementAttrs } from "./ciScopeComparisonCuePresentation.ts";
 import { Icon } from "./Icon.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
-import { locationExplanation } from "./intentLocationExplanation.ts";
+import {
+  declaredKindOf,
+  declaredPatternsOf,
+  locationExplanation,
+  selectionPhrase,
+} from "./intentLocationExplanation.ts";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import { IntentTreeFileRow } from "./IntentTreeFileRow.tsx";
@@ -38,40 +43,36 @@ import {
 import "./story-review-files.css";
 import "./intent-ci-cues.css";
 
-function selectionPhrase(location: IntentLocation): string {
-  if (location.include === undefined || location.include.length === 0) {
-    return location.kind;
-  }
-  return `${location.kind}, ${location.include.join(", ")}`;
-}
-
 function LocationLabel({ location }: { readonly location: IntentLocation }) {
+  const kind = declaredKindOf(location);
   return (
     <>
       {location.label === undefined ? (
         <code>{location.path}</code>
       ) : (
         <span title={location.path}>{location.label}</span>
-      )}{" "}
-      <span className="intent-location-kind">{location.kind}</span>
-      {location.include !== undefined && location.include.length > 0
-        ? location.include.map((pattern) => (
-            <span key={pattern} className="intent-location-pattern">
-              {" "}
-              <code>{pattern}</code>
-            </span>
-          ))
-        : null}
+      )}
+      {kind === undefined ? null : (
+        <>
+          {" "}
+          <span className="intent-location-kind">{kind}</span>
+        </>
+      )}
+      {declaredPatternsOf(location).map((pattern, at) => (
+        <span
+          key={`${String(at)}-${pattern}`}
+          className="intent-location-pattern"
+        >
+          {" "}
+          <code>{pattern}</code>
+        </span>
+      ))}
     </>
   );
 }
 
 function locationBaseName(location: IntentLocation): string {
-  const patterns =
-    location.include === undefined || location.include.length === 0
-      ? ""
-      : `, ${location.include.join(", ")}`;
-  return `${location.label ?? location.path}, ${location.kind}${patterns}`;
+  return `${location.label ?? location.path}, ${selectionPhrase(location)}`;
 }
 
 export function IntentLocationGroup({

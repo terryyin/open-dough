@@ -27,7 +27,14 @@ expansion shows only in the toggle. With a story comparison, file rows and
 location headers whose path is a compared entry show the same count-border
 and duration-tint cues, with Proof's words in their accessible names; folder
 rows do not. Selecting a file still reads its exact published text with line
-numbers and Gherkin syntax styling at Intent's reading revision. A location or
+numbers and Gherkin syntax styling at Intent's reading revision. A location
+may instead declare `sources` entries, each with `include` patterns and an
+optional `syntax` hint ([project configuration](../dashboard/PROJECT-CONFIGURATION.md)):
+a file any entry's pattern matches is listed, with no extension filter, and
+styled by the hint of the first matching entry in declaration order; one with
+no hint, or a hint Intent has no grammar for, reads as plain text. That
+location's header names its patterns without a kind. The same selection
+places a selected story's changed files and admits a file's read. A location or
 folder summary names the selection by path and how many matching files the
 tree lists (a selected story's overlaid files included), gives an unusable
 location's explanation, and shows the CI proof that **CI status** shows, never

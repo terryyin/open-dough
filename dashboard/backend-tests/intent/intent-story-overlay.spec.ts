@@ -8,7 +8,8 @@
 // location admits counts once outside. "Selected story only" keeps just the
 // changed entries, and the story opens the first changed location in
 // configured order with the folders holding changes, whether or not it is
-// restricted. The integrated journeys: ../../tests/intent/intent-story-changes-moves.spec.ts
+// restricted. A location declared by source entries places a story's added
+// file by the same rule. The integrated journeys: ../../tests/intent/intent-story-changes-moves.spec.ts
 // and ../../tests/intent/intent-story-completed.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -20,6 +21,7 @@ import {
   type StoryOverlay,
 } from "../../src/intentStoryOverlay.ts";
 import type { ReviewedFile } from "../../src/storyReviewFiles.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const locations: readonly IntentLocation[] = [
   {
@@ -70,10 +72,13 @@ const changes: readonly ReviewedFile[] = [
 ];
 
 // Each location's tree files as `path [kind] (unpublished)`, by location.
-const placed = ({ locations: shown }: StoryOverlay) =>
+const placed = (
+  { locations: shown }: StoryOverlay,
+  of: readonly IntentLocation[] = locations,
+) =>
   Object.fromEntries(
     shown.map(({ files, containsChanges }, index) => [
-      `${locations[index]?.path ?? ""}${containsChanges ? " (changes)" : ""}`,
+      `${of[index]?.path ?? ""}${containsChanges ? " (changes)" : ""}`,
       files.map(
         (file) =>
           `${file.path}${file.kind === undefined ? "" : ` [${file.kind}]`}${
@@ -153,4 +158,25 @@ test("the story opens the first changed location and the folders holding changes
       intentStoryOverlay(locations, [changes[6] as ReviewedFile]),
     ),
   ).toEqual({ location: undefined, folders: [[], [], []] });
+});
+
+test("a sources location places a story's added matching file as added, and a non-matching neighbor counts once outside", () => {
+  const checks: IntentLocation = {
+    ...makeMe.anIntentLocation
+      .at("checks")
+      .withSources({ include: ["**/*.check"] })
+      .please(),
+    files: ["checks/a.check"],
+  };
+  const overlay = intentStoryOverlay(
+    [checks],
+    [
+      { kind: "added", path: "checks/b.check" },
+      { kind: "added", path: "checks/notes.md" },
+    ],
+  );
+  expect(placed(overlay, [checks])).toEqual({
+    "checks (changes)": ["a.check", "b.check [added] (unpublished)"],
+  });
+  expect(overlay.outside).toBe(1);
 });

@@ -1,7 +1,7 @@
 // Intent locations published in the project settings, read through the local
 // authenticated read boundary (`../server/authenticatedRead.ts`) at a
 // revision already resolved: with `intent=locations`, each configured
-// location and the files its kind lists there (`./IntentPerspective.tsx`).
+// location and the files it selects there (`./IntentPerspective.tsx`).
 // An answer fixed by its revision is asked once per page (`./answerMemo.ts`);
 // a failed read, or a settings problem, is asked again.
 
@@ -20,14 +20,34 @@ import type { PublishedSource } from "./publishedSource.ts";
 const locationProblem = z.enum(["unsupported-kind", "no-matching-files"]);
 const settingsProblem = z.enum(["malformed", "unreadable"]);
 
-const intentLocation = z.object({
+const answeredFields = {
   path: z.string().min(1),
-  kind: z.string().min(1),
   label: z.string().min(1).optional(),
-  include: z.array(z.string().min(1)).optional(),
   files: z.array(z.string().min(1)),
   problem: locationProblem.optional(),
-});
+};
+
+// A location declared by source entries answers them and no kind; one
+// declared by a kind answers it with any include patterns.
+const intentLocation = z.union([
+  z.object({
+    ...answeredFields,
+    sources: z
+      .array(
+        z.object({
+          include: z.array(z.string().min(1)).min(1).readonly(),
+          syntax: z.string().min(1).optional(),
+        }),
+      )
+      .min(1)
+      .readonly(),
+  }),
+  z.object({
+    ...answeredFields,
+    kind: z.string().min(1),
+    include: z.array(z.string().min(1)).readonly().optional(),
+  }),
+]);
 
 const okIntent = z.object({
   revision: commitSha,

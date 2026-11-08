@@ -1,5 +1,6 @@
 // Which files a configured Intent location selects, and each file's syntax
-// hint. A location is a list of source entries; a path relative to the
+// hint. A location is a list of source entries, declared as `sources` or as
+// one `kind` with optional `include` patterns; a path relative to the
 // location belongs to the first entry, in declaration order, whose filter and
 // patterns match it (`*` one folder, `**` across folders), and that entry's
 // hint names the file's syntax. One rule for the server's listing
@@ -53,19 +54,40 @@ export type SourceEntry = {
   readonly extensions?: readonly string[];
 };
 
-// A location as its selection is declared: folder, kind, include patterns.
-export type LocationSelection = {
-  readonly path: string;
-  readonly kind: string;
-  readonly include?: readonly string[] | undefined;
+// One declared source entry of a `sources` location: its patterns relative
+// to the location and its optional syntax hint.
+export type SourceDeclaration = {
+  readonly include: readonly string[];
+  readonly syntax?: string | undefined;
 };
+
+// A location as its selection is declared: its folder and either a kind with
+// optional include patterns, or source entries. When `sources` is present it
+// alone selects.
+export type LocationSelection =
+  | {
+      readonly path: string;
+      readonly kind: string;
+      readonly include?: readonly string[] | undefined;
+    }
+  | {
+      readonly path: string;
+      readonly sources: readonly SourceDeclaration[];
+    };
 
 // A location's source entries in declaration order, or undefined when its
 // declaration names an unsupported kind. A kind declaration is one entry:
 // its kind's extensions, its include patterns (or any path), the kind as hint.
+// A `sources` entry keeps its patterns and hint, with no extension filter.
 export function sourceEntriesOf(
   location: LocationSelection,
 ): readonly SourceEntry[] | undefined {
+  if ("sources" in location) {
+    return location.sources.map(({ include, syntax }) => ({
+      patterns: include,
+      ...(syntax === undefined ? {} : { hint: syntax }),
+    }));
+  }
   const extensions = extensionsOf(location.kind);
   if (extensions === undefined) return undefined;
   return [

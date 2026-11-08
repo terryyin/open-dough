@@ -86,27 +86,24 @@ async function filesUnderLocation(
   });
 }
 
+// A location's answer carries its declaration as settings gave it
+// (`./intentLocationsSettings.ts`): a kind with any include patterns, or its
+// source entries with no kind.
 function locationAnswer(
   location: DeclaredLocation,
   files: readonly string[],
 ): IntentLocation {
-  const fields = {
-    path: location.path,
-    kind: location.kind,
-    ...(location.label === undefined ? {} : { label: location.label }),
-    ...(location.include === undefined ? {} : { include: location.include }),
-  };
   if (sourceEntriesOf(location) === undefined) {
-    return { ...fields, files: [], problem: "unsupported-kind" };
+    return { ...location, files: [], problem: "unsupported-kind" };
   }
   if (files.length === 0) {
-    return { ...fields, files: [], problem: "no-matching-files" };
+    return { ...location, files: [], problem: "no-matching-files" };
   }
-  return { ...fields, files };
+  return { ...location, files };
 }
 
-// Performs one Intent locations read: the configured locations and their
-// kind's nested files, or not-configured / a settings problem when the
+// Performs one Intent locations read: the configured locations and the
+// nested files each selects, or not-configured / a settings problem when the
 // setting is absent, malformed, or unreadable.
 export async function performIntentLocationsRead(
   pinned: PinnedTexts,

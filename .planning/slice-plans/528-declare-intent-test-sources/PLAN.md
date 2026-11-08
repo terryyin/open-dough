@@ -113,7 +113,7 @@ an entry without `extensions`. Refactor: the reading-pane value is
 ### 2. Declare a location's files by sources and syntax hints
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Rows 2–6 of the outside-in table, plus row 1 still green.
 
 A project publishing `sources` entries sees each matching file in one
@@ -121,6 +121,19 @@ location's tree, opens it at its path with its hint's styling or as plain
 text, and sees a selected story's added matching files there. Includes
 settings parsing, the answer and client schema, header and explanation
 wording, the MakeMe builder and the documentation.
+
+Accepted proof: same env prefix with `dashboard/tests/intent/
+dashboard/backend-tests/intent/
+dashboard/frontend-tests/intent-candidates-read-recovery.spec.ts` (247 passed);
+new tests in `authenticated-read-intent-selection.spec.ts`,
+`intent-location-syntax.spec.ts`, `intent-story-overlay.spec.ts`,
+`intent-code-browse-sources.spec.ts` and `intent-ci-proof-sources.spec.ts`;
+`makeMe.anIntentLocation` and `makeMe.intentSettings` arrange locations.
+Typecheck and lint clean.
+
+CI attempt 42467007584/1 on slice 1's `cedf9c92e` failed only in Node/npm-cache
+acquisition (`Unexpected HTTP response: 504` in dashboard 6/12, 7/12 and
+ci-proof) while the other shards set up; recorded as infrastructure, no repair.
 
 ## Story obligations
 
