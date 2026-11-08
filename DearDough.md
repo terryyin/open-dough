@@ -611,7 +611,7 @@ the candidate could.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `766cfa66f`)
-  - Evidence: Plan 533's Local gates said "compare before and after with the same command, back to back". Slice 2's sequential runs gave `story-payload-update.sh` 7.71–7.92 s before and 8.45–9.31 s after at load 10.7–12.6. Interleaved runs against a `git archive HEAD` copy gave 8.68–10.29 s before and 8.62–9.17 s after; the builder alone was 1.17–1.23 s old and 0.88–1.18 s new (plan 533 slice 2 accepted proof).
+  - Evidence: Plan 533's Local gates said "compare before and after with the same command, back to back". Slice 2's sequential runs gave `story-payload-update.sh` 7.71–7.92 s before and 8.45–9.31 s after at load 10.7–12.6. Interleaved runs against a `git archive HEAD` copy gave 8.68–10.29 s before and 8.62–9.17 s after; the builder alone was 1.17–1.23 s old and 0.88–1.18 s new (plan 533 slice 2 accepted proof, `afb028050:.planning/slice-plans/533-migrate-shell-release-and-native-fixtures/PLAN.md`).
   - Observed effect: The implementer repeated the timing interleaved before it could judge the promise; slices 1, 3 and 4 alternated old and new from the start.
   - Inference: "Back to back" was still read as sequential; naming interleaved runs against a base copy in the plan would likely avoid the repeat.
 
@@ -637,6 +637,6 @@ A plan named the scratch edit that should make a check fail, without observing i
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `766cfa66f`)
-  - Evidence: Plan 533 slice 2 Proof: "drop the withheld path from `update-adds-new-payload-skill.sh`'s 0.1.1. The check then fails". That edit passed on the candidate and on a `git archive HEAD` copy, because the check installs 0.1.1 by hand without reading its declaration. Dropping `--withhold` in `retrospective-reference-payload.sh` failed at its line 33, and dropping `--remove` in `update-adds-new-payload-skill.sh` failed with `Managed payload mismatch`.
+  - Evidence: Plan 533 (`afb028050:.planning/slice-plans/533-migrate-shell-release-and-native-fixtures/PLAN.md`) slice 2 Proof: "drop the withheld path from `update-adds-new-payload-skill.sh`'s 0.1.1. The check then fails". That edit passed on the candidate and on a `git archive HEAD` copy, because the check installs 0.1.1 by hand without reading its declaration. Dropping `--withhold` in `retrospective-reference-payload.sh` failed at its line 33, and dropping `--remove` in `update-adds-new-payload-skill.sh` failed with `Managed payload mismatch`.
   - Observed effect: The implementer found the discriminating checks itself; acceptance used them. Slice 4's unplanned "queued as taken" edit also passed, showing that the done-catalog proof does not observe list state.
   - Inference: A discrimination claim in a plan is a premise; observing it during planning, or marking it unverified, would have pointed slice 2 at the right check.
