@@ -3,6 +3,19 @@
 **Identity:** SEED-258#invoke-intent-coverage-manually
 
 **Source:** [Selected story](../../seeds/SEED-258-dough-intent-coverage.md#invoke-intent-coverage-manually)
+**Source review:** [Source commitments](source-review.md)
+
+## Execution context
+
+- Story Branch Mode in the dashboard-assigned linked worktree on
+  `codex/invoke-dough-intent-coverage-manually-across-tes`. `origin/main` is
+  the integration target. `origin`'s execution branch receives each slice.
+- Publisher `dashboard-territory.local-open-dough`, agent `viktor-chan`,
+  starting revision `915e70ae51a823ad5a7cbb82f9c1fb05b0090a0e`, and confirmed
+  claim and first publication base `fd3c598112daf1871eb788afd4ac8d08b50c9131`.
+- Codex observer `viktor-seed258`, GitHub Actions `ci.yml` (CI) on the
+  execution branch of `terryyin/open-dough`, mailbox
+  `/tmp/dough-ci-501/watch-iouCtG`, PID `36703`, session `97985`, cell `12`.
 
 ## Goal and boundaries
 
@@ -65,7 +78,7 @@ Test repairs, broader assessment, and automatic wrap-up are separate work.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: In an isolated project, a fresh native session invokes an installed
 representative skill and produces its expected result.
@@ -75,6 +88,27 @@ or retained observations that cover the chosen host profile. Where trust,
 login, or permissions still need observation, run one disposable check
 before authoring. If the profile refuses, record the specific blocker and
 hold dependent slices until the route is available.
+
+Accepted native observation on 2026-11-08 (local time), with AC power:
+
+```sh
+caffeinate -s -i bash tests/dough-adr-awareness-codex-delivery-to-use.sh --native --case delivery/updated-use --results-dir /tmp/dough-seed258-native.sjfrLgaV --deadline 240
+```
+
+Codex CLI 0.167.0 passed the maintained assessor. The update transitioned
+v0.2.1 to v0.2.2 on the same disposable target, preserving source and
+companion data. A distinct fresh session read the installed `.agents/skills`
+skill and both authority records, cited the conflicting ARC-12 statuses,
+and stopped for the human decision. The target and source snapshots were
+unchanged by fresh use. The retained replay attempt is
+`tests/fixtures/native-streams/codex/delivery/updated-use/20261107T235610-0195`.
+This establishes the current authenticated Codex route. The new skill's
+behavior is owned by the next two slices.
+
+The fixture's streams, stage responses, and ordered command expectations
+replayed successfully with `PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i bash tests/native-stream-replay.sh`.
+`caffeinate -s -i node --test tests/support/native-host-stream.test.mjs`
+passed six reader tests. Independent refactor review found no changes needed.
 
 ### 2. Return one targeted check in Open Dough
 
