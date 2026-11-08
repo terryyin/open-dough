@@ -6,9 +6,9 @@
 // modifies one profile; and a revision D whose commits remove the planned
 // story's profile and re-add it with identical text, by another human.
 
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
-import { slicePlan } from "./branchProgressRecords.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import {
   pathChange,
@@ -115,7 +115,12 @@ export const atA: PublishedRevision = {
   files: {
     [backlogPath]: backlog,
     [seedPath]: seed,
-    [planPath]: slicePlan(5, 2),
+    [planPath]: renderSlicePlan(
+      makeMe.aSlicePlan
+        .withStatuses(["done", "done", "planned", "planned", "planned"])
+        .please(),
+      { heading: "Slices" },
+    ),
     ...Object.fromEntries(
       agents.map((agent) => [profileOf(agent), profileText(agent)]),
     ),

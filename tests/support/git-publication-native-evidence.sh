@@ -53,6 +53,8 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-one-shot.sh \
         tests/support/git-publication-native-one-shot-fixture.sh \
         tests/support/git-publication-native-one-shot-fixture.mjs \
+        tests/support/makeMe.mjs \
+        tests/support/published-plan.mjs \
         tests/support/git-publication-native-one-shot-unobserved.sh \
         tests/support/git-publication-native-one-shot-queued.sh \
         tests/support/git-publication-native-one-shot-queued-observe.mjs \

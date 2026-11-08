@@ -3,6 +3,9 @@
 // the limit withholds, and a planned story whose record is read beside it and
 // whose plan is asked only after the limit.
 
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 export const repository = "terryyin/open-dough";
 export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 export const revision = "6e".repeat(20);
@@ -42,21 +45,34 @@ export const files = {
 ### ${plannedTitle}
 
 **Identity:** SEED-264#planned
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/264-planned/PLAN.md"}
-\`\`\`
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/264-planned/PLAN.md",
+    })
+    .please(),
+)}
 
 **Goal:** Its plan is asked only once the limit stands.
 `,
-  [plannedPlan]: `# Plan
-
-## Slices
-
-### 1. First slice
-Type: Behavior
-Status: planned
-Proof: A journey observes slice 1.
-`,
+  [plannedPlan]: renderSlicePlan(
+    makeMe.aSlicePlan
+      .with({
+        slices: [
+          makeMe.aPlanSlice
+            .with({
+              index: 1,
+              name: "First slice",
+              proof: "A journey observes slice 1.",
+            })
+            .please(),
+        ],
+      })
+      .please(),
+    { heading: "Slices" },
+  ),
 };
 
 // The same records with a third story whose record GitHub cannot be reached

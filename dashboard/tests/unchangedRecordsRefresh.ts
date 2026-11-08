@@ -2,6 +2,8 @@
 // what the page shows once every fact of its Taken card is read, shared by
 // the specs of what a newly published commit costs and when its cards show.
 
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -11,7 +13,6 @@ import {
   untilPublishedWorkRead,
 } from "./pageRequestNotes.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
-import { slicePlan } from "./branchProgressRecords.ts";
 import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 import { addedAt, type MadeCommit } from "./pathHistoryAnswers.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -52,9 +53,15 @@ export const seed = `# Refresh fixture
 ### ${takenTitle}
 
 **Identity:** SEED-271#refresh
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/271-refresh/PLAN.md"}
-\`\`\`
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/271-refresh/PLAN.md",
+    })
+    .please(),
+)}
 
 <a id="queued"></a>
 
@@ -69,7 +76,12 @@ export const files: Record<string, string> = withDoneCatalog(
   {
     [backlogPath]: backlog,
     [seedPath]: seed,
-    [planPath]: slicePlan(5, 2),
+    [planPath]: renderSlicePlan(
+      makeMe.aSlicePlan
+        .withStatuses(["done", "done", "planned", "planned", "planned"])
+        .please(),
+      { heading: "Slices" },
+    ),
     [profilePath]: renderAgentProfile(
       makeMe.anAgentProfile
         .executing({

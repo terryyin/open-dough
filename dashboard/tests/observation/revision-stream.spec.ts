@@ -36,10 +36,12 @@ import {
   opened,
   planPath,
   revision,
-  slicePlan,
-  trunk,
 } from "../branchProgressRecords.ts";
-import { openedSettled } from "../branchRefreshJourney.ts";
+import {
+  branchPlanPublication,
+  openedSettled,
+  sevenDoneOnBranch,
+} from "../branchRefreshJourney.ts";
 
 test.use({
   preholdRevisionStreamSlots: false,
@@ -145,16 +147,9 @@ test("a watched branch move reads only that entry's plan and commit time; the ot
   await otherStreaming;
   const movedHead = "e6".repeat(20);
   const before = githubFor(page).calls.length;
-  origin.moveBranch("story/example", {
-    revision: movedHead,
-    files: {
-      ...trunk.files,
-      [planPath("on-branch")]: slicePlan(8, 7),
-    },
-    committed: {
-      [planPath("on-branch")]: new Date(opened.getTime() - 2 * 60_000),
-    },
-  });
+  const commitAt = new Date(opened.getTime() - 2 * 60_000);
+  const moved = branchPlanPublication(movedHead, commitAt, sevenDoneOnBranch);
+  origin.moveBranch("story/example", moved);
   await page.clock.runFor(checkIntervalMs);
   await other.clock.runFor(checkIntervalMs);
   await expect(

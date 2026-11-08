@@ -4,20 +4,30 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { readPlanSlices } from "../../src/skills/dough-product-backlog/scripts/product-backlog-plan-reader.mjs";
+import { makeMe } from "./makeMe.mjs";
+import { renderSlicePlan } from "./published-plan.mjs";
 
-const completedSlices = `# Plan
-
-## Ordered slices
-
-### 1. First outcome
-Type: Behavior
-Status: done
-Accepted: The focused check passed.
-
-### 2. Second outcome
-Type: Structure
-Status: done
-`;
+const slices = [
+  makeMe.aPlanSlice
+    .with({
+      index: 1,
+      name: "First outcome",
+      status: "done",
+      accepted: "The focused check passed.",
+    })
+    .please(),
+  makeMe.aPlanSlice
+    .with({
+      index: 2,
+      name: "Second outcome",
+      type: "Structure",
+      status: "done",
+    })
+    .please(),
+];
+const completedSlices = renderSlicePlan(
+  makeMe.aSlicePlan.with({ slices }).please(),
+);
 
 const expectedSlices = [
   {
@@ -62,7 +72,9 @@ test("readPlanSlices returns “no product change, because …” and “retrosp
     "retrospective skipped",
   ]) {
     const read = readPlanSlices(
-      `${completedSlices}\n## Execution complete\n\nProduct advice: ${advice}\n`,
+      renderSlicePlan(
+        makeMe.aSlicePlan.with({ slices, completion: { advice } }).please(),
+      ),
     );
     assert.equal(read.status, "interpreted");
     assert.deepEqual(read.slices, expectedSlices);

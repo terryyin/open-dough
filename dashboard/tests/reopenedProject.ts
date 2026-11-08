@@ -4,9 +4,10 @@
 // is missing, and revision B, made by one commit that changes the backlog and
 // publishes that record.
 
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
-import { slicePlan } from "./branchProgressRecords.ts";
 import { addedAt, type MadeCommit } from "./pathHistoryAnswers.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
@@ -48,9 +49,15 @@ const seed = `# Reopen fixture
 ### ${takenTitle}
 
 **Identity:** SEED-261#on-branch
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/261-on-branch/PLAN.md"}
-\`\`\`
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/261-on-branch/PLAN.md",
+    })
+    .please(),
+)}
 `;
 
 const missingSeed = `# Missing fixture
@@ -65,7 +72,21 @@ const missingSeed = `# Missing fixture
 const trunkFiles: Record<string, string> = {
   [backlogPath]: backlogNaming(queuedTitle),
   [seedPath]: seed,
-  [planPath]: slicePlan(8, 0),
+  [planPath]: renderSlicePlan(
+    makeMe.aSlicePlan
+      .withStatuses([
+        "planned",
+        "planned",
+        "planned",
+        "planned",
+        "planned",
+        "planned",
+        "planned",
+        "planned",
+      ])
+      .please(),
+    { heading: "Slices" },
+  ),
   [profilePath]: renderAgentProfile(
     makeMe.anAgentProfile
       .executing({
@@ -109,6 +130,23 @@ export const madeB: MadeCommit = {
 
 export const onBranch: PublishedRevision = {
   revision: branchHead,
-  files: { ...trunkFiles, [planPath]: slicePlan(8, 6) },
+  files: {
+    ...trunkFiles,
+    [planPath]: renderSlicePlan(
+      makeMe.aSlicePlan
+        .withStatuses([
+          "done",
+          "done",
+          "done",
+          "done",
+          "done",
+          "done",
+          "planned",
+          "planned",
+        ])
+        .please(),
+      { heading: "Slices" },
+    ),
+  },
   committed: { [planPath]: minutesBefore(7) },
 };

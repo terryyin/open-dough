@@ -15,15 +15,15 @@ The numbered return is retained below.
 | P04 | A story’s membership is recognizable across test entries without decoding fixture-specific fields. | slice 9 |  |
 | P05 | A story’s published revision is recognizable across test entries without decoding fixture-specific fields. | slice 9 |  |
 | P06 | A story’s preparation is recognizable across test entries without decoding fixture-specific fields. | slice 3 | observed: storyReadinessFixture.ts and story-state-fixture.mjs pass named MakeMe preparation facts to the real recorder, including assessment and expected basis. |
-| P07 | A story’s progress is recognizable across test entries without decoding fixture-specific fields. | slice 6 |  |
+| P07 | A story’s progress is recognizable across test entries without decoding fixture-specific fields. | slice 6 | observed: MakeMe aPlanSlice and aSlicePlan use the production reader’s fields in storyReadinessPlans.ts, branchProgressRecords.ts and the Node/shell fixtures. |
 | P08 | Convert remaining valid setup for published project sources. | slice 2 | observed: catalogProjectRecords.ts declares the four canonical PublishedSource inputs and pinned revisions and serves their encoded files through publishFiles. |
 | P09 | Convert remaining valid setup for story homes. | slice 1 | observed: product-backlog-refresh-fixture.mjs adoptedHomes and afterMove, exercised by the renamed and reanchored home tests in product-backlog-refresh.test.mjs |
 | P10 | Convert remaining valid setup for backlog membership. | slice 1 | observed: product-backlog-fixture.mjs arrangedBacklog and product-backlog-merge-fixture.mjs mergeBacklog arrange Taken and queue facts; product-backlog-take.test.mjs and product-backlog-merge-order.test.mjs assert ordered membership |
 | P11 | Convert remaining valid setup for published assignments. | slice 5 | observed: dashboard profile fixtures, workspace-publication-startup-test-fixtures.mjs, and product backlog and closure tests supply valid assignments through makeMe.anAgentProfile and renderAgentProfile. |
 | P12 | Convert remaining valid setup for preparation. | slice 3 | observed: storyReadinessFixture.ts, story-state-fixture.mjs, queued-ready-stories.mjs and the installed native Take fixture supply the planned and planless preparation facts in canonical fields; G2–G5 own mixed-family conversions. |
 | P13 | Convert remaining valid setup for supplier agreements. | slice 4 | observed: storyDependencyFixture.ts, supplier-dependency-fixture.mjs and workspace-publication-startup-dependencies-cases.mjs give canonical MakeMe supplier agreements to the real writers; compare-agreements.mjs retained representative bytes. |
-| P14 | Convert remaining valid setup for slice plans. | slice 6 |  |
-| P15 | Convert remaining valid setup for slice progress. | slice 6 |  |
+| P14 | Convert remaining valid setup for slice plans. | slice 6 | observed: tests/support/published-plan.mjs writes ordinary plan facts for dashboard, obligation and publication consumers; the eleven fixture comparisons preserve byte layouts and the raw example. |
+| P15 | Convert remaining valid setup for slice progress. | slice 6 | observed: branchProgressRecords.ts and taken-execution-complete.spec.ts arrange ordered slice status and completion separately; the fresh delivery tests still use the actual selected-slice status mutation. |
 | P16 | Convert remaining valid setup for done records. | slice 7 |  |
 | P17 | Convert remaining valid setup for published Git comparison inputs. | slice 9 |  |
 | P18 | Cover dashboard consumers that arrange these facts. | slice 9 |  |
@@ -104,11 +104,11 @@ The numbered return is retained below.
 | J3.05 | Clearing that blocker does not renew the consumer’s readiness review. | slice 4 | observed: supplier-dependency-correction-satisfied.test.mjs compares the complete assessment before and after verified resolution; start-eligibility.spec.ts independently checks that readiness bytes do not change. |
 | J4.01 | The execution profile names an agent. | slice 5 | observed: workspace-publication-startup-agent.test.mjs checks remote profile and assigned name from real Take independently of workspace Git authorship. |
 | J4.02 | The execution profile names a story. | slice 5 | observed: workspace-publication-startup-agent.test.mjs verifies the published profile carries the selected story identity and execution ref. |
-| J4.03 | The plan shows ordered slices. | slice 6 |  |
-| J4.04 | The plan shows recorded proof. | slice 6 |  |
+| J4.03 | The plan shows ordered slices. | slice 6 | observed: story-readiness.spec.ts opens the published plan detail and checks the ordered slice information; branch-progress-reading.spec.ts independently observes branch order and state. |
+| J4.04 | The plan shows recorded proof. | slice 6 | observed: story-readiness.spec.ts reads two done slices with accepted proof after a real published update; storyReadinessPlans.ts arranges proof and accepted evidence independently. |
 | J4.05 | Reading the profile and plan makes the dashboard show the published owner. | slice 5 | observed: published-facts-arrival.spec.ts and taken-agent-profile-refresh.spec.ts observe the assigned owner on the Taken card from published profile and plan; the attribution cases separately track profile modification and re-addition. |
-| J4.06 | Reading the profile and plan makes the dashboard show progress. | slice 6 |  |
-| J4.07 | The execution-complete indication depends on its own proof even when the slices appear done. | slice 6 |  |
+| J4.06 | Reading the profile and plan makes the dashboard show progress. | slice 6 | observed: branch-progress-reading.spec.ts and story-readiness.spec.ts verify progress from the published owner profile and selected plan, including the branch revision and 0→2 of five slices. |
+| J4.07 | The execution-complete indication depends on its own proof even when the slices appear done. | slice 6 | observed: taken-execution-complete.spec.ts and plan-execution-complete-detail.spec.ts distinguish all done without completion, recorded advice, and the missing-advice gap. |
 | J5.01 | Completing a Taken item through the product command leaves a durable done record. | slice 7 |  |
 | J5.02 | A later read still shows the work after the plan or assignment has been removed. | slice 7 |  |
 | J5.03 | A later read still shows its recorded attribution after the plan or assignment has been removed. | slice 7 |  |

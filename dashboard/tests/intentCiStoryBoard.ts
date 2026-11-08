@@ -6,6 +6,8 @@
 // Recently done story. The failing story has a counted plan, so the page
 // reads its progress on its branch and its revision check watches that head.
 
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
@@ -99,20 +101,33 @@ ${entry(preparing)}
 `;
 
 const failingPlan = `.planning/slice-plans/219-${failing.anchor}/PLAN.md`;
-const plan = `# Plan
-
-## Slices
-
-### 1. Slice 1
-Type: Behavior
-Status: planned
-Proof: A journey observes slice 1.
-`;
+const plan = renderSlicePlan(
+  makeMe.aSlicePlan
+    .with({
+      slices: [
+        makeMe.aPlanSlice
+          .with({
+            index: 1,
+            name: "Slice 1",
+            proof: "A journey observes slice 1.",
+          })
+          .please(),
+      ],
+    })
+    .please(),
+  { heading: "Slices" },
+);
 const planned = (anchor: string) =>
   anchor === failing.anchor
-    ? `\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/219-${anchor}/PLAN.md"}
-\`\`\`
+    ? `${renderPublishedPreparation(
+        makeMe.aStoryPreparation
+          .with({
+            refinement: "refined",
+            approach: "planned",
+            plan: `../slice-plans/219-${anchor}/PLAN.md`,
+          })
+          .please(),
+      )}
 `
     : "";
 

@@ -328,7 +328,7 @@ dispositions are in `/tmp/od-seed261-refactor5-consumer-trace-with-dispositions.
 
 ### 6. Published plans retain ordered progress and separate execution completion
 Type: Behavior
-Status: planned
+Status: done
 Proof: The progress portion of seed example 4. Run `story-readiness.spec.ts`, `taken-execution-complete.spec.ts`, `plan-execution-complete-detail.spec.ts`, and affected plan-reader, completion and obligations checks. Verify that prospective proof, accepted proof, ordered progress and execution completion still produce their own observations.
 
 Convert valid plan and slice facts in
@@ -337,6 +337,43 @@ Convert valid plan and slice facts in
 and the plan support fixtures. Keep the raw alternate layouts and gap cases
 that exercise the reader's input. Preserve the actual operation when a test
 asks it to record proof or complete execution.
+
+Accepted proof on the macOS execution checkout:
+
+```zsh
+export PATH="/opt/homebrew/bin:$PATH"
+dough_slice6_dir=/tmp/od-seed261-slice6-g9WTCo
+checks=( "${(@f)$(< "$dough_slice6_dir/node-and-shell.txt")}" )
+specs=( "${(@f)$(< "$dough_slice6_dir/specs.txt")}" )
+OPEN_DOUGH_TEST_JOBS=2 OPEN_DOUGH_TEST_OUTCOMES="$dough_slice6_dir/node-outcomes.tsv" \
+  caffeinate -s -i bash scripts/test.sh "${checks[@]}"
+OPEN_DOUGH_TEST_JOBS=2 OPEN_DOUGH_TEST_OUTCOMES="$dough_slice6_dir/node-rerun-outcomes.tsv" \
+  caffeinate -s -i bash scripts/test.sh \
+  src/skills/dough-story-refinement/scripts/dough-land-completion.test.mjs \
+  tests/git-publication-native-one-shot.sh
+OPEN_DOUGH_DASHBOARD_PROOF_RECORD="$dough_slice6_dir/dashboard-proof.json" \
+  caffeinate -s -i npm run test:dashboard -- "${specs[@]}"
+npm run typecheck:dashboard && git diff --check
+node --experimental-transform-types "$dough_slice6_dir/compare-fixtures.mjs" \
+  "$dough_slice6_dir/prior" "$PWD"
+```
+
+The combined results passed 29 Node and shell jobs after correcting a
+duplicate import. All 123 Playwright tests passed. The checks observe
+ordered progress and accepted proof apart from the completion record and
+its advice gap. Fresh delivery still runs the real status mutation.
+Eleven before/after comparisons kept fixture paths and bytes identical,
+including the raw plan text and five G3 preparation fixtures. The
+credential-free one-shot native check passed and the evidence identity
+included the exact writer and MakeMe hashes. The paid host observation
+remains separate. Results and dispositions are under
+`/tmp/od-seed261-slice6-g9WTCo`.
+
+The independent refactor kept the original completion and stream assertions
+in their specs and shared branch publication setup between polling and
+streaming. Seven affected Playwright tests, eleven byte comparisons,
+dashboard type-check, and the evidence identity check passed on the refactored
+candidate. Proof and dispositions are under `/tmp/od-seed261-refactor6`.
 
 ### 7. Completing work leaves a durable done record
 Type: Behavior
@@ -411,7 +448,7 @@ Disposition: proved by slice 5: renderPublishedPreparation in all three fixtures
 ### G3. Plan readers include preparation facts
 Reported: slice 3 — "branchProgressRecords.ts, intentCiStoryBoard.ts, limitedReadingRecords.ts, reopenedProject.ts, and unchangedRecordsRefresh.ts still arrange preparation inside plan fixtures."
 Story clause: "In mixed cases, convert the published facts here and verify the existing journey."
-Disposition: receiving slice 6
+Disposition: proved by slice 6: five plan fixtures use renderPublishedPreparation; the fixture byte comparisons and focused progress, Intent, reopening, and read-limit specs passed
 
 ### G4. Done catalog revision reuse includes preparation facts
 Reported: slice 3 — "revisionReuseOrigin.ts still arranges preparation within its done catalog and revision reuse setup."

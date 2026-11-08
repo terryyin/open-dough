@@ -79,6 +79,17 @@ const withReport = (profile, { host, model }) => ({
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
 /** @typedef {ReturnType<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs").normalizeStoryDependency>} SupplierAgreement */
+/** @typedef {import("./published-plan.mjs").PlanSlice} PlanSlice */
+/** @typedef {import("./published-plan.mjs").PlanCompletion} PlanCompletion */
+/** @typedef {import("./published-plan.mjs").PlanProgress} PlanProgress */
+
+/**
+ * @param {Omit<PlanSlice, "type" | "status"> & Partial<Pick<PlanSlice, "type" | "status">>} facts
+ * @returns {PlanSlice}
+ */
+function planSlice({ type = "Behavior", status = "planned", ...facts }) {
+  return { ...facts, type, status };
+}
 
 export const makeMe = {
   get anAgentProfile() {
@@ -142,6 +153,47 @@ export const makeMe = {
             ...facts,
           }),
         };
+      },
+    };
+  },
+  get aPlanSlice() {
+    return {
+      /** @param {Parameters<typeof planSlice>[0]} facts */
+      with(facts) {
+        return { please: () => planSlice(facts) };
+      },
+    };
+  },
+  get aSlicePlan() {
+    return {
+      /** @param {PlanProgress} facts */
+      with({ slices, completion }) {
+        return {
+          please: () => ({
+            slices: slices.map((slice) => ({ ...slice })),
+            ...(completion === undefined
+              ? {}
+              : { completion: { ...completion } }),
+          }),
+        };
+      },
+      /**
+       * For progress cases where the slice names and proof recipes are incidental.
+       * @param {readonly PlanSlice["status"][]} statuses
+       * @param {PlanCompletion} [completion]
+       */
+      withStatuses(statuses, completion) {
+        return this.with({
+          slices: statuses.map((status, at) =>
+            planSlice({
+              index: at + 1,
+              name: `Slice ${at + 1}`,
+              status,
+              proof: `A journey observes slice ${at + 1}.`,
+            }),
+          ),
+          ...(completion === undefined ? {} : { completion }),
+        });
       },
     };
   },

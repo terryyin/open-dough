@@ -8,6 +8,8 @@
 // own head. Commit times, of plans and of the commits adding each profile
 // (its Take), are relative to the page's opening time.
 
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
@@ -89,42 +91,6 @@ export const planPath = (anchor: string) =>
 export const profilePath = (agent: string) =>
   `.planning/agents/${agent.toLowerCase()}-chan.json`;
 
-// A plan whose slices sit under `## Slices`, the first `done` of them
-// recorded complete, and the rest planned -- or, given `status`, one more slice
-// recording that status.
-export function slicePlan(
-  total: number,
-  done: number,
-  status?: string,
-): string {
-  const slices = Array.from(Array(total).keys(), (at) => {
-    const index = at + 1;
-    const recorded =
-      status !== undefined && index === total
-        ? status
-        : index <= done
-          ? "done"
-          : "planned";
-    return `### ${String(index)}. Slice ${String(index)}
-Type: Behavior
-Status: ${recorded}
-Proof: A journey observes slice ${String(index)}.
-`;
-  });
-  return `# Plan\n\n## Slices\n\n${slices.join("\n")}`;
-}
-
-// A plan whose `total` slices are all recorded complete, followed by its
-// execution-complete record: with this product advice, or, without it, a
-// record that has no readable advice.
-export function completedPlan(total: number, advice?: string): string {
-  const record =
-    advice === undefined
-      ? "The retrospective found nothing to record."
-      : `Product advice: ${advice}`;
-  return `${slicePlan(total, total)}\n## Execution complete\n\n${record}\n`;
-}
-
 // The agent profile recording who took the story at `anchor`, in which mode
 // on which branch.
 export function agentProfile(
@@ -167,9 +133,15 @@ ${stories
 ### ${title}
 
 **Identity:** SEED-092#${anchor}
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/092-${anchor}/PLAN.md"}
-\`\`\`
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: `../slice-plans/092-${anchor}/PLAN.md`,
+    })
+    .please(),
+)}
 `,
   )
   .join("\n")}`;
@@ -180,8 +152,14 @@ const trunkFiles: Record<string, string> = {
 };
 for (const { anchor, owners } of stories) {
   // Trunk's copy of the branch story's plan is as it was at Take.
-  trunkFiles[planPath(anchor)] =
-    anchor === "on-branch" ? slicePlan(8, 0) : slicePlan(2, 1);
+  const statuses =
+    anchor === "on-branch"
+      ? Array.from({ length: 8 }, () => "planned" as const)
+      : (["done", "planned"] as const);
+  trunkFiles[planPath(anchor)] = renderSlicePlan(
+    makeMe.aSlicePlan.withStatuses(statuses).please(),
+    { heading: "Slices" },
+  );
   for (const owner of owners) {
     trunkFiles[profilePath(owner.agent)] = agentProfile(anchor, owner);
   }
@@ -209,7 +187,24 @@ export const similarlyNamed = "story/taken-before-agent-profiles";
 export const branches: Readonly<Record<string, PublishedRevision>> = {
   "story/example": {
     revision: branchHead,
-    files: { ...trunkFiles, [planPath("on-branch")]: slicePlan(8, 6) },
+    files: {
+      ...trunkFiles,
+      [planPath("on-branch")]: renderSlicePlan(
+        makeMe.aSlicePlan
+          .withStatuses([
+            "done",
+            "done",
+            "done",
+            "done",
+            "done",
+            "done",
+            "planned",
+            "planned",
+          ])
+          .please(),
+        { heading: "Slices" },
+      ),
+    },
     committed: { [planPath("on-branch")]: minutesBefore(7) },
   },
   "story/two-owners": { revision: "f1".repeat(20), files: trunkFiles },
@@ -226,15 +221,25 @@ export const branches: Readonly<Record<string, PublishedRevision>> = {
     revision: "f4".repeat(20),
     files: {
       ...trunkFiles,
-      [planPath("plan-uninterpretable")]: slicePlan(
-        3,
-        1,
-        "merged into slice 1",
-      ),
+      [planPath("plan-uninterpretable")]: `${renderSlicePlan(
+        makeMe.aSlicePlan.withStatuses(["done", "planned"]).please(),
+        { heading: "Slices" },
+      )}
+### 3. Slice 3
+Type: Behavior
+Status: merged into slice 1
+Proof: A journey observes slice 3.
+`,
     },
   },
   [similarlyNamed]: {
     revision: "f5".repeat(20),
-    files: { ...trunkFiles, [planPath("before-profiles")]: slicePlan(2, 2) },
+    files: {
+      ...trunkFiles,
+      [planPath("before-profiles")]: renderSlicePlan(
+        makeMe.aSlicePlan.withStatuses(["done", "done"]).please(),
+        { heading: "Slices" },
+      ),
+    },
   },
 };

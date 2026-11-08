@@ -1,31 +1,33 @@
 // Plan associations and recorded progress for the readiness fixture.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+
 export const planBlockedRelative = "../slice-plans/075-blocked/PLAN.md";
 export const planReadyRelative = "../slice-plans/075-ready/PLAN.md";
 export const planBlockedPath = "slice-plans/075-blocked/PLAN.md";
 export const planReadyPath = "slice-plans/075-ready/PLAN.md";
 
-export const planBlockedBody = `# Blocked plan
-
-## Ordered slices
-
-### 1. Decide the remaining concern
-Type: Behavior
-Status: planned
-Proof: Resolve the blocking decision in the plan.
-`;
-
-type ReadyPlanSlice = {
-  readonly index: number;
-  readonly name: string;
-  readonly type: string;
-  readonly proof: string;
-  readonly accepted?: string;
-};
+export const planBlockedBody = renderSlicePlan(
+  makeMe.aSlicePlan
+    .with({
+      slices: [
+        makeMe.aPlanSlice
+          .with({
+            index: 1,
+            name: "Decide the remaining concern",
+            proof: "Resolve the blocking decision in the plan.",
+          })
+          .please(),
+      ],
+    })
+    .please(),
+  { preamble: "# Blocked plan" },
+);
 
 // One ordered-slices list for the ready Taken story. The planned and two-done
 // plan bodies share these definitions; only recorded completion differs.
-const readyPlanSlices: readonly ReadyPlanSlice[] = [
+const readyPlanSlices = [
   {
     index: 1,
     name: "Establish shared plan reading",
@@ -64,29 +66,23 @@ const readyPlanSlices: readonly ReadyPlanSlice[] = [
 ];
 
 function readyPlanBody(doneThrough: number): string {
-  const slices = readyPlanSlices
-    .map((slice) => {
-      const done = slice.index <= doneThrough;
-      const accepted =
-        done && slice.accepted !== undefined
-          ? `Accepted: ${slice.accepted}\n`
-          : "";
-      return `### ${slice.index}. ${slice.name}
-Type: ${slice.type}
-Status: ${done ? "done" : "planned"}
-Proof: ${slice.proof}
-${accepted}`;
-    })
-    .join("\n");
+  const slices = readyPlanSlices.map(({ accepted, ...slice }) => {
+    const done = slice.index <= doneThrough;
+    return makeMe.aPlanSlice
+      .with({
+        ...slice,
+        status: done ? "done" : "planned",
+        ...(done && accepted !== undefined && { accepted }),
+      })
+      .please();
+  });
   // `gh` would print a JSON-typed answer's literal `\u0002` as `^B`, so the
   // card stays ready only while this plan is read exactly as published.
-  return `# Ready plan
+  return renderSlicePlan(makeMe.aSlicePlan.with({ slices }).please(), {
+    preamble: `# Ready plan
 
-Ctrl+B then Enter records a line holding \`\\u0002\`.
-
-## Ordered slices
-
-${slices}`;
+Ctrl+B then Enter records a line holding \`\\u0002\`.`,
+  });
 }
 
 export const planReadyBody = readyPlanBody(0);

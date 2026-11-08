@@ -68,15 +68,14 @@ Goal, scope, and examples for the first story.
 Goal, scope, and examples for the second story.
 EOF
   plan_path="${project_root}/.planning/${plan_rel}"
-  cat > "${plan_path}" << 'EOF'
-# Payload state plan
-
-## Ordered slices
-
-### 1. Deliver installed recorder modules
-Type: Behavior
-Status: planned
-Proof: Installed record-state produces bytes the shared reader understands.
+  # shellcheck disable=SC2154 # The sourcing test supplies source_dir.
+  node "${source_dir}/tests/support/render-published-plan.mjs" > "${plan_path}" << 'EOF'
+{
+  "preamble": "# Payload state plan",
+  "slices": [
+    { "index": 1, "name": "Deliver installed recorder modules", "proof": "Installed record-state produces bytes the shared reader understands." }
+  ]
+}
 EOF
 
   launch_subdir="${project_root}/work/nested"

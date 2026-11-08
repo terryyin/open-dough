@@ -4,6 +4,7 @@
 // when each plan was last committed, and when each profile was added (its
 // Take), relative to the page's opening time.
 
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -73,20 +74,30 @@ ${renderPublishedPreparation(
   )
   .join("\n")}`;
 
-const plan = `# Plan
-
-## Slices
-
-### 1. First slice
-Type: Behavior
-Status: done
-Proof: A journey observes slice 1.
-
-### 2. Second slice
-Type: Behavior
-Status: planned
-Proof: A journey observes slice 2.
-`;
+const plan = renderSlicePlan(
+  makeMe.aSlicePlan
+    .with({
+      slices: [
+        makeMe.aPlanSlice
+          .with({
+            index: 1,
+            name: "First slice",
+            status: "done",
+            proof: "A journey observes slice 1.",
+          })
+          .please(),
+        makeMe.aPlanSlice
+          .with({
+            index: 2,
+            name: "Second slice",
+            proof: "A journey observes slice 2.",
+          })
+          .please(),
+      ],
+    })
+    .please(),
+  { heading: "Slices" },
+);
 
 export const files: Record<string, string> = {
   [backlogPath]: backlog,

@@ -1,6 +1,7 @@
 // Completion consuming operation observes accepted integration, including a
 // candidate replaced by retry. It does not simulate an agent's judgment.
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { renderPlanSlice } from "../../../../tests/support/published-plan.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -20,7 +21,20 @@ export async function prepareClosureDependencies(fixture) {
   mkdirSync(join(fixture.execution, ".planning"), { recursive: true });
   writeFileSync(
     join(fixture.execution, ".planning/supplier.md"),
-    "# Completed supplier\n**Identity:** CLOSED-SUPPLIER\n## Ordered slices\n### 1. Endpoint\nType: Behavior\nStatus: done\nAccepted: Endpoint outcome proved.\n",
+    `# Completed supplier
+**Identity:** CLOSED-SUPPLIER
+## Ordered slices
+${renderPlanSlice(
+  makeMe.aPlanSlice
+    .with({
+      index: 1,
+      name: "Endpoint",
+      status: "done",
+      accepted: "Endpoint outcome proved.",
+    })
+    .please(),
+)}
+`,
   );
   writeFileSync(
     join(fixture.execution, ".planning/dependent.md"),

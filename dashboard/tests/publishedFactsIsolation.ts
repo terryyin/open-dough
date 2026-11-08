@@ -1,6 +1,7 @@
 // Distinct published revisions for observation isolation. Only raw records and
 // held GitHub answers are supplied; the built page owns every displayed fact.
 
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import type { Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
@@ -85,20 +86,30 @@ ${renderPublishedPreparation(
 
 **Goal:** Queued purpose published at ${label}.
 `,
-      [planPath]: `# Plan published at ${label}
-
-## Slices
-
-### 1. First slice at ${label}
-Type: Behavior
-Status: ${label === "A" ? "done" : "planned"}
-Proof: Observe the current publication.
-
-### 2. Second slice at ${label}
-Type: Behavior
-Status: planned
-Proof: Observe the current publication.
-`,
+      [planPath]: renderSlicePlan(
+        makeMe.aSlicePlan
+          .with({
+            slices: [
+              makeMe.aPlanSlice
+                .with({
+                  index: 1,
+                  name: `First slice at ${label}`,
+                  status: label === "A" ? "done" : "planned",
+                  proof: "Observe the current publication.",
+                })
+                .please(),
+              makeMe.aPlanSlice
+                .with({
+                  index: 2,
+                  name: `Second slice at ${label}`,
+                  proof: "Observe the current publication.",
+                })
+                .please(),
+            ],
+          })
+          .please(),
+        { heading: "Slices", preamble: `# Plan published at ${label}` },
+      ),
       [profilePath(owner)]: renderAgentProfile(
         makeMe.anAgentProfile
           .executing({
