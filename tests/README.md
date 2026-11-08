@@ -84,7 +84,11 @@ declare membership, files, story state, profiles, done records, and commit
 identities. Materialize that description with `materializeRepository` to
 get a bare origin, a checkout, named commit IDs, and cleanup. Identical
 descriptions reuse one template within a process, so they give identical
-commit IDs; each caller gets its own mutable copy. Keep commands and Git
+commit IDs; each caller gets its own mutable copy. A run owner can prepare a
+snapshot of a shared leading history once (`prepareRepositorySnapshot`) and
+register it in its workers (`registerPreparedPrefix`); a description that
+starts with that history is copied from the snapshot and commits only its
+remaining revisions, with the same results as a full build. Keep commands and Git
 transitions under proof in the case that observes their result.
 [Builder](support/repositoryTestData.mjs) ·
 [Repository harness](support/repository-fixture.mjs)

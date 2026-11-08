@@ -2,6 +2,7 @@
 
 **Identity:** SEED-262#reuse-immutable-git-histories
 **Source:** [Refined story](../../seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and boundaries
 
@@ -32,6 +33,18 @@ additional repository families.
   shutdown and cleanup. Git's alternate object lookup depends on the
   donor's lifetime. Writable hardlinks make a peer's object files mutable
   through another fixture's path.
+- Execution reassessment (slice 1, 2026-11-08): with the owner building the
+  prefix on the first worker request, both cold workers asked within 3 ms,
+  waited the whole single-flight build (0.55–0.99 s) and then paid copy and
+  suffix, so the selection was time-neutral (after2 9.81–10.25 s against
+  before3 9.84–10.87 s). The plan's foreseen cold serialization. Global setup
+  now requests the prefix as soon as the owner starts, so its 0.53–0.60 s
+  build overlaps the app build and the workers' start and every worker finds
+  it ready. That keeps the owner's lifetime, single-flight and cleanup and the
+  materializer's match-and-copy; only when the build begins changed. A
+  frontend-only selection that never asks for the history showed no
+  measurable wall cost (2.13–2.35 s against 2.05–2.26 s). The lazy variant is
+  retained as evidence only.
 - Keep test facts visible through MakeMe and retain the existing test
   boundaries under [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
   and [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md).
@@ -95,10 +108,14 @@ end-to-end gain is the slice's acceptance criterion and remains to be proven.
 - Follow the
   [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
   for any changed common behavior. Run
-  `npm test -- tests/support/repository-fixture.test.mjs`,
-  `npm run typecheck:dashboard` and
-  `npm run test:dashboard -- dashboard/backend-tests/launches/start-origin-isolation.spec.ts`
-  to cover the shared harness and run owner. Run the dashboard suite before
+  `npm test -- tests/support/repository-fixture.test.mjs tests/support/repository-snapshot.test.mjs tests/support/repository-snapshot-isolation.test.mjs`,
+  `npm run typecheck:dashboard`,
+  `npm run test:dashboard -- dashboard/backend-tests/runtime/story-columns-prefix.spec.ts`
+  and
+  `npm run test:dashboard -- dashboard/backend-tests/launches/start-origin-isolation.spec.ts dashboard/backend-tests/launches/start-origin-demand.spec.ts dashboard/backend-tests/runtime/dashboard-artifact-demand.spec.ts`
+  to cover the shared harness and run owner; all passed at the delivered
+  state, as did the consumer trace over `materializeRepository`,
+  `storyColumnsRepository` and `publishStoryColumnsJourney` consumers. Run the dashboard suite before
   landing because its global setup owns this artifact for every selection.
   Keep native evidence fixtures on their existing route.
 - Local gate: use the [native prerequisites](../../../tests/native-setup.md),
@@ -112,11 +129,53 @@ end-to-end gain is the slice's acceptance criterion and remains to be proven.
   Keep the normal timeout and unchanged dashboard assertions. Hosted CI and
   publication follow the selected execution mode.
 
+## Measurement record
+
+Execution checkout, macOS, Node 24.21.0, Apple Git, Playwright 1.63.0 with
+the default two workers; external machine load throughout, recorded as the
+one-minute load average before each run. Every run of the selection
+`agent-launch-attention.spec.ts` + `agent-launch-recent-sessions.spec.ts`
+(3 cases) passed all 3 cases. Wall time is the shell's; the quiet reporter's
+runner time is 0.35–0.45 s less.
+
+| Label | Revision and preparation | Wall s per run | Load | Worker Git span s |
+| --- | --- | --- | --- | --- |
+| before | b6b829317, per-worker build | 14.79, 12.06, 10.53 | 12.9 | 1.14, 1.27, 1.06 |
+| after | lazy owner build on first request | 12.21, 14.36, 11.80 | 12.9–15.6 | 1.23, 1.74, 1.01 |
+| before2 | b6b829317 clean worktree | 15.25, 11.17, 10.56 | 10.6–11.1 | 1.07, 1.03, 1.03 |
+| before3 | b6b829317 clean worktree | 10.87, 9.84, 10.20 | 8.7–9.0 | 0.98, 0.92, 1.04 |
+| after2 | lazy owner build | 9.81, 9.95, 10.25 | 8.8–9.6 | 0.97, 0.95, 1.02 |
+| before4 | b6b829317 clean worktree | 10.22, 10.06, 10.96 | 6.7–7.1 | 0.97, 0.96, 0.95 |
+| eager | owner build at run start | 9.45, 9.20, 9.52 | 6.7–7.2 | 0.41, 0.46, 0.42 |
+| lazy (interleaved) | same checkout, lazy | 10.03, 9.75, 10.21 | 7.0–7.8 | |
+| eager (interleaved) | same checkout, eager | 9.14, 9.38, 9.42 | 7.6–8.0 | |
+
+- Cold prefix build (artifact trace start→complete): 0.53–0.60 s lazy, 0.53–0.56 s
+  eager, complete at 0.55 s while the first worker requests at 1.47–1.51 s.
+- Worker wait for the prefix: lazy, both workers the full build (0.60/0.60,
+  0.99/0.97, 0.55/0.55 s); eager, none.
+- Warm copy plus suffix commit in a fresh process: 158–188 ms; cold full build
+  597–732 ms; owner prepare 449–487 ms (scratch, load ≈7).
+- Worker Git span (server bundle complete → that worker's dashboard-server
+  request) brackets the fixture construction: 0.92–1.07 s per-worker build,
+  0.41–0.46 s with the eager prefix.
+- Frontend-only selection `agent-launch-creation-gates.spec.ts`, interleaved:
+  lazy 2.26, 2.05, 2.20 s; eager 2.13, 2.28, 2.35 s.
+- Comparison context from `f78f3e0e6`: the 22 StartOrigin cases took 45–46 s
+  and the 16 readiness and admission cases 20 s with two workers.
+
+Reading: the eager prefix was faster in all six paired runs, by about 0.7 s
+(7%) on this 9–10 s selection, matching the 0.5–0.6 s removed from each
+worker's critical path. The lazy prefix is neutral here because the third
+case reuses a worker whose journey is memoized, so no fresh worker ever
+meets a warm prefix. CI shards with more workers, and later fresh local
+workers, gain the copy-only path either way.
+
 ## Slices
 
 ### 1. Dashboard workers reuse the same Git prefix with private repositories
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed examples 1–3 through the actual materializer and run artifact request. Observe one build for overlapping workers, exact named history under controlled Git dates, different completion facts, private refs/config/index/objects after a peer writes or cleans up, and a usable copy after donor removal. Exercise the ordinary local build and a failed registered build followed by a fresh run. The named dashboard selection keeps all verdicts and shows a repeatable elapsed-time improvement.
 
 Two workers ask for the same declared story-columns prefix with different
@@ -127,6 +186,30 @@ proof only where the existing repository and dashboard checks cannot
 distinguish duplicate builds, leaked state or an incomplete snapshot.
 Keep the slice together through the timing comparison, since the owner,
 copy and suffix costs jointly determine whether to retain it.
+
+## Learnings
+
+- Full dashboard suite before publication (2026-11-08, this checkout, two
+  workers, runner 2604 s, load 5–11 with another suite admitted earlier):
+  2241 of 2244 cases passed. The three failures were 30 s timeouts in
+  `production-watcher-updates.spec.ts` (activation of a real build) and
+  `production-watcher-failures.spec.ts` (watcher exit), and one Claude
+  attachment that had not exited when `agent-launch-ad-hoc.spec.ts` closed
+  its server, which the run teardown then ended. None of those specs reaches
+  the changed modules beyond the unchanged ordinary materializer route, and
+  the artifact trace shows the prefix prepared once per run. Each failed spec
+  then passed in isolation at load 7–10: watcher-updates 3 of 3, watcher-
+  failures 2 of 2, ad-hoc 2 of 2. Cause attributed to machine load, as
+  [DD-445](../../../docs/maintainer/project-test-findings.md#dd-445) records
+  for the same watcher cases; the 12-shard hosted run is the verdict for
+  the published revision and any failure there is this execution's repair.
+
+- `git status` refreshes the index it reads, so hash comparisons of a peer
+  copy are taken after any status read of it.
+- The owner's snapshot build must not consult registered prefixes, or the
+  owner would request its own in-flight key.
+- In this selection the third test runs in a reused worker, so a two-worker
+  run structurally cannot reward a lazy single-flight build.
 
 ## Concern evidence
 
