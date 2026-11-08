@@ -7,7 +7,6 @@ import {
   symlinkSync,
   writeFileSync,
 } from "node:fs";
-import { randomUUID } from "node:crypto";
 import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 import path from "node:path";
 import { expect, stored } from "./codexLaunch.ts";
@@ -15,6 +14,7 @@ import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { codexAttaches } from "./codexTerminal.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { storyBranchFacts } from "../../../tests/support/launchWorkspaceTestData.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
@@ -162,7 +162,8 @@ export function plantTrackedClosureRepository(repository: string): {
 
 // Retained landing plus claimed start so panel composition and quiet-Done
 // admission reuse existing tracked-execution closure-gate facts without inventing
-// a parallel owner. Identity stays the launch's own story identity.
+// a parallel owner. Identity stays the launch's own story identity, and the
+// landing names the launch's reporting reference when it has one.
 export function keepTrackedClosureEvidence(
   record: LaunchRecord,
   repository: string,
@@ -175,31 +176,21 @@ export function keepTrackedClosureEvidence(
     );
   }
   const identity = record.request.identity;
+  const landing = makeMe.aLaunchLanding
+    .capturedFrom({ repository, identity })
+    .comparing({ base: revision, revision });
+  const reference = record.request.reporting?.reference;
   return {
     ...record,
     request: { ...record.request, workflow: "execution" },
-    start: {
-      identity,
-      publisherId: "closure-fixture",
-      workspace,
-      branch: "cursor/retired",
-      mode: "story-branch",
-      remote: "origin",
-      target: "main",
-      publishedSha: "a".repeat(40),
-    },
-    landing: {
-      reference: randomUUID(),
-      delivery: randomUUID(),
-      receipt: randomUUID(),
-      repository,
-      identity,
-      remote: "origin",
-      target: "refs/heads/main",
-      base: revision,
-      revision,
-      receivedAt: "2026-10-01T10:00:00.000Z",
-    },
+    ...storyBranchFacts(
+      { workflow: "execution", identity },
+      { workspace, branch: "cursor/retired" },
+    ),
+    landing: (reference === undefined
+      ? landing
+      : landing.forLaunch(reference)
+    ).please(),
   };
 }
 export function passive(native: FakeCodex, since: number) {

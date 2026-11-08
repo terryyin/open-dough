@@ -14,6 +14,10 @@ import {
   LandingSubmissionBuilder,
 } from "./launchLandingTestData.mjs";
 import {
+  LandingAuthorityBuilder,
+  LaunchLandingBuilder,
+} from "./launchLandingEvidenceTestData.mjs";
+import {
   CiAdapterAttemptBuilder,
   CiTimingJobBuilder,
 } from "./ciTimingTestData.mjs";
@@ -148,6 +152,12 @@ export const makeMe = {
   },
   get aLandingReceipt() {
     return new LandingReceiptBuilder();
+  },
+  get aLandingAuthority() {
+    return new LandingAuthorityBuilder();
+  },
+  get aLaunchLanding() {
+    return new LaunchLandingBuilder();
   },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();

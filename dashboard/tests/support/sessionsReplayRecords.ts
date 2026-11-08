@@ -70,7 +70,6 @@ function recordAt(
   const identity = identityAt(index);
   const launchedAt = now - (index % (28 * 24 * 60)) * minute - 60 * minute;
   const at = (offset: number) => new Date(launchedAt + offset).toISOString();
-  const repository = `replay/${source}`;
   const workspace = path.join(
     home,
     "git",
@@ -79,25 +78,32 @@ function recordAt(
     `story-${String(index)}`,
   );
   const branch = `claude/replay-story-${String(index)}`;
-  const target = "refs/heads/main";
   const session = sessionAt(
     index,
     workspace,
     codexEndpoint,
     `Execute ${identity} ${prose(`name:${String(index)}`, 20)}`,
   );
-  const landing = {
-    repository,
-    identity,
-    remote: "origin",
-    target,
-    reference: uuidOf(`landing-reference:${String(index)}`),
-    delivery: uuidOf(`landing-delivery:${String(index)}`),
-    receipt: uuidOf(`landing-receipt:${String(index)}`),
-    base: commitOf(`base:${String(index)}`),
-    revision: commitOf(`revision:${String(index)}`),
-    receivedAt: at(50 * minute),
-  };
+  const reference = uuidOf(`reporting:${String(index)}`);
+  const authority = makeMe.aLandingAuthority
+    .ofRepository(`replay/${source}`)
+    .inWorktree({ workspace, branch })
+    .forStory(identity)
+    .please();
+  // Captured from the launch's authority for its reporting reference.
+  const landing = makeMe.aLaunchLanding
+    .capturedFrom(authority)
+    .forLaunch(reference)
+    .deliveredAs({
+      delivery: uuidOf(`landing-delivery:${String(index)}`),
+      receipt: uuidOf(`landing-receipt:${String(index)}`),
+    })
+    .comparing({
+      base: commitOf(`base:${String(index)}`),
+      revision: commitOf(`revision:${String(index)}`),
+    })
+    .receivedAt(at(50 * minute))
+    .please();
   return {
     request: {
       source,
@@ -107,7 +113,7 @@ function recordAt(
       host: session.host,
       reporting: {
         origin,
-        reference: uuidOf(`reporting:${String(index)}`),
+        reference,
         command: `node ~/.claude/skills/dough-execute-plan/scripts/report.mjs ${prose(`command:${String(index)}`, 180)}`,
         landingContext: prose(`landing-context:${String(index)}`, 105),
       },
@@ -138,7 +144,7 @@ function recordAt(
             .saying(prose(`message:${String(index)}`, 560))
             .withReceipt(uuidOf(`completion-receipt:${String(index)}`))
             .reportedFor({
-              reference: uuidOf(`reporting:${String(index)}`),
+              reference,
               delivery: uuidOf(`completion-delivery:${String(index)}`),
             })
             .receivedAt(at(45 * minute))
@@ -146,14 +152,7 @@ function recordAt(
           landing,
           landingReporting: {
             origin,
-            authority: {
-              repository,
-              workspace,
-              branch,
-              identity,
-              remote: "origin",
-              target,
-            },
+            authority,
             preparations: [landing],
             settledAt: at(55 * minute),
           },

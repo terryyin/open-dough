@@ -15,6 +15,7 @@ import { attemptsNeedingAttention } from "../../src/launchAttemptSelection.ts";
 import type { Reconciliation } from "../../src/startupReconciliation.ts";
 import { storiesAsked, storyStartup } from "../../src/storyStartup.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 // A small deterministic generator, so a failure names a repeatable machine.
 function generator(seed: number) {
@@ -47,10 +48,10 @@ function machine(seed: number): AttemptObservation[] {
     const outcome = outcomes[pick(outcomes.length)];
     const completion =
       pick(4) === 0
-        ? {
-            outcome: pick(2) === 0 ? "completed" : "unfinished",
-            receivedAt: "2026-11-01T01:30:00.000Z",
-          }
+        ? makeMe.aCompletionReport
+            .withOutcome(pick(2) === 0 ? "completed" : "unfinished")
+            .receivedAt("2026-11-01T01:30:00.000Z")
+            .please()
         : undefined;
     // Settled by its outcome, or by its session's completed report.
     const settled =

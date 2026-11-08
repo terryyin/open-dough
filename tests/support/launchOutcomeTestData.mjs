@@ -5,10 +5,11 @@
 // (`./launchTestData.mjs`). A final report can also be arranged on its own
 // (`CompletionReportBuilder`), as can the submission a session reports it
 // with (`CompletionSubmissionBuilder`). The landing is the evidence
-// `./launchLandingTestData.mjs` describes.
+// `./launchLandingEvidenceTestData.mjs` describes.
 
+import { LaunchLandingBuilder } from "./launchLandingEvidenceTestData.mjs";
 import {
-  landingEvidence,
+  fixedReceivedAt,
   reportingReference,
 } from "./launchLandingTestData.mjs";
 
@@ -118,10 +119,10 @@ export class LaunchOutcomeBuilder {
       ...(report && { completion: report }),
       ...(reportRead && report && { reportRead: report.receipt }),
       ...(landedRevision && {
-        landing: landingEvidence(
-          { base: "c3".repeat(20), revision: landedRevision },
-          at,
-        ),
+        landing: new LaunchLandingBuilder()
+          .comparing({ base: "c3".repeat(20), revision: landedRevision })
+          .receivedAt(at)
+          .please(),
       }),
       ...(doneAt !== undefined && { doneAt }),
     };
@@ -176,7 +177,7 @@ export class CompletionReportBuilder {
 
   /** @returns {CompletionReport} */
   please() {
-    return finalReport(this.#report, "2026-10-01T10:00:00.000Z");
+    return finalReport(this.#report, fixedReceivedAt);
   }
 }
 

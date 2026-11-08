@@ -17,6 +17,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   settled,
   settlement,
@@ -31,13 +32,8 @@ const acceptedAt = "2026-11-04T01:00:00.000Z";
 const outcomeAt = "2026-11-04T01:05:00.000Z";
 const receivedAt = "2026-11-04T01:10:00.000Z";
 
-const report = (outcome: "completed" | "unfinished") => ({
-  receipt: randomUUID(),
-  reference: randomUUID(),
-  outcome,
-  message: "",
-  receivedAt,
-});
+const report = (outcome: "completed" | "unfinished") =>
+  makeMe.aCompletionReport.withOutcome(outcome).receivedAt(receivedAt).please();
 
 const launched = {
   kind: "launched",

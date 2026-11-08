@@ -5,8 +5,8 @@
 // The dashboard prepares the context a publication reads
 // (`LandingContextBuilder`); a publication submits the comparison
 // (`LandingSubmissionBuilder`); the dashboard answers with a receipt
-// (`LandingReceiptBuilder`) and keeps the evidence on the launch
-// (`landingEvidence`, which `LaunchOutcomeBuilder.landedAt` composes).
+// (`LandingReceiptBuilder`) and keeps the evidence on the launch, beside the
+// repository authority it captures from (`./launchLandingEvidenceTestData.mjs`).
 
 /** @typedef {import("../../dashboard/src/launchLanding.ts").LaunchLanding} LaunchLanding */
 /** @typedef {import("../../dashboard/src/launchLanding.ts").LandingReceipt} LandingReceipt */
@@ -32,35 +32,19 @@
 // The launch's reporting reference, named by its completion and its landing.
 export const reportingReference = "22222222-2222-4222-8222-222222222222";
 
+// When the dashboard received a report or landing, unless the case states it.
+export const fixedReceivedAt = "2026-10-01T10:00:00.000Z";
+
 // The delivery that carries the landing and the receipt the dashboard gives it.
-const landingDelivery = "33333333-3333-4333-8333-333333333333";
-const landingReceipt = "44444444-4444-4444-8444-444444444444";
+export const landingDelivery = "33333333-3333-4333-8333-333333333333";
+export const landingReceipt = "44444444-4444-4444-8444-444444444444";
 
 /** @type {Required<Pick<LandingFor, "reference" | "remote" | "target">>} */
-const mainOfOrigin = {
+export const mainOfOrigin = {
   remote: "origin",
   target: "refs/heads/main",
   reference: reportingReference,
 };
-
-/**
- * The landing evidence the store keeps for a launch: of `open-dough`'s
- * repository under a fixed delivery and receipt onto `main`, received at
- * `at`, unless stated.
- * @param {Comparison & Partial<Omit<LaunchLanding, "base" | "revision" | "receivedAt">>} landing
- * @param {string} at an ISO date-time
- * @returns {LaunchLanding}
- */
-export function landingEvidence(landing, at) {
-  return {
-    repository: "open-dough",
-    ...mainOfOrigin,
-    delivery: landingDelivery,
-    receipt: landingReceipt,
-    ...landing,
-    receivedAt: at,
-  };
-}
 
 // The context a dashboard prepared for a `claude` launch of `open-dough`
 // with the fixed reporting reference, landing on `origin`'s `main` and
@@ -141,7 +125,7 @@ export class LandingReceiptBuilder {
   /** @type {Omit<LandingReceipt, keyof LandingSubmission>} */
   #answer = {
     receipt: landingReceipt,
-    receivedAt: "2026-10-01T10:00:00.000Z",
+    receivedAt: fixedReceivedAt,
     state: "recorded",
   };
   /** @type {LandingSubmission | undefined} */

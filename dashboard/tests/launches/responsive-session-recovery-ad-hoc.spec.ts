@@ -6,7 +6,6 @@
 // existing blank-intent recovery: the recorded conversation is confirmed
 // without any input submitted.
 
-import { randomUUID } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
@@ -15,6 +14,7 @@ import { expectSettledPage, parts } from "../dashboardPage.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { recoveryOf } from "../responsiveRecovery.ts";
 import { expect, stored, test } from "../support/codexLaunch.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
 test.use({ projectFolders: ["open-dough"] });
@@ -127,13 +127,10 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
     sessionStartKept: true,
     explanation: "Old failed continuation.",
   };
-  attempt.completion = {
-    receipt: randomUUID(),
-    reference: randomUUID(),
-    outcome: "unfinished",
-    message: "",
-    receivedAt: new Date().toISOString(),
-  };
+  attempt.completion = makeMe.aCompletionReport
+    .withOutcome("unfinished")
+    .receivedAt(new Date().toISOString())
+    .please();
   const staleWorkspace = path.join(
     dashboard.home,
     "git/open-dough/.worktrees/retired-session",

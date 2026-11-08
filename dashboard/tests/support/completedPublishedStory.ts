@@ -30,7 +30,6 @@ import {
 } from "./completedStoryMerges.ts";
 import { keepLaunchRecords, storyALaunchRecord } from "./storyLaunchRecord.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { randomUUID } from "node:crypto";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
@@ -228,16 +227,13 @@ export async function keepUnusableCompletedCapture(
       revision: story.completion,
     })
     .please();
-  record.landing = {
-    reference: randomUUID(),
-    delivery: randomUUID(),
-    receipt: randomUUID(),
-    repository: `${origin.machine}/missing-capture`,
-    identity: queuedIdentity,
-    remote: "origin",
-    target: "refs/heads/main",
-    ...comparison,
-    receivedAt: new Date().toISOString(),
-  };
+  record.landing = makeMe.aLaunchLanding
+    .capturedFrom({
+      repository: `${origin.machine}/missing-capture`,
+      identity: queuedIdentity,
+    })
+    .comparing(comparison)
+    .receivedAt(new Date().toISOString())
+    .please();
   await keepLaunchRecords(dashboard, [record]);
 }

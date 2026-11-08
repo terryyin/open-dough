@@ -167,14 +167,14 @@ Accepted proof: the four landing script tests and
 slice's Playwright selection with two `landedAt` consumers passed 32 tests,
 and `npm run typecheck:dashboard` passed. `tests/support/launchLandingTestData.mjs`
 holds the landing context, submission and receipt builders and the stored
-`landingEvidence` that `landedAt` composes; all share the launch's reporting
+landing evidence that `landedAt` composes; all share the launch's reporting
 reference and the comparison's base and revision. The loopback receiver now
 answers contract-shaped receipts. No slice 3 case arranges stored repository
 authority, so commitment 9 moved to slice 4 with `keepTrackedClosureEvidence`.
 
 ### 4. Readers use retained landing evidence with published fallback
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 4 and example 3 at the retained read boundary. Run `npm run test:dashboard -- 'backend-tests/review/story-review-completed-gaps\.spec\.ts$' 'dashboard/tests/review/(story-review-(completed|landed|story-branch-landed)|recently-done-one-shot-review)\.spec\.ts$' 'backend-tests/sessions/(final-report-admission|agent-completion-quiet-closure|agent-launch-sessions-listing)\.spec\.ts$' 'dashboard/tests/sessions/(session-workspace-retirement-cursor|agent-launch-done-listing)\.spec\.ts$'`.
 
 A retained comparison can be read with its exact endpoints. When its local
@@ -187,6 +187,18 @@ identities. For valid replay evidence, make authority and reporting reference
 agree where the real capture path ties them. Preserve a mismatch literally
 where the proof depends on it. Keep the Git setup or capture path where a
 caller tests it directly.
+
+Accepted proof: the slice selection with the sweep's callers passed 24 tests,
+the refactor's widened selection with the `landedAt` follow-up consumers passed
+47, and the landing script tests passed. `tests/support/launchLandingEvidenceTestData.mjs`
+holds stored authority (`aLandingAuthority`) and retained landing
+(`aLaunchLanding`). Replay record counts, JSON sizes and times match the base,
+and each replay landing now names its launch's reporting reference.
+Before delivery, the full gate passed on AC under `caffeinate -s -i`:
+`npm run test:dashboard` ran 2241 passed with 1 opt-in skip, and `npm test`
+passed. Under external load averages of 21 to 27, `story-review-story-branch-landed`
+timed out three times in focused runs, passed on base at 17 to 29 seconds, and
+passed in the full gate.
 
 ## Concern evidence
 
