@@ -229,7 +229,7 @@ repeats of the combined lifecycle case passed 5/5 in 9.842 s. Dashboard
 typecheck and `git diff --check` passed. The default listing-reuse fixture
 path remains unchanged. The independent refactor needed no edits.
 
-#### Final two-spec comparison
+#### Two-spec comparison before the CI repair
 
 Same Chromium selection, two workers and strict reporter on macOS AC with
 Node 24.21.0. Both runs selected and passed all 10 cases. The final command
@@ -264,6 +264,39 @@ observed events and test-controlled time. The bounded timing comparison
 supports the gain in those cases under
 [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
 The existing polling and fixture-cost stories already own the broader work.
+
+## Branch CI repair
+
+The [Linux dashboard shard](https://github.com/terryyin/open-dough/actions/runs/42440559896/job/128608742050)
+got HTTP 502 during the cold ref warm-up under the 300 ms fixture bound.
+An isolated local counterexample held owner authentication at its arrival
+marker, advanced that bound, and reproduced the 502 with zero upstream
+calls. The counterexample was removed after diagnosis.
+
+The repaired test uses the in-process authenticated HTTP fixture and shares
+its scoped timer control with the stream cadence. It first observes the real
+matching-refs arrival. Advancing the HTTP bound produces the 502 while that
+subprocess is still alive. Advancing the independent listing bound produces
+the real pinned timeout diagnostic and subprocess exit before the 200 and
+one fresh listing. The 504 and cooldown journeys keep their assertions.
+
+The same strict two-spec selection passed 10/10 after the repair. The
+affected listing, waiter, cooldown and diagnostics selection passed 17/17.
+Five repeats of the three changed lifecycle cases passed 15/15. Dashboard
+typecheck and `git diff --check` passed.
+
+| Measurement | Baseline | Repaired |
+| --- | ---: | ---: |
+| Shell elapsed | 8.105 s | 7.61 s |
+| Playwright elapsed | 7.750 s | 7.234 s |
+| Two streams, cadence and last disconnect | 1.035 s | 0.508 s |
+| Boundary closes an open stream | 0.761 s | 0.187 s |
+| Combined 504, timeout and cooldown | 3.308 s | 1.358 s |
+| One-minute load, before to after | 4.81 to 5.15 | 9.72 to 9.82 |
+
+The repaired comparison adds control of the actual HTTP and listing
+deadlines. The single-run elapsed time still includes real request and
+fixture work and was measured under different loads.
 
 ## Plan concerns
 

@@ -89,14 +89,14 @@ export type DiagnosticRecord = {
 };
 
 export function diagnosticsUrl(
-  server: DashboardServer,
+  server: Pick<DashboardServer, "baseURL">,
   source = knownSourceId,
 ) {
   return `${server.baseURL}/__authenticated-read-diagnostics?source=${source}`;
 }
 
 export async function inspect(
-  server: DashboardServer,
+  server: Pick<DashboardServer, "baseURL" | "origin">,
   source = knownSourceId,
 ): Promise<{
   readonly status: number;

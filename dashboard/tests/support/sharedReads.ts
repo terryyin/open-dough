@@ -32,7 +32,7 @@ export const listingReuseWindowMs = 60_000;
 export function listingReuseServer(
   overrides: Pick<
     Parameters<typeof startDashboardServer>[0],
-    "readTimeoutMs" | "github" | "pathPrefix" | "requestOwnerRoot"
+    "github" | "pathPrefix" | "requestOwnerRoot"
   > = {},
 ): Promise<DashboardServer> {
   return startDashboardServer({
@@ -134,7 +134,7 @@ export type SharedRead =
   string | { readonly source: string; readonly query: string };
 
 export function readAt(
-  server: DashboardServer,
+  server: Pick<DashboardServer, "baseURL" | "origin">,
   read: SharedRead,
 ): Promise<RawResponse> {
   const { source, query } =
@@ -163,7 +163,7 @@ function described(request: GhRequest): string {
 // The questions that reached GitHub since call `before`, in arrival order,
 // each named by repository when `withRepository` says so.
 export function askedSince(
-  server: DashboardServer,
+  server: Pick<DashboardServer, "github">,
   before: number,
   withRepository = false,
 ): string[] {
