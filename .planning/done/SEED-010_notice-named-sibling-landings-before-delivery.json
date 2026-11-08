@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#notice-named-sibling-landings-before-delivery",
+  "title": "Surface a named sibling landing before delivering against its old shape",
+  "completedAt": "2026-11-08T06:43:42.722Z",
+  "developer": "Terry Yin",
+  "agent": "mrsn-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol",
+  "intentCoverage": {
+    "report": "**Caught.** For SEED-010#notice-named-sibling-landings-before-delivery at `9b1161020c249e7489b62646e6fde50cf8140bae`, planned Story Branch delivery uses fetched source freshness to review a named sibling before checking slice obligations. In step 5 of `src/skills/dough-execute-plan/references/deliver-the-change.md`, I moved the paired freshness and conditional sibling check after the obligations check in a detached scratch clone.\n\nThe maintained test `slice delivery checks freshness before the obligations check` reads step 5 from the guidance. Its `gatesBefore` assertion at `src/skills/dough-execute-plan/scripts/source-freshness-guidance.test.mjs:24` caught the reversed freshness and obligations order. The focused command was `caffeinate -s -i node --test --test-name-pattern 'slice delivery checks freshness before the obligations check' src/skills/dough-execute-plan/scripts/source-freshness-guidance.test.mjs`. The single selected test passed at baseline, failed at the intended assertion on the fault, and passed after restoration. The diff showed the moved block, the test hash stayed identical, and the restored guide bytes and clean checkout matched the baseline. The assertion covers the paired block's position through the freshness command. Native coordinator behavior and the sibling check's independent position remain outside this probe.\n\n- **Test runtime.** 178.82 ms total (measured by Node), with 94.47 ms baseline, 43.20 ms fault, and 41.15 ms restored. An initial baseline also passed in 41.64 ms before the scratch wrapper's result check was corrected.\n- **Human effort.** Unavailable. No separate human effort measurement was taken.\n- **Agent effort.** Unavailable. No separate agent effort measurement was available.\n\n\n- **Invocation-to-report elapsed.** 101623 ms (measured), from 1794120087661 to 1794120189284 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n"
+  }
+}
