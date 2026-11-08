@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Build dashboard test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures) — SEED-262#migrate-dashboard-origin-fixtures ([plan](slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md))
+- [State each repository description fact once and keep native preparation evidence MakeMe-free](seeds/SEED-262-faster-dashboard-test-feedback.md#tighten-repository-description-facts) — SEED-262#tighten-repository-description-facts ([plan](slice-plans/532-tighten-repository-description-facts/PLAN.md))
 
 ## Backlog list
 
-- [State each repository description fact once and keep native preparation evidence MakeMe-free](seeds/SEED-262-faster-dashboard-test-feedback.md#tighten-repository-description-facts) — SEED-262#tighten-repository-description-facts
 - [Prove Recently done selection's check rules and tidy its catalog read](seeds/SEED-272-select-recently-done-sessions.md#prove-recently-done-check-supersession) — SEED-272#prove-recently-done-check-supersession
 - [Keep follow-up context out of listings and resume it after its source expires](seeds/SEED-273-follow-up-from-done.md#lean-follow-up-listing) — SEED-273#lean-follow-up-listing
 - [Serve fake GitHub planning files from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#declare-fake-github-planning-data) — SEED-262#declare-fake-github-planning-data
