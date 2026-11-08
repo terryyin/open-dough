@@ -605,24 +605,58 @@ mutates its repository leaves a concurrent test's repository independent.
 
 **Identity:** SEED-262#drive-polls-with-time-and-replies
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/524-drive-cursor-session-polls/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b144e1c67944869faf136c55cbbfc7cbd656763459ae865200f4e0c9d43b1026","plan":"c7c0d0b0f15ca69f52e9e91e942157e5eb0c85d521ca131cc708deb395fa471b"}}
 ```
 
-**Goal.** A developer running observation tests gets results as soon as the
-relevant answer is available, with time-dependent behavior still proven.
+#### Goal
 
-**Scope.** Start with session polling in the attention spec. Its eight
-virtual clock steps took 13ms, while observing the session answers took about
-0.42s. Look across session and revision observation tests for repeated waits,
-unnecessary polling, and remaining elapsed waits. Use controlled clocks for
-cadence and observable events for completed requests. Follow the
-[authenticated-read backend clock guidance](../../dashboard/tests/writing-journeys.md#authenticated-read-backend-clocks)
-where it applies to the selected cases.
-A clock seam in the released GitHub request owner remains a
-[separate decision](../TEST-OPTIMIZATION-CANDIDATES.md#auto-refresh-rate-limit-real-waits).
+A developer gets faster, repeatable feedback from the Running Cursor sessions
+polling tests. The tests still prove request ownership, cadence, visibility,
+and recovery through the browser.
 
-**Evaluation.** Show a measurable reduction in real wait or request cost
-across the selected family. Retain checks for the absence of early requests,
-the expected cadence, and failure and recovery. Compare wait duration and
-request count with the ordinary test verdicts and fixtures intact.
-[Synchronization guidance](../../dashboard/tests/writing-journeys.md)
+#### Scope
+
+Drive both cases in the [frontend polling spec](../../dashboard/frontend-tests/cursor-runner-sessions-ui.spec.ts)
+with controlled browser time and explicit request arrival and reply completion.
+Keep the real page and the existing frontend service boundary. Arrange the
+ad hoc Cursor launch through the shared MakeMe launch-record builder, keeping
+route control and the expected responses and UI observations in the spec.
+
+The original attention journeys already step page time and await completed
+session replies. The [recent setup change](../TEST-OPTIMIZATION-CANDIDATES.md#card-attention-launch-and-origin-setup)
+arranges already-open sessions through MakeMe and leaves repository setup to
+the fixture stories. The [fluent page-object pilot](../../dashboard/tests/writing-journeys.md#what-the-pilot-earned)
+addresses locator ownership and diagnosis in three Side panel journeys.
+Neither warrants further conversion here.
+
+The [revision stream](../../dashboard/tests/observation/revision-stream.spec.ts)
+still has real server waits, including a 3 s cadence in the two-tab case.
+The [HTTP boundary](../../dashboard/backend-tests/observation/authenticated-read-revision-stream.spec.ts)
+already controls the server's cadence for sharing and disconnect proof. Driving
+the integrated preview's clock while preserving its two-tab and shared-read
+proof is outside this pass, as are the
+[request-owner rate-limit clock](../TEST-OPTIMIZATION-CANDIDATES.md#auto-refresh-rate-limit-real-waits),
+production changes, and further page-object or fixture migrations.
+
+#### Key examples
+
+- An expanded visible list holds its first reply past an ask interval. Exactly
+  one request is in flight. The reply publishes the working session, and the
+  next request starts one full interval after settlement, with no early ask.
+- While hidden or collapsed, the list starts no new requests across several
+  intervals. Revealing an expanded list resumes demand. Collapsing leaves the
+  kept sidebar session visible and the Terminal closed.
+- A held first reply shows the reading state. Subsequent controlled polls
+  display the unreachable state, the restored session and then the empty
+  running list. The kept sidebar session remains available and the Terminal
+  stays closed.
+
+#### Evaluation
+
+The 2026-11-08 review found 7.2 s in fixed hidden and collapsed waits alone,
+plus delayed route answers and real follow-up intervals across the two cases.
+Compare the same ordinary cases before and after with the same runner settings
+and frontend fixture. Retain the change if it saves at least 7 s across the two
+median case durations, with equivalent request counts at the named transitions,
+the same behavioral verdicts and a small test-support change. Treat elapsed
+time as comparison evidence, separate from the tests' pass criteria.
