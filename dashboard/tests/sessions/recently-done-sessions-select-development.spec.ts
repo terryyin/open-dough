@@ -5,8 +5,10 @@
 // Recently done range when that entry stands beyond it. Development and the
 // Side panel stay as they were, nothing attaches, and Intent is never opened.
 // From the agent roster the Board shows instead. Selection from Intent lives
-// in ./recently-done-sessions-select.spec.ts, and the narrow overlay case in
-// ./recently-done-sessions-select-touch.spec.ts.
+// in ./recently-done-sessions-select.spec.ts, an unanswered check and its
+// supersession in ./recently-done-sessions-select-check.spec.ts and
+// ./recently-done-sessions-select-supersede.spec.ts, and the narrow overlay
+// case in ./recently-done-sessions-select-touch.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
 import { parts, rosterParts, standaloneSessionName } from "../dashboardPage.ts";
@@ -20,10 +22,7 @@ import {
   expectDevelopmentKept,
   showReport,
 } from "../recentlyDoneSelectionReport.ts";
-import {
-  holdPygardonCatalog,
-  pygardonCatalogRead,
-} from "../pygardonCatalogReads.ts";
+import { pygardonCatalogRead } from "../pygardonCatalogReads.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
@@ -70,7 +69,7 @@ test("selecting a linked done story in Development shows its project's Board wit
   });
 });
 
-test("selecting an older standalone session in Development reveals and marks its entry beyond Doughnut's first ten, and the latest choice wins over an unanswered one", async ({
+test("selecting an older standalone session in Development reveals and marks its entry beyond Doughnut's first ten", async ({
   page,
   dashboard,
 }) => {
@@ -83,20 +82,12 @@ test("selecting an older standalone session in Development reveals and marks its
     name: standaloneSessionName("Ad hoc", adHoc.title),
   });
 
-  await test.step("a later standalone choice supersedes a linked choice still being checked", async () => {
-    const held = await holdPygardonCatalog(page);
-    await shown.entry(linked.title).click();
-    await held.asked;
+  await test.step("Select shows Doughnut's Board", async () => {
     await shown.entry(adHoc.title).click();
-    held.release();
     await expectProjectChoice(page, "Doughnut");
     await expect(shown.entry(adHoc.title)).toHaveAttribute(
       "aria-pressed",
       "true",
-    );
-    await expect(shown.entry(linked.title)).toHaveAttribute(
-      "aria-pressed",
-      "false",
     );
   });
 

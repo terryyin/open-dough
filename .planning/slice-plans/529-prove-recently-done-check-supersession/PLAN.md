@@ -103,12 +103,21 @@ naming the story's done record unreadable, or not describing the done records,
 ### 2. Prove check supersession by navigation and trim overlapping tests
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: supersession and trimmed-tests rows from the outside-in table.
 
 Project change and explicit Open are proved to abandon an unanswered check;
 duplicated selection steps are removed; `PageFrame.tsx` returns under 250
 lines with a clear header comment.
+
+Accepted proof: `recently-done-sessions-select-supersede.spec.ts` (project
+change and another row's Open each abandon a held check; dropping
+`useLayoutEffect(supersede, …)` or `recentlyDone.supersede()` fails its test,
+by timing out at the `requestfailed` wait), the select, sidebar and
+`recently-done-stories.spec.ts` specs (25 passed; supersede, touch and
+development `--repeat-each=5`, 35 passed) and dashboard typecheck.
+`PageFrame.tsx` is 247 lines. Refactor shared the abandoned-read wait as
+`pygardonCatalogAbandoned` in `dashboard/tests/pygardonCatalogReads.ts`.
 
 ## Preparation review
 

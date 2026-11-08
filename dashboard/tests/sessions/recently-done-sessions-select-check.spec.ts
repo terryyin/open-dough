@@ -1,6 +1,7 @@
 // A Recently done sessions row's done-story check
 // (../../src/recentlyDoneSelection.ts): an unanswered check is said apart
-// from a confirmed miss and is superseded by a later choice; a failed one,
+// from a confirmed miss and is superseded by a later choice (by navigation
+// in ./recently-done-sessions-select-supersede.spec.ts); a failed one,
 // one whose catalog names the story's done record unreadable, and a catalog
 // gap, said in Board Recently done's words, leave the reading and the
 // session's access as they were.
@@ -20,6 +21,7 @@ import {
 import {
   holdPygardonCatalog,
   isPygardonCatalog,
+  pygardonCatalogAbandoned,
   pygardonCatalogRead,
 } from "../pygardonCatalogReads.ts";
 
@@ -44,9 +46,7 @@ test("an unanswered check is superseded by a later choice, and a failed one leav
 
   await test.step("while Pygardon's catalog is unread the row says it is checking; choosing another row abandons that read", async () => {
     const held = await holdPygardonCatalog(page);
-    const abandoned = page.waitForEvent("requestfailed", (request) =>
-      isPygardonCatalog(new URL(request.url())),
-    );
+    const abandoned = pygardonCatalogAbandoned(page);
     try {
       await shown.entry(linked.title).click();
       await held.asked;
