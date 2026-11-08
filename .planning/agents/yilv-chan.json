@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "yilv-chan",
+  "email": "yilv-chan@example.org",
+  "identity": "SEED-258#assess-intent-coverage-during-wrap-up",
+  "mode": "story-branch",
+  "branch": "codex/find-the-intent-assessment-in-a-recently-done-st",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
