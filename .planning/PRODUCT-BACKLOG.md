@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Build release source repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-shell-release-and-native-fixtures) — SEED-262#migrate-shell-release-and-native-fixtures ([plan](slice-plans/533-migrate-shell-release-and-native-fixtures/PLAN.md))
 - [Build git-publication native fixture repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-git-publication-native-fixtures) — SEED-262#migrate-git-publication-native-fixtures ([plan](slice-plans/534-migrate-git-publication-native-fixtures/PLAN.md))
 - [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories) — SEED-262#reuse-immutable-git-histories ([plan](slice-plans/535-reuse-story-columns-git-history/PLAN.md))
-- [Make kept launch record test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data) — SEED-261#map-launch-and-session-test-data ([plan](slice-plans/534-map-launch-and-session-test-data/PLAN.md))
 
 ## Backlog list
 

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_map-launch-and-session-test-data.json",
+      "identity": "SEED-261#map-launch-and-session-test-data",
+      "completedAt": "2026-11-08T18:17:04.081Z",
+      "blob": "0550d8638d91dddfafad63af2c2f578a46a08221"
+    },
+    {
       "fileName": "SEED-262_migrate-backlog-scratch-repositories.json",
       "identity": "SEED-262#migrate-backlog-scratch-repositories",
       "completedAt": "2026-11-08T14:31:13.006Z",
