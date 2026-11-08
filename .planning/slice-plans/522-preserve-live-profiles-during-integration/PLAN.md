@@ -36,7 +36,8 @@ detecting a live profile deleted outright.
   done directory that parses as an agent profile is misplaced, and its home
   is `agents/<file name>`. The product-backlog module owns the rule. The merge
   adapter's `continue` and publication's existing candidate check
-  (`completedIdentityStop` in `publication-backlog-validation.mjs`, used by
+  (`doneRecordsStop`, formerly `completedIdentityStop`, in
+  `publication-backlog-validation.mjs`, used by
   the history-preserving, execution-increment, and resume publishers) apply
   it. Neither repairs; each stop names every misplaced path and its home and
   leaves Git state as it already does for other refusals.
@@ -105,6 +106,13 @@ use `caffeinate -s -i`. On battery, plug in or start fully awake with the lid
 open under `caffeinate -i` and inspect the sleep log afterward.
 [Machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
 
+## Story obligations
+
+### G1. The hold reads only files named as agent profiles
+Reported: slice 2 — "only files named as a profile (`<agent>-chan.json`) are read … A profile placed under a non-profile file name would not be held"
+Story clause: "a result holding an agent profile under `done/` is held unaccepted and unpublished"
+Disposition: no user cost "keep the other story's live agent profile where its assignment lives": every profile path is `agents/<known name>-chan.json` (`agentIdentity`, `profileAgentName`), and both paths that move one into `done/` keep its file name — Git's inferred directory rename and the hand resolution staging that rename (retained trunk commits `e6948bfce`, `0b4ba8d1b` were 100% renames `agents => done`). Only a deliberate rename to another file name escapes the hold, and that file would no longer sit at a profile path whose assignment it could hold.
+
 ## Slices
 
 ### 1. Integration keeps a live profile when the other side completes a story
@@ -134,7 +142,7 @@ profile with its done record. Slice 2 reuses `takeAndCommit` and that
 
 **Type:** Behavior
 
-**Status:** planned
+**Status:** done
 
 Given an integration result whose done directory holds an agent profile,
 the adapter's `continue` refuses and each publisher stops before push, naming
@@ -142,6 +150,15 @@ every misplaced path and its `agents/` home; moving the profile back lets the
 integration continue. Add the shared rule beside the done records, apply it
 in `continue` and `completedIdentityStop`, and update the merge-conflicts
 reference with the new stop and its repair.
+
+Accepted proof: `tests/support/product-backlog-git-merge-live-profile.test.mjs`
+("continue holds a staged result with a live profile under done/ …") and
+`src/skills/dough-execute-plan/scripts/publication-misplaced-agent-profile.test.mjs`
+(history, execution-increment and resume holds, two backlog locations), both
+failing at `fc60c5e` and passing after; the publication, execution-increment
+and history-preserving families stay green. The rule lives in
+`product-backlog-misplaced-agent-profile.mjs`; the refactor renamed
+`completedIdentityStop` to `doneRecordsStop`.
 
 ### 3. Both findings record the delivered response
 

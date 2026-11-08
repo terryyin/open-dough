@@ -43,6 +43,7 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-identity-sources.mjs
   dough-product-backlog/scripts/product-backlog-identity.mjs
   dough-product-backlog/scripts/product-backlog-merge.mjs
+  dough-product-backlog/scripts/product-backlog-misplaced-agent-profile.mjs
   dough-product-backlog/scripts/product-backlog-order.mjs
   dough-product-backlog/scripts/product-backlog-place.mjs
   dough-product-backlog/scripts/product-backlog-placement.mjs

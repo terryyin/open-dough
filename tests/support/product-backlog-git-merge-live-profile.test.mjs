@@ -1,9 +1,13 @@
 // Live agent profiles through a merge by the backlog adapter: when one side
 // completes the story whose profile was the last in `agents/`, Git must not
 // read that as the whole directory moving into `done/` and carry the other
-// side's live profile along. Real scratch repositories, real `complete`, and
-// the real adapter CLI, asserted on the committed merge.
+// side's live profile along, and a hand resolution that moved it there anyway
+// is held by `continue`. Real scratch repositories, real `complete`, and the
+// real adapter CLI, asserted on the committed or still-stopped merge.
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { makeMe } from "./makeMe.mjs";
 import { backlogOf } from "./product-backlog-fixture.mjs";
@@ -19,6 +23,7 @@ import {
 } from "./product-backlog-git-done-catalog-fixture.mjs";
 import {
   checkout,
+  headSha,
   isMidMerge,
   parentCount,
   refSha,
@@ -120,5 +125,67 @@ test("merging trunk that took another story into a branch completing the last pr
     liveBlob: blobC,
     released: "joey",
     record: "B_B.json",
+  });
+});
+
+// Example 2: an integration stopped where Git, inferring `agents/ → done/`,
+// moved the branch's live profile into `done/`, and a resolution staged it
+// there, as both retained trunk commits did. `continue` holds it, naming the
+// misplaced path and its home, with nothing committed; moving the profile
+// back lets `continue` accept.
+test("continue holds a staged result with a live profile under done/ until it is moved back to agents/", async (t) => {
+  const repo = scratchRepo(t, backlogOf([], items("A", "B")));
+  takeAndCommit(repo, executing("pyo", "A#A"));
+  repo.git(["checkout", "-q", "-b", "story-b"]);
+  takeAndCommit(repo, executing("joey", "B#B"));
+  const blobB = refSha(repo, `HEAD:${profilePath("joey")}`);
+  checkout(repo, "main");
+  await completeAndCommit(repo, "A");
+  checkout(repo, "story-b");
+  const misplaced = `${done}/joey-chan.json`;
+  // A stopped integration in Git's default directory-rename mode leaves the
+  // live profile moved into done/ and unresolved there.
+  const stopped = spawnSync(
+    "git",
+    [
+      "-c",
+      "merge.directoryRenames=conflict",
+      "merge",
+      "--no-commit",
+      "--no-ff",
+      "main",
+    ],
+    { cwd: repo.directory, encoding: "utf8" },
+  );
+  assert.equal(stopped.status, 1, stopped.stdout + stopped.stderr);
+  assert.match(repo.git(["ls-files", "-u", "--", misplaced]), /joey-chan/);
+  // The resolution stages it there.
+  repo.git(["add", "--", misplaced]);
+  const head = headSha(repo);
+  const staged = repo.git(["status", "--porcelain"]);
+
+  const held = await run(repo, ["continue"]);
+
+  assert.equal(held.code, 1, outcome(repo, held));
+  const report = held.stdout + held.stderr;
+  assert.match(report, /agent profile/);
+  assert.ok(report.includes(misplaced), report);
+  assert.ok(report.includes(profilePath("joey")), report);
+  assert.equal(isMidMerge(repo), true, "the merge stays uncommitted");
+  assert.equal(headSha(repo), head);
+  assert.equal(repo.git(["status", "--porcelain"]), staged);
+
+  // Git left no agents/ directory behind once its only profiles moved out.
+  mkdirSync(dirname(join(repo.directory, profilePath("joey"))), {
+    recursive: true,
+  });
+  repo.git(["mv", misplaced, profilePath("joey")]);
+  const merged = await run(repo, ["continue"]);
+
+  await assertAcceptedKeeping(repo, merged, {
+    live: "joey",
+    liveBlob: blobB,
+    released: "pyo",
+    record: "A_A.json",
   });
 });
