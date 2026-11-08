@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-267#preserve-large-ci-proof-reports",
+  "title": "Preserve large CI proof reports and surface size failures",
+  "completedAt": "2026-11-08T04:24:08.195Z",
+  "developer": "Terry Yin",
+  "agent": "terry-chan",
+  "host": "cursor",
+  "model": "auto"
+}
