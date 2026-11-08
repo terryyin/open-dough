@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-275#align-story-tabs-records",
+  "mode": "story-branch",
+  "branch": "codex/align-story-tab-cost-records-taken-heading-and-w",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
