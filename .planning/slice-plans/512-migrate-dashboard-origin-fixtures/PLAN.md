@@ -1,16 +1,16 @@
-# Build dashboard start origins from explicit MakeMe repository data
+# Build dashboard test repositories from explicit MakeMe data
 
 **Identity:** SEED-262#migrate-dashboard-origin-fixtures
 
-**Source:** [Build dashboard start origins from explicit MakeMe repository data](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures)
+**Source:** [Build dashboard test repositories from explicit MakeMe data](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures)
 
 ## Goal and boundaries
 
 A maintainer reading a dashboard journey or backend spec can see at its call
-site, or in its fixture file, which repository facts its start origin holds
-and which later commits it adds. `startOrigin` and its publishers take a
-MakeMe repository description and the shared harness materializes it.
-Dashboard feedback does not get slower.
+site, or in its fixture file, which repository facts its fixture starts with
+and which later commits it adds. The shared harness materializes the MakeMe
+descriptions for `startOrigin`, its publishers, and the standalone readiness
+and admission fixtures. Dashboard feedback does not get slower.
 
 Exclusions:
 
@@ -65,6 +65,13 @@ extends them.
   or done records on trunk declares them as description revisions encoded by
   the production encoders. `publishChangedReview` becomes a declared revision
   that changes Story A's seed and keeps its recorded assessment bytes.
+- **Preserve what the standalone fixtures exercise.** Migrate the starting
+  repositories built through `storyReadinessCli.ts` and `admittedWork.ts`.
+  Readiness still serves the selected checkout commit, with the deliberate
+  unpushed seed edit, path-specific commits, and malformed or stale inputs
+  arranged as the specs require. In admission, materialize the published
+  queue and apply the draft as local files. The real `start --admit` still
+  publishes the revision the dashboard reads.
 - **Declare claims a spec does not prove.** `takenByAnotherAgent` used only to
   make a story Taken becomes a declared Take revision. It changes the backlog
   and the agent's profile, is authored by the agent's
@@ -92,6 +99,7 @@ extends them.
 | Seed examples 1 and 2: default origin and the named shared stories | Slice 1 | A backend spec shows `startOrigin()` with no description has one commit with the installed skills and an empty valid backlog. Every spec importing `startOrigin` or one of the seven origin fixtures passes with unchanged assertions in one focused run. The prepared origin's first commit has the same files as before. `npm run typecheck:dashboard` passes. |
 | Feedback does not get slower | Slice 1, then slice 3 | Before and after focused times for `agent-launch-start-refusal.spec.ts` and the `startOriginTest` journey family, under comparable load, differ by no more than run-to-run noise. |
 | Seed examples 3 and 6: declared planning facts, superseded setup removed | Slice 2 | The story dependency, story reference, recently done, Trunk Mode review, one-shot review, completion closure, later-story and readiness-change specs pass unchanged. A repository search finds no dashboard helper calling `writeQueuedStories` or writing a published planning file on trunk that a description can state. |
+| Seed example 7: standalone readiness and admission | Slice 2 | The focused specs keep their verdicts and assertions, including the invisible unpushed edit and the Taken card read from the real admission commit. Compare before and after times under comparable load. |
 | Seed examples 4 and 5: commands and Git under proof | Slice 3 | The refusal, reconciliation, Intent and CI comparison specs pass with declared Take revisions and their Git graph steps unchanged. `claimOf` finds each declared claim. Start isolation and preparation resume still run the real start. |
 
 ## Decisive premises
@@ -105,15 +113,17 @@ under a load average near 5.
 | Slice 1 encodes the shared description with production encoders | `node <job-tmp>/enc.mjs` imports `writeQueuedStories`, writes the stories into a scratch directory, and renders the backlog again with `parseBacklog`/`renderBacklog`. `renderEntry({identity:"SEED-A#a",title:"Story A",href:"seeds/A.md#a"})` is compared with the queued line. | Both SAME. The seeds already come from `recordStoryState`, so the description can reproduce today's bytes. |
 | Slice 1 keeps run-wide preparation instead of committing stories per test | `<job-tmp>/m.sh`, run twice: 10 copies of a packed skills-only origin with `--no-hardlinks` clones, then one commit of two seeds and a backlog with a push in each | Copy and clone took 94–98 ms per test, and the extra commit and push took 113–120 ms per test. Per-test commits would roughly double origin setup, so preparation stays run-wide. |
 | Slice 1 consumer set | `grep` for `startOrigin(` and for `origin: async` fixtures in `dashboard/` | 47 files called `startOrigin` at `9f436aba4` and 49 at `6d1f994d8`, 11 of them helpers at the first count. Seven fixtures create an origin. 70 helper modules and 95 specs import `startOrigin.ts`. About 200 dashboard test files name Story A or its identity. |
+| Slice 2 preserves the standalone publication boundary | Read `storyReadinessFixture.ts`, `committedOriginRepo.ts`, `admittedWork.ts` and `taken-admitted-investigation.spec.ts` at `fe1b9d4bf` | Readiness serves committed bytes and local branch heads from the checkout at a chosen revision. Admission serves the bare origin at the revision accepted by the production command. Keep both inputs to the publisher and check the landed materializer against the focused specs. |
 | Slice 3 declared claims are found as claims | Read `claimOf` in `storyCiComparisonHistory.ts` | It finds the latest commit on any ref by `<name>-chan@example.org` with `Take queued work` in its message, so a declared revision with that author and message is found the same way. |
 | Slice 3 declared Take matches what start publishes | [Plan 510's premise rows](../510-build-explicit-git-fixtures/PLAN.md#decisive-premises), observed on 2026-11-08 at `3be3f59df` | `renderAgentProfile` and `renderBacklog` reproduced the profile and backlog bytes a real Take published, with the agent as author. |
 | No native evidence changes | `tests/support/*-native-evidence.sh` list their inputs | None lists a dashboard support module, so no paid run is needed. |
 
-Remaining hypothesis: the specs' verdicts with materialized origins,
+The migrated verdicts cannot be observed before plan 510's materializer
+lands. Slice 1's first focused run checks the default and shared origins,
 including the extra `trunk.txt` and first-commit message of the shared
-description. It cannot be observed before plan 510's materializer lands. Slice 1's focused
-run settles it for the default and shared stories before slices 2 and 3 build
-on it. Slice 3's focused run settles it for declared claims.
+description, before slices 2 and 3 build on it. Slice 2 checks the standalone
+fixtures against the landed materializer and the focused timing baseline.
+Slice 3 checks declared claims.
 
 ## Local gates
 
@@ -163,14 +173,29 @@ Proof: Run the specs of `storyDependencyFixture`, `storyReferenceDone`,
 `recentlyDoneSessionsSidebarPage`, `responsiveRecovery`,
 `storyReviewTrunkMode`, `oneShotExecutionReview`,
 `completionClosurePublication`, `laterStoryMergesTrunk` and the
-readiness-change specs that call `publishChangedReview`. Then search for
+readiness-change specs that call `publishChangedReview`. Include any other
+specs that reach the changed `storyReadinessCli.ts` helpers. Then search for
 `writeQueuedStories` and for trunk writes of published planning files in
 dashboard helpers.
+
+Before migrating the standalone fixtures, record focused times for
+`story-readiness.spec.ts`, `story-readiness-gaps.spec.ts`,
+`story-readiness-accessible.spec.ts`, `preparation-legend.spec.ts`,
+`frame-board-look.spec.ts`, `project-keyboard-navigation-eligibility.spec.ts`
+and `taken-admitted-investigation.spec.ts`. Repeat that selection after the
+migration under comparable load and keep the same assertions. If the extra
+origin setup slows readiness feedback beyond run-to-run noise, coordinate
+the shared local-checkout option with
+[plan 524](../524-migrate-backlog-scratch-repositories/PLAN.md) and recheck
+before closing the slice.
 
 Replace each hand-written seed, story state, backlog, profile, agreement or
 done record committed to trunk with description revisions at the call site or
 in the fixture file. Keep literal bytes that a spec proves, such as an
-unreadable record, at the call site. Delete helpers that become unused.
+unreadable record, at the call site. Move the standalone readiness and
+admission setup onto the same materializer. Keep the real admission and
+the readiness edits and commits under proof. Delete helpers that become
+unused.
 
 ### 3. Specs declare claims they do not prove
 

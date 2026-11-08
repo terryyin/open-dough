@@ -164,26 +164,26 @@ times are the baseline for the reuse story.
 
 <a id="migrate-dashboard-origin-fixtures"></a>
 
-### Build dashboard start origins from explicit MakeMe repository data
+### Build dashboard test repositories from explicit MakeMe data
 
 **Identity:** SEED-262#migrate-dashboard-origin-fixtures
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-262#migrate-dashboard-origin-fixtures","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story passes makeMe.aRepository descriptions to startOrigin and its publishers, and materializes them through the shared harness materializer with its per-process reuse.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and checkout with per-process reuse, are published on trunk.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-262#migrate-dashboard-origin-fixtures","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story passes makeMe.aRepository descriptions to startOrigin, its publishers, and the standalone readiness and admission fixtures, and materializes them through the shared harness materializer with its per-process reuse.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and checkout with per-process reuse, are published on trunk.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b5ccc3cc41b0ac32e2efebf0427391e060758b6dcb86e226d0adc780432cc63c","plan":"f4bf88b2cbce44fa2c5ff5b1e3daaefefc0854299e077d523108047f015a6b75"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"46f4016395c3839bb38ac5b72f3bf632ea7ed4e036a517bf1b7d37be45362b97","plan":"6b28b9f625632be28def6a8bd7d84784ddabab0c5f38cb04122a55cc41d8d2ab"}}
 ```
 
 #### Goal
 
-A maintainer reading a dashboard journey or backend spec can see at its call
-site which repository facts its start origin holds and which later commits
-it adds. Today every start origin silently holds Stories A and B queued,
-refined, planned and Ready. About 200 dashboard files name Story A or its
-identity, but those facts live only in `queuedStories.ts`. This story makes
-the start origin and its publishers state their facts through
-[the shared repository description](#build-explicit-git-fixtures). Dashboard
-feedback must not get slower.
+A maintainer reading a dashboard journey or backend spec can see which
+repository facts its fixture starts with and which later commits it adds.
+Today every start origin silently holds Stories A and B queued, refined,
+planned and Ready. About 200 dashboard files name Story A or its identity,
+but those facts live only in `queuedStories.ts`. Start origins, their
+publishers, and the standalone readiness and admission fixtures state their
+starting facts through [the shared repository description](#build-explicit-git-fixtures).
+Dashboard feedback must not get slower.
 
 #### Scope
 
@@ -210,6 +210,11 @@ feedback must not get slower.
   agreements and done records. These include the story dependency, story
   reference, recently done, Trunk Mode review, one-shot review, completion
   closure and later-story publishers, and `publishChangedReview`.
+- Migrate the starting repositories built through `storyReadinessCli.ts` and
+  `admittedWork.ts` with the same description and materializer. Keep literal
+  malformed inputs, stale assessments, and deliberate local edits where a
+  readiness spec exercises them. In the admission fixture, keep the draft
+  local until the real `start --admit` publishes the commit the dashboard reads.
 - Replace a real `start` that only arranges a Taken story or a claim commit
   with a declared revision whose author is the agent and whose committer is
   the developer. A spec whose subject is the start, its refusal or its resume
@@ -257,14 +262,21 @@ feedback must not get slower.
 6. **Superseded setup removed.** No dashboard helper calls
    `writeQueuedStories`, and none hand-writes a published planning file
    that the description can state.
+7. **Standalone readiness and admission.** The readiness fixture declares
+   its starting state. A deliberately unpushed seed edit stays invisible
+   when the dashboard reads the selected commit. The admission fixture
+   declares its published queue and arranges a local draft. The dashboard
+   shows the investigation in Taken from the commit the real `start --admit`
+   published.
 
 #### Evaluation
 
 Migrated specs keep their verdicts and assertions. A reviewer can name each
 case's driving repository facts from its call site or fixture file. Record
 focused run times before and after under comparable load for one Playwright
-journey family and one backend family that use the default origin. They must
-not regress beyond run-to-run noise.
+journey family and one backend family that use the default origin, and for
+the standalone readiness and admission specs. They must not regress beyond
+run-to-run noise.
 
 #### Architecture
 
