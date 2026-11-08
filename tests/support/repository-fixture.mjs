@@ -12,9 +12,10 @@ import {
 import { writeRevisionFiles } from "./repository-revision-files.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RepositoryDescription} RepositoryDescription */
-/** @typedef {import("./repositoryTestData.mjs").RepositoryRevision} RepositoryRevision */
+/** @typedef {import("./repositoryTestData.mjs").RevisionFacts} RevisionFacts */
+/** @typedef {import("./repositoryTestData.mjs").GitPerson} GitPerson */
 
-/** @type {import("./repositoryTestData.mjs").GitPerson} */
+/** @type {GitPerson} */
 export const integrationDeveloper = {
   name: "Integration Checkout",
   email: "integration@example.test",
@@ -26,12 +27,24 @@ const layout = (fixture) => ({
   integration: join(fixture, "integration"),
 });
 
-/** @param {string} integration @param {RepositoryRevision} revision */
-async function commitRevision(integration, revision) {
+/**
+ * Commit a declared revision's files in a checkout: the committer named, or
+ * else the checkout's developer; the author named, or else the committer; the
+ * message given, or else the revision's name.
+ * @param {string} checkout
+ * @param {RevisionFacts & { name?: string }} revision
+ * @param {GitPerson} [developer]
+ */
+export async function commitDeclaredRevision(
+  checkout,
+  revision,
+  developer = integrationDeveloper,
+) {
+  writeRevisionFiles(checkout, revision);
   const {
     name,
-    message = name,
-    committer = integrationDeveloper,
+    message = name ?? "Publish declared revision",
+    committer = developer,
     author = committer,
   } = revision;
   const env = {
@@ -40,12 +53,12 @@ async function commitRevision(integration, revision) {
     GIT_AUTHOR_EMAIL: author.email,
     GIT_COMMITTER_NAME: committer.name,
     GIT_COMMITTER_EMAIL: committer.email,
-    ...("date" in author && { GIT_AUTHOR_DATE: author.date }),
-    ...("date" in committer && { GIT_COMMITTER_DATE: committer.date }),
+    ...(author.date !== undefined && { GIT_AUTHOR_DATE: author.date }),
+    ...(committer.date !== undefined && { GIT_COMMITTER_DATE: committer.date }),
   };
-  await git(integration, "add", "--all");
+  await git(checkout, "add", "--all");
   await exec("git", ["commit", "--allow-empty", "--quiet", "-m", message], {
-    cwd: integration,
+    cwd: checkout,
     env,
   });
 }
@@ -63,8 +76,7 @@ async function buildTemplate(fixture, { revisions }) {
   const commits = new Map();
   let trunkSha = "";
   for (const revision of revisions) {
-    writeRevisionFiles(integration, revision);
-    await commitRevision(integration, revision);
+    await commitDeclaredRevision(integration, revision);
     await git(integration, "push", "--quiet", "origin", "main");
     trunkSha = await revParse(integration, "HEAD");
     commits.set(revision.name, trunkSha);

@@ -8,8 +8,9 @@
 // rename adds one line, little enough that Git detects it as a rename.
 // Another story changes only the product file.
 
-import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
+import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 
 export const intentLocations = [
@@ -28,34 +29,26 @@ export const changed = {
     "Renamed dashboard/tests/out/leaving.spec.ts → scripts/leaving.spec.ts",
 } as const;
 
-// Trunk's files: Intent settings beside the project's own, and the sources.
+// Intent settings naming the locations, as trunk publishes them.
+export const intentSettings = `${JSON.stringify({ intent: { locations: intentLocations } }, null, 2)}\n`;
+
+// Trunk's files: Intent settings and the sources.
 export function publishIntentTrunk(project: string) {
-  const settingsPath = path.join(project, ".planning/open-dough.json");
-  const settings: Record<string, unknown> = existsSync(settingsPath)
-    ? (JSON.parse(readFileSync(settingsPath, "utf8")) as Record<
-        string,
-        unknown
-      >)
-    : {};
-  writeAt(
-    project,
-    ".planning/open-dough.json",
-    `${JSON.stringify({ ...settings, intent: { locations: intentLocations } }, null, 2)}\n`,
-  );
-  const files = {
-    "dashboard/tests/a.spec.ts": lines("a"),
-    "dashboard/tests/gone.spec.ts": lines("gone"),
-    "dashboard/tests/boundary/kept.spec.ts": lines("kept"),
-    "dashboard/tests/other/c.spec.ts": lines("c"),
-    "dashboard/tests/between/moved.spec.ts": lines("between"),
-    "dashboard/tests/out/leaving.spec.ts": lines("leaving"),
-    "scripts/arriving.spec.ts": lines("arriving"),
-    "tests/check.sh": lines("check"),
-    "dashboard/src/App.tsx": lines("app"),
-    "docs/notes.md": lines("notes"),
-  };
-  for (const [file, text] of Object.entries(files))
-    writeAt(project, file, text);
+  writeRevisionFiles(project, {
+    files: {
+      ".planning/open-dough.json": intentSettings,
+      "dashboard/tests/a.spec.ts": lines("a"),
+      "dashboard/tests/gone.spec.ts": lines("gone"),
+      "dashboard/tests/boundary/kept.spec.ts": lines("kept"),
+      "dashboard/tests/other/c.spec.ts": lines("c"),
+      "dashboard/tests/between/moved.spec.ts": lines("between"),
+      "dashboard/tests/out/leaving.spec.ts": lines("leaving"),
+      "scripts/arriving.spec.ts": lines("arriving"),
+      "tests/check.sh": lines("check"),
+      "dashboard/src/App.tsx": lines("app"),
+      "docs/notes.md": lines("notes"),
+    },
+  });
   commitAll(project, "intent locations and tests");
   git(project, "push", "--quiet", "origin", "main");
 }

@@ -62,26 +62,55 @@ export function readyStoryState(entry) {
 }
 
 /**
+ * The A/B fixture seed with its readiness recorded on its own seed and plan.
+ * @param {BacklogEntry} entry
+ * @param {Assessment} [assessment]
+ * @returns {string}
+ */
+export function reviewedStorySeed(entry, assessment = {}) {
+  const seed = storySeed(entry, `Execute ${seedKey(entry)}.`);
+  const planSource = storyPlan(entry);
+  const state = { ...readyStoryState(entry), ...assessment };
+  return recordStoryState(
+    seed,
+    { ...state, expectedBasis: computeBasis(seed, planSource) },
+    { planSource },
+  ).source;
+}
+
+/**
+ * Encode published agreements, in order, on the previously assessed A/B
+ * fixture seed.
+ * @param {BacklogEntry} entry
+ * @param {readonly SupplierAgreement[]} dependencies
+ * @param {Assessment} [assessment]
+ * @returns {string}
+ */
+export function queuedSeedWithDependencies(
+  entry,
+  dependencies,
+  assessment = {},
+) {
+  return dependencies.reduce(
+    (source, dependency) =>
+      updateStoryDependency(source, {
+        identity: entry.identity,
+        href: entry.href,
+        dependency,
+        expectedBasis: readStoryDependencies(source, entry.href).basis,
+      }).source,
+    reviewedStorySeed(entry, assessment),
+  );
+}
+
+/**
  * Encode a published agreement on the previously assessed A/B fixture seed.
  * @param {BacklogEntry} entry
  * @param {SupplierAgreement} dependency
  * @param {Assessment} [assessment]
  */
 export function queuedSeedWithDependency(entry, dependency, assessment = {}) {
-  const seed = storySeed(entry, `Execute ${seedKey(entry)}.`);
-  const planSource = storyPlan(entry);
-  const state = { ...readyStoryState(entry), ...assessment };
-  const reviewed = recordStoryState(
-    seed,
-    { ...state, expectedBasis: computeBasis(seed, planSource) },
-    { planSource },
-  ).source;
-  return updateStoryDependency(reviewed, {
-    identity: entry.identity,
-    href: entry.href,
-    dependency,
-    expectedBasis: readStoryDependencies(reviewed, entry.href).basis,
-  }).source;
+  return queuedSeedWithDependencies(entry, [dependency], assessment);
 }
 
 /** @param {readonly BacklogEntry[]} queued */

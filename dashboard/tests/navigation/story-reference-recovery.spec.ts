@@ -1,4 +1,10 @@
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
+import {
+  queuedReadyRepository,
+  roughStoryC,
+  storyA,
+  storyB,
+} from "../../../tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
@@ -8,24 +14,31 @@ import {
   parts,
 } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
-import {
-  test,
-  twoDependencies,
-  publishDependencies,
-} from "../storyDependencyFixture.ts";
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
+import { test, twoDependencies } from "../storyDependencyFixture.ts";
 import { startOrigin } from "../support/startOrigin.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
 import { pausePageClock } from "../autoRefreshJourney.ts";
 
-test.use({ hasTouch: true });
+// Story A waits on Story B and needs a decision about Story C, whose seed is
+// published while it is not yet queued.
+test.use({
+  hasTouch: true,
+  originRepository: queuedReadyRepository()
+    .withRevision("dependencies", twoDependencies())
+    .please(),
+});
+
+// Story C joins the queue after its reference was first followed.
+const queueStoryC = {
+  message: "Queue Story C",
+  backlog: { direction, queued: [storyA, storyB, roughStoryC] },
+};
 
 test("missing, reading and failed reference destinations stay distinct and retry reaches a newly published block", async ({
   page,
   origin,
 }) => {
-  const revision = await twoDependencies(origin);
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,
@@ -55,12 +68,7 @@ test("missing, reading and failed reference destinations stay distinct and retry
   await expect(
     consumer.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
-  const backlog = path.join(origin.project, ".planning/PRODUCT-BACKLOG.md");
-  writeFileSync(
-    backlog,
-    `${readFileSync(backlog, "utf8")}\n- [Story C](seeds/C.md#c) — SEED-C#c\n`,
-  );
-  await publishDependencies(origin);
+  await origin.publishRevision(queueStoryC);
   const release = published.hold(".planning/PRODUCT-BACKLOG.md");
   const restore = published.answerWith(
     ".planning/PRODUCT-BACKLOG.md",
@@ -95,7 +103,7 @@ test("leaving during a pending reference prevents the delayed read from moving f
   origin,
   afterGitHubStops,
 }) => {
-  const revision = await twoDependencies(origin);
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,
@@ -124,12 +132,7 @@ test("leaving during a pending reference prevents the delayed read from moving f
   await consumer.getByRole("link", { name: "SEED-C#c", exact: true }).click();
   const notice = page.locator(".story-reference-notice");
   await expect(notice).toContainText("unavailable");
-  const backlog = path.join(origin.project, ".planning/PRODUCT-BACKLOG.md");
-  writeFileSync(
-    backlog,
-    `${readFileSync(backlog, "utf8")}\n- [Story C](seeds/C.md#c) — SEED-C#c\n`,
-  );
-  await publishDependencies(origin);
+  await origin.publishRevision(queueStoryC);
   const release = published.hold(".planning/PRODUCT-BACKLOG.md");
   await notice.getByRole("button", { name: "Retry story reference" }).click();
   await expect(notice).toContainText("Reading Open Dough");
@@ -148,7 +151,7 @@ test("choosing another inspection during a pending reference keeps that choice w
   page,
   origin,
 }) => {
-  const revision = await twoDependencies(origin);
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,
@@ -165,12 +168,7 @@ test("choosing another inspection during a pending reference keeps that choice w
   await consumer.getByRole("link", { name: "SEED-C#c", exact: true }).click();
   const notice = page.locator(".story-reference-notice");
   await expect(notice).toContainText("unavailable");
-  const backlog = path.join(origin.project, ".planning/PRODUCT-BACKLOG.md");
-  writeFileSync(
-    backlog,
-    `${readFileSync(backlog, "utf8")}\n- [Story C](seeds/C.md#c) — SEED-C#c\n`,
-  );
-  await publishDependencies(origin);
+  await origin.publishRevision(queueStoryC);
   const release = published.hold(".planning/PRODUCT-BACKLOG.md");
   await notice.getByRole("button", { name: "Retry story reference" }).click();
   await expect(notice).toContainText("Reading Open Dough");

@@ -9,7 +9,6 @@ import {
   chmodSync,
   existsSync,
   mkdtempSync,
-  readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -18,9 +17,16 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import {
-  initializeStartOrigin,
+  queuedReadyRepository,
+  reviewedStorySeed,
+  storyA,
+} from "../../../tests/support/queued-repository.mjs";
+import { commitDeclaredRevision } from "../../../tests/support/repository-fixture.mjs";
+import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
+import { initializeStartOrigin } from "./startOriginInitialization.ts";
+import {
+  dashboardDeveloper,
   type StartRepository,
 } from "./startOriginPreparation.ts";
 import {
@@ -47,8 +53,9 @@ export type StartOrigin = {
   takenInTrunkMode(slug: string, identity?: string): Promise<TrunkStart>;
   // Holds every push to origin on its `pre-receive` hook until released.
   holdPushes(): PushHold;
-  // Publishes edited content while preserving its reviewed assessment bytes.
-  publishChangedReview(): Promise<string>;
+  // Publishes a declared revision from the project checkout onto trunk and
+  // returns the published revision.
+  publishRevision(revision: RevisionFacts): Promise<string>;
   cleanup(): void;
 };
 
@@ -65,6 +72,18 @@ export const queuedOriginRepository: [StartRepository, { option: true }] = [
   queuedReadyRepository().please(),
   { option: true },
 ];
+
+// Story A's seed edited after its readiness review, keeping the recorded
+// assessment bytes.
+export const changedReviewRevision: RevisionFacts = {
+  message: "Change reviewed content",
+  files: {
+    ".planning/seeds/A.md": reviewedStorySeed(storyA).replace(
+      "Execute A.",
+      "Execute A with changed scope after readiness review.",
+    ),
+  },
+};
 
 export type TrunkStart = {
   readonly agent: string;
@@ -216,17 +235,9 @@ export async function startOrigin(
       });
       return { agent, workspace, branch };
     },
-    async publishChangedReview() {
-      const seed = path.join(project, ".planning/seeds/A.md");
-      writeFileSync(
-        seed,
-        readFileSync(seed, "utf8").replace(
-          "Execute A.",
-          "Execute A with changed scope after readiness review.",
-        ),
-      );
-      await git(project, "commit", "-am", "Change reviewed content");
-      await git(project, "push", "origin", "main");
+    async publishRevision(revision) {
+      await commitDeclaredRevision(project, revision, dashboardDeveloper);
+      await git(project, "push", "--quiet", "origin", "main");
       return (await originGit("rev-parse", "main")).trim();
     },
     cleanup() {

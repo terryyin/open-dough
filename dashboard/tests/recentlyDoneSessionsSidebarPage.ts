@@ -2,6 +2,8 @@
 // three-list room its journeys observe with the open list and Running Cursor
 // sessions. Seeds use the real machine store; destinations reuse PageFrame.
 import type { Locator, Page } from "@playwright/test";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import {
   agentLaunchEndpoint,
   recentlyDoneSessionsInitialLimit,
@@ -149,32 +151,26 @@ export function openRecord(options: {
   };
 }
 
+// One queued story each project publishes.
+const queuedOnly = (title: string, identity: string) =>
+  renderPublishedBacklog({
+    queued: [
+      makeMe.aBacklogEntry
+        .with({
+          identity,
+          title,
+          href: `seeds/${identity.replace("#", ".md#")}`,
+        })
+        .please(),
+    ],
+  });
+
 // Publishes Doughnut and Pygardon beside the Open Dough origin already shown.
 export async function publishSiblingProjects(page: Page) {
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
-  doughnut.push(
-    "d4".repeat(20),
-    `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [A Doughnut story](seeds/SEED-401.md#s) — SEED-401#s
-`,
-  );
+  doughnut.push("d4".repeat(20), queuedOnly("A Doughnut story", "SEED-401#s"));
   const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
-  pygardon.push(
-    "e6".repeat(20),
-    `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [A Pygardon story](seeds/SEED-301.md#s) — SEED-301#s
-`,
-  );
+  pygardon.push("e6".repeat(20), queuedOnly("A Pygardon story", "SEED-301#s"));
   return { doughnut, pygardon };
 }
 

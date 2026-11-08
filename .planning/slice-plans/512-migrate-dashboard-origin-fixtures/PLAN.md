@@ -172,11 +172,17 @@ Fixtures name `queuedOriginRepository` from `startOrigin.ts` as their
 overridable `originRepository` option. After-times ran under heavier load
 (14.8–16.3 against 10.5), so G3 carries the timing comparison to slice 3.
 
+CI on `0bcf76c37` (run 42463684988, attempt 1): dashboard shards 5 and 6
+failed at `setup-node` on HTTP 504 from the Node download, while every other
+job passed and concurrent branch runs failed the same way. Disposition:
+infrastructure. Trunk's download fallback was merged at `87a85b92b` before the
+slice 2 push.
+
 ### 2. Publishers declare the planning facts they add
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the specs of `storyDependencyFixture`, `storyReferenceDone`,
 `recentlyDoneSessionsSidebarPage`, `responsiveRecovery`,
@@ -205,6 +211,18 @@ unreadable record, at the call site. Move the standalone readiness and
 admission setup onto the same materializer. Keep the real admission and
 the readiness edits and commits under proof. Delete helpers that become
 unused.
+
+Accepted proof (2026-11-08): the developer amended the story to split fake
+GitHub planning text into
+[fake GitHub planning data](../../seeds/SEED-262-faster-dashboard-test-feedback.md#declare-fake-github-planning-data),
+and the source review was replaced. A combined run of 78 spec files passed
+165 (one opt-in skip), and `start-origin-private.spec.ts` observes private
+materialization. A description whose first revision is run-wide copies that
+prepared origin and commits only its later revisions through the shared
+`commitDeclaredRevision`, so paired runs show no slowdown (51/51 s for the
+non-run-wide set, 27/25 s for the standalone specs). A declared review must
+follow its dependency agreements, because they are part of the readiness
+basis.
 
 ### 3. Specs declare claims they do not prove
 
@@ -238,18 +256,30 @@ blocks on.
 ### G1. Fixture description override not yet exercised
 Reported: slice 1 — "No spec overrides a fixture's description with test.use yet; the option exists in all seven fixtures."
 Story clause: "a spec that needs other facts overrides it with `test.use`"
-Disposition: receiving slice 2
-Commitment: 11
-
+Disposition: proved by slice 2: dashboard/tests/stories/story-dependencies.spec.ts test.use originRepository with twoDependencies, and seven other overriding files, passing in the 165-case slice 2 run
 
 ### G2. Private materialization of a non-shared description not yet exercised
 Reported: slice 1 — "Only the no-owner isolation cases exercise private preparation; no third description reaches it yet."
 Story clause: "A description that is not prepared run-wide is materialized through the shared materializer's per-process reuse on top of the same installed skills."
-Disposition: receiving slice 2
-Commitment: 17
+Disposition: proved by slice 2: dashboard/backend-tests/launches/start-origin-private.spec.ts one root commit with its own facts and installed skills, same root SHA on a second start in the process
 
 ### G3. Slice 1 after-times ran under heavier load
 Reported: slice 1 — "After-times ran at load 14.8-16.3 against about 10.5 before (refusal 9/8 s vs 9/6 s; startOriginTest consumers 73/81 s vs 60/68 s), so they cannot show no slowdown."
 Story clause: "Dashboard feedback must not get slower."
 Disposition: receiving slice 3
-Commitment: 6
+Commitment: 4
+
+### G4. Non-run-wide descriptions slow focused feedback
+Reported: slice 2 — "a focused set of specs that start from non-run-wide descriptions runs about 10–18% slower"
+Story clause: "Dashboard feedback must not get slower."
+Disposition: proved by slice 2: paired back-to-back runs at 0bcf76c37 and after: 13-file non-run-wide set 66/68 s (load 11.1/17.0) and 51/51 s (12.2/12.0); 7 standalone specs 28/24 s and 27/25 s
+
+### G5. Dashboard helpers still writing planning files outside the slice 2 list
+Reported: slice 2 — "`.planning/open-dough.json` settings in `intentStoryWorktree` and `intentSummaryStoryComparisonShared` (Intent family). Scratch local checkouts in `retainedReport.plantTrackedClosureRepository` (a literal backlog with no identity, which looks like bytes a spec proves) and `sessionsReplayProjects`."
+Story clause: "a published planning file that the description can state"
+Disposition: proved by slice 2: the four helpers write through writeRevisionFiles; their Intent, completion, final-report, retirement and sessions-listing consumers passed in the 165-case slice 2 run
+
+### G6. Fake GitHub helpers and specs serve literal planning text
+Reported: slice 2 — "about 19 fake-GitHub moving-origin helpers plus 36 specs still put literal `# Product backlog` text into fake GitHub contents"
+Story clause: "Planning text that dashboard helpers and specs serve through the fake GitHub, without a Git repository, belongs to"
+Disposition: excluded "Planning text that dashboard helpers and specs serve through the fake GitHub, without a Git repository, belongs to"

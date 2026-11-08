@@ -32,9 +32,13 @@ import {
   commitUnpublished,
   openTaken,
   shownWorkspace,
+  trunkModeRepository,
   trunkModeStory,
 } from "../support/storyReviewTrunkMode.ts";
 import { branch, git, writeAt } from "../support/storyReviewWorktree.ts";
+
+// Trunk up to Yui-chan's claim of Story A in Trunk Mode.
+olderGit.use({ originRepository: trunkModeRepository });
 
 const keptIn = (commits: string) =>
   `This machine's Git cannot take the story's ${commits} out of trunk, so All changes shows only what is not yet published.`;
