@@ -1,9 +1,12 @@
 // Distinct published revisions for observation isolation. Only raw records and
 // held GitHub answers are supplied; the built page owns every displayed fact.
 
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import type { Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { githubFor } from "./dashboardTest.ts";
 import { sharedStoryIdentity } from "./doughnutProject.ts";
@@ -43,20 +46,27 @@ export function factsAt(revision: string, label: "A" | "B") {
   const developer = `Developer at ${label}`;
   const files = withDoneCatalog(
     {
-      [backlogPath]: `# Product backlog
-
-## Near-future direction
-
-Direction published at ${label}.
-
-## Taken
-
-- [${takenTitle}](seeds/SEED-777-shared.md#shared-story) — ${sharedStoryIdentity}
-
-## Backlog list
-
-- [${queuedTitle}](seeds/SEED-777-shared.md#${queuedAnchor}) — ${queuedIdentity}
-`,
+      [backlogPath]: renderPublishedBacklog({
+        direction: `Direction published at ${label}.`,
+        taken: [
+          makeMe.aBacklogEntry
+            .with({
+              identity: sharedStoryIdentity,
+              href: "seeds/SEED-777-shared.md#shared-story",
+              title: takenTitle,
+            })
+            .please(),
+        ],
+        queued: [
+          makeMe.aBacklogEntry
+            .with({
+              identity: queuedIdentity,
+              href: `seeds/SEED-777-shared.md#${queuedAnchor}`,
+              title: queuedTitle,
+            })
+            .please(),
+        ],
+      }),
       ".planning/open-dough.json": "{}\n",
       [canonicalPath]: `<a id="shared-story"></a>
 
@@ -66,9 +76,15 @@ Direction published at ${label}.
 
 **Goal:** ${purpose}
 
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/777-facts/PLAN.md"}
-\`\`\`
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/777-facts/PLAN.md",
+    })
+    .please(),
+)}
 
 <a id="${queuedAnchor}"></a>
 
@@ -78,20 +94,30 @@ Direction published at ${label}.
 
 **Goal:** Queued purpose published at ${label}.
 `,
-      [planPath]: `# Plan published at ${label}
-
-## Slices
-
-### 1. First slice at ${label}
-Type: Behavior
-Status: ${label === "A" ? "done" : "planned"}
-Proof: Observe the current publication.
-
-### 2. Second slice at ${label}
-Type: Behavior
-Status: planned
-Proof: Observe the current publication.
-`,
+      [planPath]: renderSlicePlan(
+        makeMe.aSlicePlan
+          .with({
+            slices: [
+              makeMe.aPlanSlice
+                .with({
+                  index: 1,
+                  name: `First slice at ${label}`,
+                  status: label === "A" ? "done" : "planned",
+                  proof: "Observe the current publication.",
+                })
+                .please(),
+              makeMe.aPlanSlice
+                .with({
+                  index: 2,
+                  name: `Second slice at ${label}`,
+                  proof: "Observe the current publication.",
+                })
+                .please(),
+            ],
+          })
+          .please(),
+        { heading: "Slices", preamble: `# Plan published at ${label}` },
+      ),
       [profilePath(owner)]: renderAgentProfile(
         makeMe.anAgentProfile
           .executing({
@@ -112,12 +138,16 @@ Proof: Observe the current publication.
           })
           .please(),
       ),
-      [donePath]: renderDoneRecord({
-        identity: doneIdentity,
-        title: doneTitle,
-        developer,
-        completedAt: new Date(opened.getTime() - 60_000).toISOString(),
-      }),
+      [donePath]: renderDoneRecord(
+        makeMe.aDoneRecord
+          .with({
+            identity: doneIdentity,
+            title: doneTitle,
+            developer,
+            completedAt: new Date(opened.getTime() - 60_000).toISOString(),
+          })
+          .please(),
+      ),
     },
     doneDirectory,
   );

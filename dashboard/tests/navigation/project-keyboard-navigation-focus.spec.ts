@@ -3,7 +3,9 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { shortRevision, expectMembership, parts } from "../dashboardPage.ts";
-import { filesOf } from "../catalogProjectRecords.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../../tests/support/published-backlog.mjs";
+import { catalogPublications } from "../catalogProjectRecords.ts";
 import {
   pathsRead,
   publishMovingOrigin,
@@ -22,12 +24,12 @@ test("focus stays useful across switches and held previous reads stay isolated",
 }) => {
   const origins = new Map<string, MovingOrigin>();
   for (const published of [
-    openDoughProject,
-    doughnutProject,
-    pygardonProject,
+    catalogPublications.openDough,
+    catalogPublications.doughnut,
+    catalogPublications.pygardon,
   ]) {
     const origin = await publishMovingOrigin(page, published.repository);
-    const backlogText = filesOf(published)[".planning/PRODUCT-BACKLOG.md"];
+    const backlogText = published.files[published.backlogPath];
     if (backlogText === undefined) {
       throw new Error(`Missing backlog fixture for ${published.label}.`);
     }
@@ -81,14 +83,17 @@ test("focus stays useful across switches and held previous reads stay isolated",
     const nextOpenDoughRevision = "e2".repeat(20);
     openDoughOrigin.push(
       nextOpenDoughRevision,
-      `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [Open Dough after held switch](seeds/SEED-303-queued.md#queued) — SEED-303#queued
-`,
+      renderPublishedBacklog({
+        queued: [
+          makeMe.aBacklogEntry
+            .with({
+              identity: "SEED-303#queued",
+              title: "Open Dough after held switch",
+              href: "seeds/SEED-303-queued.md#queued",
+            })
+            .please(),
+        ],
+      }),
     );
     await settings.focus();
     await page.keyboard.press("ArrowLeft");

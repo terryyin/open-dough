@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { restoreRepairStash, saveRepairStash } from "./ci-repair-stash.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
@@ -47,9 +48,13 @@ test("Story Branch Mode increment publishes to the recorded remote execution bra
 
   const published = await publishExecutionIncrement({
     workspace: execution,
-    branch: "exec/story",
-    previouslyPublishedBase: trunkSha,
-    targetRef: recordedStoryBranch,
+    ...makeMe.anIncrementPublication
+      .with({
+        branch: "exec/story",
+        previouslyPublishedBase: trunkSha,
+        targetRef: recordedStoryBranch,
+      })
+      .please(),
     register: observer.register,
   });
 
@@ -75,9 +80,13 @@ test("a candidate the remote already holds is accepted without reconciliation or
 
   const published = await publishExecutionIncrement({
     workspace: execution,
-    branch: "exec/story",
-    previouslyPublishedBase: trunkSha,
-    targetRef: trunkTarget,
+    ...makeMe.anIncrementPublication
+      .with({
+        branch: "exec/story",
+        previouslyPublishedBase: trunkSha,
+        targetRef: trunkTarget,
+      })
+      .please(),
     register: observer.register,
     defaultCheckout: integration,
     beforePush: () => {
@@ -135,9 +144,13 @@ test("an owned repair publishes without unfinished work and restores that work a
 
   const published = await publishExecutionIncrement({
     workspace: execution,
-    branch: "exec/story",
-    previouslyPublishedBase: trunkSha,
-    targetRef: trunkTarget,
+    ...makeMe.anIncrementPublication
+      .with({
+        branch: "exec/story",
+        previouslyPublishedBase: trunkSha,
+        targetRef: trunkTarget,
+      })
+      .please(),
     register: observer.register,
   });
 

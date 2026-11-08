@@ -13,6 +13,9 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { splitHref } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
+import { makeMe } from "./makeMe.mjs";
+import { renderPublishedBacklog } from "./published-backlog.mjs";
 
 const exec = promisify(execFile);
 export const cli = fileURLToPath(
@@ -65,15 +68,62 @@ export function backlogOf(taken, queue, text = direction) {
   return `${preambleOf(text)}## Taken\n\n${held}## Backlog list\n\n${queue.join("\n")}\n`;
 }
 
-// The starting precondition every test shares: one taken entry, three queued.
+// Independent byte expectation for one Taken entry and three queued entries.
 export const backlog = backlogOf([takenEntry], queued);
 
-export const added = {
-  identity: "SEED-002#publish-the-release-notes",
-  title: "Publish the release notes with the tagged release",
-  link: "seeds/SEED-002-release-the-guidance.md#publish-the-release-notes",
-};
-export const addedLine = `- [${added.title}](${added.link}) — ${added.identity}`;
+export const takenBacklogEntry = makeMe.aBacklogEntry
+  .with({
+    identity: takenStory,
+    title: "Update the product backlog without hand-editing the shared list",
+    href: "seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates",
+    plan: {
+      label: "plan",
+      target: "slice-plans/057-script-product-backlog/PLAN.md",
+    },
+  })
+  .please();
+
+export const queuedBacklogEntries = [
+  makeMe.aBacklogEntry
+    .with({
+      identity: trunkQueue,
+      title: "Queue trunk integration for agents on the same machine",
+      href: "seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue",
+    })
+    .please(),
+  makeMe.aBacklogEntry
+    .with({
+      identity: skipRetrospective,
+      title: "Skip process retrospectives by default for new installations",
+      href: "seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective",
+    })
+    .please(),
+  makeMe.aBacklogEntry
+    .with({
+      identity: architecture,
+      title:
+        "Strengthen architectural review after using the lightweight guidance",
+      href: "seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design",
+    })
+    .please(),
+];
+
+export const arrangedBacklog = renderPublishedBacklog({
+  taken: [takenBacklogEntry],
+  queued: queuedBacklogEntries,
+  direction,
+});
+
+export const added = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-002#publish-the-release-notes",
+    title: "Publish the release notes with the tagged release",
+    href: "seeds/SEED-002-release-the-guidance.md#publish-the-release-notes",
+  })
+  .please();
+export const addedLine =
+  "- [Publish the release notes with the tagged release](seeds/SEED-002-release-the-guidance.md#publish-the-release-notes) — SEED-002#publish-the-release-notes";
+const addedHomeLink = splitHref(added.href);
 
 // The canonical home `added` links: a seed whose own "id:" plus the story's
 // anchor already compose the identity `added` carries, so nothing needs to be
@@ -84,9 +134,9 @@ id: SEED-002
 
 # Release the guidance
 
-<a id="publish-the-release-notes"></a>
+<a id="${addedHomeLink.anchor}"></a>
 
-### Publish the release notes with the tagged release
+### ${added.title}
 
 Ship the notes once tagging completes.
 `;
@@ -97,7 +147,7 @@ Ship the notes once tagging completes.
 // backlog file plants this at the relocated backlog's own directory, not at
 // the project's default one.
 export function plantAddedHome(baseDirectory, source = addedHomeSource) {
-  const path = join(baseDirectory, "seeds", "SEED-002-release-the-guidance.md");
+  const path = join(baseDirectory, addedHomeLink.path);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, source, "utf8");
   return path;
@@ -120,13 +170,13 @@ export function addArguments(
     "--title",
     request.title,
     "--link",
-    request.link,
+    request.href,
     ...placement,
   ];
 }
 
 // Supplies only the starting precondition: a valid backlog in a scratch project.
-export function scratchProject(t, source = backlog) {
+export function scratchProject(t, source = arrangedBacklog) {
   const directory = mkdtempSync(join(tmpdir(), "dough-backlog-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const file = join(directory, backlogPath);

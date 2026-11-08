@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { readRevisionCoverage } from "./ci-mailbox.mjs";
 import {
   advanceOriginFromAnotherWriter,
@@ -71,11 +72,13 @@ test("lost push response resumes the retained multi-commit comparison after anot
   );
 
   // Simulate a lost delivery response: use only the pair retained before push.
+  const comparison = makeMe.aRetainedComparison
+    .with({ candidateSha: retained.candidate, suffixBase: retained.suffixBase })
+    .please();
   const resumed = await fixture.resumeManagedExecutionIncrement({
     ...fixture.requestBase,
     workspace: fixture.execution,
-    candidateSha: retained.candidate,
-    suffixBase: retained.suffixBase,
+    ...comparison,
     targetRef: trunkTarget,
     repo,
     publishedRevisions: [],

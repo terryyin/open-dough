@@ -12,45 +12,28 @@ import {
   parts,
 } from "./dashboardPage.ts";
 import {
-  publicationOf,
-  projects,
-  type Project,
-} from "./catalogProjectRecords.ts";
+  catalogExpectations,
+  type CatalogExpectation,
+} from "./catalogProjectExpectations.ts";
+import { catalogPublications } from "./catalogProjectRecords.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 
-function catalogProject(label: string): Project {
-  const published = projects.find((entry) => entry.label === label);
-  if (published === undefined) {
-    throw new Error(`Catalog project ${label} is missing from test records.`);
-  }
-  return published;
-}
-
-export const openDoughProject = catalogProject("Open Dough");
-export const doughnutProject = catalogProject("Doughnut");
-export const pygardonProject = catalogProject("Pygardon");
-export const terryTalksProject = catalogProject("Terry Talks");
-
-function urlProjectId(published: Project): string | null {
-  if (published === openDoughProject) {
-    return null;
-  }
-  const id = published.repository.split("/")[1];
-  if (id === undefined) {
-    throw new Error(`Repository ${published.repository} has no project id.`);
-  }
-  return id;
-}
+export const {
+  openDough: openDoughProject,
+  doughnut: doughnutProject,
+  pygardon: pygardonProject,
+  terryTalks: terryTalksProject,
+} = catalogExpectations;
 
 export async function publishCatalogProjects(page: Page): Promise<void> {
-  for (const published of projects) {
-    await publishFiles(page, publicationOf(published));
+  for (const published of Object.values(catalogPublications)) {
+    await publishFiles(page, published);
   }
 }
 
 export async function expectSelectedProject(
   page: Page,
-  published: Project,
+  expected: CatalogExpectation,
   {
     view = null,
     checkDirection = true,
@@ -61,24 +44,26 @@ export async function expectSelectedProject(
 ): Promise<void> {
   const { project, direction, readRevision } = parts(page);
   await expect(
-    project.getByRole("radio", { name: published.label, exact: true }),
+    project.getByRole("radio", { name: expected.label, exact: true }),
   ).toBeChecked();
   await expectMembership(page, {
-    taken: [published.taken],
-    backlog: [published.queued],
+    taken: [expected.taken],
+    backlog: [expected.queued],
   });
   if (checkDirection) {
     await openDirection(page);
-    await expect(direction).toContainText(published.direction);
+    await expect(direction).toContainText(expected.direction);
   }
-  await expectProjectChoice(page, published.label);
-  await expect(readRevision).toContainText(shortRevision(published.revision));
-  for (const other of projects.filter((entry) => entry !== published)) {
+  await expectProjectChoice(page, expected.label);
+  await expect(readRevision).toContainText(shortRevision(expected.revision));
+  for (const other of Object.values(catalogExpectations).filter(
+    (entry) => entry !== expected,
+  )) {
     await expect(page.locator("body")).not.toContainText(other.taken);
     await expect(page.locator("body")).not.toContainText(other.queued);
     await expect(readRevision).not.toContainText(shortRevision(other.revision));
   }
-  const projectId = urlProjectId(published);
+  const projectId = expected.id === "open-dough" ? null : expected.id;
   if (projectId === null) {
     expect(new URL(page.url()).searchParams.get("project")).toBeNull();
     expectRoute(page, { view });

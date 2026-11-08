@@ -10,6 +10,7 @@
 // approach. Profile addition (`committed=added`) is
 // ./authenticated-read-profile-addition.spec.ts.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   developmentBoundary,
@@ -59,14 +60,16 @@ test.describe("authenticated read committed=last (development environment)", () 
         files: {
           ".planning/PRODUCT-BACKLOG.md": backlogTaken,
           [seedPath]: "# Seed\n\n**Identity:** SEED-clock#story\n",
-          [profilePath]: renderAgentProfile({
-            name: "Yui",
-            identity: "SEED-clock#story",
-            mode: "trunk",
-            branch: "origin/main",
-            host: undefined,
-            model: undefined,
-          }),
+          [profilePath]: renderAgentProfile(
+            makeMe.anAgentProfile
+              .executing({
+                name: "Yui",
+                identity: "SEED-clock#story",
+                mode: "trunk",
+                branch: "origin/main",
+              })
+              .please(),
+          ),
         },
         committed: {
           [seedPath]: new Date(updatedAt),

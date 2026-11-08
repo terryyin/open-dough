@@ -1,13 +1,11 @@
 // Runs the real backlog CLI to complete work whose agent profiles sit beside
 // the backlog, observing which profile files remain afterwards.
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import {
-  agentIdentity,
-  renderAgentProfile,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   backlog,
   projectFile,
@@ -17,6 +15,7 @@ import {
   takenStory,
   trunkQueue,
 } from "./product-backlog-fixture.mjs";
+import { plantAgentProfile } from "./product-backlog-profile-fixture.mjs";
 
 // Supplies only the starting precondition: one profile file per agent, each
 // holding the identity given.
@@ -24,17 +23,15 @@ function profiles(project, holders) {
   const written = {};
   for (const [name, identity] of Object.entries(holders)) {
     const { path } = agentIdentity(name);
-    const text =
-      identity === undefined
-        ? "{ not a profile"
-        : renderAgentProfile({
-            name,
-            identity,
-            mode: "trunk",
-            branch: "origin/main",
-          });
-    projectFile(project, path, text);
-    written[path] = text;
+    if (identity === undefined) {
+      written[path] = "{ not a profile";
+      projectFile(project, path, written[path]);
+    } else {
+      written[path] = plantAgentProfile(
+        project,
+        makeMe.anAgentProfile.executing({ name, identity }).please(),
+      );
+    }
   }
   return written;
 }
@@ -74,18 +71,24 @@ test("complete releases every matching execution and preparation assignment whil
     Yui: trunkQueue,
     Mana: undefined,
   });
-  const preparing = renderAgentProfile({
-    name: "Yuma",
-    identity: takenStory,
-    activity: "preparation",
-  });
-  projectFile(project, agentIdentity("Yuma").path, preparing);
-  const otherPreparation = renderAgentProfile({
-    name: "Sola",
-    identity: trunkQueue,
-    activity: "preparation",
-  });
-  projectFile(project, agentIdentity("Sola").path, otherPreparation);
+  plantAgentProfile(
+    project,
+    makeMe.anAgentProfile
+      .preparing({
+        name: "Yuma",
+        identity: takenStory,
+      })
+      .please(),
+  );
+  const otherPreparation = plantAgentProfile(
+    project,
+    makeMe.anAgentProfile
+      .preparing({
+        name: "Sola",
+        identity: trunkQueue,
+      })
+      .please(),
+  );
 
   const result = await run(project, ["complete", "--identity", takenStory]);
   assert.equal(result.code, 0, result.stderr);

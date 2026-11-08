@@ -3,6 +3,7 @@
 // profile texts beside it, spelled by the shared profile renderer, plus a
 // malformed profile and a file that is not a profile.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 export const repository = "terryyin/open-dough";
@@ -32,48 +33,66 @@ const backlog = `# Product backlog
 - [${queued}](seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure) — SEED-008#planning-workspace-procedure
 `;
 
-const akiho = renderAgentProfile({
-  name: "Akiho",
-  identity: "SEED-021#identify-taken-work-owner",
-  mode: "trunk",
-  branch: "origin/main",
-  host: "claude",
-  model: "claude-opus-5-5",
-});
-const yuma = renderAgentProfile({
-  name: "Yuma",
-  identity: "SEED-008#same-machine-merge-queue",
-  mode: "story-branch",
-  branch: "codex/same-machine-merge-queue",
-  host: "codex",
-  model: "gpt-5-codex",
-});
-const sola = renderAgentProfile({
-  name: "Sola",
-  identity: "SEED-030#known-model",
-  mode: "trunk",
-  branch: "origin/main",
-  host: "cursor",
-  // Unrecorded: the renderer leaves an undefined fact out of the profile.
-  model: undefined,
-});
-const rina = renderAgentProfile({
-  name: "Rina",
-  identity: "SEED-038#recognize-agents-and-tools-by-avatar",
-  mode: "story-branch",
-  branch: "claude/agent-portraits",
-  host: "claude",
-  model: "claude-opus-5-5",
-});
+const akiho = renderAgentProfile(
+  makeMe.anAgentProfile
+    .executing({
+      name: "Akiho",
+      identity: "SEED-021#identify-taken-work-owner",
+      mode: "trunk",
+      branch: "origin/main",
+      host: "claude",
+      model: "claude-opus-5-5",
+    })
+    .please(),
+);
+const yuma = renderAgentProfile(
+  makeMe.anAgentProfile
+    .executing({
+      name: "Yuma",
+      identity: "SEED-008#same-machine-merge-queue",
+      mode: "story-branch",
+      branch: "codex/same-machine-merge-queue",
+      host: "codex",
+      model: "gpt-5-codex",
+    })
+    .please(),
+);
+const sola = renderAgentProfile(
+  makeMe.anAgentProfile
+    .executing({
+      name: "Sola",
+      identity: "SEED-030#known-model",
+      mode: "trunk",
+      branch: "origin/main",
+      host: "cursor",
+      // Unrecorded: no model was published.
+    })
+    .please(),
+);
+const rina = renderAgentProfile(
+  makeMe.anAgentProfile
+    .executing({
+      name: "Rina",
+      identity: "SEED-038#recognize-agents-and-tools-by-avatar",
+      mode: "story-branch",
+      branch: "claude/agent-portraits",
+      host: "claude",
+      model: "claude-opus-5-5",
+    })
+    .please(),
+);
 
 // A preparation assignment for the queued story: shown as Preparing on its
 // queued card, never as a Taken owner. It records no model.
-const kirara = renderAgentProfile({
-  name: "Kirara",
-  identity: "SEED-008#planning-workspace-procedure",
-  activity: "preparation",
-  host: "claude",
-});
+const kirara = renderAgentProfile(
+  makeMe.anAgentProfile
+    .preparing({
+      name: "Kirara",
+      identity: "SEED-008#planning-workspace-procedure",
+      host: "claude",
+    })
+    .please(),
+);
 
 export const files = {
   [backlogPath]: backlog,

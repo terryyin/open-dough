@@ -10,7 +10,7 @@ import {
   expectNoSidewaysScrollAndWholeText,
 } from "./pageLayout.ts";
 import {
-  suppliers,
+  supplierB,
   reason,
   condition,
   decision,
@@ -35,13 +35,13 @@ export async function expectDependencyAccessibly(
   await expect(list).toContainText("Decision needed");
   await expect(list).toContainText(decision);
   await expect(
-    list.getByRole("link", { name: suppliers[0].identity }),
+    list.getByRole("link", { name: supplierB.identity }),
   ).toHaveAttribute(
     "href",
     `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/B.md#b`,
   );
   const supplierReference = list.getByRole("link", {
-    name: suppliers[0].identity,
+    name: supplierB.identity,
   });
   await supplierReference.focus();
   await page.keyboard.press("Enter");

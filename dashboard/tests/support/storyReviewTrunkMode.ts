@@ -13,12 +13,14 @@
 // line her second commit changed. Its kept launch record names the worktree
 // (./storyLaunchRecord.ts).
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { backlogOf } from "../../../tests/support/product-backlog-fixture.mjs";
+import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
+import { renderPublishedBacklog } from "../../../tests/support/published-backlog.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
 import { originMain } from "./sessionDialog.ts";
@@ -48,12 +50,16 @@ function writeClaim(project: string, identity: string) {
   writeAt(
     project,
     `.planning/${yui.path}`,
-    renderAgentProfile({
-      name: "Yui",
-      identity,
-      mode: "trunk",
-      branch: "origin/main",
-    }),
+    renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "Yui",
+          identity,
+          mode: "trunk",
+          branch: "origin/main",
+        })
+        .please(),
+    ),
   );
 }
 
@@ -84,15 +90,22 @@ export function trunkModeStory(
   commitAllAs(project, "close the earlier story", yui);
 
   // The claim: Story A is Taken, by Yui-chan in Trunk Mode.
+  const taken = makeMe.aBacklogEntry
+    .with({ identity: queuedIdentity, title: "Story A", href: "seeds/A.md#a" })
+    .please();
+  const queued = makeMe.aBacklogEntry
+    .with({
+      identity: otherQueuedIdentity,
+      title: "Story B",
+      href: "seeds/B.md#b",
+    })
+    .please();
   writeAt(
     project,
     ".planning/PRODUCT-BACKLOG.md",
-    backlogOf(
-      [`- [Story A](seeds/A.md#a) — ${queuedIdentity}`],
-      [`- [Story B](seeds/B.md#b) — ${otherQueuedIdentity}`],
-    ),
+    renderPublishedBacklog({ taken: [taken], queued: [queued], direction }),
   );
-  writeClaim(project, queuedIdentity);
+  writeClaim(project, taken.identity);
   commitAllAs(project, "take Story A", yui);
   push(project);
 

@@ -12,7 +12,6 @@ import {
   pausePageClock,
   passTimeUntilCheckedAfterSettled,
 } from "./autoRefreshJourney.ts";
-import { filesOf } from "./catalogProjectRecords.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
@@ -50,7 +49,7 @@ export function intentReads(page: Page) {
 
 // Pygardon's published files with Intent locations and `features`.
 export const publishedFiles = (features: Readonly<Record<string, string>>) => ({
-  ...filesOf(pygardon),
+  ...pygardon.files,
   ".planning/open-dough.json": `${settings}\n`,
   ...features,
 });

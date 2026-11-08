@@ -10,6 +10,11 @@ export class DoneRecordBuilder {
     completedAt: "2026-01-01T00:00:00.000Z",
   };
 
+  /** @param {DoneRecord} facts */
+  with(facts) {
+    return { please: () => ({ ...facts }) };
+  }
+
   /** @param {Partial<Pick<DoneRecord, "identity" | "title" | "completedAt">>} facts */
   completed(facts) {
     this.#record = { ...this.#record, ...facts };

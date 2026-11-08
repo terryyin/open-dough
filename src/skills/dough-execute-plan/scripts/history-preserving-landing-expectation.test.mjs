@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   landingContextFile,
   landingReceiver,
@@ -38,9 +39,13 @@ test("omitted landingContext retains landing from an open expectation, and a lat
   const originalExpectation = await openFirstLandingExpectation(expectation);
   const intermediate = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,
-    publishedTip,
-    branch: executionBranch,
-    targetRef: `refs/heads/${executionBranch}`,
+    ...makeMe.aPublishedIntegration
+      .with({
+        publishedTip,
+        branch: executionBranch,
+        targetRef: `refs/heads/${executionBranch}`,
+      })
+      .please(),
   });
   assert.equal("landing" in intermediate, false);
   assert.deepEqual(requests, []);
@@ -51,8 +56,9 @@ test("omitted landingContext retains landing from an open expectation, and a lat
 
   const published = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,
-    publishedTip,
-    branch: executionBranch,
+    ...makeMe.aPublishedIntegration
+      .with({ publishedTip, branch: executionBranch })
+      .please(),
   });
   assert.equal(published.classification, "published");
   assert.equal(published.landing.state, "recorded");
@@ -71,8 +77,9 @@ test("omitted landingContext retains landing from an open expectation, and a lat
 
   const later = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,
-    publishedTip: repairTip,
-    branch: executionBranch,
+    ...makeMe.aPublishedIntegration
+      .with({ publishedTip: repairTip, branch: executionBranch })
+      .please(),
   });
   assert.equal(later.classification, "published");
   assert.equal("landing" in later, false);
@@ -91,8 +98,9 @@ test("history-preserving publish without an open expectation still takes no land
 
   const published = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,
-    publishedTip,
-    branch: executionBranch,
+    ...makeMe.aPublishedIntegration
+      .with({ publishedTip, branch: executionBranch })
+      .please(),
   });
   assert.equal(published.classification, "published");
   assert.equal("landing" in published, false);

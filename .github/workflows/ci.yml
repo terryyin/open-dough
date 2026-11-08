@@ -25,8 +25,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # lint runs once, as its own job so it does not count toward the test
-  # matrix's job-total.
+  # Lint and the shard-independent dashboard type-check run once outside the
+  # test matrices and the browser deadline.
   lint:
     runs-on: ubuntu-24.04
     timeout-minutes: 8
@@ -67,6 +67,8 @@ jobs:
           exit 1
       - name: Run lint
         run: exec npm run lint
+      - name: Type-check the dashboard
+        run: npm run typecheck:dashboard
 
   # `npm test` runs one job per matrix share, each running its share of the
   # discovered checks (OPEN_DOUGH_TEST_SPLIT, tests/runner-settings.md), failing
@@ -128,10 +130,8 @@ jobs:
   # against controlled GitHub responses (no credentials, no live project
   # contents) as one Playwright shard job per matrix shard, each running its
   # deal of the spec files (dashboard/tests/shards.md) and failing on its own
-  # failing test. The shard-independent type-check runs once, in the last
-  # share, whose predicted load the deal keeps within one spec file of the
-  # others. Tests that serve the production app share a build within their
-  # shard and fail if the build fails.
+  # failing test. Tests that serve the production app share a build within
+  # their shard and fail if the build fails.
   dashboard:
     name: dashboard (${{ matrix.shard }}/${{ strategy.job-total }})
     runs-on: ubuntu-24.04
@@ -172,9 +172,6 @@ jobs:
           echo "PLAYWRIGHT_BROWSERS_PATH=${RUNNER_TEMP}/playwright-chromium" >> "$GITHUB_ENV"
       - name: Install Playwright Chromium
         run: node scripts/setup-native.mjs browser
-      - name: Type-check the dashboard
-        if: matrix.shard == strategy.job-total
-        run: npm run typecheck:dashboard
       # The suite ends itself, naming the deadline, at OPEN_DOUGH_DASHBOARD_DEADLINE_MS,
       # about 30 seconds inside the job's 6 minutes, so a shard out of time
       # fails instead of being cancelled and the report below is kept.

@@ -49,21 +49,19 @@ export async function publishDoneReferences(
     if (path === ".planning/PRODUCT-BACKLOG.md") continue;
     writePlanning(origin.project, path.replace(/^\.planning\//, ""), text);
   }
-  for (const [index, entry] of [
-    farDone,
-    nearDone,
-    expiredDone,
-    unlisted,
-  ].entries()) {
+  for (const entry of [farDone, nearDone, expiredDone, unlisted]) {
     const [seed, anchor] = entry.identity.split("#");
     writePlanning(
       origin.project,
       `seeds/${seed}.md`,
       `---\nid: ${seed}\n---\n\n# ${seed}\n\n<a id="${anchor}"></a>\n\n### ${entry.title}\n\n**Identity:** ${entry.identity}\n\nPublished completed outcome.\n`,
     );
-    recordDependency(origin, index, "waiting", undefined, {
-      identity: entry.identity,
-      href: `seeds/${seed}.md#${anchor}`,
+    recordDependency(origin, {
+      supplier: {
+        identity: entry.identity,
+        href: `seeds/${seed}.md#${anchor}`,
+      },
+      state: "waiting",
     });
   }
   return publishDependencies(origin);

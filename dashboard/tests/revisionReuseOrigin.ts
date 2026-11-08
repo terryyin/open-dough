@@ -5,6 +5,9 @@
 // revisions, the comparisons, and the commits between (./originAnswers.ts,
 // ./pathHistoryAnswers.ts); that answerer is ./revisionReuseAnswers.ts.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import type {
   ChangedFile,
   MadeCommit,
@@ -34,20 +37,38 @@ export const named = (pair: string) => pair.repeat(20);
 
 export type Files = Readonly<Record<string, string>>;
 
-export const backlogNaming = (label: string, extra = "") => `# Product backlog
+export const newSeedEntry = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-303#new",
+    href: "seeds/SEED-303-new.md#new",
+    title: "New",
+  })
+  .please();
 
-## Taken
+export const backlogNaming = (label: string, extra?: typeof newSeedEntry) =>
+  renderPublishedBacklog({
+    taken: [
+      makeMe.aBacklogEntry
+        .with({
+          identity: "SEED-301#reuse",
+          href: "seeds/SEED-301-reuse.md#reuse",
+          title: `Reuse ${label}`,
+        })
+        .please(),
+    ],
+    queued: [
+      makeMe.aBacklogEntry
+        .with({
+          identity: "SEED-302#other",
+          href: "seeds/SEED-302-other.md#other",
+          title: `Other ${label}`,
+        })
+        .please(),
+      ...(extra === undefined ? [] : [extra]),
+    ],
+  });
 
-- [Reuse ${label}](seeds/SEED-301-reuse.md#reuse) — SEED-301#reuse
-
-## Backlog list
-
-- [Other ${label}](seeds/SEED-302-other.md#other) — SEED-302#other
-${extra}`;
-
-// The backlog line naming the seed at `newSeedPath`, and that seed's text.
-export const newSeedEntry =
-  "- [New](seeds/SEED-303-new.md#new) — SEED-303#new\n";
+// The seed at `newSeedPath` named by the new backlog entry.
 export const newSeedText =
   '# New\n\n<a id="new"></a>\n\n### New\n\n**Identity:** SEED-303#new\n';
 
@@ -58,9 +79,15 @@ export const seedText = (label: string) => `# Reuse fixture ${label}
 ### Reuse ${label}
 
 **Identity:** SEED-301#reuse
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/301-reuse/PLAN.md"}
-\`\`\`
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/301-reuse/PLAN.md",
+    })
+    .please(),
+)}
 `;
 
 // Every record a project shows at one revision, each text naming `label`, so
@@ -76,22 +103,28 @@ function filesWithoutCatalog(label: string): Files {
     [seedPath]: seedText(label),
     [otherSeedPath]: `# Other fixture ${label}\n\n<a id="other"></a>\n\n### Other ${label}\n\n**Identity:** SEED-302#other\n`,
     [planPath]: `# Plan ${label}\n`,
-    [profilePath]: renderAgentProfile({
-      name: "Akiho",
-      identity: "SEED-301#reuse",
-      mode: "story-branch",
-      branch: `story/${label}`,
-      host: "claude",
-      model: undefined,
-    }),
-    [otherProfilePath]: renderAgentProfile({
-      name: "Maki",
-      identity: "SEED-302#other",
-      mode: "trunk",
-      host: "claude",
-      model: undefined,
-      branch: "main",
-    }),
+    [profilePath]: renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "Akiho",
+          identity: "SEED-301#reuse",
+          mode: "story-branch",
+          branch: `story/${label}`,
+          host: "claude",
+        })
+        .please(),
+    ),
+    [otherProfilePath]: renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "Maki",
+          identity: "SEED-302#other",
+          mode: "trunk",
+          host: "claude",
+          branch: "main",
+        })
+        .please(),
+    ),
     [settingsPath]: `{"label":"${label}"}\n`,
     [donePath]: `{"label":"${label}"}\n`,
   };

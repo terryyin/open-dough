@@ -4,7 +4,6 @@
 // ../../src/IntentCandidatesRecord.tsx).
 
 import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
-import { filesOf } from "../catalogProjectRecords.ts";
 import { chooseProject, parts } from "../dashboardPage.ts";
 import { expandIntentGroup } from "../intentPerspectivePage.ts";
 import {
@@ -146,7 +145,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
       ref: openDough.ref,
       revision,
       files: {
-        ...filesOf({ ...openDough, revision }),
+        ...openDough.files,
         ".planning/open-dough.json": `${openDoughSettings}\n`,
         "dashboard/tests/intent-gherkin-browse.spec.ts": browseSpec,
         "tests/compare-versions.sh": shellCheck,

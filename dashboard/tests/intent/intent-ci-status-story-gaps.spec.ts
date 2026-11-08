@@ -12,7 +12,6 @@
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
-import { filesOf } from "../catalogProjectRecords.ts";
 import { chooseCiStatus } from "../intentCiStatusPage.ts";
 import { publishMovingFiles } from "../publishedFiles.ts";
 import { doughnut } from "../intentCodeBrowseFixtures.ts";
@@ -159,19 +158,18 @@ test("a selected story whose agent profiles cannot be read has an unknown branch
     repository: doughnut.repository,
     ref: doughnut.ref,
     revision: doughnut.revision,
-    files: { ...filesOf(doughnut), [profile]: "{}\n" },
+    files: { ...doughnut.files, [profile]: "{}\n" },
     unanswered: [profile],
   });
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await chooseCiStatus(intent);
-  const panel = await toggleOnDevelopment(page, doughnut.taken);
-  await expect(panel.getByRole("heading")).toHaveText(
-    `CI status of ${doughnut.taken}`,
-  );
+  const taken = "Doughnut's own taken story";
+  const panel = await toggleOnDevelopment(page, taken);
+  await expect(panel.getByRole("heading")).toHaveText(`CI status of ${taken}`);
   await expect(panel.locator(".intent-ci-gap")).toContainText(
-    `The story branch of ${doughnut.taken} is unknown: the agent profiles could not be read`,
+    `The story branch of ${taken} is unknown: the agent profiles could not be read`,
   );
   await expectNoStatus(panel);
 });

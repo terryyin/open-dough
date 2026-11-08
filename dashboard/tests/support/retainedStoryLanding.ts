@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import type { PublishedIntegration } from "../../../tests/support/makeMe.mjs";
 import {
   agentIdentity,
   agentNameOf,
@@ -13,16 +14,13 @@ import { quote } from "./completionRecovery.ts";
 export function checkedIntegrationCommand({
   host,
   workspace,
-  branch,
-  tip,
   context,
+  ...publication
 }: {
   host: "claude" | "codex";
   workspace: string;
-  branch: string;
-  tip: string;
   context: readonly string[];
-}) {
+} & Required<PublishedIntegration>) {
   const installed = (skill: string, file: string) =>
     pathToFileURL(
       path.join(
@@ -37,10 +35,8 @@ export function checkedIntegrationCommand({
     ).href;
   const options = {
     ownedWorkspace: workspace,
-    publishedTip: tip,
-    branch,
+    ...publication,
     remote: "origin",
-    targetRef: "refs/heads/main",
     ...(context.length ? { landingContext: context[1] } : {}),
   };
   const script = `import {publishHistoryPreservingCandidate} from ${JSON.stringify(installed("dough-execute-plan", "history-preserving-publication.mjs"))};

@@ -4,18 +4,14 @@
 import { expect, test } from "../dashboardTest.ts";
 import { expectRoute, openDough } from "../agentRosterRecords.ts";
 import { parts } from "../dashboardPage.ts";
-import { filesOf } from "../catalogProjectRecords.ts";
+import { catalogPublications } from "../catalogProjectRecords.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { publishFiles } from "../publishedOrigin.ts";
 import {
   buildOpenDoughReadinessRepo,
   plannedReady,
 } from "../storyReadinessFixture.ts";
-import {
-  doughnutProject,
-  publishCatalogProjects,
-  pygardonProject,
-} from "../projectKeyboardNavigationJourney.ts";
+import { publishCatalogProjects } from "../projectKeyboardNavigationJourney.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 
 test("help modal, editing, other arrow controls, and prevented keys leave the project unchanged", async ({
@@ -28,12 +24,11 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
     revision: repo.revision,
     repository: openDough.repository,
   });
-  for (const published of [doughnutProject, pygardonProject]) {
-    await publishFiles(page, {
-      repository: published.repository,
-      revision: published.revision,
-      files: filesOf(published),
-    });
+  for (const published of [
+    catalogPublications.doughnut,
+    catalogPublications.pygardon,
+  ]) {
+    await publishFiles(page, published);
   }
 
   await openUntilRead(page);

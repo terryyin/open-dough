@@ -2,6 +2,18 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_map-published-work-test-data.json",
+      "identity": "SEED-261#map-published-work-test-data",
+      "completedAt": "2026-11-08T05:39:33.887Z",
+      "blob": "6543d876294bee2e05b41b7eb2edb0179205e4cc"
+    },
+    {
+      "fileName": "SEED-268_conclude-fluent-side-panel-pilot.json",
+      "identity": "SEED-268#conclude-fluent-side-panel-pilot",
+      "completedAt": "2026-11-08T05:36:09.962Z",
+      "blob": "85207797270fd0e5f9ee2b20bb8c454739e033b8"
+    },
+    {
       "fileName": "SEED-262_reduce-private-fixture-lifecycle-cost.json",
       "identity": "SEED-262#reduce-private-fixture-lifecycle-cost",
       "completedAt": "2026-11-08T05:01:47.389Z",

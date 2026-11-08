@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect, test } from "../../tests/support/preparationPage.ts";
@@ -68,12 +69,16 @@ test("a returned story recovers its unique published execution agent and keeps i
   writeAt(
     future,
     ".planning/agents/airi-chan.json",
-    renderAgentProfile({
-      name: "Airi",
-      identity: queuedIdentity,
-      mode: "trunk",
-      branch: "exec/later-claim",
-    }),
+    renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "Airi",
+          identity: queuedIdentity,
+          mode: "trunk",
+          branch: "exec/later-claim",
+        })
+        .please(),
+    ),
   );
   commitAll(future, "later claim must not change the historical review");
   push(future);
@@ -124,11 +129,14 @@ for (const preparation of [false, true]) {
       writeAt(
         origin.project,
         `.planning/${agent.path}`,
-        renderAgentProfile({
-          name: "Airi",
-          identity: queuedIdentity,
-          activity: "preparation",
-        }),
+        renderAgentProfile(
+          makeMe.anAgentProfile
+            .preparing({
+              name: "Airi",
+              identity: queuedIdentity,
+            })
+            .please(),
+        ),
       );
       commitAllAs(
         origin.project,

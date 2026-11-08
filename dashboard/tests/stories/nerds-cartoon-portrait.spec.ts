@@ -3,6 +3,7 @@
 // its portrait; without the photo it shows the name alone. The photo request is
 // answered by the test, since the photos are never in the repository.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
@@ -16,14 +17,18 @@ const atlasStory = "Show every agent's portrait";
 const photoUrl = /\/agent-avatars\/odd-e-nerds\/cartoon\/stanly\.webp$/;
 
 const profile = (name: string, identity: string) =>
-  renderAgentProfile({
-    name,
-    identity,
-    mode: "trunk",
-    branch: "origin/main",
-    host: "claude",
-    model: "claude-opus-5-5",
-  });
+  renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({
+        name,
+        identity,
+        mode: "trunk",
+        branch: "origin/main",
+        host: "claude",
+        model: "claude-opus-5-5",
+      })
+      .please(),
+  );
 
 async function openBoard(page: Page) {
   await publishFiles(page, {

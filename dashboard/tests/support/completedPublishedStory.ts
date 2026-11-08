@@ -1,6 +1,7 @@
 // Real CLI claim and completion, with Git publication and workspace retirement.
 // No dashboard launch or comparison is supplied by this setup. A journey may
 // add its own changes (`change`) to the story's implementation commit.
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { rmSync } from "node:fs";
@@ -134,7 +135,16 @@ export async function completedPublishedStory(
     writeAt(
       workspace,
       `.planning/${next.path}`,
-      renderAgentProfile({ name, identity: queuedIdentity, mode, branch }),
+      renderAgentProfile(
+        makeMe.anAgentProfile
+          .executing({
+            name,
+            identity: queuedIdentity,
+            mode,
+            branch,
+          })
+          .please(),
+      ),
     );
     git(workspace, "config", "--worktree", "author.name", next.agent);
     git(workspace, "config", "--worktree", "author.email", next.email);
@@ -209,6 +219,12 @@ export async function keepUnusableCompletedCapture(
   story: { readonly workspace: string; readonly completion: string },
 ) {
   const record = storyALaunchRecord(story.workspace);
+  const comparison = makeMe.aPublishedComparison
+    .with({
+      base: git(origin.project, "rev-parse", `${story.completion}^`),
+      revision: story.completion,
+    })
+    .please();
   record.landing = {
     reference: randomUUID(),
     delivery: randomUUID(),
@@ -217,8 +233,7 @@ export async function keepUnusableCompletedCapture(
     identity: queuedIdentity,
     remote: "origin",
     target: "refs/heads/main",
-    base: git(origin.project, "rev-parse", `${story.completion}^`),
-    revision: story.completion,
+    ...comparison,
     receivedAt: new Date().toISOString(),
   };
   await keepLaunchRecords(dashboard, [record]);

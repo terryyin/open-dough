@@ -21,10 +21,10 @@ suite's shares follow
 ([tests/test-shares.md](../../tests/test-shares.md#the-deal)), a spec file
 being a job. A list line that is not `<seconds><TAB><file>` fails the
 configuration naming the file, line and content before any test is selected,
-as a malformed split does. CI uses twelve shards and runs the dashboard
-type-check once, in the last shard, whose predicted browser load the deal
-keeps within one spec file of the others. With the variable unset,
-`npm run test:dashboard` keeps running both suites. The configuration discovers
+as a malformed split does. CI runs the dashboard type-check once in the lint
+job. Each of the twelve shards uses its deadline for setup and the browser
+suite. With the variable unset, `npm run test:dashboard` runs every spec.
+The configuration discovers
 `dashboard/tests/`, `dashboard/frontend-tests/`, and `dashboard/backend-tests/`;
 labels in the timing lists and artifacts are relative to their common
 `dashboard/` root. Independent proof

@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   landingContextFile,
   landingReceiver,
@@ -60,13 +61,15 @@ test("a retained Story Branch candidate already on that remote stays published a
   await pushExactRef(execution, rewrittenSha, storyTarget);
   const publishedRevisions = [];
   const observer = createObserverStub();
+  const comparison = makeMe.aRetainedComparison
+    .with({ candidateSha: rewrittenSha, suffixBase: trunkSha })
+    .please();
 
   const resumed = await resumeInterruptedPublication({
     ownedWorkspace: execution,
     branch: "exec/story",
-    suffixBase: trunkSha,
+    ...comparison,
     defaultCheckout: integration,
-    candidateSha: rewrittenSha,
     supersededShas: [candidateSha],
     publishedRevisions,
     observer,
@@ -116,13 +119,15 @@ test("an unpublished Story Branch candidate is pushed only to the recorded remot
   const originalExpectation = await openFirstLandingExpectation(expectation);
   const publishedRevisions = [];
   const observer = createObserverStub();
+  const comparison = makeMe.aRetainedComparison
+    .with({ candidateSha, suffixBase: trunkSha })
+    .please();
 
   const published = await resumeInterruptedPublication({
     ownedWorkspace: execution,
     branch: "exec/story",
-    suffixBase: trunkSha,
+    ...comparison,
     defaultCheckout: integration,
-    candidateSha,
     publishedRevisions,
     observer,
     targetRef: storyTarget,
@@ -147,8 +152,7 @@ test("an unpublished Story Branch candidate is pushed only to the recorded remot
   const landed = await resumeInterruptedPublication({
     ownedWorkspace: execution,
     branch: "exec/story",
-    candidateSha,
-    suffixBase: trunkSha,
+    ...comparison,
     publishedRevisions,
     targetRef: "refs/heads/main",
   });

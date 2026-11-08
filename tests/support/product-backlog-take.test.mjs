@@ -1,31 +1,46 @@
 // Runs the real backlog CLI to claim and resume queued work in a scratch
 // project, observing the file's membership and links before and after.
 import assert from "node:assert/strict";
-import { dirname } from "node:path";
 import { test } from "node:test";
-import { admitEntry } from "../../src/skills/dough-product-backlog/scripts/product-backlog-take.mjs";
+import { makeMe } from "./makeMe.mjs";
 import {
-  added,
-  addedHomeSource,
-  addedLine,
   architecture,
+  arrangedBacklog,
   backlog,
+  direction,
   occurrences,
   projectFile,
   queued,
+  queuedBacklogEntries,
   run,
   scratchProject,
   skipRetrospective,
+  takenBacklogEntry,
   takenEntry,
   takenStory,
   trunkQueue,
 } from "./product-backlog-fixture.mjs";
+import { renderPublishedBacklog } from "./published-backlog.mjs";
 
 const planPath = "slice-plans/058-queue-trunk-integration/PLAN.md";
 const otherPlan = "slice-plans/059-strengthen-architectural-review/PLAN.md";
 const correctionPlan = "slice-plans/060-repair-the-release-notes/PLAN.md";
 const correctionEntry = `- [Repair the release notes](${correctionPlan})`;
 const withCorrection = `${backlog}${correctionEntry}\n`;
+const arrangedWithCorrection = renderPublishedBacklog({
+  taken: [takenBacklogEntry],
+  queued: [
+    ...queuedBacklogEntries,
+    makeMe.aBacklogEntry
+      .with({
+        identity: correctionPlan,
+        title: "Repair the release notes",
+        href: correctionPlan,
+      })
+      .please(),
+  ],
+  direction,
+});
 
 const claim = (identity, ...plan) => ["take", "--identity", identity, ...plan];
 const withPlan = (target) => ["--plan", target];
@@ -77,7 +92,7 @@ test("take claims a quick story and a correction with no plan link", async (t) =
   assert.equal(quickResult.code, 0, quickResult.stderr);
   assert.equal(quick.read(), afterTake(backlog, queued[1], queued[1]));
 
-  const correction = scratchProject(t, withCorrection);
+  const correction = scratchProject(t, arrangedWithCorrection);
   const corrected = await run(correction, claim(correctionPlan, "--no-plan"));
   assert.equal(corrected.code, 0, corrected.stderr);
   assert.equal(
@@ -89,7 +104,10 @@ test("take claims a quick story and a correction with no plan link", async (t) =
 
 test("take fills an empty Taken section", async (t) => {
   const emptyTaken = backlog.replace(`${takenEntry}\n\n`, "");
-  const project = scratchProject(t, emptyTaken);
+  const project = scratchProject(
+    t,
+    renderPublishedBacklog({ queued: queuedBacklogEntries, direction }),
+  );
   const result = await run(project, claim(skipRetrospective, "--no-plan"));
   assert.equal(result.code, 0, result.stderr);
   assert.equal(
@@ -180,7 +198,7 @@ test("take refuses missing, ambiguous, and unresolved requests unchanged", async
     },
     {
       why: "a correction pointed at its own canonical home",
-      source: withCorrection,
+      source: arrangedWithCorrection,
       arguments_: claim(correctionPlan, ...withPlan(correctionPlan)),
       expect: /already the canonical home of .* needs no duplicate plan link/s,
     },
@@ -193,7 +211,7 @@ test("take refuses missing, ambiguous, and unresolved requests unchanged", async
   ];
 
   for (const refusal of refusals) {
-    const source = refusal.source ?? backlog;
+    const source = refusal.source ?? arrangedBacklog;
     const project = scratchProject(t, source);
     const result = await run(project, refusal.arguments_);
     assert.equal(result.code, 1, `${refusal.why}: expected a refusal`);
@@ -201,43 +219,4 @@ test("take refuses missing, ambiguous, and unresolved requests unchanged", async
     assert.match(result.stderr, /The backlog was not changed\./, refusal.why);
     assert.equal(project.read(), source, `${refusal.why}: file changed`);
   }
-});
-
-// Startup admission uses this operation for accepted work no list holds yet.
-test("admission appends unlisted work to Taken and refuses work already listed", (t) => {
-  const project = scratchProject(t);
-  projectFile(project, added.link.split("#")[0], addedHomeSource);
-  projectFile(project, planPath);
-  const request = {
-    identity: added.identity,
-    title: added.title,
-    href: added.link,
-    plan: planPath,
-    backlogDirectory: dirname(project.file),
-  };
-  const admitted = admitEntry(backlog, request);
-  assert.equal(admitted.result, "admitted");
-  assert.equal(
-    admitted.source,
-    backlog.replace(
-      `${takenEntry}\n`,
-      `${takenEntry}\n${addedLine} ([plan](${planPath}))\n`,
-    ),
-  );
-  assert.throws(
-    () => admitEntry(admitted.source, request),
-    /is already listed in "## Taken"/,
-  );
-  assert.throws(
-    () => admitEntry(backlog, { ...request, identity: trunkQueue }),
-    /is already listed in "## Backlog list"/,
-  );
-  assert.throws(
-    () =>
-      admitEntry(backlog, {
-        ...request,
-        href: "seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue",
-      }),
-    /already listed/,
-  );
 });

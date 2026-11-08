@@ -7,7 +7,6 @@ import { expect, test } from "../dashboardTest.ts";
 import { chooseProject, parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { publishFiles } from "../publishedOrigin.ts";
-import { filesOf } from "../catalogProjectRecords.ts";
 import { doughnut, pygardon } from "../intentGherkinUnusableFixtures.ts";
 
 test("unreadable and malformed Intent settings stay distinct from not-configured", async ({
@@ -27,7 +26,7 @@ test("unreadable and malformed Intent settings stay distinct from not-configured
     ref: unreadable.ref,
     revision: unreadable.revision,
     files: {
-      ...filesOf(unreadable),
+      ...unreadable.files,
       ".planning/open-dough.json": "{}\n",
     },
     unanswered: [".planning/open-dough.json"],
@@ -37,7 +36,7 @@ test("unreadable and malformed Intent settings stay distinct from not-configured
     ref: malformed.ref,
     revision: malformed.revision,
     files: {
-      ...filesOf(malformed),
+      ...malformed.files,
       ".planning/open-dough.json": "{not json\n",
     },
   });
@@ -79,7 +78,7 @@ test("an Intent locations read that fails names its cause, and Retry reads it ag
     repository: published.repository,
     ref: published.ref,
     revision: published.revision,
-    files: filesOf(published),
+    files: published.files,
   });
   let unreachable = true;
   await page.route(/[?&]intent=locations(&|$)/, async (route) => {

@@ -4,6 +4,8 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../../../tests/support/published-backlog.mjs";
 import { publishHistoryPreservingCandidate } from "./history-preserving-publication.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import { resumeInterruptedPublication } from "./publication-resume.mjs";
@@ -24,8 +26,15 @@ const backlogCli = fileURLToPath(
 );
 const main = "refs/heads/main";
 const branch = "exec/story";
-const backlog = (list, active = true) =>
-  `# Product backlog\n\n## Taken\n\n${list === "Taken" && active ? "- [A](A.md#A) — A#A\n" : ""}\n## Backlog list\n\n${list === "Backlog list" && active ? "- [A](A.md#A) — A#A\n" : ""}`;
+const storyA = makeMe.aBacklogEntry
+  .with({ identity: "A#A", href: "A.md#A", title: "A" })
+  .please();
+const storyB = makeMe.aBacklogEntry
+  .with({ identity: "B#B", href: "B.md#B", title: "B" })
+  .please();
+const storyC = makeMe.aBacklogEntry
+  .with({ identity: "C#C", href: "C.md#C", title: "C" })
+  .please();
 
 async function complete(workspace, identity, file) {
   await exec(
@@ -44,10 +53,7 @@ async function manualMerge(t, file, list, active = true) {
   mkdirSync(join(integration, dirname(file)), { recursive: true });
   writeFileSync(
     join(integration, file),
-    backlog("Taken").replace(
-      "## Backlog list",
-      "- [B](B.md#B) — B#B\n\n## Backlog list",
-    ),
+    renderPublishedBacklog({ taken: [storyA, storyB] }),
   );
   await git(integration, "add", file);
   await git(integration, "commit", "-m", "both stories active");
@@ -65,12 +71,9 @@ async function manualMerge(t, file, list, active = true) {
   );
   writeFileSync(
     join(execution, file),
-    active
-      ? backlog(list)
-      : backlog(list, false).replace(
-          "## Taken\n",
-          "## Taken\n\n- [C](C.md#C) — C#C\n",
-        ),
+    active && list === "Backlog list"
+      ? renderPublishedBacklog({ queued: [storyA] })
+      : renderPublishedBacklog({ taken: [active ? storyA : storyC] }),
   );
   await exec(process.execPath, [backlogCli, "catalog-done", "--file", file], {
     cwd: execution,
@@ -116,16 +119,21 @@ for (const [file, list] of [
         publisher === "history"
           ? await publishHistoryPreservingCandidate({
               ownedWorkspace: execution,
-              publishedTip,
-              branch,
+              ...makeMe.aPublishedIntegration
+                .with({ publishedTip, branch })
+                .please(),
               backlogPath: file,
             })
           : publisher === "execution"
             ? await publishExecutionIncrement({
                 workspace: execution,
-                branch,
-                previouslyPublishedBase: remoteTip,
-                targetRef: main,
+                ...makeMe.anIncrementPublication
+                  .with({
+                    branch,
+                    previouslyPublishedBase: remoteTip,
+                    targetRef: main,
+                  })
+                  .please(),
                 backlogPath: file,
               })
             : await resumeInterruptedPublication({
@@ -164,16 +172,21 @@ for (const publisher of ["history", "execution", "resume"]) {
       publisher === "history"
         ? await publishHistoryPreservingCandidate({
             ownedWorkspace: execution,
-            publishedTip,
-            branch,
+            ...makeMe.aPublishedIntegration
+              .with({ publishedTip, branch })
+              .please(),
             backlogPath: `./${file}`,
           })
         : publisher === "execution"
           ? await publishExecutionIncrement({
               workspace: execution,
-              branch,
-              previouslyPublishedBase: remoteTip,
-              targetRef: main,
+              ...makeMe.anIncrementPublication
+                .with({
+                  branch,
+                  previouslyPublishedBase: remoteTip,
+                  targetRef: main,
+                })
+                .please(),
               backlogPath: file,
             })
           : await resumeInterruptedPublication({
@@ -206,9 +219,9 @@ test("ordinary publication accepts legacy backlog text beside only an empty done
   const candidate = await revParse(execution, "HEAD");
   const result = await publishExecutionIncrement({
     workspace: execution,
-    branch,
-    previouslyPublishedBase: trunkSha,
-    targetRef: main,
+    ...makeMe.anIncrementPublication
+      .with({ branch, previouslyPublishedBase: trunkSha, targetRef: main })
+      .please(),
     backlogPath: file,
   });
   assert.equal(result.receipt?.sha, candidate);

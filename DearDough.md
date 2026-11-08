@@ -17,6 +17,17 @@ Former local code: DD-057. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: DD-231. [Evidence and current response](docs/maintainer/findings/ODF-154.md).
 ## ODF-074 — Unverified planning premises <a id="odf-074"></a>
 Former local code: DD-450. Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Former local code: DD-307. Former local code: DD-400. Former local code: DD-393 (`6c354905e`), renumbered in merge `966aad8b1`. DD-400's facet: a decisive premise probe proved the capability, not the story's restriction it settled. [Meaning, evidence and response](docs/maintainer/findings/ODF-074.md).
+
+### Occurrences
+- Execution: SEED-268#conclude-fluent-side-panel-pilot (plan 521-conclude-fluent-side-panel-pilot; first related implementation `da1478f7d77f1f72490871891ef219f2f859f32a`)
+  - Timestamp: unknown (2026-11-08, before the first slice delegation)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.91 (installed `.agents/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 521 at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6` was recorded ready with `**Status:** pending`. The first `story-obligations.mjs list --slice 1` refused with `unreadable-slices` and `unknown-slice`.
+  - Observed effect: changing only the status word to `planned` let the same listing pass with all 39 allocated source commitments. The selected story and its proof stayed the same.
+  - Inference: the preparation and execution status mismatch observed in Plan 519 recurred under 0.3.91.
+
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
 ## ODF-157 — Identifier-only conceptual searches <a id="odf-157"></a>
@@ -61,6 +72,16 @@ Former local code: DD-255. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-258. [Evidence and current response](docs/maintainer/findings/ODF-224.md).
 ## ODF-150 — Implementation proof misses indirect consumers <a id="odf-150"></a>
 Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/findings/ODF-150.md).
+
+### Occurrences
+- Execution: SEED-261#map-published-work-test-data (plan 508-map-published-work-test-data; first related implementation commit `8ea16d198c25169e76fc747377693540c7164b03`)
+  - Timestamp: 2026-11-08T02:38:39Z (failed CI job completion)
+  - Tool: Codex
+  - Open Dough release: 0.3.90 (installed .agents/skills/dough-update/VERSION at the established Take)
+  - Evidence: Slice 3's 50-job selection in `e85d59b0:.planning/slice-plans/508-map-published-work-test-data/PLAN.md` did not include `workspace-publication.test.mjs`. [Run 42439000527, test shard 1](https://github.com/terryyin/open-dough/actions/runs/42439000527/job/128603980600) failed because `publishReadyAssessment` still supplied the old digest fields.
+  - Observed effect: One published increment failed CI. Slice 4's existing `expectedBasis` repair passed the exact job, and run 42440063442 passed the Node shards.
+  - Inference: The old call crossed a skill test case module into the shared Node preparation adapter. The focused selection did not exercise that import chain.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 Former local code: DD-260. [Evidence and current response](docs/maintainer/findings/ODF-225.md).
 ## ODF-121 — Transient transport failure ends observation <a id="odf-121"></a>
@@ -163,6 +184,16 @@ Former local code: DD-332. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-333. [Meaning, evidence and response](docs/maintainer/findings/ODF-328.md).
 ## ODF-329 — Implementation returns failed the delivery formatter's lint
 Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/findings/ODF-329.md).
+
+### Occurrences
+- Execution: SEED-261#map-published-work-test-data (plan 508-map-published-work-test-data; first related implementation commit `8ea16d198c25169e76fc747377693540c7164b03`)
+  - Timestamp: unknown (slice 2, 6, and 7 delivery on 2026-11-08)
+  - Tool: Codex
+  - Open Dough release: 0.3.90 (installed .agents/skills/dough-update/VERSION at the established Take)
+  - Evidence: Guarded delivery on the paths published as `86eb0b883`, `c504c9a15`, and `d577da657` first returned `operation: formatting`. ESLint named unsafe href/writer return values, an unused array callback parameter, and an unsafe `Object.fromEntries` return from non-tuple inference.
+  - Observed effect: Three initial formatter gates withheld commit and publication after focused proof and independent refactor. Type annotations or a mechanical callback change cleared them. The affected type-check or Land test passed.
+  - Inference: A passing TypeScript build does not cover the ESLint diagnostics observed here. The late placement of the gate was the required handoff.
+
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 
@@ -235,6 +266,15 @@ Former local code: DD-402. Former local code: DD-395 (`6c354905e`), renumbered i
 Former local code: DD-403. [Evidence and current response](docs/maintainer/findings/ODF-403.md).
 ## ODF-396 — Planning basenames overwhelm a test-local consumer trace
 Former local code: DD-404. [Evidence and current response](docs/maintainer/findings/ODF-396.md).
+
+### Occurrences
+- Execution: SEED-261#map-published-work-test-data (plan 508-map-published-work-test-data; first related implementation commit `8ea16d198c25169e76fc747377693540c7164b03`)
+  - Timestamp: unknown (slice 1 acceptance before `8ea16d198` on 2026-11-08)
+  - Tool: Codex
+  - Open Dough release: 0.3.90 (installed .agents/skills/dough-update/VERSION at the established Take)
+  - Evidence: Slice 1's consumer trace (plan 508, slice 1 proof) included derived `PLAN.md` and `source-review.md` basenames with test changes. The coordinator's full read reported 920 lines and 54,151 original tokens and truncated. Sampled tail entries were unrelated planning and maintainer records.
+  - Observed effect: The coordinator had to inspect bounded ranges and the actual fixture importers separately. This evidence establishes excess trace output, with no missed consumer attributed to that output.
+
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
 ## ODF-405 — Full local suite wall includes waiting for repository-wide admission

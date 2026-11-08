@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-268#conclude-fluent-side-panel-pilot",
+  "title": "Draw a conclusion from the three Side panel pilot journeys and plan the next step",
+  "completedAt": "2026-11-08T05:36:09.962Z",
+  "developer": "Terry Yin",
+  "agent": "Jane-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol",
+  "intentCoverage": {
+    "report": "**Insufficient evidence.** For `SEED-268#conclude-fluent-side-panel-pilot` at `19d8701bec8ee05a6af94e960ea4580fa8ec07e1`, the selected promise is that a maintainer can find a stopping point and the evidence that would reopen the pilot. A plausible fault is deleting the reopening criteria from `dashboard/tests/writing-journeys.md`, under “What the pilot earned.” Plan 521 verifies that promise by reading the guide. The Side panel replacement and switching specs assert the browser journeys on their dashboard fixtures. Repository inspection found no maintained test fixture or assertion that reads the guide and checks that its stopping recommendation includes a reopening condition. No baseline, mutation, or restored run was applicable. The checkout was read only.\n\n- **Test runtime.** Unavailable. No matching test ran.\n- **Human effort.** Unavailable. No separate measurement was captured.\n- **Agent effort.** Unavailable. No separate active-effort measurement was captured.\n\n\n- **Invocation-to-report elapsed.** 34883 ms (measured), from 1794116105150 to 1794116140033 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n"
+  }
+}

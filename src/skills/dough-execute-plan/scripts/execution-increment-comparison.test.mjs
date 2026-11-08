@@ -2,6 +2,7 @@
 // These tests consume the pair with Git, rather than trusting fields alone.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
   advanceOriginFromAnotherWriter,
@@ -29,9 +30,13 @@ test("an unchanged suffix is retained before its push and matches the accepted c
   const retained = [];
   const published = await publishExecutionIncrement({
     workspace: fixture.execution,
-    branch: "exec/story",
-    previouslyPublishedBase: fixture.trunkSha,
-    targetRef,
+    ...makeMe.anIncrementPublication
+      .with({
+        branch: "exec/story",
+        previouslyPublishedBase: fixture.trunkSha,
+        targetRef,
+      })
+      .please(),
     beforePush: async (comparison) => {
       assert.equal(
         await lsRemoteSha(fixture.origin, targetRef),
@@ -63,9 +68,13 @@ test("a racing retry retains the rewritten candidate and its new base before the
   let racingTip;
   const published = await publishExecutionIncrement({
     workspace: fixture.execution,
-    branch: "exec/story",
-    previouslyPublishedBase: fixture.trunkSha,
-    targetRef,
+    ...makeMe.anIncrementPublication
+      .with({
+        branch: "exec/story",
+        previouslyPublishedBase: fixture.trunkSha,
+        targetRef,
+      })
+      .please(),
     validate: async (candidate, context) => {
       validated.push({ candidate, suffixBase: context.suffixBase });
       return { ok: true };

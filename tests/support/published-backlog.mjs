@@ -4,11 +4,7 @@ import {
   renderEntry,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 
-/** @typedef {{ identity: string, title: string, href: string, plan?: { label: string, target: string } }} BacklogEntry */
-
-/** @param {BacklogEntry} entry */
-const renderPublishedEntry = (entry) =>
-  renderEntry({ ...entry, plan: entry.plan });
+/** @typedef {Parameters<typeof renderEntry>[0]} BacklogEntry */
 
 /**
  * Write an ordinary published backlog from its membership facts. Tests that
@@ -24,9 +20,9 @@ export function renderPublishedBacklog(
   const lines = ["# Product backlog", ""];
   if (direction) lines.push("## Near-future direction", "", direction, "");
   lines.push("## Taken", "");
-  if (taken.length) lines.push(...taken.map(renderPublishedEntry), "");
+  if (taken.length) lines.push(...taken.map(renderEntry), "");
   lines.push("## Backlog list");
   if (queued.length || blankAfterEmptyQueue)
-    lines.push("", ...queued.map(renderPublishedEntry));
+    lines.push("", ...queued.map(renderEntry));
   return renderBacklog({ lines, newline: "\n", hasFinalNewline: true });
 }

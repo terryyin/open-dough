@@ -43,7 +43,7 @@ export async function expectQueuedPlanStoryCardAndDetail(
     detail.getByRole("link", { name: /^Canonical record / }),
   ).toHaveAttribute(
     "href",
-    `https://github.com/${repository}/blob/${repo.revision}/.planning/${plannedBlocked.link}`,
+    `https://github.com/${repository}/blob/${repo.revision}/.planning/${plannedBlocked.href}`,
   );
   expect(readCount()).toBe(reads);
   await card.getByRole("button", { name: "Hide detail" }).click();

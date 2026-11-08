@@ -28,15 +28,14 @@ run_offline_record_state_and_reader_proof() {
 
   mkdir -p -- "${project_root}/.planning/$(dirname -- "${seed_rel}")" \
     "${project_root}/.planning/$(dirname -- "${plan_rel}")"
-  cat > "${project_root}/.planning/PRODUCT-BACKLOG.md" << 'EOF'
-# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [First payload story](seeds/SEED-PAYLOAD-STATE.md#first-story) — SEED-PAYLOAD#first-story
-- [Second payload story](seeds/SEED-PAYLOAD-STATE.md#second-story) — SEED-PAYLOAD#second-story
+  # shellcheck disable=SC2154 # The sourcing test supplies source_dir.
+  node "${source_dir}/tests/support/render-published-backlog.mjs" > "${project_root}/.planning/PRODUCT-BACKLOG.md" << 'EOF'
+{
+  "queued": [
+    { "identity": "SEED-PAYLOAD#first-story", "title": "First payload story", "href": "seeds/SEED-PAYLOAD-STATE.md#first-story" },
+    { "identity": "SEED-PAYLOAD#second-story", "title": "Second payload story", "href": "seeds/SEED-PAYLOAD-STATE.md#second-story" }
+  ]
+}
 EOF
   seed_path="${project_root}/.planning/${seed_rel}"
   cat > "${seed_path}" << 'EOF'
@@ -69,15 +68,14 @@ Goal, scope, and examples for the first story.
 Goal, scope, and examples for the second story.
 EOF
   plan_path="${project_root}/.planning/${plan_rel}"
-  cat > "${plan_path}" << 'EOF'
-# Payload state plan
-
-## Ordered slices
-
-### 1. Deliver installed recorder modules
-Type: Behavior
-Status: planned
-Proof: Installed record-state produces bytes the shared reader understands.
+  # shellcheck disable=SC2154 # The sourcing test supplies source_dir.
+  node "${source_dir}/tests/support/render-published-plan.mjs" > "${plan_path}" << 'EOF'
+{
+  "preamble": "# Payload state plan",
+  "slices": [
+    { "index": 1, "name": "Deliver installed recorder modules", "proof": "Installed record-state produces bytes the shared reader understands." }
+  ]
+}
 EOF
 
   launch_subdir="${project_root}/work/nested"

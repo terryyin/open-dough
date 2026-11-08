@@ -1,4 +1,5 @@
 // Active story membership owns its open session even with a matching done card.
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { renderDoneRecord } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { columnPagingControl, rem } from "../boardPage.ts";
@@ -60,12 +61,16 @@ test("an active story owns its open session even with a matching done card, whos
     files: publishedFiles(
       withDoneCatalog(
         {
-          [doneRecordAt(queuedIdentity)]: renderDoneRecord({
-            identity: queuedIdentity,
-            title: queuedTitle,
-            completedAt: at(now, placed.executedDone),
-            developer: "Terry Yin",
-          }),
+          [doneRecordAt(queuedIdentity)]: renderDoneRecord(
+            makeMe.aDoneRecord
+              .with({
+                identity: queuedIdentity,
+                title: queuedTitle,
+                completedAt: at(now, placed.executedDone),
+                developer: "Terry Yin",
+              })
+              .please(),
+          ),
         },
         doneDirectory,
       ),

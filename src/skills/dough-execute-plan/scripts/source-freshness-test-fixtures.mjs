@@ -4,7 +4,9 @@ import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
+import { renderPlanSlice } from "../../../../tests/support/published-plan.mjs";
 import {
   createCleanTrunkFixture,
   executionBranch,
@@ -70,10 +72,11 @@ None.
 `;
 
 export const slice = (index, name, { status = "planned", behavior } = {}) =>
-  `### ${index}. ${name}
-Type: Behavior
-Status: ${status}
-Proof: proof ${index}
+  `${renderPlanSlice(
+    makeMe.aPlanSlice
+      .with({ index, name, status, proof: `proof ${index}` })
+      .please(),
+  )}
 
 Behavior: ${behavior ?? `does ${name}.`}
 `;

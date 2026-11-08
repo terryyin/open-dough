@@ -9,6 +9,7 @@
 // real HTTP and a synthetic `gh` answering from the fake GitHub, observing the
 // `gh` calls that reach it (../../tests/support/doneCatalogReads.ts).
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   developmentBoundary,
@@ -115,21 +116,29 @@ test.describe("authenticated done catalog read (development environment)", () =>
       ),
       [
         pathOf(changedIdentity),
-        renderDoneRecord({
-          identity: changedIdentity,
-          title: "Finish later 1, retitled",
-          completedAt: "2026-10-01T01:00:00.000Z",
-          developer: "Terry Yin",
-        }),
+        renderDoneRecord(
+          makeMe.aDoneRecord
+            .with({
+              identity: changedIdentity,
+              title: "Finish later 1, retitled",
+              completedAt: "2026-10-01T01:00:00.000Z",
+              developer: "Terry Yin",
+            })
+            .please(),
+        ),
       ],
       [
         pathOf(added),
-        renderDoneRecord({
-          identity: added,
-          title: "Finish later 9",
-          completedAt: "2026-10-02T00:00:00.000Z",
-          developer: "Terry Yin",
-        }),
+        renderDoneRecord(
+          makeMe.aDoneRecord
+            .with({
+              identity: added,
+              title: "Finish later 9",
+              completedAt: "2026-10-02T00:00:00.000Z",
+              developer: "Terry Yin",
+            })
+            .please(),
+        ),
       ],
     ]);
     const files = withDoneCatalog(records, doneDirectory);

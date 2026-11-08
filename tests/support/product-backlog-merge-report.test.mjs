@@ -12,7 +12,7 @@ import { test } from "node:test";
 import {
   added,
   addArguments,
-  backlog,
+  arrangedBacklog,
   backlogOf,
   run,
   scratchProject,
@@ -23,6 +23,7 @@ import {
   branchFrom,
   item,
   list,
+  mergeBacklog,
   named,
   versions,
 } from "./product-backlog-merge-fixture.mjs";
@@ -38,7 +39,7 @@ test("merge report names a one-sided reprioritization instead of claiming nothin
   // The queue is A, B, C, D. One branch gave D the front of it with the real
   // placement command; the other wrote the queue out as the ancestor had it.
   // The published priority is D's new one, so the report has to say so.
-  const ancestor = backlogOf([], list("ABCD"));
+  const ancestor = mergeBacklog({ queued: "ABCD" });
   const project = scratchProject(t, ancestor);
   const reprioritized = await branchFrom(t, ancestor, [
     "place",
@@ -69,7 +70,7 @@ test("merge report does not read work shifting up behind a removal as a repriori
   // One branch closed A with the real completion command; the other left the
   // queue alone. B and C each end up one place higher, and neither of them was
   // given a different priority by anybody.
-  const ancestor = backlogOf([], list("ABC"));
+  const ancestor = mergeBacklog({ queued: "ABC" });
   const project = scratchProject(t, ancestor);
   const closed = await branchFrom(t, ancestor, [
     "complete",
@@ -93,18 +94,18 @@ test("merge report names the work each branch added and changed", async (t) => {
   // One branch claimed the queued trunk story; the other queued new work.
   // Both are the real operations' own doing, and the report has to name both,
   // because a caller accepts or rejects the published result by reading it.
-  const project = scratchProject(t, backlog);
-  const claimed = await branchFrom(t, backlog, [
+  const project = scratchProject(t, arrangedBacklog);
+  const claimed = await branchFrom(t, arrangedBacklog, [
     "take",
     "--identity",
     trunkQueue,
     "--no-plan",
   ]);
-  const queuedMore = await branchFrom(t, backlog, addArguments());
+  const queuedMore = await branchFrom(t, arrangedBacklog, addArguments());
 
   const merged = await run(
     project,
-    versions(project, backlog, claimed, queuedMore),
+    versions(project, arrangedBacklog, claimed, queuedMore),
   );
 
   assert.equal(merged.code, 0, merged.stderr);
@@ -122,7 +123,7 @@ test("merge report names changed text around the two lists", async (t) => {
   // Neither the text above the lists nor the text below them is written by any
   // backlog operation, and both are carried across whole. A caller whose
   // published file gained a paragraph is told that it did.
-  const ancestor = backlogOf([], list("AB"));
+  const ancestor = mergeBacklog({ queued: "AB" });
   const project = scratchProject(t, ancestor);
   const opening = "Everything this project has agreed to do next.";
   // The text below the lists begins with a heading of its own, because that is

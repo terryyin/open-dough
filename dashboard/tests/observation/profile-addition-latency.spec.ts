@@ -6,6 +6,7 @@
 // holding one addition commit's answer; the page clock is paused, and the
 // local read boundary and the page decide everything shown.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Locator, Page } from "@playwright/test";
 import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
@@ -49,11 +50,14 @@ async function openedWithHeldAddition(page: Page, heldSha: string) {
     files: {
       ...files,
       [backlogPath]: `${files[backlogPath] ?? ""}- [${preparing}](seeds/SEED-091-clock.md#preparing) — SEED-091#preparing\n`,
-      [profilePath("Kirara")]: renderAgentProfile({
-        name: "Kirara",
-        identity: "SEED-091#preparing",
-        activity: "preparation",
-      }),
+      [profilePath("Kirara")]: renderAgentProfile(
+        makeMe.anAgentProfile
+          .preparing({
+            name: "Kirara",
+            identity: "SEED-091#preparing",
+          })
+          .please(),
+      ),
     },
     committed,
     history: {

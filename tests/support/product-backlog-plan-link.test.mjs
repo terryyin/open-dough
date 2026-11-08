@@ -3,14 +3,19 @@
 // plan, while a link to another plan file is never repointed.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "./makeMe.mjs";
 import {
   backlogOf,
+  direction,
   projectFile,
   queued,
+  queuedBacklogEntries,
   run,
   scratchProject,
+  takenBacklogEntry,
   takenEntry,
 } from "./product-backlog-fixture.mjs";
+import { renderPublishedBacklog } from "./published-backlog.mjs";
 import {
   backlogBytes,
   first,
@@ -23,8 +28,10 @@ import {
 const planPath = "slice-plans/075-example/PLAN.md";
 const sectionLink = `${planPath}#ordered-slices`;
 const otherPlan = "slice-plans/075-other/PLAN.md";
-const firstLine = `- [${first.title}](${first.link}) — ${first.identity}`;
-const secondLine = `- [${second.title}](${second.link}) — ${second.identity}`;
+const firstLine =
+  "- [First story](seeds/SEED-021-two-stories.md#first-story) — SEED-021#first-story";
+const secondLine =
+  "- [Second story](seeds/SEED-021-two-stories.md#second-story) — SEED-021#second-story";
 const planned = {
   refinement: "refined",
   approach: "planned",
@@ -41,8 +48,11 @@ const take = (identity, target) => [
 
 // A scratch project whose backlog holds `taken` and `waiting`, with the seed
 // and both plans in place.
-function projectWith(t, taken, waiting = queued) {
-  const project = scratchProject(t, backlogOf(taken, waiting));
+function projectWith(t, taken, waiting = queuedBacklogEntries) {
+  const project = scratchProject(
+    t,
+    renderPublishedBacklog({ taken, queued: waiting, direction }),
+  );
   plantSeed(project);
   projectFile(project, planPath, "# Example plan\n");
   projectFile(project, otherPlan, "# Other plan\n");
@@ -52,8 +62,8 @@ function projectWith(t, taken, waiting = queued) {
 test("plan link: a planned record links the plan of its Taken entry and leaves other entries alone", async (t) => {
   const project = projectWith(
     t,
-    [takenEntry, firstLine],
-    [...queued, secondLine],
+    [takenBacklogEntry, first],
+    [...queuedBacklogEntries, second],
   );
   const before = backlogBytes(project);
 
@@ -89,8 +99,10 @@ test("plan link: a planned record links the plan of its Taken entry and leaves o
 
 test("plan link: a Taken entry linking a section of its plan stays unchanged through record-state and take", async (t) => {
   const project = projectWith(t, [
-    takenEntry,
-    `${firstLine} ([plan](${sectionLink}))`,
+    takenBacklogEntry,
+    makeMe.aBacklogEntry
+      .with({ ...first, plan: { label: "plan", target: sectionLink } })
+      .please(),
   ]);
   const before = backlogBytes(project);
 
@@ -109,7 +121,11 @@ test("plan link: a Taken entry linking a section of its plan stays unchanged thr
 });
 
 test("plan link: queued work taken with a section of its plan keeps that link", async (t) => {
-  const project = projectWith(t, [takenEntry], [...queued, firstLine]);
+  const project = projectWith(
+    t,
+    [takenBacklogEntry],
+    [...queuedBacklogEntries, first],
+  );
 
   const taken = await run(project, take(first.identity, sectionLink));
   assert.equal(taken.code, 0, taken.stderr);
@@ -121,7 +137,11 @@ test("plan link: queued work taken with a section of its plan keeps that link", 
 });
 
 test("plan link: a section of a plan file that is not there is refused unchanged", async (t) => {
-  const project = projectWith(t, [takenEntry], [...queued, firstLine]);
+  const project = projectWith(
+    t,
+    [takenBacklogEntry],
+    [...queuedBacklogEntries, first],
+  );
   const before = backlogBytes(project);
 
   const refused = await run(
@@ -139,7 +159,12 @@ test("plan link: a section of a plan file that is not there is refused unchanged
 
 test("plan link: a Taken entry linking another plan file is refused by take and record-state", async (t) => {
   const project = projectWith(t, [
-    `${firstLine} ([plan](${otherPlan}#ordered-slices))`,
+    makeMe.aBacklogEntry
+      .with({
+        ...first,
+        plan: { label: "plan", target: `${otherPlan}#ordered-slices` },
+      })
+      .please(),
   ]);
   const seedBefore = seedBytes(project);
   const backlogBefore = backlogBytes(project);

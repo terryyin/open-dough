@@ -2,6 +2,7 @@
 // a historical base for legacy callers. Invalid pairs stop before side effects.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { resumeInterruptedPublication } from "./publication-resume.mjs";
 import {
   advanceOriginFromAnotherWriter,
@@ -18,10 +19,12 @@ const targetRef = "refs/heads/main";
 test("an interrupted candidate retains its comparison through its first accepted push", async (t) => {
   const fixture = await createCleanTrunkFixture();
   t.after(fixture.cleanup);
+  const comparison = makeMe.aRetainedComparison
+    .with({ candidateSha: fixture.candidateSha, suffixBase: fixture.trunkSha })
+    .please();
   const published = await resumeInterruptedPublication({
     ownedWorkspace: fixture.execution,
-    candidateSha: fixture.candidateSha,
-    suffixBase: fixture.trunkSha,
+    ...comparison,
     publishedRevisions: [],
   });
   assert.equal(published.pushCount, 1);
@@ -49,10 +52,12 @@ test("an interrupted candidate retains its comparison through its first accepted
 test("a retained empty comparison is valid when its two commits are equal", async (t) => {
   const fixture = await createCleanTrunkFixture();
   t.after(fixture.cleanup);
+  const comparison = makeMe.aRetainedComparison
+    .with({ candidateSha: fixture.trunkSha, suffixBase: fixture.trunkSha })
+    .please();
   const published = await resumeInterruptedPublication({
     ownedWorkspace: fixture.execution,
-    candidateSha: fixture.trunkSha,
-    suffixBase: fixture.trunkSha,
+    ...comparison,
     publishedRevisions: [],
   });
   assert.equal(published.classification, "already-published");

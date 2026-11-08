@@ -224,34 +224,138 @@ No architectural exception or new ADR is proposed here.
 <a id="preserve-live-profiles-during-integration"></a>
 
 ### 1. Preserve live agent profiles when integrating stories
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/522-preserve-live-profiles-during-integration/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"42a8a4506625e6b2abc98a366355a49ff4a0fdfc15273f80f85404a9f02734e7","plan":"045507bff32ce257dea0fd73bd243b17ebdf79272995c598f83c3820dd87adc2"}}
+```
 
-For developers integrating a story while another is Taken, preserve the other
-story’s live agent profile and keep the done catalog readable. Evidence:
+#### Goal
+
+For developers integrating a story while another story is Taken or Preparing,
+keep the other story's live agent profile where its assignment lives and keep
+the done records readable, so no concurrent execution has to restore its own
+assignment and rebuild the done catalog before closure. This answers
 [ODF-430](../../docs/maintainer/findings/ODF-430.md) and
-[ODF-451](../../docs/maintainer/findings/ODF-451.md).
+[ODF-451](../../docs/maintainer/findings/ODF-451.md) and contributes to the
+seed goal by turning both findings into an evaluated response.
 
-Evaluate a concurrent integration that induces Git’s directory rename and one
-that resolves a catalog conflict with a misplaced profile. Before publication,
-both must preserve the live assignment in its existing path or identify and
-hold the exact invalid result. A valid story completion must still publish its
-done record and release its own assignment. Record the delivered response,
-containing release and ordinary-use criterion at both findings.
+Both retained trunk commits (`e6948bfce`, `0b4ba8d1b`) show the same shape:
+the integrated side's own completion replaced the only profile in `agents/`
+with its done record, Git inferred an `agents/ → done/` directory rename, and
+moved the other side's unchanged live profile into `done/` (a 100% rename),
+which an integrating agent then committed while resolving the merge.
+
+#### Scope
+
+Required behavior:
+
+- Integrations through the installed product backlog merge adapter, which
+  the publication candidate also uses, keep every live agent profile at its
+  existing `agents/` path, with its bytes, when the other side's completion
+  moves the only remaining profiles out of `agents/`.
+- Before the merge adapter's `continue` commits a result, or before
+  publication pushes a candidate, a result holding an agent profile under
+  `done/` is held unaccepted and unpublished. The hold names each misplaced
+  path and the `agents/` path it belongs at, and the workspace stays
+  recoverable as the adapter and publication already leave it.
+- A valid story completion still publishes its own done record and catalog
+  entry and releases its own assignment's profile.
+- Record the delivered response at both findings, with the containing release
+  and an ordinary-use criterion.
+
+Scope limits:
+
+- No repair of existing trunk history; current trunk records are already
+  restored.
+- Agent profile contents, naming, and the done-record format stay unchanged.
+- Integrations that bypass the adapter, including rebases and cherry-picks,
+  are covered only by the publication hold. A 2026-11-08 scratch probe on Git
+  2.50.1 showed rebase and cherry-pick already keep the profile in `agents/`.
+- A live profile deleted outright, rather than moved, is not detected; no
+  evidence shows it.
+
+#### Key examples
+
+1. **Inferred directory rename.** At the merge base, `agents/` holds only
+   story A's profile. Trunk completes A (its profile replaced by
+   `done/A.json`); story B's branch has taken B and added `agents/b.json`.
+   Integrating them yields `agents/b.json` unchanged, `done/A.json`, and a
+   catalog listing A; no `done/b.json` appears and the adapter reports no
+   file-location conflict for `agents/b.json`.
+2. **Misplaced hand resolution.** During a stopped integration, a resolution
+   stages `agents/b.json` renamed to `done/b.json` and continues through the
+   adapter, or commits it and publishes. The result is held, naming
+   `done/b.json` as an agent profile that belongs at `agents/b.json`; nothing
+   is committed or pushed. Restoring the profile and
+   continuing accepts the integration.
+3. **Valid own completion.** Story B's completion integrates with trunk while
+   C is Taken: `agents/b.json` is removed, `done/B.json` and its catalog entry
+   are added, `agents/c.json` stays; the integration is accepted and
+   published.
+4. **Unrelated integration.** Neither side changes `agents/` or `done/`; the
+   integration proceeds exactly as before.
+5. **Finding record.** After release, ODF-430 and ODF-451 each name the
+   response, its release, and the ordinary-use criterion: the next observed
+   concurrent integration where one side completes a story while another is
+   active keeps that profile in `agents/` and adds no profile to `done/`.
 
 <a id="notice-named-sibling-landings-before-delivery"></a>
 
 ### 2. Surface a named sibling landing before delivering against its old shape
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/523-notice-named-sibling-landings/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d8b5205e105964f0e0f2ada6efc397265caf59e94a7fc0904fe8c5696375d7fd","plan":"090e0794609fbe127f40a3e61dce12755f4cb4430c7fcde3edae0c0dc0c1fcdf"}}
+```
 
-For developers coordinating a Story Branch with a named, overlapping sibling,
-surface the sibling’s accepted trunk change while the affected increment is
-still under review. [ODF-429](../../docs/maintainer/findings/ODF-429.md) records
-the late conflicts and the amendment that updated links alone.
+#### Goal
 
-Evaluate the two retained cases. When the named sibling has landed and the
-affected product paths diverge, the coordinator can identify the affected
-slice and decide how to incorporate the new shape before delivering it.
-An unrelated or non-overlapping landing should leave the slice able to
-proceed. Record the delivered response, containing release and ordinary-use
-criterion at the finding.
+Developers coordinating planned work in Story Branch Mode can account for a
+named sibling's accepted change while the affected slice is still under review.
+Seeing the new product shape before delivery reduces late reconciliation and
+rework. [ODF-429](../../docs/maintainer/findings/ODF-429.md) records two cases
+where ordinary source freshness surfaced a link amendment and the overlap
+remained.
+
+#### Scope
+
+- Before marking the affected slice done or committing or publishing its
+  delivery, check the sibling explicitly named for coordination against the
+  fetched authorized trunk. Assess the shared product paths and behavior the
+  current slice relies on, including code delivered by earlier slices.
+- When accepted evidence shows the sibling changed that product shape and
+  the slice still relies on its earlier form, surface the sibling identity,
+  trunk revision, affected slice, and shared paths or behavior. Keep the
+  increment recoverable while the coordinator reconciles the affected work
+  and reviews its proof, or seeks a developer decision under the existing
+  escalation rule when one is needed.
+- A source-link amendment leaves the product question open. A named landing
+  outside the slice's affected behavior, an unrelated landing, or a change
+  the slice already accounts for adds no hold. Existing source review and
+  delivery checks still apply.
+- The commitment covers coordination already named in planned Story Branch
+  work. Automatic discovery, new dependency or Take rules, automatic merging,
+  and additional delivery checks in Trunk Mode are outside this increment.
+- Record the delivered response, its containing release, and the ordinary-use
+  criterion at ODF-429. In the next observed qualifying execution, check
+  whether the coordinator addressed the overlap before delivery, how much
+  late reconciliation remained, and whether disjoint work was interrupted.
+
+#### Key examples
+
+1. **Intent reading moves to a new owner.** SEED-243 reaches slice 3 after
+   its named sibling SEED-241 lands the page-held reading state on trunk.
+   The affected slice still uses the old shape. The coordinator sees the
+   landing and affected Intent code before delivering slice 3, and can
+   reconcile the slice while its increment is recoverable.
+2. **A link update leaves an old timing measure in use.** SEED-255 reaches
+   slice 3 after its named sibling SEED-256 lands comparison timing without
+   runner waits. Absorbing the updated links clears the source amendment.
+   The comparison component and wording still diverge, even though the
+   current increment need not edit them directly. The coordinator sees and
+   addresses that overlap before delivery.
+3. **Delivery can proceed.** A named sibling lands a disjoint change while
+   another landing touches a shared path. The coordinator finds no relevant
+   product change attributable to the named sibling and proceeds through
+   ordinary checks. A branch that has already incorporated the sibling's
+   affected behavior also proceeds.
 
 <a id="pending-lifecycle-validation-obligations"></a>
 

@@ -13,19 +13,17 @@ import {
 import { join } from "node:path";
 import { test } from "node:test";
 import {
-  doneCatalogMismatch,
-  parseDoneCatalog,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
-import { isDoneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+  doneRecordFileName,
+  renderDoneRecord,
+} from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "./makeMe.mjs";
+import "./product-backlog-done-catalog-reader-cases.mjs";
 import {
   assertCatalogMatchesRecords,
-  completedAt,
-  daysBefore,
   doneDirectory,
   gitBlob,
   isolatedGit,
   readCatalog,
-  recordText,
 } from "./product-backlog-done-fixture.mjs";
 import {
   backlog,
@@ -61,18 +59,49 @@ test("catalog-done rebuilds a catalog for existing records at another backlog lo
   const done = join(project.directory, "team", "done");
   const write = (fileName, text) =>
     writeFileSync(join(done, fileName), text, "utf8");
-  const record = (identity, title, time) =>
-    write(recordFileName(identity), recordText(identity, title, time));
-  record("SEED-301#older", "Older work", "2026-09-20T08:00:00.000Z");
-  record("SEED-302#newest", "Newest work", "2026-10-05T08:00:00.000Z");
-  record("SEED-303#same-time", "Same time", "2026-10-01T08:00:00.000Z");
-  record("SEED-300#same-time", "Same time", "2026-10-01T08:00:00.000Z");
-  // Already expired: a rebuild prunes nothing, so it stays listed.
-  record("SEED-299#expired", "Expired", "2026-08-01T08:00:00.000Z");
+  const records = [
+    {
+      identity: "SEED-301#older",
+      title: "Older work",
+      completedAt: "2026-09-20T08:00:00.000Z",
+    },
+    {
+      identity: "SEED-302#newest",
+      title: "Newest work",
+      completedAt: "2026-10-05T08:00:00.000Z",
+    },
+    {
+      identity: "SEED-303#same-time",
+      title: "Same time",
+      completedAt: "2026-10-01T08:00:00.000Z",
+    },
+    {
+      identity: "SEED-300#same-time",
+      title: "Same time",
+      completedAt: "2026-10-01T08:00:00.000Z",
+    },
+    // Already expired: a rebuild prunes nothing, so it stays listed.
+    {
+      identity: "SEED-299#expired",
+      title: "Expired",
+      completedAt: "2026-08-01T08:00:00.000Z",
+    },
+  ];
+  for (const facts of records) {
+    const record = makeMe.aDoneRecord
+      .with({ ...facts, developer: "Ann" })
+      .please();
+    write(doneRecordFileName(record.identity), renderDoneRecord(record));
+  }
   write("SEED-400_broken.json", "{ not json");
   write(
     "SEED-401_elsewhere.json",
-    recordText("SEED-999#other", "Named elsewhere", "2026-10-02T08:00:00.000Z"),
+    renderDoneRecord({
+      identity: "SEED-999#other",
+      title: "Named elsewhere",
+      completedAt: "2026-10-02T08:00:00.000Z",
+      developer: "Ann",
+    }),
   );
   write("notes.txt", "not a record\n");
   write(".catalog.json", '{"schemaVersion": 1, "records": "stale"}\n');
@@ -168,74 +197,4 @@ test("catalog-done refuses a backlog file that is not there, writing nothing", a
   assert.equal(result.code, 1);
   assert.match(result.stderr, /Backlog file not found: .*missing\/BACKLOG\.md/);
   assert.equal(existsSync(join(project.directory, "missing")), false);
-});
-
-test("a catalog is read only as written and is checked against a published listing", () => {
-  const record = {
-    fileName: "SEED-1_a.json",
-    identity: "SEED-1#a",
-    completedAt,
-    blob: "a".repeat(40),
-  };
-  const older = {
-    fileName: "SEED-2_b.json",
-    identity: "SEED-2#b",
-    completedAt: daysBefore(1),
-    blob: "b".repeat(40),
-  };
-  const text = (data) => JSON.stringify(data);
-  const valid = { schemaVersion: 1, records: [record, older], unreadable: [] };
-  assert.equal(parseDoneCatalog(text(valid)).ok, true);
-
-  for (const [data, error] of [
-    [{ ...valid, schemaVersion: 2 }, /schemaVersion must be 1/],
-    [{ ...valid, records: [older, record] }, /published order/],
-    [{ ...valid, records: [{ ...record, title: "A" }] }, /exactly fileName/],
-    [
-      {
-        ...valid,
-        unreadable: [{ fileName: record.fileName, blob: "c".repeat(40) }],
-      },
-      /names one record file twice/,
-    ],
-    [{ ...valid, records: [{ ...record, blob: "nope" }] }, /Git blob hash/],
-    [
-      { ...valid, records: [{ ...record, identity: "SEED-9#z" }] },
-      /names another identity/,
-    ],
-  ]) {
-    const read = parseDoneCatalog(text(data));
-    assert.equal(read.ok, false);
-    assert.match(read.error, error);
-  }
-  assert.equal(parseDoneCatalog("{").ok, false);
-
-  const catalog = parseDoneCatalog(text(valid)).catalog;
-  const published = [
-    { fileName: record.fileName, blob: record.blob },
-    { fileName: older.fileName, blob: older.blob },
-    { fileName: ".catalog.json", blob: "d".repeat(40) },
-  ];
-  assert.equal(doneCatalogMismatch(catalog, published), undefined);
-  assert.match(
-    doneCatalogMismatch(catalog, [
-      ...published,
-      { fileName: "SEED-3_c.json", blob: "e".repeat(40) },
-    ]),
-    /does not list done\/SEED-3_c\.json/,
-  );
-  assert.match(
-    doneCatalogMismatch(catalog, [
-      { fileName: record.fileName, blob: "f".repeat(40) },
-      published[1],
-    ]),
-    /earlier done\/SEED-1_a\.json/,
-  );
-  assert.match(
-    doneCatalogMismatch(catalog, [published[0]]),
-    /lists done\/SEED-2_b\.json, which is not published/,
-  );
-  // The catalog's own name is never a done record's, so a reader listing
-  // records by name, as the dashboard does, never takes it for one.
-  assert.equal(isDoneRecordFileName(".catalog.json"), false);
 });

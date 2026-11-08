@@ -3,6 +3,7 @@
 // per-worktree authorship (`workspace-agent-authorship.mjs`), as local Git
 // finds them for a story's review.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
@@ -63,12 +64,16 @@ export async function claimWorktree(
   writeAt(
     workspace,
     path.join(".planning", profile),
-    renderAgentProfile({
-      name,
-      identity,
-      mode: "trunk",
-      branch: "origin/main",
-    }),
+    renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name,
+          identity,
+          mode: "trunk",
+          branch: "origin/main",
+        })
+        .please(),
+    ),
   );
   writeFileSync(path.join(workspace, `${slug}.txt`), `${slug}\n`);
   commitAll(workspace, `claim ${identity}`);

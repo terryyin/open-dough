@@ -26,10 +26,10 @@ import {
   type ObservedRequest,
 } from "../publishedOrigin.ts";
 import {
+  catalogExpectations,
   expectPinnedGhCalls,
-  publicationOf,
-  projects,
-} from "../catalogProjectRecords.ts";
+} from "../catalogProjectExpectations.ts";
+import { catalogPublications } from "../catalogProjectRecords.ts";
 import {
   assertNoCredentialMarker,
   collectFiles,
@@ -67,32 +67,31 @@ test("authenticated project observation: each catalog project opens and reloads 
       });
   });
   const observed = new Map<string, ObservedRequest[]>();
-  for (const published of projects) {
-    observed.set(
-      published.repository,
-      await publishFiles(page, publicationOf(published)),
-    );
+  for (const published of Object.values(catalogPublications)) {
+    observed.set(published.repository, await publishFiles(page, published));
   }
   await page.goto(server.baseURL);
   const { project: selector, direction, problem, readRevision } = parts(page);
 
-  for (const published of projects) {
-    const calls = observed.get(published.repository) ?? [];
-    await test.step(`${published.label} renders its own backlog and detail read through local gh`, async () => {
+  for (const expected of Object.values(catalogExpectations)) {
+    const calls = observed.get(expected.repository) ?? [];
+    await test.step(`${expected.label} renders its own backlog and detail read through local gh`, async () => {
       await selector
-        .getByRole("radio", { name: published.label, exact: true })
+        .getByRole("radio", { name: expected.label, exact: true })
         .check();
       await expectMembership(page, {
-        taken: [published.taken],
-        backlog: [published.queued],
+        taken: [expected.taken],
+        backlog: [expected.queued],
       });
       await openDirection(page);
-      await expect(direction).toContainText(published.direction);
-      await expectProjectChoice(page, published.label);
+      await expect(direction).toContainText(expected.direction);
+      await expectProjectChoice(page, expected.label);
       await expect(readRevision).toContainText(
-        shortRevision(published.revision),
+        shortRevision(expected.revision),
       );
-      for (const other of projects.filter((p) => p !== published)) {
+      for (const other of Object.values(catalogExpectations).filter(
+        (p) => p !== expected,
+      )) {
         await expect(page.locator("body")).not.toContainText(other.taken);
         await expect(readRevision).not.toContainText(
           shortRevision(other.revision),
@@ -100,10 +99,10 @@ test("authenticated project observation: each catalog project opens and reloads 
       }
 
       const takenStoryCard = page.getByRole("article", {
-        name: published.taken,
+        name: expected.taken,
       });
       const queuedCard = page.getByRole("article", {
-        name: published.queued,
+        name: expected.queued,
       });
       await expectSettledPage(page);
       await expect(
@@ -117,36 +116,36 @@ test("authenticated project observation: each catalog project opens and reloads 
         takenStoryCard.getByRole("link", { name: /^Canonical record/ }),
       ).toHaveAttribute(
         "href",
-        `https://github.com/${published.repository}/blob/${published.revision}/${published.takenPath}`,
+        `https://github.com/${expected.repository}/blob/${expected.revision}/${expected.takenPath}`,
       );
       await queuedCard.getByRole("button", { name: "Inspect story" }).click();
       const detail = queuedCard.getByRole("region", {
-        name: `Detail for ${published.queued}`,
+        name: `Detail for ${expected.queued}`,
       });
       await expect(
         detail.getByRole("link", { name: /^Canonical record/ }),
       ).toHaveAttribute(
         "href",
-        `https://github.com/${published.repository}/blob/${published.revision}/${published.queuedPath}#queued`,
+        `https://github.com/${expected.repository}/blob/${expected.revision}/${expected.queuedPath}#queued`,
       );
-      await expect(detail).toContainText(published.purpose);
+      await expect(detail).toContainText(expected.purpose);
     });
 
-    await test.step(`${published.label}'s gh calls name only its catalog repository, its resolved revision, and reachable records`, () => {
-      expectPinnedGhCalls(calls, published);
+    await test.step(`${expected.label}'s gh calls name only its catalog repository, its resolved revision, and reachable records`, () => {
+      expectPinnedGhCalls(calls, expected);
     });
 
-    await test.step(`reloading ${published.label} resolves ${published.ref} again through local gh`, async () => {
+    await test.step(`reloading ${expected.label} resolves ${expected.ref} again through local gh`, async () => {
       const before = calls.length;
       await reloadUntilRead(page);
       await expect(readRevision).toContainText(
-        shortRevision(published.revision),
+        shortRevision(expected.revision),
       );
       await expect.poll(() => calls.length).toBeGreaterThan(before);
       expect(calls[before]?.argv).toEqual([
         "api",
         "--include",
-        `repos/${published.repository}/commits/${published.ref}`,
+        `repos/${expected.repository}/commits/${expected.ref}`,
         "--jq",
         ".sha",
       ]);
@@ -167,13 +166,8 @@ test("authenticated project observation: each catalog project opens and reloads 
   });
 
   await test.step("after access is restored, reloading shows the selected project's published work", async () => {
-    const doughnut = projects.find(
-      (published) => published.repository === "nerds-odd-e/doughnut",
-    );
-    if (doughnut === undefined) {
-      throw new Error("Missing the Doughnut catalog project.");
-    }
-    await publishFiles(page, publicationOf(doughnut));
+    const { doughnut } = catalogExpectations;
+    await publishFiles(page, catalogPublications.doughnut);
     await page.reload();
     await expectMembership(page, {
       taken: [doughnut.taken],

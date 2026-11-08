@@ -2,12 +2,12 @@
 // unpublished suffix while a writer adds a consumer waiting on it to trunk.
 // Every dependency write uses the real commands; landings run the queued
 // closure check on each fetched target.
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   consumer,
-  dependency,
   git,
   plan,
   publish,
@@ -37,11 +37,16 @@ export async function racedLanding(t) {
   t.after(trunk.cleanup);
   const project = projectOf(trunk);
   writeFileSync(
-    join(trunk.integration, ".planning", third.link),
+    join(trunk.integration, ".planning", third.href),
     "# Third\n**Identity:** THIRD\n",
   );
   writeFileSync(join(trunk.integration, supplierPlan), plan("planned"));
-  for (const entry of [dependency(supplier), dependency(third)]) {
+  for (const entry of [
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
+    makeMe.aSupplierAgreement
+      .with({ supplier: third, state: "waiting" })
+      .please(),
+  ]) {
     const result = await updateDependency(project, consumer, entry);
     assert.equal(result.code, 0, result.stderr);
   }
@@ -63,11 +68,11 @@ export async function racedLanding(t) {
   const evidence = await revParse(workspace, "HEAD");
   await commitSupplierCleanup(owned);
   const late = draftLateStory(trunk);
-  const sibling = { identity: late.identity, link: "seeds/A.md#late" };
+  const sibling = { identity: late.identity, href: "seeds/A.md#late" };
   const waiting = await updateDependency(
     project,
     sibling,
-    dependency(supplier),
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
   );
   assert.equal(waiting.code, 0, waiting.stderr);
   const lateTrunk = await publish(trunk, "late consumer waits on supplier B");

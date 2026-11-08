@@ -4,6 +4,7 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
   commitPaths,
   recordAssessed,
@@ -29,7 +30,7 @@ function publishOpenDoughMembership(
   writePlanning(
     repo.directory,
     "PRODUCT-BACKLOG.md",
-    openDoughProductBacklog(takenPlanPath, options),
+    openDoughProductBacklog({ label: "plan", target: takenPlanPath }, options),
   );
   const next = commitPaths(
     repo.directory,
@@ -120,13 +121,16 @@ export function publishFreshAssessment(repo: ReadinessRepo): string {
       ["A blocking decision remains in the plan."],
     ],
   ] as const) {
-    recordAssessed(repo.directory, story, {
-      refinement: "refined",
-      approach: "planned",
-      plan: `../${plan}`,
-      assessment,
-      reasons: [...reasons],
-    });
+    const preparation = makeMe.aStoryPreparation
+      .with({
+        refinement: "refined",
+        approach: "planned",
+        plan: `../${plan}`,
+        assessment,
+        reasons,
+      })
+      .please();
+    recordAssessed(repo.directory, story, preparation);
   }
   const next = commitPaths(
     repo.directory,

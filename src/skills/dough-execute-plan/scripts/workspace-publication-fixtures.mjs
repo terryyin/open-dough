@@ -12,11 +12,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
-import {
-  computeBasis,
-  recordStoryState,
-} from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
+import { writeQueuedStories } from "../../../../tests/support/queued-ready-stories.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { createBareFixtureRemote } from "./bare-remote-test-fixtures.mjs";
 import { git, exec, revParse } from "./publication-test-fixtures.mjs";
@@ -53,38 +49,6 @@ const queuedTrunkLayout = (fixture) => ({
   integration: join(fixture, "integration"),
 });
 
-// Writes story `letter`'s seed and plan, its state recorded refined, planned,
-// and ready.
-function writeQueuedStory(integration, letter, identity) {
-  const anchor = letter.toLowerCase();
-  const seedPath = `seeds/${letter}.md`;
-  const plan = `# Story ${letter} plan\n\nExecute the selected startup story.\n`;
-  const seed = `---\nid: SEED-${letter}\n---\n\n# Seed ${letter}\n\n<a id="${anchor}"></a>\n\n### Story ${letter}\n\n**Identity:** ${identity}\n\nExecute ${letter}.\n`;
-  const recorded = recordStoryState(
-    seed,
-    {
-      href: `${seedPath}#${anchor}`,
-      identity,
-      refinement: "refined",
-      approach: "planned",
-      plan: `../slice-plans/${letter}/PLAN.md`,
-      assessment: "ready",
-      reasons: [],
-      expectedBasis: computeBasis(seed, plan),
-    },
-    { planSource: plan },
-  );
-  mkdirSync(join(integration, ".planning/seeds"), { recursive: true });
-  mkdirSync(join(integration, `.planning/slice-plans/${letter}`), {
-    recursive: true,
-  });
-  writeFileSync(join(integration, ".planning", seedPath), recorded.source);
-  writeFileSync(
-    join(integration, `.planning/slice-plans/${letter}/PLAN.md`),
-    plan,
-  );
-}
-
 // A bare remote and an integration checkout whose trunk commit queues stories
 // A and B; with `contributing`, it also holds CONTRIBUTING.md and its scripts.
 async function buildQueuedTrunk(
@@ -102,13 +66,7 @@ async function buildQueuedTrunk(
   await git(integration, "config", "user.email", "integration@example.test");
   await git(integration, "remote", "add", "origin", origin);
   writeFileSync(join(integration, "trunk.txt"), "base\n");
-  mkdirSync(join(integration, ".planning"), { recursive: true });
-  writeFileSync(
-    join(integration, ".planning/PRODUCT-BACKLOG.md"),
-    backlogOf([], [storyA, storyB]),
-  );
-  writeQueuedStory(integration, "A", identityA);
-  writeQueuedStory(integration, "B", identityB);
+  writeQueuedStories(integration);
   if (contributing) {
     mkdirSync(join(integration, "scripts"), { recursive: true });
     const marker = (name) =>

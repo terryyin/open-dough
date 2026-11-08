@@ -6,12 +6,15 @@
 // files, which is the boundary the later Git slices will supply from index
 // stages.
 import assert from "node:assert/strict";
+import { makeMe } from "./makeMe.mjs";
 import {
   addedHome,
+  direction,
   projectFile,
   run,
   scratchProject,
 } from "./product-backlog-fixture.mjs";
+import { renderPublishedBacklog } from "./published-backlog.mjs";
 
 // Where one of the three versions is named from, so that everything reading
 // them names the same files as the helper that wrote them.
@@ -43,6 +46,25 @@ export const named = (letter) => `SEED-003#story-${letter.toLowerCase()}`;
 export const item = (letter) =>
   `- [Story ${letter}](seeds/SEED-003-ordering.md#story-${letter.toLowerCase()}) — ${named(letter)}`;
 export const list = (letters) => [...letters].map(item);
+
+const entriesNamed = (letters) =>
+  [...letters].map((letter) =>
+    makeMe.aBacklogEntry
+      .with({
+        identity: named(letter),
+        title: `Story ${letter}`,
+        href: `seeds/SEED-003-ordering.md#story-${letter.toLowerCase()}`,
+      })
+      .please(),
+  );
+
+export function mergeBacklog({ taken = "", queued }) {
+  return renderPublishedBacklog({
+    taken: entriesNamed(taken),
+    queued: entriesNamed(queued),
+    direction,
+  });
+}
 
 // One branch's version of a backlog, made the way a branch really makes one:
 // by running the operations that changed it against its own copy of the

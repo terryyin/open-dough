@@ -3,6 +3,7 @@
 // `history-preserving-publication.mjs integrate`.
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { launch, recordsOf } from "../agentLaunchBoundary.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
@@ -114,13 +115,15 @@ export async function claimedLaunchWithStoryCommit(
   const trunkTip = trunkAdvanced
     ? trunkCommitFromAnotherWriter(origin, "trunk-only.txt", journey.trunkWork)
     : (await origin.originGit("rev-parse", "main")).trim();
-  const command = (publishedTip: string, context: readonly string[]) =>
-    journey.checkQueuedClosures
+  const command = (publishedTip: string, context: readonly string[]) => {
+    const publication = makeMe.aPublishedIntegration
+      .with({ publishedTip, branch, targetRef: "refs/heads/main" })
+      .please();
+    return journey.checkQueuedClosures
       ? checkedIntegrationCommand({
           host,
           workspace,
-          branch,
-          tip: publishedTip,
+          ...publication,
           context,
         })
       : [
@@ -138,15 +141,16 @@ export async function claimedLaunchWithStoryCommit(
           "--workspace",
           workspace,
           "--published-tip",
-          publishedTip,
+          publication.publishedTip,
           "--branch",
-          branch,
+          publication.branch,
           "--target-ref",
-          "refs/heads/main",
+          publication.targetRef,
           ...context,
         ]
           .map(quote)
           .join(" ");
+  };
   const landingContextFlag = ["--landing-context", landingContext];
   // First trunk publication omits --landing-context so an open first-landing
   // expectation supplies the prepared path; explicit context still wins.

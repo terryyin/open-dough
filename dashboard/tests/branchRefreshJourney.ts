@@ -5,12 +5,15 @@
 // asks GitHub through ./originObservation.ts's `readsBesideChecks`.
 
 import type { Page } from "@playwright/test";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   branches,
   onBranch,
   opened,
+  planPath,
   repository,
   stories,
   trunk,
@@ -22,6 +25,36 @@ import {
 
 // Where trunk moves to.
 export const trunkMoved = "d5".repeat(20);
+
+export const sevenDoneOnBranch = makeMe.aSlicePlan
+  .withStatuses([
+    "done",
+    "done",
+    "done",
+    "done",
+    "done",
+    "done",
+    "done",
+    "planned",
+  ])
+  .please();
+
+// A branch revision with a new version of the recorded plan.
+export function branchPlanPublication(
+  revision: string,
+  committedAt: Date,
+  plan: Parameters<typeof renderSlicePlan>[0],
+): PublishedRevision {
+  const path = planPath("on-branch");
+  return {
+    revision,
+    files: {
+      ...trunk.files,
+      [path]: renderSlicePlan(plan, { heading: "Slices" }),
+    },
+    committed: { [path]: committedAt },
+  };
+}
 
 // Opens the page on `published` -- by default the records' trunk and
 // branches -- with the clock paused at the opening time, once every read has

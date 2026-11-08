@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
+import { makeMe } from "./makeMe.mjs";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
   consumer,
-  dependency,
   git,
   readDependencies,
   supplier,
@@ -37,10 +37,12 @@ test("a publication advance is revisited: changed agreements are rejudged and un
   const changed = await updateDependency(
     elsewhere,
     setup.sibling,
-    dependency(supplier, { condition: fractional }),
+    makeMe.aSupplierAgreement
+      .with({ supplier, state: "waiting", condition: fractional })
+      .please(),
   );
   assert.equal(changed.code, 0, changed.stderr);
-  const added = { identity: "SEED-D#d", link: "seeds/D.md#d" };
+  const added = { identity: "SEED-D#d", href: "seeds/D.md#d" };
   writeFileSync(
     join(writer, ".planning/seeds/D.md"),
     '# Seed D\n\n<a id="d"></a>\n\n### Story D\n\n**Identity:** SEED-D#d\n\nConsume the endpoint.\n',
@@ -48,7 +50,7 @@ test("a publication advance is revisited: changed agreements are rejudged and un
   const addedRecord = await updateDependency(
     elsewhere,
     added,
-    dependency(supplier),
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
   );
   assert.equal(addedRecord.code, 0, addedRecord.stderr);
   writeFileSync(

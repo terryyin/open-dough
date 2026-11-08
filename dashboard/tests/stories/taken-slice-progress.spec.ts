@@ -6,6 +6,10 @@
 // everything shown.
 
 import type { Locator } from "@playwright/test";
+import type { PlanSlice } from "../../src/storyPlan.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
+import { renderPublishedPreparation } from "../../../tests/support/story-preparation.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { shortRevision, expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
@@ -40,9 +44,11 @@ const backlog = `# Product backlog
 `;
 
 function storyState(plan: string): string {
-  return `\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"${plan}"}
-\`\`\``;
+  return renderPublishedPreparation(
+    makeMe.aStoryPreparation
+      .with({ refinement: "refined", approach: "planned", plan })
+      .please(),
+  );
 }
 
 const seed = `---
@@ -81,33 +87,32 @@ ${storyState("../slice-plans/090-unreadable/PLAN.md")}
 ${storyState("../slice-plans/090-queued/PLAN.md")}
 `;
 
-function plan(statuses: readonly string[]): string {
-  const slices = statuses
-    .map(
-      (status, index) => `### ${index + 1}. Slice ${index + 1}
+const unreadablePlan = `${renderSlicePlan(
+  makeMe.aSlicePlan.withStatuses(["done"]).please(),
+)}
+### 2. Slice 2
 Type: Behavior
-Status: ${status}
-Proof: A journey observes slice ${index + 1}.
-`,
-    )
-    .join("\n");
-  return `# Plan
+Status: merged into slice 1
+Proof: A journey observes slice 2.
+`;
 
-## Ordered slices
-
-${slices}`;
-}
-
-function publishedAt(revision: string, countedStatuses: readonly string[]) {
+function publishedAt(
+  revision: string,
+  countedStatuses: readonly PlanSlice["status"][],
+) {
   return {
     repository,
     revision,
     files: {
       [backlogPath]: backlog,
       [seedPath]: seed,
-      [countedPlanPath]: plan(countedStatuses),
-      [unreadablePlanPath]: plan(["done", "merged into slice 1"]),
-      [queuedPlanPath]: plan(["done", "planned"]),
+      [countedPlanPath]: renderSlicePlan(
+        makeMe.aSlicePlan.withStatuses(countedStatuses).please(),
+      ),
+      [unreadablePlanPath]: unreadablePlan,
+      [queuedPlanPath]: renderSlicePlan(
+        makeMe.aSlicePlan.withStatuses(["done", "planned"]).please(),
+      ),
     },
   };
 }

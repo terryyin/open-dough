@@ -1,141 +1,187 @@
-// Distinct published records for each catalog project, and the pinned `gh`
-// calls reading them must make, for ./observation/authenticated-project-observation.spec.ts.
+// Published catalog sources and the work each repository holds at its pinned revision.
 
-import { expect } from "./dashboardTest.ts";
-import type { ObservedRequest } from "./publishedOrigin.ts";
-import { agentProfileDirectory } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { posix } from "node:path";
+import type { renderEntry } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+import {
+  identityLine,
+  splitHref,
+} from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import type { PublishedRevision } from "./publishedFiles.ts";
 
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
-const profileDirectory = `.planning/${agentProfileDirectory}`;
+type BacklogEntry = Parameters<typeof renderEntry>[0];
 
-export type Project = {
-  readonly label: string;
-  readonly ref: string;
-  readonly repository: string;
-  readonly revision: string;
-  readonly taken: string;
-  readonly queued: string;
-  readonly direction: string;
-  readonly purpose: string;
-  readonly takenPath: string;
-  readonly queuedPath: string;
-};
+export type CatalogPublication = PublishedSource & PublishedRevision;
 
-function project(
-  label: string,
-  repository: string,
+function publishedAt(
+  source: PublishedSource,
   revision: string,
-  number: number,
-  ref = "main",
-): Project {
-  return {
-    label,
-    ref,
-    repository,
-    revision,
-    taken: `${label}'s own taken story`,
-    queued: `${label}'s own queued story`,
-    direction: `Show ${label}'s own published direction through local gh.`,
-    purpose: `Read ${label}'s queued purpose at its own revision.`,
-    takenPath: `.planning/slice-plans/${String(number)}-taken/PLAN.md`,
-    queuedPath: `.planning/seeds/SEED-${String(number)}-queued.md`,
+  {
+    taken,
+    queued,
+    direction,
+    purpose,
+  }: {
+    taken: BacklogEntry;
+    queued: BacklogEntry;
+    direction: string;
+    purpose: string;
+  },
+): CatalogPublication {
+  const backlogDirectory = posix.dirname(source.backlogPath);
+  const queuedHome = splitHref(queued.href);
+  const files = {
+    [source.backlogPath]: renderPublishedBacklog({
+      taken: [taken],
+      queued: [queued],
+      direction,
+    }),
+    [posix.join(backlogDirectory, taken.href)]: `# Taken story
+
+${identityLine(taken.identity)}
+
+Whole-document correction home without a story-state block.
+`,
+    [posix.join(backlogDirectory, queuedHome.path)]: `# Queued seed
+
+<a id="${queuedHome.anchor}"></a>
+
+### Queued story
+
+${identityLine(queued.identity)}
+
+**Goal:** ${purpose}
+`,
   };
+  const at = makeMe.aPublishedRevision.with({ revision, files }).please();
+  return { ...source, ...at };
 }
 
-// Distinct records and revisions per project, so a rendered view can only
-// come from the project actually selected.
-export const projects: readonly Project[] = [
-  project("Open Dough", "terryyin/open-dough", "0d".repeat(20), 301),
-  project("Doughnut", "nerds-odd-e/doughnut", "d7".repeat(20), 302),
-  project("Pygardon", "terryyin/pygardon", "c1".repeat(20), 303),
-  project(
-    "Terry Talks",
-    "terryyin/terry-talks",
-    "a4".repeat(20),
-    304,
-    "master",
-  ),
-];
+const openDough = publishedAt(
+  makeMe.aPublishedSource
+    .with({
+      id: "open-dough",
+      label: "Open Dough",
+      repository: "terryyin/open-dough",
+      ref: "main",
+    })
+    .please(),
+  "0d".repeat(20),
+  {
+    taken: makeMe.aBacklogEntry
+      .with({
+        title: "Open Dough's own taken story",
+        identity: "slice-plans/301-taken",
+        href: "slice-plans/301-taken/PLAN.md",
+      })
+      .please(),
+    queued: makeMe.aBacklogEntry
+      .with({
+        title: "Open Dough's own queued story",
+        identity: "SEED-301#queued",
+        href: "seeds/SEED-301-queued.md#queued",
+      })
+      .please(),
+    direction: "Show Open Dough's own published direction through local gh.",
+    purpose: "Read Open Dough's queued purpose at its own revision.",
+  },
+);
 
-export function filesOf(published: Project): Record<string, string> {
-  const number = published.takenPath.split("/")[2]?.split("-")[0] ?? "";
-  // A plan-homed correction, listed through its own plan and recording that
-  // plan's own path identity, as the backlog `add` accepts it.
-  const takenIdentity = `slice-plans/${number}-taken`;
-  const backlog = `# Product backlog
+const doughnut = publishedAt(
+  makeMe.aPublishedSource
+    .with({
+      id: "doughnut",
+      label: "Doughnut",
+      repository: "nerds-odd-e/doughnut",
+      ref: "main",
+    })
+    .please(),
+  "d7".repeat(20),
+  {
+    taken: makeMe.aBacklogEntry
+      .with({
+        title: "Doughnut's own taken story",
+        identity: "slice-plans/302-taken",
+        href: "slice-plans/302-taken/PLAN.md",
+      })
+      .please(),
+    queued: makeMe.aBacklogEntry
+      .with({
+        title: "Doughnut's own queued story",
+        identity: "SEED-302#queued",
+        href: "seeds/SEED-302-queued.md#queued",
+      })
+      .please(),
+    direction: "Show Doughnut's own published direction through local gh.",
+    purpose: "Read Doughnut's queued purpose at its own revision.",
+  },
+);
 
-## Near-future direction
+const pygardon = publishedAt(
+  makeMe.aPublishedSource
+    .with({
+      id: "pygardon",
+      label: "Pygardon",
+      repository: "terryyin/pygardon",
+      ref: "main",
+    })
+    .please(),
+  "c1".repeat(20),
+  {
+    taken: makeMe.aBacklogEntry
+      .with({
+        title: "Pygardon's own taken story",
+        identity: "slice-plans/303-taken",
+        href: "slice-plans/303-taken/PLAN.md",
+      })
+      .please(),
+    queued: makeMe.aBacklogEntry
+      .with({
+        title: "Pygardon's own queued story",
+        identity: "SEED-303#queued",
+        href: "seeds/SEED-303-queued.md#queued",
+      })
+      .please(),
+    direction: "Show Pygardon's own published direction through local gh.",
+    purpose: "Read Pygardon's queued purpose at its own revision.",
+  },
+);
 
-${published.direction}
+const terryTalks = publishedAt(
+  makeMe.aPublishedSource
+    .with({
+      id: "terry-talks",
+      label: "Terry Talks",
+      repository: "terryyin/terry-talks",
+      ref: "master",
+    })
+    .please(),
+  "a4".repeat(20),
+  {
+    taken: makeMe.aBacklogEntry
+      .with({
+        title: "Terry Talks's own taken story",
+        identity: "slice-plans/304-taken",
+        href: "slice-plans/304-taken/PLAN.md",
+      })
+      .please(),
+    queued: makeMe.aBacklogEntry
+      .with({
+        title: "Terry Talks's own queued story",
+        identity: "SEED-304#queued",
+        href: "seeds/SEED-304-queued.md#queued",
+      })
+      .please(),
+    direction: "Show Terry Talks's own published direction through local gh.",
+    purpose: "Read Terry Talks's queued purpose at its own revision.",
+  },
+);
 
-## Taken
-
-- [${published.taken}](${takenIdentity}/PLAN.md) — ${takenIdentity}
-
-## Backlog list
-
-- [${published.queued}](seeds/SEED-${number}-queued.md#queued) — SEED-${number}#queued
-`;
-  return {
-    [backlogPath]: backlog,
-    [published.takenPath]: `# Taken story\n\n**Identity:** ${takenIdentity}\n\nWhole-document correction home without a story-state block.\n`,
-    [published.queuedPath]: `# Queued seed\n\n<a id="queued"></a>\n\n### Queued story\n\n**Identity:** SEED-${number}#queued\n\n**Goal:** ${published.purpose}\n`,
-  };
-}
-
-export function publicationOf(published: Project) {
-  return {
-    repository: published.repository,
-    ref: published.ref,
-    revision: published.revision,
-    files: filesOf(published),
-  };
-}
-
-export function expectPinnedGhCalls(
-  calls: readonly ObservedRequest[],
-  published: Project,
-): void {
-  const refResolution = [
-    "api",
-    "--include",
-    `repos/${published.repository}/commits/${published.ref}`,
-    "--jq",
-    ".sha",
-  ];
-  // The ref is resolved before anything is read at its revision.
-  expect(calls[0]?.argv).toEqual(refResolution);
-  // The built preview opens with one read, so every call after the first
-  // reads at the resolved revision.
-  const reads = calls.slice(1);
-  // Files are read raw; the agent profile directory is read as a listing.
-  const contents = reads.map(({ argv, request }) => {
-    expect(argv.slice(0, 4)).toEqual([
-      "api",
-      "--include",
-      "-H",
-      request.kind === "listing"
-        ? "Accept: application/vnd.github+json"
-        : "Accept: application/vnd.github.raw",
-    ]);
-    expect(argv[4]).toMatch(
-      new RegExp(
-        `^repos/${published.repository}/contents/[^?]+\\?ref=${published.revision}$`,
-      ),
-    );
-    return request.kind === "content" || request.kind === "listing"
-      ? request.path
-      : "";
-  });
-  expect([...new Set(contents)].sort()).toEqual(
-    [
-      backlogPath,
-      profileDirectory,
-      // The done-record directory is listed for Recently done.
-      ".planning/done",
-      ".planning/open-dough.json",
-      published.takenPath,
-      published.queuedPath,
-    ].sort(),
-  );
-}
+export const catalogPublications = {
+  openDough,
+  doughnut,
+  pygardon,
+  terryTalks,
+};

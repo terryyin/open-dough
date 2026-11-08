@@ -25,10 +25,10 @@ const seedPath = "seeds/SEED-030-release-notes.md";
 const planPath = "slice-plans/070-order-release-notes/PLAN.md";
 const story = {
   identity: "SEED-030#order-release-notes",
-  link: `${seedPath}#order-release-notes`,
+  href: `${seedPath}#order-release-notes`,
   title: "Order release notes by tag date",
 };
-const storyLine = `- [${story.title}](${story.link}) — ${story.identity}`;
+const storyLine = `- [${story.title}](${story.href}) — ${story.identity}`;
 
 // The completed story stays until its wrap-up; the correction story beside it
 // holds only purpose and scope, and links the plan.
@@ -117,7 +117,7 @@ test("a new correction's story is its one listed work item while its plan keeps 
   assert.equal(state.identity, story.identity);
   assert.deepEqual(state.approach, { kind: "planned", plan: `../${planPath}` });
 
-  const queuedOnce = await run(project, add(story.identity, story.link));
+  const queuedOnce = await run(project, add(story.identity, story.href));
   assert.equal(queuedOnce.code, 0, queuedOnce.stderr);
   assert.equal(project.read(), backlogOf([takenEntry], [storyLine, ...queued]));
 
@@ -125,7 +125,7 @@ test("a new correction's story is its one listed work item while its plan keeps 
   // either identity, lists nothing twice.
   const listed = project.read();
   for (const [identity, link] of [
-    [story.identity, story.link],
+    [story.identity, story.href],
     [planPath, planPath],
     [story.identity, planPath],
   ]) {
@@ -151,7 +151,7 @@ test("a new correction's story is its one listed work item while its plan keeps 
   // its findings, provenance, and proof unchanged.
   const home = readHome(
     readFileSync(join(project.directory, ".planning", seedPath), "utf8"),
-    story.link,
+    story.href,
   );
   assert.equal(home.recorded.identity, story.identity);
   assert.equal(planBytes(project), plan);

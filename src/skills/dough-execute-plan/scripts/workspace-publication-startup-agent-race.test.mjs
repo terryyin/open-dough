@@ -1,5 +1,6 @@
 // How a real startup Take keeps its agent name distinct when a rival publishes
 // a profile while the Take is under way.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -73,12 +74,16 @@ test("a name published between startup's fetches is reselected on the workspace'
   mkdirSync(join(rival, profileDirectory), { recursive: true });
   writeFileSync(
     join(rival, profilePath("Yui")),
-    renderAgentProfile({
-      name: "Yui",
-      identity: identityB,
-      mode: "trunk",
-      branch: "origin/main",
-    }),
+    renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "Yui",
+          identity: identityB,
+          mode: "trunk",
+          branch: "origin/main",
+        })
+        .please(),
+    ),
   );
   await git(rival, "add", profilePath("Yui"));
   await git(rival, "commit", "--quiet", "-m", "hold Yui");

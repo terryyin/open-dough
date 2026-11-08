@@ -2,10 +2,12 @@
 // story edited both on trunk and in the draft. Driven through the real startup
 // CLI against a local bare remote; nothing is written and every draft
 // survives.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import "./workspace-publication-admission-conflict-cases.mjs";
 import { git, lsRemoteSha } from "./publication-test-fixtures.mjs";
 import {
   createQueuedTrunk,
@@ -15,7 +17,6 @@ import {
 import {
   admitArgs,
   pushFromElsewhere,
-  remoteText,
   storySection,
   withFacts,
   writeDraft,
@@ -36,11 +37,15 @@ test("refused admissions write nothing and keep every draft", async (t) => {
     withFacts(`${local}\n${section}`, link, identity, approach, plan);
   const completed = "SEED-A#d";
   const completedPath = ".planning/done/SEED-A_d.json";
-  const completedRecord = renderDoneRecord({
-    identity: completed,
-    title: "Story D before",
-    completedAt: "2026-10-20T08:30:00.000Z",
-  });
+  const completedRecord = renderDoneRecord(
+    makeMe.aDoneRecord
+      .with({
+        identity: completed,
+        title: "Story D before",
+        completedAt: "2026-10-20T08:30:00.000Z",
+      })
+      .please(),
+  );
   // Each row drafts `drafts` (path to text) after an optional trunk `setup`,
   // then starts admission of `id` at `href` with `extra` arguments.
   const cases = [
@@ -219,40 +224,4 @@ test("refused admissions write nothing and keep every draft", async (t) => {
   });
   assert.equal(refused.status, "authority-required");
   assert.equal(existsSync(join(trunk.fixture, "unauthorized")), false);
-});
-
-test("a story edited both on trunk and in the draft stops with both versions intact", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const seedPath = ".planning/seeds/B.md";
-  const identity = "SEED-B#c";
-  const link = "seeds/B.md#c";
-  const original = readFileSync(join(trunk.integration, seedPath), "utf8");
-  const facts = (goal) =>
-    withFacts(
-      `${original}\n${storySection("c", identity, "Story C", goal)}`,
-      link,
-      identity,
-      "unselected",
-    );
-  // The unlisted story is published, then edited on trunk and locally.
-  writeFileSync(join(trunk.integration, seedPath), facts("Deliver C."));
-  await git(trunk.integration, "commit", "-qam", "story c");
-  await git(trunk.integration, "push", "-q", "origin", "main");
-  const tip = await pushFromElsewhere(trunk, seedPath, (text) =>
-    text.replace("Deliver C.", "Deliver C on trunk."),
-  );
-  const draft = facts("Deliver C locally.");
-  writeFileSync(join(trunk.integration, seedPath), draft);
-  const { receipt, workspace } = await startCliResult(
-    trunk,
-    "trunk",
-    admitArgs(identity, link, "Story C"),
-  );
-  assert.equal(receipt.status, "source-conflict", JSON.stringify(receipt));
-  assert.equal(receipt.path, seedPath);
-  assert.equal(existsSync(workspace), false);
-  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip);
-  assert.match(await remoteText(trunk, tip, seedPath), /Deliver C on trunk\./);
-  assert.equal(readFileSync(join(trunk.integration, seedPath), "utf8"), draft);
 });

@@ -9,6 +9,7 @@
 // worktree authorship is written as the files Git keeps it in, which saves
 // one Git process a worktree.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -78,13 +79,17 @@ export function seedReplayProjects(home: string): void {
     );
     writeFileSync(
       profile,
-      renderAgentProfile({
-        name: "Tsubomi",
-        identity: `SEED-001#replay-${id}`,
-        mode: "story-branch",
-        branch: `claude/replay-${id}`,
-        host: "claude",
-      }),
+      renderAgentProfile(
+        makeMe.anAgentProfile
+          .executing({
+            name: "Tsubomi",
+            identity: `SEED-001#replay-${id}`,
+            mode: "story-branch",
+            branch: `claude/replay-${id}`,
+            host: "claude",
+          })
+          .please(),
+      ),
     );
     git(checkout, "init", "--quiet", "--initial-branch=main");
     git(checkout, "config", "extensions.worktreeConfig", "true");

@@ -3,7 +3,7 @@
 #
 # Diagnosis only: runs chosen checks (scripts/test.sh with the given paths, or
 # the whole suite when none) on CI's platform, or with --dashboard CI's
-# dashboard job's commands, unsharded and with CI=true as CI sets it.
+# dashboard type-check and browser suite, unsharded and with CI=true.
 # Neither `npm test` nor CI uses it. It builds a cached image once, mounts this
 # checkout (and a linked worktree's common Git directory) at their host paths,
 # keeps node_modules in a container volume so host modules are neither used
@@ -17,7 +17,7 @@ set -euo pipefail
 readonly ubuntu_version=24.04
 # The bare image needs Chromium's system dependencies; native CI already has
 # them. The image runs this bootstrap as root, pinned to the locked version.
-# The container then runs CI's dashboard checks without the --shard argument;
+# The container then runs CI's dashboard checks without the shard split;
 # tests/ci-container.sh checks the bootstrap and shared checks separately.
 readonly dashboard_install='npx playwright install --with-deps chromium'
 readonly dashboard_steps='npm run typecheck:dashboard

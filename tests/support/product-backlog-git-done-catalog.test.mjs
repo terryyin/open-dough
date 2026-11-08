@@ -2,23 +2,20 @@
 // repositories, real merges through the real adapter CLI, and real
 // history-preserving publication, each leaving a committed catalog that
 // describes the committed record files.
+import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { publishHistoryPreservingCandidate } from "../../src/skills/dough-execute-plan/scripts/history-preserving-publication.mjs";
-import {
-  createCleanTrunkFixture,
-  git as gitAsync,
-  revParse,
-} from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { recordText } from "./product-backlog-done-fixture.mjs";
+import { git } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { backlogOf } from "./product-backlog-fixture.mjs";
+import { divergedDoneBranches } from "./published-done-branches.mjs";
 import {
   assertCatalogDescribes,
   assertCatalogDoneAgrees,
   assertCommittedCatalogCurrent,
-  backlogCommand,
   catalog,
   completeAndCommit,
   completingBranch,
@@ -145,7 +142,16 @@ test("a merge changing no done path leaves the catalog's bytes as they were, eve
   // A record the catalog does not describe, published by hand.
   writeFileSync(
     join(repo.directory, done, "OLD_old.json"),
-    recordText("OLD#old", "Old", "2026-10-01T00:00:00.000Z"),
+    renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          identity: "OLD#old",
+          title: "Old",
+          completedAt: "2026-10-01T00:00:00.000Z",
+          developer: "Ann",
+        })
+        .please(),
+    ),
   );
   repo.git(["add", "-A"]);
   repo.git(["commit", "-q", "-m", "hand-written record"]);
@@ -178,48 +184,7 @@ test("a fast-forward merge adds no commit and rebuilds nothing", async (t) => {
 });
 
 test("history-preserving publication merges a story tip changing only done records through the backlog adapter, publishing a current catalog", async (t) => {
-  const fixture = await createCleanTrunkFixture();
-  t.after(fixture.cleanup);
-  const { origin, integration, execution } = fixture;
-  const git =
-    (directory) =>
-    async (...args) =>
-      (await gitAsync(directory, ...args)).stdout;
-  const writeRecord = (directory, name, time) => {
-    mkdirSync(join(directory, done), { recursive: true });
-    writeFileSync(
-      join(directory, done, `${name}_${name}.json`),
-      recordText(`${name}#${name}`, `Item ${name}`, time),
-    );
-  };
-
-  mkdirSync(join(integration, ".planning"), { recursive: true });
-  writeFileSync(
-    join(integration, ".planning/PRODUCT-BACKLOG.md"),
-    backlogOf([], items("Q")),
-  );
-  writeRecord(integration, "X", "2026-10-01T00:00:00.000Z");
-  await backlogCommand(integration, ["catalog-done"]);
-  await git(integration)("add", "-A");
-  await git(integration)("commit", "-m", "backlog and catalogued record");
-  await git(integration)("push", "origin", "main");
-
-  await git(execution)("rebase", "origin/main");
-  writeRecord(execution, "Y", "2026-10-03T00:00:00.000Z");
-  await backlogCommand(execution, ["catalog-done"]);
-  await git(execution)("add", "-A");
-  await git(execution)("commit", "-m", "story record");
-  const storyTip = await revParse(execution, "HEAD");
-
-  // Another writer publishes a record without rebuilding the catalog.
-  const writer = join(fixture.fixture, "writer");
-  await gitAsync(fixture.fixture, "clone", "-q", origin, writer);
-  await git(writer)("config", "user.name", "Another Writer");
-  await git(writer)("config", "user.email", "another@example.test");
-  writeRecord(writer, "Z", "2026-10-02T00:00:00.000Z");
-  await git(writer)("add", "-A");
-  await git(writer)("commit", "-m", "record without catalog");
-  await git(writer)("push", "origin", "main");
+  const { origin, execution, storyTip } = await divergedDoneBranches(t);
 
   const published = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,
@@ -231,8 +196,8 @@ test("history-preserving publication merges a story tip changing only done recor
   assert.deepEqual(published.adapterStatuses, ["accepted"]);
   const { sha } = published.receipt;
   const publishedCatalog = assertCatalogDescribes(
-    await git(origin)("show", `${sha}:${catalog}`),
-    await git(origin)("ls-tree", `${sha}:${done}`),
+    (await git(origin, "show", `${sha}:${catalog}`)).stdout,
+    (await git(origin, "ls-tree", `${sha}:${done}`)).stdout,
   );
   assert.deepEqual(fileNames(publishedCatalog), [
     "X_X.json",
