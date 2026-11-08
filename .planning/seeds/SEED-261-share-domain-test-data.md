@@ -151,94 +151,36 @@ gain needs measurement.
 Effort is relative. The four conversion blocks are large, with scope and sizing to refine against real
 consumers. No calibrated story effort bands are established.
 
-<a id="map-launch-and-session-test-data"></a>
+<a id="align-kept-launch-store-setup"></a>
 
-### Make kept launch record test setup map directly to the domain
+### Keep one launch store vocabulary and coherent kept records in dashboard tests
 
-**Identity:** SEED-261#map-launch-and-session-test-data
+**Identity:** SEED-261#align-kept-launch-store-setup
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/534-map-launch-and-session-test-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d2ac8d7e6f2df641dc123377b9eba40a3615b6e01783d6d38e1ecbe47dad3fb3","plan":"8f430970eba5ce448ba1ccc3a171f304fd2e2862ea289d2f15e46d595925ecea"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/543-align-kept-launch-store-setup/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9ce295d450793e951fbf3c67c86e844d1f4cea5215164331252f17ba4738e700","plan":"ab0277ad1e6f3b472089a0b84e5b96f5a6544dd767fc130e99d555407b74113d"}}
 ```
+
+Correction of SEED-261#map-launch-and-session-test-data
+(`3e177c0ef59a0d5a4045a0fa167979845324c873:.planning/seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data`).
 
 #### Goal
 
-Maintainers reviewing dashboard tests can see which kept launches a case
-starts from: the story or instruction a launch was requested for, its host
-session, the workspace its start established, and when it was launched, in
-the vocabulary of the persisted `LaunchRecord`. The same kept launch reads the
-same way in frontend, backend, and integrated tests, and a test cannot keep a
-launch the dashboard itself would never record.
+Maintainers reading dashboard tests find the machine launch store written and
+read through one harness owner, with one name for each operation, and no test
+outside the sibling stories' setup keeps a launch the dashboard would never
+record.
 
 #### Scope
 
-- Build every valid kept launch record in the machine launch store through
-  `makeMe.aLaunchRecord`, extending it with the variants its new consumers
-  need. Cover launch history, Recently done, the sessions listing, story
-  cards and side panels, review, configuration and runtime cases that keep
-  records in the store across the three dashboard roots. Move or delete the
-  suite-local record factories this displaces, such as
-  `storyALaunchRecord`, `machineLaunchRecords`, `sharedLaunchRecord`,
-  `sessionsReplay*`, `recentlyDone*` and `localTakenSessions`.
-- Give the harness one owner for keeping records in the machine launch store,
-  writing the store's own document shape for a project or for several, and
-  route the current separate writers through it. The store file and its
-  location stay harness layers, not builder facts.
-- Keep an incoming launch request distinct from the request a record keeps.
-  Remove `launchRequest as LaunchRecord["request"]` style conversions from
-  stored setup; a record states its request through the builder. Keep the
-  record's host and its session's host the same in valid setup: the
-  launch-record session rules no longer wrap a Claude session in a Codex
-  request unless that contradiction is under proof.
-- Keep exact store text, malformed, legacy and retention-boundary records
-  explicit where they are the subject, such as `seedStore` text and the
-  launch-record schema specs. Times that drive retention stay visible at the
-  call site and measured from the server's clock where they are today.
-- Scope limits: launch request bodies sent to start a launch are test actions
-  and stay as they are; only a body reused as a kept record's request
-  changes. Live observation (`LaunchWithState`, `SessionState`, machine
-  answer) and accepted attempts, completion and landing setup, Codex and
-  Cursor continuation and terminal setup, and machine-local project
-  configuration belong to the sibling stories below. In a mixed case, convert
-  the kept record here and leave the other family's setup for its story.
-  Product contracts and UI behavior do not change.
-- Evaluate each converted family against its original cases: the facts that
-  drive each outcome stay visible, assertions catch the same failure, and the
-  shared setup removes a translation or a second model.
-
-#### Key examples
-
-1. Two projects each keep an execution launch of one story, one marked Done
-   yesterday. When the sessions sidebar loads, Recently done lists only the
-   Done one, under its project. The test states both records through
-   `makeMe.aLaunchRecord` and writes them through the one store owner; the
-   expected rows are written independently.
-2. A dashboard server starts with a kept launch shared from the machine store.
-   Its record is built as a recorded execution request with a Claude session,
-   not as the incoming launch body cast to a record, and the server's
-   answer matches that record.
-3. The launch-record session rules accept a Claude session with its alias.
-   The record wrapping it is a Claude record; a case that proves a mismatched
-   host would state that mismatch itself.
-4. The store holds text with an older record shape or an invalid entry. The
-   test still writes those exact bytes, and the dashboard's handling is
-   observed as before.
-
-#### Architecture
-
-Kept launches are machine-local operational evidence under
-[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state);
-the builder returns the persisted `LaunchRecord` shape and the harness writes
-it where a dashboard server reads it, keeping the record (domain fact) and the
-store file (harness) apart, per
-[ADR 0002 §5](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
-Today about nine helpers write `agent-launches.json` themselves, and nine
-suite-local factories build records, most without the builder. This story
-makes `makeMe.aLaunchRecord` the one record constructor and one harness
-function the one store writer, so the sibling stories compose observation,
-completion, landing and host continuations onto the same record instead of
-adding writers. Planning decides whether that writer uses the server's
-[launch record document](../../dashboard/server/launchRecordDocument.ts) or
-the plain document shape; either keeps the bytes the server reads.
+- Tests read the kept store back through its owner instead of building the
+  store file's path, and the forwarders that give the store a second
+  vocabulary go. Exact, malformed and legacy store text stays explicit at the
+  call site. The sibling stories' helpers keep their own setup.
+- The terminal header portrait case keeps a story's execution or refinement
+  record naming its agent, not an ad hoc record given a story's start or
+  preparation.
+- Assertions catch the same failures, and product behavior does not change.
+- Plan: [543-align-kept-launch-store-setup](../slice-plans/543-align-kept-launch-store-setup/PLAN.md)
 
 <a id="map-launch-completion-and-landing-test-data"></a>
 

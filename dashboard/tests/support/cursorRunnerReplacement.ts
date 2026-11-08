@@ -1,12 +1,12 @@
 // Fixtures for stale-runner replacement and last-held revive journeys.
 import { renameSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import type { Page } from "@playwright/test";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { cursorRunnerLastHeldFile } from "../../server/hosts/cursor/runnerPaths.ts";
 import { sessionStateOf } from "../dashboardPage.ts";
 import { agentNotRunningLabel } from "./cursorSessionRecovery.ts";
 import { expect } from "./cursorStart.ts";
+import { keepLaunchStore } from "./launchStore.ts";
 
 export const secondSessionId = "b2c3d4e5-f6a7-489a-bcde-f0123456789a";
 export const thirdSessionId = "c3d4e5f6-a7b8-49ab-8def-0123456789ab";
@@ -24,12 +24,7 @@ export function writeKeptRecords(
   home: string,
   records: readonly LaunchRecord[],
 ): void {
-  replaceJson(
-    path.join(home, ".open-dough", "dashboard", "agent-launches.json"),
-    {
-      "open-dough": records,
-    },
-  );
+  keepLaunchStore(home, { "open-dough": records }, { atomically: true });
 }
 
 export function writeLastHeld(

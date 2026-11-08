@@ -48,7 +48,7 @@ test("the inspection group sits below the launch group, wraps in reading order, 
   origin,
 }) => {
   const { workspace } = unchangedWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const action = inspectionGroup(card).getByRole("button", {
     name: "Review changes",

@@ -27,7 +27,7 @@ test("each file's row shows the lines its diff adds and removes, in words to ass
 }) => {
   const { workspace } = storyWorktree(origin);
   changeModeOnly(workspace);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
   const review = page.getByRole("region", { name: "Story review" });

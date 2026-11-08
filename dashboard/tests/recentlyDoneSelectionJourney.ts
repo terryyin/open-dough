@@ -29,7 +29,7 @@ import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import type { tapWhereShown } from "./pageLayout.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { keepProjectLaunchRecords } from "./support/storyLaunchRecord.ts";
+import { keepLaunchStore } from "./support/launchStore.ts";
 
 const minute = 60_000;
 
@@ -139,7 +139,7 @@ function newerIn(
   });
 }
 
-export async function keepSelectionSessions(
+export function keepSelectionSessions(
   dashboard: DashboardServer,
   now: number,
   newer: NewerSessions = {},
@@ -153,7 +153,7 @@ export async function keepSelectionSessions(
       startedAt: now - 90 * minute,
     }),
   });
-  await keepProjectLaunchRecords(dashboard, {
+  keepLaunchStore(dashboard, {
     pygardon: [
       makeMe.aLaunchRecord
         .executing({ ...linked, source: "pygardon" })
@@ -221,7 +221,7 @@ export async function openSelectionPage(
   if (tap === undefined)
     await page.setViewportSize({ width: 1600, height: 900 });
   await publishSelectionProjects(page, now, unreadableLinkedRecord);
-  await keepSelectionSessions(dashboard, now, newer);
+  keepSelectionSessions(dashboard, now, newer);
   await openUntilRead(page, address);
   const shown = recentlyDoneParts(page);
   if (tap === undefined) await shown.button.click();

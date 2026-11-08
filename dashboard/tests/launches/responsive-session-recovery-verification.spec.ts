@@ -9,6 +9,7 @@
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { attempts } from "../agentLaunchBoundary.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { policyOf, type LaunchRecord } from "../../src/agentLaunch.ts";
 import type { StartRecord } from "../../server/startStore.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
@@ -22,6 +23,7 @@ import {
 } from "../responsiveRecovery.ts";
 import { openStories, test } from "../responsiveStart.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
+import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 3_000 });
 
@@ -38,41 +40,38 @@ test("Recheck trusts the start's own record after its kept start was removed, ev
       timeout: 60_000,
     })
     .toBe("uncertain");
-  const [uncertain] = await attempts(dashboard);
   const [listed] = dashboard.claudeListing();
   expect(listed).toBeDefined();
+  // The session as the synthetic `claude` lists it.
+  const { sessionId, id: shortId } = listed as {
+    sessionId: string;
+    id: string;
+  };
   const startsFile = path.join(
     dashboard.home,
     ".open-dough/dashboard/execution-starts.json",
   );
   const starts = JSON.parse(readFileSync(startsFile, "utf8")) as Record<
     string,
-    Record<string, { start: unknown }>
+    Record<string, StartRecord>
   >;
   const kept = starts["open-dough"]?.[queuedIdentity];
   expect(kept?.start).toBeDefined();
-  const file = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/agent-launches.json",
-  );
-  const stored = JSON.stringify({
+  // State left when keeping the launch and removing its start succeeded,
+  // but noting the attempt's launched outcome failed: Story A's execution in
+  // the listed session, launched now, with the start this machine kept.
+  const stored = keepLaunchStore(dashboard, {
     "open-dough": [
       {
-        request: uncertain?.request,
-        session: {
-          host: "claude",
-          sessionId: listed?.sessionId,
-          shortId: listed?.id,
-          name: listed?.name,
-        },
+        ...makeMe.aLaunchRecord
+          .executing({ identity: queuedIdentity, title: "Story A" })
+          .inClaudeSession({ sessionId, shortId })
+          .launchedAt(new Date().toISOString())
+          .please(),
         start: kept?.start,
-        launchedAt: new Date().toISOString(),
       },
     ],
   });
-  // State left when keeping the launch and removing its start succeeded,
-  // but noting the attempt's launched outcome failed.
-  writeFileSync(file, stored);
   writeFileSync(startsFile, JSON.stringify({ "open-dough": {} }));
   const verificationListings = () =>
     dashboard
@@ -100,7 +99,7 @@ test("Recheck trusts the start's own record after its kept start was removed, ev
     session: { host: "claude", sessionId: listed?.sessionId },
   });
   expect(verificationListings()).toEqual(before);
-  expect(readFileSync(file, "utf8")).toBe(stored);
+  expect(readFileSync(launchStoreFile(dashboard), "utf8")).toBe(stored);
   expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
 });
 

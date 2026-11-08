@@ -27,7 +27,7 @@ test.describe("diff context expansion", () => {
     origin,
   }) => {
     const { workspace } = expandContextWorktree(origin);
-    await keepLaunchRecord(dashboard, workspace);
+    keepLaunchRecord(dashboard, workspace);
     const card = await openBacklog(page, origin);
     const {
       review,

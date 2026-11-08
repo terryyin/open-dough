@@ -1,6 +1,6 @@
 // Setup and admission for a working Cursor terminal client. The boundary
 // spec drives detach, join, and server shutdown against these helpers.
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect } from "@playwright/test";
@@ -17,6 +17,7 @@ import type { CursorTerminal } from "./cursorTerminal.ts";
 import type { RawResponse } from "./rawHttp.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { processRunning } from "./processGroup.ts";
+import { changeLaunchStore } from "./launchStore.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 
 // The boundary server a Cursor test starts around its fake `cursor-agent`:
@@ -47,20 +48,12 @@ export function rewriteKeptCursor(
   home: string,
   change: (record: LaunchRecord) => LaunchRecord,
 ): void {
-  const recordsFile = path.join(
-    home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-  const kept = JSON.parse(readFileSync(recordsFile, "utf8")) as Record<
-    string,
-    LaunchRecord[]
-  >;
-  const [record] = kept["open-dough"] ?? [];
-  if (record === undefined) throw new Error("No Cursor session recorded.");
-  kept["open-dough"] = [change(record)];
-  writeFileSync(recordsFile, JSON.stringify(kept));
+  changeLaunchStore(home, (kept) => {
+    const [record] = kept["open-dough"] ?? [];
+    if (record === undefined || !("session" in record))
+      throw new Error("No Cursor session recorded.");
+    return { ...kept, "open-dough": [change(record)] };
+  });
 }
 
 export function codexResumeLog(server: DashboardServer): string {

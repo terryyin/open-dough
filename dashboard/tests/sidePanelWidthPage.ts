@@ -15,10 +15,8 @@ import { openBacklog } from "./support/sessionDialog.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { listed } from "./support/sidePanelContents.ts";
 import { storyWorktree } from "./support/storyReviewWorktree.ts";
-import {
-  keepLaunchRecords,
-  storyALaunchRecord,
-} from "./support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "./support/launchStore.ts";
+import { storyALaunchRecord } from "./support/storyLaunchRecord.ts";
 
 export const wideWindow = { width: 1440, height: 900 };
 // Neither side is narrower than this, in CSS px (20rem).
@@ -196,7 +194,7 @@ export async function storyAWithSession(
     cwd: workspace,
     startedAt: Date.now(),
   });
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     storyALaunchRecord(workspace, listed(session)),
   ]);
   await page.setViewportSize(wideWindow);

@@ -91,7 +91,7 @@ test("an unusable local captured run falls back to published completion while it
   origin,
 }) => {
   const story = await completedPublishedStory(origin);
-  await keepUnusableCompletedCapture(dashboard, origin, story);
+  keepUnusableCompletedCapture(dashboard, origin, story);
   const review = storyReviewSchema.parse(
     await (
       await get(request, dashboard, storyReviewEndpoint, completed)
@@ -121,7 +121,7 @@ test("an unreadable workspace preserves active captured gaps and completed revie
   const story = await completedPublishedStory(origin, "trunk", "missing-agent");
   const workspace = `${origin.machine}/unreadable-workspace`;
   mkdirSync(workspace);
-  await keepUnusableCompletedCapture(dashboard, origin, {
+  keepUnusableCompletedCapture(dashboard, origin, {
     ...story,
     workspace,
   });

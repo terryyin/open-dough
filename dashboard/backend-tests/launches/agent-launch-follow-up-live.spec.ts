@@ -6,7 +6,7 @@ import { accept, attempts } from "../../tests/agentLaunchBoundary.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
 import { followUpOf } from "../../tests/support/followUpSources.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
-import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import { reported, request } from "./followUpBoundaryCases.ts";
 
 test.use({ serverMode: "boundary" });
@@ -22,7 +22,7 @@ test("repeating a follow-up active on another server answers with the running at
   });
   try {
     const source = reported(dashboard.home);
-    await keepLaunchRecords(dashboard, [source]);
+    keepLaunchRecords(dashboard, [source]);
     const followUp = {
       ...request,
       instruction: "Check the cache again",
@@ -38,7 +38,7 @@ test("repeating a follow-up active on another server answers with the running at
     expect(await attempts(other)).toEqual([
       expect.objectContaining({ id: started.id, owned: false, running: true }),
     ]);
-    await keepLaunchRecords(dashboard, []);
+    keepLaunchRecords(dashboard, []);
 
     const repeated = await accept(other, followUp);
     expect(repeated.status, repeated.body).toBe(200);

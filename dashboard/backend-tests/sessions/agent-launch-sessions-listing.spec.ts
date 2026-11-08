@@ -36,7 +36,7 @@ import {
   withoutRetainedDetail,
 } from "../../tests/support/retainedDetail.ts";
 import { askSessions } from "../../tests/support/sessionsReplayMeasures.ts";
-import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 
 const entriesOf = (body: string) =>
   new Map(
@@ -163,7 +163,7 @@ test("lists open and Done follow-ups by source and restores the Done context fro
     const done = followUp("done-follow-up")
       .markedDoneAt(now.toISOString())
       .please();
-    await keepLaunchRecords(server, [source, open, done]);
+    keepLaunchRecords(server, [source, open, done]);
 
     const overview = await askSessions(server);
     const listed = launchRecordsSchema.parse(JSON.parse(overview.body)).records;

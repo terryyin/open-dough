@@ -44,7 +44,7 @@ test("all changes lists a Trunk Mode story's published changes beside its unpubl
 }) => {
   const { workspace, trunk } = trunkModeStory(origin, { published: 2 });
   expect(git(workspace, "rev-parse", "HEAD")).toBe(trunk);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
   const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -140,7 +140,7 @@ test("a Trunk Mode story with nothing published since its claim is reviewed agai
 }) => {
   const { workspace, trunk } = trunkModeStory(origin, { published: 0 });
   commitUnpublished(workspace);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
   const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);

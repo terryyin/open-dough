@@ -1,4 +1,5 @@
 import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { renameSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
@@ -22,7 +23,7 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../launchStoryCardPage.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
@@ -56,19 +57,15 @@ test("one Taken story with two sessions and one local session means two entries;
     queued: id(queuedTitle, placed.queuedLaunched),
     adHoc: id("Open Dough session", placed.adHocLaunched),
   });
-  if (!story || !local || story.session.host !== "claude")
-    throw new Error("Missing raw sessions");
+  if (!story || !local) throw new Error("Missing raw sessions");
   const secondId = id(queuedTitle, placed.executedOpenSessionLaunched);
-  await keepLaunchRecords(dashboard, [
-    {
-      ...story,
-      session: {
-        ...story.session,
-        sessionId: secondId,
-        shortId: secondId.slice(0, 8),
-      },
-      launchedAt: at(now, placed.executedOpenSessionLaunched),
-    },
+  keepLaunchRecords(dashboard, [
+    // The queued story's second execution, launched later.
+    makeMe.aLaunchRecord
+      .executing({ identity: queuedIdentity, title: queuedTitle })
+      .inClaudeSession({ sessionId: secondId })
+      .launchedAt(at(now, placed.executedOpenSessionLaunched))
+      .please(),
     story,
     local,
   ]);

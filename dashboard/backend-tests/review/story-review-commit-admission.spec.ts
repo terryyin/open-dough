@@ -21,7 +21,7 @@ test("a range admits only exact story and object IDs and confirms the repository
   origin,
 }) => {
   const { workspace, merged } = admissionWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const tree = git(workspace, "rev-parse", "HEAD^{tree}");
   const query = {
     source: "open-dough",
@@ -66,7 +66,7 @@ test("integration evidence requires an exact array of object points whose object
   origin,
 }) => {
   const { workspace, merged } = admissionWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const tree = git(workspace, "rev-parse", "HEAD^{tree}");
   const integration = {
     fromTree: git(workspace, "rev-parse", "HEAD^1^{tree}"),

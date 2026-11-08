@@ -1,5 +1,5 @@
 // Saved predecessor preconditions and passive-protocol assertions, shared by Codex observation journeys.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { appendedRecords } from "./appendedRecords.ts";
 import { expect } from "../dashboardTest.ts";
@@ -12,6 +12,7 @@ import type {
 import { machineSessions } from "../agentLaunchBoundary.ts";
 import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
+import { keepLaunchStore } from "./launchStore.ts";
 import { rawRequest } from "./rawHttp.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { RawRequestOptions, RawResponse } from "./rawHttp.ts";
@@ -52,12 +53,7 @@ export function saveObservations(
   server: Pick<DashboardServer, "home">,
   records: LaunchRecord[],
 ) {
-  const folder = path.join(server.home, ".open-dough", "dashboard");
-  mkdirSync(folder, { recursive: true });
-  writeFileSync(
-    path.join(folder, "agent-launches.json"),
-    JSON.stringify({ "open-dough": records }),
-  );
+  keepLaunchStore(server, { "open-dough": records });
 }
 export async function observationStates(
   server: DashboardServer,

@@ -27,7 +27,7 @@ test("a story's changed files show by name under their folders", async ({
   origin,
 }) => {
   const { workspace } = nestedWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
   const review = page.getByRole("region", { name: "Story review" });

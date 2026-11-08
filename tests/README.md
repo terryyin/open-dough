@@ -119,6 +119,17 @@ place with `materializeLocalCheckout`'s `at`. `release-source.mjs --add
 the source.
 [Release](support/releaseTestData.mjs) · [Helper](support/release-source.mjs)
 
+Build a kept launch with `makeMe.aLaunchRecord`: the requested story or
+instruction, the host session (the request takes the session's host), the
+workspace its start established, and when it was launched. Dashboard tests keep
+such records in the machine launch store only through
+`dashboard/tests/support/launchStore.ts`, which writes the store's own
+`{ [project]: records }` document under the machine home without retention;
+the file and its location stay harness facts. Exact store text under proof
+goes through `keepLaunchStoreText`.
+[Builder](support/launchTestData.mjs) ·
+[Launch store harness](../dashboard/tests/support/launchStore.ts)
+
 When a case needs another agent's claim only as a starting fact, declare it
 with `takeRevision`: the agent authors it and the developer commits it under
 `Take queued work: <identity>`, so claim readers find it as they find a real

@@ -9,7 +9,8 @@
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   at,
   executed,
@@ -41,26 +42,18 @@ test("Select story and empty-area clicks toggle the selected story on active and
 }) => {
   const now = Date.now();
   // Done ad-hoc + this card's session only, so backlog Start stays clickable.
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     ...sessionsOutsideDoneStories(dashboard, now, { adHoc: true }).filter(
       (record) => record.request.workflow === "ad-hoc",
     ),
-    {
-      request: {
-        source: "open-dough",
-        workflow: "execution" as const,
-        host: "claude" as const,
-        ...executed,
-      },
-      session: {
-        host: "claude" as const,
+    makeMe.aLaunchRecord
+      .executing(executed)
+      .inClaudeSession({
         sessionId: "0e5c2d7a-done-session-of-card-shows-avatar",
-        shortId: "0e5c2d7a",
-        name: executed.title,
-      },
-      launchedAt: at(now, placed.executedDoneSessionLaunched),
-      doneAt: at(now, placed.executedDoneSessionMarked),
-    },
+      })
+      .launchedAt(at(now, placed.executedDoneSessionLaunched))
+      .markedDoneAt(at(now, placed.executedDoneSessionMarked))
+      .please(),
   ]);
   await publishFiles(page, {
     repository,

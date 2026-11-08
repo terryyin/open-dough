@@ -32,7 +32,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   origin,
 }) => {
   const { workspace, merged } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const action = card.getByRole("button", { name: "Review changes" });
   await action.click();

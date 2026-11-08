@@ -32,7 +32,7 @@ import {
 } from "../pageLayout.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { doneRecordFiles, executed } from "../recentlyDoneRecords.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
 
 const phoneWholeTextCut = [".owner-mark", ...compactProjectSelectCut] as const;
@@ -133,23 +133,12 @@ test.describe("touch reading", () => {
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const title = "Queue trunk integration for agents on the same machine";
-    await keepLaunchRecords(dashboard, [
-      {
-        request: {
-          source: "open-dough",
-          identity: "SEED-008#same-machine-merge-queue",
-          title,
-          workflow: "execution",
-          host: "claude",
-        },
-        session: {
-          host: "claude",
-          sessionId: "aaaaaaaa-0000-4000-8000-000000000001",
-          shortId: "aaaaaaaa",
-          name: title,
-        },
-        launchedAt: new Date().toISOString(),
-      },
+    keepLaunchRecords(dashboard, [
+      makeMe.aLaunchRecord
+        .executing({ identity: "SEED-008#same-machine-merge-queue", title })
+        .inClaudeSession({ sessionId: "aaaaaaaa-0000-4000-8000-000000000001" })
+        .launchedAt(new Date().toISOString())
+        .please(),
     ]);
     await publishOrigin(page, {
       ref: commitAnswer(revision),

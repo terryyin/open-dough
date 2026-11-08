@@ -2,7 +2,9 @@
 import { readFileSync } from "node:fs";
 import { test, expect } from "../support/codexLaunch.ts";
 import { launch } from "../agentLaunchBoundary.ts";
-import { seedStore, storeFile } from "../machineLaunchRecords.ts";
+import { machineHome, seedStore, storeFile } from "../machineLaunchRecords.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
+import type { CreationRecord } from "../../src/launchCreation.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import {
   agentLaunchEndpoint,
@@ -55,7 +57,7 @@ test("a saved creation whose host lacks recovery stays visible with unavailable 
   launchJourney,
 }) => {
   if (machine === undefined) throw new Error("Missing machine fixture.");
-  const record = {
+  const record: CreationRecord = {
     request: {
       source: "open-dough",
       host: "claude",
@@ -69,7 +71,9 @@ test("a saved creation whose host lacks recovery stays visible with unavailable 
     },
     launchedAt: "2026-10-01T00:00:00.000Z",
   };
-  seedStore(machine, JSON.stringify({ "open-dough": [record] }));
+  keepLaunchStore(machineHome(machine), {
+    "open-dough": [record],
+  });
   const reply = await rawRequest({
     url: `${dashboard.baseURL}${agentLaunchEndpoint}`,
     headers: { Origin: dashboard.origin },

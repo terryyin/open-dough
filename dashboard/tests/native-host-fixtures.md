@@ -109,8 +109,8 @@ with those three sessions, and in the attention Taken case Doughnut's, already
 open (`openWithOpenSessions`, `storyCardOpenSessions.ts`): before the page's
 first read, the fake `claude` lists each session (`claudeListsSession`) and
 every project's matching MakeMe launch record, under the same native ID, is
-kept in one store write (`keepProjectLaunchRecords`,
-`support/storyLaunchRecord.ts`). The production records reader joins them, so
+kept in one store write (`keepLaunchStore`,
+`support/launchStore.ts`). The production records reader joins them, so
 listing failure and recovery, and a server restarted on the same machine,
 stay real; these cases send no Start request and launch nothing. Each card
 concern has one owner:
@@ -144,4 +144,3 @@ Delete record is walked by `agent-launch-delete.spec.ts` (the boundary),
 (a card entry, and what refusals and failures leave), and
 `agent-launch-recent-delete.spec.ts` and
 `agent-launch-recent-delete-unavailable.spec.ts` (a Recently done entry).
-

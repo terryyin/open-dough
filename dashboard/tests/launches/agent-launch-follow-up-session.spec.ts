@@ -32,7 +32,7 @@ import {
   retiredTitle,
 } from "../support/followUpSources.ts";
 import { radio } from "../support/sessionDialog.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -65,7 +65,7 @@ test("a Done session whose workspace is gone offers Read final report and Follow
   launchJourney,
 }) => {
   const source = reported(dashboard.home);
-  await keepLaunchRecords(dashboard, [source]);
+  keepLaunchRecords(dashboard, [source]);
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, launchJourney);
   const entry = entryOf(page, retiredTitle);
@@ -142,7 +142,7 @@ test("a Done session that still opens its terminal offers no Follow up until its
   launchJourney,
 }) => {
   const sessionId = listed(dashboard, Date.now(), quietTitle, 10 * 60_000);
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     quietSession(sessionId, new Date(Date.now() - 120_000)),
   ]);
   await openTakenBacklog(page, launchJourney);

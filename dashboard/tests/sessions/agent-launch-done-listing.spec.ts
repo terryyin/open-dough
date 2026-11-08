@@ -24,7 +24,7 @@ import { pausePageClockAt } from "../dashboardTest.ts";
 import { givePageItsTurns } from "../pageRequestNotes.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
-import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import { showPage } from "../runningCursorSessionsPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
@@ -156,7 +156,7 @@ test("retained sessions listed by their listing facts show as the full answer sh
   const retained = retainedSessions(dashboard);
   const message = retained[1]?.completion?.message ?? "";
   expect(message).not.toBe("");
-  await keepProjectLaunchRecords(dashboard, { "open-dough": retained });
+  keepLaunchStore(dashboard, { "open-dough": retained });
   await pausePageClockAt(page, new Date(opened));
   await showPage(page, origin);
   const listed = await shownRetained(page);

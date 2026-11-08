@@ -34,7 +34,7 @@ test("a marked story's review lists only the files changed since the review, eac
   origin,
 }) => {
   const { workspace } = twelveFileWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const marked = await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -71,7 +71,7 @@ test("a file written after the snapshot and before the mark is listed since the 
   origin,
 }) => {
   const { workspace } = twelveFileWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -94,7 +94,7 @@ test("marking while the changes since the review are shown marks the whole snaps
   origin,
 }) => {
   const { workspace } = twelveFileWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -126,7 +126,7 @@ test("a mark whose tree the repository does not hold is said, all changes are sh
   origin,
 }) => {
   const { workspace } = twelveFileWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);

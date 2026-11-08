@@ -14,7 +14,8 @@ import { expect, test as cursorTest } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
-import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "./support/launchStore.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export const instruction = "hold this session";
 
@@ -141,10 +142,7 @@ export const crowd = 30;
 export const listFloor = 8 * 16;
 
 // Many saved sessions beside the held one, for the session list to overflow.
-export async function keepCrowd(
-  dashboard: DashboardServer,
-  held: LaunchRecord,
-) {
+export function keepCrowd(dashboard: DashboardServer, held: LaunchRecord) {
   const now = Date.now();
   const saved = Array.from(Array(crowd).keys(), (index): LaunchRecord => {
     const name = `Crowded session ${String(index + 1)}`;
@@ -154,23 +152,13 @@ export async function keepCrowd(
       cwd: dashboard.home,
       startedAt: Date.parse(launchedAt),
     });
-    return {
-      request: {
-        source: "open-dough",
-        workflow: "ad-hoc",
-        title: name,
-        host: "claude",
-      },
-      session: {
-        host: "claude",
-        sessionId,
-        shortId: sessionId.slice(0, 8),
-        name,
-      },
-      launchedAt,
-    };
+    return makeMe.aLaunchRecord
+      .adHoc({ title: name })
+      .inClaudeSession({ sessionId })
+      .launchedAt(launchedAt)
+      .please();
   });
-  await keepLaunchRecords(dashboard, [held, ...saved]);
+  keepLaunchRecords(dashboard, [held, ...saved]);
 }
 
 // The runner answers with as many held sessions, for its list to overflow.

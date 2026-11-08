@@ -18,7 +18,7 @@ import {
   isolatedSession,
   worktree,
 } from "../../tests/support/startSessionLanding.ts";
-import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import {
   answerOf,
   expectFollowUpInput,
@@ -37,7 +37,7 @@ test("Default main · Wait for review sends the context, then the request, then 
   origin,
 }) => {
   const source = reported(dashboard.home);
-  await keepLaunchRecords(dashboard, [source, quiet]);
+  keepLaunchRecords(dashboard, [source, quiet]);
   dashboard.claudeScenario("launched");
   const text = "Is it still slow?";
 
@@ -72,7 +72,7 @@ test("Default main · Wait for review sends the context, then the request, then 
 test("a blank follow-up on Default main sends the context and the reporting context, labelled by its launch time", async ({
   dashboard,
 }) => {
-  await keepLaunchRecords(dashboard, [quiet]);
+  keepLaunchRecords(dashboard, [quiet]);
   dashboard.claudeScenario("launched");
 
   const launched = await answerOf(
@@ -100,7 +100,7 @@ test("Isolated workspace sends its block and the reporting context, then the con
   origin,
 }) => {
   const source = reported(dashboard.home);
-  await keepLaunchRecords(dashboard, [source]);
+  keepLaunchRecords(dashboard, [source]);
   dashboard.claudeScenario("launched");
   const text = "Check the nightly build too";
   const slug = "check-the-nightly-build-too";
@@ -139,7 +139,7 @@ test("a final report longer than the instruction field's limit is sent whole bes
     .completedWith({ message: long })
     .markedDoneAt(new Date().toISOString())
     .please();
-  await keepLaunchRecords(dashboard, [source]);
+  keepLaunchRecords(dashboard, [source]);
   dashboard.claudeScenario("launched");
   const text = "q".repeat(4_000);
 

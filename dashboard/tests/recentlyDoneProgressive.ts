@@ -12,7 +12,7 @@ import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scrip
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { standaloneSessionName } from "./dashboardPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "./support/launchStore.ts";
 import { publishedFiles, repository } from "./recentlyDoneRecords.ts";
 
 export { repository };
@@ -105,7 +105,7 @@ export function publishedWithCatalog(
 // They are the sessions of the project `source`, which the synthetic `claude`
 // lists under `checkout`: the first project and the machine's home unless
 // given.
-export async function keepProgressiveSessions(
+export function keepProgressiveSessions(
   dashboard: DashboardServer,
   now: number,
   entries: readonly ProgressiveEntry[],
@@ -122,55 +122,40 @@ export async function keepProgressiveSessions(
     readonly checkout?: string;
   } = {},
 ) {
-  const listed = (name: string, launchedAt: string) => {
-    const sessionId = dashboard.claudeListsSession({
+  // A `claude` session the synthetic `claude` lists by this name, started
+  // when its launch was.
+  const listed = (name: string, launchedAt: string) => ({
+    sessionId: dashboard.claudeListsSession({
       name,
       cwd: checkout,
       startedAt: Date.parse(launchedAt),
-    });
-    return {
-      host: "claude" as const,
-      sessionId,
-      shortId: sessionId.slice(0, 8),
-      name,
-    };
-  };
+    }),
+  });
   const doneAt = new Date(now - 10 * 60_000).toISOString();
   const records: LaunchRecord[] = entries.flatMap((entry): LaunchRecord[] => {
     if (entry.kind === "session") {
       const launchedAt = placedAt(now, entry.place);
-      return [
-        {
-          request: {
-            source,
-            workflow: "ad-hoc",
-            title: entry.title,
-            host: "claude",
-          },
-          session: listed(entry.title, launchedAt),
-          launchedAt,
-          ...(open.includes(entry.place) ? {} : { doneAt }),
-        },
-      ];
+      const session = makeMe.aLaunchRecord
+        .adHoc({ title: entry.title, source })
+        .inClaudeSession(listed(entry.title, launchedAt))
+        .launchedAt(launchedAt);
+      if (!open.includes(entry.place)) session.markedDoneAt(doneAt);
+      return [session.please()];
     }
     if (entry.place !== nestedIn) return [];
-    return (["refinement", "execution", "execution"] as const).map(
-      (workflow, index) => {
-        const launchedAt = placedAt(now, 60 + index);
-        return {
-          request: {
-            source,
-            identity: entry.identity,
-            title: entry.title,
-            workflow,
-            host: "claude",
-          },
-          session: listed(entry.title, launchedAt),
-          launchedAt,
-          doneAt,
-        };
-      },
-    );
+    const story = { identity: entry.identity, title: entry.title, source };
+    return [
+      makeMe.aLaunchRecord.refining(story),
+      makeMe.aLaunchRecord.executing(story),
+      makeMe.aLaunchRecord.executing(story),
+    ].map((launch, index) => {
+      const launchedAt = placedAt(now, 60 + index);
+      return launch
+        .inClaudeSession(listed(entry.title, launchedAt))
+        .launchedAt(launchedAt)
+        .markedDoneAt(doneAt)
+        .please();
+    });
   });
-  await keepLaunchRecords(dashboard, [...records, ...also], source);
+  keepLaunchRecords(dashboard, [...records, ...also], source);
 }

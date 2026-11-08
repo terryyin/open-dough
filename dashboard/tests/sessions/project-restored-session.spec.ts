@@ -11,7 +11,8 @@ import {
   passive,
   daemonStarts,
 } from "../support/codexObservation.ts";
-import { seedStore, storeFile } from "../machineLaunchRecords.ts";
+import { machineHome, storeFile } from "../machineLaunchRecords.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import { machineSessions } from "../agentLaunchBoundary.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 
@@ -30,7 +31,7 @@ test("adding an initially unconfigured retained Codex project prepares its passi
       source: "sample-app",
       workspace: fixture.checkout,
     });
-    seedStore(fixture.machine, JSON.stringify({ "sample-app": [record] }));
+    keepLaunchStore(machineHome(fixture.machine), { "sample-app": [record] });
     const bytes = readFileSync(storeFile(fixture.machine), "utf8");
     observed(native, "retained-sample", { type: "notLoaded" }, "completed");
     const server = await fixture.start("preview", undefined, native);

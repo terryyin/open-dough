@@ -31,7 +31,7 @@ import {
   git,
   isolatedSession,
 } from "../../tests/support/startSessionLanding.ts";
-import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import {
   answerOf,
   expectFollowUpInput,
@@ -77,7 +77,7 @@ test("a done story followed up with Codex on Isolated workspace · Wait for revi
     }),
   );
   const kept = quietStorySessions(dashboard.home, recoverStory, new Date());
-  await keepLaunchRecords(dashboard, kept);
+  keepLaunchRecords(dashboard, kept);
   const text = "Paste still drops the last line on iPad; investigate.";
   const context = storyContextOf(recoverStory, completedAt, "quiet sessions");
 
@@ -129,7 +129,7 @@ test("Continue after Codex refused and the source record is gone rebuilds the in
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
   const source = reported(dashboard.home);
-  await keepLaunchRecords(dashboard, [source]);
+  keepLaunchRecords(dashboard, [source]);
   const text = "Continue";
   const trunk = await originMain(origin);
   native.refuseCreation = true;
@@ -144,7 +144,7 @@ test("Continue after Codex refused and the source record is gone rebuilds the in
   expect(refused.kind, JSON.stringify(refused)).toBe("failed");
   expect(inputsOf(native)).toEqual([]);
   const [failed] = await attempts(dashboard);
-  await keepLaunchRecords(dashboard, []);
+  keepLaunchRecords(dashboard, []);
 
   native.refuseCreation = false;
   const launched = await answerOf(continued(dashboard, failed?.id ?? ""));
@@ -177,7 +177,7 @@ test("repeating a follow-up with only its pending Codex input kept recovers the 
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
   const source = reported(dashboard.home);
-  await keepLaunchRecords(dashboard, [source]);
+  keepLaunchRecords(dashboard, [source]);
   const followUp = {
     ...codex,
     instruction: "Check the cache again",
@@ -189,7 +189,7 @@ test("repeating a follow-up with only its pending Codex input kept recovers the 
   if (kept === undefined) throw new Error("Missing saved conversation");
   expect(kept.firstInput).toMatchObject({ state: "awaiting" });
   expect(await attempts(dashboard)).toHaveLength(1);
-  await keepLaunchRecords(dashboard, [kept]);
+  keepLaunchRecords(dashboard, [kept]);
   await rm(
     path.join(dashboard.home, ".open-dough/dashboard/launch-attempts.json"),
   );

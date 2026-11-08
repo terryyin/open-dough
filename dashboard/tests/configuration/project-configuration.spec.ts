@@ -16,12 +16,10 @@ import {
 } from "../support/dashboardServer.ts";
 import { everyRepository, publishes } from "../support/fakeGitHub.ts";
 import { rawRequest } from "../support/rawHttp.ts";
-import {
-  recordLaunchedDaysAgo,
-  seedStore,
-  storeFile,
-} from "../machineLaunchRecords.ts";
-import { title } from "../agentLaunchBoundary.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { daysAgo, machineHome, storeFile } from "../machineLaunchRecords.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
+import { identity, title } from "../agentLaunchBoundary.ts";
 import { settings } from "../support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "../frameIconControl.ts";
 import {
@@ -31,7 +29,6 @@ import {
 } from "../support/projectConfiguration.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { describedBacklog } from "../describedRevisions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const backlog = describedBacklog(makeMe.aRepository.please());
 const published = publishes({ revision: "ab".repeat(20), backlog });
@@ -74,12 +71,15 @@ async function start(mode: "dev" | "preview"): Promise<DashboardServer> {
 test("production seeds its four projects and shows a previously saved session", async ({
   page,
 }) => {
-  seedStore(
-    machine,
-    JSON.stringify({
-      "open-dough": [recordLaunchedDaysAgo(1, "01234567-previous-session")],
-    }),
-  );
+  keepLaunchStore(machineHome(machine), {
+    "open-dough": [
+      makeMe.aLaunchRecord
+        .executing({ identity, title })
+        .inClaudeSession({ sessionId: "01234567-previous-session" })
+        .launchedAt(daysAgo(1))
+        .please(),
+    ],
+  });
   const records = readFileSync(storeFile(machine));
   const server = await start("preview");
   await openUntilRead(page, server.baseURL);

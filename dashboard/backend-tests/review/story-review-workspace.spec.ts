@@ -9,6 +9,7 @@
 // answered together as an ambiguity, whose explanation names them, and none
 // at all leaves the story with nothing to review.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { LocalWorkspace } from "../../src/localWorkspace.ts";
@@ -17,50 +18,29 @@ import {
   severalWorktreesExplanation,
 } from "../../src/storyReviewWorkspace.ts";
 
-const established = (workspace: string) => ({
-  identity: "SEED-A#a",
-  workspace,
-  branch: "claude/story-a",
-  remote: "origin",
-  target: "main",
-});
-
+// Story A's launch by `workflow` in the `open-dough` project, unless another
+// story or project is named, launched at `launchedAt`; its start or
+// preparation is stated by the case.
 function launched(
   launchedAt: string,
-  facts: Pick<LaunchRecord, "start" | "preparation">,
-  request: Partial<Extract<LaunchRecord["request"], { identity: string }>> = {},
-): LaunchRecord {
-  return {
-    request: {
-      source: "open-dough",
-      identity: "SEED-A#a",
-      title: "Story A",
-      workflow: "execution",
-      host: "claude",
-      ...request,
-    },
-    session: {
-      host: "claude",
-      sessionId: `session-${launchedAt}`,
-      shortId: "story-a",
-      name: "Story A",
-    },
-    ...facts,
-    launchedAt,
-  };
+  {
+    workflow = "execution",
+    identity = "SEED-A#a",
+    source = "open-dough",
+  }: {
+    workflow?: "execution" | "refinement";
+    identity?: string;
+    source?: string;
+  } = {},
+) {
+  return makeMe.aLaunchRecord
+    .ofWorkflow(workflow, { identity, title: "Story A", source })
+    .inClaudeSession({ sessionId: `session-${launchedAt}`, shortId: "story-a" })
+    .launchedAt(launchedAt);
 }
 
-const started = (workspace: string) => ({
-  start: {
-    ...established(workspace),
-    publisherId: "a1b2c3",
-    mode: "story-branch" as const,
-    publishedSha: "b2".repeat(20),
-  },
-});
-const prepared = (workspace: string) => ({
-  preparation: established(workspace),
-});
+// The story branch a start or preparation established in `workspace`.
+const on = (workspace: string) => ({ workspace, branch: "claude/story-a" });
 
 const found = (
   workspace: string,
@@ -93,24 +73,28 @@ function workspaceOf(
 test("the most recent launch by launchedAt is reviewed, whatever order the records are kept in", () => {
   expect(
     workspaceOf([
-      launched("2026-10-02T09:00:00.000Z", started("/later")),
-      launched("2026-10-01T09:00:00.000Z", started("/earlier")),
+      launched("2026-10-02T09:00:00.000Z").onStoryBranch(on("/later")).please(),
+      launched("2026-10-01T09:00:00.000Z")
+        .onStoryBranch(on("/earlier"))
+        .please(),
     ]),
   ).toBe("/later");
   expect(
     workspaceOf([
-      launched("2026-10-01T09:00:00.000Z", started("/earlier")),
-      launched("2026-10-02T09:00:00.000Z", started("/later")),
+      launched("2026-10-01T09:00:00.000Z")
+        .onStoryBranch(on("/earlier"))
+        .please(),
+      launched("2026-10-02T09:00:00.000Z").onStoryBranch(on("/later")).please(),
     ]),
   ).toBe("/later");
 });
 
 test("a preparation's workspace counts like a start's", () => {
   const records = [
-    launched("2026-10-01T09:00:00.000Z", started("/started")),
-    launched("2026-10-02T09:00:00.000Z", prepared("/prepared"), {
-      workflow: "refinement",
-    }),
+    launched("2026-10-01T09:00:00.000Z").onStoryBranch(on("/started")).please(),
+    launched("2026-10-02T09:00:00.000Z", { workflow: "refinement" })
+      .onStoryBranch(on("/prepared"))
+      .please(),
   ];
   expect(
     reviewWorkspaceOf(records, [], "open-dough", "SEED-A#a"),
@@ -124,20 +108,22 @@ test("a preparation's workspace counts like a start's", () => {
 test("records naming no workspace, another identity, or another project are passed over", () => {
   expect(
     workspaceOf([
-      launched("2026-10-01T09:00:00.000Z", started("/reviewed")),
-      launched("2026-10-04T09:00:00.000Z", {}),
-      launched("2026-10-05T09:00:00.000Z", started("/other-story"), {
-        identity: "SEED-B#b",
-      }),
-      launched("2026-10-06T09:00:00.000Z", started("/other-project"), {
-        source: "elsewhere",
-      }),
+      launched("2026-10-01T09:00:00.000Z")
+        .onStoryBranch(on("/reviewed"))
+        .please(),
+      launched("2026-10-04T09:00:00.000Z").please(),
+      launched("2026-10-05T09:00:00.000Z", { identity: "SEED-B#b" })
+        .onStoryBranch(on("/other-story"))
+        .please(),
+      launched("2026-10-06T09:00:00.000Z", { source: "elsewhere" })
+        .onStoryBranch(on("/other-project"))
+        .please(),
     ]),
   ).toBe("/reviewed");
 });
 
 test("a story with no launch record naming a workspace has nothing to review", () => {
-  expect(workspaceOf([launched("2026-10-01T09:00:00.000Z", {})])).toBe(
+  expect(workspaceOf([launched("2026-10-01T09:00:00.000Z").please()])).toBe(
     undefined,
   );
   expect(workspaceOf([])).toBe(undefined);
@@ -150,7 +136,7 @@ test("without a launch workspace, the one worktree found holding the story's cla
   const holding = found("~/git/open-dough/.worktrees/trunk-a");
   expect(
     reviewWorkspaceOf(
-      [launched("2026-10-01T09:00:00.000Z", {})],
+      [launched("2026-10-01T09:00:00.000Z").please()],
       [
         found("/other-story", { identity: "SEED-B#b" }),
         holding,
@@ -166,7 +152,11 @@ test("without a launch workspace, the one worktree found holding the story's cla
 });
 
 test("a kept launch workspace keeps precedence over a found worktree", () => {
-  const records = [launched("2026-10-01T09:00:00.000Z", started("/launched"))];
+  const records = [
+    launched("2026-10-01T09:00:00.000Z")
+      .onStoryBranch(on("/launched"))
+      .please(),
+  ];
   expect(workspaceOf(records, [found("/found")])).toBe("/launched");
   expect(
     reviewWorkspaceOf(records, [found("/found")], "open-dough", "SEED-A#a")
@@ -176,9 +166,9 @@ test("a kept launch workspace keeps precedence over a found worktree", () => {
   expect(
     workspaceOf(
       [
-        launched("2026-10-02T09:00:00.000Z", prepared("/prepared"), {
-          workflow: "refinement",
-        }),
+        launched("2026-10-02T09:00:00.000Z", { workflow: "refinement" })
+          .onStoryBranch(on("/prepared"))
+          .please(),
       ],
       [found("/one"), found("/another")],
     ),
@@ -191,7 +181,7 @@ test("several found worktrees holding the story's claim are not chosen between: 
     found("~/git/open-dough/.worktrees/trunk-a"),
   ];
   const reviewed = reviewWorkspaceOf(
-    [launched("2026-10-01T09:00:00.000Z", {})],
+    [launched("2026-10-01T09:00:00.000Z").please()],
     [found("/other-story", { identity: "SEED-B#b" }), ...holding],
     "open-dough",
     "SEED-A#a",

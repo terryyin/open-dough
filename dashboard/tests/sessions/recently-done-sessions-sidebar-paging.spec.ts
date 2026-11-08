@@ -25,7 +25,7 @@ import {
   recentlyDoneParts,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
-import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import { wheelToEnd } from "../runningCursorSessionsPage.ts";
 import { holdSessionReads, watchRecordReads } from "../sessionStatePace.ts";
 import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
@@ -47,7 +47,7 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   const now = opened.getTime();
   const { titles, byProject, records } = fortyFiveDoneSessions(now);
   await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
-  await keepProjectLaunchRecords(dashboard, byProject);
+  keepLaunchStore(dashboard, byProject);
   await showThreeProjectPage(page, origin);
   const shown = recentlyDoneParts(page);
   await shown.button.click();
@@ -173,7 +173,7 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     }
     await shown.entry(removedTitle).focus();
     await expect(shown.entry(removedTitle)).toBeFocused();
-    await keepProjectLaunchRecords(dashboard, nextByProject);
+    keepLaunchStore(dashboard, nextByProject);
     await passOnePace();
 
     const shownTitles = await titlesOf();
@@ -212,7 +212,7 @@ test("delayed first session read and a failed refresh keep existing read semanti
   const { byProject, titles } = fortyFiveDoneSessions(opened.getTime());
   await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
   const { answer } = await holdSessionReads(page);
-  await keepProjectLaunchRecords(dashboard, byProject);
+  keepLaunchStore(dashboard, byProject);
   await showThreeProjectPage(page, origin);
   const shown = recentlyDoneParts(page);
   await shown.button.click();
@@ -234,7 +234,7 @@ test("delayed first session read and a failed refresh keep existing read semanti
         : route.continue());
     },
   );
-  await keepProjectLaunchRecords(dashboard, {
+  keepLaunchStore(dashboard, {
     "open-dough": [],
     doughnut: [],
     pygardon: [],

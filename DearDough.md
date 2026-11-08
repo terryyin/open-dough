@@ -261,6 +261,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Guarded fresh delivery returned `operation: formatting` with ESLint `no-unused-vars` on an unused `_` in an `Array.from({ length }, (_, index) => ...)` callback, in `tests/support/product-backlog-identity-evidence-fixture.mjs` (slice 3) and `tests/support/dashboard-later-trunk-fixture.mjs` (slice 5), after focused proof and refactor passes that ran only a read-only Prettier check.
   - Observed effect: Two withheld deliveries; the same `[...Array(n).keys()].map(...)` rewrite and a focused rerun cleared each.
   - Inference: Third execution with this exact diagnostic in one day; implementation briefs that forbid hook-owned lint leave this class to the delivery gate.
+- Execution: SEED-261#map-launch-and-session-test-data (plan 534-map-launch-and-session-test-data; first related implementation commit `681a9d6f8a9d16fd03cc5879984bb255abba4bdc`)
+  - Timestamp: unknown (slice 1 delivery on 2026-11-08, before `681a9d6f8` at 2026-11-08T23:34:13+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `e75b693ab`)
+  - Evidence: Slice 1's first guarded fresh delivery returned `operation: formatting`: the formatter's ESLint fix removed an unnecessary `as KeptLaunch` assertion in `dashboard/tests/terminals/agent-terminal-avatar.spec.ts`, then `no-unused-vars` failed on the now-unused `type KeptLaunch` import. Implementation and refactor briefs forbade hook-owned lint; both ran typecheck and Prettier only. In slice 4 the refactor pass found Prettier and `no-unnecessary-type-parameters` failures the implementer returned, because that brief allowed `npx eslint` on touched files.
+  - Observed effect: One withheld delivery; removing the import cleared it and the retry published `681a9d6f8`. Slices 2–4, whose refactor briefs allowed ESLint on touched files, delivered first time.
+  - Inference: Same class as the earlier rows; letting the refactor pass run ESLint read-only on touched files moved the catch before delivery.
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 

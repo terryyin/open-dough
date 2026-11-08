@@ -19,7 +19,7 @@ import { pausePageClockAt } from "../dashboardTest.ts";
 import { givePageItsTurns } from "../pageRequestNotes.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
-import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import { showPage } from "../runningCursorSessionsPage.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
 import { expect, test } from "../support/cursorStart.ts";
@@ -76,7 +76,7 @@ async function showRetained(
   const opened = new Date("2026-10-28T10:00:00.000Z");
   await pausePageClockAt(page, opened);
   const { passOnePace } = await watchRecordReads(page);
-  await keepProjectLaunchRecords(dashboard, { "open-dough": records });
+  keepLaunchStore(dashboard, { "open-dough": records });
   const { asked, codings } = historyReads(page);
   await showPage(page, origin);
   const onBoard = (title: string) =>
@@ -129,7 +129,7 @@ test("one history read per opening, none while nothing retained is opened, and a
 
   await test.step("a moved history is read again only at the next opening", async () => {
     const second = retained(dashboard, now, "Second retained session");
-    await keepProjectLaunchRecords(dashboard, {
+    keepLaunchStore(dashboard, {
       "open-dough": [first, second],
     });
     await passOnePace();

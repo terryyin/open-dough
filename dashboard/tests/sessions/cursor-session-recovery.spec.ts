@@ -4,8 +4,6 @@ import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // idle composer with confirmed first input, and cases that type nothing or
 // withhold Recover. Keep-wait expiry, cannot-load replacement, and
 // sessions a replaced runner held live in sibling specs.
-import { writeFileSync } from "node:fs";
-import path from "node:path";
 import { cursorRunnerSentence } from "../../src/cursorRunnerSessions.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
@@ -28,6 +26,7 @@ import {
   startCursorExecution,
 } from "../support/cursorSessionRecovery.ts";
 import { expect, test } from "../support/cursorStart.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 
@@ -134,26 +133,18 @@ test("Recover with unconfirmed first input types nothing", async ({
   await openTakenCursorSession(page, origin);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
-  writeFileSync(
-    path.join(
-      dashboard.home,
-      ".open-dough",
-      "dashboard",
-      "agent-launches.json",
-    ),
-    JSON.stringify({
-      "open-dough": [
-        {
-          ...record,
-          firstInput: {
-            state: "uncertain",
-            instruction: "inspect this session",
-            explanation: "not confirmed",
-          },
+  keepLaunchStore(dashboard, {
+    "open-dough": [
+      {
+        ...record,
+        firstInput: {
+          state: "uncertain",
+          instruction: "inspect this session",
+          explanation: "not confirmed",
         },
-      ],
-    }),
-  );
+      },
+    ],
+  });
   await endHeldClient(page, cursor, dashboard.home);
   await page.reload();
   const entry = parts(page).taken.locator(".session-entry");
@@ -174,39 +165,27 @@ test("done and completed sessions offer no Recover", async ({
   await endHeldClient(page, cursor, dashboard.home);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
-  const file = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-  writeFileSync(
-    file,
-    JSON.stringify({
-      "open-dough": [
-        { ...record, doneAt: new Date(Date.now() - 60_000).toISOString() },
-      ],
-    }),
-  );
+  keepLaunchStore(dashboard, {
+    "open-dough": [
+      { ...record, doneAt: new Date(Date.now() - 60_000).toISOString() },
+    ],
+  });
   await reloadUntilRead(page);
   let entry = parts(page).recentlyDone.locator(".session-entry");
   await expect(entry).toHaveCount(1);
   await expect(entry.getByRole("button", { name: "Recover" })).toHaveCount(0);
 
-  writeFileSync(
-    file,
-    JSON.stringify({
-      "open-dough": [
-        {
-          ...record,
-          completion: completionReport({
-            outcome: "completed",
-            message: "Finished with attention",
-          }),
-        },
-      ],
-    }),
-  );
+  keepLaunchStore(dashboard, {
+    "open-dough": [
+      {
+        ...record,
+        completion: completionReport({
+          outcome: "completed",
+          message: "Finished with attention",
+        }),
+      },
+    ],
+  });
   await reloadUntilRead(page);
   entry = parts(page).taken.locator(".session-entry");
   await expect(entry).toHaveCount(1);

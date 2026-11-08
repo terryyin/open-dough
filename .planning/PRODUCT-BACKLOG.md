@@ -28,12 +28,12 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Make kept launch record test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data) — SEED-261#map-launch-and-session-test-data ([plan](slice-plans/534-map-launch-and-session-test-data/PLAN.md))
 - [Make launch completion and landing test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-completion-and-landing-test-data) — SEED-261#map-launch-completion-and-landing-test-data ([plan](slice-plans/538-map-launch-completion-and-landing-test-data/PLAN.md))
 - [Make Codex and Cursor session test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-host-continuation-test-data) — SEED-261#map-host-continuation-test-data ([plan](slice-plans/539-map-host-continuation-test-data/PLAN.md))
 
 ## Backlog list
 
+- [Keep one launch store vocabulary and coherent kept records in dashboard tests](seeds/SEED-261-share-domain-test-data.md#align-kept-launch-store-setup) — SEED-261#align-kept-launch-store-setup
 - [Read done records for the catalog through one product rule](seeds/SEED-262-faster-dashboard-test-feedback.md#share-done-catalog-record-reading) — SEED-262#share-done-catalog-record-reading
 - [Guard native fixture identity inputs against drift](seeds/SEED-262-faster-dashboard-test-feedback.md#guard-native-fixture-identity-inputs) — SEED-262#guard-native-fixture-identity-inputs
 - [Align story tab cost records, Taken heading, and wording](seeds/SEED-275-story-intent-tabs.md#align-story-tabs-records) — SEED-275#align-story-tabs-records

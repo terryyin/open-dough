@@ -1,6 +1,6 @@
 // Actual HTTP/store/WS/PTY: substitute CLI supplies only native startup/transport output.
 // The dashboard starts as a deployment's does; resume runs in the developer's shell environment.
-import { writeFileSync, readFileSync, realpathSync } from "node:fs";
+import { realpathSync } from "node:fs";
 import path from "node:path";
 import {
   test as base,
@@ -35,6 +35,7 @@ import {
 } from "../../tests/support/launchEnvironment.ts";
 
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import { changeLaunchStore } from "../../tests/support/launchStore.ts";
 const test = base.extend({
   dashboard: async ({ github, machine, codexProtocol }, use) => {
     const start = deploymentLikeStart(path.join(machine ?? "", "deployment"));
@@ -161,33 +162,25 @@ test.describe(`Codex native terminal boundary`, () => {
   }) => {
     if (native === undefined) throw new Error("Missing native fixture");
     await launch(dashboard, { ...refinementRequest, host: "codex" });
-    const file = path.join(
-      dashboard.home,
-      ".open-dough",
-      "dashboard",
-      "agent-launches.json",
-    );
-    const state = JSON.parse(readFileSync(file, "utf8")) as Record<
-      string,
-      unknown[]
-    >;
     const record = stored(dashboard.home)[0];
     if (record === undefined) throw new Error("Missing saved record");
     const doneAt = new Date(Date.now() - 60_000).toISOString();
-    state["open-dough"] = [
-      { ...record, doneAt },
-      {
-        ...record,
-        session: {
-          host: "claude",
-          sessionId: native.threadId,
-          shortId: "another-host",
-          name: "same ID",
+    changeLaunchStore(dashboard, (state) => ({
+      ...state,
+      "open-dough": [
+        { ...record, doneAt },
+        {
+          ...record,
+          session: {
+            host: "claude",
+            sessionId: native.threadId,
+            shortId: "another-host",
+            name: "same ID",
+          },
+          doneAt,
         },
-        doneAt,
-      },
-    ];
-    writeFileSync(file, JSON.stringify(state));
+      ],
+    }));
     codexTerminalMode(native, "fail");
     const failed = await openCodexTerminal(dashboard, native.threadId);
     expect(await failed.closed).toBe(1011);

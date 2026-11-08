@@ -1,7 +1,14 @@
 // @ts-check
 import { launchOutcomeFacts } from "./launchOutcomeTestData.mjs";
+import { requestFacts } from "./launchRequestTestData.mjs";
 import {
-  isolatedWorkspaceFacts,
+  claudeSession,
+  codexSession,
+  cursorSession,
+} from "./launchSessionTestData.mjs";
+import {
+  establishedSessionFacts,
+  requestedPolicy,
   storyBranchFacts,
 } from "./launchWorkspaceTestData.mjs";
 
@@ -11,58 +18,55 @@ import {
  * @typedef {import("../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord
  */
 
-/**
- * What a story launch's request states: the project, the story, and its
- * title as the card shows it.
- * @typedef {{ identity: string, title: string, source?: string }} StoryFacts
- */
-
-/**
- * What an ad hoc launch's request states: the project, the instruction it
- * started with, and the title kept for it.
- * @typedef {{ instruction: string, title: string, source?: string, followUp?: import("../../dashboard/src/followUpRequest.ts").FollowUp }} AdHocFacts
- */
+/** @typedef {import("./launchRequestTestData.mjs").StoryFacts} StoryFacts */
+/** @typedef {import("./launchRequestTestData.mjs").AdHocFacts} AdHocFacts */
 
 // The kept launch of one story's execution or refinement, or of an ad hoc
-// session: its request, its host session, and, for an execution or a
-// refinement that established one, the story branch
-// (`./launchWorkspaceTestData.mjs`). Without `.onStoryBranch(...)` the
-// record keeps no established start or preparation. The session defaults to
-// a `claude` one named after the title, the start's claim to fixed published
-// facts, and the launch time to a fixed instant.
+// session: its request (`./launchRequestTestData.mjs`), its host session
+// (`./launchSessionTestData.mjs`), and the workspace its start established
+// (`./launchWorkspaceTestData.mjs`): a story branch, an ad hoc session's
+// isolated workspace, or its place in the default checkout. Without one the
+// record keeps no established start, preparation or session. The session
+// defaults to a `claude` one named after the title, the start's claim to
+// fixed published facts, and the launch time to a fixed instant.
 export class LaunchRecordBuilder {
-  /** @type {(Required<StoryFacts> & { workflow: "execution" | "refinement" }) | (AdHocFacts & { source: string, workflow: "ad-hoc" }) | undefined} */
+  /** @type {import("./launchRequestTestData.mjs").Requested | undefined} */
   #requested;
-  /** @type {{ workspace: string, branch: string } | undefined} */
+  /** @type {import("./launchWorkspaceTestData.mjs").StoryBranch | undefined} */
   #storyBranch;
-  /** @type {((name: string) => LaunchRecord["session"]) | undefined} */
+  /** @type {import("./launchSessionTestData.mjs").NamedSession | undefined} */
   #session;
   #launchedAt = "2026-01-01T00:00:00.000Z";
   /** @type {LaunchRecord["firstInput"]} */
   #firstInput;
-  /** @type {{ workspace: string, branch: string } | undefined} */
-  #isolated;
+  /** @type {import("./launchWorkspaceTestData.mjs").AdHocWorkspace | undefined} */
+  #adHocWorkspace;
   /** @type {LaunchOutcome} */
   #outcome = {};
+  /** @type {NonNullable<LaunchRecord["request"]["reporting"]> | undefined} */
+  #reporting;
+  /** @type {LaunchRecord["request"]["model"]} */
+  #model;
 
   /**
-   * An execution launch of the story, in the `open-dough` project unless
-   * stated.
+   * A launch of the story by this workflow, in the `open-dough` project
+   * unless stated.
+   * @param {"execution" | "refinement"} workflow
    * @param {StoryFacts} facts
    */
-  executing({ identity, title, source = "open-dough" }) {
-    this.#requested = { identity, title, source, workflow: "execution" };
+  ofWorkflow(workflow, { identity, title, source = "open-dough" }) {
+    this.#requested = { identity, title, source, workflow };
     return this;
   }
 
-  /**
-   * A refinement launch of the story, in the `open-dough` project unless
-   * stated.
-   * @param {StoryFacts} facts
-   */
-  refining({ identity, title, source = "open-dough" }) {
-    this.#requested = { identity, title, source, workflow: "refinement" };
-    return this;
+  /** @param {StoryFacts} facts an execution launch of the story */
+  executing(facts) {
+    return this.ofWorkflow("execution", facts);
+  }
+
+  /** @param {StoryFacts} facts a refinement launch of the story */
+  refining(facts) {
+    return this.ofWorkflow("refinement", facts);
   }
 
   /**
@@ -72,7 +76,7 @@ export class LaunchRecordBuilder {
    */
   adHoc({ instruction, title, source = "open-dough", followUp }) {
     this.#requested = {
-      instruction,
+      ...(instruction !== undefined && { instruction }),
       title,
       source,
       ...(followUp && { followUp }),
@@ -83,54 +87,49 @@ export class LaunchRecordBuilder {
 
   /**
    * The execution's start, or the refinement's preparation, established the
-   * story's worktree on its story branch.
-   * @param {{ workspace: string, branch: string }} storyBranch
+   * story's worktree on its story branch; an execution's claim may also name
+   * its agent, its plan and the revision it started from, and a refinement's
+   * preparation its agent and the revision that published its announcement.
+   * @param {import("./launchWorkspaceTestData.mjs").StoryBranch} storyBranch
    */
-  onStoryBranch({ workspace, branch }) {
-    this.#storyBranch = { workspace, branch };
+  onStoryBranch(storyBranch) {
+    this.#storyBranch = storyBranch;
     return this;
   }
 
   /**
-   * A `claude` session, by its ID and short ID, which is otherwise the ID's
-   * first eight characters.
-   * @param {{ sessionId: string, shortId?: string }} session
+   * The session reports its completion through this reporting context.
+   * @param {NonNullable<LaunchRecord["request"]["reporting"]>} reporting
    */
-  inClaudeSession({ sessionId, shortId = sessionId.slice(0, 8) }) {
-    this.#session = (name) => ({ host: "claude", sessionId, shortId, name });
+  reportingThrough(reporting) {
+    this.#reporting = reporting;
     return this;
   }
 
   /**
-   * A Codex thread and where it continues: the saved workspace and the
-   * app-server endpoint.
-   * @param {{ sessionId: string, continuation: { workspace: string, endpoint: string, args?: string[] } }} session
+   * The launch asked its host for this model.
+   * @param {NonNullable<LaunchRecord["request"]["model"]>} model
    */
-  inCodexSession({
-    sessionId,
-    continuation: { workspace, endpoint, args = [] },
-  }) {
-    this.#session = (name) => ({
-      host: "codex",
-      sessionId,
-      name,
-      continuation: { workspace, endpoint, args },
-    });
+  requestingModel(model) {
+    this.#model = model;
     return this;
   }
 
-  /**
-   * A Cursor session and where it continues: the saved workspace and the
-   * `cursor-agent` arguments.
-   * @param {{ sessionId: string, continuation: { workspace: string, args?: string[] } }} session
-   */
-  inCursorSession({ sessionId, continuation: { workspace, args = [] } }) {
-    this.#session = (name) => ({
-      host: "cursor",
-      sessionId,
-      name,
-      continuation: { workspace, args },
-    });
+  /** @param {Parameters<typeof claudeSession>[0]} session a `claude` session */
+  inClaudeSession(session) {
+    this.#session = claudeSession(session);
+    return this;
+  }
+
+  /** @param {Parameters<typeof codexSession>[0]} session a Codex thread */
+  inCodexSession(session) {
+    this.#session = codexSession(session);
+    return this;
+  }
+
+  /** @param {Parameters<typeof cursorSession>[0]} session a Cursor session */
+  inCursorSession(session) {
+    this.#session = cursorSession(session);
     return this;
   }
 
@@ -152,7 +151,23 @@ export class LaunchRecordBuilder {
    * @param {{ workspace: string, branch: string }} isolated
    */
   inIsolatedWorkspace({ workspace, branch }) {
-    this.#isolated = { workspace, branch };
+    this.#adHocWorkspace = { role: "isolated", workspace, branch };
+    return this;
+  }
+
+  /**
+   * The ad hoc launch's start established its session in the project's
+   * default checkout `workspace` on `main` at `revision`, also the trunk it
+   * fetched, landing as the developer chose.
+   * @param {{ workspace: string, landing: "auto-land" | "review", revision: string }} defaultCheckout
+   */
+  inDefaultCheckout({ workspace, landing, revision }) {
+    this.#adHocWorkspace = {
+      role: "default-checkout",
+      workspace,
+      landing,
+      revision,
+    };
     return this;
   }
 
@@ -176,11 +191,17 @@ export class LaunchRecordBuilder {
   }
 
   /**
-   * The developer marked the session Done at this time.
+   * The developer marked the session Done at this time; `problem` is what a
+   * native operation of that mark could not finish, kept beside it.
    * @param {string} at an ISO date-time
+   * @param {{ problem?: string }} [native]
    */
-  markedDoneAt(at) {
-    this.#outcome = { ...this.#outcome, doneAt: at };
+  markedDoneAt(at, { problem } = {}) {
+    this.#outcome = {
+      ...this.#outcome,
+      doneAt: at,
+      ...(problem !== undefined && { doneProblem: problem }),
+    };
     return this;
   }
 
@@ -196,53 +217,33 @@ export class LaunchRecordBuilder {
       throw new Error(
         "only a story's start or preparation establishes a story branch",
       );
-    const isolated = this.#isolated;
-    if (isolated && requested.workflow !== "ad-hoc")
-      throw new Error("only an ad hoc start establishes an isolated workspace");
+    const adHocWorkspace = this.#adHocWorkspace;
+    if (adHocWorkspace && requested.workflow !== "ad-hoc")
+      throw new Error(
+        "only an ad hoc start establishes its session's workspace",
+      );
     const slug = requested.title.toLowerCase().replaceAll(/\s+/g, "-");
-    const session = this.#session
-      ? this.#session(requested.title)
-      : {
-          host: /** @type {const} */ ("claude"),
-          sessionId: `${slug}-session`,
-          shortId: slug,
-          name: requested.title,
-        };
+    const session = (
+      this.#session ??
+      claudeSession({ sessionId: `${slug}-session`, shortId: slug })
+    )(requested.title);
     const launchFacts = {
       launchedAt: this.#launchedAt,
       ...(this.#firstInput && { firstInput: this.#firstInput }),
       ...launchOutcomeFacts(this.#outcome, this.#launchedAt),
     };
-    if (requested.workflow === "ad-hoc")
-      return {
-        request: {
-          source: requested.source,
-          host: session.host,
-          workflow: requested.workflow,
-          title: requested.title,
-          instruction: requested.instruction,
-          ...(requested.followUp && { followUp: requested.followUp }),
-          ...(isolated && {
-            policy: {
-              workspace: /** @type {const} */ ("isolated"),
-              landing: /** @type {const} */ ("review"),
-            },
-          }),
-        },
-        session,
-        ...isolatedWorkspaceFacts(isolated),
-        ...launchFacts,
-      };
+    const requestField = requestFacts(requested, {
+      host: session.host,
+      model: this.#model,
+      reporting: this.#reporting,
+      policy: requestedPolicy(adHocWorkspace),
+    });
     return {
-      request: {
-        source: requested.source,
-        identity: requested.identity,
-        title: requested.title,
-        workflow: requested.workflow,
-        host: session.host,
-      },
+      ...requestField,
       session,
-      ...storyBranchFacts(requested, storyBranch),
+      ...(requested.workflow === "ad-hoc"
+        ? establishedSessionFacts(adHocWorkspace)
+        : storyBranchFacts(requested, storyBranch)),
       ...launchFacts,
     };
   }
