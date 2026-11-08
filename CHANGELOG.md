@@ -1,3 +1,16 @@
+## 0.3.91 - 2026-11-08
+
+- Custom CI adapters can answer an optional `jobs` request for the selected attempt. Intent uses the longest job dependency chain to show CI time without runner waits alongside wall time in story comparisons. It explains unavailable or invalid timing while preserving the selected attempt's wall time and proof.
+- Intent reads complete CI proof summaries up to 1 MiB from GitHub Actions and custom adapters, and shows a clear size error for larger answers. The collector still writes the complete report.
+- Feature story wrap-up requests an Intent Coverage assessment and keeps the returned report or the reason it was unavailable in the done record. The dashboard shows it in the expanded completed-story summary.
+- The dashboard uses compact source icons in CI comparison Build cells, improves CI Summary sorting and labels, and avoids redundant session listing reads for the Board. Dashboard tests prepare artifacts on demand and tighten fixture cleanup and synchronization.
+
+The Promoted payload updates 14 files in `dough-execute-plan`, `dough-product-backlog`, `dough-story-wrap-up`, and `dough-test-optimization`. Payload paths, installation, discovery, and host-hook registration are unchanged.
+
+Validation covered the self-installation baseline and 12 focused installer, payload, adapter, proof collector, and story closure checks. All 16 hosted CI jobs passed at source revision `ab423299cbc392194a324493e6660ad419b52da1` (run `42448499379`). The later trunk commit before tagging changes only planning records.
+
+Under ADR 0005, this release reuses existing Codex, Cursor, and Claude Code installation, discovery, and hook evidence for the unchanged mechanisms. The wrap-up workflow uses the completed SEED-258 representative review and existing native Codex and Cursor evidence for the unchanged Intent Coverage invocation. No native exception applies.
+
 ## 0.3.90 - 2026-11-08
 
 - Add `dough-intent-coverage` for explicit use during review. It introduces one plausible fault in a scratch checkout to see whether an existing test protects an important story promise, restores the checkout, and reports the evidence and cost. Its included Node helper measures elapsed time through report production. The assessment is returned to the caller.
