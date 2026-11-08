@@ -29,13 +29,13 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Keep one launch store vocabulary and coherent kept records in dashboard tests](seeds/SEED-261-share-domain-test-data.md#align-kept-launch-store-setup) — SEED-261#align-kept-launch-store-setup ([plan](slice-plans/543-align-kept-launch-store-setup/PLAN.md))
+- [Read done records for the catalog through one product rule](seeds/SEED-262-faster-dashboard-test-feedback.md#share-done-catalog-record-reading) — SEED-262#share-done-catalog-record-reading ([plan](slice-plans/542-share-done-catalog-record-reading/PLAN.md))
 
 ## Backlog list
 
 - [Choose Claude Code effort when starting a session](seeds/SEED-280-choose-claude-code-effort.md#choose-claude-code-effort) — SEED-280#choose-claude-code-effort
 - [Verify stale-reclaimer exclusion without a fixed wait](seeds/SEED-279-observe-stale-reclaimer-handoff.md#observe-stale-reclaimer-handoff) — SEED-279#observe-stale-reclaimer-handoff
 - [Pilot native evidence reuse for Git publication admission](seeds/SEED-262-faster-dashboard-test-feedback.md#pilot-admission-native-evidence-reuse) — SEED-262#pilot-admission-native-evidence-reuse
-- [Read done records for the catalog through one product rule](seeds/SEED-262-faster-dashboard-test-feedback.md#share-done-catalog-record-reading) — SEED-262#share-done-catalog-record-reading
 - [Guard native fixture identity inputs against drift](seeds/SEED-262-faster-dashboard-test-feedback.md#guard-native-fixture-identity-inputs) — SEED-262#guard-native-fixture-identity-inputs
 - [Align story tab cost records, Taken heading, and wording](seeds/SEED-275-story-intent-tabs.md#align-story-tabs-records) — SEED-275#align-story-tabs-records
 - [Keep the selected story when the Side panel closes](seeds/SEED-275-story-intent-tabs.md#preserve-story-on-panel-close) — SEED-275#preserve-story-on-panel-close
