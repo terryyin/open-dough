@@ -34,12 +34,13 @@ story's from its published done record, read at that revision by the
 `done=bodies` read the page uses (`server/doneCatalogRead.ts`, so only a
 record that revision's agreeing catalog lists), with the Done sessions this
 machine keeps for it, as its card holds them (`server/followUpStory.ts`).
-Admission refuses context text from a page, a session the project no longer
-keeps (404), a story the revision does not publish or whose record does not
-read as it (404), and a story whose record could not be read (502), before
-anything starts. It keeps the resolved text on the request, so a retry,
-Startup recovery or rebuilt first input resends it after the source record
-is gone. The first input (`server/unattachedInput.ts`) carries it as its own
+Admission refuses context text from a page. For a new follow-up, it refuses
+a session the project no longer keeps (404), a story the revision does not
+publish or whose record does not read as it (404), or a story whose record
+could not be read (502). Repeating a matching retained start or resuming a
+pending first input uses its saved context even after the source record is
+gone. The context stays on the recorded request for Startup recovery and
+rebuilt first inputs. The first input (`server/unattachedInput.ts`) carries it as its own
 block: `[context, request, reporting]` with no established session,
 `[established block, reporting, context, request]` with one, the same on
 Claude, Codex and Cursor; a blank follow-up sends the context and the

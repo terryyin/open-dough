@@ -11,9 +11,9 @@
 // (`./launchAttemptSelection.ts`), under the history's own
 // revision, which every full answer names as `historyRevision`; the same
 // header rules apply to it. Any other audience is refused. A full answer
-// carries each retained done session only as its listing facts
-// (`./doneSessionListing.ts`), whose full entry is the history's, and only
-// the attempts that still need attention.
+// carries the sessions as listings (`./sessionListing.ts`), leaving
+// retained Done sessions' full entries to the history, and only the attempts
+// that still need attention.
 
 import { z } from "zod";
 import { launchRecordsSchema, launchWithStateSchema } from "./agentLaunch.ts";

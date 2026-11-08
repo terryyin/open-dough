@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-262#tighten-repository-description-facts",
+  "title": "State each repository description fact once and keep native preparation evidence MakeMe-free",
+  "completedAt": "2026-11-08T12:53:52.748Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "claude",
+  "model": "opus"
+}

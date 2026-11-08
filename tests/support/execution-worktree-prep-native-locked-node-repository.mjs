@@ -1,9 +1,9 @@
 // The worktree-preparation native journey's locked Node repository, built
 // exactly as before the shared repository description: a non-bare originating
-// checkout with no remote, whose one commit holds the project and its
-// lockfile, and a sibling execution worktree. Native evidence depends on this
-// layout, so this builder keeps its own Git setup; non-native tests use the
-// described builder in the shared preparation fixtures.
+// checkout with no remote, whose one commit holds the shared locked Node
+// project and its lockfile, and a sibling execution worktree. Native evidence
+// depends on this layout and on loading no MakeMe, so this builder keeps its
+// own Git setup.
 import { execFile } from "node:child_process";
 import {
   mkdirSync,
@@ -18,82 +18,13 @@ import { promisify } from "node:util";
 import {
   git,
   integritySnapshot,
+  lockedNodeProject,
   npmEnv,
   originInstallMarker,
-  prepTraceRel,
-  setupCountRel,
-} from "../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-test-fixtures.mjs";
+  writeProject,
+} from "../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-project.mjs";
 
 const exec = promisify(execFile);
-
-function writeFixtureProject(origin, { failingInstall }) {
-  mkdirSync(join(origin, "packages", "fixture-cli"), { recursive: true });
-  mkdirSync(join(origin, "scripts"));
-  writeFileSync(
-    join(origin, ".gitignore"),
-    `node_modules/\n${prepTraceRel}\n${setupCountRel}\n`,
-  );
-  writeFileSync(
-    join(origin, "CONTRIBUTING.md"),
-    ["Locked setup: `npm ci`", "Applicable command: `npm run prove`", ""].join(
-      "\n",
-    ),
-  );
-  writeFileSync(
-    join(origin, "package.json"),
-    `${JSON.stringify(
-      {
-        name: "execution-worktree-prep-fixture",
-        private: true,
-        type: "module",
-        dependencies: { "fixture-cli": "file:packages/fixture-cli" },
-        scripts: {
-          postinstall: "node scripts/trace.mjs setup",
-          prove: "node scripts/trace.mjs command && fixture-cli",
-        },
-      },
-      null,
-      2,
-    )}\n`,
-  );
-  const localPackage = {
-    name: "fixture-cli",
-    version: "1.0.0",
-    type: "module",
-    bin: { "fixture-cli": "./cli.mjs" },
-  };
-  if (failingInstall) {
-    localPackage.scripts = {
-      preinstall: 'node -e "process.exit(1)"',
-    };
-  }
-  writeFileSync(
-    join(origin, "packages/fixture-cli/package.json"),
-    `${JSON.stringify(localPackage, null, 2)}\n`,
-  );
-  writeFileSync(
-    join(origin, "packages/fixture-cli/cli.mjs"),
-    '#!/usr/bin/env node\nprocess.stdout.write("fixture-cli-ok\\n");\n',
-  );
-  writeFileSync(
-    join(origin, "scripts/trace.mjs"),
-    `import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
-
-const stream = process.env.PREP_TRACE ?? ${JSON.stringify(prepTraceRel)};
-appendFileSync(
-  stream,
-  \`\${JSON.stringify({ type: process.argv[2], cwd: process.cwd() })}\\n\`,
-);
-if (process.argv[2] === "setup") {
-  const countPath = ${JSON.stringify(setupCountRel)};
-  const current = existsSync(countPath)
-    ? Number(readFileSync(countPath, "utf8")) || 0
-    : 0;
-  writeFileSync(countPath, \`\${current + 1}\\n\`);
-}
-`,
-  );
-}
 
 // Disposable locked Node fixture: a Git repository plus a separately located
 // execution worktree, a locked local-file dependency whose executable is
@@ -115,7 +46,7 @@ export async function createLockedNodeFixture({
   await git(origin, "init", "-b", "main");
   await git(origin, "config", "user.name", "Origin Checkout");
   await git(origin, "config", "user.email", "origin@example.test");
-  writeFixtureProject(origin, { failingInstall });
+  writeProject(origin, lockedNodeProject({ failingInstall }));
   await exec("npm", ["install", "--ignore-scripts"], {
     cwd: origin,
     env,

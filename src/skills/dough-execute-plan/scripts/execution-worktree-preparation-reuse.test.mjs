@@ -7,11 +7,13 @@ import { promisify } from "node:util";
 import { assessWorktreePreparation } from "./execution-worktree-preparation-assessor.mjs";
 import { runReadinessGate } from "./execution-worktree-preparation-readiness-gate.mjs";
 import {
-  createLockedNodeFixture,
   integritySnapshot,
   lockfileDigest,
-  observePreparation,
   setupTraceCount,
+} from "./execution-worktree-preparation-project.mjs";
+import {
+  createLockedNodeFixture,
+  observePreparation,
 } from "./execution-worktree-preparation-test-fixtures.mjs";
 import {
   changeDependencyState,

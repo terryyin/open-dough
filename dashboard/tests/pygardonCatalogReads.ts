@@ -42,3 +42,9 @@ export const pygardonCatalogRead = (page: Page) =>
   page.waitForResponse((response) =>
     isPygardonCatalog(new URL(response.url())),
   );
+
+// Resolves once the page has abandoned a read of Pygardon's done catalog.
+export const pygardonCatalogAbandoned = (page: Page) =>
+  page.waitForEvent("requestfailed", (request) =>
+    isPygardonCatalog(new URL(request.url())),
+  );

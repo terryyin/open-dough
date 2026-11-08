@@ -1,6 +1,6 @@
 // The page's one owner of the machine's sessions history
 // (`./machineSessionsReads.ts`): the full entries of retained done sessions,
-// whose listing facts alone the overview carries (`./doneSessionListing.ts`),
+// whose listing facts alone the overview carries (`./sessionListing.ts`),
 // and the attempts that no longer need attention, which the overview leaves
 // out (`./launchAttemptSelection.ts`). Nothing reads it until a developer
 // opens or acts on a retained session or expands Recently done sessions, or
@@ -19,7 +19,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { withRetainedDetail } from "./doneSessionListing.ts";
+import { withRetainedDetail } from "./sessionListing.ts";
 import type { AttemptObservation } from "./launchOutcome.ts";
 import type { LaunchWithState } from "./launchRecord.ts";
 import { readSessionsHistorySince } from "./machineSessionsReads.ts";

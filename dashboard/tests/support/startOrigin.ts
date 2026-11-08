@@ -62,7 +62,8 @@ export type StartOrigin = {
   // the agent's linked worktree with its author config, where a start leaves
   // it (./startOriginTakes.ts).
   publishTake(take: DeclaredTake): Promise<TakenStart>;
-  // Holds every push to origin on its `pre-receive` hook until released.
+  // Holds every push to origin on its `pre-receive` hook until released;
+  // cleanup refuses a push still held.
   holdPushes(): PushHold;
   // Publishes a declared revision from the project checkout onto trunk and
   // returns the published revision.
@@ -162,9 +163,12 @@ export async function startOrigin(
       const held = path.join(machine, "push-held");
       const released = path.join(machine, "push-released");
       const hook = path.join(origin, "hooks", "pre-receive");
+      // The hold also ends once cleanup removes the machine: a cleanup right
+      // after release can delete the marker before the hook polls it, and the
+      // push would otherwise outlive the run.
       writeFileSync(
         hook,
-        `#!/bin/sh\ntouch ${held}\nwhile [ ! -e ${released} ]; do sleep 0.2; done\n`,
+        `#!/bin/sh\ntouch '${held}'\nwhile [ ! -e '${released}' ] && [ -d '${machine}' ]; do sleep 0.2; done\n[ -e '${released}' ]\n`,
       );
       chmodSync(hook, 0o755);
       return {

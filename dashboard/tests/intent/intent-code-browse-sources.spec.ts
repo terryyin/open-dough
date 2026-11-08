@@ -12,7 +12,11 @@ import {
   expectIntentGroupsCollapsed,
   intentLocationName,
 } from "../intentPerspectivePage.ts";
-import { expectKeywordAndStringColours } from "../pageColours.ts";
+import {
+  colourOf,
+  expectKeywordAndStringColours,
+  sourceToken,
+} from "../pageColours.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
   doughnut,
@@ -107,6 +111,11 @@ test("Intent lists a sources location's Bash .test and Node .test.mjs files in o
       nodeSource,
       /^import$/,
       /^"node:assert\/strict"$/,
+    );
+    // JavaScript, not the location's first (shell) hint: shell would paint
+    // `import` as a command and `from` as a string.
+    expect(await colourOf(sourceToken(nodeSource, /^from$/))).toBe(
+      await colourOf(sourceToken(nodeSource, /^import$/)),
     );
   });
 

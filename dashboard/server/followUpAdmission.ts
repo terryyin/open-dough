@@ -1,10 +1,8 @@
-// A follow-up's context, resolved at admission from the records the server
-// keeps (`../src/followUpContext.ts`): a retained session's record, or a done
-// story's published done record at the revision the page showed with the
-// sessions its card holds (`./followUpStory.ts`). A request carrying context
-// text a page composed is malformed. The resolved text stays on the request,
-// so the attempt, its record, a retry, a recovery and a rebuilt first input
-// all carry it without reading again, even after the source record is gone.
+// A new follow-up's context comes from a retained session, or a story's
+// published done record at the shown revision and the sessions its card holds
+// (`./followUpStory.ts`). A retry of a pending conversation keeps its original
+// context even after the source expires. Repeating a retained attempt uses its
+// saved request directly (`./agentLaunchAccept.ts`).
 
 import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
 import {
@@ -16,7 +14,7 @@ import {
 import type { FollowUpSource } from "../src/followUpRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { doneStorySessions, publishedDoneStory } from "./followUpStory.ts";
-import { keptSession } from "./launchRecordStore.ts";
+import { keptSession, pendingInputOf } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 async function contextOf(
@@ -45,8 +43,9 @@ export async function withFollowUpContext(
 ): Promise<AgentLaunchRequest> {
   if (request.workflow !== "ad-hoc" || request.followUp === undefined)
     return request;
-  if (request.followUp.context !== undefined)
-    throw new RefusedRequest(400, "The launch request is malformed.");
+  const pending = (await pendingInputOf(source.id, request))?.request;
+  const saved = pending?.workflow === "ad-hoc" ? pending.followUp : undefined;
+  if (saved?.context !== undefined) return { ...request, followUp: saved };
   return {
     ...request,
     followUp: {

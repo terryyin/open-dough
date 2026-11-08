@@ -34,7 +34,7 @@ const git = (cwd, ...args) =>
 // backlog project.
 const acceptedB = makeMe.aRepository
   .withRevision("base", {
-    backlog: undefined,
+    backlog: null,
     files: { "base.txt": "base.txt\n" },
   })
   .withRevision("b", { files: { "b.txt": "b.txt\n" } })

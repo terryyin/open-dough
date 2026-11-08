@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 463. Removed numbers are never reused.
+- Highest allocated local number: 464. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -193,6 +193,16 @@ Former local code: DD-327. Former branch-local code: DD-325 for SEED-144#branded
 Former local code: DD-328. Former branch-local code: DD-326 for SEED-144#branded-alert-click-automation only. A guarded delivery's caller-written status update stayed applied after a later preparation refusal; its unbounded retry advanced the next slice. Related DD-326 (a failed updater contained before publication) is retained there as counterevidence. [Evidence and current response](docs/maintainer/findings/ODF-323.md).
 ## ODF-325 — Coordinator launched an empty agent while waiting on delegated work
 Former local code: DD-329. Former local code: DD-408. [Meaning, evidence and response](docs/maintainer/findings/ODF-325.md).
+
+### Occurrences
+- Execution: SEED-272#prove-recently-done-check-supersession (plan 529-prove-recently-done-check-supersession; first related implementation `705a53c88396264c09c953e54c12ff325b855603`)
+  - Timestamp: unknown (2026-11-08, while the source-only reviewer ran before slice 1)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: while awaiting the source-only reviewer the coordinator ran a background `echo waiting` and then launched a Haiku agent asked only to reply "ok"; delegation's "Await delegated results without empty calls" already forbids both.
+  - Observed effect: two extra notifications and one extra agent hand-back (about 38.7k subagent tokens) with no evidence gained; the real review arrived independently.
+  - Inference: the background-session harness's "say what you're doing" prompts invite an action, and ending the turn while a subagent runs feels like stopping.
 ## ODF-326 — A second source-only review repeated unchanged inputs
 Former local code: DD-331. [Meaning, evidence and response](docs/maintainer/findings/ODF-326.md).
 ## ODF-327 — Preparation left an evaluation's criteria for execution while the evaluated run was imminent
@@ -551,7 +561,20 @@ Practice. The isolated source review numbers story commitments independently of 
   - Evidence: Plan 514 (`42717b7da:.planning/slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md`) kept `createCleanTrunkFixture` taking a description. Source-review commitment 31, from Key example 6, says "no non-native test calls `createCleanTrunkFixture`". The slice 5 obligations listing carried it, and the delegation stated that the source outranks the plan.
   - Observed effect: Slice 5 deleted the helper; `git grep createCleanTrunkFixture -- ':!.planning'` finds nothing.
 
-## DD-463 — Sequential before and after timings could not judge a no-slowdown promise
+## DD-463 — A reverse import-closure selection silently dropped importers
+`tests/support/native-import-closure.mjs` exits 1 (ENOENT) on a test file whose string literals contain import-like text. A proof selection that walks every test file through it and skips failures omits those files without notice.
+
+### Occurrences
+- Execution: SEED-262#tighten-repository-description-facts (plan 532-tighten-repository-description-facts; first related implementation commit `a271e923b623811f5f13e9a63963b1a234413210`)
+  - Timestamp: unknown (2026-11-08, slice 4 implementation)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: `node tests/support/native-import-closure.mjs . src/skills/dough-execute-plan/scripts/consumer-trace.test.mjs` exits 1 reading a fixture path from a string. Slice 4's reverse-closure selection missed `consumer-trace.test.mjs` and `consumer-trace-terms.test.mjs`, which import an edited fixture; a `git grep` cross-check found them. Plan 532 premise P5 ("264 files") came from the same walk.
+  - Observed effect: The two missed files were added and passed; the whole `npm test` before landing covered any other omission.
+  - Inference: The tool hashes native evidence closures and was used off-label for consumer selection; a selection built from it should fail on a crashed file, or be cross-checked with `git grep` on the changed module's basename.
+
+## DD-464 — Sequential before and after timings could not judge a no-slowdown promise
 A plan asked for focused times recorded before any edit and again after the
 slice, under comparable load. On a machine with fluctuating external load, the
 runs taken about half an hour apart differed in load and could not show

@@ -113,7 +113,7 @@ test("a different repository created at the removed worktree's path is refused t
   const { fixture, worktree, directory, stop, stopped } =
     await armedFromRemovedWorktree(t);
   const { integration: another } = await materializeRepository(
-    makeMe.aRepository.withRevision("another", { backlog: undefined }).please(),
+    makeMe.aRepository.withRevision("another", { backlog: null }).please(),
     { parent: fixture },
   );
   renameSync(another, worktree);

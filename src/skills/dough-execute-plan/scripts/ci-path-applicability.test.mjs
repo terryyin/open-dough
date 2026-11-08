@@ -159,7 +159,7 @@ for (const paths of [[".planning"], ["docs"], [".planning", "docs"], ["src"]]) {
       t,
       makeMe.aRepository
         .withRevision("workflow", {
-          backlog: undefined,
+          backlog: null,
           files: { [workflowPath]: allBranchesWorkflow },
         })
         .withRevision("change", {

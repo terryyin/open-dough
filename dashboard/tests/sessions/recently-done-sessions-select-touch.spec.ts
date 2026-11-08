@@ -1,20 +1,22 @@
 // On coarse input a Recently done sessions row's Select and its Open are
 // separate touch controls (../../src/recentlyDoneSelection.ts). At phone
 // width the sidebar overlays the page and stays on Select; once it is closed,
-// Development's Board shows what was selected, in view.
+// Development's Board shows the selected done card in view, even when its
+// own catalog read finishes after. Board reveal and range extension of both
+// kinds of row live in ./recently-done-sessions-select-development.spec.ts.
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import { parts, standaloneSessionName } from "../dashboardPage.ts";
+import { parts } from "../dashboardPage.ts";
 import { closeSidePanel, tapWhereShown } from "../pageLayout.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import {
   adHoc,
-  expectDevelopmentKept,
   linked,
   openSelectionPage,
   report,
 } from "../recentlyDoneSelectionJourney.ts";
+import { expectDevelopmentKept } from "../recentlyDoneSelectionReport.ts";
 import { holdPygardonCatalog } from "../pygardonCatalogReads.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
@@ -70,55 +72,31 @@ test.describe("on coarse input", () => {
     await expect(shown.button).toBeFocused();
   });
 
-  test("at phone width a selection in Development is in view, selected, once the Sessions overlay closes", async ({
+  test("at phone width a linked selection in Development is in view, selected, once the Sessions overlay closes, while the Board still reads its catalog", async ({
     page,
     dashboard,
   }) => {
     const { shown } = await openSelectionPage(page, dashboard, tapWhereShown, {
-      // Twenty rows, the sidebar's first batch.
-      newer: { doughnut: 10, pygardon: 6 },
+      // Its done card stands behind six newer Pygardon sessions.
+      newer: { pygardon: 6 },
     });
-    const { recentlyDone } = parts(page);
-    const reopenSection = async () => {
-      await tapWhereShown(shown.button);
-      if ((await shown.header.getAttribute("aria-expanded")) !== "true")
-        await shown.header.click();
-    };
-
-    await test.step("a standalone session beyond Doughnut's first ten", async () => {
-      await shown.entry(adHoc.title).scrollIntoViewIfNeeded();
-      await tapWhereShown(shown.entry(adHoc.title));
-      await expectProjectChoice(page, "Doughnut");
-      await expect(shown.sidebar).toBeVisible();
-      await tapWhereShown(shown.button);
-      await expect(shown.sidebar).toBeHidden();
-      const entry = recentlyDone.getByRole("article", {
-        name: standaloneSessionName("Ad hoc", adHoc.title),
-      });
-      await expect(entry).toBeInViewport();
-      await expect(entry).toHaveClass(/\bselected-session\b/);
-      await expectDevelopmentKept(page, dashboard);
+    // The row's check reads the catalog; the Board's own read of it is still
+    // under way when the overlay is closed.
+    const boardRead = await holdPygardonCatalog(page, 1);
+    await shown.entry(linked.title).scrollIntoViewIfNeeded();
+    await tapWhereShown(shown.entry(linked.title));
+    await boardRead.asked;
+    await expectProjectChoice(page, "Pygardon");
+    await expect(shown.sidebar).toBeVisible();
+    await tapWhereShown(shown.button);
+    await expect(shown.sidebar).toBeHidden();
+    boardRead.release();
+    const card = parts(page).recentlyDone.getByRole("article", {
+      name: linked.title,
+      exact: true,
     });
-
-    await test.step("a linked done story behind six newer Pygardon sessions", async () => {
-      await reopenSection();
-      // The row's check reads the catalog; the Board's own read of it is
-      // still under way when the overlay is closed.
-      const boardRead = await holdPygardonCatalog(page, 1);
-      await shown.entry(linked.title).scrollIntoViewIfNeeded();
-      await tapWhereShown(shown.entry(linked.title));
-      await boardRead.asked;
-      await expectProjectChoice(page, "Pygardon");
-      await tapWhereShown(shown.button);
-      await expect(shown.sidebar).toBeHidden();
-      boardRead.release();
-      const card = recentlyDone.getByRole("article", {
-        name: linked.title,
-        exact: true,
-      });
-      await expectSelected(card, true);
-      await expect(card).toBeInViewport();
-      await expectDevelopmentKept(page, dashboard);
-    });
+    await expectSelected(card, true);
+    await expect(card).toBeInViewport();
+    await expectDevelopmentKept(page, dashboard);
   });
 });

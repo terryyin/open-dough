@@ -42,7 +42,7 @@ test("pending, failed, and cancelled trunk ancestors inherit exactly; cancelled 
       } = await materializeRepository(
         makeMe.aRepository
           .withRevision("g", {
-            backlog: undefined,
+            backlog: null,
             files: {
               "src/app.js": "console.log('G');\n",
               [workflowPath]: acceptedWorkflow,

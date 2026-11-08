@@ -18,10 +18,11 @@ revision, and a page that sends the revision of its last full answer
 (`x-open-dough-sessions-revision`) is told only that it is unchanged. The
 revision is the digest of the answer's fragments: each session entry, each
 attempt, and the rest of the answer. The regular answer holds open sessions in
-full and each retained done session only as its listing facts, everything its
-entries show while nothing retained is opened; the launch's reporting handoff,
-the first input's text and the landing evidence stay with the history. It
-carries only the attempts that still need attention
+full, except for a follow-up's resolved context and its copy in the first
+input. Retained Done entries carry their listing facts. Their reporting
+handoff, first input text, resolved follow-up context and landing evidence
+stay with the history. Both kinds of follow-up entries keep the source. The
+regular answer carries only the attempts that still need attention
 ([selection](src/launchAttemptSelection.ts)): every attempt a server runs or
 that never settled, and each story's or project's ad hoc latest attempt while
 it needs reconciliation, while it is a story's settled start no page has yet
