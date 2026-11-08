@@ -15,7 +15,11 @@ import {
   SUMMARY_READ_LIMIT_BYTES,
   summaryProblems,
 } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import type { CiAdapterProofAttempt, CiProof } from "../src/ciProof.ts";
+import {
+  ciProofTooLarge,
+  type CiAdapterProofAttempt,
+  type CiProof,
+} from "../src/ciProof.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
 import { rememberedByKey } from "./rememberedByKey.ts";
@@ -45,21 +49,23 @@ type AdapterRunError = Error & {
   readonly stderr?: string;
 };
 
-// Why the adapter answered no proof read: it ran past the shared limits,
-// exited nonzero (with its last stderr line), or otherwise failed with the
-// runner's own error, such as an answer the runner refuses or a command that
-// could not start. `answerBytes` is the stdout limit this proof call used.
-function failureOf(
-  error: unknown,
-  timeoutMs: number,
-  answerBytes: number,
-): string {
+function isMaxBuffer(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    (error as AdapterRunError).code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER"
+  );
+}
+
+// Why the adapter answered no proof read: it ran past its time limit, exited
+// nonzero (with its last stderr line), or otherwise failed with the runner's
+// own error, such as an answer the runner refuses or a command that could
+// not start. An answer past the proof call's stdout limit is `too-large`,
+// not this line.
+function failureOf(error: unknown, timeoutMs: number): string {
   if (!(error instanceof Error)) return String(error);
   const { code, killed, stderr } = error as AdapterRunError;
   if (killed === true)
     return `it gave no answer within ${String(timeoutMs / 1000)} seconds`;
-  if (code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER")
-    return `its answer is longer than ${String(answerBytes / 1024)} KiB`;
   if (typeof code === "number") {
     const line = (stderr ?? "")
       .split("\n")
@@ -136,10 +142,8 @@ export async function readCiAdapterProof(
     );
   } catch (error) {
     if (signal.aborted) throw error;
-    return unavailable(
-      "unreadable",
-      failureOf(error, timeoutMs, SUMMARY_READ_LIMIT_BYTES),
-    );
+    if (isMaxBuffer(error)) return ciProofTooLarge(SUMMARY_READ_LIMIT_BYTES);
+    return unavailable("unreadable", failureOf(error, timeoutMs));
   }
   const { summary } = answer;
   if (summary === undefined)

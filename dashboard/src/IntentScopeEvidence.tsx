@@ -55,6 +55,8 @@ export type ScopeEvidence = (
       readonly kind: "none";
       readonly checking: boolean;
       readonly line: ReactNode;
+      // A size-limit failure, so Summary can reuse evidence-problem styling.
+      readonly problem?: true;
     }
 ) & { readonly kept?: KeptEvidence };
 
@@ -150,6 +152,9 @@ export function scopeEvidenceOf(evidence: CiEvidence): ScopeEvidence {
       kind: "none",
       checking: state.kind === "checking",
       line: state.line,
+      ...(state.kind === "unavailable" && state.problem === true
+        ? { problem: true as const }
+        : {}),
       ...kept,
     };
   return {

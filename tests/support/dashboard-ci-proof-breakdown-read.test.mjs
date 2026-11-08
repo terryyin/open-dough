@@ -9,6 +9,7 @@ import { test } from "node:test";
 import {
   onlyZipEntry,
   ZipEntryProblem,
+  ZipEntryTooLarge,
 } from "../../dashboard/server/zipEntry.ts";
 import { ciProofSchema } from "../../dashboard/src/ciProof.ts";
 import { zipOf } from "../../dashboard/tests/support/ciProofArtifacts.ts";
@@ -58,7 +59,8 @@ test("a summary broken down by file is read whole up to the shared limit, and re
   assert.equal(read, text);
   assert.deepEqual(summaryProblems(JSON.parse(read)), []);
   const large = brokenDownSummaryText(9_000, 120);
-  assert.ok(Buffer.byteLength(large) > SUMMARY_READ_LIMIT_BYTES);
+  const largeBytes = Buffer.byteLength(large);
+  assert.ok(largeBytes > SUMMARY_READ_LIMIT_BYTES);
   assert.throws(
     () =>
       onlyZipEntry(
@@ -66,7 +68,14 @@ test("a summary broken down by file is read whole up to the shared limit, and re
         "ci-proof-summary.json",
         SUMMARY_READ_LIMIT_BYTES,
       ),
-    ZipEntryProblem,
+    (error) => {
+      assert.ok(error instanceof ZipEntryTooLarge);
+      assert.ok(error instanceof ZipEntryProblem);
+      assert.equal(error.sizeBytes, largeBytes);
+      assert.equal(error.limitBytes, SUMMARY_READ_LIMIT_BYTES);
+      assert.equal(error.entryName, "ci-proof-summary.json");
+      return true;
+    },
   );
 });
 

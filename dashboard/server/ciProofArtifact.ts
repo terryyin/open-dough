@@ -20,9 +20,13 @@ import {
   GitHubAcquisitionHeld,
   readGitHubActions,
 } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
-import type { CiProof, CiProofRun } from "../src/ciProof.ts";
+import {
+  ciProofTooLarge,
+  type CiProof,
+  type CiProofRun,
+} from "../src/ciProof.ts";
 import { rememberedByKey } from "./rememberedByKey.ts";
-import { onlyZipEntry, ZipEntryProblem } from "./zipEntry.ts";
+import { onlyZipEntry, ZipEntryProblem, ZipEntryTooLarge } from "./zipEntry.ts";
 
 const summaryFile = "ci-proof-summary.json";
 // A summary, file breakdown included, is at most this large
@@ -121,7 +125,7 @@ function chosenArtifact(
     typeof only.size_in_bytes === "number" &&
     only.size_in_bytes > summaryLimitBytes
   )
-    return unavailable("invalid", `${name} is too large to be a summary`);
+    return ciProofTooLarge(summaryLimitBytes, only.size_in_bytes);
   return only.id;
 }
 
@@ -160,6 +164,8 @@ async function readSummary(
   try {
     summary = JSON.parse(onlyZipEntry(archive, summaryFile, summaryLimitBytes));
   } catch (error) {
+    if (error instanceof ZipEntryTooLarge)
+      return ciProofTooLarge(error.limitBytes, error.sizeBytes);
     if (error instanceof ZipEntryProblem)
       return unavailable(
         "unreadable",

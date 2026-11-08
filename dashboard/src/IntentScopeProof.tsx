@@ -85,7 +85,11 @@ export function IntentScopeProof({
       <>
         <EvidenceKept kept={evidence.kept} />
         <p
-          className="intent-summary-evidence-absent"
+          className={
+            evidence.problem === true
+              ? "intent-summary-evidence-absent intent-ci-proof-problem"
+              : "intent-summary-evidence-absent"
+          }
           {...(evidence.checking ? { "aria-live": "polite" as const } : {})}
         >
           {evidence.line}

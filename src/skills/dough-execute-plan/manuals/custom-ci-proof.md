@@ -52,12 +52,15 @@ schema versions stay at 1. A summary collected from fragments written with
 `--by-file` also carries each entry's file breakdown, which the tab uses
 for a selected entry's or folder's figures; keep it unchanged too. Intent
 reads a `proof` answer up to 1 MiB (the collector contract's summary read
-limit). The `unavailable` reason is a nonempty string, shown to the
-developer as given and cut at 600 bytes; never answer a verdict there. Any
-other answer, both fields, a nonzero exit, invalid JSON, the 20-second
-timeout or more than 1 MiB of stdout is shown as the adapter having
-answered no proof read, with the adapter's last stderr line for a nonzero
-exit. An adapter that does not implement `proof`, such as the
+limit). When the summary is larger than that limit, still answer it whole so
+Intent can report the size failure: under Proof it shows a problem line that
+the attempt's CI proof is larger than the 1 MiB proof limit (no counts, and
+nothing is remembered). The `unavailable` reason is a nonempty string, shown
+to the developer as given and cut at 600 bytes; never answer a verdict
+there. Any other answer, both fields, a nonzero exit, invalid JSON or the
+20-second timeout is shown as the adapter having answered no proof read,
+with the adapter's last stderr line for a nonzero exit. An adapter that does
+not implement `proof`, such as the
 [runnable minimal adapter](custom-ci.md#runnable-minimal-adapter), exits
 nonzero for it and shows that line; nothing is retried, and the verdict,
 `discover` and `diagnose` are unaffected.

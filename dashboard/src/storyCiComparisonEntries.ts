@@ -112,12 +112,12 @@ export function comparisonProofOf(
     return slot.adapterAttempt === undefined
       ? {
           kind: "unavailable",
-          line: unavailableLine(proof.reason, proof.detail),
+          line: unavailableLine(proof),
         }
       : {
           kind: "unavailable",
           adapter: true,
-          line: adapterUnavailableLine(proof.reason, proof.detail),
+          line: adapterUnavailableLine(proof),
         };
   }
   if (slot.kind === "running")

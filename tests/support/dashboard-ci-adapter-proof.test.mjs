@@ -47,7 +47,7 @@ const read = (folder, timeoutMs) =>
 
 const lineOf = (proof) => {
   assert.equal(proof.kind, "unavailable");
-  return adapterUnavailableLine(proof.reason, proof.detail);
+  return adapterUnavailableLine(proof);
 };
 
 test("an adapter that runs past its time limit answered no proof read within that limit", async (t) => {

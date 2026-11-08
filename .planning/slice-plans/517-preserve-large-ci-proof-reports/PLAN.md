@@ -134,7 +134,7 @@ Accepted proof (reuse):
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: seed examples 2, 3 and 5 and the shared build lines, as mapped above.
 
@@ -148,6 +148,15 @@ too-large reason with its limit and size, both readers reporting it, the
 zip entry's size on its error, the wording tables, the shown-proof problem
 mark and its styling, and the custom-ci-proof manual's description of how
 an oversized answer is shown.
+
+Accepted proof (reuse):
+- Playwright `intent-ci-proof-adapter-reasons`, `intent-ci-proof-reasons`,
+  `intent-ci-comparison-adapter-gaps` — too-large problem lines (adapter
+  without size; GHA 1.3 MiB with size; comparison build cells); quiet
+  `no summary retained` unchanged.
+- Unit: `dashboard-ci-adapter-proof`, `dashboard-ci-proof-breakdown-read`
+  (`ZipEntryTooLarge.sizeBytes`), later-trunk/landed/proof-read — pass.
+- `npm run typecheck:dashboard` — pass.
 
 ## Plan concerns
 
@@ -195,5 +204,4 @@ Commitment: 7.5
 ### G6. Prominent size error deferred to slice 2
 Reported: slice 1 — "until slice 2, an adapter answer over 1 MiB shows the existing quiet line, and an oversized GitHub Actions summary keeps its current could not be opened line"
 Story clause: "When a proof is over that limit, from either source, Intent shows it under the affected attempt's or run's Proof as an error, styled as an evidence problem rather than the quiet line of "published no CI proof summary""
-Disposition: interim until slices 2
-Commitment: 2, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 5.2, 5.3, 6.2, 8.4, 8.5, 8.6, 10, 11
+Disposition: proved by slice 2: intent-ci-proof-adapter-reasons / intent-ci-proof-reasons / intent-ci-comparison-adapter-gaps too-large problem lines

@@ -131,7 +131,7 @@ test("an archive the local GitHub request owner passed on as text is unreadable,
     detail: olderRequestOwnerDetail,
   });
   assert.equal(
-    unavailableLine(proof.reason, proof.detail),
+    unavailableLine(proof),
     "This run's CI proof summary could not be read. This machine's local GitHub request owner was started by an earlier Open Dough and passes the summary on as text. Restart the Open Dough dashboards and CI observers on this machine; the next read starts a current one.",
   );
 });

@@ -95,12 +95,20 @@ export function useIntentCiShownProof(
 }
 
 // What the shown proof says now, each state but a summary with its one line.
+// A `too-large` unavailable answer is a problem so Proof and Summary can
+// reuse evidence-problem styling.
 export type ShownProofState =
   | { readonly kind: "no attempt"; readonly line: string }
   | {
-      readonly kind: "checking" | "unavailable";
+      readonly kind: "checking";
       readonly run: ShownCiProofRun;
       readonly line: string;
+    }
+  | {
+      readonly kind: "unavailable";
+      readonly run: ShownCiProofRun;
+      readonly line: string;
+      readonly problem?: true;
     }
   | {
       readonly kind: "summary";
@@ -116,11 +124,12 @@ function unavailableOf(
   if (read.kind === "unanswered")
     return adapter
       ? adapterReadFailedLine(read.detail)
-      : unavailableLine("unreadable", read.detail);
-  return (adapter ? adapterUnavailableLine : unavailableLine)(
-    read.reason,
-    read.detail,
-  );
+      : unavailableLine({
+          kind: "unavailable",
+          reason: "unreadable",
+          ...(read.detail === undefined ? {} : { detail: read.detail }),
+        });
+  return (adapter ? adapterUnavailableLine : unavailableLine)(read);
 }
 
 export function shownProofStateOf(
@@ -146,6 +155,13 @@ export function shownProofStateOf(
       line: `Checking the CI proof of this ${adapter ? "attempt" : "run"}…`,
     };
   if (read.kind !== "summary")
-    return { kind: "unavailable", run, line: unavailableOf(adapter, read) };
+    return {
+      kind: "unavailable",
+      run,
+      line: unavailableOf(adapter, read),
+      ...(read.kind !== "unanswered" && read.reason === "too-large"
+        ? { problem: true as const }
+        : {}),
+    };
   return { kind: "summary", run, summary: read.summary };
 }
