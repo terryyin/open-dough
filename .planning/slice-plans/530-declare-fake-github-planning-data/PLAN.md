@@ -301,6 +301,17 @@ slice-3 tip. Whole suites on the refactored candidate: `npm test` passed;
 replacing a preview, load 21), which passed 50 of 50 on rerun and is repaired
 as its own increment.
 
+Repair of that failure: `stopProcess`'s final group SIGKILL answered EPERM on
+macOS when the preview's group held only zombie or exiting members, which
+`groupEnded` counted as alive, so the watcher dropped its kept preview.
+`groupEnded` now reads `ps` state and treats `Z` and the exiting flag `E` as
+ended. "stopping a production process whose group keeps only an unreaped
+member succeeds" in `production-deployment.spec.ts` failed with `kill EPERM`
+before the fix; the production watcher and deployment specs then passed 111
+of 111 at `--repeat-each=3` (load 12–26). Refactor disposition: already
+traced by the repair return (one predicate and one test case, no new helper
+or path).
+
 Learnings: `describedFiles(facts)` gives a one-revision description's files.
 `doneRecords: []` rebuilds the catalog over literal record files; a revision
 cannot add and remove a done record at once because `remove` applies first.

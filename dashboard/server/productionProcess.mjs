@@ -52,9 +52,10 @@ function signalGroup(child, signal) {
   try {
     process.kill(-child.pid, signal);
   } catch (error) {
-    // macOS can retain an empty process-group id briefly after npm exits,
-    // answering EPERM rather than ESRCH. Suppress only a proven empty group
-    // after the owned child ended; a live permission failure still propagates.
+    // macOS answers EPERM rather than ESRCH for a group whose remaining
+    // members are all zombies or still exiting after npm ended. Suppress only
+    // a proven ended group after the owned child ended; a live permission
+    // failure still propagates.
     if (error.code === "EPERM" && groupEnded(child)) return;
     if (error.code !== "ESRCH") throw error;
   }
@@ -62,14 +63,19 @@ function signalGroup(child, signal) {
 /** @param {import("node:child_process").ChildProcess} child */
 function groupEnded(child) {
   if (child.exitCode === null && child.signalCode === null) return false;
-  const groups = spawnSync("ps", ["-axo", "pgid="], {
+  const groups = spawnSync("ps", ["-axo", "pgid=,stat="], {
     encoding: "utf8",
     timeout: 1_000,
   });
-  return (
-    groups.status === 0 &&
-    !groups.stdout.trim().split(/\s+/).includes(String(child.pid))
-  );
+  if (groups.status !== 0) return false;
+  // ps lists zombie (state Z) and exiting (flag E, as in "?NE") members
+  // until they are reaped.
+  return !groups.stdout.split("\n").some((line) => {
+    const [pgid, stat = ""] = line.trim().split(/\s+/);
+    return (
+      pgid === String(child.pid) && !stat.startsWith("Z") && !stat.includes("E")
+    );
+  });
 }
 /** @param {ReturnType<typeof ownedProcess>} process */
 export async function stopProcess(process) {
