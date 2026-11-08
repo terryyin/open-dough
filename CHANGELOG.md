@@ -1,3 +1,13 @@
+## 0.3.90 - 2026-11-08
+
+- Add `dough-intent-coverage` for explicit use during review. It introduces one plausible fault in a scratch checkout to see whether an existing test protects an important story promise, restores the checkout, and reports the evidence and cost. Its included Node helper measures elapsed time through report production. The assessment is returned to the caller.
+- The dashboard's Intent CI tables group evidence labels, sort breakdowns by column, and distinguish each summary's own figures from its file breakdown. A done story can retry unavailable comparison proof and refresh a waiting landing when a later trunk build appears.
+- Repository test changes restore default timeouts, synchronize observation and recovery tests on state, and share published agent profile fixtures between dashboard and script tests.
+
+The Promoted payload adds `dough-intent-coverage/SKILL.md` and `dough-intent-coverage/finish-report.mjs`. There are no retired payload paths.
+
+Validation covered the self-installation baseline and 13 focused release and installer checks, including ordinary update, both managed roots, host-hook registration, and delivery of new payload paths. Under ADR 0005, the release uses the completed SEED-258 native behavior checks for the same skill bytes in Codex with Playwright and Cursor with pytest. Claude Code reuses the story's ordinary-update and fresh-use evidence for the unchanged installation and discovery mechanism. No native exception applies.
+
 ## 0.3.89 - 2026-11-07
 
 - CI proof file breakdowns retain the untimed check count when a file also contains timed checks. The collector sums the recorded durations for that file and marks the subtotal partial.
