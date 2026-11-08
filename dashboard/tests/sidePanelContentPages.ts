@@ -142,6 +142,15 @@ export class StoryReview extends PageObject {
     );
   }
 
+  // Chooses a file with the mouse: a click on its button.
+  chooseFile(list: string, file: string) {
+    return this.cue(
+      `Story review: choose ${file}`,
+      () => this.#file(list, file).click(),
+      this,
+    );
+  }
+
   // Chooses a file from the keyboard: Enter on its button.
   chooseFileByKeyboard(list: string, file: string) {
     return this.cue(

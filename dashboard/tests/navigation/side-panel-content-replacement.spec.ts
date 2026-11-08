@@ -4,39 +4,47 @@
 // keeps it. Real worktrees and kept records supply the inputs; the panel
 // divider shares terminal/review resizing behavior.
 
+import type { Page } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
 import { keyStep } from "../sidePanelWidthPage.ts";
 import { sidePanelPages } from "../sidePanelPages.ts";
+import type { DashboardServer } from "../support/dashboardServer.ts";
+import type { FakeCodex } from "../support/fakeCodexTypes.ts";
 import { holdReviewOf } from "../support/holdReviewResponse.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
-import { otherQueuedIdentity, queuedIdentity } from "../support/startOrigin.ts";
+import {
+  otherQueuedIdentity,
+  queuedIdentity,
+  type StartOrigin,
+} from "../support/startOrigin.ts";
 import {
   keptSession,
   retiredCodexSession,
-  sidePanelContents,
   storyBBranch,
   storyBReport,
-  storyBRetiredCodexRecord,
   storyBWorktree,
   storyReviewReads,
 } from "../support/sidePanelContents.ts";
 import { branch, storyWorktree } from "../support/storyReviewWorktree.ts";
-import {
-  keepLaunchRecords,
-  storyALaunchRecord,
-} from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
 
 test.use({ preparationHost: "codex" });
 
-test("a review, another story's review, and a final report replace each other in the one side panel", async ({
+// The Board with Story A's review worktree and Story B's worktree, Story B's
+// session a Codex one whose saved workspace is gone so its final report is
+// Codex's native `storyBReport`; with the review reads the page asks from now.
+async function openStoriesAAndB({
   page,
   dashboard,
   origin,
-  codexProtocol: native,
-}) => {
-  if (native === undefined) throw new Error("Missing native fixture");
+  native,
+}: {
+  page: Page;
+  dashboard: DashboardServer;
+  origin: StartOrigin;
+  native: FakeCodex;
+}) {
   const { workspace: workspaceA } = storyWorktree(origin);
   const workspaceB = storyBWorktree(origin.project);
   await keepLaunchRecords(dashboard, [
@@ -52,7 +60,22 @@ test("a review, another story's review, and a final report replace each other in
   ]);
   const reviewReads = storyReviewReads(page);
   await openBacklog(page, origin);
-  const journey = sidePanelPages(page);
+  return { reviewReads, journey: sidePanelPages(page) };
+}
+
+test("a review, another story's review, and a final report replace each other in the one side panel", async ({
+  page,
+  dashboard,
+  origin,
+  codexProtocol: native,
+}) => {
+  if (native === undefined) throw new Error("Missing native fixture");
+  const { reviewReads, journey } = await openStoriesAAndB({
+    page,
+    dashboard,
+    origin,
+    native,
+  });
 
   // Story A's first review read is held at the transport until released.
   const heldA = await holdReviewOf(page, queuedIdentity);
@@ -163,63 +186,65 @@ test("a review and a final report stay shown with their selection while the page
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing native fixture");
-  const { workspace: workspaceA } = storyWorktree(origin);
-  const workspaceB = storyBWorktree(origin.project);
-  await keepLaunchRecords(dashboard, [
-    storyALaunchRecord(workspaceA),
-    storyBRetiredCodexRecord(workspaceB, native),
-  ]);
-  const reviewReads = storyReviewReads(page);
-  const cardA = await openBacklog(page, origin);
-  const cardB = parts(page).backlog.getByRole("article", { name: "Story B" });
-  const { development, intent, intentChoice } = parts(page);
-  const items = sidePanelContents(page);
-  const review = page.getByRole("region", { name: "Story review" });
-  const report = page.getByRole("region", { name: "Final report" });
-
-  await test.step("the review keeps its story, selected file and snapshot", async () => {
-    await cardA.getByRole("button", { name: "Review changes" }).click();
-    const selected = review
-      .getByRole("list", { name: "7 changed files" })
-      .getByRole("button", { name: "Modified unstaged.txt" });
-    await selected.click();
-    await expect(selected).toHaveAttribute("aria-pressed", "true");
-    const reads = reviewReads.length;
-    for (const choice of [intentChoice, development]) {
-      await choice.click();
-      await expect(choice).toBeChecked();
-      await expect(review.getByRole("heading", { level: 2 })).toHaveText(
-        "Story A",
-      );
-      await expect(selected).toHaveAttribute("aria-pressed", "true");
-      await expect(
-        review.getByRole("region", { name: "Modified unstaged.txt" }),
-      ).toBeVisible();
-      await expect(items).toHaveCount(1);
-    }
-    await expect(intent).toHaveCount(0);
-    // The review selected Story A, so Intent read Story A's comparison for its
-    // lens; the shown review read none again.
-    expect(reviewReads.slice(reads)).toEqual([queuedIdentity]);
+  const { reviewReads, journey } = await openStoriesAAndB({
+    page,
+    dashboard,
+    origin,
+    native,
   });
 
-  await test.step("the final report keeps its session's report, still not done", async () => {
-    await storyCardSessions(cardB)
-      .getByRole("button", { name: "Read final report" })
-      .click();
-    await expect(report).toContainText(storyBReport);
-    await intentChoice.click();
-    await expect(intent).toContainText(
-      "No intent locations are configured for Open Dough.",
-    );
-    await expect(report).toContainText(storyBReport);
-    await expect(items).toHaveCount(1);
-    await development.click();
-    await expect(cardB).toBeVisible();
-    await expect(report).toContainText(storyBReport);
-    await expect(items).toHaveCount(1);
-    expect((await keptSession(dashboard, native.threadId)).doneAt).toBe(
-      undefined,
-    );
-  });
+  await journey.phase(
+    "Story A's review opens with a file chosen",
+    ({ board }) =>
+      board
+        .storyCard("Story A")
+        .reviewChanges()
+        .chooseFile("7 changed files", "Modified unstaged.txt")
+        .expectFileChosen("7 changed files", "Modified unstaged.txt"),
+  );
+  const reads = reviewReads.length;
+  await journey.phase(
+    "the review keeps its story, chosen file and diff on Intent and back",
+    ({ perspective, intent }) => {
+      for (const shown of ["Intent", "Development"] as const)
+        perspective
+          .choose(shown)
+          .expectChosen(shown)
+          .sidePanel.storyReview.expectStory("Story A")
+          .expectFileChosen("7 changed files", "Modified unstaged.txt")
+          .expectFileDiff("Modified unstaged.txt")
+          .sidePanel.expectItems(1);
+      intent.expectNotShown();
+    },
+  );
+  // The review shows Story A, so Intent read Story A's comparison for its
+  // lens; the shown review read none again.
+  expect(reviewReads.slice(reads)).toEqual([queuedIdentity]);
+
+  await journey.phase(
+    "the final report keeps its session's report on Intent",
+    ({ board, perspective, intent }) => {
+      board.storyCard("Story B").readFinalReport().expectText(storyBReport);
+      perspective.choose("Intent");
+      intent
+        .expectText("No intent locations are configured for Open Dough.")
+        .sidePanel.finalReport.expectText(storyBReport)
+        .sidePanel.expectItems(1);
+    },
+  );
+  await journey.phase(
+    "the final report keeps its session's report back on the Board",
+    ({ board, perspective }) => {
+      perspective.choose("Development");
+      board
+        .storyCard("Story B")
+        .expectShown()
+        .sidePanel.finalReport.expectText(storyBReport)
+        .sidePanel.expectItems(1);
+    },
+  );
+  // Reading the report left its session not done.
+  expect((await keptSession(dashboard, native.threadId)).doneAt).toBe(
+    undefined,
+  );
 });

@@ -1,4 +1,5 @@
-// The Board, its Story cards and the Panel divider, as fluent page objects
+// The Board, its Story cards, the Perspective choice, the Intent
+// perspective's content and the Panel divider, as fluent page objects
 // for the Side panel content journeys
 // (./navigation/side-panel-content-replacement.spec.ts), beside the Side
 // panel and its content (./sidePanelContentPages.ts). Each method writes one
@@ -26,9 +27,13 @@ import { type CueSheet, phase } from "./support/cueSheet.ts";
 import { expect } from "./support/preparationPage.ts";
 import { sidePanelContents } from "./support/sidePanelContents.ts";
 
+type Perspective = "Development" | "Intent";
+
 // The page objects a phase writes its cues on.
 export interface SidePanelPages {
   readonly board: Board;
+  readonly perspective: PerspectiveChoice;
+  readonly intent: Intent;
   readonly sidePanel: SidePanel;
   readonly panelDivider: PanelDivider;
 }
@@ -94,10 +99,65 @@ export class StoryCard extends PageObject {
     );
   }
 
+  expectShown() {
+    return this.cue(
+      `${this.#named}: shown`,
+      () => expect(this.#card).toBeVisible(),
+      this,
+    );
+  }
+
   expectReviewChangesFocused() {
     return this.cue(
       `${this.#named}: Review changes has the keyboard`,
       () => expect(this.#reviewChanges).toBeFocused(),
+      this,
+    );
+  }
+}
+
+// The banner's choice between the Development and Intent perspectives.
+export class PerspectiveChoice extends PageObject {
+  #radio(name: Perspective) {
+    const { development, intentChoice } = parts(this.page);
+    return name === "Intent" ? intentChoice : development;
+  }
+
+  choose(name: Perspective) {
+    return this.cue(
+      `Perspective: choose ${name}`,
+      () => this.#radio(name).click(),
+      this,
+    );
+  }
+
+  expectChosen(name: Perspective) {
+    return this.cue(
+      `Perspective: ${name} is chosen`,
+      () => expect(this.#radio(name)).toBeChecked(),
+      this,
+    );
+  }
+}
+
+// The Intent perspective's content, shown in place of the Board.
+export class Intent extends PageObject {
+  get #intent() {
+    return parts(this.page).intent;
+  }
+
+  expectText(text: string) {
+    return this.cue(
+      `Intent: says "${text}"`,
+      () => expect(this.#intent).toContainText(text),
+      this,
+    );
+  }
+
+  expectNotShown() {
+    return this.cue(
+      "Intent: not shown",
+      () => expect(this.#intent).toHaveCount(0),
       this,
     );
   }
@@ -143,6 +203,8 @@ export class PanelDivider extends PageObject {
 
 const pagesOf = (page: Page, cues: CueSheet): SidePanelPages => ({
   board: new Board(page, cues),
+  perspective: new PerspectiveChoice(page, cues),
+  intent: new Intent(page, cues),
   sidePanel: new SidePanel(page, cues),
   panelDivider: new PanelDivider(page, cues),
 });

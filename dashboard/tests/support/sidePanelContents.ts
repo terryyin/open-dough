@@ -2,7 +2,7 @@
 // panel (../navigation/side-panel-content-switching.spec.ts, ../navigation/side-panel-content-replacement.spec.ts):
 // Story B's real worktree with one committed file of its own, and its kept
 // launch record, a kept session without an attention message, or a Codex
-// record whose saved workspace is gone, so that its final report is Codex's
+// session whose saved workspace is gone, so that its final report is Codex's
 // native final report alone. Also what the page and the machine store say of
 // the panel's items, the review reads, and a kept session.
 
@@ -64,20 +64,6 @@ export function retiredCodexSession(
     },
   };
 }
-
-// Story B's kept record as a Codex session whose saved workspace is gone: the
-// side panel reads Codex's native final report, `storyBReport`, from the
-// native fixture's history. Launched now.
-export const storyBRetiredCodexRecord = (
-  workspace: string,
-  native: FakeCodex,
-): LaunchRecord =>
-  makeMe.aLaunchRecord
-    .executing({ identity: otherQueuedIdentity, title: "Story B" })
-    .onStoryBranch({ workspace, branch: storyBBranch })
-    .inCodexSession(retiredCodexSession(native, workspace, storyBReport))
-    .launchedAt(new Date().toISOString())
-    .please();
 
 // A session the synthetic `claude` lists, by its ID and short ID.
 export const listed = (sessionId: string) => ({

@@ -119,7 +119,7 @@ helper or setup boundary moved.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 With a selected review file or an open report, switching to Intent and back is
 readable in the same action and observation vocabulary. Convert the second
@@ -130,6 +130,22 @@ and session done mark observations explicit.
 Proof: Both [replacement journeys](../../../dashboard/tests/navigation/side-panel-content-replacement.spec.ts)
 pass, including the exact distinct Intent comparison request and the final
 report's persisted session check.
+
+Accepted proof (2026-11-08): the second journey runs as four phases. A
+loop over Intent and Development inside one phase writes one named cue per
+perspective. `PerspectiveChoice` and `Intent` page objects joined
+`sidePanelPages.ts`, and `StoryReview.chooseFile` joined
+`sidePanelContentPages.ts`. Both tests share the spec-local
+`openStoriesAAndB` arrangement, whose MakeMe facts stay in the spec, and
+`storyBRetiredCodexRecord` lost its last caller and was removed. Passed: both
+pilot specs (3), and again for the replacement spec after refactoring, and
+`npm run typecheck:dashboard`.
+
+Learnings for the evaluation: choosing a perspective returns the choice
+itself, so a phase takes `intent` and `board` from its page objects rather
+than by navigation. Each observation costs about seven helper lines, and
+`sidePanelPages.ts` is at 222 of 250 lines before the Terminal and Sessions
+sidebar objects.
 
 ### 3. Follow Terminal replacement and reattachment beside the Board
 
