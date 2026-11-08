@@ -15,6 +15,8 @@
 - GitHub Actions `ci.yml`, display name CI. Codex observer `ealden-chan`
   watches the story branch with directory `/tmp/dough-ci-501/watch-99xKOo`,
   PID 16410, session 28496 and cell `g79:7`.
+- Slice 1 published as `7b1dddda751d4a0eb04c315ac8954677c85a752f` on
+  the story branch and registered on that observer.
 
 ## Goal and boundaries
 
@@ -150,7 +152,7 @@ host-bridge Node checks, typecheck, and the payload link check passed again.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: seed example 4 and the unavailable reasons, as mapped above.
 
@@ -159,6 +161,23 @@ answers a graph that cannot support the calculation → the comparison shows
 "Unavailable." with the specific reason for that endpoint and keeps wall time
 and proof. Includes the graph validation, shared failure wording, and the
 contract's unavailable cases.
+
+Accepted proof: see [the source review](source-review.md) for the individual
+observations. The selected 75 Playwright cases under the local gate wrapper
+and two workers passed except for the new case's row locator. After correcting
+that locator, the unavailable timing journey passed in its own selection.
+The six adapter runner files, dashboard adapter proof and lookup, comparison
+parsing and cache, payload and guidance links, and dashboard typecheck passed.
+The recent Node timing baseline from `bash scripts/ci-test-times.sh
+src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs
+tests/support/dashboard-ci-adapter-revision-lookup.test.mjs` showed wide
+headroom for both jobs and all shares. `node scripts/test-shares.mjs preview
+--split-count 12 --spec-dir dashboard` assigned the new spec to shard 2 with
+balanced predicted totals.
+Independent refactoring moved the comparison deadline case to the existing
+backend timing spec so it observes the assembled slot through
+`asComparisonSlot`. The adapter lookup Node checks, all 17 backend timing
+cases, and dashboard typecheck passed afterward.
 
 ## Plan concerns
 
@@ -177,10 +196,10 @@ would reject may show a less specific reason. Slice 2 replaces it.
 
 Reported: slice 1 — "Invalid graphs and failed adapter reads can return a generic reason."
 Story clause: "as `proof` failures are reported"
-Disposition: interim until slices 2
+Disposition: proved by slice 2: graph validation cases in ci-time-without-runner-waits.spec.ts, the adapter command failure cases in dashboard-ci-adapter-revision-lookup.test.mjs, and the endpoint reasons in intent-ci-comparison-adapter-unavailable.spec.ts.
 
 ### G2. Deadline after endpoint selection
 
 Reported: slice 1 — "When the comparison deadline expires after endpoint selection but during the optional graph read, the timing reason must preserve the selected build and its wall time and proof."
 Story clause: "The endpoint's wall time and proof stay shown."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: ci-time-without-runner-waits.spec.ts triggers the deadline during the selected attempt's jobs read and observes the assembled slot's reason, wall-time inputs and proof identity together. dashboard-ci-adapter-revision-lookup.test.mjs verifies caller cancellation rejects. The browser unavailable timing case verifies the same slot mapping leaves wall time and proof visible.

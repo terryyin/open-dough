@@ -22,10 +22,10 @@ function longestJobChain(jobs: readonly CiTimingJob[]): number | undefined {
     for (const job of unresolved) {
       const predecessors = job.needs.map((id) => chains.get(id));
       if (predecessors.some((ms) => ms === undefined)) continue;
-      const chain =
-        Math.max(0, ...predecessors.map((ms) => ms ?? 0)) + job.durationMs;
-      if (!Number.isFinite(chain)) return undefined;
-      chains.set(job.id, chain);
+      chains.set(
+        job.id,
+        Math.max(0, ...predecessors.map((ms) => ms ?? 0)) + job.durationMs,
+      );
       unresolved.delete(job);
     }
     if (unresolved.size === before) return undefined;
@@ -33,33 +33,60 @@ function longestJobChain(jobs: readonly CiTimingJob[]): number | undefined {
   return Math.max(...chains.values());
 }
 
-function isTimingJob(value: unknown): value is CiTimingJob {
-  if (typeof value !== "object" || value === null) return false;
-  const { id, durationMs, needs } = value as Partial<CiTimingJob>;
-  return (
-    typeof id === "string" &&
-    id.length > 0 &&
-    typeof durationMs === "number" &&
-    Number.isFinite(durationMs) &&
-    durationMs >= 0 &&
-    Array.isArray(needs) &&
-    needs.every((need: unknown) => typeof need === "string")
-  );
-}
-
 export function timeWithoutAdapterRunnerWaits(
   jobs: readonly unknown[],
 ): CiTimeWithoutRunnerWaits {
-  if (
-    jobs.length === 0 ||
-    !jobs.every(isTimingJob) ||
-    new Set(jobs.map(({ id }) => id)).size !== jobs.length
-  )
-    return { reason: "The CI adapter did not report a valid job graph." };
-  const milliseconds = longestJobChain(jobs);
-  return milliseconds === undefined
-    ? { reason: "The CI adapter's job dependencies could not be resolved." }
-    : { milliseconds };
+  if (jobs.length === 0) return { reason: "The CI adapter reported no jobs." };
+
+  const timedJobs: CiTimingJob[] = [];
+  const ids = new Set<string>();
+  for (const job of jobs) {
+    if (typeof job !== "object" || job === null || Array.isArray(job))
+      return { reason: "The CI adapter reported a job that is not an object." };
+    const { id, durationMs, needs } = job as Partial<CiTimingJob>;
+    if (typeof id !== "string" || id === "")
+      return { reason: "The CI adapter reported a job without a nonempty ID." };
+    if (ids.has(id))
+      return { reason: `The CI adapter reported duplicate job ID “${id}”.` };
+    if (typeof durationMs !== "number")
+      return {
+        reason: `The CI adapter's job “${id}” has no numeric durationMs.`,
+      };
+    if (!Number.isFinite(durationMs))
+      return {
+        reason: `The CI adapter's job “${id}” has a non-finite durationMs.`,
+      };
+    if (durationMs < 0)
+      return {
+        reason: `The CI adapter's job “${id}” has a negative durationMs.`,
+      };
+    if (
+      !Array.isArray(needs) ||
+      needs.some((need: unknown) => typeof need !== "string")
+    )
+      return {
+        reason: `The CI adapter's job “${id}” has an invalid needs list.`,
+      };
+    ids.add(id);
+    timedJobs.push({ id, durationMs, needs });
+  }
+  for (const { id, needs } of timedJobs) {
+    const unknownNeed = needs.find((need) => !ids.has(need));
+    if (unknownNeed !== undefined)
+      return {
+        reason: `The CI adapter's job “${id}” needs unknown job “${unknownNeed}”.`,
+      };
+  }
+  const milliseconds = longestJobChain(timedJobs);
+  if (milliseconds === undefined)
+    return {
+      reason: "The CI adapter's job graph contains a dependency cycle.",
+    };
+  if (!Number.isFinite(milliseconds))
+    return {
+      reason: "The CI adapter's job chain duration exceeds the numeric limit.",
+    };
+  return { milliseconds };
 }
 
 function jobDuration(
@@ -135,7 +162,7 @@ export function timeWithoutRunnerWaits(
     timedJobs.push({ id: job.id, durationMs: duration, needs: job.needs });
   }
   const milliseconds = longestJobChain(timedJobs);
-  return milliseconds === undefined
+  return milliseconds === undefined || !Number.isFinite(milliseconds)
     ? { reason: "The workflow's job dependencies could not be resolved." }
     : { milliseconds };
 }

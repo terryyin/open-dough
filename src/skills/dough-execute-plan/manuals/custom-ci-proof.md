@@ -114,3 +114,11 @@ for jobs skipped by a failed attempt. Intent measures the longest dependency
 chain, which is 90 seconds in the example. The dashboard makes this read only
 for story comparisons. The same 20-second and 64 KiB limits apply as for
 `proof`. An ambiguous attempt ID at the revision skips the read.
+
+Intent shows the adapter's `unavailable` reason, bounded to 600 UTF-8 bytes.
+For command failures, Intent reports a nonzero exit with its last stderr line,
+invalid JSON, timeout, or output over the limit, as it does for proof reads.
+An unsupported operation can be reported with a nonzero exit and a reason
+on stderr. Intent also explains a graph with no jobs, empty or duplicate IDs,
+invalid durations, missing dependencies, or a cycle.
+The endpoint's wall time and proof remain available independently of timing.

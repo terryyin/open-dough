@@ -10,7 +10,11 @@ import { newestRunFor } from "./baseCiNearest.ts";
 import { revisionSubject } from "./baseCiRevisionGit.ts";
 import { isBuildConclusion } from "./baseCiRevisionAttempt.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
-import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
+import { ciAdapterFailureOf } from "./ciAdapterFailure.ts";
+import {
+  ciAdapterTimeoutMs,
+  comparisonDeadlineExpired,
+} from "./ciAdapterTimeout.ts";
 import { timeWithoutAdapterRunnerWaits } from "./ciTimeWithoutRunnerWaits.ts";
 import type { GitCall } from "./gitRunner.ts";
 
@@ -69,20 +73,29 @@ export async function adapterRevisionLookup(
         return {
           reason: `The CI adapter listed another discovered attempt as attempt ${attemptId} at ${shortSha(revision)}.`,
         };
+      const timeoutMs = ciAdapterTimeoutMs();
+      let answer: Awaited<ReturnType<typeof readCommandJobs>>;
       try {
-        const { jobs, unavailable } = await readCommandJobs(
+        answer = await readCommandJobs(
           command,
           { repo: source.repository, branch: runBranch },
           { runId: String(adapterAttempt.runId), attemptId, sha: revision },
-          { signal, cwd: root, timeoutMs: ciAdapterTimeoutMs() },
+          { signal, cwd: root, timeoutMs },
         );
-        return jobs === undefined
-          ? { reason: `The CI adapter gave no job graph: ${unavailable}` }
-          : timeWithoutAdapterRunnerWaits(jobs);
       } catch (error) {
-        if (signal.aborted) throw error;
-        return { reason: "The CI adapter's job graph could not be read." };
+        if (comparisonDeadlineExpired(signal))
+          return {
+            reason:
+              "The CI adapter did not answer the job graph read before the comparison deadline.",
+          };
+        signal.throwIfAborted();
+        return {
+          reason: `The CI adapter answered no job graph: ${ciAdapterFailureOf(error, timeoutMs)}.`,
+        };
       }
+      return answer.jobs === undefined
+        ? { reason: `The CI adapter gave no job graph: ${answer.unavailable}` }
+        : timeWithoutAdapterRunnerWaits(answer.jobs);
     },
   };
 }

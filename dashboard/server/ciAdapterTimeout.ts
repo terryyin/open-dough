@@ -6,3 +6,11 @@ import { configuredLimit } from "./configuredLimit.ts";
 
 export const ciAdapterTimeoutMs = () =>
   configuredLimit("DOUGH_CI_ADAPTER_TIMEOUT_MS", defaultAdapterTimeoutMs);
+
+export function comparisonDeadlineExpired(signal: AbortSignal): boolean {
+  return (
+    signal.aborted &&
+    signal.reason instanceof Error &&
+    signal.reason.name === "TimeoutError"
+  );
+}

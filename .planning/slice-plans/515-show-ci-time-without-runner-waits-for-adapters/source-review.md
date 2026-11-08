@@ -9,8 +9,8 @@ in the execution conversation.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G01 | Developers comparing builds in Intent can see the selected builds’ CI time without runner waits when their custom CI adapter supplies job timings and dependencies. | slice 2 | |
-| G02 | The metric lets developers compare a story’s effect on CI time across providers. | slice 2 | |
+| G01 | Developers comparing builds in Intent can see the selected builds’ CI time without runner waits when their custom CI adapter supplies job timings and dependencies. | slice 2 | observed: Adapter comparison spec's valid Landed journey and existing GitHub comparison spec observe provider timing through the same comparison summary and cues. The unavailable adapter journey preserves each endpoint |
+| G02 | The metric lets developers compare a story’s effect on CI time across providers. | slice 2 | observed: Adapter comparison spec's valid Landed journey and existing GitHub comparison spec observe provider timing through the same comparison summary and cues. The unavailable adapter journey preserves each endpoint |
 | C01 | The shared custom CI adapter contract documents one `jobs` operation. | slice 1 | observed: custom-ci-proof.md, Job graph reads, shows the optional dashboard-only operation, both envelopes and the id, duration, needs, skipped-job and shard contract |
 | C02 | `jobs` is optional for adapters. | slice 1 | observed: custom-ci-proof.md, Job graph reads, shows the optional dashboard-only operation, both envelopes and the id, duration, needs, skipped-job and shard contract |
 | C03 | `jobs` is dashboard-only. | slice 1 | observed: custom-ci-proof.md, Job graph reads, shows the optional dashboard-only operation, both envelopes and the id, duration, needs, skipped-job and shard contract |
@@ -37,31 +37,31 @@ in the execution conversation.
 | J04 | Differences are presented the same way as in GitHub Actions comparisons. | slice 1 | observed: intent-ci-comparison-adapter.spec.ts with valid Landed proof asserts Baseline compared with Landed, 1 min 30 s → 1 min 15 s (−15 s, −17%) and faster-light |
 | J05 | Timing cues match GitHub Actions comparisons. | slice 1 | observed: intent-ci-comparison-adapter.spec.ts with valid Landed proof asserts Baseline compared with Landed, 1 min 30 s → 1 min 15 s (−15 s, −17%) and faster-light |
 | J06 | CI wall time continues to come from the attempt’s `startedAt` and `completedAt`. | slice 1 | observed: intent-ci-comparison-adapter.spec.ts asserts Baseline 1 min 30 s next to 2 min wall time and matches the original startedAt and completedAt in the response |
-| U01 | When the metric is unavailable, Intent states the reason. | slice 2 | |
-| U02 | If the adapter responds with `unavailable`, Intent shows the reason as given. | slice 2 | |
-| U03 | The metric is unavailable when the adapter does not implement `jobs`. | slice 2 | |
-| U04 | The metric is unavailable when the adapter fails to answer. Failures are reported as `proof` failures are. | slice 2 | |
-| U05 | A nonzero exit is a failure, reported with the last stderr line. | slice 2 | |
-| U06 | Invalid JSON is a failure. | slice 2 | |
-| U07 | A timeout is a failure. | slice 2 | |
-| U08 | Oversized output is a failure. | slice 2 | |
-| U09 | The graph cannot support the calculation if it has no jobs. | slice 2 | |
-| U10 | The graph cannot support the calculation if it has a duplicate job ID. | slice 2 | |
-| U11 | The graph cannot support the calculation if it has an empty job ID. | slice 2 | |
-| U12 | The graph cannot support the calculation if a duration is missing. | slice 2 | |
-| U13 | The graph cannot support the calculation if a duration is negative. | slice 2 | |
-| U14 | The graph cannot support the calculation if a duration is non-finite. | slice 2 | |
-| U15 | The graph cannot support the calculation if a `needs` ID names no job. | slice 2 | |
-| U16 | The graph cannot support the calculation if it has a dependency cycle. | slice 2 | |
+| U01 | When the metric is unavailable, Intent states the reason. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts asserts the stated Baseline exit status with only the last stderr line and the exact adapter reason on Landed, including its punctuation |
+| U02 | If the adapter responds with `unavailable`, Intent shows the reason as given. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts asserts the stated Baseline exit status with only the last stderr line and the exact adapter reason on Landed, including its punctuation |
+| U03 | The metric is unavailable when the adapter does not implement `jobs`. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts asserts the stated Baseline exit status with only the last stderr line and the exact adapter reason on Landed, including its punctuation |
+| U04 | The metric is unavailable when the adapter fails to answer. Failures are reported as `proof` failures are. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts asserts the stated Baseline exit status with only the last stderr line and the exact adapter reason on Landed, including its punctuation |
+| U05 | A nonzero exit is a failure, reported with the last stderr line. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts asserts the stated Baseline exit status with only the last stderr line and the exact adapter reason on Landed, including its punctuation |
+| U06 | Invalid JSON is a failure. | slice 2 | observed: dashboard-ci-adapter-revision-lookup.test.mjs malformed and oversized job responses yield the selected endpoint's proof-style timing reasons |
+| U07 | A timeout is a failure. | slice 2 | observed: dashboard-ci-adapter-revision-lookup.test.mjs asserts the per-command timeout reason and caller AbortError. ci-time-without-runner-waits.spec.ts verifies the assembled slot retains the selected build and shows a timing reason when the comparison deadline ends the job read. |
+| U08 | Oversized output is a failure. | slice 2 | observed: dashboard-ci-adapter-revision-lookup.test.mjs malformed and oversized job responses yield the selected endpoint's proof-style timing reasons |
+| U09 | The graph cannot support the calculation if it has no jobs. | slice 2 | observed: ci-time-without-runner-waits.spec.ts no jobs case asserts the specific reason |
+| U10 | The graph cannot support the calculation if it has a duplicate job ID. | slice 2 | observed: ci-time-without-runner-waits.spec.ts duplicate ID case asserts the specific reason |
+| U11 | The graph cannot support the calculation if it has an empty job ID. | slice 2 | observed: ci-time-without-runner-waits.spec.ts empty ID case asserts the specific reason |
+| U12 | The graph cannot support the calculation if a duration is missing. | slice 2 | observed: ci-time-without-runner-waits.spec.ts missing duration case asserts the specific reason |
+| U13 | The graph cannot support the calculation if a duration is negative. | slice 2 | observed: ci-time-without-runner-waits.spec.ts negative duration case asserts the specific reason |
+| U14 | The graph cannot support the calculation if a duration is non-finite. | slice 2 | observed: ci-time-without-runner-waits.spec.ts non-finite duration case asserts the specific reason |
+| U15 | The graph cannot support the calculation if a `needs` ID names no job. | slice 2 | observed: ci-time-without-runner-waits.spec.ts and intent-ci-comparison-adapter-unavailable.spec.ts assert the unknown lint dependency reason for test |
+| U16 | The graph cannot support the calculation if it has a dependency cycle. | slice 2 | observed: ci-time-without-runner-waits.spec.ts cyclic graph case asserts the cycle reason |
 | U17 | An ambiguous `attemptId` at the revision means Intent asks no adapter, following `proof` behavior. | slice 1 | observed: intent-ci-comparison-adapter.spec.ts fast-forward variant shows shared attempt 2 reason for Branch and Landed and asserts only Baseline sends jobs |
-| U18 | The endpoint’s wall time stays visible when the metric is unavailable. | slice 2 | |
-| U19 | The endpoint’s proof stays visible when the metric is unavailable. | slice 2 | |
+| U18 | The endpoint’s wall time stays visible when the metric is unavailable. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts asserts the exact wall time and proof rows for all three endpoints while their timing reasons are visible |
+| U19 | The endpoint’s proof stays visible when the metric is unavailable. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts asserts the exact wall time and proof rows for all three endpoints while their timing reasons are visible |
 | L01 | GitHub Actions comparisons retain their workflow-file calculation. | slice 1 | observed: intent-ci-comparison.spec.ts uses the historical workflow and observed attempt job API rows to assert historical timings. ci-time-without-runner-waits.spec.ts still exercises workflow matching and rerun carryover |
 | L02 | GitHub Actions comparisons retain their job-API calculation. | slice 1 | observed: intent-ci-comparison.spec.ts uses the historical workflow and observed attempt job API rows to assert historical timings. ci-time-without-runner-waits.spec.ts still exercises workflow matching and rerun carryover |
 | L03 | The CI status tab does not display the metric. | slice 1 | observed: intent-ci-status-wall-time.spec.ts adapter case observes no metric label and no jobs request |
 | L04 | Running endpoints do not get timing. | slice 1 | observed: intent-ci-comparison-adapter-taken.spec.ts asserts only the completed Baseline sends jobs when the tip is running |
-| L05 | Which comparison answers are remembered stays the same. | slice 2 | |
-| L06 | A timing reason stays part of a final answer, as it does for GitHub Actions. | slice 2 | |
+| L05 | Which comparison answers are remembered stays the same. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts changes the adapter to valid jobs and Check again returns all three remembered reasons without new discover or jobs requests. Existing comparison cache parsing and retry proof passed |
+| L06 | A timing reason stays part of a final answer, as it does for GitHub Actions. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts changes the adapter to valid jobs and Check again returns all three remembered reasons without new discover or jobs requests. Existing comparison cache parsing and retry proof passed |
 | E01 | For a completed attempt with one 90-second job and additional runner queue delay, Intent shows 90 s without runner waits beside the longer wall time. | slice 1 | observed: intent-ci-comparison-adapter.spec.ts asserts Baseline 1 min 30 s next to 2 min wall time and matches the original startedAt and completedAt in the response |
 | E02 | A 30-second `build` followed by `test-a` at 40 s and `test-b` at 60 s, both depending on `build`, yields 90 s. | slice 1 | observed: ci-time-without-runner-waits.spec.ts counts the 90 s parallel graph with dependents first. The merge comparison asserts Branch timing for the graph reported by its selected attempt |
 | E03 | When one revision has two completed attempts, the request identifies the endpoint’s selected attempt. | slice 1 | observed: intent-ci-comparison-adapter.spec.ts jobsRequests assertions match the proof-shaped request for each selected completed endpoint, with listing branch, string opaque or numeric IDs, full SHA and no older attempt |
@@ -70,7 +70,7 @@ in the execution conversation.
 | E06 | That comparison shows a 15-second decrease. | slice 1 | observed: intent-ci-comparison-adapter.spec.ts with valid Landed proof asserts Baseline compared with Landed, 1 min 30 s → 1 min 15 s (−15 s, −17%) and faster-light |
 | E07 | That comparison shows a 17% decrease. | slice 1 | observed: intent-ci-comparison-adapter.spec.ts with valid Landed proof asserts Baseline compared with Landed, 1 min 30 s → 1 min 15 s (−15 s, −17%) and faster-light |
 | E08 | That comparison shows the green duration cue. | slice 1 | observed: intent-ci-comparison-adapter.spec.ts with valid Landed proof asserts Baseline compared with Landed, 1 min 30 s → 1 min 15 s (−15 s, −17%) and faster-light |
-| E09 | An adapter without `jobs` exits nonzero with `unsupported CI adapter operation`, and the endpoint explains why the metric is unavailable. | slice 2 | |
-| E10 | Another adapter returns a graph in which `test` depends on an unknown `lint`, and that endpoint explains why the metric is unavailable. | slice 2 | |
-| E11 | In both unavailable examples, the endpoint still shows wall time. | slice 2 | |
-| E12 | In both unavailable examples, the endpoint still shows proof. | slice 2 | |
+| E09 | An adapter without `jobs` exits nonzero with `unsupported CI adapter operation`, and the endpoint explains why the metric is unavailable. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts asserts the stated Baseline exit status with only the last stderr line and the exact adapter reason on Landed, including its punctuation |
+| E10 | Another adapter returns a graph in which `test` depends on an unknown `lint`, and that endpoint explains why the metric is unavailable. | slice 2 | observed: ci-time-without-runner-waits.spec.ts and intent-ci-comparison-adapter-unavailable.spec.ts assert the unknown lint dependency reason for test |
+| E11 | In both unavailable examples, the endpoint still shows wall time. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts asserts the exact wall time and proof rows for all three endpoints while their timing reasons are visible |
+| E12 | In both unavailable examples, the endpoint still shows proof. | slice 2 | observed: intent-ci-comparison-adapter-unavailable.spec.ts asserts the exact wall time and proof rows for all three endpoints while their timing reasons are visible |

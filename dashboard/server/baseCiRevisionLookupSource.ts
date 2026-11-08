@@ -11,7 +11,10 @@ import { githubRevisionLookup } from "./baseCiGithubRevisionLookup.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { unread, type BaseCiJudgment } from "./baseCiNearest.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
-import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
+import {
+  ciAdapterTimeoutMs,
+  comparisonDeadlineExpired,
+} from "./ciAdapterTimeout.ts";
 import type { GitCall } from "./gitRunner.ts";
 
 export async function revisionLookupOrGap(
@@ -33,11 +36,7 @@ export async function revisionLookupOrGap(
         signal,
       );
     } catch (error) {
-      if (
-        signal.aborted &&
-        signal.reason instanceof Error &&
-        signal.reason.name === "TimeoutError"
-      )
+      if (comparisonDeadlineExpired(signal))
         return unread(
           "The CI adapter did not answer discovery before the comparison deadline.",
         );

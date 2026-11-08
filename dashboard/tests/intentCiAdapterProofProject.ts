@@ -43,6 +43,7 @@ export type Answers = {
   // Default job graph answer, with optional answers by the requested attempt ID.
   readonly jobs?: unknown;
   readonly jobsByAttemptId?: Readonly<Record<string, unknown>>;
+  readonly jobsStderrByAttemptId?: Readonly<Record<string, string>>;
 };
 
 // A ciAdapter project folder in the test home whose adapter records each
@@ -85,6 +86,13 @@ const attemptAnswer = (byId, fallback) =>
   Object.hasOwn(byId ?? {}, request.attempt.attemptId)
     ? byId[request.attempt.attemptId]
     : fallback;
+if (request.operation === "jobs") {
+  const stderr = attemptAnswer(answers.jobsStderrByAttemptId, undefined);
+  if (stderr !== undefined) {
+    process.stderr.write(stderr);
+    process.exit(2);
+  }
+}
 const answer = request.operation === "proof"
   ? attemptAnswer(answers.proofByAttemptId, answers.proof)
   : request.operation === "jobs"

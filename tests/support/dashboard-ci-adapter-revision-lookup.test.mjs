@@ -9,6 +9,8 @@ import test from "node:test";
 import { adapterRevisionLookup } from "../../dashboard/server/baseCiAdapterRevisionLookup.ts";
 import { revisionLookupOrGap } from "../../dashboard/server/baseCiRevisionLookupSource.ts";
 import { checkoutRoot } from "../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
+import { selectAdapterComparisonEndpoint } from "./dashboardCiAdapterComparisonEndpoint.mjs";
+import { makeMe } from "./makeMe.mjs";
 
 const source = { repository: "owner/repo", ref: "main" };
 const sha = "a".repeat(40);
@@ -84,7 +86,11 @@ test("the comparison deadline gives a discovery reason when it expires first", a
   writeFileSync(
     path.join(root, ".planning", "open-dough.json"),
     JSON.stringify({
-      ciAdapter: [process.execPath, "-e", "setTimeout(() => {}, 5000)"],
+      ciAdapter: [
+        process.execPath,
+        "-e",
+        "require('node:net').createServer().listen(0, '127.0.0.1')",
+      ],
     }),
   );
   const signal = AbortSignal.timeout(200);
@@ -100,4 +106,69 @@ test("the comparison deadline gives a discovery reason when it expires first", a
     answer.reason,
     "The CI adapter did not answer discovery before the comparison deadline.",
   );
+});
+
+const attempt = makeMe.aCiAdapterAttempt
+  .passed({
+    sha,
+    runId: "selected",
+    attemptId: "retry",
+    branch: "main",
+    startedAt: "2026-11-05T09:00:00Z",
+    completedAt: "2026-11-05T09:04:00Z",
+  })
+  .please();
+
+async function selectedEndpointTiming(jobResponse, signal) {
+  const { slot, lookup } = await selectAdapterComparisonEndpoint(
+    attempt,
+    jobResponse,
+    signal,
+  );
+  return () => lookup.timeWithoutRunnerWaitsOf(slot);
+}
+
+test("the selected endpoint gives the same malformed and oversized answer reasons as proof", async () => {
+  for (const [answer, reason] of [
+    [
+      "{",
+      /^The CI adapter answered no job graph: CI adapter returned invalid JSON: .+\.$/,
+    ],
+    [
+      JSON.stringify({ jobs: [], padding: "x".repeat(64 * 1024) }),
+      /^The CI adapter answered no job graph: its answer is longer than 64 KiB\.$/,
+    ],
+  ]) {
+    const readTiming = await selectedEndpointTiming(
+      answer,
+      new AbortController().signal,
+    );
+    assert.match((await readTiming()).reason, reason);
+  }
+});
+
+test("the selected endpoint reports its adapter timeout as a timing reason", async (t) => {
+  const readTiming = await selectedEndpointTiming(
+    "hold",
+    new AbortController().signal,
+  );
+  const setting = "DOUGH_CI_ADAPTER_TIMEOUT_MS";
+  const prior = process.env[setting];
+  t.after(() => {
+    if (prior === undefined) delete process.env[setting];
+    else process.env[setting] = prior;
+  });
+  process.env[setting] = "300";
+  assert.deepEqual(await readTiming(), {
+    reason:
+      "The CI adapter answered no job graph: it gave no answer within 0.3 seconds.",
+  });
+});
+
+test("a cancelled comparison does not receive a timing reason as its answer", async () => {
+  const controller = new AbortController();
+  const readTiming = await selectedEndpointTiming("hold", controller.signal);
+  const pending = readTiming();
+  controller.abort();
+  await assert.rejects(pending, { name: "AbortError" });
 });
