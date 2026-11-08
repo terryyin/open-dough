@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_share-done-catalog-record-reading.json",
+      "identity": "SEED-262#share-done-catalog-record-reading",
+      "completedAt": "2026-11-08T23:49:54.428Z",
+      "blob": "c09a95a8d8145f75a3808168d15a474c7e29c9fb"
+    },
+    {
       "fileName": "SEED-261_map-launch-completion-and-landing-test-data.json",
       "identity": "SEED-261#map-launch-completion-and-landing-test-data",
       "completedAt": "2026-11-08T21:53:27.619Z",
@@ -1896,18 +1902,6 @@
       "identity": "SEED-126#steady-dashboard-refresh",
       "completedAt": "2026-10-10T04:46:33.383Z",
       "blob": "aa0d0504a0031d859191e8df4aac98b6a4f5f5f4"
-    },
-    {
-      "fileName": "SEED-125_keep-reported-gaps-owned.json",
-      "identity": "SEED-125#keep-reported-gaps-owned",
-      "completedAt": "2026-10-09T23:18:58.943Z",
-      "blob": "4a32eb124d56593a0f4ed58142c8909eb557a79b"
-    },
-    {
-      "fileName": "SEED-127_full-width-near-future-direction.json",
-      "identity": "SEED-127#full-width-near-future-direction",
-      "completedAt": "2026-10-09T23:16:07.850Z",
-      "blob": "64dbbb3503a3f87cab033037b7c62f78e4186488"
     }
   ],
   "unreadable": []
