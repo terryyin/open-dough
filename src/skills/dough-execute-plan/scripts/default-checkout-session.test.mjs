@@ -13,6 +13,11 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import {
   commitAllAndAssertRetained,
   occupyDefaultCheckout,
   snapshot,
@@ -25,7 +30,6 @@ import {
 import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import {
   backlogFile,
-  createPreparationTrunk,
   identityC,
   refineStoryC,
   remoteFile,
@@ -79,7 +83,9 @@ test("one-shot execution with --default-main works in the dirty default checkout
 });
 
 test("one-shot refinement with --default-main records its facts in the dirty default checkout, leaving the story queued and nothing published", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const checkout = trunk.integration;
   const queue = await remoteFile(trunk, "main", backlogFile);
@@ -131,7 +137,9 @@ test("one-shot refinement with --default-main records its facts in the dirty def
 });
 
 test("a clean default checkout behind fetched trunk stays at its own HEAD: neither workflow's default-checkout start fast-forwards it", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const checkout = trunk.integration;
   const fetched = await advanceOriginFromAnotherWriter(trunk.origin);

@@ -4,11 +4,15 @@
 // identical bytes. A full rotation is reported, never reclaimed.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { agentNames } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { landWorktree } from "./dough-land-test-fixtures.mjs";
 import {
   abandonPreparation,
-  createPreparationTrunk,
   createWorkspace,
   git,
   identityC,
@@ -34,7 +38,9 @@ const yui = profileOf("Yui");
 // then held, so assignment B of the same story from a second workspace
 // reuses Yui with the same tool and model.
 async function reusedName(t, endA) {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const first = await createWorkspace(trunk, "c1");
   const { receipt: a } = await startPreparation(

@@ -5,8 +5,12 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
 import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import {
   continuePreparation,
-  createPreparationTrunk,
   createWorkspace,
   git,
   identityC,
@@ -22,7 +26,9 @@ import {
 import { snapshot } from "./preparation-assignment-recovery-fixtures.mjs";
 
 test("retained continuation requires its branch, published allocation and agent, preserving draft and assignment on every refusal", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace, branch } = await createWorkspace(trunk, "retained");
   const { receipt: announced } = await startPreparation(
@@ -104,7 +110,9 @@ test("retained continuation requires its branch, published allocation and agent,
 });
 
 test("retained continuation never recreates a missing workspace or branch", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace, branch } = await createWorkspace(trunk, "missing");
   const { receipt: announced } = await startPreparation(
@@ -165,7 +173,9 @@ test("retained continuation never recreates a missing workspace or branch", asyn
 });
 
 test("raw recovery without an allocation cannot announce when origin already holds this story", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const first = await createWorkspace(trunk, "announced");
   const { receipt: announced } = await startPreparation(
@@ -197,7 +207,9 @@ test("raw recovery without an allocation cannot announce when origin already hol
 });
 
 test("a clean raw retained start announces once and its next recovery continues the same allocation", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace, branch } = await createWorkspace(trunk, "clean-raw");
   assert.equal((await git(workspace, "status", "--porcelain")).stdout, "");

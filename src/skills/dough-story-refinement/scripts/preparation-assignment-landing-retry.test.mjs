@@ -6,11 +6,15 @@
 // here only the release receipts and remote trunk are observed.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { landWorktree } from "./dough-land-test-fixtures.mjs";
 import {
   backlogCli,
   backlogFile,
-  createPreparationTrunk,
   createWorkspace,
   exec,
   git,
@@ -38,7 +42,9 @@ const landings = async (trunk) =>
 
 // A refined story C with its assignment's release staged, ready to land.
 async function readyToLand(t) {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace, branch } = await createWorkspace(trunk, "c");
   const { receipt: announced } = await startPreparation(

@@ -11,9 +11,9 @@ does. A second script then read each published file at `main`.
 | Consuming operation | Observation | Result |
 | --- | --- | --- |
 | Slice 1 replaces command replay with encoder writes | Each published file was parsed and rendered again with its production encoder: `parseAgentProfile`/`renderAgentProfile` for both profiles, `parseBacklog`/`renderBacklog`, `parseDoneRecord`/`renderDoneRecord`, and `parseDoneCatalog`/`renderDoneCatalog` | All five rendered byte for byte (SAME), so the encoders can produce what the commands publish |
-| Slice 1 matches what each transition changes | `git diff --stat` between the named revisions | queued→preparing changes only `agents/yui-chan.json`; →taken changes the backlog and `agents/akiho-chan.json`; →completed changes the backlog, `done/SEED-C_c.json` and `done/.catalog.json` |
+| Slice 1 matches what each transition changes | `git diff --stat` between the named revisions | queued→preparing changes only `agents/yui-chan.json`, →taken changes the backlog and `agents/akiho-chan.json`, and →completed changes the backlog, `done/SEED-C_c.json` and `done/.catalog.json` |
 | Slice 1 matches commit facts and refs | `git log --format=%an|%cn|%cI` and `for-each-ref` on the origin | Authors are Yui-chan and Akiho-chan on the story-columns agent commits and Integration Checkout elsewhere. In the separate launch history, Yui-chan takes Story A as the first agent. The committer is always Integration Checkout. Only `refs/heads/main` exists. |
-| Slice 1 setup cost to be replaced | The same script with timings, run twice | 2.40–2.56 s in total; the preparation start (~0.75 s) and Take (~1.1 s) dominate |
+| Slice 1 setup cost to be replaced | The same script with timings, run twice | The preparation start (~0.75 s) and Take (~1.1 s) dominate the 2.40–2.56 s total |
 | Native evidence identity is unaffected | `tests/support/git-publication-native-evidence.sh` lists its inputs explicitly | It does not list the queued-trunk or preparation fixture modules, and the native fixtures keep calling those helpers unchanged |
 | Slice 2 default repository | `product-backlog.mjs add` on a backlog of `# Product backlog`, `## Taken`, `## Backlog list` | The file parsed. The add was refused only because the linked seed was missing (`canonical home not found`). |
 
@@ -73,3 +73,42 @@ The independent refactor extracted the existing done-record builder into
 Intent Coverage done-record check, dashboard typecheck, and exact
 story-columns replay comparison passed after the extraction. Its trace
 is in `/tmp/dough-seed262-refactor.tofU02/consumer-trace-disposition.md`.
+
+Managed delivery accepted slice 1 at `6f5d94fe4` on the story branch and
+attached it to the retained observer. Before slice 2, local merge
+`c774e901` incorporated plan 508's trunk landing `870df7613`. It kept
+the published backlog encoder and all canonical builders. The existing
+done-record getter retains both APIs in one builder. The merge hook and
+a fresh exact launch and story-columns replay comparison passed.
+
+### Slice 2 accepted proof
+
+- Migrated 46 preparation and 17 sibling setup calls across 23 skill test
+  files. `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh` with the exact
+  paths in `/tmp/dough-seed262-slice2.mznJjf/node-paths.txt` passed all 24
+  selected files in 38.05 s. The additional default repository test
+  checks the bare origin, sole `main` commit and real backlog CLI reporting
+  zero active entries. The announce test declares Yui's rival execution
+  profile, runs the real start, and compares the published Yuma profile
+  bytes with `renderAgentProfile` output. Other real command and competing
+  Git operations stay under their original assertions.
+- The strict two-worker `npm run --silent test:dashboard -- dashboard/tests/stories/backlog-preparing.spec.ts dashboard/tests/sessions/session-attribution.spec.ts --workers=2`
+  run under the AC guard passed 2/2 in 10.08 s, observing published
+  assignment credit, release/abandon and historical name reuse.
+  `npm run typecheck:dashboard` and `git diff --check` passed.
+- The C and B2 repository descriptions matched the old constructors'
+  ordered Git trees, messages, authors, committers and refs. Launch and
+  story-columns matched post-508 merge snapshots with the same clock.
+  Comparisons, strict transcripts and per-consumer dispositions are under
+  `/tmp/dough-seed262-slice2.mznJjf`.
+- The same five-case owned-context selection passed in 5.25 s versus
+  5.91 s on the merged pre-change baseline. With the same runner environment,
+  first fixture time was 245.6 ms and four warm samples were 21.0–21.7 ms,
+  compared with 272.9 ms first and 125.9–128.2 ms warm before. Short load
+  was 3.10 after and 4.86 before. Compare timing with this load difference.
+
+Independent refactor extracted `writeRevisionFiles` from Git/cache lifecycle.
+Post-extraction proof passed the same 24 Node files, both preparation and
+attribution cases, ten attention and long-title cases, dashboard typecheck,
+and both exact replay comparisons. Consumer dispositions and proof are in
+`/tmp/dough-seed262-refactor2.1W9E9g/`.

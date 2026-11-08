@@ -9,6 +9,11 @@ import { existsSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import {
   occupyDefaultCheckout,
   snapshot,
   startExecutionThere,
@@ -19,7 +24,6 @@ import {
   identityA,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
-import { createPreparationTrunk } from "../../dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs";
 import {
   oneShot as oneShotRefinement,
   start as startRefinement,
@@ -29,7 +33,9 @@ import {
 useInstalledPayload();
 
 test("a default checkout on another branch or mid-operation, a mismatched checkout, or tracked work refuses --default-main in both workflows without changing anything", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const checkout = trunk.integration;
   await occupyDefaultCheckout(checkout);

@@ -8,6 +8,11 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import {
   advanceOriginFromAnotherWriter,
   captureCheckout,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
@@ -15,7 +20,6 @@ import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publicati
 import { configureDeveloper } from "../../dough-execute-plan/scripts/workspace-publication-startup-test-fixtures.mjs";
 import { landWorktree } from "./dough-land-test-fixtures.mjs";
 import {
-  createPreparationTrunk,
   git,
   identityC,
   lsRemoteSha,
@@ -61,7 +65,9 @@ async function staleDeveloperCheckout(trunk) {
 }
 
 test("a fresh preparation from a stale, dirty checkout drafts on fetched trunk, resumes its own draft, and lands it without touching that checkout", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { localCommit, advanced, bytes } = await staleDeveloperCheckout(trunk);
   const before = await bytes();
@@ -141,7 +147,9 @@ test("a fresh preparation from a stale, dirty checkout drafts on fetched trunk, 
 });
 
 test("a workspace that cannot be selected at fetched trunk is not created", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   await configureDeveloper(trunk.integration);
   const workspace = join(trunk.fixture, "prep-missing");

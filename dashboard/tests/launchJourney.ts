@@ -7,69 +7,28 @@ import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/pr
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { direction } from "../../tests/support/product-backlog-fixture.mjs";
 import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC as storyC,
+  storyA,
+  storyB,
+  storyPlanPath,
+} from "../../tests/support/queued-repository.mjs";
+import {
   integrationDeveloper,
   materializeRepository,
 } from "../../tests/support/repository-fixture.mjs";
 
-export const takenStory = "Story A";
-export const readyStory = "Story B";
-export const notRefinedStory = "Story C";
-
-function story(key: string, title: string) {
-  return {
-    identity: `SEED-${key}#${key.toLowerCase()}`,
-    href: `seeds/${key}.md#${key.toLowerCase()}`,
-    title,
-  };
-}
-
-const storyA = story("A", takenStory);
-const storyB = story("B", readyStory);
-const storyC = story("C", notRefinedStory);
+export const takenStory = storyA.title;
+export const readyStory = storyB.title;
+export const notRefinedStory = storyC.title;
 export const takenIdentity = storyA.identity;
 export const readyIdentity = storyB.identity;
 export const notRefinedIdentity = storyC.identity;
 
-function seed(key: string, title: string, body: string) {
-  const { identity } = story(key, title);
-  return `---\nid: SEED-${key}\n---\n\n# Seed ${key}\n\n<a id="${key.toLowerCase()}"></a>\n\n### ${title}\n\n**Identity:** ${identity}\n\n${body}\n`;
-}
-
-const planPath = (key: string) => `slice-plans/${key}/PLAN.md`;
-const readyStories = [
-  { key: "A", entry: storyA },
-  { key: "B", entry: storyB },
-];
-
 export function queuedDashboardRepository(titleC = notRefinedStory) {
-  const readyFiles = readyStories.flatMap<[string, string]>(
-    ({ key, entry }) => [
-      [`.planning/seeds/${key}.md`, seed(key, entry.title, `Execute ${key}.`)],
-      [
-        `.planning/${planPath(key)}`,
-        `# ${entry.title} plan\n\nExecute the selected startup story.\n`,
-      ],
-    ],
+  return queuedRepositoryWithRoughStory(
+    makeMe.aBacklogEntry.with({ ...storyC, title: titleC }).please(),
   );
-  return makeMe.aRepository
-    .withRevision("base", {
-      message: "base trunk commit",
-      backlog: { direction, queued: [storyA, storyB] },
-      files: { "trunk.txt": "base\n", ...Object.fromEntries(readyFiles) },
-      storyStates: readyStories.map(({ key, entry: { identity, href } }) => ({
-        identity,
-        href,
-        refinement: "refined",
-        approach: "planned",
-        plan: `../${planPath(key)}`,
-        assessment: "ready",
-      })),
-    })
-    .withRevision("queued", {
-      message: "queue story C",
-      backlog: { direction, queued: [storyA, storyB, story("C", titleC)] },
-      files: { ".planning/seeds/C.md": seed("C", titleC, "Rough idea for C.") },
-    });
 }
 
 function agentAuthor(name: string) {
@@ -85,11 +44,11 @@ function takeMessage(identity: string) {
 
 const storyAWithPlan = {
   ...storyA,
-  plan: { label: "plan", target: planPath("A") },
+  plan: { label: "plan", target: storyPlanPath(storyA) },
 };
 const storyBWithPlan = {
   ...storyB,
-  plan: { label: "plan", target: planPath("B") },
+  plan: { label: "plan", target: storyPlanPath(storyB) },
 };
 
 export type LaunchJourney = {

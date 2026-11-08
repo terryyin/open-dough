@@ -178,7 +178,7 @@ story-preparation builder.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the 25 `createPreparationTrunk` and 7 `createSiblingTrunk`
 consumers under `src/skills/dough-story-refinement` and
@@ -192,6 +192,8 @@ Express Story C and rival assignments as description facts at the call site.
 unrecognized rival profile literal. Every description extends the default
 repository, so these real tests exercise it. Leave `createPreparationTrunk` in place only
 for the native owned-context and one-shot fixtures.
+
+[Accepted proof and timing](proof.md#slice-2-accepted-proof).
 
 ### 3. Startup, admission and agent-commit tests declare their trunk
 

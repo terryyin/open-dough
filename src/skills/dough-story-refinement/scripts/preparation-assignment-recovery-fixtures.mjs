@@ -9,6 +9,7 @@ import {
   renderAgentProfile,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { integrationDeveloper } from "../../../../tests/support/repository-fixture.mjs";
 import {
   exec,
   git,
@@ -17,32 +18,44 @@ import {
   revParse,
 } from "./preparation-assignment-test-fixtures.mjs";
 
-// Every rotation name except `free` becomes another developer's execution
-// assignment, published in one commit dated decades ago: age alone never
-// frees a name.
-export async function occupyAllBut(trunk, ...free) {
-  const { integration } = trunk;
-  await git(integration, "pull", "--quiet", "--ff-only", "origin", "main");
-  mkdirSync(join(integration, ".planning/agents"), { recursive: true });
-  const held = agentNames.filter((name) => !free.includes(name));
-  for (const name of held)
-    writeFileSync(
-      join(integration, profileOf(name)),
-      renderAgentProfile(
+// Every rotation name except `free` has another developer's execution
+// assignment. The old commit date proves age alone never frees a name.
+export function oldExecutionAssignmentsExcept(...free) {
+  const developer = { ...integrationDeveloper, date: "2001-01-01T00:00:00Z" };
+  return {
+    message: "other developers work",
+    author: developer,
+    committer: developer,
+    agentProfiles: agentNames
+      .filter((name) => !free.includes(name))
+      .map((name) =>
         makeMe.anAgentProfile
           .executing({ name, identity: `SEED-${name.toUpperCase()}#work` })
           .please(),
       ),
+  };
+}
+
+// Publish these same facts after a test action when the push order matters.
+export async function occupyAllBut(trunk, ...free) {
+  const { integration } = trunk;
+  await git(integration, "pull", "--quiet", "--ff-only", "origin", "main");
+  mkdirSync(join(integration, ".planning/agents"), { recursive: true });
+  const { agentProfiles, message, committer } = oldExecutionAssignmentsExcept(
+    ...free,
+  );
+  for (const profile of agentProfiles)
+    writeFileSync(
+      join(integration, profileOf(profile.name)),
+      renderAgentProfile(profile),
     );
   await git(integration, "add", ".planning/agents");
-  const date = "2001-01-01T00:00:00Z";
-  await exec(
-    "git",
-    ["commit", "--quiet", `--date=${date}`, "-m", "other developers work"],
-    { cwd: integration, env: { ...process.env, GIT_COMMITTER_DATE: date } },
-  );
+  const { date } = committer;
+  await exec("git", ["commit", "--quiet", `--date=${date}`, "-m", message], {
+    cwd: integration,
+    env: { ...process.env, GIT_COMMITTER_DATE: date },
+  });
   await git(integration, "push", "--quiet", "origin", "HEAD:main");
-  return held;
 }
 
 function hook(trunk, name, body) {

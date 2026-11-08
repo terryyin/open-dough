@@ -7,11 +7,11 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   backlog,
   backlogFile,
   commitQueuedResult,
-  createSiblingTrunk,
   deliverQueued,
   identityB,
   identityB2,
@@ -33,6 +33,8 @@ import {
   remoteHeads,
   revParse,
 } from "./publication-test-fixtures.mjs";
+import { queuedRepositoryWithUnrefinedB2 } from "./one-shot-queued-repository.mjs";
+import { configureDeveloper } from "./workspace-publication-startup-test-fixtures.mjs";
 
 const changedPaths = async (origin, sha) =>
   (await git(origin, "show", "--name-only", "--format=", sha)).stdout
@@ -45,8 +47,9 @@ const doneRecordB = ".planning/done/SEED-B_b.json";
 const doneCatalog = ".planning/done/.catalog.json";
 
 test("a queued story's result and spent records reach remote trunk as one commit, siblings intact", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const headsBefore = await remoteHeads(trunk.origin);
 
   const started = await startQueuedOneShot(trunk);
@@ -92,8 +95,9 @@ test("a queued story's result and spent records reach remote trunk as one commit
 });
 
 test("an unrelated remote queue change survives reconciliation of the guarded result", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const started = await startQueuedOneShot(trunk);
   assert.equal(started.receipt.ok, true, started.stdout);
   const result = await commitQueuedResult(started.workspace);
@@ -139,8 +143,9 @@ test("an unrelated remote queue change survives reconciliation of the guarded re
 });
 
 test("a queued no-change conclusion retains its closure for review until an explicit landing publishes it under the guard", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const headsBefore = await remoteHeads(trunk.origin);
   const started = await startQueuedOneShot(trunk, { pushAuthorized: false });
   assert.equal(started.receipt.ok, true, started.stdout);
@@ -174,8 +179,9 @@ test("a queued no-change conclusion retains its closure for review until an expl
 });
 
 test("a queued start refuses a preparing holder or a recorded not-ready reason without creating a workspace", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
 
   await rivalPreparation(trunk);
   const preparing = await startQueuedOneShot(trunk, { name: "preparing" });

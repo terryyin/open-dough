@@ -5,13 +5,17 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { test } from "node:test";
+import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { createdForRecords } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { startCliResult } from "../../dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { takenIdentities } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import { landWorktree } from "./dough-land-test-fixtures.mjs";
 import {
   backlogFile,
-  createPreparationTrunk,
   git,
   identityC,
   linkC,
@@ -36,7 +40,9 @@ const planned = [
 // A preparation worktree that `start` created at fetched trunk, holding a
 // refined story, its plan, a recorded `ready` assessment, and a staged release.
 async function readyPreparation(t) {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const workspace = join(trunk.fixture, "owned", "prep-c");
   const { receipt: announced } = await startPreparation(

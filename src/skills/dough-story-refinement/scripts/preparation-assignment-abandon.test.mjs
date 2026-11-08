@@ -5,11 +5,15 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
+import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { configureDeveloper } from "../../dough-execute-plan/scripts/workspace-publication-startup-test-fixtures.mjs";
 import {
   abandonPreparation,
   backlogFile,
-  createPreparationTrunk,
   createWorkspace,
   git,
   identityC,
@@ -43,7 +47,9 @@ const endings = async (trunk) =>
 // An announced preparation paused with a committed plan draft and an
 // uncommitted seed edit in its workspace.
 async function pausedPreparation(t) {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   await configureDeveloper(trunk.integration);
