@@ -18,6 +18,8 @@
   `/tmp/dough-ci-501/watch-iouCtG`, PID `36703`, session `97985`, cell `12`.
 - Slice 1 was accepted on the execution branch at
   `db92104dbf589a9cc9e53f7e1fd067054371b984` with observation attached.
+- Slice 2 was accepted at `761599d9271a6e250a0fb060e29baef918275e0c`
+  with observation attached.
 
 ## Goal and boundaries
 
@@ -97,15 +99,12 @@ Accepted native observation on 2026-11-08 (local time), with AC power:
 caffeinate -s -i bash tests/dough-adr-awareness-codex-delivery-to-use.sh --native --case delivery/updated-use --results-dir /tmp/dough-seed258-native.sjfrLgaV --deadline 240
 ```
 
-Codex CLI 0.167.0 passed the maintained assessor. The update transitioned
-v0.2.1 to v0.2.2 on the same disposable target, preserving source and
-companion data. A distinct fresh session read the installed `.agents/skills`
-skill and both authority records, cited the conflicting ARC-12 statuses,
-and stopped for the human decision. The target and source snapshots were
-unchanged by fresh use. The retained replay attempt is
+Codex CLI 0.167.0 passed the assessor. Ordinary update on the disposable target
+moved v0.2.1 to v0.2.2 and preserved source and companion data. A distinct fresh
+session read the `.agents/skills` skill and both conflicting ARC-12 records,
+stopped for the human decision, and left target and source snapshots intact.
+Retained replay attempt:
 `tests/fixtures/native-streams/codex/delivery/updated-use/20261107T235610-0195`.
-This establishes the current authenticated Codex route. The new skill's
-behavior is owned by the next two slices.
 
 The fixture's streams, stage responses, and ordered command expectations
 replayed successfully with `PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i bash tests/native-stream-replay.sh`.
@@ -130,51 +129,40 @@ answer. Verify the result against the actual observations. Check restoration
 and the evidence limits in the representative review. Keep the source
 Proposed while the second example is pending.
 
-Accepted proof used disposable tag `v0.3.89`, commit
-`845ab2c4da805a00064edfde63bb99a93ec6b442`, with the standalone skill at
-SHA-256 `fe61286cc2ebafe5121f3aa09768a636013b28baa60afbe2a540062ead01bef6`
-in both installed roots. The tagged fixture, invocation and snapshots were
-retained for review under `/tmp/dough-seed258-open-dough.wM6r9G0t/`.
-
-The first invocation returned **Insufficient evidence** without applying a
-fault. The historical test's teardown could not execute macOS `/bin/ps`
-inside the disposable native sandbox and ended with `EPERM`. A direct process
-listing reproduced and cleared that error with a narrow execution exception
-for `/bin/ps`. The native retry preserved the candidate bytes, project pin,
-and test timeouts. It ran using
+Disposable v0.3.89 (`845ab2c4da805a00064edfde63bb99a93ec6b442`) installed
+the same skill bytes in both roots. Fixture and evidence:
+`/tmp/dough-seed258-open-dough.wM6r9G0t/`. The first invocation stopped before
+the fault with **Insufficient evidence** because macOS `/bin/ps` hit `EPERM`
+in historical teardown. A direct check cleared it with a narrow `/bin/ps`
+exception. The retry kept the candidate, pin, and timeouts, using
 `caffeinate -s -i /opt/homebrew/bin/bash /tmp/dough-seed258-open-dough.wM6r9G0t/probe-ps.sh`.
 
-The completed fresh Codex stream shows the installed skill read and one
-Chromium case selected at Open Dough `1359d6fb76b8ff2b4295e2b4febe0e467ec72be1`:
+Fresh Codex read the installed skill and selected one Chromium case at
+`1359d6fb76b8ff2b4295e2b4febe0e467ec72be1`.
 
 ```sh
 caffeinate -s -i npm run test:dashboard -- dashboard/tests/intent/intent-ci-comparison-cancelled-landing-gaps.spec.ts --grep 'waits for a later trunk build and uses it once pushed' --workers=1 --reporter=list
 ```
 
-The baseline passed. The temporary removal of the `awaitingLaterBuild`
-guard in `dashboard/server/intentCiComparisonAnswers.ts:38–42` froze the
-waiting answer. After the fixture served finished run 403 and proof, the
-first post-push assertion at
+The baseline passed. Removing `awaitingLaterBuild` from the cache guard in
+`dashboard/server/intentCiComparisonAnswers.ts:38–42` froze the waiting answer.
+After the fixture served run 403 and proof, the assertion at
 `dashboard/tests/intent/intent-ci-comparison-cancelled-landing-gaps.spec.ts:112`
-received stale waiting text. The restored run passed the same case and the
-pre/post tracked, staged, and untracked snapshots matched. The session
-returned **Caught** for that fault and browser path. The independent elapsed
-time through the response was 166.987 s. The returned report separately
-recorded 152.5 s through its final clock read and case runtimes of 8.4 s,
-10.9 s, and 9.3 s. Active effort measurements were unavailable.
+received stale waiting text. The restored run passed and snapshots matched.
+The report returned **Caught** for that browser path, with 152.5 s through its
+final clock read, case runtimes of 8.4, 10.9, and 9.3 s, and unavailable active
+effort. Independent elapsed through the response was 166.987 s.
 
-Representative review exercised the missing-source request, failed-baseline
-stop, insufficient-evidence result for an unreached assertion, and the green
-assertion with independently observed wrong behavior. The first native
-attempt also confirmed the failed-baseline stop without a scratch edit.
-The consumer trace found no active wrap-up or dashboard integration for
-the Proposed source. The plan's later payload step owns managed delivery.
+Representative review walked missing source, failed baseline, unreached
+assertion, and green assertion with independently observed wrong behavior.
+The first invocation corroborated the baseline stop. The consumer trace found
+no active wrap-up or dashboard integration for the Proposed source.
 
 ### 3. Verify the same check in Lizard
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: A fresh invocation uses Lizard's maintained test setup and returns
 the result for the designated enum initializer promise with its cost.
@@ -185,6 +173,47 @@ reached and the restored pass. Use a different native host if doing so
 closes a material delivery risk. Correct any project-specific assumption
 exposed by this example in the shared instructions and recheck the Open
 Dough result if the correction affects it.
+
+Early Cursor reports mislabeled pre-report clocks. Prose separated the cost
+figures but left inconsistent clock sampling across hosts. The product search
+found test and diagnostic timing with no owner for this report interval. A
+local Node finisher measures elapsed after writing the prepared body. The
+installer already uses Node for host hook registration.
+
+Final private tag `v0.3.92`, commit `2f5118ec9fd90f93ed6eb4ebcf9975a642887326`,
+installed byte-identical `SKILL.md` and `finish-report.mjs` through both
+managed roots. Controlled finisher proof checked UTF-8 body preservation,
+write completion before the end clock, measured arithmetic, and unavailable
+results for missing and invalid start times.
+
+Fresh Cursor `2026.11.05-86047df` at Lizard
+`32b61f5eb9b2e8d72c5e748d02b074e18e9a9dc4` ran:
+
+```sh
+nix develop -c python -m pytest test/test_extensions/testDuplicateDesignatedInitializers.py::TestDuplicateDesignatedInitializers::test_designated_enum_initializer_table_is_not_duplicate -v --tb=short
+```
+
+Removing designator/value handling from `_counts_as_data` made the passing
+`noah` fixture report a false duplicate block at line 47's empty-list assertion.
+The restored run passed and all snapshots matched. Cursor returned the finisher's
+**Caught** report scoped to the extension path, with 68.677 s through production,
+0.14 s pytest runtime, and unavailable human and agent effort. Host elapsed
+through delivery was 73.648 s. Evidence: `/tmp/dough-seed258-finisher.vPuFC5Vr/`.
+
+Fresh Codex 0.167.0 rechecked Slice 2 with a short writable temp root and the
+isolated `/bin/ps` exception. Chromium passed, failed on stale Landed waiting
+text, and passed after restoration. Snapshots matched. The installed finisher
+supplied 156.000 s through report production, with test runtimes of 9.3, 11.9,
+and 9.6 s and unavailable human and agent effort. Host elapsed through delivery
+was 172.535 s. Evidence:
+`/tmp/dough-seed258-open-dough.wM6r9G0t/finisher-hTsycpA0/`.
+
+Host delivery evidence uses this story's fresh Codex and Cursor invocations.
+Cursor also has native `.agents/skills` discovery evidence at
+`b721e14fa:.planning/quick/004-versioned-updates/PLAN.md` (Leaf 6). Claude
+Code's ordinary update and fresh use at
+`f7ab0e4:.planning/quick/032-refuse-managed-hook-command-variants/evidence/claude-update-use/README.md`
+cover the same `.claude/skills` installation mechanism.
 
 ### 4. Put the reviewed skill in the managed payload
 

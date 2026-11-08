@@ -35,7 +35,7 @@ project with both browser and unit tests.
 | C23 | Limit the finding to the selected fault. | slice 2 | observed: the Slice 2 native returned report and pinned browser fixture, cache guard, and first post-push Landed assertion recorded in this plan |
 | C24 | Limit the finding to the observed path. | slice 2 | observed: the Slice 2 native returned report and pinned browser fixture, cache guard, and first post-push Landed assertion recorded in this plan |
 | C25 | Return the result directly to the caller. | slice 2 | observed: the Proposed skill's Return the result section and Slice 2 returned report with the measured harness interval, separate runtime and effort basis |
-| C26 | Report measured elapsed time from invocation through reporting, including setup and runs. | slice 2 | observed: the Proposed skill's Return the result section and Slice 2 returned report with the measured harness interval, separate runtime and effort basis |
+| C26 | Report measured elapsed time from invocation through reporting, including setup and runs. | slice 2 | observed: the Slice 3 finisher callback test and successful installed finisher outputs in the fresh Codex and Cursor rechecks, with distinct host delivery intervals |
 | C27 | Show test runtime separately when observed. | slice 2 | observed: the Proposed skill's Return the result section and Slice 2 returned report with the measured harness interval, separate runtime and effort basis |
 | C28 | Show human effort separately when supported. | slice 2 | observed: the Proposed skill's Return the result section and Slice 2 returned report with the measured harness interval, separate runtime and effort basis |
 | C29 | Show agent effort separately when supported. | slice 2 | observed: the Proposed skill's Return the result section and Slice 2 returned report with the measured harness interval, separate runtime and effort basis |
@@ -45,7 +45,7 @@ project with both browser and unit tests.
 | C33 | Mark unavailable values explicitly. | slice 2 | observed: the Proposed skill's Return the result section and Slice 2 returned report with the measured harness interval, separate runtime and effort basis |
 | C34 | Leave persistence with the caller. This clause cites the Architectural North Star. | slice 2 | observed: the Proposed skill's Return the result section and Slice 2 returned report with the measured harness interval, separate runtime and effort basis |
 | C35 | Demonstrate the invocation in a project with browser and unit tests. | slice 2 | observed: the Slice 2 native trace, exact one-case command, pass/fail/pass logs and matched scratch snapshots cited in this plan |
-| C36 | Demonstrate the same invocation in a project with a different test stack. | slice 3 | |
+| C36 | Demonstrate the same invocation in a project with a different test stack. | slice 3 | observed: the Slice 3 installed Cursor report, one focused Lizard case and byte-restored extension observation in plan 503 |
 | C37 | Use one shared source. | slice 4 | |
 | C38 | Use the normal versioned delivery path. The delivery clause cites ADR 0003, ADR 0005, and ADR 0006. | slice 4 | |
 | E01 | A cancelled landing waiting for later proof can pick up a newly available build. | slice 2 | observed: the Slice 2 native returned report and pinned browser fixture, cache guard, and first post-push Landed assertion recorded in this plan |
@@ -54,11 +54,11 @@ project with both browser and unit tests.
 | E04 | The faulted journey fails at the assertion for the newly available result. | slice 2 | observed: the Slice 2 native trace, exact one-case command, pass/fail/pass logs and matched scratch snapshots cited in this plan |
 | E05 | The journey passes after restoration. | slice 2 | observed: the Slice 2 native trace, exact one-case command, pass/fail/pass logs and matched scratch snapshots cited in this plan |
 | E06 | The report credits that browser assertion for the fault and path observed. | slice 2 | observed: the Slice 2 native returned report and pinned browser fixture, cache guard, and first post-push Landed assertion recorded in this plan |
-| E07 | A C lookup table with distinct designated initializer rows should produce no duplicates. | slice 3 | |
-| E08 | The scratch fault stops counting designated fields and their values as data. | slice 3 | |
-| E09 | The focused pytest case catches that fault. | slice 3 | |
-| E10 | The report credits the duplicate-detector extension path exercised by the case. | slice 3 | |
-| E11 | The invocation returns its cost evidence. | slice 3 | |
+| E07 | A C lookup table with distinct designated initializer rows should produce no duplicates. | slice 3 | observed: the Slice 3 installed Cursor report, one focused Lizard case and byte-restored extension observation in plan 503 |
+| E08 | The scratch fault stops counting designated fields and their values as data. | slice 3 | observed: the Slice 3 installed Cursor report, one focused Lizard case and byte-restored extension observation in plan 503 |
+| E09 | The focused pytest case catches that fault. | slice 3 | observed: the Slice 3 installed Cursor report, one focused Lizard case and byte-restored extension observation in plan 503 |
+| E10 | The report credits the duplicate-detector extension path exercised by the case. | slice 3 | observed: the Slice 3 installed Cursor report, one focused Lizard case and byte-restored extension observation in plan 503 |
+| E11 | The invocation returns its cost evidence. | slice 3 | observed: the Slice 3 installed report finisher's exact returned output, separate host and pytest intervals, and reasoned unavailable effort fields |
 | Q01 | Report that the intended assertion caught the fault when observations support that result. | slice 2 | observed: the Proposed skill's Run and restore and Return the result sections, the representative evidence-limit walkthrough, and both native outcomes in Slice 2 |
 | Q02 | Report that the intended assertion allowed the observed wrong behavior when observations support that result. | slice 2 | observed: the Proposed skill's Run and restore and Return the result sections, the representative evidence-limit walkthrough, and both native outcomes in Slice 2 |
 | Q03 | Report insufficient evidence when the observations cannot establish the result. | slice 2 | observed: the Proposed skill's Run and restore and Return the result sections, the representative evidence-limit walkthrough, and both native outcomes in Slice 2 |

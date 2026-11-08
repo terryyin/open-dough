@@ -60,10 +60,30 @@ assertion, and run observations, including how you verified reach and
 restoration. Return the finding and its cost together to the caller. The
 caller owns any saved record.
 
-Include measured elapsed time from invocation through producing the report,
-including lookup, setup, and runs. Show test runtime separately when observed,
-and separate human effort from agent effort when supported. Give each figure's
-unit and basis and label it measured or estimated. Mark unavailable figures
-explicitly. If the clock missed part of the invocation, identify the measured
-interval and mark the complete elapsed time unavailable. Include the cost
-evidence for an inconclusive attempt.
+Include four separate cost entries, even for an inconclusive attempt. Give
+each figure's unit and basis and label it measured or estimated. Mark each
+unavailable entry explicitly and give the reason.
+
+- **Test runtime.** Report the test runner's runtime when observed.
+- **Human effort.** Report a separately supported measure when available.
+- **Agent effort.** Report a separately supported measure when available.
+- **Invocation-to-report elapsed.** Include lookup, setup, and runs. A reading
+  taken during tests or restoration measures only a partial interval.
+
+Prepare the finding, evidence, and first three cost entries. When Node is
+available, use [the installed report finisher](./finish-report.mjs) as the
+final tool operation. It writes the prepared body, samples the end clock,
+and appends the elapsed entry. Set the directory to the skill you loaded.
+Pass the observed invocation start in Unix epoch milliseconds from the same
+clock, or omit that argument when it is unavailable or incomparable.
+
+```sh
+node "$intent_coverage_skill_dir/finish-report.mjs" "$intent_coverage_start_ms" <<'REPORT'
+<prepared report body>
+REPORT
+```
+
+Return the finisher's output directly. Its cutoff is report production before
+later delivery. If Node is unavailable, use an observed complete host interval
+with its actual cutoff, or mark complete elapsed unavailable and give the
+endpoints of any measured portion.
