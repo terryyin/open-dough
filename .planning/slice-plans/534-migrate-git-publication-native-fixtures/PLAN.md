@@ -135,6 +135,16 @@ Learning: every family record now hashes the installed payload, so any payload,
 Later slices update their family's roots in
 `git_publication_fixture_family_identity`.
 
+CI repair (run 42488867557/1, `e33993231`): `tests/native-evidence-identity.sh`
+took 67.8 s against the 64 s job ceiling. Seven one-input supervision captures
+and one `awk` per hash line grew with the larger family identities. One
+capture now changes every supervision and listed `src/` input together; each
+identity must carry every supervision input's own content hash, and each
+changed input's line must change. Local time fell from 41.7 s to about 13 s
+(base 24.3 s); break checks still fail on a dropped supervision input, a
+fixed hash, an omitted closure module and an unchanged payload line. Refactor
+disposition: already traced within slice 1's refactor return for this file.
+
 ### 2. Startup cases name their queued and Ready trunk
 
 Type: Behavior

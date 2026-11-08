@@ -90,20 +90,6 @@ capture_identity_hashes() {
 
 capture_identity_hashes "${identity_out}/baseline"
 identity_failures=0
-for input in "${supervision_inputs[@]}"; do
-  cp -- "${identity_source}/${input}" "${identity_out}/original"
-  printf '\n# changed supervision input\n' >> "${identity_source}/${input}"
-  capture_identity_hashes "${identity_out}/changed"
-  cp -- "${identity_out}/original" "${identity_source}/${input}"
-  for index in "${!identity_writers[@]}"; do
-    if cmp -s "${identity_out}/baseline/${index}" "${identity_out}/changed/${index}"; then
-      printf 'FAIL: evidence identity %s did not change when %s changed.\n' \
-        "${identity_writers[index]}" "${input}" >&2
-      identity_failures=1
-    fi
-  done
-  rm -rf -- "${identity_out}/changed"
-done
 
 # A supervision input added to the one list reaches every identity.
 cp -- "${identity_source}/tests/support/native-run-supervise.sh" "${identity_out}/original"
@@ -217,32 +203,46 @@ for index in "${!identity_writers[@]}"; do
     continue
   fi
   while IFS= read -r module; do
-    if ! lists_input "${identity_out}/baseline/${index}" "${module}"; then
-      printf 'FAIL: evidence identity %s omits %s, which a listed command imports or spawns.\n' \
-        "${identity_writers[index]}" "${module}" >&2
-      identity_failures=1
-    fi
-  done < "${identity_out}/closure"
+    printf 'FAIL: evidence identity %s omits %s, which a listed command imports or spawns.\n' \
+      "${identity_writers[index]}" "${module}" >&2
+    identity_failures=1
+  done < <(awk 'NR == FNR { listed[$3] = 1; next } !($0 in listed)' \
+    "${identity_out}/baseline/${index}" "${identity_out}/closure")
 done
 
-# Changing any guidance or command input an identity lists changes that
-# input's hash in the identity.
+# Changing any supervision input, or any guidance or command input an identity
+# lists, changes that input's hash in every identity that lists it. Every
+# identity lists every supervision input, with the hash of that input's own
+# content.
+{
+  printf '%s\n' "${supervision_inputs[@]}"
+  sed -n 's|^input-hash: [^ ]* \(src/.*\)$|\1|p' "${identity_out}/baseline"/*
+} | sort -u > "${identity_out}/changed-inputs"
 while IFS= read -r input; do
-  printf '\n# changed guidance input\n' >> "${identity_source}/${input}"
-done < <(sed -n 's|^input-hash: [^ ]* \(src/.*\)$|\1|p' \
-  "${identity_out}/baseline"/* | sort -u)
-capture_identity_hashes "${identity_out}/guidance-changed"
+  printf '\n# changed input\n' >> "${identity_source}/${input}"
+done < "${identity_out}/changed-inputs"
+capture_identity_hashes "${identity_out}/inputs-changed"
+(cd -- "${identity_source}" && shasum -a 256 "${supervision_inputs[@]}") \
+  | awk '{ print "input-hash:", $1, $2 }' > "${identity_out}/supervision-hashes"
 for index in "${!identity_writers[@]}"; do
-  while read -r _ hash input; do
-    [[ ${input} == src/* ]] || continue
-    if ! awk -v input="${input}" -v hash="${hash}" \
-      '$3 == input && $2 != hash { found = 1 } END { exit !found }' \
-      "${identity_out}/guidance-changed/${index}"; then
-      printf 'FAIL: evidence identity %s did not change when %s changed.\n' \
-        "${identity_writers[index]}" "${input}" >&2
+  while IFS= read -r line; do
+    if ! grep -Fqx -- "${line}" "${identity_out}/inputs-changed/${index}"; then
+      printf 'FAIL: evidence identity %s does not hash the content of supervision input %s.\n' \
+        "${identity_writers[index]}" "${line##* }" >&2
       identity_failures=1
     fi
-  done < "${identity_out}/baseline/${index}"
+  done < "${identity_out}/supervision-hashes"
+  # Each baseline line of a changed input needs a line with a different hash.
+  while IFS= read -r input; do
+    printf 'FAIL: evidence identity %s did not change when %s changed.\n' \
+      "${identity_writers[index]}" "${input}" >&2
+    identity_failures=1
+  done < <(awk '
+    FILENAME == ARGV[1] { changed[$1] = 1; next }
+    FILENAME == ARGV[2] { lines[$3]++; same[$3, $2]++; next }
+    $3 in changed && lines[$3] <= same[$3, $2] { print $3 }
+  ' "${identity_out}/changed-inputs" "${identity_out}/inputs-changed/${index}" \
+    "${identity_out}/baseline/${index}")
 done
 if ((identity_failures)); then
   exit 1
