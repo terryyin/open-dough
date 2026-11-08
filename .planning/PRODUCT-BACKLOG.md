@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep follow-up context out of listings and resume it after its source expires](seeds/SEED-273-follow-up-from-done.md#lean-follow-up-listing) — SEED-273#lean-follow-up-listing
 - [Select recently done sessions from the dashboard sidebar](seeds/SEED-272-select-recently-done-sessions.md#select-recently-done-sessions) — SEED-272#select-recently-done-sessions
 - [Highlight the destination of a story link](seeds/SEED-270-highlight-linked-story-card.md#highlight-linked-story-card) — SEED-270#highlight-linked-story-card
 - [Build dashboard test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures) — SEED-262#migrate-dashboard-origin-fixtures
