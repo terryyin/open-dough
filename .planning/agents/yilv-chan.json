@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "yilv-chan",
+  "email": "yilv-chan@example.org",
+  "identity": "SEED-262#reuse-immutable-git-histories",
+  "mode": "story-branch",
+  "branch": "claude/speed-up-git-fixture-construction-behind-the-bui",
+  "host": "claude",
+  "model": "fable"
+}
