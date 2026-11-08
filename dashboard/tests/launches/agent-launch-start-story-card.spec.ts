@@ -13,7 +13,6 @@
 // the kept record with a start is written as ../../backend-tests/launches/agent-launch-start.spec.ts
 // shows the real start leaves it. The start itself is that spec's.
 
-import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
 import {
@@ -23,6 +22,8 @@ import {
 } from "../dashboardPage.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { installHeldStart } from "../support/heldStart.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { notRefinedStory, readyStory, takenStory } from "../launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -140,64 +141,29 @@ test("a session whose start or preparation established a workspace says Workspac
     ".worktrees",
     "story-b",
   );
-  const record = (
-    sessionId: string,
-    workflow: "execution" | "refinement",
-    established: object,
-  ) => ({
-    request: {
-      source: "open-dough",
-      identity: "SEED-B#b",
-      title: readyStory,
-      workflow,
-      host: "claude",
-    },
-    session: {
-      host: "claude",
-      sessionId,
-      shortId: sessionId.slice(0, 8),
-      name: `Open Dough · ${workflow === "execution" ? "Execution" : "Refinement"} · ${readyStory}`,
-    },
-    ...established,
-    launchedAt: new Date(Date.now() - 60_000).toISOString(),
+  // Story B's launch by `workflow` in this session, a minute ago.
+  const launched = (sessionId: string, workflow: "execution" | "refinement") =>
+    makeMe.aLaunchRecord
+      .ofWorkflow(workflow, { identity: "SEED-B#b", title: readyStory })
+      .inClaudeSession({ sessionId })
+      .launchedAt(new Date(Date.now() - 60_000).toISOString());
+  const storyBranch = { workspace, branch: "claude/story-b" };
+  keepLaunchStore(dashboard, {
+    "open-dough": [
+      launched("11111111-aaaa-bbbb-cccc-000000000001", "execution")
+        .onStoryBranch({
+          ...storyBranch,
+          publisherId: "dashboard-test-open-dough",
+          publishedSha: "0123456789abcdef0123456789abcdef01234567",
+        })
+        .please(),
+      launched("22222222-aaaa-bbbb-cccc-000000000002", "execution").please(),
+      launched("33333333-aaaa-bbbb-cccc-000000000003", "refinement")
+        .onStoryBranch(storyBranch)
+        .please(),
+      launched("44444444-aaaa-bbbb-cccc-000000000004", "refinement").please(),
+    ],
   });
-  const store = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-  mkdirSync(path.dirname(store), { recursive: true });
-  writeFileSync(
-    store,
-    JSON.stringify({
-      "open-dough": [
-        record("11111111-aaaa-bbbb-cccc-000000000001", "execution", {
-          start: {
-            identity: "SEED-B#b",
-            publisherId: "dashboard-test-open-dough",
-            workspace,
-            branch: "claude/story-b",
-            mode: "story-branch",
-            remote: "origin",
-            target: "main",
-            publishedSha: "0123456789abcdef0123456789abcdef01234567",
-          },
-        }),
-        record("22222222-aaaa-bbbb-cccc-000000000002", "execution", {}),
-        record("33333333-aaaa-bbbb-cccc-000000000003", "refinement", {
-          preparation: {
-            identity: "SEED-B#b",
-            workspace,
-            branch: "claude/story-b",
-            remote: "origin",
-            target: "main",
-          },
-        }),
-        record("44444444-aaaa-bbbb-cccc-000000000004", "refinement", {}),
-      ],
-    }),
-  );
 
   const { card } = await openTakenBacklog(page, launchJourney);
   const entries = storyCardSessions(card(readyStory));

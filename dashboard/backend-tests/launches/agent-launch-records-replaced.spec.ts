@@ -15,14 +15,20 @@ import {
   replaceFileKeepingTimes,
   settleFile,
 } from "../../tests/support/machineFileIdentity.ts";
-import { launch, recordsOf } from "../../tests/agentLaunchBoundary.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import {
+  identity,
+  launch,
+  recordsOf,
+  title,
+} from "../../tests/agentLaunchBoundary.ts";
 import { distinctStoryRequest } from "../../tests/openStorySessionSetup.ts";
 import {
   startDashboardServer,
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
 import {
-  recordLaunchedDaysAgo,
+  daysAgo,
   seedStore,
   storeFile,
 } from "../../tests/machineLaunchRecords.ts";
@@ -62,10 +68,11 @@ test.describe("launch records after the store a server read is replaced", () => 
   });
 
   test("answers a launch another server recorded after this server already read the store", async () => {
-    const kept = recordLaunchedDaysAgo(
-      1,
-      "10000000-0000-4000-8000-000000000001",
-    );
+    const kept = makeMe.aLaunchRecord
+      .executing({ identity, title })
+      .inClaudeSession({ sessionId: "10000000-0000-4000-8000-000000000001" })
+      .launchedAt(daysAgo(1))
+      .please();
     seedSettled(JSON.stringify({ "open-dough": [kept] }));
     const reader = await serverOn("production");
     expect(await recordsOf(reader, "open-dough")).toHaveLength(1);
@@ -91,7 +98,13 @@ test.describe("launch records after the store a server read is replaced", () => 
   test("answers no records once a store already read is replaced by an unreadable file of the same size and time, and leaves it in place", async () => {
     const good = JSON.stringify({
       "open-dough": [
-        recordLaunchedDaysAgo(1, "20000000-0000-4000-8000-000000000002"),
+        makeMe.aLaunchRecord
+          .executing({ identity, title })
+          .inClaudeSession({
+            sessionId: "20000000-0000-4000-8000-000000000002",
+          })
+          .launchedAt(daysAgo(1))
+          .please(),
       ],
     });
     seedSettled(good);

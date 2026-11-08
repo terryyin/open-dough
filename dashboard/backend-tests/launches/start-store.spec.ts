@@ -10,9 +10,12 @@ import {
   readFileSync,
   readdirSync,
 } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { expect, test } from "../../tests/support/pageTest.ts";
+import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
 import {
   keepStart,
   keptStart,
@@ -131,6 +134,41 @@ test("a lock whose recorded owner process is gone is reclaimed so the write proc
     candidateSha: "reclaimed",
   });
   expect(readdirSync(path.dirname(file))).toEqual(["execution-starts.json"]);
+});
+
+// A dashboard server ends by `process.exit` once its close settles, whatever
+// write it is in; here it ends having taken the lock, before its owner
+// record is written.
+test("a writer that ends before recording itself as the lock's owner leaves no lock, so the next write proceeds", async () => {
+  await keepStart("open-dough", written);
+  const writer = path.join(home, "writer.mjs");
+  writeFileSync(
+    writer,
+    `import { updateStart } from ${JSON.stringify(fileURLToPath(new URL("../../server/startStore.ts", import.meta.url)))};
+await updateStart("open-dough", ${JSON.stringify(written.identity)}, { candidateSha: "lost" });`,
+  );
+  const endAtOwner = fsPromisesHook(
+    path.join(home, "end-at-owner.mjs"),
+    "writeFile",
+    `async (file, ...args) => {
+ if (String(file).endsWith("/execution-starts.json.lock/owner")) process.exit(0);
+ return original(file, ...args);
+}`,
+  );
+  execFileSync(process.execPath, [writer], {
+    env: { ...process.env, HOME: home, ...endAtOwner },
+  });
+
+  await updateStart("open-dough", written.identity, {
+    candidateSha: "written",
+  });
+  expect(await keptStart("open-dough", written.identity)).toEqual({
+    ...written,
+    candidateSha: "written",
+  });
+  expect(readdirSync(path.join(home, ".open-dough", "dashboard"))).toEqual([
+    "execution-starts.json",
+  ]);
 });
 
 test("keeps one start per story, replaced when written again, and removes one alone", async () => {

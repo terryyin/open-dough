@@ -1,8 +1,9 @@
 // File-level Purpose and CI Proof (../../src/IntentFileProof.tsx).
 // Purpose shows a changed-file diff without comparison above it; Proof keeps
 // precise A/B/C times, count differences and change kinds, including a test
-// file only the story's integration merge edited. Added and
-// unchanged files keep Proof; story-free source Purpose and judged-run Proof
+// file only the story's integration merge edited, and returns directly to the
+// story's CI comparison (../../src/intentStoryTabs.tsx), Changed tests keeping
+// the file and Proof for the way back. Added and unchanged files keep Proof; story-free source Purpose and judged-run Proof
 // are in ./intent-file-purpose-proof.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
@@ -23,7 +24,11 @@ import {
   publishSummaryComparisonStory,
   summaryComparisonChanges,
 } from "../support/intentSummaryStoryComparisonFixture.ts";
-import { intentFile } from "../support/intentStoryPage.ts";
+import {
+  expectStoryTab,
+  intentFile,
+  storyTab,
+} from "../support/intentStoryPage.ts";
 import { selectDoneStoryForSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
 import {
   addedFileRow,
@@ -82,6 +87,33 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         countReason: "unchanged",
       });
     }
+
+    if (variant === undefined)
+      await test.step("the file's Proof returns directly to the story's CI comparison by keyboard, and Changed tests keeps the file and Proof", async () => {
+        await proof
+          .getByRole("button", {
+            name: "View story CI comparison",
+            exact: true,
+          })
+          .focus();
+        await page.keyboard.press("Enter");
+        await expectStoryTab(intent, "CI comparison");
+        await expect(storyTab(intent, "CI comparison")).toBeFocused();
+        await expect(
+          intent
+            .getByRole("tabpanel", { name: "CI comparison" })
+            .getByRole("table", { name: "CI entry timing comparison" }),
+        ).toBeVisible();
+        await expect(proof).toBeHidden();
+        // Arrow keys move along the story's views.
+        await page.keyboard.press("ArrowRight");
+        await expectStoryTab(intent, "Changed tests");
+        await expect(
+          intentFile(intent, summaryComparisonChanges.modified),
+        ).toHaveAttribute("aria-pressed", "true");
+        await expect(proofTab).toHaveAttribute("aria-selected", "true");
+        await expect(proof).toBeVisible();
+      });
 
     await test.step("an added file keeps Proof selected and shows added with no baseline difference", async () => {
       await intentFile(intent, summaryComparisonChanges.added).click();

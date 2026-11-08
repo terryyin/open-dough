@@ -1,47 +1,48 @@
 // Entry matching and wording for Intent's story CI comparison
-// (`../../dashboard/src/storyCiComparisonEntries.ts`): signed differences,
-// added/removed paths, expired and partial totals never invent zero.
+// (`../../dashboard/src/storyCiComparisonEntries.ts`): measured Baseline time
+// and one signed change in Branch and Landed, relative to a positive
+// Baseline, added/removed paths, expired
+// and partial totals never invent zero.
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
   comparisonEntriesOf,
   comparisonProofOf,
 } from "../../dashboard/src/storyCiComparisonEntries.ts";
+import { makeMe } from "./makeMe.mjs";
 
-const entry = (path, durationMs, extras = {}) => ({
-  path,
-  unit: "tests",
-  passed: 1,
-  failed: 0,
-  other: 0,
-  ...(durationMs === undefined ? {} : { durationMs }),
-  parts: [
-    {
-      part: 1,
-      status: "present",
-      passed: 1,
-      failed: 0,
-      other: 0,
-      ...(durationMs === undefined ? {} : { durationMs }),
-      ...extras,
-    },
-  ],
-});
+// An entry at PATH whose one part ran in DURATIONMS, or without a duration.
+const entry = (path, durationMs) => {
+  const built = makeMe.aCiProofEntry.at(path);
+  return (durationMs === undefined ? built : built.timed(durationMs)).please();
+};
 
 const summary = (...entries) => ({ kind: "summary", entries });
 
-test("comparable entries show signed whole-second differences and count diffs", () => {
+test("comparable entries show Baseline time and one signed whole-second change per endpoint", () => {
   const result = comparisonEntriesOf(
     summary(
-      { ...entry("dashboard/tests", 240_000), passed: 2090 },
+      makeMe.aCiProofEntry
+        .at("dashboard/tests")
+        .counting(2090)
+        .timed(240_000)
+        .please(),
       entry("tests", 120_000),
     ),
     summary(
-      { ...entry("dashboard/tests", 270_000), passed: 2092 },
+      makeMe.aCiProofEntry
+        .at("dashboard/tests")
+        .counting(2092)
+        .timed(270_000)
+        .please(),
       entry("tests", 90_000),
     ),
     summary(
-      { ...entry("dashboard/tests", 300_000), passed: 2092 },
+      makeMe.aCiProofEntry
+        .at("dashboard/tests")
+        .counting(2092)
+        .timed(300_000)
+        .please(),
       entry("tests", 60_000),
     ),
   );
@@ -60,16 +61,16 @@ test("comparable entries show signed whole-second differences and count diffs", 
         "dashboard/tests",
         "2,090 → 2,092 tests (+2)",
         "4 min",
-        "4 min → 4 min 30 s (+30 s, +13%)",
-        "4 min → 5 min (+1 min, +25%)",
+        "+30 s",
+        "+1 min",
         "1 of 1 part present",
       ],
       [
         "tests",
         "1 tests (no change)",
         "2 min",
-        "2 min → 1 min 30 s (−30 s, −25%)",
-        "2 min → 1 min (−1 min, −50%)",
+        "−30 s",
+        "−1 min",
         "1 of 1 part present",
       ],
     ],
@@ -179,4 +180,46 @@ test("a partial endpoint shows its gap labels and keeps measured zero distinct",
   });
   assert.deepEqual(row.cells.landed, { text: "0 s", ms: 0 });
   assert.equal(row.cells.cues.duration.reason, "partial");
+});
+
+test("a measured zero baseline still gives a signed change, and an unchanged time reads 0 s", () => {
+  const result = comparisonEntriesOf(
+    summary(entry("e/zero", 0), entry("e/same", 45_000)),
+    summary(entry("e/zero", 30_000), entry("e/same", 45_000)),
+    summary(entry("e/zero", 0), entry("e/same", 45_000)),
+  );
+  assert.equal(result.kind, "rows");
+  const [zero, same] = result.rows;
+  assert.deepEqual(zero.cells.baseline, { text: "0 s", ms: 0 });
+  assert.deepEqual(zero.cells.branch, {
+    text: "+30 s",
+    ms: 30_000,
+    changeMs: 30_000,
+  });
+  assert.deepEqual(zero.cells.landed, { text: "0 s", ms: 0, changeMs: 0 });
+  assert.deepEqual(same.cells.landed, {
+    text: "0 s",
+    ms: 45_000,
+    changeMs: 0,
+    relative: 0,
+  });
+});
+
+test("a change is relative to a positive Baseline only", () => {
+  const result = comparisonEntriesOf(
+    summary(entry("e/slower", 240_000), entry("e/zero", 0)),
+    summary(entry("e/slower", 270_000), entry("e/zero", 30_000)),
+    summary(
+      entry("e/slower", 120_000),
+      entry("e/zero", 30_000),
+      entry("e/added", 30_000),
+    ),
+  );
+  assert.equal(result.kind, "rows");
+  const [slower, zero, added] = result.rows;
+  assert.equal(slower.cells.branch.relative, 0.125);
+  assert.equal(slower.cells.landed.relative, -0.5);
+  assert.equal(zero.cells.branch.relative, undefined);
+  assert.equal(added.cells.landed.relative, undefined);
+  assert.equal(added.cells.landed.text, "30 s");
 });

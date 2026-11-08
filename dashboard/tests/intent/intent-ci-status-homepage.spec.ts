@@ -1,8 +1,9 @@
-// CI status is Intent's homepage (../../src/IntentCiStatus.tsx): opening Intent
-// with nothing selected fills the reading pane with the judged branch's
-// status; the mode strip offers Intent and Optimization Candidates only;
-// with a location, nested folder or file selected there is no return button,
-// and directly activating the already chosen Intent tab by click, Enter or
+// CI status is Intent's homepage (../../src/IntentCiStatus.tsx): with no
+// selected story Project Intent is Intent's landing, and opening it with
+// nothing selected fills the reading pane with the judged branch's status;
+// its strip offers CI status and Optimization Candidates only; with a
+// location, nested folder or file selected there is no return button, and
+// directly activating the already chosen CI status tab by click, Enter or
 // Space clears that selection and shows it again, keeping the tree open;
 // not-configured locations still show CI status beside the explanation
 // (SEED-239#show-ci-status-on-intent-home example 1).
@@ -57,10 +58,21 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
   const { intent, intentChoice, development } = parts(page);
   await intentChoice.click();
 
-  await test.step("nothing selected: CI status fills the reading pane; strip is Intent and Optimization Candidates only", async () => {
+  await test.step("nothing selected: Project Intent is the landing, CI status filling the reading pane; its strip is CI status and Optimization Candidates only", async () => {
     await expect(
-      intent.getByRole("tablist", { name: "Intent reading" }).getByRole("tab"),
-    ).toHaveText(["Intent", "Optimization Candidates"]);
+      intent
+        .getByRole("tablist", { name: "Project Intent views" })
+        .getByRole("tab"),
+    ).toHaveText(["CI status", "Optimization Candidates"]);
+    await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    // No story to return to, and no heading beside the perspective's name.
+    await expect(
+      intent.getByRole("button", { name: "Back to selected story" }),
+    ).toHaveCount(0);
+    await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
     const panel = await chooseCiStatus(intent);
     await expect(intent.locator(".intent-locations")).toBeVisible();
     await expect(
@@ -78,7 +90,7 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
   await test.step("entry, nested folder or file selected: no return button; activating the chosen Intent tab by click, Enter or Space returns home with the tree still open", async () => {
     await expandIntentGroup(intent, "dashboard/tests");
     await expandIntentFolders(intent, "dashboard/tests");
-    const intentTab = intentModeTab(intent, "Intent");
+    const intentTab = intentModeTab(intent, "CI status");
     const selections = [
       {
         name: "the entry",

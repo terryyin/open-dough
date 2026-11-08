@@ -15,6 +15,7 @@ import {
   runUrl,
 } from "../intentCiStatusPage.ts";
 import { intentLocationName } from "../intentPerspectivePage.ts";
+import { chooseStoryTab } from "../support/intentStoryPage.ts";
 import { scopeFigures, summaryRegion } from "../intentScopeProofPage.ts";
 import {
   evidenceLabels,
@@ -91,7 +92,13 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
   });
   const calls = ci.published.requests;
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  await chooseCiStatus(parts(page).intent);
+  // The trunk's homepage shows its own run 11 and reads that run's proof;
+  // its read settles before the story's proof calls are counted.
+  const trunkProof = proofOf(await chooseCiStatus(parts(page).intent));
+  await expectAttemptAt(trunkProof, "Run 11 · attempt 1", "4774f60");
+  await expect(
+    trunkProof.locator(".intent-ci-proof-unavailable"),
+  ).toBeVisible();
   const before = proofCalls(calls).length;
   const panel = await toggleOnDevelopment(page, running.title);
   const proof = proofOf(panel);
@@ -132,6 +139,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
 
   await test.step("a Summary names that story branch's ancestor evidence and its counts", async () => {
     const intent = parts(page).intent;
+    await chooseStoryTab(intent, "Changed tests");
     await intentLocationName(intent, "tests").click();
     const summary = summaryRegion(intent);
     await expectLeadingEvidenceLabels(evidenceLabels(summary), [

@@ -1,23 +1,23 @@
-// The one owner of Intent's CI evidence (`./IntentPerspective.tsx`): which
-// branch is judged (`./intentCiTarget.ts`), its judgment as
+// The owner of Intent's CI evidence, one for Project Intent and one for the
+// selected story (`./IntentPerspective.tsx`): which branch is judged
+// (`./intentCiTarget.ts`), its judgment as
 // `./authenticatedIntentCiStatusRead.ts` answers it, and the CI proof of the
 // attempt that judgment shows (`./shownCiProofRun.ts`,
-// `./authenticatedIntentCiProofRead.ts`); or a selected done / Taken Trunk
-// Mode story's CI comparison (`./useIntentCiComparison.ts`) with each
-// endpoint's proof summary (`./useIntentCiComparisonEntries.ts`); or a Taken
-// Story Branch story's live judgment plus provisional comparison. Intent's CI
-// status homepage (`./IntentCiStatus.tsx`), a selected entry's or folder's
-// Summary (`./IntentScopeProof.tsx`), and a selected file's Proof
-// (`./IntentFileProof.tsx`) all read it, so selecting, drilling and
-// returning home ask CI nothing again. The judgment
-// (`./useIntentCiJudgment.ts`) is read again when the judged branch changes,
-// when the page's revision check finds the judged branch at a new head (the
-// head `./intentCiTarget.ts` gives), and on Check again, and its proof
-// (`./useIntentCiShownProof.ts`) with each judgment; nothing is read while
-// it is not active. A done-story comparison is read on each selection and on
-// its Check again, which also reads its endpoint proofs again, and is
-// remembered once final; a Taken comparison re-reads when the observed tip
-// moves.
+// `./authenticatedIntentCiProofRead.ts`); or a selected done / Taken Trunk Mode
+// story's CI comparison (`./useIntentCiComparison.ts`) with each endpoint's
+// proof summary (`./useIntentCiComparisonEntries.ts`); or a Taken Story Branch
+// story's live judgment plus provisional comparison. Intent's CI status
+// homepage (`./IntentCiStatus.tsx`), a selected entry's or folder's Summary
+// (`./IntentScopeProof.tsx`), and a selected file's Proof
+// (`./IntentFileProof.tsx`) all read it, so selecting, drilling and returning
+// home ask CI nothing again. The judgment (`./useIntentCiJudgment.ts`) is read
+// again when the judged branch changes, when the page's revision check finds
+// the judged branch at a new head (the head `./intentCiTarget.ts` gives), and
+// on Check again, and its proof (`./useIntentCiShownProof.ts`) with each
+// judgment; nothing is read while it is not active. A done-story comparison is
+// read on each selection and on its Check again, which also reads its endpoint
+// proofs again, and is remembered once final; a Taken comparison re-reads when
+// the observed tip moves.
 
 import { createContext, useContext, type ReactNode } from "react";
 import { ciTargetOf, type CiTarget } from "./intentCiTarget.ts";

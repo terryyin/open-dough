@@ -29,9 +29,9 @@ import {
   reviewedRefs,
   reviewRegion,
 } from "../support/storyReviewMark.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   keepLaunchRecord,
-  keepLaunchRecords,
   storyALaunchRecord,
 } from "../support/storyLaunchRecord.ts";
 import {
@@ -48,7 +48,7 @@ test("Mark reviewed marks the snapshot shown, which outlives Git's housekeeping,
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -91,7 +91,7 @@ test("the review still compares with the mark, saying when it was made, after th
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -128,7 +128,7 @@ test("opening, closing, refreshing, and replacing a review marks nothing", async
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     storyALaunchRecord(workspace),
     storyBLaunchRecord(storyBWorktree(origin.project)),
   ]);
@@ -168,7 +168,7 @@ test("marking again replaces the story's one mark and its ref", async ({
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const first = await openStoryReview(page, card);
   const review = reviewRegion(page);

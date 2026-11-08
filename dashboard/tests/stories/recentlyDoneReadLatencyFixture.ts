@@ -9,13 +9,12 @@
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
-import { renderDoneRecord } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { expect, githubFor, pausePageClockAt } from "../dashboardTest.ts";
 import { expectMembership, parts, shortRevision } from "../dashboardPage.ts";
 import { publishes } from "../support/fakeGitHub.ts";
 import type { GhRequest } from "../support/ghRequest.ts";
 import { holdingAnswer } from "../support/heldGitHubAnswer.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import {
   afterTake,
@@ -33,7 +32,7 @@ import {
   executed,
   removedQueued,
 } from "../recentlyDoneRecords.ts";
-import { withDoneCatalog } from "../doneCatalogAnswers.ts";
+import { describedRevisions } from "../describedRevisions.ts";
 import { sessionsOutsideDoneStories } from "../recentlyDoneColumn.ts";
 
 const hour = 60 * 60_000;
@@ -45,26 +44,32 @@ const isHeldRecord = (request: GhRequest) =>
 export const isHeldCatalog = (request: GhRequest) =>
   request.kind === "content" &&
   request.path === `${doneDirectory}/.catalog.json`;
-const doneRecords = {
-  [heldRecord]: renderDoneRecord(
-    makeMe.aDoneRecord
-      .with({
-        ...executed,
-        completedAt: new Date(opened.getTime() - 2 * hour).toISOString(),
-        developer: "Terry Yin",
-      })
-      .please(),
-  ),
-  [doneRecordAt(removedQueued.identity)]: renderDoneRecord(
-    makeMe.aDoneRecord
-      .with({
-        ...removedQueued,
-        completedAt: new Date(opened.getTime() - 24 * hour).toISOString(),
-        developer: "Terry Yin",
-      })
-      .please(),
-  ),
-};
+// The slice clock records, then two done records beside them with the
+// catalog completion rebuilds.
+const { done } = describedRevisions(
+  makeMe.aRepository
+    .withRevision("clock", { files })
+    .withRevision("done", {
+      doneRecords: [
+        makeMe.aDoneRecord
+          .with({
+            ...executed,
+            completedAt: new Date(opened.getTime() - 2 * hour).toISOString(),
+            developer: "Terry Yin",
+          })
+          .please(),
+        makeMe.aDoneRecord
+          .with({
+            ...removedQueued,
+            completedAt: new Date(opened.getTime() - 24 * hour).toISOString(),
+            developer: "Terry Yin",
+          })
+          .please(),
+      ],
+    })
+    .please(),
+  { clock: revision, done: revision },
+);
 
 export async function openedWithHeldDoneRecord(
   page: Page,
@@ -76,32 +81,22 @@ export async function openedWithHeldDoneRecord(
     cwd: dashboard.home,
     startedAt: opened.getTime() - 4 * hour,
   });
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     ...sessionsOutsideDoneStories(dashboard, opened.getTime(), {
       adHoc: true,
       queued: true,
     }),
-    {
-      request: {
-        source: "open-dough",
-        workflow: "execution",
-        host: "claude",
-        ...executed,
-      },
-      session: {
-        host: "claude",
-        sessionId: closedId,
-        shortId: closedId.slice(0, 8),
-        name: executed.title,
-      },
-      launchedAt: new Date(opened.getTime() - 4 * hour).toISOString(),
-      doneAt: new Date(opened.getTime() - hour).toISOString(),
-    },
+    makeMe.aLaunchRecord
+      .executing(executed)
+      .inClaudeSession({ sessionId: closedId })
+      .launchedAt(new Date(opened.getTime() - 4 * hour).toISOString())
+      .markedDoneAt(new Date(opened.getTime() - hour).toISOString())
+      .please(),
   ]);
   await pausePageClockAt(page, opened);
   const published = publishes({
     revision,
-    files: withDoneCatalog({ ...files, ...doneRecords }, doneDirectory),
+    files: done.files,
     committed,
     history,
   });

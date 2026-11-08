@@ -7,11 +7,13 @@
 
 /**
  * The facts a builder states: the report's outcome and message, the revision
- * the work landed at, and when the developer marked the session Done.
+ * the work landed at, when the developer marked the session Done, and what
+ * that mark could not finish natively.
  * @typedef {{
  *   completion?: Pick<NonNullable<LaunchRecord["completion"]>, "outcome" | "message">,
  *   landedRevision?: string,
  *   doneAt?: string,
+ *   doneProblem?: string,
  * }} LaunchOutcome
  */
 
@@ -20,7 +22,10 @@
  * @param {LaunchOutcome} outcome
  * @param {string} at an ISO date-time
  */
-export function launchOutcomeFacts({ completion, landedRevision, doneAt }, at) {
+export function launchOutcomeFacts(
+  { completion, landedRevision, doneAt, doneProblem },
+  at,
+) {
   return {
     ...(completion && {
       completion: {
@@ -45,5 +50,6 @@ export function launchOutcomeFacts({ completion, landedRevision, doneAt }, at) {
       },
     }),
     ...(doneAt !== undefined && { doneAt }),
+    ...(doneProblem !== undefined && { doneProblem }),
   };
 }

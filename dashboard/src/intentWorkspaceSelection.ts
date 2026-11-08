@@ -1,13 +1,14 @@
-// One Intent selection for the project's Intent workspace: a configured
-// location, a folder under one, or a file (with an optional case target later
-// slices position Purpose on). Kept with the project's reading place
-// (`./pageIntentReading.tsx`), so it outlasts leaving Intent and a new
-// revision, and starts empty for each project. The location tree and Purpose
-// read and set it through this owner; the candidate-record view shares it when
-// opening a recorded file; directly activating the Intent reading tab clears
-// it to return home (`./IntentModeTabs.tsx`). A missing `scope` with a
-// non-empty path is a file, so candidate opens stay `{ path }` /
-// `{ path, caseTarget }`.
+// One Intent selection for a reading scope of the project's Intent workspace
+// (`./pageIntentReading.tsx`), Project Intent's or the selected story's: a
+// configured location, a folder under one, or a file (with an optional case
+// target Purpose positions on). Kept with that scope's reading place, so it
+// outlasts leaving Intent, a visit to the other scope and a new revision, and
+// starts empty for each project. The location tree and Purpose read and set it
+// through this owner; Project Intent's candidate-record view shares it when
+// opening a recorded file; directly activating Project Intent's CI status tab
+// clears it to return home (`./IntentModeTabs.tsx`). A missing `scope` with a
+// non-empty path is a file, so candidate opens stay `{ path }` / `{ path,
+// caseTarget }`.
 
 import {
   createContext,

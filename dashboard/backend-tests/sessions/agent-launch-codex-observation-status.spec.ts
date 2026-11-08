@@ -96,10 +96,11 @@ test("endpoint/read failures preserve healthy hosts, saved identity and independ
     turns: [],
     metadataError: { code: -32600, message: "Native read refused" },
   });
-  const badEndpoint = record(dashboard, native, "bad-endpoint");
-  if (badEndpoint.session.continuation === undefined)
-    throw new Error("Missing continuation");
-  badEndpoint.session.continuation.endpoint = `unix://${dashboard.home}/absent.sock`;
+  // The thread itself reads healthy: only its saved endpoint is absent.
+  observed(native, "bad-endpoint", { type: "notLoaded" }, "completed");
+  const badEndpoint = record(dashboard, native, "bad-endpoint", {
+    endpoint: `unix://${dashboard.home}/absent.sock`,
+  });
   const legacy = record(dashboard, native, "legacy-no-endpoint");
   delete legacy.session.continuation;
   save(dashboard, [

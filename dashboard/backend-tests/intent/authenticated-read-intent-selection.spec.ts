@@ -13,16 +13,13 @@ import {
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { describedBacklog } from "../../tests/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });
 
 const knownSourceId = "open-dough";
-const backlog = `# Product backlog
-
-## Taken
-
-## Backlog list
-`;
+// An empty project's backlog.
+const backlog = describedBacklog(makeMe.aRepository.please());
 const settingsPath = ".planning/open-dough.json";
 const revisionOf = (byte: string) => byte.repeat(20);
 

@@ -48,7 +48,7 @@ test("collapsed below the session list, expanded into two lists sharing the room
   await page.setViewportSize({ width: 1440, height: 900 });
   await holdSession(dashboard, cursor);
   const held = keptRecord(dashboard.home);
-  await keepCrowd(dashboard, held);
+  keepCrowd(dashboard, held);
   const asked = changesAsked(page);
   await showPage(page, origin);
   await answerCrowd(page, held);

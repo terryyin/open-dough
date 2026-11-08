@@ -68,7 +68,7 @@ export async function opened(
   } = {},
 ) {
   const now = Date.now();
-  await keepProgressiveSessions(dashboard, now, list, nestedIn, {
+  keepProgressiveSessions(dashboard, now, list, nestedIn, {
     ...(open === undefined ? {} : { open }),
     ...(also === undefined ? {} : { also: also(now) }),
   });

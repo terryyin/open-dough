@@ -4,9 +4,10 @@
 // entries alone, locations without changes left out. The first time the
 // browser has a compared story, and at each toggle either way, it opens the
 // first changed location and the folders containing changes and collapses the
-// rest. The toggle, off at first, and the count outside every location are the
-// tree scope the story's summary offers (`./IntentStorySummary.tsx`). The
-// toggle and the expansion it asked for are kept with the tree's arrangement
+// rest. The toggle, off at first, heads the Changed tests tree
+// (`./IntentStorySummary.tsx`); the story's header counts the changed files
+// outside every location from the same overlay (`./IntentPerspective.tsx`).
+// The toggle and the expansion it asked for are kept with the tree's arrangement
 // (`./pageIntentReading.tsx`), so leaving Intent and returning neither turns
 // it off nor expands the story again.
 
@@ -22,12 +23,10 @@ import {
 import type { LocationExpansion } from "./useLocationOpenFolders.ts";
 
 export function useIntentStoryTree({
-  source,
   locations,
   story,
   onExpandLocation,
 }: {
-  readonly source: string;
   readonly locations: readonly IntentLocation[];
   readonly story: ComparedStory | undefined;
   // Opens the location the story's expansion names, or collapses them all.
@@ -59,8 +58,6 @@ export function useIntentStoryTree({
     story === undefined
       ? undefined
       : {
-          source,
-          outside: overlay.outside,
           only,
           noneInLocations: !overlay.locations.some(
             (each) => each.containsChanges,

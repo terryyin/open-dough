@@ -45,6 +45,14 @@ export function wholeSecondDifferenceWords(ms: number): string {
   return `${sign}${wholeSecondWords(Math.abs(ms))}`;
 }
 
+// A RELATIVE change (0.125 for an eighth slower) as a signed whole
+// percentage: "+13%", "−25%", "0%".
+export function relativePercentWords(relative: number): string {
+  const pct = Math.round(relative * 100);
+  if (pct === 0) return "0%";
+  return pct > 0 ? `+${String(pct)}%` : `−${String(Math.abs(pct))}%`;
+}
+
 // Percentage of a measured non-zero baseline duration only: "+10%", "−25%".
 // A measured zero baseline yields no percentage.
 export function durationPercentageWords(
@@ -52,9 +60,7 @@ export function durationPercentageWords(
   deltaMs: number,
 ): string | undefined {
   if (!(baselineMs > 0)) return undefined;
-  const pct = Math.round((deltaMs / baselineMs) * 100);
-  if (pct === 0) return "0%";
-  return pct > 0 ? `+${String(pct)}%` : `−${String(Math.abs(pct))}%`;
+  return relativePercentWords(deltaMs / baselineMs);
 }
 
 // Readable duration change: "8 s → 12 s (+4 s, +50%)", "4 s (no change)",

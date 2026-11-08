@@ -2,45 +2,22 @@
 // (./stories/recently-done-progressive-loading.spec.ts,
 // ./stories/recently-done-progressive-navigation.spec.ts) publish and keep: a long list
 // of done stories and saved Done sessions, one entry an hour apart, newest
-// first. The done records are spelled by the shared done-record renderer and
-// catalogued by the real backlog CLI's `catalog-done`, run on a scratch copy
-// of the project, so the published catalog is the one a project would push.
+// first. The done records are declared facts, published with the catalog
+// completion rebuilds from them (../../tests/support/revision-done-catalog.mjs).
 // This machine keeps the ad hoc Done sessions and a story's nested sessions.
 // Nothing here chooses which entries show or which records are read.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { execFileSync } from "node:child_process";
-import {
-  mkdirSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
-import {
-  doneRecordFileName,
-  renderDoneRecord,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { standaloneSessionName } from "./dashboardPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
-import { backlog, repository } from "./recentlyDoneRecords.ts";
+import { keepLaunchRecords } from "./support/launchStore.ts";
+import { publishedFiles, repository } from "./recentlyDoneRecords.ts";
 
 export { repository };
 export const revision = "f7".repeat(20);
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 export const doneDirectory = ".planning/done";
-const backlogCli = fileURLToPath(
-  new URL(
-    "../../src/skills/dough-product-backlog/scripts/product-backlog.mjs",
-    import.meta.url,
-  ),
-);
 
 const hour = 60 * 60_000;
 
@@ -93,24 +70,17 @@ export function progressiveEntries(
 export const placedAt = (now: number, place: number) =>
   new Date(now - place * hour - 30 * 60_000).toISOString();
 
-// The published files: the backlog, each story's done record, the files
-// `beside` names by repository path, and the done catalog the real
-// `catalog-done` builds from them.
+// The published files: the backlog queuing the workspace story, each story's
+// done record, the files `beside` names by repository path, and, once a story
+// is done, the done catalog completion rebuilds from them.
 export function publishedWithCatalog(
   now: number,
   entries: readonly ProgressiveEntry[],
   beside: Readonly<Record<string, string>> = {},
 ): Record<string, string> {
-  const project = mkdtempSync(join(tmpdir(), "open-dough-progressive-"));
-  try {
-    const done = join(project, doneDirectory);
-    mkdirSync(done, { recursive: true });
-    writeFileSync(join(project, backlogPath), backlog);
-    for (const entry of entries) {
-      if (entry.kind !== "story") continue;
-      writeFileSync(
-        join(project, entry.path),
-        renderDoneRecord(
+  const stories = entries.flatMap((entry) =>
+    entry.kind === "story"
+      ? [
           makeMe.aDoneRecord
             .with({
               identity: entry.identity,
@@ -119,30 +89,13 @@ export function publishedWithCatalog(
               developer: "Terry Yin",
             })
             .please(),
-        ),
-      );
-    }
-    for (const [path, text] of Object.entries(beside)) {
-      writeFileSync(join(project, path), text);
-    }
-    if (entries.some(({ kind }) => kind === "story")) {
-      execFileSync(
-        process.execPath,
-        [backlogCli, "catalog-done", "--file", join(project, backlogPath)],
-        { stdio: "pipe" },
-      );
-    }
-    const files: Record<string, string> = { [backlogPath]: backlog };
-    for (const name of readdirSync(done)) {
-      files[`${doneDirectory}/${name}`] = readFileSync(
-        join(done, name),
-        "utf8",
-      );
-    }
-    return files;
-  } finally {
-    rmSync(project, { recursive: true, force: true });
-  }
+        ]
+      : [],
+  );
+  return publishedFiles({
+    ...(stories.length > 0 && { doneRecords: stories }),
+    files: beside,
+  });
 }
 
 // Keeps this machine's sessions: each ad hoc entry's session, marked done
@@ -152,7 +105,7 @@ export function publishedWithCatalog(
 // They are the sessions of the project `source`, which the synthetic `claude`
 // lists under `checkout`: the first project and the machine's home unless
 // given.
-export async function keepProgressiveSessions(
+export function keepProgressiveSessions(
   dashboard: DashboardServer,
   now: number,
   entries: readonly ProgressiveEntry[],
@@ -169,55 +122,40 @@ export async function keepProgressiveSessions(
     readonly checkout?: string;
   } = {},
 ) {
-  const listed = (name: string, launchedAt: string) => {
-    const sessionId = dashboard.claudeListsSession({
+  // A `claude` session the synthetic `claude` lists by this name, started
+  // when its launch was.
+  const listed = (name: string, launchedAt: string) => ({
+    sessionId: dashboard.claudeListsSession({
       name,
       cwd: checkout,
       startedAt: Date.parse(launchedAt),
-    });
-    return {
-      host: "claude" as const,
-      sessionId,
-      shortId: sessionId.slice(0, 8),
-      name,
-    };
-  };
+    }),
+  });
   const doneAt = new Date(now - 10 * 60_000).toISOString();
   const records: LaunchRecord[] = entries.flatMap((entry): LaunchRecord[] => {
     if (entry.kind === "session") {
       const launchedAt = placedAt(now, entry.place);
-      return [
-        {
-          request: {
-            source,
-            workflow: "ad-hoc",
-            title: entry.title,
-            host: "claude",
-          },
-          session: listed(entry.title, launchedAt),
-          launchedAt,
-          ...(open.includes(entry.place) ? {} : { doneAt }),
-        },
-      ];
+      const session = makeMe.aLaunchRecord
+        .adHoc({ title: entry.title, source })
+        .inClaudeSession(listed(entry.title, launchedAt))
+        .launchedAt(launchedAt);
+      if (!open.includes(entry.place)) session.markedDoneAt(doneAt);
+      return [session.please()];
     }
     if (entry.place !== nestedIn) return [];
-    return (["refinement", "execution", "execution"] as const).map(
-      (workflow, index) => {
-        const launchedAt = placedAt(now, 60 + index);
-        return {
-          request: {
-            source,
-            identity: entry.identity,
-            title: entry.title,
-            workflow,
-            host: "claude",
-          },
-          session: listed(entry.title, launchedAt),
-          launchedAt,
-          doneAt,
-        };
-      },
-    );
+    const story = { identity: entry.identity, title: entry.title, source };
+    return [
+      makeMe.aLaunchRecord.refining(story),
+      makeMe.aLaunchRecord.executing(story),
+      makeMe.aLaunchRecord.executing(story),
+    ].map((launch, index) => {
+      const launchedAt = placedAt(now, 60 + index);
+      return launch
+        .inClaudeSession(listed(entry.title, launchedAt))
+        .launchedAt(launchedAt)
+        .markedDoneAt(doneAt)
+        .please();
+    });
   });
-  await keepLaunchRecords(dashboard, [...records, ...also], source);
+  keepLaunchRecords(dashboard, [...records, ...also], source);
 }

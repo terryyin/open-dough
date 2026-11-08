@@ -5,6 +5,7 @@
 // use: ./auto-refresh-branches.spec.ts.
 
 import type { Page } from "@playwright/test";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, githubFor, test } from "../dashboardTest.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import {
@@ -12,12 +13,7 @@ import {
   expectSteadyPace,
   passTimeUntilChecked,
 } from "../autoRefreshJourney.ts";
-import {
-  agentProfile,
-  branches,
-  profilePath,
-  trunk,
-} from "../branchProgressRecords.ts";
+import { branches, fromTrunk, trunk } from "../branchProgressRecords.ts";
 import { openedSettled, trunkMoved } from "../branchRefreshJourney.ts";
 import { readsBesideChecks } from "../originObservation.ts";
 import type { PublishedRevision } from "../publishedFiles.ts";
@@ -46,14 +42,19 @@ test("a recorded branch whose name cannot be used is that card's gap, is never r
   const named = branchesNamedByPage(page);
   const onUnusable: PublishedRevision = {
     ...trunk,
-    files: {
-      ...trunk.files,
-      [profilePath("Akiho")]: agentProfile("on-branch", {
-        agent: "Akiho",
-        mode: "story-branch",
-        branch: unusable,
-      }),
-    },
+    ...fromTrunk(trunk.revision, {
+      agentProfiles: [
+        makeMe.anAgentProfile
+          .executing({
+            name: "Akiho",
+            identity: "SEED-092#on-branch",
+            mode: "story-branch",
+            branch: unusable,
+            host: "claude",
+          })
+          .please(),
+      ],
+    }),
   };
   const { origin, progress } = await openedSettled(page, {
     trunk: onUnusable,

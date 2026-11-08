@@ -16,7 +16,7 @@ test("two ends select three commits in either direction, reset to one, and survi
 }) => {
   const { workspace } = storyWorktree(origin);
   const before = observed(workspace);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   await review.getByRole("radio", { name: "Commits", exact: true }).check();
@@ -82,7 +82,7 @@ olderGit(
   "older Git explains a range across integration with no files, while one below it works",
   async ({ page, dashboard, origin }) => {
     const { workspace } = storyWorktree(origin);
-    await keepLaunchRecord(dashboard, workspace);
+    keepLaunchRecord(dashboard, workspace);
     await openStoryReview(page, await openBacklog(page, origin));
     const review = reviewRegion(page);
     await review.getByRole("radio", { name: "Commits", exact: true }).check();

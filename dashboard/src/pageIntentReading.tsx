@@ -15,6 +15,11 @@
 // Each piece is held by the component that uses it, seeded from the place
 // when it mounts and written back once rendered (`useKeptReading`,
 // `useKeptArrangement`), so the place changes no rendering of its own.
+//
+// The selected story's views and Project Intent each read within their own
+// scope (`IntentReadingScope`), so browsing a project test never replaces the
+// story's file, Proof or scroll, nor the reverse. Project Intent's
+// arrangement belongs to no story: it is kept with the reading.
 
 import {
   createContext,
@@ -37,7 +42,8 @@ type Place = {
   // The arrangement and the selected story it was made for.
   arrangement: Kept;
   arrangedFor: string | undefined;
-  scrollTop: number;
+  // The reading pane's scroll offset in each scope.
+  readonly scrollTops: Map<string, number>;
 };
 
 const freshPlace = (project: string): Place => ({
@@ -45,7 +51,7 @@ const freshPlace = (project: string): Place => ({
   reading: new Map(),
   arrangement: new Map(),
   arrangedFor: undefined,
-  scrollTop: 0,
+  scrollTops: new Map(),
 });
 
 const ReadingPlaceOnPage = createContext<Place | undefined>(undefined);
@@ -107,6 +113,28 @@ export function IntentReadingPlace({
   return <MountedPlace value={mounted}>{children}</MountedPlace>;
 }
 
+// The scope a piece of reading belongs to: the selected story's views or
+// Project Intent; the page's own choices (which scope, which story view)
+// belong to neither.
+export type IntentReadingScopeName = "story" | "project";
+
+const ReadingScope = createContext<IntentReadingScopeName | undefined>(
+  undefined,
+);
+
+export function IntentReadingScope({
+  name,
+  children,
+}: {
+  readonly name: IntentReadingScopeName;
+  readonly children: ReactNode;
+}) {
+  return <ReadingScope value={name}>{children}</ReadingScope>;
+}
+
+const scopedKey = (scope: IntentReadingScopeName | undefined, key: string) =>
+  scope === undefined ? key : `${scope}:${key}`;
+
 function useMounted(): Mounted {
   const mounted = useContext(MountedPlace);
   if (mounted === undefined) {
@@ -134,7 +162,8 @@ export function useKeptReading<T>(
   key: string,
   initial: () => T,
 ): [T, Dispatch<SetStateAction<T>>] {
-  return useKept(useMounted().place.reading, key, initial);
+  const scope = useContext(ReadingScope);
+  return useKept(useMounted().place.reading, scopedKey(scope, key), initial);
 }
 
 // State kept for the tree's arrangement: restored when Intent opens again
@@ -143,7 +172,13 @@ export function useKeptArrangement<T>(
   key: string,
   initial: () => T,
 ): [T, Dispatch<SetStateAction<T>>] {
-  return useKept(useMounted().arrangement, key, initial);
+  const { place, arrangement } = useMounted();
+  const scope = useContext(ReadingScope);
+  return useKept(
+    scope === "project" ? place.reading : arrangement,
+    scopedKey(scope, key),
+    initial,
+  );
 }
 
 // Keeps the reading pane's scroll offset while content still arrives or
@@ -153,10 +188,11 @@ export function useKeptArrangement<T>(
 // move the place through scroll anchoring.
 export function useKeptReadingScroll(pane: RefObject<HTMLElement | null>) {
   const { place } = useMounted();
+  const scope = scopedKey(useContext(ReadingScope), "scrollTop");
   useLayoutEffect(() => {
     const element = pane.current;
     if (element === null) return;
-    let restoring = place.scrollTop;
+    let restoring = place.scrollTops.get(scope) ?? 0;
     const restore = () => {
       if (restoring === 0) return;
       element.scrollTop = restoring;
@@ -167,7 +203,7 @@ export function useKeptReadingScroll(pane: RefObject<HTMLElement | null>) {
       grown.disconnect();
     }
     const record = () => {
-      if (restoring === 0) place.scrollTop = element.scrollTop;
+      if (restoring === 0) place.scrollTops.set(scope, element.scrollTop);
     };
     const interactions = ["wheel", "touchstart", "keydown", "pointerdown"];
     for (const each of interactions) element.addEventListener(each, stop);
@@ -179,5 +215,5 @@ export function useKeptReadingScroll(pane: RefObject<HTMLElement | null>) {
       for (const each of interactions) element.removeEventListener(each, stop);
       element.removeEventListener("scroll", record);
     };
-  }, [pane, place]);
+  }, [pane, place, scope]);
 }

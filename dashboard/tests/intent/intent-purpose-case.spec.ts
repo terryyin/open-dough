@@ -32,7 +32,7 @@ test("opening a recorded file shows Purpose on its case, reading it once, and op
   });
 
   await openDoughnutRecordedCase(intent);
-  await expect(intentModeTab(intent, "Intent")).toHaveAttribute(
+  await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
     "aria-selected",
     "true",
   );

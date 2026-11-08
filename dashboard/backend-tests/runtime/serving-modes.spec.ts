@@ -24,6 +24,8 @@ import {
   projectEnvironmentOf,
 } from "../../tests/support/projectConfiguration.ts";
 import { rawRequest, type RawResponse } from "../../tests/support/rawHttp.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { describedBacklog } from "../../tests/describedRevisions.ts";
 import {
   liveRunner,
   runnerCommand,
@@ -34,7 +36,8 @@ import { expectSuppliedIcons } from "../../tests/support/brandIcons.ts";
 type ViteMode = Extract<DashboardServerMode, "dev" | "preview">;
 const modes = ["dev", "preview"] as const;
 const revision = "ab".repeat(20);
-const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
+// An empty project's backlog.
+const backlog = describedBacklog(makeMe.aRepository.please());
 
 // Keep text responses as text so a page returned in place of JSON fails parity.
 type Answer = {

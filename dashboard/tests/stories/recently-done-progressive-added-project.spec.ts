@@ -65,7 +65,7 @@ async function openedOnFirst(page: Page) {
       files: publishedWithCatalog(now, entries),
     }),
   );
-  await keepProgressiveSessions(server, now, entries, undefined, {
+  keepProgressiveSessions(server, now, entries, undefined, {
     source: "sample-app",
     checkout: fixture.checkout,
   });

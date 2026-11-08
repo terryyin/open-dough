@@ -28,9 +28,10 @@ test("a fast-forward landing after a story-first merge of main names the tip as 
   const setup = await publishFastForwardLandedStory(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
 
-  await expect(panel.getByRole("heading")).toHaveText(
-    `CI timing changes for ${setup.identity}`,
-  );
+  await expect(panel.getByRole("heading")).toHaveText([
+    /^Baseline compared with /,
+    "CI entry timing comparison",
+  ]);
   const branchIdentity = panel.locator(".intent-ci-comparison-identity").nth(1);
   const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
   await expect(branchIdentity).toContainText(shortSha(setup.branchSide));
@@ -63,9 +64,10 @@ test("a later fast-forward keeps an earlier story's trunk-first landing and base
   const branchBuild = setup.firstBranchSide;
   const landed = setup.firstLandingMerge;
 
-  await expect(panel.getByRole("heading")).toHaveText(
-    `CI timing changes for ${setup.identity}`,
-  );
+  await expect(panel.getByRole("heading")).toHaveText([
+    /^Baseline compared with /,
+    "CI entry timing comparison",
+  ]);
   const baselineIdentity = panel
     .locator(".intent-ci-comparison-identity")
     .nth(0);
@@ -97,9 +99,10 @@ test("a later branch started before a Trunk Mode completion keeps that completio
   );
   const { panel } = await selectDoneStoryForCiComparison(page);
 
-  await expect(panel.getByRole("heading")).toHaveText(
-    `CI timing changes for ${setup.identity}`,
-  );
+  await expect(panel.getByRole("heading")).toHaveText([
+    /^Baseline compared with /,
+    "CI entry timing comparison",
+  ]);
   const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(0),

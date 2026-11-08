@@ -28,6 +28,9 @@ import { readsBesideChecks } from "../originObservation.ts";
 import { isCheck } from "../pageRequestNotes.ts";
 import { setPageVisibility } from "../autoRefreshJourney.ts";
 import { publishes } from "../support/fakeGitHub.ts";
+import { describedRevision } from "../describedRevisions.ts";
+import { backlogPath } from "../publishedOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { GhRequest } from "../support/ghRequest.ts";
 import { holdingAnswer } from "../support/heldGitHubAnswer.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
@@ -38,28 +41,34 @@ const seedPath = ".planning/seeds/SEED-263-shared.md";
 const title = "A story both tabs show";
 const goal = "Both tabs show this goal, read from GitHub once.";
 const titles = { taken: [], backlog: [title] };
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
-const files = {
-  [backlogPath]: `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [${title}](seeds/SEED-263-shared.md#shared) — SEED-263#shared
-`,
-  [seedPath]: `# Shared
+const story = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-263#shared",
+    title,
+    href: "seeds/SEED-263-shared.md#shared",
+  })
+  .please();
+const published = describedRevision(
+  makeMe.aRepository
+    .withRevision("published", {
+      backlog: { queued: [story] },
+      files: {
+        [seedPath]: `# Shared
 
 <a id="shared"></a>
 
 ### ${title}
 
-**Identity:** SEED-263#shared
+**Identity:** ${story.identity}
 
 **Goal:** ${goal}
 `,
-  ".planning/open-dough.json": "{}\n",
-};
+        ".planning/open-dough.json": "{}\n",
+      },
+    })
+    .please(),
+  revision,
+);
 
 const readOf =
   (picked: (params: URLSearchParams) => boolean) => (request: Request) => {
@@ -120,7 +129,7 @@ async function openedTogether(page: Page) {
   const github = githubFor(page);
   const isSeed = (request: GhRequest) =>
     request.kind === "content" && request.path === seedPath;
-  const seed = holdingAnswer(publishes({ revision, files }), isSeed);
+  const seed = holdingAnswer(publishes(published), isSeed);
   const ref = holdingAnswer(seed.answer, ({ kind }) => kind === "ref");
   github.serve(repository, ref.answer);
   github.serve(
@@ -209,7 +218,7 @@ test("revision checks from two tabs share one head listing, which still answers 
   await expectSettledPage(other, titles);
   const github = githubFor(page);
   const listing = holdingAnswer(
-    publishes({ revision, files }),
+    publishes(published),
     ({ kind }) => kind === "matching-refs",
   );
   github.serve(repository, listing.answer);

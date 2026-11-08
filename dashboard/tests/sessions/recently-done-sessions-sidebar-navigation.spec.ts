@@ -19,7 +19,6 @@ import {
 import { expectEntries, shownEntries } from "../recentlyDoneColumn.ts";
 import { recordsAsked } from "../recentlyDoneProgressivePage.ts";
 import { placedAt } from "../recentlyDoneProgressive.ts";
-import { publishMovingOrigin } from "../publishedOrigin.ts";
 import {
   expectRevealsSince,
   recordReveals,
@@ -38,6 +37,7 @@ import {
 } from "../support/codexLaunch.ts";
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
 import { retained, report, save } from "../support/retainedReport.ts";
+import { publishOnePygardonStory } from "../pygardonProject.ts";
 
 test.use({
   projectFolders: ["open-dough", "doughnut", "pygardon"],
@@ -63,11 +63,7 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
   const held = keptRecord(dashboard.home);
   await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
-  const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
-  pygardon.push(
-    "e6".repeat(20),
-    "# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [A Pygardon story](seeds/SEED-301.md#s) — SEED-301#s\n",
-  );
+  await publishOnePygardonStory(page);
   await recordReveals(page);
   let releaseCatalog: () => void = () => undefined;
   const catalogHeld = new Promise<void>((resolve) => {

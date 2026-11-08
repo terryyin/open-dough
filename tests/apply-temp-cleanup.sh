@@ -35,17 +35,18 @@ fi
 assert_sentinels "${target}"
 assert_apply_tmp_empty
 
+# The highest tag, v0.1.10, is on a payload whose VERSION says 0.1.9.
 invalid_highest="${temporary_dir}/invalid-highest.git"
-mkdir -p -- "${invalid_highest}"
-git -C "${invalid_highest}" init --quiet -b main
-configure_fixture_git "${invalid_highest}"
-write_candidate_payload "${invalid_highest}" 0.1.2 payload-0.1.2
-commit_all "${invalid_highest}" 'valid lower release'
-tag_release "${invalid_highest}" 0.1.2 '2026-09-01T00:00:00'
-write_candidate_payload "${invalid_highest}" 0.1.2 payload-mismatch
-printf '%s\n' '0.1.9' > "${invalid_highest}/VERSION"
-commit_all "${invalid_highest}" 'invalid highest'
-tag_release "${invalid_highest}" 0.1.10 '2026-09-02T00:00:00'
+node "${source_dir}/tests/support/release-source.mjs" "${invalid_highest}" << 'JSON'
+{"revisions": [
+  {"name": "valid lower release", "release": {
+    "version": "0.1.2", "taggedAt": "2026-09-01T00:00:00",
+    "marker": "payload-0.1.2"}},
+  {"name": "invalid highest", "release": {
+    "version": "0.1.10", "taggedAt": "2026-09-02T00:00:00",
+    "marker": "payload-mismatch"}, "files": {"VERSION": "0.1.9\n"}}
+]}
+JSON
 
 if output=$(bash "${helper}" apply --url "${invalid_highest}" \
   --target "${target}" --platform cursor 2>&1); then

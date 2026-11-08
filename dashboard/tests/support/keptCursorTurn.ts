@@ -1,12 +1,6 @@
 // Setup and admission for a working Cursor terminal client. The boundary
 // spec drives detach, join, and server shutdown against these helpers.
-import {
-  existsSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect } from "@playwright/test";
@@ -27,6 +21,11 @@ import {
   stopCursorRunner,
 } from "../../server/hosts/cursor/runnerClient.ts";
 import { processRunning } from "./processGroup.ts";
+import {
+  changeLaunchStore,
+  keptLaunchStore,
+  launchStoreFile,
+} from "./launchStore.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 
 // The boundary server a Cursor test starts around its fake `cursor-agent`:
@@ -38,16 +37,13 @@ export type CursorServer = {
   readonly environment?: ProjectEnvironment;
 };
 
-function keptRecordsFile(home: string): string {
-  return path.join(home, ".open-dough", "dashboard", "agent-launches.json");
-}
-
 export function keptCursor(home: string): LaunchRecord {
-  const kept = JSON.parse(
-    readFileSync(keptRecordsFile(home), "utf8"),
-  ) as Record<string, LaunchRecord[]>;
-  const [record] = kept["open-dough"] ?? [];
-  if (record?.session.host !== "cursor") {
+  const [record] = keptLaunchStore(home)["open-dough"] ?? [];
+  if (
+    record === undefined ||
+    !("session" in record) ||
+    record.session.host !== "cursor"
+  ) {
     throw new Error("Missing recorded Cursor session.");
   }
   return record;
@@ -56,7 +52,7 @@ export function keptCursor(home: string): LaunchRecord {
 // The kept Cursor record's first input state, or undefined before a launch
 // keeps one.
 export function keptFirstInputState(home: string): string | undefined {
-  if (!existsSync(keptRecordsFile(home))) return undefined;
+  if (!existsSync(launchStoreFile(home))) return undefined;
   return keptCursor(home).firstInput?.state;
 }
 
@@ -78,15 +74,12 @@ export function rewriteKeptCursor(
   home: string,
   change: (record: LaunchRecord) => LaunchRecord,
 ): void {
-  const recordsFile = keptRecordsFile(home);
-  const kept = JSON.parse(readFileSync(recordsFile, "utf8")) as Record<
-    string,
-    LaunchRecord[]
-  >;
-  const [record] = kept["open-dough"] ?? [];
-  if (record === undefined) throw new Error("No Cursor session recorded.");
-  kept["open-dough"] = [change(record)];
-  writeFileSync(recordsFile, JSON.stringify(kept));
+  changeLaunchStore(home, (kept) => {
+    const [record] = kept["open-dough"] ?? [];
+    if (record === undefined || !("session" in record))
+      throw new Error("No Cursor session recorded.");
+    return { ...kept, "open-dough": [change(record)] };
+  });
 }
 
 export function codexResumeLog(server: DashboardServer): string {

@@ -1,6 +1,6 @@
 // Recheck trusts a launch's own durable record even when the host's listing
 // no longer names its session, using the latest record when several exist.
-import { mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { attempts } from "../agentLaunchBoundary.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
@@ -8,11 +8,14 @@ import {
   openSessionStartReason,
   type LaunchAttemptRecord,
 } from "../../src/agentLaunch.ts";
+import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { readyStory } from "../launchJourney.ts";
+import { identityB } from "../../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import {
   expect,
   test,
   recoveryOf,
-  storyRequest,
   subject,
   useUncertainLaunch,
 } from "../claudeVerification.ts";
@@ -60,25 +63,22 @@ for (const count of [1, 2]) {
       running: false,
       worker: { pid: dashboard.pid },
     });
-    const file = path.join(
-      dashboard.home,
-      ".open-dough/dashboard/agent-launches.json",
+    // Story B's own executions, each launched after the attempt was accepted.
+    const records = [0, 1].slice(0, count).map((index) =>
+      makeMe.aLaunchRecord
+        .executing({ identity: identityB, title: readyStory })
+        .inClaudeSession({
+          sessionId: `unlisted-own-session-${String(index)}`,
+          shortId: `own-${String(index)}`,
+        })
+        .launchedAt(new Date(acceptedAt + index + 1).toISOString())
+        .please(),
     );
-    mkdirSync(path.dirname(file), { recursive: true });
-    const records = [0, 1].slice(0, count).map((index) => ({
-      request: storyRequest,
-      session: {
-        host: "claude",
-        sessionId: `unlisted-own-session-${String(index)}`,
-        shortId: `own-${String(index)}`,
-        name: "own launch",
-      },
-      launchedAt: new Date(acceptedAt + index + 1).toISOString(),
-    }));
     const latest = records.at(-1);
     // Deliberately newest first: selection depends on time, not file order.
-    const stored = JSON.stringify({ "open-dough": records.toReversed() });
-    writeFileSync(file, stored);
+    const stored = keepLaunchStore(dashboard, {
+      "open-dough": records.toReversed(),
+    });
     expect(dashboard.claudeListing()).toEqual([]);
     // Page session reads use HOME; verification reads in the project folder.
     const verificationListings = () =>
@@ -111,7 +111,7 @@ for (const count of [1, 2]) {
     expect((await attempts(dashboard))[0]?.worker).toBeUndefined();
     expect((await attempts(dashboard))[0]?.slowSince).toBeUndefined();
     expect(verificationListings()).toEqual(before);
-    expect(readFileSync(file, "utf8")).toBe(stored);
+    expect(readFileSync(launchStoreFile(dashboard), "utf8")).toBe(stored);
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
   });
 }

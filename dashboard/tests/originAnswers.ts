@@ -186,15 +186,6 @@ export function rawFileAnswer(markdown: string): RawAnswer {
   };
 }
 
-// The backlog file origin publishes when nothing is recorded: both groups,
-// no entries, and no direction.
-export const emptyBacklog = `# Product backlog
-
-## Taken
-
-## Backlog list
-`;
-
 // A rate-limited answer, optionally directing when to ask again as GitHub
 // does: `Retry-After`, or `X-RateLimit-Reset` with `X-RateLimit-Remaining: 0`.
 export function rateLimitedAnswer(

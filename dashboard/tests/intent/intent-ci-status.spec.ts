@@ -47,9 +47,9 @@ test("CI status names main, its nearest Passed result, later commits without a r
   await openUntilRead(page);
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
-  const tabs = intent.getByRole("tablist", { name: "Intent reading" });
+  const tabs = intent.getByRole("tablist", { name: "Project Intent views" });
   await expect(tabs.getByRole("tab")).toHaveText([
-    "Intent",
+    "CI status",
     "Optimization Candidates",
   ]);
   await expect(intent.locator(".intent-locations")).toBeVisible();
@@ -78,7 +78,7 @@ test("CI status names main, its nearest Passed result, later commits without a r
   ]);
 
   await test.step("arrow keys, Home and End move between the two mode tabs", async () => {
-    const intentTab = intentModeTab(intent, "Intent");
+    const intentTab = intentModeTab(intent, "CI status");
     const candidates = intentModeTab(intent, "Optimization Candidates");
     await intentTab.focus();
     await expect(intentTab).toBeFocused();

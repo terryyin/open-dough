@@ -1,4 +1,5 @@
 import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { renameSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
@@ -6,6 +7,7 @@ import { launched } from "../agentTerminalBoundary.ts";
 import {
   localEntries,
   publishMembership,
+  queuedStoryTaken,
   savedLocalSessionRecords as savedRecords,
 } from "../localTakenSessions.ts";
 import { columnPagingControl, rem, showColumn } from "../boardPage.ts";
@@ -21,8 +23,7 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../launchStoryCardPage.ts";
-import { emptyBacklog, publishFiles } from "../publishedOrigin.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
@@ -32,10 +33,8 @@ import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import {
   at,
   placed,
-  publishedFiles,
   queuedIdentity,
   queuedTitle,
-  repository,
 } from "../recentlyDoneRecords.ts";
 import { keptSessions } from "../recentlyDoneSessions.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
@@ -58,25 +57,20 @@ test("one Taken story with two sessions and one local session means two entries;
     queued: id(queuedTitle, placed.queuedLaunched),
     adHoc: id("Open Dough session", placed.adHocLaunched),
   });
-  if (!story || !local || story.session.host !== "claude")
-    throw new Error("Missing raw sessions");
+  if (!story || !local) throw new Error("Missing raw sessions");
   const secondId = id(queuedTitle, placed.executedOpenSessionLaunched);
-  await keepLaunchRecords(dashboard, [
-    {
-      ...story,
-      session: {
-        ...story.session,
-        sessionId: secondId,
-        shortId: secondId.slice(0, 8),
-      },
-      launchedAt: at(now, placed.executedOpenSessionLaunched),
-    },
+  keepLaunchRecords(dashboard, [
+    // The queued story's second execution, launched later.
+    makeMe.aLaunchRecord
+      .executing({ identity: queuedIdentity, title: queuedTitle })
+      .inClaudeSession({ sessionId: secondId })
+      .launchedAt(at(now, placed.executedOpenSessionLaunched))
+      .please(),
     story,
     local,
   ]);
   await launched(dashboard, "doughnut");
-  const backlog = `${publishedFiles()[".planning/PRODUCT-BACKLOG.md"]?.replace("## Taken\n\n## Backlog list", "## Taken")}\n## Backlog list\n`;
-  await publishMembership(page, backlog);
+  await publishMembership(page, { backlog: queuedStoryTaken });
   await page.setViewportSize({ width: 40 * rem, height: 900 });
   await page.goto("/");
   await expectMembership(page, { taken: [queuedTitle], backlog: [] });
@@ -102,11 +96,7 @@ test("one Taken story with two sessions and one local session means two entries;
   ).toHaveCount(0);
   await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
   await expect(taken).not.toContainText("No Taken entries");
-  await publishFiles(page, {
-    repository,
-    revision: "d3".repeat(20),
-    files: { ".planning/PRODUCT-BACKLOG.md": emptyBacklog },
-  });
+  await publishMembership(page, { at: "d3".repeat(20) });
   await page.reload();
   await expectMembership(page, { taken: [], backlog: [] });
   for (const [index, key] of [

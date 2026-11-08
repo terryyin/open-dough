@@ -28,6 +28,8 @@ import {
   unrefined,
 } from "../storyReadinessFixture.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.describe("touch preparation help", () => {
   test.use({ hasTouch: true });
@@ -238,10 +240,7 @@ test("preparation help is absent when there are no preparation facts", async ({
   page,
 }) => {
   const origin = await publishMovingOrigin(page);
-  origin.push(
-    "e1".repeat(20),
-    "# Product backlog\n\n## Taken\n\n## Backlog list\n",
-  );
+  origin.push("e1".repeat(20), describedBacklog(makeMe.aRepository.please()));
   await openUntilRead(page);
   await expect(parts(page).backlog).toContainText(
     "No Backlog entries are recorded.",

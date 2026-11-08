@@ -24,15 +24,41 @@ import {
   titlesOfA,
 } from "../refreshJourney.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import type { BacklogEntry } from "../../../tests/support/makeMe.mjs";
 
 const revision = "5e".repeat(20);
-const repairEntry =
-  "- [Repair the installer's update report](slice-plans/059-installer-update-report/PLAN.md)";
-const claimsEntry =
-  "- [Publish shared backlog claims](seeds/SEED-040-claims.md#publish-claims) — SEED-040#publish-claims";
+const repairPlan = "slice-plans/059-installer-update-report/PLAN.md";
+const repair = makeMe.aBacklogEntry
+  .with({
+    identity: repairPlan,
+    title: "Repair the installer's update report",
+    href: repairPlan,
+  })
+  .please();
+const claims = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-040#publish-claims",
+    title: "Publish shared backlog claims",
+    href: "seeds/SEED-040-claims.md#publish-claims",
+  })
+  .please();
+// The exact entry lines a refused backlog adds after its valid ones.
+const repairLine = `- [${repair.title}](${repairPlan})`;
+const claimsLine = `- [${claims.title}](${claims.href}) — ${claims.identity}`;
 
-function backlogWith(queued: string[], after = ""): string {
-  return `# Product backlog\n\n## Near-future direction\n\nShow published work.\n\n## Taken\n\n${repairEntry}\n\n## Backlog list\n\n${queued.join("\n")}\n${after}`;
+// A backlog with a direction, the repair taken and `queued` in the Backlog,
+// followed by the literal `tail` the case reads.
+function backlogWith(queued: BacklogEntry[], tail = ""): string {
+  const valid = describedBacklog(
+    makeMe.aRepository
+      .withRevision("base", {
+        backlog: { direction: "Show published work.", taken: [repair], queued },
+      })
+      .please(),
+  );
+  return `${valid}${tail}`;
 }
 
 function publishedAs(markdown: string): Origin {
@@ -72,13 +98,13 @@ const failedOpenings: {
   {
     when: "one entry line among valid ones is malformed",
     origin: publishedAs(
-      backlogWith([claimsEntry, "- Queue trunk integration, without a link"]),
+      backlogWith([claims], "- Queue trunk integration, without a link\n"),
     ),
     problem: 'Unsupported entry in "## Backlog list" at line 14',
   },
   {
     when: "the same work is recorded in Taken and again in Backlog",
-    origin: publishedAs(backlogWith([claimsEntry, repairEntry])),
+    origin: publishedAs(backlogWith([claims], `${repairLine}\n`)),
     // The reader's words whole, as its report, then the dashboard's own: said
     // once here, while the other refusals are told apart by the reader's words.
     problem:
@@ -86,7 +112,7 @@ const failedOpenings: {
   },
   {
     when: "an entry carries a field the shared reader does not support",
-    origin: publishedAs(backlogWith([`${claimsEntry} (column: review)`])),
+    origin: publishedAs(backlogWith([], `${claimsLine} (column: review)\n`)),
     problem: 'Unsupported entry detail in "## Backlog list" at line 13',
   },
 ];
@@ -136,7 +162,7 @@ test("read failure and retry is not caused by an unknown section, which adds no 
     page,
     publishedAs(
       backlogWith(
-        [claimsEntry],
+        [claims],
         `\n## Review\n\n- [${underReview}](seeds/SEED-021-progress.md#follow) — SEED-021#follow\n`,
       ),
     ),

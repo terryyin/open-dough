@@ -1,12 +1,6 @@
 // Vendor report payload and privately retired workspace for real dashboard journeys.
 import { execFileSync } from "node:child_process";
-import {
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  symlinkSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, rmSync, symlinkSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 import path from "node:path";
@@ -18,19 +12,15 @@ import { completionReport } from "./completionReport.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
+import { changeLaunchStore } from "./launchStore.ts";
 
 export const report =
   "Landed on main at `a5df85d90a`.\n\n- Story 2 remains **not ready**.\n- Removed the worktree and branch.\n\nNo product code changed.\n<script>window.reportExecuted=true</script>";
-export const storeFile = (home: string) =>
-  path.join(home, ".open-dough", "dashboard", "agent-launches.json");
 export function save(home: string, records: LaunchRecord[]) {
-  const file = storeFile(home);
-  const document = JSON.parse(readFileSync(file, "utf8")) as Record<
-    string,
-    LaunchRecord[]
-  >;
-  document["open-dough"] = records;
-  writeFileSync(file, JSON.stringify(document));
+  changeLaunchStore(home, (document) => ({
+    ...document,
+    "open-dough": records,
+  }));
 }
 export async function retained(
   dashboard: DashboardServer,

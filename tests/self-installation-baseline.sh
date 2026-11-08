@@ -66,7 +66,8 @@ assert_checker_fail() {
 }
 
 matching_template="${temporary_dir}/matching"
-build_latest_fixture "${matching_template}"
+# The shared "latest" release source in tests/support/release-sources.mjs.
+node "${source_dir}/tests/support/release-source.mjs" "${matching_template}" latest
 tagged_checkout="${temporary_dir}/release-0.1.10"
 checkout_tagged_release "${matching_template}" "${tagged_checkout}" 0.1.10
 git -C "${matching_template}" -c advice.detachedHead=false checkout --quiet \
@@ -161,13 +162,11 @@ assert_checker_fail "${source_conflict}" 'SOURCE conflict' \
   "SOURCE conflicts with the shared installation: ${source_conflict}/.agents/skills/dough-update/SOURCE ${source_conflict}/.claude/skills/dough-update/SOURCE"
 
 collision="${temporary_dir}/collision.git"
-mkdir -p -- "${collision}"
-git -C "${collision}" init --quiet -b main
-configure_fixture_git "${collision}"
-write_candidate_payload "${collision}" 0.1.1 payload-0.1.1
-rm -rf -- "${collision}/src/skills/dough-slice-planning"
-commit_all "${collision}" 'release 0.1.1 without slice-planning'
-tag_release "${collision}" 0.1.1 '2026-06-01T00:00:00'
+node "${source_dir}/tests/support/release-source.mjs" "${collision}" << 'JSON'
+{"revisions": [{"name": "release 0.1.1 without slice-planning", "release": {
+  "version": "0.1.1", "taggedAt": "2026-06-01T00:00:00",
+  "marker": "payload-0.1.1", "removed": ["dough-slice-planning"]}}]}
+JSON
 collision_source=$(cd -- "${collision}" && pwd)
 for root in "${collision}/.agents/skills" "${collision}/.claude/skills"; do
   mkdir -p -- "${root}"

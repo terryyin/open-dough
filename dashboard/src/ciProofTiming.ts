@@ -22,11 +22,16 @@ export type CiTiming =
     };
 
 // A timing cell: the short words it shows, the full explanation when it
-// shows a gap label, and the measured milliseconds when there are any.
+// shows a gap label, the measured milliseconds when there are any, and, for
+// a story CI comparison's Branch or Landed cell measured at both ends, its
+// signed elapsed change from the measured Baseline and, when that baseline
+// is positive, the change relative to it.
 export type TimingCell = {
   readonly text: string;
   readonly explanation?: string;
   readonly ms?: number;
+  readonly changeMs?: number;
+  readonly relative?: number;
 };
 
 export function joinedAnd(parts: readonly string[]): string {

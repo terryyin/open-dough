@@ -1,15 +1,12 @@
 // Active story membership owns its open session even with a matching done card.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
-import { renderDoneRecord } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { columnPagingControl, rem } from "../boardPage.ts";
 import { expectMembership, parts, sessionStateOf } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   at,
-  doneDirectory,
-  doneRecordAt,
   placed,
   publishedFiles,
   queuedIdentity,
@@ -22,7 +19,6 @@ import {
   expectEntries,
   sessionsOutsideDoneStories,
 } from "../recentlyDoneColumn.ts";
-import { withDoneCatalog } from "../doneCatalogAnswers.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 
 test("an active story owns its open session even with a matching done card, whose closed session is nested once and whose Column paging count uses the rendered entries", async ({
@@ -34,47 +30,33 @@ test("an active story owns its open session even with a matching done card, whos
   const open = records.find(
     (record) => record.request.workflow === "execution",
   );
-  if (
-    open?.request.workflow !== "execution" ||
-    open.session.host !== "claude"
-  ) {
-    throw new Error("No queued Claude story session");
-  }
+  if (open === undefined) throw new Error("No queued story session");
   const closedId = "99999999-aaaa-bbbb-cccc-000000000009";
-  await keepLaunchRecords(dashboard, [
-    {
-      ...open,
-      request: { ...open.request, workflow: "refinement" },
-      session: {
-        ...open.session,
-        sessionId: closedId,
-        shortId: closedId.slice(0, 8),
-      },
-      launchedAt: at(now, placed.executedDoneSessionLaunched),
-      doneAt: at(now, placed.executedDoneSessionMarked),
-    },
+  keepLaunchRecords(dashboard, [
+    // The story's refinement, closed before it was done.
+    makeMe.aLaunchRecord
+      .refining({ identity: queuedIdentity, title: queuedTitle })
+      .inClaudeSession({ sessionId: closedId })
+      .launchedAt(at(now, placed.executedDoneSessionLaunched))
+      .markedDoneAt(at(now, placed.executedDoneSessionMarked))
+      .please(),
     ...records,
   ]);
   await publishFiles(page, {
     repository,
     revision,
-    files: publishedFiles(
-      withDoneCatalog(
-        {
-          [doneRecordAt(queuedIdentity)]: renderDoneRecord(
-            makeMe.aDoneRecord
-              .with({
-                identity: queuedIdentity,
-                title: queuedTitle,
-                completedAt: at(now, placed.executedDone),
-                developer: "Terry Yin",
-              })
-              .please(),
-          ),
-        },
-        doneDirectory,
-      ),
-    ),
+    files: publishedFiles({
+      doneRecords: [
+        makeMe.aDoneRecord
+          .with({
+            identity: queuedIdentity,
+            title: queuedTitle,
+            completedAt: at(now, placed.executedDone),
+            developer: "Terry Yin",
+          })
+          .please(),
+      ],
+    }),
   });
   await page.setViewportSize({ width: 54 * rem, height: 900 });
   await page.goto("/");

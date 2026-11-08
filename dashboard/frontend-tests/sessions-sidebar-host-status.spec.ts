@@ -12,10 +12,10 @@ import type { Locator } from "@playwright/test";
 import { unreadSessions } from "../tests/support/sessionHostStatus.ts";
 import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
 import {
-  emptyMachineAnswer,
   putFrontendHostStatus,
   putFrontendMachine,
 } from "../tests/support/frontendServiceState.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 async function expectFigure(
   figure: Locator,
@@ -53,32 +53,26 @@ test.describe("the Sessions sidebar's title row status", () => {
   }) => {
     await pausePageClockAt(page, new Date());
     // One waiting session so active/waiting counts still render beside host figures.
-    putFrontendMachine(frontendServices, {
-      ...emptyMachineAnswer(),
-      records: [
-        {
-          request: {
-            source: "open-dough",
-            host: "claude",
-            workflow: "ad-hoc",
-            title: "Status story",
-            instruction: "Status story",
-          },
-          session: {
-            host: "claude",
-            sessionId: "status-session-7",
-            shortId: "status7",
-            name: "Status story",
-          },
-          launchedAt: "2026-10-01T00:00:00.000Z",
-          sessionState: {
-            kind: "available",
-            availability: "loaded",
-            activity: "waiting",
-          },
-        },
-      ],
-    });
+    putFrontendMachine(
+      frontendServices,
+      makeMe.aMachineAnswer
+        .observing(
+          makeMe.anObservedLaunch
+            .of(
+              makeMe.aLaunchRecord
+                .adHoc({ instruction: "Status story", title: "Status story" })
+                .inClaudeSession({
+                  sessionId: "status-session-7",
+                  shortId: "status7",
+                })
+                .launchedAt("2026-10-01T00:00:00.000Z")
+                .please(),
+            )
+            .withSessionState(makeMe.aSessionState.loaded("waiting").please())
+            .please(),
+        )
+        .please(),
+    );
     putFrontendHostStatus(frontendServices, {
       cpuPercent: 24,
       freeBytes: null,

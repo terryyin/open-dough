@@ -7,6 +7,7 @@
 import { test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { chooseCiStatus, runUrl } from "../intentCiStatusPage.ts";
+import { chooseStoryTab } from "../support/intentStoryPage.ts";
 import { intentLocationName } from "../intentPerspectivePage.ts";
 import {
   childName,
@@ -93,6 +94,7 @@ test("a published CI summary for a sources location shows its group and file res
   const intent = parts(page).intent;
 
   await test.step("the location's Summary counts both files, each under its folder", async () => {
+    await chooseStoryTab(intent, "Changed tests");
     await intentLocationName(intent, "scripts").click();
     const scripts = summaryRegion(intent);
     await expectScopeRows(scripts, "scripts", [

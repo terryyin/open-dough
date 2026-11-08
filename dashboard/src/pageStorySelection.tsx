@@ -83,14 +83,18 @@ export function StorySelectionProvider({
 
 // The selected story as one project reads it: none unless that project owns
 // the page's selection. Toggling one of its stories moves the selection there.
+// `selection` is the act of selecting: each new selection, even of a story
+// selected before and cleared since, is a new value, so what a view chose
+// for one selection is never kept for the next (`./pageIntentMode.tsx`,
+// `./intentStoryTabs.tsx`).
 export function useStorySelection(project: string) {
   const api = useContext(StorySelectionOnPage);
   const selected = useContext(StorySelectionState);
   if (api === undefined) {
     throw new Error("Story selection is used outside the page's PageFrame.");
   }
-  const selectedIdentity =
-    selected?.project === project ? selected.identity : undefined;
+  const selection = selected?.project === project ? selected : undefined;
+  const selectedIdentity = selection?.identity;
   const toggle = useCallback(
     (identity: string) => {
       api.toggle({ project, identity });
@@ -98,8 +102,8 @@ export function useStorySelection(project: string) {
     [api, project],
   );
   return useMemo(
-    () => ({ selectedIdentity, toggle }),
-    [selectedIdentity, toggle],
+    () => ({ selection, selectedIdentity, toggle }),
+    [selection, selectedIdentity, toggle],
   );
 }
 

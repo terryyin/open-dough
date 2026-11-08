@@ -10,6 +10,8 @@ import {
 } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { everyRepository, publishes } from "./fakeGitHub.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   projectConfigurationFile,
   projectEnvironmentOf,
@@ -19,8 +21,6 @@ export const addedRepository = "example/sample-app";
 export const addedRevision = "b7".repeat(20);
 export const addedBranch = "release+stable";
 export const addedLocalPath = "~/work/private-checkout";
-export const addedBacklog =
-  "# Product backlog\n\n## Taken\n\n## Backlog list\n";
 
 export function projectAddMachine() {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-project-add-"));
@@ -69,7 +69,8 @@ export function projectAddMachine() {
         publishes({
           revision: addedRevision,
           defaultBranch: addedBranch,
-          backlog: addedBacklog,
+          // The added project records no stories.
+          backlog: describedBacklog(makeMe.aRepository.please()),
         }),
       );
       servers.push(server);

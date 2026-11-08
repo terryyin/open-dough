@@ -28,19 +28,16 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Review a selected story in Intent tabs](seeds/SEED-275-story-intent-tabs.md#story-intent-tabs) — SEED-275#story-intent-tabs ([plan](slice-plans/531-review-story-intent-tabs/PLAN.md))
-- [Serve fake GitHub planning files from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#declare-fake-github-planning-data) — SEED-262#declare-fake-github-planning-data ([plan](slice-plans/530-declare-fake-github-planning-data/PLAN.md))
-- [Build release source repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-shell-release-and-native-fixtures) — SEED-262#migrate-shell-release-and-native-fixtures ([plan](slice-plans/533-migrate-shell-release-and-native-fixtures/PLAN.md))
-- [Build git-publication native fixture repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-git-publication-native-fixtures) — SEED-262#migrate-git-publication-native-fixtures ([plan](slice-plans/534-migrate-git-publication-native-fixtures/PLAN.md))
-- [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories) — SEED-262#reuse-immutable-git-histories ([plan](slice-plans/535-reuse-story-columns-git-history/PLAN.md))
-- [Make kept launch record test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data) — SEED-261#map-launch-and-session-test-data ([plan](slice-plans/534-map-launch-and-session-test-data/PLAN.md))
-- [Make live launch observation test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-observation-test-data) — SEED-261#map-launch-observation-test-data ([plan](slice-plans/536-map-launch-observation-test-data/PLAN.md))
-- [Verify local suite limits without wall-clock waits](seeds/SEED-277-observe-local-suite-waits.md#observe-local-suite-waits) — SEED-277#observe-local-suite-waits ([plan](slice-plans/537-observe-local-suite-waits/PLAN.md))
 - [Make launch completion and landing test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-completion-and-landing-test-data) — SEED-261#map-launch-completion-and-landing-test-data ([plan](slice-plans/538-map-launch-completion-and-landing-test-data/PLAN.md))
 - [Make Codex and Cursor session test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-host-continuation-test-data) — SEED-261#map-host-continuation-test-data ([plan](slice-plans/539-map-host-continuation-test-data/PLAN.md))
 
 ## Backlog list
 
+- [Keep one launch store vocabulary and coherent kept records in dashboard tests](seeds/SEED-261-share-domain-test-data.md#align-kept-launch-store-setup) — SEED-261#align-kept-launch-store-setup
+- [Read done records for the catalog through one product rule](seeds/SEED-262-faster-dashboard-test-feedback.md#share-done-catalog-record-reading) — SEED-262#share-done-catalog-record-reading
+- [Guard native fixture identity inputs against drift](seeds/SEED-262-faster-dashboard-test-feedback.md#guard-native-fixture-identity-inputs) — SEED-262#guard-native-fixture-identity-inputs
+- [Align story tab cost records, Taken heading, and wording](seeds/SEED-275-story-intent-tabs.md#align-story-tabs-records) — SEED-275#align-story-tabs-records
 - [Make machine-local project configuration test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-project-configuration-test-data) — SEED-261#map-project-configuration-test-data
 - [Make Intent and CI proof test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-intent-and-ci-proof-test-data) — SEED-261#map-intent-and-ci-proof-test-data
 - [Make installation and native test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-installation-and-native-test-data) — SEED-261#map-installation-and-native-test-data
+- [Give the dashboard a dark theme](seeds/SEED-278-dashboard-dark-theme.md#dashboard-dark-theme) — SEED-278#dashboard-dark-theme

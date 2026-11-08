@@ -42,14 +42,16 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
   await intentChoice.click();
 
   const record = candidatesRecord(intent);
-  const intentTab = intentModeTab(intent, "Intent");
+  const intentTab = intentModeTab(intent, "CI status");
   const candidatesTab = intentModeTab(intent, "Optimization Candidates");
   const locations = intent.locator(".intent-locations");
 
   await test.step("entering Intent selects the Intent tab: locations and CI homepage, no locations-column candidates control", async () => {
     await expect(
-      intent.getByRole("tablist", { name: "Intent reading" }).getByRole("tab"),
-    ).toHaveText(["Intent", "Optimization Candidates"]);
+      intent
+        .getByRole("tablist", { name: "Project Intent views" })
+        .getByRole("tab"),
+    ).toHaveText(["CI status", "Optimization Candidates"]);
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
     await expect(candidatesTab).toHaveAttribute("aria-selected", "false");
     await expect(intentGroupToggle(intent, "dashboard/tests")).toBeVisible();

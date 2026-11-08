@@ -27,7 +27,7 @@ import { publishes } from "../../tests/support/publishedRepository.ts";
 import { originMain } from "../../tests/support/sessionDialog.ts";
 import type { StartOrigin } from "../../tests/support/startOrigin.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
-import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import {
   answerOf,
   expectFollowUpInput,
@@ -73,7 +73,7 @@ test("a done story's follow-up sends its published facts and each Done session i
       .please(),
     ...quietStorySessions(dashboard.home, otherStory, doneAt),
   ];
-  await keepLaunchRecords(dashboard, kept);
+  keepLaunchRecords(dashboard, kept);
   dashboard.claudeScenario("launched");
   const text = "Paste still drops the last line on iPad; investigate.";
   const context = storyContextOf(recoverStory, completedAt, "quiet sessions");
@@ -203,7 +203,7 @@ for (const refused of [
   }) => {
     const revision = await refused.serve(dashboard, origin);
     const kept = quietStorySessions(dashboard.home, recoverStory, new Date());
-    await keepLaunchRecords(dashboard, kept);
+    keepLaunchRecords(dashboard, kept);
     dashboard.claudeScenario("launched");
 
     const response = await accept(dashboard, {

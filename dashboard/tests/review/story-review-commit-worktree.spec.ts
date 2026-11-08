@@ -28,7 +28,7 @@ test("Uncommitted changes alone reads staged, unstaged and untracked files; thro
 }) => {
   const { workspace } = storyWorktree(origin);
   const before = observed(workspace);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   expect(snapshot.uncommitted).toMatchObject({
@@ -102,7 +102,7 @@ test("an uncommitted-only snapshot offers Commits without inventing a commit", a
 }) => {
   const { workspace } = unchangedWorktree(origin);
   writeAt(workspace, "only.txt", "only uncommitted\n");
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   expect(snapshot.commits).toEqual([]);

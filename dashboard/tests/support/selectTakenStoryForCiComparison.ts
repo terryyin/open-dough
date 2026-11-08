@@ -4,7 +4,7 @@
 import { expect } from "./preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
-import { intentModeTab } from "../intentModePage.ts";
+import { expectStoryTab } from "./intentStoryPage.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 
@@ -20,11 +20,8 @@ export async function selectTakenStoryForCiComparison(
   await expectSelected(card, true);
   await intentChoice.click();
   await expect(intent).toBeVisible();
-  const tab = intentModeTab(intent, "Intent");
-  if ((await tab.getAttribute("aria-selected")) !== "true") {
-    await tab.click();
-  }
-  await expect(tab).toHaveAttribute("aria-selected", "true");
+  // A new selection opens the story at its CI comparison.
+  await expectStoryTab(intent, "CI comparison");
   const panel = intent.getByRole("region", {
     name: "CI timing comparison",
     exact: true,

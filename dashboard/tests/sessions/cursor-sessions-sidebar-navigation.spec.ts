@@ -6,7 +6,6 @@
 // the sidebar, but a reload starts collapsed. The section's layout is
 // ./cursor-sessions-sidebar-layout.spec.ts's.
 import { chooseProject, parts } from "../dashboardPage.ts";
-import { publishMovingOrigin } from "../publishedOrigin.ts";
 import {
   changesAsked,
   holdSession,
@@ -15,6 +14,7 @@ import {
   showPage,
 } from "../runningCursorSessionsPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
+import { publishOnePygardonStory } from "../pygardonProject.ts";
 
 const wide = { width: 1440, height: 900 };
 
@@ -78,11 +78,7 @@ test.describe("with two projects", () => {
     cursor,
   }) => {
     await page.setViewportSize(wide);
-    const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
-    pygardon.push(
-      "e6".repeat(20),
-      "# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [A Pygardon story](seeds/SEED-301.md#s) — SEED-301#s\n",
-    );
+    await publishOnePygardonStory(page);
     const asked = changesAsked(page);
     await showPage(page, origin);
     const { sidebar, button, header, body } = runningCursorParts(page);

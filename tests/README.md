@@ -86,15 +86,49 @@ get a bare origin, a checkout, named commit IDs, and cleanup, or with
 `materializeLocalCheckout(t, description)` to get one checkout with no origin,
 removed after test `t`, for a case that reads no remote (`gitTemplates: false`
 initializes it without Git's templates; `layer` adds harness files, such as
-runner tooling read with `copiedLayer`, to its first commit). Identical
+runner tooling read with `copiedLayer`, to its first commit; `at` builds it
+in place at that directory without the shared template, as the shell checks'
+release sources do). Identical
 descriptions reuse one template within a process, so they give identical
-commit IDs; each caller gets its own mutable copy. Keep commands and Git
+commit IDs; each caller gets its own mutable copy. A run owner can prepare a
+snapshot of a shared leading history once (`prepareRepositorySnapshot`) and
+register it in its workers (`registerPreparedPrefix`); a description that
+starts with that history is copied from the snapshot and commits only its
+remaining revisions, with the same results as a full build. Keep commands and Git
 transitions under proof in the case that observes their result.
 [Builder](support/repositoryTestData.mjs) ·
 [Repository harness](support/repository-fixture.mjs)
 `commitDeclaredRevision` adds a later revision to an existing checkout with
 the same author, committer and message defaults.
 [Revision commit](support/repository-revision-commit.mjs)
+
+A revision can also carry one `release`, built with
+`makeMe.aRelease.with({ version, taggedAt, marker }).please()` and, where
+its payload differs, the managed path prefixes it `withheld` from its
+installer declaration, the payload paths it `removed`, and the payload it
+`added`. The materializer writes the working tree's installer and payload as
+a harness layer, then the release's `VERSION`, changelog entry, marker and
+deltas, and tags the commit `v<version>` dated `taggedAt`. A `VERSION` that
+disagrees with its tag, or an extra tag name, is stated literally through
+`files` and `tags`. A shell install or update check states its release source
+as JSON at its call site, read on stdin by
+`tests/support/release-source.mjs <dest>`, or names a shared description in
+`tests/support/release-sources.mjs`, such as `latest`; the helper builds it in
+place with `materializeLocalCheckout`'s `at`. `release-source.mjs --add
+<source>` commits and tags a release that appears after the check has read
+the source.
+[Release](support/releaseTestData.mjs) · [Helper](support/release-source.mjs)
+
+Build a kept launch with `makeMe.aLaunchRecord`: the requested story or
+instruction, the host session (the request takes the session's host), the
+workspace its start established, and when it was launched. Dashboard tests keep
+such records in the machine launch store only through
+`dashboard/tests/support/launchStore.ts`, which writes the store's own
+`{ [project]: records }` document under the machine home without retention;
+the file and its location stay harness facts. Exact store text under proof
+goes through `keepLaunchStoreText`.
+[Builder](support/launchTestData.mjs) ·
+[Launch store harness](../dashboard/tests/support/launchStore.ts)
 
 When a case needs another agent's claim only as a starting fact, declare it
 with `takeRevision`: the agent authors it and the developer commits it under
@@ -118,13 +152,28 @@ one. The builder refuses a backlog stated both ways and other descriptions it
 cannot materialize, before any Git runs; its comments hold each method's
 defaults. [Refusal test](support/repository-description.test.mjs)
 
+A dashboard journey that serves a project through the fake GitHub states the
+same description and serves its named revisions without Git.
+`describedRevisions(description, shaPerName)` returns one published revision
+per name, holding the earlier revisions' files with its own changes and
+removals applied. One file renderer writes both these files and the
+materialized checkout, so the same facts publish the same bytes, including
+the done catalog rebuilt from the records. `describedRevision`,
+`describedBacklog` and `describedFiles` serve one revision. Revision SHAs,
+commit dates, path histories, unanswered paths and held or failing reads stay
+harness inputs. [Served revisions](../dashboard/tests/describedRevisions.ts) ·
+[Renderer](support/repository-revision-files.mjs)
+
 Other branches, merges, competing writers, stashes, dirty files, submodules
 and removed worktrees stay Git operations in the case. Installed skills, CI
 adapters, mailboxes, ignored local configuration and generated install output
 are harness layers added to the materialized checkout, not description facts.
-A case that proves behavior without a remote removes it with Git. Native
-evidence fixtures keep their own repository helpers so their hashed inputs and
-repositories stay stable.
+A case that proves behavior without a remote removes it with Git. The Git
+publication native fixtures for startup, admission, one-shot and owned-context
+journeys materialize their starting trunk from such a description, and their
+evidence identities hash the builders and materializer they reach. Dashboard
+origins, release-source fixtures and the MakeMe-free native
+worktree-preparation fixtures keep their own repository helpers.
 
 ## Check environment
 
@@ -303,9 +352,10 @@ JavaScript or TypeScript file
 ([commit gate](../docs/installation-platforms-and-update-safety.md)).
 
 Fixture snapshots prune `.git` rather than walking it. A payload-update check
-builds its older and newer tagged releases with `build_upgrade_releases` from
-`tests/helpers/release-fixture.bash`, withholding the older release's
-declarations and sources instead of editing a copied installer by hand.
+states its older and newer tagged releases at its call site, with the older
+release's `withheld` declarations and `removed` sources, instead of editing a
+copied installer by hand, and checks the older release out with
+`checkout_tagged_release` from `tests/helpers/release-fixture.bash`.
 
 ## Native host streams
 

@@ -23,8 +23,8 @@ import {
   recordedCursor,
   report,
   save,
-  storeFile,
 } from "../support/retainedReport.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { markDone } from "../support/markDone.ts";
 import {
@@ -45,7 +45,7 @@ test("retired Cursor workspace opens retained report without opening terminal an
 }) => {
   const { record, workspace } = await recordedCursor(dashboard);
   rmSync(workspace, { recursive: true });
-  const baseline = readFileSync(storeFile(dashboard.home), "utf8");
+  const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await reloadUntilRead(page);
   await settled();
@@ -69,7 +69,7 @@ test("retired Cursor workspace opens retained report without opening terminal an
     page.getByRole("region", { name: "Terminal", exact: true }),
   ).toHaveCount(0);
   // Reading is passive: it changes no read or done mark in the saved record.
-  expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
+  expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await entry.getByRole("button", { name: "Mark as read" }).click();
   await expect
@@ -103,7 +103,7 @@ test("missing Cursor workspace with quiet empty completion keeps report and dire
 }) => {
   const { workspace } = await recordedCursor(dashboard, "");
   rmSync(workspace, { recursive: true });
-  const baseline = readFileSync(storeFile(dashboard.home), "utf8");
+  const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
   await storyCardSessions(card(notRefinedStory))
@@ -126,7 +126,7 @@ test("missing Cursor workspace with quiet empty completion keeps report and dire
   await expect(
     page.getByRole("region", { name: "Terminal", exact: true }),
   ).toHaveCount(0);
-  expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
+  expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
 });
 
 test("missing Cursor workspace without completion states product closure, unavailable terminal, and unsaved final message separately", async ({
@@ -146,7 +146,7 @@ test("missing Cursor workspace without completion states product closure, unavai
   delete withoutCompletion.completion;
   save(dashboard.home, [withoutCompletion]);
   rmSync(workspace, { recursive: true });
-  const baseline = readFileSync(storeFile(dashboard.home), "utf8");
+  const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
   await storyCardSessions(card(notRefinedStory))
@@ -166,5 +166,5 @@ test("missing Cursor workspace without completion states product closure, unavai
   await expect(
     page.getByRole("region", { name: "Terminal", exact: true }),
   ).toHaveCount(0);
-  expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
+  expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
 });

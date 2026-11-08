@@ -23,8 +23,8 @@ import {
   recordedClaude as recorded,
   report,
   save,
-  storeFile,
 } from "../support/retainedReport.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { markAsDone, markDone } from "../support/markDone.ts";
 import { workspaceMissing } from "../../src/sessionAccess.ts";
@@ -42,7 +42,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   const { record, workspace } = await recorded(dashboard);
   dashboard.claudeSessionBecomes(record.session.sessionId, "blocked");
   rmSync(workspace, { recursive: true });
-  const baseline = readFileSync(storeFile(dashboard.home), "utf8");
+  const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await reloadUntilRead(page);
   await settled();
@@ -77,7 +77,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   );
   await expect(panel).toContainText(workspace);
   expect(dashboard.claudeAttaches()).toEqual([]);
-  expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
+  expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await entry.getByRole("button", { name: "Mark as read" }).click();
   await expect
@@ -135,7 +135,7 @@ for (const context of ["preparation", "start"] as const) {
     record.doneAt = doneAt;
     record.reportRead = record.completion?.receipt;
     save(dashboard.home, [record]);
-    const baseline = readFileSync(storeFile(dashboard.home), "utf8");
+    const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
     let observation: APIResponse | undefined;
     await page.route("**/__agent-launch", async (route) => {
       observation ??= await route.fetch({
@@ -161,7 +161,9 @@ for (const context of ["preparation", "start"] as const) {
     ).toHaveCount(0);
     await expect(markAsDone(panel)).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toEqual([]);
-    expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
+    expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(
+      baseline,
+    );
     await panel.getByRole("button", { name: "Close", exact: true }).click();
     await expect(open).toBeFocused();
   });
@@ -173,7 +175,7 @@ test("missing Claude workspace with quiet empty completion keeps report and dire
 }) => {
   const { workspace } = await recorded(dashboard, "");
   rmSync(workspace, { recursive: true });
-  const baseline = readFileSync(storeFile(dashboard.home), "utf8");
+  const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
   await storyCardSessions(card(notRefinedStory))
@@ -192,7 +194,7 @@ test("missing Claude workspace with quiet empty completion keeps report and dire
   );
   await expect(panel.locator(".final-report-text")).toHaveCount(0);
   expect(dashboard.claudeAttaches()).toEqual([]);
-  expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
+  expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
 });
 
 for (const context of ["existing", "legacy"] as const) {

@@ -41,6 +41,11 @@ import {
 } from "../../tests/support/fakeGitHub.ts";
 import { notLoggedIn } from "../../tests/originAnswers.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import {
+  describedRevision,
+  withBacklogFallback,
+} from "../../tests/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -101,24 +106,29 @@ test.describe("authenticated read boundary (development environment)", () => {
     // `gh` would print a JSON-typed answer's literal `\u0002` as `^B`.
     const seedBody =
       "# Seed\n\n**Identity:** SEED-boundary#story\n\nCtrl+B then Enter records a line holding `\\u0002`.\n";
-    const backlogWithSeed = `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [Boundary story](seeds/SEED-boundary.md#story) — SEED-boundary#story
-`;
+    const published = describedRevision(
+      makeMe.aRepository
+        .withRevision("boundary", {
+          backlog: {
+            queued: [
+              makeMe.aBacklogEntry
+                .with({
+                  title: "Boundary story",
+                  identity: "SEED-boundary#story",
+                  href: "seeds/SEED-boundary.md#story",
+                })
+                .please(),
+            ],
+          },
+          // The exact seed bytes this case reads back.
+          files: { [seedPath]: seedBody },
+        })
+        .please(),
+      revision,
+    );
     server.github.serve(
       everyRepository,
-      publishes({
-        revision,
-        backlog: backlogWithSeed,
-        files: {
-          ".planning/PRODUCT-BACKLOG.md": backlogWithSeed,
-          [seedPath]: seedBody,
-        },
-      }),
+      publishes(withBacklogFallback(published)),
     );
     const membership = await rawRequest({
       url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,

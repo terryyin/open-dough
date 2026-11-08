@@ -36,15 +36,16 @@ assert_compare 1.0.18446744073709551616 1.0.0 newer
 assert_compare 18446744073709551616.0.0 1.0.0 newer
 
 leading_zero="${temporary_dir}/leading-zero.git"
-mkdir -p -- "${leading_zero}"
-git -C "${leading_zero}" init --quiet -b main
-configure_fixture_git "${leading_zero}"
-write_candidate_payload "${leading_zero}" 0.08.0 payload-0.08.0
-commit_all "${leading_zero}" 'release 0.08.0'
-tag_release "${leading_zero}" 0.08.0 '2026-01-01T00:00:00'
-write_candidate_payload "${leading_zero}" 0.9.0 payload-0.9.0
-commit_all "${leading_zero}" 'release 0.9.0'
-tag_release "${leading_zero}" 0.9.0 '2026-02-01T00:00:00'
+node "${source_dir}/tests/support/release-source.mjs" "${leading_zero}" << 'JSON'
+{"revisions": [
+  {"name": "release 0.08.0", "release": {
+    "version": "0.08.0", "taggedAt": "2026-01-01T00:00:00",
+    "marker": "payload-0.08.0"}},
+  {"name": "release 0.9.0", "release": {
+    "version": "0.9.0", "taggedAt": "2026-02-01T00:00:00",
+    "marker": "payload-0.9.0"}}
+]}
+JSON
 
 resolved=$(bash "${helper}" resolve-url "${leading_zero}" 2> "${temporary_dir}/resolve.err")
 [[ ! -s "${temporary_dir}/resolve.err" ]]

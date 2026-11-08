@@ -55,7 +55,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
-  const intentTab = intentModeTab(intent, "Intent");
+  const intentTab = intentModeTab(intent, "CI status");
 
   await test.step("Ex 7 absent: no published record; locations still browse", async () => {
     await chooseOptimizationCandidates(intent);

@@ -1,12 +1,20 @@
-/* Intent's tabs (./IntentTabs.tsx), in the reading-mode strip: a group
-   drawn with the banner's Perspective choice (./project-select.css), the
-   selected tab filled in the accent. */
+/* Intent's tabs (./IntentTabs.tsx): a row of plain tab labels standing on
+   the line under their row, the selected tab in the accent and underlined
+   so it joins the panel below it. */
+.intent-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-1);
+  min-width: 0;
+}
+
 .intent-tab {
   box-sizing: border-box;
-  min-height: calc(var(--control-size) - 8px);
-  padding: 0 var(--space-3);
+  min-height: calc(var(--control-size) - 4px);
+  padding: 0 var(--space-2);
   border: 0;
-  border-radius: var(--radius-sm);
+  border-bottom: 2px solid transparent;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   background: transparent;
   color: inherit;
   font: inherit;
@@ -21,9 +29,13 @@
 }
 
 .intent-tab[aria-selected="true"] {
-  background: var(--accent);
-  box-shadow: var(--shadow-1);
-  color: var(--raised-surface);
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+  font-weight: var(--weight-strong);
+}
+
+.intent-tab:focus-visible {
+  outline-offset: -3px;
 }
 
 @media (any-pointer: coarse) {

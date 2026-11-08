@@ -1,5 +1,5 @@
 // Saved predecessor preconditions and passive-protocol assertions, shared by Codex observation journeys.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { appendedRecords } from "./appendedRecords.ts";
 import { expect } from "../dashboardTest.ts";
@@ -13,46 +13,48 @@ import type {
 import { machineSessions } from "../agentLaunchBoundary.ts";
 import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
+import { keepLaunchStore } from "./launchStore.ts";
 import { rawRequest } from "./rawHttp.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { RawRequestOptions, RawResponse } from "./rawHttp.ts";
 
+// The kept refinement of the not-refined story in Codex thread `id`, which
+// continues through this fake's socket in the server's checkout unless the
+// case states its project, title, workspace or endpoint. It states no first
+// input or preparation, so the server decodes it as a predecessor record.
 export function observationRecord(
   server: Pick<DashboardServer, "home">,
   native: FakeCodex,
   id: string,
+  {
+    source = "open-dough",
+    title = notRefinedStory,
+    workspace = path.join(server.home, "git", "open-dough"),
+    endpoint = codexEndpoint(native),
+  }: {
+    source?: string;
+    title?: string;
+    workspace?: string;
+    endpoint?: string;
+  } = {},
 ): LaunchRecord & { session: CodexSession } {
-  return {
-    request: {
-      source: "open-dough",
-      identity: notRefinedIdentity,
-      title: notRefinedStory,
-      workflow: "refinement",
-      host: "codex",
-    },
-    session: makeMe.aHostSession
-      .codex({
-        sessionId: id,
-        continuation: {
-          workspace: path.join(server.home, "git", "open-dough"),
-          endpoint: codexEndpoint(native),
-        },
-      })
-      .please(),
-    launchedAt: "2026-09-01T00:00:00.000Z",
-    // Deliberately omit newer firstInput/preparation fields: actual predecessor decoding.
-  };
+  const record = makeMe.aLaunchRecord
+    .refining({ identity: notRefinedIdentity, title, source })
+    .inCodexSession({
+      sessionId: id,
+      continuation: { workspace, endpoint },
+    })
+    .launchedAt("2026-09-01T00:00:00.000Z")
+    .please();
+  const { session } = record;
+  if (session.host !== "codex") throw new Error("Expected a Codex session");
+  return { ...record, session };
 }
 export function saveObservations(
   server: Pick<DashboardServer, "home">,
   records: LaunchRecord[],
 ) {
-  const folder = path.join(server.home, ".open-dough", "dashboard");
-  mkdirSync(folder, { recursive: true });
-  writeFileSync(
-    path.join(folder, "agent-launches.json"),
-    JSON.stringify({ "open-dough": records }),
-  );
+  keepLaunchStore(server, { "open-dough": records });
 }
 export async function observationStates(
   server: DashboardServer,

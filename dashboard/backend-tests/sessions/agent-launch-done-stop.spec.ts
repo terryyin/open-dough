@@ -15,14 +15,17 @@ import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
+  identity,
   markDone,
   openDoughFolder,
   recordsOf,
   title,
 } from "../../tests/agentLaunchBoundary.ts";
 import { launched } from "../../tests/agentTerminalBoundary.ts";
-import { seedEarlierDoneMark } from "../../tests/machineLaunchRecords.ts";
+import { retainedDoneAt } from "../../tests/machineLaunchRecords.ts";
+import { keepMoreLaunchRecords } from "../../tests/support/launchStore.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -149,11 +152,25 @@ test.describe("marking a session done by what Claude Code lists", () => {
   });
 
   test("clears a stored stop failure by removing the exited session's job", async () => {
-    const session = await launched(server);
-    server.claudeSessionBecomes(session.sessionId, "done-exited");
+    // An earlier Mark as done a day ago could not stop the session natively.
     const doneProblem =
       "Local done mark retained. Claude Code stop failed: The native operation could not be confirmed.";
-    seedEarlierDoneMark(machine, session.sessionId, doneProblem);
+    const launchedAt = Date.now() - 2 * 24 * 60 * 60 * 1000;
+    const sessionId = server.claudeListsSession({
+      name: title,
+      cwd: openDoughFolder(server),
+      startedAt: launchedAt,
+    });
+    const session = { sessionId, shortId: sessionId.slice(0, 8) };
+    keepMoreLaunchRecords(server, [
+      makeMe.aLaunchRecord
+        .executing({ identity: `${identity}#earlier-done`, title })
+        .inClaudeSession(session)
+        .launchedAt(new Date(launchedAt).toISOString())
+        .markedDoneAt(retainedDoneAt(), { problem: doneProblem })
+        .please(),
+    ]);
+    server.claudeSessionBecomes(session.sessionId, "done-exited");
     expect(await recordsOf(server, "open-dough")).toContainEqual(
       expect.objectContaining({
         session: expect.objectContaining({ sessionId: session.sessionId }),

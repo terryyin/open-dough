@@ -6,16 +6,14 @@
 // ./pathHistoryAnswers.ts); that answerer is ./revisionReuseAnswers.ts.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
-import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
+import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
 import type {
   ChangedFile,
   MadeCommit,
   PathHistories,
 } from "./pathHistoryAnswers.ts";
 import { aheadBy, type Comparison } from "./comparisonAnswers.ts";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { withDoneCatalog } from "./doneCatalogAnswers.ts";
+import { describedRevisions, publishedFile } from "./describedRevisions.ts";
 
 export const sourceId = "open-dough";
 export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
@@ -26,7 +24,6 @@ export const planPath = ".planning/slice-plans/301-reuse/PLAN.md";
 export const profilePath = ".planning/agents/akiho-chan.json";
 export const otherProfilePath = ".planning/agents/maki-chan.json";
 export const settingsPath = ".planning/open-dough.json";
-export const doneDirectory = ".planning/done";
 export const donePath = ".planning/done/SEED-300_first.json";
 export const addedDonePath = ".planning/done/SEED-304_added.json";
 export const doneCatalogPath = ".planning/done/.catalog.json";
@@ -45,90 +42,105 @@ export const newSeedEntry = makeMe.aBacklogEntry
   })
   .please();
 
-export const backlogNaming = (label: string, extra?: typeof newSeedEntry) =>
-  renderPublishedBacklog({
-    taken: [
-      makeMe.aBacklogEntry
-        .with({
-          identity: "SEED-301#reuse",
-          href: "seeds/SEED-301-reuse.md#reuse",
-          title: `Reuse ${label}`,
-        })
-        .please(),
-    ],
-    queued: [
-      makeMe.aBacklogEntry
-        .with({
-          identity: "SEED-302#other",
-          href: "seeds/SEED-302-other.md#other",
-          title: `Other ${label}`,
-        })
-        .please(),
-      ...(extra === undefined ? [] : [extra]),
-    ],
-  });
+// The backlog a revision publishes: the reused story Taken, the other queued,
+// and `extra` queued after it.
+export const backlogNaming = (label: string, extra?: typeof newSeedEntry) => ({
+  taken: [
+    makeMe.aBacklogEntry
+      .with({
+        identity: "SEED-301#reuse",
+        href: "seeds/SEED-301-reuse.md#reuse",
+        title: `Reuse ${label}`,
+      })
+      .please(),
+  ],
+  queued: [
+    makeMe.aBacklogEntry
+      .with({
+        identity: "SEED-302#other",
+        href: "seeds/SEED-302-other.md#other",
+        title: `Other ${label}`,
+      })
+      .please(),
+    ...(extra === undefined ? [] : [extra]),
+  ],
+});
 
 // The seed at `newSeedPath` named by the new backlog entry.
 export const newSeedText =
   '# New\n\n<a id="new"></a>\n\n### New\n\n**Identity:** SEED-303#new\n';
 
-export const seedText = (label: string) => `# Reuse fixture ${label}
-
-<a id="reuse"></a>
-
-### Reuse ${label}
-
-**Identity:** SEED-301#reuse
-${renderPublishedPreparation(
-  makeMe.aStoryPreparation
+// A done record `complete` published, titled for `label`.
+export const doneRecordOf = (identity: string, label: string) =>
+  makeMe.aDoneRecord
     .with({
-      refinement: "refined",
-      approach: "planned",
-      plan: "../slice-plans/301-reuse/PLAN.md",
+      identity,
+      title: `Finish ${label}`,
+      completedAt: "2026-10-01T00:00:00.000Z",
+      developer: "Terry Yin",
     })
-    .please(),
-)}
-`;
+    .please();
 
 // Every record a project shows at one revision, each text naming `label`, so
-// no other test's blob stands in for it, with the done catalog completion
-// publishes beside the done record.
-export function filesFor(label: string): Files {
-  return withDoneCatalog(filesWithoutCatalog(label), doneDirectory);
-}
-
-function filesWithoutCatalog(label: string): Files {
-  return {
-    [backlogPath]: backlogNaming(label),
-    [seedPath]: seedText(label),
+// no other test's blob stands in for it: the reused story planned in its
+// seed, both agents' profiles, and a done record with the catalog completion
+// publishes beside it.
+const factsFor = (label: string): RevisionFacts => ({
+  backlog: backlogNaming(label),
+  files: {
+    [seedPath]: `# Reuse fixture ${label}\n\n<a id="reuse"></a>\n\n### Reuse ${label}\n\n**Identity:** SEED-301#reuse\n`,
     [otherSeedPath]: `# Other fixture ${label}\n\n<a id="other"></a>\n\n### Other ${label}\n\n**Identity:** SEED-302#other\n`,
     [planPath]: `# Plan ${label}\n`,
-    [profilePath]: renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name: "Akiho",
-          identity: "SEED-301#reuse",
-          mode: "story-branch",
-          branch: `story/${label}`,
-          host: "claude",
-        })
-        .please(),
-    ),
-    [otherProfilePath]: renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name: "Maki",
-          identity: "SEED-302#other",
-          mode: "trunk",
-          host: "claude",
-          branch: "main",
-        })
-        .please(),
-    ),
     [settingsPath]: `{"label":"${label}"}\n`,
-    [donePath]: `{"label":"${label}"}\n`,
-  };
+  },
+  storyStates: [
+    {
+      identity: "SEED-301#reuse",
+      href: "seeds/SEED-301-reuse.md#reuse",
+      ...makeMe.aStoryPreparation
+        .plannedIn("../slice-plans/301-reuse/PLAN.md")
+        .please(),
+    },
+  ],
+  agentProfiles: [
+    makeMe.anAgentProfile
+      .executing({
+        name: "Akiho",
+        identity: "SEED-301#reuse",
+        mode: "story-branch",
+        branch: `story/${label}`,
+        host: "claude",
+      })
+      .please(),
+    makeMe.anAgentProfile
+      .executing({
+        name: "Maki",
+        identity: "SEED-302#other",
+        mode: "trunk",
+        host: "claude",
+        branch: "main",
+      })
+      .please(),
+  ],
+  doneRecords: [doneRecordOf("SEED-300#first", label)],
+});
+
+// The files of `filesFor(label)`, and, given `then`, the files after a later
+// revision changes them with those facts.
+export function filesFor(label: string, then?: RevisionFacts): Files {
+  const published = describedRevisions(
+    makeMe.aRepository
+      .withRevision("A", factsFor(label))
+      .withRevision("B", then ?? {})
+      .please(),
+    { A: "", B: "" },
+  );
+  return published[then === undefined ? "A" : "B"].files;
 }
+
+// The reused story's seed as a revision for `label` publishes it.
+export const seedText = (label: string) =>
+  publishedFile({ revision: label, files: filesFor(label) }, seedPath);
 
 // A commit made by a fixture committer changing `files`.
 export const madeBy = (

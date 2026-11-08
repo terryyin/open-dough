@@ -14,12 +14,15 @@ import {
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { describedBacklog } from "../../tests/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });
 
 const knownSourceId = "open-dough";
 const revision = "fa".repeat(20);
-const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
+// An empty project's backlog.
+const backlog = describedBacklog(makeMe.aRepository.please());
 const agents = ".planning/agents";
 
 test.describe("authenticated profile addition refusal (development environment)", () => {

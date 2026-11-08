@@ -32,7 +32,7 @@ test("Commits lists the first-parent line below Uncommitted changes and shows a 
     "--",
     "story.txt",
   );
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const before = observed(workspace);
   const card = await openBacklog(page, origin);
   const snapshot = await openStoryReview(page, card);
@@ -117,7 +117,7 @@ test("a clean merge selected alone changed nothing by itself", async ({
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -151,7 +151,7 @@ test("no commits and no uncommitted changes offers no Commits", async ({
   origin,
 }) => {
   const { workspace } = unchangedWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -178,7 +178,7 @@ test("an empty plain commit names its range and lists no files", async ({
     "-m",
     "empty story commit",
   );
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);

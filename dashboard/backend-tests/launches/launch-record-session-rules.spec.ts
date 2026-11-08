@@ -2,12 +2,12 @@
 // durable launch-record boundaries. Native attach, done and recovery journeys
 // remain in their host specs.
 import { expect, test } from "../../tests/support/pageTest.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   hostSessionSchema,
   launchRecordSchema,
 } from "../../src/launchRecord.ts";
 import { defaultMainSession } from "../../tests/support/startSessionLanding.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const claude = makeMe.aHostSession
   .claude({ sessionId: "claude-conversation", shortId: "a1b2" })
@@ -27,26 +27,33 @@ const savedCodex = makeMe.aHostSession
 const { continuation } = savedCodex;
 // A predecessor Codex session, kept before its continuation was saved.
 const codex = {
-  host: "codex",
+  host: "codex" as const,
   sessionId: "codex-conversation",
   name: "Codex conversation",
 };
-const record = (session: unknown) => ({
-  request: {
-    source: "open-dough",
-    identity: "SEED-001#story",
-    title: "A story",
-    workflow: "execution",
-    host: "codex",
-  },
+// A story's execution kept by each host, in that host's session.
+const story = { identity: "SEED-001#story", title: "A story" };
+const keptBy = {
+  claude: makeMe.aLaunchRecord
+    .executing(story)
+    .inClaudeSession(claude)
+    .please(),
+  codex: makeMe.aLaunchRecord.executing(story).inCodexSession(codex).please(),
+};
+// The record of the session's own host, holding the session exactly as given.
+type GivenSession = {
+  readonly host: keyof typeof keptBy;
+  readonly [field: string]: unknown;
+};
+const record = (session: GivenSession) => ({
+  ...keptBy[session.host],
   session,
-  launchedAt: "2026-10-01T00:00:00.000Z",
 });
-const parsedSessions = (session: unknown) => [
+const parsedSessions = (session: GivenSession) => [
   hostSessionSchema.parse(session),
   launchRecordSchema.parse(record(session)).session,
 ];
-const refused = (session: unknown) => {
+const refused = (session: GivenSession) => {
   expect(hostSessionSchema.safeParse(session).success).toBe(false);
   expect(launchRecordSchema.safeParse(record(session)).success).toBe(false);
 };
@@ -58,7 +65,7 @@ test("accepts a Claude session with its native alias", () => {
 });
 
 test("refuses a Claude session without its native alias", () => {
-  const withoutAlias: Partial<typeof claude> = { ...claude };
+  const withoutAlias: Partial<typeof claude> & GivenSession = { ...claude };
   delete withoutAlias.shortId;
   refused(withoutAlias);
 });
@@ -77,16 +84,18 @@ test("accepts a predecessor Codex session without a continuation", () => {
 
 test("accepts an older launch record's established session without retaining its unread creation fact", () => {
   const established = defaultMainSession("/project", "auto-land", "revision");
+  const kept = makeMe.aLaunchRecord
+    .adHoc({ title: "A session" })
+    .inCodexSession(codex)
+    .inDefaultCheckout({
+      workspace: "/project",
+      landing: "auto-land",
+      revision: "revision",
+    })
+    .please();
   const parsed = launchRecordSchema.parse({
-    ...record(codex),
-    request: {
-      source: "open-dough",
-      title: "A session",
-      workflow: "ad-hoc",
-      host: "codex",
-      policy: { workspace: "default-checkout", landing: "auto-land" },
-    },
-    establishedSession: { ...established, created: false },
+    ...kept,
+    establishedSession: { ...kept.establishedSession, created: false },
   });
   expect(parsed.establishedSession).toEqual(established);
   expect(parsed.establishedSession).not.toHaveProperty("created");

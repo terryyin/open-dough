@@ -43,9 +43,10 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     shortSha(setup.branchTip),
   );
 
-  await expect(panel.getByRole("heading")).toHaveText(
-    `CI timing changes for ${setup.title}`,
-  );
+  await expect(panel.getByRole("heading")).toHaveText([
+    /^Baseline compared with /,
+    "CI entry timing comparison",
+  ]);
   await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
     "Baseline compared with Branch",
   );
@@ -70,7 +71,14 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     "—",
   ]);
   await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
-    ["4 min 55 s", "4 min 47 s −8 s", "—"],
+    ["4 min 55 s", "4 min 47 s", "—"],
+  );
+  // The provisional comparison's summary shows one signed change each.
+  await expect(
+    panel.locator(".intent-ci-comparison-overall-timing"),
+  ).toHaveText("−8 s");
+  await expect(panel.locator(".intent-ci-comparison-overall-wall")).toHaveText(
+    "+8 min 28 s",
   );
   expect(listedAttemptJobPages(githubFor(page).calls)).toEqual([
     "101/1/1",
@@ -111,7 +119,7 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     );
     await expect(
       panel.locator(".intent-ci-comparison-without-waits"),
-    ).toHaveText(["4 min 55 s", "5 min 12 s +17 s", "—"]);
+    ).toHaveText(["4 min 55 s", "5 min 12 s", "—"]);
     expect(listedAttemptJobPages(githubFor(page).calls)).toEqual([
       "101/1/1",
       "102/1/1",
@@ -131,9 +139,10 @@ test("a Taken Trunk Mode story shows a provisional trunk result beside Branch N/
   const setup = await publishTakenComparedTrunk(page, origin);
   const { panel } = await selectTakenStoryForCiComparison(page);
 
-  await expect(panel.getByRole("heading")).toHaveText(
-    `CI timing changes for ${setup.title}`,
-  );
+  await expect(panel.getByRole("heading")).toHaveText([
+    /^Baseline compared with /,
+    "CI entry timing comparison",
+  ]);
   await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
     "Baseline compared with Provisional",
   );
@@ -159,6 +168,6 @@ test("a Taken Trunk Mode story shows a provisional trunk result beside Branch N/
     "—",
   ]);
   await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
-    ["4 min 55 s", "—", "4 min 47 s −8 s", "—"],
+    ["4 min 55 s", "—", "4 min 47 s", "—"],
   );
 });

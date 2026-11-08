@@ -6,7 +6,7 @@ import {
   recentlyDoneParts,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
-import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import { rem } from "../boardPage.ts";
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
@@ -33,7 +33,7 @@ test("a held Cursor attach from Recently done keeps Done membership", async ({
   expect(JSON.parse(launched.body)).toMatchObject({ kind: "launched" });
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
   const held = keptRecord(dashboard.home);
-  await keepProjectLaunchRecords(dashboard, {
+  keepLaunchStore(dashboard, {
     "open-dough": [
       { ...held, doneAt: new Date(Date.now() - 60_000).toISOString() },
     ],
@@ -68,7 +68,7 @@ test("a successful Cursor attach from Recently done removes the Done row", async
   expect(JSON.parse(launched.body)).toMatchObject({ kind: "launched" });
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
   const held = keptRecord(dashboard.home);
-  await keepProjectLaunchRecords(dashboard, {
+  keepLaunchStore(dashboard, {
     "open-dough": [
       { ...held, doneAt: new Date(Date.now() - 60_000).toISOString() },
     ],
@@ -105,7 +105,7 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
   expect(JSON.parse(launched.body)).toMatchObject({ kind: "launched" });
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
   const held = keptRecord(dashboard.home);
-  await keepProjectLaunchRecords(dashboard, {
+  keepLaunchStore(dashboard, {
     "open-dough": [
       { ...held, doneAt: new Date(Date.now() - 60_000).toISOString() },
     ],

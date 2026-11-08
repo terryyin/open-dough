@@ -1,5 +1,5 @@
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
-// read of the page: the selected story's summary, the contains-changes
+// read of the page: the selected story's header and views, the contains-changes
 // background, the "Selected story only" toggle, and a changed file's diff in
 // Intent's Purpose beside the same file's diff in Review changes. A row's
 // change-kind style: ./changeKindStyle.ts.
@@ -22,9 +22,9 @@ import { git } from "./storyReviewWorktree.ts";
 // Story A, or `story` as the Take names it, taken in Story Branch Mode by
 // Yui's declared Take, its worktree changing the tests Intent publishes, or
 // as `change` changes it; its Taken card selected by an empty-area click, and
-// Intent shown. The baseline is the
-// claim, where the worktree meets trunk; the head is the worktree's last
-// commit.
+// Intent shown. Intent opens the story at its CI comparison; this then
+// chooses Changed tests, which the journeys read. The baseline is the claim,
+// where the worktree meets trunk; the head is the worktree's last commit.
 export async function selectTakenStoryInIntent(
   page: Page,
   origin: StartOrigin,
@@ -48,6 +48,8 @@ export async function selectTakenStoryInIntent(
   await expectSelected(card, true);
   await intentChoice.click();
   await expect(intent).toBeVisible();
+  await expectStoryTab(intent, "CI comparison");
+  await chooseStoryTab(intent, "Changed tests");
   return {
     card,
     intent,
@@ -57,17 +59,33 @@ export async function selectTakenStoryInIntent(
   };
 }
 
-// The selected story's summary heading the Intent mode.
+// The selected story's persistent header above its views.
 export const storySummary = (intent: Locator) =>
   intent.getByRole("region", { name: "Selected story", exact: true });
 
-// The summary's disclosure, which names the story compactly.
-export const storyDisclosure = (intent: Locator) =>
-  storySummary(intent).locator("button.intent-story-disclosure");
+// The header's title, which names the story in full.
+export const storyTitle = (intent: Locator) =>
+  storySummary(intent).getByRole("heading", { level: 2 });
 
-// The count of changed files outside Intent locations ending the summary's
-// title line, beside the disclosure, and the name and hover text that explain
-// it.
+type StoryTabName = "CI comparison" | "Changed tests" | "Intent coverage";
+
+// One of the selected story's views, in the row under its header.
+export const storyTab = (intent: Locator, name: StoryTabName) =>
+  intent
+    .getByRole("tablist", { name: "Selected story views" })
+    .getByRole("tab", { name, exact: true });
+
+export async function expectStoryTab(intent: Locator, name: StoryTabName) {
+  await expect(storyTab(intent, name)).toHaveAttribute("aria-selected", "true");
+}
+
+export async function chooseStoryTab(intent: Locator, name: StoryTabName) {
+  await storyTab(intent, name).click();
+  await expectStoryTab(intent, name);
+}
+
+// The count of changed files outside Intent locations ending the header's
+// title line, and the name and hover text that explain it.
 export const outsideCount = (intent: Locator) =>
   storySummary(intent)
     .locator(".intent-story-title-line")
@@ -76,14 +94,14 @@ export const outsideName = (count: number) =>
   `${count} changed file${count === 1 ? "" : "s"} outside Intent locations — open Review changes`;
 
 // The count shows only the number, explained by its name and hover text, on
-// the disclosure's line; the sentence it replaced is gone.
+// the title's line; the sentence it replaced is gone.
 export async function expectOutsideCount(intent: Locator, count: number) {
   const button = outsideCount(intent);
   await expect(button).toHaveText(String(count));
   await expect(button).toHaveAccessibleName(outsideName(count));
   await expect(button).toHaveAttribute("title", outsideName(count));
   await expect(intent.getByText(/shown in Review changes/)).toHaveCount(0);
-  const line = await storyDisclosure(intent).boundingBox();
+  const line = await storyTitle(intent).boundingBox();
   const box = await button.boundingBox();
   if (line === null || box === null) throw new Error("Not laid out.");
   const middle = box.y + box.height / 2;
@@ -91,16 +109,13 @@ export async function expectOutsideCount(intent: Locator, count: number) {
   expect(middle).toBeLessThan(line.y + line.height);
 }
 
-// Opens the summary's disclosure and returns what it reveals: the full
-// title, identity, and revisions or full explanation.
-export async function expandStorySummary(intent: Locator) {
-  const disclosure = storyDisclosure(intent);
-  if ((await disclosure.getAttribute("aria-expanded")) !== "true")
-    await disclosure.click();
-  await expect(disclosure).toHaveAttribute("aria-expanded", "true");
-  const detail = storySummary(intent).locator(".intent-story-detail");
-  await expect(detail).toBeVisible();
-  return detail;
+// What the header says beyond the title: the identity, and the revisions or
+// full explanation of the comparison. Nothing collapses it.
+export async function storyHeaderDetail(intent: Locator) {
+  const header = storySummary(intent);
+  await expect(header).toBeVisible();
+  await expect(header.getByRole("button", { expanded: false })).toHaveCount(0);
+  return header;
 }
 
 // The "Selected story only" toggle.
@@ -171,13 +186,11 @@ export async function reviewDiff(page: Page, name: string) {
   return code.innerText();
 }
 
-// Opens Review changes from the summary's count outside Intent locations,
-// leaving the summary's disclosure as it was.
+// Opens Review changes from the header's count outside Intent locations,
+// leaving the header in place.
 export async function openReviewFromIntent(page: Page, intent: Locator) {
-  const disclosure = storyDisclosure(intent);
-  const expanded = await disclosure.getAttribute("aria-expanded");
   await outsideCount(intent).click();
-  await expect(disclosure).toHaveAttribute("aria-expanded", expanded ?? "");
+  await expect(storyTitle(intent)).toBeVisible();
   await expect(
     page
       .getByRole("region", { name: "Story review" })

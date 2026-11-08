@@ -34,10 +34,9 @@ import {
   keyboardInside,
   openDoughStories,
   openNavigationJourney,
-  pygardonBacklogTitles,
-  pygardonStory,
   revealsOf,
 } from "../sessionNavigationJourney.ts";
+import { pygardonBacklogTitles, pygardonStory } from "../pygardonProject.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 

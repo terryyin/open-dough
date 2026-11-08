@@ -2,7 +2,8 @@
 // or failure, for Intent journeys that observe a read still in flight
 // (`./intent/intent-selection-reads.spec.ts`, `./intent/intent-revision-notice.spec.ts`,
 // `./intent/intent-revision-update-outcomes.spec.ts`,
-// `./intent/intent-revision-update-boundaries.spec.ts`). Its route pattern also
+// `./intent/intent-revision-update-boundaries.spec.ts`,
+// `./intent/intent-story-coverage.spec.ts`). Its route pattern also
 // serves journeys that observe Session details' reads
 // (`./support/historicalCreditReads.ts`).
 

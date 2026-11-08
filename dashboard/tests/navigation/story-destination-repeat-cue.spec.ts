@@ -12,7 +12,7 @@ import { expectInspected, expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { originMain } from "../support/sessionDialog.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
 import { branch, storyWorktree } from "../support/storyReviewWorktree.ts";
 
@@ -24,7 +24,7 @@ test("asking again for the selected, inspected and reviewed destination cues it 
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     makeMe.aLaunchRecord
       .executing({ identity: queuedIdentity, title: "Story A" })
       .onStoryBranch({ workspace, branch })

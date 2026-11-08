@@ -2,10 +2,12 @@
 // sort by the figures beside their words, never by the words: the scope by its
 // path name, Counts by the number of counted results with failed results first
 // among equal totals, a timing column by its measured milliseconds
-// (`./ciProofTiming.ts`), and a story comparison's Change by kind: added,
-// modified, removed, then renamed. A row
+// (`./ciProofTiming.ts`) — or, for Branch and Landed cells showing their
+// change from Baseline, by that signed change — and a story comparison's
+// Change by kind: added, modified, removed, then renamed. A row
 // without a value for the sorted column (partial or unavailable timing, no CI
-// result, an endpoint gap, a scope the story leaves unchanged) follows the
+// result, an endpoint gap, a scope the story leaves unchanged, an entry
+// without a measured change where changes are shown) follows the
 // rows with one in either direction; such rows, and ties, keep the order the
 // caller gave. A pinned row stays last under any sort. The first activation of
 // a column sorts it ascending, the next reverses it. The sort choice is the
@@ -94,7 +96,12 @@ function valueOf(row: SortableRow, column: CiProofColumn): SortValue {
     return change === undefined ? undefined : changeRank[change];
   }
   if (column === "counts") return row.cells.countedResults;
-  return timingCellIn(row.cells, column)?.ms;
+  const cell = timingCellIn(row.cells, column);
+  const byChange =
+    isComparisonCells(row.cells) &&
+    row.cells.showsChange === true &&
+    (column === "branch" || column === "landed");
+  return byChange ? cell?.changeMs : cell?.ms;
 }
 
 // Signed order of two values in DIRECTION; failed results come first among

@@ -11,6 +11,7 @@ import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import {
   branches,
+  fromTrunk,
   onBranch,
   opened,
   planPath,
@@ -47,11 +48,9 @@ export function branchPlanPublication(
 ): PublishedRevision {
   const path = planPath("on-branch");
   return {
-    revision,
-    files: {
-      ...trunk.files,
-      [path]: renderSlicePlan(plan, { heading: "Slices" }),
-    },
+    ...fromTrunk(revision, {
+      files: { [path]: renderSlicePlan(plan, { heading: "Slices" }) },
+    }),
     committed: { [path]: committedAt },
   };
 }

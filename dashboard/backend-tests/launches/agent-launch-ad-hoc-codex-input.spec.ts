@@ -3,11 +3,8 @@ import path from "node:path";
 import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
 import { test as startTest } from "../../tests/support/codexStart.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
-import {
-  emptyBacklog,
-  publishMovingOrigin,
-} from "../../tests/publishedOrigin.ts";
-import { feedbackWatchListPath } from "../../src/feedbackReview.ts";
+import { publishMovingOrigin } from "../../tests/publishedOrigin.ts";
+import { pushWatchList } from "../../tests/support/feedbackMaintenanceServer.ts";
 import {
   authorizeFeedbackMaintenance,
   dayFromToday,
@@ -131,10 +128,7 @@ const dueOnCodex = "a due feedback maintenance cycle authorized on Codex";
 // Publishes Open Dough's watch list due on `due`, and turns the standing
 // authorization on for Codex in this server's home.
 async function dueAndOn(github: FakeGitHub, home: string, due: string) {
-  const moving = await publishMovingOrigin(github);
-  moving.push("f".repeat(40), emptyBacklog, {
-    [feedbackWatchListPath]: dueWatchList(due),
-  });
+  pushWatchList(await publishMovingOrigin(github), dueWatchList(due));
   authorizeFeedbackMaintenance(home, { host: "codex" });
 }
 

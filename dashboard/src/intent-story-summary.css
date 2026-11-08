@@ -1,107 +1,96 @@
-/* The selected story's summary (./IntentStorySummary.tsx) heading the Intent
-   mode's locations column, or the explanation shown in its place: the story's
-   title on one line as a disclosure ending in the count of changed files
-   outside every location, a brief comparison state, then the "Selected story
-   only" choice and its message when no location's test file changed. Expanded,
-   the full title, identity, revisions or explanation, and any saved Intent
-   Coverage assessment. A changed file's Purpose names its diff. */
+/* A selected story in Intent (./IntentStoryView.tsx): its persistent
+   header (./IntentStorySummary.tsx), led by the way to Project Intent,
+   naming the story by its full title, the
+   count of changed files outside every location beside it, its identity and
+   what its comparison says; then the story's views (./intentStoryTabs.tsx)
+   with Hide files / Show files ending their row; then the chosen view. CI
+   comparison, an explanation in place of the locations, and Intent coverage
+   fill and scroll the remaining height; Changed tests is the locations
+   browser below (./intent-perspective.css). */
+.intent-story-view {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.intent-story-view[data-fills="true"] {
+  flex: 1;
+}
+
+.intent-story-view[hidden] {
+  display: none;
+}
+
 .intent-story-summary {
   flex: none;
   min-width: 0;
-  padding: var(--space-2) var(--space-3);
-  border-bottom: 1px solid var(--line);
+  padding: var(--space-1) clamp(0.75rem, 4vw, 1.5rem) var(--space-3);
   line-height: 1.5;
-}
-
-/* In place of a tree, above the explanation, it keeps the explanation's
-   inset and width. */
-[role="tabpanel"] > .intent-story-summary {
-  max-width: 42rem;
-  margin: var(--space-3) clamp(0.75rem, 4vw, 1.5rem) 0;
-  padding-inline: 0;
+  overflow-wrap: anywhere;
 }
 
 .intent-story-summary p {
   margin: 0;
 }
 
+.intent-story-summary .intent-story-crumb {
+  color: var(--quiet);
+  font-size: var(--text-xs);
+}
+
+.intent-story-crumb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
 .intent-story-title-line {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-2);
   min-width: 0;
 }
 
-.intent-story-disclosure {
+.intent-story-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 50rem;
+  margin: 0;
+  font-size: clamp(1.2rem, 2.45vw, 1.55rem);
+  font-weight: var(--weight-strong);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/* Done and the identity, quiet above the title. */
+.intent-story-summary .intent-story-meta {
   display: flex;
-  flex: 1;
-  align-items: baseline;
-  gap: 0.15rem;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: start;
-  cursor: pointer;
-}
-
-.intent-story-disclosure::before {
-  flex: none;
-  display: inline-block;
-  box-sizing: border-box;
-  width: 1.5rem;
-  padding-inline: 0.25rem;
-  font-weight: 600;
-  content: "\25BE";
-  content: "\25BE" / "";
-}
-
-.intent-story-disclosure[aria-expanded="false"]::before {
-  content: "\25B8";
-  content: "\25B8" / "";
-}
-
-.intent-story-name {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.intent-story-kind,
-.intent-story-summary .record-identity {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-1) 0;
   color: var(--quiet);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
+}
+
+.intent-story-done {
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  color: var(--ready);
+  background: color-mix(in srgb, var(--ready) 12%, transparent);
+  font-weight: var(--weight-strong);
 }
 
 .intent-story-detail {
   display: grid;
   gap: var(--space-1);
-  overflow-wrap: anywhere;
+  color: var(--quiet);
+  font-size: var(--text-sm);
 }
 
-.intent-story-detail[hidden] {
+.intent-story-detail:empty {
   display: none;
-}
-
-.intent-story-coverage h3 {
-  margin: var(--space-1) 0;
-  font-size: inherit;
-}
-
-.intent-story-coverage-text {
-  white-space: pre-wrap;
-}
-
-/* Aligned under the title, past the caret. */
-.intent-story-summary .intent-story-state,
-.intent-story-summary .intent-story-detail,
-.intent-story-summary .intent-story-only,
-.intent-story-summary .intent-story-none {
-  margin: var(--space-1) 0 0 1.65rem;
 }
 
 .intent-story-state button {
@@ -130,6 +119,101 @@
   background: var(--hover);
 }
 
+/* The story's views, with Hide files / Show files at the row's end. */
+.intent-story-tabbar {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-2);
+  min-width: 0;
+  padding: 0 clamp(0.75rem, 4vw, 1.5rem);
+}
+
+.intent-story-tabbar > .start-launch-button {
+  flex: none;
+  margin-inline-start: auto;
+  margin-block-end: var(--space-1);
+  font-size: var(--text-sm);
+}
+
+/* Narrow, the views and the files toggle share one row: smaller tabs, and
+   the toggle's icon alone, its words kept as its name. */
+@media (max-width: 36rem) {
+  .intent-story-tabbar {
+    flex-wrap: nowrap;
+  }
+
+  .intent-story-tabbar .intent-tab {
+    padding-inline: var(--space-1);
+    font-size: var(--text-xs);
+  }
+
+  .intent-story-tabbar .file-browser-toggle-words {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+.intent-story-panel {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-3) clamp(0.75rem, 4vw, 1.5rem) var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.intent-story-panel[hidden] {
+  display: none;
+}
+
+.intent-story-panel:focus-visible {
+  outline-offset: -3px;
+}
+
+.intent-story-coverage {
+  max-width: 50rem;
+  line-height: 1.5;
+}
+
+.intent-story-coverage h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-md);
+}
+
+.intent-story-coverage p {
+  margin: 0 0 var(--space-2);
+}
+
+/* The saved text, literal, in its own box. */
+.intent-story-coverage-text {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--raised-surface);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* "Selected story only" heading the Changed tests tree. */
+.intent-story-scope {
+  flex: none;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+  line-height: 1.5;
+}
+
+.intent-story-scope p {
+  margin: var(--space-1) 0 0;
+}
+
 .intent-story-only {
   display: block;
   cursor: pointer;
@@ -137,4 +221,16 @@
 
 .intent-story-diff-name {
   margin: 0 0 var(--space-2);
+}
+
+.intent-story-ci-return {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: var(--space-2);
+}
+
+/* An explanation in place of the locations keeps the panel's inset. */
+.intent-story-panel > :is(.intent-not-configured, .intent-settings-problem) {
+  margin: 0;
 }

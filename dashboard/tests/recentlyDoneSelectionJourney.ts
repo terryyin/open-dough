@@ -16,7 +16,7 @@ import { expect } from "./dashboardTest.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { catalogPublications } from "./catalogProjectRecords.ts";
-import { withDoneCatalog } from "./doneCatalogAnswers.ts";
+import { describedRevisions } from "./describedRevisions.ts";
 import {
   browseSpec,
   openDough,
@@ -24,12 +24,12 @@ import {
   publishIntentProject,
 } from "./intentCodeBrowseFixtures.ts";
 import { publishFiles } from "./publishedFiles.ts";
-import { doneDirectory, doneRecordAt } from "./recentlyDoneRecords.ts";
+import { doneRecordAt } from "./recentlyDoneRecords.ts";
 import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import type { tapWhereShown } from "./pageLayout.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { keepProjectLaunchRecords } from "./support/storyLaunchRecord.ts";
+import { keepLaunchStore } from "./support/launchStore.ts";
 
 const minute = 60_000;
 
@@ -70,26 +70,40 @@ export async function publishSelectionProjects(
     [readSpec]: browseSpec,
   });
   const { pygardon, doughnut } = catalogPublications;
-  const recorded = unreadableLinkedRecord
-    ? { ...linked, identity: "SEED-502#named-inside" }
-    : linked;
+  const record = makeMe.aDoneRecord
+    .completed({
+      ...linked,
+      completedAt: new Date(now - 60 * minute).toISOString(),
+    })
+    .please();
+  // Pygardon's pinned files, then its done story's record beside them with
+  // the catalog completion rebuilds.
+  const { done } = describedRevisions(
+    makeMe.aRepository
+      .withRevision("pinned", { files: pygardon.files })
+      .withRevision(
+        "done",
+        unreadableLinkedRecord
+          ? {
+              doneRecords: [],
+              // Misnamed bytes the case proves: the record at the linked
+              // story's path names another identity.
+              files: {
+                [doneRecordAt(linked.identity)]: renderDoneRecord({
+                  ...record,
+                  identity: "SEED-502#named-inside",
+                }),
+              },
+            }
+          : { doneRecords: [record] },
+      )
+      .please(),
+    { pinned: pygardon.revision, done: pygardon.revision },
+  );
   await publishFiles(page, {
     repository: pygardon.repository,
     revision: pygardon.revision,
-    files: withDoneCatalog(
-      {
-        ...pygardon.files,
-        [doneRecordAt(linked.identity)]: renderDoneRecord(
-          makeMe.aDoneRecord
-            .completed({
-              ...recorded,
-              completedAt: new Date(now - 60 * minute).toISOString(),
-            })
-            .please(),
-        ),
-      },
-      doneDirectory,
-    ),
+    files: done.files,
   });
   await publishFiles(page, {
     repository: doughnut.repository,
@@ -125,7 +139,7 @@ function newerIn(
   });
 }
 
-export async function keepSelectionSessions(
+export function keepSelectionSessions(
   dashboard: DashboardServer,
   now: number,
   newer: NewerSessions = {},
@@ -139,7 +153,7 @@ export async function keepSelectionSessions(
       startedAt: now - 90 * minute,
     }),
   });
-  await keepProjectLaunchRecords(dashboard, {
+  keepLaunchStore(dashboard, {
     pygardon: [
       makeMe.aLaunchRecord
         .executing({ ...linked, source: "pygardon" })
@@ -207,7 +221,7 @@ export async function openSelectionPage(
   if (tap === undefined)
     await page.setViewportSize({ width: 1600, height: 900 });
   await publishSelectionProjects(page, now, unreadableLinkedRecord);
-  await keepSelectionSessions(dashboard, now, newer);
+  keepSelectionSessions(dashboard, now, newer);
   await openUntilRead(page, address);
   const shown = recentlyDoneParts(page);
   if (tap === undefined) await shown.button.click();

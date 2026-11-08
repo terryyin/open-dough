@@ -5,6 +5,14 @@
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
+import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
+import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
+import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
+import {
+  ObservedLaunchBuilder,
+  SessionStateBuilder,
+} from "./launchObservationTestData.mjs";
 import {
   CiAdapterAttemptBuilder,
   CiTimingJobBuilder,
@@ -14,9 +22,12 @@ import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
+import { release } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
+import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
+/** @typedef {import("./releaseTestData.mjs").Release} Release */
 
 /** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
@@ -90,6 +101,17 @@ export const makeMe = {
       with(facts) {
         return copyFacts(facts);
       },
+      /**
+       * A refined story planned in `plan`, a path relative to its seed.
+       * @param {string} plan
+       */
+      plannedIn(plan) {
+        return this.with({
+          refinement: /** @type {const} */ ("refined"),
+          approach: /** @type {const} */ ("planned"),
+          plan,
+        });
+      },
     };
   },
   get aSupplierAgreement() {
@@ -114,6 +136,17 @@ export const makeMe = {
       },
     };
   },
+  get aRelease() {
+    return {
+      /** @param {import("./releaseTestData.mjs").ReleaseFacts} facts */
+      with(facts) {
+        return {
+          /** @returns {Release} */
+          please: () => release(facts),
+        };
+      },
+    };
+  },
   get aDoneRecord() {
     return new DoneRecordBuilder();
   },
@@ -123,6 +156,9 @@ export const makeMe = {
   get intentSettings() {
     return new IntentSettingsBuilder();
   },
+  get aTestOptimizationCandidatesRecord() {
+    return new TestOptimizationCandidatesRecordBuilder();
+  },
   get aLaunchRecord() {
     return new LaunchRecordBuilder();
   },
@@ -131,8 +167,26 @@ export const makeMe = {
   get aHostSession() {
     return hostSessionChoices;
   },
+  get aSessionState() {
+    return new SessionStateBuilder();
+  },
+  get anObservedLaunch() {
+    return new ObservedLaunchBuilder();
+  },
+  get anAcceptedAttempt() {
+    return new AcceptedAttemptBuilder();
+  },
+  get anAttemptObservation() {
+    return new AttemptObservationBuilder();
+  },
+  get aMachineAnswer() {
+    return new MachineAnswerBuilder();
+  },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();
+  },
+  get aCiProofEntry() {
+    return new CiProofEntryBuilder();
   },
   get aCiAdapterAttempt() {
     return new CiAdapterAttemptBuilder();

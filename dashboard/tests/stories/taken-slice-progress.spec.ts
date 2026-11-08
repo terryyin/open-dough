@@ -9,17 +9,14 @@ import type { Locator } from "@playwright/test";
 import type { PlanSlice } from "../../src/storyPlan.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
-import { renderPublishedPreparation } from "../../../tests/support/story-preparation.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { shortRevision, expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { describedRevisions } from "../describedRevisions.ts";
 
 const repository = "terryyin/open-dough";
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const seedPath = ".planning/seeds/SEED-090-progress.md";
-const revisionA = "a1".repeat(20);
-const revisionB = "b2".repeat(20);
 
 const counted = "Count recorded slices on the card";
 const planless = "Taken before plans were associated";
@@ -27,30 +24,27 @@ const unreadable = "Plan with a status the reader refuses";
 const queued = "Queued story with a plan";
 
 const countedPlanPath = ".planning/slice-plans/090-counted/PLAN.md";
-const unreadablePlanPath = ".planning/slice-plans/090-unreadable/PLAN.md";
-const queuedPlanPath = ".planning/slice-plans/090-queued/PLAN.md";
 
-const backlog = `# Product backlog
+const story = (title: string, anchor: string) =>
+  makeMe.aBacklogEntry
+    .with({
+      title,
+      identity: `SEED-090#${anchor}`,
+      href: `seeds/SEED-090-progress.md#${anchor}`,
+    })
+    .please();
 
-## Taken
+// Each planned story's state, recorded in the seed.
+const planned = (anchor: string) => ({
+  identity: `SEED-090#${anchor}`,
+  href: `seeds/SEED-090-progress.md#${anchor}`,
+  ...makeMe.aStoryPreparation
+    .plannedIn(`../slice-plans/090-${anchor}/PLAN.md`)
+    .please(),
+});
 
-- [${counted}](seeds/SEED-090-progress.md#counted) — SEED-090#counted
-- [${planless}](seeds/SEED-090-progress.md#planless) — SEED-090#planless
-- [${unreadable}](seeds/SEED-090-progress.md#unreadable) — SEED-090#unreadable
-
-## Backlog list
-
-- [${queued}](seeds/SEED-090-progress.md#queued) — SEED-090#queued
-`;
-
-function storyState(plan: string): string {
-  return renderPublishedPreparation(
-    makeMe.aStoryPreparation
-      .with({ refinement: "refined", approach: "planned", plan })
-      .please(),
-  );
-}
-
+// The seed prose the dashboard reads; the planless story keeps the status
+// line written before structured story state existed.
 const seed = `---
 id: SEED-090
 ---
@@ -62,7 +56,6 @@ id: SEED-090
 ### ${counted}
 
 **Identity:** SEED-090#counted
-${storyState("../slice-plans/090-counted/PLAN.md")}
 
 <a id="planless"></a>
 
@@ -77,16 +70,15 @@ ${storyState("../slice-plans/090-counted/PLAN.md")}
 ### ${unreadable}
 
 **Identity:** SEED-090#unreadable
-${storyState("../slice-plans/090-unreadable/PLAN.md")}
 
 <a id="queued"></a>
 
 ### ${queued}
 
 **Identity:** SEED-090#queued
-${storyState("../slice-plans/090-queued/PLAN.md")}
 `;
 
+// The exact plan bytes the reader refuses: a status it does not know.
 const unreadablePlan = `${renderSlicePlan(
   makeMe.aSlicePlan.withStatuses(["done"]).please(),
 )}
@@ -96,26 +88,38 @@ Status: merged into slice 1
 Proof: A journey observes slice 2.
 `;
 
-function publishedAt(
-  revision: string,
-  countedStatuses: readonly PlanSlice["status"][],
-) {
-  return {
-    repository,
-    revision,
-    files: {
-      [backlogPath]: backlog,
-      [seedPath]: seed,
-      [countedPlanPath]: renderSlicePlan(
-        makeMe.aSlicePlan.withStatuses(countedStatuses).please(),
-      ),
-      [unreadablePlanPath]: unreadablePlan,
-      [queuedPlanPath]: renderSlicePlan(
-        makeMe.aSlicePlan.withStatuses(["done", "planned"]).please(),
-      ),
-    },
-  };
-}
+const countedPlan = (statuses: readonly PlanSlice["status"][]) =>
+  renderSlicePlan(makeMe.aSlicePlan.withStatuses(statuses).please());
+
+// Revision A records one of the counted story's three slices done; B, two.
+const { A, B } = describedRevisions(
+  makeMe.aRepository
+    .withRevision("A", {
+      backlog: {
+        taken: [
+          story(counted, "counted"),
+          story(planless, "planless"),
+          story(unreadable, "unreadable"),
+        ],
+        queued: [story(queued, "queued")],
+      },
+      files: {
+        [seedPath]: seed,
+        [countedPlanPath]: countedPlan(["done", "planned", "planned"]),
+        ".planning/slice-plans/090-unreadable/PLAN.md": unreadablePlan,
+        ".planning/slice-plans/090-queued/PLAN.md": countedPlan([
+          "done",
+          "planned",
+        ]),
+      },
+      storyStates: ["counted", "unreadable", "queued"].map(planned),
+    })
+    .withRevision("B", {
+      files: { [countedPlanPath]: countedPlan(["done", "done", "planned"]) },
+    })
+    .please(),
+  { A: "a1".repeat(20), B: "b2".repeat(20) },
+);
 
 // The bar's segments, in order, by the recorded status each one shows.
 function segments(bar: Locator): Locator {
@@ -125,10 +129,7 @@ function segments(bar: Locator): Locator {
 test("each Taken card shows its recorded slice progress as a bar and count, or the plan's gap", async ({
   page,
 }) => {
-  await publishFiles(
-    page,
-    publishedAt(revisionA, ["done", "planned", "planned"]),
-  );
+  await publishFiles(page, { repository, ...A });
 
   await page.goto("/");
 
@@ -190,12 +191,9 @@ test("each Taken card shows its recorded slice progress as a bar and count, or t
   });
 
   await test.step("after a reload, the bar shows the plan recorded at the new revision", async () => {
-    await publishFiles(
-      page,
-      publishedAt(revisionB, ["done", "done", "planned"]),
-    );
+    await publishFiles(page, { repository, ...B });
     await reloadUntilRead(page);
-    await expect(readRevision).toContainText(shortRevision(revisionB));
+    await expect(readRevision).toContainText(shortRevision(B.revision));
     const bar = card(counted).getByRole("img", {
       name: "2 of 3 slices recorded complete",
     });

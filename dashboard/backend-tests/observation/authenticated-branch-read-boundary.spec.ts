@@ -19,7 +19,10 @@ import {
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { branchRefAnswer, headsAnswer } from "../../tests/originAnswers.ts";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import {
+  describedRevision,
+  withBacklogFallback,
+} from "../../tests/describedRevisions.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 
 test.describe.configure({ mode: "serial" });
@@ -44,62 +47,66 @@ test.describe("authenticated read boundary on a story branch (development enviro
     const seedPath = ".planning/seeds/SEED-branch.md";
     const planPath = ".planning/slice-plans/092-branch/PLAN.md";
     const planText = "# Plan\n\n## Slices\n";
-    const backlogTaken = `# Product backlog
-
-## Taken
-
-- [Branch story](seeds/SEED-branch.md#story) — SEED-branch#story
-- [Trunk story](seeds/SEED-branch.md#trunk) — SEED-branch#trunk
-
-## Backlog list
-`;
-    const profile = (
-      name: string,
-      identity: string,
-      mode: "trunk" | "story-branch",
-      branch: string,
-    ) =>
-      renderAgentProfile(
-        makeMe.anAgentProfile
-          .executing({
-            name,
-            identity,
-            mode,
-            branch,
-          })
-          .please(),
-      );
-    const published = publishes({
-      revision,
-      backlog: backlogTaken,
-      files: {
-        ".planning/PRODUCT-BACKLOG.md": backlogTaken,
-        [seedPath]: `# Seed
+    const entry = (title: string, anchor: string) =>
+      makeMe.aBacklogEntry
+        .with({
+          title,
+          identity: `SEED-branch#${anchor}`,
+          href: `seeds/SEED-branch.md#${anchor}`,
+        })
+        .please();
+    const at = describedRevision(
+      makeMe.aRepository
+        .withRevision("branch", {
+          backlog: {
+            taken: [
+              entry("Branch story", "story"),
+              entry("Trunk story", "trunk"),
+            ],
+          },
+          files: {
+            [seedPath]: `# Seed
 
 <a id="story"></a>
 
 ### Branch story
 
 **Identity:** SEED-branch#story
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/092-branch/PLAN.md"}
-\`\`\`
 `,
-        [planPath]: planText,
-        ".planning/agents/yui-chan.json": profile(
-          "Yui",
-          "SEED-branch#story",
-          "story-branch",
-          "story/recorded",
-        ),
-        ".planning/agents/akiho-chan.json": profile(
-          "Akiho",
-          "SEED-branch#trunk",
-          "trunk",
-          "origin/main",
-        ),
-      },
-    });
+            [planPath]: planText,
+          },
+          storyStates: [
+            {
+              identity: "SEED-branch#story",
+              href: "seeds/SEED-branch.md#story",
+              ...makeMe.aStoryPreparation
+                .plannedIn("../slice-plans/092-branch/PLAN.md")
+                .please(),
+            },
+          ],
+          agentProfiles: [
+            makeMe.anAgentProfile
+              .executing({
+                name: "Yui",
+                identity: "SEED-branch#story",
+                mode: "story-branch",
+                branch: "story/recorded",
+              })
+              .please(),
+            makeMe.anAgentProfile
+              .executing({
+                name: "Akiho",
+                identity: "SEED-branch#trunk",
+                mode: "trunk",
+                branch: "origin/main",
+              })
+              .please(),
+          ],
+        })
+        .please(),
+      revision,
+    );
+    const published = publishes(withBacklogFallback(at));
     server.github.serve(everyRepository, (call) =>
       call.request.kind === "branch"
         ? Promise.resolve(branchRefAnswer(call.request.branch, head))

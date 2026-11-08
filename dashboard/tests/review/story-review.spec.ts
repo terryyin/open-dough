@@ -37,7 +37,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   origin,
 }) => {
   const { workspace, merged, later } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const before = observed(workspace);
   const fetchedTrunk = () => git(workspace, "rev-parse", "origin/main");
   expect(fetchedTrunk()).toBe(merged);

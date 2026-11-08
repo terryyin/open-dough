@@ -2,14 +2,16 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/pageTest.ts";
 import { projectAddMachine } from "../support/projectAddMachine.ts";
-import { launchRequest } from "../agentLaunchBoundary.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { identity } from "../agentLaunchBoundary.ts";
 import {
   chooseProject,
   expectCompactProjectSelect,
   expectProjectChoice,
   parts,
 } from "../dashboardPage.ts";
-import { seedStore } from "../machineLaunchRecords.ts";
+import { machineHome } from "../machineLaunchRecords.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import { openUntilRead, untilPublishedWorkRead } from "../pageRequestNotes.ts";
 import {
   openSessionsSidebar,
@@ -46,21 +48,15 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
     startedAt: Date.now(),
   });
   const shortId = sessionId.slice(0, 8);
-  const record = {
-    request: {
-      ...launchRequest,
-      source: "doughnut",
-      title: sessionTitle,
-    },
-    session: {
-      host: "claude",
-      sessionId,
-      shortId,
-      name: sessionName,
-    },
-    launchedAt: new Date().toISOString(),
-  };
-  seedStore(fixture.machine, JSON.stringify({ doughnut: [record] }));
+  keepLaunchStore(machineHome(fixture.machine), {
+    doughnut: [
+      makeMe.aLaunchRecord
+        .executing({ identity, title: sessionTitle, source: "doughnut" })
+        .inClaudeSession({ sessionId, shortId })
+        .launchedAt(new Date().toISOString())
+        .please(),
+    ],
+  });
 
   await openUntilRead(page, server.baseURL);
   await chooseProject(page, "Doughnut");

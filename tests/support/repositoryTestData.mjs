@@ -4,6 +4,7 @@
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs").renderAgentProfile>[0]} AgentProfile */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs").renderDoneRecord>[0]} DoneRecord */
 /** @typedef {{ name: string, email: string, date?: string }} GitPerson */
+/** @typedef {import("./releaseTestData.mjs").Release} Release */
 
 /**
  * @typedef {{
@@ -20,6 +21,8 @@
 /**
  * @typedef {{
  *   backlog?: Backlog | null,
+ *   release?: Release,
+ *   tags?: readonly string[],
  *   files?: Readonly<Record<string, string | Buffer>>,
  *   executables?: readonly string[],
  *   storyStates?: readonly StoryState[],
@@ -131,6 +134,8 @@ export class RepositoryBuilder {
    * an empty backlog unless the description supplies its membership or bytes,
    * or states `backlog: null` for a trunk without one. A revision states its
    * backlog once: as `backlog` or as bytes at `.planning/PRODUCT-BACKLOG.md`.
+   * A revision with a `release` is tagged `v<version>`, and `tags` names
+   * further lightweight tags on it; `files` it states override the release's.
    * @template {string} NewName
    * @param {NewName} name
    * @param {RevisionFacts} [facts]

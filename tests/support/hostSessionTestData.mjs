@@ -53,12 +53,27 @@ export function claudeSession({ sessionId, shortId = sessionId.slice(0, 8) }) {
 }
 
 /**
+ * A Codex thread kept by a predecessor record, which saved no continuation.
+ * @typedef {{ sessionId: string, continuation?: undefined }} PredecessorCodexFacts
+ */
+
+/**
+ * @overload
  * @param {CodexFacts} facts
  * @returns {(name: string) => SavedCodexSession}
  */
-export function codexSession({
-  sessionId,
-  continuation: {
+/**
+ * @overload
+ * @param {CodexFacts | PredecessorCodexFacts} facts
+ * @returns {(name: string) => CodexSession}
+ */
+/**
+ * @param {CodexFacts | PredecessorCodexFacts} facts
+ * @returns {(name: string) => CodexSession}
+ */
+export function codexSession({ sessionId, continuation }) {
+  if (!continuation) return (name) => ({ host: "codex", sessionId, name });
+  const {
     workspace,
     endpoint,
     args = [
@@ -71,8 +86,7 @@ export function codexSession({
       sessionId,
     ],
     notice,
-  },
-}) {
+  } = continuation;
   return (name) => ({
     host: "codex",
     sessionId,

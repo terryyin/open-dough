@@ -68,7 +68,7 @@ test("a CLI-completed story without a local launch opens fixed published changes
   // A later retained capture cannot replace the published comparison when
   // its repository is gone. Both choices remain navigable without a launch
   // being invented for the published completion.
-  await keepUnusableCompletedCapture(dashboard, origin, story);
+  keepUnusableCompletedCapture(dashboard, origin, story);
   const withRun = await refreshReview(page, review);
   expect(withRun).toMatchObject({
     kind: "published",
