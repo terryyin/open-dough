@@ -19,10 +19,11 @@ import { processRunning } from "../support/processGroup.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 
 test.describe("Recover keep-wait expiry", () => {
-  // Shorter than the delayed paint so Start and Recover both hit the shared
-  // launch wait before keep settles; setup hangs up without waiting on a
-  // terminal that Start's timed-out answer never presented.
-  test.use({ launchTimeoutMs: 1_500, cursorPaintDelayMs: 3_000 });
+  // The first paint stays held, so keep cannot settle: Start and Recover
+  // both end at the shared launch wait, which the test ends once each
+  // client is kept. Setup hangs up without waiting on a terminal that
+  // Start's timed-out answer never presented.
+  test.use({ launchWaitEnd: true, cursorHoldPaint: true });
 
   test("Recover answers failed when keep cannot settle before the shared launch wait", async ({
     page,
@@ -45,6 +46,8 @@ test.describe("Recover keep-wait expiry", () => {
     await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
     await startSessionField(dialog).fill(instruction);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect.poll(() => cursor.attaches()).toHaveLength(1);
+    await dashboard.endLaunchWait();
     const taken = parts(page).taken.locator(".session-entry");
     await expect(taken).toHaveCount(1);
     await endHeldClient(page, cursor, dashboard.home);
@@ -60,10 +63,10 @@ test.describe("Recover keep-wait expiry", () => {
     const recoverResponse = page.waitForResponse((response) =>
       response.url().includes("/__agent-launch/recover"),
     );
-    const started = Date.now();
     await entry.getByRole("button", { name: "Recover" }).click();
+    await expect.poll(() => cursor.attaches().length).toBe(before + 1);
+    await dashboard.endLaunchWait();
     const recover = await recoverResponse;
-    const elapsedMs = Date.now() - started;
     const body = (await recover.json()) as {
       kind: string;
       explanation?: string;
@@ -73,7 +76,6 @@ test.describe("Recover keep-wait expiry", () => {
         status: recover.status(),
         kind: body.kind,
         explanation: body.explanation,
-        elapsedMs,
       },
       "recover keep-wait expiry",
     ).toMatchObject({
@@ -81,8 +83,6 @@ test.describe("Recover keep-wait expiry", () => {
       kind: "failed",
       explanation: instructionDeliveryTimedOutExplanation(record.session),
     });
-    expect(elapsedMs).toBeLessThan(3_000);
-    await expect.poll(() => cursor.attaches().length).toBe(before + 1);
     const resumed = cursor.attaches().at(-1);
     expect(processRunning(resumed?.pid)).toBe(true);
     expect(cursor.signals(resumed?.pid ?? 0)).not.toMatch(/SIGHUP|SIGTERM/u);

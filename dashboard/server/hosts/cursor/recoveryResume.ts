@@ -3,18 +3,27 @@
 // launch wait and type a continuation only when first input is confirmed;
 // callers choose ensure-port keep versus accepting-port keep.
 import type { LaunchRecord } from "../../../src/agentLaunch.ts";
-import { launchTimeoutMs } from "../../launchRun.ts";
+import { launchWait } from "../../launchWait.ts";
 import { cursorAgent } from "./exec.ts";
 import { cursorRecoveryContinuation } from "./recoveryContinuation.ts";
 import type { CursorKeepRequest } from "./runnerWire.ts";
 import { cursorTerminalSize } from "./terminal.ts";
 
-export function untilLaunchWait(): Promise<"timed-out"> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
+// `kept`'s result, or timed-out when the launch wait ends first.
+export async function withinLaunchWait<T>(
+  kept: Promise<T>,
+): Promise<T | "timed-out"> {
+  let endWait: (() => void) | undefined;
+  const timedOut = new Promise<"timed-out">((resolve) => {
+    endWait = launchWait(() => {
       resolve("timed-out");
-    }, launchTimeoutMs());
+    });
   });
+  try {
+    return await Promise.race([kept, timedOut]);
+  } finally {
+    endWait?.();
+  }
 }
 
 function resumeCursorArgs(record: LaunchRecord): {

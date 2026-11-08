@@ -148,7 +148,12 @@ failed them. The selection plus retention passed. The retained native
 stream records' `input-hash` lines for MakeMe support files already
 differed from the files before this story; they identify the revision each
 paid run used, so they stay unchanged. The selection exposed a launch-wait
-race in the Cursor wait cases, repaired separately after this slice.
+race in the Cursor wait cases, repaired separately after this slice:
+a test-only  ()
+ends a wait once the case observes the kept record, held trust prompt or
+attach, and the fake Cursor holds paint until released. A scratch 2 s
+create-chat delay failed 5/5 old cases and passed 8/8 repaired; 80/80
+repeated under load 37-41; Cursor consumers 195 passed.
 
 ### 3. A held terminal joins the intended Cursor session
 Type: Behavior

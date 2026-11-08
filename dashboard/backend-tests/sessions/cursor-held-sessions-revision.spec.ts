@@ -151,7 +151,6 @@ test("overlapping asks under unchanged documents still share one runner read", a
         await gate.close();
       }
     },
-    undefined,
     { sessionsReuseMs: reuseMs },
   );
 });

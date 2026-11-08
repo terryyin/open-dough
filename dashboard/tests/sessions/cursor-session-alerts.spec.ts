@@ -156,7 +156,6 @@ test("a held Cursor session alerts once per actionable entry, re-arms after work
         "Ready for review",
       ]);
     },
-    undefined,
     { alertCheckMs: 100 },
   );
 });
@@ -198,7 +197,6 @@ test("cancelled and failed history settling to the follow-up prompt reads only R
       expect(server.notifierCalls()).toHaveLength(1);
       expect(messages(server)).toEqual(["Ready for review"]);
     },
-    undefined,
     { alertCheckMs: 100 },
   );
 });

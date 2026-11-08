@@ -1,13 +1,16 @@
 // When Cursor's keep wait is still open at the shared launch bound, Start
 // answers uncertain/timed-out for unconfirmed instruction delivery and leaves
-// the client kept. Ordinary ready settlement is covered in
+// the client kept. Each case ends the launch wait once its kept state is
+// observed. Ordinary ready settlement is covered in
 // agent-terminal-cursor-launch.spec.ts.
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { instructionDeliveryTimedOutExplanation } from "../../server/hosts/cursor/instructionDelivery.ts";
 import { installFakeCursor } from "../../tests/support/fakeCursor.ts";
 import {
   enteredInstruction,
+  heldOnWorkspaceTrust,
   keptCursor,
+  keptFirstInputState,
   withInstructedCursor,
 } from "../../tests/support/keptCursorTurn.ts";
 import { processRunning } from "../../tests/support/processGroup.ts";
@@ -37,10 +40,7 @@ function expectInstructionDeliveryTimedOut(
 
 test.describe(`Cursor launch wait`, () => {
   test("the launch wait abort leaves the client running and a later ready screen accepts the instruction", async () => {
-    const cursor = installFakeCursor({
-      screen: "working",
-      paintDelayMs: 3_000,
-    });
+    const cursor = installFakeCursor({ screen: "working", holdPaint: true });
     await withInstructedCursor(
       { mode: "boundary" },
       cursor,
@@ -56,16 +56,18 @@ test.describe(`Cursor launch wait`, () => {
         expect(processRunning(pid)).toBe(true);
         expect(recorded.firstInput?.state).toBe("uncertain");
         expect(enteredInstruction(cursor, pid)).not.toContain(instruction);
+        cursor.releasePaint();
         await expect
-          .poll(() => keptCursor(server.home).firstInput?.state, {
-            timeout: 10_000,
-          })
+          .poll(() => keptCursor(server.home).firstInput?.state)
           .toBe("confirmed");
         expect(enteredInstruction(cursor, pid)).toContain(instruction);
         expect(processRunning(pid)).toBe(true);
         expect(cursor.attaches()).toHaveLength(1);
       },
-      1_500,
+      // Its client is kept with the first paint held.
+      async () => {
+        await expect.poll(() => cursor.attaches()).toHaveLength(1);
+      },
     );
   });
 
@@ -94,7 +96,11 @@ test.describe(`Cursor launch wait`, () => {
         expect(processRunning(pid)).toBe(true);
         expect(cursor.attaches()).toHaveLength(1);
       },
-      1_500,
+      async (server) => {
+        await expect
+          .poll(() => keptFirstInputState(server.home))
+          .toBe("confirmed");
+      },
     );
   });
 
@@ -145,7 +151,7 @@ test.describe(`Cursor launch wait`, () => {
           recorded.session.sessionId,
         ]);
       },
-      1_500,
+      heldOnWorkspaceTrust,
     );
   });
 });

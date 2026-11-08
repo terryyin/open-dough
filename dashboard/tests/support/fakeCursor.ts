@@ -4,7 +4,7 @@
 // and exits on SIGHUP. Attach screens are ./fakeCursorScreen.ts.
 // `showReady()` repaints the ordinary prompt. `splitPaintMs` delivers each
 // screen in two writes that far apart. `models` prints the configured
-// listing in the observed layout, or fails.
+// listing (./fakeCursorModels.ts), or fails.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -18,31 +18,20 @@ import {
   installFakeCursorSharedConfig,
   type FakeCursorSharedConfig,
 } from "./fakeCursorSharedConfig.ts";
+import {
+  cursorEffortModels,
+  cursorModels,
+  cursorOtherEffortModels,
+  writeCursorModelListing,
+  type CursorModelListing,
+} from "./fakeCursorModels.ts";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import type { FakeHostWiring } from "./launchEnvironment.ts";
 
 export { unclassifiedCursorExit, type CursorScreen };
+export { cursorEffortModels, cursorModels, cursorOtherEffortModels };
 
 export const cursorSessionId = "6f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f";
-
-// The second name ends with U+200B, as some observed names do.
-export const cursorModels = [
-  { model: "auto", name: "Auto (default)" },
-  { model: "gpt-5.2", name: "GPT-5.2\u200B" },
-] as const;
-
-// Multi-effort family for dialog and composed `--model` proof. No bare base
-// id is listed, so an explicit effort is required. Fast is a distinct choice.
-export const cursorEffortModels = [
-  { model: "fixture-orb-low", name: "Fixture Orb Low" },
-  { model: "fixture-orb-high", name: "Fixture Orb High" },
-  { model: "fixture-orb-high-fast", name: "Fixture Orb High Fast" },
-] as const;
-
-// A second family that lists a different effort set, for incompatible switch.
-export const cursorOtherEffortModels = [
-  { model: "fixture-luna-medium", name: "Fixture Luna Medium" },
-] as const;
 
 // The fake's directory and wiring, for reading its recorded environment.
 export const fakeCursorHost: FakeHostWiring = {
@@ -80,16 +69,15 @@ export type FakeCursor = FakeCursorSharedConfig & {
   calls(): CursorInvocation[];
   modelReads(): { readonly args: readonly string[]; readonly cwd: string }[];
   // Undefined makes `models` exit nonzero.
-  listModels(
-    models:
-      readonly { readonly model: string; readonly name: string }[] | undefined,
-  ): void;
+  listModels(models: CursorModelListing): void;
   attaches(): CursorAttach[];
   signals(pid: number): string;
   input(pid: number): string;
   sizes(pid: number): { readonly cols: number; readonly rows: number }[];
   // Repaint the ordinary follow-up prompt on the running terminal client.
   showReady(): void;
+  // Paints held first screens (`holdPaint`), now and for later clients.
+  releasePaint(): void;
   // Held clients repaint in this mode; the next resume/attach also reads it
   // (overrides FAKE_CURSOR_ATTACH_MODE).
   setAttachMode(mode: CursorScreen | undefined): void;
@@ -117,7 +105,8 @@ export function installFakeCursor(options?: {
   readonly working?: boolean;
   readonly screen?: CursorScreen;
   readonly becomeReady?: boolean;
-  readonly paintDelayMs?: number;
+  // The first paint waits for `releasePaint()`.
+  readonly holdPaint?: boolean;
   readonly splitPaintMs?: number;
   readonly submitPaintMs?: number;
   // After paste-chip Enter, do not repaint (keep stays open / silent).
@@ -134,6 +123,7 @@ export function installFakeCursor(options?: {
   const modelsLogPath = path.join(root, "models.jsonl");
   const attachDir = path.join(root, "attach");
   const readyPath = path.join(root, "ready");
+  const paintReleasePath = path.join(root, "paint-release");
   const attachModePath = path.join(root, "attach-mode");
   const nextSessionPath = path.join(root, "next-session-id");
   installFixtureExecutable("fake-cursor", binDir, "cursor-agent");
@@ -151,21 +141,7 @@ export function installFakeCursor(options?: {
   const attaches = (): CursorAttach[] =>
     readJsonl(path.join(attachDir, "attaches.jsonl"));
   const listModels: FakeCursor["listModels"] = (models) => {
-    if (models === undefined) {
-      rmSync(modelsPath, { force: true });
-      return;
-    }
-    writeFileSync(
-      modelsPath,
-      [
-        "Available models",
-        "",
-        ...models.map(({ model, name }) => `${model} - ${name}`),
-        "",
-        "Tip: a fixture line - not a model",
-        "",
-      ].join("\n"),
-    );
+    writeCursorModelListing(modelsPath, models);
   };
   listModels(cursorModels);
   const screen =
@@ -188,9 +164,9 @@ export function installFakeCursor(options?: {
       ...(options?.becomeReady === true
         ? { FAKE_CURSOR_BECOME_READY: readyPath }
         : {}),
-      ...(options?.paintDelayMs === undefined
-        ? {}
-        : { FAKE_CURSOR_PAINT_DELAY_MS: String(options.paintDelayMs) }),
+      ...(options?.holdPaint === true
+        ? { FAKE_CURSOR_PAINT_RELEASE: paintReleasePath }
+        : {}),
       ...(options?.splitPaintMs === undefined
         ? {}
         : { FAKE_CURSOR_SPLIT_PAINT_MS: String(options.splitPaintMs) }),
@@ -223,6 +199,9 @@ export function installFakeCursor(options?: {
     },
     showReady() {
       writeFileSync(readyPath, "");
+    },
+    releasePaint() {
+      writeFileSync(paintReleasePath, "");
     },
     setAttachMode(mode) {
       if (mode === undefined) {

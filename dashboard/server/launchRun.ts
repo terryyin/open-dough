@@ -38,17 +38,7 @@ import {
   refuseIncompleteKnownReporting,
 } from "./launchReportingPreparation.ts";
 import { takeTerminalHandoff, withTerminalHandoff } from "./terminalHandoff.ts";
-
-const defaultLaunchWaitMs = 30_000;
-
-// A bounded launch wait; test configuration may shorten it.
-// Start and Recover share this rule (`DOUGH_LAUNCH_TIMEOUT_MS`, default 30s).
-export function launchTimeoutMs(): number {
-  const configured = Number(process.env["DOUGH_LAUNCH_TIMEOUT_MS"]);
-  return Number.isFinite(configured) && configured > 0
-    ? configured
-    : defaultLaunchWaitMs;
-}
+import { launchWait } from "./launchWait.ts";
 
 // Runs the attempt and settles its retained session establishment.
 export async function attemptRun(
@@ -112,7 +102,7 @@ async function startedRun(
           (pid) => noteWorker(attemptWorker("start", pid)),
         )
       : ({ kind: "none" } as const);
-  let timer: NodeJS.Timeout | undefined;
+  let endWait: (() => void) | undefined;
   try {
     try {
       await notePublication(publicationOf(start, pending));
@@ -150,9 +140,9 @@ async function startedRun(
     const recording =
       reporting === undefined ? baseRecording : { ...baseRecording, reporting };
     await noteWorker(attemptWorker("launch"));
-    timer = setTimeout(() => {
+    endWait = launchWait(() => {
       controller.abort();
-    }, launchTimeoutMs());
+    });
     return await withTerminalHandoff(attachTerminal, () =>
       launchRun(
         source,
@@ -166,7 +156,7 @@ async function startedRun(
       ),
     );
   } finally {
-    clearTimeout(timer);
+    endWait?.();
     if (start.kind === "established") {
       progress
         .for(start.workflow.workflow)

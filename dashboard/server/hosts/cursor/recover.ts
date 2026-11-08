@@ -17,7 +17,7 @@ import { directoryState } from "../../sessionWorkspace.ts";
 import { cursorAgent } from "./exec.ts";
 import { instructionDeliveryTimedOutExplanation } from "./instructionDelivery.ts";
 import { replaceCannotLoadChat } from "./recoveryReplacement.ts";
-import { cursorResumeKeepRequest, untilLaunchWait } from "./recoveryResume.ts";
+import { cursorResumeKeepRequest, withinLaunchWait } from "./recoveryResume.ts";
 import { recordedCursorSessionScope } from "./sessionScope.ts";
 import {
   hangupCursorClient,
@@ -131,7 +131,7 @@ export async function recoverCursorSession(
       scope.kind === "ready" ? { configScope: scope.scope } : {},
     ),
   );
-  const outcome = await Promise.race([kept, untilLaunchWait()]);
+  const outcome = await withinLaunchWait(kept);
   if (outcome === "timed-out") {
     return {
       kind: "failed",

@@ -21,7 +21,7 @@
 // fake GitHub's answers never leak between tests.
 
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { installFakeClaude, type FakeClaudeControls } from "./fakeClaude.ts";
@@ -48,6 +48,10 @@ import {
 } from "./projectConfiguration.ts";
 import type { DashboardServerOptions } from "./dashboardServerOptions.ts";
 import { sharedServerBundle } from "./serverBundle.ts";
+import {
+  installServerTimeControls,
+  type ServerTimeControls,
+} from "./serverTimeControls.ts";
 
 // Callers find the shared-build resolver and the modes beside the server.
 export { sharedDashboardBuild } from "./dashboardBuild.ts";
@@ -82,12 +86,9 @@ export type DashboardServer = {
   ghCalls(): string[][];
   ghPid(): number | undefined;
   ghExitedBy(): string | undefined;
-  // Runs the clock this server measures shared-observation reuse windows by
-  // (../../server/observationClock.ts) `ms` further ahead; only on a server
-  // started with `observationClock`.
-  advanceObservationClock(ms: number): void;
   close(): Promise<void>;
-} & FakeClaudeControls;
+} & ServerTimeControls &
+  FakeClaudeControls;
 
 export async function startDashboardServer(
   options: DashboardServerOptions,
@@ -161,14 +162,8 @@ export async function startDashboardServer(
   env["DOUGH_REVISION_CHECK_REUSE_MS"] = String(
     options.revisionCheckReuseMs ?? 0,
   );
-  const clockAheadFile = options.observationClock
-    ? path.join(tempRoot, "observation-clock-ahead")
-    : undefined;
-  let clockAheadMs = 0;
-  if (clockAheadFile !== undefined) {
-    writeFileSync(clockAheadFile, "0");
-    env["DOUGH_TEST_OBSERVATION_CLOCK_AHEAD_FILE"] = clockAheadFile;
-  }
+  const time = installServerTimeControls(tempRoot, options);
+  Object.assign(env, time.env);
 
   // Install before listening so ensureCursorRunner accepts the stand-in.
   const standIn =
@@ -240,13 +235,7 @@ export async function startDashboardServer(
         return undefined;
       }
     },
-    advanceObservationClock(ms) {
-      if (clockAheadFile === undefined) {
-        throw new Error("This server was not started with `observationClock`.");
-      }
-      clockAheadMs += ms;
-      writeFileSync(clockAheadFile, String(clockAheadMs));
-    },
+    ...time.controls,
     ...claude.controls,
     async close() {
       await server.stop();
