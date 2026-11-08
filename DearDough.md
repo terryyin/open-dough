@@ -907,5 +907,5 @@ had to inspect the run and workflow before it could ignore proven supersession.
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.90 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
   - Evidence: `CI_INCOMPLETE` for run 42436771496 (`df2702f6b`, `cancelled`); `gh run list` showed run 42437158620 for `ce269af5c` on the same branch succeeded; `.github/workflows/ci.yml` `concurrency.group` uses `github.ref` with `cancel-in-progress: true`
-  - Observed effect: two inspection commands and a read of the notification guidance before the coordinator recorded supersession and continued; no repair or pause
+  - Observed effect: two inspection commands and a read of the notification guidance before the coordinator recorded supersession and continued; no repair or pause. It recurred for `151281a43` (run 42438254144, cancelled once `c755e3952` was pushed and later succeeded) and needed one more `gh run view`
   - Inference: qualified. The cost was small, but it recurs on every Story Branch execution that pushes slices faster than CI finishes. The observer already holds both registered revisions, so it may be able to classify the cancellation itself.
