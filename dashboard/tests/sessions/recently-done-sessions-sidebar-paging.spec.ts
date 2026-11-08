@@ -21,11 +21,11 @@ import {
 } from "../recentlyDoneSessionsSidebarPaging.ts";
 import {
   doneRecord,
-  keepProjectLaunchRecords,
   recentlyDoneHeightKey,
   recentlyDoneParts,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
+import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
 import { wheelToEnd } from "../runningCursorSessionsPage.ts";
 import { holdSessionReads, watchRecordReads } from "../sessionStatePace.ts";
 import { openSessionsSidebar } from "../sessionsSidebarPage.ts";

@@ -11,11 +11,11 @@ import {
 import { browserLocaleString } from "../browserLocale.ts";
 import {
   doneRecord,
-  keepProjectLaunchRecords,
   openRecord,
   recentlyDoneParts,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
+import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
 import {
   expectRowShows,
   expectTooltipLine,

@@ -1,8 +1,6 @@
 // The Sessions sidebar's Recently done sessions section and the shared
 // three-list room its journeys observe with the open list and Running Cursor
 // sessions. Seeds use the real machine store; destinations reuse PageFrame.
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import {
   agentLaunchEndpoint,
@@ -27,6 +25,7 @@ import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect, keptRecord } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import type { FakeCursor } from "./support/fakeCursor.ts";
+import { keepMoreLaunchRecords } from "./support/storyLaunchRecord.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 
 export const recentlyDoneHeightKey =
@@ -55,19 +54,6 @@ export function recentlyDoneParts(page: Page) {
     }),
     running: runningCursorParts(page),
   };
-}
-
-// Keeps launch records for every configured project in the machine store.
-export async function keepProjectLaunchRecords(
-  dashboard: DashboardServer,
-  byProject: Readonly<Record<string, readonly LaunchRecord[]>>,
-) {
-  const store = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/agent-launches.json",
-  );
-  await mkdir(path.dirname(store), { recursive: true });
-  await writeFile(store, JSON.stringify(byProject));
 }
 
 // Resolves on the page's sessions read that shows `held` reopened. Only the
@@ -238,18 +224,7 @@ export async function expandThreeCrowded(
       doneAt: new Date(now - (index + 1) * 60_000).toISOString(),
     });
   });
-  const store = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/agent-launches.json",
-  );
-  const current = JSON.parse(await readFile(store, "utf8")) as Record<
-    string,
-    LaunchRecord[]
-  >;
-  await keepProjectLaunchRecords(dashboard, {
-    ...current,
-    "open-dough": [...(current["open-dough"] ?? []), ...done],
-  });
+  await keepMoreLaunchRecords(dashboard, done);
   const asked = changesAsked(page);
   await showPage(page, origin);
   await answerCrowd(page, held);

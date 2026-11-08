@@ -241,9 +241,12 @@ None.
   journey already owns coverage of starting from a card.
 - **Disposition / rationale:** transferred to
   [Build each test’s Git repository from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures),
-  [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories),
-  and [Set up test preconditions without replaying unrelated workflows](seeds/SEED-262-faster-dashboard-test-feedback.md#arrange-prerequisite-state).
-  The stories separate repository setup, reuse, and launch costs and their proof.
+  and [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories),
+  which own the remaining repository setup and reuse costs and their proof.
+  The launch cost is gone: both cases now open with their sessions already
+  kept and listed (`dashboard/tests/storyCardOpenSessions.ts`), sending no
+  Start and launching nothing. That arrangement measured 0.59–0.61s per case
+  against 1.77–2.20s before.
 - **Date:** 2026-11-08
 - **Evidence / follow-up:** run the named spec with `npm run test:dashboard --`
   and the repository-relative path. Compare default two-worker wall time,

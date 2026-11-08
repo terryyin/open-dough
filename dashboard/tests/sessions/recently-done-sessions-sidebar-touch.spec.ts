@@ -4,10 +4,10 @@ import { tapWhereShown } from "../pageLayout.ts";
 import { browserLocaleString } from "../browserLocale.ts";
 import {
   doneRecord,
-  keepProjectLaunchRecords,
   recentlyDoneParts,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
+import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
 import { expect, test } from "../support/cursorStart.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 

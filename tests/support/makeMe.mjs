@@ -88,12 +88,14 @@ const withReport = (profile, { host, model }) => ({
  * @typedef {{ identity: string, title: string, source?: string }} StoryFacts
  */
 
-// The kept launch of one story's execution: its request, its host session,
-// and the story branch its start established. The session defaults to a
-// `claude` one named after the title, the start's claim to fixed published
-// facts, and the launch time to a fixed instant.
+// The kept launch of one story's execution or refinement: its request, its
+// host session, and, for an execution whose start established one, the story
+// branch. Without `.onStoryBranch(...)` the record keeps no established start
+// or preparation. The session defaults to a `claude` one named after the
+// title, the start's claim to fixed published facts, and the launch time to a
+// fixed instant.
 class LaunchRecordBuilder {
-  /** @type {Required<StoryFacts> | undefined} */
+  /** @type {(Required<StoryFacts> & { workflow: "execution" | "refinement" }) | undefined} */
   #story;
   /** @type {{ workspace: string, branch: string } | undefined} */
   #storyBranch;
@@ -107,12 +109,23 @@ class LaunchRecordBuilder {
    * @param {StoryFacts} facts
    */
   executing({ identity, title, source = "open-dough" }) {
-    this.#story = { identity, title, source };
+    this.#story = { identity, title, source, workflow: "execution" };
     return this;
   }
 
   /**
-   * The start established the story's worktree on its story branch.
+   * A refinement launch of the story, in the `open-dough` project unless
+   * stated.
+   * @param {StoryFacts} facts
+   */
+  refining({ identity, title, source = "open-dough" }) {
+    this.#story = { identity, title, source, workflow: "refinement" };
+    return this;
+  }
+
+  /**
+   * The execution's start established the story's worktree on its story
+   * branch.
    * @param {{ workspace: string, branch: string }} storyBranch
    */
   onStoryBranch({ workspace, branch }) {
@@ -157,8 +170,10 @@ class LaunchRecordBuilder {
   please() {
     const story = this.#story;
     const storyBranch = this.#storyBranch;
-    if (!story) throw new Error("choose .executing(...) first");
-    if (!storyBranch) throw new Error("choose .onStoryBranch(...) first");
+    if (!story)
+      throw new Error("choose .executing(...) or .refining(...) first");
+    if (storyBranch && story.workflow !== "execution")
+      throw new Error("only an execution's start establishes a story branch");
     const slug = story.title.toLowerCase().replaceAll(/\s+/g, "-");
     const session = this.#session
       ? this.#session(story.title)
@@ -173,20 +188,22 @@ class LaunchRecordBuilder {
         source: story.source,
         identity: story.identity,
         title: story.title,
-        workflow: "execution",
+        workflow: story.workflow,
         host: session.host,
       },
       session,
-      start: {
-        identity: story.identity,
-        publisherId: "a1b2c3",
-        workspace: storyBranch.workspace,
-        branch: storyBranch.branch,
-        mode: "story-branch",
-        remote: "origin",
-        target: "main",
-        publishedSha: "b2".repeat(20),
-      },
+      ...(storyBranch && {
+        start: {
+          identity: story.identity,
+          publisherId: "a1b2c3",
+          workspace: storyBranch.workspace,
+          branch: storyBranch.branch,
+          mode: /** @type {const} */ ("story-branch"),
+          remote: "origin",
+          target: "main",
+          publishedSha: "b2".repeat(20),
+        },
+      }),
       launchedAt: this.#launchedAt,
     };
   }

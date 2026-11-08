@@ -19,9 +19,9 @@ import { pausePageClockAt } from "../dashboardTest.ts";
 import { givePageItsTurns } from "../pageRequestNotes.ts";
 import {
   doneRecord,
-  keepProjectLaunchRecords,
   recentlyDoneParts,
 } from "../recentlyDoneSessionsSidebarPage.ts";
+import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
 import { showPage } from "../runningCursorSessionsPage.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
 import { expect, test } from "../support/cursorStart.ts";

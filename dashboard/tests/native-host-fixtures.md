@@ -89,12 +89,21 @@ shows.
 A server that must find no `claude` gets a PATH holding only the fake `gh`
 and Node. Nothing here ever calls the real
 `claude`. Each case of the story-card-sessions file
-(`agent-launch-story-card-sessions.spec.ts`) and of the attention file
-(`agent-launch-attention.spec.ts`) launches the same three sessions from the
-Backlog cards (`launchEachQueuedStory`, `storyCardSessionListing.ts`); the
-story-card-sessions cases then follow their listing through Preparing, the
-Take, and a story leaving every list, and the attention cases count the
-sessions that need attention on the same board. Each card concern has one owner:
+(`agent-launch-story-card-sessions.spec.ts`) launches the same three sessions
+from the Backlog cards (`launchEachQueuedStory`, `storyCardSessionListing.ts`)
+and follows their listing through Preparing, the Take, and a story leaving
+every list. Each case of the attention file (`agent-launch-attention.spec.ts`)
+and the case of the session-state file
+(`agent-launch-story-card-session-states.spec.ts`) opens on the same board
+with those three sessions, and in the attention Taken case Doughnut's, already
+open (`openWithOpenSessions`, `storyCardOpenSessions.ts`): before the page's
+first read, the fake `claude` lists each session (`claudeListsSession`) and
+every project's matching MakeMe launch record, under the same native ID, is
+kept in one store write (`keepProjectLaunchRecords`,
+`support/storyLaunchRecord.ts`). The production records reader joins them, so
+listing failure and recovery, and a server restarted on the same machine,
+stay real; these cases send no Start request and launch nothing. Each card
+concern has one owner:
 `agent-launch-story-card.spec.ts` the Start actions, their dialogs, what a launch
 sends, and the keyboard on the newest entry; `agent-launch-story-card-sessions.spec.ts`
 which sessions a card lists, newest first, in each column;
