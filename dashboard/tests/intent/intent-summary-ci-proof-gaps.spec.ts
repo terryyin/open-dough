@@ -36,7 +36,6 @@ import {
 
 const missing = "part 3 of 3 missing";
 const noBreakdown = "part 2 of 3 has no file breakdown";
-const mixedParts = `2 of 3 parts present; ${missing}; ${noBreakdown}`;
 
 test("a missing shard and a shard without a file breakdown keep the entry's totals and leave every child partial", async ({
   page,
@@ -74,14 +73,9 @@ test("a missing shard and a shard without a file breakdown keep the entry's tota
       "Part 3 missing",
       `2 of 3 parts present; ${missing}`,
     ],
-    [
-      "folder/",
-      "1 passed tests",
-      "Part 3 missing, Part 2 no breakdown",
-      mixedParts,
-    ],
-    ["added.spec.ts", "no CI result", "no CI result", mixedParts],
-    ["root.spec.ts", "no CI result", "no CI result", mixedParts],
+    ["folder/", "1 passed tests", "Part 3 missing, Part 2 no breakdown"],
+    ["added.spec.ts", "no CI result", "no CI result"],
+    ["root.spec.ts", "no CI result", "no CI result"],
   ]);
   const timeCell = (row: number) =>
     scopeTable(summary, "dashboard/tests")
@@ -126,12 +120,7 @@ test("an entry-only summary keeps entry totals and labels the child breakdown un
   );
   await expectScopeRows(summary, "tests", [
     ["tests", "2 passed checks", "3.0 s", "1 of 1 part present"],
-    [
-      "root.sh",
-      "no file breakdown",
-      "no file breakdown",
-      "1 of 1 part present; part 1 of 1 has no file breakdown",
-    ],
+    ["root.sh", "no file breakdown", "no file breakdown"],
   ]);
   await childName(summary, "root.sh").click();
   await expect(intent.getByLabel("tests/root.sh source")).toBeVisible();
@@ -155,9 +144,9 @@ test("a run without a CI proof summary keeps the Summary's children for drilling
   const none = "no CI proof";
   await expectScopeRows(summary, "dashboard/tests", [
     ["dashboard/tests", none, none, none],
-    ["folder/", none, none, none],
-    ["added.spec.ts", none, none, none],
-    ["root.spec.ts", none, none, none],
+    ["folder/", none, none],
+    ["added.spec.ts", none, none],
+    ["root.spec.ts", none, none],
   ]);
   await childName(summary, "folder/").click();
   await expect(summary.locator(".intent-summary-path")).toHaveText(

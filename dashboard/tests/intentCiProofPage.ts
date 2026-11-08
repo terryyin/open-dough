@@ -70,16 +70,14 @@ export function proofTable(proof: Locator): Locator {
   return proof.getByRole("table", { name: "CI proof by declared entry" });
 }
 
-export const proofColumns = ["Entry", "Counts", "Test execution time", "Parts"];
+export const proofColumns = ["Entry", "Counts", "Test execution time"];
 
 // One body row as read across its columns: the entry path (its row header),
-// then counts with their unit, test execution time, and parts present with
-// any gap.
+// then counts with their unit and test execution time.
 export type ProofRow = readonly [
   entry: string,
   counts: string,
   executionTime: string,
-  parts: string,
 ];
 
 // Proof's table has the shared column headers and exactly `rows`, in order,

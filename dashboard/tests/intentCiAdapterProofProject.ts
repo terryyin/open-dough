@@ -24,7 +24,6 @@ export const testsRow = [
   "tests",
   "1000 passed and 3 other tests",
   "No timings",
-  "1 of 1 part present",
 ] as const;
 
 export type Answers = {

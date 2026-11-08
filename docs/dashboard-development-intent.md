@@ -41,11 +41,11 @@ attempt (`Run 41 · attempt 2`), revision (`abc1234`), judged branch (`main`,
 described as a selected story's branch), `Completed ancestor` for a running
 result, and, when the tree shows another revision,
 `Tree at def5678 — newer files unproved here` (a file added or changed since
-has no CI result here, or an earlier one). The selection's own figures (an entry's are its homepage row's,
-checks outside the tree included) stand as a labelled group above the table,
-each under its column's name (**Counts**, **Test execution time**,
-**Parts**). One table in the homepage's columns (**Scope**, **Counts**,
-**Test execution time**, **Parts**) then holds one row per immediate folder
+has no CI result here, or an earlier one). The selection's own figures stand
+as a labelled group above the table with **Counts**, **Test execution time**
+and **Parts**. An entry's counts and timing match its homepage row, including
+checks outside the tree. A table with **Scope**,
+**Counts** and **Test execution time** then holds one row per immediate folder
 (named with a trailing `/`) and file in the browser's order, each summing the
 CI evidence published under its path, and, when the selection's figures hold
 files no child row covers (files the tree does not list) or results CI could
@@ -74,8 +74,8 @@ shows its gap, not a difference), names each child's story change in a
 path, which its **Baseline** cell names) that sorts by kind in that order
 with unchanged rows last in either direction, explains per-row gaps, and shows the same
 count-border and duration-tint cues as the homepage entry table (see
-[CI timing comparison](dashboard-development-intent-ci-comparison.md)). Parts
-completeness stays for the homepage's chosen build (landed, else branch).
+[CI timing comparison](dashboard-development-intent-ci-comparison.md)). The
+group's **Parts** shows completeness for the chosen build (landed, else branch).
 Each result counts in one row: an unlisted file
 under a listed folder is in that folder's row, and outside only in that
 folder's own summary. Execution time is precise enough to compare sub-minute
@@ -194,15 +194,14 @@ partial as short gap labels joined by commas, such as `Part 2 untimed`,
 durations; never zero for absence, no lower bound for partial timing, and
 never the attempt's wall time; a gap label's full explanation, such as
 “Partial: part 2 of 3 has no duration”, is the cell's hover text and
-accessible description) and **Parts** (how many declared parts are present, then each missing
-or ambiguous part as an uncounted gap). Each column header is a button,
+accessible description). Each column header is a button,
 reached by Tab and activated by click, Enter or Space: the first activation
 sorts the rows ascending by that column's figures, the next descending, and
 the sorted header carries `aria-sort` and a direction arrow. **Entry** sorts
 by path name, **Counts** by the number of counted results with failed
-results first among equal totals, **Test execution time** by measured time
-and **Parts** by the number of gaps; a row without a measured figure for the
-column (partial, `No timings`) follows the measured rows in either direction,
+results first among equal totals, and **Test execution time** by measured time.
+A row without a measured figure for the column (partial, `No timings`)
+follows the measured rows in either direction,
 and those rows and ties keep declaration order. The sort is kept in memory
 while **CI status** stays shown, never on the URL or in storage; the table
 has no totals row. A path wraps after its `/`

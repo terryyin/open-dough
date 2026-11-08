@@ -17,7 +17,6 @@ import {
   expectLabelInFull,
 } from "../ciEvidenceLabelsPage.ts";
 import {
-  allParts,
   ancestorEvidence,
   bothEntriesSummary,
   openIntent,
@@ -37,9 +36,8 @@ test("a Summary qualifies a previously retrieved judgment and its failed refresh
       "dashboard/tests",
       "5 passed, 1 failed and 1 other tests",
       "1 test untimed",
-      allParts,
     ],
-    ["tests", "2 passed checks", "3.0 s", "1 of 1 part present"],
+    ["tests", "2 passed checks", "3.0 s"],
   ]);
   await expect(home.getByRole("status")).toContainText("Checked at");
   const freshSummary = await openSummary(intent, "tests");

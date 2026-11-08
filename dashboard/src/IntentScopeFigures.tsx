@@ -1,11 +1,11 @@
 // A selected entry's or folder's own CI figures in its Summary
 // (`./IntentScopeProof.tsx`), above the table of its immediate folders and
-// files: one labelled group of the same figures a table row shows, under the
-// table's column names (`./CiProofFigures.tsx`) -- counts, test execution time
-// or the Baseline, Branch and Landed times, and parts. A timing gap shows its
-// short label with its full explanation on hover and as its description, as
-// in a table cell. A comparison group carries the scope's change cues, as a
-// compared row does. While no CI proof can be given, each figure says why.
+// files: one labelled group of counts and test execution time or the Baseline,
+// Branch and Landed times, plus parts completeness (`./CiProofFigures.tsx`).
+// A timing gap shows its short label with its full explanation on hover and
+// as its description, as in a table cell. A comparison group carries the
+// scope's change cues, as a compared row does. While no CI proof can be given,
+// each figure says why.
 
 import { figureHeadersOf, figureOf } from "./CiProofFigures.tsx";
 import type { CiProofCells } from "./ciProofWording.ts";

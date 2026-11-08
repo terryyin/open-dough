@@ -2,8 +2,8 @@
 // sort by the figures beside their words, never by the words: the scope by its
 // path name, Counts by the number of counted results with failed results first
 // among equal totals, a timing column by its measured milliseconds
-// (`./ciProofTiming.ts`), Parts by the number of gaps, and a story
-// comparison's Change by kind: added, modified, removed, then renamed. A row
+// (`./ciProofTiming.ts`), and a story comparison's Change by kind: added,
+// modified, removed, then renamed. A row
 // without a value for the sorted column (partial or unavailable timing, no CI
 // result, an endpoint gap, a scope the story leaves unchanged) follows the
 // rows with one in either direction; such rows, and ties, keep the order the
@@ -28,8 +28,7 @@ export type CiProofColumn =
   | "executionTime"
   | "baseline"
   | "branch"
-  | "landed"
-  | "parts";
+  | "landed";
 
 export type ColumnSort = {
   readonly column: CiProofColumn;
@@ -95,7 +94,6 @@ function valueOf(row: SortableRow, column: CiProofColumn): SortValue {
     return change === undefined ? undefined : changeRank[change];
   }
   if (column === "counts") return row.cells.countedResults;
-  if (column === "parts") return row.cells.gapCount;
   return timingCellIn(row.cells, column)?.ms;
 }
 

@@ -146,7 +146,7 @@ test("Counts sorts by counted results with failed first among equal totals", () 
   ]);
 });
 
-test("Entry sorts by path name and Parts by the number of gaps", () => {
+test("Entry sorts by path name", () => {
   const rows = [
     rowOf(
       entryOf("p/b", [
@@ -160,8 +160,6 @@ test("Entry sorts by path name and Parts by the number of gaps", () => {
   ];
   assert.deepEqual(sortBy(rows, "scope", "ascending"), ["p/a", "p/b", "p/c"]);
   assert.deepEqual(sortBy(rows, "scope", "descending"), ["p/c", "p/b", "p/a"]);
-  assert.deepEqual(sortBy(rows, "parts", "ascending"), ["p/c", "p/a", "p/b"]);
-  assert.deepEqual(sortBy(rows, "parts", "descending"), ["p/b", "p/a", "p/c"]);
 });
 
 test("a pinned row stays last under any sort", () => {

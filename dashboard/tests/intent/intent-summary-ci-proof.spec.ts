@@ -4,9 +4,9 @@
 // collector's command line (`fragment --by-file`, then `summarize`), and the
 // summary's actual bytes are the run's artifact, read through the dashboard's
 // artifact boundary and the browser's own parser
-// (../intentSummaryCiProofFixtures.ts). The entry shows its root figures and
-// its immediate folders and files with counts, cumulative execution time and
-// parts; a child name drills into a folder (revealing it in the tree) or opens
+// (../intentSummaryCiProofFixtures.ts). The entry shows its root figures with
+// parts completeness above its immediate folders and files with counts and
+// cumulative execution time. A child name drills into a folder (revealing it in the tree) or opens
 // a file's reading; a file CI has no result for, a file with an untimed test, a
 // measured zero, contributions the tree does not list and a late proof answer
 // each say what they are. Missing, partial and absent evidence, each result in
@@ -133,10 +133,10 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
         "595 ms",
         allParts,
       ],
-      ["nested/", "1 passed and 1 other tests", "45 ms", allParts],
-      ["a.spec.ts", "1 passed and 1 failed tests", "550 ms", allParts],
+      ["nested/", "1 passed and 1 other tests", "45 ms"],
+      ["a.spec.ts", "1 passed and 1 failed tests", "550 ms"],
       // A measured zero stays zero.
-      ["b.spec.ts", "1 passed tests", "0 ms", allParts],
+      ["b.spec.ts", "1 passed tests", "0 ms"],
     ]);
     await expectEvidenceLabels(evidenceLabels(summary), ancestorEvidence);
     await expectAttemptLinked(summary, "Run 41 · attempt 1", runUrl);
@@ -158,7 +158,7 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
         "45 ms",
         allParts,
       ],
-      ["c.spec.ts", "1 passed and 1 other tests", "45 ms", allParts],
+      ["c.spec.ts", "1 passed and 1 other tests", "45 ms"],
     ]);
     await expect(intentFolderName(intent, "nested")).toHaveAttribute(
       "aria-pressed",
@@ -195,9 +195,8 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
         "dashboard/tests",
         "5 passed, 1 failed and 1 other tests",
         "1 test untimed",
-        allParts,
       ],
-      ["tests", "2 passed checks", "3.0 s", "1 of 1 part present"],
+      ["tests", "2 passed checks", "3.0 s"],
     ]);
   });
 
@@ -205,13 +204,8 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
     const summary = await openSummary(intent, "tests");
     await expectScopeRows(summary, "tests", [
       ["tests", "2 passed checks", "3.0 s", "1 of 1 part present"],
-      ["root.sh", "1 passed checks", "2.5 s", "1 of 1 part present"],
-      [
-        "Not in the rows above",
-        "1 passed checks",
-        "500 ms",
-        "1 of 1 part present",
-      ],
+      ["root.sh", "1 passed checks", "2.5 s"],
+      ["Not in the rows above", "1 passed checks", "500 ms"],
     ]);
     const outside = evidenceLabels(summary, "Not in the rows above");
     await expectEvidenceLabels(outside, ["1 file not in the tree"]);
@@ -231,9 +225,9 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
         "1 test untimed",
         allParts,
       ],
-      ["folder/", "3 passed, 1 failed and 1 other tests", "595 ms", allParts],
-      ["added.spec.ts", "no CI result", "no CI result", allParts],
-      ["root.spec.ts", "2 passed tests", "1 test untimed", allParts],
+      ["folder/", "3 passed, 1 failed and 1 other tests", "595 ms"],
+      ["added.spec.ts", "no CI result", "no CI result"],
+      ["root.spec.ts", "2 passed tests", "1 test untimed"],
     ]);
     await expect(summary.locator(".intent-summary-outside")).toHaveCount(0);
   });

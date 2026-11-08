@@ -19,7 +19,6 @@ import {
 } from "../intentPerspectivePage.ts";
 import { intentFile } from "../support/intentStoryPage.ts";
 import {
-  allParts,
   ancestorEvidence,
   bothEntriesSummary,
   openIntent,
@@ -55,7 +54,6 @@ test("a selected file offers Purpose source and Proof CI results, keeping the ch
     "Scope",
     "Counts",
     "Test execution time",
-    "Parts",
   ]);
   await expect(table.locator("tbody").getByRole("row")).toHaveCount(1);
   await expect(
@@ -63,7 +61,7 @@ test("a selected file offers Purpose source and Proof CI results, keeping the ch
   ).toHaveText("dashboard/tests/folder/a.spec.ts");
   await expect(
     table.locator("tbody").getByRole("row").nth(0).getByRole("cell"),
-  ).toHaveText(["1 passed and 1 failed tests", "550 ms", allParts]);
+  ).toHaveText(["1 passed and 1 failed tests", "550 ms"]);
 
   await test.step("choosing another file keeps Proof and shows that file's gap without borrowing", async () => {
     await intentFile(intent, "dashboard/tests/added.spec.ts").click();
@@ -78,7 +76,6 @@ test("a selected file offers Purpose source and Proof CI results, keeping the ch
     await expect(addedTable.getByRole("cell")).toHaveText([
       "no CI result",
       "no CI result",
-      allParts,
     ]);
     await expect(added.getByRole("table")).toHaveCount(1);
   });

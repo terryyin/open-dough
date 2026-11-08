@@ -1,10 +1,10 @@
 // Wording of one run attempt's CI proof in Intent's CI status homepage
 // (`./IntentCiProof.tsx`) and in a selected entry's or folder's Summary
 // (`./IntentScopeProof.tsx`): each row's table cells (`./CiProofTable.tsx`)
-// -- its counts with their unit, its cumulative test execution time
-// (measured, partial, or not recorded), how many of its entry's declared
-// parts are present and each missing or ambiguous part, or part without a
-// file breakdown, as a gap. Timing is classified by `./ciProofTiming.ts` and
+// show counts with their unit and cumulative test execution time (measured,
+// partial, or not recorded). The selected scope's own figures also show how
+// many of its entry's declared parts are present and any gaps. Timing is
+// classified by `./ciProofTiming.ts` and
 // durations are worded by `./ciProofTimeWords.ts`;
 // why no proof can be shown is `./ciProofAbsenceWording.ts`'s. A gap's counts
 // are never part of the counts (the collector leaves them out), so the words
@@ -97,7 +97,6 @@ export type CiProofCells = {
   readonly executionTime: TimingCell;
   readonly completeness: string;
   readonly gaps: readonly string[];
-  readonly gapCount: number | undefined;
 };
 
 export function ciProofCellsOf(entry: CiProofEntry): CiProofCells {
@@ -108,7 +107,6 @@ export function ciProofCellsOf(entry: CiProofEntry): CiProofCells {
     executionTime: executionTimeCell(entryTimingOf(entry)),
     completeness: entryParts(entry),
     gaps,
-    gapCount: gaps.length,
   };
 }
 
@@ -117,7 +115,7 @@ const noFileBreakdown = "no file breakdown";
 
 // The cells of a scope inside ENTRY with FIGURES (`CiScopeFigures`): no CI
 // result when no file matched, and no file breakdown when no part of the
-// entry published one, never a zero; its parts cell also names each part
+// entry published one, never a zero. Parts completeness also names each part
 // without a file breakdown, whose results no scope inside the entry holds.
 export function ciScopeCellsOf(
   entry: CiProofEntry,
@@ -127,7 +125,6 @@ export function ciScopeCellsOf(
   const parts = {
     completeness: entryParts(entry),
     gaps,
-    gapCount: gaps.length,
   };
   if (!hasFileBreakdown(entry)) {
     return {
@@ -161,5 +158,4 @@ export const ciUnavailableCellsOf = (why: string): CiProofCells => ({
   executionTime: { text: why },
   completeness: why,
   gaps: [],
-  gapCount: undefined,
 });

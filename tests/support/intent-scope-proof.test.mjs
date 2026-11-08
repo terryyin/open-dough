@@ -189,7 +189,6 @@ test("each row names its gap: no result, a measured zero, a missing part, no fil
     executionTime: { text: "0 ms", ms: 0 },
     completeness: "1 of 1 part present",
     gaps: [],
-    gapCount: 0,
   });
   assert.deepEqual(cells("tests/z.sh").counts, "no CI result");
   assert.equal(cells("tests/z.sh").countedResults, undefined);
@@ -211,7 +210,6 @@ test("each row names its gap: no result, a measured zero, a missing part, no fil
     },
     completeness: "2 of 3 parts present",
     gaps: ["part 2 of 3 missing", "part 3 of 3 has no file breakdown"],
-    gapCount: 2,
   });
   const entryOnly = {
     ...entry,
@@ -225,7 +223,6 @@ test("each row names its gap: no result, a measured zero, a missing part, no fil
     executionTime: { text: "no file breakdown" },
     completeness: "1 of 1 part present",
     gaps: ["part 1 of 1 has no file breakdown"],
-    gapCount: 1,
   });
 });
 

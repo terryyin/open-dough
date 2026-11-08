@@ -5,11 +5,11 @@
 // renamed / later-trunk gaps. Gap variants live in
 // ./summaryComparisonGapExpectedRows.ts.
 
-import type { ComparisonScopeRow } from "../intentScopeProofPage.ts";
+import type { ComparisonScopeRows } from "../intentScopeProofPage.ts";
 
 const parts = "1 of 1 part present";
 
-export const entryComparisonRows: readonly ComparisonScopeRow[] = [
+export const entryComparisonRows: ComparisonScopeRows = [
   [
     "dashboard/tests",
     "",
@@ -26,26 +26,9 @@ export const entryComparisonRows: readonly ComparisonScopeRow[] = [
     "10.3 s",
     "10.3 s → 17.4 s (+7.1 s, +68%)",
     "10.3 s → 14.4 s (+4.1 s, +39%)",
-    parts,
   ],
-  [
-    "added.spec.ts",
-    "added",
-    "added → 1 tests",
-    "added",
-    "800 ms",
-    "800 ms",
-    parts,
-  ],
-  [
-    "gone.spec.ts",
-    "removed",
-    "1 → removed",
-    "500 ms",
-    "removed",
-    "removed",
-    parts,
-  ],
+  ["added.spec.ts", "added", "added → 1 tests", "added", "800 ms", "800 ms"],
+  ["gone.spec.ts", "removed", "1 → removed", "500 ms", "removed", "removed"],
   [
     "later.spec.ts",
     "",
@@ -53,7 +36,6 @@ export const entryComparisonRows: readonly ComparisonScopeRow[] = [
     "not in the compared builds",
     "not in the compared builds",
     "not in the compared builds",
-    parts,
   ],
   [
     "renamed.spec.ts",
@@ -62,7 +44,6 @@ export const entryComparisonRows: readonly ComparisonScopeRow[] = [
     "2.0 s (was tests/old.sh)",
     "2.0 s → 2.1 s (+100 ms, +5%)",
     "2.0 s → 2.1 s (+100 ms, +5%)",
-    parts,
   ],
   [
     "root.spec.ts",
@@ -71,11 +52,10 @@ export const entryComparisonRows: readonly ComparisonScopeRow[] = [
     "1.2 s",
     "1.2 s (no change)",
     "1.2 s (no change)",
-    parts,
   ],
 ];
 
-export const folderComparisonRows: readonly ComparisonScopeRow[] = [
+export const folderComparisonRows: ComparisonScopeRows = [
   [
     "dashboard/tests/folder",
     "",
@@ -92,7 +72,6 @@ export const folderComparisonRows: readonly ComparisonScopeRow[] = [
     "340 ms",
     "340 ms → 410 ms (+70 ms, +21%)",
     "340 ms → 410 ms (+70 ms, +21%)",
-    parts,
   ],
   [
     "a.spec.ts",
@@ -101,11 +80,10 @@ export const folderComparisonRows: readonly ComparisonScopeRow[] = [
     "10.0 s",
     "10.0 s → 17.0 s (+7.0 s, +70%)",
     "10.0 s → 14.0 s (+4.0 s, +40%)",
-    parts,
   ],
 ];
 
-export const nestedComparisonRows: readonly ComparisonScopeRow[] = [
+export const nestedComparisonRows = [
   [
     "dashboard/tests/folder/nested",
     "",
@@ -122,19 +100,15 @@ export const nestedComparisonRows: readonly ComparisonScopeRow[] = [
     "340 ms",
     "340 ms → 410 ms (+70 ms, +21%)",
     "340 ms → 410 ms (+70 ms, +21%)",
-    parts,
   ],
-];
+] satisfies ComparisonScopeRows;
 
 // After the story's integration merge edits the nested test file
 // (./intentSummaryStoryComparisonShared.ts): the same times, now marked as a
 // story change.
-const [nestedFolderRow, nestedFileRow] = nestedComparisonRows as readonly [
-  ComparisonScopeRow,
-  ComparisonScopeRow,
-];
+const [nestedFolderRow, nestedFileRow] = nestedComparisonRows;
 const [nestedFile, , ...nestedFileCells] = nestedFileRow;
-export const mergeEditedNestedComparisonRows: readonly ComparisonScopeRow[] = [
+export const mergeEditedNestedComparisonRows: ComparisonScopeRows = [
   nestedFolderRow,
   [nestedFile, "modified", ...nestedFileCells],
 ];

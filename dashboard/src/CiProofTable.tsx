@@ -1,11 +1,11 @@
 // CI proof figures in aligned columns: one row per scope, in the order the
-// caller gives, naming the scope and its counts with their unit, cumulative
-// test execution time and completeness with any gaps
+// caller gives, naming the scope and its counts with their unit and cumulative
+// test execution time, including timing gaps
 // (`./ciProofWording.ts`'s `ciProofCellsOf`). Intent's homepage Proof
 // (`./IntentCiProof.tsx`) gives one row per declared entry. A story CI
 // comparison (`./IntentCiComparison.tsx`) reuses this table with Baseline,
 // Branch and Landed timing columns in place of a single Test execution time
-// column, keeping Counts and Parts; a Summary's story comparison
+// column, keeping Counts. A Summary's story comparison
 // (`./IntentScopeComparisonTable.tsx`) adds Change after the scope, its cells
 // narrowing their padding sooner for the extra column. A scope path wraps
 // after a `/`, or within a part only in a narrow reading pane, so the columns

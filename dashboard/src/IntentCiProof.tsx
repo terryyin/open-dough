@@ -7,9 +7,9 @@
 // link, or an adapter's attempt id, the revision, a running result's
 // completed ancestor -- and its CI wall time, then a table with one row per
 // declared entry, in the order the project's CI declares them until a column
-// header sorts them, with aligned columns of
-// the counts and their unit, cumulative test execution time and parts present
-// with any gap (`./CiProofTable.tsx`, `./ciProofWording.ts`); otherwise one
+// header sorts them, with columns for counts with their unit and cumulative
+// test execution time, including timing gaps
+// (`./CiProofTable.tsx`, `./ciProofWording.ts`); otherwise one
 // line says why there is no proof to show (`./useIntentCiShownProof.ts`). An adapter attempt whose attemptId
 // another discovered attempt shares at its revision is ambiguous: no proof is read for it. A
 // running result's proof is its completed ancestor's, the result the homepage

@@ -3,18 +3,9 @@
 // one compared row names its story change after its path.
 
 import { expect, type Locator } from "@playwright/test";
-import { comparisonFigureColumns } from "../intentScopeProofPage.ts";
+import { comparisonTableColumns } from "../intentScopeProofPage.ts";
 
-type FileComparisonRow = readonly [
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-];
-
-const parts = "1 of 1 part present";
+type FileComparisonRow = readonly [string, string, string, string, string];
 
 export const modifiedFileRow: FileComparisonRow = [
   "dashboard/tests/folder/a.spec.ts modified",
@@ -22,7 +13,6 @@ export const modifiedFileRow: FileComparisonRow = [
   "10.0 s",
   "10.0 s → 17.0 s (+7.0 s, +70%)",
   "10.0 s → 14.0 s (+4.0 s, +40%)",
-  parts,
 ];
 
 export const addedFileRow: FileComparisonRow = [
@@ -31,7 +21,6 @@ export const addedFileRow: FileComparisonRow = [
   "added",
   "800 ms",
   "800 ms",
-  parts,
 ];
 
 export const mergeEditedFileRow: FileComparisonRow = [
@@ -40,7 +29,6 @@ export const mergeEditedFileRow: FileComparisonRow = [
   "340 ms",
   "340 ms → 410 ms (+70 ms, +21%)",
   "340 ms → 410 ms (+70 ms, +21%)",
-  parts,
 ];
 
 export const unchangedFileRow: FileComparisonRow = [
@@ -49,7 +37,6 @@ export const unchangedFileRow: FileComparisonRow = [
   "1.2 s",
   "1.2 s (no change)",
   "1.2 s (no change)",
-  parts,
 ];
 
 export async function expectFileComparisonRow(
@@ -60,7 +47,7 @@ export async function expectFileComparisonRow(
   const table = proof.getByRole("table", { name: `CI proof of ${path}` });
   await expect(table.getByRole("columnheader")).toHaveText([
     "Scope",
-    ...comparisonFigureColumns,
+    ...comparisonTableColumns,
   ]);
   const body = table.locator("tbody").getByRole("row");
   await expect(body).toHaveCount(1);

@@ -13,7 +13,7 @@ import {
   childName,
   expectComparisonScopeRows,
   summaryRegion,
-  type ComparisonScopeRow,
+  type ComparisonScopeRows,
 } from "../intentScopeProofPage.ts";
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
 import { anyComparisonLabels } from "../ciEvidenceLabelsPage.ts";
@@ -62,7 +62,7 @@ export async function drillComparisonChild(
   summary: Locator,
   name: string,
   path: string,
-  rows: readonly ComparisonScopeRow[],
+  rows: ComparisonScopeRows,
 ) {
   await childName(summary, name).click();
   await expect(summary.locator(".intent-summary-path")).toHaveText(path);

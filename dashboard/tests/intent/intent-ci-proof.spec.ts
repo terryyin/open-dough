@@ -3,7 +3,7 @@
 // has, Proof names that run once as short labels -- its linked run and attempt,
 // revision and CI wall time -- then a table with one row per entry the run's CI
 // declared, in its order, read cell by cell under the Entry, Counts, Test
-// execution time and Parts headers (counts, unit and any gap). The summary is
+// execution time headers (counts, unit and any timing gap). The summary is
 // the collector's own, served as a real zip from the run's artifact download
 // through the controlled `gh` (../support/ciProofArtifacts.ts). Each other
 // reason no proof can be shown, a running result's ancestor proof and the
@@ -40,7 +40,7 @@ import {
 
 const notRecorded = "No timings";
 
-test("a failed run with a summary shows Failed as before, then Proof of that run's revision, link and attempt with each entry's counts and parts", async ({
+test("a failed run with a summary shows Failed as before, then Proof of that run's revision, link and attempt with each entry's counts and timing", async ({
   page,
 }) => {
   const summary = proofSummary(
@@ -81,15 +81,9 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
     await expectAttemptAt(proof, "Run 41 · attempt 1", "a1b2c3d");
     await expectAttemptLinked(proof, "Run 41 · attempt 1", runUrl);
     await expectProofRows(proof, [
-      [
-        "dashboard/tests",
-        "19 passed and 1 failed tests",
-        notRecorded,
-        "2 of 2 parts present",
-      ],
-      ["tests", "5 passed checks", notRecorded, "1 of 1 part present"],
+      ["dashboard/tests", "19 passed and 1 failed tests", notRecorded],
+      ["tests", "5 passed checks", notRecorded],
     ]);
-    await expect(proof.locator(".intent-ci-proof-gap")).toHaveCount(0);
     await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
   });
 
@@ -114,16 +108,11 @@ test("a missing part is shown as a gap and its counts are not counted", async ({
     () => summaryZipAnswer(summary),
   );
   await expectProofRows(proof, [
-    [
-      "dashboard/tests",
-      "110 passed tests",
-      "Part 4 missing",
-      "11 of 12 parts present; part 4 of 12 missing",
-    ],
+    ["dashboard/tests", "110 passed tests", "Part 4 missing"],
   ]);
-  await expect(proof.locator(".intent-ci-proof-gap")).toHaveText([
-    "part 4 of 12 missing",
-  ]);
+  await expect(
+    proofTable(proof).getByRole("cell", { name: "Part 4 missing" }),
+  ).toHaveAccessibleDescription("Partial: part 4 of 12 missing");
 });
 
 test("a CI proof query that omits the attempt is refused before asking GitHub", async ({
@@ -166,13 +155,8 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     ],
   );
   const rows = [
-    [
-      longEntry,
-      "52 passed, 2 failed and 1 other checks",
-      "Part 2 missing",
-      "2 of 3 parts present; part 2 of 3 missing",
-    ],
-    ["dashboard/tests", "12 passed tests", "2 min", "2 of 2 parts present"],
+    [longEntry, "52 passed, 2 failed and 1 other checks", "Part 2 missing"],
+    ["dashboard/tests", "12 passed tests", "2 min"],
   ] as const;
   const { panel, proof } = await openFailedRun(
     page,

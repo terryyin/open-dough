@@ -1,18 +1,12 @@
 // Assert Intent's CI entry timing comparison table
 // (../../src/IntentCiComparison.tsx) shows the given Entry / Counts /
-// Baseline / Branch / Landed / Parts cells.
+// Baseline / Branch / Landed cells.
 
 import { expect, type Locator } from "@playwright/test";
+import { comparisonTableColumns } from "../intentScopeProofPage.ts";
 import type { ExpectedCues } from "./expectCiComparisonCues.ts";
 
-const entryColumns = [
-  "Entry",
-  "Counts",
-  "Baseline",
-  "Branch",
-  "Landed",
-  "Parts",
-] as const;
+const entryColumns = ["Entry", ...comparisonTableColumns];
 
 export const comparedStoryEntryRows = [
   [
@@ -21,7 +15,6 @@ export const comparedStoryEntryRows = [
     "4 min",
     "4 min → 4 min 30 s (+30 s, +13%)",
     "4 min → 5 min (+1 min, +25%)",
-    "1 of 1 part present",
   ],
   [
     "tests",
@@ -29,16 +22,8 @@ export const comparedStoryEntryRows = [
     "2 min",
     "2 min → 1 min 30 s (−30 s, −25%)",
     "2 min → 1 min (−1 min, −50%)",
-    "1 of 1 part present",
   ],
-  [
-    "src/skills",
-    "added → 3 checks",
-    "added",
-    "30 s",
-    "30 s",
-    "1 of 1 part present",
-  ],
+  ["src/skills", "added → 3 checks", "added", "30 s", "30 s"],
 ] as const;
 
 export const comparedStoryEntryCues: readonly ExpectedCues[] = [
@@ -58,7 +43,7 @@ export const comparedStoryEntryCues: readonly ExpectedCues[] = [
 
 export async function expectCiComparisonEntryRows(
   panel: Locator,
-  rows: readonly (readonly [string, string, string, string, string, string])[],
+  rows: readonly (readonly [string, string, string, string, string])[],
 ) {
   const table = panel.getByRole("table", {
     name: "CI entry timing comparison",

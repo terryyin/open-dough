@@ -51,9 +51,10 @@ export function comparisonEndpointProofsChecking(
   );
 }
 
-// Cells of one compared scope: Counts words with the active after endpoint's
-// counted results, each endpoint's timing, and Parts with its number of gaps
-// (`./ciProofSort.ts` sorts by these values, none for a gap).
+// A compared scope's Counts words, the active after endpoint's counted
+// results and each endpoint's timing. Counts and timing sort by their
+// measured values. Parts completeness belongs to the selected scope's own
+// figures.
 export type ComparisonEntryCells = {
   readonly counts: string;
   readonly countedResults: CountedResults | undefined;
@@ -62,7 +63,6 @@ export type ComparisonEntryCells = {
   readonly landed: TimingCell;
   readonly completeness: string;
   readonly gaps: readonly string[];
-  readonly gapCount: number | undefined;
   // The selected story's change of the scope, when it changes it.
   readonly change?: ChangeKind;
   // One classification for the active after endpoint; Summary, entry rows and

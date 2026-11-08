@@ -214,7 +214,6 @@ for (const [landing, publish] of [
           "3 s",
           "3 s → 5 s (+2 s, +67%)",
           "This attempt's CI adapter gave no CI proof summary: no summary retained for this attempt.",
-          "1 of 1 part present",
         ],
       ]);
     } else {

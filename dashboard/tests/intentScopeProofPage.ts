@@ -1,6 +1,6 @@
 // How Summary journeys read a selected entry's or folder's CI proof
 // (../src/IntentScopeProof.tsx): the selected scope's own figures, a group
-// read figure by figure under the homepage's column names
+// read figure by figure, including parts completeness
 // (../src/IntentScopeFigures.tsx), above its one table of one row per
 // immediate folder and file and any row for what no child row shows, read
 // cell by cell under the homepage's columns; and each child's name control.
@@ -58,31 +58,37 @@ async function expectTableRows(
 export const scopeColumns = ["Scope", ...proofColumns.slice(1)];
 
 // A story comparison's figure columns after the scope.
-export const comparisonFigureColumns = [
+export const comparisonTableColumns = [
   "Counts",
   "Baseline",
   "Branch",
   "Landed",
-  "Parts",
 ] as const;
+
+const comparisonFigureColumns = [...comparisonTableColumns, "Parts"] as const;
 
 // A Summary's story comparison table: each child's story change under Change.
 export const comparisonScopeColumns = [
   "Scope",
   "Change",
-  ...comparisonFigureColumns,
+  ...comparisonTableColumns,
 ] as const;
 
 // A compared scope, its change (empty when the story leaves it unchanged),
 // then its figures.
-export type ComparisonScopeRow = readonly [
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
+type ComparisonScopeRow = readonly [
+  scope: string,
+  change: string,
+  counts: string,
+  baseline: string,
+  branch: string,
+  landed: string,
+];
+
+// The selected scope's own figures also include Parts.
+export type ComparisonScopeRows = readonly [
+  readonly [...ComparisonScopeRow, parts: string],
+  ...ComparisonScopeRow[],
 ];
 
 // PATH's Summary reads OWN, PATH's own figures (written as a row naming PATH),
@@ -91,11 +97,16 @@ export type ComparisonScopeRow = readonly [
 export async function expectScopeRows(
   summary: Locator,
   path: string,
-  [own, ...rows]: readonly [ProofRow, ...ProofRow[]],
+  [own, ...rows]: readonly [readonly [...ProofRow, string], ...ProofRow[]],
 ) {
   const [scope, ...figures] = own;
   expect(scope).toBe(path);
-  await expectOwnFigures(summary, path, scopeColumns.slice(1), figures);
+  await expectOwnFigures(
+    summary,
+    path,
+    [...scopeColumns.slice(1), "Parts"],
+    figures,
+  );
   await expectTableRows(summary, path, scopeColumns, rows);
 }
 
@@ -104,9 +115,8 @@ export async function expectScopeRows(
 export async function expectComparisonScopeRows(
   summary: Locator,
   path: string,
-  [own, ...rows]: readonly ComparisonScopeRow[],
+  [own, ...rows]: ComparisonScopeRows,
 ) {
-  if (own === undefined) throw new Error(`no own figures of ${path}`);
   // The scope's own figures carry no Change.
   const [scope, , ...figures] = own;
   expect(scope).toBe(path);

@@ -49,12 +49,7 @@ import {
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
 
-const checksRow: ProofRow = [
-  "tests",
-  "5 passed checks",
-  "No timings",
-  "1 of 1 part present",
-];
+const checksRow: ProofRow = ["tests", "5 passed checks", "No timings"];
 
 test("a running story branch shows its completed ancestor's run's proof, and showing the tab again for that run attempt downloads nothing again", async ({
   page,
@@ -141,7 +136,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     );
     await expect(
       scopeFigures(summary, "tests").getByRole("definition"),
-    ).toHaveText(checksRow.slice(1));
+    ).toHaveText([...checksRow.slice(1), "1 of 1 part present"]);
     expect(proofCalls(calls).slice(before)).toHaveLength(2);
     await activateIntentHome(intent);
   });

@@ -59,18 +59,18 @@ test("a CI file the tree does not list under a listed folder counts once, in tha
   const summary = await openSummary(intent, "dashboard/tests");
   await expectScopeRows(summary, "dashboard/tests", [
     ["dashboard/tests", "3 passed tests", "600 ms", one],
-    ["folder/", "2 passed tests", "400 ms", one],
-    ["added.spec.ts", "no CI result", "no CI result", one],
-    ["root.spec.ts", "1 passed tests", "200 ms", one],
+    ["folder/", "2 passed tests", "400 ms"],
+    ["added.spec.ts", "no CI result", "no CI result"],
+    ["root.spec.ts", "1 passed tests", "200 ms"],
   ]);
   await expect(summary.locator(".intent-summary-outside")).toHaveCount(0);
   await childName(summary, "folder/").click();
   await expectScopeRows(summary, "dashboard/tests/folder", [
     ["dashboard/tests/folder", "2 passed tests", "400 ms", one],
-    ["nested/", "no CI result", "no CI result", one],
-    ["a.spec.ts", "1 passed tests", "300 ms", one],
-    ["b.spec.ts", "no CI result", "no CI result", one],
-    ["Not in the rows above", "1 passed tests", "100 ms", one],
+    ["nested/", "no CI result", "no CI result"],
+    ["a.spec.ts", "1 passed tests", "300 ms"],
+    ["b.spec.ts", "no CI result", "no CI result"],
+    ["Not in the rows above", "1 passed tests", "100 ms"],
   ]);
   const outside = evidenceLabels(summary, "Not in the rows above");
   await expectEvidenceLabels(outside, ["1 file not in the tree"]);
@@ -94,9 +94,9 @@ test("at 200% zoom and on a narrow window a folder's Summary figures and table r
       "1 test untimed",
       allParts,
     ],
-    ["folder/", "3 passed, 1 failed and 1 other tests", "595 ms", allParts],
-    ["added.spec.ts", "no CI result", "no CI result", allParts],
-    ["root.spec.ts", "2 passed tests", "1 test untimed", allParts],
+    ["folder/", "3 passed, 1 failed and 1 other tests", "595 ms"],
+    ["added.spec.ts", "no CI result", "no CI result"],
+    ["root.spec.ts", "2 passed tests", "1 test untimed"],
   ] as const;
   await expectScopeRows(summary, "dashboard/tests", rows);
   // A wider installed font lays the Summary out as Linux's fallback font does.

@@ -99,8 +99,8 @@ test("complete entry durations show test execution time 4 min and 2 min beside c
   await expect(panel.locator(".intent-ci-state")).toContainText("Passed");
   await expect(evidenceLabel(proof, wallTime)).toHaveText(wallTime);
   await expectProofRows(proof, [
-    ["tests", "5 passed checks", "4 min", "2 of 2 parts present"],
-    ["dashboard/tests", "12 passed tests", "2 min", "2 of 2 parts present"],
+    ["tests", "5 passed checks", "4 min"],
+    ["dashboard/tests", "12 passed tests", "2 min"],
   ]);
   await expect(executionCells(proof)).toHaveText(["4 min", "2 min"]);
   // Summed execution is never CI wall time, nor their total.
@@ -115,8 +115,8 @@ test("an older summary without durations shows No timings while wall time still 
   const { proof } = await openWithSummary(page, olderSummary());
   await expect(evidenceLabel(proof, wallTime)).toHaveText(wallTime);
   await expectProofRows(proof, [
-    ["tests", "5 passed checks", noTimings, "1 of 1 part present"],
-    ["dashboard/tests", "12 passed tests", noTimings, "1 of 1 part present"],
+    ["tests", "5 passed checks", noTimings],
+    ["dashboard/tests", "12 passed tests", noTimings],
   ]);
   await expect(executionCells(proof)).toHaveText([noTimings, noTimings]);
   for (const cell of await executionCells(proof).all()) {
@@ -131,12 +131,7 @@ test("a missing shard shows Part 2 missing with the full explanation", async ({
   await page.setViewportSize({ width: 1280, height: 800 });
   const { proof } = await openWithSummary(page, missingShardSummary());
   await expectProofRows(proof, [
-    [
-      "dashboard/tests",
-      "10 passed tests",
-      "Part 2 missing",
-      "1 of 2 parts present; part 2 of 2 missing",
-    ],
+    ["dashboard/tests", "10 passed tests", "Part 2 missing"],
   ]);
   // The present part's 90 s is not shown as if it were the whole entry's.
   await expect(executionCells(proof)).toHaveText(["Part 2 missing"]);
