@@ -304,6 +304,8 @@ managed_files=(
   dough-test-optimization/scripts/ci-proof-summary.mjs
   dough-manual-testing/SKILL.md
   dough-manual-testing/references/exploration-workspace.md
+  dough-intent-coverage/SKILL.md
+  dough-intent-coverage/finish-report.mjs
   dough-execution-retrospective/SKILL.md
   dough-execution-retrospective/references/bounded-process-log.md
   dough-execution-retrospective/references/process-finding-recording.md

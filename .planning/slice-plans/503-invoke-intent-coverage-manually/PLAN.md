@@ -218,15 +218,16 @@ cover the same `.claude/skills` installation mechanism.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Following maintainer promotion, the focused install and update
 checks deliver the standalone skill through both managed roots.
 
-Present the behavior and delivery evidence for maintainer selection before
-editing `install.sh`'s `managed_files` declaration and the maintained
-payload fixtures. Check that the resulting payload contains the skill's
-runtime dependencies. The maintainer owns the separate release decision.
+Terry approved promotion after review. `install.sh` lists the two reviewed
+paths individually, preserving its parsed declaration despite the existing
+file-size overage. Fresh install and ordinary tagged update verified exact
+bytes in both roots. All three gates below and the related all-tools,
+latest-release, and guidance-payload checks passed with Bash 5 on AC.
 
 ## Gates and refinement review
 

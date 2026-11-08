@@ -10,7 +10,7 @@ project with both browser and unit tests.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| C01 | A developer can invoke the installed `dough-intent-coverage` skill during ordinary review. | slice 4 | |
+| C01 | A developer can invoke the installed `dough-intent-coverage` skill during ordinary review. | slice 4 | observed: fresh installed Codex and Cursor proof of the same skill bytes, and the real declared install matching those bytes in both managed roots |
 | C02 | The invocation probes an existing test against one plausible fault in an important story promise. | slice 2 | observed: the Proposed skill's opening and the returned Caught result in plan 503 Slice 2, tied to one promise, fault and assertion |
 | C03 | The result helps the developer decide whether to retain or strengthen that specific protection. | slice 2 | observed: the Proposed skill's opening and the returned Caught result in plan 503 Slice 2, tied to one promise, fault and assertion |
 | C04 | Identify the selected story. | slice 2 | observed: the Slice 2 native returned report and pinned browser fixture, cache guard, and first post-push Landed assertion recorded in this plan |
@@ -46,8 +46,8 @@ project with both browser and unit tests.
 | C34 | Leave persistence with the caller. This clause cites the Architectural North Star. | slice 2 | observed: the Proposed skill's Return the result section and Slice 2 returned report with the measured harness interval, separate runtime and effort basis |
 | C35 | Demonstrate the invocation in a project with browser and unit tests. | slice 2 | observed: the Slice 2 native trace, exact one-case command, pass/fail/pass logs and matched scratch snapshots cited in this plan |
 | C36 | Demonstrate the same invocation in a project with a different test stack. | slice 3 | observed: the Slice 3 installed Cursor report, one focused Lizard case and byte-restored extension observation in plan 503 |
-| C37 | Use one shared source. | slice 4 | |
-| C38 | Use the normal versioned delivery path. The delivery clause cites ADR 0003, ADR 0005, and ADR 0006. | slice 4 | |
+| C37 | Use one shared source. | slice 4 | observed: the two approved source paths in the single install.sh declaration, with byte checks in tests/install-public-payload.sh |
+| C38 | Use the normal versioned delivery path. The delivery clause cites ADR 0003, ADR 0005, and ADR 0006. | slice 4 | observed: tests/update-adds-new-payload-skill.sh and tests/payload-declaration-links.sh for the versioned ordinary update, exact bytes in both roots, and local runtime link |
 | E01 | A cancelled landing waiting for later proof can pick up a newly available build. | slice 2 | observed: the Slice 2 native returned report and pinned browser fixture, cache guard, and first post-push Landed assertion recorded in this plan |
 | E02 | The scratch fault freezes the waiting answer. | slice 2 | observed: the Slice 2 native returned report and pinned browser fixture, cache guard, and first post-push Landed assertion recorded in this plan |
 | E03 | The focused browser journey passes at baseline. | slice 2 | observed: the Slice 2 native trace, exact one-case command, pass/fail/pass logs and matched scratch snapshots cited in this plan |
