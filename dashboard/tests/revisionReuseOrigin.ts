@@ -6,6 +6,7 @@
 // ./pathHistoryAnswers.ts); that answerer is ./revisionReuseAnswers.ts.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import type {
   ChangedFile,
@@ -36,20 +37,38 @@ export const named = (pair: string) => pair.repeat(20);
 
 export type Files = Readonly<Record<string, string>>;
 
-export const backlogNaming = (label: string, extra = "") => `# Product backlog
+export const newSeedEntry = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-303#new",
+    href: "seeds/SEED-303-new.md#new",
+    title: "New",
+  })
+  .please();
 
-## Taken
+export const backlogNaming = (label: string, extra?: typeof newSeedEntry) =>
+  renderPublishedBacklog({
+    taken: [
+      makeMe.aBacklogEntry
+        .with({
+          identity: "SEED-301#reuse",
+          href: "seeds/SEED-301-reuse.md#reuse",
+          title: `Reuse ${label}`,
+        })
+        .please(),
+    ],
+    queued: [
+      makeMe.aBacklogEntry
+        .with({
+          identity: "SEED-302#other",
+          href: "seeds/SEED-302-other.md#other",
+          title: `Other ${label}`,
+        })
+        .please(),
+      ...(extra === undefined ? [] : [extra]),
+    ],
+  });
 
-- [Reuse ${label}](seeds/SEED-301-reuse.md#reuse) — SEED-301#reuse
-
-## Backlog list
-
-- [Other ${label}](seeds/SEED-302-other.md#other) — SEED-302#other
-${extra}`;
-
-// The backlog line naming the seed at `newSeedPath`, and that seed's text.
-export const newSeedEntry =
-  "- [New](seeds/SEED-303-new.md#new) — SEED-303#new\n";
+// The seed at `newSeedPath` named by the new backlog entry.
 export const newSeedText =
   '# New\n\n<a id="new"></a>\n\n### New\n\n**Identity:** SEED-303#new\n';
 

@@ -8,6 +8,7 @@
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import {
@@ -47,19 +48,20 @@ export const titleOf = (agent: string) => `Credit kept for ${agent}`;
 const anchorOf = (agent: string) => agent.toLowerCase();
 export const planned = "Yua";
 
-const backlog = `# Product backlog
-
-## Taken
-
-${agents
-  .map(
-    (agent) =>
-      `- [${titleOf(agent)}](seeds/SEED-281-credit.md#${anchorOf(agent)}) — SEED-281#${anchorOf(agent)}`,
-  )
-  .join("\n")}
-
-## Backlog list
-`;
+const backlog = renderPublishedBacklog(
+  {
+    taken: agents.map((agent) =>
+      makeMe.aBacklogEntry
+        .with({
+          identity: `SEED-281#${anchorOf(agent)}`,
+          href: `seeds/SEED-281-credit.md#${anchorOf(agent)}`,
+          title: titleOf(agent),
+        })
+        .please(),
+    ),
+  },
+  { blankAfterEmptyQueue: false },
+);
 
 const seed = `# Credit fixture
 ${agents

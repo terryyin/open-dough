@@ -210,6 +210,12 @@ export async function keepUnusableCompletedCapture(
   story: { readonly workspace: string; readonly completion: string },
 ) {
   const record = storyALaunchRecord(story.workspace);
+  const comparison = makeMe.aPublishedComparison
+    .with({
+      base: git(origin.project, "rev-parse", `${story.completion}^`),
+      revision: story.completion,
+    })
+    .please();
   record.landing = {
     reference: randomUUID(),
     delivery: randomUUID(),
@@ -218,8 +224,7 @@ export async function keepUnusableCompletedCapture(
     identity: queuedIdentity,
     remote: "origin",
     target: "refs/heads/main",
-    base: git(origin.project, "rev-parse", `${story.completion}^`),
-    revision: story.completion,
+    ...comparison,
     receivedAt: new Date().toISOString(),
   };
   await keepLaunchRecords(dashboard, [record]);

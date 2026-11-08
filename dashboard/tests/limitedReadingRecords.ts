@@ -6,6 +6,7 @@
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 export const repository = "terryyin/open-dough";
 export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 export const revision = "6e".repeat(20);
@@ -19,15 +20,24 @@ export const plannedPlan = ".planning/slice-plans/264-planned/PLAN.md";
 export const titles = { taken: [], backlog: [withheldTitle, plannedTitle] };
 
 export const files = {
-  [backlogPath]: `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [${withheldTitle}](seeds/SEED-264-withheld.md#withheld) — SEED-264#withheld
-- [${plannedTitle}](seeds/SEED-264-planned.md#planned) — SEED-264#planned
-`,
+  [backlogPath]: renderPublishedBacklog({
+    queued: [
+      makeMe.aBacklogEntry
+        .with({
+          identity: "SEED-264#withheld",
+          href: "seeds/SEED-264-withheld.md#withheld",
+          title: withheldTitle,
+        })
+        .please(),
+      makeMe.aBacklogEntry
+        .with({
+          identity: "SEED-264#planned",
+          href: "seeds/SEED-264-planned.md#planned",
+          title: plannedTitle,
+        })
+        .please(),
+    ],
+  }),
   [withheldSeed]: `# Withheld
 
 <a id="withheld"></a>

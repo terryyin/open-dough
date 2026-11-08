@@ -11,6 +11,7 @@
 import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
@@ -110,19 +111,20 @@ export function agentProfile(
   );
 }
 
-const backlog = `# Product backlog
-
-## Taken
-
-${stories
-  .map(
-    ({ title, anchor }) =>
-      `- [${title}](seeds/SEED-092-branch.md#${anchor}) — SEED-092#${anchor}`,
-  )
-  .join("\n")}
-
-## Backlog list
-`;
+const backlog = renderPublishedBacklog(
+  {
+    taken: stories.map(({ title, anchor }) =>
+      makeMe.aBacklogEntry
+        .with({
+          identity: `SEED-092#${anchor}`,
+          href: `seeds/SEED-092-branch.md#${anchor}`,
+          title,
+        })
+        .please(),
+    ),
+  },
+  { blankAfterEmptyQueue: false },
+);
 
 const seed = `# Branch progress fixture
 

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { publishHistoryPreservingCandidate } from "../../dough-execute-plan/scripts/history-preserving-publication.mjs";
 import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import {
@@ -35,8 +36,9 @@ test("a fast-forward story tip is the trunk receipt and a later retry does not p
 
   const published = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,
-    publishedTip: closureSha,
-    branch: executionBranch,
+    ...makeMe.aPublishedIntegration
+      .with({ publishedTip: closureSha, branch: executionBranch })
+      .please(),
     beforePush: async (comparison) => prepared.push(comparison),
   });
   // The comparison handed over before the push runs from fetched trunk to the
@@ -69,8 +71,9 @@ test("a fast-forward story tip is the trunk receipt and a later retry does not p
 
   const retry = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,
-    publishedTip: closureSha,
-    branch: executionBranch,
+    ...makeMe.aPublishedIntegration
+      .with({ publishedTip: closureSha, branch: executionBranch })
+      .please(),
   });
   assert.equal(retry.classification, "already-accepted");
   assert.equal(retry.mergeCount, 0);

@@ -5,6 +5,7 @@
 import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { shortRevision, expectMembership, parts } from "./dashboardPage.ts";
@@ -35,16 +36,26 @@ export const doneCatalogPath = ".planning/done/.catalog.json";
 export const takenTitle = "Refresh without rereading";
 export const queuedTitle = "Queued beside it";
 
-export const backlog = `# Product backlog
-
-## Taken
-
-- [${takenTitle}](seeds/SEED-271-refresh.md#refresh) — SEED-271#refresh
-
-## Backlog list
-
-- [${queuedTitle}](seeds/SEED-271-refresh.md#queued) — SEED-271#queued
-`;
+export const backlog = renderPublishedBacklog({
+  taken: [
+    makeMe.aBacklogEntry
+      .with({
+        identity: "SEED-271#refresh",
+        href: "seeds/SEED-271-refresh.md#refresh",
+        title: takenTitle,
+      })
+      .please(),
+  ],
+  queued: [
+    makeMe.aBacklogEntry
+      .with({
+        identity: "SEED-271#queued",
+        href: "seeds/SEED-271-refresh.md#queued",
+        title: queuedTitle,
+      })
+      .please(),
+  ],
+});
 
 export const seed = `# Refresh fixture
 

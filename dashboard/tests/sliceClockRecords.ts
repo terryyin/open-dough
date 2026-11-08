@@ -6,6 +6,7 @@
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { addedAt, type PathHistories } from "./pathHistoryAnswers.ts";
@@ -38,19 +39,20 @@ export const planPath = (anchor: string) =>
 export const profilePath = (agent: string) =>
   `.planning/agents/${agent.toLowerCase()}-chan.json`;
 
-const backlog = `# Product backlog
-
-## Taken
-
-${stories
-  .map(
-    ({ title, anchor }) =>
-      `- [${title}](seeds/SEED-091-clock.md#${anchor}) — SEED-091#${anchor}`,
-  )
-  .join("\n")}
-
-## Backlog list
-`;
+const backlog = renderPublishedBacklog(
+  {
+    taken: stories.map(({ title, anchor }) =>
+      makeMe.aBacklogEntry
+        .with({
+          identity: `SEED-091#${anchor}`,
+          href: `seeds/SEED-091-clock.md#${anchor}`,
+          title,
+        })
+        .please(),
+    ),
+  },
+  { blankAfterEmptyQueue: false },
+);
 
 const seed = `# Slice clock fixture
 

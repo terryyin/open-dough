@@ -8,6 +8,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { publishHistoryPreservingCandidate } from "../../dough-execute-plan/scripts/history-preserving-publication.mjs";
 import {
   advanceOriginFromAnotherWriter,
@@ -54,8 +55,9 @@ test("a resolved merge whose landing pair cannot be retained stays in the worksp
   const publish = (landingContext) =>
     publishHistoryPreservingCandidate({
       ownedWorkspace: execution,
-      publishedTip: closureSha,
-      branch: executionBranch,
+      ...makeMe.aPublishedIntegration
+        .with({ publishedTip: closureSha, branch: executionBranch })
+        .please(),
       landingContext,
     });
   assert.equal((await publish()).classification, "preserved");
@@ -88,8 +90,9 @@ test("a rebuilt merge whose landing pair cannot be retained returns the workspac
   await assert.rejects(
     publishHistoryPreservingCandidate({
       ownedWorkspace: execution,
-      publishedTip: closureSha,
-      branch: executionBranch,
+      ...makeMe.aPublishedIntegration
+        .with({ publishedTip: closureSha, branch: executionBranch })
+        .please(),
       landingContext: unreachableLandingContext(t),
     }),
     /Retry reporting only: /,

@@ -9,6 +9,7 @@
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   doneRecordPath,
@@ -86,19 +87,18 @@ function profile(
 }
 
 const entry = ({ title, anchor }: { title: string; anchor: string }) =>
-  `- [${title}](seeds/SEED-219-story-ci.md#${anchor}) — ${identity(anchor)}`;
+  makeMe.aBacklogEntry
+    .with({
+      title,
+      href: `seeds/SEED-219-story-ci.md#${anchor}`,
+      identity: identity(anchor),
+    })
+    .please();
 
-const backlog = `# Product backlog
-
-## Taken
-
-${taken.map(entry).join("\n")}
-
-## Backlog list
-
-${entry(queued)}
-${entry(preparing)}
-`;
+const backlog = renderPublishedBacklog({
+  taken: taken.map(entry),
+  queued: [entry(queued), entry(preparing)],
+});
 
 const failingPlan = `.planning/slice-plans/219-${failing.anchor}/PLAN.md`;
 const plan = renderSlicePlan(

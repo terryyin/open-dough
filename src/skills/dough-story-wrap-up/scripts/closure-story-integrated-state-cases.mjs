@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { isDeepStrictEqual } from "node:util";
 import { publishHistoryPreservingCandidate } from "../../dough-execute-plan/scripts/history-preserving-publication.mjs";
 import { advanceOriginFromAnotherWriter } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
@@ -62,8 +63,9 @@ test("Story closure completes only its accepted merge N, with no external fetch:
   const integrate = (options = {}) =>
     publishHistoryPreservingCandidate({
       ownedWorkspace: fixture.execution,
-      publishedTip: closure,
-      branch: story,
+      ...makeMe.aPublishedIntegration
+        .with({ publishedTip: closure, branch: story })
+        .please(),
       ...options,
     });
   const published = await integrate({

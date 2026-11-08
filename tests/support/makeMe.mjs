@@ -85,6 +85,11 @@ const withReport = (profile, { host, model }) => ({
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs").renderDoneRecord>[0]} DoneRecord */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
+/** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/history-preserving-publish.mjs").publishHistoryPreservingCandidate>[0]} HistoryPreservingPublication */
+/** @typedef {Record<keyof Pick<HistoryPreservingPublication, "publishedTip" | "branch">, string> & Partial<Record<keyof Pick<HistoryPreservingPublication, "targetRef">, string>>} PublishedIntegration */
+/** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/publication-resume.mjs").resumeInterruptedPublication>[0]} PublicationResume */
+/** @typedef {Record<keyof Pick<PublicationResume, "candidateSha" | "suffixBase">, string>} RetainedComparison */
+/** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
 
 /**
  * @param {Omit<PlanSlice, "type" | "status"> & Partial<Pick<PlanSlice, "type" | "status">>} facts
@@ -94,17 +99,26 @@ function planSlice({ type = "Behavior", status = "planned", ...facts }) {
   return { ...facts, type, status };
 }
 
+/**
+ * @template {object} Facts
+ * @typedef {{ with(facts: Facts): { please(): Facts } }} FactBuilder
+ */
+
+/**
+ * @template {object} Facts
+ * @param {Facts} facts
+ */
+function copyFacts(facts) {
+  return { please: () => ({ ...facts }) };
+}
+
 export const makeMe = {
   get anAgentProfile() {
     return new AgentProfileBuilder();
   },
+  /** @returns {FactBuilder<BacklogEntry>} */
   get aBacklogEntry() {
-    return {
-      /** @param {BacklogEntry} facts */
-      with(facts) {
-        return { please: () => ({ ...facts }) };
-      },
-    };
+    return { with: copyFacts };
   },
   get aPublishedSource() {
     return {
@@ -118,13 +132,9 @@ export const makeMe = {
       },
     };
   },
+  /** @returns {FactBuilder<PublishedRevision>} */
   get aPublishedRevision() {
-    return {
-      /** @param {PublishedRevision} facts */
-      with(facts) {
-        return { please: () => ({ ...facts }) };
-      },
-    };
+    return { with: copyFacts };
   },
   get aStoryPreparation() {
     return {
@@ -133,7 +143,7 @@ export const makeMe = {
        * @param {Facts} facts
        */
       with(facts) {
-        return { please: () => ({ ...facts }) };
+        return copyFacts(facts);
       },
     };
   },
@@ -159,21 +169,32 @@ export const makeMe = {
       },
     };
   },
+  /** @returns {FactBuilder<DoneRecord>} */
   get aDoneRecord() {
+    return { with: copyFacts };
+  },
+  /** @returns {FactBuilder<IncrementPublicationFacts>} */
+  get anIncrementPublication() {
+    return { with: copyFacts };
+  },
+  get aPublishedIntegration() {
     return {
-      /** @param {DoneRecord} facts */
+      /**
+       * @template {PublishedIntegration} Facts
+       * @param {Facts} facts
+       */
       with(facts) {
-        return { please: () => ({ ...facts }) };
+        return copyFacts(facts);
       },
     };
   },
-  get anIncrementPublication() {
-    return {
-      /** @param {IncrementPublicationFacts} facts */
-      with(facts) {
-        return { please: () => ({ ...facts }) };
-      },
-    };
+  /** @returns {FactBuilder<RetainedComparison>} */
+  get aRetainedComparison() {
+    return { with: copyFacts };
+  },
+  /** @returns {FactBuilder<PublishedComparison>} */
+  get aPublishedComparison() {
+    return { with: copyFacts };
   },
   get aPlanSlice() {
     return {

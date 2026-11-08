@@ -9,11 +9,11 @@ The numbered return is retained below.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| P01 | Maintainers reviewing published-work tests can read the facts that drive each case in the product’s vocabulary. | slice 9 |  |
-| P02 | A story’s identity is recognizable across test entries without decoding fixture-specific fields. | slice 9 |  |
-| P03 | A story’s home is recognizable across test entries without decoding fixture-specific fields. | slice 9 |  |
-| P04 | A story’s membership is recognizable across test entries without decoding fixture-specific fields. | slice 9 |  |
-| P05 | A story’s published revision is recognizable across test entries without decoding fixture-specific fields. | slice 9 |  |
+| P01 | Maintainers reviewing published-work tests can read the facts that drive each case in the product’s vocabulary. | slice 9 | observed: PLAN.md Evaluation against the original cases compares actual arrangements at catalog, preparation, assignment, progress, done, and review call sites. |
+| P02 | A story’s identity is recognizable across test entries without decoding fixture-specific fields. | slice 9 | observed: catalogProjectRecords.ts and product-backlog-fixture.mjs pass explicit identity to aBacklogEntry; changed-home tests address the same identity after relocation. |
+| P03 | A story’s home is recognizable across test entries without decoding fixture-specific fields. | slice 9 | observed: catalogProjectRecords.ts and storyReadinessFixture.ts pass canonical href and plan target directly; the pinned read and refreshed-home specs verify the expected paths. |
+| P04 | A story’s membership is recognizable across test entries without decoding fixture-specific fields. | slice 9 | observed: product-backlog-fixture.mjs, catalogProjectRecords.ts, and the final nine-fixture sweep name Taken and queued entries separately through renderPublishedBacklog. |
+| P05 | A story’s published revision is recognizable across test entries without decoding fixture-specific fields. | slice 9 | observed: catalogProjectRecords.ts builds a separate revision from its source; storyBranchIntegration.ts and publication resume cases make publishedTip, candidateSha and suffixBase distinct from branch and target. |
 | P06 | A story’s preparation is recognizable across test entries without decoding fixture-specific fields. | slice 3 | observed: storyReadinessFixture.ts and story-state-fixture.mjs pass named MakeMe preparation facts to the real recorder, including assessment and expected basis. |
 | P07 | A story’s progress is recognizable across test entries without decoding fixture-specific fields. | slice 6 | observed: MakeMe aPlanSlice and aSlicePlan use the production reader’s fields in storyReadinessPlans.ts, branchProgressRecords.ts and the Node/shell fixtures. |
 | P08 | Convert remaining valid setup for published project sources. | slice 2 | observed: catalogProjectRecords.ts declares the four canonical PublishedSource inputs and pinned revisions and serves their encoded files through publishFiles. |
@@ -25,16 +25,16 @@ The numbered return is retained below.
 | P14 | Convert remaining valid setup for slice plans. | slice 6 | observed: tests/support/published-plan.mjs writes ordinary plan facts for dashboard, obligation and publication consumers; the eleven fixture comparisons preserve byte layouts and the raw example. |
 | P15 | Convert remaining valid setup for slice progress. | slice 6 | observed: branchProgressRecords.ts and taken-execution-complete.spec.ts arrange ordered slice status and completion separately; the fresh delivery tests still use the actual selected-slice status mutation. |
 | P16 | Convert remaining valid setup for done records. | slice 7 | observed: makeMe.aDoneRecord feeds renderDoneRecord in dashboard, CLI, skill publication and installed-shell setup; six parity comparisons preserved published bytes and the separate malformed and stale cases. |
-| P17 | Convert remaining valid setup for published Git comparison inputs. | slice 9 |  |
-| P18 | Cover dashboard consumers that arrange these facts. | slice 9 |  |
-| P19 | Cover skill consumers that arrange these facts. | slice 9 |  |
-| P20 | Cover Node consumers that arrange these facts. | slice 9 |  |
+| P17 | Convert remaining valid setup for published Git comparison inputs. | slice 9 | observed: storyBranchIntegration.ts, retainedStoryLanding.ts, publication-resume-comparison.test.mjs and closure integration cases arrange actual Git comparison inputs in canonical fields. |
+| P18 | Cover dashboard consumers that arrange these facts. | slice 9 | observed: The dashboard proof in slices 2–9 observes pinned source, readiness, supplier, assignment, progress, done and review through the actual dashboard and backend entries. |
+| P19 | Cover skill consumers that arrange these facts. | slice 9 | observed: Preparation, startup, publication resume, and closure skill tests in slices 3–9 consume the shared builders and run real commands. |
+| P20 | Cover Node consumers that arrange these facts. | slice 9 | observed: Backlog, dependency, profile, plan, done catalog, and publication Node selections in slices 1–9 exercise the shared arrangements and retained independent assertions. |
 | P21 | Cover shell consumers that arrange these facts. |  | G1 |
 | P22 | Extend the shared MakeMe entry with real consumers. | slice 1 | observed: tests/support/makeMe.mjs aBacklogEntry feeds the shared product renderer in the Node fixtures and tests/support/render-published-backlog.mjs shell adapter |
 | P23 | Extend the pilot’s profile builder with real consumers. | slice 5 | observed: makeMe.anAgentProfile.executing requires a Story Branch name; publishedFactsArrival.ts and storyReviewTrunkMode.ts exercise explicit execution mode and branch with real consumers. |
-| P24 | Keep defaults incidental. | slice 9 |  |
-| P25 | Remove displaced fixture models as each family is converted. | slice 9 |  |
-| P26 | Remove displaced fixture constructors as each family is converted. | slice 9 |  |
+| P24 | Keep defaults incidental. | slice 9 | observed: makeMe.mjs keeps the default ref and backlog path for ordinary sources and requires meaningful Story Branch names, case-specific revisions, and explicit governing states. |
+| P25 | Remove displaced fixture models as each family is converted. | slice 9 | observed: The slice 2 Project aggregate and path decoder and the dependency supplier-index model are removed; actual requests and expected observations now have separate inputs. |
+| P26 | Remove displaced fixture constructors as each family is converted. | slice 9 | observed: The positional recordText, filesOf catalog constructor, and legacy link adapter were removed; existing production encoders and MakeMe serve their scoped consumers. |
 | P27 | Carry readiness `href` through the existing renderer. | slice 3 | observed: storyReadinessFixture.ts openDoughProductBacklog supplies canonical entry hrefs to the shared production-backed backlog writer. |
 | P28 | Carry readiness `href` through the existing preparation commands. | slice 3 | observed: storyReadinessCli.ts recordAssessed passes the same canonical href to read-state and the shared recordPreparationArgs adapter; story-readiness.spec.ts observes committed facts. |
 | P29 | Carry the product backlog entry’s plan link through the existing renderer. | slice 3 | observed: storyReadinessFixture.ts openDoughProductBacklog supplies the production plan link including the Taken plan anchor to renderPublishedBacklog. |
@@ -43,41 +43,41 @@ The numbered return is retained below.
 | P32 | Keep catalog pinned source facts distinct from expected card paths. | slice 2 | observed: catalogProjectRecords.ts builds PublishedSource with the backlog path; catalogProjectExpectations.ts independently lists expected home paths. |
 | P33 | Keep catalog work records distinct from expected card text. | slice 2 | observed: catalogProjectRecords.ts builds separate Take and queue facts, while authenticated-project-observation.spec.ts checks independent titles and purpose. |
 | P34 | Keep catalog work records distinct from expected card paths. | slice 2 | observed: catalogProjectRecords.ts writes files from entry hrefs; the observation spec verifies independent canonical hrefs. |
-| P35 | Carry identities explicitly where they drive a case. | slice 9 |  |
-| P36 | Carry homes explicitly where they drive a case. | slice 9 |  |
-| P37 | Preserve independent expectations. | slice 9 |  |
-| P38 | Use the existing CLI that the cases exercise. | slice 9 |  |
-| P39 | Use the existing encoders that the cases exercise. | slice 9 |  |
-| P40 | Use the existing observation boundaries that the cases exercise. | slice 9 |  |
-| P41 | Use the real Git operations that the cases exercise. | slice 9 |  |
-| P42 | Change test setup. | slice 9 |  |
-| P43 | Preserve product contracts. | slice 9 |  |
-| P44 | Preserve UI behavior. | slice 9 |  |
-| P45 | Evaluate the converted families against their original cases. | slice 9 |  |
-| P46 | Check that the facts governing each outcome remain visible. | slice 9 |  |
-| P47 | Check that assertions still catch the same failure. | slice 9 |  |
-| P48 | Check that shared setup removes a translation or a second model. | slice 9 |  |
-| Q01 | Keep exact syntax explicit where it is the subject of the test. | slice 9 |  |
-| Q02 | Keep malformed records explicit where they are the subject of the test. | slice 9 |  |
-| Q03 | Keep legacy records explicit where they are the subject of the test. | slice 9 |  |
-| Q04 | Keep captured evidence explicit where it is the subject of the test. | slice 9 |  |
-| Q05 | Keep fault injection explicit where it is the subject of the test. | slice 9 |  |
-| Q06 | When a native scenario changes its arranged input, update its evidence inputs. | slice 9 |  |
-| Q07 | In mixed cases, convert the published facts in this story. | slice 9 |  |
-| Q08 | In mixed cases, verify the existing journey. | slice 9 |  |
+| P35 | Carry identities explicitly where they drive a case. | slice 9 | observed: Catalog entries, moved-home fixtures, supplier agreements and published profiles state stable identities explicitly where used by the observation. |
+| P36 | Carry homes explicitly where they drive a case. | slice 9 | observed: Catalog entries, prepared story records and supplier agreements state their canonical homes explicitly and preserve changed-home and anchored-plan cases. |
+| P37 | Preserve independent expectations. | slice 9 | observed: catalogProjectExpectations.ts, product-backlog fixture byte expectations, and the landed review spec state requests, rows, lines and comparisons independently of fixture generation. |
+| P38 | Use the existing CLI that the cases exercise. | slice 9 | observed: Refresh, Take, record-state, resolve-dependency, complete, replay and installed integration calls continue in the accepted Node, shell and dashboard checks. |
+| P39 | Use the existing encoders that the cases exercise. | slice 9 | observed: renderEntry, renderAgentProfile, the preparation and dependency encoders, and renderDoneRecord serve the converted fixtures at their existing file boundaries. |
+| P40 | Use the existing observation boundaries that the cases exercise. | slice 9 | observed: The retained tests observe actual CLI output, published reads, cards, Git replay, and comparison results at their original boundaries; the focused proof names each family. |
+| P41 | Use the real Git operations that the cases exercise. | slice 9 | observed: Trunk and landed review fixtures retain real Git commits, parents, refs, and worktree retirement; fixed-date parity and the review specs independently inspect the resulting history. |
+| P42 | Change test setup. | slice 9 | observed: The conversion lives in test fixtures and writers, with JSDoc on existing encoder shapes. The separate CI repair relocates the same dashboard type-check. |
+| P43 | Preserve product contracts. | slice 9 | observed: The product-code diff for the conversion adds JSDoc only. The production CLI, encoding, startup, review, and completion operations remain the boundaries exercised in the accepted proof. |
+| P44 | Preserve UI behavior. | slice 9 | observed: The selected dashboard specs retain existing card, eligibility, review, accessibility, and revision expectations across the converted families. |
+| P45 | Evaluate the converted families against their original cases. | slice 9 | observed: PLAN.md Evaluation against the original cases compares the established Take and converted fixture families against the recorded ADR 0010 criterion. |
+| P46 | Check that the facts governing each outcome remain visible. | slice 9 | observed: The evaluation compares explicit identity and href, pinned revision, agreement and assessment, assignment and progress, and retained Git publication inputs at their call sites. |
+| P47 | Check that assertions still catch the same failure. | slice 9 | observed: Representative fixture comparisons preserve bytes, and original assertions for relocated homes, pinned requests, malformed state, completion gaps, and captured review file/line selection remain independent. |
+| P48 | Check that shared setup removes a translation or a second model. | slice 9 | observed: The evaluation names eliminated catalog path decoding, positional done construction, supplier-index model and fixture-only tip alias, and records the shared support cost. |
+| Q01 | Keep exact syntax explicit where it is the subject of the test. | slice 9 | observed: storyReadinessPlans.ts preserves the literal backslash-u0002 text; the reader and preparation byte comparisons passed. |
+| Q02 | Keep malformed records explicit where they are the subject of the test. | slice 9 | observed: Readiness gaps, malformed plan advice, rejected dependency requests, and unreadable done fixtures retain their literal invalid inputs and passing refusal observations. |
+| Q03 | Keep legacy records explicit where they are the subject of the test. | slice 9 | observed: The legacy backlog adoption, profile, and native merge cases keep their original raw syntax at the observation site. |
+| Q04 | Keep captured evidence explicit where it is the subject of the test. | slice 9 | observed: story-review-story-branch-landed.spec.ts obtains landing evidence from installed integration and asserts the captured comparison remains the same after retirement and newer trunk. |
+| Q05 | Keep fault injection explicit where it is the subject of the test. | slice 9 | observed: The unavailable completed-capture fixture retains its missing-repository fault, and other held-read and malformed cases retain their explicit fault injection. |
+| Q06 | When a native scenario changes its arranged input, update its evidence inputs. | slice 9 | observed: Native Take, one-shot and admission input identities include the actual MakeMe/writer runtime dependencies. The deterministic identity and setup checks passed. |
+| Q07 | In mixed cases, convert the published facts in this story. | slice 9 | observed: Mixed launch, Intent, revision reuse and closure fixtures use the shared builders for their published facts while the other domains keep their original representations. |
+| Q08 | In mixed cases, verify the existing journey. | slice 9 | observed: The selected launch, Intent, Recently done, comparison and closure suites verify mixed journeys through their original observations after fixture conversion. |
 | Q09 | This story owns the published work facts arranged by the Git fixtures. | slice 8 | observed: storyReviewTrunkMode.ts and the execution-increment publication cases arrange canonical backlog, branch and publication facts, then supply them to the existing Git harnesses. |
 | Q10 | The existing harness can be used where the shared Git materializer is unavailable. | slice 8 | observed: storyReviewTrunkMode.ts and workspace-publication-admission-fixtures.mjs retain the current Git checkout/commit harness; fixed-date parity observes the same real history. |
-| X01 | Machine-local configuration belongs to later conversion stories. | slice 9 |  |
-| X02 | Workspace state belongs to later conversion stories. | slice 9 |  |
-| X03 | Session state belongs to later conversion stories. | slice 9 |  |
-| X04 | Launches belong to later conversion stories. | slice 9 |  |
-| X05 | Landing receipts belong to later conversion stories. | slice 9 |  |
-| X06 | Intent evidence belongs to later conversion stories. | slice 9 |  |
-| X07 | CI evidence belongs to later conversion stories. | slice 9 |  |
-| X08 | Installation setup belongs to later conversion stories where applicable. | slice 9 |  |
-| X09 | Native-runner setup belongs to later conversion stories where applicable. | slice 9 |  |
-| X10 | The Git fixture migration owns the shared repository description. | slice 9 |  |
-| X11 | The Git fixture migration owns the shared repository materializer. | slice 9 |  |
+| X01 | Machine-local configuration belongs to later conversion stories. | slice 9 | observed: Diff inspection of catalog, readiness and mixed journeys confines conversion to published facts, with machine-local project configuration still in the harness. |
+| X02 | Workspace state belongs to later conversion stories. | slice 9 | observed: Review tests keep actual workspace ownership, uncommitted edits and retirement in their existing Git harness. |
+| X03 | Session state belongs to later conversion stories. | slice 9 | observed: The Sessions tests continue to use their existing session records and opt-in measurement; shared fixtures convert published profiles only. |
+| X04 | Launches belong to later conversion stories. | slice 9 | observed: The start and review journeys still use the existing launch adapter and actual boundary; changed facts are published readiness, assignments and comparison inputs. |
+| X05 | Landing receipts belong to later conversion stories. | slice 9 | observed: The landed comparison uses the existing captured receipt and preserves the missing repository counterexample; no receipt schema or lifecycle was replaced. |
+| X06 | Intent evidence belongs to later conversion stories. | slice 9 | observed: Mixed Intent callers keep Intent-specific locations, options and observation; their source and published work records use shared builders. |
+| X07 | CI evidence belongs to later conversion stories. | slice 9 | observed: The separate CI repair moves type-check into lint. CI evidence records and the proof collection inputs retain their existing types and observations. |
+| X08 | Installation setup belongs to later conversion stories where applicable. | slice 9 | observed: The installed-payload and native setup checks retain the actual installer and locked setup; shell changes arrange published backlog, preparation, plan and done inputs. |
+| X09 | Native-runner setup belongs to later conversion stories where applicable. | slice 9 | observed: Native host and retention boundaries remain in the existing cases; input hashes reflect changed published-work fixture dependencies. |
+| X10 | The Git fixture migration owns the shared repository description. | slice 9 | observed: Review and admission arrangements still use existing Git harnesses and do not introduce another repository description. |
+| X11 | The Git fixture migration owns the shared repository materializer. | slice 9 | observed: Actual Git checkout, setup, commits and retirement stay with existing harnesses; no repository materializer was introduced. |
 | J1.01 | The catalog project is pinned. | slice 2 | observed: catalogProjectRecords.ts builds each selected repository and ref with a distinct pinned revision. |
 | J1.02 | Its work includes a Taken correction. | slice 2 | observed: catalogProjectRecords.ts declares an explicit correction identity and plan home in Taken; the observation spec reads the card with no assessment. |
 | J1.03 | Its work includes a queued story with a purpose. | slice 2 | observed: catalogProjectRecords.ts writes a queued entry with an anchored home and Goal; the observation spec opens and checks its detail. |
@@ -119,4 +119,4 @@ The numbered return is retained below.
 | J6.05 | Review distinguishes local changes. | slice 8 | observed: story-review-trunk-worktree.spec.ts checks the unpublished commit and untracked file in the worktree view and their relation to the published view. |
 | J6.06 | Git establishes the revisions the test checks. | slice 8 | observed: execution-increment-publication-base-identity.test.mjs exercises Git-resolved full and abbreviated bases and independently verifies receipt and candidate revision. |
 | J6.07 | Git establishes the ancestry the test checks. | slice 8 | observed: story-review-trunk-own-changes.spec.ts verifies real merge-base with no publication; execution-increment-publication-base-identity.test.mjs checks a candidate reconciles on the fetched trunk commit. |
-| J6.08 | After Story Branch integration retires its workspace, review from the done card still uses the comparison pair recorded at landing. | slice 9 |  |
+| J6.08 | After Story Branch integration retires its workspace, review from the done card still uses the comparison pair recorded at landing. | slice 9 | observed: story-review-story-branch-landed.spec.ts runs installed integration and actual workspace retirement, then verifies the done card files, lines and pinned pair even after a newer trunk revert. |

@@ -471,7 +471,7 @@ job passed again. Its dispositions are in
 
 ### 9. Completed review retains the comparison from accepted publication
 Type: Behavior
-Status: planned
+Status: done
 Proof: The completed-review boundary of seed example 6. Run `story-review-story-branch-landed.spec.ts`, affected backend completed-review and merge cases, and relevant publication-resume and closure checks. Verify that the accepted pair still selects the story's changes after trunk advances or the worktree is retired.
 
 Convert remaining published comparison facts in the completed-story
@@ -482,6 +482,92 @@ combined proof. Record before/after examples and findings about readability,
 coverage, duplication and maintenance cost under
 [ADR 0010, Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
 Evaluate the conversion on these observations.
+
+Accepted focused proof on the macOS execution checkout:
+
+```zsh
+export PATH="/opt/homebrew/bin:$PATH"
+dough_slice9_dir=/tmp/od-seed261-slice9-0aBt2M
+checks=( "${(@f)$(< "$dough_slice9_dir/node-and-shell.txt")}" )
+specs=( "${(@f)$(< "$dough_slice9_dir/specs.txt")}" )
+[[ ${#checks} -gt 10 && ${#specs} -eq 88 ]] &&
+  OPEN_DOUGH_TEST_JOBS=2 OPEN_DOUGH_TEST_OUTCOMES="$dough_slice9_dir/node-outcomes.tsv" \
+  caffeinate -s -i bash scripts/test.sh "${checks[@]}" &&
+  OPEN_DOUGH_DASHBOARD_PROOF_RECORD="$dough_slice9_dir/dashboard-proof.json" \
+  caffeinate -s -i npm run test:dashboard -- "${specs[@]}"
+checks=( "${(@f)$(< "$dough_slice9_dir/node-extra.txt")}" )
+OPEN_DOUGH_TEST_JOBS=2 OPEN_DOUGH_TEST_OUTCOMES="$dough_slice9_dir/node-extra-outcomes.tsv" \
+  caffeinate -s -i bash scripts/test.sh "${checks[@]}" &&
+npm run typecheck:dashboard &&
+git diff --check
+node --experimental-transform-types "$dough_slice9_dir/compare-fixtures.mjs" \
+  "$dough_slice9_dir/prior" "$PWD"
+```
+
+All 31 distinct Node and shell jobs and 232 Playwright tests passed. The
+landed Story Branch review reads its accepted comparison after actual
+integration and worktree retirement, then still selects the original
+files and lines after a newer trunk revert. Resume checks the retained
+candidate and base through the actual publication API. The final scoped
+sweep routes ordinary membership in nine earlier fixtures through the same
+renderer. Their fixed-clock paths and bytes match the baseline. Results,
+selections, and consumer dispositions are under
+`/tmp/od-seed261-slice9-0aBt2M`.
+
+The independent refactor shares the typed copy operation while retaining
+the existing MakeMe entry, now 240 lines, and makes the empty-queue newline
+explicit in the backlog writer. Type-check, whitespace, nine fixture byte
+comparisons, eight MakeMe shape and fresh-copy comparisons, six Node and
+shell jobs, and five dashboard specs passed.
+
+Combined proof uses the awake 16-core Mac on AC with Node 24.21.0 and the
+locked Chromium. At launch, system memory was 73% free and the one-minute
+load was 9.25, with one neighboring focused dashboard run and no full-suite
+admission owner. The coordinator runs the full repository and dashboard
+suites serially using their default four Node jobs and two browser workers,
+with `caffeinate -s -i`. Hosted conditions are separate. Reconsider on a
+changed workload, failure, or sleep observation.
+
+The reviewed final candidate passed both unfiltered commands on AC:
+
+```sh
+export PATH="/opt/homebrew/bin:$PATH"
+dough_full_dir=/tmp/od-seed261-full-jHueJx
+OPEN_DOUGH_TEST_JOBS=4 OPEN_DOUGH_TEST_OUTCOMES="$dough_full_dir/node-outcomes.tsv" \
+  OPEN_DOUGH_TEST_TIMES="$dough_full_dir/node-times.tsv" caffeinate -s -i npm test
+OPEN_DOUGH_DASHBOARD_PROOF_RECORD="$dough_full_dir/dashboard-proof.json" \
+  OPEN_DOUGH_DASHBOARD_TIMES="$dough_full_dir/dashboard-times.tsv" \
+  caffeinate -s -i npm run test:dashboard
+```
+
+The repository runner returned zero with all 507 jobs passed. The
+dashboard runner returned zero with 2,157 cases passed, one existing
+opt-in Sessions replay measurement skipped, and no failed or pending
+cases. Dashboard type-check and whitespace passed on the final refactor.
+Refactor selections and dispositions are under
+`/tmp/od-seed261-refactor9-jnsG1c`.
+
+## Evaluation against the original cases
+
+Under [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md),
+the comparison is for maintainers reading the cases at the established
+Take `7b6947971` and after the conversion.
+
+| Boundary | Prior setup | Converted setup and observation |
+| --- | --- | --- |
+| Backlog and catalog | A catalog aggregate held source values, UI expectations, and a path from which setup decoded the correction identity. | Catalog source, revision, entries, and expectations are distinct. Identity and home are named in canonical entries. Four catalog fixture bundles and nine final membership fixtures matched their prior bytes. The existing pinned-read, reload, and independent card assertions passed. |
+| Preparation and dependencies | Fixture-local `link`, supplier indexes, and a hand-written agreement fence obscured input fields. | `href`, associated plan, supplier condition, state, and resolution are explicit. Real preparation records the basis. The verified supplier resolver clears the blocker while the full assessment remains equal. |
+| Assignment and progress | Fixtures repeated agent literals and formatted ordinary progress blocks alongside special plan layouts. | The profile declares the story, owner, and Story Branch ref. Ordered status, prospective proof, accepted proof, and completion advice remain separate. The existing owner, attribution, ordered-progress, and completion-gap assertions passed with byte-equivalent representative fixtures. |
+| Done records and review | Done setup used a positional record constructor, and the integration adapter renamed the published tip. | Done facts go through the product encoder. Integration uses `publishedTip`, `branch`, and `targetRef`. Real Git and CLI establish closure, replay, and retirement. Independent comparisons still inspect files, lines, receipts, and parent revisions. |
+
+Keep the converted setup in the observed families. The clearer call sites
+and removal of fixture translations justify additional shared test support.
+The cost is a broader shared change surface, explicit independent expected
+values, and focused and full verification across runners. Empty backlog
+newlines and native evidence hashes required particular attention. The
+observations establish readability against the recorded criteria and
+preservation of the tested outcomes. Onboarding time and future maintenance
+cost have yet to be measured.
 
 ## Decisive premises
 

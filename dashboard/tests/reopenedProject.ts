@@ -7,6 +7,7 @@
 import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { addedAt, type MadeCommit } from "./pathHistoryAnswers.ts";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
@@ -31,16 +32,27 @@ export const takenTitle = "Progress published on its story branch";
 export const queuedTitle = "Queued story whose record is missing";
 export const queuedAgainTitle = "Queued story published again";
 
-const backlogNaming = (queued: string) => `# Product backlog
-
-## Taken
-
-- [${takenTitle}](seeds/SEED-261-reopen.md#on-branch) — SEED-261#on-branch
-
-## Backlog list
-
-- [${queued}](seeds/SEED-262-missing.md#missing) — SEED-262#missing
-`;
+const backlogNaming = (queued: string) =>
+  renderPublishedBacklog({
+    taken: [
+      makeMe.aBacklogEntry
+        .with({
+          identity: "SEED-261#on-branch",
+          href: "seeds/SEED-261-reopen.md#on-branch",
+          title: takenTitle,
+        })
+        .please(),
+    ],
+    queued: [
+      makeMe.aBacklogEntry
+        .with({
+          identity: "SEED-262#missing",
+          href: "seeds/SEED-262-missing.md#missing",
+          title: queued,
+        })
+        .please(),
+    ],
+  });
 
 const seed = `# Reopen fixture
 

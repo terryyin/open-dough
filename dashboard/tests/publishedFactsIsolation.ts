@@ -5,6 +5,7 @@ import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import type { Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { githubFor } from "./dashboardTest.ts";
@@ -45,20 +46,27 @@ export function factsAt(revision: string, label: "A" | "B") {
   const developer = `Developer at ${label}`;
   const files = withDoneCatalog(
     {
-      [backlogPath]: `# Product backlog
-
-## Near-future direction
-
-Direction published at ${label}.
-
-## Taken
-
-- [${takenTitle}](seeds/SEED-777-shared.md#shared-story) — ${sharedStoryIdentity}
-
-## Backlog list
-
-- [${queuedTitle}](seeds/SEED-777-shared.md#${queuedAnchor}) — ${queuedIdentity}
-`,
+      [backlogPath]: renderPublishedBacklog({
+        direction: `Direction published at ${label}.`,
+        taken: [
+          makeMe.aBacklogEntry
+            .with({
+              identity: sharedStoryIdentity,
+              href: "seeds/SEED-777-shared.md#shared-story",
+              title: takenTitle,
+            })
+            .please(),
+        ],
+        queued: [
+          makeMe.aBacklogEntry
+            .with({
+              identity: queuedIdentity,
+              href: `seeds/SEED-777-shared.md#${queuedAnchor}`,
+              title: queuedTitle,
+            })
+            .please(),
+        ],
+      }),
       ".planning/open-dough.json": "{}\n",
       [canonicalPath]: `<a id="shared-story"></a>
 
