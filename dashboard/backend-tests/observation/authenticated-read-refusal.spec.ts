@@ -158,6 +158,7 @@ test.describe("authenticated read boundary refusal (development environment)", (
     onlyPinned,
     path,
     combined,
+    unpinnedRevision,
   } of listedReadRefusals) {
     for (const refused of [
       {
@@ -169,7 +170,7 @@ test.describe("authenticated read boundary refusal (development environment)", (
       {
         read: "at a revision that is not a commit sha",
         query: "revision=main",
-        error: onlyPinned,
+        error: unpinnedRevision,
       },
     ]) {
       test(`refuses ${listed} ${refused.read} before launching gh`, () =>

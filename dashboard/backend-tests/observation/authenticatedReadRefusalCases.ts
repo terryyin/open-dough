@@ -15,6 +15,7 @@ export const listedReadRefusals = [
       read: "combined with a revision check",
       query: `revision=${revision}&since=${revision}`,
     },
+    unpinnedRevision: "The pinned revision is not a commit sha.",
   },
   {
     listed: "a done catalog read",
@@ -25,6 +26,7 @@ export const listedReadRefusals = [
       read: "combined with an agent profile read",
       query: `revision=${revision}&agents=profiles`,
     },
+    unpinnedRevision: "The pinned revision is not a commit sha.",
   },
 ] as const;
 

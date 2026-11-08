@@ -206,6 +206,14 @@ slice-specific concern was identified.
   close the listener.
 - Attention journeys remain on the real runner until Slice 2.
 
+### CI repair disposition (42447021471/1 on bf621efc)
+
+Already-traced: dashboard (2/12) failed because listed-read
+`revision=main` expected `onlyPinned` after the slice 1 case extract; product
+returns `The pinned revision is not a commit sha.` Restored
+`unpinnedRevision` on those cases. Focused proof:
+`authenticated-read-refusal` strict passed (22). No broader concept change.
+
 
 ## Story obligations
 
