@@ -34,13 +34,14 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Build each test’s Git repository from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures) — SEED-262#build-explicit-git-fixtures
+- [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories) — SEED-262#reuse-immutable-git-histories
 - [Make published work test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-published-work-test-data) — SEED-261#map-published-work-test-data
 - [Make launch and session test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data) — SEED-261#map-launch-and-session-test-data
 - [Make Intent and CI proof test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-intent-and-ci-proof-test-data) — SEED-261#map-intent-and-ci-proof-test-data
 - [Make installation and native test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-installation-and-native-test-data) — SEED-261#map-installation-and-native-test-data
 - [Pilot fluent page objects in dashboard Side panel tests](seeds/SEED-263-fluent-dashboard-page-objects.md#pilot-fluent-dashboard-page-objects) — SEED-263#pilot-fluent-dashboard-page-objects
 - [Find the intent assessment in a recently done story](seeds/SEED-258-dough-intent-coverage.md#assess-intent-coverage-during-wrap-up) — SEED-258#assess-intent-coverage-during-wrap-up
-- [Reuse immutable Git histories across dashboard tests](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories) — SEED-262#reuse-immutable-git-histories
 - [Prepare dashboard test artifacts only when selected tests need them](seeds/SEED-262-faster-dashboard-test-feedback.md#prepare-artifacts-on-demand) — SEED-262#prepare-artifacts-on-demand
 - [Set up test preconditions without replaying unrelated workflows](seeds/SEED-262-faster-dashboard-test-feedback.md#arrange-prerequisite-state) — SEED-262#arrange-prerequisite-state
 - [Reduce the cost of private dashboard test fixtures](seeds/SEED-262-faster-dashboard-test-feedback.md#reduce-private-fixture-lifecycle-cost) — SEED-262#reduce-private-fixture-lifecycle-cost

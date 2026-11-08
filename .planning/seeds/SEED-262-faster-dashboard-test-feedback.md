@@ -28,30 +28,63 @@ and [definition of improvement](../../docs/adrs/0010-definition-of-improvement-a
 
 ## Story decomposition
 
+<a id="build-explicit-git-fixtures"></a>
+
+### Build each test’s Git repository from explicit MakeMe data
+
+**Identity:** SEED-262#build-explicit-git-fixtures
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** A maintainer can see at the test's call site which Git repository
+facts the case needs. A test using the default gets a minimal valid client
+repository. Any setting, ref, file, story, or historical transition that
+drives the case is declared explicitly.
+
+**Scope.** Extend the shared MakeMe API with descriptive repository setup
+that composes the canonical domain builders. A shared test harness
+materializes the description as real Git, using the repository's test data
+architecture for setup and teardown. Start with the attention spec, then
+migrate all test families that arrange Git repositories across the test
+entries. Route existing setup helpers through the shared path or remove
+them when superseded. Keep the real operations under test and independent
+assertions visible in each case. Pass any exact malformed or legacy input
+under proof explicitly.
+
+**Evaluation.** In the attention spec, each case declares only the stories
+and published transitions it observes. Across the suite, all repository
+setup uses the shared builder and materializer, with obsolete setup code
+removed. Verify that existing cases still prove their Git and product
+behavior. Record ordinary fixture and run times after migration as the
+baseline for the performance story.
+[Test data architecture](../../tests/README.md#test-data-architecture) ·
+[Published work domain data conversion](SEED-261-share-domain-test-data.md#map-published-work-test-data)
+
 <a id="reuse-immutable-git-histories"></a>
 
-### Reuse immutable Git histories across dashboard tests
+### Speed up Git fixture construction behind the builder
 
 **Identity:** SEED-262#reuse-immutable-git-histories
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-**Goal.** A developer running tests that read the same published revisions
-gets feedback sooner because equivalent read-only history is prepared once
-across its consumers.
+**Goal.** A developer gets faster test feedback when equivalent repository
+requests can reuse immutable Git data behind the same MakeMe setup.
 
-**Scope.** Start with the story-column origin shared by the attention and
-story-card session journeys. The attention file spent about 3s in each
-worker's setup hook building the same history. Apply the result to other
-consumers that use equivalent histories. Preserve exact revision contents,
-private mutable refs and checkouts, and dedicated coverage of real publication.
-This story owns repeated construction of the same history within a run.
+**Scope.** Use the [migrated Git fixtures](#build-explicit-git-fixtures)
+to find recurring repository shapes and reusable immutable parts, such
+as trees or commit histories. The attention spec's original workers each
+spent about 3s preparing the same history. Measure which reuse is worthwhile
+with the new builder. Keep reuse inside the shared materializer. Each
+test gets its own mutable refs, config, index, and working state.
 
-**Evaluation.** Run multiple workers and the sibling journey. Show fewer
-history constructions and lower elapsed time, accounting for overlap between
-hooks. A test that advances or mutates its own repository cannot change the
-history another test reads. [Story-column fixture](../../dashboard/tests/launchJourney.ts)
+**Evaluation.** Compare the same selections before and after with cold and
+warm setup and parallel workers. Show lower elapsed time and equivalent
+file contents, refs, ancestry, and test verdicts. A test that advances or
+mutates its repository leaves a concurrent test's repository independent.
+[Existing template reuse](../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs#L132)
 
 <a id="prepare-artifacts-on-demand"></a>
 
