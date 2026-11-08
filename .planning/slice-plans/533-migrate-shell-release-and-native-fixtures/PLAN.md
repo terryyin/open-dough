@@ -73,10 +73,10 @@ Exclusions:
 - **A release source is one local checkout, built in place.** Installers read
   the source by path, so there is no bare origin or push. The source is not
   copied from a template, because each shell build is its own process. This
-  is a materializer option. [Plan 524](../524-migrate-backlog-scratch-repositories/PLAN.md)
-  plans a checkout without an origin for Node tests. If 524 has landed first,
-  reuse its option and add building in place. Otherwise add the option here
-  with a name 524 can reuse, and do not add a second one.
+  is a materializer option. `materializeLocalCheckout` in the
+  [repository harness](../../../tests/support/repository-fixture.mjs) already
+  gives Node tests a checkout without an origin. Reuse that option and add
+  building in place; do not add a second one.
 - **One Node helper.** `tests/support/release-source.mjs <dest>` reads JSON
   release-source facts on stdin, builds them with MakeMe, and materializes
   them at `<dest>`. `tests/support/release-sources.mjs` exports the shared
@@ -241,7 +241,7 @@ reads clearly enough for commitments 1 and 13.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: focused run of `install-latest-release.sh`,
 `update-refuses-unverifiable.sh`, `update-force-restores-latest.sh`,
@@ -260,6 +260,22 @@ states the lightweight tags `not-a-release` and `v1.2.3-rc.1` and no release
 → the installer refuses with `No numeric release tags`. Leading-zero
 versions, two tags on one payload, and the decoy remotes become stated
 facts in the same way.
+
+Accepted proof (2026-11-08): the eight checks, `pin-and-inspect.sh` and
+`repository-release.test.mjs` passed quietly, as did the 23 earlier shell
+consumers and the 120 node files. The `git init` grep lists only
+`pin-and-inspect.sh` snapshots and the decoy-origin install targets.
+Discrimination: the mismatch release stated with `VERSION` 0.1.1 fails
+`baseline metadata mismatch`; `v1.2.3-rc.1` stated as `v1.2.3` fails.
+Timing: `update-refuses-unverifiable.sh` 11.6–19.1 s before, 12.8–19.0 s
+after (load 8–10); the dropped-files build 1.13–1.18 s before, 0.75–0.80 s
+after.
+
+Learnings: payload the working tree does not hold is a release fact,
+`added: {path: bytes}`, written under `src/skills/` and declared in that
+release's installer; `withheld` and `removed` stay limited to declared paths.
+`pin-and-inspect.sh`'s "release 0.1.11 appears after inspection" step still
+uses the shell release writers on the built source (G3, slice 4).
 
 ### 4. Superseded release writers are gone and the payload backlog is rendered
 
@@ -326,5 +342,11 @@ Commitment: 6.4
 ### G2. Stated removed paths are not yet applied
 Reported: slice 1 — "Withheld and removed are held in the model only. The materializer does not write them yet, so a stated non-empty value is currently ignored."
 Story clause: "or removes from its payload"
-Disposition: receiving slice 3
+Disposition: proved by slice 2: dropping --remove in tests/update-adds-new-payload-skill.sh fails with Managed payload mismatch; slice 3 inspected update-removes-dropped-files.sh, whose dropped paths lie outside the working tree's payload and are stated through the release's added paths
 Commitment: 6.5
+
+### G3. A release still appears through the shell release writers
+Reported: slice 3 — "the release 0.1.11 appears after inspection step still calls write_candidate_payload, commit_all and tag_release on the already-built source"
+Story clause: "Remove `release-fixture.bash`'s release-writing builders once no consumer needs them."
+Disposition: receiving slice 4
+Commitment: 24

@@ -7,20 +7,22 @@ import { fileURLToPath } from "node:url";
  * A tagged Open Dough release: the revision's `VERSION`, changelog entry and
  * payload marker, and the annotated `v<version>` tag dated `taggedAt`.
  * `withheld` lists managed path prefixes its installer does not declare;
- * `removed` lists payload paths it does not ship.
+ * `removed` lists payload paths it does not ship; `added` maps each payload
+ * path it ships beyond the current payload, and declares first, to its bytes.
  * @typedef {{
  *   version: string,
  *   taggedAt: string,
  *   marker: string,
  *   withheld: readonly string[],
  *   removed: readonly string[],
+ *   added: Readonly<Record<string, string>>,
  * }} Release
  */
 
 /**
- * The facts a test states for a release; it withholds and removes nothing
- * unless it says so.
- * @typedef {Omit<Release, "withheld" | "removed"> & Partial<Pick<Release, "withheld" | "removed">>} ReleaseFacts
+ * The facts a test states for a release; it withholds, removes and adds
+ * nothing unless it says so.
+ * @typedef {Omit<Release, "withheld" | "removed" | "added"> & Partial<Pick<Release, "withheld" | "removed" | "added">>} ReleaseFacts
  */
 
 // The Open Dough working tree whose payload a release ships.
@@ -56,11 +58,11 @@ export function shippedPayload({ removed }) {
 }
 
 /**
- * The working tree's installer, declaring no managed path under a prefix the
- * release withholds.
- * @param {Pick<Release, "withheld">} release
+ * The working tree's installer, declaring the release's added paths first and
+ * no managed path under a prefix the release withholds.
+ * @param {Pick<Release, "withheld" | "added">} release
  */
-export function releaseInstaller({ withheld }) {
+export function releaseInstaller({ withheld, added }) {
   return readFileSync(installerPath, "utf8").replace(
     managedFilesDeclaration,
     (declaration) => {
@@ -68,18 +70,19 @@ export function releaseInstaller({ withheld }) {
       const kept = entries.filter(
         (line) => !withheld.some((prefix) => withholds(prefix, line.trim())),
       );
-      return [opening, ...kept].join("\n");
+      const declared = Object.keys(added).map((path) => `  ${path}`);
+      return [opening, ...declared, ...kept].join("\n");
     },
   );
 }
 
 /**
  * A release whose withheld prefixes and removed paths each cover a declared
- * payload path.
+ * payload path, and whose added paths are not declared already.
  * @param {ReleaseFacts} facts
  * @returns {Release}
  */
-export function release({ withheld = [], removed = [], ...facts }) {
+export function release({ withheld = [], removed = [], added = {}, ...facts }) {
   const declared = declaredPayload();
   for (const prefix of withheld)
     if (!declared.some((path) => withholds(prefix, path)))
@@ -91,5 +94,15 @@ export function release({ withheld = [], removed = [], ...facts }) {
       throw new Error(
         `Release ${facts.version} removes no payload at ${removedPath}`,
       );
-  return { ...facts, withheld: [...withheld], removed: [...removed] };
+  for (const path of Object.keys(added))
+    if (declared.includes(path))
+      throw new Error(
+        `Release ${facts.version} adds already declared payload at ${path}`,
+      );
+  return {
+    ...facts,
+    withheld: [...withheld],
+    removed: [...removed],
+    added: { ...added },
+  };
 }

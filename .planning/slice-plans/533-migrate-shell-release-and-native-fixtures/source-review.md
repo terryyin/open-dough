@@ -40,36 +40,36 @@ recording action.
 | 12.3 | `build_current_tagged_release_fixture`. | slice 2 | observed: build_current_tagged_release_fixture declares one release at the working tree VERSION; three consumers plus six native-* context checks quiet pass |
 | 13 | Each caller states its releases at the call site, or names a shared description that its fixture file states (alternatives). | slice 4 | |
 | 14 | On 2026-11-08, 18 checks called those builders. | slice 2 | observed: slice 2 git grep: no other build_upgrade_releases or build_current_tagged_release_fixture callers outside .planning and tests/README.md |
-| 15 | Route the inline release sources (which used `write_candidate_payload` and `tag_release` after their own `git init`) too; on 2026-11-08 these were in: | slice 3 | |
-| 15.1 | `install-latest-release.sh`; | slice 3 | |
-| 15.2 | `update-refuses-unverifiable.sh`; | slice 3 | |
-| 15.3 | `update-force-restores-latest.sh`; | slice 3 | |
-| 15.4 | `pin-and-inspect.sh`; | slice 3 | |
-| 15.5 | `self-installation-baseline.sh`; | slice 3 | |
-| 15.6 | `compare-versions.sh`; | slice 3 | |
-| 15.7 | `apply-temp-cleanup.sh`; | slice 3 | |
-| 15.8 | `update-removes-dropped-files.sh`. | slice 3 | |
-| 16 | Invalid input under proof stays visible at the call site. Examples: | slice 3 | |
-| 16.1 | a tag whose `VERSION` disagrees with it; | slice 3 | |
-| 16.2 | two tags on one payload; | slice 3 | |
-| 16.3 | leading-zero versions; | slice 3 | |
-| 16.4 | non-release tags such as `not-a-release` and `v1.2.3-rc.1`; | slice 3 | |
-| 16.5 | a head that moves after resolution. | slice 3 | |
-| 17 | The description states a mismatched `VERSION` or an extra tag name as a literal fact. | slice 3 | |
-| 18 | A later change to a materialized source, such as moving `BRANCH_HEAD`, stays a Git operation in the check. | slice 3 | |
+| 15 | Route the inline release sources (which used `write_candidate_payload` and `tag_release` after their own `git init`) too; on 2026-11-08 these were in: | slice 3 | observed: the eight checks pipe JSON release facts into tests/support/release-source.mjs at their call sites; slice 3 git grep lists only snapshots and install-target decoy origins |
+| 15.1 | `install-latest-release.sh`; | slice 3 | observed: tests/install-latest-release.sh branch-only and invalid-highest sources stated as JSON; quiet pass |
+| 15.2 | `update-refuses-unverifiable.sh`; | slice 3 | observed: tests/update-refuses-unverifiable.sh decoy and mismatch sources stated as JSON; quiet pass |
+| 15.3 | `update-force-restores-latest.sh`; | slice 3 | observed: tests/update-force-restores-latest.sh decoy 9.9.9 stated as JSON; quiet pass |
+| 15.4 | `pin-and-inspect.sh`; | slice 3 | observed: tests/pin-and-inspect.sh builds its source with build_latest_fixture (shared latest); quiet pass; post-inspection 0.1.11 is G3 |
+| 15.5 | `self-installation-baseline.sh`; | slice 3 | observed: tests/self-installation-baseline.sh collision source stated as JSON; quiet pass |
+| 15.6 | `compare-versions.sh`; | slice 3 | observed: tests/compare-versions.sh leading-zero source stated as JSON; quiet pass |
+| 15.7 | `apply-temp-cleanup.sh`; | slice 3 | observed: tests/apply-temp-cleanup.sh invalid-highest release stated as JSON; quiet pass |
+| 15.8 | `update-removes-dropped-files.sh`. | slice 3 | observed: tests/update-removes-dropped-files.sh build_dropped_files_fixture states releases with added paths; dropping B from added fails |
+| 16 | Invalid input under proof stays visible at the call site. Examples: | slice 3 | observed: slice 3 call sites state files.VERSION mismatches, leading-zero versions, lightweight tags and decoy releases literally |
+| 16.1 | a tag whose `VERSION` disagrees with it; | slice 3 | observed: update-refuses-unverifiable.sh 0.1.1 with files.VERSION 0.1.8; apply-temp-cleanup.sh and install-latest-release.sh v0.1.10 with VERSION 0.1.9 |
+| 16.2 | two tags on one payload; | slice 3 | observed: release plus lightweight tags on one revision: repository-release.test.mjs 'local release checkout' case tags v0.1.10 and not-a-release; no check here stated two version tags on one payload |
+| 16.3 | leading-zero versions; | slice 3 | observed: tests/compare-versions.sh states version 0.08.0 |
+| 16.4 | non-release tags such as `not-a-release` and `v1.2.3-rc.1`; | slice 3 | observed: tests/install-latest-release.sh branch-only source states tags not-a-release and v1.2.3-rc.1 |
+| 16.5 | a head that moves after resolution. | slice 3 | observed: tests/install-latest-release.sh moves BRANCH_HEAD with commit_all after resolution; pin-and-inspect.sh poisons the default branch with Git |
+| 17 | The description states a mismatched `VERSION` or an extra tag name as a literal fact. | slice 3 | observed: files.VERSION and tags literals at the call sites above |
+| 18 | A later change to a materialized source, such as moving `BRANCH_HEAD`, stays a Git operation in the check. | slice 3 | observed: install-latest-release.sh BRANCH_HEAD move and pin-and-inspect.sh branch poisoning stay Git operations in the checks |
 | 19 | The hand-written backlog in the product-backlog payload check's `run_offline_done_catalog_proof` is rendered through `render-published-backlog.mjs`, as its merge proof's backlog already is. | slice 4 | |
 | 20 | Its (the done-catalog proof's) Git repositories stay as they are. | slice 4 | |
 | 21 | The merge proof's ancestor holds one rendered backlog at a custom path, and its branches are Git under proof. | slice 4 | |
 | 22 | The recorder proof publishes what `record-state` wrote. | slice 4 | |
 | 23 | The free-form payload seed that `record-state` proves stays literal bytes. | slice 4 | |
-| 24 | Remove `release-fixture.bash`'s release-writing builders once no consumer needs them. | slice 4 | |
+| 24 | Remove `release-fixture.bash`'s release-writing builders once no consumer needs them. | slice 4 | G3 |
 | 25 | `checkout_tagged_release` stays as a harness operation, because it checks out an older release with Git. | slice 4 | |
 | 26 | The native ADR-awareness delivery-to-use journey (`tests/support/dough-adr-awareness-delivery-to-use.sh`) builds its release source with these, which keep their behavior for that caller: | slice 4 | |
 | 26.1 | `init_fixture_repo`; | slice 4 | |
 | 26.2 | `write_candidate_payload`; | slice 4 | |
 | 26.3 | `commit_all`; | slice 4 | |
 | 26.4 | `tag_release`. | slice 4 | |
-| 27 | An install target that holds no domain facts, such as an empty project or a baseline commit before install, stays harness setup. | slice 3 | |
+| 27 | An install target that holds no domain facts, such as an empty project or a baseline commit before install, stays harness setup. | slice 3 | observed: install targets and snapshots untouched (slice 3 git grep: pin-and-inspect snapshots, decoy-origin install targets) |
 | 28 | Installed state, host-hook settings, runner settings and native scenario content belong to "installation and native test data" (`SEED-261-share-domain-test-data.md#map-installation-and-native-test-data`). | slice 4 | |
 | 29 | Git-publication native fixtures belong to `#migrate-git-publication-native-fixtures`. | slice 4 | |
 | 30 | The worktree-preparation native builders stay MakeMe-free under plan 532 (`532-tighten-repository-description-facts/PLAN.md`). | slice 4 | |
@@ -81,8 +81,8 @@ recording action.
 | 33 | Record "none of their fixtures builds a release" as the reuse reason under ADR 0005 (`#5-assess-now-and-delete-spent-evidence`) and make no paid refresh. | slice 4 | |
 | 34 | Latest by version: `install-latest-release.sh` declares 0.1.1 tagged 2026-06-01, 0.1.2 tagged 2026-09-01 and 0.1.10 tagged 2020-01-01, under an untagged head with `BRANCH_HEAD`; the installer still resolves `v0.1.10`, the installed payload carries `payload-0.1.10`, and `BRANCH_HEAD` is absent. | slice 1 | observed: tests/install-latest-release.sh asserts resolve-url v0.1.10, payload-0.1.10, BRANCH_HEAD absent; quiet pass; discrimination 0.1.10->0.1.0 resolved v0.1.2 and failed |
 | 35 | Upgrade with a withheld path: an update check declares 0.1.1 that withholds a managed skill path from its installer and 0.1.2 that is the current payload; it checks 0.1.1 out with Git and installs it; the update to 0.1.2 adds the withheld files, as today. | slice 2 | observed: update checks (story-payload-update.sh etc.) install 0.1.1 via checkout_tagged_release and assert_payload 0.1.2 after apply; discrimination: dropping --withhold in retrospective-reference-payload.sh fails at :33 older-install absence check |
-| 36 | Mismatch under proof: `update-refuses-unverifiable.sh` declares at its call site release 0.1.1 whose `VERSION` says 0.1.8, then 0.1.10; the update still refuses with `baseline metadata mismatch` and writes nothing. | slice 3 | |
-| 37 | Non-release tags: the branch-only source declares `not-a-release` and `v1.2.3-rc.1` as literal lightweight tag names and no release; the installer still refuses with `No numeric release tags` and installs nothing. | slice 3 | |
+| 36 | Mismatch under proof: `update-refuses-unverifiable.sh` declares at its call site release 0.1.1 whose `VERSION` says 0.1.8, then 0.1.10; the update still refuses with `baseline metadata mismatch` and writes nothing. | slice 3 | observed: update-refuses-unverifiable.sh quiet pass; discrimination: VERSION 0.1.1 instead of 0.1.8 fails 'baseline metadata mismatch: expected refusal to mention' |
+| 37 | Non-release tags: the branch-only source declares `not-a-release` and `v1.2.3-rc.1` as literal lightweight tag names and no release; the installer still refuses with `No numeric release tags` and installs nothing. | slice 3 | observed: install-latest-release.sh branch-only source quiet pass; discrimination: v1.2.3-rc.1 stated as v1.2.3 fails |
 | 38 | Payload backlog: the installed done-catalog proof declares `CAT#finish` queued in `plans/BACKLOG.md` through the renderer; installed `catalog-done` still leaves the backlog unchanged, and `complete` still lists both records at their blob hashes. | slice 4 | |
 | 39 | Superseded setup removed: no install or update check runs its own `git init` to build a release source. | slice 4 | |
 | 40 | `release-fixture.bash` keeps only the builders the native delivery-to-use journey calls, unchanged. | slice 4 | |

@@ -18,6 +18,7 @@ test("a release revision states its version, tag date, payload marker and payloa
           marker: "payload-0.1.1",
           withheld: ["dough-pfe/"],
           removed: ["dough-pfe/SKILL.md"],
+          added: { "dough-retired/a.md": "a from 0.1.1\n" },
         })
         .please(),
     })
@@ -29,6 +30,7 @@ test("a release revision states its version, tag date, payload marker and payloa
     marker: "payload-0.1.1",
     withheld: ["dough-pfe/"],
     removed: ["dough-pfe/SKILL.md"],
+    added: { "dough-retired/a.md": "a from 0.1.1\n" },
   });
   assert.deepEqual(
     makeMe.aRelease
@@ -40,11 +42,12 @@ test("a release revision states its version, tag date, payload marker and payloa
       marker: "m",
       withheld: [],
       removed: [],
+      added: {},
     },
   );
 });
 
-test("a release refuses a withheld prefix its installer declares nothing under, or a removed path its payload lacks", () => {
+test("a release refuses a withheld prefix its installer declares nothing under, a removed path its payload lacks, or an added path already declared", () => {
   const facts = { version: "0.1.1", taggedAt: "2026-09-01", marker: "m" };
   assert.throws(
     () =>
@@ -59,6 +62,13 @@ test("a release refuses a withheld prefix its installer declares nothing under, 
         .with({ ...facts, removed: ["dough-no-such-skill"] })
         .please(),
     /Release 0\.1\.1 removes no payload at dough-no-such-skill/,
+  );
+  assert.throws(
+    () =>
+      makeMe.aRelease
+        .with({ ...facts, added: { "dough-update/SKILL.md": "again\n" } })
+        .please(),
+    /Release 0\.1\.1 adds already declared payload at dough-update\/SKILL\.md/,
   );
 });
 
@@ -119,4 +129,52 @@ test("a local release checkout built in place tags its release annotated at the 
     await read("show", "v0.1.10:src/skills/dough-update/SKILL.md"),
     /\n<!-- open-dough-payload payload-0\.1\.10 -->$/,
   );
+});
+
+test("a release ships and declares the payload it adds, and a later release whose revision removes it neither ships nor declares it", async (t) => {
+  const at = join(
+    realpathSync(mkdtempSync(join(tmpdir(), "release-source-"))),
+    "source",
+  );
+  const { cleanup } = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("release 0.1.0", {
+        backlog: null,
+        release: makeMe.aRelease
+          .with({
+            version: "0.1.0",
+            taggedAt: "2026-08-31T00:00:00",
+            marker: "payload-0.1.0",
+            added: { "dough-retired/a.md": "a from 0.1.0\n" },
+          })
+          .please(),
+      })
+      .withRevision("release 0.1.1", {
+        backlog: null,
+        remove: ["src/skills/dough-retired"],
+        release: makeMe.aRelease
+          .with({
+            version: "0.1.1",
+            taggedAt: "2026-09-01T00:00:00",
+            marker: "payload-0.1.1",
+          })
+          .please(),
+      })
+      .please(),
+    { at, withoutOrigin: true },
+  );
+  t.after(() => rmSync(dirname(at), { recursive: true, force: true }));
+  t.after(cleanup);
+  const read = async (...args) => (await git(at, ...args)).stdout.trim();
+
+  assert.equal(
+    await read("show", "v0.1.0:src/skills/dough-retired/a.md"),
+    "a from 0.1.0",
+  );
+  assert.match(
+    await read("show", "v0.1.0:install.sh"),
+    /^managed_files=\(\n {2}dough-retired\/a\.md\n/m,
+  );
+  assert.equal(await read("ls-tree", "v0.1.1", "src/skills/dough-retired"), "");
+  assert.doesNotMatch(await read("show", "v0.1.1:install.sh"), /dough-retired/);
 });

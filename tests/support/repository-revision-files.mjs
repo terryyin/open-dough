@@ -87,17 +87,17 @@ function writeStoryState(planning, state) {
 }
 
 /**
- * A release ships the working tree's installer, its modules and the declared
- * payload it does not remove. Paths the checkout lacks are copied, so a first
- * release copies the payload once and a later release restores what an
- * earlier one removed. It writes its installer, its `VERSION`, its one
- * changelog entry, and the dough-update skill with the release's payload
- * marker appended.
+ * A release ships the working tree's installer, its modules, the declared
+ * payload it does not remove, and the payload it adds. Paths the checkout
+ * lacks are copied, so a first release copies the payload once and a later
+ * release restores what an earlier one removed. It writes its installer, its
+ * `VERSION`, its one changelog entry, and the dough-update skill with the
+ * release's payload marker appended.
  * @param {string} checkout
  * @param {Release} release
  */
 function writeRelease(checkout, release) {
-  const { version, marker, removed } = release;
+  const { version, marker, removed, added } = release;
   const shipped = [
     ...readdirSync(join(openDoughSource, "src/install"))
       .filter((module) => /\.(sh|mjs)$/.test(module))
@@ -115,6 +115,8 @@ function writeRelease(checkout, release) {
       recursive: true,
       force: true,
     });
+  for (const [path, content] of Object.entries(added))
+    writeFixtureFile(fixturePath(checkout, `src/skills/${path}`), content);
   writeFixtureFile(join(checkout, "install.sh"), releaseInstaller(release));
   writeFixtureFile(join(checkout, "VERSION"), `${version}\n`);
   writeFixtureFile(

@@ -110,14 +110,12 @@ fi
 [[ ! -e "${target}/.agents/skills/dough-update" ]]
 assert_sentinels "${target}"
 
+# Branch content with two tags that name no release, and no release.
 branch_only="${temporary_dir}/branch-only.git"
-mkdir -p -- "${branch_only}"
-git -C "${branch_only}" init --quiet -b main
-configure_fixture_git "${branch_only}"
-write_candidate_payload "${branch_only}" 0.1.0 payload-branch-only
-commit_all "${branch_only}" 'branch content'
-git -C "${branch_only}" tag not-a-release
-git -C "${branch_only}" tag v1.2.3-rc.1
+node "${source_dir}/tests/support/release-source.mjs" "${branch_only}" << 'JSON'
+{"revisions": [{"name": "branch content",
+  "files": {"VERSION": "0.1.0\n"}, "tags": ["not-a-release", "v1.2.3-rc.1"]}]}
+JSON
 if output=$(bash "${helper}" apply --url "${branch_only}" --target "${target}" \
   --platform cursor 2>&1); then
   echo "FAIL: a source without numeric releases must be refused." >&2
@@ -126,17 +124,18 @@ fi
 [[ "${output}" == *'No numeric release tags'* ]]
 [[ ! -e "${target}/.agents/skills/dough-update" ]]
 
+# The highest tag, v0.1.10, is on a payload whose VERSION says 0.1.9.
 invalid_highest="${temporary_dir}/invalid-highest.git"
-mkdir -p -- "${invalid_highest}"
-git -C "${invalid_highest}" init --quiet -b main
-configure_fixture_git "${invalid_highest}"
-write_candidate_payload "${invalid_highest}" 0.1.2 payload-0.1.2
-commit_all "${invalid_highest}" 'valid lower release'
-tag_release "${invalid_highest}" 0.1.2 '2026-09-01T00:00:00'
-write_candidate_payload "${invalid_highest}" 0.1.2 payload-mismatch
-printf '%s\n' '0.1.9' > "${invalid_highest}/VERSION"
-commit_all "${invalid_highest}" 'invalid highest'
-tag_release "${invalid_highest}" 0.1.10 '2026-09-02T00:00:00'
+node "${source_dir}/tests/support/release-source.mjs" "${invalid_highest}" << 'JSON'
+{"revisions": [
+  {"name": "valid lower release", "release": {
+    "version": "0.1.2", "taggedAt": "2026-09-01T00:00:00",
+    "marker": "payload-0.1.2"}},
+  {"name": "invalid highest", "release": {
+    "version": "0.1.10", "taggedAt": "2026-09-02T00:00:00",
+    "marker": "payload-mismatch"}, "files": {"VERSION": "0.1.9\n"}}
+]}
+JSON
 if output=$(bash "${helper}" apply --url "${invalid_highest}" --target "${target}" \
   --platform cursor 2>&1); then
   echo "FAIL: an invalid highest release must not fall back." >&2
