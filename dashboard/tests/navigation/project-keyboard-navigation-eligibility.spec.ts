@@ -18,7 +18,7 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
   page,
   afterGitHubStops,
 }) => {
-  const repo = buildOpenDoughReadinessRepo(afterGitHubStops);
+  const repo = await buildOpenDoughReadinessRepo(afterGitHubStops);
   await publishCommittedOrigin(page, {
     repoDir: repo.directory,
     revision: repo.revision,

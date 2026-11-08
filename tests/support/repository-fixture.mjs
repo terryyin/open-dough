@@ -10,7 +10,10 @@ import {
   workspacePath,
 } from "./repository-history.mjs";
 
-export { integrationDeveloper } from "./repository-history.mjs";
+export {
+  commitDeclaredRevision,
+  integrationDeveloper,
+} from "./repository-history.mjs";
 
 /** @typedef {Awaited<ReturnType<typeof buildRepository>>} BuiltTemplate */
 /** @type {Map<string, { root: string, built: Promise<BuiltTemplate> }>} */

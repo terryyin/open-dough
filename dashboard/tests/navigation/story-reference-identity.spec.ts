@@ -1,3 +1,12 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
+import {
+  queuedReadyRepository,
+  reviewedStorySeed,
+  storyA,
+  storyB,
+  storySeed,
+} from "../../../tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { chooseProject, parts } from "../dashboardPage.ts";
@@ -9,11 +18,15 @@ import {
   publishDependencies,
   takeSupplier,
 } from "../storyDependencyFixture.ts";
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import { startOrigin } from "../support/startOrigin.ts";
 
-test.use({ hasTouch: true });
+// Story A waits on Story B and needs a decision about Story C.
+test.use({
+  hasTouch: true,
+  originRepository: queuedReadyRepository()
+    .withRevision("dependencies", twoDependencies())
+    .please(),
+});
 
 const pygardonHome =
   "seeds/SEED-120-release-readiness.md#story-checked-artifact-eligibility";
@@ -40,17 +53,20 @@ test("distinct stories in one seed follow their recorded identities by keyboard 
   origin,
   dashboard,
 }) => {
-  await twoDependencies(origin);
-  const seedPath = path.join(origin.project, ".planning/seeds/B.md");
-  writeFileSync(
-    seedPath,
-    `${readFileSync(seedPath, "utf8")}\n<a id="second"></a>\n\n### Second story in seed B\n\n**Identity:** SEED-B#second\n\nAnother outcome.\n`,
-  );
-  const backlogPath = path.join(origin.project, ".planning/PRODUCT-BACKLOG.md");
-  writeFileSync(
-    backlogPath,
-    `${readFileSync(backlogPath, "utf8")}\n- [Second story in seed B](seeds/B.md#second) — SEED-B#second\n`,
-  );
+  // A second story in Story B's seed, queued after it.
+  const secondInSeedB = makeMe.aBacklogEntry
+    .with({
+      identity: "SEED-B#second",
+      href: "seeds/B.md#second",
+      title: "Second story in seed B",
+    })
+    .please();
+  await origin.publishRevision({
+    backlog: { direction, queued: [storyA, storyB, secondInSeedB] },
+    files: {
+      ".planning/seeds/B.md": `${reviewedStorySeed(storyB)}\n<a id="second"></a>\n\n### Second story in seed B\n\n**Identity:** SEED-B#second\n\nAnother outcome.\n`,
+    },
+  });
   recordDependency(origin, {
     supplier: { identity: "SEED-B#second", href: "seeds/B.md#second" },
     state: "waiting",
@@ -119,32 +135,38 @@ test("each project's rendered pinned reference opens its own telling of the same
   dashboard,
   afterGitHubStops,
 }) => {
-  const revision = await twoDependencies(origin);
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,
     repository: "terryyin/open-dough",
   });
-  const pygardon = await startOrigin("terryyin/pygardon", "pygardon");
+  // Pygardon tells the same identity, SEED-B#b, in a seed of its own.
+  const pygardonStory = makeMe.aBacklogEntry
+    .with({
+      identity: "SEED-B#b",
+      href: pygardonHome,
+      title: "Pygardon selected story",
+    })
+    .please();
+  const pygardon = await startOrigin(
+    queuedReadyRepository()
+      .withRevision("dependencies", twoDependencies())
+      .withRevision("pygardon story", {
+        backlog: { direction, queued: [storyA, pygardonStory] },
+        files: {
+          [`.planning/${pygardonHome.split("#")[0]}`]: storySeed(
+            pygardonStory,
+            "Deliver Pygardon outcome.",
+          ),
+        },
+      })
+      .please(),
+    { repository: "terryyin/pygardon", projectId: "pygardon" },
+  );
   afterGitHubStops(() => {
     pygardon.cleanup();
   });
-  await twoDependencies(pygardon);
-  writeFileSync(
-    path.join(
-      pygardon.project,
-      ".planning/seeds/SEED-120-release-readiness.md",
-    ),
-    '---\nid: SEED-B\n---\n\n# Seed B\n\n<a id="story-checked-artifact-eligibility"></a>\n\n### Pygardon selected story\n\n**Identity:** SEED-B#b\n\nDeliver Pygardon outcome.\n',
-  );
-  const backlog = path.join(pygardon.project, ".planning/PRODUCT-BACKLOG.md");
-  writeFileSync(
-    backlog,
-    readFileSync(backlog, "utf8").replace(
-      "[Story B](seeds/B.md#b)",
-      `[Pygardon selected story](${pygardonHome})`,
-    ),
-  );
   recordDependency(pygardon, {
     supplier: { identity: "SEED-B#b", href: pygardonHome },
     state: "waiting",

@@ -42,7 +42,7 @@ test("the row below the banner and the Board read clearly in the frame's look", 
   page,
   afterGitHubStops,
 }) => {
-  const repo = buildOpenDoughReadinessRepo(afterGitHubStops);
+  const repo = await buildOpenDoughReadinessRepo(afterGitHubStops);
   await publishCommittedOrigin(page, {
     repoDir: repo.directory,
     revision: repo.revision,

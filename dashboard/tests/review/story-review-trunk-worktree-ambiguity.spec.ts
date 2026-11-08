@@ -42,7 +42,7 @@ import {
   otherQueuedIdentity,
   queuedIdentity,
   type StartOrigin,
-  type TrunkStart,
+  type TakenStart,
 } from "../support/startOrigin.ts";
 import {
   keptReviewMarks,
@@ -72,7 +72,7 @@ async function expectStoryWorktreeReviewedAlone(
   page: Page,
   dashboard: DashboardServer,
   origin: StartOrigin,
-  { agent, workspace, branch, claim }: TrunkStart & { readonly claim: string },
+  { agent, workspace, branch, claim }: TakenStart & { readonly claim: string },
 ) {
   const sessions = await page.request.get(
     `${dashboard.baseURL}${agentLaunchEndpoint}`,

@@ -6,6 +6,7 @@
 // replacement whose new document first carries the held field. The launch's
 // own lifetime is ./agent-launch-acceptance.spec.ts.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -77,7 +78,7 @@ test.describe("an accepted launch whose change is being kept", () => {
 
   test.beforeEach(async () => {
     acquired = {};
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     acquired.origin = origin;
     server = await startDashboardServer({
       mode: "boundary",

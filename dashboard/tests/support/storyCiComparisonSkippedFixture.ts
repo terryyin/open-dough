@@ -48,7 +48,7 @@ async function publishWithPlanningStart(
   origin: StartOrigin,
   withCiWorkflow: boolean,
 ): Promise<SkippedComparisonSetup> {
-  const baseline = precedeClaimWithPlanning(origin, {
+  const baseline = await precedeClaimWithPlanning(origin, {
     withCiWorkflow,
     sharedInBaseline: true,
   });

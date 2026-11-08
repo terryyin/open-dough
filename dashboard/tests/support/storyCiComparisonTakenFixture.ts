@@ -4,8 +4,8 @@
 // Provisional row beside Branch N/A. Shared helpers come from
 // ./storyCiComparisonFixture.ts.
 
-import path from "node:path";
 import type { Page } from "@playwright/test";
+import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import type { CiRunAnswer } from "./baseCiActions.ts";
 import type { StartOrigin } from "./startOrigin.ts";
@@ -40,10 +40,13 @@ export async function publishTakenComparedStoryBranch(
   ) => void;
   readonly serveJobs: ReturnType<typeof serveActionsFor>["serveJobs"];
 }> {
-  const baseline = precedeClaimWithPlanning(origin);
-  const agent = await origin.takenByAnotherAgent();
-  const workspace = path.join(origin.machine, "another-agent-workspace");
-  const branch = "claude/another-agent";
+  const baseline = await precedeClaimWithPlanning(origin);
+  const { agent, workspace, branch } = await origin.publishTake({
+    agent: "Yui",
+    story: storyA,
+    queued: [storyB],
+    mode: "story-branch",
+  });
   writeAt(workspace, "src/story.ts", "taken story work\n");
   commitAll(workspace, "story implementation on the branch");
   git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
@@ -93,8 +96,14 @@ export async function publishTakenComparedTrunk(
   readonly agent: string;
   readonly restoreActions: () => void;
 }> {
-  const baseline = precedeClaimWithPlanning(origin);
-  const { agent, workspace } = await origin.takenInTrunkMode("taken-trunk-ci");
+  const baseline = await precedeClaimWithPlanning(origin);
+  const { agent, workspace } = await origin.publishTake({
+    agent: "Yui",
+    story: storyA,
+    queued: [storyB],
+    mode: "trunk",
+    slug: "taken-trunk-ci",
+  });
   writeAt(workspace, "src/trunk-story.ts", "taken trunk work\n");
   commitAll(workspace, "story implementation on trunk");
   push(workspace);

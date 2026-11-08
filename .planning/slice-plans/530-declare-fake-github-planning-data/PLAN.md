@@ -17,8 +17,8 @@ Exclusions:
 - Helpers that build a Git repository (`admittedWork.ts`,
   `recentlyDoneSessionsSidebarPage.ts`, `support/retainedReport.ts`, and the
   Git origin of `support/projectAddMachine.ts`) belong to
-  [dashboard test repositories](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures)
-  (plan 512). `projectAddMachine.ts` migrates its fake GitHub files here.
+  dashboard test repositories (completed
+  `SEED-262#migrate-dashboard-origin-fixtures`). `projectAddMachine.ts` migrates its fake GitHub files here.
 - No dashboard product behavior, fake GitHub answer shape, observation or
   failure injection changes. Revision SHAs, commit dates and path histories
   stay harness inputs.

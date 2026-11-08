@@ -29,9 +29,13 @@ import {
   commitUnpublished,
   openTaken,
   shownWorkspace,
+  trunkModeRepository,
   trunkModeStory,
 } from "../support/storyReviewTrunkMode.ts";
 import { branch, git } from "../support/storyReviewWorktree.ts";
+
+// Trunk up to Yui-chan's claim of Story A in Trunk Mode.
+test.use({ originRepository: trunkModeRepository });
 
 test("all changes lists a Trunk Mode story's published changes beside its unpublished ones and leaves trunk's out", async ({
   page,

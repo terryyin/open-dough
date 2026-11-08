@@ -1,10 +1,9 @@
-import { writePlanning } from "../storyReadinessCli.ts";
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { passTimeUntilChecked, pausePageClock } from "../autoRefreshJourney.ts";
 import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import { expectDependencyAccessibly } from "../storyDependencyAccessible.ts";
-import { notFoundAnswer } from "../originAnswers.ts";
 import {
   consumer,
   supplierB,
@@ -13,28 +12,36 @@ import {
   twoDependencies,
   recordDependency,
   publishDependencies,
-  publishMalformedDependencies,
 } from "../storyDependencyFixture.ts";
 import {
   openUntilRead,
-  reloadUntilRead,
   untilPageRequestsAnswered,
 } from "../pageRequestNotes.ts";
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 
-// The accessible disclosure check taps the dependencies summary.
-test.use({ hasTouch: true });
+// The accessible disclosure check taps the dependencies summary. Story A
+// waits on Story B and needs a decision about Story C, and is not ready for
+// an unrelated reason.
+test.use({
+  hasTouch: true,
+  originRepository: queuedReadyRepository()
+    .withRevision(
+      "dependencies",
+      twoDependencies({
+        assessment: "not-ready",
+        reasons: ["Unrelated consumer design decision remains."],
+      }),
+    )
+    .please(),
+});
 
 test("published consumer dependencies disclose blockers accessibly and preserve independent readiness", async ({
   page,
   origin,
   dashboard,
 }) => {
-  const revision = await twoDependencies(origin, {
-    assessment: "not-ready",
-    reasons: ["Unrelated consumer design decision remains."],
-  });
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,
@@ -178,67 +185,4 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
   expect(await origin.takenProfiles()).toEqual([]);
   expect(published.requests.length).toBeGreaterThan(0);
-});
-
-test("malformed and unreadable dependency facts block execution without blocking refinement", async ({
-  page,
-  origin,
-}) => {
-  await twoDependencies(origin);
-  const revision = await publishMalformedDependencies(origin);
-  const published = await publishCommittedOrigin(page, {
-    repoDir: origin.project,
-    revision,
-    repository: "terryyin/open-dough",
-    follows: true,
-  });
-  const releaseCanonical = published.hold(".planning/seeds/A.md");
-  await openUntilRead(page);
-  const card = parts(page).backlog.getByRole("article", {
-    name: consumer.title,
-    exact: true,
-  });
-  const execution = card.getByRole("button", { name: "Start execution" });
-  await expect(execution).toBeDisabled();
-  await expect(execution).toHaveAccessibleDescription(
-    /dependency facts are being read/,
-  );
-  await expect(
-    card.getByRole("button", { name: "Start refinement" }),
-  ).toBeEnabled();
-  releaseCanonical();
-  await expect(card).toContainText(
-    "Dependency facts unavailable: Story dependencies: present dependency block is not valid JSON.",
-  );
-  // The recorded Ready assessment cannot look eligible behind the gap.
-  await expect(card.getByText("Slice planned", { exact: true })).toBeVisible();
-  await expect(card.locator(".badge-ready")).toHaveCount(0);
-  await expect(execution).toBeDisabled();
-  await expect(execution).toHaveAccessibleDescription(
-    /dependency facts could not be read/,
-  );
-  await expect(
-    card.getByRole("button", { name: "Start refinement" }),
-  ).toBeEnabled();
-  writePlanning(
-    origin.project,
-    "observed-change.md",
-    "Force a newly pinned observation.\n",
-  );
-  const unreadRevision = await publishDependencies(origin);
-  published.answerWith(".planning/seeds/A.md", notFoundAnswer());
-  await reloadUntilRead(page);
-  await expect(parts(page).readRevision).toContainText(
-    shortRevision(unreadRevision),
-  );
-  await expect(card.locator(".dependency-problem")).not.toContainText(
-    "not valid JSON",
-  );
-  await expect(card.locator(".dependency-problem")).toContainText(
-    "Dependency facts unavailable",
-  );
-  await expect(execution).toBeDisabled();
-  await expect(
-    card.getByRole("button", { name: "Inspect story" }),
-  ).toBeEnabled();
 });

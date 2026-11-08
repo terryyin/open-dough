@@ -27,7 +27,7 @@ export async function publishComparedStoryBranch(
   origin: StartOrigin,
   variant?: "own-conflict-extra" | "non-owning-story-file",
 ): Promise<StoryCiComparisonSetup> {
-  const baseline = precedeClaimWithPlanning(origin);
+  const baseline = await precedeClaimWithPlanning(origin);
   const story = await completedPublishedStory(origin, "story-branch", variant);
   const { completion, agent, branch } = story;
   const claim = claimOf(origin.project, agent);

@@ -1,4 +1,5 @@
 // Hold settlement before its lock acquisition, after real native binding.
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { existsSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import path from "node:path";
@@ -20,7 +21,7 @@ import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 
 test("deleted early Claude binding cannot be resurrected before attempt settlement", async () => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const hold = path.join(origin.machine, "hold-settlement");
   const reached = path.join(origin.machine, "settlement-held");
   const recordsFile = path.join(

@@ -9,6 +9,7 @@
 // the sessions every 100 ms here; "nothing more" is asserted only after the
 // fake `claude` has logged further listings, never after a sleep.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { expect } from "@playwright/test";
 import { markDone } from "../../tests/agentLaunchBoundary.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
@@ -29,7 +30,7 @@ import {
 } from "../../tests/support/startOrigin.ts";
 
 test("a report arriving unread raises one notification in its own words, apart from the native reading, and none once marked done", async () => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const server = await startDashboardServer({
     mode: "boundary",
     machine: origin.machine,

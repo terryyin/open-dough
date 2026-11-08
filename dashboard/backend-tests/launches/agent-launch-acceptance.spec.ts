@@ -13,6 +13,7 @@
 // `./agent-launch-open-session.spec.ts` and
 // `./agent-launch-open-session-continue.spec.ts`.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { chmodSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -63,7 +64,7 @@ test.describe("an accepted launch", () => {
   let push: PushHold;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     server = await startDashboardServer({
       mode: "boundary",
       machine: origin.machine,

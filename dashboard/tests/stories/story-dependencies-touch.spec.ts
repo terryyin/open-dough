@@ -1,3 +1,4 @@
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
@@ -9,7 +10,20 @@ import {
 } from "../pageLayout.ts";
 import { reason, condition, decision } from "../storyDependencyFixture.ts";
 
-test.use({ hasTouch: true });
+// Story A waits on Story B and needs a decision about Story C, and is not
+// ready for an unrelated reason.
+test.use({
+  hasTouch: true,
+  originRepository: queuedReadyRepository()
+    .withRevision(
+      "dependencies",
+      twoDependencies({
+        assessment: "not-ready",
+        reasons: ["Unrelated consumer design decision remains."],
+      }),
+    )
+    .please(),
+});
 
 test("touch inspection reads dependency, readiness and Start limitations without hovering", async ({
   page,
@@ -17,10 +31,7 @@ test("touch inspection reads dependency, readiness and Start limitations without
   dashboard,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  const revision = await twoDependencies(origin, {
-    assessment: "not-ready",
-    reasons: ["Unrelated consumer design decision remains."],
-  });
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,

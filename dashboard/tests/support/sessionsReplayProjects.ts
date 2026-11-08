@@ -13,10 +13,8 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import {
-  agentIdentity,
-  renderAgentProfile,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 import { projectConfigurationFile } from "./projectConfiguration.ts";
 
 // Each project and how many linked worktrees its checkout holds.
@@ -71,15 +69,11 @@ export function seedReplayProjects(home: string): void {
   let linked = 0;
   for (const { id, worktrees } of replayCatalog) {
     const checkout = path.join(home, "git", id);
-    const profile = path.join(checkout, ".planning", owner.path);
-    mkdirSync(path.dirname(profile), { recursive: true });
-    writeFileSync(
-      path.join(checkout, ".planning", "PRODUCT-BACKLOG.md"),
-      "# Backlog\n",
-    );
-    writeFileSync(
-      profile,
-      renderAgentProfile(
+    // Trunk's facts: an empty backlog and the owner executing this
+    // project's replay story.
+    writeRevisionFiles(checkout, {
+      backlog: {},
+      agentProfiles: [
         makeMe.anAgentProfile
           .executing({
             name: "Tsubomi",
@@ -89,8 +83,8 @@ export function seedReplayProjects(home: string): void {
             host: "claude",
           })
           .please(),
-      ),
-    );
+      ],
+    });
     git(checkout, "init", "--quiet", "--initial-branch=main");
     git(checkout, "config", "extensions.worktreeConfig", "true");
     git(checkout, "add", ".");

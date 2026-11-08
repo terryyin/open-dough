@@ -1,7 +1,8 @@
-// Expectations shared by start journeys. The writer supplies the canonical
-// queue and preparation facts from the same fixture the skill tests use.
-export { writeQueuedStories } from "../../../tests/support/queued-ready-stories.mjs";
+// Expectations shared by start journeys. The queued identities come from the
+// shared description of Stories A and B queued and Ready
+// (`queuedReadyRepository`), which the skill tests use too.
+import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 
-export const queuedIdentity = "SEED-A#a";
+export const queuedIdentity = storyA.identity;
 export const queuedTitle = "Prepare the queued start";
-export const otherQueuedIdentity = "SEED-B#b";
+export const otherQueuedIdentity = storyB.identity;

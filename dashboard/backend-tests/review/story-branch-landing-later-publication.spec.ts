@@ -8,6 +8,7 @@
 // context is refused before its push. Raw HTTP against the real installed start
 // and a real bare origin (../../tests/support/startOrigin.ts) with the synthetic `claude`.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
@@ -29,7 +30,7 @@ let origin: StartOrigin;
 let server: DashboardServer;
 
 test.beforeEach(async () => {
-  origin = await startOrigin();
+  origin = await startOrigin(queuedReadyRepository().please());
   server = await startBoundary(origin);
 });
 

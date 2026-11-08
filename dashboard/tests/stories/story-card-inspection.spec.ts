@@ -4,45 +4,46 @@
 // with its detail open) changes the selected story. The dependency disclosure
 // and link do not select their card.
 
-import { writeFileSync } from "node:fs";
-import path from "node:path";
-import { backlogOf } from "../../../tests/support/product-backlog-fixture.mjs";
+import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
+import {
+  queuedReadyRepository,
+  roughStoryC,
+  storyB,
+} from "../../../tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
   consumer,
   supplierB,
-  supplierC,
   test,
   twoDependencies,
 } from "../storyDependencyFixture.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { pausePageClock } from "../autoRefreshJourney.ts";
-import { otherQueuedIdentity } from "../support/queuedStories.ts";
 import { detailToggle } from "../storyCardControls.ts";
 import { expectInspected, expectSelected } from "../storyCardSelection.ts";
+
+// Story A waits on Story B and needs a decision about Story C, the second
+// supplier, queued as a third card; Story A is not ready for an unrelated
+// reason.
+test.use({
+  originRepository: queuedReadyRepository()
+    .withRevision("dependencies", {
+      ...twoDependencies({
+        assessment: "not-ready",
+        reasons: ["Unrelated consumer design decision remains."],
+      }),
+      backlog: { direction, queued: [consumer, storyB, roughStoryC] },
+    })
+    .please(),
+});
 
 test("Inspect story and a dependency reference open details beside each other without changing the selected story", async ({
   page,
   origin,
 }) => {
-  // Story C, the second supplier, queued as a third card.
-  writeFileSync(
-    path.join(origin.project, ".planning/PRODUCT-BACKLOG.md"),
-    backlogOf(
-      [],
-      [
-        `- [Story A](seeds/A.md#a) — ${consumer.identity}`,
-        `- [Story B](seeds/B.md#b) — ${otherQueuedIdentity}`,
-        `- [Story C](seeds/C.md#c) — ${supplierC.identity}`,
-      ],
-    ),
-  );
-  const revision = await twoDependencies(origin, {
-    assessment: "not-ready",
-    reasons: ["Unrelated consumer design decision remains."],
-  });
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,
