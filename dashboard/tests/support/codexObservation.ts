@@ -13,34 +13,40 @@ import { machineSessions } from "../agentLaunchBoundary.ts";
 import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { rawRequest } from "./rawHttp.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { RawRequestOptions, RawResponse } from "./rawHttp.ts";
 
+// The kept refinement of the not-refined story in Codex thread `id`, which
+// continues through this fake's socket in the server's checkout unless the
+// case states its project, title, workspace or endpoint. It states no first
+// input or preparation, so the server decodes it as a predecessor record.
 export function observationRecord(
   server: Pick<DashboardServer, "home">,
   native: FakeCodex,
   id: string,
+  {
+    source = "open-dough",
+    title = notRefinedStory,
+    workspace = path.join(server.home, "git", "open-dough"),
+    endpoint = `unix://${native.env["FAKE_CODEX_SOCKET"] ?? ""}`,
+  }: {
+    source?: string;
+    title?: string;
+    workspace?: string;
+    endpoint?: string;
+  } = {},
 ): LaunchRecord & { session: CodexSession } {
-  return {
-    request: {
-      source: "open-dough",
-      identity: notRefinedIdentity,
-      title: notRefinedStory,
-      workflow: "refinement",
-      host: "codex",
-    },
-    session: {
-      host: "codex",
+  const record = makeMe.aLaunchRecord
+    .refining({ identity: notRefinedIdentity, title, source })
+    .inCodexSession({
       sessionId: id,
-      name: id,
-      continuation: {
-        workspace: path.join(server.home, "git", "open-dough"),
-        endpoint: `unix://${native.env["FAKE_CODEX_SOCKET"] ?? ""}`,
-        args: ["codex", "resume", id],
-      },
-    },
-    launchedAt: "2026-09-01T00:00:00.000Z",
-    // Deliberately omit newer firstInput/preparation fields: actual predecessor decoding.
-  };
+      continuation: { workspace, endpoint, args: ["codex", "resume", id] },
+    })
+    .launchedAt("2026-09-01T00:00:00.000Z")
+    .please();
+  const { session } = record;
+  if (session.host !== "codex") throw new Error("Expected a Codex session");
+  return { ...record, session };
 }
 export function saveObservations(
   server: Pick<DashboardServer, "home">,

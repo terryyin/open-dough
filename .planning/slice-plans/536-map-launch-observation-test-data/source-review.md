@@ -9,7 +9,7 @@ Launch: a fresh general-purpose subagent (no conversation inheritance, fork or r
 | G1 | Maintainers can read a dashboard test's starting facts in the product's vocabulary, including: | slice 4 | |
 | G1.1 | the kept launch being observed | slice 1 | observed: dashboard/backend-tests/launches/launch-observations.spec.ts targets built by makeMe.aLaunchRecord; host stubs expect(records).toEqual([targets[n]]) |
 | G1.2 | the host's report | slice 1 | observed: dashboard/backend-tests/launches/launch-observations.spec.ts test 1: codex stub reports makeMe.aSessionState.retained('review'); answer states equal [unknown, retained review] |
-| G1.3 | the answer the page has read | slice 2 | |
+| G1.3 | the answer the page has read | slice 2 | observed: dashboard/tests/sessions/agent-launch-sessions-unanswered.spec.ts: after a real page.route 503 the entry still contains Ready for review and listed |
 | G1.4 | the machine's accepted attempts | slice 3 | |
 | G2 | The same facts are recognizable across: | slice 4 | |
 | G2.1 | backend rules | slice 1 | observed: done-question-rule, session-working-count-rule, session-unread-rule, session-alerts-helper specs arrange states via makeMe.aSessionState and keep their rule assertions |
@@ -21,13 +21,13 @@ Launch: a fresh general-purpose subagent (no conversation inheritance, fork or r
 | S1.2 | `LaunchWithState` | slice 1 | observed: makeMe.anObservedLaunch (ObservedLaunchBuilder) builds LaunchWithState in session-unread-rule retired and session-alerts-helper working |
 | S1.3 | machine sessions answers | slice 4 | |
 | S2 | Compose a live record with the kept record it observes | slice 1 | observed: ObservedLaunchBuilder.of(kept record from makeMe.aLaunchRecord).withSessionState(...); session-unread-rule sessionShown(retired) label Completed with attention |
-| S3 | Keep these distinct: | slice 2 | |
+| S3 | Keep these distinct: | slice 2 | observed: dashboard/backend-tests/sessions/agent-launch-codex-observation-status.spec.ts test 1 exact sessionState list (loaded activities, unknown with reason) and test 2 retained review vs unknown; dashboard/tests/sessions/agent-launch-codex-observation.spec.ts missing shows Session unavailable |
 | S3.1 | loaded availability | slice 1 | observed: session-working-count-rule loaded('working'\|'awaiting-instruction') workingCount 2 |
 | S3.2 | retained availability | slice 1 | observed: dashboard/backend-tests/launches/launch-observations.spec.ts test 1 retained review expectation |
 | S3.3 | activity such as working, waiting and review (the list is illustrative: "such as") | slice 1 | observed: done-question-rule cases separate working, waiting and review via says; working-count excludes awaiting-instruction |
 | S3.4 | unknown observation | slice 1 | observed: dashboard/backend-tests/launches/launch-observations.spec.ts tests 1 and 2 { kind: 'unknown' }; working-count unknown(cursorHeldLabel.working) counts |
-| S3.5 | confirmed unavailability | slice 2 | |
-| S4 | A stale read, or a page holding its last answer, is expressed through the read that produced it | slice 2 | |
+| S3.5 | confirmed unavailability | slice 2 | observed: dashboard/tests/sessions/agent-launch-codex-observation.spec.ts entry 'missing' shows Session unavailable; agent-launch-story-card-session-states forgotten session shows Session unavailable |
+| S4 | A stale read, or a page holding its last answer, is expressed through the read that produced it | slice 2 | observed: dashboard/tests/sessions/agent-launch-sessions-unanswered.spec.ts: the held answer is kept through the refused 503 reads that produced it, and the hidden page aborts its held read |
 | S5 | Arrange accepted attempts through MakeMe | slice 3 | |
 | S6 | Arrange attempt observations through MakeMe | slice 3 | |
 | S7 | A kept attempt retains its incoming request and its acceptance facts | slice 3 | |
@@ -43,7 +43,7 @@ Launch: a fresh general-purpose subagent (no conversation inheritance, fork or r
 | S13 | Preserve these where a case depends on their form: | slice 4 | |
 | S13.1 | independent expectations | slice 4 | |
 | S13.2 | the operations under proof | slice 4 | |
-| S13.3 | explicit native protocol inputs | slice 2 | |
+| S13.3 | explicit native protocol inputs | slice 2 | observed: dashboard/backend-tests/sessions/agent-launch-codex-observation-status.spec.ts observed(...) and native.observations.set literals unchanged; bad endpoint stated at the call site through observationRecord's endpoint fact |
 | S13.4 | exact wire omissions | slice 4 | |
 | S13.5 | legacy data | slice 3 | |
 | S13.6 | injected faults | slice 3 | |
@@ -53,16 +53,16 @@ Launch: a fresh general-purpose subagent (no conversation inheritance, fork or r
 | E1 | Two kept records share a native ID across different hosts. One host's read fails and the other reports a retained session ready for review. | slice 1 | observed: dashboard/backend-tests/launches/launch-observations.spec.ts test 1: claude and codex targets share sessionId same-native-id; claude host throws, codex reports retained review |
 | E1.1 | The answer still carries both records | slice 1 | observed: dashboard/backend-tests/launches/launch-observations.spec.ts test 1 expect(answer sessions).toEqual(targets sessions) |
 | E1.2 | The records keep their respective states: unknown for one, retained-review for the other | slice 1 | observed: dashboard/backend-tests/launches/launch-observations.spec.ts test 1 states toEqual [{kind:'unknown'}, {available, retained, review}]; withStates fallback mutation to unavailable fails it |
-| E2 | A card has shown a session ready for review, and a later machine read is refused with a retryable 503 | slice 2 | |
-| E2.1 | The page keeps that entry and its last shown state | slice 2 | |
-| E2.2 | Contrast case: a successful read that reports confirmed unavailability can instead show "Session unavailable" | slice 2 | |
+| E2 | A card has shown a session ready for review, and a later machine read is refused with a retryable 503 | slice 2 | observed: dashboard/tests/sessions/agent-launch-sessions-unanswered.spec.ts: entry shows Ready for review, then the sessions read is refused with 503 |
+| E2.1 | The page keeps that entry and its last shown state | slice 2 | observed: dashboard/tests/sessions/agent-launch-sessions-unanswered.spec.ts: entry still contains Ready for review and listed after two refused reads |
+| E2.2 | Contrast case: a successful read that reports confirmed unavailability can instead show "Session unavailable" | slice 2 | observed: dashboard/tests/sessions/agent-launch-codex-observation.spec.ts sessionStateOf(entry missing) has text Session unavailable |
 | E3 | A story has an accepted attempt that the answering server owns and that is still running, with no launched outcome or kept session. The page reads that machine answer. | slice 4 | |
 | E3.1 | The card shows startup in progress | slice 4 | |
 | E3.2 | The card disables its Start actions | slice 4 | |
 | E3.3 | When a launch does settle, the attempt identifies the session by host and ID | slice 3 | |
 | E4 | A read receives one of these (alternatives): | slice 3 | |
-| E4.1 | an unfamiliar native status | slice 2 | |
-| E4.2 | a missing protocol field | slice 2 | |
+| E4.1 | an unfamiliar native status | slice 2 | observed: dashboard/backend-tests/sessions/agent-launch-codex-observation-status.spec.ts futureTurnStatus/futureFlag give unknown with unknownReason unrecognized; dashboard/tests/sessions/agent-launch-codex-observation.spec.ts State not recognized: Codex reported native status: futureNativeStatus |
+| E4.2 | a missing protocol field | slice 2 | observed: dashboard/backend-tests/sessions/agent-launch-codex-observation-status.spec.ts absent-flags gives Codex did not report active status flags with unknownReason incomplete; card shows State not recognized |
 | E4.3 | corrupt attempt-store text | slice 3 | |
 | E4.4 | The case supplies that exact evidence | slice 3 | |
 | E4.5 | The case observes the same unknown or unreadable result after conversion | slice 3 | |
@@ -73,7 +73,7 @@ Launch: a fresh general-purpose subagent (no conversation inheritance, fork or r
 | A5 | `AttemptObservation` carries the facts the dashboard reads at its own boundary | slice 3 | |
 | A6 | Follows ADR 0002 §5: use a clear domain model and map directly to it throughout the solution | slice 4 | |
 | A7 | Follows ADR 0008: project dashboard domain and architecture (durable project state and local operational state) | slice 4 | |
-| A8 | Keep real host observation in the tests that prove that operation | slice 2 | |
+| A8 | Keep real host observation in the tests that prove that operation | slice 2 | observed: observationRecord cases run through the real server, fake Codex socket and passive(native.calls); bad-endpoint row now discriminated by a healthy observed thread |
 | A9 | Keep attempt acceptance in the tests that prove that operation | slice 3 | |
 | A10 | Rationale: a fixture that supplies both an input and its expected interpretation would hide the very regressions those tests catch | slice 4 | |
 | X1 | Kept record persistence and its writer belong to the kept record story (exclusion) | slice 4 | |

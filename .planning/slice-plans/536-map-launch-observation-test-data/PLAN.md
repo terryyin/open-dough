@@ -127,7 +127,7 @@ no native scenario changes.
 
 ### 2. Passive reads keep native evidence and the page's held answer distinct
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed examples 2 and 4 for session reads. Run `npm run test:dashboard -- 'backend-tests/sessions/(agent-launch-codex-observation[^/]*|session-alerts-input-continuity)\.spec\.ts$' 'backend-tests/launches/agent-launch-codex-startup\.spec\.ts$' 'dashboard/tests/sessions/(agent-launch-codex-observation[^/]*|agent-launch-sessions-unanswered|agent-launch-story-card-session-states|agent-launch-story-card-delete-problems|project-restored-session)\.spec\.ts$'` and other affected consumers.
 
 A page already shows a session in review. A retryable read refusal leaves
@@ -137,6 +137,17 @@ observations, including `observationRecord`, and compose any synthetic live
 records. Keep the fake host's native status and protocol inputs, predecessor
 omissions, explicit 503, and held-response or deletion timing in their
 harnesses. Real HTTP and browser journeys keep observing those distinctions.
+
+Accepted: `observationRecord` in `dashboard/tests/support/codexObservation.ts`
+delegates to `makeMe.aLaunchRecord` and takes source, title, workspace and
+endpoint as call-site facts instead of post-construction mutation. Four specs
+pass those facts. The bad-endpoint row now also arranges a healthy thread,
+so only the absent endpoint makes it unknown; before that, ignoring the
+endpoint passed. The session-state, delete-problem and unanswered specs
+needed no change. The focused command passed 28 tests, the other
+`observationRecord` importers 8, plus typecheck and the MakeMe node loaders.
+Learning: a call-site fact passed into a harness helper can look covered
+while nothing discriminates it; mutate the helper to check.
 
 ### 3. Accepted attempts keep their own stored and live facts
 Type: Behavior

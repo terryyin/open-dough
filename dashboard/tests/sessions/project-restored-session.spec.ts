@@ -26,18 +26,10 @@ test("adding an initially unconfigured retained Codex project prepares its passi
   );
   try {
     const home = path.join(fixture.machine, "home");
-    const old = observationRecord({ home }, native, "retained-sample");
-    const record = {
-      ...old,
-      request: { ...old.request, source: "sample-app" },
-      session: {
-        ...old.session,
-        continuation: {
-          ...old.session.continuation,
-          workspace: fixture.checkout,
-        },
-      },
-    };
+    const record = observationRecord({ home }, native, "retained-sample", {
+      source: "sample-app",
+      workspace: fixture.checkout,
+    });
     seedStore(fixture.machine, JSON.stringify({ "sample-app": [record] }));
     const bytes = readFileSync(storeFile(fixture.machine), "utf8");
     observed(native, "retained-sample", { type: "notLoaded" }, "completed");
