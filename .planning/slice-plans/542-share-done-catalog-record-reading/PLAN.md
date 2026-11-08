@@ -86,3 +86,7 @@ repository-revision-files tests, `npm run typecheck:dashboard`, and 84
 dashboard done-catalog, listed-records, revision-reuse, agent-settings and
 recently-done specs passed. Per-commitment observations are in
 [source-review.md](source-review.md). The refactor pass made no edits.
+
+## Execution complete
+
+Product advice: no change. The correction leaves one product rule for selecting, ordering and hashing done record files; the remaining `isDoneRecordFileName` callers use that shared predicate for other purposes, and no queued story is affected.
