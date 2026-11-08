@@ -13,22 +13,24 @@ import { SessionAlerts } from "../../server/sessionAlerts.ts";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
 import { launchRequest } from "../../tests/agentLaunchBoundary.ts";
 import { notificationActivation } from "../../tests/support/notificationActivation.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const working: LaunchWithState = {
-  request: { ...launchRequest, host: "claude", workflow: "execution" },
-  session: {
-    host: "claude",
-    sessionId: "native-test",
-    shortId: "native",
-    name: "native-test",
-  },
-  launchedAt: "2026-10-19T00:00:00.000Z",
-  sessionState: {
-    kind: "available",
-    availability: "loaded",
-    activity: "working",
-  },
-};
+// The kept launch the alert owner reads, in the project `source`.
+const kept = (source: string) =>
+  makeMe.aLaunchRecord
+    .executing({
+      identity: launchRequest.identity,
+      title: launchRequest.title,
+      source,
+    })
+    .inClaudeSession({ sessionId: "native-test", shortId: "native" })
+    .launchedAt("2026-10-19T00:00:00.000Z")
+    .please();
+
+const working: LaunchWithState = makeMe.anObservedLaunch
+  .of(kept(launchRequest.source))
+  .withSessionState(makeMe.aSessionState.loaded("working").please())
+  .please();
 
 const test = base.extend<{
   helper: {
@@ -81,16 +83,12 @@ const test = base.extend<{
           return alerts;
         },
         state(activity, source = launchRequest.source, waitingFor) {
-          session = {
-            ...working,
-            request: { ...working.request, source },
-            sessionState: {
-              kind: "available",
-              availability: "loaded",
-              activity,
-              ...(waitingFor === undefined ? {} : { waitingFor }),
-            },
-          };
+          const sessionState = makeMe.aSessionState.loaded(activity);
+          if (waitingFor !== undefined) sessionState.waitingFor(waitingFor);
+          session = makeMe.anObservedLaunch
+            .of(kept(source))
+            .withSessionState(sessionState.please())
+            .please();
         },
         async further() {
           const prior = reads;

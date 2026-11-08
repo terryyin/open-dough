@@ -7,35 +7,23 @@
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { completionReport } from "../../tests/support/completionReport.ts";
-import type { LaunchWithState } from "../../src/agentLaunch.ts";
 import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";
 import {
   attentionCount,
   workingCount,
   workingWords,
 } from "../../src/sessionShown.ts";
-
-const available = (
-  activity: "working" | "waiting" | "awaiting-instruction" | "review",
-): Pick<LaunchWithState, "sessionState"> => ({
-  sessionState: {
-    kind: "available",
-    availability: "loaded",
-    activity,
-  },
-});
-
-const held = (
-  label: (typeof cursorHeldLabel)[keyof typeof cursorHeldLabel],
-): Pick<LaunchWithState, "sessionState"> => ({
-  sessionState: { kind: "unknown", label },
-});
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test("awaiting first instruction is excluded; only native Working counts among unsettled peers", () => {
   const sessions = [
-    available("working"),
-    available("working"),
-    available("awaiting-instruction"),
+    { sessionState: makeMe.aSessionState.loaded("working").please() },
+    { sessionState: makeMe.aSessionState.loaded("working").please() },
+    {
+      sessionState: makeMe.aSessionState
+        .loaded("awaiting-instruction")
+        .please(),
+    },
   ];
   expect(workingCount(sessions)).toBe(2);
   expect(attentionCount(sessions)).toBe(0);
@@ -44,10 +32,18 @@ test("awaiting first instruction is excluded; only native Working counts among u
 
 test("Cursor held working counts; held waiting does not; done while still working natively does not", () => {
   const sessions = [
-    held(cursorHeldLabel.working),
-    held(cursorHeldLabel.waiting),
     {
-      ...available("working"),
+      sessionState: makeMe.aSessionState
+        .unknown(cursorHeldLabel.working)
+        .please(),
+    },
+    {
+      sessionState: makeMe.aSessionState
+        .unknown(cursorHeldLabel.waiting)
+        .please(),
+    },
+    {
+      sessionState: makeMe.aSessionState.loaded("working").please(),
       doneAt: "2026-10-01T11:00:00.000Z",
     },
   ];
@@ -57,7 +53,7 @@ test("Cursor held working counts; held waiting does not; done while still workin
 
 test("an unread report on a working session still counts, and one is singular", () => {
   const workingUnread = {
-    ...available("working"),
+    sessionState: makeMe.aSessionState.loaded("working").please(),
     completion: completionReport({
       message: "Published. Reminder: check the migration.",
     }),

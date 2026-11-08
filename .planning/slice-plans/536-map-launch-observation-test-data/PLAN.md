@@ -2,6 +2,7 @@
 
 **Identity:** SEED-261#map-launch-observation-test-data
 **Source:** [Refined story](../../seeds/SEED-261-share-domain-test-data.md#map-launch-observation-test-data)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and boundaries
 
@@ -102,7 +103,7 @@ finds an affected native scenario.
 
 ### 1. Host joins and session rules read explicit observation facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 1. Run `npm run test:dashboard -- 'backend-tests/launches/launch-observations\.spec\.ts$' 'backend-tests/sessions/(done-question-rule|session-working-count-rule|session-unread-rule|session-alerts-helper)\.spec\.ts$'`.
 
 Two host-qualified targets share the same native ID. When one host refuses
@@ -110,6 +111,19 @@ and another reports retained review, `withStates` returns unknown and
 retained review for the respective targets. Convert arranged session states
 and observed records in the join and the rules that consume them. Keep the
 host substitutions, controlled deadline and independent join assertions.
+
+Accepted: `makeMe.aSessionState` and `makeMe.anObservedLaunch`
+(`tests/support/launchObservationTestData.mjs`) compose a kept record from
+`makeMe.aLaunchRecord` with an explicit session state. The five specs above
+delete their local constructors. `launch-observations` test 1 now also
+asserts the answer carries both host-qualified sessions; changing the
+`withStates` fallback to unavailable fails it. The focused command passed
+21 tests; `npm run typecheck:dashboard` and `bash scripts/test.sh
+tests/native-evidence-identity.sh` with the two MakeMe-loading node tests
+passed. Learning: a `LaunchWithState` from MakeMe widens `request` to the
+full union, so an alternative request comes from the kept-record builder,
+not a spread. MakeMe's import closure feeds the native evidence identity;
+no native scenario changes.
 
 ### 2. Passive reads keep native evidence and the page's held answer distinct
 Type: Behavior
