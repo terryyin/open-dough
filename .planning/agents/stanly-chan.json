@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "stanly-chan",
+  "email": "stanly-chan@example.org",
+  "identity": "SEED-279#observe-stale-reclaimer-handoff",
+  "mode": "story-branch",
+  "branch": "codex/verify-stale-reclaimer-exclusion-without-a-fixed",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
