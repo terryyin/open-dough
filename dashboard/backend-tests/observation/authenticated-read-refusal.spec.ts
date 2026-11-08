@@ -16,6 +16,8 @@ import {
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { describedBacklog } from "../../tests/describedRevisions.ts";
 import {
   branchReadRefusals,
   listedReadRefusals,
@@ -26,7 +28,8 @@ test.describe.configure({ mode: "serial" });
 
 const knownSourceId = "open-dough";
 const revision = "ab".repeat(20);
-const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
+// An empty project's backlog.
+const backlog = describedBacklog(makeMe.aRepository.please());
 const secretMarker = "gho_should-never-reach-a-browser-1234567890";
 
 test.describe("authenticated read boundary refusal (development environment)", () => {

@@ -25,7 +25,7 @@ import {
   removedQueued,
   repository,
   revision,
-  withLastWeekRecordFiles,
+  withLastWeekRecord,
 } from "../recentlyDoneRecords.ts";
 import {
   adHocEntry,
@@ -79,7 +79,7 @@ test("a done story's card holds this machine's sessions for it, marked done, new
   await publishFiles(page, {
     repository,
     revision,
-    files: publishedFiles(withLastWeekRecordFiles(now)),
+    files: publishedFiles(withLastWeekRecord(now)),
   });
   await page.goto("/");
   await expectMembership(page, { taken: [], backlog: [queuedTitle] });

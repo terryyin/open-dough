@@ -18,6 +18,11 @@ import {
   rateLimitedAnswer,
 } from "../../tests/originAnswers.ts";
 import { abandonedRequest, rawRequest } from "../../tests/support/rawHttp.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import {
+  describedRevision,
+  withBacklogFallback,
+} from "../../tests/describedRevisions.ts";
 import {
   inspect,
   knownSourceId,
@@ -154,24 +159,28 @@ test("pinned content failures carry the admitted pin without changing the shared
   try {
     const revision = "e2".repeat(20);
     const seedPath = ".planning/seeds/SEED-diagnostics.md";
-    const backlog = `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [Diagnostics](seeds/SEED-diagnostics.md#story) — SEED-diagnostics#story
-`;
+    const published = describedRevision(
+      makeMe.aRepository
+        .withRevision("diagnostics", {
+          backlog: {
+            queued: [
+              makeMe.aBacklogEntry
+                .with({
+                  title: "Diagnostics",
+                  identity: "SEED-diagnostics#story",
+                  href: "seeds/SEED-diagnostics.md#story",
+                })
+                .please(),
+            ],
+          },
+          files: { [seedPath]: "# Seed\n" },
+        })
+        .please(),
+      revision,
+    );
     server.github.serve(
       everyRepository,
-      publishes({
-        revision,
-        backlog,
-        files: {
-          ".planning/PRODUCT-BACKLOG.md": backlog,
-          [seedPath]: "# Seed\n",
-        },
-      }),
+      publishes(withBacklogFallback(published)),
     );
     expect(
       (

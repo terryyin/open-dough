@@ -16,7 +16,7 @@ import { expect } from "./dashboardTest.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { catalogPublications } from "./catalogProjectRecords.ts";
-import { withDoneCatalog } from "./doneCatalogAnswers.ts";
+import { describedRevisions } from "./describedRevisions.ts";
 import {
   browseSpec,
   openDough,
@@ -24,7 +24,7 @@ import {
   publishIntentProject,
 } from "./intentCodeBrowseFixtures.ts";
 import { publishFiles } from "./publishedFiles.ts";
-import { doneDirectory, doneRecordAt } from "./recentlyDoneRecords.ts";
+import { doneRecordAt } from "./recentlyDoneRecords.ts";
 import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import type { tapWhereShown } from "./pageLayout.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
@@ -70,26 +70,40 @@ export async function publishSelectionProjects(
     [readSpec]: browseSpec,
   });
   const { pygardon, doughnut } = catalogPublications;
-  const recorded = unreadableLinkedRecord
-    ? { ...linked, identity: "SEED-502#named-inside" }
-    : linked;
+  const record = makeMe.aDoneRecord
+    .completed({
+      ...linked,
+      completedAt: new Date(now - 60 * minute).toISOString(),
+    })
+    .please();
+  // Pygardon's pinned files, then its done story's record beside them with
+  // the catalog completion rebuilds.
+  const { done } = describedRevisions(
+    makeMe.aRepository
+      .withRevision("pinned", { files: pygardon.files })
+      .withRevision(
+        "done",
+        unreadableLinkedRecord
+          ? {
+              doneRecords: [],
+              // Misnamed bytes the case proves: the record at the linked
+              // story's path names another identity.
+              files: {
+                [doneRecordAt(linked.identity)]: renderDoneRecord({
+                  ...record,
+                  identity: "SEED-502#named-inside",
+                }),
+              },
+            }
+          : { doneRecords: [record] },
+      )
+      .please(),
+    { pinned: pygardon.revision, done: pygardon.revision },
+  );
   await publishFiles(page, {
     repository: pygardon.repository,
     revision: pygardon.revision,
-    files: withDoneCatalog(
-      {
-        ...pygardon.files,
-        [doneRecordAt(linked.identity)]: renderDoneRecord(
-          makeMe.aDoneRecord
-            .completed({
-              ...recorded,
-              completedAt: new Date(now - 60 * minute).toISOString(),
-            })
-            .please(),
-        ),
-      },
-      doneDirectory,
-    ),
+    files: done.files,
   });
   await publishFiles(page, {
     repository: doughnut.repository,

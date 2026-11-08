@@ -30,8 +30,10 @@ import {
   projectEnvironmentOf,
 } from "../support/projectConfiguration.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
+const backlog = describedBacklog(makeMe.aRepository.please());
 const published = publishes({ revision: "ab".repeat(20), backlog });
 let machine: string;
 const servers: DashboardServer[] = [];

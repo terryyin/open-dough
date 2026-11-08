@@ -13,7 +13,10 @@ import {
   revisionDoughnut,
   sharedStoryIdentity,
 } from "../doughnutProject.ts";
+import { describedRevisions, publishedFile } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
+  backlogPath,
   pathsRead,
   publishMovingOrigin,
   rateLimitedAnswer,
@@ -33,15 +36,40 @@ const openDoughSharedTitleSecond =
 const openDoughSharedTitleThird =
   "Open Dough's third telling of the shared story";
 
-function openDoughBacklogWith(title: string): string {
-  return `# Product backlog
+const sharedStoryTold = (title: string) =>
+  makeMe.aBacklogEntry
+    .with({
+      identity: sharedStoryIdentity,
+      title,
+      href: "seeds/SEED-777-shared.md#shared-story",
+    })
+    .please();
+const openDoughRevisions = describedRevisions(
+  makeMe.aRepository
+    .withRevision("first", {
+      backlog: { queued: [sharedStoryTold(openDoughSharedTitleFirst)] },
+    })
+    .withRevision("second", {
+      backlog: { queued: [sharedStoryTold(openDoughSharedTitleSecond)] },
+    })
+    .withRevision("third", {
+      backlog: { queued: [sharedStoryTold(openDoughSharedTitleThird)] },
+    })
+    .please(),
+  {
+    first: revisionOpenDoughFirst,
+    second: revisionOpenDoughSecond,
+    third: revisionOpenDoughThird,
+  },
+);
 
-## Taken
-
-## Backlog list
-
-- [${title}](seeds/SEED-777-shared.md#shared-story) — ${sharedStoryIdentity}
-`;
+// Moves Open Dough's `main` to the named revision.
+function pushOpenDough(
+  openDough: MovingOrigin,
+  name: keyof typeof openDoughRevisions,
+): void {
+  const at = openDoughRevisions[name];
+  openDough.push(at.revision, publishedFile(at, backlogPath));
 }
 
 async function openBothOrigins(
@@ -49,10 +77,7 @@ async function openBothOrigins(
 ): Promise<{ openDough: MovingOrigin; doughnut: MovingOrigin }> {
   const openDough = await publishMovingOrigin(page);
   const doughnut = await publishMovingOrigin(page, doughnutRepository);
-  openDough.push(
-    revisionOpenDoughFirst,
-    openDoughBacklogWith(openDoughSharedTitleFirst),
-  );
+  pushOpenDough(openDough, "first");
   doughnut.push(revisionDoughnut, doughnutBacklog);
   await page.goto("/");
   await expectMembership(page, {
@@ -80,10 +105,7 @@ test.describe("project read isolation", () => {
       await expect(selectedProject).toBeFocused();
     });
 
-    openDough.push(
-      revisionOpenDoughSecond,
-      openDoughBacklogWith(openDoughSharedTitleSecond),
-    );
+    pushOpenDough(openDough, "second");
     await page.keyboard.press("ArrowLeft");
 
     await test.step("Open Dough's fresh read is shown; Doughnut's outstanding read is not waited on or shown", async () => {
@@ -139,10 +161,7 @@ test.describe("project read isolation", () => {
     await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
     doughnut.answerWith("main", rateLimitedAnswer());
 
-    openDough.push(
-      revisionOpenDoughSecond,
-      openDoughBacklogWith(openDoughSharedTitleSecond),
-    );
+    pushOpenDough(openDough, "second");
     await project
       .getByRole("radio", { name: "Open Dough", exact: true })
       .check();
@@ -180,10 +199,7 @@ test.describe("project read isolation", () => {
     // "returning to a project starts a fresh read" rule ./project-selection.spec.ts
     // proves for the sequential case), so a cached replay of the first
     // snapshot would show the wrong title.
-    openDough.push(
-      revisionOpenDoughThird,
-      openDoughBacklogWith(openDoughSharedTitleThird),
-    );
+    pushOpenDough(openDough, "third");
     await project
       .getByRole("radio", { name: "Open Dough", exact: true })
       .check();

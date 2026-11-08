@@ -10,21 +10,16 @@ import {
   updateStoryDependency,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  readStoryState,
-  recordStoryState,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import { branchRefAnswer } from "./originAnswers.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
-import { withDoneCatalog } from "./doneCatalogAnswers.ts";
+import { describedRevisions } from "./describedRevisions.ts";
 import { doneDirectory, executed } from "./recentlyDoneRecords.ts";
 import { heldDoneRecords } from "./publishedFactsDoneRecords.ts";
 import {
   afterTake,
-  backlogPath,
+  clockedFacts,
   committed,
   files,
   history,
@@ -67,6 +62,7 @@ const preparingText = `<a id="preparing"></a>
 
 **Goal:** ${purpose}
 `;
+// The seed prose, with the supplier agreement the dependency writer records.
 const withAgreement = z.string().parse(
   updateStoryDependency(preparingText, {
     identity: preparingIdentity,
@@ -86,32 +82,67 @@ const withAgreement = z.string().parse(
       .please(),
   }).source,
 );
-const preparationRequest = {
-  identity: preparingIdentity,
-  href: preparingHref,
-  refinement: "refined",
-  approach: "planned",
-  plan: "../slice-plans/091-preparing/PLAN.md",
-};
-const unassessed = z
-  .string()
-  .parse(
-    recordStoryState(withAgreement, preparationRequest, { planSource: plan })
-      .source,
-  );
-const assessed = z.string().parse(
-  recordStoryState(
-    unassessed,
-    {
-      ...preparationRequest,
-      assessment: "ready",
-      expectedBasis: readStoryState(unassessed, preparingHref, {
-        planSource: plan,
-      }).basis,
-    },
-    { planSource: plan },
-  ).source,
-);
+
+// The slice clock records (./sliceClockRecords.ts) queuing one more story,
+// then that story prepared: planned and assessed Ready, an execution and a
+// preparation profile, and `moreDone` further done records beside the one
+// every journey reads.
+const publishedTrunk = (moreDone: number) =>
+  describedRevisions(
+    makeMe.aRepository
+      .withRevision(
+        "clock",
+        clockedFacts({
+          queued: [
+            makeMe.aBacklogEntry
+              .with({
+                identity: preparingIdentity,
+                href: preparingHref,
+                title: preparing,
+              })
+              .please(),
+          ],
+        }),
+      )
+      .withRevision("prepared", {
+        files: {
+          ".planning/open-dough.json": "{}\n",
+          [preparingPath]: withAgreement,
+          [planPath("preparing")]: plan,
+        },
+        storyStates: [
+          {
+            identity: preparingIdentity,
+            href: preparingHref,
+            ...makeMe.aStoryPreparation
+              .plannedIn("../slice-plans/091-preparing/PLAN.md")
+              .please(),
+            assessment: "ready",
+          },
+        ],
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .executing({
+              name: "Akiho",
+              identity: "SEED-091#after-take",
+              mode: "story-branch",
+              branch,
+              host: "claude",
+            })
+            .please(),
+          makeMe.anAgentProfile
+            .preparing({
+              name: "Kirara",
+              identity: preparingIdentity,
+              host: "codex",
+            })
+            .please(),
+        ],
+        doneRecords: heldDoneRecords(moreDone, minutesBefore),
+      })
+      .please(),
+    { clock: revision, prepared: revision },
+  ).prepared;
 
 const groupOf = (request: GhRequest): FactGroup | undefined => {
   if (request.kind !== "content") return undefined;
@@ -128,37 +159,7 @@ export async function heldFactGroups(
   await pausePageClockAt(page, opened);
   const trunk = publishes({
     revision,
-    files: withDoneCatalog(
-      {
-        ...files,
-        ".planning/open-dough.json": "{}\n",
-        [backlogPath]: `${files[backlogPath] ?? ""}- [${preparing}](${preparingHref}) — ${preparingIdentity}\n`,
-        [preparingPath]: assessed,
-        [planPath("preparing")]: plan,
-        [profilePath("Akiho")]: renderAgentProfile(
-          makeMe.anAgentProfile
-            .executing({
-              name: "Akiho",
-              identity: "SEED-091#after-take",
-              mode: "story-branch",
-              branch,
-              host: "claude",
-            })
-            .please(),
-        ),
-        [profilePath("Kirara")]: renderAgentProfile(
-          makeMe.anAgentProfile
-            .preparing({
-              name: "Kirara",
-              identity: preparingIdentity,
-              host: "codex",
-            })
-            .please(),
-        ),
-        ...heldDoneRecords(moreDone, minutesBefore),
-      },
-      doneDirectory,
-    ),
+    files: publishedTrunk(moreDone).files,
     // Bound-recovery journeys need every Taken clock answerable so an
     // unrelated unread plan time does not keep scheduling detail recovery
     // after the held preparation gap heals (./sliceClockRecords.ts omits it).

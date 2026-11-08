@@ -7,11 +7,12 @@ import {
   parts,
 } from "../dashboardPage.ts";
 import {
-  emptyBacklog,
   pathsRead,
   publishMovingOrigin,
   noConnection,
 } from "../publishedOrigin.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectFocusedAndIndicated } from "../accessibleReading.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 
@@ -21,16 +22,12 @@ const fullDirection = `Keep published work visible.
 
 Read <img src=x onerror="document.title='direction ran'"> as text.
 Finish with the complete final line.`;
-const withDirection = (direction: string) => `# Product backlog
-
-## Near-future direction
-
-${direction}
-
-## Taken
-
-## Backlog list
-`;
+const withDirection = (direction: string) =>
+  describedBacklog(
+    makeMe.aRepository
+      .withRevision("directed", { backlog: { direction } })
+      .please(),
+  );
 
 test("direction starts collapsed and opens by pointer and keyboard without reading again", async ({
   page,
@@ -141,7 +138,7 @@ test("changing projects removes previous direction while reading and starts each
   const origin = await publishMovingOrigin(page);
   origin.push(revisionA, withDirection(fullDirection));
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
-  doughnut.push(revisionB, emptyBacklog);
+  doughnut.push(revisionB, describedBacklog(makeMe.aRepository.please()));
   await page.goto("/");
   const {
     direction,

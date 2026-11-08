@@ -2,8 +2,10 @@
 // route, membership resolution, focus, and reveal.
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
+import { describedBacklog } from "./describedRevisions.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export const notifiedIdentity = "SEED-777#shared-story";
 export const notifiedTitle = "Doughnut's renamed notified story";
@@ -13,26 +15,57 @@ export const targetRevision = "ba".repeat(20);
 export const storyUrl = (project = "doughnut", story = notifiedIdentity) =>
   `/?${new URLSearchParams({ project, story })}`;
 
-const preceding = [...Array(12).keys()]
-  .map(
-    (index) =>
-      `- [Earlier story ${String(index + 1)}](seeds/SEED-${String(800 + index)}.md#story) — SEED-${String(800 + index)}#story`,
-  )
-  .join("\n");
+// The notified identity, as each project records it with its own title.
+const sharedIdentity = (title: string) =>
+  makeMe.aBacklogEntry
+    .with({
+      identity: notifiedIdentity,
+      title,
+      href: "seeds/SEED-777.md#shared-story",
+    })
+    .please();
 
-export const targetBacklog = (
-  column: "Backlog list" | "Taken" = "Backlog list",
-) =>
-  `# Product backlog\n\n## Taken\n\n${column === "Taken" ? `- [${notifiedTitle}](seeds/SEED-777.md#shared-story) — ${notifiedIdentity}\n` : ""}\n## Backlog list\n\n${preceding}\n${column === "Backlog list" ? `- [${notifiedTitle}](seeds/SEED-777.md#shared-story) — ${notifiedIdentity}\n` : ""}`;
+// Twelve stories queued ahead, so the notified one starts out of view.
+const preceding = [...Array(12).keys()].map((index) =>
+  makeMe.aBacklogEntry
+    .with({
+      identity: `SEED-${String(800 + index)}#story`,
+      title: `Earlier story ${String(index + 1)}`,
+      href: `seeds/SEED-${String(800 + index)}.md#story`,
+    })
+    .please(),
+);
+
+// Doughnut's backlog, holding the notified story last in its Backlog list or
+// alone in Taken.
+const targetBacklog = (column: "Backlog list" | "Taken") => {
+  const notified = sharedIdentity(notifiedTitle);
+  return describedBacklog(
+    makeMe.aRepository
+      .withRevision("target", {
+        backlog:
+          column === "Taken"
+            ? { taken: [notified], queued: preceding }
+            : { queued: [...preceding, notified] },
+      })
+      .please(),
+  );
+};
 
 export async function notificationOrigins(page: Page, column?: "Taken") {
   const other = await publishMovingOrigin(page);
   other.push(
     "cd".repeat(20),
-    `# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [${otherTitle}](seeds/SEED-777.md#shared-story) — ${notifiedIdentity}\n`,
+    describedBacklog(
+      makeMe.aRepository
+        .withRevision("other", {
+          backlog: { queued: [sharedIdentity(otherTitle)] },
+        })
+        .please(),
+    ),
   );
   const target = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
-  target.push(targetRevision, targetBacklog(column));
+  target.push(targetRevision, targetBacklog(column ?? "Backlog list"));
   return { other, target };
 }
 

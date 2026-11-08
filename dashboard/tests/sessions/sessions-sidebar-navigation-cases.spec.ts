@@ -29,11 +29,11 @@ import {
   expectWhollyInView,
   keyboardInside,
   openNavigationJourney,
-  pygardonStory,
   removedStory,
   revealsAtClick,
   revealsOf,
 } from "../sessionNavigationJourney.ts";
+import { pygardonStory } from "../pygardonProject.ts";
 import { closeSidePanel } from "../pageLayout.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
 

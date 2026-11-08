@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 467. Removed numbers are never reused.
+- Highest allocated local number: 469. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -624,6 +624,15 @@ the candidate could.
   - Observed effect: Neither sequential nor paired local runs could attribute a difference; the slice 5 evaluation rests on CI job seconds, and the paired runs cost about 17 minutes plus two scratch installs.
   - Inference: Paired runs need a stable load window; on this machine the hosted runner's per-job test times were the steadier comparison and were already available for both revisions. Planning could name them as the timing source when the selection runs in CI.
 
+- Execution: SEED-262#declare-fake-github-planning-data (plan 530-declare-fake-github-planning-data; first related implementation commit `673fee7a4967cf5a2ea076b282c21878841a13fa`)
+  - Timestamp: unknown (2026-11-08, slices 1, 3 and 4)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `d84195b2a`)
+  - Evidence: Plan 530 asked for "two runs each under comparable load" before and after; slice 3's recently done and profile family ran before at load 3.7 and 7.8 (151.8 s, 161.3 s) and after at 21.1 and 14.0 (168.9 s, 156.2 s). Slice 4 repeated both families as alternated runs of a base worktree at `24c881a5a` and the candidate (recently done B/A 0.95, refresh B/A 1.046).
+  - Observed effect: Slice 3's timings could not judge the promise; the paired comparison was added to slice 4 with a temporary base worktree and its setup.
+  - Inference: Same cause as the first row: the plan, written after DD-464's first occurrence, still named sequential before/after runs.
+
 ## DD-465 — An empty focused path list ran the whole local suite
 `scripts/test.sh` with no path arguments runs the whole serialized local suite. A focused command built from a file list that silently came out empty therefore started a full run instead of failing.
 
@@ -636,3 +645,35 @@ the candidate could.
   - Evidence: The coordinator's `grep -lE ... tests/support/*.test.mjs tests/*.test.mjs | tee s4-files.txt` aborted on zsh's unmatched `tests/*.test.mjs` glob, leaving the list empty; `bash scripts/test.sh $(cat s4-files.txt)` then ran without paths (`scripts/test.sh:24` treats no arguments as the full suite) until the 600 s tool timeout moved it to the background, where it was stopped.
   - Observed effect: About ten minutes of a full-suite run under load 13-17 were spent on a two-run baseline of six files; the baseline was redone with `git grep` and a non-empty check.
   - Inference: A focused-run guard that refuses an empty list would have stopped this at once; later briefs added "never pass an empty list" by hand.
+
+## DD-468 — A plan's consumer inventory came from a narrower search than the story's rule
+The story governed "helpers and specs that hand-write published planning
+files" and named a dated sample. The plan built its slice lists from a
+`# Product backlog` literal search plus a few fact-kind searches, so helpers
+that assembled seeds, records and catalogs from encoder calls stayed outside
+every slice until acceptance.
+
+### Occurrences
+- Execution: SEED-262#declare-fake-github-planning-data (plan 530-declare-fake-github-planning-data; first related implementation commit `673fee7a4967cf5a2ea076b282c21878841a13fa`)
+  - Timestamp: unknown (2026-11-08, slices 2 and 3 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `d84195b2a`)
+  - Evidence: Plan 530 premise "Consumer set" (48 files from `grep -rlE '# Product backlog|## Backlog list' dashboard/tests`). Slice 2 found 13 `dashboard/backend-tests` specs outside it; slice 3 acceptance found about 20 helpers using `renderDoneRecord`/`withDoneCatalog` outside it (obligation G1). Slice 4 was added and migrated them (`84506544d`).
+  - Observed effect: One extra slice (about 45 minutes of agent time) and two plan rewrites during execution; the source review's commitment 10 surfaced the gap at acceptance.
+  - Inference: Deriving the inventory from the story's governing rule (the published-file encoders and file paths a fake GitHub serves) rather than from one literal symptom would likely have sized four slices up front.
+
+## DD-469 — A trunk merge's proof selected changed specs, not consumers of the changed contract
+After merging trunk into a story branch, the coordinator proved the merge with
+the specs trunk had changed. A trunk-added helper called this branch's changed
+writer under an old precondition, and its unchanged spec failed in CI.
+
+### Occurrences
+- Execution: SEED-262#declare-fake-github-planning-data (plan 530-declare-fake-github-planning-data; first related implementation commit `673fee7a4967cf5a2ea076b282c21878841a13fa`)
+  - Timestamp: unknown (2026-11-08, merge `7bec63357`; CI run 42487558040)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `d84195b2a`)
+  - Evidence: Merge proof selected `git diff --name-only 54cc27451 origin/main -- 'dashboard/*.spec.ts'` plus sidebar specs (74 files, 165 passed). Trunk's `dashboard/tests/support/sessionsReplayProjects.ts` called `writeRevisionFiles` on a missing directory, which slice 1 had made read first; `agent-launch-sessions-listing.spec.ts` failed in CI with ENOENT. Repaired in `e828b4142`.
+  - Observed effect: One failed CI run, a stash-and-repair cycle and a repair commit.
+  - Inference: Selecting the importers of every trunk-changed module that calls a contract this branch changed (here `writeRevisionFiles`) would have caught it locally.

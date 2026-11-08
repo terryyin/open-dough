@@ -91,6 +91,17 @@ export const makeMe = {
       with(facts) {
         return copyFacts(facts);
       },
+      /**
+       * A refined story planned in `plan`, a path relative to its seed.
+       * @param {string} plan
+       */
+      plannedIn(plan) {
+        return this.with({
+          refinement: /** @type {const} */ ("refined"),
+          approach: /** @type {const} */ ("planned"),
+          plan,
+        });
+      },
     };
   },
   get aSupplierAgreement() {

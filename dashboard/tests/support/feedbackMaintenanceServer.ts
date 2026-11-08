@@ -5,7 +5,9 @@
 import path from "node:path";
 import { expect } from "@playwright/test";
 import { recordsOf } from "../agentLaunchBoundary.ts";
-import { emptyBacklog, type MovingOrigin } from "../publishedOrigin.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import type { MovingOrigin } from "../publishedOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { feedbackWatchListPath as watchList } from "../../src/feedbackReview.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
@@ -35,7 +37,7 @@ export function pushWatchList(moving: MovingOrigin, text?: string): string {
   const revision = revisions.toString(16).padStart(40, "a");
   moving.push(
     revision,
-    emptyBacklog,
+    describedBacklog(makeMe.aRepository.please()),
     text === undefined ? {} : { [watchList]: text },
   );
   return revision;

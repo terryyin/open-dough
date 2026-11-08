@@ -1,15 +1,12 @@
 // Active story membership owns its open session even with a matching done card.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
-import { renderDoneRecord } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { columnPagingControl, rem } from "../boardPage.ts";
 import { expectMembership, parts, sessionStateOf } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
 import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
 import {
   at,
-  doneDirectory,
-  doneRecordAt,
   placed,
   publishedFiles,
   queuedIdentity,
@@ -22,7 +19,6 @@ import {
   expectEntries,
   sessionsOutsideDoneStories,
 } from "../recentlyDoneColumn.ts";
-import { withDoneCatalog } from "../doneCatalogAnswers.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 
 test("an active story owns its open session even with a matching done card, whose closed session is nested once and whose Column paging count uses the rendered entries", async ({
@@ -58,23 +54,18 @@ test("an active story owns its open session even with a matching done card, whos
   await publishFiles(page, {
     repository,
     revision,
-    files: publishedFiles(
-      withDoneCatalog(
-        {
-          [doneRecordAt(queuedIdentity)]: renderDoneRecord(
-            makeMe.aDoneRecord
-              .with({
-                identity: queuedIdentity,
-                title: queuedTitle,
-                completedAt: at(now, placed.executedDone),
-                developer: "Terry Yin",
-              })
-              .please(),
-          ),
-        },
-        doneDirectory,
-      ),
-    ),
+    files: publishedFiles({
+      doneRecords: [
+        makeMe.aDoneRecord
+          .with({
+            identity: queuedIdentity,
+            title: queuedTitle,
+            completedAt: at(now, placed.executedDone),
+            developer: "Terry Yin",
+          })
+          .please(),
+      ],
+    }),
   });
   await page.setViewportSize({ width: 54 * rem, height: 900 });
   await page.goto("/");

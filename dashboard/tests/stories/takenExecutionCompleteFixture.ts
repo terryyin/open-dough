@@ -1,15 +1,14 @@
 // Published records and a paused page clock for the Taken completion journey.
 
-import { renderPublishedPreparation } from "../../../tests/support/story-preparation.mjs";
 import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
 import { profilePath } from "../branchProgressRecords.ts";
 import { addedAt } from "../pathHistoryAnswers.ts";
+import { describedRevisions } from "../describedRevisions.ts";
 
 const repository = "terryyin/open-dough";
 const revision = "a7".repeat(20);
@@ -47,28 +46,20 @@ const taken: readonly Story[] = [
   { title: allDone, anchor: "all-done", agent: "Sola", mode: "trunk" },
   { title: adviceless, anchor: "adviceless", agent: "Mana", mode: "trunk" },
 ];
-const stories: readonly Story[] = [
-  ...taken,
-  { title: queued, anchor: "queued" },
-];
+const queuedStory: Story = { title: queued, anchor: "queued" };
+const stories: readonly Story[] = [...taken, queuedStory];
 
 const planPath = (anchor: string) =>
   `.planning/slice-plans/094-${anchor}/PLAN.md`;
+const seedPath = ".planning/seeds/SEED-094-complete.md";
+const href = (anchor: string) => `seeds/SEED-094-complete.md#${anchor}`;
 
 const entry = ({ title, anchor }: Story) =>
-  `- [${title}](seeds/SEED-094-complete.md#${anchor}) — SEED-094#${anchor}`;
+  makeMe.aBacklogEntry
+    .with({ title, identity: `SEED-094#${anchor}`, href: href(anchor) })
+    .please();
 
-const backlog = `# Product backlog
-
-## Taken
-
-${taken.map(entry).join("\n")}
-
-## Backlog list
-
-${entry(stories[stories.length - 1] as Story)}
-`;
-
+// The seed prose the dashboard reads; each story's state is a declared fact.
 const seed = `# Execution complete card fixture
 
 ${stories
@@ -78,74 +69,94 @@ ${stories
 ### ${title}
 
 **Identity:** SEED-094#${anchor}
-${renderPublishedPreparation(
-  makeMe.aStoryPreparation
-    .with({
-      refinement: "refined",
-      approach: "planned",
-      plan: `../slice-plans/094-${anchor}/PLAN.md`,
-    })
-    .please(),
-)}
 `,
   )
   .join("\n")}`;
 
-const trunkFiles: Record<string, string> = {
-  ".planning/PRODUCT-BACKLOG.md": backlog,
-  ".planning/seeds/SEED-094-complete.md": seed,
-  // Trunk's copy of the branch story's plan is as it was at Take.
-  [planPath("on-branch")]: renderSlicePlan(
-    makeMe.aSlicePlan.withStatuses(["planned", "planned", "planned"]).please(),
-    { heading: "Slices" },
-  ),
-  [planPath("on-trunk")]: renderSlicePlan(
-    makeMe.aSlicePlan
-      .withStatuses(["done", "done"], { advice: noChange })
-      .please(),
-    { heading: "Slices" },
-  ),
-  [planPath("all-done")]: renderSlicePlan(
-    makeMe.aSlicePlan.withStatuses(["done", "done"]).please(),
-    { heading: "Slices" },
-  ),
-  [planPath("adviceless")]: `${renderSlicePlan(
-    makeMe.aSlicePlan.withStatuses(["done", "done"]).please(),
-    { heading: "Slices" },
-  )}
+const { trunk, branchTip } = describedRevisions(
+  makeMe.aRepository
+    .withRevision("trunk", {
+      backlog: { taken: taken.map(entry), queued: [entry(queuedStory)] },
+      files: {
+        [seedPath]: seed,
+        // Trunk's copy of the branch story's plan is as it was at Take.
+        [planPath("on-branch")]: renderSlicePlan(
+          makeMe.aSlicePlan
+            .withStatuses(["planned", "planned", "planned"])
+            .please(),
+          { heading: "Slices" },
+        ),
+        [planPath("on-trunk")]: renderSlicePlan(
+          makeMe.aSlicePlan
+            .withStatuses(["done", "done"], { advice: noChange })
+            .please(),
+          { heading: "Slices" },
+        ),
+        [planPath("all-done")]: renderSlicePlan(
+          makeMe.aSlicePlan.withStatuses(["done", "done"]).please(),
+          { heading: "Slices" },
+        ),
+        // A completion record whose advice section is not readable advice.
+        [planPath("adviceless")]: `${renderSlicePlan(
+          makeMe.aSlicePlan.withStatuses(["done", "done"]).please(),
+          { heading: "Slices" },
+        )}
 ## Execution complete
 
 The retrospective found nothing to record.
 `,
-  [planPath("queued")]: renderSlicePlan(
-    makeMe.aSlicePlan
-      .withStatuses(["done"], { advice: "Queue the next story." })
-      .please(),
-    { heading: "Slices" },
-  ),
-};
-for (const { anchor, agent, mode } of taken) {
-  if (agent !== undefined && mode !== undefined) {
-    trunkFiles[profilePath(agent)] = renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name: agent,
-          identity: `SEED-094#${anchor}`,
-          mode,
-          branch: mode === "trunk" ? "origin/main" : branch,
-          host: "claude",
-        })
-        .please(),
-    );
-  }
-}
+        [planPath("queued")]: renderSlicePlan(
+          makeMe.aSlicePlan
+            .withStatuses(["done"], { advice: "Queue the next story." })
+            .please(),
+          { heading: "Slices" },
+        ),
+      },
+      storyStates: stories.map(({ anchor }) => ({
+        identity: `SEED-094#${anchor}`,
+        href: href(anchor),
+        ...makeMe.aStoryPreparation
+          .plannedIn(`../slice-plans/094-${anchor}/PLAN.md`)
+          .please(),
+      })),
+      agentProfiles: taken.flatMap(({ anchor, agent, mode }) =>
+        agent === undefined || mode === undefined
+          ? []
+          : [
+              makeMe.anAgentProfile
+                .executing({
+                  name: agent,
+                  identity: `SEED-094#${anchor}`,
+                  mode,
+                  branch: mode === "trunk" ? "origin/main" : branch,
+                  host: "claude",
+                })
+                .please(),
+            ],
+      ),
+    })
+    .withRevision("branchTip", {
+      files: {
+        [planPath("on-branch")]: renderSlicePlan(
+          makeMe.aSlicePlan
+            .withStatuses(["done", "done", "done"], {
+              advice: "Queue a story to show the advice on the card.",
+            })
+            .please(),
+          { heading: "Slices" },
+        ),
+      },
+    })
+    .please(),
+  { trunk: revision, branchTip: branchHead },
+);
 
 export async function openTakenExecutionComplete(page: Page) {
   await pausePageClockAt(page, opened);
   await publishFiles(page, {
     repository,
     revision,
-    files: trunkFiles,
+    files: trunk.files,
     committed: {
       [planPath("on-branch")]: minutesBefore(3 * 24 * 60),
       [planPath("on-trunk")]: minutesBefore(15),
@@ -160,18 +171,7 @@ export async function openTakenExecutionComplete(page: Page) {
     },
     branches: {
       [branch]: {
-        revision: branchHead,
-        files: {
-          ...trunkFiles,
-          [planPath("on-branch")]: renderSlicePlan(
-            makeMe.aSlicePlan
-              .withStatuses(["done", "done", "done"], {
-                advice: "Queue a story to show the advice on the card.",
-              })
-              .please(),
-            { heading: "Slices" },
-          ),
-        },
+        ...branchTip,
         committed: { [planPath("on-branch")]: minutesBefore(40) },
       },
     },

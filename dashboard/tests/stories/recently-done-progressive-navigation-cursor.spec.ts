@@ -21,7 +21,6 @@ import {
   standaloneSessionName,
 } from "../dashboardPage.ts";
 import { rem } from "../boardPage.ts";
-import { publishMovingOrigin } from "../publishedOrigin.ts";
 import { placedAt } from "../recentlyDoneProgressive.ts";
 import { expectEntries, shownEntries } from "../recentlyDoneColumn.ts";
 import { recordsAsked } from "../recentlyDoneProgressivePage.ts";
@@ -38,6 +37,7 @@ import {
 } from "../sessionNavigationJourney.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
+import { publishOnePygardonStory } from "../pygardonProject.ts";
 
 const instruction = "hold this done session";
 const entryName = standaloneSessionName("Ad hoc", instruction);
@@ -65,11 +65,7 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
   const held = keptRecord(dashboard.home);
   // The terminal never connects, so the session stays done.
   await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
-  const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
-  pygardon.push(
-    "e6".repeat(20),
-    "# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [A Pygardon story](seeds/SEED-301.md#s) — SEED-301#s\n",
-  );
+  await publishOnePygardonStory(page);
   await recordReveals(page);
   // The project's done catalog answers only once this machine's sessions
   // are read into the sidebar.

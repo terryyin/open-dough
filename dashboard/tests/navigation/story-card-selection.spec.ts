@@ -19,7 +19,7 @@ import {
   removedQueued,
   repository,
   revision,
-  doneRecordFiles,
+  doneRecordFacts,
 } from "../recentlyDoneRecords.ts";
 import {
   adHocEntry,
@@ -65,7 +65,7 @@ test("Select story and empty-area clicks toggle the selected story on active and
   await publishFiles(page, {
     repository,
     revision,
-    files: publishedFiles(doneRecordFiles(now)),
+    files: publishedFiles(doneRecordFacts(now)),
   });
   await page.goto("/");
   await expectMembership(page, { taken: [], backlog: [queuedTitle] });

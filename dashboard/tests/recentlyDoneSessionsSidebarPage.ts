@@ -3,7 +3,6 @@
 // sessions. Seeds use the real machine store; destinations reuse PageFrame.
 import type { Locator, Page } from "@playwright/test";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import {
   agentLaunchEndpoint,
   recentlyDoneSessionsInitialLimit,
@@ -13,6 +12,8 @@ import { sessionsAudienceParameter } from "../src/machineSessionsRevision.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { describedBacklog } from "./describedRevisions.ts";
+import { publishOnePygardonStory } from "./pygardonProject.ts";
 import { box } from "./pageLayout.ts";
 import {
   answerCrowd,
@@ -91,27 +92,31 @@ export function pageReadReopened(page: Page, held: LaunchRecord) {
   });
 }
 
-// One queued story each project publishes.
-const queuedOnly = (title: string, identity: string) =>
-  renderPublishedBacklog({
-    queued: [
-      makeMe.aBacklogEntry
-        .with({
-          identity,
-          title,
-          href: `seeds/${identity.replace("#", ".md#")}`,
-        })
-        .please(),
-    ],
-  });
-
-// Publishes Doughnut and Pygardon beside the Open Dough origin already shown.
+// Publishes Doughnut and Pygardon, each queuing one story, beside the Open
+// Dough origin already shown.
 export async function publishSiblingProjects(page: Page) {
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
-  doughnut.push("d4".repeat(20), queuedOnly("A Doughnut story", "SEED-401#s"));
-  const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
-  pygardon.push("e6".repeat(20), queuedOnly("A Pygardon story", "SEED-301#s"));
-  return { doughnut, pygardon };
+  doughnut.push(
+    "d4".repeat(20),
+    describedBacklog(
+      makeMe.aRepository
+        .withRevision("published", {
+          backlog: {
+            queued: [
+              makeMe.aBacklogEntry
+                .with({
+                  identity: "SEED-401#s",
+                  title: "A Doughnut story",
+                  href: "seeds/SEED-401.md#s",
+                })
+                .please(),
+            ],
+          },
+        })
+        .please(),
+    ),
+  );
+  await publishOnePygardonStory(page);
 }
 
 export async function showThreeProjectPage(page: Page, origin: StartOrigin) {

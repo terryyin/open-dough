@@ -9,8 +9,8 @@ import { expectReadingTop } from "../readingPlace.ts";
 import {
   expectWhollyInView,
   openNavigationJourney,
-  pygardonStory,
 } from "../sessionNavigationJourney.ts";
+import { pygardonStory } from "../pygardonProject.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
 

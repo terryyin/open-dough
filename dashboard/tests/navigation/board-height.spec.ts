@@ -11,7 +11,6 @@
 // ./board-paging-sessions-sidebar.spec.ts.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { renderDoneRecord } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { inspectedDetail } from "../storyCardControls.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { expectSettledPage, parts } from "../dashboardPage.ts";
@@ -30,12 +29,9 @@ import {
   wheelTo,
 } from "../boardPage.ts";
 import { heldFactGroups, moreDoneTitle } from "../publishedFactsArrival.ts";
-import { withDoneCatalog } from "../doneCatalogAnswers.ts";
 import { revealAction } from "../recentlyDoneProgressivePage.ts";
 import {
   at,
-  doneDirectory,
-  doneRecordAt,
   publishedFiles,
   queuedTitle as inspectedTitle,
   repository,
@@ -51,31 +47,23 @@ test.describe("in a two-column Board", () => {
     const now = Date.now();
     const doneCount = 40;
     const doneTitle = (place: number) => `Done work number ${place} is closed`;
-    const doneRecords = Object.fromEntries(
-      [...Array(doneCount).keys()].map((index) => {
-        const identity = `SEED-2${index + 1}#closed`;
-        return [
-          doneRecordAt(identity),
-          renderDoneRecord(
-            makeMe.aDoneRecord
-              .with({
-                identity,
-                title: doneTitle(index + 1),
-                completedAt: at(now, (index + 1) * 60 * 60 * 1000),
-                developer: "Terry Yin",
-              })
-              .please(),
-          ),
-        ];
-      }),
-    );
     const purpose = `Keep the inspected story's purpose readable to its end. ${"Its detail holds a long purpose, so opening it lengthens the page well past one window. ".repeat(30)}The purpose ends here.`;
     await publishFiles(page, {
       repository,
       revision,
-      files: {
-        ...publishedFiles(withDoneCatalog(doneRecords, doneDirectory)),
-        ".planning/seeds/SEED-008-worktree-branch-trunk-sync.md": `<a id="planning-workspace-procedure"></a>
+      files: publishedFiles({
+        doneRecords: [...Array(doneCount).keys()].map((index) =>
+          makeMe.aDoneRecord
+            .with({
+              identity: `SEED-2${index + 1}#closed`,
+              title: doneTitle(index + 1),
+              completedAt: at(now, (index + 1) * 60 * 60 * 1000),
+              developer: "Terry Yin",
+            })
+            .please(),
+        ),
+        files: {
+          ".planning/seeds/SEED-008-worktree-branch-trunk-sync.md": `<a id="planning-workspace-procedure"></a>
 
 ### ${inspectedTitle}
 
@@ -83,7 +71,8 @@ test.describe("in a two-column Board", () => {
 
 **Goal:** ${purpose}
 `,
-      },
+        },
+      }),
     });
     await page.goto("/");
     // Read only once every card has its length, as in the long-Backlog read.

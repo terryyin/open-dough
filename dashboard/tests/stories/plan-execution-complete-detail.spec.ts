@@ -5,12 +5,12 @@
 // texts; the local read boundary, the shared story-state and plan readers, and
 // the page decide everything shown.
 
-import { renderPublishedPreparation } from "../../../tests/support/story-preparation.mjs";
 import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
+import { describedRevision } from "../describedRevisions.ts";
 
 const repository = "terryyin/open-dough";
 const revision = "c3".repeat(20);
@@ -57,20 +57,11 @@ The retrospective found nothing to record.
 `,
 };
 
-const backlog = `# Product backlog
+const seedPath = ".planning/seeds/SEED-094-complete.md";
+const href = (anchor: string) => `seeds/SEED-094-complete.md#${anchor}`;
 
-## Taken
-
-${stories
-  .map(
-    ({ title, anchor }) =>
-      `- [${title}](seeds/SEED-094-complete.md#${anchor}) — SEED-094#${anchor}`,
-  )
-  .join("\n")}
-
-## Backlog list
-`;
-
+// The seed prose the dashboard reads; each story's planned state is a
+// declared fact beside it.
 const seed = `---
 id: SEED-094
 ---
@@ -84,33 +75,42 @@ ${stories
 ### ${title}
 
 **Identity:** SEED-094#${anchor}
-${renderPublishedPreparation(
-  makeMe.aStoryPreparation
-    .with({
-      refinement: "refined",
-      approach: "planned",
-      plan: `../slice-plans/094-${anchor}/PLAN.md`,
+`,
+  )
+  .join("\n")}`;
+
+const published = describedRevision(
+  makeMe.aRepository
+    .withRevision("completion", {
+      backlog: {
+        taken: stories.map(({ title, anchor }) =>
+          makeMe.aBacklogEntry
+            .with({ title, identity: `SEED-094#${anchor}`, href: href(anchor) })
+            .please(),
+        ),
+      },
+      files: {
+        [seedPath]: seed,
+        ...Object.fromEntries(
+          stories.map(({ anchor }) => [planPath(anchor), plans[anchor]]),
+        ),
+      },
+      storyStates: stories.map(({ anchor }) => ({
+        identity: `SEED-094#${anchor}`,
+        href: href(anchor),
+        ...makeMe.aStoryPreparation
+          .plannedIn(`../slice-plans/094-${anchor}/PLAN.md`)
+          .please(),
+      })),
     })
     .please(),
-)}`,
-  )
-  .join("\n")}
-`;
+  revision,
+);
 
 test("the story detail shows a plan's recorded execution completion and product advice, its gap, or no completion", async ({
   page,
 }) => {
-  await publishFiles(page, {
-    repository,
-    revision,
-    files: {
-      ".planning/PRODUCT-BACKLOG.md": backlog,
-      ".planning/seeds/SEED-094-complete.md": seed,
-      ...Object.fromEntries(
-        stories.map(({ anchor }) => [planPath(anchor), plans[anchor]]),
-      ),
-    },
-  });
+  await publishFiles(page, { repository, ...published });
   await page.goto("/");
   await expectMembership(page, {
     taken: stories.map(({ title }) => title),

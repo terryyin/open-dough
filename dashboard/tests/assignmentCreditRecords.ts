@@ -8,8 +8,6 @@
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
-import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import {
   pathChange,
@@ -18,7 +16,7 @@ import {
 } from "./pathHistoryAnswers.ts";
 import { onAvatarHost } from "./avatarAnswers.ts";
 import { creditedAvatar } from "./agentAttributionRecords.ts";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { describedRevisions } from "./describedRevisions.ts";
 
 export const repository = "terryyin/open-dough";
 export const opened = new Date("2026-10-07T09:00:00.000Z");
@@ -30,7 +28,6 @@ const revisionB = revision("8b");
 const revisionC = revision("8c");
 const revisionD = revision("8d");
 
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const seedPath = ".planning/seeds/SEED-281-credit.md";
 export const planPath = ".planning/slice-plans/281-credit/PLAN.md";
 export const profileOf = (agent: string) =>
@@ -48,21 +45,6 @@ export const titleOf = (agent: string) => `Credit kept for ${agent}`;
 const anchorOf = (agent: string) => agent.toLowerCase();
 export const planned = "Yua";
 
-const backlog = renderPublishedBacklog(
-  {
-    taken: agents.map((agent) =>
-      makeMe.aBacklogEntry
-        .with({
-          identity: `SEED-281#${anchorOf(agent)}`,
-          href: `seeds/SEED-281-credit.md#${anchorOf(agent)}`,
-          title: titleOf(agent),
-        })
-        .please(),
-    ),
-  },
-  { blankAfterEmptyQueue: false },
-);
-
 const seed = `# Credit fixture
 ${agents
   .map(
@@ -72,35 +54,61 @@ ${agents
 ### ${titleOf(agent)}
 
 **Identity:** SEED-281#${anchorOf(agent)}
-${
-  agent === planned
-    ? `${renderPublishedPreparation(
-        makeMe.aStoryPreparation
-          .with({
-            refinement: "refined",
-            approach: "planned",
-            plan: "../slice-plans/281-credit/PLAN.md",
-          })
-          .please(),
-      )}
-`
-    : ""
-}`,
+`,
   )
   .join("")}`;
 
-const profileText = (agent: string, host = "claude") =>
-  renderAgentProfile(
-    makeMe.anAgentProfile
-      .executing({
-        name: agent,
-        identity: `SEED-281#${anchorOf(agent)}`,
-        mode: "trunk",
-        branch: "main",
-        host,
-      })
-      .please(),
-  );
+const agentProfileOf = (agent: string, host = "claude") =>
+  makeMe.anAgentProfile
+    .executing({
+      name: agent,
+      identity: `SEED-281#${anchorOf(agent)}`,
+      mode: "trunk",
+      branch: "main",
+      host,
+    })
+    .please();
+
+// A publishes the seven assignments, Yua's planned; C modifies Kirara's
+// profile, to Codex.
+const published = describedRevisions(
+  makeMe.aRepository
+    .withRevision("A", {
+      backlog: {
+        taken: agents.map((agent) =>
+          makeMe.aBacklogEntry
+            .with({
+              identity: `SEED-281#${anchorOf(agent)}`,
+              href: `seeds/SEED-281-credit.md#${anchorOf(agent)}`,
+              title: titleOf(agent),
+            })
+            .please(),
+        ),
+      },
+      files: {
+        [seedPath]: seed,
+        [planPath]: renderSlicePlan(
+          makeMe.aSlicePlan
+            .withStatuses(["done", "done", "planned", "planned", "planned"])
+            .please(),
+          { heading: "Slices" },
+        ),
+      },
+      storyStates: [
+        {
+          identity: `SEED-281#${anchorOf(planned)}`,
+          href: `seeds/SEED-281-credit.md#${anchorOf(planned)}`,
+          ...makeMe.aStoryPreparation
+            .plannedIn("../slice-plans/281-credit/PLAN.md")
+            .please(),
+        },
+      ],
+      agentProfiles: agents.map((agent) => agentProfileOf(agent)),
+    })
+    .withRevision("C", { agentProfiles: [agentProfileOf("Kirara", "codex")] })
+    .please(),
+  { A: revisionA, C: revisionC },
+);
 
 // Each profile's own addition by the same human, each by a commit of its
 // own, on the same account.
@@ -113,20 +121,7 @@ export const additionOf = (agent: string): PathChange => ({
 });
 
 export const atA: PublishedRevision = {
-  revision: revisionA,
-  files: {
-    [backlogPath]: backlog,
-    [seedPath]: seed,
-    [planPath]: renderSlicePlan(
-      makeMe.aSlicePlan
-        .withStatuses(["done", "done", "planned", "planned", "planned"])
-        .please(),
-      { heading: "Slices" },
-    ),
-    ...Object.fromEntries(
-      agents.map((agent) => [profileOf(agent), profileText(agent)]),
-    ),
-  },
+  ...published.A,
   committed: { [planPath]: minutesBefore(30) },
   history: Object.fromEntries(
     agents.map((agent) => [profileOf(agent), [additionOf(agent)]]),
@@ -161,11 +156,7 @@ const modifying = {
 };
 const atC: PublishedRevision = {
   ...atB,
-  revision: revisionC,
-  files: {
-    ...atB.files,
-    [profileOf("Kirara")]: profileText("Kirara", "codex"),
-  },
+  ...published.C,
   history: {
     ...atB.history,
     [profileOf("Kirara")]: [modifying, additionOf("Kirara")],

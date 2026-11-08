@@ -26,7 +26,7 @@ import {
 } from "../recentlyDoneRecords.ts";
 import { stored } from "../support/codexLaunch.ts";
 import {
-  doneStoryFiles,
+  doneStoryRecords,
   otherStory,
   quietStorySessions,
   recoverStory,
@@ -71,9 +71,12 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
   await publishFiles(page, {
     repository,
     revision,
-    files: publishedFiles(
-      doneStoryFiles([recoverStory, otherStory, reopenableStory], completedAt),
-    ),
+    files: publishedFiles({
+      doneRecords: doneStoryRecords(
+        [recoverStory, otherStory, reopenableStory],
+        completedAt,
+      ),
+    }),
   });
   dashboard.claudeScenario("launched");
   await page.goto("/");

@@ -10,31 +10,48 @@ import {
   publishFiles,
 } from "../publishedOrigin.ts";
 import { expectMark, expectPortrait } from "../agentPortrait.ts";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
+import { describedRevisions } from "../describedRevisions.ts";
 
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
-const agents = ".planning/agents";
-const revisionA = "a1".repeat(20);
-const revisionB = "b2".repeat(20);
 const trunkStory = "See who owns Taken work";
+const identity = "SEED-021#identify-taken-work-owner";
+
+// Revision A publishes no agent profiles; revision B adds Akiho's.
+const { A, B } = describedRevisions(
+  makeMe.aRepository
+    .withRevision("A", {
+      backlog: {
+        taken: [
+          makeMe.aBacklogEntry
+            .with({
+              title: trunkStory,
+              identity,
+              href: "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
+            })
+            .please(),
+        ],
+      },
+    })
+    .withRevision("B", {
+      agentProfiles: [
+        makeMe.anAgentProfile
+          .executing({
+            name: "Akiho",
+            identity,
+            mode: "trunk",
+            branch: "origin/main",
+          })
+          .please(),
+      ],
+    })
+    .please(),
+  { A: "a1".repeat(20), B: "b2".repeat(20) },
+);
 
 test("a project without agent profiles still loads, and a reload shows a profile published since", async ({
   page,
 }) => {
-  const onlyBacklog = `# Product backlog
-
-## Taken
-
-- [${trunkStory}](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
-
-## Backlog list
-`;
-  await publishFiles(page, {
-    repository,
-    revision: revisionA,
-    files: { [backlogPath]: onlyBacklog },
-  });
+  await publishFiles(page, { repository, ...A });
 
   await openUntilRead(page);
 
@@ -42,7 +59,7 @@ test("a project without agent profiles still loads, and a reload shows a profile
   const card = taken.getByRole("article", { name: trunkStory });
 
   await test.step("with no profile directory at the revision, the owner is not recorded and nothing fails", async () => {
-    await expect(readRevision).toContainText(shortRevision(revisionA));
+    await expect(readRevision).toContainText(shortRevision(A.revision));
     await expect(card).toContainText("Owner not recorded");
     await expect(card.locator(".agent-portrait")).toHaveCount(0);
     await expect(card.locator("img")).toHaveCount(0);
@@ -50,25 +67,9 @@ test("a project without agent profiles still loads, and a reload shows a profile
   });
 
   await test.step("after a reload, the profile published at the new revision is shown", async () => {
-    await publishFiles(page, {
-      repository,
-      revision: revisionB,
-      files: {
-        [backlogPath]: onlyBacklog,
-        [`${agents}/akiho-chan.json`]: renderAgentProfile(
-          makeMe.anAgentProfile
-            .executing({
-              name: "Akiho",
-              identity: "SEED-021#identify-taken-work-owner",
-              mode: "trunk",
-              branch: "origin/main",
-            })
-            .please(),
-        ),
-      },
-    });
+    await publishFiles(page, { repository, ...B });
     await reloadUntilRead(page);
-    await expect(readRevision).toContainText(shortRevision(revisionB));
+    await expect(readRevision).toContainText(shortRevision(B.revision));
     await expect(card).not.toContainText("Owner not recorded");
     await expectPortrait(card, "Akiho-chan", {
       atlas: 1,

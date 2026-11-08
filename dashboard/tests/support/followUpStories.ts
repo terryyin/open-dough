@@ -6,12 +6,8 @@
 
 import path from "node:path";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  doneRecordPath,
-  renderDoneRecord,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { withDoneCatalog } from "../doneCatalogAnswers.ts";
+import { describedFiles } from "../describedRevisions.ts";
 import { followUpPreamble } from "./followUpSources.ts";
 
 type Story = { readonly identity: string; readonly title: string };
@@ -34,31 +30,33 @@ export const storyNameOf = ({ identity, title }: Story) =>
   `${identity} — ${title}`;
 
 // The done records of `stories`, completed at `completedAt` by Terry Yin with
-// viktor-chan in Codex, with their catalog, as `complete` publishes them.
-export function doneStoryFiles(
+// viktor-chan in Codex.
+export const doneStoryRecords = (
   stories: readonly Story[],
   completedAt: string,
-): Record<string, string> {
-  return withDoneCatalog(
-    Object.fromEntries(
-      stories.map((story) => [
-        `.planning/${doneRecordPath(story.identity)}`,
-        renderDoneRecord(
-          makeMe.aDoneRecord
-            .with({
-              ...story,
-              completedAt,
-              developer: "Terry Yin",
-              agent: "viktor-chan",
-              host: "codex",
-            })
-            .please(),
-        ),
-      ]),
-    ),
-    ".planning/done",
+) =>
+  stories.map((story) =>
+    makeMe.aDoneRecord
+      .with({
+        ...story,
+        completedAt,
+        developer: "Terry Yin",
+        agent: "viktor-chan",
+        host: "codex",
+      })
+      .please(),
   );
-}
+
+// Those records with their catalog, as `complete` publishes them, for a
+// harness serving them without a backlog.
+export const doneStoryFiles = (
+  stories: readonly Story[],
+  completedAt: string,
+): Record<string, string> =>
+  describedFiles({
+    backlog: null,
+    doneRecords: doneStoryRecords(stories, completedAt),
+  });
 
 // The story's Done refinement and execution, both completed quietly and
 // marked done at `doneAt`; the worktree each ran in was retired.
