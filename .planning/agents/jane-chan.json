@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-262#migrate-shell-release-and-native-fixtures",
+  "host": "claude",
+  "model": "opus"
+}
