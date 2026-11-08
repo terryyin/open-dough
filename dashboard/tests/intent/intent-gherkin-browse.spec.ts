@@ -15,7 +15,7 @@ import {
   purposeRegion,
 } from "../intentPerspectivePage.ts";
 import { intentModeTab } from "../intentModePage.ts";
-import { colourOf } from "../pageColours.ts";
+import { colourOf, sourceToken } from "../pageColours.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
   doughnut,
@@ -82,15 +82,9 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     const source = intent.getByLabel(
       "e2e_test/features/recall/recall_note.feature source",
     );
-    const keyword = source
-      .locator(".source-line-text span")
-      .filter({ hasText: /^Feature$/ });
-    const step = source
-      .locator(".source-line-text span")
-      .filter({ hasText: /^Given $/ });
-    const plain = source
-      .locator(".source-line-text span")
-      .filter({ hasText: /^a notebook with a note titled $/ });
+    const keyword = sourceToken(source, /^Feature$/);
+    const step = sourceToken(source, /^Given $/);
+    const plain = sourceToken(source, /^a notebook with a note titled $/);
     await expect(keyword).toBeVisible();
     await expect(step).toBeVisible();
     await expect(plain).toBeVisible();
