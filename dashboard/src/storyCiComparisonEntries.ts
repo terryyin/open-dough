@@ -3,8 +3,8 @@
 // through the shared scope comparison (`./ciScopeComparison.ts`), show
 // baseline / branch / landed execution times with signed whole-second
 // differences, counted-results differences in Counts, mark added and
-// removed entries, and keep parts completeness from the landed summary (or
-// branch when landed has none).
+// removed entries, and keep parts completeness from the homepage's chosen
+// build (`./ciScopeComparisonPrimary.ts`).
 
 import { shortSha } from "./baseCiWording.ts";
 import type { CiProof, CiProofEntry } from "./ciProof.ts";
@@ -32,6 +32,9 @@ export type ComparisonEndpointProof =
       readonly line: string;
       readonly adapter?: true;
     };
+
+// An endpoint's name as Intent shows it.
+export type ComparisonEndpointName = "Baseline" | "Branch" | "Landed";
 
 export type ComparisonEndpointProofs = {
   readonly baseline: ComparisonEndpointProof;

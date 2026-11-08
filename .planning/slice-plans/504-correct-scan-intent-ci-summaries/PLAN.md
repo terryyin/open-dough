@@ -219,8 +219,18 @@ plan 499 learning "slice 3 clears that sort" no longer describes the code.
 
 ### 3. Comparison Summaries explain the outside row and an unbroken entry
 Type: Behavior
-Status: planned
-Proof: as mapped above for F4, F5 and F3.
+Status: done
+Proof: as mapped above for F4, F5 and F3. Accepted 2026-11-08: the new
+`intent-summary-story-comparison-outside.spec.ts` (fixture
+`outsideLandedProofs`) and the changed `intent-summary-ci-proof-gaps.spec.ts`
+step failed before the change and pass after it. The gate's 48 spec files
+passed (112 passed, 0 flaky). Seven units passed quietly, including the
+comparison cues, wording and sort units the trace added. `npm run
+typecheck:dashboard` and `npm run lint` passed.
+Learning: `IntentScopeSummaryRows.tsx` holds `childRowsOf`, `outsideRowOf`,
+`OutsideExplanation` and `NoBreakdownLabel`. `primaryEndpointOf` names the
+comparison's primary endpoint. The new fixture yields no **Unplaced results**
+case; the single-run spec covers that label through the shared builder.
 
 Behavior: a comparison Summary with **Not in the rows above** → the labels
 after the table say what it holds (files not in the tree, unplaced results,

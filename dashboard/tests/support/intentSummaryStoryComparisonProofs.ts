@@ -1,6 +1,7 @@
 // Endpoint proof summaries for Intent Summary CI timing comparison
 // (./intentSummaryStoryComparisonFixture.ts): file-breakdown proofs for
-// baseline / branch / landed, and a baseline without breakdowns.
+// baseline / branch / landed, a baseline without breakdowns, and a landed
+// proof whose figures hold what no Summary row shows.
 
 import { counts, proofSummary } from "./ciProofArtifacts.ts";
 import {
@@ -13,7 +14,9 @@ import {
   type ComparisonProofServe,
 } from "./storyCiComparisonEntryProofs.ts";
 
-function dashboardProducer(at: "baseline" | "branch" | "landed"): Producer {
+function dashboardTests(
+  at: "baseline" | "branch" | "landed",
+): [string, "expected", number[]][] {
   const aMs = at === "baseline" ? 10_000 : 14_000;
   const cMs = at === "baseline" ? 340 : 410;
   const tests: [string, "expected", number[]][] = [
@@ -32,12 +35,16 @@ function dashboardProducer(at: "baseline" | "branch" | "landed"): Producer {
     tests.push(["dashboard/tests/added.spec.ts", "expected", [800]]);
     tests.push(["dashboard/tests/renamed.spec.ts", "expected", [2_100]]);
   }
+  return tests;
+}
+
+function dashboardProducer(at: "baseline" | "branch" | "landed"): Producer {
   return {
     entries: ["dashboard/tests"],
     part: 1,
     of: 1,
     byFile: true,
-    record: playwrightRecord(tests),
+    record: playwrightRecord(dashboardTests(at)),
   };
 }
 
@@ -165,6 +172,53 @@ export function trunkModeProofs(args: {
       summary: JSON.parse(
         breakdownSummary(201, args.implementation, "landed"),
       ) as unknown,
+    },
+  };
+}
+
+// Landed holds what no Summary row shows: in dashboard/tests a file the tree
+// does not list and a second part without a file breakdown, and a tests
+// entry without any file breakdown. Baseline and Branch keep breakdowns.
+export function outsideLandedProofs(args: {
+  readonly baseline: string;
+  readonly branchSide: string;
+  readonly completion: string;
+}): Record<number, ComparisonProofServe> {
+  const landed = collectedSummary(
+    proofRun(103, args.completion),
+    [
+      ["dashboard/tests", 2],
+      ["tests", 1],
+    ],
+    [
+      {
+        entries: ["dashboard/tests"],
+        part: 1,
+        of: 2,
+        byFile: true,
+        record: playwrightRecord([
+          ...dashboardTests("landed"),
+          ["dashboard/tests/ghost.spec.ts", "expected", [700]],
+        ]),
+      },
+      {
+        entries: ["dashboard/tests"],
+        part: 2,
+        of: 2,
+        byFile: false,
+        record: playwrightRecord([
+          ["dashboard/tests/folder/a.spec.ts", "expected", [900]],
+        ]),
+      },
+      { ...testsProducer("landed"), byFile: false },
+    ],
+  );
+  return {
+    ...breakdownProofs(args),
+    103: {
+      kind: "summary",
+      artifactId: 1003,
+      summary: JSON.parse(landed) as unknown,
     },
   };
 }

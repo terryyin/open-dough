@@ -41,7 +41,7 @@
 }
 
 /* A strip led by its name, as what Not in the rows above holds after a
-   Summary's table (./IntentScopeSingleProofTable.tsx): the lead wraps with
+   Summary's table (./IntentScopeSummaryRows.tsx): the lead wraps with
    the labels. */
 .intent-summary-outside {
   display: flex;

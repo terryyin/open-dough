@@ -17,18 +17,10 @@
 // rows stay for drilling down, the group and rows say why in a word or two,
 // and one line says why as the homepage says it.
 
-import {
-  CiProofTable,
-  type CiProofSorting,
-  type CiProofTableRow,
-} from "./CiProofTable.tsx";
+import { CiProofTable, type CiProofSorting } from "./CiProofTable.tsx";
 import type { ColumnSort } from "./ciProofSort.ts";
 import { ciUnavailableCellsOf, type CiProofCells } from "./ciProofWording.ts";
-import {
-  immediateChildrenOf,
-  owningEntryOf,
-  type SummaryChild,
-} from "./ciScopeProof.ts";
+import { immediateChildrenOf, owningEntryOf } from "./ciScopeProof.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
 import { EvidenceKept, EvidenceNamed } from "./IntentScopeEvidenceLabels.tsx";
@@ -37,8 +29,8 @@ import {
   ComparisonTable,
 } from "./IntentScopeComparisonTable.tsx";
 import { ScopeFigures, scopeTableLabel } from "./IntentScopeFigures.tsx";
-import { ChildName } from "./IntentScopeProofChild.tsx";
 import { SingleProofTable } from "./IntentScopeSingleProofTable.tsx";
+import { childRowsOf } from "./IntentScopeSummaryRows.tsx";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import { useKeptReading } from "./pageIntentReading.tsx";
@@ -72,15 +64,6 @@ export function IntentScopeProof({
   const evidence = scopeEvidenceOf(useIntentCiEvidence());
   const sorting = useSummarySorting();
   const children = immediateChildrenOf(path, inventory);
-  const childRow = (
-    child: SummaryChild,
-    cells: CiProofCells,
-  ): CiProofTableRow => ({
-    key: child.path,
-    scope: <ChildName child={child} onOpen={onOpen} />,
-    name: child.name,
-    cells,
-  });
   // Every figure says why none can be given; the rows still drill down.
   const unavailable = (cells: CiProofCells) => (
     <>
@@ -88,7 +71,7 @@ export function IntentScopeProof({
       <CiProofTable
         label={scopeTableLabel(path)}
         scopeHeader="Scope"
-        rows={children.map((child) => childRow(child, cells))}
+        rows={childRowsOf(children, onOpen, () => cells)}
         sorting={sorting}
       />
     </>

@@ -107,11 +107,7 @@ test("a missing shard and a shard without a file breakdown keep the entry's tota
   // What the figures hold beyond the rows, as a short label.
   const outside = evidenceLabels(summary, "Not in the rows above");
   await expectEvidenceLabels(outside, ["Part 2 no breakdown"]);
-  await expectLabelInFull(
-    outside,
-    "Part 2 no breakdown",
-    "Part 2 of 3 published no file breakdown",
-  );
+  await expectLabelInFull(outside, "Part 2 no breakdown", noBreakdown);
 });
 
 test("an entry-only summary keeps entry totals and labels the child breakdown unavailable", async ({

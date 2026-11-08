@@ -15,8 +15,8 @@ import type { CiProofEntry, CiProofFigures } from "./ciProof.ts";
 import {
   entryTimingOf,
   joinedAnd,
+  noBreakdownGapsOf,
   partPhrase,
-  partsWithoutBreakdown,
   scopeTimingOf,
   timingCellOf,
   type CiTiming,
@@ -63,12 +63,8 @@ export const hasFileBreakdown = (entry: CiProofEntry) =>
   entry.parts.some((part) => part.breakdown === true);
 
 // "part 2 of 3 has no file breakdown", one for each such present part.
-function breakdownGaps(entry: CiProofEntry): string[] {
-  const of = entry.parts.length;
-  return partsWithoutBreakdown(entry).map((part) =>
-    partPhrase(part, of, "has no file breakdown"),
-  );
-}
+const breakdownGaps = (entry: CiProofEntry): string[] =>
+  noBreakdownGapsOf(entry).map((gap) => gap.phrase);
 
 // Cumulative test execution time in an entry's or scope's row, under its
 // "Test execution time" column (`./ciProofTiming.ts`).

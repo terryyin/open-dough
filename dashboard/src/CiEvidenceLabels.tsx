@@ -6,7 +6,7 @@
 // (`./IntentScopeEvidenceLabels.tsx`) -- or a story comparison's Baseline,
 // Branch and Landed with their status words, the provisional mark and the
 // observed-not-attributed framing (`./IntentScopeComparisonTable.tsx`); and
-// the notes on a Summary's figures (`./IntentScopeSingleProofTable.tsx`). Each
+// the notes on a Summary's figures (`./IntentScopeSummaryRows.tsx`). Each
 // label shows a Lucide icon, hidden from assistive technology, beside its
 // short words. A reader hears the label from its content: unseen words naming
 // what the icon stands for where the short words leave it out ("Revision"

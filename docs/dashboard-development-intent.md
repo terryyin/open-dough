@@ -53,7 +53,8 @@ CI evidence published under its path, and, when the selection's figures hold
 files no child row covers (files the tree does not list) or results CI could
 not place in a file, a **Not in the rows above** row, its contents labelled
 after the table (`1 file not in the tree`, `Unplaced results`,
-`Part 2 no breakdown`; the files and parts in full on hover).
+`Part 2 no breakdown`; the files in full on hover, a part as
+"part 2 of 3 has no file breakdown").
 The table's headers sort it as **CI status** Proof's do, **Scope** by the
 child's name; until one is activated the rows keep the browser's order, and
 **Not in the rows above** stays last under any sort while the group above
@@ -79,13 +80,18 @@ path, which its **Baseline** cell names) that sorts by kind in that order
 with unchanged rows last in either direction, explains per-row gaps, and shows the same
 count-border and duration-tint cues as the homepage entry table (see
 [CI timing comparison](dashboard-development-intent-ci-comparison.md)). Parts
-completeness stays for the homepage's chosen build (landed, else branch).
+completeness stays for the homepage's chosen build (landed, else branch, else
+baseline),
+and that build's proof labels what **Not in the rows above** holds and an
+entry it does not break down by file as one run's Summary does,
+`No file breakdown` naming it ("The Landed CI proof summary does not break
+tests down by file").
 Each result counts in one row: an unlisted file
 under a listed folder is in that folder's row, and outside only in that
 folder's own summary. Execution time is precise enough to compare sub-minute
 scopes (`340 ms`, `12.5 s`, `4 min 5 s`); a measured zero is `0 ms`. A file
 CI has no result for says **no CI result**; a scope with an untimed test, a
-missing or ambiguous part, or a part whose report published no file breakdown
+missing or ambiguous part, or a part with no file breakdown
 has partial timing shown as short gap labels (`Part 3 missing`,
 `Part 2 no breakdown`, `1 test untimed`), in the group as in the rows; an entry-only summary keeps the entry's totals
 and is labelled `No file breakdown`. Without usable proof, the rows

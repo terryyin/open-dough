@@ -35,6 +35,7 @@ import {
 export {
   breakdownProofs,
   noBreakdownBaselineProofs,
+  outsideLandedProofs,
 } from "./intentSummaryStoryComparisonProofs.ts";
 export { summaryComparisonChanges };
 export {
