@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-266_show-ci-time-without-runner-waits-for-adapters.json",
+      "identity": "SEED-266#show-ci-time-without-runner-waits-for-adapters",
+      "completedAt": "2026-11-08T04:03:54.345Z",
+      "blob": "699c4e43ee4c41210c9a91531a089e9bd867370a"
+    },
+    {
       "fileName": "SEED-263_pilot-fluent-dashboard-page-objects.json",
       "identity": "SEED-263#pilot-fluent-dashboard-page-objects",
       "completedAt": "2026-11-08T02:31:18.718Z",
