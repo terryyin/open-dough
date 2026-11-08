@@ -18,8 +18,13 @@ selected name toggles expansion and keeps the selection and summary.
 Locations still allow only one open at a time via toggle (or a selected
 name's toggle); selecting a closed location's name leaves it closed and
 leaves any other open location open. Both controls are keyboard-operable, and
-a selected location or folder reads as pressed. Every location header has its
-own background; a selected location's header takes the selected background
+a selected location or folder reads as pressed. Every location header reads
+as a section header: it spans the locations column edge to edge in its own
+band colour, in light and dark themes alike, with its toggle and bold label
+padded inside, while the folders and files beneath it read as rows without
+that colour. The band colour stays apart from the selected background, the
+change mark, the CI cues and the background of folders containing changes. A
+selected location's header takes the selected background
 across its whole width, toggle included (or an accent border when a CI
 duration tint would be hidden by that fill — see
 [CI timing comparison](dashboard-development-intent-ci-comparison.md)), and

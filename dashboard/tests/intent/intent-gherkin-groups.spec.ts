@@ -2,10 +2,11 @@
 // (../../src/IntentPerspective.tsx): start collapsed, one open body at a time,
 // all-closed reachable, Purpose survives toggle collapse, empty/unsupported
 // bodies participate, and nested folder toggle disclosure stays local to the
-// open group. With no story selected, every location header has its own
-// background apart from folder and file rows; a selected header takes the
-// selected background toggle to edge, while an expanded one shows only its
-// open toggle.
+// open group. With no story selected, every location header is a section
+// header spanning the locations column edge to edge with a bold label and its
+// own background apart from folder and file rows; a selected header takes the
+// selected background across that width, while an expanded one shows only
+// its open toggle.
 
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
@@ -169,7 +170,7 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
     ).toBeVisible();
   });
 
-  await test.step("with no story selected, headers stand apart from rows; selection fills one header, expansion shows only in the toggle", async () => {
+  await test.step("with no story selected, full-width bold headers stand apart from rows; selection fills one header, expansion shows only in the toggle", async () => {
     await expect(
       intent.getByRole("region", { name: "Selected story", exact: true }),
     ).toHaveCount(0);
@@ -223,11 +224,13 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
       expect(looks.get(location)?.background).toBe(expanded?.background);
     expect(selected?.background).not.toBe(expanded?.background);
     expect(rowBackgrounds).not.toContain(selected?.background);
-    for (const look of looks.values())
+    for (const look of looks.values()) {
       expect(look).toMatchObject({
         mark: "none",
         controlsShowHeader: true,
         fullWidth: true,
       });
+      expect(look.labelWeight).toBeGreaterThanOrEqual(600);
+    }
   });
 });

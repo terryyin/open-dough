@@ -3,6 +3,7 @@
 **Identity:** SEED-271#compact-intent-sidebar
 
 **Source:** [Make the Intent sidebar easier to scan and hide](../../seeds/SEED-271-compact-intent-sidebar.md#compact-intent-sidebar)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and boundaries
 
@@ -100,7 +101,7 @@ Intent layout and the mode bar, so slices 1 and 3 run the whole
 ### 1. Location headers read as full-width section headers
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `locationHeaderLook` measures the column width and label weight; the
 `intent-gherkin-groups.spec.ts` header expectation fails first, then passes
 with `intent-story-changes.spec.ts` and `intent-story-ci-cues.spec.ts`; then
@@ -112,6 +113,16 @@ column edge to edge in its own color with the toggle and bold label padded
 inside; the selected header carries the selected fill (or accent border with a
 CI tint) across the full width, and the changed one its leading-edge mark.
 Guidance updated.
+
+Accepted (2026-11-08): `locationHeaderLook` now measures against
+`.intent-locations` and reports `labelWeight`; the new assertions failed before
+the CSS change (`fullWidth` false). The location rules and the
+`--location-header` token moved to `dashboard/src/intent-location-group.css`
+(imported by `IntentLocationGroup.tsx`) to keep `intent-perspective.css` under
+the 250-line limit. Whole `tests/intent` (239) passed after the refactor.
+Learning: the dashboard has no dark base theme; only the CI cue colours vary
+under `prefers-color-scheme: dark`, so the header token's dark value sits on a
+light surface and stays distinct from the dark cues.
 
 ### 2. The outside-locations count is an icon and a number
 

@@ -1,0 +1,81 @@
+/* One configured Intent location in the locations column
+   (./IntentLocationGroup.tsx): a section header band over its folder and file
+   rows. The column itself and its scrolling are the browser's
+   (./intent-perspective.css). */
+
+/* A location header's own band colour: a muted violet apart from the selected
+   accent fill, the green and warm CI cues (./intent-ci-cues.css), the change
+   mark, and the contains-changes folder background (./change-kinds.css). */
+:root {
+  --location-header: #e7e1f1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --location-header: #ddd4ee;
+  }
+}
+
+.intent-locations > .intent-location {
+  flex: none;
+  overflow: visible;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 0;
+}
+
+/* Location book-icon toggle + bold selectable name (same split as Intent
+   folder rows), a section header spanning the locations column edge to edge.
+   Its own band colour sets a location apart from the folder and file rows
+   beneath it; a selected location's header takes the file browser's selected
+   fill (./story-review-files.css) across that width, toggle included, while
+   expansion shows only in the toggle. A location's changes add a mark
+   (./change-kinds.css) over either background. */
+.intent-location-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: var(--location-header);
+  font-weight: 600;
+}
+
+.intent-location-toggle {
+  flex: none;
+  min-width: 1.5rem;
+  padding-inline: 0.25rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.intent-location-toggle .icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+.intent-location-name {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  text-align: start;
+}
+
+.intent-location-body {
+  padding: var(--space-2) var(--space-3);
+}
+
+.intent-location-kind {
+  color: var(--quiet);
+  font-weight: 400;
+  font-size: var(--text-sm);
+}

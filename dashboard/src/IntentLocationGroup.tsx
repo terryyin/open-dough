@@ -37,6 +37,7 @@ import {
 } from "./useLocationOpenFolders.ts";
 import "./story-review-files.css";
 import "./intent-ci-cues.css";
+import "./intent-location-group.css";
 
 function selectionPhrase(location: IntentLocation): string {
   if (location.include === undefined || location.include.length === 0) {

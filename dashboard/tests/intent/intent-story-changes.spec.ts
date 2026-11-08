@@ -171,6 +171,8 @@ test("Intent highlights a selected Taken story's test changes over the published
       expect(look.background).not.toBe("rgba(0, 0, 0, 0)");
       expect(look.background).not.toBe(marked);
       expect(look.mark).not.toBe("none");
+      expect(look.fullWidth).toBe(true);
+      expect(look.labelWeight).toBeGreaterThanOrEqual(600);
       changedHeader = look;
     }
     const header = intentLocationHeader(intent, "dashboard/tests");
