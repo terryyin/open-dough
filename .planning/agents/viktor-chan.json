@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "viktor-chan",
+  "email": "viktor-chan@example.org",
+  "identity": "SEED-269#recover-terminal-insert",
+  "mode": "story-branch",
+  "branch": "claude/recover-dictation-and-paste-in-the-embedded-term",
+  "host": "claude",
+  "model": "opus"
+}
