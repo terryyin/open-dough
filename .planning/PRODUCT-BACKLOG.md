@@ -36,6 +36,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Guard native fixture identity inputs against drift](seeds/SEED-262-faster-dashboard-test-feedback.md#guard-native-fixture-identity-inputs) — SEED-262#guard-native-fixture-identity-inputs
 - [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories) — SEED-262#reuse-immutable-git-histories
 - [Make kept launch record test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data) — SEED-261#map-launch-and-session-test-data
 - [Make live launch observation test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-observation-test-data) — SEED-261#map-launch-observation-test-data
