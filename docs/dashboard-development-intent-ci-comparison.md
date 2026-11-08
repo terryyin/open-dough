@@ -21,7 +21,8 @@ Landed says no later build finished in the history it read. When the walk
 stopped at the trunk head or a running build, the answer is read again on the
 next selection instead of remembered. Timed-out or unexplained stays
 exact-only. Baseline and Branch walks continue past builds without usable
-proof. The homepage names the active comparison (**Baseline compared with
+proof. The story's **CI comparison** view names the active comparison
+(**Baseline compared with
 Landed** when Landed has proof, else **Branch**, or **Provisional** for Taken
 Trunk Mode) and why Landed is unused when skipped; an overall summary keeps
 units apart and shows CI time without runner waits as `before → after (Δ)`

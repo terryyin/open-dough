@@ -7,19 +7,23 @@
 // locations are configured. One segmented strip under the banner, an Intent
 // tablist (`./IntentTabs.tsx`) of Intent's own, not another perspective.
 // Directly activating Intent (click, Enter or Space), even while it is
-// chosen, returns home: the browsing selection clears
-// (`./intentWorkspaceSelection.ts`), leaving the selected story, tree
-// expansion and Purpose/Proof reading choices as they were. Arrow keys, Home
-// and End only choose the mode, so the reading stays. While the Intent mode
-// shows the locations tree, the strip offers Review changes' **Hide files** /
-// **Show files** (`./FileBrowserToggle.tsx`) for the locations column.
+// chosen, returns home (`onHome`): without a selected story the browsing
+// selection clears (`./intentWorkspaceSelection.ts`), leaving tree expansion
+// and Purpose/Proof reading choices as they were; with one, its CI comparison
+// view shows (`./intentStoryTabs.tsx`) and its Changed tests reading stays.
+// Arrow keys, Home and End only choose the mode, so the reading stays. While
+// the Intent mode shows the locations tree without a selected story, the
+// strip offers Review changes' **Hide files** / **Show files**
+// (`./FileBrowserToggle.tsx`) for the locations column; a selected story's
+// view row offers it instead. The strip's chosen tab is where the keyboard
+// returns when what held it left an Intent page (`./storyCardFocus.ts`).
 
 import {
   FileBrowserToggle,
   type FileBrowserPlace,
 } from "./FileBrowserToggle.tsx";
 import { IntentTabs, type IntentTabOption } from "./IntentTabs.tsx";
-import { useIntentWorkspaceSelection } from "./intentWorkspaceSelection.ts";
+import { intentHomeMarks } from "./storyCardFocus.ts";
 import "./intent-mode-tabs.css";
 
 export type IntentMode = "intent" | "candidates";
@@ -33,25 +37,27 @@ export function IntentModeTabs({
   mode,
   idPrefix,
   onSelect,
+  onHome,
   files,
   onShowFiles,
 }: {
   readonly mode: IntentMode;
   readonly idPrefix: string;
   readonly onSelect: (next: IntentMode) => void;
-  // The locations column while the Intent mode shows the tree.
+  // Intent activated directly.
+  readonly onHome: () => void;
+  // The locations column while the strip offers its toggle.
   readonly files: FileBrowserPlace | undefined;
   readonly onShowFiles: (shown: boolean) => void;
 }) {
-  const { clearSelection } = useIntentWorkspaceSelection();
   return (
-    <div className="intent-mode-bar">
+    <div className="intent-mode-bar" {...intentHomeMarks}>
       <IntentTabs
         options={modes}
         selected={mode}
         onSelect={onSelect}
         onActivate={(activated) => {
-          if (activated === "intent") clearSelection();
+          if (activated === "intent") onHome();
         }}
         label="Intent reading"
         idPrefix={idPrefix}

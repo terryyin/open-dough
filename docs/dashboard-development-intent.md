@@ -129,22 +129,23 @@ is that file's published CI evidence from Intent's one evidence owner
 (judged-run results, or a story's baseline / branch / landed comparison),
 under the Summary's evidence labels.
 Directly activating the **Intent** tab (click, Enter or Space), even while already
-chosen, returns home: selection clears and CI status shows for the same story;
-expansion and reading choices stay. No separate return control.
-While **Intent** shows the location tree, the strip also offers Review
-changes' **Hide files** / **Show files** toggle, reached by Tab after the
-tabs and stating whether the locations column is shown. Hiding removes the
-whole column (story summary and tree) and gives the reading pane the full
-width, or on a narrow screen, where the tree sits above it, the full height;
-it changes no selection or reading. While the column is hidden the strip
-shows nothing from the summary: no story title, comparison state, **Retry**
-or outside count. **Show files** returns the column as it
-was: summary disclosure, selection, open location and folders, **Selected
-story only** and the tree's scroll. The choice is kept with Intent's reading
-place across selections, **Optimization Candidates** and back, Development
-and back and new revisions; a project change shows the column again. It is
-not on the URL or in storage and is not remembered across reloads; the
-explanation shown in place of the tree offers no toggle.
+chosen, returns home: without a selected story, selection clears and CI status
+shows; with one, its **CI comparison** view shows and its **Changed tests**
+reading stays. Expansion and reading choices stay. No separate return control.
+While **Intent** shows the location tree, Review changes' **Hide files** /
+**Show files** toggle states whether the locations column is shown: without a
+selected story it follows the strip's tabs, and with one it ends the story's
+view row while **Changed tests** shows, in both cases reached by Tab after the
+tabs. Hiding removes the column and gives the reading pane the full width, or
+on a narrow screen, where the tree sits above it, the full height; it changes
+no selection or reading, and a selected story's header stays above it.
+**Show files** returns the column as it was: selection, open location and
+folders, **Selected story only** and the tree's scroll. The choice is kept
+with Intent's reading place across selections, the story's other views,
+**Optimization Candidates** and back, Development and back and new revisions;
+a project change shows the column again. It is not on the URL or in storage
+and is not remembered across reloads; the explanation shown in place of the
+tree offers no toggle.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at Intent's reading revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
@@ -202,41 +203,9 @@ failed file read says so and offers retry. When that setting is absent,
 Intent says no intent locations are configured and names the setting and
 file; it shows no empty tree. An unreadable or malformed settings file is a
 distinct explanation from absence. With a story selected, the **Intent**
-reading mode names it in one compact summary at the top of the locations
-column, or above the explanation shown in place of the tree; the mode strip
-stays under the banner, and Optimization Candidates shows no summary.
-Compact, the summary gives the story's title on one line (full title on
-hover) and says briefly while the comparison is reading, unavailable or
-failed, with **Retry** for a failure; a disclosure, collapsed at first and
-not kept across reloads, reveals the full title, identity, and the revisions
-its default Review changes comparison runs between or the full explanation,
-without changing the selection, reading pane, tree expansion or **Selected
-story only**. Intent overlays that comparison's changed files on the
-published tree: styled by change kind, added files inserted, deleted files
-kept, a rename at its new path where a location selects it else at its old
-path. A completed story is named by its done record's title and compared
-through its published completion, whose revisions need not be the published
-revision Intent describes. Folders containing changes share one background; a
-location containing changes keeps its header background and carries a change
-mark on its leading edge. The first time Intent has the comparison, those
-folders and the first changed location open and everything else collapses.
-**Selected story only**, off at first, leaves just the changed files and the
-locations and folders holding them, or says no test file in a location
-changed; toggling it opens the same folders again and collapses the rest.
-Changed files no location selects by either path are counted at the end of
-the summary's title line, expanded or not, as one compact button: an icon and
-the number, whose accessible name and hover text explain it (for example "2
-changed files outside Intent locations — open Review changes"). It is absent
-when no changed file is outside the locations. Activating it opens Review
-changes on Intent's comparison (All changes, uncommitted included) even for a
-story with a review mark, without toggling the disclosure. A changed
-file's Purpose is Review changes' diff of it, and Proof holds that file's
-comparison when available. A story without a comparison, and a failed read
-with retry, each say so while the published tree stays usable; clearing the
-selected story removes the summary and returns Proof to judged-run evidence.
-The story is a lens on Intent, not a separate definition of it, and its
-changed files are an initial view of its impact: they do not by themselves
-establish every affected behavior or the regression proof it needs. Structure
+reading mode is that story's, as
+[Intent for a selected story](dashboard-development-intent-story.md)
+describes. Structure
 is not offered yet. The perspective is disposable presentation state on the URL
 (`perspective=intent`), independent of Development's stories/roster view,
 which Intent keeps to return to. Choosing a perspective adds one history

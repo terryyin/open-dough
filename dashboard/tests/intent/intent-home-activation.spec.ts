@@ -1,7 +1,8 @@
 // Returning to Intent's CI status homepage by directly activating the Intent
 // reading tab (../../src/IntentModeTabs.tsx, ../../src/intentWorkspaceSelection.ts):
-// with a selected story it clears the browsing selection and the homepage
-// still judges that story's branch with its summary kept; arrow keys, Home
+// with a selected story it shows the story's CI comparison view
+// (../../src/intentStoryTabs.tsx), judging that story's branch under its
+// header, while Changed tests keeps the file it read; arrow keys, Home
 // and End only choose the mode, so a file read before Optimization
 // Candidates is still selected and read, until Intent itself is activated;
 // with a newer revision waiting behind its notice, returning home keeps that
@@ -34,6 +35,7 @@ import {
   toggleOnDevelopment,
 } from "../intentCiStoryRecords.ts";
 import { expectIntentModeChosen, intentModeTab } from "../intentModePage.ts";
+import { chooseStoryTab, expectStoryTab } from "../support/intentStoryPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
@@ -74,7 +76,7 @@ async function expectFileRead(intent: Locator) {
   await expect(ciPanel(intent)).toHaveCount(0);
 }
 
-test("activating Intent with a story selected returns home judging that story's branch, keeping its summary", async ({
+test("activating Intent with a story selected returns to its CI comparison judging that story's branch, keeping its header and Changed tests reading", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -90,8 +92,10 @@ test("activating Intent with a story selected returns home judging that story's 
   });
   await expect(summary).toBeVisible();
 
+  await chooseStoryTab(intent, "Changed tests");
   await selectFile(intent);
   const panel = await activateIntentHome(intent);
+  await expectStoryTab(intent, "CI comparison");
   await expectNamed(panel, failing.branch);
   await expect(panel).toContainText(`Story branch of ${failing.title}.`);
   await expect(panel.locator(".intent-ci-state")).toHaveText(
@@ -102,7 +106,8 @@ test("activating Intent with a story selected returns home judging that story's 
     "data-selected-story",
     `SEED-219#${failing.anchor}`,
   );
-  await expect(fileName(intent)).toHaveAttribute("aria-pressed", "false");
+  await chooseStoryTab(intent, "Changed tests");
+  await expect(fileName(intent)).toHaveAttribute("aria-pressed", "true");
 });
 
 test("arrow keys, Home and End choose Intent again with the file still read; activating Intent from Optimization Candidates returns home", async ({

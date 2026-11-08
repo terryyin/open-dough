@@ -11,7 +11,10 @@ export { keepInView, untilOwnMove } from "./pageMovement.ts";
 // entry, its recorded links by role, and the Board, which receives focus when
 // the work that held it is not in the new snapshot. Board spreads these
 // marks onto what it renders. A card and the Board are focusable only so
-// that focus can be returned to them, so they stay out of the tab order.
+// that focus can be returned to them, so they stay out of the tab order. The
+// Intent perspective shows no Board; its reading-mode strip
+// (`./IntentModeTabs.tsx`) spreads `intentHomeMarks`, and its chosen tab, the
+// strip's one tab in the tab order, is Intent's home.
 const storyCardAttribute = "data-story-card";
 const storyCardLinkAttribute = "data-story-card-link";
 const boardAttribute = "data-board";
@@ -25,6 +28,10 @@ export function storyCardLinkMarks(role: string) {
 }
 
 export const boardMarks = { [boardAttribute]: true, tabIndex: -1 } as const;
+
+const intentHomeAttribute = "data-intent-home";
+
+export const intentHomeMarks = { [intentHomeAttribute]: true } as const;
 
 export type FocusedStoryCard = {
   readonly identity: string;
@@ -122,12 +129,32 @@ export function focusBoard(): void {
 
 const board = () => document.querySelector<HTMLElement>(`[${boardAttribute}]`);
 
+// Intent's chosen reading-mode tab while the page shows Intent.
+const intentHome = () =>
+  document.querySelector<HTMLElement>(
+    `[${intentHomeAttribute}] [role="tab"][aria-selected="true"]`,
+  );
+
+// Whether the page shows `element`: Intent keeps the Board mounted but
+// hidden, where it cannot take the keyboard.
+const shown = (element: HTMLElement | null | undefined) =>
+  element !== null &&
+  element !== undefined &&
+  element.getClientRects().length > 0
+    ? element
+    : undefined;
+
 // Where the keyboard is useful once what held it left the page: the work's
-// card while the page shows it, else the Board.
+// card while the page shows it, else the Board, else, in the Intent
+// perspective, which shows neither, Intent's chosen reading-mode tab.
 export function storyCardHome(
   identity: string | undefined,
 ): HTMLElement | null {
-  return (identity === undefined ? undefined : storyCard(identity)) ?? board();
+  return (
+    shown(identity === undefined ? undefined : storyCard(identity)) ??
+    shown(board()) ??
+    intentHome()
+  );
 }
 
 // A snapshot can name a work before its derived links: a new revision keeps

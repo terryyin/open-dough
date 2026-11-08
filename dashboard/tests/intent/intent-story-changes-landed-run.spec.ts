@@ -17,7 +17,7 @@ import { expect, test } from "../support/preparationPage.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import {
   intentDiff,
-  expandStorySummary,
+  storyHeaderDetail,
   openReviewFromIntent,
   reviewDiff,
   selectTakenStoryInIntent,
@@ -44,10 +44,10 @@ test.use({ preparationHost: "codex" });
 const landedRunHeading = (review: Locator) =>
   review.getByRole("heading", { name: "Landed run", exact: true });
 
-// The landed run's tree Intent's summary shows, expanded, beside the story's
+// The landed run's tree the story's header in Intent shows beside its
 // changes.
 const intentRunTree = async (intent: Locator) =>
-  (await expandStorySummary(intent))
+  (await storyHeaderDetail(intent))
     .locator(".intent-story-revisions code")
     .nth(1);
 

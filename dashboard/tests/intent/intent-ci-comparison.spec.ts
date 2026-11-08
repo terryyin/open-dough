@@ -12,7 +12,9 @@
 // Trunk Mode, running, failed and missing builds live in
 // ./intent-ci-comparison-gaps.spec.ts. Taken-story provisional journeys live
 // in ./intent-ci-comparison-taken.spec.ts; no-selection homepage consumers
-// stay in ./intent-ci-status*.spec.ts.
+// stay in ./intent-ci-status*.spec.ts. The comparison beside a held or
+// failed Intent locations read lives in
+// ./intent-ci-comparison-locations.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";

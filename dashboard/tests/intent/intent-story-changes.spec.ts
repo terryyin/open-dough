@@ -1,10 +1,10 @@
 // Example 1 and 3: a Taken story whose worktree changes the tests Intent
 // publishes (../support/intentStoryWorktree.ts) is selected by its card's
-// empty area, and the Intent mode's compact summary, heading the locations
-// column under the mode strip, names it, with the "Selected story only"
-// choice and the count outside every location; its disclosure reveals the
-// identity and the revisions its default Review changes comparison runs
-// between. The whole published tree shows, changed
+// empty area, and one persistent header under the mode strip names it in
+// full, with its identity, the revisions its default Review changes
+// comparison runs between, and the count outside every location, above the
+// story's views; Changed tests' column starts with the "Selected story only"
+// choice. The whole published tree shows, changed
 // files styled by kind and the added one inserted; the folders containing
 // changes have the contains-changes background and are open, with the first
 // changed location, while everything else stays collapsed. A location
@@ -17,7 +17,8 @@
 // renames, and a folder's Summary of the overlaid tree:
 // ./intent-story-changes-moves.spec.ts. No
 // comparison and a failed read: ./intent-story-changes-gaps.spec.ts. A long
-// title: ./intent-story-summary-title.spec.ts.
+// title: ./intent-story-summary-title.spec.ts. Where the keyboard returns
+// after closing Review changes: ./intent-story-review-return.spec.ts.
 
 import { parts } from "../dashboardPage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
@@ -30,16 +31,16 @@ import {
   folderRow,
   intentDiff,
   intentFile,
-  expandStorySummary,
   expectOutsideCount,
   locationGroup,
   openReviewFromIntent,
   outsideCount,
   reviewDiff,
   selectTakenStoryInIntent,
-  storyDisclosure,
+  storyHeaderDetail,
   storyOnly,
   storySummary,
+  storyTitle,
 } from "../support/intentStoryPage.ts";
 import { kindStyles, nameStyle } from "../support/changeKindStyle.ts";
 import { changed } from "../support/intentStoryWorktree.ts";
@@ -63,33 +64,29 @@ test("Intent highlights a selected Taken story's test changes over the published
   );
   const scoped = storySummary(intent);
 
-  await test.step("the mode strip sits under the banner and one compact summary heads the locations column", async () => {
+  await test.step("the mode strip sits under the banner and one persistent header heads the story's views", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(intent.locator(":scope > *").first()).toHaveClass(
       "intent-mode-bar",
     );
+    await expect(
+      intent.getByRole("region", { name: "Selected story" }),
+    ).toHaveCount(1);
+    await expect(storyTitle(intent)).toHaveText("Story Story A");
+    await expect(intent.getByText("Story A", { exact: true })).toHaveCount(1);
+    await expect(
+      intent.getByRole("tablist", { name: "Selected story views" }),
+    ).toHaveText("CI comparisonChanged testsIntent coverage");
     const column = intent.locator(".intent-locations");
     await expect(
-      column.getByRole("region", { name: "Selected story" }),
-    ).toHaveCount(1);
-    await expect(
       column.locator(":scope > :not(.visually-hidden)").first(),
-    ).toHaveClass("intent-story-summary");
-    await expect(storyDisclosure(intent)).toHaveText("Story Story A");
-    await expect(storyDisclosure(intent)).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
-    await expect(scoped.locator(".intent-story-detail")).toBeHidden();
-    await expect(scoped.getByText("SEED-A#a")).toBeHidden();
-    await expect(storyOnly(scoped)).not.toBeChecked();
+    ).toHaveClass("intent-story-scope");
+    await expect(storyOnly(column)).not.toBeChecked();
   });
 
-  await test.step("expanded, the summary names the story and the revisions its comparison runs between", async () => {
-    const detail = await expandStorySummary(intent);
-    await expect(detail.locator(".intent-story-full-title")).toHaveText(
-      "Story A SEED-A#a",
-    );
+  await test.step("the header names the story and the revisions its comparison runs between, with nothing to collapse", async () => {
+    const detail = await storyHeaderDetail(intent);
+    await expect(detail.locator(".record-identity")).toHaveText("SEED-A#a");
     const revisions = detail.locator(".intent-story-revisions");
     await expect(revisions).toContainText(
       `Compared ${shortRevision(baseline)} with worktree `,
@@ -101,9 +98,6 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(revisions.locator("code").nth(1)).toContainText(
       "another-agent-workspace",
     );
-    await expectOutsideCount(intent, 2);
-    await storyDisclosure(intent).click();
-    await expect(detail).toBeHidden();
   });
 
   await test.step("the changed files outside every location are counted once each, pointing to Review changes", async () => {
@@ -219,7 +213,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(purpose.locator(".story-review-code")).toHaveCount(0);
   });
 
-  await test.step("closing the story's review clears the selected story and removes the summary", async () => {
+  await test.step("closing the story's review clears the selected story and removes the header", async () => {
     const { development, intentChoice } = parts(page);
     const review = page.getByRole("region", { name: "Story review" });
     await review.getByRole("button", { name: "Close", exact: true }).click();

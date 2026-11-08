@@ -2,11 +2,12 @@
 // (../support/intentStoryWorktree.ts). Off at first; on, only the in-scope
 // changed files and their folders remain, expanded; off again, the whole
 // tree, with the changed folders open and the rest collapsed, however they
-// were arranged by hand in between. Expanding and collapsing the story's
-// summary keeps the selected file and its reading, the open folders, and the
-// choice. A story selected in Development starts the tree's kept arrangement
-// afresh (../../src/pageIntentReading.tsx), so it applies its expansion, with
-// the toggle off, the next time Intent opens. A story that changed only product code says no
+// were arranged by hand in between. Visiting another of the story's views
+// and returning keeps the selected file and its reading, the open folders,
+// and the choice. A story selected in Development opens at its CI comparison
+// and starts the tree's kept arrangement afresh
+// (../../src/pageIntentReading.tsx), so it applies its expansion, with the
+// toggle off, the next time Changed tests shows. A story that changed only product code says no
 // test file in a location changed, with the count outside. The choice stays
 // through a new trunk revision and through **Show latest**
 // (../../src/IntentRevisionNotice.tsx). The highlighted
@@ -24,11 +25,12 @@ import { expect, test } from "../support/preparationPage.ts";
 import {
   folderToggle,
   folderRow,
-  expandStorySummary,
+  chooseStoryTab,
   expectOutsideCount,
+  expectStoryTab,
   intentFile,
   selectTakenStoryInIntent,
-  storyDisclosure,
+  storyHeaderDetail,
   storyOnly,
   storySummary,
 } from "../support/intentStoryPage.ts";
@@ -93,7 +95,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
     await expect(intent.locator(".intent-story-none")).toHaveCount(0);
   });
 
-  await test.step("expanding and collapsing the summary keeps the selected file, its reading, the open folders, and the choice", async () => {
+  await test.step("visiting Intent coverage and returning keeps the selected file, its reading, the open folders, and the choice", async () => {
     const file = intentFile(intent, changed.modified);
     await file.click();
     const purpose = purposeRegion(intent);
@@ -105,14 +107,10 @@ test("Selected story only shows just the story's changed files, expanded, and of
       await expectStoryExpansion(intent);
       await expect(toggle).toBeChecked();
     };
-    const detail = await expandStorySummary(intent);
     await expectKept();
-    await storyDisclosure(intent).press("Enter");
-    await expect(storyDisclosure(intent)).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
-    await expect(detail).toBeHidden();
+    await chooseStoryTab(intent, "Intent coverage");
+    await expect(file).toBeHidden();
+    await chooseStoryTab(intent, "Changed tests");
     await expectKept();
   });
 
@@ -138,6 +136,8 @@ test("Selected story only shows just the story's changed files, expanded, and of
       .click();
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-B#b");
+    await expectStoryTab(intent, "CI comparison");
+    await chooseStoryTab(intent, "Changed tests");
     await expect(storySummary(intent).getByRole("status")).toHaveText(
       "No comparison is available.",
     );
@@ -151,6 +151,8 @@ test("Selected story only shows just the story's changed files, expanded, and of
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
+    await expectStoryTab(intent, "CI comparison");
+    await chooseStoryTab(intent, "Changed tests");
     await expect(toggle).not.toBeChecked();
     await expectStoryExpansion(intent);
     await expect(folderToggle(intent, "other", false)).toBeVisible();
@@ -169,7 +171,7 @@ test("a story that changed only product code says Selected story only has no tes
   );
   const none = intent.locator(".intent-story-none");
   await expect(
-    (await expandStorySummary(intent)).locator(".intent-story-revisions"),
+    (await storyHeaderDetail(intent)).locator(".intent-story-revisions"),
   ).toBeVisible();
   const toggle = storyOnly(intent);
   await expect(toggle).not.toBeChecked();

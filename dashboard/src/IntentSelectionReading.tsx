@@ -1,5 +1,7 @@
 // Intent's selection reading (`./IntentBrowser.tsx`): CI status when nothing
-// is selected (`./IntentCiStatus.tsx`); Summary (`./IntentSummary.tsx`) or
+// is selected (`./IntentCiStatus.tsx`), or with a selected story, whose CI
+// comparison is its own view (`./intentStoryTabs.tsx`), a prompt to choose a
+// changed test; Summary (`./IntentSummary.tsx`) or
 // Purpose and Proof tabs (`./IntentFileReading.tsx`) once a location, folder
 // or file is selected. A selection the shown revision does not hold is
 // explained instead (`./IntentRevisionNotice.tsx`). CI status and a Summary
@@ -39,6 +41,7 @@ export function IntentSelectionReading({
   onOpen,
   readingKey,
   fileReading,
+  storySelected,
 }: {
   readonly revision: string;
   // The revision of the file text shown, and a later one whose read failed.
@@ -61,10 +64,18 @@ export function IntentSelectionReading({
   readonly readingKey: number;
   // Purpose or Proof, kept across file selections.
   readonly fileReading: IntentFileReadingPlace;
+  // The page selects a story, so this reading is its Changed tests view.
+  readonly storySelected: boolean;
 }) {
   const scope = selectionScope(selection);
   if (scope === "none") {
-    return <IntentCiStatus />;
+    return storySelected ? (
+      <p className="quiet intent-changed-tests-prompt">
+        Choose a test, folder or location to read its Purpose and Proof.
+      </p>
+    ) : (
+      <IntentCiStatus />
+    );
   }
   return (
     <>

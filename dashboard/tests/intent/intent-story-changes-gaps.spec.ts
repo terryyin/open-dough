@@ -1,13 +1,14 @@
 // Example 6 and a failed read: a selected story whose comparison Intent
-// cannot show never reads as a story without changes. Compact, the summary
-// of an active story with no workspace on this machine says no comparison is
+// cannot show never reads as a story without changes. The header of an
+// active story with no workspace on this machine says no comparison is
 // available, and of a review read that fails says so with a retry, which
-// then shows the story's changes; expanded, each gives its full
-// explanation. Either way the published tree stays usable beneath, without
-// change marks, an outside count, or a "Selected story only" toggle, which
-// would have no changes to show only; the retried read offers it, off.
-// Without configured locations the Intent tab names the story above the
-// explanation, and Optimization Candidates and CI status show no summary. The
+// then shows the story's changes; each gives its full explanation. Either way
+// the published tree stays usable in Changed tests, without change marks, an
+// outside count, or a "Selected story only" toggle, which would have no
+// changes to show only; the retried read offers it, off. Without configured
+// locations the header names the story, CI comparison shows its CI status
+// and Changed tests the explanation; Optimization Candidates shows no
+// header. The
 // highlighted journey:
 // ./intent-story-changes.spec.ts.
 
@@ -27,14 +28,16 @@ import {
 import { expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
-  expandStorySummary,
+  chooseStoryTab,
   expectOutsideCount,
+  expectStoryTab,
   intentFile,
   outsideCount,
   selectTakenStoryInIntent,
-  storyDisclosure,
+  storyHeaderDetail,
   storyOnly,
   storySummary,
+  storyTitle,
 } from "../support/intentStoryPage.ts";
 import { changed, publishIntentTrunk } from "../support/intentStoryWorktree.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
@@ -68,17 +71,17 @@ test("an active story with no workspace explains that no comparison is available
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
   const scoped = storySummary(intent);
-  await expect(storyDisclosure(intent)).toHaveText("Story Story A");
+  await expect(storyTitle(intent)).toHaveText("Story Story A");
   await expect(scoped.getByRole("status")).toHaveText(
     "No comparison is available.",
   );
-  await expect(scoped.locator(".intent-story-problem")).toBeHidden();
-  const detail = await expandStorySummary(intent);
+  const detail = await storyHeaderDetail(intent);
   await expect(detail.locator(".intent-story-problem")).toHaveText(
     "No comparison is available for this story: no workspace on this machine holds it. Intent shows the published tree without the story's changes.",
   );
   await expect(scoped.getByRole("button", { name: "Retry" })).toHaveCount(0);
   await expect(scoped.locator(".intent-story-revisions")).toHaveCount(0);
+  await chooseStoryTab(intent, "Changed tests");
   await expectPublishedTreeUsable(intent);
 });
 
@@ -107,7 +110,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await expect(problem).toHaveText(
     "The story's changes could not be read. Retry",
   );
-  const detail = await expandStorySummary(intent);
+  const detail = await storyHeaderDetail(intent);
   await expect(detail.locator(".intent-story-problem")).toHaveText(
     "The worktree could not be read. Intent shows the published tree without them.",
   );
@@ -124,7 +127,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await expect(intentFile(intent, changed.added)).toBeVisible();
 });
 
-test("without configured Intent locations the Intent tab names the selected story above the explanation, and the other modes show no summary", async ({
+test("without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changed tests the explanation, and Optimization Candidates no header", async ({
   page,
   origin,
 }) => {
@@ -134,36 +137,42 @@ test("without configured Intent locations the Intent tab names the selected stor
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
   const panel = intent.getByRole("tabpanel", { name: "Intent" });
-  await expect(panel.locator(":scope > *")).toHaveCount(3);
   await expect(panel.locator(":scope > *").first()).toHaveAttribute(
     "aria-label",
     "Selected story",
   );
-  await expect(panel.locator(":scope > *").nth(1)).toContainText(
-    "No intent locations are configured",
-  );
-  await expect(panel.locator(":scope > *").nth(2)).toHaveAttribute(
-    "aria-label",
-    "CI status",
-  );
-  await expect(storyDisclosure(intent)).toHaveText("Story Story A");
+  await expect(storyTitle(intent)).toHaveText("Story Story A");
   await expect(storySummary(intent).getByRole("status")).toHaveText(
     "No comparison is available.",
   );
+  await expect(storySummary(intent).locator(".record-identity")).toHaveText(
+    "SEED-A#a",
+  );
   await expect(storyOnly(intent)).toHaveCount(0);
   await expect(outsideCount(intent)).toHaveCount(0);
-  const detail = await expandStorySummary(intent);
-  await expect(detail.locator(".intent-story-full-title")).toHaveText(
-    "Story A SEED-A#a",
-  );
+  await expectStoryTab(intent, "CI comparison");
+  await expect(
+    intent
+      .getByRole("tabpanel", { name: "CI comparison" })
+      .getByRole("region", { name: "CI status", exact: true }),
+  ).toBeVisible();
+  await chooseStoryTab(intent, "Changed tests");
+  await expect(
+    intent.getByRole("tabpanel", { name: "Changed tests" }),
+  ).toContainText("No intent locations are configured");
+  await expect(
+    intent.getByRole("region", { name: "CI status", exact: true }),
+  ).toHaveCount(0);
 
   await chooseOptimizationCandidates(intent);
   await expect(
     intent.getByRole("tabpanel", { name: "Optimization Candidates" }),
   ).toContainText("No intent locations are configured");
   await expect(storySummary(intent)).toHaveCount(0);
+  // Activating Intent returns to the story's CI comparison.
   await intentModeTab(intent, "Intent").click();
   await expectIntentModeChosen(intent, "Intent");
+  await expectStoryTab(intent, "CI comparison");
   await expect(
     intent.getByRole("region", { name: "CI status", exact: true }),
   ).toBeVisible();

@@ -2,10 +2,12 @@
 // (../../src/pageIntentReading.tsx): with a selected Taken story
 // (../support/intentStoryWorktree.ts) that also adds a long spec two folders
 // deep, that file selected, "Selected story only" on, a folder collapsed by
-// hand and Purpose scrolled show the same after Development and back, and the
-// return reads neither the locations nor the file's diff or text again
-// (../../src/answerMemo.ts). Another project shows none of it, and choosing the
-// project again starts its reading afresh.
+// hand and Purpose scrolled show the same after the story's other views
+// (../../src/intentStoryTabs.tsx), and after Development and back on the same
+// Changed tests view, and the return reads neither the locations nor the
+// file's diff or text again (../../src/answerMemo.ts). Another project shows
+// none of it, and choosing the project again starts its reading afresh, at
+// the story's CI comparison.
 
 import type { Locator, Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
@@ -18,6 +20,8 @@ import { ciPanel } from "../intentCiStatusPage.ts";
 import { intentGroupToggle, purposeRegion } from "../intentPerspectivePage.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
+  chooseStoryTab,
+  expectStoryTab,
   folderToggle,
   intentFile,
   selectTakenStoryInIntent,
@@ -103,10 +107,17 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
   const offset = await readDeepSpec(intent);
 
   const reads = intentReads(page);
+  for (const view of ["CI comparison", "Intent coverage"] as const) {
+    await chooseStoryTab(intent, view);
+    await expect(readingPane(intent)).toBeHidden();
+    await chooseStoryTab(intent, "Changed tests");
+    await expect.poll(() => scrollOf(intent)).toBe(offset);
+  }
   const { development, intentChoice } = parts(page);
   await development.click();
   await expect(intent).toHaveCount(0);
   await intentChoice.click();
+  await expectStoryTab(intent, "Changed tests");
 
   const purpose = purposeRegion(intent);
   await expect(storyOnly(intent)).toBeChecked();
@@ -149,10 +160,17 @@ test("another project shows none of the reading place, and choosing the project 
   await expect(intent.getByRole("button", { name: deepSpec })).toHaveCount(0);
   await expect(intent.locator('[aria-pressed="true"]')).toHaveCount(0);
 
-  // The story stays selected; its tree is expanded as when first compared,
-  // with the toggle off and nothing selected, so CI status is shown.
+  // The story stays selected and opens at its CI comparison; its tree is
+  // expanded as when first compared, with the toggle off and nothing
+  // selected, so Changed tests asks for a choice.
   await chooseProject(page, "Open Dough");
+  await expectStoryTab(intent, "CI comparison");
   await expect(ciPanel(intent)).toBeVisible();
+  await chooseStoryTab(intent, "Changed tests");
+  await expect(readingPane(intent)).toContainText(
+    "Choose a test, folder or location to read its Purpose and Proof.",
+  );
+  await expect(ciPanel(intent)).toHaveCount(0);
   await expect(purposeRegion(intent)).toHaveCount(0);
   await expect(storyOnly(intent)).not.toBeChecked();
   await expect(folderToggle(intent, "out", true)).toBeVisible();

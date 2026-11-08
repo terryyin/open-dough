@@ -3,6 +3,7 @@
 **Identity:** SEED-275#story-intent-tabs
 
 **Source:** [Review a selected story in Intent tabs](../../seeds/SEED-275-story-intent-tabs.md#story-intent-tabs)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and boundaries
 
@@ -69,7 +70,7 @@ this increment.
 ### 1. Open a selected story at CI comparison
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Direct CI and Changed tests rows above. Extend completed, Taken, retry,
 story-title, sidebar, reading-place, outside-change and story CI cue journeys.
 Exercise the real card, tabs, tree, and Review changes controls.
@@ -81,6 +82,23 @@ and a direct way back to CI from file Proof. Switching tabs preserves the
 reader and sidebar. Keep currently readable coverage report/reason reachable
 in the coverage tab. Slice 3 fills out its reading states. The current
 project and candidate navigation remains usable until slice 2 replaces it.
+
+Accepted proof: the whole `dashboard/tests/intent` family after the
+refactor (257 passed), the side-panel and review focus consumers (221
+passed), typecheck and ESLint. Held and failed location reads are in
+`intent-ci-comparison-locations.spec.ts`; the Review changes keyboard return
+is in `intent-story-review-return.spec.ts`; narrow keyboard views are in
+`intent-story-views-narrow.spec.ts`; source-review rows carry the rest.
+
+Learnings for remaining slices: closing Review changes clears the Selected
+story under ADR 0008, so `storyCardHome` now skips hidden cards and the
+hidden Board and returns the keyboard to Intent's chosen mode tab
+(`data-intent-home`). The story view lives in `IntentStoryView.tsx`, and the
+location reading in `useShownIntentLocations.tsx`. Optimization Candidates still
+renders inside `IntentBrowser`, which needs settled locations, and the mode
+bar still holds Intent and Optimization Candidates for slice 2 to replace.
+A Taken story's CI heading still repeats its title; slice 5 reviews it
+against the mockup.
 
 ### 2. Visit project evidence and return to the story
 

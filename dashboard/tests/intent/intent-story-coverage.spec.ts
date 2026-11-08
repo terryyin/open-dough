@@ -1,8 +1,15 @@
-// Reports with incomplete evidence or no result reach the same disclosure as
-// a Caught result (./intent-story-completed.spec.ts), through real completion.
+// Reports with incomplete evidence or no result reach the same Intent
+// coverage view as a Caught result (./intent-story-completed.spec.ts),
+// through real completion.
 import { selectCompletedStoryInIntent } from "../support/intentCompletedStory.ts";
-import { expandStorySummary } from "../support/intentStoryPage.ts";
+import type { Locator } from "@playwright/test";
+import { chooseStoryTab } from "../support/intentStoryPage.ts";
 import { expect, test } from "../support/preparationPage.ts";
+
+async function openCoverage(intent: Locator) {
+  await chooseStoryTab(intent, "Intent coverage");
+  return intent.getByRole("region", { name: "Intent coverage" });
+}
 
 test("Intent shows an Insufficient evidence report with its reason and unavailable cost", async ({
   page,
@@ -18,7 +25,7 @@ test("Intent shows an Insufficient evidence report with its reason and unavailab
   const { intent } = await selectCompletedStoryInIntent(page, origin, {
     intentCoverage: { report },
   });
-  const detail = await expandStorySummary(intent);
+  const detail = await openCoverage(intent);
   await expect(
     detail.getByRole("heading", { name: "Intent coverage" }),
   ).toBeVisible();
@@ -35,7 +42,7 @@ test("Intent shows Unavailable and the reason when completion has no assessment 
   const { intent } = await selectCompletedStoryInIntent(page, origin, {
     intentCoverage: { unavailable },
   });
-  const detail = await expandStorySummary(intent);
+  const detail = await openCoverage(intent);
   await expect(
     detail.getByRole("heading", { name: "Intent coverage" }),
   ).toBeVisible();

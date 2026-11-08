@@ -27,7 +27,11 @@ import {
 } from "../recentlyDoneSelectionJourney.ts";
 import { pygardonCatalogRead } from "../pygardonCatalogReads.ts";
 import { expectSelected, selectStory } from "../storyCardSelection.ts";
-import { intentFile, storyDisclosure } from "../support/intentStoryPage.ts";
+import {
+  chooseStoryTab,
+  intentFile,
+  storyTitle,
+} from "../support/intentStoryPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 
@@ -75,7 +79,7 @@ test("selecting a linked done story from Intent shows that project's story in In
       "data-selected-story",
       linked.identity,
     );
-    await expect(storyDisclosure(intent)).toHaveText(`Story ${linked.title}`);
+    await expect(storyTitle(intent)).toHaveText(`Story ${linked.title}`);
     await expect(select).toHaveAttribute("aria-pressed", "true");
     await expect(row(linked.title)).toHaveClass(/\bchosen\b/);
     await expect(choiceStatus(row(linked.title))).toHaveCount(0);
@@ -160,6 +164,7 @@ test("selecting standalone rows from Intent keeps the project, file, Selected st
   await page.keyboard.press("Enter");
   await expectSelected(card, true);
   await intentChoice.click();
+  await chooseStoryTab(intent, "Changed tests");
   await expandIntentGroup(intent, "dashboard/tests");
   const file = intentFile(intent, readSpec);
   await file.click();

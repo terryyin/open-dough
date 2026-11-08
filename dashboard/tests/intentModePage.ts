@@ -52,11 +52,16 @@ export async function chooseOptimizationCandidates(intent: Locator) {
   await expect(intent.locator(".intent-locations")).toBeHidden();
 }
 
-// The strip's Hide files / Show files toggle for the locations column.
+// Hide files / Show files for the locations column: in the strip without a
+// selected story, or ending a selected story's view row on Changed tests.
 export const intentModeBar = (intent: Locator) =>
   intent.locator(".intent-mode-bar");
+export const storyViewBar = (intent: Locator) =>
+  intent.locator(".intent-story-tabbar");
 export const filesToggle = (intent: Locator) =>
-  intentModeBar(intent).getByRole("button", { name: /^(Hide|Show) files$/ });
+  intent
+    .locator(":is(.intent-mode-bar, .intent-story-tabbar)")
+    .getByRole("button", { name: /^(Hide|Show) files$/ });
 
 // The toggle names what it does and states whether the column is shown.
 export async function expectFilesShown(intent: Locator, shown: boolean) {
