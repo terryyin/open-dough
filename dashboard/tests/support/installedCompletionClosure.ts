@@ -1,7 +1,7 @@
 // Real installed Git/closure/retirement setup with observer ownership through shutdown.
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
@@ -98,15 +98,19 @@ export async function withInstalledCompletionClosure(
       ]);
       await exec("git", ["-C", origin.project, "push", "origin", "main"]);
       final = (await origin.originGit("rev-parse", "main")).trim();
-      // The provider answers for the accepted integrated SHA, not the old branch tip.
+      // The provider answers for the accepted integrated SHA, not the old
+      // branch tip. Replace via rename so a still-running fixture `gh` does
+      // not hit ETXTBSY on an in-place rewrite of the busy binary.
+      const providerNext = `${ci.provider}.next`;
       writeFileSync(
-        ci.provider,
+        providerNext,
         readFileSync(ci.provider, "utf8").replaceAll(
           await git("rev-parse", "HEAD"),
           final,
         ),
         { mode: 0o755 },
       );
+      renameSync(providerNext, ci.provider);
       await run(
         "dough-execute-plan",
         "ci-mailbox.mjs",
