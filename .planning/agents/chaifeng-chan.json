@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-276#guard-intent-per-file-highlighting",
+  "mode": "story-branch",
+  "branch": "claude/guard-per-file-syntax-highlighting-in-intent",
+  "host": "claude",
+  "model": "opus"
+}
