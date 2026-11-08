@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-272#prove-recently-done-check-supersession",
+  "title": "Prove Recently done selection's check rules and tidy its catalog read",
+  "completedAt": "2026-11-08T12:06:12.256Z",
+  "developer": "Terry Yin",
+  "agent": "viktor-chan",
+  "host": "claude",
+  "model": "opus",
+  "intentCoverage": {
+    "unavailable": "bounded retrospective correction; wrap-up assesses intent coverage only for feature stories"
+  }
+}
