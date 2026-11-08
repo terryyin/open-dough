@@ -30,10 +30,24 @@ const layout = (fixture) => ({
 /** @param {string} fixture */
 const workspacePath = (fixture) => join(fixture, "execution");
 
-/** @param {string} checkout @param {GitPerson} identity */
-async function configureIdentity(checkout, identity) {
-  await git(checkout, "config", "user.name", identity.name);
-  await git(checkout, "config", "user.email", identity.email);
+/**
+ * The committer Git records for later commits in `checkout`. With
+ * `worktreeOnly`, it is that worktree's own configuration and the
+ * repository's other checkouts keep theirs.
+ * @param {string} checkout
+ * @param {GitPerson} identity
+ * @param {{ worktreeOnly?: boolean }} [options]
+ */
+async function configureIdentity(
+  checkout,
+  identity,
+  { worktreeOnly = false } = {},
+) {
+  const scope = worktreeOnly ? ["--worktree"] : [];
+  if (worktreeOnly)
+    await git(checkout, "config", "extensions.worktreeConfig", "true");
+  await git(checkout, "config", ...scope, "user.name", identity.name);
+  await git(checkout, "config", ...scope, "user.email", identity.email);
 }
 
 /**
@@ -105,10 +119,10 @@ async function buildTemplate(
   const execution = workspacePath(fixture);
   await git(integration, "branch", workspace.branch, start);
   await git(integration, "worktree", "add", execution, workspace.branch);
-  // Without per-worktree configuration Git keeps this in the configuration the
-  // checkouts share, so later commits in either checkout carry it.
   if (workspace.checkoutIdentity)
-    await configureIdentity(execution, workspace.checkoutIdentity);
+    await configureIdentity(execution, workspace.checkoutIdentity, {
+      worktreeOnly: true,
+    });
   let candidateSha = start;
   for (const revision of workspace.revisions) {
     writeRevisionFiles(execution, revision);

@@ -127,6 +127,31 @@ test("each copy of a described workspace is its own worktree whose later commits
     );
 });
 
+test("a workspace's declared checkout identity stays with its worktree and leaves the integration checkout's own", async (t) => {
+  const integrationIdentity = { name: "Integ", email: "integ@example.test" };
+  const workspaceIdentity = { name: "Work", email: "work@example.test" };
+  const { integration, execution, cleanup } = await materializeRepository(
+    makeMe.aRepository
+      .withCheckoutIdentity(integrationIdentity)
+      .withRevision("trunk")
+      .withWorkspace("exec/story", {
+        from: "trunk",
+        checkoutIdentity: workspaceIdentity,
+      })
+      .please(),
+  );
+  t.after(cleanup);
+  const committer = async (checkout) => {
+    await git(checkout, "commit", "--allow-empty", "-m", "later work");
+    return (
+      await git(checkout, "log", "-1", "--format=%cn <%ce>")
+    ).stdout.trim();
+  };
+
+  assert.equal(await committer(integration), "Integ <integ@example.test>");
+  assert.equal(await committer(execution), "Work <work@example.test>");
+});
+
 test("a declared executable is published with the executable mode and other files are not", async (t) => {
   const { origin, cleanup } = await materializeRepository(
     makeMe.aRepository

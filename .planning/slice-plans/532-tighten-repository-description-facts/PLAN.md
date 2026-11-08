@@ -210,7 +210,7 @@ one `digestFile`, one `usesNpmOrNix`, `artifactName` module-private.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: extend `tests/support/repository-fixture.test.mjs` with a description
 that states `.withCheckoutIdentity(Integ)` and a workspace with
@@ -223,6 +223,13 @@ Behavior: a description whose workspace declares its own checkout identity →
 materialize and commit in each checkout → each commit carries its own
 checkout's declared identity. Fix the `withWorkspace` JSDoc and the
 materializer comment to say so.
+
+Accepted proof (2026-11-08): the new `repository-fixture.test.mjs` case failed
+before the fix (integration committer `Work`) and passes after it, with
+`closure-story-integration-agent-credit.test.mjs`, the only other description
+stating a workspace identity. `workspaceAuthorship` still reports both
+checkouts configured. Refactor: `configureIdentity(..., { worktreeOnly })`
+owns enabling `extensions.worktreeConfig`.
 
 ### 3. Every repository builder refusal has a Git-free test
 

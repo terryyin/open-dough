@@ -143,7 +143,8 @@ export class RepositoryBuilder {
   /**
    * An execution workspace on `branch`, starting from the named trunk
    * revision. Its `checkoutIdentity`, when stated, is the committer Git
-   * configures for that worktree and the default committer of its revisions.
+   * configures for that worktree only and the default committer of its
+   * revisions; the integration checkout keeps its own identity.
    * @param {string} branch
    * @param {{ from: Name, checkoutIdentity?: GitPerson }} facts
    * @returns {RepositoryBuilder<Name>}
