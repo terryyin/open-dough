@@ -5,8 +5,14 @@
 // hashes and against what `catalog-done` would write from them.
 import assert from "node:assert/strict";
 import { execFile, spawnSync } from "node:child_process";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import {
+  agentIdentity,
+  renderAgentProfile,
+} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   doneCatalogMismatch,
   parseDoneCatalog,
@@ -50,6 +56,19 @@ export async function completeAndCommit(repo, name, time) {
   );
   repo.git(["add", "-A"]);
   repo.git(["commit", "-q", "-m", `complete ${name}`]);
+}
+
+// The profile path, beside the backlog, of the agent `name`.
+export const profilePath = (name) => `.planning/${agentIdentity(name).path}`;
+
+// Publishes on the checked-out branch the agent profile `profile` (as
+// MakeMe's `anAgentProfile` builds it), as a Take commits it.
+export function takeAndCommit(repo, profile) {
+  const file = join(repo.directory, profilePath(profile.name));
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, renderAgentProfile(profile));
+  repo.git(["add", "-A"]);
+  repo.git(["commit", "-q", "-m", `take ${profile.identity}`]);
 }
 
 // A branch from the current commit holding the completions `names`, returning

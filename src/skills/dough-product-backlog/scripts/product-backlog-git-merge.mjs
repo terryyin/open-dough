@@ -132,7 +132,21 @@ export async function mergeOperation({ repoRoot, file, ref }) {
 
   ensureDriverRegistered(repoRoot, file);
   ensureDoneCatalogDriverRegistered(repoRoot, file);
-  gitOutcome(["merge", "--no-commit", "--no-ff", ref], repoRoot);
+  // Directory-rename inference is off for this merge only: when one side
+  // replaces the last profiles in `agents/` with done records, Git would
+  // otherwise read `agents/` as moved into `done/` and carry the other side's
+  // live profile along. Ordinary file renames are still detected.
+  gitOutcome(
+    [
+      "-c",
+      "merge.directoryRenames=false",
+      "merge",
+      "--no-commit",
+      "--no-ff",
+      ref,
+    ],
+    repoRoot,
+  );
 
   const unresolved = gitLine(["ls-files", "-u", "--", file], repoRoot);
   if (unresolved !== "") {

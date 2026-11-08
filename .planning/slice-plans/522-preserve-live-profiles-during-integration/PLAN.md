@@ -4,6 +4,8 @@
 
 **Source:** [Refined story](../../seeds/SEED-010-learn-from-execution-retrospectives.md#preserve-live-profiles-during-integration)
 
+**Source review:** [Independent source commitments](source-review.md)
+
 ## Goal and scope
 
 Integrating a story while another is Taken or Preparing keeps the other
@@ -109,7 +111,7 @@ open under `caffeinate -i` and inspect the sleep log afterward.
 
 **Type:** Behavior
 
-**Status:** pending
+**Status:** done
 
 Given trunk completed the story whose profile was the last in `agents/` and
 the story branch took another story, merging them through the adapter (and
@@ -118,11 +120,21 @@ so through publication's candidate merge) keeps the taken story's profile in
 reports `accepted`. Write the failing adapter test first, then turn off
 directory-rename inference on the adapter's merge invocation.
 
+Accepted proof: `tests/support/product-backlog-git-merge-live-profile.test.mjs`
+(both directions; failed before the change with `blocked` and
+`AU done/joey-chan.json` / `UA done/akiho-chan.json`), with the merge,
+done-catalog and `publication-completed-identity` families green.
+
+Learning: the fixture reproduces the rename only when profiles report host
+and model, as real profiles do; otherwise Git does not pair a released
+profile with its done record. Slice 2 reuses `takeAndCommit` and that
+`executing(...)` call-site shape.
+
 ### 2. A profile under `done/` is held before commit or push
 
 **Type:** Behavior
 
-**Status:** pending
+**Status:** planned
 
 Given an integration result whose done directory holds an agent profile,
 the adapter's `continue` refuses and each publisher stops before push, naming
@@ -135,7 +147,7 @@ reference with the new stop and its repair.
 
 **Type:** Behavior
 
-**Status:** pending
+**Status:** planned
 
 After slices 1–2, ODF-430 and ODF-451 each gain a `### Delivered response`
 section with the date, story, commits, containing release, and the
