@@ -1,7 +1,9 @@
-// Real CLI claim and completion, with Git publication and workspace retirement.
+// Yui's declared claim of Story A and a real CLI completion, with Git
+// publication and workspace retirement.
 // No dashboard launch or comparison is supplied by this setup. A journey may
 // add its own changes (`change`) to the story's implementation commit.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { rmSync } from "node:fs";
@@ -71,14 +73,16 @@ export async function completedPublishedStory(
     commitAll(origin.project, "initial shared file");
     push(origin.project);
   }
-  const start =
-    mode === "trunk"
-      ? await origin.takenInTrunkMode("completed-a")
-      : {
-          agent: await origin.takenByAnotherAgent(),
-          workspace: path.join(origin.machine, "another-agent-workspace"),
-          branch: "claude/another-agent",
-        };
+  const claimant = "Yui";
+  const claim = agentIdentity(claimant);
+  const start = await origin.publishTake({
+    agent: claimant,
+    story: storyA,
+    queued: [storyB],
+    ...(mode === "trunk"
+      ? { mode, slug: "completed-a" }
+      : { mode: "story-branch" as const }),
+  });
   const { workspace, branch } = start;
   writeAt(
     workspace,
@@ -128,10 +132,9 @@ export async function completedPublishedStory(
   if (variant === "merge-edit") addIntegrationEdit(workspace);
   if (integrate !== undefined) amendIntegrationMerge(workspace, integrate);
   if (variant === "takeover" || variant === "returned-takeover") {
-    const previous = agentIdentity(agentNameOf(start.agent) ?? "Yui");
-    const name = start.agent === "Yui-chan" ? "Akiho" : "Yui";
+    const name = "Akiho";
     const next = agentIdentity(name);
-    rmSync(path.join(workspace, ".planning", previous.path));
+    rmSync(path.join(workspace, ".planning", claim.path));
     writeAt(
       workspace,
       `.planning/${next.path}`,

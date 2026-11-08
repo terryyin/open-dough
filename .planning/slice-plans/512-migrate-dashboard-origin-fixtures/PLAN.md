@@ -228,7 +228,7 @@ basis.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the specs that reach `takenByAnotherAgent` or `takenInTrunkMode`,
 including the Intent and CI comparison families in `dashboard/tests/intent`.
@@ -241,6 +241,16 @@ revision, and the CI comparison publishers' trunk planning and claim commits
 with description revisions under their Git graph steps. Keep the real start
 where it is proven, and `takenInTrunkMode` where the spec reads the worktree
 it leaves.
+
+Accepted proof (2026-11-08): `publishTake` publishes the declared Take
+through `takeRevision` and adds the agent's worktree where a start leaves it;
+the CI comparison and completed-story publishers declare planning and claim
+revisions under real Git graph steps. A 98-file focused run, then 201 cases
+after the refactor, passed with unchanged assertions; the full
+`npm run test:dashboard` (2193 tests) and `npm test` passed. Paired runs at
+`db42e79a7` and after show no slowdown. A real start folds uncommitted
+planning edits into its claim, so `intent-story-summary-title.spec.ts` now
+declares its long title instead.
 
 ## Plan concerns
 
@@ -266,8 +276,7 @@ Disposition: proved by slice 2: dashboard/backend-tests/launches/start-origin-pr
 ### G3. Slice 1 after-times ran under heavier load
 Reported: slice 1 — "After-times ran at load 14.8-16.3 against about 10.5 before (refusal 9/8 s vs 9/6 s; startOriginTest consumers 73/81 s vs 60/68 s), so they cannot show no slowdown."
 Story clause: "Dashboard feedback must not get slower."
-Disposition: receiving slice 3
-Commitment: 4
+Disposition: proved by slice 3: paired back-to-back runs at db42e79a7 and after under load 3.9–5.8: refusal 6/4 and 5/4 s, startOriginTest consumers 47/46 and 47/45 s, standalone readiness and admission 22/20 and 23/20 s
 
 ### G4. Non-run-wide descriptions slow focused feedback
 Reported: slice 2 — "a focused set of specs that start from non-run-wide descriptions runs about 10–18% slower"

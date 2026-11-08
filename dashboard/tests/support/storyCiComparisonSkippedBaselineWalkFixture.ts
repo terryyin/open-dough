@@ -47,9 +47,10 @@ export async function publishSkippedBaselinePastProoflessParent(
   const prooflessParent = git(origin.project, "rev-parse", "HEAD");
   push(origin.project);
 
-  writeAt(origin.project, ".planning/story-start.md", "planning at start\n");
-  commitAll(origin.project, "planning: story start");
-  push(origin.project);
+  await origin.publishRevision({
+    message: "planning: story start",
+    files: { ".planning/story-start.md": "planning at start\n" },
+  });
 
   const story = await completedPublishedStory(
     origin,

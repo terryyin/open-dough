@@ -8,11 +8,9 @@ import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { rmSync } from "node:fs";
 import type { Page } from "@playwright/test";
+import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import {
-  agentIdentity,
-  agentNameOf,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { advanceCompletedTrunk } from "./completedPublishedStory.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
@@ -92,17 +90,19 @@ export async function publishFastForwardLandedStory(
   origin: StartOrigin,
   tipIsTrunkHead = false,
 ): Promise<StoryCiComparisonSetup & { readonly mainSide: string }> {
-  const baseline = precedeClaimWithPlanning(origin);
+  const baseline = await precedeClaimWithPlanning(origin);
   writeAt(origin.project, "shared.txt", lines("line"));
   commitAll(origin.project, "initial shared file");
   push(origin.project);
 
-  const agent = await origin.takenByAnotherAgent();
-  const workspace = path.join(origin.machine, "another-agent-workspace");
-  const branch = "claude/another-agent";
-  const name = agentNameOf(agent);
-  if (name === undefined) throw new Error(`unknown agent ${agent}`);
-  const identity = agentIdentity(name);
+  const claimant = "Yui";
+  const identity = agentIdentity(claimant);
+  const { agent, workspace, branch } = await origin.publishTake({
+    agent: claimant,
+    story: storyA,
+    queued: [storyB],
+    mode: "story-branch",
+  });
 
   writeAt(
     workspace,

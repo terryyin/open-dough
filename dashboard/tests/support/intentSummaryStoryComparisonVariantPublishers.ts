@@ -3,8 +3,8 @@
 // Shares trunk setup and proof builders with
 // ./intentSummaryStoryComparisonFixture.ts.
 
-import path from "node:path";
 import type { Page } from "@playwright/test";
+import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
   advanceCompletedTrunk,
@@ -117,10 +117,13 @@ export async function publishTakenSummaryComparisonStory(
   readonly serveProofs: StoryCiComparisonSetup["serveProofs"];
 }> {
   publishSummaryComparisonTrunk(origin.project);
-  const baseline = precedeClaimWithPlanning(origin);
-  const agent = await origin.takenByAnotherAgent();
-  const workspace = path.join(origin.machine, "another-agent-workspace");
-  const branch = "claude/another-agent";
+  const baseline = await precedeClaimWithPlanning(origin);
+  const { agent, workspace, branch } = await origin.publishTake({
+    agent: "Yui",
+    story: storyA,
+    queued: [storyB],
+    mode: "story-branch",
+  });
   changeSummaryComparisonTests(workspace);
   writeAt(workspace, "src/story.ts", "taken story work\n");
   commitAll(workspace, "story implementation on the branch");

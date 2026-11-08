@@ -16,6 +16,7 @@ import {
   actionsWorkflowAnswer,
   type CiRunAnswer,
 } from "./baseCiActions.ts";
+import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
@@ -200,9 +201,20 @@ export function serveActionsFor(
   };
 }
 
-// Planning-only commits between a built trunk revision and the claim, so the
-// baseline is a measured ancestor.
-export function precedeClaimWithPlanning(
+// Planning-only revisions between a built trunk revision and the claim, so
+// the baseline is a measured ancestor four first-parent commits back.
+export const planningBeforeClaim: readonly RevisionFacts[] = [
+  "plan one",
+  "plan two",
+  "plan three",
+  "plan four",
+].map((name, index) => ({
+  message: `planning: ${name}`,
+  files: { [`.planning/notes-${String(index)}.md`]: `${name}\n` },
+}));
+
+// The built baseline, then `planningBeforeClaim` published on trunk.
+export async function precedeClaimWithPlanning(
   origin: StartOrigin,
   options?: {
     readonly withCiWorkflow?: boolean;
@@ -210,7 +222,7 @@ export function precedeClaimWithPlanning(
     // skip its initial shared commit and leave a planning-only claim parent.
     readonly sharedInBaseline?: boolean;
   },
-): string {
+): Promise<string> {
   if (options?.withCiWorkflow === true) {
     commitComparisonCiWorkflow(origin.project);
   }
@@ -222,15 +234,8 @@ export function precedeClaimWithPlanning(
   commitAll(origin.project, "ship a built revision");
   const baseline = git(origin.project, "rev-parse", "HEAD");
   push(origin.project);
-  for (const [index, name] of [
-    "plan one",
-    "plan two",
-    "plan three",
-    "plan four",
-  ].entries()) {
-    writeAt(origin.project, `.planning/notes-${String(index)}.md`, `${name}\n`);
-    commitAll(origin.project, `planning: ${name}`);
+  for (const revision of planningBeforeClaim) {
+    await origin.publishRevision(revision);
   }
-  push(origin.project);
   return baseline;
 }
