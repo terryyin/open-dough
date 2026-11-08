@@ -48,10 +48,10 @@ commitments follow with coordinator allocations.
 | 36 | The harness owns teardown under the test data architecture. | slice 1 | observed: tests/support/repository-fixture.mjs materializeRepository owns real Git, paths, named SHAs and teardown and proof.md scratch fixture inspection and teardown |
 | 37 | Migrate the queued-trunk family. | slice 4 | |
 | 38 | Start with the attention spec’s story-columns history. | slice 1 | observed: dashboard/tests/launchJourney.ts publishStoryColumnsJourney and publishLaunchJourney use the shared real-Git materializer and attention consumes the named story columns |
-| 39 | The family includes `createQueuedTrunk`. | slice 3 | |
+| 39 | The family includes `createQueuedTrunk`. | slice 3 | observed: proof.md slice 3 exact Node selection passes migrated startup and admission cases on real Git with explicit repository revisions |
 | 40 | The family includes `createPreparationTrunk`. | slice 2 | observed: proof.md slice 2 exact Node selection observes real start, land, release and abandon on preparations migrated from createPreparationTrunk |
-| 41 | The family includes the startup sibling fixture. | slice 3 | |
-| 42 | The family includes the admission sibling fixture. | slice 3 | |
+| 41 | The family includes the startup sibling fixture. | slice 3 | observed: proof.md slice 3 exact Node selection passes migrated startup and admission cases on real Git with explicit repository revisions |
+| 42 | The family includes the admission sibling fixture. | slice 3 | observed: proof.md slice 3 exact Node selection passes migrated startup and admission cases on real Git with explicit repository revisions |
 | 43 | The family includes the one-shot sibling fixture. | slice 2 | observed: src/skills/dough-execute-plan/scripts/one-shot-queued.test.mjs real closure and retained sibling B2 assertions with the named sibling description |
 | 44 | The family includes the supplier-dependency fixture. | slice 4 | |
 | 45 | The family includes the dashboard `launchJourney`. | slice 1 | observed: dashboard/tests/launchJourney.ts publishStoryColumnsJourney and publishLaunchJourney use the shared real-Git materializer and attention consumes the named story columns |
@@ -75,14 +75,14 @@ commitments follow with coordinator allocations.
 | 63 | This replaces replaying `take` solely to arrange state. | slice 1 | observed: dashboard/tests/launchJourney.ts only materializes declared prepare, take and complete facts and no production command call in either publisher |
 | 64 | This replaces replaying `complete` solely to arrange state. | slice 1 | observed: dashboard/tests/launchJourney.ts only materializes declared prepare, take and complete facts and no production command call in either publisher |
 | 65 | The command a test proves runs for real on the materialized repository. | slice 4 | |
-| 66 | Push races remain Git operations in the test. | slice 3 | |
-| 67 | Rejected publications remain Git operations in the test. | slice 3 | |
+| 66 | Push races remain Git operations in the test. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs builds starting trunk then makes a competing publishClaimSha push and asserts the conflict and recovery |
+| 67 | Rejected publications remain Git operations in the test. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs builds starting trunk then makes a competing publishClaimSha push and asserts the conflict and recovery |
 | 68 | Merges remain Git operations in the test. | slice 4 | |
 | 69 | Ancestry walks remain Git operations in the test. | slice 4 | |
-| 70 | Exact malformed input under proof stays literal at the call site. | slice 3 | |
-| 71 | Exact legacy input under proof stays literal at the call site. | slice 3 | |
-| 72 | The description carries that input verbatim as file bytes. | slice 3 | |
-| 73 | The materializer writes those bytes verbatim. | slice 3 | |
+| 70 | Exact malformed input under proof stays literal at the call site. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs declares literal CRLF and observes exact Git blob, refused start, actual repair and retry |
+| 71 | Exact legacy input under proof stays literal at the call site. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-startup-canonical-plan-cases.mjs and workspace-publication-startup-plan-link-cases.mjs keep exact legacy path and backlog lines |
+| 72 | The description carries that input verbatim as file bytes. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs declares literal CRLF and observes exact Git blob, refused start, actual repair and retry |
+| 73 | The materializer writes those bytes verbatim. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs declares literal CRLF and observes exact Git blob, refused start, actual repair and retry |
 | 74 | The spec declares Story A Ready. | slice 1 | observed: dashboard/tests/launchJourney.ts queuedDashboardRepository declares A/B Ready and unrefined C last and scratch queued files match |
 | 75 | The spec declares Story B Ready. | slice 1 | observed: dashboard/tests/launchJourney.ts queuedDashboardRepository declares A/B Ready and unrefined C last and scratch queued files match |
 | 76 | The spec declares Story C queued last. | slice 1 | observed: dashboard/tests/launchJourney.ts queuedDashboardRepository declares A/B Ready and unrefined C last and scratch queued files match |
@@ -107,11 +107,11 @@ commitments follow with coordinator allocations.
 | 95 | The announce test runs the real `start`. | slice 2 | observed: src/skills/dough-story-refinement/scripts/preparation-assignment-announce.test.mjs next-free-name case declares Yui rival, invokes real start, asserts Yuma-chan and compares published profile bytes |
 | 96 | `start` still announces the next free name. | slice 2 | observed: src/skills/dough-story-refinement/scripts/preparation-assignment-announce.test.mjs next-free-name case declares Yui rival, invokes real start, asserts Yuma-chan and compares published profile bytes |
 | 97 | The trunk profile file contains `renderAgentProfile`’s bytes. | slice 2 | observed: src/skills/dough-story-refinement/scripts/preparation-assignment-announce.test.mjs next-free-name case declares Yui rival, invokes real start, asserts Yuma-chan and compares published profile bytes |
-| 98 | The workspace-publication race test uses the builder for its starting trunk. | slice 3 | |
-| 99 | The competing push stays in the race test. | slice 3 | |
-| 100 | The race test still asserts the rejection. | slice 3 | |
-| 101 | A malformed-backlog recovery case declares the exact malformed bytes as a file in the description. | slice 3 | |
-| 102 | The materializer writes that malformed backlog verbatim. | slice 3 | |
+| 98 | The workspace-publication race test uses the builder for its starting trunk. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs builds starting trunk then makes a competing publishClaimSha push and asserts the conflict and recovery |
+| 99 | The competing push stays in the race test. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs builds starting trunk then makes a competing publishClaimSha push and asserts the conflict and recovery |
+| 100 | The race test still asserts the rejection. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs builds starting trunk then makes a competing publishClaimSha push and asserts the conflict and recovery |
+| 101 | A malformed-backlog recovery case declares the exact malformed bytes as a file in the description. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs declares literal CRLF and observes exact Git blob, refused start, actual repair and retry |
+| 102 | The materializer writes that malformed backlog verbatim. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs declares literal CRLF and observes exact Git blob, refused start, actual repair and retry |
 | 103 | Migrated tests keep their verdicts. | slice 4 | |
 | 104 | Migrated tests keep their assertions. | slice 4 | |
 | 105 | Record the attention spec’s fixture time before and after under the same conditions. | slice 1 | observed: proof.md pre-change timing baseline and slice 1 accepted proof record matching fixture selection, clock, worker count and timings with host-load caveat |

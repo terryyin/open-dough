@@ -8,6 +8,14 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { direction } from "../../../../tests/support/product-backlog-fixture.mjs";
+import {
+  queuedReadyRepository,
+  storyA as queuedStoryA,
+  storyB as queuedStoryB,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import {
   computeBasis,
@@ -22,7 +30,6 @@ import {
   writeDraft,
 } from "./workspace-publication-admission-fixtures.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   remoteBacklog,
   startCliResult,
@@ -31,6 +38,15 @@ import {
 
 const backlogFile = ".planning/PRODUCT-BACKLOG.md";
 const linking = (target) => `${storyA} ([plan](${target}))`;
+
+function repositoryWithPlanLink(target) {
+  const linked = makeMe.aBacklogEntry
+    .with({ ...queuedStoryA, plan: { label: "plan", target } })
+    .please();
+  return queuedReadyRepository().withRevision("linked plan", {
+    backlog: { direction, queued: [linked, queuedStoryB] },
+  });
+}
 
 // Publishes trunk's backlog with `from` replaced by `to`.
 async function publishEntry(trunk, from, to) {
@@ -59,10 +75,12 @@ async function assertRefused(trunk, list, tip) {
 }
 
 test("a queued entry linking a section of its declared plan is taken with its link unchanged", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const target = "slice-plans/A/PLAN.md#ordered-slices";
+  const entry = linking(target);
+  const trunk = await materializeRepository(
+    repositoryWithPlanLink(target).please(),
+  );
   t.after(trunk.cleanup);
-  const entry = linking("slice-plans/A/PLAN.md#ordered-slices");
-  await publishEntry(trunk, storyA, entry);
   const { receipt, workspace } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.status, "published", JSON.stringify(receipt));
   const backlog = await remoteBacklog(workspace);
@@ -74,13 +92,11 @@ test("a queued entry linking a section of its declared plan is taken with its li
 });
 
 test("queued and Taken entries linking a different plan file are refused naming their list", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const queuedTip = await publishEntry(
-    trunk,
-    storyA,
-    linking("slice-plans/B/PLAN.md"),
+  const trunk = await materializeRepository(
+    repositoryWithPlanLink("slice-plans/B/PLAN.md").please(),
   );
+  t.after(trunk.cleanup);
+  const queuedTip = trunk.trunkSha;
   await assertRefused(trunk, "queued", queuedTip);
   await publishEntry(trunk, linking("slice-plans/B/PLAN.md"), storyA);
   const { receipt } = await startCliResult(trunk, "trunk");
@@ -93,8 +109,6 @@ test("queued and Taken entries linking a different plan file are refused naming 
 });
 
 test("a story whose declared plan is a section of its own seed is taken without a plan link", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
   const identity = "SEED-E#e";
   const link = "seeds/E.md#e";
   const entry = `- [Story E](${link}) — ${identity}`;
@@ -113,12 +127,18 @@ test("a story whose declared plan is a section of its own seed is taken without 
     },
     { planIsCanonical: true },
   ).source;
-  writeDraft(trunk, ".planning/seeds/E.md", recorded);
-  await publishEntry(
-    trunk,
-    "## Backlog list\n\n",
-    `## Backlog list\n\n${entry}\n`,
+  const story = makeMe.aBacklogEntry
+    .with({ identity, href: link, title: "Story E" })
+    .please();
+  const trunk = await materializeRepository(
+    queuedReadyRepository()
+      .withRevision("queue Story E", {
+        backlog: { direction, queued: [story, queuedStoryA, queuedStoryB] },
+        files: { ".planning/seeds/E.md": recorded },
+      })
+      .please(),
   );
+  t.after(trunk.cleanup);
   const { receipt, workspace } = await startCliResult(trunk, "trunk", [
     "--identity",
     identity,
@@ -146,7 +166,7 @@ async function assertRequestRefused(trunk, args, name) {
 }
 
 test("queued work requesting a section of its declared plan is taken linking that plan", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   await assertRequestRefused(trunk, ["--plan", "slice-plans/B/PLAN.md"], "B");
   const { receipt } = await startCliResult(trunk, "trunk", [
@@ -164,7 +184,7 @@ test("queued work requesting a section of its declared plan is taken linking tha
 });
 
 test("admitted work requesting a section of its declared plan is taken linking that plan", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const identity = "SEED-A#n";
   const link = "seeds/A.md#n";

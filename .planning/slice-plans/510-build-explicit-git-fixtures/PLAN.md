@@ -199,7 +199,7 @@ for the native owned-context and one-shot fixtures.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the `createQueuedTrunk` consumers under
 `src/skills/dough-execute-plan`: startup cases, admission, one-shot queued,
@@ -212,6 +212,8 @@ Replace `createQueuedTrunk` options with description facts: the stories each
 case needs and the `contributing` text. Keep `createQueuedTrunk` with its
 current body only for the native callers. Its non-native template code moves
 into the materializer's reuse.
+
+[Accepted proof](proof.md#slice-3-accepted-proof).
 
 ### 4. Supplier fixtures declare their stories and the family drops superseded setup
 

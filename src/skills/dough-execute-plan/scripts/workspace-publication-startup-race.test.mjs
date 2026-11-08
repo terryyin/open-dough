@@ -3,12 +3,10 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  identityA,
-  identityB,
-} from "./workspace-publication-fixtures.mjs";
+import { identityA, identityB } from "./workspace-publication-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 import {
   advanceRemote,
@@ -19,7 +17,7 @@ import {
 } from "./workspace-publication-startup-test-fixtures.mjs";
 
 test("real startup commands replay distinct claims from one base without losing either", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const barrier = await holdFirstPush(trunk);
   const a = startProcess(trunk, "a", identityA);
@@ -57,7 +55,7 @@ test("real startup commands replay distinct claims from one base without losing 
 });
 
 test("distinct claims also converge when the other execution wins the first push", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const barrier = await holdFirstPush(trunk, "b");
   const b = startProcess(trunk, "b", identityB);
@@ -93,7 +91,7 @@ test("distinct claims also converge when the other execution wins the first push
 });
 
 test("real competing same-story command stops on the first owner's provenance", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const barrier = await holdFirstPush(trunk);
   const a = startProcess(trunk, "a", identityA);
@@ -116,7 +114,7 @@ test("real competing same-story command stops on the first owner's provenance", 
 
 test("remote advance replays an owned suffix, but changed selected source stops before replay", async (t) => {
   for (const changedSource of [false, true]) {
-    const trunk = await createQueuedTrunk();
+    const trunk = await materializeRepository(queuedReadyRepository().please());
     t.after(trunk.cleanup);
     const barrier = await holdFirstPush(trunk);
     const a = startProcess(trunk, "a", identityA);
@@ -156,7 +154,7 @@ test("remote advance replays an owned suffix, but changed selected source stops 
 });
 
 test("real startup stops on identical Taken text without publication provenance", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const barrier = await holdFirstPush(trunk);
   const contender = startProcess(trunk, "a", identityA);

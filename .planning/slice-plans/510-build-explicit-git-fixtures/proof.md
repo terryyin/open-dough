@@ -112,3 +112,49 @@ Post-extraction proof passed the same 24 Node files, both preparation and
 attribution cases, ten attention and long-title cases, dashboard typecheck,
 and both exact replay comparisons. Consumer dispositions and proof are in
 `/tmp/dough-seed262-refactor2.1W9E9g/`.
+
+Managed delivery accepted slice 2 at `eba65e39` on the story branch and
+reused its observer. The delivery included the upstream merge while
+preserving the already published slice 1 history.
+
+### Slice 3 accepted proof
+
+- Migrated 125 queued-trunk setup calls in 46 skill files. The focused
+  selection in `/tmp/dough-seed262-slice3.1Bz6ZS/node-paths.txt` passed all
+  31 Node files in 71.42 s using Homebrew Bash and the AC guard:
+  `caffeinate -s -i bash scripts/test.sh "${checks[@]}"`.
+  The same directory contains timings, outcomes and consumer dispositions.
+  Dashboard typecheck and whitespace checks passed.
+- Startup readiness cases observe their actual commands and marker
+  locations. The copied-origin test observes an independently advanced
+  Git history and verifies no automatic maintenance. The durable
+  command scripts write to the fixture root, and ordinary scripts
+  write to the checkout.
+- `workspace-publication-race.test.mjs` still makes the competing push
+  and observes the conflict and recovery. The literal CRLF case compares
+  the exact malformed Git blob, observes refusal without publication,
+  repairs and pushes through real Git, and observes a successful retry.
+  The canonical-plan and plan-link cases keep literal legacy data.
+- Scratch comparisons matched trees, refs, commit messages and credit
+  for queued, readiness, Taken and dependency-blocked histories.
+  The remaining queued constructor calls belong to native bridges or
+  the supplier fixtures assigned to slice 4.
+
+### Native evidence at integration
+
+The initial plan based evidence reuse on the native scenarios continuing
+to use the retained fixture paths. Plan 508 landed at `870df7613` and now
+hashes `tests/support/makeMe.mjs` directly for native one-shot evidence
+and through the imported dependency closure for admission evidence.
+The MakeMe extension and the done-record extraction necessarily change
+those fingerprints. The four scenario fixture files match that trunk
+baseline, and the credential-free native evidence identity check passed.
+Landing treatment was raised separately for developer direction.
+
+The independent refactor now shares the production-encoded Take facts
+between the dashboard and skill fixtures, keeping membership explicit in
+both. It also reused the existing Ready-state builder in a case that still
+runs the real readiness command. Four affected Node files and eight
+dashboard launch and attention cases passed, as did typecheck and exact
+replay comparison. Dispositions and proof are in
+`/tmp/dough-seed262-refactor3.P46sGl/`.

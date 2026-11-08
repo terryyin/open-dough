@@ -7,10 +7,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { exec } from "./publication-test-fixtures.mjs";
 
-const fixtureModule = new URL(
-  "./workspace-publication-fixtures.mjs",
-  import.meta.url,
-).href;
+const support = new URL("../../../../tests/support/", import.meta.url);
 
 for (const durableCommandEvidence of [false, true]) {
   test(`queued trunks stay free of automatic Git maintenance with durable evidence ${durableCommandEvidence}`, async (t) => {
@@ -19,22 +16,35 @@ for (const durableCommandEvidence of [false, true]) {
     const trace = join(parent, "git-trace.jsonl");
     const source = `
       import assert from 'node:assert/strict';
-      import { writeFileSync } from 'node:fs';
+      import { readFileSync, writeFileSync } from 'node:fs';
       import { join } from 'node:path';
-      import { createQueuedTrunk } from ${JSON.stringify(fixtureModule)};
-      import { git, lsRemoteSha, revParse } from ${JSON.stringify(new URL("./publication-test-fixtures.mjs", import.meta.url).href)};
+      import { queuedReadyRepository } from ${JSON.stringify(new URL("queued-repository.mjs", support).href)};
+      import { materializeRepository } from ${JSON.stringify(new URL("repository-fixture.mjs", support).href)};
+      import { startupCommandFiles } from ${JSON.stringify(new URL("startup-command-files.mjs", support).href)};
+      import { readyContributing } from ${JSON.stringify(new URL("./workspace-publication-fixtures.mjs", import.meta.url).href)};
+      import { exec, git, lsRemoteSha, revParse } from ${JSON.stringify(new URL("./publication-test-fixtures.mjs", import.meta.url).href)};
+      const durableCommandEvidence = ${durableCommandEvidence};
+      const description = queuedReadyRepository({
+        files: startupCommandFiles({
+          contributing: readyContributing,
+          durableCommandEvidence,
+        }),
+      }).please();
       let base;
       for (let copy = 0; copy < 2; copy++) {
-        const trunk = await createQueuedTrunk({
+        const trunk = await materializeRepository(description, {
           parent: ${JSON.stringify(parent)},
-          durableCommandEvidence: ${durableCommandEvidence},
         });
         try {
-          if (${durableCommandEvidence}) base = trunk.trunkSha;
           base ??= trunk.trunkSha;
           assert.equal(trunk.trunkSha, base);
           assert.equal(await lsRemoteSha(trunk.origin, 'refs/heads/main'), base);
           assert.equal((await git(trunk.integration, 'status', '--porcelain')).stdout, '');
+          const markerRoot = durableCommandEvidence ? trunk.fixture : trunk.integration;
+          for (const command of ['setup', 'command']) {
+            await exec(process.execPath, ['scripts/' + command + '.js'], { cwd: trunk.integration });
+            assert.equal(readFileSync(join(markerRoot, '.' + command + '-ran'), 'utf8'), '1');
+          }
           writeFileSync(join(trunk.integration, 'trunk.txt'), 'copy ' + copy + '\\n');
           await git(trunk.integration, 'add', 'trunk.txt');
           await git(trunk.integration, 'commit', '--quiet', '-m', 'advance copy');

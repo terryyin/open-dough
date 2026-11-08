@@ -5,13 +5,12 @@
 import { rmSync } from "node:fs";
 import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { direction } from "../../tests/support/product-backlog-fixture.mjs";
 import {
   queuedRepositoryWithRoughStory,
   roughStoryC as storyC,
   storyA,
   storyB,
-  storyPlanPath,
+  trunkTakeRevision,
 } from "../../tests/support/queued-repository.mjs";
 import {
   integrationDeveloper,
@@ -38,19 +37,6 @@ function agentAuthor(name: string) {
 
 const developerCredit = `Co-authored-by: ${integrationDeveloper.name} <${integrationDeveloper.email}>`;
 
-function takeMessage(identity: string) {
-  return `Take queued work: ${identity}\n\nClaim-Identity: ${identity}\nClaim-Publisher: publisher-trunk\n${developerCredit}`;
-}
-
-const storyAWithPlan = {
-  ...storyA,
-  plan: { label: "plan", target: storyPlanPath(storyA) },
-};
-const storyBWithPlan = {
-  ...storyB,
-  plan: { label: "plan", target: storyPlanPath(storyB) },
-};
-
 export type LaunchJourney = {
   readonly origin: string;
   readonly cleanup: () => Promise<void>;
@@ -60,26 +46,15 @@ export type LaunchJourney = {
 export async function publishLaunchJourney(): Promise<LaunchJourney> {
   const { origin, cleanup, trunkSha } = await materializeRepository(
     queuedDashboardRepository()
-      .withRevision("taken", {
-        message: takeMessage(takenIdentity),
-        author: agentAuthor("Yui"),
-        committer: integrationDeveloper,
-        backlog: {
-          direction,
-          taken: [storyAWithPlan],
+      .withRevision(
+        "taken",
+        trunkTakeRevision({
+          story: storyA,
           queued: [storyB, storyC],
-        },
-        agentProfiles: [
-          makeMe.anAgentProfile
-            .executing({
-              name: "Yui",
-              identity: takenIdentity,
-              mode: "trunk",
-              branch: "origin/main",
-            })
-            .please(),
-        ],
-      })
+          agent: "Yui",
+          committer: integrationDeveloper,
+        }),
+      )
       .please(),
   );
   return { origin, cleanup, taken: trunkSha };
@@ -95,6 +70,12 @@ export type StoryColumnsJourney = {
 };
 
 function storyColumnsRepository(completedAt: string) {
+  const takeStoryB = trunkTakeRevision({
+    story: storyB,
+    queued: [storyA, storyC],
+    agent: "Akiho",
+    committer: integrationDeveloper,
+  });
   return queuedDashboardRepository()
     .withRevision("preparing", {
       message: `Announce preparation: ${readyIdentity}\n\nPreparation-Identity: ${readyIdentity}\n${developerCredit}`,
@@ -106,25 +87,10 @@ function storyColumnsRepository(completedAt: string) {
           .please(),
       ],
     })
-    .withRevision("taken", {
-      message: takeMessage(readyIdentity),
-      author: agentAuthor("Akiho"),
-      committer: integrationDeveloper,
-      backlog: { direction, taken: [storyBWithPlan], queued: [storyA, storyC] },
-      agentProfiles: [
-        makeMe.anAgentProfile
-          .executing({
-            name: "Akiho",
-            identity: readyIdentity,
-            mode: "trunk",
-            branch: "origin/main",
-          })
-          .please(),
-      ],
-    })
+    .withRevision("taken", takeStoryB)
     .withRevision("completed", {
       message: "complete story C",
-      backlog: { direction, taken: [storyBWithPlan], queued: [storyA] },
+      backlog: { ...takeStoryB.backlog, queued: [storyA] },
       doneRecords: [
         {
           ...makeMe.aDoneRecord

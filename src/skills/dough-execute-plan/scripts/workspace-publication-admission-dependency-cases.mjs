@@ -3,6 +3,12 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import {
+  queuedReadyRepository,
+  queuedSeedWithDependency,
+  storyA,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { updateDependency } from "../../../../tests/support/story-dependencies-fixture.mjs";
 import { lsRemoteSha } from "./publication-test-fixtures.mjs";
@@ -13,13 +19,10 @@ import {
   publishDependency,
   supplier,
 } from "./workspace-publication-dependency-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  startCliResult,
-} from "./workspace-publication-fixtures.mjs";
+import { startCliResult } from "./workspace-publication-fixtures.mjs";
 
 test("a canonical story admitted with a drafted dependency refuses before Take", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const late = draftLateStory(trunk);
   const result = await updateDependency(
@@ -41,7 +44,7 @@ test("a canonical story admitted with a drafted dependency refuses before Take",
 });
 
 test("published unlisted admission dependency cannot be bypassed by an older draft", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const late = draftLateStory(trunk);
   const path = join(trunk.integration, late.seedPath);
@@ -65,12 +68,19 @@ test("published unlisted admission dependency cannot be bypassed by an older dra
 });
 
 test("carrying a queued one-shot attempt into admission preserves the published start gate", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const tip = await publishDependency(
-    trunk,
-    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
+  const seedPath = ".planning/seeds/A.md";
+  const waiting = makeMe.aSupplierAgreement
+    .with({ supplier, state: "waiting" })
+    .please();
+  const trunk = await materializeRepository(
+    queuedReadyRepository()
+      .withRevision("waiting-for-b", {
+        message: "record prerequisite",
+        files: { [seedPath]: queuedSeedWithDependency(storyA, waiting) },
+      })
+      .please(),
   );
+  t.after(trunk.cleanup);
   const start = await startCliResult(trunk, "story-branch", [
     "--admit",
     "--carry",
@@ -82,5 +92,8 @@ test("carrying a queued one-shot attempt into admission preserves the published 
   assert.equal(start.code, 1, JSON.stringify(start));
   assert.match(start.receipt.error, /execution is blocked by SEED-B#b/);
   assert.equal(existsSync(start.workspace), false);
-  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip);
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    trunk.revisions["waiting-for-b"],
+  );
 });

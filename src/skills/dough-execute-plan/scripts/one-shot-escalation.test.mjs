@@ -7,11 +7,10 @@ import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  startCliResult,
-} from "./workspace-publication-fixtures.mjs";
+import { startCliResult } from "./workspace-publication-fixtures.mjs";
 import {
   admitArgs,
   changedPaths,
@@ -32,7 +31,7 @@ import {
 } from "./one-shot-escalation-test-fixtures.mjs";
 
 test("a grown unlisted attempt is admitted from its own workspace and its edits restored over the claim", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const started = await startUnlistedOneShot(trunk);
   assert.equal(started.receipt.status, "prepared", started.stdout);
@@ -83,7 +82,7 @@ test("a grown unlisted attempt is admitted from its own workspace and its edits 
 });
 
 test("ordinary admission still refuses a workspace with edits unless they are carried", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const { workspace } = await startUnlistedOneShot(trunk);
   growAttempt(workspace);
@@ -119,7 +118,7 @@ test("ordinary admission still refuses a workspace with edits unless they are ca
 });
 
 test("carried edits that conflict with the claim stay parked for a human decision", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const { workspace } = await startUnlistedOneShot(trunk);
   growAttempt(workspace);

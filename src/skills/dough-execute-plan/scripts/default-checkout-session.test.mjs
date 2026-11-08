@@ -13,6 +13,7 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  queuedReadyRepository,
   queuedRepositoryWithRoughStory,
   roughStoryC,
 } from "../../../../tests/support/queued-repository.mjs";
@@ -27,7 +28,6 @@ import {
   advanceOriginFromAnotherWriter,
   git,
 } from "./publication-test-fixtures.mjs";
-import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import {
   backlogFile,
   identityC,
@@ -46,7 +46,7 @@ import {
 useInstalledPayload();
 
 test("one-shot execution with --default-main works in the dirty default checkout, diverged from fetched trunk, without changing it, creating anything, or pushing", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const checkout = trunk.integration;
   await occupyDefaultCheckout(checkout);

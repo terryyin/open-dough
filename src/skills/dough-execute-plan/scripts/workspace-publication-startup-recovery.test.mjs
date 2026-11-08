@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   assertCheckoutUnchanged,
   captureCheckout,
@@ -10,10 +12,7 @@ import {
   lsRemoteSha,
   revParse,
 } from "./publication-test-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  identityA,
-} from "./workspace-publication-fixtures.mjs";
+import { identityA } from "./workspace-publication-fixtures.mjs";
 import { busyCheckout } from "./default-checkout-test-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 import {
@@ -31,7 +30,7 @@ import {
 } from "./workspace-publication-startup-test-fixtures.mjs";
 
 test("a pre-push interruption in a busy checkout returns compact recovery that resumes without another Take", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   await busyCheckout(trunk, 1500, 2000);
   await interruptFirstPush(trunk);
@@ -81,7 +80,7 @@ test("a pre-push interruption in a busy checkout returns compact recovery that r
 });
 
 test("a claim made without a profile resumes without naming an agent", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   await interruptFirstPush(trunk);
   const interrupted = await startProcess(trunk, "a", identityA).result;
@@ -105,7 +104,7 @@ test("a claim made without a profile resumes without naming an agent", async (t)
 });
 
 test("resume refuses a newly prepared selected source changed since the retained claim basis", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   await interruptFirstPush(trunk);
   const interrupted = await startProcess(trunk, "a", identityA).result;
@@ -155,7 +154,7 @@ test("resume refuses a newly prepared selected source changed since the retained
 });
 
 test("lost push response and later remote descendant resume as owned without another push", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const first = await startProcess(
     trunk,
@@ -188,7 +187,7 @@ test("lost push response and later remote descendant resume as owned without ano
 });
 
 test("a second remote race stops after one replay and preserves the rewritten candidate", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const later = join(trunk.fixture, "later");
   await git(trunk.integration, "clone", trunk.origin, later);

@@ -11,9 +11,10 @@ import assert from "node:assert/strict";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import { git, lsRemoteSha } from "./publication-test-fixtures.mjs";
-import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import {
   admitArgs,
   appendSiblingElsewhere,
@@ -35,7 +36,7 @@ import {
 } from "./workspace-publication-admitted-completion-fixtures.mjs";
 
 test("admitted planned missions complete in turn, each keeping the other's claim, profile and plan", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const late = draftLateStory(trunk);
   const lateOwned = await admit(trunk, "late", late.args);
@@ -144,7 +145,7 @@ test("admitted planned missions complete in turn, each keeping the other's claim
 });
 
 test("an admitted no-change investigation completes from its admission while another agent's claim and trunk advances stay", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const identity = "SEED-N#slow";
   const seedN = ".planning/seeds/N.md";

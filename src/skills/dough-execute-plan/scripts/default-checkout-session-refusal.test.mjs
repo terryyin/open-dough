@@ -10,17 +10,25 @@ import { join } from "node:path";
 import { test } from "node:test";
 import {
   queuedRepositoryWithRoughStory,
+  queuedRepositoryWithTakenStoryA,
   roughStoryC,
 } from "../../../../tests/support/queued-repository.mjs";
-import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import {
+  integrationDeveloper,
+  materializeRepository,
+} from "../../../../tests/support/repository-fixture.mjs";
 import {
   occupyDefaultCheckout,
   snapshot,
   startExecutionThere,
 } from "./default-checkout-test-fixtures.mjs";
-import { git, indexLockPath } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
+  git,
+  indexLockPath,
+  lsRemoteSha,
+  revParse,
+} from "./publication-test-fixtures.mjs";
+import {
   identityA,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
@@ -121,15 +129,22 @@ test("a default checkout on another branch or mid-operation, a mismatched checko
 });
 
 test("a default-checkout start still checks holders on fetched remote trunk, which its local content does not hide", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithTakenStoryA({
+      agent: "Yui",
+      committer: integrationDeveloper,
+    }).please(),
+  );
   t.after(trunk.cleanup);
   const checkout = trunk.integration;
+  // Remote trunk holds the claim while the default checkout is still queued.
+  await git(checkout, "reset", "--hard", trunk.revisions.base);
   await occupyDefaultCheckout(checkout);
-  // An ordinary Take publishes from its own workspace; the default checkout's
-  // own content keeps it unrefreshed, so locally story A is still queued.
-  const taken = await startCliResult(trunk, "trunk");
-  assert.equal(taken.receipt.ok, true, taken.stdout);
-  assert.notEqual(taken.receipt.maintenance.result, "advanced");
+  assert.equal(await revParse(checkout, "HEAD^"), trunk.revisions.base);
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    trunk.revisions.taken,
+  );
   const before = await snapshot(checkout, trunk.origin);
 
   const { code, receipt } = await startExecutionThere(

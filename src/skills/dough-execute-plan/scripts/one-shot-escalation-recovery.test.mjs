@@ -8,13 +8,14 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   cloneAsAnotherWriter,
   git,
   lsRemoteSha,
   revParse,
 } from "./publication-test-fixtures.mjs";
-import { createQueuedTrunk } from "./workspace-publication-fixtures.mjs";
 import {
   interruptFirstPush,
   resumeArgs,
@@ -72,7 +73,7 @@ async function resumeAndAssertRestored(trunk, workspace, attempt, retained) {
 }
 
 test("an escalation interrupted before its claim reached trunk resumes and restores the edits once", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const { workspace, attempt } = await grownAttempt(trunk);
   await interruptFirstPush(trunk);
@@ -101,7 +102,7 @@ test("an escalation interrupted before its claim reached trunk resumes and resto
 });
 
 test("an escalation killed after its claim reached trunk resumes as owned and restores the edits once", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const { workspace, attempt } = await grownAttempt(trunk);
 
@@ -141,7 +142,7 @@ async function advanceTrunkAfterPark(trunk) {
 }
 
 test("an escalation whose trunk moves after the park still claims once and restores the edits", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const { workspace, attempt } = await grownAttempt(trunk);
   const { env, advanced } = await advanceTrunkAfterPark(trunk);
