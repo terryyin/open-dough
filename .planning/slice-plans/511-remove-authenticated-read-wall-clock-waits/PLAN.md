@@ -3,6 +3,7 @@
 **Identity:** SEED-262#remove-authenticated-read-wall-clock-waits
 
 **Source:** [Remove wall-clock waits from authenticated-read backend specs](../../seeds/SEED-262-faster-dashboard-test-feedback.md#remove-authenticated-read-wall-clock-waits)
+**Source review:** [Source commitments](source-review.md)
 
 ## Goal and boundaries
 
@@ -111,13 +112,19 @@ before and 5.15 after. Use the same selection, workers and reporter after the
 change. Record elapsed time, observed attempts, load and the waits removed.
 Distinguish the eliminated waits from any variance in the remaining run.
 
+## Execution context
+
+- Story Branch Mode in the owned `remove-wall-clock-waits-from-authenticated-read` worktree on `codex/remove-wall-clock-waits-from-authenticated-read`. Integration checkout is `/Users/terryyin/git/open-dough`.
+- Publisher `dashboard-territory.local-open-dough`, agent `ivan-chan`. Starting revision `b0a6a54caf265b8891d065d295f87024b5ab0766`. Established claim and opening branch revision `91fef53a4ae9023f75d3682baf3dc1515b1e7acb` confirmed on `origin`. Trunk target `main`.
+- GitHub Actions `ci.yml` (CI), story-branch observer `ivan-chan-511`, directory `/tmp/dough-ci-501/watch-we0O8F`, PID `87794`, exec cell `g55:9`, shell session `54426`.
+
 ## Slices
 
 ### 1. Revision streams share one controlled pace and stop at shutdown
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Use the existing in-process boundary and held-answer harnesses for the two
 lifecycle cases. Extend the SSE test client to observe real response end
@@ -127,6 +134,36 @@ armed timer as well as the unchanged matching-refs count so the absence
 check cannot pass merely because an asynchronous request has yet to arrive.
 Keep production preview for the gzip case. Finish with the stream spec and
 affected harness consumers passing.
+
+Accepted implementation proof on macOS AC with Node 24.21.0, two workers,
+and the strict reporter. The stream and affected consumer selection passed
+61/61 attempts across 16 specs in 44.245 s of Playwright time. Five repeats
+of each changed lifecycle case passed 10/10 attempts in 7.931 s with the
+default test timeout. `caffeinate -s -i npm run typecheck:dashboard` passed.
+The paired streams use recorded profiles for `story/one` and `story/two`,
+hold each matching-refs answer until counted, and assert both SSE answers
+and the timer's cancellation after the last server disconnect. Boundary
+close yields a clean one-frame SSE response, leaves a live HTTP listener,
+and cancels the armed pace. The fixture clock only controls the configured
+cadence in the stream request context. The MakeMe profile conversion kept
+both serialized profile payloads byte-identical.
+
+```sh
+caffeinate -s -i npm run --silent test:dashboard -- --project=chromium --workers=2 'dashboard/backend-tests/observation/authenticated-read-(revision-stream|revision-stream-setup-departure|plugin-hooks|shared-listing|shared-listing-failures|shared-waiters|shared-failures|shared|cooldown|cooldown-reach|directed-wait|backoff|diagnostics|resumption|wait-in-turn)\.spec\.ts$' 'dashboard/backend-tests/observation/shared-request-owner\.spec\.ts$'
+caffeinate -s -i npm run --silent test:dashboard -- --project=chromium --workers=2 --repeat-each=5 'dashboard/backend-tests/observation/authenticated-read-revision-stream\.spec\.ts$' --grep 'two streams of one source|closing the boundary ends open streams'
+```
+
+The independent refactor consolidated the in-process authenticated-read
+fixture shared by the stream, setup-departure and plugin-hook specs. It
+retained the held-answer and server-side disconnect signals and made fixture
+cleanup cover startup and teardown errors. The revised paths passed 12/12
+strict attempts, 10/10 lifecycle repeat attempts using the same repeat
+command, and typecheck. Other affected-consumer proof remains applicable
+because their shared fixture paths were unchanged by this pass.
+
+```sh
+caffeinate -s -i npm run --silent test:dashboard -- --project=chromium --workers=2 'dashboard/backend-tests/observation/authenticated-read-(revision-stream|revision-stream-setup-departure|plugin-hooks)\.spec\.ts$'
+```
 
 ### 2. A settled listing timeout allows a fresh check
 

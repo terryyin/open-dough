@@ -7,34 +7,18 @@
 // synthetic `gh` hold is FAKE_GH_AUTH_HOLD on ../../tests/fixtures/fake-gh.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
-import {
-  existsSync,
-  mkdtempSync,
-  rmSync,
-  unlinkSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, unlinkSync, writeFileSync } from "node:fs";
 import http from "node:http";
-import { tmpdir } from "node:os";
 import path from "node:path";
-import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
-import {
-  endFakeGh,
-  fakeGhEnv,
-  installFakeGh,
-} from "../../tests/support/fakeGh.ts";
 import {
   everyRepository,
-  startFakeGitHub,
   type FakeGitHub,
 } from "../../tests/support/fakeGitHub.ts";
-import { startInProcessBoundaryHttp } from "../../tests/support/inProcessBoundaryHttp.ts";
+import { startInProcessAuthenticatedRead } from "../../tests/support/inProcessAuthenticatedRead.ts";
 import {
   abandonedRequest,
   openEventStream,
 } from "../../tests/support/rawHttp.ts";
-import { withRestoredEnv } from "../../tests/support/testEnv.ts";
-import { configureDevelopmentProjects } from "../../tests/support/projectConfiguration.ts";
 import { sharedReadsPublished } from "../../tests/support/sharedReads.ts";
 import { waitUntil } from "../../tests/support/waitUntil.ts";
 import { revisionA } from "./revisionCheckBoundary.ts";
@@ -72,40 +56,32 @@ function releaseAuth(holdPath: string): void {
 }
 
 async function setupDepartureServer(): Promise<SetupServer> {
-  const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-setup-depart-"));
-  const holdPath = path.join(tempRoot, "auth.hold");
-  writeFileSync(holdPath, "");
-  const gh = installFakeGh(tempRoot);
-  const github = await startFakeGitHub();
-  github.serve(everyRepository, sharedReadsPublished(revisionA));
-
-  const home = path.join(tempRoot, "home");
-  configureDevelopmentProjects(home);
-  const restoreEnv = withRestoredEnv({
-    ...fakeGhEnv(gh, github.url),
-    HOME: home,
-    FAKE_GH_AUTH_HOLD: holdPath,
-    DOUGH_REVISION_STREAM_MS: String(paceMs),
-    DOUGH_REVISION_CHECK_REUSE_MS: "0",
+  const authHold = (tempRoot: string) => path.join(tempRoot, "auth.hold");
+  const boundary = await startInProcessAuthenticatedRead({
+    extraEnv(tempRoot) {
+      const holdPath = authHold(tempRoot);
+      writeFileSync(holdPath, "");
+      return {
+        FAKE_GH_AUTH_HOLD: holdPath,
+        DOUGH_REVISION_STREAM_MS: String(paceMs),
+        DOUGH_REVISION_CHECK_REUSE_MS: "0",
+      };
+    },
   });
-
-  const boundary = await startInProcessBoundaryHttp({
-    name: "dough-authenticated-read",
-    install: installAuthenticatedReadMiddleware,
-  });
+  boundary.github.serve(everyRepository, sharedReadsPublished(revisionA));
+  const holdPath = authHold(boundary.tempRoot);
 
   return {
     origin: boundary.origin,
-    github,
+    github: boundary.github,
     holdPath,
     closeBoundary: boundary.closeBoundary,
     async close() {
-      releaseAuth(holdPath);
-      await boundary.closeHttp();
-      restoreEnv();
-      await endFakeGh(gh);
-      await github.close();
-      rmSync(tempRoot, { recursive: true, force: true });
+      try {
+        releaseAuth(holdPath);
+      } finally {
+        await boundary.close();
+      }
     },
   };
 }

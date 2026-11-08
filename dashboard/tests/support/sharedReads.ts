@@ -23,6 +23,7 @@ import { answeringFirst, holdingAnswer } from "./heldGitHubAnswer.ts";
 import { rawRequest, type RawResponse } from "./rawHttp.ts";
 import { headsAnswer, type OriginAnswer } from "../originAnswers.ts";
 import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 // How long a listing-reuse boundary case keeps a settled listing answerable.
 export const listingReuseWindowMs = 60_000;
@@ -64,14 +65,11 @@ const backlog = `# Product backlog
 `;
 
 const onBranch = (name: string, identity: string, branch: string) =>
-  renderAgentProfile({
-    name,
-    identity,
-    mode: "story-branch",
-    branch,
-    host: undefined,
-    model: undefined,
-  });
+  renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({ name, identity, mode: "story-branch", branch })
+      .please(),
+  );
 
 // `revision` as every repository's ref and trunk head names it, with the
 // story branches' heads listed beside it.

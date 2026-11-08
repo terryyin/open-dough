@@ -2,6 +2,7 @@
 // so closeServer can run while the process and fake GitHub keep observing.
 // Out-of-process boundaryServer exit would hide that shutdown path.
 
+import { once } from "node:events";
 import http from "node:http";
 import type { AddressInfo } from "node:net";
 import type { LocalBoundary } from "../../server/localBoundary.ts";
@@ -36,17 +37,29 @@ export async function startInProcessBoundaryHttp(
   const closeServer =
     plugin.closeServer as unknown as () => void | Promise<void>;
 
-  void configureServer({ middlewares: connectStub });
-
   const rawServer = http.createServer((req, res) => {
     storedHandler?.(req, res, () => {
       res.writeHead(404);
       res.end();
     });
   });
-  await new Promise<void>((resolve) => {
-    rawServer.listen(0, "127.0.0.1", resolve);
-  });
+  try {
+    await configureServer({ middlewares: connectStub });
+    const listening = once(rawServer, "listening");
+    rawServer.listen(0, "127.0.0.1");
+    await listening;
+  } catch (error) {
+    try {
+      await closeServer();
+    } catch (cleanupError) {
+      throw new AggregateError(
+        [error, cleanupError],
+        "Could not start the in-process boundary HTTP fixture",
+        { cause: cleanupError },
+      );
+    }
+    throw error;
+  }
   const { port } = rawServer.address() as AddressInfo;
 
   return {
