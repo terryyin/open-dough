@@ -171,3 +171,16 @@ Slice-plan refinement was not needed: the two slices are independent
 observable outcomes on one shared rule, each with its own proof, and both are
 small. No remaining slice-specific concern; the dictation proof route is a
 sizing choice inside Slice 1 bounded by two available routes.
+
+## Execution complete
+
+Product advice: no change. Both slices meet the story's examples, and no
+correction is needed. Two observations are for wrap-up only:
+
+- What actually leaves Codex readiness pending is still undiagnosed (out of
+  scope). Text input now works through it, but a reopened done session keeps
+  its done mark until a completed frame arrives. Watch whether that recurs in
+  real phone use before opening a diagnosis story.
+- The Recently done section header is about 23px tall, below the 44px touch
+  target that `tapWhereShown` checks. The new phone spec had to tap it
+  directly. This predates the story and is a candidate only, not queued.
