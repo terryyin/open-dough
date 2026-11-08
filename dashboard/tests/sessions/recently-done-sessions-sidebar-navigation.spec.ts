@@ -116,7 +116,7 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
     await shown.header.click();
     await expect(shown.entry(instruction)).toHaveCount(1);
     const before = (await revealsOf(page)).length;
-    await shown.entry(instruction).click();
+    await shown.open(instruction).click();
 
     await test.step("Open Dough's Board Recently done extends through entry 27 while the held story reads", async () => {
       await expectProjectChoice(page, "Open Dough");
@@ -169,7 +169,7 @@ codexTest.describe("Recently done final-report destination", () => {
       await shown.button.click();
       await shown.header.click();
       await expect(shown.entry(notRefinedStory)).toHaveCount(1);
-      await shown.entry(notRefinedStory).click();
+      await shown.open(notRefinedStory).click();
       const panel = page.getByRole("region", { name: "Final report" });
       await codexExpect(panel.locator(".final-report-text")).toHaveText(report);
       await codexExpect(

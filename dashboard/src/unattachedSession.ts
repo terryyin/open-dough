@@ -10,12 +10,14 @@ import {
   unattachedSessionPolicySchema,
   type UnattachedSessionPolicy,
 } from "./launchRequest.ts";
+import type { FollowUpSource } from "./followUpRequest.ts";
 
 // What an unattached launch decides its establishment from.
 type UnattachedChoices = {
   readonly policy?: UnattachedSessionPolicy | undefined;
   readonly instruction?: string | undefined;
   readonly attachments?: readonly string[] | undefined;
+  readonly followUp?: FollowUpSource | undefined;
 };
 
 // Whether the policy is the one no selection makes: the default checkout,
@@ -35,12 +37,14 @@ export function establishesSession(request: UnattachedChoices): boolean {
 }
 
 // Whether an unattached launch sends a first input: the developer's text, any
-// attached images (their path list alone when text is blank), or the block of
-// the session it establishes. One that sends none stays a blank native launch.
+// attached images (their path list alone when text is blank), the block of
+// the session it establishes, or the context of the entry it follows up. One
+// that sends none stays a blank native launch.
 export function sendsFirstInput(request: UnattachedChoices): boolean {
   return (
     Boolean(request.instruction?.trim()) ||
     (request.attachments?.length ?? 0) > 0 ||
+    request.followUp !== undefined ||
     establishesSession(request)
   );
 }

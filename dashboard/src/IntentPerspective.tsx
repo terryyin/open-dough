@@ -21,7 +21,7 @@
 // (`./IntentStorySummary.tsx`) heading the locations tree or, without one,
 // the explanation in its place; Optimization Candidates shows none.
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { IntentBrowser } from "./IntentBrowser.tsx";
 import { IntentCiEvidenceProvider } from "./IntentCiEvidence.tsx";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
@@ -34,13 +34,14 @@ import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import {
   IntentStorySummary,
+  useStorySummary,
   type ComparedStory,
   type StorySummary,
 } from "./IntentStorySummary.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
-import { IntentReadingPlace } from "./pageIntentReading.tsx";
+import { IntentReadingPlace, useKeptReading } from "./pageIntentReading.tsx";
 import {
   IntentRevisionNotice,
   useIntentReadingRevision,
@@ -71,6 +72,10 @@ function IntentBody({
   readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
 } & ModeChoice) {
+  // Whether the Intent mode shows its locations column, one choice kept with
+  // the reading place for the strip's toggle and the browser.
+  const [filesShown, setFilesShown] = useKeptReading("filesShown", () => true);
+  const files = { id: `${modeIdPrefix}-locations`, shown: filesShown };
   // A newer observed revision waits behind the notice until **Show latest**.
   const observed = work?.revision;
   const { reading, showLatest } = useIntentReadingRevision(observed);
@@ -129,15 +134,26 @@ function IntentBody({
   // the observed work, not the reading revision.
   const ciActive =
     settled !== undefined && ("locations" in settled || mode === "intent");
+  const browsing =
+    mode === "intent" && settled !== undefined && "locations" in settled;
   return (
-    <IntentCiEvidenceProvider
-      source={source}
-      work={work}
-      selectedIdentity={selectedIdentity}
-      active={ciActive}
-    >
-      {bodyOf()}
-    </IntentCiEvidenceProvider>
+    <>
+      <IntentModeTabs
+        mode={mode}
+        idPrefix={modeIdPrefix}
+        onSelect={onModeChange}
+        files={browsing ? files : undefined}
+        onShowFiles={setFilesShown}
+      />
+      <IntentCiEvidenceProvider
+        source={source}
+        work={work}
+        selectedIdentity={selectedIdentity}
+        active={ciActive}
+      >
+        {bodyOf()}
+      </IntentCiEvidenceProvider>
+    </>
   );
 
   function bodyOf(): ReactNode {
@@ -167,6 +183,7 @@ function IntentBody({
         onModeChange={onModeChange}
         storySummary={storySummary}
         story={story}
+        files={files}
       />,
     );
   }
@@ -197,8 +214,7 @@ export function IntentPerspective({
     records,
     workspaces,
   });
-  // The story whose summary is expanded; another story's starts collapsed.
-  const [expandedStory, setExpandedStory] = useState<string | undefined>();
+  const storySummary = useStorySummary(story, comparison, retry);
   return (
     <main
       className="intent-perspective"
@@ -216,11 +232,6 @@ export function IntentPerspective({
             shared by the strip's return home and the browser's tree and
             reading. */}
         <IntentWorkspaceSelectionProvider>
-          <IntentModeTabs
-            mode={mode}
-            idPrefix={modeIdPrefix}
-            onSelect={onModeChange}
-          />
           <IntentBody
             source={source}
             work={work}
@@ -228,19 +239,7 @@ export function IntentPerspective({
             mode={mode}
             modeIdPrefix={modeIdPrefix}
             onModeChange={onModeChange}
-            storySummary={
-              story === undefined
-                ? undefined
-                : {
-                    story,
-                    comparison,
-                    onRetry: retry,
-                    expanded: expandedStory === story.identity,
-                    onExpand: (expanded) => {
-                      setExpandedStory(expanded ? story.identity : undefined);
-                    },
-                  }
-            }
+            storySummary={storySummary}
             story={compared}
           />
         </IntentWorkspaceSelectionProvider>

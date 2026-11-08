@@ -3,20 +3,16 @@ import {
   chmodSync,
   cpSync,
   mkdirSync,
-  mkdtempSync,
   readFileSync,
-  realpathSync,
   writeFileSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import assert from "node:assert/strict";
-import {
-  deferWorkerStop,
-  fixtureTeardown,
-} from "./fixture-teardown-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { deferWorkerStop } from "./fixture-teardown-test-fixtures.mjs";
 import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
 
 const exec = promisify(execFile);
@@ -46,6 +42,16 @@ export async function git(root, ...args) {
   return exec("git", args, { cwd: root });
 }
 
+// The project's one published revision A on the custom CI branch. It is no
+// Open Dough backlog project: `.planning` holds only the harness's settings.
+const revisionA = makeMe.aRepository
+  .withTrunkBranch(customCiBranch)
+  .withRevision("a", {
+    backlog: undefined,
+    files: { "application.txt": "A\n" },
+  })
+  .please();
+
 // A real local descendant; observers must establish its coverage themselves.
 export async function descendantRevision(h) {
   writeFileSync(join(h.project, "application.txt"), "B\n");
@@ -70,18 +76,13 @@ export async function createRevisionCoverageFixture(
   t,
   { now, maxDurationMs = 60_000, integratedPolicy } = {},
 ) {
-  const fixture = realpathSync(
-    mkdtempSync(join(tmpdir(), "ci-revision-coverage-")),
-  );
-  const project = join(fixture, "project");
-  const remote = join(fixture, "remote.git");
+  const repository = await materializeRepository(revisionA);
+  const { fixture, integration: project, origin: remote } = repository;
   const storage = join(fixture, "mailboxes");
   const installed = join(project, ".agents/skills/dough-execute-plan");
   const adapterState = join(fixture, "attempts.json");
   const adapterCalls = join(fixture, "adapter-calls");
-  const teardown = fixtureTeardown(fixture);
-  t.after(teardown.cleanup);
-  mkdirSync(project, { recursive: true });
+  t.after(repository.cleanup);
   mkdirSync(join(project, ".planning"));
   cpSync(sourceSkill, installed, { recursive: true });
 
@@ -101,15 +102,6 @@ export async function createRevisionCoverageFixture(
         : {}),
     }),
   );
-
-  await exec("git", ["init", "--bare", remote]);
-  await git(project, "init", "-b", customCiBranch);
-  await git(project, "config", "user.name", "Coverage Fixture");
-  await git(project, "config", "user.email", "coverage@example.test");
-  await git(project, "remote", "add", "origin", remote);
-  writeFileSync(join(project, "application.txt"), "A\n");
-  await git(project, "add", "application.txt");
-  await git(project, "commit", "-m", "revision A");
 
   const launcher = join(installed, "scripts/ci-mailbox.mjs");
   const mailbox = await import(pathToFileURL(launcher));
@@ -150,7 +142,7 @@ export async function createRevisionCoverageFixture(
         ...(now ? { now } : {}),
       }),
   });
-  deferWorkerStop(teardown, worker, () =>
+  deferWorkerStop(repository, worker, () =>
     mailbox.requestMailboxStop(directory, { root: project, storage }),
   );
   const adapterCallCount = () => Number(readFileSync(adapterCalls, "utf8"));

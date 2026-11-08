@@ -1,21 +1,19 @@
 // Publication resolves an omitted landingContext from an open first-landing
 // expectation; an explicit path still wins; a mismatched branch stays clear.
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
-import os from "node:os";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { plantFirstLandingExpectation } from "./first-landing-expectation.mjs";
 import { managementContext } from "./publication-git.mjs";
 import { resolvePublicationLandingContext } from "./resolve-publication-landing-context.mjs";
 
 async function gitWorkspace(t) {
-  const root = await mkdtemp(path.join(os.tmpdir(), "resolve-landing-"));
-  t.after(() => rm(root, { recursive: true, force: true }));
-  const workspace = path.join(root, "work");
-  await mkdir(workspace, { recursive: true });
-  execFileSync("git", ["init", "-b", "main", workspace], { stdio: "ignore" });
+  const described = await materializeRepository(makeMe.aRepository.please());
+  t.after(described.cleanup);
+  const { fixture: root, integration: workspace } = described;
   const repository = await managementContext(workspace);
   const reporting = path.join(root, "reporting");
   await mkdir(reporting, { recursive: true });

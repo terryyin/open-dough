@@ -42,7 +42,7 @@ export function SourceLines({
   "aria-label": ariaLabel,
 }: {
   readonly text: string;
-  // Shiki language id (from `sourceLanguage` for Intent kinds).
+  // Shiki language id (from `sourceLanguage` for Intent syntax hints).
   readonly language?: string;
   /** 1-based line to identify and bring into view. */
   readonly targetLine?: number;

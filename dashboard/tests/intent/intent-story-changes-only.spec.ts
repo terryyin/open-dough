@@ -25,6 +25,7 @@ import {
   folderToggle,
   folderRow,
   expandStorySummary,
+  expectOutsideCount,
   intentFile,
   selectTakenStoryInIntent,
   storyDisclosure,
@@ -88,9 +89,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
     for (const name of [kept, other])
       await expect(intentFile(intent, name)).toHaveCount(0);
     await expect(folderRow(intent, "other")).toHaveCount(0);
-    await expect(intent.locator(".intent-story-outside")).toContainText(
-      "2 changed files outside Intent locations",
-    );
+    await expectOutsideCount(intent, 2);
     await expect(intent.locator(".intent-story-none")).toHaveCount(0);
   });
 
@@ -168,16 +167,13 @@ test("a story that changed only product code says Selected story only has no tes
     origin,
     changeProductOnly,
   );
-  const outside = intent.locator(".intent-story-outside");
   const none = intent.locator(".intent-story-none");
   await expect(
     (await expandStorySummary(intent)).locator(".intent-story-revisions"),
   ).toBeVisible();
   const toggle = storyOnly(intent);
   await expect(toggle).not.toBeChecked();
-  await expect(outside).toHaveText(
-    "1 changed file outside Intent locations is shown in Review changes. Review changes",
-  );
+  await expectOutsideCount(intent, 1);
   await expect(none).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
   await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
@@ -189,9 +185,7 @@ test("a story that changed only product code says Selected story only has no tes
   await expect(none).toHaveText(
     "No test files in Intent locations changed in this story",
   );
-  await expect(outside).toHaveText(
-    "1 changed file outside Intent locations is shown in Review changes. Review changes",
-  );
+  await expectOutsideCount(intent, 1);
   await expect(intent.locator("section.intent-location")).toHaveCount(0);
 
   await toggle.uncheck();

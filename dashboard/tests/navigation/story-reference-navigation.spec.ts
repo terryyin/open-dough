@@ -12,6 +12,12 @@ import { notFoundAnswer } from "../originAnswers.ts";
 import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { expectReadingTop } from "../readingPlace.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
+import { expectSelected, selectStory } from "../storyCardSelection.ts";
+import {
+  expectCueEnds,
+  expectDestinationCue,
+  passPartOfCue,
+} from "../destinationCue.ts";
 
 // Story A waits on Story B and needs a decision about Story C.
 test.use({
@@ -72,10 +78,27 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
     await supplier.evaluate((card) => card.getBoundingClientRect().height),
   ).toBeGreaterThan(await page.evaluate(() => innerHeight));
   await expectReadingTop(supplier);
+  await expectDestinationCue(page, supplier, { motion: true });
+  await expect(page.locator(".story-card-selected")).toHaveCount(0);
+  await expectCueEnds(page, supplier);
+  await expectSelected(supplier, false);
   expect(new URL(page.url()).hostname).toBe("127.0.0.1");
-  await consumer
-    .getByRole("link", { name: supplierB.identity, exact: true })
-    .click();
+  await selectStory(supplier).click();
+  await expectSelected(supplier, true);
+  const reference = consumer.getByRole("link", {
+    name: supplierB.identity,
+    exact: true,
+  });
+  await reference.click();
+  await expectDestinationCue(page, supplier, { motion: true });
+  await expectSelected(supplier, true);
+  await passPartOfCue(page, 1000);
+  await reference.click();
+  await expectDestinationCue(page, supplier, { motion: true });
+  await passPartOfCue(page, 1000);
+  await expectDestinationCue(page, supplier, { motion: true });
+  await expectCueEnds(page, supplier);
+  await expectSelected(supplier, true);
   await expect(
     supplier.getByRole("button", { name: "Hide detail" }),
   ).toBeVisible();

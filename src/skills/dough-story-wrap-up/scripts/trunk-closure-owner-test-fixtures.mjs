@@ -31,10 +31,7 @@ import {
   installManagedDelivery,
   watchCount,
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
-import {
-  createCleanTrunkFixture,
-  lsRemoteSha,
-} from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { lsRemoteSha } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
   branchSha,
   commitFinalClosure,
@@ -42,6 +39,8 @@ import {
   installClosureSkills,
   installInIntegration,
 } from "./trunk-closure-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "../../dough-execute-plan/scripts/publication-clean-trunk-fixtures.mjs";
 
 const publisherCoordinator = "publisher-coordinator";
 const attached = /CI observer attached to this coordinator/;
@@ -201,9 +200,14 @@ export async function assertUnresolvedCoverage(
 
 // A Claude Code project in a directory below its execution worktree's Git
 // toplevel, with managed delivery and closure installed in that project.
-// `finish` runs the installed command there for `coordinator`.
-export async function closureBelowToplevel(t, coordinator = "below-toplevel") {
-  const base = await createCleanTrunkFixture();
+// `finish` runs the installed command there for `coordinator`. `description`
+// is the repository the project lives in.
+export async function closureBelowToplevel(
+  t,
+  coordinator = "below-toplevel",
+  { description = trunkWithOneUnpublishedIncrement } = {},
+) {
+  const base = await materializeRepository(description);
   const teardown = fixtureTeardown(base.fixture);
   t.after(teardown.cleanup);
   const project = join(base.execution, "proj");

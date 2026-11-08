@@ -216,6 +216,8 @@ export function useRecentlyDone({
     shown,
     older,
     details,
+    // The revision the shown done records are read at.
+    revision,
     column,
     held,
     // Notes the entry the keyboard went to in this list, or that it left.

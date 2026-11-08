@@ -42,7 +42,7 @@
 
 /* Tree file buttons beat `.story-review-files button { background: none }`
    (./story-review.css). Location headers beat their own background
-   (./intent-perspective.css). Selection fill yields to the tint via :not in
+   (./intent-location-group.css). Selection fill yields to the tint via :not in
    ./story-review-files.css. */
 .intent-ci-cue-duration-faster-light,
 .story-review-files button.intent-ci-cue-duration-faster-light,
@@ -91,9 +91,9 @@
   border-radius: var(--radius-sm);
 }
 
-/* Tree file rows and location headers: keep cue padding so the tint and
-   inset count edge read on the control, distinct from keyboard focus. */
-.story-review-files li button[class*="intent-ci-cue-"],
-.intent-location-header[class*="intent-ci-cue-"] {
+/* Tree file rows: keep cue padding so the tint and inset count edge read on
+   the control, distinct from keyboard focus. Location headers stay square
+   bands across the locations column (./intent-location-group.css). */
+.story-review-files li button[class*="intent-ci-cue-"] {
   border-radius: var(--radius-sm);
 }

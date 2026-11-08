@@ -16,6 +16,9 @@ export type LaunchDialogProps = {
   readonly subject?: ReactNode;
   // Why the launch is started, in a sentence.
   readonly description: ReactNode;
+  // What the launch supplies beside the developer's request, read-only, such
+  // as the context a follow-up sends.
+  readonly context?: ReactNode;
   // What pressing Start does, always in view beside Start.
   readonly effects?: ReactNode;
   // Longer explanations and metadata, read under Command details.

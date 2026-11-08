@@ -7,6 +7,7 @@ import { test } from "node:test";
 import {
   advanceOriginFromAnotherWriter,
   lsRemoteSha,
+  trunkWithHumanEditTarget,
 } from "./publication-test-fixtures.mjs";
 import {
   createManagedFixture,
@@ -121,6 +122,7 @@ test("local-only authority does not push", async (t) => {
 for (const { trunkAdvanced, pendingEdit } of unpublishedBaseCases) {
   test(`the deliver command refuses a base the remote does not hold${trunkAdvanced ? " after trunk advanced" : ""} before any rebase or push`, async (t) => {
     const fixture = await createManagedFixture({
+      description: trunkWithHumanEditTarget,
       platforms: [".claude"],
       checkout: "integration",
     });

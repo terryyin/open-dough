@@ -79,6 +79,18 @@
   display: none;
 }
 
+/* Hide files (./IntentModeTabs.tsx) hides the locations column, still
+   mounted so its scroll, open folders and summary return, and gives the
+   reading pane the whole width (narrow, the whole height). */
+.intent-browser.intent-files-hidden {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.intent-locations[hidden] {
+  display: none;
+}
+
 .intent-locations,
 .intent-reading {
   min-width: 0;
@@ -99,69 +111,6 @@
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--line);
-}
-
-.intent-locations > .intent-location {
-  flex: none;
-  overflow: visible;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
-  padding: var(--space-2) var(--space-3);
-}
-
-/* Location book-icon toggle + selectable name (same split as Intent folder
-   rows). The header's own background sets a location apart from the folder
-   and file rows beneath it; a selected location's header takes the file
-   browser's selected fill (./story-review-files.css) across its whole width,
-   toggle included, while expansion shows only in the toggle. A location's
-   changes add a mark (./change-kinds.css) over either background. */
-.intent-location-header {
-  display: flex;
-  align-items: baseline;
-  gap: 0.15rem;
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  padding: 0.15rem 0.25rem 0.15rem 0.5rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--line) 45%, transparent);
-}
-
-.intent-location-toggle {
-  flex: none;
-  min-width: 1.5rem;
-  padding-inline: 0.25rem;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.intent-location-toggle .icon {
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.125em;
-}
-
-.intent-location-name {
-  flex: 1;
-  min-width: 0;
-  width: auto;
-  text-align: start;
-}
-
-.intent-location-body {
-  margin-top: var(--space-2);
-}
-
-.intent-location-kind {
-  color: var(--quiet);
-  font-weight: 400;
-  font-size: var(--text-sm);
 }
 
 .intent-reading {

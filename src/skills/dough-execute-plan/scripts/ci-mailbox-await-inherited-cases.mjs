@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -12,11 +12,11 @@ import {
   requestMailboxStop,
   runMailboxWorker,
 } from "./ci-mailbox.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   acceptedWorkflow,
-  commitAll,
-  initRepo,
-  writeWorkflow,
+  workflowPath,
 } from "./ci-path-applicability-test-fixtures.mjs";
 import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
@@ -28,20 +28,38 @@ import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 
 test("ignored-only coverage follows successful and failed unregistered ancestors, until an exact attempt supersedes it", async (t) => {
-  const repo = await initRepo();
   const storage = mkdtempSync(join(tmpdir(), "ci-await-inherited-"));
-  const teardown = fixtureTeardown(storage, repo);
+  const {
+    integration: repo,
+    fixture,
+    revisions: {
+      successfulAncestor,
+      ignoredSuccess,
+      failedAncestor,
+      ignoredFailure,
+    },
+  } = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("successfulAncestor", {
+        backlog: undefined,
+        files: {
+          "application.js": "console.log('A');\n",
+          [workflowPath]: acceptedWorkflow,
+        },
+      })
+      .withRevision("ignoredSuccess", {
+        files: { ".planning/ignored-success.md": "B1\n" },
+      })
+      .withRevision("failedAncestor", {
+        files: { "application.js": "console.log('A2');\n" },
+      })
+      .withRevision("ignoredFailure", {
+        files: { ".planning/ignored-failure.md": "B2\n" },
+      })
+      .please(),
+  );
+  const teardown = fixtureTeardown(storage, fixture);
   t.after(teardown.cleanup);
-  writeFileSync(join(repo, "application.js"), "console.log('A');\n");
-  writeWorkflow(repo, acceptedWorkflow);
-  const successfulAncestor = await commitAll(repo, "applicable success A1");
-  mkdirSync(join(repo, ".planning"), { recursive: true });
-  writeFileSync(join(repo, ".planning", "ignored-success.md"), "B1\n");
-  const ignoredSuccess = await commitAll(repo, "ignored-only B1");
-  writeFileSync(join(repo, "application.js"), "console.log('A2');\n");
-  const failedAncestor = await commitAll(repo, "applicable failure A2");
-  writeFileSync(join(repo, ".planning", "ignored-failure.md"), "B2\n");
-  const ignoredFailure = await commitAll(repo, "ignored-only B2");
   const unrelated = "f".repeat(40);
   const directory = createMailbox(
     {

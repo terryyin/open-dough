@@ -5,17 +5,28 @@ import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   remoteHeads,
   revParse,
 } from "./publication-test-fixtures.mjs";
 import { createManagedFixture } from "./execution-increment-managed-delivery-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 const trunkTarget = "refs/heads/main";
+
+// One trunk commit, and a workspace on exec/story one unpublished
+// increment.txt commit ahead.
+const trunkWithOneIncrement = makeMe.aRepository
+  .withRevision("trunk")
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
 
 // Writes 1,500 blobs with one `git hash-object -w` call and answers a
 // four-character prefix that at least two of them share.
@@ -98,7 +109,7 @@ function assertRefusal(result, { problem, supplied, candidate }) {
 
 for (const { name, problem, base } of unresolvableBases) {
   test(`${name} as the previously published base is refused before anything is compared, rewritten, or pushed`, async (t) => {
-    const fixture = await createCleanTrunkFixture();
+    const fixture = await materializeRepository(trunkWithOneIncrement);
     t.after(fixture.cleanup);
     const supplied = await base(fixture);
     // The refusal follows the publication's own fetch, so start after one.
@@ -128,7 +139,9 @@ for (const { name, problem, base } of unresolvableBases) {
 }
 
 test("managed delivery reports an unresolvable base's status, problem, input, and next step", async (t) => {
-  const fixture = await createManagedFixture();
+  const fixture = await createManagedFixture({
+    description: trunkWithOneIncrement,
+  });
   t.after(fixture.cleanup);
   const supplied = (
     await revParse(fixture.execution, "HEAD:increment.txt")

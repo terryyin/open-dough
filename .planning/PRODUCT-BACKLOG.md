@@ -28,18 +28,16 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Make the Intent sidebar easier to scan and hide](seeds/SEED-271-compact-intent-sidebar.md#compact-intent-sidebar) — SEED-271#compact-intent-sidebar ([plan](slice-plans/525-compact-intent-sidebar/PLAN.md))
-- [Start a follow-up from recently done work](seeds/SEED-273-follow-up-from-done.md#follow-up-from-done) — SEED-273#follow-up-from-done ([plan](slice-plans/526-follow-up-from-done/PLAN.md))
-- [Select recently done sessions from the dashboard sidebar](seeds/SEED-272-select-recently-done-sessions.md#select-recently-done-sessions) — SEED-272#select-recently-done-sessions ([plan](slice-plans/527-select-recently-done-sessions/PLAN.md))
-- [Highlight the destination of a story link](seeds/SEED-270-highlight-linked-story-card.md#highlight-linked-story-card) — SEED-270#highlight-linked-story-card ([plan](slice-plans/525-highlight-linked-story-card/PLAN.md))
 - [Build dashboard test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures) — SEED-262#migrate-dashboard-origin-fixtures ([plan](slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md))
-- [Build clean-trunk and managed delivery repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures) — SEED-262#migrate-clean-trunk-fixtures ([plan](slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md))
-- [Let projects declare which tests Intent shows](seeds/SEED-274-declare-intent-test-sources.md#declare-intent-test-sources) — SEED-274#declare-intent-test-sources ([plan](slice-plans/528-declare-intent-test-sources/PLAN.md))
+- [State each repository description fact once and keep native preparation evidence MakeMe-free](seeds/SEED-262-faster-dashboard-test-feedback.md#tighten-repository-description-facts) — SEED-262#tighten-repository-description-facts ([plan](slice-plans/532-tighten-repository-description-facts/PLAN.md))
+- [Prove Recently done selection's check rules and tidy its catalog read](seeds/SEED-272-select-recently-done-sessions.md#prove-recently-done-check-supersession) — SEED-272#prove-recently-done-check-supersession ([plan](slice-plans/529-prove-recently-done-check-supersession/PLAN.md))
+- [Review a selected story in Intent tabs](seeds/SEED-275-story-intent-tabs.md#story-intent-tabs) — SEED-275#story-intent-tabs ([plan](slice-plans/531-review-story-intent-tabs/PLAN.md))
+- [Keep follow-up context out of listings and resume it after its source expires](seeds/SEED-273-follow-up-from-done.md#lean-follow-up-listing) — SEED-273#lean-follow-up-listing ([plan](slice-plans/529-lean-follow-up-listing/PLAN.md))
 
 ## Backlog list
 
 - [Serve fake GitHub planning files from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#declare-fake-github-planning-data) — SEED-262#declare-fake-github-planning-data
-- [Review a selected story in Intent tabs](seeds/SEED-275-story-intent-tabs.md#story-intent-tabs) — SEED-275#story-intent-tabs
+- [Guard per-file syntax highlighting in Intent](seeds/SEED-276-guard-intent-per-file-highlighting.md#guard-intent-per-file-highlighting) — SEED-276#guard-intent-per-file-highlighting
 - [Build Node test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-backlog-scratch-repositories) — SEED-262#migrate-backlog-scratch-repositories
 - [Build shell release and native fixture repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-shell-release-and-native-fixtures) — SEED-262#migrate-shell-release-and-native-fixtures
 - [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories) — SEED-262#reuse-immutable-git-histories

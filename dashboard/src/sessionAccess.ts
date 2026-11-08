@@ -42,3 +42,16 @@ export function sessionAccess(
     ? "terminal"
     : undefined;
 }
+
+// Whether an entry in Recently done offers Follow up: no session it holds
+// offers Open terminal, whatever the reason (its conversation confirmed
+// unavailable, its workspace missing or unconfirmed, or its host without an
+// embedded terminal), so reopening the earlier conversation is not possible.
+export function offersFollowUp(
+  sessions: readonly LaunchWithState[],
+  operations: HostOperations,
+): boolean {
+  return sessions.every(
+    (record) => sessionAccess(record, operations) !== "terminal",
+  );
+}

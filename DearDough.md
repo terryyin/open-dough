@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 457. Removed numbers are never reused.
+- Highest allocated local number: 463. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -27,6 +27,14 @@ Former local code: DD-450. Former local code: DD-121. Former local code: DD-206.
   - Evidence: Plan 521 at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6` was recorded ready with `**Status:** pending`. The first `story-obligations.mjs list --slice 1` refused with `unreadable-slices` and `unknown-slice`.
   - Observed effect: changing only the status word to `planned` let the same listing pass with all 39 allocated source commitments. The selected story and its proof stayed the same.
   - Inference: the preparation and execution status mismatch observed in Plan 519 recurred under 0.3.91.
+- Execution: SEED-262#migrate-clean-trunk-fixtures (plan 514-migrate-clean-trunk-fixtures; first related implementation commit `1f6adb33a20fe8eb45f382b7cde3c5141ab41dd2`)
+  - Timestamp: unknown (2026-11-08, slice 5 return before `91966e3aa`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 514 (`42717b7da:.planning/slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md`)'s premise row "No native shell fixture loads the family modules" inspected the native shell scripts and the owned-context fixture only. `tests/support/execution-worktree-prep-native-fixture.mjs` loaded the migrated worktree-preparation builders (story obligation G4), and `native-import-closure.mjs` on that journey's three modules lists 10 modules at `db42e79a7` and 49 at `91966e3aa`. The git-publication admission identity (`tests/support/git-publication-native-evidence.sh:39-42`) already hashed three family modules the plan changed.
+  - Observed effect: The slice 5 implementer found the native journey's repository changed. A return restored it with verbatim pre-story builders; the retrospective still found MakeMe in that journey's import closure and planned a correction.
+  - Inference: The journeys' hashed import closures, not shell sources, list what a native identity depends on; the premise needed that list.
 
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
@@ -202,6 +210,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Guarded delivery on the paths published as `86eb0b883`, `c504c9a15`, and `d577da657` first returned `operation: formatting`. ESLint named unsafe href/writer return values, an unused array callback parameter, and an unsafe `Object.fromEntries` return from non-tuple inference.
   - Observed effect: Three initial formatter gates withheld commit and publication after focused proof and independent refactor. Type annotations or a mechanical callback change cleared them. The affected type-check or Land test passed.
   - Inference: A passing TypeScript build does not cover the ESLint diagnostics observed here. The late placement of the gate was the required handoff.
+- Execution: SEED-262#migrate-clean-trunk-fixtures (plan 514-migrate-clean-trunk-fixtures; first related implementation commit `1f6adb33a20fe8eb45f382b7cde3c5141ab41dd2`)
+  - Timestamp: unknown (2026-11-08, slice 5 delivery before `91966e3aa` at 2026-11-08T18:42:34+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Guarded fresh delivery of slice 5 returned `operation: formatting` with ESLint `no-unused-vars` on an unused `_` array callback parameter in `src/skills/dough-execute-plan/scripts/default-checkout-test-fixtures.mjs`, after focused proof and a refactor pass that reported no lint run.
+  - Observed effect: One withheld delivery; a mechanical `[...Array(count).keys()]` rewrite and a focused rerun cleared it.
+  - Inference: Same diagnostic class as the earlier occurrence; the slice 4 implementer, who ran ESLint itself, returned clean.
 - Execution: SEED-262#migrate-dashboard-origin-fixtures (plan 512-migrate-dashboard-origin-fixtures; first related implementation commit `0bcf76c3746a941a01ffc0198f5ad120d3446fdb`)
   - Timestamp: unknown (slice 2 delivery on 2026-11-08, before `21bf70ea2`)
   - Tool: Claude Code
@@ -258,6 +274,15 @@ Former local code: DD-369. Former local code: DD-392. [Meaning, evidence and res
 Former local code: DD-372. [Meaning, evidence and response](docs/maintainer/findings/ODF-382.md).
 ## ODF-383 — A deletion-only story amendment mid-execution forced a full source re-review and re-allocation
 Former local code: DD-375. [Meaning, evidence and response](docs/maintainer/findings/ODF-383.md).
+### Occurrences
+- Execution: SEED-271#compact-intent-sidebar (plan 525-compact-intent-sidebar; first related implementation commit `b0a8970657fbd30272851011ab26973abb7eb835`)
+  - Timestamp: unknown (2026-11-08, during slice 3 acceptance before `efce7d0ee`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.91)
+  - Evidence: Terry's mid-slice amendment (trunk `9367c5b44`) removed the mode-bar story-title clause and rewrote one deferred promise. `source-freshness.mjs check` returned `amended`; the renewed reviewer used a new id scheme (83 rows `1`–`62` → 90 rows `G1`, `1.1`…, `E1`…, `A1`…). Replacement record: `.planning/slice-plans/525-compact-intent-sidebar/source-review.md` at `efce7d0ee`.
+  - Observed effect: one extra reviewer run (about 47k subagent tokens) and a hand-built 90-row table re-citing slices 1–2's observations before slice 3 could be delivered; only the removed title rows (old `29`–`34`) and the rewritten exclusion (old `48`–`52` → `4.7`–`4.9`) needed new judgment.
+  - Inference: as in the earlier occurrences, settling the affected rows in the retained review would have sufficed.
 ## ODF-384 — CI layout repair iterates successive assertions without one full-journey check
 Former local code: DD-377. [Meaning, evidence and response](docs/maintainer/findings/ODF-384.md).
 ## ODF-142 — Abbreviated validated candidate stops delivery as candidate-mismatch
@@ -272,6 +297,14 @@ Former local code: DD-388. Former local code: DD-379 (`6085b6eed`), renumbered i
 Former local code: DD-389. [Evidence and current response](docs/maintainer/findings/ODF-399.md).
 ## ODF-337 — Fresh delivery ownedPaths cannot stage a deleted rename source
 Former local code: DD-391. [Evidence and current response](docs/maintainer/findings/ODF-337.md).
+### Occurrences
+- Execution: SEED-271#compact-intent-sidebar (plan 525-compact-intent-sidebar; first related implementation commit `b0a8970657fbd30272851011ab26973abb7eb835`)
+  - Timestamp: unknown (2026-11-08, slice 3 delivery before `efce7d0ee`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.91)
+  - Evidence: the implementer's `git mv dashboard/src/StoryReviewBrowserToggle.tsx dashboard/src/FileBrowserToggle.tsx` left the old path staged as deleted; `fresh` with both paths in `ownedPaths` returned `preparation-failed`, `operation: staging`, `fatal: pathspec 'dashboard/src/StoryReviewBrowserToggle.tsx' did not match any files`. Moving the old path to `stagedPaths` committed `efce7d0ee`.
+  - Observed effect: one refused delivery attempt and a hand-edited preparation file; formatting reran on retry. Confirms the DD-391 mechanism (a path already absent from the working tree fails the literal add).
 ## ODF-400 — Foreign unpublished commits on an execution tip block story-branch publish
 Former local code: DD-398. [Evidence and current response](docs/maintainer/findings/ODF-400.md).
 ## ODF-401 — Multi-done planning-only slices force temporary Status mutation for ordered delivery
@@ -423,7 +456,102 @@ Former local code: DD-451. [Evidence and current response](docs/maintainer/findi
 ## ODF-456 — Ready plan used an unsupported slice status
 [Evidence and current response](docs/maintainer/findings/ODF-456.md).
 
-## DD-457 — Sequential before and after timings could not judge a no-slowdown promise
+## DD-457 — A refactor pass's scripted spec split dropped a moved test
+While moving new tests into separate spec files to stay under the 250-line
+limit, the refactor agent's script cut a test out of the old file without
+writing it into the new one. The agent noticed and rebuilt it from a diff it
+had captured earlier; the focused rerun passed.
+
+### Occurrences
+- Execution: SEED-274#declare-intent-test-sources (plan 528-declare-intent-test-sources; first related implementation commit `cedf9c92e0eb414b0c293153b151a7baa0b55e35`)
+  - Timestamp: unknown (2026-11-08, slice 2 refactor before commit `8f5ceaeece4e5a735d0f994fb50baf15e717df53`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91
+  - Evidence: slice 2 refactor return; `dashboard/tests/intent/intent-ci-proof-sources.spec.ts` test "a published CI summary for a sources location shows its group and file results at their paths"
+  - Observed effect: a moved test was briefly lost; it was recovered only because the agent had saved the diff, and the coordinator saw only the agent's own account
+  - Inference: a mechanical move of tests can silently drop coverage; a check comparing test titles before and after a move would catch it, but the evidence is a single occurrence
+
+## DD-458 — A reported limitation left without an obligation became a retrospective correction
+At slice 1 acceptance the implementation return named a consequential limitation (the resolved follow-up context is unbounded and kept on attempts and records, so it can grow the overview payload). The coordinator treated it as outside the story's promises and recorded no story obligation, although Accept proof requires every reported gap, loss or limitation to get one disposition. The retrospective's outcome review then found the same effect as its top finding, and it needed a correction plan.
+
+### Occurrences
+- Execution: SEED-273#follow-up-from-done (plan 526, first implementation commit `c91e02264`)
+  - Timestamp: unknown (date 2026-11-08)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91
+  - Evidence: slice 1 return "Context size: followUp.context has no upper bound…"; plan 526 Story obligations empty; correction SEED-273#lean-follow-up-listing, plan 529, finding 1.
+  - Observed effect: the limitation reached a correction plan instead of being returned to slice 1 or disposed at acceptance.
+  - Inference: judging a return's learning by story promises alone, rather than through the obligation record, let a product-cost limitation pass without a decision.
+
+## ODF-434 — Coordinator sends an unsubstituted placeholder to a delegated agent
+[Meaning, evidence and response](docs/maintainer/findings/ODF-434.md). This facet: the implementation brief, not the source-only reviewer.
+
+### Occurrences
+- Execution: SEED-272#select-recently-done-sessions (plan 527-select-recently-done-sessions; first related implementation `2d8fcf4d79cd013b0895d5a1ede1110af15d2d8d`)
+  - Timestamp: unknown (2026-11-08, slice 1 delegation)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: the slice 1 implementation brief carried a literal `{{COMMITMENTS}}` line and a stray `$(see list below)` where the 50 slice commitments belonged; the list existed only in a job-temporary file.
+  - Observed effect: the coordinator sent the full list by a follow-up message after launch; the agent's return mapped all slice 1 ids.
+  - Inference: writing a brief before inlining a computed listing recurs across delegation kinds, not only source review.
+
+## DD-459 — Obligations record doubled a supplied `observed:` prefix
+`story-obligations.mjs record --observed` prepends `observed: ` to its value. The reference's table cells show the `observed: …` form, so a value written that way became `observed: observed: …` and every check still passed.
+
+### Occurrences
+- Execution: SEED-272#select-recently-done-sessions (plan 527-select-recently-done-sessions; first related implementation `2d8fcf4d79cd013b0895d5a1ede1110af15d2d8d`)
+  - Timestamp: unknown (2026-11-08, slice 1 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: 50 `record --observed 'observed: …'` calls wrote doubled prefixes into `source-review.md`; `check --slice 1` reported ok before a manual `sed` repair.
+  - Observed effect: one extra repair command; no proof or allocation changed.
+  - Inference: the CLI could accept or refuse a leading `observed:` instead of silently doubling it.
+
+## DD-460 — A coordinator's prose brief narrowed a key example the attached source review still carried
+The implementation brief linked the full source-review commitment table, but its own one-line restatement of a key example dropped one of the example's triggers. The implementer proved the restated form, and the dropped branch came back at acceptance.
+
+### Occurrences
+- Execution: SEED-270#highlight-linked-story-card (plan 525-highlight-linked-story-card, recoverable with its seed and source review at `bbcab61e80c618951fd642a7e0805a82572d2191`; first related implementation `24eeb2e210d6816af7d052ce3917dfc5b1b9cfa6`)
+  - Timestamp: 2026-11-08 (slice 1 delegation and acceptance; exact time unknown)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91
+  - Evidence: Seed example 2 reads "follows a link or opens a direct story URL to that same identity again"; source-review ids 4.1, 5, 5.1 and 12 were allocated to slice 1 and the brief named the file. The brief's proof line said "E2 follow again to an already-selected in-view card re-cues", omitting the direct-URL trigger. The first return listed "E2 by direct URL to an already-selected card is not separately proved" as a gap.
+  - Observed effect: one extra delegation round (about 5 minutes) added `story-destination-repeat-cue.spec.ts`; no product change was needed.
+  - Inference: a restated example in the brief carries more weight with the implementer than a linked commitment table; quoting key examples verbatim, or relying on the table alone, would likely have avoided the round. The ODF-367 response (review before first delegation) held here.
+
+<a id="dd-461"></a>
+## DD-461 — A hidden-fact break check missed a helper that writes the fact
+A premise check that changes a fixture's hidden facts and reruns consumers finds tests that read those facts and fail. It cannot find a helper that writes to a hidden path, whose meaning changes silently when the path stops being tracked.
+
+### Occurrences
+- Execution: SEED-262#migrate-clean-trunk-fixtures (plan 514-migrate-clean-trunk-fixtures; first related implementation commit `1f6adb33a20fe8eb45f382b7cde3c5141ab41dd2`)
+  - Timestamp: unknown (2026-11-08, reported in slice 3 before `8f7f8443f` at 2026-11-08T17:07:26+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 514 (`42717b7da:.planning/slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md`)'s scratch premise changed `trunk.txt`, `increment.txt` and both identities and named 26 failing files. `plantHumanEdit` in `src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs` writes `trunk.txt` as "an unstaged change to a tracked file". Slice 1 and 2 descriptions without `trunk.txt` passed, so published `1f6adb33a` and `0b6bdb925` planted an untracked file in three test files (story obligation G1).
+  - Observed effect: Coordinator acceptance of slices 1 and 2 did not notice. The slice 3 implementer added a tracked-file guard that failed loudly and declared `trunk.txt` where needed.
+  - Inference: Removing a fact under a writer needs a precondition check in the writer, or a break check that also asserts the writer's precondition; passing consumers alone do not show it.
+
+<a id="dd-462"></a>
+## DD-462 — The source-only review caught a promise the plan had narrowed
+Practice. The isolated source review numbers story commitments independently of the plan, so a plan decision that contradicts a key example surfaces at the slice that owns it.
+
+### Occurrences
+- Execution: SEED-262#migrate-clean-trunk-fixtures (plan 514-migrate-clean-trunk-fixtures; first related implementation commit `1f6adb33a20fe8eb45f382b7cde3c5141ab41dd2`)
+  - Timestamp: unknown (2026-11-08, before slice 5 delegation)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 514 (`42717b7da:.planning/slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md`) kept `createCleanTrunkFixture` taking a description. Source-review commitment 31, from Key example 6, says "no non-native test calls `createCleanTrunkFixture`". The slice 5 obligations listing carried it, and the delegation stated that the source outranks the plan.
+  - Observed effect: Slice 5 deleted the helper; `git grep createCleanTrunkFixture -- ':!.planning'` finds nothing.
+
+## DD-463 — Sequential before and after timings could not judge a no-slowdown promise
 A plan asked for focused times recorded before any edit and again after the
 slice, under comparable load. On a machine with fluctuating external load, the
 runs taken about half an hour apart differed in load and could not show

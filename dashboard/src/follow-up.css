@@ -1,0 +1,17 @@
+/* A follow-up's source and context in the Start session dialog: read-only and
+   compact, one line per item. */
+.follow-up-source strong {
+  font-weight: 600;
+}
+
+.follow-up-context {
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.follow-up-context li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

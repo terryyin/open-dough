@@ -1,4 +1,4 @@
-import { workspaceLimitation } from "./sessionAccess.ts";
+import { sessionAccess, workspaceLimitation } from "./sessionAccess.ts";
 import { sessionKey } from "./sessionReference.ts";
 // One Sessions sidebar Session entry (`./SessionsSidebar.tsx`): on desktop, one line
 // of story title, cut with an ellipsis when long, and, at the end, how long ago
@@ -12,20 +12,30 @@ import { sessionKey } from "./sessionReference.ts";
 // words, the project and workflow, the model asked for, and the launch or
 // completion time are its tooltip. With coarse input, Session details reveals
 // those same facts, the full title and story identity before opening. The
-// entry's Open control is named by its title; opening goes to its story and
-// session (`./PageFrame.tsx`). It is current, and outlined, while the Side
-// panel shows its session.
+// entry's row control is named by its title; in the open list and Running
+// Cursor sessions it opens, going to its story and session (`./PageFrame.tsx`).
+// In Recently done sessions the row control selects instead
+// (`./recentlyDoneSelection.ts`): pressed, and ringed inside, while chosen,
+// with a status while its done story is checked or cannot be; a separate
+// Open terminal or Read final report control, shown only where that access is
+// available, opens as the row did. It is current, and outlined, while the
+// Side panel shows its session.
 
 import { useId } from "react";
 import { ChevronRight, MessageSquareText } from "lucide-react";
-import { Icon } from "./Icon.tsx";
+import { Icon, IconButton } from "./Icon.tsx";
 import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
+import { sessionAccessControl } from "./LaunchSession.tsx";
 import { projectLabel, useProjects } from "./projectList.tsx";
 import { shownSession } from "./ShownSession.tsx";
 import { sessionShown } from "./sessionShown.ts";
 import { elapsedWords } from "./sessionsSidebarElapsed.ts";
 import { useTickingNow } from "./useTickingNow.ts";
 import { usePageSessions, type SessionOperation } from "./pageSessions.ts";
+import type {
+  RecentlyDoneChoice,
+  RecentlyDoneRowSelection,
+} from "./recentlyDoneSelection.ts";
 import "./sessions-sidebar-session-entry.css";
 import "./frame-controls.css";
 
@@ -38,12 +48,24 @@ export type OpenSessionsSidebarSessionEntry = SessionOperation<
   LaunchWithState
 >;
 
+// What a chosen row says while its done story is not known.
+function choiceWords(choice: RecentlyDoneChoice | undefined) {
+  return choice?.kind === "checking"
+    ? "Checking for its published done story…"
+    : choice?.kind === "unknown"
+      ? `Its published done story could not be checked. ${choice.problem} Select again to check again.`
+      : undefined;
+}
+
 export function SessionsSidebarSessionEntry({
   record,
   onOpen,
+  selection,
 }: {
   readonly record: LaunchWithState;
   readonly onOpen: OpenSessionsSidebarSessionEntry;
+  // Present in Recently done sessions, where the row selects.
+  readonly selection?: RecentlyDoneRowSelection;
 }) {
   const projects = useProjects();
   const { source } = record.request;
@@ -55,10 +77,16 @@ export function SessionsSidebarSessionEntry({
     record.doneAt === undefined ? undefined : new Date(record.doneAt);
   const ageAt = completedAt ?? launchedAt;
   const now = useTickingNow(sessionsSidebarTickMs);
-  const current =
-    usePageSessions().shownSession?.key === sessionKey(record.session);
+  const { shownSession: inSidePanel, hostOperations } = usePageSessions();
+  const key = sessionKey(record.session);
+  const current = inSidePanel?.key === key;
+  const choice = selection?.choice?.key === key ? selection.choice : undefined;
+  const chosenWords = choiceWords(choice);
+  const access =
+    selection === undefined ? undefined : sessionAccess(record, hostOperations);
   const limitation = workspaceLimitation(record);
   const titleId = useId();
+  const choiceId = useId();
   const whenWords =
     completedAt !== undefined
       ? `Completed ${completedAt.toLocaleString()}`
@@ -73,16 +101,26 @@ export function SessionsSidebarSessionEntry({
   ];
   return (
     <li
-      className={`${entryClass} sessions-sidebar-session-entry tone-${tone}${unreadReportWords === undefined ? "" : " has-unread-report"}${current ? " in-side-panel" : ""}`}
+      className={`${entryClass} sessions-sidebar-session-entry tone-${tone}${unreadReportWords === undefined ? "" : " has-unread-report"}${current ? " in-side-panel" : ""}${choice === undefined ? "" : " chosen"}`}
     >
       <button
         type="button"
         className="sessions-sidebar-session-entry-open"
         aria-labelledby={titleId}
         aria-current={current || undefined}
+        {...(selection === undefined
+          ? {}
+          : {
+              "aria-pressed": choice !== undefined,
+              ...(chosenWords === undefined
+                ? {}
+                : { "aria-describedby": choiceId }),
+            })}
         title={facts.join("\n")}
         onClick={(event) => {
-          onOpen({ record, control: event.currentTarget });
+          if (selection === undefined)
+            onOpen({ record, control: event.currentTarget });
+          else selection.onSelect(record);
         }}
       />
       <h3 id={titleId} className="sessions-sidebar-session-entry-title">
@@ -111,7 +149,28 @@ export function SessionsSidebarSessionEntry({
       >
         {elapsedWords(now - ageAt.getTime())}
       </time>
+      {access !== undefined && (
+        <IconButton
+          {...sessionAccessControl[access]}
+          align="end"
+          className="sessions-sidebar-session-entry-access"
+          groupClassName="sessions-sidebar-session-entry-access-group"
+          aria-describedby={titleId}
+          onClick={(event) => {
+            onOpen({ record, control: event.currentTarget });
+          }}
+        />
+      )}
       <span className="visually-hidden">{label}</span>
+      {chosenWords !== undefined && (
+        <p
+          id={choiceId}
+          role="status"
+          className="sessions-sidebar-session-entry-choice"
+        >
+          {chosenWords}
+        </p>
+      )}
       <details className="sessions-sidebar-session-entry-details frame-disclosure">
         <summary>
           <Icon icon={ChevronRight} />

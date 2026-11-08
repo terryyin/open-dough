@@ -13,87 +13,108 @@ scope: story
 
 **Identity:** SEED-275#story-intent-tabs
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-275#story-intent-tabs","dependencies":[{"supplier":{"identity":"SEED-271#compact-intent-sidebar","href":"seeds/SEED-271-compact-intent-sidebar.md#compact-intent-sidebar"},"implementation":"Reuse the delivered sidebar visibility control and kept reading state when moving Hide files and Show files into the Changed tests tab row. Carry the compact outside-locations action into the persistent story header.","rationale":"The active supplier owns implementation and proof for the same sidebar visibility control and reading place. Shared design does not supply that verified behavior. Waiting for delivery lets the new story compose the existing sidebar contract once and keeps concurrent work from implementing the same behavior or its title fallback twice.","condition":"The sidebar story is complete and accepted on trunk with the shared keyboard-operable Hide files and Show files control, restored reading state, full-width location headers, and compact outside-locations action.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-275#story-intent-tabs","dependencies":[{"supplier":{"identity":"SEED-271#compact-intent-sidebar","href":"seeds/SEED-271-compact-intent-sidebar.md#compact-intent-sidebar"},"implementation":"Reuse the delivered sidebar visibility control and kept reading state when moving Hide files and Show files into the Changed tests tab row. Carry the compact outside-locations action into the persistent story header.","rationale":"The active supplier owns implementation and proof for the same sidebar visibility control and reading place. Shared design does not supply that verified behavior. Waiting for delivery lets the new story compose the existing sidebar contract once and keeps concurrent work from implementing the same behavior or its title fallback twice.","condition":"The sidebar story is complete and accepted on trunk with the shared keyboard-operable Hide files and Show files control, restored reading state, full-width location headers, and compact outside-locations action.","state":"satisfied","resolution":{"revision":"1609b010d377eb7fda82067149aa5eef470f3b3d","path":".planning/seeds/SEED-271-compact-intent-sidebar.md#compact-intent-sidebar","summary":"Accepted on trunk at afac3936 (CI success on 1609b010, run 42469376466). Delivered: the shared FileBrowserToggle (dashboard/src/FileBrowserToggle.tsx) as Intent's keyboard-operable Hide files / Show files with aria-expanded, the choice kept in useKeptReading('filesShown') with the column hidden not unmounted so selection, open folders, Selected story only, disclosure and tree scroll return (intent-sidebar-toggle.spec.ts); full-width bold location headers (intent-gherkin-groups, intent-story-changes, intent-story-ci-cues header assertions); and the compact icon-and-count outside-locations action on the summary title line (expectOutsideCount in intent-story-changes specs). No mode-bar story-title fallback was built, per the amendment that moved the persistent header to this consumer.\nCondition satisfied: The sidebar story is complete and accepted on trunk with the shared keyboard-operable Hide files and Show files control, restored reading state, full-width location headers, and compact outside-locations action.\nAccepted integration: afac3936fc8869689142871d05ac94faa3f8ddd2 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/531-review-story-intent-tabs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a0853c3ca9dbcac21445c89c6facc54d92fc96709687109d01ae926241e28ed2","plan":"b945931d36e12f60cb1faafc6e3dffa0d462981570a2c458c874eae16f51ef27"}}
 ```
 
-**Goal.** A developer reviewing a selected story can read its CI comparison
-immediately, browse its changed tests, and find its Intent Coverage report
-from the same story header. Each destination has room for its own evidence.
-Project-wide optimization candidates have a separate entry in Intent.
+**Goal.** A developer reviewing a selected story can see the available CI
+evidence first, then inspect the changed tests and the saved Intent Coverage
+assessment without losing their place. A developer can also visit project CI
+and optimization candidates and return to the same story evidence.
 
-**Design reference.** Implement the approved interactive mockup with high
-fidelity. Use its hierarchy, spacing, tabs, and CI timing treatment as the
-visual target. The story and build figures in the preview are examples.
+**Design reference.** Use the approved interactive mockup for the hierarchy,
+spacing, tabs, and timing treatment. The sample story, build figures, and
+report excerpt illustrate the interaction. Use the real evidence and states
+described below.
 [Approved Story tabs mockup](SEED-275-story-intent-tabs/intent-story-tabs.html)
 
 **Scope.**
 
-- Give the selected story one persistent, non-collapsible header above
-  **CI comparison**, **Changed tests**, and **Intent coverage**, in that order.
-  **CI comparison** opens on story selection. Put the compact outside-locations
-  count with the story title and preserve its Review changes action. The tabs
-  are the story destinations. The header stays visible when files are hidden.
-- Render the existing story CI summary, build endpoint table, and sortable
-  entry timing table directly in **CI comparison**. Keep the existing build
-  selection, proof and comparison states, counts, attribution context, and
-  recovery actions. Keep measured wall time and CI time without runner waits in
-  the build table. Show a single signed time delta in the summary and in the
-  Branch and Landed comparison cells, with measured Baseline time in its own
-  column. The comparison cells sort by the displayed delta. New entries show
-  their measured time, and entries with missing timing evidence retain the
-  applicable unavailable state.
-- Show relative change with a small diverging bar on a common scale across the
-  comparison. Faster extends left and slower right from a visible zero mark.
-  Keep the signed time delta readable independently of color. **Show %** starts
-  off and reveals the numeric percentages together. Handle zero change and an
-  absent or zero baseline without implying a percentage where none can be
-  calculated. The shared scale must also represent changes larger than the
-  sample values.
-- Put **Hide files** / **Show files** at the trailing end of the story tab
-  row, scoped to **Changed tests**. Reuse the delivered sidebar toggle and
-  kept reading state. Preserve file and folder selection, open folders, the
-  story filter, Purpose and Proof, and the restored sidebar scroll. Keep
-  controls reachable at narrow widths and by keyboard.
-- Give saved **Intent coverage** its own reading pane. Show the full stored
-  report as text and keep an unavailable reason distinguishable from an older
-  completion with no saved assessment. For a story still in progress, explain
-  that the assessment runs during feature story wrap-up. Changes to report
-  generation or report formatting belong to a later story.
-- Put **Optimization Candidates** in **Project Intent**, alongside the
-  project's CI status. Preserve the candidate's route to its test and back.
-  Keep project test browsing available, with project CI status as the landing
-  when no story is selected. Returning to the selected story restores the
-  prior tab and reading place.
+- Show one persistent, non-collapsible story header above **CI comparison**,
+  **Changed tests**, and **Intent coverage**, in that order. Open **CI
+  comparison** on a new story selection. Keep the header visible with the
+  files hidden. When changes outside Intent locations are known, keep their
+  compact count and **Review changes** action beside the title.
+- Show the selected story's existing CI summary, build table, and sortable
+  entry timing table directly. CI can appear while file locations are still
+  loading or unavailable. Preserve the existing build selection, evidence
+  sources, measured wall time and time without runner waits in the build
+  table, counts, attribution context, provisional and missing evidence, and
+  recovery actions.
+- In the CI summary and in Branch and Landed entry cells, show one signed
+  elapsed-time delta when both timings are measured. Keep the measured
+  Baseline time in its own column. Sort Branch and Landed by their numeric
+  delta, keeping entries without comparable timings after measured deltas.
+  A new entry shows its measured time. Preserve the existing explanation
+  when timing evidence is missing.
+- Show the relative change with a visible zero mark and a shared scale across
+  comparable timings. Faster extends left and slower right. Keep the elapsed
+  delta readable independently of color. **Show %** starts off and reveals
+  the numeric percentages together. Zero change stays at the center. An
+  absent or zero baseline supplies no relative change. A measured zero
+  baseline can still supply an elapsed delta. The shared scale accommodates
+  values beyond those in the mockup.
+- In **Changed tests**, put **Hide files** / **Show files** at the trailing end
+  of the tab row and reuse the existing control and kept reading place.
+  Preserve file and folder selection, open folders, **Selected story only**,
+  Purpose and Proof, and scroll. Keep the tree and comparison recovery usable
+  when the changes could not be read. Keep controls reachable at narrow
+  widths and by keyboard. File Proof offers the mockup's direct return to
+  **CI comparison**.
+- Give **Intent coverage** its own reading pane. Show the full saved report
+  as text. Distinguish a saved unavailable reason, a successfully read older
+  completion without an assessment, and a completion whose record is still
+  being read or could not be read. Keep the existing retry where available.
+  For an unfinished story, explain that the assessment runs during feature
+  story wrap-up. Report generation and formatting are deferred.
+- Put **Optimization Candidates** alongside **CI status** in **Project
+  Intent**. Project CI shows trunk proof even during a visit from a selected
+  story. Preserve project test browsing and the candidate's route to its
+  project test and back. With no story selected, project CI status is the
+  landing. A visit to Project Intent preserves the selected story, its
+  current tab, and its reading place. Use the dashboard's existing published
+  revision and update behavior for project test browsing.
 
 **Key examples.**
 
-- Select a completed story with CI proof. Its title appears once. The first
-  tab immediately shows the CI summary, endpoint table, and sortable entry
-  table. An entry with a baseline of 4 minutes and a branch duration of
-  4 minutes 30 seconds shows `4 min` in Baseline and `+30 s` with a rightward
-  mark in Branch. **Show %** adds `+13%` at the existing display precision.
-  A 2-minute entry that lands at 1 minute shows `−1 min` with a longer
-  leftward mark. A new entry with 30 seconds of execution time shows `30 s`
-  without a change mark. The build table still shows its measured durations.
-- Open a changed test, switch to Proof, and hide the files. The reader takes
-  the available width and the same story header stays above it. Visit
-  **Intent coverage** and return to **Changed tests**. **Show files** restores
-  the selected test, Proof, open folders, and scroll. There is no second story
-  title in the mode bar.
-- A completed story with a saved report exposes it directly under **Intent
-  coverage**. A completion with an unavailable reason shows that reason and a
-  legacy completion with no assessment shows that state. A comparison that is
-  pending, unavailable, or using provisional proof keeps its existing meaning
-  on the default tab.
-- From a selected story, open **Project Intent**, inspect an optimization
-  candidate and its test, and go back. The project view is labeled separately
-  and returning to the story restores the tab and reading position.
+- Select a completed story with CI proof while locations are still reading.
+  The title appears once and the default tab shows the comparison as soon
+  as CI is available. An entry with a baseline of 4 minutes and a branch
+  duration of 4 minutes 30 seconds shows `4 min` and `+30 s` with a rightward
+  mark. **Show %** adds `+13%` at existing precision. A 2-minute entry that
+  lands at 1 minute shows `−1 min` with a longer leftward mark. A new entry
+  measured at 30 seconds shows `30 s` without a change mark. Sorting by a
+  comparison column orders comparable entries by signed elapsed change.
+  The build table still shows its measured durations.
+- Open a changed test, switch to Proof, and hide the files. The reader uses
+  the available width and the header stays above it. Visit **Intent coverage**
+  and return to **Changed tests**. **Show files** restores the selected test,
+  Proof, open folders, and scroll. Select another story and its CI comparison
+  opens.
+- A completed story with a saved assessment shows the whole report. A saved
+  unavailable reason and an older completion without an assessment have
+  different messages. A failed completion read offers its recovery without
+  implying an assessment was never saved. An active story gives the wrap-up
+  explanation. Pending or provisional CI remains recognizable on the default
+  tab.
+- From a story's file Proof, open **Project Intent**, inspect project CI
+  and open a candidate's test that the selected story also changes. The test
+  shows project-published content. Return to the same candidate and then to
+  the selected story. Its tab, file, Proof, and reading position are restored.
+  Clear the story selection and see project CI status.
 
-**Visual acceptance.** Compare the implementation against the approved mockup
-in light and dark themes at desktop and narrow widths. Review the default CI
-tab with percentages off and on, the file pane with the sidebar shown and
-hidden, and the coverage tab. Verify keyboard navigation and state restoration
-through the dashboard's normal entry points.
+**Architecture.** Keep the dashboard's one page-owned Selected story. A
+visit to Project Intent changes the evidence and reading context while leaving
+that selection intact. That lets the developer compare project and story
+evidence without borrowing the story's diff or file selection for project
+browsing. Keep both reading places as disposable page state and derive CI
+and coverage from their existing published evidence. [ADR 0008 — Project
+dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+
+**Visual acceptance.** Compare the implementation against the mockup in light
+and dark themes at desktop and narrow widths. Review the default CI tab with
+percentages off and on, the file pane with the sidebar shown and hidden, and
+the coverage tab. Verify keyboard navigation and state restoration through
+the dashboard's normal entry points.

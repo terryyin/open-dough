@@ -34,7 +34,8 @@ On 2026-11-08 the family was:
 Exclusions:
 
 - Skill tests under `src/skills` belong to
-  [clean-trunk and managed delivery](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures),
+  clean-trunk and managed delivery (completed
+  `SEED-262#migrate-clean-trunk-fixtures`),
   dashboard helpers to
   [dashboard start origins](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures),
   and shell or native fixtures, including the shell-driven
@@ -69,6 +70,9 @@ then extends them.
   committer default to the fixed developer identity from plan 510. A case
   whose assertion reads an identity declares it at its call site, as done
   records do for "Terry Yin" and the agent credit cases do for Dana Developer.
+  The shared description already states the checkout's configured committer
+  through `withCheckoutIdentity`; extend that fact rather than adding a
+  second one.
 - **Arrangement from encoders, expectations hand-written.** Arrangement
   backlogs are built from `aBacklogEntry` and encoded by production
   rendering. `backlogOf`, `item` and `items` stay as the independent byte

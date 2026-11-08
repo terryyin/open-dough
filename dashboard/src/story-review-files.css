@@ -78,7 +78,8 @@
    A duration tint keeps its fill visible: selection uses a distinct accent
    border beside the inset count edge instead of an accent background that
    would hide the tint (./intent-ci-cues.css). Intent gives a selected
-   location that treatment across its whole header (./intent-perspective.css). */
+   location that treatment across its whole header
+   (./intent-location-group.css). */
 .story-review-files li button[aria-pressed="true"]:not(
     [class*="intent-ci-cue-duration-"]
   ),

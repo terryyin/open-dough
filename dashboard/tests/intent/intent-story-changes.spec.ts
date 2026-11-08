@@ -31,8 +31,10 @@ import {
   intentDiff,
   intentFile,
   expandStorySummary,
+  expectOutsideCount,
   locationGroup,
   openReviewFromIntent,
+  outsideCount,
   reviewDiff,
   selectTakenStoryInIntent,
   storyDisclosure,
@@ -81,7 +83,6 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(scoped.locator(".intent-story-detail")).toBeHidden();
     await expect(scoped.getByText("SEED-A#a")).toBeHidden();
     await expect(storyOnly(scoped)).not.toBeChecked();
-    await expect(scoped.locator(".intent-story-outside")).toBeVisible();
   });
 
   await test.step("expanded, the summary names the story and the revisions its comparison runs between", async () => {
@@ -100,14 +101,13 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(revisions.locator("code").nth(1)).toContainText(
       "another-agent-workspace",
     );
+    await expectOutsideCount(intent, 2);
     await storyDisclosure(intent).click();
     await expect(detail).toBeHidden();
   });
 
   await test.step("the changed files outside every location are counted once each, pointing to Review changes", async () => {
-    await expect(intent.locator(".intent-story-outside")).toHaveText(
-      "2 changed files outside Intent locations are shown in Review changes. Review changes",
-    );
+    await expectOutsideCount(intent, 2);
     await expect(intent.getByText("App.tsx")).toHaveCount(0);
     await expect(intent.getByText(/notes\.md/)).toHaveCount(0);
   });
@@ -171,6 +171,8 @@ test("Intent highlights a selected Taken story's test changes over the published
       expect(look.background).not.toBe("rgba(0, 0, 0, 0)");
       expect(look.background).not.toBe(marked);
       expect(look.mark).not.toBe("none");
+      expect(look.fullWidth).toBe(true);
+      expect(look.labelWeight).toBeGreaterThanOrEqual(600);
       changedHeader = look;
     }
     const header = intentLocationHeader(intent, "dashboard/tests");
@@ -227,7 +229,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(scoped).toHaveCount(0);
-    await expect(intent.locator(".intent-story-outside")).toHaveCount(0);
+    await expect(outsideCount(intent)).toHaveCount(0);
     await expect(intent.locator("[data-kind]")).toHaveCount(0);
     await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
     const unchanged = await locationHeaderLook(

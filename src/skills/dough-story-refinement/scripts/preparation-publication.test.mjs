@@ -15,7 +15,15 @@ import {
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { closeOrRetainWorkspace } from "./dough-land-test-fixtures.mjs";
-import { createPreparationFixture } from "./preparation-publication-test-fixtures.mjs";
+import {
+  createPreparationFixture,
+  preparationRepository,
+} from "./preparation-publication-test-fixtures.mjs";
+
+// A trunk whose tracked trunk.txt the planted human edit changes.
+const trunkWithHumanEditTarget = preparationRepository({
+  trunk: { files: { "trunk.txt": "base\n" } },
+});
 
 test("an explicit leave-unpublished instruction does not publish and keeps the retained record in the owned workspace", async (t) => {
   const {
@@ -26,7 +34,7 @@ test("an explicit leave-unpublished instruction does not publish and keeps the r
     trunkSha,
     preparationSha,
     cleanup,
-  } = await createPreparationFixture("preparation-publication-");
+  } = await createPreparationFixture(trunkWithHumanEditTarget);
   t.after(cleanup);
 
   await plantHumanEdit(integration);

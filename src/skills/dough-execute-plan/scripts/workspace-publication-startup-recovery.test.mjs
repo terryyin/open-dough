@@ -13,7 +13,10 @@ import {
   revParse,
 } from "./publication-test-fixtures.mjs";
 import { identityA } from "./workspace-publication-fixtures.mjs";
-import { busyCheckout } from "./default-checkout-test-fixtures.mjs";
+import {
+  busyCheckout,
+  unrelatedInventory,
+} from "./default-checkout-test-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 import {
   computeBasis,
@@ -30,9 +33,13 @@ import {
 } from "./workspace-publication-startup-test-fixtures.mjs";
 
 test("a pre-push interruption in a busy checkout returns compact recovery that resumes without another Take", async (t) => {
-  const trunk = await materializeRepository(queuedReadyRepository().please());
+  const trunk = await materializeRepository(
+    queuedReadyRepository()
+      .withRevision("inventory", unrelatedInventory(1500))
+      .please(),
+  );
   t.after(trunk.cleanup);
-  await busyCheckout(trunk, 1500, 2000);
+  await busyCheckout(trunk, 2000);
   await interruptFirstPush(trunk);
   const before = await captureCheckout(trunk.integration);
   const interrupted = await startProcess(trunk, "a", identityA).result;

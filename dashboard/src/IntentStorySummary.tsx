@@ -5,15 +5,16 @@
 // full title on hover, with what its comparison briefly says
 // (`./IntentStoryComparison.tsx`); the published tree stays usable beneath.
 // Over a tree of a compared story it also offers "Selected story only", off
-// until chosen, which says so when no test file in a location changed, and
-// counts the changed files outside every Intent location, which Review
-// changes shows. A disclosure, collapsed at first and kept only while Intent
-// shows, reveals the full title, the identity, and the comparison's revisions
-// or full explanation; it changes nothing else. Intent itself stays at its
-// published revision (ADR 0008).
+// until chosen, which says so when no test file in a location changed. Its
+// title line ends with the count of changed files outside every Intent
+// location, which opens Review changes to show them. A disclosure, collapsed
+// at first and kept only while Intent shows, reveals the full title, the
+// identity, and the comparison's revisions or full explanation; it changes
+// nothing else. Intent itself stays at its published revision (ADR 0008).
 
-import { useId } from "react";
-import type { DoneStory } from "./doneStories.ts";
+import { useId, useState } from "react";
+import { GitCompare } from "lucide-react";
+import type { DoneStory } from "./doneRecord.ts";
 import {
   CompactComparisonState,
   ComparisonDetail,
@@ -22,6 +23,7 @@ import {
 import { useOpenStoryReview } from "./pageStoryReviews.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
+import { Icon } from "./Icon.tsx";
 import { defaultStoryComparison } from "./useStoryComparison.ts";
 import "./intent-story-summary.css";
 
@@ -40,10 +42,11 @@ export type ComparedStory = {
 };
 
 const outsideWords = (count: number) =>
-  `${changedFiles(count)} outside Intent locations ${count === 1 ? "is" : "are"} shown in Review changes.`;
+  `${changedFiles(count)} outside Intent locations — open Review changes`;
 
-// How many of the story's changed files no Intent location admits, and the
-// way to Review changes, which shows them; nothing when there are none.
+// How many of the story's changed files no Intent location admits, as an
+// icon and the count that open Review changes, which shows them, explained by
+// its name and hover text; nothing when there are none.
 function StoryOutsideLocations({
   source,
   story,
@@ -56,24 +59,25 @@ function StoryOutsideLocations({
   const openStoryReview = useOpenStoryReview();
   if (outside === 0) return null;
   return (
-    <p className="intent-story-outside">
-      {outsideWords(outside)}{" "}
-      <button
-        type="button"
-        onClick={(event) => {
-          openStoryReview({
-            source,
-            identity: story.identity,
-            title: story.title,
-            control: event.currentTarget,
-            comparison: defaultStoryComparison,
-            ...(story.completed ? { completed: true } : {}),
-          });
-        }}
-      >
-        Review changes
-      </button>
-    </p>
+    <button
+      type="button"
+      className="intent-story-outside"
+      aria-label={outsideWords(outside)}
+      title={outsideWords(outside)}
+      onClick={(event) => {
+        openStoryReview({
+          source,
+          identity: story.identity,
+          title: story.title,
+          control: event.currentTarget,
+          comparison: defaultStoryComparison,
+          ...(story.completed ? { completed: true } : {}),
+        });
+      }}
+    >
+      <Icon icon={GitCompare} />
+      {outside}
+    </button>
   );
 }
 
@@ -100,6 +104,26 @@ export type StorySummary = {
   readonly onExpand: (expanded: boolean) => void;
 };
 
+// `story`'s summary as the perspective shows it, owning its expansion: the
+// story whose summary is expanded; another story's starts collapsed.
+export function useStorySummary(
+  story: LensStory | undefined,
+  comparison: LensComparison,
+  onRetry: () => void,
+): StorySummary | undefined {
+  const [expandedStory, setExpandedStory] = useState<string | undefined>();
+  if (story === undefined) return undefined;
+  return {
+    story,
+    comparison,
+    onRetry,
+    expanded: expandedStory === story.identity,
+    onExpand: (expanded) => {
+      setExpandedStory(expanded ? story.identity : undefined);
+    },
+  };
+}
+
 export function IntentStorySummary({
   summary: { story, comparison, onRetry, expanded, onExpand },
   scope,
@@ -115,21 +139,30 @@ export function IntentStorySummary({
       aria-label="Selected story"
       data-state={comparison.state}
     >
-      <button
-        type="button"
-        className="intent-story-disclosure"
-        aria-expanded={expanded}
-        aria-controls={detailId}
-        title={story.title}
-        onClick={() => {
-          onExpand(!expanded);
-        }}
-      >
-        <span className="intent-story-name">
-          <span className="intent-story-kind">Story</span>{" "}
-          <strong>{story.title}</strong>
-        </span>
-      </button>
+      <div className="intent-story-title-line">
+        <button
+          type="button"
+          className="intent-story-disclosure"
+          aria-expanded={expanded}
+          aria-controls={detailId}
+          title={story.title}
+          onClick={() => {
+            onExpand(!expanded);
+          }}
+        >
+          <span className="intent-story-name">
+            <span className="intent-story-kind">Story</span>{" "}
+            <strong>{story.title}</strong>
+          </span>
+        </button>
+        {scope !== undefined && (
+          <StoryOutsideLocations
+            source={scope.source}
+            story={story}
+            outside={scope.outside}
+          />
+        )}
+      </div>
       <CompactComparisonState comparison={comparison} onRetry={onRetry} />
       <div id={detailId} className="intent-story-detail" hidden={!expanded}>
         <p className="intent-story-full-title">
@@ -172,11 +205,6 @@ export function IntentStorySummary({
               No test files in Intent locations changed in this story
             </p>
           )}
-          <StoryOutsideLocations
-            source={scope.source}
-            story={story}
-            outside={scope.outside}
-          />
         </>
       )}
     </section>

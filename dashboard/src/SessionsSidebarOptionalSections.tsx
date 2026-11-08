@@ -13,6 +13,7 @@ import { useReadRetainedHistory } from "./retainedHistory.ts";
 import { ResizeDivider, type DividerRange } from "./ResizeDivider.tsx";
 import { RunningCursorSessions } from "./RunningCursorSessions.tsx";
 import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEntry.tsx";
+import type { RecentlyDoneRowSelection } from "./recentlyDoneSelection.ts";
 import {
   useSessionsSidebarHeights,
   type SessionsSidebarSectionHeights,
@@ -93,6 +94,7 @@ export function SessionsSidebarOptionalSections({
   sidebarOpen,
   records,
   onOpen,
+  recentlyDone,
   recentlyDoneOpen,
   onToggleRecentlyDone,
   cursorOpen,
@@ -102,6 +104,7 @@ export function SessionsSidebarOptionalSections({
   readonly sidebarOpen: boolean;
   readonly records: readonly LaunchWithState[] | undefined;
   readonly onOpen: OpenSessionsSidebarSessionEntry;
+  readonly recentlyDone: RecentlyDoneRowSelection;
   readonly recentlyDoneOpen: boolean;
   readonly onToggleRecentlyDone: () => void;
   readonly cursorOpen: boolean;
@@ -115,6 +118,7 @@ export function SessionsSidebarOptionalSections({
         onToggle={onToggleRecentlyDone}
         records={records}
         onOpen={onOpen}
+        selection={recentlyDone}
         divider={sectionDivider(
           "Recently done sessions",
           "recently-done-sessions-divider",

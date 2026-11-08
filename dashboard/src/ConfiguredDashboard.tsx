@@ -94,6 +94,9 @@ export function ConfiguredDashboard({
         selected: source?.id ?? "",
         shown: showsBoard ? work?.source.id : undefined,
         show: showStories,
+        select: selectProject,
+        development: !showsIntent,
+        work,
       }}
     >
       <DashboardBanner
@@ -174,6 +177,7 @@ export function ConfiguredDashboard({
                   <main hidden={!showsBoard}>
                     <Board
                       sourceId={source.id}
+                      project={source.label}
                       work={work}
                       launches={launches}
                       onOpenRoster={openRoster}

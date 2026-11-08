@@ -19,11 +19,23 @@ import {
   runClosureCheckCommand,
   runRetirementCommand,
 } from "./dough-land-command-fixtures.mjs";
+import { preparationRepository } from "./preparation-publication-test-fixtures.mjs";
 
 export {
   runClosureCheckCommand,
   runRetirementCommand,
 } from "./dough-land-command-fixtures.mjs";
+
+// A trunk whose tracked trunk.txt a planted human edit changes, and a
+// preparation workspace holding the committed SEED-1 seed draft that
+// `planReviewedEdits` refines.
+export const reviewedSeedDraft = preparationRepository({
+  trunk: { files: { "trunk.txt": "base\n" } },
+  record: {
+    message: "Refine SEED-1 draft",
+    files: { "seed-draft.md": "SEED-1: refined goal and scope\n" },
+  },
+});
 
 // The reviewed worktree holds a committed seed draft plus uncommitted edits: a
 // changed tracked file and a new untracked plan.

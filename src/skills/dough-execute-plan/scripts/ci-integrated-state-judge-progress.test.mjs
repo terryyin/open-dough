@@ -13,7 +13,7 @@ import {
   unresolved,
 } from "./ci-integrated-state-judge-test-fixtures.mjs";
 
-const { writer, b, c } = judgeHistory({ after });
+const { writer, b, c } = await judgeHistory({ after });
 
 test("a locally containing pending attempt supplies progress only from compatible authoritative current facts", async () => {
   const run = listedRun(c, { status: "in_progress", conclusion: null });

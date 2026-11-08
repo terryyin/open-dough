@@ -13,19 +13,18 @@ import {
 import { openFirstLandingExpectation } from "./first-landing-expectation.mjs";
 import { publishHistoryPreservingCandidate } from "./history-preserving-publication.mjs";
 import { managementContext } from "./publication-git.mjs";
-import {
-  createCleanTrunkFixture,
-  git,
-  lsRemoteSha,
-  revParse,
-} from "./publication-test-fixtures.mjs";
+import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
 const executionBranch = "exec/story";
 
 test("omitted landingContext retains landing from an open expectation, and a later publish after clear takes none", async (t) => {
   const { origin: dashboard, requests } = await landingReceiver(t);
-  const { origin, execution, cleanup } = await createCleanTrunkFixture();
+  const { origin, execution, cleanup } = await materializeRepository(
+    trunkWithOneUnpublishedIncrement,
+  );
   t.after(cleanup);
   const publishedTip = await revParse(execution, "HEAD");
   await git(execution, "push", "origin", `HEAD:refs/heads/${executionBranch}`);
@@ -89,7 +88,9 @@ test("omitted landingContext retains landing from an open expectation, and a lat
 
 test("history-preserving publish without an open expectation still takes no landing", async (t) => {
   const { origin: dashboard, requests } = await landingReceiver(t);
-  const { execution, cleanup } = await createCleanTrunkFixture();
+  const { execution, cleanup } = await materializeRepository(
+    trunkWithOneUnpublishedIncrement,
+  );
   t.after(cleanup);
   const publishedTip = await revParse(execution, "HEAD");
   await git(execution, "push", "origin", `HEAD:refs/heads/${executionBranch}`);

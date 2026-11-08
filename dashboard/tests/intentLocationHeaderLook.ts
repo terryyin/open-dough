@@ -1,5 +1,6 @@
 // How one configured Intent location's header reads in the locations column
-// (../src/IntentLocationGroup.tsx): its background, change mark, and width.
+// (../src/IntentLocationGroup.tsx): its background, change mark, width, and
+// label weight.
 
 import type { Locator } from "@playwright/test";
 import { intentGroupToggle } from "./intentPerspectivePage.ts";
@@ -10,17 +11,15 @@ export function intentLocationHeader(intent: Locator, locationPath: string) {
 }
 
 // How a location header reads: its own background, its change mark, whether
-// its toggle and name let that background through, and whether it spans its
-// group's full width.
+// its toggle and name let that background through, whether it spans the
+// locations column edge to edge, and its label's font weight.
 export function locationHeaderLook(header: Locator) {
   return header.evaluate((element) => {
     const style = getComputedStyle(element);
-    const group = element.parentElement ?? element;
-    const groupStyle = getComputedStyle(group);
-    const inner =
-      group.clientWidth -
-      Number.parseFloat(groupStyle.paddingLeft) -
-      Number.parseFloat(groupStyle.paddingRight);
+    const column = element.closest(".intent-locations") ?? element;
+    const columnLeft = column.getBoundingClientRect().left + column.clientLeft;
+    const box = element.getBoundingClientRect();
+    const label = element.querySelector(".intent-location-name > *");
     return {
       background: style.backgroundColor,
       mark: style.boxShadow,
@@ -28,7 +27,10 @@ export function locationHeaderLook(header: Locator) {
         (child) =>
           getComputedStyle(child).backgroundColor === "rgba(0, 0, 0, 0)",
       ),
-      fullWidth: Math.abs(element.getBoundingClientRect().width - inner) < 1,
+      fullWidth:
+        Math.abs(box.left - columnLeft) < 1 &&
+        Math.abs(box.width - column.clientWidth) < 1,
+      labelWeight: Number(getComputedStyle(label ?? element).fontWeight),
     };
   });
 }

@@ -13,7 +13,6 @@ import { publishHistoryPreservingCandidate } from "../../dough-execute-plan/scri
 import {
   advanceOriginFromAnotherWriter,
   commitSharedResolution,
-  createCleanTrunkFixture,
   currentBranch,
   executionBranch,
   git,
@@ -23,6 +22,8 @@ import {
   revParse,
   trunkTarget,
 } from "./closure-git-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "../../dough-execute-plan/scripts/publication-clean-trunk-fixtures.mjs";
 
 // A launch's landing context whose dashboard refuses the connection.
 function unreachableLandingContext(t) {
@@ -45,7 +46,7 @@ function unreachableLandingContext(t) {
 }
 
 test("a resolved merge whose landing pair cannot be retained stays in the workspace, and the next run publishes it", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
   const { closureSha, trunkSha } = await publishStoryConflictingWithTrunk(
@@ -80,7 +81,7 @@ test("a resolved merge whose landing pair cannot be retained stays in the worksp
 });
 
 test("a rebuilt merge whose landing pair cannot be retained returns the workspace to its branch", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
   const closureSha = await revParse(execution, "HEAD");

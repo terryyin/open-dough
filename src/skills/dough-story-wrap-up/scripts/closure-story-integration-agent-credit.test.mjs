@@ -10,9 +10,9 @@ import { fileURLToPath } from "node:url";
 import { publishHistoryPreservingCandidate } from "../../dough-execute-plan/scripts/history-preserving-publication.mjs";
 import { configureAgentAuthorship } from "../../dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   agentStoryBehindTrunk,
-  createCleanTrunkFixture,
   executionBranch,
   git,
   lsRemoteSha,
@@ -22,11 +22,29 @@ import {
   stageSharedResolution,
   trunkTarget,
 } from "./closure-git-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
-const developer = "Execution Worktree <execution@example.test>";
+// The developer configured as the Git user of the agent's workspace, who
+// commits there and whom an integration merge credits.
+const workspaceDeveloper = {
+  name: "Execution Worktree",
+  email: "execution@example.test",
+};
+const developer = `${workspaceDeveloper.name} <${workspaceDeveloper.email}>`;
+const agentWorkspace = makeMe.aRepository
+  .withRevision("trunk")
+  .withWorkspace(executionBranch, {
+    from: "trunk",
+    checkoutIdentity: workspaceDeveloper,
+  })
+  .withUnpublishedRevision("story increment")
+  .please();
 
 test("an agent's history-preserving integration merge is authored by the agent and credits the developer once", async (t) => {
-  const { origin, execution, closureSha } = await agentStoryBehindTrunk(t);
+  const { origin, execution, closureSha } = await agentStoryBehindTrunk(
+    t,
+    agentWorkspace,
+  );
 
   const published = await publishHistoryPreservingCandidate({
     ownedWorkspace: execution,
@@ -64,7 +82,7 @@ test("an agent's history-preserving integration merge is authored by the agent a
 
 test("an agent's integration merge is refused before commit and push when the developer is the agent itself", async (t) => {
   const { origin, execution, closureSha, trunkBefore } =
-    await agentStoryBehindTrunk(t);
+    await agentStoryBehindTrunk(t, agentWorkspace);
   await git(
     execution,
     "config",
@@ -99,7 +117,7 @@ const agentCommit = fileURLToPath(
 );
 
 test("an agent's conflicted integration merge committed through agent-commit.mjs with Git's prepared message is published as the candidate", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await materializeRepository(agentWorkspace);
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
   await configureAgentAuthorship(execution, agentIdentity("Yui"));

@@ -1,10 +1,14 @@
 // Real temporary repositories for the CI repair pause tests: an execution
-// worktree and another worktree of the same repository share one stash stack,
+// checkout and another worktree of the same repository share one stash stack,
 // and every operation runs through the installed ci-repair-stash.mjs CLI.
+// Descriptions declare the committed starting files; stashes, dirt and the
+// submodule are Git operations of each case.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { exec, git } from "./publication-git.mjs";
 
 const script = fileURLToPath(new URL("./ci-repair-stash.mjs", import.meta.url));
@@ -19,11 +23,28 @@ async function stashTool(...args) {
   }
 }
 
-async function initFixtureRepo(parent, repo) {
-  await git(parent, "init", "-q", "-b", "main", repo);
-  await git(repo, "config", "user.email", "fixture@example.com");
-  await git(repo, "config", "user.name", "Fixture");
-}
+// The execution checkout on main with three tracked files, and the `other`
+// worktree beside it. It is no Open Dough backlog project.
+const sharedStashRepository = makeMe.aRepository
+  .withRevision("base", {
+    backlog: undefined,
+    files: Object.fromEntries(
+      ["tracked.txt", "staged.txt", "shared.txt"].map((name) => [
+        name,
+        `${name} base\n`,
+      ]),
+    ),
+  })
+  .withWorkspace("other", { from: "base" })
+  .please();
+
+// The repository a case adds as a submodule.
+const libraryRepository = makeMe.aRepository
+  .withRevision("library", {
+    backlog: undefined,
+    files: { "lib.txt": "library base\n" },
+  })
+  .please();
 
 export async function createSharedStashFixture(t) {
   const root = mkdtempSync(join(tmpdir(), "ci-repair-stash-"));
@@ -32,14 +53,11 @@ export async function createSharedStashFixture(t) {
     for (const path of [root, ...records.map((record) => dirname(record))])
       rmSync(path, { recursive: true, force: true });
   });
-  const execution = join(root, "execution");
-  const other = join(root, "other");
-  await initFixtureRepo(root, execution);
-  for (const name of ["tracked.txt", "staged.txt", "shared.txt"])
-    writeFileSync(join(execution, name), `${name} base\n`);
-  await git(execution, "add", ".");
-  await git(execution, "commit", "-q", "-m", "base");
-  await git(execution, "worktree", "add", "-q", "-b", "other", other);
+  const repository = await materializeRepository(sharedStashRepository, {
+    parent: root,
+  });
+  const execution = repository.integration;
+  const other = repository.execution;
   return {
     root,
     execution,
@@ -92,11 +110,9 @@ export async function createSharedStashFixture(t) {
 
 // Submodule content changes show as dirt that `git stash` cannot save.
 export async function addDirtySubmodule({ root, execution }) {
-  const library = join(root, "library");
-  await initFixtureRepo(root, library);
-  writeFileSync(join(library, "lib.txt"), "library base\n");
-  await git(library, "add", ".");
-  await git(library, "commit", "-q", "-m", "library");
+  const { origin: library } = await materializeRepository(libraryRepository, {
+    parent: root,
+  });
   await git(
     execution,
     "-c",

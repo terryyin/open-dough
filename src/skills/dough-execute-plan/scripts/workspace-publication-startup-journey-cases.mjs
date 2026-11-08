@@ -21,7 +21,10 @@ import {
   setupMarkers,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
-import { busyCheckout } from "./default-checkout-test-fixtures.mjs";
+import {
+  busyCheckout,
+  unrelatedInventory,
+} from "./default-checkout-test-fixtures.mjs";
 import { deliverFirstIncrement } from "./workspace-publication-startup-delivery-test-fixtures.mjs";
 import { agentModes } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
@@ -67,12 +70,16 @@ for (const mode of agentModes) {
 }
 
 test("the start result does not grow with tracked inventory or dirty patch volume", async (t) => {
-  const small = await materializeRepository(queuedReadyRepository().please());
-  const large = await materializeRepository(queuedReadyRepository().please());
+  const withInventory = (count) =>
+    queuedReadyRepository()
+      .withRevision("inventory", unrelatedInventory(count))
+      .please();
+  const small = await materializeRepository(withInventory(1));
+  const large = await materializeRepository(withInventory(1500));
   t.after(small.cleanup);
   t.after(large.cleanup);
-  await busyCheckout(small, 1, 1);
-  await busyCheckout(large, 1500, 2000);
+  await busyCheckout(small, 1);
+  await busyCheckout(large, 2000);
   const smallBefore = await captureCheckout(small.integration);
   const largeBefore = await captureCheckout(large.integration);
 

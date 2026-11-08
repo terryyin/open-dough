@@ -13,6 +13,7 @@
 
 import { expect, test } from "../support/preparationPage.ts";
 import {
+  expectOutsideCount,
   intentDiff,
   intentFile,
   openReviewFromIntent,
@@ -84,9 +85,7 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
 
     await test.step(`Selected story only ${state}: a rename neither path admits is not listed and counts once outside`, async () => {
       await expect(intent.getByText(/notes\.md/)).toHaveCount(0);
-      await expect(intent.locator(".intent-story-outside")).toContainText(
-        "2 changed files outside Intent locations are shown in Review changes.",
-      );
+      await expectOutsideCount(intent, 2);
     });
 
     await test.step(`Selected story only ${state}: each deletion and rename opens its diff, the same in both states`, async () => {

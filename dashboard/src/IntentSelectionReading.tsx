@@ -31,7 +31,7 @@ export function IntentSelectionReading({
   missing,
   selectedLocation,
   selectedFile,
-  selectedLanguage,
+  selectedSyntaxHint,
   treeFiles,
   story,
   read,
@@ -49,7 +49,7 @@ export function IntentSelectionReading({
   readonly missing: boolean;
   readonly selectedLocation: IntentLocation | undefined;
   readonly selectedFile: IntentTreeFile | undefined;
-  readonly selectedLanguage: string | undefined;
+  readonly selectedSyntaxHint: string | undefined;
   // The files the tree lists by repository path, a selected story's overlay
   // included.
   readonly treeFiles: ReadonlyMap<string, IntentTreeFile>;
@@ -90,7 +90,7 @@ export function IntentSelectionReading({
           treeRevision={revision}
           failedRevision={failedRevision}
           read={read}
-          kind={selectedLanguage}
+          syntaxHint={selectedSyntaxHint}
           caseTarget={selection.caseTarget}
           treeFile={selectedFile}
           story={story}

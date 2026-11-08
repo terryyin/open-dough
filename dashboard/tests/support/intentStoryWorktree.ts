@@ -81,6 +81,20 @@ export function changeIntentTests(workspace: string) {
   writeAt(workspace, "dashboard/tests/boundary/b.spec.ts", "added\n");
 }
 
+// A long spec the story adds two folders deep (`boundary/deep`), as Review
+// changes names its control.
+export const deepSpec = "Added dashboard/tests/boundary/deep/long.spec.ts";
+
+// The story's changes, and that long added spec.
+export function changeWithDeepSpec(workspace: string) {
+  changeIntentTests(workspace);
+  writeAt(
+    workspace,
+    "dashboard/tests/boundary/deep/long.spec.ts",
+    lines("long", 120),
+  );
+}
+
 // A story's worktree changing only a product file, outside every location.
 export function changeProductOnly(workspace: string) {
   writeAt(workspace, "dashboard/src/App.tsx", `${lines("app")}more\n`);

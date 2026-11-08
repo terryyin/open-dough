@@ -91,7 +91,7 @@ test("dictation, Paste, composer Insert and toolbar keys reach a held Codex fram
   await tapWhereShown(shown.button);
   // The section header is a disclosure row, not a 44px touch control.
   await shown.header.tap();
-  await tapWhereShown(shown.entry(notRefinedStory));
+  await tapWhereShown(shown.open(notRefinedStory));
   const panel = page.getByRole("region", { name: "Terminal" });
   const rows = panel.locator(".xterm-rows");
   const status = panel.getByRole("status");

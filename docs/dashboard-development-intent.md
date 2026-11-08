@@ -18,8 +18,13 @@ selected name toggles expansion and keeps the selection and summary.
 Locations still allow only one open at a time via toggle (or a selected
 name's toggle); selecting a closed location's name leaves it closed and
 leaves any other open location open. Both controls are keyboard-operable, and
-a selected location or folder reads as pressed. Every location header has its
-own background; a selected location's header takes the selected background
+a selected location or folder reads as pressed. Every location header reads
+as a section header: it spans the locations column edge to edge in its own
+band colour, in light and dark themes alike, with its toggle and bold label
+padded inside, while the folders and files beneath it read as rows without
+that colour. The band colour stays apart from the selected background, the
+change mark, the CI cues and the background of folders containing changes. A
+selected location's header takes the selected background
 across its whole width, toggle included (or an accent border when a CI
 duration tint would be hidden by that fill — see
 [CI timing comparison](dashboard-development-intent-ci-comparison.md)), and
@@ -27,7 +32,14 @@ expansion shows only in the toggle. With a story comparison, file rows and
 location headers whose path is a compared entry show the same count-border
 and duration-tint cues, with Proof's words in their accessible names; folder
 rows do not. Selecting a file still reads its exact published text with line
-numbers and Gherkin syntax styling at Intent's reading revision. A location or
+numbers and Gherkin syntax styling at Intent's reading revision. A location
+may instead declare `sources` entries, each with `include` patterns and an
+optional `syntax` hint ([project configuration](../dashboard/PROJECT-CONFIGURATION.md)):
+a file any entry's pattern matches is listed, with no extension filter, and
+styled by the hint of the first matching entry in declaration order; one with
+no hint, or a hint Intent has no grammar for, reads as plain text. That
+location's header names its patterns without a kind. The same selection
+places a selected story's changed files and admits a file's read. A location or
 folder summary names the selection by path and how many matching files the
 tree lists (a selected story's overlaid files included), gives an unusable
 location's explanation, and shows the CI proof that **CI status** shows, never
@@ -119,6 +131,20 @@ under the Summary's evidence labels.
 Directly activating the **Intent** tab (click, Enter or Space), even while already
 chosen, returns home: selection clears and CI status shows for the same story;
 expansion and reading choices stay. No separate return control.
+While **Intent** shows the location tree, the strip also offers Review
+changes' **Hide files** / **Show files** toggle, reached by Tab after the
+tabs and stating whether the locations column is shown. Hiding removes the
+whole column (story summary and tree) and gives the reading pane the full
+width, or on a narrow screen, where the tree sits above it, the full height;
+it changes no selection or reading. While the column is hidden the strip
+shows nothing from the summary: no story title, comparison state, **Retry**
+or outside count. **Show files** returns the column as it
+was: summary disclosure, selection, open location and folders, **Selected
+story only** and the tree's scroll. The choice is kept with Intent's reading
+place across selections, **Optimization Candidates** and back, Development
+and back and new revisions; a project change shows the column again. It is
+not on the URL or in storage and is not remembered across reloads; the
+explanation shown in place of the tree offers no toggle.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at Intent's reading revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
@@ -197,9 +223,13 @@ folders and the first changed location open and everything else collapses.
 **Selected story only**, off at first, leaves just the changed files and the
 locations and folders holding them, or says no test file in a location
 changed; toggling it opens the same folders again and collapses the rest.
-Changed files no location selects by either path are counted in the summary
-with a way to Review changes, which opens on Intent's comparison (All
-changes, uncommitted included) even for a story with a review mark. A changed
+Changed files no location selects by either path are counted at the end of
+the summary's title line, expanded or not, as one compact button: an icon and
+the number, whose accessible name and hover text explain it (for example "2
+changed files outside Intent locations — open Review changes"). It is absent
+when no changed file is outside the locations. Activating it opens Review
+changes on Intent's comparison (All changes, uncommitted included) even for a
+story with a review mark, without toggling the disclosure. A changed
 file's Purpose is Review changes' diff of it, and Proof holds that file's
 comparison when available. A story without a comparison, and a failed read
 with retry, each say so while the published tree stays usable; clearing the
@@ -212,8 +242,17 @@ is not offered yet. The perspective is disposable presentation state on the URL
 which Intent keeps to return to. Choosing a perspective adds one history
 entry and never selects another project; changing projects keeps the
 perspective, and Back/Forward, reload and System settings restore it. Story
-URLs, story references and choosing a Sessions sidebar entry open
-Development's stories, including from the same project's Intent. Changing
+URLs, story references, choosing an open Sessions sidebar entry and a
+Recently done sessions row's Open open Development's stories, including from
+the same project's Intent. Choosing a Recently done sessions row only selects
+it and keeps the perspective and Side panel: a row whose project publishes
+its done story recently makes that story the Selected story in its project,
+so Intent shows it there; any other row selects its retained session and
+keeps the project, story and reading in Intent. In Development the row's
+project's stories show instead, with its done story card or selected session
+brought into view, as far down Recently done as it stands. An unread or failed done catalog is
+said on the row, apart from a confirmed miss, and leaves the reading as it
+was. Changing
 perspective neither starts, stops, completes nor reattaches a session: the
 mounted Board, Sessions sidebar and Side panel stay as they were, and a
 covering panel stays open. When the change hides the content holding the

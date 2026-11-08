@@ -5,6 +5,7 @@ import { sessionPolicyFlags } from "../../src/skills/dough-execute-plan/scripts/
 import { baseCiConfirmationSchema } from "./baseCiConfirmation.ts";
 import { launchWorkflowNames } from "./launchWorkflow.ts";
 import { launchModelSchema, launchSettingSchema } from "./launchHostOptions.ts";
+import { followUpSchema, sameFollowUpSource } from "./followUpRequest.ts";
 import {
   policyOf,
   sameUnattachedPolicy,
@@ -107,7 +108,8 @@ const storyLaunchRequestSchema = z.object({
 // policy is the unattached one, and it confirms existing changes as a story's
 // does. One the dashboard's feedback maintenance check starts
 // (`../server/feedbackMaintenanceCheck.ts`) carries the due date it serves as
-// its marker, which only that check sets, never a page.
+// its marker, which only that check sets, never a page. One started from an
+// entry's Follow up names the entry it follows up (`./followUpRequest.ts`).
 const adHocLaunchRequestSchema = z.strictObject({
   source: z.string().min(1).max(launchTextLimit),
   workflow: z.literal("ad-hoc"),
@@ -115,6 +117,7 @@ const adHocLaunchRequestSchema = z.strictObject({
   ...launchOptions,
   policy: unattachedSessionPolicySchema.optional(),
   maintenance: z.strictObject({ due: z.iso.date() }).optional(),
+  followUp: followUpSchema.optional(),
   existingChanges: existingChangesSchema.optional(),
   overrideStopUnconfirmed: z.boolean().optional(),
 });
@@ -154,9 +157,10 @@ function sameAttachmentDigests(
 // Retries belong to the same project, host, workflow and subject. New options
 // or story instructions do not replace a retained launch's original intent.
 // An unattached launch's subject is its instruction with its Workspace and
-// After checks choices, the content digests of its images, and the due date a
-// feedback maintenance launch serves, so one with other choices, other images,
-// or for another due date is another launch.
+// After checks choices, the content digests of its images, the due date a
+// feedback maintenance launch serves, and the source a follow-up names (not
+// its resolved context), so one with other choices, other images, for another
+// due date or following up another entry is another launch.
 export function sameLaunch(
   a: AgentLaunchRequest | RecordedLaunchRequest,
   b: AgentLaunchRequest | RecordedLaunchRequest,
@@ -172,6 +176,7 @@ export function sameLaunch(
   return (
     a.instruction === b.instruction &&
     a.maintenance?.due === b.maintenance?.due &&
+    sameFollowUpSource(a.followUp, b.followUp) &&
     sameUnattachedPolicy(unattachedPolicyOf(a), unattachedPolicyOf(b)) &&
     sameAttachmentDigests(a, b)
   );

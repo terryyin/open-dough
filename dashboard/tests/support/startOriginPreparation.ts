@@ -111,7 +111,7 @@ function withInstallation(
   source: string,
 ): StartRepository {
   const files: Record<string, string> = { ".gitignore": ".worktrees/\n" };
-  const executable: string[] = [];
+  const executables: string[] = [];
   const project = { path: "", shown: "" };
   for (const skill of installedStartSkills) {
     const installed = installedSkillPath(layout, project, skill);
@@ -120,7 +120,7 @@ function withInstallation(
       const from = path.join(skillSource, file);
       const to = path.join(installed, file);
       files[to] = readFileSync(from, "utf8");
-      if (statSync(from).mode & 0o100) executable.push(to);
+      if (statSync(from).mode & 0o100) executables.push(to);
     }
   }
   const [first, ...later] = repository.revisions;
@@ -130,7 +130,7 @@ function withInstallation(
         committer: dashboardDeveloper,
         ...first,
         files: { ...files, ...first.files },
-        executable: [...executable, ...(first.executable ?? [])],
+        executables: [...executables, ...(first.executables ?? [])],
       },
       ...later.map((revision) => ({
         committer: dashboardDeveloper,

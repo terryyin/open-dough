@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -17,25 +17,33 @@ import {
   deferWorkerStop,
 } from "./fixture-teardown-test-fixtures.mjs";
 import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   acceptedWorkflow,
-  commitAll,
-  initRepo,
-  writeWorkflow,
+  workflowPath,
 } from "./ci-path-applicability-test-fixtures.mjs";
 
 for (const outcome of ["success", "failure", "pending", "incomplete"]) {
   test(`registered historical ${outcome} remains evidence without unrelated old failures`, async (t) => {
-    const root = await initRepo();
+    const {
+      integration: root,
+      fixture,
+      revisions: { ancestor, descendant },
+    } = await materializeRepository(
+      makeMe.aRepository
+        .withRevision("ancestor", {
+          backlog: undefined,
+          files: { [workflowPath]: acceptedWorkflow, "app.js": "base\n" },
+        })
+        .withRevision("descendant", {
+          files: { ".planning/note.md": "ignored\n" },
+        })
+        .please(),
+    );
     const storage = mkdtempSync(join(tmpdir(), "ci-command-history-"));
-    const teardown = fixtureTeardown(root, storage);
+    const teardown = fixtureTeardown(fixture, storage);
     t.after(teardown.cleanup);
-    writeWorkflow(root, acceptedWorkflow);
-    writeFileSync(join(root, "app.js"), "base\n");
-    const ancestor = await commitAll(root, "base");
-    mkdirSync(join(root, ".planning"), { recursive: true });
-    writeFileSync(join(root, ".planning/note.md"), "ignored\n");
-    const descendant = await commitAll(root, "ignored only");
     const state = join(storage, "attempts.json");
     const adapter = join(storage, "adapter.mjs");
     writeFileSync(

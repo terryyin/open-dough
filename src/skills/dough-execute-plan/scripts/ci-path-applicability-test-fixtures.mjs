@@ -1,36 +1,36 @@
-import { execFile, execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
-// Real temporary Git repositories only: tests using these fixtures drive
-// actual `git init`, commits, and `git show`/`diff`/`merge-base` plumbing
-// through the module's own functions rather than injecting the expected
-// classification.
+// Real temporary Git repositories only: tests using these fixtures declare
+// their commits, workflow text included, through `makeMe.aRepository` and
+// drive actual `git show`/`diff`/`merge-base` plumbing through the module's
+// own functions rather than injecting the expected classification.
 
-export const exec = promisify(execFile);
+const exec = promisify(execFile);
 
 export async function git(cwd, ...args) {
   return exec("git", args, { cwd });
 }
 
-export async function sha(cwd, ref = "HEAD") {
-  return (await git(cwd, "rev-parse", ref)).stdout.trim();
-}
-
 export async function commitAll(cwd, message) {
   await git(cwd, "add", "-A");
   await git(cwd, "commit", "-m", message);
-  return sha(cwd);
+  return (await git(cwd, "rev-parse", "HEAD")).stdout.trim();
 }
 
-export async function initRepo() {
-  const repo = mkdtempSync(join(tmpdir(), "ci-path-applicability-"));
-  await git(repo, "init", "-q", "-b", "main");
-  await git(repo, "config", "user.name", "Path Applicability Fixture");
-  await git(repo, "config", "user.email", "path-applicability@example.test");
-  return repo;
+// Where the classifier reads the workflow a revision declares.
+export const workflowPath = ".github/workflows/ci.yml";
+
+// The integration checkout of a described repository as `repo` and its named
+// revisions' commits; `t.after` removes the materialized fixture.
+export async function describedRepository(t, description) {
+  const repository = await materializeRepository(description);
+  t.after(repository.cleanup);
+  return { repo: repository.integration, revisions: repository.revisions };
 }
 
 export const acceptedWorkflow = [
@@ -55,6 +55,17 @@ export const acceptedWorkflow = [
   "",
 ].join("\n");
 
+// An applicable `base` revision declaring app code and the workflow, for a
+// case to add its descendants to. It is no Open Dough backlog project.
+export const applicableBase = (
+  workflow = acceptedWorkflow,
+  app = "console.log('base');\n",
+) =>
+  makeMe.aRepository.withRevision("base", {
+    backlog: undefined,
+    files: { "app.js": app, [workflowPath]: workflow },
+  });
+
 export const allBranchesWorkflow = [
   "name: CI",
   "on:",
@@ -70,11 +81,8 @@ export const allBranchesWorkflow = [
   "",
 ].join("\n");
 
-function execFileSyncMkdirp(dir) {
-  execFileSync("mkdir", ["-p", dir]);
-}
-
 export function writeWorkflow(repo, content) {
-  execFileSyncMkdirp(join(repo, ".github", "workflows"));
-  writeFileSync(join(repo, ".github", "workflows", "ci.yml"), content);
+  const file = join(repo, workflowPath);
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, content);
 }

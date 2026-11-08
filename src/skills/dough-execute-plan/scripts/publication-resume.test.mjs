@@ -6,12 +6,12 @@
 // file.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { resumeInterruptedPublication } from "./publication-resume.mjs";
 import {
   advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   messageCount,
   plantHumanEdit,
@@ -19,6 +19,18 @@ import {
   revParse,
   worktreeCount,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+
+// A trunk.txt trunk commit, which the planted human edit changes, and a
+// workspace on exec/story one unpublished "verified increment" commit ahead.
+const trunkWithOneIncrement = makeMe.aRepository
+  .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+    message: "verified increment",
+  })
+  .please();
 
 function createObserverStub() {
   const receipts = [];
@@ -33,7 +45,7 @@ function createObserverStub() {
 
 test("an interrupted publication before acceptance pushes the retained candidate once and does not commit again", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneIncrement);
   t.after(cleanup);
 
   await plantHumanEdit(integration);
@@ -107,7 +119,7 @@ test("an interrupted publication before acceptance pushes the retained candidate
 
 test("a lost success after a rewritten push stays published when another writer advances", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneIncrement);
   t.after(cleanup);
 
   await plantHumanEdit(integration);

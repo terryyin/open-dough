@@ -7,11 +7,12 @@ import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
   advanceOriginFromAnotherWriter,
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   revParse,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
 const abbreviated = (sha) => sha.slice(0, 10);
@@ -21,7 +22,7 @@ const abbreviated = (sha) => sha.slice(0, 10);
 // result, its registered receipts and beforePush comparisons, and the facts
 // with this fixture's commit IDs replaced by stable labels.
 async function publishOnFixture(t, { arrange, chooseBase, form, targetRef }) {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(fixture.cleanup);
   const arranged = (await arrange?.(fixture)) ?? {};
   const base = chooseBase(fixture);

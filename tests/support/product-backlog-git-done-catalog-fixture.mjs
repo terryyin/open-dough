@@ -34,7 +34,7 @@ const item = (name) =>
 export const items = (...names) => names.map(item);
 
 // Runs the real backlog command in `directory` at a fixed completion time.
-export async function backlogCommand(
+async function backlogCommand(
   directory,
   args,
   time = "2026-10-06T10:00:00.000Z",

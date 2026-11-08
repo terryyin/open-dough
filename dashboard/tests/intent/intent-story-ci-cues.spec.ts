@@ -179,6 +179,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
       duration: "slower-strong",
     });
     const selected = await locationHeaderLook(locationHeader);
+    expect(selected.fullWidth).toBe(true);
     expect(selected.mark).not.toBe("none");
     // Change mark (ready) and count cue both present in the leading inset.
     expect(selected.mark.split(/,(?![^(]*\))/).length).toBeGreaterThanOrEqual(

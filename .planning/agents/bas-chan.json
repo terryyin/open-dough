@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bas-chan",
+  "email": "bas-chan@example.org",
+  "identity": "SEED-262#tighten-repository-description-facts",
+  "mode": "story-branch",
+  "branch": "claude/state-each-repository-description-fact-once-and",
+  "host": "claude",
+  "model": "opus"
+}

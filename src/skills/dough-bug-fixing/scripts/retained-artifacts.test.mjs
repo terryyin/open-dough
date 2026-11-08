@@ -24,9 +24,16 @@ import {
 import {
   cloneFile,
   createPreparationFixture,
+  preparationRepository,
   worktreeCount,
 } from "../../dough-story-refinement/scripts/preparation-publication-test-fixtures.mjs";
 import { retainBugTriageArtifacts } from "./retained-artifacts.mjs";
+
+// A trunk with no backlog record yet, whose tracked trunk.txt a planted human
+// edit changes.
+const trunkWithoutBacklog = preparationRepository({
+  trunk: { backlog: undefined, files: { "trunk.txt": "base\n" } },
+});
 
 const durablePath = ".planning/PRODUCT-BACKLOG.md";
 const durableBody =
@@ -67,9 +74,8 @@ function retain(workspace) {
 }
 
 test("remaining work leaves the backlog record, removes only the disposable reproduction, and keeps unrelated exploration content", async (t) => {
-  const { preparation, cleanup } = await createPreparationFixture(
-    "bug-retained-artifacts-",
-  );
+  const { preparation, cleanup } =
+    await createPreparationFixture(trunkWithoutBacklog);
   t.after(cleanup);
 
   plantInvestigation(preparation, { unrelated: true });
@@ -99,7 +105,7 @@ test("an explicit keep lands the retained backlog record from the owned workspac
     trunkSha,
     fixture,
     cleanup,
-  } = await createPreparationFixture("bug-retained-artifacts-");
+  } = await createPreparationFixture(trunkWithoutBacklog);
   t.after(cleanup);
 
   plantInvestigation(preparation);
@@ -151,7 +157,7 @@ test("a local draft that is not explicitly retained stays in the workspace, stay
     trunkSha,
     preparationSha,
     cleanup,
-  } = await createPreparationFixture("bug-retained-artifacts-");
+  } = await createPreparationFixture(trunkWithoutBacklog);
   t.after(cleanup);
 
   plantInvestigation(preparation, { unrelated: true });

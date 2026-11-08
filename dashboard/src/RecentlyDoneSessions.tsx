@@ -5,8 +5,10 @@
 // records across configured projects by newest completion (`doneSessionsOf`),
 // initially the newest 20. Scrolling this list alone reveals older batches of
 // up to 20 (`./recentlyDoneSessionsRange.ts`) without reading Board done-story
-// details. Each row reuses the open list's entry for opening, current-session
-// mark and details, showing completion age instead of launch age. Loading and
+// details. Each row reuses the open list's entry for current-session mark and
+// details, showing completion age instead of launch age; activating the row
+// selects it (`./recentlyDoneSelection.ts`) and its Open control alone opens
+// its session. Loading and
 // empty states stay distinct. Reload starts collapsed with the initial range;
 // the preferred height alone is a disposable browser preference.
 import {
@@ -24,6 +26,7 @@ import {
   SessionsSidebarSessionEntry,
   type OpenSessionsSidebarSessionEntry,
 } from "./SessionsSidebarSessionEntry.tsx";
+import type { RecentlyDoneRowSelection } from "./recentlyDoneSelection.ts";
 import {
   recentlyDoneSessionsShownCount,
   useRecentlyDoneSessionsRange,
@@ -36,12 +39,14 @@ export function RecentlyDoneSessions({
   onToggle,
   records,
   onOpen,
+  selection,
   divider,
 }: {
   readonly open: boolean;
   readonly onToggle: () => void;
   readonly records: readonly LaunchWithState[] | undefined;
   readonly onOpen: OpenSessionsSidebarSessionEntry;
+  readonly selection: RecentlyDoneRowSelection;
   readonly divider: ReactNode;
 }) {
   const contentId = useId();
@@ -160,6 +165,7 @@ export function RecentlyDoneSessions({
                     key={sessionKey(record.session)}
                     record={record}
                     onOpen={onOpen}
+                    selection={selection}
                   />
                 ))}
               </ol>

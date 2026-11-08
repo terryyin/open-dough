@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-275#story-intent-tabs",
+  "mode": "story-branch",
+  "branch": "claude/review-a-selected-story-in-intent-tabs",
+  "host": "claude",
+  "model": "opus"
+}

@@ -1,13 +1,29 @@
 // Reveal the chosen session's actual entry or containing active card once its
 // project's stories are shown, keeping it visible until the developer moves.
+// A Recently done sessions row selected in Development goes the same way to
+// its selected session, or to its linked done story's card
+// (`./recentlyDoneSelection.ts`), leaving the keyboard on the row. Moving
+// around the Sessions sidebar, or closing it over the page, is not a move
+// on the page, so the going holds through it.
 import { useLayoutEffect, useRef, useState } from "react";
 import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
 import { sessionKey } from "./sessionReference.ts";
-import { sessionEntry } from "./pageEntries.ts";
+import { sessionEntry, storyShown } from "./pageEntries.ts";
 import type { RecentlyDoneRange } from "./recentlyDoneRange.ts";
+import { onSessionsSidebar } from "./sessionsSidebarElements.ts";
 import { keepInView, storyCard } from "./storyCardFocus.ts";
 
-type Going = { readonly to: LaunchRecord; readonly demand?: number };
+// Where a going lands: the session's entry, or, given `story`, that done
+// story's card in the session's project.
+type Going = {
+  readonly to: LaunchRecord;
+  readonly story?: string | undefined;
+  readonly demand?: number;
+};
+
+// Goes to `record`'s session, or to its project's done `story`, replacing any
+// earlier going; given nothing, gives up the going still under way.
+export type GoToSession = (record?: LaunchRecord, story?: string) => void;
 
 export function useSessionNavigation(
   selected: string,
@@ -37,7 +53,13 @@ export function useSessionNavigation(
       return;
     }
     if (going.demand === undefined) {
-      setGoing({ ...going, demand: range.demand(going.to) });
+      setGoing({
+        ...going,
+        demand:
+          going.story === undefined
+            ? range.demand(going.to)
+            : range.demandStory(going.to.request.source, going.story),
+      });
       return;
     }
     const answer = range.answerOf(going.demand);
@@ -49,25 +71,38 @@ export function useSessionNavigation(
     }
     if (answer === "pending") {
       const { demand } = going;
-      return range.givenUpOnOwnMove(demand, () => {
-        setGoing(undefined);
-      });
+      return range.givenUpOnOwnMove(
+        demand,
+        () => {
+          setGoing(undefined);
+        },
+        onSessionsSidebar,
+      );
     }
-    const { identity } = launchSubject(going.to.request);
-    const entry = sessionEntry(sessionKey(going.to.session));
-    const shown =
-      entry?.closest<HTMLElement>("[data-story-card]") ??
-      entry ??
-      (identity === undefined ? undefined : storyCard(identity)) ??
-      null;
+    const shown = landing(going);
     // Nothing to reveal yet leaves the going to a later rendering.
     if (shown === null) return;
     revealed.current = going;
     // Kept in view until the developer moves, goes elsewhere, or another
     // project's stories are shown.
-    return keepInView(shown);
+    return keepInView(shown, onSessionsSidebar);
   }, [going, selected, shownSource, range.destination]);
-  return (record: LaunchRecord) => {
-    setGoing({ to: record });
+  const goTo: GoToSession = (record, story) => {
+    setGoing(record === undefined ? undefined : { to: record, story });
   };
+  return goTo;
+}
+
+// What a going reveals, once shown: the done story's card, or the session's
+// entry, its containing active card, or its story's card.
+function landing(going: Going): HTMLElement | null {
+  if (going.story !== undefined) return storyShown(going.story);
+  const entry = sessionEntry(sessionKey(going.to.session));
+  const { identity } = launchSubject(going.to.request);
+  return (
+    entry?.closest<HTMLElement>("[data-story-card]") ??
+    entry ??
+    (identity === undefined ? undefined : storyCard(identity)) ??
+    null
+  );
 }

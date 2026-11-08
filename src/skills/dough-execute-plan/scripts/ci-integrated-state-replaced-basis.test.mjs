@@ -24,11 +24,11 @@ import {
   registerPushedRevision,
 } from "./ci-mailbox-revision-records.mjs";
 import { awaitRevision } from "./ci-mailbox-await.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   acceptedWorkflow,
-  commitAll,
-  initRepo,
-  writeWorkflow,
+  describedRepository,
+  workflowPath,
 } from "./ci-path-applicability-test-fixtures.mjs";
 
 // The coordinator commits `files` on its accepted history and publishes them.
@@ -118,16 +118,20 @@ test("declared policy: docs-only B whose replaced source ancestor A has no verdi
 // Coverage to await with real classification: the same B, judged from the
 // listed runs [C success, A cancelled] with C's current attempt green.
 test("without a declared policy, docs-only B on a replaced ancestor stays incomplete with no verdict; with one it completes", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-  writeWorkflow(repo, acceptedWorkflow);
-  writeFileSync(join(repo, "app.js"), "a\n");
-  const a = await commitAll(repo, "A");
-  mkdirSync(join(repo, "docs"));
-  writeFileSync(join(repo, "docs/b.md"), "b\n");
-  const b = await commitAll(repo, "B");
-  writeFileSync(join(repo, "app.js"), "c\n");
-  const c = await commitAll(repo, "C");
+  const {
+    repo,
+    revisions: { a, b, c },
+  } = await describedRepository(
+    t,
+    makeMe.aRepository
+      .withRevision("a", {
+        backlog: undefined,
+        files: { [workflowPath]: acceptedWorkflow, "app.js": "a\n" },
+      })
+      .withRevision("b", { files: { "docs/b.md": "b\n" } })
+      .withRevision("c", { files: { "app.js": "c\n" } })
+      .please(),
+  );
   const run = (headSha, databaseId, conclusion) => ({
     headSha,
     headBranch: "main",

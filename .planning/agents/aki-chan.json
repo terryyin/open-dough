@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "aki-chan",
+  "email": "aki-chan@example.org",
+  "identity": "SEED-273#lean-follow-up-listing",
+  "mode": "story-branch",
+  "branch": "codex/keep-follow-up-context-out-of-listings-and-resum",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

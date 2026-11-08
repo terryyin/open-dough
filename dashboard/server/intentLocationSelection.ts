@@ -12,8 +12,8 @@ import {
 } from "./intentLocationsSettings.ts";
 import { locationSelectsRepositoryPath } from "../src/intentLocationSelection.ts";
 
-// Whether `path` is a file a declared location lists (kind + include), not
-// merely a path under that location's folder.
+// Whether `path` is a file one of a declared location's source entries
+// selects, not merely a path under that location's folder.
 export function locationSelectsPath(
   filePath: string,
   location: DeclaredLocation,

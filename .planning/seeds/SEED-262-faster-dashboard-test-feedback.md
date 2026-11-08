@@ -168,140 +168,30 @@ run-to-run noise.
   native evidence, so no paid run is needed
   ([native family layers](../../tests/native-family-layers.md)).
 
-<a id="migrate-clean-trunk-fixtures"></a>
+<a id="tighten-repository-description-facts"></a>
 
-### Build clean-trunk and managed delivery repositories from explicit MakeMe data
+### State each repository description fact once and keep native preparation evidence MakeMe-free
 
-**Identity:** SEED-262#migrate-clean-trunk-fixtures
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-262#migrate-clean-trunk-fixtures","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story adds an unpublished workspace suffix to makeMe.aRepository and its shared materializer, then routes the clean-trunk family and the other skill root builders through them.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and integration checkout with per-process reuse, are published on trunk.","state":"satisfied","resolution":{"revision":"0eb86657bd2ea248d278f880bb095d91c6427cdc","path":".planning/seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures","summary":"The accepted tree exports makeMe.aRepository and its ordered named revisions. The shared materializer creates a bare origin and checkout, returns each named commit and reuses identical descriptions per process while giving each caller an independent mutable copy. The default repository and copy-isolation checks passed from the accepted checkout.\nCondition satisfied: makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and integration checkout with per-process reuse, are published on trunk.\nAccepted integration: d2c6bf36856289b40c9f665ee6f8f813676ab314 on origin/refs/heads/main."}}]}
-```
+**Identity:** SEED-262#tighten-repository-description-facts
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d941e07d8a61ca14f69d45eeb41e5499438755856c47dcd21d14f4ebd1bff7c8","plan":"e3ad10bca57813a90b58e3f2ec01b22b06699ff92b719a0b6153527d0ca6470a"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/532-tighten-repository-description-facts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1f49d1e3e3497c8e7ba50e0cc8a3b11d256a2d8dc4d04c8b9cb68a3dd652b67e","plan":"050536afd538c4f9b596573aaf3165ba290be94f13606861c0120c7429628e50"}}
 ```
 
-#### Goal
+**Goal.** A maintainer reading a
+[shared repository description](../../tests/support/repositoryTestData.mjs)
+gets exactly the repository it declares, and MakeMe edits no longer change
+the native worktree-preparation journey's evidence identity. This corrects
+the clean-trunk migration (`SEED-262#migrate-clean-trunk-fixtures`,
+recoverable at `42717b7da:.planning/seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures`).
 
-A maintainer reading a publication, delivery, closure, Dough Land or CI skill
-test can see at its call site which repository facts drive the case. These
-are the trunk's files and revisions, the unpublished increment the workspace
-publishes, and the commit identities the product reads. Today
-`createCleanTrunkFixture` silently supplies a `trunk.txt` base commit, an
-`exec/story` worktree with one `increment.txt` commit, and fixed
-"Integration Checkout" and "Execution Worktree" identities. On 2026-11-08
-about 70 test files built on it through the managed delivery, trunk closure
-and closure Git fixtures. About ten other skill fixture modules and six test
-files each made their own repository with `git init`. This story moves them
-onto [the shared repository description](../../tests/support/repository-fixture.mjs). Skill
-test feedback must not get slower.
-
-#### Scope
-
-- Extend the shared repository description with an execution workspace: a
-  named branch started from a named trunk revision, holding ordered
-  unpublished revisions. Each revision states its files, message, author and
-  committer, as trunk revisions do. `.please()` still returns plain data. The
-  materializer adds the worktree beside the integration checkout and commits
-  the revisions without pushing. It returns each revision's commit.
-- Route `createCleanTrunkFixture` through the description and materializer.
-  Route the fixtures layered on it too: managed delivery and its owner and
-  transport fixtures, fresh delivery, trunk closure and closure owner,
-  closure Git, source freshness and the racing-suffix backlog fixture. The
-  publication family names a shared description, a trunk with one
-  unpublished increment, in its fixture module. A case that reads a file
-  name, content or identity of the trunk or increment declares it at its
-  call site.
-- Published planning facts in this family come from the canonical builders
-  and production encoders. Examples are the backlog, story state and done
-  records used by completed-identity, done-catalog and Dough Land completion
-  cases. Exact malformed or legacy bytes under proof stay literal.
-- Route the other skill fixtures that make their own starting repository
-  through the description. They are CI path applicability, revision
-  coverage, integrated-state judge, consumer trace, repair stash, worktree
-  preparation and its wrapper, default checkout, target-branch worktree,
-  installed checkouts and preparation publication. Migrate the inline
-  starting repositories in the six skill tests that run `git init`. CI
-  workflow text, lockfiles and project configuration that a case proves are
-  declared files with their exact bytes.
-- Installed skills, the controlled CI adapter, mailbox storage and ignored
-  local configuration stay harness layers added to the materialized
-  checkout. They are not description facts.
-- Keep as real Git operations in the helper or test: competing pushes,
-  rejected publications, rebases, merges, ongoing merge or rebase states,
-  stashes, dirty and untracked files, submodules, locked or removed
-  worktrees and maintenance states.
-- Remove a superseded helper or root builder once no consumer needs it. The
-  native owned-context fixture loads `ownedWorktreeOnly` and
-  `advanceOriginFromAnotherWriter`. Those two keep their behavior for that
-  caller.
-- Boundary assumption: execution starts after
-  [the shared repository builder](../../tests/support/repository-fixture.mjs) lands
-  `makeMe.aRepository` and its materializer on trunk. This story extends
-  that description and materializer rather than adding a second one.
-- Scope limits: queued and preparation trunks belong to
-  [the shared repository builder](../../tests/support/repository-fixture.mjs). These
-  include the supplier visit fixtures' queued trunk and the one-shot
-  refinement trunks. The one-shot payload installation is a harness layer
-  and stays. Dashboard start origins, Node backlog repositories and shell or
-  native fixtures belong to their sibling stories. Caching beyond the
-  materializer's per-process reuse belongs to
-  [faster Git fixture construction](#reuse-immutable-git-histories). The
-  description gains a linear unpublished suffix only, with no general branch
-  or merge model.
-
-#### Key examples
-
-1. **Clean-trunk publication.** `publication.test.mjs` names the shared
-   description: one trunk commit and a workspace with one unpublished
-   increment. The origin's `main` is the trunk commit. The workspace branch
-   is one commit ahead and absent from the origin. Publication is accepted
-   as today.
-2. **Committer under proof.** The closure agent-credit test declares the
-   developer who commits in the workspace at its call site. The merge still
-   credits that developer once. No assertion depends on an identity that
-   only a fixture module states.
-3. **Product facts.** The completed-identity test declares Story A Taken in
-   its trunk's backlog through MakeMe. The real backlog `complete` still runs
-   on the materialized checkout, and the done record it asserts is unchanged.
-4. **Literal configuration.** A path applicability test declares its exact
-   `ci.yml` text as a trunk file. Its classification is unchanged.
-5. **Git under proof.** A racing-suffix test takes its trunk and owned
-   backlog suffix from the description. The other writer's advance, the
-   rejected push and the rebase stay in the test. The repair-stash test's
-   stash entries and dirty submodule stay Git operations.
-6. **Superseded setup removed.** No non-native test calls
-   `createCleanTrunkFixture` or keeps its own `git init` for a starting
-   repository. The native owned-context fixture still runs with unchanged
-   helper behavior.
-
-#### Evaluation
-
-Migrated tests keep their verdicts and assertions. A reviewer can name each
-case's driving repository facts from its call site or fixture module. Record
-focused run times before and after under comparable load for the managed
-delivery family and the closure family. They must not regress beyond
-run-to-run noise.
-
-#### Architecture
-
-- **One description, one materializer.** The workspace suffix extends
-  [the repository description and materializer](../../tests/support/repository-fixture.mjs).
-  No publication-specific copy is added. MakeMe owns the facts, and the
-  harness owns Git, worktrees, installation and teardown
-  ([test data architecture](../../tests/README.md#test-data-architecture)).
-- **The unpublished suffix is a fact; its fate is Git.** Every publication
-  and closure case reads the workspace's increment, so the description
-  states it. What happens to it next stays Git under proof: push, rejection,
-  rebase or merge. The suffix is linear and sits on one named trunk
-  revision. Other commit graphs stay Git operations
-  ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)).
-- **Harness layers stay outside the description.** Installed skills, the CI
-  adapter, mailboxes and ignored configuration describe the test machine,
-  not the project's published history.
-- **No native evidence change.** The native shell fixtures do not load
-  these modules. The owned-context fixture loads two Git helpers whose
-  behavior stays unchanged. So this story needs no paid run
-  ([native family layers](../../tests/native-family-layers.md)).
+**Scope.** The native worktree-preparation modules stop loading MakeMe and
+the materializer while their repositories stay as they are. A workspace's
+declared checkout identity stays with its worktree. The trunk without a
+backlog becomes an explicit fact. A revision that declares both a rendered
+backlog and backlog file bytes is refused. The builder's refusals get one
+Git-free test. The test-data architecture describes the current repository
+facts. No paid or native host run, and no change to the sibling stories'
+scope. [Plan](../slice-plans/532-tighten-repository-description-facts/PLAN.md)
 
 <a id="migrate-backlog-scratch-repositories"></a>
 
@@ -450,9 +340,13 @@ which release and repository facts the check arranges.
 **Scope.** Use [the shared repository builder](../../tests/support/repository-fixture.mjs)
 through a small Node helper for `release-fixture.bash`, the native Git fixtures
 and inline shell setup, including the native startup fixture's queued trunk.
-Remove the remaining `createQueuedTrunk` path. Native evidence identities will
-change, so record the literal manual native commands. Paid runs stay
-manual-only.
+Remove the remaining `createQueuedTrunk` path. Include the native-only
+worktree-preparation repository builders and the `ownedWorktreeOnly`,
+`advanceOriginFromAnotherWriter` and `cloneAsAnotherWriter` helpers that
+native callers still use. The git-publication admission evidence identity
+already hashes the clean-trunk fixture modules, so its retained records no
+longer match their inputs. Native evidence identities will change, so record
+the literal manual native commands. Paid runs stay manual-only.
 
 <a id="declare-fake-github-planning-data"></a>
 
@@ -460,28 +354,104 @@ manual-only.
 
 **Identity:** SEED-262#declare-fake-github-planning-data
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/530-declare-fake-github-planning-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e8ace42c9e9d224e19599d13bd01ccb41ac1c5a9057e7d504bdbe9ac46900aef","plan":"1d18ef03c22cf1236be76934b870e82aad5e67093434b02eb04297b754e8c84f"}}
 ```
 
-**Goal.** A maintainer reading a dashboard journey that serves a project
-through the fake GitHub can see which planning facts that project holds,
-because the served backlog, seeds and records come from MakeMe data rendered
-by the production encoders rather than hand-written Markdown.
+#### Goal
 
-**Scope.** On 2026-11-08 about 19 dashboard helpers, among them
-`refreshJourney.ts`, `notificationStoryJourney.ts`,
-`sessionNavigationJourney.ts`, `doughnutProject.ts`,
-`recentlyDoneRecords.ts` and `accessibleBoard.ts`, and 36 specs put literal
-`# Product backlog` text into fake GitHub contents. Declare those facts
-through the shared MakeMe builders and render them with the production
-encoders. Keep literal text where a spec proves those exact bytes, such as
-malformed answers. Split from
-[dashboard test repositories](#migrate-dashboard-origin-fixtures), which
-covers helpers that build a Git repository.
+A maintainer reading a dashboard journey that serves a project through the
+fake GitHub can see which planning facts that project publishes at each
+revision. Today about 40 dashboard helpers and specs put literal
+`# Product backlog` text, seed headings, profiles or done records into the
+fake GitHub's published files, so the facts that drive a case hide inside
+Markdown templates. The served files come from the same
+[repository description](../../tests/support/repository-fixture.mjs) that
+Git fixtures use, rendered with the production encoders. Dashboard feedback
+must not get slower.
 
-**Evaluation.** Migrated specs keep their verdicts and assertions, and a
-reviewer can name each journey's served planning facts from its call site or
-fixture file. Focused times do not regress beyond run-to-run noise.
+#### Scope
+
+- A `makeMe.aRepository` description renders to the published files of each
+  named revision without Git, as the files the fake GitHub serves
+  (`PublishedRevision`). A later revision serves the earlier revisions'
+  files with its own changes and removals applied, as Git would publish
+  them. Rendering uses the encoders the Git materializer already uses:
+  backlog membership, story states, agent profiles, done records and the
+  rebuilt done catalog. The Git materializer and this rendering share one
+  file renderer.
+- Fake GitHub helpers and specs that hand-write published planning files
+  declare them instead. On 2026-11-08 these included `refreshJourney.ts`,
+  `notificationStoryJourney.ts`, `sessionNavigationJourney.ts`,
+  `sourceNavigationJourney.ts`, `doughnutProject.ts`, `recentlyDoneRecords.ts`,
+  `accessibleBoard.ts`, `takenAgentProfileRecords.ts`, `agentRosterRecords.ts`,
+  `authenticatedAvatarRecords.ts`, the shared, resuming and turn read
+  supports, and the specs under `observation`, `sessions`, `stories`,
+  `navigation`, `configuration` and `runtime` that build their own backlog
+  text. Helpers that already call `renderPublishedBacklog` but hand-write
+  seeds or records, such as `catalogProjectRecords.ts`, move to the same
+  description. A seed's prose that the dashboard reads, such as a story's
+  heading, identity line or purpose, stays a declared file in the revision;
+  its story state comes from the declared facts.
+- Moving published files (`publishMovingFiles` with `moveTrunk` and
+  `moveBranch`) take their revisions from named revisions of one description.
+  The fake GitHub's answers, observation and held or failing reads stay in
+  the harness.
+- Keep literal bytes at the call site where a spec proves them: malformed or
+  truncated backlogs, legacy shapes, unreadable records, and deliberately
+  invalid input. Build the surrounding valid files from the description.
+- Remove superseded literal templates, such as `emptyBacklog` in
+  `originAnswers.ts`, once their last consumer declares its facts.
+- Boundary assumption: a helper that builds a Git repository belongs to
+  [dashboard test repositories](#migrate-dashboard-origin-fixtures). A helper
+  doing both migrates its fake GitHub files here and its Git origin there.
+- Scope limits: this story adds no new MakeMe concept beyond what the
+  description already states, except what a migrated case needs to state its
+  driving facts. It changes no dashboard product behavior and no fake GitHub
+  answer shape. Git reuse belongs to
+  [faster Git fixture construction](#reuse-immutable-git-histories).
+
+#### Key examples
+
+1. **Empty published project.** A journey serves a project with no stated
+   planning facts. The fake GitHub serves the description's default revision:
+   an empty valid backlog. The board shows no stories, as before, and
+   `emptyBacklog` is gone.
+2. **Refresh across revisions.** The refresh journey declares revision A with
+   one Taken and two queued stories, and revision B moving one queued story to
+   Taken. Moving trunk from A to B shows the same titles and order as today.
+   Seeds unchanged at B are served from A's files.
+3. **Profiles and done records.** A Taken agent profile journey declares its
+   profile, and a recently done journey declares its done records. The served
+   profile, records and catalog equal what `renderAgentProfile`,
+   `renderDoneRecord` and the catalog encoder write, and the cards read as
+   today.
+4. **Exact bytes kept.** The read-failure spec still serves its malformed
+   backlog tail literally at the call site, and its verdict is unchanged.
+   A long-title layout case declares the long titles, direction and
+   identities as facts instead of a template.
+5. **Superseded templates removed.** No dashboard helper or spec that serves
+   the fake GitHub writes `# Product backlog` text, except a call site whose
+   spec proves those bytes.
+
+#### Evaluation
+
+Migrated specs keep their verdicts and assertions. A reviewer can name each
+journey's served planning facts from its call site or fixture file. Record
+focused run times before and after under comparable load for one refresh or
+navigation family and one recently done or profile family. They must not
+regress beyond run-to-run noise.
+
+#### Architecture
+
+- **One description, two outputs.** The same description materializes as a
+  Git origin or renders as served files. Both use one file renderer, so a
+  journey and a Git spec stating the same facts publish the same bytes
+  ([test data architecture](../../tests/README.md#test-data-architecture)).
+- **Rendering stays in memory.** Served files need no Git or disk, so the
+  done catalog uses the pure catalog encoder rather than a directory rebuild.
+- **No native evidence change.** Fake GitHub helpers are not inputs to native
+  evidence, so no paid run is needed
+  ([native family layers](../../tests/native-family-layers.md)).
 
 <a id="reuse-immutable-git-histories"></a>
 

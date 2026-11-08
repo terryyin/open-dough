@@ -98,6 +98,24 @@ its claim, so declare such facts in the description instead. Record a
 story's readiness review after its dependency agreements, which belong to
 its readiness basis. [Queued repository](support/queued-repository.mjs)
 
+A description can also name its trunk branch (`withTrunkBranch`, default
+`main`), the checkout's configured committer (`withCheckoutIdentity`), and one
+execution workspace: `withWorkspace(branch, { from, checkoutIdentity })` with
+ordered `withUnpublishedRevision` commits. The materializer adds that workspace
+as an `execution` worktree beside the checkout and commits its revisions
+without pushing; `candidateSha` names its tip. A workspace identity is written
+to the configuration both checkouts share. A revision's `executables` lists
+files to commit with the executable mode. A first revision gets an empty
+backlog unless it states one or states `backlog: undefined`. Because templates
+are reused, identical descriptions give identical commit IDs within a process.
+Other branches, merges, competing writers, stashes, dirty files, submodules
+and removed worktrees stay Git operations in the case. Installed skills, CI
+adapters, mailboxes, ignored local configuration and generated install output
+are harness layers added to the materialized checkout, not description facts.
+A case that proves behavior without a remote removes it with Git. Native
+evidence fixtures keep their own repository helpers so their hashed inputs and
+repositories stay stable.
+
 ## Check environment
 
 The runner gives every check, in the whole suite or a chosen run alike, the

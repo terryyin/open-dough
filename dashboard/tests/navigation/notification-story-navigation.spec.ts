@@ -16,6 +16,9 @@ import {
   storyUrl,
   targetRevision,
 } from "../notificationStoryJourney.ts";
+import { pausePageClock } from "../autoRefreshJourney.ts";
+import { expectSelected } from "../storyCardSelection.ts";
+import { expectCueEnds, expectDestinationCue } from "../destinationCue.ts";
 
 test("cold story URL waits for the named project's data, then reveals and focuses its encoded identity", async ({
   page,
@@ -65,10 +68,14 @@ test("reload, direct open, and history preserve story targeting while ordinary p
   page,
   dashboard,
 }) => {
+  await pausePageClock(page);
   await notificationOrigins(page, "Taken");
   await page.goto(storyUrl());
   const card = page.getByRole("article", { name: notifiedTitle, exact: true });
   await expect(card).toBeFocused();
+  await expectDestinationCue(page, card, { motion: true });
+  await expectSelected(card, false);
+  await expectCueEnds(page, card);
   await page.reload();
   await expect(card).toBeFocused();
   await expect(card).toBeInViewport({ ratio: 0.99 });
@@ -77,6 +84,8 @@ test("reload, direct open, and history preserve story targeting while ordinary p
   expect(new URL(page.url()).searchParams.has("story")).toBe(false);
   await page.goBack();
   await expect(card).toBeFocused();
+  await expectDestinationCue(page, card, { motion: true });
+  await expectCueEnds(page, card);
   expect(new URL(page.url()).searchParams.get("story")).toBe(notifiedIdentity);
   await page.goForward();
   await expect(page.getByRole("article", { name: otherTitle })).toBeVisible();

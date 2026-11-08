@@ -53,6 +53,8 @@ Its review uses the catalog identity and that identity as the title until its
 done record supplies the title. Native availability, completion attention and
 the removed seed or plan do not decide whether review is offered. The review
 action and nested sessions add nothing to heading or Column paging counts.
+A standalone Done session or read done-story card (also one holding no session)
+without Open terminal offers [Follow up](LAUNCH-FOLLOW-UP.md); the source stays.
 Native Working, Needs input, Ready for review, unavailable or unknown activity,
 and Mark as read, never choose a column. Existing operations recording or
 clearing Done remain authoritative; refused marking or native reopening keeps
@@ -230,9 +232,20 @@ Rows show ellipsized title and largest elapsed unit (30s), state border, accessi
 label/tooltip. Open rows use launch age; Done rows in Recently done sessions use completion age and say so in details/tooltip. Command+B toggles it except in
 an open dialog; Ctrl+B still reaches the terminal. Sidebar state survives reload; closing while
 focused there restores Sessions. Wide: sidebar/page/Side panel; narrow: sidebar overlays below
-the banner, Side panel above the page. Opening a row changes project/history and reveals its
-session entry or active card in Taken or Recently done until user navigation; reduced motion
-skips animation. Deleting moves keyboard within the same list, else previous, else done/story
+the banner, Side panel above the page. Opening an open-list row, or a Recently done row through
+its Open control, changes project/history and reveals its session entry or active card in Taken
+or Recently done until user navigation; reduced motion skips animation. A Recently done row
+selects instead of opening (pressed, inset ring, apart from the Side panel's outlined current
+row): a published done record recent in the session's project with its exact story identity
+links it, selecting that story there in the current perspective; otherwise the retained session
+alone is selected, keeping the Selected story. In Development a selection also shows its
+project's stories and brings its done story card, or its session's entry, marked selected (inset
+ring, "Selected session"), into view, extending Recently done's range as an Open's reveal does,
+while the keyboard stays on the row and the Side panel stays as it was; Intent reveals nothing.
+Its Open control (Open terminal or Read final report) shows only where that access is
+available. A foreign catalog is read on demand; an
+unread or failed one is said on the row apart from a confirmed miss, and a later choice, Open or
+project change supersedes it. Deleting moves keyboard within the same list, else previous, else done/story
 card, else column. Closing a terminal or report keeps its return control while usable, else the
 session in its current home. Membership movement alone never attaches or detaches its terminal.
 **Recently done sessions** and **Running Cursor sessions** sit below the open list, each

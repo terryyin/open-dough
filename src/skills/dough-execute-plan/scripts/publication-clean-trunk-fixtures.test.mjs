@@ -13,10 +13,11 @@ test("publication fixture remotes do not start maintenance while another writer 
   const trace = join(parent, "git-trace.jsonl");
   const source = `
     import assert from 'node:assert/strict';
-    import { createCleanTrunkFixture, authorizedRemote } from ${JSON.stringify(new URL("./publication-clean-trunk-fixtures.mjs", import.meta.url).href)};
+    import { authorizedRemote, trunkWithOneUnpublishedIncrement } from ${JSON.stringify(new URL("./publication-clean-trunk-fixtures.mjs", import.meta.url).href)};
+    import { materializeRepository } from ${JSON.stringify(new URL("../../../../tests/support/repository-fixture.mjs", import.meta.url).href)};
     import { advanceOriginBacklog, backlogPath } from ${JSON.stringify(new URL("./publication-racing-suffix-fixtures.mjs", import.meta.url).href)};
     import { git, lsRemoteSha } from ${JSON.stringify(new URL("./publication-test-fixtures.mjs", import.meta.url).href)};
-    const fixture = await createCleanTrunkFixture();
+    const fixture = await materializeRepository(trunkWithOneUnpublishedIncrement);
     try {
       for (const [remote, branch] of [['origin', 'main'], ['upstream', 'trunk']]) {
         const url = await authorizedRemote(fixture, remote, branch);

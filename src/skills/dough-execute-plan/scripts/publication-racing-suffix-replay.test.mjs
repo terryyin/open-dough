@@ -33,8 +33,8 @@ import {
 
 test("a rejection after the suffix was already rewritten replays only that suffix onto the newer trunk", async (t) => {
   const ownedBacklog = backlogOf([], [itemA, itemB, itemC, ownedD]);
-  const { origin, integration, execution, trunkSha, cleanup } =
-    await createBacklogSuffixFixture(ownedBacklog);
+  const fixture = await createBacklogSuffixFixture(ownedBacklog);
+  const { origin, integration, execution, trunkSha, cleanup } = fixture;
   t.after(cleanup);
   // The owned increment already credits its model and developer co-authors.
   const credit =
@@ -66,7 +66,7 @@ test("a rejection after the suffix was already rewritten replays only that suffi
   });
   assert.equal(firstReplay.code, 0, firstReplay.stdout + firstReplay.stderr);
   const rewritten = await revParse(execution, "exec/story");
-  await assertAffectedCombination(execution, rewritten);
+  await assertAffectedCombination(fixture, rewritten);
   const suffixBase = (
     await git(execution, "rev-parse", `${rewritten}^`)
   ).stdout.trim();
@@ -85,7 +85,7 @@ test("a rejection after the suffix was already rewritten replays only that suffi
   });
   assert.equal(retry.code, 0, retry.stdout + retry.stderr);
   const candidate = await revParse(execution, "exec/story");
-  await assertAffectedCombination(execution, candidate);
+  await assertAffectedCombination(fixture, candidate);
   assert.equal(
     (await git(execution, "rev-parse", `${candidate}^`)).stdout.trim(),
     secondWriter,

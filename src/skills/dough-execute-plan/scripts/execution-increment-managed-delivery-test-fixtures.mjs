@@ -15,7 +15,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
 import { readMailboxEvents } from "./ci-mailbox-store.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
-import { createCleanTrunkFixture, git } from "./publication-test-fixtures.mjs";
+import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
+import { git } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   awaitWorkerState,
   deferObserverStop,
@@ -73,17 +75,21 @@ if (request.operation === 'discover') {
   return adapter;
 }
 
-// `checkout` names where the skill is installed and delivery runs from: the
-// execution worktree, or the default (integration) checkout.
+// `description` is the repository the fixture materializes; the managed
+// delivery harness is installed on top of it. `checkout` names where the skill
+// is installed and delivery runs from: the execution worktree, or the default
+// (integration) checkout.
 export async function createManagedFixture({
+  description = trunkWithOneUnpublishedIncrement,
   platforms = [".agents"],
   preferredAlias,
   checkout = "execution",
 } = {}) {
-  const base = await createCleanTrunkFixture();
+  const base = await materializeRepository(description);
   const teardown = fixtureTeardown(base.fixture);
   return {
     ...base,
+    description,
     preferredAlias,
     teardown,
     cleanup: teardown.cleanup,

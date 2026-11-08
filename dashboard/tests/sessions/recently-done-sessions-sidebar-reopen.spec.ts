@@ -46,7 +46,7 @@ test("a held Cursor attach from Recently done keeps Done membership", async ({
   const shown = recentlyDoneParts(page);
   await shown.button.click();
   await shown.header.click();
-  await shown.entry(title).click();
+  await shown.open(title).click();
   await expect(page.getByRole("region", { name: "Terminal" })).toBeVisible();
   await expect(shown.entry(title)).toHaveCount(1);
 });
@@ -78,7 +78,7 @@ test("a successful Cursor attach from Recently done removes the Done row", async
   await shown.button.click();
   await shown.header.click();
   await expect(shown.entry(title)).toHaveCount(1);
-  await shown.entry(title).click();
+  await shown.open(title).click();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-rows")).toContainText("ctrl+c to stop");
   await expect(shown.entry(title)).toHaveCount(0);
@@ -116,7 +116,7 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
   await expect(shown.sidebar).toBeVisible();
   await shown.header.click();
   const reopened = pageReadReopened(page, held);
-  await shown.entry(title).click();
+  await shown.open(title).click();
   await expect(shown.sidebar).toBeHidden();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-rows")).toContainText("ctrl+c to stop");

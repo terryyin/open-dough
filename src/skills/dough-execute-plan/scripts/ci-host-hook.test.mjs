@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { deliverCiEvents, selectCiEvents } from "./ci-host-hook.mjs";
 import {
   createMailbox,
@@ -167,107 +167,15 @@ for (const host of ["cursor", "claude"]) {
   });
 }
 
-test("Cursor child with the same conversation and transcript cannot consume the coordinator event", async () => {
-  const options = setup();
-  const directory = createMailbox({}, options);
-  deliverCiEvents(input("cursor", directory), "cursor", options);
-  await runMailboxWorker(directory, {
-    ...options,
-    observe: async () => failure,
-  });
-  for (const generation_id of ["child-request", undefined]) {
-    assert.deepEqual(
-      deliverCiEvents(
-        input("cursor", directory, { generation_id }),
-        "cursor",
-        options,
-      ),
-      {},
-    );
-  }
-  assert.match(
-    context(deliverCiEvents(input("cursor"), "cursor", options)),
-    /CI_FAILURE/,
+test("claude: a worktree binding and the main-checkout hook share one coordinator owner", async (t) => {
+  const repository = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("init", { backlog: undefined })
+      .withWorkspace("exec/story", { from: "init" })
+      .please(),
   );
-});
-
-test("Cursor reattaches after a real user prompt, not an arbitrary child tool call", async () => {
-  const options = setup();
-  const directory = createMailbox({}, options);
-  deliverCiEvents(input("cursor", directory), "cursor", options);
-  await runMailboxWorker(directory, {
-    ...options,
-    observe: async () => failure,
-  });
-  const nextTurn = { generation_id: "next-user-message" };
-  assert.deepEqual(
-    deliverCiEvents(input("cursor", undefined, nextTurn), "cursor", options),
-    {},
-  );
-  assert.deepEqual(
-    deliverCiEvents(
-      input("cursor", undefined, {
-        ...nextTurn,
-        hook_event_name: "beforeSubmitPrompt",
-      }),
-      "cursor",
-      options,
-    ),
-    {},
-  );
-  assert.match(
-    context(
-      deliverCiEvents(input("cursor", undefined, nextTurn), "cursor", options),
-    ),
-    /CI_FAILURE/,
-  );
-});
-
-test("Cursor cancellation does not auto-continue or consume a waiting failure", async () => {
-  const options = setup();
-  const directory = createMailbox({}, options);
-  deliverCiEvents(input("cursor", directory), "cursor", options);
-  await runMailboxWorker(directory, {
-    ...options,
-    observe: async () => failure,
-  });
-  assert.deepEqual(
-    deliverCiEvents(
-      input("cursor", undefined, {
-        hook_event_name: "stop",
-        status: "aborted",
-      }),
-      "cursor",
-      options,
-    ),
-    {},
-  );
-  assert.match(
-    context(deliverCiEvents(input("cursor"), "cursor", options)),
-    /CI_FAILURE/,
-  );
-});
-
-test("claude: a worktree binding and the main-checkout hook share one coordinator owner", (t) => {
-  const fixture = realpathSync(mkdtempSync(join(tmpdir(), "ci-hook-owner-")));
-  t.after(() => rmSync(fixture, { recursive: true, force: true }));
-  const main = join(fixture, "main");
-  const worktree = join(fixture, "worktree");
-  const git = (...args) => execFileSync("git", args, { stdio: "ignore" });
-  git("init", "-b", "main", main);
-  git(
-    "-C",
-    main,
-    "-c",
-    "user.name=Hook",
-    "-c",
-    "user.email=hook@example.test",
-    "commit",
-    "--allow-empty",
-    "-m",
-    "init",
-  );
-  git("-C", main, "worktree", "add", worktree, "-b", "exec/story");
+  t.after(repository.cleanup);
+  const { integration: main, execution: worktree } = repository;
   const { storage } = setup();
   const directory = createMailbox({}, { root: worktree, storage });
 

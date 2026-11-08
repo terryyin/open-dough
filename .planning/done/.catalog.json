@@ -2,6 +2,42 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_migrate-clean-trunk-fixtures.json",
+      "identity": "SEED-262#migrate-clean-trunk-fixtures",
+      "completedAt": "2026-11-08T11:13:39.094Z",
+      "blob": "84230a78a0c4f0e993f0c0445ddb7af8fb59d548"
+    },
+    {
+      "fileName": "SEED-272_select-recently-done-sessions.json",
+      "identity": "SEED-272#select-recently-done-sessions",
+      "completedAt": "2026-11-08T10:43:49.680Z",
+      "blob": "8ac8bc6af696e7d4699831bc7497e21672d7b6f8"
+    },
+    {
+      "fileName": "SEED-273_follow-up-from-done.json",
+      "identity": "SEED-273#follow-up-from-done",
+      "completedAt": "2026-11-08T10:13:45.153Z",
+      "blob": "5d3d1774faccaeb65fdd6e52b04e8442e2a6ac7f"
+    },
+    {
+      "fileName": "SEED-271_compact-intent-sidebar.json",
+      "identity": "SEED-271#compact-intent-sidebar",
+      "completedAt": "2026-11-08T10:09:59.421Z",
+      "blob": "79088c08386068adf6db959809bf56a3fa280905"
+    },
+    {
+      "fileName": "SEED-274_declare-intent-test-sources.json",
+      "identity": "SEED-274#declare-intent-test-sources",
+      "completedAt": "2026-11-08T10:00:59.030Z",
+      "blob": "a791cb8e7784248b9f3c58021d13059dd396d826"
+    },
+    {
+      "fileName": "SEED-270_highlight-linked-story-card.json",
+      "identity": "SEED-270#highlight-linked-story-card",
+      "completedAt": "2026-11-08T08:43:08.997Z",
+      "blob": "d856b0b148699824511786c7f2c2ced29b7fac67"
+    },
+    {
       "fileName": "SEED-262_build-explicit-git-fixtures.json",
       "identity": "SEED-262#build-explicit-git-fixtures",
       "completedAt": "2026-11-08T07:36:52.017Z",

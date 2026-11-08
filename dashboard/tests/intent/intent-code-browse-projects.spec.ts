@@ -1,6 +1,7 @@
 // Intent code browse for Doughnut javascript and Pygardon TypeScript/Python
 // locations (../../src/IntentPerspective.tsx). Companion to
-// ./intent-code-browse.spec.ts Open Dough TypeScript and shell coverage.
+// ./intent-code-browse.spec.ts Open Dough TypeScript and shell coverage, and
+// ./intent-code-browse-sources.spec.ts for locations declared by source entries.
 
 import { expect, test } from "../dashboardTest.ts";
 import { parts, shortRevision } from "../dashboardPage.ts";

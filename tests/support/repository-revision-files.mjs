@@ -80,7 +80,7 @@ export function writeRevisionFiles(integration, revision) {
   const {
     backlog,
     files = {},
-    executable = [],
+    executables = [],
     storyStates = [],
     agentProfiles = [],
     doneRecords,
@@ -96,7 +96,8 @@ export function writeRevisionFiles(integration, revision) {
     );
   for (const [path, content] of Object.entries(files))
     writeFixtureFile(fixturePath(integration, path), content);
-  for (const path of executable)
+  // Paths the revision commits with the executable mode.
+  for (const path of executables)
     chmodSync(fixturePath(integration, path), 0o755);
   for (const state of storyStates) writeStoryState(planning, state);
   for (const profile of agentProfiles)

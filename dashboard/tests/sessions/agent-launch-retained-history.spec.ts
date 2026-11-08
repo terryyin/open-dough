@@ -17,10 +17,8 @@ import {
 import { parts } from "../dashboardPage.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { givePageItsTurns } from "../pageRequestNotes.ts";
-import {
-  doneRecord,
-  recentlyDoneParts,
-} from "../recentlyDoneSessionsSidebarPage.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
 import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
 import { showPage } from "../runningCursorSessionsPage.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
@@ -61,13 +59,12 @@ function retained(dashboard: DashboardServer, now: number, title: string) {
     cwd: dashboard.home,
     startedAt: launchedAt,
   });
-  return doneRecord({
-    source: "open-dough",
-    title,
-    sessionId,
-    launchedAt: new Date(launchedAt).toISOString(),
-    doneAt: new Date(now - 5 * minute).toISOString(),
-  });
+  return makeMe.aLaunchRecord
+    .adHoc({ instruction: title, title })
+    .inClaudeSession({ sessionId })
+    .launchedAt(new Date(launchedAt).toISOString())
+    .markedDoneAt(new Date(now - 5 * minute).toISOString())
+    .please();
 }
 
 async function showRetained(

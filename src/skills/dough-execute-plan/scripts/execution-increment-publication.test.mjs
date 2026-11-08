@@ -14,7 +14,6 @@ import { publishExecutionIncrement } from "./execution-increment-publication.mjs
 import {
   assertCheckoutUnchanged,
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   revParse,
@@ -24,9 +23,20 @@ import {
   commitOverDeveloperWork,
   unpublishedBaseCases,
 } from "./unpublished-base-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 const trunkTarget = "refs/heads/main";
 const recordedStoryBranch = "refs/heads/cursor/story-execution";
+
+// A trunk.txt trunk commit, which the planted human edit changes, and a
+// workspace on exec/story one unpublished increment.txt commit ahead.
+const trunkWithOneIncrement = makeMe.aRepository
+  .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
 
 function receiptsOf() {
   const receipts = [];
@@ -40,7 +50,7 @@ function receiptsOf() {
 
 test("Story Branch Mode increment publishes to the recorded remote execution branch and leaves remote trunk unchanged", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneIncrement);
   t.after(cleanup);
 
   const before = await captureCheckout(integration);
@@ -71,7 +81,7 @@ test("Story Branch Mode increment publishes to the recorded remote execution bra
 
 test("a candidate the remote already holds is accepted without reconciliation or push", async (t) => {
   const { integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneIncrement);
   t.after(cleanup);
   // An earlier push was accepted but its answer never arrived.
   await git(execution, "push", "origin", `${candidateSha}:${trunkTarget}`);
@@ -107,8 +117,9 @@ test("a candidate the remote already holds is accepted without reconciliation or
 });
 
 test("an owned repair publishes without unfinished work and restores that work afterwards", async (t) => {
-  const { origin, execution, trunkSha, cleanup } =
-    await createCleanTrunkFixture();
+  const { origin, execution, trunkSha, cleanup } = await materializeRepository(
+    trunkWithOneIncrement,
+  );
   t.after(cleanup);
 
   const unfinished = "owned unfinished edit\n";
@@ -186,7 +197,7 @@ test("an owned repair publishes without unfinished work and restores that work a
 
 for (const { trunkAdvanced, pendingEdit } of unpublishedBaseCases) {
   test(`publishing over the developer's unpublished commit${trunkAdvanced ? " after trunk advanced" : ""} refuses before any rebase or push and changes nothing`, async (t) => {
-    const fixture = await createCleanTrunkFixture();
+    const fixture = await materializeRepository(trunkWithOneIncrement);
     t.after(fixture.cleanup);
     const staged = await commitOverDeveloperWork(fixture, {
       trunkAdvanced,

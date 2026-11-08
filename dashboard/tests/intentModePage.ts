@@ -51,3 +51,23 @@ export async function chooseOptimizationCandidates(intent: Locator) {
   await expectIntentModeChosen(intent, "Optimization Candidates");
   await expect(intent.locator(".intent-locations")).toBeHidden();
 }
+
+// The strip's Hide files / Show files toggle for the locations column.
+export const intentModeBar = (intent: Locator) =>
+  intent.locator(".intent-mode-bar");
+export const filesToggle = (intent: Locator) =>
+  intentModeBar(intent).getByRole("button", { name: /^(Hide|Show) files$/ });
+
+// The toggle names what it does and states whether the column is shown.
+export async function expectFilesShown(intent: Locator, shown: boolean) {
+  const toggle = filesToggle(intent);
+  await expect(toggle).toHaveText(shown ? "Hide files" : "Show files");
+  await expect(toggle).toHaveAttribute("aria-expanded", String(shown));
+  const column = intent.locator(".intent-locations");
+  await expect(column).toHaveAttribute(
+    "id",
+    (await toggle.getAttribute("aria-controls")) ?? "",
+  );
+  if (shown) await expect(column).toBeVisible();
+  else await expect(column).toBeHidden();
+}

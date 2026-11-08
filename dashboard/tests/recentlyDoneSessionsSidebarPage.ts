@@ -34,22 +34,29 @@ export const recentlyDoneHeightKey =
   "open-dough.sessionsSidebar.recentlyDoneHeight";
 
 export function recentlyDoneParts(page: Page) {
-  const { sidebar, button, entries } = sessionsSidebarParts(page);
+  const { sidebar, button, entries: openEntries } = sessionsSidebarParts(page);
   const region = sidebar.getByRole("region", {
     name: "Recently done sessions",
   });
+  const entries = region.locator("li.sessions-sidebar-session-entry");
   return {
     sidebar,
     button,
     // Open-list entries only (scoped in sessionsSidebarPage).
-    openEntries: entries,
+    openEntries,
     heading: sidebar.getByRole("heading", { level: 2, name: "Sessions" }),
     region,
     header: region.getByRole("button", { name: "Recently done sessions" }),
     list: sidebar.locator(".sessions-sidebar-sessions"),
     body: region.locator(".recently-done-sessions-body"),
-    entries: region.locator("li.sessions-sidebar-session-entry"),
+    entries,
+    // A row's Select control, named by its title, and its separate Open
+    // control, named by the access it opens and described by the title.
     entry: (title: string) => region.getByRole("button", { name: title }),
+    open: (title: string) =>
+      entries
+        .filter({ has: page.getByRole("button", { name: title }) })
+        .getByRole("button", { name: /^(Open terminal|Read final report)$/ }),
     divider: sidebar.getByRole("separator", {
       name: "Recently done sessions divider",
       exact: true,
@@ -82,73 +89,6 @@ export function pageReadReopened(page: Page, held: LaunchRecord) {
       ) === true
     );
   });
-}
-
-export function doneRecord(options: {
-  readonly source: string;
-  readonly title: string;
-  readonly sessionId: string;
-  readonly launchedAt: string;
-  readonly doneAt: string;
-  readonly host?: "claude" | "codex" | "cursor";
-  readonly workflow?: LaunchRecord["request"]["workflow"];
-  readonly identity?: string;
-}): LaunchRecord {
-  const host = options.host ?? "claude";
-  const workflow = options.workflow ?? "ad-hoc";
-  const name = options.title;
-  // Fixture builder: host/workflow unions are narrowed at call sites.
-  return {
-    request: {
-      source: options.source,
-      workflow,
-      title: options.title,
-      host,
-      ...(options.identity === undefined ? {} : { identity: options.identity }),
-    },
-    session: {
-      host,
-      sessionId: options.sessionId,
-      ...(host === "claude"
-        ? { shortId: options.sessionId.slice(0, 8), name }
-        : { name }),
-      ...(host === "cursor"
-        ? {
-            continuation: {
-              workspace: "/tmp",
-              args: ["agent", "--resume", options.sessionId],
-            },
-          }
-        : {}),
-    },
-    launchedAt: options.launchedAt,
-    doneAt: options.doneAt,
-  } as LaunchRecord;
-}
-
-export function openRecord(options: {
-  readonly source: string;
-  readonly title: string;
-  readonly sessionId: string;
-  readonly launchedAt: string;
-  readonly host?: "claude";
-}): LaunchRecord {
-  const host = options.host ?? "claude";
-  return {
-    request: {
-      source: options.source,
-      workflow: "ad-hoc",
-      title: options.title,
-      host,
-    },
-    session: {
-      host,
-      sessionId: options.sessionId,
-      shortId: options.sessionId.slice(0, 8),
-      name: options.title,
-    },
-    launchedAt: options.launchedAt,
-  };
 }
 
 // One queued story each project publishes.
@@ -212,13 +152,12 @@ export async function expandThreeCrowded(
       cwd: dashboard.home,
       startedAt: now - (index + 1) * 120_000,
     });
-    return doneRecord({
-      source: "open-dough",
-      title,
-      sessionId,
-      launchedAt: new Date(now - (index + 1) * 120_000).toISOString(),
-      doneAt: new Date(now - (index + 1) * 60_000).toISOString(),
-    });
+    return makeMe.aLaunchRecord
+      .adHoc({ instruction: title, title })
+      .inClaudeSession({ sessionId })
+      .launchedAt(new Date(now - (index + 1) * 120_000).toISOString())
+      .markedDoneAt(new Date(now - (index + 1) * 60_000).toISOString())
+      .please();
   });
   await keepMoreLaunchRecords(dashboard, done);
   const asked = changesAsked(page);

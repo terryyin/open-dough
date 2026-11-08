@@ -1,32 +1,34 @@
 import assert from "node:assert/strict";
-import { rmSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { classifyRevisionApplicability } from "./ci-path-applicability.mjs";
 import {
   acceptedWorkflow,
+  applicableBase,
   commitAll,
-  exec,
+  describedRepository,
   git,
-  initRepo,
-  writeWorkflow,
 } from "./ci-path-applicability-test-fixtures.mjs";
 
 // Conservative fail-closed cases: any evidence gap or ambiguity classifies as
 // `indeterminate` rather than an assumed `not_required` reuse.
 
 test("classifyRevisionApplicability: a mixed change (ignored + non-ignored) is indeterminate", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, acceptedWorkflow);
-  const shaA = await commitAll(repo, "base");
-
-  await exec("mkdir", ["-p", join(repo, "docs")]);
-  writeFileSync(join(repo, "docs", "readme.md"), "docs\n");
-  writeFileSync(join(repo, "app.js"), "console.log('changed');\n");
-  const shaB = await commitAll(repo, "mixed change");
+  const {
+    repo,
+    revisions: { base: shaA, mixed: shaB },
+  } = await describedRepository(
+    t,
+    applicableBase()
+      .withRevision("mixed", {
+        files: {
+          "docs/readme.md": "docs\n",
+          "app.js": "console.log('changed');\n",
+        },
+      })
+      .please(),
+  );
 
   const result = classifyRevisionApplicability({
     repoDir: repo,
@@ -38,21 +40,19 @@ test("classifyRevisionApplicability: a mixed change (ignored + non-ignored) is i
 });
 
 test("classifyRevisionApplicability: a non-ancestor candidate basis is indeterminate", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
+  const {
+    repo,
+    revisions: { base: shaBase, ignored: shaRegistered },
+  } = await describedRepository(
+    t,
+    applicableBase()
+      .withRevision("ignored", { files: { ".planning/note.md": "note\n" } })
+      .please(),
+  );
 
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, acceptedWorkflow);
-  await commitAll(repo, "base");
-
-  await git(repo, "checkout", "-q", "-b", "diverged");
+  await git(repo, "checkout", "-q", "-b", "diverged", shaBase);
   writeFileSync(join(repo, "diverged.js"), "console.log('diverged');\n");
   const shaDiverged = await commitAll(repo, "diverged branch commit");
-
-  await git(repo, "checkout", "-q", "main");
-  await exec("mkdir", ["-p", join(repo, ".planning")]);
-  writeFileSync(join(repo, ".planning", "note.md"), "note\n");
-  const shaRegistered = await commitAll(repo, "ignored-only on main");
 
   const result = classifyRevisionApplicability({
     repoDir: repo,
@@ -67,15 +67,15 @@ test("classifyRevisionApplicability: a non-ancestor candidate basis is indetermi
 });
 
 test("classifyRevisionApplicability: deleting a non-ignored path is indeterminate even alone", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, acceptedWorkflow);
-  const shaA = await commitAll(repo, "base");
-
-  await exec("rm", [join(repo, "app.js")]);
-  const shaB = await commitAll(repo, "delete non-ignored file");
+  const {
+    repo,
+    revisions: { base: shaA, deleted: shaB },
+  } = await describedRepository(
+    t,
+    applicableBase()
+      .withRevision("deleted", { remove: ["app.js"] })
+      .please(),
+  );
 
   const result = classifyRevisionApplicability({
     repoDir: repo,
@@ -90,16 +90,19 @@ test("classifyRevisionApplicability: deleting a non-ignored path is indeterminat
 });
 
 test("classifyRevisionApplicability: renaming a non-ignored path into an ignored-looking path is indeterminate", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-
-  writeFileSync(join(repo, "app.js"), `${"x".repeat(200)}\n`);
-  writeWorkflow(repo, acceptedWorkflow);
-  const shaA = await commitAll(repo, "base");
-
-  await exec("mkdir", ["-p", join(repo, "docs")]);
-  await exec("git", ["mv", "app.js", "docs/app.js"], { cwd: repo });
-  const shaB = await commitAll(repo, "rename non-ignored path under docs");
+  const app = `${"x".repeat(200)}\n`;
+  const {
+    repo,
+    revisions: { base: shaA, renamed: shaB },
+  } = await describedRepository(
+    t,
+    applicableBase(acceptedWorkflow, app)
+      .withRevision("renamed", {
+        remove: ["app.js"],
+        files: { "docs/app.js": app },
+      })
+      .please(),
+  );
 
   const result = classifyRevisionApplicability({
     repoDir: repo,
@@ -114,22 +117,20 @@ test("classifyRevisionApplicability: renaming a non-ignored path into an ignored
 });
 
 test("classifyRevisionApplicability: an unsupported workflow policy at the registered revision is indeterminate", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(
+  const {
     repo,
-    acceptedWorkflow.replace(
-      "      - '.planning/**'",
-      "      - ${{ env.IGNORED }}",
-    ),
+    revisions: { base: shaA, ignored: shaB },
+  } = await describedRepository(
+    t,
+    applicableBase(
+      acceptedWorkflow.replace(
+        "      - '.planning/**'",
+        "      - ${{ env.IGNORED }}",
+      ),
+    )
+      .withRevision("ignored", { files: { ".planning/note.md": "note\n" } })
+      .please(),
   );
-  const shaA = await commitAll(repo, "unsupported workflow policy");
-
-  await exec("mkdir", ["-p", join(repo, ".planning")]);
-  writeFileSync(join(repo, ".planning", "note.md"), "note\n");
-  const shaB = await commitAll(repo, "ignored-only change");
 
   const result = classifyRevisionApplicability({
     repoDir: repo,
@@ -144,12 +145,10 @@ test("classifyRevisionApplicability: an unsupported workflow policy at the regis
 });
 
 test("classifyRevisionApplicability: an unreadable registered revision is indeterminate", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, acceptedWorkflow);
-  const shaA = await commitAll(repo, "base");
+  const {
+    repo,
+    revisions: { base: shaA },
+  } = await describedRepository(t, applicableBase().please());
 
   const bogusSha = "f".repeat(40);
   const result = classifyRevisionApplicability({
@@ -165,16 +164,15 @@ test("classifyRevisionApplicability: an unreadable registered revision is indete
 });
 
 test("classifyRevisionApplicability: no candidate SHAs at all is indeterminate", async (t) => {
-  const repo = await initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, acceptedWorkflow);
-  await commitAll(repo, "base");
-
-  await exec("mkdir", ["-p", join(repo, ".planning")]);
-  writeFileSync(join(repo, ".planning", "note.md"), "note\n");
-  const shaB = await commitAll(repo, "ignored-only change");
+  const {
+    repo,
+    revisions: { ignored: shaB },
+  } = await describedRepository(
+    t,
+    applicableBase()
+      .withRevision("ignored", { files: { ".planning/note.md": "note\n" } })
+      .please(),
+  );
 
   const result = classifyRevisionApplicability({
     repoDir: repo,

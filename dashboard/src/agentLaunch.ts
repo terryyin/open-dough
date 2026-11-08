@@ -37,10 +37,10 @@ export * from "./launchOutcome.ts";
 
 // One project's launch records among the machine's sessions, oldest first,
 // or undefined while the machine's sessions are not yet read.
-export function projectSessionsOf(
-  records: readonly LaunchWithState[] | undefined,
+export function projectSessionsOf<Session extends LaunchRecord>(
+  records: readonly Session[] | undefined,
   sourceId: string,
-): readonly LaunchWithState[] | undefined {
+): readonly Session[] | undefined {
   return records?.filter((record) => record.request.source === sourceId);
 }
 
@@ -49,11 +49,11 @@ export const isOpen = (record: LaunchRecord) => record.doneAt === undefined;
 
 // Every session this machine keeps for one work item of a project, oldest
 // first, open or marked done. Identities are unique only within a project.
-export function storySessionsOf(
-  records: readonly LaunchWithState[] | undefined,
+export function storySessionsOf<Session extends LaunchRecord>(
+  records: readonly Session[] | undefined,
   sourceId: string,
   identity: string,
-): readonly LaunchWithState[] {
+): readonly Session[] {
   return (projectSessionsOf(records, sourceId) ?? []).filter(
     (record) => launchSubject(record.request).identity === identity,
   );

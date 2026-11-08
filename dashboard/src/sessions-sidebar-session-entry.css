@@ -2,12 +2,13 @@
    its state shows by its left border, an unread report by its own mark/tint,
    its tooltip and hidden words carry the words. */
 
-/* On desktop, Open covers the whole entry, a quiet row in the frame's
-   radius and edge; the entry the page's terminal shows is current, outlined
-   as its card is, on the accent's soft fill. */
+/* On desktop, the row control covers the whole entry, a quiet row in the
+   frame's radius and edge; the entry the page's terminal shows is current,
+   outlined as its card is, on the accent's soft fill. */
 .sessions-sidebar li.sessions-sidebar-session-entry {
   position: relative;
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
@@ -49,6 +50,35 @@
   background: var(--accent-soft);
 }
 
+/* The chosen Recently done row: an inset accent ring, as a selected Story
+   card has, inside whatever outline marks the Side panel's session. */
+.sessions-sidebar .sessions-sidebar-session-entry.chosen {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+/* A Recently done row's Open control sits above the row's Select control at
+   the end of the line, compact enough to keep the desktop row's height. */
+.sessions-sidebar-session-entry-access-group {
+  z-index: 1;
+  flex: none;
+  align-self: center;
+  margin-block: calc(-1.5 * var(--space-1));
+}
+
+.sessions-sidebar-session-entry-access-group > .icon-button {
+  width: calc(var(--control-size) * 0.75);
+  height: calc(var(--control-size) * 0.75);
+}
+
+/* While the chosen row's done story is checked, or cannot be, it says so on
+   its own line. */
+.sessions-sidebar-session-entry-choice {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--quiet);
+}
+
 /* An entry's state by its left border, whatever its other edges: needing
    input, solid thick red; ready for review, solid thick green; failed or
    stopped, dashed red; working, thin blue; done, thin grey; unknown,
@@ -81,8 +111,10 @@
 /* One line: the title, cut with an ellipsis when it is long, and the elapsed
    time at the end. The whole title stays the heading's, for assistive
    technology; the entry's tooltip says the rest. */
+/* The title takes what the line leaves, so only a chosen row's status wraps
+   to a line of its own. */
 .sessions-sidebar-session-entry-title {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -115,7 +147,8 @@
 }
 
 /* Desktop keeps its compact row and tooltip. Touch discovery is separate
-   from Open, so reading context cannot accidentally select the session. */
+   from the row control, so reading context cannot accidentally select or
+   open the session. */
 .sessions-sidebar-session-entry-details {
   display: none;
 }
@@ -146,6 +179,28 @@
 
   .sessions-sidebar-session-entry-elapsed {
     grid-column: 3;
+  }
+
+  .sessions-sidebar
+    li.sessions-sidebar-session-entry:has(
+      .sessions-sidebar-session-entry-access-group
+    ) {
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+  }
+
+  .sessions-sidebar-session-entry-access-group {
+    grid-column: -2;
+    grid-row: 1;
+    margin-block: 0;
+  }
+
+  .sessions-sidebar-session-entry-access-group > .icon-button {
+    width: var(--control-size);
+    height: var(--control-size);
+  }
+
+  .sessions-sidebar-session-entry-choice {
+    grid-column: 1 / -1;
   }
 
   .sessions-sidebar-session-entry-details {

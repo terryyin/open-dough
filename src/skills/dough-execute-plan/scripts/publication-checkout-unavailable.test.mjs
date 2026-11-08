@@ -12,10 +12,11 @@ import {
   assertCheckoutUnchanged,
   assertRemoteCandidate,
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   pushCandidate,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
 
 const refresh = (checkout) => refreshDefaultCheckout({ checkout });
 const inspect = (workspace, checkout) =>
@@ -28,7 +29,7 @@ const inspect = (workspace, checkout) =>
 
 test("without a default checkout refresh is not applicable, and a missing path or failing Git reports refresh-failed while preserving the checkout", async (t) => {
   const { fixture, origin, integration, execution, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(cleanup);
   await pushCandidate(execution, candidateSha);
   await git(execution, "fetch", "origin");

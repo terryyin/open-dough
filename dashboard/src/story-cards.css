@@ -34,6 +34,44 @@
   background: var(--accent-soft);
 }
 
+/* The destination cue (./destinationCue.ts): a brief mark on the card a story
+   reference or direct story URL just revealed, active or Recently done. It is
+   not the Highlight: it lies over the card, leaving the Highlight's ring and
+   fill beneath, and fades within the duration the page sets on the card. With
+   reduced motion it is a static ring that the page removes after that time. */
+.story-card-destination-cue {
+  position: relative;
+}
+
+.story-card-destination-cue::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 4px var(--accent-strong),
+    0 0 0 4px var(--accent-strong);
+  animation: story-card-destination-cue var(--destination-cue-duration)
+    ease-out forwards;
+}
+
+@keyframes story-card-destination-cue {
+  0%,
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-card-destination-cue::after {
+    animation: none;
+  }
+}
+
 /* Each part of the card is spaced by the card's own gap. */
 .story-card > .story-card-frame > * {
   margin-top: 0;

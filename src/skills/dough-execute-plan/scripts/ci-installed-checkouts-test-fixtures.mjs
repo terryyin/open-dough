@@ -1,20 +1,13 @@
-import { execFile } from "node:child_process";
-import {
-  cpSync,
-  mkdirSync,
-  mkdtempSync,
-  realpathSync,
-  writeFileSync,
-} from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 import { blockingGithubCommandDirectory } from "./watch-ci-test-fixtures.mjs";
 
-const exec = promisify(execFile);
 const source = fileURLToPath(new URL("../", import.meta.url));
 
 // Installs this skill's runtime, without its tests and fixtures, under
@@ -29,17 +22,11 @@ export function deployRuntime(root, platform = ".agents") {
   return skill;
 }
 
-// A Git checkout at `root` with one commit.
-async function initCheckout(root) {
-  mkdirSync(root, { recursive: true });
-  const git = (...args) => exec("git", args, { cwd: root });
-  await git("init", "-b", "main");
-  await git("config", "user.name", "Installed Checkouts");
-  await git("config", "user.email", "installed-checkouts@example.test");
-  writeFileSync(join(root, "README"), "checkout\n");
-  await git("add", "README");
-  await git("commit", "-m", "init");
-}
+// A repository with one commit, which is no Open Dough backlog project.
+const oneCommit = makeMe.aRepository.withRevision("init", {
+  backlog: undefined,
+  files: { README: "checkout\n" },
+});
 
 // One repository's default `checkout` and linked `worktree`, and an
 // `unrelated` repository, each with the runtime installed and its mailbox
@@ -51,16 +38,17 @@ export async function installedCheckouts(t, prefix) {
   const fixture = realpathSync(mkdtempSync(join(tmpdir(), prefix)));
   const teardown = fixtureTeardown(fixture);
   t.after(teardown.cleanup);
+  const parent = { parent: fixture };
+  const repository = await materializeRepository(
+    oneCommit.withWorkspace("exec/story", { from: "init" }).please(),
+    parent,
+  );
   const roots = {
-    checkout: join(fixture, "default"),
-    worktree: join(fixture, "worktree"),
-    unrelated: join(fixture, "unrelated"),
+    checkout: repository.integration,
+    worktree: repository.execution,
+    unrelated: (await materializeRepository(oneCommit.please(), parent))
+      .integration,
   };
-  await initCheckout(roots.checkout);
-  await exec("git", ["worktree", "add", roots.worktree, "-b", "exec/story"], {
-    cwd: roots.checkout,
-  });
-  await initCheckout(roots.unrelated);
   const launchers = Object.fromEntries(
     Object.entries(roots).map(([name, root]) => [
       name,

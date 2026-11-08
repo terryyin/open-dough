@@ -72,8 +72,8 @@ chosen model runs in a session-scoped Cursor configuration cloned from the devel
 record; every process that runs the session inherits that scope, so Cursor's model persistence lands in the
 scope and never in the shared configuration, and deleting the launch record removes the scope. The dialog says
 the choice applies to this session only. A blank ad hoc start with a chosen model is refused before
-`create-chat`, because no Cursor run would apply it; an images-only start is not blank
-(`src/unattachedSession.ts` counts images as input) and is admitted with that model. Skills are read from `.agents/skills`, and the prompt sigil
+`create-chat`, because no Cursor run would apply it; an images-only start or a follow-up is not blank
+(`src/unattachedSession.ts` counts images and a follow-up's context as input) and is admitted with that model. Skills are read from `.agents/skills`, and the prompt sigil
 is `/`. Its first prompt uses the same developer part as Claude and Codex (typed text plus any
 attached-images path list from `developerPart`).
 
@@ -183,7 +183,11 @@ skill line or skill input on any host: when its launch established a session
 (`server/unattachedStart.ts`), it is the installed formatter's
 "Established session" block, the reporting context, then the developer's part;
 otherwise the developer's part and its reporting context, and nothing when that
-part is blank (`server/unattachedInput.ts`, via `developerPart`).
+part is blank (`server/unattachedInput.ts`, via `developerPart`). A
+[follow-up](LAUNCH-FOLLOW-UP.md)'s recorded context is its own block just before
+the developer's part on every host, so Codex's input, including one rebuilt
+from the recorded request on a retry, and Cursor's prompt carry it as Claude's
+does.
 
 Creation refusal submits no input, keeps preparation and reports a validated, bounded
 native error message without dumping error data. A daemon whose working directory was

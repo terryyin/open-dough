@@ -1,3 +1,14 @@
+## 0.3.92 - 2026-11-08
+
+- Intent locations can declare ordered file patterns with per-pattern syntax hints. A location can show Bash and JavaScript tests together, with highlighting selected per file and plain text for files without a supported hint. Intent uses compact location headers and can hide the file tree to make room for the reader.
+- Recently done can start a follow-up with context from a completed story or session when terminal continuation is unavailable. The terminal also reports when text input is unavailable and accepts text before readiness confirmation.
+- Backlog reconciliation preserves live agent profiles when completing work empties the agents directory. Merge and publication checks hold a candidate if a live profile was misplaced among done records. Story Branch delivery checks explicitly named sibling landings for changes the current slice still relies on.
+- CI can recover pinned Node, shell lint tools and Chromium through alternate sources. Dashboard tests use explicit shared Git fixture data and more controlled polling and terminal observations.
+
+The Promoted payload changes 13 files across `dough-product-backlog` and `dough-execute-plan`, including the new `product-backlog-misplaced-agent-profile.mjs` helper. No payload paths are retired. Installer code, native discovery, and host-hook registration are unchanged.
+
+Validation passed the self-installation baseline, nine focused installer and release checks, and 55 publication, backlog, readiness and source-freshness tests. The completed delivery story supplies the representative walkthroughs for named sibling landings. Under ADR 0005, the unchanged installation, discovery and hook mechanisms reuse the existing Codex, Cursor and Claude Code evidence. No native exception applies.
+
 ## 0.3.91 - 2026-11-08
 
 - Custom CI adapters can answer an optional `jobs` request for the selected attempt. Intent uses the longest job dependency chain to show CI time without runner waits alongside wall time in story comparisons. It explains unavailable or invalid timing while preserving the selected attempt's wall time and proof.

@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { rebaseInProgress } from "../../dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { readRevisionCoverage } from "./ci-mailbox.mjs";
 import {
   createManagedFixture,
@@ -36,8 +37,21 @@ const trunkTarget = "refs/heads/main";
 const repo = "owner/project";
 const otherD = "- [Item D, other writer](seeds/D.md#d)";
 
+// A trunk.txt trunk commit, whose bytes the affected check and the planted
+// human edit read, and a workspace on exec/story one unpublished
+// increment.txt commit ahead.
+const trunkWithOneIncrement = makeMe.aRepository
+  .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
+
 test("sibling backlog change preserves backlog semantics through the rebase adapter", async (t) => {
-  const fixture = await createManagedFixture();
+  const fixture = await createManagedFixture({
+    description: trunkWithOneIncrement,
+  });
   t.after(fixture.cleanup);
 
   // Seed the shared backlog on trunk so sibling and owned edits share a base.
@@ -78,7 +92,7 @@ test("sibling backlog change preserves backlog semantics through the rebase adap
     repo,
     defaultCheckout: fixture.integration,
     validate: async (candidate) => {
-      await assertAffectedCombination(fixture.execution, candidate);
+      await assertAffectedCombination(fixture, candidate);
       return { ok: true };
     },
   });
@@ -90,7 +104,7 @@ test("sibling backlog change preserves backlog semantics through the rebase adap
     ).stdout.trim(),
     siblingSha,
   );
-  await assertAffectedCombination(fixture.execution, delivered.receipt.sha);
+  await assertAffectedCombination(fixture, delivered.receipt.sha);
   assert.notEqual(delivered.receipt.sha, candidateSha);
   assert.equal(
     readRevisionCoverage(delivered.observation.directory)[0].sha,

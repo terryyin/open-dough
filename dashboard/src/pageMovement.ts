@@ -13,8 +13,12 @@ const ownMoves = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
 // part's beginning in view while the page changes size around it, as when
 // facts read after the stories lengthen the cards above it, until the developer
 // scrolls, points, types, moves the keyboard elsewhere on the Board, or the
-// returned stop is called.
-export function keepInView(element: Element): () => void {
+// returned stop is called. Moves that `except` accepts are not the
+// developer's own.
+export function keepInView(
+  element: Element,
+  except?: (event: Event) => boolean,
+): () => void {
   const content = element.closest(".board-row") ?? element;
   const region = element.closest(".board-scroll, .roster-scroll");
   const show = () => {
@@ -122,7 +126,10 @@ export function keepInView(element: Element): () => void {
     end();
   };
   window.addEventListener("focusin", focusMoved, true);
-  stopOwn = untilOwnMove(stopKeeping, (event) => inSidePanel(event.target));
+  stopOwn = untilOwnMove(
+    stopKeeping,
+    (event) => inSidePanel(event.target) || except?.(event) === true,
+  );
   return end;
 }
 

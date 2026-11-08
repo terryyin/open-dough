@@ -16,13 +16,16 @@ import {
   captureCheckout,
   lsRemoteSha,
   plantHumanEdit,
+  trunkWithHumanEditTarget,
 } from "./publication-test-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
 const repo = "owner/project";
 
 test("unvalidated reconciled candidate does not push and returns needs-validation", async (t) => {
-  const fixture = await createManagedFixture();
+  const fixture = await createManagedFixture({
+    description: trunkWithHumanEditTarget,
+  });
   t.after(fixture.cleanup);
 
   await plantHumanEdit(fixture.integration);
@@ -63,7 +66,9 @@ test("unvalidated reconciled candidate does not push and returns needs-validatio
 });
 
 test("validated reconciled candidate pushes and attaches the exact accepted SHA", async (t) => {
-  const fixture = await createManagedFixture();
+  const fixture = await createManagedFixture({
+    description: trunkWithHumanEditTarget,
+  });
   t.after(fixture.cleanup);
 
   await plantHumanEdit(fixture.integration);
@@ -127,7 +132,9 @@ test("validated reconciled candidate pushes and attaches the exact accepted SHA"
 });
 
 test("unrelated staged, tracked, and untracked work is preserved across reconciled delivery", async (t) => {
-  const fixture = await createManagedFixture();
+  const fixture = await createManagedFixture({
+    description: trunkWithHumanEditTarget,
+  });
   t.after(fixture.cleanup);
 
   await plantHumanEdit(fixture.integration);

@@ -25,7 +25,7 @@
 /* Intent marks every folder that contains a selected story's change with
    one background (./intentStoryOverlay.ts), distinct from a selected row's
    accent fill. A location containing changes keeps its header's own
-   background (./intent-perspective.css), or the selected background, and
+   background (./intent-location-group.css), or the selected background, and
    carries a change mark on its leading edge instead. Review changes lists
    only changed files, so its folders need no such mark. */
 .intent-location [data-contains-changes] > .story-review-folder-row {

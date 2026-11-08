@@ -3,19 +3,13 @@
 // files (`./authenticatedDoneRead.ts`) says which records there are and
 // when each was completed, so Recently done can place every done story
 // without reading its record; each record is read only when an entry shown
-// needs it (`./doneDetails.ts`), as the shared done-record module under
-// `src/skills/dough-product-backlog/scripts/` reads it, checked here for the
-// fields this dashboard shows. Which records are still recent is that
-// module's window too. A record the module refuses is reported by its file
-// name and shows no story; a failed read is a gap, never an empty set.
+// needs it (`./doneDetails.ts`), as `./doneRecord.ts` reads it. Which
+// records are still recent is the shared done-record module's window. A
+// record the module refuses is reported by its file name and shows no story;
+// a failed read is a gap, never an empty set.
 
-import { z } from "zod";
-import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
-import {
-  isWithinDoneWindow,
-  parseDoneRecordFile,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { isWithinDoneWindow } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { readDoneCatalogAt } from "./authenticatedDoneRead.ts";
 import {
   gapCauseFromOutcome,
@@ -32,30 +26,6 @@ import {
   type GapCause,
   type UnavailableGap,
 } from "./readWaitBound.ts";
-
-const doneStory = z.object({
-  identity: z.string().min(1),
-  title: z.string().min(1),
-  completedAt: z.iso.datetime(),
-  developer: z.string().min(1).optional(),
-  agent: z.string().min(1).optional(),
-  host: z.enum(agentHosts).optional(),
-  intentCoverage: z
-    .union([
-      z.object({ report: z.string() }),
-      z.object({ unavailable: z.string() }),
-    ])
-    .optional(),
-});
-
-const readRecord = z.discriminatedUnion("ok", [
-  z.object({ ok: z.literal(true), record: doneStory }),
-  z.object({ ok: z.literal(false), error: z.string().min(1) }),
-]);
-
-// One published done record's facts; the developer, agent, and host stay
-// undefined when the record does not name them.
-export type DoneStory = z.infer<typeof doneStory>;
 
 // A done record as the catalog names it: its file name and the Git blob of
 // its text, which the record's read is asked and kept by.
@@ -151,26 +121,6 @@ export async function readDoneStories(
   }
   settleAnswered(outcomes, question);
   return done;
-}
-
-// What one done record's text says: its story, or why the shared reader
-// refused it.
-export type DoneRecordRead =
-  | { readonly status: "read"; readonly story: DoneStory }
-  | { readonly status: "unreadable"; readonly problem: string };
-
-export function doneRecordOf(file: string, text: string): DoneRecordRead {
-  const read = readRecord.safeParse(parseDoneRecordFile(file, text));
-  if (!read.success) {
-    return {
-      status: "unreadable",
-      problem:
-        "the shared done-record reader answered in a shape this dashboard does not understand",
-    };
-  }
-  return read.data.ok
-    ? { status: "read", story: read.data.record }
-    : { status: "unreadable", problem: read.data.error };
 }
 
 // Why reading the done catalog or the done records failed, as the column says

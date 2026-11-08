@@ -20,13 +20,16 @@
 // reading pane's scroll are kept with the project's reading place
 // (`./pageIntentReading.tsx`) and restored when it opens again. A story
 // selected while Intent is hidden starts the tree's arrangement afresh, so
-// its expansion applies when Intent opens, with the toggle off.
+// its expansion applies when Intent opens, with the toggle off. The strip's
+// Hide files hides the locations column, still mounted, beside the reading.
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
+import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { storyDiffOf, useKeptFileReadingPlace } from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
+import { sourceEntryOfRepositoryPath } from "./intentLocationSelection.ts";
 import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
@@ -60,6 +63,7 @@ export function IntentBrowser({
   onModeChange,
   storySummary,
   story,
+  files,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
@@ -68,6 +72,8 @@ export function IntentBrowser({
   // with its comparison, once read.
   readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
+  // The locations column's id and whether the strip's toggle shows it.
+  readonly files: FileBrowserPlace;
   // The strip's mode and ids; opening a test from the record returns this
   // browser to Intent.
 } & ModeChoice) {
@@ -159,19 +165,23 @@ export function IntentBrowser({
   });
 
   const selectedLocation = owningLocation(locations, selection);
-  const selectedLanguage =
-    scope === "file" ? selectedLocation?.kind : undefined;
+  const selectedSyntaxHint =
+    scope === "file" && selectedLocation !== undefined
+      ? sourceEntryOfRepositoryPath(selectedPath, selectedLocation)?.hint
+      : undefined;
 
   return (
     <>
       <div
-        className="intent-browser"
+        className={
+          files.shown ? "intent-browser" : "intent-browser intent-files-hidden"
+        }
         role="tabpanel"
         id={intentTabPanelId(modeIdPrefix, "intent")}
         aria-labelledby={intentTabId(modeIdPrefix, "intent")}
         hidden={mode !== "intent"}
       >
-        <div className="intent-locations">
+        <div className="intent-locations" id={files.id} hidden={!files.shown}>
           <h3 className="visually-hidden">Purpose locations</h3>
           {storySummary !== undefined && (
             <IntentStorySummary summary={storySummary} scope={storyScope} />
@@ -213,7 +223,7 @@ export function IntentBrowser({
             missing={missing}
             selectedLocation={selectedLocation}
             selectedFile={selectedFile}
-            selectedLanguage={selectedLanguage}
+            selectedSyntaxHint={selectedSyntaxHint}
             treeFiles={treeFiles}
             story={story}
             read={fileRead.read}

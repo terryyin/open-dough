@@ -34,6 +34,17 @@ native scrolling until that beginning is readable, then lets later navigation
 bring its next control into view. Layout changes can retain that reading place
 until the developer moves.
 
+Each successful reveal also marks the arrived card, active or Recently done,
+with a brief **Destination cue**, so the developer can tell which card the
+reference or URL brought into view among similar cards. The Destination cue is
+not the selected story's Highlight: it selects nothing, lies over the
+Highlight when the destination is already selected, leaves selection, open
+detail, scrolling and keyboard focus as the reveal makes them, and ends on its
+own, returning the card to its normal appearance. Only the destination is
+cued. Revealing the same destination again, including a card already in view,
+cues it again. With reduced motion the cue is a brief static mark instead of a
+fading one.
+
 Keep one Board with an always-visible banner above its own scroll region.
 The Board scrollbar sits at the Board's edge, left of the Panel divider when
 side by side. Scrolling the Board leaves the banner, Sessions sidebar, and

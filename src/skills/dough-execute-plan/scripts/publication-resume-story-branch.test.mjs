@@ -15,12 +15,13 @@ import { openFirstLandingExpectation } from "./first-landing-expectation.mjs";
 import { managementContext } from "./publication-git.mjs";
 import { resumeInterruptedPublication } from "./publication-resume.mjs";
 import {
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   pushExactRef,
   revParse,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
 
 const storyTarget = "refs/heads/cursor/story-execution";
 
@@ -37,7 +38,7 @@ function createObserverStub() {
 
 test("a retained Story Branch candidate already on that remote stays published and does not push trunk", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(cleanup);
   const { origin: dashboard, requests } = await landingReceiver(t);
   const expectation = {
@@ -107,7 +108,7 @@ test("a retained Story Branch candidate already on that remote stays published a
 
 test("an unpublished Story Branch candidate is pushed only to the recorded remote ref", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(cleanup);
   const { origin: dashboard, requests } = await landingReceiver(t);
   const expectation = {

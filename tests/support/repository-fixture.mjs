@@ -27,24 +27,34 @@ const layout = (fixture) => ({
   integration: join(fixture, "integration"),
 });
 
+/** @param {string} fixture */
+const workspacePath = (fixture) => join(fixture, "execution");
+
+/** @param {string} checkout @param {GitPerson} identity */
+async function configureIdentity(checkout, identity) {
+  await git(checkout, "config", "user.name", identity.name);
+  await git(checkout, "config", "user.email", identity.email);
+}
+
 /**
- * Commit a declared revision's files in a checkout: the committer named, or
- * else the checkout's developer; the author named, or else the committer; the
- * message given, or else the revision's name.
+ * Write a declared revision's files in a checkout and commit them: the
+ * committer named, or else the checkout's identity; the author named, or else
+ * the committer; the message given, or else the revision's name.
  * @param {string} checkout
  * @param {RevisionFacts & { name?: string }} revision
- * @param {GitPerson} [developer]
+ * @param {GitPerson} [checkoutIdentity]
+ * @returns {Promise<string>} the new commit
  */
 export async function commitDeclaredRevision(
   checkout,
   revision,
-  developer = integrationDeveloper,
+  checkoutIdentity = integrationDeveloper,
 ) {
   writeRevisionFiles(checkout, revision);
   const {
     name,
     message = name ?? "Publish declared revision",
-    committer = developer,
+    committer = checkoutIdentity,
     author = committer,
   } = revision;
   const env = {
@@ -61,27 +71,66 @@ export async function commitDeclaredRevision(
     cwd: checkout,
     env,
   });
+  return revParse(checkout, "HEAD");
 }
 
 /** @param {string} fixture @param {RepositoryDescription} description */
-async function buildTemplate(fixture, { revisions }) {
+async function buildTemplate(
+  fixture,
+  {
+    revisions,
+    trunkBranch = "main",
+    checkoutIdentity = integrationDeveloper,
+    workspace,
+  },
+) {
   const { origin, integration } = layout(fixture);
-  await createBareFixtureRemote(origin);
-  await exec("git", ["init", "-b", "main", integration]);
+  await createBareFixtureRemote(origin, trunkBranch);
+  await exec("git", ["init", "-b", trunkBranch, integration]);
   await git(integration, "config", "maintenance.auto", "false");
-  await git(integration, "config", "user.name", integrationDeveloper.name);
-  await git(integration, "config", "user.email", integrationDeveloper.email);
+  await configureIdentity(integration, checkoutIdentity);
   await git(integration, "remote", "add", "origin", origin);
 
+  /** @type {Map<string, string>} */
   const commits = new Map();
   let trunkSha = "";
   for (const revision of revisions) {
-    await commitDeclaredRevision(integration, revision);
-    await git(integration, "push", "--quiet", "origin", "main");
-    trunkSha = await revParse(integration, "HEAD");
+    trunkSha = await commitDeclaredRevision(
+      integration,
+      revision,
+      checkoutIdentity,
+    );
+    await git(integration, "push", "--quiet", "origin", trunkBranch);
     commits.set(revision.name, trunkSha);
   }
-  return { revisions: Object.fromEntries(commits), trunkSha };
+  if (!workspace)
+    return {
+      revisions: Object.fromEntries(commits),
+      trunkSha,
+      candidateSha: undefined,
+    };
+
+  // The workspace is a worktree of the integration checkout. Its revisions
+  // are committed there and never pushed. The builder has checked that it
+  // starts from a trunk revision and that every revision name is new.
+  const start = /** @type {string} */ (commits.get(workspace.from));
+  const execution = workspacePath(fixture);
+  await git(integration, "branch", workspace.branch, start);
+  await git(integration, "worktree", "add", execution, workspace.branch);
+  // Without per-worktree configuration Git keeps this in the configuration the
+  // checkouts share, so later commits in either checkout carry it.
+  if (workspace.checkoutIdentity)
+    await configureIdentity(execution, workspace.checkoutIdentity);
+  let candidateSha = start;
+  for (const revision of workspace.revisions) {
+    candidateSha = await commitDeclaredRevision(
+      execution,
+      revision,
+      workspace.checkoutIdentity ?? checkoutIdentity,
+    );
+    commits.set(revision.name, candidateSha);
+  }
+  return { revisions: Object.fromEntries(commits), trunkSha, candidateSha };
 }
 
 /** @typedef {Awaited<ReturnType<typeof buildTemplate>>} BuiltTemplate */
@@ -112,7 +161,8 @@ function repositoryTemplate(description) {
 
 /**
  * Build each described history once per process. Every caller gets its own
- * mutable bare origin and integration checkout.
+ * mutable bare origin and integration checkout, and its own execution
+ * worktree when the description has a workspace.
  * @template {string} Name
  * @param {import("./repositoryTestData.mjs").RepositoryDescription<Name>} description
  * @param {{ parent?: string }} [options]
@@ -122,7 +172,7 @@ export async function materializeRepository(
   { parent = tmpdir() } = {},
 ) {
   const { root, built } = repositoryTemplate(description);
-  const { revisions, trunkSha } = await built;
+  const { revisions, trunkSha, candidateSha } = await built;
   const fixture = realpathSync(mkdtempSync(join(parent, "workspace-claim-")));
   const checkout = layout(fixture);
   const { cleanup, defer } = fixtureTeardown(fixture);
@@ -135,8 +185,23 @@ export async function materializeRepository(
       "origin",
       checkout.origin,
     );
+    /** @type {{ execution?: string, candidateSha?: string }} */
+    const workspace =
+      candidateSha === undefined
+        ? {}
+        : { execution: workspacePath(fixture), candidateSha };
+    // The copied worktree and its administrative entry still name the
+    // template's paths; point them at this copy.
+    if (workspace.execution)
+      await git(
+        checkout.integration,
+        "worktree",
+        "repair",
+        workspace.execution,
+      );
     return {
       ...checkout,
+      ...workspace,
       fixture,
       trunkSha,
       revisions: /** @type {Record<Name, string>} */ ({ ...revisions }),
