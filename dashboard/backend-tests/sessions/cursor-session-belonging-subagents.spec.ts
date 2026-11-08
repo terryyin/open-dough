@@ -13,6 +13,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { observeHeldCursorSession } from "../../server/hosts/cursor/sessions.ts";
 import type { HeldCursorSession } from "../../server/hosts/cursor/heldSessions.ts";
@@ -35,15 +36,10 @@ function cursorFollowUpRecord(
       workflow: "execution",
       host: "cursor",
     },
-    session: {
-      host: "cursor",
-      sessionId,
-      name: "Background work",
-      continuation: {
-        workspace,
-        args: ["cursor-agent", "--workspace", workspace, "--resume", sessionId],
-      },
-    },
+    session: makeMe.aHostSession
+      .cursor({ sessionId, continuation: { workspace } })
+      .named("Background work")
+      .please(),
     firstInput: { state: firstInputState },
     launchedAt: "2026-10-27T00:00:00.000Z",
   };

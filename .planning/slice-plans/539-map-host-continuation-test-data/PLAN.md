@@ -149,7 +149,7 @@ stream records' `input-hash` lines for MakeMe support files already
 differed from the files before this story; they identify the revision each
 paid run used, so they stay unchanged. The selection exposed a launch-wait
 race in the Cursor wait cases, repaired separately after this slice:
-a test-only  ()
+a test-only `DOUGH_TEST_LAUNCH_WAIT_END_FILE` (`dashboard/server/launchWait.ts`)
 ends a wait once the case observes the kept record, held trust prompt or
 attach, and the fake Cursor holds paint until released. A scratch 2 s
 create-chat delay failed 5/5 old cases and passed 8/8 repaired; 80/80
@@ -157,7 +157,7 @@ repeated under load 37-41; Cursor consumers 195 passed.
 
 ### 3. A held terminal joins the intended Cursor session
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 3. Run `npm run test:dashboard -- 'backend-tests/(terminals/(joined-sockets-replay|kept-client-screen-write-queue|live-terminal-diagnostic-capture)|sessions/(cursor-runner-(build-proof|environment|helper-repair-shapes|last-held|restart-shapes)|cursor-recover-(split-paint|submitted-chip)|cursor-session-(belonging-subagents|owned-pending-ci)))\.spec\.ts$'`.
 
 A maintainer arranges a held Cursor session through MakeMe → a terminal
@@ -167,6 +167,15 @@ Replace standalone arranged sessions in `cursorRunnerProof`,
 command the runner actually executes, native stream, socket frames,
 joining and replay order, and teardown with their original owners.
 Preserve the session IDs the runner uses to keep conversations separate.
+
+Accepted: `cursorProofSession`, `keepRecoveredCursor` and the direct
+terminal and runner specs arrange their Cursor sessions through
+`makeMe.aHostSession.cursor`; the mixed belonging and pending CI cases
+convert only their session. Partial resume arguments became the production
+command, which these paths do not read. The executed keep and resume
+commands, frames and replay order stay literal. Selection 41 passed; a
+scratch break ignoring the session ID failed the bridge join/resume and
+last-held cases.
 
 ### 4. Every synthetic held row names its own resumable Cursor session
 Type: Behavior

@@ -2,6 +2,7 @@
 // stall TerminalAttachments.held() past the declared 500 ms budget while a
 // quiet sibling stays coherent and both clients remain kept (not stopped).
 import type { IPty } from "@lydell/node-pty";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { KeptClientScreen } from "../../server/keptClientScreen.ts";
 import { TerminalAttachments } from "../../server/terminalAttachments.ts";
@@ -37,18 +38,6 @@ function syntheticPty(): SyntheticPty {
   };
 }
 
-function session(name: string, sessionId: string) {
-  return {
-    host: "cursor" as const,
-    sessionId,
-    name,
-    continuation: {
-      workspace: "/tmp",
-      args: ["cursor-agent"],
-    },
-  };
-}
-
 function emitBurst(emit: (chunk: string) => void): void {
   const chunk = "A".repeat(burstBytes / burstChunks);
   for (let i = 0; i < burstChunks; i++) emit(chunk);
@@ -77,11 +66,23 @@ test("one busy kept client's burst leaves held() within 500 ms with a coherent q
   const quiet = syntheticPty();
   try {
     const keepingBusy = attachments.keep(
-      session("Busy screen queue", "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"),
+      makeMe.aHostSession
+        .cursor({
+          sessionId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          continuation: { workspace: "/tmp" },
+        })
+        .named("Busy screen queue")
+        .please(),
       busy.pty,
     );
     const keepingQuiet = attachments.keep(
-      session("Quiet screen queue", "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"),
+      makeMe.aHostSession
+        .cursor({
+          sessionId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+          continuation: { workspace: "/tmp" },
+        })
+        .named("Quiet screen queue")
+        .please(),
       quiet.pty,
     );
     busy.emit("busy-ready\r\n");

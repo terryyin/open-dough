@@ -8,6 +8,7 @@
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   execOnRunner,
@@ -88,12 +89,10 @@ test("a runner started with a deployment's start-up additions starts cursor-agen
         cols: 80,
         rows: 24,
         sourceId: "open-dough",
-        session: {
-          host: "cursor",
-          sessionId: cursor.sessionId,
-          name: "environment",
-          continuation: { workspace, args: ["cursor-agent", ...resume] },
-        },
+        session: makeMe.aHostSession
+          .cursor({ sessionId: cursor.sessionId, continuation: { workspace } })
+          .named("environment")
+          .please(),
         instruction: "",
       },
       home,

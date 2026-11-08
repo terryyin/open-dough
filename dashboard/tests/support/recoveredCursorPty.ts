@@ -1,6 +1,7 @@
 // Recover's continuation kept on a scripted PTY instead of a native Cursor
 // client. A spec feeds Cursor's reads and inspects what Recover typed.
 import type { IPty } from "@lydell/node-pty";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { TerminalAttachments } from "../../server/terminalAttachments.ts";
 import { showsCursorComposer } from "../../server/hosts/cursor/idleScreen.ts";
 import { cursorSessionId } from "./fakeCursor.ts";
@@ -29,12 +30,13 @@ export function keepRecoveredCursor(
     },
   } as unknown as IPty;
   const kept = attachments.keep(
-    {
-      host: "cursor",
-      sessionId: cursorSessionId,
-      name,
-      continuation: { workspace: "/tmp", args: ["cursor-agent"] },
-    },
+    makeMe.aHostSession
+      .cursor({
+        sessionId: cursorSessionId,
+        continuation: { workspace: "/tmp" },
+      })
+      .named(name)
+      .please(),
     pty,
     {
       instruction: continuationInstruction,
