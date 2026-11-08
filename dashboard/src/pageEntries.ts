@@ -6,6 +6,7 @@
 // done's entry holding the keyboard across a refresh
 // (`./recentlyDoneFocus.ts`).
 
+import { cueDestination } from "./destinationCue.ts";
 import type { HeldEntry } from "./recentlyDoneRange.ts";
 import { keepInView, storyCard } from "./storyCardFocus.ts";
 
@@ -129,10 +130,12 @@ export const storyShown = (identity: string) =>
 // Callers own resolution, inspection and any demand to extend the Done range.
 // The keeper shows a hidden column and retains its card in view until the
 // developer moves, including while later reads change the surrounding layout.
+// Each reveal marks the card with a brief destination cue (`cueDestination`).
 export function revealStory(identity: string): (() => void) | undefined {
   const card = storyShown(identity);
   if (card === null) return;
   card.focus({ preventScroll: true });
+  cueDestination(card);
   return keepInView(card);
 }
 

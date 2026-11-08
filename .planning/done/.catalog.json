@@ -26,6 +26,12 @@
       "blob": "a791cb8e7784248b9f3c58021d13059dd396d826"
     },
     {
+      "fileName": "SEED-270_highlight-linked-story-card.json",
+      "identity": "SEED-270#highlight-linked-story-card",
+      "completedAt": "2026-11-08T08:43:08.997Z",
+      "blob": "d856b0b148699824511786c7f2c2ced29b7fac67"
+    },
+    {
       "fileName": "SEED-262_build-explicit-git-fixtures.json",
       "identity": "SEED-262#build-explicit-git-fixtures",
       "completedAt": "2026-11-08T07:36:52.017Z",

@@ -14,6 +14,9 @@ import {
   nearDone,
   publishDoneReferences,
 } from "../storyReferenceDone.ts";
+import { pausePageClock } from "../autoRefreshJourney.ts";
+import { expectSelected } from "../storyCardSelection.ts";
+import { expectCueEnds, expectDestinationCue } from "../destinationCue.ts";
 
 test.use({ hasTouch: true });
 
@@ -104,6 +107,7 @@ test("a delayed Done detail keeps the destination pending and keyboard activatio
 }) => {
   await page.setViewportSize({ width: 390, height: 740 });
   await page.emulateMedia({ reducedMotion: "reduce" });
+  await pausePageClock(page);
   const revision = await publishDoneReferences(origin);
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.project,
@@ -145,6 +149,10 @@ test("a delayed Done detail keeps the destination pending and keyboard activatio
   await expect(destination).toHaveAccessibleName(farDone.title);
   await expect(destination).toBeFocused();
   await expect(destination).toBeInViewport({ ratio: 0.5 });
+  await expectDestinationCue(page, destination, { motion: false });
+  await expect(page.locator(".story-card-selected")).toHaveCount(0);
+  await expectCueEnds(page, destination);
+  await expectSelected(destination, false);
   await expect(notice).toBeEmpty();
   expect(recordsAsked(githubFor(page)).toSorted()).toEqual(
     donePathsThrough(27).toSorted(),
