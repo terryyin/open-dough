@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Pilot native evidence reuse for Git publication admission](seeds/SEED-262-faster-dashboard-test-feedback.md#pilot-admission-native-evidence-reuse) — SEED-262#pilot-admission-native-evidence-reuse
 - [Keep one launch store vocabulary and coherent kept records in dashboard tests](seeds/SEED-261-share-domain-test-data.md#align-kept-launch-store-setup) — SEED-261#align-kept-launch-store-setup
 - [Read done records for the catalog through one product rule](seeds/SEED-262-faster-dashboard-test-feedback.md#share-done-catalog-record-reading) — SEED-262#share-done-catalog-record-reading
 - [Guard native fixture identity inputs against drift](seeds/SEED-262-faster-dashboard-test-feedback.md#guard-native-fixture-identity-inputs) — SEED-262#guard-native-fixture-identity-inputs

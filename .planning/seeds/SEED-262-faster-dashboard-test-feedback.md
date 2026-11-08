@@ -82,3 +82,34 @@ a catalog follows. Bounded correction of SEED-262#declare-fake-github-planning-d
 - No change to catalog bytes, record bytes, served paths or product behavior.
 
 Plan: [542-share-done-catalog-record-reading](../slice-plans/542-share-done-catalog-record-reading/PLAN.md)
+
+<a id="pilot-admission-native-evidence-reuse"></a>
+
+### Pilot native evidence reuse for Git publication admission
+
+**Identity:** SEED-262#pilot-admission-native-evidence-reuse
+
+#### Goal
+
+A maintainer deciding whether to rerun `publication/admission-investigation`
+can tell whether a change to the installed payload affects the requirement
+proved by a retained native result on that host. An unrelated skill edit or
+release can leave that result eligible for reuse, saving a native rerun.
+
+#### Scope
+
+- Pilot this journey using the existing per-file input hashes. Preserve the
+  full installation provenance and historical record bytes. Explain which
+  changed inputs can affect the requirement, including referenced guidance and
+  helpers, host discovery and hooks, and fixture and installer behavior.
+  Verify that the prompt, assessment, and runtime conditions still support
+  reuse on the same host.
+- Demonstrate that an unrelated payload change leaves evidence eligible for
+  reuse, a changed admission instruction or relevant host hook requires fresh
+  proof, and missing inputs or uncertain impact leave proof pending. Judge
+  historical records individually under
+  [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md#5-assess-now-and-delete-spent-evidence).
+- Record the reruns the pilot could avoid and the effort needed to make the
+  reuse judgments. The [fixture identity guard](#guard-native-fixture-identity-inputs)
+  covers completeness at capture. A reuse judgment requires sufficient
+  provenance for the specific result.
