@@ -127,7 +127,7 @@ test("identity-evidence reports a candidate as completed, active, or unlisted", 
   assert.equal(project.read(), backlog);
 });
 test("identity-evidence names a seed history still shows above the active seeds and done records", async (t) => {
-  const { project, added, head } = projectWithRemovedAllocation(t);
+  const { project, added, head } = await projectWithRemovedAllocation(t);
   const before = snapshot(project);
 
   const report = await evidence(project);
@@ -159,7 +159,7 @@ test("identity-evidence names a seed history still shows above the active seeds 
 });
 
 test("identity-evidence reports a candidate history alone still shows", async (t) => {
-  const { project, added } = projectWithRemovedAllocation(t);
+  const { project, added } = await projectWithRemovedAllocation(t);
 
   const recorded = await evidence(project, "--identity", "SEED-090#x_y");
   const sameSeed = await evidence(project, "--identity", "SEED-090#other");
@@ -196,7 +196,7 @@ test("identity-evidence reports a candidate history alone still shows", async (t
 });
 
 test("identity-evidence names shallow history as unread while the other sources stand", async (t) => {
-  const { project } = projectWithRemovedAllocation(t);
+  const { project } = await projectWithRemovedAllocation(t);
   const clone = mkdtempSync(join(tmpdir(), "dough-backlog-shallow-"));
   t.after(() => rmSync(clone, { recursive: true, force: true }));
   git(

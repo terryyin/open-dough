@@ -13,7 +13,7 @@ import {
 } from "./product-backlog-identity-evidence-fixture.mjs";
 
 async function legacyProject(t) {
-  const { project } = projectWithRemovedAllocation(t);
+  const { project } = await projectWithRemovedAllocation(t);
   const catalog = await run(
     project,
     ["catalog-done"],

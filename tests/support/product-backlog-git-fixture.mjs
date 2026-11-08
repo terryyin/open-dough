@@ -41,16 +41,17 @@ function git(directory, args) {
 
 // A real local Git checkout on `main`, with no origin, of the starting
 // repository `description` (`makeMe.aRepository`) states, so every test starts
-// from real Git history rather than an assumption about one. `options` passes
-// harness choices to the shared materializer, such as `gitTemplates: false`
-// for a repository Git sets up without templates. Removed after the test.
+// from real Git history rather than an assumption about one. `revisions` maps
+// each named revision to its commit. `options` passes harness choices to the
+// shared materializer, such as `gitTemplates: false` for a repository Git sets
+// up without templates. Removed after the test.
 export async function checkoutOf(t, description, options) {
-  const { integration, cleanup } = await materializeLocalCheckout(
+  const { integration, revisions, cleanup } = await materializeLocalCheckout(
     description,
     options,
   );
   t.after(cleanup);
-  return checkoutAt(integration);
+  return { ...checkoutAt(integration), revisions };
 }
 
 // The handle every helper below takes: one checkout's own directory, its own

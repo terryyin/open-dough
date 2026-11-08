@@ -20,21 +20,27 @@ import {
   doneDirectory,
   doneFiles,
   gitBlob,
-  gitWorkspace,
   readCatalog,
 } from "./product-backlog-done-fixture.mjs";
 import {
+  arrangedBacklogFacts,
   backlog,
   projectFile,
   run,
   scratchProject,
   takenStory,
 } from "./product-backlog-fixture.mjs";
+import { checkoutOf } from "./product-backlog-git-fixture.mjs";
 
 const fileName = "SEED-008_script-product-backlog-list-updates.json";
 
 test("complete keeps the report verbatim and a repeat leaves its one record unchanged", async (t) => {
-  const project = gitWorkspace(scratchProject(t));
+  const project = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("Take the story", { backlog: arrangedBacklogFacts })
+      .please(),
+  );
   const reportFile = "intent coverage.txt";
   const report =
     "Caught\r\n\r\nPromise — keep the result\r\n" +

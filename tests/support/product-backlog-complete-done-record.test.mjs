@@ -1,21 +1,17 @@
 // Runs the real backlog CLI to complete work in a scratch Git project,
-// observing the done record written beside the backlog: what it says and the
-// file it takes.
+// observing the done record file written beside the backlog: the name it
+// takes and when a later completion replaces it or writes none.
 import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { plantAgentProfile } from "./product-backlog-profile-fixture.mjs";
 import {
-  backlog,
+  arrangedBacklogFacts,
   backlogOf,
-  projectFile,
   queued,
   run,
-  scratchProject,
   takenEntry,
-  takenStory,
   trunkQueue,
 } from "./product-backlog-fixture.mjs";
 import {
@@ -24,131 +20,35 @@ import {
   completedAt,
   doneDirectory,
   doneFiles,
-  gitWorkspace,
+  readRecord,
 } from "./product-backlog-done-fixture.mjs";
-
-const readRecord = (project, fileName) =>
-  JSON.parse(readFileSync(join(doneDirectory(project), fileName), "utf8"));
-
-test("complete credits the execution agent even when a released preparation profile sorts first", async (t) => {
-  const project = gitWorkspace(scratchProject(t));
-  plantAgentProfile(
-    project,
-    makeMe.anAgentProfile
-      .preparing({
-        name: "Ai",
-        identity: takenStory,
-        host: "cursor",
-        model: "preparation-model",
-      })
-      .please(),
-  );
-  plantAgentProfile(
-    project,
-    makeMe.anAgentProfile
-      .executing({
-        name: "Akiho",
-        identity: takenStory,
-        host: "claude",
-        model: "claude-opus-5-5",
-      })
-      .please(),
-  );
-
-  const result = await run(
-    project,
-    ["complete", "--identity", takenStory],
-    at(completedAt),
-  );
-  assert.equal(result.code, 0, result.stderr);
-  assert.equal(project.read(), backlog.replace(`${takenEntry}\n\n`, ""));
-  assert.equal(
-    existsSync(join(project.directory, ".planning/agents/akiho-chan.json")),
-    false,
-  );
-  assert.equal(
-    existsSync(join(project.directory, ".planning/agents/ai-chan.json")),
-    false,
-  );
-  const fileName = "SEED-008_script-product-backlog-list-updates.json";
-  assert.deepEqual(doneFiles(project), [catalogFile, fileName]);
-  assert.deepEqual(readRecord(project, fileName), {
-    schemaVersion: 1,
-    identity: takenStory,
-    title: "Update the product backlog without hand-editing the shared list",
-    completedAt,
-    developer: "Terry Yin",
-    agent: "Akiho-chan",
-    host: "claude",
-    model: "claude-opus-5-5",
-  });
-  assert.match(
-    result.stdout,
-    new RegExp(`Wrote done record done/${fileName} beside the backlog\\.`),
-  );
-});
-
-test("complete on a queued entry with only a preparation profile releases it without recording execution credit", async (t) => {
-  const project = gitWorkspace(scratchProject(t));
-  plantAgentProfile(
-    project,
-    makeMe.anAgentProfile
-      .preparing({
-        name: "Ai",
-        identity: trunkQueue,
-        host: "cursor",
-        model: "preparation-model",
-      })
-      .please(),
-  );
-
-  const result = await run(
-    project,
-    ["complete", "--identity", trunkQueue],
-    at(completedAt),
-  );
-  assert.equal(result.code, 0, result.stderr);
-  assert.equal(
-    existsSync(join(project.directory, ".planning/agents/ai-chan.json")),
-    false,
-  );
-  assert.deepEqual(
-    readRecord(project, "SEED-008_same-machine-merge-queue.json"),
-    {
-      schemaVersion: 1,
-      identity: trunkQueue,
-      title: "Queue trunk integration for agents on the same machine",
-      completedAt,
-      developer: "Terry Yin",
-    },
-  );
-});
-
-test("complete in a workspace that names no developer records none", async (t) => {
-  const project = scratchProject(t);
-
-  const result = await run(
-    project,
-    ["complete", "--identity", trunkQueue],
-    at(completedAt),
-  );
-  assert.equal(result.code, 0, result.stderr);
-  const record = readRecord(project, "SEED-008_same-machine-merge-queue.json");
-  assert.equal(Object.hasOwn(record, "developer"), false);
-  assert.equal(Object.hasOwn(record, "intentCoverage"), false);
-  assert.equal(record.identity, trunkQueue);
-});
+import { checkoutOf } from "./product-backlog-git-fixture.mjs";
 
 test("an identity holding # and . keeps one readable file name, replaced when completed again", async (t) => {
   const identity = "SEED-200#v1.2-release.notes";
   const line = `- [Release notes for v1.2](seeds/SEED-200-release.md#v1.2-release.notes) — ${identity}`;
-  const project = gitWorkspace(
-    scratchProject(t, backlogOf([takenEntry], [...queued, line])),
-  );
-  projectFile(
-    project,
-    "seeds/SEED-200-release.md",
-    `---\nid: SEED-200\n---\n\n# Release\n\n<a id="v1.2-release.notes"></a>\n\n### Release notes for v1.2\n`,
+  const project = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("List the release notes", {
+        backlog: {
+          ...arrangedBacklogFacts,
+          queued: [
+            ...arrangedBacklogFacts.queued,
+            makeMe.aBacklogEntry
+              .with({
+                identity,
+                title: "Release notes for v1.2",
+                href: "seeds/SEED-200-release.md#v1.2-release.notes",
+              })
+              .please(),
+          ],
+        },
+        files: {
+          ".planning/seeds/SEED-200-release.md": `---\nid: SEED-200\n---\n\n# Release\n\n<a id="v1.2-release.notes"></a>\n\n### Release notes for v1.2\n`,
+        },
+      })
+      .please(),
   );
   const fileName = "SEED-200_v1.2-release.notes.json";
 
@@ -175,7 +75,12 @@ test("an identity holding # and . keeps one readable file name, replaced when co
 });
 
 test("a repeated complete for an identity no longer listed writes no record", async (t) => {
-  const project = gitWorkspace(scratchProject(t));
+  const project = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("List the queue", { backlog: arrangedBacklogFacts })
+      .please(),
+  );
   const first = await run(
     project,
     ["complete", "--identity", trunkQueue],
@@ -205,32 +110,4 @@ test("a repeated complete for an identity no longer listed writes no record", as
   );
   assert.equal(never.code, 1);
   assert.deepEqual(doneFiles(project), [catalogFile, fileName]);
-});
-
-test("a Taken profile recording no host or model leaves a record naming the agent only", async (t) => {
-  const project = gitWorkspace(scratchProject(t));
-  plantAgentProfile(
-    project,
-    makeMe.anAgentProfile
-      .executing({ name: "Akiho", identity: takenStory })
-      .please(),
-  );
-
-  const result = await run(
-    project,
-    ["complete", "--identity", takenStory],
-    at(completedAt),
-  );
-  assert.equal(result.code, 0, result.stderr);
-  assert.deepEqual(
-    readRecord(project, "SEED-008_script-product-backlog-list-updates.json"),
-    {
-      schemaVersion: 1,
-      identity: takenStory,
-      title: "Update the product backlog without hand-editing the shared list",
-      completedAt,
-      developer: "Terry Yin",
-      agent: "Akiho-chan",
-    },
-  );
 });

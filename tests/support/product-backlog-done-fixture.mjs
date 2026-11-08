@@ -22,19 +22,6 @@ export const at = (time) => ({
 export const daysBefore = (days) =>
   new Date(Date.parse(completedAt) - days * 24 * 60 * 60 * 1000).toISOString();
 
-// Supplies only the starting precondition: the scratch project is a Git
-// workspace configured with the developer's name.
-export function gitWorkspace(project, developer = "Terry Yin") {
-  const git = (args) =>
-    execFileSync("git", args, {
-      cwd: project.directory,
-      env: { ...process.env, ...isolatedGit },
-    });
-  git(["init", "-q", "-b", "main"]);
-  git(["config", "user.name", developer]);
-  return project;
-}
-
 // The done catalog every completion rebuilds among the records it indexes.
 export const catalogFile = ".catalog.json";
 export const doneDirectory = (project) =>
@@ -45,6 +32,8 @@ export const doneFiles = (project) =>
     : [];
 export const readCatalog = (done) =>
   JSON.parse(readFileSync(join(done, catalogFile), "utf8"));
+export const readRecord = (project, fileName) =>
+  JSON.parse(readFileSync(join(doneDirectory(project), fileName), "utf8"));
 
 // Git's own name for a file's content, never the product's.
 export function gitBlob(path) {

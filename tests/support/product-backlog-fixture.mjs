@@ -118,11 +118,14 @@ export const queuedBacklogEntries = [
     .please(),
 ];
 
-export const arrangedBacklog = renderPublishedBacklog({
+// One Taken and three queued entries, as a repository description states them.
+export const arrangedBacklogFacts = {
   taken: [takenBacklogEntry],
   queued: queuedBacklogEntries,
   direction,
-});
+};
+
+export const arrangedBacklog = renderPublishedBacklog(arrangedBacklogFacts);
 
 export const added = makeMe.aBacklogEntry
   .with({

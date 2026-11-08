@@ -37,8 +37,8 @@ Exclusions:
 - Skill tests under `src/skills` belong to
   clean-trunk and managed delivery (completed
   `SEED-262#migrate-clean-trunk-fixtures`),
-  dashboard helpers to
-  [dashboard start origins](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures),
+  dashboard helpers to dashboard start origins (completed
+  `SEED-262#migrate-dashboard-origin-fixtures`),
   and shell or native fixtures, including the shell-driven
   `story-dependencies-installed-observe.mjs`, to
   [shell release and native fixtures](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-shell-release-and-native-fixtures).
@@ -210,10 +210,24 @@ branch commit.
 ### 3. Done-record and identity evidence repositories declare their developer and history
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Run `product-backlog-complete-done-record`,
 `product-backlog-complete-intent-coverage` and the identity evidence tests.
 They pass with unchanged assertions.
+
+Accepted 2026-11-08: `gitWorkspace` is replaced by slice 1's `checkoutOf`,
+which now also returns named `revisions`. The credit tests moved to
+`product-backlog-complete-credit.test.mjs`; the three of them that assert the
+developer declare Terry Yin with `withCheckoutIdentity`; renaming it failed
+exactly those three. The identity evidence case declares its three revisions,
+each removing the done catalog because that project publishes none. Four-file
+run: before 2.2 s and 2.1 s (load 7.3), after 1.9–2.4 s (load 9.3–17.8); 63
+direct and 95 indirect fixture importers passed. Learning: the "No paid run"
+premise searched shell files only. Retained native admission records list
+`product-backlog-fixture.mjs` and `repositoryTestData.mjs` among their
+`input-hash` identity lines. Those lines identify the recorded evidence; no
+check compares them with current files, and other listed inputs such as
+`makeMe.mjs` changed after recording too, so no paid run follows.
 
 Behavior: the done-record test declares Terry Yin as configured developer →
 real `complete` records Terry Yin. The identity evidence case declares
