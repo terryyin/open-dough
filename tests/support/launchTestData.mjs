@@ -1,4 +1,5 @@
 // @ts-check
+import { claudeSession, codexSession } from "./hostSessionTestData.mjs";
 import { launchOutcomeFacts } from "./launchOutcomeTestData.mjs";
 import {
   isolatedWorkspaceFacts,
@@ -94,28 +95,21 @@ export class LaunchRecordBuilder {
   /**
    * A `claude` session, by its ID and short ID, which is otherwise the ID's
    * first eight characters.
-   * @param {{ sessionId: string, shortId?: string }} session
+   * @param {import("./hostSessionTestData.mjs").ClaudeFacts} session
    */
-  inClaudeSession({ sessionId, shortId = sessionId.slice(0, 8) }) {
-    this.#session = (name) => ({ host: "claude", sessionId, shortId, name });
+  inClaudeSession(session) {
+    this.#session = claudeSession(session);
     return this;
   }
 
   /**
    * A Codex thread and where it continues: the saved workspace and the
-   * app-server endpoint.
-   * @param {{ sessionId: string, continuation: { workspace: string, endpoint: string, args?: string[] } }} session
+   * app-server endpoint, with the resume arguments and a notice as
+   * `./hostSessionTestData.mjs` states them.
+   * @param {import("./hostSessionTestData.mjs").CodexFacts} session
    */
-  inCodexSession({
-    sessionId,
-    continuation: { workspace, endpoint, args = [] },
-  }) {
-    this.#session = (name) => ({
-      host: "codex",
-      sessionId,
-      name,
-      continuation: { workspace, endpoint, args },
-    });
+  inCodexSession(session) {
+    this.#session = codexSession(session);
     return this;
   }
 
@@ -202,12 +196,9 @@ export class LaunchRecordBuilder {
     const slug = requested.title.toLowerCase().replaceAll(/\s+/g, "-");
     const session = this.#session
       ? this.#session(requested.title)
-      : {
-          host: /** @type {const} */ ("claude"),
-          sessionId: `${slug}-session`,
-          shortId: slug,
-          name: requested.title,
-        };
+      : claudeSession({ sessionId: `${slug}-session`, shortId: slug })(
+          requested.title,
+        );
     const launchFacts = {
       launchedAt: this.#launchedAt,
       ...(this.#firstInput && { firstInput: this.#firstInput }),

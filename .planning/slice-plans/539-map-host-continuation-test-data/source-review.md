@@ -1,0 +1,61 @@
+# Source review
+
+Source-only reviewer: a fresh general-purpose agent with no conversation
+inheritance, launched by the executing coordinator on 2026-11-08 before the
+first implementation delegation. Input: only the Goal, Scope and Key examples
+of [SEED-261#map-host-continuation-test-data](../../seeds/SEED-261-share-domain-test-data.md#map-host-continuation-test-data)
+(seed lines 383–436, sha256 `68ea8c0a3424baac5fdb00767ef06ac7dd390e21a2de1ec5ba3f78d4b4fc04de`),
+with no amendments, plan, product or proof. It returned the numbered
+commitments below.
+
+Reviewer's exclusions and qualifications: the kept record, live observation
+and completion and landing stories keep the areas the source assigns them;
+builders arrange valid sessions only; the Codex notice and Cursor scope appear
+only when a case needs them; item 6 accepts either removal or delegation;
+items 14, 16, 18 and 20 preserve current behavior.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1 | Goal: maintainers can read the setup of a Codex or Cursor continuation test and see three things: | slice 4 | |
+| 1.1 | which saved Codex thread or Cursor conversation the test continues | slice 4 | |
+| 1.2 | where it resumes | slice 4 | |
+| 1.3 | which host-specific facts drive the result | slice 4 | |
+| 2 | Goal: terminal, recovery and held-session tests use the same domain setup, so changes to continuation data can be made and reviewed in one place. | slice 4 | |
+| 3 | Valid Codex and Cursor sessions are arranged through shared MakeMe builders, either on a kept launch or as the session that a terminal or runner consumes directly. | slice 3 | |
+| 4 | Each case shows at the call site the facts it relies on. | slice 4 | |
+| 4.1 | A Codex session has a thread ID, a saved workspace and endpoint, and resume arguments. It has a notice when the case needs one. | slice 1 | observed: tests/support/hostSessionTestData.mjs codexSession; launch-record-session-rules.spec.ts "accepts a Codex continuation with its endpoint and workspace" toEqual(savedCodex) with notice |
+| 4.2 | A Cursor session has a native UUID, a workspace and resume arguments. It has the saved configuration scope when the case needs it. | slice 2 | |
+| 5 | Arranged host and continuation facts are converted in these places: | slice 4 | |
+| 5.1 | Codex launch and observation support | slice 1 | observed: dashboard/tests/support/codexObservation.ts observationRecord builds session via makeMe.aHostSession.codex; launchTestData inCodexSession delegates to codexSession |
+| 5.2 | Cursor start and recovery support | slice 2 | |
+| 5.3 | kept Cursor turns | slice 2 | |
+| 5.4 | Running Cursor sessions setup | slice 4 | |
+| 5.5 | the terminal and runner consumers of the above | slice 3 | |
+| 6 | Displaced constructors are removed, or the harness helpers delegate to MakeMe (either option). | slice 4 | |
+| 7 | A record actually produced by a launch, start or recovery stays as evidence from that operation. It is not arranged as fixture data. | slice 2 | |
+| 8 | These keep their existing proof roles: | slice 4 | |
+| 8.1 | fake hosts | slice 1 | observed: fakeCodex/observed/passive unchanged; agent-terminal-codex.spec.ts real launch cases pass (slice 1 selection 22 passed) |
+| 8.2 | real runner operations | slice 3 | |
+| 8.3 | terminal frames | slice 3 | |
+| 8.4 | process control | slice 2 | |
+| 8.5 | faults | slice 2 | |
+| 9 | These stay visible in the cases that verify how they are handled: | slice 1 | observed: launch-record-session-rules.spec.ts literal predecessor, refused deletions and alias inputs kept at call site |
+| 9.1 | exact predecessor omissions | slice 1 | observed: launch-record-session-rules.spec.ts "accepts a predecessor Codex session without a continuation" literal input; observation-workspace delete legacy.session.continuation |
+| 9.2 | malformed input | slice 1 | observed: launch-record-session-rules.spec.ts refused(...) cases without alias or endpoint |
+| 9.3 | extraneous aliases | slice 1 | observed: launch-record-session-rules.spec.ts {...claude, continuation} and "a parsed Codex session carries no Claude alias" |
+| 10 | These expectations stay independent of fixture construction: | slice 4 | |
+| 10.1 | command expectations | slice 2 | |
+| 10.2 | identity expectations | slice 4 | |
+| 10.3 | terminal expectations | slice 3 | |
+| 11 | Synthetic sessions whose resume arguments name a different conversation from their stored identity are corrected. | slice 4 | |
+| 12 | In mixed cases, this story owns the continuation or terminal facts needed to exercise operations that other stories own. | slice 1 | observed: agent-terminal-codex.spec.ts failed-exit case: other-host session via makeMe.aHostSession.claude; produced record doneAt rewrite unchanged |
+| 13 | Example 1: a kept Codex thread has a saved endpoint and workspace. Opening its terminal resumes that thread with the saved endpoint and working directory. | slice 1 | observed: agent-launch-codex-startup.spec.ts "saved Codex conversation reconnects after daemon loss at startup": codexAttaches toMatchObject cwd=workspace, args resume --remote endpoint --cd workspace; break check on endpoint failed it |
+| 14 | Example 1: a schema case that supplies a predecessor record with no continuation, or with an extra Claude alias, still observes the current decoding behavior. | slice 1 | observed: launch-record-session-rules.spec.ts predecessor and Claude-alias cases pass with exact inputs |
+| 15 | Example 2: a kept Cursor session has a saved model configuration scope. Recovering it resumes the saved UUID in its workspace with that scope. | slice 2 | |
+| 16 | Example 2: when a replacement runner considers several kept sessions, it revives the eligible one. The existing controls still distinguish finished, never-held and failed revivals. | slice 2 | |
+| 17 | Example 3: a terminal joins an already held Cursor session. The saved session identifies the conversation. | slice 3 | |
+| 18 | Example 3: the terminal assertions still observe the session's replay before queued live output. | slice 3 | |
+| 19 | Example 4: a sidebar test arranges enough held Cursor sessions to overflow the list. Each row's UUID and resume arguments refer to the same conversation. | slice 4 | |
+| 20 | Example 4: the test still observes that both lists can reach their last entries. | slice 4 | |

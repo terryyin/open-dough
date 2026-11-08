@@ -27,6 +27,10 @@ export function fakeCodexHost(wiring: string): FakeHostWiring {
   return { binDir: codexBinDir, wiring };
 }
 
+// The fake app-server's endpoint, as a saved Codex continuation names it.
+export const codexEndpoint = (native: FakeCodex) =>
+  `unix://${native.env["FAKE_CODEX_SOCKET"] ?? ""}`;
+
 export async function installFakeCodex(
   tempRoot: string,
   searchPath: string,

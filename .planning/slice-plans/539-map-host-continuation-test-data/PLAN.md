@@ -2,6 +2,7 @@
 
 **Identity:** SEED-261#map-host-continuation-test-data
 **Source:** [Refined story](../../seeds/SEED-261-share-domain-test-data.md#map-host-continuation-test-data)
+**Source review:** [source-only review](source-review.md)
 
 ## Goal and boundaries
 
@@ -96,7 +97,7 @@ changed dependencies. Hosted CI follows the selected execution mode.
 
 ### 1. A saved Codex thread supplies its own terminal context
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 1. Run `npm run test:dashboard -- 'backend-tests/(launches/(launch-record-session-rules|agent-launch-codex-startup)|terminals/(agent-terminal-codex[^/]*|agent-terminal-resize))\.spec\.ts$' 'dashboard/tests/(sessions/agent-launch-codex-observation-workspace|terminals/agent-terminal-codex-page)\.spec\.ts$'`.
 
 A maintainer arranges a saved Codex thread through MakeMe → the terminal
@@ -110,6 +111,16 @@ the session for real. The first `agent-launch-codex-startup` case seeds a
 record through `observationRecord` and then opens its terminal. Use shared
 Codex continuation facts for that setup while keeping passive fixture
 ownership in the observation story and process setup in `codexLaunch`.
+
+Accepted: `makeMe.aHostSession` (`tests/support/hostSessionTestData.mjs`)
+builds standalone Claude and Codex sessions, and `aLaunchRecord`'s
+`inClaudeSession`/`inCodexSession` delegate to it. A Codex session's resume
+arguments default to the current `codex resume --remote <endpoint> --cd
+<workspace> <thread>` command; the fake's `codexEndpoint` lives in
+`fakeCodex.ts`. The startup case now asserts the attach argv and working
+directory (a scratch endpoint break failed it). Slice selection 22 passed;
+consumer specs (observation alerts, concurrency, sharing, status, wait,
+listing, side panel, Codex launch) 26 passed; typecheck passed.
 
 ### 2. Cursor recovery resumes the saved conversation and configuration
 Type: Behavior

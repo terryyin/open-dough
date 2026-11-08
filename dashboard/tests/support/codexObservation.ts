@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { appendedRecords } from "./appendedRecords.ts";
 import { expect } from "../dashboardTest.ts";
+import { codexEndpoint } from "./fakeCodex.ts";
 import type { FakeCodex, FakeCodexObservation } from "./fakeCodex.ts";
 import type {
   CodexSession,
@@ -13,6 +14,7 @@ import { machineSessions } from "../agentLaunchBoundary.ts";
 import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { rawRequest } from "./rawHttp.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { RawRequestOptions, RawResponse } from "./rawHttp.ts";
 
 export function observationRecord(
@@ -28,16 +30,15 @@ export function observationRecord(
       workflow: "refinement",
       host: "codex",
     },
-    session: {
-      host: "codex",
-      sessionId: id,
-      name: id,
-      continuation: {
-        workspace: path.join(server.home, "git", "open-dough"),
-        endpoint: `unix://${native.env["FAKE_CODEX_SOCKET"] ?? ""}`,
-        args: ["codex", "resume", id],
-      },
-    },
+    session: makeMe.aHostSession
+      .codex({
+        sessionId: id,
+        continuation: {
+          workspace: path.join(server.home, "git", "open-dough"),
+          endpoint: codexEndpoint(native),
+        },
+      })
+      .please(),
     launchedAt: "2026-09-01T00:00:00.000Z",
     // Deliberately omit newer firstInput/preparation fields: actual predecessor decoding.
   };
