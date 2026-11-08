@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 456. Removed numbers are never reused.
+- Highest allocated local number: 457. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -397,3 +397,16 @@ Former local code: DD-451. [Evidence and current response](docs/maintainer/findi
 <a id="dd-452--a-shell-check-gained-a-browser-its-ci-job-did-not-install"></a> DD-452 — A shell check gained a browser its CI job did not install. [Project evidence](docs/maintainer/project-findings-history.md#dd-452).
 ## ODF-456 — Ready plan used an unsupported slice status
 [Evidence and current response](docs/maintainer/findings/ODF-456.md).
+
+## DD-457 — A reported limitation left without an obligation became a retrospective correction
+At slice 1 acceptance the implementation return named a consequential limitation (the resolved follow-up context is unbounded and kept on attempts and records, so it can grow the overview payload). The coordinator treated it as outside the story's promises and recorded no story obligation, although Accept proof requires every reported gap, loss or limitation to get one disposition. The retrospective's outcome review then found the same effect as its top finding, and it needed a correction plan.
+
+### Occurrences
+- Execution: SEED-273#follow-up-from-done (plan 526, first implementation commit `c91e02264`)
+  - Timestamp: unknown (date 2026-11-08)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91
+  - Evidence: slice 1 return "Context size: followUp.context has no upper bound…"; plan 526 Story obligations empty; correction SEED-273#lean-follow-up-listing, plan 529, finding 1.
+  - Observed effect: the limitation reached a correction plan instead of being returned to slice 1 or disposed at acceptance.
+  - Inference: judging a return's learning by story promises alone, rather than through the obligation record, let a product-cost limitation pass without a decision.

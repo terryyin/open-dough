@@ -220,3 +220,15 @@ host route, all three extend the one context rule and request field from
 slice 1, and slice 1 is the largest because the identity, attempt key and
 input order are the minimum for any follow-up to start. This review found no
 remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: ship the follow-up story with the bounded correction
+[SEED-273#lean-follow-up-listing](../../seeds/SEED-273-follow-up-from-done.md#lean-follow-up-listing)
+(plan 529): the resolved follow-up context rides in every sessions overview
+the page polls, and a repeated follow-up is refused once its source record
+expires. If a second request field slips past the done listing's
+history-only denylist, consider making that listing an allowlist. Keep the
+deferred promises (Follow up from the sidebar or Intent, showing the source
+on the new entry) until follow-ups are used; showing the source would widen
+the same payload.

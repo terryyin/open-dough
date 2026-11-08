@@ -139,3 +139,29 @@ Reuse the [ad hoc Start session dialog and launch path](../../dashboard/LAUNCH-S
 for the new launch. Use the [existing done and retained session records](../../dashboard/AGENT-LAUNCH-HISTORY.md)
 for the source context. A session's local Done status is independent of
 whether its changes landed.
+
+## Correction
+
+<a id="lean-follow-up-listing"></a>
+
+### Keep follow-up context out of listings and resume it after its source expires
+
+**Identity:** SEED-273#lean-follow-up-listing
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/529-lean-follow-up-listing/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ac1cfb6f3b8188d99220c12c617d0854e3c28e914a51f95cbe8f34c4def05691","plan":"b36cf99f73c9e02d9b074156c0608a02914746000c0d13d7bda8a8fc3714bb14"}}
+```
+
+**Goal.** A developer using Follow up keeps a lean dashboard: the sessions
+overview the page polls stops carrying each follow-up's resolved context, which
+repeats the source sessions' requests and final reports and can reach about
+20 KB per held session, and repeating a follow-up whose start is still retained
+resumes that start even after its source record has expired. This corrects the
+delivered [Start a follow-up from recently done work](#follow-up-from-done)
+story; it adds no new promise.
+
+**Scope.** The done listing and open-entry listing of a follow-up session's
+recorded context, admission's resume of a retained follow-up start whose source
+record is gone, and the residue the review named (duplicate per-host Default
+main input cases and a re-export kept only for an old import), with focused
+proof. Plan:
+[529-lean-follow-up-listing](../slice-plans/529-lean-follow-up-listing/PLAN.md).
