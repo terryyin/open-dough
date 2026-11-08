@@ -174,3 +174,12 @@ column's own `display: flex` overrides `hidden`; the summary object moved to
 Slice-plan refinement was not needed: the three slices are independent
 outcomes with their own proof loops, each one cohesive change. This review
 found no remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. The persistent story header the amendment removed
+is already queued as SEED-275#story-intent-tabs. Learning for later dashboard
+stories: the dashboard has no dark base theme; only the CI cue colours vary
+under `prefers-color-scheme: dark`, so a "light and dark themes" promise on a
+dashboard colour is observable only against those cues until a dark theme is
+chosen as its own product decision.
