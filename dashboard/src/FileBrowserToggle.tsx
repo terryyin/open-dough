@@ -1,6 +1,7 @@
-// One control shows or hides the browser for whichever comparison is shown.
-// The file browser as the review places it: its element's id, and whether
-// the developer shows it.
+// One control shows or hides a file browser: Review changes' browser for
+// whichever comparison is shown, and Intent's locations column.
+// The file browser as its view places it: its element's id, and whether the
+// developer shows it.
 export type FileBrowserPlace = {
   readonly id: string;
   readonly shown: boolean;

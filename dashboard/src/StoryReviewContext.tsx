@@ -6,7 +6,7 @@ import { ContextLine } from "./StoryReviewContextLine.tsx";
 import {
   FileBrowserToggle,
   type FileBrowserPlace,
-} from "./StoryReviewBrowserToggle.tsx";
+} from "./FileBrowserToggle.tsx";
 
 export function reviewDescription(review: StoryReview | undefined) {
   if (review?.kind === "published")

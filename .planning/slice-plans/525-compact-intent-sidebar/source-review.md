@@ -1,96 +1,106 @@
 # Source review: SEED-271#compact-intent-sidebar
 
-Launch: a fresh general-purpose reviewer (no conversation inheritance) on
-2026-11-08, given only the seed's story section verbatim (Goal, Scope, scope
-limits, Key examples, UI sketch, Architecture), instructed to read no project
-files, change nothing, and return numbered commitments with qualifications,
-examples and exclusions. The table below keeps its return as given; Slice and
-the last column are the coordinator's allocation and acceptance record.
+Launch: after Terry's scope amendment (trunk 9367c5b44, which removed the
+story title in the mode bar and moved the persistent story header to
+SEED-275#story-intent-tabs), a fresh general-purpose reviewer with no
+conversation inheritance on 2026-11-08 was given only the amended seed's
+story section (Goal through Architecture) as one file, told to read nothing
+else, change nothing, and return numbered commitments with qualifications,
+examples and exclusions. It replaces the review of the unamended story. The
+table keeps its return as given; Slice and the last column are the
+coordinator's allocation and acceptance record.
 
 ## Commitments
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A developer reviewing a story in Intent can quickly spot the top-level entries. | slice 1 | observed: intent-gherkin-groups.spec.ts header step (fullWidth vs column, labelWeight>=600, bg apart from rows); slice-1 light/dark screenshots (job tmp slice1/intent-tree-*.png): violet band apart from green change mark/folder tint and blue selected fill |
-| 2 | The developer can give the reading pane more room. | slice 3 | |
-| 3 | The developer can see at a glance how many changed files fall outside Intent locations. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry |
-| 4 | Intent's sidebar becomes easier to scan and costs less room while reading. | slice 3 | |
-| 5 | Reviewing a story's Purpose and Proof needs less scrolling and searching. | slice 3 | |
-| 6 | Each top-level Intent location header spans the sidebar edge to edge. | slice 1 | observed: intent-gherkin-groups.spec.ts header step (fullWidth vs column, labelWeight>=600, bg apart from rows) |
-| 7 | Each header has its own colored background. | slice 1 | observed: intent-gherkin-groups.spec.ts header step (own bg apart from rows); dashboard/src/intent-location-group.css --location-header |
-| 8 | The header's toggle and label are padded inside that color. | slice 1 | observed: slice-1 light/dark screenshots (job tmp slice1/intent-tree-*.png): violet band apart from green change mark/folder tint and blue selected fill: toggle and label padded inside band |
-| 9 | The header label is bold, setting it apart from the folder and file rows beneath. | slice 1 | observed: intent-gherkin-groups.spec.ts header step (fullWidth vs column, labelWeight>=600, bg apart from rows) labelWeight |
-| 10 | The header keeps every cue it carries now. | slice 1 | observed: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder, mark kept when selected); intent-story-ci-cues.spec.ts selected cued header (fullWidth, mark + count inset, tint kept, accent border) |
-| 10.1 | Selected background across the header's whole width. | slice 1 | observed: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder, mark kept when selected) |
-| 10.2 | Alternative to 10.1: the accent border when a CI duration tint would be hidden. | slice 1 | observed: intent-story-ci-cues.spec.ts selected cued header (fullWidth, mark + count inset, tint kept, accent border) |
-| 10.3 | Change mark on its leading edge. | slice 1 | observed: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder, mark kept when selected); intent-story-ci-cues.spec.ts selected cued header (fullWidth, mark + count inset, tint kept, accent border) |
-| 10.4 | A compared entry's count-border cue. | slice 1 | observed: intent-story-ci-cues.spec.ts selected cued header (fullWidth, mark + count inset, tint kept, accent border) |
-| 10.5 | A compared entry's duration-tint cue. | slice 1 | observed: intent-story-ci-cues.spec.ts selected cued header (fullWidth, mark + count inset, tint kept, accent border) |
-| 11 | The header color is distinct from those cues (10.1-10.5). | slice 1 | observed: slice-1 light/dark screenshots (job tmp slice1/intent-tree-*.png): violet band apart from green change mark/folder tint and blue selected fill; intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder, mark kept when selected) (bg != selected) |
-| 12 | The header color is distinct from the shared background of folders holding changes. | slice 1 | observed: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder, mark kept when selected) |
-| 13 | Items 11 and 12 hold in light and dark themes. | slice 1 | observed: slice-1 light/dark screenshots (job tmp slice1/intent-tree-*.png): violet band apart from green change mark/folder tint and blue selected fill (dark: only CI cues vary in dark; token declared for both) |
-| 14 | Example: five locations configured, sidebar open. Each location shows a full-width colored band with a bold name (`Dashboard Frontend Test`, `dashboard/tests`, ...). Its folders and files read as rows inside it, without the band's color. | slice 1 | observed: intent-gherkin-groups.spec.ts header step (fullWidth vs column, labelWeight>=600, bg apart from rows); slice-1 light/dark screenshots (job tmp slice1/intent-tree-*.png): violet band apart from green change mark/folder tint and blue selected fill |
-| 15 | Example: `dashboard/tests` selected, with a story whose comparison changed files in it. The header carries the selected background across the full sidebar width and the change mark on its leading edge, as before. | slice 1 | observed: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder, mark kept when selected); slice-1 light/dark screenshots (job tmp slice1/intent-tree-*.png): violet band apart from green change mark/folder tint and blue selected fill |
-| 16 | While the Intent mode shows the location tree, the bar holding Intent and Optimization Candidates offers one toggle, **Hide files** / **Show files**. | slice 3 | |
-| 16.1 | It is the same control and words Review changes uses for its file browser. | slice 3 | |
-| 17 | Hiding removes the whole locations column (story summary and tree). | slice 3 | |
-| 18 | Hiding gives the reading pane the freed width. | slice 3 | |
-| 19 | On a narrow screen, where the tree sits above the reading pane, hiding gives the reading pane the full height. | slice 3 | |
-| 20 | Showing the sidebar again restores the column as it was. | slice 3 | |
-| 20.1 | Selection restored. | slice 3 | |
-| 20.2 | Open location and folders restored. | slice 3 | |
-| 20.3 | **Selected story only** restored. | slice 3 | |
-| 20.4 | The summary's disclosure restored. | slice 3 | |
-| 20.5 | The tree's scroll restored. | slice 3 | |
-| 21 | Hiding changes no selection or reading. | slice 3 | |
-| 22 | The choice is kept in memory with Intent's reading place. | slice 3 | |
-| 22.1 | It persists across file and location selections. | slice 3 | |
-| 22.2 | It persists across Optimization Candidates and back. | slice 3 | |
-| 22.3 | It persists across Development and back. | slice 3 | |
-| 22.4 | It persists across new revisions. | slice 3 | |
-| 22.5 | A project change shows the sidebar again. | slice 3 | |
-| 23 | The choice is not on the URL or in storage. | slice 3 | |
-| 24 | The control is keyboard-operable. | slice 3 | |
-| 25 | The control states whether the sidebar is shown. | slice 3 | |
-| 26 | Example: story selected, a file's Purpose open, `dashboard/tests` and two of its folders open, then Hide files. The reading pane spans the page width. The bar shows Intent, Optimization Candidates, Show files, and `Story Make the Intent sidebar easier to scan and hide` at its trailing end, ellipsized when it does not fit, with the full title on hover. Then Show files: the summary, the same open folders, the selected file row and the tree's scroll return, and the reading pane still shows that file's Purpose. | slice 3 | |
-| 27 | Example: sidebar hidden, no story selected. The bar shows the toggle and nothing at its trailing end. The reading pane shows **CI status** across the width. | slice 3 | |
-| 28 | Example: sidebar hidden, then the developer switches to Development and back, or to Optimization Candidates and back. The sidebar is still hidden. Picking another project makes its Intent show the sidebar. | slice 3 | |
-| 29 | With a story selected and the sidebar hidden in the Intent mode, the bar's remaining space at its trailing end names the story (`Story` and its title). | slice 3 | |
-| 30 | The story name appears on one line. | slice 3 | |
-| 31 | The story name is truncated, with the full title on hover. | slice 3 | |
-| 32 | Nothing else from the summary appears there. | slice 3 | |
-| 33 | Showing the sidebar removes the story name from the bar. | slice 3 | |
-| 34 | Showing the sidebar returns the full summary above the tree. | slice 3 | |
-| 35 | The summary replaces the sentence "N changed files outside Intent locations are shown in Review changes." and its separate button with one compact control. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry (old sentence and button gone) |
-| 36 | The control sits on the story's title line. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry (button inside .intent-story-title-line, centred on the disclosure box) |
-| 37 | The control shows an icon and the count. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry; IntentStorySummary.tsx GitCompare icon + count |
-| 38 | Its accessible name and hover text explain the count and that it opens Review changes (for example, "2 changed files outside Intent locations — open Review changes"). | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry |
-| 38.1 | The quoted text is only an example of the wording. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry (wording as example) |
-| 39 | Activating it opens Review changes on Intent's comparison (All changes, uncommitted included), as the button does now. | slice 2 | observed: intentStoryPage.ts openReviewFromIntent clicks the count; intent-story-changes-marked.spec.ts expectShown All changes + uncommitted checked; intent-story-changes.spec.ts review diffs untracked file |
-| 40 | With no such files, the control is absent. | slice 2 | observed: intent-story-changes-gaps.spec.ts no-workspace and no-locations cases: outsideCount count 0; intent-story-changes.spec.ts cleared story |
-| 41 | Example: a story whose comparison changed two files that no Intent location selects. The title line shows an icon and `2`. A screen reader hears "2 changed files outside Intent locations — open Review changes". Activating it opens Review changes on All changes for that story. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry; openReviewFromIntent in intent-story-changes.spec.ts |
-| 42 | Example: a story whose changed files all fall inside locations shows no such control. | slice 2 | observed: intent-story-changes-gaps.spec.ts outsideCount count 0 while all changes inside / published tree |
-| 43 | No resizable sidebar. | slice 3 | |
-| 44 | No keyboard shortcut. | slice 3 | |
-| 45 | No remembering the choice across reloads. | slice 3 | |
-| 46 | Items 43-45 remain open. The toggle is enough for "more room". | slice 3 | |
-| 47 | No sticky location headers while scrolling. The full-width bold header is this story's scanning aid. | slice 1 | observed: slice-1 diff adds no sticky positioning |
-| 48 | While the sidebar is hidden, the bar shows no comparison state. | slice 3 | |
-| 49 | While the sidebar is hidden, the bar shows no **Retry**. | slice 3 | |
-| 50 | While the sidebar is hidden, the bar shows no outside count. | slice 3 | |
-| 51 | A comparison that is reading or failed is seen when the sidebar is shown again. | slice 3 | |
-| 52 | Surfacing that state in the bar is a possible follow-up if hidden reading proves to miss failures. | slice 3 | |
-| 53 | Development's layout is unchanged. | slice 3 | |
-| 54 | Review changes' own browser behavior is unchanged. | slice 3 | |
-| 55 | The explanation shown in place of the tree (which has no sidebar to hide) is unchanged. | slice 3 | |
-| 56 | Sidebar open: bar `[Intent \| Optimization Candidates]  [Hide files]`. The sidebar shows `> Story Make the Intent s…  [i] 2`, `[ ] Selected story only`, full-width bold header bands `[book] Dashboard Frontend Test`, folder rows `> intent/`, and header band `[book] dashboard/tests`. The reading pane is to the right. | slice 3 | |
-| 57 | Sidebar hidden: bar `[Intent \| Optimization Candidates]  [Show files]      Story Make the Intent s…`. The reading pane spans the full width. | slice 3 | |
-| 58 | Keep this as disposable presentation state (ADR 0008). | slice 3 | |
-| 59 | The shown/hidden choice belongs to Intent's kept reading place (`useKeptReading`). | slice 3 | |
-| 59.1 | It is owned by the perspective, because the toggle sits in the mode bar while the column lives in the browser. | slice 3 | |
-| 59.2 | The browser reads it rather than keeping its own copy. | slice 3 | |
-| 60 | The toggle reuses Review changes' `FileBrowserToggle`, moved to a shared home both surfaces import. | slice 3 | |
-| 60.1 | One control owns Hide files / Show files. | slice 3 | |
-| 61 | The outside-locations count stays computed where it is now. | slice 2 | observed: backend-tests/intent/intent-story-overlay.spec.ts passes; slice-2 diff leaves scope.outside computation untouched |
-| 61.1 | Only its presentation changes. | slice 2 | observed: slice-2 diff: IntentStorySummary.tsx presentation only |
-| 62 | The Development and Intent guidance doc, which describes the current location browser and selected-story summary, is updated with this behavior. | slice 3 | |
+| G1 | A developer reviewing a story in Intent can quickly spot the top-level entries | slice 1 | observed: slice 1: intent-gherkin-groups.spec.ts header step (fullWidth vs .intent-locations, labelWeight>=600, bg apart from rows); slice 1: light/dark screenshots (job tmp slice1/intent-tree-*.png), violet band apart from change mark, folder tint, selected fill |
+| G2 | A developer reviewing a story in Intent can give the reading pane more room | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' reading pane width grows to .intent-browser |
+| G3 | A developer reviewing a story in Intent can see at a glance how many changed files fall outside Intent locations | slice 2 | observed: slice 2: intentStoryPage.ts expectOutsideCount (text = count, accessible name and title = full wording, on .intent-story-title-line, old sentence gone) in intent-story-changes.spec.ts and intent-story-changes-gaps.spec.ts |
+| G4 | Intent's sidebar becomes easier to scan | slice 1 | observed: slice 1: intent-gherkin-groups.spec.ts header step (fullWidth vs .intent-locations, labelWeight>=600, bg apart from rows); slice 1: light/dark screenshots (job tmp slice1/intent-tree-*.png), violet band apart from change mark, folder tint, selected fill |
+| G5 | Intent's sidebar costs less room while reading | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…'; slice 3: intent-sidebar-toggle.spec.ts 'narrow, the hidden column gives the reading pane the height…' |
+| G6 | Reviewing a story's Purpose and Proof needs less scrolling and searching | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' Purpose kept across hide/show with full-width pane; slice 1: intent-gherkin-groups.spec.ts header step (fullWidth vs .intent-locations, labelWeight>=600, bg apart from rows) |
+| 1.1 | Each top-level Intent location header spans the sidebar edge to edge | slice 1 | observed: slice 1: intent-gherkin-groups.spec.ts header step (fullWidth vs .intent-locations, labelWeight>=600, bg apart from rows) |
+| 1.2 | Each header has its own colored background | slice 1 | observed: slice 1: intent-gherkin-groups.spec.ts header step (fullWidth vs .intent-locations, labelWeight>=600, bg apart from rows); dashboard/src/intent-location-group.css --location-header |
+| 1.3 | The header's toggle and label are padded inside that color | slice 1 | observed: slice 1: light/dark screenshots (job tmp slice1/intent-tree-*.png), violet band apart from change mark, folder tint, selected fill |
+| 1.4 | The header label is bold, setting it apart from the folder and file rows beneath | slice 1 | observed: slice 1: intent-gherkin-groups.spec.ts header step (fullWidth vs .intent-locations, labelWeight>=600, bg apart from rows) labelWeight |
+| 1.5 | The header keeps every cue it carries now | slice 1 | observed: slice 1: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder and != selected, mark kept when selected); slice 1: intent-story-ci-cues.spec.ts selected cued header (fullWidth, mark + count inset, tint kept, accent border) |
+| 1.5.1 | Kept cue: the selected background across its whole width | slice 1 | observed: slice 1: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder and != selected, mark kept when selected) |
+| 1.5.2 | Qualification: or the accent border when a CI duration tint would be hidden | slice 1 | observed: slice 1: intent-story-ci-cues.spec.ts selected cued header (fullWidth, mark + count inset, tint kept, accent border) |
+| 1.5.3 | Kept cue: the change mark on its leading edge | slice 1 | observed: slice 1: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder and != selected, mark kept when selected); slice 1: intent-story-ci-cues.spec.ts selected cued header (fullWidth, mark + count inset, tint kept, accent border) |
+| 1.5.4 | Kept cue: a compared entry's count-border cue | slice 1 | observed: slice 1: intent-story-ci-cues.spec.ts selected cued header (fullWidth, mark + count inset, tint kept, accent border) |
+| 1.5.5 | Kept cue: a compared entry's duration-tint cue | slice 1 | observed: slice 1: intent-story-ci-cues.spec.ts selected cued header (fullWidth, mark + count inset, tint kept, accent border) |
+| 1.6 | The header color is distinct from those cues | slice 1 | observed: slice 1: light/dark screenshots (job tmp slice1/intent-tree-*.png), violet band apart from change mark, folder tint, selected fill; slice 1: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder and != selected, mark kept when selected) |
+| 1.7 | The header color is distinct from the shared background of folders holding changes | slice 1 | observed: slice 1: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder and != selected, mark kept when selected) |
+| 1.8 | Items 1.6 and 1.7 hold in light and dark themes | slice 1 | observed: slice 1: light/dark screenshots (job tmp slice1/intent-tree-*.png), violet band apart from change mark, folder tint, selected fill |
+| 2.1 | While the Intent mode shows the location tree, the bar holding Intent and Optimization Candidates offers one toggle, Hide files / Show files | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…'; slice 3: intent-sidebar-toggle.spec.ts 'the hidden column stays hidden through Optimization Candidates and Development…' no toggle in Candidates or without locations |
+| 2.2 | It is the same control and words Review changes uses for its file browser | slice 3 | observed: slice 3: IntentModeTabs.tsx renders FileBrowserToggle from dashboard/src/FileBrowserToggle.tsx; intentModePage.ts expectFilesShown text |
+| 2.3 | Hiding removes the whole locations column (story summary and tree) | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' expectFilesShown(false) column hidden |
+| 2.4 | Hiding gives the reading pane the freed width | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…'; slice 3: intent-sidebar-toggle.spec.ts 'with no story, the toggle is reached by Tab…' |
+| 2.5 | On a narrow screen, where the tree sits above the reading pane, hiding gives the reading pane the full height | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'narrow, the hidden column gives the reading pane the height…' |
+| 2.6 | Showing it again restores the column as it was | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' |
+| 2.6.1 | Restored: selection | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' deep file aria-pressed |
+| 2.6.2 | Restored: open location and folders | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' boundary and deep folders open |
+| 2.6.3 | Restored: Selected story only | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' checked |
+| 2.6.4 | Restored: the summary's disclosure | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' aria-expanded true |
+| 2.6.5 | Restored: the tree's scroll | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' scrollTop equals offset |
+| 2.7 | Hiding changes no selection or reading | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' Purpose diff name kept while hidden |
+| 2.8 | The choice is kept in memory with Intent's reading place | slice 3 | observed: slice 3: pageIntentReading.tsx IntentReadingProvider makes a fresh place only on project change; IntentPerspective.tsx IntentBody useKeptReading('filesShown') is touched only by the toggle; slice 3: intent-sidebar-toggle.spec.ts 'the hidden column stays hidden through Optimization Candidates and Development…' |
+| 2.8.1 | Kept across file and location selections | slice 3 | observed: slice 3: pageIntentReading.tsx IntentReadingProvider makes a fresh place only on project change; IntentPerspective.tsx IntentBody useKeptReading('filesShown') is touched only by the toggle |
+| 2.8.2 | Kept across Optimization Candidates and back | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'the hidden column stays hidden through Optimization Candidates and Development…' |
+| 2.8.3 | Kept across Development and back | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'the hidden column stays hidden through Optimization Candidates and Development…' |
+| 2.8.4 | Kept across new revisions | slice 3 | observed: slice 3: pageIntentReading.tsx IntentReadingProvider makes a fresh place only on project change; IntentPerspective.tsx IntentBody useKeptReading('filesShown') is touched only by the toggle (revision changes do not replace the place) |
+| 2.9 | A project change shows the sidebar again | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'the hidden column stays hidden through Optimization Candidates and Development…' |
+| 2.10 | The choice is not on the URL or in storage | slice 3 | observed: slice 3: pageIntentReading.tsx IntentReadingProvider makes a fresh place only on project change; IntentPerspective.tsx IntentBody useKeptReading('filesShown') is touched only by the toggle; slice 3: slice-3 diff adds no resize handle, shortcut, URL or storage write |
+| 2.11 | The control is keyboard-operable | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'with no story, the toggle is reached by Tab…' |
+| 2.12 | The control states whether the sidebar is shown | slice 3 | observed: slice 3: intentModePage.ts expectFilesShown (aria-expanded, aria-controls, text) in intent-sidebar-toggle.spec.ts |
+| 3.1 | The summary replaces the sentence "N changed files outside Intent locations are shown in Review changes." | slice 2 | observed: slice 2: intentStoryPage.ts expectOutsideCount (text = count, accessible name and title = full wording, on .intent-story-title-line, old sentence gone) in intent-story-changes.spec.ts and intent-story-changes-gaps.spec.ts |
+| 3.2 | The summary replaces that sentence's separate button | slice 2 | observed: slice 2: intentStoryPage.ts expectOutsideCount (text = count, accessible name and title = full wording, on .intent-story-title-line, old sentence gone) in intent-story-changes.spec.ts and intent-story-changes-gaps.spec.ts |
+| 3.3 | The replacement is one compact control on the story's title line: an icon and the count | slice 2 | observed: slice 2: intentStoryPage.ts expectOutsideCount (text = count, accessible name and title = full wording, on .intent-story-title-line, old sentence gone) in intent-story-changes.spec.ts and intent-story-changes-gaps.spec.ts; IntentStorySummary.tsx GitCompare icon |
+| 3.4 | Its accessible name explains the count and that it opens Review changes | slice 2 | observed: slice 2: intentStoryPage.ts expectOutsideCount (text = count, accessible name and title = full wording, on .intent-story-title-line, old sentence gone) in intent-story-changes.spec.ts and intent-story-changes-gaps.spec.ts |
+| 3.5 | Its hover text explains the count and that it opens Review changes | slice 2 | observed: slice 2: intentStoryPage.ts expectOutsideCount (text = count, accessible name and title = full wording, on .intent-story-title-line, old sentence gone) in intent-story-changes.spec.ts and intent-story-changes-gaps.spec.ts |
+| 3.6 | Example wording: "2 changed files outside Intent locations — open Review changes" | slice 2 | observed: slice 2: intentStoryPage.ts expectOutsideCount (text = count, accessible name and title = full wording, on .intent-story-title-line, old sentence gone) in intent-story-changes.spec.ts and intent-story-changes-gaps.spec.ts |
+| 3.7 | Activating it opens Review changes on Intent's comparison (All changes, uncommitted included), as the button does now | slice 2 | observed: slice 2: intentStoryPage.ts openReviewFromIntent clicks the count; intent-story-changes-marked.spec.ts All changes + uncommitted checked; intent-story-changes.spec.ts review diffs untracked file |
+| 3.8 | With no such files, the control is absent | slice 2 | observed: slice 2: intent-story-changes-gaps.spec.ts no-workspace/no-locations cases and intent-story-changes.spec.ts cleared story: outsideCount count 0 |
+| 4.1 | No resizable sidebar (remains open) | slice 3 | observed: slice 3: slice-3 diff adds no resize handle, shortcut, URL or storage write |
+| 4.2 | No keyboard shortcut (remains open) | slice 3 | observed: slice 3: slice-3 diff adds no resize handle, shortcut, URL or storage write |
+| 4.3 | No remembering the choice across reloads (remains open) | slice 3 | observed: slice 3: slice-3 diff adds no resize handle, shortcut, URL or storage write |
+| 4.4 | The toggle is enough for "more room" | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' |
+| 4.5 | No sticky location headers while scrolling | slice 1 | observed: slice 1 diff adds no sticky positioning |
+| 4.6 | The full-width bold header is this story's scanning aid | slice 1 | observed: slice 1: intent-gherkin-groups.spec.ts header step (fullWidth vs .intent-locations, labelWeight>=600, bg apart from rows) |
+| 4.7 | While the sidebar is hidden, the mode bar carries the same mode controls and Show files | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' bar text and single button; slice 3: intent-sidebar-toggle.spec.ts 'with no story, the toggle is reached by Tab…' bar text |
+| 4.8 | The story summary returns with the sidebar | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' disclosure expanded after Show files |
+| 4.9 | The persistent story header belongs to the follow-up (SEED-275 story-intent-tabs) | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' bar holds no story title |
+| 4.10 | Development's layout is unchanged | slice 3 | observed: slice 3: tests/navigation/development-intent-frame-sessions.spec.ts passed; diff leaves Development untouched |
+| 4.11 | Review changes' own browser behavior is unchanged | slice 3 | observed: slice 3: whole tests/review passed (story-review-completed, -commits, -context-line, -comparison Hide files / Show files) |
+| 4.12 | The explanation shown in place of the tree (which has no sidebar to hide) is unchanged | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'the hidden column stays hidden through Optimization Candidates and Development…' Doughnut explanation, no toggle |
+| E1 | Five locations configured, sidebar open, developer looks down the sidebar: each location shows a full-width colored band with a bold name (`Dashboard Frontend Test`, `dashboard/tests`, ...) | slice 1 | observed: slice 1: intent-gherkin-groups.spec.ts header step (fullWidth vs .intent-locations, labelWeight>=600, bg apart from rows); slice 1: light/dark screenshots (job tmp slice1/intent-tree-*.png), violet band apart from change mark, folder tint, selected fill |
+| E1.1 | Its folders and files read as rows inside it, without the band's color | slice 1 | observed: slice 1: intent-gherkin-groups.spec.ts header step (fullWidth vs .intent-locations, labelWeight>=600, bg apart from rows) rows bg; slice 1: light/dark screenshots (job tmp slice1/intent-tree-*.png), violet band apart from change mark, folder tint, selected fill |
+| E2 | `dashboard/tests` selected, story whose comparison changed files in it: the header carries the selected background across the full sidebar width | slice 1 | observed: slice 1: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder and != selected, mark kept when selected) |
+| E2.1 | ...and the change mark on its leading edge, as before | slice 1 | observed: slice 1: intent-story-changes.spec.ts changed-header step (fullWidth, weight, bg != changed folder and != selected, mark kept when selected) |
+| E3 | Story selected, a file's Purpose open, `dashboard/tests` and two of its folders open, then Hide files: the reading pane spans the page width | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' |
+| E3.1 | The bar shows Intent, Optimization Candidates, and Show files | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' bar text |
+| E3.2 | Then Show files: the summary returns | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' |
+| E3.3 | ...the same open folders return | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' |
+| E3.4 | ...the selected file row returns | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' |
+| E3.5 | ...the tree's scroll returns | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' |
+| E3.6 | The reading pane still shows that file's Purpose | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' |
+| E4 | Sidebar hidden, no story selected: the bar shows the toggle and nothing at its trailing end | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'with no story, the toggle is reached by Tab…' bar text (assertion added at acceptance) |
+| E4.1 | ...the reading pane shows CI status across the width | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'with no story, the toggle is reached by Tab…' |
+| E5 | Sidebar hidden, developer switches to Development and back: the sidebar is still hidden | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'the hidden column stays hidden through Optimization Candidates and Development…' |
+| E5.1 | Sidebar hidden, developer switches to Optimization Candidates and back: the sidebar is still hidden | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'the hidden column stays hidden through Optimization Candidates and Development…' |
+| E5.2 | Sidebar hidden, picking another project: its Intent shows the sidebar | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'the hidden column stays hidden through Optimization Candidates and Development…' |
+| E6 | Story whose comparison changed two files that no Intent location selects: the summary's title line shows an icon and `2` | slice 2 | observed: slice 2: intentStoryPage.ts expectOutsideCount (text = count, accessible name and title = full wording, on .intent-story-title-line, old sentence gone) in intent-story-changes.spec.ts and intent-story-changes-gaps.spec.ts |
+| E6.1 | A screen reader hears "2 changed files outside Intent locations — open Review changes" | slice 2 | observed: slice 2: intentStoryPage.ts expectOutsideCount (text = count, accessible name and title = full wording, on .intent-story-title-line, old sentence gone) in intent-story-changes.spec.ts and intent-story-changes-gaps.spec.ts |
+| E6.2 | Activating it opens Review changes on All changes for that story | slice 2 | observed: slice 2: intentStoryPage.ts openReviewFromIntent clicks the count; intent-story-changes-marked.spec.ts All changes + uncommitted checked; intent-story-changes.spec.ts review diffs untracked file |
+| E6.3 | A story whose changed files all fall inside locations shows no such control | slice 2 | observed: slice 2: intent-story-changes-gaps.spec.ts no-workspace/no-locations cases and intent-story-changes.spec.ts cleared story: outsideCount count 0 |
+| U1 | Sidebar open sketch: mode bar `[Intent \| Optimization Candidates]` with `[Hide files]`; the sidebar has a story line with disclosure, title, info marker and count `2`; a `Selected story only` checkbox; full-width banded location headers with book icon and bold names; folders (e.g. `intent/`) as rows beneath; reading pane beside | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' (shown state); slice 2: intentStoryPage.ts expectOutsideCount (text = count, accessible name and title = full wording, on .intent-story-title-line, old sentence gone) in intent-story-changes.spec.ts and intent-story-changes-gaps.spec.ts; slice 1: light/dark screenshots (job tmp slice1/intent-tree-*.png), violet band apart from change mark, folder tint, selected fill |
+| U2 | Sidebar hidden sketch: mode bar `[Intent \| Optimization Candidates]` with `[Show files]`; reading pane across the full width | slice 3 | observed: slice 3: intent-sidebar-toggle.spec.ts 'Hide files gives the reading pane the width…' |
+| A1 | No Accepted ADR is implicated beyond keeping this as disposable presentation state (ADR 0008) | slice 3 | observed: slice 3: pageIntentReading.tsx IntentReadingProvider makes a fresh place only on project change; IntentPerspective.tsx IntentBody useKeptReading('filesShown') is touched only by the toggle; slice 3: slice-3 diff adds no resize handle, shortcut, URL or storage write |
+| A2 | The shown/hidden choice belongs to Intent's kept reading place (`useKeptReading` in `dashboard/src/pageIntentReading.tsx`) | slice 3 | observed: slice 3: pageIntentReading.tsx IntentReadingProvider makes a fresh place only on project change; IntentPerspective.tsx IntentBody useKeptReading('filesShown') is touched only by the toggle |
+| A3 | It is owned by the perspective because the toggle sits in the mode bar while the column lives in the browser | slice 3 | observed: slice 3: IntentPerspective.tsx IntentBody owns filesShown and passes it to IntentModeTabs and IntentBrowser |
+| A4 | The browser reads the choice rather than keeping its own copy | slice 3 | observed: slice 3: IntentBrowser.tsx takes files: FileBrowserPlace prop, no state |
+| A5 | The toggle reuses Review changes' `FileBrowserToggle` (`dashboard/src/StoryReviewBrowserToggle.tsx`), moved to a shared home both surfaces import | slice 3 | observed: slice 3: rename to dashboard/src/FileBrowserToggle.tsx imported by IntentModeTabs.tsx and StoryReviewContext*.tsx / StoryReviewLandedContext.tsx |
+| A6 | One control owns Hide files / Show files | slice 3 | observed: slice 3: FileBrowserToggle.tsx sole renderer of the words |
+| A7 | The outside-locations count stays computed where it is now; only its presentation changes | slice 2 | observed: slice 2: backend-tests/intent/intent-story-overlay.spec.ts passes; diff leaves scope.outside computation untouched |
+| A8 | The Development and Intent guidance (`docs/dashboard-development-intent.md`) is updated with this behavior | slice 3 | observed: docs/dashboard-development-intent.md header (slice 1), count (slice 2), Hide files / Show files without a bar title (slice 3) |

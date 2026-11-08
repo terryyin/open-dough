@@ -79,6 +79,18 @@
   display: none;
 }
 
+/* Hide files (./IntentModeTabs.tsx) hides the locations column, still
+   mounted so its scroll, open folders and summary return, and gives the
+   reading pane the whole width (narrow, the whole height). */
+.intent-browser.intent-files-hidden {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.intent-locations[hidden] {
+  display: none;
+}
+
 .intent-locations,
 .intent-reading {
   min-width: 0;

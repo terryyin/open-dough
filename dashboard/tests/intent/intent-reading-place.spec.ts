@@ -23,8 +23,10 @@ import {
   selectTakenStoryInIntent,
   storyOnly,
 } from "../support/intentStoryPage.ts";
-import { changeIntentTests } from "../support/intentStoryWorktree.ts";
-import { lines, writeAt } from "../support/storyReviewWorktree.ts";
+import {
+  changeWithDeepSpec,
+  deepSpec,
+} from "../support/intentStoryWorktree.ts";
 
 // The page's reads, from now on, of Intent's locations, of published text in
 // a location, and of a story file's diff and texts.
@@ -52,18 +54,6 @@ const readingPane = (intent: Locator) => intent.locator(".intent-reading");
 const scrollOf = (intent: Locator) =>
   readingPane(intent).evaluate((element) => element.scrollTop);
 
-const deep = "Added dashboard/tests/boundary/deep/long.spec.ts";
-
-// The story's changes, and a long added spec in a nested folder.
-function changeWithDeepSpec(workspace: string) {
-  changeIntentTests(workspace);
-  writeAt(
-    workspace,
-    "dashboard/tests/boundary/deep/long.spec.ts",
-    lines("long", 120),
-  );
-}
-
 // The deep spec selected with "Selected story only" on and `out` collapsed by
 // hand, its diff shown and Purpose scrolled halfway, as the developer would.
 // Proof stays on its own tab, so settling comparison no longer changes the
@@ -72,8 +62,8 @@ async function readDeepSpec(intent: Locator) {
   const purpose = purposeRegion(intent);
   await storyOnly(intent).check();
   await folderToggle(intent, "out", true).click();
-  await intentFile(intent, deep).click();
-  await expect(purpose.locator(".intent-story-diff-name")).toHaveText(deep);
+  await intentFile(intent, deepSpec).click();
+  await expect(purpose.locator(".intent-story-diff-name")).toHaveText(deepSpec);
   await expect(purpose.locator(".story-review-code")).toHaveAttribute(
     "aria-busy",
     "false",
@@ -120,11 +110,11 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
 
   const purpose = purposeRegion(intent);
   await expect(storyOnly(intent)).toBeChecked();
-  await expect(intentFile(intent, deep)).toHaveAttribute(
+  await expect(intentFile(intent, deepSpec)).toHaveAttribute(
     "aria-pressed",
     "true",
   );
-  await expect(purpose.locator(".intent-story-diff-name")).toHaveText(deep);
+  await expect(purpose.locator(".intent-story-diff-name")).toHaveText(deepSpec);
   await expect(purpose.locator(".story-review-code")).toHaveAttribute(
     "aria-busy",
     "false",
@@ -156,7 +146,7 @@ test("another project shows none of the reading place, and choosing the project 
   await expect(intent).toContainText(
     "No intent locations are configured for Doughnut.",
   );
-  await expect(intent.getByRole("button", { name: deep })).toHaveCount(0);
+  await expect(intent.getByRole("button", { name: deepSpec })).toHaveCount(0);
   await expect(intent.locator('[aria-pressed="true"]')).toHaveCount(0);
 
   // The story stays selected; its tree is expanded as when first compared,
@@ -166,7 +156,7 @@ test("another project shows none of the reading place, and choosing the project 
   await expect(purposeRegion(intent)).toHaveCount(0);
   await expect(storyOnly(intent)).not.toBeChecked();
   await expect(folderToggle(intent, "out", true)).toBeVisible();
-  await expect(intentFile(intent, deep)).toHaveAttribute(
+  await expect(intentFile(intent, deepSpec)).toHaveAttribute(
     "aria-pressed",
     "false",
   );

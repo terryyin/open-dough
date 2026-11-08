@@ -12,7 +12,7 @@
 // identity, and the comparison's revisions or full explanation; it changes
 // nothing else. Intent itself stays at its published revision (ADR 0008).
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { GitCompare } from "lucide-react";
 import type { DoneStory } from "./doneStories.ts";
 import {
@@ -103,6 +103,26 @@ export type StorySummary = {
   readonly expanded: boolean;
   readonly onExpand: (expanded: boolean) => void;
 };
+
+// `story`'s summary as the perspective shows it, owning its expansion: the
+// story whose summary is expanded; another story's starts collapsed.
+export function useStorySummary(
+  story: LensStory | undefined,
+  comparison: LensComparison,
+  onRetry: () => void,
+): StorySummary | undefined {
+  const [expandedStory, setExpandedStory] = useState<string | undefined>();
+  if (story === undefined) return undefined;
+  return {
+    story,
+    comparison,
+    onRetry,
+    expanded: expandedStory === story.identity,
+    onExpand: (expanded) => {
+      setExpandedStory(expanded ? story.identity : undefined);
+    },
+  };
+}
 
 export function IntentStorySummary({
   summary: { story, comparison, onRetry, expanded, onExpand },

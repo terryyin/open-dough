@@ -10,8 +10,14 @@
 // chosen, returns home: the browsing selection clears
 // (`./intentWorkspaceSelection.ts`), leaving the selected story, tree
 // expansion and Purpose/Proof reading choices as they were. Arrow keys, Home
-// and End only choose the mode, so the reading stays.
+// and End only choose the mode, so the reading stays. While the Intent mode
+// shows the locations tree, the strip offers Review changes' **Hide files** /
+// **Show files** (`./FileBrowserToggle.tsx`) for the locations column.
 
+import {
+  FileBrowserToggle,
+  type FileBrowserPlace,
+} from "./FileBrowserToggle.tsx";
 import { IntentTabs, type IntentTabOption } from "./IntentTabs.tsx";
 import { useIntentWorkspaceSelection } from "./intentWorkspaceSelection.ts";
 import "./intent-mode-tabs.css";
@@ -27,10 +33,15 @@ export function IntentModeTabs({
   mode,
   idPrefix,
   onSelect,
+  files,
+  onShowFiles,
 }: {
   readonly mode: IntentMode;
   readonly idPrefix: string;
   readonly onSelect: (next: IntentMode) => void;
+  // The locations column while the Intent mode shows the tree.
+  readonly files: FileBrowserPlace | undefined;
+  readonly onShowFiles: (shown: boolean) => void;
 }) {
   const { clearSelection } = useIntentWorkspaceSelection();
   return (
@@ -45,6 +56,7 @@ export function IntentModeTabs({
         label="Intent reading"
         idPrefix={idPrefix}
       />
+      <FileBrowserToggle browser={files} onShowBrowser={onShowFiles} />
     </div>
   );
 }

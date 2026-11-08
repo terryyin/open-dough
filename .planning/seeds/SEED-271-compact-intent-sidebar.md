@@ -49,11 +49,6 @@ Required behavior:
   back, and new revisions; a project change shows the sidebar again. It is
   not on the URL or in storage. The control is keyboard-operable and states
   whether the sidebar is shown.
-- **The story title while hidden.** With a story selected and the sidebar
-  hidden in the **Intent** mode, the bar's remaining space at its trailing end
-  names the story (`Story` and its title) on one line, truncated with the full
-  title on hover. Nothing else from the summary appears there. Showing the
-  sidebar removes it and the full summary returns above the tree.
 - **Outside-locations count.** The summary replaces the sentence
   "N changed files outside Intent locations are shown in Review changes." and
   its separate button with one compact control on the story's title line: an
@@ -69,10 +64,10 @@ Scope limits and deferred promises:
   reloads; the toggle is enough for "more room" and these remain open.
 - No sticky location headers while scrolling; the full-width bold header is
   this story's scanning aid.
-- While the sidebar is hidden, the bar shows no comparison state, **Retry**,
-  or outside count. A comparison that is reading or failed is seen when the
-  sidebar is shown again. Surfacing that state in the bar is a possible
-  follow-up if hidden reading proves to miss failures.
+- While the sidebar is hidden, the mode bar carries the same mode controls
+  and **Show files**. The story summary returns with the sidebar. The
+  persistent story header belongs to the follow-up.
+  [Review a selected story in Intent tabs](SEED-275-story-intent-tabs.md#story-intent-tabs)
 - Development's layout, Review changes' own browser behavior, and the
   explanation shown in place of the tree (which has no sidebar to hide) are
   unchanged.
@@ -89,9 +84,8 @@ Scope limits and deferred promises:
   before.
 - A story selected, a file's **Purpose** open, `dashboard/tests` and two of
   its folders open → **Hide files** → the reading pane spans the page width;
-  the bar shows **Intent**, **Optimization Candidates**, **Show files**, and
-  `Story Make the Intent sidebar easier to scan and hide` at its trailing end,
-  ellipsized when it does not fit, the full title on hover → **Show files** →
+  the bar shows **Intent**, **Optimization Candidates**, and **Show files** →
+  **Show files** →
   the summary, the same open folders, the selected file row and the tree's
   scroll return; the reading pane still shows that file's **Purpose**.
 - Sidebar hidden, no story selected → the bar shows the toggle and nothing at
@@ -118,7 +112,7 @@ Sidebar open
 |#### [book] **dashboard/tests** ##########|
 
 Sidebar hidden
-[Intent | Optimization Candidates]  [Show files]      Story Make the Intent s…
+[Intent | Optimization Candidates]  [Show files]
 +--------------------------------------------------------------------------
 | reading pane across the full width
 ```

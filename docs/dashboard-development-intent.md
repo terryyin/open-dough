@@ -124,6 +124,20 @@ under the Summary's evidence labels.
 Directly activating the **Intent** tab (click, Enter or Space), even while already
 chosen, returns home: selection clears and CI status shows for the same story;
 expansion and reading choices stay. No separate return control.
+While **Intent** shows the location tree, the strip also offers Review
+changes' **Hide files** / **Show files** toggle, reached by Tab after the
+tabs and stating whether the locations column is shown. Hiding removes the
+whole column (story summary and tree) and gives the reading pane the full
+width, or on a narrow screen, where the tree sits above it, the full height;
+it changes no selection or reading. While the column is hidden the strip
+shows nothing from the summary: no story title, comparison state, **Retry**
+or outside count. **Show files** returns the column as it
+was: summary disclosure, selection, open location and folders, **Selected
+story only** and the tree's scroll. The choice is kept with Intent's reading
+place across selections, **Optimization Candidates** and back, Development
+and back and new revisions; a project change shows the column again. It is
+not on the URL or in storage and is not remembered across reloads; the
+explanation shown in place of the tree offers no toggle.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at Intent's reading revision across the content area without
 the location tree; the record is read the first time that tab is chosen.

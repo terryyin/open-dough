@@ -13,8 +13,9 @@ files fall outside Intent locations. The seed's Scope holds the promises,
 scope limits and deferred promises; this plan adds none.
 
 Exclusions, as the seed records them: no resizable sidebar, keyboard shortcut,
-remembering the choice across reloads, or sticky headers; the bar shows only
-the story title while the sidebar is hidden; Development, Review changes'
+remembering the choice across reloads, or sticky headers; while the sidebar
+is hidden the mode bar carries only the mode controls and **Show files**, the
+persistent story header belonging to SEED-275#story-intent-tabs; Development, Review changes'
 browser behavior and the explanation shown in place of the tree are unchanged.
 
 ## Current decisions
@@ -36,9 +37,6 @@ browser behavior and the explanation shown in place of the tree are unchanged.
   Intent both import, so **Hide files** / **Show files** have one owner. The
   toggle appears in the mode bar only while the **Intent** mode shows the
   location browser.
-- **Bar title from the existing summary.** The bar's trailing story name uses
-  the `storySummary` the perspective already builds (`Story` and the title,
-  one line, `title` for hover), so it adds no read.
 - **Outside count presentation only.** The count `scope.outside` keeps its
   computation; `StoryOutsideLocations` becomes one button with an icon from
   the dashboard's existing icon set and the count, placed on the summary's
@@ -59,7 +57,7 @@ browser behavior and the explanation shown in place of the tree are unchanged.
 | Seed example 2: selected and change cues kept | Slice 1 | `intent-story-changes.spec.ts` header look (selected background across the full column, change mark) and `intent-story-ci-cues.spec.ts` (count-border and duration tint, accent border when selected) pass with the new geometry. |
 | Header color in light and dark | Slice 1 | One Playwright screenshot of the Intent tree with a story's changes in light and in `prefers-color-scheme: dark`, inspected by the executing agent, attached to the slice's evidence. |
 | Seed example 6: icon and count, accessible name, opens Review changes, absent at zero | Slice 2 | `intent-story-changes-gaps.spec.ts` and `intent-story-changes.spec.ts`: a button named "2 changed files outside Intent locations — open Review changes" with visible text `2` on the title line opens Review changes on All changes; absent when no file is outside. The old sentence is gone. |
-| Seed examples 3 and 4: hide, title in the bar, show restores | Slice 3 | New `dashboard/tests/intent/intent-sidebar-toggle.spec.ts`: with a story, a file open two folders deep, **Selected story only** on and the summary expanded, **Hide files** hides the locations column, the reading pane's width grows to the content width, the bar names `Story <title>` with the full title as its `title`; **Show files** returns the same selected row, open folders, checked choice, expanded summary and tree scroll offset, and the file's **Purpose** stays. With no story, the bar has the toggle and no story name. |
+| Seed examples 3 and 4: hide, bar holds only mode controls and Show files, show restores | Slice 3 | New `dashboard/tests/intent/intent-sidebar-toggle.spec.ts`: with a story, a file open two folders deep, **Selected story only** on and the summary expanded, **Hide files** hides the locations column, the reading pane's width grows to the content width, the bar holds only **Intent**, **Optimization Candidates** and **Show files**; **Show files** returns the same selected row, open folders, checked choice, expanded summary and tree scroll offset, and the file's **Purpose** stays. With no story, the bar holds the same and CI status takes the width. |
 | Seed example 5: kept across modes and perspectives, reset by project | Slice 3 | Same spec: hidden after **Optimization Candidates** and back and after Development and back; another project's Intent shows the sidebar. |
 | Narrow screen | Slice 3 | Same spec at a viewport under 52rem: hidden, the reading pane fills the height under the bar. |
 | Toggle keyboard and state | Slice 3 | Same spec: the toggle is reached by Tab after the mode tabs, operates with Enter and Space, and has `aria-expanded` matching the column. |
@@ -148,19 +146,28 @@ also had consumers in the changes-only, changes-moves and completed specs.
 ### 3. Hide files gives the reading pane the sidebar's room
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `intent-sidebar-toggle.spec.ts` covering the slice's examples and
 the narrow and keyboard rows above; then the whole `tests/intent` and
 `tests/review` directories.
 
 Behavior: A story selected, a file open two folders deep → **Hide files** →
-the locations column hides, the reading pane spans the width, and the bar's
-trailing end names the story on one line with the full title on hover;
-switching modes, perspectives or revisions keeps it hidden, and a project
+the locations column hides, the reading pane spans the width, and the bar
+holds only the mode controls and **Show files**; switching modes, perspectives or revisions keeps it hidden, and a project
 change shows it; **Show files** → the summary, selection, open folders,
 **Selected story only**, disclosure and tree scroll return. `FileBrowserToggle`
 moves to its shared module first, with Review changes importing it. Guidance
 updated.
+
+Amended during execution (2026-11-08, Terry; trunk 9367c5b44): the story
+title in the mode bar is dropped and the persistent story header moves to
+SEED-275#story-intent-tabs. The source review was replaced for the amended
+story. Accepted: the choice is `useKeptReading("filesShown")` in
+`IntentBody` (`IntentPerspective.tsx`), which now renders `IntentModeTabs`;
+`.intent-locations[hidden]` needs an explicit `display: none` because the
+column's own `display: flex` overrides `hidden`; the summary object moved to
+`useStorySummary` in `IntentStorySummary.tsx` for the line limit. Whole
+`tests/intent` and `tests/review` (409) passed.
 
 ## Plan review
 
