@@ -10,7 +10,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../support/pageTest.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
@@ -61,7 +61,7 @@ async function start(mode: "dev" | "preview"): Promise<DashboardServer> {
   const server = await startDashboardServer({
     mode,
     machine,
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     configureDevelopmentProjects: false,
   });
   server.github.serve(everyRepository, published);

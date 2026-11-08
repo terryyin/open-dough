@@ -20,7 +20,7 @@ import { expect } from "@playwright/test";
 import { launchRequest, markDone } from "../agentLaunchBoundary.ts";
 import { distinctStoryRequest } from "../openStorySessionSetup.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { waitUntil } from "../support/waitUntil.ts";
@@ -155,7 +155,7 @@ test.describe("a session that starts needing the developer raises one macOS noti
   }) => {
     const first = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       machine,
       projectFolders: ["open-dough"],
     });
@@ -168,7 +168,7 @@ test.describe("a session that starts needing the developer raises one macOS noti
     }
     const second = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       machine,
       projectFolders: ["open-dough"],
       alertCheckMs,
@@ -204,7 +204,7 @@ test.describe("a session that starts needing the developer raises one macOS noti
   }) => {
     const server = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       machine,
       projectFolders: ["open-dough"],
       alertCheckMs,

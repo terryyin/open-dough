@@ -6,7 +6,7 @@ import type { Page } from "@playwright/test";
 import { expect } from "../dashboardTest.ts";
 import { tapWhereShown } from "../pageLayout.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { phonePasteJourney, test as base } from "../terminalPastePage.ts";
@@ -143,7 +143,7 @@ test.describe("phone Paste after the attachment disconnects", () => {
 
     const restarted = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       github,
       machine: restartMachine,
       projectFolders: ["open-dough"],

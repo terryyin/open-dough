@@ -24,11 +24,7 @@ import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import {
-  installFakeClaude,
-  type FakeClaudeControls,
-  type FakeClaudeOptions,
-} from "./fakeClaude.ts";
+import { installFakeClaude, type FakeClaudeControls } from "./fakeClaude.ts";
 import { requestOwnerEnvironmentAt } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { readPid } from "./processGroup.ts";
@@ -49,10 +45,10 @@ import {
   configureDevelopmentProjects,
   projectEnvironmentOf,
 } from "./projectConfiguration.ts";
-import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
+import type { DashboardServerOptions } from "./dashboardServerOptions.ts";
 
-// Callers find the run's build, and the modes, where they find the server.
-export { builtDashboardDir } from "./dashboardBuild.ts";
+// Callers find the shared-build resolver and the modes beside the server.
+export { sharedDashboardBuild } from "./dashboardBuild.ts";
 export type { DashboardServerMode };
 
 // The boundary server in the dev server's environment: what a spec that
@@ -87,55 +83,12 @@ export type DashboardServer = {
 } & FakeClaudeControls;
 
 export async function startDashboardServer(
-  options: FakeClaudeOptions & {
-    // `boundary` starts the local boundaries alone, on a plain HTTP server,
-    // for a spec that never opens a page (../../backend-tests/); `dev` and `preview`
-    // start Vite.
-    readonly mode: DashboardServerMode;
-    // Dev only: one the test restarts in place by SIGUSR2 (./serverAddress.ts).
-    readonly restartable?: boolean;
-    // Boundary only: the project environment the server keeps its project
-    // list in (./projectConfiguration.ts); production when unset. Dev is
-    // always development and preview always production.
-    readonly environment?: ProjectEnvironment | undefined;
-    // A development-environment server gets its known projects, as existing
-    // dev journeys expect; false observes a genuine empty first start.
-    // Existing files are always kept, including empty lists.
-    readonly configureDevelopmentProjects?: boolean;
-    readonly codex?: boolean;
-    readonly codexProtocol?: FakeCodex | undefined;
-    // The server's own bound when unset.
-    readonly readTimeoutMs?: number | undefined;
-    // Rate-limit backoff base (`github-request-admission.mjs`); 1 min unset.
-    readonly limitBackoffMs?: number | undefined;
-    // Retained-answer budget (`../../server/retainedAnswers.ts`); 64 MiB unset.
-    readonly retainedAnswersBytes?: number | undefined;
-    // Listing reuse ms (`../../server/revisionChecks.ts`); omitted/undefined forces 0
-    // so fake-clock paced checks see one listing each; pass `checkReuseMs` for settled sharing.
-    readonly revisionCheckReuseMs?: number | undefined;
-    // Whether the test controls the clock reuse windows are measured by
-    // (`advanceObservationClock`); the machine's own when unset.
-    readonly observationClock?: boolean | undefined;
-    // The fake GitHub this server's `gh` asks; a fresh one, closed with the server, when omitted.
-    readonly github?: FakeGitHub;
-    // Request-owner endpoint shared with the test's other callers; this server's own when omitted.
-    readonly requestOwnerRoot?: string | undefined;
-    // Preview only: serve this already-built directory instead of building a private copy.
-    readonly prebuilt?: string | undefined;
-    // Extra environment for the spawned server process only, merged over the
-    // harness's own PATH/fake-`gh` wiring below. A test uses this to place a
-    // credential-shaped value somewhere the production code's own subprocess
-    // invocation (`../../server/ghRead.ts`, which forwards its whole
-    // environment to `gh`) would see it, without touching this process's own
-    // real environment.
-    readonly extraEnv?: Readonly<Record<string, string>>;
-    // Directories placed ahead of the harness binaries on PATH.
-    readonly pathPrefix?: readonly string[];
-    // This port, which must be free, instead of any free one: a server
-    // restarted on a closed one's port answers the page that server opened.
-    readonly port?: number | undefined;
-  },
+  options: DashboardServerOptions,
 ): Promise<DashboardServer> {
+  const previewBuild =
+    options.mode === "preview" ? options.prebuilt : undefined;
+  const prebuilt =
+    typeof previewBuild === "function" ? await previewBuild() : previewBuild;
   const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-dashboard-"));
   const ownsMachine = options.machine === undefined;
   const ownsGitHub = options.github === undefined;
@@ -202,18 +155,6 @@ export async function startDashboardServer(
     env["DOUGH_TEST_OBSERVATION_CLOCK_AHEAD_FILE"] = clockAheadFile;
   }
 
-  const { spawn, outDir } = serverLaunch(
-    {
-      mode: options.mode,
-      restartable: options.restartable,
-      port: options.port,
-      environment,
-      prebuilt: options.prebuilt,
-      buildDir: path.join(tempRoot, "dist"),
-    },
-    env,
-  );
-
   const closeOwned = dashboardFixtureLifetime({
     tempRoot,
     home: claude.controls.home,
@@ -224,11 +165,32 @@ export async function startDashboardServer(
     github: ownsGitHub ? github : undefined,
   });
 
-  const { launched: server, url: baseURL } = await startOnOwnAddress(
-    options.port,
-    spawn,
-    `The ${options.mode} server this test started could not start`,
-  ).catch(async (error: unknown) => {
+  const launch = async () => {
+    const { spawn, outDir } = await serverLaunch(
+      {
+        mode: options.mode,
+        restartable: options.restartable,
+        port: options.port,
+        environment,
+        prebuilt,
+        buildDir: path.join(tempRoot, "dist"),
+      },
+      env,
+    );
+    return {
+      ...(await startOnOwnAddress(
+        options.port,
+        spawn,
+        `The ${options.mode} server this test started could not start`,
+      )),
+      outDir,
+    };
+  };
+  const {
+    launched: server,
+    url: baseURL,
+    outDir,
+  } = await launch().catch(async (error: unknown) => {
     await closeOwned();
     throw error;
   });

@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
   type DashboardServerMode,
@@ -62,7 +62,7 @@ globalThis.fetch = async (input, options) => {
         machine,
         port,
         configureDevelopmentProjects: false,
-        prebuilt: builtDashboardDir,
+        prebuilt: sharedDashboardBuild,
         extraEnv: {
           NODE_OPTIONS: `--require=${preload}`,
           OPENAI_API_KEY: "synthetic-environment-key-must-not-import",

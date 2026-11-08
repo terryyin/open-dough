@@ -4,6 +4,25 @@
 
 **Source:** [Selected story](../../seeds/SEED-262-faster-dashboard-test-feedback.md#prepare-artifacts-on-demand)
 
+**Source review:** [Source-only review](source-review.md)
+
+## Execution context
+
+- Story Branch Mode, publisher `dashboard-territory.local-open-dough`,
+  agent `dbs-chan`, in the established isolated worktree
+  `/Users/terryyin/git/open-dough/.worktrees/prepare-dashboard-test-artifacts-only-when-selec`.
+- Base before claim `cdb5f2d6769b5d86e479105f48038b57df729ccd`. Accepted claim
+  `7835e7c9f71ceb26fee23c280ce2c4351321b201` on `origin/main`, also the
+  initial published base and candidate of
+  `origin/codex/prepare-dashboard-test-artifacts-only-when-selec`. The local
+  integration checkout is `/Users/terryyin/git/open-dough`.
+- Story-branch CI uses GitHub Actions `ci.yml` (CI), Codex coordinator
+  `dbs-chan-62beacc7`, observer directory `/tmp/dough-ci-501/watch-NqFOwg`,
+  PID `98038`, shell session `87596`, cell `g71:8`. Claim CI is unobserved
+  by this story-branch observer.
+- No replanning override was supplied. Use the existing planning authority
+  for refinement within scope. No numeric project slice budget is recorded.
+
 ## Goal and scope
 
 Focused selections skip the run-wide preparation they never consume, with
@@ -82,6 +101,28 @@ focused wall time, include the attention spec in the mixed comparison, and
 surface a reproducible material mixed-run regression before accepting the
 tradeoff.
 
+### Execution baseline
+
+At the established claim revision `7835e7c9f`, ran the following selections
+with `PATH=/opt/homebrew/bin:$PATH /usr/bin/time -p caffeinate -s -i npm run
+--silent test:dashboard -- --project=chromium --workers=2` and the default
+quiet reporter. Node 24.21.0 and Playwright 1.63.0 ran on AC power, with
+one-minute load between 7.07 and 7.61 on 16 logical CPUs. The commands
+ran sequentially. Other activity on the machine was not controlled.
+
+| Selection | Strict pass | Wall seconds |
+| --- | ---: | ---: |
+| `session-working-count-rule[.]spec[.]ts$` | 3 | 6.26 |
+| `startup-host-words[.]spec[.]ts$` | 2 | 5.12 |
+| `(session-working-count-rule\|startup-host-words\|serving-modes\|agent-launch-attention)[.]spec[.]ts$` | 13 | 12.85 |
+| `start-origin-isolation[.]spec[.]ts$` with `--grep '^.*concurrent installed starts'` | 1 | 6.77 |
+
+Each run completed both installed layouts, the server bundle, and the app
+in that order, then removed the recorded paths. Temporary producer tracing
+was restored before implementation. The quiet proof records, producer start
+and completion timestamps, and timing output are in
+`/tmp/dough-513-baseline.Eo5I2u` on the execution machine.
+
 ## Proof ownership and local gate
 
 | Story example | Slice | Outside-in observation |
@@ -109,7 +150,7 @@ routes use synthetic hosts and GitHub. They require no paid native run.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the in-process, built-frontend, DOM-only frontend, and attention
 selections through the normal configuration. Observe zero app builds without
@@ -128,6 +169,39 @@ private. Build asynchronously so the runner can process cancellation and
 timeouts. Trace explicit `prebuilt` callers to their actual mode before
 moving the default. Server and installed-origin preparation stay eager
 until Slices 2 and 3.
+
+Accepted evidence: With `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i npm run
+--silent test:dashboard -- --project=chromium --workers=2`, the in-process
+session count (3 cases), exact DOM-only frontend observation measurements
+(4 cases), and source-dev frame-board case (grep `no projects configured`)
+passed without an app request. The host-status case (grep `CPU usage averages
+the trailing minute`) passed in process after importing the preview-capable
+helper without requesting an app. The built frontend (2 cases) and baseline
+mixed selection (13 cases) each completed one app build. Records and traces
+are under `/tmp/dough-513-slice1.hqbdX4` and
+`/tmp/dough-513-inprocess-import.HuCdjr`.
+
+The same command selected
+`(dashboard-artifact-demand|compile-cache|run-processes)[.]spec[.]ts$`
+(8 passing). In `dashboard-artifact-demand.spec.ts`, two consumers request the
+build before the held Vite subprocess can finish. The success and failure
+cases assert the same completed directory or error in both workers. The
+SIGINT case observes interruption, no completion, the Vite PID gone, and
+removal of the partial directory. The existing compile-cache and orphan sweep
+cases retain their nested setup and no-setup behavior.
+
+`PATH=/opt/homebrew/bin:$PATH caffeinate -s -i npm test -- tests/dashboard-concurrent-runs.sh`
+observed distinct completed app paths, quiet successful built-app journeys,
+and removal without touching `dashboard/dist`. The consumer trace at
+`/tmp/dough-513-slice1-consumers-focused.md` identifies the migrated preview
+callers. Serving modes, nested preview, and integrated attention exercise
+their common resolver. A separate smoke served both a private preview and
+explicit path overrides. The whole suite remains the pre-landing gate.
+
+The independent refactor kept the caller contract and reran the nested lifecycle,
+serving modes, frontend, and concurrent shell checks. All 16 selected
+Playwright cases and the shell check passed. See
+`/tmp/dough-513-refactor1.IVyC9c/proof.json` and the sibling consumer trace.
 
 ### 2. Selected server tests share one bundle only when required
 

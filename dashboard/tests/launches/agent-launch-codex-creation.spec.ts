@@ -6,7 +6,7 @@ import { execFileSync } from "node:child_process";
 import path from "node:path";
 import {
   startDashboardServer,
-  builtDashboardDir,
+  sharedDashboardBuild,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
 import type { FakeCodex } from "../support/fakeCodex.ts";
@@ -69,7 +69,7 @@ test("lost creation identity persists reconciliation requirement across server r
   native.loseCreation = false;
   const restarted = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine,
     github: dashboard.github,
     codexProtocol: protocol,

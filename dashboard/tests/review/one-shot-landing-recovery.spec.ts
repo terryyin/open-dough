@@ -12,7 +12,7 @@ import { context } from "../support/oneShotLanding.ts";
 import { retireReviewRun } from "../support/oneShotReview.ts";
 import { keptAttempts } from "../acceptedAttempts.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import {
@@ -107,7 +107,7 @@ test("a lost reconciled push result and record write recover the exact original 
   const fault = completionWriteFault(origin.machine);
   const receiver = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine: origin.machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,

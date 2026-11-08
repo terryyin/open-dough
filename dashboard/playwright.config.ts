@@ -111,8 +111,8 @@ export default defineConfig({
     new URL("./", import.meta.url),
     process.env["OPEN_DOUGH_DASHBOARD_SPLIT"],
   ).map((project) => ({ ...project, use: { ...devices["Desktop Chrome"] } })),
-  // Every run builds the production app once; each page journey then serves
-  // that build from its own preview server, whose `gh` is a synthetic one
-  // answering from that test's own fake GitHub (tests/dashboardTest.ts).
+  // Page journeys share the app build on demand, then serve it from their
+  // own servers. Integrated previews answer through synthetic GitHub
+  // (tests/dashboardTest.ts).
   globalSetup: "./tests/support/globalSetup.ts",
 });

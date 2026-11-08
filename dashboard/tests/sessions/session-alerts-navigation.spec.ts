@@ -2,7 +2,7 @@
 // page. Published files decide only membership; routing/focus stay production.
 import { expect, test as base } from "../dashboardTest.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { launchRequest } from "../agentLaunchBoundary.ts";
@@ -24,7 +24,7 @@ const test = base.extend<{ deliveryMode: "dev" | "preview" }>({
   dashboard: async ({ github, deliveryMode }, use) => {
     const server = await startDashboardServer({
       mode: deliveryMode,
-      ...(deliveryMode === "preview" ? { prebuilt: builtDashboardDir } : {}),
+      ...(deliveryMode === "preview" ? { prebuilt: sharedDashboardBuild } : {}),
       github,
       projectFolders: ["open-dough", "doughnut"],
       alertCheckMs: 100,

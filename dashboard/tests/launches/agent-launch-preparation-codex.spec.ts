@@ -12,7 +12,7 @@ import { stored } from "../support/codexLaunch.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { showOptions } from "../launchStoryCardPage.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
@@ -136,7 +136,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
   await dashboard.close();
   const restarted = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     github,
     machine: origin.machine,
     projectFolders: ["open-dough"],

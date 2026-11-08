@@ -15,7 +15,7 @@ import { publishMovingFiles } from "../publishedFiles.ts";
 import { readsBesideChecks } from "../originObservation.ts";
 import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import {
@@ -100,7 +100,7 @@ test("a commit that changes no planning record is shown without reading the unch
   await test.step("a restarted dashboard process holds nothing, so it reads B in full and compares nothing", async () => {
     const restarted = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       github,
     });
     try {

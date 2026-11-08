@@ -15,7 +15,7 @@ import {
 import { passCheckPace, reloadUntilRead } from "../pageRequestNotes.ts";
 import { keptAttempts, settledOutcome } from "../acceptedAttempts.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 
@@ -46,7 +46,7 @@ test("a server killed before the warning leaves a live script running; its exit 
   expect(() => process.kill(child, 0)).not.toThrow();
   const restarted = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine: origin.machine,
     github,
     projectFolders: ["open-dough"],

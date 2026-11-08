@@ -130,8 +130,8 @@ jobs:
   # deal of the spec files (dashboard/tests/shards.md) and failing on its own
   # failing test. The shard-independent type-check runs once, in the last
   # share, whose predicted load the deal keeps within one spec file of the
-  # others. The suite's globalSetup builds the dashboard, failing the shard
-  # when the build fails.
+  # others. Tests that serve the production app share a build within their
+  # shard and fail if the build fails.
   dashboard:
     name: dashboard (${{ matrix.shard }}/${{ strategy.job-total }})
     runs-on: ubuntu-24.04

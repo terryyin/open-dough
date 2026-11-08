@@ -18,7 +18,7 @@ import {
   codexTerminalMode,
 } from "../support/codexTerminal.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
@@ -136,7 +136,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
       .toBe("SIGHUP");
     restarted = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       github,
       machine,
       port,

@@ -1,8 +1,8 @@
 // Runs Playwright itself on a temporary config, for specs that prove how the
 // suite's own runs behave. The config is written into `workDir`, which the
 // caller owns. The inner run does not inherit this worker's own Playwright
-// wiring; it keeps the rest of this environment, which names this run's
-// build (./dashboardBuild.ts).
+// wiring; it keeps the rest of this environment, including access to this
+// run's artifact owner unless it installs global setup of its own.
 
 import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";

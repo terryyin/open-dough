@@ -14,7 +14,7 @@ import {
   expectCodexHungUp,
 } from "../support/codexTerminal.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
@@ -163,7 +163,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     await dashboard.close();
     const restarted = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       machine,
       github,
       codexProtocol,

@@ -109,7 +109,7 @@ type Launch = {
 // the boundary entry in its project environment, Vite's dev server (one a
 // test restarts in place when `restartable`), or Vite's preview of
 // `prebuilt`, else of a build of its own made now in `buildDir`.
-export function serverLaunch(
+export async function serverLaunch(
   options: {
     readonly mode: DashboardServerMode;
     readonly restartable?: boolean | undefined;
@@ -119,7 +119,10 @@ export function serverLaunch(
     readonly buildDir: string;
   },
   env: NodeJS.ProcessEnv,
-): { readonly spawn: () => Launch; readonly outDir: string | undefined } {
+): Promise<{
+  readonly spawn: () => Launch;
+  readonly outDir: string | undefined;
+}> {
   const listen = listenArgs(options.port);
   if (options.mode === "boundary") {
     // No page, so no build: the entry takes the listen args and the
@@ -151,7 +154,7 @@ export function serverLaunch(
           ...listen,
         ];
   const outDir = options.prebuilt ?? options.buildDir;
-  if (options.prebuilt === undefined) buildDashboardTo(outDir);
+  if (options.prebuilt === undefined) await buildDashboardTo(outDir);
   return {
     spawn: () => spawnVite(["preview", ...viteArgs, "--outDir", outDir], env),
     outDir,

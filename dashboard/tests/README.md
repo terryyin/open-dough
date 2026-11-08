@@ -1,20 +1,16 @@
 # Dashboard tests
 
-Run the dashboard's single Playwright suite from the repository root with
-`npm run test:dashboard`. Its integrated browser, frontend-only, and backend
-suites share one run, build and shard selection. **Dashboard Frontend Test** is
-backed by `../frontend-tests/` (DOM and synthetic-response UI without starting
-the dashboard backend). **Dashboard Backend Test** is backed by
-`../backend-tests/`.
+Run `npm run test:dashboard` from the repository root. One Playwright run and
+shard selection covers integrated browser journeys, **Dashboard Frontend Test**
+(`../frontend-tests/`) and **Dashboard Backend Test** (`../backend-tests/`).
 See [journey writing](writing-journeys.md) for waits, clocks, commands and fake
 GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
 hosts; the per-run [proof record](proof-record.md), the caller-owned
 transcript CI's proof fragments are written from; and
 [CI shards](shards.md) for allocation, recorded times and deadlines.
 
-See [local resource use](../../tests/local-test-resources.md) for full-suite
-admission across linked worktrees, worker defaults, overrides, cleanup and
-machine sleep on macOS.
+See [local resource use](../../tests/local-test-resources.md) for admission
+across worktrees, worker settings, cleanup and machine sleep on macOS.
 
 ## Three roots: integrated journeys, frontend-only, and boundary tests
 
@@ -129,12 +125,11 @@ helpers and the event each one waits for.
 
 ## What is real and what is replaced
 
-Each run bundles its Vite configuration, boundary server and Cursor runner
-into its own directory under `node_modules`, preserving source-relative
-`import.meta` paths. Preview and boundary servers load it; dev serves source.
-It also builds the app once in a temporary directory. Success, failure or
-graceful interruption removes both directories; concurrent runs never
-rebuild or remove each other's files, and `dashboard/dist` stays untouched.
+Preview and boundary use the run's Vite config, boundary server and Cursor
+runner bundle under `node_modules`, with source-relative `import.meta` paths.
+Dev serves source. Static frontend and shared preview share one app build on
+demand. Success, failure or graceful interruption removes the run's own
+directories, leaving other runs and `dashboard/dist` alone.
 Each journey (`dashboardTest.ts`) serves that build from its own preview
 server with a synthetic `gh` on PATH (`fixtures/fake-gh`), answering from
 the test's own fake GitHub (`support/fakeGitHub.ts`, published through

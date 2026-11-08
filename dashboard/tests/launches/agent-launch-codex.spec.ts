@@ -3,7 +3,7 @@ import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 import path from "node:path";
 import {
   startDashboardServer,
-  builtDashboardDir,
+  sharedDashboardBuild,
 } from "../support/dashboardServer.ts";
 import {
   openTakenBacklog,
@@ -207,7 +207,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await expect.poll(() => native.sockets.size).toBe(0);
   const restarted = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine,
     github: dashboard.github,
     port,

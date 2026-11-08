@@ -16,7 +16,7 @@ import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { tapWhereShown } from "../pageLayout.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
@@ -42,7 +42,7 @@ const test = base.extend<{ machine: string }>({
   dashboard: async ({ github, machine }, use) => {
     const server = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       github,
       machine,
       projectFolders: ["open-dough"],
@@ -132,7 +132,7 @@ test.describe("phone terminal composer Insert without submit", () => {
         expect(sent).toEqual(beforeFailedInsert);
         restarted = await startDashboardServer({
           mode: "preview",
-          prebuilt: builtDashboardDir,
+          prebuilt: sharedDashboardBuild,
           github,
           machine,
           projectFolders: ["open-dough"],

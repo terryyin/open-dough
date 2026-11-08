@@ -1,11 +1,7 @@
-// Bundles the server entries and builds the production dashboard once per
-// suite run into run-owned directories, which each test's own server then
-// serves read-only (./dashboardServer.ts), so no run exercises stale assets
-// and two runs from one checkout never rebuild each other's. Workers inherit
-// the runner's environment, so the directory reaches them in
-// `builtDashboardVariable` and `serverBundleVariable`. The returned function
-// is the run's global teardown: it removes the directories after a passing
-// or failing run; failed setup and interruption remove them too.
+// Workers request the production app build from this runner when they first
+// need it. One completed build is shared read-only across the run. The server
+// entries and installed origins are prepared during setup. All these
+// directories belong to this run and are removed when it ends.
 //
 // Before building, it runs the committed fixture executables once
 // (./fixtureExecutable.ts), so a fresh checkout's first run of each happens
@@ -26,8 +22,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { releaseLocalSuites } from "../../../scripts/local-test-suite.mjs";
 import { ownerlessRequestRoot } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
-import { buildDashboardTo, builtDashboardVariable } from "./dashboardBuild.ts";
+import { buildDashboardTo, dashboardAppArtifactKey } from "./dashboardBuild.ts";
 import { runFixtureExecutablesOnce } from "./fixtureExecutable.ts";
+import { startRunArtifacts } from "./runArtifacts.ts";
 import {
   bundleServerEntries,
   createServerBundleDirectory,
@@ -47,7 +44,6 @@ import {
 export default async function globalSetup(): Promise<() => Promise<void>> {
   const runId = identifyRun();
   runFixtureExecutablesOnce();
-  const outDir = mkdtempSync(path.join(tmpdir(), "dough-dashboard-build-"));
   const requests = mkdtempSync(path.join(tmpdir(), "dough-dashboard-gh-"));
   const ownerless = ownerlessRequestRoot(requests);
   const bundle = createServerBundleDirectory();
@@ -55,38 +51,51 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
   const remove = (): void => {
     process.off("exit", remove);
     rmSync(bundle, { recursive: true, force: true });
-    rmSync(outDir, { recursive: true, force: true });
     rmSync(requests, { recursive: true, force: true });
     rmSync(origins, { recursive: true, force: true });
   };
   // Playwright runs the returned teardown after a graceful interruption.
   // Exit also covers interruption while asynchronous setup is still pending.
   process.once("exit", remove);
-  try {
+  const start = async () => {
     await prepareStartOrigins(origins);
     await bundleServerEntries(bundle);
-    buildDashboardTo(outDir);
-  } catch (error) {
+    return startRunArtifacts(
+      new Map([
+        [
+          dashboardAppArtifactKey,
+          {
+            create: () =>
+              mkdtempSync(path.join(tmpdir(), "dough-dashboard-build-")),
+            prepare: buildDashboardTo,
+          },
+        ],
+      ]),
+    );
+  };
+  const closeArtifacts = await start().catch(async (error: unknown) => {
     remove();
     await releaseLocalSuites();
     throw error;
-  }
-  process.env[builtDashboardVariable] = outDir;
+  });
   process.env[serverBundleVariable] = bundle;
   process.env[startOriginPreparationVariable] = origins;
   process.env["DOUGH_GITHUB_REQUEST_OWNER_ROOT"] = ownerless;
-  return async () => {
-    const survived = await endRunProcesses(runId);
-    const reached = existsSync(ownerless);
-    remove();
-    await releaseLocalSuites();
-    if (survived.length > 0)
-      throw new Error(
-        `The run left ${String(survived.length)} of its processes running after its workers exited, now ended. Stop each where it is started (dashboard/tests/README.md, "No process outlives its run"):\n${describeRunProcesses(survived)}`,
-      );
-    if (reached)
-      throw new Error(
-        "A test asked GitHub without a request owner of its own: give every process that can run `gh` the environment of `fakeGhEnv` (dashboard/tests/support/fakeGh.ts).",
-      );
+  const checkRun = async () => {
+    try {
+      const survived = await endRunProcesses(runId);
+      if (survived.length > 0)
+        throw new Error(
+          `The run left ${String(survived.length)} of its processes running after its workers exited, now ended. Stop each where it is started (dashboard/tests/README.md, "No process outlives its run"):\n${describeRunProcesses(survived)}`,
+        );
+      if (existsSync(ownerless))
+        throw new Error(
+          "A test asked GitHub without a request owner of its own: give every process that can run `gh` the environment of `fakeGhEnv` (dashboard/tests/support/fakeGh.ts).",
+        );
+    } finally {
+      remove();
+      await releaseLocalSuites();
+    }
   };
+  return () => closeArtifacts().finally(checkRun);
 }

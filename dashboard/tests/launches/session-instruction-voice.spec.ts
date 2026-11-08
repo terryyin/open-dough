@@ -4,7 +4,7 @@ import { test, expect } from "../support/voiceTest.ts";
 import { inIncidentRecord } from "../support/machineRecordNames.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import {
@@ -39,7 +39,7 @@ test("saved settings survive restart; two real clips append once and the reviewe
   await dashboard.close();
   const restarted = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine: provider.machine,
     github: dashboard.github,
     port,

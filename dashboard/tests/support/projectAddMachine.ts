@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
   type DashboardServerMode,
@@ -60,7 +60,7 @@ export function projectAddMachine() {
         mode,
         machine,
         configureDevelopmentProjects: false,
-        prebuilt: builtDashboardDir,
+        prebuilt: sharedDashboardBuild,
         readTimeoutMs,
         codexProtocol,
       });

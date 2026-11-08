@@ -35,9 +35,11 @@ run_suite() {
     # Playwright warn outside a test and fail this local concurrent contract.
     exec env -u CI -u NODE_ENV -u npm_config_local_prefix \
       -u OPEN_DOUGH_DASHBOARD_SPLIT -u OPEN_DOUGH_DASHBOARD_DEADLINE_MS \
+      -u OPEN_DOUGH_DASHBOARD_PROOF_RECORD -u OPEN_DOUGH_DASHBOARD_TIMES \
       -u FORCE_COLOR -u NO_COLOR \
       TMPDIR="${builds}" \
-      npm run --silent test:dashboard -- project-configuration-boundary.spec.ts
+      OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE="${temporary_dir}/$1.artifacts" \
+      npm run --silent test:dashboard -- startup-host-words.spec.ts
   ) > "${temporary_dir}/$1.out" 2>&1
 }
 
@@ -62,6 +64,25 @@ if ((first_status != 0 || second_status != 0)); then
     "${first_status}" "${second_status}" >&2
   exit 1
 fi
+node --input-type=module - "${temporary_dir}/first.artifacts" "${temporary_dir}/second.artifacts" << 'JS'
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+
+const builds = process.argv.slice(2).map((record) => {
+  const events = readFileSync(record, "utf8").trim().split("\n")
+    .map((line) => JSON.parse(line));
+  const appEvents = events.filter(({ key }) => key === "app");
+  const starts = appEvents.filter(({ event }) => event === "start");
+  const completed = appEvents.filter(({ event }) => event === "complete");
+  assert.equal(starts.length, 1, `Expected one app build start in ${record}`);
+  assert.equal(completed.length, 1, `Expected one completed app build in ${record}`);
+  const { directory } = completed[0];
+  assert.equal(directory, starts[0].directory);
+  assert.equal(existsSync(directory), false, `Expected ${directory} to be removed`);
+  return directory;
+});
+assert.notEqual(builds[0], builds[1], "Each run must build to its own directory");
+JS
 dist_after=$(dist_state)
 if [[ ${dist_after} != "${dist_before}" ]]; then
   printf 'FAIL: dashboard/dist changed during the runs (%s, then %s).\n' \

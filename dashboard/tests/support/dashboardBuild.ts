@@ -1,35 +1,38 @@
 // The production dashboard build a preview server serves (./dashboardServer.ts).
 
-import { spawnSync } from "node:child_process";
 import path from "node:path";
+import { ownedProcess } from "../../server/productionProcess.mjs";
 import { repoRoot } from "./repositoryRoot.ts";
+import { requestRunArtifact } from "./runArtifacts.ts";
 
-// Built once per suite run by ./globalSetup.ts into the run's own temporary
-// directory, whose path reaches workers in this variable; every preview server
-// that is not asked to build its own serves it read-only. Workers import this
-// module after global setup, so they read the run's build; only the runner,
-// which imports it for global setup before the variable is set and serves
-// nothing, sees the `dashboard/dist` fallback.
-export const builtDashboardVariable = "OPEN_DOUGH_DASHBOARD_BUILD";
-export const builtDashboardDir =
-  process.env[builtDashboardVariable] ??
-  path.join(repoRoot, "dashboard", "dist");
+export const dashboardAppArtifactKey = "app";
+
+// The preview or static server calls this when it is about to serve the app.
+// Custom configurations without a run owner can still serve dashboard/dist.
+export async function sharedDashboardBuild(): Promise<string> {
+  return (
+    (await requestRunArtifact(dashboardAppArtifactKey)) ??
+    process.env["OPEN_DOUGH_DASHBOARD_BUILD"] ??
+    path.join(repoRoot, "dashboard", "dist")
+  );
+}
 
 // Builds into `outDir` rather than the run's shared build, which other tests'
 // preview servers may be serving concurrently (`fullyParallel: true`).
-export function buildDashboardTo(outDir: string): void {
-  const result = spawnSync(
+export async function buildDashboardTo(
+  outDir: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  const build = ownedProcess(
     "npm",
     ["run", "build:dashboard", "--", "--outDir", outDir],
-    {
-      cwd: repoRoot,
-      stdio: "pipe",
-      encoding: "utf8",
-    },
+    { cwd: repoRoot, ...(signal === undefined ? {} : { signal }) },
   );
-  if (result.status !== 0) {
+  const result = await build.exited;
+  signal?.throwIfAborted();
+  if (result.code !== 0) {
     throw new Error(
-      `npm run build:dashboard failed:\n${result.stdout}\n${result.stderr}`,
+      `npm run build:dashboard failed (${result.signal ?? String(result.code)}):\n${build.output()}`,
     );
   }
 }

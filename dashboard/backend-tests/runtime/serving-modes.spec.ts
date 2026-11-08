@@ -10,7 +10,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
   type DashboardServerMode,
@@ -83,7 +83,7 @@ test.describe("serving modes mount the same boundaries", () => {
         const server = await startDashboardServer({
           mode,
           projectFolders: ["open-dough"],
-          prebuilt: builtDashboardDir,
+          prebuilt: sharedDashboardBuild,
         });
         server.github.serve(everyRepository, publishes({ revision, backlog }));
         return [mode, server] as const;

@@ -32,7 +32,7 @@ import {
 } from "../publishedOrigin.ts";
 import { buildOpenDoughReadinessRepo } from "../storyReadinessFixture.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { back, settings } from "../support/systemSettingsPage.ts";
@@ -118,7 +118,7 @@ machineTest(
     const server = await startDashboardServer({
       mode: "dev",
       machine,
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       configureDevelopmentProjects: false,
     });
     try {

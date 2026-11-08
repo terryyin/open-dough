@@ -5,7 +5,7 @@ import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
-import { builtDashboardDir } from "./dashboardBuild.ts";
+import { sharedDashboardBuild } from "./dashboardBuild.ts";
 
 const contentTypes: Readonly<Record<string, string>> = {
   ".css": "text/css; charset=utf-8",
@@ -43,13 +43,11 @@ export type FrontendAppServer = {
 };
 
 export async function startFrontendAppServer(
-  outDir: string = builtDashboardDir,
+  outDir?: string,
 ): Promise<FrontendAppServer> {
-  const root = path.resolve(outDir);
+  const root = path.resolve(outDir ?? (await sharedDashboardBuild()));
   if (!existsSync(path.join(root, "index.html"))) {
-    throw new Error(
-      `Frontend app fixture needs a built dashboard at ${root} (globalSetup sets OPEN_DOUGH_DASHBOARD_BUILD).`,
-    );
+    throw new Error(`Frontend app fixture needs a built dashboard at ${root}.`);
   }
   const server: Server = createServer((request, response) => {
     const urlPath = request.url ?? "/";
