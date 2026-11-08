@@ -154,34 +154,101 @@ consumers. No calibrated story effort bands are established.
 
 **Identity:** SEED-261#share-published-agent-profile-builders
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/505-share-published-agent-profile-builders/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"27ca9faa1592ccb993bf7739db5afe0cf31a58f9b31ea6e5c31179021558bd60","plan":"84576c3e6eb18678adceb4777fee95922a2b91838c8593b460e0092d820626d9"}}
 ```
 
-Choose the published agent profile as the first complete conversion. It has a
-single production encoder and existing real consumers in three entries. The
-dashboard ad hoc Claude fixtures are a smaller same-runner alternative. They
-would exercise the syntax but would give less evidence about reuse across the
-TypeScript and Node runners. CI Proof is a broader alternative with concurrent
-work and more representations to settle.
+#### Goal
 
-**Scope.** Convert all valid profile setup in the dashboard published-facts
-isolation fixture family, the backend published-profile addition spec, and the
-skill preparation-assignment publication and recovery fixture families,
-including callers of their changed setup helpers. Use the same builder for
-actual preparation and execution profile facts. Replace any split name/facts
-interface in scope with the profile shape accepted by `renderAgentProfile`.
-Keep the renderer at the publication boundary and exercise real publication,
-profile addition and recovery through the existing tests. Independent parser
-fixtures and other families stay with their owning conversion story.
-[Browser setup](../../dashboard/tests/publishedFactsIsolation.ts) · [Backend profile addition](../../dashboard/backend-tests/observation/authenticated-read-profile-addition.spec.ts) · [Skill assignment fixture](../../src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs) · [Recovery fixture](../../src/skills/dough-story-refinement/scripts/preparation-assignment-recovery-fixtures.mjs)
+Maintainers and agents reading Open Dough tests see a published agent profile
+arranged the same way in Playwright TypeScript and `node:test` JavaScript
+entries, with only the facts that drive each case at the call site. This first
+complete conversion creates the shared MakeMe entry point and shows whether one
+builder carries across runners before the larger families follow.
 
-**Evaluation and stopping point.** A maintainer can follow one profile shape
-from builder through both runners to the existing encoder, see case-specific
-assignment facts at the call sites, and run the same publication and observation
-proof. Review before and after for readability, coverage, duplication, and
-maintenance cost. Record what carried across entries, what needed a distinct
-representation, and what to apply in later work. Finish the full chosen scope
-with no superseded or unused builder even if the rollout ends there.
+#### Scope
+
+- Create `tests/support/makeMe.mjs` with `makeMe.anAgentProfile`, typed with
+  `@ts-check` against `renderAgentProfile`'s input. `.preparing(...)` and
+  `.executing(...)` choose the activity and `.please()` returns profile facts,
+  not rendered text. Name the activity on both, as `parseAgentProfile` returns
+  it, so a read-back profile and a built one have the same shape. Tests still
+  render with `renderAgentProfile`.
+- Defaults cover only incidental facts. An execution profile defaults to Trunk
+  Mode on `origin/main`, and host and model stay unrecorded unless given. Tests
+  state the name, which decides the profile path and rotation, wherever it
+  matters. Add story-branch or other variants only with a real consumer.
+- Convert all valid profile setup in:
+  - the dashboard published-facts isolation fixture ([browser setup](../../dashboard/tests/publishedFactsIsolation.ts));
+  - the backend profile-addition spec ([backend profile addition](../../dashboard/backend-tests/observation/authenticated-read-profile-addition.spec.ts));
+  - the skill preparation-assignment fixture, which changes
+    `publishAssignment(trunk, name, facts)` to `publishAssignment(trunk, profile)`
+    ([skill assignment fixture](../../src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs));
+  - the recovery fixture's `occupyAllBut`, which publishes execution profiles
+    ([recovery fixture](../../src/skills/dough-story-refinement/scripts/preparation-assignment-recovery-fixtures.mjs));
+  - the rival Yui profile in the announce test.
+
+  Update every caller of the changed `publishAssignment`: the announce,
+  land, nerds, one-shot refinement and one-shot auto-land tests, and the
+  dashboard [preparing journey](../../dashboard/tests/preparingJourney.ts).
+- Keep each test's assertions, real Git publication, server reads and recovery
+  faults. Expected values stay independent of the builder.
+- Scope limits: other `renderAgentProfile` callers, parser tests in
+  `tests/support/product-backlog-agent-profile.test.mjs`, and the
+  dough-land tests stay with their owning conversion stories. No builder-only
+  test is added.
+- Keep raw input under proof literal: the abandon test's unrecognized rival
+  profile stays `{ unrecognized: true }`.
+- Evaluation: compare before and after for readability, coverage, duplication
+  and maintenance cost. Record in the plan's learnings what carried across
+  entries, what needed a distinct form and what later stories should reuse.
+  Finish with no superseded profile helper.
+
+#### Key examples
+
+1. **Dashboard, two revisions.** Revision A's isolation facts build Akiho as
+   `executing({ name: "Akiho", identity: sharedStoryIdentity })` with host
+   `codex` and model `model-at-A`. They also build Kirara as
+   `preparing({ name: "Kirara", identity: queuedIdentity })` with host
+   `claude`. Rendering them produces the same bytes as today's literal facts.
+   The published-facts isolation spec shows A's owner and preparer, then B's,
+   with unchanged assertions.
+2. **Backend, incidental identity.** The profile-addition spec publishes
+   preparation profiles for Yui and Akiho. Only the names appear at the call
+   site, and the work identity uses the builder default. `committed=added`
+   gives the same commits and refusals.
+3. **Skill, another developer's assignment.** The announce test publishes
+   `publishAssignment(trunk, makeMe.anAgentProfile.executing({ name: "Yui", identity: "SEED-X#x" }).please())`
+   and a preparing Akiho. A real `start` still announces the next free name,
+   and the trunk file has `renderAgentProfile`'s bytes.
+4. **Dashboard calls a skill helper.** The preparing journey republishes the
+   refining agent's preparation profile with host `cursor` and model
+   `later-model` through the changed `publishAssignment`. The dashboard specs
+   that read this reused revision keep their assertions.
+5. **Recovery, every name held.** `occupyAllBut(trunk, "Yui")` builds an
+   execution profile for every other rotation name. The reuse test still
+   announces Yui. In the stops test, a rival takes Yui during the push, and
+   the start still reports `agent-unavailable`.
+6. **Type safety.** A builder that returns a value `renderAgentProfile` rejects,
+   such as a numeric identity, fails `npm run typecheck:dashboard` through the
+   dashboard test that imports it.
+
+#### Architecture
+
+The builder lives in `tests/support/makeMe.mjs`, which the Playwright and
+`node:test` runners both import. Skill tests already import shared helpers
+from `tests/support`. Its JSDoc type comes from `renderAgentProfile`'s
+parameter, so the encoder in
+[product-backlog-agent-profile.mjs](../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs)
+remains the authority for the profile shape and validation
+([ADR 0002 §5](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)).
+The install payload is an explicit list in `install.sh`, so neither
+`tests/support` nor the skill fixtures are installed
+([ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)).
+The native owned-context fixture
+([fixture](../../tests/support/git-publication-native-owned-context-fixture.mjs))
+loads the preparation fixture module only for `createPreparationTrunk`, which
+arranges no profile. It will now load MakeMe too, but its scenario uses no
+builder, so its evidence identity stays unchanged.
 
 <a id="map-published-work-test-data"></a>
 
