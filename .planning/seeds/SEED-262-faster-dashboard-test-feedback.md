@@ -460,28 +460,104 @@ manual-only.
 
 **Identity:** SEED-262#declare-fake-github-planning-data
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/530-declare-fake-github-planning-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e8ace42c9e9d224e19599d13bd01ccb41ac1c5a9057e7d504bdbe9ac46900aef","plan":"1d18ef03c22cf1236be76934b870e82aad5e67093434b02eb04297b754e8c84f"}}
 ```
 
-**Goal.** A maintainer reading a dashboard journey that serves a project
-through the fake GitHub can see which planning facts that project holds,
-because the served backlog, seeds and records come from MakeMe data rendered
-by the production encoders rather than hand-written Markdown.
+#### Goal
 
-**Scope.** On 2026-11-08 about 19 dashboard helpers, among them
-`refreshJourney.ts`, `notificationStoryJourney.ts`,
-`sessionNavigationJourney.ts`, `doughnutProject.ts`,
-`recentlyDoneRecords.ts` and `accessibleBoard.ts`, and 36 specs put literal
-`# Product backlog` text into fake GitHub contents. Declare those facts
-through the shared MakeMe builders and render them with the production
-encoders. Keep literal text where a spec proves those exact bytes, such as
-malformed answers. Split from
-[dashboard test repositories](#migrate-dashboard-origin-fixtures), which
-covers helpers that build a Git repository.
+A maintainer reading a dashboard journey that serves a project through the
+fake GitHub can see which planning facts that project publishes at each
+revision. Today about 40 dashboard helpers and specs put literal
+`# Product backlog` text, seed headings, profiles or done records into the
+fake GitHub's published files, so the facts that drive a case hide inside
+Markdown templates. The served files come from the same
+[repository description](../../tests/support/repository-fixture.mjs) that
+Git fixtures use, rendered with the production encoders. Dashboard feedback
+must not get slower.
 
-**Evaluation.** Migrated specs keep their verdicts and assertions, and a
-reviewer can name each journey's served planning facts from its call site or
-fixture file. Focused times do not regress beyond run-to-run noise.
+#### Scope
+
+- A `makeMe.aRepository` description renders to the published files of each
+  named revision without Git, as the files the fake GitHub serves
+  (`PublishedRevision`). A later revision serves the earlier revisions'
+  files with its own changes and removals applied, as Git would publish
+  them. Rendering uses the encoders the Git materializer already uses:
+  backlog membership, story states, agent profiles, done records and the
+  rebuilt done catalog. The Git materializer and this rendering share one
+  file renderer.
+- Fake GitHub helpers and specs that hand-write published planning files
+  declare them instead. On 2026-11-08 these included `refreshJourney.ts`,
+  `notificationStoryJourney.ts`, `sessionNavigationJourney.ts`,
+  `sourceNavigationJourney.ts`, `doughnutProject.ts`, `recentlyDoneRecords.ts`,
+  `accessibleBoard.ts`, `takenAgentProfileRecords.ts`, `agentRosterRecords.ts`,
+  `authenticatedAvatarRecords.ts`, the shared, resuming and turn read
+  supports, and the specs under `observation`, `sessions`, `stories`,
+  `navigation`, `configuration` and `runtime` that build their own backlog
+  text. Helpers that already call `renderPublishedBacklog` but hand-write
+  seeds or records, such as `catalogProjectRecords.ts`, move to the same
+  description. A seed's prose that the dashboard reads, such as a story's
+  heading, identity line or purpose, stays a declared file in the revision;
+  its story state comes from the declared facts.
+- Moving published files (`publishMovingFiles` with `moveTrunk` and
+  `moveBranch`) take their revisions from named revisions of one description.
+  The fake GitHub's answers, observation and held or failing reads stay in
+  the harness.
+- Keep literal bytes at the call site where a spec proves them: malformed or
+  truncated backlogs, legacy shapes, unreadable records, and deliberately
+  invalid input. Build the surrounding valid files from the description.
+- Remove superseded literal templates, such as `emptyBacklog` in
+  `originAnswers.ts`, once their last consumer declares its facts.
+- Boundary assumption: a helper that builds a Git repository belongs to
+  [dashboard test repositories](#migrate-dashboard-origin-fixtures). A helper
+  doing both migrates its fake GitHub files here and its Git origin there.
+- Scope limits: this story adds no new MakeMe concept beyond what the
+  description already states, except what a migrated case needs to state its
+  driving facts. It changes no dashboard product behavior and no fake GitHub
+  answer shape. Git reuse belongs to
+  [faster Git fixture construction](#reuse-immutable-git-histories).
+
+#### Key examples
+
+1. **Empty published project.** A journey serves a project with no stated
+   planning facts. The fake GitHub serves the description's default revision:
+   an empty valid backlog. The board shows no stories, as before, and
+   `emptyBacklog` is gone.
+2. **Refresh across revisions.** The refresh journey declares revision A with
+   one Taken and two queued stories, and revision B moving one queued story to
+   Taken. Moving trunk from A to B shows the same titles and order as today.
+   Seeds unchanged at B are served from A's files.
+3. **Profiles and done records.** A Taken agent profile journey declares its
+   profile, and a recently done journey declares its done records. The served
+   profile, records and catalog equal what `renderAgentProfile`,
+   `renderDoneRecord` and the catalog encoder write, and the cards read as
+   today.
+4. **Exact bytes kept.** The read-failure spec still serves its malformed
+   backlog tail literally at the call site, and its verdict is unchanged.
+   A long-title layout case declares the long titles, direction and
+   identities as facts instead of a template.
+5. **Superseded templates removed.** No dashboard helper or spec that serves
+   the fake GitHub writes `# Product backlog` text, except a call site whose
+   spec proves those bytes.
+
+#### Evaluation
+
+Migrated specs keep their verdicts and assertions. A reviewer can name each
+journey's served planning facts from its call site or fixture file. Record
+focused run times before and after under comparable load for one refresh or
+navigation family and one recently done or profile family. They must not
+regress beyond run-to-run noise.
+
+#### Architecture
+
+- **One description, two outputs.** The same description materializes as a
+  Git origin or renders as served files. Both use one file renderer, so a
+  journey and a Git spec stating the same facts publish the same bytes
+  ([test data architecture](../../tests/README.md#test-data-architecture)).
+- **Rendering stays in memory.** Served files need no Git or disk, so the
+  done catalog uses the pure catalog encoder rather than a directory rebuild.
+- **No native evidence change.** Fake GitHub helpers are not inputs to native
+  evidence, so no paid run is needed
+  ([native family layers](../../tests/native-family-layers.md)).
 
 <a id="reuse-immutable-git-histories"></a>
 
