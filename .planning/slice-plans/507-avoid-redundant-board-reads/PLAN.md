@@ -3,6 +3,7 @@
 **Identity:** SEED-262#refresh-without-unneeded-reloads
 
 **Source:** [Avoid redundant board reads](../../seeds/SEED-262-faster-dashboard-test-feedback.md#refresh-without-unneeded-reloads)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and boundaries
 
@@ -101,7 +102,7 @@ if the shared advance, settlement or existing visibility path changes.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 With the attention sessions already launched, publish each intended revision
 and observe it through the open Board. Keep the listing recovery and the
@@ -118,6 +119,23 @@ and the same document at each converted transition. Prove the unchanged
 published facts for the local-only operations and keep the existing
 Mark as done, switch and reload assertions. Record the baseline and delivered
 request and elapsed-time comparison for the attention journey.
+
+Accepted proof (2026-11-08): `show(revision, { pace })` in
+`dashboard/tests/storyColumnsPage.ts` advances origin and runs the supplied
+pace instead of a reload; the Preparing, Taken and removal steps of
+`agent-launch-attention.spec.ts` use it with `expectNotReloaded` after each
+converted show and after the local-only steps. The journey setup moved to
+`dashboard/tests/storyCardAttention.ts`. The attention spec passed four times
+before refactoring and again after it, and the nine `show` consumer specs
+(18 cases) passed. Same disposable recorder, two workers: document loads 6→3,
+full Board reads 15→12 (Open Dough 13→10, Doughnut 2→2), pinned Board reads
+0→3, browser revision checks 8→9, conditional matching-refs 5→6, content
+calls 51→51, launch and Actions traffic unchanged. Converted transitions:
+Preparing 543–629→485–566 ms, Taken 654–759→513–555 ms, removal
+576–583→417–507 ms; command wall 12.97–14.78→12.22–12.44 s under load 6–8
+(exploratory). The quiet runner prints nothing on a pass; add
+`--reporter=list` only when the executed-case count is needed and the proof
+record is not.
 
 ### 2. Observe an unreadable session listing without another Board snapshot
 

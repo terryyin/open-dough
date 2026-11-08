@@ -1,7 +1,8 @@
 // The story-columns journey (./launchJourney.ts) as the dashboard page shows it:
 // the page opens on the queued revision of its committed origin, beside a
 // Doughnut origin to switch to, and a journey launches from Backlog cards and
-// shows each later revision by reloading the page.
+// shows each later revision by reloading the page, by the page being seen
+// again, or in the open page once its own steady pace of page time passes.
 
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -45,10 +46,23 @@ export async function openStoryColumnsJourney(
     card,
     action,
     settled,
-    // Origin publishes the revision, and the page reads it.
-    show: async (revision: string, { reload = true } = {}) => {
+    // Origin publishes the revision, and the page reads it: after a reload,
+    // after being seen again (`reload: false`), or, given the `pace` that
+    // lets the paused page clock pass its steady pace, in the open page by
+    // its own revision check. A new revision can show before the cards it
+    // brings, so the page settles after it.
+    show: async (
+      revision: string,
+      {
+        reload = true,
+        pace,
+      }:
+        | { reload?: boolean; pace?: undefined }
+        | { reload?: undefined; pace: () => Promise<void> } = {},
+    ) => {
       origin.advanceTo(revision);
-      if (reload) await page.reload();
+      if (pace !== undefined) await pace();
+      else if (reload) await page.reload();
       else {
         await setPageVisibility(page, "hidden");
         await setPageVisibility(page, "visible");
