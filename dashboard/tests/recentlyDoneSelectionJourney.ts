@@ -16,7 +16,6 @@ import { expect } from "./dashboardTest.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { catalogPublications } from "./catalogProjectRecords.ts";
-import { parts } from "./dashboardPage.ts";
 import { withDoneCatalog } from "./doneCatalogAnswers.ts";
 import {
   browseSpec,
@@ -59,11 +58,21 @@ export const openDoughTaken = {
 };
 export const readSpec = "dashboard/tests/browse.spec.ts";
 
-export async function publishSelectionProjects(page: Page, now: number) {
+// Publishes the three projects; given `unreadableLinkedRecord`, Pygardon's
+// done story's record names another identity, so its catalog names that
+// record unreadable.
+export async function publishSelectionProjects(
+  page: Page,
+  now: number,
+  unreadableLinkedRecord = false,
+) {
   await publishIntentProject(page, openDough, openDoughSettings, {
     [readSpec]: browseSpec,
   });
   const { pygardon, doughnut } = catalogPublications;
+  const recorded = unreadableLinkedRecord
+    ? { ...linked, identity: "SEED-502#named-inside" }
+    : linked;
   await publishFiles(page, {
     repository: pygardon.repository,
     revision: pygardon.revision,
@@ -73,7 +82,7 @@ export async function publishSelectionProjects(page: Page, now: number) {
         [doneRecordAt(linked.identity)]: renderDoneRecord(
           makeMe.aDoneRecord
             .completed({
-              ...linked,
+              ...recorded,
               completedAt: new Date(now - 60 * minute).toISOString(),
             })
             .please(),
@@ -178,7 +187,8 @@ export const choiceStatus = (row: Locator) =>
 
 // The page opened on Open Dough, at `address` when given, with Recently
 // done sessions expanded, by pointer or, given `tap`, by touch at the
-// viewport the case uses, keeping the `newer` sessions the case asks for.
+// viewport the case uses, keeping the `newer` sessions the case asks for and
+// publishing Pygardon's done story's record unreadable when it asks.
 export async function openSelectionPage(
   page: Page,
   dashboard: DashboardServer,
@@ -186,12 +196,17 @@ export async function openSelectionPage(
   {
     newer = {},
     address,
-  }: { readonly newer?: NewerSessions; readonly address?: string } = {},
+    unreadableLinkedRecord = false,
+  }: {
+    readonly newer?: NewerSessions;
+    readonly address?: string;
+    readonly unreadableLinkedRecord?: boolean;
+  } = {},
 ) {
   const now = Date.now();
   if (tap === undefined)
     await page.setViewportSize({ width: 1600, height: 900 });
-  await publishSelectionProjects(page, now);
+  await publishSelectionProjects(page, now, unreadableLinkedRecord);
   await keepSelectionSessions(dashboard, now, newer);
   await openUntilRead(page, address);
   const shown = recentlyDoneParts(page);
@@ -205,43 +220,4 @@ export async function openSelectionPage(
   const row = (title: string) =>
     shown.entries.filter({ has: page.getByRole("heading", { name: title }) });
   return { shown, row };
-}
-
-// Opens the reported session's final report through its row's Open.
-export async function showReport(
-  page: Page,
-  shown: ReturnType<typeof recentlyDoneParts>,
-) {
-  await shown.open(report.title).click();
-  const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel.locator(".final-report-text")).toHaveText(report.message);
-  await expect(shown.entry(report.title)).toHaveAttribute(
-    "aria-current",
-    "true",
-  );
-  return panel;
-}
-
-// Development as it was: still chosen, Intent unopened, nothing attached, and
-// the Side panel still showing the report in `panel`, or, without one, empty.
-export async function expectDevelopmentKept(
-  page: Page,
-  dashboard: DashboardServer,
-  panel?: Locator,
-) {
-  const { development, intent } = parts(page);
-  await expect(development).toBeChecked();
-  await expect(intent).toHaveCount(0);
-  expect(new URL(page.url()).searchParams.get("perspective")).toBeNull();
-  if (panel === undefined) {
-    await expect(
-      page.getByRole("region", { name: /^(Terminal|Final report)$/ }),
-    ).toHaveCount(0);
-  } else {
-    await expect(panel.locator(".final-report-text")).toHaveText(
-      report.message,
-    );
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
-  }
-  expect(dashboard.claudeAttaches()).toEqual([]);
 }

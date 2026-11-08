@@ -193,6 +193,16 @@ Former local code: DD-327. Former branch-local code: DD-325 for SEED-144#branded
 Former local code: DD-328. Former branch-local code: DD-326 for SEED-144#branded-alert-click-automation only. A guarded delivery's caller-written status update stayed applied after a later preparation refusal; its unbounded retry advanced the next slice. Related DD-326 (a failed updater contained before publication) is retained there as counterevidence. [Evidence and current response](docs/maintainer/findings/ODF-323.md).
 ## ODF-325 — Coordinator launched an empty agent while waiting on delegated work
 Former local code: DD-329. Former local code: DD-408. [Meaning, evidence and response](docs/maintainer/findings/ODF-325.md).
+
+### Occurrences
+- Execution: SEED-272#prove-recently-done-check-supersession (plan 529-prove-recently-done-check-supersession; first related implementation `705a53c88396264c09c953e54c12ff325b855603`)
+  - Timestamp: unknown (2026-11-08, while the source-only reviewer ran before slice 1)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: while awaiting the source-only reviewer the coordinator ran a background `echo waiting` and then launched a Haiku agent asked only to reply "ok"; delegation's "Await delegated results without empty calls" already forbids both.
+  - Observed effect: two extra notifications and one extra agent hand-back (about 38.7k subagent tokens) with no evidence gained; the real review arrived independently.
+  - Inference: the background-session harness's "say what you're doing" prompts invite an action, and ending the turn while a subagent runs feels like stopping.
 ## ODF-326 — A second source-only review repeated unchanged inputs
 Former local code: DD-331. [Meaning, evidence and response](docs/maintainer/findings/ODF-326.md).
 ## ODF-327 — Preparation left an evaluation's criteria for execution while the evaluated run was imminent

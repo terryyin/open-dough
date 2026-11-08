@@ -1,22 +1,19 @@
-import { sessionKey } from "./sessionReference.ts";
-// The page keeps one side panel and its Sessions sidebar above project selection.
-// Story selection, the chosen Intent mode and the Intent reading place are
-// kept here as page state.
-// The panel shows one item: a session's terminal or final report, or a story's
-// story review. Sidebar navigation reveals the chosen project/story without
-// remounting the page. pageSidePanel owns what the panel shows, current
-// marks, maximization and focus return, and sets the selected story;
-// sidePanelWidth its width beside the page; terminal readiness alone rereads
-// a done record after native attachment.
-// The page's one Recently done range (`./recentlyDoneRange.ts`) is kept here
-// too, so a journey's destination can ask it for the entry it lands on. A
-// Recently done sessions row selects (`./recentlyDoneSelection.ts`), in
-// Development going to what it selected as an Open goes to its session; its
-// Open control, like every other Sessions sidebar row, opens. Every retained
-// session the page opens or acts on asks the page's one history read
-// (`./retainedHistory.ts`).
+// The page frame: the Sessions sidebar, the page column and one side panel,
+// kept above project selection together with the page's story selection,
+// Intent mode and Intent reading place. The panel shows a session's terminal
+// or final report, or a story's review (`./pageSidePanel.ts`, which also
+// sets the selected story; width by `./sidePanelWidth.ts`). Sidebar
+// navigation reveals the chosen project or story without remounting the page.
+//
+// Choosing a Recently done sessions row selects it, and in Development shows
+// what it selected (`./recentlyDoneSelection.ts`). A row's Open, there as on
+// every Sessions sidebar row, opens its session and abandons a selection
+// check still unanswered. The page's one Recently done range
+// (`./recentlyDoneRange.ts`) and retained history read
+// (`./retainedHistory.ts`) are kept here.
 
 import { useCallback, useRef, type CSSProperties, type ReactNode } from "react";
+import { sessionKey } from "./sessionReference.ts";
 import { FinalReport } from "./FinalReport.tsx";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { useVisibleProjects } from "./projectList.tsx";
@@ -117,11 +114,10 @@ export function PageFrame({
   );
   const shownMaximized = panelOpen && (maximized || covering);
   const offerMaximize = !covering;
+  // Terminal readiness alone rereads a done record after native attachment.
   const attached = useCallback<SessionOperation<void>>(
     ({ record }) => {
-      if (record.doneAt !== undefined) {
-        void readSession(record);
-      }
+      if (record.doneAt !== undefined) void readSession(record);
     },
     [readSession],
   );
@@ -141,12 +137,8 @@ export function PageFrame({
     control,
   }) => {
     recentlyDone.supersede();
-    const source = projects.find(
-      (project) => project.id === record.request.source,
-    );
-    if (source !== undefined) {
-      stories.show(source);
-    }
+    const source = projects.find(({ id }) => id === record.request.source);
+    if (source !== undefined) stories.show(source);
     if (record.doneAt !== undefined) readHistory();
     const returnTo = sidebar.closeOverPage() ?? control;
     sidePanel.openSession({ record, control: returnTo });
