@@ -1,20 +1,21 @@
 // Admits a never-queued investigation through the real startup CLI into a
 // local bare remote and publishes that remote, so the dashboard reads the
-// accepted admission commit itself rather than a hand-built Taken entry. The story is drafted in the
-// originating checkout and its preparation recorded with the real backlog CLI
-// (refined, approach unselected, no assessment). Admitting runs Git-heavy
-// production commands, so a journey admits once in its setup and each page
-// then serves that admission.
+// accepted admission commit itself rather than a hand-built Taken entry. The
+// published queue is materialized from its repository description; the story
+// is drafted in the originating checkout as local files, with its
+// preparation recorded by the production encoder (refined, approach
+// unselected, no assessment). Admitting runs Git-heavy production commands, so
+// a journey admits once in its setup and each page then serves that
+// admission.
 
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import type { Page } from "@playwright/test";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { storySeed } from "../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../tests/support/repository-fixture.mjs";
+import { writeRevisionFiles } from "../../tests/support/repository-revision-files.mjs";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import {
-  recordState,
-  scratchRepo,
-  writePlanning,
-} from "./storyReadinessCli.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
 const startCli = join(
@@ -30,21 +31,13 @@ export const admitted = {
   branch: "claude/investigate-slow-start",
 };
 
-export const stillQueued = {
-  identity: "SEED-091#queued",
-  link: "seeds/SEED-091-queued.md#queued",
-  title: "Queued follow-up",
-};
-
-function git(directory: string, ...args: string[]): string {
-  return execFileSync("git", ["-C", directory, ...args], {
-    encoding: "utf8",
-  }).trim();
-}
-
-function story(anchor: string, identity: string, title: string) {
-  return `<a id="${anchor}"></a>\n\n### ${title}\n\n**Identity:** ${identity}\n\n`;
-}
+export const stillQueued = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-091#queued",
+    href: "seeds/SEED-091-queued.md#queued",
+    title: "Queued follow-up",
+  })
+  .please();
 
 // The bare remote the startup CLI admitted into, and the commit it accepted.
 export type Admission = {
@@ -52,40 +45,45 @@ export type Admission = {
   readonly revision: string;
 };
 
-export function admitInvestigation(
-  after: (cleanup: () => void) => void,
-): Admission {
-  const root = scratchRepo(after, "dough-admitted-work-");
-  const origin = join(root, "origin.git");
-  const checkout = join(root, "checkout");
-  execFileSync("git", ["init", "--quiet", "--bare", "-b", "main", origin]);
-  execFileSync("git", ["init", "--quiet", "-b", "main", checkout]);
-  git(checkout, "config", "user.name", "Admission Fixture");
-  git(checkout, "config", "user.email", "fixture@example.com");
-  git(checkout, "remote", "add", "origin", origin);
-  writePlanning(
-    checkout,
-    "PRODUCT-BACKLOG.md",
-    `# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [${stillQueued.title}](${stillQueued.link}) — ${stillQueued.identity}\n`,
-  );
-  writePlanning(
-    checkout,
-    "seeds/SEED-091-queued.md",
-    `---\nid: SEED-091\n---\n\n# Queued\n\n${story("queued", stillQueued.identity, stillQueued.title)}**Goal:** Follow up later.\n`,
-  );
-  git(checkout, "add", "-A");
-  git(checkout, "commit", "--quiet", "-m", "published backlog");
-  git(checkout, "push", "--quiet", "origin", "main");
-  // The accepted mission's story is only a local draft when it is admitted.
-  writePlanning(
-    checkout,
-    "seeds/SEED-090-startup.md",
-    `---\nid: SEED-090\n---\n\n# Startup\n\n${story("slow-start", admitted.identity, admitted.title)}**Goal:** ${admitted.purpose}\n`,
-  );
-  recordState(checkout, admitted, {
-    refinement: "refined",
-    approach: "unselected",
-  });
+// The published queue: one queued follow-up and its seed.
+const publishedQueue = makeMe.aRepository
+  .withRevision("published backlog", {
+    backlog: { queued: [stillQueued] },
+    files: {
+      ".planning/seeds/SEED-091-queued.md": storySeed(
+        stillQueued,
+        "**Goal:** Follow up later.",
+      ),
+    },
+  })
+  .please();
+
+// The accepted mission's story, only a local draft when it is admitted.
+const draft = {
+  files: {
+    ".planning/seeds/SEED-090-startup.md": storySeed(
+      admitted,
+      `**Goal:** ${admitted.purpose}`,
+    ),
+  },
+  storyStates: [
+    {
+      identity: admitted.identity,
+      href: admitted.href,
+      ...makeMe.aStoryPreparation
+        .with({ refinement: "refined", approach: "unselected" })
+        .please(),
+    },
+  ],
+};
+
+export async function admitInvestigation(
+  after: (cleanup: () => Promise<void>) => void,
+): Promise<Admission> {
+  const built = await materializeRepository(publishedQueue);
+  after(built.cleanup);
+  const checkout = built.integration;
+  writeRevisionFiles(checkout, draft);
   const receipt = JSON.parse(
     execFileSync(
       process.execPath,
@@ -96,7 +94,7 @@ export function admitInvestigation(
         "--integration",
         checkout,
         "--workspace",
-        join(root, "workspace"),
+        join(built.fixture, "workspace"),
         "--branch",
         admitted.branch,
         "--identity",
@@ -124,7 +122,7 @@ export function admitInvestigation(
     ),
   ) as { ok: boolean; publishedSha: string };
   if (!receipt.ok) throw new Error(JSON.stringify(receipt));
-  return { origin, revision: receipt.publishedSha };
+  return { origin: built.origin, revision: receipt.publishedSha };
 }
 
 // Serves the bare remote at the admission commit it accepted.

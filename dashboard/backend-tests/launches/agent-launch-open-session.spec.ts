@@ -5,6 +5,7 @@
 // boundary (`../../server/agentLaunches.ts`). Continuation ownership is
 // `./agent-launch-open-session-continue.spec.ts`.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -44,7 +45,7 @@ test.describe("an open story session on this machine", () => {
   let push: PushHold;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     server = await startDashboardServer({
       mode: "boundary",
       machine: origin.machine,

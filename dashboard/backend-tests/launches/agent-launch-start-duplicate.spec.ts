@@ -8,6 +8,7 @@
 // deterministically; the other sends the pair at once. A story Taken by
 // another agent stays ./agent-launch-start-refusal.spec.ts's refusal.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { readdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -42,7 +43,7 @@ test.describe("a second start of the same story", () => {
   let server: DashboardServer;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     server = await startDashboardServer({
       mode: "boundary",
       machine: origin.machine,

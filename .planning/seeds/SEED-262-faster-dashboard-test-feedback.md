@@ -28,146 +28,6 @@ and [definition of improvement](../../docs/adrs/0010-definition-of-improvement-a
 
 ## Story decomposition
 
-<a id="migrate-dashboard-origin-fixtures"></a>
-
-### Build dashboard test repositories from explicit MakeMe data
-
-**Identity:** SEED-262#migrate-dashboard-origin-fixtures
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-262#migrate-dashboard-origin-fixtures","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story passes makeMe.aRepository descriptions to startOrigin, its publishers, and the standalone readiness and admission fixtures, and materializes them through the shared harness materializer with its per-process reuse.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and checkout with per-process reuse, are published on trunk.","state":"satisfied","resolution":{"revision":"0eb86657bd2ea248d278f880bb095d91c6427cdc","path":".planning/seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures","summary":"The accepted tree exports makeMe.aRepository and its ordered named revisions. The shared materializer creates a bare origin and checkout, returns each named commit and reuses identical descriptions per process while giving each caller an independent mutable copy. The default repository and copy-isolation checks passed from the accepted checkout.\nCondition satisfied: makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and checkout with per-process reuse, are published on trunk.\nAccepted integration: d2c6bf36856289b40c9f665ee6f8f813676ab314 on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"46f4016395c3839bb38ac5b72f3bf632ea7ed4e036a517bf1b7d37be45362b97","plan":"6b28b9f625632be28def6a8bd7d84784ddabab0c5f38cb04122a55cc41d8d2ab"}}
-```
-
-#### Goal
-
-A maintainer reading a dashboard journey or backend spec can see which
-repository facts its fixture starts with and which later commits it adds.
-Today every start origin silently holds Stories A and B queued, refined,
-planned and Ready. About 200 dashboard files name Story A or its identity,
-but those facts live only in `queuedStories.ts`. Start origins, their
-publishers, and the standalone readiness and admission fixtures state their
-starting facts through [the shared repository description](../../tests/support/repository-fixture.mjs).
-Dashboard feedback must not get slower.
-
-#### Scope
-
-- `startOrigin` takes a MakeMe repository description. With none, it holds
-  the description's default: one commit with an empty valid backlog and the
-  installed skills. Every call site and origin fixture that relies on the
-  queued stories passes the shared description of two Ready queued stories
-  that [the shared repository builder](../../tests/support/repository-fixture.mjs) provides
-  for the skill tests, not a dashboard copy. A Playwright fixture states its
-  description in its fixture file, and a spec that needs other facts
-  overrides it with `test.use`. On 2026-11-08, 49 files called `startOrigin`,
-  including seven Playwright fixtures that create it implicitly. 70 helper
-  modules and 95 specs imported it.
-- Installed skills stay a harness layer, not a domain fact. The harness adds
-  them to the description's first commit, so the origin keeps one root commit
-  with the stories and skills together.
-- Keep the run-wide preparation that global setup performs. It prepares each
-  installation layout once per run from the named shared descriptions in use,
-  and each test copies the prepared origin as it does now. A description that
-  is not prepared run-wide is materialized through the shared materializer's
-  per-process reuse on top of the same installed skills.
-- Helpers that hand-write published planning facts declare them instead:
-  seeds, story state, backlog membership, agent profiles, dependency
-  agreements and done records. These include the story dependency, story
-  reference, recently done, Trunk Mode review, one-shot review, completion
-  closure and later-story publishers, and `publishChangedReview`.
-- Migrate the starting repositories built through `storyReadinessCli.ts` and
-  `admittedWork.ts` with the same description and materializer. Keep literal
-  malformed inputs, stale assessments, and deliberate local edits where a
-  readiness spec exercises them. In the admission fixture, keep the draft
-  local until the real `start --admit` publishes the commit the dashboard reads.
-- Replace a real `start` that only arranges a Taken story or a claim commit
-  with a declared revision whose author is the agent and whose committer is
-  the developer. A spec whose subject is the start, its refusal or its resume
-  still runs it on the materialized origin.
-- Keep as real Git operations in the helper or test: story branches,
-  worktrees, merges, fast-forwards, first-parent rewrites, held pushes,
-  isolation and older Git behaviour. A CI comparison or completed-story
-  publisher takes its trunk facts from the description and builds the commit
-  graph it proves with Git on top.
-- Remove superseded dashboard helpers and the dashboard's use of
-  `writeQueuedStories`. The queued identities come from the shared
-  description. The shared writer itself goes when its last consumer does; a
-  native execution fixture still uses it until
-  [shell release and native fixtures](#migrate-shell-release-and-native-fixtures)
-  migrate.
-- Boundary assumption: execution starts after
-  [the shared repository builder](../../tests/support/repository-fixture.mjs) lands
-  `makeMe.aRepository` and its materializer on trunk. This story extends that
-  description and materializer rather than adding a second one.
-- Scope limits: clean-trunk, Node and shell fixtures belong to their sibling
-  stories. Cross-description caching beyond today's per-process reuse belongs
-  to [faster Git fixture construction](#reuse-immutable-git-histories). The
-  description gains no branch or merge model. Planning text that dashboard
-  helpers and specs serve through the fake GitHub, without a Git repository,
-  belongs to [fake GitHub planning data](#declare-fake-github-planning-data).
-
-#### Key examples
-
-1. **Default start origin.** A backend spec calls `startOrigin()` with no
-   description. The project checkout has one commit holding the installed
-   skills and an empty valid product backlog. No story is queued.
-2. **Named shared stories.** The `origin` fixture in `startOriginTest.ts`
-   names the shared description of Stories A and B queued, refined, planned
-   and Ready. A spec that publishes the origin still shows both cards Ready,
-   and its assertions are unchanged. The prepared origin still comes from
-   global setup, and the test copies it as before.
-3. **Facts that differ.** A story dependency spec declares Story B waiting on
-   Story A in its description. Its origin's backlog, seeds and agreement come
-   from production encoders, and the helper no longer writes or commits them.
-4. **Command under proof.** A preparation-resume spec still runs the real
-   `start` on the materialized origin. A CI comparison fixture that only
-   needs Story A Taken declares the claim revision, authored by the agent and
-   committed by the developer, and runs no `start`.
-5. **Git under proof.** A later fast-forward comparison declares its trunk
-   stories, then makes its story branch, merge and first-parent rewrite with
-   Git. Intent's comparison verdicts are unchanged.
-6. **Superseded setup removed.** No dashboard helper calls
-   `writeQueuedStories`, and none that builds a Git repository hand-writes
-   a published planning file that the description can state.
-7. **Standalone readiness and admission.** The readiness fixture declares
-   its starting state. A deliberately unpushed seed edit stays invisible
-   when the dashboard reads the selected commit. The admission fixture
-   declares its published queue and arranges a local draft. The dashboard
-   shows the investigation in Taken from the commit the real `start --admit`
-   published.
-
-#### Evaluation
-
-Migrated specs keep their verdicts and assertions. A reviewer can name each
-case's driving repository facts from its call site or fixture file. Record
-focused run times before and after under comparable load for one Playwright
-journey family and one backend family that use the default origin, and for
-the standalone readiness and admission specs. They must not regress beyond
-run-to-run noise.
-
-#### Architecture
-
-- **One description, one materializer.** This story extends the
-  [repository description and materializer](../../tests/support/repository-fixture.mjs)
-  and adds no dashboard-specific copy. MakeMe owns stories and records; the
-  harness owns Git, installation and teardown
-  ([test data architecture](../../tests/README.md#test-data-architecture)).
-- **Installation is a harness layer.** Installed skills come from this run's
-  working-tree source, as today. They join the first commit so the history
-  shape the dashboard reads does not change.
-- **Prepared once, copied per test.** Run-wide preparation keyed by
-  installation layout and named description keeps today's copy cost.
-  Committing the stories per test on a prepared skills-only origin was
-  observed at about 115 ms extra per test, roughly doubling the 95 ms copy.
-- **Commit graphs stay in Git.** The description holds ordered trunk
-  revisions only. Intent and CI comparison read ancestry and merges, so
-  those stay Git operations
-  ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)).
-- **No native evidence change.** Dashboard start origins are not inputs to
-  native evidence, so no paid run is needed
-  ([native family layers](../../tests/native-family-layers.md)).
-
 <a id="migrate-backlog-scratch-repositories"></a>
 
 ### Build Node test repositories from explicit MakeMe data
@@ -454,33 +314,87 @@ noise.
 
 **Identity:** SEED-262#migrate-git-publication-native-fixtures
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/534-migrate-git-publication-native-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"20cc8677d1582fd80bee81b3ddf95bc5240c27fdfc7f5e040c5e555c9bf6a9cd","plan":"78e7844848536c64734d799bc781fe94c2154ca48d14875c5d4f3c61b152ce69"}}
 ```
 
-**Goal.** A maintainer reading a git-publication native check can see which
-repository facts its fixture arranges. Its retained evidence identity must
-still cover every input that builds the fixture.
+#### Goal
 
-**Scope.** Route the startup, admission, one-shot and owned-context native
-fixtures through the
-[shared repository description](../../tests/support/repositoryTestData.mjs).
-Remove `createQueuedTrunk`, `createPreparationTrunk`, `createSiblingTrunk`
-and the last use of `writeQueuedStories` by a non-dashboard caller.
-`ownedWorktreeOnly`, `advanceOriginFromAnotherWriter` and
-`cloneAsAnotherWriter` stay Git operations. Today the import-closure walker
-does not follow the fixtures' `load(sourceDir, …)` imports. It returns one
-module for the admission and owned-context fixtures and fails on the
-one-shot fixture with `ENOENT … tests/src/notes.mjs`. So the owned-context
-identity does not cover `createQueuedTrunk` or the writer helpers. Repair
-that coverage. Choose the identity mechanism at refinement. One candidate
-hashes the MakeMe closure, so every MakeMe edit stales native evidence. The
-other hashes a normalized digest of the built repository: trees, modes,
-messages, authors, refs, configuration and worktree layout, as
-[plan 532](../slice-plans/532-tighten-repository-description-facts/PLAN.md)
-compares them. The digest excludes commit times and fixture paths and costs
-one fixture build per identity. The admission identity already hashes the
-queued-trunk modules, so its retained records no longer match their inputs.
-Record the literal manual native commands. Paid runs stay manual-only.
+A maintainer reading a Git publication native check can tell which published
+facts its starting repository contains and which Git operations the check
+exercises. The maintainer can assess whether retained native evidence still
+applies when an input that builds that fixture changes.
+
+#### Scope
+
+- Startup, admission, one-shot and owned-context fixtures declare their
+  starting repository facts through the
+  [shared MakeMe description](../../tests/support/repositoryTestData.mjs) and
+  [materializer](../../tests/support/repository-fixture.mjs). Name the stories,
+  their readiness and the relevant revisions at the call site or in the
+  named fixture it selects. Preserve the Git histories, working state and
+  existing assessor verdicts that each journey depends on.
+- Keep real Git for owned worktrees, competing writers, interrupted and
+  resumed publication, and other transitions observed by the checks. Keep
+  real installed commands for the prior admissions and claims whose receipts
+  or ownership the scenarios consume. Keep literal divergent or dirty data
+  visible where the check depends on those exact inputs.
+- Remove `createQueuedTrunk`, `createPreparationTrunk`, `createSiblingTrunk`
+  and their legacy setup. Remove the last non-dashboard use of
+  `writeQueuedStories`. Remove the writer itself when no caller remains.
+- Each affected evidence identity covers the repository inputs that its
+  fixture uses, including transitive builders and writer helpers. A failed
+  required input read cannot yield an apparently complete current identity.
+  Historical records retain their original hashes and remain available for
+  replay and evidence assessment. Paid native runs remain manual-only.
+- Dashboard origins, release-source fixtures and the MakeMe-free native
+  worktree-preparation fixtures remain separate. Normalized repository
+  hashing as an evidence key is deferred. Its comparison technique serves
+  as migration proof.
+
+#### Key examples
+
+1. A startup fixture names Ready queued A and B and the setup and command
+   files. When the claim proceeds in a new workspace, the real commands
+   leave root markers after the claim, including when the workspace is gone.
+2. An admission fixture names its queued trunk and the startup probe. The
+   existing investigation still starts with no queued mission. Continuation
+   and closure still observe real prior admissions and their ownership.
+3. A queued one-shot fixture names Ready B and its unfinished sibling B2.
+   Refinement selects B2 while keeping B Ready. The default-main case still
+   observes the staged, unstaged and untracked human edits in that checkout.
+4. The preparation-land fixture names rough C. Its real retained worktree
+   holds the creation ref and the competing writer advances trunk. The
+   existing landing verdict still checks that topology and publication.
+5. The evidence writer runs after a fixture or transitive input changes.
+   The corresponding input hash changes. Generated notes source remains
+   fixture data, so its embedded imports cannot break the one-shot identity.
+
+#### Architecture
+
+Use the existing source-hash closure with traceable imports and explicit roots
+for inputs loaded outside JavaScript imports. This follows the same dependency
+mapping as compiler depfiles. The fixture entry point names the build, its
+import and spawn edges identify dependencies, and the retained hashes record
+the inputs. A byte change in shared MakeMe can invalidate a record even when
+the built fixture behaves identically. Apply the evidence reuse judgment in
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md#5-assess-now-and-delete-spent-evidence)
+to that case. An input identity establishes provenance for a recorded result.
+
+A normalized repository digest could reduce those invalidations. Admission
+builds in two scratch locations produced different trees even before the probe
+commit because the generated scripts contain the fixture path. A reliable
+snapshot key would have to normalize those tracked bytes and separately
+account for configuration, dirty state, worktrees and writer helpers. Keeping
+the existing identities without expanding their input coverage leaves the
+observed gaps in startup, one-shot and owned-context.
+
+#### Evaluation
+
+Compare the same credential-free startup and admission selections before and
+after under comparable load. Record elapsed time, the executed cases and the
+fixture construction or identity work that changed, following the epic's
+evaluation rule. Preserve the corresponding one-shot and owned-context
+verdicts and verify input sensitivity without credentials.
 
 <a id="declare-fake-github-planning-data"></a>
 
@@ -594,21 +508,63 @@ regress beyond run-to-run noise.
 
 **Identity:** SEED-262#reuse-immutable-git-histories
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/535-reuse-story-columns-git-history/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"31827b90916904e7b13e06db6bcbc4f29d09ea9d2390dfc43ee52ae88ea10031","plan":"13209d29934e2ea3ae1e31e2e70711019fcc915381442e0cd0646c8699f791c3"}}
 ```
 
-**Goal.** A developer gets faster test feedback when equivalent repository
-requests can reuse immutable Git data behind the same MakeMe setup.
+#### Goal
 
-**Scope.** Use the [migrated Git fixtures](../../tests/support/repository-fixture.mjs)
-to find recurring repository shapes and reusable immutable parts, such
-as trees or commit histories. The attention spec's original workers each
-spent about 3s preparing the same history. Measure which reuse is worthwhile
-with the new builder. Keep reuse inside the shared materializer. Each
-test gets its own mutable refs, config, index, and working state.
+Developers running dashboard checks get a result sooner when workers can
+reuse equivalent Git history from the same MakeMe setup. The attention journey
+and the other consumers of its story-columns history are the first place to
+prove the gain. Keep the real Git and dashboard observations each case uses.
+[Original profile and migration baseline](../TEST-OPTIMIZATION-CANDIDATES.md#card-attention-launch-and-origin-setup)
 
-**Evaluation.** Compare the same selections before and after with cold and
-warm setup and parallel workers. Show lower elapsed time and equivalent
-file contents, refs, ancestry, and test verdicts. A test that advances or
-mutates its repository leaves a concurrent test's repository independent.
-[Existing template reuse](../../tests/support/repository-fixture.mjs)
+#### Scope
+
+- Reuse the common queued, preparing, and taken history of the
+  [story-columns fixture](../../dashboard/tests/launchJourney.ts) within one
+  dashboard run. Its completion revision can differ by worker. Preserve the
+  exact declared bytes, branch and checkout identities, authorship, ancestry,
+  and named revision results. Keep reuse and the private copy inside the
+  [shared materializer](../../tests/support/repository-fixture.mjs), with each
+  returned fixture owning its mutable origin, refs, config, index, and working
+  state. The ordinary per-process path covers requests without a suitable
+  shared prefix.
+- Compare the same attention and second-consumer selections before and after.
+  Record cold build, warm reuse, and two-worker elapsed time alongside the
+  executed cases and verdicts. Lower construction time must translate to
+  faster test feedback on the affected selection. Both workers can still
+  wait for one cold build, so count the wait and the copies in that comparison.
+- Defer reuse across runs and additional families until these measurements
+  justify their cost. The installed StartOrigin fixture already shares its
+  default and queued origins through the run owner. Use its existing
+  measurements and the readiness family's as comparison context.
+
+#### Key examples
+
+1. Two workers request the same first three revisions and different
+   completion timestamps. Each builds its fixture through MakeMe. The common
+   history is built once, and each origin answers its own completion record
+   with the right ancestry, refs, and file contents.
+2. Two requests materialize from the same prefix. One advances its branch,
+   changes its local config and index, or is removed. The peer and a later
+   request still read their own pristine state. Removing the shared source
+   after materialization leaves both returned copies usable.
+3. A request has different declared facts or runs without the dashboard
+   owner. The materializer builds the requested history through its existing
+   local route. If registered preparation fails mid-build, its callers get
+   the setup failure, and a fresh run can build the history again.
+
+#### Architecture
+
+The dashboard run owns the lifetime of a completed snapshot through its
+[artifact owner](../../dashboard/tests/support/runArtifacts.ts). The
+materializer owns deciding whether the prefix matches and copying it before
+applying a caller's suffix. This borrows the immutable-base idea from
+container image layers. The Git copy has to remain usable after the shared
+base disappears, so Git alternates and writable hardlinks are unsuitable.
+Direct MakeMe domain facts and deterministic isolated proof follow
+[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+and [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+The timing comparison and cost of the shared machinery follow
+[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).

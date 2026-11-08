@@ -2,6 +2,7 @@
 // another open session of that story remains, and accepted when the only open
 // record is that attempt's own launched session.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { sessionOpen } from "../../server/launchAttemptConflicts.ts";
@@ -33,7 +34,7 @@ test.describe("continuing while a story session is open", () => {
   let push: PushHold;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     server = await startDashboardServer({
       mode: "boundary",
       machine: origin.machine,

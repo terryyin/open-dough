@@ -10,7 +10,7 @@ import {
   roughStoryC as storyC,
   storyA,
   storyB,
-  trunkTakeRevision,
+  takeRevision,
 } from "../../tests/support/queued-repository.mjs";
 import {
   integrationDeveloper,
@@ -48,7 +48,7 @@ export async function publishLaunchJourney(): Promise<LaunchJourney> {
     queuedDashboardRepository()
       .withRevision(
         "taken",
-        trunkTakeRevision({
+        takeRevision({
           story: storyA,
           queued: [storyB, storyC],
           agent: "Yui",
@@ -70,7 +70,7 @@ export type StoryColumnsJourney = {
 };
 
 function storyColumnsRepository(completedAt: string) {
-  const takeStoryB = trunkTakeRevision({
+  const takeStoryB = takeRevision({
     story: storyB,
     queued: [storyA, storyC],
     agent: "Akiho",

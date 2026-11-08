@@ -9,19 +9,23 @@ import { startDashboardServer } from "./dashboardServer.ts";
 import { installFakeCodex } from "./fakeCodex.ts";
 import { launchWaitMs } from "./launchWait.ts";
 import { serveOriginBaseCi } from "./serveOriginBaseCi.ts";
-import { startOrigin, type StartOrigin } from "./startOrigin.ts";
+import {
+  queuedOriginRepository,
+  startOrigin,
+  type StartOriginFixtures,
+} from "./startOrigin.ts";
 export { expect } from "../dashboardTest.ts";
-export const test = base.extend<{
-  origin: StartOrigin;
-  preparationHost: "claude" | "codex";
-}>({
+export const test = base.extend<
+  StartOriginFixtures & {
+    preparationHost: "claude" | "codex";
+  }
+>({
   preparationHost: ["claude", { option: true }],
-  origin: async ({ preparationHost }, use) => {
-    const origin = await startOrigin(
-      "terryyin/open-dough",
-      "open-dough",
-      preparationHost,
-    );
+  originRepository: queuedOriginRepository,
+  origin: async ({ originRepository, preparationHost }, use) => {
+    const origin = await startOrigin(originRepository, {
+      host: preparationHost,
+    });
     await use(origin);
     origin.cleanup();
   },

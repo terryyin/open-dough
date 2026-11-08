@@ -5,6 +5,7 @@
 // names the landing context, the attempt holds the capture authority, and the
 // instruction's reporting block tells the session where to supply it.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -29,7 +30,7 @@ test.describe("a claimed Story Branch Mode execution launch", () => {
   let server: DashboardServer;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     server = await startBoundary(origin);
   });
 

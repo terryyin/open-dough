@@ -8,6 +8,7 @@
 // The held-lock case observes the second accept reach the locked write through
 // a loader that marks the server's first refused lock acquisition.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -57,7 +58,7 @@ test.describe("cross-server accept of one story", () => {
   }
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     push = origin.holdPushes();
   });
 

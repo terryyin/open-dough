@@ -1,14 +1,13 @@
 // Published Done facts and semantic references only: the real range decides
 // what is shown and read. No local sessions or pre-expanded range are supplied.
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
-  publishedWithCatalog,
-  progressiveEntries,
-} from "./recentlyDoneProgressive.ts";
-import {
-  recordDependency,
-  publishDependencies,
-} from "./storyDependencyFixture.ts";
-import { writePlanning } from "./storyReadinessCli.ts";
+  queuedSeedWithDependencies,
+  storySeed,
+} from "../../tests/support/queued-repository.mjs";
+import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
+import { placedAt, progressiveEntries } from "./recentlyDoneProgressive.ts";
+import { agreement, consumer } from "./storyDependencyFixture.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
@@ -37,32 +36,57 @@ export const unlisted = {
 export const donePathsThrough = (count: number) =>
   doneEntries.slice(0, count).map(({ path }) => path);
 
-export async function publishDoneReferences(
-  origin: StartOrigin,
+// Done records for the retained stories and one completed outside the
+// retained window, placed before `now`; a seed for each referenced story; and
+// Story A waiting on each of them. With `omitDestination`, the far story's
+// done record is not published.
+function doneReferences(
+  now: number,
   { omitDestination = false } = {},
+): RevisionFacts {
+  const referenced = [farDone, nearDone, expiredDone, unlisted].map(
+    ({ identity, title }) =>
+      makeMe.aBacklogEntry
+        .with({
+          identity,
+          title,
+          href: `seeds/${identity.replace("#", ".md#")}`,
+        })
+        .please(),
+  );
+  return {
+    message: "Publish story dependency facts",
+    doneRecords: [
+      ...doneEntries.filter((entry) => !omitDestination || entry !== farDone),
+      expiredDone,
+    ].map(({ identity, title, place }) =>
+      makeMe.aDoneRecord
+        .with({
+          identity,
+          title,
+          completedAt: placedAt(now, place),
+          developer: "Terry Yin",
+        })
+        .please(),
+    ),
+    files: {
+      ...Object.fromEntries(
+        referenced.map((story) => [
+          `.planning/${story.href.split("#")[0]}`,
+          storySeed(story, "Published completed outcome."),
+        ]),
+      ),
+      ".planning/seeds/A.md": queuedSeedWithDependencies(
+        consumer,
+        referenced.map((supplier) => agreement({ supplier, state: "waiting" })),
+      ),
+    },
+  };
+}
+
+export function publishDoneReferences(
+  origin: StartOrigin,
+  options: { omitDestination?: boolean } = {},
 ) {
-  const files = publishedWithCatalog(Date.now(), [
-    ...doneEntries.filter((entry) => !omitDestination || entry !== farDone),
-    expiredDone,
-  ]);
-  for (const [path, text] of Object.entries(files)) {
-    if (path === ".planning/PRODUCT-BACKLOG.md") continue;
-    writePlanning(origin.project, path.replace(/^\.planning\//, ""), text);
-  }
-  for (const entry of [farDone, nearDone, expiredDone, unlisted]) {
-    const [seed, anchor] = entry.identity.split("#");
-    writePlanning(
-      origin.project,
-      `seeds/${seed}.md`,
-      `---\nid: ${seed}\n---\n\n# ${seed}\n\n<a id="${anchor}"></a>\n\n### ${entry.title}\n\n**Identity:** ${entry.identity}\n\nPublished completed outcome.\n`,
-    );
-    recordDependency(origin, {
-      supplier: {
-        identity: entry.identity,
-        href: `seeds/${seed}.md#${anchor}`,
-      },
-      state: "waiting",
-    });
-  }
-  return publishDependencies(origin);
+  return origin.publishRevision(doneReferences(Date.now(), options));
 }

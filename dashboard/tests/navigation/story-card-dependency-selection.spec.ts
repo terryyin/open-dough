@@ -3,6 +3,7 @@
 // story link opening its supplier's detail is in
 // ../stories/story-card-inspection.spec.ts.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
@@ -16,14 +17,25 @@ import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { pausePageClock } from "../autoRefreshJourney.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 
+// Story A waits on Story B and needs a decision about Story C, and is not
+// ready for an unrelated reason.
+test.use({
+  originRepository: queuedReadyRepository()
+    .withRevision(
+      "dependencies",
+      twoDependencies({
+        assessment: "not-ready",
+        reasons: ["Unrelated consumer design decision remains."],
+      }),
+    )
+    .please(),
+});
+
 test("a dependency disclosure and its explanation text do not change the selected story or open detail", async ({
   page,
   origin,
 }) => {
-  const revision = await twoDependencies(origin, {
-    assessment: "not-ready",
-    reasons: ["Unrelated consumer design decision remains."],
-  });
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,

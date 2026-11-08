@@ -1,5 +1,6 @@
 // Cases registered by ./feedback-maintenance-launch.spec.ts.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { launch, markDone } from "../agentLaunchBoundary.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { noConnection, publishMovingOrigin } from "../publishedOrigin.ts";
@@ -25,7 +26,7 @@ import {
 test("not yet due, turned off, no due block, or a failed read starts nothing and notifies nothing; the failed read shows in the read diagnostics", async ({
   github,
 }) => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const moving = await publishMovingOrigin(github);
   const server = await serverOn(origin, github);
   try {
@@ -87,7 +88,7 @@ test("not yet due, turned off, no due block, or a failed read starts nothing and
 test("a developer's open session with the cycle's invocation is the machine's feedback maintenance session: nothing more starts while it is open", async ({
   github,
 }) => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const moving = await publishMovingOrigin(github);
   pushWatchList(moving, watchListDue(dayFromToday(-1)));
   const server = await serverOn(origin, github);

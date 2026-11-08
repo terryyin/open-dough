@@ -38,7 +38,7 @@ test.describe("touch preparation help", () => {
     afterGitHubStops,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    const repo = buildOpenDoughReadinessRepo(afterGitHubStops);
+    const repo = await buildOpenDoughReadinessRepo(afterGitHubStops);
     const origin = await publishCommittedOrigin(page, {
       repoDir: repo.directory,
       revision: repo.revision,
@@ -84,7 +84,7 @@ for (const viewport of [
     page,
     afterGitHubStops,
   }) => {
-    const repo = buildOpenDoughReadinessRepo(afterGitHubStops);
+    const repo = await buildOpenDoughReadinessRepo(afterGitHubStops);
     const origin = await publishCommittedOrigin(page, {
       repoDir: repo.directory,
       revision: repo.revision,

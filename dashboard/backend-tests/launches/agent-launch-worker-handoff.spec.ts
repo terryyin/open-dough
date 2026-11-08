@@ -1,5 +1,6 @@
 // Hold real worker-file replacements to observe exclusion before spawn is
 // retained, and after child exit before the native worker is retained.
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -22,7 +23,7 @@ import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
 import { startOrigin } from "../../tests/support/startOrigin.ts";
 
 test("the persisted server worker protects initial preparation and the child-to-native write window", async () => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const hold = path.join(origin.machine, "hold-worker-note");
   const reached = path.join(origin.machine, "worker-note-held");
   const hook = fsPromisesHook(

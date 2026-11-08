@@ -11,24 +11,22 @@
 // fetched trunk, so its head is trunk's. An earlier story she closed stays
 // on trunk before the claim. Another developer can also rewrite the very
 // line her second commit changed. Its kept launch record names the worktree
-// (./storyLaunchRecord.ts).
+// (./storyLaunchRecord.ts). Specs start their origin from
+// `trunkModeRepository`, which holds trunk up to her claim.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
-import { rmSync } from "node:fs";
-import path from "node:path";
 import type { Page } from "@playwright/test";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
-import { renderPublishedBacklog } from "../../../tests/support/published-backlog.mjs";
+import {
+  queuedReadyRepository,
+  storyA,
+  storyB,
+} from "../../../tests/support/queued-repository.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
 import { originMain } from "./sessionDialog.ts";
-import {
-  otherQueuedIdentity,
-  queuedIdentity,
-  type StartOrigin,
-} from "./startOrigin.ts";
+import type { StartOrigin } from "./startOrigin.ts";
 import {
   authoredBy,
   commitAllAs,
@@ -45,30 +43,49 @@ import {
   writeAt,
 } from "./storyReviewWorktree.ts";
 
-// Yui-chan's profile on trunk naming the story she executes in Trunk Mode.
-function writeClaim(project: string, identity: string) {
-  writeAt(
-    project,
-    `.planning/${yui.path}`,
-    renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name: "Yui",
-          identity,
-          mode: "trunk",
-          branch: "origin/main",
-        })
-        .please(),
+// Yui-chan's profile naming the story she executes in Trunk Mode.
+const yuiExecuting = (identity: string) =>
+  makeMe.anAgentProfile
+    .executing({ name: "Yui", identity, mode: "trunk", branch: "origin/main" })
+    .please();
+
+const byYui = { author: { name: yui.agent, email: yui.email } };
+
+// Trunk up to Yui-chan's claim: `src/a.ts`, `src/b.ts` and `src/c.ts`, an
+// earlier story she took, changed and closed, and then her claim, which moves
+// Story A to Taken in Trunk Mode.
+export const trunkModeRepository = queuedReadyRepository()
+  .withRevision("trunk files", {
+    files: Object.fromEntries(
+      ["a", "b", "c"].map((word) => [`src/${word}.ts`, lines(word)]),
     ),
-  );
-}
+  })
+  .withRevision("take the earlier story", {
+    ...byYui,
+    agentProfiles: [yuiExecuting("SEED-OLD#old")],
+  })
+  .withRevision("earlier story", {
+    ...byYui,
+    files: { "old.md": "earlier story\n" },
+  })
+  .withRevision("close the earlier story", {
+    ...byYui,
+    remove: [`.planning/${yui.path}`],
+  })
+  .withRevision("take Story A", {
+    ...byYui,
+    backlog: { direction, taken: [storyA], queued: [storyB] },
+    agentProfiles: [yuiExecuting(storyA.identity)],
+  })
+  .please();
 
 // The worktree as the review's context line shows it.
 export const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
 
-// Story A's Trunk Mode worktree, with as many story commits published as
-// said. The first is `s1`, the first line of `src/a.ts`, followed on trunk
-// by `o1` changing `src/b.ts`, Mina-chan's `prep.md`, a merge Yui-chan
+// Story A's Trunk Mode worktree, on an origin started from
+// `trunkModeRepository`, with as many story commits published as said. The
+// first is `s1`, the first line of `src/a.ts`, followed on trunk by `o1`
+// changing `src/b.ts`, Mina-chan's `prep.md`, a merge Yui-chan
 // authored bringing `merged.md`, and `o2`, the last line of `src/a.ts`; the
 // second is `s2`, adding `d.md`. Either way `notes.md` is untracked and the
 // head is trunk's, which is returned.
@@ -77,38 +94,6 @@ export function trunkModeStory(
   { published }: { readonly published: 0 | 1 | 2 },
 ) {
   const project = origin.project;
-  for (const word of ["a", "b", "c"])
-    writeAt(project, `src/${word}.ts`, lines(word));
-  commitAllAs(project, "trunk files");
-
-  // An earlier story Yui-chan took, changed and closed.
-  writeClaim(project, "SEED-OLD#old");
-  commitAllAs(project, "take the earlier story", yui);
-  writeAt(project, "old.md", "earlier story\n");
-  commitAllAs(project, "earlier story", yui);
-  rmSync(path.join(project, `.planning/${yui.path}`));
-  commitAllAs(project, "close the earlier story", yui);
-
-  // The claim: Story A is Taken, by Yui-chan in Trunk Mode.
-  const taken = makeMe.aBacklogEntry
-    .with({ identity: queuedIdentity, title: "Story A", href: "seeds/A.md#a" })
-    .please();
-  const queued = makeMe.aBacklogEntry
-    .with({
-      identity: otherQueuedIdentity,
-      title: "Story B",
-      href: "seeds/B.md#b",
-    })
-    .please();
-  writeAt(
-    project,
-    ".planning/PRODUCT-BACKLOG.md",
-    renderPublishedBacklog({ taken: [taken], queued: [queued], direction }),
-  );
-  writeClaim(project, taken.identity);
-  commitAllAs(project, "take Story A", yui);
-  push(project);
-
   const workspace = addStoryWorktree(project);
   git(workspace, "config", "extensions.worktreeConfig", "true");
   git(workspace, "config", "--worktree", "author.name", yui.agent);

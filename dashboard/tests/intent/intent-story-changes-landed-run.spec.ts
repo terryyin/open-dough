@@ -28,6 +28,7 @@ import { capturedChoice } from "../support/oneShotReviewChoices.ts";
 import type { FakeCodex } from "../support/fakeCodex.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import type { StartOrigin } from "../support/startOrigin.ts";
+import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import {
   keepLaunchRecords,
   storyALaunchRecord,
@@ -128,11 +129,13 @@ test("a review whose workspace is gone shows its own landed run, which Intent sh
     throw new Error("No landed runs");
   // Story A is taken, and its workspace is gone before Intent reads it.
   publishIntentTrunk(origin.project);
-  await origin.takenByAnotherAgent();
-  rmSync(path.join(origin.machine, "another-agent-workspace"), {
-    recursive: true,
-    force: true,
+  const { workspace } = await origin.publishTake({
+    agent: "Yui",
+    story: storyA,
+    queued: [storyB],
+    mode: "story-branch",
   });
+  rmSync(workspace, { recursive: true, force: true });
   await openBacklog(page, origin);
   const { taken, intentChoice, intent } = parts(page);
   await taken

@@ -12,6 +12,7 @@
 // asserted only after the server has asked GitHub, or listed the sessions,
 // again, never after a sleep.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import type { Page } from "@playwright/test";
 import {
   attempts,
@@ -50,7 +51,7 @@ test("a reached due date starts one Feedback maintenance session in Open Dough's
   page,
   github,
 }) => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const moving = await publishMovingOrigin(github);
   const yesterday = dayFromToday(-1);
   const first = pushWatchList(moving, watchListDue(yesterday));
@@ -126,7 +127,7 @@ test("a reached due date starts one Feedback maintenance session in Open Dough's
 test("an attention report notifies once and keeps the session open with no second launch; ended and deleted without the date advancing, it is not launched again", async ({
   github,
 }) => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const moving = await publishMovingOrigin(github);
   pushWatchList(moving, watchListDue(dayFromToday(-1)));
   const server = await serverOn(origin, github);

@@ -27,9 +27,13 @@ import {
   openTaken,
   publishRewrittenLine,
   shownWorkspace,
+  trunkModeRepository,
   trunkModeStory,
 } from "../support/storyReviewTrunkMode.ts";
 import { branch, git } from "../support/storyReviewWorktree.ts";
+
+// Trunk up to Yui-chan's claim of Story A in Trunk Mode.
+test.use({ originRepository: trunkModeRepository });
 
 const flagged = "Modified src/c.ts, includes trunk's changes";
 

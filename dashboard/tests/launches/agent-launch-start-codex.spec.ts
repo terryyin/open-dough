@@ -11,7 +11,11 @@ import { shortRevision, expectSettledPage, parts } from "../dashboardPage.ts";
 import { test, expect, stored } from "../support/codexStart.ts";
 import { expectExecutionInput } from "../support/codexStartAssertions.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
-import { queuedIdentity } from "../support/startOrigin.ts";
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import {
+  changedReviewRevision,
+  queuedIdentity,
+} from "../support/startOrigin.ts";
 import {
   openUntilRead,
   reloadUntilRead,
@@ -19,6 +23,13 @@ import {
 } from "../pageRequestNotes.ts";
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
+
+// Story A's seed changed after its readiness review.
+test.use({
+  originRepository: queuedReadyRepository()
+    .withRevision("changed review", changedReviewRevision)
+    .please(),
+});
 
 test("Codex card start publishes one claim and retries its retained workspace before creating one conversation", async ({
   page,
@@ -28,7 +39,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
-  const original = await origin.publishChangedReview();
+  const original = (await origin.originGit("rev-parse", "main")).trim();
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: original,

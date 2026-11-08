@@ -34,7 +34,7 @@ test("story readiness reads preparation and progress accessibly", async ({
   page,
   afterGitHubStops,
 }) => {
-  const openDough = buildOpenDoughReadinessRepo(afterGitHubStops, {
+  const openDough = await buildOpenDoughReadinessRepo(afterGitHubStops, {
     canonicalOnlyQueued: true,
   });
   const openDoughOrigin = await publishCommittedOrigin(page, {
@@ -110,7 +110,7 @@ test("a focused queued plan link keeps focus while a new revision is read, and a
   page,
   afterGitHubStops,
 }) => {
-  const repo = buildOpenDoughReadinessRepo(afterGitHubStops, {
+  const repo = await buildOpenDoughReadinessRepo(afterGitHubStops, {
     canonicalOnlyQueued: true,
   });
   const origin = await publishCommittedOrigin(page, {

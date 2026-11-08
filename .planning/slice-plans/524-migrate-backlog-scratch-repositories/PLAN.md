@@ -36,8 +36,8 @@ Exclusions:
 - Skill tests under `src/skills` belong to
   clean-trunk and managed delivery (completed
   `SEED-262#migrate-clean-trunk-fixtures`),
-  dashboard helpers to
-  [dashboard start origins](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures),
+  dashboard helpers to dashboard start origins (completed
+  `SEED-262#migrate-dashboard-origin-fixtures`),
   and shell or native fixtures, including the shell-driven
   `story-dependencies-installed-observe.mjs`, to
   [shell release and native fixtures](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-shell-release-and-native-fixtures).

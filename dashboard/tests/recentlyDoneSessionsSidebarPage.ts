@@ -2,6 +2,7 @@
 // three-list room its journeys observe with the open list and Running Cursor
 // sessions. Seeds use the real machine store; destinations reuse PageFrame.
 import type { Locator, Page } from "@playwright/test";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
   agentLaunchEndpoint,
   recentlyDoneSessionsInitialLimit,
@@ -9,7 +10,6 @@ import {
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { sessionsAudienceParameter } from "../src/machineSessionsRevision.ts";
 import { sessionKey } from "../src/sessionReference.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
 import { chooseProject, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { describedBacklog } from "./describedRevisions.ts";

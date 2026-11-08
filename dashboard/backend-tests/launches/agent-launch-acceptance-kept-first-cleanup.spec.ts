@@ -39,8 +39,8 @@ for (const failure of ["server", "release"] as const) {
         ),
     );
     source = source.replace(
-      "origin = await startOrigin();",
-      `origin = await startOrigin();\n    writeFileSync(${JSON.stringify(machineFile)}, origin.machine);`,
+      "origin = await startOrigin(queuedReadyRepository().please());",
+      `origin = await startOrigin(queuedReadyRepository().please());\n    writeFileSync(${JSON.stringify(machineFile)}, origin.machine);`,
     );
     if (failure === "server") {
       source = source.replace(

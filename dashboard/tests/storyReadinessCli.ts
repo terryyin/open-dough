@@ -1,8 +1,8 @@
-// CLI and Git helpers that turn fixture records into a committed repository.
+// CLI and Git helpers that advance a readiness repository with recorded
+// preparation and path-specific commits.
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, rmSync, mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { recordPreparationArgs } from "../../tests/support/story-preparation.mjs";
 import { repoRoot } from "./support/repositoryRoot.ts";
@@ -65,20 +65,6 @@ export function recordAssessed(
   });
 }
 
-export function commitAll(directory: string, message: string): string {
-  execFileSync(
-    "git",
-    ["-C", directory, "init", "--quiet", "--initial-branch=main"],
-    { encoding: "utf8" },
-  );
-  return commitChanges(directory, message);
-}
-
-export function commitChanges(directory: string, message: string): string {
-  execFileSync("git", ["-C", directory, "add", "-A"], { encoding: "utf8" });
-  return commitIndex(directory, message);
-}
-
 export function commitPaths(
   directory: string,
   repositoryPaths: readonly string[],
@@ -109,15 +95,4 @@ function commitIndex(directory: string, message: string): string {
   return execFileSync("git", ["-C", directory, "rev-parse", "HEAD"], {
     encoding: "utf8",
   }).trim();
-}
-
-export function scratchRepo(
-  after: (cleanup: () => void) => void,
-  prefix: string,
-) {
-  const directory = mkdtempSync(join(tmpdir(), prefix));
-  after(() => {
-    rmSync(directory, { recursive: true, force: true });
-  });
-  return directory;
 }
