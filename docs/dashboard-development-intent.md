@@ -61,7 +61,9 @@ does not move. The sort is kept in memory with Intent's reading place, never
 on the URL or in storage: drilling down or switching to Development and
 back keeps it, and a sorted column the next
 Summary table lacks (a timing column or **Change** between one run's figures
-and a story comparison) gives way to the browser's order. With a story selected, the same Summary labels that story's CI timing
+and a story comparison) gives way to the browser's order there without being
+lost: a later table with that column, such as the comparison once it is read,
+is sorted by it again. With a story selected, the same Summary labels that story's CI timing
 comparison the same way: `Provisional` while the story is Taken; **Baseline**,
 **Branch** and **Landed**, each with the requested revision's status word
 (`Skipped`, `Cancelled`, `No build`) before the short revision whose proof is

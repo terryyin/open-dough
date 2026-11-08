@@ -203,8 +203,12 @@ names and full words matches.
 
 ### 2. A Summary sort falls back without being lost
 Type: Behavior
-Status: planned
-Proof: as mapped above for F2.
+Status: done
+Proof: as mapped above for F2. Accepted 2026-11-08: the new kept-sort step
+in `intent-summary-story-comparison-sort.spec.ts` failed before the change
+(`aria-sort` empty) and passes after it. The gate's 47 spec files passed (111
+passed, 0 flaky), the four units passed quietly, and `npm run
+typecheck:dashboard` and `npm run lint` passed.
 
 Behavior: a story comparison Summary sorted by **Landed** descending → the
 developer selects a story whose Summary lacks **Landed**, or the comparison

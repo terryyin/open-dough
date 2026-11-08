@@ -6,8 +6,9 @@
 // it, and the sort kept while drilling down; at 200% zoom the table with its
 // Change column still fits its box. A sort by a column the next Summary table
 // lacks gives way to the tree's order, either way between a comparison and one
-// run's figures
-// (SEED-259#scan-intent-ci-summaries). Rows and fixture:
+// run's figures, without being lost: it orders the rows again when a table
+// with that column returns (SEED-259#scan-intent-ci-summaries,
+// SEED-259#correct-scan-intent-ci-summaries). Rows and fixture:
 // ../support/summaryComparisonExpectedRows.ts. One run's Summary sorting:
 // ./intent-summary-ci-proof-sort.spec.ts.
 
@@ -39,6 +40,24 @@ import {
 const entry = "dashboard/tests";
 // The entry's children in the tree's order, as the comparison names them.
 const entryChildren = entryComparisonRows.slice(1).map(([name]) => name);
+// The entry's children by their landed time, descending, gaps after them.
+const landedDescending = [
+  "folder/",
+  "renamed.spec.ts",
+  "root.spec.ts",
+  "added.spec.ts",
+  "gone.spec.ts",
+  "later.spec.ts",
+];
+// Story B's one-run children in the tree's order: trunk after Story A, so its
+// removed file is gone.
+const storyBChildren = [
+  "folder/",
+  "added.spec.ts",
+  "later.spec.ts",
+  "renamed.spec.ts",
+  "root.spec.ts",
+];
 
 // Leave Intent, select the story titled TITLE in COLUMN, and come back.
 async function selectStoryFromDevelopment(
@@ -61,7 +80,7 @@ async function selectStoryFromDevelopment(
 const unsorted = (table: Locator) =>
   expect(table.locator("th[aria-sort]")).toHaveCount(0);
 
-test("a story comparison Summary sorts by Change with unchanged rows last and by Landed with gaps last, keeps the sort while drilling down, and a column the next table lacks gives way to the tree's order", async ({
+test("a story comparison Summary sorts by Change with unchanged rows last and by Landed with gaps last, keeps the sort while drilling down, and a column the next table lacks gives way to the tree's order without losing the sort", async ({
   page,
   origin,
 }) => {
@@ -101,14 +120,7 @@ test("a story comparison Summary sorts by Change with unchanged rows last and by
     await landed.click();
     await landed.click();
     await expectSortedBy(table, "Landed", "descending");
-    await expect(rowNames(table)).toHaveText([
-      "folder/",
-      "renamed.spec.ts",
-      "root.spec.ts",
-      "added.spec.ts",
-      "gone.spec.ts",
-      "later.spec.ts",
-    ]);
+    await expect(rowNames(table)).toHaveText(landedDescending);
     await expect(
       scopeFigures(summary, entry).getByRole("definition"),
     ).toHaveText([...(entryComparisonRows[0] ?? []).slice(2)]);
@@ -124,21 +136,26 @@ test("a story comparison Summary sorts by Change with unchanged rows last and by
     await expectSortedBy(scopeTable(summary, own[0]), "Landed", "descending");
   });
 
-  await test.step("one run's Summary lacks Landed, so it shows the tree's order; its Test execution time sort gives way again in the comparison", async () => {
+  await test.step("one run's Summary lacks Landed, so it shows the tree's order; back in the comparison, the kept sort orders the rows by Landed descending again", async () => {
     await selectStoryFromDevelopment(page, "Backlog", "Story B");
     await openSummary(intent, entry);
     await expect(
       summary.getByRole("columnheader", { name: "Landed" }),
     ).toHaveCount(0);
     await unsorted(table);
-    // Trunk after the story: its removed file is gone.
-    await expect(rowNames(table)).toHaveText([
-      "folder/",
-      "added.spec.ts",
-      "later.spec.ts",
-      "renamed.spec.ts",
-      "root.spec.ts",
-    ]);
+    await expect(rowNames(table)).toHaveText(storyBChildren);
+
+    await selectStoryFromDevelopment(page, "Recently done", "Story A");
+    await openSummaryComparison(intent, entry);
+    await expectSortedBy(table, "Landed", "descending");
+    await expect(rowNames(table)).toHaveText(landedDescending);
+  });
+
+  await test.step("a Test execution time sort chosen in one run's Summary gives way to the tree's order in the comparison", async () => {
+    await selectStoryFromDevelopment(page, "Backlog", "Story B");
+    await openSummary(intent, entry);
+    await unsorted(table);
+    await expect(rowNames(table)).toHaveText(storyBChildren);
     await sortButton(table, "Test execution time").click();
     await expectSortedBy(table, "Test execution time", "ascending");
 
