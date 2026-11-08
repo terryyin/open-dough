@@ -8,10 +8,7 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../tests/support/frontendApp.ts";
-import {
-  emptyMachineAnswer,
-  putFrontendMachine,
-} from "../tests/support/frontendServiceState.ts";
+import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "../tests/support/frontendServiceSubstitutes.ts";
 import { focusByTouch, tapTerminalKey } from "../tests/touchTerminalPage.ts";
 import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
@@ -36,32 +33,26 @@ test("phone Paste shows the server's oversized image refusal and keeps the termi
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(frontendServices, {
-    ...emptyMachineAnswer(),
-    records: [
-      {
-        request: {
-          source: "open-dough",
-          host: "claude",
-          workflow: "ad-hoc",
-          title,
-          instruction: "paste",
-        },
-        session: {
-          host: "claude",
-          sessionId: "paste-session-1",
-          shortId: "paste01",
-          name: title,
-        },
-        launchedAt: "2026-10-01T00:00:00.000Z",
-        sessionState: {
-          kind: "available",
-          availability: "loaded",
-          activity: "working",
-        },
-      },
-    ],
-  });
+  putFrontendMachine(
+    frontendServices,
+    makeMe.aMachineAnswer
+      .observing(
+        makeMe.anObservedLaunch
+          .of(
+            makeMe.aLaunchRecord
+              .adHoc({ instruction: "paste", title })
+              .inClaudeSession({
+                sessionId: "paste-session-1",
+                shortId: "paste01",
+              })
+              .launchedAt("2026-10-01T00:00:00.000Z")
+              .please(),
+          )
+          .withSessionState(makeMe.aSessionState.loaded("working").please())
+          .please(),
+      )
+      .please(),
+  );
   const { sent } = await installAttachedTerminalSubstitute(page, {
     attachedLine: "attached paste01\r\nClaude Code\r\n",
   });
@@ -122,29 +113,29 @@ test("phone Paste while the terminal is still connecting says so, sends nothing,
   frontendServices,
 }) => {
   const connecting = "Connecting clipboard session";
-  putFrontendMachine(frontendServices, {
-    ...emptyMachineAnswer(),
-    records: [
-      {
-        ...makeMe.aLaunchRecord
-          .executing({
-            identity: "SEED-901#connecting-paste",
-            title: connecting,
-          })
-          .onStoryBranch({
-            workspace: "/work/connecting-paste",
-            branch: "claude/connecting-paste",
-          })
-          .inClaudeSession({ sessionId: "connecting-1", shortId: "conn01" })
+  putFrontendMachine(
+    frontendServices,
+    makeMe.aMachineAnswer
+      .observing(
+        makeMe.anObservedLaunch
+          .of(
+            makeMe.aLaunchRecord
+              .executing({
+                identity: "SEED-901#connecting-paste",
+                title: connecting,
+              })
+              .onStoryBranch({
+                workspace: "/work/connecting-paste",
+                branch: "claude/connecting-paste",
+              })
+              .inClaudeSession({ sessionId: "connecting-1", shortId: "conn01" })
+              .please(),
+          )
+          .withSessionState(makeMe.aSessionState.loaded("working").please())
           .please(),
-        sessionState: {
-          kind: "available",
-          availability: "loaded",
-          activity: "working",
-        },
-      },
-    ],
-  });
+      )
+      .please(),
+  );
   let open = () => {};
   const opens = new Promise<void>((resolve) => {
     open = resolve;

@@ -4,6 +4,7 @@
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { HostStatus } from "../../src/hostStatus.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { notRefinedStory, readyStory, takenStory } from "../launchJourney.ts";
 import { openDough, openDoughSettings } from "../intentCodeBrowseFixtures.ts";
 import {
@@ -44,45 +45,6 @@ Frontend substitute direction.
 - [${readyStory}](seeds/SEED-B-ready.md#b) — SEED-B#b
 - [${notRefinedStory}](seeds/SEED-C-queued.md#c) — SEED-C#c
 `;
-
-export const emptyMachineAnswer = (): MachineAnswer => ({
-  hostOperations: {
-    claude: {
-      attach: true,
-      stop: true,
-      doneStop: true,
-      localDone: false,
-      launchedSessions: true,
-    },
-    codex: {
-      attach: true,
-      stop: true,
-      doneStop: false,
-      localDone: false,
-      launchedSessions: true,
-    },
-    cursor: {
-      attach: true,
-      stop: true,
-      doneStop: false,
-      localDone: true,
-      launchedSessions: true,
-    },
-  },
-  attempts: [],
-  attemptsReadable: true,
-  records: [],
-  creations: [],
-  alerts: { available: false, reason: "Alerts are unused in frontend tests." },
-  establishing: [],
-  establishingPreparation: [],
-  keptStarts: [],
-  starts: [],
-  definitions: [],
-  establishingHosts: [],
-  sessionPolicies: [],
-  workspaces: [],
-});
 
 export type FrontendServiceState = {
   projects: PublishedSource[];
@@ -130,7 +92,7 @@ export function defaultFrontendServiceState(
       revision: frontendRevision,
       candidates: openDoughCandidatesRecord,
     },
-    machine: options.machine ?? emptyMachineAnswer(),
+    machine: options.machine ?? makeMe.aMachineAnswer.please(),
     hostStatus: { cpuPercent: 12, freeBytes: 64_000_000_000 },
     hostOptions: { models: [] },
   };

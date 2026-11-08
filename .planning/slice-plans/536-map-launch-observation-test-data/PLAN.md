@@ -180,7 +180,7 @@ fixed, so a store holding several attempts states each `.withId`.
 
 ### 4. Frontend substitutes compose the machine's answer
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 3 at the browser boundary and the waiting-session sidebar proof. Run `npm run test:dashboard -- dashboard/frontend-tests` for the shared substitute's consumers and the trace's other callers.
 
 A frontend answer with a running owned attempt and no session shows startup
@@ -191,8 +191,32 @@ session observations and attempts already available through MakeMe. Preserve
 the independent controls and counts and keep intentionally partial or
 refused wire responses explicit.
 
+Accepted: `makeMe.aMachineAnswer` (`tests/support/machineAnswerTestData.mjs`)
+composes observed launches and attempt observations into a typed
+`MachineAnswer`, deriving the establishing facts from one stated fact.
+`emptyMachineAnswer` is deleted; five frontend specs and the creation
+recovery backend spec compose answers through it, with old and new values
+deep-equal through `launchRecordsSchema` apart from an unread alerts reason
+and unstated attempt IDs. The 23 frontend tests passed; mutating running,
+establishing or waiting fails them. The browser never reads `owned`, so G1
+places that proof at the server. The sweep found no other arranged
+observation or attempt factory. No frontend test needs an unchanged or
+history envelope, so none was added; a frontend test that opens a retained
+session will need one. Before delivery, `caffeinate -s -i npm run
+test:dashboard` passed 2,241 with one skip, and `npm test` passed quietly,
+on AC power at load 4.7–10.
+
 ## Concern evidence
 
 Slice-plan refinement was not needed. Each slice pairs conversion with its
 observing proof, and the machine-answer slice reuses earlier delivered
 builders. This review found no remaining slice-specific concern.
+
+
+## Story obligations
+
+### G1. Browser boundary cannot discriminate attempt ownership
+Reported: slice 4 — "slice 4 — "M2: .owned(true) → false still passes. The browser never reads owned""
+Story clause: "A story has an accepted attempt owned by the answering server and still running, with no launched outcome or kept session"
+Disposition: proved by slice 4: dashboard/frontend-tests/startup-host-words.spec.ts arranges owned(true) running(true) with no record and observes startup words and disabled Starts (running mutation fails it); the answering server's ownership is observed where it is computed, dashboard/backend-tests/launches/agent-launch-acceptance.spec.ts expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]) and owned:false for another server's attempt
+Commitment: E3

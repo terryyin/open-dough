@@ -6,6 +6,7 @@ import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
+import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
 import {
   ObservedLaunchBuilder,
   SessionStateBuilder,
@@ -142,6 +143,9 @@ export const makeMe = {
   },
   get anAttemptObservation() {
     return new AttemptObservationBuilder();
+  },
+  get aMachineAnswer() {
+    return new MachineAnswerBuilder();
   },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();
