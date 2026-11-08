@@ -220,3 +220,14 @@ Reported: slice 4 — "slice 4 — "M2: .owned(true) → false still passes. The
 Story clause: "A story has an accepted attempt owned by the answering server and still running, with no launched outcome or kept session"
 Disposition: proved by slice 4: dashboard/frontend-tests/startup-host-words.spec.ts arranges owned(true) running(true) with no record and observes startup words and disabled Starts (running mutation fails it); the answering server's ownership is observed where it is computed, dashboard/backend-tests/launches/agent-launch-acceptance.spec.ts expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]) and owned:false for another server's attempt
 Commitment: E3
+
+## Execution complete
+
+Product advice: no change. The four slices give backend rules, passive
+reads, accepted attempts and frontend substitutes one vocabulary through
+`makeMe.aSessionState`, `anObservedLaunch`, `anAcceptedAttempt`,
+`anAttemptObservation` and `aMachineAnswer`. The remaining SEED-261 stories
+keep their order. The kept record story's plan should know that
+`attemptAt` in `dashboard/tests/support/sessionsReplayRecords.ts` already
+builds through MakeMe, and that a frontend test opening a retained session
+will need a real history envelope from the substitute.
