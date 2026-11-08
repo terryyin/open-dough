@@ -33,8 +33,14 @@ import {
   type OpenSession,
 } from "../storyCardOpenSessions.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
+import { expectCursorRunnerStandIn } from "../support/cursorRunnerJourney.ts";
 
-test.use({ projectFolders: ["open-dough", "doughnut"] });
+// Cursor operations are outside this journey's proof; the harness
+// stand-in skips an unused real runner while keeping the built preview.
+test.use({
+  projectFolders: ["open-dough", "doughnut"],
+  cursorRunner: "stand-in",
+});
 
 const one = "1 session needs attention";
 
@@ -95,6 +101,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     );
     const expectCounted = attentionCountsOn(board, card);
     await expectCounted({});
+    expectCursorRunnerStandIn(dashboard.home);
     const facts = await publishedFactsOf(card(readyStory));
     await markNotReloaded(page);
 

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_reduce-private-fixture-lifecycle-cost.json",
+      "identity": "SEED-262#reduce-private-fixture-lifecycle-cost",
+      "completedAt": "2026-11-08T05:01:47.389Z",
+      "blob": "00a8108383c5a33225d884fdf612c409d5693c80"
+    },
+    {
       "fileName": "SEED-267_preserve-large-ci-proof-reports.json",
       "identity": "SEED-267#preserve-large-ci-proof-reports",
       "completedAt": "2026-11-08T04:24:08.195Z",

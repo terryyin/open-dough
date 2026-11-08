@@ -4,6 +4,8 @@ import type { FakeCodex } from "./fakeCodex.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import type { DashboardServerMode } from "./serverAddress.ts";
 
+export type DashboardCursorRunner = "real" | "stand-in";
+
 export type DashboardServerOptions = FakeClaudeOptions & {
   // `boundary` starts the local boundaries alone, on a plain HTTP server,
   // for a spec that never opens a page (../../backend-tests/); `dev` and `preview`
@@ -52,4 +54,8 @@ export type DashboardServerOptions = FakeClaudeOptions & {
   // This port, which must be free, instead of any free one: a server
   // restarted on a closed one's port answers the page that server opened.
   readonly port?: number | undefined;
+  // `stand-in` supplies an accepting Cursor address without a real runner
+  // for checks that do not prove Cursor operations. Real runner is the
+  // default. Caller-owned restart machines stay on the real route.
+  readonly cursorRunner?: DashboardCursorRunner;
 };

@@ -24,6 +24,7 @@ import type { FakeCodex } from "./support/fakeCodex.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
+  type DashboardCursorRunner,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
 import {
@@ -118,6 +119,9 @@ export const test = base.extend<{
   // Whether the journey runs the server's reuse-window clock itself
   // (`dashboard.advanceObservationClock`); harness meaning on `startDashboardServer`.
   observationClock: boolean;
+  // `stand-in` when Cursor operations are outside the proof; default `real`.
+  // Same boundary as `startDashboardServer`'s `cursorRunner` option.
+  cursorRunner: DashboardCursorRunner;
   serverMode: FixtureServerMode;
   // When true (the default), the context pre-holds both stream slots so
   // existing check journeys keep proving check delivery. Stream journeys set
@@ -137,6 +141,7 @@ export const test = base.extend<{
   pathPrefix: [undefined, { option: true }],
   revisionCheckReuseMs: [undefined, { option: true }],
   observationClock: [false, { option: true }],
+  cursorRunner: ["real", { option: true }],
   serverMode: ["preview", { option: true }],
   preholdRevisionStreamSlots: [true, { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
@@ -170,6 +175,7 @@ export const test = base.extend<{
       pathPrefix,
       revisionCheckReuseMs,
       observationClock,
+      cursorRunner,
       serverMode,
     },
     use,
@@ -184,6 +190,7 @@ export const test = base.extend<{
       codexProtocol,
       revisionCheckReuseMs,
       observationClock,
+      cursorRunner,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
       extraEnv: fixtureExtraEnv(extraEnv, startTimeoutMs),
     });
