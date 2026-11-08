@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Build dashboard test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures) — SEED-262#migrate-dashboard-origin-fixtures ([plan](slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md))
-- [State each repository description fact once and keep native preparation evidence MakeMe-free](seeds/SEED-262-faster-dashboard-test-feedback.md#tighten-repository-description-facts) — SEED-262#tighten-repository-description-facts ([plan](slice-plans/532-tighten-repository-description-facts/PLAN.md))
 
 ## Backlog list
 
