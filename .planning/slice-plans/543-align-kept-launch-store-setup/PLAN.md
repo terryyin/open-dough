@@ -2,6 +2,8 @@
 
 **Source:** [Keep one launch store vocabulary and coherent kept records in dashboard tests](../../seeds/SEED-261-share-domain-test-data.md#align-kept-launch-store-setup)
 
+**Source review:** [Source-only commitments](source-review.md)
+
 **Identity:** SEED-261#align-kept-launch-store-setup
 
 ## Provenance and findings
@@ -35,13 +37,16 @@ commits on claim `e75b693ab`: `681a9d6f8`, `fef192f3d`, `737f509fb`,
    about six files; `keepLaunchStoreText` directly in
    `agent-launch-codex-creation.spec.ts`, `production-watcher-updates.spec.ts`
    and `agent-launch-held-revision-after-action.spec.ts`).
+4. At `cf709170a`, `final-report-admission.spec.ts` still derives Claude and
+   Cursor fixtures from a retained Codex launch. Their requests retain the
+   Codex host even though their sessions name a different host. The completion
+   and landing story has closed, and the developer added this cleanup to 543.
 
 ## Goal and scope
 
 Maintainers reading dashboard tests find the kept launch store written and
-read through one harness owner with one name per operation, and no test
-outside the sibling stories' setup keeps a launch the dashboard would never
-record.
+read through one harness owner with one name per operation. The avatar and
+final report admission tests keep records the dashboard can record.
 
 Preserved: every assertion's discriminating check and all product
 behavior; exact, malformed, legacy and unreadable store text written
@@ -52,11 +57,10 @@ Excluded (reasoned no-change or owned elsewhere):
 
 - `recently-done-sessions-sidebar-projects.spec.ts` keeps its dedicated E1
   case as the key-example proof.
-- Host-mismatch setup in `final-report-admission.spec.ts` and
-  `agent-terminal-codex.spec.ts`, the Codex cast in
-  `project-restored-session.spec.ts`, and `oneShotReviewChoices` legacy
-  belong to the sibling stories; the reviewed story's wrap-up hands them
-  over.
+- Host setup in `agent-terminal-codex.spec.ts` and the legacy reporting setup
+  in `oneShotReviewChoices` stay outside this correction. The closed host
+  continuation work already removed the Codex cast in
+  `project-restored-session.spec.ts`. Its store reader remains in slice 2.
 - The opt-in `sessions-replay.spec.ts` timeout override stays (plan 534 G1).
 - Sibling-family helpers keep their store code for their stories:
   `support/codexLaunch.ts`, `support/cursorStart.ts`,
@@ -96,6 +100,12 @@ Excluded (reasoned no-change or owned elsewhere):
   "Refinement session"), written independently at the call site. Only this
   literal follows the coherent record; every portrait, size, position and
   identity assertion stays as is.
+- In final report admission, keep the real retained Codex launch for native
+  history. Build the Claude launch with its own session ID, a saved completion,
+  and no established workspace. Build the Cursor launches with their own
+  session IDs, saved workspace and resume details, and the existing present,
+  empty, absent and closure-evidence variants. Keep the wrong-host request
+  against the Codex ID and all assertions exactly as written.
 - No MakeMe builder change is needed (premise 1). If one turns out to be
   needed, run `npm run typecheck:dashboard` and the full suites named below,
   because `tests/support/makeMe.mjs` is loaded by every runner.
@@ -110,6 +120,7 @@ Excluded (reasoned no-change or owned elsewhere):
 | A coherent kept execution or refinement record of the Taken story, keeping the server-written Claude session id and launch time, attaches its terminal and shows the agent's portrait with the same portrait, size and position checks | `npm run test:dashboard -- dashboard/tests/terminals/agent-terminal-avatar.spec.ts` | 2026-11-09 at `3e177c0ef`: a scratch copy of the spec replaced `establish` with the builder record above (`executing`/`refining` + `onStoryBranch({ workspace, branch, agent })` + `inClaudeSession({ sessionId })` + `launchedAt(kept)`) and expected rows "See who owns Taken work" / "Execution session" or "Refinement session"; ran with `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run test:dashboard -- <copy> <original> --reporter=list --workers=2` beside the original; scratch removed | Both passed (5.1 s, 5.2 s). Settled; no builder change needed. |
 | `launchStoreFile` yields the exact path each hand-built form names | Every converted reader in slice 2 | 2026-11-09 at `3e177c0ef`: `node --input-type=module` importing `launchStore.ts` and `machineLaunchRecords.ts`, comparing `launchStoreFile(h)` and `launchStoreFile({ home: h })` with `path.join(h, ".open-dough/dashboard/agent-launches.json")`, the three-segment join and the template-string form, and `launchStoreFile(machineHome(m))` with `path.join(m, "home/.open-dough/dashboard/agent-launches.json")` | All four equal. Settled. |
 | Removing the forwarders leaves no unseen consumer | Slice 2's forwarder deletion | `npm run typecheck:dashboard` (`tsc --build dashboard/tsconfig.json`) covers `tests`, `frontend-tests` and `backend-tests` (`dashboard/tsconfig.node.json`), so every importer fails to compile until converted; the JavaScript `fixtures/fake-cursor` imports no test module | Settled by the slice's own typecheck gate. |
+| The wrong-host rejection and the unsupported-reader response depend on different facts | `/__agent-launch/result` with the existing requests in `final-report-admission.spec.ts` | 2026-11-09 in the owned preparation checkout at `28f90f8b0`: temporarily replaced the copied records with the Claude and Cursor MakeMe records and ran `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES PATH=/opt/homebrew/bin:$PATH caffeinate -s -i npm run test:dashboard -- 'backend-tests/sessions/final-report-admission\.spec\.ts$' --reporter=list`. The one selected spec passed in Chromium with its original assertions and requests. Scratch edits were restored. | Settled. Slice 3 repeats the proof on the delivered fixture. |
 
 ## Proof and local gates
 
@@ -200,9 +211,18 @@ Only the store path or read changes in sibling-family specs; their setup
 stays for their stories. Delete a local `recordFile`/`storeFile` helper
 once it only restates `launchStoreFile`.
 
+### 3. Final report admission keeps records for the hosts it exercises
+Type: Behavior
+Status: planned
+Proof: `dashboard/backend-tests/sessions/final-report-admission.spec.ts` passes with every existing assertion unchanged, including wrong-host rejection, unsupported Claude reads, all Cursor report and closure cases, and the Codex native-read checks; `npm run typecheck:dashboard`.
+
+Replace the copied Codex records in this spec with coherent Claude and
+Cursor `makeMe.aLaunchRecord` records. Preserve the fixture facts from the
+decision above and write the records through the store harness. Keep the
+actual Codex launch and its native-history setup.
+
 ## Concern evidence
 
-Slice-plan refinement was not needed: two slices, each with one proof loop;
-the Behavior slice makes the one incoherent case coherent, and the Structure
-slice removes the second vocabulary without changing any record. This
-review found no remaining slice-specific concern.
+The avatar and store boundaries remain useful on their own. Final report
+admission has a separate focused proof loop and leaves both earlier slices
+recoverable. All three slices fit their existing focused test gates.

@@ -157,7 +157,7 @@ consumers. No calibrated story effort bands are established.
 
 **Identity:** SEED-261#align-kept-launch-store-setup
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/543-align-kept-launch-store-setup/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9ce295d450793e951fbf3c67c86e844d1f4cea5215164331252f17ba4738e700","plan":"ab0277ad1e6f3b472089a0b84e5b96f5a6544dd767fc130e99d555407b74113d"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/543-align-kept-launch-store-setup/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"64e376709a3f4edb1dcbbaf5af6ee5df8f85df4af78a7abe56754296d3ed1090","plan":"2b31fbcb9c082a00d29b7700a2b7c35c27dafd87198ddae0e391536f24531047"}}
 ```
 
 Correction of SEED-261#map-launch-and-session-test-data
@@ -166,9 +166,9 @@ Correction of SEED-261#map-launch-and-session-test-data
 #### Goal
 
 Maintainers reading dashboard tests find the machine launch store written and
-read through one harness owner, with one name for each operation, and no test
-outside the sibling stories' setup keeps a launch the dashboard would never
-record.
+read through one harness owner, with one name for each operation. The terminal
+header portrait and final report admission tests keep launches the dashboard
+can record.
 
 #### Scope
 
@@ -179,6 +179,9 @@ record.
 - The terminal header portrait case keeps a story's execution or refinement
   record naming its agent, not an ad hoc record given a story's start or
   preparation.
+- Final report admission keeps coherent Claude and Cursor launch records built
+  through MakeMe. The wrong-host request and all existing admission, report,
+  closure-evidence, and native-read assertions stay intact.
 - Assertions catch the same failures, and product behavior does not change.
 - Plan: [543-align-kept-launch-store-setup](../slice-plans/543-align-kept-launch-store-setup/PLAN.md)
 
