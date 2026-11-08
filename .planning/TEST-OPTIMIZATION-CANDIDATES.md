@@ -254,8 +254,8 @@ None.
   can seed native listings and persisted open launch records. The launch-dialog
   journey already owns coverage of starting from a card.
 - **Disposition / rationale:** the shared repository description and
-  materializer supply the baseline for the remaining reuse work.
-  [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories)
+  materializer supplied the baseline for the reuse work, which now prepares
+  the story-columns history once per run (`tests/support/repository-snapshot.mjs`).
   The launch cost is gone: both cases now open with their sessions already
   kept and listed (`dashboard/tests/storyCardOpenSessions.ts`), sending no
   Start and launching nothing. That arrangement measured 0.59–0.61s per case

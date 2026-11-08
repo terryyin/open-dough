@@ -43,9 +43,10 @@ Exclusions:
   [shell release and native fixtures](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-shell-release-and-native-fixtures).
 - The done-record case that runs `complete` outside any Git repository keeps
   its scratch project. It has no repository to describe.
-- Caching beyond the materializer's per-process reuse belongs to
-  [faster Git fixture construction](../../seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories).
-  The description gains no branch or merge model.
+- Caching beyond the materializer's per-process reuse is the run-prepared
+  snapshot the materializer already copies
+  (`tests/support/repository-snapshot.mjs`). The description gains no branch
+  or merge model.
 
 The story records a blocking dependency on
 [the shared repository builder](../../../tests/support/repository-fixture.mjs).

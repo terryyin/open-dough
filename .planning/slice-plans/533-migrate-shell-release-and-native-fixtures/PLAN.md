@@ -38,8 +38,8 @@ Exclusions:
   changes a check makes after the source is built, such as moving
   `BRANCH_HEAD`.
 - No branch or merge model in the description, and no caching beyond
-  building in place
-  ([faster Git fixture construction](../../seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories)).
+  building in place and the run-prepared snapshot the materializer already
+  copies (`tests/support/repository-snapshot.mjs`).
 
 ## Current decisions
 

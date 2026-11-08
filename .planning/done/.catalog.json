@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_reuse-immutable-git-histories.json",
+      "identity": "SEED-262#reuse-immutable-git-histories",
+      "completedAt": "2026-11-08T17:14:35.036Z",
+      "blob": "20fb9290bda21550db9336c1d761980fe3a165a5"
+    },
+    {
       "fileName": "SEED-262_migrate-dashboard-origin-fixtures.json",
       "identity": "SEED-262#migrate-dashboard-origin-fixtures",
       "completedAt": "2026-11-08T13:07:31.452Z",
