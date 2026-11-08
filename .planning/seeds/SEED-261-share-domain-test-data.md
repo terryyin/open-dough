@@ -43,8 +43,12 @@ domain responsibilities. Actual file and transport forms keep their product
 encoders and schemas. A representation that exists only because a suite invented
 it should be removed or aligned with its authoritative product shape.
 
-Start the shared library with the agent profile builder needed by the pilot.
-Likely public names include `anAgentProfile`, `aBacklogEntry`, `aStoryPlan`,
+The shared library starts with [`anAgentProfile`](../../tests/support/makeMe.mjs),
+which one `@ts-check` module serves unchanged to `node:test`, Playwright browser
+fixtures and backend specs. Add a builder variant, such as a story-branch
+execution, only with the converting story's consumer, and prove rendered bytes
+against the replaced literals before relying on unchanged assertions. Further
+likely public names include `aBacklogEntry`, `aStoryPlan`,
 `aLaunchRecord`, `aSessionObservation`, `aCiProofFragment`, and `aRelease`.
 Names follow the actual product concept. For example, a live observation can
 compose a launch record and its state, and an ordinary installation can start
@@ -138,14 +142,13 @@ These boundaries apply the current accepted decisions for
 [release identity](../../docs/adrs/0003-tagged-release-versioning-accepted.md),
 [installation ownership](../../docs/adrs/0004-client-installation-and-update-accepted.md),
 and [cross-tool validation](../../docs/adrs/0005-cross-tool-validation-accepted.md).
-Assess the pilot against the existing proof and maintainer effort under
+Assess each conversion against the existing proof and maintainer effort under
 [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md). A runtime
 gain needs measurement.
 
 ## Story decomposition
 
-Effort is relative. The pilot is a smaller cross-entry change. The four
-conversion blocks are large, with scope and sizing to refine against real
+Effort is relative. The four conversion blocks are large, with scope and sizing to refine against real
 consumers. No calibrated story effort bands are established.
 
 <a id="share-published-agent-profile-builders"></a>
@@ -343,9 +346,8 @@ domain constructors or builders without a useful test consumer.
 
 ## Ordering and scope
 
-Queue the pilot first, then published work, local launch and session work,
-Intent and CI Proof, and release and native checks. The first story supplies
-experience with a complete cross-entry change. The later stories are organized
+Queue published work first, then local launch and session work, Intent and CI
+Proof, and release and native checks. The stories are organized
 by the domain facts they own, so each can finish its proof without waiting for
 an entire runner or layer to migrate. Queue order expresses Terry's requested
 priority and learning sequence. No blocking supplier agreement has been
