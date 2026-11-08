@@ -15,7 +15,7 @@ The authorized target is the story branch on origin, with origin/main for
 integration. The coordinator is `codex-plan-543-20261109` and its resumed
 branch CI observer is `/tmp/dough-ci-501/watch-BGiHPc`. Slice 1 was
 accepted at `a55bb449feff41b17ea274bc01f13385d07e66ec` and its branch
-CI passed in GitHub Actions run 42532783994.
+CI passed in GitHub Actions run 42532783994. Slice 2 was accepted at `1efcf1f3359823f2a8c7da2e071c6d8acfa5b44f`.
 
 ## Provenance and findings
 
@@ -239,13 +239,21 @@ and launch deletion were exercised by the selected cases.
 
 ### 3. Final report admission keeps records for the hosts it exercises
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/backend-tests/sessions/final-report-admission.spec.ts` passes with every existing assertion unchanged, including wrong-host rejection, unsupported Claude reads, all Cursor report and closure cases, and the Codex native-read checks; `npm run typecheck:dashboard`.
 
 Replace the copied Codex records in this spec with coherent Claude and
 Cursor `makeMe.aLaunchRecord` records. Preserve the fixture facts from the
 decision above and write the records through the store harness. Keep the
 actual Codex launch and its native-history setup.
+
+
+Accepted proof: the full final-report admission spec passed in Chromium.
+Dashboard typechecking passed. The entire request and assertion block from
+the native call snapshot is byte-for-byte identical to the accepted
+slice 2 base. The consumer trace found no external user of this local
+setup. The Claude and Cursor records use their actual hosts and the
+original Codex launch still supplies native history.
 
 ## Concern evidence
 
