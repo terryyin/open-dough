@@ -238,3 +238,9 @@ Slice-plan refinement was not needed. Each slice owns one observable outcome
 with its own proof, the slices build in order on one representation, and
 no slice spans another subsystem's decisions. This review found no remaining
 slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. The done record carries the result and its cost for later evaluation. Retire the North Star topic at closure as planned.
+
+The three delivered slices end at `ba6f36a2895f31ab0a865350204b15a62328c747` on the story branch. Outcome and process review of the actual execution found no correction or process record to add. Full local suites and applicable CI remain separate closure gates. The installed wrap-up remains at the tagged release until the authored guidance is released and installed.
