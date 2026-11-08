@@ -229,6 +229,12 @@ file-size overage. Fresh install and ordinary tagged update verified exact
 bytes in both roots. All three gates below and the related all-tools,
 latest-release, and guidance-payload checks passed with Bash 5 on AC.
 
+## Execution complete
+
+Product advice: no change. Keep the North Star cost direction and the
+sibling wrap-up story. Public availability remains the consumer's release
+prerequisite under ADR 0003.
+
 ## Gates and refinement review
 
 For payload changes, run
