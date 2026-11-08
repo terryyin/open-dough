@@ -219,7 +219,7 @@ into the materializer's reuse.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the `tests/support` supplier dependency, land, integration and
 closure visit tests. A repository search shows no non-native family file
@@ -233,6 +233,8 @@ Route `supplier-dependency-fixture.mjs` and its visit fixtures through
 descriptions that declare supplier and consumer stories. Keep agreement and
 resolution in the real CLI. Delete helpers whose last non-native consumer is
 gone.
+
+[Accepted focused proof and full gates](proof.md#slice-4-focused-proof).
 
 ## Plan concerns
 

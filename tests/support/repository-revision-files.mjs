@@ -16,7 +16,7 @@ import { splitHref } from "../../src/skills/dough-product-backlog/scripts/produc
 import { recordStoryState } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { renderPublishedBacklog } from "./published-backlog.mjs";
 
-/** @typedef {import("./repositoryTestData.mjs").RepositoryRevision} RepositoryRevision */
+/** @typedef {import("./repositoryTestData.mjs").RevisionFacts} RevisionFacts */
 /** @typedef {import("./repositoryTestData.mjs").StoryState} StoryState */
 
 /** @param {string} root @param {string} path */
@@ -68,7 +68,7 @@ function writeStoryState(planning, state) {
   writeFileSync(file, final.source);
 }
 
-/** @param {string} integration @param {RepositoryRevision} revision */
+/** @param {string} integration @param {RevisionFacts} revision */
 export function writeRevisionFiles(integration, revision) {
   const planning = join(integration, ".planning");
   const {

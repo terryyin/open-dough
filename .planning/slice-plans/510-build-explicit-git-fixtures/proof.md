@@ -158,3 +158,44 @@ runs the real readiness command. Four affected Node files and eight
 dashboard launch and attention cases passed, as did typecheck and exact
 replay comparison. Dispositions and proof are in
 `/tmp/dough-seed262-refactor3.P46sGl/`.
+
+Managed delivery accepted slice 3 at `0318e27a` on the story branch and
+reused the same observer.
+
+### Slice 4 focused proof
+
+- The 15 supplier files and repository fixture proof in
+  `/tmp/dough-seed262-slice4.Se3NYf/node-paths.txt` passed all 16 checks
+  in 20.82 s through the Homebrew Bash runner. Dashboard typecheck and
+  whitespace checks passed.
+- The supplier fixtures declare consumer and supplier identities and
+  retain real agreement, resolution, merge, and ancestry operations.
+  Scratch comparison preserved the initial Git tree, planned ancestry,
+  messages, authors, committers, refs and unpublished preparation bytes.
+  The proof selection and consumer dispositions are retained beside the
+  comparison in the same scratch directory.
+- Repository-wide search found legacy constructor calls only from the
+  four native entries and their two retained bridges. The four entries
+  and both constructor bodies keep their prior behavior. The unused
+  `publishAssignment` export had no remaining consumer and was removed.
+
+Independent refactor reused the queued fixture's plan-path rule in the
+supplier overlay. The same 15 supplier checks and exact Git and overlay
+parity passed. Its trace is under `/tmp/dough-seed262-refactor4.18Yn1X`.
+
+### Full local gates
+
+Both suites ran sequentially on the awake AC-powered macOS host with
+Homebrew Bash first. The host had 16 logical CPUs, no other full-suite
+admission holder, and 67% free memory before the repository suite and
+64% before the dashboard suite. The six repository jobs and four
+dashboard workers stayed within the observed host capacity.
+
+- `OPEN_DOUGH_TEST_JOBS=6 /usr/bin/time -p caffeinate -s -i npm test`
+  passed all 510 checks in 366.41 s wall. Per-check outcomes and times
+  are in `/tmp/dough-seed262-full.o6p2bi`.
+- `/usr/bin/time -p caffeinate -s -i npm run --silent test:dashboard -- --workers=4`
+  passed in 1106.40 s wall with the color and Git alternate variables
+  unset. The strict transcript `/tmp/dough-seed262-full.o6p2bi/dashboard.json`
+  selected 2191 cases. Of these, 2190 passed and the opt-in Sessions replay
+  benchmark skipped. The command exited zero with strict status passed.

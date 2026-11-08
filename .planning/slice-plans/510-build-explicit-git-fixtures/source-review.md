@@ -10,11 +10,11 @@ commitments follow with coordinator allocations.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A maintainer can identify the facts that drive each migrated test from its call site. | slice 4 | |
-| 2 | Driving facts include the repository’s stories. | slice 4 | |
-| 3 | Driving facts include its published records. | slice 4 | |
-| 4 | Driving facts include its ordered revisions. | slice 4 | |
-| 5 | Driving facts include the commit facts the product reads. | slice 4 | |
+| 1 | A maintainer can identify the facts that drive each migrated test from its call site. | slice 4 | observed: proof.md slice 1 named dashboard revisions, slice 2 explicit preparation profiles, slice 3 startup declarations, and slice 4 supplier and consumer data preserve the facts their cases read |
+| 2 | Driving facts include the repository’s stories. | slice 4 | observed: proof.md slice 1 named dashboard revisions, slice 2 explicit preparation profiles, slice 3 startup declarations, and slice 4 supplier and consumer data preserve the facts their cases read |
+| 3 | Driving facts include its published records. | slice 4 | observed: proof.md slice 1 named dashboard revisions, slice 2 explicit preparation profiles, slice 3 startup declarations, and slice 4 supplier and consumer data preserve the facts their cases read |
+| 4 | Driving facts include its ordered revisions. | slice 4 | observed: proof.md slice 1 named dashboard revisions, slice 2 explicit preparation profiles, slice 3 startup declarations, and slice 4 supplier and consumer data preserve the facts their cases read |
+| 5 | Driving facts include the commit facts the product reads. | slice 4 | observed: proof.md slice 1 named dashboard revisions, slice 2 explicit preparation profiles, slice 3 startup declarations, and slice 4 supplier and consumer data preserve the facts their cases read |
 | 6 | A test that declares no facts gets a minimal valid project repository. | slice 2 | observed: tests/support/repository-fixture.test.mjs default description asserts bare main, single commit and real backlog CLI reporting zero active entries |
 | 7 | `makeMe.aRepository.please()` with no facts gives a description that materializes to a bare origin. | slice 2 | observed: tests/support/repository-fixture.test.mjs default description asserts bare main, single commit and real backlog CLI reporting zero active entries |
 | 8 | The default origin has a `main` branch. | slice 2 | observed: tests/support/repository-fixture.test.mjs default description asserts bare main, single commit and real backlog CLI reporting zero active entries |
@@ -46,39 +46,39 @@ commitments follow with coordinator allocations.
 | 34 | The harness owns Git operations under the test data architecture. | slice 1 | observed: tests/support/repository-fixture.mjs materializeRepository owns real Git, paths, named SHAs and teardown and proof.md scratch fixture inspection and teardown |
 | 35 | The harness owns directories under the test data architecture. | slice 1 | observed: tests/support/repository-fixture.mjs materializeRepository owns real Git, paths, named SHAs and teardown and proof.md scratch fixture inspection and teardown |
 | 36 | The harness owns teardown under the test data architecture. | slice 1 | observed: tests/support/repository-fixture.mjs materializeRepository owns real Git, paths, named SHAs and teardown and proof.md scratch fixture inspection and teardown |
-| 37 | Migrate the queued-trunk family. | slice 4 | |
+| 37 | Migrate the queued-trunk family. | slice 4 | observed: proof.md slice 4 repository-wide legacy-constructor inventory and migrated supplier fixture parity. The materializer owns the new Git setup |
 | 38 | Start with the attention spec’s story-columns history. | slice 1 | observed: dashboard/tests/launchJourney.ts publishStoryColumnsJourney and publishLaunchJourney use the shared real-Git materializer and attention consumes the named story columns |
 | 39 | The family includes `createQueuedTrunk`. | slice 3 | observed: proof.md slice 3 exact Node selection passes migrated startup and admission cases on real Git with explicit repository revisions |
 | 40 | The family includes `createPreparationTrunk`. | slice 2 | observed: proof.md slice 2 exact Node selection observes real start, land, release and abandon on preparations migrated from createPreparationTrunk |
 | 41 | The family includes the startup sibling fixture. | slice 3 | observed: proof.md slice 3 exact Node selection passes migrated startup and admission cases on real Git with explicit repository revisions |
 | 42 | The family includes the admission sibling fixture. | slice 3 | observed: proof.md slice 3 exact Node selection passes migrated startup and admission cases on real Git with explicit repository revisions |
 | 43 | The family includes the one-shot sibling fixture. | slice 2 | observed: src/skills/dough-execute-plan/scripts/one-shot-queued.test.mjs real closure and retained sibling B2 assertions with the named sibling description |
-| 44 | The family includes the supplier-dependency fixture. | slice 4 | |
+| 44 | The family includes the supplier-dependency fixture. | slice 4 | observed: proof.md slice 4 repository-wide legacy-constructor inventory and migrated supplier fixture parity. The materializer owns the new Git setup |
 | 45 | The family includes the dashboard `launchJourney`. | slice 1 | observed: dashboard/tests/launchJourney.ts publishStoryColumnsJourney and publishLaunchJourney use the shared real-Git materializer and attention consumes the named story columns |
-| 46 | The family includes every non-native test that arranges a repository through those helpers. | slice 4 | |
-| 47 | Each migrated helper delegates to the shared path or is removed when superseded. | slice 4 | |
-| 48 | After migration, no non-native consumer in this family calls a superseded helper. | slice 4 | |
-| 49 | After migration, no non-native consumer in this family retains its own `git init` for this setup. | slice 4 | |
+| 46 | The family includes every non-native test that arranges a repository through those helpers. | slice 4 | observed: proof.md slice 4 repository-wide legacy-constructor inventory and migrated supplier fixture parity. The materializer owns the new Git setup |
+| 47 | Each migrated helper delegates to the shared path or is removed when superseded. | slice 4 | observed: proof.md slice 4 repository-wide legacy-constructor inventory and migrated supplier fixture parity. The materializer owns the new Git setup |
+| 48 | After migration, no non-native consumer in this family calls a superseded helper. | slice 4 | observed: proof.md slice 4 repository-wide legacy-constructor inventory and migrated supplier fixture parity. The materializer owns the new Git setup |
+| 49 | After migration, no non-native consumer in this family retains its own `git init` for this setup. | slice 4 | observed: proof.md slice 4 repository-wide legacy-constructor inventory and migrated supplier fixture parity. The materializer owns the new Git setup |
 | 50 | Move existing per-process reuse of an identical starting repository behind the materializer. | slice 1 | observed: tests/support/repository-fixture.mjs repositoryTemplate caches identical descriptions per process and materializeRepository copies a private origin and proof.md independent mutation check |
-| 51 | Preserve that reuse so feedback does not slow before the reuse story. | slice 4 | |
-| 52 | Fixture reuse and caching work beyond preserving the existing reuse belong to faster Git fixture construction. | slice 4 | |
-| 53 | Native scenario fixtures retain their current setup. | slice 4 | |
-| 54 | The native startup fixture keeps its call to `createQueuedTrunk`. | slice 4 | |
-| 55 | Native scenario fixtures move with the shell release and native fixtures story. | slice 4 | |
-| 56 | Only the four native scenario fixtures still call `createQueuedTrunk` or `createPreparationTrunk` pending that story. | slice 4 | |
-| 57 | Other fixture hubs belong to their own sibling stories. | slice 4 | |
+| 51 | Preserve that reuse so feedback does not slow before the reuse story. | slice 4 | observed: proof.md attention and owned-context matched timing plus independent mutable copies. Only existing per-process reuse moved behind repositoryTemplate |
+| 52 | Fixture reuse and caching work beyond preserving the existing reuse belong to faster Git fixture construction. | slice 4 | observed: proof.md attention and owned-context matched timing plus independent mutable copies. Only existing per-process reuse moved behind repositoryTemplate |
+| 53 | Native scenario fixtures retain their current setup. | slice 4 | observed: proof.md slice 4 native source audit preserves the four direct fixtures and required bridges. The seed defers their migration to the shell release and native fixtures story |
+| 54 | The native startup fixture keeps its call to `createQueuedTrunk`. | slice 4 | observed: proof.md slice 4 native source audit preserves the four direct fixtures and required bridges. The seed defers their migration to the shell release and native fixtures story |
+| 55 | Native scenario fixtures move with the shell release and native fixtures story. | slice 4 | observed: proof.md slice 4 native source audit preserves the four direct fixtures and required bridges. The seed defers their migration to the shell release and native fixtures story |
+| 56 | Only the four native scenario fixtures still call `createQueuedTrunk` or `createPreparationTrunk` pending that story. | slice 4 | observed: proof.md slice 4 native source audit preserves the four direct fixtures and required bridges. The seed defers their migration to the shell release and native fixtures story |
+| 57 | Other fixture hubs belong to their own sibling stories. | slice 4 | observed: proof.md slice inventories cover only the queued-trunk family. The other hubs remain with the selected seed's sibling stories |
 | 58 | Execution starts after the published agent profile pilot lands. | slice 1 | observed: published pilot 327b56af4 is an ancestor of the established Take 16d42d6ac and tests/support/makeMe.mjs exports anAgentProfile and the seed dependency records satisfaction |
 | 59 | That pilot creates `tests/support/makeMe.mjs`. | slice 1 | observed: published pilot 327b56af4 is an ancestor of the established Take 16d42d6ac and tests/support/makeMe.mjs exports anAgentProfile and the seed dependency records satisfaction |
 | 60 | That pilot creates `anAgentProfile`. | slice 1 | observed: published pilot 327b56af4 is an ancestor of the established Take 16d42d6ac and tests/support/makeMe.mjs exports anAgentProfile and the seed dependency records satisfaction |
-| 61 | Arrange a transition directly when the test does not prove that transition. | slice 4 | |
+| 61 | Arrange a transition directly when the test does not prove that transition. | slice 4 | observed: proof.md slices 1–4 document direct named published preparation, Take, completion, and static prerequisite setups |
 | 62 | This replaces replaying `start` solely to arrange state. | slice 1 | observed: dashboard/tests/launchJourney.ts only materializes declared prepare, take and complete facts and no production command call in either publisher |
 | 63 | This replaces replaying `take` solely to arrange state. | slice 1 | observed: dashboard/tests/launchJourney.ts only materializes declared prepare, take and complete facts and no production command call in either publisher |
 | 64 | This replaces replaying `complete` solely to arrange state. | slice 1 | observed: dashboard/tests/launchJourney.ts only materializes declared prepare, take and complete facts and no production command call in either publisher |
-| 65 | The command a test proves runs for real on the materialized repository. | slice 4 | |
+| 65 | The command a test proves runs for real on the materialized repository. | slice 4 | observed: proof.md slice 4 supplier consumer selections exercise the real agreement and resolution commands, merges, and ancestry checks on described repositories |
 | 66 | Push races remain Git operations in the test. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs builds starting trunk then makes a competing publishClaimSha push and asserts the conflict and recovery |
 | 67 | Rejected publications remain Git operations in the test. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs builds starting trunk then makes a competing publishClaimSha push and asserts the conflict and recovery |
-| 68 | Merges remain Git operations in the test. | slice 4 | |
-| 69 | Ancestry walks remain Git operations in the test. | slice 4 | |
+| 68 | Merges remain Git operations in the test. | slice 4 | observed: proof.md slice 4 supplier consumer selections exercise the real agreement and resolution commands, merges, and ancestry checks on described repositories |
+| 69 | Ancestry walks remain Git operations in the test. | slice 4 | observed: proof.md slice 4 supplier consumer selections exercise the real agreement and resolution commands, merges, and ancestry checks on described repositories |
 | 70 | Exact malformed input under proof stays literal at the call site. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs declares literal CRLF and observes exact Git blob, refused start, actual repair and retry |
 | 71 | Exact legacy input under proof stays literal at the call site. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-startup-canonical-plan-cases.mjs and workspace-publication-startup-plan-link-cases.mjs keep exact legacy path and backlog lines |
 | 72 | The description carries that input verbatim as file bytes. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs declares literal CRLF and observes exact Git blob, refused start, actual repair and retry |
@@ -112,11 +112,11 @@ commitments follow with coordinator allocations.
 | 100 | The race test still asserts the rejection. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs builds starting trunk then makes a competing publishClaimSha push and asserts the conflict and recovery |
 | 101 | A malformed-backlog recovery case declares the exact malformed bytes as a file in the description. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs declares literal CRLF and observes exact Git blob, refused start, actual repair and retry |
 | 102 | The materializer writes that malformed backlog verbatim. | slice 3 | observed: src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs declares literal CRLF and observes exact Git blob, refused start, actual repair and retry |
-| 103 | Migrated tests keep their verdicts. | slice 4 | |
-| 104 | Migrated tests keep their assertions. | slice 4 | |
+| 103 | Migrated tests keep their verdicts. | slice 4 | observed: proof.md full local gates records 510 repository checks and 2190 dashboard passes with the expected opt-in skip |
+| 104 | Migrated tests keep their assertions. | slice 4 | observed: proof.md original attention and real workflow assertions remain in their focused selections. Full local gates preserve suite verdicts after setup migration |
 | 105 | Record the attention spec’s fixture time before and after under the same conditions. | slice 1 | observed: proof.md pre-change timing baseline and slice 1 accepted proof record matching fixture selection, clock, worker count and timings with host-load caveat |
 | 106 | Record the attention spec’s focused run time before and after under the same conditions. | slice 1 | observed: proof.md pre-change timing baseline and slice 1 accepted proof record matching fixture selection, clock, worker count and timings with host-load caveat |
 | 107 | Choose one migrated skill selection. | slice 2 | observed: proof.md slice 2 timing of preparation-assignment-owned-context.test.mjs and its same five fixtures on merged before and after under the matched runner conditions |
 | 108 | Record that skill selection’s fixture time before and after under the same conditions. | slice 2 | observed: proof.md slice 2 timing of preparation-assignment-owned-context.test.mjs and its same five fixtures on merged before and after under the matched runner conditions |
 | 109 | Record that skill selection’s focused run time before and after under the same conditions. | slice 2 | observed: proof.md slice 2 timing of preparation-assignment-owned-context.test.mjs and its same five fixtures on merged before and after under the matched runner conditions |
-| 110 | The recorded timings form the baseline for the reuse story. | slice 4 | |
+| 110 | The recorded timings form the baseline for the reuse story. | slice 4 | observed: proof.md pre-change timings and slices 1–2 matched comparisons retain case counts, wall and fixture times for the reuse story |

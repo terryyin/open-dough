@@ -84,9 +84,8 @@ export function queuedSeedWithDependency(entry, dependency, assessment = {}) {
   }).source;
 }
 
-/** @param {{ files?: Readonly<Record<string, string | Buffer>> }} [options] */
-export function queuedReadyRepository({ files = {} } = {}) {
-  const queued = [storyA, storyB];
+/** @param {readonly BacklogEntry[]} queued */
+export function queuedReadyPlanning(queued) {
   const readyFiles = queued.flatMap(
     /** @returns {[string, string][]} */
     (entry) => [
@@ -97,15 +96,23 @@ export function queuedReadyRepository({ files = {} } = {}) {
       [`.planning/${storyPlanPath(entry)}`, storyPlan(entry)],
     ],
   );
-  return makeMe.aRepository.withRevision("base", {
-    message: "base trunk commit",
+  return {
     backlog: { direction, queued },
-    files: {
-      "trunk.txt": "base\n",
-      ...Object.fromEntries(readyFiles),
-      ...files,
-    },
+    files: Object.fromEntries(readyFiles),
     storyStates: queued.map(readyStoryState),
+  };
+}
+
+/** @param {{ queued?: readonly BacklogEntry[], files?: Readonly<Record<string, string | Buffer>> }} [options] */
+export function queuedReadyRepository({
+  queued = [storyA, storyB],
+  files = {},
+} = {}) {
+  const planning = queuedReadyPlanning(queued);
+  return makeMe.aRepository.withRevision("base", {
+    ...planning,
+    message: "base trunk commit",
+    files: { "trunk.txt": "base\n", ...planning.files, ...files },
   });
 }
 

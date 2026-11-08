@@ -46,7 +46,6 @@ const unconsumed = [
 async function closeUnconsumed(t, before = () => {}) {
   const fixture = await createTrunkClosureFixture(t);
   const project = await commitCompletedSupplier(
-    t,
     fixture.execution,
     fixture.fixture,
   );
