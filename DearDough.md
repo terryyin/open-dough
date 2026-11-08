@@ -153,6 +153,13 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: slice 5 implementation proof ran 38 `dashboard/tests` consumers of `controlReachability.ts` but not `dashboard/frontend-tests/control-reachability-observation.spec.ts`; the refactor pass ran it and it failed at `:37` ("a control revealed by earlier scrolling is still checked")
   - Observed effect: the single-pass reachability check silently dropped controls revealed by scrolling until the refactor agent fixed it before commit
   - Inference: the consumer selection was built from one test root; the coordinator's later briefs added "include frontend-tests and backend-tests consumers"
+- Execution: SEED-261#map-published-work-test-data (plan 508-map-published-work-test-data; first related implementation commit `8ea16d198c25169e76fc747377693540c7164b03`)
+  - Timestamp: 2026-11-08T02:38:39Z (failed CI job completion)
+  - Tool: Codex
+  - Open Dough release: 0.3.90 (installed .agents/skills/dough-update/VERSION at the established Take)
+  - Evidence: Slice 3's 50-job selection in `e85d59b0:.planning/slice-plans/508-map-published-work-test-data/PLAN.md` did not include `workspace-publication.test.mjs`. [Run 42439000527, test shard 1](https://github.com/terryyin/open-dough/actions/runs/42439000527/job/128603980600) failed because `publishReadyAssessment` still supplied the old digest fields.
+  - Observed effect: One published increment failed CI. Slice 4's existing `expectedBasis` repair passed the exact job, and run 42440063442 passed the Node shards.
+  - Inference: The old call crossed a skill test case module into the shared Node preparation adapter. The focused selection did not exercise that import chain.
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
@@ -372,6 +379,13 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: guarded fresh delivery returned `operation: formatting` with `no-unused-vars` on `renderAgentProfile` in new `tests/support/makeMe.mjs`, imported only for a JSDoc `typeof`; the implementer reported only a read-only `prettier --check`, and the refactor brief forbade the formatter
   - Observed effect: one refused slice-1 preparation; the coordinator switched to a JSDoc `import()` type, reran the type-check and two skill tests, and the second delivery published
   - Inference: same pattern as earlier rows; a type-only import in a `@ts-check` file is a specific trigger
+- Execution: SEED-261#map-published-work-test-data (plan 508-map-published-work-test-data; first related implementation commit `8ea16d198c25169e76fc747377693540c7164b03`)
+  - Timestamp: unknown (slice 2, 6, and 7 delivery on 2026-11-08)
+  - Tool: Codex
+  - Open Dough release: 0.3.90 (installed .agents/skills/dough-update/VERSION at the established Take)
+  - Evidence: Guarded delivery on the paths published as `86eb0b883`, `c504c9a15`, and `d577da657` first returned `operation: formatting`. ESLint named unsafe href/writer return values, an unused array callback parameter, and an unsafe `Object.fromEntries` return from non-tuple inference.
+  - Observed effect: Three initial formatter gates withheld commit and publication after focused proof and independent refactor. Type annotations or a mechanical callback change cleared them. The affected type-check or Land test passed.
+  - Inference: A passing TypeScript build does not cover the ESLint diagnostics observed here. The late placement of the gate was the required handoff.
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 
@@ -550,6 +564,14 @@ Former local code: DD-403.
 Former local code: DD-404.
 
 [Evidence and current response](docs/maintainer/findings/ODF-396.md).
+
+### Occurrences
+- Execution: SEED-261#map-published-work-test-data (plan 508-map-published-work-test-data; first related implementation commit `8ea16d198c25169e76fc747377693540c7164b03`)
+  - Timestamp: unknown (slice 1 acceptance before `8ea16d198` on 2026-11-08)
+  - Tool: Codex
+  - Open Dough release: 0.3.90 (installed .agents/skills/dough-update/VERSION at the established Take)
+  - Evidence: Slice 1's consumer trace (plan 508, slice 1 proof) included derived `PLAN.md` and `source-review.md` basenames with test changes. The coordinator's full read reported 920 lines and 54,151 original tokens and truncated. Sampled tail entries were unrelated planning and maintainer records.
+  - Observed effect: The coordinator had to inspect bounded ranges and the actual fixture importers separately. This evidence establishes excess trace output, with no missed consumer attributed to that output.
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 
