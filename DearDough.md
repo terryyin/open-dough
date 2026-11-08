@@ -162,6 +162,15 @@ Former local code: DD-321. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/findings/ODF-305.md).
 ## ODF-264 — Broad startup reads lose required context to truncation <a id="odf-264"></a>
 [Meaning, evidence and response](docs/maintainer/findings/ODF-264.md).
+
+### Occurrences
+- Execution: SEED-010#notice-named-sibling-landings-before-delivery (plan 523, first implementation `2567a7c5f944380a22c6f707dddcf957457bd972`)
+  - Timestamp: unknown (execution startup on 2026-11-08)
+  - Tool: Codex
+  - Open Dough release: 0.3.91 (checkout-bound installed guidance)
+  - Evidence: Dashboard launch `003878bc-4c9f-4dde-8085-d287fbd399c1` combined full delegation, execution decisions and related references in one startup read. The tool reported 11,478 original output tokens and truncated the human-judgment passage.
+  - Observed effect: The coordinator retrieved that passage separately. The existing boundary and targeted-retrieval guidance already called for scoped reads. No elapsed-time or aggregate-token cost was measured.
+
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 Former local code: DD-323. [Meaning, evidence and response](docs/maintainer/findings/ODF-306.md).
 ## ODF-307 — Coordinator screen probes competed with the developer's live desktop <a id="odf-307"></a>

@@ -45,7 +45,7 @@ conditional future observations in the finding.
 | 3c.1 | Existing source review. | slice 1 | observed: source-freshness-guidance.test.mjs asserts freshness before obligations and preserves the source-result routes |
 | 3c.2 | Existing delivery checks. | slice 1 | observed: story-obligations-guidance.test.mjs and refactor-disposition-guidance.test.mjs assert the existing guarded delivery preconditions |
 | 4a | Record the following at ODF-429. | slice 1 | observed: ODF-429 Follow-up, Release follow-through and Ordinary-use criterion own the response and its evidence status |
-| 4a.1 | The delivered response. | slice 1 | observed: ODF-429 Follow-up links the delivered guidance; the completion record will add the accepted response SHA |
+| 4a.1 | The delivered response. | slice 1 | observed: ODF-429 Follow-up links the delivered guidance and Response revision names accepted story-branch SHA 2567a7c5f944380a22c6f707dddcf957457bd972 |
 | 4a.2 | The release containing it. | slice 1 | observed: ODF-429 Release follow-through records the containing release as pending until independently verified |
 | 4a.3 | The ordinary-use criterion. | slice 1 | observed: ODF-429 Ordinary-use criterion defines the next qualifying execution, comparison and observations |
 | 4b | In the next observed qualifying execution, check each outcome. | slice 1 | observed: ODF-429 Ordinary-use criterion preserves the observations for the next qualifying execution; outcome pending |
