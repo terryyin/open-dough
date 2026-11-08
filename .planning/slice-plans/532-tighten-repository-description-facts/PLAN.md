@@ -251,6 +251,14 @@ Accepted proof (2026-11-08): the table test asserts all four exact messages
 without Git and passes quietly; each row fails with its own guard disabled.
 Refactor: no change.
 
+CI repair (2026-11-08): the dashboard 5/12 teardown on `39cdcf37` found a
+`git push` held forever in the start origin's `pre-receive` hook. Specs
+release the hold and clean up at once, and cleanup can delete the release
+marker before the hook polls it. `holdPushes` now also ends the hold, refusing
+the push, once the machine directory is gone. A scratch reproduction leaked
+4 of 4 times before and 0 of 4 after; the five `holdPushes` specs it ran
+passed with a clean teardown.
+
 ### 4. A trunk without a backlog and a backlog stated twice are explicit
 
 Type: Behavior
