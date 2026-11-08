@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "joey-chan",
+  "email": "joey-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-268#adjust-fluent-side-panel-page-objects",
+  "host": "claude",
+  "model": "opus"
+}
