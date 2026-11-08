@@ -137,8 +137,8 @@ for stage in npm browser; do
   esac
 done
 
-# Workflow owns the action bounds and exact cache identity; normal success
-# gating (no continue-on-error/always) keeps suites behind all setup stages.
+# Workflow owns the action bounds and exact cache identity. Only cache restore
+# may fail and continue. The locked browser installation still gates the suite.
 workflow=${source_dir}/.github/workflows/ci.yml
 # shellcheck disable=SC2016 # Literal workflow expressions.
 expect_in_log "${workflow}" -F -- 'key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('\''package-lock.json'\'') }}'
@@ -147,7 +147,15 @@ expect_in_log "${workflow}" -F -- 'node-version-file: .node-version'
 expect_in_log "${workflow}" -F -- '180000'
 expect_in_log "${workflow}" -F -- 'node scripts/setup-native.mjs npm'
 expect_in_log "${workflow}" -F -- 'node scripts/setup-native.mjs browser'
-if grep -Eq 'restore-keys:|continue-on-error:|--with-deps|if:.*always\(' "${workflow}"; then
+expect_in_log "${workflow}" -F -- "if: steps.playwright-cache.outcome == 'failure'"
+# shellcheck disable=SC2016 # Literal runner variable.
+expect_in_log "${workflow}" -F -- 'PLAYWRIGHT_BROWSERS_PATH=${RUNNER_TEMP}/playwright-chromium'
+if grep -Eq 'restore-keys:|--with-deps|if:.*always\(' "${workflow}" \
+  || ! awk '
+    /^ *- name:/ { cache = ($0 ~ /name: Cache Playwright Chromium$/) }
+    /continue-on-error:/ { count++; if (!cache || $0 !~ /continue-on-error: true$/) exit 1 }
+    END { if (count != 1) exit 1 }
+  ' "${workflow}"; then
   echo 'FAIL: CI weakens setup failure gating or uses incompatible browser recovery.' >&2
   exit 1
 fi

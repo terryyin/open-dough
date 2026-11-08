@@ -159,16 +159,17 @@ jobs:
         uses: actions/cache@v4
         id: playwright-cache
         timeout-minutes: 1
+        continue-on-error: true
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
-      - name: Diagnose browser cache failure
-        if: failure() && steps.playwright-cache.outcome == 'failure'
+      - name: Use a clean browser directory after cache failure
+        if: steps.playwright-cache.outcome == 'failure'
         run: |
-          echo '::error::Infrastructure setup: Chromium cache acquisition failed or exceeded 60 seconds. Restore cache connectivity and rerun setup before checks.'
-          exit 1
+          echo '::warning::Chromium cache restore failed. Installing the locked browser directly.'
+          echo "PLAYWRIGHT_BROWSERS_PATH=${RUNNER_TEMP}/playwright-chromium" >> "$GITHUB_ENV"
       - name: Install Playwright Chromium
         run: node scripts/setup-native.mjs browser
       - name: Type-check the dashboard
