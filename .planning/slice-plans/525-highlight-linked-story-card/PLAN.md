@@ -134,6 +134,13 @@ shared reveal path, without new navigation state. Adding "Destination cue" to
 ADR 0008's Dashboard UI vocabulary stays the human vocabulary step the story
 excludes. Process: DD-457 (prose brief narrowed a key example).
 
+The CI repair surfaced a separate product learning: a Taken card's actions
+move while its agent profile and plan slices load, so a press there can miss
+its action. Reserving that space is a design choice for the developer. About
+30 other tests click "Review changes" on a card without the repaired helper's
+settle wait; they share that race until they use the helper or the layout stops
+shifting.
+
 ## Concern evidence
 
 - Slice-plan refinement: not needed — one Behavior owns one cohesive reveal
