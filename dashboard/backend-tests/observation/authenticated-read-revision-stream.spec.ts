@@ -17,23 +17,23 @@ import {
   heads,
   sharedReadsPublished,
 } from "../../tests/support/sharedReads.ts";
-import { revisionA, revisionB } from "./revisionCheckBoundary.ts";
 import {
+  gatewayTimeout,
+  revisionA,
+  revisionB,
+} from "./revisionCheckBoundary.ts";
+import {
+  answeringInstead,
   matchingRefsSince,
   openStream,
   paceMs,
+  settledWithin,
   streamServer,
   streamUrl,
   warmProfiles,
 } from "./revisionStreamBoundary.ts";
 
 test.describe.configure({ mode: "serial" });
-
-const gatewayTimeout = {
-  status: 504,
-  contentType: "application/json; charset=utf-8",
-  body: JSON.stringify({ message: "Server Error" }),
-};
 
 test.describe("authenticated read boundary revision stream (development environment)", () => {
   test("the stream answers text/event-stream, uncacheable, with its first answer at open", async () => {
@@ -161,15 +161,13 @@ test.describe("authenticated read boundary revision stream (development environm
           })
         ).status,
       ).toBe(200);
-      server.github.serve(everyRepository, (call) => {
-        if (call.request.kind === "matching-refs") {
-          return Promise.resolve(gatewayTimeout);
-        }
-        if (call.request.kind === "ref") {
-          return Promise.resolve(commitAnswer(revisionB));
-        }
-        return published(call);
-      });
+      server.github.serve(
+        everyRepository,
+        answeringInstead(published, {
+          "matching-refs": gatewayTimeout,
+          ref: commitAnswer(revisionB),
+        }),
+      );
       const stream = openStream(
         server,
         `&at=${revisionA}&watch=${encodeURIComponent("story/one")}`,
@@ -190,10 +188,11 @@ test.describe("authenticated read boundary revision stream (development environm
       const published = sharedReadsPublished(revisionA);
       server.github.serve(everyRepository, published);
       await warmProfiles(server, revisionA);
-      server.github.serve(everyRepository, (call) =>
-        call.request.kind === "matching-refs"
-          ? Promise.resolve(rateLimitedAnswer(429, { "Retry-After": "120" }))
-          : published(call),
+      server.github.serve(
+        everyRepository,
+        answeringInstead(published, {
+          "matching-refs": rateLimitedAnswer(429, { "Retry-After": "120" }),
+        }),
       );
       const stream = openStream(server, `&at=${revisionA}`);
       const event = (await stream.nextEvent()) as {
@@ -216,31 +215,14 @@ test.describe("authenticated read boundary revision stream (development environm
       const stream = openStream(server, `&at=${revisionA}`, {
         "Accept-Encoding": "gzip",
       });
-      const opened = await Promise.race([
-        stream.headers.then((headers) => ({
-          headers,
-          timedOut: false as const,
-        })),
-        new Promise<{ timedOut: true }>((resolve) =>
-          setTimeout(() => {
-            resolve({ timedOut: true });
-          }, 2_000),
-        ),
-      ]);
+      const opened = await settledWithin(stream.headers, 2_000);
       expect(opened.timedOut).toBe(false);
       if (opened.timedOut) return;
-      expect(opened.headers.status).toBe(200);
-      const event = await Promise.race([
-        stream.nextEvent().then((body) => ({ body, timedOut: false as const })),
-        new Promise<{ timedOut: true }>((resolve) =>
-          setTimeout(() => {
-            resolve({ timedOut: true });
-          }, 2_000),
-        ),
-      ]);
+      expect(opened.value.status).toBe(200);
+      const event = await settledWithin(stream.nextEvent(), 2_000);
       expect(event.timedOut).toBe(false);
       if (!event.timedOut) {
-        expect(event.body).toEqual({
+        expect(event.value).toEqual({
           revision: revisionA,
           changed: false,
           branches: [],

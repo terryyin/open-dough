@@ -1,7 +1,8 @@
 // How journeys read Intent's CI evidence and comparison identity as short
-// labels (../src/CiEvidenceLabels.tsx): a named strip of labels, each read by
-// its accessible name (what its icon stands for and its short words) and its
-// full words as its description.
+// labels (../src/CiEvidenceLabels.tsx): a named strip of labels, each read
+// from its own content, as a screen reader in browse mode reads it -- what
+// its icon stands for and its short words, then its full words -- and never
+// from an `aria-label`. The full words are also the label's hover.
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -18,18 +19,42 @@ export function comparisonLabels(region: Locator, story: string): Locator {
   return evidenceLabels(region, `CI timing comparison of ${story}`);
 }
 
-// The one label named NAME within REGION.
+// What a reader hears a label say before its full words: what its icon
+// stands for, where its shown words leave that out, and those words.
+const heard = (label: Locator) => label.locator(".intent-evidence-label-heard");
+
+// The words a label shows beside its icon.
+export const labelWords = (label: Locator) =>
+  label.locator(".intent-evidence-label-words");
+
+const exactly = (words: string) =>
+  new RegExp(`^${words.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`);
+
+// The one label within REGION heard as NAME, such as "Revision abc1234".
 export function evidenceLabel(region: Locator, name: string): Locator {
-  return region.getByRole("listitem", { name, exact: true });
+  return region.getByRole("listitem").filter({
+    has: region
+      .page()
+      .locator(".intent-evidence-label-heard", { hasText: exactly(name) }),
+  });
 }
 
-// The label named NAME within REGION says FULL as its description.
+// LABEL says FULL in full: heard after its words, and on hover.
+export async function expectInFull(label: Locator, full: string | RegExp) {
+  await expect(label.locator(".intent-evidence-label-full")).toHaveText(full);
+  await expect(label.locator(".intent-evidence-label-content")).toHaveAttribute(
+    "title",
+    full,
+  );
+}
+
+// The label heard as NAME within REGION says FULL in full.
 export async function expectLabelInFull(
   region: Locator,
   name: string,
   full: string | RegExp,
 ) {
-  await expect(evidenceLabel(region, name)).toHaveAccessibleDescription(full);
+  await expectInFull(evidenceLabel(region, name), full);
 }
 
 // The attempt label ATTEMPT within REGION links to URL.
@@ -44,25 +69,26 @@ export async function expectAttemptLinked(
   );
 }
 
-// The strip holds exactly NAMES, in order, each read by its accessible name.
-export async function expectEvidenceLabels(
-  strip: Locator,
-  names: readonly string[],
-) {
-  const labels = strip.getByRole("listitem");
-  await expect(labels).toHaveCount(names.length);
-  for (const [at, name] of names.entries())
-    await expect(labels.nth(at)).toHaveAccessibleName(name);
-}
-
-// The strip begins with NAMES, in order, whatever follows them.
+// The strip begins with labels heard as NAMES, in order, whatever follows
+// them; each is heard from its content, with no `aria-label` over it.
 export async function expectLeadingEvidenceLabels(
   strip: Locator,
   names: readonly string[],
 ) {
   const labels = strip.getByRole("listitem");
-  for (const [at, name] of names.entries())
-    await expect(labels.nth(at)).toHaveAccessibleName(name);
+  for (const [at, name] of names.entries()) {
+    await expect(heard(labels.nth(at))).toHaveText(name);
+    await expect(labels.nth(at)).not.toHaveAttribute("aria-label");
+  }
+}
+
+// The strip holds exactly labels heard as NAMES, in order.
+export async function expectEvidenceLabels(
+  strip: Locator,
+  names: readonly string[],
+) {
+  await expect(strip.getByRole("listitem")).toHaveCount(names.length);
+  await expectLeadingEvidenceLabels(strip, names);
 }
 
 // REGION's evidence first names ATTEMPT ("Run 41 · attempt 2" or an
@@ -85,7 +111,7 @@ export function anyComparisonLabels(region: Locator): Locator {
 const observedLabel = "Observed, not attributed";
 
 // REGION frames its comparison as observed builds, not attributed to the
-// story: a short label whose description is the homepage's statement.
+// story: a short label whose full words are the homepage's statement.
 export async function expectObservedNotAttributed(region: Locator) {
   await expectLabelInFull(region, observedLabel, observedNotAttributedInFull);
 }

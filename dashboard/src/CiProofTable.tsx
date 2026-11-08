@@ -17,13 +17,14 @@
 // marking the sorted header with `aria-sort` and a direction arrow; the
 // caller holds the sort choice in memory, as CI status does
 // (`useCiProofSorting`) and a Summary does with Intent's reading place
-// (`./IntentScopeProof.tsx`). A sort by a column this table lacks is cleared,
-// so the rows keep their given order. Without `sorting` the headers stay
+// (`./IntentScopeProof.tsx`). A sort by a column this table lacks leaves the
+// rows in their given order with no header sorted, and is kept, so it orders
+// the next table that has the column again. Without `sorting` the headers stay
 // plain. The figure columns and each figure's words come from
 // `./CiProofFigures.tsx`, which a Summary's own figures above the table share
 // (`./IntentScopeFigures.tsx`).
 
-import { Fragment, useEffect, useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { Icon } from "./Icon.tsx";
 import { nextSort, sortedRows, type ColumnSort } from "./ciProofSort.ts";
@@ -137,18 +138,18 @@ export function CiProofTable({
 }) {
   const comparison = rows.some((row) => isComparisonCells(row.cells));
   const headers = figureHeadersFor(comparison, changes);
+  const columns = [
+    { column: "scope", label: scopeHeader } as const,
+    ...headers,
+  ];
   // A sort by a column this table lacks, such as a timing column kept from
-  // another table, gives way to the given order.
-  const lacked =
-    rows.length > 0 &&
-    sorting?.sort !== undefined &&
-    sorting.sort.column !== "scope" &&
-    !headers.some((header) => header.column === sorting.sort?.column);
-  const onSort = sorting?.onSort;
-  useEffect(() => {
-    if (lacked) onSort?.(undefined);
-  }, [lacked, onSort]);
-  const shown = sortedRows(rows, lacked ? undefined : sorting?.sort);
+  // another table, gives way to the given order here and stays chosen for a
+  // table that has the column.
+  const sort = columns.some(({ column }) => column === sorting?.sort?.column)
+    ? sorting?.sort
+    : undefined;
+  const shownSorting = sorting && { ...sorting, sort };
+  const shown = sortedRows(rows, sort);
   return (
     <div
       className={`intent-proof-table intent-ci-proof-box${changes ? " intent-ci-proof-changes" : ""}`}
@@ -157,15 +158,13 @@ export function CiProofTable({
         <caption className="visually-hidden">{label}</caption>
         <thead>
           <tr>
-            {[{ column: "scope", label: scopeHeader } as const, ...headers].map(
-              (header) => (
-                <ColumnHeader
-                  key={header.column}
-                  header={header}
-                  sorting={sorting}
-                />
-              ),
-            )}
+            {columns.map((header) => (
+              <ColumnHeader
+                key={header.column}
+                header={header}
+                sorting={shownSorting}
+              />
+            ))}
           </tr>
         </thead>
         <tbody>

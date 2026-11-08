@@ -2,7 +2,9 @@
 // times (`./IntentScopeProof.tsx`) through the shared scope comparison
 // (`./ciScopeComparison.ts`): the scope's own compared figures above a
 // sortable table of its immediate children, with each child's change from
-// the story overlay under Change, and the outside row kept last; and the
+// the story overlay under Change, and the outside row kept last, labelled
+// from the primary endpoint's entry as a single run's is
+// (`./IntentScopeSummaryRows.tsx`); and the
 // comparison's identity as short labels (`./CiEvidenceLabels.tsx`) with the
 // homepage's observed-not-attributed statement. A selected
 // file reuses ComparisonNamed for its Proof
@@ -15,14 +17,10 @@ import {
   Hourglass,
 } from "lucide-react";
 import { EvidenceLabels, type EvidenceLabel } from "./CiEvidenceLabels.tsx";
-import {
-  CiProofTable,
-  type CiProofSorting,
-  type CiProofTableRow,
-} from "./CiProofTable.tsx";
+import { CiProofTable, type CiProofSorting } from "./CiProofTable.tsx";
 import {
   outsideComparisonCellsOf,
-  primaryProofOf,
+  primaryEndpointOf,
   scopeComparisonCellsOf,
 } from "./ciScopeComparison.ts";
 import { hasFileBreakdown } from "./ciProofWording.ts";
@@ -30,18 +28,25 @@ import {
   immediateChildrenOf,
   outsideOf,
   owningEntryOf,
-  type SummaryChild,
 } from "./ciScopeProof.ts";
 import type { ScopeEvidence } from "./IntentScopeEvidence.tsx";
 import { ScopeFigures, scopeTableLabel } from "./IntentScopeFigures.tsx";
-import { ChildName } from "./IntentScopeProofChild.tsx";
+import {
+  childRowsOf,
+  NoBreakdownLabel,
+  OutsideExplanation,
+  outsideRowOf,
+} from "./IntentScopeSummaryRows.tsx";
 import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 import type {
   StoryCiComparisonAnswer,
   StoryCiComparisonSlot,
 } from "./storyCiComparison.ts";
-import { comparisonEndpointProofsChecking } from "./storyCiComparisonEntries.ts";
+import {
+  comparisonEndpointProofsChecking,
+  type ComparisonEndpointName,
+} from "./storyCiComparisonEntries.ts";
 import { observedNotAttributedInFull } from "./storyCiComparisonWording.ts";
 import { slotShortWords } from "./storyCiComparisonSlotWords.ts";
 import {
@@ -49,24 +54,18 @@ import {
   type ComparisonEndpointProofs,
 } from "./useIntentCiComparisonEntries.ts";
 
-const outsideRowLabel = "Not in the rows above";
-
 // An endpoint as a label: "Baseline abc1234", "Landed Skipped def5678" or
-// "Landed Not landed yet", its full status or explanation as description --
+// "Landed Not landed yet", its full status or explanation heard after it --
 // the status words Intent's homepage comparison identity uses.
 function endpointLabel(
-  endpoint: "Baseline" | "Branch" | "Landed",
+  endpoint: ComparisonEndpointName,
   slot: StoryCiComparisonSlot,
 ): EvidenceLabel {
   const { status, revision, full } = slotShortWords(slot);
-  const name = [endpoint, status, revision]
-    .filter((word) => word !== undefined)
-    .join(" ");
   return {
     key: endpoint,
     icon: revision === undefined ? CircleDashed : GitCommitHorizontal,
-    name,
-    shown: (
+    words: (
       <>
         {endpoint}
         {status === undefined ? "" : ` ${status}`}
@@ -81,14 +80,14 @@ function endpointLabel(
 const provisionalLabel: EvidenceLabel = {
   key: "provisional",
   icon: Hourglass,
-  name: "Provisional",
+  words: "Provisional",
   full: "The story is still Taken: its latest build, not a final result",
 };
 
 const framingLabel: EvidenceLabel = {
   key: "framing",
   icon: Eye,
-  name: "Observed, not attributed",
+  words: "Observed, not attributed",
   full: observedNotAttributedInFull,
 };
 
@@ -146,10 +145,14 @@ export function ComparisonTable({
     proofs.landed,
   );
   const afterSide = activeComparisonAfterSideOf(answer, proofs);
-  const primary = primaryProofOf(proofs.landed, proofs.branch, proofs.baseline);
+  const primary = primaryEndpointOf(
+    proofs.landed,
+    proofs.branch,
+    proofs.baseline,
+  );
   const entry =
-    primary.kind === "summary"
-      ? owningEntryOf(primary.entries, path)
+    primary.proof.kind === "summary"
+      ? owningEntryOf(primary.proof.entries, path)
       : undefined;
   const cellsFor = (scopePath: string) => {
     const file = changeOf(treeFiles, scopePath);
@@ -164,20 +167,15 @@ export function ComparisonTable({
       afterSide,
     );
   };
-  const childRow = (child: SummaryChild): CiProofTableRow => ({
-    key: child.path,
-    scope: <ChildName child={child} onOpen={onOpen} />,
-    name: child.name,
-    cells: cellsFor(child.path),
-  });
-  const rows: CiProofTableRow[] = children.map(childRow);
-  if (entry !== undefined && hasFileBreakdown(entry)) {
-    const outside = outsideOf(entry, path, children);
-    if (outside !== undefined) {
-      rows.push({
-        key: "\0outside",
-        scope: outsideRowLabel,
-        cells: outsideComparisonCellsOf(
+  const rows = childRowsOf(children, onOpen, cellsFor);
+  const outside =
+    entry !== undefined && hasFileBreakdown(entry)
+      ? outsideOf(entry, path, children)
+      : undefined;
+  if (outside !== undefined) {
+    rows.push(
+      outsideRowOf(
+        outsideComparisonCellsOf(
           path,
           children,
           proofs.baseline,
@@ -186,9 +184,8 @@ export function ComparisonTable({
           "precise",
           afterSide,
         ),
-        pinned: true,
-      });
-    }
+      ),
+    );
   }
   return (
     <>
@@ -198,6 +195,12 @@ export function ComparisonTable({
         </p>
       )}
       <ScopeFigures path={path} cells={cellsFor(path)} />
+      {entry !== undefined && (
+        <NoBreakdownLabel
+          entry={entry}
+          summary={`The ${primary.endpoint} CI proof summary`}
+        />
+      )}
       <CiProofTable
         label={scopeTableLabel(path)}
         scopeHeader="Scope"
@@ -205,6 +208,9 @@ export function ComparisonTable({
         sorting={sorting}
         changes
       />
+      {entry !== undefined && (
+        <OutsideExplanation entry={entry} path={path} outside={outside} />
+      )}
     </>
   );
 }

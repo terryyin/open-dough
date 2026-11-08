@@ -8,7 +8,10 @@
 // proof (slice 3).
 
 import { expect, test } from "../support/preparationPage.ts";
-import { anyComparisonLabels, evidenceLabel } from "../ciEvidenceLabelsPage.ts";
+import {
+  anyComparisonLabels,
+  expectLabelInFull,
+} from "../ciEvidenceLabelsPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 import { githubFor } from "../dashboardTest.ts";
@@ -55,12 +58,12 @@ test("Baseline names Skipped at a planning-only start and keeps the ancestor bui
   const { intent } = parts(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
   // The Summary labels Baseline Skipped beside the ancestor build's revision,
-  // the full status its description.
-  const baselineLabel = evidenceLabel(
+  // the full status heard after it and on hover.
+  await expectLabelInFull(
     anyComparisonLabels(summary),
     `Baseline Skipped ${shortSha(setup.baseline)}`,
+    skippedAt,
   );
-  await expect(baselineLabel).toHaveAccessibleDescription(skippedAt);
 });
 
 test("Baseline names Cancelled at a start whose run was cancelled and keeps the ancestor build", async ({

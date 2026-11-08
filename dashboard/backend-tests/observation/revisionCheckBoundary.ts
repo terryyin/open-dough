@@ -22,6 +22,13 @@ import { rawRequest } from "../../tests/support/rawHttp.ts";
 export const revisionA = "a1".repeat(20);
 export const revisionB = "b2".repeat(20);
 
+// GitHub giving up on an answer, as it does on a large repository's listing.
+export const gatewayTimeout: OriginAnswer = {
+  status: 504,
+  contentType: "application/json; charset=utf-8",
+  body: JSON.stringify({ message: "Server Error" }),
+};
+
 // The argv of the listing of every branch head, conditional on `etag`.
 export function checkArgv(repository: string, etag?: string): string[] {
   return [

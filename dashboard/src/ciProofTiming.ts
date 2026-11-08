@@ -47,9 +47,7 @@ export function partPhrase(part: CiProofPart, of: number, status: string) {
 
 // The present parts of ENTRY whose fragment was not broken down by file, so
 // no scope inside the entry holds their results.
-export function partsWithoutBreakdown(
-  entry: CiProofEntry,
-): readonly CiProofPart[] {
+function partsWithoutBreakdown(entry: CiProofEntry): readonly CiProofPart[] {
   return entry.parts.filter(
     (part) => part.status === "present" && part.breakdown !== true,
   );
@@ -64,6 +62,15 @@ const partGap = (
   label: `Part ${String(part.part)} ${label}`,
   phrase: partPhrase(part, of, status),
 });
+
+// Each present part of ENTRY without a file breakdown, as one gap: label
+// `Part 2 no breakdown`, phrase "part 2 of 3 has no file breakdown". The
+// timing cell, the Parts gaps (`./ciProofWording.ts`) and a Summary's
+// outside labels (`./IntentScopeSummaryRows.tsx`) all read it.
+export const noBreakdownGapsOf = (entry: CiProofEntry): TimingGap[] =>
+  partsWithoutBreakdown(entry).map((part) =>
+    partGap(part, entry.parts.length, "no breakdown", "has no file breakdown"),
+  );
 
 // Each missing or ambiguous part of ENTRY.
 const uncountedGaps = (entry: CiProofEntry): TimingGap[] =>
@@ -130,13 +137,10 @@ export function scopeTimingOf(
   entry: CiProofEntry,
   figures: CiScopeFigures,
 ): CiTiming {
-  const of = entry.parts.length;
   const untimed = figures.untimed ?? 0;
   const gaps = [
     ...uncountedGaps(entry),
-    ...partsWithoutBreakdown(entry).map((part) =>
-      partGap(part, of, "no breakdown", "has no file breakdown"),
-    ),
+    ...noBreakdownGapsOf(entry),
     ...(untimed > 0 ? [untimedGap(entry, untimed)] : []),
   ];
   if (figures.durationMs === undefined) {

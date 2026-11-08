@@ -15,19 +15,31 @@ import {
   type CiScopeFigures,
 } from "./ciScopeProof.ts";
 import type {
+  ComparisonEndpointName,
   ComparisonEndpointProof,
   ComparisonEntryCells,
 } from "./storyCiComparisonEntries.ts";
 
-export function primaryProofOf(
+// The homepage's chosen build and its endpoint: Landed, else Branch, else
+// Baseline.
+export function primaryEndpointOf(
   landed: ComparisonEndpointProof,
   branch: ComparisonEndpointProof,
   baseline: ComparisonEndpointProof,
-): ComparisonEndpointProof {
-  if (landed.kind === "summary") return landed;
-  if (branch.kind === "summary") return branch;
-  return baseline;
+): {
+  readonly endpoint: ComparisonEndpointName;
+  readonly proof: ComparisonEndpointProof;
+} {
+  if (landed.kind === "summary") return { endpoint: "Landed", proof: landed };
+  if (branch.kind === "summary") return { endpoint: "Branch", proof: branch };
+  return { endpoint: "Baseline", proof: baseline };
 }
+
+export const primaryProofOf = (
+  landed: ComparisonEndpointProof,
+  branch: ComparisonEndpointProof,
+  baseline: ComparisonEndpointProof,
+): ComparisonEndpointProof => primaryEndpointOf(landed, branch, baseline).proof;
 
 export function presentIn(
   proof: ComparisonEndpointProof,

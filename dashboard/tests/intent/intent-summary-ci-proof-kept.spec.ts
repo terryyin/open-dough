@@ -14,7 +14,9 @@ import {
   evidenceLabel,
   evidenceLabels,
   expectEvidenceLabels,
+  expectInFull,
   expectLabelInFull,
+  labelWords,
 } from "../ciEvidenceLabelsPage.ts";
 import {
   ancestorEvidence,
@@ -61,17 +63,14 @@ test("a Summary qualifies a previously retrieved judgment and its failed refresh
   const summary = await openSummary(intent, "tests");
   // Short labels lead the evidence: when it was retrieved, in the homepage's
   // words, and that the refresh failed, its failure announced in full.
-  const keptLabel = kept.replace(/\.$/, "");
   await expectEvidenceLabels(evidenceLabels(summary), [
-    keptLabel,
+    kept,
     "Refresh failed",
     ...ancestorEvidence,
   ]);
-  const retrieved = evidenceLabel(summary, keptLabel);
-  await expect(retrieved).toHaveText(kept);
-  await expect(retrieved).toHaveAccessibleDescription(
-    "Previously retrieved, not newly verified",
-  );
+  const retrieved = evidenceLabel(summary, kept);
+  await expect(labelWords(retrieved)).toHaveText(kept);
+  await expectInFull(retrieved, "Previously retrieved, not newly verified");
   await expect(retrieved.locator("time")).toHaveAttribute(
     "datetime",
     keptAt ?? "",

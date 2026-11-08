@@ -45,7 +45,10 @@ import type {
   ComparisonEntryCells,
 } from "./storyCiComparisonEntries.ts";
 
-export { primaryProofOf } from "./ciScopeComparisonPrimary.ts";
+export {
+  primaryEndpointOf,
+  primaryProofOf,
+} from "./ciScopeComparisonPrimary.ts";
 
 const notInCompared = { text: "not in the compared builds" };
 

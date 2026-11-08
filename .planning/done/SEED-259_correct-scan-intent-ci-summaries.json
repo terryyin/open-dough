@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-259#correct-scan-intent-ci-summaries",
+  "title": "Correct Intent CI label announcements and summary sort fallback",
+  "completedAt": "2026-11-08T01:30:12.638Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "claude",
+  "model": "opus"
+}

@@ -10,7 +10,7 @@
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import { evidenceLabel } from "../ciEvidenceLabelsPage.ts";
+import { evidenceLabel, labelWords } from "../ciEvidenceLabelsPage.ts";
 import {
   artifactId,
   expectProofRows,
@@ -97,7 +97,7 @@ test("complete entry durations show test execution time 4 min and 2 min beside c
   await page.setViewportSize({ width: 1280, height: 800 });
   const { panel, proof } = await openWithSummary(page, timedSummary());
   await expect(panel.locator(".intent-ci-state")).toContainText("Passed");
-  await expect(evidenceLabel(proof, wallTime)).toHaveText(wallTime);
+  await expect(labelWords(evidenceLabel(proof, wallTime))).toHaveText(wallTime);
   await expectProofRows(proof, [
     ["tests", "5 passed checks", "4 min"],
     ["dashboard/tests", "12 passed tests", "2 min"],
@@ -113,7 +113,7 @@ test("an older summary without durations shows No timings while wall time still 
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   const { proof } = await openWithSummary(page, olderSummary());
-  await expect(evidenceLabel(proof, wallTime)).toHaveText(wallTime);
+  await expect(labelWords(evidenceLabel(proof, wallTime))).toHaveText(wallTime);
   await expectProofRows(proof, [
     ["tests", "5 passed checks", noTimings],
     ["dashboard/tests", "12 passed tests", noTimings],

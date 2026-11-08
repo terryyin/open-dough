@@ -6,11 +6,13 @@
 // (`./IntentScopeEvidenceLabels.tsx`) -- or a story comparison's Baseline,
 // Branch and Landed with their status words, the provisional mark and the
 // observed-not-attributed framing (`./IntentScopeComparisonTable.tsx`); and
-// the notes on a Summary's figures (`./IntentScopeSingleProofTable.tsx`). Each
+// the notes on a Summary's figures (`./IntentScopeSummaryRows.tsx`). Each
 // label shows a Lucide icon, hidden from assistive technology, beside its
-// short words; the label's accessible name names what the icon stands for
-// with those words, and any fuller words are its description and hover. The
-// labels naming an attempt both Proof and a Summary show live here.
+// short words. A reader hears the label from its content: unseen words naming
+// what the icon stands for where the short words leave it out ("Revision"
+// before `abc1234`), the short words, then any fuller words, unseen too and
+// shown on hover. The labels naming an attempt both Proof and a Summary show
+// live here.
 
 import type { ReactNode } from "react";
 import {
@@ -30,13 +32,16 @@ import "./ci-evidence-labels.css";
 export type EvidenceLabel = {
   readonly key: string;
   readonly icon: LucideIcon;
-  // What a reader of the label hears: what the icon stands for and the
-  // label's short words, such as "Revision abc1234".
-  readonly name: string;
-  // What the label shows beside its icon, when not just its name.
-  readonly shown?: ReactNode;
-  // The fact in full, as the label's description and on hover.
+  // What a reader hears before the label's words but does not see: what the
+  // icon stands for when the words leave it out, such as "Revision" before
+  // `abc1234`.
+  readonly prefix?: string;
+  // What the label shows beside its icon, and a reader hears.
+  readonly words: ReactNode;
+  // The fact in full, heard after the words and shown on hover.
   readonly full?: string;
+  // The full words are announced as they appear, as a failure is.
+  readonly announced?: boolean;
   readonly className?: string;
 };
 
@@ -51,21 +56,41 @@ export function EvidenceLabels({
   if (labels.length === 0) return null;
   return (
     <ul aria-label={label} className="intent-evidence-labels">
-      {labels.map(({ key, icon, name, shown, full, className }) => (
-        <li
-          key={key}
-          aria-label={name}
-          title={full}
-          className={
-            className === undefined
-              ? "intent-evidence-label"
-              : `intent-evidence-label ${className}`
-          }
-        >
-          <Icon icon={icon} />
-          <span className="intent-evidence-label-words">{shown ?? name}</span>
-        </li>
-      ))}
+      {labels.map(
+        ({ key, icon, prefix, words, full, announced, className }) => (
+          <li
+            key={key}
+            className={
+              className === undefined
+                ? "intent-evidence-label"
+                : `intent-evidence-label ${className}`
+            }
+          >
+            {/* The hover is the content's, not the list item's: a list item's
+              title would become its accessible name. */}
+            <span className="intent-evidence-label-content" title={full}>
+              <Icon icon={icon} />
+              <span className="intent-evidence-label-heard">
+                {prefix !== undefined && (
+                  <span className="visually-hidden">{`${prefix} `}</span>
+                )}
+                <span className="intent-evidence-label-words">{words}</span>
+              </span>
+              {full !== undefined && (
+                <span className="visually-hidden">
+                  {", "}
+                  <span
+                    className="intent-evidence-label-full"
+                    {...(announced === true ? { role: "alert" } : {})}
+                  >
+                    {full}
+                  </span>
+                </span>
+              )}
+            </span>
+          </li>
+        ),
+      )}
     </ul>
   );
 }
@@ -79,8 +104,7 @@ export function attemptLabel(run: ShownCiProofRun): EvidenceLabel {
   return {
     key: "attempt",
     icon: CirclePlay,
-    name: words,
-    shown:
+    words:
       run.runUrl === undefined ? (
         words
       ) : (
@@ -96,8 +120,8 @@ export function revisionLabel(revision: string): EvidenceLabel {
   return {
     key: "revision",
     icon: GitCommitHorizontal,
-    name: `Revision ${sha}`,
-    shown: <code>{sha}</code>,
+    prefix: "Revision",
+    words: <code>{sha}</code>,
   };
 }
 
@@ -105,7 +129,7 @@ export function revisionLabel(revision: string): EvidenceLabel {
 export const ancestorLabel: EvidenceLabel = {
   key: "ancestor",
   icon: History,
-  name: "Completed ancestor",
+  words: "Completed ancestor",
   full: "The completed ancestor of the running result",
 };
 
@@ -114,7 +138,7 @@ export function wallTimeLabel(run: ShownCiProofRun): EvidenceLabel {
   return {
     key: "wall time",
     icon: Timer,
-    name: words,
+    words,
     ...(full === undefined ? {} : { full }),
   };
 }

@@ -15,7 +15,7 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { ciProofSchema } from "../../src/ciProof.ts";
-import { activateIntentHome, runUrl } from "../intentCiStatusPage.ts";
+import { activateIntentHome } from "../intentCiStatusPage.ts";
 import {
   artifactId,
   expectProofRows,
@@ -34,16 +34,13 @@ import {
 } from "../intentScopeProofPage.ts";
 import {
   allParts,
-  ancestorEvidence,
   bothEntriesSummary,
+  expectAncestorEvidence,
   openIntent,
   openSummary,
-  treeGap,
-  treeGapInFull,
 } from "../intentSummaryCiProofFixtures.ts";
 import {
   evidenceLabels,
-  expectAttemptLinked,
   expectEvidenceLabels,
   expectLabelInFull,
 } from "../ciEvidenceLabelsPage.ts";
@@ -138,9 +135,7 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
       // A measured zero stays zero.
       ["b.spec.ts", "1 passed tests", "0 ms"],
     ]);
-    await expectEvidenceLabels(evidenceLabels(summary), ancestorEvidence);
-    await expectAttemptLinked(summary, "Run 41 · attempt 1", runUrl);
-    await expectLabelInFull(summary, treeGap, treeGapInFull);
+    await expectAncestorEvidence(summary);
     await expect(intentFolderName(intent, "folder")).toHaveAttribute(
       "aria-pressed",
       "true",

@@ -23,6 +23,7 @@ import {
 } from "../../tests/support/sharedReads.ts";
 import { RevisionChecks } from "../../server/revisionChecks.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
+import { gatewayTimeout } from "./revisionCheckBoundary.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -32,12 +33,6 @@ const pause = (ms: number) =>
   new Promise<void>((resolve) => {
     setTimeout(resolve, ms);
   });
-
-const gatewayTimeout = {
-  status: 504,
-  contentType: "application/json; charset=utf-8",
-  body: JSON.stringify({ message: "Server Error" }),
-};
 
 test("a 504 listing, a timed-out listing, and a rate-limited listing keep nothing; the next check asks again", async () => {
   const revision = revisionOf("8e");

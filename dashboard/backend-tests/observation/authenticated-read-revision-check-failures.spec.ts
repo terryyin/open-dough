@@ -18,6 +18,7 @@ import {
 } from "../../tests/originAnswers.ts";
 import {
   checkArgv,
+  gatewayTimeout,
   listingEtag,
   ownRevisionCheckBoundary,
   revisionA,
@@ -38,13 +39,6 @@ function refArgv(repository: string): string[] {
     ".sha",
   ];
 }
-
-// GitHub giving up on an answer, as it does on a large repository's listing.
-const gatewayTimeout = {
-  status: 504,
-  contentType: "application/json; charset=utf-8",
-  body: JSON.stringify({ message: "Server Error" }),
-};
 
 test.describe("authenticated read boundary revision check failures (development environment)", () => {
   const { main, listing, check } = revisionCheckBoundary();
