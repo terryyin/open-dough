@@ -320,6 +320,22 @@ added installer, payload and fixture-closure hashing (about 0.25 s per family
 identity). One capture now covers every supervision and guidance input, which
 took the identity check from 38.3 to 16.2 CI seconds.
 
+## Execution complete
+
+Product advice: the four Git publication native fixture families now name
+their starting facts through MakeMe, and their identities hash the fixture
+closures, installer and declared payload. The payload breadth makes every
+release or skill edit stale every retained startup, admission and one-shot
+record, so these identities establish provenance but will rarely allow reuse
+while paid native runs stay manual. For remaining SEED-262 work, decide
+whether evidence reuse is still a goal; if so, narrow payload hashing to the
+guidance a journey reads or revisit the deferred normalized repository key.
+Correction
+[SEED-262#guard-native-fixture-identity-inputs](../../seeds/SEED-262-faster-dashboard-test-feedback.md#guard-native-fixture-identity-inputs)
+(plan 542, assessed ready, unqueued) guards installer input drift and the
+closure lexer. Process findings: DD-464 occurrence in `DearDough.md` and
+DD-465 in `ProjectFindings.md`.
+
 ## Decisive premises observed during preparation
 
 All observations are from the assigned checkout at `78e8b3715` on 2026-11-08.

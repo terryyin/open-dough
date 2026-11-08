@@ -414,3 +414,20 @@ selects no new implementation story.
   - Evidence: job `dashboard (8/12)` failed the same `intent-ci-proof.spec.ts:150` check with `sideways: 26` after slice 2 added sortable header buttons with an arrow; the 106-test local family gate had passed on macOS. The repair agent reproduced 26 px with DejaVu loaded as `@font-face`, then made the spec force Verdana on the table so macOS reproduces Linux widths (failed 25 px before the CSS fix, passed after); repair `68e5f52b3`. Slices 3 and 5 extended the same Verdana override to the summary zoom checks.
   - Observed effect: a second CI failure of this check, a stash/repair/restore cycle around paused slice 3 work, and about 125k repair-agent tokens.
   - Inference: forcing a wide font inside each layout-measuring spec is a workable local stand-in, but each new narrow-width check must remember it; the fonts in the `ci-container.sh` image remain the general remedy.
+
+## A slice made a check heavier without judging its CI job ceiling (open, unqueued)
+
+<a id="dd-465"></a>
+
+### DD-465 — Slice 1 grew `tests/native-evidence-identity.sh` past the 64 s per-job ceiling; local proof passed and CI failed
+
+### Occurrences
+
+- Execution: SEED-262#migrate-git-publication-native-fixtures (plan 534-migrate-git-publication-native-fixtures, first implementation commit e33993231c9ce45e6ad573321fba472d4778e25f)
+  - Timestamp: 2026-11-08T14:20:06Z (run 42488867557 attempt 1 completed)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `23d29ac79`)
+  - Evidence: slice 1 made four family identities hash about 380–410 inputs each and added startup and one-shot to the check's writers; its seven one-input supervision captures and per-line `awk` calls scaled with that. Job `test (3/3)` printed `OVER BUDGET: tests/native-evidence-identity.sh took 67.8s … the per-job ceiling is 64s (tests/time-budget)` (recorded 34.5 s in `tests/longest-first`). The slice's focused runs passed at 47–67 s locally under load 11–13 without a budget judgment; the plan's Local gates and the delegation brief did not name the ceiling. Repair `7d62c61b5` (one capture over all changed inputs) gave 16.2 CI seconds at `cd5b0ddb0`.
+  - Observed effect: one CI failure, a stash/repair/restore cycle around paused slice 2 work, and about 93k repair-agent tokens.
+  - Inference: a slice that adds work inside an existing check could compare its focused time against the check's `tests/longest-first` entry scaled by the local base run and stop before publishing when it approaches the ceiling. Later briefs in this execution named the ceiling and no further breach occurred.

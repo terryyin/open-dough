@@ -396,6 +396,34 @@ fixture construction or identity work that changed, following the epic's
 evaluation rule. Preserve the corresponding one-shot and owned-context
 verdicts and verify input sensitivity without credentials.
 
+<a id="guard-native-fixture-identity-inputs"></a>
+
+### Guard native fixture identity inputs against drift
+
+**Identity:** SEED-262#guard-native-fixture-identity-inputs
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/542-guard-native-fixture-identity-inputs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0f8dfb3744ccf356ad60cbbb4576d4248b035d8affa8a66e4376a7b4f8d74c64","plan":"0aa7704a9e348a1be6fcd6420742790c95a82bb0973a1b53340e2370d7c35a12"}}
+```
+
+Correction of
+[SEED-262#migrate-git-publication-native-fixtures](#migrate-git-publication-native-fixtures).
+
+#### Goal
+
+A maintainer assessing retained Git publication native evidence can rely on
+each fixture family's identity to stay complete as installer helpers are
+added. Its closure tool treats valid modules as readable instead of failing
+them.
+
+#### Scope
+
+- Each fixture family identity covers every installer file the fresh install
+  reads, and a check fails when one is missing.
+- The import closure keeps generated template text as data and reads valid
+  division and regular-expression forms without a spurious failure. Direct
+  tests document those forms.
+- Plan: [542-guard-native-fixture-identity-inputs](../slice-plans/542-guard-native-fixture-identity-inputs/PLAN.md)
+
 <a id="declare-fake-github-planning-data"></a>
 
 ### Serve fake GitHub planning files from explicit MakeMe data
