@@ -10,10 +10,18 @@ import { promisify } from "node:util";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { writeQueuedStories } from "./queuedStories.ts";
 import { repoRoot } from "./repositoryRoot.ts";
+import { requestRunArtifact } from "./runArtifacts.ts";
 
 const exec = promisify(execFile);
 export const startOriginPreparationVariable =
   "OPEN_DOUGH_START_ORIGIN_PREPARATION";
+const startOriginLayouts = ["claude", "codex"] as const;
+type StartOriginLayout = (typeof startOriginLayouts)[number];
+
+export function startOriginArtifactKey(layout: StartOriginLayout): string {
+  return `start-origin-${layout}`;
+}
+
 export const installedStartSkills = [
   "dough-execute-plan",
   "dough-product-backlog",
@@ -26,58 +34,58 @@ export function createStartOriginPreparationDirectory(): string {
   return mkdtempSync(path.join(tmpdir(), "dough-start-preparation-"));
 }
 
-export async function prepareStartOrigins(
+export function startOriginArtifacts() {
+  return startOriginLayouts.map(
+    (layout) =>
+      [
+        startOriginArtifactKey(layout),
+        {
+          create: createStartOriginPreparationDirectory,
+          prepare: (directory: string) => prepareStartOrigin(directory, layout),
+        },
+      ] as const,
+  );
+}
+
+export async function prepareStartOrigin(
   directory: string,
+  layout: StartOriginLayout,
   source = path.join(repoRoot, "src", "skills"),
-  layout?: "claude" | "codex",
 ): Promise<void> {
+  const project = path.join(directory, "building");
   try {
-    for (const host of layout === undefined
-      ? (["claude", "codex"] as const)
-      : [layout]) {
-      const project = path.join(directory, "building");
-      mkdirSync(project);
-      try {
-        await exec("git", ["init", "-b", "main", project]);
-        writeFileSync(path.join(project, ".gitignore"), ".worktrees/\n");
-        writeQueuedStories(project);
-        const folder = { path: project, shown: project };
-        for (const skill of installedStartSkills) {
-          cpSync(
-            path.join(source, skill),
-            installedSkillPath(host, folder, skill),
-            {
-              recursive: true,
-            },
-          );
-        }
-        await exec("git", ["-C", project, "add", "."]);
-        await exec("git", [
-          "-C",
-          project,
-          "-c",
-          "user.name=Dashboard Developer",
-          "-c",
-          "user.email=developer@example.test",
-          "commit",
-          "-m",
-          "queued story and installed skills",
-        ]);
-        const origin = path.join(directory, host);
-        // The transport produces one pack instead of copying loose objects.
-        await exec("git", ["clone", "--bare", "--no-local", project, origin]);
-        await exec("git", ["-C", origin, "remote", "remove", "origin"]);
-        await exec("git", [
-          "-C",
-          origin,
-          "config",
-          "maintenance.auto",
-          "false",
-        ]);
-      } finally {
-        rmSync(project, { recursive: true, force: true });
-      }
+    mkdirSync(project);
+    await exec("git", ["init", "-b", "main", project]);
+    writeFileSync(path.join(project, ".gitignore"), ".worktrees/\n");
+    writeQueuedStories(project);
+    const folder = { path: project, shown: project };
+    for (const skill of installedStartSkills) {
+      cpSync(
+        path.join(source, skill),
+        installedSkillPath(layout, folder, skill),
+        {
+          recursive: true,
+        },
+      );
     }
+    await exec("git", ["-C", project, "add", "."]);
+    await exec("git", [
+      "-C",
+      project,
+      "-c",
+      "user.name=Dashboard Developer",
+      "-c",
+      "user.email=developer@example.test",
+      "commit",
+      "-m",
+      "queued story and installed skills",
+    ]);
+    const origin = path.join(directory, layout);
+    // The transport produces one pack instead of copying loose objects.
+    await exec("git", ["clone", "--bare", "--no-local", project, origin]);
+    await exec("git", ["-C", origin, "remote", "remove", "origin"]);
+    await exec("git", ["-C", origin, "config", "maintenance.auto", "false"]);
+    rmSync(project, { recursive: true, force: true });
   } catch (error) {
     rmSync(directory, { recursive: true, force: true });
     throw error;
@@ -90,14 +98,15 @@ export async function initializeStartOrigin(
   repository: string,
   host: "claude" | "codex" | "cursor",
 ): Promise<void> {
-  const inherited = process.env[startOriginPreparationVariable];
-  const directory = inherited ?? createStartOriginPreparationDirectory();
   const layout = host === "claude" ? "claude" : "codex";
+  // An explicit fixture override still takes precedence over the run owner.
+  const prepared =
+    process.env[startOriginPreparationVariable] ??
+    (await requestRunArtifact(startOriginArtifactKey(layout)));
+  const directory = prepared ?? createStartOriginPreparationDirectory();
   try {
-    // Nested configurations without global setup get current source too, and
-    // never acquire a cache that could survive this invocation.
-    if (inherited === undefined)
-      await prepareStartOrigins(directory, undefined, layout);
+    // A configuration with no inherited owner prepares a private copy.
+    if (prepared === undefined) await prepareStartOrigin(directory, layout);
     cpSync(path.join(directory, layout), origin, {
       recursive: true,
     });
@@ -133,7 +142,7 @@ export async function initializeStartOrigin(
       "refs/remotes/origin/HEAD",
     ]);
   } finally {
-    if (inherited === undefined)
+    if (prepared === undefined)
       rmSync(directory, { recursive: true, force: true });
   }
 }

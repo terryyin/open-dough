@@ -23,6 +23,8 @@
 - Slice 1 published and registered at `019b0e25014c2e6fbee8138e90503279a77191a6`
   on the execution branch. Its CI repair was published and registered at
   `6b9bd99fbe5530ca273dafb1cdbde8c152538464`.
+- Slice 2 published and registered at `944355f3ae2adec8dc6f17790910b683c52258ed`
+  on the execution branch.
 - No replanning override was supplied. Use the existing planning authority
   for refinement within scope. No numeric project slice budget is recorded.
 
@@ -265,9 +267,14 @@ See `/tmp/dough-513-refactor2.uDYYS0/proof.json` and its consumer trace.
 
 ### 3. Selected installed starts share only the origin layouts they use
 
+Trunk at `f21628118f9e53e2dc6f9862cad2b3c38df10664` still queues the origin
+migration and its prerequisite. There is no change to the preparation seam
+and no active migration worktree. Use the current Codex/Cursor and Claude
+layout keys.
+
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run `start-origin-isolation.spec.ts` both filtered and whole.
 Observe the producer keys and verify real private copies, installed source
@@ -281,6 +288,52 @@ and uses the existing Git producer. Codex and Cursor share a layout.
 Separate staging or serialized production keeps the packer's temporary
 directory and error cleanup from colliding. Finish the fixture and
 runner documentation for actual demand and retained proof boundaries.
+
+Accepted evidence: The quiet Chromium runs with two workers used the
+same selections and commands as the eager baseline. Every attempted
+case passed with no retry, and every traced completed directory was
+removed at exit.
+
+| Selection | Strict pass | Eager seconds | On-demand seconds | Producer completions |
+| --- | ---: | ---: | ---: | --- |
+| In process | 3 | 6.26 | 1.12 | None |
+| Built frontend | 2 | 5.12 | 3.49 | App |
+| Mixed with attention | 13 | 12.85 | 10.97 | App and server bundle |
+| Filtered installed | 1 | 6.77 | 4.88 | Codex/Cursor layout |
+
+The first mixed and installed samples were 14.00 s and 5.96 s while the
+one-minute load rose from about 7.8 to 9.5. Their repeats above ran at
+about 7.8–8.0. A second comparison paired the same mixed selection in a
+fresh scratch worktree at the eager claim with this candidate. Both
+passed the same 13 cases, in 16.23 s and 10.99 s at one-minute load
+5.62–6.40. The eager scratch worktree was removed. The recorded samples
+show lower focused wall time and no reproducible mixed regression under
+the observed conditions. See `/tmp/dough-513-comparison.QCOe7a` and
+`/tmp/dough-513-eager-pair.X1Pr87/comparison.log`.
+
+With `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i npm run --silent
+test:dashboard -- --project=chromium --workers=2`, the whole
+`start-origin-isolation[.]spec[.]ts$` selection passed three cases. The
+spec asserts independent Git packs, refs, HOME and later instances,
+current-source explicit and fallback paths, and real failure codes.
+`start-origin-demand[.]spec[.]ts$` used the normal global setup in a
+nested run and failed a real Codex pack after Claude completed. It
+observed the failed directory gone, the retained Claude files intact,
+and a later real Claude clone passing `git fsck`. Each layout started
+in its own root. The nested artifact and run-process proofs passed 12
+cases with compile-cache and inherited kept-first cleanup. App failure
+and SIGINT each removed the nested build without touching the distinct
+outer build or the observed `dashboard/dist` state. DOM-only, real
+installed-wrapper and synthetic GitHub selections passed, as did all 11
+local admission cases, typecheck and the browser-free concurrent check.
+See `/tmp/dough-513-slice3.1Uvvob` and the caller dispositions in
+`/tmp/dough-513-slice3-consumers-focused.md`.
+
+The independent refactor reran 11 installed-origin, artifact-lifecycle
+and nested-inheritance cases. It also reran the Codex/Cursor filter and
+the current-source freshness case individually. All passed, and the
+filtered trace showed only the Codex/Cursor preparation. See
+`/tmp/dough-513-refactor3.HgZvIz`.
 
 ## Preparation review
 

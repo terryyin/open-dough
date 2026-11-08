@@ -1,8 +1,13 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { createServer, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { appendedRecords } from "../../tests/support/appendedRecords.ts";
+import {
+  dashboardAppArtifactKey,
+  sharedDashboardBuild,
+} from "../../tests/support/dashboardBuild.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { processRunning } from "../../tests/support/processGroup.ts";
 import {
@@ -25,11 +30,16 @@ type Build = { pid: number; outDir: string };
 type Outcome = "complete" | "fail" | "interrupt";
 
 function records<T>(file: string): T[] {
-  if (!existsSync(file)) return [];
-  return readFileSync(file, "utf8")
-    .trim()
-    .split("\n")
-    .map((line) => JSON.parse(line) as T);
+  return existsSync(file) ? appendedRecords<T>(readFileSync(file, "utf8")) : [];
+}
+
+function appOutput(directory: string) {
+  if (!existsSync(directory)) return undefined;
+  const entry = path.join(directory, "index.html");
+  return {
+    modified: statSync(directory).mtimeMs,
+    index: existsSync(entry) ? readFileSync(entry, "utf8") : undefined,
+  };
 }
 
 test.afterEach(removeProofDirectories);
@@ -48,6 +58,18 @@ function proveArtifact(
   const preload = pathToFileURL(path.join(fixtures, artifact.preload)).href;
   for (const outcome of outcomes) {
     test(`a shared real ${artifact.name} can ${outcome} while workers are waiting`, async () => {
+      // Keep a completed app in the outer run while the inner run fails or exits.
+      const peer =
+        artifact.key === dashboardAppArtifactKey && outcome !== "complete"
+          ? await sharedDashboardBuild()
+          : undefined;
+      const peerBefore = peer === undefined ? undefined : appOutput(peer);
+      const dist = path.join(repoRoot, "dashboard", "dist");
+      const distBefore = peer === undefined ? undefined : appOutput(dist);
+      if (peer !== undefined) {
+        expect(peer).not.toBe(dist);
+        expect(peerBefore?.index).toContain("/assets/");
+      }
       const directory = proofDirectory();
       const trace = path.join(directory, "artifacts.jsonl");
       const consumers = path.join(directory, "consumers.jsonl");
@@ -127,6 +149,11 @@ function proveArtifact(
         expect(proof.phase).toBe("completed");
         expect(processRunning(build.pid)).toBe(false);
         expect(existsSync(build.outDir)).toBe(false);
+        if (peer !== undefined) {
+          expect(build.outDir).not.toBe(peer);
+          expect(appOutput(peer)).toEqual(peerBefore);
+          expect(appOutput(dist)).toEqual(distBefore);
+        }
 
         const observed = records<Consumer>(consumers);
         if (outcome === "complete") {
@@ -179,7 +206,7 @@ function proveArtifact(
 proveArtifact(
   {
     name: "app build",
-    key: "app",
+    key: dashboardAppArtifactKey,
     preload: "buildGate.mjs",
     spec: "app.proof.ts",
     partial: "partial",

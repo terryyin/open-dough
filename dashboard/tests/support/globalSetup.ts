@@ -1,8 +1,8 @@
-// Workers request the production app build and server bundle when they need
-// them. Each completed artifact is shared read-only across the run. Installed
-// origins are prepared during setup. The run removes its own directories.
+// Workers request the app build, server bundle or an installed origin layout
+// when they need it. Each completed artifact is shared read-only across the
+// run. The run removes its own directories.
 //
-// Before building, it runs the committed fixture executables once
+// Before starting workers, it runs the committed fixture executables once
 // (./fixtureExecutable.ts), so a fresh checkout's first run of each happens
 // here and not inside a page's first read.
 //
@@ -34,54 +34,44 @@ import {
   endRunProcesses,
   identifyRun,
 } from "./runProcesses.ts";
-import {
-  createStartOriginPreparationDirectory,
-  prepareStartOrigins,
-  startOriginPreparationVariable,
-} from "./startOriginPreparation.ts";
+import { startOriginArtifacts } from "./startOriginPreparation.ts";
 
 export default async function globalSetup(): Promise<() => Promise<void>> {
   const runId = identifyRun();
   runFixtureExecutablesOnce();
   const requests = mkdtempSync(path.join(tmpdir(), "dough-dashboard-gh-"));
   const ownerless = ownerlessRequestRoot(requests);
-  const origins = createStartOriginPreparationDirectory();
   const remove = (): void => {
     process.off("exit", remove);
     rmSync(requests, { recursive: true, force: true });
-    rmSync(origins, { recursive: true, force: true });
   };
   // Playwright runs the returned teardown after a graceful interruption.
   // Exit also covers interruption while asynchronous setup is still pending.
   process.once("exit", remove);
-  const start = async () => {
-    await prepareStartOrigins(origins);
-    return startRunArtifacts(
-      new Map([
-        [
-          dashboardAppArtifactKey,
-          {
-            create: () =>
-              mkdtempSync(path.join(tmpdir(), "dough-dashboard-build-")),
-            prepare: buildDashboardTo,
-          },
-        ],
-        [
-          serverBundleArtifactKey,
-          {
-            create: createServerBundleDirectory,
-            prepare: bundleServerEntries,
-          },
-        ],
-      ]),
-    );
-  };
-  const closeArtifacts = await start().catch(async (error: unknown) => {
+  const closeArtifacts = await startRunArtifacts(
+    new Map([
+      [
+        dashboardAppArtifactKey,
+        {
+          create: () =>
+            mkdtempSync(path.join(tmpdir(), "dough-dashboard-build-")),
+          prepare: buildDashboardTo,
+        },
+      ],
+      [
+        serverBundleArtifactKey,
+        {
+          create: createServerBundleDirectory,
+          prepare: bundleServerEntries,
+        },
+      ],
+      ...startOriginArtifacts(),
+    ]),
+  ).catch(async (error: unknown) => {
     remove();
     await releaseLocalSuites();
     throw error;
   });
-  process.env[startOriginPreparationVariable] = origins;
   process.env["DOUGH_GITHUB_REQUEST_OWNER_ROOT"] = ownerless;
   const checkRun = async () => {
     try {

@@ -94,14 +94,13 @@ Put a check where it is cheapest to prove, and prove it once:
   test. Servers and fake GitHub stay per test: siblings vary `projectFolders`,
   `launchTimeoutMs`, viewport and usually launch or mark done.
 
-Fresh installed-start origins are packed once per run from current working-tree
-skills (`support/startOriginPreparation.ts`): one Claude and one Codex/Cursor
-layout. Tests receive private byte copies and native clones with independent
-objects, refs, config, indexes and HOME; preparation stays read-only and global
-teardown removes it. Without global setup, nested runs prepare only their
-requested layout and remove it after initialization. Eager setup costs time
-even without starts, avoiding repeated skill copying, indexing and initial
-commits. Servers, browser contexts and fake-service state stay private.
+An installed start requests its layout, Claude or Codex/Cursor, on first use.
+The runner packs each requested layout once from current working-tree skills
+(`support/startOriginPreparation.ts`). Tests clone private copies with
+independent objects, refs, config, indexes and HOME. Nested configurations
+can inherit the outer runner's artifacts. Without an owner, a start prepares
+only its layout and removes that preparation after initialization. An explicit
+prepared-origin fixture path takes precedence.
 
 ## Synchronization
 
@@ -125,11 +124,12 @@ helpers and the event each one waits for.
 
 ## What is real and what is replaced
 
-Preview and boundary use the run's Vite config, boundary server and Cursor
+Preview and boundary request one Vite config, boundary server and Cursor
 runner bundle under `node_modules`, with source-relative `import.meta` paths.
-Dev serves source. Static frontend and shared preview share one app build on
-demand. Success, failure or graceful interruption removes the run's own
-directories, leaving other runs and `dashboard/dist` alone.
+Dev serves source. Static frontend and shared preview request the same
+app build. Requests share the completed result or producer error. Teardown
+settles in-flight preparations and removes the run's own directories,
+leaving other runs and `dashboard/dist` alone.
 Each journey (`dashboardTest.ts`) serves that build from its own preview
 server with a synthetic `gh` on PATH (`fixtures/fake-gh`), answering from
 the test's own fake GitHub (`support/fakeGitHub.ts`, published through
