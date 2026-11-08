@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-276_guard-intent-per-file-highlighting.json",
+      "identity": "SEED-276#guard-intent-per-file-highlighting",
+      "completedAt": "2026-11-08T12:50:48.041Z",
+      "blob": "1ec9df7c369f3f85b7a8ba74152201576b54a718"
+    },
+    {
       "fileName": "SEED-273_lean-follow-up-listing.json",
       "identity": "SEED-273#lean-follow-up-listing",
       "completedAt": "2026-11-08T12:14:49.097Z",
