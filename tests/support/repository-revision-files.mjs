@@ -7,6 +7,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   agentIdentity,
   renderAgentProfile,
@@ -25,6 +26,13 @@ import { backlogPath } from "./repositoryTestData.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RevisionFacts} RevisionFacts */
 /** @typedef {import("./repositoryTestData.mjs").StoryState} StoryState */
+/** @typedef {import("./releaseTestData.mjs").Release} Release */
+
+// The Open Dough working tree whose payload a release revision marks.
+export const openDoughSource = fileURLToPath(
+  new URL("../../", import.meta.url),
+);
+const markedSkill = "src/skills/dough-update/SKILL.md";
 
 /** @param {string} root @param {string} path */
 function fixturePath(root, path) {
@@ -75,11 +83,30 @@ function writeStoryState(planning, state) {
   writeFileSync(file, final.source);
 }
 
+/**
+ * A release's `VERSION`, its one changelog entry, and the working tree's
+ * dough-update skill with the release's payload marker appended.
+ * @param {string} checkout
+ * @param {Release} release
+ */
+function writeRelease(checkout, { version, marker }) {
+  writeFixtureFile(join(checkout, "VERSION"), `${version}\n`);
+  writeFixtureFile(
+    join(checkout, "CHANGELOG.md"),
+    `## ${version} - 2026-09-06\n\n${marker}\n`,
+  );
+  writeFixtureFile(
+    join(checkout, markedSkill),
+    `${readFileSync(join(openDoughSource, markedSkill), "utf8")}\n<!-- open-dough-payload ${marker} -->\n`,
+  );
+}
+
 /** @param {string} integration @param {RevisionFacts} revision */
 export function writeRevisionFiles(integration, revision) {
   const planning = join(integration, ".planning");
   const {
     backlog,
+    release,
     files = {},
     executables = [],
     storyStates = [],
@@ -90,6 +117,7 @@ export function writeRevisionFiles(integration, revision) {
 
   for (const path of remove)
     rmSync(fixturePath(integration, path), { recursive: true, force: true });
+  if (release) writeRelease(integration, release);
   if (backlog)
     writeFixtureFile(
       fixturePath(integration, backlogPath),

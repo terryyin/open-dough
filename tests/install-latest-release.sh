@@ -16,7 +16,10 @@ cd -- "${temporary_dir}"
 helper="${source_dir}/src/install/open-dough-release.sh"
 fixture="${temporary_dir}/fixture.git"
 target="${temporary_dir}/target project"
-build_latest_fixture "${fixture}"
+# The shared "latest" release source in tests/support/release-sources.mjs:
+# 0.1.1 tagged 2026-06-01, 0.1.2 tagged 2026-09-01 and 0.1.10 tagged
+# 2020-01-01, under an untagged head that adds BRANCH_HEAD.
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" latest
 prepare_target "${target}"
 
 resolved=$(bash "${helper}" resolve-url "${fixture}")

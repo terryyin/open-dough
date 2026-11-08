@@ -3,6 +3,16 @@
 **Identity:** SEED-262#migrate-shell-release-and-native-fixtures
 
 **Source:** [Build release source repositories from explicit MakeMe data](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-shell-release-and-native-fixtures)
+**Source review:** [source-review.md](source-review.md)
+
+## Execution state
+
+- Mode: Story Branch Mode; workspace
+  `/Users/terryyin/git/open-dough/.worktrees/build-release-source-repositories-from-explicit`,
+  branch `claude/build-release-source-repositories-from-explicit`, remote
+  `origin`, target `main`; publisher `dashboard-territory.local-open-dough`.
+- Published claim `766cfa66f` accepted on `origin/main`; starting revision
+  `54cc27451`. Replanning: existing planning authority (no flag).
 
 ## Goal and boundaries
 
@@ -124,7 +134,7 @@ comparable load, and record the load averages. Run each three times.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: focused run of `tests/install-latest-release.sh` and the other nine
 `build_latest_fixture` consumers: `compare-payload.sh`, `install-all-tools.sh`,
@@ -149,6 +159,24 @@ source and runs the installer → it resolves `v0.1.10`, installs
 `release-source.mjs` with that description. Add `makeMe.aRelease`, the
 revision `release` fact, the local in-place materializer option with the
 payload layer, and the helper.
+
+Accepted proof (2026-11-08): the ten `build_latest_fixture` consumers,
+`tests/support/repository-release.test.mjs` and the 120 node test files that
+import MakeMe, the description or the materializer passed quietly through the
+focused command after the refactor pass. Discrimination: 0.1.10 stated as
+0.1.0 made `install-latest-release.sh` resolve `v0.1.2` and fail. Timing:
+`build_latest_fixture` 0.93–0.97 s before, 0.62–0.71 s after (load about
+9.7); `install-latest-release.sh` through `scripts/test.sh` 6.35–6.58 s
+before (load 8.1), 5.65–6.19 s after (load 7.2–7.9).
+
+Learnings: the materializer options are `withoutOrigin` (one checkout, no
+remote; plan 524 can reuse it) and `at` (build in place, no template).
+History building lives in `tests/support/repository-history.mjs` and the
+release types in `tests/support/releaseTestData.mjs`. A stated `withheld` or
+`removed` is not yet applied (G1, G2). Trunk's `commitDeclaredRevision`
+export (from the dashboard-origin story) changed `repository-fixture.mjs`
+after this branch started; merge it into `repository-history.mjs` before
+slice 2.
 
 ### 2. Upgrade checks state their older and newer releases
 
@@ -254,3 +282,19 @@ description, and slices 2 and 3 extend it with facts their examples need.
 Remaining slice-specific concerns: none identified in this review. Slice 1 is
 the largest: a new fact, a materializer option, a helper and ten consumers.
 Its consumers share one description, so they form one proof loop.
+
+
+## Story obligations
+
+### G1. Stated withheld paths are not yet applied
+Reported: slice 1 — "Withheld and removed are held in the model only. The materializer does not write them yet, so a stated non-empty value is currently ignored."
+Story clause: "the managed paths a release withholds from its installer declaration"
+Disposition: receiving slice 2
+Commitment: 6.4
+
+
+### G2. Stated removed paths are not yet applied
+Reported: slice 1 — "Withheld and removed are held in the model only. The materializer does not write them yet, so a stated non-empty value is currently ignored."
+Story clause: "or removes from its payload"
+Disposition: receiving slice 3
+Commitment: 6.5

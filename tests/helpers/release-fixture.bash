@@ -101,27 +101,10 @@ build_current_tagged_release_fixture() {
   tag_release "${repo}" "${version}" '2026-09-06T00:00:00'
 }
 
+# Build the shared "latest" release source that tests/support/release-sources.mjs
+# states: 0.1.10 is the highest version and the oldest tag.
 build_latest_fixture() {
-  local repo=$1
-
-  init_fixture_repo "${repo}"
-
-  # Tagged A is 0.1.1; tagged B / numeric latest is 0.1.10.
-  write_candidate_payload "${repo}" 0.1.1 payload-0.1.1
-  commit_all "${repo}" 'release 0.1.1'
-  tag_release "${repo}" 0.1.1 '2026-06-01T00:00:00'
-
-  write_candidate_payload "${repo}" 0.1.2 payload-0.1.2
-  commit_all "${repo}" 'release 0.1.2'
-  tag_release "${repo}" 0.1.2 '2026-09-01T00:00:00'
-
-  write_candidate_payload "${repo}" 0.1.10 payload-0.1.10
-  commit_all "${repo}" 'release 0.1.10'
-  tag_release "${repo}" 0.1.10 '2020-01-01T00:00:00'
-
-  write_candidate_payload "${repo}" 0.9.9 payload-branch
-  printf '%s\n' 'divergent-branch' > "${repo}/BRANCH_HEAD"
-  commit_all "${repo}" 'divergent branch head'
+  node "${source_dir}/tests/support/release-source.mjs" "$1" latest
 }
 
 # Check out tagged A (or any numeric tag) from a fixture as data. Do not run
