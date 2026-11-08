@@ -262,7 +262,7 @@ type-check passed. Local times did not grow against a matched base run.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Behavior: Owned startup selects Ready A/B or preparation landing selects
 rough C → the fixture builds its starting trunk from explicit facts, installs
@@ -280,6 +280,45 @@ the actual writer helpers. Run the final six-check comparison above and
 `tests/native-stream-replay.sh` for retained assessor replay. Update the
 native evidence fixture exception in `tests/README.md` to reflect the
 migrated families.
+
+Accepted: the owned-context fixture materializes Ready A and B, or rough C
+for preparation landing, from MakeMe. It keeps the real install, the retained
+worktree, the created-for ref, the literal ready-looking copy of A and the
+other writer's advance. The legacy builders are removed: `createQueuedTrunk`
+with its template cache, `createPreparationTrunk`, and
+`tests/support/queued-ready-stories.mjs`, whose writer no longer has any
+caller, including in `dashboard/`. The real-Git comparison found
+preparation-land identical and startup-owned-context differing only in the
+marker-path script bytes.
+
+Final identity rows: startup 382, admission 388, one-shot 400, owned-context
+390. Every retained startup, admission and one-shot record is stale under
+ADR 0005 reuse judgment, and no owned-context records are retained. Fresh
+host outcomes stay manual-pending. The refactor pass made the
+ready-looking state use `readyStoryState` and `storyPlanPath`.
+
+The six native checks, both identity checks and `tests/native-stream-replay.sh`
+passed, as did the 43 importer tests of the changed modules and the dashboard
+type-check.
+
+Evaluation: after the migration the selection passed all seven jobs in
+211.10 s at load 19.9→19.1 (one-shot results 98.3, admission 100.0,
+publication 84.2, one-shot workspaces 68.3, owned-context 44.4, identity 14.1,
+fixture identity 7.5). Every job slowed, including unchanged ones. Base and
+change were then run alternately from matched scratch worktrees: base 138.84 s
+and 326.52 s, change 261.14 s and 259.69 s. Load swung between 11 and 29, so
+local elapsed time cannot attribute a difference.
+
+CI job seconds (12 runners) are steadier. Main at `11bd921ed`: admission 40.4,
+one-shot results 41.5, one-shot workspaces 29.5, owned-context 20.6,
+publication 60.8, identity 38.3, replay 11.8. This branch at `cd5b0ddb`
+(slices 1–4): 35.2, 30.3, 22.4, 21.5, 50.4, 16.2 and 9.5, plus 8.8 for the
+fixture identity check. The six checks fell from 231.1 to 176.0 job seconds,
+or 184.8 with the moved fixture identity checks. Fixture construction stayed
+within noise in every slice's matched build timing. The changed identity work
+added installer, payload and fixture-closure hashing (about 0.25 s per family
+identity). One capture now covers every supervision and guidance input, which
+took the identity check from 38.3 to 16.2 CI seconds.
 
 ## Decisive premises observed during preparation
 

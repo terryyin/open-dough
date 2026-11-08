@@ -117,9 +117,12 @@ Other branches, merges, competing writers, stashes, dirty files, submodules
 and removed worktrees stay Git operations in the case. Installed skills, CI
 adapters, mailboxes, ignored local configuration and generated install output
 are harness layers added to the materialized checkout, not description facts.
-A case that proves behavior without a remote removes it with Git. Native
-evidence fixtures keep their own repository helpers so their hashed inputs and
-repositories stay stable.
+A case that proves behavior without a remote removes it with Git. The Git
+publication native fixtures for startup, admission, one-shot and owned-context
+journeys materialize their starting trunk from such a description, and their
+evidence identities hash the builders and materializer they reach. Dashboard
+origins, release-source fixtures and the MakeMe-free native
+worktree-preparation fixtures keep their own repository helpers.
 
 ## Check environment
 

@@ -36,6 +36,9 @@ git_publication_fixture_family_identity() {
         tests/support/git-publication-native-admission-observe.mjs || return
       ;;
     owned-context)
+      # The owned-context fixture entry materializes the named trunk, then
+      # its real writers keep only the retained worktree and advance the
+      # origin; the journeys start, prepare and land through the skills.
       native_result_input_hash_lines \
         tests/support/git-publication-native-owned-context.sh \
         tests/support/git-publication-native-owned-context-fixture.mjs \

@@ -17,6 +17,10 @@ cp -R -- "${source_dir}/tests" "${source_dir}/src" "${source_dir}/install.sh" \
 families=(startup admission one-shot owned-context)
 fixture_helper=tests/support/repositoryTestData.mjs
 escalation=tests/support/git-publication-native-one-shot-escalation-fixture.mjs
+# The real writers owned-context journeys run: one advances the origin, the
+# other leaves only the retained worktree.
+other_writer=src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs
+owned_worktree=src/skills/dough-execute-plan/scripts/default-checkout-test-fixtures.mjs
 identity_failures=0
 
 # Whether input-hash lines FILE list INPUT.
@@ -76,9 +80,11 @@ family_inputs=(
   src/skills/dough-execute-plan/scripts/one-shot-queued-repository.mjs
   ${escalation}"
   "owned-context|${installer_inputs} ${fixture_helper}
-  src/skills/dough-execute-plan/scripts/default-checkout-test-fixtures.mjs
-  src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs
-  src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs"
+  tests/support/git-publication-native-owned-context-fixture.mjs
+  tests/support/repository-fixture.mjs
+  tests/support/queued-repository.mjs
+  tests/support/startup-command-files.mjs
+  ${owned_worktree} ${other_writer}"
 )
 for entry in "${family_inputs[@]}"; do
   for input in ${entry#*|}; do
@@ -111,16 +117,18 @@ if ((closure_status)) || ! grep -qx "${escalation}" "${identity_out}/one-shot-cl
 fi
 
 # A change to a helper a fixture reaches only through imports, to the
-# generated notes source, to an installer helper and to a declared payload
-# file changes that input's hash in each family identity that lists it.
-sensitivity_inputs=("${fixture_helper}" "${escalation}"
-  src/install/open-dough-register-hooks-merge.mjs
+# generated notes source, to the owned-context writers, to an installer helper
+# and to a declared payload file changes that input's hash in each family
+# identity that lists it.
+sensitivity_inputs=("${fixture_helper}" "${escalation}" "${other_writer}"
+  "${owned_worktree}" src/install/open-dough-register-hooks-merge.mjs
   src/skills/dough-execute-plan/assets/claude-hooks.json)
 mkdir -p -- "${identity_out}/unchanged"
 for input in "${sensitivity_inputs[@]}"; do
   cp -- "${identity_source}/${input}" "${identity_out}/unchanged/${input//\//_}"
 done
-for input in "${fixture_helper}" src/install/open-dough-register-hooks-merge.mjs; do
+for input in "${fixture_helper}" "${other_writer}" "${owned_worktree}" \
+  src/install/open-dough-register-hooks-merge.mjs; do
   printf '\n// changed fixture input\n' >> "${identity_source}/${input}"
 done
 sed 's|// Lists the notes in the configured notes directory\.|// Lists every note in the configured notes directory.|' \
@@ -141,6 +149,7 @@ done
 for family in "${families[@]}"; do
   for input in "${sensitivity_inputs[@]}"; do
     [[ ${input} != "${escalation}" || ${family} == one-shot ]] || continue
+    [[ ${input} != "${owned_worktree}" || ${family} == owned-context ]] || continue
     baseline_hash=$(awk -v input="${input}" '$3 == input { print $2 }' \
       "${identity_out}/baseline/${family}")
     changed_hash=$(awk -v input="${input}" '$3 == input { print $2 }' \
