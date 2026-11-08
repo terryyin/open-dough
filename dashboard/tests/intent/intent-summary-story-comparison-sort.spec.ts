@@ -111,12 +111,11 @@ test("a story comparison Summary sorts by Change with unchanged rows last and by
     ]);
     await expect(
       scopeFigures(summary, entry).getByRole("definition"),
-    ).toHaveText([...(entryComparisonRows[0] ?? []).slice(2)]);
+    ).toHaveText(entryComparisonRows[0].slice(2));
   });
 
   await test.step("a child folder's comparison opens in the same layout, still sorted by Landed descending", async () => {
     const [own, ...children] = folderComparisonRows;
-    if (own === undefined) throw new Error("no folder figures");
     await drillComparisonChild(summary, "folder/", own[0], [
       own,
       ...[...children].reverse(),
