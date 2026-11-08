@@ -5,6 +5,11 @@
 
 import type { Page } from "@playwright/test";
 import { z } from "zod";
+import {
+  readStoryDependencies,
+  updateStoryDependency,
+} from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
@@ -65,26 +70,26 @@ const preparingText = `<a id="preparing"></a>
 **Identity:** ${preparingIdentity}
 
 **Goal:** ${purpose}
-
-\`\`\`json dough-story-dependencies
-${JSON.stringify({
-  schemaVersion: 1,
-  identity: preparingIdentity,
-  dependencies: [
-    {
-      supplier: {
-        identity: "SEED-091#after-take",
-        href: "seeds/SEED-091-clock.md#after-take",
-      },
-      implementation: "Published preparation contract",
-      rationale: "The consumer needs the supplier's canonical contract.",
-      condition: "The supplier's contract is integrated and verified.",
-      state: "waiting",
-    },
-  ],
-})}
-\`\`\`
 `;
+const withAgreement = z.string().parse(
+  updateStoryDependency(preparingText, {
+    identity: preparingIdentity,
+    href: preparingHref,
+    expectedBasis: readStoryDependencies(preparingText, preparingHref).basis,
+    dependency: makeMe.aSupplierAgreement
+      .with({
+        supplier: {
+          identity: "SEED-091#after-take",
+          href: "seeds/SEED-091-clock.md#after-take",
+        },
+        implementation: "Published preparation contract",
+        rationale: "The consumer needs the supplier's canonical contract.",
+        condition: "The supplier's contract is integrated and verified.",
+        state: "waiting",
+      })
+      .please(),
+  }).source,
+);
 const preparationRequest = {
   identity: preparingIdentity,
   href: preparingHref,
@@ -95,7 +100,7 @@ const preparationRequest = {
 const unassessed = z
   .string()
   .parse(
-    recordStoryState(preparingText, preparationRequest, { planSource: plan })
+    recordStoryState(withAgreement, preparationRequest, { planSource: plan })
       .source,
   );
 const assessed = z.string().parse(

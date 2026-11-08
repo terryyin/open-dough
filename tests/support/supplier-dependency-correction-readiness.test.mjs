@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { makeMe } from "./makeMe.mjs";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -13,7 +14,6 @@ import {
   consumer,
   supplier,
   homeBytes,
-  dependency,
   updateDependency,
   run,
 } from "./supplier-dependency-fixture.mjs";
@@ -32,10 +32,14 @@ test("historical agreement correction flags reviewed content and preserves an un
       await updateDependency(
         f.project,
         consumer,
-        dependency(supplier, {
-          condition:
-            "The endpoint is available and this consumer has implemented its consumption.",
-        }),
+        makeMe.aSupplierAgreement
+          .with({
+            supplier,
+            state: "waiting",
+            condition:
+              "The endpoint is available and this consumer has implemented its consumption.",
+          })
+          .please(),
       )
     ).code,
     0,

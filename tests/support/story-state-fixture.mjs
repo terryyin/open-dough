@@ -77,14 +77,10 @@ export function backlogBytes(project) {
   return project.read();
 }
 
-// Mixed dependency fixtures still name their CLI link. The preparation adapter
-// receives the same canonical href as the dashboard and the readiness fixtures.
-export function recordArgs({ identity, href, link }, facts) {
-  return recordPreparationArgs({ identity, href: href ?? link }, facts);
-}
+export { recordPreparationArgs as recordArgs };
 
-export function readArgs({ href, link }) {
-  return ["read-state", "--link", href ?? link];
+export function readArgs({ href }) {
+  return ["read-state", "--link", href];
 }
 
 export const correctionRelative = "slice-plans/075-correction/PLAN.md";

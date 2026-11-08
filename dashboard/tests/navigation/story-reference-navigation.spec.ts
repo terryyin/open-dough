@@ -5,7 +5,7 @@ import { openUntilRead } from "../pageRequestNotes.ts";
 import {
   test,
   twoDependencies,
-  suppliers,
+  supplierB,
   publishDependencies,
 } from "../storyDependencyFixture.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
@@ -53,7 +53,7 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   });
   await consumer.locator(".story-dependencies summary").click();
   await consumer
-    .getByRole("link", { name: suppliers[0].identity, exact: true })
+    .getByRole("link", { name: supplierB.identity, exact: true })
     .click();
   await expect(
     supplier.getByRole("region", { name: "Detail for Story B" }),
@@ -65,7 +65,7 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   await expectReadingTop(supplier);
   expect(new URL(page.url()).hostname).toBe("127.0.0.1");
   await consumer
-    .getByRole("link", { name: suppliers[0].identity, exact: true })
+    .getByRole("link", { name: supplierB.identity, exact: true })
     .click();
   await expect(
     supplier.getByRole("button", { name: "Hide detail" }),

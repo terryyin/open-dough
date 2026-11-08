@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "./makeMe.mjs";
 import { readState, recordArgs } from "./story-state-fixture.mjs";
 import {
   fixture,
@@ -37,18 +38,32 @@ test("correcting a satisfied mixed agreement retains its original locator and ac
   const ready = await run(
     f.project,
     recordArgs(f.sibling, {
-      refinement: "refined",
-      approach: "planned",
-      plan: "../slice-plans/late/PLAN.md",
-      assessment: "ready",
+      ...makeMe.aStoryPreparation
+        .with({
+          refinement: "refined",
+          approach: "planned",
+          plan: "../slice-plans/late/PLAN.md",
+          assessment: "ready",
+        })
+        .please(),
       expectedBasis: preparation.basis,
     }),
   );
   assert.equal(ready.code, 0, ready.stderr);
+  const reviewed = await readState(f.project, f.sibling);
+  assert.equal(reviewed.assessment.status, "ready");
+  assert.equal(reviewed.startEligibility.status, "blocked");
+  assert.equal(reviewed.startEligibility.blockers[0].supplier, "SEED-B#b");
   writeFileSync(join(f.integration, supplierPlan), plan("done"));
   const evidence = await publish(f);
   const resolved = await resolveConsumer(f, f.sibling, evidence, evidence);
   assert.equal(resolved.code, 0, resolved.stderr);
+  const eligible = await readState(f.project, f.sibling);
+  assert.deepEqual(eligible.startEligibility, {
+    status: "eligible",
+    blockers: [],
+  });
+  assert.deepEqual(eligible.assessment, reviewed.assessment);
   const original = (await readDependencies(f.project, f.sibling))
     .dependencies[0].resolution;
   const reviewedEvidence = await publish(

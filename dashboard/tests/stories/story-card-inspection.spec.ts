@@ -12,7 +12,8 @@ import { parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
   consumer,
-  suppliers,
+  supplierB,
+  supplierC,
   test,
   twoDependencies,
 } from "../storyDependencyFixture.ts";
@@ -34,11 +35,14 @@ test("Inspect story and a dependency reference open details beside each other wi
       [
         `- [Story A](seeds/A.md#a) — ${consumer.identity}`,
         `- [Story B](seeds/B.md#b) — ${otherQueuedIdentity}`,
-        `- [Story C](seeds/C.md#c) — ${suppliers[1].identity}`,
+        `- [Story C](seeds/C.md#c) — ${supplierC.identity}`,
       ],
     ),
   );
-  const revision = await twoDependencies(origin, true);
+  const revision = await twoDependencies(origin, {
+    assessment: "not-ready",
+    reasons: ["Unrelated consumer design decision remains."],
+  });
   await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,
@@ -86,7 +90,7 @@ test("Inspect story and a dependency reference open details beside each other wi
     await a.locator(".story-dependencies summary").click();
     await expectSelected(a, false);
     await a
-      .getByRole("link", { name: suppliers[0].identity, exact: true })
+      .getByRole("link", { name: supplierB.identity, exact: true })
       .click();
     await expect(b).toBeFocused();
     for (const each of [a, b, c]) await expectInspected(each, true);

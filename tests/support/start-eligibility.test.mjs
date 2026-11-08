@@ -2,9 +2,8 @@
 // in-memory canonical home: the readiness assessment and the dependency
 // agreement. The derivation stores nothing and imports no filesystem module.
 import assert from "node:assert/strict";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import { test } from "node:test";
-import { importedModules } from "./pure-module-imports.mjs";
+import { makeMe } from "./makeMe.mjs";
 import { deriveStartEligibility } from "../../src/skills/dough-product-backlog/scripts/product-backlog-start-eligibility.mjs";
 import {
   computeBasis,
@@ -16,12 +15,6 @@ import {
   updateStoryDependency,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
 
-const modulePath = fileURLToPath(
-  new URL(
-    "../../src/skills/dough-product-backlog/scripts/product-backlog-start-eligibility.mjs",
-    import.meta.url,
-  ),
-);
 const href = "seeds/A.md#a";
 const identity = "SEED-A#a";
 const seed = `---\nid: SEED-A\n---\n\n# Seed A\n\n<a id="a"></a>\n\n### Story A\n\n**Identity:** ${identity}\n\nExecute A.\n`;
@@ -35,21 +28,30 @@ const supplier = (key) => ({
   rationale: `${key} publishes the endpoint first.`,
   condition: `${key}'s endpoint is integrated.`,
 });
-const waiting = (key) => ({ ...supplier(key), state: "waiting" });
-const decisionNeeded = (key) => ({
-  ...supplier(key),
-  state: "decision-needed",
-  decision: `Which ${key} compatibility does A promise?`,
-});
-const satisfied = (key) => ({
-  ...supplier(key),
-  state: "satisfied",
-  resolution: {
-    revision,
-    path: `.planning/seeds/${key}.md`,
-    summary: "Verified.",
-  },
-});
+const waiting = (key) =>
+  makeMe.aSupplierAgreement
+    .with({ ...supplier(key), state: "waiting" })
+    .please();
+const decisionNeeded = (key) =>
+  makeMe.aSupplierAgreement
+    .with({
+      ...supplier(key),
+      state: "decision-needed",
+      decision: `Which ${key} compatibility does A promise?`,
+    })
+    .please();
+const satisfied = (key) =>
+  makeMe.aSupplierAgreement
+    .with({
+      ...supplier(key),
+      state: "satisfied",
+      resolution: {
+        revision,
+        path: `.planning/seeds/${key}.md`,
+        summary: "Verified.",
+      },
+    })
+    .please();
 
 function home({ assessment, reasons = [], dependencies = [] }) {
   let source = seed;
@@ -224,27 +226,4 @@ test("start eligibility: a refused story-state reader is a preparation gap", () 
   assert.equal(result.blockers[0].kind, "gap");
   assert.equal(result.blockers[0].fact, "preparation");
   assert.match(result.blockers[0].problem, /2 story-state blocks/);
-});
-
-test("start eligibility: imports no filesystem or Node-only module", async () => {
-  const { visited, specifiers } = importedModules(modulePath);
-  assert.ok(
-    [...visited].some((path) =>
-      path.endsWith("product-backlog-start-eligibility.mjs"),
-    ),
-  );
-  for (const specifier of specifiers) {
-    assert.equal(
-      specifier.startsWith("node:"),
-      false,
-      `unexpected Node built-in import: ${specifier}`,
-    );
-    assert.equal(
-      /product-backlog-(store|home\.mjs|story-state-home)/.test(specifier),
-      false,
-      `unexpected filesystem wrapper import: ${specifier}`,
-    );
-  }
-  const loaded = await import(pathToFileURL(modulePath).href);
-  assert.equal(typeof loaded.deriveStartEligibility, "function");
 });

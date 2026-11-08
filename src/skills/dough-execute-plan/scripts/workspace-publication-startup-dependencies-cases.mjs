@@ -1,15 +1,14 @@
 // The real startup command checks published dependency agreements before
 // creating a workspace/claim. No native process can be launched on refusal.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { run } from "../../../../tests/support/product-backlog-fixture.mjs";
 import {
-  dependency,
   readDependencies,
   resolution,
-  updateDependency,
 } from "../../../../tests/support/story-dependencies-fixture.mjs";
 import {
   readState,
@@ -21,7 +20,6 @@ import {
   identityB,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
-import { draftLateStory } from "./workspace-publication-admission-fixtures.mjs";
 import { takenIdentities } from "./workspace-publication-ownership.mjs";
 
 import {
@@ -47,12 +45,15 @@ async function publishReadyAssessment(trunk) {
   const recorded = await run(
     projectOf(trunk),
     recordArgs(consumer, {
-      refinement: "refined",
-      approach: "planned",
-      plan: "../slice-plans/A/PLAN.md",
-      assessment: "ready",
-      expectDocument: basis.document,
-      expectPlan: basis.plan,
+      ...makeMe.aStoryPreparation
+        .with({
+          refinement: "refined",
+          approach: "planned",
+          plan: "../slice-plans/A/PLAN.md",
+          assessment: "ready",
+        })
+        .please(),
+      expectedBasis: basis,
     }),
   );
   assert.equal(recorded.code, 0, recorded.stderr);
@@ -66,7 +67,10 @@ for (const oneShot of [false, true]) {
     t.after(trunk.cleanup);
     const path = join(trunk.integration, ".planning/seeds/A.md");
     const stale = readFileSync(path, "utf8");
-    const tip = await publishDependency(trunk, dependency(supplier));
+    const tip = await publishDependency(
+      trunk,
+      makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
+    );
     const facts = await readDependencies(projectOf(trunk), consumer);
     assert.equal(facts.blocking[0].supplier.identity, identityB);
     writeFileSync(path, stale);
@@ -111,17 +115,27 @@ for (const oneShot of [false, true]) {
 test("all dependencies must be satisfied before a ready story starts", async (t) => {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
-  const third = { identity: "SUPPLIER-3", link: "seeds/third.md" };
+  const third = { identity: "SUPPLIER-3", href: "seeds/third.md" };
   writeFileSync(
     join(trunk.integration, ".planning/seeds/third.md"),
     `# Third supplier\n**Identity:** ${third.identity}\n`,
   );
-  await publishDependency(trunk, dependency(supplier));
-  await publishDependency(trunk, dependency(third));
+  await publishDependency(
+    trunk,
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
+  );
+  await publishDependency(
+    trunk,
+    makeMe.aSupplierAgreement
+      .with({ supplier: third, state: "waiting" })
+      .please(),
+  );
   await publishReadyAssessment(trunk);
   await publishDependency(
     trunk,
-    dependency(supplier, { state: "satisfied", resolution }),
+    makeMe.aSupplierAgreement
+      .with({ supplier, state: "satisfied", resolution })
+      .please(),
   );
   const partial = await startCliResult(trunk, "story-branch");
   assert.equal(partial.code, 1);
@@ -130,7 +144,9 @@ test("all dependencies must be satisfied before a ready story starts", async (t)
   assert.equal(existsSync(partial.workspace), false);
   const resolved = await publishDependency(
     trunk,
-    dependency(third, { state: "satisfied", resolution }),
+    makeMe.aSupplierAgreement
+      .with({ supplier: third, state: "satisfied", resolution })
+      .please(),
   );
   const complete = await startCliResult(trunk, "story-branch");
   assert.equal(complete.code, 0, JSON.stringify(complete));
@@ -168,7 +184,10 @@ test("one start refusal names a waiting dependency and a not-ready assessment", 
     ),
   );
   await git(trunk.integration, "commit", "-am", "assess A not-ready");
-  const tip = await publishDependency(trunk, dependency(supplier));
+  const tip = await publishDependency(
+    trunk,
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
+  );
   const result = await startCliResult(trunk, "story-branch");
   assert.equal(result.code, 1, JSON.stringify(result));
   assert.equal(result.receipt.status, "source-refused");
@@ -187,66 +206,6 @@ test("one start refusal names a waiting dependency and a not-ready assessment", 
     await lsRemoteSha(trunk.origin, `refs/heads/${result.branch}`),
     "",
   );
-});
-
-test("a canonical story admitted with a drafted dependency refuses before Take", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const late = draftLateStory(trunk);
-  const result = await updateDependency(
-    projectOf(trunk),
-    { identity: late.identity, link: "seeds/A.md#late" },
-    dependency(supplier),
-  );
-  assert.equal(result.code, 0, result.stderr);
-  const start = await startCliResult(trunk, "story-branch", late.args, {
-    identity: late.identity,
-  });
-  assert.equal(start.code, 1, JSON.stringify(start));
-  assert.match(start.receipt.error, /execution is blocked by SEED-B#b/);
-  assert.equal(existsSync(start.workspace), false);
-  assert.equal(
-    await lsRemoteSha(trunk.origin, "refs/heads/main"),
-    trunk.trunkSha,
-  );
-});
-
-test("published unlisted admission dependency cannot be bypassed by an older draft", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const late = draftLateStory(trunk);
-  const path = join(trunk.integration, late.seedPath);
-  const stale = readFileSync(path, "utf8");
-  const tip = await publishDependency(trunk, dependency(supplier), {
-    identity: late.identity,
-    link: "seeds/A.md#late",
-  });
-  writeFileSync(path, stale);
-  const start = await startCliResult(trunk, "story-branch", late.args, {
-    identity: late.identity,
-  });
-  assert.equal(start.code, 1, JSON.stringify(start));
-  assert.match(start.receipt.error, /execution is blocked by SEED-B#b/);
-  assert.equal(existsSync(start.workspace), false);
-  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip);
-});
-
-test("carrying a queued one-shot attempt into admission preserves the published start gate", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const tip = await publishDependency(trunk, dependency(supplier));
-  const start = await startCliResult(trunk, "story-branch", [
-    "--admit",
-    "--carry",
-    "--link",
-    consumer.link,
-    "--title",
-    "Story A",
-  ]);
-  assert.equal(start.code, 1, JSON.stringify(start));
-  assert.match(start.receipt.error, /execution is blocked by SEED-B#b/);
-  assert.equal(existsSync(start.workspace), false);
-  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), tip);
 });
 
 test("a malformed published dependency cannot look like no blockers", async (t) => {

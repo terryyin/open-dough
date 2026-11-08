@@ -1,10 +1,10 @@
 // Bare-origin starting input; all dependency writes/resolutions use real CLI.
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { run } from "./product-backlog-fixture.mjs";
 import {
-  dependency,
   readDependencies,
   updateDependency,
 } from "./story-dependencies-fixture.mjs";
@@ -23,7 +23,6 @@ import { draftLateStory } from "../../src/skills/dough-execute-plan/scripts/work
 export {
   consumer,
   supplier,
-  dependency,
   readDependencies,
   updateDependency,
   git,
@@ -39,19 +38,31 @@ export async function fixture(t) {
   t.after(trunk.cleanup);
   const project = projectOf(trunk);
   const late = draftLateStory(trunk);
-  const sibling = { identity: late.identity, link: "seeds/A.md#late" };
-  const third = { identity: "THIRD", link: "seeds/third.md" };
+  const sibling = { identity: late.identity, href: "seeds/A.md#late" };
+  const third = { identity: "THIRD", href: "seeds/third.md" };
   writeFileSync(
-    join(trunk.integration, ".planning", third.link),
+    join(trunk.integration, ".planning", third.href),
     "# Third\n**Identity:** THIRD\n",
   );
   writeFileSync(join(trunk.integration, supplierPlan), plan("planned"));
   for (const story of [consumer, sibling]) {
-    const result = await updateDependency(project, story, dependency(supplier));
+    const result = await updateDependency(
+      project,
+      story,
+      makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
+    );
     assert.equal(result.code, 0, result.stderr);
   }
   assert.equal(
-    (await updateDependency(project, consumer, dependency(third))).code,
+    (
+      await updateDependency(
+        project,
+        consumer,
+        makeMe.aSupplierAgreement
+          .with({ supplier: third, state: "waiting" })
+          .please(),
+      )
+    ).code,
     0,
   );
   return { ...trunk, project, late, sibling, third };
@@ -105,7 +116,7 @@ export async function resolveConsumer(
     "--identity",
     story.identity,
     "--link",
-    story.link,
+    story.href,
     "--dependency-file",
     input,
     "--expect-dependencies",

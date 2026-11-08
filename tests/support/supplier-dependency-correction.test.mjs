@@ -81,7 +81,7 @@ test("explicit historical correction removes only the proved supplier wait and r
   );
   assert.deepEqual(held.supplier, {
     identity: supplier.identity,
-    href: supplier.link,
+    href: supplier.href,
   });
   assert.equal(held.condition, correctedCondition);
   assert.equal(held.state, "satisfied");

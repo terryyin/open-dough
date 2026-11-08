@@ -17,7 +17,10 @@ test("touch inspection reads dependency, readiness and Start limitations without
   dashboard,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  const revision = await twoDependencies(origin, true);
+  const revision = await twoDependencies(origin, {
+    assessment: "not-ready",
+    reasons: ["Unrelated consumer design decision remains."],
+  });
   await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,

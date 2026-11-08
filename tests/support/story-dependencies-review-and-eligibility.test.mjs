@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { makeMe } from "./makeMe.mjs";
 import { createHash } from "node:crypto";
 import { test } from "node:test";
 import { run, scratchProject } from "./product-backlog-fixture.mjs";
@@ -11,11 +12,14 @@ import {
   seedBytes,
   twoStorySeed,
 } from "./story-state-fixture.mjs";
-import {
-  dependency,
-  resolution,
-  updateDependency,
-} from "./story-dependencies-fixture.mjs";
+import { resolution, updateDependency } from "./story-dependencies-fixture.mjs";
+
+function updateSecondSupplierAgreement(project, facts) {
+  const agreement = makeMe.aSupplierAgreement
+    .with({ supplier: second, ...facts })
+    .please();
+  return updateDependency(project, first, agreement);
+}
 
 // Records a fresh Ready assessment for the first story through the CLI and
 // returns the document digest it reviewed.
@@ -56,38 +60,29 @@ test("a supplier's resolution leaves the readiness review unchanged while an agr
   const project = scratchProject(t);
   plantSeed(project);
   assert.equal(
-    (await updateDependency(project, first, dependency(second))).code,
+    (await updateSecondSupplierAgreement(project, { state: "waiting" })).code,
     0,
   );
   const reviewed = await recordReady(project);
-  const decision = await updateDependency(
-    project,
-    first,
-    dependency(second, {
-      state: "decision-needed",
-      decision: "Which endpoint behavior satisfies this consumer?",
-    }),
-  );
+  const decision = await updateSecondSupplierAgreement(project, {
+    state: "decision-needed",
+    decision: "Which endpoint behavior satisfies this consumer?",
+  });
   assert.equal(decision.code, 0, decision.stderr);
   assert.equal(await changedSinceReview(project), false);
-  const satisfied = await updateDependency(
-    project,
-    first,
-    dependency(second, { state: "satisfied", resolution }),
-  );
+  const satisfied = await updateSecondSupplierAgreement(project, {
+    state: "satisfied",
+    resolution,
+  });
   assert.equal(satisfied.code, 0, satisfied.stderr);
   assert.equal(await changedSinceReview(project), false);
   assert.equal((await readState(project, first)).basis.document, reviewed);
 
-  const edited = await updateDependency(
-    project,
-    first,
-    dependency(second, {
-      state: "satisfied",
-      resolution,
-      condition: "A narrower endpoint contract is completed and integrated.",
-    }),
-  );
+  const edited = await updateSecondSupplierAgreement(project, {
+    state: "satisfied",
+    resolution,
+    condition: "A narrower endpoint contract is completed and integrated.",
+  });
   assert.equal(edited.code, 0, edited.stderr);
   assert.equal(await changedSinceReview(project), true);
 });
@@ -96,7 +91,7 @@ test("a record reviewed over the dependency fence as written stays accurate", as
   const project = scratchProject(t);
   plantSeed(project);
   assert.equal(
-    (await updateDependency(project, first, dependency(second))).code,
+    (await updateSecondSupplierAgreement(project, { state: "waiting" })).code,
     0,
   );
   const scoped = await recordReady(project);
@@ -113,22 +108,17 @@ test("a record reviewed over the dependency fence as written stays accurate", as
   assert.equal(unchanged.assessment.basis.document, legacy);
   assert.equal(unchanged.assessment.changedSinceReview, false);
 
-  const satisfied = await updateDependency(
-    project,
-    first,
-    dependency(second, { state: "satisfied", resolution }),
-  );
+  const satisfied = await updateSecondSupplierAgreement(project, {
+    state: "satisfied",
+    resolution,
+  });
   assert.equal(satisfied.code, 0, satisfied.stderr);
   assert.equal(await changedSinceReview(project), false);
 
-  const decisionNeeded = await updateDependency(
-    project,
-    first,
-    dependency(second, {
-      state: "decision-needed",
-      decision: "Which endpoint behavior satisfies this consumer?",
-    }),
-  );
+  const decisionNeeded = await updateSecondSupplierAgreement(project, {
+    state: "decision-needed",
+    decision: "Which endpoint behavior satisfies this consumer?",
+  });
   assert.equal(decisionNeeded.code, 0, decisionNeeded.stderr);
   assert.equal(await changedSinceReview(project), false);
 
@@ -179,7 +169,9 @@ test("read-state reports start eligibility from the assessment and dependencies"
       },
     ],
   });
-  const agreement = dependency(second);
+  const agreement = makeMe.aSupplierAgreement
+    .with({ supplier: second, state: "waiting" })
+    .please();
   assert.equal((await updateDependency(project, first, agreement)).code, 0);
   await recordReady(project);
   const waiting = await readState(project, first);
@@ -198,11 +190,10 @@ test("read-state reports start eligibility from the assessment and dependencies"
       },
     ],
   });
-  const satisfied = await updateDependency(
-    project,
-    first,
-    dependency(second, { state: "satisfied", resolution }),
-  );
+  const satisfied = await updateSecondSupplierAgreement(project, {
+    state: "satisfied",
+    resolution,
+  });
   assert.equal(satisfied.code, 0, satisfied.stderr);
   const state = await readState(project, first);
   assert.deepEqual(state.startEligibility, {

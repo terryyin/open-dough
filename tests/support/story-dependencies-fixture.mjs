@@ -4,26 +4,11 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { run } from "./product-backlog-fixture.mjs";
 
-export function dependency(supplier, overrides = {}) {
-  return {
-    supplier: {
-      identity: supplier.identity,
-      href: supplier.href ?? supplier.link,
-    },
-    implementation: "Shared endpoint interpretation",
-    rationale:
-      "The supplier must deliver the endpoint contract before this story can validate its consumer behavior; normal reconciliation cannot supply the missing contract.",
-    condition: "The selected endpoint contract is completed and integrated.",
-    state: "waiting",
-    ...overrides,
-  };
-}
-
 export async function readDependencies(project, story) {
   const result = await run(project, [
     "read-dependencies",
     "--link",
-    story.href ?? story.link,
+    story.href,
   ]);
   if (result.code !== 0) throw new Error(result.stderr);
   return JSON.parse(result.stdout);
@@ -41,7 +26,7 @@ export async function updateDependency(project, story, entry, expectedBasis) {
     "--identity",
     story.identity,
     "--link",
-    story.href ?? story.link,
+    story.href,
     "--dependency-file",
     input,
     "--expect-dependencies",

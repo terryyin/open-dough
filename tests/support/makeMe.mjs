@@ -77,6 +77,7 @@ const withReport = (profile, { host, model }) => ({
 /** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
+/** @typedef {ReturnType<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs").normalizeStoryDependency>} SupplierAgreement */
 
 export const makeMe = {
   get anAgentProfile() {
@@ -118,6 +119,28 @@ export const makeMe = {
        */
       with(facts) {
         return { please: () => ({ ...facts }) };
+      },
+    };
+  },
+  get aSupplierAgreement() {
+    return {
+      /** @param {Omit<SupplierAgreement, "implementation" | "rationale" | "condition"> & Partial<Pick<SupplierAgreement, "implementation" | "rationale" | "condition">>} facts */
+      with({
+        supplier,
+        implementation = "Shared endpoint interpretation",
+        rationale = "The supplier must deliver the endpoint contract before this story can validate its consumer behavior; normal reconciliation cannot supply the missing contract.",
+        condition = "The selected endpoint contract is completed and integrated.",
+        ...facts
+      }) {
+        return {
+          please: () => ({
+            supplier: { identity: supplier.identity, href: supplier.href },
+            implementation,
+            rationale,
+            condition,
+            ...facts,
+          }),
+        };
       },
     };
   },

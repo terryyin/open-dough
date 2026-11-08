@@ -51,9 +51,9 @@ test("distinct stories in one seed follow their recorded identities by keyboard 
     backlogPath,
     `${readFileSync(backlogPath, "utf8")}\n- [Second story in seed B](seeds/B.md#second) — SEED-B#second\n`,
   );
-  recordDependency(origin, 1, "waiting", undefined, {
-    identity: "SEED-B#second",
-    href: "seeds/B.md#second",
+  recordDependency(origin, {
+    supplier: { identity: "SEED-B#second", href: "seeds/B.md#second" },
+    state: "waiting",
   });
   takeSupplier(origin);
   const revision = await publishDependencies(origin);
@@ -145,9 +145,9 @@ test("each project's rendered pinned reference opens its own telling of the same
       `[Pygardon selected story](${pygardonHome})`,
     ),
   );
-  recordDependency(pygardon, 0, "waiting", undefined, {
-    identity: "SEED-B#b",
-    href: pygardonHome,
+  recordDependency(pygardon, {
+    supplier: { identity: "SEED-B#b", href: pygardonHome },
+    state: "waiting",
   });
   const targetRevision = await publishDependencies(pygardon);
   await publishCommittedOrigin(page, {

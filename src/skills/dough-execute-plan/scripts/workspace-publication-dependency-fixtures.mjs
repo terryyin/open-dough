@@ -4,8 +4,8 @@ import { updateDependency } from "../../../../tests/support/story-dependencies-f
 import { git, revParse } from "./publication-test-fixtures.mjs";
 import { identityA, identityB } from "./workspace-publication-fixtures.mjs";
 
-export const consumer = { identity: identityA, link: "seeds/A.md#a" };
-export const supplier = { identity: identityB, link: "seeds/B.md#b" };
+export const consumer = { identity: identityA, href: "seeds/A.md#a" };
+export const supplier = { identity: identityB, href: "seeds/B.md#b" };
 export const projectOf = (trunk) => ({
   directory: trunk.integration,
   inputDirectory: trunk.fixture,

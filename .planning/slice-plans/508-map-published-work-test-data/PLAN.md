@@ -215,9 +215,16 @@ Playwright specs passed again. The type-check and whitespace check passed.
 The refactor selection and dispositions are in
 `/tmp/od-seed261-refactor3-consumer-trace-with-dispositions.md`.
 
+CI run `42439000527` attempt 1 on `e85d59b0` found a startup fixture
+that supplied the old digest fields to the preparation adapter. The
+`workspace-publication.test.mjs` case for satisfying every dependency
+failed at `publishReadyAssessment` with missing `--expect-document`.
+Slice 4's declared writer already held the matching `expectedBasis` repair
+and owns its focused proof and publication.
+
 ### 4. Dependency eligibility reads the independent supplier agreement
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 3. Run `story-dependencies.spec.ts`, `agent-launch-start-dependencies.spec.ts`, `story-dependencies-review-and-eligibility.test.mjs` and affected supplier, start and navigation callers. The blocker clears through verified resolution without renewing the readiness assessment.
 
 Convert the dashboard
@@ -226,6 +233,35 @@ and Node/skill dependency helpers. Use the canonical supplier identity and
 `href`, condition, and resolution fields. Keep agreement state, consumer
 readiness, and malformed evidence independently visible. Let the commands
 apply changes and derive start eligibility.
+
+Accepted proof on the macOS execution checkout:
+
+```zsh
+export PATH="/opt/homebrew/bin:$PATH"
+slice_checks=( "${(@f)$(< /tmp/od-seed261-slice4-4rjCwJ/node-and-shell.txt)}" )
+slice_specs=( "${(@f)$(< /tmp/od-seed261-slice4-4rjCwJ/specs.txt)}" )
+[[ ${#slice_checks} -eq 30 && ${#slice_specs} -eq 18 ]] &&
+  OPEN_DOUGH_TEST_OUTCOMES=/tmp/od-seed261-slice4-4rjCwJ/node-outcomes.tsv bash scripts/test.sh "${slice_checks[@]}" &&
+  OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/od-seed261-slice4-4rjCwJ/dashboard-proof.json npm run test:dashboard -- "${slice_specs[@]}"
+npm run typecheck:dashboard && git diff --check
+node /tmp/od-seed261-slice4-4rjCwJ/compare-agreements.mjs
+```
+
+All 30 Node and shell jobs and 42 Playwright tests passed. The real resolver
+uses integrated supplier proof, clears the blocker, and preserves the
+recorded Ready assessment. The startup job passed the exact case reported
+by branch CI after it supplied `expectedBasis`. Four representative agreement
+payloads and encoded records matched their prior bytes. The held-facts fixture
+uses the canonical dependency fence placement and its observation specs
+passed. Selection, results, and dispositions are under
+`/tmp/od-seed261-slice4-4rjCwJ`.
+
+The finished CI attempt's inventory named only the startup failure above.
+The independent refactor separated startup and admission, eligibility
+behavior and module boundaries, and dependency writes and refusals. All
+six affected Node jobs passed, including the exact startup regression.
+Proof and dispositions are in
+`/tmp/od-seed261-refactor4-consumer-trace-with-dispositions.md`.
 
 ### 5. Published assignment tests use the pilot profile facts
 Type: Behavior
@@ -339,4 +375,4 @@ Disposition: receiving slice 8
 ### G6. Dependency setup still supplies a legacy fixture field
 Reported: slice 3 — "The Node preparation adapter still accepts link from the mixed dependency and supplier fixtures."
 Story clause: "Carry identities and homes explicitly where they drive a case."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: story-state-fixture.mjs recordArgs uses href directly; supplier and dependency command suites passed with canonical homes

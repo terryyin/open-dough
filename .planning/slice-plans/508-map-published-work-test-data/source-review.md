@@ -21,7 +21,7 @@ The numbered return is retained below.
 | P10 | Convert remaining valid setup for backlog membership. | slice 1 | observed: product-backlog-fixture.mjs arrangedBacklog and product-backlog-merge-fixture.mjs mergeBacklog arrange Taken and queue facts; product-backlog-take.test.mjs and product-backlog-merge-order.test.mjs assert ordered membership |
 | P11 | Convert remaining valid setup for published assignments. | slice 5 |  |
 | P12 | Convert remaining valid setup for preparation. | slice 3 | observed: storyReadinessFixture.ts, story-state-fixture.mjs, queued-ready-stories.mjs and the installed native Take fixture supply the planned and planless preparation facts in canonical fields; G2–G5 own mixed-family conversions. |
-| P13 | Convert remaining valid setup for supplier agreements. | slice 4 |  |
+| P13 | Convert remaining valid setup for supplier agreements. | slice 4 | observed: storyDependencyFixture.ts, supplier-dependency-fixture.mjs and workspace-publication-startup-dependencies-cases.mjs give canonical MakeMe supplier agreements to the real writers; compare-agreements.mjs retained representative bytes. |
 | P14 | Convert remaining valid setup for slice plans. | slice 6 |  |
 | P15 | Convert remaining valid setup for slice progress. | slice 6 |  |
 | P16 | Convert remaining valid setup for done records. | slice 7 |  |
@@ -97,11 +97,11 @@ The numbered return is retained below.
 | J2.05 | The same readiness journey reads its recorded assessment. | slice 3 | observed: story-readiness.spec.ts labeled colors and independent facts step observes Ready and Not ready from CLI-committed evidence. |
 | J2.06 | If a separately published update changes membership, it does so only through the facts it writes. | slice 3 | observed: story-readiness-accessible.spec.ts newly read snapshot preserves identity focus or announces removal, then independently observes restored membership and removal announcement withdrawal. |
 | J2.07 | If a separately published update changes assessment, it does so only through the facts it writes. | slice 3 | observed: story-readiness-gaps.spec.ts changed-content step retains the previous judgment with changed review, then explicit published reassessment clears the change indication. |
-| J3.01 | The consumer is ready. | slice 4 |  |
-| J3.02 | Its supplier agreement is unsatisfied. | slice 4 |  |
-| J3.03 | A start eligibility read still reports the dependency blocker. | slice 4 |  |
-| J3.04 | A verified resolution clears that blocker. | slice 4 |  |
-| J3.05 | Clearing that blocker does not renew the consumer’s readiness review. | slice 4 |  |
+| J3.01 | The consumer is ready. | slice 4 | observed: supplier-dependency-correction-satisfied.test.mjs recordArgs and readState obtain a real recorded Ready assessment before attempting resolution. |
+| J3.02 | Its supplier agreement is unsatisfied. | slice 4 | observed: supplier-dependency-correction-satisfied.test.mjs checks the published waiting agreement identifies the blocking supplier SEED-B#b. |
+| J3.03 | A start eligibility read still reports the dependency blocker. | slice 4 | observed: supplier-dependency-correction-satisfied.test.mjs asserts startEligibility is blocked while the assessment is Ready; start-eligibility.spec.ts independently observes the disabled action. |
+| J3.04 | A verified resolution clears that blocker. | slice 4 | observed: supplier-dependency-correction-satisfied.test.mjs publishes the completed supplier plan, runs the actual resolve-dependency command with integrated evidence and verifies eligible with no blockers. |
+| J3.05 | Clearing that blocker does not renew the consumer’s readiness review. | slice 4 | observed: supplier-dependency-correction-satisfied.test.mjs compares the complete assessment before and after verified resolution; start-eligibility.spec.ts independently checks that readiness bytes do not change. |
 | J4.01 | The execution profile names an agent. | slice 5 |  |
 | J4.02 | The execution profile names a story. | slice 5 |  |
 | J4.03 | The plan shows ordered slices. | slice 6 |  |

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { writeFileSync } from "node:fs";
+import { makeMe } from "./makeMe.mjs";
 import { test } from "node:test";
 import {
   projectFile,
@@ -18,13 +18,12 @@ import {
   seedBytes,
 } from "./story-state-fixture.mjs";
 import {
-  dependency,
   readDependencies,
   resolution,
   updateDependency,
 } from "./story-dependencies-fixture.mjs";
 
-const third = { identity: "SUPPLIER-3", link: "suppliers/third.md" };
+const third = { identity: "SUPPLIER-3", href: "suppliers/third.md" };
 
 test("dependency CLI records two suppliers, preserves preparation and siblings, and detects changed review", async (t) => {
   const project = scratchProject(t);
@@ -32,7 +31,7 @@ test("dependency CLI records two suppliers, preserves preparation and siblings, 
   plantSeed(project);
   projectFile(
     project,
-    third.link,
+    third.href,
     `# Third supplier\n\n**Identity:** ${third.identity}\n`,
   );
   for (const story of [first, second]) {
@@ -54,12 +53,20 @@ test("dependency CLI records two suppliers, preserves preparation and siblings, 
   const empty = await readDependencies(project, first);
   assert.equal(empty.status, "not-recorded");
   assert.deepEqual(empty.blocking, []);
-  const recorded = await updateDependency(project, first, dependency(second));
+  const recorded = await updateDependency(
+    project,
+    first,
+    makeMe.aSupplierAgreement
+      .with({ supplier: second, state: "waiting" })
+      .please(),
+  );
   assert.equal(recorded.code, 0, recorded.stderr);
   const recordedThird = await updateDependency(
     project,
     first,
-    dependency(third),
+    makeMe.aSupplierAgreement
+      .with({ supplier: third, state: "waiting" })
+      .please(),
   );
   assert.equal(recordedThird.code, 0, recordedThird.stderr);
   let state = await readDependencies(project, first);
@@ -99,7 +106,9 @@ test("dependency CLI records two suppliers, preserves preparation and siblings, 
   const satisfied = await updateDependency(
     project,
     first,
-    dependency(second, { state: "satisfied", resolution }),
+    makeMe.aSupplierAgreement
+      .with({ supplier: second, state: "satisfied", resolution })
+      .please(),
   );
   assert.equal(satisfied.code, 0, satisfied.stderr);
   state = await readDependencies(project, first);
@@ -131,7 +140,15 @@ test("dependency writes retain the consumer's unrelated Not ready reasons", asyn
     0,
   );
   assert.equal(
-    (await updateDependency(project, first, dependency(second))).code,
+    (
+      await updateDependency(
+        project,
+        first,
+        makeMe.aSupplierAgreement
+          .with({ supplier: second, state: "waiting" })
+          .please(),
+      )
+    ).code,
     0,
   );
   const changed = await readState(project, first);
@@ -143,11 +160,14 @@ test("dependency writes retain the consumer's unrelated Not ready reasons", asyn
   const decision = await updateDependency(
     project,
     first,
-    dependency(second, {
-      state: "decision-needed",
-      decision:
-        "Which endpoint behavior satisfies this consumer's selected outcome?",
-    }),
+    makeMe.aSupplierAgreement
+      .with({
+        supplier: second,
+        state: "decision-needed",
+        decision:
+          "Which endpoint behavior satisfies this consumer's selected outcome?",
+      })
+      .please(),
   );
   assert.equal(decision.code, 0, decision.stderr);
   assert.match(
@@ -159,47 +179,6 @@ test("dependency writes retain the consumer's unrelated Not ready reasons", asyn
   ]);
 });
 
-test("dependency CLI refuses stale writes and invalid or ambiguous endpoints without partial changes", async (t) => {
-  const project = scratchProject(t);
-  const path = plantSeed(project);
-  const initial = await readDependencies(project, first);
-  assert.equal(
-    (await updateDependency(project, first, dependency(second))).code,
-    0,
-  );
-  const held = seedBytes(project);
-  const stale = await updateDependency(
-    project,
-    first,
-    dependency(second, { rationale: "Old proposed replacement" }),
-    initial.basis,
-  );
-  assert.equal(stale.code, 1);
-  assert.match(stale.stderr, /changed since it was read/);
-  assert.equal(seedBytes(project), held);
-  for (const entry of [
-    dependency(second, { condition: "" }),
-    dependency(first),
-    dependency({ identity: "WRONG", link: second.href }),
-    dependency({ identity: "MISSING", link: "seeds/absent.md#missing" }),
-    dependency(second, { state: "satisfied" }),
-    dependency(second, { state: "decision-needed" }),
-  ]) {
-    const result = await updateDependency(project, first, entry);
-    assert.equal(result.code, 1, JSON.stringify(entry));
-    assert.equal(seedBytes(project), held);
-  }
-  const ambiguous = held.replace(
-    `**Identity:** ${second.identity}`,
-    `**Identity:** ${second.identity}\n**Identity:** ${second.identity}`,
-  );
-  writeFileSync(path, ambiguous);
-  const result = await updateDependency(project, first, dependency(second));
-  assert.equal(result.code, 1);
-  assert.match(result.stderr, /identity 2 times/);
-  assert.equal(seedBytes(project), ambiguous);
-});
-
 test("canonical plan-homed corrections use the same dependency command", async (t) => {
   const project = scratchProject(t);
   plantSeed(project);
@@ -207,7 +186,9 @@ test("canonical plan-homed corrections use the same dependency command", async (
   const result = await updateDependency(
     project,
     correction,
-    dependency(second),
+    makeMe.aSupplierAgreement
+      .with({ supplier: second, state: "waiting" })
+      .please(),
   );
   assert.equal(result.code, 0, result.stderr);
   assert.equal(
@@ -215,28 +196,3 @@ test("canonical plan-homed corrections use the same dependency command", async (
     second.identity,
   );
 });
-
-for (const block of [
-  "```json dough-story-dependencies\n{}\n```",
-  "```json dough-story-dependencies\nnot json\n```",
-  "```json dough-story-dependencies\n{}",
-  `\`\`\`json dough-story-dependencies\n${JSON.stringify({ schemaVersion: 1, identity: first.identity })}\n\`\`\``,
-  `\`\`\`json dough-story-dependencies\n${JSON.stringify({ schemaVersion: 99, identity: first.identity, dependencies: [] })}\n\`\`\``,
-  `\`\`\`json dough-story-dependencies\n${JSON.stringify({ schemaVersion: 1, identity: first.identity, dependencies: [] })}\n\`\`\`\n\`\`\`json dough-story-dependencies\n{}\n\`\`\``,
-]) {
-  test(`a malformed present dependency block refuses reads: ${block.slice(0, 55)}`, async (t) => {
-    const project = scratchProject(t);
-    plantSeed(project, seedBytesForBlock(block));
-    const result = await run(project, [
-      "read-dependencies",
-      "--link",
-      first.href,
-    ]);
-    assert.equal(result.code, 1);
-    assert.match(result.stderr, /Story dependencies/);
-  });
-}
-
-function seedBytesForBlock(block) {
-  return `---\nid: SEED-021\n---\n# Seed\n<a id="first-story"></a>\n### First\n**Identity:** ${first.identity}\n${block}\n`;
-}

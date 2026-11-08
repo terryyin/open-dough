@@ -1,17 +1,17 @@
 // Completion consuming operation observes accepted integration, including a
 // candidate replaced by retry. It does not simulate an agent's judgment.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { run } from "../../../../tests/support/product-backlog-fixture.mjs";
 import {
-  dependency,
   readDependencies,
   updateDependency,
 } from "../../../../tests/support/story-dependencies-fixture.mjs";
 import { git, revParse } from "./closure-git-fixtures.mjs";
-const supplier = { identity: "CLOSED-SUPPLIER", link: "supplier.md" };
-const consumer = { identity: "LIVE-CONSUMER", link: "dependent.md" };
+const supplier = { identity: "CLOSED-SUPPLIER", href: "supplier.md" };
+const consumer = { identity: "LIVE-CONSUMER", href: "dependent.md" };
 export async function prepareClosureDependencies(fixture) {
   const project = {
     directory: fixture.execution,
@@ -29,7 +29,7 @@ export async function prepareClosureDependencies(fixture) {
   const authored = await updateDependency(
     project,
     consumer,
-    dependency(supplier),
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
   );
   assert.equal(authored.code, 0, authored.stderr);
   await git(fixture.execution, "add", ".planning");
@@ -55,15 +55,18 @@ export async function observeClosureDependency(
   writeFileSync(
     input,
     JSON.stringify(
-      dependency(supplier, {
-        state: "satisfied",
-        resolution: {
-          revision: retained.evidence,
-          path: ".planning/supplier.md",
-          summary:
-            "Completed endpoint directly satisfies this consumer's condition.",
-        },
-      }),
+      makeMe.aSupplierAgreement
+        .with({
+          supplier,
+          state: "satisfied",
+          resolution: {
+            revision: retained.evidence,
+            path: ".planning/supplier.md",
+            summary:
+              "Completed endpoint directly satisfies this consumer's condition.",
+          },
+        })
+        .please(),
     ),
   );
   const result = await run(retained.project, [
@@ -71,13 +74,13 @@ export async function observeClosureDependency(
     "--identity",
     consumer.identity,
     "--link",
-    consumer.link,
+    consumer.href,
     "--dependency-file",
     input,
     "--expect-dependencies",
     current.basis,
     "--plan",
-    supplier.link,
+    supplier.href,
     "--remote",
     remote,
     "--target",

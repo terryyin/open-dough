@@ -2,20 +2,18 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import type { normalizeStoryDependency } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { test as base } from "./dashboardTest.ts";
 import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
 import { recordAssessed, writePlanning } from "./storyReadinessCli.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
-export const consumer = {
-  identity: "SEED-A#a",
-  href: "seeds/A.md#a",
-  title: "Story A",
-};
-export const suppliers = [
-  { identity: "SEED-B#b", href: "seeds/B.md#b" },
-  { identity: "SEED-C#c", href: "seeds/C.md#c" },
-] as const;
+export const consumer = makeMe.aBacklogEntry
+  .with({ identity: "SEED-A#a", href: "seeds/A.md#a", title: "Story A" })
+  .please();
+export const supplierB = { identity: "SEED-B#b", href: "seeds/B.md#b" };
+export const supplierC = { identity: "SEED-C#c", href: "seeds/C.md#c" };
 export const reason =
   "Both externally valuable stories need the published endpoint before the consumer can execute.";
 export const condition =
@@ -45,14 +43,11 @@ function call(origin: StartOrigin, ...args: string[]) {
     encoding: "utf8",
   });
 }
+type Agreement = ReturnType<typeof normalizeStoryDependency>;
+
 export function recordDependency(
   origin: StartOrigin,
-  index: number,
-  state: "waiting" | "satisfied" | "decision-needed",
-  revision?: string,
-  supplier:
-    | { readonly identity: string; readonly href: string }
-    | undefined = suppliers[index],
+  facts: Pick<Agreement, "supplier" | "state" | "decision" | "resolution">,
 ) {
   const current = JSON.parse(
     call(origin, "read-dependencies", "--link", consumer.href),
@@ -60,21 +55,16 @@ export function recordDependency(
   const input = path.join(origin.machine, "dependency.json");
   writeFileSync(
     input,
-    JSON.stringify({
-      supplier,
-      implementation: "Shared endpoint contract",
-      rationale: reason,
-      condition,
-      state,
-      ...(state === "decision-needed" && { decision }),
-      ...(state === "satisfied" && {
-        resolution: {
-          revision,
-          path: ".planning/seeds/B.md",
-          summary: "Accepted supplier endpoint proof.",
-        },
-      }),
-    }),
+    JSON.stringify(
+      makeMe.aSupplierAgreement
+        .with({
+          implementation: "Shared endpoint contract",
+          rationale: reason,
+          condition,
+          ...facts,
+        })
+        .please(),
+    ),
   );
   call(
     origin,
@@ -126,22 +116,34 @@ export async function publishDependencies(origin: StartOrigin) {
   });
   return (await origin.originGit("rev-parse", "main")).trim();
 }
-export async function twoDependencies(origin: StartOrigin, notReady = false) {
+export async function twoDependencies(
+  origin: StartOrigin,
+  review?: Pick<Parameters<typeof recordAssessed>[2], "assessment" | "reasons">,
+) {
   writePlanning(
     origin.project,
     "seeds/C.md",
     '---\nid: SEED-C\n---\n\n# Seed C\n\n<a id="c"></a>\n\n### Story C\n\n**Identity:** SEED-C#c\n\nDeliver another endpoint.\n',
   );
-  recordDependency(origin, 0, "waiting");
-  recordDependency(origin, 1, "decision-needed");
-  if (notReady)
-    recordAssessed(origin.project, consumer, {
-      refinement: "refined",
-      approach: "planned",
-      plan: "../slice-plans/A/PLAN.md",
-      assessment: "not-ready",
-      reasons: ["Unrelated consumer design decision remains."],
-    });
+  recordDependency(origin, { supplier: supplierB, state: "waiting" });
+  recordDependency(origin, {
+    supplier: supplierC,
+    state: "decision-needed",
+    decision,
+  });
+  if (review)
+    recordAssessed(
+      origin.project,
+      consumer,
+      makeMe.aStoryPreparation
+        .with({
+          refinement: "refined",
+          approach: "planned",
+          plan: "../slice-plans/A/PLAN.md",
+          ...review,
+        })
+        .please(),
+    );
   return publishDependencies(origin);
 }
 export async function publishMalformedDependencies(origin: StartOrigin) {
