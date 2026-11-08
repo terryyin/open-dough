@@ -963,7 +963,7 @@ across two runs.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.90 (`VERSION` in the execution checkout)
-  - Evidence: plan 516 "Outside-in proof" row "Cue names and order unchanged" and premise "Cue-order proof"; slice 1 accepted proof masks `Terminal: shows "attached <8 hex>"` (from `randomUUID()` in `dashboard/tests/support/fakeClaudeListing.ts`)
+  - Evidence: plan 516 at `5217098d1` "Outside-in proof" row "Cue names and order unchanged" and premise "Cue-order proof"; slice 1 accepted proof masks `Terminal: shows "attached <8 hex>"` (from `randomUUID()` in `dashboard/tests/support/fakeClaudeListing.ts`)
   - Observed effect: the implementer found the 3-line difference, traced it, and introduced a mask that every later step-tree comparison reused; no rework
   - Inference: qualified. A planned "identical output" proof premise can be checked by comparing two baseline runs before relying on it.
 
@@ -975,6 +975,6 @@ across two runs.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.90 (`VERSION` in the execution checkout)
-  - Evidence: plan 516 `source-review.md` launch note and row 24c; the coordinator extracted seed lines by a hand-picked `sed` range one line short
+  - Evidence: plan 516 `source-review.md` at `5217098d1` launch note and row 24c; the coordinator extracted seed lines by a hand-picked `sed` range one line short
   - Observed effect: the reviewer flagged item 24c as cut off; the coordinator added its source text in brackets. No other cost
   - Inference: qualified one-off. Extracting the story section by its anchors rather than line numbers would avoid it.

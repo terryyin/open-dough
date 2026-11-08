@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Make published work test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-published-work-test-data) — SEED-261#map-published-work-test-data ([plan](slice-plans/508-map-published-work-test-data/PLAN.md))
 - [Remove wall-clock waits from authenticated-read backend specs](seeds/SEED-262-faster-dashboard-test-feedback.md#remove-authenticated-read-wall-clock-waits) — SEED-262#remove-authenticated-read-wall-clock-waits ([plan](slice-plans/511-remove-authenticated-read-wall-clock-waits/PLAN.md))
 - [Prepare dashboard test artifacts only when selected tests need them](seeds/SEED-262-faster-dashboard-test-feedback.md#prepare-artifacts-on-demand) — SEED-262#prepare-artifacts-on-demand ([plan](slice-plans/513-prepare-dashboard-artifacts-on-demand/PLAN.md))
-- [Make fluent Side panel page objects easier to extend](seeds/SEED-268-fluent-side-panel-pilot-follow-up.md#adjust-fluent-side-panel-page-objects) — SEED-268#adjust-fluent-side-panel-page-objects ([plan](slice-plans/516-adjust-fluent-side-panel-page-objects/PLAN.md))
 
 ## Backlog list
 
