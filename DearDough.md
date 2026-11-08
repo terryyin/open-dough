@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 449. Removed numbers are never reused.
+- Highest allocated local number: 450. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -959,3 +959,21 @@ had to inspect the run and workflow before it could ignore proven supersession.
   - Evidence: `CI_INCOMPLETE` for run 42436771496 (`df2702f6b`, `cancelled`); `gh run list` showed run 42437158620 for `ce269af5c` on the same branch succeeded; `.github/workflows/ci.yml` `concurrency.group` uses `github.ref` with `cancel-in-progress: true`
   - Observed effect: two inspection commands and a read of the notification guidance before the coordinator recorded supersession and continued; no repair or pause. It recurred for `151281a43` (run 42438254144, cancelled once `c755e3952` was pushed and later succeeded) and needed one more `gh run view`
   - Inference: qualified. The cost was small, but it recurs on every Story Branch execution that pushes slices faster than CI finishes. The observer already holds both registered revisions, so it may be able to classify the cancellation itself.
+
+## DD-450 — Relocated assertion catalogs reused as unchanged proof
+
+A post-change refactor extracted authenticated-read refusal expected-error
+tables into a new module. Acceptance reused the prior refusal suite proof as
+unchanged, and the extract bound the non-sha revision case to the wrong
+expected string. CI failed on that assertion; a repair restored the product
+text.
+
+### Occurrences
+- Execution: SEED-262#reduce-private-fixture-lifecycle-cost (plan 520-reduce-private-fixture-lifecycle-cost; first related implementation commit `bf621efc4b798bfd0c38359641b25781fec68624`)
+  - Timestamp: 2026-11-08T12:47:54+08:00
+  - Tool: Cursor
+  - Model: unknown
+  - Open Dough release: 0.3.90
+  - Evidence: slice 1 refactor extracted `authenticatedReadRefusalCases.ts`; acceptance reused `/tmp/seed262-s1-F37XUF/refusal-standin.json` without rerunning relocated cases; CI run 42447021471 dashboard (2/12) expected `onlyPinned` got `The pinned revision is not a commit sha.`; repair `572b4f4dab518d35ccbde584aeffd428685d8360`
+  - Observed effect: published wrong expectation; owned CI repair before slice 2 delivery
+  - Inference: relocating assertion tables changes the proof boundary even when the suite name is unchanged; reuse requires re-observing the relocated values

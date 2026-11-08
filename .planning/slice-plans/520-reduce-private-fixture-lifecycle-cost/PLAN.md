@@ -265,3 +265,11 @@ Commitment: 12.5
 Reported: slice 1 — "slice 1 — "no dedicated partial-start crash probe (harness still closeOwned() on startOnOwnAddress failure)""
 Story clause: "Cleanup retires only what the fixture owns, including after startup or test failure."
 Disposition: proved by slice 1: dashboardServer.ts startOnOwnAddress catch awaits closeOwned(); stand-in wired into dashboardFixtureLifetime.release before HOME removal
+
+## Execution complete
+
+Product advice: no change. The matched selection shows a repeatable fixture
+lifecycle saving and a credible end-to-end gain with the same attention and
+refusal proof; keep the stand-in opt-in. Process finding DD-450 records that
+relocating assertion catalogs must re-observe the relocated values rather than
+reuse the prior suite proof.
