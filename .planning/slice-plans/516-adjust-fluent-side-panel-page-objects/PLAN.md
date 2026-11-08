@@ -135,7 +135,7 @@ passed, reverted with the step tree again equal to the base's.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: named-negatives check, identical step tree, controlled failure, and
 the sizes and locator-ownership record, as mapped above.
@@ -147,6 +147,110 @@ Then the `## Revised design evaluation` section records the three journeys'
 results and durations, the extension probe's touched files, the controlled
 failure's report, module and spec sizes against the seed's baseline, and the
 `Review changes` locator's owners.
+
+## Revised design evaluation
+
+Observed 2026-11-08 on slice 1's commit `1112b8feb` plus slice 2's named
+negatives, against the seed's baseline from the pilot at `77741589a`. Runs
+used `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES`
+and the command under Local gates.
+
+**Journeys.** 3 passed, 2 workers (list reporter, 11.9 s wall; JSON
+reporter run, 12.3 s wall):
+
+| Journey (seed's Evaluation) | Test | List | JSON |
+| --- | --- | --- | --- |
+| Review, another story's review, and final report replacement, including the held response race and panel controls | replacement spec, “a review, another story's review, and a final report replace each other in the one side panel” | 5.3 s | 4.7 s |
+| Review and final report retention across Board and Intent, including the selected file and Intent's separate comparison | replacement spec, “a review and a final report stay shown with their selection while the page changes to Intent and back” | 4.1 s | 4.0 s |
+| Review and Terminal replacement beside the Board, including reattachment of the same session | switching spec, “review and terminal take turns in the one side panel beside a usable Board” | 4.4 s | 4.5 s |
+
+The JSON phase › cue step tree (171 lines) is identical to the plan's base
+after masking the per-run Terminal session id
+(`sed -E 's/attached [0-9a-f]{8}/attached <id>/'`), after slice 1 and again
+after slice 2: cue names and order are unchanged, including
+`Story card "Story B": not selected`, `Story card "Story A": not inspected`
+and `Story card "Story A": not shown in terminal`.
+
+**Named negatives.** The switching spec's nine former boolean negatives now
+read `expectNotSelected()` (7), `expectNotInspected()` (1) and
+`expectNotShownInTerminal()` (1); `git grep -n "(false)"` over both specs and
+every pilot page-object module finds none. `StoryCard`'s positive
+`expectSelected()`, `expectInspected()` and `expectShownInTerminal()` take no
+argument. `storyCardSelection.ts` is unchanged; the named operations call its
+boolean `expectSelected` and `expectInspected` with `true` or `false`.
+
+**Extension probe** (slice 1, reverted). `FinalReport` gained `get board()`
+returning `this.pages.board`, used once in the replacement spec as
+`.board.storyCard("Story B").expectShown()` after reading Story B's report.
+It touched only `finalReportPages.ts` (+5) and
+`side-panel-content-replacement.spec.ts` (+2); type-check passed and the spec
+passed (2 tests). After the revert the step tree again equalled the base's.
+
+**Controlled failure.** Scratch change in the replacement spec's phase
+“Story B's review replaces Story A's, still reading”:
+`sidePanel.storyReview.expectStory("Story A")` → `"Story Z"`. The list
+reporter reported:
+
+```text
+1) [chromium] › dashboard/tests/navigation/side-panel-content-replacement.spec.ts:66:1 › a review, another story's review, and a final report replace each other in the one side panel › Story B's review replaces Story A's, still reading › Story review: of Story Z
+
+  Error: expect(locator).toHaveText(expected) failed
+
+  Locator:  getByRole('region', { name: 'Story review' }).getByRole('heading', { level: 2 })
+  Expected: "Story Z"
+  Received: "Story A"
+  Timeout:  5000ms
+     at tests/storyReviewPages.ts:30
+```
+
+The JSON step tree of that failed run ends at the failing cue; the phase's
+later cues (`says "Reading the story's changes…"`, `Story card "Story B":
+Review changes`, …) and later phases do not appear:
+
+```text
+# a review, another story's review, and a final report replace each other in the one side panel [failed]
+  Story A's review opens on its held read
+    Story card "Story A": Review changes
+  Story B's review replaces Story A's, still reading
+    Story review: of Story Z
+```
+
+Restored, the replacement spec passed (2 passed, 4.6 s and 3.4 s).
+
+**Sizes** (lines, `wc -l`; none above 250):
+
+| Module | Pilot baseline | Revised |
+| --- | --- | --- |
+| `sidePanelContentPages.ts` | 246 | removed |
+| `fluentPageObject.ts` (base) | — | 41 |
+| `sidePanelFramePages.ts` (Side panel) | — | 98 |
+| `storyReviewPages.ts` | — | 121 |
+| `finalReportPages.ts` | — | 19 |
+| `sidePanelPages.ts` (phase and set) | 139 | 147 |
+| `storyCardPages.ts` | 161 | 173 |
+| `terminalPages.ts` | 96 | 97 |
+| `support/cueSheet.ts` (unchanged) | 65 | 65 |
+| Runner and page objects | 709 | 761 |
+| `side-panel-content-replacement.spec.ts` | 250 | 250 |
+| `side-panel-content-switching.spec.ts` | 239 | 239 |
+| Boolean negative calls in the switching spec | 9 | 0 |
+
+The largest page-object module is now 173 lines (was 246). The 52-line
+growth is module headers and imports for four modules instead of one, the
+set's `storyReview` and `finalReport` members, and the three named negative
+methods.
+
+**`Review changes` locator.** `git grep -n '"Review changes"'
+dashboard/tests/*Pages.ts dashboard/tests/fluent*.ts` finds one line,
+`storyCardPages.ts:47` (`StoryCard`'s `#reviewChanges`): still one owner.
+
+**Checks.** `npm run --silent typecheck:dashboard` passed;
+`npm run --silent lint` passed. Consumers: only the two pilot specs construct
+or call `StoryCard` (`git grep` of `storyCardPages` and `.storyCard(` under
+`dashboard`: the two specs, `sidePanelPages.ts` and `writing-journeys.md`);
+both specs ran above. The 29 test files that call `storyCardSelection.ts`'s
+`expectSelected`/`expectInspected` use that unchanged module directly, so
+they were not rerun; the type-check covers every importer.
 
 ## Plan review
 

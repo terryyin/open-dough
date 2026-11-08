@@ -47,6 +47,10 @@ export class StoryCard extends PageObject {
     return this.#card.getByRole("button", { name: "Review changes" });
   }
 
+  get #shownInTerminal() {
+    return storyCardSessions(this.#card).getByText("Shown in terminal");
+  }
+
   get #named() {
     return `Story card "${this.#title}"`;
   }
@@ -131,27 +135,39 @@ export class StoryCard extends PageObject {
     );
   }
 
-  // Its story is the Selected story, highlighted, or is not.
-  expectSelected(selected = true) {
-    return this.#expect(selected ? "selected" : "not selected", () =>
-      expectSelected(this.#card, selected),
+  // Its story is the Selected story, highlighted.
+  expectSelected() {
+    return this.#expect("selected", () => expectSelected(this.#card, true));
+  }
+
+  expectNotSelected() {
+    return this.#expect("not selected", () =>
+      expectSelected(this.#card, false),
     );
   }
 
-  // Its inline detail is open, or is not.
-  expectInspected(inspected = true) {
-    return this.#expect(inspected ? "inspected" : "not inspected", () =>
-      expectInspected(this.#card, inspected),
+  // Its inline detail is open.
+  expectInspected() {
+    return this.#expect("inspected", () => expectInspected(this.#card, true));
+  }
+
+  expectNotInspected() {
+    return this.#expect("not inspected", () =>
+      expectInspected(this.#card, false),
     );
   }
 
-  // Its session entry says that the Terminal shows its session, or no
-  // entry says so.
-  expectShownInTerminal(shown = true) {
-    const mark = storyCardSessions(this.#card).getByText("Shown in terminal");
-    return this.#expect(
-      shown ? "Shown in terminal" : "not shown in terminal",
-      () => (shown ? expect(mark).toBeVisible() : expect(mark).toHaveCount(0)),
+  // Its session entry says that the Terminal shows its session.
+  expectShownInTerminal() {
+    return this.#expect("Shown in terminal", () =>
+      expect(this.#shownInTerminal).toBeVisible(),
+    );
+  }
+
+  // No session entry says that the Terminal shows its session.
+  expectNotShownInTerminal() {
+    return this.#expect("not shown in terminal", () =>
+      expect(this.#shownInTerminal).toHaveCount(0),
     );
   }
 }
