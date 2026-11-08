@@ -374,29 +374,55 @@ request count with the ordinary test verdicts and fixtures intact.
 
 **Identity:** SEED-262#remove-authenticated-read-wall-clock-waits
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/511-remove-authenticated-read-wall-clock-waits/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05d4028d4e7690a88244c1de4e435a23ff311c9fb280042bfc4e24e46144ea14","plan":"fa912f68356d6b36f2dde63430f39c603260059656e4528d2776b224ba3f1462"}}
 ```
 
-**Goal.** Developers get deterministic feedback from the revision-stream and
-shared-listing failure specs. Drive shutdown, timeout, and cooldown checks with
-observable events or a controlled clock.
+#### Goal
 
-**Scope.** Replace fixed waits used to prove shutdown or to let a listing
-settle in these two specs. Preserve the existing request-count and recovery
-assertions.
+Developers running the authenticated-read backend specs get reliable feedback
+as soon as the relevant event occurs or they advance the test clock. The
+checks still distinguish correct stream shutdown and listing recovery from
+extra or missing GitHub requests.
 
-- [Revision stream](../../dashboard/backend-tests/observation/authenticated-read-revision-stream.spec.ts).
-  Keep proof that two streams share one listing per tick and that listings stop
-  after the last stream or the server boundary closes. Observe stream shutdown
-  and drive any remaining cadence through a controlled clock.
-- [Shared listing failures](../../dashboard/backend-tests/observation/authenticated-read-shared-listing-failures.spec.ts).
-  Replace `pause(500)` and `pause(1_100)`. Observe or drive the listing timeout
-  after the waiter's timeout, and advance past the rate-limit cooldown. Keep
-  proof that the next eligible check asks GitHub for a fresh listing.
+#### Scope
 
-**Evaluation.** Both specs pass through the normal backend test entry point.
-The affected cases retain their verdicts with no elapsed-time sleeps for
-shutdown, timeout settlement, or cooldown. Follow the
+Replace the fixed shutdown waits in the
+[revision stream spec](../../dashboard/backend-tests/observation/authenticated-read-revision-stream.spec.ts)
+and the listing-settlement and cooldown waits in the
+[shared listing failures spec](../../dashboard/backend-tests/observation/authenticated-read-shared-listing-failures.spec.ts).
+Keep the real HTTP boundary and synthetic GitHub request counts. Observe
+completion at the owner of each operation and control the time needed to
+prove cadence and cooldown. The boundary is these two specs and their
+necessary fixture support. The broader polling story and a released GitHub
+request owner clock seam have [separate scope](#drive-polls-with-time-and-replies).
+
+#### Key examples
+
+1. Two streams for one source open at different revisions and with different
+   watches. They share one opening listing and receive their respective
+   answers. Advancing to the next pace causes exactly one fresh listing for
+   both. Once the server processes the last disconnect, advancing across
+   further paces makes no new listing.
+2. A stream has received its first answer and has another pace scheduled.
+   Closing the authenticated-read boundary ends the HTTP response while
+   the HTTP server can still answer. Advancing across further paces makes
+   no new listing.
+3. A GitHub listing stays unanswered when the HTTP check times out. Once
+   the listing itself has timed out, a later check succeeds with exactly
+   one fresh listing. A 504 still falls back to the ref and leaves the next
+   check eligible to ask for a fresh listing.
+4. GitHub answers a listing with a 429 and a directed wait. During that
+   wait, another check on the same server is held back without a GitHub
+   request. Advancing the private owner's clock past the cooldown lets
+   the next check succeed with exactly one fresh listing.
+
+#### Evaluation
+
+Both specs pass through the normal dashboard backend entry point, including
+their other existing assertions. Compare the same two-spec selection before
+and after, recording elapsed time, executed cases, and the waits removed.
+Keep the request counts and verdicts with no elapsed-time sleeps for shutdown,
+timeout settlement, or cooldown. Follow the
 [test automation rules](../../AGENTS.md#test-automation) and
 [failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
 
