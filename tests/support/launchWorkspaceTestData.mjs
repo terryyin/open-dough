@@ -3,7 +3,7 @@
 // dashboard's machine store holds it (`./launchTestData.mjs`): a story's
 // worktree on its story branch, kept as an execution's claimed start or a
 // refinement's preparation, or an ad hoc session's isolated workspace waiting
-// for review.
+// for review or its place in the project's default checkout.
 
 /** @typedef {{ workspace: string, branch: string }} EstablishedBranch */
 /**
@@ -55,19 +55,56 @@ export function storyBranchFacts({ workflow, identity }, storyBranch) {
 }
 
 /**
- * The record fields of the isolated workspace an ad hoc start established.
- * @param {EstablishedBranch | undefined} isolated
+ * Where an ad hoc start established its session: an isolated workspace of the
+ * project on its own branch, waiting for review, or the project's default
+ * checkout on `main` at a revision, landing as the developer chose.
+ * @typedef {{ role: "isolated", workspace: string, branch: string } | { role: "default-checkout", workspace: string, landing: "auto-land" | "review", revision: string }} AdHocWorkspace
  */
-export function isolatedWorkspaceFacts(isolated) {
-  if (!isolated) return {};
+
+/**
+ * The policy an ad hoc request asked for to establish `established`.
+ * @param {AdHocWorkspace | undefined} established
+ */
+export function requestedPolicy(established) {
+  if (!established) return undefined;
+  return established.role === "isolated"
+    ? {
+        workspace: /** @type {const} */ ("isolated"),
+        landing: /** @type {const} */ ("review"),
+      }
+    : {
+        workspace: /** @type {const} */ ("default-checkout"),
+        landing: established.landing,
+      };
+}
+
+/**
+ * The record fields of the workspace an ad hoc start established.
+ * @param {AdHocWorkspace | undefined} established
+ */
+export function establishedSessionFacts(established) {
+  if (!established) return {};
+  if (established.role === "isolated")
+    return {
+      establishedSession: {
+        workspace: established.workspace,
+        role: established.role,
+        branch: established.branch,
+        remote: "origin",
+        target: "main",
+        landing: /** @type {const} */ ("review"),
+      },
+    };
   return {
     establishedSession: {
-      workspace: isolated.workspace,
-      role: /** @type {const} */ ("isolated"),
-      branch: isolated.branch,
+      workspace: established.workspace,
+      role: established.role,
+      branch: "main",
       remote: "origin",
       target: "main",
-      landing: /** @type {const} */ ("review"),
+      landing: established.landing,
+      startingRevision: established.revision,
+      fetched: established.revision,
     },
   };
 }

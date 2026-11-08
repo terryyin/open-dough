@@ -7,7 +7,8 @@ import {
   cursorSession,
 } from "./launchSessionTestData.mjs";
 import {
-  isolatedWorkspaceFacts,
+  establishedSessionFacts,
+  requestedPolicy,
   storyBranchFacts,
 } from "./launchWorkspaceTestData.mjs";
 
@@ -17,25 +18,17 @@ import {
  * @typedef {import("../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord
  */
 
-/**
- * What a story launch's request states: the project, the story, and its
- * title as the card shows it.
- * @typedef {{ identity: string, title: string, source?: string }} StoryFacts
- */
-
-/**
- * What an ad hoc launch's request states: the project, the instruction it
- * started with (none for a blank session), and the title kept for it.
- * @typedef {{ instruction?: string, title: string, source?: string, followUp?: import("../../dashboard/src/followUpRequest.ts").FollowUp }} AdHocFacts
- */
+/** @typedef {import("./launchRequestTestData.mjs").StoryFacts} StoryFacts */
+/** @typedef {import("./launchRequestTestData.mjs").AdHocFacts} AdHocFacts */
 
 // The kept launch of one story's execution or refinement, or of an ad hoc
 // session: its request (`./launchRequestTestData.mjs`), its host session
-// (`./launchSessionTestData.mjs`), and, for an execution or a refinement that
-// established one, the story branch (`./launchWorkspaceTestData.mjs`). Without `.onStoryBranch(...)` the
-// record keeps no established start or preparation. The session defaults to
-// a `claude` one named after the title, the start's claim to fixed published
-// facts, and the launch time to a fixed instant.
+// (`./launchSessionTestData.mjs`), and the workspace its start established
+// (`./launchWorkspaceTestData.mjs`): a story branch, an ad hoc session's
+// isolated workspace, or its place in the default checkout. Without one the
+// record keeps no established start, preparation or session. The session
+// defaults to a `claude` one named after the title, the start's claim to
+// fixed published facts, and the launch time to a fixed instant.
 export class LaunchRecordBuilder {
   /** @type {import("./launchRequestTestData.mjs").Requested | undefined} */
   #requested;
@@ -46,8 +39,8 @@ export class LaunchRecordBuilder {
   #launchedAt = "2026-01-01T00:00:00.000Z";
   /** @type {LaunchRecord["firstInput"]} */
   #firstInput;
-  /** @type {{ workspace: string, branch: string } | undefined} */
-  #isolated;
+  /** @type {import("./launchWorkspaceTestData.mjs").AdHocWorkspace | undefined} */
+  #adHocWorkspace;
   /** @type {LaunchOutcome} */
   #outcome = {};
   /** @type {NonNullable<LaunchRecord["request"]["reporting"]> | undefined} */
@@ -158,7 +151,23 @@ export class LaunchRecordBuilder {
    * @param {{ workspace: string, branch: string }} isolated
    */
   inIsolatedWorkspace({ workspace, branch }) {
-    this.#isolated = { workspace, branch };
+    this.#adHocWorkspace = { role: "isolated", workspace, branch };
+    return this;
+  }
+
+  /**
+   * The ad hoc launch's start established its session in the project's
+   * default checkout `workspace` on `main` at `revision`, also the trunk it
+   * fetched, landing as the developer chose.
+   * @param {{ workspace: string, landing: "auto-land" | "review", revision: string }} defaultCheckout
+   */
+  inDefaultCheckout({ workspace, landing, revision }) {
+    this.#adHocWorkspace = {
+      role: "default-checkout",
+      workspace,
+      landing,
+      revision,
+    };
     return this;
   }
 
@@ -208,9 +217,11 @@ export class LaunchRecordBuilder {
       throw new Error(
         "only a story's start or preparation establishes a story branch",
       );
-    const isolated = this.#isolated;
-    if (isolated && requested.workflow !== "ad-hoc")
-      throw new Error("only an ad hoc start establishes an isolated workspace");
+    const adHocWorkspace = this.#adHocWorkspace;
+    if (adHocWorkspace && requested.workflow !== "ad-hoc")
+      throw new Error(
+        "only an ad hoc start establishes its session's workspace",
+      );
     const slug = requested.title.toLowerCase().replaceAll(/\s+/g, "-");
     const session = (
       this.#session ??
@@ -225,19 +236,14 @@ export class LaunchRecordBuilder {
       host: session.host,
       model: this.#model,
       reporting: this.#reporting,
-      isolated: isolated !== undefined,
+      policy: requestedPolicy(adHocWorkspace),
     });
-    if (requested.workflow === "ad-hoc")
-      return {
-        ...requestField,
-        session,
-        ...isolatedWorkspaceFacts(isolated),
-        ...launchFacts,
-      };
     return {
       ...requestField,
       session,
-      ...storyBranchFacts(requested, storyBranch),
+      ...(requested.workflow === "ad-hoc"
+        ? establishedSessionFacts(adHocWorkspace)
+        : storyBranchFacts(requested, storyBranch)),
       ...launchFacts,
     };
   }

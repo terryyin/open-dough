@@ -6,11 +6,13 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { machineRecordNames } from "../../tests/support/machineRecordNames.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   deleteRecord,
-  launchRequest,
+  identity,
   markDone,
   recordsOf,
+  title,
 } from "../../tests/agentLaunchBoundary.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
 import { openCodexTerminal } from "../../tests/support/codexTerminal.ts";
@@ -20,31 +22,25 @@ import {
   keptLaunchStore,
   launchStoreFile,
 } from "../../tests/support/launchStore.ts";
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
 
 const sessionId = "same-native-conversation-id";
 
 test("predecessor Claude evidence and an equal ID from another host retain distinct reads and actions without fallback", async () => {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-host-records-"));
   const home = machineHome(machine);
-  const oldClaude = {
-    request: launchRequest,
-    session: {
-      host: "claude",
-      sessionId,
-      shortId: "native-alias",
-      name: "Predecessor",
-    },
-    launchedAt: new Date().toISOString(),
-  };
-  const other = {
-    ...oldClaude,
-    request: { ...launchRequest, host: "codex" },
-    session: { host: "codex", sessionId, name: "Another host" },
-  };
-  keepLaunchStore(home, {
-    "open-dough": [oldClaude, other] as LaunchRecord[],
-  });
+  const launchedAt = new Date().toISOString();
+  // The story's execution kept by Claude, and by Codex under the same ID.
+  const oldClaude = makeMe.aLaunchRecord
+    .executing({ identity, title })
+    .inClaudeSession({ sessionId, shortId: "native-alias" })
+    .launchedAt(launchedAt)
+    .please();
+  const other = makeMe.aLaunchRecord
+    .executing({ identity, title })
+    .inCodexSession({ sessionId })
+    .launchedAt(launchedAt)
+    .please();
+  keepLaunchStore(home, { "open-dough": [oldClaude, other] });
   const server = await startDashboardServer({
     mode: "boundary",
     machine,

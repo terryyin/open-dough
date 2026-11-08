@@ -175,7 +175,7 @@ a repeat failure there is a defect to fix.
 
 ### 4. Record rules state coherent host records and keep malformed input explicit
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed examples 3 and 4. `launch-record-session-rules.spec.ts`, `agent-launch-host-identity.spec.ts`, and the `agent-launch-records*.spec.ts` store-text cases pass with unchanged assertions.
 
 A Claude session with its alias → the session and record schemas parse it →
@@ -183,6 +183,12 @@ both keep it. Wrap each host's session in a record of the same host built by
 `makeMe.aLaunchRecord`, and keep the deliberately incomplete or legacy
 sessions, the older `created` established-session fact, and exact store
 text literal at the call site.
+
+Accepted: rules and host-identity specs wrap each session in a record of its
+own host built by the builder (`inDefaultCheckout` added); exact-text and
+legacy inputs stay literal. The sweep leaves hand-built records only in exact
+text cases or sibling families; host-mismatch setup remains in completion and
+Codex terminal specs (G3).
 
 ## Concern evidence
 
@@ -200,4 +206,11 @@ Disposition: proved by slice 2: dashboard/backend-tests/sessions/sessions-replay
 ### G2. Stored setup gained type-only record casts (first reported in slice 1)
 Reported: slice 1 — "Typing the store as LaunchRecord | CreationRecord added launchRequest as LaunchRecord[\"request\"] in recordHolding and the own-record verification spec, and as LaunchRecord / as CreationRecord / as KeptLaunch casts in project-add, project-remove, project-hide-sessions, project-restored-session, creation-gates, host-identity, retention-scope, responsive-session-recovery-verification and avatar.establish."
 Story clause: "a record states its request through the builder"
-Disposition: interim until slices 2, 3, 4
+Disposition: proved by slice 4: grep of dashboard tests finds no launchRequest-as-record and no cast on stored setup except project-restored-session.spec.ts:44, a Codex observationRecord in the Codex continuation sibling's setup; slices 2-4 removed the rest (tmp/slice4-1.log)
+
+
+### G3. Host-mismatch cases remain only in sibling setup (first reported in slice 4)
+Reported: slice 4 — "final-report-admission.spec.ts:24-33 re-wraps a Codex retained record and a Cursor record with a Claude session to prove wrong-host refusal without stating the mismatch at the call site; agent-terminal-codex.spec.ts:164-180 re-wraps a server-written Codex record with a Claude session. No in-scope case proves a mismatched host."
+Story clause: "completion and landing setup, Codex and Cursor continuation and terminal setup"
+Disposition: excluded "completion and landing setup, Codex and Cursor continuation and terminal setup"
+Commitment: E3.1, G4

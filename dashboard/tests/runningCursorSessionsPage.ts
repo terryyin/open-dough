@@ -15,6 +15,7 @@ import type { DashboardServer } from "./support/dashboardServer.ts";
 import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { keepLaunchRecords } from "./support/launchStore.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export const instruction = "hold this session";
 
@@ -151,21 +152,11 @@ export function keepCrowd(dashboard: DashboardServer, held: LaunchRecord) {
       cwd: dashboard.home,
       startedAt: Date.parse(launchedAt),
     });
-    return {
-      request: {
-        source: "open-dough",
-        workflow: "ad-hoc",
-        title: name,
-        host: "claude",
-      },
-      session: {
-        host: "claude",
-        sessionId,
-        shortId: sessionId.slice(0, 8),
-        name,
-      },
-      launchedAt,
-    };
+    return makeMe.aLaunchRecord
+      .adHoc({ title: name })
+      .inClaudeSession({ sessionId })
+      .launchedAt(launchedAt)
+      .please();
   });
   keepLaunchRecords(dashboard, [held, ...saved]);
 }

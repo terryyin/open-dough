@@ -9,6 +9,7 @@
 // session and takes its done mark (./fixtures/fake-claude).
 
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { parts, standaloneSessionName } from "../dashboardPage.ts";
 import { rem } from "../boardPage.ts";
@@ -48,29 +49,15 @@ test("Mark as done in the Final report closes it and lands on entry 27 once entr
         startedAt: Date.parse(launchedAt),
       });
       return [
-        {
-          request: {
-            source: "open-dough",
-            identity: retired.identity,
-            title: retired.title,
-            workflow: "refinement",
-            host: "claude",
-          },
-          session: {
-            host: "claude",
-            sessionId,
-            shortId: sessionId.slice(0, 8),
-            name: retired.title,
-          },
-          preparation: {
-            identity: retired.identity,
+        makeMe.aLaunchRecord
+          .refining(retired)
+          .inClaudeSession({ sessionId })
+          .onStoryBranch({
             workspace: path.join(dashboard.home, "retired-workspace"),
             branch: "story/workspace-retired",
-            remote: "origin",
-            target: "main",
-          },
-          launchedAt,
-        },
+          })
+          .launchedAt(launchedAt)
+          .please(),
       ];
     },
   });
