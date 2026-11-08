@@ -236,6 +236,10 @@ gone.
 
 [Accepted focused proof and full gates](proof.md#slice-4-focused-proof).
 
+## Execution complete
+
+Product advice: Preserve the paired attention and owned-context timings in the existing profiling card for the queued immutable-history story. No priority change.
+
 ## Plan concerns
 
 Slice-plan refinement was not needed. Each slice migrates one consumer group

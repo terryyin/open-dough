@@ -199,3 +199,11 @@ dashboard workers stayed within the observed host capacity.
   unset. The strict transcript `/tmp/dough-seed262-full.o6p2bi/dashboard.json`
   selected 2191 cases. Of these, 2190 passed and the opt-in Sessions replay
   benchmark skipped. The command exited zero with strict status passed.
+
+Managed delivery accepted slice 4 at `5e5f11bf` after a rejected first
+push. The candidate and base did not change, and renewed focused Node
+proof and dashboard typecheck passed before the accepted publication.
+
+The product review found no corrective implementation work. The timing
+baseline belongs in the existing profiling card before plan cleanup.
+The native fingerprint decision remains open for closure.
