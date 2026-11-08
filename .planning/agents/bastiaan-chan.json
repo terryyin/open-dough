@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "bastiaan-chan",
+  "email": "bastiaan-chan@example.org",
+  "identity": "SEED-262#drive-polls-with-time-and-replies",
+  "mode": "story-branch",
+  "branch": "claude/make-dashboard-polling-tests-advance-on-controll",
+  "host": "claude",
+  "model": "opus"
+}
