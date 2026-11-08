@@ -29,18 +29,35 @@ failure and the revised sizes, is in
 ```
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/521-conclude-fluent-side-panel-pilot/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e8da4fd4de9a13ac56b5f207c4b74efdd2d7bfa3004cca2499635f17bc6f7c1c","plan":"53646a9759fe58ad71e9b33def4a2ae91fbf5884863ae5e919206a0b54b26c31"}}
 ```
 
-**Goal.** Dashboard test maintainers can use the results of all three journeys
-to decide where the fluent pattern is worth using and what work should come
-next.
+**Goal.** Dashboard test maintainers can use evidence from all three Side
+panel journeys to decide where fluent phases earn their maintenance cost and
+whether a further trial is worth proposing.
 
-**Scope and evaluation.** Compare the original pilot evaluation with the
-follow-up’s landed evidence for each of the three journeys. Weigh spec
-readability, the cost of changing a shared control, failure diagnostics, and
-the amount and coupling of helper code. Record a conclusion and a next-step
-plan with the scope, first candidate, and proof needed for any further trial,
-or the stopping point if the evidence supports keeping the pattern within the
-pilot. Wider adoption is a separate developer decision.
-[Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md)
+**Scope.** Record a source-linked conclusion in the existing
+[browser journey guide](../../dashboard/tests/writing-journeys.md#fluent-phases-in-the-side-panel-content-journeys).
+Compare the procedural baseline, original pilot, and landed revision where
+the records support that comparison. Weigh spec readability, shared-control
+edit cost, failure diagnostics, and helper size and coupling. Separate
+observed results from inferences and state the limits of the comparison.
+If a further trial is warranted, name one existing first candidate, the
+bounded change, the proof to collect against its baseline, and when to stop.
+Otherwise state where to stop and what evidence could reopen the question.
+Further trials and conversions are follow-up work. The developer owns any
+wider adoption decision.
+[ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+
+**Key examples.**
+
+1. Given the two pilot evaluations, a maintainer can trace the comparison
+   to three distinct outcomes: review and report replacement through a held
+   response, review and report retention with selection across Board and
+   Intent, and Terminal replacement with reattachment to the same session.
+2. Given the shared-control rename, controlled failures, and extension
+   evidence, a maintainer can see where edits and diagnostics land and weigh
+   smaller modules and clearer negative calls against added helper code.
+3. Given the limits of the three journeys and the scratch extension probe,
+   a maintainer can tell whether to stop with the pilot or consider one
+   bounded candidate with explicit proof and a stopping rule.
