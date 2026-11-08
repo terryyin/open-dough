@@ -11,7 +11,7 @@ Fresh general-purpose reviewer launched 2026-11-08 by the execution coordinator 
 | 3 | (Goal) The maintainer can assess whether retained native evidence still applies when an input that builds that fixture changes. | slice 5 | |
 | 4a.1 | Startup fixtures declare their starting repository facts through the shared MakeMe description and materializer. | slice 2 | observed: tests/support/git-publication-native-startup-fixture.mjs builds queuedReadyRepository through materializeRepository; tests/git-publication-fixture-identity.sh startup family inputs include repository-fixture.mjs, queued-repository.mjs and startup-command-files.mjs |
 | 4a.2 | Admission fixtures declare their starting repository facts through the same shared MakeMe description and materializer. | slice 3 | observed: tests/support/git-publication-native-admission-fixture.mjs startingTrunk from queuedReadyStartupRepository (tests/support/startup-command-files.mjs) through materializeRepository; tests/git-publication-fixture-identity.sh admission inputs include repository-fixture.mjs and queued-repository.mjs |
-| 4a.3 | One-shot fixtures declare their starting repository facts through the same shared MakeMe description and materializer. | slice 4 | |
+| 4a.3 | One-shot fixtures declare their starting repository facts through the same shared MakeMe description and materializer. | slice 4 | observed: tests/support/git-publication-native-one-shot-fixture.mjs builds each journey from queuedReadyStartupRepository and queuedRepositoryWithSiblingB2 through materializeRepository; tests/git-publication-fixture-identity.sh one-shot inputs list repository-fixture.mjs, queued-repository.mjs and one-shot-queued-repository.mjs |
 | 4a.4 | Owned-context fixtures declare their starting repository facts through the same shared MakeMe description and materializer. | slice 5 | |
 | 4b.1 | Name the stories at the call site or in the named fixture it selects. | slice 5 | |
 | 4b.2 | Name their readiness at the call site or in the named fixture it selects. | slice 5 | |
@@ -27,7 +27,7 @@ Fresh general-purpose reviewer launched 2026-11-08 by the execution coordinator 
 | 5c | Keep literal divergent or dirty data visible where the check depends on those exact inputs. | slice 5 | |
 | 6a.1 | Remove `createQueuedTrunk` and its legacy setup. | slice 5 | |
 | 6a.2 | Remove `createPreparationTrunk` and its legacy setup. | slice 5 | |
-| 6a.3 | Remove `createSiblingTrunk` and its legacy setup. | slice 4 | |
+| 6a.3 | Remove `createSiblingTrunk` and its legacy setup. | slice 4 | observed: createSiblingTrunk, recordStoryBReady and siblingSection removed from src/skills/dough-execute-plan/scripts/one-shot-queued-test-fixtures.mjs; writeEscalationProduct became escalationProductFiles; the five one-shot unit tests passed |
 | 6b | Remove the last non-dashboard use of `writeQueuedStories`. | slice 5 | |
 | 6c | Remove the writer (`writeQueuedStories`) itself when no caller remains. | slice 5 | |
 | 7a | Each affected evidence identity covers the repository inputs that its fixture uses, including transitive builders and writer helpers. | slice 5 | |
@@ -40,9 +40,9 @@ Fresh general-purpose reviewer launched 2026-11-08 by the execution coordinator 
 | 10a | (Ex.2) An admission fixture names its queued trunk and the startup probe. | slice 3 | observed: git-publication-native-admission-fixture.mjs probed trunk names storyA, storyB and scripts/probe.js per journey in startingTrunk |
 | 10b | (Ex.2) The existing investigation still starts with no queued mission. | slice 3 | observed: admission-investigation starts from probed with no backlog entry; slice 3 comparison origin history base then probe with no admit commit; tests/git-publication-native-admission.sh investigation case passed |
 | 10c | (Ex.2) Continuation and closure still observe real prior admissions and their ownership. | slice 3 | observed: slice 3 comparison of continuation and closure matched old build including prior admissions and Claim-Publisher ownership; tests/git-publication-native-admission.sh continuation and closure cases passed |
-| 11a | (Ex.3) A queued one-shot fixture names Ready B and its unfinished sibling B2. | slice 4 | |
-| 11b | (Ex.3) Refinement selects B2 while keeping B Ready. | slice 4 | |
-| 11c | (Ex.3) The default-main case still observes the staged, unstaged and untracked human edits in that checkout. | slice 4 | |
+| 11a | (Ex.3) A queued one-shot fixture names Ready B and its unfinished sibling B2. | slice 4 | observed: git-publication-native-one-shot-fixture.mjs queuedStoryFiles names seedWithSiblingB2 storyB with readyStoryState(storyB) and B2 without story state; slice 4 comparison backlog order A, B, B2 and seed B bytes match |
+| 11b | (Ex.3) Refinement selects B2 while keeping B Ready. | slice 4 | observed: git-publication-native-one-shot-fixture.mjs adds storyB2 only for refinement journeys and emits identity SEED-B#b2 with sibling SEED-B#b; slice 4 comparison of one-shot-refinement and refinement-auto-land matched |
+| 11c | (Ex.3) The default-main case still observes the staged, unstaged and untracked human edits in that checkout. | slice 4 | observed: slice 4 comparison of one-shot-default-main through the wrapper: integration staged human-staged.txt, unstaged trunk.txt and untracked human-unstaged.txt identical old versus new; tests/git-publication-native-one-shot-workspaces.sh passed |
 | 12a | (Ex.4) The preparation-land fixture names rough C. | slice 5 | |
 | 12b | (Ex.4) Its real retained worktree holds the creation ref and the competing writer advances trunk. | slice 5 | |
 | 12c | (Ex.4) The existing landing verdict still checks that topology and publication. | slice 5 | |

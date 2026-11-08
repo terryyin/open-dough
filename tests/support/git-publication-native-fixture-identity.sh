@@ -57,12 +57,14 @@ git_publication_fixture_family_identity() {
         tests/support/native-node-call-recorder.mjs || return
       ;;
     one-shot)
+      # The one-shot fixture entry materializes each journey's named trunk,
+      # with queued B and its sibling B2 or the escalation product; the
+      # journeys then start, deliver, refine and observe through the skills'
+      # operations.
       native_result_input_hash_lines \
         tests/support/git-publication-native-one-shot.sh \
         tests/support/git-publication-native-one-shot-fixture.sh \
         tests/support/git-publication-native-one-shot-fixture.mjs \
-        tests/support/makeMe.mjs \
-        tests/support/published-plan.mjs \
         tests/support/git-publication-native-one-shot-unobserved.sh \
         tests/support/git-publication-native-one-shot-queued.sh \
         tests/support/git-publication-native-one-shot-queued-observe.mjs \

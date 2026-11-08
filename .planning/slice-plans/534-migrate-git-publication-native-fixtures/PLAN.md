@@ -221,7 +221,7 @@ and the dashboard type-check passed. Local admission time stayed at its base
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Behavior: A one-shot fixture chooses its ordinary, queued, refinement or
 escalation facts → the materialized trunk exposes that choice, including B's
@@ -236,6 +236,27 @@ Compare B/B2 order and readiness, the default-main local state and the
 escalation project's actual command. Verify the one-shot identity's new
 fixture closure. Remove `createSiblingTrunk` and now-unused setup only after
 checking its consumers.
+
+Accepted: each one-shot journey's trunk is a named MakeMe description,
+materialized through `materializeRepository`. It starts from Ready A and B,
+and queued journeys add sibling B2 through `queuedRepositoryWithSiblingB2`.
+The call site names B as Ready and B2 without a story state, and it gives
+B2's outcome only to refinement journeys. `createSiblingTrunk`,
+`recordStoryBReady` and `siblingSection` are removed, and the escalation
+product is a files map.
+
+The old and new builds of all ten journeys were compared with real Git
+through the current wrapper. They differed only in the marker-path script
+bytes and in the installed `dough-update/SOURCE`, which records the source
+checkout path. B/B2 order and readiness, the default-main local commit and
+its staged, unstaged and untracked edits, the rival Take, the established
+block and the escalation command's effect all matched.
+
+The one-shot fixture closure fell from 177 to 107 modules and its identity
+from 411 to 401 rows. The refactor pass shared `readyStartupFiles` and derived
+`identityB2` from `storyB2`. The one-shot checks, both identity checks, the
+five one-shot unit tests, the escalation fixture test and the dashboard
+type-check passed. Local times did not grow against a matched base run.
 
 ### 5. Owned-context cases name their trunk and retain real worktree ownership
 

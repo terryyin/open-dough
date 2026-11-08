@@ -37,17 +37,19 @@ export function startupCommandFiles({
 }
 
 /**
- * The trunk the native startup and admission journeys start from: `queued`
- * stories Ready, with the project's ready setup and command leaving their
+ * The native journeys' project files: the ready setup and command leave their
  * markers in the fixture root.
+ */
+export const readyStartupFiles = startupCommandFiles({
+  contributing: readyContributing,
+  durableCommandEvidence: true,
+});
+
+/**
+ * The trunk the native startup, admission and one-shot journeys start from:
+ * `queued` stories Ready, with `readyStartupFiles`.
  * @param {{ queued: NonNullable<Parameters<typeof queuedReadyRepository>[0]>["queued"] }} facts
  */
 export function queuedReadyStartupRepository({ queued }) {
-  return queuedReadyRepository({
-    queued,
-    files: startupCommandFiles({
-      contributing: readyContributing,
-      durableCommandEvidence: true,
-    }),
-  });
+  return queuedReadyRepository({ queued, files: readyStartupFiles });
 }

@@ -3,8 +3,6 @@
 // released-settings check. Opaque released data contains distinct active and
 // extension directory values. Renaming the core key reveals their collision;
 // neither compatibility precedence can preserve both public meanings.
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
 import { gzipSync } from "node:zlib";
 
 const files = {
@@ -109,27 +107,18 @@ try {
 `,
 };
 
-// Writes the notes tool into checkout `integration`, and makes its applicable
-// command also run the project's tests; the caller commits it.
-export function writeEscalationProduct(integration) {
-  for (const [path, text] of Object.entries(files)) {
-    mkdirSync(dirname(join(integration, path)), { recursive: true });
-    writeFileSync(join(integration, path), text);
-  }
+// The notes tool's files over the project's applicable command `command`,
+// which now also runs the project's tests.
+export function escalationProductFiles(command) {
   const saved = {
     notesDir: "active-notes",
     notesDirectory: "archive-notes",
     editor: "nano",
   };
-  mkdirSync(join(integration, "test/released"), { recursive: true });
-  writeFileSync(
-    join(integration, "test/released/settings-1.0.json.gz"),
-    gzipSync(JSON.stringify(saved)),
-  );
-  const command = join(integration, "scripts/command.js");
-  writeFileSync(
-    command,
-    `${readFileSync(command, "utf8")}// Runs every test/*.test.mjs.
+  return {
+    ...files,
+    "test/released/settings-1.0.json.gz": gzipSync(JSON.stringify(saved)),
+    "scripts/command.js": `${command}// Runs every test/*.test.mjs.
 const { spawnSync } = require('child_process');
 const { readdirSync } = require('fs');
 const { join } = require('path');
@@ -139,5 +128,5 @@ for (const name of readdirSync(tests).filter((n) => n.endsWith('.test.mjs'))) {
   if (run.status !== 0) process.exitCode = 1;
 }
 `,
-  );
+  };
 }
