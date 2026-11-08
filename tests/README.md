@@ -141,6 +141,27 @@ host's current resume command for that conversation, so each session resumes
 its own identity. A Codex session without a continuation is a predecessor
 record. [Host session builder](support/hostSessionTestData.mjs)
 
+A kept launch states what happened after it started through
+`.completedWith`, `.withReportRead`, `.landedAt` and `.markedDoneAt`: its
+final report, the developer reading it, the comparison its landing recorded,
+and the developer's Done mark. These stay separate facts. Build a final report
+on its own with `makeMe.aCompletionReport`, and the body an agent submits with
+`makeMe.aCompletionSubmission`. A submission is answered by a delivery receipt
+and is not the stored report. State a receipt or receipt time when the case
+reads more than one report or controls the clock.
+[Outcome builders](support/launchOutcomeTestData.mjs)
+
+A landing shares one comparison across its shapes: the launch's reporting
+reference, the remote and target, and the base and revision. Build the
+dashboard-prepared context with `makeMe.aLandingContext`, the submission with
+`makeMe.aLandingSubmission`, the receiver's answer with
+`makeMe.aLandingReceipt`, and the stored evidence with `makeMe.aLaunchLanding`
+captured from `makeMe.aLandingAuthority`. A submission and a stored landing
+always state `.comparing({ base, revision })` at the call site. Keep real Git,
+publication and the capture path in the journeys that observe them.
+[Landing builders](support/launchLandingTestData.mjs) ·
+[Stored landing](support/launchLandingEvidenceTestData.mjs)
+
 When a case needs another agent's claim only as a starting fact, declare it
 with `takeRevision`: the agent authors it and the developer commits it under
 `Take queued work: <identity>`, so claim readers find it as they find a real
