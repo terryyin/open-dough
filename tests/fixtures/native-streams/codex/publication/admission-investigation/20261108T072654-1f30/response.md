@@ -1,0 +1,3 @@
+The startup probe reported that startup spends most of its time loading configuration. The script prints that message without measuring startup, so the run did not verify the cause of the slowdown. It completed from `native-execution` on `exec/native-admission` and wrote the expected marker.
+
+I published the investigation to Taken on `origin/main` in commit `b517830817e0` and left it there because the result was inconclusive. No product code changed, and the existing local edits were preserved.

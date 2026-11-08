@@ -1,0 +1,149 @@
+host: claude
+case: publication/admission-investigation
+origin: fresh
+execution-status: completed
+execution-reason: native command exited 0
+assessment-status: pass
+assessment-reason: accepted investigation was admitted to remote Taken before its first probe
+native-executable: /Users/terryyin/.local/bin/claude
+native-version-command: claude --version
+native-version: 2.1.319 (Claude Code)
+native-model: unknown
+native-runtime-settings: unknown
+source-revision: 812450db692cd243005b355469775dcc5d15f28a
+fixture-tag: publication-native
+fixture-commit: 812450db692cd243005b355469775dcc5d15f28a
+prompt-identity: a91b16b248077214fbb5fd1af72d0a32f2a0427097b70cda6db5153c007d9386
+helper-identity: tests/support/git-publication-native-run.sh
+adapter-identity: claude-stream-json
+fixture-identity: tests/support/git-publication-native-fixture.sh
+assessor-identity: tests/support/git-publication-native-assess.sh
+input-hash: 68ae2faa141099a2e8b941cee819ca3328b6cac70f1dff6a7d01720db69f2076 tests/git-publication-native.sh
+input-hash: ac3d1f0e21f88ce9f30b03443953df56595f282c608eecd0f871d769ed64bbf5 tests/support/git-publication-native-assess.sh
+input-hash: c671220a9ffa1fb3eb0567f221c2bdada595ac6246bb2fd93d532815f8513211 tests/support/git-publication-native-startup-assess.sh
+input-hash: fd42b02116e76dd5b6a4928307d6425266a15ec4d3b36789cec3336084802bdb tests/support/git-publication-native-candidate-assess.sh
+input-hash: 7409cc94d362e3b9ab3d377bd89422a8836329154005ab08c49366d1ee82a252 tests/support/git-publication-native-prose.sh
+input-hash: 6c0a15f24d50b906cc5b9951c51ac618dcf51a5e7236ec97a43f1875d056744a tests/support/git-publication-native-fixture.sh
+input-hash: 3a7c9b0d91393a3e83f782335e3b603d801e37160f586e036f3f403eb4755590 tests/support/git-publication-native-startup-fixture.sh
+input-hash: 0557f07edf447dfeada28ea424fe59c7334090eb19691a4ad9ee89bd5f128c98 tests/support/git-publication-native-shared.sh
+input-hash: 3d054de6642b32e18325c7d0b89441892df807c13dd06bc000cb7ee324a27472 tests/support/git-publication-native-stream-fields.mjs
+input-hash: e1e68f8dddf3471ec0c6a2d55f43d6b0d520a75936266a76c56f3ad5ad13cff4 tests/support/git-publication-native-stream-starts.mjs
+input-hash: 5e6220550fbe57f942f806619a0cb8cfe0c6f96024fffa72ef0e28b4feb9a2c4 tests/support/git-publication-native-stream-one-shot.mjs
+input-hash: e7506a57fab20bfd7c1b2103a87f70d06212a121df0547c44e58636440d94f08 tests/support/git-publication-native-run.sh
+input-hash: a211692e25fa5cb49ddd1bf97c1507367caf333e62a799addab27cf57e86c138 tests/support/git-publication-native-evidence.sh
+input-hash: 4193f80dcc6f1ea3cd691b16f3fed78bd6439fcbce313a4180b78cee9ea536cf tests/support/git-publication-native-prompt.sh
+input-hash: 3d4f39bb5e1674dbbaabc559e859569ec0a9e66b7e0cbf4878d8fb29141490a1 tests/support/native-run-supervise.sh
+input-hash: df4be8a8b26fab523c3fcaf26c2886babfb8d1cace20cccc0c0d66ac2aaf480d tests/support/native-run-stream.sh
+input-hash: a06fcccee40171e0dea3c30f69bbbd82db0120d7bf4e30250c613d6fb4868507 tests/support/native-host-stream.sh
+input-hash: 67fb420e6972d1b836a34c749ade72e4a5266419a60395597a3aff31cdb8bd00 tests/support/native-host-stream.mjs
+input-hash: e55493238d2ecef27fa82cf544feb5a4e6206c414effa7a419388166506a0353 tests/support/native-host-stream-adapters.mjs
+input-hash: 93ff8294ef14b954a9562f05fd997f36b369202688bdb1b4bdad6a2902ecae20 tests/support/native-run-watchdog.sh
+input-hash: 38f4ccdedbad94ed2b1b1377e2559cfe8728e756420e5d52944a37ae2e878e2d tests/helpers/wait-for.bash
+input-hash: d4b28ac89c7080639ca0708152ddfe8a89403d03c6a1073f946c264a9497d5a1 src/skills/dough-execute-plan/references/publish-the-candidate.md
+input-hash: f9826bb6ca41808f0f9b63a66a75fec03d2d0b41b2853dd92646b8c32eac73f2 tests/support/git-publication-native-admission.sh
+input-hash: 08a32d9dc793b44a689712e77c8cda8b735b061880b03792021ca6f6cb5b43aa tests/support/git-publication-native-admission-closure.sh
+input-hash: c88cb6af4feda2edf3a5a483158a48a3db5ad968ab85ca52491ed25a85db9108 tests/support/git-publication-native-admission-correction.sh
+input-hash: 9aa894270a17f3920cb631ffccb021ed52ba05340f7bef81ee777225e0cf55b4 tests/support/git-publication-native-admission-fixture.mjs
+input-hash: dff560533344bec50029feaa6ca6f79d448006b261de75a0f3c4f8806e263c96 tests/support/git-publication-native-admission-observe.mjs
+input-hash: 60644f326f55e0a579bd077088d03bde6937b79d7b4a45d9c8164136a4002bfe src/skills/dough-execute-plan/scripts/agent-assignments.mjs
+input-hash: 1489b039fc0179437cf36abcaac6133b63ccdd1c59d8bf5358f34b8b2a892585 src/skills/dough-execute-plan/scripts/bare-remote-test-fixtures.mjs
+input-hash: 8ef8cacc55b147507ef8d51e8c0ae9ebd17e35fb12fce8806057cf076d216bcb src/skills/dough-execute-plan/scripts/ci-direct-entry.mjs
+input-hash: 118590d32fe300e8d78331958ebba207ac6d95b4e7bf3725c39be5b0b1979297 src/skills/dough-execute-plan/scripts/execution-admission-reconcile.mjs
+input-hash: 86362b77c5a9516ce8334356471cb169d494c49048be3a5d3456f6d37d0ee0d4 src/skills/dough-execute-plan/scripts/execution-admission-source.mjs
+input-hash: 0498e1a9380b94af84962a33685af267095323df4d8e526e4c6fec7d9b56d405 src/skills/dough-execute-plan/scripts/execution-source.mjs
+input-hash: 6c673a9476d6579a43329c949b347eb32c37b3bef7899bd67bbbfe41164c88f2 src/skills/dough-execute-plan/scripts/execution-start-agent.mjs
+input-hash: e6790937d9bd7efae687d11d955feeb015e174b9b2ef9a3e296b16494245e6ac src/skills/dough-execute-plan/scripts/execution-start-carry.mjs
+input-hash: 8ee7a6079555ca349633e6d51090f9c0f4687d0656f04e736db51482cd61ee6d src/skills/dough-execute-plan/scripts/execution-start-maintenance.mjs
+input-hash: 43f41b9993d0d46a14bc99a852574f145d8229fdbee66fb2e5b3c5927e7aaedf src/skills/dough-execute-plan/scripts/execution-start-operation.mjs
+input-hash: ac845d70e1b81b6b2f76d6cb0cad6a7adca3f5c3b208bce753f6a80a4dd4f99d src/skills/dough-execute-plan/scripts/execution-start-receipt.mjs
+input-hash: 8831e69ffb940a37939ccb76ce3463e89f49644652c4bb62fd93979bdff018c1 src/skills/dough-execute-plan/scripts/execution-start-recovery.mjs
+input-hash: 1c06f3dd3cde22296a986b4c2697ee9c8847ed8ee9f25cfa1958ae4fb769c16c src/skills/dough-execute-plan/scripts/execution-start-request.mjs
+input-hash: 5e9d2b2274dc4e2d3179034e6093cb098a00ef1980830756f53200f5897fa407 src/skills/dough-execute-plan/scripts/execution-start-source.mjs
+input-hash: 261da1a6b35ba55913e6feae671bd4d6bbf36f14f6fb270965d785a37001d8b8 src/skills/dough-execute-plan/scripts/execution-start.mjs
+input-hash: b64b0edeeb167970f62aaadaef4ba6da23b367fb0738366c221cc560c9d939fa src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs
+input-hash: 0a99078c85e7497e9ed9a7454fff0397a8a2d137078cdb5ab1c88f995df727e6 src/skills/dough-execute-plan/scripts/maintain-default-checkout.mjs
+input-hash: 13e1b1198f8f0672d37c89b7b5899418d1aab167b0d9f5ac9f8b3658977f4474 src/skills/dough-execute-plan/scripts/one-shot-ownership.mjs
+input-hash: 37c66adde71220c24550886c93d8292ddff94568e8cd909558d4e7e2d4374953 src/skills/dough-execute-plan/scripts/publication-clean-trunk-fixtures.mjs
+input-hash: 16cdb8296372f82643eeb975d477b3df539cba61979484e50c4b7e1613d972fa src/skills/dough-execute-plan/scripts/publication-git.mjs
+input-hash: 0a31e5872e44ba8adcde060301f8b28468f6ecee3e0fd08ddb77b6c8712d7a3f src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs
+input-hash: 52f4b2927e351835a981506e14cfeb70324d43f325862294f38ffdbbd60d9c74 src/skills/dough-execute-plan/scripts/session-policy.mjs
+input-hash: cb9ea2f84daa48ac5b11f49a6003bc916ca02f990664b353f3c0ffd5b30ce7ad src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs
+input-hash: 87673d12074039ae5a22b385e9f8215e0bdc27d3f8afbfe03822ddb1fedeef51 src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs
+input-hash: 3d0d067fb67a4ac437f055a9d5165fe80c7a00c3344d4a72b767b64230be44d9 src/skills/dough-execute-plan/scripts/workspace-publication-claim.mjs
+input-hash: 7d5a4b46601fccbddcca28887d44cbd29c6cfe3ab47b02d09d393383a4539fcb src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs
+input-hash: f48b26cd1a92e7badd57dfe291d55312e7ce30e10010315feca31d0dbcb8b6ae src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs
+input-hash: 9b92a4553cc53aad0a6493f0010ec904bb7cc1f13f3b3129e076222403e26cf7 src/skills/dough-execute-plan/scripts/workspace-publication-push.mjs
+input-hash: b7c681d17036decd2ac5a09d8ac305e880b526d2333c51385de3453ddc3410c8 src/skills/dough-execute-plan/scripts/workspace-publication-select.mjs
+input-hash: 82953a0e6f672cc3c2aa7863aa730185409f237529e664846d0114db39e5be8e src/skills/dough-product-backlog/scripts/product-backlog-accepted-integration.mjs
+input-hash: f79b0c1600d5ef06cf2162d043c3b12c16e5f753ae851cdcc5f2d17e813a8049 src/skills/dough-product-backlog/scripts/product-backlog-add.mjs
+input-hash: 240441359646ec5a302da99e66aba3c89ecdaa29ddf5a042a004ab69e5c9ac1f src/skills/dough-product-backlog/scripts/product-backlog-adopt.mjs
+input-hash: d66dbe767a04a5d4dff6905293f89dee7a1e201f763d52a1abcf9bb5dc08a141 src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs
+input-hash: 0d20b74063cc700e1628dfa0b23091dacf3f35bf9840e72c828d9e238749b7aa src/skills/dough-product-backlog/scripts/product-backlog-combine.mjs
+input-hash: 3b1e4c4aa4be1c0b55f260322fb25881d01c1a7d082560f127f907ff384b53b0 src/skills/dough-product-backlog/scripts/product-backlog-complete.mjs
+input-hash: a89ace8cb8cbdebbcd075649dc7c3d18df6b735125e8ad29a249adc49bce182d src/skills/dough-product-backlog/scripts/product-backlog-dependency-completion.mjs
+input-hash: 83e396989ff5ccfa82591ab4352eb43bcbc4a8cf4e81b093e0e28c7ecd08658c src/skills/dough-product-backlog/scripts/product-backlog-dependency-consumers.mjs
+input-hash: de62fd6b2473ca360acf63438f6b9c405bd94bdfea3cf1cad33d733b47bc829a src/skills/dough-product-backlog/scripts/product-backlog-dependency-resolution.mjs
+input-hash: 0a1325c563b3cbe6f2d0b15d28cd8b5c22981299c4e808a90eb192ea24eb34e5 src/skills/dough-product-backlog/scripts/product-backlog-direction.mjs
+input-hash: 89a9dc1486270a146dcadf9f6a53e9e09d972d46a2709f3a5a531044074e241c src/skills/dough-product-backlog/scripts/product-backlog-document.mjs
+input-hash: 4bfe61ed7903c33a70d187402f006e28269f3e0472f5b613626c73c41a29131c src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs
+input-hash: 48f8cace0b3c4cbe5218b51951fd32a5f0ee405d8b283e8d91a84bb61d1b036e src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs
+input-hash: 61976dc0de51c35cbccd1c41e6e439bed6b8ba6ee97c86fd3b64cedcd98b6bfa src/skills/dough-product-backlog/scripts/product-backlog-git-aggregate.mjs
+input-hash: 6f84e4e3b125e72fc2097bf9e44a909d871f8a1e84347f10247de76ab51493bd src/skills/dough-product-backlog/scripts/product-backlog-git-candidate.mjs
+input-hash: d77142e010acf830035d37ebc92371de696e03bf3ac76f2a85cf1c150e695035 src/skills/dough-product-backlog/scripts/product-backlog-git-cli.mjs
+input-hash: 8741c820ce6d3a815442048caeb8ebd18f5b54bd5ffa25545da442bbff5092bd src/skills/dough-product-backlog/scripts/product-backlog-git-done-catalog-driver.mjs
+input-hash: c6a7cf73372dce83a6397e6373655a72e13fa586dbd848200b063e773bcbf441 src/skills/dough-product-backlog/scripts/product-backlog-git-done-catalog.mjs
+input-hash: 26aeeb81aba3e6591bde7a6d077ffb4a078fab0b3b4577f4a0accd9c4f54558f src/skills/dough-product-backlog/scripts/product-backlog-git-driver.mjs
+input-hash: 393e3e3e0266fe06067a3b0088878757f8388b51a0b425c62d859ad2ee8ec2a3 src/skills/dough-product-backlog/scripts/product-backlog-git-operation-state.mjs
+input-hash: f594c128f9f1ea301f46dfbdc652216b81a3031f4c7ad955eca0787d7aee540a src/skills/dough-product-backlog/scripts/product-backlog-git-rebase-aggregate.mjs
+input-hash: 637f1a90c72d66c26f46482e16acc7b552e116fa6fdb77ca845177e8df77d9f3 src/skills/dough-product-backlog/scripts/product-backlog-git-rebase.mjs
+input-hash: 8ffef27febdee2a69fb8a041c7f1a3a51e2eb116a4c03c0e02b03e471d3710bb src/skills/dough-product-backlog/scripts/product-backlog-git-repository.mjs
+input-hash: 6a971bf8144de5e2d9e3ca356f43da8fa7ad700e421f1647fae134f2ea10f783 src/skills/dough-product-backlog/scripts/product-backlog-home-reader.mjs
+input-hash: bdd87dc4e407f814aba97f7c8ffc2779d8c648d1d11f02aa546248168c1cf0c8 src/skills/dough-product-backlog/scripts/product-backlog-home.mjs
+input-hash: bc51e85ebebabfd74d0d95a6a1a32bab8d9c02c5db5d6e475f463cf27c23c9f5 src/skills/dough-product-backlog/scripts/product-backlog-identity-evidence.mjs
+input-hash: 7de407548bf5f7598f9064901d1638df496dfb52f4984e7a0aa5f651702b7e82 src/skills/dough-product-backlog/scripts/product-backlog-identity-history.mjs
+input-hash: 3c54bde428d148765655df8cf03078c7728436bd6d3266f20538da2cb20fe577 src/skills/dough-product-backlog/scripts/product-backlog-identity-sources.mjs
+input-hash: a03ae739c7d5f5bbaa5f51c34d1ee39ad8a3ab18776bdc01c4466c5f9a01718b src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs
+input-hash: aef644835b0e4e875e80e45aca88cb20b21dc0e6d429f5a5696170648cd67bf7 src/skills/dough-product-backlog/scripts/product-backlog-merge.mjs
+input-hash: 108d6cf7075265ab967b1cbfbc0002015fdc72d94fb5f490a02662a4fb7bc631 src/skills/dough-product-backlog/scripts/product-backlog-misplaced-agent-profile.mjs
+input-hash: e211dd295792c57fb1508f1f88f7256385a39da585b6b3c6dc1049478404d487 src/skills/dough-product-backlog/scripts/product-backlog-order.mjs
+input-hash: d81b80dcd77eb8372bdb97ae939fa43e4f9230deab3ffd7f70427e04adb88bc0 src/skills/dough-product-backlog/scripts/product-backlog-place.mjs
+input-hash: acf2186af61631009d598937f196bfc6bd2084f86f135508b4edf11abf48fa29 src/skills/dough-product-backlog/scripts/product-backlog-placement.mjs
+input-hash: a8a50ac556334361b82b876e897685afb54fae264ed1adf647c70977308c6b42 src/skills/dough-product-backlog/scripts/product-backlog-plan-completion.mjs
+input-hash: 825849e31de308050ba95ed5951f257b48f4e49eac0258a9212977ec0e9b334f src/skills/dough-product-backlog/scripts/product-backlog-plan-reader.mjs
+input-hash: c16998c15f466e471bb1c665772937d240abb56c60ec00d5ef243f249cd66b64 src/skills/dough-product-backlog/scripts/product-backlog-plan.mjs
+input-hash: 07fe1f1e563df301e29292322ad130f05eb7c20e3effb88dbb156b7c85d7b373 src/skills/dough-product-backlog/scripts/product-backlog-refresh.mjs
+input-hash: c156627f92a164f61cbdd9d784ca03982f57e2417d76f1f723c07760ef2558bf src/skills/dough-product-backlog/scripts/product-backlog-refusal.mjs
+input-hash: 17f38aaab9a492047717465a1ade6b3ff729748f60afb622ce7dfbe84941f267 src/skills/dough-product-backlog/scripts/product-backlog-report.mjs
+input-hash: ea9dba742d0d72fba10f410f62271bce706ab45ff22436bb74d9543551e26042 src/skills/dough-product-backlog/scripts/product-backlog-request.mjs
+input-hash: f119424bb835bfa9be4d8c1e639943a6e25f2697882970fd81c3d49f87b1ada1 src/skills/dough-product-backlog/scripts/product-backlog-source.mjs
+input-hash: 4372610e3e768bfbb8f8281869ea0b8160951439bc58cec3ca391489079f7638 src/skills/dough-product-backlog/scripts/product-backlog-start-eligibility.mjs
+input-hash: 5c222cb00becd9092e7ee14d9dd70e21fe81ffe1d30e26ee3bb23e8cd01341f0 src/skills/dough-product-backlog/scripts/product-backlog-store.mjs
+input-hash: b54c54c88196b73f41ef52fb013781597d780aa5341c39ac7ad181dd8abd64a3 src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies-command.mjs
+input-hash: fcb69e53b47519a1024e0878b089ab4fddc8bc23689e6f11f61e689be3c20b43 src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs
+input-hash: d99c77c40fc2042bec34ba208d324fb016cec295eaf0b48b4e9913918fefb109 src/skills/dough-product-backlog/scripts/product-backlog-story-purpose.mjs
+input-hash: 3c33edce470175860b204c908378db4c3117607d4462e701d2062c4ef177bc30 src/skills/dough-product-backlog/scripts/product-backlog-story-state-assessment.mjs
+input-hash: 0c089a449e9c323a28388250ec5af72a85d1af311a480a5a28642053be0ab6bc src/skills/dough-product-backlog/scripts/product-backlog-story-state-basis.mjs
+input-hash: 514fc4e9fc86ff291a10218c0cdfed2a6739307bd711735879b17bf31a6a777f src/skills/dough-product-backlog/scripts/product-backlog-story-state-block.mjs
+input-hash: 04ec8a2e3068e6dbb5ce30322a25740142f5820f7363b92cab4a055263e38303 src/skills/dough-product-backlog/scripts/product-backlog-story-state-command.mjs
+input-hash: 6cd401c46d6cccf7b8cbc96bc10e26b27978c6b7543cce24e4e9d8d1ce708ada src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs
+input-hash: 388ed80b46965274269411ee36b4e35515fdcc5f82cd572a663414963fdafd69 src/skills/dough-product-backlog/scripts/product-backlog-story-state-preparation.mjs
+input-hash: 0143a128c40247fc9288d020c5d04c1c3cb1e16016bc8bc71ee9efef9e03c841 src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs
+input-hash: 01f88eb5c7e1554f5ef34a26dc3aaf2f8e530053b853661bdfa1dae82d0d72f0 src/skills/dough-product-backlog/scripts/product-backlog-take.mjs
+input-hash: 6b3543bb95da95030df8f85d3b51a432d1f75ea2d147a02febee9feb79d83a79 src/skills/dough-product-backlog/scripts/product-backlog-usage.mjs
+input-hash: f4aa386590f7bafb733af5f2d15405951979bbf6c48fc59d4e04f55ea128ce8a src/skills/dough-product-backlog/scripts/product-backlog-version.mjs
+input-hash: 7db9daa288a2ac718802581ddbe621ddc7d7282280d57417eaf676d44c800541 src/skills/dough-product-backlog/scripts/product-backlog-work.mjs
+input-hash: 753a1c3f15343fec60cd88108eb99d0e90e5e7e820ff55ad644f6f9e755b9d99 src/skills/dough-product-backlog/scripts/product-backlog.mjs
+input-hash: 53111aa18cb172eb9f8df6c8125cb19fb8b0680520ca19b0feee1ff2586ff57a tests/support/agentProfileTestData.mjs
+input-hash: 2d958ce426d64759c6742da77c404904a42ff09a034c66d828f80ae0fe24de24 tests/support/ciTimingTestData.mjs
+input-hash: 4fb16ae9fe22483e2daf4e6d52dd6461d99f7f889d576ec91f694f2385342b4b tests/support/doneRecordTestData.mjs
+input-hash: f292effbb6aa7ba2a8f34f5bf1b4ae16532cc96ae0dc12857c31276d79b35d7e tests/support/launchTestData.mjs
+input-hash: 5ff1cc6bfcfa79af87dedbd5d04365893bd889e2a5ab987f21715b968f7e74dd tests/support/makeMe.mjs
+input-hash: 12b627ed2af98e1209e04d28f4f8d8c14e83ff24d271446cc90d024cd61e4b65 tests/support/product-backlog-fixture.mjs
+input-hash: b271117a35933adda2caa32a404589e1073b9431344e335d2b72e91b78ff4413 tests/support/published-backlog.mjs
+input-hash: 79fb98fbe77f869a257b01d5d5da1fc4bdf1331a68ce7ac7308e19a5f36a86b7 tests/support/queued-ready-stories.mjs
+input-hash: 0d080336ff81007cc05ff29ce8afa77c8923b4e7426cbbe11eb62395655c7b58 tests/support/repositoryTestData.mjs
+input-hash: d6027fb6b35c5312c97c4c49390a7028b3bd0648ffc7fa6685815971487a2c36 tests/support/story-preparation.mjs
+artifact-events: events.jsonl
+artifact-response: response.md
+artifact-stderr: stderr.log
+artifact-observations: observations.txt

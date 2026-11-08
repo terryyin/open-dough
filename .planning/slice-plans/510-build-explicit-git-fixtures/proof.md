@@ -207,3 +207,21 @@ proof and dashboard typecheck passed before the accepted publication.
 The product review found no corrective implementation work. The timing
 baseline belongs in the existing profiling card before plan cleanup.
 The native fingerprint decision remains open for closure.
+
+### Fresh native evidence
+
+The developer requested fresh native verification before landing. Each of
+Codex, Cursor, and Claude Code passed the live `publication/one-shot-queued`
+and `publication/admission-investigation` cases. The run source was the
+integration candidate `812450db692cd243005b355469775dcc5d15f28a`, combining
+the completed story branch with trunk `4174d1c25`. Both native evidence
+profiles match that source's actual Git blobs. Queued one-shot observed
+one result and closure commit, the accepted remote revision in CI, and
+workspace retirement. Admission observed a single owned claim before the
+first probe and preserved the existing edit.
+
+The independently reviewed streams and observations are in the native
+replay corpus. The six attempt IDs are `20261108T072449-17c1`,
+`20261108T072809-5113`, `20261108T072654-1f30`,
+`20261108T073119-63a2`, `20261108T073015-410d`, and
+`20261108T072651-50b3`.
