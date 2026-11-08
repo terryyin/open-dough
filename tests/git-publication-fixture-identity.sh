@@ -56,7 +56,10 @@ installer_inputs='install.sh VERSION CHANGELOG.md
   src/skills/dough-product-backlog/assets/codex-hooks-guard.json'
 family_inputs=(
   "startup|${installer_inputs} ${fixture_helper}
-  src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs
+  tests/support/git-publication-native-startup-fixture.mjs
+  tests/support/repository-fixture.mjs
+  tests/support/queued-repository.mjs
+  tests/support/startup-command-files.mjs
   src/skills/dough-execute-plan/scripts/execution-start.mjs"
   "admission|${installer_inputs} ${fixture_helper}
   tests/support/git-publication-native-admission-fixture.mjs"

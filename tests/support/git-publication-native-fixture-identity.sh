@@ -13,10 +13,10 @@ git_publication_fixture_family_identity() {
   git_publication_write_evidence_identity publication || return
   case $1 in
     startup)
-      # The startup fixture's inline Node program loads the queued trunk, and
-      # its claim-race and resume cases run the startup command.
+      # The startup fixture entry materializes the queued trunk, and the
+      # claim-race and resume cases run the startup command.
       native_import_closure_input_hash_lines \
-        src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs \
+        tests/support/git-publication-native-startup-fixture.mjs \
         src/skills/dough-execute-plan/scripts/execution-start.mjs || return
       ;;
     admission)

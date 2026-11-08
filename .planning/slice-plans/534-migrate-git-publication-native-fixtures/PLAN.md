@@ -149,7 +149,7 @@ disposition: already traced within slice 1's refactor return for this file.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Behavior: A startup case names Ready queued A/B and the durable command
 files → the shared materializer supplies the trunk and the existing Git setup
@@ -164,6 +164,19 @@ through `git_publication_fixture_create_startup` for `startup-trunk`,
 root and their markers surviving workspace removal. Verify branch, local
 edits and remote claim or later commit in the matching cases. Confirm the
 startup evidence writer names the new entry point and the materializer.
+
+Accepted: `tests/support/git-publication-native-startup-fixture.mjs` names
+Ready queued A and B with the durable setup and command files and materializes
+them; the shell fixture adds only each case's state. Comparing the old and new
+builds of all five cases with real Git, the only differences were
+`scripts/setup.js` and `scripts/command.js`. They now locate the root markers
+relative to `__dirname`, and running both from a sibling worktree left the
+markers in the fixture root after the worktree was removed. Build times matched
+within noise, and the startup identity rose from 378 to 383 rows. The startup
+native check and both identity checks passed, and the refactor pass found
+nothing to change. Learning: admission and owned-context need the same durable
+Ready A/B trunk. A shared builder may hold the description, provided each call
+site still names its stories and readiness.
 
 ### 3. Admission cases name their starting repository and probe
 
