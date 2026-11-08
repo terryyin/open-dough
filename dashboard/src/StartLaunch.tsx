@@ -35,7 +35,8 @@ import {
 } from "./agentLaunch.ts";
 import type { SessionPolicyOffer } from "./launchOffers.ts";
 import { StartDetails, StartEffects } from "./StartEffects.tsx";
-import type { LaunchAttempt, LaunchWorkItem } from "./launchAttempts.ts";
+import type { LaunchAttempt } from "./launchAttempts.ts";
+import type { LaunchWorkItem } from "./launchStarts.ts";
 import {
   notOfferedLine,
   optionsLine,

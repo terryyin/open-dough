@@ -70,7 +70,6 @@ import {
   type AdmittedFinalReport,
 } from "./finalReportAdmission.ts";
 import { sessionsRequest, type AdmittedSessions } from "./sessionsAdmission.ts";
-import { withFollowUpContext } from "./followUpAdmission.ts";
 
 export type Admitted =
   | AdmittedSessions
@@ -148,8 +147,12 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
     throw new RefusedRequest(400, "The launch request is malformed.");
   }
   const request = parsed.data;
-  // Only the server's own feedback maintenance check marks a launch as one.
-  if (request.workflow === "ad-hoc" && request.maintenance !== undefined) {
+  // Maintenance marks and resolved follow-up context are server-owned.
+  if (
+    request.workflow === "ad-hoc" &&
+    (request.maintenance !== undefined ||
+      request.followUp?.context !== undefined)
+  ) {
     throw new RefusedRequest(400, "The launch request is malformed.");
   }
   const source = knownSource(request.source);
@@ -162,10 +165,7 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
   }
   const project = projectFolder(source);
   await admitLaunchSettings(request, host);
-  const selected = await withSelectedOptions(
-    await withFollowUpContext(request, source),
-    project,
-  );
+  const selected = await withSelectedOptions(request, project);
   return {
     kind: "accept",
     source,

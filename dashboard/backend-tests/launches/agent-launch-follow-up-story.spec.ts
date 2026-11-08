@@ -95,7 +95,7 @@ test("a done story's follow-up sends its published facts and each Done session i
     request: launched.record?.request,
     server: dashboard,
   });
-  expect(launched.record?.request).toMatchObject({
+  expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
     instruction: text,
     followUp: { ...storyFollowUpOf(recoverStory, revision), context },
   });

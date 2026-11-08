@@ -1,6 +1,6 @@
 // Pre-admission answers for a launch request: matching live work, recoverable
-// ad hoc continuation, and writer/pre-acceptance refusals abandon attachment
-// claims so a deferred Start leaves no claim files.
+// ad hoc continuation, follow-up context resolution, and writer/pre-acceptance
+// checks. Deferred starts and refused context reads abandon attachment claims.
 
 import {
   laterAttempt,
@@ -11,7 +11,9 @@ import {
 } from "../src/agentLaunch.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { withFollowUpContext } from "./followUpAdmission.ts";
 import {
+  abandonAttachmentClaims,
   answerWithoutAttachmentClaims,
   withClaimAttachmentDigests,
 } from "./launchAttachmentClaims.ts";
@@ -44,17 +46,30 @@ export async function acceptLaunchRequest(
     const retained = attempts
       .filter((attempt) => sameLaunch(attempt.request, identified))
       .reduce<AttemptObservation | undefined>(laterAttempt, undefined);
-    if (retained !== undefined && needsReconciliation(retained)) {
+    if (
+      retained !== undefined &&
+      (needsReconciliation(retained) ||
+        (identified.followUp !== undefined && retained.running))
+    ) {
       return answerWithoutAttachmentClaims(claims, () =>
         continueRequest(retained.id),
       );
     }
   }
-  const blocked = await replacementWriterBlock(source, identified);
+  // A matching attempt already keeps its context. Resolve only the request
+  // that would otherwise be accepted as a new attempt.
+  let resolved: AgentLaunchRequest;
+  try {
+    resolved = await withFollowUpContext(identified, source);
+  } catch (error) {
+    abandonAttachmentClaims(claims);
+    throw error;
+  }
+  const blocked = await replacementWriterBlock(source, resolved);
   if (blocked !== undefined)
     return answerWithoutAttachmentClaims(claims, () => blocked);
-  const answer = await preAcceptanceAnswer(source, identified);
+  const answer = await preAcceptanceAnswer(source, resolved);
   if (answer !== undefined)
     return answerWithoutAttachmentClaims(claims, () => answer);
-  return owner.accept(identified, run, reportingOrigin);
+  return owner.accept(resolved, run, reportingOrigin);
 }
