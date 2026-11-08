@@ -4,11 +4,11 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { queuedRepositoryWithTakenStoryA } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { exec, git } from "./publication-test-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  startCliResult,
-} from "./workspace-publication-fixtures.mjs";
+import { configureAgentAuthorship } from "./workspace-agent-authorship.mjs";
 import { configureDeveloper } from "./workspace-publication-startup-test-fixtures.mjs";
 
 const cli = fileURLToPath(new URL("./agent-commit.mjs", import.meta.url));
@@ -49,11 +49,25 @@ export async function assertNothingCommitted(
 // A Taken workspace with the developer configured and a commit-msg hook that
 // keeps a copy of each message it checks.
 export async function takenWorkspace(t) {
-  const trunk = await createQueuedTrunk();
+  const agent = "Yui";
+  const trunk = await materializeRepository(
+    queuedRepositoryWithTakenStoryA({
+      agent,
+      committer: { name: "Dana Developer", email: "dana@example.test" },
+    }).please(),
+  );
   t.after(trunk.cleanup);
   await configureDeveloper(trunk.integration);
-  const { receipt, workspace } = await startCliResult(trunk, "trunk");
-  assert.equal(receipt.ok, true, JSON.stringify(receipt));
+  const workspace = join(trunk.fixture, "start-trunk");
+  await git(
+    trunk.integration,
+    "worktree",
+    "add",
+    "-b",
+    "exec/trunk",
+    workspace,
+  );
+  await configureAgentAuthorship(workspace, agentIdentity(agent));
   const common = (
     await git(
       workspace,

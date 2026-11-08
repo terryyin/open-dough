@@ -6,6 +6,9 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { startupCommandFiles } from "../../../../tests/support/startup-command-files.mjs";
 import {
   assertCheckoutUnchanged,
   captureCheckout,
@@ -14,7 +17,6 @@ import {
   revParse,
 } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   readyContributing,
   setupMarkers,
   startCliResult,
@@ -25,7 +27,11 @@ import { agentModes } from "../../dough-product-backlog/scripts/product-backlog-
 
 for (const mode of agentModes) {
   test(`a ${mode} start result alone carries setup and the first delivery to remote acceptance`, async (t) => {
-    const trunk = await createQueuedTrunk({ contributing: readyContributing });
+    const trunk = await materializeRepository(
+      queuedReadyRepository({
+        files: startupCommandFiles({ contributing: readyContributing }),
+      }).please(),
+    );
     t.after(trunk.cleanup);
     const branch = `exec/${mode}`;
     const { receipt, code, workspace } = await startCliResult(trunk, mode);
@@ -61,8 +67,8 @@ for (const mode of agentModes) {
 }
 
 test("the start result does not grow with tracked inventory or dirty patch volume", async (t) => {
-  const small = await createQueuedTrunk();
-  const large = await createQueuedTrunk();
+  const small = await materializeRepository(queuedReadyRepository().please());
+  const large = await materializeRepository(queuedReadyRepository().please());
   t.after(small.cleanup);
   t.after(large.cleanup);
   await busyCheckout(small, 1, 1);

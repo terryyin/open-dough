@@ -8,6 +8,9 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { startupCommandFiles } from "../../../../tests/support/startup-command-files.mjs";
 import {
   advanceOriginFromAnotherWriter,
   captureCheckout,
@@ -16,7 +19,6 @@ import {
   revParse,
 } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   readyContributing,
   remoteBacklog,
@@ -34,7 +36,11 @@ import { takenIdentities } from "./workspace-publication-ownership.mjs";
 const notApplicable = { result: "not applicable" };
 
 test("an owned worktree without a default checkout takes queued work, resumes it, sets up, and delivers its first increment", async (t) => {
-  const trunk = await createQueuedTrunk({ contributing: readyContributing });
+  const trunk = await materializeRepository(
+    queuedReadyRepository({
+      files: startupCommandFiles({ contributing: readyContributing }),
+    }).please(),
+  );
   t.after(trunk.cleanup);
   const owned = await ownedWorktreeOnly(trunk, "owned-a", "exec/owned-a");
   assert.equal(existsSync(trunk.integration), false);
@@ -101,7 +107,11 @@ test("an owned worktree without a default checkout takes queued work, resumes it
 
 for (const context of ["workspace", "repository"])
   test(`the owned ${context === "workspace" ? "worktree" : "Git directory"} alone creates a new owned workspace at fetched trunk, which sets up and delivers its first increment`, async (t) => {
-    const trunk = await createQueuedTrunk({ contributing: readyContributing });
+    const trunk = await materializeRepository(
+      queuedReadyRepository({
+        files: startupCommandFiles({ contributing: readyContributing }),
+      }).please(),
+    );
     t.after(trunk.cleanup);
     const owned = await ownedWorktreeOnly(trunk, "owned-kept", "exec/kept");
     const fetched = await advanceOriginFromAnotherWriter(trunk.origin);
@@ -149,7 +159,7 @@ for (const context of ["workspace", "repository"])
   });
 
 test("one-shot work starts in an owned worktree without a default checkout and publishes nothing", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const owned = await ownedWorktreeOnly(trunk, "owned-once", "exec/owned-once");
   const { receipt, stdout } = await startOwned(

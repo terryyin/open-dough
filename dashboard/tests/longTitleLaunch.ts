@@ -3,19 +3,12 @@
 // project that installs the real refinement skill's options
 // (./launchStoryCardPage.ts).
 
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import type { Page } from "@playwright/test";
-import {
-  backlogFile,
-  createPreparationTrunk,
-  git,
-  lsRemoteSha,
-  seedC,
-} from "../../src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs";
+import { materializeRepository } from "../../tests/support/repository-fixture.mjs";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
+import { queuedDashboardRepository } from "./launchJourney.ts";
 import { installRefinementSkill } from "./launchStoryCardPage.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 
@@ -29,20 +22,10 @@ export interface LongTitleOrigin {
 }
 
 export async function publishLongTitleOrigin(): Promise<LongTitleOrigin> {
-  const trunk = await createPreparationTrunk();
-  const { integration } = trunk;
-  for (const file of [seedC, backlogFile]) {
-    const at = path.join(integration, file);
-    writeFileSync(
-      at,
-      readFileSync(at, "utf8").replaceAll("Story C", longTitle),
-    );
-  }
-  await git(integration, "commit", "--quiet", "-am", "retitle story C");
-  await git(integration, "push", "--quiet", "origin", "main");
-  const revision = await lsRemoteSha(trunk.origin, "refs/heads/main");
-  if (revision === undefined) throw new Error("origin has no main");
-  return { origin: trunk.origin, revision, cleanup: trunk.cleanup };
+  const { origin, trunkSha, cleanup } = await materializeRepository(
+    queuedDashboardRepository(longTitle).please(),
+  );
+  return { origin, revision: trunkSha, cleanup };
 }
 
 // Opens the dashboard on the published origin, ready for its launchers.

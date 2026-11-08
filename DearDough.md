@@ -325,6 +325,17 @@ Former local code: DD-416. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-417. [Evidence and current response](docs/maintainer/findings/ODF-422.md).
 ## ODF-423 — A push the remote refused for permission returned `needs-validation` without its reason
 Former local code: DD-418. [Evidence and current response](docs/maintainer/findings/ODF-423.md).
+
+### Occurrences
+
+- Execution: SEED-262#build-explicit-git-fixtures, plan 510, first implementation `6f5d94fe4`
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: 0.3.91
+  - Evidence: 2026-11-08 slice 4 delivery of `5e5f11bf`. The receipt reported `needs-validation` with unchanged candidate `5e5f11bf`, remote tip and suffix base `0318e27a`, and one reconciliation. It omitted the remote rejection reason.
+  - Observed effect: Focused checks and typecheck took 26.19 s before the unchanged candidate published successfully.
+  - Inference: The same rejection handling requested renewed proof even though the candidate and base stayed identical. The remote cause is unknown for this occurrence.
+
 ## ODF-424 — Exclusion story-clause recording still needs hand-matched exact substrings
 Former local code: DD-422. [Evidence and current response](docs/maintainer/findings/ODF-424.md).
 ## ODF-425 — A refactor renamed a helper while its verification was running

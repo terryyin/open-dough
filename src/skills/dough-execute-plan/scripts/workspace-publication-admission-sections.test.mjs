@@ -6,9 +6,16 @@ import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import {
+  queuedReadyRepository,
+  readyStoryState,
+  storyB,
+  storySeed,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { git, revParse } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
@@ -27,7 +34,7 @@ import {
 import { readStoryState } from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
 
 test("a planned story added to an existing seed carries its plan and only its own section onto moved trunk", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const seedPath = ".planning/seeds/A.md";
   const trunkSibling = await pushFromElsewhere(trunk, seedPath, (text) =>
@@ -97,15 +104,39 @@ test("a planned story added to an existing seed carries its plan and only its ow
 });
 
 test("an unlisted story already on trunk is admitted with its locally recorded facts, replacing only its own section", async (t) => {
-  const trunk = await createQueuedTrunk();
-  t.after(trunk.cleanup);
-  const identity = "SEED-B#tidy";
-  const link = "seeds/B.md#tidy";
   const seedPath = ".planning/seeds/B.md";
-  const unrecorded = `${readFileSync(join(trunk.integration, seedPath), "utf8")}\n${storySection("tidy", identity, "Tidy B", "Tidy the B wording.")}\n${storySection("after", "SEED-B#after", "After B", "Kept after.")}`;
-  writeFileSync(join(trunk.integration, seedPath), unrecorded);
-  await git(trunk.integration, "commit", "-qam", "story tidy without facts");
-  await git(trunk.integration, "push", "-q", "origin", "main");
+  const tidy = makeMe.aBacklogEntry
+    .with({ identity: "SEED-B#tidy", href: "seeds/B.md#tidy", title: "Tidy B" })
+    .please();
+  const after = makeMe.aBacklogEntry
+    .with({
+      identity: "SEED-B#after",
+      href: "seeds/B.md#after",
+      title: "After B",
+    })
+    .please();
+  const trunk = await materializeRepository(
+    queuedReadyRepository()
+      .withRevision("unlisted-tidy-and-after", {
+        message: "story tidy without facts",
+        files: {
+          [seedPath]: [
+            storySeed(storyB, "Execute B."),
+            storySection(
+              "tidy",
+              tidy.identity,
+              tidy.title,
+              "Tidy the B wording.",
+            ),
+            storySection("after", after.identity, after.title, "Kept after."),
+          ].join("\n"),
+        },
+        storyStates: [readyStoryState(storyB)],
+      })
+      .please(),
+  );
+  t.after(trunk.cleanup);
+  const unrecorded = readFileSync(join(trunk.integration, seedPath), "utf8");
   const trunkSiblings = await pushFromElsewhere(trunk, seedPath, (text) =>
     text
       .replace("Execute B.", "Execute B, as refined on trunk.")
@@ -113,15 +144,15 @@ test("an unlisted story already on trunk is admitted with its locally recorded f
   );
   const drafted = withFacts(
     unrecorded.replace("Execute B.", "Local sibling draft."),
-    link,
-    identity,
+    tidy.href,
+    tidy.identity,
     "unselected",
   );
   writeFileSync(join(trunk.integration, seedPath), drafted);
   const { receipt } = await startCliResult(
     trunk,
     "trunk",
-    admitArgs(identity, link, "Tidy B"),
+    admitArgs(tidy.identity, tidy.href, tidy.title),
   );
   assert.equal(receipt.status, "published", JSON.stringify(receipt));
   assert.deepEqual(receipt.admitted, [seedPath]);
@@ -131,12 +162,15 @@ test("an unlisted story already on trunk is admitted with its locally recorded f
   const published = await remoteText(trunk, sha, seedPath);
   // Only the selected section changed: trunk's siblings, before and after it,
   // keep trunk's text, and the local sibling draft stays local.
-  assert.equal(published, withFacts(onTrunk, link, identity, "unselected"));
+  assert.equal(
+    published,
+    withFacts(onTrunk, tidy.href, tidy.identity, "unselected"),
+  );
   assert.equal(
     sectionText(published, "tidy", "after"),
     sectionText(drafted, "tidy", "after"),
   );
-  assert.equal(readStoryState(published, link).status, "recorded");
+  assert.equal(readStoryState(published, tidy.href).status, "recorded");
   assert.equal(
     readFileSync(join(trunk.integration, seedPath), "utf8"),
     unrecorded.replace("Execute B.", "Local sibling draft."),
@@ -144,7 +178,7 @@ test("an unlisted story already on trunk is admitted with its locally recorded f
 });
 
 test("a new story drafted before an existing section is inserted before that section on trunk", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const seedPath = ".planning/seeds/A.md";
   const trunkSibling = await pushFromElsewhere(trunk, seedPath, (text) =>

@@ -1,5 +1,5 @@
 // A session launched from this dashboard opens in the page's one terminal,
-// on a committed origin the production commands publish (../launchJourney.ts):
+// on the committed origin from ../launchJourney.ts:
 // a card's session entry or a standalone Taken entry offers Open terminal, the page
 // splits with the terminal on the right, and what is typed there reaches the
 // session and its answer shows. Opening another session detaches the first,

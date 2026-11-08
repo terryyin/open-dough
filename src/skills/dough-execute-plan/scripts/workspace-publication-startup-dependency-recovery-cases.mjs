@@ -1,13 +1,14 @@
 // Dependency changes distinguish an unpublished claim retry from continuing
 // the execution an already-published claim owns.
-import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
@@ -23,7 +24,7 @@ import {
 } from "./workspace-publication-dependency-fixtures.mjs";
 
 test("a newly published blocker prevents retry of an interrupted unpublished Take", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   await interruptFirstPush(trunk);
   const interrupted = await startProcess(trunk, "a", identityA).result;
@@ -52,7 +53,7 @@ test("a newly published blocker prevents retry of an interrupted unpublished Tak
 });
 
 test("an existing Taken session is not interrupted by a dependency added after its claim", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const first = await startCliResult(trunk, "story-branch");
   assert.equal(first.code, 0, JSON.stringify(first));

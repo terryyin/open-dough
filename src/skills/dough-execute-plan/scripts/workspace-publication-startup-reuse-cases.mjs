@@ -8,6 +8,9 @@ import assert from "node:assert/strict";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { startupCommandFiles } from "../../../../tests/support/startup-command-files.mjs";
 import {
   advanceOriginFromAnotherWriter,
   captureCheckout,
@@ -17,7 +20,6 @@ import {
   revParse,
 } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   readyContributing,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
@@ -52,7 +54,11 @@ async function assertContinuedOnAdvancedTip(trunk, started, advanced) {
 }
 
 test("a clean owned worktree that trunk moved past, with no default checkout, is fast-forwarded and continues to its first increment", async (t) => {
-  const trunk = await createQueuedTrunk({ contributing: readyContributing });
+  const trunk = await materializeRepository(
+    queuedReadyRepository({
+      files: startupCommandFiles({ contributing: readyContributing }),
+    }).please(),
+  );
   t.after(trunk.cleanup);
   const owned = await ownedWorktreeOnly(trunk, "owned-behind", "exec/behind");
   const advanced = await advanceOriginFromAnotherWriter(trunk.origin);
@@ -63,7 +69,11 @@ test("a clean owned worktree that trunk moved past, with no default checkout, is
 });
 
 test("a clean host worktree that trunk moved past is fast-forwarded beside a refreshed default checkout and continues to its first increment", async (t) => {
-  const trunk = await createQueuedTrunk({ contributing: readyContributing });
+  const trunk = await materializeRepository(
+    queuedReadyRepository({
+      files: startupCommandFiles({ contributing: readyContributing }),
+    }).please(),
+  );
   t.after(trunk.cleanup);
   const workspace = join(trunk.fixture, "host-behind");
   await git(
@@ -133,7 +143,7 @@ const statePresent = async (workspace, state) =>
 
 for (const refusal of refusals)
   test(`a reused owned worktree with ${refusal.name} is refused and left unchanged`, async (t) => {
-    const trunk = await createQueuedTrunk();
+    const trunk = await materializeRepository(queuedReadyRepository().please());
     t.after(trunk.cleanup);
     const owned = await ownedWorktreeOnly(trunk, "owned-kept", "exec/kept");
     await refusal.make(owned.workspace);

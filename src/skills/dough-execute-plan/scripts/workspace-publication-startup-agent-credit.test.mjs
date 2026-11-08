@@ -4,11 +4,10 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { git, lsRemoteSha } from "./publication-test-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  startCliResult,
-} from "./workspace-publication-fixtures.mjs";
+import { startCliResult } from "./workspace-publication-fixtures.mjs";
 import {
   coAuthors,
   configureDeveloper,
@@ -57,7 +56,7 @@ async function assertRefusedTake(trunk, start, reason) {
 }
 
 test("Take is refused before publication when Git has no configured developer, and succeeds once one is configured", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const env = await withoutDeveloper(trunk);
   await assertRefusedTake(
@@ -72,7 +71,7 @@ test("Take is refused before publication when Git has no configured developer, a
 });
 
 test("Take is refused before publication when the developer's email is malformed", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   await git(trunk.integration, "config", "user.email", "dana-at-example");
   await assertRefusedTake(
@@ -83,7 +82,7 @@ test("Take is refused before publication when the developer's email is malformed
 });
 
 test("Take is refused before publication when the committer is the agent itself", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   await git(trunk.integration, "config", "user.name", "Yui-chan");
   await git(trunk.integration, "config", "user.email", "yui-chan@example.org");

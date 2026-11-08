@@ -12,13 +12,16 @@ import {
   git,
   revParse,
 } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { createQueuedTrunk } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
-import {
-  consumer,
-  projectOf,
-  supplier,
-} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-dependency-fixtures.mjs";
+import { projectOf } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-dependency-fixtures.mjs";
 import { draftLateStory } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
+import {
+  queuedReadyRepository,
+  storyA as consumer,
+  storyB as supplier,
+  storyPlanPath,
+} from "./queued-repository.mjs";
+import { materializeRepository } from "./repository-fixture.mjs";
+import { writeRevisionFiles } from "./repository-revision-files.mjs";
 
 export {
   consumer,
@@ -29,22 +32,33 @@ export {
   run,
   revParse,
 };
-export const supplierPlan = ".planning/slice-plans/B/PLAN.md";
+export const supplierPlan = `.planning/${storyPlanPath(supplier)}`;
+export const third = makeMe.aBacklogEntry
+  .with({ identity: "THIRD", href: "seeds/third.md", title: "Third" })
+  .please();
+
 export function plan(status) {
   return `# Supplier plan\n\n## Ordered slices\n\n### 1. Deliver selected endpoint\n\n**Type:** Behavior\n\n**Status:** ${status}\n\n**Proof:** Endpoint behavior observed.\n`;
 }
+
+export function supplierPlanningRevision(status) {
+  return {
+    files: {
+      [`.planning/${third.href}`]: `# ${third.title}\n**Identity:** ${third.identity}\n`,
+      [supplierPlan]: plan(status),
+    },
+  };
+}
+
 export async function fixture(t) {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(
+    queuedReadyRepository({ queued: [consumer, supplier] }).please(),
+  );
   t.after(trunk.cleanup);
   const project = projectOf(trunk);
   const late = draftLateStory(trunk);
   const sibling = { identity: late.identity, href: "seeds/A.md#late" };
-  const third = { identity: "THIRD", href: "seeds/third.md" };
-  writeFileSync(
-    join(trunk.integration, ".planning", third.href),
-    "# Third\n**Identity:** THIRD\n",
-  );
-  writeFileSync(join(trunk.integration, supplierPlan), plan("planned"));
+  writeRevisionFiles(trunk.integration, supplierPlanningRevision("planned"));
   for (const story of [consumer, sibling]) {
     const result = await updateDependency(
       project,

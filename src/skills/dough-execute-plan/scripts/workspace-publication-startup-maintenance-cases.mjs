@@ -3,9 +3,10 @@ import assert from "node:assert/strict";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
@@ -49,7 +50,7 @@ test("the start reports an earlier distinct refresh issue only while refresh rem
 });
 
 test("clean main refreshes after the remote claim succeeds", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const { receipt } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
@@ -62,7 +63,7 @@ test("clean main refreshes after the remote claim succeeds", async (t) => {
 });
 
 test("an ongoing local index operation defers refresh without erasing accepted remote Take", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const lock = resolve(
     trunk.integration,
@@ -86,7 +87,7 @@ test("an ongoing local index operation defers refresh without erasing accepted r
 });
 
 test("divergent local main is preserved while the remote claim is accepted", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   writeFileSync(join(trunk.integration, "local.txt"), "local commit\n");
   await git(trunk.integration, "add", "local.txt");
@@ -118,7 +119,7 @@ test("divergent local main is preserved while the remote claim is accepted", asy
 });
 
 test("accepted claim with deferred refresh resumes local maintenance only", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const pending = join(trunk.integration, "pending.txt");
   writeFileSync(pending, "pending edit\n");

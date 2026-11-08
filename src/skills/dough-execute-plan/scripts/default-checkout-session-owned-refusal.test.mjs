@@ -4,13 +4,15 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import {
+  queuedReadyRepository,
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { snapshot } from "./default-checkout-test-fixtures.mjs";
 import { git } from "./publication-test-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  startCliResult,
-} from "./workspace-publication-fixtures.mjs";
-import { createPreparationTrunk } from "../../dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs";
+import { startCliResult } from "./workspace-publication-fixtures.mjs";
 import {
   start as startRefinement,
   useInstalledPayload,
@@ -55,7 +57,7 @@ for (const [label, extra, dirty] of [
   ["isolated one-shot", ["--one-shot"], false],
 ]) {
   test(`${label} refuses the main worktree without changing anything`, async (t) => {
-    const trunk = await createQueuedTrunk();
+    const trunk = await materializeRepository(queuedReadyRepository().please());
     t.after(trunk.cleanup);
     if (dirty) {
       writeFileSync(
@@ -89,7 +91,9 @@ for (const [label, extra, dirty] of [
 }
 
 test("assigned preparation refuses the main worktree without changing anything", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const before = await unchangedState(trunk);
   const result = await startRefinement(

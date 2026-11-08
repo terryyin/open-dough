@@ -3,6 +3,26 @@
 **Identity:** SEED-262#build-explicit-git-fixtures
 
 **Source:** [Build each test’s Git repository from explicit MakeMe data](../../seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures)
+**Source review:** [Source-only commitments](source-review.md)
+
+## Execution context
+
+- Story Branch Mode in the dashboard-established linked worktree on
+  `codex/build-each-test-s-git-repository-from-explicit-m`. Integration checkout
+  is `/Users/terryyin/git/open-dough`, with target `origin/main`. Publisher
+  `dashboard-territory.local-open-dough` and agent `chaifeng-chan` own the
+  established Take at `16d42d6acf6556d8e63b9f62fd14f73fa8d8f89b` from
+  `3c05bff870ef5eb76d815d82dbe89edcf4d04118`. The Take is on the story branch
+  and in trunk history. The checkout passed locked npm install, native
+  Chromium prerequisite validation and dashboard typecheck.
+- Codex observer `seed262-510-45715bb8`, cell `g128:12`, session `7362`,
+  PID `73853`, directory `/tmp/dough-ci-501/watch-Qkcwh4`, on the remote story
+  branch, verified against GitHub Actions `ci.yml`.
+- Existing planning authority applies. For focused dashboard proof on the AC
+  powered macOS development host, run two workers under `caffeinate -s -i`.
+  At launch, the host had 16 logical CPUs, 66% memory free, short load 3.32,
+  and no full-suite admission holder. Keep owned expensive runs sequential and
+  recheck load and admission when contention or failures change that basis.
 
 ## Goal and boundaries
 
@@ -93,20 +113,7 @@ starts only after the pilot publishes `tests/support/makeMe.mjs` and
 
 ## Decisive premises
 
-Observed on 2026-11-08 in this worktree at `3be3f59df` on macOS with Node 24.
-The command was `node <job-tmp>/journey.mjs`, which calls the existing
-`createPreparationTrunk`, `createWorkspace`, `startPreparation`,
-`startCliResult` and backlog `complete` exactly as `buildStoryColumnsJourney`
-does. A second script then read each published file at `main`.
-
-| Consuming operation | Observation | Result |
-| --- | --- | --- |
-| Slice 1 replaces command replay with encoder writes | Each published file was parsed and rendered again with its production encoder: `parseAgentProfile`/`renderAgentProfile` for both profiles, `parseBacklog`/`renderBacklog`, `parseDoneRecord`/`renderDoneRecord`, and `parseDoneCatalog`/`renderDoneCatalog` | All five rendered byte for byte (SAME), so the encoders can produce what the commands publish |
-| Slice 1 matches what each transition changes | `git diff --stat` between the named revisions | queued→preparing changes only `agents/yui-chan.json`; →taken changes the backlog and `agents/akiho-chan.json`; →completed changes the backlog, `done/SEED-C_c.json` and `done/.catalog.json` |
-| Slice 1 matches commit facts and refs | `git log --format=%an|%cn|%cI` and `for-each-ref` on the origin | Authors are Yui-chan and Akiho-chan on the agent commits and Integration Checkout elsewhere. The committer is always Integration Checkout. Only `refs/heads/main` exists. |
-| Slice 1 setup cost to be replaced | The same script with timings, run twice | 2.40–2.56 s in total; the preparation start (~0.75 s) and Take (~1.1 s) dominate |
-| Native evidence identity is unaffected | `tests/support/git-publication-native-evidence.sh` lists its inputs explicitly | It does not list the queued-trunk or preparation fixture modules, and the native fixtures keep calling those helpers unchanged |
-| Slice 2 default repository | `product-backlog.mjs add` on a backlog of `# Product backlog`, `## Taken`, `## Backlog list` | The file parsed. The add was refused only because the linked seed was missing (`canonical home not found`). |
+[Decisive premise observations](proof.md#decisive-premise-observations).
 
 Remaining hypothesis: the dashboard consumers' verdicts with the
 materialized history. Slice 1's focused run settles it before other slices
@@ -138,7 +145,7 @@ runners. So once before landing, run the whole `npm test` and
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Before changing anything, record two baseline runs of
 `agent-launch-attention.spec.ts` with the proof record. Use a scratch command
@@ -152,17 +159,26 @@ Add `makeMe.aRepository` and the harness materializer with the reuse
 described above. Describe the queued trunk: Stories A and B Ready with plans,
 and Story C queued last and not refined. Describe the story-columns history:
 Yui-chan announces preparation of Story B, Akiho-chan takes it in Trunk Mode,
-and Story C is completed. Describe the launch history, where Akiho-chan takes
+and Story C is completed. Describe the launch history, where Yui-chan takes
 Story A. Rebuild `publishLaunchJourney` and `publishStoryColumnsJourney` on
 these descriptions. Move `preparingJourney`, `longTitleLaunch`,
 `terminalPastePage` and `sessionHostStatus` to the materializer where they
 arrange a repository; keep any command a spec proves as a real call.
 
+[Accepted proof and timing](proof.md#slice-1-accepted-proof).
+
+Learning: Plan 507's closure was already on the accepted claim, so the
+before and after timing used the same attention observation steps. Plan
+508's sibling candidate had a compatible published backlog renderer but
+was still outside trunk. This slice reused that renderer's contract with
+current production types, and adds no competing backlog-entry or
+story-preparation builder.
+
 ### 2. Preparation-assignment tests declare their trunk
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the 25 `createPreparationTrunk` and 7 `createSiblingTrunk`
 consumers under `src/skills/dough-story-refinement` and
@@ -177,11 +193,13 @@ unrecognized rival profile literal. Every description extends the default
 repository, so these real tests exercise it. Leave `createPreparationTrunk` in place only
 for the native owned-context and one-shot fixtures.
 
+[Accepted proof and timing](proof.md#slice-2-accepted-proof).
+
 ### 3. Startup, admission and agent-commit tests declare their trunk
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the `createQueuedTrunk` consumers under
 `src/skills/dough-execute-plan`: startup cases, admission, one-shot queued,
@@ -195,11 +213,13 @@ case needs and the `contributing` text. Keep `createQueuedTrunk` with its
 current body only for the native callers. Its non-native template code moves
 into the materializer's reuse.
 
+[Accepted proof](proof.md#slice-3-accepted-proof).
+
 ### 4. Supplier fixtures declare their stories and the family drops superseded setup
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the `tests/support` supplier dependency, land, integration and
 closure visit tests. A repository search shows no non-native family file
@@ -213,6 +233,12 @@ Route `supplier-dependency-fixture.mjs` and its visit fixtures through
 descriptions that declare supplier and consumer stories. Keep agreement and
 resolution in the real CLI. Delete helpers whose last non-native consumer is
 gone.
+
+[Accepted focused proof and full gates](proof.md#slice-4-focused-proof).
+
+## Execution complete
+
+Product advice: Preserve the paired attention and owned-context timings in the existing profiling card for the queued immutable-history story. No priority change.
 
 ## Plan concerns
 

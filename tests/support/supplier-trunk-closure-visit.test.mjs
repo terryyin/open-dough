@@ -43,7 +43,6 @@ const question =
 test("Trunk Mode finish visits a consumer a racing writer added before completing the last consumer publication and retiring", async (t) => {
   const fixture = await createTrunkClosureFixture(t);
   const project = await commitCompletedSupplier(
-    t,
     fixture.execution,
     fixture.fixture,
   );

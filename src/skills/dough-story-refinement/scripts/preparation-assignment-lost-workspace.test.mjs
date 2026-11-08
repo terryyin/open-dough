@@ -7,9 +7,13 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import {
   abandonLostPreparation,
   backlogFile,
-  createPreparationTrunk,
   createWorkspace,
   git,
   identityC,
@@ -23,7 +27,7 @@ import {
   startPreparation,
 } from "./preparation-assignment-test-fixtures.mjs";
 import {
-  occupyAllBut,
+  oldExecutionAssignmentsExcept,
   snapshot,
 } from "./preparation-assignment-recovery-fixtures.mjs";
 
@@ -40,11 +44,15 @@ async function remoteProfiles(trunk, rev = "main") {
 }
 
 test("a lost workspace's preparation assignment is released only by confirming its exact allocation, and never a later allocation of the same name", async (t) => {
-  const trunk = await createPreparationTrunk();
+  // All names except Yui are held, so a later preparation must reuse Yui.
+  const occupied = oldExecutionAssignmentsExcept("Yui");
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC)
+      .withRevision("occupied", occupied)
+      .please(),
+  );
   t.after(trunk.cleanup);
-  // Every other name is another developer's execution assignment, so the
-  // name this preparation takes is the only one a later preparation can reuse.
-  const [execution] = await occupyAllBut(trunk, "Yui");
+  const [{ name: execution }] = occupied.agentProfiles;
   const { workspace } = await createWorkspace(trunk, "c");
   const { receipt: announced } = await startPreparation(
     trunk,
@@ -109,7 +117,7 @@ test("a lost workspace's preparation assignment is released only by confirming i
   // assignment, publishes nothing.
   const stale = await abandonLostPreparation(trunk, profile, [
     "--allocation",
-    trunk.trunkSha,
+    trunk.revisions.queued,
     "--confirmed-abandoned",
   ]);
   assert.equal(stale.receipt.status, "allocation-mismatch");

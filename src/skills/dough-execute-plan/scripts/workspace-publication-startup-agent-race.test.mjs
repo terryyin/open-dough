@@ -1,13 +1,14 @@
 // How a real startup Take keeps its agent name distinct when a rival publishes
 // a profile while the Take is under way.
-import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { git, lsRemoteSha } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   identityB,
   startCliResult,
@@ -32,7 +33,7 @@ async function remoteShow(trunk, ...args) {
 }
 
 test("a rival holding a different agent name leaves the replayed claim its original name", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const barrier = await holdFirstPush(trunk);
   const a = startProcess(trunk, "a", identityA);
@@ -61,7 +62,7 @@ test("a rival holding a different agent name leaves the replayed claim its origi
 });
 
 test("a name published between startup's fetches is reselected on the workspace's base trunk", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   // A rival clone advances trunk so startup's source fetch moves origin/main,
   // then holds a Yui-chan profile commit ready to publish.
@@ -122,7 +123,7 @@ git -C '${rival}' push --quiet origin HEAD:main >/dev/null 2>&1
 });
 
 test("a rival holding an admission's agent name rebuilds it under the next name with its admitted content", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const story = draftLateStory(trunk);
   const barrier = await holdFirstPush(trunk);

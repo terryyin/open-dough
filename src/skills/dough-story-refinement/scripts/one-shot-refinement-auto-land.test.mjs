@@ -7,9 +7,15 @@
 // stops the landing with nothing pushed. In the default checkout, all of its
 // content lands with the refinement and the checkout stays.
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { test } from "node:test";
+import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { publishExecutionIncrement } from "../../dough-execute-plan/scripts/execution-increment-publication.mjs";
 import {
   commitAllAndAssertRetained,
@@ -29,11 +35,10 @@ import {
 } from "./one-shot-refinement-test-fixtures.mjs";
 import {
   backlogFile,
-  createPreparationTrunk,
   git,
   identityC,
   lsRemoteSha,
-  publishAssignment,
+  profileOf,
   refineStoryC,
   remoteChanges,
   remoteFile,
@@ -70,7 +75,9 @@ async function startAndRefine(trunk, name) {
 }
 
 test("an auto-landed one-shot refinement lands only its seed and facts after the ownership recheck, leaving the story queued, and retires its workspace", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const queue = await remoteFile(trunk, "main", backlogFile);
   const { workspace, branch, result } = await startAndRefine(trunk, "auto");
@@ -100,15 +107,25 @@ test("an auto-landed one-shot refinement lands only its seed and facts after the
 });
 
 test("a preparation holder published after the auto-land start stops the landing with nothing pushed and the holder intact", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace, branch, result } = await startAndRefine(trunk, "held");
-  await publishAssignment(
-    trunk,
-    makeMe.anAgentProfile
-      .preparing({ name: "Yui", identity: identityC })
-      .please(),
+  const profilePath = profileOf("Yui");
+  const rival = join(trunk.integration, profilePath);
+  mkdirSync(dirname(rival), { recursive: true });
+  writeFileSync(
+    rival,
+    renderAgentProfile(
+      makeMe.anAgentProfile
+        .preparing({ name: "Yui", identity: identityC })
+        .please(),
+    ),
   );
+  await git(trunk.integration, "add", profilePath);
+  await git(trunk.integration, "commit", "--quiet", "-m", "assign Yui");
+  await git(trunk.integration, "push", "--quiet", "origin", "HEAD:main");
   const held = await lsRemoteSha(trunk.origin, "refs/heads/main");
 
   const checked = await recheck(workspace);
@@ -139,7 +156,9 @@ test("a preparation holder published after the auto-land start stops the landing
 });
 
 test("an auto-landed default-checkout refinement lands all checkout content with its facts and the checkout stays", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const checkout = trunk.integration;
   const queue = await remoteFile(trunk, "main", backlogFile);

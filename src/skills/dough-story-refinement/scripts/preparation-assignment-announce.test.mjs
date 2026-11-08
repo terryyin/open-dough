@@ -6,18 +6,21 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { startCliResult } from "../../dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { configureDeveloper } from "../../dough-execute-plan/scripts/workspace-publication-startup-test-fixtures.mjs";
 import {
   backlogFile,
-  createPreparationTrunk,
   createWorkspace,
   git,
   identityC,
   lsRemoteSha,
   profileOf,
-  publishAssignment,
   read,
   refineStoryC,
   remoteChanges,
@@ -36,7 +39,9 @@ import {
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 test("the announcement publishes only the assignment before draft work, refreshes a clean default checkout, and a later preparation skill continues it", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   await configureDeveloper(trunk.integration);
@@ -97,7 +102,9 @@ test("the announcement publishes only the assignment before draft work, refreshe
 // The refresh taxonomy belongs to publication-checkout-maintenance.test.mjs;
 // here one pending edit shows the announcement leaves it alone.
 test("a dirty default checkout is preserved and its refresh deferred while the announcement stands", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   writeFileSync(join(trunk.integration, "trunk.txt"), "human edit\n");
@@ -116,21 +123,28 @@ test("a dirty default checkout is preserved and its refresh deferred while the a
 });
 
 test("preparation takes the next free name after execution and preparation assignments, and execution startup then skips it", async (t) => {
-  const trunk = await createPreparationTrunk();
-  t.after(trunk.cleanup);
   // Yui executes other work; Akiho, most recently assigned, prepares story B.
-  await publishAssignment(
-    trunk,
-    makeMe.anAgentProfile
-      .executing({ name: "Yui", identity: "SEED-X#x" })
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC)
+      .withRevision("assign-yui", {
+        message: "assign Yui",
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .executing({ name: "Yui", identity: "SEED-X#x" })
+            .please(),
+        ],
+      })
+      .withRevision("assign-akiho", {
+        message: "assign Akiho",
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .preparing({ name: "Akiho", identity: "SEED-B#b" })
+            .please(),
+        ],
+      })
       .please(),
   );
-  await publishAssignment(
-    trunk,
-    makeMe.anAgentProfile
-      .preparing({ name: "Akiho", identity: "SEED-B#b" })
-      .please(),
-  );
+  t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   const { receipt } = await startPreparation(trunk, workspace, identityC);
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
@@ -149,10 +163,20 @@ test("preparation takes the next free name after execution and preparation assig
     JSON.parse(await remoteFile(trunk, "main", profileOf("Yuma"))).activity,
     "preparation",
   );
+  assert.equal(
+    await remoteFile(trunk, "main", profileOf("Yuma")),
+    renderAgentProfile({
+      name: "Yuma",
+      activity: "preparation",
+      identity: identityC,
+    }),
+  );
 });
 
 test("when a rival claims the selected name during the push, the announcement is rebuilt on the new trunk under the next free name", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   // Before the first push leaves, another developer publishes Yui-chan.
@@ -178,7 +202,9 @@ test("when a rival claims the selected name during the push, the announcement is
 });
 
 test("an announcement whose committer is the agent itself is refused before anything is published or committed", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   await git(trunk.integration, "config", "user.name", "Yui-chan");
