@@ -2,8 +2,13 @@
 import { readFileSync } from "node:fs";
 import { test, expect } from "../support/codexLaunch.ts";
 import { launch } from "../agentLaunchBoundary.ts";
-import { machineHome, seedStore, storeFile } from "../machineLaunchRecords.ts";
-import { keepLaunchStore } from "../support/launchStore.ts";
+import { machineHome } from "../machineLaunchRecords.ts";
+import {
+  keepLaunchStore,
+  keepLaunchStoreText,
+  keptLaunchStore,
+  launchStoreFile,
+} from "../support/launchStore.ts";
 import type { CreationRecord } from "../../src/launchCreation.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import {
@@ -23,7 +28,7 @@ test("unreadable evidence refuses Codex before native creation but admits Claude
   if (machine === undefined || codexProtocol === undefined)
     throw new Error("Missing native machine fixture.");
   const unreadable = "{ unreadable launch evidence";
-  seedStore(machine, unreadable);
+  keepLaunchStoreText(machineHome(machine), unreadable);
   const request = {
     source: "open-dough",
     workflow: "ad-hoc",
@@ -39,15 +44,17 @@ test("unreadable evidence refuses Codex before native creation but admits Claude
   expect(
     codexProtocol.calls.filter((call) => call.method === "thread/start"),
   ).toHaveLength(0);
-  expect(readFileSync(storeFile(machine), "utf8")).toBe(unreadable);
+  expect(readFileSync(launchStoreFile(machineHome(machine)), "utf8")).toBe(
+    unreadable,
+  );
   dashboard.claudeScenario("launched");
   expect(
     JSON.parse((await launch(dashboard, { ...request, host: "claude" })).body),
   ).toMatchObject({ kind: "launched" });
   expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(readFileSync(`${storeFile(machine)}.unreadable`, "utf8")).toBe(
-    unreadable,
-  );
+  expect(
+    readFileSync(`${launchStoreFile(machineHome(machine))}.unreadable`, "utf8"),
+  ).toBe(unreadable);
 });
 
 test("a saved creation whose host lacks recovery stays visible with unavailable advice and no borrowed command", async ({
@@ -92,7 +99,7 @@ test("a saved creation whose host lacks recovery stays visible with unavailable 
   await expect(entry).toContainText("Native history inspection is unavailable");
   await expect(entry).not.toContainText("codex");
   await expect(entry).not.toContainText("--remote");
-  expect(JSON.parse(readFileSync(storeFile(machine), "utf8"))).toEqual({
+  expect(keptLaunchStore(machineHome(machine))).toEqual({
     "open-dough": [record],
   });
 });

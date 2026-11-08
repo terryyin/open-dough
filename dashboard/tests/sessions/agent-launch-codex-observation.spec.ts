@@ -4,7 +4,7 @@
 // ./agent-launch-codex-observation-workspace.spec.ts; the states endpoint's
 // own failures are ../../backend-tests/sessions/agent-launch-codex-observation-status.spec.ts.
 import { readFileSync, realpathSync } from "node:fs";
-import path from "node:path";
+import { launchStoreFile } from "../support/launchStore.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
@@ -127,12 +127,7 @@ test("saved Codex states appear on active cards and sidebar while Recently done 
     metadataError: { code: -32600, message: "thread not loaded: missing" },
   });
   save(dashboard, records);
-  const recordFile = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
+  const recordFile = launchStoreFile(dashboard.home);
   const before = readFileSync(recordFile, "utf8");
   await pausePageClockAt(page, new Date());
   const { passOnePace } = await watchRecordReads(page);

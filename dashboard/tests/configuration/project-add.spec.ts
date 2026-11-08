@@ -5,8 +5,8 @@ import { mkdirSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { identity } from "../agentLaunchBoundary.ts";
-import { daysAgo, machineHome, storeFile } from "../machineLaunchRecords.ts";
-import { keepLaunchStore } from "../support/launchStore.ts";
+import { daysAgo, machineHome } from "../machineLaunchRecords.ts";
+import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { addProjectOnPage } from "../support/projectAddPage.ts";
 import { expect, test } from "../support/pageTest.ts";
@@ -205,7 +205,10 @@ test("retained workspace explanations use the configured folder and keep actual 
     .launchedAt(daysAgo(1))
     .please();
   keepLaunchStore(machineHome(fixture.machine), { "sample-app": [record] });
-  const kept = readFileSync(storeFile(fixture.machine), "utf8");
+  const kept = readFileSync(
+    launchStoreFile(machineHome(fixture.machine)),
+    "utf8",
+  );
   const server = await fixture.start("preview");
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
@@ -224,5 +227,7 @@ test("retained workspace explanations use the configured folder and keep actual 
   expect(answer.records[0]?.shownWorkspace).toBe(
     "~/work/private-checkout/.worktrees/topic",
   );
-  expect(readFileSync(storeFile(fixture.machine), "utf8")).toBe(kept);
+  expect(
+    readFileSync(launchStoreFile(machineHome(fixture.machine)), "utf8"),
+  ).toBe(kept);
 });

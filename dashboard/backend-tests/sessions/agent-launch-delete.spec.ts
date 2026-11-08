@@ -10,7 +10,11 @@
 // synthetic `claude`'s (../../tests/fixtures/fake-claude) state; the real one is never
 // reached.
 
-import { chmodSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { chmodSync, mkdtempSync, rmSync } from "node:fs";
+import {
+  keptLaunchRecords,
+  launchStoreFile,
+} from "../../tests/support/launchStore.ts";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -30,17 +34,6 @@ test.describe("deleting a recorded session's record", () => {
   test.describe.configure({ mode: "serial" });
   let machine: string;
   let server: DashboardServer;
-
-  const recordFile = () =>
-    path.join(server.home, ".open-dough", "dashboard", "agent-launches.json");
-
-  const stored = () =>
-    (
-      JSON.parse(readFileSync(recordFile(), "utf8")) as Record<
-        string,
-        { session: { sessionId: string } }[]
-      >
-    )["open-dough"] ?? [];
 
   const sessionIds = async () =>
     (await recordsOf(server, "open-dough")).map(
@@ -72,7 +65,7 @@ test.describe("deleting a recorded session's record", () => {
       identity: "SEED-other#delete-target",
       title: "Another story",
     });
-    const before = stored();
+    const before = keptLaunchRecords(server);
     server.claudeListingFails(true);
     const callsBefore = server.claudeCalls().length;
     const stopsBefore = server.claudeStopCalls().length;
@@ -88,8 +81,11 @@ test.describe("deleting a recorded session's record", () => {
     } finally {
       server.claudeListingFails(false);
     }
-    expect(stored()).toEqual(
-      before.filter((each) => each.session.sessionId !== session.sessionId),
+    expect(keptLaunchRecords(server)).toEqual(
+      before.filter(
+        (each) =>
+          !("session" in each) || each.session.sessionId !== session.sessionId,
+      ),
     );
     expect(server.claudeStopCalls()).toHaveLength(stopsBefore);
     expect(
@@ -111,7 +107,7 @@ test.describe("deleting a recorded session's record", () => {
       title: "Forgotten story",
     });
     server.claudeSessionBecomes(session.sessionId, "forgotten");
-    const before = stored();
+    const before = keptLaunchRecords(server);
     const stopsBefore = server.claudeStopCalls().length;
 
     const response = await deleteRecord(server, {
@@ -123,8 +119,11 @@ test.describe("deleting a recorded session's record", () => {
     expect(JSON.parse(response.body)).toEqual({ kind: "deleted" });
     expect(await sessionIds()).toContain(kept.sessionId);
     expect(await sessionIds()).not.toContain(session.sessionId);
-    expect(stored()).toEqual(
-      before.filter((each) => each.session.sessionId !== session.sessionId),
+    expect(keptLaunchRecords(server)).toEqual(
+      before.filter(
+        (each) =>
+          !("session" in each) || each.session.sessionId !== session.sessionId,
+      ),
     );
     expect(server.claudeStopCalls()).toHaveLength(stopsBefore);
   });
@@ -141,7 +140,7 @@ test.describe("deleting a recorded session's record", () => {
         });
         server.claudeSessionBecomes(session.sessionId, "forgotten");
       }
-      const before = stored();
+      const before = keptLaunchRecords(server);
       const stopsBefore = server.claudeStopCalls().length;
 
       const response = await deleteRecord(server, {
@@ -165,7 +164,7 @@ test.describe("deleting a recorded session's record", () => {
         },
       });
       expect(await sessionIds()).toContain(session.sessionId);
-      expect(stored()).toEqual(before);
+      expect(keptLaunchRecords(server)).toEqual(before);
       expect(server.claudeStopCalls()).toHaveLength(stopsBefore);
     });
   }
@@ -207,8 +206,8 @@ test.describe("deleting a recorded session's record", () => {
 
   test("answers a record file that cannot be written with why, keeping the record", async () => {
     const session = await launched(server);
-    const before = stored();
-    const directory = path.dirname(recordFile());
+    const before = keptLaunchRecords(server);
+    const directory = path.dirname(launchStoreFile(server));
     server.claudeListingFails(true);
     chmodSync(directory, 0o500);
     try {
@@ -228,7 +227,7 @@ test.describe("deleting a recorded session's record", () => {
       chmodSync(directory, 0o700);
       server.claudeListingFails(false);
     }
-    expect(stored()).toEqual(before);
+    expect(keptLaunchRecords(server)).toEqual(before);
     expect(await sessionIds()).toContain(session.sessionId);
   });
 });

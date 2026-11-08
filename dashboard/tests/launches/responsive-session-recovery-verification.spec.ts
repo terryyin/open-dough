@@ -10,7 +10,7 @@ import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { attempts } from "../agentLaunchBoundary.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { policyOf, type LaunchRecord } from "../../src/agentLaunch.ts";
+import { policyOf } from "../../src/agentLaunch.ts";
 import type { StartRecord } from "../../server/startStore.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
@@ -23,7 +23,11 @@ import {
 } from "../responsiveRecovery.ts";
 import { openStories, test } from "../responsiveStart.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
-import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
+import {
+  keepLaunchStore,
+  keptLaunchStore,
+  launchStoreFile,
+} from "../support/launchStore.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 3_000 });
 
@@ -169,14 +173,11 @@ for (const tracking of ["standard", "one-shot"] as const) {
       kind: "launched",
       session: { host: "claude", sessionId: listed?.sessionId },
     });
-    const records = JSON.parse(
-      readFileSync(
-        path.join(dashboard.home, ".open-dough/dashboard/agent-launches.json"),
-        "utf8",
-      ),
-    ) as Record<string, LaunchRecord[]>;
-    expect(records["open-dough"]).toHaveLength(1);
-    const [record] = records["open-dough"] ?? [];
+    const records = keptLaunchStore(dashboard)["open-dough"];
+    expect(records).toHaveLength(1);
+    const [record] = records ?? [];
+    if (record && !("session" in record))
+      throw new Error("Expected a kept launch");
     expect(record?.start).toEqual(kept?.start);
     expect(record?.preparation).toBeUndefined();
     expect(record?.request.workflow).toBe("execution");

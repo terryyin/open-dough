@@ -125,8 +125,11 @@ workspace its start established, and when it was launched. Dashboard tests keep
 such records in the machine launch store only through
 `dashboard/tests/support/launchStore.ts`, which writes the store's own
 `{ [project]: records }` document under the machine home without retention;
-the file and its location stay harness facts. Exact store text under proof
-goes through `keepLaunchStoreText`.
+the file and its location stay harness facts. Read the parsed document through
+`keptLaunchStore` or one project's records through `keptLaunchRecords`, which
+includes unresolved creations. Use `launchStoreFile` when checking exact bytes
+or waiting for the file. Write exact store text under proof through
+`keepLaunchStoreText`.
 [Builder](support/launchTestData.mjs) ·
 [Launch store harness](../dashboard/tests/support/launchStore.ts)
 

@@ -39,6 +39,14 @@ export function keptLaunchStore(home: MachineHome): LaunchStoreDocument {
   ) as LaunchStoreDocument;
 }
 
+// The project's records as the store holds them, including unresolved creations.
+export function keptLaunchRecords(
+  home: MachineHome,
+  source = "open-dough",
+): KeptLaunch[] {
+  return keptLaunchStore(home)[source] ?? [];
+}
+
 // Writes exactly `text` as the store, for cases whose store text is under
 // test.
 export function keepLaunchStoreText(

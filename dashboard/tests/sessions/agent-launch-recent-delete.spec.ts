@@ -1,4 +1,5 @@
 import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 // Recently done records on the committed story-columns origin (../launchJourney.ts):
 // State unknown entries offer Delete record…; deletion removes only that record
 // from Recently done and the sidebar, stops nothing, and moves focus within its
@@ -8,7 +9,6 @@ import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // Session unavailable: ./agent-launch-recent-delete-unavailable.spec.ts.
 
 import { readFileSync } from "node:fs";
-import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
 import {
   identityA,
@@ -102,12 +102,7 @@ test.describe("deleting a Recently done entry's record", () => {
     await markedDoneOf(inDoneStory);
     const refinement = await started(readyStory, identityB, "refinement");
     const storyA = await started(takenStory, identityA, "execution");
-    const recordFile = path.join(
-      dashboard.home,
-      ".open-dough",
-      "dashboard",
-      "agent-launches.json",
-    );
+    const recordFile = launchStoreFile(dashboard.home);
     const stored = () => readFileSync(recordFile, "utf8");
     const stopsBeforeDeletes = dashboard.claudeStopCalls().length;
     const entryOf = (workflow: "Execution" | "Refinement", title: string) =>

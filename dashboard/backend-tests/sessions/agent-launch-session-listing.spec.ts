@@ -12,7 +12,7 @@
 // ../launches/agent-launch-boundary.spec.ts.
 
 import { readFileSync } from "node:fs";
-import path from "node:path";
+import { launchStoreFile } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   launch,
@@ -40,7 +40,6 @@ type WithState = {
 test.describe("the machine's sessions, each joined with its state", () => {
   test.describe.configure({ mode: "serial" });
   let server: DashboardServer;
-  let storeFile: string;
 
   test.beforeAll(async () => {
     server = await startDashboardServer({
@@ -48,12 +47,6 @@ test.describe("the machine's sessions, each joined with its state", () => {
       projectFolders: ["open-dough", "pygardon"],
       doneRenameWaitMs: 100,
     });
-    storeFile = path.join(
-      server.home,
-      ".open-dough",
-      "dashboard",
-      "agent-launches.json",
-    );
   });
 
   test.afterAll(async () => {
@@ -103,7 +96,7 @@ test.describe("the machine's sessions, each joined with its state", () => {
       });
       sessions.push(record.session.sessionId);
     }
-    const stored = readFileSync(storeFile, "utf8");
+    const stored = readFileSync(launchStoreFile(server), "utf8");
     for (const [index, [change, waitingFor]] of changes.entries()) {
       server.claudeSessionBecomes(sessions[index] ?? "?", change, waitingFor);
     }
@@ -130,7 +123,7 @@ test.describe("the machine's sessions, each joined with its state", () => {
       { argv: ["agents", "--json", "--all"], cwd: machineFolder(server) },
     ]);
     // The records read kept nothing of what it answered.
-    expect(readFileSync(storeFile, "utf8")).toBe(stored);
+    expect(readFileSync(launchStoreFile(server), "utf8")).toBe(stored);
   });
 
   test.describe("after earlier launches leave open sessions", () => {

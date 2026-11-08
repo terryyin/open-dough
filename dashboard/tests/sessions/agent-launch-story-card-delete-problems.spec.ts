@@ -1,4 +1,5 @@
 import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 // A card's Delete record… that is overtaken, refused, or fails says so and
 // never brings a deleted entry back (the delete itself is
 // ./agent-launch-story-card-delete.spec.ts). Once the listing is readable again the
@@ -64,12 +65,7 @@ async function unknownSession(
   dashboard.claudeListingFails(true);
   await pace.passOnePace();
   await expect(sessionStateOf(entry)).toHaveText(unknownWords);
-  const storedFile = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
+  const storedFile = launchStoreFile(dashboard.home);
   return {
     card,
     entry,

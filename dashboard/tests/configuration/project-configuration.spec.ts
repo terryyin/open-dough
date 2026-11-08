@@ -17,8 +17,8 @@ import {
 import { everyRepository, publishes } from "../support/fakeGitHub.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { daysAgo, machineHome, storeFile } from "../machineLaunchRecords.ts";
-import { keepLaunchStore } from "../support/launchStore.ts";
+import { daysAgo, machineHome } from "../machineLaunchRecords.ts";
+import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
 import { identity, title } from "../agentLaunchBoundary.ts";
 import { settings } from "../support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "../frameIconControl.ts";
@@ -80,7 +80,7 @@ test("production seeds its four projects and shows a previously saved session", 
         .please(),
     ],
   });
-  const records = readFileSync(storeFile(machine));
+  const records = readFileSync(launchStoreFile(machineHome(machine)));
   const server = await start("preview");
   await openUntilRead(page, server.baseURL);
   await expect(
@@ -128,7 +128,7 @@ test("production seeds its four projects and shows a previously saved session", 
       localPath: "~/git/terry-talks",
     },
   ]);
-  expect(readFileSync(storeFile(machine))).toEqual(records);
+  expect(readFileSync(launchStoreFile(machineHome(machine)))).toEqual(records);
 });
 
 // Both servers read the saved file through the same boundary

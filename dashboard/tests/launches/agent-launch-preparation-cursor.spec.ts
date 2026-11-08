@@ -1,4 +1,5 @@
 import { expectReportingBlock } from "../support/reportingInputAssertions.ts";
+import { keptLaunchRecords } from "../support/launchStore.ts";
 // A refinement launch on Cursor establishes its preparation before the
 // session, over the page, the real installed preparation start, and a bare
 // origin (../support/startOrigin.ts). The fixture `cursor-agent` on PATH
@@ -8,7 +9,6 @@ import { expectReportingBlock } from "../support/reportingInputAssertions.ts";
 // hosts.
 
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
@@ -93,18 +93,9 @@ test("a queued story starts Cursor refinement and the published assignment is wh
   });
   expect(keptDuringPrompt?.firstInput?.state).toBe("uncertain");
 
-  const kept = JSON.parse(
-    readFileSync(
-      path.join(
-        dashboard.home,
-        ".open-dough",
-        "dashboard",
-        "agent-launches.json",
-      ),
-      "utf8",
-    ),
-  ) as Record<string, LaunchRecord[]>;
-  const [record] = kept["open-dough"] ?? [];
+  const [record] = keptLaunchRecords(dashboard);
+  if (record && !("session" in record))
+    throw new Error("Expected a kept launch");
   const prompt = cursor.input(client.pid).replace(/\r$/u, "");
   expect(client.executable.endsWith(`${path.sep}cursor-agent`)).toBe(true);
   expect(client.stdinTTY).toBe(true);

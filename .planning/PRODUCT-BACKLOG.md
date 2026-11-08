@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Keep one launch store vocabulary and coherent kept records in dashboard tests](seeds/SEED-261-share-domain-test-data.md#align-kept-launch-store-setup) — SEED-261#align-kept-launch-store-setup ([plan](slice-plans/543-align-kept-launch-store-setup/PLAN.md))
 - [Read done records for the catalog through one product rule](seeds/SEED-262-faster-dashboard-test-feedback.md#share-done-catalog-record-reading) — SEED-262#share-done-catalog-record-reading ([plan](slice-plans/542-share-done-catalog-record-reading/PLAN.md))
 
 ## Backlog list

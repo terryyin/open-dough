@@ -7,8 +7,8 @@ import { addProjectOnPage } from "../support/projectAddPage.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { identity } from "../agentLaunchBoundary.ts";
 import { expectProjectChoice, parts } from "../dashboardPage.ts";
-import { machineHome, storeFile } from "../machineLaunchRecords.ts";
-import { keepLaunchStore } from "../support/launchStore.ts";
+import { machineHome } from "../machineLaunchRecords.ts";
+import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
 import { openUntilRead, untilPublishedWorkRead } from "../pageRequestNotes.ts";
 import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
 let fixture: ReturnType<typeof projectAddMachine>;
@@ -141,7 +141,9 @@ test("removing a configured project retains its checkout and records, hides sess
   expect(readFileSync(path.join(fixture.checkout, ".git/config"), "utf8")).toBe(
     gitConfig,
   );
-  expect(readFileSync(storeFile(fixture.machine), "utf8")).toBe(records);
+  expect(
+    readFileSync(launchStoreFile(machineHome(fixture.machine)), "utf8"),
+  ).toBe(records);
   expect(
     (JSON.parse(readFileSync(file, "utf8")) as { id: string }[]).map(
       ({ id }) => id,
@@ -170,7 +172,9 @@ test("removing a configured project retains its checkout and records, hides sess
   await expect(sidebar).toContainText("Retained sample session", {
     timeout: 5_000,
   });
-  expect(readFileSync(storeFile(fixture.machine), "utf8")).toBe(records);
+  expect(
+    readFileSync(launchStoreFile(machineHome(fixture.machine)), "utf8"),
+  ).toBe(records);
 });
 
 test("removing the last project leaves a persistent focused empty state", async ({

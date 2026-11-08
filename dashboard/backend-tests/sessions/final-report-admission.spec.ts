@@ -1,13 +1,17 @@
 // Passive final report requests admit only a catalog project's recorded native identity.
 import path from "node:path";
-import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
+import { test, expect } from "../../tests/support/codexLaunch.ts";
+import {
+  notRefinedIdentity,
+  notRefinedStory,
+} from "../../tests/launchJourney.ts";
+import { keepMoreLaunchRecords } from "../../tests/support/launchStore.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import {
   keepTrackedClosureEvidence,
   plantTrackedClosureRepository,
   report,
   retained,
-  save,
 } from "../../tests/support/retainedReport.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
@@ -18,24 +22,17 @@ test("final report admission refuses unknown projects, unrecorded or wrong-host 
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("Missing protocol fixture");
-  const { record, workspace } = await retained(dashboard, native);
+  const { workspace } = await retained(dashboard, native);
+  const story = { identity: notRefinedIdentity, title: notRefinedStory };
   const attention = "Reminder: check the migration before landing.";
-  save(dashboard.home, [
-    ...stored(dashboard.home),
-    {
-      ...record,
-      session: {
-        host: "claude",
-        sessionId: "claude-reported",
-        shortId: "claude-r",
-        name: record.session.name,
-      },
-      completion: makeMe.aCompletionReport
-        .saying(attention)
-        .withReceipt("aaaaaaaa-0000-4000-8000-000000000001")
-        .please(),
-    },
-  ]);
+  const claudeRecord = makeMe.aLaunchRecord
+    .refining(story)
+    .inClaudeSession({ sessionId: "claude-reported", shortId: "claude-r" })
+    .completedWith({
+      message: attention,
+      receipt: "aaaaaaaa-0000-4000-8000-000000000001",
+    })
+    .please();
   const cursorCompletion = makeMe.aCompletionReport
     .saying(attention)
     .withReceipt("aaaaaaaa-0000-4000-8000-000000000002")
@@ -44,38 +41,23 @@ test("final report admission refuses unknown projects, unrecorded or wrong-host 
   const cursorEmptySessionId = "33333333-3333-4333-8333-333333333333";
   const cursorAbsentSessionId = "44444444-4444-4444-8444-444444444444";
   const cursorClosureSessionId = "55555555-5555-4555-8555-555555555555";
-  const cursorRecord = (
-    sessionId: string,
-    completion: typeof cursorCompletion | undefined,
-  ) => ({
-    ...record,
-    session: {
-      host: "cursor" as const,
-      sessionId,
-      name: record.session.name,
-      continuation: {
-        workspace,
-        args: ["cursor-agent", "--workspace", workspace, "--resume", sessionId],
-      },
-    },
-    completion,
-  });
+  const cursorRecord = (sessionId: string) =>
+    makeMe.aLaunchRecord
+      .refining(story)
+      .inCursorSession({ sessionId, continuation: { workspace } });
   const closureRepository = path.join(dashboard.home, "closure-repository");
   const { revision } = plantTrackedClosureRepository(closureRepository);
   const cursorWithClosure = keepTrackedClosureEvidence(
-    cursorRecord(cursorClosureSessionId, undefined),
+    cursorRecord(cursorClosureSessionId).please(),
     closureRepository,
     revision,
     workspace,
   );
-  save(dashboard.home, [
-    ...stored(dashboard.home),
-    cursorRecord(cursorSessionId, cursorCompletion),
-    cursorRecord(
-      cursorEmptySessionId,
-      makeMe.aCompletionReport.saying("").please(),
-    ),
-    cursorRecord(cursorAbsentSessionId, undefined),
+  keepMoreLaunchRecords(dashboard, [
+    claudeRecord,
+    cursorRecord(cursorSessionId).completedWith(cursorCompletion).please(),
+    cursorRecord(cursorEmptySessionId).completedWith({ message: "" }).please(),
+    cursorRecord(cursorAbsentSessionId).please(),
     cursorWithClosure,
   ]);
   const since = native.calls.length;

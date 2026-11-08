@@ -8,6 +8,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
+import { launchStoreFile } from "../../tests/support/launchStore.ts";
 import { randomUUID } from "node:crypto";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
@@ -74,8 +75,9 @@ test("older launch delivery cannot close another session and durable duplicates 
     `completion-${receipt.delivery}.json`,
   );
   const retry = `${oldCommand} --retry ${quote(pending)}`;
-  const directory = path.join(dashboard.home, ".open-dough/dashboard");
-  const lock = path.join(directory, "agent-launches.json.lock");
+  const recordsFile = launchStoreFile(dashboard);
+  const directory = path.dirname(recordsFile);
+  const lock = `${recordsFile}.lock`;
   // The report's receipt follows a store write naming its native Done
   // pending; that Done then clears the problem in a later store write. Let
   // that write finish and release the store before it goes read-only.
@@ -91,10 +93,7 @@ test("older launch delivery cannot close another session and durable duplicates 
     path.join(directory, "launch-attempts.json"),
     "utf8",
   );
-  const records = readFileSync(
-    path.join(directory, "agent-launches.json"),
-    "utf8",
-  );
+  const records = readFileSync(recordsFile, "utf8");
   chmodSync(directory, 0o500);
   try {
     const duplicate = await reportingChild(retry, origin.machine);
@@ -103,9 +102,7 @@ test("older launch delivery cannot close another session and durable duplicates 
     expect(
       readFileSync(path.join(directory, "launch-attempts.json"), "utf8"),
     ).toBe(attempts);
-    expect(
-      readFileSync(path.join(directory, "agent-launches.json"), "utf8"),
-    ).toBe(records);
+    expect(readFileSync(recordsFile, "utf8")).toBe(records);
   } finally {
     chmodSync(directory, 0o700);
   }

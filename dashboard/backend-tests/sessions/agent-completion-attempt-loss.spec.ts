@@ -1,9 +1,8 @@
 // Remove/corrupt accepted attempt evidence after native creation, before binding.
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { keptLaunchRecords } from "../../tests/support/launchStore.ts";
 import path from "node:path";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
-import type { LaunchRecord } from "../../src/launchRecord.ts";
-import type { CreationRecord } from "../../src/launchCreation.ts";
 import { test, expect } from "../../tests/support/codexStart.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
 
@@ -57,14 +56,8 @@ for (const fault of ["missing", "unreadable"] as const) {
     expect(
       native.calls.filter((call) => call.method === "turn/start"),
     ).toHaveLength(0);
-    const document = JSON.parse(
-      readFileSync(
-        path.join(dashboard.home, ".open-dough/dashboard/agent-launches.json"),
-        "utf8",
-      ),
-    ) as Record<string, Array<LaunchRecord | CreationRecord>>;
     expect(
-      (document["open-dough"] ?? []).filter((entry) => "session" in entry),
+      keptLaunchRecords(dashboard).filter((entry) => "session" in entry),
     ).toHaveLength(0);
     if (fault === "unreadable") {
       expect(readFileSync(`${attempts}.unreadable`, "utf8")).toBe(

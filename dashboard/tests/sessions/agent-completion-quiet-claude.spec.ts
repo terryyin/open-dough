@@ -1,4 +1,5 @@
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { keptLaunchRecords } from "../support/launchStore.ts";
 import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // A Claude Code session's quiet completion renames it once its receipt is
 // sent (../../server/doneMarks.ts): the receipt answers at once with the local
@@ -15,7 +16,7 @@ import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 import { markDone, recordsOf } from "../agentLaunchBoundary.ts";
 import { parts } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
-import { storedRecords } from "../machineLaunchRecords.ts";
+import { machineHome } from "../machineLaunchRecords.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
@@ -216,7 +217,9 @@ test("a server closed during the wait leaves the pending mark and hangs up its a
 
     await server.close();
     closed = true;
-    const [record] = storedRecords(origin.machine) as LaunchRecord[];
+    const [record] = keptLaunchRecords(machineHome(origin.machine));
+    if (record && !("session" in record))
+      throw new Error("Expected a kept launch");
     expect(record?.doneProblem).toBe(pending);
     await expect
       .poll(() => server.claudeAttaches())

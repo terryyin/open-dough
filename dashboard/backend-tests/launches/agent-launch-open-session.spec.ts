@@ -21,10 +21,11 @@ import {
   markDone,
 } from "../../tests/agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
-import { machineHome, seedStore } from "../../tests/machineLaunchRecords.ts";
+import { machineHome } from "../../tests/machineLaunchRecords.ts";
 import {
   keepLaunchRecords,
   keepLaunchStore,
+  keepLaunchStoreText,
 } from "../../tests/support/launchStore.ts";
 import {
   answerOf,
@@ -222,7 +223,7 @@ test.describe("an open story session on this machine", () => {
   });
 
   test("refuses a story start when launch records cannot be read", async () => {
-    seedStore(origin.machine, "{ not launch records");
+    keepLaunchStoreText(machineHome(origin.machine), "{ not launch records");
     server.claudeScenario("launched");
     expect(await answerOf(accept(server, request))).toEqual(
       unreadableLaunchRecords,

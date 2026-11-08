@@ -1,4 +1,5 @@
 import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 // On the committed story-columns origin (../launchJourney.ts), an unreadable
 // listing says State unknown and offers Delete record… on each card session.
 // It asks in place; confirmation removes only that record from its card,
@@ -8,7 +9,6 @@ import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // Origin alone places stories. The server drives only synthetic Claude.
 
 import { readFileSync } from "node:fs";
-import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
 import {
   storyCardAttentionOf,
@@ -64,12 +64,7 @@ test.describe("deleting a card's session record", () => {
     await launch(readyStory, "Execution");
     const execution = storyCardSessionOf(card(readyStory), "Execution");
     const kept = await sessionNamedBy(execution);
-    const recordFile = path.join(
-      dashboard.home,
-      ".open-dough",
-      "dashboard",
-      "agent-launches.json",
-    );
+    const recordFile = launchStoreFile(dashboard.home);
     const stored = () => readFileSync(recordFile, "utf8");
     const inRecent = (workflow: "Execution" | "Refinement") =>
       recent.getByRole("article", {

@@ -1,7 +1,13 @@
 // Hold settlement before its lock acquisition, after real native binding.
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import {
+  keptLaunchRecords,
+  keptLaunchStore,
+  launchStoreFile,
+} from "../../tests/support/launchStore.ts";
+import { machineHome } from "../../tests/machineLaunchRecords.ts";
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { existsSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, writeFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import { acceptanceSchema } from "../../src/launchOutcome.ts";
@@ -18,16 +24,12 @@ import {
   recordOperation,
 } from "../../tests/support/completionRecovery.ts";
 import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
-import type { LaunchRecord } from "../../src/launchRecord.ts";
 
 test("deleted early Claude binding cannot be resurrected before attempt settlement", async () => {
   const origin = await startOrigin(queuedReadyRepository().please());
   const hold = path.join(origin.machine, "hold-settlement");
   const reached = path.join(origin.machine, "settlement-held");
-  const recordsFile = path.join(
-    origin.machine,
-    "home/.open-dough/dashboard/agent-launches.json",
-  );
+  const recordsFile = launchStoreFile(machineHome(origin.machine));
   const holdSettlement = fsPromisesHook(
     path.join(origin.machine, "hold-settlement.mjs"),
     "mkdir",
@@ -84,13 +86,9 @@ test("deleted early Claude binding cannot be resurrected before attempt settleme
       keptAttempts(server).find((entry) => entry.id === accepted.attempt.id)
         ?.outcome,
     ).toBeUndefined();
-    const record = (
-      JSON.parse(readFileSync(recordsFile, "utf8")) as Record<
-        string,
-        LaunchRecord[]
-      >
-    )["open-dough"]?.[0];
-    if (record === undefined) throw new Error("No actual early binding");
+    const [record] = keptLaunchRecords(server);
+    if (record === undefined || !("session" in record))
+      throw new Error("No actual early binding");
     expect(record.completion?.receipt).toBe(receipt.receipt);
     const deleted = await recordOperation(server, "deleteRecord", [
       "open-dough",
@@ -103,14 +101,7 @@ test("deleted early Claude binding cannot be resurrected before attempt settleme
         { ...record, completion: undefined, doneAt: undefined },
       ]),
     ).rejects.toThrow("The reporting session was deleted");
-    expect(
-      (
-        JSON.parse(readFileSync(recordsFile, "utf8")) as Record<
-          string,
-          unknown[]
-        >
-      )["open-dough"],
-    ).toHaveLength(0);
+    expect(keptLaunchStore(server)["open-dough"]).toHaveLength(0);
     expect(
       keptAttempts(server).find((entry) => entry.id === accepted.attempt.id)
         ?.reportingDeletedAt,
@@ -127,14 +118,7 @@ test("deleted early Claude binding cannot be resurrected before attempt settleme
     );
     expect(late.ok).toBe(false);
     expect(late.stdout).toBe("");
-    expect(
-      (
-        JSON.parse(readFileSync(recordsFile, "utf8")) as Record<
-          string,
-          unknown[]
-        >
-      )["open-dough"],
-    ).toHaveLength(0);
+    expect(keptLaunchStore(server)["open-dough"]).toHaveLength(0);
   } finally {
     rmSync(hold, { force: true });
     await server.close();
