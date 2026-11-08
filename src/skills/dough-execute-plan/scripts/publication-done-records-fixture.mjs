@@ -2,23 +2,26 @@
 // through each publisher: real `complete`, real catalog rebuild, and the
 // publisher's own hold report.
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { publishHistoryPreservingCandidate } from "./history-preserving-publication.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import { resumeInterruptedPublication } from "./publication-resume.mjs";
-import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import {
+  agentIdentity,
+  renderAgentProfile,
+} from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { renderPublishedBacklog } from "../../../../tests/support/published-backlog.mjs";
 import {
   captureCheckout,
-  createCleanTrunkFixture,
   exec,
   git,
   lsRemoteSha,
   revParse,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 const backlogCli = fileURLToPath(
   new URL(
@@ -28,15 +31,55 @@ const backlogCli = fileURLToPath(
 );
 export const main = "refs/heads/main";
 export const branch = "exec/story";
-const storyA = makeMe.aBacklogEntry
+export const storyA = makeMe.aBacklogEntry
   .with({ identity: "A#A", href: "A.md#A", title: "A" })
   .please();
-const storyB = makeMe.aBacklogEntry
+export const storyB = makeMe.aBacklogEntry
   .with({ identity: "B#B", href: "B.md#B", title: "B" })
   .please();
 const storyC = makeMe.aBacklogEntry
   .with({ identity: "C#C", href: "C.md#C", title: "C" })
   .please();
+
+// C's live profile, which a resolution may move into done/.
+export const liveProfileOfC = makeMe.anAgentProfile
+  .executing({
+    name: "joey",
+    identity: "C#C",
+    mode: "story-branch",
+    branch: "story-c",
+    host: "claude",
+    model: "opus",
+  })
+  .please();
+
+// The published trunk the stories start from: the backlog at `file` holds
+// the membership `backlog`, and `agentProfiles` beside it. The exec/story
+// workspace starts on that trunk.
+export function trunkWithBacklogAt(file, { backlog, agentProfiles = [] }) {
+  const facts =
+    file === ".planning/PRODUCT-BACKLOG.md"
+      ? { backlog, agentProfiles }
+      : {
+          backlog: undefined,
+          files: {
+            [file]: renderPublishedBacklog(backlog),
+            ...Object.fromEntries(
+              agentProfiles.map((profile) => [
+                join(dirname(file), agentIdentity(profile.name).path),
+                renderAgentProfile(profile),
+              ]),
+            ),
+          },
+        };
+  return makeMe.aRepository
+    .withRevision("stories active", {
+      ...facts,
+      message: "both stories active",
+    })
+    .withWorkspace(branch, { from: "stories active" })
+    .please();
+}
 
 async function complete(workspace, identity, file) {
   await exec(
@@ -48,46 +91,20 @@ async function complete(workspace, identity, file) {
   await git(workspace, "commit", "-m", `complete ${identity}`);
 }
 
-// With `misplace`, both sides hold C's live profile and the manual resolution
-// moves it into done/, as a resolution following Git's inferred
-// `agents/ → done/` rename does.
+// `description` is the published trunk on which both stories are active,
+// with the backlog at `file`. With `misplace`, both sides hold C's live
+// profile and the manual resolution moves it into done/, as a resolution
+// following Git's inferred `agents/ → done/` rename does.
 export async function manualMerge(
   t,
   file,
   list,
-  { active = true, misplace = false } = {},
+  { description, active = true, misplace = false },
 ) {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await materializeRepository(description);
   t.after(fixture.cleanup);
   const { integration, execution } = fixture;
-  mkdirSync(join(integration, dirname(file)), { recursive: true });
-  writeFileSync(
-    join(integration, file),
-    renderPublishedBacklog({ taken: [storyA, storyB] }),
-  );
-  const profile = join(dirname(file), "agents/joey-chan.json");
-  if (misplace) {
-    mkdirSync(join(integration, dirname(profile)), { recursive: true });
-    writeFileSync(
-      join(integration, profile),
-      renderAgentProfile(
-        makeMe.anAgentProfile
-          .executing({
-            name: "joey",
-            identity: "C#C",
-            mode: "story-branch",
-            branch: "story-c",
-            host: "claude",
-            model: "opus",
-          })
-          .please(),
-      ),
-    );
-  }
-  await git(integration, "add", dirname(file));
-  await git(integration, "commit", "-m", "both stories active");
-  await git(integration, "push", "origin", "main");
-  await git(execution, "rebase", "main");
+  const profile = join(dirname(file), agentIdentity(liveProfileOfC.name).path);
   await complete(execution, "B#B", file);
   const publishedTip = await revParse(execution, "HEAD");
   await complete(integration, "A#A", file);

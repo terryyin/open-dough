@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -20,38 +20,40 @@ import {
   deferWorkerStop,
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   allBranchesWorkflow,
-  commitAll,
-  exec,
-  initRepo,
-  writeWorkflow,
+  workflowPath,
 } from "./ci-path-applicability-test-fixtures.mjs";
 
 test("ignored-only descendants of a pending-then-failing ancestor share its one CI_FAILURE without ever being marked success, a later registration does not duplicate it, and another owner's evidence stays isolated", async (t) => {
-  const repo = await initRepo();
   const storage = mkdtempSync(join(tmpdir(), "ci-not-required-failure-"));
-  const teardown = fixtureTeardown(storage, repo);
+  const {
+    integration: repo,
+    fixture,
+    revisions: { a: shaA, b: shaB, c: shaC, d: shaD },
+  } = await materializeRepository(
+    makeMe.aRepository
+      // A: the only revision with a real CI attempt.
+      .withRevision("a", {
+        backlog: undefined,
+        files: {
+          "app.js": "console.log('base');\n",
+          [workflowPath]: allBranchesWorkflow,
+        },
+      })
+      // B: ignored-only descendant of A, registered up front.
+      .withRevision("b", { files: { ".planning/note.md": "note\n" } })
+      // C: another ignored-only descendant, also covered by A's real attempt.
+      .withRevision("c", { files: { "docs/readme.md": "docs\n" } })
+      // D is registered after A fails, proving late registration adds no
+      // failure.
+      .withRevision("d", { files: { ".planning/note2.md": "note2\n" } })
+      .please(),
+  );
+  const teardown = fixtureTeardown(storage, fixture);
   t.after(teardown.cleanup);
-
-  // A: the only revision with a real CI attempt.
-  writeFileSync(join(repo, "app.js"), "console.log('base');\n");
-  writeWorkflow(repo, allBranchesWorkflow);
-  const shaA = await commitAll(repo, "base code and workflow");
-
-  // B: ignored-only descendant of A, registered up front.
-  await exec("mkdir", ["-p", join(repo, ".planning")]);
-  writeFileSync(join(repo, ".planning", "note.md"), "note\n");
-  const shaB = await commitAll(repo, "ignored-only change B");
-
-  // C: another ignored-only descendant, also covered by A's real attempt.
-  await exec("mkdir", ["-p", join(repo, "docs")]);
-  writeFileSync(join(repo, "docs", "readme.md"), "docs\n");
-  const shaC = await commitAll(repo, "ignored-only change C");
-
-  // D is registered after A fails, proving late registration adds no failure.
-  writeFileSync(join(repo, ".planning", "note2.md"), "note2\n");
-  const shaD = await commitAll(repo, "ignored-only change D");
 
   const shaOther = "c".repeat(40);
   const branch = "feature/ignored-failure";

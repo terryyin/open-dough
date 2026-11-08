@@ -23,6 +23,7 @@ import { createdForRef } from "../../dough-execute-plan/scripts/workspace-public
 import {
   landWorktree,
   planReviewedEdits,
+  reviewedSeedDraft,
 } from "./dough-land-test-fixtures.mjs";
 import {
   cloneFile,
@@ -32,7 +33,7 @@ import {
 
 test("Dough Land commits every committed and uncommitted edit, publishes over a sibling change, refreshes the clean default checkout, and retires the worktree", async (t) => {
   const { origin, integration, preparation, preparationBranch, cleanup } =
-    await createPreparationFixture("preparation-publication-");
+    await createPreparationFixture(reviewedSeedDraft);
   t.after(cleanup);
 
   planReviewedEdits(preparation);
@@ -108,7 +109,7 @@ test("Dough Land reports a deferred refresh when the default checkout holds a pe
     preparationBranch,
     trunkSha,
     cleanup,
-  } = await createPreparationFixture("preparation-publication-");
+  } = await createPreparationFixture(reviewedSeedDraft);
   t.after(cleanup);
 
   planReviewedEdits(preparation);
@@ -147,7 +148,7 @@ test("Dough Land stops before committing when no worktree is in context or the w
     trunkSha,
     preparationSha,
     cleanup,
-  } = await createPreparationFixture("preparation-publication-");
+  } = await createPreparationFixture(reviewedSeedDraft);
   t.after(cleanup);
 
   planReviewedEdits(preparation);
@@ -197,7 +198,7 @@ test("Dough Land stops before committing when no worktree is in context or the w
 // leaves it with its owner.
 test("Dough Land publishes a reused workspace's reviewed content and leaves the workspace with its owner", async (t) => {
   const { origin, integration, preparation, preparationBranch, cleanup } =
-    await createPreparationFixture("preparation-publication-");
+    await createPreparationFixture(reviewedSeedDraft);
   t.after(cleanup);
 
   planReviewedEdits(preparation);

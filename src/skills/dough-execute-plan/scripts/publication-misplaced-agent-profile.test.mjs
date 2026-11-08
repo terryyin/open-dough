@@ -6,14 +6,22 @@ import { test } from "node:test";
 import { captureCheckout } from "./publication-test-fixtures.mjs";
 import {
   assertHeld,
+  liveProfileOfC,
   manualMerge,
   publish,
+  storyA,
+  storyB,
+  trunkWithBacklogAt,
 } from "./publication-done-records-fixture.mjs";
 
 for (const file of [".planning/PRODUCT-BACKLOG.md", "delivery/custom.md"]) {
   for (const publisher of ["history", "execution", "resume"]) {
     test(`${publisher} holds a candidate with a live profile under done/ beside ${file}`, async (t) => {
       const fixture = await manualMerge(t, file, "Taken", {
+        description: trunkWithBacklogAt(file, {
+          backlog: { taken: [storyA, storyB] },
+          agentProfiles: [liveProfileOfC],
+        }),
         active: false,
         misplace: true,
       });

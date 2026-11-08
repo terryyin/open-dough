@@ -1,19 +1,12 @@
 import { execFile, spawn } from "node:child_process";
 import { once } from "node:events";
-import {
-  chmodSync,
-  cpSync,
-  mkdirSync,
-  mkdtempSync,
-  realpathSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { chmodSync, cpSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { receiptPrefix } from "./ci-mailbox.mjs";
-import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 
 const exec = promisify(execFile);
 const sourceSkill = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -66,34 +59,30 @@ export function observerReceipt(output) {
   return JSON.parse(output.slice(receiptPrefix.length));
 }
 
+// The published claim on main and the owned increment on `exec/story`, which
+// the origin does not have yet. It is no Open Dough backlog project.
+const claimedWithIncrement = makeMe.aRepository
+  .withRevision("claim", {
+    backlog: undefined,
+    files: { "claim.txt": "taken\n" },
+  })
+  .withWorkspace("exec/story", { from: "claim" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "ours\n" },
+  })
+  .please();
+
+// A sibling then advances the target, and the increment is rebased onto it.
 export async function createTargetBranchWorktreeFixture() {
-  const fixture = realpathSync(
-    mkdtempSync(join(tmpdir(), "ci-target-branch-worktree-")),
-  );
-  const origin = join(fixture, "remote.git");
-  const project = join(fixture, "originating");
-  const execution = join(fixture, "execution");
+  const repository = await materializeRepository(claimedWithIncrement);
+  const { fixture, origin, execution } = repository;
   const sibling = join(fixture, "sibling");
   const installed = join(execution, ".agents/skills/dough-execute-plan");
   const storage = join(fixture, "mailboxes");
   const adapterState = join(fixture, "attempts.json");
   const adapterCalls = join(fixture, "adapter-calls.jsonl");
   const release = join(fixture, "release");
-  const teardown = fixtureTeardown(fixture);
-
-  await exec("git", ["init", "--bare", "-b", "main", origin]);
-  mkdirSync(project, { recursive: true });
-  await git(project, "init", "-b", "main");
-  await git(project, "config", "user.name", "Trunk Fixture");
-  await git(project, "config", "user.email", "trunk@example.test");
-  await git(project, "remote", "add", "origin", origin);
-  writeFileSync(join(project, "claim.txt"), "taken\n");
-  await git(project, "add", "claim.txt");
-  await git(project, "commit", "-m", "claim");
-  const claimSha = (await git(project, "rev-parse", "HEAD")).stdout.trim();
-  await git(project, "push", "origin", "main");
-  await git(project, "branch", "exec/story");
-  await git(project, "worktree", "add", execution, "exec/story");
+  const { claim: claimSha, increment: oldSha } = repository.revisions;
 
   await exec("git", ["clone", origin, sibling]);
   await git(sibling, "config", "user.name", "Sibling");
@@ -104,10 +93,6 @@ export async function createTargetBranchWorktreeFixture() {
   const siblingSha = (await git(sibling, "rev-parse", "HEAD")).stdout.trim();
   await git(sibling, "push", "origin", "main");
 
-  writeFileSync(join(execution, "increment.txt"), "ours\n");
-  await git(execution, "add", "increment.txt");
-  await git(execution, "commit", "-m", "increment");
-  const oldSha = (await git(execution, "rev-parse", "HEAD")).stdout.trim();
   await git(execution, "fetch", "origin");
   await git(execution, "rebase", "origin/main");
   const finalSha = (await git(execution, "rev-parse", "HEAD")).stdout.trim();
@@ -155,8 +140,8 @@ if (request.operation === 'discover') {
     oldSha,
     release,
     siblingSha,
-    cleanup: teardown.cleanup,
-    defer: teardown.defer,
+    cleanup: repository.cleanup,
+    defer: repository.defer,
     publishAttempts: (attempts) =>
       writeFileSync(adapterState, JSON.stringify({ attempts })),
     releaseDiscovery: () => writeFileSync(release, ""),

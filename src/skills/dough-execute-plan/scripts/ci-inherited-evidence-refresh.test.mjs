@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -14,26 +14,31 @@ import {
   registerPushedRevision,
 } from "./ci-mailbox.mjs";
 import { observeRevisionCoverage } from "./ci-mailbox-revision-coverage.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   acceptedWorkflow,
-  commitAll,
-  initRepo,
-  writeWorkflow,
+  workflowPath,
 } from "./ci-path-applicability-test-fixtures.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 
 async function history(t) {
-  const root = await initRepo();
+  const {
+    integration: root,
+    fixture,
+    revisions: { a, b, c },
+  } = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("a", {
+        backlog: undefined,
+        files: { [workflowPath]: acceptedWorkflow, "app.js": "base\n" },
+      })
+      .withRevision("b", { files: { "docs/b.md": "B\n" } })
+      .withRevision("c", { files: { "docs/c.md": "C\n" } })
+      .please(),
+  );
   const storage = mkdtempSync(join(tmpdir(), "ci-inherited-refresh-"));
-  t.after(fixtureTeardown(root, storage).cleanup);
-  writeWorkflow(root, acceptedWorkflow);
-  writeFileSync(join(root, "app.js"), "base\n");
-  const a = await commitAll(root, "base");
-  mkdirSync(join(root, "docs"));
-  writeFileSync(join(root, "docs/b.md"), "B\n");
-  const b = await commitAll(root, "metadata B");
-  writeFileSync(join(root, "docs/c.md"), "C\n");
-  const c = await commitAll(root, "metadata C");
+  t.after(fixtureTeardown(fixture, storage).cleanup);
   const request = { root, repo: "owner/project", branch: "main" };
   const mailbox = () => {
     const directory = createMailbox(

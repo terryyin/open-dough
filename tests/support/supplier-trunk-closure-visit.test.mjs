@@ -26,6 +26,7 @@ import {
   cloneAsAnotherWriter,
   lsRemoteSha,
   plantHumanEdit,
+  trunkWithHumanEditTarget,
 } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { deliverThroughCli } from "../../src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import {
@@ -41,7 +42,9 @@ const question =
   "Does the late story still need the old endpoint shape, or should it adopt B's contract?";
 
 test("Trunk Mode finish visits a consumer a racing writer added before completing the last consumer publication and retiring", async (t) => {
-  const fixture = await createTrunkClosureFixture(t);
+  const fixture = await createTrunkClosureFixture(t, {
+    description: trunkWithHumanEditTarget,
+  });
   const project = await commitCompletedSupplier(
     fixture.execution,
     fixture.fixture,

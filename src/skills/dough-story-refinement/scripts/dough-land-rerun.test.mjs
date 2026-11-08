@@ -20,12 +20,13 @@ import {
 import {
   landWorktree,
   planReviewedEdits,
+  reviewedSeedDraft,
 } from "./dough-land-test-fixtures.mjs";
 import { createPreparationFixture } from "./preparation-publication-test-fixtures.mjs";
 
 test("Dough Land keeps every resource after a push rejected into a conflict, and a rerun after resolution publishes once", async (t) => {
   const { origin, integration, preparation, preparationBranch, cleanup } =
-    await createPreparationFixture("preparation-publication-");
+    await createPreparationFixture(reviewedSeedDraft);
   t.after(cleanup);
 
   planReviewedEdits(preparation);
@@ -121,7 +122,7 @@ test("Dough Land keeps every resource after a push rejected into a conflict, and
 
 test("rerunning Dough Land after an accepted push whose refresh and retirement never ran commits and pushes nothing again, then refreshes and retires", async (t) => {
   const { origin, integration, preparation, preparationBranch, cleanup } =
-    await createPreparationFixture("preparation-publication-");
+    await createPreparationFixture(reviewedSeedDraft);
   t.after(cleanup);
 
   writeFileSync(join(preparation, "plan-draft.md"), "PLAN-1: two slices\n");
@@ -168,7 +169,7 @@ test("rerunning Dough Land after an accepted push whose default checkout path be
     preparation,
     preparationBranch,
     cleanup,
-  } = await createPreparationFixture("preparation-publication-");
+  } = await createPreparationFixture(reviewedSeedDraft);
   t.after(cleanup);
 
   writeFileSync(join(preparation, "plan-draft.md"), "PLAN-1: two slices\n");

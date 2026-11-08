@@ -1,31 +1,31 @@
 // Git mechanics: reconciled Trunk Mode increment requires applicable proof
-// before push; validated reconciled candidates publish the rewritten SHA; a
-// suffix changing only done records replays through the backlog adapter.
+// before push; validated reconciled candidates publish the rewritten SHA.
 import assert from "node:assert/strict";
-import { writeFileSync } from "node:fs";
-import { join } from "node:path";
 import { test } from "node:test";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
-import { divergedDoneBranches } from "../../../../tests/support/published-done-branches.mjs";
-import {
-  assertCatalogDescribes,
-  catalog,
-  done,
-  fileNames,
-} from "../../../../tests/support/product-backlog-git-done-catalog-fixture.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
   advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   revParse,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 const trunkTarget = "refs/heads/main";
 const recordedStoryBranch = "refs/heads/cursor/story-execution";
+
+// One trunk commit, and a workspace on exec/story one unpublished
+// increment.txt commit ahead.
+const trunkWithIncrement = makeMe.aRepository
+  .withRevision("trunk")
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  });
+const trunkWithOneIncrement = trunkWithIncrement.please();
 
 function receiptsOf() {
   const receipts = [];
@@ -55,7 +55,7 @@ async function ancestor(workspace, ancestorSha, descendant) {
 
 test("Trunk Mode increment returns needs-validation when another writer advances and proof is unconfirmed", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneIncrement);
   t.after(cleanup);
 
   const disjointSha = await advanceOriginFromAnotherWriter(origin);
@@ -92,14 +92,23 @@ test("Trunk Mode increment returns needs-validation when another writer advances
 });
 
 test("Trunk Mode retains a multi-commit comparison before publishing its validated reconciled candidate", async (t) => {
-  const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+  const {
+    origin,
+    integration,
+    execution,
+    trunkSha,
+    revisions: { increment: candidateSha },
+    candidateSha: multiCommitCandidate,
+    cleanup,
+  } = await materializeRepository(
+    trunkWithIncrement
+      .withUnpublishedRevision("second increment", {
+        files: { "second-increment.txt": "second increment\n" },
+      })
+      .please(),
+  );
   t.after(cleanup);
 
-  writeFileSync(join(execution, "second-increment.txt"), "second increment\n");
-  await git(execution, "add", "second-increment.txt");
-  await git(execution, "commit", "-m", "second verified increment");
-  const multiCommitCandidate = await revParse(execution, "HEAD");
   const disjointSha = await advanceOriginFromAnotherWriter(origin);
   const before = await captureCheckout(integration);
   const observer = receiptsOf();
@@ -179,8 +188,9 @@ test("Trunk Mode retains a multi-commit comparison before publishing its validat
 });
 
 test("an unpublished candidate already on the advanced target refuses a no-op rebase and pushes nothing", async (t) => {
-  const { origin, execution, trunkSha, cleanup } =
-    await createCleanTrunkFixture();
+  const { origin, execution, trunkSha, cleanup } = await materializeRepository(
+    trunkWithOneIncrement,
+  );
   t.after(cleanup);
   const advancedTip = await advanceOriginFromAnotherWriter(origin);
   // The branch already sits on the advanced tip while the caller still names
@@ -205,38 +215,4 @@ test("an unpublished candidate already on the advanced target refuses a no-op re
   );
   assert.equal(await lsRemoteSha(origin, trunkTarget), advancedTip);
   assert.equal(await revParse(execution, "exec/story"), candidate);
-});
-
-test("Trunk Mode increment replays a suffix changing only done records through the backlog adapter, publishing a current catalog", async (t) => {
-  const { origin, execution, publishedBase } = await divergedDoneBranches(t);
-
-  const published = await publishExecutionIncrement({
-    workspace: execution,
-    ...makeMe.anIncrementPublication
-      .with({
-        branch: "exec/story",
-        previouslyPublishedBase: publishedBase,
-        targetRef: trunkTarget,
-      })
-      .please(),
-    register: () => {},
-    validate: async () => ({ ok: true }),
-  });
-
-  assert.equal(published.ok, true, JSON.stringify(published));
-  const { sha } = published.receipt;
-  assert.equal(await lsRemoteSha(origin, trunkTarget), sha);
-  assert.equal(
-    (await git(origin, "log", "-1", "--format=%s", sha)).stdout.trim(),
-    "Rebuild the done catalog from its record files",
-  );
-  const publishedCatalog = assertCatalogDescribes(
-    (await git(origin, "show", `${sha}:${catalog}`)).stdout,
-    (await git(origin, "ls-tree", `${sha}:${done}`)).stdout,
-  );
-  assert.deepEqual(fileNames(publishedCatalog), [
-    "X_X.json",
-    "Y_Y.json",
-    "Z_Z.json",
-  ]);
 });

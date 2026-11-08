@@ -8,7 +8,6 @@ import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
 import { renderPlanSlice } from "../../../../tests/support/published-plan.mjs";
 import {
-  createCleanTrunkFixture,
   executionBranch,
   git,
   lsRemoteSha,
@@ -16,6 +15,7 @@ import {
   runScriptIn,
   trunkTarget,
 } from "../../dough-story-wrap-up/scripts/closure-git-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
 export const cli = fileURLToPath(
   new URL("./source-freshness.mjs", import.meta.url),
@@ -116,32 +116,34 @@ export async function commitTree(checkout, files, message) {
   return revParse(checkout, "HEAD");
 }
 
-// A Take of `entry` published on trunk and the execution branch, then a
-// branch increment marking slice 1 done, published only to the execution
-// branch.
+// A trunk before the Take, then a Take of `entry` published on trunk and the
+// execution branch, then a branch increment marking slice 1 done, published
+// only to the execution branch.
 export async function takenStoryBranch(t, entry = takenEntries.linked) {
-  const fixture = await createCleanTrunkFixture();
-  t.after(fixture.cleanup);
-  const { execution } = fixture;
-  const take = await commitTree(
-    execution,
-    {
-      [backlogPath]: backlogOf([entry], []),
-      [seedPath]: seedOf(),
-      [planPath]: takenPlan,
-    },
-    "Take",
+  const fixture = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("before the Take")
+      .withRevision("take", {
+        files: {
+          [backlogPath]: backlogOf([entry], []),
+          [seedPath]: seedOf(),
+          [planPath]: takenPlan,
+        },
+        message: "Take",
+      })
+      .withWorkspace(executionBranch, { from: "take" })
+      .withUnpublishedRevision("slice 1", { files: { [planPath]: branchPlan } })
+      .please(),
   );
-  await git(execution, "push", "-q", "origin", `HEAD:${trunkTarget}`);
-  await commitTree(execution, { [planPath]: branchPlan }, "slice 1");
+  t.after(fixture.cleanup);
   await git(
-    execution,
+    fixture.execution,
     "push",
     "-q",
     "origin",
     `HEAD:refs/heads/${executionBranch}`,
   );
-  return { ...fixture, take };
+  return { ...fixture, take: fixture.revisions.take };
 }
 
 // A human's trunk commit made from the primary checkout on main.

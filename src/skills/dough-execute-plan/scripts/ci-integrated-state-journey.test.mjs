@@ -119,10 +119,20 @@ test("another writer's C the target remote cannot serve stays ancestry_unknown, 
   const directory = await journey.observe(b);
   await journey.afterTwoPolls(directory, b);
   journey.recordRun(b, { state: "cancelled" });
+  // Another writer's remote: a fork of the target's current main.
   const fork = mkdtempSync(join(tmpdir(), "integrated-fork-"));
   t.after(() => rmSync(fork, { recursive: true, force: true }));
-  await git(fork, "init", "-q", "--bare");
-  await git(fork, "fetch", "-q", journey.fixture.origin, "main:main");
+  await git(
+    fork,
+    "clone",
+    "-q",
+    "--bare",
+    "--single-branch",
+    "--branch",
+    "main",
+    journey.fixture.origin,
+    ".",
+  );
   const other = await journey.publishFromAnotherWriter("other.txt", {
     pushTo: fork,
   });

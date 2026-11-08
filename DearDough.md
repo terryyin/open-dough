@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 460. Removed numbers are never reused.
+- Highest allocated local number: 462. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -27,6 +27,14 @@ Former local code: DD-450. Former local code: DD-121. Former local code: DD-206.
   - Evidence: Plan 521 at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6` was recorded ready with `**Status:** pending`. The first `story-obligations.mjs list --slice 1` refused with `unreadable-slices` and `unknown-slice`.
   - Observed effect: changing only the status word to `planned` let the same listing pass with all 39 allocated source commitments. The selected story and its proof stayed the same.
   - Inference: the preparation and execution status mismatch observed in Plan 519 recurred under 0.3.91.
+- Execution: SEED-262#migrate-clean-trunk-fixtures (plan 514-migrate-clean-trunk-fixtures; first related implementation commit `1f6adb33a20fe8eb45f382b7cde3c5141ab41dd2`)
+  - Timestamp: unknown (2026-11-08, slice 5 return before `91966e3aa`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 514 (`42717b7da:.planning/slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md`)'s premise row "No native shell fixture loads the family modules" inspected the native shell scripts and the owned-context fixture only. `tests/support/execution-worktree-prep-native-fixture.mjs` loaded the migrated worktree-preparation builders (story obligation G4), and `native-import-closure.mjs` on that journey's three modules lists 10 modules at `db42e79a7` and 49 at `91966e3aa`. The git-publication admission identity (`tests/support/git-publication-native-evidence.sh:39-42`) already hashed three family modules the plan changed.
+  - Observed effect: The slice 5 implementer found the native journey's repository changed. A return restored it with verbatim pre-story builders; the retrospective still found MakeMe in that journey's import closure and planned a correction.
+  - Inference: The journeys' hashed import closures, not shell sources, list what a native identity depends on; the premise needed that list.
 
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
@@ -202,6 +210,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Guarded delivery on the paths published as `86eb0b883`, `c504c9a15`, and `d577da657` first returned `operation: formatting`. ESLint named unsafe href/writer return values, an unused array callback parameter, and an unsafe `Object.fromEntries` return from non-tuple inference.
   - Observed effect: Three initial formatter gates withheld commit and publication after focused proof and independent refactor. Type annotations or a mechanical callback change cleared them. The affected type-check or Land test passed.
   - Inference: A passing TypeScript build does not cover the ESLint diagnostics observed here. The late placement of the gate was the required handoff.
+- Execution: SEED-262#migrate-clean-trunk-fixtures (plan 514-migrate-clean-trunk-fixtures; first related implementation commit `1f6adb33a20fe8eb45f382b7cde3c5141ab41dd2`)
+  - Timestamp: unknown (2026-11-08, slice 5 delivery before `91966e3aa` at 2026-11-08T18:42:34+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Guarded fresh delivery of slice 5 returned `operation: formatting` with ESLint `no-unused-vars` on an unused `_` array callback parameter in `src/skills/dough-execute-plan/scripts/default-checkout-test-fixtures.mjs`, after focused proof and a refactor pass that reported no lint run.
+  - Observed effect: One withheld delivery; a mechanical `[...Array(count).keys()]` rewrite and a focused rerun cleared it.
+  - Inference: Same diagnostic class as the earlier occurrence; the slice 4 implementer, who ran ESLint itself, returned clean.
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
@@ -493,3 +509,30 @@ The implementation brief linked the full source-review commitment table, but its
   - Evidence: Seed example 2 reads "follows a link or opens a direct story URL to that same identity again"; source-review ids 4.1, 5, 5.1 and 12 were allocated to slice 1 and the brief named the file. The brief's proof line said "E2 follow again to an already-selected in-view card re-cues", omitting the direct-URL trigger. The first return listed "E2 by direct URL to an already-selected card is not separately proved" as a gap.
   - Observed effect: one extra delegation round (about 5 minutes) added `story-destination-repeat-cue.spec.ts`; no product change was needed.
   - Inference: a restated example in the brief carries more weight with the implementer than a linked commitment table; quoting key examples verbatim, or relying on the table alone, would likely have avoided the round. The ODF-367 response (review before first delegation) held here.
+
+<a id="dd-461"></a>
+## DD-461 — A hidden-fact break check missed a helper that writes the fact
+A premise check that changes a fixture's hidden facts and reruns consumers finds tests that read those facts and fail. It cannot find a helper that writes to a hidden path, whose meaning changes silently when the path stops being tracked.
+
+### Occurrences
+- Execution: SEED-262#migrate-clean-trunk-fixtures (plan 514-migrate-clean-trunk-fixtures; first related implementation commit `1f6adb33a20fe8eb45f382b7cde3c5141ab41dd2`)
+  - Timestamp: unknown (2026-11-08, reported in slice 3 before `8f7f8443f` at 2026-11-08T17:07:26+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 514 (`42717b7da:.planning/slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md`)'s scratch premise changed `trunk.txt`, `increment.txt` and both identities and named 26 failing files. `plantHumanEdit` in `src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs` writes `trunk.txt` as "an unstaged change to a tracked file". Slice 1 and 2 descriptions without `trunk.txt` passed, so published `1f6adb33a` and `0b6bdb925` planted an untracked file in three test files (story obligation G1).
+  - Observed effect: Coordinator acceptance of slices 1 and 2 did not notice. The slice 3 implementer added a tracked-file guard that failed loudly and declared `trunk.txt` where needed.
+  - Inference: Removing a fact under a writer needs a precondition check in the writer, or a break check that also asserts the writer's precondition; passing consumers alone do not show it.
+
+<a id="dd-462"></a>
+## DD-462 — The source-only review caught a promise the plan had narrowed
+Practice. The isolated source review numbers story commitments independently of the plan, so a plan decision that contradicts a key example surfaces at the slice that owns it.
+
+### Occurrences
+- Execution: SEED-262#migrate-clean-trunk-fixtures (plan 514-migrate-clean-trunk-fixtures; first related implementation commit `1f6adb33a20fe8eb45f382b7cde3c5141ab41dd2`)
+  - Timestamp: unknown (2026-11-08, before slice 5 delegation)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 514 (`42717b7da:.planning/slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md`) kept `createCleanTrunkFixture` taking a description. Source-review commitment 31, from Key example 6, says "no non-native test calls `createCleanTrunkFixture`". The slice 5 obligations listing carried it, and the delegation stated that the source outranks the plan.
+  - Observed effect: Slice 5 deleted the helper; `git grep createCleanTrunkFixture -- ':!.planning'` finds nothing.

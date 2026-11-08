@@ -2,26 +2,22 @@
 // occupied by every kind of local content a session there must keep, and a
 // repository with none at all, started in and observed through its checkouts.
 import assert from "node:assert/strict";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { exec, git, revParse } from "./publication-test-fixtures.mjs";
 import { startCliResult } from "./workspace-publication-fixtures.mjs";
 
-// Commits `files` unrelated tracked files to trunk, then leaves staged and
-// unstaged patches of `lines` lines each in the integration checkout.
-export async function busyCheckout(trunk, files, lines) {
-  mkdirSync(join(trunk.integration, "inventory"));
-  for (let index = 0; index < files; index += 1)
-    writeFileSync(join(trunk.integration, "inventory", `${index}.txt`), "x\n");
-  await git(trunk.integration, "add", "inventory");
-  await git(trunk.integration, "commit", "-m", "unrelated inventory");
-  await git(trunk.integration, "push", "origin", "main");
+// A trunk revision committing `count` unrelated tracked files under inventory/.
+export const unrelatedInventory = (count) => ({
+  message: "unrelated inventory",
+  files: Object.fromEntries(
+    [...Array(count).keys()].map((index) => [`inventory/${index}.txt`, "x\n"]),
+  ),
+});
+
+// Leaves staged and unstaged patches of `lines` lines each in the integration
+// checkout: a new staged file and a change to the tracked trunk.txt.
+export async function busyCheckout(trunk, lines) {
   const patch = `${"unrelated patch line".padEnd(79, ".")}\n`.repeat(lines);
   writeFileSync(join(trunk.integration, "staged.txt"), patch);
   await git(trunk.integration, "add", "staged.txt");

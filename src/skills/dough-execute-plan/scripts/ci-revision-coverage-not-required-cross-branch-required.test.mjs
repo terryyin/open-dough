@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -18,30 +18,40 @@ import {
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
 import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   acceptedWorkflow,
-  commitAll,
-  exec,
-  git,
-  initRepo,
-  writeWorkflow,
+  workflowPath,
 } from "./ci-path-applicability-test-fixtures.mjs";
 import { crossBranchHistoryGithub } from "./ci-revision-coverage-not-required-cross-branch-test-fixtures.mjs";
 
 test("a non-ignored story-branch revision stays undiscovered until its own exact run appears", async (t) => {
-  const repo = await initRepo();
   const storage = mkdtempSync(join(tmpdir(), "ci-cross-branch-required-"));
-  const teardown = fixtureTeardown(storage, repo);
-  t.after(teardown.cleanup);
-
-  await exec("mkdir", ["-p", join(repo, "src")]);
-  writeFileSync(join(repo, "src", "app.js"), "console.log('A');\n");
-  writeWorkflow(repo, acceptedWorkflow);
-  const shaA = await commitAll(repo, "non-ignored ancestor on main");
   const storyBranch = "feature/cross-branch-required";
-  await git(repo, "checkout", "-q", "-b", storyBranch);
-  writeFileSync(join(repo, "src", "app.js"), "console.log('B');\n");
-  const shaB = await commitAll(repo, "non-ignored story tip");
+  // Non-ignored ancestor A on main and non-ignored story tip B on the story
+  // branch's checkout.
+  const {
+    execution: repo,
+    fixture,
+    revisions: { a: shaA, b: shaB },
+  } = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("a", {
+        backlog: undefined,
+        files: {
+          "src/app.js": "console.log('A');\n",
+          [workflowPath]: acceptedWorkflow,
+        },
+      })
+      .withWorkspace(storyBranch, { from: "a" })
+      .withUnpublishedRevision("b", {
+        files: { "src/app.js": "console.log('B');\n" },
+      })
+      .please(),
+  );
+  const teardown = fixtureTeardown(storage, fixture);
+  t.after(teardown.cleanup);
 
   const directory = createMailbox(
     {

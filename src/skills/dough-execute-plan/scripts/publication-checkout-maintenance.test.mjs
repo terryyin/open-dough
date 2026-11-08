@@ -11,14 +11,16 @@ import {
   assertCheckoutUnchanged,
   assertRemoteCandidate,
   captureCheckout,
-  createCleanTrunkFixture,
   git,
   lsRemoteSha,
   maintenanceFromInspection,
   plantHumanEdit,
   pushCandidate,
   revParse,
+  trunkWithHumanEditTarget,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
 
 function refresh(checkout) {
   return refreshDefaultCheckout({ checkout, integrationBranch: "main" });
@@ -26,7 +28,7 @@ function refresh(checkout) {
 
 test("an eligible clean checkout fast-forwards to fetched trunk and a second attempt is already current", async (t) => {
   const { origin, integration, trunkSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(cleanup);
 
   const current = await refresh(integration);
@@ -52,9 +54,9 @@ test("an eligible clean checkout fast-forwards to fetched trunk and a second att
 });
 
 test("refresh preserves a pending edit, unpublished commits, a diverged history, and another branch", async (t) => {
-  const edit = await createCleanTrunkFixture();
-  const local = await createCleanTrunkFixture();
-  const other = await createCleanTrunkFixture();
+  const edit = await materializeRepository(trunkWithHumanEditTarget);
+  const local = await materializeRepository(trunkWithHumanEditTarget);
+  const other = await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(edit.cleanup);
   t.after(local.cleanup);
   t.after(other.cleanup);
@@ -110,7 +112,7 @@ test("refresh preserves a pending edit, unpublished commits, a diverged history,
 
 test("a remote publication leaves the default checkout unchanged and a later refresh fast-forwards it to current remote history", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(cleanup);
 
   const before = await captureCheckout(integration);

@@ -1,13 +1,16 @@
 // A real local history for judging integrated-state evidence directly
 // (ci-integrated-state.mjs): a bare `origin`, a `writer` holding every commit,
 // and an `observer` checkout cloned when the target held only accepted B.
+// The description publishes base and B; the later pushes and sibling branches
+// are Git operations of the writer.
 // Candidate runs and their current attempts are the only stubbed facts: the
 // provider boundary the observer reads through.
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { integratedStateJudge } from "./ci-integrated-state.mjs";
 
 export const policy = { check: "ci.yml", context: "push", jobs: ["covered"] };
@@ -27,27 +30,32 @@ const git = (cwd, ...args) =>
     { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
   ).trim();
 
-// `writer` commits base and B on main, then C on main and each of `siblings`
-// (descendants of B on branches of their own) and an unrelated `other` from
-// base, all pushed to `origin`. `observer` holds only base and B.
-export function judgeHistory(t, { siblings = 0 } = {}) {
-  const root = mkdtempSync(join(tmpdir(), "integrated-judge-"));
-  t.after(() => rmSync(root, { recursive: true, force: true }));
-  const origin = join(root, "origin.git");
-  const writer = join(root, "writer");
-  const observer = join(root, "observer");
-  execFileSync("git", ["init", "-q", "--bare", "-b", "main", origin]);
-  execFileSync("git", ["init", "-q", "-b", "main", writer]);
-  git(writer, "remote", "add", "origin", origin);
+// Base and accepted B on main, published from `writer`. It is no Open Dough
+// backlog project.
+const acceptedB = makeMe.aRepository
+  .withRevision("base", {
+    backlog: undefined,
+    files: { "base.txt": "base.txt\n" },
+  })
+  .withRevision("b", { files: { "b.txt": "b.txt\n" } })
+  .please();
+
+// `writer` holds the published base and B on main, then commits C on main and
+// each of `siblings` (descendants of B on branches of their own) and an
+// unrelated `other` from base, all pushed to `origin`. `observer` holds only
+// base and B.
+export async function judgeHistory(t, { siblings = 0 } = {}) {
+  const repository = await materializeRepository(acceptedB);
+  t.after(repository.cleanup);
+  const { origin, integration: writer } = repository;
+  const { base, b } = repository.revisions;
+  const observer = join(repository.fixture, "observer");
   const commit = (file) => {
     writeFileSync(join(writer, file), `${file}\n`);
     git(writer, "add", file);
     git(writer, "commit", "-qm", file);
     return git(writer, "rev-parse", "HEAD");
   };
-  const base = commit("base.txt");
-  const b = commit("b.txt");
-  git(writer, "push", "-q", "origin", "main");
   execFileSync("git", ["clone", "-q", origin, observer]);
   const c = commit("c.txt");
   git(writer, "push", "-q", "origin", "main");

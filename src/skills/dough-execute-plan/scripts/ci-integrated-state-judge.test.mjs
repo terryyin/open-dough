@@ -18,7 +18,7 @@ import {
 } from "./ci-integrated-state-judge-test-fixtures.mjs";
 
 // Read-only here: every case judges against the writer's full history.
-const { writer, b, c, other } = judgeHistory({ after });
+const { writer, b, c, other } = await judgeHistory({ after });
 
 test("a descendant's current green of the declared check validates B's integrated state beside B's own state", async () => {
   const run = listedRun(c);

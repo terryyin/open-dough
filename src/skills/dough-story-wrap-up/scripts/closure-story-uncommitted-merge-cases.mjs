@@ -4,9 +4,9 @@
 // run publishes.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   agentStoryBehindTrunk,
-  createCleanTrunkFixture,
   currentBranch,
   executionBranch,
   git,
@@ -18,6 +18,17 @@ import {
   stageSharedResolution,
   trunkTarget,
 } from "./closure-git-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+
+// The story's unpublished `increment.txt`, which the stopped merge stages
+// beside the conflicted file.
+const storyWithIncrement = makeMe.aRepository
+  .withRevision("trunk")
+  .withWorkspace(executionBranch, { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
 
 // What a run must leave alone: the merge in progress, its index, and `HEAD`.
 const mergeState = async (workspace) => ({
@@ -66,7 +77,7 @@ async function assertPreservedThenPublished(
 }
 
 test("a conflicted integration resolved and staged but not committed is preserved untouched, and its commit is published by the next run", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await materializeRepository(storyWithIncrement);
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
   const story = await publishStoryConflictingWithTrunk(origin, execution);
@@ -86,7 +97,7 @@ test("a conflicted integration resolved and staged but not committed is preserve
 });
 
 test("a merge an identity refusal left in progress is preserved untouched, and its commit is published by the next run", async (t) => {
-  const fixture = await agentStoryBehindTrunk(t);
+  const fixture = await agentStoryBehindTrunk(t, storyWithIncrement);
   const { execution, closureSha, trunkBefore } = fixture;
   const developerEmail = (
     await git(execution, "config", "user.email")

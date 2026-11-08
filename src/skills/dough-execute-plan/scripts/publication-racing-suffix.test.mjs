@@ -34,8 +34,9 @@ import {
 
 test("a rejected push is reconciled once onto the other writer's commit, then the combined candidate is accepted", async (t) => {
   const ownedBacklog = backlogOf([], [itemA, itemB, itemC, ownedD]);
+  const fixture = await createBacklogSuffixFixture(ownedBacklog);
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createBacklogSuffixFixture(ownedBacklog);
+    fixture;
   t.after(cleanup);
 
   await plantHumanEdit(integration);
@@ -55,7 +56,7 @@ test("a rejected push is reconciled once onto the other writer's commit, then th
     branch: "exec/story",
     affectedCheck: async (sha) => {
       checkedSha = sha;
-      await assertAffectedCombination(execution, sha);
+      await assertAffectedCombination(fixture, sha);
     },
   });
 
@@ -90,8 +91,9 @@ test("a rejected push is reconciled once onto the other writer's commit, then th
 
 test("conflicting backlog intent preserves the rejected candidate and does not retry the push", async (t) => {
   const ownedBacklog = backlogOf([], [itemA, itemB, itemC, ownedD]);
+  const fixture = await createBacklogSuffixFixture(ownedBacklog);
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createBacklogSuffixFixture(ownedBacklog);
+    fixture;
   t.after(cleanup);
 
   const before = await captureCheckout(integration);
@@ -137,8 +139,9 @@ test("conflicting backlog intent preserves the rejected candidate and does not r
 
 test("a second rejection preserves the once-rewritten candidate and does not reconcile again", async (t) => {
   const ownedBacklog = backlogOf([], [itemA, itemB, itemC, ownedD]);
+  const fixture = await createBacklogSuffixFixture(ownedBacklog);
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createBacklogSuffixFixture(ownedBacklog);
+    fixture;
   t.after(cleanup);
 
   const before = await captureCheckout(integration);
@@ -157,7 +160,7 @@ test("a second rejection preserves the once-rewritten candidate and does not rec
     branch: "exec/story",
     affectedCheck: async (sha) => {
       checkedSha = sha;
-      await assertAffectedCombination(execution, sha);
+      await assertAffectedCombination(fixture, sha);
     },
     beforeRetryPush: () => advanceOriginFromAnotherWriter(origin),
   });

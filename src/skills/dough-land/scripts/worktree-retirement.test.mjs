@@ -7,7 +7,6 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   authorizedRemote,
-  createCleanTrunkFixture,
   exec,
   git,
   lsRemoteSha,
@@ -15,6 +14,8 @@ import {
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { runRetirementCommand } from "../../dough-story-refinement/scripts/dough-land-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { trunkWithOneUnpublishedIncrement } from "../../dough-execute-plan/scripts/publication-clean-trunk-fixtures.mjs";
 
 const command = fileURLToPath(
   new URL("./worktree-retirement.mjs", import.meta.url),
@@ -39,7 +40,7 @@ async function retirementFixture(
   t,
   { landed = true, remote = "origin", target = "main" } = {},
 ) {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(fixture.cleanup);
   const remoteUrl = await authorizedRemote(fixture, remote, target);
   if (landed) {

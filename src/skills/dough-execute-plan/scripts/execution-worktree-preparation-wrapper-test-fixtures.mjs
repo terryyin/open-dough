@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
 import {
-  chmodSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -11,16 +10,18 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, sep } from "node:path";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   git,
   prepTraceRel,
   readTraces,
 } from "./execution-worktree-preparation-test-fixtures.mjs";
 
-const originOnly = "origin-only";
-const artifactName = "immutable-lib.jar";
+export const originOnly = "origin-only";
+export const artifactName = "immutable-lib.jar";
 
-function digestFile(path) {
+export function digestFile(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
@@ -30,7 +31,7 @@ function isInside(parent, child) {
   return path === root || path.startsWith(root + sep);
 }
 
-function artifactPath(cacheDir) {
+export function artifactPath(cacheDir) {
   return join(cacheDir, "repository", artifactName);
 }
 
@@ -38,10 +39,12 @@ function looksLikeNpmOrNix(command) {
   return /(?:^|[\s/\\])(?:npm|nix)(?:\s|$)/i.test(command ?? "");
 }
 
-function writeWrapper(origin, artifactCache) {
-  writeFileSync(
-    join(origin, "wrapper"),
-    `#!/bin/sh
+// The wrapper project's own files, byte for byte: an executable `wrapper`
+// whose baked artifact cache default is `artifactCache`, and either the
+// checked-in convention naming it or, with `missingConvention`, only a decoy
+// build file.
+function wrapperProject(artifactCache, { missingConvention }) {
+  const wrapper = `#!/bin/sh
 set -eu
 # Setup: ./wrapper prepare
 # Command: ./wrapper prove
@@ -73,21 +76,21 @@ case "\${1:-}" in
     exit 1
     ;;
 esac
-`,
-  );
-  chmodSync(join(origin, "wrapper"), 0o755);
-}
-
-function writeCheckedInConvention(origin) {
-  writeFileSync(join(origin, ".gitignore"), `target/\n${prepTraceRel}\n`);
-  writeFileSync(
-    join(origin, "CONTRIBUTING.md"),
-    [
+`;
+  if (missingConvention)
+    return {
+      wrapper,
+      "pom.xml": "<project><!-- decoy; not a recognizer input --></project>\n",
+    };
+  return {
+    wrapper,
+    ".gitignore": `target/\n${prepTraceRel}\n`,
+    "CONTRIBUTING.md": [
       "Locked setup: `./wrapper prepare`",
       "Applicable command: `./wrapper prove`",
       "",
     ].join("\n"),
-  );
+  };
 }
 
 export function observeWrapperPreparation(fixture, result) {
@@ -122,7 +125,8 @@ export function observeWrapperPreparation(fixture, result) {
   };
 }
 
-// Disposable wrapper-driven fixture: sibling worktree, CONTRIBUTING names
+// Disposable wrapper-driven fixture: the declared project's integration
+// checkout as the originating checkout, a sibling worktree, CONTRIBUTING names
 // `./wrapper prepare` / `./wrapper prove`, machine-level artifact cache
 // outside origin and execution, generated output under target/.
 export async function createWrapperDrivenFixture({
@@ -132,7 +136,6 @@ export async function createWrapperDrivenFixture({
   const fixture = realpathSync(
     directory ?? mkdtempSync(join(tmpdir(), "execution-worktree-wrapper-")),
   );
-  const origin = join(fixture, "origin");
   const execution = join(fixture, "execution");
   const artifactCache = join(fixture, "artifact-cache");
   const tracePath = join(fixture, "prep-trace.jsonl");
@@ -142,30 +145,25 @@ export async function createWrapperDrivenFixture({
     ARTIFACT_CACHE: artifactCache,
   };
 
-  mkdirSync(origin);
   mkdirSync(join(artifactCache, "repository"), { recursive: true });
   writeFileSync(artifactPath(artifactCache), "seeded-artifact-v1\n");
   const cacheDigest = digestFile(artifactPath(artifactCache));
 
-  await git(origin, "init", "-b", "main");
-  await git(origin, "config", "user.name", "Origin Checkout");
-  await git(origin, "config", "user.email", "origin@example.test");
-  writeWrapper(origin, artifactCache);
-  if (missingConvention) {
-    writeFileSync(
-      join(origin, "pom.xml"),
-      "<project><!-- decoy; not a recognizer input --></project>\n",
-    );
-  } else {
-    writeCheckedInConvention(origin);
-  }
-  await git(origin, "add", ".");
-  await git(origin, "commit", "-m", "wrapper fixture");
+  const { integration: origin } = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("project", {
+        backlog: undefined,
+        message: "wrapper fixture",
+        files: wrapperProject(artifactCache, { missingConvention }),
+        executables: ["wrapper"],
+      })
+      .please(),
+    { parent: fixture },
+  );
   writeFileSync(join(origin, "origin-marker"), `${fixture}\n`);
   mkdirSync(join(origin, "target"), { recursive: true });
   writeFileSync(join(origin, "target", originOnly), "origin-generated\n");
-  await git(origin, "branch", "exec/story");
-  await git(origin, "worktree", "add", execution, "exec/story");
+  await git(origin, "worktree", "add", "-b", "exec/story", execution);
 
   return {
     fixture,

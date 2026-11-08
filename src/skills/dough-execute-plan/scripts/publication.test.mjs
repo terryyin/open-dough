@@ -4,19 +4,16 @@
 // acceptance and the checkout's maintenance result are separate. Racing
 // retry beyond one existing recovery attempt is not this file.
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { promisify } from "node:util";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
   assertPublicationAgreement,
   assertRemoteCandidate,
   captureCheckout,
-  createCleanTrunkFixture,
   fetchAndAssertOriginMain,
   git,
   lsRemoteSha,
@@ -25,39 +22,32 @@ import {
   pushCandidate,
   revParse,
 } from "./publication-test-fixtures.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 
-const exec = promisify(execFile);
+// A trunk.txt trunk commit, which the planted human edit changes, and a
+// workspace on exec/story one unpublished increment.txt commit ahead.
+const trunkWithOneIncrement = makeMe.aRepository
+  .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
+
+// A published trunk.txt trunk, which the planted human edit changes. The
+// default checkout then commits a queue claim it has not pushed.
+const publishedTrunk = makeMe.aRepository
+  .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+  .please();
 
 async function createClaimFixture() {
-  const fixture = realpathSync(
-    mkdtempSync(join(tmpdir(), "publication-claim-")),
-  );
-  const origin = join(fixture, "remote.git");
-  const integration = join(fixture, "integration");
-
-  await exec("git", ["init", "--bare", "-b", "main", origin]);
-  await exec("git", ["init", "-b", "main", integration]);
-  await git(integration, "config", "user.name", "Integration Checkout");
-  await git(integration, "config", "user.email", "integration@example.test");
-  await git(integration, "remote", "add", "origin", origin);
-  writeFileSync(join(integration, "trunk.txt"), "base\n");
-  await git(integration, "add", "trunk.txt");
-  await git(integration, "commit", "-m", "base trunk commit");
-  await git(integration, "push", "origin", "main");
-  const trunkSha = await revParse(integration, "main");
-
+  const fixture = await materializeRepository(publishedTrunk);
+  const { integration } = fixture;
   writeFileSync(join(integration, "backlog-entry.txt"), "SEED-1: Taken\n");
   await git(integration, "add", "backlog-entry.txt");
   await git(integration, "commit", "-m", "Take queued work: SEED-1");
   const claimSha = await revParse(integration, "main");
-
-  return {
-    origin,
-    integration,
-    trunkSha,
-    claimSha,
-    cleanup: () => rmSync(fixture, { recursive: true, force: true }),
-  };
+  return { ...fixture, claimSha };
 }
 
 test("publishing a queue claim from the checkout that holds it accepts that SHA remotely without including a later human edit", async (t) => {
@@ -95,7 +85,7 @@ test("publishing a queue claim from the checkout that holds it accepts that SHA 
 
 test("rebasing an owned suffix onto an advanced remote publishes that SHA and leaves a clean default checkout unmoved", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneIncrement);
   t.after(cleanup);
 
   const disjointSha = await advanceOriginFromAnotherWriter(origin);
@@ -129,7 +119,7 @@ test("rebasing an owned suffix onto an advanced remote publishes that SHA and le
 
 test("a pending human edit and an unrelated local commit do not block or change publication from a separate workspace", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneIncrement);
   t.after(cleanup);
 
   writeFileSync(join(integration, "unrelated.txt"), "unrelated local work\n");
@@ -161,7 +151,7 @@ test("a pending human edit and an unrelated local commit do not block or change 
 
 test("one rejected push is recovered by rebasing the owned branch only, leaving the default checkout's human edit in place", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await materializeRepository(trunkWithOneIncrement);
   t.after(cleanup);
 
   await plantHumanEdit(integration);

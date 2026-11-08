@@ -12,6 +12,7 @@ import { ownedWorktreeOnly } from "../../dough-execute-plan/scripts/default-chec
 import {
   advanceOriginFromAnotherWriter,
   assertRemoteCandidate,
+  authorizedRemote,
   exec,
   git,
   lsRemoteSha,
@@ -22,6 +23,7 @@ import {
   assertRetiredFrom,
   landWorktree,
   planReviewedEdits,
+  reviewedSeedDraft,
 } from "./dough-land-test-fixtures.mjs";
 import {
   cloneFile,
@@ -30,7 +32,7 @@ import {
 } from "./preparation-publication-test-fixtures.mjs";
 
 test("Dough Land without a default checkout publishes, reports refresh not applicable, and retires the repository's last worktree from its retained Git directory", async (t) => {
-  const prepared = await createPreparationFixture("preparation-publication-");
+  const prepared = await createPreparationFixture(reviewedSeedDraft);
   t.after(prepared.cleanup);
   const { repository, workspace, branch } = await ownedWorktreeOnly(
     prepared,
@@ -72,7 +74,7 @@ test("Dough Land without a default checkout publishes, reports refresh not appli
 });
 
 test("without a default checkout, a conflicted Dough Land keeps the repository's only worktree and branch, and a rerun after resolution publishes once and retires it", async (t) => {
-  const prepared = await createPreparationFixture("preparation-publication-");
+  const prepared = await createPreparationFixture(reviewedSeedDraft);
   t.after(prepared.cleanup);
   const { origin } = prepared;
   const { repository, workspace, branch } = await ownedWorktreeOnly(
@@ -139,19 +141,17 @@ test("without a default checkout, a conflicted Dough Land keeps the repository's
 });
 
 test("Dough Land publishes to a named non-default remote and branch, refreshes a default checkout on that branch, and retires against that target", async (t) => {
+  const prepared = await createPreparationFixture(reviewedSeedDraft);
   const {
-    fixture,
     origin,
     integration,
     preparation,
     preparationBranch,
     trunkSha,
     cleanup,
-  } = await createPreparationFixture("preparation-publication-");
+  } = prepared;
   t.after(cleanup);
-  const upstream = join(fixture, "upstream.git");
-  await exec("git", ["init", "-q", "--bare", "-b", "trunk", upstream]);
-  await git(integration, "remote", "add", "upstream", upstream);
+  const upstream = await authorizedRemote(prepared, "upstream", "trunk");
   await git(
     integration,
     "push",

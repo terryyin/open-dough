@@ -1,54 +1,20 @@
-// The clean-trunk publication fixture and the authorized remotes its
+// The publication family's default repository and the authorized remotes its
 // checkouts know.
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { createBareFixtureRemote } from "./bare-remote-test-fixtures.mjs";
-import { exec, git, revParse } from "./publication-git.mjs";
+import { git } from "./publication-git.mjs";
 
-// Builds a clean-trunk publication fixture: a disposable repository
-// whose primary checkout is clean `main` at the same SHA as `origin/main`
-// (a local bare repo), plus an execution worktree whose unpublished suffix
-// is already based on that trunk.
-export async function createCleanTrunkFixture() {
-  const fixture = realpathSync(mkdtempSync(join(tmpdir(), "publication-")));
-  const origin = join(fixture, "remote.git");
-  const integration = join(fixture, "integration");
-  const execution = join(fixture, "execution");
-
-  await createBareFixtureRemote(origin);
-
-  await exec("git", ["init", "-b", "main", integration]);
-  await git(integration, "config", "user.name", "Integration Checkout");
-  await git(integration, "config", "user.email", "integration@example.test");
-  await git(integration, "remote", "add", "origin", origin);
-  writeFileSync(join(integration, "trunk.txt"), "base\n");
-  await git(integration, "add", "trunk.txt");
-  await git(integration, "commit", "-m", "base trunk commit");
-  await git(integration, "push", "origin", "main");
-
-  await git(integration, "branch", "exec/story");
-  await git(integration, "worktree", "add", execution, "exec/story");
-  await git(execution, "config", "user.name", "Execution Worktree");
-  await git(execution, "config", "user.email", "execution@example.test");
-
-  writeFileSync(join(execution, "increment.txt"), "increment\n");
-  await git(execution, "add", "increment.txt");
-  await git(execution, "commit", "-m", "verified increment");
-
-  const trunkSha = await revParse(integration, "main");
-  const candidateSha = await revParse(execution, "exec/story");
-
-  return {
-    fixture,
-    origin,
-    integration,
-    execution,
-    trunkSha,
-    candidateSha,
-    cleanup: () => rmSync(fixture, { recursive: true, force: true }),
-  };
-}
+// The publication family's default repository: the default MakeMe trunk on
+// `main`, and an `exec/story` workspace one unpublished commit ahead that
+// adds one file. A case that reads a trunk or increment fact declares its own.
+export const trunkWithOneUnpublishedIncrement = makeMe.aRepository
+  .withRevision("trunk")
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.md": "An unpublished increment.\n" },
+  })
+  .please();
 
 // The URL of `remote`: origin, or a new empty bare repository on `branch` the
 // fixture's checkouts know by that name.
