@@ -385,3 +385,12 @@ Reported: slice 3 — "the release 0.1.11 appears after inspection step still ca
 Story clause: "Remove `release-fixture.bash`'s release-writing builders once no consumer needs them."
 Disposition: proved by slice 4: tests/pin-and-inspect.sh states release 0.1.11 through release-source.mjs --add; stating it as 0.1.9 fails at pin-and-inspect.sh:232; git grep finds write_candidate_payload and tag_release only in dough-adr-awareness-delivery-to-use.sh
 Commitment: 24
+## Execution complete
+
+Product advice: no change. The release sources now state their releases at
+each call site or in `tests/support/release-sources.mjs`, and the whole local
+`npm test` passed quietly before landing (2026-11-08, AC power, load 12–34).
+Two limits remain for later judgment, not corrections: the done-catalog proof
+observes which identity the backlog holds but not its list state, and a
+SIGKILL between a machine JSON lock's `mkdir` and its owner record still
+leaves an ownerless lock.
