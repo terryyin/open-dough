@@ -1,5 +1,6 @@
 // Existing record retention owns reporting continuity; no history lifetime is extended.
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { launchStoreFile } from "../../tests/support/launchStore.ts";
 import path from "node:path";
 import { test, expect, stored } from "../../tests/support/codexStart.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
@@ -187,17 +188,11 @@ test("an original kept bound launch first captures and retries after its actual 
       "for-each-ref",
       "--format=%(refname) %(objectname)",
     );
-    const beforeExpired = readFileSync(
-      path.join(receiver.home, ".open-dough/dashboard/agent-launches.json"),
-      "utf8",
-    );
+    const beforeExpired = readFileSync(launchStoreFile(receiver.home), "utf8");
     expect((await reportingChild(input.retry, origin.machine)).ok).toBe(false);
-    expect(
-      readFileSync(
-        path.join(receiver.home, ".open-dough/dashboard/agent-launches.json"),
-        "utf8",
-      ),
-    ).toBe(beforeExpired);
+    expect(readFileSync(launchStoreFile(receiver.home), "utf8")).toBe(
+      beforeExpired,
+    );
     expect(
       git(repository, "for-each-ref", "--format=%(refname) %(objectname)"),
     ).toBe(beforeRefusal);

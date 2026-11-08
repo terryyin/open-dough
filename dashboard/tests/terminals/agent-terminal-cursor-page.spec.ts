@@ -2,8 +2,7 @@
 // terminal shows that same turn still working. Session switch closes the
 // same socket; this page has one Cursor session, so Close is the control
 // the developer uses here.
-import path from "node:path";
-import { readFileSync } from "node:fs";
+import { keptLaunchRecords } from "../support/launchStore.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
@@ -16,14 +15,8 @@ import { processRunning } from "../support/processGroup.ts";
 const instruction = "keep this turn running";
 
 function keptRecord(home: string): LaunchRecord {
-  const kept = JSON.parse(
-    readFileSync(
-      path.join(home, ".open-dough", "dashboard", "agent-launches.json"),
-      "utf8",
-    ),
-  ) as Record<string, LaunchRecord[]>;
-  const [record] = kept["open-dough"] ?? [];
-  if (record?.session.host !== "cursor") {
+  const [record] = keptLaunchRecords(home);
+  if (!record || !("session" in record) || record.session.host !== "cursor") {
     throw new Error("The recorded session is not Cursor.");
   }
   return record;

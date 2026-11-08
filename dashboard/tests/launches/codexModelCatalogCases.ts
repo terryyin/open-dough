@@ -1,7 +1,7 @@
 // Catalog interaction cases registered by agent-launch-codex-model.spec.ts.
 // None starts installed work, so each reads the worker's launch journey.
 import { existsSync } from "node:fs";
-import path from "node:path";
+import { launchStoreFile } from "../support/launchStore.ts";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { parts } from "../dashboardPage.ts";
@@ -103,9 +103,7 @@ test("a vanished explicit model is explained; deliberate default and former dyna
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect
     .poll(() =>
-      existsSync(
-        path.join(dashboard.home, ".open-dough/dashboard/agent-launches.json"),
-      )
+      existsSync(launchStoreFile(dashboard.home))
         ? stored(dashboard.home)[0]?.firstInput?.state
         : undefined,
     )

@@ -11,8 +11,8 @@ import {
   passive,
   daemonStarts,
 } from "../support/codexObservation.ts";
-import { machineHome, storeFile } from "../machineLaunchRecords.ts";
-import { keepLaunchStore } from "../support/launchStore.ts";
+import { machineHome } from "../machineLaunchRecords.ts";
+import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
 import { machineSessions } from "../agentLaunchBoundary.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 
@@ -32,7 +32,10 @@ test("adding an initially unconfigured retained Codex project prepares its passi
       workspace: fixture.checkout,
     });
     keepLaunchStore(machineHome(fixture.machine), { "sample-app": [record] });
-    const bytes = readFileSync(storeFile(fixture.machine), "utf8");
+    const bytes = readFileSync(
+      launchStoreFile(machineHome(fixture.machine)),
+      "utf8",
+    );
     observed(native, "retained-sample", { type: "notLoaded" }, "completed");
     const server = await fixture.start("preview", undefined, native);
     await page.goto(server.baseURL);
@@ -61,7 +64,9 @@ test("adding an initially unconfigured retained Codex project prepares its passi
     await expect(recent).toContainText("Ready for review", { timeout: 5_000 });
     expect(daemonStarts(native)).toHaveLength(1);
     passive(native.calls);
-    expect(readFileSync(storeFile(fixture.machine), "utf8")).toBe(bytes);
+    expect(
+      readFileSync(launchStoreFile(machineHome(fixture.machine)), "utf8"),
+    ).toBe(bytes);
   } finally {
     await fixture.close();
     await native.close();

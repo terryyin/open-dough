@@ -6,6 +6,8 @@
 // claim, and the offer goes.
 
 import { readFileSync, realpathSync } from "node:fs";
+import { keptLaunchRecords } from "../support/launchStore.ts";
+import { machineHome } from "../machineLaunchRecords.ts";
 import path from "node:path";
 import { keptStarts, launch, launchRequest } from "../agentLaunchBoundary.ts";
 import { expect } from "../dashboardTest.ts";
@@ -78,16 +80,10 @@ test("a Taken card offers Start with the words while this machine keeps a start 
   );
   expect(claims).toHaveLength(1);
   // The record keeps the start; the kept start is removed.
-  const kept = JSON.parse(
-    readFileSync(
-      path.join(
-        origin.machine,
-        "home/.open-dough/dashboard/agent-launches.json",
-      ),
-      "utf8",
-    ),
-  ) as Record<string, { start?: { workspace: string } }[]>;
-  expect(kept["open-dough"]?.[0]?.start?.workspace).toBe(workspace);
+  const [record] = keptLaunchRecords(machineHome(origin.machine));
+  if (record && !("session" in record))
+    throw new Error("Expected a kept launch");
+  expect(record?.start?.workspace).toBe(workspace);
   const starts = JSON.parse(
     readFileSync(
       path.join(

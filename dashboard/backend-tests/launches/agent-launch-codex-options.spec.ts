@@ -1,6 +1,6 @@
 // Selected-host defaults and admission are proven before native creation.
 import { readFileSync, realpathSync } from "node:fs";
-import path from "node:path";
+import { launchStoreFile } from "../../tests/support/launchStore.ts";
 import { installRefinementSkill } from "../../tests/launchStoryCardPage.ts";
 import { test, expect, codexSkill } from "../../tests/support/codexLaunch.ts";
 import {
@@ -53,12 +53,7 @@ test("missing Codex options allow defaults, selected options/model are refused b
     native.calls.filter((call) => call.method === "turn/start"),
   ).toHaveLength(1);
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
-  const recordFile = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
+  const recordFile = launchStoreFile(dashboard.home);
   const before = readFileSync(recordFile, "utf8");
   const starts = daemonStarts(native);
   const observedFrom = native.calls.length;

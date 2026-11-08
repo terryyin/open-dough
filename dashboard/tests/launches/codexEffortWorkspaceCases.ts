@@ -2,6 +2,7 @@
 // their configured model in the actual workspace, and workspace confirmation
 // keeps the chosen model and effort.
 import { test, expect } from "../support/codexStart.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expectAdHocReportingInput } from "../support/reportingInputAssertions.ts";
 
@@ -68,7 +69,7 @@ test("effort-only ad hoc dialog uses the configured model while omitting model o
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect
     .poll(() =>
-      existsSync(`${dashboard.home}/.open-dough/dashboard/agent-launches.json`)
+      existsSync(launchStoreFile(dashboard.home))
         ? stored(dashboard.home)[0]?.firstInput?.state
         : undefined,
     )
@@ -138,9 +139,7 @@ test("workspace confirmation keeps model and effort through Back and Continue", 
   await expect
     .poll(
       () =>
-        existsSync(
-          `${dashboard.home}/.open-dough/dashboard/agent-launches.json`,
-        )
+        existsSync(launchStoreFile(dashboard.home))
           ? stored(dashboard.home)[0]?.firstInput?.state
           : undefined,
       { timeout: 30_000 },

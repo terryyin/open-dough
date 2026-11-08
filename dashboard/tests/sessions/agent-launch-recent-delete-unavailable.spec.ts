@@ -1,4 +1,5 @@
 import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 // Delete record… on an entry that reads Session unavailable, on its active
 // card or in Recently done after its story completes
 // (./agent-launch-recent-delete.spec.ts covers State unknown and keyboard
@@ -9,7 +10,6 @@ import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // (./fixtures/fake-claude); the real one is never reached.
 
 import { readFileSync } from "node:fs";
-import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
 import {
   storyCardSessionOf,
@@ -73,12 +73,7 @@ test.describe("deleting an unavailable session's record from its current home", 
     const becomesKnown = page.locator(".board").getByRole("article", {
       name: standaloneSessionName("Refinement", notRefinedStory),
     });
-    const recordFile = path.join(
-      dashboard.home,
-      ".open-dough",
-      "dashboard",
-      "agent-launches.json",
-    );
+    const recordFile = launchStoreFile(dashboard.home);
     const stored = () => readFileSync(recordFile, "utf8");
 
     for (const entry of [unavailable, becomesKnown]) {

@@ -19,8 +19,11 @@ import {
   launchRequest,
   runningStarts,
 } from "../../tests/agentLaunchBoundary.ts";
-import { machineHome, storeFile } from "../../tests/machineLaunchRecords.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import { machineHome } from "../../tests/machineLaunchRecords.ts";
+import {
+  keepLaunchStore,
+  launchStoreFile,
+} from "../../tests/support/launchStore.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
   queuedIdentity,
@@ -151,9 +154,9 @@ ${original.slice(offset)}`,
       expect(await runningStarts(dashboard)).toEqual([]);
       expect(await keptStarts(dashboard)).toEqual([]);
       expect(await origin.takenProfiles()).toEqual([]);
-      expect(readFileSync(storeFile(origin.machine), "utf8")).toBe(
-        expectedRecords,
-      );
+      expect(
+        readFileSync(launchStoreFile(machineHome(origin.machine)), "utf8"),
+      ).toBe(expectedRecords);
     },
   };
 }

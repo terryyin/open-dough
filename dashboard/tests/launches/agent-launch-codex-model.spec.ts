@@ -4,6 +4,7 @@
 // dashboard records. Refinement's selection survives its retained start in
 // agent-launch-preparation-codex.spec.ts.
 import { existsSync, readFileSync } from "node:fs";
+import { launchStoreFile } from "../support/launchStore.ts";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import { test, expect, stored } from "../support/codexStart.ts";
@@ -45,7 +46,7 @@ async function expectLunaCreation(
   await expect
     .poll(
       () =>
-        existsSync(path.join(home, ".open-dough/dashboard/agent-launches.json"))
+        existsSync(launchStoreFile(home))
           ? stored(home)[0]?.firstInput?.state
           : undefined,
       { timeout: 30_000 },

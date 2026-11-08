@@ -12,6 +12,7 @@
 // after Refresh a later edit is what Since the review lists.
 
 import { existsSync, writeFileSync } from "node:fs";
+import { launchStoreFile } from "../support/launchStore.ts";
 import path from "node:path";
 import { storyReviewMarkEndpoint } from "../../src/storyReviewContract.ts";
 import { parts } from "../dashboardPage.ts";
@@ -43,11 +44,7 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
   commitAll(workspace, "first slice");
   writeFileSync(path.join(workspace, "notes.md"), "notes\n");
   // This machine kept no launch record for the story.
-  expect(
-    existsSync(
-      path.join(dashboard.home, ".open-dough/dashboard/agent-launches.json"),
-    ),
-  ).toBe(false);
+  expect(existsSync(launchStoreFile(dashboard.home))).toBe(false);
 
   await openBacklog(page, origin);
   const card = parts(page).taken.getByRole("article", { name: "Story A" });

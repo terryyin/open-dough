@@ -1,4 +1,5 @@
 import type { submitCompletion } from "../../server/completionReporting.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 // Real preview/launch/installed report child/store/polling/rendering. Only native transport is fake.
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -58,12 +59,7 @@ test("installed attention report stays open, durable and readable through column
   await expect
     .poll(
       () =>
-        existsSync(
-          path.join(
-            dashboard.home,
-            ".open-dough/dashboard/agent-launches.json",
-          ),
-        )
+        existsSync(launchStoreFile(dashboard.home))
           ? stored(dashboard.home).length
           : 0,
       { timeout: 30_000 },

@@ -1,5 +1,9 @@
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import {
+  keptLaunchRecords,
+  launchStoreFile,
+} from "../../tests/support/launchStore.ts";
+import {
   acceptanceSchema,
   verifiedAnswerSchema,
 } from "../../src/launchOutcome.ts";
@@ -12,7 +16,7 @@ import { existsSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { storedRecords } from "../../tests/machineLaunchRecords.ts";
+import { machineHome } from "../../tests/machineLaunchRecords.ts";
 import {
   accept,
   recordsOf,
@@ -123,11 +127,7 @@ for (const quiet of [false, true])
             (attempt) => attempt.id === accepted.attempt.id,
           )?.completion?.receipt,
         ).toBe(receipt.receipt);
-        expect(
-          existsSync(
-            path.join(server.home, ".open-dough/dashboard/agent-launches.json"),
-          ),
-        ).toBe(false);
+        expect(existsSync(launchStoreFile(server))).toBe(false);
         if (recheck) server.claudeListingFails(true);
         server.releaseHeldClaude();
         const outcome = await settledOutcome(server, accepted.attempt.id);
@@ -241,7 +241,9 @@ test("binding preserves a quiet completion carried by a legacy record without a 
       "open-dough",
       record,
     ]);
-    const [bound] = storedRecords(machine) as LaunchRecord[];
+    const [bound] = keptLaunchRecords(machineHome(machine));
+    if (bound && !("session" in bound))
+      throw new Error("Expected a bound launch");
     expect(bound?.completion).toEqual(completion);
     expect(bound?.doneAt).toBe(completion.receivedAt);
   } finally {

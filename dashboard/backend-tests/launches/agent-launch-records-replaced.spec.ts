@@ -8,6 +8,10 @@
 // where records are kept is ./agent-launch-records.spec.ts.
 
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import {
+  keepLaunchStoreText,
+  launchStoreFile,
+} from "../../tests/support/launchStore.ts";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -27,11 +31,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
-import {
-  daysAgo,
-  seedStore,
-  storeFile,
-} from "../../tests/machineLaunchRecords.ts";
+import { daysAgo, machineHome } from "../../tests/machineLaunchRecords.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 
 test.describe("launch records after the store a server read is replaced", () => {
@@ -54,8 +54,8 @@ test.describe("launch records after the store a server read is replaced", () => 
 
   // Seeds the store with `text`, settled so a server holds what it parses.
   function seedSettled(text: string): void {
-    seedStore(machine, text);
-    settleFile(storeFile(machine));
+    keepLaunchStoreText(machineHome(machine), text);
+    settleFile(launchStoreFile(machineHome(machine)));
   }
 
   test.beforeEach(() => {
@@ -112,13 +112,15 @@ test.describe("launch records after the store a server read is replaced", () => 
     expect(await recordsOf(server, "open-dough")).toHaveLength(1);
 
     const unreadable = `x${good.slice(1)}`;
-    replaceFileKeepingTimes(storeFile(machine), unreadable);
+    replaceFileKeepingTimes(launchStoreFile(machineHome(machine)), unreadable);
     expect(await recordsOf(server, "open-dough")).toEqual([]);
     expect(await recordsOf(server, "open-dough")).toEqual([]);
-    expect(readFileSync(storeFile(machine), "utf8")).toBe(unreadable);
+    expect(readFileSync(launchStoreFile(machineHome(machine)), "utf8")).toBe(
+      unreadable,
+    );
     expect(
-      readdirSync(path.dirname(storeFile(machine))).filter((name) =>
-        name.includes(".unreadable"),
+      readdirSync(path.dirname(launchStoreFile(machineHome(machine)))).filter(
+        (name) => name.includes(".unreadable"),
       ),
     ).toEqual([]);
   });

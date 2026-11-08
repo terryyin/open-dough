@@ -20,12 +20,11 @@ import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { identity, launch, title } from "../../tests/agentLaunchBoundary.ts";
+import { daysAgo, machineHome } from "../../tests/machineLaunchRecords.ts";
 import {
-  daysAgo,
-  machineHome,
-  storedRecords,
-} from "../../tests/machineLaunchRecords.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+  keepLaunchStore,
+  keptLaunchRecords,
+} from "../../tests/support/launchStore.ts";
 import { distinctStoryRequest } from "../../tests/openStorySessionSetup.ts";
 import {
   startDashboardServer,
@@ -135,10 +134,10 @@ test.describe("a scoped record dropped by retention expiry", () => {
     );
     expect(launched.status).toBe(200);
 
-    const storedIds = storedRecords(machine).map(
-      (entry) =>
-        (entry as { session: { sessionId: string } }).session.sessionId,
-    );
+    const storedIds = keptLaunchRecords(machineHome(machine)).map((entry) => {
+      if (!("session" in entry)) throw new Error("Expected a kept session");
+      return entry.session.sessionId;
+    });
     expect(storedIds).not.toContain(expiredId);
     expect(storedIds).toContain(recentlyDoneId);
     expect(storedIds).toContain(unclosedId);

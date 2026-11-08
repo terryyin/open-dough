@@ -3,6 +3,7 @@
 // directory survives shutdown so assertions read the resulting durable record.
 
 import { mkdtempSync, rmSync } from "node:fs";
+import { keptLaunchRecords } from "../../tests/support/launchStore.ts";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -12,8 +13,7 @@ import {
   title,
 } from "../../tests/agentLaunchBoundary.ts";
 import { launched } from "../../tests/agentTerminalBoundary.ts";
-import { storedRecords } from "../../tests/machineLaunchRecords.ts";
-import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { machineHome } from "../../tests/machineLaunchRecords.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
 
 const launchName = `Open Dough · Execution · ${title}`;
@@ -40,7 +40,10 @@ test("a server closed while manual Done waits for a working session retains the 
     // Own the HTTP result even if shutdown ends the connection first.
     const marked = marking.catch(() => undefined);
     await expect
-      .poll(() => (storedRecords(machine) as LaunchRecord[])[0]?.doneAt)
+      .poll(() => {
+        const [record] = keptLaunchRecords(machineHome(machine));
+        return record && "session" in record ? record.doneAt : undefined;
+      })
       .toEqual(expect.any(String));
     // Two rename listing reads, after the state read, establish that the
     // wait has observed working and is polling rather than still starting.
@@ -55,7 +58,7 @@ test("a server closed while manual Done waits for a working session retains the 
     await server.close();
     closed = true;
     await marked;
-    const [record] = storedRecords(machine) as LaunchRecord[];
+    const [record] = keptLaunchRecords(machineHome(machine));
     expect(record).toMatchObject({
       doneAt: expect.any(String),
       doneProblem:
@@ -96,7 +99,7 @@ test("a server closed before the private composer abandons manual rename without
     await server.close();
     closed = true;
     await marked;
-    expect((storedRecords(machine) as LaunchRecord[])[0]).toMatchObject({
+    expect(keptLaunchRecords(machineHome(machine))[0]).toMatchObject({
       doneAt: expect.any(String),
       doneProblem:
         "Local done mark retained. Claude Code rename failed: The terminal attachment could not be opened.",

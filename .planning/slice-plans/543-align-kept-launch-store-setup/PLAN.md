@@ -12,8 +12,10 @@ Story Branch Mode in `.worktrees/align-kept-launch-store-setup` on
 `codex/align-kept-launch-store-setup`, from preparation commit `3a72f075b`.
 The Take is `f72f6ccabed9cbfb4d5847289fa3ab84d55fb4b9`, owned by ruuf-chan.
 The authorized target is the story branch on origin, with origin/main for
-integration. The coordinator is `codex-plan-543-20261109` and its branch
-CI observer is `/tmp/dough-ci-501/watch-DTZBqS`.
+integration. The coordinator is `codex-plan-543-20261109` and its resumed
+branch CI observer is `/tmp/dough-ci-501/watch-BGiHPc`. Slice 1 was
+accepted at `a55bb449feff41b17ea274bc01f13385d07e66ec` and its branch
+CI passed in GitHub Actions run 42532783994.
 
 ## Provenance and findings
 
@@ -185,8 +187,8 @@ outside the spec. Independent refactoring left the code and proof intact.
 
 ### 2. One store vocabulary reads and writes the kept launch store
 Type: Structure
-Status: planned
-Proof: Every spec the consumer trace lists for `storeFile`, `seedStore`, `storedRecords` and the 26 converted readers passes with unchanged assertions; `npm run typecheck:dashboard`; a search of `dashboard/tests`, `dashboard/backend-tests` and `dashboard/frontend-tests` finds `agent-launches.json` only in `support/launchStore.ts` and the excluded sibling helpers, and no import of the deleted forwarders.
+Status: done
+Proof: Every spec the consumer trace lists for `storeFile`, `seedStore`, `storedRecords` and the 26 converted readers passes with unchanged assertions; `npm run typecheck:dashboard`; a search of `dashboard/tests`, `dashboard/backend-tests` and `dashboard/frontend-tests` finds constructed `agent-launches.json` paths only in `support/launchStore.ts` and the excluded sibling helpers, and no import of the deleted forwarders. Literal filenames in independent directory-inventory assertions stay as written.
 
 Add `keptLaunchRecords` to the owner, delete the three forwarders and
 convert their callers (`agent-launch-records*.spec.ts`,
@@ -225,6 +227,15 @@ through the owner under the decision above:
 Only the store path or read changes in sibling-family specs; their setup
 stays for their stories. Delete a local `recordFile`/`storeFile` helper
 once it only restates `launchStoreFile`.
+
+
+Accepted proof: the traced selection ran 118 Chromium cases in 36 specs
+with two workers on AC under the maintained macOS guard. All passed, as
+did dashboard typechecking. The selection includes the two indirect
+consumers, agent-launch-uncertain-continuation and production-watcher-updates.
+The original inventory assertions retain the literal filename. Exact
+bytes, malformed-store preservation and quarantine, legacy completion,
+and launch deletion were exercised by the selected cases.
 
 ### 3. Final report admission keeps records for the hosts it exercises
 Type: Behavior

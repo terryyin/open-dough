@@ -9,15 +9,15 @@ It had no inherited conversation and was instructed to read no project files.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | The dashboard tests use one machine launch store vocabulary, with one name per operation. | slice 2 | |
-| 2 | Harness writes of the machine launch store go through one harness owner. | slice 2 | |
-| 3 | Harness reads of the machine launch store go through that same owner. Tests reading the kept store back use the owner. | slice 2 | |
-| 4 | Kept-store reads exclude test-side construction of the store file path. | slice 2 | |
-| 5 | Remove the forwarders that give the machine launch store a second vocabulary. | slice 2 | |
-| 6 | Exact store text stays explicit at the call site. | slice 2 | |
-| 7 | Malformed store text stays explicit at the call site. | slice 2 | |
-| 8 | Legacy store text stays explicit at the call site. | slice 2 | |
-| 9 | Sibling stories’ helpers retain their own setup. | slice 2 | |
+| 1 | The dashboard tests use one machine launch store vocabulary, with one name per operation. | slice 2 | observed: launchStore.ts owns the whole-store and project-record reads, exact-text write and file path; all 36 traced specs passed. |
+| 2 | Harness writes of the machine launch store go through one harness owner. | slice 2 | observed: Launch-store writes use keepLaunchStore, keepLaunchRecords or keepLaunchStoreText in the owning harness; the records and replacement specs exercised typed and exact text writes. |
+| 3 | Harness reads of the machine launch store go through that same owner. Tests reading the kept store back use the owner. | slice 2 | observed: keptLaunchStore and keptLaunchRecords in launchStore.ts supply the parsed reads; the focused restore, delete and completion specs observed kept records after dashboard operations. |
+| 4 | Kept-store reads exclude test-side construction of the store file path. | slice 2 | observed: All traced in-scope path consumers use launchStoreFile; the two literal filenames in host identity and project removal are independently asserted directory contents. |
+| 5 | Remove the forwarders that give the machine launch store a second vocabulary. | slice 2 | observed: machineLaunchRecords.ts retains home and clock fixtures; dashboard typecheck and reference search found no callers of storeFile, seedStore or storedRecords. |
+| 6 | Exact store text stays explicit at the call site. | slice 2 | observed: agent-launch-records and project removal keep independent exact-byte assertions; explicit text setup uses keepLaunchStoreText. |
+| 7 | Malformed store text stays explicit at the call site. | slice 2 | observed: agent-launch-records, records-replaced and creation-gates keep malformed bytes at the call site and check preservation or quarantine. |
+| 8 | Legacy store text stays explicit at the call site. | slice 2 | observed: agent-completion-binding preserves the explicit legacy record and observes the same quiet completion and done time. |
+| 9 | Sibling stories’ helpers retain their own setup. | slice 2 | observed: codexLaunch, cursorStart, cursorSessionRecovery, completionRecovery, keptCursorTurn and fake Cursor setup are unchanged; converted indirect consumers ran in the same proof selection. |
 | 10 | The terminal header portrait case keeps a launch the dashboard can record. The record belongs to the story and names its agent. A story execution record is one permitted journey example. | slice 1 | observed: agent-terminal-avatar.spec.ts, stanly and ruuf execution steps keep the story, agent and original Claude session; attached terminal shows execution rows and the expected cartoon or its absence. |
 | 11 | A story refinement record naming its agent is the other permitted terminal header portrait journey example. The source says execution or refinement. | slice 1 | observed: agent-terminal-avatar.spec.ts, Yui refinement step keeps a refinement of the Taken story, attaches its Claude session, and observes Yui’s atlas tile and the refinement rows. |
 | 12 | Exclude an ad hoc record given a story’s start in the portrait case. | slice 1 | observed: agent-terminal-avatar.spec.ts, both start steps use the executing builder. The separate ad hoc step keeps no agent or story start and observes no portrait. |

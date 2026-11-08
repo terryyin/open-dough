@@ -1,6 +1,7 @@
 // One published-main origin, host pair and serial watcher chain. The tests
 // advance it explicitly; setup never supplies a replacement or launch outcome.
 import { expect, test } from "../support/pageTest.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 import { readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { APIRequestContext, Page } from "@playwright/test";
@@ -196,10 +197,7 @@ export function productionUpdateShutdown(journey: ProductionUpdateJourney) {
   }) => {
     const state = journey.started();
     const { fixture, watcher: running } = state;
-    const store = path.join(
-      fixture.home,
-      ".open-dough/dashboard/agent-launches.json",
-    );
+    const store = launchStoreFile(fixture.home);
     const stored = await readFile(store, "utf8");
     const storeIdentity = (await stat(store)).ino;
     const ordinal = (await journey.builds()).length + 1;

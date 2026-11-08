@@ -5,12 +5,12 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
 import { continueAttempt } from "../../tests/agentLaunchBoundary.ts";
+import { machineHome } from "../../tests/machineLaunchRecords.ts";
 import {
-  machineHome,
-  seedStore,
-  storeFile,
-} from "../../tests/machineLaunchRecords.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+  keepLaunchStore,
+  keepLaunchStoreText,
+  launchStoreFile,
+} from "../../tests/support/launchStore.ts";
 import { ownRecordContinuation } from "./ownRecordContinuation.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
@@ -133,7 +133,7 @@ test("Continue reads an own record again at admission after pre-acceptance", asy
     writeFileSync(hold, "hold");
     const pending = continueAttempt(server, proof.id);
     await expect.poll(() => existsSync(reached)).toBe(true);
-    seedStore(origin.machine, proof.records);
+    keepLaunchStoreText(machineHome(origin.machine), proof.records);
     rmSync(hold);
     const answer = JSON.parse((await pending).body) as {
       kind: string;
@@ -167,13 +167,15 @@ test("Continue with unreadable own records leaves both stores as read and starts
   try {
     const proof = ownRecordContinuation(server, origin, "execution", false);
     const unreadable = "{ unreadable launch records";
-    seedStore(origin.machine, unreadable);
+    keepLaunchStoreText(machineHome(origin.machine), unreadable);
     const answer = JSON.parse(
       (await continueAttempt(server, proof.id)).body,
     ) as { kind: string; reason: string };
     expect(answer).toMatchObject({ kind: "failed", reason: "unrecorded" });
     proof.unchanged();
-    expect(readFileSync(storeFile(origin.machine), "utf8")).toBe(unreadable);
+    expect(
+      readFileSync(launchStoreFile(machineHome(origin.machine)), "utf8"),
+    ).toBe(unreadable);
     await proof.nothingStarted(unreadable);
   } finally {
     await server.close();

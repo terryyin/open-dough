@@ -34,14 +34,13 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
+import { daysAgo, machineHome } from "../../tests/machineLaunchRecords.ts";
 import {
-  daysAgo,
-  machineHome,
-  seedStore,
-  storedRecords,
-  storeFile,
-} from "../../tests/machineLaunchRecords.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+  keepLaunchStore,
+  keepLaunchStoreText,
+  keptLaunchRecords,
+  launchStoreFile,
+} from "../../tests/support/launchStore.ts";
 import { launchWithStateSchema } from "../../src/agentLaunch.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 import { alertReading, attentionCount } from "../../src/sessionShown.ts";
@@ -130,11 +129,8 @@ test.describe("launch records kept on this machine", () => {
       return { session: record.session.sessionId, doneAt: record.doneAt };
     });
     expect(
-      storedRecords(machine).map((entry) => {
-        const record = entry as {
-          session: { sessionId: string };
-          doneAt?: string;
-        };
+      keptLaunchRecords(machineHome(machine)).map((record) => {
+        if (!("session" in record)) throw new Error("Expected a kept session");
         return { session: record.session.sessionId, doneAt: record.doneAt };
       }),
     ).toEqual(expected);
@@ -194,7 +190,7 @@ test.describe("launch records kept on this machine", () => {
       { ...unclosed, sessionState: { kind: "unavailable" } },
       { ...recentlyDone, sessionState: { kind: "unavailable" } },
     ]);
-    expect(storedRecords(machine)).toHaveLength(3);
+    expect(keptLaunchRecords(machineHome(machine))).toHaveLength(3);
 
     server.claudeScenario("launched");
     const { record } = JSON.parse(
@@ -202,7 +198,7 @@ test.describe("launch records kept on this machine", () => {
     ) as {
       record: { session: { sessionId: string } };
     };
-    expect(storedRecords(machine)).toEqual([
+    expect(keptLaunchRecords(machineHome(machine))).toEqual([
       unclosed,
       recentlyDone,
       expect.objectContaining({
@@ -215,11 +211,13 @@ test.describe("launch records kept on this machine", () => {
 
   test("answers no records from an unreadable store and leaves it until the next launch moves it aside, keeping every earlier copy", async () => {
     const unreadable = "{ not launch records";
-    seedStore(machine, unreadable);
+    keepLaunchStoreText(machineHome(machine), unreadable);
     const server = await serverOn("production");
 
     expect(await recordsOf(server, "open-dough")).toEqual([]);
-    expect(readFileSync(storeFile(machine), "utf8")).toBe(unreadable);
+    expect(readFileSync(launchStoreFile(machineHome(machine)), "utf8")).toBe(
+      unreadable,
+    );
 
     // Story starts refuse an unreadable store; an ad hoc launch still writes
     // and moves the unreadable copy aside.
@@ -229,17 +227,20 @@ test.describe("launch records kept on this machine", () => {
       record: unknown;
     };
     expect(await recordsOf(server, "open-dough")).toEqual([record]);
-    expect(readFileSync(`${storeFile(machine)}.unreadable`, "utf8")).toBe(
-      unreadable,
-    );
+    expect(
+      readFileSync(
+        `${launchStoreFile(machineHome(machine))}.unreadable`,
+        "utf8",
+      ),
+    ).toBe(unreadable);
     const unreadableAgain = "[ still not launch records";
-    seedStore(machine, unreadableAgain);
+    keepLaunchStoreText(machineHome(machine), unreadableAgain);
     const second = JSON.parse((await launch(server, adHoc)).body) as {
       record: unknown;
     };
     expect(await recordsOf(server, "open-dough")).toEqual([second.record]);
-    const dir = path.dirname(storeFile(machine));
-    const copyPrefix = `${path.basename(storeFile(machine))}.unreadable`;
+    const dir = path.dirname(launchStoreFile(machineHome(machine)));
+    const copyPrefix = `${path.basename(launchStoreFile(machineHome(machine)))}.unreadable`;
     const copies = readdirSync(dir)
       .filter((name) => name.startsWith(copyPrefix))
       .map((name) => readFileSync(path.join(dir, name), "utf8"));
