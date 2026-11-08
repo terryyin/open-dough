@@ -51,12 +51,10 @@ starts only after the pilot publishes `tests/support/makeMe.mjs` and
   callers read.
   [Test data architecture](../../../tests/README.md#test-data-architecture) ·
   [ADR 0002 §5](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)
-- **Share builders with plan 508.**
-  [Plan 508](../508-map-published-work-test-data/PLAN.md) converts published
-  work facts in overlapping tests. Before adding a builder for a backlog
-  entry, story state, or done record, check trunk for one that plan 508
-  landed. Extend it rather than adding a parallel one. If this plan lands
-  first, plan 508 reuses what it adds.
+- **Reuse published-work builders.** Compose the existing backlog entry,
+  story preparation, and done-record builders from
+  [MakeMe](../../../tests/support/makeMe.mjs). Extend those builders when a
+  repository description needs additional facts.
 - **Name shared histories.** About 100 dashboard specs observe the same
   worker-scoped launch or story-columns history. Those histories become named
   descriptions in `launchJourney.ts`, so the facts are readable there.

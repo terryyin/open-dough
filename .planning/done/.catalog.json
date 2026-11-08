@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_map-published-work-test-data.json",
+      "identity": "SEED-261#map-published-work-test-data",
+      "completedAt": "2026-11-08T05:39:33.887Z",
+      "blob": "6543d876294bee2e05b41b7eb2edb0179205e4cc"
+    },
+    {
       "fileName": "SEED-261_share-published-agent-profile-builders.json",
       "identity": "SEED-261#share-published-agent-profile-builders",
       "completedAt": "2026-11-08T01:16:39.832Z",
