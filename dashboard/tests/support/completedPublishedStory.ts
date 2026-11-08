@@ -9,6 +9,7 @@ import {
   agentNameOf,
   renderAgentProfile,
 } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import type { IntentCoverage } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
   publishCompletedStory,
   resolveStoryConflict,
@@ -54,7 +55,10 @@ export async function completedPublishedStory(
   // When the caller already committed `shared.txt` as lines("line") on the
   // claim parent (for example a planning-only start after a built baseline),
   // skip the usual initial shared commit so that parent stays unchanged.
-  options?: { readonly sharedAlreadyReady?: boolean },
+  options?: {
+    readonly sharedAlreadyReady?: boolean;
+    readonly intentCoverage?: IntentCoverage | undefined;
+  },
 ) {
   const ownConflict = variant === "own-conflict-extra";
   if (options?.sharedAlreadyReady !== true) {
@@ -180,6 +184,7 @@ export async function completedPublishedStory(
     mode,
     missingAgent: variant === "missing-agent",
     completionConflict: variant === "completion-conflict",
+    intentCoverage: options?.intentCoverage,
   });
   return { completion, agent: start.agent, workspace, branch };
 }

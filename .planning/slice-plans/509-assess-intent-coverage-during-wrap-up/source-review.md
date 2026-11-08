@@ -14,12 +14,12 @@ limits. Items 62–97 belong to the six key examples in order.
 | 1 | Wrap-up automatically runs targeted intent coverage for each completed feature story it closes. | slice 3 | |
 | 2 | Planned feature stories qualify. | slice 3 | |
 | 3 | Planless feature stories qualify. | slice 3 | |
-| 4 | The developer can later select the completed story in Recently done to read its result. | slice 2 | |
-| 5 | The developer can see what the check cost. | slice 2 | |
+| 4 | The developer can later select the completed story in Recently done to read its result. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — real CLI closes the story, Recently done selection opens its assessment in expanded Intent |
+| 5 | The developer can see what the check cost. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report includes each of the four cost entries |
 | 6 | The developer can do this without invoking the check separately. | slice 3 | |
-| 7 | The results show how the check performs on real stories. | slice 2 | |
-| 8 | The results show what the check costs on real stories. | slice 2 | |
-| 9 | The results inform a later decision about whether automatic use remains worthwhile. | slice 2 | |
+| 7 | The results show how the check performs on real stories. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts and dashboard/tests/intent/intent-story-coverage.spec.ts — Caught and Insufficient evidence outcomes remain visible on their completed stories |
+| 8 | The results show what the check costs on real stories. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — the done story exposes the recorded test runtime, effort, and elapsed time |
+| 9 | The results inform a later decision about whether automatic use remains worthwhile. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts and dashboard/tests/intent/intent-story-coverage.spec.ts — persisted outcomes and costs are readable together for later evaluation |
 | 10 | Wrap-up invokes the installed `dough-intent-coverage` skill. | slice 3 | |
 | 11 | Invocation occurs after execution completion is established. | slice 3 | |
 | 12 | Invocation occurs before the before-cleanup commit. | slice 3 | |
@@ -45,25 +45,25 @@ limits. Items 62–97 belong to the six key examples in order.
 | 32 | Wrap-up continues closure when invocation returns no report. | slice 3 | |
 | 33 | The check never blocks remaining cleanup decisions. | slice 3 | |
 | 34 | The check never delays remaining cleanup decisions. | slice 3 | |
-| 35 | Selecting a completed story from Recently done shows its stored result in Intent’s story summary. | slice 2 | |
-| 36 | The summary shows the outcome. | slice 2 | |
-| 37 | The summary shows the promise. | slice 2 | |
-| 38 | The summary shows the fault. | slice 2 | |
-| 39 | The summary shows the evidence. | slice 2 | |
-| 40 | The summary shows test runtime as recorded. | slice 2 | |
-| 41 | The summary shows human effort as recorded. | slice 2 | |
-| 42 | The summary shows agent effort as recorded. | slice 2 | |
-| 43 | The summary shows invocation-to-report elapsed time as recorded. | slice 2 | |
-| 44 | The summary preserves recorded units. | slice 2 | |
-| 45 | The summary preserves recorded measured labels. | slice 2 | |
-| 46 | The summary preserves recorded estimated labels. | slice 2 | |
-| 47 | The summary preserves recorded unavailable values. | slice 2 | |
-| 48 | A story without a result shows no assessment. | slice 2 | |
+| 35 | Selecting a completed story from Recently done shows its stored result in Intent’s story summary. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — expands the selected completed story's Intent summary and sees the saved report |
+| 36 | The summary shows the outcome. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report includes Outcome: Caught |
+| 37 | The summary shows the promise. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report includes the removed-file promise |
+| 38 | The summary shows the fault. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report includes the fault and its literal markup |
+| 39 | The summary shows the evidence. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report includes assertion failure and restored pass evidence |
+| 40 | The summary shows test runtime as recorded. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report includes the measured 2.1 s test runtime |
+| 41 | The summary shows human effort as recorded. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report includes human effort and its unavailable reason |
+| 42 | The summary shows agent effort as recorded. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report includes estimated agent effort and its basis |
+| 43 | The summary shows invocation-to-report elapsed time as recorded. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report includes measured invocation-to-report elapsed time |
+| 44 | The summary preserves recorded units. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report retains seconds and minutes |
+| 45 | The summary preserves recorded measured labels. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report retains the test runtime and elapsed measured labels |
+| 46 | The summary preserves recorded estimated labels. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report retains the agent effort estimated label |
+| 47 | The summary preserves recorded unavailable values. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts and dashboard/tests/intent/intent-story-coverage.spec.ts — the unavailable human effort and unavailable test runtime text survive |
+| 48 | A story without a result shows no assessment. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — expanded shallow completed story with no result has no heading |
 | 49 | Repeating wrap-up for the same story leaves one result. | slice 3 | |
 | 50 | Repeating `complete` leaves one result. | slice 1 | observed: tests/support/product-backlog-complete-intent-coverage.test.mjs — retry with a different result is refused and leaves the original bytes |
 | 51 | Wrap-up skips the check when the done record already holds a result. | slice 3 | |
 | 52 | The done record remains the durable published fact described by ADR 0008. | slice 1 | observed: tests/support/product-backlog-complete-intent-coverage.test.mjs — persisted record owns the report while the catalog row carries only its blob and metadata |
-| 53 | The dashboard reads the result from the done record the same way it reads the title. | slice 2 | |
+| 53 | The dashboard reads the result from the done record the same way it reads the title. | slice 2 | observed: dashboard/src/useIntentStoryLens.ts useDoneStory — the same done record supplies title and result through useDoneDetails |
 | 54 | Bounded retrospective corrections are excluded because they add no story promise to check. | slice 3 | |
 | 55 | Context-only instructions are excluded because they add no story promise to check. | slice 3 | |
 | 56 | Coverage assesses at most one promise per story. | slice 3 | |
@@ -75,30 +75,30 @@ limits. Items 62–97 belong to the six key examples in order.
 | 62 | A planned feature story has completed. | slice 3 | |
 | 63 | Its retrospective identified a weak assertion for its main promise. | slice 3 | |
 | 64 | Wrap-up checks that promise. | slice 3 | |
-| 65 | The check returns **Caught**. | slice 2 | |
-| 66 | The report records a 2.1 s measured test runtime. | slice 2 | |
-| 67 | The report records unavailable human effort. | slice 2 | |
-| 68 | The report records estimated agent effort. | slice 2 | |
-| 69 | The report records measured elapsed time. | slice 2 | |
-| 70 | The developer selects the story in Recently done. | slice 2 | |
-| 71 | The developer sees the same outcome. | slice 2 | |
-| 72 | The developer sees the same test runtime with its label. | slice 2 | |
-| 73 | The developer sees the same human effort entry with its label. | slice 2 | |
-| 74 | The developer sees the same agent effort entry with its label. | slice 2 | |
-| 75 | The developer sees the same elapsed time entry with its label. | slice 2 | |
+| 65 | The check returns **Caught**. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — supplies a Caught report through the CLI; manual invocation premise in Plan 503 |
+| 66 | The report records a 2.1 s measured test runtime. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — supplies the 2.1 s measured test runtime in the report |
+| 67 | The report records unavailable human effort. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — supplies unavailable human effort in the report |
+| 68 | The report records estimated agent effort. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — supplies estimated agent effort in the report |
+| 69 | The report records measured elapsed time. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — supplies measured elapsed time in the report |
+| 70 | The developer selects the story in Recently done. | slice 2 | observed: dashboard/tests/support/intentCompletedStory.ts — selects the published Story A card in Recently done before opening Intent |
+| 71 | The developer sees the same outcome. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report text includes the same Caught outcome |
+| 72 | The developer sees the same test runtime with its label. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report text includes the same test runtime and measured label |
+| 73 | The developer sees the same human effort entry with its label. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report text includes the same human effort entry and unavailable reason |
+| 74 | The developer sees the same agent effort entry with its label. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report text includes the same agent effort entry and estimated label |
+| 75 | The developer sees the same elapsed time entry with its label. | slice 2 | observed: dashboard/tests/intent/intent-story-completed.spec.ts — exact report text includes the same elapsed time entry and measured label |
 | 76 | A guidance-only feature story has completed. | slice 3 | |
 | 77 | Its promise has no maintained assertion. | slice 3 | |
-| 78 | The check returns **Insufficient evidence**. | slice 2 | |
-| 79 | The report names the missing assertion. | slice 2 | |
+| 78 | The check returns **Insufficient evidence**. | slice 2 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts — supplies an Insufficient evidence report through the actual complete CLI |
+| 79 | The report names the missing assertion. | slice 2 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts — report input names the missing maintained assertion for wrap-up guidance |
 | 80 | The done record stores the report. | slice 1 | observed: tests/support/product-backlog-complete-intent-coverage.test.mjs — Insufficient evidence report is read verbatim from the CLI-written record |
-| 81 | Recently done shows **Insufficient evidence**. | slice 2 | |
-| 82 | Recently done shows the reason. | slice 2 | |
+| 81 | Recently done shows **Insufficient evidence**. | slice 2 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts — exact text assertion shows the same Insufficient evidence outcome |
+| 82 | Recently done shows the reason. | slice 2 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts — exact text assertion shows the same missing assertion reason |
 | 83 | The check is interrupted before returning a report. | slice 3 | |
 | 84 | The done record holds an unavailable result. | slice 1 | observed: tests/support/product-backlog-complete-intent-coverage.test.mjs — expiry test parses the new record's unavailable result |
 | 85 | The result names the interruption. | slice 1 | observed: tests/support/product-backlog-complete-intent-coverage.test.mjs — expiry test compares the exact interruption reason |
 | 86 | Closure finishes. | slice 3 | |
-| 87 | Recently done shows the result as unavailable. | slice 2 | |
-| 88 | Recently done shows the interruption reason. | slice 2 | |
+| 87 | Recently done shows the result as unavailable. | slice 2 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts — unavailable completion has a visible Unavailable result under Intent coverage |
+| 88 | Recently done shows the interruption reason. | slice 2 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts — unavailable completion displays the exact interruption reason |
 | 89 | A bounded retrospective correction closes. | slice 3 | |
 | 90 | The check does not run. | slice 3 | |
 | 91 | The done record has no assessment. | slice 1 | observed: tests/support/product-backlog-complete-done-record.test.mjs — no-option completion retains the existing record shape with no result |

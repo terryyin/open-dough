@@ -17,6 +17,8 @@
   established Take and story branch were both confirmed at
   `9eeecc159add3cb43a8b0fb5fb53f8a05abdebde` on `origin`. Integration
   target `main`.
+- Slice 1 published to the story branch at
+  `970d3d7e56de1590d8069782a0224e72c1a3cddc` with CI registration attached.
 - Checkout setup: locked `npm ci` and `npm run lint -- --help` passed
   with Homebrew Bash on PATH. The check-only commit hook checks staged lint
   and dashboard types when scripts are staged.
@@ -172,13 +174,13 @@ equal to the file's text, and the shared parser returns it.
 Accepted proof after independent refactoring (Homebrew Bash on PATH):
 
 - `bash scripts/test.sh tests/support/product-backlog-complete-intent-coverage.test.mjs tests/support/product-backlog-complete-done-record.test.mjs tests/support/product-backlog-complete-done-catalog.test.mjs tests/support/product-backlog-done-catalog.test.mjs tests/support/product-backlog-git-done-catalog.test.mjs tests/support/product-backlog-git-done-catalog-agent-credit.test.mjs tests/support/product-backlog-git-done-catalog-replay.test.mjs tests/support/product-backlog-add-identity.test.mjs tests/support/product-backlog-identity-evidence.test.mjs src/skills/dough-execute-plan/scripts/publication-completed-identity.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-admission-refusal.test.mjs` passed. The assessment CLI tests arrange a scratch Taken entry and assert the stored text, interruption reason, refusal before any write, repeat preservation, and pruning with exact catalog rows. The other checks preserve catalog/Git rebuild, attribution, and identity and claim consumers.
-- `npm run typecheck:dashboard` and `git diff --check` passed. The existing completed Intent journey and authenticated done catalog specs passed across the shared parser and published record reads. Per-commitment observations are in the source review. The dashboard's assessment rendering is owned by slice 2.
+- `npm run typecheck:dashboard` and `git diff --check` passed. `npm run test:dashboard -- dashboard/backend-tests/observation/authenticated-read-done-catalog.spec.ts dashboard/backend-tests/observation/authenticated-read-done-catalog-gaps.spec.ts dashboard/backend-tests/observation/authenticated-read-done-catalog-refusal.spec.ts dashboard/tests/intent/intent-story-completed.spec.ts` passed across the shared parser and published record reads. Per-commitment observations are in the source review. The dashboard's assessment rendering is owned by slice 2.
 
 ### 2. Intent shows a completed story's stored Intent Coverage result
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Extend
 [intent-story-completed.spec.ts](../../../dashboard/tests/intent/intent-story-completed.spec.ts)
@@ -194,6 +196,12 @@ Behavior: a published done record holding a report → the developer selects
 the story in Recently done, opens Intent, and expands the summary → the
 report's outcome and four cost entries appear exactly as recorded. A
 record holding an unavailable result shows **Unavailable** and its reason.
+
+Accepted proof (Homebrew Bash on PATH):
+
+- `npm run typecheck:dashboard` and `git diff --check` passed.
+- `npm run test:dashboard -- dashboard/tests/intent/intent-story-completed.spec.ts dashboard/tests/intent/intent-story-coverage.spec.ts dashboard/tests/intent/intent-story-summary-title.spec.ts dashboard/tests/intent/intent-story-changes.spec.ts dashboard/backend-tests/observation/authenticated-read-done-catalog.spec.ts dashboard/backend-tests/observation/authenticated-read-done-catalog-gaps.spec.ts dashboard/backend-tests/observation/authenticated-read-done-catalog-refusal.spec.ts` passed. The fixture runs the real completion CLI, publishes its record, and selects the completed story. Expanded Intent preserves exact report text and line breaks, including literal markup, the four cost entries, and the evidence labels. The existing comparison remains readable. Separate inputs prove insufficient evidence, unavailable, and no result.
+- `npm run test:dashboard -- dashboard/tests/stories/recently-done-stories.spec.ts dashboard/tests/stories/recently-done-progressive-failed-read-refresh.spec.ts dashboard/tests/intent/intent-story-changes-gaps.spec.ts dashboard/tests/review/story-review-completed.spec.ts` passed. Together these selections ran 36 tests across 11 files. The shared CLI fixture passes the same arguments when no assessment is supplied. The per-commitment source review records the observations.
 
 ### 3. Wrap-up runs the check for each closed feature story and keeps its result
 

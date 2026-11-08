@@ -10,6 +10,7 @@
 import type { Page } from "@playwright/test";
 import { rmSync } from "node:fs";
 import path from "node:path";
+import type { IntentCoverage } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { showColumn } from "../boardPage.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
@@ -42,7 +43,13 @@ function changeCompletedTests(workspace: string) {
 export async function selectCompletedStoryInIntent(
   page: Page,
   origin: StartOrigin,
-  history: "complete" | "shallow" = "complete",
+  {
+    history = "complete",
+    intentCoverage,
+  }: {
+    readonly history?: "complete" | "shallow";
+    readonly intentCoverage?: IntentCoverage;
+  } = {},
 ) {
   publishIntentTrunk(origin.project);
   const { completion } = await completedPublishedStory(
@@ -50,6 +57,8 @@ export async function selectCompletedStoryInIntent(
     "trunk",
     undefined,
     changeCompletedTests,
+    undefined,
+    { intentCoverage },
   );
   if (history === "complete") advanceCompletedTrunk(origin);
   else git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
