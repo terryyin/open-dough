@@ -502,6 +502,33 @@ regress beyond run-to-run noise.
   evidence, so no paid run is needed
   ([native family layers](../../tests/native-family-layers.md)).
 
+<a id="share-done-catalog-record-reading"></a>
+
+### Read done records for the catalog through one product rule
+
+**Identity:** SEED-262#share-done-catalog-record-reading
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/542-share-done-catalog-record-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b36c44e0064e5d3634b4374bd22bd82e836ba2626bcc9075b6c0db977faebca6","plan":"3d70f573d0a2802571218b52b086003646a1a1cba612bce9d5a43747cc835178"}}
+```
+
+#### Goal
+
+A maintainer changing how the done catalog selects, orders or hashes record
+files changes it in one product place, and every test fixture that publishes
+a catalog follows. Bounded correction of
+[serve fake GitHub planning files from explicit MakeMe data](#declare-fake-github-planning-data).
+
+#### Scope
+
+- The product's done-record reading for the catalog (record-name filter, name
+  order, text and Git blob hash) becomes one pure operation over named record
+  bytes; the directory rebuild and the test renderer's catalog both use it.
+- Test helpers that compute a Git blob hash for a published file use the
+  product's hash instead of a copy.
+- No change to catalog bytes, record bytes, served paths or product behavior.
+
+Plan: [542-share-done-catalog-record-reading](../slice-plans/542-share-done-catalog-record-reading/PLAN.md)
+
 <a id="reuse-immutable-git-histories"></a>
 
 ### Speed up Git fixture construction behind the builder

@@ -316,6 +316,17 @@ Learnings: `describedFiles(facts)` gives a one-revision description's files.
 `doneRecords: []` rebuilds the catalog over literal record files; a revision
 cannot add and remove a done record at once because `remove` applies first.
 
+## Execution complete
+
+Product advice: Wrap-up should queue the correction
+[SEED-262#share-done-catalog-record-reading](../../seeds/SEED-262-faster-dashboard-test-feedback.md#share-done-catalog-record-reading)
+(plan 542). Slice 1 replaced the materializer's product `rebuildDoneCatalog`
+call with a test copy of its record reading and Git blob hash, so fixture
+catalogs are no longer pinned to the product rule. No other product change:
+every fake GitHub journey now states its planning facts in a description, and
+the refresh family's paired 4.6 % difference from trunk is within the base
+runs' spread.
+
 ## Plan concerns
 
 Slice-plan refinement was not needed: the slices are one proof loop

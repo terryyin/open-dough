@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 464. Removed numbers are never reused.
+- Highest allocated local number: 466. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -590,3 +590,43 @@ the candidate could.
   - Evidence: Slice 1's before runs were at load about 10.5 and its after runs at 14.8–16.3 (startOriginTest consumers 60/68 s before, 73/81 s after); the coordinator recorded obligation G3 in plan 512. Slices 2 and 3 measured base-worktree and candidate runs back to back (51/51 s; 47/46 and 47/45 s; 22/20 and 23/20 s).
   - Observed effect: Slice 1's timing evidence could not close its promise and the comparison was repeated in slice 3 with a temporary base worktree and its setup.
   - Inference: The plan's wording "record before changing anything" invites sequential measurement; naming paired back-to-back runs from the start would likely have avoided the repeat. One execution only.
+- Execution: SEED-262#declare-fake-github-planning-data (plan 530-declare-fake-github-planning-data; first related implementation commit `673fee7a4967cf5a2ea076b282c21878841a13fa`)
+  - Timestamp: unknown (2026-11-08, slices 1, 3 and 4)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `d84195b2a`)
+  - Evidence: Plan 530 asked for "two runs each under comparable load" before and after; slice 3's recently done and profile family ran before at load 3.7 and 7.8 (151.8 s, 161.3 s) and after at 21.1 and 14.0 (168.9 s, 156.2 s). Slice 4 repeated both families as alternated runs of a base worktree at `24c881a5a` and the candidate (recently done B/A 0.95, refresh B/A 1.046).
+  - Observed effect: Slice 3's timings could not judge the promise; the paired comparison was added to slice 4 with a temporary base worktree and its setup.
+  - Inference: Same cause as the first row: the plan, written after DD-464's first occurrence, still named sequential before/after runs.
+
+## DD-465 — A plan's consumer inventory came from a narrower search than the story's rule
+The story governed "helpers and specs that hand-write published planning
+files" and named a dated sample. The plan built its slice lists from a
+`# Product backlog` literal search plus a few fact-kind searches, so helpers
+that assembled seeds, records and catalogs from encoder calls stayed outside
+every slice until acceptance.
+
+### Occurrences
+- Execution: SEED-262#declare-fake-github-planning-data (plan 530-declare-fake-github-planning-data; first related implementation commit `673fee7a4967cf5a2ea076b282c21878841a13fa`)
+  - Timestamp: unknown (2026-11-08, slices 2 and 3 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `d84195b2a`)
+  - Evidence: Plan 530 premise "Consumer set" (48 files from `grep -rlE '# Product backlog|## Backlog list' dashboard/tests`). Slice 2 found 13 `dashboard/backend-tests` specs outside it; slice 3 acceptance found about 20 helpers using `renderDoneRecord`/`withDoneCatalog` outside it (obligation G1). Slice 4 was added and migrated them (`84506544d`).
+  - Observed effect: One extra slice (about 45 minutes of agent time) and two plan rewrites during execution; the source review's commitment 10 surfaced the gap at acceptance.
+  - Inference: Deriving the inventory from the story's governing rule (the published-file encoders and file paths a fake GitHub serves) rather than from one literal symptom would likely have sized four slices up front.
+
+## DD-466 — A trunk merge's proof selected changed specs, not consumers of the changed contract
+After merging trunk into a story branch, the coordinator proved the merge with
+the specs trunk had changed. A trunk-added helper called this branch's changed
+writer under an old precondition, and its unchanged spec failed in CI.
+
+### Occurrences
+- Execution: SEED-262#declare-fake-github-planning-data (plan 530-declare-fake-github-planning-data; first related implementation commit `673fee7a4967cf5a2ea076b282c21878841a13fa`)
+  - Timestamp: unknown (2026-11-08, merge `7bec63357`; CI run 42487558040)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `d84195b2a`)
+  - Evidence: Merge proof selected `git diff --name-only 54cc27451 origin/main -- 'dashboard/*.spec.ts'` plus sidebar specs (74 files, 165 passed). Trunk's `dashboard/tests/support/sessionsReplayProjects.ts` called `writeRevisionFiles` on a missing directory, which slice 1 had made read first; `agent-launch-sessions-listing.spec.ts` failed in CI with ENOENT. Repaired in `e828b4142`.
+  - Observed effect: One failed CI run, a stash-and-repair cycle and a repair commit.
+  - Inference: Selecting the importers of every trunk-changed module that calls a contract this branch changed (here `writeRevisionFiles`) would have caught it locally.
