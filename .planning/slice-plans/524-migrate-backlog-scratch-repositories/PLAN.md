@@ -69,6 +69,9 @@ then extends them.
   committer default to the fixed developer identity from plan 510. A case
   whose assertion reads an identity declares it at its call site, as done
   records do for "Terry Yin" and the agent credit cases do for Dana Developer.
+  The shared description already states the checkout's configured committer
+  through `withCheckoutIdentity`; extend that fact rather than adding a
+  second one.
 - **Arrangement from encoders, expectations hand-written.** Arrangement
   backlogs are built from `aBacklogEntry` and encoded by production
   rendering. `backlogOf`, `item` and `items` stay as the independent byte

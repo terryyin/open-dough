@@ -472,9 +472,13 @@ which release and repository facts the check arranges.
 **Scope.** Use [the shared repository builder](../../tests/support/repository-fixture.mjs)
 through a small Node helper for `release-fixture.bash`, the native Git fixtures
 and inline shell setup, including the native startup fixture's queued trunk.
-Remove the remaining `createQueuedTrunk` path. Native evidence identities will
-change, so record the literal manual native commands. Paid runs stay
-manual-only.
+Remove the remaining `createQueuedTrunk` path. Include the native-only
+worktree-preparation repository builders and the `ownedWorktreeOnly`,
+`advanceOriginFromAnotherWriter` and `cloneAsAnotherWriter` helpers that
+native callers still use. The git-publication admission evidence identity
+already hashes the clean-trunk fixture modules, so its retained records no
+longer match their inputs. Native evidence identities will change, so record
+the literal manual native commands. Paid runs stay manual-only.
 
 <a id="reuse-immutable-git-histories"></a>
 
