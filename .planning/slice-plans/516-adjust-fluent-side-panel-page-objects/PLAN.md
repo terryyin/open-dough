@@ -4,6 +4,8 @@
 
 **Source:** [Make fluent Side panel page objects easier to extend](../../seeds/SEED-268-fluent-side-panel-pilot-follow-up.md#adjust-fluent-side-panel-page-objects)
 
+**Source review:** [source-review.md](source-review.md)
+
 ## Goal and boundaries
 
 A dashboard test maintainer adds a page object or hand-off in the Side panel
@@ -98,7 +100,7 @@ publication.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: three journeys pass with an identical step tree; back-from-content
 import check; the extension probe, recorded and reverted.
@@ -111,6 +113,23 @@ and content modules, removing `sidePanelContentPages.ts`, updated header
 comments, and the “Fluent phases” section of
 `dashboard/tests/writing-journeys.md` naming the new modules and that
 objects hand off through the set.
+
+Accepted proof (2026-11-08): both pilot specs 3 passed (6.1 s, 4.6 s,
+6.0 s); the JSON step tree equals the base's after masking the per-run
+session id (`sed -E 's/attached [0-9a-f]{8}/attached <id>/'` on both, since
+`Terminal: shows "attached <8 hex>"` comes from `randomUUID()`); type-check
+and lint pass. Modules: `fluentPageObject.ts` 41, `sidePanelFramePages.ts`
+98, `storyReviewPages.ts` 121, `finalReportPages.ts` 19 (two content modules,
+so the probe edits only the Final report's), `sidePanelPages.ts` 147 (the set
+is now one exported `SidePanelPages` class whose field initializers build
+each object with `this`), `storyCardPages.ts` 157, `terminalPages.ts` 97.
+`storyReviewPages.ts` imports neither the Side panel nor the set; `close()`
+uses the base's `sidePanel` getter. Extension probe: `FinalReport` gained
+`get board()` returning `this.pages.board`, used once after
+`.expectText(storyBReport)` as `.board.storyCard("Story B").expectShown()`;
+it touched only `finalReportPages.ts` (+5) and the replacement spec (+2)
+(`git diff --stat` missed the then-untracked module), type-checked, 2
+passed, reverted with the step tree again equal to the base's.
 
 ### 2. Negative Story card checks read as named operations, and the revised design is evaluated
 

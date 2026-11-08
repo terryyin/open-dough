@@ -1,26 +1,22 @@
 // The Board and its Story cards as fluent page objects for the Side panel
 // journeys (./sidePanelPages.ts): what a reader does on a card, which Side
-// panel content that opens, and how the card shows its selection,
-// inspection and Terminal. Each method writes one named cue on the phase's
-// cue sheet (./support/cueSheet.ts) and returns the page object the reader
-// is then at; the phase runs the cues.
+// panel content that opens, taken from the phase's page-object set, and how
+// the card shows its selection, inspection and Terminal. Each method writes
+// one named cue on the phase's cue sheet (./support/cueSheet.ts) and returns
+// the page object the reader is then at (./fluentPageObject.ts); the phase
+// runs the cues.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 import { parts, storyCardSessions } from "./dashboardParts.ts";
-import {
-  FinalReport,
-  PageObject,
-  StoryReview,
-} from "./sidePanelContentPages.ts";
+import { PageObject } from "./fluentPageObject.ts";
+import type { SidePanelPages } from "./sidePanelPages.ts";
 import { expectInspected, expectSelected } from "./storyCardSelection.ts";
-import type { CueSheet } from "./support/cueSheet.ts";
 import { expect } from "./support/preparationPage.ts";
-import { Terminal } from "./terminalPages.ts";
 
 export class Board extends PageObject {
   // A Story card on the Board, by its story's title.
   storyCard(title: string) {
-    return new StoryCard(this.page, this.cues, title);
+    return new StoryCard(this.pages, title);
   }
 
   // No Story card shows its inline detail.
@@ -37,10 +33,10 @@ export class StoryCard extends PageObject {
   readonly #title: string;
   readonly #card: Locator;
 
-  constructor(page: Page, cues: CueSheet, title: string) {
-    super(page, cues);
+  constructor(pages: SidePanelPages, title: string) {
+    super(pages);
     this.#title = title;
-    this.#card = parts(page).board.getByRole("article", {
+    this.#card = parts(pages.page).board.getByRole("article", {
       name: title,
       exact: true,
     });
@@ -69,7 +65,7 @@ export class StoryCard extends PageObject {
     return this.cue(
       `${this.#named}: Review changes`,
       () => this.#reviewChanges.click(),
-      new StoryReview(this.page, this.cues),
+      this.pages.storyReview,
     );
   }
 
@@ -81,7 +77,7 @@ export class StoryCard extends PageObject {
         await this.#reviewChanges.focus();
         await this.#reviewChanges.press("Enter");
       },
-      new StoryReview(this.page, this.cues),
+      this.pages.storyReview,
     );
   }
 
@@ -93,7 +89,7 @@ export class StoryCard extends PageObject {
         storyCardSessions(this.#card)
           .getByRole("button", { name: "Read final report" })
           .click(),
-      new FinalReport(this.page, this.cues),
+      this.pages.finalReport,
     );
   }
 
@@ -105,7 +101,7 @@ export class StoryCard extends PageObject {
         storyCardSessions(this.#card)
           .getByRole("button", { name: "Open terminal" })
           .click(),
-      new Terminal(this.page, this.cues),
+      this.pages.terminal,
     );
   }
 
