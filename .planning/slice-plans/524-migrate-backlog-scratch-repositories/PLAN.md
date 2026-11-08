@@ -292,6 +292,23 @@ workflow bytes and its base, planning and code revisions → the forward walk
 and status verdicts are unchanged, and no family test keeps its own
 `git init`.
 
+## Execution complete
+
+Product advice: no change to backlog priorities. The story delivered as
+planned; every family starts from a declared `makeMe.aRepository`
+description, and no focused family got slower. Two items for wrap-up:
+
+- `tests/support/local-test-suite.test.mjs` proves three negative windows
+  with `await delay(150)` (added 2026-11-01, before this story), which the
+  test automation rule forbids. Fixing it needs an observable event from the
+  local suite runner, such as a recorded "waiting for the gate" marker, so it
+  is a separate story rather than a correction of this execution.
+- Queued sibling `SEED-262#tighten-repository-description-facts` (plan 532)
+  works on the same repository description and materializer this story
+  extended (`materializeLocalCheckout`, its `layer` option and
+  `withCheckoutIdentity`), so its preparation should be checked against this
+  story's landed shape.
+
 ## Plan concerns
 
 Refinement not needed: each slice has one proof loop over one migration rule,

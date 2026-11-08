@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 462. Removed numbers are never reused.
+- Highest allocated local number: 463. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -36,6 +36,14 @@ Former local code: DD-450. Former local code: DD-121. Former local code: DD-206.
   - Observed effect: The slice 5 implementer found the native journey's repository changed. A return restored it with verbatim pre-story builders; the retrospective still found MakeMe in that journey's import closure and planned a correction.
   - Inference: The journeys' hashed import closures, not shell sources, list what a native identity depends on; the premise needed that list.
 
+- Execution: SEED-262#migrate-backlog-scratch-repositories (plan 524-migrate-backlog-scratch-repositories; first related implementation commit `6c379369119c4bf540976b951a6d1a9aee88e9d7`)
+  - Timestamp: unknown (2026-11-08, slice 1 return and slice 3 acceptance, before `898ef65d6` at 2026-11-08T21:26:21+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 524 at `d9a8bd386`: the premise "No paid run" searched only `*.sh`/`*.bash` for the family's module names, yet the retained `tests/fixtures/native-streams/*/publication/admission-investigation/*/record` files list `tests/support/product-backlog-fixture.mjs` and `repositoryTestData.mjs` as `input-hash` lines. The premise "entries without an identity cannot be rendered" was false: `renderEntry` writes `- [Item A](seeds/A.md#a)` when the identity is the link.
+  - Observed effect: Slice 1 took the simpler path the false rendering premise had ruled out; slice 3's coordinator had to confirm that no check compares recorded input hashes with current files before accepting. Neither changed the outcome.
+  - Inference: Same facet as plan 514's row: a native identity's hashed import closure, not shell sources, lists what it depends on.
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
 ## ODF-157 — Identifier-only conceptual searches <a id="odf-157"></a>
@@ -229,6 +237,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: One withheld delivery; a mechanical `[...Array(count).keys()]` rewrite and a focused rerun cleared it.
   - Inference: Same diagnostic class as the earlier occurrence; the slice 4 implementer, who ran ESLint itself, returned clean.
 
+- Execution: SEED-262#migrate-backlog-scratch-repositories (plan 524-migrate-backlog-scratch-repositories; first related implementation commit `6c379369119c4bf540976b951a6d1a9aee88e9d7`)
+  - Timestamp: unknown (2026-11-08, slice 3 and slice 5 delivery, before `898ef65d6` at 2026-11-08T21:26:21+08:00 and `c7780d49e` at 2026-11-08T22:07:18+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Guarded fresh delivery returned `operation: formatting` with ESLint `no-unused-vars` on an unused `_` in an `Array.from({ length }, (_, index) => ...)` callback, in `tests/support/product-backlog-identity-evidence-fixture.mjs` (slice 3) and `tests/support/dashboard-later-trunk-fixture.mjs` (slice 5), after focused proof and refactor passes that ran only a read-only Prettier check.
+  - Observed effect: Two withheld deliveries; the same `[...Array(n).keys()].map(...)` rewrite and a focused rerun cleared each.
+  - Inference: Third execution with this exact diagnostic in one day; implementation briefs that forbid hook-owned lint leave this class to the delivery gate.
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 
@@ -546,3 +562,15 @@ Practice. The isolated source review numbers story commitments independently of 
   - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
   - Evidence: Plan 514 (`42717b7da:.planning/slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md`) kept `createCleanTrunkFixture` taking a description. Source-review commitment 31, from Key example 6, says "no non-native test calls `createCleanTrunkFixture`". The slice 5 obligations listing carried it, and the delegation stated that the source outranks the plan.
   - Observed effect: Slice 5 deleted the helper; `git grep createCleanTrunkFixture -- ':!.planning'` finds nothing.
+## DD-463 — An empty focused path list ran the whole local suite
+`scripts/test.sh` with no path arguments runs the whole serialized local suite. A focused command built from a file list that silently came out empty therefore started a full run instead of failing.
+
+### Occurrences
+- Execution: SEED-262#migrate-backlog-scratch-repositories (plan 524-migrate-backlog-scratch-repositories; first related implementation commit `6c379369119c4bf540976b951a6d1a9aee88e9d7`)
+  - Timestamp: unknown (2026-11-08, slice 4 baseline, after `898ef65d6` at 2026-11-08T21:26:21+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: The coordinator's `grep -lE ... tests/support/*.test.mjs tests/*.test.mjs | tee s4-files.txt` aborted on zsh's unmatched `tests/*.test.mjs` glob, leaving the list empty; `bash scripts/test.sh $(cat s4-files.txt)` then ran without paths (`scripts/test.sh:24` treats no arguments as the full suite) until the 600 s tool timeout moved it to the background, where it was stopped.
+  - Observed effect: About ten minutes of a full-suite run under load 13-17 were spent on a two-run baseline of six files; the baseline was redone with `git grep` and a non-empty check.
+  - Inference: A focused-run guard that refuses an empty list would have stopped this at once; later briefs added "never pass an empty list" by hand.
