@@ -1,14 +1,12 @@
 // Runs the real backlog CLI to complete work in a scratch Git project,
 // observing the done record written beside the backlog: what it says and the
 // file it takes.
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import {
-  agentIdentity,
-  renderAgentProfile,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { plantAgentProfile } from "./product-backlog-profile-fixture.mjs";
 import {
   backlog,
   backlogOf,
@@ -34,28 +32,27 @@ const readRecord = (project, fileName) =>
 
 test("complete credits the execution agent even when a released preparation profile sorts first", async (t) => {
   const project = gitWorkspace(scratchProject(t));
-  projectFile(
+  plantAgentProfile(
     project,
-    agentIdentity("Ai").path,
-    renderAgentProfile({
-      name: "Ai",
-      identity: takenStory,
-      activity: "preparation",
-      host: "cursor",
-      model: "preparation-model",
-    }),
+    makeMe.anAgentProfile
+      .preparing({
+        name: "Ai",
+        identity: takenStory,
+        host: "cursor",
+        model: "preparation-model",
+      })
+      .please(),
   );
-  projectFile(
+  plantAgentProfile(
     project,
-    agentIdentity("Akiho").path,
-    renderAgentProfile({
-      name: "Akiho",
-      identity: takenStory,
-      mode: "trunk",
-      branch: "origin/main",
-      host: "claude",
-      model: "claude-opus-5-5",
-    }),
+    makeMe.anAgentProfile
+      .executing({
+        name: "Akiho",
+        identity: takenStory,
+        host: "claude",
+        model: "claude-opus-5-5",
+      })
+      .please(),
   );
 
   const result = await run(
@@ -93,16 +90,16 @@ test("complete credits the execution agent even when a released preparation prof
 
 test("complete on a queued entry with only a preparation profile releases it without recording execution credit", async (t) => {
   const project = gitWorkspace(scratchProject(t));
-  projectFile(
+  plantAgentProfile(
     project,
-    agentIdentity("Ai").path,
-    renderAgentProfile({
-      name: "Ai",
-      identity: trunkQueue,
-      activity: "preparation",
-      host: "cursor",
-      model: "preparation-model",
-    }),
+    makeMe.anAgentProfile
+      .preparing({
+        name: "Ai",
+        identity: trunkQueue,
+        host: "cursor",
+        model: "preparation-model",
+      })
+      .please(),
   );
 
   const result = await run(
@@ -211,15 +208,11 @@ test("a repeated complete for an identity no longer listed writes no record", as
 
 test("a Taken profile recording no host or model leaves a record naming the agent only", async (t) => {
   const project = gitWorkspace(scratchProject(t));
-  projectFile(
+  plantAgentProfile(
     project,
-    agentIdentity("Akiho").path,
-    renderAgentProfile({
-      name: "Akiho",
-      identity: takenStory,
-      mode: "trunk",
-      branch: "origin/main",
-    }),
+    makeMe.anAgentProfile
+      .executing({ name: "Akiho", identity: takenStory })
+      .please(),
   );
 
   const result = await run(

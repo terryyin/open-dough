@@ -1,6 +1,7 @@
 // Real CLI claim and completion, with Git publication and workspace retirement.
 // No dashboard launch or comparison is supplied by this setup. A journey may
 // add its own changes (`change`) to the story's implementation commit.
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { rmSync } from "node:fs";
@@ -127,7 +128,16 @@ export async function completedPublishedStory(
     writeAt(
       workspace,
       `.planning/${next.path}`,
-      renderAgentProfile({ name, identity: queuedIdentity, mode, branch }),
+      renderAgentProfile(
+        makeMe.anAgentProfile
+          .executing({
+            name,
+            identity: queuedIdentity,
+            mode,
+            branch,
+          })
+          .please(),
+      ),
     );
     git(workspace, "config", "--worktree", "author.name", next.agent);
     git(workspace, "config", "--worktree", "author.email", next.email);

@@ -6,6 +6,8 @@
 // modifies one profile; and a revision D whose commits remove the planned
 // story's profile and re-add it with identical text, by another human.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { slicePlan } from "./branchProgressRecords.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import {
@@ -70,9 +72,15 @@ ${agents
 **Identity:** SEED-281#${anchorOf(agent)}
 ${
   agent === planned
-    ? `\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/281-credit/PLAN.md"}
-\`\`\`
+    ? `${renderPublishedPreparation(
+        makeMe.aStoryPreparation
+          .with({
+            refinement: "refined",
+            approach: "planned",
+            plan: "../slice-plans/281-credit/PLAN.md",
+          })
+          .please(),
+      )}
 `
     : ""
 }`,
@@ -80,14 +88,17 @@ ${
   .join("")}`;
 
 const profileText = (agent: string, host = "claude") =>
-  renderAgentProfile({
-    name: agent,
-    identity: `SEED-281#${anchorOf(agent)}`,
-    mode: "trunk",
-    branch: "main",
-    host,
-    model: undefined,
-  });
+  renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({
+        name: agent,
+        identity: `SEED-281#${anchorOf(agent)}`,
+        mode: "trunk",
+        branch: "main",
+        host,
+      })
+      .please(),
+  );
 
 // Each profile's own addition by the same human, each by a commit of its
 // own, on the same account.

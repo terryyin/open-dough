@@ -7,6 +7,7 @@
 // leaves no session and no progress phase. The table's mapping of the
 // remaining stop statuses is ./preparation-start-result.spec.ts.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFile } from "node:child_process";
 import path from "node:path";
@@ -116,11 +117,14 @@ test.describe("refinement preparation start that stops", () => {
     for (const name of agentNames) {
       writeFileSync(
         path.join(agents, `${name.toLowerCase()}-chan.json`),
-        renderAgentProfile({
-          name,
-          identity: "SEED-B#b",
-          activity: "preparation",
-        }),
+        renderAgentProfile(
+          makeMe.anAgentProfile
+            .preparing({
+              name,
+              identity: "SEED-B#b",
+            })
+            .please(),
+        ),
       );
     }
     await exec("git", ["add", "."], { cwd: origin.project });

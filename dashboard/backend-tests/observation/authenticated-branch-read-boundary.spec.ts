@@ -10,6 +10,7 @@
 // (../../tests/support/dashboardServer.ts) and ./authenticated-read-boundary.spec.ts's
 // approach.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   developmentBoundary,
@@ -58,14 +59,16 @@ test.describe("authenticated read boundary on a story branch (development enviro
       mode: "trunk" | "story-branch",
       branch: string,
     ) =>
-      renderAgentProfile({
-        name,
-        identity,
-        mode,
-        branch,
-        host: undefined,
-        model: undefined,
-      });
+      renderAgentProfile(
+        makeMe.anAgentProfile
+          .executing({
+            name,
+            identity,
+            mode,
+            branch,
+          })
+          .please(),
+      );
     const published = publishes({
       revision,
       backlog: backlogTaken,

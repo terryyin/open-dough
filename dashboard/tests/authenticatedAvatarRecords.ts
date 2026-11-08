@@ -4,6 +4,7 @@
 // names usably or not, and whose image the avatar host serves or fails to. At
 // a later revision GitHub names a newer version of Yui's human's avatar.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
   publishes,
   type AvatarAnswer,
@@ -104,11 +105,14 @@ function publication(
   for (const [file, account] of Object.entries(profiles)) {
     const name = file.split("-")[0] ?? "";
     const path = `${agents}/${file}`;
-    files[path] = renderAgentProfile({
-      name: `${name.charAt(0).toUpperCase()}${name.slice(1)}`,
-      identity: "SEED-avatar#story",
-      activity: "preparation",
-    });
+    files[path] = renderAgentProfile(
+      makeMe.anAgentProfile
+        .preparing({
+          name: `${name.charAt(0).toUpperCase()}${name.slice(1)}`,
+          identity: "SEED-avatar#story",
+        })
+        .please(),
+    );
     n += 1;
     history[path] = [pathChange(n, "added", "Some Human", account)];
   }

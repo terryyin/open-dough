@@ -13,6 +13,7 @@
 // line her second commit changed. Its kept launch record names the worktree
 // (./storyLaunchRecord.ts).
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import { rmSync } from "node:fs";
 import path from "node:path";
@@ -48,12 +49,16 @@ function writeClaim(project: string, identity: string) {
   writeAt(
     project,
     `.planning/${yui.path}`,
-    renderAgentProfile({
-      name: "Yui",
-      identity,
-      mode: "trunk",
-      branch: "origin/main",
-    }),
+    renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "Yui",
+          identity,
+          mode: "trunk",
+          branch: "origin/main",
+        })
+        .please(),
+    ),
   );
 }
 

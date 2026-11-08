@@ -35,14 +35,15 @@ class AgentProfileBuilder {
   }
 
   /**
-   * Taken execution, in Trunk Mode on `origin/main` unless stated.
-   * @param {AssignmentFacts & Pick<AgentProfile, "mode" | "branch">} facts
+   * Taken execution. Trunk Mode has an incidental branch context. A Story
+   * Branch assignment names the branch it publishes.
+   * @param {AssignmentFacts & ({mode?: "trunk", branch?: string} | {mode: "story-branch", branch: string})} facts
    */
   executing({
     name,
     identity,
     mode = "trunk",
-    branch = "origin/main",
+    branch = mode === "trunk" ? "origin/main" : undefined,
     host,
     model,
   }) {

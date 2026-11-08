@@ -4,6 +4,7 @@
 // is missing, and revision B, made by one commit that changes the backlog and
 // publishes that record.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { slicePlan } from "./branchProgressRecords.ts";
 import { addedAt, type MadeCommit } from "./pathHistoryAnswers.ts";
@@ -65,14 +66,17 @@ const trunkFiles: Record<string, string> = {
   [backlogPath]: backlogNaming(queuedTitle),
   [seedPath]: seed,
   [planPath]: slicePlan(8, 0),
-  [profilePath]: renderAgentProfile({
-    name: "Akiho",
-    identity: "SEED-261#on-branch",
-    mode: "story-branch",
-    branch,
-    host: "claude",
-    model: undefined,
-  }),
+  [profilePath]: renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({
+        name: "Akiho",
+        identity: "SEED-261#on-branch",
+        mode: "story-branch",
+        branch,
+        host: "claude",
+      })
+      .please(),
+  ),
 };
 
 export const atA: PublishedRevision = {

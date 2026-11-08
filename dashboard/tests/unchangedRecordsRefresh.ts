@@ -2,6 +2,7 @@
 // what the page shows once every fact of its Taken card is read, shared by
 // the specs of what a newly published commit costs and when its cards show.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { shortRevision, expectMembership, parts } from "./dashboardPage.ts";
@@ -69,14 +70,17 @@ export const files: Record<string, string> = withDoneCatalog(
     [backlogPath]: backlog,
     [seedPath]: seed,
     [planPath]: slicePlan(5, 2),
-    [profilePath]: renderAgentProfile({
-      name: "Akiho",
-      identity: "SEED-271#refresh",
-      mode: "trunk",
-      branch: "main",
-      host: "claude",
-      model: undefined,
-    }),
+    [profilePath]: renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "Akiho",
+          identity: "SEED-271#refresh",
+          mode: "trunk",
+          branch: "main",
+          host: "claude",
+        })
+        .please(),
+    ),
     [settingsPath]: "{}\n",
     [donePath]: `{"note":"an earlier story's done record"}\n`,
   },

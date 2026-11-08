@@ -159,19 +159,26 @@ export async function heldFactGroups(
         [backlogPath]: `${files[backlogPath] ?? ""}- [${preparing}](${preparingHref}) — ${preparingIdentity}\n`,
         [preparingPath]: assessed,
         [planPath("preparing")]: plan,
-        [profilePath("Akiho")]: renderAgentProfile({
-          name: "Akiho",
-          identity: "SEED-091#after-take",
-          mode: "story-branch",
-          branch,
-          host: "claude",
-        }),
-        [profilePath("Kirara")]: renderAgentProfile({
-          name: "Kirara",
-          identity: preparingIdentity,
-          activity: "preparation",
-          host: "codex",
-        }),
+        [profilePath("Akiho")]: renderAgentProfile(
+          makeMe.anAgentProfile
+            .executing({
+              name: "Akiho",
+              identity: "SEED-091#after-take",
+              mode: "story-branch",
+              branch,
+              host: "claude",
+            })
+            .please(),
+        ),
+        [profilePath("Kirara")]: renderAgentProfile(
+          makeMe.anAgentProfile
+            .preparing({
+              name: "Kirara",
+              identity: preparingIdentity,
+              host: "codex",
+            })
+            .please(),
+        ),
         [donePath]: renderDoneRecord({
           ...executed,
           completedAt: minutesBefore(60).toISOString(),

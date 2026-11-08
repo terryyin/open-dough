@@ -19,7 +19,7 @@ The numbered return is retained below.
 | P08 | Convert remaining valid setup for published project sources. | slice 2 | observed: catalogProjectRecords.ts declares the four canonical PublishedSource inputs and pinned revisions and serves their encoded files through publishFiles. |
 | P09 | Convert remaining valid setup for story homes. | slice 1 | observed: product-backlog-refresh-fixture.mjs adoptedHomes and afterMove, exercised by the renamed and reanchored home tests in product-backlog-refresh.test.mjs |
 | P10 | Convert remaining valid setup for backlog membership. | slice 1 | observed: product-backlog-fixture.mjs arrangedBacklog and product-backlog-merge-fixture.mjs mergeBacklog arrange Taken and queue facts; product-backlog-take.test.mjs and product-backlog-merge-order.test.mjs assert ordered membership |
-| P11 | Convert remaining valid setup for published assignments. | slice 5 |  |
+| P11 | Convert remaining valid setup for published assignments. | slice 5 | observed: dashboard profile fixtures, workspace-publication-startup-test-fixtures.mjs, and product backlog and closure tests supply valid assignments through makeMe.anAgentProfile and renderAgentProfile. |
 | P12 | Convert remaining valid setup for preparation. | slice 3 | observed: storyReadinessFixture.ts, story-state-fixture.mjs, queued-ready-stories.mjs and the installed native Take fixture supply the planned and planless preparation facts in canonical fields; G2–G5 own mixed-family conversions. |
 | P13 | Convert remaining valid setup for supplier agreements. | slice 4 | observed: storyDependencyFixture.ts, supplier-dependency-fixture.mjs and workspace-publication-startup-dependencies-cases.mjs give canonical MakeMe supplier agreements to the real writers; compare-agreements.mjs retained representative bytes. |
 | P14 | Convert remaining valid setup for slice plans. | slice 6 |  |
@@ -31,7 +31,7 @@ The numbered return is retained below.
 | P20 | Cover Node consumers that arrange these facts. | slice 9 |  |
 | P21 | Cover shell consumers that arrange these facts. |  | G1 |
 | P22 | Extend the shared MakeMe entry with real consumers. | slice 1 | observed: tests/support/makeMe.mjs aBacklogEntry feeds the shared product renderer in the Node fixtures and tests/support/render-published-backlog.mjs shell adapter |
-| P23 | Extend the pilot’s profile builder with real consumers. | slice 5 |  |
+| P23 | Extend the pilot’s profile builder with real consumers. | slice 5 | observed: makeMe.anAgentProfile.executing requires a Story Branch name; publishedFactsArrival.ts and storyReviewTrunkMode.ts exercise explicit execution mode and branch with real consumers. |
 | P24 | Keep defaults incidental. | slice 9 |  |
 | P25 | Remove displaced fixture models as each family is converted. | slice 9 |  |
 | P26 | Remove displaced fixture constructors as each family is converted. | slice 9 |  |
@@ -102,11 +102,11 @@ The numbered return is retained below.
 | J3.03 | A start eligibility read still reports the dependency blocker. | slice 4 | observed: supplier-dependency-correction-satisfied.test.mjs asserts startEligibility is blocked while the assessment is Ready; start-eligibility.spec.ts independently observes the disabled action. |
 | J3.04 | A verified resolution clears that blocker. | slice 4 | observed: supplier-dependency-correction-satisfied.test.mjs publishes the completed supplier plan, runs the actual resolve-dependency command with integrated evidence and verifies eligible with no blockers. |
 | J3.05 | Clearing that blocker does not renew the consumer’s readiness review. | slice 4 | observed: supplier-dependency-correction-satisfied.test.mjs compares the complete assessment before and after verified resolution; start-eligibility.spec.ts independently checks that readiness bytes do not change. |
-| J4.01 | The execution profile names an agent. | slice 5 |  |
-| J4.02 | The execution profile names a story. | slice 5 |  |
+| J4.01 | The execution profile names an agent. | slice 5 | observed: workspace-publication-startup-agent.test.mjs checks remote profile and assigned name from real Take independently of workspace Git authorship. |
+| J4.02 | The execution profile names a story. | slice 5 | observed: workspace-publication-startup-agent.test.mjs verifies the published profile carries the selected story identity and execution ref. |
 | J4.03 | The plan shows ordered slices. | slice 6 |  |
 | J4.04 | The plan shows recorded proof. | slice 6 |  |
-| J4.05 | Reading the profile and plan makes the dashboard show the published owner. | slice 5 |  |
+| J4.05 | Reading the profile and plan makes the dashboard show the published owner. | slice 5 | observed: published-facts-arrival.spec.ts and taken-agent-profile-refresh.spec.ts observe the assigned owner on the Taken card from published profile and plan; the attribution cases separately track profile modification and re-addition. |
 | J4.06 | Reading the profile and plan makes the dashboard show progress. | slice 6 |  |
 | J4.07 | The execution-complete indication depends on its own proof even when the slices appear done. | slice 6 |  |
 | J5.01 | Completing a Taken item through the product command leaves a durable done record. | slice 7 |  |

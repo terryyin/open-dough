@@ -1,3 +1,4 @@
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -180,8 +181,6 @@ export function profilePath(name) {
   return `${planningDirectory}/${agentIdentity(name).path}`;
 }
 
-// Publishes one trunk commit per named profile, added in the order given, each
-// holding `identity`.
 // Commits the project's setting file to remote trunk.
 export async function publishSettings(trunk, text) {
   const path = join(trunk.integration, ".planning/open-dough.json");
@@ -192,17 +191,15 @@ export async function publishSettings(trunk, text) {
   await git(trunk.integration, "push", "--quiet", "origin", "HEAD:main");
 }
 
+// Publishes one trunk commit per named profile in the given order.
 export async function publishProfiles(trunk, names, identity) {
   mkdirSync(join(trunk.integration, profileDirectory), { recursive: true });
   for (const name of names) {
     writeFileSync(
       join(trunk.integration, profilePath(name)),
-      renderAgentProfile({
-        name,
-        identity,
-        mode: "trunk",
-        branch: "origin/main",
-      }),
+      renderAgentProfile(
+        makeMe.anAgentProfile.executing({ name, identity }).please(),
+      ),
     );
     await git(trunk.integration, "add", profilePath(name));
     await git(trunk.integration, "commit", "--quiet", "-m", `hold ${name}`);

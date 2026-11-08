@@ -9,6 +9,7 @@
 // and the commit adding each profile; the page clock is paused. The local
 // read boundary, the shared readers, and the page decide everything shown.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
@@ -107,14 +108,17 @@ const trunkFiles: Record<string, string> = {
 };
 for (const { anchor, agent, mode } of taken) {
   if (agent !== undefined && mode !== undefined) {
-    trunkFiles[profilePath(agent)] = renderAgentProfile({
-      name: agent,
-      identity: `SEED-094#${anchor}`,
-      mode,
-      branch: mode === "trunk" ? "origin/main" : branch,
-      host: "claude",
-      model: undefined,
-    });
+    trunkFiles[profilePath(agent)] = renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: agent,
+          identity: `SEED-094#${anchor}`,
+          mode,
+          branch: mode === "trunk" ? "origin/main" : branch,
+          host: "claude",
+        })
+        .please(),
+    );
   }
 }
 

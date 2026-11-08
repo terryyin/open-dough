@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   cloneAsAnotherWriter,
   exec,
@@ -56,16 +57,20 @@ async function rival(fixture, kind) {
     );
   } else {
     mkdirSync(join(checkout, ".planning/agents"));
+    const profile = makeMe.anAgentProfile;
+    const assignment = { name: "Yui", identity };
+    if (kind === "execution") {
+      profile.executing({
+        ...assignment,
+        mode: "story-branch",
+        branch: "rival/a",
+      });
+    } else {
+      profile.preparing(assignment);
+    }
     writeFileSync(
       join(checkout, ".planning/agents/yui-chan.json"),
-      renderAgentProfile({
-        name: "Yui",
-        activity: kind,
-        identity,
-        ...(kind === "execution"
-          ? { mode: "story-branch", branch: "rival/a" }
-          : {}),
-      }),
+      renderAgentProfile(profile.please()),
     );
   }
   await git(checkout, "add", "-A");

@@ -7,6 +7,7 @@
 // GitHub only publishes files; the shared rotation reader and the page decide
 // everything shown.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { rosterParts } from "../dashboardPage.ts";
@@ -28,13 +29,17 @@ const agentsOf = (names: readonly string[]) =>
 
 // Yui, a current-collection agent, holds the Taken story; stanly is a nerd.
 const profile = (name: string) =>
-  renderAgentProfile({
-    name,
-    identity,
-    mode: "trunk",
-    branch: "origin/main",
-    host: "claude",
-  });
+  renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({
+        name,
+        identity,
+        mode: "trunk",
+        branch: "origin/main",
+        host: "claude",
+      })
+      .please(),
+  );
 
 async function openRoster(page: Page, settings?: string) {
   await publishFiles(page, {

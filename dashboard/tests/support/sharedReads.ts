@@ -7,6 +7,7 @@
 // boundary reads a test sends, and how a test sends reads that coincide on
 // one held GitHub answer and observes the questions that reached GitHub.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect } from "@playwright/test";
 import {
   developmentBoundary,
@@ -64,14 +65,16 @@ const backlog = `# Product backlog
 `;
 
 const onBranch = (name: string, identity: string, branch: string) =>
-  renderAgentProfile({
-    name,
-    identity,
-    mode: "story-branch",
-    branch,
-    host: undefined,
-    model: undefined,
-  });
+  renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({
+        name,
+        identity,
+        mode: "story-branch",
+        branch,
+      })
+      .please(),
+  );
 
 // `revision` as every repository's ref and trunk head names it, with the
 // story branches' heads listed beside it.

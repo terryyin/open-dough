@@ -8,6 +8,7 @@
 // own head. Commit times, of plans and of the commits adding each profile
 // (its Take), are relative to the page's opening time.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
@@ -130,14 +131,17 @@ export function agentProfile(
   anchor: string,
   { agent, mode, branch }: Story["owners"][number],
 ): string {
-  return renderAgentProfile({
-    name: agent,
-    identity: `SEED-092#${anchor}`,
-    mode,
-    branch,
-    host: "claude",
-    model: undefined,
-  });
+  return renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({
+        name: agent,
+        identity: `SEED-092#${anchor}`,
+        mode,
+        branch,
+        host: "claude",
+      })
+      .please(),
+  );
 }
 
 const backlog = `# Product backlog

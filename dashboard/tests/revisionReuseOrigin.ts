@@ -5,6 +5,7 @@
 // revisions, the comparisons, and the commits between (./originAnswers.ts,
 // ./pathHistoryAnswers.ts); that answerer is ./revisionReuseAnswers.ts.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import type {
   ChangedFile,
   MadeCommit,
@@ -76,22 +77,28 @@ function filesWithoutCatalog(label: string): Files {
     [seedPath]: seedText(label),
     [otherSeedPath]: `# Other fixture ${label}\n\n<a id="other"></a>\n\n### Other ${label}\n\n**Identity:** SEED-302#other\n`,
     [planPath]: `# Plan ${label}\n`,
-    [profilePath]: renderAgentProfile({
-      name: "Akiho",
-      identity: "SEED-301#reuse",
-      mode: "story-branch",
-      branch: `story/${label}`,
-      host: "claude",
-      model: undefined,
-    }),
-    [otherProfilePath]: renderAgentProfile({
-      name: "Maki",
-      identity: "SEED-302#other",
-      mode: "trunk",
-      host: "claude",
-      model: undefined,
-      branch: "main",
-    }),
+    [profilePath]: renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "Akiho",
+          identity: "SEED-301#reuse",
+          mode: "story-branch",
+          branch: `story/${label}`,
+          host: "claude",
+        })
+        .please(),
+    ),
+    [otherProfilePath]: renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "Maki",
+          identity: "SEED-302#other",
+          mode: "trunk",
+          host: "claude",
+          branch: "main",
+        })
+        .please(),
+    ),
     [settingsPath]: `{"label":"${label}"}\n`,
     [donePath]: `{"label":"${label}"}\n`,
   };

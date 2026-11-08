@@ -285,7 +285,7 @@ check is platform-skipped on macOS and remains covered by Linux CI.
 
 ### 5. Published assignment tests use the pilot profile facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: The owner portion of seed example 4. Run `published-facts-arrival.spec.ts`, the affected roster and attribution specs, `workspace-publication-startup-agent.test.mjs`, and affected profile, preparation, Take and Land tests. The same agents, activities and execution modes are read or credited in the existing cases.
 
 Move remaining valid published profile setup onto `anAgentProfile`, extending
@@ -294,6 +294,37 @@ Continue to encode with `renderAgentProfile`. Trace the remaining encoder
 callers, including fixtures that write profile directories. Keep deliberate
 legacy and invalid fields explicit and retain separate execution authorship
 and published assignment facts.
+
+Accepted proof on the macOS execution checkout:
+
+```zsh
+export PATH="/opt/homebrew/bin:$PATH"
+dough_slice_checks=( "${(@f)$(< /tmp/od-seed261-slice5-eWqOMC/node-and-shell.txt)}" )
+dough_slice_specs=( "${(@f)$(< /tmp/od-seed261-slice5-eWqOMC/specs.txt)}" )
+OPEN_DOUGH_TEST_JOBS=2 OPEN_DOUGH_TEST_OUTCOMES=/tmp/od-seed261-slice5-eWqOMC/node-outcomes.tsv caffeinate -s -i bash scripts/test.sh "${dough_slice_checks[@]}"
+[[ ${#dough_slice_specs} -eq 125 ]] &&
+  OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/od-seed261-slice5-eWqOMC/dashboard-proof.json caffeinate -s -i npm run test:dashboard -- "${dough_slice_specs[@]}"
+npm run typecheck:dashboard
+git diff --check
+node --experimental-transform-types /tmp/od-seed261-slice5-eWqOMC/compare-fixtures.mjs /tmp/od-seed261-slice5-eWqOMC/prior "$PWD"
+```
+
+All 24 Node jobs and 378 Playwright tests passed. The existing opt-in
+Sessions measurement skipped by design, and the regular listing proof
+exercises its shared fixture. The earlier Playwright interruption during
+CI repair supplies no proof. Ten fixtures retained published paths and
+bytes. The startup check observes the assigned agent, story, and remote
+branch separately from Git authorship. The dashboard observes owner,
+activity, mode, and branch, and distinguishes modified profiles from
+profiles removed and re-added. The three G2 assignment fixtures encode
+their MakeMe preparation facts through the product writer. Native fixture
+inputs are unaffected. Results and consumer dispositions are under
+`/tmp/od-seed261-slice5-eWqOMC`.
+
+The independent refactor kept the rotation and identity cases under the
+same runner job and shared the profile writer across completion tests.
+Nine affected Node jobs passed with the original assertions. Selection and
+dispositions are in `/tmp/od-seed261-refactor5-consumer-trace-with-dispositions.md`.
 
 ### 6. Published plans retain ordered progress and separate execution completion
 Type: Behavior
@@ -375,7 +406,7 @@ Commitment: P21
 ### G2. Assignment journeys include preparation facts
 Reported: slice 3 — "assignmentCreditRecords.ts, publishedFactsIsolation.ts, and sliceClockRecords.ts still arrange preparation inside published assignment fixtures."
 Story clause: "In mixed cases, convert the published facts here and verify the existing journey."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: renderPublishedPreparation in all three fixtures, fixed-clock byte comparison, and the affected assignment, isolation, and slice-clock dashboard specs
 
 ### G3. Plan readers include preparation facts
 Reported: slice 3 — "branchProgressRecords.ts, intentCiStoryBoard.ts, limitedReadingRecords.ts, reopenedProject.ts, and unchangedRecordsRefresh.ts still arrange preparation inside plan fixtures."

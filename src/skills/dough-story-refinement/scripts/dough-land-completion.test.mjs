@@ -1,5 +1,6 @@
 // Resolved-plan enforcement at the Git-model landing boundary. This invokes
 // the production completion checker; it does not claim native guidance use.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -51,12 +52,16 @@ async function executionFixture(t, source) {
   mkdirSync(join(f.execution, ".planning/agents"));
   writeFileSync(
     join(f.execution, profile),
-    renderAgentProfile({
-      name: "jackson",
-      identity,
-      mode: "story-branch",
-      branch,
-    }),
+    renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "jackson",
+          identity,
+          mode: "story-branch",
+          branch,
+        })
+        .please(),
+    ),
   );
   await git(f.execution, "add", ".planning");
   await git(f.execution, "commit", "-qm", "Record ongoing execution");

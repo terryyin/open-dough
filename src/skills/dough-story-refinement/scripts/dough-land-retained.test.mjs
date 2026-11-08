@@ -1,5 +1,6 @@
 // Git-model caller policy, not native guidance-following. Real publishers,
 // maintenance and completion CLI supply the observed boundaries.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -27,12 +28,16 @@ async function ongoing(t, published = false) {
   const bodies = [
     "# Plan\n\n## Ordered slices\n\n### 1. Release\nType: Behavior\nStatus: planned\n",
     "# Product backlog\n\n## Taken\n- [Ongoing](story.md#ongoing) — SEED-1#ongoing\n\n## Backlog list\n",
-    renderAgentProfile({
-      name: "jackson",
-      identity: "SEED-1#ongoing",
-      mode: published ? "story-branch" : "trunk",
-      branch,
-    }),
+    renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "jackson",
+          identity: "SEED-1#ongoing",
+          mode: published ? "story-branch" : "trunk",
+          branch,
+        })
+        .please(),
+    ),
   ];
   records.forEach((file, i) =>
     writeFileSync(join(f.execution, ".planning", file), bodies[i]),

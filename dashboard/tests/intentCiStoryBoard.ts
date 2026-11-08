@@ -6,6 +6,7 @@
 // Recently done story. The failing story has a counted plan, so the page
 // reads its progress on its branch and its revision check watches that head.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   doneRecordPath,
@@ -68,14 +69,17 @@ function profile(
   branch: string,
 ): Record<string, string> {
   return {
-    [`.planning/agents/${agent.toLowerCase()}-chan.json`]: renderAgentProfile({
-      name: agent,
-      identity: identity(anchor),
-      mode,
-      branch,
-      host: "claude",
-      model: undefined,
-    }),
+    [`.planning/agents/${agent.toLowerCase()}-chan.json`]: renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: agent,
+          identity: identity(anchor),
+          mode,
+          branch,
+          host: "claude",
+        })
+        .please(),
+    ),
   };
 }
 
@@ -143,13 +147,15 @@ export const storyBoardFiles: Record<string, string> = withDoneCatalog(
     ...profile("Tsubomi", twoOwners.anchor, "story-branch", "codex/two"),
     ...profile("Yumi", unusable.anchor, "story-branch", unusable.branch),
     ...profile("Rio", removed.anchor, "story-branch", removed.branch),
-    ".planning/agents/aino-chan.json": renderAgentProfile({
-      name: "Aino",
-      identity: identity(preparing.anchor),
-      activity: "preparation",
-      host: "claude",
-      model: undefined,
-    }),
+    ".planning/agents/aino-chan.json": renderAgentProfile(
+      makeMe.anAgentProfile
+        .preparing({
+          name: "Aino",
+          identity: identity(preparing.anchor),
+          host: "claude",
+        })
+        .please(),
+    ),
     [`.planning/${doneRecordPath(done.identity)}`]: renderDoneRecord({
       ...done,
       completedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),

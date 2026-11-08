@@ -4,6 +4,8 @@
 // when each plan was last committed, and when each profile was added (its
 // Take), relative to the page's opening time.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { addedAt, type PathHistories } from "./pathHistoryAnswers.ts";
 
@@ -58,9 +60,15 @@ ${stories
 ### ${title}
 
 **Identity:** SEED-091#${anchor}
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/091-${anchor}/PLAN.md"}
-\`\`\`
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: `../slice-plans/091-${anchor}/PLAN.md`,
+    })
+    .please(),
+)}
 `,
   )
   .join("\n")}`;
@@ -89,14 +97,17 @@ for (const { anchor } of stories) {
 }
 for (const { anchor, agent } of stories) {
   if (agent !== undefined) {
-    files[profilePath(agent)] = renderAgentProfile({
-      name: agent,
-      identity: `SEED-091#${anchor}`,
-      mode: "trunk",
-      branch: "origin/main",
-      host: "claude",
-      model: undefined,
-    });
+    files[profilePath(agent)] = renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: agent,
+          identity: `SEED-091#${anchor}`,
+          mode: "trunk",
+          branch: "origin/main",
+          host: "claude",
+        })
+        .please(),
+    );
   }
 }
 

@@ -1,5 +1,13 @@
 // @ts-check
+import { storyStateBlockLines } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-block.mjs";
+import { preparationPayload } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-preparation.mjs";
+
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1]} Request */
+
+/** @param {Pick<Request, "refinement" | "approach" | "plan">} facts */
+export function renderPublishedPreparation(facts) {
+  return storyStateBlockLines(preparationPayload(facts)).join("\n");
+}
 
 /**
  * The CLI spells the canonical home as --link and flattens the expected basis.

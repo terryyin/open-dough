@@ -4,6 +4,7 @@
 import type { Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { githubFor } from "./dashboardTest.ts";
 import { sharedStoryIdentity } from "./doughnutProject.ts";
@@ -66,9 +67,15 @@ Direction published at ${label}.
 
 **Goal:** ${purpose}
 
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/777-facts/PLAN.md"}
-\`\`\`
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/777-facts/PLAN.md",
+    })
+    .please(),
+)}
 
 <a id="${queuedAnchor}"></a>
 

@@ -6,6 +6,7 @@
 // and a Doughnut revision whose profile directory cannot be
 // listed at all; and a Pygardon revision that publishes no backlog.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { Locator, Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { expect, githubFor } from "./dashboardTest.ts";
@@ -51,35 +52,49 @@ const backlog = `# Product backlog
 
 export const openDoughFiles = {
   [backlogPath]: backlog,
-  [`${agents}/akiho-chan.json`]: renderAgentProfile({
-    name: "Akiho",
-    identity: takenIdentity,
-    mode: "trunk",
-    branch: "origin/main",
-    host: "claude",
-    model: "claude-opus-5-5",
-  }),
-  [`${agents}/kirara-chan.json`]: renderAgentProfile({
-    name: "Kirara",
-    identity: queuedIdentity,
-    activity: "preparation",
-    host: "cursor",
-  }),
-  [`${agents}/yuma-chan.json`]: renderAgentProfile({
-    name: "Yuma",
-    identity: unlistedIdentity,
-    mode: "story-branch",
-    branch: "codex/retired-story",
-  }),
+  [`${agents}/akiho-chan.json`]: renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({
+        name: "Akiho",
+        identity: takenIdentity,
+        mode: "trunk",
+        branch: "origin/main",
+        host: "claude",
+        model: "claude-opus-5-5",
+      })
+      .please(),
+  ),
+  [`${agents}/kirara-chan.json`]: renderAgentProfile(
+    makeMe.anAgentProfile
+      .preparing({
+        name: "Kirara",
+        identity: queuedIdentity,
+        host: "cursor",
+      })
+      .please(),
+  ),
+  [`${agents}/yuma-chan.json`]: renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({
+        name: "Yuma",
+        identity: unlistedIdentity,
+        mode: "story-branch",
+        branch: "codex/retired-story",
+      })
+      .please(),
+  ),
   [`${agents}/mana-chan.json`]: '{ "agent": "Mana-chan", ',
   // Filed under Yui, it names Sola preparing the queued story: evidence about
   // Yui that contradicts itself, and no assignment for Sola or that story.
-  [`${agents}/yui-chan.json`]: renderAgentProfile({
-    name: "Sola",
-    identity: queuedIdentity,
-    activity: "preparation",
-    host: "codex",
-  }),
+  [`${agents}/yui-chan.json`]: renderAgentProfile(
+    makeMe.anAgentProfile
+      .preparing({
+        name: "Sola",
+        identity: queuedIdentity,
+        host: "codex",
+      })
+      .please(),
+  ),
 };
 
 export const doughnut = {

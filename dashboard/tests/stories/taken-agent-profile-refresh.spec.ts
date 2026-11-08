@@ -2,6 +2,7 @@
 // after a reload at a revision that publishes one. The fake GitHub only
 // publishes the files; the page decides everything shown.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import {
@@ -54,14 +55,16 @@ test("a project without agent profiles still loads, and a reload shows a profile
       revision: revisionB,
       files: {
         [backlogPath]: onlyBacklog,
-        [`${agents}/akiho-chan.json`]: renderAgentProfile({
-          name: "Akiho",
-          identity: "SEED-021#identify-taken-work-owner",
-          mode: "trunk",
-          branch: "origin/main",
-          host: undefined,
-          model: undefined,
-        }),
+        [`${agents}/akiho-chan.json`]: renderAgentProfile(
+          makeMe.anAgentProfile
+            .executing({
+              name: "Akiho",
+              identity: "SEED-021#identify-taken-work-owner",
+              mode: "trunk",
+              branch: "origin/main",
+            })
+            .please(),
+        ),
       },
     });
     await reloadUntilRead(page);
