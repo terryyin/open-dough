@@ -248,26 +248,3 @@ None.
 - **Evidence / follow-up:** run the named spec with `npm run test:dashboard --`
   and the repository-relative path. Compare default two-worker wall time,
   shared hook time, and both cases' durations.
-
-### dashboard-eager-setup-for-focused-runs
-
-- **Locations / scope:** `dashboard/tests/support/globalSetup.ts` and the
-  common Playwright entry point for all three test tiers.
-- **Observed cost:** the focused attention profile at `fd3c59811` spent
-  2.9s between reporter creation and test dispatch. Instrumented children
-  accounted for about 1.7s preparing both installed-start layouts and 0.7s
-  in the production build. The isolated count-rule selection passed three
-  in-process cases in a combined 4ms, with 2.67s between reporter creation
-  and dispatch and 3.31s wall for the command.
-- **Unique protection:** consumers need fresh source or build artifacts and
-  private fixtures. The suite also verifies cleanup and fake-service isolation.
-- **Alternatives attempted:** measured setup in the normal configuration.
-  No lazy setup variant was evaluated.
-- **Disposition / rationale:** transferred to
-  [Prepare dashboard test artifacts only when selected tests need them](seeds/SEED-262-faster-dashboard-test-feedback.md#prepare-artifacts-on-demand).
-  That story owns focused and mixed-run measurements and fixture isolation.
-- **Date:** 2026-11-08
-- **Evidence / follow-up:** use the in-process
-  `dashboard/backend-tests/sessions/session-working-count-rule.spec.ts`,
-  a frontend-only selection, and a mixed selection to distinguish their
-  artifact needs and compare startup costs.
