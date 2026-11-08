@@ -1,12 +1,11 @@
 // Published settings and source files for Intent locations boundary checks.
 
+import { describedBacklog } from "./describedRevisions.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+
 export const knownSourceId = "open-dough";
-export const backlog = `# Product backlog
-
-## Taken
-
-## Backlog list
-`;
+// A project that records no stories.
+export const backlog = describedBacklog(makeMe.aRepository.please());
 export const settingsPath = ".planning/open-dough.json";
 export const featurePath = "e2e_test/features/recall/note.feature";
 export const outsidePath = "README.md";

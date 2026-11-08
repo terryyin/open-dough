@@ -19,6 +19,9 @@ import { openUntilRead } from "../pageRequestNotes.ts";
 
 const revision = "4f2a9c1e7b3d5a6089c0d1e2f3a4b5c6d7e8f901";
 
+// Exact bytes under proof: the shared reader reads each spelling a published
+// backlog may hold, among them the older identity shorthand (`— SEED-008`)
+// the backlog encoder no longer writes.
 const publishedBacklog = `# Product backlog
 
 ## Near-future direction

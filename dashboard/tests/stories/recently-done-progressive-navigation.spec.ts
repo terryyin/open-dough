@@ -15,7 +15,6 @@
 import { expect, test } from "../dashboardTest.ts";
 import { shownProjectControl, chooseProject, parts } from "../dashboardPage.ts";
 import { rem, showColumn } from "../boardPage.ts";
-import { publishMovingOrigin } from "../publishedOrigin.ts";
 import { expectEntries } from "../recentlyDoneColumn.ts";
 import {
   recordsAsked,
@@ -32,6 +31,7 @@ import {
   storiesThrough,
 } from "../recentlyDoneProgressiveJourney.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import { publishOnePygardonStory } from "../pygardonProject.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
@@ -181,11 +181,7 @@ test("choosing another project before the entries before it are read shows that 
   dashboard,
 }) => {
   await page.setViewportSize({ width: 80 * rem, height: 900 });
-  const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
-  pygardon.push(
-    "e6".repeat(20),
-    "# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [A Pygardon story](seeds/SEED-301.md#s) — SEED-301#s\n",
-  );
+  await publishOnePygardonStory(page);
   const view = await openedWithHeldStory(page, dashboard);
   const { backlog } = parts(page);
   await view.markedDone(destination);

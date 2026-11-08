@@ -3,11 +3,13 @@
 // preconditions; what the page shows is for each test to observe.
 
 import type { Page } from "@playwright/test";
+import { describedBacklog } from "./describedRevisions.ts";
 import {
   commitAnswer,
   publishOrigin,
   rawFileAnswer,
 } from "./publishedOrigin.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export const revision = "7c0ffee1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f607";
 
@@ -22,24 +24,60 @@ export const longPlan = `slice-plans/090-${"readable-".repeat(12)}overview/PLAN.
 export const longAddress = `https://status.example.com/${"notes/".repeat(24)}2026-09?view=full#api`;
 export const unusableTarget = `javascript:${"x".repeat(140)}`;
 
-export const longBacklog = `# Product backlog
+// A bounded correction, identified by its plan link alone.
+const repairPlan = "slice-plans/059-installer-update-report/PLAN.md";
+const repair = makeMe.aBacklogEntry
+  .with({
+    identity: repairPlan,
+    title: "Repair the installer's update report",
+    href: repairPlan,
+  })
+  .please();
 
-## Near-future direction
-
-Give developers visibility into a project's published work, including ${unbroken} when someone records it.
-Derive it solely from Git state published to origin.
-
-## Taken
-
-- [${longTitle}](${longPath}#${longAnchor}) — ${longIdentity} ([plan](${longPlan}))
-- [Repair the installer's update report](slice-plans/059-installer-update-report/PLAN.md)
-
-## Backlog list
-
-- [Read the hosting provider's note](${longAddress}) — NOTE-7#api
-- [Keep a target that is not offered as a link readable](${unusableTarget}) — HOSTILE-1#x
-- [Queue trunk integration for agents on the same machine](seeds/SEED-008-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue
-`;
+export const longBacklog = describedBacklog(
+  makeMe.aRepository
+    .withRevision("long", {
+      backlog: {
+        direction: `Give developers visibility into a project's published work, including ${unbroken} when someone records it.
+Derive it solely from Git state published to origin.`,
+        taken: [
+          makeMe.aBacklogEntry
+            .with({
+              identity: longIdentity,
+              title: longTitle,
+              href: `${longPath}#${longAnchor}`,
+              plan: { label: "plan", target: longPlan },
+            })
+            .please(),
+          repair,
+        ],
+        queued: [
+          makeMe.aBacklogEntry
+            .with({
+              identity: "NOTE-7#api",
+              title: "Read the hosting provider's note",
+              href: longAddress,
+            })
+            .please(),
+          makeMe.aBacklogEntry
+            .with({
+              identity: "HOSTILE-1#x",
+              title: "Keep a target that is not offered as a link readable",
+              href: unusableTarget,
+            })
+            .please(),
+          makeMe.aBacklogEntry
+            .with({
+              identity: "SEED-008#same-machine-merge-queue",
+              title: "Queue trunk integration for agents on the same machine",
+              href: "seeds/SEED-008-sync.md#same-machine-merge-queue",
+            })
+            .please(),
+        ],
+      },
+    })
+    .please(),
+);
 
 export const queuedCount = 16;
 export const queuedTitle = (place: number) =>
@@ -50,21 +88,24 @@ const queuedPlaces = Array.from(
 );
 export const queuedTitles = queuedPlaces.map(queuedTitle);
 
-export const largeBacklog = `# Product backlog
-
-## Taken
-
-- [Repair the installer's update report](slice-plans/059-installer-update-report/PLAN.md)
-
-## Backlog list
-
-${queuedPlaces
-  .map(
-    (place) =>
-      `- [${queuedTitle(place)}](seeds/SEED-1${place}-queued.md#story) — SEED-1${place}#story`,
-  )
-  .join("\n")}
-`;
+export const largeBacklog = describedBacklog(
+  makeMe.aRepository
+    .withRevision("large", {
+      backlog: {
+        taken: [repair],
+        queued: queuedPlaces.map((place) =>
+          makeMe.aBacklogEntry
+            .with({
+              identity: `SEED-1${place}#story`,
+              title: queuedTitle(place),
+              href: `seeds/SEED-1${place}-queued.md#story`,
+            })
+            .please(),
+        ),
+      },
+    })
+    .please(),
+);
 
 export async function publishLargeBacklog(page: Page) {
   await publishOrigin(page, {

@@ -1,9 +1,12 @@
 // Doughnut, the second catalog project, as the project-isolation specs
 // publish it: one backlog entry whose recorded identity Open Dough's
-// backlogs also use, following ./navigation/project-selection.spec.ts's
-// `sharedStoryIdentity` pattern. The identity must not be merged across
-// projects, and Doughnut's telling of it must never appear under Open
-// Dough's label, nor Open Dough's under Doughnut's.
+// backlogs also use (./projectSelectionProjects.ts). The identity must not
+// be merged across projects, and Doughnut's telling of it must never appear
+// under Open Dough's label, nor Open Dough's under Doughnut's.
+
+import { describedRevision, publishedFile } from "./describedRevisions.ts";
+import { backlogPath } from "./publishedOriginBasics.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export const doughnutRepository = "nerds-odd-e/doughnut";
 
@@ -16,19 +19,26 @@ export const sharedStoryIdentity = "SEED-777#shared-story";
 export const doughnutSharedTitle = "Doughnut's telling of the shared story";
 export const doughnutSharedGoal = "Doughnut's goal for the shared story.";
 
-export const doughnutBacklog = `# Product backlog
+const sharedSeed = ".planning/seeds/SEED-777-shared.md";
 
-## Taken
-
-## Backlog list
-
-- [${doughnutSharedTitle}](seeds/SEED-777-shared.md#shared-story) — ${sharedStoryIdentity}
-`;
-
-// A readable canonical story with no dependency agreement. Execution journeys
-// must publish this source as well as the backlog before they can start it.
-export const doughnutRecords = {
-  ".planning/seeds/SEED-777-shared.md": `# Shared
+// The shared story queued alone, with a readable canonical story that has no
+// dependency agreement.
+const doughnut = describedRevision(
+  makeMe.aRepository
+    .withRevision("published", {
+      backlog: {
+        queued: [
+          makeMe.aBacklogEntry
+            .with({
+              identity: sharedStoryIdentity,
+              title: doughnutSharedTitle,
+              href: "seeds/SEED-777-shared.md#shared-story",
+            })
+            .please(),
+        ],
+      },
+      files: {
+        [sharedSeed]: `# Shared
 
 <a id="shared-story"></a>
 
@@ -38,4 +48,16 @@ export const doughnutRecords = {
 
 **Goal:** ${doughnutSharedGoal}
 `,
+      },
+    })
+    .please(),
+  revisionDoughnut,
+);
+
+export const doughnutBacklog = publishedFile(doughnut, backlogPath);
+
+// Execution journeys must publish this source as well as the backlog before
+// they can start the story.
+export const doughnutRecords = {
+  [sharedSeed]: publishedFile(doughnut, sharedSeed),
 };

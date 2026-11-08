@@ -6,6 +6,7 @@ import { launched } from "../agentTerminalBoundary.ts";
 import {
   localEntries,
   publishMembership,
+  queuedStoryTaken,
   savedLocalSessionRecords as savedRecords,
 } from "../localTakenSessions.ts";
 import { columnPagingControl, rem, showColumn } from "../boardPage.ts";
@@ -31,7 +32,6 @@ import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import {
   at,
   placed,
-  publishedFiles,
   queuedIdentity,
   queuedTitle,
 } from "../recentlyDoneRecords.ts";
@@ -73,8 +73,7 @@ test("one Taken story with two sessions and one local session means two entries;
     local,
   ]);
   await launched(dashboard, "doughnut");
-  const backlog = `${publishedFiles()[".planning/PRODUCT-BACKLOG.md"]?.replace("## Taken\n\n## Backlog list", "## Taken")}\n## Backlog list\n`;
-  await publishMembership(page, { backlog });
+  await publishMembership(page, { backlog: queuedStoryTaken });
   await page.setViewportSize({ width: 40 * rem, height: 900 });
   await page.goto("/");
   await expectMembership(page, { taken: [queuedTitle], backlog: [] });

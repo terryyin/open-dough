@@ -4,12 +4,14 @@
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { HostStatus } from "../../src/hostStatus.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
+import { backlogApart, describedRevision } from "../describedRevisions.ts";
 import { notRefinedStory, readyStory, takenStory } from "../launchJourney.ts";
 import { openDough, openDoughSettings } from "../intentCodeBrowseFixtures.ts";
 import {
   openDoughCandidatesRecord,
   testOptimizationCandidatesPath,
 } from "../intentCandidatesFixtures.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 export const frontendRevision = openDough.revision;
 
@@ -29,21 +31,37 @@ export const doughnutSource: PublishedSource = {
   backlogPath: ".planning/PRODUCT-BACKLOG.md",
 };
 
-export const takenBacklogMarkdown = `# Product backlog
+const story = (title: string, identity: string, href: string) =>
+  makeMe.aBacklogEntry.with({ identity, title, href }).please();
 
-## Near-future direction
+// The project the page reads on open: one Taken and two queued stories with
+// their seeds, a direction, Intent settings, and test-optimization candidates.
+const frontendPublished = backlogApart(
+  describedRevision(
+    makeMe.aRepository
+      .withRevision("frontend", {
+        backlog: {
+          direction: "Frontend substitute direction.",
+          taken: [story(takenStory, "SEED-A#a", "seeds/SEED-A-taken.md#a")],
+          queued: [
+            story(readyStory, "SEED-B#b", "seeds/SEED-B-ready.md#b"),
+            story(notRefinedStory, "SEED-C#c", "seeds/SEED-C-queued.md#c"),
+          ],
+        },
+        files: {
+          [testOptimizationCandidatesPath]: openDoughCandidatesRecord,
+          ".planning/open-dough.json": openDoughSettings,
+          ".planning/seeds/SEED-A-taken.md": `# Taken\n\n<a id="a"></a>\n\n### ${takenStory}\n\n**Identity:** SEED-A#a\n`,
+          ".planning/seeds/SEED-B-ready.md": `# Ready\n\n<a id="b"></a>\n\n### ${readyStory}\n\n**Identity:** SEED-B#b\n\n**Goal:** Ready goal.\n`,
+          ".planning/seeds/SEED-C-queued.md": `# Queued\n\n<a id="c"></a>\n\n### ${notRefinedStory}\n\n**Identity:** SEED-C#c\n`,
+        },
+      })
+      .please(),
+    frontendRevision,
+  ),
+);
 
-Frontend substitute direction.
-
-## Taken
-
-- [${takenStory}](seeds/SEED-A-taken.md#a) — SEED-A#a
-
-## Backlog list
-
-- [${readyStory}](seeds/SEED-B-ready.md#b) — SEED-B#b
-- [${notRefinedStory}](seeds/SEED-C-queued.md#c) — SEED-C#c
-`;
+export const takenBacklogMarkdown = frontendPublished.backlog;
 
 export const emptyMachineAnswer = (): MachineAnswer => ({
   hostOperations: {
@@ -107,13 +125,7 @@ export function defaultFrontendServiceState(
     projects: [...(options.projects ?? [openDoughSource])],
     revision: frontendRevision,
     backlog: options.backlog ?? takenBacklogMarkdown,
-    files: {
-      [testOptimizationCandidatesPath]: openDoughCandidatesRecord,
-      ".planning/open-dough.json": openDoughSettings,
-      ".planning/seeds/SEED-A-taken.md": `# Taken\n\n<a id="a"></a>\n\n### ${takenStory}\n\n**Identity:** SEED-A#a\n`,
-      ".planning/seeds/SEED-B-ready.md": `# Ready\n\n<a id="b"></a>\n\n### ${readyStory}\n\n**Identity:** SEED-B#b\n\n**Goal:** Ready goal.\n`,
-      ".planning/seeds/SEED-C-queued.md": `# Queued\n\n<a id="c"></a>\n\n### ${notRefinedStory}\n\n**Identity:** SEED-C#c\n`,
-    },
+    files: { ...frontendPublished.files },
     locations: {
       revision: frontendRevision,
       locations: [

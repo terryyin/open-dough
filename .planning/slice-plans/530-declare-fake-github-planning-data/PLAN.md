@@ -68,7 +68,7 @@ Exclusions:
 | Seed example 4: exact bytes kept | Slice 1 | `read-failure.spec.ts` keeps its literal malformed tail at the call site and its verdict; its valid surroundings come from the description. |
 | Navigation, session and board journeys declare their facts | Slice 2 | Specs importing the migrated navigation, notification, doughnut, accessible-board, Intent-location and read-support helpers, and the `navigation`, `sessions`, `configuration`, `runtime` and backlog-only `stories` specs, pass unchanged. |
 | Seed example 3: profiles and done records | Slice 3 | Profile, roster, avatar, recently done, catalog-project and execution-complete specs pass unchanged; their served profiles, records and catalog come from the description. |
-| Seed example 5: superseded templates removed | Slice 3 | `grep -rlE '# Product backlog\|## Backlog list' dashboard/tests` lists only the Git helpers owned by plan 512 and call sites whose spec proves those bytes; each remaining literal names that reason in its comment or is a spec under proof. |
+| Seed example 5: superseded templates removed | Slice 3 | `grep -rlE '# Product backlog\|## Backlog list' dashboard` lists only the Git helpers owned by plan 512 and call sites whose spec proves those bytes; each remaining literal names that reason in its comment or is a spec under proof. |
 | Served path sets unchanged | Each slice | Before editing a helper, a scratch script in the job directory records the sorted served paths of each exported revision; after the migration the lists are equal. |
 | Feedback does not get slower | Slices 1 and 3 | Before and after focused times, two runs each under comparable load, for the refresh family (slice 1) and the recently done and profile family (slice 3) differ by no more than run-to-run noise. |
 
@@ -163,7 +163,7 @@ bound once at load 32 and passed 20 of 20 on rerun; watch it in the full run.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Record path lists before editing. Run the specs importing each
 migrated helper and the migrated specs in one focused run; compare path
@@ -182,6 +182,25 @@ Migrate `sessionNavigationJourney.ts`, `sourceNavigationJourney.ts`,
 backlog-only specs under `navigation`, `sessions`, `configuration` and
 `stories` (`direction-disclosure`, `preparation-legend`, `published-work`,
 the three `recently-done-progressive-*` specs).
+
+Accepted proof (2026-11-08): 131 spec files importing a migrated helper
+directly or transitively, plus the migrated specs, passed 324 of 324 before
+editing (load 12.3→19.9) and after (load 16.2→13.6); served-path logs of 310
+tests equal before and after; backlog bytes changed only to the encoder's
+form; typecheck clean.
+
+Learnings: `publishes()` answers the backlog for any unpublished content path
+and lists only `files`, so a described revision passes through
+`backlogApart(at)`. Pygardon's facts live in `dashboard/tests/pygardonProject.ts`
+and project selection's in `dashboard/tests/projectSelectionProjects.ts`.
+`stories/published-work.spec.ts` keeps its literal backlog because it proves
+the older `— SEED-008` shorthand the encoder no longer writes. Thirteen specs
+under `dashboard/backend-tests` also serve literal backlogs through the fake
+GitHub; seed example 5 covers them, so slice 3 takes them.
+The refactor added `publishOnePygardonStory(page)`; slice 3 reuses it for
+`recentlyDoneSessionsSidebarPage.ts`'s served Pygardon backlog and gives the
+queued workspace story shared by `queuedStoryTaken` and
+`recentlyDoneRecords.ts` one home.
 
 ### 3. Profile, story-state and done-record journeys declare their records
 
@@ -206,8 +225,10 @@ Migrate `takenAgentProfileRecords.ts`, `agentRosterRecords.ts`,
 `stories/takenExecutionCompleteFixture.ts`, and the specs
 `agent-roster-collection`, `nerds-cartoon-portrait`,
 `taken-agent-profile-refresh`, `taken-slice-progress` and
-`plan-execution-complete-detail`. Delete templates and catalog helpers that
-become unused.
+`plan-execution-complete-detail`, and the `dashboard/backend-tests` specs that
+serve literal backlogs through the fake GitHub (`grep -rlE '# Product
+backlog|## Backlog list' dashboard/backend-tests`), keeping literal only the
+bytes a spec proves. Delete templates and catalog helpers that become unused.
 
 ## Plan concerns
 

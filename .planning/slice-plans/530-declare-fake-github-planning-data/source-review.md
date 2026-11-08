@@ -25,12 +25,12 @@ dated snapshot, not a closed list.
 | 7.5 | Rendering uses the Git materializer's encoder for the rebuilt done catalog | slice 1 | observed: tests/support/repository-revision-files.test.mjs 'each revision a description renders without Git holds the same files and bytes as its materialized commit'; renderRevisionFiles in tests/support/repository-revision-files.mjs |
 | 8 | The Git materializer and this rendering share one file renderer | slice 1 | observed: tests/support/repository-revision-files.test.mjs 'each revision a description renders without Git holds the same files and bytes as its materialized commit'; renderRevisionFiles in tests/support/repository-revision-files.mjs |
 | 9.1 | `refreshJourney.ts` declares its published planning files | slice 1 | observed: dashboard/tests/refreshJourney.ts declares A, B, C in one makeMe.aRepository description; refresh family 65 passed twice |
-| 9.2 | `notificationStoryJourney.ts` declares its published planning files | slice 2 | |
-| 9.3 | `sessionNavigationJourney.ts` declares its published planning files | slice 2 | |
-| 9.4 | `sourceNavigationJourney.ts` declares its published planning files | slice 2 | |
-| 9.5 | `doughnutProject.ts` declares its published planning files | slice 2 | |
+| 9.2 | `notificationStoryJourney.ts` declares its published planning files | slice 2 | observed: dashboard/tests/notificationStoryJourney.ts targetBacklog(column) and notificationOrigins are makeMe.aRepository descriptions; notification-story-navigation and session-alerts-navigation pass |
+| 9.3 | `sessionNavigationJourney.ts` declares its published planning files | slice 2 | observed: dashboard/tests/sessionNavigationJourney.ts pushes pygardonBacklog declared in dashboard/tests/pygardonProject.ts; sessions sidebar navigation specs pass |
+| 9.4 | `sourceNavigationJourney.ts` declares its published planning files | slice 2 | observed: dashboard/tests/sourceNavigationJourney.ts linkedBacklog is a description (direction, 2 taken, 9 queued), bytes identical |
+| 9.5 | `doughnutProject.ts` declares its published planning files | slice 2 | observed: dashboard/tests/doughnutProject.ts describedRevision with declared backlog and seed file; doughnutJourney specs pass |
 | 9.6 | `recentlyDoneRecords.ts` declares its published planning files | slice 3 | |
-| 9.7 | `accessibleBoard.ts` declares its published planning files | slice 2 | |
+| 9.7 | `accessibleBoard.ts` declares its published planning files | slice 2 | observed: dashboard/tests/accessibleBoard.ts longBacklog and largeBacklog are descriptions; accessible-board, board-* specs pass with identical bytes |
 | 9.8 | `takenAgentProfileRecords.ts` declares its published planning files | slice 3 | |
 | 9.9 | `agentRosterRecords.ts` declares its published planning files | slice 3 | |
 | 9.10 | `authenticatedAvatarRecords.ts` declares its published planning files | slice 3 | |
@@ -44,12 +44,12 @@ dated snapshot, not a closed list.
 | 15 | Literal bytes stay at the call site where a spec proves them: malformed or truncated backlogs, legacy shapes, unreadable records, deliberately invalid input | slice 3 | |
 | 16 | The surrounding valid files in such cases are built from the description | slice 3 | |
 | 17 | Superseded literal templates (e.g. `emptyBacklog`) are removed once their last consumer declares its facts | slice 3 | |
-| 18 | A helper doing both Git building and fake GitHub serving migrates its fake GitHub files here | slice 2 | |
+| 18 | A helper doing both Git building and fake GitHub serving migrates its fake GitHub files here | slice 2 | observed: dashboard/tests/support/projectAddMachine.ts fake GitHub backlog is describedBacklog(makeMe.aRepository.please()); Git origin untouched |
 | 19 | KE1: a journey with no stated planning facts gets an empty valid backlog; board shows no stories; `emptyBacklog` is gone | slice 1 | observed: emptyBacklog deleted from originAnswers.ts; accessible-board, frame-board-look, project-selection, published-work, direction-disclosure empty-board assertions pass with makeMe.aRepository.please() |
 | 20 | KE2: refresh journey declares A and B; moving trunk A to B shows the same titles and order; unchanged seeds at B are served from A's files | slice 1 | observed: refreshJourney.ts revisions A/B; refresh family titlesOfA/titlesOfB assertions pass; cumulative files from A proved by the renderer equality test (B keeps A's seed, plan and done record) |
 | 21 | KE3: served profile, records and catalog equal what `renderAgentProfile`, `renderDoneRecord` and the catalog encoder write; cards read as today | slice 3 | |
 | 22 | KE4: read-failure spec still serves its malformed backlog tail literally at the call site, verdict unchanged | slice 1 | observed: dashboard/tests/observation/read-failure.spec.ts backlogWith literal tails; line 13/14 and 'lines 9 and 14' verdicts pass unchanged |
-| 23 | KE4: a long-title layout case declares long titles, direction and identities as facts | slice 2 | |
+| 23 | KE4: a long-title layout case declares long titles, direction and identities as facts | slice 2 | observed: dashboard/tests/accessibleBoard.ts longBacklog declares the long title, longIdentity, longPath#longAnchor, longPlan and the direction with the unbroken word as facts |
 | 24 | KE5: no dashboard helper or spec serving the fake GitHub writes `# Product backlog` text, except a call site whose spec proves those bytes | slice 3 | |
 | 25 | Migrated specs keep their verdicts and assertions | slice 3 | |
 | 26 | A reviewer can name each journey's served planning facts from its call site or fixture file | slice 3 | |

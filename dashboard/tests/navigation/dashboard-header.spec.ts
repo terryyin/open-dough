@@ -37,6 +37,8 @@ import {
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { settings } from "../support/systemSettingsPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const layouts = [
   { width: 1280, height: 800, compact: false },
@@ -174,9 +176,26 @@ test("banner project selection reads the selected project's actual published wor
   openDough.push(revision, largeBacklog);
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
   const doughnutRevision = "d".repeat(40);
-  const backlog = (title: string) =>
-    `# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [${title}](seeds/SEED-001.md#story) — SEED-001#story\n`;
-  doughnut.push(doughnutRevision, backlog("Doughnut's next story"));
+  doughnut.push(
+    doughnutRevision,
+    describedBacklog(
+      makeMe.aRepository
+        .withRevision("published", {
+          backlog: {
+            queued: [
+              makeMe.aBacklogEntry
+                .with({
+                  identity: "SEED-001#story",
+                  title: "Doughnut's next story",
+                  href: "seeds/SEED-001.md#story",
+                })
+                .please(),
+            ],
+          },
+        })
+        .please(),
+    ),
+  );
   await openUntilRead(page);
   const { banner, project } = parts(page);
   await expectProjectChoice(page, "Open Dough");

@@ -10,6 +10,8 @@ import { everyRepository, publishes } from "./fakeGitHub.ts";
 import type { GhRequest } from "./ghRequest.ts";
 import { heldInTurn } from "./heldGitHubAnswer.ts";
 import { askedSince, readAt } from "./sharedReads.ts";
+import { backlogApart, describedRevision } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 export const revisionOf = (pair: string) => pair.repeat(20);
 // How many reads one dashboard process has under way at GitHub at most.
@@ -20,25 +22,25 @@ export const seedPaths = Array.from(
   Array(12).keys(),
   (index) => `.planning/seeds/SEED-turn-${String(index + 1)}.md`,
 );
-const backlog = `# Product backlog
-
-## Taken
-
-## Backlog list
-
-${seedPaths
-  .map((path, index) => {
-    const identity = `SEED-turn-${String(index + 1)}#turn`;
-    return `- [Turn ${String(index + 1)}](${path.replace(".planning/", "")}#turn) — ${identity}`;
-  })
-  .join("\n")}
-`;
-export const publishedAt = (revision: string) =>
-  publishes({
-    revision,
-    backlog,
+// Each seed queued as "Turn N", with a heading of its own path.
+const turnsDescribed = makeMe.aRepository
+  .withRevision("published", {
+    backlog: {
+      queued: seedPaths.map((path, index) =>
+        makeMe.aBacklogEntry
+          .with({
+            identity: `SEED-turn-${String(index + 1)}#turn`,
+            title: `Turn ${String(index + 1)}`,
+            href: `${path.replace(".planning/", "")}#turn`,
+          })
+          .please(),
+      ),
+    },
     files: Object.fromEntries(seedPaths.map((path) => [path, `# ${path}\n`])),
-  });
+  })
+  .please();
+export const publishedAt = (revision: string) =>
+  publishes(backlogApart(describedRevision(turnsDescribed, revision)));
 
 export const seedRead = (revision: string, path: string) =>
   `&revision=${revision}&path=${encodeURIComponent(path)}`;

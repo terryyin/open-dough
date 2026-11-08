@@ -7,7 +7,31 @@ import { parts } from "./dashboardPage.ts";
 import { describedBacklog } from "./describedRevisions.ts";
 import { backlogPath, publishFiles } from "./publishedOrigin.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { repository, revision } from "./recentlyDoneRecords.ts";
+import {
+  queuedIdentity,
+  queuedTitle,
+  repository,
+  revision,
+} from "./recentlyDoneRecords.ts";
+
+// The queued story of ./recentlyDoneRecords.ts, recorded in Taken instead.
+export const queuedStoryTaken = describedBacklog(
+  makeMe.aRepository
+    .withRevision("taken", {
+      backlog: {
+        taken: [
+          makeMe.aBacklogEntry
+            .with({
+              identity: queuedIdentity,
+              title: queuedTitle,
+              href: "seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure",
+            })
+            .please(),
+        ],
+      },
+    })
+    .please(),
+);
 
 // Publishes the exact backlog bytes when given, or else a project stating no
 // planning facts, at the shared revision unless another is given.

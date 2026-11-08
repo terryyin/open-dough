@@ -22,16 +22,12 @@ const fullDirection = `Keep published work visible.
 
 Read <img src=x onerror="document.title='direction ran'"> as text.
 Finish with the complete final line.`;
-const withDirection = (direction: string) => `# Product backlog
-
-## Near-future direction
-
-${direction}
-
-## Taken
-
-## Backlog list
-`;
+const withDirection = (direction: string) =>
+  describedBacklog(
+    makeMe.aRepository
+      .withRevision("directed", { backlog: { direction } })
+      .please(),
+  );
 
 test("direction starts collapsed and opens by pointer and keyboard without reading again", async ({
   page,

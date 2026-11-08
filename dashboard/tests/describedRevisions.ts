@@ -68,6 +68,23 @@ export function describedBacklog<Name extends string>(
   return backlog.toString();
 }
 
+// A published revision's backlog apart from its other files, for a harness
+// that answers the backlog for any path it does not publish
+// (./support/publishedRepository.ts).
+export function backlogApart(at: PublishedRevision): {
+  revision: string;
+  backlog: string;
+  files: Record<string, string>;
+} {
+  return {
+    revision: at.revision,
+    backlog: publishedFile(at, backlogPath),
+    files: Object.fromEntries(
+      Object.entries(at.files).filter(([path]) => path !== backlogPath),
+    ),
+  };
+}
+
 // The text `at` publishes at `path`; a fixture that publishes none is wrong.
 export function publishedFile(at: PublishedRevision, path: string): string {
   const content = at.files[path];
