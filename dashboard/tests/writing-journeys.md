@@ -79,6 +79,17 @@ journey that sets `observationClock` with `test.use` moves that clock past the
 window with `dashboard.advanceObservationClock` instead of waiting it out
 (`observation/shared-observer-check-reuse.spec.ts`).
 
+### Authenticated-read backend clocks
+
+For revision streams and revision-check timeouts, use the in-process HTTP
+fixture and scope the controlled timers to the request. Observe the held
+GitHub call before advancing its deadline. For a stream, observe the server
+disconnect or the clean response end, then step the cadence and check that
+the canceled timer fires no callback and GitHub receives no call. For a
+cooldown, step the private request owner's clock and check the upstream call
+count on each side of the advance. Keep process startup and teardown on real
+timers.
+
 ## Commands, servers and shared preconditions
 
 A command started with `dashboardCommand` (`support/dashboardCommand.ts`) is
