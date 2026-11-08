@@ -5,11 +5,11 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  realpathSync,
   writeFileSync,
 } from "node:fs";
 import { availableParallelism } from "node:os";
 import path from "node:path";
-import { setTimeout as delay } from "node:timers/promises";
 import { test } from "node:test";
 import { fullDashboardSuite } from "../../dashboard/tests/support/fullSuiteSelection.mjs";
 import {
@@ -22,9 +22,10 @@ import {
   until,
 } from "./local-test-suite-fixtures.mjs";
 import {
+  repositoryAtAdmissionGate,
   repositoryAtSlotGate,
   startedChecks,
-} from "./local-test-suite-slot-gate.mjs";
+} from "./local-test-suite-gates.mjs";
 
 test("local repository defaults to four jobs; explicit overrides and CI keep their concurrency", async (t) => {
   const cores = Number(
@@ -64,30 +65,33 @@ test("repository full suites serialize across spaced worktrees while focused and
   );
   const original = git(project, "rev-parse", gateRef);
   const ownerRecord = JSON.parse(git(project, "cat-file", "blob", original));
-  const common = git(
-    project,
-    "rev-parse",
-    "--path-format=absolute",
-    "--git-common-dir",
+  // Admission keys inherited tokens by the real Git common directory.
+  const common = realpathSync(
+    git(project, "rev-parse", "--path-format=absolute", "--git-common-dir"),
   );
-  // A copied token is insufficient without live ancestry. Cancelling that
-  // waiting caller must leave the active owner's admission untouched.
+  // A copied token is insufficient without live ancestry: the contender
+  // reaches admission and the live owner blocks it. Cancelling that waiting
+  // caller must leave the active owner's admission untouched.
   for (const token of ["stale-token", ownerRecord.tokens[0]]) {
     const denied = observe(`denied-${token}`);
-    const pretender = repository(t, linked, denied, {
+    const pretender = repositoryAtAdmissionGate(t, linked, denied, {
       DOUGH_LOCAL_SUITE_OWNERS: Buffer.from(
         JSON.stringify({ [common]: token }),
       ).toString("base64url"),
       DOUGH_LOCAL_SUITE_IDS: token,
     });
-    await delay(150);
-    assert.ok(!existsSync(path.join(denied, "start-0")));
+    assert.equal(await pretender.gate, original, `${token}: blocked by owner`);
     pretender.child.kill("SIGTERM");
     const cancelled = await pretender.result;
-    assert.ok(cancelled.code === 143 || cancelled.signal === "SIGTERM");
+    assert.ok(
+      cancelled.code === 143 || cancelled.signal === "SIGTERM",
+      cancelled.output,
+    );
+    assert.equal(startedChecks(denied), 0);
     assert.equal(git(project, "rev-parse", gateRef), original);
   }
-  const waiter = repository(t, linked, second);
+  const waiter = repositoryAtAdmissionGate(t, linked, second);
+  assert.equal(await waiter.gate, original);
   const outsideChecks = path.join(
     path.dirname(project),
     "outside-checkout-checks",
@@ -172,9 +176,15 @@ test("nested full invocations inherit actual ancestry without releasing their pa
       owner.child.exitCode !== null,
   );
   assert.ok(existsSync(path.join(first, "nested/start")), owner.output());
-  const waiter = repository(t, linked, second);
-  await delay(150);
-  assert.ok(!existsSync(path.join(second, "start-0")));
+  // The nested suite returned without releasing the outer suite's admission.
+  const held = git(project, "rev-parse", gateRef);
+  assert.equal(
+    JSON.parse(git(project, "cat-file", "blob", held)).pid,
+    owner.child.pid,
+  );
+  const waiter = repositoryAtAdmissionGate(t, linked, second);
+  assert.equal(await waiter.gate, held);
+  assert.equal(startedChecks(second), 0);
   writeFileSync(path.join(first, "release"), "");
   await succeeded(owner);
   await until("waiter entered", () => existsSync(path.join(second, "start-0")));

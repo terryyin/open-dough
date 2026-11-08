@@ -98,13 +98,13 @@ first spec asserts the gate count, the held starts, release and all checks
 run for local, override and CI. Focused specs and `tests/test-runner-*.sh`
 passed; a scratch `slot <= job_slots` overdispatch failed with "5 checks
 started before the slot gate" and was restored. Refactor moved the
-slot-gate helper into its own module to keep the fixtures file under the
+slot-gate helper into its own module (now `tests/support/local-test-suite-gates.mjs`) to keep the fixtures file under the
 size limit.
 
 ### 2. A linked worktree waits while a live outer suite holds admission
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Key examples 2 and 3 through
 `npm test -- tests/support/local-test-suite.test.mjs tests/support/local-test-suite-lifecycle.test.mjs`.
 
@@ -119,6 +119,20 @@ linked-worktree contender blocked. Release the outer suite and verify the
 contender starts and succeeds. Replay the preparation's early-exit
 counterexample in scratch to verify the new gate observation rejects it,
 then restore and rerun the focused checks.
+
+Accepted: `acquireLocalSuite` takes the opt-in `OPEN_DOUGH_TEST_ADMISSION_GATE`
+out of its environment and atomically writes the blocking owner's record id
+once a live non-ancestor owner blocks it. `repositoryAtAdmissionGate`
+observes it for the stale and copied tokens and the post-nested waiter.
+The copied token is now keyed by the realpath of the Git common directory;
+on macOS the old unresolved `/var` key never reached the ancestry check.
+The fixture now stops children through one `fixtureTeardown` per test
+before removing roots. The scratch pre-admission exit failed with "Run ended
+before the admission gate" and was restored. Focused specs passed five
+times plus twice after refactor; `tests/test-runner-*.sh` passed. The
+completion inspection found no `delay`, `setTimeout` or sleep in the spec
+or gate helper. Refactor made the admission marker atomic and moved the
+checkout content into `tests/support/local-test-suite-checkout.mjs`.
 
 ## Concern evidence
 
