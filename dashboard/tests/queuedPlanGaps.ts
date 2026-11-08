@@ -126,7 +126,10 @@ export async function expectChangedQueuedAssociations(
   writePlanning(
     repo.directory,
     "PRODUCT-BACKLOG.md",
-    openDoughProductBacklog(planReadyPath, { includeQueuedPlan: true }),
+    openDoughProductBacklog(
+      { label: "plan", target: planReadyPath },
+      { queuedPlan: { label: "plan", target: planBlockedPath } },
+    ),
   );
   revision = await publish(
     [seedRelative, "PRODUCT-BACKLOG.md"],
@@ -152,7 +155,7 @@ export async function expectChangedQueuedAssociations(
   writePlanning(
     repo.directory,
     "PRODUCT-BACKLOG.md",
-    openDoughProductBacklog(planReadyPath),
+    openDoughProductBacklog({ label: "plan", target: planReadyPath }),
   );
   await publish(
     ["PRODUCT-BACKLOG.md"],

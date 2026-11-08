@@ -14,13 +14,13 @@ The numbered return is retained below.
 | P03 | A story’s home is recognizable across test entries without decoding fixture-specific fields. | slice 9 |  |
 | P04 | A story’s membership is recognizable across test entries without decoding fixture-specific fields. | slice 9 |  |
 | P05 | A story’s published revision is recognizable across test entries without decoding fixture-specific fields. | slice 9 |  |
-| P06 | A story’s preparation is recognizable across test entries without decoding fixture-specific fields. | slice 3 |  |
+| P06 | A story’s preparation is recognizable across test entries without decoding fixture-specific fields. | slice 3 | observed: storyReadinessFixture.ts and story-state-fixture.mjs pass named MakeMe preparation facts to the real recorder, including assessment and expected basis. |
 | P07 | A story’s progress is recognizable across test entries without decoding fixture-specific fields. | slice 6 |  |
 | P08 | Convert remaining valid setup for published project sources. | slice 2 | observed: catalogProjectRecords.ts declares the four canonical PublishedSource inputs and pinned revisions and serves their encoded files through publishFiles. |
 | P09 | Convert remaining valid setup for story homes. | slice 1 | observed: product-backlog-refresh-fixture.mjs adoptedHomes and afterMove, exercised by the renamed and reanchored home tests in product-backlog-refresh.test.mjs |
 | P10 | Convert remaining valid setup for backlog membership. | slice 1 | observed: product-backlog-fixture.mjs arrangedBacklog and product-backlog-merge-fixture.mjs mergeBacklog arrange Taken and queue facts; product-backlog-take.test.mjs and product-backlog-merge-order.test.mjs assert ordered membership |
 | P11 | Convert remaining valid setup for published assignments. | slice 5 |  |
-| P12 | Convert remaining valid setup for preparation. | slice 3 |  |
+| P12 | Convert remaining valid setup for preparation. | slice 3 | observed: storyReadinessFixture.ts, story-state-fixture.mjs, queued-ready-stories.mjs and the installed native Take fixture supply the planned and planless preparation facts in canonical fields; G2–G5 own mixed-family conversions. |
 | P13 | Convert remaining valid setup for supplier agreements. | slice 4 |  |
 | P14 | Convert remaining valid setup for slice plans. | slice 6 |  |
 | P15 | Convert remaining valid setup for slice progress. | slice 6 |  |
@@ -35,10 +35,10 @@ The numbered return is retained below.
 | P24 | Keep defaults incidental. | slice 9 |  |
 | P25 | Remove displaced fixture models as each family is converted. | slice 9 |  |
 | P26 | Remove displaced fixture constructors as each family is converted. | slice 9 |  |
-| P27 | Carry readiness `href` through the existing renderer. | slice 3 |  |
-| P28 | Carry readiness `href` through the existing preparation commands. | slice 3 |  |
-| P29 | Carry the product backlog entry’s plan link through the existing renderer. | slice 3 |  |
-| P30 | Carry the product backlog entry’s plan link through the existing preparation commands. | slice 3 |  |
+| P27 | Carry readiness `href` through the existing renderer. | slice 3 | observed: storyReadinessFixture.ts openDoughProductBacklog supplies canonical entry hrefs to the shared production-backed backlog writer. |
+| P28 | Carry readiness `href` through the existing preparation commands. | slice 3 | observed: storyReadinessCli.ts recordAssessed passes the same canonical href to read-state and the shared recordPreparationArgs adapter; story-readiness.spec.ts observes committed facts. |
+| P29 | Carry the product backlog entry’s plan link through the existing renderer. | slice 3 | observed: storyReadinessFixture.ts openDoughProductBacklog supplies the production plan link including the Taken plan anchor to renderPublishedBacklog. |
+| P30 | Carry the product backlog entry’s plan link through the existing preparation commands. | slice 3 | observed: product-backlog-plan-link.test.mjs observes record-state link the correct Taken plan and retain an agreeing explicit anchor; storyReadinessFixture.ts arranges associated plan and canonical-home links separately. |
 | P31 | Keep catalog pinned source facts distinct from expected card text. | slice 2 | observed: catalogProjectRecords.ts builds PublishedSource with no expected card data; catalogProjectExpectations.ts independently states the card text. |
 | P32 | Keep catalog pinned source facts distinct from expected card paths. | slice 2 | observed: catalogProjectRecords.ts builds PublishedSource with the backlog path; catalogProjectExpectations.ts independently lists expected home paths. |
 | P33 | Keep catalog work records distinct from expected card text. | slice 2 | observed: catalogProjectRecords.ts builds separate Take and queue facts, while authenticated-project-observation.spec.ts checks independent titles and purpose. |
@@ -93,10 +93,10 @@ The numbered return is retained below.
 | J2.01 | An existing story moves to a different home. | slice 1 | observed: product-backlog-refresh.test.mjs refresh reference carries the identity to a renamed canonical home, with afterMove planting the new file and removing the old |
 | J2.02 | The move preserves the story’s identity. | slice 1 | observed: product-backlog-refresh.test.mjs renamed and reanchored cases compare the original identity in refreshed bytes and still address the entry by that identity |
 | J2.03 | Refreshing the backlog makes the entry follow the moved home. | slice 1 | observed: product-backlog-refresh.test.mjs real refresh compares the updated href in the original queue position and confirms unchanged canonical home bytes |
-| J2.04 | For a Taken story with a plan, the readiness journey reads its canonical entry. | slice 3 |  |
-| J2.05 | The same readiness journey reads its recorded assessment. | slice 3 |  |
-| J2.06 | If a separately published update changes membership, it does so only through the facts it writes. | slice 3 |  |
-| J2.07 | If a separately published update changes assessment, it does so only through the facts it writes. | slice 3 |  |
+| J2.04 | For a Taken story with a plan, the readiness journey reads its canonical entry. | slice 3 | observed: story-readiness.spec.ts pinned revision and detail steps inspect a Taken story and its plan with canonical links and stable identity. |
+| J2.05 | The same readiness journey reads its recorded assessment. | slice 3 | observed: story-readiness.spec.ts labeled colors and independent facts step observes Ready and Not ready from CLI-committed evidence. |
+| J2.06 | If a separately published update changes membership, it does so only through the facts it writes. | slice 3 | observed: story-readiness-accessible.spec.ts newly read snapshot preserves identity focus or announces removal, then independently observes restored membership and removal announcement withdrawal. |
+| J2.07 | If a separately published update changes assessment, it does so only through the facts it writes. | slice 3 | observed: story-readiness-gaps.spec.ts changed-content step retains the previous judgment with changed review, then explicit published reassessment clears the change indication. |
 | J3.01 | The consumer is ready. | slice 4 |  |
 | J3.02 | Its supplier agreement is unsatisfied. | slice 4 |  |
 | J3.03 | A start eligibility read still reports the dependency blocker. | slice 4 |  |

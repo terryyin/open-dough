@@ -79,8 +79,7 @@ export async function reconciliationFixture(t) {
       plan: "../slice-plans/late/PLAN.md",
       assessment: "not-ready",
       reasons: [unrelatedReason],
-      expectDocument: state.basis.document,
-      expectPlan: state.basis.plan,
+      expectedBasis: state.basis,
     }),
   );
   assert.equal(prepared.code, 0, prepared.stderr);

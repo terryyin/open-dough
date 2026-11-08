@@ -76,6 +76,7 @@ const withReport = (profile, { host, model }) => ({
 
 /** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
+/** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
 
 export const makeMe = {
   get anAgentProfile() {
@@ -104,6 +105,17 @@ export const makeMe = {
   get aPublishedRevision() {
     return {
       /** @param {PublishedRevision} facts */
+      with(facts) {
+        return { please: () => ({ ...facts }) };
+      },
+    };
+  },
+  get aStoryPreparation() {
+    return {
+      /**
+       * @template {StoryPreparation} Facts
+       * @param {Facts} facts
+       */
       with(facts) {
         return { please: () => ({ ...facts }) };
       },

@@ -29,8 +29,8 @@ import {
   seedRelative,
 } from "./story-state-fixture.mjs";
 
-const firstLine = `- [${first.title}](${first.link}) — ${first.identity}`;
-const secondLine = `- [${second.title}](${second.link}) — ${second.identity}`;
+const firstLine = `- [${first.title}](${first.href}) — ${first.identity}`;
+const secondLine = `- [${second.title}](${second.href}) — ${second.identity}`;
 const planPath = "slice-plans/076-repair/PLAN.md";
 const sectionLink = `${planPath}#ordered-slices`;
 const correctionLine = `- [Repair the release notes](${planPath})`;
@@ -172,7 +172,7 @@ test("plan home: take refuses a plan equal to another queued anchored home", asy
   );
   const before = backlogBytes(project);
 
-  const refused = await run(project, take(trunkQueue, first.link));
+  const refused = await run(project, take(trunkQueue, first.href));
   assertRefused(
     project,
     refused,
@@ -184,7 +184,7 @@ test("plan home: take refuses a plan equal to another queued anchored home", asy
 test("plan home: add refuses a home another entry links exactly as its plan", async (t) => {
   const project = projectWith(
     t,
-    backlogOf([takenEntry, `${secondLine} ([plan](${first.link}))`], queued),
+    backlogOf([takenEntry, `${secondLine} ([plan](${first.href}))`], queued),
   );
   const before = backlogBytes(project);
 
@@ -195,7 +195,7 @@ test("plan home: add refuses a home another entry links exactly as its plan", as
     "--title",
     first.title,
     "--link",
-    first.link,
+    first.href,
     "--position",
     "first",
   ]);
@@ -211,12 +211,12 @@ test("plan home: a backlog listing an anchored home and that exact plan is refus
   const project = projectWith(
     t,
     backlogOf(
-      [takenEntry, `${secondLine} ([plan](${first.link}))`, firstLine],
+      [takenEntry, `${secondLine} ([plan](${first.href}))`, firstLine],
       queued,
     ),
   );
   const before = backlogBytes(project);
 
-  const refused = await run(project, take(second.identity, first.link));
+  const refused = await run(project, take(second.identity, first.href));
   assertRefused(project, refused, before, /already lists the same work twice/);
 });

@@ -6,7 +6,10 @@ import { run } from "./product-backlog-fixture.mjs";
 
 export function dependency(supplier, overrides = {}) {
   return {
-    supplier: { identity: supplier.identity, href: supplier.link },
+    supplier: {
+      identity: supplier.identity,
+      href: supplier.href ?? supplier.link,
+    },
     implementation: "Shared endpoint interpretation",
     rationale:
       "The supplier must deliver the endpoint contract before this story can validate its consumer behavior; normal reconciliation cannot supply the missing contract.",
@@ -20,7 +23,7 @@ export async function readDependencies(project, story) {
   const result = await run(project, [
     "read-dependencies",
     "--link",
-    story.link,
+    story.href ?? story.link,
   ]);
   if (result.code !== 0) throw new Error(result.stderr);
   return JSON.parse(result.stdout);
@@ -38,7 +41,7 @@ export async function updateDependency(project, story, entry, expectedBasis) {
     "--identity",
     story.identity,
     "--link",
-    story.link,
+    story.href ?? story.link,
     "--dependency-file",
     input,
     "--expect-dependencies",

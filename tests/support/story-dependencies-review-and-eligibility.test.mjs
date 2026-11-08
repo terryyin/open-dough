@@ -27,7 +27,7 @@ async function recordReady(project) {
       refinement: "refined",
       approach: "planless",
       assessment: "ready",
-      expectDocument: state.basis.document,
+      expectedBasis: { document: state.basis.document },
     }),
   );
   assert.equal(recorded.code, 0, recorded.stderr);
@@ -191,7 +191,7 @@ test("read-state reports start eligibility from the assessment and dependencies"
       {
         kind: "dependency",
         supplier: second.identity,
-        href: second.link,
+        href: second.href,
         state: "waiting",
         rationale: agreement.rationale,
         condition: agreement.condition,
@@ -217,7 +217,7 @@ test("read-state reports start eligibility from the assessment and dependencies"
       approach: "planless",
       assessment: "not-ready",
       reasons: ["Supplier scope still needs review"],
-      expectDocument: state.basis.document,
+      expectedBasis: { document: state.basis.document },
     }),
   );
   assert.equal(notReady.code, 0, notReady.stderr);

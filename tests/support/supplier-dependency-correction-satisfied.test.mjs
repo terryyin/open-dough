@@ -41,8 +41,7 @@ test("correcting a satisfied mixed agreement retains its original locator and ac
       approach: "planned",
       plan: "../slice-plans/late/PLAN.md",
       assessment: "ready",
-      expectDocument: preparation.basis.document,
-      expectPlan: preparation.basis.plan,
+      expectedBasis: preparation.basis,
     }),
   );
   assert.equal(ready.code, 0, ready.stderr);

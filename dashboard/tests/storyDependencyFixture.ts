@@ -9,7 +9,7 @@ import { repoRoot } from "./support/repositoryRoot.ts";
 
 export const consumer = {
   identity: "SEED-A#a",
-  link: "seeds/A.md#a",
+  href: "seeds/A.md#a",
   title: "Story A",
 };
 export const suppliers = [
@@ -55,7 +55,7 @@ export function recordDependency(
     | undefined = suppliers[index],
 ) {
   const current = JSON.parse(
-    call(origin, "read-dependencies", "--link", consumer.link),
+    call(origin, "read-dependencies", "--link", consumer.href),
   ) as { basis: string };
   const input = path.join(origin.machine, "dependency.json");
   writeFileSync(
@@ -82,7 +82,7 @@ export function recordDependency(
     "--identity",
     consumer.identity,
     "--link",
-    consumer.link,
+    consumer.href,
     "--dependency-file",
     input,
     "--expect-dependencies",

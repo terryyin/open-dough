@@ -137,7 +137,7 @@ test("story-state: records one story's preparation and leaves its neighbor intac
   assert.equal(backlogBytes(project), backlogBefore);
 
   const { readStoryState } = await import(pathToFileURL(readerPath).href);
-  const shared = readStoryState(seedAfter, first.link);
+  const shared = readStoryState(seedAfter, first.href);
   assert.equal(shared.status, "recorded");
   assert.equal(shared.refinement, "refined");
   assert.deepEqual(shared.approach, { kind: "planned", plan: planRelative });

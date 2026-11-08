@@ -174,7 +174,7 @@ Dashboard type-check passed after the repair.
 
 ### 3. Readiness reads the assessment and the associated plan from published bytes
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 2. Run `story-readiness.spec.ts`, `story-readiness-gaps.spec.ts`, `story-readiness-accessible.spec.ts`, queued-plan consumers, and the affected `story-state*.test.mjs` suites. Check published Ready, changed review, plan link, and missing or malformed evidence.
 
 Convert the [readiness fixture](../../../dashboard/tests/storyReadinessFixture.ts),
@@ -183,6 +183,37 @@ and matching Node state helpers. Carry canonical entries through the backlog
 renderer. Arrange preparation inputs separately, and let the real CLI read
 the basis and record the assessment. Preserve the exact `\\u0002` text that
 the raw pinned-read case exercises.
+
+Accepted proof on the macOS execution checkout:
+
+```zsh
+export PATH="/opt/homebrew/bin:$PATH"
+slice_checks=( "${(@f)$(< /tmp/od-seed261-slice3-4yXU9E/all-node-and-shell.txt)}" )
+slice_specs=( "${(@f)$(< /tmp/od-seed261-slice3-4yXU9E/all-specs.txt)}" )
+[[ ${#slice_checks} -eq 50 && ${#slice_specs} -eq 57 ]] &&
+  OPEN_DOUGH_TEST_OUTCOMES=/tmp/od-seed261-slice3-4yXU9E/all-node-outcomes.tsv bash scripts/test.sh "${slice_checks[@]}" &&
+  OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/od-seed261-slice3-4yXU9E/dashboard-proof.json npm run test:dashboard -- "${slice_specs[@]}"
+npm run typecheck:dashboard && git diff --check
+PATH="/opt/homebrew/bin:$PATH" bash /tmp/od-seed261-slice3-4yXU9E/native-take-fixture-proof.bash
+```
+
+All 50 Node and shell jobs and 140 Playwright tests passed. Nine readiness
+publications retained identical bytes, including the raw plan case. Both
+old queued startup writers matched the shared writer's backlog, seed, and
+plan bytes. The readiness checks observe pinned reads, plan links, the
+existing assessment after a content change, explicit reassessment, and
+membership updates. The installed native Take fixture proof observes the
+recorder, Taken plan link, preserved preparation, and evidence input hashes.
+Paid native tool-call proof stays with the existing scenario. Selection,
+results, and consumer dispositions are under
+`/tmp/od-seed261-slice3-4yXU9E`.
+
+The independent refactor moved the plan paths and bodies to
+`dashboard/tests/storyReadinessPlans.ts` and used MakeMe for the fresh
+assessment publication. All nine byte comparisons and six affected
+Playwright specs passed again. The type-check and whitespace check passed.
+The refactor selection and dispositions are in
+`/tmp/od-seed261-refactor3-consumer-trace-with-dispositions.md`.
 
 ### 4. Dependency eligibility reads the independent supplier agreement
 Type: Behavior
@@ -282,5 +313,30 @@ on the story.
 ### G1. Native Take uses a valid queued story with preparation
 Reported: slice 1 — "The Native Take writer still arranges valid backlog membership together with the preparation it gives the native agent. Its evidence currently has failure-transcript retention only."
 Story clause: "Where a native scenario changes its arranged input, update its evidence inputs."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: product-backlog-native-take.sh take_write_evidence_inputs and native-take-fixture-proof.bash verify the input hashes and installed recorder and Take effects
 Commitment: P21
+
+### G2. Assignment journeys include preparation facts
+Reported: slice 3 — "assignmentCreditRecords.ts, publishedFactsIsolation.ts, and sliceClockRecords.ts still arrange preparation inside published assignment fixtures."
+Story clause: "In mixed cases, convert the published facts here and verify the existing journey."
+Disposition: receiving slice 5
+
+### G3. Plan readers include preparation facts
+Reported: slice 3 — "branchProgressRecords.ts, intentCiStoryBoard.ts, limitedReadingRecords.ts, reopenedProject.ts, and unchangedRecordsRefresh.ts still arrange preparation inside plan fixtures."
+Story clause: "In mixed cases, convert the published facts here and verify the existing journey."
+Disposition: receiving slice 6
+
+### G4. Done catalog revision reuse includes preparation facts
+Reported: slice 3 — "revisionReuseOrigin.ts still arranges preparation within its done catalog and revision reuse setup."
+Story clause: "In mixed cases, convert the published facts here and verify the existing journey."
+Disposition: receiving slice 7
+
+### G5. Admission and review include preparation facts
+Reported: slice 3 — "workspace-publication-admission-fixtures.mjs withFacts still arranges preparation within its admission setup."
+Story clause: "In mixed cases, convert the published facts here and verify the existing journey."
+Disposition: receiving slice 8
+
+### G6. Dependency setup still supplies a legacy fixture field
+Reported: slice 3 — "The Node preparation adapter still accepts link from the mixed dependency and supplier fixtures."
+Story clause: "Carry identities and homes explicitly where they drive a case."
+Disposition: receiving slice 4

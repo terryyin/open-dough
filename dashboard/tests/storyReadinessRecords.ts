@@ -1,30 +1,33 @@
 // Story identities and published record bodies for the readiness journey.
 // Builders in storyReadinessFixture.ts record these through the real CLI.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
+
 export const seedRelative = "seeds/SEED-075-readiness.md";
 
-export const unrefined = {
-  identity: "SEED-075#unrefined-story",
-  link: `${seedRelative}#unrefined-story`,
-  title: "Unrefined queued story",
-};
+export const unrefined = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-075#unrefined-story",
+    href: `${seedRelative}#unrefined-story`,
+    title: "Unrefined queued story",
+  })
+  .please();
 
-export const plannedBlocked = {
-  identity: "SEED-075#planned-blocked",
-  link: `${seedRelative}#planned-blocked`,
-  title: "Planned story with a blocking concern",
-};
+export const plannedBlocked = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-075#planned-blocked",
+    href: `${seedRelative}#planned-blocked`,
+    title: "Planned story with a blocking concern",
+  })
+  .please();
 
-export const plannedReady = {
-  identity: "SEED-075#planned-ready",
-  link: `${seedRelative}#planned-ready`,
-  title: "Ready planned story",
-};
-
-export const planBlockedRelative = "../slice-plans/075-blocked/PLAN.md";
-export const planReadyRelative = "../slice-plans/075-ready/PLAN.md";
-export const planBlockedPath = "slice-plans/075-blocked/PLAN.md";
-export const planReadyPath = "slice-plans/075-ready/PLAN.md";
+export const plannedReady = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-075#planned-ready",
+    href: `${seedRelative}#planned-ready`,
+    title: "Ready planned story",
+  })
+  .please();
 
 export const threeStorySeed = `---
 id: SEED-075
@@ -68,118 +71,41 @@ completion or treating a prospective proof recipe as a passed result.
 Goal, scope, and examples for the ready story.
 `;
 
-export const planBlockedBody = `# Blocked plan
+export const planless = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-075#planless-ready",
+    href: "seeds/SEED-075-planless.md#planless-ready",
+    title: "Explicit planless ready story",
+  })
+  .please();
 
-## Ordered slices
+export const legacy = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-075#legacy-story",
+    href: "seeds/SEED-075-legacy.md#legacy-story",
+    title: "Legacy story without structured state",
+  })
+  .please();
 
-### 1. Decide the remaining concern
-Type: Behavior
-Status: planned
-Proof: Resolve the blocking decision in the plan.
-`;
+export const malformed = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-075#malformed-state",
+    href: "seeds/SEED-075-malformed.md#malformed-state",
+    title: "Story with a malformed state block",
+  })
+  .please();
 
-type ReadyPlanSlice = {
-  readonly index: number;
-  readonly name: string;
-  readonly type: string;
-  readonly proof: string;
-  readonly accepted?: string;
-};
-
-// One ordered-slices list for the ready Taken story. The planned and two-done
-// plan bodies share these definitions; only recorded completion differs.
-const readyPlanSlices: readonly ReadyPlanSlice[] = [
-  {
-    index: 1,
-    name: "Establish shared plan reading",
-    type: "Structure",
-    proof: "Shared reader interprets ordered slices without filesystem access.",
-    accepted:
-      "Shared plan reader unit checks passed for interpreted slices and uninterpretable layout.",
-  },
-  {
-    index: 2,
-    name: "Show recorded completion in detail",
-    type: "Behavior",
-    proof:
-      "Detail lists slice names, status, and accepted evidence when present.",
-    accepted:
-      "Dashboard detail shows two of five recorded complete with accepted evidence text from this plan.",
-  },
-  {
-    index: 3,
-    name: "Keep readiness distinct from completion",
-    type: "Behavior",
-    proof: "Taken and ready remain separate from recorded slice completion.",
-  },
-  {
-    index: 4,
-    name: "Preserve unsupported plan layout",
-    type: "Behavior",
-    proof: "Unsupported layout stays uninterpretable rather than zero slices.",
-  },
-  {
-    index: 5,
-    name: "Pin source links beside progress",
-    type: "Behavior",
-    proof: "Detail offers pinned canonical and plan links only.",
-  },
-];
-
-function readyPlanBody(doneThrough: number): string {
-  const slices = readyPlanSlices
-    .map((slice) => {
-      const done = slice.index <= doneThrough;
-      const accepted =
-        done && slice.accepted !== undefined
-          ? `Accepted: ${slice.accepted}\n`
-          : "";
-      return `### ${slice.index}. ${slice.name}
-Type: ${slice.type}
-Status: ${done ? "done" : "planned"}
-Proof: ${slice.proof}
-${accepted}`;
-    })
-    .join("\n");
-  // `gh` would print a JSON-typed answer's literal `\u0002` as `^B`, so the
-  // card stays ready only while this plan is read exactly as published.
-  return `# Ready plan
-
-Ctrl+B then Enter records a line holding \`\\u0002\`.
-
-## Ordered slices
-
-${slices}`;
-}
-
-export const planReadyBody = readyPlanBody(0);
-export const planReadyTwoDoneBody = readyPlanBody(2);
-
-export const planless = {
-  identity: "SEED-075#planless-ready",
-  link: "seeds/SEED-075-planless.md#planless-ready",
-  title: "Explicit planless ready story",
-};
-
-export const legacy = {
-  identity: "SEED-075#legacy-story",
-  link: "seeds/SEED-075-legacy.md#legacy-story",
-  title: "Legacy story without structured state",
-};
-
-export const malformed = {
-  identity: "SEED-075#malformed-state",
-  link: "seeds/SEED-075-malformed.md#malformed-state",
-  title: "Story with a malformed state block",
-};
-
-export const externalPlan = {
-  identity: "SEED-075#external-plan-link",
-  link: "seeds/SEED-075-external.md#external-plan-link",
-  title: "Story whose backlog plan is external only",
-};
-
-export const externalPlanUrl = "https://example.com/plans/external-only.md";
+export const externalPlan = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-075#external-plan-link",
+    href: "seeds/SEED-075-external.md#external-plan-link",
+    title: "Story whose backlog plan is external only",
+    plan: {
+      label: "plan",
+      target: "https://example.com/plans/external-only.md",
+    },
+  })
+  .please();
 
 export const planlessSeed = `---
 id: SEED-075-planless

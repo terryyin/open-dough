@@ -51,8 +51,7 @@ test("historical agreement correction flags reviewed content and preserves an un
       reasons: [
         "Consumer compatibility behavior still needs a developer decision.",
       ],
-      expectDocument: observed.basis.document,
-      expectPlan: observed.basis.plan,
+      expectedBasis: observed.basis,
     }),
   );
   assert.equal(recorded.code, 0, recorded.stderr);

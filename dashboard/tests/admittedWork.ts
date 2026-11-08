@@ -24,7 +24,7 @@ const startCli = join(
 
 export const admitted = {
   identity: "SEED-090#slow-start",
-  link: "seeds/SEED-090-startup.md#slow-start",
+  href: "seeds/SEED-090-startup.md#slow-start",
   title: "Investigate slow startup",
   purpose: "Find why startup takes a minute before any change is decided.",
   branch: "claude/investigate-slow-start",
@@ -102,7 +102,7 @@ export function admitInvestigation(
         "--identity",
         admitted.identity,
         "--link",
-        admitted.link,
+        admitted.href,
         "--title",
         admitted.title,
         "--publisher-id",

@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { recordPreparationArgs } from "../../tests/support/story-preparation.mjs";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
 const cli = join(
@@ -31,48 +32,13 @@ export function writePlanning(
 
 export function recordState(
   directory: string,
-  story: { identity: string; link: string },
-  facts: {
-    refinement: string;
-    approach: string;
-    plan?: string;
-    assessment?: string;
-    reasons?: string[];
-    expectDocument?: string;
-    expectPlan?: string;
-  },
+  ...args: Parameters<typeof recordPreparationArgs>
 ) {
-  const args = [
-    "record-state",
-    "--identity",
-    story.identity,
-    "--link",
-    story.link,
-    "--refinement",
-    facts.refinement,
-    "--approach",
-    facts.approach,
-  ];
-  if (facts.plan !== undefined) {
-    args.push("--plan", facts.plan);
-  }
-  if (facts.assessment !== undefined) {
-    args.push("--assessment", facts.assessment);
-  }
-  if (facts.expectDocument !== undefined) {
-    args.push("--expect-document", facts.expectDocument);
-  }
-  if (facts.expectPlan !== undefined) {
-    args.push("--expect-plan", facts.expectPlan);
-  }
-  for (const reason of facts.reasons ?? []) {
-    args.push("--reason", reason);
-  }
-  runCli(directory, args);
+  runCli(directory, recordPreparationArgs(...args));
 }
 
-function readState(directory: string, link: string) {
-  const stdout = runCli(directory, ["read-state", "--link", link]);
+function readState(directory: string, href: string) {
+  const stdout = runCli(directory, ["read-state", "--link", href]);
   return JSON.parse(stdout) as {
     basis: { document: string; plan?: string };
   };
@@ -80,29 +46,22 @@ function readState(directory: string, link: string) {
 
 export function recordAssessed(
   directory: string,
-  story: { identity: string; link: string },
-  facts: {
-    refinement: string;
-    approach: string;
-    plan?: string;
-    assessment: string;
-    reasons?: string[];
+  story: Parameters<typeof recordPreparationArgs>[0],
+  {
+    assessment,
+    reasons,
+    ...preparation
+  }: Omit<Parameters<typeof recordPreparationArgs>[1], "expectedBasis"> & {
+    assessment: "ready" | "not-ready";
   },
 ) {
+  recordState(directory, story, preparation);
+  const { basis } = readState(directory, story.href);
   recordState(directory, story, {
-    refinement: facts.refinement,
-    approach: facts.approach,
-    ...(facts.plan !== undefined && { plan: facts.plan }),
-  });
-  const basis = readState(directory, story.link);
-  recordState(directory, story, {
-    refinement: facts.refinement,
-    approach: facts.approach,
-    ...(facts.plan !== undefined && { plan: facts.plan }),
-    assessment: facts.assessment,
-    ...(facts.reasons !== undefined && { reasons: facts.reasons }),
-    expectDocument: basis.basis.document,
-    ...(basis.basis.plan !== undefined && { expectPlan: basis.basis.plan }),
+    ...preparation,
+    assessment,
+    ...(reasons !== undefined && { reasons }),
+    expectedBasis: basis,
   });
 }
 

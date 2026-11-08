@@ -7,80 +7,37 @@
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-host-stream.sh"
 
-take_backlog_rel='.planning/PRODUCT-BACKLOG.md'
-take_seed_rel='.planning/seeds/SEED-101-native-claim.md'
-take_plan_rel='.planning/slice-plans/101-native-claim/PLAN.md'
-take_plan_from_backlog='slice-plans/101-native-claim/PLAN.md'
-take_plan_from_seed='../slice-plans/101-native-claim/PLAN.md'
-take_identity='SEED-101#publish-native-claim'
+# shellcheck source=tests/support/product-backlog-native-take-fixture.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/product-backlog-native-take-fixture.sh"
+# shellcheck source=tests/support/native-result-identity.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-result-identity.sh"
+# shellcheck source=tests/support/native-import-closure.sh
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-import-closure.sh"
+
+take_write_evidence_inputs() {
+  native_result_input_hash_lines \
+    install.sh \
+    tests/product-backlog-native.sh \
+    tests/support/product-backlog-native-take.sh \
+    tests/support/product-backlog-native-take-fixture.sh \
+    tests/support/product-backlog-native-evidence.sh \
+    tests/support/product-backlog-native-guard.sh \
+    tests/support/native-host-stream.sh \
+    tests/support/native-result-identity.sh \
+    tests/support/native-import-closure.sh \
+    tests/support/native-import-closure.mjs
+  native_import_closure_input_hash_lines \
+    tests/support/render-published-backlog.mjs \
+    tests/support/native-host-stream.mjs \
+    src/skills/dough-product-backlog/scripts/product-backlog.mjs
+}
 
 take_cleanup() {
   product_backlog_native_cleanup "$?" 'Claude Code take' 'native-take-*' \
     "${temporary_dir}"
-}
-
-take_write_fixture() {
-  local target=$1
-  mkdir -p -- \
-    "${target}/$(dirname -- "${take_backlog_rel}")" \
-    "${target}/$(dirname -- "${take_seed_rel}")" \
-    "${target}/$(dirname -- "${take_plan_rel}")"
-  cat > "${target}/${take_backlog_rel}" << EOF
-# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [Publish the native claim](seeds/SEED-101-native-claim.md#publish-native-claim) — ${take_identity}
-EOF
-  cat > "${target}/${take_seed_rel}" << EOF
----
-id: SEED-101
----
-
-# Native claim
-
-<a id="publish-native-claim"></a>
-
-### Publish the native claim
-
-**Identity:** ${take_identity}
-
-**Goal:** A developer can start this planned story through the installed queue
-claim workflow.
-
-**Scope:** Claim this story before implementing its one bounded slice.
-
-**Key example:** Starting the resolved plan moves this queued entry to Taken.
-EOF
-  cat > "${target}/${take_plan_rel}" << EOF
-# Publish the native claim
-
-Status: planned
-
-## Source and outcome
-
-Identity: ${take_identity}
-
-Execute the selected story after claiming it through the product backlog.
-
-## Current decisions
-
-- Execution is authorized only by the current request.
-- Use caller-selected current-branch mode on main.
-- The canonical backlog is ${take_backlog_rel}.
-- No selective formatter or commit hook applies to the backlog claim.
-
-## Ordered slices
-
-### 1. Publish one bounded outcome
-
-Type: Behavior
-Status: planned
-
-Proof: inspect the resulting fixture.
-EOF
 }
 
 # One `<tool>\t<command or path>` line per tool call in the Claude stream:
@@ -156,8 +113,11 @@ EOF
 
 take_run_native() {
   local source_dir=$1
-  local target recorder transcript output calls state_before state document_digest plan_digest
+  local target transcript output calls state_before evidence_inputs
   temporary_dir=$(mktemp -d)
+  trap take_cleanup EXIT
+  evidence_inputs="${temporary_dir}/native-take-inputs.txt"
+  take_write_evidence_inputs > "${evidence_inputs}"
   target="${temporary_dir}/project"
   mkdir -p -- "${target}"
   take_write_fixture "${target}"
@@ -165,26 +125,7 @@ take_run_native() {
   bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
     --platform claude > /dev/null
   guard_assert_registered "${target}" claude
-  recorder="${target}/.claude/skills/dough-product-backlog/scripts/product-backlog.mjs"
-  (
-    cd -- "${target}" || exit
-    node "${recorder}" record-state \
-      --identity "${take_identity}" \
-      --link 'seeds/SEED-101-native-claim.md#publish-native-claim' \
-      --refinement refined --approach planned \
-      --plan "${take_plan_from_seed}" > /dev/null
-    state=$(node "${recorder}" read-state \
-      --link 'seeds/SEED-101-native-claim.md#publish-native-claim')
-    document_digest=$(jq -r '.basis.document' <<< "${state}")
-    plan_digest=$(jq -r '.basis.plan' <<< "${state}")
-    node "${recorder}" record-state \
-      --identity "${take_identity}" \
-      --link 'seeds/SEED-101-native-claim.md#publish-native-claim' \
-      --refinement refined --approach planned \
-      --plan "${take_plan_from_seed}" --assessment ready \
-      --expect-document "${document_digest}" --expect-plan "${plan_digest}" \
-      > /dev/null
-  )
+  take_record_preparation "${target}"
 
   state_before="${temporary_dir}/native-take-story-before.md"
   cp -- "${target}/${take_seed_rel}" "${state_before}"
@@ -194,7 +135,6 @@ take_run_native() {
   git -C "${target}" -c user.name='Take fixture' \
     -c user.email='fixture@example.invalid' commit --quiet -m 'fixture: queued planned story'
 
-  trap take_cleanup EXIT
   transcript="${temporary_dir}/native-take-transcript.jsonl"
   output="${temporary_dir}/native-take-output.md"
   calls="${temporary_dir}/native-take-calls.txt"
@@ -222,6 +162,7 @@ take_run_native() {
   native_tool_version=$(claude --version)
   printf 'Native tool version: %s\n' "${native_tool_version}"
   printf 'Candidate: %s\n' '.claude/skills/dough-product-backlog/scripts/product-backlog.mjs'
+  cat -- "${evidence_inputs}"
   printf '%s\n' \
     'PASS: a fresh native Claude Code session received an ordinary-language planned-execution request and invoked the installed product-backlog.mjs take operation with the selected identity and plan.' \
     'PASS: the shared reader found exactly one Taken entry with its canonical plan link; no Python, shell redirection, or native edit tool constructed the entry.' \

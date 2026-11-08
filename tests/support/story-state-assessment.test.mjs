@@ -46,7 +46,7 @@ test("story-state: read returns a basis; ready and not-ready round-trip", async 
       approach: "unselected",
       assessment: "not-ready",
       reasons: ["Goal and examples are still free-form."],
-      expectDocument: beforeReady.basis.document,
+      expectedBasis: { document: beforeReady.basis.document },
     }),
   );
   assert.equal(notReady.code, 0, notReady.stderr);
@@ -87,8 +87,7 @@ test("story-state: read returns a basis; ready and not-ready round-trip", async 
       approach: "planned",
       plan: planRelative,
       assessment: "ready",
-      expectDocument: beforeReadyAgain.basis.document,
-      expectPlan: beforeReadyAgain.basis.plan,
+      expectedBasis: beforeReadyAgain.basis,
     }),
   );
   assert.equal(ready.code, 0, ready.stderr);
@@ -104,7 +103,7 @@ test("story-state: read returns a basis; ready and not-ready round-trip", async 
   assert.deepEqual(afterReady.assessment.basis, afterReady.basis);
 
   const { readStoryState } = await import(pathToFileURL(readerPath).href);
-  const shared = readStoryState(seedBytes(project), first.link, {
+  const shared = readStoryState(seedBytes(project), first.href, {
     planSource: planningFile(project, "slice-plans/075-example/PLAN.md"),
   });
   assert.equal(shared.assessment.status, "ready");
@@ -131,7 +130,7 @@ test("story-state: planless ready needs no plan file", async (t) => {
       refinement: "refined",
       approach: "planless",
       assessment: "ready",
-      expectDocument: prepared.basis.document,
+      expectedBasis: { document: prepared.basis.document },
     }),
   );
   assert.equal(ready.code, 0, ready.stderr);
@@ -166,7 +165,7 @@ test("story-state: correction home digests once without self-reference", async (
       refinement: "refined",
       approach: "planless",
       assessment: "ready",
-      expectDocument: prepared.basis.document,
+      expectedBasis: { document: prepared.basis.document },
     }),
   );
   assert.equal(ready.code, 0, ready.stderr);
@@ -183,7 +182,7 @@ test("story-state: correction home digests once without self-reference", async (
   const homeText = planningFile(project, correctionRelative);
   assert.match(homeText, /```json dough-story-state/);
   assert.equal(digestSource(homeText), after.basis.document);
-  const shared = readStoryState(homeText, correction.link);
+  const shared = readStoryState(homeText, correction.href);
   assert.equal(shared.assessment.status, "ready");
   assert.equal(shared.basis.document, after.basis.document);
 
@@ -196,7 +195,7 @@ test("story-state: correction home digests once without self-reference", async (
       approach: "planned",
       plan: "PLAN.md",
       assessment: "ready",
-      expectDocument: after.basis.document,
+      expectedBasis: { document: after.basis.document },
     }),
   );
   assert.equal(planned.code, 0, planned.stderr);

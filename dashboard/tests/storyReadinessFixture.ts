@@ -4,6 +4,9 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import type { renderEntry } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import {
   commitAll,
   recordAssessed,
@@ -12,28 +15,34 @@ import {
   writePlanning,
 } from "./storyReadinessCli.ts";
 import {
+  planBlockedBody,
+  planBlockedPath,
+  planBlockedRelative,
+  planReadyBody,
+  planReadyPath,
+  planReadyRelative,
+} from "./storyReadinessPlans.ts";
+import {
   externalPlan,
   externalPlanSeed,
-  externalPlanUrl,
   legacy,
   legacySeed,
   malformed,
   malformedSeed,
-  planBlockedBody,
-  planBlockedPath,
-  planBlockedRelative,
   plannedBlocked,
   plannedReady,
   planless,
   planlessSeed,
-  planReadyBody,
-  planReadyPath,
-  planReadyRelative,
   seedRelative,
   threeStorySeed,
   unrefined,
 } from "./storyReadinessRecords.ts";
 
+export {
+  planBlockedPath,
+  planReadyPath,
+  planReadyTwoDoneBody,
+} from "./storyReadinessPlans.ts";
 export {
   externalPlan,
   legacy,
@@ -41,9 +50,6 @@ export {
   plannedBlocked,
   plannedReady,
   planless,
-  planBlockedPath,
-  planReadyPath,
-  planReadyTwoDoneBody,
   seedRelative,
   unrefined,
 } from "./storyReadinessRecords.ts";
@@ -54,37 +60,32 @@ export type ReadinessRepo = {
   advanceTo(revision: string): void;
 };
 
-// Open Dough fixture backlog; Taken plan path and whether unrefined stays in
-// membership are the varying claims.
+type PlanLink = NonNullable<Parameters<typeof renderEntry>[0]["plan"]>;
+
+// Publish membership and its links. The preparation assessment is recorded
+// separately in each canonical home by the CLI.
 export function openDoughProductBacklog(
-  takenPlanPath: string,
+  takenPlan: PlanLink,
   {
     includeUnrefined = true,
-    includeQueuedPlan = false,
-  }: { includeUnrefined?: boolean; includeQueuedPlan?: boolean } = {},
+    queuedPlan,
+  }: { includeUnrefined?: boolean; queuedPlan?: PlanLink } = {},
 ): string {
-  const backlog = [
-    includeUnrefined
-      ? `- [${unrefined.title}](${unrefined.link}) — ${unrefined.identity}`
-      : null,
-    `- [${plannedBlocked.title}](${plannedBlocked.link}) — ${plannedBlocked.identity}${includeQueuedPlan ? ` ([plan](${planBlockedPath}))` : ""}`,
-  ]
-    .filter((line): line is string => line !== null)
-    .join("\n");
-  return `# Product backlog
-
-## Near-future direction
-
-Show published preparation and readiness on public-project cards.
-
-## Taken
-
-- [${plannedReady.title}](${plannedReady.link}) — ${plannedReady.identity} ([plan](${takenPlanPath}))
-
-## Backlog list
-
-${backlog}
-`;
+  const taken = makeMe.aBacklogEntry
+    .with({ ...plannedReady, plan: takenPlan })
+    .please();
+  const blocked = makeMe.aBacklogEntry
+    .with({
+      ...plannedBlocked,
+      ...(queuedPlan !== undefined && { plan: queuedPlan }),
+    })
+    .please();
+  return renderPublishedBacklog({
+    taken: [taken],
+    queued: [...(includeUnrefined ? [unrefined] : []), blocked],
+    direction:
+      "Show published preparation and readiness on public-project cards.",
+  });
 }
 
 export function buildOpenDoughReadinessRepo(
@@ -96,31 +97,52 @@ export function buildOpenDoughReadinessRepo(
   writePlanning(
     directory,
     "PRODUCT-BACKLOG.md",
-    openDoughProductBacklog(`${planReadyPath}#ordered-slices`, {
-      includeQueuedPlan: !canonicalOnlyQueued,
-    }),
+    openDoughProductBacklog(
+      { label: "plan", target: `${planReadyPath}#ordered-slices` },
+      canonicalOnlyQueued
+        ? {}
+        : { queuedPlan: { label: "plan", target: planBlockedPath } },
+    ),
   );
   writePlanning(directory, seedRelative, threeStorySeed);
   writePlanning(directory, planBlockedPath, planBlockedBody);
   writePlanning(directory, planReadyPath, planReadyBody);
 
-  recordState(directory, unrefined, {
-    refinement: "not-refined",
-    approach: "unselected",
-  });
-  recordAssessed(directory, plannedBlocked, {
-    refinement: "refined",
-    approach: "planned",
-    plan: planBlockedRelative,
-    assessment: "not-ready",
-    reasons: ["A blocking decision remains in the plan."],
-  });
-  recordAssessed(directory, plannedReady, {
-    refinement: "refined",
-    approach: "planned",
-    plan: planReadyRelative,
-    assessment: "ready",
-  });
+  recordState(
+    directory,
+    unrefined,
+    makeMe.aStoryPreparation
+      .with({
+        refinement: "not-refined",
+        approach: "unselected",
+      })
+      .please(),
+  );
+  recordAssessed(
+    directory,
+    plannedBlocked,
+    makeMe.aStoryPreparation
+      .with({
+        refinement: "refined",
+        approach: "planned",
+        plan: planBlockedRelative,
+        assessment: "not-ready",
+        reasons: ["A blocking decision remains in the plan."],
+      })
+      .please(),
+  );
+  recordAssessed(
+    directory,
+    plannedReady,
+    makeMe.aStoryPreparation
+      .with({
+        refinement: "refined",
+        approach: "planned",
+        plan: planReadyRelative,
+        assessment: "ready",
+      })
+      .please(),
+  );
 
   let revision = commitAll(directory, "Publish readiness fixture");
 
@@ -152,38 +174,39 @@ export function buildDoughnutReadinessRepo(
   writePlanning(
     directory,
     "PRODUCT-BACKLOG.md",
-    `# Product backlog
-
-## Near-future direction
-
-Doughnut's own published readiness overview.
-
-## Taken
-
-## Backlog list
-
-- [${planless.title}](${planless.link}) — ${planless.identity}
-- [${legacy.title}](${legacy.link}) — ${legacy.identity}
-- [${malformed.title}](${malformed.link}) — ${malformed.identity}
-- [${externalPlan.title}](${externalPlan.link}) — ${externalPlan.identity} ([plan](${externalPlanUrl}))
-`,
+    renderPublishedBacklog({
+      queued: [planless, legacy, malformed, externalPlan],
+      direction: "Doughnut's own published readiness overview.",
+    }),
   );
   writePlanning(directory, "seeds/SEED-075-planless.md", planlessSeed);
   writePlanning(directory, "seeds/SEED-075-legacy.md", legacySeed);
   writePlanning(directory, "seeds/SEED-075-malformed.md", malformedSeed);
   writePlanning(directory, "seeds/SEED-075-external.md", externalPlanSeed);
 
-  recordAssessed(directory, planless, {
-    refinement: "refined",
-    approach: "planless",
-    assessment: "ready",
-  });
+  recordAssessed(
+    directory,
+    planless,
+    makeMe.aStoryPreparation
+      .with({
+        refinement: "refined",
+        approach: "planless",
+        assessment: "ready",
+      })
+      .please(),
+  );
   // External backlog plan is navigation only; preparation stays unselected so
   // the journey does not invent readiness from that external link.
-  recordState(directory, externalPlan, {
-    refinement: "refined",
-    approach: "unselected",
-  });
+  recordState(
+    directory,
+    externalPlan,
+    makeMe.aStoryPreparation
+      .with({
+        refinement: "refined",
+        approach: "unselected",
+      })
+      .please(),
+  );
 
   let revision = commitAll(directory, "Publish doughnut readiness fixture");
   return {

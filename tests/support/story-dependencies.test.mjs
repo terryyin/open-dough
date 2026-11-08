@@ -44,7 +44,7 @@ test("dependency CLI records two suppliers, preserves preparation and siblings, 
         approach: "planless",
         assessment: story === first ? "ready" : "not-ready",
         reasons: story === first ? [] : ["Supplier scope still needs review"],
-        expectDocument: state.basis.document,
+        expectedBasis: { document: state.basis.document },
       }),
     );
     assert.equal(recorded.code, 0, recorded.stderr);
@@ -124,7 +124,7 @@ test("dependency writes retain the consumer's unrelated Not ready reasons", asyn
           approach: "planless",
           assessment: "not-ready",
           reasons: ["Acceptance choice unresolved"],
-          expectDocument: state.basis.document,
+          expectedBasis: { document: state.basis.document },
         }),
       )
     ).code,
@@ -180,7 +180,7 @@ test("dependency CLI refuses stale writes and invalid or ambiguous endpoints wit
   for (const entry of [
     dependency(second, { condition: "" }),
     dependency(first),
-    dependency({ identity: "WRONG", link: second.link }),
+    dependency({ identity: "WRONG", link: second.href }),
     dependency({ identity: "MISSING", link: "seeds/absent.md#missing" }),
     dependency(second, { state: "satisfied" }),
     dependency(second, { state: "decision-needed" }),
@@ -230,7 +230,7 @@ for (const block of [
     const result = await run(project, [
       "read-dependencies",
       "--link",
-      first.link,
+      first.href,
     ]);
     assert.equal(result.code, 1);
     assert.match(result.stderr, /Story dependencies/);
