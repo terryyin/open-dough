@@ -152,6 +152,10 @@ Slice-plan refinement was unnecessary. Selection and Board reveal each have
 their own observable result and proof, and the second consumes the first's
 one selection rule. No slice-specific concerns remain.
 
+## Execution complete
+
+Product advice: no backlog change. Select in Development lands the developer on the Board entry where SEED-273#follow-up-from-done adds Follow up, so no sidebar Follow up control is needed now; reconsider a Follow up from the sidebar or Intent only if developers use it from Intent after SEED-273 lands. SEED-273 touches the same Board entry markup in `dashboard/src/SessionEntry.tsx`, so expect a merge there. Retrospective correction: [SEED-272#prove-recently-done-check-supersession](../../seeds/SEED-272-select-recently-done-sessions.md#prove-recently-done-check-supersession) (plan 529, ready, not queued). Open product question for the developer: a standalone choice never clears, so Development can show a selected Story card and a separately marked selected session at once; decide whether selecting another story should clear it.
+
 ## Story obligations
 
 ### G1. (first reported in slice 1) A Done row without Open no longer reveals its Board entry (sidebar "an unavailable Done entry" and paging "older cross-project session" steps now assert the project stays)

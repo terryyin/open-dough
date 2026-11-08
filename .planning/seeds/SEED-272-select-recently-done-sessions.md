@@ -76,3 +76,23 @@ existing session access and lifecycle.
 
 See the [session history and sidebar navigation guidance](../../dashboard/AGENT-LAUNCH-HISTORY.md#recently-done-range)
 for the distinction between published completion and retained session status.
+
+<a id="prove-recently-done-check-supersession"></a>
+
+### Prove Recently done selection's check rules and tidy its catalog read
+
+**Identity:** SEED-272#prove-recently-done-check-supersession
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/529-prove-recently-done-check-supersession/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"95514be0d58fe3982d99b75db2a85a50d14af8f6a065df3c6d5e3ca889288d08","plan":"d83984bfb28cbf040d7e909eabda2a7bff9f4d33417591494dca9538e4abec7a"}}
+```
+
+**Goal.** A maintainer changing Recently done session selection gets a failing
+test when a superseded or unreadable done-catalog check would move the
+developer's reading, and finds one done-catalog reading and wording shared
+with the Board.
+
+**Scope.** Bounded retrospective correction of
+[Select recently done sessions](#select-recently-done-sessions). Proof of the
+existing check rules, consolidation of the duplicated catalog read and its gap
+wording, and trimming of overlapping selection tests. No new product promise.
+Plan: [529-prove-recently-done-check-supersession](../slice-plans/529-prove-recently-done-check-supersession/PLAN.md).
