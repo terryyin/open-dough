@@ -44,6 +44,24 @@ test("a release revision states its version, tag date, payload marker and payloa
   );
 });
 
+test("a release refuses a withheld prefix its installer declares nothing under, or a removed path its payload lacks", () => {
+  const facts = { version: "0.1.1", taggedAt: "2026-09-01", marker: "m" };
+  assert.throws(
+    () =>
+      makeMe.aRelease
+        .with({ ...facts, withheld: ["dough-pfe/", "dough-no-such-skill/"] })
+        .please(),
+    /Release 0\.1\.1 withholds nothing declared under dough-no-such-skill\//,
+  );
+  assert.throws(
+    () =>
+      makeMe.aRelease
+        .with({ ...facts, removed: ["dough-no-such-skill"] })
+        .please(),
+    /Release 0\.1\.1 removes no payload at dough-no-such-skill/,
+  );
+});
+
 test("a local release checkout built in place tags its release annotated at the stated date and has no origin", async (t) => {
   const at = join(
     realpathSync(mkdtempSync(join(tmpdir(), "release-source-"))),

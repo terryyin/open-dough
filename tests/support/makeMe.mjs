@@ -13,6 +13,7 @@ import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
+import { release } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
@@ -117,14 +118,10 @@ export const makeMe = {
   get aRelease() {
     return {
       /** @param {import("./releaseTestData.mjs").ReleaseFacts} facts */
-      with({ withheld = [], removed = [], ...facts }) {
+      with(facts) {
         return {
           /** @returns {Release} */
-          please: () => ({
-            ...facts,
-            withheld: [...withheld],
-            removed: [...removed],
-          }),
+          please: () => release(facts),
         };
       },
     };

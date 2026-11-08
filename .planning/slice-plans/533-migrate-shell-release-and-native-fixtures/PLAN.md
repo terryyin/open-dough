@@ -189,7 +189,7 @@ ownerless-lock case, which failed with the CI error before the fix.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: focused run of the five `build_upgrade_releases` consumers,
 `execution-payload-update.sh`, `product-backlog-payload-update.sh`,
@@ -213,6 +213,29 @@ facts. The refusal for a withheld prefix that declares nothing moves into
 the release builder's `.please()` with a Git-free test.
 `build_current_tagged_release_fixture` declares one release at the working
 tree's `VERSION`.
+
+Accepted proof (2026-11-08): the five upgrade consumers, the three tagged
+candidate consumers, the six `native-*` checks that source
+`dough-adr-awareness-context.sh`, the ten latest consumers,
+`repository-release.test.mjs` (new Git-free refusal case) and the 120 node
+files passed quietly. Discrimination: the planned edit (drop the withheld
+path from `update-adds-new-payload-skill.sh`'s 0.1.1) passes both before and
+after, because that check installs 0.1.1 by hand without reading its
+declaration. Dropping `--withhold` in `retrospective-reference-payload.sh`
+fails at its older-install absence check, and dropping `--remove` in
+`update-adds-new-payload-skill.sh` fails with `Managed payload mismatch`.
+Timing, interleaved at load 11.5–13.8: `story-payload-update.sh`
+8.68–10.29 s before, 8.62–9.17 s after; `update-adds-new-payload-skill.sh`
+3.30–3.86 s before, 3.15–3.62 s after.
+
+Learnings: `removed` was needed by four of the five upgrade callers, so slice
+2 applied it too; slice 3 still proves its own example. The payload layer now
+lives in `writeRelease`, which copies each missing working-tree payload path,
+so a later release restores what an earlier one removed; `release-source.mjs`
+no longer copies it. `build_upgrade_releases` keeps its signature: callers
+state labels, withheld and removed paths, while the versions 0.1.1 and 0.1.2
+and their dates live in the builder. Slice 4 decides whether that still
+reads clearly enough for commitments 1 and 13.
 
 ### 3. Inline release sources state their invalid releases at the call site
 
@@ -293,10 +316,10 @@ Its consumers share one description, so they form one proof loop.
 
 ## Story obligations
 
-### G1. Stated withheld paths are not yet applied
-Reported: slice 1 — "Withheld and removed are held in the model only. The materializer does not write them yet, so a stated non-empty value is currently ignored."
+### G1. Stated withheld paths are not yet applied (first reported in slice 1)
+Reported: slice 2 — "Withheld and removed are held in the model only. The materializer does not write them yet, so a stated non-empty value is currently ignored."
 Story clause: "the managed paths a release withholds from its installer declaration"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: writeRelease filters managed_files under each withheld prefix; dropping --withhold in tests/retrospective-reference-payload.sh fails at its older-install absence check :33
 Commitment: 6.4
 
 

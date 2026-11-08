@@ -27,19 +27,19 @@ recording action.
 | 6.1 | a version; | slice 1 | observed: repository-release.test.mjs release .please() deepEqual: version |
 | 6.2 | a tag date; | slice 1 | observed: repository-release.test.mjs release .please() deepEqual: taggedAt |
 | 6.3 | a payload marker; | slice 1 | observed: repository-release.test.mjs release .please() deepEqual: marker |
-| 6.4 | the managed paths a release withholds from its installer declaration; | slice 2 | G1 |
+| 6.4 | the managed paths a release withholds from its installer declaration; |  | G1 |
 | 6.5 | the managed paths a release removes from its payload. | slice 3 | G2 |
 | 7 | A repository description revision can carry a release. | slice 1 | observed: repositoryTestData.mjs RevisionFacts.release; repository-release.test.mjs local release checkout case |
 | 8 | The materializer tags a release revision with an annotated `v<version>` tag at the release's tag date. | slice 1 | observed: repository-fixture.mjs tagRevision; repository-release.test.mjs asserts refs/tags/v0.1.10 objecttype tag, tagger date 2020-01-01 00:00:00 |
 | 9 | The current working tree's installer and payload are a harness layer that the materializer copies into each release revision. | slice 1 | observed: release-source.mjs copyPayloadLayer copies install.sh, src/install, declared src/skills once before materializeRepository(at) |
 | 10 | The release's `VERSION`, changelog entry and marker are facts. | slice 1 | observed: repository-revision-files.mjs writeRelease (VERSION, CHANGELOG '## v - 2026-09-06', marker comment); files override; fixture test checks bytes at v0.1.10 |
 | 11 | A Node helper reads a release-source description from the shell call site and materializes it. | slice 1 | observed: tests/support/release-source.mjs <dest> [name], JSON on stdin |
-| 12 | Route these builders through the helper: | slice 2 | |
+| 12 | Route these builders through the helper: | slice 2 | observed: tests/helpers/release-fixture.bash build_upgrade_releases and build_current_tagged_release_fixture pipe JSON facts into tests/support/release-source.mjs |
 | 12.1 | `build_latest_fixture`; | slice 1 | observed: tests/helpers/release-fixture.bash build_latest_fixture -> release-source.mjs latest; ten consumers quiet pass (slice 1 focused run) |
-| 12.2 | `build_upgrade_releases`; | slice 2 | |
-| 12.3 | `build_current_tagged_release_fixture`. | slice 2 | |
+| 12.2 | `build_upgrade_releases`; | slice 2 | observed: build_upgrade_releases here-document into release-source.mjs; five consumers quiet pass (slice 2 focused run) |
+| 12.3 | `build_current_tagged_release_fixture`. | slice 2 | observed: build_current_tagged_release_fixture declares one release at the working tree VERSION; three consumers plus six native-* context checks quiet pass |
 | 13 | Each caller states its releases at the call site, or names a shared description that its fixture file states (alternatives). | slice 4 | |
-| 14 | On 2026-11-08, 18 checks called those builders. | slice 2 | |
+| 14 | On 2026-11-08, 18 checks called those builders. | slice 2 | observed: slice 2 git grep: no other build_upgrade_releases or build_current_tagged_release_fixture callers outside .planning and tests/README.md |
 | 15 | Route the inline release sources (which used `write_candidate_payload` and `tag_release` after their own `git init`) too; on 2026-11-08 these were in: | slice 3 | |
 | 15.1 | `install-latest-release.sh`; | slice 3 | |
 | 15.2 | `update-refuses-unverifiable.sh`; | slice 3 | |
@@ -80,7 +80,7 @@ recording action.
 | 32.3 | Adding the release fact changes `makeMe.mjs` and the repository description; three identities hash those through import closures: the product-backlog native take, git-publication admission, and (until plan 532 lands) worktree preparation. None of their fixtures builds a release. | slice 4 | |
 | 33 | Record "none of their fixtures builds a release" as the reuse reason under ADR 0005 (`#5-assess-now-and-delete-spent-evidence`) and make no paid refresh. | slice 4 | |
 | 34 | Latest by version: `install-latest-release.sh` declares 0.1.1 tagged 2026-06-01, 0.1.2 tagged 2026-09-01 and 0.1.10 tagged 2020-01-01, under an untagged head with `BRANCH_HEAD`; the installer still resolves `v0.1.10`, the installed payload carries `payload-0.1.10`, and `BRANCH_HEAD` is absent. | slice 1 | observed: tests/install-latest-release.sh asserts resolve-url v0.1.10, payload-0.1.10, BRANCH_HEAD absent; quiet pass; discrimination 0.1.10->0.1.0 resolved v0.1.2 and failed |
-| 35 | Upgrade with a withheld path: an update check declares 0.1.1 that withholds a managed skill path from its installer and 0.1.2 that is the current payload; it checks 0.1.1 out with Git and installs it; the update to 0.1.2 adds the withheld files, as today. | slice 2 | |
+| 35 | Upgrade with a withheld path: an update check declares 0.1.1 that withholds a managed skill path from its installer and 0.1.2 that is the current payload; it checks 0.1.1 out with Git and installs it; the update to 0.1.2 adds the withheld files, as today. | slice 2 | observed: update checks (story-payload-update.sh etc.) install 0.1.1 via checkout_tagged_release and assert_payload 0.1.2 after apply; discrimination: dropping --withhold in retrospective-reference-payload.sh fails at :33 older-install absence check |
 | 36 | Mismatch under proof: `update-refuses-unverifiable.sh` declares at its call site release 0.1.1 whose `VERSION` says 0.1.8, then 0.1.10; the update still refuses with `baseline metadata mismatch` and writes nothing. | slice 3 | |
 | 37 | Non-release tags: the branch-only source declares `not-a-release` and `v1.2.3-rc.1` as literal lightweight tag names and no release; the installer still refuses with `No numeric release tags` and installs nothing. | slice 3 | |
 | 38 | Payload backlog: the installed done-catalog proof declares `CAT#finish` queued in `plans/BACKLOG.md` through the renderer; installed `catalog-done` still leaves the backlog unchanged, and `complete` still lists both records at their blob hashes. | slice 4 | |
@@ -88,10 +88,10 @@ recording action.
 | 40 | `release-fixture.bash` keeps only the builders the native delivery-to-use journey calls, unchanged. | slice 4 | |
 | 41 | Migrated checks keep their verdicts and assertions. | slice 4 | |
 | 42 | A reviewer can name each check's releases from its call site or fixture file. | slice 4 | |
-| 43 | Record focused run times before and after, under comparable load, for: | slice 2 | |
+| 43 | Record focused run times before and after, under comparable load, for: | slice 2 | observed: slice 2 return timing table (story-payload-update.sh, update-adds-new-payload-skill.sh before/after, three runs each, load 11-14) |
 | 43.1 | `install-latest-release.sh`; | slice 1 | observed: slice 1 return: install-latest-release.sh via scripts/test.sh before 6.35-6.58 s (load ~8.1), after 5.65-6.19 s (load 7.2-7.9); build_latest_fixture 0.93-0.97 s -> 0.62-0.71 s (load ~9.7) |
-| 43.2 | one upgrade family, such as `story-payload-update.sh` and `update-adds-new-payload-skill.sh`. | slice 2 | |
-| 44 | Those run times must not regress beyond run-to-run noise. | slice 2 | |
+| 43.2 | one upgrade family, such as `story-payload-update.sh` and `update-adds-new-payload-skill.sh`. | slice 2 | observed: interleaved: story-payload-update 8.68-10.29 s before vs 8.62-9.17 s after; update-adds 3.30-3.86 s vs 3.15-3.62 s; build_upgrade_releases 1.17-1.23 s vs 0.88-1.18 s |
+| 44 | Those run times must not regress beyond run-to-run noise. | slice 2 | observed: slice 2 interleaved timings within run-to-run noise |
 | 45 | One description, one materializer: a release is a revision fact in the repository description (`tests/support/repositoryTestData.mjs`); the materializer (`tests/support/repository-fixture.mjs`) writes its tag. | slice 1 | observed: repository-fixture.mjs materializeRepository writes the release tag via tagRevision |
 | 46 | No release-specific Git builder is added (test data architecture). | slice 1 | observed: no release-specific Git builder: release-source.mjs only calls materializeRepository |
 | 47 | Payload is a harness layer: the copied installer and skills describe the source under test, not a release fact. | slice 1 | observed: release-source.mjs copyPayloadLayer: working tree payload is harness layer, not a Release field |

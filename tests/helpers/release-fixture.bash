@@ -89,16 +89,28 @@ tag_release() {
     git -C "${repo}" tag -a "v${version}" -m "v${version}"
 }
 
+# A JSON string for each argument, comma-separated.
+json_strings() {
+  local value
+  local -a strings=()
+  for value in "$@"; do
+    value=${value//\\/\\\\}
+    strings+=("\"${value//\"/\\\"}\"")
+  done
+  local IFS=,
+  printf '%s' "${strings[*]}"
+}
+
+# Build a release source whose one release is the working tree's payload at
+# its VERSION.
 build_current_tagged_release_fixture() {
-  local repo=$1
   local version
-
   version=$(cat "${source_dir}/VERSION")
-  copy_current_release_files "${repo}"
-  init_fixture_repo "${repo}"
-
-  commit_all "${repo}" "release ${version} exact candidate"
-  tag_release "${repo}" "${version}" '2026-09-06T00:00:00'
+  node "${source_dir}/tests/support/release-source.mjs" "$1" << JSON
+{"revisions": [{"name": "release ${version} exact candidate", "release": {
+  "version": "${version}", "taggedAt": "2026-09-06T00:00:00",
+  "marker": "exact-candidate"}}]}
+JSON
 }
 
 # Build the shared "latest" release source that tests/support/release-sources.mjs
@@ -134,11 +146,11 @@ checkout_tagged_release() {
 # OLDER_DIR so a test can install that older release with its own install.sh.
 #   build_upgrade_releases FIXTURE OLDER_DIR OLDER_LABEL NEWER_LABEL \
 #     [--withhold DECLARED_PREFIX]... [--remove SKILLS_PATH]...
-# --withhold drops every managed_files entry starting with DECLARED_PREFIX from
-# 0.1.1's install.sh; --remove deletes src/skills/SKILLS_PATH from 0.1.1.
+# 0.1.1's install.sh declares no managed_files entry under a DECLARED_PREFIX,
+# and its payload lacks src/skills/SKILLS_PATH; 0.1.2 restores both.
 build_upgrade_releases() {
   local fixture=$1 older_dir=$2 older_label=$3 newer_label=$4
-  local prefix path
+  local withheld_json removed_json
   local -a withheld=() removed=()
   shift 4
   while (($# > 0)); do
@@ -153,33 +165,18 @@ build_upgrade_releases() {
     shift 2
   done
 
-  init_fixture_repo "${fixture}"
-  write_candidate_payload "${fixture}" 0.1.1 "${older_label}"
-  for prefix in "${withheld[@]}"; do
-    if ! awk -v prefix="${prefix}" '
-      /^managed_files=\(/ { in_payload = 1 }
-      in_payload && /^\)/ { in_payload = 0 }
-      in_payload && index($1, prefix) == 1 { withheld = 1; next }
-      { print }
-      END { exit !withheld }
-    ' "${fixture}/install.sh" > "${fixture}/filtered"; then
-      echo "build_upgrade_releases: nothing declared under ${prefix}" >&2
-      return 1
-    fi
-    mv -- "${fixture}/filtered" "${fixture}/install.sh"
-  done
-  for path in "${removed[@]}"; do
-    if [[ ! -e "${fixture}/src/skills/${path}" ]]; then
-      echo "build_upgrade_releases: no source to remove at ${path}" >&2
-      return 1
-    fi
-    rm -rf -- "${fixture}/src/skills/${path}"
-  done
-  commit_all "${fixture}" "release 0.1.1 ${older_label}"
-  tag_release "${fixture}" 0.1.1 '2026-09-01T00:00:00'
+  withheld_json=$(json_strings "${withheld[@]}")
+  removed_json=$(json_strings "${removed[@]}")
+  node "${source_dir}/tests/support/release-source.mjs" "${fixture}" << JSON
+{"revisions": [
+  {"name": "release 0.1.1 ${older_label}", "release": {
+    "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
+    "marker": "${older_label}",
+    "withheld": [${withheld_json}], "removed": [${removed_json}]}},
+  {"name": "release 0.1.2 ${newer_label}", "release": {
+    "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
+    "marker": "${newer_label}"}}
+]}
+JSON
   checkout_tagged_release "${fixture}" "${older_dir}" 0.1.1
-
-  write_candidate_payload "${fixture}" 0.1.2 "${newer_label}"
-  commit_all "${fixture}" "release 0.1.2 ${newer_label}"
-  tag_release "${fixture}" 0.1.2 '2026-09-02T00:00:00'
 }

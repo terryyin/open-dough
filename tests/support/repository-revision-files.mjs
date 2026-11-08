@@ -1,13 +1,15 @@
 // @ts-check
 import {
   chmodSync,
+  copyFileSync,
+  existsSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   agentIdentity,
   renderAgentProfile,
@@ -22,16 +24,17 @@ import {
 import { splitHref } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
 import { recordStoryState } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { renderPublishedBacklog } from "./published-backlog.mjs";
+import {
+  openDoughSource,
+  releaseInstaller,
+  shippedPayload,
+} from "./releaseTestData.mjs";
 import { backlogPath } from "./repositoryTestData.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RevisionFacts} RevisionFacts */
 /** @typedef {import("./repositoryTestData.mjs").StoryState} StoryState */
 /** @typedef {import("./releaseTestData.mjs").Release} Release */
 
-// The Open Dough working tree whose payload a release revision marks.
-export const openDoughSource = fileURLToPath(
-  new URL("../../", import.meta.url),
-);
 const markedSkill = "src/skills/dough-update/SKILL.md";
 
 /** @param {string} root @param {string} path */
@@ -84,12 +87,35 @@ function writeStoryState(planning, state) {
 }
 
 /**
- * A release's `VERSION`, its one changelog entry, and the working tree's
- * dough-update skill with the release's payload marker appended.
+ * A release ships the working tree's installer, its modules and the declared
+ * payload it does not remove. Paths the checkout lacks are copied, so a first
+ * release copies the payload once and a later release restores what an
+ * earlier one removed. It writes its installer, its `VERSION`, its one
+ * changelog entry, and the dough-update skill with the release's payload
+ * marker appended.
  * @param {string} checkout
  * @param {Release} release
  */
-function writeRelease(checkout, { version, marker }) {
+function writeRelease(checkout, release) {
+  const { version, marker, removed } = release;
+  const shipped = [
+    ...readdirSync(join(openDoughSource, "src/install"))
+      .filter((module) => /\.(sh|mjs)$/.test(module))
+      .map((module) => `src/install/${module}`),
+    ...shippedPayload(release).map((path) => `src/skills/${path}`),
+  ];
+  for (const path of shipped) {
+    const target = join(checkout, path);
+    if (existsSync(target)) continue;
+    mkdirSync(dirname(target), { recursive: true });
+    copyFileSync(join(openDoughSource, path), target);
+  }
+  for (const path of removed)
+    rmSync(fixturePath(checkout, `src/skills/${path}`), {
+      recursive: true,
+      force: true,
+    });
+  writeFixtureFile(join(checkout, "install.sh"), releaseInstaller(release));
   writeFixtureFile(join(checkout, "VERSION"), `${version}\n`);
   writeFixtureFile(
     join(checkout, "CHANGELOG.md"),
