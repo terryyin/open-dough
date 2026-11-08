@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "identity": "SEED-265#show-ci-build-source-icons",
+  "mode": "story-branch",
+  "branch": "cursor/show-ci-build-sources-with-compact-icons",
+  "host": "cursor",
+  "model": "auto"
+}
