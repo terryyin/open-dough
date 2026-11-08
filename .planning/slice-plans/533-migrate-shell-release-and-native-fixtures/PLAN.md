@@ -344,6 +344,13 @@ Learnings:
 - `take_write_evidence_inputs` is not among `native-evidence-identity.sh`'s
   writers; check it separately for import-closure changes.
 
+CI repair (run 42497772037, `dashboard (8/12)`, on `b85ff0d19`):
+`intent-ci-proof-ancestor.spec.ts:54` counted proof calls before the
+trunk's run-11 proof read had settled; a request is recorded only when its
+answer is ready, so a late run-11 read joined the counted slice. The spec now
+waits for the trunk's proof row first, proved by a held-request reproduction
+that failed with the CI diff and by `--repeat-each=20`.
+
 ## Decisive premises
 
 | # | Premise | Consuming operation | Observation | Result |
@@ -385,6 +392,7 @@ Reported: slice 3 — "the release 0.1.11 appears after inspection step still ca
 Story clause: "Remove `release-fixture.bash`'s release-writing builders once no consumer needs them."
 Disposition: proved by slice 4: tests/pin-and-inspect.sh states release 0.1.11 through release-source.mjs --add; stating it as 0.1.9 fails at pin-and-inspect.sh:232; git grep finds write_candidate_payload and tag_release only in dough-adr-awareness-delivery-to-use.sh
 Commitment: 24
+
 ## Execution complete
 
 Product advice: no change. The release sources now state their releases at
