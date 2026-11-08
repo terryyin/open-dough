@@ -183,24 +183,3 @@ Rules that keep later stories additive:
 
 Retire this topic when the sibling stories have delivered their rows and the
 code and tests carry it; keep any lasting rule in `dashboard/AGENT-LAUNCH.md`.
-
-## Intent assessment results carry their cost
-
-An intent coverage assessment returns its findings with the measured
-wall-clock time from assessment start through producing the result, including
-setup and test runs. Record test runtime separately when observed. Report
-human and agent effort separately where there is evidence, with the unit and
-basis for each figure. Label figures as measured or estimated and show
-unavailable values explicitly. Elapsed time and effort answer different
-questions, especially when work overlaps. Use the pilot to compare both with
-ordinary review, keeping the developer's later reading and verification
-separate from the assessment's own runtime.
-[ADR 0010](../docs/adrs/0010-definition-of-improvement-accepted.md).
-
-The manual report renders the cost evidence alongside the findings. Wrap-up
-stores the same returned assessment in the story's existing JSON done record,
-and the recently done result renders the recorded values and their evidence
-labels. The caller owns persistence and the done record's rolling 30-day
-retention. Retire this direction once the delivered skill and wrap-up guidance
-carry it. [ADR 0008](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md) ·
-[Intent coverage stories](seeds/SEED-258-dough-intent-coverage.md#story-decomposition).

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-258#assess-intent-coverage-during-wrap-up",
+  "title": "Find the intent assessment in a recently done story",
+  "completedAt": "2026-11-08T02:25:37.833Z",
+  "developer": "Terry Yin",
+  "agent": "yilv-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
