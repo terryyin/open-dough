@@ -378,19 +378,61 @@ and the landing delivery script, with each test's original proof still visible.
 
 **Identity:** SEED-261#map-host-continuation-test-data
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/539-map-host-continuation-test-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"53b3efa3c327ad75e9dadcf76f825db2fbd02eecf57990c6f2e2f33a2902a6b1","plan":"fd6cd9cabe72929723126e462ff94cbcf02f8ddc6c5c5f2e90960f722f28cb67"}}
 ```
 
-**Scope and value.** Convert Codex and Cursor kept sessions, their
-continuations, and terminal setup built on them, across `codexLaunch`,
-`codexObservation`, `cursorStart`, `keptCursorTurn`, `cursorSessionRecovery`,
-`runningCursorSessionsPage` and their consumers (about 55 specs). Each host
-follows its own continuation contract.
+#### Goal
 
-**Evaluation and stopping point.** Fake host processes, terminal and process
-behavior stay in the harness. Omitted legacy continuations and alias
-rejections stay explicit where under proof. The host record factories are
-removed or delegate to MakeMe.
+Maintainers can read which saved Codex thread or Cursor conversation a test
+continues, where it resumes, and which host-specific facts drive the result.
+Use the same domain setup in terminal, recovery, and held-session tests so
+changes to continuation data can be made and reviewed in one place.
+
+#### Scope
+
+- Arrange valid Codex and Cursor sessions through shared MakeMe builders,
+  either on a kept launch or as the session a terminal or runner consumes
+  directly. Show the facts the case relies on. Codex has a thread ID, saved
+  workspace and endpoint, and resume arguments, with a notice when the case
+  needs it. Cursor has a native UUID, workspace and resume arguments, with
+  the saved configuration scope when the case needs it.
+- Convert arranged host and continuation facts in the Codex launch and
+  observation support, Cursor start and recovery support, kept Cursor turns,
+  Running Cursor sessions setup, and their terminal and runner consumers.
+  Remove displaced constructors or make harness helpers delegate to MakeMe.
+  A record actually produced by a launch, start, or recovery stays evidence
+  from that operation. Keep fake hosts, real runner operations, terminal
+  frames, process control and faults in their existing proof roles.
+- Keep exact predecessor omissions, malformed input and extraneous aliases
+  visible in the cases that verify how they are handled. Keep command,
+  identity, and terminal expectations independent of fixture construction.
+  Correct synthetic sessions whose resume arguments name a different
+  conversation from their stored identity.
+- The [kept record story](#map-launch-and-session-test-data) owns the machine
+  store writer and general kept-record setup. The
+  [live observation story](#map-launch-observation-test-data) owns passive
+  observation records and live session and attempt answers. The
+  [completion and landing story](#map-launch-completion-and-landing-test-data)
+  owns report and receipt setup. In mixed cases this story owns the
+  continuation or terminal facts needed to exercise those operations.
+
+#### Key examples
+
+1. A kept Codex thread has a saved endpoint and workspace. Opening its
+   terminal resumes that thread with the saved endpoint and working directory.
+   A schema case that supplies a predecessor record with no continuation or
+   an extra Claude alias still observes the current decoding behavior.
+2. A kept Cursor session has a saved model configuration scope. Recovering it
+   resumes the saved UUID in its workspace with that scope. When a replacement
+   runner considers several kept sessions, it revives the eligible one and
+   the existing controls still distinguish finished, never-held, and failed
+   revivals.
+3. A terminal joins an already held Cursor session. The saved session
+   identifies the conversation and the terminal assertions still observe its
+   replay before queued live output.
+4. A sidebar test arranges enough held Cursor sessions to overflow the list.
+   Each row's UUID and resume arguments refer to the same conversation, and
+   the test still observes that both lists can reach their last entries.
 
 <a id="map-project-configuration-test-data"></a>
 
