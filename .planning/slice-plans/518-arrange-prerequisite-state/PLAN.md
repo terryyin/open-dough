@@ -3,6 +3,7 @@
 **Identity:** SEED-262#arrange-prerequisite-state
 
 **Source:** [Refined story](../../seeds/SEED-262-faster-dashboard-test-feedback.md#arrange-prerequisite-state)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -134,7 +135,7 @@ proof.
 
 **Type:** Behavior
 
-**Status:** pending
+**Status:** done
 
 Given a private test machine and the published Board fixture, opening the
 attention journeys starts with the specified open sessions in both required
@@ -152,11 +153,26 @@ Run both complete attention cases, the two real action owners, and applicable
 store/builder consumers. This is a safe stopping point with the restart case
 still using its original setup.
 
+**Accepted proof (2026-11-08):** `openWithOpenSessions` in
+`dashboard/tests/storyCardAttention.ts` keeps each session's MakeMe record
+(`.executing`/`.refining`, no start metadata) and its `claudeListsSession`
+listing under one native ID, all projects in one `keepProjectLaunchRecords`
+write (`support/storyLaunchRecord.ts`, now the single store writer, with
+`keepLaunchRecords` and `keepMoreLaunchRecords` delegating). `expectOpen`
+checks each arranged ID on its entry; `expectNothingStarted` enforces no
+Start POSTs and no native launches. Strict run of attention, card Start,
+card sessions, story-review-mark and recently-done-sessions-sidebar passed
+17; matched selection passed 3 (runner 13.1–14.0 s vs baseline 15.9 s at
+load 6.6–8.6). Temporary instrumentation: attention setup interval
+0.59–0.61 s, one records GET, zero native starts. Refactor rerun of
+sidebar and sidebar-room passed 3. Existing `executing().onStoryBranch()`
+records are byte-identical.
+
 ### 2. The card session-state journey starts with open sessions
 
 **Type:** Behavior
 
-**Status:** pending
+**Status:** planned
 
 Given the same private-machine arrangement, the card session-state case
 opens with working sessions and can exercise listing failure, subsequent

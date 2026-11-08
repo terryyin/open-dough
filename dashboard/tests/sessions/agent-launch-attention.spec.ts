@@ -1,15 +1,21 @@
 // Cards count local attention independently of published story membership.
 
+import {
+  identityA,
+  identityB,
+} from "../../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import {
   chooseProject,
-  storyCardSessions,
   expectMembership,
   standaloneSessionName,
-  sessionNamedBy,
 } from "../dashboardPage.ts";
-import { doughnutSharedTitle } from "../doughnutProject.ts";
 import {
+  doughnutSharedTitle,
+  sharedStoryIdentity,
+} from "../doughnutProject.ts";
+import {
+  notRefinedIdentity,
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
@@ -22,14 +28,42 @@ import {
   markNotReloaded,
 } from "../sessionStatePace.ts";
 import {
-  launchOnEachQueuedCard,
+  openWithOpenSessions,
   publishedFactsOf,
+  type OpenSession,
 } from "../storyCardAttention.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
 const one = "1 session needs attention";
+
+// Open Dough's three sessions, each working when the page opens on the
+// Backlog: an Execution on the ready and the not-refined story and a
+// Refinement on Story A.
+const openDoughSessions: readonly OpenSession[] = [
+  {
+    project: "open-dough",
+    identity: identityB,
+    title: readyStory,
+    workflow: "Execution",
+    state: "working",
+  },
+  {
+    project: "open-dough",
+    identity: notRefinedIdentity,
+    title: notRefinedStory,
+    workflow: "Execution",
+    state: "working",
+  },
+  {
+    project: "open-dough",
+    identity: identityA,
+    title: takenStory,
+    workflow: "Refinement",
+    state: "working",
+  },
+];
 
 test.describe("a story's card counts the sessions that need attention", () => {
   let columnsJourney: StoryColumnsJourney;
@@ -44,8 +78,22 @@ test.describe("a story's card counts the sessions that need attention", () => {
     page,
     dashboard,
   }) => {
-    const { passOnePace, show, card, expectCounted, shows, becomes, queued } =
-      await launchOnEachQueuedCard(page, dashboard, columnsJourney);
+    const {
+      passOnePace,
+      show,
+      card,
+      expectCounted,
+      expectNothingStarted,
+      shows,
+      becomes,
+      queued,
+    } = await openWithOpenSessions(
+      page,
+      dashboard,
+      columnsJourney,
+      openDoughSessions,
+    );
+    await expectCounted({});
     const facts = await publishedFactsOf(card(readyStory));
     await markNotReloaded(page);
 
@@ -94,25 +142,39 @@ test.describe("a story's card counts the sessions that need attention", () => {
       expect(await publishedFactsOf(card(readyStory))).toBe(preparingFacts);
       await expectNotReloaded(page);
     });
+    expectNothingStarted();
   });
 
   test("counts a Taken card's affected sessions and only the shown project's, and a story in no list keeps its affected session in local Taken", async ({
     page,
     dashboard,
   }) => {
+    // Doughnut's Execution is open beside Open Dough's three.
+    const doughnutSession: OpenSession = {
+      project: "doughnut",
+      identity: sharedStoryIdentity,
+      title: doughnutSharedTitle,
+      workflow: "Execution",
+      state: "working",
+    };
     const {
       passOnePace,
       settled,
       show,
-      launch,
       board,
       taken,
       card,
       entryOf,
       expectCounted,
+      expectOpen,
+      expectNothingStarted,
       shows,
       becomes,
-    } = await launchOnEachQueuedCard(page, dashboard, columnsJourney);
+    } = await openWithOpenSessions(page, dashboard, columnsJourney, [
+      ...openDoughSessions,
+      doughnutSession,
+    ]);
+    await expectCounted({});
     // The states the Backlog and Preparing journey leaves: the not-refined
     // story's session is ready for review and the Refinement is unavailable.
     becomes(notRefinedStory, "Execution", "done-live");
@@ -141,20 +203,14 @@ test.describe("a story's card counts the sessions that need attention", () => {
     await test.step("another project counts only its own sessions, and a return or reload reads the count afresh", async () => {
       const select = (name: string) => chooseProject(page, name);
       await select("Doughnut");
-      // Doughnut's published work and Backlog card must settle before Start.
       await settled();
       await expect(
         board.getByRole("article", { name: doughnutSharedTitle, exact: true }),
       ).toBeVisible();
-      // Launching waits for Doughnut's card, so its count is Doughnut's.
-      await launch(doughnutSharedTitle, "Execution");
+      // Doughnut's card shows its open session, so its count is Doughnut's.
+      await expectOpen(doughnutSession);
       await expectCounted({});
-      dashboard.claudeSessionBecomes(
-        await sessionNamedBy(
-          storyCardSessions(card(doughnutSharedTitle)).first(),
-        ),
-        "blocked",
-      );
+      becomes(doughnutSharedTitle, "Execution", "blocked");
       // Open Dough's session fails while Doughnut is shown.
       becomes(notRefinedStory, "Execution", "failed");
       await passOnePace();
@@ -188,5 +244,6 @@ test.describe("a story's card counts the sessions that need attention", () => {
         kept.getByRole("button", { name: "Open terminal" }),
       ).toBeVisible();
     });
+    expectNothingStarted();
   });
 });

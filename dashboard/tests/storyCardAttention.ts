@@ -1,9 +1,20 @@
 // How the attention journey (./sessions/agent-launch-attention.spec.ts) sees
 // a story card's local attention apart from what origin publishes: sessions
-// launched on each queued card of a paused page, the words each card counts,
-// and a card's published facts without its local session presentation.
+// already open on the cards of a paused page, kept in the machine's launch
+// store and listed by the synthetic `claude` before the page first reads
+// them, the words each card counts, and a card's published facts without its
+// local session presentation.
 
+import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import {
+  agentAcceptEndpoint,
+  agentContinueEndpoint,
+  agentReconciledEndpoint,
+  agentVerifyEndpoint,
+} from "../src/launchOutcome.ts";
+import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import {
@@ -16,11 +27,11 @@ import type { StoryColumnsJourney } from "./launchJourney.ts";
 import { expectSessionShown, watchRecordReads } from "./sessionStatePace.ts";
 import type { Workflow } from "./storyColumnsPage.ts";
 import {
-  launchEachQueuedStory,
   openQueuedStoryCards,
   queuedStories,
 } from "./storyCardSessionListing.ts";
 import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
+import { keepProjectLaunchRecords } from "./support/storyLaunchRecord.ts";
 
 // Published story facts exclude local session UI and the conditional Ready scan;
 // compact-session-entry.spec.ts observes its canonical assessment and visibility.
@@ -50,16 +61,82 @@ export const publishedFactsOf = async (card: Locator) => {
   return facts;
 };
 
-// Launches on each queued card (./storyCardSessionListing.ts) on a paused
-// page; none needs attention yet.
-export async function launchOnEachQueuedCard(
+// A Claude session already open on a story's card when the page opens: the
+// project that keeps it, the story it works on, its workflow, and the state
+// Claude Code lists it in.
+export type OpenSession = {
+  readonly project: string;
+  readonly identity: string;
+  readonly title: string;
+  readonly workflow: Workflow;
+  readonly state: ClaudeSessionChange;
+};
+
+// The Start requests a page sends for a launch, from acceptance through
+// reconciliation.
+const startEndpoints = new Set([
+  agentAcceptEndpoint,
+  agentContinueEndpoint,
+  agentVerifyEndpoint,
+  agentReconciledEndpoint,
+]);
+
+// Keeps each session's launch record, every project's in one store write, and
+// lists it in the synthetic `claude` under the same native ID, in the order
+// given, before the page reads the machine.
+async function keepOpenSessions(
+  dashboard: DashboardServer,
+  sessions: readonly OpenSession[],
+) {
+  const now = Date.now();
+  const byProject: Record<string, LaunchRecord[]> = {};
+  const sessionOf = new Map<string, string>();
+  sessions.forEach(({ project, identity, title, workflow, state }, index) => {
+    const startedAt = now - (sessions.length - index) * 1_000;
+    const sessionId = dashboard.claudeListsSession({
+      name: title,
+      cwd: path.join(dashboard.home, "git", project),
+      startedAt,
+    });
+    if (state !== "working") dashboard.claudeSessionBecomes(sessionId, state);
+    const story = { identity, title, source: project };
+    const launch =
+      workflow === "Execution"
+        ? makeMe.aLaunchRecord.executing(story)
+        : makeMe.aLaunchRecord.refining(story);
+    (byProject[project] ??= []).push(
+      launch
+        .inClaudeSession({ sessionId, shortId: sessionId.slice(0, 8) })
+        .launchedAt(new Date(startedAt).toISOString())
+        .please(),
+    );
+    sessionOf.set(`${title} ${workflow}`, sessionId);
+  });
+  await keepProjectLaunchRecords(dashboard, byProject);
+  return sessionOf;
+}
+
+// Opens a paused page on the queued revision (./storyCardSessionListing.ts)
+// with `sessions` already open, each Open Dough one shown on its card under
+// its own native ID; nothing is started.
+export async function openWithOpenSessions(
   page: Page,
   dashboard: DashboardServer,
   columnsJourney: StoryColumnsJourney,
+  sessions: readonly OpenSession[],
 ) {
+  const sessionOf = await keepOpenSessions(dashboard, sessions);
+  const startsAsked: string[] = [];
+  page.on("request", (request) => {
+    if (
+      request.method() === "POST" &&
+      startEndpoints.has(new URL(request.url()).pathname)
+    )
+      startsAsked.push(request.url());
+  });
   await pausePageClockAt(page, new Date());
   const { passOnePace } = await watchRecordReads(page);
-  const { settled, show, launch, card } = await openQueuedStoryCards(
+  const { settled, show, card } = await openQueuedStoryCards(
     page,
     dashboard,
     columnsJourney,
@@ -83,35 +160,44 @@ export async function launchOnEachQueuedCard(
     words: string,
     needsAttention: boolean,
   ) => expectSessionShown(entryOf(title, workflow), words, needsAttention);
-  const sessionOf = new Map<string, string>();
-  await launchEachQueuedStory(async (title, workflow) => {
-    await launch(title, workflow);
-    await shows(title, workflow, "Working", false);
-    sessionOf.set(
-      `${title} ${workflow}`,
-      await sessionNamedBy(entryOf(title, workflow)),
+  const sessionIdOf = (title: string, workflow: Workflow) =>
+    sessionOf.get(`${title} ${workflow}`) ?? "?";
+  // The shown card's entry names the session kept for it, working as
+  // listed when it was listed working.
+  const expectOpen = async ({ title, workflow, state }: OpenSession) => {
+    if (state === "working") await shows(title, workflow, "Working", false);
+    expect(await sessionNamedBy(entryOf(title, workflow))).toBe(
+      sessionIdOf(title, workflow),
     );
-  });
+  };
+  for (const session of sessions) {
+    if (session.project === "open-dough") await expectOpen(session);
+  }
   // Claude Code lists the story's session in this workflow anew.
   const becomes = (
     title: string,
     workflow: Workflow,
     ...change: [ClaudeSessionChange, string?]
   ) => {
-    const session = sessionOf.get(`${title} ${workflow}`) ?? "?";
-    dashboard.claudeSessionBecomes(session, ...change);
+    dashboard.claudeSessionBecomes(sessionIdOf(title, workflow), ...change);
   };
-  await expectCounted({});
+  // No Start was asked and no session launched: every session the journey
+  // sees was open before the page.
+  const expectNothingStarted = () => {
+    expect(startsAsked).toEqual([]);
+    expect(dashboard.claudeLaunchCalls()).toEqual([]);
+  };
   return {
     passOnePace,
     settled,
     show,
-    launch,
     board,
     taken,
     card,
     entryOf,
     expectCounted,
+    expectOpen,
+    expectNothingStarted,
     shows,
     becomes,
     queued: queuedStories,

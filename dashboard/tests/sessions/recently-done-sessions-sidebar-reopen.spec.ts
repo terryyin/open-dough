@@ -2,11 +2,11 @@
 // successful attach clears the Done row; narrow overlay returns focus.
 import { launch } from "../agentLaunchBoundary.ts";
 import {
-  keepProjectLaunchRecords,
   pageReadReopened,
   recentlyDoneParts,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
+import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
 import { rem } from "../boardPage.ts";
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
