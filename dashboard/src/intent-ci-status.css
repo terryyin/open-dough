@@ -56,50 +56,167 @@
   color: var(--problem);
 }
 
-/* A selected done story's CI timing comparison (./IntentCiComparison.tsx). */
-.intent-ci-comparison-framing {
-  margin: 0 0 var(--space-2);
-  color: var(--muted, #555);
-  font-size: 0.95em;
+/* A selected story's CI timing comparison (./IntentCiComparison.tsx): the
+   active comparison's title and framing beside the scale and Show %, the
+   summary's metrics in one band, the builds and the entries each in a
+   bordered box whose header row sits on a quiet band. It uses the reading
+   pane's width. */
+.intent-ci-story-comparison {
+  max-width: none;
+}
+
+.intent-ci-comparison-head,
+.intent-ci-comparison-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+}
+
+.intent-ci-comparison-head h3,
+.intent-ci-comparison-section-head h3 {
+  margin: 0;
+  font-size: var(--text-md);
+}
+
+.intent-ci-comparison-framing,
+.intent-ci-comparison-section-head p {
+  margin: 0;
+  color: var(--quiet);
+  font-size: var(--text-xs);
+}
+
+.intent-ci-comparison-section-head {
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+.intent-ci-comparison-active-reason {
+  margin: var(--space-2) 0 0;
 }
 
 /* The active comparison's overall metrics side by side, stacked when narrow. */
 .intent-ci-comparison-metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  margin: 0 0 var(--space-2);
+  margin: var(--space-2) 0 var(--space-3);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: var(--surface);
+  background: var(--raised-surface);
+  overflow: hidden;
 }
 
 .intent-ci-comparison-metrics > div {
   min-width: 0;
-  padding: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  box-shadow: -1px -1px 0 var(--line);
 }
 
 .intent-ci-comparison-metrics dt {
-  color: var(--muted, #555);
-  font-size: var(--text-sm);
+  margin-bottom: 0.2rem;
+  color: var(--quiet);
+  font-size: var(--text-xs);
 }
 
 .intent-ci-comparison-metrics dd {
   margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
-.intent-ci-comparison {
+/* The marks show which timings are faster or slower and the words carry
+   every count and time difference, so the summary and entry rows keep their
+   cue state without the tint or edge drawn for it elsewhere. */
+.intent-ci-story-comparison [class*="intent-ci-cue-duration-"] {
+  background: none;
+}
+
+.intent-ci-story-comparison [class*="intent-ci-cue-count-"] {
+  box-shadow: none;
+}
+
+.intent-ci-story-comparison .intent-ci-comparison-overall-counts,
+.intent-ci-story-comparison .intent-ci-comparison-overall-timing {
+  padding: 0;
+}
+
+/* Check again, apart from the figures it reads again. */
+.intent-ci-check-again {
+  margin: var(--space-3) 0 0;
+}
+
+.intent-ci-comparison-box,
+.intent-ci-story-comparison .intent-ci-proof-box {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--raised-surface);
+}
+
+.intent-ci-comparison,
+.intent-ci-story-comparison .intent-proof-rows {
   width: 100%;
   border-collapse: collapse;
-  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.intent-ci-comparison th,
+.intent-ci-comparison td,
+.intent-ci-story-comparison .intent-proof-rows th,
+.intent-ci-story-comparison .intent-proof-rows td {
+  text-align: left;
+  vertical-align: middle;
+  padding: 0.35rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.intent-ci-comparison tbody tr:last-child > *,
+.intent-ci-story-comparison .intent-proof-rows tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.intent-ci-comparison thead,
+.intent-ci-story-comparison .intent-proof-rows thead {
+  color: var(--quiet);
+  background: var(--hover);
+}
+
+.intent-ci-comparison thead th,
+.intent-ci-story-comparison .intent-proof-rows thead th {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  vertical-align: bottom;
+}
+
+.intent-ci-comparison tbody th {
+  font-weight: 600;
+}
+
+/* The builds and entries keep their words and marks whole; a narrow pane
+   scrolls them inside their box. */
+.intent-ci-comparison {
+  min-width: 26rem;
+}
+
+.intent-ci-story-comparison .intent-proof-rows {
+  min-width: 34rem;
+}
+
+.intent-ci-story-comparison .intent-ci-scope-part {
+  white-space: nowrap;
 }
 
 .intent-ci-comparison th,
 .intent-ci-comparison td {
-  text-align: left;
-  vertical-align: top;
-  padding: 0.35em 0.5em 0.35em 0;
-  border-bottom: 1px solid var(--line);
+  overflow-wrap: normal;
+}
+
+.intent-ci-column-note {
+  display: block;
+  font-weight: 400;
 }
 
 /* Compact exact / ancestor source cue in a Build cell: icon with heard words. */

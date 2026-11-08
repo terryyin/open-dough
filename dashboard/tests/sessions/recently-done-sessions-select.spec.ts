@@ -79,7 +79,7 @@ test("selecting a linked done story from Intent shows that project's story in In
       "data-selected-story",
       linked.identity,
     );
-    await expect(storyTitle(intent)).toHaveText(`Story ${linked.title}`);
+    await expect(storyTitle(intent)).toHaveText(linked.title);
     await expect(select).toHaveAttribute("aria-pressed", "true");
     await expect(row(linked.title)).toHaveClass(/\bchosen\b/);
     await expect(choiceStatus(row(linked.title))).toHaveCount(0);

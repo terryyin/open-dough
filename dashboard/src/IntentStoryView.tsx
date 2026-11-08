@@ -120,6 +120,7 @@ export function IntentStoryView({
             idPrefix={tabsIdPrefix}
           />
           <FileBrowserToggle
+            icon
             browser={
               tab === "changed" && locations !== undefined ? files : undefined
             }

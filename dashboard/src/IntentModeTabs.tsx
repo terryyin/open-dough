@@ -89,7 +89,7 @@ export function IntentModeTabs({
           label="Project Intent views"
           idPrefix={idPrefix}
         />
-        <FileBrowserToggle browser={files} onShowBrowser={onShowFiles} />
+        <FileBrowserToggle icon browser={files} onShowBrowser={onShowFiles} />
       </div>
     </>
   );

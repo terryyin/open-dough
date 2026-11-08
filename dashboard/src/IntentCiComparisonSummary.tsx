@@ -1,45 +1,65 @@
 // Summary of Intent's story CI timing comparison (`./IntentCiComparison.tsx`):
-// names the active comparison (Baseline with Landed when Landed has proof,
-// otherwise Branch or Provisional) and why Landed is unused, then lists its
-// overall Counts and one signed change each in CI time without runner waits
-// and CI wall time when both builds measured them.
+// why Landed is unused when the active comparison skips it, then the active
+// comparison's overall Counts and one signed change each in CI time without
+// runner waits and CI wall time when both builds measured them, each with
+// its relative mark (`./IntentCiTimeChange.tsx`).
 
 import {
   countCueElementAttrs,
   durationCueElementAttrs,
 } from "./ciScopeComparisonCuePresentation.ts";
+import { TimeChangeFigure } from "./IntentCiTimeChange.tsx";
 import type { ComparisonEndpointProofs } from "./useIntentCiComparisonEntries.ts";
 import {
-  activeComparisonOf,
   overallTimingCue,
-  timeWithoutRunnerWaitsChangeWords,
-  wallTimeChangeWords,
+  timeWithoutRunnerWaitsChangeOf,
+  wallTimeChangeOf,
+  type ActiveComparison,
 } from "./storyCiComparisonWording.ts";
 import {
   overallCountsCue,
   overallCountsWords,
 } from "./storyCiComparisonCountsWords.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
+import type { TimeChange } from "./storyCiRelativeChange.ts";
+
+type ComparisonAnswer = Extract<
+  StoryCiComparisonAnswer,
+  { kind: "comparison" }
+>;
+
+// The active comparison's overall timing changes, which share the entry
+// cells' relative scale.
+export type OverallTimeChanges = {
+  readonly withoutWaits: TimeChange | undefined;
+  readonly wall: TimeChange | undefined;
+};
+
+export function overallTimeChangesOf(
+  answer: ComparisonAnswer,
+  active: ActiveComparison,
+): OverallTimeChanges {
+  return {
+    withoutWaits: timeWithoutRunnerWaitsChangeOf(answer.baseline, active.slot),
+    wall: wallTimeChangeOf(answer.baseline, active.slot),
+  };
+}
 
 export function ActiveComparisonSummary({
   answer,
   proofs,
+  active,
 }: {
-  readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
+  readonly answer: ComparisonAnswer;
   readonly proofs: ComparisonEndpointProofs;
+  readonly active: ActiveComparison;
 }) {
-  const active = activeComparisonOf(answer, proofs);
   const overallCounts = overallCountsWords(proofs.baseline, active.proof);
-  const overallTiming = timeWithoutRunnerWaitsChangeWords(
-    answer.baseline,
-    active.slot,
-  );
-  const wallChange = wallTimeChangeWords(answer.baseline, active.slot);
+  const { withoutWaits, wall } = overallTimeChangesOf(answer, active);
   const countsCue = overallCountsCue(proofs.baseline, active.proof);
   const timingCue = overallTimingCue(answer.baseline, active.slot);
   return (
     <div className="intent-ci-comparison-summary">
-      <p className="intent-ci-comparison-active">{active.title}</p>
       {active.landedUnusedReason !== undefined && (
         <p className="intent-ci-comparison-active-reason">
           Landed is not used: {active.landedUnusedReason}
@@ -57,7 +77,7 @@ export function ActiveComparisonSummary({
             {overallCounts}
           </dd>
         </div>
-        {overallTiming !== undefined && (
+        {withoutWaits !== undefined && (
           <div>
             <dt>CI time without runner waits</dt>
             <dd
@@ -66,14 +86,16 @@ export function ActiveComparisonSummary({
                 "intent-ci-comparison-overall-timing",
               )}
             >
-              {overallTiming}
+              <TimeChangeFigure change={withoutWaits} />
             </dd>
           </div>
         )}
-        {wallChange !== undefined && (
+        {wall !== undefined && (
           <div>
             <dt>CI wall time</dt>
-            <dd className="intent-ci-comparison-overall-wall">{wallChange}</dd>
+            <dd className="intent-ci-comparison-overall-wall">
+              <TimeChangeFigure change={wall} />
+            </dd>
           </div>
         )}
       </dl>

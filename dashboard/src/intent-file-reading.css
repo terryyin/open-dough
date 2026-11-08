@@ -16,6 +16,12 @@
   background: var(--surface);
 }
 
+/* The tabs stand on a line across the reading area. */
+.intent-reading-bar > .intent-tabs {
+  flex: 1;
+  box-shadow: inset 0 -1px 0 var(--line);
+}
+
 .intent-reading:has(> .intent-reading-bar) {
   scroll-padding-top: calc(var(--control-size) + 2 * var(--space-3));
 }

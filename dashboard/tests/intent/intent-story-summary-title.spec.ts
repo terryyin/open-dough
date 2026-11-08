@@ -31,7 +31,7 @@ test("a long story title shows once in full above the story's views, whichever i
   );
   const { intent, baseline } = await selectTakenStoryInIntent(page, origin);
   const title = storyTitle(intent);
-  await expect(title).toHaveText(`Story ${long}`);
+  await expect(title).toHaveText(long);
   await expect(intent.getByText(long, { exact: true })).toHaveCount(1);
   const box = await title.evaluate((element) => ({
     overflows: element.scrollWidth > element.clientWidth,

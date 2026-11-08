@@ -1,0 +1,101 @@
+/* A story CI comparison's signed change with its relative mark
+   (./IntentCiTimeChange.tsx): the words, a fixed-width mark whose zero sits
+   at its centre, and the optional percentage, in one row that keeps the
+   marks of a column aligned. Faster and slower use the CI cue colours
+   (./intent-ci-cues.css); the words carry the direction without them. */
+.intent-ci-time-change {
+  display: inline-grid;
+  grid-template-columns: minmax(3.5em, max-content) 3.5rem auto;
+  gap: var(--space-2);
+  align-items: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.intent-ci-time-delta {
+  font-weight: 600;
+}
+
+.intent-ci-time-mark {
+  position: relative;
+  grid-column: 2;
+  height: 6px;
+  border-radius: 4px;
+  background: var(--hover);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.intent-ci-time-zero {
+  position: absolute;
+  top: -2px;
+  left: calc(50% - 0.5px);
+  width: 1px;
+  height: 10px;
+  background: var(--quiet);
+}
+
+.intent-ci-time-bar {
+  position: absolute;
+  top: 0;
+  height: 100%;
+}
+
+.intent-ci-time-mark:is([data-direction="slower"], [data-direction="none"])
+  .intent-ci-time-bar {
+  left: 50%;
+}
+
+.intent-ci-time-mark[data-direction="slower"] .intent-ci-time-bar {
+  border-radius: 0 4px 4px 0;
+  background: var(--ci-cue-slower);
+}
+
+.intent-ci-time-mark[data-direction="faster"] .intent-ci-time-bar {
+  right: 50%;
+  border-radius: 4px 0 0 4px;
+  background: var(--ci-cue-faster);
+}
+
+.intent-ci-time-percent {
+  grid-column: 3;
+  color: var(--quiet);
+  font-size: var(--text-xs);
+}
+
+/* The scale's directions and Show %, beside the comparison's title. */
+.intent-ci-time-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  color: var(--quiet);
+  font-size: var(--text-xs);
+}
+
+.intent-ci-time-scale {
+  white-space: nowrap;
+}
+
+.intent-ci-percent-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--raised-surface);
+  color: var(--text);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.intent-ci-percent-switch input {
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+@media (any-pointer: coarse) {
+  .intent-ci-percent-switch {
+    min-height: var(--control-size);
+  }
+}

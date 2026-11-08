@@ -43,9 +43,10 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     shortSha(setup.branchTip),
   );
 
-  await expect(panel.getByRole("heading")).toHaveText(
-    `CI timing changes for ${setup.title}`,
-  );
+  await expect(panel.getByRole("heading")).toHaveText([
+    /^Baseline compared with /,
+    "CI entry timing comparison",
+  ]);
   await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
     "Baseline compared with Branch",
   );
@@ -138,9 +139,10 @@ test("a Taken Trunk Mode story shows a provisional trunk result beside Branch N/
   const setup = await publishTakenComparedTrunk(page, origin);
   const { panel } = await selectTakenStoryForCiComparison(page);
 
-  await expect(panel.getByRole("heading")).toHaveText(
-    `CI timing changes for ${setup.title}`,
-  );
+  await expect(panel.getByRole("heading")).toHaveText([
+    /^Baseline compared with /,
+    "CI entry timing comparison",
+  ]);
   await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
     "Baseline compared with Provisional",
   );

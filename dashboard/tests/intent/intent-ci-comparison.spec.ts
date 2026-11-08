@@ -18,7 +18,7 @@
 
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { observedNotAttributed } from "../../src/storyCiComparisonWording.ts";
+import { observedNotAttributedInFull } from "../../src/storyCiComparisonWording.ts";
 import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonEarlierLanding.ts";
 import { comparisonWorkflowPath } from "../support/storyCiComparisonFixture.ts";
 import { serveObservedComparisonAttempts } from "../support/storyCiObservedJobs.ts";
@@ -67,10 +67,11 @@ for (const variant of [
     );
     const { panel } = await selectDoneStoryForCiComparison(page);
 
-    await expect(panel.getByRole("heading")).toHaveText(
-      `CI timing changes for ${setup.identity}`,
-    );
-    await expect(panel).toContainText(observedNotAttributed);
+    await expect(panel.getByRole("heading")).toHaveText([
+      /^Baseline compared with /,
+      "CI entry timing comparison",
+    ]);
+    await expect(panel).toContainText(observedNotAttributedInFull);
     await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
       "Baseline compared with Landed",
     );
@@ -176,9 +177,10 @@ test("code landed before completion uses the merge branch-side ancestor and the 
   const branchBuild = setup.branchAncestor ?? setup.branchSide;
   const landed = setup.landingMerge ?? setup.completion;
 
-  await expect(panel.getByRole("heading")).toHaveText(
-    `CI timing changes for ${setup.identity}`,
-  );
+  await expect(panel.getByRole("heading")).toHaveText([
+    /^Baseline compared with /,
+    "CI entry timing comparison",
+  ]);
   const branchIdentity = panel.locator(".intent-ci-comparison-identity").nth(1);
   const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
   await expect(branchIdentity).toContainText(shortSha(branchBuild));

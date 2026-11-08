@@ -73,7 +73,7 @@ test("an active story with no workspace explains that no comparison is available
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
   const scoped = storySummary(intent);
-  await expect(storyTitle(intent)).toHaveText("Story Story A");
+  await expect(storyTitle(intent)).toHaveText("Story A");
   await expect(scoped.getByRole("status")).toHaveText(
     "No comparison is available.",
   );
@@ -141,7 +141,7 @@ test("without configured Intent locations the header names the selected story, C
   await expect(
     intent.locator(".intent-story-view > *").first(),
   ).toHaveAttribute("aria-label", "Selected story");
-  await expect(storyTitle(intent)).toHaveText("Story Story A");
+  await expect(storyTitle(intent)).toHaveText("Story A");
   await expect(storySummary(intent).getByRole("status")).toHaveText(
     "No comparison is available.",
   );

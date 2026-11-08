@@ -3,9 +3,10 @@
 // test execution time, including timing gaps
 // (`./ciProofWording.ts`'s `ciProofCellsOf`). Intent's homepage Proof
 // (`./IntentCiProof.tsx`) gives one row per declared entry. A story CI
-// comparison (`./IntentCiComparison.tsx`) reuses this table with Baseline,
+// comparison (`./IntentCiEntryComparison.tsx`) reuses this table with Baseline,
 // Branch and Landed timing columns in place of a single Test execution time
-// column, keeping Counts. A Summary's story comparison
+// column, keeping Counts; when Branch and Landed show their change from
+// Baseline, their headers note "vs baseline". A Summary's story comparison
 // (`./IntentScopeComparisonTable.tsx`) adds Change after the scope, its cells
 // narrowing their padding sooner for the extra column. A scope path wraps
 // after a `/`, or within a part only in a narrow reading pane, so the columns
@@ -85,11 +86,28 @@ export function ScopePath({ path }: { readonly path: string }) {
 function ColumnHeader({
   header,
   sorting,
+  note,
 }: {
   readonly header: FigureHeader;
   readonly sorting: CiProofSorting | undefined;
+  // What the column's figures are relative to, shown under its name.
+  readonly note: string | undefined;
 }) {
-  if (sorting === undefined) return <th scope="col">{header.label}</th>;
+  const noted = note !== undefined && (
+    <>
+      {" "}
+      <span className="intent-ci-column-note" aria-hidden="true">
+        {note}
+      </span>
+    </>
+  );
+  if (sorting === undefined)
+    return (
+      <th scope="col">
+        {header.label}
+        {noted}
+      </th>
+    );
   const direction =
     sorting.sort?.column === header.column ? sorting.sort.direction : undefined;
   const arrow =
@@ -118,6 +136,7 @@ function ColumnHeader({
           <Icon icon={arrow} />
         </span>
       </button>
+      {noted}
     </th>
   );
 }
@@ -137,6 +156,15 @@ export function CiProofTable({
   readonly changes?: boolean;
 }) {
   const comparison = rows.some((row) => isComparisonCells(row.cells));
+  // Branch and Landed show their change from Baseline in a story CI
+  // comparison's entry rows.
+  const showsChange = rows.some(
+    (row) => isComparisonCells(row.cells) && row.cells.showsChange === true,
+  );
+  const noteOf = (column: string) =>
+    showsChange && (column === "branch" || column === "landed")
+      ? "vs baseline"
+      : undefined;
   const headers = figureHeadersFor(comparison, changes);
   const columns = [
     { column: "scope", label: scopeHeader } as const,
@@ -163,6 +191,7 @@ export function CiProofTable({
                 key={header.column}
                 header={header}
                 sorting={shownSorting}
+                note={noteOf(header.column)}
               />
             ))}
           </tr>

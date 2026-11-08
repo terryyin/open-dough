@@ -6,7 +6,15 @@ import { expect, type Locator } from "@playwright/test";
 import { comparisonTableColumns } from "../intentScopeProofPage.ts";
 import type { ExpectedCues } from "./expectCiComparisonCues.ts";
 
-const entryColumns = ["Entry", ...comparisonTableColumns];
+// Branch and Landed note that they show the change from Baseline.
+const entryColumns = [
+  "Entry",
+  ...comparisonTableColumns.map((column) =>
+    column === "Branch" || column === "Landed"
+      ? `${column} vs baseline`
+      : column,
+  ),
+];
 
 export const comparedStoryEntryRows = [
   ["dashboard/tests", "2,090 → 2,092 tests (+2)", "4 min", "+30 s", "+1 min"],

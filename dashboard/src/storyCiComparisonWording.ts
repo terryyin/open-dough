@@ -3,20 +3,18 @@
 // ancestor accessible words, or concise equivalent / later wording), each
 // build's measured CI wall time and time without runner waits in whole
 // seconds, one signed whole-second change for each of the active
-// comparison's overall timings (without runner waits, and wall time), and the
+// comparison's overall timings (without runner waits, and wall time) with
+// its relative change (`./storyCiRelativeChange.ts`), and the
 // active comparison name, framed as observations between single builds,
 // never attributed to the story.
 // Overall counts live in `./storyCiComparisonCountsWords.ts`.
 
-import {
-  wallTimeMs,
-  wholeSecondDifferenceWords,
-  wholeSecondWords,
-} from "./ciProofTimeWords.ts";
+import { wallTimeMs, wholeSecondWords } from "./ciProofTimeWords.ts";
 import {
   overallDurationCueOf,
   type DurationCue,
 } from "./ciScopeComparisonCues.ts";
+import { timeChangeOf, type TimeChange } from "./storyCiRelativeChange.ts";
 import {
   notLandedYetExplanation,
   type StoryCiComparisonAnswer,
@@ -72,15 +70,14 @@ export function wallTimeWords(slot: StoryCiComparisonSlot): string | undefined {
   return slot.adapterAttempt === undefined ? undefined : "Not recorded";
 }
 
-// Signed whole-second change from a measured BEFORE to a measured LATER
-// ("+17 s", "−8 s", "0 s"); none when either is not measured. A measured
-// zero before still gives a change.
-function signedChangeWords(
+// The change from a measured BEFORE to a measured LATER; none when either is
+// not measured.
+function signedChangeOf(
   before: number | undefined,
   later: number | undefined,
-): string | undefined {
+): TimeChange | undefined {
   if (before === undefined || later === undefined) return undefined;
-  return wholeSecondDifferenceWords(later - before);
+  return timeChangeOf(before, later);
 }
 
 function measuredWallTimeMs(slot: StoryCiComparisonSlot): number | undefined {
@@ -90,11 +87,11 @@ function measuredWallTimeMs(slot: StoryCiComparisonSlot): number | undefined {
 }
 
 // The active comparison's CI wall-time change between two completed builds.
-export function wallTimeChangeWords(
+export function wallTimeChangeOf(
   baseline: StoryCiComparisonSlot,
   after: StoryCiComparisonSlot,
-): string | undefined {
-  return signedChangeWords(
+): TimeChange | undefined {
+  return signedChangeOf(
     measuredWallTimeMs(baseline),
     measuredWallTimeMs(after),
   );
@@ -121,17 +118,17 @@ function measuredWithoutRunnerWaitsMs(
 }
 
 // The active comparison's change in CI time without runner waits.
-export function timeWithoutRunnerWaitsChangeWords(
+export function timeWithoutRunnerWaitsChangeOf(
   baseline: StoryCiComparisonSlot,
   after: StoryCiComparisonSlot,
-): string | undefined {
-  return signedChangeWords(
+): TimeChange | undefined {
+  return signedChangeOf(
     measuredWithoutRunnerWaitsMs(baseline),
     measuredWithoutRunnerWaitsMs(after),
   );
 }
 
-export const observedNotAttributed =
+const observedNotAttributed =
   "observed builds; differences are not attributed to the story";
 
 // The same framing as a sentence of its own.

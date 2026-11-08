@@ -194,7 +194,7 @@ capitalization, and the metrics grid at narrow width and in dark mode.
 ### 5. Compare the size of relative timing changes
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Relative timing row above. Use the built dashboard at desktop and
 narrow widths in both themes. Assert behavior and bar geometry independently
 of screenshots, and compare the integrated views with the mockup.
@@ -203,6 +203,19 @@ A developer scanning CI can compare relative change against a common zero
 and scale, read signed elapsed time without relying on color, and choose
 whether to see the numeric percentages. Keep the controls reachable at
 narrow widths and by keyboard.
+
+Accepted proof: `tests/intent` plus navigation and sessions consumers
+(273 passed); story-review files-toggle specs (14 passed); traced layout
+consumers (23 passed); CI support node tests; typecheck and lint; and the
+refactor's comparison specs (67 passed). `intent-ci-comparison-relative.spec.ts`
+asserts zero tick, direction, shared scale, outlier widening, absent and zero
+baselines, Show % and kept state. The coordinator compared desktop and narrow
+light screenshots with the mockup.
+
+Decisions: Terry deferred the dark-theme comparison to
+SEED-277#dashboard-dark-theme because the dashboard has no dark theme. Bars
+use the existing faster and slower CI cue colors, and "Counts" and lowercase
+"added" stay consistent with the file and folder proof wording.
 
 ## Proof and delivery gates
 
@@ -278,3 +291,12 @@ model, Project Intent isolates the context that actually differs, and the
 relative scale extends the same timing values as the signed display. The
 two interim states have named replacements. No slice-specific concern
 remains after reviewing the observed baseline and final proof ownership.
+
+
+## Story obligations
+
+### G1. Dark theme comparison has no dashboard dark theme
+Reported: slice 5 — "the dashboard has no dark theme; only the CI cue colours change for prefers-color-scheme: dark"
+Story clause: "Compare the implementation against the mockup in the light theme at desktop and narrow widths"
+Disposition: owner changed "Terry deferred the dark comparison on 2026-11-08"
+Commitment: V1

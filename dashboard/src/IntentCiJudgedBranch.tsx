@@ -35,8 +35,13 @@ export function CheckAgain({
   readonly checkAgain: () => void;
 }) {
   return (
-    <p>
-      <button type="button" disabled={reading} onClick={checkAgain}>
+    <p className="intent-ci-check-again">
+      <button
+        type="button"
+        className="start-launch-button"
+        disabled={reading}
+        onClick={checkAgain}
+      >
         Check again
       </button>
     </p>

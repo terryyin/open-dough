@@ -2,7 +2,8 @@
 // (`./IntentCiComparison.tsx`): match each endpoint's proof summary by path
 // through the shared scope comparison (`./ciScopeComparison.ts`), show the
 // measured Baseline execution time and, in Branch and Landed, one signed
-// whole-second change from it when both ends are measured (a new entry keeps
+// whole-second change from it when both ends are measured, relative to a
+// positive Baseline (`./storyCiRelativeChange.ts`) (a new entry keeps
 // its measured time; a gap keeps its words), counted-results differences in
 // Counts, mark added and removed entries, and keep parts completeness from
 // the homepage's chosen build (`./ciScopeComparisonPrimary.ts`).
@@ -14,7 +15,6 @@ import {
   ambiguousAttemptLine,
   unavailableLine,
 } from "./ciProofAbsenceWording.ts";
-import { wholeSecondDifferenceWords } from "./ciProofTimeWords.ts";
 import type { TimingCell } from "./ciProofTiming.ts";
 import type { CiProofCells, CountedResults } from "./ciProofWording.ts";
 import { primaryProofOf, scopeComparisonCellsOf } from "./ciScopeComparison.ts";
@@ -24,6 +24,7 @@ import type {
 } from "./ciScopeComparisonCues.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
 import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
+import { timeChangeOf } from "./storyCiRelativeChange.ts";
 
 export type ComparisonEndpointProof =
   | { readonly kind: "checking" }
@@ -209,17 +210,13 @@ export function comparisonEntriesOf(
   };
 }
 
-// AFTER's signed change from a measured BASELINE when AFTER is measured too;
-// otherwise AFTER as it is: a new entry's measured time or a gap's words.
-// A measured zero baseline still gives a change.
+// AFTER's signed change from a measured BASELINE when AFTER is measured too,
+// relative to a positive baseline; otherwise AFTER as it is: a new entry's
+// measured time or a gap's words. A measured zero baseline still gives a
+// change, but no relative one.
 function changeCellOf(baseline: TimingCell, after: TimingCell): TimingCell {
   if (baseline.ms === undefined || after.ms === undefined) return after;
-  const changeMs = after.ms - baseline.ms;
-  return {
-    text: wholeSecondDifferenceWords(changeMs),
-    ms: after.ms,
-    changeMs,
-  };
+  return { ...timeChangeOf(baseline.ms, after.ms), ms: after.ms };
 }
 
 function changeCellsOf(cells: ComparisonEntryCells): ComparisonEntryCells {

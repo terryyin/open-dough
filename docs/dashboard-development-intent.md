@@ -90,7 +90,7 @@ shows its gap, not a difference), names each child's story change in a
 `renamed`, empty when unchanged; a rename takes its baseline from its old
 path, which its **Baseline** cell names) that sorts by kind in that order
 with unchanged rows last in either direction, explains per-row gaps, and shows the same
-count-border and duration-tint cues as the homepage entry table (see
+count-border and duration-tint cues the homepage entry table classifies (see
 [CI timing comparison](dashboard-development-intent-ci-comparison.md)). The
 group's **Parts** shows completeness for the chosen build (landed, else
 branch, else baseline), and that build's proof labels what **Not in the rows

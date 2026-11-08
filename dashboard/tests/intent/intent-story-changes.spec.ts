@@ -1,24 +1,23 @@
 // Example 1 and 3: a Taken story whose worktree changes the tests Intent
-// publishes (../support/intentStoryWorktree.ts) is selected by its card's
-// empty area, and one persistent header, led by the way to Project Intent,
-// names it in full, with its identity, the revisions its default Review changes
-// comparison runs between, and the count outside every location, above the
-// story's views; Changed tests' column starts with the "Selected story only"
-// choice. The whole published tree shows, changed
-// files styled by kind and the added one inserted; the folders containing
-// changes have the contains-changes background and are open, with the first
-// changed location, while everything else stays collapsed. A location
+// publishes (../support/intentStoryWorktree.ts) is selected by its card's empty
+// area, and one persistent header, led by the way to Project Intent, names it
+// in full, with its identity, the revisions its default Review changes
+// comparison runs between, and the count of changed files outside every
+// location, pointing to Review changes, above the story's views; Changed tests'
+// column starts with the "Selected story only" choice. The whole published tree
+// shows, changed files styled by kind and the added one inserted; the folders
+// containing changes have the contains-changes background and are open, with
+// the first changed location, while everything else stays collapsed. A location
 // containing changes keeps its own header background with a change mark,
-// distinct from a changed folder's row, and keeps the mark once selected. The changed files outside every location are counted, pointing
-// to Review changes. A changed file's Purpose is the same diff Review
-// changes shows; an unchanged file shows its published source. Deselecting removes the
-// summary and shows Project Intent, whose reading borrowed none of it.
-// "Selected story only": ./intent-story-changes-only.spec.ts. Deletions and
-// renames, and a folder's Summary of the overlaid tree:
-// ./intent-story-changes-moves.spec.ts. No
+// distinct from a changed folder's row, and keeps the mark once selected. A
+// changed file's Purpose is the same diff Review changes shows; an unchanged
+// file shows its published source. Deselecting removes the summary and shows
+// Project Intent, whose reading borrowed none of it. "Selected story only":
+// ./intent-story-changes-only.spec.ts. Deletions and renames, and a folder's
+// Summary of the overlaid tree: ./intent-story-changes-moves.spec.ts. No
 // comparison and a failed read: ./intent-story-changes-gaps.spec.ts. A long
-// title: ./intent-story-summary-title.spec.ts. Where the keyboard returns
-// after closing Review changes: ./intent-story-review-return.spec.ts.
+// title: ./intent-story-summary-title.spec.ts. Where the keyboard returns after
+// closing Review changes: ./intent-story-review-return.spec.ts.
 
 import { parts } from "../dashboardPage.ts";
 import { ciPanel } from "../intentCiStatusPage.ts";
@@ -82,7 +81,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(
       intent.getByRole("region", { name: "Selected story" }),
     ).toHaveCount(1);
-    await expect(storyTitle(intent)).toHaveText("Story Story A");
+    await expect(storyTitle(intent)).toHaveText("Story A");
     await expect(intent.getByText("Story A", { exact: true })).toHaveCount(1);
     await expect(
       intent.getByRole("tablist", { name: "Selected story views" }),

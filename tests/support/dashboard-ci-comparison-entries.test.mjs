@@ -1,6 +1,7 @@
 // Entry matching and wording for Intent's story CI comparison
 // (`../../dashboard/src/storyCiComparisonEntries.ts`): measured Baseline time
-// and one signed change in Branch and Landed, added/removed paths, expired
+// and one signed change in Branch and Landed, relative to a positive
+// Baseline, added/removed paths, expired
 // and partial totals never invent zero.
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -200,5 +201,25 @@ test("a measured zero baseline still gives a signed change, and an unchanged tim
     text: "0 s",
     ms: 45_000,
     changeMs: 0,
+    relative: 0,
   });
+});
+
+test("a change is relative to a positive Baseline only", () => {
+  const result = comparisonEntriesOf(
+    summary(entry("e/slower", 240_000), entry("e/zero", 0)),
+    summary(entry("e/slower", 270_000), entry("e/zero", 30_000)),
+    summary(
+      entry("e/slower", 120_000),
+      entry("e/zero", 30_000),
+      entry("e/added", 30_000),
+    ),
+  );
+  assert.equal(result.kind, "rows");
+  const [slower, zero, added] = result.rows;
+  assert.equal(slower.cells.branch.relative, 0.125);
+  assert.equal(slower.cells.landed.relative, -0.5);
+  assert.equal(zero.cells.branch.relative, undefined);
+  assert.equal(added.cells.landed.relative, undefined);
+  assert.equal(added.cells.landed.text, "30 s");
 });

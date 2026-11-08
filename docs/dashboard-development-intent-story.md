@@ -4,12 +4,14 @@ Part of [Development and Intent](dashboard-development-intent.md).
 
 With a story selected, Intent shows that story's views: one persistent
 header, which never collapses, led by **Project Intent** / Selected story,
-names it by its full title and
-identity and says briefly while its default Review changes comparison is
+names it by its full title under its identity, marked **Done** once
+completed, and says briefly while its default Review changes comparison is
 reading, unavailable or failed, with **Retry** for a failure, followed by the
 revisions that comparison runs between or its full explanation. Below it the
 story's views are **CI comparison**, **Changed tests** and **Intent
-coverage**, in that order; each new selection, even of a story cleared and
+coverage**, in that order, as underlined tabs on one row with **Hide files**
+/ **Show files** at its end (narrow, smaller tabs and the toggle's panel
+icon alone, its words kept as its name); each new selection, even of a story cleared and
 selected again while Intent is hidden, opens **CI comparison**, and the
 chosen view, kept with the story's reading place, is otherwise kept.
 **Project Intent** in the header visits the project's own evidence, the

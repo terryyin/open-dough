@@ -25,7 +25,7 @@
 .intent-story-summary {
   flex: none;
   min-width: 0;
-  padding: 0 clamp(0.75rem, 4vw, 1.5rem) var(--space-2);
+  padding: var(--space-1) clamp(0.75rem, 4vw, 1.5rem) var(--space-3);
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -35,7 +35,8 @@
 }
 
 .intent-story-summary .intent-story-crumb {
-  font-size: var(--text-sm);
+  color: var(--quiet);
+  font-size: var(--text-xs);
 }
 
 .intent-story-crumb-link {
@@ -56,15 +57,29 @@
   min-width: 0;
   max-width: 50rem;
   margin: 0;
-  font-size: var(--text-lg);
-  line-height: 1.3;
+  font-size: clamp(1.2rem, 2.45vw, 1.55rem);
+  font-weight: var(--weight-strong);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
-.intent-story-kind,
-.intent-story-summary .record-identity {
+/* Done and the identity, quiet above the title. */
+.intent-story-summary .intent-story-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-1) 0;
   color: var(--quiet);
-  font-size: var(--text-sm);
-  font-weight: 400;
+  font-size: var(--text-xs);
+}
+
+.intent-story-done {
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  color: var(--ready);
+  background: color-mix(in srgb, var(--ready) 12%, transparent);
+  font-weight: var(--weight-strong);
 }
 
 .intent-story-detail {
@@ -109,17 +124,40 @@
   flex: none;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-2);
   min-width: 0;
-  padding: 0 clamp(0.75rem, 4vw, 1.5rem) var(--space-2);
+  padding: 0 clamp(0.75rem, 4vw, 1.5rem);
 }
 
 .intent-story-tabbar > .start-launch-button {
   flex: none;
   margin-inline-start: auto;
+  margin-block-end: var(--space-1);
   font-size: var(--text-sm);
+}
+
+/* Narrow, the views and the files toggle share one row: smaller tabs, and
+   the toggle's icon alone, its words kept as its name. */
+@media (max-width: 36rem) {
+  .intent-story-tabbar {
+    flex-wrap: nowrap;
+  }
+
+  .intent-story-tabbar .intent-tab {
+    padding-inline: var(--space-1);
+    font-size: var(--text-xs);
+  }
+
+  .intent-story-tabbar .file-browser-toggle-words {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 
 .intent-story-panel {
@@ -145,12 +183,23 @@
   line-height: 1.5;
 }
 
+.intent-story-coverage h3 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-md);
+}
+
 .intent-story-coverage p {
   margin: 0 0 var(--space-2);
 }
 
+/* The saved text, literal, in its own box. */
 .intent-story-coverage-text {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--raised-surface);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* "Selected story only" heading the Changed tests tree. */

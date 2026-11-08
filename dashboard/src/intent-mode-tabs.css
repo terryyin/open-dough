@@ -1,7 +1,8 @@
 /* Project Intent's heading and views (./IntentModeTabs.tsx): the heading,
    with Back to selected story at its end while a story is selected, over one
-   segmented strip holding the Project Intent tablist (./intent-tabs.css),
-   then, while CI status shows the locations tree, Hide files / Show files. */
+   strip holding the Project Intent tablist (./intent-tabs.css), standing on
+   the line under it, then, while CI status shows the locations tree, Hide
+   files / Show files. */
 .intent-project-head {
   flex: none;
   display: flex;
@@ -28,8 +29,12 @@
 .intent-mode-bar {
   flex: none;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: var(--space-2);
   min-width: 0;
-  padding: 0 clamp(0.75rem, 4vw, 1.5rem) var(--space-2);
+  padding: 0 clamp(0.75rem, 4vw, 1.5rem);
+}
+
+.intent-mode-bar > .start-launch-button {
+  margin-block-end: var(--space-1);
 }

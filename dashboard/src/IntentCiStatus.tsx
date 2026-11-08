@@ -62,7 +62,6 @@ export function IntentCiStatus() {
   if (evidence.kind === "comparison")
     return (
       <IntentCiComparison
-        story={evidence.story}
         reading={evidence.comparison}
         {...(evidence.phase === "done"
           ? { checkAgain: evidence.comparison.checkAgain }
@@ -79,10 +78,7 @@ export function IntentCiStatus() {
         proof={evidence.proof}
       />
       {provisional !== undefined && evidence.comparisonStory !== undefined && (
-        <IntentCiComparison
-          story={evidence.comparisonStory}
-          reading={provisional}
-        />
+        <IntentCiComparison reading={provisional} />
       )}
     </>
   );

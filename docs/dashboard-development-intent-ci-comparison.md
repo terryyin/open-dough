@@ -21,10 +21,12 @@ Landed says no later build finished in the history it read. When the walk
 stopped at the trunk head or a running build, the answer is read again on the
 next selection instead of remembered. Timed-out or unexplained stays
 exact-only. Baseline and Branch walks continue past builds without usable
-proof. The story's **CI comparison** view names the active comparison
+proof. The story's **CI comparison** view is headed by the active comparison
 (**Baseline compared with
 Landed** when Landed has proof, else **Branch**, or **Provisional** for Taken
-Trunk Mode) and why Landed is unused when skipped; an overall summary keeps
+Trunk Mode), framed as observed builds not attributed to the story, and says
+why Landed is unused when skipped; without a comparison to show it is headed
+**CI timing changes**. An overall summary keeps
 units apart in **Counts** and shows one signed whole-second change each for
 **CI time without runner waits** and **CI wall time** when both compared
 builds measured it (a measured zero included; omitted otherwise); then each
@@ -41,11 +43,22 @@ Baseline cell shows its measured time, and whose Branch and Landed cells show
 one signed whole-second change from a measured Baseline (`+30 s`, `−1 min`,
 `0 s`; a measured zero Baseline still gives one). An entry added after
 Baseline shows its measured time without a change; a gap keeps its label and
-explanation. The entry rows sort by their column headers: **Counts** by the
-active after endpoint's counted results, **Baseline** by its measured time,
-and **Branch** and **Landed** by the signed change they show. A row without
-that value (added, removed, partial, unavailable) follows the others in
-either direction. A selected entry's, folder's or file's comparison keeps
+explanation. Branch and Landed headers note "vs baseline". Each signed
+change in the summary and the entry cells is followed by a mark relative to
+a positive measured baseline: its zero tick at the centre, faster extending
+left and slower right, on one symmetric scale shared by the whole view that
+reaches one side at a 50% change and widens to the largest change shown. An
+unchanged time keeps its mark at zero; an added entry, a gap, and a measured
+zero baseline show no mark, the last still with its signed change. The words
+carry the direction without colour. **Show %**, off at first and kept with
+the story's reading place, adds each mark's signed whole percentage (`+13%`)
+together, changing no mark, value or order. The summary and entry rows keep
+their cue state without the tint or count edge, which the marks and words
+replace in this view. The entry rows sort by their column headers:
+**Counts** by the active after endpoint's counted results, **Baseline** by
+its measured time, and **Branch** and **Landed** by the signed change they
+show. A row without that value (added, removed, partial, unavailable)
+follows the others in either direction. A selected entry's, folder's or file's comparison keeps
 `before → after (Δ, %)` words and sorts by measured time. GitHub Actions
 wall time spans run creation on attempt one or attempt start on reruns through
 completion. CI time without runner waits measures the longest dependency chain
@@ -54,7 +67,8 @@ carried-over jobs. A custom CI adapter supplies the selected attempt's graph
 through its optional `jobs` operation. If the graph cannot be read or timed,
 Intent shows why alongside the endpoint's wall time and proof.
 One classification of each scope's count and duration change feeds cues
-on the overall summary, entry rows, a location's or folder's own Summary
+(the story CI view's summary and entry rows keep only its state) on the
+overall summary, entry rows, a location's or folder's own Summary
 figures and its rows, file **Proof**, location headers whose path is a compared
 entry, and file rows in the location tree: a count border (green fewer, red
 more; any change; strong at ≥50% of baseline) and a duration tint (green

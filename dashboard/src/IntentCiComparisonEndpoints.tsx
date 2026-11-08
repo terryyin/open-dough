@@ -144,34 +144,36 @@ export function ComparisonEndpointsTable({
   readonly branchProvisional: boolean;
 }) {
   return (
-    <table className="intent-ci-comparison">
-      <caption className="visually-hidden">
-        Baseline, branch and landed CI builds with timing
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">Endpoint</th>
-          <th scope="col">Build</th>
-          <th scope="col">CI wall time</th>
-          <th scope="col">CI time without runner waits</th>
-        </tr>
-      </thead>
-      <tbody>
-        <EndpointRow label="Baseline" slot={baseline} provisional={false} />
-        <EndpointRow
-          label="Branch"
-          slot={branch}
-          provisional={branchProvisional}
-        />
-        {provisional !== undefined && (
+    <div className="intent-ci-comparison-box">
+      <table className="intent-ci-comparison">
+        <caption className="visually-hidden">
+          Baseline, branch and landed CI builds with timing
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Endpoint</th>
+            <th scope="col">Build</th>
+            <th scope="col">CI wall time</th>
+            <th scope="col">CI time without runner waits</th>
+          </tr>
+        </thead>
+        <tbody>
+          <EndpointRow label="Baseline" slot={baseline} provisional={false} />
           <EndpointRow
-            label="Provisional"
-            slot={provisional}
-            provisional={true}
+            label="Branch"
+            slot={branch}
+            provisional={branchProvisional}
           />
-        )}
-        <EndpointRow label="Landed" slot={landed} provisional={false} />
-      </tbody>
-    </table>
+          {provisional !== undefined && (
+            <EndpointRow
+              label="Provisional"
+              slot={provisional}
+              provisional={true}
+            />
+          )}
+          <EndpointRow label="Landed" slot={landed} provisional={false} />
+        </tbody>
+      </table>
+    </div>
   );
 }

@@ -6,7 +6,7 @@
 // remembered on the server, so only the others ask GitHub again. Intent's one
 // CI evidence owner
 // (`./IntentCiEvidence.tsx`) holds these proofs so the homepage entry rows
-// (`./IntentCiComparison.tsx`) and a selected entry's or folder's Summary
+// (`./IntentCiEntryComparison.tsx`) and a selected entry's or folder's Summary
 // (`./IntentScopeProof.tsx`) share them; selecting, drilling and returning
 // home ask CI nothing again.
 

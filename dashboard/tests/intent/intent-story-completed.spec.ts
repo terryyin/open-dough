@@ -68,7 +68,7 @@ test("Intent overlays a completed story's published history comparison, naming i
 
   await test.step("Intent names the completed story by its done record's title and identity", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-    await expect(storyTitle(intent)).toHaveText("Story Story A");
+    await expect(storyTitle(intent)).toHaveText("Story A");
     await expect(
       scoped.getByRole("heading", { name: "Intent coverage" }),
     ).toHaveCount(0);
@@ -178,7 +178,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-    await expect(storyTitle(intent)).toHaveText("Story Story A");
+    await expect(storyTitle(intent)).toHaveText("Story A");
     await development.click();
     await press(selectStory(card));
     await expectSelected(card, false);
@@ -197,7 +197,7 @@ test("a completed story whose published comparison cannot be recovered says why,
     history: "shallow",
   });
   const scoped = storySummary(intent);
-  await expect(storyTitle(intent)).toHaveText("Story Story A");
+  await expect(storyTitle(intent)).toHaveText("Story A");
   await expect(scoped.getByRole("status")).toHaveText(
     "No comparison is available.",
   );

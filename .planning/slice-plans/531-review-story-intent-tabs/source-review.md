@@ -25,8 +25,8 @@ example)" and their sibling rows.
 | G2 | The developer can inspect the changed tests without losing their place. | slice 1 | observed: dashboard/tests/intent/intent-sidebar-toggle.spec.ts file, Proof, folders, Selected story only and tree scroll kept across views |
 | G3 | The developer can inspect the saved Intent Coverage assessment without losing their place. | slice 3 | observed: Coverage is a story tab kept by intent-story-changes-only, intent-sidebar-toggle and intent-reading-place specs |
 | G4 | The developer can visit project CI and optimization candidates and return to the same story evidence. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts candidate test reads as published; return restores candidate then story reading |
-| D1 | Hierarchy, spacing, tabs and timing treatment follow the approved interactive mockup. | slice 5 | |
-| D2 | Real evidence and the states described in the story are used. The mockup's sample story, build figures and report excerpt only illustrate the interaction. | slice 5 | |
+| D1 | Hierarchy, spacing, tabs and timing treatment follow the approved interactive mockup. | slice 5 | observed: slice 5 screenshots final-* vs mockup-* (job visual dir) reviewed by coordinator: header crumb, Done chip, title, underlined tabs, metrics band, boxed tables, vs baseline notes, marks and Show % follow the mockup |
+| D2 | Real evidence and the states described in the story are used. The mockup's sample story, build figures and report excerpt only illustrate the interaction. | slice 5 | observed: slice 5 screenshots final-* vs mockup-* (job visual dir) reviewed by coordinator: real fixtures only, no mockup sample data |
 | 1 | One persistent story header sits above the tabs. | slice 1 | observed: dashboard/tests/intent/intent-story-changes.spec.ts one Selected story region above the tablist |
 | 1a | The story header cannot be collapsed. | slice 1 | observed: dashboard/tests/intent/intent-story-changes.spec.ts no collapse control on the header (storyHeaderDetail) |
 | 2 | Tabs appear in this order: **CI comparison**, **Changed tests**, **Intent coverage**. | slice 1 | observed: dashboard/tests/intent/intent-story-changes.spec.ts tablist text CI comparison, Changed tests, Intent coverage |
@@ -56,17 +56,17 @@ example)" and their sibling rows.
 | 11a | Entries without comparable timings sort after the measured deltas. | slice 4 | observed: intent-ci-comparison-sort.spec.ts untimed and added entries last in both directions |
 | 12 | A new entry shows its measured time instead of a change mark. | slice 4 | observed: intent-ci-comparison-sort.spec.ts and -entries.spec.ts Added row shows 5 s / 30 s with no change mark |
 | 13 | The existing explanation is kept when timing evidence is missing. | slice 4 | observed: dashboard/tests/intent/intent-ci-comparison-entries.spec.ts No timings / untimed with accessible descriptions; build table unavailable text in -gaps and -adapter-unavailable specs |
-| 14 | Relative change appears with a visible zero mark. | slice 5 | |
-| 15 | Comparable timings share one scale. | slice 5 | |
-| 16 | Faster extends left and slower extends right. | slice 5 | |
-| 17 | The elapsed delta is readable without relying on color. | slice 5 | |
-| 18 | **Show %** starts off. | slice 5 | |
-| 18a | Turning on **Show %** reveals all numeric percentages together. | slice 5 | |
-| 19 | Zero change stays at the center. | slice 5 | |
-| 20 | An absent baseline supplies no relative change. | slice 5 | |
-| 20a | A zero baseline supplies no relative change. | slice 5 | |
+| 14 | Relative change appears with a visible zero mark. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts expectMark zero tick within 1px of the mark centre |
+| 15 | Comparable timings share one scale. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts reaches on one scale across entry cells and summary (0.25, 0.5, 1, 2/3) |
+| 16 | Faster extends left and slower extends right. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts data-direction slower right, faster left with bar from centre |
+| 17 | The elapsed delta is readable without relying on color. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts cells keep signed words +30 s / −1 min; mark aria-hidden |
+| 18 | **Show %** starts off. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts Show % unchecked with no percentages by default |
+| 18a | Turning on **Show %** reveals all numeric percentages together. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts Space on Show % reveals all 7 percentages together; order and geometry unchanged |
+| 19 | Zero change stays at the center. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts e/same 0 s with direction none, reach 0, bar at centre |
+| 20 | An absent baseline supplies no relative change. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts e/added 30 s with no mark; tests/support/intent-ci-relative-change.test.mjs |
+| 20a | A zero baseline supplies no relative change. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts e/zero +30 s with no mark and no percentage |
 | 21 | A measured zero baseline can still supply an elapsed delta. | slice 4 | observed: tests/support/dashboard-ci-comparison-entries.test.mjs a measured zero baseline still gives a signed change +30 s |
-| 22 | The shared scale handles values beyond those shown in the mockup. | slice 5 | |
+| 22 | The shared scale handles values beyond those shown in the mockup. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts second test +150% widens the scale to 1.5 for every mark |
 | 23 | **Hide files** / **Show files** sits at the trailing end of the tab row. | slice 1 | observed: intent-sidebar-toggle.spec.ts toggle at the end of the story tab row, absent from the mode bar |
 | 23a | It reuses the existing control and the kept reading place. | slice 1 | observed: intent-sidebar-toggle.spec.ts kept choice survives Candidates, Development and project change via FileBrowserToggle |
 | 24.1 | File and folder selection is preserved. | slice 1 | observed: intent-sidebar-toggle.spec.ts file, folders, Selected story only and Proof restored after Coverage and CI views |
@@ -105,12 +105,12 @@ example)" and their sibling rows.
 | A3 | Project browsing does not borrow the story's diff or file selection. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts no story diff in project reading; intent-home-activation.spec.ts project and story file selections independent |
 | A4 | Both reading places (story and project) are disposable page state. | slice 2 | observed: intent-reading-place.spec.ts in-memory reading places restored across Development and back |
 | A5 | CI and coverage come from their existing published evidence. | slice 3 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts coverage read from published done records through useDoneDetails |
-| V1 | The implementation is compared with the mockup in light and dark themes. | slice 5 | |
-| V2 | The comparison covers desktop and narrow widths. | slice 5 | |
-| V3.1 | Reviewed view: the default CI tab with percentages off. | slice 5 | |
-| V3.2 | Reviewed view: the default CI tab with percentages on. | slice 5 | |
-| V3.3 | Reviewed view: the file pane with the sidebar shown. | slice 5 | |
-| V3.4 | Reviewed view: the file pane with the sidebar hidden. | slice 5 | |
-| V3.5 | Reviewed view: the coverage tab. | slice 5 | |
-| V4 | Keyboard navigation is verified. | slice 5 | |
-| V5 | State restoration is verified through the dashboard's normal entry points. | slice 5 | |
+| V1 | The implementation is compared with the mockup in light and dark themes. |  | G1 |
+| V2 | The comparison covers desktop and narrow widths. | slice 5 | observed: slice 5 screenshots final-* vs mockup-* (job visual dir) reviewed by coordinator desktop 1440x900 and narrow 390 wide |
+| V3.1 | Reviewed view: the default CI tab with percentages off. | slice 5 | observed: slice 5 screenshots final-* vs mockup-* (job visual dir) reviewed by coordinator final-ci-pct-off-* |
+| V3.2 | Reviewed view: the default CI tab with percentages on. | slice 5 | observed: slice 5 screenshots final-* vs mockup-* (job visual dir) reviewed by coordinator final-ci-pct-on-* |
+| V3.3 | Reviewed view: the file pane with the sidebar shown. | slice 5 | observed: slice 5 screenshots final-* vs mockup-* (job visual dir) reviewed by coordinator final-files-shown-* |
+| V3.4 | Reviewed view: the file pane with the sidebar hidden. | slice 5 | observed: slice 5 screenshots final-* vs mockup-* (job visual dir) reviewed by coordinator final-files-hidden-* |
+| V3.5 | Reviewed view: the coverage tab. | slice 5 | observed: slice 5 screenshots final-* vs mockup-* (job visual dir) reviewed by coordinator final-coverage-*; intent-story-coverage.spec.ts states |
+| V4 | Keyboard navigation is verified. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts Space toggles Show %; intent-story-views-narrow.spec.ts and intent-sidebar-toggle.spec.ts keyboard views and toggle; intent-ci-comparison-sort.spec.ts headers by Enter |
+| V5 | State restoration is verified through the dashboard's normal entry points. | slice 5 | observed: dashboard/tests/intent/intent-ci-comparison-relative.spec.ts Show % kept across Changed tests and a Project Intent visit; intent-project-visit.spec.ts and intent-reading-place.spec.ts restoration |

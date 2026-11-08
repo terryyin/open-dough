@@ -44,3 +44,4 @@ intent introduced or affected by a newly developed story.
 - [Make launch and session test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data) — SEED-261#map-launch-and-session-test-data
 - [Make Intent and CI proof test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-intent-and-ci-proof-test-data) — SEED-261#map-intent-and-ci-proof-test-data
 - [Make installation and native test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-installation-and-native-test-data) — SEED-261#map-installation-and-native-test-data
+- [Give the dashboard a dark theme](seeds/SEED-277-dashboard-dark-theme.md#dashboard-dark-theme) — SEED-277#dashboard-dark-theme

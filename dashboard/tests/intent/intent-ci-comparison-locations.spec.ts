@@ -62,7 +62,7 @@ test("a selected story's CI comparison shows under its one header while the Inte
   const { intent, panel } = await selectDoneStoryForCiComparison(page);
   expect(locations.held()).toBeGreaterThan(0);
   await expectStoryTab(intent, "CI comparison");
-  await expect(storyTitle(intent)).toHaveText("Story Story A");
+  await expect(storyTitle(intent)).toHaveText("Story A");
   await expect(storySummary(intent)).toHaveCount(1);
   await expect(
     intent.getByRole("tabpanel", { name: "CI comparison" }),

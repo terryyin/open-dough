@@ -113,8 +113,10 @@ browsing. Keep both reading places as disposable page state and derive CI
 and coverage from their existing published evidence. [ADR 0008 — Project
 dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
 
-**Visual acceptance.** Compare the implementation against the mockup in light
-and dark themes at desktop and narrow widths. Review the default CI tab with
+**Visual acceptance.** Compare the implementation against the mockup in the
+light theme at desktop and narrow widths. The dashboard has no dark theme;
+Terry deferred the dark comparison on 2026-11-08 to
+[Give the dashboard a dark theme](SEED-277-dashboard-dark-theme.md#dashboard-dark-theme). Review the default CI tab with
 percentages off and on, the file pane with the sidebar shown and hidden, and
 the coverage tab. Verify keyboard navigation and state restoration through
 the dashboard's normal entry points.

@@ -2,8 +2,9 @@
 // persistent header, led by the way to Project Intent, above the story's
 // views (`./intentStoryTabs.tsx`), drawn
 // whether locations are still read, unavailable, or browsed, so the title
-// appears once and never collapses. It names the story by its full title and
-// identity, with what its comparison says (`./IntentStoryComparison.tsx`),
+// appears once and never collapses. It names the story by its full title
+// under its identity, marked Done once completed, with what its comparison
+// says (`./IntentStoryComparison.tsx`),
 // briefly while it is reading, unavailable, or failed with a retry, and the
 // revisions it runs between or the full explanation. Once the comparison and
 // the location inventory are known, the title line ends with the count of
@@ -132,11 +133,12 @@ export function IntentStoryHeader({
       <p className="intent-story-crumb">
         {crumb} <span aria-hidden="true">/</span> Selected story
       </p>
+      <p className="intent-story-meta">
+        {story.completed && <span className="intent-story-done">Done</span>}
+        <span className="record-identity">{story.identity}</span>
+      </p>
       <div className="intent-story-title-line">
-        <h2 className="intent-story-title">
-          <span className="intent-story-kind">Story</span>{" "}
-          <span className="intent-story-name">{story.title}</span>
-        </h2>
+        <h2 className="intent-story-title">{story.title}</h2>
         {outside !== undefined && (
           <StoryOutsideLocations
             source={source}
@@ -145,9 +147,6 @@ export function IntentStoryHeader({
           />
         )}
       </div>
-      <p className="intent-story-meta">
-        <span className="record-identity">{story.identity}</span>
-      </p>
       <CompactComparisonState comparison={comparison} onRetry={onRetry} />
       <div className="intent-story-detail">
         <ComparisonDetail comparison={comparison} />
