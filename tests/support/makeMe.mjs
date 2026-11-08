@@ -4,6 +4,8 @@
 // facts that drive the case and `.please()` returns the product value.
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
+import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
+import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import {
   ObservedLaunchBuilder,
   SessionStateBuilder,
@@ -134,6 +136,12 @@ export const makeMe = {
   },
   get anObservedLaunch() {
     return new ObservedLaunchBuilder();
+  },
+  get anAcceptedAttempt() {
+    return new AcceptedAttemptBuilder();
+  },
+  get anAttemptObservation() {
+    return new AttemptObservationBuilder();
   },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();

@@ -2,7 +2,6 @@
 // attachment folder after a successful write; refusal, replacement failure and
 // a restored attempt preserve both. Late script evidence cannot recreate a
 // pruned start.
-import { randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
 import {
   existsSync,
@@ -16,6 +15,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { expect, test } from "../../tests/support/pageTest.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type {
   LaunchAttemptRecord,
   EstablishedSession,
@@ -53,18 +53,16 @@ test.beforeEach(() => {
   file = path.join(directory, "launch-attempts.json");
   startsFile = path.join(directory, "session-starts.json");
   const expiredAt = new Date(Date.now() - 31 * 86_400_000).toISOString();
-  attempt = {
-    id: randomUUID(),
-    request: { source: "open-dough", workflow: "ad-hoc", host: "claude" },
-    acceptedAt: expiredAt,
-    settledAt: expiredAt,
-    publication: { kind: "none" },
-    outcome: {
+  attempt = makeMe.anAcceptedAttempt
+    .adHoc()
+    .acceptedAt(expiredAt)
+    .ended({
       kind: "uncertain",
       reason: "timed-out",
       explanation: "Start still runs.",
-    },
-  };
+    })
+    .settledAt(expiredAt)
+    .please();
   start = {
     host: "claude",
     workspace: session.workspace,

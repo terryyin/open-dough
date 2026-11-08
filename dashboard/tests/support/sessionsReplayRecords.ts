@@ -17,6 +17,7 @@ import {
   type LaunchAttemptRecord,
   type LaunchRecord,
 } from "../../src/agentLaunch.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { replayProjectIds } from "./sessionsReplayProjects.ts";
 import { commitOf, indices, prose, uuidOf } from "./sessionsReplayValues.ts";
 
@@ -176,29 +177,33 @@ function attemptAt(
     host: record?.session.host ?? "claude",
     instruction: prose(`attempt-instruction:${String(index)}`, 71),
   };
-  const id = uuidOf(`attempt:${String(index)}`);
+  const attempt = makeMe.anAcceptedAttempt
+    .withId(uuidOf(`attempt:${String(index)}`))
+    .requesting(request)
+    .acceptedAt(acceptedAt);
   if (record === undefined)
-    return {
-      id,
-      request,
-      acceptedAt,
-      publication: { kind: "none" },
-      outcome: {
+    return attempt
+      .ended({
         kind: "failed",
         reason: "start-refused",
         explanation: prose(`refused:${String(index)}`, 120),
-      },
-      settledAt: acceptedAt,
-      reconciledAt: acceptedAt,
-    };
+      })
+      .settledAt(acceptedAt)
+      .reconciledAt(acceptedAt)
+      .please();
   const { completion, landing, landingReporting } = record;
   const session = {
     host: record.session.host,
     sessionId: record.session.sessionId,
   };
   return {
-    id,
-    reportingOrigin: origin,
+    ...attempt
+      .reportingTo(origin)
+      .published(commitOf(`published:${String(index)}`))
+      .launched(session)
+      .settledAt(record.launchedAt)
+      .reconciledAt(record.launchedAt)
+      .please(),
     ...(record.request.reporting && { reporting: record.request.reporting }),
     ...(completion && {
       completion,
@@ -212,15 +217,6 @@ function attemptAt(
       landingPreparations: landingReporting.preparations,
     }),
     ...(landing && { landing }),
-    request,
-    acceptedAt,
-    publication: {
-      kind: "published",
-      revision: commitOf(`published:${String(index)}`),
-    },
-    outcome: { kind: "launched", session },
-    settledAt: record.launchedAt,
-    reconciledAt: record.launchedAt,
   };
 }
 

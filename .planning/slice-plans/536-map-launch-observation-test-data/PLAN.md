@@ -151,7 +151,7 @@ while nothing discriminates it; mutate the helper to check.
 
 ### 3. Accepted attempts keep their own stored and live facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 3 at acceptance and settlement, and example 4 at store read. Run `npm run test:dashboard -- 'backend-tests/launches/(launch-attempt-(attention|worker|retention)|settled-attempt-reconciliation|agent-launch-cross-server-accept|agent-launch-acceptance|agent-launch-change-wait)\.spec\.ts$' 'dashboard/tests/launches/(agent-launch-continuation|responsive-session-recovery-ad-hoc)\.spec\.ts$' 'backend-tests/sessions/agent-launch-sessions-history\.spec\.ts$'`.
 
 An accepted attempt can be in progress with no session. Its later launched
@@ -161,6 +161,22 @@ Leave actual POST bodies, malformed attempt-store text, retention times,
 legacy omissions, and failure injection in their existing cases. Keep the
 deterministic attempt-attention generator and its independent comparison.
 Use existing completion facts to supply fields its cast currently hides.
+
+Accepted: `makeMe.anAcceptedAttempt` (`tests/support/launchAttemptTestData.mjs`)
+keeps an attempt's exact request and acceptance facts, with a launched
+outcome naming host and session ID and no implied settlement time.
+`makeMe.anAttemptObservation` (`tests/support/launchAttemptObservationTestData.mjs`)
+requires explicit ownership and running state. Six backend specs, the
+recovery helper, replay attempts and `keepUnsettledAttempt` convert;
+acceptance, change-wait, continuation and ad hoc recovery keep their real
+POST bodies, store text and legacy edits. The attention generator lost its
+cast: over seeds 1–5,000, 18,316 invalid observations became 0 and every
+page reading and attention set stayed identical. Replay seeds stayed
+deep-equal. The focused command passed 22 tests and traced consumers 16
+(sessions replay is opt-in). Removing the unreconciled-latest clause or
+settling the kept unsettled copy fails the attention spec and
+`agent-launch-sessions-history`. Learning: the attempt builder's ID is
+fixed, so a store holding several attempts states each `.withId`.
 
 ### 4. Frontend substitutes compose the machine's answer
 Type: Behavior

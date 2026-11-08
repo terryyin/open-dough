@@ -24,6 +24,7 @@ import {
   storeFile,
 } from "../../tests/machineLaunchRecords.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   queuedIdentity,
   type StartOrigin,
@@ -46,24 +47,24 @@ export function ownRecordContinuation(
   const folder = path.join(dashboard.home, ".open-dough/dashboard");
   const file = path.join(folder, "launch-attempts.json");
   mkdirSync(folder, { recursive: true });
-  const attempt = {
-    id,
-    request,
-    acceptedAt,
-    publication: { kind: "none" },
-    worker: { pid: 2147483647, step: "launch", notedAt: acceptedAt },
-    slowSince: acceptedAt,
-    ...(uncertain
-      ? {
-          outcome: {
-            kind: "uncertain",
-            reason: "unconfirmed",
-            explanation: "Interrupted handoff.",
-          },
-          settledAt: acceptedAt,
-        }
-      : {}),
-  };
+  const story = { identity: request.identity, title: request.title };
+  const accepted = makeMe.anAcceptedAttempt.withId(id);
+  if (workflow === "execution") accepted.executing(story);
+  else accepted.refining(story);
+  // Its worker's process is gone, so no server runs it.
+  accepted
+    .acceptedAt(acceptedAt)
+    .workedBy({ pid: 2147483647, step: "launch", notedAt: acceptedAt })
+    .slowSince(acceptedAt);
+  if (uncertain)
+    accepted
+      .ended({
+        kind: "uncertain",
+        reason: "unconfirmed",
+        explanation: "Interrupted handoff.",
+      })
+      .settledAt(acceptedAt);
+  const attempt = accepted.please();
   const kept = JSON.stringify({ "open-dough": [attempt] });
   writeFileSync(file, kept);
   const latestId = randomUUID();
