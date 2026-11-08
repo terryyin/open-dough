@@ -5,7 +5,6 @@
 // bound, and says which. Landed's use of the walk lives in
 // ./dashboard-later-trunk-landed.test.mjs.
 import assert from "node:assert/strict";
-import { rmSync } from "node:fs";
 import test from "node:test";
 import {
   laterTrunkChain,
@@ -20,8 +19,7 @@ import {
 } from "./dashboard-later-trunk-fixture.mjs";
 
 test("laterTrunkChain lists first-parent trunk revisions after the landing, nearest first, within the bound", async (t) => {
-  const repo = trunk();
-  t.after(() => rmSync(repo.cwd, { recursive: true, force: true }));
+  const repo = await trunk(t);
   assert.deepEqual(
     await laterTrunkChain(repo.landing, "main", repo.call),
     repo.later,
@@ -34,8 +32,7 @@ test("laterTrunkChain lists first-parent trunk revisions after the landing, near
 });
 
 test("laterTrunkProofBuild passes cancelled, unbuilt and proofless builds and counts included revisions", async (t) => {
-  const repo = trunk();
-  t.after(() => rmSync(repo.cwd, { recursive: true, force: true }));
+  const repo = await trunk(t);
   const [later1, later2, later3, later4] = repo.later;
   const { listed, lookup } = lookupOf({
     [later1]: [run(later1, 11, "cancelled")],
@@ -66,8 +63,7 @@ test("laterTrunkProofBuild passes cancelled, unbuilt and proofless builds and co
 });
 
 test("laterTrunkProofBuild uses a failed later build with usable proof", async (t) => {
-  const repo = trunk();
-  t.after(() => rmSync(repo.cwd, { recursive: true, force: true }));
+  const repo = await trunk(t);
   const [later1] = repo.later;
   const { listed, lookup } = lookupOf({
     [later1]: [run(later1, 21, "failure")],
@@ -88,8 +84,7 @@ test("laterTrunkProofBuild uses a failed later build with usable proof", async (
 });
 
 test("laterTrunkProofBuild says where it stopped: a running build, the read trunk head, or the bound", async (t) => {
-  const repo = trunk();
-  t.after(() => rmSync(repo.cwd, { recursive: true, force: true }));
+  const repo = await trunk(t);
   const [later1, later2, later3] = repo.later;
   const running = lookupOf({
     [later1]: [run(later1, 31, "success")],

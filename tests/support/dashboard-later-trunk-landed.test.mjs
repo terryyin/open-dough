@@ -6,7 +6,6 @@
 // the whole answer, is remembered either. The walk itself lives in
 // ./dashboard-later-trunk-build.test.mjs.
 import assert from "node:assert/strict";
-import { rmSync } from "node:fs";
 import test from "node:test";
 import { lookupResultBuild } from "../../dashboard/server/baseCiRevisionLookup.ts";
 import {
@@ -80,8 +79,7 @@ test("an answer with anything unavailable is read again; a final gap is remember
 });
 
 test("a cancelled landing without later proof says why, and only a walk that may still gain a build is not remembered", async (t) => {
-  const repo = trunk();
-  t.after(() => rmSync(repo.cwd, { recursive: true, force: true }));
+  const repo = await trunk(t);
   const head = repo.later[3];
   const short = (sha) => sha.slice(0, 7);
   const cancelled = "The CI build at the landing merge was cancelled.";
@@ -146,8 +144,7 @@ test("a cancelled landing without later proof says why, and only a walk that may
   );
 
   // Proofless builds over the whole bound: a final answer naming the nearest.
-  const deep = trunkOf(baselineAncestorLimit + 1);
-  t.after(() => rmSync(deep.cwd, { recursive: true, force: true }));
+  const deep = await trunkOf(t, baselineAncestorLimit + 1);
   const runs = { [deep.landing]: [run(deep.landing, 70, "cancelled")] };
   for (const [index, sha] of deep.later.entries())
     runs[sha] = [run(sha, 71 + index, "success")];
@@ -168,8 +165,7 @@ test("a cancelled landing without later proof says why, and only a walk that may
 });
 
 test("Story Branch Landed keeps a rerun attempt's own build and a timed-out landing exact without walking forward", async (t) => {
-  const repo = trunk();
-  t.after(() => rmSync(repo.cwd, { recursive: true, force: true }));
+  const repo = await trunk(t);
   const [later1] = repo.later;
   const exact = exactFor();
   const rerun = lookupOf({

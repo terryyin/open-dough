@@ -3,10 +3,7 @@
 // shared path classifier, Cancelled from the provider conclusion, and each
 // No-build reason the dashboard surfaces when a skip cannot be confirmed.
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
 import test from "node:test";
 import {
   classifyPathChangesViaRunGit,
@@ -15,6 +12,8 @@ import {
   workflowFilePath,
 } from "../../dashboard/server/requestedRevisionCiStatus.ts";
 import { defaultGitOutputLimit } from "../../dashboard/server/gitRunner.ts";
+import { makeMe } from "./makeMe.mjs";
+import { materializeLocalCheckout } from "./repository-fixture.mjs";
 
 const ignoredWorkflow = [
   "name: CI",
@@ -54,56 +53,28 @@ const phraseCases = [
   ["unreadable-diff", "the diff from the nearest build could not be read"],
 ];
 
-function git(cwd, ...args) {
-  return execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
-}
-
-function initRepo() {
-  const repo = mkdtempSync(join(tmpdir(), "requested-revision-ci-"));
-  git(repo, "init", "-q", "-b", "main");
-  git(repo, "config", "user.name", "Status Fixture");
-  git(repo, "config", "user.email", "status@example.test");
-  git(repo, "config", "user.useConfigOnly", "false");
-  return repo;
-}
-
-function commitAll(repo, message) {
-  git(repo, "add", "-A");
-  git(repo, "commit", "-m", message);
-  return git(repo, "rev-parse", "HEAD");
-}
-
 function callOf(repo) {
   return { cwd: repo, maxBuffer: defaultGitOutputLimit };
 }
 
-function writeWorkflow(repo) {
-  mkdirSync(join(repo, ".github", "workflows"), { recursive: true });
-  writeFileSync(join(repo, ".github", "workflows", "ci.yml"), ignoredWorkflow);
-}
+// A base revision holding `app.js`, and the workflow when one is stated.
+const base = (workflow) => ({
+  backlog: null,
+  files: {
+    ...(workflow && { ".github/workflows/ci.yml": workflow }),
+    "app.js": "base\n",
+  },
+});
+const planningOnly = { files: { ".planning/note.md": "plan\n" } };
+const codeChange = { files: { "app.js": "changed\n" } };
 
-function commitBasis(repo) {
-  writeFileSync(join(repo, "app.js"), "base\n");
-  return commitAll(repo, "base");
-}
-
-function commitPlanningOnly(repo) {
-  mkdirSync(join(repo, ".planning"), { recursive: true });
-  writeFileSync(join(repo, ".planning", "note.md"), "plan\n");
-  return commitAll(repo, "planning only");
-}
-
-function commitCodeChange(repo) {
-  writeFileSync(join(repo, "app.js"), "changed\n");
-  return commitAll(repo, "code");
-}
-
-function withWorkflowRepo(t) {
-  const repo = initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-  writeWorkflow(repo);
-  const basis = commitBasis(repo);
-  return { repo, basis, call: callOf(repo) };
+// One local checkout on main holding the described revisions.
+async function repositoryOf(t, description) {
+  const { integration, revisions } = await materializeLocalCheckout(
+    t,
+    description,
+  );
+  return { revisions, call: callOf(integration) };
 }
 
 test("workflowFilePath rejects a numeric workflow ID", () => {
@@ -118,8 +89,16 @@ test("noBuildReasonPhrase names each classifier and dashboard reason", () => {
 });
 
 test("classifyPathChangesViaRunGit: ignored-only is not_required", async (t) => {
-  const { repo, basis, call } = withWorkflowRepo(t);
-  const requested = commitPlanningOnly(repo);
+  const {
+    revisions: { base: basis, requested },
+    call,
+  } = await repositoryOf(
+    t,
+    makeMe.aRepository
+      .withRevision("base", base(ignoredWorkflow))
+      .withRevision("requested", planningOnly)
+      .please(),
+  );
   assert.deepEqual(
     await classifyPathChangesViaRunGit(
       call,
@@ -132,8 +111,16 @@ test("classifyPathChangesViaRunGit: ignored-only is not_required", async (t) => 
 });
 
 test("classifyPathChangesViaRunGit: code change is required", async (t) => {
-  const { repo, basis, call } = withWorkflowRepo(t);
-  const requested = commitCodeChange(repo);
+  const {
+    revisions: { base: basis, requested },
+    call,
+  } = await repositoryOf(
+    t,
+    makeMe.aRepository
+      .withRevision("base", base(ignoredWorkflow))
+      .withRevision("requested", codeChange)
+      .please(),
+  );
   assert.deepEqual(
     await classifyPathChangesViaRunGit(
       call,
@@ -175,8 +162,16 @@ test("requestedRevisionCiStatus: cancelled conclusion", async () => {
 });
 
 test("requestedRevisionCiStatus: path-confirmed skip names the basis", async (t) => {
-  const { repo, basis, call } = withWorkflowRepo(t);
-  const requested = commitPlanningOnly(repo);
+  const {
+    revisions: { base: basis, requested },
+    call,
+  } = await repositoryOf(
+    t,
+    makeMe.aRepository
+      .withRevision("base", base(ignoredWorkflow))
+      .withRevision("requested", planningOnly)
+      .please(),
+  );
   const status = await requestedRevisionCiStatus(
     requested,
     [],
@@ -192,8 +187,16 @@ test("requestedRevisionCiStatus: path-confirmed skip names the basis", async (t)
 });
 
 test("requestedRevisionCiStatus: code absence is No build with required reason", async (t) => {
-  const { repo, basis, call } = withWorkflowRepo(t);
-  const requested = commitCodeChange(repo);
+  const {
+    revisions: { base: basis, requested },
+    call,
+  } = await repositoryOf(
+    t,
+    makeMe.aRepository
+      .withRevision("base", base(ignoredWorkflow))
+      .withRevision("requested", codeChange)
+      .please(),
+  );
   const status = await requestedRevisionCiStatus(
     requested,
     [],
@@ -209,15 +212,21 @@ test("requestedRevisionCiStatus: code absence is No build with required reason",
 });
 
 test("requestedRevisionCiStatus: missing workflow is unreadable-revision", async (t) => {
-  const repo = initRepo();
-  t.after(() => rmSync(repo, { recursive: true, force: true }));
-  const basis = commitBasis(repo);
-  const requested = commitCodeChange(repo);
+  const {
+    revisions: { base: basis, requested },
+    call,
+  } = await repositoryOf(
+    t,
+    makeMe.aRepository
+      .withRevision("base", base())
+      .withRevision("requested", codeChange)
+      .please(),
+  );
   const status = await requestedRevisionCiStatus(
     requested,
     [],
     basis,
-    callOf(repo),
+    call,
     "ci.yml",
   );
   assert.equal(status.kind, "no-build");

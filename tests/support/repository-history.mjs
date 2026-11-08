@@ -1,99 +1,45 @@
 // @ts-check
-// Builds a described repository history in a fixture directory.
+// Builds a described repository history at a fixture layout.
 import { join } from "node:path";
 import { createBareFixtureRemote } from "../../src/skills/dough-execute-plan/scripts/bare-remote-test-fixtures.mjs";
 import {
   exec,
   git,
-  revParse,
 } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { writeRevisionFiles } from "./repository-revision-files.mjs";
+import {
+  commitDeclaredRevision,
+  configureIdentity,
+  integrationDeveloper,
+} from "./repository-revision-commit.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RepositoryDescription} RepositoryDescription */
 /** @typedef {import("./repositoryTestData.mjs").RepositoryRevision} RepositoryRevision */
-/** @typedef {import("./repositoryTestData.mjs").RevisionFacts} RevisionFacts */
-/** @typedef {import("./repositoryTestData.mjs").GitPerson} GitPerson */
-
-/** @type {GitPerson} */
-export const integrationDeveloper = {
-  name: "Integration Checkout",
-  email: "integration@example.test",
-};
+/** @typedef {import("./repository-revision-files.mjs").HarnessLayer} HarnessLayer */
 
 /**
- * Where a fixture's repositories live. Without an origin, the fixture
- * directory is itself the one checkout.
+ * Where a history's repositories live: its bare origin, if it publishes to
+ * one, its integration checkout, and its execution worktree, if the
+ * description has a workspace.
+ * @typedef {{ origin?: string, integration: string, execution: string }} RepositoryLayout
+ */
+
+/**
+ * The layout of a fixture directory holding the whole history.
  * @param {string} fixture
- * @param {boolean} withoutOrigin
  */
-export const layout = (fixture, withoutOrigin) =>
-  withoutOrigin
-    ? { integration: fixture }
-    : {
-        origin: join(fixture, "remote.git"),
-        integration: join(fixture, "integration"),
-      };
-
-/** @param {string} fixture */
-export const workspacePath = (fixture) => join(fixture, "execution");
+export const layout = (fixture) => ({
+  origin: join(fixture, "remote.git"),
+  integration: join(fixture, "integration"),
+  execution: join(fixture, "execution"),
+});
 
 /**
- * The committer Git records for later commits in `checkout`. With
- * `worktreeOnly`, it is that worktree's own configuration and the
- * repository's other checkouts keep theirs.
- * @param {string} checkout
- * @param {GitPerson} identity
- * @param {{ worktreeOnly?: boolean }} [options]
+ * How the harness sets the history up, beside what the description states:
+ * whether `git init` copies Git's templates (an init without them has no
+ * `info/` or hooks), and the harness layer its first commit also holds.
+ * @typedef {{ gitTemplates: boolean, layer?: HarnessLayer | undefined }} BuildShape
  */
-async function configureIdentity(
-  checkout,
-  identity,
-  { worktreeOnly = false } = {},
-) {
-  const scope = worktreeOnly ? ["--worktree"] : [];
-  if (worktreeOnly)
-    await git(checkout, "config", "extensions.worktreeConfig", "true");
-  await git(checkout, "config", ...scope, "user.name", identity.name);
-  await git(checkout, "config", ...scope, "user.email", identity.email);
-}
-
-/**
- * Write a declared revision's files in a checkout and commit them: the
- * committer named, or else the checkout's identity; the author named, or else
- * the committer; the message given, or else the revision's name.
- * @param {string} checkout
- * @param {RevisionFacts & { name?: string }} revision
- * @param {GitPerson} [checkoutIdentity]
- * @returns {Promise<string>} the new commit
- */
-export async function commitDeclaredRevision(
-  checkout,
-  revision,
-  checkoutIdentity = integrationDeveloper,
-) {
-  writeRevisionFiles(checkout, revision);
-  const {
-    name,
-    message = name ?? "Publish declared revision",
-    committer = checkoutIdentity,
-    author = committer,
-  } = revision;
-  const env = {
-    ...process.env,
-    GIT_AUTHOR_NAME: author.name,
-    GIT_AUTHOR_EMAIL: author.email,
-    GIT_COMMITTER_NAME: committer.name,
-    GIT_COMMITTER_EMAIL: committer.email,
-    ...(author.date !== undefined && { GIT_AUTHOR_DATE: author.date }),
-    ...(committer.date !== undefined && { GIT_COMMITTER_DATE: committer.date }),
-  };
-  await git(checkout, "add", "--all");
-  await exec("git", ["commit", "--allow-empty", "--quiet", "-m", message], {
-    cwd: checkout,
-    env,
-  });
-  return revParse(checkout, "HEAD");
-}
 
 /**
  * Tag a committed revision: a release gets its annotated `v<version>` tag
@@ -125,26 +71,32 @@ async function tagRevision(checkout, { release, tags = [] }) {
 }
 
 /**
- * Commit every described revision into a new fixture at `fixture`: its
- * integration checkout, pushed to a bare origin unless `withoutOrigin`, and
- * its execution worktree when the description has a workspace.
- * @param {string} fixture
+ * Commit every described revision, with its tags, into a new integration
+ * checkout, pushed to the bare origin when the layout has one, and its
+ * execution worktree when the description has a workspace. An existing
+ * integration directory's files are committed with the first revision.
+ * @param {RepositoryLayout} paths
  * @param {RepositoryDescription} description
- * @param {boolean} withoutOrigin
+ * @param {BuildShape} shape
  */
 export async function buildRepository(
-  fixture,
+  { origin, integration, execution },
   {
     revisions,
     trunkBranch = "main",
     checkoutIdentity = integrationDeveloper,
     workspace,
   },
-  withoutOrigin,
+  { gitTemplates, layer },
 ) {
-  const { origin, integration } = layout(fixture, withoutOrigin);
   if (origin) await createBareFixtureRemote(origin, trunkBranch);
-  await exec("git", ["init", "-b", trunkBranch, integration]);
+  await exec("git", [
+    "init",
+    ...(gitTemplates ? [] : ["--template="]),
+    "-b",
+    trunkBranch,
+    integration,
+  ]);
   await git(integration, "config", "maintenance.auto", "false");
   await configureIdentity(integration, checkoutIdentity);
   if (origin) await git(integration, "remote", "add", "origin", origin);
@@ -152,7 +104,8 @@ export async function buildRepository(
   /** @type {Map<string, string>} */
   const commits = new Map();
   let trunkSha = "";
-  for (const revision of revisions) {
+  for (const [index, revision] of revisions.entries()) {
+    if (index === 0 && layer) writeRevisionFiles(integration, layer);
     trunkSha = await commitDeclaredRevision(
       integration,
       revision,
@@ -174,7 +127,6 @@ export async function buildRepository(
   // are committed there and never pushed. The builder has checked that it
   // starts from a trunk revision and that every revision name is new.
   const start = /** @type {string} */ (commits.get(workspace.from));
-  const execution = workspacePath(fixture);
   await git(integration, "branch", workspace.branch, start);
   await git(integration, "worktree", "add", execution, workspace.branch);
   if (workspace.checkoutIdentity)

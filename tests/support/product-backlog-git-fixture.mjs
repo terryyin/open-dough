@@ -1,5 +1,5 @@
 // Shared starting precondition and harness for the Git-plumbing reconciliation
-// tests: a real scratch Git repository, real branches built from real
+// tests: a real local Git checkout, real branches built from real
 // commits, real `git merge` operations, and the real Git-aware CLI
 // (`product-backlog-git-merge.mjs`) run against it as a child process. Every
 // assertion built on this is made against real Git and file-system state
@@ -8,16 +8,16 @@
 import { execFile, execFileSync } from "node:child_process";
 import {
   existsSync,
-  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { materializeLocalCheckout } from "./repository-fixture.mjs";
 
 const exec = promisify(execFile);
 const cli = fileURLToPath(
@@ -39,22 +39,19 @@ function git(directory, args) {
   return execFileSync("git", args, { cwd: directory, encoding: "utf8" });
 }
 
-// A real scratch Git repository, already holding one commit with the
-// established backlog shape, so every test starts from real Git history
-// rather than an assumption about one. `initArgs` adds to its `git init`, for
-// a repository Git sets up differently, such as one made without templates.
-export function scratchRepo(t, backlog, initArgs = []) {
-  const directory = mkdtempSync(join(tmpdir(), "dough-backlog-git-"));
-  t.after(() => rmSync(directory, { recursive: true, force: true }));
-  git(directory, ["init", "-q", "-b", "main", ...initArgs]);
-  git(directory, ["config", "user.email", "test@example.com"]);
-  git(directory, ["config", "user.name", "Test"]);
-  const file = join(directory, backlogPath);
-  mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, backlog, "utf8");
-  git(directory, ["add", "-A"]);
-  git(directory, ["commit", "-q", "-m", "ancestor"]);
-  return checkoutAt(directory);
+// A real local Git checkout on `main`, with no origin, of the starting
+// repository `description` (`makeMe.aRepository`) states, so every test starts
+// from real Git history rather than an assumption about one. `revisions` maps
+// each named revision to its commit. `options` passes harness choices to the
+// shared materializer, such as `gitTemplates: false` for a repository Git sets
+// up without templates. Removed after the test.
+export async function checkoutOf(t, description, options) {
+  const { integration, revisions } = await materializeLocalCheckout(
+    t,
+    description,
+    options,
+  );
+  return { ...checkoutAt(integration), revisions };
 }
 
 // The handle every helper below takes: one checkout's own directory, its own
@@ -70,8 +67,8 @@ function checkoutAt(directory) {
   };
 }
 
-// A real linked worktree (`git worktree add`) of the scratch repository with
-// `branch` checked out, as the same handle `scratchRepo` returns, so every
+// A real linked worktree (`git worktree add`) of the checkout with
+// `branch` checked out, as the same handle `checkoutOf` returns, so every
 // helper here runs against it unchanged.
 export function linkedWorktree(t, repo, branch) {
   const parent = mkdtempSync(join(tmpdir(), "dough-backlog-git-worktree-"));

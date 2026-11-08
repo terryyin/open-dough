@@ -14,7 +14,7 @@ import {
 
 for (const endedBy of ["failure", "SIGTERM", "SIGINT", "SIGKILL"]) {
   test(`${endedBy} releases admission and stale retirement finishes before competing waiters enter`, async (t) => {
-    const { project, linked, observe } = fixture(t);
+    const { project, linked, observe } = await fixture(t);
     const first = observe("owner"),
       second = observe("second"),
       third = observe("third");
@@ -79,7 +79,7 @@ for (const endedBy of ["failure", "SIGTERM", "SIGINT", "SIGKILL"]) {
 }
 
 test("a reclaimer killed during retirement leaves predecessor cleanup owned by its successor", async (t) => {
-  const { project, linked, observe } = fixture(t);
+  const { project, linked, observe } = await fixture(t);
   const first = observe("owner"),
     recovering = observe("recovering"),
     final = observe("final");

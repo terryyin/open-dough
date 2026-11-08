@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "./makeMe.mjs";
-import { materializeRepository } from "./repository-fixture.mjs";
+import { materializeLocalCheckout } from "./repository-fixture.mjs";
 
 test("a release revision states its version, tag date, payload marker and payload deltas", () => {
   const description = makeMe.aRepository
@@ -77,25 +77,24 @@ test("a local release checkout built in place tags its release annotated at the 
     realpathSync(mkdtempSync(join(tmpdir(), "release-source-"))),
     "source",
   );
-  const { integration, fixture, revisions, cleanup } =
-    await materializeRepository(
-      makeMe.aRepository
-        .withRevision("release 0.1.10", {
-          backlog: null,
-          release: makeMe.aRelease
-            .with({
-              version: "0.1.10",
-              taggedAt: "2020-01-01T00:00:00",
-              marker: "payload-0.1.10",
-            })
-            .please(),
-          tags: ["not-a-release"],
-        })
-        .please(),
-      { at, withoutOrigin: true },
-    );
+  const { integration, fixture, revisions } = await materializeLocalCheckout(
+    t,
+    makeMe.aRepository
+      .withRevision("release 0.1.10", {
+        backlog: null,
+        release: makeMe.aRelease
+          .with({
+            version: "0.1.10",
+            taggedAt: "2020-01-01T00:00:00",
+            marker: "payload-0.1.10",
+          })
+          .please(),
+        tags: ["not-a-release"],
+      })
+      .please(),
+    { at },
+  );
   t.after(() => rmSync(dirname(at), { recursive: true, force: true }));
-  t.after(cleanup);
   const read = async (...args) => (await git(at, ...args)).stdout.trim();
 
   assert.equal(integration, at);
@@ -136,7 +135,8 @@ test("a release ships and declares the payload it adds, and a later release whos
     realpathSync(mkdtempSync(join(tmpdir(), "release-source-"))),
     "source",
   );
-  const { cleanup } = await materializeRepository(
+  await materializeLocalCheckout(
+    t,
     makeMe.aRepository
       .withRevision("release 0.1.0", {
         backlog: null,
@@ -161,10 +161,9 @@ test("a release ships and declares the payload it adds, and a later release whos
           .please(),
       })
       .please(),
-    { at, withoutOrigin: true },
+    { at },
   );
   t.after(() => rmSync(dirname(at), { recursive: true, force: true }));
-  t.after(cleanup);
   const read = async (...args) => (await git(at, ...args)).stdout.trim();
 
   assert.equal(

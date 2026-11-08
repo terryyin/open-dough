@@ -5,16 +5,21 @@
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   commitBranch,
   gitStatePath,
   headSha,
   isMidMerge,
   parentCount,
   run,
-  scratchRepo,
 } from "./product-backlog-git-fixture.mjs";
 
 const itemA = "- [Item A](seeds/A.md#a)";
@@ -25,8 +30,18 @@ test("merge keeps a passing hook quiet and shows a failing hook's diagnostic", a
   // Compatible sibling closures, merged twice in one repository
   // whose own `pre-commit` hook speaks up on every commit the adapter makes:
   // once when the hook passes, once when it refuses the merge commit.
-  const ancestor = backlogOf([itemA, itemB], [itemC]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: {
+          taken: linkedEntries("A", "B"),
+          queued: linkedEntries("C"),
+          direction,
+        },
+      })
+      .please(),
+  );
   commitBranch(repo, "close-a", backlogOf([itemB], [itemC]));
   commitBranch(repo, "close-b", backlogOf([itemA], [itemC]));
   const hook = gitStatePath(repo, "hooks/pre-commit");

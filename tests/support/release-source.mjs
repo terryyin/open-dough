@@ -6,7 +6,7 @@
 // Each release revision ships the working tree's payload with its deltas.
 import { readFileSync } from "node:fs";
 import { makeMe } from "./makeMe.mjs";
-import { materializeRepository } from "./repository-fixture.mjs";
+import { materializeLocalCheckout } from "./repository-fixture.mjs";
 import { releaseSources } from "./release-sources.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RevisionFacts} RevisionFacts */
@@ -48,7 +48,7 @@ if (!facts) {
   console.error(`No shared release source named ${shared}`);
   process.exit(2);
 }
-await materializeRepository(describeReleaseSource(facts), {
+// The shell check that asked for the source owns and removes <dest>.
+await materializeLocalCheckout(undefined, describeReleaseSource(facts), {
   at: dest,
-  withoutOrigin: true,
 });

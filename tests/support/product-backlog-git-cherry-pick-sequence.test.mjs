@@ -17,16 +17,21 @@
 // in a scratch repository and asserts on real Git and file-system state.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
 import {
   isMidCherryPick,
   runCherryPick,
 } from "./product-backlog-git-cherry-pick-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   commitOn,
   headSha,
-  scratchRepo,
 } from "./product-backlog-git-fixture.mjs";
 
 const itemA = "- [Item A](seeds/A.md#a)";
@@ -50,9 +55,15 @@ const branchFinalDirection = originalDirection.replace(
 // The same masking shape `product-backlog-git-rebase-clean.test.mjs` proves
 // for rebase: `feature`'s first commit sets the same direction text `dest`
 // is about to set independently, and its second commit changes it again.
-function buildMaskedSequence(t) {
-  const ancestor = backlogOf([], [itemA], originalDirection);
-  const repo = scratchRepo(t, ancestor);
+async function buildMaskedSequence(t) {
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("A"), direction: originalDirection },
+      })
+      .please(),
+  );
 
   repo.git(["checkout", "-q", "-b", "feature"]);
   commitOn(
@@ -79,7 +90,7 @@ function buildMaskedSequence(t) {
 }
 
 test("a multi-commit pick sequence stops with a distinct status when an earlier step's own effect already exists at the destination", async (t) => {
-  const { repo, first, second } = buildMaskedSequence(t);
+  const { repo, first, second } = await buildMaskedSequence(t);
 
   const picked = await runCherryPick(repo, [
     "pick",
@@ -116,7 +127,7 @@ test("a multi-commit pick sequence stops with a distinct status when an earlier 
 });
 
 test("keeping the empty step by hand (never this tool's decision) lets `continue` finish the sequence — the same accepted gap rebase's own continueOperation carries", async (t) => {
-  const { repo, first, second } = buildMaskedSequence(t);
+  const { repo, first, second } = await buildMaskedSequence(t);
   await runCherryPick(repo, ["pick", "--ref", `${first} ${second}`]);
 
   // The human decides, by hand, to keep the redundant step as a recorded
@@ -143,8 +154,17 @@ test("keeping the empty step by hand (never this tool's decision) lets `continue
 });
 
 test("a genuinely compatible multi-commit sequence is accepted, with the whole-operation aggregate agreeing and no false dispute", async (t) => {
-  const ancestor = backlogOf([], [itemA, itemB, itemC, itemD]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: {
+          queued: linkedEntries("A", "B", "C", "D"),
+          direction,
+        },
+      })
+      .please(),
+  );
 
   repo.git(["checkout", "-q", "-b", "feature"]);
   commitOn(

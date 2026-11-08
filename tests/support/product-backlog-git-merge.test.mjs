@@ -14,9 +14,15 @@
 // and `product-backlog-git-merge-agent-credit.test.mjs` an agent's workspace.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   commitBranch,
   headSha,
   isMidMerge,
@@ -24,7 +30,6 @@ import {
   occurrences,
   parentCount,
   run,
-  scratchRepo,
   textMerge,
   unresolvedPaths,
 } from "./product-backlog-git-fixture.mjs";
@@ -39,8 +44,18 @@ test("merge resolves concurrent sibling closures through a real Git merge, with 
   // closes B and leaves A. Neither side changed the other's item at all, so
   // this is the compatible-conflict example the plan and the seed both name:
   // a real merge must resolve to an empty Taken.
-  const ancestor = backlogOf([itemA, itemB], [itemC]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: {
+          taken: linkedEntries("A", "B"),
+          queued: linkedEntries("C"),
+          direction,
+        },
+      })
+      .please(),
+  );
   commitBranch(repo, "close-a", backlogOf([itemB], [itemC]));
   commitBranch(repo, "close-b", backlogOf([itemA], [itemC]));
   checkout(repo, "close-a");
@@ -60,8 +75,18 @@ test("merge reconciles through the registered driver when run from a linked Git 
   // adapter runs in is a linked worktree, where `.git` is a file rather than
   // a directory. A plain text merge conflicts on these adjacent closures, so
   // the empty Taken is only reachable through the registered driver.
-  const ancestor = backlogOf([itemA, itemB], [itemC]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: {
+          taken: linkedEntries("A", "B"),
+          queued: linkedEntries("C"),
+          direction,
+        },
+      })
+      .please(),
+  );
   commitBranch(repo, "close-a", backlogOf([itemB], [itemC]));
   commitBranch(repo, "close-b", backlogOf([itemA], [itemC]));
   const closeB = repo.git(["rev-parse", "close-b"]).trim();
@@ -95,8 +120,19 @@ test("merge reconciles through the registered driver in a repository whose Git d
   // attribute is registered. The adjacent sibling closures conflict in a
   // plain text merge, so the empty Taken is only reachable through the
   // registered driver.
-  const ancestor = backlogOf([itemA, itemB], [itemC]);
-  const repo = scratchRepo(t, ancestor, ["--template="]);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: {
+          taken: linkedEntries("A", "B"),
+          queued: linkedEntries("C"),
+          direction,
+        },
+      })
+      .please(),
+    { gitTemplates: false },
+  );
   commitBranch(repo, "close-a", backlogOf([itemB], [itemC]));
   commitBranch(repo, "close-b", backlogOf([itemA], [itemC]));
   checkout(repo, "close-a");
@@ -118,8 +154,17 @@ test("merge stops the historical clean-duplicate case a plain text merge lets th
   // The case an ordinary text merge accepts and then duplicates: each
   // branch moved B to a different place, and neither move is the ancestor's
   // order, so nothing establishes which one holds.
-  const ancestor = backlogOf([], [itemA, itemB, itemC, itemD]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: {
+          queued: linkedEntries("A", "B", "C", "D"),
+          direction,
+        },
+      })
+      .please(),
+  );
   const acbd = backlogOf([], [itemA, itemC, itemB, itemD]);
   const acdb = backlogOf([], [itemA, itemC, itemD, itemB]);
   commitBranch(repo, "order-acbd", acbd);
@@ -168,8 +213,14 @@ test("merge stops a clean direction dispute a plain text merge would combine sil
     "so a human can read the backlog without running anything.",
     "so a human decides which stories run in parallel next.",
   );
-  const ancestor = backlogOf([], [itemA], spread);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("A"), direction: spread },
+      })
+      .please(),
+  );
   commitBranch(repo, "sequential", backlogOf([], [itemA], sequential));
   commitBranch(repo, "scheduled", backlogOf([], [itemA], scheduled));
 

@@ -14,6 +14,8 @@ import {
 import { tmpdir } from "node:os";
 import { delimiter, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { materializeLocalCheckout } from "./repository-fixture.mjs";
+import { copiedLayer } from "./repository-revision-files.mjs";
 
 // Shared building blocks for tests that run this repository's lint runner
 // inside a throwaway Git repository.
@@ -77,10 +79,7 @@ export function write(file, content) {
   writeFileSync(file, content);
 }
 
-// Copies the named repository files into the fixture and links this
-// repository's dependencies. Git's `.gitignore` rule for node_modules/ matches
-// directories, not the symlink, so the fixture excludes it explicitly once its
-// repository is initialized.
+// Copies the named repository files into a directory outside Git.
 export function copyFiles(fixture, files) {
   for (const file of files) {
     mkdirSync(dirname(join(fixture, file)), { recursive: true });
@@ -88,42 +87,29 @@ export function copyFiles(fixture, files) {
   }
 }
 
-export function copyRepositoryFiles(fixture, files) {
-  copyFiles(fixture, files);
+// Links this repository's dependencies into a fixture checkout. Git's
+// `.gitignore` rule for node_modules/ matches directories, not the symlink, so
+// the checkout excludes it explicitly.
+function linkDependencies(fixture) {
   symlinkSync(join(root, "node_modules"), join(fixture, "node_modules"));
-}
-
-export function excludeLinkedDependencies(fixture) {
   write(join(fixture, ".git/info/exclude"), "/node_modules\n");
 }
 
-// Each suite supplies its sample program; runner configuration and the
-// committed repository lifecycle stay the same, including without node_modules.
-export function committedLintFixture(
+// Each suite declares its sample program as a `makeMe.aRepository`
+// description; the harness adds the runner configuration and any named
+// `repositoryFiles` to its one commit and links this repository's
+// dependencies, so the committed lifecycle stays the same, including without
+// node_modules. Removed after the test.
+export async function committedLintFixture(
   t,
-  {
-    prefix = "lint-runner-",
-    dependencies = true,
-    repositoryFiles = [],
-    files = {},
-  } = {},
+  description,
+  { dependencies = true, repositoryFiles = [] } = {},
 ) {
-  const fixture = mkdtempSync(join(tmpdir(), prefix));
-  t.after(() => rmSync(fixture, { recursive: true, force: true }));
-  (dependencies ? copyRepositoryFiles : copyFiles)(fixture, [
-    ...runnerFiles,
-    ...repositoryFiles,
-  ]);
-  for (const [file, content] of Object.entries(files)) {
-    write(join(fixture, file), content);
-  }
-  gitOk(fixture, "init", "--quiet");
-  if (dependencies) {
-    excludeLinkedDependencies(fixture);
-  }
-  gitOk(fixture, "add", ".");
-  gitOk(fixture, "-c", "core.hooksPath=/dev/null", "commit", "-qm", "fixture");
-  return fixture;
+  const { integration } = await materializeLocalCheckout(t, description, {
+    layer: copiedLayer(root, [...runnerFiles, ...repositoryFiles]),
+  });
+  if (dependencies) linkDependencies(integration);
+  return integration;
 }
 
 // Keep only the tools needed to enter npm scripts and Git hooks on PATH.

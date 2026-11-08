@@ -13,21 +13,26 @@ import {
   toollessEnv,
   write,
 } from "./lint-runner-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
 
 const unformatted = "export const  untouched = {old:1};\n";
 function formatFixture(t, { dependencies = true, files = {} } = {}) {
-  return committedLintFixture(t, {
-    prefix: "format-changed-files-",
-    dependencies,
-    repositoryFiles: ["package.json"],
-    files: {
-      "src/edited.mjs": "export const edited = { a: 1 };\n",
-      "src/untouched.mjs": unformatted,
-      ".planning/seed.md": "# Seed\n",
-      ".planning/record.json": '{"before":1}\n',
-      ...files,
-    },
-  });
+  return committedLintFixture(
+    t,
+    makeMe.aRepository
+      .withRevision("fixture", {
+        backlog: null,
+        files: {
+          "src/edited.mjs": "export const edited = { a: 1 };\n",
+          "src/untouched.mjs": unformatted,
+          ".planning/seed.md": "# Seed\n",
+          ".planning/record.json": '{"before":1}\n',
+          ...files,
+        },
+      })
+      .please(),
+    { dependencies, repositoryFiles: ["package.json"] },
+  );
 }
 
 function npm(cwd, script, args = [], environment = env) {
@@ -39,8 +44,8 @@ function npm(cwd, script, args = [], environment = env) {
   return { status: result.status, output: result.stdout + result.stderr };
 }
 
-test("Markdown and ignored planning changes need no lint tools or dependencies", (t) => {
-  const fixture = formatFixture(t, { dependencies: false });
+test("Markdown and ignored planning changes need no lint tools or dependencies", async (t) => {
+  const fixture = await formatFixture(t, { dependencies: false });
   write(join(fixture, ".planning/seed.md"), "# Edited seed\n");
   write(join(fixture, ".planning/record.json"), '{"after":  2}\n');
   write(join(fixture, ".planning/new.json"), '{"new":  3}\n');
@@ -56,8 +61,8 @@ test("Markdown and ignored planning changes need no lint tools or dependencies",
   assert.deepEqual(snapshot(fixture), before);
 });
 
-test("format changes exactly the edited and new eligible files and is idempotent", (t) => {
-  const fixture = formatFixture(t);
+test("format changes exactly the edited and new eligible files and is idempotent", async (t) => {
+  const fixture = await formatFixture(t);
   write(join(fixture, "src/edited.mjs"), "export const  edited = {a:2};\n");
   write(join(fixture, "src/new.mjs"), "export const  fresh = {b:3};\n");
   const before = snapshot(fixture);
@@ -87,8 +92,8 @@ test("format changes exactly the edited and new eligible files and is idempotent
   assert.deepEqual(snapshot(fixture), formatted);
 });
 
-test("format skips a deleted shell file and preserves a filename containing a space", (t) => {
-  const fixture = formatFixture(t, {
+test("format skips a deleted shell file and preserves a filename containing a space", async (t) => {
+  const fixture = await formatFixture(t, {
     files: { "scripts/deleted.sh": '#!/bin/sh\nprintf "%s\\n" old\n' },
   });
   rmSync(join(fixture, "scripts/deleted.sh"));
@@ -109,8 +114,8 @@ test("format skips a deleted shell file and preserves a filename containing a sp
   );
 });
 
-test("format fails with remaining findings after automatic fixes are rechecked", (t) => {
-  const fixture = formatFixture(t);
+test("format fails with remaining findings after automatic fixes are rechecked", async (t) => {
+  const fixture = await formatFixture(t);
   write(join(fixture, "src/edited.mjs"), "export const  edited = missing;\n");
 
   const result = npm(fixture, "format");
@@ -128,8 +133,8 @@ test("format fails with remaining findings after automatic fixes are rechecked",
   assert.doesNotMatch(result.output, /untouched\.mjs/);
 });
 
-test("plain lint checks the whole tree and format --all fixes unchanged files", (t) => {
-  const fixture = formatFixture(t);
+test("plain lint checks the whole tree and format --all fixes unchanged files", async (t) => {
+  const fixture = await formatFixture(t);
   const before = snapshot(fixture);
   const selective = npm(fixture, "format");
   assert.equal(selective.status, 0, selective.output);
@@ -152,10 +157,10 @@ test("plain lint checks the whole tree and format --all fixes unchanged files", 
   assert.equal(recheck.status, 0, recheck.output);
 });
 
-test("format includes index-only differences without changing staged content", (t) => {
+test("format includes index-only differences without changing staged content", async (t) => {
   const original = '{"indexOnly":1}\n';
   const staged = '{"indexOnly":2}\n';
-  const fixture = formatFixture(t, {
+  const fixture = await formatFixture(t, {
     files: { "src/index-only.json": original },
   });
   write(join(fixture, "src/index-only.json"), staged);
@@ -175,8 +180,8 @@ test("format includes index-only differences without changing staged content", (
   assert.equal(gitOk(fixture, "show", ":src/index-only.json"), staged);
 });
 
-test("selective ignore filtering honors root-anchored patterns for untracked files", (t) => {
-  const fixture = formatFixture(t);
+test("selective ignore filtering honors root-anchored patterns for untracked files", async (t) => {
+  const fixture = await formatFixture(t);
   write(
     join(fixture, ".prettierignore"),
     `${readFileSync(join(fixture, ".prettierignore"), "utf8")}/root-only.json\n`,
@@ -203,8 +208,8 @@ test("selective ignore filtering honors root-anchored patterns for untracked fil
 test(
   "format fixes and rechecks only the changed shell script",
   { skip: shellToolsMissing },
-  (t) => {
-    const fixture = formatFixture(t, {
+  async (t) => {
+    const fixture = await formatFixture(t, {
       files: {
         "scripts/changed.sh": '#!/bin/sh\nset -eu\nprintf "%s\\n" old\n',
         "scripts/untouched.sh": '#!/bin/sh\nprintf "%s\\n"  untouched\n',
@@ -230,8 +235,8 @@ test(
   },
 );
 
-test("format continues to refuse --staged without changing any file", (t) => {
-  const fixture = formatFixture(t, { dependencies: false });
+test("format continues to refuse --staged without changing any file", async (t) => {
+  const fixture = await formatFixture(t, { dependencies: false });
   const before = snapshot(fixture);
 
   const result = npm(fixture, "format", ["--staged"], toollessEnv(t));

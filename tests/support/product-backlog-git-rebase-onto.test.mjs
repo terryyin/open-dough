@@ -6,16 +6,21 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   commitOn,
   headSha,
   isMidRebase,
   rebaseStop,
   refSha,
   runRebase,
-  scratchRepo,
   unresolvedPaths,
 } from "./product-backlog-git-fixture.mjs";
 
@@ -36,7 +41,17 @@ function commitFile(repo, name, contents, message) {
 }
 
 test("rebase --onto replays only the owned suffix of a branch that is not checked out and keeps the sibling backlog change", async (t) => {
-  const repo = scratchRepo(t, backlogOf([], [itemA, itemB, itemC, itemD]));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: {
+          queued: linkedEntries("A", "B", "C", "D"),
+          direction,
+        },
+      })
+      .please(),
+  );
   repo.git(["checkout", "-q", "-b", "owned"]);
   commitFile(repo, "outside-suffix.txt", "outside\n", "outside the suffix");
   commitFile(repo, "cutoff.txt", "cutoff\n", "previously published base");
@@ -89,7 +104,14 @@ test("rebase --onto replays only the owned suffix of a branch that is not checke
 });
 
 test("rebase --onto stops a conflicting owned suffix without moving that branch", async (t) => {
-  const repo = scratchRepo(t, backlogOf([], [itemC]));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("C"), direction },
+      })
+      .please(),
+  );
   repo.git(["checkout", "-q", "-b", "owned"]);
   commitOn(repo, backlogOf([], [featureRenamedC]), "owned renames C");
   const ownedTip = headSha(repo);

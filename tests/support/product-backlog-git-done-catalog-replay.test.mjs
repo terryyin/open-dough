@@ -4,8 +4,9 @@
 // its committed record files, in at most one added catalog-only commit.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "./makeMe.mjs";
 import { runCherryPick } from "./product-backlog-git-cherry-pick-fixture.mjs";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { backlogOf, direction } from "./product-backlog-fixture.mjs";
 import {
   assertCatalogDoneAgrees,
   assertCommittedCatalogCurrent,
@@ -13,18 +14,20 @@ import {
   completeAndCommit,
   completingBranch,
   done,
+  doneRecord,
+  entries,
   fileNames,
   items,
   plainMergeConflicts,
 } from "./product-backlog-git-done-catalog-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   commitOn,
   headSha,
   isMidRebase,
   refSha,
   runRebase,
-  scratchRepo,
 } from "./product-backlog-git-fixture.mjs";
 
 const catalogSubject = "Rebuild the done catalog from its record files";
@@ -37,10 +40,19 @@ const changedPaths = (repo, rev = "HEAD") =>
 // `withCatalog`; `feature`, from before them, completes C. Leaves `feature`
 // checked out.
 async function replayShape(t, { withCatalog }) {
-  const repo = scratchRepo(t, backlogOf([], items("A", "B", "C")));
-  await completingBranch(repo, "feature", ["C"], "2026-10-06T10:00:00.000Z");
-  await completeAndCommit(repo, "A", "2026-10-04T10:00:00.000Z");
-  await completeAndCommit(repo, "B", "2026-10-05T10:00:00.000Z");
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: entries("A", "B", "C"), direction },
+      })
+      .please(),
+  );
+  completingBranch(repo, "feature", [
+    doneRecord("C", "2026-10-06T10:00:00.000Z"),
+  ]);
+  completeAndCommit(repo, doneRecord("A", "2026-10-04T10:00:00.000Z"));
+  completeAndCommit(repo, doneRecord("B", "2026-10-05T10:00:00.000Z"));
   if (!withCatalog) {
     repo.git(["rm", "-q", catalog]);
     repo.git(["commit", "-q", "-m", "publish without a catalog"]);
@@ -117,9 +129,18 @@ test("a cherry-pick where both sides changed the catalog applies without a stop"
 // `main` and `feature` both complete A at different times, so the record
 // conflicts; leaves `feature` checked out.
 async function conflictingRecordShape(t) {
-  const repo = scratchRepo(t, backlogOf([], items("A", "B")));
-  await completingBranch(repo, "feature", ["A"], "2026-10-05T10:00:00.000Z");
-  await completeAndCommit(repo, "A", "2026-10-06T10:00:00.000Z");
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: entries("A", "B"), direction },
+      })
+      .please(),
+  );
+  completingBranch(repo, "feature", [
+    doneRecord("A", "2026-10-05T10:00:00.000Z"),
+  ]);
+  completeAndCommit(repo, doneRecord("A", "2026-10-06T10:00:00.000Z"));
   repo.git(["rm", "-q", catalog]);
   repo.git(["commit", "-q", "-m", "publish without a catalog"]);
   checkout(repo, "feature");
@@ -182,19 +203,29 @@ test("a conflicting record stops the cherry-pick, and continue after the resolut
 });
 
 test("a disputed rebase commits nothing beyond the replayed commits", async (t) => {
-  const direction = (text) =>
+  const shipping = (text) =>
     backlogOf([], items("A", "B", "C"), `Ship ${text}.`);
-  const repo = scratchRepo(t, direction("in parallel"));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: {
+          queued: entries("A", "B", "C"),
+          direction: "Ship in parallel.",
+        },
+      })
+      .please(),
+  );
   repo.git(["checkout", "-q", "-b", "feature"]);
-  commitOn(repo, direction("one at a time"), "feature matches main");
-  await completeAndCommit(repo, "C");
+  commitOn(repo, shipping("one at a time"), "feature matches main");
+  completeAndCommit(repo, doneRecord("C", "2026-10-06T10:00:00.000Z"));
   repo.write(
     repo.read().replace("Ship one at a time.", "Ship only overnight."),
   );
   repo.git(["commit", "-q", "-am", "feature changes direction again"]);
   checkout(repo, "main");
-  commitOn(repo, direction("one at a time"), "main changes direction");
-  await completeAndCommit(repo, "A");
+  commitOn(repo, shipping("one at a time"), "main changes direction");
+  completeAndCommit(repo, doneRecord("A", "2026-10-06T10:00:00.000Z"));
   repo.git(["rm", "-q", catalog]);
   repo.git(["commit", "-q", "-m", "publish without a catalog"]);
   checkout(repo, "feature");

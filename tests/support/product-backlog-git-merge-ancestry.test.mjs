@@ -7,15 +7,20 @@
 // the registered driver live in `product-backlog-git-merge.test.mjs`.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   commitBranch,
   commitOn,
   headSha,
   isMidMerge,
   run,
-  scratchRepo,
 } from "./product-backlog-git-fixture.mjs";
 
 const itemA = "- [Item A](seeds/A.md#a)";
@@ -23,8 +28,14 @@ const itemB = "- [Item B](seeds/B.md#b)";
 const itemC = "- [Item C](seeds/C.md#c)";
 
 test("merge validates a fast-forward candidate before advancing the managed target", async (t) => {
-  const ancestor = backlogOf([], [itemA]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("A"), direction },
+      })
+      .please(),
+  );
   commitBranch(repo, "ahead", backlogOf([], ["- Item A with no link"]));
   const before = headSha(repo);
 
@@ -64,7 +75,14 @@ test("merge validates a fast-forward candidate before advancing the managed targ
 test("merge stops with a report, changing nothing, when the branch already contains the ref", async (t) => {
   // `ahead` is two commits past `main`, so merging `main` into it is neither
   // a fast-forward nor a merge Git would record: there is nothing to merge.
-  const repo = scratchRepo(t, backlogOf([], [itemA]));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("A"), direction },
+      })
+      .please(),
+  );
   commitBranch(repo, "ahead", backlogOf([], [itemA, itemB]));
   checkout(repo, "ahead");
   commitOn(repo, backlogOf([], [itemA, itemB, itemC]), "further");

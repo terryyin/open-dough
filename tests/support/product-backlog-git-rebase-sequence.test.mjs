@@ -7,27 +7,36 @@
 // each stop and after the whole rebase completes.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
 import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
+import {
+  checkoutOf,
   commitBranch,
   commitOn,
   headSha,
   isMidRebase,
   rebaseStop,
   runRebase,
-  scratchRepo,
   stageResolution,
 } from "./product-backlog-git-fixture.mjs";
-
-const itemC = "- [Item C](seeds/C.md#c)";
 
 test("a fresh conflict on the next replayed commit is identified again, not conflated with an invalid supply", async (t) => {
   // Here the second commit *also* disputes Item C, so once the first
   // conflict is resolved, replaying the second must conflict again — a
   // second, independent stop this gate must identify by its own real
   // revisions rather than reusing the first stop's identity.
-  const ancestor = backlogOf([], [itemC]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("C"), direction },
+      })
+      .please(),
+  );
   commitBranch(
     repo,
     "dest",

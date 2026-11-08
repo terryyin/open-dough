@@ -169,8 +169,9 @@ focused command after the refactor pass. Discrimination: 0.1.10 stated as
 9.7); `install-latest-release.sh` through `scripts/test.sh` 6.35–6.58 s
 before (load 8.1), 5.65–6.19 s after (load 7.2–7.9).
 
-Learnings: the materializer options are `withoutOrigin` (one checkout, no
-remote; plan 524 can reuse it) and `at` (build in place, no template).
+Learnings: a release source is `materializeLocalCheckout`'s one checkout
+with no remote, built in place with its `at` option (no template); the
+branch's own `withoutOrigin` option was folded into it when plan 524 landed.
 History building lives in `tests/support/repository-history.mjs` and the
 release types in `tests/support/releaseTestData.mjs`. A stated `withheld` or
 `removed` is not yet applied (G1, G2). Trunk's `commitDeclaredRevision`

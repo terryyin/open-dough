@@ -246,21 +246,77 @@ the plain document shape; either keeps the bytes the server reads.
 
 **Identity:** SEED-261#map-launch-observation-test-data
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/536-map-launch-observation-test-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a2fdc1270f21f3d431c3e908bed81c668a5a536c3b9972888c0f4fcf03af043d","plan":"ff60ee12180c38443fe44e73cb63381e7276d31d9a5871ada090b6be4a1a407e"}}
 ```
 
-**Scope and value.** Convert live observation setup, `LaunchWithState`,
-`SessionState`, the machine answer and accepted launch attempts, across
-the backend session rules, frontend service state and the integrated
-journeys that arrange them (about 35 specs). Compose each observation with
-the kept record it observes rather than restating it. Reviewers can see
-whether a case starts from a working, waiting, review, stale or unknown
-session.
+#### Goal
 
-**Evaluation and stopping point.** Loaded, retained, unknown and unavailable
-observation stay distinct; an accepted attempt stays separate from its kept
-record. The observation and attempt factories are removed or delegate to
-MakeMe.
+Maintainers can read a dashboard test's starting facts in the product's
+vocabulary, including the kept launch being observed, the host's report,
+the answer the page has read, and the machine's accepted attempts.
+The same facts are recognizable across backend rules, frontend substitutes,
+and integrated journeys, with the evidence for each outcome still visible.
+
+#### Scope
+
+- Arrange valid `SessionState`, `LaunchWithState`, and machine sessions
+  answers through the shared MakeMe entry point. Compose a live record with
+  the kept record it observes. Keep loaded and retained availability,
+  activity such as working, waiting and review, unknown observation, and
+  confirmed unavailability distinct. A stale read or a page holding its
+  last answer is expressed through the read that produced it.
+- Arrange accepted attempts and their observations through MakeMe. A kept
+  attempt retains its incoming request and acceptance facts. A live attempt
+  observation adds the answering server's ownership and activity. An attempt
+  can precede a launch record; a launched outcome references its host and
+  native session ID.
+- Convert the scoped observation and attempt factories, deleting them or
+  making them delegate to MakeMe. Keep case-driving facts at the call site.
+  Preserve independent expectations, the operations under proof, and
+  explicit native protocol inputs, exact wire omissions, legacy data and
+  injected faults where a case depends on their form.
+- Kept record persistence and its writer belong to the
+  [kept record story](#map-launch-and-session-test-data).
+  [Completion and landing](#map-launch-completion-and-landing-test-data),
+  [host continuation and terminal setup](#map-host-continuation-test-data),
+  and [machine-local project configuration](#map-project-configuration-test-data)
+  retain their own setup conversions. Mixed cases convert the observation or
+  attempt facts they arrange here. Product behavior and contracts are preserved.
+
+#### Key examples
+
+1. Two kept records share a native ID across different hosts. When one
+   host's read fails and the other reports a retained session ready for
+   review, the answer still carries both records with their respective
+   unknown and retained-review states.
+2. A card has shown a session ready for review. When a later machine read is
+   refused with a retryable 503, the page keeps that entry and its last shown
+   state. A successful read reporting confirmed unavailability can instead
+   show Session unavailable.
+3. A story has an accepted attempt owned by the answering server and still
+   running, with no launched outcome or kept session. When the page reads
+   that machine answer, the card shows startup in progress and disables its
+   Start actions. When a launch does settle, the attempt identifies the
+   session by host and ID.
+4. A read receives an unfamiliar native status, a missing protocol field or
+   corrupt attempt-store text. The case supplies that exact evidence and
+   observes the same unknown or unreadable result after conversion.
+
+#### Architecture
+
+Compose the existing product shapes at the boundary the test arranges.
+The stored record and host-qualified session identity come from
+[`LaunchRecord`](../../dashboard/src/launchRecord.ts), while
+[`LaunchWithState`](../../dashboard/src/launchRecord.ts) joins transient
+session evidence to that record. The
+[`MachineAnswer`](../../dashboard/src/agentLaunch.ts) and
+[`AttemptObservation`](../../dashboard/src/launchOutcome.ts) carry the facts
+the dashboard reads at their own boundaries. This follows
+[ADR 0002 §5, Software development lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)
+and [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
+Keep real host observation and attempt acceptance in the tests that prove
+those operations. A fixture that supplies both an input and its expected
+interpretation would hide the very regressions those tests catch.
 
 <a id="map-launch-completion-and-landing-test-data"></a>
 

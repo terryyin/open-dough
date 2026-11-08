@@ -7,6 +7,7 @@ import {
   readFileSync,
   readdirSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
@@ -36,6 +37,31 @@ import { backlogPath } from "./repositoryTestData.mjs";
 /** @typedef {import("./releaseTestData.mjs").Release} Release */
 
 const markedSkill = "src/skills/dough-update/SKILL.md";
+
+/**
+ * Files the harness adds to the first commit beside the description's own,
+ * such as copied tooling a case runs but does not declare.
+ * @typedef {Pick<RevisionFacts, "files" | "executables">} HarnessLayer
+ */
+
+/**
+ * A harness layer of the named text files under `source`, at the same
+ * relative paths and with their contents and executable modes. Contents are
+ * read as UTF-8 because the reuse key holds them.
+ * @param {string} source
+ * @param {readonly string[]} paths
+ * @returns {HarnessLayer}
+ */
+export function copiedLayer(source, paths) {
+  return {
+    files: Object.fromEntries(
+      paths.map((path) => [path, readFileSync(join(source, path), "utf8")]),
+    ),
+    executables: paths.filter(
+      (path) => statSync(join(source, path)).mode & 0o111,
+    ),
+  };
+}
 
 /** @param {string} root @param {string} path */
 function fixturePath(root, path) {

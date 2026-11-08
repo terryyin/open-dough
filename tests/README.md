@@ -82,7 +82,13 @@ For a real Git starting state, describe the published facts with
 `makeMe.aRepository.withRevision(name, facts).please()`. Each revision can
 declare membership, files, story state, profiles, done records, and commit
 identities. Materialize that description with `materializeRepository` to
-get a bare origin, a checkout, named commit IDs, and cleanup. Identical
+get a bare origin, a checkout, named commit IDs, and cleanup, or with
+`materializeLocalCheckout(t, description)` to get one checkout with no origin,
+removed after test `t`, for a case that reads no remote (`gitTemplates: false`
+initializes it without Git's templates; `layer` adds harness files, such as
+runner tooling read with `copiedLayer`, to its first commit; `at` builds it
+in place at that directory without the shared template, as the shell checks'
+release sources do). Identical
 descriptions reuse one template within a process, so they give identical
 commit IDs; each caller gets its own mutable copy. Keep commands and Git
 transitions under proof in the case that observes their result.
@@ -90,6 +96,7 @@ transitions under proof in the case that observes their result.
 [Repository harness](support/repository-fixture.mjs)
 `commitDeclaredRevision` adds a later revision to an existing checkout with
 the same author, committer and message defaults.
+[Revision commit](support/repository-revision-commit.mjs)
 
 When a case needs another agent's claim only as a starting fact, declare it
 with `takeRevision`: the agent authors it and the developer commits it under
