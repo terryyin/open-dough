@@ -103,7 +103,9 @@ Dashboard feedback must not get slower.
 - Scope limits: clean-trunk, Node and shell fixtures belong to their sibling
   stories. Cross-description caching beyond today's per-process reuse belongs
   to [faster Git fixture construction](#reuse-immutable-git-histories). The
-  description gains no branch or merge model.
+  description gains no branch or merge model. Planning text that dashboard
+  helpers and specs serve through the fake GitHub, without a Git repository,
+  belongs to [fake GitHub planning data](#declare-fake-github-planning-data).
 
 #### Key examples
 
@@ -126,8 +128,8 @@ Dashboard feedback must not get slower.
    stories, then makes its story branch, merge and first-parent rewrite with
    Git. Intent's comparison verdicts are unchanged.
 6. **Superseded setup removed.** No dashboard helper calls
-   `writeQueuedStories`, and none hand-writes a published planning file
-   that the description can state.
+   `writeQueuedStories`, and none that builds a Git repository hand-writes
+   a published planning file that the description can state.
 7. **Standalone readiness and admission.** The readiness fixture declares
    its starting state. A deliberately unpushed seed edit stays invisible
    when the dashboard reads the selected commit. The admission fixture
@@ -451,6 +453,35 @@ and inline shell setup, including the native startup fixture's queued trunk.
 Remove the remaining `createQueuedTrunk` path. Native evidence identities will
 change, so record the literal manual native commands. Paid runs stay
 manual-only.
+
+<a id="declare-fake-github-planning-data"></a>
+
+### Serve fake GitHub planning files from explicit MakeMe data
+
+**Identity:** SEED-262#declare-fake-github-planning-data
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** A maintainer reading a dashboard journey that serves a project
+through the fake GitHub can see which planning facts that project holds,
+because the served backlog, seeds and records come from MakeMe data rendered
+by the production encoders rather than hand-written Markdown.
+
+**Scope.** On 2026-11-08 about 19 dashboard helpers, among them
+`refreshJourney.ts`, `notificationStoryJourney.ts`,
+`sessionNavigationJourney.ts`, `doughnutProject.ts`,
+`recentlyDoneRecords.ts` and `accessibleBoard.ts`, and 36 specs put literal
+`# Product backlog` text into fake GitHub contents. Declare those facts
+through the shared MakeMe builders and render them with the production
+encoders. Keep literal text where a spec proves those exact bytes, such as
+malformed answers. Split from
+[dashboard test repositories](#migrate-dashboard-origin-fixtures), which
+covers helpers that build a Git repository.
+
+**Evaluation.** Migrated specs keep their verdicts and assertions, and a
+reviewer can name each journey's served planning facts from its call site or
+fixture file. Focused times do not regress beyond run-to-run noise.
 
 <a id="reuse-immutable-git-histories"></a>
 
