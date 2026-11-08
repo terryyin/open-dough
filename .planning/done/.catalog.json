@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-277_observe-local-suite-waits.json",
+      "identity": "SEED-277#observe-local-suite-waits",
+      "completedAt": "2026-11-08T16:00:23.321Z",
+      "blob": "02842d664d8c5c2b826b2416761e408dba55ca3f"
+    },
+    {
       "fileName": "SEED-262_migrate-backlog-scratch-repositories.json",
       "identity": "SEED-262#migrate-backlog-scratch-repositories",
       "completedAt": "2026-11-08T14:31:13.006Z",

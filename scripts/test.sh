@@ -54,6 +54,10 @@ times_file=${OPEN_DOUGH_TEST_TIMES:-${output_root}/times}
 # OPEN_DOUGH_TEST_OUTCOMES names a file that receives each job's reported
 # outcome and label, `passed` or `failed`, one tab-separated line per job.
 outcomes_file=${OPEN_DOUGH_TEST_OUTCOMES:-}
+# OPEN_DOUGH_TEST_SLOT_GATE names a file the runner writes each time it finds
+# every job slot occupied with a job still queued: the number of jobs started
+# so far. The runner then waits for a slot as it always does.
+slot_gate_file=${OPEN_DOUGH_TEST_SLOT_GATE:-}
 # fd 4 keeps the runner's stderr while it goes to a launching job's launch file
 # (see the launch loop); an exit mid-launch restores it and shows that file.
 exec 4>&2
@@ -187,6 +191,10 @@ trap 'interrupt INT 130' INT
 trap 'interrupt TERM 143' TERM
 
 for index in "${!labels[@]}"; do
+  if [[ -n ${slot_gate_file} ]] && ! read -r -t 0 -u 3; then
+    printf '%s\n' "${index}" > "${slot_gate_file}.partial"
+    mv -- "${slot_gate_file}.partial" "${slot_gate_file}"
+  fi
   read -r -u 3
   job_started[index]=${EPOCHREALTIME}
   # What Bash writes while starting the job, before the job's own output
