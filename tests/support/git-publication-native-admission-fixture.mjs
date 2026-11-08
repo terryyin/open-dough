@@ -1,9 +1,10 @@
-// Builds an admission native-journey fixture from the real startup fixtures
-// and CLIs, then prints its coordinates as JSON.
+// Builds an admission native-journey fixture from explicit repository facts
+// and the real startup CLI, then prints its coordinates as JSON. Every
+// journey starts from Ready queued A and B with the project's durable setup
+// and command and the investigation probe (`scripts/probe.js`, which leaves
+// `.probe-ran` in the fixture root).
 //
-// admission-investigation: a queued trunk plus an investigation instrument
-// (`scripts/probe.js`, which leaves `.probe-ran` in the fixture root) and no
-// backlog entry for the mission.
+// admission-investigation: that trunk, with no backlog entry for the mission.
 // admission-continuation: the same trunk where an unselected investigation
 // was admitted to Taken by this journey's publisher, then its plan and ready
 // assessment were recorded by the real record-state operation and published
@@ -23,10 +24,6 @@ import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  createQueuedTrunk,
-  readyContributing,
-} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
-import {
   draftLateStory,
   publishPlannedPreparation,
   storySection,
@@ -34,23 +31,44 @@ import {
   writeDraft,
 } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
 import { startExecution } from "../../src/skills/dough-execute-plan/scripts/execution-start.mjs";
+import { storyA, storyB } from "./queued-repository.mjs";
+import { materializeRepository } from "./repository-fixture.mjs";
+import {
+  fixtureRootMarker,
+  queuedReadyStartupRepository,
+} from "./startup-command-files.mjs";
 
 const [, journey, parent] = process.argv.slice(2);
 const git = (cwd, ...args) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
-const trunk = await createQueuedTrunk({
-  contributing: readyContributing,
-  durableCommandEvidence: true,
-  parent,
+
+const probed = queuedReadyStartupRepository({
+  queued: [storyA, storyB],
+}).withRevision("probe", {
+  message: "add the startup probe",
+  files: {
+    "scripts/probe.js": `require("fs").writeFileSync(${fixtureRootMarker(".probe-ran")}, "1");\nconsole.log("startup spends most of its time loading configuration");\n`,
+  },
 });
+const completedNotes = `---\nid: SEED-R\n---\n\n# Seed R\n\n${storySection("publish-notes", "SEED-R#publish-notes", "Publish release notes", "Readers find the notes of every tagged release.")}`;
+const startingTrunk = {
+  "admission-investigation": probed,
+  "admission-continuation": probed,
+  "admission-closure": probed.withRevision("documented", {
+    message: "document startup cost",
+    files: {
+      "README.md":
+        "# Product\n\nStartup spends most of its time loading configuration; that cost is expected.\n",
+    },
+  }),
+  "admission-correction": probed.withRevision("completed", {
+    message: "complete Publish release notes",
+    files: { ".planning/seeds/R.md": completedNotes },
+  }),
+}[journey];
+if (!startingTrunk) throw new Error(`unknown admission journey: ${journey}`);
+const trunk = await materializeRepository(startingTrunk.please(), { parent });
 const { fixture, origin, integration } = trunk;
-writeFileSync(
-  join(integration, "scripts/probe.js"),
-  `require("fs").writeFileSync(${JSON.stringify(join(fixture, ".probe-ran"))}, "1");\nconsole.log("startup spends most of its time loading configuration");\n`,
-);
-git(integration, "add", "scripts/probe.js");
-git(integration, "commit", "-qm", "add the startup probe");
-git(integration, "push", "-q", "origin", "main");
 
 const coordinates = {
   root: fixture,
@@ -124,13 +142,6 @@ if (journey === "admission-continuation") {
 }
 
 if (journey === "admission-closure") {
-  writeFileSync(
-    join(integration, "README.md"),
-    "# Product\n\nStartup spends most of its time loading configuration; that cost is expected.\n",
-  );
-  git(integration, "add", "README.md");
-  git(integration, "commit", "-qm", "document startup cost");
-  git(integration, "push", "-q", "origin", "main");
   await admitInvestigation("Find why startup is slow; investigation only.");
   const late = draftLateStory(trunk);
   const link = late.args[late.args.indexOf("--link") + 1];
@@ -151,11 +162,6 @@ if (journey === "admission-closure") {
 if (journey === "admission-correction") {
   const identity = "SEED-R#order-notes";
   const link = "seeds/R.md#order-notes";
-  const completed = `---\nid: SEED-R\n---\n\n# Seed R\n\n${storySection("publish-notes", "SEED-R#publish-notes", "Publish release notes", "Readers find the notes of every tagged release.")}`;
-  writeFileSync(join(integration, ".planning/seeds/R.md"), completed);
-  git(integration, "add", ".planning/seeds/R.md");
-  git(integration, "commit", "-qm", "complete Publish release notes");
-  git(integration, "push", "-q", "origin", "main");
   writeDraft(
     trunk,
     ".planning/slice-plans/R/PLAN.md",
@@ -166,7 +172,7 @@ if (journey === "admission-correction") {
     trunk,
     ".planning/seeds/R.md",
     withFacts(
-      `${completed}\n${section}`,
+      `${completedNotes}\n${section}`,
       link,
       identity,
       "planned",

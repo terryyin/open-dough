@@ -182,7 +182,7 @@ site still names its stories and readiness.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Behavior: An admission case names the queued trunk, investigation probe and
 starting tracked facts → the repository comes from MakeMe. Real admissions,
@@ -196,6 +196,26 @@ Compare the relevant pre-session state for the local correction draft as
 well. Verify the admission identity reaches the materializer and whichever
 admission helpers remain in use. Record the historical evidence comparison
 without rewriting its record.
+
+Accepted: each admission journey's starting trunk is a named MakeMe
+description, materialized through `materializeRepository`. Every journey
+starts from Ready A and B plus the startup probe, built with the shared
+`queuedReadyStartupRepository` in `tests/support/startup-command-files.mjs`.
+Closure adds a documented README and correction adds the completed seed R.
+Real admissions, the published preparation and the local correction draft
+are unchanged. The old and new builds of all four cases were compared with
+real Git, including the correction draft's local state. They differed only in
+the setup, command and probe scripts, which now locate their root markers
+relative to `__dirname`; running them from a worktree left every marker at
+the fixture root. The admission identity rose from 385 to 389 rows and
+reaches the materializer and every remaining admission helper. Compared with
+the three retained 2026-11-08 `publication/admission-investigation` records,
+no recorded input is missing, 264 inputs are new and 10 shared inputs have
+different hashes. Those records are therefore stale for reuse, and fresh
+native outcomes stay manual. The admission, startup and identity checks, the
+workspace-publication, repository-fixture and repository-description tests,
+and the dashboard type-check passed. Local admission time stayed at its base
+(54–60 s against a 57–58 s base); CI recorded 25.7 s.
 
 ### 4. One-shot cases name their selected and sibling stories
 

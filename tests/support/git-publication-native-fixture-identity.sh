@@ -20,6 +20,9 @@ git_publication_fixture_family_identity() {
         src/skills/dough-execute-plan/scripts/execution-start.mjs || return
       ;;
     admission)
+      # The admission fixture entry materializes the probed queued trunk, then
+      # its journeys admit, prepare and draft through the admission helpers
+      # and the startup operation.
       native_result_input_hash_lines \
         tests/support/git-publication-native-admission.sh \
         tests/support/git-publication-native-admission-closure.sh \
@@ -28,7 +31,6 @@ git_publication_fixture_family_identity() {
         tests/support/git-publication-native-admission-observe.mjs || return
       native_import_closure_input_hash_lines \
         src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs \
-        src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs \
         src/skills/dough-execute-plan/scripts/execution-start.mjs \
         tests/support/git-publication-native-admission-fixture.mjs \
         tests/support/git-publication-native-admission-observe.mjs || return

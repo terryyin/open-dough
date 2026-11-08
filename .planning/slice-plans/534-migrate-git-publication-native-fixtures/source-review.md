@@ -10,7 +10,7 @@ Fresh general-purpose reviewer launched 2026-11-08 by the execution coordinator 
 | 2 | (Goal) The maintainer can tell which Git operations the check exercises. | slice 5 | |
 | 3 | (Goal) The maintainer can assess whether retained native evidence still applies when an input that builds that fixture changes. | slice 5 | |
 | 4a.1 | Startup fixtures declare their starting repository facts through the shared MakeMe description and materializer. | slice 2 | observed: tests/support/git-publication-native-startup-fixture.mjs builds queuedReadyRepository through materializeRepository; tests/git-publication-fixture-identity.sh startup family inputs include repository-fixture.mjs, queued-repository.mjs and startup-command-files.mjs |
-| 4a.2 | Admission fixtures declare their starting repository facts through the same shared MakeMe description and materializer. | slice 3 | |
+| 4a.2 | Admission fixtures declare their starting repository facts through the same shared MakeMe description and materializer. | slice 3 | observed: tests/support/git-publication-native-admission-fixture.mjs startingTrunk from queuedReadyStartupRepository (tests/support/startup-command-files.mjs) through materializeRepository; tests/git-publication-fixture-identity.sh admission inputs include repository-fixture.mjs and queued-repository.mjs |
 | 4a.3 | One-shot fixtures declare their starting repository facts through the same shared MakeMe description and materializer. | slice 4 | |
 | 4a.4 | Owned-context fixtures declare their starting repository facts through the same shared MakeMe description and materializer. | slice 5 | |
 | 4b.1 | Name the stories at the call site or in the named fixture it selects. | slice 5 | |
@@ -23,7 +23,7 @@ Fresh general-purpose reviewer launched 2026-11-08 by the execution coordinator 
 | 5a.2 | Keep real Git for competing writers. | slice 5 | |
 | 5a.3 | Keep real Git for interrupted and resumed publication. | slice 2 | observed: tests/support/git-publication-native-startup-fixture.sh claim-race real pre-push interruption and rival start, resume real later push; slice 2 old-versus-new Git comparison identical for both cases |
 | 5a.4 | Keep real Git for other transitions observed by the checks. | slice 5 | |
-| 5b | Keep real installed commands for the prior admissions and claims whose receipts or ownership the scenarios consume. | slice 3 | |
+| 5b | Keep real installed commands for the prior admissions and claims whose receipts or ownership the scenarios consume. | slice 3 | observed: git-publication-native-admission-fixture.mjs admit() via startExecution, publishPlannedPreparation and draftLateStory unchanged; slice 3 comparison: identical admission claim commits, trailers, authors |
 | 5c | Keep literal divergent or dirty data visible where the check depends on those exact inputs. | slice 5 | |
 | 6a.1 | Remove `createQueuedTrunk` and its legacy setup. | slice 5 | |
 | 6a.2 | Remove `createPreparationTrunk` and its legacy setup. | slice 5 | |
@@ -37,9 +37,9 @@ Fresh general-purpose reviewer launched 2026-11-08 by the execution coordinator 
 | 7d | Paid native runs remain manual-only. | slice 5 | |
 | 8a | Normalized repository hashing's comparison technique serves as migration proof. | slice 5 | |
 | 9 | (Ex.1) A startup fixture names Ready queued A and B and the setup and command files. When the claim proceeds in a new workspace, the real commands leave root markers after the claim, including when the workspace is gone. | slice 2 | observed: git-publication-native-startup-fixture.mjs names storyA and storyB with startupCommandFiles; tests/git-publication-native.sh run_startup_marker_counterexamples; slice 2 sibling-worktree probe left .setup-ran and .command-ran in the fixture root after worktree removal |
-| 10a | (Ex.2) An admission fixture names its queued trunk and the startup probe. | slice 3 | |
-| 10b | (Ex.2) The existing investigation still starts with no queued mission. | slice 3 | |
-| 10c | (Ex.2) Continuation and closure still observe real prior admissions and their ownership. | slice 3 | |
+| 10a | (Ex.2) An admission fixture names its queued trunk and the startup probe. | slice 3 | observed: git-publication-native-admission-fixture.mjs probed trunk names storyA, storyB and scripts/probe.js per journey in startingTrunk |
+| 10b | (Ex.2) The existing investigation still starts with no queued mission. | slice 3 | observed: admission-investigation starts from probed with no backlog entry; slice 3 comparison origin history base then probe with no admit commit; tests/git-publication-native-admission.sh investigation case passed |
+| 10c | (Ex.2) Continuation and closure still observe real prior admissions and their ownership. | slice 3 | observed: slice 3 comparison of continuation and closure matched old build including prior admissions and Claim-Publisher ownership; tests/git-publication-native-admission.sh continuation and closure cases passed |
 | 11a | (Ex.3) A queued one-shot fixture names Ready B and its unfinished sibling B2. | slice 4 | |
 | 11b | (Ex.3) Refinement selects B2 while keeping B Ready. | slice 4 | |
 | 11c | (Ex.3) The default-main case still observes the staged, unstaged and untracked human edits in that checkout. | slice 4 | |

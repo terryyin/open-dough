@@ -62,7 +62,12 @@ family_inputs=(
   tests/support/startup-command-files.mjs
   src/skills/dough-execute-plan/scripts/execution-start.mjs"
   "admission|${installer_inputs} ${fixture_helper}
-  tests/support/git-publication-native-admission-fixture.mjs"
+  tests/support/git-publication-native-admission-fixture.mjs
+  tests/support/repository-fixture.mjs
+  tests/support/queued-repository.mjs
+  tests/support/startup-command-files.mjs
+  src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs
+  src/skills/dough-execute-plan/scripts/execution-start.mjs"
   "one-shot|${installer_inputs} ${fixture_helper}
   src/skills/dough-execute-plan/scripts/one-shot-queued-test-fixtures.mjs
   ${escalation}"

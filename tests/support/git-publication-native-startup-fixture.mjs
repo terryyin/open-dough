@@ -5,20 +5,13 @@
 // shared by the checkout and every workspace beside it.
 //
 // Usage: node git-publication-native-startup-fixture.mjs <parent>
-import { readyContributing } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
-import { queuedReadyRepository, storyA, storyB } from "./queued-repository.mjs";
+import { storyA, storyB } from "./queued-repository.mjs";
 import { materializeRepository } from "./repository-fixture.mjs";
-import { startupCommandFiles } from "./startup-command-files.mjs";
+import { queuedReadyStartupRepository } from "./startup-command-files.mjs";
 
 const [parent] = process.argv.slice(2);
 const trunk = await materializeRepository(
-  queuedReadyRepository({
-    queued: [storyA, storyB],
-    files: startupCommandFiles({
-      contributing: readyContributing,
-      durableCommandEvidence: true,
-    }),
-  }).please(),
+  queuedReadyStartupRepository({ queued: [storyA, storyB] }).please(),
   { parent },
 );
 process.stdout.write(
