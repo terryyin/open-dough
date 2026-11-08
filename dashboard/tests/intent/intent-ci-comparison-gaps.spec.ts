@@ -20,6 +20,7 @@ import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonE
 import { publishFastForwardLandedStory } from "../support/storyCiComparisonFastForward.ts";
 import { serveObservedComparisonAttempts } from "../support/storyCiObservedJobs.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
+import { expectAncestorSourceCue } from "../support/expectCiComparisonSourceCue.ts";
 import {
   advanceCompletedTrunk,
   completedPublishedStory,
@@ -88,12 +89,9 @@ test("a Trunk Mode done story marks Branch not applicable and Landed as an ances
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(1),
   ).toContainText("not applicable");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText(shortSha(implementation));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("ancestor:");
+  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
+  await expect(landedIdentity).toContainText(shortSha(implementation));
+  await expectAncestorSourceCue(landedIdentity);
 });
 
 test("a running landed build leaves the branch comparison readable and marks an added entry", async ({

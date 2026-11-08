@@ -3,6 +3,7 @@
 **Identity:** SEED-265#show-ci-build-source-icons
 
 **Source:** [Show CI build sources with compact icons](../../seeds/SEED-265-show-ci-build-source-icons.md#show-ci-build-source-icons)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and boundaries
 
@@ -75,12 +76,23 @@ base), macOS on AC, Node 24.21.0, after `npm ci`.
 
 ### 1. Compact Build source cues for exact and ancestor
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed examples 1–4 through the Intent CI timing comparison panel as in Outside-in proof; update the comparison identity specs that currently require `"exact revision"`, `"ancestor:"`, run links, and dense Skipped prose so they assert the compact cues and decluttering instead.
 
 Behavior: A done story with a CI timing comparison is selected → each routine Build cell shows a compact exact or ancestor source icon with an accessible label for that distinction (or concise accessible words for equivalent / later), omits commit subjects, run/attempt IDs, and routine skip explanations from the default cell, keeps short exceptional explanations when present, and leaves timing columns on the selected builds' measurements.
+
+Accepted proof (reuse):
+- `caffeinate -s -i npx playwright test --config dashboard/playwright.config.ts dashboard/tests/intent/intent-ci-comparison-skipped.spec.ts --reporter=line` — planning-only Baseline+Branch ancestor, Landed exact, equivalent wording, declutter, walls (7 passed).
+- `caffeinate -s -i npx playwright test --config dashboard/playwright.config.ts dashboard/tests/intent/intent-ci-comparison.spec.ts --reporter=line` — exact/ancestor cues and timings.
+- Related identity surface (gaps, fast-forward, landing-gaps, cancelled*, retry, adapter*) passed after assertion updates; landing-gaps failed-build beside source cue; refactor retested adapter*, landing-gaps, retry after helper consolidation.
+- Source review commitments 1–8e observed in `source-review.md`.
+
+Learnings:
+- `publishSkippedPlanningBaseline` needed a planning-only Branch tip over a built ancestor so example 1's Branch-as-ancestor holds without changing selection/walk rules.
+- Recovery journeys assert source-cue presence, not exact selection — Baseline after walk is often ancestor.
 
 ## Concern evidence
 
 - Slice-plan refinement: not needed — one Behavior slice owns one presentation outcome with mapped proof and no independent second outcome or Structure prerequisite.
 - Remaining slice-specific concerns: none identified.
+- Post-change refactor: consolidated Build-cue assertions into `expectCiComparisonSourceCue`; split CI status product intent into `docs/dashboard-development-intent-ci-status.md`.

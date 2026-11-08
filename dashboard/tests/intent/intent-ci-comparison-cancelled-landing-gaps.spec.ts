@@ -121,8 +121,9 @@ test("a cancelled landing names the proofless build before a running build and r
   const { panel } = await selectDoneStoryForCiComparison(page);
   const landed = landedOf(panel);
   await expect(landed.identity).toContainText(
-    "run 305 #1 · passed · later trunk build: includes 2 later trunk revisions",
+    "later trunk build: includes 2 later trunk revisions",
   );
+  await expect(landed.identity).not.toContainText("run 305");
   await expect(landed.wall).toHaveText("7 min");
 });
 
@@ -154,8 +155,9 @@ test("a cancelled landing at the read trunk head waits for a later trunk build a
   const landed = landedOf(panel);
   await expect(landed.identity).toContainText(`Cancelled at ${shortSha(tip)}.`);
   await expect(landed.identity).toContainText(
-    "run 403 #1 · passed · later trunk build: includes 1 later trunk revision",
+    "later trunk build: includes 1 later trunk revision",
   );
+  await expect(landed.identity).not.toContainText("run 403");
   await expect(landed.wall).toHaveText("7 min");
   await expect(panel).not.toContainText(
     "No later trunk build has finished yet.",

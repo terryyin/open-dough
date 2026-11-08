@@ -5,6 +5,11 @@ import { shortSha } from "../../src/baseCiWording.ts";
 import { adapterProject } from "../intentCiAdapterProofProject.ts";
 import { counts, proofSummary } from "../support/ciProofArtifacts.ts";
 import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
+import {
+  expectAncestorSourceCue,
+  expectExactSourceCue,
+  expectNoRunOrAttemptIds,
+} from "../support/expectCiComparisonSourceCue.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonEarlierLanding.ts";
@@ -163,17 +168,10 @@ for (const [landing, publish] of [
       const row = panel.getByRole("row").filter({ has: rowHeader });
       const identity = row.locator(".intent-ci-comparison-identity");
       await expect(identity).toContainText(shortSha(revision));
-      await expect(identity).toContainText(subject);
-      await expect(identity).toContainText(
-        selection === "exact" ? "exact revision" : "ancestor:",
-      );
-      await expect(identity).toContainText("passed");
-      await expect(
-        identity.getByRole("link", {
-          name: `run ${String(attempt.runId)} · attempt ${String(attempt.attemptId)}`,
-          exact: true,
-        }),
-      ).toHaveAttribute("href", attempt.url);
+      await expect(identity).not.toContainText(subject);
+      if (selection === "exact") await expectExactSourceCue(identity);
+      else await expectAncestorSourceCue(identity);
+      await expectNoRunOrAttemptIds(identity);
       await expect(row.locator(".intent-ci-comparison-wall")).toHaveText(
         entry.wall,
       );

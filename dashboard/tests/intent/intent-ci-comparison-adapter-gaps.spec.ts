@@ -4,6 +4,10 @@ import { shortSha } from "../../src/baseCiWording.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { adapterProject, passed } from "../intentCiAdapterProofProject.ts";
 import { completedPublishedStory } from "../support/completedPublishedStory.ts";
+import {
+  expectAncestorSourceCue,
+  expectExactSourceCue,
+} from "../support/expectCiComparisonSourceCue.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { publishFastForwardLandedStory } from "../support/storyCiComparisonFastForward.ts";
@@ -53,9 +57,8 @@ test("an expired adapter baseline leaves the newest Branch and Landed retry visi
   );
   for (const index of [1, 2]) {
     await expect(builds.nth(index)).toContainText(shortSha(story.branchSide));
-    await expect(builds.nth(index)).toContainText(
-      "attempt passed-retry · passed · exact revision",
-    );
+    await expectExactSourceCue(builds.nth(index));
+    await expect(builds.nth(index)).not.toContainText("attempt passed-retry");
     await expect(
       panel.locator(".intent-ci-comparison-wall").nth(index),
     ).toHaveText("Not recorded");
@@ -94,7 +97,7 @@ test("a Done Trunk Mode adapter story walks back from its completion to Landed",
   const builds = panel.locator(".intent-ci-comparison-identity");
   await expect(builds.nth(1)).toContainText("not applicable");
   await expect(builds.nth(2)).toContainText(shortSha(implementation));
-  await expect(builds.nth(2)).toContainText("ancestor:");
+  await expectAncestorSourceCue(builds.nth(2));
 });
 
 // The adapter limit is lowered for the timed-out case only, so the request

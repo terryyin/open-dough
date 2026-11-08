@@ -1,11 +1,11 @@
 // Wording of a story's CI comparison on Intent's homepage
-// (`./IntentCiComparison.tsx`): each endpoint's build identity and selection
-// rule, CI wall time and time without runner
-// waits in whole seconds, readable before → after (Δ[, %]) differences for
-// the active comparison's overall timing (without runner waits) and wall-time
-// context, and the active comparison name, framed as observations between
-// single builds, never attributed to the story. Overall counts live in
-// `./storyCiComparisonCountsWords.ts`.
+// (`./IntentCiComparison.tsx`): each endpoint's Build source cue (exact /
+// ancestor accessible words, or concise equivalent / later wording), CI wall
+// time and time without runner waits in whole seconds, readable before → after
+// (Δ[, %]) differences for the active comparison's overall timing (without
+// runner waits) and wall-time context, and the active comparison name, framed
+// as observations between single builds, never attributed to the story.
+// Overall counts live in `./storyCiComparisonCountsWords.ts`.
 
 import {
   durationChangeWords,

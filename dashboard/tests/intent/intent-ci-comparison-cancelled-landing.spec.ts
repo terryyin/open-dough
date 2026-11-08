@@ -51,16 +51,15 @@ test("a cancelled landing merge uses the next trunk push's passing build as a la
     `Cancelled at ${shortSha(landing)}.`,
   );
   await expect(landed.identity).toContainText(shortSha(setup.completion));
-  await expect(landed.identity).toContainText("run 304 #1");
   await expect(landed.identity).toContainText(
-    "passed · later trunk build: includes 1 later trunk revision",
+    "later trunk build: includes 1 later trunk revision",
   );
+  await expect(landed.identity).not.toContainText("run 304");
   await expect(landed.wall).toHaveText("4 min");
   // Branch versus Baseline stays readable; the trunk-side parent never stands in.
   await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
     "3 min 20 s",
   );
-  await expect(panel).not.toContainText("run 398");
   expect(runListingsAt(page, later)).toEqual([1, 0, 0]);
   expect(
     proofCalls(githubFor(page).calls).filter((call) =>
@@ -106,13 +105,11 @@ test("a cancelled landing merge passes two cancelled trunk builds and counts thr
     `Cancelled at ${shortSha(landing)}.`,
   );
   await expect(landed.identity).toContainText(shortSha(third));
-  await expect(landed.identity).toContainText("run 399 #1");
   await expect(landed.identity).toContainText(
-    "passed · later trunk build: includes 3 later trunk revisions",
+    "later trunk build: includes 3 later trunk revisions",
   );
+  await expect(landed.identity).not.toContainText("run 399");
   await expect(landed.wall).toHaveText("5 min");
-  await expect(panel).not.toContainText("run 304");
-  await expect(panel).not.toContainText("run 305");
   expect(runListingsAt(page, later)).toEqual([1, 1, 1]);
   // One artifact listing per build checked; cancelled builds are not checked.
   expect(
@@ -147,8 +144,10 @@ test("a cancelled landing merge uses a failed later trunk build with proof, labe
   );
   await expect(landed.identity).toContainText(shortSha(setup.completion));
   await expect(landed.identity).toContainText(
-    "run 304 #1 · failed · later trunk build: includes 1 later trunk revision (failed build)",
+    "later trunk build: includes 1 later trunk revision",
   );
+  await expect(landed.identity).toContainText("failed build");
+  await expect(landed.identity).not.toContainText("run 304");
   await expect(landed.wall).toHaveText("6 min");
 });
 
@@ -174,9 +173,9 @@ test("a fast-forward landing whose story tip's run was cancelled uses the next t
   await expect(landed.identity).toContainText(`Cancelled at ${shortSha(tip)}.`);
   await expect(landed.identity).toContainText(shortSha(next));
   await expect(landed.identity).toContainText(
-    "run 403 #1 · passed · later trunk build: includes 1 later trunk revision",
+    "later trunk build: includes 1 later trunk revision",
   );
+  await expect(landed.identity).not.toContainText("run 403");
   await expect(landed.wall).toHaveText("7 min");
-  await expect(panel).not.toContainText("run 498");
   expect(runListingsAt(page, later)).toEqual([1]);
 });

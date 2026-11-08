@@ -140,115 +140,15 @@ answer replaces its problem through the same path as **Retry**. Malformed
 settings, access refusals, unexpected answers and unclassified failures keep
 their manual actions. Absent or mismatched candidates keep their existing
 explanations. Purpose file text offers its own **Retry**.
-**CI status** judges configured trunk (`main` here) or the published branch of
-a Taken story selected by card or Side panel. The story's single Story Branch
-Mode agent profile records that branch. Judgment follows the same rule as the
-[base-CI check](../dashboard/LAUNCH-BASE-CI.md). The newest
-`ciWorkflow` or `ciAdapter` result at the head or nearest ancestor decides.
-Trunk results for the same check count on a story branch when the commit is
-in its history, and the view names the run's branch, for example "run on
-`main`". A failed trunk read leaves **Could not be read**.
-A selected **Done** or **Taken** story's
-[CI timing comparison](dashboard-development-intent-ci-comparison.md)
-names the active comparison, overall before→after counts and CI time without
-runner waits (wall time as context), endpoint identities with both timing
-measures, cues, and entry cells. Baseline is the newest completed build at or
-before the first claim parent. Branch is the final branch result from the
-landing's story-side parent (inapplicable in Trunk Mode). Landed uses the
-newest trunk-first owning merge or the fast-forward tip, before any separate
-completion commit and without falling back across the landing; a confirmed
-skip may use only that landing's equivalent build and its proof, never past
-unusable proof. A cancelled landing keeps Cancelled and may use the nearest
-later trunk build with usable proof, walking trunk's first-parent history
-forward past cancelled, unbuilt and proofless revisions, stopping at a running
-build, the read trunk head or 30 revisions; it is labelled a later trunk build
-with how many later trunk revisions it includes. Without usable later proof,
-Landed keeps the cancelled explanation and shows no figures. If the walk passed
-a build whose proof was unavailable, Landed names the nearest such build and
-explains why. If the walk stopped at a running build, Landed also names that
-build. If neither applies, Landed says no later build finished in the history
-it read. When the walk stopped at the trunk head or a running build, the answer
-is read again on the next selection instead of remembered.
-Timed-out or unexplained stays exact-only. Each build shows its revision, run, attempt, state, and exact,
-measured-ancestor, equivalent-build or later-trunk-build selection, with the requested revision's own status
-(Skipped, Cancelled, or No build) when that revision is not the timed build
-shown. Baseline and Branch walks continue past builds without usable proof.
-GitHub Actions wall time, CI time without runner waits, signed differences,
-adapter discover/proof rules, and endpoint recovery follow that comparison
-page. A selected **Taken** Story Branch story keeps live judgment and compares
-the latest completed branch build as provisional against Baseline. Landed says
-the story has yet to land, and a new branch head refreshes the comparison. A
-Taken Trunk Mode story compares the provisional trunk result, with Branch
-inapplicable and Landed still pending integration. Missing or unusable branch
-publication is named and shows no status. Selection replaces the judgment, and
-clearing it returns to trunk. Judgment names the branch, **Passed**,
-**Failed** (including cancelled or timed out), **Running** or **Could not be
-read** with the reason, the judged short SHA and subject, the number of later
-commits without results, any run link, the nearest completed ancestor while
-running, and when it was checked. History without a result and trunk history
-GitHub answers `404` for are **Could not be read** with the reason. Only
-story branches can be called no longer published. Below
-the judgment, **Proof** shows the CI proof of that run (for a running result,
-the completed ancestor's) once as short labels, heard and hovered as a
-Summary's are: the linked run and attempt
-(`Run 41 · attempt 2`, or a `ciAdapter` attempt's `Attempt <attemptId>`), the
-revision, `Completed ancestor` for a running result, and that attempt's
-**CI wall time** from its start and completion (`CI wall time 3 min`, or
-`CI wall time not recorded` with why as its full words when either is
-absent), then a table with one row per declared Intent location `path`, in
-declaration order, under the columns **Entry**, **Counts** (passed, failed
-and other with the runner's unit, tests or checks), **Test execution time**
-(the entry's summed durations: measured, a measured zero reading `0 ms`;
-partial as short gap labels joined by commas, such as `Part 2 untimed`,
-`Part 3 missing` or `4 tests untimed`; or `No timings` for a summary without
-durations; never zero for absence, no lower bound for partial timing, and
-never the attempt's wall time; a gap label's full explanation, such as
-“Partial: part 2 of 3 has no duration”, is the cell's hover text and
-accessible description). Each column header is a button,
-reached by Tab and activated by click, Enter or Space: the first activation
-sorts the rows ascending by that column's figures, the next descending, and
-the sorted header carries `aria-sort` and a direction arrow. **Entry** sorts
-by path name, **Counts** by the number of counted results with failed
-results first among equal totals, and **Test execution time** by measured time.
-A row without a measured figure for the column (partial, `No timings`)
-follows the measured rows in either direction,
-and those rows and ties keep declaration order. The sort is kept in memory
-while **CI status** stays shown, never on the URL or in storage; the table
-has no totals row. A path wraps after its `/`
-separators, and within them only in a reading pane too narrow for that, so
-the columns fit a phone or zoomed window without sideways scrolling. A
-GitHub Actions run's summary is its `ci-proof-summary-attempt-<n>` artifact,
-read with `intent=ci-proof` `run`, `attempt` and `revision`
-(`dashboard/server/ciProofArtifact.ts`) and used only when it names the same
-repository, run, attempt and revision. A `ciAdapter` attempt's summary is
-read with `run`, `attempt-id`, `run-branch` (the branch whose discover listed
-it) and `revision`, each identity at most 256 characters, by asking the
-project's adapter its `proof` operation from the project folder under the
-shared adapter limits (`dashboard/server/ciAdapterProof.ts`); it is used only
-when valid and naming the same repository, `attemptId` as text and full
-revision, and when another attempt the adapter's `discover` answered at that
-revision shares that `attemptId` (counted before newest-per-check retention)
-no adapter is asked. Judgment shows first whether proof is shown, checking,
-or unavailable; then one line says why: for a run, no summary, expired,
-unreadable, invalid, or wrong run/attempt/revision; for an adapter attempt,
-the adapter's own unavailability reason, its failed answer (timeout,
-over-limit answer, nonzero exit with its last stderr line, or an answer that
-is neither `summary` nor `unavailable`), invalid, wrong
-repository/attempt/revision, or ambiguous; or no completed GitHub Actions run
-or CI attempt. Proof is read again with each judgment — when the homepage is
-shown, the judged branch changes, the page's revision check finds that head
-moved while shown (new trunk revision, or a watched story-branch head whose
-story progress is read there; a story branch without a counted plan is not
-watched and is re-read on **Check again**), and on **Check again**, with no
-timed polling — and is shown whether Intent locations are configured, absent,
-or unreadable: **Intent** shows it beside the explanation in place of the
-location tree, and the strip stands above those explanations, which
-**Optimization Candidates** also shows. The chosen tab is kept while the page
-stays on the project, across switches to Development and back and across new
-revisions, where **Optimization Candidates** reads the record at the new
-revision once **Show latest** moves the reading there; a project change
-starts again on **Intent**. The choice is disposable page state, not on the
-URL or in storage. The reading place is kept the same way, in memory only:
+**CI status** homepage judgment, Proof evidence, and a selected story's
+[CI timing comparison](dashboard-development-intent-ci-comparison.md) follow
+[Intent CI status](dashboard-development-intent-ci-status.md). The chosen tab
+is kept while the page stays on the project, across switches to Development
+and back and across new revisions, where **Optimization Candidates** reads
+the record at the new revision once **Show latest** moves the reading there;
+a project change starts again on **Intent**. The choice is disposable page
+state, not on the URL or in storage. The reading place is kept the same way,
+in memory only:
 the selection, the open location and folders, **Selected story only** and the
 reading pane's scroll show again after Development and back without reading
 the locations or the selected file again. Intent reads one published

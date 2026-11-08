@@ -11,6 +11,8 @@
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
+import { shortSha } from "../../src/baseCiWording.ts";
+import { expectSourceCue } from "../support/expectCiComparisonSourceCue.ts";
 import { wall } from "../support/storyCiComparisonFixture.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
@@ -58,12 +60,15 @@ test("a Baseline listing that failed once is listed again on the next read, then
   );
 
   const recovered = await selectDoneStoryForCiComparison(page);
-  await expect(baselineCell(recovered.panel)).toContainText("run 200");
+  await expect(baselineCell(recovered.panel)).toContainText(shortSha(baseline));
+  await expectSourceCue(baselineCell(recovered.panel));
   const listedToRecover = listings.baseline;
   expect(listedToRecover).toBeGreaterThan(1);
 
   const remembered = await selectDoneStoryForCiComparison(page);
-  await expect(baselineCell(remembered.panel)).toContainText("run 200");
+  await expect(baselineCell(remembered.panel)).toContainText(
+    shortSha(baseline),
+  );
   expect(listings.baseline).toBe(listedToRecover);
 });
 
@@ -85,18 +90,13 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
   const { panel } = await selectDoneStoryForCiComparison(page);
   const identity = panel.locator(".intent-ci-comparison-identity");
   await expect(identity.nth(0)).toContainText("GitHub is unreachable");
-  await expect(
-    identity.nth(1).getByRole("link", { name: "run 102 #1", exact: true }),
-  ).toBeVisible();
-  await expect(
-    identity.nth(2).getByRole("link", { name: "run 103 #1", exact: true }),
-  ).toBeVisible();
+  await expect(identity.nth(1)).toContainText(shortSha(setup.branchSide));
+  await expect(identity.nth(2)).toContainText(shortSha(setup.completion));
   const checkAgain = checkAgainOf(panel);
 
   await checkAgain.click();
-  await expect(
-    identity.nth(0).getByRole("link", { name: "run 101 #1", exact: true }),
-  ).toBeVisible();
+  await expect(identity.nth(0)).toContainText(shortSha(setup.baseline));
+  await expectSourceCue(identity.nth(0));
   await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
     "Baseline compared with Landed",
   );
@@ -114,16 +114,11 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
   await checkAgain.click();
   await expect.poll(() => reads.finished.comparison).toBe(comparisons + 1);
   await expect.poll(() => reads.finished.proof).toBe(proofs + 3);
-  await expect(
-    identity.nth(0).getByRole("link", { name: "run 101 #1", exact: true }),
-  ).toBeVisible();
+  await expect(identity.nth(0)).toContainText(shortSha(setup.baseline));
   const again = await selectDoneStoryForCiComparison(page);
   await expect(
-    again.panel
-      .locator(".intent-ci-comparison-identity")
-      .nth(0)
-      .getByRole("link", { name: "run 101 #1", exact: true }),
-  ).toBeVisible();
+    again.panel.locator(".intent-ci-comparison-identity").nth(0),
+  ).toContainText(shortSha(setup.baseline));
   await expect.poll(() => reads.finished.proof).toBe(proofs + 6);
   expect(asked).toBe(askedBefore);
 });
@@ -201,7 +196,8 @@ test("Check again reads the comparison again after its whole read failed", async
   await expect(panel.locator(".intent-ci-gap")).toBeVisible();
   await expect(panel.locator(".intent-ci-comparison")).toHaveCount(0);
   await checkAgainOf(panel).click();
-  await expect(baselineCell(panel)).toContainText("run 200");
+  await expect(baselineCell(panel)).toContainText(shortSha(baseline));
+  await expectSourceCue(baselineCell(panel));
   await expect(panel.locator(".intent-ci-gap")).toHaveCount(0);
 });
 

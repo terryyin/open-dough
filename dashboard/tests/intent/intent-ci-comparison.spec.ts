@@ -31,6 +31,11 @@ import {
   expectCiComparisonEntryRows,
 } from "../support/expectCiComparisonEntryRows.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
+import {
+  expectAncestorSourceCue,
+  expectExactSourceCue,
+  expectNoRunOrAttemptIds,
+} from "../support/expectCiComparisonSourceCue.ts";
 import { commitAll, writeAt } from "../support/storyReviewWorktree.ts";
 
 for (const variant of [
@@ -97,44 +102,31 @@ for (const variant of [
     await expect(
       panel.locator(".intent-ci-comparison-overall-wall"),
     ).toHaveText("CI wall time 4 min 59 s → 5 min 19 s (+20 s, +7%)");
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(0),
-    ).toContainText("No build at");
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(0),
-    ).toContainText("the workflow at that revision could not be read");
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(0),
-    ).toContainText(shortSha(setup.baseline));
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(0),
-    ).toContainText(
+    const baselineIdentity = panel
+      .locator(".intent-ci-comparison-identity")
+      .nth(0);
+    const branchIdentity = panel
+      .locator(".intent-ci-comparison-identity")
+      .nth(1);
+    const landedIdentity = panel
+      .locator(".intent-ci-comparison-identity")
+      .nth(2);
+    await expect(baselineIdentity).toContainText("No build at");
+    await expect(baselineIdentity).toContainText(
+      "the workflow at that revision could not be read",
+    );
+    await expect(baselineIdentity).toContainText(shortSha(setup.baseline));
+    await expectAncestorSourceCue(
+      baselineIdentity,
       `ancestor: ${String(setup.laterWithoutBuild)} later revision`,
     );
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(1),
-    ).toContainText(shortSha(setup.branchSide));
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(2),
-    ).toContainText(shortSha(setup.completion));
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(0).getByRole("link", {
-        name: "run 101 #1",
-        exact: true,
-      }),
-    ).toHaveAttribute("href", "https://ci.invalid/runs/101");
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(1).getByRole("link", {
-        name: "run 102 #1",
-        exact: true,
-      }),
-    ).toHaveAttribute("href", "https://ci.invalid/runs/102");
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(2).getByRole("link", {
-        name: "run 103 #2",
-        exact: true,
-      }),
-    ).toHaveAttribute("href", "https://ci.invalid/runs/103");
+    await expect(branchIdentity).toContainText(shortSha(setup.branchSide));
+    await expectExactSourceCue(branchIdentity);
+    await expect(landedIdentity).toContainText(shortSha(setup.completion));
+    await expectExactSourceCue(landedIdentity);
+    await expectNoRunOrAttemptIds(baselineIdentity);
+    await expectNoRunOrAttemptIds(branchIdentity);
+    await expectNoRunOrAttemptIds(landedIdentity);
     await expect(
       panel.getByRole("columnheader", { name: "CI wall time" }),
     ).toBeVisible();
@@ -179,42 +171,20 @@ test("code landed before completion uses the merge branch-side ancestor and the 
   await expect(panel.getByRole("heading")).toHaveText(
     `CI timing changes for ${setup.identity}`,
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1),
-  ).toContainText(shortSha(branchBuild));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1),
-  ).toContainText("ancestor:");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1),
-  ).not.toContainText(shortSha(setup.completion));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText(shortSha(landed));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("exact revision");
+  const branchIdentity = panel.locator(".intent-ci-comparison-identity").nth(1);
+  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
+  await expect(branchIdentity).toContainText(shortSha(branchBuild));
+  await expectAncestorSourceCue(branchIdentity);
+  await expect(branchIdentity).not.toContainText(shortSha(setup.completion));
+  await expect(landedIdentity).toContainText(shortSha(landed));
+  await expectExactSourceCue(landedIdentity);
   // Completion D and trunk-side parent of M must not replace Landed.
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).not.toContainText(shortSha(setup.completion));
+  await expect(landedIdentity).not.toContainText(shortSha(setup.completion));
   if (setup.trunkSide !== undefined) {
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(2),
-    ).not.toContainText(shortSha(setup.trunkSide));
+    await expect(landedIdentity).not.toContainText(shortSha(setup.trunkSide));
   }
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1).getByRole("link", {
-      name: "run 302 #1",
-      exact: true,
-    }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/302");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2).getByRole("link", {
-      name: "run 303 #1",
-      exact: true,
-    }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/303");
+  await expectNoRunOrAttemptIds(branchIdentity);
+  await expectNoRunOrAttemptIds(landedIdentity);
   await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
     "3 min 20 s",
   );
@@ -222,8 +192,5 @@ test("code landed before completion uses the merge branch-side ancestor and the 
     "4 min",
   );
   // Completion's later run and later trunk must not replace Branch or Landed.
-  await expect(panel).not.toContainText("run 304");
-  await expect(panel).not.toContainText("run 398");
-  await expect(panel).not.toContainText("run 399");
   await expect(panel).not.toContainText("10 min");
 });
