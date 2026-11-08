@@ -295,7 +295,7 @@ check, and the Git-free refusal table moved to
 
 Type: Structure
 
-Status: planned
+Status: done
 
 Proof: review `tests/README.md#test-data-architecture` against
 `tests/support/repositoryTestData.mjs`: it names the workspace and its
@@ -306,6 +306,11 @@ identical descriptions give identical commit IDs within one process.
 
 Correction: update that paragraph in place, short, with links to the
 builder and harness.
+
+Accepted proof (2026-11-08): the paragraph names each fact once, checked
+against the builder, materializer and revision writer; per-method defaults
+stay in the builder's comments. Lint passes. Before landing, the whole
+`npm test` at `f325b27f` passed quietly (exit 0, no output).
 
 ## Decisive premises
 
