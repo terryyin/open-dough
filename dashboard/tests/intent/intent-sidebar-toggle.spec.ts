@@ -1,12 +1,13 @@
-// Hide files / Show files (../../src/FileBrowserToggle.tsx) in Intent's
-// reading-mode strip without a selected story (../../src/IntentModeTabs.tsx),
-// or ending a selected story's view row on Changed tests
+// Hide files / Show files (../../src/FileBrowserToggle.tsx) in Project
+// Intent's strip on CI status (../../src/IntentModeTabs.tsx), or ending a
+// selected story's view row on Changed tests
 // (../../src/intentStoryTabs.tsx): hiding the locations column gives the
 // reading pane the content width (narrow, the height under the strip), with
 // the story's header still above it; showing it returns the tree as it was,
-// also after visiting the story's other views. The choice is kept with
-// Intent's reading place (../../src/pageIntentReading.tsx) across modes and
-// Development, and a project change shows the column again. A narrow
+// also after visiting the story's other views. Each scope keeps its own
+// choice with Intent's reading place (../../src/pageIntentReading.tsx) across
+// views, a visit to the other scope and Development, and a project change
+// shows the column again. A narrow
 // selected story's view row: ./intent-story-views-narrow.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
@@ -18,6 +19,8 @@ import {
   filesToggle,
   intentModeBar,
   intentModeTab,
+  openProjectIntent,
+  returnToStory,
   storyViewBar,
 } from "../intentModePage.ts";
 import {
@@ -161,7 +164,7 @@ test("Hide files gives the reading pane the width under the story's header; afte
   await expect(proofTab).toHaveAttribute("aria-selected", "true");
 });
 
-test("the hidden column stays hidden through Optimization Candidates and Development, and a project change shows it", async ({
+test("the hidden column stays hidden through a Project Intent visit, which keeps its own choice, and Development, and a project change shows it", async ({
   page,
   origin,
 }) => {
@@ -169,14 +172,13 @@ test("the hidden column stays hidden through Optimization Candidates and Develop
   await filesToggle(intent).click();
   await expectFilesShown(intent, false);
 
+  // Project Intent's column is its own, still shown.
+  await openProjectIntent(intent);
+  await expectFilesShown(intent, true);
   await chooseOptimizationCandidates(intent);
   await expect(filesToggle(intent)).toHaveCount(0);
-  // Activating Intent returns to the story's CI comparison, without the
-  // toggle; Changed tests still has its column hidden.
-  await intentModeTab(intent, "Intent").click();
-  await expectStoryTab(intent, "CI comparison");
-  await expect(filesToggle(intent)).toHaveCount(0);
-  await chooseStoryTab(intent, "Changed tests");
+  await returnToStory(intent);
+  await expectStoryTab(intent, "Changed tests");
   await expectFilesShown(intent, false);
 
   const { development, intentChoice } = parts(page);
@@ -203,13 +205,13 @@ test("with no story, the toggle is reached by Tab after the tabs, works with Ent
   await page.setViewportSize({ width: 1280, height: 800 });
   const intent = await openIntentWithoutStory(page, origin);
 
-  await intentModeTab(intent, "Intent").focus();
+  await intentModeTab(intent, "CI status").focus();
   await page.keyboard.press("Tab");
   await expect(filesToggle(intent)).toBeFocused();
   await page.keyboard.press("Enter");
   await expectFilesShown(intent, false);
   await expect(intentModeBar(intent)).toHaveText(
-    "IntentOptimization CandidatesShow files",
+    "CI statusOptimization CandidatesShow files",
   );
   await expect(ciPanel(intent)).toBeVisible();
   await expectReadingFillsBrowser(intent);

@@ -1,5 +1,6 @@
-// Intent's reading-mode strip under the banner (../src/IntentModeTabs.tsx)
-// and the Test Optimization Candidates record it shows.
+// Project Intent's heading and views (../src/IntentModeTabs.tsx), the
+// Test Optimization Candidates record it shows, and the way between Project
+// Intent and the selected story (../src/IntentStoryView.tsx).
 
 import { expect, type Locator } from "@playwright/test";
 import { shortRevision } from "./dashboardParts.ts";
@@ -25,12 +26,12 @@ export async function expectCandidatesRevision(
   ).toHaveCount(1);
 }
 
-type IntentModeName = "Intent" | "Optimization Candidates";
+type IntentModeName = "CI status" | "Optimization Candidates";
 
-// One of Intent's reading-mode tabs under the banner.
+// One of Project Intent's views.
 export function intentModeTab(intent: Locator, name: IntentModeName) {
   return intent
-    .getByRole("tablist", { name: "Intent reading" })
+    .getByRole("tablist", { name: "Project Intent views" })
     .getByRole("tab", { name, exact: true });
 }
 
@@ -52,8 +53,31 @@ export async function chooseOptimizationCandidates(intent: Locator) {
   await expect(intent.locator(".intent-locations")).toBeHidden();
 }
 
-// Hide files / Show files for the locations column: in the strip without a
-// selected story, or ending a selected story's view row on Changed tests.
+// From the selected story's header to Project Intent, which shows its
+// heading with the keyboard on Back to selected story.
+export const projectIntentLink = (intent: Locator) =>
+  intent
+    .getByRole("region", { name: "Selected story", exact: true })
+    .getByRole("button", { name: "Project Intent", exact: true });
+export const backToStory = (intent: Locator) =>
+  intent.getByRole("button", { name: "Back to selected story", exact: true });
+
+export async function openProjectIntent(intent: Locator) {
+  await projectIntentLink(intent).click();
+  await expect(
+    intent.getByRole("heading", { name: "Project Intent", level: 2 }),
+  ).toBeVisible();
+  await expect(backToStory(intent)).toBeFocused();
+}
+
+// Back to the selected story, the keyboard on its way to Project Intent.
+export async function returnToStory(intent: Locator) {
+  await backToStory(intent).click();
+  await expect(projectIntentLink(intent)).toBeFocused();
+}
+
+// Hide files / Show files for the locations column: in Project Intent's strip
+// on CI status, or ending a selected story's view row on Changed tests.
 export const intentModeBar = (intent: Locator) =>
   intent.locator(".intent-mode-bar");
 export const storyViewBar = (intent: Locator) =>

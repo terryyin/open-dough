@@ -1,7 +1,7 @@
 // Example 1 and 3: a Taken story whose worktree changes the tests Intent
 // publishes (../support/intentStoryWorktree.ts) is selected by its card's
-// empty area, and one persistent header under the mode strip names it in
-// full, with its identity, the revisions its default Review changes
+// empty area, and one persistent header, led by the way to Project Intent,
+// names it in full, with its identity, the revisions its default Review changes
 // comparison runs between, and the count outside every location, above the
 // story's views; Changed tests' column starts with the "Selected story only"
 // choice. The whole published tree shows, changed
@@ -12,7 +12,7 @@
 // distinct from a changed folder's row, and keeps the mark once selected. The changed files outside every location are counted, pointing
 // to Review changes. A changed file's Purpose is the same diff Review
 // changes shows; an unchanged file shows its published source. Deselecting removes the
-// summary and leaves the tree as it was.
+// summary and shows Project Intent, whose reading borrowed none of it.
 // "Selected story only": ./intent-story-changes-only.spec.ts. Deletions and
 // renames, and a folder's Summary of the overlaid tree:
 // ./intent-story-changes-moves.spec.ts. No
@@ -21,6 +21,7 @@
 // after closing Review changes: ./intent-story-review-return.spec.ts.
 
 import { parts } from "../dashboardPage.ts";
+import { ciPanel } from "../intentCiStatusPage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { shortRevision } from "../dashboardParts.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -64,11 +65,20 @@ test("Intent highlights a selected Taken story's test changes over the published
   );
   const scoped = storySummary(intent);
 
-  await test.step("the mode strip sits under the banner and one persistent header heads the story's views", async () => {
+  await test.step("the story's view sits under the banner, one persistent header, led by the way to Project Intent, heading its views", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(intent.locator(":scope > *").first()).toHaveClass(
-      "intent-mode-bar",
+      "intent-story-view",
     );
+    await expect(
+      intent.getByRole("tablist", { name: "Project Intent views" }),
+    ).toHaveCount(0);
+    await expect(scoped.locator(".intent-story-crumb")).toHaveText(
+      "Project Intent / Selected story",
+    );
+    await expect(
+      scoped.locator(":scope > *").first().getByRole("button"),
+    ).toHaveAccessibleName("Project Intent");
     await expect(
       intent.getByRole("region", { name: "Selected story" }),
     ).toHaveCount(1);
@@ -231,11 +241,11 @@ test("Intent highlights a selected Taken story's test changes over the published
     );
     expect(unchanged.mark).toBe("none");
     expect(unchanged.background).toBe(changedHeader.background);
-    // The story was cleared while Intent showed, so the tree is kept as it
-    // was left (../src/pageIntentReading.tsx).
-    await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
-      "aria-expanded",
-      "true",
-    );
+    // Intent now shows Project Intent, whose reading never borrowed the
+    // story's file (../src/pageIntentReading.tsx): its CI status homepage.
+    await expect(
+      intent.locator('.intent-locations [aria-pressed="true"]'),
+    ).toHaveCount(0);
+    await expect(ciPanel(intent)).toContainText("CI status of main");
   });
 });

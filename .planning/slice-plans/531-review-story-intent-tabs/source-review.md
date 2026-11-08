@@ -24,7 +24,7 @@ example)" and their sibling rows.
 | G1 | A developer reviewing a selected story sees the available CI evidence first. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison-locations.spec.ts held locations read: CI comparison tab chosen, Baseline compared with Landed while locations held |
 | G2 | The developer can inspect the changed tests without losing their place. | slice 1 | observed: dashboard/tests/intent/intent-sidebar-toggle.spec.ts file, Proof, folders, Selected story only and tree scroll kept across views |
 | G3 | The developer can inspect the saved Intent Coverage assessment without losing their place. | slice 3 | |
-| G4 | The developer can visit project CI and optimization candidates and return to the same story evidence. | slice 2 | |
+| G4 | The developer can visit project CI and optimization candidates and return to the same story evidence. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts candidate test reads as published; return restores candidate then story reading |
 | D1 | Hierarchy, spacing, tabs and timing treatment follow the approved interactive mockup. | slice 5 | |
 | D2 | Real evidence and the states described in the story are used. The mockup's sample story, build figures and report excerpt only illustrate the interaction. | slice 5 | |
 | 1 | One persistent story header sits above the tabs. | slice 1 | observed: dashboard/tests/intent/intent-story-changes.spec.ts one Selected story region above the tablist |
@@ -89,21 +89,21 @@ example)" and their sibling rows.
 | 32 | The existing retry is kept where available. | slice 3 | |
 | 32a | A failed completion read offers recovery without implying that no assessment was ever saved. (from the example) | slice 3 | |
 | 33 | For an unfinished story, the pane explains that the assessment runs during feature story wrap-up. | slice 3 | |
-| 34 | **Optimization Candidates** sits alongside **CI status** in **Project Intent**. | slice 2 | |
-| 35 | Project CI shows trunk proof, including during a visit from a selected story. | slice 2 | |
-| 36 | Project test browsing is preserved. | slice 2 | |
-| 36a | A candidate keeps its route to its project test and back. | slice 2 | |
-| 37 | With no story selected, project CI status is the landing view. | slice 2 | |
-| 38.1 | A visit to Project Intent keeps the selected story. | slice 2 | |
-| 38.2 | A visit to Project Intent keeps that story's current tab. | slice 2 | |
-| 38.3 | A visit to Project Intent keeps that story's reading place. | slice 2 | |
-| 39 | Project test browsing uses the dashboard's existing published-revision and update behavior. | slice 2 | |
-| 39a | A candidate's test that the selected story also changes shows project-published content. (from the example) | slice 2 | |
-| 39b | Returning goes to the same candidate first and then to the selected story. Its tab, file, Proof and reading position are restored. (from the example) | slice 2 | |
-| A1 | The dashboard keeps one page-owned Selected story. | slice 2 | |
-| A2 | A Project Intent visit changes the evidence and reading context and leaves the selection intact. | slice 2 | |
-| A3 | Project browsing does not borrow the story's diff or file selection. | slice 2 | |
-| A4 | Both reading places (story and project) are disposable page state. | slice 2 | |
+| 34 | **Optimization Candidates** sits alongside **CI status** in **Project Intent**. | slice 2 | observed: intent-ci-status-homepage.spec.ts Project Intent views tabs exactly CI status, Optimization Candidates |
+| 35 | Project CI shows trunk proof, including during a visit from a selected story. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts and intent-home-activation.spec.ts CI status of main shown while the story stays selected |
+| 36 | Project test browsing is preserved. | slice 2 | observed: intent-ci-status-homepage.spec.ts and intent-reading-place.spec.ts project browsing journeys in Project Intent |
+| 36a | A candidate keeps its route to its project test and back. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts entry focused on return; intent-test-optimization-candidates-open.spec.ts Ex 1 entry toBeFocused |
+| 37 | With no story selected, project CI status is the landing view. | slice 2 | observed: intent-ci-status-homepage.spec.ts CI status landing without a story; dashboard/tests/intent/intent-project-visit.spec.ts clearing after Candidates lands on CI status; intent-story-changes-gaps.spec.ts with no locations |
+| 38.1 | A visit to Project Intent keeps the selected story. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts data-selected-story kept during the visit |
+| 38.2 | A visit to Project Intent keeps that story's current tab. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts Changed tests restored on return; new selection test opens CI comparison |
+| 38.3 | A visit to Project Intent keeps that story's reading place. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts selected file, Proof and scrollOf offset restored |
+| 39 | Project test browsing uses the dashboard's existing published-revision and update behavior. | slice 2 | observed: intent-ci-status-homepage.spec.ts, intent-read-recovery.spec.ts revision notice and read reuse in Project Intent |
+| 39a | A candidate's test that the selected story also changes shows project-published content. (from the example) | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts candidate dashboard/tests/a.spec.ts shows 'a 11' with no .intent-story-diff |
+| 39b | Returning goes to the same candidate first and then to the selected story. Its tab, file, Proof and reading position are restored. (from the example) | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts candidate entry focused with data-candidates-reads unchanged, then Back to selected story restores Proof diff and scroll |
+| A1 | The dashboard keeps one page-owned Selected story. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts data-selected-story kept across Project Intent visits |
+| A2 | A Project Intent visit changes the evidence and reading context and leaves the selection intact. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts project CI shown during the visit with the selection intact |
+| A3 | Project browsing does not borrow the story's diff or file selection. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts no story diff in project reading; intent-home-activation.spec.ts project and story file selections independent |
+| A4 | Both reading places (story and project) are disposable page state. | slice 2 | observed: intent-reading-place.spec.ts in-memory reading places restored across Development and back |
 | A5 | CI and coverage come from their existing published evidence. | slice 3 | |
 | V1 | The implementation is compared with the mockup in light and dark themes. | slice 5 | |
 | V2 | The comparison covers desktop and narrow widths. | slice 5 | |

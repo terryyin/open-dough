@@ -112,47 +112,61 @@ summary drills down: a child's name selects that folder or file as its tree
 name does and reveals it in the tree, keyboard-operable. A summary reads no
 file text and asks CI nothing again: home and every summary share one
 judgment, proof and comparison-endpoint read.
-The selected perspective choice names the page, so Intent shows no heading of its own. Below
-the banner the page does not scroll: the location tree fills the remaining height against
-the left edge, and it and the reading pane each scroll independently. Directly under the
-banner, a strip of two Intent reading modes, **Intent** and **Optimization Candidates**,
-chooses what that content shows; it belongs to Intent and is not another
-perspective. Arrow keys, Home and End move between its tabs and only choose
-the mode, so returning to **Intent** that way keeps what it was reading.
-**Intent** shows the location tree (Purpose locations only) beside the
-reading pane; it is the tab a project's Intent first shows. With nothing
-selected the reading pane is Intent's homepage, **CI status**; with a file
-selected it offers **Purpose** and **Proof** tabs (Purpose first; kept across
-file selections in the same Intent visit), and with a location or folder its
-summary. Purpose is the published source or selected story's source diff; Proof
-is that file's published CI evidence from Intent's one evidence owner
-(judged-run results, or a story's baseline / branch / landed comparison),
-under the Summary's evidence labels.
-Directly activating the **Intent** tab (click, Enter or Space), even while already
-chosen, returns home: without a selected story, selection clears and CI status
-shows; with one, its **CI comparison** view shows and its **Changed tests**
-reading stays. Expansion and reading choices stay. No separate return control.
-While **Intent** shows the location tree, Review changes' **Hide files** /
-**Show files** toggle states whether the locations column is shown: without a
-selected story it follows the strip's tabs, and with one it ends the story's
-view row while **Changed tests** shows, in both cases reached by Tab after the
-tabs. Hiding removes the column and gives the reading pane the full width, or
-on a narrow screen, where the tree sits above it, the full height; it changes
-no selection or reading, and a selected story's header stays above it.
+Intent shows either **Project Intent**, the project's own evidence, or, with a
+story selected on the page, [that story's views](dashboard-development-intent-story.md).
+Project Intent is the landing with no selected story; the selected perspective
+choice names the page, so it then shows no heading of its own. Visited from a
+selected story, through **Project Intent** leading the story's header, it is
+headed **Project Intent** with **Back to selected story**, and the story stays
+selected: going either way moves the keyboard to the control that comes back.
+Below the banner the page does not scroll: the location tree fills the
+remaining height against the left edge, and it and the reading pane each
+scroll independently. Project Intent's strip of two views, **CI status** and
+**Optimization Candidates**, chooses what that content shows; it belongs to
+Intent and is not another perspective. Arrow keys, Home and End move between
+its tabs and only choose the view, so returning to **CI status** that way
+keeps what it was reading.
+**CI status** shows the location tree (Purpose locations only) beside the
+reading pane; it is the view a project's Intent first shows. With nothing
+selected the reading pane is Intent's homepage, the trunk's **CI status**,
+whatever story is selected; with a file selected it offers **Purpose** and
+**Proof** tabs (Purpose first; kept across file selections in the same Intent
+visit), and with a location or folder its summary. Purpose is the published
+source or, in a selected story's **Changed tests**, its source diff; Proof is
+that file's published CI evidence from the view's evidence owner (judged-run
+results, or a story's baseline / branch / landed comparison), under the
+Summary's evidence labels.
+Directly activating the **CI status** tab (click, Enter or Space), even while
+already chosen, returns home: the selection clears and CI status shows.
+Expansion and reading choices stay. No separate return control.
+Project Intent and the selected story's views keep separate reading places:
+browsing a project test never replaces the story's file, its Purpose or Proof,
+or its scroll, and a project test the story changed shows its published text
+in Project Intent. A visit to Project Intent and back restores the story's
+chosen view and reading place.
+While a location tree shows, Review changes' **Hide files** / **Show files**
+toggle states whether the locations column is shown: in Project Intent it
+follows the strip's tabs on **CI status**, and with a story it ends the
+story's view row while **Changed tests** shows, in both cases reached by Tab
+after the tabs. Hiding removes the column and gives the reading pane the full
+width, or on a narrow screen, where the tree sits above it, the full height; it
+changes no selection or reading, and a selected story's header stays above it.
 **Show files** returns the column as it was: selection, open location and
-folders, **Selected story only** and the tree's scroll. The choice is kept
-with Intent's reading place across selections, the story's other views,
-**Optimization Candidates** and back, Development and back and new revisions;
-a project change shows the column again. It is not on the URL or in storage
-and is not remembered across reloads; the explanation shown in place of the
-tree offers no toggle.
+folders, **Selected story only** and the tree's scroll. Each reading place
+keeps its own choice across selections, the story's other views,
+**Optimization Candidates** and back, a visit to the other reading place,
+Development and back and new revisions; a project change shows the column
+again. It is not on the URL or in storage and is not remembered across
+reloads; the explanation shown in place of the tree offers no toggle.
 **Optimization Candidates** shows the project's published Test Optimization
 Candidates record at Intent's reading revision across the content area without
 the location tree; the record is read the first time that tab is chosen.
 Choosing a location an entry names, an opening rather than a return home,
-selects **Intent** with that file's **Purpose** positioned on the entry's case where that names one line, with its location and folders opened so the file
-shows selected, and choosing **Optimization Candidates** again returns to
-that entry without reading the record again.
+selects **CI status** with that file's **Purpose** positioned on the entry's
+case where that names one line, with its location and folders opened so the
+file shows selected, and choosing **Optimization Candidates** again returns to
+that entry without reading the record again; activating the tab directly
+gives the entry the keyboard.
 Intent locations and Optimization Candidates share the page's recovery
 schedule. A local boundary that cannot be reached or a failure classified as
 transient is read again in place after 15, 30, 60, then 60 seconds while it
@@ -171,9 +185,10 @@ explanations. Purpose file text offers its own **Retry**.
 [CI timing comparison](dashboard-development-intent-ci-comparison.md) follow
 [Intent CI status](dashboard-development-intent-ci-status.md). The chosen tab
 is kept while the page stays on the project, across switches to Development
-and back and across new revisions, where **Optimization Candidates** reads
-the record at the new revision once **Show latest** moves the reading there;
-a project change starts again on **Intent**. The choice is disposable page
+and back, visits from a selected story and new revisions, where
+**Optimization Candidates** reads the record at the new revision once **Show
+latest** moves the reading there; a project change, a new selection or
+clearing the selected story starts again on **CI status**. The choice is disposable page
 state, not on the URL or in storage. The reading place is kept the same way,
 in memory only:
 the selection, the open location and folders, **Selected story only** and the
@@ -202,8 +217,8 @@ unsupported kind says so by path or kind while other locations stay usable; a
 failed file read says so and offers retry. When that setting is absent,
 Intent says no intent locations are configured and names the setting and
 file; it shows no empty tree. An unreadable or malformed settings file is a
-distinct explanation from absence. With a story selected, the **Intent**
-reading mode is that story's, as
+distinct explanation from absence. With a story selected, Intent shows that
+story's views, as
 [Intent for a selected story](dashboard-development-intent-story.md)
 describes. Structure
 is not offered yet. The perspective is disposable presentation state on the URL

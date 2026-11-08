@@ -1,5 +1,6 @@
 /* A selected story in Intent (./IntentStoryView.tsx): its persistent
-   header (./IntentStorySummary.tsx) naming the story by its full title, the
+   header (./IntentStorySummary.tsx), led by the way to Project Intent,
+   naming the story by its full title, the
    count of changed files outside every location beside it, its identity and
    what its comparison says; then the story's views (./intentStoryTabs.tsx)
    with Hide files / Show files ending their row; then the chosen view. CI
@@ -31,6 +32,16 @@
 
 .intent-story-summary p {
   margin: 0;
+}
+
+.intent-story-summary .intent-story-crumb {
+  font-size: var(--text-sm);
+}
+
+.intent-story-crumb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
 }
 
 .intent-story-title-line {

@@ -12,9 +12,11 @@ export { keepInView, untilOwnMove } from "./pageMovement.ts";
 // the work that held it is not in the new snapshot. Board spreads these
 // marks onto what it renders. A card and the Board are focusable only so
 // that focus can be returned to them, so they stay out of the tab order. The
-// Intent perspective shows no Board; its reading-mode strip
-// (`./IntentModeTabs.tsx`) spreads `intentHomeMarks`, and its chosen tab, the
-// strip's one tab in the tab order, is Intent's home.
+// Intent perspective shows no Board; Project Intent's strip
+// (`./IntentModeTabs.tsx`) and a selected story's view row
+// (`./IntentStoryView.tsx`), one of which Intent shows, spread
+// `intentHomeMarks`, and the chosen tab there, its row's one tab in the tab
+// order, is Intent's home.
 const storyCardAttribute = "data-story-card";
 const storyCardLinkAttribute = "data-story-card-link";
 const boardAttribute = "data-board";
@@ -129,7 +131,7 @@ export function focusBoard(): void {
 
 const board = () => document.querySelector<HTMLElement>(`[${boardAttribute}]`);
 
-// Intent's chosen reading-mode tab while the page shows Intent.
+// The chosen tab of Intent's shown view row while the page shows Intent.
 const intentHome = () =>
   document.querySelector<HTMLElement>(
     `[${intentHomeAttribute}] [role="tab"][aria-selected="true"]`,
@@ -146,7 +148,7 @@ const shown = (element: HTMLElement | null | undefined) =>
 
 // Where the keyboard is useful once what held it left the page: the work's
 // card while the page shows it, else the Board, else, in the Intent
-// perspective, which shows neither, Intent's chosen reading-mode tab.
+// perspective, which shows neither, the chosen tab of Intent's view row.
 export function storyCardHome(
   identity: string | undefined,
 ): HTMLElement | null {

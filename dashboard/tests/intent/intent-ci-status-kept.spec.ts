@@ -56,7 +56,7 @@ test("CI homepage shows again across Development and back; Optimization Candidat
     await development.click();
     await expect(intent).toHaveCount(0);
     await intentChoice.click();
-    await expectIntentModeChosen(intent, "Intent");
+    await expectIntentModeChosen(intent, "CI status");
     await expect(ciPanel(intent).locator(".intent-ci-state")).toHaveText(
       "Passed at a1b2c3d (Add login)",
     );
@@ -75,12 +75,12 @@ test("CI homepage shows again across Development and back; Optimization Candidat
 
   await test.step("a project change starts again on Intent, and so does returning", async () => {
     await chooseProject(page, "Doughnut");
-    await expectIntentModeChosen(intent, "Intent");
+    await expectIntentModeChosen(intent, "CI status");
     await expect(intent).toContainText(
       "No intent locations are configured for Doughnut.",
     );
     await chooseProject(page, "Open Dough");
-    await expectIntentModeChosen(intent, "Intent");
+    await expectIntentModeChosen(intent, "CI status");
     await expect(candidatesRecord(intent)).toBeHidden();
     await expect(intent.locator(".intent-locations")).toBeVisible();
     await expect(ciPanel(intent)).toBeVisible();
@@ -141,7 +141,7 @@ test("a new trunk revision re-reads the homepage judgment at the new head; time 
   await passTimeUntilCheckedAfterSettled(page);
   await untilPageReadsAnswered(page);
 
-  await expectIntentModeChosen(intent, "Intent");
+  await expectIntentModeChosen(intent, "CI status");
   await expect(panel.locator(".intent-ci-state")).toHaveText(
     "Failed at e8e8e8e (Plan the next story)",
   );

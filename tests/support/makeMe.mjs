@@ -14,6 +14,7 @@ import {
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
+import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 
@@ -121,6 +122,9 @@ export const makeMe = {
   },
   get intentSettings() {
     return new IntentSettingsBuilder();
+  },
+  get aTestOptimizationCandidatesRecord() {
+    return new TestOptimizationCandidatesRecordBuilder();
   },
   get aLaunchRecord() {
     return new LaunchRecordBuilder();

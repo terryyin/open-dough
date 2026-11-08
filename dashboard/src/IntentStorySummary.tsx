@@ -1,5 +1,6 @@
-// The selected story as Intent shows it (`./IntentPerspective.tsx`): one
-// persistent header above the story's views (`./intentStoryTabs.tsx`), drawn
+// The selected story as Intent shows it (`./IntentStoryView.tsx`): one
+// persistent header, led by the way to Project Intent, above the story's
+// views (`./intentStoryTabs.tsx`), drawn
 // whether locations are still read, unavailable, or browsed, so the title
 // appears once and never collapses. It names the story by its full title and
 // identity, with what its comparison says (`./IntentStoryComparison.tsx`),
@@ -13,6 +14,7 @@
 // Intent itself stays at its published revision (ADR 0008).
 
 import { GitCompare } from "lucide-react";
+import type { ReactNode } from "react";
 import type { DoneStory } from "./doneRecord.ts";
 import {
   CompactComparisonState,
@@ -108,12 +110,15 @@ export function IntentStoryHeader({
   summary: { story, comparison, onRetry },
   source,
   outside,
+  crumb,
 }: {
   readonly summary: StorySummary;
   readonly source: string;
   // Changed files outside every Intent location, once the comparison and the
   // locations are both known.
   readonly outside: number | undefined;
+  // The way to Project Intent, leading the header.
+  readonly crumb: ReactNode;
 }) {
   return (
     <section
@@ -121,6 +126,9 @@ export function IntentStoryHeader({
       aria-label="Selected story"
       data-state={comparison.state}
     >
+      <p className="intent-story-crumb">
+        {crumb} <span aria-hidden="true">/</span> Selected story
+      </p>
       <div className="intent-story-title-line">
         <h2 className="intent-story-title">
           <span className="intent-story-kind">Story</span>{" "}

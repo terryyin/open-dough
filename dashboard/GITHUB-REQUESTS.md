@@ -34,9 +34,11 @@ locations and, when a file is selected, that file at the latest observed revisio
 Optimization Candidates record once that tab shows. Opening Intent with nothing selected shows CI
 status as Intent's homepage and costs the same judgment and proof reads the former **CI status**
 tab cost when shown. The homepage and a location or folder Summary share one CI reading, so
-selecting, drilling down and returning home by activating the **Intent** tab ask CI nothing
-more; that reading is asked each time Intent opens, each time its judged branch changes with
-the selected story, each time a new trunk revision is observed while the trunk is
+selecting, drilling down and returning home by activating the **CI status** tab ask CI nothing
+more. Project Intent's trunk reading and a selected story's reading are separate: the trunk
+is first read when Project Intent shows, even from a selected story, and then followed while
+Intent stays open; going between them reads neither again. A reading is asked each time Intent opens, each time its judged branch
+changes with the selected story, each time a new trunk revision is observed while the trunk is
 shown, each time the revision check finds a new head of the shown story branch it
 already watches for progress, and on each **Check again**, the trunk's judgment
 costs one listing of the configured ref's commit history (up to 30 commits) and

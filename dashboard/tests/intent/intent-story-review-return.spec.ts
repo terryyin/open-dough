@@ -1,7 +1,7 @@
 // Closing Review changes opened by keyboard from the selected story's header
 // in Intent clears the selected story (ADR 0008); Intent shows no Board, so
-// the keyboard returns to Intent's chosen reading-mode tab above the CI
-// status Intent then shows (../../src/storyCardFocus.ts,
+// the keyboard returns to the chosen tab of Project Intent, which Intent
+// then shows with its CI status (../../src/storyCardFocus.ts,
 // ../../src/IntentModeTabs.tsx). The header's count:
 // ./intent-story-changes.spec.ts.
 
@@ -15,7 +15,7 @@ import {
   storySummary,
 } from "../support/intentStoryPage.ts";
 
-test("closing Review changes opened by keyboard from the header returns the keyboard to Intent's reading-mode tab above its CI status", async ({
+test("closing Review changes opened by keyboard from the header returns the keyboard to Project Intent's CI status tab", async ({
   page,
   origin,
 }) => {
@@ -31,7 +31,7 @@ test("closing Review changes opened by keyboard from the header returns the keyb
 
   await expect(intent).not.toHaveAttribute("data-selected-story");
   await expect(storySummary(intent)).toHaveCount(0);
-  const home = intentModeTab(intent, "Intent");
+  const home = intentModeTab(intent, "CI status");
   await expect(home).toBeFocused();
   await expect(home).toHaveAttribute("aria-selected", "true");
   await expect(ciPanel(intent)).toBeVisible();

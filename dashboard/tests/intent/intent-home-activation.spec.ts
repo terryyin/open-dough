@@ -1,10 +1,11 @@
-// Returning to Intent's CI status homepage by directly activating the Intent
-// reading tab (../../src/IntentModeTabs.tsx, ../../src/intentWorkspaceSelection.ts):
-// with a selected story it shows the story's CI comparison view
-// (../../src/intentStoryTabs.tsx), judging that story's branch under its
-// header, while Changed tests keeps the file it read; arrow keys, Home
-// and End only choose the mode, so a file read before Optimization
-// Candidates is still selected and read, until Intent itself is activated;
+// Returning to Intent's CI status homepage by directly activating Project
+// Intent's CI status tab (../../src/IntentModeTabs.tsx,
+// ../../src/intentWorkspaceSelection.ts): with a selected story its CI
+// comparison view (../../src/intentStoryTabs.tsx) judges that story's branch
+// under its header, while Changed tests keeps the file it read, and a visit
+// to Project Intent judges main and browses in a selection of its own; arrow
+// keys, Home and End only choose the view, so a file read before Optimization
+// Candidates is still selected and read, until CI status itself is activated;
 // with a newer revision waiting behind its notice, returning home keeps that
 // notice and the shown revision, reading nothing newer.
 // The homepage journey from an entry, folder and file by click, Enter and
@@ -34,7 +35,12 @@ import {
   publishStoryCi,
   toggleOnDevelopment,
 } from "../intentCiStoryRecords.ts";
-import { expectIntentModeChosen, intentModeTab } from "../intentModePage.ts";
+import {
+  expectIntentModeChosen,
+  intentModeTab,
+  openProjectIntent,
+  returnToStory,
+} from "../intentModePage.ts";
 import { chooseStoryTab, expectStoryTab } from "../support/intentStoryPage.ts";
 import {
   expandIntentFolders,
@@ -76,7 +82,7 @@ async function expectFileRead(intent: Locator) {
   await expect(ciPanel(intent)).toHaveCount(0);
 }
 
-test("activating Intent with a story selected returns to its CI comparison judging that story's branch, keeping its header and Changed tests reading", async ({
+test("with a story selected, activating CI comparison judges that story's branch, keeping its header and Changed tests reading, while Project Intent judges main with its own selection", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -102,12 +108,34 @@ test("activating Intent with a story selected returns to its CI comparison judgi
     "Failed at fa11ed0 (Break the login)",
   );
   await expect(summary).toBeVisible();
-  await expect(intent).toHaveAttribute(
-    "data-selected-story",
-    `SEED-219#${failing.anchor}`,
-  );
+  const selected = `SEED-219#${failing.anchor}`;
+  await expect(intent).toHaveAttribute("data-selected-story", selected);
   await chooseStoryTab(intent, "Changed tests");
   await expect(fileName(intent)).toHaveAttribute("aria-pressed", "true");
+
+  await test.step("Project Intent judges main and browses the same file in its own selection", async () => {
+    await openProjectIntent(intent);
+    await expect(intent).toHaveAttribute("data-selected-story", selected);
+    await expect(summary).toHaveCount(0);
+    const trunk = ciPanel(intent);
+    await expectNamed(trunk, "main");
+    await expect(trunk.locator(".intent-ci-state")).toHaveText(
+      "Passed at 4774f60 (Add login)",
+    );
+    // Nothing the story's Changed tests selected is selected here.
+    await expect(
+      intent.locator('.intent-locations [aria-pressed="true"]'),
+    ).toHaveCount(0);
+    await selectFile(intent);
+    await activateIntentHome(intent, "Enter");
+    await expect(fileName(intent)).toHaveAttribute("aria-pressed", "false");
+    await expectNamed(ciPanel(intent), "main");
+  });
+
+  await returnToStory(intent);
+  await expectStoryTab(intent, "Changed tests");
+  await expect(fileName(intent)).toHaveAttribute("aria-pressed", "true");
+  await expect(intent.getByRole("region", { name: "Purpose" })).toBeVisible();
 });
 
 test("arrow keys, Home and End choose Intent again with the file still read; activating Intent from Optimization Candidates returns home", async ({
@@ -131,12 +159,12 @@ test("arrow keys, Home and End choose Intent again with the file still read; act
     ["ArrowLeft", "ArrowRight"],
   ] as const) {
     await test.step(`${away} then ${back}`, async () => {
-      await intentModeTab(intent, "Intent").press(away);
+      await intentModeTab(intent, "CI status").press(away);
       await expectIntentModeChosen(intent, "Optimization Candidates");
       await expect(candidates).toBeFocused();
       await candidates.press(back);
-      await expectIntentModeChosen(intent, "Intent");
-      await expect(intentModeTab(intent, "Intent")).toBeFocused();
+      await expectIntentModeChosen(intent, "CI status");
+      await expect(intentModeTab(intent, "CI status")).toBeFocused();
       await expect(page).toHaveURL(/project=open-dough/);
       await expectFileRead(intent);
     });

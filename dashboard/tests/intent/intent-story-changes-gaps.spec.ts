@@ -7,9 +7,9 @@
 // outside count, or a "Selected story only" toggle, which would have no
 // changes to show only; the retried read offers it, off. Without configured
 // locations the header names the story, CI comparison shows its CI status
-// and Changed tests the explanation; Optimization Candidates shows no
-// header. The
-// highlighted journey:
+// and Changed tests the explanation; Project Intent shows main's CI status
+// beside the explanation, which Optimization Candidates also shows, and Back
+// to selected story returns to Changed tests. The highlighted journey:
 // ./intent-story-changes.spec.ts.
 
 import type { Locator } from "@playwright/test";
@@ -21,9 +21,11 @@ import {
   purposeRegion,
 } from "../intentPerspectivePage.ts";
 import {
+  backToStory,
   chooseOptimizationCandidates,
-  expectIntentModeChosen,
   intentModeTab,
+  openProjectIntent,
+  returnToStory,
 } from "../intentModePage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -127,7 +129,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await expect(intentFile(intent, changed.added)).toBeVisible();
 });
 
-test("without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changed tests the explanation, and Optimization Candidates no header", async ({
+test("without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changed tests the explanation, and Project Intent main's CI status beside it", async ({
   page,
   origin,
 }) => {
@@ -136,11 +138,9 @@ test("without configured Intent locations the header names the selected story, C
   await expectSelected(card, true);
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
-  const panel = intent.getByRole("tabpanel", { name: "Intent" });
-  await expect(panel.locator(":scope > *").first()).toHaveAttribute(
-    "aria-label",
-    "Selected story",
-  );
+  await expect(
+    intent.locator(".intent-story-view > *").first(),
+  ).toHaveAttribute("aria-label", "Selected story");
   await expect(storyTitle(intent)).toHaveText("Story Story A");
   await expect(storySummary(intent).getByRole("status")).toHaveText(
     "No comparison is available.",
@@ -164,17 +164,40 @@ test("without configured Intent locations the header names the selected story, C
     intent.getByRole("region", { name: "CI status", exact: true }),
   ).toHaveCount(0);
 
+  await openProjectIntent(intent);
+  await expect(storySummary(intent)).toHaveCount(0);
+  const project = intent.getByRole("tabpanel", { name: "CI status" });
+  await expect(project).toContainText("No intent locations are configured");
+  await expect(
+    project.getByRole("heading", { name: "CI status of main", exact: true }),
+  ).toBeVisible();
   await chooseOptimizationCandidates(intent);
   await expect(
     intent.getByRole("tabpanel", { name: "Optimization Candidates" }),
   ).toContainText("No intent locations are configured");
-  await expect(storySummary(intent)).toHaveCount(0);
-  // Activating Intent returns to the story's CI comparison.
-  await intentModeTab(intent, "Intent").click();
-  await expectIntentModeChosen(intent, "Intent");
-  await expectStoryTab(intent, "CI comparison");
-  await expect(
-    intent.getByRole("region", { name: "CI status", exact: true }),
-  ).toBeVisible();
+  // Back to the story's Changed tests, as it was left.
+  await returnToStory(intent);
+  await expectStoryTab(intent, "Changed tests");
   await expect(storySummary(intent)).toBeVisible();
+  await expect(
+    intent.getByRole("tabpanel", { name: "Changed tests" }),
+  ).toContainText("No intent locations are configured");
+
+  // Cleared after a visit that ended on Optimization Candidates, the story
+  // leaves Project Intent's CI status as the landing.
+  await parts(page).development.click();
+  await card.getByRole("heading", { level: 3 }).click();
+  await expectSelected(card, false);
+  await intentChoice.click();
+  await expect(storySummary(intent)).toHaveCount(0);
+  await expect(backToStory(intent)).toHaveCount(0);
+  await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  const landing = intent.getByRole("tabpanel", { name: "CI status" });
+  await expect(landing).toContainText("No intent locations are configured");
+  await expect(
+    landing.getByRole("heading", { name: "CI status of main", exact: true }),
+  ).toBeVisible();
 });

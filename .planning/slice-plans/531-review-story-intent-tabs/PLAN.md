@@ -103,7 +103,7 @@ against the mockup.
 ### 2. Visit project evidence and return to the story
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Project Intent row above. Extend the project CI homepage, candidate
 open/return, and reading-place journeys through the real scope controls.
 
@@ -113,6 +113,22 @@ to the story restores the respective places and focus. The same project
 workspace is the landing with no selected story. Preserve the existing
 project file browser, CI return, published revision/update recovery, and
 direct candidate links.
+
+Accepted proof: the integrated Intent, navigation and sessions set after
+the refactor (275 passed), the MakeMe node tests, typecheck and ESLint.
+`intent-project-visit.spec.ts` observes the visit, candidate return,
+project-published text and new-selection rules; source-review rows carry
+the rest.
+
+Learnings for remaining slices: Intent shows either the story view or
+Project Intent (`useIntentScope` in `intentStoryTabs.tsx`). Each has its
+own reading place keys. The selection object is the key: every selection act
+opens CI comparison, and a clear lands on Project Intent's CI status. Story CI
+renders through `IntentCiStatus` under the story's evidence provider; Project
+Intent shows trunk judgment only, so slices 4 and 5 change the story path.
+After the first Project Intent visit, trunk CI is followed while Intent is
+open (`dashboard/GITHUB-REQUESTS.md`). Coverage is `IntentStoryCoverage`
+inside `IntentStoryView`.
 
 ### 3. Read the saved assessment and its availability
 

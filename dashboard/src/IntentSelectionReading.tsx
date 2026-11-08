@@ -1,12 +1,13 @@
-// Intent's selection reading (`./IntentBrowser.tsx`): CI status when nothing
-// is selected (`./IntentCiStatus.tsx`), or with a selected story, whose CI
-// comparison is its own view (`./intentStoryTabs.tsx`), a prompt to choose a
-// changed test; Summary (`./IntentSummary.tsx`) or
-// Purpose and Proof tabs (`./IntentFileReading.tsx`) once a location, folder
-// or file is selected. A selection the shown revision does not hold is
-// explained instead (`./IntentRevisionNotice.tsx`). CI status and a Summary
-// read Intent's one CI evidence owner (`./IntentCiEvidence.tsx`). Activating
-// the Intent reading tab returns home (`./IntentModeTabs.tsx`).
+// Intent's selection reading (`./IntentBrowser.tsx`): in Project Intent the
+// trunk's CI status when nothing is selected (`./IntentCiStatus.tsx`), or in
+// the selected story's Changed tests, whose CI comparison is its own view
+// (`./intentStoryTabs.tsx`), a prompt to choose a changed test; Summary
+// (`./IntentSummary.tsx`) or Purpose and Proof tabs (`./IntentFileReading.tsx`)
+// once a location, folder or file is selected. A selection the shown revision
+// does not hold is explained instead (`./IntentRevisionNotice.tsx`). CI status
+// and a Summary read the scope's CI evidence owner (`./IntentCiEvidence.tsx`).
+// Activating Project Intent's CI status tab returns home
+// (`./IntentModeTabs.tsx`).
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
@@ -64,7 +65,7 @@ export function IntentSelectionReading({
   readonly readingKey: number;
   // Purpose or Proof, kept across file selections.
   readonly fileReading: IntentFileReadingPlace;
-  // The page selects a story, so this reading is its Changed tests view.
+  // This reading is the selected story's Changed tests view.
   readonly storySelected: boolean;
 }) {
   const scope = selectionScope(selection);
