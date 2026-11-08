@@ -11,7 +11,8 @@ import { settledOutcome } from "../../tests/acceptedAttempts.ts";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "../../tests/support/fakeCodex.ts";
 
-// No page: the local boundaries alone answer these requests.
+// No page: the local boundaries alone answer these requests. Each wait for a
+// launch to reach its native host is bounded by the test timeout alone.
 test.use({
   serverMode: "boundary",
   projectFolders: ["open-dough"],
@@ -51,13 +52,15 @@ for (const host of ["claude", "codex"] as const) {
       native.holdCreation = subject === "blank";
       const first = launch(dashboard, request);
       await expect
-        .poll(() =>
-          host === "claude"
-            ? dashboard.claudeLaunchCalls().length
-            : callsTo(
-                native,
-                subject === "blank" ? "thread/start" : "turn/start",
-              ).length,
+        .poll(
+          () =>
+            host === "claude"
+              ? dashboard.claudeLaunchCalls().length
+              : callsTo(
+                  native,
+                  subject === "blank" ? "thread/start" : "turn/start",
+                ).length,
+          { timeout: 0 },
         )
         .toBe(1);
       expect(await answerOf(launch(dashboard, request))).toEqual(duplicate);
@@ -93,10 +96,12 @@ for (const host of ["claude", "codex"] as const) {
     native.hold = true;
     const first = launch(dashboard, request);
     await expect
-      .poll(() =>
-        host === "claude"
-          ? dashboard.claudeLaunchCalls().length
-          : callsTo(native, "turn/start").length,
+      .poll(
+        () =>
+          host === "claude"
+            ? dashboard.claudeLaunchCalls().length
+            : callsTo(native, "turn/start").length,
+        { timeout: 0 },
       )
       .toBe(1);
     expect(
@@ -156,10 +161,12 @@ for (const host of ["claude", "codex"] as const) {
     };
     expect(first).toMatchObject({ kind: "accepted" });
     await expect
-      .poll(() =>
-        host === "claude"
-          ? dashboard.claudeLaunchCalls().length
-          : callsTo(native, "turn/start").length,
+      .poll(
+        () =>
+          host === "claude"
+            ? dashboard.claudeLaunchCalls().length
+            : callsTo(native, "turn/start").length,
+        { timeout: 0 },
       )
       .toBe(1);
     expect(await answerOf(launch(dashboard, request))).toEqual(duplicate);
@@ -233,12 +240,16 @@ test("distinct Claude instructions remain independent while both launches are he
     instruction: "First subject.",
   };
   const first = launch(dashboard, request);
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
+    .toHaveLength(1);
   const second = launch(dashboard, {
     ...request,
     instruction: "Second subject.",
   });
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(2);
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })
+    .toHaveLength(2);
   dashboard.releaseHeldClaude();
   expect((await answerOf(first)).kind).toBe("launched");
   expect((await answerOf(second)).kind).toBe("launched");

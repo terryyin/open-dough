@@ -128,6 +128,14 @@
   outline-offset: 2px;
 }
 
+/* The session chosen as a standalone Recently done sessions row: an inset
+   accent ring, as a selected Story card has, inside the Side panel's
+   outline. */
+.session-entry.selected-session {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.selected-session-content,
 .shown-session-content {
   font-weight: 600;
   color: var(--accent);

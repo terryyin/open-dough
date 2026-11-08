@@ -61,6 +61,11 @@ export async function startRunArtifacts(
   }
 
   const server = createServer((request, response) => {
+    // One connection per request. A kept-alive connection's idle timer can
+    // fire, once this runner resumes from a synchronous stall, before the
+    // request a worker has already sent on it is read; closing it then resets
+    // that worker's request.
+    response.setHeader("Connection", "close");
     const url = request.url ?? "";
     const key = url.slice(route.length);
     const artifact = artifacts.get(key);

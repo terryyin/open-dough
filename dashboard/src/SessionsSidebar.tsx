@@ -41,6 +41,7 @@ import {
   SessionsSidebarSessionEntry,
   type OpenSessionsSidebarSessionEntry,
 } from "./SessionsSidebarSessionEntry.tsx";
+import type { RecentlyDoneRowSelection } from "./recentlyDoneSelection.ts";
 import {
   SessionsSidebarOptionalSections,
   useOptionalSidebarSectionState,
@@ -49,6 +50,10 @@ import { SessionsSidebarStatus } from "./SessionsSidebarStatus.tsx";
 import { useHostStatus } from "./hostStatusReads.ts";
 import { keep, readKept } from "./keptPreference.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
+import {
+  sessionsButton,
+  sessionsSidebarId,
+} from "./sessionsSidebarElements.ts";
 import {
   attentionCount,
   attentionSummary,
@@ -59,7 +64,6 @@ import "./agent-launch.css";
 import "./sessions-sidebar.css";
 import "./sessions-toggle.css";
 
-const sessionsSidebarId = "sessions-sidebar";
 const sessionsSidebarOpenKey = "open-dough.sessionsSidebar.open";
 
 // Unkept, the sidebar starts closed.
@@ -136,9 +140,6 @@ export function useSessionsSidebar(
   return { open, toggle, closeOverPage, records, alerts };
 }
 
-const sessionsButton = () =>
-  document.querySelector<HTMLElement>(`[aria-controls="${sessionsSidebarId}"]`);
-
 export function SessionsButton() {
   const { open, toggle, records } = useSessionsSidebarContext();
   const sessions = openSessionsOf(records) ?? [];
@@ -189,9 +190,10 @@ export function SessionsSidebar({
   open,
   records,
   alerts,
-  onOpen,
+  ...rows
 }: Pick<SessionsSidebarState, "open" | "records" | "alerts"> & {
   readonly onOpen: OpenSessionsSidebarSessionEntry;
+  readonly recentlyDone: RecentlyDoneRowSelection;
 }) {
   const sessions = openSessionsOf(records);
   const aside = useRef<HTMLElement>(null);
@@ -226,7 +228,7 @@ export function SessionsSidebar({
                 <SessionsSidebarSessionEntry
                   key={sessionKey(record.session)}
                   record={record}
-                  onOpen={onOpen}
+                  onOpen={rows.onOpen}
                 />
               ))}
             </ol>
@@ -236,7 +238,7 @@ export function SessionsSidebar({
       <SessionsSidebarOptionalSections
         sidebarOpen={open}
         records={records}
-        onOpen={onOpen}
+        {...rows}
         recentlyDoneOpen={optional.recentlyDoneOpen}
         onToggleRecentlyDone={optional.toggleRecentlyDone}
         cursorOpen={optional.cursorOpen}

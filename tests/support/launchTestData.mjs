@@ -84,10 +84,11 @@ export class LaunchRecordBuilder {
   }
 
   /**
-   * A `claude` session, by its ID and short ID.
-   * @param {{ sessionId: string, shortId: string }} session
+   * A `claude` session, by its ID and short ID, which is otherwise the ID's
+   * first eight characters.
+   * @param {{ sessionId: string, shortId?: string }} session
    */
-  inClaudeSession({ sessionId, shortId }) {
+  inClaudeSession({ sessionId, shortId = sessionId.slice(0, 8) }) {
     this.#session = (name) => ({ host: "claude", sessionId, shortId, name });
     return this;
   }

@@ -94,6 +94,9 @@ export function ConfiguredDashboard({
         selected: source?.id ?? "",
         shown: showsBoard ? work?.source.id : undefined,
         show: showStories,
+        select: selectProject,
+        development: !showsIntent,
+        work,
       }}
     >
       <DashboardBanner

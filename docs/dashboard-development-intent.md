@@ -242,8 +242,17 @@ is not offered yet. The perspective is disposable presentation state on the URL
 which Intent keeps to return to. Choosing a perspective adds one history
 entry and never selects another project; changing projects keeps the
 perspective, and Back/Forward, reload and System settings restore it. Story
-URLs, story references and choosing a Sessions sidebar entry open
-Development's stories, including from the same project's Intent. Changing
+URLs, story references, choosing an open Sessions sidebar entry and a
+Recently done sessions row's Open open Development's stories, including from
+the same project's Intent. Choosing a Recently done sessions row only selects
+it and keeps the perspective and Side panel: a row whose project publishes
+its done story recently makes that story the Selected story in its project,
+so Intent shows it there; any other row selects its retained session and
+keeps the project, story and reading in Intent. In Development the row's
+project's stories show instead, with its done story card or selected session
+brought into view, as far down Recently done as it stands. An unread or failed done catalog is
+said on the row, apart from a confirmed miss, and leaves the reading as it
+was. Changing
 perspective neither starts, stops, completes nor reattaches a session: the
 mounted Board, Sessions sidebar and Side panel stay as they were, and a
 covering panel stays open. When the change hides the content holding the

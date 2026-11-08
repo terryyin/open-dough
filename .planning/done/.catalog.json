@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-272_select-recently-done-sessions.json",
+      "identity": "SEED-272#select-recently-done-sessions",
+      "completedAt": "2026-11-08T10:43:49.680Z",
+      "blob": "8ac8bc6af696e7d4699831bc7497e21672d7b6f8"
+    },
+    {
       "fileName": "SEED-273_follow-up-from-done.json",
       "identity": "SEED-273#follow-up-from-done",
       "completedAt": "2026-11-08T10:13:45.153Z",

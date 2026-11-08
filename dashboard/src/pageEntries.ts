@@ -121,12 +121,16 @@ export const heldEntryShown = (held: HeldEntry) =>
     ".recently-done",
   );
 
-// Reveal the resolved story's rendered home, whether active or Recently done.
+// The resolved story's rendered home, whether active or Recently done.
+export const storyShown = (identity: string) =>
+  storyCard(identity) ?? heldEntryShown({ story: identity });
+
+// Reveal the resolved story's rendered home.
 // Callers own resolution, inspection and any demand to extend the Done range.
 // The keeper shows a hidden column and retains its card in view until the
 // developer moves, including while later reads change the surrounding layout.
 export function revealStory(identity: string): (() => void) | undefined {
-  const card = storyCard(identity) ?? heldEntryShown({ story: identity });
+  const card = storyShown(identity);
   if (card === null) return;
   card.focus({ preventScroll: true });
   return keepInView(card);

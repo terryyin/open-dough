@@ -22,10 +22,8 @@ import {
 import { parts } from "../dashboardPage.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { givePageItsTurns } from "../pageRequestNotes.ts";
-import {
-  doneRecord,
-  recentlyDoneParts,
-} from "../recentlyDoneSessionsSidebarPage.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
 import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
 import { showPage } from "../runningCursorSessionsPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
@@ -55,16 +53,16 @@ function retainedSessions(dashboard: DashboardServer): LaunchRecord[] {
       cwd: dashboard.home,
       startedAt: launchedAt,
     });
-    const listed = doneRecord({
-      source: "open-dough",
-      title,
-      sessionId,
-      launchedAt: new Date(launchedAt).toISOString(),
-      doneAt: new Date(launchedAt + 30 * minute).toISOString(),
-      workflow: "execution",
-      identity:
-        index === 0 ? queuedIdentity : `SEED-900#retained-${String(index)}`,
-    });
+    const listed = makeMe.aLaunchRecord
+      .executing({
+        identity:
+          index === 0 ? queuedIdentity : `SEED-900#retained-${String(index)}`,
+        title,
+      })
+      .inClaudeSession({ sessionId })
+      .launchedAt(new Date(launchedAt).toISOString())
+      .markedDoneAt(new Date(launchedAt + 30 * minute).toISOString())
+      .please();
     return launchRecordSchema.parse({
       ...listed,
       request: { ...listed.request, reporting: detail.request.reporting },

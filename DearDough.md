@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 458. Removed numbers are never reused.
+- Highest allocated local number: 459. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -454,3 +454,29 @@ At slice 1 acceptance the implementation return named a consequential limitation
   - Evidence: slice 1 return "Context size: followUp.context has no upper bound…"; plan 526 Story obligations empty; correction SEED-273#lean-follow-up-listing, plan 529, finding 1.
   - Observed effect: the limitation reached a correction plan instead of being returned to slice 1 or disposed at acceptance.
   - Inference: judging a return's learning by story promises alone, rather than through the obligation record, let a product-cost limitation pass without a decision.
+
+## ODF-434 — Coordinator sends an unsubstituted placeholder to a delegated agent
+[Meaning, evidence and response](docs/maintainer/findings/ODF-434.md). This facet: the implementation brief, not the source-only reviewer.
+
+### Occurrences
+- Execution: SEED-272#select-recently-done-sessions (plan 527-select-recently-done-sessions; first related implementation `2d8fcf4d79cd013b0895d5a1ede1110af15d2d8d`)
+  - Timestamp: unknown (2026-11-08, slice 1 delegation)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: the slice 1 implementation brief carried a literal `{{COMMITMENTS}}` line and a stray `$(see list below)` where the 50 slice commitments belonged; the list existed only in a job-temporary file.
+  - Observed effect: the coordinator sent the full list by a follow-up message after launch; the agent's return mapped all slice 1 ids.
+  - Inference: writing a brief before inlining a computed listing recurs across delegation kinds, not only source review.
+
+## DD-459 — Obligations record doubled a supplied `observed:` prefix
+`story-obligations.mjs record --observed` prepends `observed: ` to its value. The reference's table cells show the `observed: …` form, so a value written that way became `observed: observed: …` and every check still passed.
+
+### Occurrences
+- Execution: SEED-272#select-recently-done-sessions (plan 527-select-recently-done-sessions; first related implementation `2d8fcf4d79cd013b0895d5a1ede1110af15d2d8d`)
+  - Timestamp: unknown (2026-11-08, slice 1 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: 50 `record --observed 'observed: …'` calls wrote doubled prefixes into `source-review.md`; `check --slice 1` reported ok before a manual `sed` repair.
+  - Observed effect: one extra repair command; no proof or allocation changed.
+  - Inference: the CLI could accept or refuse a leading `observed:` instead of silently doubling it.

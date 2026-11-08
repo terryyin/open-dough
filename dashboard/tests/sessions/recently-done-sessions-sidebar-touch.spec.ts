@@ -2,8 +2,8 @@
 // identity, not launch age.
 import { tapWhereShown } from "../pageLayout.ts";
 import { browserLocaleString } from "../browserLocale.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
-  doneRecord,
   recentlyDoneParts,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
@@ -30,15 +30,12 @@ test.describe("touch Session details for Done entries", () => {
     const title = "Touch done completion age";
     await keepProjectLaunchRecords(dashboard, {
       "open-dough": [
-        doneRecord({
-          source: "open-dough",
-          title,
-          sessionId: "touch-done-completion",
-          launchedAt,
-          doneAt,
-          identity: "SEED-902#touch-done",
-          workflow: "execution",
-        }),
+        makeMe.aLaunchRecord
+          .executing({ identity: "SEED-902#touch-done", title })
+          .inClaudeSession({ sessionId: "touch-done-completion" })
+          .launchedAt(launchedAt)
+          .markedDoneAt(doneAt)
+          .please(),
       ],
     });
     await showThreeProjectPage(page, origin);

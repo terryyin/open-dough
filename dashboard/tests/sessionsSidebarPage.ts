@@ -69,7 +69,7 @@ export type SessionsSidebarSessionEntryTone =
 // out: the session's state as a card entry words it, the project and
 // workflow, the model asked for, and the launch time, one to a line.
 export const sessionsSidebarSessionEntryTooltipOf = (entry: Locator) =>
-  entry.getByRole("button");
+  entry.locator("button.sessions-sidebar-session-entry-open");
 
 const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -85,17 +85,19 @@ export async function expectTooltipLine(
 }
 
 // The row's own text, as seen: what its children show, not the hidden state
-// label.
+// label or an icon control's tooltip before it is shown.
 const seenTextOf = (entry: Locator) =>
   entry.evaluate((row) =>
     [...row.children]
       .filter(
-        (child) =>
+        (child): child is HTMLElement =>
+          child instanceof HTMLElement &&
           !child.classList.contains("visually-hidden") &&
           child.tagName !== "BUTTON" &&
           child.getBoundingClientRect().height > 0,
       )
-      .map((child) => child.textContent)
+      .map((child) => child.innerText)
+      .filter((text) => text !== "")
       .join("|"),
   );
 

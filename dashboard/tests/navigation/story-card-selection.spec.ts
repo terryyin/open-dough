@@ -148,7 +148,7 @@ test("Select story and empty-area clicks toggle the selected story on active and
     if ((await shown.header.getAttribute("aria-expanded")) !== "true") {
       await shown.header.click();
     }
-    await shown.entry("Open Dough session").click();
+    await shown.open("Open Dough session").click();
     await expect(
       page.getByRole("region", { name: /Terminal|Final report/ }),
     ).toBeVisible();
