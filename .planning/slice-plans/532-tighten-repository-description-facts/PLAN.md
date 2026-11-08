@@ -7,7 +7,8 @@
 ## Provenance
 
 Retrospective correction of
-[the clean-trunk migration](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures)
+the clean-trunk migration, recoverable at
+`42717b7da:.planning/seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures`
 (`SEED-262#migrate-clean-trunk-fixtures`). Reviewed commits on base
 `db42e79a7`: `1f6adb33a`, `0b6bdb925`, `8f7f8443f`, `15cec64d2` and
 `91966e3aa`. Its plan is deleted at that story's wrap-up; cite these commits.

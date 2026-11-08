@@ -32,7 +32,7 @@ Former local code: DD-450. Former local code: DD-121. Former local code: DD-206.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
-  - Evidence: Plan 514's premise row "No native shell fixture loads the family modules" inspected the native shell scripts and the owned-context fixture only. `tests/support/execution-worktree-prep-native-fixture.mjs` loaded the migrated worktree-preparation builders (story obligation G4), and `native-import-closure.mjs` on that journey's three modules lists 10 modules at `db42e79a7` and 49 at `91966e3aa`. The git-publication admission identity (`tests/support/git-publication-native-evidence.sh:39-42`) already hashed three family modules the plan changed.
+  - Evidence: Plan 514 (`42717b7da:.planning/slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md`)'s premise row "No native shell fixture loads the family modules" inspected the native shell scripts and the owned-context fixture only. `tests/support/execution-worktree-prep-native-fixture.mjs` loaded the migrated worktree-preparation builders (story obligation G4), and `native-import-closure.mjs` on that journey's three modules lists 10 modules at `db42e79a7` and 49 at `91966e3aa`. The git-publication admission identity (`tests/support/git-publication-native-evidence.sh:39-42`) already hashed three family modules the plan changed.
   - Observed effect: The slice 5 implementer found the native journey's repository changed. A return restored it with verbatim pre-story builders; the retrospective still found MakeMe in that journey's import closure and planned a correction.
   - Inference: The journeys' hashed import closures, not shell sources, list what a native identity depends on; the premise needed that list.
 
@@ -435,7 +435,7 @@ A premise check that changes a fixture's hidden facts and reruns consumers finds
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
-  - Evidence: Plan 514's scratch premise changed `trunk.txt`, `increment.txt` and both identities and named 26 failing files. `plantHumanEdit` in `src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs` writes `trunk.txt` as "an unstaged change to a tracked file". Slice 1 and 2 descriptions without `trunk.txt` passed, so published `1f6adb33a` and `0b6bdb925` planted an untracked file in three test files (story obligation G1).
+  - Evidence: Plan 514 (`42717b7da:.planning/slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md`)'s scratch premise changed `trunk.txt`, `increment.txt` and both identities and named 26 failing files. `plantHumanEdit` in `src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs` writes `trunk.txt` as "an unstaged change to a tracked file". Slice 1 and 2 descriptions without `trunk.txt` passed, so published `1f6adb33a` and `0b6bdb925` planted an untracked file in three test files (story obligation G1).
   - Observed effect: Coordinator acceptance of slices 1 and 2 did not notice. The slice 3 implementer added a tracked-file guard that failed loudly and declared `trunk.txt` where needed.
   - Inference: Removing a fact under a writer needs a precondition check in the writer, or a break check that also asserts the writer's precondition; passing consumers alone do not show it.
 
@@ -449,5 +449,5 @@ Practice. The isolated source review numbers story commitments independently of 
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
-  - Evidence: Plan 514 kept `createCleanTrunkFixture` taking a description. Source-review commitment 31, from Key example 6, says "no non-native test calls `createCleanTrunkFixture`". The slice 5 obligations listing carried it, and the delegation stated that the source outranks the plan.
+  - Evidence: Plan 514 (`42717b7da:.planning/slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md`) kept `createCleanTrunkFixture` taking a description. Source-review commitment 31, from Key example 6, says "no non-native test calls `createCleanTrunkFixture`". The slice 5 obligations listing carried it, and the delegation stated that the source outranks the plan.
   - Observed effect: Slice 5 deleted the helper; `git grep createCleanTrunkFixture -- ':!.planning'` finds nothing.

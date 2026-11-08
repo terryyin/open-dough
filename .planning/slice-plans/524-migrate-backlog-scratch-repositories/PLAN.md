@@ -34,7 +34,8 @@ On 2026-11-08 the family was:
 Exclusions:
 
 - Skill tests under `src/skills` belong to
-  [clean-trunk and managed delivery](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures),
+  clean-trunk and managed delivery (completed
+  `SEED-262#migrate-clean-trunk-fixtures`),
   dashboard helpers to
   [dashboard start origins](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures),
   and shell or native fixtures, including the shell-driven
