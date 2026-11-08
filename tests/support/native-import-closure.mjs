@@ -27,7 +27,9 @@ while (pending.length > 0) {
   const file = pending.pop();
   if (seen.has(file)) continue;
   seen.add(file);
-  const source = readFileSync(file, "utf8");
+  // JSDoc import types support static checking and never load those modules
+  // when the native journey runs.
+  const source = readFileSync(file, "utf8").replace(/\/\*\*[\s\S]*?\*\//g, "");
   for (const pattern of [relativeImport, spawnedScript]) {
     for (const [, specifier] of source.matchAll(pattern)) {
       pending.push(join(dirname(file), specifier));

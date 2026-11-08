@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { divergedDoneBranches } from "../../../../tests/support/published-done-branches.mjs";
 import {
   assertCatalogDescribes,
@@ -63,9 +64,13 @@ test("Trunk Mode increment returns needs-validation when another writer advances
 
   const published = await publishExecutionIncrement({
     workspace: execution,
-    branch: "exec/story",
-    previouslyPublishedBase: trunkSha,
-    targetRef: trunkTarget,
+    ...makeMe.anIncrementPublication
+      .with({
+        branch: "exec/story",
+        previouslyPublishedBase: trunkSha,
+        targetRef: trunkTarget,
+      })
+      .please(),
     register: observer.register,
   });
 
@@ -103,9 +108,13 @@ test("Trunk Mode retains a multi-commit comparison before publishing its validat
 
   const published = await publishExecutionIncrement({
     workspace: execution,
-    branch: "exec/story",
-    previouslyPublishedBase: trunkSha,
-    targetRef: trunkTarget,
+    ...makeMe.anIncrementPublication
+      .with({
+        branch: "exec/story",
+        previouslyPublishedBase: trunkSha,
+        targetRef: trunkTarget,
+      })
+      .please(),
     register: observer.register,
     validate: async (candidate, context) => {
       validated.push({ candidate, ...context });
@@ -183,9 +192,13 @@ test("an unpublished candidate already on the advanced target refuses a no-op re
   await assert.rejects(
     publishExecutionIncrement({
       workspace: execution,
-      branch: "exec/story",
-      previouslyPublishedBase: trunkSha,
-      targetRef: trunkTarget,
+      ...makeMe.anIncrementPublication
+        .with({
+          branch: "exec/story",
+          previouslyPublishedBase: trunkSha,
+          targetRef: trunkTarget,
+        })
+        .please(),
       validate: async () => ({ ok: true }),
     }),
     /rebase left the pre-rebase SHA as the candidate/,
@@ -199,9 +212,13 @@ test("Trunk Mode increment replays a suffix changing only done records through t
 
   const published = await publishExecutionIncrement({
     workspace: execution,
-    branch: "exec/story",
-    previouslyPublishedBase: publishedBase,
-    targetRef: trunkTarget,
+    ...makeMe.anIncrementPublication
+      .with({
+        branch: "exec/story",
+        previouslyPublishedBase: publishedBase,
+        targetRef: trunkTarget,
+      })
+      .please(),
     register: () => {},
     validate: async () => ({ ok: true }),
   });

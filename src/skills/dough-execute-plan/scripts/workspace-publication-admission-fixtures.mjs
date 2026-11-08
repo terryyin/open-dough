@@ -7,6 +7,8 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { recordPreparationArgs } from "../../../../tests/support/story-preparation.mjs";
 import { exec, git, revParse } from "./publication-test-fixtures.mjs";
 import { parseBacklog } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import { recordStoryState } from "../../dough-product-backlog/scripts/product-backlog-story-state.mjs";
@@ -34,15 +36,12 @@ export function sectionText(source, anchor, next) {
 // Records preparation facts only, as the record-state operation does; no
 // assessment is recorded.
 export function withFacts(source, href, identity, approach, plan) {
+  const preparation = makeMe.aStoryPreparation
+    .with({ refinement: "refined", approach, ...(plan ? { plan } : {}) })
+    .please();
   return recordStoryState(
     source,
-    {
-      href,
-      identity,
-      refinement: "refined",
-      approach,
-      ...(plan ? { plan } : {}),
-    },
+    { href, identity, ...preparation },
     plan ? { planSource: "" } : {},
   ).source;
 }
@@ -156,30 +155,21 @@ export async function publishPlannedPreparation(
         join(clone, backlogFile),
       ])
     ).stdout;
-  const planned = [
-    "record-state",
-    "--identity",
-    identity,
-    "--link",
-    link,
-    "--refinement",
-    "refined",
-    "--approach",
-    "planned",
-    "--plan",
-    planHref,
-  ];
-  await record(...planned);
+  const story = { identity, href: link };
+  const planned = makeMe.aStoryPreparation
+    .with({ refinement: "refined", approach: "planned", plan: planHref })
+    .please();
+  await record(...recordPreparationArgs(story, planned));
   if (ready) {
-    const { basis } = JSON.parse(await record("read-state", "--link", link));
+    const { basis } = JSON.parse(
+      await record("read-state", "--link", story.href),
+    );
     await record(
-      ...planned,
-      "--assessment",
-      "ready",
-      "--expect-document",
-      basis.document,
-      "--expect-plan",
-      basis.plan,
+      ...recordPreparationArgs(story, {
+        ...planned,
+        assessment: "ready",
+        expectedBasis: basis,
+      }),
     );
   }
   await git(clone, "add", ".planning");

@@ -279,7 +279,8 @@ and a 302.374-second remaining deadline, the local run passed all 198 case
 IDs across 61 specs in 117.69 seconds. The selection matches the hosted
 report, including its 20 unfinished IDs. Exact commands, retained report,
 and consumer dispositions are under
-`/tmp/od-seed261-ci-42440063442-QohM3B`. Hosted CI still owes the timing proof.
+`/tmp/od-seed261-ci-42440063442-QohM3B`. Hosted runs `42441212675` on the
+repair and `42442231575` on slice 5 passed.
 The independent repair refactor found no edits necessary. The lint setup
 check is platform-skipped on macOS and remains covered by Linux CI.
 
@@ -374,6 +375,8 @@ in their specs and shared branch publication setup between polling and
 streaming. Seven affected Playwright tests, eleven byte comparisons,
 dashboard type-check, and the evidence identity check passed on the refactored
 candidate. Proof and dispositions are under `/tmp/od-seed261-refactor6`.
+Branch run `42443827128` was cancelled when the next increment queued
+`42444843510`. Its finished inventory had no failed jobs.
 
 ### 7. Completing work leaves a durable done record
 Type: Behavior
@@ -419,7 +422,7 @@ assertions remain in effect. Dispositions are under `/tmp/od-seed261-refactor7`.
 
 ### 8. Review separates the story's published changes from trunk and local edits
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 6. Run `story-review-trunk-own-changes.spec.ts`, `story-review-trunk-worktree.spec.ts`, `execution-increment-publication-base-identity.test.mjs`, and affected worktree review, admission and reconciliation consumers. Check the selected files, comparison base and exclusion of unrelated trunk commits.
 
 Convert arranged story, branch and publication facts in the
@@ -427,6 +430,44 @@ Convert arranged story, branch and publication facts in the
 and supporting review and publication cases. Let actual commits and refs
 establish provenance and ancestry. Retain the deliberate edits, collisions,
 operations and assertions in the scenarios.
+
+Accepted proof on the macOS execution checkout:
+
+```zsh
+export PATH="/opt/homebrew/bin:$PATH"
+dough_slice8_dir=/tmp/od-seed261-slice8-PIgnqt
+checks=( "${(@f)$(< "$dough_slice8_dir/node-and-shell.txt")}" )
+specs=( "${(@f)$(< "$dough_slice8_dir/specs.txt")}" )
+npm run typecheck:dashboard
+OPEN_DOUGH_TEST_JOBS=2 OPEN_DOUGH_TEST_OUTCOMES="$dough_slice8_dir/node-outcomes.tsv" \
+  caffeinate -s -i bash scripts/test.sh "${checks[@]}"
+OPEN_DOUGH_TEST_JOBS=2 OPEN_DOUGH_TEST_OUTCOMES="$dough_slice8_dir/node-rerun-outcomes.tsv" \
+  caffeinate -s -i bash scripts/test.sh \
+  tests/native-evidence-identity.sh tests/git-publication-native-admission.sh \
+  tests/delivery-evidence-native-routing.sh
+OPEN_DOUGH_DASHBOARD_PROOF_RECORD="$dough_slice8_dir/dashboard-proof.json" \
+  caffeinate -s -i npm run test:dashboard -- "${specs[@]}"
+GIT_AUTHOR_DATE=2026-11-08T10:00:00Z GIT_COMMITTER_DATE=2026-11-08T10:00:00Z \
+  node --experimental-transform-types "$dough_slice8_dir/compare-fixtures.mjs" \
+  "$dough_slice8_dir/prior" "$PWD"
+git diff --check
+```
+
+The combined results cover 40 passing Node and shell jobs after correcting
+JSDoc-only import traversal in the native evidence helper. All 17 browser
+tests passed. The fixed-date comparison checks actual Git history,
+parent IDs, author details, branch and trunk tips, merge bases, published
+record bytes, and local edits for zero, one, and two published commits.
+The review tests select the expected published and local files and exclude
+unrelated trunk changes. G5 admission and Ready publication bytes match.
+Native admission hashes the loaded fixture dependencies and the identity
+check observes those hashes. Results and dispositions are under
+`/tmp/od-seed261-slice8-PIgnqt`.
+
+The independent refactor consolidated the evidence identity input assertions
+and kept each hash and counterexample. The exact native evidence identity
+job passed again. Its dispositions are in
+`/tmp/od-seed261-refactor8-consumer-trace-with-dispositions.md`.
 
 ### 9. Completed review retains the comparison from accepted publication
 Type: Behavior
@@ -489,7 +530,7 @@ Disposition: proved by slice 7: revisionReuseOrigin.ts uses the preparation writ
 ### G5. Admission and review include preparation facts
 Reported: slice 3 — "workspace-publication-admission-fixtures.mjs withFacts still arranges preparation within its admission setup."
 Story clause: "In mixed cases, convert the published facts here and verify the existing journey."
-Disposition: receiving slice 8
+Disposition: proved by slice 8: withFacts uses MakeMe and the real preparation writer, fixed-date admission publication bytes match, and startup and admission checks passed
 
 ### G6. Dependency setup still supplies a legacy fixture field
 Reported: slice 3 — "The Node preparation adapter still accepts link from the mixed dependency and supplier fixtures."

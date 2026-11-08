@@ -65,8 +65,8 @@ The numbered return is retained below.
 | Q06 | When a native scenario changes its arranged input, update its evidence inputs. | slice 9 |  |
 | Q07 | In mixed cases, convert the published facts in this story. | slice 9 |  |
 | Q08 | In mixed cases, verify the existing journey. | slice 9 |  |
-| Q09 | This story owns the published work facts arranged by the Git fixtures. | slice 8 |  |
-| Q10 | The existing harness can be used where the shared Git materializer is unavailable. | slice 8 |  |
+| Q09 | This story owns the published work facts arranged by the Git fixtures. | slice 8 | observed: storyReviewTrunkMode.ts and the execution-increment publication cases arrange canonical backlog, branch and publication facts, then supply them to the existing Git harnesses. |
+| Q10 | The existing harness can be used where the shared Git materializer is unavailable. | slice 8 | observed: storyReviewTrunkMode.ts and workspace-publication-admission-fixtures.mjs retain the current Git checkout/commit harness; fixed-date parity observes the same real history. |
 | X01 | Machine-local configuration belongs to later conversion stories. | slice 9 |  |
 | X02 | Workspace state belongs to later conversion stories. | slice 9 |  |
 | X03 | Session state belongs to later conversion stories. | slice 9 |  |
@@ -112,11 +112,11 @@ The numbered return is retained below.
 | J5.01 | Completing a Taken item through the product command leaves a durable done record. | slice 7 | observed: product-backlog-complete-done-record.test.mjs invokes the real complete command, asserts Taken removal, and reads the separately checked durable JSON record; Git replay checks the committed catalog. |
 | J5.02 | A later read still shows the work after the plan or assignment has been removed. | slice 7 | observed: product-backlog-complete-done-record.test.mjs checks that both assignment profiles are released before reading the record; authenticated-read-done-catalog.spec.ts verifies later revision-specific reads and Recently done observes the completed title. |
 | J5.03 | A later read still shows its recorded attribution after the plan or assignment has been removed. | slice 7 | observed: product-backlog-complete-done-record.test.mjs independently checks the credited execution agent and developer after both releases, and recently-done-stories.spec.ts checks published title, time, developer, agent and host from the done record. |
-| J6.01 | A reviewed story has published work. | slice 8 |  |
-| J6.02 | Another author’s trunk commit is present alongside that work. | slice 8 |  |
-| J6.03 | An unpublished worktree edit is present alongside that work. | slice 8 |  |
-| J6.04 | Review selects the story’s published changes. | slice 8 |  |
-| J6.05 | Review distinguishes local changes. | slice 8 |  |
-| J6.06 | Git establishes the revisions the test checks. | slice 8 |  |
-| J6.07 | Git establishes the ancestry the test checks. | slice 8 |  |
+| J6.01 | A reviewed story has published work. | slice 8 | observed: story-review-trunk-own-changes.spec.ts starts with published story commits and asserts their files are selected. |
+| J6.02 | Another author’s trunk commit is present alongside that work. | slice 8 | observed: storyReviewTrunkMode.ts writes the other author’s trunk work, and the fixed-date comparison checks its author and ancestry. |
+| J6.03 | An unpublished worktree edit is present alongside that work. | slice 8 | observed: story-review-trunk-own-changes.spec.ts includes a local uncommitted file, then commits unpublished work and observes both forms distinctly. |
+| J6.04 | Review selects the story’s published changes. | slice 8 | observed: story-review-trunk-own-changes.spec.ts checks exact file rows and published lines, excludes unrelated trunk files, and checks the baseline less the story commits. |
+| J6.05 | Review distinguishes local changes. | slice 8 | observed: story-review-trunk-worktree.spec.ts checks the unpublished commit and untracked file in the worktree view and their relation to the published view. |
+| J6.06 | Git establishes the revisions the test checks. | slice 8 | observed: execution-increment-publication-base-identity.test.mjs exercises Git-resolved full and abbreviated bases and independently verifies receipt and candidate revision. |
+| J6.07 | Git establishes the ancestry the test checks. | slice 8 | observed: story-review-trunk-own-changes.spec.ts verifies real merge-base with no publication; execution-increment-publication-base-identity.test.mjs checks a candidate reconciles on the fetched trunk commit. |
 | J6.08 | After Story Branch integration retires its workspace, review from the done card still uses the comparison pair recorded at landing. | slice 9 |  |
