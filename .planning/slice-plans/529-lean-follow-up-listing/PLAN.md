@@ -7,8 +7,9 @@
 ## Provenance
 
 Execution retrospective of
-[SEED-273#follow-up-from-done](../../seeds/SEED-273-follow-up-from-done.md#follow-up-from-done)
-(plan 526), reviewed commits `c91e02264` (slice 1), `23141b5ab` (slice 2) and
+SEED-273#follow-up-from-done (story and plan 526 recoverable at `c6e935c28`:
+`.planning/seeds/SEED-273-follow-up-from-done.md` and
+`.planning/slice-plans/526-follow-up-from-done/PLAN.md`), reviewed commits `c91e02264` (slice 1), `23141b5ab` (slice 2) and
 `0c793f770` (slice 3) on `claude/start-a-follow-up-from-recently-done-work`,
 base `9a343c59f`.
 
