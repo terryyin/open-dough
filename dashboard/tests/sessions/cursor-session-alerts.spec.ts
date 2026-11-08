@@ -21,7 +21,7 @@ import {
   cursorQuestion,
   cursorState,
 } from "../support/cursorSessionReading.ts";
-import { completionReport } from "../support/completionReport.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { waitUntil } from "../support/waitUntil.ts";
 
 // Let the 100 ms alert loop observe re-arming before changing the screen again.
@@ -229,7 +229,7 @@ test("a finished Cursor record the runner does not hold stays unknown with no cl
     await server.close();
     rewriteKeptCursor(server.home, (record) => ({
       ...record,
-      completion: completionReport(),
+      completion: makeMe.aCompletionReport.saying("").please(),
     }));
     server = await startCursorDashboard({ mode: "boundary" }, cursor, machine, {
       alertCheckMs: 100,

@@ -6,7 +6,7 @@
 // ../../tests/sessions/sessions-sidebar.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { completionReport } from "../../tests/support/completionReport.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
 import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";
 import {
@@ -58,9 +58,9 @@ test("Cursor held working counts; held waiting does not; done while still workin
 test("an unread report on a working session still counts, and one is singular", () => {
   const workingUnread = {
     ...available("working"),
-    completion: completionReport({
-      message: "Published. Reminder: check the migration.",
-    }),
+    completion: makeMe.aCompletionReport
+      .saying("Published. Reminder: check the migration.")
+      .please(),
   };
   expect(workingCount([workingUnread])).toBe(1);
   expect(workingWords(1)).toBe("1 session working");

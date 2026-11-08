@@ -5,7 +5,7 @@ import { expect, stored } from "./codexLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { retained, report, save, keepFinalReport } from "./retainedReport.ts";
-import { completionReport } from "./completionReport.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { storyCardSessions } from "../dashboardPage.ts";
 import { notRefinedStory, type StoryColumnsJourney } from "../launchJourney.ts";
 import { pageColumnProjectValue } from "../pageLayout.ts";
@@ -31,10 +31,10 @@ export async function openUnfinishedReport(
   const { record, workspace } = await retained(dashboard, native);
   keepFinalReport(native, workspace, text);
   record.request.title = title;
-  record.completion = completionReport({
-    outcome: "unfinished",
-    message: "Keep the remaining steps open.",
-  });
+  record.completion = makeMe.aCompletionReport
+    .withOutcome("unfinished")
+    .saying("Keep the remaining steps open.")
+    .please();
   record.reportRead = record.completion.receipt;
   save(dashboard.home, [record]);
   const since = native.calls.length;

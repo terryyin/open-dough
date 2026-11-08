@@ -14,6 +14,7 @@ import {
 } from "../preparingJourney.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
 import { keepLaunchRecords } from "./storyLaunchRecord.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { collectAuthenticatedReads } from "./historicalCreditReads.ts";
@@ -127,13 +128,10 @@ export async function openSessionAttributionBoard(
       sessionId: matchingId,
       shortId: matchingId.slice(0, 8),
     },
-    completion: {
-      receipt: "44444444-aaaa-4bbb-8ccc-000000000005",
-      reference: "44444444-aaaa-4bbb-8ccc-000000000006",
-      outcome: "completed",
-      message: "Ready for slice planning",
-      receivedAt: new Date().toISOString(),
-    },
+    completion: makeMe.aCompletionReport
+      .saying("Ready for slice planning")
+      .receivedAt(new Date().toISOString())
+      .please(),
   };
   await keepLaunchRecords(dashboard, [record, legacy, unreadable, matching]);
   execFileSync("git", [

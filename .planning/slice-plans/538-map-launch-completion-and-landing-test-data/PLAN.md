@@ -2,6 +2,7 @@
 
 **Identity:** SEED-261#map-launch-completion-and-landing-test-data
 **Source:** [Refined story](../../seeds/SEED-261-share-domain-test-data.md#map-launch-completion-and-landing-test-data)
+**Source review:** [source review](source-review.md)
 
 ## Goal and boundaries
 
@@ -102,7 +103,7 @@ Hosted CI follows the selected execution mode.
 
 ### 1. Session views read completion and Done as separate facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 1. Run `npm run test:dashboard -- 'backend-tests/sessions/(done-question-rule|session-unread-rule|session-working-count-rule|final-report-(admission|codex))\.spec\.ts$' 'dashboard/tests/sessions/(final-report-touch[^/]*|session-unread-report[^/]*|session-workspace-retirement[^/]*|agent-launch-retained-history|session-attribution|cursor-session-(alerts|recovery))\.spec\.ts$'`.
 
 A record has a read report. When the view receives a later report, its new
@@ -113,6 +114,16 @@ disposition setup, including `completionReport`, the completion portions of
 Keep explicit report text and the Codex protocol history in the cases that
 test their content or interpretation. Leave live-state construction and
 store-writer ownership with the sibling conversions.
+
+Accepted proof: the slice selection passed 61 tests and the affected callers
+(`agent-completion-binding`, `agent-launch-sessions-listing`,
+`agent-launch-done-listing`) passed 8, with the opt-in replay measurement
+skipped. `npm run typecheck:dashboard` passed. A scratch comparison showed
+existing `aLaunchRecord` chains build byte-identical records. `completionReport.ts`
+is deleted; `makeMe.aCompletionReport` and the shared `LaunchOutcomeBuilder`
+(`completedWith` receipt and receipt time, `withReportRead`) replace it. Cases
+reading two reports state distinct receipts. `agent-completion-binding.spec.ts`
+already uses the builder for its completion, which slice 2 reuses.
 
 ### 2. Completion delivery retains its receipt across binding and recovery
 Type: Behavior

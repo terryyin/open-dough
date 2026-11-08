@@ -11,7 +11,7 @@ import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { parts } from "../dashboardPage.ts";
-import { completionReport } from "../support/completionReport.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   agentCalls,
   expectNormalizedReading,
@@ -199,10 +199,10 @@ test("done and completed sessions offer no Recover", async ({
       "open-dough": [
         {
           ...record,
-          completion: completionReport({
-            outcome: "completed",
-            message: "Finished with attention",
-          }),
+          completion: makeMe.aCompletionReport
+            .withOutcome("completed")
+            .saying("Finished with attention")
+            .please(),
         },
       ],
     }),

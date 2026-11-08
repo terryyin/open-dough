@@ -11,7 +11,7 @@ import { promisify } from "node:util";
 import { existsSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { completionReport } from "../../tests/support/completionReport.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { storedRecords } from "../../tests/machineLaunchRecords.ts";
 import {
   accept,
@@ -218,7 +218,7 @@ for (const quiet of [false, true])
 test("binding preserves a quiet completion carried by a legacy record without a reporting attempt", async () => {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-legacy-completion-"));
   try {
-    const completion = completionReport();
+    const completion = makeMe.aCompletionReport.saying("").please();
     const record: LaunchRecord = {
       request: {
         source: "open-dough",

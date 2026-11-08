@@ -17,6 +17,7 @@ import {
   type LaunchAttemptRecord,
   type LaunchRecord,
 } from "../../src/agentLaunch.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { replayProjectIds } from "./sessionsReplayProjects.ts";
 import { commitOf, indices, prose, uuidOf } from "./sessionsReplayValues.ts";
 
@@ -133,14 +134,15 @@ function recordAt(
     ...(open
       ? {}
       : {
-          completion: {
-            delivery: uuidOf(`completion-delivery:${String(index)}`),
-            receipt: uuidOf(`completion-receipt:${String(index)}`),
-            reference: uuidOf(`reporting:${String(index)}`),
-            outcome: "completed" as const,
-            message: prose(`message:${String(index)}`, 560),
-            receivedAt: at(45 * minute),
-          },
+          completion: makeMe.aCompletionReport
+            .saying(prose(`message:${String(index)}`, 560))
+            .withReceipt(uuidOf(`completion-receipt:${String(index)}`))
+            .reportedFor({
+              reference: uuidOf(`reporting:${String(index)}`),
+              delivery: uuidOf(`completion-delivery:${String(index)}`),
+            })
+            .receivedAt(at(45 * minute))
+            .please(),
           landing,
           landingReporting: {
             origin,

@@ -9,7 +9,7 @@ import {
   retained,
   save,
 } from "../../tests/support/retainedReport.ts";
-import { completionReport } from "../../tests/support/completionReport.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -30,10 +30,16 @@ test("final report admission refuses unknown projects, unrecorded or wrong-host 
         shortId: "claude-r",
         name: record.session.name,
       },
-      completion: completionReport({ message: attention }),
+      completion: makeMe.aCompletionReport
+        .saying(attention)
+        .withReceipt("aaaaaaaa-0000-4000-8000-000000000001")
+        .please(),
     },
   ]);
-  const cursorCompletion = completionReport({ message: attention });
+  const cursorCompletion = makeMe.aCompletionReport
+    .saying(attention)
+    .withReceipt("aaaaaaaa-0000-4000-8000-000000000002")
+    .please();
   const cursorSessionId = "22222222-2222-4222-8222-222222222222";
   const cursorEmptySessionId = "33333333-3333-4333-8333-333333333333";
   const cursorAbsentSessionId = "44444444-4444-4444-8444-444444444444";
@@ -65,7 +71,10 @@ test("final report admission refuses unknown projects, unrecorded or wrong-host 
   save(dashboard.home, [
     ...stored(dashboard.home),
     cursorRecord(cursorSessionId, cursorCompletion),
-    cursorRecord(cursorEmptySessionId, completionReport({ message: "" })),
+    cursorRecord(
+      cursorEmptySessionId,
+      makeMe.aCompletionReport.saying("").please(),
+    ),
     cursorRecord(cursorAbsentSessionId, undefined),
     cursorWithClosure,
   ]);

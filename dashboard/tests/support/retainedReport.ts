@@ -14,7 +14,7 @@ import { expect, stored } from "./codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { codexAttaches } from "./codexTerminal.ts";
-import { completionReport } from "./completionReport.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
@@ -102,7 +102,7 @@ export async function recordedClaude(
     "claude/retired",
     "Missing Claude launch",
   );
-  record.completion = completionReport({ message });
+  record.completion = makeMe.aCompletionReport.saying(message).please();
   dashboard.claudeSessionBecomes(record.session.sessionId, "done-exited");
   save(dashboard.home, [record]);
   return { record, workspace };
@@ -130,7 +130,7 @@ export async function recordedCursor(
       args: ["cursor-agent", "--workspace", workspace, "--resume", sessionId],
     },
   };
-  record.completion = completionReport({ message });
+  record.completion = makeMe.aCompletionReport.saying(message).please();
   save(dashboard.home, [record]);
   return { record, workspace };
 }

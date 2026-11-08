@@ -1,11 +1,10 @@
 // @ts-check
-import { launchOutcomeFacts } from "./launchOutcomeTestData.mjs";
+import { LaunchOutcomeBuilder } from "./launchOutcomeTestData.mjs";
 import {
   isolatedWorkspaceFacts,
   storyBranchFacts,
 } from "./launchWorkspaceTestData.mjs";
 
-/** @typedef {import("./launchOutcomeTestData.mjs").LaunchOutcome} LaunchOutcome */
 /**
  * A launch the dashboard's machine store keeps, as the store holds it.
  * @typedef {import("../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord
@@ -29,8 +28,9 @@ import {
 // (`./launchWorkspaceTestData.mjs`). Without `.onStoryBranch(...)` the
 // record keeps no established start or preparation. The session defaults to
 // a `claude` one named after the title, the start's claim to fixed published
-// facts, and the launch time to a fixed instant.
-export class LaunchRecordBuilder {
+// facts, and the launch time to a fixed instant. What the launch recorded
+// after it started comes from `LaunchOutcomeBuilder`.
+export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
   /** @type {(Required<StoryFacts> & { workflow: "execution" | "refinement" }) | (AdHocFacts & { source: string, workflow: "ad-hoc" }) | undefined} */
   #requested;
   /** @type {{ workspace: string, branch: string } | undefined} */
@@ -42,8 +42,6 @@ export class LaunchRecordBuilder {
   #firstInput;
   /** @type {{ workspace: string, branch: string } | undefined} */
   #isolated;
-  /** @type {LaunchOutcome} */
-  #outcome = {};
 
   /**
    * An execution launch of the story, in the `open-dough` project unless
@@ -156,34 +154,6 @@ export class LaunchRecordBuilder {
     return this;
   }
 
-  /**
-   * The session reported its completion, with this final report message
-   * (empty for a quiet completion).
-   * @param {{ message: string, outcome?: "completed" | "unfinished" }} report
-   */
-  completedWith({ message, outcome = "completed" }) {
-    this.#outcome = { ...this.#outcome, completion: { message, outcome } };
-    return this;
-  }
-
-  /**
-   * The session's work landed on `main` at this revision.
-   * @param {string} revision a 40-character commit id
-   */
-  landedAt(revision) {
-    this.#outcome = { ...this.#outcome, landedRevision: revision };
-    return this;
-  }
-
-  /**
-   * The developer marked the session Done at this time.
-   * @param {string} at an ISO date-time
-   */
-  markedDoneAt(at) {
-    this.#outcome = { ...this.#outcome, doneAt: at };
-    return this;
-  }
-
   /** @returns {LaunchRecord} */
   please() {
     const requested = this.#requested;
@@ -211,7 +181,7 @@ export class LaunchRecordBuilder {
     const launchFacts = {
       launchedAt: this.#launchedAt,
       ...(this.#firstInput && { firstInput: this.#firstInput }),
-      ...launchOutcomeFacts(this.#outcome, this.#launchedAt),
+      ...this.outcomeFacts(this.#launchedAt),
     };
     if (requested.workflow === "ad-hoc")
       return {

@@ -5,7 +5,7 @@
 // record; the page journeys are ./agent-launch-done-question*.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { completionReport } from "../../tests/support/completionReport.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { stillWorking, waitingForInput } from "../../tests/support/markDone.ts";
 import type { CompletionReport } from "../../src/completionReport.ts";
 import type { SessionState } from "../../src/launchRecord.ts";
@@ -79,7 +79,11 @@ for (const { reading, sessionState, outcome, says } of cases) {
         sessionState,
         ...(outcome === undefined
           ? {}
-          : { completion: completionReport({ outcome }) }),
+          : {
+              completion: makeMe.aCompletionReport
+                .withOutcome(outcome)
+                .please(),
+            }),
       }),
     ).toBe(says);
   });
