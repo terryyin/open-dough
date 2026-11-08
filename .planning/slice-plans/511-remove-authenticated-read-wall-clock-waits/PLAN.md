@@ -253,6 +253,18 @@ cooldown pause are gone. The next cadence is also advanced by the test.
 The remaining elapsed time includes actual request, diagnostic and fixture
 work. Overall timing is a single comparison under different loads.
 
+Repository-wide `caffeinate -s -i npm run lint` passed after delivery of
+`fd9248ac070df2dd22a9046f937ff6f9ece03d02` to the story branch.
+
+## Execution complete
+
+Product advice: no change. The retained tests preserve the published-read
+boundary and prove cadence, shutdown, settlement and cooldown through
+observed events and test-controlled time. The bounded timing comparison
+supports the gain in those cases under
+[ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+The existing polling and fixture-cost stories already own the broader work.
+
 ## Plan concerns
 
 Slice-plan refinement was unnecessary. The stream cases share one

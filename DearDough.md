@@ -551,6 +551,15 @@ Former local code: DD-404.
 
 [Evidence and current response](docs/maintainer/findings/ODF-396.md).
 
+### Occurrences
+
+- Execution: SEED-262#remove-authenticated-read-wall-clock-waits (plan 511, first implementation `583e29298cab6a1b02456ba80d26198d49d960bd`)
+  - Timestamp: unknown (2026-11-08)
+  - Tool: Codex
+  - Open Dough release: unknown (installed guidance at Take `91fef53a4ae9023f75d3682baf3dc1515b1e7acb`)
+  - Evidence: the Slice 1 trace against the Take included the in-progress plan and source review. Of 539 consumer rows, 417 named the derived `PLAN.md` or `source-review.md` terms even though the change affected test fixtures.
+  - Observed effect: the initial trace read was truncated at 42,248 original tokens. Targeted reads accounted for the affected callers and dispositions.
+
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 
 Former local code: DD-405.
