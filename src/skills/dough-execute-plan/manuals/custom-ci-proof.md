@@ -70,3 +70,47 @@ The comparison keeps the build visible and shows the reason when its
 summary is missing, invalid or ambiguous. Valid summaries are remembered
 by attempt for the dashboard process. An attempt with no valid summary can
 be read again when the view next asks for its proof.
+
+## Job graph reads
+
+Intent's story comparison can show CI time without runner waits for each
+selected completed endpoint. The dashboard asks the adapter for that attempt's
+job graph. This optional `jobs` operation uses the same request shape as
+`proof`, with the listing branch, string IDs and full revision.
+
+```json
+{
+  "operation": "jobs",
+  "check": { "repo": "OWNER/REPO", "branch": "BRANCH" },
+  "attempt": {
+    "runId": "pipeline/opaque-id",
+    "attemptId": "try:opaque-id",
+    "sha": "FULL_PUSHED_COMMIT_SHA"
+  }
+}
+```
+
+Answer with the selected attempt's job graph or the reason it is unavailable.
+
+```json
+{
+  "jobs": [
+    { "id": "build", "durationMs": 30000, "needs": [] },
+    { "id": "test-a", "durationMs": 40000, "needs": ["build"] },
+    { "id": "test-b", "durationMs": 60000, "needs": ["build"] }
+  ]
+}
+```
+
+```json
+{ "unavailable": "no job graph retained for this attempt" }
+```
+
+Each job has a unique nonempty `id`, a finite nonnegative `durationMs` of
+measured execution excluding runner and queue waits, and `needs` containing
+the IDs of jobs it waited for. Use an empty `needs` array for independent jobs.
+Report each matrix or shard instance as its own job and use `durationMs` 0
+for jobs skipped by a failed attempt. Intent measures the longest dependency
+chain, which is 90 seconds in the example. The dashboard makes this read only
+for story comparisons. The same 20-second and 64 KiB limits apply as for
+`proof`. An ambiguous attempt ID at the revision skips the read.

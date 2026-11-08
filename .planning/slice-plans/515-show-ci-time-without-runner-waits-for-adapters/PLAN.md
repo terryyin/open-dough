@@ -3,6 +3,18 @@
 **Identity:** SEED-266#show-ci-time-without-runner-waits-for-adapters
 
 **Source:** [Show CI time without runner waits for custom adapters](../../seeds/SEED-266-ci-job-timing-from-adapters.md#show-ci-time-without-runner-waits-for-adapters)
+**Source review:** [Independent review and commitment allocations](source-review.md)
+
+## Execution
+
+- Story Branch Mode. Workspace and branch are the established launch for
+  publisher `dashboard-territory.local-open-dough` and agent `ealden-chan`.
+- Starting revision `cea225ef4e516634d878959551bc02939ce0b6b0`. Claim and
+  first delivery base `e3d3be9a05f9d63b8c85b756aa4c8736951a1175` on
+  `origin/main` and `origin/codex/show-ci-time-without-runner-waits-for-custom-ada`.
+- GitHub Actions `ci.yml`, display name CI. Codex observer `ealden-chan`
+  watches the story branch with directory `/tmp/dough-ci-501/watch-99xKOo`,
+  PID 16410, session 28496 and cell `g79:7`.
 
 ## Goal and boundaries
 
@@ -18,6 +30,10 @@ adapters need not implement `jobs`. GitHub Actions keeps its workflow-file
 and job-API calculation.
 
 ## Current decisions
+
+- [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+  keeps the timing and its proof in Intent. Use the existing comparison path
+  and assimilate the lasting behavior in its product documentation.
 
 - **A separate `jobs` operation, documented beside `proof`.** The observer
   polls `discover` often; a job graph can cost a provider extra queries per
@@ -94,13 +110,16 @@ Hosted CI runs the full suites after publication; no full local suite is
 required because the change stays inside the comparison read, the adapter
 runner and its fixture.
 
+The Node timing baseline is `bash scripts/ci-test-times.sh src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs`.
+The existing attempt-read test job and all three shares had wide headroom.
+
 ## Slices
 
 ### 1. An adapter's job graph gives the endpoint's CI time without runner waits
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: seed examples 1–3 and the unchanged GitHub calculation, as mapped above.
 
@@ -113,6 +132,19 @@ cannot be named. Includes
 the shared longest-chain rule, `readCommandJobs`, the lookup wiring, the
 fixture's `jobs` answers and request reader, and the contract section with
 the Intent doc sentence.
+
+Accepted proof: see [the source review](source-review.md) for each observation.
+Under the local gate wrapper with two workers, the planned Playwright
+selection passed 62 of 63 tests. The valid Landed case expected two proof
+counts where the table shows three. Its corrected assertion passed in a
+focused run of all three adapter comparison cases. All six command-adapter
+Node files, the dashboard adapter proof and revision lookup Node files,
+dashboard typecheck, and the payload declaration link check passed.
+Independent refactoring consolidated the command request for a named attempt
+and moved comparison setup to `landedAdapterComparisonAnswers` in
+`dashboard/tests/support/storyCiComparisonAdapterAnswers.ts`. Assertions
+stayed in the comparison spec. Its three cases, the affected adapter and
+host-bridge Node checks, typecheck, and the payload link check passed again.
 
 ### 2. Unavailable job graphs explain themselves without hiding the build
 
@@ -138,3 +170,17 @@ slice 2 names it). No slice-specific concern remains.
 
 Accepted interim behavior: until slice 2, an adapter graph that slice 2
 would reject may show a less specific reason. Slice 2 replaces it.
+
+## Story obligations
+
+### G1. Generic timing failure reasons
+
+Reported: slice 1 — "Invalid graphs and failed adapter reads can return a generic reason."
+Story clause: "as `proof` failures are reported"
+Disposition: interim until slices 2
+
+### G2. Deadline after endpoint selection
+
+Reported: slice 1 — "When the comparison deadline expires after endpoint selection but during the optional graph read, the timing reason must preserve the selected build and its wall time and proof."
+Story clause: "The endpoint's wall time and proof stay shown."
+Disposition: receiving slice 2

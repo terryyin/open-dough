@@ -87,6 +87,17 @@ for (const mode of ["story-branch", "trunk"] as const) {
       ),
     );
     expect(adapter.discoverRequests()).toHaveLength(branch === "main" ? 1 : 2);
+    expect(adapter.jobsRequests()).toEqual([
+      {
+        operation: "jobs",
+        check: { repo: "terryyin/open-dough", branch: "main" },
+        attempt: {
+          runId: "baseline",
+          attemptId: "before",
+          sha: setup.baseline,
+        },
+      },
+    ]);
 
     answer([ancestor, running]);
     const { panel } = await selectTakenStoryForCiComparison(page);

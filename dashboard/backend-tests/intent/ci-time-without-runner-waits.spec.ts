@@ -1,11 +1,31 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { timeWithoutRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
+import {
+  timeWithoutAdapterRunnerWaits,
+  timeWithoutRunnerWaits,
+} from "../../server/ciTimeWithoutRunnerWaits.ts";
 import { comparisonWorkflow } from "../../tests/support/storyCiComparisonFixture.ts";
 import {
   observedBaselineJobs,
   observedBranchJobs,
   observedRerunJobs,
 } from "../../tests/support/storyCiObservedJobs.ts";
+
+test("the adapter graph counts the longest chain regardless of job order", () => {
+  const jobs = [
+    makeMe.aCiTimingJob
+      .withTiming({ id: "test-a", durationMs: 40_000, needs: ["build"] })
+      .please(),
+    makeMe.aCiTimingJob
+      .withTiming({ id: "test-b", durationMs: 60_000, needs: ["build"] })
+      .please(),
+    makeMe.aCiTimingJob
+      .withTiming({ id: "build", durationMs: 30_000 })
+      .please(),
+  ];
+
+  expect(timeWithoutAdapterRunnerWaits(jobs)).toEqual({ milliseconds: 90_000 });
+});
 
 test("the observed builds count the longest dependency chain despite different runner waits", () => {
   expect(

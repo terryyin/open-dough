@@ -2,6 +2,11 @@
 // MakeMe: the one entry point for domain data that tests arrange. Each
 // `makeMe.aThing` access starts a fresh builder; its named methods state the
 // facts that drive the case and `.please()` returns the product value.
+import {
+  CiAdapterAttemptBuilder,
+  CiTimingJobBuilder,
+} from "./ciTimingTestData.mjs";
+
 /**
  * The facts a published agent profile records, as `renderAgentProfile` takes
  * them.
@@ -226,5 +231,11 @@ export const makeMe = {
   },
   get aDoneRecord() {
     return new DoneRecordBuilder();
+  },
+  get aCiTimingJob() {
+    return new CiTimingJobBuilder();
+  },
+  get aCiAdapterAttempt() {
+    return new CiAdapterAttemptBuilder();
   },
 };
