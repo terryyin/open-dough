@@ -148,3 +148,9 @@ Slice-plan refinement was not needed. The Structure slice isolates the
 legacy-preserving model change before the one new behavior, and every new
 promise consumes that one rule in a single proof loop. No slice-specific
 concerns remain.
+
+## Execution complete
+
+Product advice: no change. Intent now reads project-declared `sources`;
+Donut's SEED-109 owns registering its `scripts` location and publishing its
+runners' results, and new grammars stay deferred until a project needs one.
