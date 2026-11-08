@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-266#show-ci-time-without-runner-waits-for-adapters",
+  "title": "Show CI time without runner waits for custom adapters",
+  "completedAt": "2026-11-08T04:03:54.345Z",
+  "developer": "Terry Yin",
+  "agent": "ealden-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

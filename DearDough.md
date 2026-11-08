@@ -568,6 +568,14 @@ Former local code: DD-404.
   - Evidence: the Slice 1 trace against the Take included the in-progress plan and source review. Of 539 consumer rows, 417 named the derived `PLAN.md` or `source-review.md` terms even though the change affected test fixtures.
   - Observed effect: the initial trace read was truncated at 42,248 original tokens. Targeted reads accounted for the affected callers and dispositions.
 
+- Execution: SEED-266#show-ci-time-without-runner-waits-for-adapters (plan 515, first implementation `7b1dddda751d4a0eb04c315ac8954677c85a752f`)
+  - Timestamp: unknown (2026-11-08)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: unknown. Installed guidance at Take `e3d3be9a05f9d63b8c85b756aa4c8736951a1175`.
+  - Evidence: Slice 1's trace contained 638 lines despite four focused effect terms. Its generated `PLAN.md` and `source-review.md` matches led the acceptance read into unrelated findings and guidance. The coordinator's combined read was truncated at 41,734 original tokens, then replaced with targeted queries.
+  - Observed effect: Refactor traces with narrower path selections returned 78 and 42 lines. No affected consumer was found missing.
+
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 
 Former local code: DD-405.

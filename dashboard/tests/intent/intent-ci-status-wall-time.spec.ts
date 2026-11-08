@@ -136,4 +136,6 @@ test("a ciAdapter attempt without start and completion shows CI wall time not re
     wall,
     "This attempt's CI read has no start and completion times.",
   );
+  await expect(panel.getByText("CI time without runner waits")).toHaveCount(0);
+  expect(adapter.jobsRequests()).toEqual([]);
 });

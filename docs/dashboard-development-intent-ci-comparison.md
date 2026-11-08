@@ -42,8 +42,11 @@ endpoint's measured time, an endpoint gap (added, removed, partial,
 unavailable) following the measured rows in either direction. GitHub Actions
 wall time spans run creation on attempt one or attempt start on reruns through
 completion. CI time without runner waits measures the longest dependency chain
-of job durations, including carried-over jobs, against the workflow at that
-build. One classification of each scope's count and duration change feeds cues
+of job durations. GitHub Actions uses the workflow at that build, including
+carried-over jobs. A custom CI adapter supplies the selected attempt's graph
+through its optional `jobs` operation. If the graph cannot be read or timed,
+Intent shows why alongside the endpoint's wall time and proof.
+One classification of each scope's count and duration change feeds cues
 on the overall summary, entry rows, a location's or folder's own Summary
 figures and its rows, file **Proof**, location headers whose path is a compared
 entry, and file rows in the location tree: a count border (green fewer, red
@@ -75,7 +78,8 @@ A done story's comparison ends with **Check again**, worded and placed as the
 judged branch's button and disabled while it reads. It reads the comparison
 and the endpoint proofs it shows again, whether the panel shows the
 comparison, an unavailable slot, a whole-answer explanation, or a failed read:
-an answer with anything unavailable is read afresh, so a temporary failure
-recovers in the same dashboard process; a final answer and valid proof
-summaries are remembered and return without further GitHub requests
+an unavailable answer or slot is read afresh, so a temporary failure can
+recover in the same dashboard process. A completed build's timing reason
+stays part of a final answer. Final answers and valid proof summaries are
+remembered and return without further provider requests
 ([request accounting](../dashboard/GITHUB-REQUESTS.md)).

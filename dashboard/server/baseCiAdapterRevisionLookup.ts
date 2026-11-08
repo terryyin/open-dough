@@ -1,4 +1,6 @@
+import { readCommandJobs } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import { isSafeBranchName } from "../src/authenticatedReadRules.ts";
+import { shortSha } from "../src/baseCiWording.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   discoverAdapterAttempts,
@@ -8,6 +10,12 @@ import { newestRunFor } from "./baseCiNearest.ts";
 import { revisionSubject } from "./baseCiRevisionGit.ts";
 import { isBuildConclusion } from "./baseCiRevisionAttempt.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
+import { ciAdapterFailureOf } from "./ciAdapterFailure.ts";
+import {
+  ciAdapterTimeoutMs,
+  comparisonDeadlineExpired,
+} from "./ciAdapterTimeout.ts";
+import { timeWithoutAdapterRunnerWaits } from "./ciTimeWithoutRunnerWaits.ts";
 import type { GitCall } from "./gitRunner.ts";
 
 export async function adapterRevisionLookup(
@@ -57,9 +65,37 @@ export async function adapterRevisionLookup(
     },
     preferCompletedAncestor: true,
     subjectOf: (sha) => revisionSubject(sha, call),
-    timeWithoutRunnerWaitsOf: () =>
-      Promise.resolve({
-        reason: "The CI adapter does not report a job graph.",
-      }),
+    async timeWithoutRunnerWaitsOf({ adapterAttempt, revision, runBranch }) {
+      if (adapterAttempt === undefined || runBranch === undefined)
+        return { reason: "The CI adapter did not identify the attempt." };
+      const attemptId = String(adapterAttempt.attemptId);
+      if (adapterAttempt.ambiguous === true)
+        return {
+          reason: `The CI adapter listed another discovered attempt as attempt ${attemptId} at ${shortSha(revision)}.`,
+        };
+      const timeoutMs = ciAdapterTimeoutMs();
+      let answer: Awaited<ReturnType<typeof readCommandJobs>>;
+      try {
+        answer = await readCommandJobs(
+          command,
+          { repo: source.repository, branch: runBranch },
+          { runId: String(adapterAttempt.runId), attemptId, sha: revision },
+          { signal, cwd: root, timeoutMs },
+        );
+      } catch (error) {
+        if (comparisonDeadlineExpired(signal))
+          return {
+            reason:
+              "The CI adapter did not answer the job graph read before the comparison deadline.",
+          };
+        signal.throwIfAborted();
+        return {
+          reason: `The CI adapter answered no job graph: ${ciAdapterFailureOf(error, timeoutMs)}.`,
+        };
+      }
+      return answer.jobs === undefined
+        ? { reason: `The CI adapter gave no job graph: ${answer.unavailable}` }
+        : timeWithoutAdapterRunnerWaits(answer.jobs);
+    },
   };
 }

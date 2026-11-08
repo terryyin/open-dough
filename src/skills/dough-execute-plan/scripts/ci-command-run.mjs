@@ -9,7 +9,11 @@ export const adapterResponseBytes = 64 * 1024;
 
 // Answers the adapter's parsed JSON answer; a failed run rejects with the
 // child-process error, which keeps what the adapter wrote to stderr.
-export function runAdapter(command, request, { signal, cwd, timeoutMs }) {
+export function runAdapter(
+  command,
+  request,
+  { signal, cwd, timeoutMs = defaultAdapterTimeoutMs },
+) {
   return new Promise((resolve, reject) => {
     const child = execFile(
       command[0],
@@ -36,6 +40,20 @@ export function runAdapter(command, request, { signal, cwd, timeoutMs }) {
     );
     child.stdin.end(`${JSON.stringify(request)}\n`);
   });
+}
+
+export function runAdapterForAttempt(
+  command,
+  operation,
+  check,
+  { runId, attemptId, sha },
+  options,
+) {
+  return runAdapter(
+    command,
+    { operation, check, attempt: { runId, attemptId, sha } },
+    options,
+  );
 }
 
 // `value` cut to at most `limit` UTF-8 bytes on a character boundary.

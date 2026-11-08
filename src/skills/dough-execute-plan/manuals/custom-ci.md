@@ -81,10 +81,9 @@ checked once across branches, omit `branch` on attempts it admitted elsewhere.
 
 Discovery may also return [authoritative queue facts](custom-ci-queue.md).
 
-Intent's story comparison reads retained `discover` attempts for the
-configured target and any known story branch. It matches Baseline, Branch
-or Provisional, and Landed builds by full revision across validated branches.
-Completed endpoints ask [`proof`](custom-ci-proof.md) on the listing branch.
+Intent compares Baseline, Branch or Provisional, and Landed by full revision
+across the target and story branch. For completed endpoints it asks
+[`proof`](custom-ci-proof.md) and [`jobs`](custom-ci-proof.md#job-graph-reads) on their listing branches.
 
 The observer's first discovery supplies its startup snapshot. It keeps
 unfinished attempts and the newest completed attempt by `time` for ordinary
@@ -131,6 +130,7 @@ delivered; unknown fields are discarded.
 
 See [Custom CI proof reads](custom-ci-proof.md) for the dashboard `proof` operation,
 summary validity, and attemptId ambiguity before newest-per-check retention.
+The same manual documents the optional [job graph read](custom-ci-proof.md#job-graph-reads).
 
 ## Runnable minimal adapter
 

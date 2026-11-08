@@ -4,8 +4,8 @@
 // history (done) or the published claim and live profile (Taken). Malformed
 // identities are refused here before any `gh` or Git call. A done story's
 // final answer is remembered for this process
-// (`./intentCiComparisonAnswers.ts`); Taken answers and answers with anything
-// unavailable are read afresh.
+// (`./intentCiComparisonAnswers.ts`); Taken answers, unavailable answers and
+// answers with unavailable slots are read afresh.
 
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
@@ -61,6 +61,7 @@ export async function performIntentCiComparisonRead(
       controller,
       checkedAt,
     ));
+  signal.throwIfAborted();
   rememberCiComparisonAnswer(key, answer);
   return answered(answer);
 }

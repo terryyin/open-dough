@@ -10,13 +10,10 @@
 // the GitHub Actions summary memory (`./ciProofArtifact.ts`); every other
 // answer is asked of the adapter again.
 import { readCommandProof } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
-import {
-  adapterResponseBytes,
-  truncateUtf8,
-} from "../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
 import { summaryProblems } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import type { CiAdapterProofAttempt, CiProof } from "../src/ciProof.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
+import { ciAdapterFailureOf } from "./ciAdapterFailure.ts";
 import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
 import { rememberedByKey } from "./rememberedByKey.ts";
 
@@ -34,40 +31,6 @@ const unavailable = (
   reason: Extract<CiProof, { kind: "unavailable" }>["reason"],
   detail: string,
 ): CiProof => ({ kind: "unavailable", reason, detail });
-
-// The most of the adapter's own stderr line a reason shows, bounded like
-// its unavailability reason.
-const stderrLineBytes = 600;
-
-type AdapterRunError = Error & {
-  readonly code?: unknown;
-  readonly killed?: boolean;
-  readonly stderr?: string;
-};
-
-// Why the adapter answered no proof read: it ran past the shared limits,
-// exited nonzero (with its last stderr line), or otherwise failed with the
-// runner's own error, such as an answer the runner refuses or a command that
-// could not start.
-function failureOf(error: unknown, timeoutMs: number): string {
-  if (!(error instanceof Error)) return String(error);
-  const { code, killed, stderr } = error as AdapterRunError;
-  if (killed === true)
-    return `it gave no answer within ${String(timeoutMs / 1000)} seconds`;
-  if (code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER")
-    return `its answer is longer than ${String(adapterResponseBytes / 1024)} KiB`;
-  if (typeof code === "number") {
-    const line = (stderr ?? "")
-      .split("\n")
-      .map((text) => text.trim())
-      .filter((text) => text !== "")
-      .at(-1);
-    return line === undefined
-      ? `it exited with status ${String(code)}`
-      : `it exited with status ${String(code)} (${truncateUtf8(line, stderrLineBytes).text})`;
-  }
-  return error.message;
-}
 
 // Why `summary` is not the asked attempt's proof, undefined when it is.
 function mismatchOf(
@@ -127,7 +90,7 @@ export async function readCiAdapterProof(
     );
   } catch (error) {
     if (signal.aborted) throw error;
-    return unavailable("unreadable", failureOf(error, timeoutMs));
+    return unavailable("unreadable", ciAdapterFailureOf(error, timeoutMs));
   }
   const { summary } = answer;
   if (summary === undefined)

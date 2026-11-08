@@ -40,6 +40,10 @@ export type Answers = {
   readonly proofStderr?: string;
   // The proof read answers only once the test releases it (`releaseProof`).
   readonly proofHeld?: boolean;
+  // Default job graph answer, with optional answers by the requested attempt ID.
+  readonly jobs?: unknown;
+  readonly jobsByAttemptId?: Readonly<Record<string, unknown>>;
+  readonly jobsStderrByAttemptId?: Readonly<Record<string, string>>;
 };
 
 // A ciAdapter project folder in the test home whose adapter records each
@@ -78,12 +82,22 @@ if (request.operation === "proof" && answers.proofStderr !== undefined) {
 }
 if (request.operation === "proof" && answers.proofHeld === true)
   await released("proof");
-const proofByAttemptId = answers.proofByAttemptId ?? {};
+const attemptAnswer = (byId, fallback) =>
+  Object.hasOwn(byId ?? {}, request.attempt.attemptId)
+    ? byId[request.attempt.attemptId]
+    : fallback;
+if (request.operation === "jobs") {
+  const stderr = attemptAnswer(answers.jobsStderrByAttemptId, undefined);
+  if (stderr !== undefined) {
+    process.stderr.write(stderr);
+    process.exit(2);
+  }
+}
 const answer = request.operation === "proof"
-  ? Object.hasOwn(proofByAttemptId, request.attempt.attemptId)
-    ? proofByAttemptId[request.attempt.attemptId]
-    : answers.proof
-  : { attempts: answers.discover[request.check.branch] ?? [] };
+  ? attemptAnswer(answers.proofByAttemptId, answers.proof)
+  : request.operation === "jobs"
+    ? attemptAnswer(answers.jobsByAttemptId, answers.jobs ?? { unavailable: "no job graph retained for this attempt" })
+    : { attempts: answers.discover[request.check.branch] ?? [] };
 process.stdout.write(JSON.stringify(answer));
 `,
   );
@@ -111,6 +125,9 @@ process.stdout.write(JSON.stringify(answer));
     },
     proofRequests(): unknown[] {
       return requestsOf("proof");
+    },
+    jobsRequests(): unknown[] {
+      return requestsOf("jobs");
     },
     discoverRequests(): unknown[] {
       return requestsOf("discover");

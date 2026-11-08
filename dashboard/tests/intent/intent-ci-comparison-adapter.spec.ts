@@ -1,9 +1,9 @@
 // A custom adapter answers CI attempts for the revisions a done story's
 // published history names. The real Intent read resolves the endpoints and
-// reads adapter discovery for builds and adapter proof for entry comparisons.
+// reads adapter discovery for builds, jobs for timing and proof for entries.
 import { shortSha } from "../../src/baseCiWording.ts";
 import { adapterProject } from "../intentCiAdapterProofProject.ts";
-import { counts, proofSummary } from "../support/ciProofArtifacts.ts";
+import { expectCueState } from "../support/expectCiComparisonCues.ts";
 import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
 import {
   expectAncestorSourceCue,
@@ -12,116 +12,43 @@ import {
 } from "../support/expectCiComparisonSourceCue.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
+import { landedAdapterComparisonAnswers } from "../support/storyCiComparisonAdapterAnswers.ts";
 import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonEarlierLanding.ts";
 import { publishFastForwardLandedStory } from "../support/storyCiComparisonFastForward.ts";
 import { git } from "../support/storyReviewWorktree.ts";
 
 const repository = "terryyin/open-dough";
 
-const attempt = (
-  sha: string,
-  runId: string | number,
-  attemptId: string | number,
-  branch: string,
-  completedAt: string,
-) => ({
-  sha,
-  runId,
-  attemptId,
-  branch,
-  outcome: "success",
-  url: `https://ci.invalid/builds/${String(runId)}`,
-  time: completedAt,
-  startedAt: "2026-11-05T10:00:00Z",
-  completedAt,
-});
-
-const proofOf = (
-  tested: ReturnType<typeof attempt>,
-  passed: number,
-  durationMs: number,
-) => ({
-  summary: proofSummary(
-    {
-      repository,
-      attemptId: String(tested.attemptId),
-      revision: tested.sha.toLowerCase(),
-    },
-    [["tests", 1]],
-    [["tests", 1, 1, "tests", counts(passed), durationMs]],
-  ),
-});
-
-for (const [landing, publish] of [
-  ["merge", publishCodeLandedBeforeCompletion],
-  ["fast-forward", publishFastForwardLandedStory],
+for (const [landing, publish, landedHasProof] of [
+  ["merge landing", publishCodeLandedBeforeCompletion, true],
+  [
+    "merge landing without Landed proof",
+    publishCodeLandedBeforeCompletion,
+    false,
+  ],
+  ["fast-forward landing", publishFastForwardLandedStory, false],
 ] as const) {
-  test(`a done adapter story compares discover builds after a ${landing} landing`, async ({
+  test(`a done adapter story compares discover builds after a ${landing}`, async ({
     page,
     origin,
     dashboard,
     github,
   }) => {
-    const merged = landing === "merge";
+    const merged = publish === publishCodeLandedBeforeCompletion;
     const setup = await publish(page, origin);
     const adapter = adapterProject(dashboard.home);
-    const branch = setup.branchAncestor ?? setup.branchSide;
-    const landed = setup.landingMerge ?? setup.branchSide;
-    const baselineAttempt = attempt(
-      setup.baseline,
-      "before|opaque",
-      "a-base+#",
-      "main",
-      "2026-11-05T10:02:00Z",
-    );
-    // The exact SHA counts even though a different branch validated it.
-    const branchAttempt = attempt(
-      branch.toUpperCase(),
-      402,
-      2,
-      "ci/another-branch",
-      "2026-11-05T10:03:20Z",
-    );
-    const landedAttempt = merged
-      ? attempt(landed, "merged", "a-landed", "main", "2026-11-05T10:04:00Z")
-      : branchAttempt;
-    adapter.answer({
-      discover: {
-        main: merged
-          ? [
-              baselineAttempt,
-              landedAttempt,
-              attempt(
-                setup.completion,
-                "completed",
-                "later",
-                "main",
-                "2026-11-05T10:09:00Z",
-              ),
-            ]
-          : [baselineAttempt],
-        [setup.branch]: merged
-          ? [branchAttempt]
-          : [
-              branchAttempt,
-              // The older attempt makes the selected attempt's proof ambiguous.
-              attempt(
-                branch,
-                "older",
-                "2",
-                setup.branch,
-                "2026-11-05T10:01:00Z",
-              ),
-            ],
-      },
-      proof: { unavailable: "no summary retained for this attempt" },
-      proofByAttemptId: merged
-        ? {
-            [baselineAttempt.attemptId]: proofOf(baselineAttempt, 5, 3_000),
-            [branchAttempt.attemptId]: proofOf(branchAttempt, 8, 5_000),
-          }
-        : { [baselineAttempt.attemptId]: { summary: { schemaVersion: 0 } } },
+    const {
+      answers,
+      branch,
+      landed,
+      baselineAttempt,
+      branchAttempt,
+      landedAttempt,
+    } = landedAdapterComparisonAnswers(repository, setup, {
+      merged,
+      landedHasProof,
     });
+    adapter.answer(answers);
 
     const response = page.waitForResponse(
       (answer) =>
@@ -137,6 +64,7 @@ for (const [landing, publish] of [
         runBranch: "main",
         selection: "ancestor",
         wall: "2 min",
+        timing: "1 min 30 s",
       },
       {
         role: "Branch",
@@ -146,6 +74,7 @@ for (const [landing, publish] of [
         runBranch: setup.branch,
         selection: merged ? "ancestor" : "exact",
         wall: "3 min 20 s",
+        timing: merged ? "1 min 30 s 0 s" : undefined,
       },
       {
         role: "Landed",
@@ -155,6 +84,7 @@ for (const [landing, publish] of [
         runBranch: merged ? "main" : setup.branch,
         selection: "exact",
         wall: merged ? "4 min" : "3 min 20 s",
+        timing: merged ? "1 min 15 s −15 s" : undefined,
       },
     ];
     const answer: unknown = await (await response).json();
@@ -177,7 +107,10 @@ for (const [landing, publish] of [
       );
       await expect(
         row.locator(".intent-ci-comparison-without-waits"),
-      ).toHaveText("Unavailable. The CI adapter does not report a job graph.");
+      ).toHaveText(
+        entry.timing ??
+          `Unavailable. The CI adapter listed another discovered attempt as attempt 2 at ${shortSha(branch)}.`,
+      );
       expect(answer).toMatchObject({
         [entry.slot]: {
           kind: "build",
@@ -204,7 +137,30 @@ for (const [landing, publish] of [
       expect.arrayContaining([discover("main"), discover(setup.branch)]),
     );
     expect(adapter.discoverRequests()).toHaveLength(2);
-    if (merged) {
+    if (landedHasProof) {
+      await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+        "Baseline compared with Landed",
+      );
+      const overallTiming = panel.locator(
+        ".intent-ci-comparison-overall-timing",
+      );
+      await expect(overallTiming).toHaveText(
+        "1 min 30 s → 1 min 15 s (−15 s, −17%)",
+      );
+      await expectCueState(overallTiming, { duration: "faster-light" });
+      await expectCiComparisonEntryRows(panel, [
+        [
+          "tests",
+          "5 → 8 tests (+3) → 7 tests (+2)",
+          "3 s",
+          "3 s → 5 s (+2 s, +67%)",
+          "3 s → 4 s (+1 s, +33%)",
+        ],
+      ]);
+    } else if (merged) {
+      await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+        "Baseline compared with Branch",
+      );
       await expectCiComparisonEntryRows(panel, [
         [
           "tests",
@@ -238,6 +194,14 @@ for (const [landing, publish] of [
     expect(adapter.proofRequests()).toHaveLength(proofRequests.length);
     expect(adapter.proofRequests()).toEqual(
       expect.arrayContaining(proofRequests),
+    );
+    const jobsRequests = proofRequests.map((request) => ({
+      ...request,
+      operation: "jobs",
+    }));
+    expect(adapter.jobsRequests()).toHaveLength(jobsRequests.length);
+    expect(adapter.jobsRequests()).toEqual(
+      expect.arrayContaining(jobsRequests),
     );
     expect(
       github.calls.filter(({ request }) => request.kind.startsWith("actions-")),
