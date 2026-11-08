@@ -203,6 +203,14 @@ serving modes, frontend, and concurrent shell checks. All 16 selected
 Playwright cases and the shell check passed. See
 `/tmp/dough-513-refactor1.IVyC9c/proof.json` and the sibling consumer trace.
 
+CI attempt [42441494702/1](https://github.com/terryyin/open-dough/actions/runs/42441494702)
+found that the shell-test job has no browser. The concurrent check now uses
+the existing HTTP icon case, whose real preview serves the generated assets.
+The original selection failed with an empty `PLAYWRIGHT_BROWSERS_PATH` and
+the repaired shell check passed with the same empty path, preserving the
+quiet verdict, two distinct completed builds, and cleanup. This repair
+reuses the prior refactor's concurrent-run and preview boundaries.
+
 ### 2. Selected server tests share one bundle only when required
 
 Type: Behavior

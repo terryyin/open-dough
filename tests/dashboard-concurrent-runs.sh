@@ -33,13 +33,17 @@ run_suite() {
     cd -- "${source_dir}"
     # Drop FORCE_COLOR / NO_COLOR so a coloured coordinator shell cannot make
     # Playwright warn outside a test and fail this local concurrent contract.
+    # The HTTP icon check serves built files through preview and works in the
+    # npm test job, which has no installed browser.
     exec env -u CI -u NODE_ENV -u npm_config_local_prefix \
       -u OPEN_DOUGH_DASHBOARD_SPLIT -u OPEN_DOUGH_DASHBOARD_DEADLINE_MS \
       -u OPEN_DOUGH_DASHBOARD_PROOF_RECORD -u OPEN_DOUGH_DASHBOARD_TIMES \
       -u FORCE_COLOR -u NO_COLOR \
       TMPDIR="${builds}" \
       OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE="${temporary_dir}/$1.artifacts" \
-      npm run --silent test:dashboard -- startup-host-words.spec.ts
+      npm run --silent test:dashboard -- \
+      'dashboard/backend-tests/runtime/serving-modes[.]spec[.]ts$' \
+      --grep "both serve Open Dough's declared icon exports"
   ) > "${temporary_dir}/$1.out" 2>&1
 }
 
