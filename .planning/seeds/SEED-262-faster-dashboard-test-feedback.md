@@ -357,8 +357,9 @@ relevant answer is available, with time-dependent behavior still proven.
 virtual clock steps took 13ms, while observing the session answers took about
 0.42s. Look across session and revision observation tests for repeated waits,
 unnecessary polling, and remaining elapsed waits. Use controlled clocks for
-cadence and observable events for completed requests. A clock seam in the
-released GitHub request owner remains a
+cadence and observable events for completed requests. The two authenticated-read
+backend specs are covered by [the focused follow-up](#remove-authenticated-read-wall-clock-waits).
+A clock seam in the released GitHub request owner remains a
 [separate decision](../TEST-OPTIMIZATION-CANDIDATES.md#auto-refresh-rate-limit-real-waits).
 
 **Evaluation.** Show a measurable reduction in real wait or request cost
@@ -366,3 +367,38 @@ across the selected family. Retain checks for the absence of early requests,
 the expected cadence, and failure and recovery. Compare wait duration and
 request count with the ordinary test verdicts and fixtures intact.
 [Synchronization guidance](../../dashboard/tests/writing-journeys.md)
+
+<a id="remove-authenticated-read-wall-clock-waits"></a>
+
+### Remove wall-clock waits from authenticated-read backend specs
+
+**Identity:** SEED-262#remove-authenticated-read-wall-clock-waits
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** Developers get deterministic feedback from the revision-stream and
+shared-listing failure specs. Drive shutdown, timeout, and cooldown checks with
+observable events or a controlled clock.
+
+**Scope.** Replace fixed waits used to prove shutdown or to let a listing
+settle in these two specs. Preserve the existing request-count and recovery
+assertions.
+
+- [Revision stream](../../dashboard/backend-tests/observation/authenticated-read-revision-stream.spec.ts).
+  Keep proof that two streams share one listing per tick and that listings stop
+  after the last stream or the server boundary closes. Observe stream shutdown
+  and drive any remaining cadence through a controlled clock.
+- [Shared listing failures](../../dashboard/backend-tests/observation/authenticated-read-shared-listing-failures.spec.ts).
+  Replace `pause(500)` and `pause(1_100)`. Observe or drive the listing timeout
+  after the waiter's timeout, and advance past the rate-limit cooldown. Keep
+  proof that the next eligible check asks GitHub for a fresh listing.
+
+**Evaluation.** Both specs pass through the normal backend test entry point.
+The affected cases retain their verdicts with no elapsed-time sleeps for
+shutdown, timeout settlement, or cooldown. Follow the
+[test automation rules](../../AGENTS.md#test-automation) and
+[failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
+
+**Evidence.** SEED-259's execution-complete record in
+`7267337bc:.planning/slice-plans/504-correct-scan-intent-ci-summaries/PLAN.md`.
