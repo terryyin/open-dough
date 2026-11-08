@@ -17,6 +17,7 @@ import {
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { pathChange } from "../../tests/pathHistoryAnswers.ts";
 
@@ -27,12 +28,6 @@ const knownRepository = "terryyin/open-dough";
 const revision = "fa".repeat(20);
 const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
 const agents = ".planning/agents";
-const profile = (name: string) =>
-  renderAgentProfile({
-    name,
-    identity: "SEED-clock#story",
-    activity: "preparation",
-  });
 
 test.describe("authenticated profile addition read (development environment)", () => {
   let server: DashboardServer;
@@ -54,7 +49,14 @@ test.describe("authenticated profile addition read (development environment)", (
       publishes({
         revision,
         backlog,
-        files: { [yuiPath]: profile("Yui"), [akihoPath]: profile("Akiho") },
+        files: {
+          [yuiPath]: renderAgentProfile(
+            makeMe.anAgentProfile.preparing({ name: "Yui" }).please(),
+          ),
+          [akihoPath]: renderAgentProfile(
+            makeMe.anAgentProfile.preparing({ name: "Akiho" }).please(),
+          ),
+        },
         history: {
           [yuiPath]: [
             { sha: commit("e1"), status: "modified", committer: "Mo Modifier" },
@@ -152,7 +154,12 @@ test.describe("authenticated profile addition read (development environment)", (
         revision: walked,
         backlog,
         files: Object.fromEntries(
-          ["Rina", "Nana", "Maki"].map((name) => [path(name), profile(name)]),
+          ["Rina", "Nana", "Maki"].map((name) => [
+            path(name),
+            renderAgentProfile(
+              makeMe.anAgentProfile.preparing({ name }).please(),
+            ),
+          ]),
         ),
         history: {
           [path("Rina")]: [...tenModified, pathChange(0xaa, "added", "Deep")],
@@ -201,7 +208,12 @@ test.describe("authenticated profile addition read (development environment)", (
         revision: walked,
         backlog,
         files: Object.fromEntries(
-          ["Sola", "Honoka"].map((name) => [path(name), profile(name)]),
+          ["Sola", "Honoka"].map((name) => [
+            path(name),
+            renderAgentProfile(
+              makeMe.anAgentProfile.preparing({ name }).please(),
+            ),
+          ]),
         ),
         history: {
           [path("Sola")]: [together],

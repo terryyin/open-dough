@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-261#share-published-agent-profile-builders",
+  "title": "Share one published agent profile builder across test entries",
+  "completedAt": "2026-11-08T01:16:39.832Z",
+  "developer": "Terry Yin",
+  "agent": "YeongSheng-chan",
+  "host": "claude",
+  "model": "opus"
+}

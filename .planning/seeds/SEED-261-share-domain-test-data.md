@@ -43,8 +43,12 @@ domain responsibilities. Actual file and transport forms keep their product
 encoders and schemas. A representation that exists only because a suite invented
 it should be removed or aligned with its authoritative product shape.
 
-Start the shared library with the agent profile builder needed by the pilot.
-Likely public names include `anAgentProfile`, `aBacklogEntry`, `aStoryPlan`,
+The shared library starts with [`anAgentProfile`](../../tests/support/makeMe.mjs),
+which one `@ts-check` module serves unchanged to `node:test`, Playwright browser
+fixtures and backend specs. Add a builder variant, such as a story-branch
+execution, only with the converting story's consumer, and prove rendered bytes
+against the replaced literals before relying on unchanged assertions. Further
+likely public names include `aBacklogEntry`, `aStoryPlan`,
 `aLaunchRecord`, `aSessionObservation`, `aCiProofFragment`, and `aRelease`.
 Names follow the actual product concept. For example, a live observation can
 compose a launch record and its state, and an ordinary installation can start
@@ -138,117 +142,14 @@ These boundaries apply the current accepted decisions for
 [release identity](../../docs/adrs/0003-tagged-release-versioning-accepted.md),
 [installation ownership](../../docs/adrs/0004-client-installation-and-update-accepted.md),
 and [cross-tool validation](../../docs/adrs/0005-cross-tool-validation-accepted.md).
-Assess the pilot against the existing proof and maintainer effort under
+Assess each conversion against the existing proof and maintainer effort under
 [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md). A runtime
 gain needs measurement.
 
 ## Story decomposition
 
-Effort is relative. The pilot is a smaller cross-entry change. The four
-conversion blocks are large, with scope and sizing to refine against real
+Effort is relative. The four conversion blocks are large, with scope and sizing to refine against real
 consumers. No calibrated story effort bands are established.
-
-<a id="share-published-agent-profile-builders"></a>
-
-### Share one published agent profile builder across test entries
-
-**Identity:** SEED-261#share-published-agent-profile-builders
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/505-share-published-agent-profile-builders/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"27ca9faa1592ccb993bf7739db5afe0cf31a58f9b31ea6e5c31179021558bd60","plan":"84576c3e6eb18678adceb4777fee95922a2b91838c8593b460e0092d820626d9"}}
-```
-
-#### Goal
-
-Maintainers and agents reading Open Dough tests see a published agent profile
-arranged the same way in Playwright TypeScript and `node:test` JavaScript
-entries, with only the facts that drive each case at the call site. This first
-complete conversion creates the shared MakeMe entry point and shows whether one
-builder carries across runners before the larger families follow.
-
-#### Scope
-
-- Create `tests/support/makeMe.mjs` with `makeMe.anAgentProfile`, typed with
-  `@ts-check` against `renderAgentProfile`'s input. `.preparing(...)` and
-  `.executing(...)` choose the activity and `.please()` returns profile facts,
-  not rendered text. Name the activity on both, as `parseAgentProfile` returns
-  it, so a read-back profile and a built one have the same shape. Tests still
-  render with `renderAgentProfile`.
-- Defaults cover only incidental facts. An execution profile defaults to Trunk
-  Mode on `origin/main`, and host and model stay unrecorded unless given. Tests
-  state the name, which decides the profile path and rotation, wherever it
-  matters. Add story-branch or other variants only with a real consumer.
-- Convert all valid profile setup in:
-  - the dashboard published-facts isolation fixture ([browser setup](../../dashboard/tests/publishedFactsIsolation.ts));
-  - the backend profile-addition spec ([backend profile addition](../../dashboard/backend-tests/observation/authenticated-read-profile-addition.spec.ts));
-  - the skill preparation-assignment fixture, which changes
-    `publishAssignment(trunk, name, facts)` to `publishAssignment(trunk, profile)`
-    ([skill assignment fixture](../../src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs));
-  - the recovery fixture's `occupyAllBut`, which publishes execution profiles
-    ([recovery fixture](../../src/skills/dough-story-refinement/scripts/preparation-assignment-recovery-fixtures.mjs));
-  - the rival Yui profile in the announce test.
-
-  Update every caller of the changed `publishAssignment`: the announce,
-  land, nerds, one-shot refinement and one-shot auto-land tests, and the
-  dashboard [preparing journey](../../dashboard/tests/preparingJourney.ts).
-- Keep each test's assertions, real Git publication, server reads and recovery
-  faults. Expected values stay independent of the builder.
-- Scope limits: other `renderAgentProfile` callers, parser tests in
-  `tests/support/product-backlog-agent-profile.test.mjs`, and the
-  dough-land tests stay with their owning conversion stories. No builder-only
-  test is added.
-- Keep raw input under proof literal: the abandon test's unrecognized rival
-  profile stays `{ unrecognized: true }`.
-- Evaluation: compare before and after for readability, coverage, duplication
-  and maintenance cost. Record in the plan's learnings what carried across
-  entries, what needed a distinct form and what later stories should reuse.
-  Finish with no superseded profile helper.
-
-#### Key examples
-
-1. **Dashboard, two revisions.** Revision A's isolation facts build Akiho as
-   `executing({ name: "Akiho", identity: sharedStoryIdentity })` with host
-   `codex` and model `model-at-A`. They also build Kirara as
-   `preparing({ name: "Kirara", identity: queuedIdentity })` with host
-   `claude`. Rendering them produces the same bytes as today's literal facts.
-   The published-facts isolation spec shows A's owner and preparer, then B's,
-   with unchanged assertions.
-2. **Backend, incidental identity.** The profile-addition spec publishes
-   preparation profiles for Yui and Akiho. Only the names appear at the call
-   site, and the work identity uses the builder default. `committed=added`
-   gives the same commits and refusals.
-3. **Skill, another developer's assignment.** The announce test publishes
-   `publishAssignment(trunk, makeMe.anAgentProfile.executing({ name: "Yui", identity: "SEED-X#x" }).please())`
-   and a preparing Akiho. A real `start` still announces the next free name,
-   and the trunk file has `renderAgentProfile`'s bytes.
-4. **Dashboard calls a skill helper.** The preparing journey republishes the
-   refining agent's preparation profile with host `cursor` and model
-   `later-model` through the changed `publishAssignment`. The dashboard specs
-   that read this reused revision keep their assertions.
-5. **Recovery, every name held.** `occupyAllBut(trunk, "Yui")` builds an
-   execution profile for every other rotation name. The reuse test still
-   announces Yui. In the stops test, a rival takes Yui during the push, and
-   the start still reports `agent-unavailable`.
-6. **Type safety.** A builder that returns a value `renderAgentProfile` rejects,
-   such as a numeric identity, fails `npm run typecheck:dashboard` through the
-   dashboard test that imports it.
-
-#### Architecture
-
-The builder lives in `tests/support/makeMe.mjs`, which the Playwright and
-`node:test` runners both import. Skill tests already import shared helpers
-from `tests/support`. Its JSDoc type comes from `renderAgentProfile`'s
-parameter, so the encoder in
-[product-backlog-agent-profile.mjs](../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs)
-remains the authority for the profile shape and validation
-([ADR 0002 §5](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)).
-The install payload is an explicit list in `install.sh`, so neither
-`tests/support` nor the skill fixtures are installed
-([ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)).
-The native owned-context fixture
-([fixture](../../tests/support/git-publication-native-owned-context-fixture.mjs))
-loads the preparation fixture module only for `createPreparationTrunk`, which
-arranges no profile. It will now load MakeMe too, but its scenario uses no
-builder, so its evidence identity stays unchanged.
 
 <a id="map-published-work-test-data"></a>
 
@@ -400,9 +301,8 @@ domain constructors or builders without a useful test consumer.
 
 ## Ordering and scope
 
-Queue the pilot first, then published work, local launch and session work,
-Intent and CI Proof, and release and native checks. The first story supplies
-experience with a complete cross-entry change. The later stories are organized
+Queue published work first, then local launch and session work, Intent and CI
+Proof, and release and native checks. The stories are organized
 by the domain facts they own, so each can finish its proof without waiting for
 an entire runner or layer to migrate. Queue order expresses Terry's requested
 priority and learning sequence. No blocking supplier agreement has been

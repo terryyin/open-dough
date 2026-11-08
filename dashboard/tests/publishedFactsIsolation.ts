@@ -3,6 +3,7 @@
 
 import type { Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { githubFor } from "./dashboardTest.ts";
 import { sharedStoryIdentity } from "./doughnutProject.ts";
@@ -91,21 +92,26 @@ Type: Behavior
 Status: planned
 Proof: Observe the current publication.
 `,
-      [profilePath(owner)]: renderAgentProfile({
-        name: owner,
-        identity: sharedStoryIdentity,
-        mode: "trunk",
-        branch: "origin/main",
-        host: "codex",
-        model: `model-at-${label}`,
-      }),
-      [profilePath(preparer)]: renderAgentProfile({
-        name: preparer,
-        identity: queuedIdentity,
-        activity: "preparation",
-        host: "claude",
-        model: `preparer-at-${label}`,
-      }),
+      [profilePath(owner)]: renderAgentProfile(
+        makeMe.anAgentProfile
+          .executing({
+            name: owner,
+            identity: sharedStoryIdentity,
+            host: "codex",
+            model: `model-at-${label}`,
+          })
+          .please(),
+      ),
+      [profilePath(preparer)]: renderAgentProfile(
+        makeMe.anAgentProfile
+          .preparing({
+            name: preparer,
+            identity: queuedIdentity,
+            host: "claude",
+            model: `preparer-at-${label}`,
+          })
+          .please(),
+      ),
       [donePath]: renderDoneRecord({
         identity: doneIdentity,
         title: doneTitle,

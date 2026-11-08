@@ -33,6 +33,7 @@ import {
   raceNextPush,
   snapshot,
 } from "./preparation-assignment-recovery-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 test("the announcement publishes only the assignment before draft work, refreshes a clean default checkout, and a later preparation skill continues it", async (t) => {
   const trunk = await createPreparationTrunk();
@@ -118,15 +119,18 @@ test("preparation takes the next free name after execution and preparation assig
   const trunk = await createPreparationTrunk();
   t.after(trunk.cleanup);
   // Yui executes other work; Akiho, most recently assigned, prepares story B.
-  await publishAssignment(trunk, "Yui", {
-    identity: "SEED-X#x",
-    mode: "trunk",
-    branch: "origin/main",
-  });
-  await publishAssignment(trunk, "Akiho", {
-    identity: "SEED-B#b",
-    activity: "preparation",
-  });
+  await publishAssignment(
+    trunk,
+    makeMe.anAgentProfile
+      .executing({ name: "Yui", identity: "SEED-X#x" })
+      .please(),
+  );
+  await publishAssignment(
+    trunk,
+    makeMe.anAgentProfile
+      .preparing({ name: "Akiho", identity: "SEED-B#b" })
+      .please(),
+  );
   const { workspace } = await createWorkspace(trunk, "c");
   const { receipt } = await startPreparation(trunk, workspace, identityC);
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
@@ -152,11 +156,11 @@ test("when a rival claims the selected name during the push, the announcement is
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   // Before the first push leaves, another developer publishes Yui-chan.
-  const rivalYui = renderAgentProfile({
-    name: "Yui",
-    identity: "SEED-B#b",
-    activity: "preparation",
-  });
+  const rivalYui = renderAgentProfile(
+    makeMe.anAgentProfile
+      .preparing({ name: "Yui", identity: "SEED-B#b" })
+      .please(),
+  );
   await raceNextPush(trunk, trunk.integration, {
     [profileOf("Yui")]: rivalYui,
   });

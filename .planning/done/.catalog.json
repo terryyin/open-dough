@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_share-published-agent-profile-builders.json",
+      "identity": "SEED-261#share-published-agent-profile-builders",
+      "completedAt": "2026-11-08T01:16:39.832Z",
+      "blob": "1bc24015ba8e9725ee6e5116160f1ec4af6f59e9"
+    },
+    {
       "fileName": "SEED-258_invoke-intent-coverage-manually.json",
       "identity": "SEED-258#invoke-intent-coverage-manually",
       "completedAt": "2026-11-08T01:01:14.918Z",

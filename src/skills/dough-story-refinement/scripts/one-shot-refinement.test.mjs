@@ -39,6 +39,7 @@ import {
   queueHeading,
 } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import { configureDeveloper } from "../../dough-execute-plan/scripts/workspace-publication-startup-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 useInstalledPayload();
 
@@ -177,10 +178,12 @@ test("a competing holder or automatic landing without publication authority refu
   assert.equal(refused.receipt.status, "authority-required");
   assert.match(refused.receipt.error, /trunk publication authority/);
 
-  await publishAssignment(trunk, "Yui", {
-    identity: identityC,
-    activity: "preparation",
-  });
+  await publishAssignment(
+    trunk,
+    makeMe.anAgentProfile
+      .preparing({ name: "Yui", identity: identityC })
+      .please(),
+  );
   const refs = await originRefs(trunk);
   const { code, receipt } = await oneShot(trunk, workspace, "prep/refused");
   assert.equal(code, 1, JSON.stringify(receipt));

@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Correct Intent CI label announcements and summary sort fallback](seeds/SEED-259-scan-intent-ci-summaries.md#correct-scan-intent-ci-summaries) — SEED-259#correct-scan-intent-ci-summaries ([plan](slice-plans/504-correct-scan-intent-ci-summaries/PLAN.md))
-- [Share one published agent profile builder across test entries](seeds/SEED-261-share-domain-test-data.md#share-published-agent-profile-builders) — SEED-261#share-published-agent-profile-builders ([plan](slice-plans/505-share-published-agent-profile-builders/PLAN.md))
 - [Avoid redundant board reads](seeds/SEED-262-faster-dashboard-test-feedback.md#refresh-without-unneeded-reloads) — SEED-262#refresh-without-unneeded-reloads ([plan](slice-plans/507-avoid-redundant-board-reads/PLAN.md))
 
 ## Backlog list

@@ -41,6 +41,7 @@ import {
   revParse,
   seedC,
 } from "./preparation-assignment-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 useInstalledPayload();
 
@@ -102,10 +103,12 @@ test("a preparation holder published after the auto-land start stops the landing
   const trunk = await createPreparationTrunk();
   t.after(trunk.cleanup);
   const { workspace, branch, result } = await startAndRefine(trunk, "held");
-  await publishAssignment(trunk, "Yui", {
-    identity: identityC,
-    activity: "preparation",
-  });
+  await publishAssignment(
+    trunk,
+    makeMe.anAgentProfile
+      .preparing({ name: "Yui", identity: identityC })
+      .please(),
+  );
   const held = await lsRemoteSha(trunk.origin, "refs/heads/main");
 
   const checked = await recheck(workspace);
