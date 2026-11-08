@@ -10,12 +10,13 @@
 // lists that exact story identity within the recent window Board Recently
 // done uses (`recentDoneRecords`). The shown project's current-revision
 // catalog is reused; another project's is read on demand through the same
-// authenticated snapshot and catalog readers, and no done record body is read.
-// An unread catalog is checking, and a failed one or one naming the story's
-// record as unreadable is unknown, each said apart from a confirmed miss,
-// which selects the session. A later choice, an explicit Open, or another
-// project chosen meanwhile supersedes an unanswered check. A linked row stays
-// chosen while its story is the page's Selected story.
+// authenticated snapshot reader and the Board's catalog reading
+// (`cataloguedAt`), and no done record body is read. An unread catalog is
+// checking, and a failed one, a catalog gap said in the Board's words, or one
+// naming the story's record as unreadable is unknown, each said apart from a
+// confirmed miss, which selects the session. A later choice, an explicit
+// Open, or another project chosen meanwhile supersedes an unanswered check. A
+// linked row stays chosen while its story is the page's Selected story.
 //
 // In Development the choice also shows its project's stories and brings into
 // view its done story's card, or, for a standalone row, its session's entry,
@@ -33,9 +34,12 @@ import {
 } from "react";
 import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
-import { readDoneCatalogAt } from "./authenticatedDoneRead.ts";
 import { readPublishedSnapshot } from "./authenticatedRead.ts";
-import { recentDoneRecords, type DoneStories } from "./doneStories.ts";
+import {
+  cataloguedAt,
+  recentDoneRecords,
+  type DoneStories,
+} from "./doneStories.ts";
 import {
   sameSelectedStory,
   type SelectedStory,
@@ -120,9 +124,10 @@ async function readLink(
 ): Promise<DoneLink> {
   try {
     const { revision } = await readPublishedSnapshot(source, signal);
-    const catalog = await readDoneCatalogAt(source, revision, signal);
-    if (catalog.status === "gap") return { problem: catalog.problem };
-    return linkIn({ ...catalog, revision }, identity);
+    const done = await cataloguedAt(source, revision, signal);
+    return done.status === "catalogued"
+      ? linkIn(done, identity)
+      : { problem: done.problem };
   } catch (error) {
     return { problem: error instanceof Error ? error.message : String(error) };
   }

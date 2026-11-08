@@ -68,14 +68,15 @@ function doneCatalogQuestion(
   };
 }
 
-// What the catalog says: its records, or the gap of a catalog that does not
-// describe the published records, which no read again can close, naming its
-// repair.
-async function cataloguedAt(
+// What the revision's catalog says: its records, or the gap of a catalog that
+// does not describe the published records, which no read again can close,
+// naming its repair. Recently done and a Recently done sessions row's check
+// (`./recentlyDoneSelection.ts`) both read it here; a failed read throws.
+export async function cataloguedAt(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
-): Promise<DoneStories> {
+): Promise<Exclude<DoneStories, { status: "loading" }>> {
   const catalog = await readDoneCatalogAt(source, revision, signal);
   return catalog.status === "gap"
     ? {

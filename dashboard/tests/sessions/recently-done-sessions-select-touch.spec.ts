@@ -10,11 +10,11 @@ import { closeSidePanel, tapWhereShown } from "../pageLayout.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import {
   adHoc,
-  expectDevelopmentKept,
   linked,
   openSelectionPage,
   report,
 } from "../recentlyDoneSelectionJourney.ts";
+import { expectDevelopmentKept } from "../recentlyDoneSelectionReport.ts";
 import { holdPygardonCatalog } from "../pygardonCatalogReads.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";

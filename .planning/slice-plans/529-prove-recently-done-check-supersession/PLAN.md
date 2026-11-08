@@ -4,6 +4,8 @@
 
 **Source:** [Prove Recently done selection's check rules and tidy its catalog read](../../seeds/SEED-272-select-recently-done-sessions.md#prove-recently-done-check-supersession)
 
+**Source review:** [source-review.md](source-review.md)
+
 ## Provenance
 
 Execution retrospective of
@@ -83,12 +85,20 @@ Failing and flaky tests follow [the project policy](../../../AGENTS.md#failing-a
 ### 1. Share the done-catalog reading and prove the unreadable record
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: unreadable record and catalog gap row from the outside-in table.
 
 The row's check reads the catalog through the Board's catalog reading, says a
 gap in the Board's words, and an unreadable done record for the story is
 proved distinct from a miss.
+
+Accepted proof: `recently-done-sessions-select-check.spec.ts` › "a catalog
+naming the story's done record unreadable, or not describing the done records,
+…" (unreadable-record and catalog-gap steps; scratch breaks of `linkIn` and
+`readLink` each failed it), with the four select specs and
+`recently-done-stories.spec.ts` passing and dashboard typecheck. Refactor moved
+`showReport` and `expectDevelopmentKept` to
+`dashboard/tests/recentlyDoneSelectionReport.ts`.
 
 ### 2. Prove check supersession by navigation and trim overlapping tests
 
@@ -104,3 +114,15 @@ lines with a clear header comment.
 
 Slice-plan refinement was not needed: each slice has one observable result
 and its own proof. No slice-specific concerns remain.
+
+## Story obligations
+
+### G1. A thrown catalog read keeps the row's own reason wording
+Reported: slice 1 — "When the catalog read itself throws, the row still shows the raw error message, while the Board prefixes it with \"Done stories could not be read.\""
+Story clause: "finds one done-catalog reading and wording shared with the Board"
+Disposition: no user cost "finds one done-catalog reading and wording shared with the Board": the row reads through the Board's `cataloguedAt` (one reading); a thrown read is not catalog wording but the transport error both surfaces show verbatim, and the row's own "Its published done story could not be checked." already stands where the Board says "Done stories could not be read.", so prefixing would repeat it; the failed-read path stays proved by the existing 502 step in `recently-done-sessions-select-check.spec.ts`.
+
+### G2. The row's gap step answers at the browser's catalog endpoint
+Reported: slice 1 — "Step 2 answers the catalog request at the browser's endpoint with the gap text the server would give, rather than having the fake GitHub publish an uncatalogued revision."
+Story clause: "consolidation of the duplicated catalog read and its gap wording"
+Disposition: proved by slice 1: the row and the Board now share `cataloguedAt` in `dashboard/src/doneStories.ts`, whose server-side gap detection and wording `dashboard/tests/stories/recently-done-stories.spec.ts` observes, and the row's step 2 in `recently-done-sessions-select-check.spec.ts` observes that wording through the shared conversion.

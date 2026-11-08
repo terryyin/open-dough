@@ -1,11 +1,16 @@
 // A Recently done sessions row's done-story check
 // (../../src/recentlyDoneSelection.ts): an unanswered check is said apart
-// from a confirmed miss and is superseded by a later choice; a failed one
-// leaves the reading and the session's access as they were.
+// from a confirmed miss and is superseded by a later choice; a failed one,
+// one whose catalog names the story's done record unreadable, and a catalog
+// gap, said in Board Recently done's words, leave the reading and the
+// session's access as they were.
 
+import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
+import { catalogPublications } from "../catalogProjectRecords.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
+import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
   adHoc,
   choiceStatus,
@@ -19,6 +24,14 @@ import {
 } from "../pygardonCatalogReads.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
+
+// The developer still reads Open Dough's Intent, with no Selected story.
+async function expectReadingKept(page: Page) {
+  const { intentChoice, intent } = parts(page);
+  await expectProjectChoice(page, "Open Dough");
+  await expect(intentChoice).toBeChecked();
+  await expect(intent).not.toHaveAttribute("data-selected-story");
+}
 
 test("an unanswered check is superseded by a later choice, and a failed one leaves the reading with its session's Open usable", async ({
   page,
@@ -58,9 +71,7 @@ test("an unanswered check is superseded by a later choice, and a failed one leav
       "false",
     );
     await expect(choiceStatus(row(linked.title))).toHaveCount(0);
-    await expectProjectChoice(page, "Open Dough");
-    await expect(intentChoice).toBeChecked();
-    await expect(intent).not.toHaveAttribute("data-selected-story");
+    await expectReadingKept(page);
     await page.unrouteAll({ behavior: "wait" });
   });
 
@@ -83,9 +94,7 @@ test("an unanswered check is superseded by a later choice, and a failed one leav
     await expect(shown.entry(linked.title)).toHaveAccessibleDescription(
       /could not be checked/,
     );
-    await expectProjectChoice(page, "Open Dough");
-    await expect(intentChoice).toBeChecked();
-    await expect(intent).not.toHaveAttribute("data-selected-story");
+    await expectReadingKept(page);
   });
 
   await test.step("its Open still opens the session's terminal", async () => {
@@ -94,5 +103,50 @@ test("an unanswered check is superseded by a later choice, and a failed one leav
     await expect(terminal.getByRole("heading")).toHaveText(linked.title);
     await expect(development).toBeChecked();
     await expect.poll(() => dashboard.claudeAttaches()).toHaveLength(1);
+  });
+});
+
+test("a catalog naming the story's done record unreadable, or not describing the done records, is said apart from a miss and leaves project and story alone", async ({
+  page,
+  dashboard,
+}) => {
+  const { shown, row } = await openSelectionPage(page, dashboard, undefined, {
+    unreadableLinkedRecord: true,
+  });
+  const { intentChoice, intent } = parts(page);
+  await intentChoice.click();
+  await expect(intent).toBeVisible();
+  const expectKept = async () => {
+    await expect(shown.entry(linked.title)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expectReadingKept(page);
+  };
+
+  await test.step("Pygardon's catalog names the story's done record unreadable: the row says it could not be checked, naming the record", async () => {
+    const read = pygardonCatalogRead(page);
+    await shown.entry(linked.title).click();
+    await read;
+    await expect(choiceStatus(row(linked.title))).toHaveText(
+      `Its published done story could not be checked. Its done record ${doneRecordFileName(linked.identity)} could not be read. Select again to check again.`,
+    );
+    await expectKept();
+  });
+
+  await test.step("a catalog that does not describe the done records: the row repeats Board Recently done's gap problem and repair", async () => {
+    const gap = "done catalog is not published beside the 1 done records";
+    await page.route(isPygardonCatalog, (route) =>
+      route.fulfill({
+        json: { revision: catalogPublications.pygardon.revision, gap },
+      }),
+    );
+    const read = pygardonCatalogRead(page);
+    await shown.entry(linked.title).click();
+    await read;
+    await expect(choiceStatus(row(linked.title))).toHaveText(
+      `Its published done story could not be checked. Done stories could not be read. The done catalog does not describe the published done records: ${gap}. Run the product backlog's \`catalog-done\` to rebuild it from the done records, then publish the rebuilt catalog. Select again to check again.`,
+    );
+    await expectKept();
   });
 });

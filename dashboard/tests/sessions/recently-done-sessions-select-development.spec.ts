@@ -13,11 +13,13 @@ import { parts, rosterParts, standaloneSessionName } from "../dashboardPage.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import {
   adHoc,
-  expectDevelopmentKept,
   linked,
   openSelectionPage,
-  showReport,
 } from "../recentlyDoneSelectionJourney.ts";
+import {
+  expectDevelopmentKept,
+  showReport,
+} from "../recentlyDoneSelectionReport.ts";
 import {
   holdPygardonCatalog,
   pygardonCatalogRead,

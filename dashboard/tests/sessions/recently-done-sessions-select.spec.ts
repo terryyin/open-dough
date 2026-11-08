@@ -22,9 +22,9 @@ import {
   openSelectionPage,
   readSpec,
   report,
-  showReport,
   takenElsewhere,
 } from "../recentlyDoneSelectionJourney.ts";
+import { showReport } from "../recentlyDoneSelectionReport.ts";
 import { pygardonCatalogRead } from "../pygardonCatalogReads.ts";
 import { expectSelected, selectStory } from "../storyCardSelection.ts";
 import { intentFile, storyDisclosure } from "../support/intentStoryPage.ts";
