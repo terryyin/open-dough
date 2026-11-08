@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Prepare dashboard test artifacts only when selected tests need them](seeds/SEED-262-faster-dashboard-test-feedback.md#prepare-artifacts-on-demand) — SEED-262#prepare-artifacts-on-demand ([plan](slice-plans/513-prepare-dashboard-artifacts-on-demand/PLAN.md))
 - [Make fluent Side panel page objects easier to extend](seeds/SEED-268-fluent-side-panel-pilot-follow-up.md#adjust-fluent-side-panel-page-objects) — SEED-268#adjust-fluent-side-panel-page-objects ([plan](slice-plans/516-adjust-fluent-side-panel-page-objects/PLAN.md))
 - [Show CI time without runner waits for custom adapters](seeds/SEED-266-ci-job-timing-from-adapters.md#show-ci-time-without-runner-waits-for-adapters) — SEED-266#show-ci-time-without-runner-waits-for-adapters ([plan](slice-plans/515-show-ci-time-without-runner-waits-for-adapters/PLAN.md))
-- [Show CI build sources with compact icons](seeds/SEED-265-show-ci-build-source-icons.md#show-ci-build-source-icons) — SEED-265#show-ci-build-source-icons ([plan](slice-plans/516-show-ci-build-source-icons/PLAN.md))
 
 ## Backlog list
 

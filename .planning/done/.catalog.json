@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-265_show-ci-build-source-icons.json",
+      "identity": "SEED-265#show-ci-build-source-icons",
+      "completedAt": "2026-11-08T03:57:14.293Z",
+      "blob": "004c9043ebf1bd53cfe5f2935b59db50e6b03f30"
+    },
+    {
       "fileName": "SEED-263_pilot-fluent-dashboard-page-objects.json",
       "identity": "SEED-263#pilot-fluent-dashboard-page-objects",
       "completedAt": "2026-11-08T02:31:18.718Z",
