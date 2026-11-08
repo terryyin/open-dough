@@ -157,9 +157,11 @@ export async function startOrigin(
       const held = path.join(machine, "push-held");
       const released = path.join(machine, "push-released");
       const hook = path.join(origin, "hooks", "pre-receive");
+      // A held push also goes once cleanup has removed the machine, where a
+      // release can no longer be seen, so no hold outlives its origin.
       writeFileSync(
         hook,
-        `#!/bin/sh\ntouch ${held}\nwhile [ ! -e ${released} ]; do sleep 0.2; done\n`,
+        `#!/bin/sh\ntouch ${held}\nwhile [ ! -e ${released} ] && [ -d ${machine} ]; do sleep 0.2; done\n`,
       );
       chmodSync(hook, 0o755);
       return {

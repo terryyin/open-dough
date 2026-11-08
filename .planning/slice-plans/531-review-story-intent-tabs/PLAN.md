@@ -130,6 +130,16 @@ After the first Project Intent visit, trunk CI is followed while Intent is
 open (`dashboard/GITHUB-REQUESTS.md`). Coverage is `IntentStoryCoverage`
 inside `IntentStoryView`.
 
+CI repair (run 42484570480 on `9f1baac`): the candidates MakeMe builder
+must not import dashboard code at runtime, because
+`tests/native-evidence-identity.sh` hashes makeMe's import closure from
+an isolated copy of `tests/` and `src/`. Separately,
+`agent-launch-change-wait.spec.ts` removed its origin before a released
+push finished. It now waits for the start, and `holdPushes`' hook ends
+when its origin is removed. Proof: the identity test failed and then
+passed; forced-race and unreleased-hold reproductions failed and then
+passed; all 24 `holdPushes` specs passed (58 tests).
+
 ### 3. Read the saved assessment and its availability
 
 Type: Behavior

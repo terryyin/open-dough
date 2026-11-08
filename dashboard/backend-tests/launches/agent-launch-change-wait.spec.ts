@@ -42,6 +42,11 @@ async function changedBody(server: DashboardServer, id: string, seen?: number) {
   };
 }
 
+async function workerStep(server: DashboardServer, id: string) {
+  return (await attempts(server)).find((attempt) => attempt.id === id)?.worker
+    ?.step;
+}
+
 test("a wait naming the changes its asker saw answers at once a change told while nothing waited, and otherwise at the next change", async () => {
   const server = await startDashboardServer({
     mode: "boundary",
@@ -62,12 +67,7 @@ test("a wait naming the changes its asker saw answers at once a change told whil
 
     // Nothing waits while the server moves on to the session launch.
     await expect
-      .poll(
-        async () =>
-          (await attempts(server)).find(({ id }) => id === accepted.id)?.worker
-            ?.step,
-        { timeout: 30_000 },
-      )
+      .poll(() => workerStep(server, accepted.id), { timeout: 30_000 })
       .toBe("launch");
 
     const missed = await changedBody(server, accepted.id, counted(accepted));
@@ -137,6 +137,14 @@ test("a non-owner with nothing new to tell consumes the configured change bound"
       changed: false,
     });
     expect(Date.now() - began).toBeGreaterThanOrEqual(observedChangeWaitMs);
+
+    // The held start outlives its server, so it ends here, its push through,
+    // before its origin is removed.
+    push.release();
+    const starter = owner;
+    await expect
+      .poll(() => workerStep(starter, accepted.id), { timeout: 30_000 })
+      .toBe("launch");
   } finally {
     push.release();
     await observer?.close();
