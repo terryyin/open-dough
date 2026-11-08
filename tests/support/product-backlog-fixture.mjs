@@ -68,6 +68,16 @@ export function backlogOf(taken, queue, text = direction) {
   return `${preambleOf(text)}## Taken\n\n${held}## Backlog list\n\n${queue.join("\n")}\n`;
 }
 
+// Backlog entries recording no identity of their own, so each link is its
+// identity: `linkedEntries("A")` writes `- [Item A](seeds/A.md#a)`.
+export const linkedEntries = (...names) =>
+  names.map((name) => {
+    const href = `seeds/${name}.md#${name.toLowerCase()}`;
+    return makeMe.aBacklogEntry
+      .with({ identity: href, title: `Item ${name}`, href })
+      .please();
+  });
+
 // Independent byte expectation for one Taken entry and three queued entries.
 export const backlog = backlogOf([takenEntry], queued);
 

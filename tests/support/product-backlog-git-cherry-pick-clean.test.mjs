@@ -11,25 +11,36 @@
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
 import {
   isMidCherryPick,
   runCherryPick,
 } from "./product-backlog-git-cherry-pick-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   commitBranch,
   headSha,
   refSha,
-  scratchRepo,
 } from "./product-backlog-git-fixture.mjs";
 
 const itemA = "- [Item A](seeds/A.md#a)";
 const itemB = "- [Item B](seeds/B.md#b)";
 
 test("a single clean cherry-pick is accepted once its own result validates", async (t) => {
-  const ancestor = backlogOf([], [itemA, itemB]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("A", "B"), direction },
+      })
+      .please(),
+  );
   commitBranch(
     repo,
     "dest",
@@ -73,8 +84,14 @@ test("a clean pick whose own result fails this tool's invariants is refused afte
   // plain, unopposed patch — Git commits it immediately, with no staged,
   // uncommitted window this tool could gate before the fact, the same way a
   // fast-forward has none for `product-backlog-git-merge.mjs`.
-  const ancestor = backlogOf([], [itemA]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("A"), direction },
+      })
+      .please(),
+  );
   repo.git(["checkout", "-q", "-b", "dest"]);
 
   commitBranch(
@@ -112,8 +129,14 @@ test("a clean pick whose own result fails this tool's invariants is refused afte
 });
 
 test("picking a merge commit with no --mainline stops explicitly, never guessing a mainline", async (t) => {
-  const ancestor = backlogOf([], [itemA]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("A"), direction },
+      })
+      .please(),
+  );
   repo.git(["checkout", "-q", "-b", "side"]);
   repo.write(backlogOf([], ["- [Item A, side renamed](seeds/A.md#a)"]));
   repo.git(["add", "-A"]);

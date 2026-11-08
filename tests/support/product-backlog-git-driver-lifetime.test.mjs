@@ -3,22 +3,30 @@ import { cpSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import { backlogOf, direction } from "./product-backlog-fixture.mjs";
 import {
+  checkoutOf,
   linkedWorktree,
   runCli,
-  scratchRepo,
 } from "./product-backlog-git-fixture.mjs";
 import {
   assertCommittedCatalogCurrent,
   completeAndCommit,
   completingBranch,
+  entries,
   fileNames,
-  items,
 } from "./product-backlog-git-done-catalog-fixture.mjs";
 
 test("both registered merge drivers survive retiring the registering worktree", async (t) => {
-  const repo = scratchRepo(t, backlogOf(items("A", "B", "C"), []));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { taken: entries("A", "B", "C"), direction },
+      })
+      .please(),
+  );
   const installed = "runtime skill's";
   cpSync(
     fileURLToPath(new URL("../../src/skills", import.meta.url)),

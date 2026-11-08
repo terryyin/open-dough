@@ -11,8 +11,14 @@
 // exercised here.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
 import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
+import {
+  checkoutOf,
   commitBranch,
   commitOn,
   headSha,
@@ -22,7 +28,6 @@ import {
   rebaseStop,
   refSha,
   runRebase,
-  scratchRepo,
   stage,
   stageResolution,
   unresolvedPaths,
@@ -42,9 +47,15 @@ const resolvedC = "- [Item C, resolved by hand](seeds/C.md#c)";
 // unrelated entry, so it can only reach `dest` by being replayed after the
 // first is resolved. `feature` is left checked out, holding both commits,
 // with nothing rebased yet.
-function buildConflictingFeature(t) {
-  const ancestor = backlogOf([], [itemC]);
-  const repo = scratchRepo(t, ancestor);
+async function buildConflictingFeature(t) {
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("C"), direction },
+      })
+      .please(),
+  );
   commitBranch(repo, "dest", backlogOf([], [destRenamedC]), "dest renames C");
   repo.git(["checkout", "-q", "-b", "feature"]);
   commitOn(repo, backlogOf([], [featureRenamedC]), "feature renames C");
@@ -53,7 +64,7 @@ function buildConflictingFeature(t) {
 }
 
 test("rebase stops a genuine textual conflict on the first replayed commit, identified by real revisions", async (t) => {
-  const repo = buildConflictingFeature(t);
+  const repo = await buildConflictingFeature(t);
   const originalTip = headSha(repo);
   const firstCommit = repo.git(["rev-parse", "HEAD^"]).trim();
   const firstCommitParent = repo.git(["rev-parse", "HEAD^^"]).trim();
@@ -107,7 +118,7 @@ test("rebase stops a genuine textual conflict on the first replayed commit, iden
 });
 
 test("rebase's human recovery validates a supplied result without rerunning disputed reconciliation, then replays the remaining suffix exactly once", async (t) => {
-  const repo = buildConflictingFeature(t);
+  const repo = await buildConflictingFeature(t);
   const originalTip = headSha(repo);
   const destTipBefore = refSha(repo, "dest");
   const stopped = await runRebase(repo, ["rebase", "--ref", "dest"]);
@@ -181,7 +192,7 @@ test("rebase's human recovery validates a supplied result without rerunning disp
 });
 
 test("rebase's human recovery refuses a staged candidate that does not match the worktree", async (t) => {
-  const repo = buildConflictingFeature(t);
+  const repo = await buildConflictingFeature(t);
   await runRebase(repo, ["rebase", "--ref", "dest"]);
 
   const staged = backlogOf([], ["- [Item C, staged](seeds/C.md#c)"]);
@@ -207,7 +218,7 @@ test("rebase stops on real revisions and continues to completion when run from a
   // directory is that worktree's, not a directory under the checkout. The
   // stop can only name the replayed commit, and `continue` can only find the
   // rebase it resumes, by reading that state where Git really keeps it.
-  const repo = buildConflictingFeature(t);
+  const repo = await buildConflictingFeature(t);
   const firstCommit = repo.git(["rev-parse", "feature^"]).trim();
   const destTip = refSha(repo, "dest");
   repo.git(["checkout", "-q", "main"]);

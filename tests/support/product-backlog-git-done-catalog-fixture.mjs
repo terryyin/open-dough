@@ -17,6 +17,7 @@ import {
   doneCatalogMismatch,
   parseDoneCatalog,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { makeMe } from "./makeMe.mjs";
 import { checkout } from "./product-backlog-git-fixture.mjs";
 
 const exec = promisify(execFile);
@@ -32,6 +33,17 @@ export const catalog = `${done}/.catalog.json`;
 const item = (name) =>
   `- [Item ${name}](seeds/${name}.md#${name}) — ${name}#${name}`;
 export const items = (...names) => names.map(item);
+// The same entries as `items` writes, as `makeMe.aBacklogEntry` facts.
+export const entries = (...names) =>
+  names.map((name) =>
+    makeMe.aBacklogEntry
+      .with({
+        identity: `${name}#${name}`,
+        title: `Item ${name}`,
+        href: `seeds/${name}.md#${name}`,
+      })
+      .please(),
+  );
 
 // Runs the real backlog command in `directory` at a fixed completion time.
 async function backlogCommand(

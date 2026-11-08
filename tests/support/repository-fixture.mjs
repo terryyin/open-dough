@@ -65,7 +65,18 @@ async function commitRevision(checkout, revision, checkoutIdentity) {
   return revParse(checkout, "HEAD");
 }
 
-/** @param {string} fixture @param {RepositoryDescription} description */
+/**
+ * How the harness sets the history up, beside what the description states:
+ * whether the checkout publishes to a bare origin, and whether `git init`
+ * copies Git's templates (an init without them has no `info/` or hooks).
+ * @typedef {{ origin: boolean, gitTemplates: boolean }} TemplateShape
+ */
+
+/**
+ * @param {string} fixture
+ * @param {RepositoryDescription} description
+ * @param {TemplateShape} shape
+ */
 async function buildTemplate(
   fixture,
   {
@@ -74,13 +85,20 @@ async function buildTemplate(
     checkoutIdentity = integrationDeveloper,
     workspace,
   },
+  { origin: published, gitTemplates },
 ) {
   const { origin, integration } = layout(fixture);
-  await createBareFixtureRemote(origin, trunkBranch);
-  await exec("git", ["init", "-b", trunkBranch, integration]);
+  if (published) await createBareFixtureRemote(origin, trunkBranch);
+  await exec("git", [
+    "init",
+    ...(gitTemplates ? [] : ["--template="]),
+    "-b",
+    trunkBranch,
+    integration,
+  ]);
   await git(integration, "config", "maintenance.auto", "false");
   await configureIdentity(integration, checkoutIdentity);
-  await git(integration, "remote", "add", "origin", origin);
+  if (published) await git(integration, "remote", "add", "origin", origin);
 
   /** @type {Map<string, string>} */
   const commits = new Map();
@@ -88,7 +106,8 @@ async function buildTemplate(
   for (const revision of revisions) {
     writeRevisionFiles(integration, revision);
     trunkSha = await commitRevision(integration, revision, checkoutIdentity);
-    await git(integration, "push", "--quiet", "origin", trunkBranch);
+    if (published)
+      await git(integration, "push", "--quiet", "origin", trunkBranch);
     commits.set(revision.name, trunkSha);
   }
   if (!workspace)
@@ -130,15 +149,15 @@ process.once("exit", () => {
     rmSync(root, { recursive: true, force: true });
 });
 
-/** @param {import("./repositoryTestData.mjs").RepositoryDescription} description */
-function repositoryTemplate(description) {
-  const key = JSON.stringify(description);
+/** @param {RepositoryDescription} description @param {TemplateShape} shape */
+function repositoryTemplate(description, shape) {
+  const key = JSON.stringify({ description, shape });
   const existing = templates.get(key);
   if (existing) return existing;
   const root = realpathSync(
     mkdtempSync(join(tmpdir(), "repository-template-")),
   );
-  const built = buildTemplate(root, description).catch((error) => {
+  const built = buildTemplate(root, description, shape).catch((error) => {
     rmSync(root, { recursive: true, force: true });
     templates.delete(key);
     throw error;
@@ -146,6 +165,45 @@ function repositoryTemplate(description) {
   const template = { root, built };
   templates.set(key, template);
   return template;
+}
+
+/**
+ * A private mutable copy of the described history's template.
+ * @template {string} Name
+ * @param {import("./repositoryTestData.mjs").RepositoryDescription<Name>} description
+ * @param {TemplateShape & { parent: string }} options
+ */
+async function copyTemplate(description, { parent, ...shape }) {
+  const { root, built } = repositoryTemplate(description, shape);
+  const { revisions, trunkSha, candidateSha } = await built;
+  const fixture = realpathSync(mkdtempSync(join(parent, "workspace-claim-")));
+  const { origin, integration } = layout(fixture);
+  const { cleanup, defer } = fixtureTeardown(fixture);
+  try {
+    cpSync(root, fixture, { recursive: true });
+    /** @type {{ execution?: string, candidateSha?: string }} */
+    const workspace =
+      candidateSha === undefined
+        ? {}
+        : { execution: workspacePath(fixture), candidateSha };
+    // The copied remote, worktree and its administrative entry still name
+    // the template's paths; point them at this copy.
+    if (shape.origin)
+      await git(integration, "remote", "set-url", "origin", origin);
+    if (workspace.execution)
+      await git(integration, "worktree", "repair", workspace.execution);
+    return {
+      ...workspace,
+      fixture,
+      trunkSha,
+      revisions: /** @type {Record<Name, string>} */ ({ ...revisions }),
+      cleanup,
+      defer,
+    };
+  } catch (error) {
+    await cleanup();
+    throw error;
+  }
 }
 
 /**
@@ -160,45 +218,25 @@ export async function materializeRepository(
   description,
   { parent = tmpdir() } = {},
 ) {
-  const { root, built } = repositoryTemplate(description);
-  const { revisions, trunkSha, candidateSha } = await built;
-  const fixture = realpathSync(mkdtempSync(join(parent, "workspace-claim-")));
-  const checkout = layout(fixture);
-  const { cleanup, defer } = fixtureTeardown(fixture);
-  try {
-    cpSync(root, fixture, { recursive: true });
-    await git(
-      checkout.integration,
-      "remote",
-      "set-url",
-      "origin",
-      checkout.origin,
-    );
-    /** @type {{ execution?: string, candidateSha?: string }} */
-    const workspace =
-      candidateSha === undefined
-        ? {}
-        : { execution: workspacePath(fixture), candidateSha };
-    // The copied worktree and its administrative entry still name the
-    // template's paths; point them at this copy.
-    if (workspace.execution)
-      await git(
-        checkout.integration,
-        "worktree",
-        "repair",
-        workspace.execution,
-      );
-    return {
-      ...checkout,
-      ...workspace,
-      fixture,
-      trunkSha,
-      revisions: /** @type {Record<Name, string>} */ ({ ...revisions }),
-      cleanup,
-      defer,
-    };
-  } catch (error) {
-    await cleanup();
-    throw error;
-  }
+  const shape = { origin: true, gitTemplates: true };
+  const copy = await copyTemplate(description, { parent, ...shape });
+  return { ...layout(copy.fixture), ...copy };
+}
+
+/**
+ * The described history in one local checkout on its trunk branch, with no
+ * origin, for a case that reads no remote. Built once per process like
+ * `materializeRepository`; every caller gets its own mutable copy.
+ * `gitTemplates: false` initializes it without Git's templates.
+ * @template {string} Name
+ * @param {import("./repositoryTestData.mjs").RepositoryDescription<Name>} description
+ * @param {{ parent?: string, gitTemplates?: boolean }} [options]
+ */
+export async function materializeLocalCheckout(
+  description,
+  { parent = tmpdir(), gitTemplates = true } = {},
+) {
+  const shape = { origin: false, gitTemplates };
+  const copy = await copyTemplate(description, { parent, ...shape });
+  return { integration: layout(copy.fixture).integration, ...copy };
 }

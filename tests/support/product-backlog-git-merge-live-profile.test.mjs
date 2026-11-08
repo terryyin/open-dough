@@ -10,25 +10,25 @@ import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { makeMe } from "./makeMe.mjs";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { direction } from "./product-backlog-fixture.mjs";
 import {
   assertCatalogDoneAgrees,
   assertCommittedCatalogCurrent,
   completeAndCommit,
   done,
+  entries,
   fileNames,
-  items,
   profilePath,
   takeAndCommit,
 } from "./product-backlog-git-done-catalog-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   headSha,
   isMidMerge,
   parentCount,
   refSha,
   run,
-  scratchRepo,
 } from "./product-backlog-git-fixture.mjs";
 
 const doneFiles = (repo, rev) =>
@@ -83,7 +83,14 @@ async function assertAcceptedKeeping(
 }
 
 test("merging trunk that completed the story holding the last profile keeps the branch's own new profile in agents/", async (t) => {
-  const repo = scratchRepo(t, backlogOf([], items("A", "B")));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: entries("A", "B"), direction },
+      })
+      .please(),
+  );
   // Base: agents/ holds only A's profile.
   takeAndCommit(repo, executing("pyo", "A#A"));
   // The story branch takes B, adding its profile beside A's.
@@ -106,7 +113,14 @@ test("merging trunk that completed the story holding the last profile keeps the 
 });
 
 test("merging trunk that took another story into a branch completing the last profile's story releases only its own profile", async (t) => {
-  const repo = scratchRepo(t, backlogOf([], items("B", "C")));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: entries("B", "C"), direction },
+      })
+      .please(),
+  );
   // Base: agents/ holds only B's profile.
   takeAndCommit(repo, executing("joey", "B#B"));
   // The story branch completes B: its profile is replaced by B's done record.
@@ -134,7 +148,14 @@ test("merging trunk that took another story into a branch completing the last pr
 // misplaced path and its home, with nothing committed; moving the profile
 // back lets `continue` accept.
 test("continue holds a staged result with a live profile under done/ until it is moved back to agents/", async (t) => {
-  const repo = scratchRepo(t, backlogOf([], items("A", "B")));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: entries("A", "B"), direction },
+      })
+      .please(),
+  );
   takeAndCommit(repo, executing("pyo", "A#A"));
   repo.git(["checkout", "-q", "-b", "story-b"]);
   takeAndCommit(repo, executing("joey", "B#B"));

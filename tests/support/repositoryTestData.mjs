@@ -128,8 +128,9 @@ export class RepositoryBuilder {
   }
 
   /**
-   * The integration checkout's configured committer, and the default
-   * committer of every revision. Default: the fixed integration developer.
+   * The checkout's configured developer (`user.name` and `user.email`), and
+   * the default author and committer of every revision. Default: the fixed
+   * integration developer.
    * @param {GitPerson} checkoutIdentity
    * @returns {RepositoryBuilder<Name>}
    */

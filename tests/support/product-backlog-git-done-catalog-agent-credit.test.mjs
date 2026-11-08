@@ -6,20 +6,21 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { configureAgentAuthorship } from "../../src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import { direction } from "./product-backlog-fixture.mjs";
 import {
   assertCommittedCatalogCurrent,
   catalog,
   completeAndCommit,
   completingBranch,
+  entries,
   fileNames,
-  items,
 } from "./product-backlog-git-done-catalog-fixture.mjs";
 import {
+  checkoutOf,
   linkedWorktree,
   refSha,
   runRebase,
-  scratchRepo,
 } from "./product-backlog-git-fixture.mjs";
 
 const developer = "Dana Developer <dana@example.test>";
@@ -27,13 +28,22 @@ const developer = "Dana Developer <dana@example.test>";
 // An agent's owned workspace on `feature`, which completed B, about to
 // rebase onto `main`, which completed A and published no catalog.
 async function agentWorkspaceReplay(t) {
-  const repo = scratchRepo(t, backlogOf([], items("A", "B")));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withCheckoutIdentity({
+        name: "Dana Developer",
+        email: "dana@example.test",
+      })
+      .withRevision("ancestor", {
+        backlog: { queued: entries("A", "B"), direction },
+      })
+      .please(),
+  );
   await completingBranch(repo, "feature", ["B"], "2026-10-05T10:00:00.000Z");
   await completeAndCommit(repo, "A", "2026-10-04T10:00:00.000Z");
   repo.git(["rm", "-q", catalog]);
   repo.git(["commit", "-q", "-m", "publish without a catalog"]);
-  repo.git(["config", "user.name", "Dana Developer"]);
-  repo.git(["config", "user.email", "dana@example.test"]);
   const worktree = linkedWorktree(t, repo, "feature");
   await configureAgentAuthorship(worktree.directory, agentIdentity("Yui"));
   return worktree;

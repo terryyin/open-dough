@@ -12,14 +12,19 @@
 // branch's own ref, and the worktree's bytes — never a mocked function call.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   commitOn,
   isMidRebase,
   refSha,
   runRebase,
-  scratchRepo,
   stageResolution,
 } from "./product-backlog-git-fixture.mjs";
 
@@ -42,8 +47,17 @@ const branchFinalDirection = originalDirection.replace(
 );
 
 test("rebase accepts a genuinely compatible multi-commit clean replay, with no false dispute", async (t) => {
-  const ancestor = backlogOf([], [itemA, itemB, itemC, itemD]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: {
+          queued: linkedEntries("A", "B", "C", "D"),
+          direction,
+        },
+      })
+      .please(),
+  );
 
   repo.git(["checkout", "-q", "-b", "feature"]);
   commitOn(
@@ -105,8 +119,14 @@ test("a human-resolved earlier replay's accepted decision and the clean remainin
   // branch content here would falsely re-dispute the human's already
   // accepted decision (confirmed empirically) — proving this gate must not
   // do that.
-  const ancestor = backlogOf([], [itemC]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("C"), direction },
+      })
+      .please(),
+  );
 
   repo.git(["checkout", "-q", "-b", "feature"]);
   commitOn(
@@ -160,8 +180,14 @@ test("a human-resolved earlier replay's accepted decision and the clean remainin
 });
 
 test("a disputed clean-rebase result is recoverable: local commits untouched, and `validate` reads a hand repair", async (t) => {
-  const ancestor = backlogOf([], [itemA], originalDirection);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("A"), direction: originalDirection },
+      })
+      .please(),
+  );
 
   repo.git(["checkout", "-q", "-b", "feature"]);
   commitOn(

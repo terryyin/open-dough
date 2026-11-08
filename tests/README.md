@@ -82,13 +82,15 @@ For a real Git starting state, describe the published facts with
 `makeMe.aRepository.withRevision(name, facts).please()`. Each revision can
 declare membership, files, story state, profiles, done records, and commit
 identities. Materialize that description with `materializeRepository` to
-get a bare origin, a checkout, named commit IDs, and cleanup. Identical
+get a bare origin, a checkout, named commit IDs, and cleanup, or with
+`materializeLocalCheckout` to get one checkout with no origin for a case that
+reads no remote (`gitTemplates: false` initializes it without Git's templates). Identical
 descriptions reuse a template within one process, with a private mutable
 copy for each caller. Keep commands and Git transitions under proof in
 the case that observes their result. [Repository harness](support/repository-fixture.mjs)
 
 A description can also name its trunk branch (`withTrunkBranch`, default
-`main`), the checkout's configured committer (`withCheckoutIdentity`), and one
+`main`), the checkout's configured developer (`withCheckoutIdentity`), and one
 execution workspace: `withWorkspace(branch, { from, checkoutIdentity })` with
 ordered `withUnpublishedRevision` commits. The materializer adds that workspace
 as an `execution` worktree beside the checkout and commits its revisions

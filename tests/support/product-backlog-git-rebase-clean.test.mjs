@@ -24,14 +24,19 @@
 // exercised here.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   commitOn,
   isMidRebase,
   occurrences,
   runRebase,
-  scratchRepo,
   unresolvedPaths,
 } from "./product-backlog-git-fixture.mjs";
 
@@ -54,8 +59,14 @@ const branchFinalDirection = originalDirection.replace(
 );
 
 test("rebase stops a clean direction dispute no single replayed commit ever conflicted on", async (t) => {
-  const ancestor = backlogOf([], [itemA], originalDirection);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("A"), direction: originalDirection },
+      })
+      .please(),
+  );
 
   // feature, from the original ancestor: commit1 sets the same direction
   // text destination is about to set independently (accepted with no
@@ -118,8 +129,17 @@ test("rebase stops a clean direction dispute no single replayed commit ever conf
 });
 
 test("rebase stops the duplicate-move regression no single replayed commit ever conflicted on", async (t) => {
-  const ancestor = backlogOf([], [itemA, itemB, itemC, itemD]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: {
+          queued: linkedEntries("A", "B", "C", "D"),
+          direction,
+        },
+      })
+      .please(),
+  );
 
   repo.git(["checkout", "-q", "-b", "feature"]);
   commitOn(

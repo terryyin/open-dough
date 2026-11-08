@@ -3,14 +3,14 @@
 // history-preserving publication, each leaving a committed catalog that
 // describes the committed record files.
 import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { publishHistoryPreservingCandidate } from "../../src/skills/dough-execute-plan/scripts/history-preserving-publication.mjs";
 import { git } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import { backlogOf, direction } from "./product-backlog-fixture.mjs";
 import { divergedDoneBranches } from "./published-done-branches.mjs";
 import {
   assertCatalogDescribes,
@@ -20,6 +20,7 @@ import {
   completeAndCommit,
   completingBranch,
   done,
+  entries,
   fileNames,
   items,
   plainMergeConflicts,
@@ -27,16 +28,23 @@ import {
 } from "./product-backlog-git-done-catalog-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   headSha,
   isMidMerge,
   parentCount,
   refSha,
   run,
-  scratchRepo,
 } from "./product-backlog-git-fixture.mjs";
 
 test("a merge whose incoming side added two records without a catalog commits a catalog listing every record", async (t) => {
-  const repo = scratchRepo(t, backlogOf([], items("A", "B", "C")));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: entries("A", "B", "C"), direction },
+      })
+      .please(),
+  );
   await completingBranch(
     repo,
     "incoming",
@@ -64,7 +72,14 @@ test("a merge whose incoming side added two records without a catalog commits a 
 });
 
 test("a merge where both sides completed work, so both changed the catalog, finishes without a stop", async (t) => {
-  const repo = scratchRepo(t, backlogOf([], items("A", "B", "C")));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: entries("A", "B", "C"), direction },
+      })
+      .please(),
+  );
   await completeAndCommit(repo, "A", "2026-10-04T10:00:00.000Z");
   await completingBranch(repo, "theirs", ["B"], "2026-10-05T10:00:00.000Z");
   await completeAndCommit(repo, "C", "2026-10-06T10:00:00.000Z");
@@ -85,7 +100,14 @@ test("a merge where both sides completed work, so both changed the catalog, fini
 });
 
 test("a merge whose other side carries a malformed catalog finishes without a stop and commits a rebuilt one", async (t) => {
-  const repo = scratchRepo(t, backlogOf([], items("A", "B", "C")));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: entries("A", "B", "C"), direction },
+      })
+      .please(),
+  );
   await completeAndCommit(repo, "A", "2026-10-04T10:00:00.000Z");
   await completingBranch(repo, "theirs", ["B"], "2026-10-05T10:00:00.000Z");
   checkout(repo, "theirs");
@@ -104,7 +126,14 @@ test("a merge whose other side carries a malformed catalog finishes without a st
 });
 
 test("a conflicting record stops the merge before any catalog is committed, and continue commits a catalog matching the resolved record", async (t) => {
-  const repo = scratchRepo(t, backlogOf([], items("A", "B")));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: entries("A", "B"), direction },
+      })
+      .please(),
+  );
   await completingBranch(repo, "theirs", ["A"], "2026-10-05T10:00:00.000Z");
   await completeAndCommit(repo, "A", "2026-10-06T10:00:00.000Z");
   const before = headSha(repo);
@@ -137,7 +166,14 @@ test("a conflicting record stops the merge before any catalog is committed, and 
 });
 
 test("a merge changing no done path leaves the catalog's bytes as they were, even a stale catalog", async (t) => {
-  const repo = scratchRepo(t, backlogOf([], items("A", "B", "C")));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: entries("A", "B", "C"), direction },
+      })
+      .please(),
+  );
   await completeAndCommit(repo, "A");
   // A record the catalog does not describe, published by hand.
   writeFileSync(
@@ -172,7 +208,14 @@ test("a merge changing no done path leaves the catalog's bytes as they were, eve
 });
 
 test("a fast-forward merge adds no commit and rebuilds nothing", async (t) => {
-  const repo = scratchRepo(t, backlogOf([], items("A", "B")));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: entries("A", "B"), direction },
+      })
+      .please(),
+  );
   await completingBranch(repo, "ahead", ["A"]);
 
   const merged = await run(repo, ["merge", "--ref", "ahead"]);

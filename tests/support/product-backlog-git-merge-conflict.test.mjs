@@ -8,15 +8,20 @@
 // ref positions, and the worktree's own bytes.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   commitBranch,
   isMidMerge,
   linkedWorktree,
   parentCount,
   run,
-  scratchRepo,
   stage,
   stageResolution,
   unresolvedPaths,
@@ -26,7 +31,14 @@ const itemC = "- [Item C](seeds/C.md#c)";
 
 test("merge stops a genuine textual conflict Git itself cannot resolve, and leaves it recoverable", async (t) => {
   const ancestor = backlogOf([], [itemC]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("C"), direction },
+      })
+      .please(),
+  );
   const renamedOne = backlogOf([], ["- [Item C1](seeds/C.md#c)"]);
   const renamedTwo = backlogOf([], ["- [Item C2](seeds/C.md#c)"]);
   commitBranch(repo, "rename-c1", renamedOne);
@@ -55,8 +67,14 @@ test("merge stops a genuine textual conflict Git itself cannot resolve, and leav
 });
 
 test("merge's human recovery validates a supplied result without rerunning disputed reconciliation", async (t) => {
-  const ancestor = backlogOf([], [itemC]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("C"), direction },
+      })
+      .please(),
+  );
   const renamedOne = backlogOf([], ["- [Item C1](seeds/C.md#c)"]);
   const renamedTwo = backlogOf([], ["- [Item C2](seeds/C.md#c)"]);
   commitBranch(repo, "rename-c1", renamedOne);
@@ -96,7 +114,14 @@ test("merge's human recovery continues a merge stopped in a linked Git worktree"
   // `continue` recognises the stopped merge by `MERGE_HEAD`, which in a
   // linked worktree is that worktree's own state rather than a file under a
   // `.git` directory in the checkout.
-  const repo = scratchRepo(t, backlogOf([], [itemC]));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("C"), direction },
+      })
+      .please(),
+  );
   commitBranch(repo, "rename-c1", backlogOf([], ["- [Item C1](seeds/C.md#c)"]));
   commitBranch(repo, "rename-c2", backlogOf([], ["- [Item C2](seeds/C.md#c)"]));
   const worktree = linkedWorktree(t, repo, "rename-c1");
@@ -117,8 +142,14 @@ test("merge's human recovery continues a merge stopped in a linked Git worktree"
 });
 
 test("merge's human recovery refuses a staged candidate that does not match the worktree", async (t) => {
-  const ancestor = backlogOf([], [itemC]);
-  const repo = scratchRepo(t, ancestor);
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("C"), direction },
+      })
+      .please(),
+  );
   commitBranch(repo, "rename-c1", backlogOf([], ["- [Item C1](seeds/C.md#c)"]));
   commitBranch(repo, "rename-c2", backlogOf([], ["- [Item C2](seeds/C.md#c)"]));
   checkout(repo, "rename-c1");

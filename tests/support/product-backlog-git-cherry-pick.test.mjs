@@ -12,7 +12,12 @@
 // exercised here.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
 import {
   cherryPickStop,
   isMidCherryPick,
@@ -20,10 +25,10 @@ import {
 } from "./product-backlog-git-cherry-pick-fixture.mjs";
 import {
   checkout,
+  checkoutOf,
   commitBranch,
   headSha,
   refSha,
-  scratchRepo,
   stage,
   stageResolution,
   unresolvedPaths,
@@ -35,9 +40,15 @@ const itemC = "- [Item C](seeds/C.md#c)";
 // the same entry incompatibly, so picking `feature`'s commit onto `dest`
 // must conflict. `feature` is left untouched by a cherry-pick — unlike a
 // merge or rebase, nothing about the source commit's own branch ever moves.
-function buildConflictingPick(t) {
-  const ancestor = backlogOf([], [itemC]);
-  const repo = scratchRepo(t, ancestor);
+async function buildConflictingPick(t) {
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withRevision("ancestor", {
+        backlog: { queued: linkedEntries("C"), direction },
+      })
+      .please(),
+  );
   commitBranch(
     repo,
     "dest",
@@ -55,7 +66,7 @@ function buildConflictingPick(t) {
 }
 
 test("cherry-pick stops a genuine textual conflict, identified by real revisions from CHERRY_PICK_HEAD", async (t) => {
-  const repo = buildConflictingPick(t);
+  const repo = await buildConflictingPick(t);
   const featureTip = refSha(repo, "feature");
   const featureParent = repo.git(["rev-parse", `${featureTip}^`]).trim();
   const destTip = headSha(repo);
@@ -107,7 +118,7 @@ test("cherry-pick stops a genuine textual conflict, identified by real revisions
 });
 
 test("cherry-pick's human recovery validates a supplied result without rerunning disputed reconciliation, accepted exactly once", async (t) => {
-  const repo = buildConflictingPick(t);
+  const repo = await buildConflictingPick(t);
   const featureTip = refSha(repo, "feature");
   const destTipBefore = headSha(repo);
   const stopped = await runCherryPick(repo, ["pick", "--ref", featureTip]);
@@ -142,7 +153,7 @@ test("cherry-pick's human recovery validates a supplied result without rerunning
 });
 
 test("cherry-pick's human recovery refuses a staged candidate that does not match the worktree", async (t) => {
-  const repo = buildConflictingPick(t);
+  const repo = await buildConflictingPick(t);
   await runCherryPick(repo, ["pick", "--ref", refSha(repo, "feature")]);
 
   const staged = backlogOf([], ["- [Item C, staged](seeds/C.md#c)"]);

@@ -3,6 +3,7 @@
 **Identity:** SEED-262#migrate-backlog-scratch-repositories
 
 **Source:** [Build Node test repositories from explicit MakeMe data](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-backlog-scratch-repositories)
+**Source review:** [source review](source-review.md)
 
 ## Goal and boundaries
 
@@ -76,11 +77,10 @@ then extends them.
 - **Arrangement from encoders, expectations hand-written.** Arrangement
   backlogs are built from `aBacklogEntry` and encoded by production
   rendering. `backlogOf`, `item` and `items` stay as the independent byte
-  expectation. Entry lines without an identity, such as
-  `- [Item A](seeds/A.md#a)` in the merge tests, cannot be rendered. They stay
-  literal bytes where that shape is under proof. Otherwise the case moves to
-  identified entries in both arrangement and expectation, with an unchanged
-  verdict.
+  expectation. A link-only entry line, such as `- [Item A](seeds/A.md#a)` in
+  the merge tests, renders from an `aBacklogEntry` whose identity is its link
+  (slice 1 learning), so arrangements declare it and expectations keep its
+  literal bytes.
 - **Declared transitions on Git branches.** A done record comes from
   `aDoneRecord` with `renderDoneRecord`. The catalog comes from
   `catalogDoneRecords` and `renderDoneCatalog` over the rendered records and
@@ -116,7 +116,7 @@ Observed on 2026-11-08 at `3cb2bf37e` in this worktree on macOS with Node
 | Consuming operation | Observation | Result |
 | --- | --- | --- |
 | Slice 2 replaces `complete` in setup with encoder writes | `node <job-tmp>/p3.mjs` built `scratchRepo` with Items A, B and C and ran `completingBranch(feature, [B], 2026-10-05)` and `completeAndCommit(A, 2026-10-04)`. It then rendered each record from `aDoneRecord` with the record's identity, title, completedAt and developer, and each catalog with `catalogDoneRecords` and `renderDoneCatalog`, using the Git blob hash `sha1("blob <len>\0" + text)` | Both records and both catalogs were byte for byte equal to what `git show` returned at `feature` and `main`. Without the blob, the catalog differed. The developer was "Test", the fixture's hidden name, so the declared record must state it. |
-| Slice 1 renders arrangement entry lines | `node <job-tmp>/p4.mjs`: `renderEntry` of `aBacklogEntry` against `item("A")` from the merge fixture, `items("A")` from the done-catalog fixture and `takenEntry` | All three were the same bytes. The merge tests' entries without an identity cannot be rendered. |
+| Slice 1 renders arrangement entry lines | `node <job-tmp>/p4.mjs`: `renderEntry` of `aBacklogEntry` against `item("A")` from the merge fixture, `items("A")` from the done-catalog fixture and `takenEntry` | All three were the same bytes. Corrected in slice 1: a link-only entry renders when its identity is its link. |
 | Slice 1 matches `backlogOf`'s whole-backlog shape | `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/support/product-backlog-direction.test.mjs tests/support/product-backlog-correction-story.test.mjs`. These tests assert that real command output equals `backlogOf`, with and without direction. | Exit 0, a quiet pass of 7 tests. Production rendering writes `backlogOf`'s heading, direction and list layout. Plan 510's description encoder uses that rendering. Its use through `makeMe.aRepository` is checked when plan 510 lands, by slice 1's first focused run. |
 | Slice 1 keeps feedback speed with a local checkout | `node <job-tmp>/t.mjs` twice at load about 5.7. Each shape was built 30 times: a single repository with one commit, a bare origin with a checkout and push, and a copied template | 61.5–63.8 ms, 127.7–130.7 ms and 17.1–17.7 ms. The local checkout runs the same Git operations as `scratchRepo`. In-process encoding adds no Git process, so it cannot change the result materially. |
 | No paid run | Search of every `*.sh` and `*.bash` file for the family's fixture module names | No match, so no native evidence input changes |
@@ -145,11 +145,23 @@ with `GIT_ALTERNATE_OBJECT_DIRECTORIES`, `NO_COLOR` and `FORCE_COLOR` unset.
 ### 1. Backlog Git tests declare their starting repository
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: First record the before time of the 18 `scratchRepo` test files in one
 `scripts/test.sh` run. After the change the same selection passes with
 unchanged assertions, and the after time does not regress beyond run-to-run
 noise. `npm run typecheck:dashboard` passes.
+
+Accepted 2026-11-08: 42 call sites in the 18 files (the earlier count of 43
+was a miscount) declare `makeMe.aRepository` and use `checkoutOf`, which wraps
+the new shared `materializeLocalCheckout` (no origin, per-process template
+reuse, `gitTemplates: false` option). Same 18-file run: before 26.9 s (load
+15.8) and 21.7 s (17.0); after 16.2 s (12.8), 20.4 s (16.6), 14.9 s (13.2).
+Type-check passed; the 187 other importers of the changed fixtures passed;
+dashboard `agent-launch-attention`, `backlog-preparing` and
+`agent-launch-start-story-card` passed. Learning: the "cannot be rendered"
+premise was false; `renderEntry` writes a link-only line when the identity is
+the link. Branch commits and setup `complete` now run as the declared or
+default checkout identity instead of "Test"; no assertion reads it.
 
 Behavior: a merge, rebase, cherry-pick or driver test that today calls
 `scratchRepo(t, backlog)` → it passes a `makeMe.aRepository` description of its

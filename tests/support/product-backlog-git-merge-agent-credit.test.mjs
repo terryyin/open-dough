@@ -7,15 +7,20 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { configureAgentAuthorship } from "../../src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { backlogOf } from "./product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
 import {
+  backlogOf,
+  direction,
+  linkedEntries,
+} from "./product-backlog-fixture.mjs";
+import {
+  checkoutOf,
   commitBranch,
   headSha,
   isMidMerge,
   linkedWorktree,
   parentCount,
   run,
-  scratchRepo,
 } from "./product-backlog-git-fixture.mjs";
 
 const itemA = "- [Item A](seeds/A.md#a)";
@@ -26,11 +31,24 @@ const itemC = "- [Item C](seeds/C.md#c)";
 // agent as author) about to merge compatible sibling closures, with the
 // developer configured as the Git user.
 async function agentWorkspaceMerge(t) {
-  const repo = scratchRepo(t, backlogOf([itemA, itemB], [itemC]));
+  const repo = await checkoutOf(
+    t,
+    makeMe.aRepository
+      .withCheckoutIdentity({
+        name: "Dana Developer",
+        email: "dana@example.test",
+      })
+      .withRevision("ancestor", {
+        backlog: {
+          taken: linkedEntries("A", "B"),
+          queued: linkedEntries("C"),
+          direction,
+        },
+      })
+      .please(),
+  );
   commitBranch(repo, "close-a", backlogOf([itemB], [itemC]));
   commitBranch(repo, "close-b", backlogOf([itemA], [itemC]));
-  repo.git(["config", "user.name", "Dana Developer"]);
-  repo.git(["config", "user.email", "dana@example.test"]);
   const worktree = linkedWorktree(t, repo, "close-a");
   await configureAgentAuthorship(worktree.directory, agentIdentity("Yui"));
   return worktree;
