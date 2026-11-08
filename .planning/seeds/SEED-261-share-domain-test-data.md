@@ -307,6 +307,9 @@ recovery, retained final reports, landing and one-shot landing receipts in
 the dashboard roots, and the launch data the skill
 `dashboard-landing.test.mjs` arranges (about 43 specs). Extend the kept
 record's outcome facts instead of a second completion model.
+`final-report-admission.spec.ts` wraps a Claude session around a Codex and
+a Cursor record to prove wrong-host refusal; that case states the mismatch at
+its call site, and every other kept record keeps one host.
 
 **Evaluation and stopping point.** Reports, receipts and terminal protocol
 evidence stay separate; recovery and fault cases keep their injected faults
@@ -332,6 +335,12 @@ follows its own continuation contract.
 behavior stay in the harness. Omitted legacy continuations and alias
 rejections stay explicit where under proof. The host record factories are
 removed or delegate to MakeMe.
+`agent-terminal-codex.spec.ts` (a Claude session over a server-written Codex
+record) states its host mismatch at the call site;
+`project-restored-session.spec.ts` keeps its Codex record without a cast;
+`oneShotReviewChoices` keeps its legacy record explicit. Cases that assert a
+host's native session name state it through a builder session-name variant,
+since `makeMe.aLaunchRecord` names a session after its title.
 
 <a id="map-project-configuration-test-data"></a>
 
