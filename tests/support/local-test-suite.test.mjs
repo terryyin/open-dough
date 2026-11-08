@@ -5,7 +5,6 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
-  readdirSync,
   writeFileSync,
 } from "node:fs";
 import { availableParallelism } from "node:os";
@@ -22,6 +21,10 @@ import {
   succeeded,
   until,
 } from "./local-test-suite-fixtures.mjs";
+import {
+  repositoryAtSlotGate,
+  startedChecks,
+} from "./local-test-suite-slot-gate.mjs";
 
 test("local repository defaults to four jobs; explicit overrides and CI keep their concurrency", async (t) => {
   const cores = Number(
@@ -35,18 +38,16 @@ test("local repository defaults to four jobs; explicit overrides and CI keep the
     ["ci", cores, { CI: "true" }],
   ]) {
     const observation = observe(name);
-    const run = repository(t, project, observation, env);
-    const started = () =>
-      readdirSync(observation).filter((entry) => entry.startsWith("start-"))
-        .length;
+    // Every slot stays held until the runner, with checks still queued, finds
+    // none free: the jobs it had started then are all it may start.
+    const run = repositoryAtSlotGate(t, project, observation, expected, env);
+    const started = () => startedChecks(observation);
+    assert.equal(await run.gate, expected, `${name}: jobs dispatched`);
     await until(
       `${name}: ${expected} jobs entered`,
       () => started() === expected || run.child.exitCode !== null,
     );
     assert.equal(started(), expected, run.output());
-    // The negative window proves no extra job enters while all slots are held.
-    await delay(150);
-    assert.equal(started(), expected);
     writeFileSync(path.join(observation, "release"), "");
     await succeeded(run);
     assert.equal(started(), cases);

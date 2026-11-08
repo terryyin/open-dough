@@ -51,6 +51,7 @@ function launch(t, cwd, args, extra = {}, command = process.execPath) {
     "OPEN_DOUGH_DASHBOARD_SPLIT",
     "OPEN_DOUGH_TEST_DIR",
     "OPEN_DOUGH_TEST_JOBS",
+    "OPEN_DOUGH_TEST_SLOT_GATE",
     "DOUGH_LOCAL_SUITE_OWNERS",
     "DOUGH_LOCAL_SUITE_IDS",
     "DOUGH_LOCAL_SUITE_RUNNER_PID",

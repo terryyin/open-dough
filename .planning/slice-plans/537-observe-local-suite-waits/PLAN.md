@@ -2,6 +2,7 @@
 
 **Identity:** SEED-277#observe-local-suite-waits
 **Source:** [Refined story](../../seeds/SEED-277-observe-local-suite-waits.md#observe-local-suite-waits)
+**Source review:** [source-only review](source-review.md)
 
 ## Goal and boundaries
 
@@ -76,7 +77,7 @@ sleep log afterward. [Machine sleep on macOS](../../../tests/local-test-resource
 ### 1. Queued checks wait when every job slot is occupied
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Key example 1 through `npm test -- tests/support/local-test-suite.test.mjs`
 and the dispatcher consumers in the local gate.
 
@@ -88,6 +89,17 @@ and observe every queued check run to completion. Exercise local default
 four, the explicit override, and the CI CPU-derived limit. Confirm that a
 scratch overdispatch fails on an excess dispatch or start, then restore it
 and run the focused checks.
+
+Accepted: `scripts/test.sh` writes the opt-in `OPEN_DOUGH_TEST_SLOT_GATE`
+marker (the dispatch count) just before blocking on an empty slot FIFO;
+`repositoryAtSlotGate` in `tests/support/local-test-suite-slot-gate.mjs`
+watches it and rejects on an excess `start-*` marker or early exit. The
+first spec asserts the gate count, the held starts, release and all checks
+run for local, override and CI. Focused specs and `tests/test-runner-*.sh`
+passed; a scratch `slot <= job_slots` overdispatch failed with "5 checks
+started before the slot gate" and was restored. Refactor moved the
+slot-gate helper into its own module to keep the fixtures file under the
+size limit.
 
 ### 2. A linked worktree waits while a live outer suite holds admission
 

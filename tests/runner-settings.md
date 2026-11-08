@@ -12,7 +12,10 @@ seconds recorded in `tests/longest-first`, longest recorded first;
 `OPEN_DOUGH_TEST_TIMES=<file>` writes every job's wall seconds and name,
 longest first. `OPEN_DOUGH_TEST_OUTCOMES=<file>` writes each job's outcome
 (`failed` when reported as failing, else `passed`) and name, tab-separated,
-for CI's proof fragments (`ci-proof` in `.github/workflows/ci.yml`). Every
+for CI's proof fragments (`ci-proof` in `.github/workflows/ci.yml`).
+`OPEN_DOUGH_TEST_SLOT_GATE=<file>` receives the number of jobs started each
+time the runner finds every slot occupied with a job still queued, so a check
+can observe the runner holding queued work. Every
 `OPEN_DOUGH_TEST_*` setting stays with the runner that was given it, so a
 check that runs the runner itself gives it only the settings it chooses, runs
 all of its own checks, and keeps its own times. CI's shares, the deal and the
