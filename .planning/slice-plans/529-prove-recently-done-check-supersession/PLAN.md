@@ -119,6 +119,15 @@ development `--repeat-each=5`, 35 passed) and dashboard typecheck.
 `PageFrame.tsx` is 247 lines. Refactor shared the abandoned-read wait as
 `pygardonCatalogAbandoned` in `dashboard/tests/pygardonCatalogReads.ts`.
 
+## Execution complete
+
+Product advice: no change. The correction proved project-change and Open
+supersession and the unreadable-record case, shared the Board's catalog
+reading and gap wording, and trimmed the overlapping selection tests; it
+surfaced no new product learning or priority. The excluded question (whether
+a standalone choice clears when the Selected story changes) stays with the
+developer.
+
 ## Preparation review
 
 Slice-plan refinement was not needed: each slice has one observable result
