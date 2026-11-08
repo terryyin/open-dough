@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Build each test’s Git repository from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures) — SEED-262#build-explicit-git-fixtures ([plan](slice-plans/510-build-explicit-git-fixtures/PLAN.md))
+- [Surface a named sibling landing before delivering against its old shape](seeds/SEED-010-learn-from-execution-retrospectives.md#notice-named-sibling-landings-before-delivery) — SEED-010#notice-named-sibling-landings-before-delivery ([plan](slice-plans/523-notice-named-sibling-landings/PLAN.md))
 
 ## Backlog list
 
-- [Surface a named sibling landing before delivering against its old shape](seeds/SEED-010-learn-from-execution-retrospectives.md#notice-named-sibling-landings-before-delivery) — SEED-010#notice-named-sibling-landings-before-delivery
 - [Build dashboard start origins from explicit MakeMe repository data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures) — SEED-262#migrate-dashboard-origin-fixtures
 - [Build clean-trunk and managed delivery repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures) — SEED-262#migrate-clean-trunk-fixtures
 - [Build Node test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-backlog-scratch-repositories) — SEED-262#migrate-backlog-scratch-repositories

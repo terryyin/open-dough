@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "identity": "SEED-010#notice-named-sibling-landings-before-delivery",
+  "mode": "story-branch",
+  "branch": "codex/surface-a-named-sibling-landing-before-deliverin",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
