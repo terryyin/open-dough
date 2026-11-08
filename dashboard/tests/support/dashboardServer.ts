@@ -36,6 +36,7 @@ import {
 import { defaultBaseCiRevision } from "./baseCiActions.ts";
 import { publishes } from "./publishedRepository.ts";
 import { dashboardFixtureLifetime } from "./dashboardFixtureLifetime.ts";
+import { standInCursorRunner } from "./cursorRunnerStandIn.ts";
 import {
   serverLaunch,
   startOnOwnAddress,
@@ -51,6 +52,10 @@ import { sharedServerBundle } from "./serverBundle.ts";
 // Callers find the shared-build resolver and the modes beside the server.
 export { sharedDashboardBuild } from "./dashboardBuild.ts";
 export type { DashboardServerMode };
+export type {
+  DashboardCursorRunner,
+  DashboardServerOptions,
+} from "./dashboardServerOptions.ts";
 
 // The boundary server in the dev server's environment: what a spec that
 // moved off a dev server starts, keeping the environment it observed there
@@ -95,6 +100,12 @@ export async function startDashboardServer(
     options.mode === "dev" ? undefined : await sharedServerBundle();
   const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-dashboard-"));
   const ownsMachine = options.machine === undefined;
+  const cursorRunner = options.cursorRunner ?? "real";
+  if (cursorRunner === "stand-in" && !ownsMachine) {
+    throw new Error(
+      "A Cursor runner stand-in needs a harness-owned machine; caller-owned restart machines keep the real runner.",
+    );
+  }
   const ownsGitHub = options.github === undefined;
   const github = options.github ?? (await startFakeGitHub());
   if (ownsGitHub) {
@@ -159,6 +170,12 @@ export async function startDashboardServer(
     env["DOUGH_TEST_OBSERVATION_CLOCK_AHEAD_FILE"] = clockAheadFile;
   }
 
+  // Install before listening so ensureCursorRunner accepts the stand-in.
+  const standIn =
+    cursorRunner === "stand-in"
+      ? await standInCursorRunner(claude.controls.home)
+      : undefined;
+
   const closeOwned = dashboardFixtureLifetime({
     tempRoot,
     home: claude.controls.home,
@@ -167,6 +184,7 @@ export async function startDashboardServer(
     codex: options.codexProtocol === undefined ? codex : undefined,
     gh,
     github: ownsGitHub ? github : undefined,
+    standIn,
   });
 
   const launch = async () => {

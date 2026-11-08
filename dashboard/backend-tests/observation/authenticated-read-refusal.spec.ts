@@ -16,7 +16,11 @@ import {
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import {
+  branchReadRefusals,
+  listedReadRefusals,
+  watchedBranchRefusals,
+} from "./authenticatedReadRefusalCases.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -29,7 +33,12 @@ test.describe("authenticated read boundary refusal (development environment)", (
   let server: DashboardServer;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+    // Cursor operations are outside this spec's proof; use the harness
+    // stand-in so setup skips an unused real runner.
+    server = await startDashboardServer({
+      ...developmentBoundary,
+      cursorRunner: "stand-in",
+    });
   });
 
   test.afterAll(async () => {
@@ -143,28 +152,14 @@ test.describe("authenticated read boundary refusal (development environment)", (
   // A listed records read, or a done catalog read, names only the pinned
   // revision: never another path, never with a revision check or the other
   // listed read, and never a branch name it would resolve itself.
-  for (const { listed, named, onlyPinned, path, combined } of [
-    {
-      listed: "an agent profile read",
-      named: "agents=profiles",
-      onlyPinned: "An agent profile read names only a pinned revision.",
-      path: `.planning/${agentIdentity("Yui").path}`,
-      combined: {
-        read: "combined with a revision check",
-        query: `revision=${revision}&since=${revision}`,
-      },
-    },
-    {
-      listed: "a done catalog read",
-      named: "done=catalog",
-      onlyPinned: "A done catalog read names only a pinned revision.",
-      path: ".planning/done/SEED-001_x.json",
-      combined: {
-        read: "combined with an agent profile read",
-        query: `revision=${revision}&agents=profiles`,
-      },
-    },
-  ]) {
+  for (const {
+    listed,
+    named,
+    onlyPinned,
+    path,
+    combined,
+    unpinnedRevision,
+  } of listedReadRefusals) {
     for (const refused of [
       {
         read: "that also names a repository path",
@@ -175,7 +170,7 @@ test.describe("authenticated read boundary refusal (development environment)", (
       {
         read: "at a revision that is not a commit sha",
         query: "revision=main",
-        error: "The pinned revision is not a commit sha.",
+        error: unpinnedRevision,
       },
     ]) {
       test(`refuses ${listed} ${refused.read} before launching gh`, () =>
@@ -184,66 +179,13 @@ test.describe("authenticated read boundary refusal (development environment)", (
   }
   // A branch read names a branch the server can put into GitHub's endpoint
   // unchanged, and reads a file only at a head it names as a commit.
-  for (const refused of [
-    {
-      read: "whose branch name could reshape GitHub's endpoint",
-      query: `revision=${revision}&branch=${encodeURIComponent("story/../../contents")}`,
-      error: "The branch name is not usable.",
-    },
-    {
-      read: "that names a file without the branch head",
-      query: `revision=${revision}&branch=story%2Fexample&path=${encodeURIComponent(".planning/slice-plans/092/PLAN.md")}`,
-      error: "A read on a branch names the branch head it resolved.",
-    },
-    {
-      read: "at a head that is not a commit sha",
-      query: `revision=${revision}&branch=story%2Fexample&head=main&path=${encodeURIComponent(".planning/slice-plans/092/PLAN.md")}`,
-      error: "The branch head is not a commit sha.",
-    },
-    {
-      read: "combined with a revision check",
-      query: `since=${revision}&branch=story%2Fexample`,
-      error:
-        "A branch read names only a pinned revision, a recorded branch, and for a file its resolved head and repository path.",
-    },
-  ]) {
+  for (const refused of branchReadRefusals) {
     test(`refuses a branch read ${refused.read} before launching gh`, () =>
       expectRefusedParameters(refused.query, refused.error));
   }
   // A revision check watches only branches named plainly enough to compare
   // with GitHub's listing, and watching belongs to a revision check alone.
-  const onlyWithCheck =
-    "Watched branches are named only with a revision check.";
-  for (const refused of [
-    {
-      read: "whose branch name could reshape what it names",
-      query: `since=${revision}&watch=${encodeURIComponent("story/../main")}`,
-      error: "A watched branch name is not usable.",
-    },
-    {
-      read: "among too many",
-      query: `since=${revision}${Array.from(
-        Array(101).keys(),
-        (at) => `&watch=story%2F${String(at)}`,
-      ).join("")}`,
-      error: "A revision check watches too many branches.",
-    },
-    {
-      read: "without a revision check",
-      query: `watch=story%2Fexample`,
-      error: onlyWithCheck,
-    },
-    {
-      read: "beside a pinned revision",
-      query: `since=${revision}&revision=${revision}&watch=story%2Fexample`,
-      error: onlyWithCheck,
-    },
-    {
-      read: "beside a branch read",
-      query: `since=${revision}&branch=story%2Fexample&watch=story%2Fexample`,
-      error: onlyWithCheck,
-    },
-  ]) {
+  for (const refused of watchedBranchRefusals) {
     test(`refuses a watched branch ${refused.read} before launching gh`, () =>
       expectRefusedParameters(refused.query, refused.error));
   }
