@@ -9,9 +9,24 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test as base } from "../dashboardTest.ts";
-import { installFakeCodex } from "./fakeCodex.ts";
+import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 export { expect } from "../dashboardTest.ts";
+
+// The fake Codex installed on the test's machine, for any test whose
+// `machine` fixture supplies that directory.
+export async function codexProtocol(
+  { machine }: { machine: string | undefined },
+  use: (native: FakeCodex) => Promise<void>,
+) {
+  const native = await installFakeCodex(
+    machine ?? "",
+    process.env["PATH"] ?? "",
+    true,
+  );
+  await use(native);
+  await native.close();
+}
 
 export const test = base.extend({
   // eslint-disable-next-line no-empty-pattern
@@ -20,15 +35,7 @@ export const test = base.extend({
     await use(machine);
     rmSync(machine, { recursive: true, force: true });
   },
-  codexProtocol: async ({ machine }, use) => {
-    const native = await installFakeCodex(
-      machine ?? "",
-      process.env["PATH"] ?? "",
-      true,
-    );
-    await use(native);
-    await native.close();
-  },
+  codexProtocol,
 });
 export const stored = (home: string): LaunchRecord[] =>
   (

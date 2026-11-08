@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-269_recover-terminal-insert.json",
+      "identity": "SEED-269#recover-terminal-insert",
+      "completedAt": "2026-11-08T04:55:33.281Z",
+      "blob": "030e8a88a045fab8434b32dff8da476f1442a72c"
+    },
+    {
       "fileName": "SEED-267_preserve-large-ci-proof-reports.json",
       "identity": "SEED-267#preserve-large-ci-proof-reports",
       "completedAt": "2026-11-08T04:24:08.195Z",

@@ -20,7 +20,12 @@ type PasteOffer = {
   readonly offer: (text: string) => boolean;
 };
 
-const reconnect = "Reconnect to the terminal, then tap Paste again.";
+// Names the panel's shown attach-again action, or says the attachment is
+// still connecting when there is none.
+const unavailable = (action: string | undefined) =>
+  action === undefined
+    ? "The terminal is still connecting. Tap Paste again once it connects."
+    : `Tap ${action}, then tap Paste again.`;
 
 type ClipboardContent =
   | { readonly text: string }
@@ -80,6 +85,7 @@ async function storeImage(
 export function useTerminalPaste(
   record: LaunchRecord,
   getPaste: () => PasteOffer | undefined,
+  recovery: () => string | undefined,
 ) {
   const [feedback, setFeedback] = useState<string>();
 
@@ -96,15 +102,15 @@ export function useTerminalPaste(
     }
     if ("image" in content) {
       if (!paste?.acceptsInput()) {
-        setFeedback(reconnect);
+        setFeedback(unavailable(recovery()));
         return;
       }
       const stored = await storeImage(record, content.image, content.type);
       if ("error" in stored) setFeedback(stored.error);
-      else if (!paste.offer(stored.path)) setFeedback(reconnect);
+      else if (!paste.offer(stored.path)) setFeedback(unavailable(recovery()));
       else setFeedback(`Image pasted as ${stored.path}.`);
     } else if (!content.text) setFeedback("There was nothing to paste.");
-    else if (!paste?.offer(content.text)) setFeedback(reconnect);
+    else if (!paste?.offer(content.text)) setFeedback(unavailable(recovery()));
     else setFeedback(undefined);
   }
 

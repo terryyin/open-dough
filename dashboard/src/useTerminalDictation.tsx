@@ -8,14 +8,26 @@ import { SettingsNavigation } from "./settingsNavigation.ts";
 
 // Destination state belongs to the keyed session view, so attachment retries
 // retain an unsent result while closing or replacing the view discards it.
-export function useTerminalDictation(insert: (text: string) => boolean) {
+// `recovery` names the panel's shown attach-again action when an offer fails,
+// or nothing while the attachment is still connecting.
+export function useTerminalDictation(
+  insert: (text: string) => boolean,
+  recovery: () => string | undefined,
+) {
   const openSettings = useContext(SettingsNavigation);
-  const [pending, setPending] = useState<string>();
+  const [pending, setPending] = useState<{
+    readonly text: string;
+    readonly action: string | undefined;
+  }>();
   const [problem, setProblem] = useState<string>();
+  const offer = (text: string) => {
+    if (insert(text)) setPending(undefined);
+    else setPending({ text, action: recovery() });
+  };
   const recording = useInstructionRecording((transcript) => {
     const text = terminalDictationText(transcript);
     if (!text) setProblem(instructionProblems.empty);
-    else if (!insert(text)) setPending(text);
+    else offer(text);
   });
   const recordingNow = recording.phase === "recording";
   return {
@@ -53,8 +65,10 @@ export function useTerminalDictation(insert: (text: string) => boolean) {
         {pending !== undefined && (
           <div className="terminal-transcript">
             <p>
-              The transcript was not inserted. Reconnect, then insert it here or
-              discard it. Nothing is inserted automatically.
+              {pending.action === undefined
+                ? "The transcript was not inserted while the terminal is still connecting. Insert it here once it connects, or discard it."
+                : `The transcript was not inserted. ${pending.action}, then insert it here or discard it.`}{" "}
+              Nothing is inserted automatically.
             </p>
             <label>
               Unsent transcript
@@ -62,14 +76,14 @@ export function useTerminalDictation(insert: (text: string) => boolean) {
                 className="frame-input"
                 readOnly
                 rows={3}
-                value={pending}
+                value={pending.text}
               />
             </label>
             <button
               type="button"
               className="frame-button"
               onClick={() => {
-                if (insert(pending)) setPending(undefined);
+                offer(pending.text);
               }}
             >
               Insert transcript

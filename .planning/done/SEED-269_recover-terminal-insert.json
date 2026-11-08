@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-269#recover-terminal-insert",
+  "title": "Recover dictation and Paste in the embedded terminal",
+  "completedAt": "2026-11-08T04:55:33.281Z",
+  "developer": "Terry Yin",
+  "agent": "viktor-chan",
+  "host": "claude",
+  "model": "opus"
+}

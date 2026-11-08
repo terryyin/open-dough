@@ -1,5 +1,7 @@
 // Phone Paste shows the server's oversized image refusal from an explicit
 // attachment substitute; the terminal stays attached via a WebSocket substitute.
+// A held WebSocket substitute keeps the terminal connecting, where Paste says
+// so instead of naming a recovery action.
 
 import {
   expect,
@@ -20,6 +22,7 @@ import {
   launchAttachmentTooLarge,
 } from "../src/launchAttachments.ts";
 import { phoneLaunchTouchViewport } from "../tests/touchLaunchPage.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 test.use({
   viewport: phoneLaunchTouchViewport.portrait,
@@ -112,4 +115,64 @@ test("phone Paste shows the server's oversized image refusal and keeps the termi
   await panel.locator("textarea.xterm-helper-textarea").press("x");
   await expect.poll(() => sent).toEqual(["x"]);
   await expect(rows).toContainText("x");
+});
+
+test("phone Paste while the terminal is still connecting says so, sends nothing, and pastes once it connects", async ({
+  page,
+  frontendServices,
+}) => {
+  const connecting = "Connecting clipboard session";
+  putFrontendMachine(frontendServices, {
+    ...emptyMachineAnswer(),
+    records: [
+      {
+        ...makeMe.aLaunchRecord
+          .executing({
+            identity: "SEED-901#connecting-paste",
+            title: connecting,
+          })
+          .onStoryBranch({
+            workspace: "/work/connecting-paste",
+            branch: "claude/connecting-paste",
+          })
+          .inClaudeSession({ sessionId: "connecting-1", shortId: "conn01" })
+          .please(),
+        sessionState: {
+          kind: "available",
+          availability: "loaded",
+          activity: "working",
+        },
+      },
+    ],
+  });
+  let open = () => {};
+  const opens = new Promise<void>((resolve) => {
+    open = resolve;
+  });
+  const { sent } = await installAttachedTerminalSubstitute(page, {
+    attachedLine: "attached conn01\r\nClaude Code\r\n",
+    opens,
+  });
+  await openFrontendTakenBacklog(page);
+  const sidebar = sessionsSidebarParts(page);
+  await tapWhereShown(sidebar.button);
+  await tapWhereShown(sidebar.entry(connecting));
+  const panel = page.getByRole("region", { name: "Terminal" });
+  const status = panel.getByRole("status");
+  const rows = panel.locator(".xterm-rows");
+  await expect(panel).toBeVisible();
+  await page.evaluate(() => navigator.clipboard.writeText("after connecting"));
+
+  await tapTerminalKey(panel, "Paste");
+  await expect(status).toHaveText(
+    "The terminal is still connecting. Tap Paste again once it connects.",
+  );
+  await expect(rows).not.toContainText("attached conn01");
+  expect(sent).toEqual([]);
+
+  open();
+  await expect(rows).toContainText("attached conn01");
+  await tapTerminalKey(panel, "Paste");
+  await expect.poll(() => sent).toEqual(["after connecting"]);
+  await expect(status).toBeEmpty();
 });

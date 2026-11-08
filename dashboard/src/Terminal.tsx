@@ -6,7 +6,8 @@
 // On coarse-pointer phones the key toolbar, Paste and optional composer
 // share the terminal input path. The panel fits the visual viewport as the
 // soft keyboard or orientation changes.
-// Disconnected or ended attachments can reopen the same session.
+// Disconnected or ended attachments can reopen the same session; dictation
+// and Paste that cannot be offered name that action.
 // The saved terminal theme applies to this content and its Side panel border.
 // Done asks first when completion is unknown, closes the view after success,
 // and leaves the terminal visible with recovery guidance when marking fails.
@@ -123,8 +124,6 @@ export function Terminal({
     onWorkspaceUnavailable,
     onAttachRefusal,
   );
-  const dictation = useTerminalDictation(insertText);
-  const paste = useTerminalPaste(record, getPaste);
   useTerminalVisualViewportFit(panel);
   useRowsHeight(identity, names);
   usePortraitPreview(identity);
@@ -141,6 +140,13 @@ export function Terminal({
       : ending !== undefined
         ? endings[ending]
         : undefined;
+  // Text input that the attachment cannot accept names this action, read
+  // when the offer fails; without one, the attachment is still connecting.
+  const shownAction = useRef<string>(undefined);
+  shownAction.current = status?.action;
+  const recovery = useCallback(() => shownAction.current, []);
+  const dictation = useTerminalDictation(insertText, recovery);
+  const paste = useTerminalPaste(record, getPaste, recovery);
   const { title, name } = launchSubject(record.request);
   const agent = assignedAgent(record.start ?? record.preparation);
   const agentName = agentNameOf(agent);

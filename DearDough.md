@@ -53,6 +53,14 @@ Former local code: DD-121. Former local code: DD-206. Former local code: DD-238.
   - Evidence: plan 500 (`8cab734f619f3c373e0416944ef4e19ff1438e0d:.planning/slice-plans/500-retry-unavailable-ci-comparison-slots/PLAN.md`) Current decisions stated "Endpoint proofs follow the re-read answer as they already follow a changed answer" with no Premises row; slice 2's implementer found proofs keyed by build subject, so an unchanged final answer never re-read them (promise 3e), and added `checkedAgain` to the proof key
   - Observed effect: the false claim surfaced inside the slice and cost no replanning; the implementer's red check (removing `checkedAgain`) failed two journeys
   - Inference: a behavioral claim placed under Current decisions escapes the premise table's observation requirement
+- Execution: SEED-269#recover-terminal-insert (plan 519-recover-terminal-insert; first related implementation commit `8bd83312df1f74f40b49ea914d605794dc45d3fe`)
+  - Timestamp: unknown (2026-11-08, before slice 1 delegation; slice 1 commit at 2026-11-08T12:28:19+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.90 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: plan 519 was recorded `assessment: ready` with `**Status:** pending` on both slices (`d75797dec:.planning/slice-plans/519-recover-terminal-insert/PLAN.md`); the first `story-obligations.mjs list --slice 1` after linking the source review returned `unreadable-slices` and `unknown-slice`; the coordinator changed both statuses to `planned`. Plan 518 on trunk still records `**Status:** pending`
+  - Observed effect: one refusal and one sed edit before delegation; no wrong completion was possible
+  - Inference: qualified recurrence. Preparation still writes a status the obligation reader rejects and records readiness without running that reader; the cost here was small
 
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
@@ -160,6 +168,14 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: slice 5 implementation proof ran 38 `dashboard/tests` consumers of `controlReachability.ts` but not `dashboard/frontend-tests/control-reachability-observation.spec.ts`; the refactor pass ran it and it failed at `:37` ("a control revealed by earlier scrolling is still checked")
   - Observed effect: the single-pass reachability check silently dropped controls revealed by scrolling until the refactor agent fixed it before commit
   - Inference: the consumer selection was built from one test root; the coordinator's later briefs added "include frontend-tests and backend-tests consumers"
+- Execution: SEED-269#recover-terminal-insert (plan 519-recover-terminal-insert; first related implementation commit `8bd83312df1f74f40b49ea914d605794dc45d3fe`)
+  - Timestamp: unknown (2026-11-08, slice 1 acceptance before its commit at 2026-11-08T12:28:19+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.90 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: slice 1 moved the `codexProtocol` fixture body in `dashboard/tests/support/codexLaunch.ts` into an export; the implementer ran `dashboard/tests/terminals`, `dashboard/tests/sessions` and one launches spec and reported the other `dashboard/tests/launches`, `dashboard/tests/review` and `dashboard/backend-tests` consumers as not run. The coordinator then ran them: 1332 passed, 1 skipped, 16.6 min
+  - Observed effect: the gap was reported, not silent, and no defect escaped; acceptance waited 16.6 min on a byte-identical fixture move
+  - Inference: differs from earlier rows. The implementer stated the gap honestly, so the brief's consumer rule worked; the cost comes from a structure-only test-support move whose consumers span every root
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 

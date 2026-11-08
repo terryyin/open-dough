@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Make published work test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-published-work-test-data) — SEED-261#map-published-work-test-data ([plan](slice-plans/508-map-published-work-test-data/PLAN.md))
-- [Recover dictation and Paste in the embedded terminal](seeds/SEED-269-recover-terminal-insert.md#recover-terminal-insert) — SEED-269#recover-terminal-insert ([plan](slice-plans/519-recover-terminal-insert/PLAN.md))
 - [Reduce the cost of private dashboard test fixtures](seeds/SEED-262-faster-dashboard-test-feedback.md#reduce-private-fixture-lifecycle-cost) — SEED-262#reduce-private-fixture-lifecycle-cost ([plan](slice-plans/520-reduce-private-fixture-lifecycle-cost/PLAN.md))
 
 ## Backlog list
