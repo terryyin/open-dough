@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 470. Removed numbers are never reused.
+- Highest allocated local number: 471. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -428,6 +428,16 @@ Former local code: DD-424. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
 ## ODF-428 — A refactor moved tests after acceptance had cited them, leaving source-review observations stale
 Former local code: DD-431. [Evidence and current response](docs/maintainer/findings/ODF-428.md).
+
+### Occurrences
+- Execution: SEED-262#reuse-immutable-git-histories (plan 535-reuse-story-columns-git-history; first related implementation commit `08d208fd080d143e60dfe0d011609e3a0060d2ca`)
+  - Timestamp: unknown (2026-11-08, about 15:55Z, after the refactor return and before the full-suite run stamped `2026-11-08T16-01-12.478Z`)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: acceptance recorded all 63 source-review observations with `story-obligations.mjs record`, 50 of them citing the four new cases in `tests/support/repository-fixture.test.mjs`; the refactor pass then moved those cases to `repository-snapshot.test.mjs` and `repository-snapshot-isolation.test.mjs` and split the cited materializer into `repository-template.mjs` and `repository-snapshot.mjs`. The refactor return listed the moves; the coordinator rewrote the rows by text substitution before delivery and `check --slice 1` passed.
+  - Observed effect: one retargeting round over 50 rows; nothing stale published.
+  - Inference: fourth execution with the same shape; recording observations by file path before the refactor pass remains the structural cause.
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 Former local code: DD-434. [Evidence and current response](docs/maintainer/findings/ODF-429.md).
 ## ODF-430 — Story integration moved another active agent profile into done
@@ -641,6 +651,14 @@ the candidate could.
   - Evidence: Plan 533's Local gates said "compare before and after with the same command, back to back". Slice 2's sequential runs gave `story-payload-update.sh` 7.71–7.92 s before and 8.45–9.31 s after at load 10.7–12.6. Interleaved runs against a `git archive HEAD` copy gave 8.68–10.29 s before and 8.62–9.17 s after; the builder alone was 1.17–1.23 s old and 0.88–1.18 s new (plan 533 slice 2 accepted proof, `afb028050:.planning/slice-plans/533-migrate-shell-release-and-native-fixtures/PLAN.md`).
   - Observed effect: The implementer repeated the timing interleaved before it could judge the promise; slices 1, 3 and 4 alternated old and new from the start.
   - Inference: "Back to back" was still read as sequential; naming interleaved runs against a base copy in the plan would likely avoid the repeat.
+- Execution: SEED-262#reuse-immutable-git-histories (plan 535-reuse-story-columns-git-history; first related implementation commit `08d208fd080d143e60dfe0d011609e3a0060d2ca`)
+  - Timestamp: unknown (2026-11-08, baseline 14:11Z–14:13Z, implementation measurements about 14:30Z–15:10Z)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: the plan's gate read "re-establish a comparable baseline in the execution checkout, then use the same ordinary selection before and after"; the coordinator ran three baseline runs at load 12.9 before delegating, the implementation agent's first after runs fell at load 12.7–15.6 and could not be compared, and it then built a detached clean worktree of the Take (copied `node_modules`) to run nine more before runs beside its after runs; the coordinator's final interleaved lazy/eager pairs on one checkout were decisive (recorded in plan 535's Measurement record).
+  - Observed effect: twelve extra selection runs and a temporary base worktree before the comparison could be judged.
+  - Inference: second execution in the same seed; the gate wording again invited a sequential baseline, and the paired form had to be rediscovered.
 
 ## DD-465 — An empty focused path list ran the whole local suite
 `scripts/test.sh` with no path arguments runs the whole serialized local suite. A focused command built from a file list that silently came out empty therefore started a full run instead of failing.
@@ -699,3 +717,21 @@ A plan named the scratch edit that should make a check fail, without observing i
   - Evidence: Plan 533 (`afb028050:.planning/slice-plans/533-migrate-shell-release-and-native-fixtures/PLAN.md`) slice 2 Proof: "drop the withheld path from `update-adds-new-payload-skill.sh`'s 0.1.1. The check then fails". That edit passed on the candidate and on a `git archive HEAD` copy, because the check installs 0.1.1 by hand without reading its declaration. Dropping `--withhold` in `retrospective-reference-payload.sh` failed at its line 33, and dropping `--remove` in `update-adds-new-payload-skill.sh` failed with `Managed payload mismatch`.
   - Observed effect: The implementer found the discriminating checks itself; acceptance used them. Slice 4's unplanned "queued as taken" edit also passed, showing that the done-catalog proof does not observe list state.
   - Inference: A discrimination claim in a plan is a premise; observing it during planning, or marking it unverified, would have pointed slice 2 at the right check.
+
+## DD-471 — A baseline trace in hand already showed the request timing that made the planned lazy build neutral
+The pre-change artifact trace the coordinator recorded before delegation showed
+both dashboard workers requesting the run's artifacts within 1 ms of each other.
+A single-flight owner build started on the first request therefore had to
+serialize both cold workers, which the plan had named as a risk with a stop
+condition but left to end-to-end measurement; the slice measured it over seven
+runs before an owner-start request restored the gain.
+
+### Occurrences
+- Execution: SEED-262#reuse-immutable-git-histories (plan 535-reuse-story-columns-git-history; first related implementation commit `08d208fd080d143e60dfe0d011609e3a0060d2ca`)
+  - Timestamp: unknown (2026-11-08; baseline trace at 14:11Z, delegation shortly after, eager variant adopted about 15:20Z)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: `before-run1.trace.jsonl` of the coordinator's baseline recorded `request app` from both workers at 2.863 s and `request server-bundle` at 2.864/2.865 s; plan 535's Options named cold serialization as a measured risk; the implementation agent's `after` and `after2` runs (lazy) matched the baselines and its three-line eager experiment did not; the coordinator's interleaved pairs confirmed eager.
+  - Observed effect: the decisive design choice (when the owner starts the build) was made after implementation and about ten measured runs, rather than before delegation from the trace already recorded.
+  - Inference: qualified, one execution. When a plan's stop condition depends on a timing structure, the baseline observation taken for it can be read for that structure before the slice is delegated.

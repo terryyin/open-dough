@@ -1,5 +1,6 @@
 // @ts-check
 // Builds a described repository history at a fixture layout.
+import { cpSync } from "node:fs";
 import { join } from "node:path";
 import { createBareFixtureRemote } from "../../src/skills/dough-execute-plan/scripts/bare-remote-test-fixtures.mjs";
 import {
@@ -15,6 +16,7 @@ import {
 
 /** @typedef {import("./repositoryTestData.mjs").RepositoryDescription} RepositoryDescription */
 /** @typedef {import("./repositoryTestData.mjs").RepositoryRevision} RepositoryRevision */
+/** @typedef {import("./repositoryTestData.mjs").GitPerson} GitPerson */
 /** @typedef {import("./repository-revision-files.mjs").HarnessLayer} HarnessLayer */
 
 /**
@@ -71,24 +73,43 @@ export async function tagRevision(checkout, { release, tags = [] }) {
 }
 
 /**
- * Commit every described revision, with its tags, into a new integration
- * checkout, pushed to the bare origin when the layout has one, and its
- * execution worktree when the description has a workspace. An existing
- * integration directory's files are committed with the first revision.
- * @param {RepositoryLayout} paths
- * @param {RepositoryDescription} description
- * @param {BuildShape} shape
+ * A built history's published revisions, laid out like a fixture at
+ * `directory`, that a build starts from instead of an empty repository.
+ * @typedef {{
+ *   directory: string,
+ *   revisions: Record<string, string>,
+ *   trunkSha: string,
+ * }} Snapshot
  */
-export async function buildRepository(
-  { origin, integration, execution },
-  {
-    revisions,
-    trunkBranch = "main",
-    checkoutIdentity = integrationDeveloper,
-    workspace,
-  },
-  { gitTemplates, layer },
+
+/**
+ * Start the integration checkout and its origin: an independent copy of
+ * `snapshot` with its own objects, refs, configuration, index and working
+ * tree, whose remote names this layout's origin, or else a fresh repository
+ * pair. Returns the commits the checkout already holds.
+ * @param {RepositoryLayout} paths
+ * @param {{ trunkBranch: string, checkoutIdentity: GitPerson }} facts
+ * @param {boolean} gitTemplates
+ * @param {Snapshot | undefined} snapshot
+ */
+async function startHistory(
+  { origin, integration },
+  { trunkBranch, checkoutIdentity },
+  gitTemplates,
+  snapshot,
 ) {
+  if (snapshot) {
+    const source = layout(snapshot.directory);
+    cpSync(source.integration, integration, { recursive: true });
+    if (origin) {
+      cpSync(source.origin, origin, { recursive: true });
+      await git(integration, "remote", "set-url", "origin", origin);
+    }
+    return {
+      commits: new Map(Object.entries(snapshot.revisions)),
+      trunkSha: snapshot.trunkSha,
+    };
+  }
   if (origin) await createBareFixtureRemote(origin, trunkBranch);
   await exec("git", [
     "init",
@@ -100,12 +121,48 @@ export async function buildRepository(
   await git(integration, "config", "maintenance.auto", "false");
   await configureIdentity(integration, checkoutIdentity);
   if (origin) await git(integration, "remote", "add", "origin", origin);
+  return {
+    commits: /** @type {Map<string, string>} */ (new Map()),
+    trunkSha: "",
+  };
+}
 
-  /** @type {Map<string, string>} */
-  const commits = new Map();
-  let trunkSha = "";
-  for (const [index, revision] of revisions.entries()) {
-    if (index === 0 && layer) writeRevisionFiles(integration, layer);
+/**
+ * Commit every described revision, with its tags, into a new integration
+ * checkout, pushed to the bare origin when the layout has one, and its
+ * execution worktree when the description has a workspace. An existing
+ * integration directory's files are committed with the first revision. From
+ * `snapshot`, which holds the description's leading revisions, only the
+ * remaining revisions are committed.
+ * @param {RepositoryLayout} paths
+ * @param {RepositoryDescription} description
+ * @param {BuildShape} shape
+ * @param {Snapshot} [snapshot]
+ */
+export async function buildRepository(
+  paths,
+  {
+    revisions,
+    trunkBranch = "main",
+    checkoutIdentity = integrationDeveloper,
+    workspace,
+  },
+  { gitTemplates, layer },
+  snapshot,
+) {
+  const { origin, integration, execution } = paths;
+  const started = await startHistory(
+    paths,
+    { trunkBranch, checkoutIdentity },
+    gitTemplates,
+    snapshot,
+  );
+  const { commits } = started;
+  let { trunkSha } = started;
+  // Revision names are unique, so the started checkout holds exactly the
+  // leading revisions it has commits for.
+  for (const revision of revisions.slice(commits.size)) {
+    if (commits.size === 0 && layer) writeRevisionFiles(integration, layer);
     trunkSha = await commitDeclaredRevision(
       integration,
       revision,

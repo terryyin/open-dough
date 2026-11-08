@@ -1,15 +1,24 @@
 // @ts-check
+// The repository harness: materializes a described history as a caller's own
+// bare origin and checkout. Templates are built once per process
+// (repository-history.mjs), from a run-wide snapshot when a registered
+// prefix matches (repository-snapshot.mjs).
 import { cpSync, mkdirSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fixtureTeardown } from "../../src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs";
 import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { buildRepository, layout } from "./repository-history.mjs";
+import { locateSnapshot } from "./repository-snapshot.mjs";
 
 export {
   commitDeclaredRevision,
   integrationDeveloper,
 } from "./repository-revision-commit.mjs";
+export {
+  prepareRepositorySnapshot,
+  registerPreparedPrefix,
+} from "./repository-snapshot.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RepositoryDescription} RepositoryDescription */
 /** @typedef {import("./repository-revision-files.mjs").HarnessLayer} HarnessLayer */
@@ -23,16 +32,22 @@ export {
  */
 
 /**
+ * Build the described history at `fixture`, from a registered prefix's
+ * snapshot when one matches `description` in `shape` and its owner supplies
+ * it.
  * @param {string} fixture
  * @param {RepositoryDescription} description
  * @param {TemplateShape} shape
  */
-function buildTemplate(fixture, description, { origin: published, ...build }) {
+async function buildTemplate(fixture, description, shape) {
+  const { origin: published, ...build } = shape;
   const { origin, ...local } = layout(fixture);
+  const snapshot = await locateSnapshot(description, shape);
   return buildRepository(
     published ? { origin, ...local } : local,
     description,
     build,
+    snapshot,
   );
 }
 
@@ -98,8 +113,9 @@ async function copyTemplate(description, { parent, ...shape }) {
 }
 
 /**
- * Build each described history once per process. Every caller gets its own
- * mutable bare origin and integration checkout, and its own execution
+ * Build each described history once per process, from a registered prefix's
+ * snapshot when one matches and its owner supplies it. Every caller gets its
+ * own mutable bare origin and integration checkout, and its own execution
  * worktree when the description has a workspace.
  * @template {string} Name
  * @param {import("./repositoryTestData.mjs").RepositoryDescription<Name>} description

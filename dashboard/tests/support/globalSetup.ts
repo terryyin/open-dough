@@ -1,6 +1,6 @@
-// Workers request the app build, server bundle or an installed origin layout
-// when they need it. Each completed artifact is shared read-only across the
-// run. The run removes its own directories.
+// Workers request the app build, server bundle, an installed origin layout or
+// the story-columns history when they need it. Each completed artifact is
+// shared read-only across the run. The run removes its own directories.
 //
 // Before starting workers, it runs the committed fixture executables once
 // (./fixtureExecutable.ts), so a fresh checkout's first run of each happens
@@ -21,9 +21,13 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { releaseLocalSuites } from "../../../scripts/local-test-suite.mjs";
 import { ownerlessRequestRoot } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import {
+  storyColumnsPrefixArtifact,
+  storyColumnsPrefixArtifactKey,
+} from "../launchJourney.ts";
 import { buildDashboardTo, dashboardAppArtifactKey } from "./dashboardBuild.ts";
 import { runFixtureExecutablesOnce } from "./fixtureExecutable.ts";
-import { startRunArtifacts } from "./runArtifacts.ts";
+import { requestRunArtifact, startRunArtifacts } from "./runArtifacts.ts";
 import {
   bundleServerEntries,
   createServerBundleDirectory,
@@ -66,12 +70,18 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
         },
       ],
       ...startOriginArtifacts(),
+      storyColumnsPrefixArtifact(),
     ]),
   ).catch(async (error: unknown) => {
     remove();
     await releaseLocalSuites();
     throw error;
   });
+  // The story-columns history is built now, overlapping the workers' start and
+  // the app build, so the first page journeys find it ready instead of waiting
+  // for one cold build. A failure here is kept for the workers that ask: each
+  // receives it as its own setup failure.
+  void requestRunArtifact(storyColumnsPrefixArtifactKey).catch(() => {});
   process.env["DOUGH_GITHUB_REQUEST_OWNER_ROOT"] = ownerless;
   const checkRun = async () => {
     try {

@@ -1,8 +1,13 @@
 // The launch and story-columns tests serve the published files at each
 // revision of these real Git histories. The launch fixture in pageTest.ts
 // and the story-columns journey each share their read-only origin per worker.
+// The story-columns history up to the Take is the same in every worker; the
+// run prepares it once (support/globalSetup.ts) and each worker's completion
+// is committed in that worker's own copy.
 
-import { rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
@@ -15,7 +20,10 @@ import {
 import {
   integrationDeveloper,
   materializeRepository,
+  prepareRepositorySnapshot,
+  registerPreparedPrefix,
 } from "../../tests/support/repository-fixture.mjs";
+import { requestRunArtifact } from "./support/runArtifacts.ts";
 
 export const takenStory = storyA.title;
 export const readyStory = storyB.title;
@@ -69,13 +77,16 @@ export type StoryColumnsJourney = {
   readonly completed: string;
 };
 
-function storyColumnsRepository(completedAt: string) {
-  const takeStoryB = takeRevision({
-    story: storyB,
-    queued: [storyA, storyC],
-    agent: "Akiho",
-    committer: integrationDeveloper,
-  });
+const takeStoryB = takeRevision({
+  story: storyB,
+  queued: [storyA, storyC],
+  agent: "Akiho",
+  committer: integrationDeveloper,
+});
+
+// The queued, preparing and taken revisions every story-columns journey
+// starts from.
+function storyColumnsHistory() {
   return queuedDashboardRepository()
     .withRevision("preparing", {
       message: `Announce preparation: ${readyIdentity}\n\nPreparation-Identity: ${readyIdentity}\n${developerCredit}`,
@@ -87,7 +98,11 @@ function storyColumnsRepository(completedAt: string) {
           .please(),
       ],
     })
-    .withRevision("taken", takeStoryB)
+    .withRevision("taken", takeStoryB);
+}
+
+export function storyColumnsRepository(completedAt: string) {
+  return storyColumnsHistory()
     .withRevision("completed", {
       message: "complete story C",
       backlog: { ...takeStoryB.backlog, queued: [storyA] },
@@ -106,6 +121,32 @@ function storyColumnsRepository(completedAt: string) {
     })
     .please();
 }
+
+// The run artifact holding the story-columns history before completion
+// (support/runArtifacts.ts): the run owner prepares it once, as soon as it
+// starts (support/globalSetup.ts), and removes it when the run ends.
+export const storyColumnsPrefixArtifactKey = "story-columns-prefix";
+const storyColumnsPrefix = storyColumnsHistory().please();
+
+export function storyColumnsPrefixArtifact() {
+  return [
+    storyColumnsPrefixArtifactKey,
+    {
+      create: () =>
+        mkdtempSync(path.join(tmpdir(), "dough-story-columns-prefix-")),
+      prepare: (directory: string) =>
+        prepareRepositorySnapshot(directory, storyColumnsPrefix),
+    },
+  ] as const;
+}
+
+// A worker of a dashboard run copies the run's prepared history and commits
+// only its completion; a process without a run owner builds the whole history
+// itself.
+registerPreparedPrefix({
+  description: storyColumnsPrefix,
+  locate: () => requestRunArtifact(storyColumnsPrefixArtifactKey),
+});
 
 async function buildStoryColumnsJourney(): Promise<StoryColumnsJourney> {
   const completedAt =
