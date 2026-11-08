@@ -230,19 +230,21 @@ export async function materializeRepository(
 
 /**
  * The described history in one local checkout on its trunk branch, with no
- * origin, for a case that reads no remote. Built once per process like
- * `materializeRepository`; every caller gets its own mutable copy.
- * `gitTemplates: false` initializes it without Git's templates; `layer` adds
- * harness files to the first commit.
+ * origin, for a case that reads no remote; removed after test `t`. Built once
+ * per process like `materializeRepository`, each caller its own mutable copy.
+ * `gitTemplates: false` skips Git's templates; `layer` adds harness files.
  * @template {string} Name
+ * @param {{ after: (fn: () => Promise<void>) => void }} t
  * @param {import("./repositoryTestData.mjs").RepositoryDescription<Name>} description
  * @param {{ parent?: string, gitTemplates?: boolean, layer?: HarnessLayer }} [options]
  */
 export async function materializeLocalCheckout(
+  t,
   description,
   { parent = tmpdir(), gitTemplates = true, layer } = {},
 ) {
   const shape = { origin: false, gitTemplates, layer };
   const copy = await copyTemplate(description, { parent, ...shape });
+  t.after(copy.cleanup);
   return { integration: layout(copy.fixture).integration, ...copy };
 }

@@ -83,10 +83,10 @@ For a real Git starting state, describe the published facts with
 declare membership, files, story state, profiles, done records, and commit
 identities. Materialize that description with `materializeRepository` to
 get a bare origin, a checkout, named commit IDs, and cleanup, or with
-`materializeLocalCheckout` to get one checkout with no origin for a case that
-reads no remote (`gitTemplates: false` initializes it without Git's templates;
-`layer` adds harness files, such as runner tooling read with `copiedLayer`, to
-its first commit). Identical
+`materializeLocalCheckout(t, description)` to get one checkout with no origin,
+removed after test `t`, for a case that reads no remote (`gitTemplates: false`
+initializes it without Git's templates; `layer` adds harness files, such as
+runner tooling read with `copiedLayer`, to its first commit). Identical
 descriptions reuse a template within one process, with a private mutable
 copy for each caller. Keep commands and Git transitions under proof in
 the case that observes their result. [Repository harness](support/repository-fixture.mjs)

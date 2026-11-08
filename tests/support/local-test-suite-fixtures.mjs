@@ -198,6 +198,7 @@ export async function fixture(t, count = 1) {
   const parent = path.join(root, "main project");
   mkdirSync(parent);
   const { integration: project } = await materializeLocalCheckout(
+    t,
     controlledSuites(count),
     { parent, layer: suiteRunnerLayer() },
   );

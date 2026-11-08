@@ -2,9 +2,10 @@
 // tests (./dashboard-later-trunk-build.test.mjs,
 // ./dashboard-later-trunk-landed.test.mjs).
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { writeFileSync } from "node:fs";
 import path from "node:path";
+import { makeMe } from "./makeMe.mjs";
+import { materializeLocalCheckout } from "./repository-fixture.mjs";
 
 function git(cwd, ...args) {
   return execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
@@ -17,22 +18,20 @@ function commit(cwd, name) {
   return git(cwd, "rev-parse", "HEAD");
 }
 
-// A repository on main whose first commit is the landing.
-function landingRepo(prefix) {
-  const cwd = mkdtempSync(path.join(tmpdir(), prefix));
-  git(cwd, "init", "--quiet", "--initial-branch=main");
-  git(cwd, "config", "user.name", "Test");
-  git(cwd, "config", "user.email", "test@example.org");
-  git(cwd, "config", "commit.gpgsign", "false");
-  return { cwd, landing: commit(cwd, "landing"), call: { cwd } };
-}
+// A trunk revision that adds `<name>.txt`.
+const revision = (name) => ({ files: { [`${name}.txt`]: `${name}\n` } });
 
 // landing, then four first-parent trunk revisions; the second is a merge
-// whose side commit must never be walked.
-export function trunk() {
-  const repo = landingRepo("later-trunk-");
-  const { cwd } = repo;
-  const later1 = commit(cwd, "later1");
+// whose side commit must never be walked. The side branch, the merge and the
+// last two revisions are Git operations on the materialized checkout.
+export async function trunk(t) {
+  const { integration: cwd, revisions } = await materializeLocalCheckout(
+    t,
+    makeMe.aRepository
+      .withRevision("landing", revision("landing"))
+      .withRevision("later1", revision("later1"))
+      .please(),
+  );
   git(cwd, "switch", "--quiet", "-c", "side");
   const side = commit(cwd, "side");
   git(cwd, "switch", "--quiet", "main");
@@ -40,16 +39,32 @@ export function trunk() {
   const later2 = git(cwd, "rev-parse", "HEAD");
   const later3 = commit(cwd, "later3");
   const later4 = commit(cwd, "later4");
-  return { ...repo, side, later: [later1, later2, later3, later4] };
+  return {
+    call: { cwd },
+    landing: revisions.landing,
+    side,
+    later: [revisions.later1, later2, later3, later4],
+  };
 }
 
 // landing, then `count` single-parent trunk revisions.
-export function trunkOf(count) {
-  const repo = landingRepo("later-trunk-deep-");
-  const later = [];
-  for (let index = 0; index < count; index += 1)
-    later.push(commit(repo.cwd, `later${String(index)}`));
-  return { ...repo, later };
+export async function trunkOf(t, count) {
+  const names = [...Array(count).keys()].map((index) => `later${index}`);
+  const description = names
+    .reduce(
+      (builder, name) => builder.withRevision(name, revision(name)),
+      makeMe.aRepository.withRevision("landing", revision("landing")),
+    )
+    .please();
+  const { integration: cwd, revisions } = await materializeLocalCheckout(
+    t,
+    description,
+  );
+  return {
+    call: { cwd },
+    landing: revisions.landing,
+    later: names.map((name) => revisions[name]),
+  };
 }
 
 export const usable = async () => undefined;

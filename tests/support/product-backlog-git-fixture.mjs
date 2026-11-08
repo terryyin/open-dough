@@ -46,11 +46,11 @@ function git(directory, args) {
 // shared materializer, such as `gitTemplates: false` for a repository Git sets
 // up without templates. Removed after the test.
 export async function checkoutOf(t, description, options) {
-  const { integration, revisions, cleanup } = await materializeLocalCheckout(
+  const { integration, revisions } = await materializeLocalCheckout(
+    t,
     description,
     options,
   );
-  t.after(cleanup);
   return { ...checkoutAt(integration), revisions };
 }
 

@@ -105,10 +105,9 @@ export async function committedLintFixture(
   description,
   { dependencies = true, repositoryFiles = [] } = {},
 ) {
-  const { integration, cleanup } = await materializeLocalCheckout(description, {
+  const { integration } = await materializeLocalCheckout(t, description, {
     layer: copiedLayer(root, [...runnerFiles, ...repositoryFiles]),
   });
-  t.after(cleanup);
   if (dependencies) linkDependencies(integration);
   return integration;
 }

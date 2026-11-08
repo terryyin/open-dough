@@ -265,11 +265,25 @@ set, hook outcomes and suite lifecycle are unchanged.
 ### 5. Ancestry repositories declare their trunk and superseded setup is gone
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Run `dashboard-later-trunk-build`, `dashboard-later-trunk-landed` and
 `requested-revision-ci-status`. They pass with unchanged verdicts. Search
 `tests/support` Node files for `"init"` and the removed helpers and record the
 result. Then run the pre-landing gates above.
+
+Accepted 2026-11-08: `trunk(t)` and `trunkOf(t, count)` declare their
+revisions and build the side branch, merge and later commits with Git; the CI
+status case declares its base and requested revisions with the workflow bytes.
+`materializeLocalCheckout(t, description, options)` now registers its own
+cleanup on the test, so each caller only shapes its handle. Three-file run:
+before 2.25 s and 2.33 s (load 8.2–8.5), after 2.21 s and 2.25 s (load 5.5).
+Sweep (`grep -rnE "[\"']init[\"']" --include='*.mjs' tests/support`): only
+the materializer, native fixtures and the excluded shell-driven observer make
+a repository. Runs of real `complete` or `take` remain only where the case
+proves the command, in scratch projects without a repository, or in supplier
+closure fixtures whose subject is that command. Pre-landing gates on the
+final slice change: whole `npm test` exit 0 in 635 s (load 10.8–18.8) and
+`agent-launch-attention.spec.ts --workers=2` 2 passed.
 
 Behavior: `trunkOf(count)` declares its landing and later revisions, and
 `trunk()` declares the landing and first later revision and builds the side
