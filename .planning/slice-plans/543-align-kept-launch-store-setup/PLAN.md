@@ -260,3 +260,11 @@ original Codex launch still supplies native history.
 The avatar and store boundaries remain useful on their own. Final report
 admission has a separate focused proof loop and leaves both earlier slices
 recoverable. All three slices fit their existing focused test gates.
+
+## Execution complete
+
+Product advice: no change. The three delivered slices match the amended
+correction and preserve the tested behavior. All 120 focused Chromium
+cases passed. Dashboard typechecking and lint passed, and the final-report
+requests and assertions match the original spec byte for byte. Record
+reader ownership in the existing test architecture guide during wrap-up.
