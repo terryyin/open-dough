@@ -18,6 +18,7 @@ import {
   plantHumanEdit,
   pushCandidate,
   revParse,
+  trunkWithHumanEditTarget,
 } from "./publication-test-fixtures.mjs";
 
 function refresh(checkout) {
@@ -52,8 +53,8 @@ test("an eligible clean checkout fast-forwards to fetched trunk and a second att
 });
 
 test("refresh preserves a pending edit, unpublished commits, a diverged history, and another branch", async (t) => {
-  const edit = await createCleanTrunkFixture();
-  const local = await createCleanTrunkFixture();
+  const edit = await createCleanTrunkFixture(trunkWithHumanEditTarget);
+  const local = await createCleanTrunkFixture(trunkWithHumanEditTarget);
   const other = await createCleanTrunkFixture();
   t.after(edit.cleanup);
   t.after(local.cleanup);

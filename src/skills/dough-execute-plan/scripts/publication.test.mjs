@@ -29,10 +29,10 @@ import {
 
 const exec = promisify(execFile);
 
-// One trunk commit, and a workspace on exec/story one unpublished
-// increment.txt commit ahead.
+// A trunk.txt trunk commit, which the planted human edit changes, and a
+// workspace on exec/story one unpublished increment.txt commit ahead.
 const trunkWithOneIncrement = makeMe.aRepository
-  .withRevision("trunk")
+  .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
   .withWorkspace("exec/story", { from: "trunk" })
   .withUnpublishedRevision("increment", {
     files: { "increment.txt": "increment\n" },

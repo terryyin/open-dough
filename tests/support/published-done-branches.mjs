@@ -1,25 +1,17 @@
 // Shared starting state for two publication operations. Both branches have
 // catalogued records from their common base. An independent trunk writer
 // publishes one more record without refreshing the catalog.
-import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   advanceOriginFromAnotherWriter,
   createCleanTrunkFixture,
-  git,
-  revParse,
 } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
   doneRecordFileName,
   renderDoneRecord,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { makeMe } from "./makeMe.mjs";
-import { backlogOf } from "./product-backlog-fixture.mjs";
-import {
-  backlogCommand,
-  done,
-  items,
-} from "./product-backlog-git-done-catalog-fixture.mjs";
+import { done } from "./product-backlog-git-done-catalog-fixture.mjs";
 
 function record(name, completedAt) {
   return makeMe.aDoneRecord
@@ -32,41 +24,30 @@ function record(name, completedAt) {
     .please();
 }
 
-async function commitCataloguedRecord(checkout, facts, message) {
-  mkdirSync(join(checkout, done), { recursive: true });
-  writeFileSync(
-    join(checkout, done, doneRecordFileName(facts.identity)),
-    renderDoneRecord(facts),
-  );
-  await backlogCommand(checkout, ["catalog-done"]);
-  await git(checkout, "add", "-A");
-  await git(checkout, "commit", "-m", message);
-}
+// The published base holds a backlog queuing Q and the catalogued record X;
+// the story's unpublished commit adds the catalogued record Y.
+const cataloguedOnBothSides = makeMe.aRepository
+  .withRevision("published base", {
+    backlog: {
+      queued: [
+        makeMe.aBacklogEntry
+          .with({ identity: "Q#Q", title: "Item Q", href: "seeds/Q.md#Q" })
+          .please(),
+      ],
+    },
+    doneRecords: [record("X", "2026-10-01T00:00:00.000Z")],
+    message: "backlog and catalogued record",
+  })
+  .withWorkspace("exec/story", { from: "published base" })
+  .withUnpublishedRevision("story record", {
+    doneRecords: [record("Y", "2026-10-03T00:00:00.000Z")],
+  })
+  .please();
 
 export async function divergedDoneBranches(t) {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await createCleanTrunkFixture(cataloguedOnBothSides);
   t.after(fixture.cleanup);
-  const { origin, integration, execution } = fixture;
-  mkdirSync(join(integration, ".planning"), { recursive: true });
-  writeFileSync(
-    join(integration, ".planning/PRODUCT-BACKLOG.md"),
-    backlogOf([], items("Q")),
-  );
-  await commitCataloguedRecord(
-    integration,
-    record("X", "2026-10-01T00:00:00.000Z"),
-    "backlog and catalogued record",
-  );
-  await git(integration, "push", "origin", "main");
-  const publishedBase = await revParse(integration, "main");
-
-  await git(execution, "rebase", publishedBase);
-  await commitCataloguedRecord(
-    execution,
-    record("Y", "2026-10-03T00:00:00.000Z"),
-    "story record",
-  );
-  const storyTip = await revParse(execution, "HEAD");
+  const { origin, execution } = fixture;
 
   const uncatalogued = record("Z", "2026-10-02T00:00:00.000Z");
   await advanceOriginFromAnotherWriter(origin, {
@@ -74,5 +55,10 @@ export async function divergedDoneBranches(t) {
     body: renderDoneRecord(uncatalogued),
     message: "record without catalog",
   });
-  return { origin, execution, publishedBase, storyTip };
+  return {
+    origin,
+    execution,
+    publishedBase: fixture.trunkSha,
+    storyTip: fixture.candidateSha,
+  };
 }

@@ -19,8 +19,18 @@ import {
   trunkTarget,
 } from "./closure-git-fixtures.mjs";
 
+// A trunk holding the `trunk.txt` the planted human edit changes, and a story
+// tip one `increment.txt` commit ahead.
+const trunkWithIncrement = makeMe.aRepository
+  .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+  .withWorkspace(executionBranch, { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
+
 test("a fast-forward story tip is the trunk receipt and a later retry does not publish", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await createCleanTrunkFixture(trunkWithIncrement);
   t.after(fixture.cleanup);
   const { origin, integration, execution } = fixture;
   const closureSha = await revParse(execution, "HEAD");

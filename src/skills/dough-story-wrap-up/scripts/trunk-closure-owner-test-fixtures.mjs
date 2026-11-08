@@ -201,9 +201,14 @@ export async function assertUnresolvedCoverage(
 
 // A Claude Code project in a directory below its execution worktree's Git
 // toplevel, with managed delivery and closure installed in that project.
-// `finish` runs the installed command there for `coordinator`.
-export async function closureBelowToplevel(t, coordinator = "below-toplevel") {
-  const base = await createCleanTrunkFixture();
+// `finish` runs the installed command there for `coordinator`. `description`
+// is the repository the project lives in.
+export async function closureBelowToplevel(
+  t,
+  coordinator = "below-toplevel",
+  { description } = {},
+) {
+  const base = await createCleanTrunkFixture(description);
   const teardown = fixtureTeardown(base.fixture);
   t.after(teardown.cleanup);
   const project = join(base.execution, "proj");

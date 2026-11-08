@@ -58,8 +58,12 @@ export async function installClosureSkills(fixture, platform = ".claude") {
   );
 }
 
-export async function createTrunkClosureFixture(t) {
-  const fixture = await createManagedFixture({ platforms: [".claude"] });
+// `description` is the repository the closure harness is installed on.
+export async function createTrunkClosureFixture(t, { description } = {}) {
+  const fixture = await createManagedFixture({
+    description,
+    platforms: [".claude"],
+  });
   t.after(fixture.cleanup);
   await installClosureSkills(fixture);
   fixture.env = { ...fixture.env, CLAUDE_CODE_SESSION_ID: session };

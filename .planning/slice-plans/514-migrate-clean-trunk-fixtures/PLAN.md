@@ -241,7 +241,7 @@ Learnings for later slices:
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the `dough-story-wrap-up` closure and trunk-closure tests,
 `worktree-retirement`, `dough-land-completion`, `dough-land-retained`,
@@ -258,6 +258,27 @@ records through MakeMe and production encoders. Dough Land completion
 declares its seed and plan drafts. The racing-suffix fixture declares the
 trunk backlog and owned suffix, and keeps the other writer's advance,
 rejection and rebase as Git.
+
+Accepted proof (2026-11-08): the 42-file slice selection (closure,
+trunk-closure, Dough Land, completed-identity, done-catalog, source
+freshness, racing-suffix and supplier visit tests) passed, and every
+clean-trunk module consumer (177 files) passed in 352 s at load 10.6–16.8
+after the default changed. The `dough-land-retained` correction (G3) was
+rerun and passed. The refactor pass narrowed `trunkWithHumanEditTarget` to
+its tracked `trunk.txt`, derived the Dough Land completion profile path from
+`agentIdentity`, and unexported `backlogCommand`; the 42-file selection and
+the affected consumers were rerun and passed.
+
+Learnings for later slices:
+
+- The clean-trunk default `trunkWithOneUnpublishedIncrement` is now plan
+  510's default repository with an `exec/story` workspace adding
+  `increment.md`; it states no `trunk.txt` and no fixed identities.
+- `plantHumanEdit` refuses an untracked `trunk.txt`; callers declare it, or
+  use `trunkWithHumanEditTarget` from `publication-test-fixtures.mjs`.
+- Keep a trunk revision before a Take when a case reads the commit before it.
+- `describedIncrement` needs exactly one file in the first unpublished
+  revision; callers of `createReuseCheckCommands` must declare one.
 
 ### 4. CI root builders declare their repositories
 
@@ -308,3 +329,20 @@ Accepted interim behavior: until slices 2 and 3 land, managed delivery,
 CI journey and closure consumers read `trunk.txt`, `increment.txt` and the
 checkout identities from the named shared description in the clean-trunk
 module rather than their call sites. Slices 2 and 3 replace it.
+
+## Story obligations
+
+### G1. Planted human edits landed on an untracked file (first reported in slice 3)
+Reported: slice 3 — "With the old fixed `trunk.txt` gone, `plantHumanEdit` would silently plant an untracked file instead of an unstaged change. Three slice-1/2 files were already doing that before the default changed."
+Story clause: "Migrated tests keep their verdicts and assertions."
+Disposition: proved by slice 3: `plantHumanEdit` in `src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs` refuses an untracked `trunk.txt`; every caller declares it, and the 177-file consumer run passed
+
+### G2. Closure owner fixture accepts a description no caller passes
+Reported: slice 3 — "`closureBelowToplevel` accepts a description, but no caller passes one yet."
+Story clause: "A case that reads a file name, content or identity of the trunk or increment declares it at its call site."
+Disposition: proved by slice 3: the clean-trunk default no longer holds `trunk.txt`, `increment.txt` or the fixed identities, and the 177-file consumer run, including the closure owner tests, passed, so no closure owner case reads an undeclared fact
+
+### G3. Retained Dough Land records are hand-written and pushed with Git
+Reported: slice 3 — "`dough-land-retained` still builds its unfinished-execution records commit and push with Git, with literal bytes. Its agent-profile path `agents/jackson.json` is non-canonical."
+Story clause: "Published planning facts in this family come from the canonical builders and production encoders."
+Disposition: proved by slice 3: `src/skills/dough-story-refinement/scripts/dough-land-retained.test.mjs` declares the backlog through `makeMe.aBacklogEntry`, the agent profile through the `agentProfiles` fact at its canonical path and the plan as a declared file; its three tests pass with unchanged assertions

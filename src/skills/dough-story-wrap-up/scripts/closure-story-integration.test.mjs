@@ -13,6 +13,7 @@ import {
   itemB,
   itemC,
 } from "../../dough-execute-plan/scripts/publication-racing-suffix-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
 import { remoteHeads } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { isAncestor } from "../../dough-execute-plan/scripts/workspace-publication-ownership.mjs";
@@ -43,6 +44,13 @@ import "./closure-story-integrated-state-cases.mjs";
 import "./closure-story-landing-retention-cases.mjs";
 import "./closure-story-uncommitted-merge-cases.mjs";
 
+// Unaffected `trunk.txt` content, which the planted human edit changes and
+// the published candidate keeps, and a story workspace one commit ahead.
+const trunkWithStory = makeMe.aRepository
+  .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+  .withWorkspace(executionBranch, { from: "trunk" })
+  .withUnpublishedRevision("increment")
+  .please();
 const ancestorBacklog = backlogOf([itemA, itemB], [itemC]);
 const storyBacklog = backlogOf([itemB], [itemC]);
 const siblingBacklog = backlogOf([itemA], [itemC]);
@@ -60,7 +68,7 @@ for (const [remote, branch] of [
   ["upstream", "trunk"],
 ]) {
   test(`a racing advance of ${remote}/${branch} publishes one history-preserving candidate there and retries do not publish again`, async (t) => {
-    const fixture = await createCleanTrunkFixture();
+    const fixture = await createCleanTrunkFixture(trunkWithStory);
     t.after(fixture.cleanup);
     const { integration, execution } = fixture;
     const target = `refs/heads/${branch}`;

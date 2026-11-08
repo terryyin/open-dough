@@ -38,23 +38,23 @@ branch or merge model.
 | 8 | The materializer commits the workspace revisions without pushing. | slice 1 | observed: tests/support/repository-fixture.test.mjs asserts origin cat-file -e candidate rejects and origin holds only refs/heads/trunk |
 | 9 | The materializer returns the commit for each revision. | slice 1 | observed: tests/support/repository-fixture.test.mjs asserts revisions.start = trunkSha, revisions.increment = candidateSha |
 | 10 | Route `createCleanTrunkFixture` through the description and the materializer. | slice 1 | observed: src/skills/dough-execute-plan/scripts/publication-clean-trunk-fixtures.mjs createCleanTrunkFixture returns materializeRepository(description) |
-| 11 | Route the fixtures layered on `createCleanTrunkFixture` through the description and the materializer. | slice 3 | |
+| 11 | Route the fixtures layered on `createCleanTrunkFixture` through the description and the materializer. | slice 3 | observed: slice 3 177-file consumer run passed after the clean-trunk default changed (/Users/terryyin/.claude/jobs/c14a6183/tmp/s3-run.txt) |
 | 11a.1 | The managed delivery fixture. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs createManagedFixture({ description }) → createCleanTrunkFixture(description); managed delivery tests pass (slice 2 163-file run) |
 | 11a.2 | The managed delivery owner fixture. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs createManagedFixture({ description }) → createCleanTrunkFixture(description); owner tests take the description through createManagedFixture and pass |
 | 11a.3 | The managed delivery transport fixture. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs createManagedFixture({ description }) → createCleanTrunkFixture(description); transport tests take the description through createManagedFixture and pass |
 | 11a.4 | The fresh delivery fixture. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs createManagedFixture({ description }) → createCleanTrunkFixture(description); fresh delivery tests take the description through createManagedFixture and pass |
-| 11a.5 | The trunk closure fixture. | slice 3 | |
-| 11a.6 | The closure owner fixture. | slice 3 | |
-| 11a.7 | The closure Git fixture. | slice 3 | |
-| 11a.8 | The source freshness fixture. | slice 3 | |
-| 11a.9 | The racing-suffix backlog fixture. | slice 3 | |
+| 11a.5 | The trunk closure fixture. | slice 3 | observed: src/skills/dough-story-wrap-up/scripts/trunk-closure-test-fixtures.mjs createTrunkClosureFixture(t, { description }); trunk-closure.test.mjs declares trunk.txt |
+| 11a.6 | The closure owner fixture. | slice 3 | observed: src/skills/dough-story-wrap-up/scripts/trunk-closure-owner-test-fixtures.mjs closureBelowToplevel(t, coordinator, { description }); G2 |
+| 11a.7 | The closure Git fixture. | slice 3 | observed: src/skills/dough-story-wrap-up/scripts/closure-git-fixtures.mjs agentStoryBehindTrunk(t, description) |
+| 11a.8 | The source freshness fixture. | slice 3 | observed: src/skills/dough-execute-plan/scripts/source-freshness-test-fixtures.mjs takenStoryBranch description (pre-Take trunk, take revision, exec/story workspace); source-freshness tests pass |
+| 11a.9 | The racing-suffix backlog fixture. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-racing-suffix-fixtures.mjs createBacklogSuffixFixture(ownedBacklog) materializes a description |
 | 12 | The publication family's fixture module names a shared description: a trunk with one unpublished increment. | slice 1 | observed: src/skills/dough-execute-plan/scripts/publication-clean-trunk-fixtures.mjs exports trunkWithOneUnpublishedIncrement |
 | 13 | A case that reads a fact of the trunk or increment declares that fact at its call site. | slice 5 | |
 | 13a.1 | This applies when the case reads a file name. | slice 5 | |
 | 13a.2 | This applies when the case reads file content. | slice 5 | |
 | 13a.3 | This applies when the case reads an identity. | slice 5 | |
-| 14 | Published planning facts in this family come from the canonical builders and the production encoders. Examples are the backlog, story state and done records used by the completed-identity, done-catalog and Dough Land completion cases. | slice 3 | |
-| 15 | Qualification: exact malformed or legacy bytes that are under proof stay literal. | slice 3 | |
+| 14 | Published planning facts in this family come from the canonical builders and the production encoders. Examples are the backlog, story state and done records used by the completed-identity, done-catalog and Dough Land completion cases. | slice 3 | observed: dough-land-completion.test.mjs and dough-land-retained.test.mjs (backlog via makeMe.aBacklogEntry, agentProfiles fact); publication-completed-identity trunkWithBacklogAt; published-done-branches.mjs done records via doneRecords fact; G3 proved |
+| 15 | Qualification: exact malformed or legacy bytes that are under proof stay literal. | slice 3 | observed: publication-completed-identity legacy backlog and empty catalog, racing-suffix and source-freshness entry bytes stay literal |
 | 16 | Route the other skill fixtures that make their own starting repository through the description. | slice 5 | |
 | 16a.1 | CI path applicability. | slice 4 | |
 | 16a.2 | Revision coverage. | slice 4 | |
@@ -78,10 +78,10 @@ branch or merge model.
 | 19a.3 | Mailbox storage. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs installManagedDelivery unchanged, applied to the materialized checkout (mailbox storage) |
 | 19a.4 | Ignored local configuration. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs installManagedDelivery unchanged, applied to the materialized checkout (.planning/open-dough.json, info/exclude) |
 | 20 | The following stay real Git operations in the helper or test. | slice 5 | |
-| 20a.1 | Competing pushes. | slice 3 | |
-| 20a.2 | Rejected publications. | slice 3 | |
-| 20a.3 | Rebases. | slice 3 | |
-| 20a.4 | Merges. | slice 3 | |
+| 20a.1 | Competing pushes. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs other writer advance via advanceOriginFromAnotherWriter |
+| 20a.2 | Rejected publications. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs 'a rejected push is reconciled once onto the other writer's commit…' |
+| 20a.3 | Rebases. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs rebase by the publisher stays Git |
+| 20a.4 | Merges. | slice 3 | observed: src/skills/dough-story-wrap-up/scripts/closure-story-integration*.test.mjs merges stay Git; publication-completed-identity manualMerge |
 | 20a.5 | Ongoing merge or rebase states. | slice 1 | observed: publication-checkout-ongoing-operation.test.mjs keeps merge/rebase states as Git; passed in slice 1 run |
 | 20a.6 | Stashes. | slice 4 | |
 | 20a.7 | Dirty and untracked files. | slice 4 | |
@@ -97,15 +97,15 @@ branch or merge model.
 | 26a.1 | The origin's `main` is the trunk commit. | slice 1 | observed: src/skills/dough-execute-plan/scripts/publication.test.mjs existing origin/main === trunkSha assertions; tests/support/repository-fixture.test.mjs origin ref = trunkSha |
 | 26a.2 | The workspace branch is one commit ahead and absent from the origin. | slice 1 | observed: tests/support/repository-fixture.test.mjs origin lacks candidate, HEAD^ = trunk |
 | 26a.3 | Publication is accepted as it is today. | slice 1 | observed: src/skills/dough-execute-plan/scripts/publication.test.mjs all cases pass unchanged in slice 1 run |
-| 27 | Example, committer under proof: the closure agent-credit test declares, at its call site, the developer who commits in the workspace. | slice 3 | |
-| 27a.1 | The merge still credits that developer once. | slice 3 | |
-| 27a.2 | No assertion depends on an identity that only a fixture module states. | slice 3 | |
-| 28 | Example, product facts: the completed-identity test declares Story A as Taken in its trunk's backlog through MakeMe. | slice 3 | |
-| 28a.1 | The real backlog `complete` still runs on the materialized checkout. | slice 3 | |
-| 28a.2 | The done record that the test asserts is unchanged. | slice 3 | |
+| 27 | Example, committer under proof: the closure agent-credit test declares, at its call site, the developer who commits in the workspace. | slice 3 | observed: src/skills/dough-story-wrap-up/scripts/closure-story-integration-agent-credit.test.mjs declares workspaceDeveloper as the workspace checkoutIdentity |
+| 27a.1 | The merge still credits that developer once. | slice 3 | observed: src/skills/dough-story-wrap-up/scripts/closure-story-integration-agent-credit.test.mjs '…authored by the agent and credits the developer once' passes |
+| 27a.2 | No assertion depends on an identity that only a fixture module states. | slice 3 | observed: clean-trunk default carries no fixed identity; 177-file run passed |
+| 28 | Example, product facts: the completed-identity test declares Story A as Taken in its trunk's backlog through MakeMe. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-completed-identity.test.mjs bothTaken(file) = trunkWithBacklogAt(file, { backlog: { taken: [storyA, storyB] } }) |
+| 28a.1 | The real backlog `complete` still runs on the materialized checkout. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-completed-identity.test.mjs manualMerge runs real complete on the materialized checkout |
+| 28a.2 | The done record that the test asserts is unchanged. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-completed-identity.test.mjs A#A done-record assertion unchanged, passes |
 | 29 | Example, literal configuration: a path applicability test declares its exact `ci.yml` text as a trunk file, and its classification is unchanged. | slice 4 | |
-| 30 | Example, Git under proof: a racing-suffix test takes its trunk and owned backlog suffix from the description. | slice 3 | |
-| 30a.1 | The other writer's advance, the rejected push and the rebase stay in the test. | slice 3 | |
+| 30 | Example, Git under proof: a racing-suffix test takes its trunk and owned backlog suffix from the description. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-racing-suffix-fixtures.mjs trunk backlog A–D and owned backlog suffix from description |
+| 30a.1 | The other writer's advance, the rejected push and the rebase stay in the test. | slice 3 | observed: src/skills/dough-execute-plan/scripts/publication-racing-suffix.test.mjs advance, rejected push and rebase stay in the test |
 | 30a.2 | The repair-stash test's stash entries and dirty submodule stay Git operations. | slice 4 | |
 | 31 | Example, superseded setup removed: no non-native test calls `createCleanTrunkFixture`. | slice 5 | |
 | 31a.1 | No non-native test keeps its own `git init` for a starting repository. | slice 5 | |

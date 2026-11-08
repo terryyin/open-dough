@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { exec, git, lsRemoteSha, revParse } from "./publication-git.mjs";
 import {
   createdForRef,
@@ -70,9 +71,23 @@ export async function pushCandidate(workspace, sha) {
   await pushExactRef(workspace, sha, "refs/heads/main");
 }
 
-// Pending human edit: staged content, an unstaged change to a tracked file,
-// and an untracked file. Publication must leave all three untouched.
+// A trunk holding the tracked `trunk.txt` that `plantHumanEdit` changes, and
+// an exec/story workspace one unpublished commit ahead.
+export const trunkWithHumanEditTarget = makeMe.aRepository
+  .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment")
+  .please();
+
+// Pending human edit: staged content, an unstaged change to the tracked
+// `trunk.txt`, and an untracked file. Publication must leave all three
+// untouched. The checkout's repository declares `trunk.txt`.
 export async function plantHumanEdit(checkout) {
+  await git(checkout, "ls-files", "--error-unmatch", "trunk.txt").catch(() => {
+    throw new Error(
+      "plantHumanEdit changes the tracked trunk.txt: declare it in the repository",
+    );
+  });
   writeFileSync(join(checkout, "human-staged.txt"), "human index\n");
   await git(checkout, "add", "human-staged.txt");
   writeFileSync(

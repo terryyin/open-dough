@@ -102,9 +102,10 @@ export async function publishStoryConflictingWithTrunk(origin, execution) {
 
 // An owned workspace whose agent authors its commits and whose configured Git
 // user is the developer, with a published Story Branch tip that trunk has
-// moved past, so integrating it needs a merge commit.
-export async function agentStoryBehindTrunk(t) {
-  const fixture = await createCleanTrunkFixture();
+// moved past, so integrating it needs a merge commit. `description` is the
+// repository the workspace belongs to.
+export async function agentStoryBehindTrunk(t, description) {
+  const fixture = await createCleanTrunkFixture(description);
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
   await configureAgentAuthorship(execution, agentIdentity("Yui"));

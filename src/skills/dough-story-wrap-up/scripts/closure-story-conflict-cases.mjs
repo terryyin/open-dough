@@ -36,10 +36,19 @@ const mergeAdapter = fileURLToPath(
     import.meta.url,
   ),
 );
+// The story's unpublished `increment.txt`, which the stopped merge stages
+// beside the conflicted file.
+const storyWithIncrement = makeMe.aRepository
+  .withRevision("trunk")
+  .withWorkspace(executionBranch, { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
 const titled = (title) => backlogOf([], [`- [${title}](seeds/C.md#c)`]);
 
 test("a conflicted integration is preserved as Git left it, and its resolved merge commit is published as the candidate", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await createCleanTrunkFixture(storyWithIncrement);
   t.after(fixture.cleanup);
   const { origin, execution } = fixture;
   const { closureSha, trunkSha } = await publishStoryConflictingWithTrunk(

@@ -8,6 +8,7 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   advanceOriginFromAnotherWriter,
   lsRemoteSha,
@@ -168,8 +169,19 @@ test("finish establishes its coordinator's observer on a non-default remote and 
   assert.equal(await branchSha(fixture), "");
 });
 
+// A trunk `trunk.txt` that the final closure and another writer both change.
+const trunkWithSharedFile = makeMe.aRepository
+  .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
+
 test("a conflicting trunk advance stops finish with the worktree, branch, and both closure commits preserved and names the recovery step", async (t) => {
-  const fixture = await createTrunkClosureFixture(t);
+  const fixture = await createTrunkClosureFixture(t, {
+    description: trunkWithSharedFile,
+  });
   const before = await deliverBeforeCleanupThroughCli(fixture);
   const beforeCleanup = before.receipt.sha;
   const final = await commitFinalClosure(fixture, "trunk.txt");

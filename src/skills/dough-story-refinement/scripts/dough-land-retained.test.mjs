@@ -2,7 +2,7 @@
 // maintenance and completion CLI supply the observed boundaries.
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
@@ -17,60 +17,76 @@ import {
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { landWorktree } from "./dough-land-test-fixtures.mjs";
-import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const branch = "exec/story";
-const records = ["PLAN.md", "PRODUCT-BACKLOG.md", "agents/jackson.json"];
-async function ongoing(t, published = false) {
-  const f = await createCleanTrunkFixture();
-  t.after(f.cleanup);
-  mkdirSync(join(f.execution, ".planning/agents"), { recursive: true });
-  const bodies = [
-    "# Plan\n\n## Ordered slices\n\n### 1. Release\nType: Behavior\nStatus: planned\n",
-    "# Product backlog\n\n## Taken\n- [Ongoing](story.md#ongoing) — SEED-1#ongoing\n\n## Backlog list\n",
-    renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name: "jackson",
-          identity: "SEED-1#ongoing",
-          mode: published ? "story-branch" : "trunk",
-          branch,
+const identity = "SEED-1#ongoing";
+const ongoingStory = makeMe.aBacklogEntry
+  .with({ identity, title: "Ongoing", href: "story.md#ongoing" })
+  .please();
+const plan =
+  "# Plan\n\n## Ordered slices\n\n### 1. Release\nType: Behavior\nStatus: planned\n";
+// The unfinished execution's published records, at their canonical paths.
+const records = [
+  ".planning/PLAN.md",
+  ".planning/PRODUCT-BACKLOG.md",
+  `.planning/${agentIdentity("jackson").path}`,
+];
+
+// A trunk holding the tracked `trunk.txt` that the planted human edit, a
+// story change and another writer edit, then an increment, then the
+// published records of an unfinished execution: its plan, the story Taken
+// and jackson's assignment in `mode`. The workspace starts from those
+// records; a published story also holds one more commit, which the fixture
+// pushes to the story branch.
+const unfinishedExecution = (published) => {
+  const repository = makeMe.aRepository
+    .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+    .withRevision("increment")
+    .withRevision("records", {
+      backlog: { taken: [ongoingStory] },
+      files: { ".planning/PLAN.md": plan },
+      agentProfiles: [
+        makeMe.anAgentProfile
+          .executing({
+            name: "jackson",
+            identity,
+            mode: published ? "story-branch" : "trunk",
+            branch,
+          })
+          .please(),
+      ],
+      message: "Record unfinished execution",
+    })
+    .withWorkspace(branch, { from: "records" });
+  return (
+    published
+      ? repository.withUnpublishedRevision("published prefix", {
+          files: { "published-prefix.txt": "published prefix\n" },
+          message: "Published story increment",
         })
-        .please(),
-    ),
-  ];
-  records.forEach((file, i) =>
-    writeFileSync(join(f.execution, ".planning", file), bodies[i]),
-  );
-  await git(f.execution, "add", ".planning");
-  await git(f.execution, "commit", "-qm", "Record unfinished execution");
-  await git(f.execution, "push", "-q", "origin", "HEAD:refs/heads/main");
-  if (published) {
-    writeFileSync(
-      join(f.execution, "published-prefix.txt"),
-      "published prefix\n",
-    );
-    await git(f.execution, "add", "published-prefix.txt");
-    await git(f.execution, "commit", "-qm", "Published story increment");
-  }
-  const publishedStoryTip = published
-    ? await revParse(f.execution, "HEAD")
-    : undefined;
+      : repository
+  ).please();
+};
+
+async function ongoing(t, published = false) {
+  const f = await createCleanTrunkFixture(unfinishedExecution(published));
+  t.after(f.cleanup);
+  const publishedStoryTip = published ? f.candidateSha : undefined;
   if (published)
     await git(f.execution, "push", "-q", "origin", `HEAD:refs/heads/${branch}`);
   return {
     ...f,
     publishedStoryTip,
-    bodies,
+    bodies: records.map((file) =>
+      readFileSync(join(f.execution, file), "utf8"),
+    ),
     executionPlan: join(f.execution, ".planning/PLAN.md"),
   };
 }
 function unchangedRecords(f) {
   records.forEach((file, i) =>
-    assert.equal(
-      readFileSync(join(f.execution, ".planning", file), "utf8"),
-      f.bodies[i],
-    ),
+    assert.equal(readFileSync(join(f.execution, file), "utf8"), f.bodies[i]),
   );
   assert.equal(existsSync(f.execution), true);
 }

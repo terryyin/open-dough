@@ -3,7 +3,7 @@
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import { renderPlanSlice } from "../../../../tests/support/published-plan.mjs";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
@@ -15,12 +15,21 @@ import {
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import { landWorktree } from "./dough-land-test-fixtures.mjs";
-import { renderAgentProfile } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { renderPublishedBacklog } from "../../../../tests/support/published-backlog.mjs";
+import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const identity = "SEED-1#ongoing";
 const branch = "exec/story";
-const profile = ".planning/agents/jackson-chan.json";
-const claim = `# Product backlog\n\n## Taken\n- [${identity} Ongoing](story.md#ongoing) · [plan](PLAN.md)\n\n## Backlog list\n`;
+const profile = `.planning/${agentIdentity("jackson").path}`;
+const ongoingStory = makeMe.aBacklogEntry
+  .with({
+    identity,
+    title: "Ongoing",
+    href: "story.md#ongoing",
+    plan: { label: "plan", target: "PLAN.md" },
+  })
+  .please();
+const claim = renderPublishedBacklog({ taken: [ongoingStory] });
 function planSource({ pending = false, obligation = false } = {}) {
   const slices = [...Array(14).keys()].map((at) =>
     makeMe.aPlanSlice
@@ -48,35 +57,39 @@ Disposition: return
     : ""
 }`;
 }
+// A trunk holding the tracked `trunk.txt` a reviewer edits, and a workspace
+// whose one unpublished commit records the ongoing execution: its plan
+// `source`, the seed draft, the Taken claim and the agent's assignment. That
+// commit is published to the execution branch.
 async function executionFixture(t, source) {
-  const f = await createCleanTrunkFixture();
+  const f = await createCleanTrunkFixture(
+    makeMe.aRepository
+      .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+      .withWorkspace(branch, { from: "trunk" })
+      .withUnpublishedRevision("ongoing", {
+        backlog: { taken: [ongoingStory] },
+        files: {
+          ".planning/PLAN.md": source,
+          ".planning/story.md":
+            '# Stories\n\n<a id="ongoing"></a>\n\n### Ongoing\n\nA release is available.\n',
+        },
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .executing({
+              name: "jackson",
+              identity,
+              mode: "story-branch",
+              branch,
+            })
+            .please(),
+        ],
+        message: "Record ongoing execution",
+      })
+      .please(),
+  );
   t.after(f.cleanup);
-  mkdirSync(join(f.execution, ".planning"));
-  const plan = join(f.execution, ".planning/PLAN.md");
-  writeFileSync(plan, source);
-  writeFileSync(join(f.execution, ".planning/PRODUCT-BACKLOG.md"), claim);
-  writeFileSync(
-    join(f.execution, ".planning/story.md"),
-    '# Stories\n\n<a id="ongoing"></a>\n\n### Ongoing\n\nA release is available.\n',
-  );
-  mkdirSync(join(f.execution, ".planning/agents"));
-  writeFileSync(
-    join(f.execution, profile),
-    renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name: "jackson",
-          identity,
-          mode: "story-branch",
-          branch,
-        })
-        .please(),
-    ),
-  );
-  await git(f.execution, "add", ".planning");
-  await git(f.execution, "commit", "-qm", "Record ongoing execution");
   await git(f.execution, "push", "-q", "origin", `HEAD:refs/heads/${branch}`);
-  return { ...f, plan };
+  return { ...f, plan: join(f.execution, ".planning/PLAN.md") };
 }
 
 for (const [example, source, reason] of [

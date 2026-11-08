@@ -92,7 +92,7 @@ test("sibling backlog change preserves backlog semantics through the rebase adap
     repo,
     defaultCheckout: fixture.integration,
     validate: async (candidate) => {
-      await assertAffectedCombination(fixture.execution, candidate);
+      await assertAffectedCombination(fixture, candidate);
       return { ok: true };
     },
   });
@@ -104,7 +104,7 @@ test("sibling backlog change preserves backlog semantics through the rebase adap
     ).stdout.trim(),
     siblingSha,
   );
-  await assertAffectedCombination(fixture.execution, delivered.receipt.sha);
+  await assertAffectedCombination(fixture, delivered.receipt.sha);
   assert.notEqual(delivered.receipt.sha, candidateSha);
   assert.equal(
     readRevisionCoverage(delivered.observation.directory)[0].sha,

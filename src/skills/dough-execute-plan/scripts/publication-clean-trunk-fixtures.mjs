@@ -6,29 +6,14 @@ import { materializeRepository } from "../../../../tests/support/repository-fixt
 import { createBareFixtureRemote } from "./bare-remote-test-fixtures.mjs";
 import { git } from "./publication-git.mjs";
 
-// The publication family's shared repository: one `trunk.txt` commit on
-// `main`, and an `exec/story` workspace one unpublished `increment.txt`
-// commit ahead. Each checkout configures its own committer.
+// The publication family's default repository: the default MakeMe trunk on
+// `main`, and an `exec/story` workspace one unpublished commit ahead that
+// adds one file. A case that reads a trunk or increment fact declares its own.
 export const trunkWithOneUnpublishedIncrement = makeMe.aRepository
-  .withCheckoutIdentity({
-    name: "Integration Checkout",
-    email: "integration@example.test",
-  })
-  .withRevision("trunk", {
-    backlog: undefined,
-    files: { "trunk.txt": "base\n" },
-    message: "base trunk commit",
-  })
-  .withWorkspace("exec/story", {
-    from: "trunk",
-    checkoutIdentity: {
-      name: "Execution Worktree",
-      email: "execution@example.test",
-    },
-  })
+  .withRevision("trunk")
+  .withWorkspace("exec/story", { from: "trunk" })
   .withUnpublishedRevision("increment", {
-    files: { "increment.txt": "increment\n" },
-    message: "verified increment",
+    files: { "increment.md": "An unpublished increment.\n" },
   })
   .please();
 

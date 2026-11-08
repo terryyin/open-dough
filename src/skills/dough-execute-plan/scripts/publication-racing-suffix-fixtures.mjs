@@ -2,19 +2,14 @@
 // replay that suffix once through the backlog rebase adapter, then one retry
 // push. A conflict or a second rejection returns without another replay.
 import assert from "node:assert/strict";
-import {
-  mkdirSync,
-  mkdtempSync,
-  realpathSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
 import {
   cloneAsAnotherWriter,
+  createCleanTrunkFixture,
   exec,
   git,
   lsRemoteSha,
@@ -122,46 +117,25 @@ export async function publishRacingSuffix({
   return { status: "published", sha: rewritten, replays: 1 };
 }
 
+// A trunk whose backlog holds items A to D beside unaffected `trunk.txt`
+// content, and a workspace on exec/story one unpublished commit ahead that
+// changes the backlog to `ownedBacklog` and adds `increment.txt`.
 export async function createBacklogSuffixFixture(ownedBacklog) {
-  const fixture = realpathSync(
-    mkdtempSync(join(tmpdir(), "publication-race-")),
-  );
-  const origin = join(fixture, "remote.git");
-  const integration = join(fixture, "integration");
-  const execution = join(fixture, "execution");
-
-  await exec("git", ["init", "--bare", "-b", "main", origin]);
-  await exec("git", ["init", "-b", "main", integration]);
-  await git(integration, "config", "user.name", "Integration Checkout");
-  await git(integration, "config", "user.email", "integration@example.test");
-  await git(integration, "remote", "add", "origin", origin);
-  writeFileSync(join(integration, "trunk.txt"), "base\n");
-  mkdirSync(join(integration, ".planning"), { recursive: true });
-  writeFileSync(
-    join(integration, backlogPath),
-    backlogOf([], [itemA, itemB, itemC, itemD]),
-  );
-  await git(integration, "add", "trunk.txt", backlogPath);
-  await git(integration, "commit", "-m", "base trunk commit");
-  await git(integration, "push", "origin", "main");
-
-  await git(integration, "branch", "exec/story");
-  await git(integration, "worktree", "add", execution, "exec/story");
-  await git(execution, "config", "user.name", "Execution Worktree");
-  await git(execution, "config", "user.email", "execution@example.test");
-  writeFileSync(join(execution, "increment.txt"), "increment\n");
-  writeFileSync(join(execution, backlogPath), ownedBacklog);
-  await git(execution, "add", "increment.txt", backlogPath);
-  await git(execution, "commit", "-m", "verified increment");
-
-  return {
-    origin,
-    integration,
-    execution,
-    trunkSha: await revParse(integration, "main"),
-    candidateSha: await revParse(execution, "exec/story"),
-    cleanup: () => rmSync(fixture, { recursive: true, force: true }),
-  };
+  const description = makeMe.aRepository
+    .withRevision("trunk", {
+      files: {
+        "trunk.txt": "base\n",
+        [backlogPath]: backlogOf([], [itemA, itemB, itemC, itemD]),
+      },
+      message: "base trunk commit",
+    })
+    .withWorkspace("exec/story", { from: "trunk" })
+    .withUnpublishedRevision("increment", {
+      files: { "increment.txt": "increment\n", [backlogPath]: ownedBacklog },
+      message: "verified increment",
+    })
+    .please();
+  return { ...(await createCleanTrunkFixture(description)), description };
 }
 
 export async function advanceOriginBacklog(
@@ -183,19 +157,32 @@ export async function advanceOriginBacklog(
   return sha;
 }
 
-export async function assertAffectedCombination(execution, sha) {
+// The files `revisions` declare besides the backlog.
+const declaredFiles = (revisions) =>
+  revisions
+    .flatMap((revision) => Object.entries(revision.files ?? {}))
+    .filter(([path]) => path !== backlogPath);
+
+// `sha` combines the sibling's and the owned backlog entries, and keeps every
+// other file the fixture's description declares on trunk and in the owned
+// increment.
+export async function assertAffectedCombination(
+  { execution, description },
+  sha,
+) {
+  const show = async (path) =>
+    (await git(execution, "show", `${sha}:${path}`)).stdout;
   assert.equal(
-    (await git(execution, "show", `${sha}:${backlogPath}`)).stdout,
+    await show(backlogPath),
     backlogOf([], [itemA, siblingB, itemC, ownedD]),
     "affected check sees the owned backlog change and the sibling entry",
   );
-  assert.equal(
-    (await git(execution, "show", `${sha}:increment.txt`)).stdout,
-    "increment\n",
-  );
-  assert.equal(
-    (await git(execution, "show", `${sha}:trunk.txt`)).stdout,
-    "base\n",
-    "unaffected trunk content stays in the candidate and is not treated as the change under test",
-  );
+  for (const [path, content] of declaredFiles(description.workspace.revisions))
+    assert.equal(await show(path), String(content));
+  for (const [path, content] of declaredFiles(description.revisions))
+    assert.equal(
+      await show(path),
+      String(content),
+      "unaffected trunk content stays in the candidate and is not treated as the change under test",
+    );
 }

@@ -18,7 +18,15 @@ import {
   main,
   manualMerge,
   publish,
+  storyA,
+  storyB,
+  trunkWithBacklogAt,
 } from "./publication-done-records-fixture.mjs";
+
+// Stories A and B are both Taken on the published trunk, in the backlog at
+// `file`.
+const bothTaken = (file) =>
+  trunkWithBacklogAt(file, { backlog: { taken: [storyA, storyB] } });
 
 for (const [file, list] of [
   [".planning/PRODUCT-BACKLOG.md", "Taken"],
@@ -26,7 +34,9 @@ for (const [file, list] of [
 ]) {
   for (const publisher of ["history", "execution", "resume"]) {
     test(`${publisher} refuses a completed identity restored in ${list} at ${file}`, async (t) => {
-      const fixture = await manualMerge(t, file, list);
+      const fixture = await manualMerge(t, file, list, {
+        description: bothTaken(file),
+      });
       const { execution, donePath, record } = fixture;
       const before = await captureCheckout(execution);
       const sourceBefore = readFileSync(join(execution, file), "utf8");
@@ -54,6 +64,7 @@ for (const [file, list] of [
 for (const publisher of ["history", "execution", "resume"]) {
   test(`${publisher} still publishes unrelated active work beside completed records`, async (t) => {
     const fixture = await manualMerge(t, "delivery/custom.md", "Taken", {
+      description: bothTaken("delivery/custom.md"),
       active: false,
     });
     const result = await publish(
