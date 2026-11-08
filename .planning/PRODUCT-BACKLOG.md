@@ -32,11 +32,11 @@ intent introduced or affected by a newly developed story.
 - [Remove wall-clock waits from authenticated-read backend specs](seeds/SEED-262-faster-dashboard-test-feedback.md#remove-authenticated-read-wall-clock-waits) — SEED-262#remove-authenticated-read-wall-clock-waits ([plan](slice-plans/511-remove-authenticated-read-wall-clock-waits/PLAN.md))
 - [Prepare dashboard test artifacts only when selected tests need them](seeds/SEED-262-faster-dashboard-test-feedback.md#prepare-artifacts-on-demand) — SEED-262#prepare-artifacts-on-demand ([plan](slice-plans/513-prepare-dashboard-artifacts-on-demand/PLAN.md))
 - [Make fluent Side panel page objects easier to extend](seeds/SEED-268-fluent-side-panel-pilot-follow-up.md#adjust-fluent-side-panel-page-objects) — SEED-268#adjust-fluent-side-panel-page-objects ([plan](slice-plans/516-adjust-fluent-side-panel-page-objects/PLAN.md))
+- [Show CI time without runner waits for custom adapters](seeds/SEED-266-ci-job-timing-from-adapters.md#show-ci-time-without-runner-waits-for-adapters) — SEED-266#show-ci-time-without-runner-waits-for-adapters ([plan](slice-plans/515-show-ci-time-without-runner-waits-for-adapters/PLAN.md))
 
 ## Backlog list
 
 - [Draw a conclusion from the three Side panel pilot journeys and plan the next step](seeds/SEED-268-fluent-side-panel-pilot-follow-up.md#conclude-fluent-side-panel-pilot) — SEED-268#conclude-fluent-side-panel-pilot
-- [Show CI time without runner waits for custom adapters](seeds/SEED-266-ci-job-timing-from-adapters.md#show-ci-time-without-runner-waits-for-adapters) — SEED-266#show-ci-time-without-runner-waits-for-adapters
 - [Show CI build sources with compact icons](seeds/SEED-265-show-ci-build-source-icons.md#show-ci-build-source-icons) — SEED-265#show-ci-build-source-icons
 - [Preserve large CI proof reports and surface size failures](seeds/SEED-267-preserve-large-ci-proof-reports.md#preserve-large-ci-proof-reports) — SEED-267#preserve-large-ci-proof-reports
 - [Build each test’s Git repository from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures) — SEED-262#build-explicit-git-fixtures
