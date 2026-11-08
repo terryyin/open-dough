@@ -1,5 +1,9 @@
 // @ts-check
 import { launchOutcomeFacts } from "./launchOutcomeTestData.mjs";
+import {
+  isolatedWorkspaceFacts,
+  storyBranchFacts,
+} from "./launchWorkspaceTestData.mjs";
 
 /** @typedef {import("./launchOutcomeTestData.mjs").LaunchOutcome} LaunchOutcome */
 /**
@@ -20,8 +24,9 @@ import { launchOutcomeFacts } from "./launchOutcomeTestData.mjs";
  */
 
 // The kept launch of one story's execution or refinement, or of an ad hoc
-// session: its request, its host session, and, for an execution whose start
-// established one, the story branch. Without `.onStoryBranch(...)` the
+// session: its request, its host session, and, for an execution or a
+// refinement that established one, the story branch
+// (`./launchWorkspaceTestData.mjs`). Without `.onStoryBranch(...)` the
 // record keeps no established start or preparation. The session defaults to
 // a `claude` one named after the title, the start's claim to fixed published
 // facts, and the launch time to a fixed instant.
@@ -69,8 +74,8 @@ export class LaunchRecordBuilder {
   }
 
   /**
-   * The execution's start established the story's worktree on its story
-   * branch.
+   * The execution's start, or the refinement's preparation, established the
+   * story's worktree on its story branch.
    * @param {{ workspace: string, branch: string }} storyBranch
    */
   onStoryBranch({ workspace, branch }) {
@@ -172,8 +177,10 @@ export class LaunchRecordBuilder {
       throw new Error(
         "choose .executing(...), .refining(...) or .adHoc(...) first",
       );
-    if (storyBranch && requested.workflow !== "execution")
-      throw new Error("only an execution's start establishes a story branch");
+    if (storyBranch && requested.workflow === "ad-hoc")
+      throw new Error(
+        "only a story's start or preparation establishes a story branch",
+      );
     const isolated = this.#isolated;
     if (isolated && requested.workflow !== "ad-hoc")
       throw new Error("only an ad hoc start establishes an isolated workspace");
@@ -202,16 +209,7 @@ export class LaunchRecordBuilder {
           }),
         },
         session,
-        ...(isolated && {
-          establishedSession: {
-            workspace: isolated.workspace,
-            role: /** @type {const} */ ("isolated"),
-            branch: isolated.branch,
-            remote: "origin",
-            target: "main",
-            landing: /** @type {const} */ ("review"),
-          },
-        }),
+        ...isolatedWorkspaceFacts(isolated),
         launchedAt: this.#launchedAt,
         ...launchOutcomeFacts(this.#outcome, this.#launchedAt),
       };
@@ -224,18 +222,7 @@ export class LaunchRecordBuilder {
         host: session.host,
       },
       session,
-      ...(storyBranch && {
-        start: {
-          identity: requested.identity,
-          publisherId: "a1b2c3",
-          workspace: storyBranch.workspace,
-          branch: storyBranch.branch,
-          mode: /** @type {const} */ ("story-branch"),
-          remote: "origin",
-          target: "main",
-          publishedSha: "b2".repeat(20),
-        },
-      }),
+      ...storyBranchFacts(requested, storyBranch),
       launchedAt: this.#launchedAt,
       ...launchOutcomeFacts(this.#outcome, this.#launchedAt),
     };

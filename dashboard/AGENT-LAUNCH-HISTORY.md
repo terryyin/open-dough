@@ -53,8 +53,8 @@ Its review uses the catalog identity and that identity as the title until its
 done record supplies the title. Native availability, completion attention and
 the removed seed or plan do not decide whether review is offered. The review
 action and nested sessions add nothing to heading or Column paging counts.
-A standalone Done session none of whose sessions offers Open terminal offers
-[Follow up](LAUNCH-FOLLOW-UP.md) beside Read final report; the source is unchanged.
+A standalone Done session or read done-story card (also one holding no session)
+without Open terminal offers [Follow up](LAUNCH-FOLLOW-UP.md); the source stays.
 Native Working, Needs input, Ready for review, unavailable or unknown activity,
 and Mark as read, never choose a column. Existing operations recording or
 clearing Done remain authoritative; refused marking or native reopening keeps

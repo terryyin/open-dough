@@ -160,10 +160,19 @@ offers Open terminal shows no Follow up.
 ### 2. Follow up a done story
 
 Type: Behavior
-Status: planned
-Proof: New `tests/stories/recently-done-follow-up.spec.ts` and backend cases
-in the slice 1 boundary spec for a story source, then the local gate
-selection.
+Status: done
+Proof: New `tests/stories/recently-done-follow-up.spec.ts` and
+`backend-tests/launches/agent-launch-follow-up-story.spec.ts` for a story
+source, then the local gate selection.
+Accepted: gate selection plus `authenticated-read-done-catalog`,
+`story-card-selection` and `story-review-completed` passed 171/171; after the
+E1 fixture correction (both sessions retired, each offers Read final report)
+and the refactor pass, the follow-up and recently-done story specs passed
+45/45; `npm run typecheck:dashboard` exit 0. Decision: a story source is keyed
+`story <identity>` without the revision; admission refuses 404 when the shown
+revision does not publish the record and 502 when the read fails.
+Learnings for slice 3: a story's resolved text is on `request.followUp.context`
+as a session's is; story fixtures are in `dashboard/tests/support/followUpStories.ts`.
 
 Behavior: A done story's card in Recently done holding Done sessions with
 retired workspaces, or none → the card offers **Follow up**; the dialog names

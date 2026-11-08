@@ -23,12 +23,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { readDoneRecordBodiesAt } from "./authenticatedDoneRead.ts";
 import { doneRecordsPerRead } from "./authenticatedReadRules.ts";
-import {
-  doneRecordOf,
-  doneRecordsGapProblem,
-  type DoneRecordRead,
-  type NamedDoneRecord,
-} from "./doneStories.ts";
+import { doneRecordOf, type DoneRecordRead } from "./doneRecord.ts";
+import { doneRecordsGapProblem, type NamedDoneRecord } from "./doneStories.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { withinReadWait } from "./readWaitBound.ts";
 

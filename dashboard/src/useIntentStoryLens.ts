@@ -9,7 +9,7 @@
 
 import { useState } from "react";
 import { useDoneDetails } from "./doneDetails.ts";
-import type { DoneStory } from "./doneStories.ts";
+import type { DoneStory } from "./doneRecord.ts";
 import type { LensComparison } from "./IntentStoryComparison.tsx";
 import type { ComparedStory, LensStory } from "./IntentStorySummary.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";

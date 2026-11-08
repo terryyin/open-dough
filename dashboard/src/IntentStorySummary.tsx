@@ -13,7 +13,7 @@
 // published revision (ADR 0008).
 
 import { useId } from "react";
-import type { DoneStory } from "./doneStories.ts";
+import type { DoneStory } from "./doneRecord.ts";
 import {
   CompactComparisonState,
   ComparisonDetail,

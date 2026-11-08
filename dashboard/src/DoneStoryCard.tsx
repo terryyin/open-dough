@@ -1,5 +1,5 @@
 // One done story in Recently done, from its published done record
-// (`./doneStories.ts`): its title and identity, when it was done, and, as a
+// (`./doneRecord.ts`): its title and identity, when it was done, and, as a
 // Taken card's scan line names its developer, the agent with its portrait,
 // the recorded developer's name, and the agent's host beside its mark, for
 // example "Yui-chan · Terry Yin · Claude Code". A record naming no agent shows
@@ -16,14 +16,16 @@
 // history supplies the fallback when no usable local comparison remains.
 // Empty-area clicks and Select story toggle the page's selected story
 // (`./pageStorySelection.tsx`); nested controls keep their own behavior.
+// Its Story actions also hold its Follow up, when one is offered
+// (`./FollowUp.tsx`).
 
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
 import type { LaunchRecord } from "./launchRecord.ts";
 import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { AgentPortrait } from "./AgentPortrait.tsx";
 import { RecordedHost } from "./AssignmentRecords.tsx";
-import type { DoneStory } from "./doneStories.ts";
+import type { DoneStory } from "./doneRecord.ts";
 import { HumanName } from "./HumanCredit.tsx";
 import { Moment } from "./Moment.tsx";
 import { doneStoryMarks } from "./pageEntries.ts";
@@ -53,6 +55,7 @@ export function DoneStoryCard({
   launchRecords,
   selected,
   onSelect,
+  followUp,
 }: {
   // The story and when it was done, as its done catalog names it.
   readonly identity: string;
@@ -68,6 +71,8 @@ export function DoneStoryCard({
   readonly sourceId: string;
   readonly selected: boolean;
   readonly onSelect: (identity: string) => void;
+  // The story's Follow up, when it offers one.
+  readonly followUp?: ReactNode;
 }) {
   const heading = useId();
   const title = story?.title ?? identity;
@@ -137,6 +142,7 @@ export function DoneStoryCard({
           records={launchRecords}
           work={{ identity, title }}
         />
+        {followUp}
       </div>
     </article>
   );

@@ -42,10 +42,11 @@ export const followUpOf = (record: LaunchRecord) => ({
   session: { host: record.session.host, sessionId: record.session.sessionId },
 });
 
-const preamble =
+// What every follow-up's context block opens with.
+export const followUpPreamble =
   "Follow-up context: this session follows up earlier work in this project whose conversation can no longer be continued. These are the records the dashboard still holds of it; they state nothing beyond what was recorded.";
 
 // The context block a session receives for a source titled `title`, with
 // these item lines.
 export const followUpContextOf = (title: string, items: readonly string[]) =>
-  [preamble, `Session “${title}”:`, ...items].join("\n");
+  [followUpPreamble, `Session “${title}”:`, ...items].join("\n");

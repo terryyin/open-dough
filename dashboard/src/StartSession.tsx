@@ -61,6 +61,7 @@ export function StartSession({
   sourceId,
   launches,
   followUp,
+  onOpen,
 }: {
   // The selected project's name.
   readonly project: string;
@@ -68,6 +69,8 @@ export function StartSession({
   readonly launches: MachineSessions;
   // Set where an entry's Follow up opens the dialog.
   readonly followUp?: FollowUpShown | undefined;
+  // Called as the dialog opens.
+  readonly onOpen?: () => void;
 }) {
   const attempt = launches.adHocAttemptOf(sourceId, followUp?.source);
   const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
@@ -96,7 +99,10 @@ export function StartSession({
         }
         aria-describedby={attempt !== undefined ? answerId : undefined}
         disabled={starting}
-        onClick={openDialog}
+        onClick={() => {
+          onOpen?.();
+          openDialog();
+        }}
       >
         <Icon
           icon={followUp === undefined ? SquareTerminal : MessageSquarePlus}

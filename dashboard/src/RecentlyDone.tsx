@@ -16,7 +16,7 @@ import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { ShowLatest, ShownRange } from "./RecentlyDoneRangeActions.tsx";
 import type { DoneDetail } from "./doneDetails.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
-import { SessionFollowUp } from "./FollowUp.tsx";
+import { SessionFollowUp, StoryFollowUp } from "./FollowUp.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import { useHeldEntryFocus } from "./recentlyDoneFocus.ts";
 import {
@@ -85,6 +85,7 @@ function unreadWords(
 function ListedEntry({
   each,
   detailOf,
+  revision,
   sourceId,
   project,
   launches,
@@ -93,6 +94,8 @@ function ListedEntry({
 }: {
   readonly each: Listed;
   readonly detailOf: (record: CataloguedDoneRecord) => DoneDetail;
+  // The revision the shown done records are read at.
+  readonly revision: string;
   readonly sourceId: string;
   readonly project: string;
   readonly launches: MachineSessions;
@@ -128,6 +131,18 @@ function ListedEntry({
       launchRecords={launches.records}
       selected={selectedIdentity === record.identity}
       onSelect={onSelect}
+      followUp={
+        detail.status === "read" && (
+          <StoryFollowUp
+            story={detail.story}
+            revision={revision}
+            sessions={sessions}
+            project={project}
+            sourceId={sourceId}
+            launches={launches}
+          />
+        )
+      }
     />
   );
 }
@@ -199,6 +214,7 @@ export function RecentlyDone({
               <ListedEntry
                 each={each}
                 detailOf={details.detailOf}
+                revision={view.revision}
                 sourceId={sourceId}
                 project={project}
                 launches={launches}
