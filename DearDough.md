@@ -17,6 +17,17 @@ Former local code: DD-057. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: DD-231. [Evidence and current response](docs/maintainer/findings/ODF-154.md).
 ## ODF-074 — Unverified planning premises <a id="odf-074"></a>
 Former local code: DD-450. Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Former local code: DD-307. Former local code: DD-400. Former local code: DD-393 (`6c354905e`), renumbered in merge `966aad8b1`. DD-400's facet: a decisive premise probe proved the capability, not the story's restriction it settled. [Meaning, evidence and response](docs/maintainer/findings/ODF-074.md).
+
+### Occurrences
+- Execution: SEED-268#conclude-fluent-side-panel-pilot (plan 521-conclude-fluent-side-panel-pilot; first related implementation `da1478f7d77f1f72490871891ef219f2f859f32a`)
+  - Timestamp: unknown (2026-11-08, before the first slice delegation)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.91 (installed `.agents/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 521 at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6` was recorded ready with `**Status:** pending`. The first `story-obligations.mjs list --slice 1` refused with `unreadable-slices` and `unknown-slice`.
+  - Observed effect: changing only the status word to `planned` let the same listing pass with all 39 allocated source commitments. The selected story and its proof stayed the same.
+  - Inference: the preparation and execution status mismatch observed in Plan 519 recurred under 0.3.91.
+
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
 ## ODF-157 — Identifier-only conceptual searches <a id="odf-157"></a>
