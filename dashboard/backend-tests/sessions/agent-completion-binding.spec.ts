@@ -90,14 +90,17 @@ for (const quiet of [false, true])
               Origin: server.origin,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              source: "open-dough",
-              host: "claude",
-              reference: accepted.attempt.id,
-              session,
-              outcome: "unfinished",
-              message: "No false session receipt",
-            }),
+            body: JSON.stringify(
+              makeMe.aCompletionSubmission
+                .reportingFor({
+                  host: "claude",
+                  reference: accepted.attempt.id,
+                })
+                .fromSession(session)
+                .withOutcome("unfinished")
+                .saying("No false session receipt")
+                .please(),
+            ),
           });
         expect((await post("not-yet-known")).status).toBe(409);
         const reported = await exec(

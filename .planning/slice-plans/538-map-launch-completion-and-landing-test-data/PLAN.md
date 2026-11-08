@@ -127,7 +127,7 @@ already uses the builder for its completion, which slice 2 reuses.
 
 ### 2. Completion delivery retains its receipt across binding and recovery
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 2. Run `npm run test:dashboard -- 'backend-tests/sessions/agent-completion-[^/]+\.spec\.ts$' 'dashboard/tests/sessions/agent-completion-[^/]+\.spec\.ts$' 'backend-tests/launches/agent-launch-incomplete-reporting-settlement\.spec\.ts$'`.
 
 An accepted completion before native binding carries its original receipt
@@ -138,6 +138,13 @@ arrange them. Keep CLI input files, actual receivers and receipt assertions,
 exact invalid or legacy inputs, write faults, lost acknowledgments, clock
 control, and native binding in their present proof roles. Real results from
 the reporter or store continue to supply the observed facts.
+
+Accepted proof: the slice selection passed 29 tests, the Cursor
+replacement-session spec passed, and `npm run typecheck:dashboard` passed.
+These journeys observe every receipt from the real reporter or receiver, so
+the only valid facts they arranged were completion submissions. Those now come
+from `makeMe.aCompletionSubmission` in the binding, identity, quiet and Cursor
+replacement-session specs. Exact invalid inputs and `malformedRetry` stay literal.
 
 ### 3. Landing delivery retains the accepted comparison for its launch
 Type: Behavior

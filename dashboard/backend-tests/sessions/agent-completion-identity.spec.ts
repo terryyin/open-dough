@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { test, expect, stored } from "../../tests/support/codexStart.ts";
 import { keptAttempts } from "../../tests/acceptedAttempts.ts";
@@ -221,13 +222,11 @@ test("refused deliveries keep the earlier completion message", async ({
       headers: { "Content-Type": "application/json", ...headers },
       body: JSON.stringify(body),
     });
-  const valid = {
-    source: "open-dough",
-    host: "codex",
-    reference: context.reference,
-    outcome: "unfinished",
-    message: "Required retirement is held; resolve ownership.",
-  };
+  const valid = makeMe.aCompletionSubmission
+    .reportingFor({ host: "codex", reference: context.reference })
+    .withOutcome("unfinished")
+    .saying("Required retirement is held; resolve ownership.")
+    .please();
   for (const [change, headers, status] of [
     [{ source: "unknown-project" }, undefined, 404],
     [{ source: "doughnut" }, undefined, 404],

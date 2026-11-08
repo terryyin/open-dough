@@ -13,11 +13,11 @@ Returned exclusions: the common store writer belongs to the kept launch record s
 | 2 | Those facts can be recognized across dashboard tests and the landing delivery script. | slice 3 | |
 | 3 | Each test's original proof stays visible. | slice 4 | |
 | 4 | Valid completion reports are arranged through MakeMe. | slice 1 | observed: slice 1: makeMe.aCompletionReport replaces deleted dashboard/tests/support/completionReport.ts in all 7 importers; slice selection 61 passed |
-| 5 | Valid receipts are arranged through MakeMe. | slice 2 | |
+| 5 | Valid receipts are arranged through MakeMe. | slice 2 | observed: slices 1-2: arranged receipts use makeMe completedWith({receipt})/aCompletionReport.withReceipt (session-unread-rule, final-report-admission); agent-completion journeys arrange submissions via makeMe.aCompletionSubmission and observe receipts from the real reporter/receiver |
 | 6 | Retained final-report facts are arranged through MakeMe. | slice 1 | observed: slice 1: retainedReport.ts recordedClaude/recordedCursor, reportTouchJourney.ts, sessionAttributionFixture.ts, sessionsReplayRecords.ts completion built via makeMe; final-report-admission and session-attribution specs pass |
 | 7 | The existing kept launch builder is extended with the outcome facts the cases need. | slice 1 | observed: slice 1: tests/support/launchOutcomeTestData.mjs completedWith takes receipt/receivedAt, withReportRead() in launchTestData.mjs; base-vs-new launchOutcomeFacts output byte-identical |
 | 7a | Examples of those facts, not a closed list: report identity, receipt time and disposition. | slice 1 | observed: slice 1: completedWith({receipt, receivedAt}), withReportRead(), markedDoneAt; CompletionReportBuilder withReceipt/receivedAt |
-| 8 | The report, the delivery receipt, native terminal evidence and the developer Done mark stay distinct. | slice 2 | |
+| 8 | The report, the delivery receipt, native terminal evidence and the developer Done mark stay distinct. | slice 2 | observed: slice 2: agent-completion-binding asserts receipt.state pending-native-session and no session separately from bound.completion.receipt, doneAt undefined and native attach/stop; agent-completion-quiet asserts retry toEqual(receipt) separately from doneAt and native thread/name/set |
 | 9 | Valid landing authority is arranged through MakeMe where the dashboard suites and `dashboard-landing.test.mjs` supply those starting facts. | slice 3 | |
 | 10 | Valid submissions are arranged the same way, under the same condition. | slice 3 | |
 | 11 | Valid retained comparisons are arranged the same way, under the same condition. | slice 4 | |
@@ -37,9 +37,9 @@ Returned exclusions: the common store writer belongs to the kept launch record s
 | 20 | The story keeps proof boundaries unchanged. | slice 4 | |
 | E1.1 | Example 1: given a kept launch with a read final report, a report that arrives with a new receipt makes the new message unread. | slice 1 | observed: slice 1: session-unread-rule.spec.ts 'a newer report after a read one is unread again' — kept record read receipt ...0001, newer receipt ...0002 shows 'Unfinished work', '1 unread report' |
 | E1.2 | Example 1: a quiet completion and a developer Done mark can still be read as separate facts. | slice 1 | observed: slice 1: session-unread-rule.spec.ts 'a reported session marked done...' (Done, no unread, with/without read) and 'a quiet completion retained for wrap-up...' (no unread, no alert) |
-| E2.1 | Example 2: a completion report accepted before native session binding carries its receipt into the bound record. | slice 2 | |
-| E2.2 | Example 2: when a bound launch loses the acknowledgment for a later delivery, retrying that delivery after a restart returns its original receipt. | slice 2 | |
-| E2.3 | Example 2: that retry does not repeat Git or retirement. | slice 2 | |
+| E2.1 | Example 2: a completion report accepted before native session binding carries its receipt into the bound record. | slice 2 | observed: slice 2: agent-completion-binding.spec.ts 'Claude early ... binds through' (4 variants): bound.completion toMatchObject {receipt: receipt.receipt}; false-session makeMe submission still 409 |
+| E2.2 | Example 2: when a bound launch loses the acknowledgment for a later delivery, retrying that delivery after a restart returns its original receipt. | slice 2 | observed: slice 2: agent-completion-recovery.spec.ts 'retired closure retries ... lost acknowledgment': restarted-server retry stdout toEqual(receipt) |
+| E2.3 | Example 2: that retry does not repeat Git or retirement. | slice 2 | observed: slice 2: agent-completion-recovery.spec.ts same test: git.log unchanged (toBe(gitBefore)), native controls only two thread/name/set |
 | E3.1 | Example 3: a one-shot or story-branch publication has an accepted base and revision. Both publication kinds are covered. | slice 3 | |
 | E3.2 | Example 3: when landing evidence is captured or recovered after trunk advances, it keeps that comparison for the original launch. | slice 3 | |
 | E3.3 | Example 3: recording the comparison leaves completion and Done to their own operations. | slice 3 | |

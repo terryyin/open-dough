@@ -10,6 +10,7 @@ import { queuedIdentity, queuedTitle } from "../support/startOrigin.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
 import { rawRequest } from "../support/rawHttp.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectInstalledCompletionGuidance } from "../support/installedCompletionGuidance.ts";
 import { withInstalledCompletionClosure } from "../support/installedCompletionClosure.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
@@ -134,6 +135,8 @@ for (const closure of [
             }),
           ).toBeVisible();
           nativeSession.renameError = undefined;
+          const { delivery } = receipt;
+          if (delivery === undefined) throw new Error("No delivery receipt");
           const retry = () =>
             rawRequest({
               url: `${dashboard.baseURL}/__agent-launch/completion`,
@@ -142,14 +145,12 @@ for (const closure of [
                 Origin: dashboard.origin,
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({
-                source: "open-dough",
-                host: "codex",
-                reference: context.reference,
-                delivery: receipt.delivery,
-                outcome: "completed",
-                message: "",
-              }),
+              body: JSON.stringify(
+                makeMe.aCompletionSubmission
+                  .reportingFor({ host: "codex", reference: context.reference })
+                  .retrying(delivery)
+                  .please(),
+              ),
             });
           expect(JSON.parse((await retry()).body)).toEqual(receipt);
           await expect

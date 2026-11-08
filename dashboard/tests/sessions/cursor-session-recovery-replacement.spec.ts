@@ -14,6 +14,7 @@ import {
 import { expect, test } from "../support/cursorStart.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test("cannot-load resume replaces the chat on the same launch", async ({
   page,
@@ -99,14 +100,14 @@ test("cannot-load resume replaces the chat on the same launch", async ({
         "Content-Type": "application/json",
         Origin: dashboard.origin,
       },
-      body: JSON.stringify({
-        source: "open-dough",
-        host: "cursor",
-        reference,
-        session,
-        outcome: "unfinished",
-        message: "Replacement completion check.",
-      }),
+      body: JSON.stringify(
+        makeMe.aCompletionSubmission
+          .reportingFor({ host: "cursor", reference })
+          .fromSession(session)
+          .withOutcome("unfinished")
+          .saying("Replacement completion check.")
+          .please(),
+      ),
     });
   expect((await post(replacementId)).status).toBe(200);
   expect((await post(oldId)).status).toBe(409);
