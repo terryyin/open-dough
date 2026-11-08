@@ -1,8 +1,8 @@
 // A follow-up's source is part of its launch's identity over raw HTTP, with a
 // real bare origin (../../tests/support/startOrigin.ts) and the synthetic
 // `claude`: two sources with the same words are two launches, repeating one
-// resumes its kept start, a continuation resends the recorded context after
-// the source record is gone, and admission refuses context text a page
+// resumes its kept start, even after the source record is gone, a continuation
+// resends the recorded context, and admission refuses context text a page
 // composed or a source the project no longer keeps. What the first input
 // holds: agent-launch-follow-up-boundary.spec.ts.
 
@@ -13,9 +13,18 @@ import {
   launch,
   recordsOf,
 } from "../../tests/agentLaunchBoundary.ts";
+import {
+  launchAttachmentEndpoint,
+  launchAttachmentNameHeader,
+} from "../../src/launchAttachments.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
 import { followUpOf } from "../../tests/support/followUpSources.ts";
+import {
+  launchAttachmentClaimsRoot,
+  listedMachineDirs,
+  pngA,
+} from "../../tests/support/launchAttachmentFixtures.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
 import {
@@ -87,6 +96,68 @@ test.describe("a follow-up whose established start is kept after the host refuse
     const calls = dashboard.claudeLaunchCalls();
     expect(calls).toHaveLength(2);
     expect(calls[1]?.argv.at(-1)).toContain(reportedContext);
+  });
+
+  test("repeating a retained follow-up after source expiry resumes it with the saved context", async ({
+    dashboard,
+  }) => {
+    const source = reported(dashboard.home);
+    await keepLaunchRecords(dashboard, [source]);
+    const followUp = followUpStart(source);
+    dashboard.claudeScenario("refused");
+    expect(await answerOf(launch(dashboard, followUp))).toMatchObject({
+      kind: "failed",
+      reason: "refused",
+      sessionStartKept: true,
+    });
+    const [failed] = await attempts(dashboard);
+    if (failed === undefined) throw new Error("Missing retained attempt");
+    await keepLaunchRecords(dashboard, []);
+
+    dashboard.claudeScenario("launched");
+    const forged = await accept(dashboard, {
+      ...followUp,
+      followUp: { ...followUp.followUp, context: "Text from the page." },
+    });
+    expect(forged.status).toBe(400);
+
+    const uploaded = await fetch(
+      new URL(launchAttachmentEndpoint, dashboard.baseURL),
+      {
+        method: "POST",
+        headers: {
+          Origin: dashboard.origin,
+          "Content-Type": "image/png",
+          [launchAttachmentNameHeader]: "new-evidence.png",
+        },
+        body: Uint8Array.from(pngA),
+      },
+    );
+    expect(uploaded.status).toBe(200);
+    const { claim } = (await uploaded.json()) as { claim: string };
+    const fresh = await accept(dashboard, {
+      ...followUp,
+      attachmentClaims: [claim],
+    });
+    expect(fresh.status).toBe(404);
+    expect(
+      listedMachineDirs(launchAttachmentClaimsRoot(dashboard.home)),
+    ).toEqual([]);
+    expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+
+    const resumed = await answerOf(launch(dashboard, followUp));
+    expect(resumed.kind, JSON.stringify(resumed)).toBe("launched");
+    expect(await attempts(dashboard)).toEqual([
+      expect.objectContaining({ id: failed.id, acceptedAt: failed.acceptedAt }),
+    ]);
+    const calls = dashboard.claudeLaunchCalls();
+    expect(calls).toHaveLength(2);
+    expect(partsOf(calls[1]?.argv.at(-1), reportedContext).after).toEqual([
+      followUp.instruction,
+    ]);
+    expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
+      followUp: { ...followUp.followUp, context: reportedContext },
+    });
   });
 
   test("sends the recorded context on Continue after the source record is gone", async ({

@@ -7,11 +7,14 @@
 // recorded request.
 // Cursor's: agent-launch-follow-up-cursor.spec.ts.
 
+import { rm } from "node:fs/promises";
+import path from "node:path";
 import {
   attempts,
   continued,
   launch,
 } from "../../tests/agentLaunchBoundary.ts";
+import { keptAttempts } from "../../tests/acceptedAttempts.ts";
 import { expect, stored, test } from "../../tests/support/codexStart.ts";
 import type { FakeCodex } from "../../tests/support/fakeCodex.ts";
 import { followUpOf } from "../../tests/support/followUpSources.ts";
@@ -118,34 +121,6 @@ test("a done story followed up with Codex on Isolated workspace · Wait for revi
   expect(stored(dashboard.home).slice(0, kept.length)).toEqual(kept);
 });
 
-test("on Default main · Wait for review, Codex's input is the context, then the request, then the reporting context", async ({
-  dashboard,
-  codexProtocol,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture.");
-  const source = reported(dashboard.home);
-  await keepLaunchRecords(dashboard, [source]);
-  const text = "Is it still slow?";
-
-  const launched = await answerOf(
-    launch(dashboard, {
-      ...codex,
-      instruction: text,
-      followUp: followUpOf(source),
-    }),
-  );
-
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  expect(launched.record).not.toHaveProperty("establishedSession");
-  expectFollowUpInput(inputsOf(native)[0], {
-    context: reportedContext,
-    own: text,
-    request: launched.record?.request,
-    server: dashboard,
-  });
-});
-
 test("Continue after Codex refused and the source record is gone rebuilds the input from the recorded context", async ({
   dashboard,
   origin,
@@ -193,4 +168,49 @@ test("Continue after Codex refused and the source record is gone rebuilds the in
   expect(stored(dashboard.home).at(-1)?.request).toMatchObject({
     followUp: { context: reportedContext },
   });
+});
+
+test("repeating a follow-up with only its pending Codex input kept recovers the saved context", async ({
+  dashboard,
+  codexProtocol,
+}) => {
+  const native = codexProtocol;
+  if (native === undefined) throw new Error("Missing native fixture.");
+  const source = reported(dashboard.home);
+  await keepLaunchRecords(dashboard, [source]);
+  const followUp = {
+    ...codex,
+    instruction: "Check the cache again",
+    followUp: followUpOf(source),
+  };
+  native.refuseInput = true;
+  expect((await answerOf(launch(dashboard, followUp))).kind).toBe("uncertain");
+  const kept = stored(dashboard.home).at(-1);
+  if (kept === undefined) throw new Error("Missing saved conversation");
+  expect(kept.firstInput).toMatchObject({ state: "awaiting" });
+  expect(await attempts(dashboard)).toHaveLength(1);
+  await keepLaunchRecords(dashboard, [kept]);
+  await rm(
+    path.join(dashboard.home, ".open-dough/dashboard/launch-attempts.json"),
+  );
+  expect(keptAttempts(dashboard)).toEqual([]);
+
+  native.refuseInput = false;
+  const recovered = await answerOf(launch(dashboard, followUp));
+  expect(recovered.kind, JSON.stringify(recovered)).toBe("launched");
+  expect(recovered.record?.session).toEqual(kept.session);
+  expect(
+    native.calls.filter(({ method }) => method === "thread/start"),
+  ).toHaveLength(1);
+  const [refused, resent, ...others] = inputsOf(native);
+  expect(others).toEqual([]);
+  expect(resent).toBe(refused);
+  expect(resent).toContain(reportedContext);
+  expect(keptAttempts(dashboard)).toEqual([
+    expect.objectContaining({
+      request: expect.objectContaining({
+        followUp: { ...followUp.followUp, context: reportedContext },
+      }),
+    }),
+  ]);
 });

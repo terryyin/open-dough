@@ -83,32 +83,6 @@ test("a blank follow-up with a chosen model on Default main starts on that model
   });
 });
 
-test("on Default main · Wait for review, Cursor's prompt is the context, then the request, then the reporting context", async ({
-  dashboard,
-  cursor,
-}) => {
-  const source = reported(dashboard.home);
-  await keepLaunchRecords(dashboard, [source]);
-  const text = "Is it still slow?";
-
-  const launched = await answerOf(
-    launch(dashboard, {
-      ...cursorRequest,
-      instruction: text,
-      followUp: followUpOf(source),
-    }),
-  );
-
-  expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  expect(launched.record).not.toHaveProperty("establishedSession");
-  expectFollowUpInput((await promptOf(cursor)).prompt, {
-    context: reportedContext,
-    own: text,
-    request: launched.record?.request,
-    server: dashboard,
-  });
-});
-
 test("with Isolated workspace, a start continued after the source record is gone prompts its block, the reporting context, the recorded context and the request", async ({
   dashboard,
   origin,

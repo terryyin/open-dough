@@ -48,7 +48,6 @@ import {
 } from "./startupRecoveries.ts";
 
 export type { LaunchAttempt, OnLaunched } from "./pageAttempt.ts";
-export type { LaunchWorkItem } from "./launchStarts.ts";
 
 export type LaunchAttempts = StartupRecoveries & {
   attemptOf(

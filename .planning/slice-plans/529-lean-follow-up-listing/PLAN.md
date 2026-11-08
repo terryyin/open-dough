@@ -15,6 +15,9 @@ on origin/main and the execution branch at
 Execution-branch CI uses GitHub Actions `ci.yml`, coordinator
 `aki-lean-follow-up-1cafbc4c`, stream directory `/tmp/dough-ci-501/watch-UTUwnr`,
 PID 69856, session 18844, cell g182:9. Replanning permission is unchanged.
+Slice 1 was accepted on the execution branch at
+`812b4eda399e31454d45f2b6ac0b1ecce74ea0b9`, based on the claim and registered
+on the same CI stream.
 
 ## Provenance
 
@@ -76,6 +79,17 @@ source cannot be read. The sessions history still carries the full record.
   (`dashboard/tests/support/followUpSources.ts`,
   `dashboard/backend-tests/launches/followUpBoundaryCases.ts`).
 
+## Existing admission behavior for slice 2
+
+`acceptLaunchRequest` already resolves a matching active or resumable ad hoc
+attempt by `sameLaunch`, including attachment digests, and Continue uses the
+recorded request through locked continuation. `pendingInputOf` uses the same
+identity to select a kept session whose input still needs recovery. Reuse those
+decisions before resolving context for a new follow-up. The HTTP boundary can
+still refuse page-supplied context and map `RefusedRequest` to the source read's
+HTTP status. The listing change only removes serialized copies and leaves the
+records needed by both recovery paths available.
+
 ## Outside-in proof
 
 | Finding | Owner | Required observation |
@@ -133,9 +147,23 @@ record.
 ### 2. Resume a retained follow-up after its source expires
 
 Type: Behavior
-Status: planned
-Proof: New case in `agent-launch-follow-up-identity.spec.ts`, then the local
-gate selection.
+Status: done
+Proof: `agent-launch-follow-up-identity.spec.ts` removes the source after
+Claude refuses a retained start. Repeating keeps the attempt ID and acceptance
+time and resends the saved context before the request. A forged repeat gets
+400. A different launch with an image gets 404 and the claim is discarded.
+`agent-launch-follow-up-codex.spec.ts` removes the source and attempt while
+keeping a conversation awaiting input. Repeating reuses that conversation and
+resends its exact input. `agent-launch-follow-up-live.spec.ts` repeats from a
+second server while the first server's worker is held. It observes the running
+response, one attempt and one native launch. Each regression first failed with
+404 before its fix.
+
+The broader focused gate passed 106 tests in 43 files. The final affected gate
+passed 26 tests in eight files, with typecheck. The full saved follow-up tuple
+preserves the revision for story sources by construction. Independent
+refactoring found the two recovery boundaries and attachment cleanup cohesive
+and made no edits.
 
 Behavior: Repeating a follow-up whose start is retained resumes it with the
 recorded context after its source record is gone; a new follow-up of a gone
