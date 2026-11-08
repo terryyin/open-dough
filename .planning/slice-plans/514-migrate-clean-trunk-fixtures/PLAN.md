@@ -203,7 +203,7 @@ Learnings for later slices:
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the `execution-increment-managed-delivery*`,
 `execution-increment-fresh*`, `ci-reuse-*`, `ci-background-*` and
@@ -215,6 +215,27 @@ fixture. `installManagedDelivery` stays the harness layer. The twelve
 managed delivery and CI journey files that read the hidden facts declare
 them. `ci-reuse-check-command-test-fixtures.mjs` takes the increment path
 from the fixture's description instead of naming `increment.txt`.
+
+Accepted proof (2026-11-08): the managed delivery, fresh, owner,
+transport, `ci-reuse-*`, `ci-background-*` and `ci-integrated-state-*`
+selection plus the clean-trunk family (163 files) passed in 378 s at load
+13–16. A scratch run with the default description's facts changed passed the
+51-file managed and CI selection, so no hidden-fact dependency remains there.
+The refactor pass extracted a file-local `changedFiles` assertion helper in
+the resume test; that file was rerun and passed.
+
+Learnings for later slices:
+
+- 15 files read the hidden facts, not 12; 12 of them read only through the
+  shared covered check. `ci-reuse-check-command-test-fixtures.mjs` now reads
+  the increment's path and bytes from `fixture.description`
+  (`describedIncrement`), so only three tests declare a description:
+  managed-delivery resume, reconciliation stops and the managed case of
+  unresolvable base.
+- `createManagedFixture({ description })` returns `description` beside the
+  materialized fixture for harness checks that need it.
+- The racing-suffix `assertAffectedCombination` still names `trunk.txt` and
+  `increment.txt`; check whether it can read the description the same way.
 
 ### 3. Closure, Dough Land and backlog publication tests declare their facts
 

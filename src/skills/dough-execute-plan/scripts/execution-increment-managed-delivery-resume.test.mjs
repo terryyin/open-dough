@@ -25,8 +25,33 @@ import {
 const trunkTarget = "refs/heads/main";
 const repo = "owner/project";
 
+// One trunk commit, and a workspace on exec/story one unpublished
+// increment.txt commit ahead whose message the push count matches.
+const trunkWithOneIncrement = makeMe.aRepository
+  .withRevision("trunk")
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+    message: "verified increment",
+  })
+  .please();
+
+// The paths a resumed candidate changes on its suffix base.
+async function changedFiles(workspace, { suffixBase, receipt }) {
+  const { stdout } = await git(
+    workspace,
+    "diff",
+    "--name-only",
+    suffixBase,
+    receipt.sha,
+  );
+  return stdout.trim().split("\n");
+}
+
 test("lost push response resumes the retained multi-commit comparison after another writer advances without another push", async (t) => {
-  const fixture = await createManagedFixture();
+  const fixture = await createManagedFixture({
+    description: trunkWithOneIncrement,
+  });
   t.after(fixture.cleanup);
 
   writeFileSync(
@@ -90,20 +115,10 @@ test("lost push response resumes the retained multi-commit comparison after anot
   assert.equal(resumed.pushCount, 0);
   assert.equal(resumed.receipt.sha, accepted);
   assert.equal(resumed.suffixBase, retained.suffixBase);
-  assert.deepEqual(
-    (
-      await git(
-        fixture.execution,
-        "diff",
-        "--name-only",
-        resumed.suffixBase,
-        resumed.receipt.sha,
-      )
-    ).stdout
-      .trim()
-      .split("\n"),
-    ["increment.txt", "second-increment.txt"],
-  );
+  assert.deepEqual(await changedFiles(fixture.execution, resumed), [
+    "increment.txt",
+    "second-increment.txt",
+  ]);
   assert.equal(resumed.observation.state, "recovered");
   assert.equal(resumed.observation.directory, delivered.observation.directory);
   assert.equal(
@@ -129,7 +144,9 @@ test("lost push response resumes the retained multi-commit comparison after anot
 });
 
 test("missing observation attachment recovers its coordinator's live observer without another push", async (t) => {
-  const fixture = await createManagedFixture();
+  const fixture = await createManagedFixture({
+    description: trunkWithOneIncrement,
+  });
   t.after(fixture.cleanup);
 
   const delivered = await fixture.deliverManagedExecutionIncrement({
@@ -186,7 +203,9 @@ test("missing observation attachment recovers its coordinator's live observer wi
 });
 
 test("the installed resume CLI accepts the retained comparison and its named remote", async (t) => {
-  const fixture = await createManagedFixture();
+  const fixture = await createManagedFixture({
+    description: trunkWithOneIncrement,
+  });
   t.after(fixture.cleanup);
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
@@ -225,18 +244,7 @@ test("the installed resume CLI accepts the retained comparison and its named rem
   assert.equal(resumed.pushCount, 0);
   assert.equal(resumed.suffixBase, delivered.suffixBase);
   assert.deepEqual(resumed.receipt, delivered.receipt);
-  assert.deepEqual(
-    (
-      await git(
-        fixture.execution,
-        "diff",
-        "--name-only",
-        resumed.suffixBase,
-        resumed.receipt.sha,
-      )
-    ).stdout
-      .trim()
-      .split("\n"),
-    ["increment.txt"],
-  );
+  assert.deepEqual(await changedFiles(fixture.execution, resumed), [
+    "increment.txt",
+  ]);
 });

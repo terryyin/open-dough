@@ -2,8 +2,23 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { exec } from "./publication-test-fixtures.mjs";
 
+// The file and bytes the fixture description's first unpublished revision
+// adds: what every candidate built on that increment must still hold.
+function describedIncrement({ description }) {
+  const files = Object.entries(
+    description.workspace?.revisions[0]?.files ?? {},
+  );
+  if (files.length !== 1)
+    throw new Error(
+      "The covered check needs a description whose first unpublished revision adds exactly one file",
+    );
+  const [[path, content]] = files;
+  return { path, content: String(content) };
+}
+
 // Actual covered and target-only children are independent of provider facts.
 export function createReuseCheckCommands(fixture, policy) {
+  const increment = describedIncrement(fixture);
   const executions = join(fixture.fixture, "executions.jsonl");
   const covered = join(fixture.fixture, "covered.mjs");
   writeFileSync(
@@ -13,8 +28,8 @@ import assert from 'node:assert/strict';
 import { appendFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 const [sha, failed] = process.argv.slice(2);
-const content = execFileSync('git', ['show', sha + ':increment.txt'], {encoding:'utf8'});
-assert.equal(content, 'increment\\n');
+const content = execFileSync('git', ['show', sha + ':' + ${JSON.stringify(increment.path)}], {encoding:'utf8'});
+assert.equal(content, ${JSON.stringify(increment.content)});
 appendFileSync(${JSON.stringify(executions)}, JSON.stringify({sha,kind:'covered'})+'\\n');
 if (failed === 'true') process.exit(1);
 console.log('DOUGH_CI_DIRECT '+JSON.stringify({sha,...${JSON.stringify({ unit: policy.unit, configuration: policy.configuration, context: policy.context })}}));

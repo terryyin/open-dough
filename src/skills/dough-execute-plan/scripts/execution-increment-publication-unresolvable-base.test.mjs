@@ -139,7 +139,9 @@ for (const { name, problem, base } of unresolvableBases) {
 }
 
 test("managed delivery reports an unresolvable base's status, problem, input, and next step", async (t) => {
-  const fixture = await createManagedFixture();
+  const fixture = await createManagedFixture({
+    description: trunkWithOneIncrement,
+  });
   t.after(fixture.cleanup);
   const supplied = (
     await revParse(fixture.execution, "HEAD:increment.txt")

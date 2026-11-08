@@ -39,10 +39,10 @@ branch or merge model.
 | 9 | The materializer returns the commit for each revision. | slice 1 | observed: tests/support/repository-fixture.test.mjs asserts revisions.start = trunkSha, revisions.increment = candidateSha |
 | 10 | Route `createCleanTrunkFixture` through the description and the materializer. | slice 1 | observed: src/skills/dough-execute-plan/scripts/publication-clean-trunk-fixtures.mjs createCleanTrunkFixture returns materializeRepository(description) |
 | 11 | Route the fixtures layered on `createCleanTrunkFixture` through the description and the materializer. | slice 3 | |
-| 11a.1 | The managed delivery fixture. | slice 2 | |
-| 11a.2 | The managed delivery owner fixture. | slice 2 | |
-| 11a.3 | The managed delivery transport fixture. | slice 2 | |
-| 11a.4 | The fresh delivery fixture. | slice 2 | |
+| 11a.1 | The managed delivery fixture. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs createManagedFixture({ description }) → createCleanTrunkFixture(description); managed delivery tests pass (slice 2 163-file run) |
+| 11a.2 | The managed delivery owner fixture. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs createManagedFixture({ description }) → createCleanTrunkFixture(description); owner tests take the description through createManagedFixture and pass |
+| 11a.3 | The managed delivery transport fixture. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs createManagedFixture({ description }) → createCleanTrunkFixture(description); transport tests take the description through createManagedFixture and pass |
+| 11a.4 | The fresh delivery fixture. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs createManagedFixture({ description }) → createCleanTrunkFixture(description); fresh delivery tests take the description through createManagedFixture and pass |
 | 11a.5 | The trunk closure fixture. | slice 3 | |
 | 11a.6 | The closure owner fixture. | slice 3 | |
 | 11a.7 | The closure Git fixture. | slice 3 | |
@@ -72,11 +72,11 @@ branch or merge model.
 | 18a.1 | CI workflow text. | slice 4 | |
 | 18a.2 | Lockfiles. | slice 5 | |
 | 18a.3 | Project configuration. | slice 5 | |
-| 19 | The following stay harness layers added to the materialized checkout and are not description facts. | slice 2 | |
-| 19a.1 | Installed skills. | slice 2 | |
-| 19a.2 | The controlled CI adapter. | slice 2 | |
-| 19a.3 | Mailbox storage. | slice 2 | |
-| 19a.4 | Ignored local configuration. | slice 2 | |
+| 19 | The following stay harness layers added to the materialized checkout and are not description facts. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs installManagedDelivery unchanged, applied to the materialized checkout |
+| 19a.1 | Installed skills. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs installManagedDelivery unchanged, applied to the materialized checkout (deploySkill) |
+| 19a.2 | The controlled CI adapter. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs installManagedDelivery unchanged, applied to the materialized checkout (controlled CI adapter) |
+| 19a.3 | Mailbox storage. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs installManagedDelivery unchanged, applied to the materialized checkout (mailbox storage) |
+| 19a.4 | Ignored local configuration. | slice 2 | observed: src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs installManagedDelivery unchanged, applied to the materialized checkout (.planning/open-dough.json, info/exclude) |
 | 20 | The following stay real Git operations in the helper or test. | slice 5 | |
 | 20a.1 | Competing pushes. | slice 3 | |
 | 20a.2 | Rejected publications. | slice 3 | |
