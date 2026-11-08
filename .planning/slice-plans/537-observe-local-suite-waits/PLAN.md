@@ -140,3 +140,16 @@ Slice-plan refinement was unnecessary. The dispatcher and admission gates
 have independent proof loops. Both admission cases use one observation at
 the existing ownership decision. This review found no remaining
 slice-specific concern.
+
+## Execution complete
+
+Product advice: the story's three fixed waits are replaced, and the
+execution also fixed the copied-token key, which on macOS never reached the
+ancestry check, and the fixture's child-before-root teardown order. The
+excluded stale-reclaimer check in
+`tests/support/local-test-suite-lifecycle.test.mjs` still uses
+`await delay(150)` as its negative window, the last wall-clock wait in the
+local suite specs against the test automation rules. Consider a follow-up
+story that observes the competing reclaimer blocked by the new owner,
+building on `OPEN_DOUGH_TEST_ADMISSION_GATE`, which today records only the
+first blocking owner. No process findings were supported.
