@@ -1,41 +1,39 @@
 // Publishes a queued-story preparation journey on a local bare origin through
-// the production commands: the preparation-assignment CLI's start, release,
-// and abandon, the canonical preparation recorder, and the Dough Land Git
-// model for landing. Each snapshot is the origin's main after one published
-// step; the browser journey serves those exact Git bytes. The fixture supplies
-// only the queued trunk and the owned workspaces, never a Preparing profile.
-// The journey is read-only once published, so each worker builds it once and
-// removes the bare origin at exit.
+// the production commands, one published step at a time (preparationSteps),
+// plus the preparation-assignment CLI's abandon. Each snapshot is the origin's
+// main after one published step; the browser journey serves those exact Git
+// bytes. The fixture supplies only the queued trunk and the owned workspaces,
+// never a Preparing profile. The journey is read-only once published, so each
+// worker builds it once and removes the bare origin at exit.
 
 import { rmSync } from "node:fs";
 import {
   identityA,
   identityB,
 } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
-import { landWorktree } from "../../src/skills/dough-story-refinement/scripts/dough-land-test-fixtures.mjs";
 import {
   abandonPreparation,
   createPreparationTrunk,
-  createWorkspace,
   git,
   identityC,
   linkC,
-  lsRemoteSha,
   planStoryC,
   publishAssignment,
   recorder,
   refineStoryC,
-  releasePreparation,
-  startPreparation,
 } from "../../src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs";
-import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import {
+  expectOk,
+  keep,
+  record,
+  remoteMain,
+  start,
+} from "./preparationSteps.ts";
 
 export const storyA = "Story A";
 export const storyB = "Story B";
 export const storyC = "Story C";
-
-type Receipt = { status: string; agent: string };
-type Trunk = Awaited<ReturnType<typeof createPreparationTrunk>>;
 
 export type PreparingJourney = {
   readonly origin: string;
@@ -60,72 +58,6 @@ export type PreparingJourney = {
     readonly conflicting: readonly [string, string];
   };
 };
-
-async function remoteMain(trunk: Trunk): Promise<string> {
-  const sha = await lsRemoteSha(trunk.origin, "refs/heads/main");
-  if (sha === undefined) throw new Error("origin has no main");
-  return sha;
-}
-
-function expectOk(step: string, result: { code: number; receipt: unknown }) {
-  if (result.code !== 0) {
-    throw new Error(`${step} failed: ${JSON.stringify(result)}`);
-  }
-  return result.receipt as Receipt;
-}
-
-async function start(
-  trunk: Trunk,
-  name: string,
-  identity: string,
-  extra: string[] = [],
-) {
-  const { workspace, branch } = await createWorkspace(trunk, name);
-  const receipt = expectOk(
-    `start ${name}`,
-    await startPreparation(trunk, workspace, identity, extra),
-  );
-  if (receipt.status !== "announced") {
-    throw new Error(`start ${name}: ${JSON.stringify(receipt)}`);
-  }
-  return {
-    workspace,
-    branch,
-    agent: receipt.agent,
-    publication: await remoteMain(trunk),
-  };
-}
-
-async function keep(
-  trunk: Trunk,
-  prepared: { workspace: string; branch: string },
-  identity: string,
-) {
-  expectOk("release", await releasePreparation(prepared.workspace, identity));
-  const landing = await landWorktree({
-    worktree: prepared.workspace,
-    branch: prepared.branch,
-    defaultCheckout: trunk.integration,
-    message: `Keep ${identity} preparation`,
-    beforePush: undefined,
-  });
-  if (landing.stopped !== null) {
-    throw new Error(`landing stopped: ${JSON.stringify(landing)}`);
-  }
-}
-
-const record = (workspace: string, ...facts: string[]) =>
-  recorder(
-    workspace,
-    "record-state",
-    "--identity",
-    identityC,
-    "--link",
-    linkC,
-    "--refinement",
-    "refined",
-    ...facts,
-  );
 
 let preparingJourney: Promise<PreparingJourney> | undefined;
 
@@ -190,12 +122,17 @@ async function buildPreparingJourney(): Promise<PreparingJourney> {
     const conflicting = await remoteMain(trunk);
 
     await git(trunk.integration, "config", "user.name", "Later Allocator");
-    await publishAssignment(trunk, agentNameOf(refining.agent), {
-      activity: "preparation",
-      identity: identityA,
-      host: "cursor",
-      model: "later-model",
-    });
+    await publishAssignment(
+      trunk,
+      makeMe.anAgentProfile
+        .preparing({
+          name: refining.name,
+          identity: identityA,
+          host: "cursor",
+          model: "later-model",
+        })
+        .please(),
+    );
     const reused = await remoteMain(trunk);
     await git(trunk.origin, "update-ref", "refs/heads/main", conflicting);
 

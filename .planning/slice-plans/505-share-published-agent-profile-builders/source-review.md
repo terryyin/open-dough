@@ -1,0 +1,77 @@
+# Source review: share published agent profile builders
+
+Launch: 2026-11-08, a fresh general-purpose Claude Code subagent with no conversation inheritance, fork or resume, from the Execute Plan coordinator before slice 1 delegation.
+Input: only the story's Goal, Scope and Key examples from `.planning/seeds/SEED-261-share-domain-test-data.md#share-published-agent-profile-builders` at `13a5ddd90`, verbatim except that Markdown links were written as their target paths. Instructions: use only these inputs, read no project files, change nothing, number every commitment and split compound ones.
+Reviewer note: 18.2's land test caller is updated here while 21.3 keeps the dough-land tests' other profile setup with its owning story; 16 limits conversion to valid setup and 23 keeps the invalid abandon rival literal; numeric identity in 32 is one example of a rejected value.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1 | Maintainers and agents reading Open Dough tests see a published agent profile arranged the same way in Playwright TypeScript and `node:test` JavaScript entries | slice 2 | |
+| 2 | with only the facts that drive each case at the call site. | slice 2 | |
+| 3 | This first complete conversion creates the shared MakeMe entry point | slice 1 | observed: tests/support/makeMe.mjs makeMe entry point, imported by skill fixtures and dashboard/tests/preparingJourney.ts |
+| 4 | and shows whether one builder carries across runners before the larger families follow. | slice 2 | |
+| 5 | Create `tests/support/makeMe.mjs` with `makeMe.anAgentProfile` | slice 1 | observed: tests/support/makeMe.mjs makeMe.anAgentProfile getter (fresh AgentProfileBuilder per access) |
+| 6 | typed with `@ts-check` against `renderAgentProfile`'s input. | slice 1 | observed: tests/support/makeMe.mjs // @ts-check, AgentProfile = Parameters<typeof renderAgentProfile>[0]; npm run typecheck:dashboard exit 0 |
+| 7 | `.preparing(...)` and `.executing(...)` choose the activity | slice 1 | observed: tests/support/makeMe.mjs AgentProfileBuilder.preparing / .executing set activity preparation / execution |
+| 8 | `.please()` returns profile facts, not rendered text. | slice 1 | observed: tests/support/makeMe.mjs please() returns the AgentProfile object; callers render via renderAgentProfile |
+| 9 | Name the activity on both, as `parseAgentProfile` returns it, so a read-back profile and a built one have the same shape. | slice 1 | observed: tests/support/makeMe.mjs activity named on both; slice 1 node -e: parseAgentProfile(renderAgentProfile(built)).profile deep-equals built for both activities |
+| 10 | Tests still render with `renderAgentProfile`. | slice 2 | |
+| 11 | Defaults cover only incidental facts. | slice 1 | observed: tests/support/makeMe.mjs defaults only mode/branch on executing; name and identity required |
+| 12 | An execution profile defaults to Trunk Mode on `origin/main`. | slice 1 | observed: tests/support/makeMe.mjs executing defaults mode trunk, branch origin/main |
+| 13 | Host and model stay unrecorded unless given. | slice 1 | observed: tests/support/makeMe.mjs withReport omits host/model when undefined |
+| 14 | Tests state the name, which decides the profile path and rotation, wherever it matters. | slice 2 | |
+| 15 | Add story-branch or other variants only with a real consumer. | slice 2 | |
+| 16 | Convert all valid profile setup in: | slice 2 | |
+| 16.1 | the dashboard published-facts isolation fixture (browser setup: dashboard/tests/publishedFactsIsolation.ts); | slice 2 | |
+| 16.2 | the backend profile-addition spec (dashboard/backend-tests/observation/authenticated-read-profile-addition.spec.ts); | slice 2 | |
+| 16.3 | the skill preparation-assignment fixture (src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs); | slice 1 | observed: preparation-assignment-test-fixtures.mjs publishAssignment(trunk, profile) renders the built profile |
+| 16.4 | the recovery fixture's `occupyAllBut`, which publishes execution profiles (src/skills/dough-story-refinement/scripts/preparation-assignment-recovery-fixtures.mjs); | slice 1 | observed: preparation-assignment-recovery-fixtures.mjs occupyAllBut renders makeMe.anAgentProfile.executing(...) per held name |
+| 16.5 | the rival Yui profile in the announce test. | slice 1 | observed: preparation-assignment-announce.test.mjs rival-race test: rivalYui = renderAgentProfile(makeMe...preparing Yui) |
+| 17 | The skill preparation-assignment fixture changes `publishAssignment(trunk, name, facts)` to `publishAssignment(trunk, profile)`. | slice 1 | observed: preparation-assignment-test-fixtures.mjs export async function publishAssignment(trunk, profile) |
+| 18 | Update every caller of the changed `publishAssignment`: | slice 1 | observed: git grep publishAssignment( : every call in announce, land, nerds, stops, one-shot-refinement, one-shot-refinement-auto-land tests and dashboard/tests/preparingJourney.ts passes a makeMe-built profile; bash scripts/test.sh on those files passed; backlog-preparing.spec.ts and session-attribution.spec.ts passed |
+| 18.1 | the announce test | slice 1 | observed: git grep publishAssignment( : every call in announce, land, nerds, stops, one-shot-refinement, one-shot-refinement-auto-land tests and dashboard/tests/preparingJourney.ts passes a makeMe-built profile; bash scripts/test.sh on those files passed; backlog-preparing.spec.ts and session-attribution.spec.ts passed |
+| 18.2 | the land test | slice 1 | observed: git grep publishAssignment( : every call in announce, land, nerds, stops, one-shot-refinement, one-shot-refinement-auto-land tests and dashboard/tests/preparingJourney.ts passes a makeMe-built profile; bash scripts/test.sh on those files passed; backlog-preparing.spec.ts and session-attribution.spec.ts passed |
+| 18.3 | the nerds test | slice 1 | observed: git grep publishAssignment( : every call in announce, land, nerds, stops, one-shot-refinement, one-shot-refinement-auto-land tests and dashboard/tests/preparingJourney.ts passes a makeMe-built profile; bash scripts/test.sh on those files passed; backlog-preparing.spec.ts and session-attribution.spec.ts passed |
+| 18.4 | the one-shot refinement test | slice 1 | observed: git grep publishAssignment( : every call in announce, land, nerds, stops, one-shot-refinement, one-shot-refinement-auto-land tests and dashboard/tests/preparingJourney.ts passes a makeMe-built profile; bash scripts/test.sh on those files passed; backlog-preparing.spec.ts and session-attribution.spec.ts passed |
+| 18.5 | the one-shot auto-land test | slice 1 | observed: git grep publishAssignment( : every call in announce, land, nerds, stops, one-shot-refinement, one-shot-refinement-auto-land tests and dashboard/tests/preparingJourney.ts passes a makeMe-built profile; bash scripts/test.sh on those files passed; backlog-preparing.spec.ts and session-attribution.spec.ts passed |
+| 18.6 | the dashboard preparing journey (dashboard/tests/preparingJourney.ts). | slice 1 | observed: git grep publishAssignment( : every call in announce, land, nerds, stops, one-shot-refinement, one-shot-refinement-auto-land tests and dashboard/tests/preparingJourney.ts passes a makeMe-built profile; bash scripts/test.sh on those files passed; backlog-preparing.spec.ts and session-attribution.spec.ts passed |
+| 19 | Keep each test's: | slice 2 | |
+| 19.1 | assertions | slice 2 | |
+| 19.2 | real Git publication | slice 2 | |
+| 19.3 | server reads | slice 2 | |
+| 19.4 | recovery faults. | slice 1 | observed: recovery fixtures refusePushes/loseNextResponse/raceNextPush/snapshot unchanged in diff; reuse, stops, lost-workspace tests passed |
+| 20 | Expected values stay independent of the builder. | slice 2 | |
+| 21 | Scope limits (stay with their owning conversion stories): | slice 2 | |
+| 21.1 | other `renderAgentProfile` callers | slice 2 | |
+| 21.2 | parser tests in `tests/support/product-backlog-agent-profile.test.mjs` | slice 2 | |
+| 21.3 | the dough-land tests. | slice 2 | |
+| 22 | No builder-only test is added. | slice 2 | |
+| 23 | Keep raw input under proof literal: the abandon test's unrecognized rival profile stays `{ unrecognized: true }`. | slice 1 | observed: preparation-assignment-abandon.test.mjs unchanged, { unrecognized: true } rival raw; abandon test passed |
+| 24 | Evaluation: compare before and after for: | slice 2 | |
+| 24.1 | readability | slice 2 | |
+| 24.2 | coverage | slice 2 | |
+| 24.3 | duplication | slice 2 | |
+| 24.4 | maintenance cost. | slice 2 | |
+| 25 | Record in the plan's learnings: | slice 2 | |
+| 25.1 | what carried across entries | slice 2 | |
+| 25.2 | what needed a distinct form | slice 2 | |
+| 25.3 | what later stories should reuse. | slice 2 | |
+| 26 | Finish with no superseded profile helper. | slice 2 | |
+| 27 | Example 1 (Dashboard, two revisions): Revision A's isolation facts build Akiho as `executing({ name: "Akiho", identity: sharedStoryIdentity })` with host `codex` and model `model-at-A`. | slice 2 | |
+| 27.1 | They also build Kirara as `preparing({ name: "Kirara", identity: queuedIdentity })` with host `claude`. | slice 2 | |
+| 27.2 | Rendering them produces the same bytes as today's literal facts. | slice 2 | |
+| 27.3 | The published-facts isolation spec shows A's owner and preparer, then B's, with unchanged assertions. | slice 2 | |
+| 28 | Example 2 (Backend, incidental identity): The profile-addition spec publishes preparation profiles for Yui and Akiho. | slice 2 | |
+| 28.1 | Only the names appear at the call site, and the work identity uses the builder default. | slice 2 | |
+| 28.2 | `committed=added` gives the same commits and refusals. | slice 2 | |
+| 29 | Example 3 (Skill, another developer's assignment): The announce test publishes `publishAssignment(trunk, makeMe.anAgentProfile.executing({ name: "Yui", identity: "SEED-X#x" }).please())` and a preparing Akiho. | slice 1 | observed: preparation-assignment-announce.test.mjs 'preparation takes the next free name...' publishes executing Yui SEED-X#x and preparing Akiho via publishAssignment |
+| 29.1 | A real `start` still announces the next free name. | slice 1 | observed: preparation-assignment-announce.test.mjs next-free-name test passes with unchanged name assertions (bash scripts/test.sh) |
+| 29.2 | The trunk file has `renderAgentProfile`'s bytes. | slice 1 | observed: preparation-assignment-test-fixtures.mjs publishAssignment writes renderAgentProfile(profile) to profileOf(name); slice 1 node -e: built vs former literal facts render byte-identical |
+| 30 | Example 4 (Dashboard calls a skill helper): The preparing journey republishes the refining agent's preparation profile with host `cursor` and model `later-model` through the changed `publishAssignment`. | slice 1 | observed: dashboard/tests/preparingJourney.ts republishes makeMe.anAgentProfile.preparing({ name: refining.name, identity: identityA, host: cursor, model: later-model }) via publishAssignment; refining.name comes from start() in dashboard/tests/preparationSteps.ts |
+| 30.1 | The dashboard specs that read this reused revision keep their assertions. | slice 1 | observed: session-attribution.spec.ts (Later Allocator · Cursor · later-model) and backlog-preparing.spec.ts passed with unchanged assertions |
+| 31 | Example 5 (Recovery, every name held): `occupyAllBut(trunk, "Yui")` builds an execution profile for every other rotation name. | slice 1 | observed: preparation-assignment-recovery-fixtures.mjs occupyAllBut builds executing profiles for every non-free rotation name |
+| 31.1 | The reuse test still announces Yui. | slice 1 | observed: preparation-assignment-reuse.test.mjs passes, still announces Yui |
+| 31.2 | In the stops test, a rival takes Yui during the push, and the start still reports `agent-unavailable`. | slice 1 | observed: preparation-assignment-stops.test.mjs race test passes, reports agent-unavailable |
+| 32 | Example 6 (Type safety): A builder that returns a value `renderAgentProfile` rejects, such as a numeric identity, fails `npm run typecheck:dashboard` through the dashboard test that imports it. | slice 1 | observed: slice 1 scratch identity: 42 in tests/support/makeMe.mjs preparing, reached via dashboard/tests/preparingJourney.ts import: npm run typecheck:dashboard exit 2 (TS2322 number not assignable to string); reverted, exit 0 |

@@ -30,6 +30,7 @@ import {
   remoteSubjects,
   snapshot,
 } from "./preparation-assignment-recovery-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 test("a rejected announcement reports no assignment, publishes nothing, and leaves the workspace as found", async (t) => {
   const trunk = await createPreparationTrunk();
@@ -89,10 +90,12 @@ test("only a queued story is announced", async (t) => {
 test("another developer's assignment for the same story is neither continued nor released from this workspace", async (t) => {
   const trunk = await createPreparationTrunk();
   t.after(trunk.cleanup);
-  await publishAssignment(trunk, "Yui", {
-    identity: identityC,
-    activity: "preparation",
-  });
+  await publishAssignment(
+    trunk,
+    makeMe.anAgentProfile
+      .preparing({ name: "Yui", identity: identityC })
+      .please(),
+  );
   const rival = await remoteFile(trunk, "main", profileOf("Yui"));
   // This workspace starts exactly at Yui's announcement.
   const { workspace } = await createWorkspace(trunk, "c");

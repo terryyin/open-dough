@@ -8,6 +8,7 @@ import {
   agentNames,
   renderAgentProfile,
 } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   exec,
   git,
@@ -27,12 +28,11 @@ export async function occupyAllBut(trunk, ...free) {
   for (const name of held)
     writeFileSync(
       join(integration, profileOf(name)),
-      renderAgentProfile({
-        name,
-        identity: `SEED-${name.toUpperCase()}#work`,
-        mode: "trunk",
-        branch: "origin/main",
-      }),
+      renderAgentProfile(
+        makeMe.anAgentProfile
+          .executing({ name, identity: `SEED-${name.toUpperCase()}#work` })
+          .please(),
+      ),
     );
   await git(integration, "add", ".planning/agents");
   const date = "2001-01-01T00:00:00Z";

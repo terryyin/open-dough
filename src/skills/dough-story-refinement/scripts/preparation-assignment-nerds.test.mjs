@@ -14,6 +14,7 @@ import {
   remoteProfileNames,
   startPreparation,
 } from "./preparation-assignment-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 async function announcedAgent(trunk) {
   const { workspace } = await createWorkspace(trunk, "c");
@@ -25,10 +26,12 @@ async function announcedAgent(trunk) {
 test("without the setting the current rotation continues", async (t) => {
   const trunk = await createPreparationTrunk();
   t.after(trunk.cleanup);
-  await publishAssignment(trunk, "Yui", {
-    identity: "SEED-A#a",
-    activity: "preparation",
-  });
+  await publishAssignment(
+    trunk,
+    makeMe.anAgentProfile
+      .preparing({ name: "Yui", identity: "SEED-A#a" })
+      .please(),
+  );
   assert.equal(await announcedAgent(trunk), "Akiho-chan");
 });
 
@@ -42,10 +45,12 @@ test("nerds true at trunk gives terry first, then the next free nerds name", asy
 test("a held current-rotation profile stays held when nerds is set, and the next agent is a nerd", async (t) => {
   const trunk = await createPreparationTrunk();
   t.after(trunk.cleanup);
-  await publishAssignment(trunk, "Yui", {
-    identity: "SEED-A#a",
-    activity: "preparation",
-  });
+  await publishAssignment(
+    trunk,
+    makeMe.anAgentProfile
+      .preparing({ name: "Yui", identity: "SEED-A#a" })
+      .please(),
+  );
   await publishSettings(trunk, '{"nerds":true}\n');
   assert.equal(await announcedAgent(trunk), "terry-chan");
   assert.deepEqual((await remoteProfileNames(trunk)).sort(), [
@@ -85,10 +90,10 @@ test("every nerds name held stops with the every-name-held refusal", async (t) =
   const trunk = await createPreparationTrunk();
   t.after(trunk.cleanup);
   for (const name of nerdAgentNames)
-    await publishAssignment(trunk, name, {
-      identity: "SEED-A#a",
-      activity: "preparation",
-    });
+    await publishAssignment(
+      trunk,
+      makeMe.anAgentProfile.preparing({ name, identity: "SEED-A#a" }).please(),
+    );
   await publishSettings(trunk, '{"nerds":true}\n');
   const { workspace } = await createWorkspace(trunk, "c");
   const { receipt } = await startPreparation(trunk, workspace, identityC);

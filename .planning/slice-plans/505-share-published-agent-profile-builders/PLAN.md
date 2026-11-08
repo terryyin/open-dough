@@ -2,6 +2,7 @@
 
 **Identity:** SEED-261#share-published-agent-profile-builders
 **Source:** [Share one published agent profile builder across test entries](../../seeds/SEED-261-share-domain-test-data.md#share-published-agent-profile-builders)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -50,7 +51,7 @@ on battery.
 
 ### 1. Skill preparation-assignment fixtures publish profiles built by MakeMe
 Type: Behavior
-Status: planned
+Status: done
 Proof: The skill tests and dashboard specs in rows 3–6 pass. `npm run typecheck:dashboard` passes and is shown to discriminate a wrong-typed builder fact.
 
 Behavior: a preparation-assignment test arranges another developer's
@@ -112,4 +113,23 @@ review found no remaining slice-specific concern.
 
 ## Learnings
 
-None yet.
+- Slice 1 (accepted 2026-11-08): the same `tests/support/makeMe.mjs` builder
+  loads unchanged from `node:test` skill tests and Playwright TypeScript. Only
+  the TypeScript caller needed a distinct form: `agentNameOf` returns
+  `string | undefined`, so the preparing journey's `start` step now resolves
+  the known name before the typed builder takes it. The refactor pass moved
+  the journey's step helpers to `dashboard/tests/preparationSteps.ts` to keep
+  `preparingJourney.ts` under the 250-line limit.
+- `renderAgentProfile` types `activity`, `mode` and `host` as plain `string`,
+  so the type-check catches shape errors such as a numeric identity but not a
+  wrong literal value.
+- Identity stays required in slice 1; slice 2 adds a default identity on
+  `preparing` for the names-only profile-addition spec, its first consumer.
+- Accepted slice 1 proof: `bash scripts/test.sh` over the
+  preparation-assignment announce, land, nerds, reuse, stops, lost-workspace,
+  abandon, continuation, landing-retry, story-left-queue, owned-context and
+  remote-base tests, both one-shot refinement tests and
+  `tests/support/git-publication-native-one-shot-escalation-fixture.test.mjs`;
+  `backlog-preparing.spec.ts` and `session-attribution.spec.ts` (rerun after
+  the refactor); `npm run typecheck:dashboard` exit 0, exit 2 with a scratch
+  numeric identity, reverted.

@@ -23,20 +23,24 @@ import {
   seedC,
   startPreparation,
 } from "./preparation-assignment-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 test("landing a refinement releases only its own assignment in the same snapshot and keeps the story queued with recorded facts", async (t) => {
   const trunk = await createPreparationTrunk();
   t.after(trunk.cleanup);
   // Yui executes other work; Akiho prepares the same story elsewhere.
-  await publishAssignment(trunk, "Yui", {
-    identity: "SEED-X#x",
-    mode: "trunk",
-    branch: "origin/main",
-  });
-  await publishAssignment(trunk, "Akiho", {
-    identity: identityC,
-    activity: "preparation",
-  });
+  await publishAssignment(
+    trunk,
+    makeMe.anAgentProfile
+      .executing({ name: "Yui", identity: "SEED-X#x" })
+      .please(),
+  );
+  await publishAssignment(
+    trunk,
+    makeMe.anAgentProfile
+      .preparing({ name: "Akiho", identity: identityC })
+      .please(),
+  );
   const queue = await remoteFile(trunk, "main", backlogFile);
   const others = {
     Yui: await remoteFile(trunk, "main", profileOf("Yui")),
