@@ -507,3 +507,10 @@ warm setup and parallel workers. Show lower elapsed time and equivalent
 file contents, refs, ancestry, and test verdicts. A test that advances or
 mutates its repository leaves a concurrent test's repository independent.
 [Existing template reuse](../../tests/support/repository-fixture.mjs)
+Starting dashboard measurement, 2026-11-08 at `f78f3e0e6` with two workers
+under load 3.9–5.8: `agent-launch-start-refusal.spec.ts` 4 s (3 cases); the
+specs using the `startOriginTest` origin fixture 45–46 s (22 cases); the
+standalone readiness and admission specs (`story-readiness`,
+`story-readiness-gaps`, `story-readiness-accessible`, `preparation-legend`,
+`frame-board-look`, `project-keyboard-navigation-eligibility`,
+`taken-admitted-investigation`) 20 s (16 cases).

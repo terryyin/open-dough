@@ -86,6 +86,17 @@ get a bare origin, a checkout, named commit IDs, and cleanup. Identical
 descriptions reuse a template within one process, with a private mutable
 copy for each caller. Keep commands and Git transitions under proof in
 the case that observes their result. [Repository harness](support/repository-fixture.mjs)
+`commitDeclaredRevision` adds a later revision to an existing checkout with
+the same author, committer and message defaults.
+
+When a case needs another agent's claim only as a starting fact, declare it
+with `takeRevision`: the agent authors it and the developer commits it under
+`Take queued work: <identity>`, so claim readers find it as they find a real
+start's claim. Run the real start only where the start, its refusal or its
+resume is under proof. A real start commits uncommitted planning edits into
+its claim, so declare such facts in the description instead. Record a
+story's readiness review after its dependency agreements, which belong to
+its readiness basis. [Queued repository](support/queued-repository.mjs)
 
 ## Check environment
 
