@@ -26,6 +26,7 @@ import {
 } from "./ciEvidenceLabelsPage.ts";
 import { openDough, openDoughSettings } from "./intentCodeBrowseFixtures.ts";
 import { intentLocationName } from "./intentPerspectivePage.ts";
+import { chooseStoryTab } from "./support/intentStoryPage.ts";
 import { summaryRegion } from "./intentScopeProofPage.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
@@ -131,7 +132,10 @@ export async function openIntent(
   return { project, ci, intent, home, bodyReads };
 }
 
+// With a selected story, Summaries are read in its Changed tests view.
 export async function openSummary(intent: Locator, location: string) {
+  if ((await intent.getAttribute("data-selected-story")) !== null)
+    await chooseStoryTab(intent, "Changed tests");
   await intentLocationName(intent, location).click();
   const summary = summaryRegion(intent);
   await expect(summary.locator(".intent-summary-path")).toHaveText(location);

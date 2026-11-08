@@ -7,10 +7,13 @@
 // (`./IntentScopeFigures.tsx`) add Parts in a labelled group without Change.
 // A timing gap shows its short label with its full explanation as hover text
 // and so its accessible description; Parts reads completeness then each gap.
+// A story CI comparison's change shows with its relative mark
+// (`./IntentCiTimeChange.tsx`).
 
 import { Fragment, type ReactNode } from "react";
 import { changeIn, timingCellIn, type CiProofColumn } from "./ciProofSort.ts";
 import type { CiProofCells } from "./ciProofWording.ts";
+import { TimeChangeFigure } from "./IntentCiTimeChange.tsx";
 import type { ChangeKind } from "./reviewFileTree.ts";
 import {
   isComparisonCells,
@@ -91,8 +94,16 @@ export function figureOf(
     };
   }
   const timing = timingCellIn(cells, column);
+  const change = timing?.changeMs;
   return {
-    words: timing?.text ?? "",
+    words:
+      timing === undefined ? (
+        ""
+      ) : change === undefined ? (
+        timing.text
+      ) : (
+        <TimeChangeFigure change={{ ...timing, changeMs: change }} />
+      ),
     ...(timing?.explanation === undefined ? {} : { title: timing.explanation }),
   };
 }

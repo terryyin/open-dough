@@ -1,4 +1,5 @@
-// The details of the done records Recently done shows: each record its
+// The details of the done records Recently done shows, and of the one a
+// story selected in Intent needs (`./useIntentStoryLens.ts`): each record its
 // shown entries need (`./recentlyDoneView.ts`) is read once, by the file
 // name and Git blob its catalog names (`./doneStories.ts`), at the revision
 // that catalog was read at, through the local boundary's catalogued record
@@ -34,6 +35,9 @@ type Settled =
 // What is known of one needed record: what it says, that its read failed, or
 // that it is still being read.
 export type DoneDetail = Settled | { readonly status: "reading" };
+
+// What a done story shows while its record is still being read.
+export const readingDoneStory = "Reading done story…";
 
 const keyOf = ({ fileName, blob }: NamedDoneRecord) => `${fileName} ${blob}`;
 

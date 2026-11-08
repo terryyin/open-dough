@@ -1,7 +1,9 @@
 // Proof-summary Answers for Intent's story CI comparison journeys
-// (./storyCiComparisonFixture.ts): retained summaries, expired listings, and
-// the mixed entry durations from example 2.
+// (./storyCiComparisonFixture.ts): retained summaries, expired listings, the
+// mixed entry durations from example 2, and summaries of MakeMe-built
+// entries (`makeMe.aCiProofEntry`).
 
+import type { CiProofEntry } from "../../src/ciProof.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { CiRunAnswer } from "./baseCiActions.ts";
 import {
@@ -115,6 +117,61 @@ export function untimedBaselineMixedProofs(args: {
       artifactId: 1003,
       summary: mixedEntrySummary(landed, "landed"),
     },
+  };
+}
+
+// The summary the collector writes for RUN from ENTRIES' parts.
+function entriesProofSummary(
+  run: ProofRun,
+  entries: readonly CiProofEntry[],
+): unknown {
+  return proofSummary(
+    run,
+    entries.map((entry) => [entry.path, entry.parts.length] as const),
+    entries.flatMap((entry) =>
+      entry.parts.map((part): ProofPart => {
+        const figures = counts(
+          part.passed ?? 0,
+          part.failed ?? 0,
+          part.other ?? 0,
+        );
+        const unit = entry.unit ?? "results";
+        const of = entry.parts.length;
+        return part.durationMs === undefined
+          ? [entry.path, part.part, of, unit, figures]
+          : [entry.path, part.part, of, unit, figures, part.durationMs];
+      }),
+    ),
+  );
+}
+
+// Baseline, branch and landed summaries (runs 101–103) of the given entries.
+export function entryProofs(
+  revisions: {
+    readonly baseline: string;
+    readonly branchSide: string;
+    readonly completion: string;
+  },
+  entries: {
+    readonly baseline: readonly CiProofEntry[];
+    readonly branch: readonly CiProofEntry[];
+    readonly landed: readonly CiProofEntry[];
+  },
+): Record<number, ComparisonProofServe> {
+  const served = (
+    runId: number,
+    revision: string,
+    at: readonly CiProofEntry[],
+  ) =>
+    ({
+      kind: "summary",
+      artifactId: runId + 900,
+      summary: entriesProofSummary(proofRun(runId, revision), at),
+    }) as const;
+  return {
+    101: served(101, revisions.baseline, entries.baseline),
+    102: served(102, revisions.branchSide, entries.branch),
+    103: served(103, revisions.completion, entries.landed),
   };
 }
 

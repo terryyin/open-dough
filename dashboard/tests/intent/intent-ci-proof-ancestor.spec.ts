@@ -15,6 +15,7 @@ import {
   runUrl,
 } from "../intentCiStatusPage.ts";
 import { intentLocationName } from "../intentPerspectivePage.ts";
+import { chooseStoryTab } from "../support/intentStoryPage.ts";
 import { scopeFigures, summaryRegion } from "../intentScopeProofPage.ts";
 import {
   evidenceLabels,
@@ -132,6 +133,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
 
   await test.step("a Summary names that story branch's ancestor evidence and its counts", async () => {
     const intent = parts(page).intent;
+    await chooseStoryTab(intent, "Changed tests");
     await intentLocationName(intent, "tests").click();
     const summary = summaryRegion(intent);
     await expectLeadingEvidenceLabels(evidenceLabels(summary), [

@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 465. Removed numbers are never reused.
+- Highest allocated local number: 466. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -44,6 +44,15 @@ Former local code: DD-450. Former local code: DD-121. Former local code: DD-206.
   - Evidence: Plan 524 at `d9a8bd386`: the premise "No paid run" searched only `*.sh`/`*.bash` for the family's module names, yet the retained `tests/fixtures/native-streams/*/publication/admission-investigation/*/record` files list `tests/support/product-backlog-fixture.mjs` and `repositoryTestData.mjs` as `input-hash` lines. The premise "entries without an identity cannot be rendered" was false: `renderEntry` writes `- [Item A](seeds/A.md#a)` when the identity is the link.
   - Observed effect: Slice 1 took the simpler path the false rendering premise had ruled out; slice 3's coordinator had to confirm that no check compares recorded input hashes with current files before accepting. Neither changed the outcome.
   - Inference: Same facet as plan 514's row: a native identity's hashed import closure, not shell sources, lists what it depends on.
+- Execution: SEED-275#story-intent-tabs (plan 531-review-story-intent-tabs; first related implementation commit `4a13bba4f1c4340c5ed1705854dbc0a7e72942c6`)
+  - Timestamp: unknown (2026-11-08, slice 1 return and slice 5 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 531 (`c764457107:.planning/slice-plans/531-review-story-intent-tabs/PLAN.md`)'s proof stated "Verify **Review changes** opens the existing comparison for the outside count and returns focus when closed". ADR 0008's Selected story row says closing the Side panel clears the selection, and slice 1 observed focus landing on `BODY`. The story's Visual acceptance required light and dark comparison. The dashboard has no dark theme: only `intent-ci-cues.css` and `intent-location-group.css` react to `prefers-color-scheme`. The decisive premises observed neither condition.
+  - Observed effect: slice 1 was returned once for a focus home. Slice 5 could not finish until Terry amended the story and deferred dark comparison to SEED-278#dashboard-dark-theme.
+  - Inference: proof rows that promise existing-product behavior or review conditions need the same premise observation as the behavior they change.
+
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
 ## ODF-157 — Identifier-only conceptual searches <a id="odf-157"></a>

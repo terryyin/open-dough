@@ -73,10 +73,23 @@ export function ciPanel(intent: Locator) {
   return intent.getByRole("region", { name: "CI status", exact: true });
 }
 
-// Ensure Intent mode so the empty-selection homepage (or explanation+status)
-// shows CI status; returns that region.
+// The tab showing the CI status Intent reads: Project Intent's CI status
+// while it shows, else the selected story's CI comparison view.
+async function ciTab(intent: Locator) {
+  const project = intentModeTab(intent, "CI status");
+  return (await intent.getAttribute("data-selected-story")) === null ||
+    (await project.count()) > 0
+    ? project
+    : intent
+        .getByRole("tablist", { name: "Selected story views" })
+        .getByRole("tab", { name: "CI comparison", exact: true });
+}
+
+// Show the CI status Intent reads: with a selected story its CI comparison
+// view, else Project Intent's CI status, so the empty-selection homepage (or
+// explanation+status) shows; returns that region.
 export async function chooseCiStatus(intent: Locator) {
-  const tab = intentModeTab(intent, "Intent");
+  const tab = await ciTab(intent);
   if ((await tab.getAttribute("aria-selected")) !== "true") {
     await tab.click();
   }
@@ -86,14 +99,15 @@ export async function chooseCiStatus(intent: Locator) {
   return panel;
 }
 
-// Return home by directly activating the Intent reading tab, even while it
-// is chosen: by click, or by Enter or Space with it focused. The browsing
-// selection clears and CI status shows; returns that region.
+// Return home by directly activating the CI tab, even while it is chosen: by
+// click, or by Enter or Space with it focused. In Project Intent the browsing
+// selection clears; with a selected story its CI comparison shows, its
+// Changed tests reading kept. CI status shows; returns that region.
 export async function activateIntentHome(
   intent: Locator,
   how: "click" | "Enter" | "Space" = "click",
 ) {
-  const tab = intentModeTab(intent, "Intent");
+  const tab = await ciTab(intent);
   if (how === "click") {
     await tab.click();
   } else {

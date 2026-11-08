@@ -414,3 +414,20 @@ selects no new implementation story.
   - Evidence: job `dashboard (8/12)` failed the same `intent-ci-proof.spec.ts:150` check with `sideways: 26` after slice 2 added sortable header buttons with an arrow; the 106-test local family gate had passed on macOS. The repair agent reproduced 26 px with DejaVu loaded as `@font-face`, then made the spec force Verdana on the table so macOS reproduces Linux widths (failed 25 px before the CSS fix, passed after); repair `68e5f52b3`. Slices 3 and 5 extended the same Verdana override to the summary zoom checks.
   - Observed effect: a second CI failure of this check, a stash/repair/restore cycle around paused slice 3 work, and about 125k repair-agent tokens.
   - Inference: forcing a wide font inside each layout-measuring spec is a workable local stand-in, but each new narrow-width check must remember it; the fonts in the `ci-container.sh` image remain the general remedy.
+
+## MakeMe's import closure can reach dashboard code without a local signal (open, unqueued)
+
+<a id="dd-466"></a>
+
+### DD-466 — a refactor made a MakeMe builder import dashboard runtime code, and only hosted CI's native identity test caught it
+
+### Occurrences
+
+- Execution: SEED-275#story-intent-tabs (plan 531-review-story-intent-tabs, first implementation commit 4a13bba4f1c4340c5ed1705854dbc0a7e72942c6)
+  - Timestamp: unknown (2026-11-08, run 42484570480 attempt 1 on `9f1baacfb`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills`)
+  - Evidence: the slice 2 refactor pass made `tests/support/testOptimizationCandidatesTestData.mjs` (registered in `tests/support/makeMe.mjs`) import `candidateEntryFields` from `dashboard/src/testOptimizationCandidates.ts`. Job `test (3/3)` failed `tests/native-evidence-identity.sh` with ENOENT, because it hashes makeMe's import closure from a copy of `tests/` and `src/` only. The slice's local gate (Intent browser suite, MakeMe node tests, typecheck) passed. The repair is `5d1c5fe43`.
+  - Observed effect: one CI failure and a pause/stash/repair/restore cycle around slice 3. The builder now keeps its own entry labels, duplicating the dashboard's list.
+  - Inference: a fast local check that makeMe's closure stays within `tests/` and `src/`, or a note at the MakeMe registry, would surface the constraint before publication.

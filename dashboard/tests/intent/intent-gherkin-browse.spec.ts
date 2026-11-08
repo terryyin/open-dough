@@ -126,7 +126,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
       intentGroupToggle(intent, "e2e_test/packaged/features"),
     ).toBeVisible();
     await expectIntentGroupsCollapsed(intent);
-    await expect(intentModeTab(intent, "Intent")).toHaveAttribute(
+    await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
       "aria-selected",
       "true",
     );

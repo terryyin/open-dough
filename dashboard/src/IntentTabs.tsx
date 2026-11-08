@@ -1,5 +1,5 @@
-// One Intent tablist: a segmented group of tabs drawn like the banner's
-// Perspective choice (`./project-select.css`), each tab controlling the
+// One Intent tablist: a row of underlined tabs (`./intent-tabs.css`), each
+// tab controlling the
 // tabpanel its caller renders under `intentTabPanelId`. The selected tab is
 // the only one in the tab order; Arrow keys, Home and End move between the
 // tabs, choose the one reached and focus it, and the handled keys never reach
@@ -8,7 +8,6 @@
 // tells `onActivate`; moving by those keys only chooses.
 
 import type { KeyboardEvent } from "react";
-import "./project-select.css";
 import "./intent-tabs.css";
 
 export interface IntentTabOption<T extends string> {

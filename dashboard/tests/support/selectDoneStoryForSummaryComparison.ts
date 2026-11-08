@@ -1,6 +1,7 @@
-// Select a Recently done Story A, open Intent, wait for its CI timing
-// comparison proofs, and open an entry or folder Summary for the Summary
-// comparison journeys in ../intent-summary-story-comparison*.spec.ts.
+// Select a Recently done Story A, open Intent at its CI comparison, wait for
+// its CI timing comparison proofs, then choose Changed tests and open an
+// entry or folder Summary for the Summary comparison journeys in
+// ../intent-summary-story-comparison*.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./preparationPage.ts";
@@ -17,6 +18,7 @@ import {
 } from "../intentScopeProofPage.ts";
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
 import { anyComparisonLabels } from "../ciEvidenceLabelsPage.ts";
+import { chooseStoryTab, expectStoryTab } from "./intentStoryPage.ts";
 
 export async function selectDoneStoryForSummaryComparison(
   page: Page,
@@ -44,6 +46,8 @@ export async function selectDoneStoryForSummaryComparison(
   await expect(
     panel.getByRole("table", { name: "CI entry timing comparison" }),
   ).toBeVisible({ timeout: readWaitLimitMs + 15_000 });
+  await expectStoryTab(intent, "CI comparison");
+  await chooseStoryTab(intent, "Changed tests");
   return { intent, panel, card };
 }
 
@@ -92,6 +96,8 @@ export async function selectTakenStoryForSummaryComparison(
   await expect(panel.locator(".intent-ci-comparison")).toBeVisible({
     timeout: readWaitLimitMs + 15_000,
   });
+  await expectStoryTab(intent, "CI comparison");
+  await chooseStoryTab(intent, "Changed tests");
   return { intent, panel, card };
 }
 

@@ -39,16 +39,19 @@ function changeCompletedTests(workspace: string) {
 }
 
 // `history` "shallow" leaves the project's checkout with only trunk's last
-// commit, so the published comparison cannot be recovered.
+// commit, so the published comparison cannot be recovered. `beforeIntent`
+// runs once the card is selected, before Intent first reads the story.
 export async function selectCompletedStoryInIntent(
   page: Page,
   origin: StartOrigin,
   {
     history = "complete",
     intentCoverage,
+    beforeIntent,
   }: {
     readonly history?: "complete" | "shallow";
     readonly intentCoverage?: IntentCoverage;
+    readonly beforeIntent?: () => Promise<void>;
   } = {},
 ) {
   publishIntentTrunk(origin.project);
@@ -77,6 +80,7 @@ export async function selectCompletedStoryInIntent(
   });
   await card.getByRole("heading", { level: 3 }).click();
   await expectSelected(card, true);
+  await beforeIntent?.();
   await intentChoice.click();
   await expect(intent).toBeVisible();
   return { card, intent, completion, published };

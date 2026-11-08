@@ -5,14 +5,18 @@
 // it, and opening from the candidates record chooses Purpose and starts a
 // fresh reading positioned on its case. Purpose is the published source or
 // the selected story's source diff (`storyDiffOf`); Proof is that file's
-// published CI evidence (`./IntentFileProof.tsx`) with no further CI
-// read. A file the selected story changed shows Review changes' own diff of
-// it as its Purpose, and the browser reads no published text for it; a file
-// the published revision does not list is never read there. Text of an
+// published CI evidence (`./IntentFileProof.tsx`) with no further CI read,
+// and with a selected story a direct return to its CI comparison
+// (`./intentStoryTabs.tsx`). A file the selected story changed shows Review
+// changes' own diff of it as its Purpose, and the browser reads no published
+// text for it; a file the published revision does not list is never read
+// there. Text of an
 // earlier revision whose update failed stays readable under that failure and
 // its Retry.
 
 import { useId, useLayoutEffect, useRef, type RefObject } from "react";
+import { ArrowRight } from "lucide-react";
+import { Icon } from "./Icon.tsx";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import { resolveCaseTargetLine } from "./intentCaseTargetLine.ts";
 import { IntentFileProof } from "./IntentFileProof.tsx";
@@ -27,6 +31,7 @@ import {
 } from "./IntentTabs.tsx";
 import { useKeptReading, useKeptReadingScroll } from "./pageIntentReading.tsx";
 import { diffStartOf } from "./storyComparisonShown.ts";
+import { useStoryCiReturn } from "./intentStoryTabs.tsx";
 import { FileDiff } from "./StoryReviewFileDiff.tsx";
 import { ReviewedFileName } from "./StoryReviewSnapshotView.tsx";
 import "./intent-file-reading.css";
@@ -113,6 +118,7 @@ export function IntentFileReading({
   readonly onFileRetry: () => void;
 }) {
   const { tab, onChooseTab, idPrefix, readingArea } = place;
+  const backToStoryCi = useStoryCiReturn();
   // Where each tab was last read, for one file.
   const places = useRef({ path, top: { purpose: 0, proof: 0 } });
   const text = read?.state === "ready" ? read.text : undefined;
@@ -219,6 +225,15 @@ export function IntentFileReading({
             treeFile={treeFile}
             revision={treeRevision}
           />
+          {backToStoryCi !== undefined && (
+            <button
+              type="button"
+              className="intent-open-link intent-story-ci-return"
+              onClick={backToStoryCi}
+            >
+              View story CI comparison <Icon icon={ArrowRight} />
+            </button>
+          )}
         </section>
       </div>
     </>

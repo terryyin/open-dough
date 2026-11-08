@@ -1,27 +1,22 @@
-// Configured Intent locations browser (`./IntentPerspective.tsx`) and the
-// Test Optimization Candidates record, each one Intent reading mode chosen
-// under the banner (`./IntentModeTabs.tsx`, drawn and owned by
-// `./IntentPerspective.tsx`, kept per project by `./pageIntentMode.tsx`); Intent
-// shows the locations. Locations (book icon) and folders (folder icon) share
-// toggle (expansion only) and name (select; toggle once selected) controls; a
-// toggle never changes selection or the reading pane. Nothing selected shows
-// CI status as Intent's homepage; a file shows Purpose and Proof tabs; a
-// location or folder name shows a Summary, whose child names open their
-// target as the record's links do (`./IntentCandidatesRecord.tsx`) — all in
-// `./IntentSelectionReading.tsx`; directly activating the Intent tab clears
-// the selection back to CI status (`./IntentModeTabs.tsx`), while the opens
-// below keep their target. A failed file read keeps its own explanation and
-// retry. Selection is owned by the Intent workspace
-// (`./intentWorkspaceSelection.ts`). With a selected story's comparison, the
-// trees follow it (`./useIntentStoryTree.ts`) under the story's summary
-// heading the locations (`./IntentStorySummary.tsx`). A file the published
-// revision does not list is never read. The browser unmounts with Intent; the
-// selection, the expanded location, the reveal, Purpose/Proof choice and the
-// reading pane's scroll are kept with the project's reading place
-// (`./pageIntentReading.tsx`) and restored when it opens again. A story
-// selected while Intent is hidden starts the tree's arrangement afresh, so
-// its expansion applies when Intent opens, with the toggle off. The strip's
-// Hide files hides the locations column, still mounted, beside the reading.
+// Configured Intent locations browser, drawn once for each reading scope
+// (`./pageIntentReading.tsx`), each with its own selection, reading and
+// arrangement: Project Intent's CI status view (`./IntentProjectView.tsx`),
+// beside its Test Optimization Candidates record (`./IntentModeTabs.tsx`), or
+// the selected story's **Changed tests** view (`./IntentStoryView.tsx`), its
+// panel named by the caller and hidden, still mounted, while another view
+// shows. Locations (book icon) and folders (folder icon) share toggle
+// (expansion only) and name (select; toggle once selected) controls; a toggle
+// never changes selection or the reading pane. What a selection reads is
+// `./IntentSelectionReading.tsx`'s; a Summary's child names open their target
+// as the record's links do (`./IntentCandidatesRecord.tsx`). A failed file
+// read keeps its own explanation and retry. Selection is owned by the scope's
+// Intent workspace (`./intentWorkspaceSelection.ts`). With a selected story's
+// comparison, the trees follow it (`./useIntentStoryTree.ts`) under its
+// "Selected story only" choice. A file the published revision does not list
+// is never read. The browser unmounts with its scope, whose reading place
+// keeps the selection, expanded location, reveal, Purpose/Proof choice and
+// scroll; a story selected while Intent is hidden starts its tree's
+// arrangement afresh, toggle off. Hide files hides the column, still mounted.
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
@@ -31,7 +26,6 @@ import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
 import { sourceEntryOfRepositoryPath } from "./intentLocationSelection.ts";
 import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
-import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
 import { useKeptArrangement, useKeptReading } from "./pageIntentReading.tsx";
 import {
@@ -49,34 +43,42 @@ import { useIntentFileRead } from "./useIntentFileRead.ts";
 import { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useLocationOpenFolders.ts";
 import {
-  IntentStorySummary,
+  StoryTreeScopeChoice,
   type ComparedStory,
   type StorySummary,
 } from "./IntentStorySummary.tsx";
+
+// The browser's tabpanel: its id, naming tab, and whether it is hidden.
+export type IntentBrowserPanel = {
+  readonly id: string;
+  readonly labelledBy: string;
+  readonly hidden: boolean;
+};
 
 export function IntentBrowser({
   source,
   revision,
   locations,
-  mode,
-  modeIdPrefix,
-  onModeChange,
+  project,
   storySummary,
   story,
   files,
+  panel,
 }: {
   readonly source: PublishedSource;
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
-  // The selected story as the summary heading the locations names it, and
-  // with its comparison, once read.
+  // The selected story with what is known of its comparison, and the
+  // comparison once read.
   readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
-  // The locations column's id and whether the strip's toggle shows it.
+  // The locations column's id and whether Hide files / Show files shows it.
   readonly files: FileBrowserPlace;
-  // The strip's mode and ids; opening a test from the record returns this
-  // browser to Intent.
-} & ModeChoice) {
+  readonly panel: IntentBrowserPanel;
+  // Project Intent's chosen view and ids, in Project Intent: opening a test
+  // from the record returns this browser to CI status.
+  readonly project: ModeChoice | undefined;
+}) {
   const { selection, setSelection } = useIntentWorkspaceSelection();
   const scope = selectionScope(selection);
   const selectedPath = selection.path;
@@ -98,7 +100,7 @@ export function IntentBrowser({
   );
   const fileReading = useKeptFileReadingPlace();
   const treeSelection: IntentSelection =
-    mode === "intent" ? selection : { path: "" };
+    project === undefined || project.mode === "ci" ? selection : { path: "" };
   const {
     overlay,
     shownOverlay,
@@ -106,7 +108,6 @@ export function IntentBrowser({
     locationExpansion,
     scope: storyScope,
   } = useIntentStoryTree({
-    source: source.id,
     locations,
     story,
     onExpandLocation: setExpandedPath,
@@ -115,7 +116,7 @@ export function IntentBrowser({
   function select(next: IntentSelection, entrySlug?: string) {
     setSelection(next);
     setReturnEntrySlug(entrySlug);
-    onModeChange("intent");
+    project?.onModeChange("ci");
   }
 
   // Opening from the candidate record or drilling down from a summary
@@ -141,17 +142,15 @@ export function IntentBrowser({
   const selectedFile =
     scope === "file" ? treeFiles.get(selectedPath) : undefined;
   // A selected path the shown revision does not hold, as after moving to a
-  // revision that deleted it, is explained in Purpose and nothing else is
-  // selected. While the story's comparison is still read, a file it adds may
-  // yet appear.
+  // revision that deleted it, is explained in Purpose, nothing else selected.
+  // A file the story's comparison adds may yet appear while it is read.
   const missing =
     scope !== "none" &&
     storySummary?.comparison.state !== "reading" &&
     !treeHoldsSelection(locations, treeFiles, selection);
   // A file the published revision does not list has no published text, and
-  // one whose Purpose is the story's diff needs none. While the selected
-  // story's comparison is still being read, as when Intent opens again on a
-  // kept selection, whether Purpose is a diff is not yet known.
+  // one whose Purpose is the story's diff needs none; while the comparison is
+  // read, as when Intent reopens on a kept selection, that is not yet known.
   const fileRead = useIntentFileRead({
     source,
     revision,
@@ -177,14 +176,14 @@ export function IntentBrowser({
           files.shown ? "intent-browser" : "intent-browser intent-files-hidden"
         }
         role="tabpanel"
-        id={intentTabPanelId(modeIdPrefix, "intent")}
-        aria-labelledby={intentTabId(modeIdPrefix, "intent")}
-        hidden={mode !== "intent"}
+        id={panel.id}
+        aria-labelledby={panel.labelledBy}
+        hidden={panel.hidden}
       >
         <div className="intent-locations" id={files.id} hidden={!files.shown}>
           <h3 className="visually-hidden">Purpose locations</h3>
-          {storySummary !== undefined && (
-            <IntentStorySummary summary={storySummary} scope={storyScope} />
+          {storyScope !== undefined && (
+            <StoryTreeScopeChoice scope={storyScope} />
           )}
           {locations.map((location, index) => {
             const shown = shownOverlay.locations[index];
@@ -231,18 +230,21 @@ export function IntentBrowser({
             onOpen={openRevealed}
             readingKey={revealedOpens}
             fileReading={fileReading.place}
+            storySelected={storySummary !== undefined}
           />
         </div>
       </div>
-      <IntentCandidatesPanel
-        source={source}
-        revision={revision}
-        locations={locations}
-        mode={mode}
-        modeIdPrefix={modeIdPrefix}
-        returnEntrySlug={returnEntrySlug}
-        onOpenLocation={openRevealed}
-      />
+      {project !== undefined && (
+        <IntentCandidatesPanel
+          source={source}
+          revision={revision}
+          locations={locations}
+          mode={project.mode}
+          modeIdPrefix={project.modeIdPrefix}
+          returnEntrySlug={returnEntrySlug}
+          onOpenLocation={openRevealed}
+        />
+      )}
     </>
   );
 }

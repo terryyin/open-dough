@@ -1,22 +1,27 @@
-// A selected Taken story's long title in the Intent mode's compact summary
-// (../../src/IntentStorySummary.tsx) is shortened on one line, in full on hover
-// and when the summary expands. The rest of the summary:
-// ./intent-story-changes.spec.ts.
+// A selected Taken story's long title in the story's persistent header
+// (../../src/IntentStorySummary.tsx) shows once, in full, wrapping rather
+// than shortened, and stays above the story's views whichever is chosen; its
+// Intent coverage says the assessment comes with wrap-up. The rest of the
+// header: ./intent-story-changes.spec.ts.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { storyA } from "../../../tests/support/queued-repository.mjs";
 import { shortRevision } from "../dashboardParts.ts";
+import { expectStackedInOrder } from "../partArrangement.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
-  expandStorySummary,
+  chooseStoryTab,
   selectTakenStoryInIntent,
-  storyDisclosure,
+  storyHeaderDetail,
+  storyTab,
+  storyTitle,
 } from "../support/intentStoryPage.ts";
 
-test("a long story title is shortened on one line, in full on hover and when the summary expands", async ({
+test("a long story title shows once in full above the story's views, whichever is chosen", async ({
   page,
   origin,
 }) => {
+  await page.setViewportSize({ width: 900, height: 720 });
   const long =
     "Story A reads frontend tests in both projects and keeps every location's source beside the published revision";
   const { intent, baseline } = await selectTakenStoryInIntent(
@@ -26,27 +31,38 @@ test("a long story title is shortened on one line, in full on hover and when the
     undefined,
     makeMe.aBacklogEntry.with({ ...storyA, title: long }).please(),
   );
-  const disclosure = storyDisclosure(intent);
-  const name = disclosure.locator(".intent-story-name");
-  await expect(name).toHaveText(`Story ${long}`);
-  await expect(disclosure).toHaveAttribute("title", long);
-  // Loading the locations tree replaces the title shown in the loading panel.
-  const loadedName = intent.locator(".intent-locations .intent-story-name");
-  await expect(loadedName).toBeVisible();
-  const box = await loadedName.evaluate((element) => ({
+  const title = storyTitle(intent);
+  await expect(title).toHaveText(long);
+  await expect(intent.getByText(long, { exact: true })).toHaveCount(1);
+  const box = await title.evaluate((element) => ({
     overflows: element.scrollWidth > element.clientWidth,
     lines: Math.round(
       element.getBoundingClientRect().height /
         parseFloat(getComputedStyle(element).lineHeight),
     ),
   }));
-  expect(box).toEqual({ overflows: true, lines: 1 });
+  expect(box.overflows).toBe(false);
+  expect(box.lines).toBeGreaterThan(1);
 
-  const detail = await expandStorySummary(intent);
-  await expect(detail.locator(".intent-story-full-title")).toHaveText(
-    `${long} SEED-A#a`,
-  );
+  const detail = await storyHeaderDetail(intent);
+  await expect(detail.locator(".record-identity")).toHaveText("SEED-A#a");
   await expect(detail.locator(".intent-story-revisions")).toContainText(
     `Compared ${shortRevision(baseline)} with worktree `,
   );
+
+  for (const view of [
+    "CI comparison",
+    "Intent coverage",
+    "Changed tests",
+  ] as const) {
+    await chooseStoryTab(intent, view);
+    await expectStackedInOrder([title, storyTab(intent, view)]);
+  }
+
+  await chooseStoryTab(intent, "Intent coverage");
+  await expect(
+    intent.getByRole("region", { name: "Intent coverage" }).locator("p"),
+  ).toHaveText([
+    "The Intent Coverage assessment runs during feature story wrap-up, so it appears here once this story is completed.",
+  ]);
 });

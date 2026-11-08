@@ -43,6 +43,7 @@ import {
 import { showColumn } from "../boardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
+import { expectStoryTab } from "../support/intentStoryPage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 
 test("a baseline without file breakdown compares the entry and explains folder and file rows", async ({
@@ -183,6 +184,8 @@ test("selecting another story replaces the Summary comparison figures", async ({
   await expectSelected(storyA, false);
   await intentChoice.click();
   await expect(intent).toBeVisible();
+  // Another story opens at its own CI comparison.
+  await expectStoryTab(intent, "CI comparison");
   await openSummary(intent, "dashboard/tests");
   // Queued Story B has no story CI comparison: no framing, no Baseline column,
   // and no evidence line naming the previous story.
