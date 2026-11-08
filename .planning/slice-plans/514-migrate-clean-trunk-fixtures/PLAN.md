@@ -366,6 +366,24 @@ Interleaved timing against an archived db42e79a7 copy with its own
 | Closure (21 files) | 45.9 s | 44.1 s | 45.2 s | 42.6 s | 6.8–9.3 |
 | Clean-trunk family (158/159 files) | 268.8 s | 268.0 s | 277.4 s | 276.0 s | 7.9–11.1 |
 
+## Execution complete
+
+Product advice:
+
+- Correction [Tighten the shared repository description's facts](../../seeds/SEED-262-faster-dashboard-test-feedback.md#tighten-repository-description-facts)
+  (plan 532, recorded ready, not queued) removes MakeMe from the native
+  worktree-preparation journey's import closure, keeps a workspace's
+  committer with its worktree, makes the no-backlog case an explicit fact
+  and documents the description's facts.
+- When `#migrate-shell-release-and-native-fixtures` is refined, include the
+  native-only worktree-preparation builders and the `ownedWorktreeOnly`,
+  `advanceOriginFromAnotherWriter` and `cloneAsAnotherWriter` helpers this
+  story kept, and the git-publication admission evidence identity, whose
+  retained records no longer match its inputs.
+- `#migrate-backlog-scratch-repositories` plans a declared configured
+  developer; reuse `withCheckoutIdentity`, after the correction's
+  per-worktree fix, rather than adding a second identity fact.
+
 ## Plan concerns
 
 Slice-plan refinement was not needed. Each slice moves one consumer group
