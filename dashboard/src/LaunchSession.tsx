@@ -2,13 +2,31 @@
 // Every session entry (`./SessionEntry.tsx`) uses this presentation; embedded
 // terminal access additionally requires the host capability and `attachOpens`.
 
-import { sessionAccess, workspaceLimitation } from "./sessionAccess.ts";
+import {
+  sessionAccess,
+  workspaceLimitation,
+  type SessionAccess,
+} from "./sessionAccess.ts";
 import { type LaunchWithState } from "./agentLaunch.ts";
 import { usePageSessions } from "./pageSessions.ts";
 import { useFrameDescription } from "./protectedFrame.ts";
-import { ArrowUpRight, FileText, Terminal } from "lucide-react";
+import {
+  ArrowUpRight,
+  FileText,
+  Terminal,
+  type LucideIcon,
+} from "lucide-react";
 import { Icon } from "./Icon.tsx";
 import "./agent-launch.css";
+
+// What a control that opens a session's access says and shows.
+export const sessionAccessControl: Record<
+  SessionAccess,
+  { readonly label: string; readonly icon: LucideIcon }
+> = {
+  terminal: { label: "Open terminal", icon: Terminal },
+  "final-report": { label: "Read final report", icon: FileText },
+};
 
 export function LaunchSession({
   record,
@@ -29,8 +47,8 @@ export function LaunchSession({
           openSession({ record, control: event.currentTarget });
         }}
       >
-        <Icon icon={access === "final-report" ? FileText : Terminal} />
-        {access === "final-report" ? "Read final report" : "Open terminal"}
+        <Icon icon={sessionAccessControl[access].icon} />
+        {sessionAccessControl[access].label}
         <Icon icon={ArrowUpRight} />
       </button>
     </p>

@@ -21,7 +21,9 @@
 // established one, the story branch. Without `.onStoryBranch(...)` the
 // record keeps no established start or preparation. The session defaults to
 // a `claude` one named after the title, the start's claim to fixed published
-// facts, and the launch time to a fixed instant.
+// facts, and the launch time to a fixed instant. Without `.markedDoneAt(...)`
+// the session is not marked done, and without `.reporting(...)` it holds no
+// completion report.
 export class LaunchRecordBuilder {
   /** @type {(Required<StoryFacts> & { workflow: "execution" | "refinement" }) | (Required<AdHocFacts> & { workflow: "ad-hoc" }) | undefined} */
   #requested;
@@ -30,6 +32,10 @@ export class LaunchRecordBuilder {
   /** @type {((name: string) => LaunchRecord["session"]) | undefined} */
   #session;
   #launchedAt = "2026-01-01T00:00:00.000Z";
+  /** @type {string | undefined} */
+  #doneAt;
+  /** @type {LaunchRecord["completion"]} */
+  #completion;
 
   /**
    * An execution launch of the story, in the `open-dough` project unless
@@ -72,10 +78,11 @@ export class LaunchRecordBuilder {
   }
 
   /**
-   * A `claude` session, by its ID and short ID.
-   * @param {{ sessionId: string, shortId: string }} session
+   * A `claude` session, by its ID and short ID, which is otherwise the ID's
+   * first eight characters.
+   * @param {{ sessionId: string, shortId?: string }} session
    */
-  inClaudeSession({ sessionId, shortId }) {
+  inClaudeSession({ sessionId, shortId = sessionId.slice(0, 8) }) {
     this.#session = (name) => ({ host: "claude", sessionId, shortId, name });
     return this;
   }
@@ -119,6 +126,31 @@ export class LaunchRecordBuilder {
     return this;
   }
 
+  /**
+   * The developer marked the session done at this moment, so it is retained
+   * in Recently done.
+   * @param {string} at an ISO date-time
+   */
+  markedDoneAt(at) {
+    this.#doneAt = at;
+    return this;
+  }
+
+  /**
+   * The session reported completion with this message, received when stated.
+   * @param {{ message: string, receivedAt?: string }} report
+   */
+  reporting({ message, receivedAt = "2026-01-01T01:00:00.000Z" }) {
+    this.#completion = {
+      receipt: "7c1f0c52-4a6b-4c8e-9a43-0d6f1b2a3c41",
+      reference: "2b9d4e61-5f7a-4b3c-8d12-6e0a9c8b7f52",
+      outcome: "completed",
+      message,
+      receivedAt,
+    };
+    return this;
+  }
+
   /** @returns {LaunchRecord} */
   please() {
     const requested = this.#requested;
@@ -149,6 +181,7 @@ export class LaunchRecordBuilder {
         },
         session,
         launchedAt: this.#launchedAt,
+        ...this.#retained(),
       };
     return {
       request: {
@@ -172,6 +205,15 @@ export class LaunchRecordBuilder {
         },
       }),
       launchedAt: this.#launchedAt,
+      ...this.#retained(),
+    };
+  }
+
+  // What the session holds once it reported or was marked done.
+  #retained() {
+    return {
+      ...(this.#completion && { completion: { ...this.#completion } }),
+      ...(this.#doneAt && { doneAt: this.#doneAt }),
     };
   }
 }

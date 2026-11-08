@@ -41,6 +41,7 @@ import {
   SessionsSidebarSessionEntry,
   type OpenSessionsSidebarSessionEntry,
 } from "./SessionsSidebarSessionEntry.tsx";
+import type { RecentlyDoneRowSelection } from "./recentlyDoneSelection.ts";
 import {
   SessionsSidebarOptionalSections,
   useOptionalSidebarSectionState,
@@ -189,9 +190,10 @@ export function SessionsSidebar({
   open,
   records,
   alerts,
-  onOpen,
+  ...rows
 }: Pick<SessionsSidebarState, "open" | "records" | "alerts"> & {
   readonly onOpen: OpenSessionsSidebarSessionEntry;
+  readonly recentlyDone: RecentlyDoneRowSelection;
 }) {
   const sessions = openSessionsOf(records);
   const aside = useRef<HTMLElement>(null);
@@ -226,7 +228,7 @@ export function SessionsSidebar({
                 <SessionsSidebarSessionEntry
                   key={sessionKey(record.session)}
                   record={record}
-                  onOpen={onOpen}
+                  onOpen={rows.onOpen}
                 />
               ))}
             </ol>
@@ -236,7 +238,7 @@ export function SessionsSidebar({
       <SessionsSidebarOptionalSections
         sidebarOpen={open}
         records={records}
-        onOpen={onOpen}
+        {...rows}
         recentlyDoneOpen={optional.recentlyDoneOpen}
         onToggleRecentlyDone={optional.toggleRecentlyDone}
         cursorOpen={optional.cursorOpen}

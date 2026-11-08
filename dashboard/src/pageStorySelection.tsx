@@ -38,17 +38,24 @@ export const StorySelectionOnPage = createContext<
 // The selected story; changes force consumers to re-render.
 const StorySelectionState = createContext<SelectedStory | undefined>(undefined);
 
-const same = (a: SelectedStory | undefined, b: SelectedStory) =>
-  a?.project === b.project && a.identity === b.identity;
+// Whether a selection, if any, is this story of the same project.
+export const sameSelectedStory = (
+  a: SelectedStory | undefined,
+  b: SelectedStory,
+) => a?.project === b.project && a.identity === b.identity;
 
 // The page's selected story and its mutators, owned by PageFrame.
 export function usePageStorySelection() {
   const [selected, setSelected] = useState<SelectedStory | undefined>();
   const toggle = useCallback((story: SelectedStory) => {
-    setSelected((current) => (same(current, story) ? undefined : story));
+    setSelected((current) =>
+      sameSelectedStory(current, story) ? undefined : story,
+    );
   }, []);
   const select = useCallback((story: SelectedStory) => {
-    setSelected((current) => (same(current, story) ? current : story));
+    setSelected((current) =>
+      sameSelectedStory(current, story) ? current : story,
+    );
   }, []);
   const clear = useCallback(() => {
     setSelected(undefined);

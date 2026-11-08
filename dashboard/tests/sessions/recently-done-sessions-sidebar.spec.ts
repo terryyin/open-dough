@@ -1,7 +1,8 @@
 // Recently done sessions in the Sessions sidebar: collapsed by default,
 // completion-ordered across configured projects, completion ages, newest 20,
-// and opening through PageFrame. Room sharing, reopen, Board/final-report
-// destinations, and older paging live beside this file.
+// and opening through each row's Open control in PageFrame. Room sharing,
+// reopen, Board/final-report destinations, and older paging live beside this
+// file.
 import {
   chooseProject,
   expectProjectChoice,
@@ -9,9 +10,8 @@ import {
   parts,
 } from "../dashboardPage.ts";
 import { browserLocaleString } from "../browserLocale.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
-  doneRecord,
-  openRecord,
   recentlyDoneParts,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
@@ -46,79 +46,49 @@ test("finds and opens the newest completed sessions across projects from a colla
   const olderTitle = "Older completion";
   const unattachedTitle = "Unattached done session";
   const openTitle = "Still open session";
-  const newestDoneAt = new Date(now - minute).toISOString();
-  const newest = doneRecord({
-    source: "doughnut",
-    title: newestTitle,
-    sessionId: "done-newest",
-    launchedAt: new Date(now - 24 * 60 * minute).toISOString(),
-    doneAt: newestDoneAt,
+  const at = (minutes: number) =>
+    new Date(now - minutes * minute).toISOString();
+  const newestDoneAt = at(1);
+  const newestLaunchedAt = at(24 * 60);
+  const stillOpenLaunchedAt = at(4);
+  const listed = (name: string, launchedAt: string) => ({
+    sessionId: dashboard.claudeListsSession({
+      name,
+      cwd: dashboard.home,
+      startedAt: Date.parse(launchedAt),
+    }),
   });
-  const middle = doneRecord({
-    source: "open-dough",
-    title: middleTitle,
-    sessionId: "done-middle",
-    launchedAt: new Date(now - 2 * minute).toISOString(),
-    doneAt: new Date(now - 5 * minute).toISOString(),
-    identity: "SEED-900#active-done",
-    workflow: "execution",
-  });
-  const oldestShown = doneRecord({
-    source: "pygardon",
-    title: olderTitle,
-    sessionId: "done-older",
-    launchedAt: new Date(now - 10 * minute).toISOString(),
-    doneAt: new Date(now - 10 * minute).toISOString(),
-  });
-  const unattached = doneRecord({
-    source: "open-dough",
-    title: unattachedTitle,
-    sessionId: "done-unattached",
-    launchedAt: new Date(now - 3 * minute).toISOString(),
-    doneAt: new Date(now - 8 * minute).toISOString(),
-  });
+  const adHoc = (title: string, source = "open-dough") =>
+    makeMe.aLaunchRecord.adHoc({ instruction: title, title, source });
+  const newest = adHoc(newestTitle, "doughnut")
+    .inClaudeSession(listed(newestTitle, newestLaunchedAt))
+    .launchedAt(newestLaunchedAt)
+    .markedDoneAt(newestDoneAt)
+    .please();
+  const middle = makeMe.aLaunchRecord
+    .executing({ identity: "SEED-900#active-done", title: middleTitle })
+    .inClaudeSession({ sessionId: "done-middle" })
+    .launchedAt(at(2))
+    .markedDoneAt(at(5))
+    .please();
+  const oldestShown = adHoc(olderTitle, "pygardon")
+    .inClaudeSession({ sessionId: "done-older" })
+    .launchedAt(at(10))
+    .markedDoneAt(at(10))
+    .please();
+  const unattached = adHoc(unattachedTitle)
+    .inClaudeSession({ sessionId: "done-unattached" })
+    .launchedAt(at(3))
+    .markedDoneAt(at(8))
+    .please();
   // Still open: must stay out of Recently done and keep launch age.
-  const stillOpen = openRecord({
-    source: "open-dough",
-    title: openTitle,
-    sessionId: "open-still",
-    launchedAt: new Date(now - 4 * minute).toISOString(),
-  });
-  const newestId = dashboard.claudeListsSession({
-    name: newestTitle,
-    cwd: dashboard.home,
-    startedAt: Date.parse(newest.launchedAt),
-  });
-  const openId = dashboard.claudeListsSession({
-    name: openTitle,
-    cwd: dashboard.home,
-    startedAt: Date.parse(stillOpen.launchedAt),
-  });
+  const stillOpen = adHoc(openTitle)
+    .inClaudeSession(listed(openTitle, stillOpenLaunchedAt))
+    .launchedAt(stillOpenLaunchedAt)
+    .please();
   await keepProjectLaunchRecords(dashboard, {
-    "open-dough": [
-      middle,
-      unattached,
-      {
-        ...stillOpen,
-        session: {
-          host: "claude",
-          sessionId: openId,
-          shortId: openId.slice(0, 8),
-          name: openTitle,
-        },
-      },
-    ],
-    doughnut: [
-      {
-        ...newest,
-        session: {
-          host: "claude",
-          sessionId: newestId,
-          shortId: newestId.slice(0, 8),
-          name: newestTitle,
-        },
-      },
-    ],
+    "open-dough": [middle, unattached, stillOpen],
+    doughnut: [newest],
     pygardon: [oldestShown],
   });
 
@@ -175,7 +145,7 @@ test("finds and opens the newest completed sessions across projects from a colla
   });
 
   await test.step("choosing a Done entry in another project opens its destination and switches project", async () => {
-    await shown.entry(newestTitle).click();
+    await shown.open(newestTitle).click();
     const panel = page.getByRole("region", { name: "Terminal" });
     await expect(panel.getByRole("heading")).toHaveText(newestTitle);
     await expectProjectChoice(page, "Doughnut");
@@ -187,13 +157,19 @@ test("finds and opens the newest completed sessions across projects from a colla
     await expect(panel).toHaveCount(0);
   });
 
-  await test.step("an unavailable Done entry keeps its destination without inventing a terminal", async () => {
+  await test.step("an unavailable Done entry offers no Open, and choosing it selects it without inventing a terminal", async () => {
     await openSessionsSidebar(page);
     if ((await shown.header.getAttribute("aria-expanded")) !== "true")
       await shown.header.click();
     const attaches = dashboard.claudeAttaches().length;
+    await expect(shown.open(newestTitle)).toHaveCount(1);
+    await expect(shown.open(olderTitle)).toHaveCount(0);
     await shown.entry(olderTitle).click();
-    await expectProjectChoice(page, "Pygardon");
+    await expect(shown.entry(olderTitle)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expectProjectChoice(page, "Doughnut");
     await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toHaveLength(attaches);
   });
@@ -226,13 +202,15 @@ test("empty and reading states stay distinct, and fewer than 20 shows every Done
 
   const now = Date.now();
   const few = Array.from(Array(3).keys(), (index) =>
-    doneRecord({
-      source: "open-dough",
-      title: `Few done ${String(index + 1)}`,
-      sessionId: `few-${String(index)}`,
-      launchedAt: new Date(now - (index + 1) * 60_000).toISOString(),
-      doneAt: new Date(now - (index + 1) * 30_000).toISOString(),
-    }),
+    makeMe.aLaunchRecord
+      .adHoc({
+        instruction: `Few done ${String(index + 1)}`,
+        title: `Few done ${String(index + 1)}`,
+      })
+      .inClaudeSession({ sessionId: `few-${String(index)}` })
+      .launchedAt(new Date(now - (index + 1) * 60_000).toISOString())
+      .markedDoneAt(new Date(now - (index + 1) * 30_000).toISOString())
+      .please(),
   );
   await keepProjectLaunchRecords(dashboard, { "open-dough": few });
   await page.reload();

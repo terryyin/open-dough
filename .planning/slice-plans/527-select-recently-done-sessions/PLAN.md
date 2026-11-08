@@ -3,6 +3,7 @@
 **Identity:** SEED-272#select-recently-done-sessions
 
 **Source:** [Select recently done sessions from the dashboard sidebar](../../seeds/SEED-272-select-recently-done-sessions.md#select-recently-done-sessions)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and boundaries
 
@@ -94,7 +95,7 @@ and [failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests).
 ### 1. Choose a recent session without opening it
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Select/Open, linked and standalone Intent choices, catalog gaps and
 supersession from the outside-in table. Exercise the real row controls and
 normal project/selection consumers.
@@ -121,8 +122,24 @@ standalone session in the destination Board, extending the existing range
 only when needed. The reveal follows the current choice, keeps Development
 selected and leaves the Side panel as it was.
 
+Learning from slice 1: PageFrame holds the current choice as
+`useRecentlyDoneSelection(...).choice` (`{key, kind}` with kind linked,
+standalone, checking or unknown) in `dashboard/src/recentlyDoneSelection.ts`;
+the reveal consumes it there. Slice 1 accepted proof:
+`dashboard/tests/sessions/recently-done-sessions-select{,-check,-touch}.spec.ts`
+with the four baseline specs and the Recently done sidebar family (28 passed).
+G1 returns the Board reveal assertions of the two rewritten sidebar and paging
+steps under Select.
+
 ## Preparation review
 
 Slice-plan refinement was unnecessary. Selection and Board reveal each have
 their own observable result and proof, and the second consumes the first's
 one selection rule. No slice-specific concerns remain.
+
+## Story obligations
+
+### G1. A Done row without Open no longer reveals its Board entry (sidebar "an unavailable Done entry" and paging "older cross-project session" steps now assert the project stays)
+Reported: slice 1 — "a Done row without terminal or final-report access no longer goes to its project's Board. Before, row activation switched the project and revealed the Board entry; now it has no Open and Select only selects it."
+Story clause: "In Development, selection brings the story card or standalone session into view in its project's Board, extending the Recently done range as needed."
+Disposition: receiving slice 2

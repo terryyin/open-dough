@@ -3,10 +3,8 @@
 // destination helpers stay in `./recentlyDoneSessionsSidebarPage.ts`.
 import type { Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import {
-  doneRecord,
-  recentlyDoneParts,
-} from "./recentlyDoneSessionsSidebarPage.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import { expect } from "./support/cursorStart.ts";
 
 // Forty-five retained Done sessions across the three configured projects,
@@ -30,13 +28,14 @@ export function fortyFiveDoneSessions(now: number): {
       index === 5
         ? new Date(now - 5 * 60_000).toISOString()
         : new Date(now - (index + 1) * 60_000).toISOString();
-    return doneRecord({
-      source,
-      title,
-      sessionId: `done-${String(index + 1).padStart(2, "0")}`,
-      launchedAt: new Date(now - (index + 1) * 120_000).toISOString(),
-      doneAt,
-    });
+    return makeMe.aLaunchRecord
+      .adHoc({ instruction: title, title, source })
+      .inClaudeSession({
+        sessionId: `done-${String(index + 1).padStart(2, "0")}`,
+      })
+      .launchedAt(new Date(now - (index + 1) * 120_000).toISOString())
+      .markedDoneAt(doneAt)
+      .please();
   });
   const byProject: Record<string, LaunchRecord[]> = {
     "open-dough": [],

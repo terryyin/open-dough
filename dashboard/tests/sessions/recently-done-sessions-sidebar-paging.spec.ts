@@ -7,20 +7,15 @@ import {
   recentlyDoneSessionsInitialLimit,
   type LaunchRecord,
 } from "../../src/agentLaunch.ts";
-import {
-  expectProjectChoice,
-  chooseProject,
-  standaloneSessionName,
-  parts,
-} from "../dashboardPage.ts";
+import { expectProjectChoice, chooseProject, parts } from "../dashboardPage.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import {
   fortyFiveDoneSessions,
   preferShortRecentlyDoneBody,
   revealRecentlyDoneThrough,
 } from "../recentlyDoneSessionsSidebarPaging.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
-  doneRecord,
   recentlyDoneHeightKey,
   recentlyDoneParts,
   showThreeProjectPage,
@@ -125,18 +120,14 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   // Index 40 → doughnut (sources cycle open-dough, doughnut, pygardon).
   const olderCrossProject = titles[40] ?? "";
   expect(olderCrossProject).not.toBe("");
-  await test.step("opening an older cross-project session reaches its destination", async () => {
+  await test.step("choosing an older cross-project session selects it within the reached range", async () => {
     await shown.entry(olderCrossProject).click();
-    await expectProjectChoice(page, "Doughnut");
-    await expect(
-      parts(page).recentlyDone.getByRole("article", {
-        name: standaloneSessionName("Ad hoc", olderCrossProject),
-      }),
-    ).toBeVisible();
+    await expect(shown.entry(olderCrossProject)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expectProjectChoice(page, "Pygardon");
     await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
-    await openSessionsSidebar(page);
-    if ((await shown.header.getAttribute("aria-expanded")) !== "true")
-      await shown.header.click();
     await expect(shown.entries).toHaveCount(45);
   });
 
@@ -148,13 +139,12 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   expect(oldestReached).not.toBe("");
   await test.step("refresh admits a new completion and drops a removed identity without losing older reached entries", async () => {
     const newTitle = "Brand new completion";
-    const newer: LaunchRecord = doneRecord({
-      source: "doughnut",
-      title: newTitle,
-      sessionId: "done-new",
-      launchedAt: new Date(now - 90_000).toISOString(),
-      doneAt: new Date(now - 30_000).toISOString(),
-    });
+    const newer: LaunchRecord = makeMe.aLaunchRecord
+      .adHoc({ instruction: newTitle, title: newTitle, source: "doughnut" })
+      .inClaudeSession({ sessionId: "done-new" })
+      .launchedAt(new Date(now - 90_000).toISOString())
+      .markedDoneAt(new Date(now - 30_000).toISOString())
+      .please();
     const withoutRemoved = records.filter(
       (record) => record.request.title !== removedTitle,
     );

@@ -9,9 +9,11 @@ import { sessionKey } from "./sessionReference.ts";
 // sidePanelWidth its width beside the page; terminal readiness alone rereads
 // a done record after native attachment.
 // The page's one Recently done range (`./recentlyDoneRange.ts`) is kept here
-// too, so a journey's destination can ask it for the entry it lands on. Every
-// retained session the page opens or acts on asks the page's one history
-// read (`./retainedHistory.ts`).
+// too, so a journey's destination can ask it for the entry it lands on. A
+// Recently done sessions row selects (`./recentlyDoneSelection.ts`); its Open
+// control, like every other Sessions sidebar row, opens. Every retained
+// session the page opens or acts on asks the page's one history read
+// (`./retainedHistory.ts`).
 
 import { useCallback, useRef, type CSSProperties, type ReactNode } from "react";
 import { FinalReport } from "./FinalReport.tsx";
@@ -39,6 +41,10 @@ import {
 import { StoryInspectionProvider } from "./pageStoryInspection.tsx";
 import { RetainedHistoryOnPage } from "./retainedHistory.ts";
 import { useSessionNavigation } from "./sessionNavigation.ts";
+import {
+  useRecentlyDoneSelection,
+  type RecentlyDoneProjects,
+} from "./recentlyDoneSelection.ts";
 import {
   RecentlyDoneRangeOnPage,
   useRecentlyDoneRange,
@@ -77,9 +83,7 @@ export function PageFrame({
     | "readSession"
     | "readHistory"
   >;
-  readonly stories: {
-    // The project the developer has chosen to show, read or not.
-    readonly selected: string;
+  readonly stories: RecentlyDoneProjects & {
     // The project whose stories the page shows, once they are read.
     readonly shown: string | undefined;
     // Shows a project's stories, as one history entry.
@@ -122,6 +126,7 @@ export function PageFrame({
     },
     [readSession],
   );
+  const recentlyDone = useRecentlyDoneSelection(projects, stories, selection);
   const revealSession = useSessionNavigation(
     stories.selected,
     stories.shown,
@@ -131,6 +136,7 @@ export function PageFrame({
     record,
     control,
   }) => {
+    recentlyDone.supersede();
     const source = projects.find(
       (project) => project.id === record.request.source,
     );
@@ -171,7 +177,11 @@ export function PageFrame({
                     } as CSSProperties)
                   }
                 >
-                  <SessionsSidebar {...sidebar} onOpen={goToSession} />
+                  <SessionsSidebar
+                    {...sidebar}
+                    onOpen={goToSession}
+                    recentlyDone={recentlyDone.row}
+                  />
                   <SessionsSidebarOnPage value={sidebar}>
                     <RecentlyDoneRangeOnPage value={range}>
                       <div
