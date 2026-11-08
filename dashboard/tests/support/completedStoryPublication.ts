@@ -1,8 +1,11 @@
 // Completes and publishes real CLI story history, including resolved merges.
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import {
+  doneRecordFileName,
+  type IntentCoverage,
+} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
@@ -35,14 +38,29 @@ export function publishCompletedStory(
     mode,
     missingAgent,
     completionConflict,
+    intentCoverage,
   }: {
     workspace: string;
     branch: string;
     mode: "trunk" | "story-branch";
     missingAgent: boolean;
     completionConflict: boolean;
+    intentCoverage?: IntentCoverage | undefined;
   },
 ) {
+  const coverageArgs: string[] = [];
+  if (intentCoverage !== undefined) {
+    if ("report" in intentCoverage) {
+      const reportFile = path.join(origin.machine, "intent-coverage.txt");
+      writeFileSync(reportFile, intentCoverage.report, "utf8");
+      coverageArgs.push("--intent-coverage", reportFile);
+    } else {
+      coverageArgs.push(
+        "--intent-coverage-unavailable",
+        intentCoverage.unavailable,
+      );
+    }
+  }
   execFileSync(
     process.execPath,
     [
@@ -55,6 +73,7 @@ export function publishCompletedStory(
       ".planning/PRODUCT-BACKLOG.md",
       "--identity",
       queuedIdentity,
+      ...coverageArgs,
     ],
     { cwd: workspace },
   );

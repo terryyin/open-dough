@@ -40,6 +40,12 @@ const doneStory = z.object({
   developer: z.string().min(1).optional(),
   agent: z.string().min(1).optional(),
   host: z.enum(agentHosts).optional(),
+  intentCoverage: z
+    .union([
+      z.object({ report: z.string() }),
+      z.object({ unavailable: z.string() }),
+    ])
+    .optional(),
 });
 
 const readRecord = z.discriminatedUnion("ok", [

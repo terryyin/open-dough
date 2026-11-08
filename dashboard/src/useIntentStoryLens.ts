@@ -4,11 +4,12 @@
 // Whether the story has a comparison is decided as Review changes offers it
 // (`storyComparisonOffered`), unknown while an active story's records are
 // unread; a story with none reads nothing. A completed story is named by its
-// published done record's title, read as Recently done reads it
-// (`./doneDetails.ts`), and by its identity until that record says more.
+// published done record, read as Recently done reads it (`./doneDetails.ts`),
+// and by its identity until that record says more.
 
 import { useState } from "react";
 import { useDoneDetails } from "./doneDetails.ts";
+import type { DoneStory } from "./doneStories.ts";
 import type { LensComparison } from "./IntentStoryComparison.tsx";
 import type { ComparedStory, LensStory } from "./IntentStorySummary.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";
@@ -20,23 +21,27 @@ import { useStoryComparison } from "./useStoryComparison.ts";
 
 // The selected story as Intent names it: an active story by its published
 // entry; any other selected story is a completed one, named by its done
-// record's title once read (`doneTitle`), else by its identity.
+// record's title once read, else by its identity.
 function lensStoryOf(
   work: PublishedWork | undefined,
   identity: string,
-  doneTitle: string | undefined,
+  doneStory: DoneStory | undefined,
 ): LensStory {
   const entry = [...(work?.taken ?? []), ...(work?.backlog ?? [])].find(
     (each) => each.identity === identity,
   );
   return entry === undefined
-    ? { identity, title: doneTitle ?? identity, completed: true }
+    ? {
+        identity,
+        title: doneStory?.title ?? identity,
+        completed: true,
+        intentCoverage: doneStory?.intentCoverage,
+      }
     : { identity, title: entry.title, completed: false };
 }
 
-// The selected story's published done record, read once it is catalogued,
-// and the title it gives.
-function useDoneTitle(
+// The selected story's published done record, read once it is catalogued.
+function useDoneStory(
   source: PublishedSource,
   work: PublishedWork | undefined,
   identity: string | undefined,
@@ -55,7 +60,7 @@ function useDoneTitle(
   );
   if (record === undefined) return undefined;
   const detail = detailOf(record);
-  return detail.status === "read" ? detail.story.title : undefined;
+  return detail.status === "read" ? detail.story : undefined;
 }
 
 export function useIntentStoryLens({
@@ -77,11 +82,11 @@ export function useIntentStoryLens({
   readonly compared: ComparedStory | undefined;
   readonly retry: () => void;
 } {
-  const doneTitle = useDoneTitle(source, work, selectedIdentity);
+  const doneStory = useDoneStory(source, work, selectedIdentity);
   const story =
     selectedIdentity === undefined
       ? undefined
-      : lensStoryOf(work, selectedIdentity, doneTitle);
+      : lensStoryOf(work, selectedIdentity, doneStory);
   const offered =
     story === undefined
       ? false

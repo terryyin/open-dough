@@ -3,8 +3,8 @@
    title on one line as a disclosure, a brief comparison state, then the
    "Selected story only" choice, its message when no location's test file
    changed, and the count of changed files outside every location. Expanded,
-   the full title, identity, and revisions or explanation. A changed file's
-   Purpose names its diff. */
+   the full title, identity, revisions or explanation, and any saved Intent
+   Coverage assessment. A changed file's Purpose names its diff. */
 .intent-story-summary {
   flex: none;
   min-width: 0;
@@ -78,6 +78,15 @@
 
 .intent-story-detail[hidden] {
   display: none;
+}
+
+.intent-story-coverage h3 {
+  margin: var(--space-1) 0;
+  font-size: inherit;
+}
+
+.intent-story-coverage-text {
+  white-space: pre-wrap;
 }
 
 /* Aligned under the title, past the caret. */

@@ -47,18 +47,42 @@ test("Intent overlays a completed story's published history comparison, naming i
   page,
   origin,
 }) => {
+  const report =
+    "Outcome: Caught\nPromise: Keep the removed file in the story lens.\n" +
+    'Fault: Treat a literal <img src="proof"> as source markup.\n' +
+    "Evidence: The maintained assertion failed after the edit and passed after restoration.\n\n" +
+    "Test runtime: 2.1 s (measured by the runner)\n" +
+    "Human effort: unavailable (no human intervention observed)\n" +
+    "Agent effort: 1 min (estimated from the work log)\n" +
+    "Invocation-to-report elapsed: 74 s (measured by the host clock)\n";
   const { card, intent, completion, published } =
-    await selectCompletedStoryInIntent(page, origin);
+    await selectCompletedStoryInIntent(page, origin, {
+      intentCoverage: { report },
+    });
   const scoped = storySummary(intent);
   let baseline = "";
 
   await test.step("Intent names the completed story by its done record's title and identity", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(storyDisclosure(intent)).toHaveText("Story Story A");
+    await expect(
+      scoped.getByRole("heading", { name: "Intent coverage" }),
+    ).toHaveCount(0);
     const detail = await expandStorySummary(intent);
     await expect(detail.locator(".intent-story-full-title")).toHaveText(
       "Story A SEED-A#a",
     );
+  });
+
+  await test.step("the disclosure shows the exact saved assessment and all four costs as text", async () => {
+    await expect(
+      scoped.getByRole("heading", { name: "Intent coverage" }),
+    ).toBeVisible();
+    const result = scoped.locator(".intent-story-coverage-text");
+    await expect(result).toBeVisible();
+    await expect(result).toHaveCSS("white-space", "pre-wrap");
+    expect(await result.textContent()).toBe(report);
+    await expect(result.locator("img")).toHaveCount(0);
   });
 
   await test.step("the compared revisions are the published comparison's, not Intent's published revision", async () => {
@@ -166,19 +190,19 @@ test("a completed story whose published comparison cannot be recovered says why,
   page,
   origin,
 }) => {
-  const { card, intent } = await selectCompletedStoryInIntent(
-    page,
-    origin,
-    "shallow",
-  );
+  const { card, intent } = await selectCompletedStoryInIntent(page, origin, {
+    history: "shallow",
+  });
   const scoped = storySummary(intent);
   await expect(storyDisclosure(intent)).toHaveText("Story Story A");
   await expect(scoped.getByRole("status")).toHaveText(
     "No comparison is available.",
   );
-  const problem = (await expandStorySummary(intent)).locator(
-    ".intent-story-problem",
-  );
+  const detail = await expandStorySummary(intent);
+  await expect(
+    detail.getByRole("heading", { name: "Intent coverage" }),
+  ).toHaveCount(0);
+  const problem = detail.locator(".intent-story-problem");
   await expect(problem).toHaveText(
     `${unrecoverable} Intent shows the published tree without the story's changes.`,
   );

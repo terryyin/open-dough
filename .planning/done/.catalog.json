@@ -8,6 +8,12 @@
       "blob": "a94b0d9620c2f585262efc692cbe9034e44d236e"
     },
     {
+      "fileName": "SEED-258_assess-intent-coverage-during-wrap-up.json",
+      "identity": "SEED-258#assess-intent-coverage-during-wrap-up",
+      "completedAt": "2026-11-08T02:25:37.833Z",
+      "blob": "96c258f6968089c210dd2ca86e3356dc478df46a"
+    },
+    {
       "fileName": "SEED-262_refresh-without-unneeded-reloads.json",
       "identity": "SEED-262#refresh-without-unneeded-reloads",
       "completedAt": "2026-11-08T01:43:29.664Z",

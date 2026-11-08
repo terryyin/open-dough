@@ -13,6 +13,7 @@
 // published revision (ADR 0008).
 
 import { useId } from "react";
+import type { DoneStory } from "./doneStories.ts";
 import {
   CompactComparisonState,
   ComparisonDetail,
@@ -29,6 +30,7 @@ export type LensStory = {
   readonly identity: string;
   readonly title: string;
   readonly completed: boolean;
+  readonly intentCoverage?: DoneStory["intentCoverage"];
 };
 
 // The selected story with the comparison read of it.
@@ -106,6 +108,7 @@ export function IntentStorySummary({
   readonly scope?: StoryTreeScope | undefined;
 }) {
   const detailId = useId();
+  const coverage = story.intentCoverage;
   return (
     <section
       className="intent-story-summary"
@@ -134,6 +137,23 @@ export function IntentStorySummary({
           <span className="record-identity">{story.identity}</span>
         </p>
         <ComparisonDetail comparison={comparison} />
+        {story.completed && coverage !== undefined && (
+          <div className="intent-story-coverage">
+            <h3>Intent coverage</h3>
+            {"report" in coverage ? (
+              <p className="intent-story-coverage-text">{coverage.report}</p>
+            ) : (
+              <>
+                <p>
+                  <strong>Unavailable</strong>
+                </p>
+                <p className="intent-story-coverage-text">
+                  {coverage.unavailable}
+                </p>
+              </>
+            )}
+          </div>
+        )}
       </div>
       {scope !== undefined && (
         <>
