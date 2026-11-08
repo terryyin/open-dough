@@ -154,7 +154,7 @@ store/builder consumers. This is a safe stopping point with the restart case
 still using its original setup.
 
 **Accepted proof (2026-11-08):** `openWithOpenSessions` in
-`dashboard/tests/storyCardAttention.ts` keeps each session's MakeMe record
+`dashboard/tests/storyCardOpenSessions.ts` (moved there in Slice 2) keeps each session's MakeMe record
 (`.executing`/`.refining`, no start metadata) and its `claudeListsSession`
 listing under one native ID, all projects in one `keepProjectLaunchRecords`
 write (`support/storyLaunchRecord.ts`, now the single store writer, with
@@ -172,7 +172,7 @@ records are byte-identical.
 
 **Type:** Behavior
 
-**Status:** planned
+**Status:** done
 
 Given the same private-machine arrangement, the card session-state case
 opens with working sessions and can exercise listing failure, subsequent
@@ -182,6 +182,29 @@ the same machine. Preserve the page and published-read assertions and check
 the same arranged sessions across restart. Run the complete matched selection
 and the action owners, review shared consumers, and record the before/after
 comparison with the existing strict verdicts.
+
+**Accepted proof (2026-11-08):** the session-state case opens through the
+shared `openWithOpenSessions` (`dashboard/tests/storyCardOpenSessions.ts`)
+with three working sessions, changes them through `becomes` while the
+listing fails, checks the same arranged native IDs after restart, reload
+and both project switches, and ends with `expectNothingStarted`. Strict run
+of the matched selection plus card Start, card sessions, story-review-mark
+and recently-done-sessions-sidebar passed 18.
+
+| Matched comparison (2 workers, strict) | Before | After |
+| --- | --- | --- |
+| Runner time, 3 cases | 15.93 s (planning 15.12, 16.73) | 12.00, 12.22 s |
+| Load | ~6.6 | 8.1–9.7 |
+| Attention setup interval | 1.77–2.20 s | 0.59–0.61 s |
+| Restart setup interval | 1.72–1.75 s | 0.54–0.57 s |
+| Records GETs in setup | 10–11 | 1 |
+| Fake GitHub commands in setup | 22 | 10 |
+| Native starts in setup | 3 | 0 |
+| Start POSTs per whole case | 6 | 0 (enforced) |
+
+Before figures for intervals and counts are the planning premise's
+instrumented runs on the same code; after figures come from temporary
+run-local instrumentation, since removed. Timing is not a pass criterion.
 
 ## Preparation review
 

@@ -14,20 +14,20 @@ exercise them.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Goal: a developer running a journey reaches the behavior it proves sooner when an unrelated workflow only supplies that journey's initial state. | slice 2 | |
-| 2.1 | The attention journeys start with Claude sessions that are already open. | slice 1 | observed: dashboard/tests/sessions/agent-launch-attention.spec.ts both cases open via openWithOpenSessions; expectOpen Working + arranged ID (dashboard/tests/storyCardAttention.ts); strict proof-sel-1 passed |
-| 2.2 | The related card session-state journey starts with Claude sessions that are already open. | slice 2 | |
-| 3.1 | Each case's valid persisted records are arranged in that case's own machine before the first page read. | slice 2 | |
-| 3.2 | Each case's matching native listings are arranged in that case's own machine before the first page read. | slice 2 | |
+| 1 | Goal: a developer running a journey reaches the behavior it proves sooner when an unrelated workflow only supplies that journey's initial state. | slice 2 | observed: Restart and attention setup interval 1.72-2.20 s -> 0.54-0.61 s, matched runner 15.93 s -> 12.00/12.22 s at higher load; plan Slice 2 accepted proof |
+| 2.1 | The attention journeys start with Claude sessions that are already open. | slice 1 | observed: dashboard/tests/sessions/agent-launch-attention.spec.ts both cases open via openWithOpenSessions; expectOpen Working + arranged ID (dashboard/tests/storyCardOpenSessions.ts); strict run passed |
+| 2.2 | The related card session-state journey starts with Claude sessions that are already open. | slice 2 | observed: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts opens via openWithOpenSessions with three working sessions |
+| 3.1 | Each case's valid persisted records are arranged in that case's own machine before the first page read. | slice 2 | observed: dashboard/tests/storyCardOpenSessions.ts keepOpenSessions writes records into the case machine store before navigation; dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts machine fixture |
+| 3.2 | Each case's matching native listings are arranged in that case's own machine before the first page read. | slice 2 | observed: dashboard/tests/storyCardOpenSessions.ts claudeListsSession listings in the same machine before navigation |
 | 4 | The Doughnut session used by the attention project-switch case is included in the pre-arranged state. | slice 1 | observed: dashboard/tests/sessions/agent-launch-attention.spec.ts Taken case arranges doughnutSession; expectOpen(doughnutSession) after switch then blocked count |
-| 5.1 | Real published membership reads stay real where the cases exercise them. | slice 2 | |
-| 5.2 | Real session observation stays real where the cases exercise it. | slice 2 | |
-| 5.3 | Real restart stays real where the cases exercise it. | slice 2 | |
-| 5.4 | Real reload stays real where the cases exercise it. | slice 2 | |
-| 5.5 | Real project switching stays real where the cases exercise it. | slice 2 | |
+| 5.1 | Real published membership reads stay real where the cases exercise them. | slice 2 | observed: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts expectMembership before and after restart, readsBesideChecks (unchanged) |
+| 5.2 | Real session observation stays real where the cases exercise it. | slice 2 | observed: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts listing failure then recovery observed through production reader |
+| 5.3 | Real restart stays real where the cases exercise it. | slice 2 | observed: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts real startDashboardServer restart on same machine and port |
+| 5.4 | Real reload stays real where the cases exercise it. | slice 2 | observed: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts reload step (unchanged) |
+| 5.5 | Real project switching stays real where the cases exercise it. | slice 2 | observed: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts Doughnut switch shows zero sessions then Open Dough entries return |
 | 5.6 | Real Mark as done stays real where the cases exercise it. | slice 1 | observed: dashboard/tests/sessions/agent-launch-attention.spec.ts Taken case real markDoneAnyway removes entry and drops count |
-| 6.1 | The card Start journey keeps real Starts, because it observes the result of a launch. | slice 2 | |
-| 6.2 | The launch-to-listing journey keeps real Starts, because it observes the result of a launch. | slice 2 | |
+| 6.1 | The card Start journey keeps real Starts, because it observes the result of a launch. | slice 2 | observed: agent-launch-story-card.spec.ts unchanged, real Start, strict s2-strict2 passed |
+| 6.2 | The launch-to-listing journey keeps real Starts, because it observes the result of a launch. | slice 2 | observed: agent-launch-story-card-sessions.spec.ts unchanged launchEachQueuedStory, strict s2-strict2 passed |
 | 7.1 | Example 1, setup: three Open Dough sessions are already open when the page opens on the Backlog, and no Start request is needed for this setup. | slice 1 | observed: dashboard/tests/sessions/agent-launch-attention.spec.ts Backlog case opens with three working sessions; expectNothingStarted: no Start POSTs, claudeLaunchCalls [] |
 | 7.2 | Example 1: as Claude reports sessions as blocked, review, unavailable, or stopped, each card counts only the sessions that need attention. | slice 1 | observed: dashboard/tests/sessions/agent-launch-attention.spec.ts step counts each card's affected sessions in Backlog and Preparing (unchanged assertions) |
 | 7.3 | Example 1: an unreadable listing suppresses the counts. | slice 1 | observed: dashboard/tests/sessions/agent-launch-attention.spec.ts same step: unreadable listing suppresses counts (unchanged) |
@@ -38,19 +38,19 @@ exercise them.
 | 8.3 | Example 2: Mark as done removes the card's last affected session from the count. | slice 1 | observed: dashboard/tests/sessions/agent-launch-attention.spec.ts Taken case: Mark as done removes last affected session from count |
 | 8.4 | Example 2: project switching and reload show the current project's counts. | slice 1 | observed: dashboard/tests/sessions/agent-launch-attention.spec.ts Taken case: project switch and reload read current project's counts |
 | 8.5 | Example 2: after origin removes a story from every list, its affected session and reason stay visible in local Taken with Open terminal. | slice 1 | observed: dashboard/tests/sessions/agent-launch-attention.spec.ts Taken case: story in no list keeps affected session and reason in local Taken with Open terminal |
-| 9.1 | Example 3, setup: three already-open sessions change while their native listing is unreadable. | slice 2 | |
-| 9.2 | Example 3: the page shows State unknown and keeps Open terminal and the Start restrictions. | slice 2 | |
-| 9.3 | Example 3: after recovery, a real server restart and reload show the actual states and actions. | slice 2 | |
-| 9.4 | Example 3: switching away and back keeps project isolation and the original entries. | slice 2 | |
-| 10 | Example 4: when a developer starts execution or refinement from a card, the Start journey still drives the actual dialog and native launch, and it observes the new card entry. | slice 2 | |
-| 11.1 | Architecture: the committed origin remains the source of published placement. | slice 2 | |
-| 11.2 | Architecture: the persisted records and the native listing remain separate inputs for local session presentation. | slice 2 | |
-| 12.1 | The canonical launch data is built through MakeMe. | slice 1 | observed: dashboard/tests/storyCardAttention.ts keepOpenSessions builds makeMe.aLaunchRecord executing/refining records |
-| 12.2 | The arranged state is written with a single project-keyed store write before navigation. | slice 1 | observed: dashboard/tests/storyCardAttention.ts keepOpenSessions single keepProjectLaunchRecords write before openQueuedStoryCards |
-| 13 | Each listed session uses the same native identity as its persisted record. | slice 1 | observed: dashboard/tests/storyCardAttention.ts keepOpenSessions uses claudeListsSession id as record sessionId; expectOpen compares sessionNamedBy |
-| 14 | Existing fixture boundaries carry the arranged state through the production reader (ADR 0008 for dashboard state; ADR 0002 for product intent and test design). | slice 1 | observed: dashboard/tests/storyCardAttention.ts page reads through production records reader and fake claude listing; listing failure/recovery steps in dashboard/tests/sessions/agent-launch-attention.spec.ts |
-| 15.1 | Evaluation: the same cases are compared before and after the change under the same runner profile. | slice 2 | |
-| 15.2 | Evaluation: the comparison shows lower elapsed arrangement time. | slice 2 | |
-| 15.3 | Evaluation: the comparison shows fewer requests caused by starting workflows. | slice 2 | |
-| 15.4 | Evaluation: the existing attention, membership, and session-management assertions are kept. | slice 2 | |
-| 15.5 | Evaluation: the real card Start journey is run again (journey coverage ownership; ADR 0010, Definition of improvement). | slice 2 | |
+| 9.1 | Example 3, setup: three already-open sessions change while their native listing is unreadable. | slice 2 | observed: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts claudeListingFails(true) then becomes(...) for each of three open sessions |
+| 9.2 | Example 3: the page shows State unknown and keeps Open terminal and the Start restrictions. | slice 2 | observed: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts step: State unknown with Open terminal; expectStartsBlocked in expectShown |
+| 9.3 | Example 3: after recovery, a real server restart and reload show the actual states and actions. | slice 2 | observed: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts after recovery restart and reload: expectShown states, actions and arranged IDs |
+| 9.4 | Example 3: switching away and back keeps project isolation and the original entries. | slice 2 | observed: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts switch to Doughnut and back: isolation and original entries with same IDs via expectOpen |
+| 10 | Example 4: when a developer starts execution or refinement from a card, the Start journey still drives the actual dialog and native launch, and it observes the new card entry. | slice 2 | observed: agent-launch-story-card.spec.ts drives dialog and native launch to new card entry, passed in s2-strict2 |
+| 11.1 | Architecture: the committed origin remains the source of published placement. | slice 2 | observed: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts expectMembership: origin alone places stories; published origin unchanged in journeys |
+| 11.2 | Architecture: the persisted records and the native listing remain separate inputs for local session presentation. | slice 2 | observed: dashboard/tests/storyCardOpenSessions.ts records via store write and listing via fake claude stay separate; production reader joins them |
+| 12.1 | The canonical launch data is built through MakeMe. | slice 1 | observed: dashboard/tests/storyCardOpenSessions.ts keepOpenSessions builds makeMe.aLaunchRecord executing/refining records |
+| 12.2 | The arranged state is written with a single project-keyed store write before navigation. | slice 1 | observed: dashboard/tests/storyCardOpenSessions.ts keepOpenSessions single keepProjectLaunchRecords write before openQueuedStoryCards |
+| 13 | Each listed session uses the same native identity as its persisted record. | slice 1 | observed: dashboard/tests/storyCardOpenSessions.ts keepOpenSessions uses claudeListsSession id as record sessionId; expectOpen compares sessionNamedBy |
+| 14 | Existing fixture boundaries carry the arranged state through the production reader (ADR 0008 for dashboard state; ADR 0002 for product intent and test design). | slice 1 | observed: dashboard/tests/storyCardOpenSessions.ts page reads through production records reader and fake claude listing; listing failure/recovery steps in dashboard/tests/sessions/agent-launch-attention.spec.ts |
+| 15.1 | Evaluation: the same cases are compared before and after the change under the same runner profile. | slice 2 | observed: Matched selection strict, workers=2: baseline /Users/terryyin/.claude/jobs/a34647f9/tmp/base1/proof.json vs /Users/terryyin/.claude/jobs/a34647f9/tmp/s2-matched1.json, s2-matched2.json |
+| 15.2 | Evaluation: the comparison shows lower elapsed arrangement time. | slice 2 | observed: Setup interval attention 1.77-2.20 -> 0.59-0.61 s, restart 1.72-1.75 -> 0.54-0.57 s (run-local instrumentation) |
+| 15.3 | Evaluation: the comparison shows fewer requests caused by starting workflows. | slice 2 | observed: Start POSTs 6 -> 0, native starts 3 -> 0, records GETs 10-11 -> 1, fake gh 22 -> 10; zero enforced by expectNothingStarted |
+| 15.4 | Evaluation: the existing attention, membership, and session-management assertions are kept. | slice 2 | observed: dashboard/tests/sessions/agent-launch-attention.spec.ts and dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts keep all prior count, membership, state, restart and reload assertions (diffs inspected) |
+| 15.5 | Evaluation: the real card Start journey is run again (journey coverage ownership; ADR 0010, Definition of improvement). | slice 2 | observed: agent-launch-story-card.spec.ts rerun in s2-strict2 strict pass |

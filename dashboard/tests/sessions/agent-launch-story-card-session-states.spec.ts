@@ -8,7 +8,9 @@
 // restarted dashboard server, a reload, and a project switch keep every entry
 // and its state. What each state shows is
 // ./agent-launch-session-state-pace.spec.ts. Origin alone still places
-// every story. The server keeps its HOME and the synthetic `claude`'s state
+// every story. The page opens with the three sessions already open
+// (../storyCardOpenSessions.ts), so nothing is started. The server keeps its
+// HOME, the launch store, and the synthetic `claude`'s state
 // (./fixtures/fake-claude) in a machine directory, so a restart answers the
 // same records and sessions; the real `claude` is never reached.
 
@@ -16,38 +18,40 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
-import { test as base, expect, pausePageClockAt } from "../dashboardTest.ts";
+import {
+  identityA,
+  identityB,
+} from "../../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { test as base, expect } from "../dashboardTest.ts";
 import {
   chooseProject,
   parts,
   shortRevision,
-  storyCardSessionOf,
   storyCardSessions,
   expectMembership,
-  sessionNamedBy,
   sessionStateOf,
 } from "../dashboardPage.ts";
 import { doughnutSharedTitle } from "../doughnutProject.ts";
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
 import {
+  notRefinedIdentity,
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
-import { openStoryColumnsJourney, type Workflow } from "../storyColumnsPage.ts";
+import {
+  openWithOpenSessions,
+  type OpenSession,
+} from "../storyCardOpenSessions.ts";
 import {
   builtDashboardDir,
   startDashboardServer,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
 import type { ClaudeSessionChange } from "../support/fakeClaude.ts";
-import {
-  expectNotReloaded,
-  markNotReloaded,
-  watchRecordReads,
-} from "../sessionStatePace.ts";
+import { expectNotReloaded, markNotReloaded } from "../sessionStatePace.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import { readsBesideChecks } from "../originObservation.ts";
 
@@ -91,49 +95,52 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
     github,
     machine,
   }) => {
-    dashboard.claudeScenario("launched");
-    await pausePageClockAt(page, new Date());
-    const { passOnePace } = await watchRecordReads(page);
-    const { card, action, settled, launch } = await openStoryColumnsJourney(
-      page,
-      columnsJourney,
-    );
-    const queued = {
-      taken: [],
-      backlog: [takenStory, readyStory, notRefinedStory],
-    };
-    await expectMembership(page, queued);
-    await settled();
-
-    // Each launch, the change its session undergoes, and the state its card
-    // entry shows then; the blocked session still runs.
-    const launches: readonly {
-      title: string;
-      workflow: Workflow;
+    // Open Dough's three sessions, each working when the page opens on the
+    // Backlog, the change each then undergoes, and the state its card entry
+    // shows then; the blocked session still runs.
+    const sessions: readonly (OpenSession & {
       change: ClaudeSessionChange;
       shows: string;
-    }[] = [
+    })[] = [
       {
+        project: "open-dough",
+        identity: notRefinedIdentity,
         title: notRefinedStory,
         workflow: "Execution",
+        state: "working",
         change: "done-exited",
         shows: "Ready for review",
       },
       {
+        project: "open-dough",
+        identity: identityB,
         title: readyStory,
         workflow: "Execution",
+        state: "working",
         change: "forgotten",
         shows: "Session unavailable",
       },
       {
+        project: "open-dough",
+        identity: identityA,
         title: takenStory,
         workflow: "Refinement",
+        state: "working",
         change: "stopped",
         shows: "Session stopped",
       },
     ];
-    const entryOf = (title: string, workflow: Workflow): Locator =>
-      storyCardSessionOf(card(title), workflow);
+    const {
+      passOnePace,
+      settled,
+      action,
+      entryOf,
+      expectOpen,
+      expectNothingStarted,
+      becomes,
+      queued: backlog,
+    } = await openWithOpenSessions(page, dashboard, columnsJourney, sessions);
+    const queued = { taken: [], backlog };
     const openIn = (entry: Locator) =>
       entry.getByRole("button", { name: "Open terminal" });
     // Every card with an open session keeps both Starts unavailable, with
@@ -156,43 +163,39 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       );
     };
     const expectShown = async () => {
-      for (const { title, workflow, shows } of launches) {
-        const entry = entryOf(title, workflow);
-        await expect(sessionStateOf(entry)).toHaveText(shows);
+      for (const session of sessions) {
+        const entry = entryOf(session.title, session.workflow);
+        await expect(sessionStateOf(entry)).toHaveText(session.shows);
         await expect(openIn(entry)).toHaveCount(
-          shows === "Session unavailable" ? 0 : 1,
+          session.shows === "Session unavailable" ? 0 : 1,
         );
+        // The same session the page opened with, now listed as changed,
+        // after every restart, reload, and project switch.
+        await expectOpen({ ...session, state: session.change });
       }
       await expect(storyCardSessions(page.locator("body"))).toHaveCount(
-        launches.length,
+        sessions.length,
       );
       await expectStartsBlocked();
     };
 
-    const sessionIds: string[] = [];
-    for (const { title, workflow } of launches) {
-      await launch(title, workflow);
-      const entry = entryOf(title, workflow);
-      await expect(sessionStateOf(entry)).toHaveText("Working");
-      sessionIds.push(await sessionNamedBy(entry));
-    }
     // Claude Code's listing cannot be read, and then every session changes.
     dashboard.claudeListingFails(true);
-    for (const [index, { change }] of launches.entries()) {
-      dashboard.claudeSessionBecomes(sessionIds[index] ?? "?", change);
+    for (const { title, workflow, change } of sessions) {
+      becomes(title, workflow, change);
     }
 
     await test.step("while Claude Code's listing cannot be read, every session stays on its card as State unknown with Open terminal, in the open page with no new read of the published work", async () => {
       const asked = github.calls.length;
       await markNotReloaded(page);
       await passOnePace();
-      for (const { title, workflow } of launches) {
+      for (const { title, workflow } of sessions) {
         const entry = entryOf(title, workflow);
         await expect(sessionStateOf(entry)).toContainText("State unknown");
         await expect(openIn(entry)).toBeVisible();
       }
       await expect(storyCardSessions(page.locator("body"))).toHaveCount(
-        launches.length,
+        sessions.length,
       );
       await untilPageReadsAnswered(page);
       await expectNotReloaded(page);
@@ -238,8 +241,8 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
     }
 
     // Session state never moves a story: origin alone places each one, and
-    // nothing was launched again.
+    // nothing was started, before or after the restart.
     await expectMembership(page, queued);
-    expect(dashboard.claudeLaunchCalls()).toHaveLength(launches.length);
+    expectNothingStarted();
   });
 });

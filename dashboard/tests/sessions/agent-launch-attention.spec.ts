@@ -27,11 +27,11 @@ import {
   expectSessionShown,
   markNotReloaded,
 } from "../sessionStatePace.ts";
+import { attentionCountsOn, publishedFactsOf } from "../storyCardAttention.ts";
 import {
   openWithOpenSessions,
-  publishedFactsOf,
   type OpenSession,
-} from "../storyCardAttention.ts";
+} from "../storyCardOpenSessions.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
@@ -81,8 +81,8 @@ test.describe("a story's card counts the sessions that need attention", () => {
     const {
       passOnePace,
       show,
+      board,
       card,
-      expectCounted,
       expectNothingStarted,
       shows,
       becomes,
@@ -93,6 +93,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       columnsJourney,
       openDoughSessions,
     );
+    const expectCounted = attentionCountsOn(board, card);
     await expectCounted({});
     const facts = await publishedFactsOf(card(readyStory));
     await markNotReloaded(page);
@@ -165,7 +166,6 @@ test.describe("a story's card counts the sessions that need attention", () => {
       taken,
       card,
       entryOf,
-      expectCounted,
       expectOpen,
       expectNothingStarted,
       shows,
@@ -174,6 +174,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
       ...openDoughSessions,
       doughnutSession,
     ]);
+    const expectCounted = attentionCountsOn(board, card);
     await expectCounted({});
     // The states the Backlog and Preparing journey leaves: the not-refined
     // story's session is ready for review and the Refinement is unavailable.
