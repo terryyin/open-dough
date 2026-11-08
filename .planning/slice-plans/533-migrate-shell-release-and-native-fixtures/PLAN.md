@@ -176,7 +176,14 @@ release types in `tests/support/releaseTestData.mjs`. A stated `withheld` or
 `removed` is not yet applied (G1, G2). Trunk's `commitDeclaredRevision`
 export (from the dashboard-origin story) changed `repository-fixture.mjs`
 after this branch started; merge it into `repository-history.mjs` before
-slice 2.
+slice 2. (Merged at `3bcdfdc55`.)
+
+CI repair (run 42486448305, `dashboard (5/12)`, on `3bcdfdc55`):
+`agent-launch-start-session-recovery.spec.ts:172` met an ownerless
+session-store lock left by a server that exited between the lock's `mkdir`
+and its owner record. The process now removes locks it holds at exit
+(`dashboard/server/machineJsonLock.ts`), proved by the start-store spec's
+ownerless-lock case, which failed with the CI error before the fix.
 
 ### 2. Upgrade checks state their older and newer releases
 
