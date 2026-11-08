@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "steven-chan",
-  "email": "steven-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-262#reuse-immutable-git-histories",
-  "host": "codex",
-  "model": "gpt-6.1-sol"
-}

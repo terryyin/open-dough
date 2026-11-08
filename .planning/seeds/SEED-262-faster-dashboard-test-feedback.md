@@ -508,28 +508,63 @@ regress beyond run-to-run noise.
 
 **Identity:** SEED-262#reuse-immutable-git-histories
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/535-reuse-story-columns-git-history/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"31827b90916904e7b13e06db6bcbc4f29d09ea9d2390dfc43ee52ae88ea10031","plan":"13209d29934e2ea3ae1e31e2e70711019fcc915381442e0cd0646c8699f791c3"}}
 ```
 
-**Goal.** A developer gets faster test feedback when equivalent repository
-requests can reuse immutable Git data behind the same MakeMe setup.
+#### Goal
 
-**Scope.** Use the [migrated Git fixtures](../../tests/support/repository-fixture.mjs)
-to find recurring repository shapes and reusable immutable parts, such
-as trees or commit histories. The attention spec's original workers each
-spent about 3s preparing the same history. Measure which reuse is worthwhile
-with the new builder. Keep reuse inside the shared materializer. Each
-test gets its own mutable refs, config, index, and working state.
+Developers running dashboard checks get a result sooner when workers can
+reuse equivalent Git history from the same MakeMe setup. The attention journey
+and the other consumers of its story-columns history are the first place to
+prove the gain. Keep the real Git and dashboard observations each case uses.
+[Original profile and migration baseline](../TEST-OPTIMIZATION-CANDIDATES.md#card-attention-launch-and-origin-setup)
 
-**Evaluation.** Compare the same selections before and after with cold and
-warm setup and parallel workers. Show lower elapsed time and equivalent
-file contents, refs, ancestry, and test verdicts. A test that advances or
-mutates its repository leaves a concurrent test's repository independent.
-[Existing template reuse](../../tests/support/repository-fixture.mjs)
-Starting dashboard measurement, 2026-11-08 at `f78f3e0e6` with two workers
-under load 3.9–5.8: `agent-launch-start-refusal.spec.ts` 4 s (3 cases); the
-specs using the `startOriginTest` origin fixture 45–46 s (22 cases); the
-standalone readiness and admission specs (`story-readiness`,
-`story-readiness-gaps`, `story-readiness-accessible`, `preparation-legend`,
-`frame-board-look`, `project-keyboard-navigation-eligibility`,
-`taken-admitted-investigation`) 20 s (16 cases).
+#### Scope
+
+- Reuse the common queued, preparing, and taken history of the
+  [story-columns fixture](../../dashboard/tests/launchJourney.ts) within one
+  dashboard run. Its completion revision can differ by worker. Preserve the
+  exact declared bytes, branch and checkout identities, authorship, ancestry,
+  and named revision results. Keep reuse and the private copy inside the
+  [shared materializer](../../tests/support/repository-fixture.mjs), with each
+  returned fixture owning its mutable origin, refs, config, index, and working
+  state. The ordinary per-process path covers requests without a suitable
+  shared prefix.
+- Compare the same attention and second-consumer selections before and after.
+  Record cold build, warm reuse, and two-worker elapsed time alongside the
+  executed cases and verdicts. Lower construction time must translate to
+  faster test feedback on the affected selection. Both workers can still
+  wait for one cold build, so count the wait and the copies in that comparison.
+- Defer reuse across runs and additional families until these measurements
+  justify their cost. The installed StartOrigin fixture already shares its
+  default and queued origins through the run owner. Use its existing
+  measurements and the readiness family's as comparison context.
+
+#### Key examples
+
+1. Two workers request the same first three revisions and different
+   completion timestamps. Each builds its fixture through MakeMe. The common
+   history is built once, and each origin answers its own completion record
+   with the right ancestry, refs, and file contents.
+2. Two requests materialize from the same prefix. One advances its branch,
+   changes its local config and index, or is removed. The peer and a later
+   request still read their own pristine state. Removing the shared source
+   after materialization leaves both returned copies usable.
+3. A request has different declared facts or runs without the dashboard
+   owner. The materializer builds the requested history through its existing
+   local route. If registered preparation fails mid-build, its callers get
+   the setup failure, and a fresh run can build the history again.
+
+#### Architecture
+
+The dashboard run owns the lifetime of a completed snapshot through its
+[artifact owner](../../dashboard/tests/support/runArtifacts.ts). The
+materializer owns deciding whether the prefix matches and copying it before
+applying a caller's suffix. This borrows the immutable-base idea from
+container image layers. The Git copy has to remain usable after the shared
+base disappears, so Git alternates and writable hardlinks are unsuitable.
+Direct MakeMe domain facts and deterministic isolated proof follow
+[ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+and [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
+The timing comparison and cost of the shared machinery follow
+[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
