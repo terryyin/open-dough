@@ -7,10 +7,11 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import "./workspace-publication-admission-conflict-cases.mjs";
 import { git, lsRemoteSha } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
@@ -25,7 +26,7 @@ import { startExecution } from "./execution-start.mjs";
 import { renderDoneRecord } from "../../dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 test("refused admissions write nothing and keep every draft", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const seedPath = ".planning/seeds/A.md";
   const identity = "SEED-A#n";

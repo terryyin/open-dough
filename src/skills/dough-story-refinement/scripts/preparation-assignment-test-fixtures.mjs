@@ -6,10 +6,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  agentIdentity,
-  renderAgentProfile,
-} from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentIdentity } from "../../dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   exec,
   git,
@@ -76,21 +73,6 @@ export async function createPreparationTrunk(options = {}) {
   await git(integration, "commit", "--quiet", "-m", "queue story C");
   await git(integration, "push", "--quiet", "origin", "main");
   return { ...trunk, trunkSha: await revParse(integration, "HEAD") };
-}
-
-// Another developer's assignment, already published on remote trunk:
-// `profile` holds the facts renderAgentProfile takes, as MakeMe builds them.
-export async function publishAssignment(trunk, profile) {
-  const { integration } = trunk;
-  const { name } = profile;
-  mkdirSync(join(integration, ".planning/agents"), { recursive: true });
-  writeFileSync(
-    join(integration, profileOf(name)),
-    renderAgentProfile(profile),
-  );
-  await git(integration, "add", profileOf(name));
-  await git(integration, "commit", "--quiet", "-m", `assign ${name}`);
-  await git(integration, "push", "--quiet", "origin", "HEAD:main");
 }
 
 // The owned preparation workspace, created from the verified trunk revision

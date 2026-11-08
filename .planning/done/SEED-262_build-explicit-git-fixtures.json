@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-262#build-explicit-git-fixtures",
+  "title": "Build each test’s Git repository from explicit MakeMe data",
+  "completedAt": "2026-11-08T07:36:52.017Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol",
+  "intentCoverage": {
+    "report": "**Caught.** SEED-262#build-explicit-git-fixtures, example 5, promises that the repository materializer publishes literal malformed backlog bytes verbatim. Selected revision `ae08d5c4c799cd2771ea5dbc6976ab77bda1b297`.\n\nIn an isolated scratch checkout, I changed `writeFixtureFile` in `tests/support/repository-revision-files.mjs:34` to convert CRLF to LF in string content before writing. The existing test `startup refuses a malformed published backlog and can claim once trunk repairs it` declares the CRLF backlog in the `malformed` revision. Its strict equality assertion in `src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs:187` reads the blob from the bare origin. The mutated run reached that assertion and failed with LF in the actual blob and CRLF in the expected literal.\n\nThe same focused command, `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh src/skills/dough-execute-plan/scripts/workspace-publication-race.test.mjs`, passed on baseline, failed on the mutation with exit 1, and passed after restoration. The restored file matched the original bytes and the scratch Git status matched its initial clean state before and after the final run. The scratch worktree was removed.\n\n- **Test runtime.** 3.1 s baseline, 2.0 s mutated, and 3.0 s restored, measured by the repository runner for the selected test file.\n- **Human effort.** Unavailable. No separate human time measurement was recorded.\n- **Agent effort.** Unavailable. No separate active-effort measure was recorded.\n\n\n- **Invocation-to-report elapsed.** Unavailable. The invocation start was missing, invalid, or later than the report end clock.\n"
+  }
+}

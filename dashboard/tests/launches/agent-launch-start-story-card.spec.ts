@@ -1,5 +1,5 @@
-// What the page says an execution's Start now does, on a committed origin the
-// production commands published (../launchJourney.ts): the execution dialog
+// What the page says an execution's Start now does, on the committed origin
+// from ../launchJourney.ts: the execution dialog
 // says Start also publishes the story's Take to the project's trunk on origin
 // and creates a workspace under `.worktrees/`, the card reads "Preparing
 // execution…" while the request is pending and shows nothing as Taken until

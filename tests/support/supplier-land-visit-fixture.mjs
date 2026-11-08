@@ -14,14 +14,15 @@ import {
   revParse,
   supplier,
   supplierPlan,
+  supplierPlanningRevision,
+  third,
   updateDependency,
 } from "./supplier-dependency-fixture.mjs";
-import {
-  commitSupplierCleanup,
-  third,
-} from "./supplier-closure-visit-fixture.mjs";
+import { commitSupplierCleanup } from "./supplier-closure-visit-fixture.mjs";
+import { queuedReadyRepository } from "./queued-repository.mjs";
+import { materializeRepository } from "./repository-fixture.mjs";
+import { writeRevisionFiles } from "./repository-revision-files.mjs";
 import { cloneAsAnotherWriter } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { createQueuedTrunk } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { projectOf } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-dependency-fixtures.mjs";
 import { draftLateStory } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
 import { checkQueuedClosures } from "../../src/skills/dough-land/scripts/queued-closure-check.mjs";
@@ -33,14 +34,12 @@ export const branch = "land/supplier";
 // preserved proof and cleanup unpublished while trunk gains SEED-A#late
 // waiting on B.
 export async function racedLanding(t) {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(
+    queuedReadyRepository({ queued: [consumer, supplier] }).please(),
+  );
   t.after(trunk.cleanup);
   const project = projectOf(trunk);
-  writeFileSync(
-    join(trunk.integration, ".planning", third.href),
-    "# Third\n**Identity:** THIRD\n",
-  );
-  writeFileSync(join(trunk.integration, supplierPlan), plan("planned"));
+  writeRevisionFiles(trunk.integration, supplierPlanningRevision("planned"));
   for (const entry of [
     makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
     makeMe.aSupplierAgreement

@@ -10,13 +10,16 @@ import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import {
   backlogFile,
-  createPreparationTrunk,
   createWorkspace,
   git,
   identityC,
   lsRemoteSha,
-  publishAssignment,
   read,
   refineStoryC,
   remoteFile,
@@ -44,7 +47,9 @@ import { makeMe } from "../../../../tests/support/makeMe.mjs";
 useInstalledPayload();
 
 test("one-shot refinement of an unrefined queued story establishes its workspace without publishing, and its refined facts wait committed for review", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const refs = await originRefs(trunk);
   const queue = await remoteFile(trunk, "main", backlogFile);
@@ -121,7 +126,9 @@ test("one-shot refinement of an unrefined queued story establishes its workspace
 });
 
 test("one-shot refinement accepts recorded not-ready preparation and repairs it without inventing readiness", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const notReady = await publishNotReady(trunk, "key examples are unresolved");
   assert.equal(
@@ -167,7 +174,9 @@ test("one-shot refinement accepts recorded not-ready preparation and repairs it 
 });
 
 test("a competing holder or automatic landing without publication authority refuses one-shot refinement before any workspace exists", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const workspace = join(trunk.fixture, "prep-refused");
 
@@ -178,30 +187,45 @@ test("a competing holder or automatic landing without publication authority refu
   assert.equal(refused.receipt.status, "authority-required");
   assert.match(refused.receipt.error, /trunk publication authority/);
 
-  await publishAssignment(
-    trunk,
-    makeMe.anAgentProfile
-      .preparing({ name: "Yui", identity: identityC })
+  const heldTrunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC)
+      .withRevision("assign-yui", {
+        message: "assign Yui",
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .preparing({ name: "Yui", identity: identityC })
+            .please(),
+        ],
+      })
       .please(),
   );
-  const refs = await originRefs(trunk);
-  const { code, receipt } = await oneShot(trunk, workspace, "prep/refused");
+  t.after(heldTrunk.cleanup);
+  const heldWorkspace = join(heldTrunk.fixture, "prep-refused");
+  const refs = await originRefs(heldTrunk);
+  const { code, receipt } = await oneShot(
+    heldTrunk,
+    heldWorkspace,
+    "prep/refused",
+  );
   assert.equal(code, 1, JSON.stringify(receipt));
   assert.equal(receipt.status, "source-refused");
   assert.match(
     receipt.error,
     /held on fetched trunk by Yui-chan for preparation/,
   );
-  assert.equal(existsSync(workspace), false);
+  assert.equal(existsSync(heldWorkspace), false);
   assert.equal(
-    (await git(trunk.integration, "branch", "--list", "prep/refused")).stdout,
+    (await git(heldTrunk.integration, "branch", "--list", "prep/refused"))
+      .stdout,
     "",
   );
-  assert.equal(await originRefs(trunk), refs);
+  assert.equal(await originRefs(heldTrunk), refs);
 });
 
 test("an established assigned preparation keeps its assignment: one-shot is refused in its workspace and the assigned start continues", async (t) => {
-  const trunk = await createPreparationTrunk();
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(trunk.cleanup);
   const { workspace } = await createWorkspace(trunk, "c");
   await configureDeveloper(trunk.integration);

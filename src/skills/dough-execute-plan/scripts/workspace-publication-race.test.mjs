@@ -2,14 +2,16 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import { commitWorkspaceClaim } from "./workspace-publication-claim.mjs";
 import { selectOwnedWorkspace } from "./workspace-publication-select.mjs";
 import { publishClaimSha } from "./workspace-publication-push.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   identityB,
+  startCliResult,
   storyA,
   storyB,
 } from "./workspace-publication-fixtures.mjs";
@@ -44,7 +46,7 @@ async function claimPair(trunk) {
 }
 
 test("concurrent claims for distinct identities both remain published, and the replayed agent Take keeps one developer credit", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   await configureDeveloper(trunk.integration);
   const { workspaceB, selectedA, selectedB } = await claimPair(trunk);
@@ -114,7 +116,7 @@ test("concurrent claims for distinct identities both remain published, and the r
 });
 
 test("competing claims for one identity keep one owner and a recoverable conflict", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const { workspaceA, workspaceB, selectedA, selectedB } =
     await claimPair(trunk);
@@ -171,4 +173,47 @@ test("competing claims for one identity keep one owner and a recoverable conflic
     await lsRemoteSha(trunk.origin, "refs/heads/main"),
     publishedA.publishedSha,
   );
+});
+
+test("startup refuses a malformed published backlog and can claim once trunk repairs it", async (t) => {
+  const backlog = ".planning/PRODUCT-BACKLOG.md";
+  const malformed = "# Product backlog\r\n\r\n## Taken\r\n";
+  const trunk = await materializeRepository(
+    queuedReadyRepository()
+      .withRevision("malformed", { files: { [backlog]: malformed } })
+      .please(),
+  );
+  t.after(trunk.cleanup);
+  assert.equal(
+    (await git(trunk.origin, "show", `${trunk.revisions.malformed}:${backlog}`))
+      .stdout,
+    malformed,
+  );
+
+  const refused = await startCliResult(trunk, "trunk");
+  assert.equal(refused.code, 1, JSON.stringify(refused.receipt));
+  assert.match(refused.receipt.error, /Expected exactly one "## Backlog list"/);
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    trunk.trunkSha,
+  );
+
+  await git(
+    trunk.integration,
+    "restore",
+    "--source",
+    trunk.revisions.base,
+    "--",
+    backlog,
+  );
+  await git(trunk.integration, "commit", "-am", "Repair the published backlog");
+  await git(trunk.integration, "push", "origin", "main");
+  const recovered = await startCliResult(trunk, "trunk");
+  assert.equal(recovered.code, 0, JSON.stringify(recovered.receipt));
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    recovered.receipt.publishedSha,
+  );
+  const published = await git(trunk.origin, "show", `main:${backlog}`);
+  assert.deepEqual(takenIdentities(published.stdout), [identityA]);
 });

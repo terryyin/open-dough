@@ -28,147 +28,13 @@ and [definition of improvement](../../docs/adrs/0010-definition-of-improvement-a
 
 ## Story decomposition
 
-<a id="build-explicit-git-fixtures"></a>
-
-### Build each test’s Git repository from explicit MakeMe data
-
-**Identity:** SEED-262#build-explicit-git-fixtures
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-262#build-explicit-git-fixtures","dependencies":[{"supplier":{"identity":"SEED-261#share-published-agent-profile-builders","href":"seeds/SEED-261-share-domain-test-data.md#share-published-agent-profile-builders"},"implementation":"The pilot creates the one shared MakeMe entry point, tests/support/makeMe.mjs, with anAgentProfile, and types it into the dashboard type-check.","rationale":"The repository description extends that entry point and composes anAgentProfile for every announcement and Take revision. The pilot is Taken and building it now. A second entry point or profile builder created here would duplicate and conflict with that work, and the test data architecture allows only one.","condition":"tests/support/makeMe.mjs with makeMe.anAgentProfile is published on trunk.","state":"satisfied","resolution":{"revision":"b37463488d5cb9640785e56e5f3aebb9483ade33","path":".planning/seeds/SEED-261-share-domain-test-data.md#share-published-agent-profile-builders","summary":"The MakeMe pilot landed at 327b56af4 with the shared tests/support/makeMe.mjs entry point and its anAgentProfile builder. Completed plan 505 records passing skill and dashboard consumers and dashboard type-check. A direct import on current trunk also builds the expected preparation profile. This consumer recorded its dependency in 83b544a81, after the supplier visit resolved the agreements present at landing.\nCondition satisfied: tests/support/makeMe.mjs with makeMe.anAgentProfile is published on trunk.\nAccepted integration: 327b56af4c0505668567087175e7bef9634cb871 on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/510-build-explicit-git-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4cec5bc56af4bd81fa6d038a85a36a5aaf5b8c77e018d7b4df153e7ac6fc47c9","plan":"a807c5a793569242ce1aa71a13d925a9dc2f7c8cddddfe32245c6f9ff6312f1e"}}
-```
-
-#### Goal
-
-A maintainer reading a test that needs a real Git repository can see, at its
-call site, which repository facts drive the case. These facts are its stories,
-published records, ordered revisions and the commit facts the product reads. A
-test that declares nothing gets a minimal valid project repository. This story
-introduces the shared repository builder and real-Git materializer and
-migrates the queued-trunk family that dashboard and skill tests share. The
-other fixture hubs follow in their own stories. Its fixture and run times
-become the baseline for
-[faster Git fixture construction](#reuse-immutable-git-histories).
-
-#### Scope
-
-- Extend the shared MakeMe entry point with a repository description. A
-  description holds ordered named trunk revisions. Each revision states its
-  published facts, composed from the canonical builders and production
-  encoders: backlog entries and membership, seeds and story state, agent
-  profiles, done records and their catalog. It also states the commit facts
-  the product reads: the agent as author and the developer as committer.
-  `.please()` returns plain data and touches no Git.
-- Add one shared materializer in the test harness. It turns a description
-  into a real bare origin, with checkouts when the case needs them, and
-  returns each named revision's commit and a cleanup. Git, directories and
-  teardown stay in the harness under the
-  [test data architecture](../../tests/README.md#test-data-architecture).
-- Migrate the queued-trunk family, starting with the attention spec's
-  story-columns history. The family is `createQueuedTrunk`,
-  `createPreparationTrunk`, the startup, admission and one-shot sibling
-  fixtures, the supplier-dependency fixture, the dashboard `launchJourney`,
-  and every non-native test that arranges a repository through them. Each
-  helper delegates to the shared path or is removed when superseded. The
-  per-process reuse of an identical starting repository moves behind the
-  materializer instead of being dropped, so feedback does not slow down before
-  the reuse story.
-- Arrange a transition directly when the test does not prove it, instead of
-  replaying start, take or complete. The command a test proves still runs for
-  real on the materialized repository. Push races, rejected publications,
-  merges and ancestry walks stay as Git operations in the test.
-- Exact malformed or legacy input under proof stays literal at the call
-  site. The description carries it verbatim as file bytes.
-- Boundary assumption: execution starts after
-  [the published agent profile pilot](SEED-261-share-domain-test-data.md#share-published-agent-profile-builders)
-  lands. That pilot creates `tests/support/makeMe.mjs` and `anAgentProfile`.
-- Scope limits: native scenario fixtures keep their current setup, including
-  the native startup fixture's call to `createQueuedTrunk`, and move with
-  [shell release and native fixtures](#migrate-shell-release-and-native-fixtures).
-  Fixture reuse and caching belong to
-  [faster Git fixture construction](#reuse-immutable-git-histories). Other
-  hubs belong to their sibling stories.
-
-#### Key examples
-
-1. **Default repository.** A test asks for `makeMe.aRepository.please()`
-   with no facts. It gets a bare origin whose `main` has one commit and an
-   empty but valid product backlog. The backlog CLI reads it without error.
-2. **Attention journey.** The spec declares Stories A and B Ready, and
-   Story C queued last and not refined. It then declares three named
-   revisions: Yui-chan announces preparation of B, Akiho-chan takes B, and C
-   is completed. Today's command replay changes only the Yui-chan profile;
-   then the backlog and the Akiho-chan profile; then the backlog, the done
-   record and the catalog. Each agent commit is authored by the agent and
-   committed by the developer the card credits. The materialized origin has
-   the same published files, authors and committers at each named revision.
-   No production command runs during setup, and the spec's assertions are
-   unchanged.
-3. **Command under proof.** The announce test declares a rival Yui-chan
-   execution profile on trunk and runs the real `start`. The start still
-   announces the next free name, and the trunk file has
-   `renderAgentProfile`'s bytes.
-4. **Git under proof.** A workspace-publication race test gets its starting
-   trunk from the builder. The competing push and the rejection it asserts
-   stay in the test.
-5. **Literal input.** A case that proves recovery from a malformed backlog
-   declares those exact bytes as a file in the description. The materializer
-   writes them verbatim.
-6. **Superseded setup removed.** After migration, no non-native consumer in
-   the family calls a superseded helper or keeps its own `git init` for this
-   setup. Only the four native scenario fixtures still call
-   `createQueuedTrunk` or `createPreparationTrunk`, until
-   [their own story](#migrate-shell-release-and-native-fixtures) moves them.
-
-#### Evaluation
-
-The migrated tests keep their verdicts and assertions. A reviewer can name
-each case's driving repository facts from its call site. Record the
-attention spec's fixture time and focused run time under the same conditions
-before and after, and do the same for one migrated skill selection. These
-times are the baseline for the reuse story.
-
-#### Architecture
-
-- **Description and materializer are separate.** MakeMe owns the domain
-  description and the harness owns Git
-  ([test data architecture](../../tests/README.md#test-data-architecture)).
-  The other hub stories extend the same description, and the reuse story
-  caches behind the same materializer.
-- **Production encoders produce the bytes.** Revision content is written
-  through `renderBacklog`, `renderAgentProfile`, `recordStoryState`,
-  `renderDoneRecord` and the done-catalog derivation. The test model maps
-  directly to the product model
-  ([ADR 0002 §5](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)).
-- **Real Git owns relationships.** The published repository at a revision
-  stays the authority the dashboard reads
-  ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)).
-  Commit IDs and ancestry come from Git. The dashboard credits the
-  committer and reads committer time for performed work. A case that
-  depends on author, committer or time declares it. Otherwise the
-  committer is a fixed developer identity and the time is Git's ordinary
-  current time.
-- **Command proof stays with commands.** Setup no longer replays start, take
-  or complete, so the encoders and the command tests own the proof of what
-  those commands publish.
-- **Native evidence is unchanged.** Native scenario fixtures are untouched
-  here, so their evidence identities do not change and this story needs no
-  paid run ([native family layers](../../tests/native-family-layers.md)).
-- **Published work facts.** These Git fixture stories own repository
-  construction. Compose the existing published-work facts through
-  [MakeMe](../../tests/support/makeMe.mjs) when describing those repositories.
-
-[Inventory and profiling evidence](../TEST-OPTIMIZATION-CANDIDATES.md#card-attention-launch-and-origin-setup)
-
 <a id="migrate-dashboard-origin-fixtures"></a>
 
 ### Build dashboard test repositories from explicit MakeMe data
 
 **Identity:** SEED-262#migrate-dashboard-origin-fixtures
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-262#migrate-dashboard-origin-fixtures","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story passes makeMe.aRepository descriptions to startOrigin, its publishers, and the standalone readiness and admission fixtures, and materializes them through the shared harness materializer with its per-process reuse.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and checkout with per-process reuse, are published on trunk.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-262#migrate-dashboard-origin-fixtures","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story passes makeMe.aRepository descriptions to startOrigin, its publishers, and the standalone readiness and admission fixtures, and materializes them through the shared harness materializer with its per-process reuse.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and checkout with per-process reuse, are published on trunk.","state":"satisfied","resolution":{"revision":"0eb86657bd2ea248d278f880bb095d91c6427cdc","path":".planning/seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures","summary":"The accepted tree exports makeMe.aRepository and its ordered named revisions. The shared materializer creates a bare origin and checkout, returns each named commit and reuses identical descriptions per process while giving each caller an independent mutable copy. The default repository and copy-isolation checks passed from the accepted checkout.\nCondition satisfied: makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and checkout with per-process reuse, are published on trunk.\nAccepted integration: d2c6bf36856289b40c9f665ee6f8f813676ab314 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"46f4016395c3839bb38ac5b72f3bf632ea7ed4e036a517bf1b7d37be45362b97","plan":"6b28b9f625632be28def6a8bd7d84784ddabab0c5f38cb04122a55cc41d8d2ab"}}
@@ -182,7 +48,7 @@ Today every start origin silently holds Stories A and B queued, refined,
 planned and Ready. About 200 dashboard files name Story A or its identity,
 but those facts live only in `queuedStories.ts`. Start origins, their
 publishers, and the standalone readiness and admission fixtures state their
-starting facts through [the shared repository description](#build-explicit-git-fixtures).
+starting facts through [the shared repository description](../../tests/support/repository-fixture.mjs).
 Dashboard feedback must not get slower.
 
 #### Scope
@@ -191,7 +57,7 @@ Dashboard feedback must not get slower.
   the description's default: one commit with an empty valid backlog and the
   installed skills. Every call site and origin fixture that relies on the
   queued stories passes the shared description of two Ready queued stories
-  that [the shared repository builder](#build-explicit-git-fixtures) provides
+  that [the shared repository builder](../../tests/support/repository-fixture.mjs) provides
   for the skill tests, not a dashboard copy. A Playwright fixture states its
   description in its fixture file, and a spec that needs other facts
   overrides it with `test.use`. On 2026-11-08, 49 files called `startOrigin`,
@@ -231,7 +97,7 @@ Dashboard feedback must not get slower.
   [shell release and native fixtures](#migrate-shell-release-and-native-fixtures)
   migrate.
 - Boundary assumption: execution starts after
-  [the shared repository builder](#build-explicit-git-fixtures) lands
+  [the shared repository builder](../../tests/support/repository-fixture.mjs) lands
   `makeMe.aRepository` and its materializer on trunk. This story extends that
   description and materializer rather than adding a second one.
 - Scope limits: clean-trunk, Node and shell fixtures belong to their sibling
@@ -281,7 +147,7 @@ run-to-run noise.
 #### Architecture
 
 - **One description, one materializer.** This story extends the
-  [repository description and materializer](#build-explicit-git-fixtures)
+  [repository description and materializer](../../tests/support/repository-fixture.mjs)
   and adds no dashboard-specific copy. MakeMe owns stories and records; the
   harness owns Git, installation and teardown
   ([test data architecture](../../tests/README.md#test-data-architecture)).
@@ -306,7 +172,7 @@ run-to-run noise.
 
 **Identity:** SEED-262#migrate-clean-trunk-fixtures
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-262#migrate-clean-trunk-fixtures","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story adds an unpublished workspace suffix to makeMe.aRepository and its shared materializer, then routes the clean-trunk family and the other skill root builders through them.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and integration checkout with per-process reuse, are published on trunk.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-262#migrate-clean-trunk-fixtures","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story adds an unpublished workspace suffix to makeMe.aRepository and its shared materializer, then routes the clean-trunk family and the other skill root builders through them.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and integration checkout with per-process reuse, are published on trunk.","state":"satisfied","resolution":{"revision":"0eb86657bd2ea248d278f880bb095d91c6427cdc","path":".planning/seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures","summary":"The accepted tree exports makeMe.aRepository and its ordered named revisions. The shared materializer creates a bare origin and checkout, returns each named commit and reuses identical descriptions per process while giving each caller an independent mutable copy. The default repository and copy-isolation checks passed from the accepted checkout.\nCondition satisfied: makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and integration checkout with per-process reuse, are published on trunk.\nAccepted integration: d2c6bf36856289b40c9f665ee6f8f813676ab314 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d941e07d8a61ca14f69d45eeb41e5499438755856c47dcd21d14f4ebd1bff7c8","plan":"e3ad10bca57813a90b58e3f2ec01b22b06699ff92b719a0b6153527d0ca6470a"}}
@@ -324,7 +190,7 @@ publishes, and the commit identities the product reads. Today
 about 70 test files built on it through the managed delivery, trunk closure
 and closure Git fixtures. About ten other skill fixture modules and six test
 files each made their own repository with `git init`. This story moves them
-onto [the shared repository description](#build-explicit-git-fixtures). Skill
+onto [the shared repository description](../../tests/support/repository-fixture.mjs). Skill
 test feedback must not get slower.
 
 #### Scope
@@ -367,11 +233,11 @@ test feedback must not get slower.
   `advanceOriginFromAnotherWriter`. Those two keep their behavior for that
   caller.
 - Boundary assumption: execution starts after
-  [the shared repository builder](#build-explicit-git-fixtures) lands
+  [the shared repository builder](../../tests/support/repository-fixture.mjs) lands
   `makeMe.aRepository` and its materializer on trunk. This story extends
   that description and materializer rather than adding a second one.
 - Scope limits: queued and preparation trunks belong to
-  [the shared repository builder](#build-explicit-git-fixtures). These
+  [the shared repository builder](../../tests/support/repository-fixture.mjs). These
   include the supplier visit fixtures' queued trunk and the one-shot
   refinement trunks. The one-shot payload installation is a harness layer
   and stays. Dashboard start origins, Node backlog repositories and shell or
@@ -417,7 +283,7 @@ run-to-run noise.
 #### Architecture
 
 - **One description, one materializer.** The workspace suffix extends
-  [the repository description and materializer](#build-explicit-git-fixtures).
+  [the repository description and materializer](../../tests/support/repository-fixture.mjs).
   No publication-specific copy is added. MakeMe owns the facts, and the
   harness owns Git, worktrees, installation and teardown
   ([test data architecture](../../tests/README.md#test-data-architecture)).
@@ -441,7 +307,7 @@ run-to-run noise.
 
 **Identity:** SEED-262#migrate-backlog-scratch-repositories
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-262#migrate-backlog-scratch-repositories","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story describes the backlog Git, done, identity evidence, lint-runner, local-suite and later-trunk starting repositories with makeMe.aRepository, and extends the shared materializer with a local checkout without an origin and a declared configured developer.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into real Git with per-process reuse, are published on trunk.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-262#migrate-backlog-scratch-repositories","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story describes the backlog Git, done, identity evidence, lint-runner, local-suite and later-trunk starting repositories with makeMe.aRepository, and extends the shared materializer with a local checkout without an origin and a declared configured developer.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into real Git with per-process reuse, are published on trunk.","state":"satisfied","resolution":{"revision":"0eb86657bd2ea248d278f880bb095d91c6427cdc","path":".planning/seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures","summary":"The accepted tree exports makeMe.aRepository and its ordered named revisions. The shared materializer creates a bare origin and checkout, returns each named commit and reuses identical descriptions per process while giving each caller an independent mutable copy. The default repository and copy-isolation checks passed from the accepted checkout.\nCondition satisfied: makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into real Git with per-process reuse, are published on trunk.\nAccepted integration: d2c6bf36856289b40c9f665ee6f8f813676ab314 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/524-migrate-backlog-scratch-repositories/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"beccf6868649f138a6c38d7168f18af89739d9c18d680b664a79935b87a7ddd9","plan":"409b014c7c1b834331a9d21fcdf6a2c2ecf9df87402836ce4bcedfb784971700"}}
@@ -459,7 +325,7 @@ tests assert that name although only the fixture states it. Setup helpers that r
 the real `complete` or `take` are called 33 times, to arrange done records
 and profiles for cases whose subject is a merge, rebase or cherry-pick.
 This story moves these repositories onto
-[the shared repository description](#build-explicit-git-fixtures). Node test
+[the shared repository description](../../tests/support/repository-fixture.mjs). Node test
 feedback must not get slower.
 
 #### Scope
@@ -494,7 +360,7 @@ feedback must not get slower.
   lint or suite case checks are declared files with their exact bytes.
 - Remove a superseded helper or root builder once no consumer needs it.
 - Boundary assumption: execution starts after
-  [the shared repository builder](#build-explicit-git-fixtures) lands
+  [the shared repository builder](../../tests/support/repository-fixture.mjs) lands
   `makeMe.aRepository` and its materializer on trunk. This story extends that
   description and materializer rather than adding a second one.
 - Scope limits: skill tests under `src/skills`, dashboard helpers and shell
@@ -543,7 +409,7 @@ lint-runner family. They must not regress beyond run-to-run noise.
 #### Architecture
 
 - **One description, one materializer.** This story extends
-  [the repository description and materializer](#build-explicit-git-fixtures)
+  [the repository description and materializer](../../tests/support/repository-fixture.mjs)
   and adds no Node-specific copy. MakeMe owns the facts and the harness owns
   Git, tooling copies and teardown
   ([test data architecture](../../tests/README.md#test-data-architecture)).
@@ -579,7 +445,7 @@ lint-runner family. They must not regress beyond run-to-run noise.
 **Goal.** A maintainer reading a shell install, update or native check can see
 which release and repository facts the check arranges.
 
-**Scope.** Use [the shared repository builder](#build-explicit-git-fixtures)
+**Scope.** Use [the shared repository builder](../../tests/support/repository-fixture.mjs)
 through a small Node helper for `release-fixture.bash`, the native Git fixtures
 and inline shell setup, including the native startup fixture's queued trunk.
 Remove the remaining `createQueuedTrunk` path. Native evidence identities will
@@ -598,7 +464,7 @@ manual-only.
 **Goal.** A developer gets faster test feedback when equivalent repository
 requests can reuse immutable Git data behind the same MakeMe setup.
 
-**Scope.** Use the [migrated Git fixtures](#build-explicit-git-fixtures)
+**Scope.** Use the [migrated Git fixtures](../../tests/support/repository-fixture.mjs)
 to find recurring repository shapes and reusable immutable parts, such
 as trees or commit histories. The attention spec's original workers each
 spent about 3s preparing the same history. Measure which reuse is worthwhile
@@ -609,4 +475,4 @@ test gets its own mutable refs, config, index, and working state.
 warm setup and parallel workers. Show lower elapsed time and equivalent
 file contents, refs, ancestry, and test verdicts. A test that advances or
 mutates its repository leaves a concurrent test's repository independent.
-[Existing template reuse](../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs#L132)
+[Existing template reuse](../../tests/support/repository-fixture.mjs)

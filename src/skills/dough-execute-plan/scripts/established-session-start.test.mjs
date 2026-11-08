@@ -12,6 +12,8 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   occupyDefaultCheckout,
   snapshot,
@@ -30,17 +32,14 @@ import {
   withFacts,
   writeDraft,
 } from "./workspace-publication-admission-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  startCliResult,
-} from "./workspace-publication-fixtures.mjs";
+import { startCliResult } from "./workspace-publication-fixtures.mjs";
 
 const sessionBranch = "claude/session";
 
 // The session's isolated workspace, as its launch established it: an unlisted
 // one-shot start with no identity.
 async function establishedSession(t) {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const started = await startCliResult(trunk, "story-branch", ["--one-shot"], {
     identity: null,
@@ -220,7 +219,7 @@ test("a path inside the established workspace is still refused as its workspace"
 });
 
 test("a default-checkout session's one-shot start takes the default checkout as it is", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const checkout = trunk.integration;
   await occupyDefaultCheckout(checkout);

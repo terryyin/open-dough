@@ -7,10 +7,11 @@ import { execFile } from "node:child_process";
 import { join } from "node:path";
 import { test } from "node:test";
 import { promisify } from "node:util";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { rebaseInProgress } from "../../dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
+import { queuedRepositoryWithUnrefinedB2 } from "./one-shot-queued-repository.mjs";
 import {
   commitQueuedResult,
-  createSiblingTrunk,
   deliverQueued,
   identityB,
   queuedDelivery,
@@ -21,6 +22,7 @@ import {
   trunkTarget,
 } from "./one-shot-queued-test-fixtures.mjs";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
+import { configureDeveloper } from "./workspace-publication-startup-test-fixtures.mjs";
 
 const repo = "owner/project";
 
@@ -59,8 +61,9 @@ async function assertHeld(trunk, fixture, stopped, holderTip) {
 }
 
 test("a Take published after the start stops the guarded delivery", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const { started, fixture } = await startAndCommit(trunk);
   const take = await rivalTake(trunk);
 
@@ -75,8 +78,9 @@ test("a Take published after the start stops the guarded delivery", async (t) =>
 });
 
 test("a preparation announcement published after the start stops the guarded delivery", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const { started, fixture } = await startAndCommit(trunk);
   const announced = await rivalPreparation(trunk);
 
@@ -128,21 +132,24 @@ async function deliverRacingFirstPush(trunk, race) {
 }
 
 test("a preparation announcement landing only before the retry push stops before it", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   await deliverRacingFirstPush(trunk, rivalPreparation);
 });
 
 test("a Take landing only before the retry push stops before it", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   await deliverRacingFirstPush(trunk, rivalTake);
   assert.deepEqual((await remoteLists(trunk)).taken, [identityB]);
 });
 
 test("a Take landing after the retry's reconciliation is refused by the remote", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const { started, fixture } = await startAndCommit(trunk);
   let take;
 
@@ -176,8 +183,9 @@ test("a Take landing after the retry's reconciliation is refused by the remote",
 });
 
 test("resuming a guarded delivery refuses to push over a holder its candidate was reconciled onto", async (t) => {
-  const trunk = await createSiblingTrunk();
+  const trunk = await materializeRepository(queuedRepositoryWithUnrefinedB2());
   t.after(trunk.cleanup);
+  await configureDeveloper(trunk.integration);
   const { fixture } = await startAndCommit(trunk);
   const announced = await rivalPreparation(trunk);
   // Delivery was interrupted after reconciling onto the announcement.

@@ -9,6 +9,11 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { ownedWorktreeOnly } from "../../dough-execute-plan/scripts/default-checkout-test-fixtures.mjs";
 import {
   advanceOriginFromAnotherWriter,
@@ -19,7 +24,6 @@ import {
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
 import {
   abandonLostPreparation,
-  createPreparationTrunk,
   git,
   identityC,
   lsRemoteSha,
@@ -34,7 +38,9 @@ import {
 } from "./preparation-assignment-test-fixtures.mjs";
 
 test("an owned worktree without a default checkout announces preparation, continues its draft, and stages its release", async (t) => {
-  const created = await createPreparationTrunk();
+  const created = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(created.cleanup);
   const owned = await ownedWorktreeOnly(created, "prep-c", "prep/c");
   const trunk = { ...created, integration: null };
@@ -87,7 +93,9 @@ test("an owned worktree without a default checkout announces preparation, contin
 
 for (const context of ["workspace", "repository"])
   test(`the owned ${context === "workspace" ? "worktree" : "Git directory"} alone creates a new preparation workspace at fetched trunk and continues its draft`, async (t) => {
-    const created = await createPreparationTrunk();
+    const created = await materializeRepository(
+      queuedRepositoryWithRoughStory(roughStoryC).please(),
+    );
     t.after(created.cleanup);
     const owned = await ownedWorktreeOnly(created, "prep-kept", "prep/kept");
     const trunk = { ...created, integration: null };
@@ -141,7 +149,9 @@ for (const context of ["workspace", "repository"])
   });
 
 test("a clean owned worktree that trunk moved past is fast-forwarded, announced on the advanced tip, and continues its draft", async (t) => {
-  const created = await createPreparationTrunk();
+  const created = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(created.cleanup);
   const owned = await ownedWorktreeOnly(created, "prep-behind", "prep/behind");
   const trunk = { ...created, integration: null };
@@ -169,7 +179,9 @@ test("a clean owned worktree that trunk moved past is fast-forwarded, announced 
 });
 
 test("an owned worktree stopped mid-rebase is not announced from, and its rebase is preserved", async (t) => {
-  const created = await createPreparationTrunk();
+  const created = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC).please(),
+  );
   t.after(created.cleanup);
   const owned = await ownedWorktreeOnly(created, "prep-rebase", "prep/rebase");
   const trunk = { ...created, integration: null };

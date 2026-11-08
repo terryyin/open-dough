@@ -4,18 +4,21 @@
 // the consumer list.
 import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
-import { cpSync, rmSync, writeFileSync } from "node:fs";
+import { rmSync } from "node:fs";
 import { join } from "node:path";
 import {
   consumer,
   git,
-  plan,
   revParse,
   run,
   supplier,
   supplierPlan,
+  supplierPlanningRevision,
+  third,
   updateDependency,
 } from "./supplier-dependency-fixture.mjs";
+import { queuedReadyPlanning } from "./queued-repository.mjs";
+import { writeRevisionFiles } from "./repository-revision-files.mjs";
 import {
   entryFor,
   recordJudgment,
@@ -27,25 +30,16 @@ import {
   finishThroughCli,
 } from "../../src/skills/dough-story-wrap-up/scripts/trunk-closure-test-fixtures.mjs";
 import { cloneAsAnotherWriter } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { createQueuedTrunk } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { draftLateStory } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
 
-export const third = { identity: "THIRD", href: "seeds/third.md" };
+export { third };
 
 // Writes the queued backlog with consumer A waiting on supplier B and on the
 // unrelated THIRD, and B's completed plan, into `checkout`, and commits them
 // as the supplier's preserved outcome and proof.
-export async function commitCompletedSupplier(t, checkout, inputDirectory) {
-  const queued = await createQueuedTrunk();
-  t.after(queued.cleanup);
-  cpSync(join(queued.integration, ".planning"), join(checkout, ".planning"), {
-    recursive: true,
-  });
-  writeFileSync(
-    join(checkout, ".planning", third.href),
-    "# Third\n**Identity:** THIRD\n",
-  );
-  writeFileSync(join(checkout, supplierPlan), plan("done"));
+export async function commitCompletedSupplier(checkout, inputDirectory) {
+  writeRevisionFiles(checkout, queuedReadyPlanning([consumer, supplier]));
+  writeRevisionFiles(checkout, supplierPlanningRevision("done"));
   const project = { directory: checkout, inputDirectory };
   for (const entry of [
     makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
@@ -141,7 +135,6 @@ export const supplierStates = (visit) =>
 export async function handTrunkVisit(t) {
   const fixture = await createTrunkClosureFixture(t);
   const project = await commitCompletedSupplier(
-    t,
     fixture.execution,
     fixture.fixture,
   );

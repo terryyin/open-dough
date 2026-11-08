@@ -1,39 +1,26 @@
-// Publishes a queued-story preparation journey on a local bare origin through
-// the production commands, one published step at a time (preparationSteps),
-// plus the preparation-assignment CLI's abandon. Each snapshot is the origin's
-// main after one published step; the browser journey serves those exact Git
-// bytes. The fixture supplies only the queued trunk and the owned workspaces,
-// never a Preparing profile. The journey is read-only once published, so each
-// worker builds it once and removes the bare origin at exit.
+// Publishes the preparation history the board and session attribution read
+// from Git. Each worker shares the origin and removes it at exit.
 
 import { rmSync } from "node:fs";
-import {
-  identityA,
-  identityB,
-} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
-import {
-  abandonPreparation,
-  createPreparationTrunk,
-  git,
-  identityC,
-  linkC,
-  planStoryC,
-  publishAssignment,
-  recorder,
-  refineStoryC,
-} from "../../src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs";
+import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
-  expectOk,
-  keep,
-  record,
-  remoteMain,
-  start,
-} from "./preparationSteps.ts";
+  integrationDeveloper as developer,
+  materializeRepository,
+} from "../../tests/support/repository-fixture.mjs";
+import {
+  notRefinedIdentity as identityC,
+  queuedDashboardRepository,
+  readyIdentity as identityB,
+  takenIdentity as identityA,
+} from "./launchJourney.ts";
 
-export const storyA = "Story A";
-export const storyB = "Story B";
-export const storyC = "Story C";
+export {
+  takenStory as storyA,
+  readyStory as storyB,
+  notRefinedStory as storyC,
+} from "./launchJourney.ts";
 
 export type PreparingJourney = {
   readonly origin: string;
@@ -46,11 +33,9 @@ export type PreparingJourney = {
   readonly abandoned: string;
   readonly plannedLanded: string;
   readonly planningAnnounced: string;
-  // A later allocation is a supplied history precondition, committed through
-  // the shared profile fixture; it does not manufacture the release journey.
+  // The same agent name later appears on another story with different credit.
   readonly reuseRefiner: () => Promise<string>;
   readonly conflicting: string;
-  // Who each start assigned, as its receipt names the developer.
   readonly preparers: {
     readonly refining: string;
     readonly reconsidering: string;
@@ -61,103 +46,172 @@ export type PreparingJourney = {
 
 let preparingJourney: Promise<PreparingJourney> | undefined;
 
+const preparationAgent: (
+  name: string,
+) => Omit<ReturnType<typeof agentIdentity>, "name"> & { name: string } =
+  agentIdentity;
+const refining = preparationAgent("Yui");
+const reconsidering = preparationAgent("Akiho");
+const planning = preparationAgent("Yuma");
+const first = preparationAgent("Sola");
+const second = preparationAgent("Yua");
+const laterAllocator = { name: "Later Allocator", email: developer.email };
+const storyCState = {
+  identity: identityC,
+  href: "seeds/C.md#c",
+  refinement: "refined",
+} as const;
+
+const refinedStoryC = `---
+id: SEED-C
+---
+
+# Seed C
+
+<a id="c"></a>
+
+### Story C
+
+**Identity:** ${identityC}
+
+#### Goal
+
+C is useful.
+
+#### Scope
+
+- One thing.
+
+#### Key examples
+
+1. It works.
+`;
+
+const authorOf = ({ agent, email }: ReturnType<typeof agentIdentity>) => ({
+  name: agent,
+  email,
+});
+
+function preparationMessage(action: string, identity: string) {
+  return `${action}: ${identity}\n\nPreparation-Identity: ${identity}\nCo-authored-by: ${developer.name} <${developer.email}>`;
+}
+
+function announcement(
+  facts: Parameters<typeof makeMe.anAgentProfile.preparing>[0] & {
+    identity: string;
+  },
+) {
+  return {
+    agentProfiles: [makeMe.anAgentProfile.preparing(facts).please()],
+    author: authorOf(agentIdentity(facts.name)),
+    committer: developer,
+    message: preparationMessage("Announce preparation", facts.identity),
+  };
+}
+
 async function buildPreparingJourney(): Promise<PreparingJourney> {
-  const trunk = await createPreparationTrunk();
-  try {
-    const queued = await remoteMain(trunk);
-    // Story C is refined by a developer whose tool and model are recorded;
-    // previously ready Story B is reconsidered by one whose are not.
-    const refining = await start(trunk, "c-refine", identityC, [
-      "--host",
-      "claude",
-      "--model",
-      "claude-opus-5-5",
-    ]);
-    const reconsidering = await start(trunk, "b-reconsider", identityB);
-    const announced = await remoteMain(trunk);
+  const description = queuedDashboardRepository()
+    .withRevision(
+      "refiningAllocation",
+      announcement({
+        name: refining.name,
+        identity: identityC,
+        host: "claude",
+        model: "claude-opus-5-5",
+      }),
+    )
+    .withRevision(
+      "announced",
+      announcement({ name: reconsidering.name, identity: identityB }),
+    )
+    .withRevision("refinedLanded", {
+      files: { ".planning/seeds/C.md": refinedStoryC },
+      storyStates: [{ ...storyCState, approach: "unselected" }],
+      remove: [`.planning/${refining.path}`],
+      author: authorOf(refining),
+      committer: developer,
+      message: `Keep ${identityC} preparation`,
+    })
+    .withRevision("abandoned", {
+      remove: [`.planning/${reconsidering.path}`],
+      author: authorOf(reconsidering),
+      committer: developer,
+      message: preparationMessage("End preparation", identityB),
+    })
+    .withRevision(
+      "planningAnnounced",
+      announcement({ name: planning.name, identity: identityC, host: "codex" }),
+    )
+    .withRevision("plannedLanded", {
+      files: {
+        ".planning/slice-plans/C/PLAN.md":
+          "# Story C plan\n\n### 1. Do C\n\nType: Behavior\nStatus: planned\n",
+      },
+      storyStates: [
+        {
+          ...storyCState,
+          approach: "planned",
+          plan: "../slice-plans/C/PLAN.md",
+          assessment: "ready",
+        },
+      ],
+      remove: [`.planning/${planning.path}`],
+      author: authorOf(planning),
+      committer: developer,
+      message: `Keep ${identityC} preparation`,
+    })
+    .withRevision(
+      "firstConflict",
+      announcement({ name: first.name, identity: identityA }),
+    )
+    .withRevision(
+      "conflicting",
+      announcement({ name: second.name, identity: identityA }),
+    )
+    .withRevision("reused", {
+      agentProfiles: [
+        makeMe.anAgentProfile
+          .preparing({
+            name: refining.name,
+            identity: identityA,
+            host: "cursor",
+            model: "later-model",
+          })
+          .please(),
+      ],
+      author: laterAllocator,
+      committer: laterAllocator,
+      message: `assign ${refining.name}`,
+    })
+    .please();
 
-    refineStoryC(refining.workspace);
-    await record(refining.workspace, "--approach", "unselected");
-    await keep(trunk, refining, identityC);
-    const refinedLanded = await remoteMain(trunk);
-
-    expectOk(
-      "abandon",
-      await abandonPreparation(trunk, reconsidering.workspace, identityB),
-    );
-    const abandoned = await remoteMain(trunk);
-
-    const planning = await start(trunk, "c-plan", identityC, [
-      "--host",
-      "codex",
-    ]);
-    const planningAnnounced = await remoteMain(trunk);
-    planStoryC(planning.workspace);
-    const planned = [
-      "--approach",
-      "planned",
-      "--plan",
-      "../slice-plans/C/PLAN.md",
-    ];
-    await record(planning.workspace, ...planned);
-    const { basis } = JSON.parse(
-      await recorder(planning.workspace, "read-state", "--link", linkC),
-    ) as { basis: { document: string; plan: string } };
-    await record(
-      planning.workspace,
-      ...planned,
-      "--assessment",
-      "ready",
-      "--expect-document",
-      basis.document,
-      "--expect-plan",
-      basis.plan,
-    );
-    await keep(trunk, planning, identityC);
-    const plannedLanded = await remoteMain(trunk);
-
-    // Two developers each announce preparation of Story A.
-    const first = await start(trunk, "a-first", identityA);
-    const second = await start(trunk, "a-second", identityA);
-    const conflicting = await remoteMain(trunk);
-
-    await git(trunk.integration, "config", "user.name", "Later Allocator");
-    await publishAssignment(
-      trunk,
-      makeMe.anAgentProfile
-        .preparing({
-          name: refining.name,
-          identity: identityA,
-          host: "cursor",
-          model: "later-model",
-        })
-        .please(),
-    );
-    const reused = await remoteMain(trunk);
+  const trunk = await materializeRepository(description);
+  const {
+    queued,
+    announced,
+    refiningAllocation,
+    refinedLanded,
+    abandoned,
+    plannedLanded,
+    planningAnnounced,
+    conflicting,
+    reused,
+  } = trunk.revisions;
+  const reset = async () => {
     await git(trunk.origin, "update-ref", "refs/heads/main", conflicting);
-
-    for (const tree of [
-      trunk.integration,
-      refining.workspace,
-      reconsidering.workspace,
-      planning.workspace,
-      first.workspace,
-      second.workspace,
-    ]) {
-      rmSync(tree, { recursive: true, force: true });
-    }
+  };
+  try {
+    await reset();
+    rmSync(trunk.integration, { recursive: true, force: true });
     process.once("exit", () => {
       rmSync(trunk.fixture, { recursive: true, force: true });
     });
-
     return {
       origin: trunk.origin,
-      cleanup: async () => {
-        await git(trunk.origin, "update-ref", "refs/heads/main", conflicting);
-      },
+      cleanup: reset,
       queued,
       announced,
-      refiningAllocation: refining.publication,
+      refiningAllocation,
       refinedLanded,
       abandoned,
       plannedLanded,

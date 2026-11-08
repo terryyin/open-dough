@@ -1,7 +1,5 @@
-// Preparing on queued cards, from preparation assignments the production
-// commands published (preparingJourney.ts). Each snapshot is the local
-// origin's main after one published step, served as those exact Git bytes;
-// nothing here writes a profile or a story-state record.
+// Preparing on queued cards from published preparation assignments. Each
+// named step in preparingJourney.ts is served from a real Git revision.
 
 import { expect, test } from "../dashboardTest.ts";
 import { expectReadableContrast, zoomedWindow } from "../accessibleReading.ts";
@@ -31,8 +29,6 @@ import {
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 
 let journey: PreparingJourney;
-// Publishing the journey runs every production preparation command against a
-// local origin.
 test.beforeAll(async () => {
   journey = await publishPreparingJourney();
 });

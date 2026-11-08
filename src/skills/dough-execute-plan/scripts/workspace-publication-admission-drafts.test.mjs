@@ -4,11 +4,10 @@ import assert from "node:assert/strict";
 import { chmodSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { git } from "./publication-test-fixtures.mjs";
-import {
-  createQueuedTrunk,
-  startCliResult,
-} from "./workspace-publication-fixtures.mjs";
+import { startCliResult } from "./workspace-publication-fixtures.mjs";
 import {
   admitArgs,
   storySection,
@@ -40,7 +39,7 @@ function newDraft(trunk) {
 }
 
 test("a repeated accepted admission withdraws its draft after staged content is released", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const draft = newDraft(trunk);
   await git(trunk.integration, "add", draft.path);
@@ -72,7 +71,7 @@ test("a repeated accepted admission withdraws its draft after staged content is 
 
 for (const change of ["content", "mode"]) {
   test(`a draft's subsequent ${change} edit survives accepted publication`, async (t) => {
-    const trunk = await createQueuedTrunk();
+    const trunk = await materializeRepository(queuedReadyRepository().please());
     t.after(trunk.cleanup);
     const draft = newDraft(trunk);
     const barrier = await holdFirstPush(trunk);
@@ -113,7 +112,7 @@ for (const change of ["content", "mode"]) {
 }
 
 test("a subsequent separator-only edit in an existing seed survives admission", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const identity = "SEED-A#later";
   const link = "seeds/A.md#later";

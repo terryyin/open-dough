@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ruuf-chan",
+  "email": "ruuf-chan@example.org",
+  "identity": "SEED-270#highlight-linked-story-card",
+  "mode": "story-branch",
+  "branch": "claude/highlight-the-destination-of-a-story-link",
+  "host": "claude",
+  "model": "opus"
+}

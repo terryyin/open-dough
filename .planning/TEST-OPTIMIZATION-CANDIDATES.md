@@ -233,16 +233,23 @@ None.
   the paused page clock, with about 0.42s separately spent on session answers.
   A one-worker profile shared the origin build, observed 116 synthetic GitHub
   CLI API calls, and took 14.27s wall with the cases running sequentially.
+- **Repository baseline:** on macOS with Node 24.21.0 and two workers, both
+  attention cases passed in 11.38 and 8.36 s before fixture migration and
+  7.28 and 6.75 s after. Host load differed. With the same completion clock,
+  story-columns setup took 2.35–2.44 s before and about 0.60 s after, with
+  matching Git bytes, refs, and commit identities. The five-case preparation
+  owned-context selection passed in 5.91 s before and 5.25 s after on the
+  same upstream base. Its first fixture took 272.9 and 245.6 ms respectively,
+  and warm fixtures took 125.9–128.2 and 21.0–21.7 ms respectively.
 - **Unique protection:** visible attention counts across published columns,
   failed or missing native observations, Mark as done, project switching and
   reload, and the local entry after a story leaves all published lists.
 - **Alternatives attempted:** profiled the original journey. Existing helpers
   can seed native listings and persisted open launch records. The launch-dialog
   journey already owns coverage of starting from a card.
-- **Disposition / rationale:** transferred to
-  [Build each test’s Git repository from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures),
-  and [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories),
-  which own the remaining repository setup and reuse costs and their proof.
+- **Disposition / rationale:** the shared repository description and
+  materializer supply the baseline for the remaining reuse work.
+  [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories)
   The launch cost is gone: both cases now open with their sessions already
   kept and listed (`dashboard/tests/storyCardOpenSessions.ts`), sending no
   Start and launching nothing. That arrangement measured 0.59–0.61s per case

@@ -4,9 +4,11 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { startupCommandFiles } from "../../../../tests/support/startup-command-files.mjs";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   failingContributing,
   identityA,
   remoteBacklog,
@@ -19,7 +21,7 @@ import { agentModes } from "../../dough-product-backlog/scripts/product-backlog-
 
 for (const mode of agentModes) {
   test(`installed startup publishes an isolated ${mode} claim to remote trunk`, async (t) => {
-    const trunk = await createQueuedTrunk();
+    const trunk = await materializeRepository(queuedReadyRepository().please());
     t.after(trunk.cleanup);
     const { receipt, workspace } = await startCliResult(trunk, mode);
     assert.equal(receipt.ok, true, JSON.stringify(receipt));
@@ -46,7 +48,7 @@ for (const mode of agentModes) {
 }
 
 test("startup resolves a non-default remote and trunk branch", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   await git(trunk.integration, "branch", "-m", "trunk");
   await git(trunk.integration, "remote", "rename", "origin", "upstream");
@@ -72,7 +74,7 @@ test("startup resolves a non-default remote and trunk branch", async (t) => {
 });
 
 test("matching clean host-selected workspace is reused without nesting or switching", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const workspace = join(trunk.fixture, "start-trunk");
   await git(
@@ -97,7 +99,7 @@ test("matching clean host-selected workspace is reused without nesting or switch
 });
 
 test("candidate installation runs the startup CLI without source-tree imports", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const repository = resolve(
     fileURLToPath(new URL("../../../..", import.meta.url)),
@@ -127,7 +129,11 @@ test("candidate installation runs the startup CLI without source-tree imports", 
 });
 
 test("failed project command after accepted startup leaves the claim and workspace intact", async (t) => {
-  const trunk = await createQueuedTrunk({ contributing: failingContributing });
+  const trunk = await materializeRepository(
+    queuedReadyRepository({
+      files: startupCommandFiles({ contributing: failingContributing }),
+    }).please(),
+  );
   t.after(trunk.cleanup);
   const { receipt, workspace } = await startCliResult(trunk, "trunk");
   assert.equal(receipt.ok, true, JSON.stringify(receipt));
@@ -153,7 +159,7 @@ test("failed project command after accepted startup leaves the claim and workspa
 });
 
 test("workspace setup failure preserves recovery context and leaves trunk unpublished", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const workspace = join(trunk.fixture, "start-trunk");
   writeFileSync(workspace, "not a directory\n");

@@ -51,7 +51,6 @@ test("Story Branch integrate retains its accepted receipt when the consumer visi
 test("Trunk finish retains its accepted receipt and observer when the consumer visit refuses the backlog path", async (t) => {
   const fixture = await createTrunkClosureFixture(t);
   const project = await commitCompletedSupplier(
-    t,
     fixture.execution,
     fixture.fixture,
   );

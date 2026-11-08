@@ -3,16 +3,19 @@
 // the Dough Land Git model; it neither adds nor removes an assignment.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import {
+  queuedRepositoryWithRoughStory,
+  roughStoryC,
+} from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { landWorktree } from "./dough-land-test-fixtures.mjs";
 import {
   backlogFile,
-  createPreparationTrunk,
   createWorkspace,
   identityC,
   linkC,
   lsRemoteSha,
   profileOf,
-  publishAssignment,
   read,
   recorder,
   refineStoryC,
@@ -26,21 +29,28 @@ import {
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 test("landing a refinement releases only its own assignment in the same snapshot and keeps the story queued with recorded facts", async (t) => {
-  const trunk = await createPreparationTrunk();
-  t.after(trunk.cleanup);
   // Yui executes other work; Akiho prepares the same story elsewhere.
-  await publishAssignment(
-    trunk,
-    makeMe.anAgentProfile
-      .executing({ name: "Yui", identity: "SEED-X#x" })
+  const trunk = await materializeRepository(
+    queuedRepositoryWithRoughStory(roughStoryC)
+      .withRevision("assign-yui", {
+        message: "assign Yui",
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .executing({ name: "Yui", identity: "SEED-X#x" })
+            .please(),
+        ],
+      })
+      .withRevision("assign-akiho", {
+        message: "assign Akiho",
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .preparing({ name: "Akiho", identity: identityC })
+            .please(),
+        ],
+      })
       .please(),
   );
-  await publishAssignment(
-    trunk,
-    makeMe.anAgentProfile
-      .preparing({ name: "Akiho", identity: identityC })
-      .please(),
-  );
+  t.after(trunk.cleanup);
   const queue = await remoteFile(trunk, "main", backlogFile);
   const others = {
     Yui: await remoteFile(trunk, "main", profileOf("Yui")),

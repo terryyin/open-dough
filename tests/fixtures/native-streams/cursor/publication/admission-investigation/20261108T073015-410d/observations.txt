@@ -1,0 +1,27 @@
+journey: admission-investigation
+stream-status: complete
+startup-cli-count: 1
+admit-cli-observed: true
+plain-start-observed: false
+existing-receipt-observed: false
+probe-after-claim: true
+feature-exists: false
+human-edit-preserved: true
+remote-sha: 2b5cdb2b3412064065c874b08052bcf9b51a7696
+base-sha: d6449b2419c55be713796d77caf7164d3158ff11
+taken-count: 1
+identity: SEED-C#startup-slow
+claim-owned: true
+claim-admitted: true
+claim-parent-unlisted: true
+story-in-claim: true
+claim-count: 1
+profile-count: 1
+story-section-count: 1
+story-plan: 
+entry-plan: 
+plan-in-claim: false
+plan-home-count: 0
+approach: unselected
+assessment: absent
+product-change: false

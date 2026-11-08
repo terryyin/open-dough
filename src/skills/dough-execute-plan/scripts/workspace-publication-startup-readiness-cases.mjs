@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { queuedReadyRepository } from "../../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   captureCheckout,
   git,
@@ -10,7 +12,6 @@ import {
   revParse,
 } from "./publication-test-fixtures.mjs";
 import {
-  createQueuedTrunk,
   identityA,
   remoteBacklog,
   startCliResult,
@@ -25,7 +26,7 @@ import { takenIdentities } from "./workspace-publication-ownership.mjs";
 // bytes in the default checkout's worktree and index, a ready-looking one.
 for (const readyLocalCopy of [false, true]) {
   test(`changed published Ready starts with one Taken claim${readyLocalCopy ? " beside a ready-looking local copy" : ""}`, async (t) => {
-    const trunk = await createQueuedTrunk();
+    const trunk = await materializeRepository(queuedReadyRepository().please());
     t.after(trunk.cleanup);
     const seed = join(trunk.integration, ".planning/seeds/A.md");
     const assessed = readFileSync(seed, "utf8");
@@ -78,7 +79,7 @@ for (const readyLocalCopy of [false, true]) {
 }
 
 test("a published sibling story added after readiness still takes the ready story", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const seed = join(trunk.integration, ".planning/seeds/A.md");
   writeFileSync(
@@ -102,7 +103,7 @@ test("a published sibling story added after readiness still takes the ready stor
 
 for (const preparation of ["not-ready", "absent"]) {
   test(`published ${preparation} still refuses startup after content changes`, async (t) => {
-    const trunk = await createQueuedTrunk();
+    const trunk = await materializeRepository(queuedReadyRepository().please());
     t.after(trunk.cleanup);
     const seed = join(trunk.integration, ".planning/seeds/A.md");
     const current = readFileSync(seed, "utf8");
@@ -132,7 +133,7 @@ for (const preparation of ["not-ready", "absent"]) {
 }
 
 test("continued Taken starts report changes and clear them after a real current review", async (t) => {
-  const trunk = await createQueuedTrunk();
+  const trunk = await materializeRepository(queuedReadyRepository().please());
   t.after(trunk.cleanup);
   const seed = join(trunk.integration, ".planning/seeds/A.md");
   writeFileSync(

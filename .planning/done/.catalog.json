@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_build-explicit-git-fixtures.json",
+      "identity": "SEED-262#build-explicit-git-fixtures",
+      "completedAt": "2026-11-08T07:36:52.017Z",
+      "blob": "2d2d66731c09ff2cbbd382cf27ba909e197c2030"
+    },
+    {
       "fileName": "SEED-262_drive-polls-with-time-and-replies.json",
       "identity": "SEED-262#drive-polls-with-time-and-replies",
       "completedAt": "2026-11-08T07:12:16.148Z",

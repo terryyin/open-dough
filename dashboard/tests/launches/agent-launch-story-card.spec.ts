@@ -1,5 +1,5 @@
 // Starting execution or refinement from a Backlog card, on a committed origin
-// the production commands published (../launchJourney.ts): two queued stories,
+// from ../launchJourney.ts: two queued stories,
 // one Ready for execution and one not refined, and one Taken. The page's own
 // dashboard server launches the synthetic `claude` (./fixtures/fake-claude),
 // which records what it was asked; the real one is never reached. A launch
