@@ -259,3 +259,12 @@ three-journey proof loop, with the evaluation placed after both changes it
 measures. No remaining slice-specific concern: the decisive premises (type-only
 back-reference, proof route, step-tree extraction, consumer set) are observed
 above, and diagnostics are reobserved in slice 2.
+
+## Execution complete
+
+Product advice: no change to the product. Landing this story meets the
+supplier condition of `SEED-268#conclude-fluent-side-panel-pilot`: all three
+journeys, the controlled failure and the revised sizes are recorded under
+“Revised design evaluation”. Because wrap-up removes this plan, the
+conclusion story should cite that section by the landed commit that carries
+it.
