@@ -31,6 +31,7 @@ intent introduced or affected by a newly developed story.
 - [Correct Intent CI label announcements and summary sort fallback](seeds/SEED-259-scan-intent-ci-summaries.md#correct-scan-intent-ci-summaries) — SEED-259#correct-scan-intent-ci-summaries ([plan](slice-plans/504-correct-scan-intent-ci-summaries/PLAN.md))
 - [Avoid redundant board reads](seeds/SEED-262-faster-dashboard-test-feedback.md#refresh-without-unneeded-reloads) — SEED-262#refresh-without-unneeded-reloads ([plan](slice-plans/507-avoid-redundant-board-reads/PLAN.md))
 - [Reconcile the released Intent Coverage prerequisite](seeds/SEED-264-reconcile-released-intent-coverage.md#reconcile-released-intent-coverage) — SEED-264#reconcile-released-intent-coverage
+- [Pilot fluent page objects in dashboard Side panel tests](seeds/SEED-263-fluent-dashboard-page-objects.md#pilot-fluent-dashboard-page-objects) — SEED-263#pilot-fluent-dashboard-page-objects ([plan](slice-plans/506-pilot-fluent-dashboard-page-objects/PLAN.md))
 
 ## Backlog list
 
@@ -44,7 +45,6 @@ intent introduced or affected by a newly developed story.
 - [Make launch and session test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data) — SEED-261#map-launch-and-session-test-data
 - [Make Intent and CI proof test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-intent-and-ci-proof-test-data) — SEED-261#map-intent-and-ci-proof-test-data
 - [Make installation and native test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-installation-and-native-test-data) — SEED-261#map-installation-and-native-test-data
-- [Pilot fluent page objects in dashboard Side panel tests](seeds/SEED-263-fluent-dashboard-page-objects.md#pilot-fluent-dashboard-page-objects) — SEED-263#pilot-fluent-dashboard-page-objects
 - [Find the intent assessment in a recently done story](seeds/SEED-258-dough-intent-coverage.md#assess-intent-coverage-during-wrap-up) — SEED-258#assess-intent-coverage-during-wrap-up
 - [Prepare dashboard test artifacts only when selected tests need them](seeds/SEED-262-faster-dashboard-test-feedback.md#prepare-artifacts-on-demand) — SEED-262#prepare-artifacts-on-demand
 - [Set up test preconditions without replaying unrelated workflows](seeds/SEED-262-faster-dashboard-test-feedback.md#arrange-prerequisite-state) — SEED-262#arrange-prerequisite-state
