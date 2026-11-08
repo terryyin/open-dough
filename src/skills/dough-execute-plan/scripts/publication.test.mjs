@@ -10,6 +10,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { promisify } from "node:util";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   advanceOriginFromAnotherWriter,
   assertCheckoutUnchanged,
@@ -27,6 +28,16 @@ import {
 } from "./publication-test-fixtures.mjs";
 
 const exec = promisify(execFile);
+
+// One trunk commit, and a workspace on exec/story one unpublished
+// increment.txt commit ahead.
+const trunkWithOneIncrement = makeMe.aRepository
+  .withRevision("trunk")
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
 
 async function createClaimFixture() {
   const fixture = realpathSync(
@@ -95,7 +106,7 @@ test("publishing a queue claim from the checkout that holds it accepts that SHA 
 
 test("rebasing an owned suffix onto an advanced remote publishes that SHA and leaves a clean default checkout unmoved", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await createCleanTrunkFixture(trunkWithOneIncrement);
   t.after(cleanup);
 
   const disjointSha = await advanceOriginFromAnotherWriter(origin);
@@ -129,7 +140,7 @@ test("rebasing an owned suffix onto an advanced remote publishes that SHA and le
 
 test("a pending human edit and an unrelated local commit do not block or change publication from a separate workspace", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await createCleanTrunkFixture(trunkWithOneIncrement);
   t.after(cleanup);
 
   writeFileSync(join(integration, "unrelated.txt"), "unrelated local work\n");
@@ -161,7 +172,7 @@ test("a pending human edit and an unrelated local commit do not block or change 
 
 test("one rejected push is recovered by rebasing the owned branch only, leaving the default checkout's human edit in place", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await createCleanTrunkFixture(trunkWithOneIncrement);
   t.after(cleanup);
 
   await plantHumanEdit(integration);

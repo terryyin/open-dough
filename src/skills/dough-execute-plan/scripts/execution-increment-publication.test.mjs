@@ -28,6 +28,16 @@ import {
 const trunkTarget = "refs/heads/main";
 const recordedStoryBranch = "refs/heads/cursor/story-execution";
 
+// One trunk commit, and a workspace on exec/story one unpublished
+// increment.txt commit ahead.
+const trunkWithOneIncrement = makeMe.aRepository
+  .withRevision("trunk")
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
+
 function receiptsOf() {
   const receipts = [];
   return {
@@ -40,7 +50,7 @@ function receiptsOf() {
 
 test("Story Branch Mode increment publishes to the recorded remote execution branch and leaves remote trunk unchanged", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await createCleanTrunkFixture(trunkWithOneIncrement);
   t.after(cleanup);
 
   const before = await captureCheckout(integration);
@@ -71,7 +81,7 @@ test("Story Branch Mode increment publishes to the recorded remote execution bra
 
 test("a candidate the remote already holds is accepted without reconciliation or push", async (t) => {
   const { integration, execution, trunkSha, candidateSha, cleanup } =
-    await createCleanTrunkFixture();
+    await createCleanTrunkFixture(trunkWithOneIncrement);
   t.after(cleanup);
   // An earlier push was accepted but its answer never arrived.
   await git(execution, "push", "origin", `${candidateSha}:${trunkTarget}`);
@@ -108,7 +118,7 @@ test("a candidate the remote already holds is accepted without reconciliation or
 
 test("an owned repair publishes without unfinished work and restores that work afterwards", async (t) => {
   const { origin, execution, trunkSha, cleanup } =
-    await createCleanTrunkFixture();
+    await createCleanTrunkFixture(trunkWithOneIncrement);
   t.after(cleanup);
 
   const unfinished = "owned unfinished edit\n";
@@ -186,7 +196,7 @@ test("an owned repair publishes without unfinished work and restores that work a
 
 for (const { trunkAdvanced, pendingEdit } of unpublishedBaseCases) {
   test(`publishing over the developer's unpublished commit${trunkAdvanced ? " after trunk advanced" : ""} refuses before any rebase or push and changes nothing`, async (t) => {
-    const fixture = await createCleanTrunkFixture();
+    const fixture = await createCleanTrunkFixture(trunkWithOneIncrement);
     t.after(fixture.cleanup);
     const staged = await commitOverDeveloperWork(fixture, {
       trunkAdvanced,

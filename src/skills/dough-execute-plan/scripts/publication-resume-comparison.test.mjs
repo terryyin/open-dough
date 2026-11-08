@@ -16,8 +16,18 @@ import {
 
 const targetRef = "refs/heads/main";
 
+// One trunk commit, and a workspace on exec/story one unpublished
+// increment.txt commit ahead.
+const trunkWithOneIncrement = makeMe.aRepository
+  .withRevision("trunk")
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
+
 test("an interrupted candidate retains its comparison through its first accepted push", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await createCleanTrunkFixture(trunkWithOneIncrement);
   t.after(fixture.cleanup);
   const comparison = makeMe.aRetainedComparison
     .with({ candidateSha: fixture.candidateSha, suffixBase: fixture.trunkSha })
@@ -50,7 +60,7 @@ test("an interrupted candidate retains its comparison through its first accepted
 });
 
 test("a retained empty comparison is valid when its two commits are equal", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await createCleanTrunkFixture(trunkWithOneIncrement);
   t.after(fixture.cleanup);
   const comparison = makeMe.aRetainedComparison
     .with({ candidateSha: fixture.trunkSha, suffixBase: fixture.trunkSha })
@@ -78,7 +88,7 @@ test("a retained empty comparison is valid when its two commits are equal", asyn
 });
 
 test("non-commit, moving, missing and unrelated retained comparison ends stop before fetch, push or registration", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await createCleanTrunkFixture(trunkWithOneIncrement);
   t.after(fixture.cleanup);
   const otherWriter = await advanceOriginFromAnotherWriter(fixture.origin);
   await git(fixture.execution, "fetch", "origin");

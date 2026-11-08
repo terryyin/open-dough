@@ -15,6 +15,16 @@ import {
 
 const targetRef = "refs/heads/main";
 
+// One trunk commit, and a workspace on exec/story one unpublished
+// increment.txt commit ahead.
+const trunkWithOneIncrement = makeMe.aRepository
+  .withRevision("trunk")
+  .withWorkspace("exec/story", { from: "trunk" })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+  })
+  .please();
+
 async function changedPaths(workspace, { suffixBase, candidate }) {
   return (
     await git(workspace, "diff", "--name-only", suffixBase, candidate)
@@ -25,7 +35,7 @@ async function changedPaths(workspace, { suffixBase, candidate }) {
 }
 
 test("an unchanged suffix is retained before its push and matches the accepted comparison", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await createCleanTrunkFixture(trunkWithOneIncrement);
   t.after(fixture.cleanup);
   const retained = [];
   const published = await publishExecutionIncrement({
@@ -60,7 +70,7 @@ test("an unchanged suffix is retained before its push and matches the accepted c
 });
 
 test("a racing retry retains the rewritten candidate and its new base before the second push", async (t) => {
-  const fixture = await createCleanTrunkFixture();
+  const fixture = await createCleanTrunkFixture(trunkWithOneIncrement);
   t.after(fixture.cleanup);
   const before = await captureCheckout(fixture.integration);
   const retained = [];

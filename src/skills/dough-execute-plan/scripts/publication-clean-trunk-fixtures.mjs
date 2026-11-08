@@ -1,53 +1,45 @@
 // The clean-trunk publication fixture and the authorized remotes its
 // checkouts know.
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { createBareFixtureRemote } from "./bare-remote-test-fixtures.mjs";
-import { exec, git, revParse } from "./publication-git.mjs";
+import { git } from "./publication-git.mjs";
 
-// Builds a clean-trunk publication fixture: a disposable repository
-// whose primary checkout is clean `main` at the same SHA as `origin/main`
-// (a local bare repo), plus an execution worktree whose unpublished suffix
-// is already based on that trunk.
-export async function createCleanTrunkFixture() {
-  const fixture = realpathSync(mkdtempSync(join(tmpdir(), "publication-")));
-  const origin = join(fixture, "remote.git");
-  const integration = join(fixture, "integration");
-  const execution = join(fixture, "execution");
+// The publication family's shared repository: one `trunk.txt` commit on
+// `main`, and an `exec/story` workspace one unpublished `increment.txt`
+// commit ahead. Each checkout configures its own committer.
+export const trunkWithOneUnpublishedIncrement = makeMe.aRepository
+  .withCheckoutIdentity({
+    name: "Integration Checkout",
+    email: "integration@example.test",
+  })
+  .withRevision("trunk", {
+    backlog: undefined,
+    files: { "trunk.txt": "base\n" },
+    message: "base trunk commit",
+  })
+  .withWorkspace("exec/story", {
+    from: "trunk",
+    checkoutIdentity: {
+      name: "Execution Worktree",
+      email: "execution@example.test",
+    },
+  })
+  .withUnpublishedRevision("increment", {
+    files: { "increment.txt": "increment\n" },
+    message: "verified increment",
+  })
+  .please();
 
-  await createBareFixtureRemote(origin);
-
-  await exec("git", ["init", "-b", "main", integration]);
-  await git(integration, "config", "user.name", "Integration Checkout");
-  await git(integration, "config", "user.email", "integration@example.test");
-  await git(integration, "remote", "add", "origin", origin);
-  writeFileSync(join(integration, "trunk.txt"), "base\n");
-  await git(integration, "add", "trunk.txt");
-  await git(integration, "commit", "-m", "base trunk commit");
-  await git(integration, "push", "origin", "main");
-
-  await git(integration, "branch", "exec/story");
-  await git(integration, "worktree", "add", execution, "exec/story");
-  await git(execution, "config", "user.name", "Execution Worktree");
-  await git(execution, "config", "user.email", "execution@example.test");
-
-  writeFileSync(join(execution, "increment.txt"), "increment\n");
-  await git(execution, "add", "increment.txt");
-  await git(execution, "commit", "-m", "verified increment");
-
-  const trunkSha = await revParse(integration, "main");
-  const candidateSha = await revParse(execution, "exec/story");
-
-  return {
-    fixture,
-    origin,
-    integration,
-    execution,
-    trunkSha,
-    candidateSha,
-    cleanup: () => rmSync(fixture, { recursive: true, force: true }),
-  };
+// Builds a clean-trunk publication fixture from `description`: a disposable
+// repository whose integration checkout is clean on the trunk branch at the
+// same SHA as its bare origin, plus an execution worktree whose unpublished
+// suffix is based on that trunk.
+export async function createCleanTrunkFixture(
+  description = trunkWithOneUnpublishedIncrement,
+) {
+  return materializeRepository(description);
 }
 
 // The URL of `remote`: origin, or a new empty bare repository on `branch` the

@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import { existsSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { refreshDefaultCheckout } from "./maintain-default-checkout.mjs";
 import {
   advanceOriginFromAnotherWriter,
@@ -17,12 +18,18 @@ import {
   revParse,
 } from "./publication-test-fixtures.mjs";
 
+// A published trunk whose tracked trunk.txt the cases edit.
+const publishedTrunk = makeMe.aRepository
+  .withRevision("trunk", { files: { "trunk.txt": "base\n" } })
+  .please();
+
 function refresh(checkout) {
   return refreshDefaultCheckout({ checkout, integrationBranch: "main" });
 }
 
 test("refresh defers for an index lock and every in-progress merge, cherry-pick, or revert ref, even a dangling one, and stops on a detached HEAD", async (t) => {
-  const { integration, trunkSha, cleanup } = await createCleanTrunkFixture();
+  const { integration, trunkSha, cleanup } =
+    await createCleanTrunkFixture(publishedTrunk);
   t.after(cleanup);
 
   // This fixture stores refs as files, so each in-progress ref is planted
@@ -73,7 +80,7 @@ test("refresh defers for an index lock and every in-progress merge, cherry-pick,
 
 test("refresh defers during a real rebase and advances a clean, behind checkout that kept only a leftover REBASE_HEAD", async (t) => {
   const { origin, integration, trunkSha, cleanup } =
-    await createCleanTrunkFixture();
+    await createCleanTrunkFixture(publishedTrunk);
   t.after(cleanup);
 
   // A conflicting rebase of the checkout's own history stops mid-way.

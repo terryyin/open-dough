@@ -4,6 +4,8 @@
 
 **Source:** [Build clean-trunk and managed delivery repositories from explicit MakeMe data](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures)
 
+**Source review:** [source review](source-review.md)
+
 ## Goal and boundaries
 
 A maintainer reading a publication, delivery, closure, Dough Land or CI skill
@@ -149,7 +151,7 @@ fixtures and needs no full run for this story.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Record the baseline in the premises below, or a fresh one under
 comparable load. Add a focused test that materializes a description with a
@@ -168,6 +170,34 @@ their call site: `publication`, `execution-increment-publication`,
 `execution-increment-publication-unresolvable-base`,
 `execution-increment-comparison`, `publication-checkout-ongoing-operation`
 and `publication-resume-comparison`.
+
+Accepted proof (2026-11-08): `tests/support/repository-fixture.test.mjs`
+"a workspace suffix is committed on its branch beside an origin that holds
+only the trunk" and "each copy of a described workspace is its own worktree
+whose later commits carry the declared checkout identity"; the seven
+publication files plus the split-out
+`execution-increment-publication-done-records.test.mjs` pass with unchanged
+assertions; the 158-file family passed in 334 s at load 16–19 (not
+comparable with the 313 s baseline at load 10–11); the 74 other MakeMe and
+materializer loaders passed; `npm run typecheck:dashboard` passed. The
+refactor pass removed the materializer's duplicate copies of the builder's
+revision checks and split the done-records case out of the reconciliation
+file; affected tests and the type-check were rerun and passed.
+
+Learnings for later slices:
+
+- `RepositoryBuilder` now has `withTrunkBranch`, `withCheckoutIdentity`,
+  `withWorkspace(branch, { from, checkoutIdentity? })` and
+  `withUnpublishedRevision`. `materializeRepository` returns `execution`,
+  `candidateSha` and every revision's commit; each copy runs
+  `git worktree repair`.
+- A workspace `checkoutIdentity` is written with plain `git config` from the
+  worktree, so it lands in the configuration both checkouts share, as the old
+  fixture did. Per-checkout committers would need `--worktree` config.
+- Template reuse gives every fixture of one description in a process the same
+  SHAs; no consumer depended on unique SHAs.
+- `backlog: undefined` on the first revision omits the default backlog; only
+  the named shared description uses it.
 
 ### 2. Managed and fresh delivery tests declare the facts they read
 
