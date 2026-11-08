@@ -113,6 +113,18 @@ one. The builder refuses a backlog stated both ways and other descriptions it
 cannot materialize, before any Git runs; its comments hold each method's
 defaults. [Refusal test](support/repository-description.test.mjs)
 
+A dashboard journey that serves a project through the fake GitHub states the
+same description and serves its named revisions without Git.
+`describedRevisions(description, shaPerName)` returns one published revision
+per name, holding the earlier revisions' files with its own changes and
+removals applied. One file renderer writes both these files and the
+materialized checkout, so the same facts publish the same bytes, including
+the done catalog rebuilt from the records. `describedRevision`,
+`describedBacklog` and `describedFiles` serve one revision. Revision SHAs,
+commit dates, path histories, unanswered paths and held or failing reads stay
+harness inputs. [Served revisions](../dashboard/tests/describedRevisions.ts) ·
+[Renderer](support/repository-revision-files.mjs)
+
 Other branches, merges, competing writers, stashes, dirty files, submodules
 and removed worktrees stay Git operations in the case. Installed skills, CI
 adapters, mailboxes, ignored local configuration and generated install output
