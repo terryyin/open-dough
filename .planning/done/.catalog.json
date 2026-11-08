@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_migrate-git-publication-native-fixtures.json",
+      "identity": "SEED-262#migrate-git-publication-native-fixtures",
+      "completedAt": "2026-11-08T16:29:06.269Z",
+      "blob": "6fd7b073d09cd44d4d205e8cddaee87dfc78de2e"
+    },
+    {
       "fileName": "SEED-262_migrate-dashboard-origin-fixtures.json",
       "identity": "SEED-262#migrate-dashboard-origin-fixtures",
       "completedAt": "2026-11-08T13:07:31.452Z",

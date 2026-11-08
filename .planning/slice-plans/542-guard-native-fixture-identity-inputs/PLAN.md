@@ -7,8 +7,9 @@
 ## Provenance and findings
 
 Correction of
-[SEED-262#migrate-git-publication-native-fixtures](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-git-publication-native-fixtures)
-(plan 534), from its execution retrospective. Reviewed commits: `e33993231`,
+SEED-262#migrate-git-publication-native-fixtures
+(`f40a29409bd3baf728caf54c50690448a88c6b1c:.planning/seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-git-publication-native-fixtures`;
+plan `f40a29409bd3baf728caf54c50690448a88c6b1c:.planning/slice-plans/534-migrate-git-publication-native-fixtures/PLAN.md`), from its execution retrospective. Reviewed commits: `e33993231`,
 `7d62c61b5`, `b5851b452`, `b8bce3969`, `cd5b0ddb0`, `970bfbb5f`.
 
 1. `git_publication_installer_input_hash_lines` in

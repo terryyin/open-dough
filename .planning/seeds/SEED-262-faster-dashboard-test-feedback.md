@@ -231,7 +231,7 @@ through a small Node helper. Shell check feedback must not get slower.
     content belong to
     [installation and native test data](SEED-261-share-domain-test-data.md#map-installation-and-native-test-data).
   - Git-publication native fixtures belong to
-    [git-publication native fixtures](#migrate-git-publication-native-fixtures).
+    [git-publication native fixtures](../../tests/README.md#test-data-architecture).
   - The worktree-preparation native builders stay MakeMe-free under
     [plan 532](../slice-plans/532-tighten-repository-description-facts/PLAN.md).
   - Release sources gain no branch or merge model.
@@ -308,105 +308,17 @@ noise.
   that copies the payload once and commits only release deltas took
   0.88–1.17 s, and copying that as a template added 0.28–0.29 s.
 
-<a id="migrate-git-publication-native-fixtures"></a>
-
-### Build git-publication native fixture repositories from explicit MakeMe data
-
-**Identity:** SEED-262#migrate-git-publication-native-fixtures
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/534-migrate-git-publication-native-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"20cc8677d1582fd80bee81b3ddf95bc5240c27fdfc7f5e040c5e555c9bf6a9cd","plan":"78e7844848536c64734d799bc781fe94c2154ca48d14875c5d4f3c61b152ce69"}}
-```
-
-#### Goal
-
-A maintainer reading a Git publication native check can tell which published
-facts its starting repository contains and which Git operations the check
-exercises. The maintainer can assess whether retained native evidence still
-applies when an input that builds that fixture changes.
-
-#### Scope
-
-- Startup, admission, one-shot and owned-context fixtures declare their
-  starting repository facts through the
-  [shared MakeMe description](../../tests/support/repositoryTestData.mjs) and
-  [materializer](../../tests/support/repository-fixture.mjs). Name the stories,
-  their readiness and the relevant revisions at the call site or in the
-  named fixture it selects. Preserve the Git histories, working state and
-  existing assessor verdicts that each journey depends on.
-- Keep real Git for owned worktrees, competing writers, interrupted and
-  resumed publication, and other transitions observed by the checks. Keep
-  real installed commands for the prior admissions and claims whose receipts
-  or ownership the scenarios consume. Keep literal divergent or dirty data
-  visible where the check depends on those exact inputs.
-- Remove `createQueuedTrunk`, `createPreparationTrunk`, `createSiblingTrunk`
-  and their legacy setup. Remove the last non-dashboard use of
-  `writeQueuedStories`. Remove the writer itself when no caller remains.
-- Each affected evidence identity covers the repository inputs that its
-  fixture uses, including transitive builders and writer helpers. A failed
-  required input read cannot yield an apparently complete current identity.
-  Historical records retain their original hashes and remain available for
-  replay and evidence assessment. Paid native runs remain manual-only.
-- Dashboard origins, release-source fixtures and the MakeMe-free native
-  worktree-preparation fixtures remain separate. Normalized repository
-  hashing as an evidence key is deferred. Its comparison technique serves
-  as migration proof.
-
-#### Key examples
-
-1. A startup fixture names Ready queued A and B and the setup and command
-   files. When the claim proceeds in a new workspace, the real commands
-   leave root markers after the claim, including when the workspace is gone.
-2. An admission fixture names its queued trunk and the startup probe. The
-   existing investigation still starts with no queued mission. Continuation
-   and closure still observe real prior admissions and their ownership.
-3. A queued one-shot fixture names Ready B and its unfinished sibling B2.
-   Refinement selects B2 while keeping B Ready. The default-main case still
-   observes the staged, unstaged and untracked human edits in that checkout.
-4. The preparation-land fixture names rough C. Its real retained worktree
-   holds the creation ref and the competing writer advances trunk. The
-   existing landing verdict still checks that topology and publication.
-5. The evidence writer runs after a fixture or transitive input changes.
-   The corresponding input hash changes. Generated notes source remains
-   fixture data, so its embedded imports cannot break the one-shot identity.
-
-#### Architecture
-
-Use the existing source-hash closure with traceable imports and explicit roots
-for inputs loaded outside JavaScript imports. This follows the same dependency
-mapping as compiler depfiles. The fixture entry point names the build, its
-import and spawn edges identify dependencies, and the retained hashes record
-the inputs. A byte change in shared MakeMe can invalidate a record even when
-the built fixture behaves identically. Apply the evidence reuse judgment in
-[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md#5-assess-now-and-delete-spent-evidence)
-to that case. An input identity establishes provenance for a recorded result.
-
-A normalized repository digest could reduce those invalidations. Admission
-builds in two scratch locations produced different trees even before the probe
-commit because the generated scripts contain the fixture path. A reliable
-snapshot key would have to normalize those tracked bytes and separately
-account for configuration, dirty state, worktrees and writer helpers. Keeping
-the existing identities without expanding their input coverage leaves the
-observed gaps in startup, one-shot and owned-context.
-
-#### Evaluation
-
-Compare the same credential-free startup and admission selections before and
-after under comparable load. Record elapsed time, the executed cases and the
-fixture construction or identity work that changed, following the epic's
-evaluation rule. Preserve the corresponding one-shot and owned-context
-verdicts and verify input sensitivity without credentials.
-
 <a id="guard-native-fixture-identity-inputs"></a>
 
 ### Guard native fixture identity inputs against drift
 
 **Identity:** SEED-262#guard-native-fixture-identity-inputs
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/542-guard-native-fixture-identity-inputs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0f8dfb3744ccf356ad60cbbb4576d4248b035d8affa8a66e4376a7b4f8d74c64","plan":"0aa7704a9e348a1be6fcd6420742790c95a82bb0973a1b53340e2370d7c35a12"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/542-guard-native-fixture-identity-inputs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"866b36dd068088b35ba3148aea888c0d998079a0ddeb2840683af145ebe0c6ad","plan":"cc604926bba35b97b323f59048b9147d80e07d6442d2dd6870994354d43c6ea5"}}
 ```
 
-Correction of
-[SEED-262#migrate-git-publication-native-fixtures](#migrate-git-publication-native-fixtures).
+Correction of SEED-262#migrate-git-publication-native-fixtures
+(`f40a29409bd3baf728caf54c50690448a88c6b1c:.planning/seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-git-publication-native-fixtures`).
 
 #### Goal
 

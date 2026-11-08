@@ -28,7 +28,7 @@ Preserved promises and constraints:
 Exclusions:
 
 - Git-publication native fixtures:
-  [their sibling story](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-git-publication-native-fixtures).
+  [built from MakeMe data](../../../tests/README.md#test-data-architecture).
 - Installed state, host-hook settings, runner settings and native scenario
   content:
   [installation and native test data](../../seeds/SEED-261-share-domain-test-data.md#map-installation-and-native-test-data).
