@@ -1,21 +1,8 @@
-// Disposable trunk, queued backlog, and command-readiness scripts for
+// Queued story names, command-readiness text and the startup CLI runner for
 // workspace-publication Git-mechanics tests.
-import {
-  cpSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  realpathSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { writeQueuedStories } from "../../../../tests/support/queued-ready-stories.mjs";
-import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
-import { createBareFixtureRemote } from "./bare-remote-test-fixtures.mjs";
-import { git, exec, revParse } from "./publication-test-fixtures.mjs";
+import { git, exec } from "./publication-test-fixtures.mjs";
 
 export const storyA = "- [Story A](seeds/A.md#a) \u2014 SEED-A#a";
 export const storyB = "- [Story B](seeds/B.md#b) \u2014 SEED-B#b";
@@ -43,103 +30,6 @@ export const failingContributing = [
   "Applicable command: `node scripts/fail.js`",
   "",
 ].join("\n");
-
-const queuedTrunkLayout = (fixture) => ({
-  origin: join(fixture, "remote.git"),
-  integration: join(fixture, "integration"),
-});
-
-// A bare remote and an integration checkout whose trunk commit queues stories
-// A and B; with `contributing`, it also holds CONTRIBUTING.md and its scripts.
-async function buildQueuedTrunk(
-  fixture,
-  { contributing, durableCommandEvidence },
-) {
-  const { origin, integration } = queuedTrunkLayout(fixture);
-  await createBareFixtureRemote(origin);
-  await exec("git", ["init", "-b", "main", integration]);
-  // Dashboard callers do not inherit the shell runner's Git overrides.
-  // Protect the template's objects and every copied checkout from detached
-  // maintenance too, before the first commit can start it.
-  await git(integration, "config", "maintenance.auto", "false");
-  await git(integration, "config", "user.name", "Integration Checkout");
-  await git(integration, "config", "user.email", "integration@example.test");
-  await git(integration, "remote", "add", "origin", origin);
-  writeFileSync(join(integration, "trunk.txt"), "base\n");
-  writeQueuedStories(integration);
-  if (contributing) {
-    mkdirSync(join(integration, "scripts"), { recursive: true });
-    const marker = (name) =>
-      durableCommandEvidence ? join(fixture, name) : name;
-    writeFileSync(
-      join(integration, "scripts/setup.js"),
-      `require('fs').writeFileSync(${JSON.stringify(marker(setupMarker))},'1')\n`,
-    );
-    writeFileSync(
-      join(integration, "scripts/command.js"),
-      `require('fs').writeFileSync(${JSON.stringify(marker(commandMarker))},'1')\n`,
-    );
-    writeFileSync(join(integration, "scripts/fail.js"), "process.exit(1)\n");
-    writeFileSync(join(integration, "CONTRIBUTING.md"), contributing);
-  }
-  await git(integration, "add", ".");
-  await git(integration, "commit", "-m", "base trunk commit");
-  await git(integration, "push", "origin", "main");
-}
-
-// Without durable command evidence a queued trunk holds no path of its own, so
-// each test process builds it once per CONTRIBUTING text and copies it.
-const templates = new Map();
-
-function queuedTrunkTemplate(contributing) {
-  const key = contributing ?? "";
-  if (!templates.has(key)) {
-    const template = realpathSync(
-      mkdtempSync(join(tmpdir(), "queued-trunk-template-")),
-    );
-    process.once("exit", () =>
-      rmSync(template, { recursive: true, force: true }),
-    );
-    templates.set(
-      key,
-      buildQueuedTrunk(template, { contributing }).then(() => template),
-    );
-  }
-  return templates.get(key);
-}
-
-// The copied checkout's `origin` names the template's remote; point it at the
-// copy's own.
-async function copyQueuedTrunk(fixture, contributing) {
-  const template = await queuedTrunkTemplate(contributing);
-  cpSync(template, fixture, { recursive: true });
-  const config = join(queuedTrunkLayout(fixture).integration, ".git/config");
-  writeFileSync(
-    config,
-    readFileSync(config, "utf8").replaceAll(template, fixture),
-  );
-}
-
-export async function createQueuedTrunk({
-  contributing,
-  durableCommandEvidence = false,
-  parent = tmpdir(),
-} = {}) {
-  const fixture = realpathSync(mkdtempSync(join(parent, "workspace-claim-")));
-  const { origin, integration } = queuedTrunkLayout(fixture);
-  if (durableCommandEvidence)
-    await buildQueuedTrunk(fixture, { contributing, durableCommandEvidence });
-  else await copyQueuedTrunk(fixture, contributing);
-  const teardown = fixtureTeardown(fixture);
-  return {
-    fixture,
-    origin,
-    integration,
-    trunkSha: await revParse(integration, "HEAD"),
-    cleanup: teardown.cleanup,
-    defer: teardown.defer,
-  };
-}
 
 const startCli = fileURLToPath(
   new URL("./execution-start.mjs", import.meta.url),

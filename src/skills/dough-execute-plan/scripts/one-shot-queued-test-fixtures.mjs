@@ -1,7 +1,8 @@
-// Queued one-shot journeys: story B queued between A and its unfinished
-// sibling B2 in the same seed, the one-shot start for B, the result commit an
-// agent composes for it, managed delivery with its ownership guard, and the
-// rival holders another developer publishes through the production commands.
+// Queued one-shot journeys over the trunk where story B is queued between A
+// and its unfinished sibling B2 in the same seed: the one-shot start for B,
+// the result commit an agent composes for it, managed delivery with its
+// ownership guard, and the rival holders another developer publishes through
+// the production commands.
 import assert from "node:assert/strict";
 import {
   appendFileSync,
@@ -21,67 +22,23 @@ import { readRevisionCoverage } from "./ci-mailbox.mjs";
 import { deliverThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { installManagedDelivery } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { exec, git, revParse } from "./publication-test-fixtures.mjs";
+import { storyB2 } from "./one-shot-queued-repository.mjs";
 import { listed } from "./workspace-publication-admission-fixtures.mjs";
 import {
-  createQueuedTrunk,
   identityB,
   startCliResult,
 } from "./workspace-publication-fixtures.mjs";
-import { configureDeveloper } from "./workspace-publication-startup-test-fixtures.mjs";
 
 export { remoteText } from "./workspace-publication-admission-fixtures.mjs";
 export { identityB };
-export const identityB2 = "SEED-B#b2";
+export const identityB2 = storyB2.identity;
 export const backlogFile = ".planning/PRODUCT-BACKLOG.md";
 export const seedB = ".planning/seeds/B.md";
 export const planB = ".planning/slice-plans/B/PLAN.md";
 export const trunkTarget = "refs/heads/main";
-const siblingSection =
-  '\n<a id="b2"></a>\n\n### Story B2\n\n**Identity:** SEED-B#b2\n\nExecute B2 later.\n';
 
 export const backlog = (cwd, ...args) =>
   exec(process.execPath, [backlogCli, ...args], { cwd });
-
-// Queued trunk A, B, B2, where B2 is B's unfinished sibling in seed B;
-// `options` are createQueuedTrunk's.
-export async function createSiblingTrunk(options) {
-  const trunk = await createQueuedTrunk(options);
-  const { integration } = trunk;
-  appendFileSync(join(integration, seedB), siblingSection);
-  await backlog(
-    integration,
-    "add",
-    "--identity",
-    identityB2,
-    "--title",
-    "Story B2",
-    "--link",
-    "seeds/B.md#b2",
-    "--position",
-    "last",
-  );
-  // B stays ready for an ordinary Take after its seed gained the sibling.
-  await recordStoryBReady(integration);
-  await git(integration, "add", ".planning");
-  await git(integration, "commit", "-qm", "queue sibling B2");
-  await git(integration, "push", "-q", "origin", "main");
-  await configureDeveloper(integration);
-  return { ...trunk, trunkSha: await revParse(integration, "HEAD") };
-}
-
-// Records story B's readiness again over its current seed section and plan.
-export async function recordStoryBReady(integration) {
-  const link = "seeds/B.md#b";
-  const { basis } = JSON.parse(
-    (await backlog(integration, "read-state", "--link", link)).stdout,
-  );
-  await backlog(
-    ...[integration, "record-state", "--identity", identityB, "--link", link],
-    ...["--refinement", "refined", "--approach", "planned"],
-    ...["--plan", "../slice-plans/B/PLAN.md", "--assessment", "ready"],
-    ...["--expect-document", basis.document, "--expect-plan", basis.plan],
-  );
-}
 
 // The one-shot start for queued story B; its branch is the delivery
 // fixture's exec/story.

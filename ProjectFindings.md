@@ -431,3 +431,20 @@ selects no new implementation story.
   - Evidence: the slice 2 refactor pass made `tests/support/testOptimizationCandidatesTestData.mjs` (registered in `tests/support/makeMe.mjs`) import `candidateEntryFields` from `dashboard/src/testOptimizationCandidates.ts`. Job `test (3/3)` failed `tests/native-evidence-identity.sh` with ENOENT, because it hashes makeMe's import closure from a copy of `tests/` and `src/` only. The slice's local gate (Intent browser suite, MakeMe node tests, typecheck) passed. The repair is `5d1c5fe43`.
   - Observed effect: one CI failure and a pause/stash/repair/restore cycle around slice 3. The builder now keeps its own entry labels, duplicating the dashboard's list.
   - Inference: a fast local check that makeMe's closure stays within `tests/` and `src/`, or a note at the MakeMe registry, would surface the constraint before publication.
+
+## A slice made a check heavier without judging its CI job ceiling (open, unqueued)
+
+<a id="dd-467"></a>
+
+### DD-467 — Slice 1 grew `tests/native-evidence-identity.sh` past the 64 s per-job ceiling; local proof passed and CI failed
+
+### Occurrences
+
+- Execution: SEED-262#migrate-git-publication-native-fixtures (plan 534-migrate-git-publication-native-fixtures, first implementation commit e33993231c9ce45e6ad573321fba472d4778e25f)
+  - Timestamp: 2026-11-08T14:20:06Z (run 42488867557 attempt 1 completed)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `23d29ac79`)
+  - Evidence: slice 1 made four family identities hash about 380–410 inputs each and added startup and one-shot to the check's writers; its seven one-input supervision captures and per-line `awk` calls scaled with that. Job `test (3/3)` printed `OVER BUDGET: tests/native-evidence-identity.sh took 67.8s … the per-job ceiling is 64s (tests/time-budget)` (recorded 34.5 s in `tests/longest-first`). The slice's focused runs passed at 47–67 s locally under load 11–13 without a budget judgment; the plan's Local gates and the delegation brief did not name the ceiling. Repair `7d62c61b5` (one capture over all changed inputs) gave 16.2 CI seconds at `cd5b0ddb0`.
+  - Observed effect: one CI failure, a stash/repair/restore cycle around paused slice 2 work, and about 93k repair-agent tokens.
+  - Inference: a slice that adds work inside an existing check could compare its focused time against the check's `tests/longest-first` entry scaled by the local base run and stop before publishing when it approaches the ceiling. Later briefs in this execution named the ceiling and no further breach occurred.

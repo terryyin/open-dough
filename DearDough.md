@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 466. Removed numbers are never reused.
+- Highest allocated local number: 467. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -615,6 +615,14 @@ the candidate could.
   - Evidence: Slice 1's before runs were at load about 10.5 and its after runs at 14.8–16.3 (startOriginTest consumers 60/68 s before, 73/81 s after); the coordinator recorded obligation G3 in plan 512. Slices 2 and 3 measured base-worktree and candidate runs back to back (51/51 s; 47/46 and 47/45 s; 22/20 and 23/20 s).
   - Observed effect: Slice 1's timing evidence could not close its promise and the comparison was repeated in slice 3 with a temporary base worktree and its setup.
   - Inference: The plan's wording "record before changing anything" invites sequential measurement; naming paired back-to-back runs from the start would likely have avoided the repeat. One execution only.
+- Execution: SEED-262#migrate-git-publication-native-fixtures (plan 534-migrate-git-publication-native-fixtures; first related implementation commit `e33993231c9ce45e6ad573321fba472d4778e25f`)
+  - Timestamp: 2026-11-09T00:10:00+08:00 (end of the paired runs; before run 2026-11-08T21:38+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `23d29ac79`)
+  - Evidence: Plan 534's Local gates again prescribed a before run and a repeat "after the migration". Before 148.49 s at load 16.8→12.8; after 211.10 s at 19.9→19.1, with unchanged jobs slower too. Paired base and candidate scratch worktrees run alternately then gave base 138.84 s and 326.52 s, candidate 261.14 s and 259.69 s, as load swung 11→29 within the pairs. CI test-times artifacts (main `11bd921ed` run 42484078567 versus branch `cd5b0ddb0` run 42493839333) gave the comparison: 231.1 to 176.0 job seconds for the six checks.
+  - Observed effect: Neither sequential nor paired local runs could attribute a difference; the slice 5 evaluation rests on CI job seconds, and the paired runs cost about 17 minutes plus two scratch installs.
+  - Inference: Paired runs need a stable load window; on this machine the hosted runner's per-job test times were the steadier comparison and were already available for both revisions. Planning could name them as the timing source when the selection runs in CI.
 
 ## DD-465 — An empty focused path list ran the whole local suite
 `scripts/test.sh` with no path arguments runs the whole serialized local suite. A focused command built from a file list that silently came out empty therefore started a full run instead of failing.

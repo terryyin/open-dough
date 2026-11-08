@@ -2,7 +2,16 @@
 # Evidence identity and retained native publication attempts. Sourced by runner.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared native runner globals.
 
+# shellcheck source=tests/support/git-publication-native-fixture-identity.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-fixture-identity.sh"
+
+# Prints the evidence identity of profile $1 for the checkout source_dir: the
+# helper, adapter, fixture and assessor identities and one input-hash line per
+# input. Returns non-zero, even when the caller disabled errexit, when any
+# input cannot be read or its import closure cannot be traced.
 git_publication_write_evidence_identity() {
+  local lines
   case $1 in
     publication)
       printf 'helper-identity: tests/support/git-publication-native-run.sh\n'
@@ -23,82 +32,23 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-stream-one-shot.mjs \
         tests/support/git-publication-native-run.sh \
         tests/support/git-publication-native-evidence.sh \
-        tests/support/git-publication-native-prompt.sh
-      native_result_supervision_input_hash_lines
+        tests/support/git-publication-native-fixture-identity.sh \
+        tests/support/git-publication-native-prompt.sh || return
+      native_result_supervision_input_hash_lines || return
       native_result_input_hash_lines \
         src/skills/dough-execute-plan/references/publish-the-candidate.md
       ;;
-    admission)
-      git_publication_write_evidence_identity publication
-      native_result_input_hash_lines \
-        tests/support/git-publication-native-admission.sh \
-        tests/support/git-publication-native-admission-closure.sh \
-        tests/support/git-publication-native-admission-correction.sh \
-        tests/support/git-publication-native-admission-fixture.mjs \
-        tests/support/git-publication-native-admission-observe.mjs
-      native_import_closure_input_hash_lines \
-        src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs \
-        src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs \
-        src/skills/dough-execute-plan/scripts/execution-start.mjs
-      ;;
-    owned-context)
-      git_publication_write_evidence_identity publication
-      native_result_input_hash_lines \
-        tests/support/git-publication-native-owned-context.sh \
-        tests/support/git-publication-native-owned-context-fixture.mjs \
-        tests/support/git-publication-native-startup-owned-context.sh \
-        tests/support/git-publication-native-preparation-land.sh \
-        tests/support/git-publication-native-push-log-observe.mjs \
-        tests/support/native-harness-observation.sh \
-        tests/support/native-harness-login-shell.sh \
-        tests/support/native-node-call-recorder.mjs \
-        src/skills/dough-execute-plan/SKILL.md \
-        src/skills/dough-story-refinement/references/preparation-assignment.md \
-        src/skills/dough-story-refinement/references/preparation-workspace.md
-      git_publication_closing_input_hash_lines \
-        src/skills/dough-execute-plan/scripts/workspace-publication-select.mjs \
-        src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs \
-        src/skills/dough-story-refinement/scripts/preparation-assignment.mjs
-      ;;
-    one-shot)
-      git_publication_write_evidence_identity publication
-      native_result_input_hash_lines \
-        tests/support/git-publication-native-one-shot.sh \
-        tests/support/git-publication-native-one-shot-fixture.sh \
-        tests/support/git-publication-native-one-shot-fixture.mjs \
-        tests/support/makeMe.mjs \
-        tests/support/published-plan.mjs \
-        tests/support/git-publication-native-one-shot-unobserved.sh \
-        tests/support/git-publication-native-one-shot-queued.sh \
-        tests/support/git-publication-native-one-shot-queued-observe.mjs \
-        tests/support/git-publication-native-one-shot-escalation.sh \
-        tests/support/git-publication-native-one-shot-escalation-fixture.mjs \
-        tests/support/git-publication-native-one-shot-retained.sh \
-        tests/support/git-publication-native-one-shot-review.sh \
-        tests/support/git-publication-native-one-shot-refinement.sh \
-        tests/support/git-publication-native-one-shot-refinement-observe.mjs \
-        tests/support/git-publication-native-one-shot-default-main.sh \
-        tests/support/git-publication-native-one-shot-auto-land.sh \
-        tests/support/git-publication-native-one-shot-established.sh \
-        tests/support/git-publication-native-one-shot-refinement-auto-land.sh \
-        src/skills/dough-story-refinement/references/preparation-disposition.md \
-        tests/support/git-publication-native-push-log-observe.mjs \
-        src/skills/dough-execute-plan/SKILL.md \
-        src/skills/dough-execute-plan/references/one-shot.md \
-        src/skills/dough-execute-plan/references/established-start.md \
-        src/skills/dough-story-refinement/SKILL.md \
-        src/skills/dough-story-refinement/references/one-shot-refinement.md
-      native_import_closure_input_hash_lines \
-        src/skills/dough-execute-plan/scripts/execution-start.mjs \
-        src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs \
-        src/skills/dough-execute-plan/scripts/established-start.mjs \
-        src/skills/dough-story-refinement/scripts/preparation-assignment.mjs
+    startup | admission | owned-context | one-shot)
+      # A family's roots overlap the publication inputs and the installed
+      # payload; each input keeps its first line.
+      lines=$(git_publication_fixture_family_identity "$1") || return
+      awk '!/^input-hash: / || !seen[$3]++' <<< "${lines}"
       ;;
     land-default-checkout)
-      git_publication_write_evidence_identity publication
+      git_publication_write_evidence_identity publication || return
       native_result_input_hash_lines \
         tests/support/git-publication-native-land-default.sh \
-        tests/support/git-publication-native-push-log-observe.mjs
+        tests/support/git-publication-native-push-log-observe.mjs || return
       git_publication_closing_input_hash_lines
       ;;
     execution-review)
@@ -122,8 +72,9 @@ git_publication_write_evidence_identity() {
         tests/support/native-harness-login-shell.sh \
         tests/support/native-node-call-recorder.mjs \
         tests/support/git-publication-native-run.sh \
-        tests/support/git-publication-native-evidence.sh
-      native_result_supervision_input_hash_lines
+        tests/support/git-publication-native-evidence.sh \
+        tests/support/git-publication-native-fixture-identity.sh || return
+      native_result_supervision_input_hash_lines || return
       native_result_input_hash_lines \
         src/skills/dough-execute-plan/references/ci-monitor.md \
         src/skills/dough-execute-plan/references/ci-completion-wait.md \
@@ -151,6 +102,8 @@ git_publication_evidence_profile() {
     echo owned-context
   elif [[ $1 == land-default-checkout ]]; then
     echo land-default-checkout
+  elif [[ $1 == startup-* ]]; then
+    echo startup
   elif [[ $1 == one-shot-* ]]; then
     echo one-shot
   elif [[ $1 == admission-* ]]; then
@@ -168,6 +121,7 @@ git_publication_retain_attempt() {
   local native_stderr=$5
   local observations_file=$6
   local evidence_profile=${7-publication}
+  local identity
 
   before_digest=publication-native
   after_digest=publication-native
@@ -186,6 +140,13 @@ git_publication_retain_attempt() {
   native_result_copy_if_present "${output_file}" response.md
   native_result_copy_if_present "${native_stderr}" stderr.log
   native_result_copy_if_present "${observations_file}" observations.txt
+  # An identity that could not read an input would look complete; keep the
+  # copied artifacts for diagnosis and write no record.
+  if ! identity=$(git_publication_write_evidence_identity "${evidence_profile}"); then
+    printf 'error: could not identify the inputs of %s evidence; artifacts kept without a record in %s\n' \
+      "${evidence_profile}" "${native_result_attempt_dir}" >&2
+    return 1
+  fi
   {
     printf 'host: %s\n' "${native_case_host}"
     printf 'case: %s\n' "${native_case_id}"
@@ -198,7 +159,7 @@ git_publication_retain_attempt() {
     printf 'fixture-commit: %s\n' "${source_commit}"
     printf 'prompt-identity: %s\n' \
       "$(printf '%s' "${prompt}" | shasum -a 256 | cut -d ' ' -f 1)"
-    git_publication_write_evidence_identity "${evidence_profile}"
+    printf '%s\n' "${identity}"
     printf 'artifact-events: events.jsonl\n'
     printf 'artifact-response: response.md\n'
     printf 'artifact-stderr: stderr.log\n'

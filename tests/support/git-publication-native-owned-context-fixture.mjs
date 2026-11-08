@@ -7,57 +7,51 @@
 // from trunk hold it. Another writer then advances trunk, leaving the
 // retained worktree clean and behind.
 //
-// startup-owned-context: the queued trunk with ready setup; the retained
-// worktree also holds an uncommitted, ready-looking local copy of Story A's
-// section that differs from the published one. The session is to start a new
-// owned workspace.
+// startup-owned-context: trunk queues Ready stories A and B with the
+// project's durable setup and command, which leave their markers in the
+// fixture root; the retained worktree also holds an uncommitted,
+// ready-looking local copy of Story A's section that differs from the
+// published one. The session is to start a new owned workspace.
 //
-// preparation-land: the preparation trunk with queued, unrefined Story C; the
-// retained worktree is the owned preparation workspace, carrying the creation
-// record an earlier session's preparation `start` would have written for C.
+// preparation-land: trunk queues Ready A and B and, last, rough Story C,
+// not yet refined; the retained worktree is the owned preparation workspace,
+// carrying the creation record an earlier session's preparation `start`
+// would have written for C.
 //
 // Usage: node git-publication-native-owned-context-fixture.mjs <source-dir>
 //   <journey> <parent> <host>
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+import { ownedWorktreeOnly } from "../../src/skills/dough-execute-plan/scripts/default-checkout-test-fixtures.mjs";
+import { advanceOriginFromAnotherWriter } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { createdForRef } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs";
+import {
+  computeBasis,
+  recordStoryState,
+} from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
+import {
+  queuedRepositoryWithRoughStory,
+  readyStoryState,
+  roughStoryC,
+  storyA,
+  storyB,
+  storyPlanPath,
+} from "./queued-repository.mjs";
+import { materializeRepository } from "./repository-fixture.mjs";
+import { queuedReadyStartupRepository } from "./startup-command-files.mjs";
 
 const [sourceDir, journey, parent, host] = process.argv.slice(2);
-const load = (path) => import(pathToFileURL(join(sourceDir, path)).href);
-const scripts = "src/skills/dough-execute-plan/scripts";
-const { createQueuedTrunk, readyContributing, identityA } = await load(
-  `${scripts}/workspace-publication-fixtures.mjs`,
-);
-const { ownedWorktreeOnly } = await load(
-  `${scripts}/default-checkout-test-fixtures.mjs`,
-);
-const { advanceOriginFromAnotherWriter } = await load(
-  `${scripts}/publication-test-fixtures.mjs`,
-);
-const { createdForRef } = await load(
-  `${scripts}/workspace-publication-ownership.mjs`,
-);
-const { computeBasis, recordStoryState } = await load(
-  "src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs",
-);
-const preparation = await load(
-  "src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs",
-);
-
 const git = (cwd, ...args) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
 const isStartup = journey === "startup-owned-context";
 if (!isStartup && journey !== "preparation-land")
   throw new Error(`unknown owned-context journey ${journey}`);
 
-const trunk = isStartup
-  ? await createQueuedTrunk({
-      contributing: readyContributing,
-      durableCommandEvidence: true,
-      parent,
-    })
-  : await preparation.createPreparationTrunk({ parent });
+const startingTrunk = isStartup
+  ? queuedReadyStartupRepository({ queued: [storyA, storyB] })
+  : queuedRepositoryWithRoughStory(roughStoryC);
+const trunk = await materializeRepository(startingTrunk.please(), { parent });
 const { fixture, origin, integration } = trunk;
 
 execFileSync(
@@ -85,7 +79,7 @@ if (!isStartup)
   git(
     owned.workspace,
     "update-ref",
-    createdForRef(preparation.identityC),
+    createdForRef(roughStoryC.identity),
     "HEAD",
   );
 const fetched = await advanceOriginFromAnotherWriter(origin);
@@ -95,7 +89,7 @@ const fetched = await advanceOriginFromAnotherWriter(origin);
 function writeReadyLookingLocalCopy(workspace) {
   const seedPath = join(workspace, ".planning/seeds/A.md");
   const plan = readFileSync(
-    join(workspace, ".planning/slice-plans/A/PLAN.md"),
+    join(workspace, ".planning", storyPlanPath(storyA)),
     "utf8",
   );
   const seed = readFileSync(seedPath, "utf8").replace(
@@ -104,16 +98,7 @@ function writeReadyLookingLocalCopy(workspace) {
   );
   const recorded = recordStoryState(
     seed,
-    {
-      href: "seeds/A.md#a",
-      identity: identityA,
-      refinement: "refined",
-      approach: "planned",
-      plan: "../slice-plans/A/PLAN.md",
-      assessment: "ready",
-      reasons: [],
-      expectedBasis: computeBasis(seed, plan),
-    },
+    { ...readyStoryState(storyA), expectedBasis: computeBasis(seed, plan) },
     { planSource: plan },
   );
   writeFileSync(seedPath, recorded.source);
@@ -129,7 +114,7 @@ process.stdout.write(
     retained: owned.workspace,
     workspace: isStartup ? join(fixture, "native-execution") : owned.workspace,
     branch: isStartup ? "exec/native-startup" : owned.branch,
-    identity: isStartup ? identityA : preparation.identityC,
+    identity: isStartup ? storyA.identity : roughStoryC.identity,
     installed,
     base: fetched,
   }),

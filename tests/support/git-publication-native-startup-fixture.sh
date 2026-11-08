@@ -5,11 +5,10 @@
 git_publication_fixture_create_startup() {
   local source_dir=$1 journey=$2 parent=$3
   local prepared
-  prepared=$(node --input-type=module -e '
-    const { createQueuedTrunk, readyContributing } = await import(process.argv[1]);
-    const fixture = await createQueuedTrunk({ contributing: readyContributing, durableCommandEvidence: true, parent: process.argv[2] });
-    process.stdout.write(JSON.stringify({ root: fixture.fixture, origin: fixture.origin, integration: fixture.integration, trunk: fixture.trunkSha }));
-  ' "file://${source_dir}/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs" "${parent}")
+  # Ready queued A and B with the durable setup and command; the case's own
+  # state follows.
+  prepared=$(node "${source_dir}/tests/support/git-publication-native-startup-fixture.mjs" \
+    "${parent}")
   git_publication_fixture_root=$(jq -r .root <<< "${prepared}")
   git_publication_fixture_origin=$(jq -r .origin <<< "${prepared}")
   git_publication_fixture_integration=$(jq -r .integration <<< "${prepared}")

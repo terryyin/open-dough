@@ -1,5 +1,6 @@
-// Builds a one-shot native-journey fixture from the real startup fixtures,
-// then prints its coordinates as JSON.
+// Builds a one-shot native-journey fixture from explicit repository facts,
+// then prints its coordinates as JSON. Every journey starts from Ready queued
+// A and B with the project's durable setup and command.
 //
 // one-shot-result: a queued trunk holding a product file `notes.txt` and what
 // managed delivery needs to observe CI: `.planning/open-dough.json` selects
@@ -33,22 +34,29 @@
 // Usage: node git-publication-native-one-shot-fixture.mjs <source-dir>
 //   <journey> <parent>
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
 import { makeMe } from "./makeMe.mjs";
 import { renderSlicePlan } from "./published-plan.mjs";
-import { writeEscalationProduct } from "./git-publication-native-one-shot-escalation-fixture.mjs";
+import { escalationProductFiles } from "./git-publication-native-one-shot-escalation-fixture.mjs";
+import {
+  readyStoryState,
+  storyA,
+  storyB,
+  storyPlanPath,
+} from "./queued-repository.mjs";
+import { materializeRepository } from "./repository-fixture.mjs";
+import {
+  queuedReadyStartupRepository,
+  readyStartupFiles,
+} from "./startup-command-files.mjs";
+import { splitHref } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
+import {
+  queuedRepositoryWithSiblingB2,
+  seedWithSiblingB2,
+  storyB2,
+} from "../../src/skills/dough-execute-plan/scripts/one-shot-queued-repository.mjs";
 
-const [sourceDir, journey, parent] = process.argv.slice(2);
-const scripts = join(sourceDir, "src/skills/dough-execute-plan/scripts");
-const { createQueuedTrunk, readyContributing } = await import(
-  pathToFileURL(join(scripts, "workspace-publication-fixtures.mjs")).href
-);
-const queued = await import(
-  pathToFileURL(join(scripts, "one-shot-queued-test-fixtures.mjs")).href
-);
-
+const [, journey, parent] = process.argv.slice(2);
 const git = (cwd, ...args) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
 const isRefinement = journey.startsWith("one-shot-refinement");
@@ -59,70 +67,47 @@ const isQueued =
     "one-shot-auto-land-blocked",
     "one-shot-established",
   ].includes(journey) || isRefinement;
-const trunkOptions = {
-  contributing: readyContributing,
-  durableCommandEvidence: true,
-  parent,
-};
-const trunk = isQueued
-  ? await queued.createSiblingTrunk(trunkOptions)
-  : await createQueuedTrunk(trunkOptions);
-const { fixture, origin, integration } = trunk;
+const seedB = `.planning/${splitHref(storyB.href).path}`;
+const planB = `.planning/${storyPlanPath(storyB)}`;
+// The developer who queued work commits it from the originating checkout.
+const developer = { name: "Dana Developer", email: "dana@example.test" };
 
-// Gives queued story B a concrete trivial outcome and a one-slice plan, and
-// records its readiness again over them.
-async function describeStoryB() {
-  const seedPath = join(integration, queued.seedB);
-  writeFileSync(
-    seedPath,
-    readFileSync(seedPath, "utf8").replace(
-      "Execute B.\n",
-      "Add the line 'Story B line' to the end of notes.txt.\n",
-    ),
-  );
-  writeFileSync(
-    join(integration, queued.planB),
-    `${renderSlicePlan(
-      makeMe.aSlicePlan
-        .with({
-          slices: [
-            makeMe.aPlanSlice
-              .with({
-                index: 1,
-                name: "Add the Story B line",
-                proof: "notes.txt ends with the line 'Story B line'.",
-              })
-              .please(),
-          ],
-        })
-        .please(),
-      { preamble: "# Story B plan" },
-    )}\nAppend the line 'Story B line' to notes.txt.\n`,
-  );
-  await queued.recordStoryBReady(integration);
-}
+// Ready queued A and B with the project's durable setup and command.
+const readyTrunk = queuedReadyStartupRepository({ queued: [storyA, storyB] });
 
-// Describes sibling B2's outcome, leaving it unrefined and unrecorded; B's
-// readiness is recorded again over the changed seed.
-async function describeStoryB2() {
-  const seedPath = join(integration, queued.seedB);
-  writeFileSync(
-    seedPath,
-    readFileSync(seedPath, "utf8").replace(
-      "Execute B2 later.\n",
-      "Release notes should also credit Story B2: add the line 'Story B2 line' to the end of notes.txt.\n",
-    ),
-  );
-  await queued.recordStoryBReady(integration);
-}
+// Story B's concrete trivial outcome and its one-slice plan; selected for
+// refinement, sibling B2 gains an outcome of its own but stays unrefined.
+const queuedStoryFiles = () => ({
+  ...seedWithSiblingB2({
+    storyB: "Add the line 'Story B line' to the end of notes.txt.",
+    ...(isRefinement && {
+      storyB2:
+        "Release notes should also credit Story B2: add the line 'Story B2 line' to the end of notes.txt.",
+    }),
+  }),
+  [planB]: `${renderSlicePlan(
+    makeMe.aSlicePlan
+      .with({
+        slices: [
+          makeMe.aPlanSlice
+            .with({
+              index: 1,
+              name: "Add the Story B line",
+              proof: "notes.txt ends with the line 'Story B line'.",
+            })
+            .please(),
+        ],
+      })
+      .please(),
+    { preamble: "# Story B plan" },
+  )}\nAppend the line 'Story B line' to notes.txt.\n`,
+});
 
-if (isQueued) await describeStoryB();
-if (isRefinement) await describeStoryB2();
-if (journey === "one-shot-escalation") writeEscalationProduct(integration);
-writeFileSync(join(integration, "notes.txt"), "Release notes\n");
-writeFileSync(
-  join(integration, "scripts/ci-check.mjs"),
-  `// The project's CI check: every push to the checked branch passes.
+// What managed delivery needs to observe CI: `.planning/open-dough.json`
+// selects the project's CI command, which reports success for whatever
+// revision the checked remote branch holds.
+const ciFiles = {
+  "scripts/ci-check.mjs": `// The project's CI check: every push to the checked branch passes.
 import { execFileSync } from "node:child_process";
 let input = "";
 for await (const chunk of process.stdin) input += chunk;
@@ -135,14 +120,32 @@ if (request.operation === "discover") {
   process.stdout.write(JSON.stringify({ unavailable: "the check never fails" }));
 }
 `,
+  ".planning/open-dough.json": `${JSON.stringify({ ciAdapter: ["node", "scripts/ci-check.mjs"] })}\n`,
+};
+
+const startingTrunk = (
+  isQueued ? queuedRepositoryWithSiblingB2(readyTrunk) : readyTrunk
+).withRevision("notes", {
+  message: "add notes and the CI check",
+  files: {
+    "notes.txt": "Release notes\n",
+    ...ciFiles,
+    ...(isQueued && queuedStoryFiles()),
+    ...(journey === "one-shot-escalation" &&
+      escalationProductFiles(readyStartupFiles["scripts/command.js"])),
+  },
+  // B stays Ready over its described outcome and plan; B2 stays unrefined.
+  storyStates: isQueued ? [readyStoryState(storyB)] : [],
+  ...(isQueued && { committer: developer }),
+});
+const { fixture, origin, integration } = await materializeRepository(
+  startingTrunk.please(),
+  { parent },
 );
-writeFileSync(
-  join(integration, ".planning/open-dough.json"),
-  `${JSON.stringify({ ciAdapter: ["node", "scripts/ci-check.mjs"] })}\n`,
-);
-git(integration, "add", ".");
-git(integration, "commit", "-qm", "add notes and the CI check");
-git(integration, "push", "-q", "origin", "main");
+if (isQueued) {
+  git(integration, "config", "user.name", developer.name);
+  git(integration, "config", "user.email", developer.email);
+}
 
 process.stdout.write(
   JSON.stringify({
@@ -159,17 +162,17 @@ process.stdout.write(
     base: git(origin, "rev-parse", "refs/heads/main"),
     ...(isRefinement
       ? {
-          identity: queued.identityB2,
-          sibling: queued.identityB,
-          seed: queued.seedB,
+          identity: storyB2.identity,
+          sibling: storyB.identity,
+          seed: seedB,
         }
       : {}),
     ...(isQueued && !isRefinement
       ? {
-          identity: queued.identityB,
-          sibling: queued.identityB2,
-          seed: queued.seedB,
-          plan: queued.planB,
+          identity: storyB.identity,
+          sibling: storyB2.identity,
+          seed: seedB,
+          plan: planB,
         }
       : {}),
   }),
