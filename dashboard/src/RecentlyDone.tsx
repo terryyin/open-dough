@@ -14,7 +14,8 @@ import { CreationEntry } from "./CreationEntry.tsx";
 import { columnMark } from "./columnPaging.ts";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { ShowLatest, ShownRange } from "./RecentlyDoneRangeActions.tsx";
-import type { DoneDetail } from "./doneDetails.ts";
+import { readingDoneStory, type DoneDetail } from "./doneDetails.ts";
+import { unreadableDoneRecord } from "./doneRecord.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { SessionFollowUp, StoryFollowUp } from "./FollowUp.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
@@ -40,7 +41,7 @@ function DoneReadGaps({ view }: { readonly view: RecentlyDoneView }) {
           {unreadable.map(({ file, detail }) => (
             <li key={file} className="assignment-gap">
               {detail.status === "unreadable"
-                ? `Done record ${file} is unreadable: ${detail.problem}.`
+                ? unreadableDoneRecord(file, detail.problem)
                 : `Done record ${file} is unreadable.`}
             </li>
           ))}
@@ -71,14 +72,11 @@ function unreadWords(
     case "read":
       return undefined;
     case "reading":
-      return { words: "Reading done story…", gap: false };
+      return { words: readingDoneStory, gap: false };
     case "failed":
       return { words: "This done story could not be read.", gap: true };
     case "unreadable":
-      return {
-        words: `Done record ${file} is unreadable: ${detail.problem}.`,
-        gap: true,
-      };
+      return { words: unreadableDoneRecord(file, detail.problem), gap: true };
   }
 }
 

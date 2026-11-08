@@ -23,7 +23,7 @@ example)" and their sibling rows.
 | --- | --- | --- | --- |
 | G1 | A developer reviewing a selected story sees the available CI evidence first. | slice 1 | observed: dashboard/tests/intent/intent-ci-comparison-locations.spec.ts held locations read: CI comparison tab chosen, Baseline compared with Landed while locations held |
 | G2 | The developer can inspect the changed tests without losing their place. | slice 1 | observed: dashboard/tests/intent/intent-sidebar-toggle.spec.ts file, Proof, folders, Selected story only and tree scroll kept across views |
-| G3 | The developer can inspect the saved Intent Coverage assessment without losing their place. | slice 3 | |
+| G3 | The developer can inspect the saved Intent Coverage assessment without losing their place. | slice 3 | observed: Coverage is a story tab kept by intent-story-changes-only, intent-sidebar-toggle and intent-reading-place specs |
 | G4 | The developer can visit project CI and optimization candidates and return to the same story evidence. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts candidate test reads as published; return restores candidate then story reading |
 | D1 | Hierarchy, spacing, tabs and timing treatment follow the approved interactive mockup. | slice 5 | |
 | D2 | Real evidence and the states described in the story are used. The mockup's sample story, build figures and report excerpt only illustrate the interaction. | slice 5 | |
@@ -80,15 +80,15 @@ example)" and their sibling rows.
 | 26a | Controls stay reachable by keyboard. | slice 1 | observed: intent-story-views-narrow.spec.ts Tab, Enter/Space, Home/End on views and toggle |
 | 27 | File Proof offers the mockup's direct return to **CI comparison**. | slice 1 | observed: intent-summary-story-comparison-file.spec.ts file Proof returns directly to CI comparison by Enter, tab focused |
 | 28 | With files hidden, the reader uses the available width and the header stays above it. (from the example) | slice 1 | observed: intent-sidebar-toggle.spec.ts Hide files gives the reader the width under the story header |
-| 29 | **Intent coverage** has its own reading pane. | slice 3 | |
-| 30 | The full saved report is shown as text. | slice 3 | |
-| 31.1 | A saved unavailable reason has its own distinct message. | slice 3 | |
-| 31.2 | An older completion that was read successfully but has no assessment has its own distinct message. | slice 3 | |
-| 31.3 | A completion whose record is still being read has its own distinct state. | slice 3 | |
-| 31.4 | A completion whose record could not be read has its own distinct state. | slice 3 | |
-| 32 | The existing retry is kept where available. | slice 3 | |
-| 32a | A failed completion read offers recovery without implying that no assessment was ever saved. (from the example) | slice 3 | |
-| 33 | For an unfinished story, the pane explains that the assessment runs during feature story wrap-up. | slice 3 | |
+| 29 | **Intent coverage** has its own reading pane. | slice 3 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts report tests: region Intent coverage with its own heading; intent-story-completed.spec.ts exact saved assessment step |
+| 30 | The full saved report is shown as text. | slice 3 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts .intent-story-coverage-text textContent equals the saved report exactly |
+| 31.1 | A saved unavailable reason has its own distinct message. | slice 3 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts Intent shows Unavailable and the reason |
+| 31.2 | An older completion that was read successfully but has no assessment has its own distinct message. | slice 3 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts older completion read without an assessment shows only the no-assessment message |
+| 31.3 | A completion whose record is still being read has its own distinct state. | slice 3 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts held record read shows Reading done story… with one read asked |
+| 31.4 | A completion whose record could not be read has its own distinct state. | slice 3 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts failed read says the assessment is unknown with the read problem |
+| 32 | The existing retry is kept where available. | slice 3 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts Retry done story reads again and shows the literal report |
+| 32a | A failed completion read offers recovery without implying that no assessment was ever saved. (from the example) | slice 3 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts failed read shows neither the no-assessment message nor Unavailable |
+| 33 | For an unfinished story, the pane explains that the assessment runs during feature story wrap-up. | slice 3 | observed: dashboard/tests/intent/intent-story-summary-title.spec.ts Taken story coverage shows exactly the wrap-up text |
 | 34 | **Optimization Candidates** sits alongside **CI status** in **Project Intent**. | slice 2 | observed: intent-ci-status-homepage.spec.ts Project Intent views tabs exactly CI status, Optimization Candidates |
 | 35 | Project CI shows trunk proof, including during a visit from a selected story. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts and intent-home-activation.spec.ts CI status of main shown while the story stays selected |
 | 36 | Project test browsing is preserved. | slice 2 | observed: intent-ci-status-homepage.spec.ts and intent-reading-place.spec.ts project browsing journeys in Project Intent |
@@ -104,7 +104,7 @@ example)" and their sibling rows.
 | A2 | A Project Intent visit changes the evidence and reading context and leaves the selection intact. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts project CI shown during the visit with the selection intact |
 | A3 | Project browsing does not borrow the story's diff or file selection. | slice 2 | observed: dashboard/tests/intent/intent-project-visit.spec.ts no story diff in project reading; intent-home-activation.spec.ts project and story file selections independent |
 | A4 | Both reading places (story and project) are disposable page state. | slice 2 | observed: intent-reading-place.spec.ts in-memory reading places restored across Development and back |
-| A5 | CI and coverage come from their existing published evidence. | slice 3 | |
+| A5 | CI and coverage come from their existing published evidence. | slice 3 | observed: dashboard/tests/intent/intent-story-coverage.spec.ts coverage read from published done records through useDoneDetails |
 | V1 | The implementation is compared with the mockup in light and dark themes. | slice 5 | |
 | V2 | The comparison covers desktop and narrow widths. | slice 5 | |
 | V3.1 | Reviewed view: the default CI tab with percentages off. | slice 5 | |

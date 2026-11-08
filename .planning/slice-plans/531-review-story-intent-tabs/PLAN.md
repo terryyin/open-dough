@@ -143,7 +143,7 @@ passed; all 24 `holdPushes` specs passed (58 tests).
 ### 3. Read the saved assessment and its availability
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Coverage row above, extending the existing published completion
 journey through the actual Intent coverage tab and done-record reader.
 
@@ -151,6 +151,14 @@ A developer opening the coverage tab can read the full stored assessment or
 understand its status. An active story, a legacy completion, a saved
 unavailable reason, and an unsettled record read remain distinct. Use the
 existing detail recovery for a failed read.
+
+Accepted proof: `tests/intent` plus `development-intent-frame-sessions`
+(261 passed), the refactor's coverage spec and the Recently done wording
+consumers (28 passed), typecheck and lint. `intent-story-coverage.spec.ts`
+observes the report, Unavailable, older completion, held, failed and Retry
+states; `intent-story-summary-title.spec.ts` observes the wrap-up text.
+The pane is `IntentStoryCoverage.tsx`. Its states are new targets for slice
+5's visual review.
 
 ### 4. Read and sort signed CI timing changes
 

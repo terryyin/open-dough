@@ -10,17 +10,18 @@
 // changed files outside every Intent location, the Review changes action that
 // shows them. The Changed tests tree (`./IntentBrowser.tsx`) offers "Selected
 // story only", off until chosen, which says so when no test file in a
-// location changed. **Intent coverage** shows any saved assessment as stored.
+// location changed. **Intent coverage** is its own view
+// (`./IntentStoryCoverage.tsx`).
 // Intent itself stays at its published revision (ADR 0008).
 
 import { GitCompare } from "lucide-react";
 import type { ReactNode } from "react";
-import type { DoneStory } from "./doneRecord.ts";
 import {
   CompactComparisonState,
   ComparisonDetail,
   type LensComparison,
 } from "./IntentStoryComparison.tsx";
+import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
 import { useOpenStoryReview } from "./pageStoryReviews.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
@@ -29,12 +30,14 @@ import { defaultStoryComparison } from "./useStoryComparison.ts";
 import "./intent-story-summary.css";
 
 // The selected story as Intent names it.
+// A completed story carries what is known of its published done record.
 export type LensStory = {
   readonly identity: string;
   readonly title: string;
-  readonly completed: boolean;
-  readonly intentCoverage?: DoneStory["intentCoverage"];
-};
+} & (
+  | { readonly completed: false }
+  | { readonly completed: true; readonly record: IntentDoneRecord }
+);
 
 // The selected story with the comparison read of it.
 export type ComparedStory = {
@@ -178,30 +181,5 @@ export function StoryTreeScopeChoice({
         </p>
       )}
     </div>
-  );
-}
-
-// The **Intent coverage** view: a completed story's saved assessment as
-// stored, or its saved unavailable reason.
-export function IntentStoryCoverage({ story }: { readonly story: LensStory }) {
-  const coverage = story.completed ? story.intentCoverage : undefined;
-  return (
-    <section className="intent-story-coverage" aria-label="Intent coverage">
-      <h3>Intent coverage</h3>
-      {coverage === undefined ? (
-        <p className="quiet">
-          No saved Intent coverage is shown for this story.
-        </p>
-      ) : "report" in coverage ? (
-        <p className="intent-story-coverage-text">{coverage.report}</p>
-      ) : (
-        <>
-          <p>
-            <strong>Unavailable</strong>
-          </p>
-          <p className="intent-story-coverage-text">{coverage.unavailable}</p>
-        </>
-      )}
-    </section>
   );
 }

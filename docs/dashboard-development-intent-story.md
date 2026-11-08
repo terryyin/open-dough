@@ -27,7 +27,12 @@ repeating CI. Every view stays in place while another shows, so returning to
 **Selected story only** and scroll. A file's Proof offers **View story CI
 comparison**, which shows that view and focuses its tab. **Intent coverage**
 shows a completed story's saved assessment as stored text, or its saved
-unavailable reason. Intent overlays that comparison's changed files on the
+unavailable reason, from its done record read as Recently done reads it. An
+older completion whose record was read without an assessment says none was
+saved; a record still being read says so, and one that could not be read says
+whether an assessment was saved is not known, with **Retry done story** for a
+failed read. An active story's view explains that the assessment runs during
+feature story wrap-up. Intent overlays that comparison's changed files on the
 published tree: styled by change kind, added files inserted, deleted files
 kept, a rename at its new path where a location selects it else at its old
 path. A completed story is named by its done record's title and compared

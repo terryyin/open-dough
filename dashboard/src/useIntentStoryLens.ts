@@ -5,11 +5,13 @@
 // (`storyComparisonOffered`), unknown while an active story's records are
 // unread; a story with none reads nothing. A completed story is named by its
 // published done record, read as Recently done reads it (`./doneDetails.ts`),
-// and by its identity until that record says more.
+// and by its identity until that record says more; what is known of that
+// record also qualifies its Intent coverage (`./IntentStoryCoverage.tsx`).
 
 import { useState } from "react";
 import { useDoneDetails } from "./doneDetails.ts";
-import type { DoneStory } from "./doneRecord.ts";
+import { unreadableDoneRecord } from "./doneRecord.ts";
+import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
 import type { LensComparison } from "./IntentStoryComparison.tsx";
 import type { ComparedStory, LensStory } from "./IntentStorySummary.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";
@@ -25,7 +27,7 @@ import { useStoryComparison } from "./useStoryComparison.ts";
 function lensStoryOf(
   work: PublishedWork | undefined,
   identity: string,
-  doneStory: DoneStory | undefined,
+  record: IntentDoneRecord,
 ): LensStory {
   const entry = [...(work?.taken ?? []), ...(work?.backlog ?? [])].find(
     (each) => each.identity === identity,
@@ -33,34 +35,55 @@ function lensStoryOf(
   return entry === undefined
     ? {
         identity,
-        title: doneStory?.title ?? identity,
+        title: record.state === "read" ? record.story.title : identity,
         completed: true,
-        intentCoverage: doneStory?.intentCoverage,
+        record,
       }
     : { identity, title: entry.title, completed: false };
 }
 
-// The selected story's published done record, read once it is catalogued.
-function useDoneStory(
+// Why a completed story has no done record to read.
+const notCatalogued = "No published done record names this story.";
+
+// The selected story's published done record, read once it is catalogued:
+// still reading while the catalog or the record is, else what it says or why
+// it could not be read, with Retry for a failed read.
+function useDoneRecord(
   source: PublishedSource,
   work: PublishedWork | undefined,
   identity: string | undefined,
-) {
+): IntentDoneRecord {
   const done = work?.done;
   const catalogued = done?.status === "catalogued" ? done : undefined;
   const record =
     identity === undefined
       ? undefined
       : catalogued?.records.find((each) => each.identity === identity);
-  const { detailOf } = useDoneDetails(
+  const { detailOf, retry } = useDoneDetails(
     source,
     catalogued?.revision ?? "",
     record === undefined ? [] : [record],
     record !== undefined,
   );
-  if (record === undefined) return undefined;
+  if (done === undefined || done.status === "loading")
+    return { state: "reading" };
+  if (done.status === "unavailable")
+    return { state: "failed", problem: done.problem };
+  if (record === undefined) return { state: "failed", problem: notCatalogued };
   const detail = detailOf(record);
-  return detail.status === "read" ? detail.story : undefined;
+  switch (detail.status) {
+    case "reading":
+      return { state: "reading" };
+    case "read":
+      return { state: "read", story: detail.story };
+    case "unreadable":
+      return {
+        state: "failed",
+        problem: unreadableDoneRecord(record.fileName, detail.problem),
+      };
+    case "failed":
+      return { state: "failed", problem: detail.problem, retry };
+  }
 }
 
 export function useIntentStoryLens({
@@ -82,11 +105,11 @@ export function useIntentStoryLens({
   readonly compared: ComparedStory | undefined;
   readonly retry: () => void;
 } {
-  const doneStory = useDoneStory(source, work, selectedIdentity);
+  const doneRecord = useDoneRecord(source, work, selectedIdentity);
   const story =
     selectedIdentity === undefined
       ? undefined
-      : lensStoryOf(work, selectedIdentity, doneStory);
+      : lensStoryOf(work, selectedIdentity, doneRecord);
   const offered =
     story === undefined
       ? false

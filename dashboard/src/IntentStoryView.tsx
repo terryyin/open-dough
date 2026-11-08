@@ -19,8 +19,8 @@ import { Icon } from "./Icon.tsx";
 import { IntentBrowser } from "./IntentBrowser.tsx";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
 import { IntentTabs, intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
+import { IntentStoryCoverage } from "./IntentStoryCoverage.tsx";
 import {
-  IntentStoryCoverage,
   IntentStoryHeader,
   type ComparedStory,
   type StorySummary,
