@@ -74,6 +74,6 @@ const request = http.request(
 );
 request.on("error", () => {
   process.stderr.write("fake gh: the test's fake GitHub is gone\n");
-  process.exitCode = 1;
+  process.exit(1);
 });
 request.end(JSON.stringify(args));

@@ -5,7 +5,7 @@
 // an endpoint of this installation's own, so no test shares another's owner,
 // rate-limit wait or turns, nor this machine's real one.
 
-import { rmSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import {
   endRequestOwners,
@@ -14,7 +14,7 @@ import {
   withdrawRequestOwners,
 } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
-import { endAtExit } from "./processGroup.ts";
+import { endAtExit, endRunningProcesses, readPid } from "./processGroup.ts";
 
 export type FakeGhPaths = {
   binDir: string;
@@ -43,10 +43,44 @@ export function installFakeGh(tempRoot: string): FakeGhPaths {
 
 const ownerEndsAtExit = new Map<string, () => void>();
 
+const callRecordName = /^call\.\d+\.\d+\.json$/;
+
+// Pids of `gh` calls still recorded under an owner endpoint, plus the last
+// one the synthetic `gh` wrote into its pid file.
+function recordedGhPids(root: string, pidPath: string): number[] {
+  const pids = new Set<number>();
+  const fromFile = readPid(pidPath);
+  if (fromFile !== undefined) pids.add(fromFile);
+  if (!existsSync(root)) return [...pids];
+  for (const entry of readdirSync(root, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const directory = path.join(root, entry.name);
+    for (const name of readdirSync(directory)) {
+      if (!callRecordName.test(name)) continue;
+      try {
+        const { pid } = JSON.parse(
+          readFileSync(path.join(directory, name), "utf8"),
+        ) as { pid?: unknown };
+        if (typeof pid === "number" && Number.isInteger(pid) && pid > 0) {
+          pids.add(pid);
+        }
+      } catch {
+        // Incomplete draft or already withdrawn.
+      }
+    }
+  }
+  return [...pids];
+}
+
 // Ends every request owner started at this installation's endpoint, waits
-// until its process is gone, and removes the endpoint.
+// until its process is gone, ends any `gh` that owner left running, and
+// removes the endpoint. An owner that ends after its two-second bound can
+// leave held `gh` processes running outside the dashboard server's process
+// group; end those before the fixture removes their pid file and temp root.
 export async function endFakeGh(gh: FakeGhPaths): Promise<void> {
+  const leftover = recordedGhPids(gh.requestOwnerRoot, gh.pidPath);
   await endRequestOwners(gh.requestOwnerRoot);
+  await endRunningProcesses(leftover);
   ownerEndsAtExit.get(gh.requestOwnerRoot)?.();
   ownerEndsAtExit.delete(gh.requestOwnerRoot);
 }

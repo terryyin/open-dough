@@ -110,10 +110,15 @@ export function processAlive(pid: number | undefined): boolean {
   }
 }
 
-// Whether the process can still run code. On macOS a process that has exited
-// but is not yet reaped (orphans are reaped by launchd, late under load) still
-// answers `kill(pid, 0)`, although its group no longer counts it; `ps` shows it
-// exiting (E) or as a zombie (Z).
+// `ps` state letters that still mean the process can run code. On macOS a
+// process that has exited but is not yet reaped (orphans are reaped by
+// launchd, late under load) still answers `kill(pid, 0)`, although its group
+// no longer counts it; `ps` shows it exiting (E) or as a zombie (Z).
+function stateMeansRunning(state: string): boolean {
+  return state !== "" && !/[EZ]/.test(state);
+}
+
+// Whether the process can still run code.
 export function processRunning(pid: number | undefined): boolean {
   if (!processAlive(pid)) {
     return false;
@@ -121,7 +126,26 @@ export function processRunning(pid: number | undefined): boolean {
   const state = spawnSync("ps", ["-o", "stat=", "-p", String(pid)], {
     encoding: "utf8",
   }).stdout.trim();
-  return state !== "" && !/[EZ]/.test(state);
+  return stateMeansRunning(state);
+}
+
+// SIGTERMs each still-running pid, waits up to `graceMs` for them to exit,
+// SIGKILLs any that remain, and resolves only once none of them is still
+// running.
+export async function endRunningProcesses(
+  pids: readonly number[],
+  { graceMs = 1_000, pollMs = 20 }: { graceMs?: number; pollMs?: number } = {},
+): Promise<void> {
+  const running = () => pids.filter((pid) => processRunning(pid));
+  for (const pid of running()) signal(pid, "SIGTERM");
+  const deadline = Date.now() + graceMs;
+  while (running().length > 0 && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, pollMs));
+  }
+  for (const pid of running()) signal(pid, "SIGKILL");
+  while (running().length > 0) {
+    await new Promise((resolve) => setTimeout(resolve, pollMs));
+  }
 }
 
 // Each running leader's withdrawal of its group's kill at exit.
@@ -150,8 +174,29 @@ export function spawnGroupLeader(
   return leader;
 }
 
-// SIGTERMs the leader, SIGKILLs the whole group if the leader has not exited
-// within 5 seconds, and resolves only once no process of the group remains.
+// Whether any process still runs in `group` (zombies and exiting processes do
+// not count). `kill(-group, 0)` stays true for unreaped members and would
+// hang teardown after a SIGKILL.
+function groupRunning(group: number): boolean {
+  const listing = spawnSync("ps", ["-axo", "pid=,pgid=,stat="], {
+    encoding: "utf8",
+  });
+  for (const line of listing.stdout.split("\n")) {
+    const [pidText, pgidText, state = ""] = line.trim().split(/\s+/);
+    const pid = Number(pidText);
+    const pgid = Number(pgidText);
+    if (pid > 0 && pgid === group && stateMeansRunning(state)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// SIGTERMs the leader, SIGKILLs any group member still running once the
+// leader has exited (or within 5 seconds if it has not), and resolves only
+// once no process of the group is still running. A leader that exits on
+// SIGTERM without ending its children used to leave endGroup waiting forever
+// on those orphans — Playwright then timed out fixture teardown.
 export async function endGroup(leader: GroupLeader): Promise<void> {
   const group = leader.pid;
   if (group === undefined) {
@@ -170,7 +215,8 @@ export async function endGroup(leader: GroupLeader): Promise<void> {
       }, 5_000);
     });
   }
-  while (processAlive(-group)) {
+  while (groupRunning(group)) {
+    killGroup(group);
     await new Promise((resolve) => setTimeout(resolve, 20));
   }
   groupAtExit.get(leader)?.();
