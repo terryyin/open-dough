@@ -7,7 +7,7 @@
 ## Provenance and findings
 
 This plan is a retrospective correction of SEED-275#story-intent-tabs (plan
-531). The reviewed commits are `4a13bba4f` through `c48528409` on
+531, recoverable at `c764457107b1519655fbbe30a7b00274255d5d19:.planning/slice-plans/531-review-story-intent-tabs/PLAN.md`). The reviewed commits are `4a13bba4f` through `c48528409` on
 `claude/review-a-selected-story-in-intent-tabs`. The findings were current at
 `c48528409`:
 

@@ -41,7 +41,7 @@ Former local code: DD-450. Former local code: DD-121. Former local code: DD-206.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim)
-  - Evidence: Plan 531's proof stated "Verify **Review changes** opens the existing comparison for the outside count and returns focus when closed". ADR 0008's Selected story row says closing the Side panel clears the selection, and slice 1 observed focus landing on `BODY`. The story's Visual acceptance required light and dark comparison. The dashboard has no dark theme: only `intent-ci-cues.css` and `intent-location-group.css` react to `prefers-color-scheme`. The decisive premises observed neither condition.
+  - Evidence: Plan 531 (`c764457107:.planning/slice-plans/531-review-story-intent-tabs/PLAN.md`)'s proof stated "Verify **Review changes** opens the existing comparison for the outside count and returns focus when closed". ADR 0008's Selected story row says closing the Side panel clears the selection, and slice 1 observed focus landing on `BODY`. The story's Visual acceptance required light and dark comparison. The dashboard has no dark theme: only `intent-ci-cues.css` and `intent-location-group.css` react to `prefers-color-scheme`. The decisive premises observed neither condition.
   - Observed effect: slice 1 was returned once for a focus home. Slice 5 could not finish until Terry amended the story and deferred dark comparison to SEED-277#dashboard-dark-theme.
   - Inference: proof rows that promise existing-product behavior or review conditions need the same premise observation as the behavior they change.
 
