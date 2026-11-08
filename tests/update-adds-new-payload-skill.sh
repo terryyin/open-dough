@@ -30,12 +30,19 @@ new_managed_files=(
 fixture="${temporary_dir}/fixture.git"
 older_checkout="${temporary_dir}/release-0.1.1"
 # Model a release declaring none of the added skills' files.
-added_skill_options=()
-for managed_file in "${new_managed_files[@]}"; do
-  added_skill_options+=(--withhold "${managed_file}" --remove "${managed_file}")
-done
-build_upgrade_releases "${fixture}" "${older_checkout}" \
-  payload-before-added-skills payload-with-added-skills "${added_skill_options[@]}"
+added_skill_paths=$(printf '"%s", ' "${new_managed_files[@]}")
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" << JSON
+{"revisions": [
+  {"name": "release 0.1.1 payload-before-added-skills", "release": {
+    "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
+    "marker": "payload-before-added-skills",
+    "withheld": [${added_skill_paths%, }], "removed": [${added_skill_paths%, }]}},
+  {"name": "release 0.1.2 payload-with-added-skills", "release": {
+    "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
+    "marker": "payload-with-added-skills"}}
+]}
+JSON
+checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.1
 
 target="${temporary_dir}/target"
 prepare_target "${target}"

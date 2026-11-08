@@ -66,7 +66,8 @@ assert_checker_fail() {
 }
 
 matching_template="${temporary_dir}/matching"
-build_latest_fixture "${matching_template}"
+# The shared "latest" release source in tests/support/release-sources.mjs.
+node "${source_dir}/tests/support/release-source.mjs" "${matching_template}" latest
 tagged_checkout="${temporary_dir}/release-0.1.10"
 checkout_tagged_release "${matching_template}" "${tagged_checkout}" 0.1.10
 git -C "${matching_template}" -c advice.detachedHead=false checkout --quiet \

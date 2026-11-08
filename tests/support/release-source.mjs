@@ -1,12 +1,19 @@
 // @ts-check
 // Shell fixture entry point: build a release source checkout at <dest>.
 //   node release-source.mjs <dest> [<shared release source name>]
+//   node release-source.mjs --add <source>
 // Without a name, read the release-source facts as JSON from stdin. The
 // source is one local checkout without an origin; installers read it by path.
 // Each release revision ships the working tree's payload with its deltas.
+// With --add, commit and tag the stated revisions on an existing source, for a
+// release that appears after the check has read the source.
 import { readFileSync } from "node:fs";
 import { makeMe } from "./makeMe.mjs";
-import { materializeLocalCheckout } from "./repository-fixture.mjs";
+import {
+  commitDeclaredRevision,
+  materializeLocalCheckout,
+} from "./repository-fixture.mjs";
+import { tagRevision } from "./repository-history.mjs";
 import { releaseSources } from "./release-sources.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RevisionFacts} RevisionFacts */
@@ -35,20 +42,31 @@ function describeReleaseSource({ revisions }) {
   return source.please();
 }
 
-const [dest, shared] = process.argv.slice(2);
-if (!dest || process.argv.length > 4) {
-  console.error("Usage: release-source.mjs <dest> [<shared release source>]");
+const usage =
+  "Usage: release-source.mjs <dest> [<shared release source>] | --add <source>";
+const [first, second] = process.argv.slice(2);
+if (!first || process.argv.length > 4 || (first === "--add" && !second)) {
+  console.error(usage);
   process.exit(2);
 }
-const facts =
-  shared === undefined
-    ? JSON.parse(readFileSync(0, "utf8"))
-    : releaseSources[shared];
-if (!facts) {
-  console.error(`No shared release source named ${shared}`);
-  process.exit(2);
+if (first === "--add") {
+  /** @type {ReleaseSourceFacts} */
+  const facts = JSON.parse(readFileSync(0, "utf8"));
+  for (const revision of describeReleaseSource(facts).revisions) {
+    await commitDeclaredRevision(second, revision);
+    await tagRevision(second, revision);
+  }
+} else {
+  const facts =
+    second === undefined
+      ? JSON.parse(readFileSync(0, "utf8"))
+      : releaseSources[second];
+  if (!facts) {
+    console.error(`No shared release source named ${second}`);
+    process.exit(2);
+  }
+  // The shell check that asked for the source owns and removes <dest>.
+  await materializeLocalCheckout(undefined, describeReleaseSource(facts), {
+    at: first,
+  });
 }
-// The shell check that asked for the source owns and removes <dest>.
-await materializeLocalCheckout(undefined, describeReleaseSource(facts), {
-  at: dest,
-});

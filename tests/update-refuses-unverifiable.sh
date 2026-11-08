@@ -15,7 +15,8 @@ cd -- "${temporary_dir}"
 
 helper="${source_dir}/src/install/open-dough-release.sh"
 fixture="${temporary_dir}/fixture.git"
-build_latest_fixture "${fixture}"
+# The shared "latest" release source in tests/support/release-sources.mjs.
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" latest
 expected_source=$(cd -- "${fixture}" && pwd -P)
 older_checkout="${temporary_dir}/release-0.1.1"
 checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.1

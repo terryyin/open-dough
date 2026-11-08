@@ -282,7 +282,7 @@ uses the shell release writers on the built source (G3, slice 4).
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: focused run of `tests/product-backlog-payload-update.sh` and every
 check that sources `release-fixture.bash`. `git grep` finds no caller of a
@@ -309,6 +309,40 @@ records at their blob hashes. Remove `build_latest_fixture`,
 `build_upgrade_releases` and `build_current_tagged_release_fixture` if they
 no longer add anything over the helper. Keep the four builders the native
 journey calls, and the two helpers they call.
+
+Accepted proof (2026-11-08): the 26 checks that source
+`release-fixture.bash`, the six `native-*` context checks, the three
+`dough-adr-awareness-*-delivery-to-use.sh` wrappers,
+`tests/native-evidence-identity.sh` and 223 node files passed quietly.
+Discrimination: `CAT#finish` stated as `CAT#other` fails at the installed
+`complete`; release 0.1.11 stated as 0.1.9 fails `pin-and-inspect.sh:232`.
+`git grep` finds `write_candidate_payload` and `tag_release` only in the
+native journey. Timing: `product-backlog-payload-update.sh` 10.53–15.85 s
+before, 10.19–13.55 s after; `story-payload-update.sh` 8.21–8.69 s before,
+8.02–11.01 s after (load 10–18); the build is the same helper call.
+
+Learnings:
+
+- Native evidence identities (P4), compared with `54cc27451` by running every
+  writer `tests/native-evidence-identity.sh` lists plus
+  `take_write_evidence_inputs`: the git-publication admission and
+  product-backlog native take closures changed (`makeMe.mjs`,
+  `repositoryTestData.mjs`, new `releaseTestData.mjs`; admission's
+  `product-backlog-fixture.mjs` change comes from trunk merges). Worktree
+  preparation's identity is unchanged, since plan 532 landed first. Reuse
+  reason under ADR 0005: none of their fixtures builds a release, and their
+  arranged repositories are unchanged. No paid refresh.
+- `build_current_tagged_release_fixture` moved unchanged into
+  `tests/support/dough-adr-awareness-proof.sh`, because
+  `tests/dough-adr-awareness-context.sh` calls it by name and is a hashed
+  native identity input.
+- `release-source.mjs --add <source>` adds a stated release to an existing
+  checkout; `writeRelease` keeps existing non-installer files, where
+  `write_candidate_payload` overwrote them.
+- The done-catalog proof checks which identity the backlog holds, not its
+  list state: stating `CAT#finish` as taken still passes.
+- `take_write_evidence_inputs` is not among `native-evidence-identity.sh`'s
+  writers; check it separately for import-closure changes.
 
 ## Decisive premises
 
@@ -349,5 +383,5 @@ Commitment: 6.5
 ### G3. A release still appears through the shell release writers
 Reported: slice 3 — "the release 0.1.11 appears after inspection step still calls write_candidate_payload, commit_all and tag_release on the already-built source"
 Story clause: "Remove `release-fixture.bash`'s release-writing builders once no consumer needs them."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: tests/pin-and-inspect.sh states release 0.1.11 through release-source.mjs --add; stating it as 0.1.9 fails at pin-and-inspect.sh:232; git grep finds write_candidate_payload and tag_release only in dough-adr-awareness-delivery-to-use.sh
 Commitment: 24

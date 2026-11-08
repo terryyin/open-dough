@@ -14,7 +14,8 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 fixture="${temporary_dir}/fixture.git"
 target="${temporary_dir}/target"
-build_latest_fixture "${fixture}"
+# The shared "latest" release source in tests/support/release-sources.mjs.
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" latest
 prepare_target "${target}"
 seed_mergeable_host_settings "${target}"
 helper="${source_dir}/src/install/open-dough-release.sh"

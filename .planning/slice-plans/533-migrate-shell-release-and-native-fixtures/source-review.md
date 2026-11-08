@@ -15,14 +15,14 @@ recording action.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A maintainer reading a shell install or update check can see, at its call site, which releases its release source holds. | slice 4 | |
-| 1.1 | Those facts are each release's version, | slice 4 | |
-| 1.2 | each release's tag date, | slice 4 | |
-| 1.3 | and how its payload differs from the current one. | slice 4 | |
-| 2 | The install and update checks choose, verify and pin releases from these facts. | slice 4 | |
+| 1 | A maintainer reading a shell install or update check can see, at its call site, which releases its release source holds. | slice 4 | observed: each release-source call site states its releases as JSON facts or names release-sources.mjs latest / build_current_tagged_release_fixture in dough-adr-awareness-proof.sh (slice 4 grep and diff) |
+| 1.1 | Those facts are each release's version, | slice 4 | observed: versions stated at call sites (e.g. tests/story-payload-update.sh 0.1.1/0.1.2 here-doc) and in release-sources.mjs |
+| 1.2 | each release's tag date, | slice 4 | observed: tag dates stated at call sites (taggedAt) and in release-sources.mjs |
+| 1.3 | and how its payload differs from the current one. | slice 4 | observed: payload differences stated as marker, withheld, removed, added facts at call sites |
+| 2 | The install and update checks choose, verify and pin releases from these facts. | slice 4 | observed: installers choose, verify and pin from the stated sources: all 26 release-fixture consumers, 6 native-* and 3 delivery-to-use wrappers pass (slice 4 focused run) |
 | 3 | Today `tests/helpers/release-fixture.bash` states these facts inside its builders; `install-latest-release.sh` asserts `v0.1.10` is chosen, but only `build_latest_fixture` says 0.1.10 is tagged 2020-01-01, after 0.1.1 and 0.1.2 by version and before them by date, under an untagged divergent head. | slice 1 | observed: tests/support/release-sources.mjs latest states 0.1.1@2026-06-01, 0.1.2@2026-09-01, 0.1.10@2020-01-01 under untagged divergent head; tests/install-latest-release.sh names it |
 | 4 | The release sources move onto the shared repository description (`tests/support/repositoryTestData.mjs`) through a small Node helper. | slice 1 | observed: tests/support/release-source.mjs builds via makeMe.aRepository revisions in tests/support/repositoryTestData.mjs |
-| 5 | Shell check feedback must not get slower. | slice 4 | |
+| 5 | Shell check feedback must not get slower. | slice 4 | observed: slice 1-4 timing: builds 0.62-1.2 s vs 0.93-1.23 s before; check timings within noise (plan slice proof notes) |
 | 6 | MakeMe gains a release concept with: | slice 1 | observed: tests/support/makeMe.mjs aRelease; repository-release.test.mjs 'a release revision states its version, tag date, payload marker and payload deltas' |
 | 6.1 | a version; | slice 1 | observed: repository-release.test.mjs release .please() deepEqual: version |
 | 6.2 | a tag date; | slice 1 | observed: repository-release.test.mjs release .please() deepEqual: taggedAt |
@@ -38,7 +38,7 @@ recording action.
 | 12.1 | `build_latest_fixture`; | slice 1 | observed: tests/helpers/release-fixture.bash build_latest_fixture -> release-source.mjs latest; ten consumers quiet pass (slice 1 focused run) |
 | 12.2 | `build_upgrade_releases`; | slice 2 | observed: build_upgrade_releases here-document into release-source.mjs; five consumers quiet pass (slice 2 focused run) |
 | 12.3 | `build_current_tagged_release_fixture`. | slice 2 | observed: build_current_tagged_release_fixture declares one release at the working tree VERSION; three consumers plus six native-* context checks quiet pass |
-| 13 | Each caller states its releases at the call site, or names a shared description that its fixture file states (alternatives). | slice 4 | |
+| 13 | Each caller states its releases at the call site, or names a shared description that its fixture file states (alternatives). | slice 4 | observed: call-site JSON here-docs; latest consumers name release-sources.mjs latest; tagged-candidate callers name dough-adr-awareness-proof.sh |
 | 14 | On 2026-11-08, 18 checks called those builders. | slice 2 | observed: slice 2 git grep: no other build_upgrade_releases or build_current_tagged_release_fixture callers outside .planning and tests/README.md |
 | 15 | Route the inline release sources (which used `write_candidate_payload` and `tag_release` after their own `git init`) too; on 2026-11-08 these were in: | slice 3 | observed: the eight checks pipe JSON release facts into tests/support/release-source.mjs at their call sites; slice 3 git grep lists only snapshots and install-target decoy origins |
 | 15.1 | `install-latest-release.sh`; | slice 3 | observed: tests/install-latest-release.sh branch-only and invalid-highest sources stated as JSON; quiet pass |
@@ -57,37 +57,37 @@ recording action.
 | 16.5 | a head that moves after resolution. | slice 3 | observed: tests/install-latest-release.sh moves BRANCH_HEAD with commit_all after resolution; pin-and-inspect.sh poisons the default branch with Git |
 | 17 | The description states a mismatched `VERSION` or an extra tag name as a literal fact. | slice 3 | observed: files.VERSION and tags literals at the call sites above |
 | 18 | A later change to a materialized source, such as moving `BRANCH_HEAD`, stays a Git operation in the check. | slice 3 | observed: install-latest-release.sh BRANCH_HEAD move and pin-and-inspect.sh branch poisoning stay Git operations in the checks |
-| 19 | The hand-written backlog in the product-backlog payload check's `run_offline_done_catalog_proof` is rendered through `render-published-backlog.mjs`, as its merge proof's backlog already is. | slice 4 | |
-| 20 | Its (the done-catalog proof's) Git repositories stay as they are. | slice 4 | |
-| 21 | The merge proof's ancestor holds one rendered backlog at a custom path, and its branches are Git under proof. | slice 4 | |
-| 22 | The recorder proof publishes what `record-state` wrote. | slice 4 | |
-| 23 | The free-form payload seed that `record-state` proves stays literal bytes. | slice 4 | |
-| 24 | Remove `release-fixture.bash`'s release-writing builders once no consumer needs them. | slice 4 | G3 |
-| 25 | `checkout_tagged_release` stays as a harness operation, because it checks out an older release with Git. | slice 4 | |
-| 26 | The native ADR-awareness delivery-to-use journey (`tests/support/dough-adr-awareness-delivery-to-use.sh`) builds its release source with these, which keep their behavior for that caller: | slice 4 | |
-| 26.1 | `init_fixture_repo`; | slice 4 | |
-| 26.2 | `write_candidate_payload`; | slice 4 | |
-| 26.3 | `commit_all`; | slice 4 | |
-| 26.4 | `tag_release`. | slice 4 | |
+| 19 | The hand-written backlog in the product-backlog payload check's `run_offline_done_catalog_proof` is rendered through `render-published-backlog.mjs`, as its merge proof's backlog already is. | slice 4 | observed: tests/helpers/product-backlog-payload-runtime.bash run_offline_done_catalog_proof renders plans/BACKLOG.md through render-published-backlog.mjs (byte-identical to the old text) |
+| 20 | Its (the done-catalog proof's) Git repositories stay as they are. | slice 4 | observed: done-catalog proof's Git repositories unchanged (slice 4 diff) |
+| 21 | The merge proof's ancestor holds one rendered backlog at a custom path, and its branches are Git under proof. | slice 4 | observed: merge proof untouched (slice 4 diff) |
+| 22 | The recorder proof publishes what `record-state` wrote. | slice 4 | observed: recorder proof untouched (slice 4 diff) |
+| 23 | The free-form payload seed that `record-state` proves stays literal bytes. | slice 4 | observed: record-state free-form seed stays literal bytes (untouched) |
+| 24 | Remove `release-fixture.bash`'s release-writing builders once no consumer needs them. |  | G3 |
+| 25 | `checkout_tagged_release` stays as a harness operation, because it checks out an older release with Git. | slice 4 | observed: checkout_tagged_release byte-unchanged in tests/helpers/release-fixture.bash (git diff 54cc27451) |
+| 26 | The native ADR-awareness delivery-to-use journey (`tests/support/dough-adr-awareness-delivery-to-use.sh`) builds its release source with these, which keep their behavior for that caller: | slice 4 | observed: tests/support/dough-adr-awareness-delivery-to-use.sh byte-unchanged; its four builders unchanged (git diff 54cc27451) |
+| 26.1 | `init_fixture_repo`; | slice 4 | observed: init_fixture_repo unchanged (git diff 54cc27451 -- tests/helpers/release-fixture.bash) |
+| 26.2 | `write_candidate_payload`; | slice 4 | observed: write_candidate_payload unchanged (same diff) |
+| 26.3 | `commit_all`; | slice 4 | observed: commit_all unchanged (same diff) |
+| 26.4 | `tag_release`. | slice 4 | observed: tag_release unchanged (same diff) |
 | 27 | An install target that holds no domain facts, such as an empty project or a baseline commit before install, stays harness setup. | slice 3 | observed: install targets and snapshots untouched (slice 3 git grep: pin-and-inspect snapshots, decoy-origin install targets) |
-| 28 | Installed state, host-hook settings, runner settings and native scenario content belong to "installation and native test data" (`SEED-261-share-domain-test-data.md#map-installation-and-native-test-data`). | slice 4 | |
-| 29 | Git-publication native fixtures belong to `#migrate-git-publication-native-fixtures`. | slice 4 | |
-| 30 | The worktree-preparation native builders stay MakeMe-free under plan 532 (`532-tighten-repository-description-facts/PLAN.md`). | slice 4 | |
-| 31 | Release sources gain no branch or merge model. | slice 4 | |
-| 32 | Boundary assumption: no native evidence identity hashes these helpers or the migrated checks, so no paid run is needed. | slice 4 | |
-| 32.1 | `execution-worktree-preparation-native.sh` sources `release-fixture.bash` but calls none of its builders. | slice 4 | |
-| 32.2 | The delivery-to-use journey's identity hashes its own file, not `release-fixture.bash`, and its file is not migrated. | slice 4 | |
-| 32.3 | Adding the release fact changes `makeMe.mjs` and the repository description; three identities hash those through import closures: the product-backlog native take, git-publication admission, and (until plan 532 lands) worktree preparation. None of their fixtures builds a release. | slice 4 | |
-| 33 | Record "none of their fixtures builds a release" as the reuse reason under ADR 0005 (`#5-assess-now-and-delete-spent-evidence`) and make no paid refresh. | slice 4 | |
+| 28 | Installed state, host-hook settings, runner settings and native scenario content belong to "installation and native test data" (`SEED-261-share-domain-test-data.md#map-installation-and-native-test-data`). | slice 4 | observed: no installed state, host-hook, runner or native scenario content touched (slice 4 changed paths) |
+| 29 | Git-publication native fixtures belong to `#migrate-git-publication-native-fixtures`. | slice 4 | observed: no git-publication native fixture touched |
+| 30 | The worktree-preparation native builders stay MakeMe-free under plan 532 (`532-tighten-repository-description-facts/PLAN.md`). | slice 4 | observed: worktree-preparation native builders untouched; prep_native_input_hash_lines unchanged |
+| 31 | Release sources gain no branch or merge model. | slice 4 | observed: release description has no branch or merge model (releaseTestData.mjs) |
+| 32 | Boundary assumption: no native evidence identity hashes these helpers or the migrated checks, so no paid run is needed. | slice 4 | observed: slice 4 identity diff 54cc27451 vs tree: no writer lists release-fixture.bash or a migrated check; tests/native-evidence-identity.sh quiet pass |
+| 32.1 | `execution-worktree-preparation-native.sh` sources `release-fixture.bash` but calls none of its builders. | slice 4 | observed: execution-worktree-preparation-native.sh calls no builder; passes in slice 4 run |
+| 32.2 | The delivery-to-use journey's identity hashes its own file, not `release-fixture.bash`, and its file is not migrated. | slice 4 | observed: native_result_journey_input_hash_lines inputs unchanged (dough-adr-awareness-delivery-to-use.sh byte-identical) |
+| 32.3 | Adding the release fact changes `makeMe.mjs` and the repository description; three identities hash those through import closures: the product-backlog native take, git-publication admission, and (until plan 532 lands) worktree preparation. None of their fixtures builds a release. | slice 4 | observed: changed closures: git-publication admission and product-backlog native take (makeMe.mjs, repositoryTestData.mjs, releaseTestData.mjs); worktree preparation unchanged |
+| 33 | Record "none of their fixtures builds a release" as the reuse reason under ADR 0005 (`#5-assess-now-and-delete-spent-evidence`) and make no paid refresh. | slice 4 | observed: PLAN.md slice 4 learnings record the ADR 0005 reuse reason; no paid refresh |
 | 34 | Latest by version: `install-latest-release.sh` declares 0.1.1 tagged 2026-06-01, 0.1.2 tagged 2026-09-01 and 0.1.10 tagged 2020-01-01, under an untagged head with `BRANCH_HEAD`; the installer still resolves `v0.1.10`, the installed payload carries `payload-0.1.10`, and `BRANCH_HEAD` is absent. | slice 1 | observed: tests/install-latest-release.sh asserts resolve-url v0.1.10, payload-0.1.10, BRANCH_HEAD absent; quiet pass; discrimination 0.1.10->0.1.0 resolved v0.1.2 and failed |
 | 35 | Upgrade with a withheld path: an update check declares 0.1.1 that withholds a managed skill path from its installer and 0.1.2 that is the current payload; it checks 0.1.1 out with Git and installs it; the update to 0.1.2 adds the withheld files, as today. | slice 2 | observed: update checks (story-payload-update.sh etc.) install 0.1.1 via checkout_tagged_release and assert_payload 0.1.2 after apply; discrimination: dropping --withhold in retrospective-reference-payload.sh fails at :33 older-install absence check |
 | 36 | Mismatch under proof: `update-refuses-unverifiable.sh` declares at its call site release 0.1.1 whose `VERSION` says 0.1.8, then 0.1.10; the update still refuses with `baseline metadata mismatch` and writes nothing. | slice 3 | observed: update-refuses-unverifiable.sh quiet pass; discrimination: VERSION 0.1.1 instead of 0.1.8 fails 'baseline metadata mismatch: expected refusal to mention' |
 | 37 | Non-release tags: the branch-only source declares `not-a-release` and `v1.2.3-rc.1` as literal lightweight tag names and no release; the installer still refuses with `No numeric release tags` and installs nothing. | slice 3 | observed: install-latest-release.sh branch-only source quiet pass; discrimination: v1.2.3-rc.1 stated as v1.2.3 fails |
-| 38 | Payload backlog: the installed done-catalog proof declares `CAT#finish` queued in `plans/BACKLOG.md` through the renderer; installed `catalog-done` still leaves the backlog unchanged, and `complete` still lists both records at their blob hashes. | slice 4 | |
-| 39 | Superseded setup removed: no install or update check runs its own `git init` to build a release source. | slice 4 | |
-| 40 | `release-fixture.bash` keeps only the builders the native delivery-to-use journey calls, unchanged. | slice 4 | |
-| 41 | Migrated checks keep their verdicts and assertions. | slice 4 | |
-| 42 | A reviewer can name each check's releases from its call site or fixture file. | slice 4 | |
+| 38 | Payload backlog: the installed done-catalog proof declares `CAT#finish` queued in `plans/BACKLOG.md` through the renderer; installed `catalog-done` still leaves the backlog unchanged, and `complete` still lists both records at their blob hashes. | slice 4 | observed: product-backlog-payload-update.sh quiet pass; discrimination CAT#finish stated as CAT#other fails at installed complete (product-backlog-payload-runtime.bash:229) |
+| 39 | Superseded setup removed: no install or update check runs its own `git init` to build a release source. | slice 4 | observed: slice 4 git init grep lists only install targets and snapshots |
+| 40 | `release-fixture.bash` keeps only the builders the native delivery-to-use journey calls, unchanged. | slice 4 | observed: release-fixture.bash keeps configure_fixture_git, init_fixture_repo, copy_installer_modules, copy_current_release_files, write_candidate_payload, commit_all, tag_release, checkout_tagged_release |
+| 41 | Migrated checks keep their verdicts and assertions. | slice 4 | observed: no assertion edited across slices; all migrated checks pass |
+| 42 | A reviewer can name each check's releases from its call site or fixture file. | slice 4 | observed: call sites and release-sources.mjs name every release's version, date and payload facts |
 | 43 | Record focused run times before and after, under comparable load, for: | slice 2 | observed: slice 2 return timing table (story-payload-update.sh, update-adds-new-payload-skill.sh before/after, three runs each, load 11-14) |
 | 43.1 | `install-latest-release.sh`; | slice 1 | observed: slice 1 return: install-latest-release.sh via scripts/test.sh before 6.35-6.58 s (load ~8.1), after 5.65-6.19 s (load 7.2-7.9); build_latest_fixture 0.93-0.97 s -> 0.62-0.71 s (load ~9.7) |
 | 43.2 | one upgrade family, such as `story-payload-update.sh` and `update-adds-new-payload-skill.sh`. | slice 2 | observed: interleaved: story-payload-update 8.68-10.29 s before vs 8.62-9.17 s after; update-adds 3.30-3.86 s vs 3.15-3.62 s; build_upgrade_releases 1.17-1.23 s vs 0.88-1.18 s |

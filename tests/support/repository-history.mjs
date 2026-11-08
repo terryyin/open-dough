@@ -48,7 +48,7 @@ export const layout = (fixture) => ({
  * @param {string} checkout
  * @param {RepositoryRevision} revision
  */
-async function tagRevision(checkout, { release, tags = [] }) {
+export async function tagRevision(checkout, { release, tags = [] }) {
   /** @type {string[]} */
   const created = [];
   if (release) {
