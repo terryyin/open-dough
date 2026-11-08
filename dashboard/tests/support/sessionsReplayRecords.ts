@@ -10,14 +10,13 @@
 // retention keeps every done record.
 
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   launchAttemptSchema,
   launchRecordSchema,
-  type HostSession,
   type LaunchAttemptRecord,
   type LaunchRecord,
 } from "../../src/agentLaunch.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { replayProjectIds } from "./sessionsReplayProjects.ts";
 import { commitOf, indices, prose, uuidOf } from "./sessionsReplayValues.ts";
 
@@ -36,27 +35,6 @@ const codexShare = (index: number) => index % 15 < 4;
 
 const identityAt = (index: number) =>
   `SEED-${String(1_000 + index)}#replay-story-${String(index)}`;
-
-function sessionAt(
-  index: number,
-  workspace: string,
-  codexEndpoint: string,
-  name: string,
-): HostSession {
-  const sessionId = uuidOf(`session:${String(index)}`);
-  return codexShare(index)
-    ? {
-        host: "codex",
-        sessionId,
-        name,
-        continuation: {
-          workspace,
-          endpoint: codexEndpoint,
-          args: ["codex", "resume", sessionId],
-        },
-      }
-    : { host: "claude", sessionId, shortId: sessionId.slice(0, 8), name };
-}
 
 function recordAt(
   home: string,
@@ -78,13 +56,48 @@ function recordAt(
     `story-${String(index)}`,
   );
   const branch = `claude/replay-story-${String(index)}`;
-  const session = sessionAt(
-    index,
-    workspace,
-    codexEndpoint,
-    `Execute ${identity} ${prose(`name:${String(index)}`, 20)}`,
-  );
+  const sessionId = uuidOf(`session:${String(index)}`);
   const reference = uuidOf(`reporting:${String(index)}`);
+  const execution = makeMe.aLaunchRecord.executing({
+    identity,
+    title: `Replay story ${String(index)} ${prose(`title:${String(index)}`, 24)}`,
+    source,
+  });
+  const launch = (
+    codexShare(index)
+      ? execution.inCodexSession({
+          sessionId,
+          continuation: {
+            workspace,
+            endpoint: codexEndpoint,
+            args: ["codex", "resume", sessionId],
+          },
+        })
+      : execution.inClaudeSession({ sessionId })
+  )
+    .reportingThrough({
+      origin,
+      reference,
+      command: `node ~/.claude/skills/dough-execute-plan/scripts/report.mjs ${prose(`command:${String(index)}`, 180)}`,
+      landingContext: prose(`landing-context:${String(index)}`, 105),
+    })
+    .onStoryBranch({
+      workspace,
+      branch,
+      publisherId: uuidOf(`publisher:${String(index)}`),
+      publishedSha: commitOf(`published:${String(index)}`),
+      agent: "Tsubomi-chan",
+      plan: `.planning/slice-plans/${String(index)}-replay/PLAN.md`,
+      startingRevision: commitOf(`starting:${String(index)}`),
+    })
+    .launchedAt(at(0))
+    .withFirstInput({
+      state: "confirmed",
+      instruction: prose(`instruction:${String(index)}`, 1_250),
+    });
+  if (open) return launch.please();
+  // A done session's report, landing and landing reporting, each with its
+  // own receipts, as production keeps them.
   const authority = makeMe.aLandingAuthority
     .ofRepository(`replay/${source}`)
     .inWorktree({ workspace, branch })
@@ -105,59 +118,23 @@ function recordAt(
     .receivedAt(at(50 * minute))
     .please();
   return {
-    request: {
-      source,
-      identity,
-      title: `Replay story ${String(index)} ${prose(`title:${String(index)}`, 24)}`,
-      workflow: "execution",
-      host: session.host,
-      reporting: {
-        origin,
+    ...launch.markedDoneAt(at(60 * minute)).please(),
+    completion: makeMe.aCompletionReport
+      .saying(prose(`message:${String(index)}`, 560))
+      .withReceipt(uuidOf(`completion-receipt:${String(index)}`))
+      .reportedFor({
         reference,
-        command: `node ~/.claude/skills/dough-execute-plan/scripts/report.mjs ${prose(`command:${String(index)}`, 180)}`,
-        landingContext: prose(`landing-context:${String(index)}`, 105),
-      },
+        delivery: uuidOf(`completion-delivery:${String(index)}`),
+      })
+      .receivedAt(at(45 * minute))
+      .please(),
+    landing,
+    landingReporting: {
+      origin,
+      authority,
+      preparations: [landing],
+      settledAt: at(55 * minute),
     },
-    session,
-    start: {
-      identity,
-      publisherId: uuidOf(`publisher:${String(index)}`),
-      workspace,
-      branch,
-      mode: "story-branch",
-      remote: "origin",
-      target: "main",
-      publishedSha: commitOf(`published:${String(index)}`),
-      agent: "Tsubomi-chan",
-      plan: `.planning/slice-plans/${String(index)}-replay/PLAN.md`,
-      startingRevision: commitOf(`starting:${String(index)}`),
-    },
-    launchedAt: at(0),
-    firstInput: {
-      state: "confirmed",
-      instruction: prose(`instruction:${String(index)}`, 1_250),
-    },
-    ...(open
-      ? {}
-      : {
-          completion: makeMe.aCompletionReport
-            .saying(prose(`message:${String(index)}`, 560))
-            .withReceipt(uuidOf(`completion-receipt:${String(index)}`))
-            .reportedFor({
-              reference,
-              delivery: uuidOf(`completion-delivery:${String(index)}`),
-            })
-            .receivedAt(at(45 * minute))
-            .please(),
-          landing,
-          landingReporting: {
-            origin,
-            authority,
-            preparations: [landing],
-            settledAt: at(55 * minute),
-          },
-          doneAt: at(60 * minute),
-        }),
   };
 }
 
@@ -177,29 +154,33 @@ function attemptAt(
     host: record?.session.host ?? "claude",
     instruction: prose(`attempt-instruction:${String(index)}`, 71),
   };
-  const id = uuidOf(`attempt:${String(index)}`);
+  const attempt = makeMe.anAcceptedAttempt
+    .withId(uuidOf(`attempt:${String(index)}`))
+    .requesting(request)
+    .acceptedAt(acceptedAt);
   if (record === undefined)
-    return {
-      id,
-      request,
-      acceptedAt,
-      publication: { kind: "none" },
-      outcome: {
+    return attempt
+      .ended({
         kind: "failed",
         reason: "start-refused",
         explanation: prose(`refused:${String(index)}`, 120),
-      },
-      settledAt: acceptedAt,
-      reconciledAt: acceptedAt,
-    };
+      })
+      .settledAt(acceptedAt)
+      .reconciledAt(acceptedAt)
+      .please();
   const { completion, landing, landingReporting } = record;
   const session = {
     host: record.session.host,
     sessionId: record.session.sessionId,
   };
   return {
-    id,
-    reportingOrigin: origin,
+    ...attempt
+      .reportingTo(origin)
+      .published(commitOf(`published:${String(index)}`))
+      .launched(session)
+      .settledAt(record.launchedAt)
+      .reconciledAt(record.launchedAt)
+      .please(),
     ...(record.request.reporting && { reporting: record.request.reporting }),
     ...(completion && {
       completion,
@@ -213,15 +194,6 @@ function attemptAt(
       landingPreparations: landingReporting.preparations,
     }),
     ...(landing && { landing }),
-    request,
-    acceptedAt,
-    publication: {
-      kind: "published",
-      revision: commitOf(`published:${String(index)}`),
-    },
-    outcome: { kind: "launched", session },
-    settledAt: record.launchedAt,
-    reconciledAt: record.launchedAt,
   };
 }
 

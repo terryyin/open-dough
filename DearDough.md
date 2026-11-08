@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 465. Removed numbers are never reused.
+- Highest allocated local number: 471. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -44,6 +44,15 @@ Former local code: DD-450. Former local code: DD-121. Former local code: DD-206.
   - Evidence: Plan 524 at `d9a8bd386`: the premise "No paid run" searched only `*.sh`/`*.bash` for the family's module names, yet the retained `tests/fixtures/native-streams/*/publication/admission-investigation/*/record` files list `tests/support/product-backlog-fixture.mjs` and `repositoryTestData.mjs` as `input-hash` lines. The premise "entries without an identity cannot be rendered" was false: `renderEntry` writes `- [Item A](seeds/A.md#a)` when the identity is the link.
   - Observed effect: Slice 1 took the simpler path the false rendering premise had ruled out; slice 3's coordinator had to confirm that no check compares recorded input hashes with current files before accepting. Neither changed the outcome.
   - Inference: Same facet as plan 514's row: a native identity's hashed import closure, not shell sources, lists what it depends on.
+- Execution: SEED-275#story-intent-tabs (plan 531-review-story-intent-tabs; first related implementation commit `4a13bba4f1c4340c5ed1705854dbc0a7e72942c6`)
+  - Timestamp: unknown (2026-11-08, slice 1 return and slice 5 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: Plan 531 (`c764457107:.planning/slice-plans/531-review-story-intent-tabs/PLAN.md`)'s proof stated "Verify **Review changes** opens the existing comparison for the outside count and returns focus when closed". ADR 0008's Selected story row says closing the Side panel clears the selection, and slice 1 observed focus landing on `BODY`. The story's Visual acceptance required light and dark comparison. The dashboard has no dark theme: only `intent-ci-cues.css` and `intent-location-group.css` react to `prefers-color-scheme`. The decisive premises observed neither condition.
+  - Observed effect: slice 1 was returned once for a focus home. Slice 5 could not finish until Terry amended the story and deferred dark comparison to SEED-278#dashboard-dark-theme.
+  - Inference: proof rows that promise existing-product behavior or review conditions need the same premise observation as the behavior they change.
+
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
 ## ODF-157 — Identifier-only conceptual searches <a id="odf-157"></a>
@@ -252,6 +261,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Guarded fresh delivery returned `operation: formatting` with ESLint `no-unused-vars` on an unused `_` in an `Array.from({ length }, (_, index) => ...)` callback, in `tests/support/product-backlog-identity-evidence-fixture.mjs` (slice 3) and `tests/support/dashboard-later-trunk-fixture.mjs` (slice 5), after focused proof and refactor passes that ran only a read-only Prettier check.
   - Observed effect: Two withheld deliveries; the same `[...Array(n).keys()].map(...)` rewrite and a focused rerun cleared each.
   - Inference: Third execution with this exact diagnostic in one day; implementation briefs that forbid hook-owned lint leave this class to the delivery gate.
+- Execution: SEED-261#map-launch-and-session-test-data (plan 534-map-launch-and-session-test-data; first related implementation commit `681a9d6f8a9d16fd03cc5879984bb255abba4bdc`)
+  - Timestamp: unknown (slice 1 delivery on 2026-11-08, before `681a9d6f8` at 2026-11-08T23:34:13+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `e75b693ab`)
+  - Evidence: Slice 1's first guarded fresh delivery returned `operation: formatting`: the formatter's ESLint fix removed an unnecessary `as KeptLaunch` assertion in `dashboard/tests/terminals/agent-terminal-avatar.spec.ts`, then `no-unused-vars` failed on the now-unused `type KeptLaunch` import. Implementation and refactor briefs forbade hook-owned lint; both ran typecheck and Prettier only. In slice 4 the refactor pass found Prettier and `no-unnecessary-type-parameters` failures the implementer returned, because that brief allowed `npx eslint` on touched files.
+  - Observed effect: One withheld delivery; removing the import cleared it and the retry published `681a9d6f8`. Slices 2–4, whose refactor briefs allowed ESLint on touched files, delivered first time.
+  - Inference: Same class as the earlier rows; letting the refactor pass run ESLint read-only on touched files moved the catch before delivery.
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 
@@ -419,6 +436,16 @@ Former local code: DD-424. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
 ## ODF-428 — A refactor moved tests after acceptance had cited them, leaving source-review observations stale
 Former local code: DD-431. [Evidence and current response](docs/maintainer/findings/ODF-428.md).
+
+### Occurrences
+- Execution: SEED-262#reuse-immutable-git-histories (plan 535-reuse-story-columns-git-history; first related implementation commit `08d208fd080d143e60dfe0d011609e3a0060d2ca`)
+  - Timestamp: unknown (2026-11-08, about 15:55Z, after the refactor return and before the full-suite run stamped `2026-11-08T16-01-12.478Z`)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: acceptance recorded all 63 source-review observations with `story-obligations.mjs record`, 50 of them citing the four new cases in `tests/support/repository-fixture.test.mjs`; the refactor pass then moved those cases to `repository-snapshot.test.mjs` and `repository-snapshot-isolation.test.mjs` and split the cited materializer into `repository-template.mjs` and `repository-snapshot.mjs`. The refactor return listed the moves; the coordinator rewrote the rows by text substitution before delivery and `check --slice 1` passed.
+  - Observed effect: one retargeting round over 50 rows; nothing stale published.
+  - Inference: fourth execution with the same shape; recording observations by file path before the refactor pass remains the structural cause.
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 Former local code: DD-434. [Evidence and current response](docs/maintainer/findings/ODF-429.md).
 ## ODF-430 — Story integration moved another active agent profile into done
@@ -606,6 +633,40 @@ the candidate could.
   - Evidence: Slice 1's before runs were at load about 10.5 and its after runs at 14.8–16.3 (startOriginTest consumers 60/68 s before, 73/81 s after); the coordinator recorded obligation G3 in plan 512. Slices 2 and 3 measured base-worktree and candidate runs back to back (51/51 s; 47/46 and 47/45 s; 22/20 and 23/20 s).
   - Observed effect: Slice 1's timing evidence could not close its promise and the comparison was repeated in slice 3 with a temporary base worktree and its setup.
   - Inference: The plan's wording "record before changing anything" invites sequential measurement; naming paired back-to-back runs from the start would likely have avoided the repeat. One execution only.
+- Execution: SEED-262#migrate-git-publication-native-fixtures (plan 534-migrate-git-publication-native-fixtures; first related implementation commit `e33993231c9ce45e6ad573321fba472d4778e25f`)
+  - Timestamp: 2026-11-09T00:10:00+08:00 (end of the paired runs; before run 2026-11-08T21:38+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `23d29ac79`)
+  - Evidence: Plan 534's Local gates again prescribed a before run and a repeat "after the migration". Before 148.49 s at load 16.8→12.8; after 211.10 s at 19.9→19.1, with unchanged jobs slower too. Paired base and candidate scratch worktrees run alternately then gave base 138.84 s and 326.52 s, candidate 261.14 s and 259.69 s, as load swung 11→29 within the pairs. CI test-times artifacts (main `11bd921ed` run 42484078567 versus branch `cd5b0ddb0` run 42493839333) gave the comparison: 231.1 to 176.0 job seconds for the six checks.
+  - Observed effect: Neither sequential nor paired local runs could attribute a difference; the slice 5 evaluation rests on CI job seconds, and the paired runs cost about 17 minutes plus two scratch installs.
+  - Inference: Paired runs need a stable load window; on this machine the hosted runner's per-job test times were the steadier comparison and were already available for both revisions. Planning could name them as the timing source when the selection runs in CI.
+
+- Execution: SEED-262#declare-fake-github-planning-data (plan 530-declare-fake-github-planning-data; first related implementation commit `673fee7a4967cf5a2ea076b282c21878841a13fa`)
+  - Timestamp: unknown (2026-11-08, slices 1, 3 and 4)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `d84195b2a`)
+  - Evidence: Plan 530 asked for "two runs each under comparable load" before and after; slice 3's recently done and profile family ran before at load 3.7 and 7.8 (151.8 s, 161.3 s) and after at 21.1 and 14.0 (168.9 s, 156.2 s). Slice 4 repeated both families as alternated runs of a base worktree at `24c881a5a` and the candidate (recently done B/A 0.95, refresh B/A 1.046).
+  - Observed effect: Slice 3's timings could not judge the promise; the paired comparison was added to slice 4 with a temporary base worktree and its setup.
+  - Inference: Same cause as the first row: the plan, written after DD-464's first occurrence, still named sequential before/after runs.
+
+- Execution: SEED-262#migrate-shell-release-and-native-fixtures (plan 533-migrate-shell-release-and-native-fixtures; first related implementation commit `8d7623b7ddfed3e4e727af5843df54eea741e33b`)
+  - Timestamp: unknown (2026-11-08, slice 2, before `75946c1b2` at 2026-11-08T22:36:58+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `766cfa66f`)
+  - Evidence: Plan 533's Local gates said "compare before and after with the same command, back to back". Slice 2's sequential runs gave `story-payload-update.sh` 7.71–7.92 s before and 8.45–9.31 s after at load 10.7–12.6. Interleaved runs against a `git archive HEAD` copy gave 8.68–10.29 s before and 8.62–9.17 s after; the builder alone was 1.17–1.23 s old and 0.88–1.18 s new (plan 533 slice 2 accepted proof, `afb028050:.planning/slice-plans/533-migrate-shell-release-and-native-fixtures/PLAN.md`).
+  - Observed effect: The implementer repeated the timing interleaved before it could judge the promise; slices 1, 3 and 4 alternated old and new from the start.
+  - Inference: "Back to back" was still read as sequential; naming interleaved runs against a base copy in the plan would likely avoid the repeat.
+- Execution: SEED-262#reuse-immutable-git-histories (plan 535-reuse-story-columns-git-history; first related implementation commit `08d208fd080d143e60dfe0d011609e3a0060d2ca`)
+  - Timestamp: unknown (2026-11-08, baseline 14:11Z–14:13Z, implementation measurements about 14:30Z–15:10Z)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: the plan's gate read "re-establish a comparable baseline in the execution checkout, then use the same ordinary selection before and after"; the coordinator ran three baseline runs at load 12.9 before delegating, the implementation agent's first after runs fell at load 12.7–15.6 and could not be compared, and it then built a detached clean worktree of the Take (copied `node_modules`) to run nine more before runs beside its after runs; the coordinator's final interleaved lazy/eager pairs on one checkout were decisive (recorded in plan 535's Measurement record).
+  - Observed effect: twelve extra selection runs and a temporary base worktree before the comparison could be judged.
+  - Inference: second execution in the same seed; the gate wording again invited a sequential baseline, and the paired form had to be rediscovered.
 
 ## DD-465 — An empty focused path list ran the whole local suite
 `scripts/test.sh` with no path arguments runs the whole serialized local suite. A focused command built from a file list that silently came out empty therefore started a full run instead of failing.
@@ -619,3 +680,66 @@ the candidate could.
   - Evidence: The coordinator's `grep -lE ... tests/support/*.test.mjs tests/*.test.mjs | tee s4-files.txt` aborted on zsh's unmatched `tests/*.test.mjs` glob, leaving the list empty; `bash scripts/test.sh $(cat s4-files.txt)` then ran without paths (`scripts/test.sh:24` treats no arguments as the full suite) until the 600 s tool timeout moved it to the background, where it was stopped.
   - Observed effect: About ten minutes of a full-suite run under load 13-17 were spent on a two-run baseline of six files; the baseline was redone with `git grep` and a non-empty check.
   - Inference: A focused-run guard that refuses an empty list would have stopped this at once; later briefs added "never pass an empty list" by hand.
+
+## DD-468 — A plan's consumer inventory came from a narrower search than the story's rule
+The story governed "helpers and specs that hand-write published planning
+files" and named a dated sample. The plan built its slice lists from a
+`# Product backlog` literal search plus a few fact-kind searches, so helpers
+that assembled seeds, records and catalogs from encoder calls stayed outside
+every slice until acceptance.
+
+### Occurrences
+- Execution: SEED-262#declare-fake-github-planning-data (plan 530-declare-fake-github-planning-data; first related implementation commit `673fee7a4967cf5a2ea076b282c21878841a13fa`)
+  - Timestamp: unknown (2026-11-08, slices 2 and 3 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `d84195b2a`)
+  - Evidence: Plan 530 premise "Consumer set" (48 files from `grep -rlE '# Product backlog|## Backlog list' dashboard/tests`). Slice 2 found 13 `dashboard/backend-tests` specs outside it; slice 3 acceptance found about 20 helpers using `renderDoneRecord`/`withDoneCatalog` outside it (obligation G1). Slice 4 was added and migrated them (`84506544d`).
+  - Observed effect: One extra slice (about 45 minutes of agent time) and two plan rewrites during execution; the source review's commitment 10 surfaced the gap at acceptance.
+  - Inference: Deriving the inventory from the story's governing rule (the published-file encoders and file paths a fake GitHub serves) rather than from one literal symptom would likely have sized four slices up front.
+
+## DD-469 — A trunk merge's proof selected changed specs, not consumers of the changed contract
+After merging trunk into a story branch, the coordinator proved the merge with
+the specs trunk had changed. A trunk-added helper called this branch's changed
+writer under an old precondition, and its unchanged spec failed in CI.
+
+### Occurrences
+- Execution: SEED-262#declare-fake-github-planning-data (plan 530-declare-fake-github-planning-data; first related implementation commit `673fee7a4967cf5a2ea076b282c21878841a13fa`)
+  - Timestamp: unknown (2026-11-08, merge `7bec63357`; CI run 42487558040)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `d84195b2a`)
+  - Evidence: Merge proof selected `git diff --name-only 54cc27451 origin/main -- 'dashboard/*.spec.ts'` plus sidebar specs (74 files, 165 passed). Trunk's `dashboard/tests/support/sessionsReplayProjects.ts` called `writeRevisionFiles` on a missing directory, which slice 1 had made read first; `agent-launch-sessions-listing.spec.ts` failed in CI with ENOENT. Repaired in `e828b4142`.
+  - Observed effect: One failed CI run, a stash-and-repair cycle and a repair commit.
+  - Inference: Selecting the importers of every trunk-changed module that calls a contract this branch changed (here `writeRevisionFiles`) would have caught it locally.
+
+## DD-470 — A planned discrimination edit did not discriminate
+A plan named the scratch edit that should make a check fail, without observing it. The edit passed both before and after the change, so the planned proof could not show the promise.
+
+### Occurrences
+- Execution: SEED-262#migrate-shell-release-and-native-fixtures (plan 533-migrate-shell-release-and-native-fixtures; first related implementation commit `8d7623b7ddfed3e4e727af5843df54eea741e33b`)
+  - Timestamp: unknown (2026-11-08, slice 2, before `75946c1b2` at 2026-11-08T22:36:58+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `766cfa66f`)
+  - Evidence: Plan 533 (`afb028050:.planning/slice-plans/533-migrate-shell-release-and-native-fixtures/PLAN.md`) slice 2 Proof: "drop the withheld path from `update-adds-new-payload-skill.sh`'s 0.1.1. The check then fails". That edit passed on the candidate and on a `git archive HEAD` copy, because the check installs 0.1.1 by hand without reading its declaration. Dropping `--withhold` in `retrospective-reference-payload.sh` failed at its line 33, and dropping `--remove` in `update-adds-new-payload-skill.sh` failed with `Managed payload mismatch`.
+  - Observed effect: The implementer found the discriminating checks itself; acceptance used them. Slice 4's unplanned "queued as taken" edit also passed, showing that the done-catalog proof does not observe list state.
+  - Inference: A discrimination claim in a plan is a premise; observing it during planning, or marking it unverified, would have pointed slice 2 at the right check.
+
+## DD-471 — A baseline trace in hand already showed the request timing that made the planned lazy build neutral
+The pre-change artifact trace the coordinator recorded before delegation showed
+both dashboard workers requesting the run's artifacts within 1 ms of each other.
+A single-flight owner build started on the first request therefore had to
+serialize both cold workers, which the plan had named as a risk with a stop
+condition but left to end-to-end measurement; the slice measured it over seven
+runs before an owner-start request restored the gain.
+
+### Occurrences
+- Execution: SEED-262#reuse-immutable-git-histories (plan 535-reuse-story-columns-git-history; first related implementation commit `08d208fd080d143e60dfe0d011609e3a0060d2ca`)
+  - Timestamp: unknown (2026-11-08; baseline trace at 14:11Z, delegation shortly after, eager variant adopted about 15:20Z)
+  - Tool: Claude Code
+  - Model: claude-fable-5-1
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: `before-run1.trace.jsonl` of the coordinator's baseline recorded `request app` from both workers at 2.863 s and `request server-bundle` at 2.864/2.865 s; plan 535's Options named cold serialization as a measured risk; the implementation agent's `after` and `after2` runs (lazy) matched the baselines and its three-line eager experiment did not; the coordinator's interleaved pairs confirmed eager.
+  - Observed effect: the decisive design choice (when the owner starts the build) was made after implementation and about ten measured runs, rather than before delegation from the trace already recorded.
+  - Inference: qualified, one execution. When a plan's stop condition depends on a timing structure, the baseline observation taken for it can be read for that structure before the slice is delegated.

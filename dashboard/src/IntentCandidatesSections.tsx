@@ -2,7 +2,9 @@
 // (`./IntentCandidatesRecord.tsx`): Pending, Accepted, and other sections
 // with every recorded field, driven by the parser's field order. Locations
 // open configured Intent files through the shared selection; evidence Markdown
-// links to those files do the same.
+// links to those files do the same. Returning, the entry a test was opened
+// from comes into view, and takes the keyboard when the developer activates
+// the tab.
 
 import { useEffect, useId, useRef } from "react";
 import type { IntentConfiguredInventory } from "./intentCandidatesLocationMatch.ts";
@@ -17,6 +19,14 @@ import {
   type FindingSection,
   type TestOptimizationCandidatesRecord,
 } from "./testOptimizationCandidates.ts";
+
+// The entry a test was opened from, which takes the keyboard when the
+// developer returns to Optimization Candidates (`./IntentProjectView.tsx`).
+const returnEntryAttribute = "data-return-entry";
+
+export function focusReturnEntry(panel: HTMLElement | null) {
+  panel?.querySelector<HTMLElement>(`[${returnEntryAttribute}]`)?.focus();
+}
 
 const findingGroupOrder = [
   { heading: "Pending candidates", key: "pending" },
@@ -99,6 +109,9 @@ function Entry({
       className="intent-candidate-entry"
       aria-labelledby={headingId}
       data-slug={entry.slug}
+      {...(focusEntrySlug === entry.slug
+        ? { [returnEntryAttribute]: true, tabIndex: -1 }
+        : {})}
     >
       <h4 id={headingId}>{entry.slug}</h4>
       <dl>

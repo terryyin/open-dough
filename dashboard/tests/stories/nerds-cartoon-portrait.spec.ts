@@ -10,49 +10,59 @@ import { expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
 import { enlargedView, expectPortrait } from "../agentPortrait.ts";
 import { avatarPng } from "../avatarAnswers.ts";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { describedRevision } from "../describedRevisions.ts";
 
 const nerdStory = "See who owns Taken work";
 const atlasStory = "Show every agent's portrait";
 const photoUrl = /\/agent-avatars\/odd-e-nerds\/cartoon\/stanly\.webp$/;
 
+const nerdIdentity = "SEED-021#identify-taken-work-owner";
+const atlasIdentity = "SEED-038#recognize-agents-and-tools-by-avatar";
+
 const profile = (name: string, identity: string) =>
-  renderAgentProfile(
-    makeMe.anAgentProfile
-      .executing({
-        name,
-        identity,
-        mode: "trunk",
-        branch: "origin/main",
-        host: "claude",
-        model: "claude-opus-5-5",
-      })
-      .please(),
-  );
+  makeMe.anAgentProfile
+    .executing({
+      name,
+      identity,
+      mode: "trunk",
+      branch: "origin/main",
+      host: "claude",
+      model: "claude-opus-5-5",
+    })
+    .please();
 
 async function openBoard(page: Page) {
   await publishFiles(page, {
     repository: "terryyin/open-dough",
-    revision: "a1".repeat(20),
-    files: {
-      ".planning/PRODUCT-BACKLOG.md": `# Product backlog
-
-## Taken
-
-- [${nerdStory}](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — SEED-021#identify-taken-work-owner
-- [${atlasStory}](seeds/SEED-038-agent-and-tool-avatars.md#recognize-agents-and-tools-by-avatar) — SEED-038#recognize-agents-and-tools-by-avatar
-
-## Backlog list
-`,
-      ".planning/agents/stanly-chan.json": profile(
-        "stanly",
-        "SEED-021#identify-taken-work-owner",
-      ),
-      ".planning/agents/rina-chan.json": profile(
-        "Rina",
-        "SEED-038#recognize-agents-and-tools-by-avatar",
-      ),
-    },
+    ...describedRevision(
+      makeMe.aRepository
+        .withRevision("portraits", {
+          backlog: {
+            taken: [
+              makeMe.aBacklogEntry
+                .with({
+                  title: nerdStory,
+                  identity: nerdIdentity,
+                  href: "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
+                })
+                .please(),
+              makeMe.aBacklogEntry
+                .with({
+                  title: atlasStory,
+                  identity: atlasIdentity,
+                  href: "seeds/SEED-038-agent-and-tool-avatars.md#recognize-agents-and-tools-by-avatar",
+                })
+                .please(),
+            ],
+          },
+          agentProfiles: [
+            profile("stanly", nerdIdentity),
+            profile("Rina", atlasIdentity),
+          ],
+        })
+        .please(),
+      "a1".repeat(20),
+    ),
   });
   await page.goto("/");
   await expectMembership(page, { taken: [nerdStory, atlasStory], backlog: [] });

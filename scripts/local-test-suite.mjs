@@ -4,7 +4,7 @@
 // publication, and needs neither a lock-file reaper race nor platform flock.
 import { spawn, spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { existsSync, realpathSync } from "node:fs";
+import { existsSync, realpathSync, renameSync, writeFileSync } from "node:fs";
 import { constants } from "node:os";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
@@ -20,6 +20,12 @@ import {
 
 const admissionRef = "refs/dough/local-test-suite";
 const ownershipVariable = "DOUGH_LOCAL_SUITE_OWNERS";
+// OPEN_DOUGH_TEST_ADMISSION_GATE names a file this call writes once, whole,
+// with the owner's record id, when a live owner outside its ancestry blocks
+// admission. The call then waits as it always does. It belongs to this call
+// alone: the call removes it from the environment so nothing it starts
+// inherits it.
+const admissionGateVariable = "OPEN_DOUGH_TEST_ADMISSION_GATE";
 const held = new Map();
 
 function git(directory, args, input) {
@@ -108,6 +114,8 @@ function inheritedOwners() {
 }
 
 export async function acquireLocalSuite(directory, { signal: aborted } = {}) {
+  let admissionGate = process.env[admissionGateVariable];
+  delete process.env[admissionGateVariable];
   if (process.env["CI"]) return async () => {};
   const root = ownerRoot(directory);
   if (root === undefined || held.has(root)) return async () => {};
@@ -147,6 +155,10 @@ export async function acquireLocalSuite(directory, { signal: aborted } = {}) {
           );
         break;
       }
+    } else if (admissionGate) {
+      writeFileSync(`${admissionGate}.partial`, previous.oid);
+      renameSync(`${admissionGate}.partial`, admissionGate);
+      admissionGate = undefined;
     }
     await delay(250, undefined, { signal: aborted });
   }

@@ -2,6 +2,54 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_map-launch-and-session-test-data.json",
+      "identity": "SEED-261#map-launch-and-session-test-data",
+      "completedAt": "2026-11-08T18:17:04.081Z",
+      "blob": "0550d8638d91dddfafad63af2c2f578a46a08221"
+    },
+    {
+      "fileName": "SEED-261_map-launch-observation-test-data.json",
+      "identity": "SEED-261#map-launch-observation-test-data",
+      "completedAt": "2026-11-08T18:09:38.445Z",
+      "blob": "79e1bcbbe539dabb5dd64948b48422489657f680"
+    },
+    {
+      "fileName": "SEED-262_reuse-immutable-git-histories.json",
+      "identity": "SEED-262#reuse-immutable-git-histories",
+      "completedAt": "2026-11-08T17:14:35.036Z",
+      "blob": "20fb9290bda21550db9336c1d761980fe3a165a5"
+    },
+    {
+      "fileName": "SEED-262_migrate-shell-release-and-native-fixtures.json",
+      "identity": "SEED-262#migrate-shell-release-and-native-fixtures",
+      "completedAt": "2026-11-08T16:46:01.471Z",
+      "blob": "c2d97a30ae2acfa5876132be2838cb1497ca79ef"
+    },
+    {
+      "fileName": "SEED-262_declare-fake-github-planning-data.json",
+      "identity": "SEED-262#declare-fake-github-planning-data",
+      "completedAt": "2026-11-08T16:33:31.465Z",
+      "blob": "8a414b7c386d1a8ccbf053dc32bfd39b3ad5c5d1"
+    },
+    {
+      "fileName": "SEED-262_migrate-git-publication-native-fixtures.json",
+      "identity": "SEED-262#migrate-git-publication-native-fixtures",
+      "completedAt": "2026-11-08T16:29:06.269Z",
+      "blob": "6fd7b073d09cd44d4d205e8cddaee87dfc78de2e"
+    },
+    {
+      "fileName": "SEED-277_observe-local-suite-waits.json",
+      "identity": "SEED-277#observe-local-suite-waits",
+      "completedAt": "2026-11-08T16:00:23.321Z",
+      "blob": "02842d664d8c5c2b826b2416761e408dba55ca3f"
+    },
+    {
+      "fileName": "SEED-275_story-intent-tabs.json",
+      "identity": "SEED-275#story-intent-tabs",
+      "completedAt": "2026-11-08T15:38:18.711Z",
+      "blob": "d6e18be6d46d2deefdf41dc2807e82040616b688"
+    },
+    {
       "fileName": "SEED-262_migrate-backlog-scratch-repositories.json",
       "identity": "SEED-262#migrate-backlog-scratch-repositories",
       "completedAt": "2026-11-08T14:31:13.006Z",

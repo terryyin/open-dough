@@ -17,9 +17,9 @@ import {
   agentIdentity,
   agentNames,
   nerdAgentNames,
-  renderAgentProfile,
 } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { openUntilRead } from "../pageRequestNotes.ts";
+import { describedRevision } from "../describedRevisions.ts";
 
 const story = "See who owns Taken work";
 const identity = "SEED-021#identify-taken-work-owner";
@@ -28,35 +28,42 @@ const agentsOf = (names: readonly string[]) =>
   names.map((name) => agentIdentity(name).agent);
 
 // Yui, a current-collection agent, holds the Taken story; stanly is a nerd.
-const profile = (name: string) =>
-  renderAgentProfile(
-    makeMe.anAgentProfile
-      .executing({
-        name,
-        identity,
-        mode: "trunk",
-        branch: "origin/main",
-        host: "claude",
-      })
-      .please(),
-  );
-
+// The settings bytes are what each case proves.
 async function openRoster(page: Page, settings?: string) {
   await publishFiles(page, {
     repository: "terryyin/open-dough",
-    revision: "b3".repeat(20),
-    files: {
-      ".planning/PRODUCT-BACKLOG.md": `# Product backlog
-
-## Taken
-
-- [${story}](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — ${identity}
-
-## Backlog list
-`,
-      ".planning/agents/yui-chan.json": profile("Yui"),
-      ...(settings === undefined ? {} : { [settingsPath]: settings }),
-    },
+    ...describedRevision(
+      makeMe.aRepository
+        .withRevision("roster", {
+          backlog: {
+            taken: [
+              makeMe.aBacklogEntry
+                .with({
+                  title: story,
+                  identity,
+                  href: "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
+                })
+                .please(),
+            ],
+          },
+          agentProfiles: [
+            makeMe.anAgentProfile
+              .executing({
+                name: "Yui",
+                identity,
+                mode: "trunk",
+                branch: "origin/main",
+                host: "claude",
+              })
+              .please(),
+          ],
+          ...(settings === undefined
+            ? {}
+            : { files: { [settingsPath]: settings } }),
+        })
+        .please(),
+      "b3".repeat(20),
+    ),
   });
   await openUntilRead(page, "/?project=open-dough&view=roster");
   return rosterParts(page);

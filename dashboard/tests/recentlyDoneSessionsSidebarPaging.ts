@@ -8,15 +8,17 @@ import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import { expect } from "./support/cursorStart.ts";
 
 // Forty-five retained Done sessions across the three configured projects,
-// newest completion first as titles Done session 01 … 45. Two mid-list
-// completions share a timestamp so identity breaks the tie. `titles[0]` is
-// newest; `titles[44]` is oldest.
-export function fortyFiveDoneSessions(now: number): {
+// or the `sources` given, newest completion first as titles Done session
+// 01 … 45. Two mid-list completions share a timestamp so identity breaks the
+// tie. `titles[0]` is newest; `titles[44]` is oldest.
+export function fortyFiveDoneSessions(
+  now: number,
+  sources: readonly string[] = ["open-dough", "doughnut", "pygardon"],
+): {
   readonly titles: readonly string[];
   readonly byProject: Record<string, LaunchRecord[]>;
   readonly records: readonly LaunchRecord[];
 } {
-  const sources = ["open-dough", "doughnut", "pygardon"] as const;
   const titles = Array.from(
     Array(45).keys(),
     (index) => `Done session ${String(index + 1).padStart(2, "0")}`,
@@ -37,11 +39,9 @@ export function fortyFiveDoneSessions(now: number): {
       .markedDoneAt(doneAt)
       .please();
   });
-  const byProject: Record<string, LaunchRecord[]> = {
-    "open-dough": [],
-    doughnut: [],
-    pygardon: [],
-  };
+  const byProject: Record<string, LaunchRecord[]> = Object.fromEntries(
+    sources.map((source) => [source, []]),
+  );
   for (const record of records) {
     const bucket = byProject[record.request.source];
     if (bucket === undefined) {

@@ -26,7 +26,7 @@ import {
   pngA,
 } from "../../tests/support/launchAttachmentFixtures.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
-import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import {
   answerOf,
   partsOf,
@@ -44,7 +44,7 @@ test("follow-ups of two sessions with the same words and choices are two launche
   dashboard,
 }) => {
   const source = reported(dashboard.home);
-  await keepLaunchRecords(dashboard, [source, quiet]);
+  keepLaunchRecords(dashboard, [source, quiet]);
   dashboard.claudeScenario("launched");
 
   for (const followed of [source, quiet]) {
@@ -77,7 +77,7 @@ test.describe("a follow-up whose established start is kept after the host refuse
 
   test("is resumed by repeating the same follow-up", async ({ dashboard }) => {
     const source = reported(dashboard.home);
-    await keepLaunchRecords(dashboard, [source]);
+    keepLaunchRecords(dashboard, [source]);
     dashboard.claudeScenario("refused");
     const refused = await answerOf(launch(dashboard, followUpStart(source)));
     expect(refused).toMatchObject({ kind: "failed", reason: "refused" });
@@ -102,7 +102,7 @@ test.describe("a follow-up whose established start is kept after the host refuse
     dashboard,
   }) => {
     const source = reported(dashboard.home);
-    await keepLaunchRecords(dashboard, [source]);
+    keepLaunchRecords(dashboard, [source]);
     const followUp = followUpStart(source);
     dashboard.claudeScenario("refused");
     expect(await answerOf(launch(dashboard, followUp))).toMatchObject({
@@ -112,7 +112,7 @@ test.describe("a follow-up whose established start is kept after the host refuse
     });
     const [failed] = await attempts(dashboard);
     if (failed === undefined) throw new Error("Missing retained attempt");
-    await keepLaunchRecords(dashboard, []);
+    keepLaunchRecords(dashboard, []);
 
     dashboard.claudeScenario("launched");
     const forged = await accept(dashboard, {
@@ -164,11 +164,11 @@ test.describe("a follow-up whose established start is kept after the host refuse
     dashboard,
   }) => {
     const source = reported(dashboard.home);
-    await keepLaunchRecords(dashboard, [source]);
+    keepLaunchRecords(dashboard, [source]);
     dashboard.claudeScenario("refused");
     await answerOf(launch(dashboard, followUpStart(source)));
     const [failed] = await attempts(dashboard);
-    await keepLaunchRecords(dashboard, []);
+    keepLaunchRecords(dashboard, []);
 
     dashboard.claudeScenario("launched");
     const launched = await answerOf(continued(dashboard, failed?.id ?? ""));
@@ -204,7 +204,7 @@ for (const refused of [
     dashboard,
   }) => {
     const source = reported(dashboard.home);
-    await keepLaunchRecords(dashboard, [source]);
+    keepLaunchRecords(dashboard, [source]);
     dashboard.claudeScenario("launched");
 
     const response = await accept(dashboard, {

@@ -8,6 +8,7 @@
 // (../../tests/support/doneCatalogReads.ts).
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   developmentBoundary,
@@ -19,23 +20,20 @@ import {
   answerOf,
   catalogPath,
   doneCatalogReads,
-  doneDirectory,
   doneRecords,
   fileOf,
   identityOf,
   pathOf,
+  publishedDone,
   revisionOf,
 } from "../../tests/support/doneCatalogReads.ts";
-import {
-  doneCatalogOf,
-  withDoneCatalog,
-} from "../../tests/doneCatalogAnswers.ts";
-import {
-  doneRecordPath,
-  renderDoneRecord,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordPath } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 test.describe.configure({ mode: "serial" });
+
+// The catalog completion publishes beside the done records `facts` state.
+const catalogText = (facts: RevisionFacts) =>
+  publishedDone(facts)[catalogPath] ?? "";
 
 test.describe("authenticated done catalog gaps (development environment)", () => {
   let server: DashboardServer;
@@ -69,10 +67,13 @@ test.describe("authenticated done catalog gaps (development environment)", () =>
       everyRepository,
       publishes({
         revision: leftBehind,
-        files: {
-          [`${doneDirectory}/README.md`]: "Not a done record.\n",
-          [catalogPath]: doneCatalogOf(doneRecords("gone", 2), doneDirectory),
-        },
+        // The catalog of records no longer published is the stale bytes
+        // under test.
+        files: publishedDone({
+          files: {
+            [catalogPath]: catalogText({ doneRecords: doneRecords("gone", 2) }),
+          },
+        }),
       }),
     );
     const before = server.github.calls.length;
@@ -84,35 +85,40 @@ test.describe("authenticated done catalog gaps (development environment)", () =>
 
   // Records the catalog does not describe as published: none of them is
   // trusted, none is read, and the catalog is a gap, not an empty one.
+  // Each catalog below is the exact bytes under test: missing, stale, or not
+  // one this format reads.
   const records = doneRecords("gap", 3);
   const changed = pathOf(identityOf("gap", 1));
+  const recordsCatalog = catalogText({ doneRecords: records });
   for (const { gap, files, problem, index } of [
     {
       gap: "a catalog missing beside the records",
-      files: records,
+      files: publishedDone({ doneRecords: records, remove: [catalogPath] }),
       problem: "done catalog is not published beside the 3 done records",
     },
     {
       gap: "a catalog describing an earlier record",
-      files: {
-        ...withDoneCatalog(records, doneDirectory),
-        [changed]: renderDoneRecord(
-          makeMe.aDoneRecord
-            .with({
-              identity: identityOf("gap", 1),
-              title: "Rewritten by an older writer",
-              completedAt: "2026-10-01T01:00:00.000Z",
-            })
-            .please(),
+      files: publishedDone({
+        doneRecords: records.map((record) =>
+          record.identity === identityOf("gap", 1)
+            ? makeMe.aDoneRecord
+                .with({
+                  identity: record.identity,
+                  title: "Rewritten by an older writer",
+                  completedAt: "2026-10-01T01:00:00.000Z",
+                })
+                .please()
+            : record,
         ),
-      },
+        files: { [catalogPath]: recordsCatalog },
+      }),
       problem: `done catalog describes an earlier ${changed.replace(".planning/", "")}`,
     },
     {
       gap: "a catalog missing a published record",
-      files: {
-        ...withDoneCatalog(records, doneDirectory),
-        [pathOf("SEED-300#unlisted")]: renderDoneRecord(
+      files: publishedDone({
+        doneRecords: [
+          ...records,
           makeMe.aDoneRecord
             .with({
               identity: "SEED-300#unlisted",
@@ -120,22 +126,28 @@ test.describe("authenticated done catalog gaps (development environment)", () =>
               completedAt: "2026-10-03T00:00:00.000Z",
             })
             .please(),
-        ),
-      },
+        ],
+        files: { [catalogPath]: recordsCatalog },
+      }),
       problem: `done catalog does not list ${doneRecordPath("SEED-300#unlisted")}`,
     },
     {
       gap: "a catalog that is not JSON",
-      files: { ...records, [catalogPath]: "{ not json" },
+      files: publishedDone({
+        doneRecords: records,
+        files: { [catalogPath]: "{ not json" },
+      }),
       problem: "done catalog is not JSON",
     },
     {
       gap: "a catalog in an unsupported format",
-      files: {
-        ...records,
-        [catalogPath]:
-          '{ "schemaVersion": 2, "records": [], "unreadable": [] }\n',
-      },
+      files: publishedDone({
+        doneRecords: records,
+        files: {
+          [catalogPath]:
+            '{ "schemaVersion": 2, "records": [], "unreadable": [] }\n',
+        },
+      }),
       problem: "done catalog schemaVersion must be 1",
     },
   ].map((each, index) => ({ ...each, index }))) {
@@ -162,7 +174,7 @@ test.describe("authenticated done catalog gaps (development environment)", () =>
 
   test("a record name the catalog does not list takes no read, even beside listed ones", async () => {
     const revision = revisionOf("9a");
-    const files = withDoneCatalog(doneRecords("unlisted", 2), doneDirectory);
+    const files = publishedDone({ doneRecords: doneRecords("unlisted", 2) });
     server.github.serve(everyRepository, publishes({ revision, files }));
     const listed = fileOf(identityOf("unlisted", 0));
     expect((await catalogAt(revision)).status).toBe(200);

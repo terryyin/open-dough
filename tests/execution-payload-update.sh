@@ -12,9 +12,19 @@ source "${source_dir}/tests/helpers/installed-wait-entrypoint-fixture.bash"
 source "${source_dir}/tests/helpers/installed-ci-reuse-fixture.bash"
 fixture="${temporary_dir}/source"
 older="${temporary_dir}/older"
-build_upgrade_releases "${fixture}" "${older}" before-execution with-execution \
-  --withhold dough-execute-plan/ --withhold dough-post-change-refactor/ \
-  --remove dough-execute-plan --remove dough-post-change-refactor
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" << 'JSON'
+{"revisions": [
+  {"name": "release 0.1.1 before-execution", "release": {
+    "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
+    "marker": "before-execution",
+    "withheld": ["dough-execute-plan/", "dough-post-change-refactor/"],
+    "removed": ["dough-execute-plan", "dough-post-change-refactor"]}},
+  {"name": "release 0.1.2 with-execution", "release": {
+    "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
+    "marker": "with-execution"}}
+]}
+JSON
+checkout_tagged_release "${fixture}" "${older}" 0.1.1
 newer="${temporary_dir}/newer"
 checkout_tagged_release "${fixture}" "${newer}" 0.1.2
 helper="${source_dir}/src/install/open-dough-release.sh"

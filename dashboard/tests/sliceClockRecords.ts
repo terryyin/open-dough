@@ -1,18 +1,20 @@
 // The records the Taken slice clock journey (taken-slice-clock.spec.ts)
 // publishes at one revision: Taken stories with counted plans, the agent
-// profiles recording their Takes (spelled by the shared profile renderer),
-// when each plan was last committed, and when each profile was added (its
-// Take), relative to the page's opening time.
+// profiles recording their Takes, when each plan was last committed, and
+// when each profile was added (its Take), relative to the page's opening
+// time.
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
-import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import type {
+  AgentProfile,
+  Backlog,
+  RevisionFacts,
+} from "../../tests/support/repositoryTestData.mjs";
+import { describedFiles } from "./describedRevisions.ts";
 import { addedAt, type PathHistories } from "./pathHistoryAnswers.ts";
 
 export const repository = "terryyin/open-dough";
-export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const seedPath = ".planning/seeds/SEED-091-clock.md";
 export const revision = "c3".repeat(20);
 // The page pauses at this run's time: journeys also keep machine sessions,
@@ -39,21 +41,6 @@ export const planPath = (anchor: string) =>
 export const profilePath = (agent: string) =>
   `.planning/agents/${agent.toLowerCase()}-chan.json`;
 
-const backlog = renderPublishedBacklog(
-  {
-    taken: stories.map(({ title, anchor }) =>
-      makeMe.aBacklogEntry
-        .with({
-          identity: `SEED-091#${anchor}`,
-          href: `seeds/SEED-091-clock.md#${anchor}`,
-          title,
-        })
-        .please(),
-    ),
-  },
-  { blankAfterEmptyQueue: false },
-);
-
 const seed = `# Slice clock fixture
 
 ${stories
@@ -63,15 +50,6 @@ ${stories
 ### ${title}
 
 **Identity:** SEED-091#${anchor}
-${renderPublishedPreparation(
-  makeMe.aStoryPreparation
-    .with({
-      refinement: "refined",
-      approach: "planned",
-      plan: `../slice-plans/091-${anchor}/PLAN.md`,
-    })
-    .please(),
-)}
 `,
   )
   .join("\n")}`;
@@ -101,28 +79,63 @@ const plan = renderSlicePlan(
   { heading: "Slices" },
 );
 
-export const files: Record<string, string> = {
-  [backlogPath]: backlog,
-  [seedPath]: seed,
-};
-for (const { anchor } of stories) {
-  files[planPath(anchor)] = plan;
-}
-for (const { anchor, agent } of stories) {
-  if (agent !== undefined) {
-    files[profilePath(agent)] = renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name: agent,
-          identity: `SEED-091#${anchor}`,
-          mode: "trunk",
-          branch: "origin/main",
-          host: "claude",
-        })
+// The revision's facts: each story Taken and planned, each Take's profile,
+// and, beside them, `queued` stories and `agentProfiles` a journey adds.
+export function clockedFacts({
+  queued = [],
+  agentProfiles = [],
+}: {
+  readonly queued?: Backlog["queued"];
+  readonly agentProfiles?: readonly AgentProfile[];
+} = {}): RevisionFacts {
+  return {
+    backlog: {
+      taken: stories.map(({ title, anchor }) =>
+        makeMe.aBacklogEntry
+          .with({
+            identity: `SEED-091#${anchor}`,
+            href: `seeds/SEED-091-clock.md#${anchor}`,
+            title,
+          })
+          .please(),
+      ),
+      queued,
+    },
+    files: {
+      [seedPath]: seed,
+      ...Object.fromEntries(
+        stories.map(({ anchor }) => [planPath(anchor), plan]),
+      ),
+    },
+    storyStates: stories.map(({ anchor }) => ({
+      identity: `SEED-091#${anchor}`,
+      href: `seeds/SEED-091-clock.md#${anchor}`,
+      ...makeMe.aStoryPreparation
+        .plannedIn(`../slice-plans/091-${anchor}/PLAN.md`)
         .please(),
-    );
-  }
+    })),
+    agentProfiles: [
+      ...stories.flatMap(({ anchor, agent }) =>
+        agent === undefined
+          ? []
+          : [
+              makeMe.anAgentProfile
+                .executing({
+                  name: agent,
+                  identity: `SEED-091#${anchor}`,
+                  mode: "trunk",
+                  branch: "origin/main",
+                  host: "claude",
+                })
+                .please(),
+            ],
+      ),
+      ...agentProfiles,
+    ],
+  };
 }
+
+export const files: Record<string, string> = describedFiles(clockedFacts());
 
 // When each plan was last committed at the revision. The unread story's plan
 // is omitted so GitHub's empty commit list answers (established absence).

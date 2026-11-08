@@ -1,4 +1,4 @@
-// Disposable trunk for preparation-assignment journeys. Fixtures supply only
+// Helpers for preparation-assignment journeys. Fixtures supply only
 // what exists before preparation starts: a queued story to prepare, other
 // developers' assignments, the owned workspace the exploration lifecycle
 // creates, and remote contention. The announcement, its release, and its
@@ -13,7 +13,6 @@ import {
   lsRemoteSha,
   revParse,
 } from "../../dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { createQueuedTrunk } from "../../dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import {
   coAuthors,
   developer,
@@ -42,38 +41,6 @@ export const seedC = ".planning/seeds/C.md";
 export const planC = ".planning/slice-plans/C/PLAN.md";
 
 export const profileOf = (name) => `.planning/${agentIdentity(name).path}`;
-
-// Queued trunk (stories A and B from the startup fixture) plus story C, queued
-// last and not yet refined: the story preparation will take up. `options`
-// pass through to the queued trunk, such as its `parent` directory.
-export async function createPreparationTrunk(options = {}) {
-  const trunk = await createQueuedTrunk(options);
-  const { integration } = trunk;
-  writeFileSync(
-    join(integration, seedC),
-    '---\nid: SEED-C\n---\n\n# Seed C\n\n<a id="c"></a>\n\n### Story C\n\n**Identity:** SEED-C#c\n\nRough idea for C.\n',
-  );
-  await exec(
-    process.execPath,
-    [
-      backlogCli,
-      "add",
-      "--identity",
-      identityC,
-      "--title",
-      "Story C",
-      "--link",
-      linkC,
-      "--position",
-      "last",
-    ],
-    { cwd: integration },
-  );
-  await git(integration, "add", ".planning");
-  await git(integration, "commit", "--quiet", "-m", "queue story C");
-  await git(integration, "push", "--quiet", "origin", "main");
-  return { ...trunk, trunkSha: await revParse(integration, "HEAD") };
-}
 
 // The owned preparation workspace, created from the verified trunk revision
 // as the exploration-workspace lifecycle does.

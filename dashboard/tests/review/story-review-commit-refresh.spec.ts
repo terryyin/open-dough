@@ -28,7 +28,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
   const { workspace } = unchangedWorktree(origin);
   writeAt(workspace, "first.txt", "first\n");
   commitAll(workspace, "first story commit");
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const feedback = review.locator(".story-review-top").getByRole("status");
@@ -118,7 +118,7 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const feedback = review.locator(".story-review-top").getByRole("status");

@@ -68,9 +68,12 @@ test("a failed Git preparation cannot remove a different completed layout", asyn
       key: string;
       directory?: string;
     }>(readFileSync(trace, "utf8"));
-    const started = events.filter(({ event }) => event === "start");
+    // The run also prepares the story-columns history at its start; this case
+    // observes the installed origin layouts.
     const claude = startOriginArtifactKey("claude");
     const codex = startOriginArtifactKey("codex");
+    const layouts = events.filter(({ key }) => key === claude || key === codex);
+    const started = layouts.filter(({ event }) => event === "start");
     expect(started.map(({ key }) => key)).toEqual([claude, codex]);
     const paths = started.flatMap((entry) => entry.directory ?? []);
     expect(new Set(paths).size).toBe(2);
@@ -79,7 +82,7 @@ test("a failed Git preparation cannot remove a different completed layout", asyn
       false,
     ]);
     expect(
-      events.filter(({ event }) => event === "complete").map(({ key }) => key),
+      layouts.filter(({ event }) => event === "complete").map(({ key }) => key),
     ).toEqual([claude]);
   } finally {
     await run.stop();

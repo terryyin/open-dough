@@ -126,7 +126,8 @@ assert_sentinels "${present_cursor}"
 
 # Ordinary no-URL update and supported force replacement from recorded SOURCE.
 fixture="${temporary_dir}/fixture.git"
-build_latest_fixture "${fixture}"
+# The shared "latest" release source in tests/support/release-sources.mjs.
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" latest
 old_checkout="${temporary_dir}/release-0.1.1"
 checkout_tagged_release "${fixture}" "${old_checkout}" 0.1.1
 helper="${source_dir}/src/install/open-dough-release.sh"

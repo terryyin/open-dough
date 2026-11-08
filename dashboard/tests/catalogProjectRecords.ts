@@ -1,4 +1,6 @@
-// Published catalog sources and the work each repository holds at its pinned revision.
+// Published catalog sources and the work each repository holds at its pinned
+// revision: one Taken story planned in a whole-document correction home, and
+// one queued story whose seed names its purpose.
 
 import { posix } from "node:path";
 import type { renderEntry } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
@@ -7,8 +9,8 @@ import {
   splitHref,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { describedRevision } from "./describedRevisions.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
 
 type BacklogEntry = Parameters<typeof renderEntry>[0];
@@ -30,21 +32,20 @@ function publishedAt(
     purpose: string;
   },
 ): CatalogPublication {
-  const backlogDirectory = posix.dirname(source.backlogPath);
   const queuedHome = splitHref(queued.href);
-  const files = {
-    [source.backlogPath]: renderPublishedBacklog({
-      taken: [taken],
-      queued: [queued],
-      direction,
-    }),
-    [posix.join(backlogDirectory, taken.href)]: `# Taken story
+  const at = describedRevision(
+    makeMe.aRepository
+      .withRevision("pinned", {
+        backlog: { taken: [taken], queued: [queued], direction },
+        // The seed prose the dashboard reads.
+        files: {
+          [posix.join(".planning", taken.href)]: `# Taken story
 
 ${identityLine(taken.identity)}
 
 Whole-document correction home without a story-state block.
 `,
-    [posix.join(backlogDirectory, queuedHome.path)]: `# Queued seed
+          [posix.join(".planning", queuedHome.path)]: `# Queued seed
 
 <a id="${queuedHome.anchor}"></a>
 
@@ -54,8 +55,11 @@ ${identityLine(queued.identity)}
 
 **Goal:** ${purpose}
 `,
-  };
-  const at = makeMe.aPublishedRevision.with({ revision, files }).please();
+        },
+      })
+      .please(),
+    revision,
+  );
   return { ...source, ...at };
 }
 

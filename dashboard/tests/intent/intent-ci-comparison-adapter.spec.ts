@@ -74,7 +74,7 @@ for (const [landing, publish, landedHasProof] of [
         runBranch: setup.branch,
         selection: merged ? "ancestor" : "exact",
         wall: "3 min 20 s",
-        timing: merged ? "1 min 30 s 0 s" : undefined,
+        timing: merged ? "1 min 30 s" : undefined,
       },
       {
         role: "Landed",
@@ -84,7 +84,7 @@ for (const [landing, publish, landedHasProof] of [
         runBranch: merged ? "main" : setup.branch,
         selection: "exact",
         wall: merged ? "4 min" : "3 min 20 s",
-        timing: merged ? "1 min 15 s −15 s" : undefined,
+        timing: merged ? "1 min 15 s" : undefined,
       },
     ];
     const answer: unknown = await (await response).json();
@@ -144,18 +144,10 @@ for (const [landing, publish, landedHasProof] of [
       const overallTiming = panel.locator(
         ".intent-ci-comparison-overall-timing",
       );
-      await expect(overallTiming).toHaveText(
-        "1 min 30 s → 1 min 15 s (−15 s, −17%)",
-      );
+      await expect(overallTiming).toHaveText("−15 s");
       await expectCueState(overallTiming, { duration: "faster-light" });
       await expectCiComparisonEntryRows(panel, [
-        [
-          "tests",
-          "5 → 8 tests (+3) → 7 tests (+2)",
-          "3 s",
-          "3 s → 5 s (+2 s, +67%)",
-          "3 s → 4 s (+1 s, +33%)",
-        ],
+        ["tests", "5 → 8 tests (+3) → 7 tests (+2)", "3 s", "+2 s", "+1 s"],
       ]);
     } else if (merged) {
       await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
@@ -166,7 +158,7 @@ for (const [landing, publish, landedHasProof] of [
           "tests",
           "5 → 8 tests (+3)",
           "3 s",
-          "3 s → 5 s (+2 s, +67%)",
+          "+2 s",
           "This attempt's CI adapter gave no CI proof summary: no summary retained for this attempt.",
         ],
       ]);

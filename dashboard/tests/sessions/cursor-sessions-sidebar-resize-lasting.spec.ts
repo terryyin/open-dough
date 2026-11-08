@@ -22,7 +22,6 @@ import {
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
 } from "../pageLayout.ts";
-import { publishMovingOrigin } from "../publishedOrigin.ts";
 import {
   changesAsked,
   expectLastInReach,
@@ -31,6 +30,7 @@ import {
   showPage,
 } from "../runningCursorSessionsPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
+import { publishOnePygardonStory } from "../pygardonProject.ts";
 
 test.use({ cursorScreen: "working" });
 
@@ -139,11 +139,7 @@ test.describe("with two projects", () => {
     cursor,
   }) => {
     await page.setViewportSize(wide);
-    const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
-    pygardon.push(
-      "e6".repeat(20),
-      "# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [A Pygardon story](seeds/SEED-301.md#s) — SEED-301#s\n",
-    );
+    await publishOnePygardonStory(page);
     const asked = changesAsked(page);
     await showPage(page, origin);
     const shown = runningCursorParts(page);

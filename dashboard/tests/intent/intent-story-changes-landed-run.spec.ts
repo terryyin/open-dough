@@ -17,7 +17,7 @@ import { expect, test } from "../support/preparationPage.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import {
   intentDiff,
-  expandStorySummary,
+  storyHeaderDetail,
   openReviewFromIntent,
   reviewDiff,
   selectTakenStoryInIntent,
@@ -29,10 +29,8 @@ import type { FakeCodex } from "../support/fakeCodex.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import type { StartOrigin } from "../support/startOrigin.ts";
 import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
-import {
-  keepLaunchRecords,
-  storyALaunchRecord,
-} from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
+import { storyALaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
   comparison,
   expectShown,
@@ -45,10 +43,10 @@ test.use({ preparationHost: "codex" });
 const landedRunHeading = (review: Locator) =>
   review.getByRole("heading", { name: "Landed run", exact: true });
 
-// The landed run's tree Intent's summary shows, expanded, beside the story's
+// The landed run's tree the story's header in Intent shows beside its
 // changes.
 const intentRunTree = async (intent: Locator) =>
-  (await expandStorySummary(intent))
+  (await storyHeaderDetail(intent))
     .locator(".intent-story-revisions code")
     .nth(1);
 
@@ -66,7 +64,7 @@ async function landedThenTaken(
     landed.push(await capturedChoice(dashboard, origin, native, name));
   // The project's trunk follows the landing before Intent's trunk is added.
   git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     ...stored(dashboard.home),
     storyALaunchRecord(path.join(origin.machine, "another-agent-workspace")),
   ]);

@@ -18,11 +18,7 @@ const message = "Published. Reminder: check the migration.";
 const report = () => makeMe.aCompletionReport.saying(message).please();
 
 const working: Pick<LaunchWithState, "sessionState"> = {
-  sessionState: {
-    kind: "available",
-    availability: "loaded",
-    activity: "working",
-  },
+  sessionState: makeMe.aSessionState.loaded("working").please(),
 };
 
 test("a report marked read is no longer unread, and the native reading stays", () => {
@@ -85,36 +81,28 @@ test("a reported session marked done has no unread report, whether or not it was
 
 test("only explicitly completed refinements with missing preparation workspaces replace waiting", () => {
   const completion = report();
-  const retired = {
-    request: {
-      source: "open-dough",
-      identity: "SEED-901#retired-refinement",
-      title: "Retired refinement",
-      workflow: "refinement",
-      host: "claude",
-    },
-    session: {
-      host: "claude",
-      sessionId: "refinement-session",
-      shortId: "refineme",
-      name: "refinement",
-    },
-    launchedAt: "2026-10-17T00:00:00Z",
-    preparation: {
-      identity: "SEED-901#retired-refinement",
-      workspace: "/retired",
-      branch: "claude/refine",
-      remote: "origin",
-      target: "main",
-    },
-    workspaceState: { kind: "missing" },
+  const story = {
+    identity: "SEED-901#retired-refinement",
+    title: "Retired refinement",
+  };
+  const retired: LaunchWithState = {
+    ...makeMe.anObservedLaunch
+      .of(
+        makeMe.aLaunchRecord
+          .refining(story)
+          .onStoryBranch({ workspace: "/retired", branch: "claude/refine" })
+          .inClaudeSession({
+            sessionId: "refinement-session",
+            shortId: "refineme",
+          })
+          .launchedAt("2026-10-17T00:00:00Z")
+          .please(),
+      )
+      .withWorkspace("missing")
+      .withSessionState(makeMe.aSessionState.loaded("waiting").please())
+      .please(),
     completion,
-    sessionState: {
-      kind: "available",
-      availability: "loaded",
-      activity: "waiting",
-    },
-  } satisfies LaunchWithState;
+  };
   expect(sessionShown(retired)).toMatchObject({
     label: "Completed with attention",
     needsAttention: true,
@@ -137,7 +125,10 @@ test("only explicitly completed refinements with missing preparation workspaces 
     { ...retired, workspaceState: undefined },
     { ...retired, workspaceState: { kind: "available" } },
     { ...retired, workspaceState: { kind: "unknown" } },
-    { ...retired, request: { ...retired.request, workflow: "execution" } },
+    {
+      ...retired,
+      request: makeMe.aLaunchRecord.executing(story).please().request,
+    },
   ];
   for (const session of ordinary) {
     expect(sessionShown(session).label).toBe("Needs input");

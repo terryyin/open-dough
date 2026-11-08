@@ -18,7 +18,8 @@ trap 'rm -rf -- "${temporary_dir}"' EXIT
 cd -- "${temporary_dir}"
 
 fixture="${temporary_dir}/fixture.git"
-build_latest_fixture "${fixture}"
+# The shared "latest" release source in tests/support/release-sources.mjs.
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" latest
 
 inject_bootstrap_leak() {
   local file=$1
@@ -132,9 +133,11 @@ install_inspected_release() (
 
   if [[ ${3:-} == stale ]]; then
     # A valid higher release appears only after the old snapshot was inspected.
-    write_candidate_payload "${fixture}" 0.1.11 payload-0.1.11
-    commit_all "${fixture}" 'release 0.1.11 after inspection'
-    tag_release "${fixture}" 0.1.11 '2026-09-06T12:00:00'
+    node "${source_dir}/tests/support/release-source.mjs" --add "${fixture}" << 'JSON'
+{"revisions": [{"name": "release 0.1.11 after inspection", "release": {
+  "version": "0.1.11", "taggedAt": "2026-09-06T12:00:00",
+  "marker": "payload-0.1.11"}}]}
+JSON
     bash "${source_dir}/src/install/open-dough-release.sh" validate-checkout "${fixture}" > /dev/null
     # Keep pre-cleanup HEAD and tracked-byte evidence outside the owned child.
     trap 'git -C "${snapshot}" rev-parse HEAD > "${install_dir}.head";

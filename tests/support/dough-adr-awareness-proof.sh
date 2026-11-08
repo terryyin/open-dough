@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
 
-# Shared assertions for installed ADR-awareness proof beats.
+# Shared fixtures and assertions for installed ADR-awareness proof beats.
+
+# Build a release source whose one release is the working tree's payload at
+# its VERSION.
+build_current_tagged_release_fixture() {
+  local version
+  # shellcheck disable=SC2154 # Calling tests set source_dir.
+  version=$(cat "${source_dir}/VERSION")
+  node "${source_dir}/tests/support/release-source.mjs" "$1" << JSON
+{"revisions": [{"name": "release ${version} exact candidate", "release": {
+  "version": "${version}", "taggedAt": "2026-09-06T00:00:00",
+  "marker": "exact-candidate"}}]}
+JSON
+}
+
 assert_tagged_adr_awareness_payload() {
   local candidate=$1
   local tag=$2

@@ -16,12 +16,8 @@ import {
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import {
-  report,
-  storeFile,
-  save,
-  retained,
-} from "../support/retainedReport.ts";
+import { report, save, retained } from "../support/retainedReport.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 import {
   codexAttaches,
   codexEnded,
@@ -52,7 +48,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
         ? undefined
         : new Date(Date.now() - 60_000).toISOString();
     save(dashboard.home, [{ ...record, doneAt }]);
-    const baseline = readFileSync(storeFile(dashboard.home), "utf8");
+    const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
     const since = native.calls.length;
     // Preserve the real initial response while the developer holds the page.
     // The actual WS attachment and result HTTP requests are never intercepted.
@@ -121,7 +117,9 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     await expectSelected(card(notRefinedStory), false);
     expect(stored(dashboard.home)[0]?.session).toEqual(record.session);
     expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
-    expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
+    expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(
+      baseline,
+    );
     expect(existsSync(workspace)).toBe(false);
     expect(
       native.calls

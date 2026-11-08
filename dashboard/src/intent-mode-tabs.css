@@ -1,16 +1,40 @@
-/* Intent's reading modes (./IntentModeTabs.tsx): one segmented strip under
-   the banner holding the Intent tablist (./intent-tabs.css), then, while the
-   Intent mode shows the locations tree, Hide files / Show files. */
-.intent-mode-bar {
+/* Project Intent's heading and views (./IntentModeTabs.tsx): the heading,
+   with Back to selected story at its end while a story is selected, over one
+   strip holding the Project Intent tablist (./intent-tabs.css), standing on
+   the line under it, then, while CI status shows the locations tree, Hide
+   files / Show files. */
+.intent-project-head {
   flex: none;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-2);
   min-width: 0;
   padding: 0 clamp(0.75rem, 4vw, 1.5rem) var(--space-2);
 }
 
+.intent-project-head h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: 1.3;
+}
+
+.intent-project-head > .start-launch-button,
 .intent-mode-bar > .start-launch-button {
   flex: none;
   font-size: var(--text-sm);
+}
+
+.intent-mode-bar {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 0 clamp(0.75rem, 4vw, 1.5rem);
+}
+
+.intent-mode-bar > .start-launch-button {
+  margin-block-end: var(--space-1);
 }

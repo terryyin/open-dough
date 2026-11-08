@@ -193,15 +193,13 @@ run_offline_done_catalog_proof() {
   done_dir="${project}/plans/done"
   legacy="${done_dir}/OLD_legacy.json"
   mkdir -p -- "${done_dir}" "${project}/work"
-  cat > "${backlog}" << 'BACKLOG'
-# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [Finish catalog proof](seeds/CAT.md#finish) — CAT#finish
-BACKLOG
+  node "${source_dir}/tests/support/render-published-backlog.mjs" > "${backlog}" << 'EOF'
+{
+  "queued": [
+    { "identity": "CAT#finish", "title": "Finish catalog proof", "href": "seeds/CAT.md#finish" }
+  ]
+}
+EOF
   node "${source_dir}/tests/support/render-done-record.mjs" > "${legacy}" << 'RECORD'
 {
   "identity": "OLD#legacy",

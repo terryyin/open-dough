@@ -17,7 +17,8 @@ import {
   notices,
   start,
 } from "../../tests/support/sessionAlerts.ts";
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
+import { notRefinedIdentity } from "../../tests/launchJourney.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 
@@ -73,20 +74,13 @@ test("baseline and independently notified input survive gaps, omitted records an
     expect(notices(server)).toEqual([]);
 
     // Each session first appears waiting after baseline, with identical text.
-    const first = record(server, native, collision);
-    first.request.title = "First Codex";
-    const second = record(server, native, "second");
-    second.request.title = "Second Codex";
-    const claude: LaunchRecord = {
-      ...first,
-      request: { ...first.request, host: "claude", title: "Claude collision" },
-      session: {
-        host: "claude",
-        sessionId: collision,
-        shortId: collision.slice(0, 8),
-        name: "Claude collision",
-      },
-    };
+    const first = record(server, native, collision, { title: "First Codex" });
+    const second = record(server, native, "second", { title: "Second Codex" });
+    const claude = makeMe.aLaunchRecord
+      .refining({ identity: notRefinedIdentity, title: "Claude collision" })
+      .inClaudeSession({ sessionId: collision })
+      .launchedAt(first.launchedAt)
+      .please();
     observed(native, collision, waiting);
     save(server, [...baseline, first]);
     await expect.poll(() => inputs().length).toBe(1);

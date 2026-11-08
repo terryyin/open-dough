@@ -7,7 +7,7 @@ import {
   recentlyDoneParts,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
-import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import { expect, test } from "../support/cursorStart.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 
@@ -28,7 +28,7 @@ test.describe("touch Session details for Done entries", () => {
     const doneAt = new Date(Date.now() - 2 * 60_000).toISOString();
     const launchedAt = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
     const title = "Touch done completion age";
-    await keepProjectLaunchRecords(dashboard, {
+    keepLaunchStore(dashboard, {
       "open-dough": [
         makeMe.aLaunchRecord
           .executing({ identity: "SEED-902#touch-done", title })

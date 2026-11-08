@@ -14,12 +14,13 @@ import { showColumn } from "../boardPage.ts";
 import { inspectedDetail } from "../storyCardControls.ts";
 import {
   commitAnswer,
-  emptyBacklog,
   notFoundAnswer,
   publishMovingOrigin,
   publishOrigin,
   rawFileAnswer,
 } from "../publishedOrigin.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { zoomedWindow } from "../accessibleReading.ts";
 import {
   box,
@@ -132,7 +133,10 @@ test("accessible Board keeps empty groups readable in a narrow window", async ({
   await page.setViewportSize(narrowWindow);
   await publishOrigin(page, {
     ref: commitAnswer(revision),
-    backlog: { revision, answer: rawFileAnswer(emptyBacklog) },
+    backlog: {
+      revision,
+      answer: rawFileAnswer(describedBacklog(makeMe.aRepository.please())),
+    },
   });
   await openUntilRead(page);
   const { backlog, taken, direction, directionText } = parts(page);

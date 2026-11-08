@@ -156,6 +156,11 @@ native invocation or behavior.
   an identity lists changes it, and the owned-context, trunk-closure, and
   Story Branch closure identities list the Land, retirement, exploration,
   default-checkout, and closure inputs their journeys exercise.
+- `tests/git-publication-fixture-identity.sh` — each Git publication fixture
+  family identity (startup, admission, one-shot, owned-context) lists the
+  helpers its fixture reaches and the installer inputs, changes when one of
+  them changes, never follows imports inside generated project source, and
+  fails without a retained record when a required input cannot be read.
 - `tests/native-run-timeout.sh` — a hang substitute starts a child, emits
   partial output, and ignores SIGTERM. Selected context with a short
   `--deadline`/`--grace` returns 124 within that bound plus cleanup slack;

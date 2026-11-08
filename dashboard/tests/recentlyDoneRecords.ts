@@ -1,34 +1,46 @@
 // What the Recently done journeys (recently-done-stories.spec.ts and
 // recently-done-story-sessions.spec.ts) publish: a backlog with one queued
-// story, and done records beside it spelled by the shared done-record renderer
-// at times before the journey starts, with the done catalog completion
-// publishes beside them (./doneCatalogAnswers.ts). What this machine keeps for
-// them is ./recentlyDoneSessions.ts.
+// story, and done records beside it at times before the journey starts, with
+// the done catalog completion publishes beside them. What this machine keeps
+// for them is ./recentlyDoneSessions.ts.
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
+import { catalogFile } from "../../tests/support/revision-done-catalog.mjs";
 import {
   doneRecordPath,
   renderDoneRecord,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { basename } from "node:path";
-import { withDoneCatalog } from "./doneCatalogAnswers.ts";
+import {
+  backlogApart,
+  describedBacklog,
+  describedRevision,
+  publishedFile,
+} from "./describedRevisions.ts";
 
 export const repository = "terryyin/open-dough";
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 export const revision = "d0".repeat(20);
 // Another revision, whose reads the local boundary has not yet remembered.
 export const otherRevision = "d1".repeat(20);
 
 export const queuedTitle = "Prepare stories in a clear workspace";
 export const queuedIdentity = "SEED-008#planning-workspace-procedure";
+// The workspace story these journeys queue, or record in Taken
+// (./localTakenSessions.ts).
+export const workspaceEntry = makeMe.aBacklogEntry
+  .with({
+    identity: queuedIdentity,
+    title: queuedTitle,
+    href: "seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure",
+  })
+  .please();
+const queuedBacklog = { queued: [workspaceEntry] };
 
-export const backlog = `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [${queuedTitle}](seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure) — ${queuedIdentity}
-`;
+export const backlog = describedBacklog(
+  makeMe.aRepository
+    .withRevision("queued", { backlog: queuedBacklog })
+    .please(),
+);
 
 const hour = 60 * 60 * 1000;
 const day = 24 * hour;
@@ -82,86 +94,84 @@ export const doneRecordAt = (identity: string) =>
 // Where `complete` publishes done records and their catalog.
 export const doneDirectory = ".planning/done";
 
-// The done records beside the backlog, as `complete` would have published
-// them, completed `placed` before `now`, with no catalog yet.
-function recordFiles(now: number): Record<string, string> {
-  return {
-    [doneRecordAt(executed.identity)]: renderDoneRecord(
-      makeMe.aDoneRecord
-        .with({
-          ...executed,
-          completedAt: at(now, placed.executedDone),
-          developer: "Terry Yin",
-          agent: "Yui-chan",
-          host: "claude",
-          model: "claude-opus-5-5",
-        })
-        .please(),
-    ),
+// The done records `complete` published, completed `placed` before `now`.
+function doneRecords(now: number) {
+  return [
+    makeMe.aDoneRecord
+      .with({
+        ...executed,
+        completedAt: at(now, placed.executedDone),
+        developer: "Terry Yin",
+        agent: "Yui-chan",
+        host: "claude",
+        model: "claude-opus-5-5",
+      })
+      .please(),
     // A queued story removed with no execution agent profile.
-    [doneRecordAt(removedQueued.identity)]: renderDoneRecord(
-      makeMe.aDoneRecord
-        .with({
-          ...removedQueued,
-          completedAt: at(now, placed.queuedRemovedDone),
-          developer: "Terry Yin",
-        })
-        .please(),
-    ),
-    [doneRecordAt(expired.identity)]: renderDoneRecord(
-      makeMe.aDoneRecord
-        .with({
-          ...expired,
-          completedAt: at(now, placed.expiredDone),
-          developer: "Terry Yin",
-          agent: "Akiho-chan",
-          host: "codex",
-        })
-        .please(),
-    ),
-    // Not a done record by its name, so never read.
-    ".planning/done/README.md": "Not a done record.\n",
-  };
+    makeMe.aDoneRecord
+      .with({
+        ...removedQueued,
+        completedAt: at(now, placed.queuedRemovedDone),
+        developer: "Terry Yin",
+      })
+      .please(),
+    makeMe.aDoneRecord
+      .with({
+        ...expired,
+        completedAt: at(now, placed.expiredDone),
+        developer: "Terry Yin",
+        agent: "Akiho-chan",
+        host: "codex",
+      })
+      .please(),
+  ];
 }
 
-// The done records, with the catalog completion publishes beside them.
-export function doneRecordFiles(now: number): Record<string, string> {
-  return withDoneCatalog(recordFiles(now), doneDirectory);
-}
+// The story done last week's record.
+const lastWeekRecord = (now: number) =>
+  makeMe.aDoneRecord
+    .with({
+      ...lastWeek,
+      completedAt: at(now, placed.lastWeekDone),
+      developer: "Terry Yin",
+    })
+    .please();
 
-// The story done last week's record file, as `complete` would publish it.
-function lastWeekRecordFile(now: number): Record<string, string> {
-  return {
-    [doneRecordAt(lastWeek.identity)]: renderDoneRecord(
-      makeMe.aDoneRecord
-        .with({
-          ...lastWeek,
-          completedAt: at(now, placed.lastWeekDone),
-          developer: "Terry Yin",
-        })
-        .please(),
-    ),
-  };
-}
+// Not a done record by its name, so never read.
+const notARecord = { [`${doneDirectory}/README.md`]: "Not a done record.\n" };
+
+// The published revision `revision`: the backlog queuing the workspace story,
+// and the given facts beside it.
+const publishedAt = (facts: RevisionFacts) =>
+  describedRevision(
+    makeMe.aRepository
+      .withRevision("published", { backlog: queuedBacklog, ...facts })
+      .please(),
+    revision,
+  );
+
+// The files published at `revision`.
+export const publishedFiles = (facts: RevisionFacts = {}) =>
+  publishedAt(facts).files;
+
+// The done records, beside the catalog completion rebuilds from them.
+export const doneRecordFacts = (now: number): RevisionFacts => ({
+  doneRecords: doneRecords(now),
+  files: notARecord,
+});
+
+// The done records and their catalog alone, for a journey with its own backlog.
+export const doneRecordFiles = (now: number) =>
+  backlogApart(publishedAt(doneRecordFacts(now))).files;
 
 // The done records, with the story done last week's beside them.
-export function withLastWeekRecordFiles(now: number): Record<string, string> {
-  return withDoneCatalog(
-    { ...recordFiles(now), ...lastWeekRecordFile(now) },
-    doneDirectory,
-  );
-}
-
-// The published files at `revision`: the backlog, and the done records when
-// given.
-export function publishedFiles(
-  records: Readonly<Record<string, string>> = {},
-): Record<string, string> {
-  return { [backlogPath]: backlog, ...records };
-}
+export const withLastWeekRecord = (now: number): RevisionFacts => ({
+  doneRecords: [...doneRecords(now), lastWeekRecord(now)],
+  files: notARecord,
+});
 
 // The done catalog, listed among the done records, whose read fails.
-export const unanswered = `${doneDirectory}/.catalog.json`;
+export const unanswered = catalogFile;
 
 // Another revision, whose done records are published without a catalog, as
 // a writer from before catalogs would leave them.
@@ -176,39 +186,49 @@ export const malformedRevision = "d2".repeat(20);
 export const staleCatalogRevision = "d5".repeat(20);
 export const uncataloguedFile = basename(doneRecordPath(lastWeek.identity));
 
-// The done records with their catalog, and the story done last week's record
-// beside them that the catalog does not list.
-export function withUncataloguedRecordFile(
-  now: number,
-): Record<string, string> {
-  return { ...doneRecordFiles(now), ...lastWeekRecordFile(now) };
-}
+// The done records published without their catalog.
+export const withoutCatalog = (now: number): RevisionFacts => ({
+  ...doneRecordFacts(now),
+  remove: [catalogFile],
+});
+
+// The done records with the story done last week's beside them, and the
+// catalog of the others alone.
+export const withUncataloguedRecord = (now: number): RevisionFacts => ({
+  doneRecords: [...doneRecords(now), lastWeekRecord(now)],
+  files: {
+    ...notARecord,
+    [catalogFile]: publishedFile(
+      publishedAt(doneRecordFacts(now)),
+      catalogFile,
+    ),
+  },
+});
 
 // Done record files the shared reader refuses, by file name: one in a later
-// format, and one whose text names another identity than its file.
+// format, and one whose text names another identity than its file. Their
+// exact bytes are what the column's problems name.
 const futureFormat = "SEED-050#future-format";
 const misnamed = "SEED-051#misnamed";
 export const futureFormatFile = basename(doneRecordPath(futureFormat));
 export const misnamedFile = basename(doneRecordPath(misnamed));
 
-// The done records with the refused ones beside them.
-export function withMalformedRecordFiles(now: number): Record<string, string> {
-  return withDoneCatalog(
-    {
-      ...recordFiles(now),
-      [doneRecordAt(futureFormat)]: `${JSON.stringify({
-        schemaVersion: 2,
-        identity: futureFormat,
-        title: "Written in a later format",
-        completedAt: at(now, placed.executedDone),
-      })}\n`,
-      [doneRecordAt(misnamed)]: renderDoneRecord({
-        identity: "SEED-052#named-inside",
-        title: "Named for another identity",
-        completedAt: at(now, placed.executedDone),
-        developer: "Terry Yin",
-      }),
-    },
-    doneDirectory,
-  );
-}
+// The done records with the refused ones beside them, all catalogued.
+export const withMalformedRecords = (now: number): RevisionFacts => ({
+  doneRecords: doneRecords(now),
+  files: {
+    ...notARecord,
+    [doneRecordAt(futureFormat)]: `${JSON.stringify({
+      schemaVersion: 2,
+      identity: futureFormat,
+      title: "Written in a later format",
+      completedAt: at(now, placed.executedDone),
+    })}\n`,
+    [doneRecordAt(misnamed)]: renderDoneRecord({
+      identity: "SEED-052#named-inside",
+      title: "Named for another identity",
+      completedAt: at(now, placed.executedDone),
+      developer: "Terry Yin",
+    }),
+  },
+});

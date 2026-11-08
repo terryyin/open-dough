@@ -27,13 +27,10 @@ import {
   fileOf,
   identityOf,
   pathOf,
+  publishedDone,
   revisionOf,
 } from "../../tests/support/doneCatalogReads.ts";
-import { withDoneCatalog } from "../../tests/doneCatalogAnswers.ts";
-import {
-  parseDoneRecordFile,
-  renderDoneRecord,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { parseDoneRecordFile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 test.describe.configure({ mode: "serial" });
 
@@ -54,7 +51,7 @@ test.describe("authenticated done catalog read (development environment)", () =>
 
   test("the catalog is answered without reading a record, and only the named records are read, once", async () => {
     const revision = revisionOf("a1");
-    const files = withDoneCatalog(doneRecords("named", 12), doneDirectory);
+    const files = publishedDone({ doneRecords: doneRecords("named", 12) });
     server.github.serve(everyRepository, publishes({ revision, files }));
     const catalog = catalogOf(files);
 
@@ -110,39 +107,30 @@ test.describe("authenticated done catalog read (development environment)", () =>
     const changedIdentity = identityOf("later", 1);
     const removedIdentity = identityOf("later", 0);
     const added = identityOf("later", 9);
-    const laterRecords = Object.fromEntries([
-      ...Object.entries(records).filter(
-        ([path]) => path !== pathOf(removedIdentity),
+    const laterRecords = [
+      ...records.filter(
+        ({ identity }) =>
+          identity !== removedIdentity && identity !== changedIdentity,
       ),
-      [
-        pathOf(changedIdentity),
-        renderDoneRecord(
-          makeMe.aDoneRecord
-            .with({
-              identity: changedIdentity,
-              title: "Finish later 1, retitled",
-              completedAt: "2026-10-01T01:00:00.000Z",
-              developer: "Terry Yin",
-            })
-            .please(),
-        ),
-      ],
-      [
-        pathOf(added),
-        renderDoneRecord(
-          makeMe.aDoneRecord
-            .with({
-              identity: added,
-              title: "Finish later 9",
-              completedAt: "2026-10-02T00:00:00.000Z",
-              developer: "Terry Yin",
-            })
-            .please(),
-        ),
-      ],
-    ]);
-    const files = withDoneCatalog(records, doneDirectory);
-    const later = withDoneCatalog(laterRecords, doneDirectory);
+      makeMe.aDoneRecord
+        .with({
+          identity: changedIdentity,
+          title: "Finish later 1, retitled",
+          completedAt: "2026-10-01T01:00:00.000Z",
+          developer: "Terry Yin",
+        })
+        .please(),
+      makeMe.aDoneRecord
+        .with({
+          identity: added,
+          title: "Finish later 9",
+          completedAt: "2026-10-02T00:00:00.000Z",
+          developer: "Terry Yin",
+        })
+        .please(),
+    ];
+    const files = publishedDone({ doneRecords: records });
+    const later = publishedDone({ doneRecords: laterRecords });
     const everyFile = (published: Readonly<Record<string, string>>) =>
       catalogOf(published).records.map(({ fileName }) => fileName);
 
@@ -189,8 +177,8 @@ test.describe("authenticated done catalog read (development environment)", () =>
 
   test("another project at the same revision is answered from its own catalog", async () => {
     const revision = revisionOf("d4");
-    const ours = withDoneCatalog(doneRecords("ours", 2), doneDirectory);
-    const theirs = withDoneCatalog(doneRecords("theirs", 3), doneDirectory);
+    const ours = publishedDone({ doneRecords: doneRecords("ours", 2) });
+    const theirs = publishedDone({ doneRecords: doneRecords("theirs", 3) });
     server.github.serve(everyRepository, publishes({ revision, files: ours }));
     server.github.serve(
       "nerds-odd-e/doughnut",
@@ -209,13 +197,12 @@ test.describe("authenticated done catalog read (development environment)", () =>
   test("a record file the catalog could not read is listed by name and read as published", async () => {
     const revision = revisionOf("e5");
     const malformed = `${doneDirectory}/SEED-200_malformed.json`;
-    const files = withDoneCatalog(
-      {
-        ...doneRecords("malformed", 2),
-        [malformed]: '{"schemaVersion":2}\n',
-      },
-      doneDirectory,
-    );
+    // A record in a later format: its exact bytes are what the catalog
+    // cannot read.
+    const files = publishedDone({
+      doneRecords: doneRecords("malformed", 2),
+      files: { [malformed]: '{"schemaVersion":2}\n' },
+    });
     server.github.serve(everyRepository, publishes({ revision, files }));
     expect(catalogOf(files).unreadable.map(({ fileName }) => fileName)).toEqual(
       ["SEED-200_malformed.json"],

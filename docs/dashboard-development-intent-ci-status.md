@@ -2,8 +2,9 @@
 
 Part of [Development and Intent](dashboard-development-intent.md).
 
-**CI status** judges configured trunk (`main` here) or the published branch of
-a Taken story selected by card or Side panel. The story's single Story Branch
+**CI status** judges configured trunk (`main` here) in Project Intent, even
+while a story is selected, or, in a selected story's **CI comparison**, the
+published branch of a Taken story selected by card or Side panel. The story's single Story Branch
 Mode agent profile records that branch. Judgment follows the same rule as the
 [base-CI check](../dashboard/LAUNCH-BASE-CI.md). The newest
 `ciWorkflow` or `ciAdapter` result at the head or nearest ancestor decides.
@@ -75,6 +76,6 @@ moved while shown (new trunk revision, or a watched story-branch head whose
 story progress is read there; a story branch without a counted plan is not
 watched and is re-read on **Check again**), and on **Check again**, with no
 timed polling — and is shown whether Intent locations are configured, absent,
-or unreadable: **Intent** shows it beside the explanation in place of the
-location tree, and the strip stands above those explanations, which
-**Optimization Candidates** also shows.
+or unreadable: Project Intent's **CI status** shows it beside the
+explanation in place of the location tree, and its strip stands above those
+explanations, which **Optimization Candidates** also shows.

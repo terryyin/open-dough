@@ -1,6 +1,4 @@
 // Actual page/xterm renders native startup then shared transport/reconnect lifecycle.
-import { writeFileSync, readFileSync } from "node:fs";
-import path from "node:path";
 import type { Page } from "@playwright/test";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
@@ -22,6 +20,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
+import { changeLaunchStore } from "../support/launchStore.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
@@ -53,21 +52,13 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
     title: notRefinedStory,
     host: "codex",
   });
-  const file = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-  const state = JSON.parse(readFileSync(file, "utf8")) as Record<
-    string,
-    unknown[]
-  >;
-  state["open-dough"] = stored(dashboard.home).map((record) => ({
-    ...record,
-    doneAt: new Date(Date.now() - 60_000).toISOString(),
+  changeLaunchStore(dashboard, (state) => ({
+    ...state,
+    "open-dough": stored(dashboard.home).map((record) => ({
+      ...record,
+      doneAt: new Date(Date.now() - 60_000).toISOString(),
+    })),
   }));
-  writeFileSync(file, JSON.stringify(state));
   const { card } = await settledAfterBoundaryLaunch(page);
   const recent = parts(page)
     .recentlyDone.getByRole("article")
@@ -181,21 +172,13 @@ test("a native startup title/composer and an incomplete repaint cannot clear don
     title: notRefinedStory,
     host: "codex",
   });
-  const file = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-  const state = JSON.parse(readFileSync(file, "utf8")) as Record<
-    string,
-    unknown[]
-  >;
-  state["open-dough"] = stored(dashboard.home).map((record) => ({
-    ...record,
-    doneAt: new Date(Date.now() - 60_000).toISOString(),
+  changeLaunchStore(dashboard, (state) => ({
+    ...state,
+    "open-dough": stored(dashboard.home).map((record) => ({
+      ...record,
+      doneAt: new Date(Date.now() - 60_000).toISOString(),
+    })),
   }));
-  writeFileSync(file, JSON.stringify(state));
   await settledAfterBoundaryLaunch(page);
   codexTerminalMode(native, "partial");
   await parts(page)

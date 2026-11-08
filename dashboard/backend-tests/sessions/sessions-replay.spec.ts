@@ -18,6 +18,7 @@ import {
   askSessions,
   loopTimes,
   pause,
+  replayProfiling,
   replayWatchEnvironment,
   revisionOf,
   trivialTraffic,
@@ -33,14 +34,6 @@ const concurrentRounds = 5;
 const reuseMs = 1_000;
 const beyondReuseMs = reuseMs + 200;
 
-// With `DOUGH_SESSIONS_REPLAY_PROFILE=<directory>`, every Node process the
-// server starts, itself included, writes its CPU profile there on exit.
-const profileDirectory = process.env["DOUGH_SESSIONS_REPLAY_PROFILE"];
-const profiling =
-  profileDirectory === undefined
-    ? {}
-    : { NODE_OPTIONS: `--cpu-prof --cpu-prof-dir=${profileDirectory}` };
-
 type Entry = { readonly session: { readonly sessionId: string } };
 const recordsOf = (body: string) =>
   (JSON.parse(body) as { records: readonly Entry[] }).records;
@@ -51,6 +44,11 @@ test.skip(
 );
 
 test("the Sessions replay reports the baseline the story's targets measure", async () => {
+  // Essential: the measurement spaces its asks past the server's real
+  // one-second reuse window and measures quiet seconds of the server's own
+  // event loop, about 45 s of server time a controlled clock cannot stand in
+  // for.
+  test.setTimeout(120_000);
   const machine = mkdtempSync(path.join(tmpdir(), "dough-sessions-replay-"));
   const codex = await installFakeCodex(
     machine,
@@ -69,7 +67,7 @@ test("the Sessions replay reports the baseline the story's targets measure", asy
     projectFolders: replayProjectIds,
     codexProtocol: codex,
     sessionsReuseMs: reuseMs,
-    extraEnv: { ...replayWatchEnvironment, ...profiling },
+    extraEnv: { ...replayWatchEnvironment, ...replayProfiling },
   });
   const startupMs = performance.now() - starting;
   try {

@@ -37,10 +37,7 @@ test("scrolling Recently done does not eagerly read older Board done-story detai
   const view = await openedWithHeldStory(page, dashboard, {
     open: [],
     also: (now) =>
-      fortyFiveDoneSessions(now - 40 * hour).records.map((record) => ({
-        ...record,
-        request: { ...record.request, source: "open-dough" },
-      })),
+      fortyFiveDoneSessions(now - 40 * hour, ["open-dough"]).records,
   });
   try {
     const { github, recent } = view;

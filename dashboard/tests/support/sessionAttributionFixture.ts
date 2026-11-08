@@ -13,9 +13,8 @@ import {
   type PreparingJourney,
 } from "../preparingJourney.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
-import { keepLaunchRecords } from "./storyLaunchRecord.ts";
+import { keepLaunchRecords } from "./launchStore.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { collectAuthenticatedReads } from "./historicalCreditReads.ts";
 
@@ -66,74 +65,48 @@ export async function openSessionAttributionBoard(
     cwd: workspace,
     startedAt: Date.now(),
   });
-  const record = {
-    request: {
-      source: "open-dough",
-      identity: "SEED-C#c",
-      title: storyC,
-      workflow: "refinement",
-      host: "claude",
-      model: "Fable",
-    },
-    session: {
-      host: "claude",
-      sessionId,
-      shortId: sessionId.slice(0, 8),
-      name: storyC,
-    },
-    preparation: {
-      identity: "SEED-C#c",
-      workspace,
-      branch: "claude/c-refine",
-      remote: "origin",
-      target: "main",
-      agent: journey.preparers.refining,
-      publishedSha: journey.refiningAllocation,
-    },
-    launchedAt: new Date().toISOString(),
-  } satisfies LaunchRecord;
-  const legacy: LaunchRecord = {
-    ...record,
-    request: { ...record.request, model: "claude-opus-5-5" },
-    session: {
-      host: "claude",
-      name: storyC,
-      sessionId: "22222222-aaaa-bbbb-cccc-000000000002",
-      shortId: "22222222",
-    },
-    preparation: { ...record.preparation, publishedSha: undefined },
+  // Story C's refinements in its preparation workspace, launched now: the
+  // original asked for Fable; the others for claude-opus-5-5, one whose
+  // preparation recorded no published revision, one whose published revision
+  // cannot be read, and one, listed, that completed.
+  const launchedAt = new Date().toISOString();
+  const refinement = (model: string) =>
+    makeMe.aLaunchRecord
+      .refining({ identity: "SEED-C#c", title: storyC })
+      .requestingModel(model)
+      .launchedAt(launchedAt);
+  const preparation = {
+    workspace,
+    branch: "claude/c-refine",
+    agent: journey.preparers.refining,
   };
-  const unreadable: LaunchRecord = {
-    ...record,
-    request: { ...record.request, model: "claude-opus-5-5" },
-    session: {
-      host: "claude",
-      name: storyC,
-      sessionId: "33333333-aaaa-bbbb-cccc-000000000003",
-      shortId: "33333333",
-    },
-    preparation: { ...record.preparation, publishedSha: unreadableRevision },
+  const published = {
+    ...preparation,
+    publishedSha: journey.refiningAllocation,
   };
+  const record = refinement("Fable")
+    .inClaudeSession({ sessionId })
+    .onStoryBranch(published)
+    .please();
+  const legacy = refinement("claude-opus-5-5")
+    .inClaudeSession({ sessionId: "22222222-aaaa-bbbb-cccc-000000000002" })
+    .onStoryBranch(preparation)
+    .please();
+  const unreadable = refinement("claude-opus-5-5")
+    .inClaudeSession({ sessionId: "33333333-aaaa-bbbb-cccc-000000000003" })
+    .onStoryBranch({ ...preparation, publishedSha: unreadableRevision })
+    .please();
   const matchingId = dashboard.claudeListsSession({
     name: storyC,
     cwd: workspace,
     startedAt: Date.now(),
   });
-  const matching: LaunchRecord = {
-    ...record,
-    request: { ...record.request, model: "claude-opus-5-5" },
-    session: {
-      host: "claude",
-      name: storyC,
-      sessionId: matchingId,
-      shortId: matchingId.slice(0, 8),
-    },
-    completion: makeMe.aCompletionReport
-      .saying("Ready for slice planning")
-      .receivedAt(new Date().toISOString())
-      .please(),
-  };
-  await keepLaunchRecords(dashboard, [record, legacy, unreadable, matching]);
+  const matching = refinement("claude-opus-5-5")
+    .inClaudeSession({ sessionId: matchingId })
+    .onStoryBranch(published)
+    .completedWith({ message: "Ready for slice planning" })
+    .please();
+  keepLaunchRecords(dashboard, [record, legacy, unreadable, matching]);
   execFileSync("git", [
     "-C",
     journey.origin,

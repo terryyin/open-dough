@@ -10,8 +10,8 @@
 // are, and when each was done, is the done catalog published beside them; a
 // catalog that does not describe them is said with its `catalog-done` repair,
 // and only the records of the stories shown are read.
-// The fake GitHub only publishes files spelled by the shared done-record
-// renderer and catalog (../recentlyDoneRecords.ts) and lists their directory; the
+// The fake GitHub only publishes the files ../recentlyDoneRecords.ts declares
+// and lists their directory; the
 // synthetic `claude` (./fixtures/fake-claude) lists the kept sessions. The
 // local read boundary, the shared done-record reader, and the page decide
 // everything shown. That a done card holds its story's sessions is
@@ -20,12 +20,12 @@
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles, type ObservedRequest } from "../publishedOrigin.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import {
   doneDirectory,
   doneRecordAt,
-  doneRecordFiles,
+  doneRecordFacts,
   executed,
   expired,
   futureFormatFile,
@@ -42,8 +42,9 @@ import {
   uncataloguedFile,
   uncataloguedRevision,
   unanswered,
-  withMalformedRecordFiles,
-  withUncataloguedRecordFile,
+  withMalformedRecords,
+  withoutCatalog,
+  withUncataloguedRecord,
 } from "../recentlyDoneRecords.ts";
 import {
   adHocEntry,
@@ -63,8 +64,8 @@ function doneRecordsRead(requests: readonly ObservedRequest[]): string[] {
 }
 
 // Keeps this machine's two sessions, listed by the synthetic `claude`.
-async function keepSessions(dashboard: DashboardServer, now: number) {
-  await keepLaunchRecords(
+function keepSessions(dashboard: DashboardServer, now: number) {
+  keepLaunchRecords(
     dashboard,
     sessionsOutsideDoneStories(dashboard, now, { adHoc: true }),
   );
@@ -75,11 +76,11 @@ test("Recently done lists published done stories among the sessions, newest firs
   dashboard,
 }) => {
   const now = Date.now();
-  await keepSessions(dashboard, now);
+  keepSessions(dashboard, now);
   const requests = await publishFiles(page, {
     repository,
     revision,
-    files: publishedFiles(doneRecordFiles(now)),
+    files: publishedFiles(doneRecordFacts(now)),
   });
   await page.goto("/");
   await expectMembership(page, { taken: [], backlog: [queuedTitle] });
@@ -142,7 +143,7 @@ test("a revision with no done records lists the sessions as before, and one whos
   dashboard,
 }) => {
   const now = Date.now();
-  await keepSessions(dashboard, now);
+  keepSessions(dashboard, now);
   const { recentlyDone: recent } = parts(page);
 
   await test.step("no done-record directory: only the sessions, with no error", async () => {
@@ -163,7 +164,7 @@ test("a revision with no done records lists the sessions as before, and one whos
     await publishFiles(page, {
       repository,
       revision: otherRevision,
-      files: publishedFiles(doneRecordFiles(now)),
+      files: publishedFiles(doneRecordFacts(now)),
       unanswered: [unanswered],
     });
     await page.reload();
@@ -179,17 +180,10 @@ test("a revision with no done records lists the sessions as before, and one whos
   });
 
   await test.step("done records published without a catalog: the column names the gap and its repair, reads no record, and still lists the sessions", async () => {
-    const records = doneRecordFiles(now);
     const requests = await publishFiles(page, {
       repository,
       revision: uncataloguedRevision,
-      files: publishedFiles(
-        Object.fromEntries(
-          Object.entries(records).filter(
-            ([path]) => !path.endsWith("/.catalog.json"),
-          ),
-        ),
-      ),
+      files: publishedFiles(withoutCatalog(now)),
     });
     await page.reload();
     await expectMembership(page, { taken: [], backlog: [queuedTitle] });
@@ -207,7 +201,7 @@ test("a revision with no done records lists the sessions as before, and one whos
     const requests = await publishFiles(page, {
       repository,
       revision: staleCatalogRevision,
-      files: publishedFiles(withUncataloguedRecordFile(now)),
+      files: publishedFiles(withUncataloguedRecord(now)),
     });
     await page.reload();
     await expectMembership(page, { taken: [], backlog: [queuedTitle] });
@@ -223,7 +217,7 @@ test("a revision with no done records lists the sessions as before, and one whos
     await publishFiles(page, {
       repository,
       revision: malformedRevision,
-      files: publishedFiles(withMalformedRecordFiles(now)),
+      files: publishedFiles(withMalformedRecords(now)),
     });
     await page.reload();
     await expectMembership(page, { taken: [], backlog: [queuedTitle] });

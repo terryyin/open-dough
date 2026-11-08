@@ -24,14 +24,15 @@ import {
  */
 
 /**
- * The facts a launch states after it started: the final report, whether the developer read
- * it, the revision the work landed at, and when the developer marked the
- * session Done.
+ * The facts a launch states after it started: the final report, whether the
+ * developer read it, the revision the work landed at, when the developer
+ * marked the session Done, and what that mark could not finish natively.
  * @typedef {{
  *   completion?: ReportFacts,
  *   reportRead?: boolean,
  *   landedRevision?: string,
  *   doneAt?: string,
+ *   doneProblem?: string,
  * }} LaunchOutcome
  */
 
@@ -98,11 +99,17 @@ export class LaunchOutcomeBuilder {
   }
 
   /**
-   * The developer marked the session Done at this time.
+   * The developer marked the session Done at this time; `problem` is what a
+   * native operation of that mark could not finish, kept beside it.
    * @param {string} at an ISO date-time
+   * @param {{ problem?: string }} [native]
    */
-  markedDoneAt(at) {
-    this.#outcome = { ...this.#outcome, doneAt: at };
+  markedDoneAt(at, { problem } = {}) {
+    this.#outcome = {
+      ...this.#outcome,
+      doneAt: at,
+      ...(problem !== undefined && { doneProblem: problem }),
+    };
     return this;
   }
 
@@ -111,7 +118,8 @@ export class LaunchOutcomeBuilder {
    * @param {string} at an ISO date-time
    */
   outcomeFacts(at) {
-    const { completion, reportRead, landedRevision, doneAt } = this.#outcome;
+    const { completion, reportRead, landedRevision, doneAt, doneProblem } =
+      this.#outcome;
     const report = completion && finalReport(completion, at);
     if (reportRead && !report)
       throw new Error("only a launch that reported can have its report read");
@@ -125,6 +133,7 @@ export class LaunchOutcomeBuilder {
           .please(),
       }),
       ...(doneAt !== undefined && { doneAt }),
+      ...(doneProblem !== undefined && { doneProblem }),
     };
   }
 }

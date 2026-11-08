@@ -27,7 +27,7 @@ import {
   queuedStories,
 } from "./storyCardSessionListing.ts";
 import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
-import { keepProjectLaunchRecords } from "./support/storyLaunchRecord.ts";
+import { keepLaunchStore } from "./support/launchStore.ts";
 
 // A Claude session already open on a story's card when the page opens: the
 // project that keeps it, the story it works on, its workflow, and the state
@@ -52,7 +52,7 @@ const startEndpoints = new Set([
 // Keeps each session's launch record, every project's in one store write, and
 // lists it in the synthetic `claude` under the same native ID, in the order
 // given, before the page reads the machine.
-async function keepOpenSessions(
+function keepOpenSessions(
   dashboard: DashboardServer,
   sessions: readonly OpenSession[],
 ) {
@@ -80,7 +80,7 @@ async function keepOpenSessions(
     );
     sessionOf.set(`${title} ${workflow}`, sessionId);
   });
-  await keepProjectLaunchRecords(dashboard, byProject);
+  keepLaunchStore(dashboard, byProject);
   return sessionOf;
 }
 
@@ -93,7 +93,7 @@ export async function openWithOpenSessions(
   columnsJourney: StoryColumnsJourney,
   sessions: readonly OpenSession[],
 ) {
-  const sessionOf = await keepOpenSessions(dashboard, sessions);
+  const sessionOf = keepOpenSessions(dashboard, sessions);
   const startsAsked: string[] = [];
   page.on("request", (request) => {
     if (

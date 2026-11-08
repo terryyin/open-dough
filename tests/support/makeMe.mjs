@@ -4,6 +4,14 @@
 // facts that drive the case and `.please()` returns the product value.
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
+import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
+import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
+import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
+import {
+  ObservedLaunchBuilder,
+  SessionStateBuilder,
+} from "./launchObservationTestData.mjs";
 import {
   CompletionReportBuilder,
   CompletionSubmissionBuilder,
@@ -26,17 +34,18 @@ import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
+import { release } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
+import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
+import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
+/** @typedef {import("./releaseTestData.mjs").Release} Release */
 
 /** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
 /** @typedef {ReturnType<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs").normalizeStoryDependency>} SupplierAgreement */
-/** @typedef {import("./published-plan.mjs").PlanSlice} PlanSlice */
-/** @typedef {import("./published-plan.mjs").PlanCompletion} PlanCompletion */
-/** @typedef {import("./published-plan.mjs").PlanProgress} PlanProgress */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/history-preserving-publish.mjs").publishHistoryPreservingCandidate>[0]} HistoryPreservingPublication */
@@ -44,14 +53,6 @@ import { RepositoryBuilder } from "./repositoryTestData.mjs";
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/publication-resume.mjs").resumeInterruptedPublication>[0]} PublicationResume */
 /** @typedef {Record<keyof Pick<PublicationResume, "candidateSha" | "suffixBase">, string>} RetainedComparison */
 /** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
-
-/**
- * @param {Omit<PlanSlice, "type" | "status"> & Partial<Pick<PlanSlice, "type" | "status">>} facts
- * @returns {PlanSlice}
- */
-function planSlice({ type = "Behavior", status = "planned", ...facts }) {
-  return { ...facts, type, status };
-}
 
 /**
  * @template {object} Facts
@@ -102,6 +103,17 @@ export const makeMe = {
       with(facts) {
         return copyFacts(facts);
       },
+      /**
+       * A refined story planned in `plan`, a path relative to its seed.
+       * @param {string} plan
+       */
+      plannedIn(plan) {
+        return this.with({
+          refinement: /** @type {const} */ ("refined"),
+          approach: /** @type {const} */ ("planned"),
+          plan,
+        });
+      },
     };
   },
   get aSupplierAgreement() {
@@ -126,6 +138,17 @@ export const makeMe = {
       },
     };
   },
+  get aRelease() {
+    return {
+      /** @param {import("./releaseTestData.mjs").ReleaseFacts} facts */
+      with(facts) {
+        return {
+          /** @returns {Release} */
+          please: () => release(facts),
+        };
+      },
+    };
+  },
   get aDoneRecord() {
     return new DoneRecordBuilder();
   },
@@ -134,6 +157,9 @@ export const makeMe = {
   },
   get intentSettings() {
     return new IntentSettingsBuilder();
+  },
+  get aTestOptimizationCandidatesRecord() {
+    return new TestOptimizationCandidatesRecordBuilder();
   },
   get aLaunchRecord() {
     return new LaunchRecordBuilder();
@@ -159,8 +185,26 @@ export const makeMe = {
   get aLaunchLanding() {
     return new LaunchLandingBuilder();
   },
+  get aSessionState() {
+    return new SessionStateBuilder();
+  },
+  get anObservedLaunch() {
+    return new ObservedLaunchBuilder();
+  },
+  get anAcceptedAttempt() {
+    return new AcceptedAttemptBuilder();
+  },
+  get anAttemptObservation() {
+    return new AttemptObservationBuilder();
+  },
+  get aMachineAnswer() {
+    return new MachineAnswerBuilder();
+  },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();
+  },
+  get aCiProofEntry() {
+    return new CiProofEntryBuilder();
   },
   get aCiAdapterAttempt() {
     return new CiAdapterAttemptBuilder();
@@ -189,44 +233,9 @@ export const makeMe = {
     return { with: copyFacts };
   },
   get aPlanSlice() {
-    return {
-      /** @param {Parameters<typeof planSlice>[0]} facts */
-      with(facts) {
-        return { please: () => planSlice(facts) };
-      },
-    };
+    return new PlanSliceBuilder();
   },
   get aSlicePlan() {
-    return {
-      /** @param {PlanProgress} facts */
-      with({ slices, completion }) {
-        return {
-          please: () => ({
-            slices: slices.map((slice) => ({ ...slice })),
-            ...(completion === undefined
-              ? {}
-              : { completion: { ...completion } }),
-          }),
-        };
-      },
-      /**
-       * For progress cases where the slice names and proof recipes are incidental.
-       * @param {readonly PlanSlice["status"][]} statuses
-       * @param {PlanCompletion} [completion]
-       */
-      withStatuses(statuses, completion) {
-        return this.with({
-          slices: statuses.map((status, at) =>
-            planSlice({
-              index: at + 1,
-              name: `Slice ${at + 1}`,
-              status,
-              proof: `A journey observes slice ${at + 1}.`,
-            }),
-          ),
-          ...(completion === undefined ? {} : { completion }),
-        });
-      },
-    };
+    return new SlicePlanBuilder();
   },
 };

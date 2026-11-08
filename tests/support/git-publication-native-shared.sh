@@ -94,7 +94,7 @@ git_publication_closing_input_hash_lines() {
     src/skills/dough-land/references/completion-attention.md \
     src/skills/dough-land/references/dashboard-completion.md \
     src/skills/dough-manual-testing/references/exploration-workspace.md \
-    src/skills/dough-execute-plan/references/maintain-default-checkout.md
+    src/skills/dough-execute-plan/references/maintain-default-checkout.md || return
   native_import_closure_input_hash_lines \
     src/skills/dough-land/scripts/queued-closure-check.mjs \
     src/skills/dough-land/scripts/worktree-retirement.mjs \

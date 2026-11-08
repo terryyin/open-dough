@@ -31,10 +31,9 @@ import {
   keyboardInside,
   openDoughStories,
   openNavigationJourney,
-  pygardonBacklogTitles,
-  pygardonStory,
   revealsOf,
 } from "../sessionNavigationJourney.ts";
+import { pygardonBacklogTitles, pygardonStory } from "../pygardonProject.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 

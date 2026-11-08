@@ -1,7 +1,7 @@
 // Example 5: a story completed through the real CLI and published
 // (../support/intentCompletedStory.ts) is selected by its Recently done
-// card's empty area. Intent's summary names it by its done record's title
-// and, expanded, its identity and the revisions of its published history comparison,
+// card's empty area. Intent's story header names it by its done record's
+// title, its identity and the revisions of its published history comparison,
 // which differ from the published revision Intent describes
 // (ADR 0008), since trunk has advanced past the completion. The test file the
 // story deleted is absent from the published tree, yet stays in Intent as
@@ -10,7 +10,8 @@
 // too. That a diff is the same in both states is proved with the moves
 // (./intent-story-changes-moves.spec.ts). A completed story whose published
 // comparison cannot be recovered says why, with no retry, and leaves the
-// published tree usable. The workspace journey: ./intent-story-changes.spec.ts.
+// published tree usable. Intent coverage shows the saved assessment as
+// stored. The workspace journey: ./intent-story-changes.spec.ts.
 // The done card's Review changes selects it too, and toggling its selection
 // clears it while the review stays open.
 
@@ -26,15 +27,16 @@ import {
 import {
   folderToggle,
   intentDiff,
-  expandStorySummary,
+  chooseStoryTab,
   expectOutsideCount,
   intentFile,
   openReviewFromIntent,
   outsideCount,
   reviewDiff,
-  storyDisclosure,
+  storyHeaderDetail,
   storyOnly,
   storySummary,
+  storyTitle,
 } from "../support/intentStoryPage.ts";
 import { kindStyles, nameStyle } from "../support/changeKindStyle.ts";
 import { git } from "../support/storyReviewWorktree.ts";
@@ -66,25 +68,26 @@ test("Intent overlays a completed story's published history comparison, naming i
 
   await test.step("Intent names the completed story by its done record's title and identity", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-    await expect(storyDisclosure(intent)).toHaveText("Story Story A");
+    await expect(storyTitle(intent)).toHaveText("Story A");
     await expect(
       scoped.getByRole("heading", { name: "Intent coverage" }),
     ).toHaveCount(0);
-    const detail = await expandStorySummary(intent);
-    await expect(detail.locator(".intent-story-full-title")).toHaveText(
-      "Story A SEED-A#a",
-    );
+    const detail = await storyHeaderDetail(intent);
+    await expect(detail.locator(".record-identity")).toHaveText("SEED-A#a");
   });
 
-  await test.step("the disclosure shows the exact saved assessment and all four costs as text", async () => {
+  await test.step("Intent coverage shows the exact saved assessment and all four costs as text", async () => {
+    await chooseStoryTab(intent, "Intent coverage");
+    const coverage = intent.getByRole("region", { name: "Intent coverage" });
     await expect(
-      scoped.getByRole("heading", { name: "Intent coverage" }),
+      coverage.getByRole("heading", { name: "Intent coverage" }),
     ).toBeVisible();
-    const result = scoped.locator(".intent-story-coverage-text");
+    const result = coverage.locator(".intent-story-coverage-text");
     await expect(result).toBeVisible();
     await expect(result).toHaveCSS("white-space", "pre-wrap");
     expect(await result.textContent()).toBe(report);
     await expect(result.locator("img")).toHaveCount(0);
+    await chooseStoryTab(intent, "Changed tests");
   });
 
   await test.step("the compared revisions are the published comparison's, not Intent's published revision", async () => {
@@ -175,7 +178,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-    await expect(storyDisclosure(intent)).toHaveText("Story Story A");
+    await expect(storyTitle(intent)).toHaveText("Story A");
     await development.click();
     await press(selectStory(card));
     await expectSelected(card, false);
@@ -194,11 +197,11 @@ test("a completed story whose published comparison cannot be recovered says why,
     history: "shallow",
   });
   const scoped = storySummary(intent);
-  await expect(storyDisclosure(intent)).toHaveText("Story Story A");
+  await expect(storyTitle(intent)).toHaveText("Story A");
   await expect(scoped.getByRole("status")).toHaveText(
     "No comparison is available.",
   );
-  const detail = await expandStorySummary(intent);
+  const detail = await storyHeaderDetail(intent);
   await expect(
     detail.getByRole("heading", { name: "Intent coverage" }),
   ).toHaveCount(0);
@@ -212,6 +215,7 @@ test("a completed story whose published comparison cannot be recovered says why,
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
   await expect(outsideCount(intent)).toHaveCount(0);
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
+  await chooseStoryTab(intent, "Changed tests");
   await expandIntentGroup(intent, "dashboard/tests");
   await intentFile(intent, "dashboard/tests/a.spec.ts").click();
   await expect(purposeRegion(intent)).toContainText("completed");

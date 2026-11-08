@@ -1,10 +1,8 @@
 /* The project choices, and the perspective choices beside them
    (./PerspectiveSelect.tsx): each one segmented group, the selected choice
-   filled in the accent. Intent tablists (./IntentTabs.tsx)
-   share the group. */
+   filled in the accent. */
 .project-select,
-.perspective-select,
-.intent-tabs {
+.perspective-select {
   box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;

@@ -61,7 +61,7 @@ olderGit(
   async ({ page, dashboard, origin }) => {
     const { workspace, trunk } = trunkModeStory(origin, { published: 2 });
     commitUnpublished(workspace);
-    await keepLaunchRecord(dashboard, workspace);
+    keepLaunchRecord(dashboard, workspace);
     const snapshot = await openStoryReview(page, await openTaken(page, origin));
     const review = reviewRegion(page);
 
@@ -124,7 +124,7 @@ olderGit(
     gitRestates(pathPrefix ?? [], true);
     const { workspace, trunk } = trunkModeStory(origin, { published: 1 });
     commitUnpublished(workspace);
-    await keepLaunchRecord(dashboard, workspace);
+    keepLaunchRecord(dashboard, workspace);
     const marked = await openStoryReview(page, await openTaken(page, origin));
     const review = reviewRegion(page);
     expect(marked.published).toEqual({ trunk, commits: 1 });

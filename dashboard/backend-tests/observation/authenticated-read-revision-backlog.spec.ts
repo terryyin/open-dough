@@ -14,12 +14,15 @@ import {
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { describedBacklog } from "../../tests/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });
 
 const revisionA = "a1".repeat(20);
 const revisionB = "b2".repeat(20);
-const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
+// An empty project's backlog.
+const backlog = describedBacklog(makeMe.aRepository.please());
 const knownSourceId = "open-dough";
 const knownRepository = "terryyin/open-dough";
 
@@ -76,8 +79,23 @@ test.describe("authenticated read boundary backlog (development environment)", (
   test("asks again which commit the ref names on each membership read, but not for a backlog already read at that commit, and reads a new commit's backlog", async () => {
     const revision = "3a".repeat(20);
     const nextRevision = "3b".repeat(20);
-    const nextBacklog =
-      "# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [Next](seeds/SEED-next.md#next) — SEED-next#next\n";
+    const nextBacklog = describedBacklog(
+      makeMe.aRepository
+        .withRevision("next", {
+          backlog: {
+            queued: [
+              makeMe.aBacklogEntry
+                .with({
+                  title: "Next",
+                  identity: "SEED-next#next",
+                  href: "seeds/SEED-next.md#next",
+                })
+                .please(),
+            ],
+          },
+        })
+        .please(),
+    );
     const refCall = [
       "api",
       "--include",

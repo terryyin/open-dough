@@ -31,7 +31,7 @@ test("review requests the boundary does not admit are refused and nothing runs",
   const tree = git(workspace, "rev-parse", "HEAD^{tree}");
   // Where Git would write a diff it was asked to write.
   const written = path.join(origin.machine, "written-diff");
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const before = observed(workspace);
   const fetchedTrunk = () => git(workspace, "rev-parse", "origin/main");
   expect(fetchedTrunk()).toBe(merged);

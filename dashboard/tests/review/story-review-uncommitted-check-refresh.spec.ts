@@ -60,7 +60,7 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const list = (files: number) =>
@@ -114,7 +114,7 @@ test("Since the review and Commits offer no check, and All changes finds it as i
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const choose = (name: string) =>
@@ -160,7 +160,7 @@ test("with the check off the file moves stay within the committed files and a bi
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);

@@ -18,56 +18,87 @@ import {
   openDirection,
   parts,
 } from "../dashboardPage.ts";
+import { describedRevision, publishedFile } from "../describedRevisions.ts";
+import type { PublishedRevision } from "../publishedFiles.ts";
 import {
+  backlogPath,
   notLoggedIn,
   publishMovingOrigin,
+  type MovingOrigin,
   type OriginAnswer,
 } from "../publishedOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import type { Backlog } from "../../../tests/support/repositoryTestData.mjs";
 
 const doughnutRepository = "nerds-odd-e/doughnut";
 const pygardonRepository = "terryyin/pygardon";
 
-const openDoughRevision = "d0".repeat(20);
+// The one published revision of a project stating `backlog`.
+function publishedWith(revision: string, backlog: Backlog): PublishedRevision {
+  return describedRevision(
+    makeMe.aRepository.withRevision("published", { backlog }).please(),
+    revision,
+  );
+}
+
 const openDoughTitle = "Open Dough's own queued story";
-const openDoughBacklog = `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [${openDoughTitle}](seeds/SEED-900-open-dough.md#queued) — SEED-900#queued
-`;
+const openDoughPublished = publishedWith("d0".repeat(20), {
+  queued: [
+    makeMe.aBacklogEntry
+      .with({
+        identity: "SEED-900#queued",
+        title: openDoughTitle,
+        href: "seeds/SEED-900-open-dough.md#queued",
+      })
+      .please(),
+  ],
+});
 
 const doughnutRevision = "d1".repeat(20);
 const doughnutTitle = "Doughnut's own queued story";
-const doughnutBacklog = `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [${doughnutTitle}](seeds/SEED-901-doughnut.md#queued) — SEED-901#queued
-`;
+const doughnutPublished = publishedWith(doughnutRevision, {
+  queued: [
+    makeMe.aBacklogEntry
+      .with({
+        identity: "SEED-901#queued",
+        title: doughnutTitle,
+        href: "seeds/SEED-901-doughnut.md#queued",
+      })
+      .please(),
+  ],
+});
 
 const pygardonRevision = "c1".repeat(20);
 const pygardonTakenTitle = "Pygardon's own taken story";
 const pygardonQueuedTitle = "Pygardon's own queued story";
 const pygardonDirection =
   "Recover from a failed read without losing project context.";
-const pygardonBacklog = `# Product backlog
+const pygardonPublished = publishedWith(pygardonRevision, {
+  direction: pygardonDirection,
+  taken: [
+    makeMe.aBacklogEntry
+      .with({
+        identity: "PYG-200#story",
+        title: pygardonTakenTitle,
+        href: "slice-plans/200-pygardon-story/PLAN.md",
+      })
+      .please(),
+  ],
+  queued: [
+    makeMe.aBacklogEntry
+      .with({
+        identity: "PYG-201#queued",
+        title: pygardonQueuedTitle,
+        href: "seeds/SEED-200-pygardon.md#queued",
+      })
+      .please(),
+  ],
+});
 
-## Near-future direction
-
-${pygardonDirection}
-
-## Taken
-
-- [${pygardonTakenTitle}](slice-plans/200-pygardon-story/PLAN.md) — PYG-200#story
-
-## Backlog list
-
-- [${pygardonQueuedTitle}](seeds/SEED-200-pygardon.md#queued) — PYG-201#queued
-`;
+// Moves `origin`'s `main` to `at`.
+function pushTo(origin: MovingOrigin, at: PublishedRevision): void {
+  origin.push(at.revision, publishedFile(at, backlogPath));
+}
 
 // `gh` fails in a way this boundary cannot put a category to.
 const unexplainedFailure: OriginAnswer = {
@@ -77,13 +108,13 @@ const unexplainedFailure: OriginAnswer = {
 
 async function publishOpenDough(page: Page): Promise<void> {
   const openDough = await publishMovingOrigin(page);
-  openDough.push(openDoughRevision, openDoughBacklog);
+  pushTo(openDough, openDoughPublished);
 }
 
 async function publishOpenDoughAndDoughnut(page: Page): Promise<void> {
   await publishOpenDough(page);
   const doughnut = await publishMovingOrigin(page, doughnutRepository);
-  doughnut.push(doughnutRevision, doughnutBacklog);
+  pushTo(doughnut, doughnutPublished);
 }
 
 test.describe("project read recovery", () => {
@@ -135,7 +166,7 @@ test.describe("project read recovery", () => {
 
     await test.step("restoring existing access and reloading reads Pygardon's actual published work", async () => {
       restoreLogin();
-      pygardonOrigin.push(pygardonRevision, pygardonBacklog);
+      pushTo(pygardonOrigin, pygardonPublished);
       await page.reload();
       await expectMembership(page, {
         taken: [pygardonTakenTitle],
@@ -200,7 +231,7 @@ test.describe("project read recovery", () => {
       await expect(page.getByRole("article")).toHaveCount(0);
 
       releaseRef();
-      pygardonOrigin.push(pygardonRevision, pygardonBacklog);
+      pushTo(pygardonOrigin, pygardonPublished);
       await page.reload();
       await expectMembership(page, {
         taken: [pygardonTakenTitle],

@@ -12,8 +12,17 @@ helper="${source_dir}/src/install/open-dough-release.sh"
 older="${temporary_dir}/older"
 # The earlier release shipped the skill with a dangling link, omitting only
 # this reference from its declaration (the source file itself existed).
-build_upgrade_releases "${fixture}" "${older}" missing-reference with-reference \
-  --withhold "${reference}"
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" << JSON
+{"revisions": [
+  {"name": "release 0.1.1 missing-reference", "release": {
+    "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
+    "marker": "missing-reference", "withheld": ["${reference}"]}},
+  {"name": "release 0.1.2 with-reference", "release": {
+    "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
+    "marker": "with-reference"}}
+]}
+JSON
+checkout_tagged_release "${fixture}" "${older}" 0.1.1
 
 assert_reference_delivered() {
   local target=$1 root

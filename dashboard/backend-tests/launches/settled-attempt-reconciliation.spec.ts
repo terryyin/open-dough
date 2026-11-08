@@ -6,7 +6,6 @@
 // (../../src/startupReconciliation.ts), and this machine notes a settled
 // attempt reconciled while still refusing one that never settled or needs
 // reconciliation (../../server/launchAttemptReconciliation.ts).
-import { randomUUID } from "node:crypto";
 import {
   mkdirSync,
   mkdtempSync,
@@ -17,86 +16,72 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   settled,
   settlement,
-  type AttemptObservation,
   type LaunchAttemptRecord,
 } from "../../src/agentLaunch.ts";
 import { askedAfterSettling } from "../../src/startupReconciliation.ts";
 import { reconcileAttempt } from "../../server/launchAttemptReconciliation.ts";
 import { OwnedAttempts } from "../../server/ownedAttempts.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const acceptedAt = "2026-11-04T01:00:00.000Z";
 const outcomeAt = "2026-11-04T01:05:00.000Z";
 const receivedAt = "2026-11-04T01:10:00.000Z";
 
-const report = (outcome: "completed" | "unfinished") =>
-  makeMe.aCompletionReport.withOutcome(outcome).receivedAt(receivedAt).please();
+// An accepted start of one story that published nothing.
+const storyAttempt = () =>
+  makeMe.anAcceptedAttempt
+    .executing({ identity: "SEED-1#story", title: "Story" })
+    .acceptedAt(acceptedAt);
 
-const launched = {
-  kind: "launched",
-  session: { host: "claude", sessionId: "s" },
-} as const;
+const session = { host: "claude", sessionId: "s" } as const;
 
-function attemptWith(
-  facts: Partial<LaunchAttemptRecord> = {},
-): LaunchAttemptRecord {
-  return {
-    id: randomUUID(),
-    request: {
-      source: "open-dough",
-      workflow: "execution",
-      host: "claude",
-      identity: "SEED-1#story",
-      title: "Story",
-    },
-    acceptedAt,
-    publication: { kind: "none" },
-    ...facts,
-  };
-}
-
-const observed = (attempt: LaunchAttemptRecord): AttemptObservation => ({
-  ...attempt,
-  owned: false,
-  running: false,
-});
+// As a server that neither owns nor runs it answers it.
+const observed = (attempt: LaunchAttemptRecord) =>
+  makeMe.anAttemptObservation.of(attempt).owned(false).running(false).please();
 
 test("an attempt settles by its outcome, else by its session's completed report, at when either was told", () => {
-  const unsettled = attemptWith();
+  const unsettled = storyAttempt().please();
   expect(settlement(unsettled)).toBeUndefined();
   expect(
-    settlement(attemptWith({ completion: report("unfinished") })),
+    settlement(storyAttempt().reported("unfinished", receivedAt).please()),
   ).toBeUndefined();
-  expect(settlement(attemptWith({ completion: report("completed") }))).toEqual({
-    at: receivedAt,
-  });
+  expect(
+    settlement(storyAttempt().reported("completed", receivedAt).please()),
+  ).toEqual({ at: receivedAt });
   expect(
     settlement(
-      attemptWith({
-        outcome: launched,
-        settledAt: outcomeAt,
-        completion: report("completed"),
-      }),
+      storyAttempt()
+        .launched(session)
+        .settledAt(outcomeAt)
+        .reported("completed", receivedAt)
+        .please(),
     ),
   ).toEqual({ at: outcomeAt });
-  expect(settlement(attemptWith({ outcome: launched }))).toEqual({});
+  // An outcome kept without its time.
+  expect(settlement(storyAttempt().launched(session).please())).toEqual({});
   expect(settled(unsettled)).toBe(false);
-  expect(settled(attemptWith({ completion: report("completed") }))).toBe(true);
+  expect(
+    settled(storyAttempt().reported("completed", receivedAt).please()),
+  ).toBe(true);
 });
 
 test("an attempt that published nothing and whose session completed is reconciled only by a read asked after the report was received", () => {
-  const completed = observed(attemptWith({ completion: report("completed") }));
+  const completed = observed(
+    storyAttempt().reported("completed", receivedAt).please(),
+  );
   const at = Date.parse(receivedAt);
   expect(askedAfterSettling(completed, { askedAt: at - 1 })).toBe(false);
   expect(askedAfterSettling(completed, { askedAt: at })).toBe(false);
   expect(askedAfterSettling(completed, { askedAt: at + 1 })).toBe(true);
   // Never settled: no read is after it.
-  expect(askedAfterSettling(observed(attemptWith()), { askedAt: at + 1 })).toBe(
-    false,
-  );
+  expect(
+    askedAfterSettling(observed(storyAttempt().please()), {
+      askedAt: at + 1,
+    }),
+  ).toBe(false);
 });
 
 test.describe("noting an attempt reconciled on this machine", () => {
@@ -128,24 +113,30 @@ test.describe("noting an attempt reconciled on this machine", () => {
     )["open-dough"] ?? [];
 
   test("accepts an attempt settled by its session's completed report and refuses one that never settled or needs reconciliation", async () => {
-    const completed = attemptWith({
-      publication: { kind: "published", revision: "a".repeat(40) },
-      completion: report("completed"),
-    });
+    const completed = storyAttempt()
+      .withId("00000000-0000-4000-8000-000000000001")
+      .published("a".repeat(40))
+      .reported("completed", receivedAt)
+      .please();
     // Its worker lives, so it runs: never settled, yet needing no
     // reconciliation.
-    const running = attemptWith({
-      worker: { pid: process.pid, step: "launch", notedAt: acceptedAt },
-    });
-    const interrupted = attemptWith({ completion: report("unfinished") });
-    const uncertain = attemptWith({
-      outcome: {
+    const running = storyAttempt()
+      .withId("00000000-0000-4000-8000-000000000002")
+      .workedBy({ pid: process.pid, step: "launch", notedAt: acceptedAt })
+      .please();
+    const interrupted = storyAttempt()
+      .withId("00000000-0000-4000-8000-000000000003")
+      .reported("unfinished", receivedAt)
+      .please();
+    const uncertain = storyAttempt()
+      .withId("00000000-0000-4000-8000-000000000004")
+      .ended({
         kind: "uncertain",
         reason: "unconfirmed",
         explanation: "Unknown.",
-      },
-      settledAt: outcomeAt,
-    });
+      })
+      .settledAt(outcomeAt)
+      .please();
     writeFileSync(
       file,
       JSON.stringify({

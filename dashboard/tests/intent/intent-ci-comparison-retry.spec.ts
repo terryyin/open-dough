@@ -220,9 +220,7 @@ test("unrecoverable published history shows the published-review explanation wit
     realHistory: true,
   });
   const { panel } = await selectDoneStoryForCiComparison(page);
-  await expect(panel.getByRole("heading")).toHaveText(
-    "CI timing changes for SEED-A#a",
-  );
+  await expect(panel.getByRole("heading")).toHaveText("CI timing changes");
   await expect(panel.locator(".intent-ci-gap")).toContainText(unrecoverable);
   await expect(panel.locator(".intent-ci-comparison")).toHaveCount(0);
   await expect(panel).not.toContainText("run ");

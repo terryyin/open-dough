@@ -3,18 +3,14 @@
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import type { Page } from "@playwright/test";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
-import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
-import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { githubFor } from "./dashboardTest.ts";
 import { sharedStoryIdentity } from "./doughnutProject.ts";
 import { noConnection } from "./originAnswers.ts";
 import { commitAnswerIn } from "./pathHistoryAnswers.ts";
-import { withDoneCatalog } from "./doneCatalogAnswers.ts";
-import { doneDirectory, doneRecordAt } from "./recentlyDoneRecords.ts";
-import { opened, profilePath, repository } from "./sliceClockRecords.ts";
+import { describedRevision } from "./describedRevisions.ts";
+import { doneRecordAt } from "./recentlyDoneRecords.ts";
+import { opened, repository } from "./sliceClockRecords.ts";
 import { publishes, type RepositoryAnswerer } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import {
@@ -33,7 +29,6 @@ export const canonicalPath = ".planning/seeds/SEED-777-shared.md";
 export const planPath = ".planning/slice-plans/777-facts/PLAN.md";
 const doneIdentity = "SEED-779#completed";
 const donePath = doneRecordAt(doneIdentity);
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 
 export function factsAt(revision: string, label: "A" | "B") {
   const owner = label === "A" ? "Akiho" : "Yuma";
@@ -44,47 +39,40 @@ export function factsAt(revision: string, label: "A" | "B") {
   const purpose = `Canonical purpose published at ${label}.`;
   const doneTitle = `Completed story published at ${label}`;
   const developer = `Developer at ${label}`;
-  const files = withDoneCatalog(
-    {
-      [backlogPath]: renderPublishedBacklog({
-        direction: `Direction published at ${label}.`,
-        taken: [
-          makeMe.aBacklogEntry
-            .with({
-              identity: sharedStoryIdentity,
-              href: "seeds/SEED-777-shared.md#shared-story",
-              title: takenTitle,
-            })
-            .please(),
-        ],
-        queued: [
-          makeMe.aBacklogEntry
-            .with({
-              identity: queuedIdentity,
-              href: `seeds/SEED-777-shared.md#${queuedAnchor}`,
-              title: queuedTitle,
-            })
-            .please(),
-        ],
-      }),
-      ".planning/open-dough.json": "{}\n",
-      [canonicalPath]: `<a id="shared-story"></a>
+  const { files } = describedRevision(
+    makeMe.aRepository
+      .withRevision(`published at ${label}`, {
+        backlog: {
+          direction: `Direction published at ${label}.`,
+          taken: [
+            makeMe.aBacklogEntry
+              .with({
+                identity: sharedStoryIdentity,
+                href: "seeds/SEED-777-shared.md#shared-story",
+                title: takenTitle,
+              })
+              .please(),
+          ],
+          queued: [
+            makeMe.aBacklogEntry
+              .with({
+                identity: queuedIdentity,
+                href: `seeds/SEED-777-shared.md#${queuedAnchor}`,
+                title: queuedTitle,
+              })
+              .please(),
+          ],
+        },
+        // The seed and plan prose the page reads.
+        files: {
+          ".planning/open-dough.json": "{}\n",
+          [canonicalPath]: `<a id="shared-story"></a>
 
 ### ${takenTitle}
 
 **Identity:** ${sharedStoryIdentity}
 
 **Goal:** ${purpose}
-
-${renderPublishedPreparation(
-  makeMe.aStoryPreparation
-    .with({
-      refinement: "refined",
-      approach: "planned",
-      plan: "../slice-plans/777-facts/PLAN.md",
-    })
-    .please(),
-)}
 
 <a id="${queuedAnchor}"></a>
 
@@ -94,62 +82,71 @@ ${renderPublishedPreparation(
 
 **Goal:** Queued purpose published at ${label}.
 `,
-      [planPath]: renderSlicePlan(
-        makeMe.aSlicePlan
-          .with({
-            slices: [
-              makeMe.aPlanSlice
-                .with({
-                  index: 1,
-                  name: `First slice at ${label}`,
-                  status: label === "A" ? "done" : "planned",
-                  proof: "Observe the current publication.",
-                })
-                .please(),
-              makeMe.aPlanSlice
-                .with({
-                  index: 2,
-                  name: `Second slice at ${label}`,
-                  proof: "Observe the current publication.",
-                })
-                .please(),
-            ],
-          })
-          .please(),
-        { heading: "Slices", preamble: `# Plan published at ${label}` },
-      ),
-      [profilePath(owner)]: renderAgentProfile(
-        makeMe.anAgentProfile
-          .executing({
-            name: owner,
+          [planPath]: renderSlicePlan(
+            makeMe.aSlicePlan
+              .with({
+                slices: [
+                  makeMe.aPlanSlice
+                    .with({
+                      index: 1,
+                      name: `First slice at ${label}`,
+                      status: label === "A" ? "done" : "planned",
+                      proof: "Observe the current publication.",
+                    })
+                    .please(),
+                  makeMe.aPlanSlice
+                    .with({
+                      index: 2,
+                      name: `Second slice at ${label}`,
+                      proof: "Observe the current publication.",
+                    })
+                    .please(),
+                ],
+              })
+              .please(),
+            { heading: "Slices", preamble: `# Plan published at ${label}` },
+          ),
+        },
+        storyStates: [
+          {
             identity: sharedStoryIdentity,
-            host: "codex",
-            model: `model-at-${label}`,
-          })
-          .please(),
-      ),
-      [profilePath(preparer)]: renderAgentProfile(
-        makeMe.anAgentProfile
-          .preparing({
-            name: preparer,
-            identity: queuedIdentity,
-            host: "claude",
-            model: `preparer-at-${label}`,
-          })
-          .please(),
-      ),
-      [donePath]: renderDoneRecord(
-        makeMe.aDoneRecord
-          .with({
-            identity: doneIdentity,
-            title: doneTitle,
-            developer,
-            completedAt: new Date(opened.getTime() - 60_000).toISOString(),
-          })
-          .please(),
-      ),
-    },
-    doneDirectory,
+            href: "seeds/SEED-777-shared.md#shared-story",
+            ...makeMe.aStoryPreparation
+              .plannedIn("../slice-plans/777-facts/PLAN.md")
+              .please(),
+          },
+        ],
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .executing({
+              name: owner,
+              identity: sharedStoryIdentity,
+              host: "codex",
+              model: `model-at-${label}`,
+            })
+            .please(),
+          makeMe.anAgentProfile
+            .preparing({
+              name: preparer,
+              identity: queuedIdentity,
+              host: "claude",
+              model: `preparer-at-${label}`,
+            })
+            .please(),
+        ],
+        doneRecords: [
+          makeMe.aDoneRecord
+            .with({
+              identity: doneIdentity,
+              title: doneTitle,
+              developer,
+              completedAt: new Date(opened.getTime() - 60_000).toISOString(),
+            })
+            .please(),
+        ],
+      })
+      .please(),
+    revision,
   );
   return {
     revision,

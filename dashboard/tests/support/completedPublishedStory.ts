@@ -28,7 +28,8 @@ import {
   placeMergeEditFiles,
   resolveForeignMerge,
 } from "./completedStoryMerges.ts";
-import { keepLaunchRecords, storyALaunchRecord } from "./storyLaunchRecord.ts";
+import { keepLaunchRecords } from "./launchStore.ts";
+import { storyALaunchRecord } from "./storyLaunchRecord.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
@@ -215,7 +216,7 @@ export function advanceCompletedTrunk(origin: StartOrigin) {
 
 // A retained comparison whose original common repository has gone away is
 // only the starting precondition; published review still comes from real Git.
-export async function keepUnusableCompletedCapture(
+export function keepUnusableCompletedCapture(
   dashboard: DashboardServer,
   origin: StartOrigin,
   story: { readonly workspace: string; readonly completion: string },
@@ -235,5 +236,5 @@ export async function keepUnusableCompletedCapture(
     .comparing(comparison)
     .receivedAt(new Date().toISOString())
     .please();
-  await keepLaunchRecords(dashboard, [record]);
+  keepLaunchRecords(dashboard, [record]);
 }

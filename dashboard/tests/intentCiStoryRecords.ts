@@ -9,14 +9,13 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
-import { ciPanel } from "./intentCiStatusPage.ts";
+import { chooseCiStatus } from "./intentCiStatusPage.ts";
 import {
   failing,
   planningOnly,
   running,
   storyBoardFiles,
 } from "./intentCiStoryBoard.ts";
-import { expectIntentModeChosen } from "./intentModePage.ts";
 import { notFoundAnswer, type OriginAnswer } from "./originAnswers.ts";
 import { publishMovingFiles, type MovingFiles } from "./publishedFiles.ts";
 import {
@@ -189,7 +188,8 @@ export function card(page: Page, title: string): Locator {
 }
 
 // Toggles the selection of `title`'s card on Development by its empty area,
-// then returns to Intent, where CI status is the empty-selection homepage.
+// then returns to Intent, where CI status shows: a newly selected story's CI
+// comparison, or with none Project Intent's empty-selection homepage.
 export async function toggleOnDevelopment(
   page: Page,
   title: string,
@@ -198,10 +198,7 @@ export async function toggleOnDevelopment(
   await development.click();
   await card(page, title).locator("h3").first().click();
   await intentChoice.click();
-  await expectIntentModeChosen(intent, "Intent");
-  const panel = ciPanel(intent);
-  await expect(panel).toBeVisible();
-  return panel;
+  return chooseCiStatus(intent);
 }
 
 export async function expectNamed(panel: Locator, branch: string) {

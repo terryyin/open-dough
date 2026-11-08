@@ -16,8 +16,8 @@ import {
   backlogNaming,
   backlogPath,
   doneCatalogPath,
-  doneDirectory,
   donePath,
+  doneRecordOf,
   filesFor,
   madeBy,
   modified,
@@ -32,7 +32,6 @@ import {
   seedPath,
   seedText,
 } from "../../tests/revisionReuseOrigin.ts";
-import { withDoneCatalog } from "../../tests/doneCatalogAnswers.ts";
 import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
 
 test.describe.configure({ mode: "serial" });
@@ -109,17 +108,14 @@ test.describe("authenticated read reuse at a newly named revision (development e
     const [a, b] = [named("a3"), named("b3")];
     const files = filesFor("changed");
     const published = await publishedAt(a, files);
-    const backlogAtB = backlogNaming("changed", newSeedEntry);
-    const atB = withDoneCatalog(
-      {
-        ...files,
-        [backlogPath]: backlogAtB,
+    const atB = filesFor("changed", {
+      backlog: backlogNaming("changed", newSeedEntry),
+      files: {
         [newSeedPath]: newSeedText,
-        [addedDonePath]: `{"label":"added"}\n`,
         [planPath]: "# Plan changed, a slice done\n",
       },
-      doneDirectory,
-    );
+      doneRecords: [doneRecordOf("SEED-304#added", "added")],
+    });
     await movedTo(published, a, { revision: b, files: atB }, [
       madeBy("c3", [
         modified(backlogPath),
@@ -155,14 +151,17 @@ test.describe("authenticated read reuse at a newly named revision (development e
         `content ${newSeedPath}@b3`,
       ].sort(),
     );
-    expect(answers[0]?.body).toEqual({ revision: b, backlog: backlogAtB });
+    expect(answers[0]?.body).toEqual({
+      revision: b,
+      backlog: atB[backlogPath],
+    });
     expect(answers[3]?.body).toMatchObject({
       text: "# Plan changed, a slice done\n",
     });
     expect(answers[5]?.body).toMatchObject({
       records: [
         { path: donePath, text: files[donePath] },
-        { path: addedDonePath, text: `{"label":"added"}\n` },
+        { path: addedDonePath, text: atB[addedDonePath] },
       ],
     });
   });

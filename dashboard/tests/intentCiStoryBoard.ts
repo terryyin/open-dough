@@ -7,15 +7,8 @@
 // reads its progress on its branch and its revision check watches that head.
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
-import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  doneRecordPath,
-  renderDoneRecord,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { withDoneCatalog } from "./doneCatalogAnswers.ts";
+import { describedFiles } from "./describedRevisions.ts";
 
 export const failing = {
   title: "Story whose branch fails",
@@ -65,26 +58,21 @@ const taken = [
   removed,
 ];
 
-function profile(
+const profile = (
   agent: string,
   anchor: string,
   mode: "trunk" | "story-branch",
   branch: string,
-): Record<string, string> {
-  return {
-    [`.planning/agents/${agent.toLowerCase()}-chan.json`]: renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name: agent,
-          identity: identity(anchor),
-          mode,
-          branch,
-          host: "claude",
-        })
-        .please(),
-    ),
-  };
-}
+) =>
+  makeMe.anAgentProfile
+    .executing({
+      name: agent,
+      identity: identity(anchor),
+      mode,
+      branch,
+      host: "claude",
+    })
+    .please();
 
 const entry = ({ title, anchor }: { title: string; anchor: string }) =>
   makeMe.aBacklogEntry
@@ -94,11 +82,6 @@ const entry = ({ title, anchor }: { title: string; anchor: string }) =>
       identity: identity(anchor),
     })
     .please();
-
-const backlog = renderPublishedBacklog({
-  taken: taken.map(entry),
-  queued: [entry(queued), entry(preparing)],
-});
 
 const failingPlan = `.planning/slice-plans/219-${failing.anchor}/PLAN.md`;
 const plan = renderSlicePlan(
@@ -117,19 +100,6 @@ const plan = renderSlicePlan(
     .please(),
   { heading: "Slices" },
 );
-const planned = (anchor: string) =>
-  anchor === failing.anchor
-    ? `${renderPublishedPreparation(
-        makeMe.aStoryPreparation
-          .with({
-            refinement: "refined",
-            approach: "planned",
-            plan: `../slice-plans/219-${anchor}/PLAN.md`,
-          })
-          .please(),
-      )}
-`
-    : "";
 
 const seed = `# Story CI fixture
 
@@ -140,46 +110,52 @@ ${[...taken, queued, preparing]
 ### ${title}
 
 **Identity:** ${identity(anchor)}
-${planned(anchor)}`,
+`,
   )
   .join("\n")}`;
 
-export const storyBoardFiles: Record<string, string> = withDoneCatalog(
-  {
-    ".planning/PRODUCT-BACKLOG.md": backlog,
+export const storyBoardFiles: Record<string, string> = describedFiles({
+  backlog: {
+    taken: taken.map(entry),
+    queued: [entry(queued), entry(preparing)],
+  },
+  files: {
     ".planning/seeds/SEED-219-story-ci.md": seed,
     [failingPlan]: plan,
-    ...profile("Akiho", failing.anchor, "story-branch", failing.branch),
-    ...profile(
-      "Yuma",
-      planningOnly.anchor,
-      "story-branch",
-      planningOnly.branch,
-    ),
-    ...profile("Sola", running.anchor, "story-branch", running.branch),
-    ...profile("Mana", onTrunk.anchor, "trunk", "origin/main"),
-    ...profile("Kirara", twoOwners.anchor, "story-branch", "codex/one"),
-    ...profile("Tsubomi", twoOwners.anchor, "story-branch", "codex/two"),
-    ...profile("Yumi", unusable.anchor, "story-branch", unusable.branch),
-    ...profile("Rio", removed.anchor, "story-branch", removed.branch),
-    ".planning/agents/aino-chan.json": renderAgentProfile(
-      makeMe.anAgentProfile
-        .preparing({
-          name: "Aino",
-          identity: identity(preparing.anchor),
-          host: "claude",
-        })
-        .please(),
-    ),
-    [`.planning/${doneRecordPath(done.identity)}`]: renderDoneRecord(
-      makeMe.aDoneRecord
-        .with({
-          ...done,
-          completedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-          developer: "Terry Yin",
-        })
-        .please(),
-    ),
   },
-  ".planning/done",
-);
+  storyStates: [
+    {
+      identity: identity(failing.anchor),
+      href: `seeds/SEED-219-story-ci.md#${failing.anchor}`,
+      ...makeMe.aStoryPreparation
+        .plannedIn(`../slice-plans/219-${failing.anchor}/PLAN.md`)
+        .please(),
+    },
+  ],
+  agentProfiles: [
+    profile("Akiho", failing.anchor, "story-branch", failing.branch),
+    profile("Yuma", planningOnly.anchor, "story-branch", planningOnly.branch),
+    profile("Sola", running.anchor, "story-branch", running.branch),
+    profile("Mana", onTrunk.anchor, "trunk", "origin/main"),
+    profile("Kirara", twoOwners.anchor, "story-branch", "codex/one"),
+    profile("Tsubomi", twoOwners.anchor, "story-branch", "codex/two"),
+    profile("Yumi", unusable.anchor, "story-branch", unusable.branch),
+    profile("Rio", removed.anchor, "story-branch", removed.branch),
+    makeMe.anAgentProfile
+      .preparing({
+        name: "Aino",
+        identity: identity(preparing.anchor),
+        host: "claude",
+      })
+      .please(),
+  ],
+  doneRecords: [
+    makeMe.aDoneRecord
+      .with({
+        ...done,
+        completedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+        developer: "Terry Yin",
+      })
+      .please(),
+  ],
+});

@@ -69,12 +69,21 @@ older="${temporary_dir}/older"
 # Model the release this repository actually shipped until scripts (and later
 # the story-state recorder modules / record-preparation procedure) were
 # declared: docs could install, but the automation and shared procedure did not.
-build_upgrade_releases "${fixture}" "${older}" \
-  before-backlog-scripts with-backlog-scripts \
-  --withhold dough-product-backlog/scripts/ \
-  --withhold dough-product-backlog/references/record-preparation.md \
-  --remove dough-product-backlog/scripts \
-  --remove dough-product-backlog/references/record-preparation.md
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" << 'JSON'
+{"revisions": [
+  {"name": "release 0.1.1 before-backlog-scripts", "release": {
+    "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
+    "marker": "before-backlog-scripts",
+    "withheld": ["dough-product-backlog/scripts/",
+      "dough-product-backlog/references/record-preparation.md"],
+    "removed": ["dough-product-backlog/scripts",
+      "dough-product-backlog/references/record-preparation.md"]}},
+  {"name": "release 0.1.2 with-backlog-scripts", "release": {
+    "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
+    "marker": "with-backlog-scripts"}}
+]}
+JSON
+checkout_tagged_release "${fixture}" "${older}" 0.1.1
 
 project_backlog_rel='.planning/PRODUCT-BACKLOG.md'
 write_project_backlog_sentinel() {

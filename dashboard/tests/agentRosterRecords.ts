@@ -7,6 +7,7 @@
 // listed at all; and a Pygardon revision that publishes no backlog.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
 import type { Locator, Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { expect, githubFor } from "./dashboardTest.ts";
@@ -24,8 +25,9 @@ import {
   rawFileAnswer,
 } from "./originAnswers.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
+import { describedBacklog, describedRevision } from "./describedRevisions.ts";
+import { backlogPath } from "./publishedOriginBasics.ts";
 
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const agents = ".planning/agents";
 
 export const openDough = {
@@ -39,20 +41,27 @@ export const queuedIdentity = "SEED-008#planning-workspace-procedure";
 // Work a profile names that the published backlog no longer lists.
 export const unlistedIdentity = "SEED-099#retired-story";
 
-const backlog = `# Product backlog
+const entry = (title: string, identity: string, href: string) =>
+  makeMe.aBacklogEntry.with({ title, identity, href }).please();
 
-## Taken
-
-- [${takenStory}](seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner) — ${takenIdentity}
-
-## Backlog list
-
-- [${queuedStory}](seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure) — ${queuedIdentity}
-`;
-
-export const openDoughFiles = {
-  [backlogPath]: backlog,
-  [`${agents}/akiho-chan.json`]: renderAgentProfile(
+export const openDoughFacts = {
+  backlog: {
+    taken: [
+      entry(
+        takenStory,
+        takenIdentity,
+        "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
+      ),
+    ],
+    queued: [
+      entry(
+        queuedStory,
+        queuedIdentity,
+        "seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure",
+      ),
+    ],
+  },
+  agentProfiles: [
     makeMe.anAgentProfile
       .executing({
         name: "Akiho",
@@ -63,8 +72,6 @@ export const openDoughFiles = {
         model: "claude-opus-5-5",
       })
       .please(),
-  ),
-  [`${agents}/kirara-chan.json`]: renderAgentProfile(
     makeMe.anAgentProfile
       .preparing({
         name: "Kirara",
@@ -72,8 +79,6 @@ export const openDoughFiles = {
         host: "cursor",
       })
       .please(),
-  ),
-  [`${agents}/yuma-chan.json`]: renderAgentProfile(
     makeMe.anAgentProfile
       .executing({
         name: "Yuma",
@@ -82,26 +87,49 @@ export const openDoughFiles = {
         branch: "codex/retired-story",
       })
       .please(),
-  ),
-  [`${agents}/mana-chan.json`]: '{ "agent": "Mana-chan", ',
-  // Filed under Yui, it names Sola preparing the queued story: evidence about
-  // Yui that contradicts itself, and no assignment for Sola or that story.
-  [`${agents}/yui-chan.json`]: renderAgentProfile(
-    makeMe.anAgentProfile
-      .preparing({
-        name: "Sola",
-        identity: queuedIdentity,
-        host: "codex",
-      })
-      .please(),
-  ),
-};
+  ],
+  // The bytes the roster's unreadable-profile gaps are about: a profile that
+  // is not JSON, and one filed under Yui whose text names Sola preparing the
+  // queued story (self-contradicting evidence about Yui, no Sola assignment).
+  files: {
+    [`${agents}/mana-chan.json`]: '{ "agent": "Mana-chan", ',
+    [`${agents}/yui-chan.json`]: renderAgentProfile(
+      makeMe.anAgentProfile
+        .preparing({
+          name: "Sola",
+          identity: queuedIdentity,
+          host: "codex",
+        })
+        .please(),
+    ),
+  },
+} satisfies RevisionFacts;
+
+const { files: openDoughFiles } = describedRevision(
+  makeMe.aRepository.withRevision("roster", openDoughFacts).please(),
+  openDough.revision,
+);
 
 export const doughnut = {
   repository: "nerds-odd-e/doughnut",
   revision: "d9".repeat(20),
 };
 export const doughnutStory = "Doughnut's own taken story";
+const doughnutBacklog = describedBacklog(
+  makeMe.aRepository
+    .withRevision("taken", {
+      backlog: {
+        taken: [
+          entry(
+            doughnutStory,
+            "SEED-001#taken",
+            "seeds/SEED-001-taken.md#taken",
+          ),
+        ],
+      },
+    })
+    .please(),
+);
 
 // Doughnut publishes a Taken entry, but listing its agent profiles fails.
 export function publishUnlistableProfiles(page: Page) {
@@ -114,11 +142,7 @@ export function publishUnlistableProfiles(page: Page) {
       return Promise.resolve(headsAnswer({ main: revision }));
     }
     if (request.kind === "content" && request.path === backlogPath) {
-      return Promise.resolve(
-        rawFileAnswer(
-          `# Product backlog\n\n## Taken\n\n- [${doughnutStory}](seeds/SEED-001-taken.md#taken) — SEED-001#taken\n\n## Backlog list\n`,
-        ),
-      );
+      return Promise.resolve(rawFileAnswer(doughnutBacklog));
     }
     if (request.kind === "content") {
       return Promise.resolve(notFoundAnswer());

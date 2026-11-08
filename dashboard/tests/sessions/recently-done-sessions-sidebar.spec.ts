@@ -1,8 +1,8 @@
 // Recently done sessions in the Sessions sidebar: collapsed by default,
 // completion-ordered across configured projects, completion ages, newest 20,
 // and opening through each row's Open control in PageFrame. Room sharing,
-// reopen, Board/final-report destinations, and older paging live beside this
-// file.
+// reopen, Board/final-report destinations, older paging, and which projects'
+// kept records it lists live beside this file.
 import {
   chooseProject,
   expectProjectChoice,
@@ -15,7 +15,7 @@ import {
   recentlyDoneParts,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
-import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import {
   expectRowShows,
   expectTooltipLine,
@@ -86,7 +86,7 @@ test("finds and opens the newest completed sessions across projects from a colla
     .inClaudeSession(listed(openTitle, stillOpenLaunchedAt))
     .launchedAt(stillOpenLaunchedAt)
     .please();
-  await keepProjectLaunchRecords(dashboard, {
+  keepLaunchStore(dashboard, {
     "open-dough": [middle, unattached, stillOpen],
     doughnut: [newest],
     pygardon: [oldestShown],
@@ -194,7 +194,7 @@ test("empty and reading states stay distinct, and fewer than 20 shows every Done
   dashboard,
   origin,
 }) => {
-  await keepProjectLaunchRecords(dashboard, {
+  keepLaunchStore(dashboard, {
     "open-dough": [],
     doughnut: [],
     pygardon: [],
@@ -218,7 +218,7 @@ test("empty and reading states stay distinct, and fewer than 20 shows every Done
       .markedDoneAt(new Date(now - (index + 1) * 30_000).toISOString())
       .please(),
   );
-  await keepProjectLaunchRecords(dashboard, { "open-dough": few });
+  keepLaunchStore(dashboard, { "open-dough": few });
   await page.reload();
   await expect(
     page.getByRole("button", { name: /Start session in/ }),

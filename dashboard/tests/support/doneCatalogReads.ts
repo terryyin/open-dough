@@ -1,23 +1,25 @@
 // Shared support for ../../backend-tests/observation/authenticated-read-done-catalog.spec.ts,
 // ../../backend-tests/observation/authenticated-read-done-catalog-gaps.spec.ts, and
-// ../../backend-tests/observation/authenticated-read-done-catalog-refusal.spec.ts: done records as
-// completion renders them, the catalog the shared module reads from them
-// (../doneCatalogAnswers.ts), and how a test sends done catalog and record
-// reads to the boundary and observes the questions that reached GitHub.
+// ../../backend-tests/observation/authenticated-read-done-catalog-refusal.spec.ts: done records
+// a revision publishes, described for ../describedRevisions.ts, with the
+// catalog completion rebuilds beside them, and how a test sends done catalog
+// and record reads to the boundary and observes the questions that reached
+// GitHub.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { rawRequest } from "./rawHttp.ts";
 import { askedSince } from "./sharedReads.ts";
-import { doneCatalogOf } from "../doneCatalogAnswers.ts";
+import type {
+  DoneRecord,
+  RevisionFacts,
+} from "../../../tests/support/repositoryTestData.mjs";
+import { describedFiles } from "../describedRevisions.ts";
 import {
   doneCatalogFileName,
   parseDoneCatalog,
 } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
-import {
-  doneRecordPath,
-  renderDoneRecord,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordPath } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 // Each test publishes its own revisions: the boundary remembers what it read
 // for as long as the server runs.
@@ -32,38 +34,37 @@ export const fileOf = (identity: string) =>
 export const pathOf = (identity: string) =>
   `.planning/${doneRecordPath(identity)}`;
 
-// `count` done records completed an hour apart, each as completion renders
-// it, with a file beside them that is no record.
-export function doneRecords(
-  label: string,
-  count: number,
-): Readonly<Record<string, string>> {
-  return Object.fromEntries([
-    ...[...Array(count).keys()].map((index): [string, string] => {
-      const identity = identityOf(label, index);
-      return [
-        pathOf(identity),
-        renderDoneRecord(
-          makeMe.aDoneRecord
-            .with({
-              identity,
-              title: `Finish ${label} ${String(index)}`,
-              completedAt: new Date(
-                Date.UTC(2026, 9, 1, index, 0, 0),
-              ).toISOString(),
-              developer: "Terry Yin",
-            })
-            .please(),
-        ),
-      ];
-    }),
-    [`${doneDirectory}/README.md`, "Not a done record.\n"],
-  ]);
+// `count` done records completed an hour apart.
+export function doneRecords(label: string, count: number): DoneRecord[] {
+  return [...Array(count).keys()].map((index) =>
+    makeMe.aDoneRecord
+      .with({
+        identity: identityOf(label, index),
+        title: `Finish ${label} ${String(index)}`,
+        completedAt: new Date(Date.UTC(2026, 9, 1, index, 0, 0)).toISOString(),
+        developer: "Terry Yin",
+      })
+      .please(),
+  );
 }
 
-// The catalog of `files`, as the shared module reads it.
+// The files a revision publishing `facts` serves, with no backlog and a file
+// beside its done records that is no record; the catalog is the one
+// completion rebuilds from the records unless `facts` remove or replace it.
+export function publishedDone(facts: RevisionFacts): Record<string, string> {
+  return describedFiles({
+    backlog: null,
+    ...facts,
+    files: {
+      [`${doneDirectory}/README.md`]: "Not a done record.\n",
+      ...facts.files,
+    },
+  });
+}
+
+// The catalog `files` publish, as the shared module reads it.
 export function catalogOf(files: Readonly<Record<string, string>>) {
-  const read = parseDoneCatalog(doneCatalogOf(files, doneDirectory));
+  const read = parseDoneCatalog(files[catalogPath] ?? "");
   if (!read.ok) throw new Error(read.error);
   return read.catalog;
 }

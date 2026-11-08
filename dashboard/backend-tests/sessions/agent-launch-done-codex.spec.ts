@@ -1,7 +1,6 @@
 // HTTP/store and optional WS/PTY exercise native rename and exact-turn interruption.
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
+import { changeLaunchStore } from "../../tests/support/launchStore.ts";
 import {
   launch,
   refinementRequest,
@@ -145,25 +144,17 @@ test("missing saved endpoint retains local intent, closes attachments and report
   await launch(dashboard, { ...refinementRequest, host: "codex" });
   const terminal = await openCodexTerminal(dashboard, native.threadId);
   expect(await shows(terminal, "original retained history")).toBe(true);
-  const file = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-  const document = JSON.parse(readFileSync(file, "utf8")) as Record<
-    string,
-    unknown[]
-  >;
-  document["open-dough"] = stored(dashboard.home).map((record) => ({
-    ...record,
-    session: {
-      host: "codex",
-      sessionId: native.threadId,
-      name: record.session.name,
-    },
+  changeLaunchStore(dashboard, (document) => ({
+    ...document,
+    "open-dough": stored(dashboard.home).map((record) => ({
+      ...record,
+      session: {
+        host: "codex",
+        sessionId: native.threadId,
+        name: record.session.name,
+      },
+    })),
   }));
-  writeFileSync(file, JSON.stringify(document));
   const before = [...native.calls];
   const response = await markDone(dashboard, {
     source: "open-dough",

@@ -20,7 +20,7 @@ import {
   type RepositoryAnswerer,
 } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { withDoneCatalog } from "../../tests/doneCatalogAnswers.ts";
+import { describedFiles } from "../../tests/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -46,6 +46,10 @@ function doneRecords(
     ]),
   );
 }
+
+// `records` beside the catalog completion rebuilds from them, with no backlog.
+const withCatalog = (files: Readonly<Record<string, string>>) =>
+  describedFiles({ backlog: null, doneRecords: [], files });
 
 // The content reads of records in `directory` at `revision` that reached
 // GitHub, by path.
@@ -92,7 +96,7 @@ test.describe("authenticated listed records read (development environment)", () 
     const files = doneRecords("together", 6);
     const published = publishes({
       revision,
-      files: withDoneCatalog(files, doneDirectory),
+      files: withCatalog(files),
     });
     let release: () => void = () => undefined;
     const released = new Promise<void>((resolve) => {
@@ -140,19 +144,13 @@ test.describe("authenticated listed records read (development environment)", () 
 
     server.github.serve(
       everyRepository,
-      publishes({
-        revision: first,
-        files: withDoneCatalog(files, doneDirectory),
-      }),
+      publishes({ revision: first, files: withCatalog(files) }),
     );
     expect((await doneAt(first, files)).status).toBe(200);
 
     server.github.serve(
       everyRepository,
-      publishes({
-        revision: second,
-        files: withDoneCatalog(later, doneDirectory),
-      }),
+      publishes({ revision: second, files: withCatalog(later) }),
     );
     const response = await doneAt(second, later);
     expect(response.status).toBe(200);
@@ -173,7 +171,7 @@ test.describe("authenticated listed records read (development environment)", () 
     const after = `${doneDirectory}/SEED-003_x.json`;
     const published = publishes({
       revision,
-      files: withDoneCatalog(files, doneDirectory),
+      files: withCatalog(files),
     });
     let failed: () => void = () => undefined;
     const answeredFailure = new Promise<void>((resolve) => {

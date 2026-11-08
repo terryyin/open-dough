@@ -241,6 +241,12 @@ None.
   owned-context selection passed in 5.91 s before and 5.25 s after on the
   same upstream base. Its first fixture took 272.9 and 245.6 ms respectively,
   and warm fixtures took 125.9–128.2 and 21.0–21.7 ms respectively.
+  With the run preparing the story-columns history once at its start and each
+  worker copying it (2026-11-08, two workers, interleaved runs under load
+  7–8), the attention and recent-sessions selection passed in 9.14–9.42 s
+  against 9.75–10.21 s with per-worker builds; each worker's fixture
+  construction fell from 0.92–1.07 s to 0.41–0.46 s, and the prefix build
+  took 0.53–0.56 s overlapping the app build.
 - **Unique protection:** visible attention counts across published columns,
   failed or missing native observations, Mark as done, project switching and
   reload, and the local entry after a story leaves all published lists.
@@ -248,8 +254,8 @@ None.
   can seed native listings and persisted open launch records. The launch-dialog
   journey already owns coverage of starting from a card.
 - **Disposition / rationale:** the shared repository description and
-  materializer supply the baseline for the remaining reuse work.
-  [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories)
+  materializer supplied the baseline for the reuse work, which now prepares
+  the story-columns history once per run (`tests/support/repository-snapshot.mjs`).
   The launch cost is gone: both cases now open with their sessions already
   kept and listed (`dashboard/tests/storyCardOpenSessions.ts`), sending no
   Start and launching nothing. That arrangement measured 0.59–0.61s per case

@@ -31,7 +31,7 @@ test("a file renamed before and after conflicted integration stays flagged with 
   git(story.workspace, "mv", "src/d.ts", "src/e.ts");
   commitAll(story.workspace, "rename d to e");
 
-  await keepLaunchRecord(dashboard, story.workspace);
+  keepLaunchRecord(dashboard, story.workspace);
   const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   expect(snapshot.commits.map(({ subject }) => subject)).toEqual([
     "rename d to e",

@@ -228,7 +228,8 @@ fi
 
 # A no-URL update from one old root restores missing shared integrations.
 fixture="${temporary_dir}/fixture.git"
-build_latest_fixture "${fixture}"
+# The shared "latest" release source in tests/support/release-sources.mjs.
+node "${source_dir}/tests/support/release-source.mjs" "${fixture}" latest
 old_checkout="${temporary_dir}/release-0.1.1"
 checkout_tagged_release "${fixture}" "${old_checkout}" 0.1.1
 update_target="${temporary_dir}/update"

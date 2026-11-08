@@ -1,7 +1,7 @@
 // Recover stops without a replacement agent: missing workspace, trust, an
 // unreachable runner, and an unclassified resume exit leave the explanation
 // and no held client.
-import { rmSync, writeFileSync } from "node:fs";
+import { rmSync } from "node:fs";
 import path from "node:path";
 import { cursorRunnerSentence } from "../../src/cursorRunnerSessions.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
@@ -22,6 +22,7 @@ import {
 import { expect, test } from "../support/cursorStart.ts";
 import { unclassifiedCursorExit } from "../support/fakeCursor.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 
 test("missing workspace, trust, unreachable runner, and unclassified exit explain and leave no agent", async ({
   page,
@@ -31,35 +32,26 @@ test("missing workspace, trust, unreachable runner, and unclassified exit explai
 }) => {
   await openTakenCursorSession(page, origin);
   await endHeldClient(page, cursor, dashboard.home);
-  const file = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
   const [record] = keptRecords(dashboard.home);
   if (record === undefined || record.session.host !== "cursor") {
     throw new Error("Missing Cursor record.");
   }
   const missing = path.join(origin.machine, "missing-cursor-workspace");
   rmSync(missing, { recursive: true, force: true });
-  writeFileSync(
-    file,
-    JSON.stringify({
-      "open-dough": [
-        {
-          ...record,
-          session: {
-            ...record.session,
-            continuation: {
-              ...record.session.continuation,
-              workspace: missing,
-            },
+  keepLaunchStore(dashboard, {
+    "open-dough": [
+      {
+        ...record,
+        session: {
+          ...record.session,
+          continuation: {
+            ...record.session.continuation,
+            workspace: missing,
           },
         },
-      ],
-    }),
-  );
+      },
+    ],
+  });
   await page.reload();
   let entry = parts(page).taken.locator(".session-entry");
   const attachesBeforeMissing = cursor.attaches().length;
@@ -69,7 +61,7 @@ test("missing workspace, trust, unreachable runner, and unclassified exit explai
   );
   expect(cursor.attaches()).toHaveLength(attachesBeforeMissing);
 
-  writeFileSync(file, JSON.stringify({ "open-dough": [record] }));
+  keepLaunchStore(dashboard, { "open-dough": [record] });
   cursor.setAttachMode("trust");
   await page.reload();
   entry = parts(page).taken.locator(".session-entry");

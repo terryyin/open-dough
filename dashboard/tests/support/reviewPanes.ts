@@ -58,7 +58,7 @@ export async function openLargeReview(
   origin: StartOrigin,
 ) {
   const { workspace } = largeWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
   const review = page.getByRole("region", { name: "Story review" });

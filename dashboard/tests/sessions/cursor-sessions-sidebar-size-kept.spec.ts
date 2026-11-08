@@ -24,7 +24,6 @@ import {
   type Shown,
 } from "../cursorSessionsSidebarResizePage.ts";
 import { chooseProject, parts } from "../dashboardPage.ts";
-import { publishMovingOrigin } from "../publishedOrigin.ts";
 import {
   changesAsked,
   listFloor as floor,
@@ -32,6 +31,7 @@ import {
   showPage,
 } from "../runningCursorSessionsPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
+import { publishOnePygardonStory } from "../pygardonProject.ts";
 
 const sessionsSidebarOpenKey = "open-dough.sessionsSidebar.open";
 
@@ -73,11 +73,7 @@ test.describe("with two projects", () => {
     origin,
     cursor,
   }) => {
-    const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
-    pygardon.push(
-      "e6".repeat(20),
-      "# Product backlog\n\n## Taken\n\n## Backlog list\n\n- [A Pygardon story](seeds/SEED-301.md#s) — SEED-301#s\n",
-    );
+    await publishOnePygardonStory(page);
     const asked = changesAsked(page);
     await showPage(page, origin);
     const shown = runningCursorParts(page);

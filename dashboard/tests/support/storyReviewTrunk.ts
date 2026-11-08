@@ -56,7 +56,7 @@ export async function markStoryReview(
 ) {
   const story = markedWorktree(origin);
   prepare?.(story.workspace);
-  await keepLaunchRecord(dashboard, story.workspace);
+  keepLaunchRecord(dashboard, story.workspace);
   const card = await openBacklog(page, origin);
   const marked = await openStoryReview(page, card);
   const review = reviewRegion(page);

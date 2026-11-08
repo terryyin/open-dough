@@ -39,6 +39,10 @@ export type DoneRecordRead =
   | { readonly status: "read"; readonly story: DoneStory }
   | { readonly status: "unreadable"; readonly problem: string };
 
+// How a done record the shared reader refused is named wherever it shows.
+export const unreadableDoneRecord = (file: string, problem: string) =>
+  `Done record ${file} is unreadable: ${problem}.`;
+
 export function doneRecordOf(file: string, text: string): DoneRecordRead {
   const read = readRecord.safeParse(parseDoneRecordFile(file, text));
   if (!read.success) {

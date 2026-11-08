@@ -24,14 +24,13 @@ import { abandonedRequest } from "../../tests/support/rawHttp.ts";
 import {
   answerOf,
   doneCatalogReads,
-  doneDirectory,
   doneRecords,
   fileOf,
   identityOf,
   pathOf,
+  publishedDone,
   revisionOf,
 } from "../../tests/support/doneCatalogReads.ts";
-import { withDoneCatalog } from "../../tests/doneCatalogAnswers.ts";
 import { doneCatalogFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 
 test.describe.configure({ mode: "serial" });
@@ -119,7 +118,7 @@ test.describe("authenticated done catalog refusal (development environment)", ()
 
   test("a failing record read names that record", async () => {
     const revision = revisionOf("9c");
-    const files = withDoneCatalog(doneRecords("failing", 3), doneDirectory);
+    const files = publishedDone({ doneRecords: doneRecords("failing", 3) });
     const failing = pathOf(identityOf("failing", 1));
     const published = publishes({ revision, files });
     const answerer: RepositoryAnswerer = (call) =>
@@ -139,7 +138,7 @@ test.describe("authenticated done catalog refusal (development environment)", ()
 
   test("a record read its request leaves is ended, and a later request asks again", async () => {
     const revision = revisionOf("9d");
-    const files = withDoneCatalog(doneRecords("leaving", 2), doneDirectory);
+    const files = publishedDone({ doneRecords: doneRecords("leaving", 2) });
     const heldPath = pathOf(identityOf("leaving", 1));
     const held = holdingAnswer(
       publishes({ revision, files }),

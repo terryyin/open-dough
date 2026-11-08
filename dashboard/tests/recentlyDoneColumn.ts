@@ -33,13 +33,16 @@ export const sessionsOutsideDoneStories = (
   now: number,
   closed: { readonly adHoc?: boolean; readonly queued?: boolean } = {},
 ) =>
-  keptSessions(now, {
-    adHoc: listed(dashboard, now, "Open Dough session", placed.adHocLaunched),
-    queued: listed(dashboard, now, queuedTitle, placed.queuedLaunched),
-  }).map((record) =>
-    (record.request.workflow === "ad-hoc" ? closed.adHoc : closed.queued)
-      ? { ...record, doneAt: at(now, 30 * 60_000) }
-      : record,
+  keptSessions(
+    now,
+    {
+      adHoc: listed(dashboard, now, "Open Dough session", placed.adHocLaunched),
+      queued: listed(dashboard, now, queuedTitle, placed.queuedLaunched),
+    },
+    {
+      ...(closed.adHoc && { adHoc: at(now, 30 * 60_000) }),
+      ...(closed.queued && { queued: at(now, 30 * 60_000) }),
+    },
   );
 
 // The column's own entries, newest first: done cards and sessions of no

@@ -21,7 +21,7 @@ import type { FakeCursor } from "../../tests/support/fakeCursor.ts";
 import { followUpOf } from "../../tests/support/followUpSources.ts";
 import { originMain } from "../../tests/support/sessionDialog.ts";
 import { isolatedSession } from "../../tests/support/startSessionLanding.ts";
-import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import {
   answerOf,
   expectFollowUpInput,
@@ -53,7 +53,7 @@ test("a blank follow-up with a chosen model on Default main starts on that model
   origin,
   cursor,
 }) => {
-  await keepLaunchRecords(dashboard, [quiet]);
+  keepLaunchRecords(dashboard, [quiet]);
 
   const launched = await answerOf(
     launch(dashboard, {
@@ -89,7 +89,7 @@ test("with Isolated workspace, a start continued after the source record is gone
   cursor,
 }) => {
   const source = reported(dashboard.home);
-  await keepLaunchRecords(dashboard, [source]);
+  keepLaunchRecords(dashboard, [source]);
   const text = "Check the nightly build too";
   const slug = "check-the-nightly-build-too";
   const trunk = await originMain(origin);
@@ -106,7 +106,7 @@ test("with Isolated workspace, a start continued after the source record is gone
   expect(unconfirmed.kind, JSON.stringify(unconfirmed)).toBe("uncertain");
   expect(cursor.attaches()).toEqual([]);
   const [attempt] = await attempts(dashboard);
-  await keepLaunchRecords(dashboard, []);
+  keepLaunchRecords(dashboard, []);
 
   const launched = await answerOf(continued(dashboard, attempt?.id ?? ""));
 

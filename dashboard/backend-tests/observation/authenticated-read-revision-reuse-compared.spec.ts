@@ -102,11 +102,12 @@ test.describe("authenticated read reuse of what the comparison names (developmen
     const [a, b] = [named("1a"), named("1b")];
     const files = filesFor("renamed by a commit");
     const published = await publishedAt(a, files);
-    const kept = Object.fromEntries(
-      Object.entries(files).filter(([path]) => path !== otherSeedPath),
-    );
     // The backlog at B still names the old path, and names the new one too.
-    const backlogAtB = backlogNaming("renamed by a commit", newSeedEntry);
+    const atB = filesFor("renamed by a commit", {
+      backlog: backlogNaming("renamed by a commit", newSeedEntry),
+      files: { [newSeedPath]: newSeedText },
+      remove: [otherSeedPath],
+    });
     const rename = madeBy("1c", [
       modified(backlogPath),
       {
@@ -120,11 +121,7 @@ test.describe("authenticated read reuse of what the comparison names (developmen
       a,
       {
         revision: b,
-        files: {
-          ...kept,
-          [backlogPath]: backlogAtB,
-          [newSeedPath]: newSeedText,
-        },
+        files: atB,
       },
       [rename],
     );

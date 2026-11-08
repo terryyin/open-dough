@@ -11,12 +11,13 @@ import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
 import { expectSettledPage } from "../dashboardPage.ts";
 import { doughnutRepository } from "../doughnutProject.ts";
 import { publishes } from "../support/fakeGitHub.ts";
+import { describedRevision } from "../describedRevisions.ts";
+import { backlogPath } from "../publishedOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { GhRequest } from "../support/ghRequest.ts";
 import { heldInTurn } from "../support/heldGitHubAnswer.ts";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 
 // A project whose backlog names six stories, each in a seed of its own.
 function project(name: string, revision: string) {
@@ -27,19 +28,6 @@ function project(name: string, revision: string) {
   const seed = (index: number) =>
     `seeds/SEED-${String(900 + index)}-${name.toLowerCase()}.md`;
   const files: Record<string, string> = {
-    [backlogPath]: `# Product backlog
-
-## Taken
-
-## Backlog list
-
-${titles
-  .map(
-    (title, index) =>
-      `- [${title}](${seed(index)}#story) — SEED-${String(900 + index)}#story`,
-  )
-  .join("\n")}
-`,
     ".planning/open-dough.json": "{}\n",
   };
   titles.forEach((title, index) => {
@@ -54,8 +42,27 @@ ${titles
 **Goal:** ${title} is read once its turn comes.
 `;
   });
+  const published = describedRevision(
+    makeMe.aRepository
+      .withRevision("published", {
+        backlog: {
+          queued: titles.map((title, index) =>
+            makeMe.aBacklogEntry
+              .with({
+                identity: `SEED-${String(900 + index)}#story`,
+                title,
+                href: `${seed(index)}#story`,
+              })
+              .please(),
+          ),
+        },
+        files,
+      })
+      .please(),
+    revision,
+  );
   return {
-    published: publishes({ revision, files }),
+    published: publishes(published),
     membership: { taken: [], backlog: titles },
   };
 }

@@ -25,11 +25,9 @@ import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
 } from "../pageLayout.ts";
-import {
-  emptyBacklog,
-  publishMovingOrigin,
-  rateLimitedAnswer,
-} from "../publishedOrigin.ts";
+import { publishMovingOrigin, rateLimitedAnswer } from "../publishedOrigin.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { buildOpenDoughReadinessRepo } from "../storyReadinessFixture.ts";
 import {
   sharedDashboardBuild,
@@ -89,7 +87,7 @@ test("an empty column and a failed read are said in the frame's look, whole in a
 }) => {
   await pausePageClock(page);
   const origin = await publishMovingOrigin(page);
-  origin.push("e1".repeat(20), emptyBacklog);
+  origin.push("e1".repeat(20), describedBacklog(makeMe.aRepository.please()));
   await page.setViewportSize(narrowWindow);
   await openUntilRead(page);
   const { backlog, problem } = parts(page);

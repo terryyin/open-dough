@@ -51,7 +51,7 @@ async function markedStory(
 ) {
   const { workspace, trunk } = trunkModeStory(origin, { published });
   commitUnpublished(workspace);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
   const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);

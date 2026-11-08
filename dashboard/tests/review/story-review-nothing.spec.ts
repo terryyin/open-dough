@@ -33,10 +33,10 @@ import {
   storyWorktree,
   unchangedWorktree,
 } from "../support/storyReviewWorktree.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   keepLaunchRecord,
-  keepLaunchRecords,
-  storyALaunchRecord,
+  storyALaunch,
 } from "../support/storyLaunchRecord.ts";
 
 const shownWorkspace = "~/git/open-dough/.worktrees/story-a";
@@ -49,7 +49,7 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   origin,
 }) => {
   const { workspace, trunk } = unchangedWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
   const review = page.getByRole("region", { name: "Story review" });
@@ -74,7 +74,7 @@ test("a removed worktree with no captured landing explains the gap, and no Git r
   origin,
 }) => {
   const { workspace, merged } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   rmSync(workspace, { recursive: true, force: true });
   // Trunk's later commit, which a fetch would bring, is still unknown here.
   const fetchedTrunk = () => git(origin.project, "rev-parse", "origin/main");
@@ -111,14 +111,17 @@ test("a launch with its worktree is no landed run, and once Refresh finds the wo
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  const record = storyALaunchRecord(workspace);
   const reference = randomUUID();
-  record.request.reporting = {
-    origin: dashboard.origin,
-    reference,
-    command: "report",
-  };
-  await keepLaunchRecords(dashboard, [record]);
+  // Story A's execution on its worktree, reporting through this dashboard.
+  const record = storyALaunch()
+    .onStoryBranch({ workspace, branch })
+    .reportingThrough({
+      origin: dashboard.origin,
+      reference,
+      command: "report",
+    })
+    .please();
+  keepLaunchRecords(dashboard, [record]);
   const card = await openBacklog(page, origin);
   const open = card.getByRole("button", { name: "Review changes" });
   const review = page.getByRole("region", { name: "Story review" });
@@ -182,7 +185,7 @@ test("a trunk that cannot be fetched names its remote and target and shows no li
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await card.getByRole("button", { name: "Review changes" }).click();
   const review = page.getByRole("region", { name: "Story review" });
@@ -216,11 +219,8 @@ test("a story whose kept launch record names no workspace offers no review", asy
   dashboard,
   origin,
 }) => {
-  const withoutWorkspace = storyALaunchRecord(
-    `${origin.project}/.worktrees/story-a`,
-  );
-  delete withoutWorkspace.start;
-  await keepLaunchRecords(dashboard, [withoutWorkspace]);
+  // Story A's execution, whose start established no worktree.
+  keepLaunchRecords(dashboard, [storyALaunch().please()]);
   const card = await openBacklog(page, origin);
   await expect(storyCardSessions(card)).toHaveCount(1);
   await expect(

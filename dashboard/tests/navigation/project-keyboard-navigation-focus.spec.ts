@@ -4,8 +4,8 @@
 import { expect, test } from "../dashboardTest.ts";
 import { shortRevision, expectMembership, parts } from "../dashboardPage.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../../tests/support/published-backlog.mjs";
 import { catalogPublications } from "../catalogProjectRecords.ts";
+import { describedBacklog } from "../describedRevisions.ts";
 import {
   pathsRead,
   publishMovingOrigin,
@@ -83,17 +83,23 @@ test("focus stays useful across switches and held previous reads stay isolated",
     const nextOpenDoughRevision = "e2".repeat(20);
     openDoughOrigin.push(
       nextOpenDoughRevision,
-      renderPublishedBacklog({
-        queued: [
-          makeMe.aBacklogEntry
-            .with({
-              identity: "SEED-303#queued",
-              title: "Open Dough after held switch",
-              href: "seeds/SEED-303-queued.md#queued",
-            })
-            .please(),
-        ],
-      }),
+      describedBacklog(
+        makeMe.aRepository
+          .withRevision("after held switch", {
+            backlog: {
+              queued: [
+                makeMe.aBacklogEntry
+                  .with({
+                    identity: "SEED-303#queued",
+                    title: "Open Dough after held switch",
+                    href: "seeds/SEED-303-queued.md#queued",
+                  })
+                  .please(),
+              ],
+            },
+          })
+          .please(),
+      ),
     );
     await settings.focus();
     await page.keyboard.press("ArrowLeft");

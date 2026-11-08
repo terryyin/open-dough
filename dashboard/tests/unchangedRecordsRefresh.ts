@@ -2,10 +2,8 @@
 // what the page shows once every fact of its Taken card is read, shared by
 // the specs of what a newly published commit costs and when its cards show.
 
-import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { shortRevision, expectMembership, parts } from "./dashboardPage.ts";
@@ -14,9 +12,8 @@ import {
   untilPublishedWorkRead,
 } from "./pageRequestNotes.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
-import { withDoneCatalog } from "./doneCatalogAnswers.ts";
+import { describedRevisions } from "./describedRevisions.ts";
 import { addedAt, type MadeCommit } from "./pathHistoryAnswers.ts";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 export const repository = "terryyin/open-dough";
 export const revisionA = "7a".repeat(20);
@@ -36,79 +33,89 @@ export const doneCatalogPath = ".planning/done/.catalog.json";
 export const takenTitle = "Refresh without rereading";
 export const queuedTitle = "Queued beside it";
 
-export const backlog = renderPublishedBacklog({
-  taken: [
-    makeMe.aBacklogEntry
-      .with({
-        identity: "SEED-271#refresh",
-        href: "seeds/SEED-271-refresh.md#refresh",
-        title: takenTitle,
-      })
-      .please(),
-  ],
-  queued: [
-    makeMe.aBacklogEntry
-      .with({
-        identity: "SEED-271#queued",
-        href: "seeds/SEED-271-refresh.md#queued",
-        title: queuedTitle,
-      })
-      .please(),
-  ],
-});
+// A story queued after A, in the same seed.
+export const addedTitle = "Newly queued";
 
-export const seed = `# Refresh fixture
-
-<a id="refresh"></a>
-
-### ${takenTitle}
-
-**Identity:** SEED-271#refresh
-${renderPublishedPreparation(
-  makeMe.aStoryPreparation
+const entry = (anchor: string, title: string) =>
+  makeMe.aBacklogEntry
     .with({
-      refinement: "refined",
-      approach: "planned",
-      plan: "../slice-plans/271-refresh/PLAN.md",
+      identity: `SEED-271#${anchor}`,
+      href: `seeds/SEED-271-refresh.md#${anchor}`,
+      title,
+    })
+    .please();
+const story = (anchor: string, title: string) => `<a id="${anchor}"></a>
+
+### ${title}
+
+**Identity:** SEED-271#${anchor}
+`;
+const seedProse = `# Refresh fixture
+
+${story("refresh", takenTitle)}
+${story("queued", queuedTitle)}`;
+// The Taken story planned in its plan, recorded in whichever seed text.
+const refreshPlanned = {
+  identity: "SEED-271#refresh",
+  href: "seeds/SEED-271-refresh.md#refresh",
+  ...makeMe.aStoryPreparation
+    .plannedIn("../slice-plans/271-refresh/PLAN.md")
+    .please(),
+};
+
+// What A publishes, and a later revision whose backlog queues one more story
+// in the same seed.
+const published = describedRevisions(
+  makeMe.aRepository
+    .withRevision("A", {
+      backlog: {
+        taken: [entry("refresh", takenTitle)],
+        queued: [entry("queued", queuedTitle)],
+      },
+      files: {
+        [seedPath]: seedProse,
+        [planPath]: renderSlicePlan(
+          makeMe.aSlicePlan
+            .withStatuses(["done", "done", "planned", "planned", "planned"])
+            .please(),
+          { heading: "Slices" },
+        ),
+        [settingsPath]: "{}\n",
+        // An earlier story's record whose text is no done record, so the
+        // catalog lists it as one it could not read and Recently done shows
+        // no card the refresh waits on.
+        [donePath]: `{"note":"an earlier story's done record"}\n`,
+      },
+      storyStates: [refreshPlanned],
+      agentProfiles: [
+        makeMe.anAgentProfile
+          .executing({
+            name: "Akiho",
+            identity: "SEED-271#refresh",
+            mode: "trunk",
+            branch: "main",
+            host: "claude",
+          })
+          .please(),
+      ],
+      // The catalog completion rebuilds beside that record.
+      doneRecords: [],
+    })
+    .withRevision("added", {
+      backlog: {
+        taken: [entry("refresh", takenTitle)],
+        queued: [entry("queued", queuedTitle), entry("added", addedTitle)],
+      },
+      files: { [seedPath]: `${seedProse}\n${story("added", addedTitle)}` },
+      storyStates: [refreshPlanned],
     })
     .please(),
-)}
-
-<a id="queued"></a>
-
-### ${queuedTitle}
-
-**Identity:** SEED-271#queued
-`;
-
-// The done record is published with the done catalog beside it, which lists
-// it as a record it could not read.
-export const files: Record<string, string> = withDoneCatalog(
-  {
-    [backlogPath]: backlog,
-    [seedPath]: seed,
-    [planPath]: renderSlicePlan(
-      makeMe.aSlicePlan
-        .withStatuses(["done", "done", "planned", "planned", "planned"])
-        .please(),
-      { heading: "Slices" },
-    ),
-    [profilePath]: renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name: "Akiho",
-          identity: "SEED-271#refresh",
-          mode: "trunk",
-          branch: "main",
-          host: "claude",
-        })
-        .please(),
-    ),
-    [settingsPath]: "{}\n",
-    [donePath]: `{"note":"an earlier story's done record"}\n`,
-  },
-  ".planning/done",
+  { A: revisionA, added: revisionB },
 );
+
+export const { files } = published.A;
+// What a revision B that queues `addedTitle` publishes.
+export const filesWithAddedStory = published.added.files;
 
 export const atA: PublishedRevision = {
   revision: revisionA,

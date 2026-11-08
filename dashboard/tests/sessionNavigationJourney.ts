@@ -1,13 +1,13 @@
 // The sessions a developer goes to from the Sessions sidebar, across three
 // catalog projects: Open Dough's story-columns journey (./launchJourney.ts),
 // Doughnut's one story (./doughnutProject.ts), and a Pygardon backlog whose
-// story with a session is listed last, below enough other stories that its
-// card starts out of view. Sessions are launched through the real launch
-// boundary before the page opens, for Pygardon's story, Open Dough's Story B,
-// an Open Dough story in no list, and Doughnut's story, whose session Claude
-// Code then no longer lists; the page's own dashboard server launches and
-// attaches the synthetic `claude` (./fixtures/fake-claude). The page records
-// what it brings into view (`revealsOf`).
+// story with a session is listed last (./pygardonProject.ts). Sessions are
+// launched through the real launch boundary before the page opens, for
+// Pygardon's story, Open Dough's Story B, an Open Dough story in no list, and
+// Doughnut's story, whose session Claude Code then no longer lists; the
+// page's own dashboard server launches and attaches the synthetic `claude`
+// (./fixtures/fake-claude). The page records what it brings into view
+// (`revealsOf`).
 
 import type { Locator, Page } from "@playwright/test";
 import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
@@ -21,6 +21,12 @@ import {
 } from "./launchJourney.ts";
 import { launched } from "./agentTerminalBoundary.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
+import {
+  pygardonBacklog,
+  pygardonRepository,
+  pygardonRevision,
+  pygardonStory,
+} from "./pygardonProject.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 
@@ -29,34 +35,6 @@ export const openDoughStories = {
   taken: [],
   backlog: [takenStory, readyStory, notRefinedStory],
 };
-
-export const pygardonStory = {
-  identity: "SEED-031#telegram-qr-diagnosis",
-  title: "Correct the Telegram IBKR QR login's diagnosis and representations",
-};
-
-// Pygardon's stories above the one with a session.
-const pygardonOthers = [...Array(12).keys()].map(
-  (index) => `Pygardon's queued story ${String(index + 1)}`,
-);
-export const pygardonBacklogTitles = [...pygardonOthers, pygardonStory.title];
-
-const pygardonRevision = "e5".repeat(20);
-
-const pygardonBacklog = `# Product backlog
-
-## Taken
-
-## Backlog list
-
-${pygardonOthers
-  .map(
-    (title, index) =>
-      `- [${title}](seeds/SEED-3${String(index).padStart(2, "0")}.md#s) — SEED-3${String(index).padStart(2, "0")}#s`,
-  )
-  .join("\n")}
-- [${pygardonStory.title}](seeds/SEED-031.md#telegram-qr-diagnosis) — ${pygardonStory.identity}
-`;
 
 // An Open Dough story whose session is kept but which origin lists nowhere,
 // as once removed from the backlog.
@@ -186,7 +164,7 @@ export async function openNavigationJourney(
     ).sessionId,
   };
   dashboard.claudeSessionBecomes(sessions.doughnut, "forgotten");
-  const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
+  const pygardon = await publishMovingOrigin(page, pygardonRepository);
   pygardon.push(pygardonRevision, pygardonBacklog);
   await recordReveals(page);
   const journey = await openStoryColumnsJourney(page, columnsJourney);

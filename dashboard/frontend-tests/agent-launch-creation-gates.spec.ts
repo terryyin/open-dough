@@ -6,11 +6,8 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../tests/support/frontendApp.ts";
-import {
-  emptyMachineAnswer,
-  putFrontendMachine,
-} from "../tests/support/frontendServiceState.ts";
-import { launchRecordsSchema } from "../src/agentLaunch.ts";
+import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { creationSchema } from "../src/launchCreation.ts";
 import { creationView } from "../server/launchCreation.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
@@ -43,10 +40,7 @@ test("the common page displays a stand-in host's supplied inspection arguments",
   });
   putFrontendMachine(
     frontendServices,
-    launchRecordsSchema.parse({
-      ...emptyMachineAnswer(),
-      creations: [view],
-    }),
+    makeMe.aMachineAnswer.withCreations(view).please(),
   );
   await openFrontendTakenBacklog(page);
   const entry = page.getByRole("article", {

@@ -46,33 +46,39 @@ function machine(seed: number): AttemptObservation[] {
   return [...Array(count).keys()].map((index) => {
     const adHoc = pick(4) === 0;
     const outcome = outcomes[pick(outcomes.length)];
-    const completion =
-      pick(4) === 0
-        ? makeMe.aCompletionReport
-            .withOutcome(pick(2) === 0 ? "completed" : "unfinished")
-            .receivedAt("2026-11-01T01:30:00.000Z")
-            .please()
-        : undefined;
+    const reported =
+      pick(4) === 0 ? (pick(2) === 0 ? "completed" : "unfinished") : undefined;
     // Settled by its outcome, or by its session's completed report.
-    const settled =
-      outcome !== undefined || completion?.outcome === "completed";
-    return {
-      id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
-      request: {
-        source: ["one", "two"][pick(2)],
-        workflow: adHoc ? "ad-hoc" : "execution",
-        host: "claude",
-        ...(adHoc ? {} : { identity: `SEED-1#story-${String(pick(3))}` }),
-      },
-      acceptedAt: new Date(Date.UTC(2026, 10, 1, 0, pick(6))).toISOString(),
-      publication: { kind: ["none", "unknown", "published"][pick(3)] },
-      ...(outcome && { outcome, settledAt: "2026-11-01T01:00:00.000Z" }),
-      ...(settled &&
-        pick(2) === 0 && { reconciledAt: "2026-11-01T02:00:00.000Z" }),
-      ...(completion && { completion }),
-      owned: false,
-      running: outcome === undefined && pick(2) === 0,
-    } as unknown as AttemptObservation;
+    const settled = outcome !== undefined || reported === "completed";
+    const source = pick(2) === 0 ? "one" : "two";
+    const attempt = makeMe.anAcceptedAttempt.withId(
+      `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+    );
+    if (adHoc) attempt.adHoc({ source });
+    else {
+      const identity = `SEED-1#story-${String(pick(3))}`;
+      attempt.executing({ identity, title: `Story ${identity}`, source });
+    }
+    attempt.acceptedAt(
+      new Date(Date.UTC(2026, 10, 1, 0, pick(6))).toISOString(),
+    );
+    const publication = pick(3);
+    if (publication === 1) attempt.publicationUnknown();
+    if (publication === 2) attempt.published();
+    if (outcome !== undefined) {
+      if (outcome.kind === "launched") attempt.launched(outcome.session);
+      else attempt.ended(outcome);
+      attempt.settledAt("2026-11-01T01:00:00.000Z");
+    }
+    if (settled && pick(2) === 0)
+      attempt.reconciledAt("2026-11-01T02:00:00.000Z");
+    if (reported !== undefined)
+      attempt.reported(reported, "2026-11-01T01:30:00.000Z");
+    return makeMe.anAttemptObservation
+      .of(attempt.please())
+      .owned(false)
+      .running(outcome === undefined && pick(2) === 0)
+      .please();
   });
 }
 

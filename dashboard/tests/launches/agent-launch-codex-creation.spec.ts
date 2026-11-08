@@ -1,7 +1,7 @@
 // Protocol evidence decides whether Start may reuse the saved first input.
 // Accepted input and lost observation are separate durable facts, including
 // confirmed records saved by the previous dashboard's pending-text bug.
-import { chmodSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import {
@@ -10,7 +10,10 @@ import {
   type DashboardServer,
 } from "../support/dashboardServer.ts";
 import type { FakeCodex } from "../support/fakeCodex.ts";
-import { storeFile } from "../support/retainedReport.ts";
+import {
+  keepLaunchStoreText,
+  launchStoreFile,
+} from "../support/launchStore.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import {
@@ -36,7 +39,10 @@ type Answer = { kind: string; explanation: string };
 const answerOf = async (server: DashboardServer) =>
   JSON.parse((await launch(server, request)).body) as Answer;
 const savedRecords = <T = unknown>(home: string) =>
-  JSON.parse(readFileSync(storeFile(home), "utf8")) as Record<string, T[]>;
+  JSON.parse(readFileSync(launchStoreFile(home), "utf8")) as Record<
+    string,
+    T[]
+  >;
 const callsTo = (native: FakeCodex, method: string) =>
   native.calls.filter((call) => call.method === method);
 
@@ -211,7 +217,7 @@ test("confirmation clears pending evidence; legacy reload is truthful and connec
   if (legacy === undefined) throw new Error("Missing saved legacy record.");
   legacy.firstInput.explanation =
     "First-input acceptance has not been acknowledged. Continue this conversation before starting again.";
-  writeFileSync(storeFile(dashboard.home), JSON.stringify(document));
+  keepLaunchStoreText(dashboard.home, JSON.stringify(document));
   await reloadUntilRead(page);
   await expect(session).toContainText("First input accepted");
   await expect(session).not.toContainText("has not been acknowledged");

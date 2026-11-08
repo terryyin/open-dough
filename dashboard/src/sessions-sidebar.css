@@ -14,7 +14,6 @@
    Its entries are ./sessions-sidebar-session-entry.css's. */
 
 .page-with-sessions-sidebar {
-  display: grid;
   grid-template-columns: 18rem minmax(0, 1fr);
 }
 

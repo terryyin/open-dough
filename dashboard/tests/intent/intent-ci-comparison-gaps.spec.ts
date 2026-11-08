@@ -107,11 +107,7 @@ test("a running landed build leaves the branch comparison readable and marks an 
     "—",
   ]);
   await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
-    [
-      "4 min 55 s",
-      "4 min 47 s −8 s",
-      "Unavailable while the build is running.",
-    ],
+    ["4 min 55 s", "4 min 47 s", "Unavailable while the build is running."],
   );
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(2),
@@ -152,7 +148,7 @@ for (const [workflow, reason] of [
     ]);
     await expect(
       panel.locator(".intent-ci-comparison-without-waits"),
-    ).toHaveText(["4 min 55 s", "4 min 47 s −8 s", `Unavailable. ${reason}`]);
+    ).toHaveText(["4 min 55 s", "4 min 47 s", `Unavailable. ${reason}`]);
   });
 }
 

@@ -13,6 +13,7 @@ import { publishedMainHosts } from "../support/publishedMainHosts.ts";
 import { processRunning } from "../support/processGroup.ts";
 import { configureDevelopmentProjects } from "../support/projectConfiguration.ts";
 import { publishes } from "../support/fakeGitHub.ts";
+import { describedBacklog } from "../describedRevisions.ts";
 import {
   deploymentWork,
   outputCount,
@@ -39,6 +40,7 @@ import {
 } from "../support/sharedLaunchRecord.ts";
 import { ciWorkflowPath } from "../../server/productionQualification.mjs";
 import { productionSeedProjects } from "../../server/projectConfigurationSeed.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 type Fixture = Awaited<ReturnType<typeof publishedMainFixture>>;
 type Hosts = Awaited<ReturnType<typeof publishedMainHosts>>;
@@ -62,7 +64,8 @@ type Started = {
 export const pushExclusions =
   '    paths-ignore:\n      - ".planning/**"\n      - "docs/**"\n';
 export const revision = "a5".repeat(20);
-export const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
+// The published project records no stories.
+export const backlog = describedBacklog(makeMe.aRepository.please());
 export const prefixesOf = (commits: string[]) =>
   commits.map((commit) => commit.slice(0, 12));
 export type ProductionUpdateJourney = ReturnType<

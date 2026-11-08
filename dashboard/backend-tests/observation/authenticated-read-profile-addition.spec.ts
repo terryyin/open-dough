@@ -16,8 +16,11 @@ import {
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import {
+  backlogApart,
+  describedRevision,
+} from "../../tests/describedRevisions.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { pathChange } from "../../tests/pathHistoryAnswers.ts";
 
@@ -26,8 +29,23 @@ test.describe.configure({ mode: "serial" });
 const knownSourceId = "open-dough";
 const knownRepository = "terryyin/open-dough";
 const revision = "fa".repeat(20);
-const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
 const agents = ".planning/agents";
+
+// An empty project publishing, at `at`, a preparing profile for each agent
+// named.
+const profiles = (at: string, names: readonly string[]) =>
+  backlogApart(
+    describedRevision(
+      makeMe.aRepository
+        .withRevision("profiles", {
+          agentProfiles: names.map((name) =>
+            makeMe.anAgentProfile.preparing({ name }).please(),
+          ),
+        })
+        .please(),
+      at,
+    ),
+  );
 
 test.describe("authenticated profile addition read (development environment)", () => {
   let server: DashboardServer;
@@ -47,16 +65,7 @@ test.describe("authenticated profile addition read (development environment)", (
     server.github.serve(
       everyRepository,
       publishes({
-        revision,
-        backlog,
-        files: {
-          [yuiPath]: renderAgentProfile(
-            makeMe.anAgentProfile.preparing({ name: "Yui" }).please(),
-          ),
-          [akihoPath]: renderAgentProfile(
-            makeMe.anAgentProfile.preparing({ name: "Akiho" }).please(),
-          ),
-        },
+        ...profiles(revision, ["Yui", "Akiho"]),
         history: {
           [yuiPath]: [
             { sha: commit("e1"), status: "modified", committer: "Mo Modifier" },
@@ -151,16 +160,7 @@ test.describe("authenticated profile addition read (development environment)", (
     server.github.serve(
       everyRepository,
       publishes({
-        revision: walked,
-        backlog,
-        files: Object.fromEntries(
-          ["Rina", "Nana", "Maki"].map((name) => [
-            path(name),
-            renderAgentProfile(
-              makeMe.anAgentProfile.preparing({ name }).please(),
-            ),
-          ]),
-        ),
+        ...profiles(walked, ["Rina", "Nana", "Maki"]),
         history: {
           [path("Rina")]: [...tenModified, pathChange(0xaa, "added", "Deep")],
           [path("Nana")]: [pathChange(0xb0, "changed", "Mo"), pastChanged],
@@ -205,16 +205,7 @@ test.describe("authenticated profile addition read (development environment)", (
     server.github.serve(
       everyRepository,
       publishes({
-        revision: walked,
-        backlog,
-        files: Object.fromEntries(
-          ["Sola", "Honoka"].map((name) => [
-            path(name),
-            renderAgentProfile(
-              makeMe.anAgentProfile.preparing({ name }).please(),
-            ),
-          ]),
-        ),
+        ...profiles(walked, ["Sola", "Honoka"]),
         history: {
           [path("Sola")]: [together],
           [path("Honoka")]: [since, together],

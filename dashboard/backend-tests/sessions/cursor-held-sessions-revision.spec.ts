@@ -17,7 +17,7 @@ import {
   keptCursor,
   withCursorLaunch,
 } from "../../tests/support/keptCursorTurn.ts";
-import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 
@@ -52,7 +52,7 @@ test("a Cursor record written while a held read is outstanding is labeled from a
 
       // Drop the launch record while the runner still holds the client, so the
       // next held read begins under documents without it.
-      await keepLaunchRecords(dashboard, []);
+      keepLaunchRecords(dashboard, []);
 
       const before = gate.sessionsReads();
       gate.hold();
@@ -62,7 +62,7 @@ test("a Cursor record written while a held read is outstanding is labeled from a
         list = askList(dashboard);
         await expect.poll(() => gate.sessionsReads()).toBe(before + 1);
         // The joiner's record lands after that read began.
-        await keepLaunchRecords(dashboard, [record]);
+        keepLaunchRecords(dashboard, [record]);
         observation = askSessions(dashboard);
         await delay(300);
       } finally {

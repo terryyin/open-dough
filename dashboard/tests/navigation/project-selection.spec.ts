@@ -16,70 +16,27 @@ import {
 } from "../dashboardPage.ts";
 import {
   commitAnswer,
-  emptyBacklog,
   publishOrigin,
   rawFileAnswer,
 } from "../publishedOrigin.ts";
+import {
+  doughnutBacklog,
+  doughnutRepository,
+  doughnutSharedTitle,
+  doughnutTakenTitle,
+  openDoughBacklog,
+  openDoughRepository,
+  openDoughSharedTitle,
+  openDoughTakenTitle,
+  revisionDoughnut,
+  revisionOpenDough,
+  sharedStoryIdentity,
+  titlesOfDoughnut,
+  titlesOfOpenDough,
+} from "../projectSelectionProjects.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectSelected } from "../storyCardSelection.ts";
-
-const openDoughRepository = "terryyin/open-dough";
-const doughnutRepository = "nerds-odd-e/doughnut";
-
-const revisionOpenDough = "d0".repeat(20);
-const revisionDoughnut = "9f".repeat(20);
-
-// The same recorded identity, told differently by each project: it must not
-// be merged into one entry or carried from one project's snapshot to the
-// other's.
-const sharedStoryIdentity = "SEED-777#shared-story";
-const openDoughSharedTitle = "Open Dough's telling of the shared story";
-const doughnutSharedTitle = "Doughnut's telling of the shared story";
-
-const openDoughTakenTitle = "Open Dough's own taken story";
-const openDoughQueuedTitle = "Open Dough's own queued story";
-const doughnutTakenTitle = "Doughnut's own taken story";
-const doughnutQueuedTitle = "Doughnut's own queued story";
-
-const openDoughBacklog = `# Product backlog
-
-## Near-future direction
-
-Show Open Dough's own published direction, distinct from any other project.
-
-## Taken
-
-- [${openDoughTakenTitle}](slice-plans/900-open-dough-story/PLAN.md) — OD-1#story
-
-## Backlog list
-
-- [${openDoughSharedTitle}](seeds/SEED-777-shared.md#shared-story) — ${sharedStoryIdentity}
-- [${openDoughQueuedTitle}](seeds/SEED-901-open-dough.md#queued) — OD-2#queued
-`;
-
-const doughnutBacklog = `# Product backlog
-
-## Near-future direction
-
-Show Doughnut's own published direction, distinct from Open Dough's.
-
-## Taken
-
-- [${doughnutTakenTitle}](slice-plans/500-doughnut-story/PLAN.md) — DN-1#story
-
-## Backlog list
-
-- [${doughnutSharedTitle}](seeds/SEED-777-shared.md#shared-story) — ${sharedStoryIdentity}
-- [${doughnutQueuedTitle}](seeds/SEED-600-doughnut.md#queued) — DN-2#queued
-`;
-
-const titlesOfOpenDough = {
-  taken: [openDoughTakenTitle],
-  backlog: [openDoughSharedTitle, openDoughQueuedTitle],
-};
-const titlesOfDoughnut = {
-  taken: [doughnutTakenTitle],
-  backlog: [doughnutSharedTitle, doughnutQueuedTitle],
-};
 
 test("project selection shows each project's own Board, and returning to a project asks its ref again", async ({
   page,
@@ -219,7 +176,7 @@ test("project selection preserves empty Taken/Backlog groups and no-direction ha
       ref: commitAnswer(revisionDoughnut),
       backlog: {
         revision: revisionDoughnut,
-        answer: rawFileAnswer(emptyBacklog),
+        answer: rawFileAnswer(describedBacklog(makeMe.aRepository.please())),
       },
     },
     doughnutRepository,

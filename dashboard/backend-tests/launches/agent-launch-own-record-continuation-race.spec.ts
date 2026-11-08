@@ -5,7 +5,12 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
 import { continueAttempt } from "../../tests/agentLaunchBoundary.ts";
-import { seedStore, storeFile } from "../../tests/machineLaunchRecords.ts";
+import {
+  machineHome,
+  seedStore,
+  storeFile,
+} from "../../tests/machineLaunchRecords.ts";
+import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { ownRecordContinuation } from "./ownRecordContinuation.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
@@ -124,7 +129,7 @@ test("Continue reads an own record again at admission after pre-acceptance", asy
   try {
     const proof = ownRecordContinuation(server, origin, "execution", false);
     proof.restoreScript();
-    seedStore(origin.machine, JSON.stringify({ "open-dough": [] }));
+    keepLaunchStore(machineHome(origin.machine), { "open-dough": [] });
     writeFileSync(hold, "hold");
     const pending = continueAttempt(server, proof.id);
     await expect.poll(() => existsSync(reached)).toBe(true);

@@ -14,6 +14,8 @@ import {
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { describedBacklog } from "../../tests/describedRevisions.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import {
   expectCursorRunnerStandIn,
@@ -75,6 +77,7 @@ test("unexpected Cursor protocol work fails the stand-in fixture after cleanup",
 test("overlapping stand-in fixtures keep private answers and retire only their own resources", async () => {
   const firstRevision = "ab".repeat(20);
   const secondRevision = "cd".repeat(20);
+  const emptyBacklog = describedBacklog(makeMe.aRepository.please());
   const first = await startDashboardServer(withStandIn);
   const second = await startDashboardServer(withStandIn);
   const firstHome = first.home;
@@ -84,14 +87,14 @@ test("overlapping stand-in fixtures keep private answers and retire only their o
       everyRepository,
       publishes({
         revision: firstRevision,
-        backlog: "# first\n\n## Taken\n\n## Backlog list\n",
+        backlog: emptyBacklog,
       }),
     );
     second.github.serve(
       everyRepository,
       publishes({
         revision: secondRevision,
-        backlog: "# second\n\n## Taken\n\n## Backlog list\n",
+        backlog: emptyBacklog,
       }),
     );
     const firstRead = await readRevision(first.baseURL, first.origin);

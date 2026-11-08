@@ -200,6 +200,17 @@ passed. Under external load averages of 21 to 27, `story-review-story-branch-lan
 timed out three times in focused runs, passed on base at 17 to 29 seconds, and
 passed in the full gate.
 
+Trunk reconciliation: after slice 4 was published, trunk at `aa559f948`
+already held the kept launch record and live observation siblings, and they
+had reshaped the same builders. This branch merged trunk and combined both
+sides. `LaunchRecordBuilder` keeps the sibling's request and session builders
+and extends `LaunchOutcomeBuilder`, which carries trunk's `doneProblem`.
+`AcceptedAttemptBuilder.reported` builds its report through
+`CompletionReportBuilder`. The plan slice builders moved to
+`tests/support/slicePlanTestData.mjs` to keep `makeMe.mjs` small. On the merged
+tree, `npm run test:dashboard` ran 2257 passed with 1 opt-in skip, and
+`npm test` passed.
+
 ## Concern evidence
 
 Slice-plan refinement was unnecessary. Each slice owns one consuming

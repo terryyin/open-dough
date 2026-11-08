@@ -3,7 +3,6 @@
 // sessions. Seeds use the real machine store; destinations reuse PageFrame.
 import type { Locator, Page } from "@playwright/test";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import {
   agentLaunchEndpoint,
   recentlyDoneSessionsInitialLimit,
@@ -13,6 +12,8 @@ import { sessionsAudienceParameter } from "../src/machineSessionsRevision.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { chooseProject, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
+import { describedBacklog } from "./describedRevisions.ts";
+import { publishOnePygardonStory } from "./pygardonProject.ts";
 import { box } from "./pageLayout.ts";
 import {
   answerCrowd,
@@ -27,7 +28,7 @@ import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect, keptRecord } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import type { FakeCursor } from "./support/fakeCursor.ts";
-import { keepMoreLaunchRecords } from "./support/storyLaunchRecord.ts";
+import { keepMoreLaunchRecords } from "./support/launchStore.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 
 export const recentlyDoneHeightKey =
@@ -91,27 +92,31 @@ export function pageReadReopened(page: Page, held: LaunchRecord) {
   });
 }
 
-// One queued story each project publishes.
-const queuedOnly = (title: string, identity: string) =>
-  renderPublishedBacklog({
-    queued: [
-      makeMe.aBacklogEntry
-        .with({
-          identity,
-          title,
-          href: `seeds/${identity.replace("#", ".md#")}`,
-        })
-        .please(),
-    ],
-  });
-
-// Publishes Doughnut and Pygardon beside the Open Dough origin already shown.
+// Publishes Doughnut and Pygardon, each queuing one story, beside the Open
+// Dough origin already shown.
 export async function publishSiblingProjects(page: Page) {
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
-  doughnut.push("d4".repeat(20), queuedOnly("A Doughnut story", "SEED-401#s"));
-  const pygardon = await publishMovingOrigin(page, "terryyin/pygardon");
-  pygardon.push("e6".repeat(20), queuedOnly("A Pygardon story", "SEED-301#s"));
-  return { doughnut, pygardon };
+  doughnut.push(
+    "d4".repeat(20),
+    describedBacklog(
+      makeMe.aRepository
+        .withRevision("published", {
+          backlog: {
+            queued: [
+              makeMe.aBacklogEntry
+                .with({
+                  identity: "SEED-401#s",
+                  title: "A Doughnut story",
+                  href: "seeds/SEED-401.md#s",
+                })
+                .please(),
+            ],
+          },
+        })
+        .please(),
+    ),
+  );
+  await publishOnePygardonStory(page);
 }
 
 export async function showThreeProjectPage(page: Page, origin: StartOrigin) {
@@ -143,7 +148,7 @@ export async function expandThreeCrowded(
   await page.setViewportSize({ width: 1440, height: 900 });
   const pid = await holdSession(dashboard, cursor);
   const held = keptRecord(dashboard.home);
-  await keepCrowd(dashboard, held);
+  keepCrowd(dashboard, held);
   const now = Date.now();
   const done = Array.from(Array(crowd).keys(), (index): LaunchRecord => {
     const title = `Done crowded ${String(index + 1)}`;
@@ -159,7 +164,7 @@ export async function expandThreeCrowded(
       .markedDoneAt(new Date(now - (index + 1) * 60_000).toISOString())
       .please();
   });
-  await keepMoreLaunchRecords(dashboard, done);
+  keepMoreLaunchRecords(dashboard, done);
   const asked = changesAsked(page);
   await showPage(page, origin);
   await answerCrowd(page, held);

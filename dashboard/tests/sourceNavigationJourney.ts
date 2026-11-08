@@ -7,12 +7,14 @@ import type { Locator, Page } from "@playwright/test";
 import { parts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./storyCardControls.ts";
 import { expect, githubFor } from "./dashboardTest.ts";
+import { describedBacklog } from "./describedRevisions.ts";
 import {
   commitAnswer,
   publishOrigin,
   rawFileAnswer,
 } from "./publishedOrigin.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export const revision = "9b1d4e6a2c8f0735be19d4c6a7f8e9d0c1b2a3f4";
 export const snapshotRoot = `/terryyin/open-dough/blob/${revision}`;
@@ -21,32 +23,79 @@ export const snapshotRoot = `/terryyin/open-dough/blob/${revision}`;
 export const injectedMarkup =
   "img:not([alt='Open Dough']):not(.product-mark), script:not([src])";
 
+// An entry recording `href` as its canonical link, identified by `identity`
+// when it records one and else by that link, and taken with `plan` if given.
+const linked = (
+  title: string,
+  href: string,
+  { identity = href, plan }: { identity?: string; plan?: string } = {},
+) =>
+  makeMe.aBacklogEntry
+    .with({
+      identity,
+      title,
+      href,
+      ...(plan === undefined ? {} : { plan: { label: "plan", target: plan } }),
+    })
+    .please();
+
 // Every entry follows the one recorded-link rule: a canonical link, and
 // optionally the plan the entry is taken with. Targets avoid ")" because the
 // published entry syntax ends a target there.
-const linkedBacklog = `# Product backlog
-
-## Near-future direction
-
-Trace each entry to its <img src=x onerror="document.title='direction ran'"> published source.
-
-## Taken
-
-- [Repair the installer's update report](slice-plans/059-installer-update-report/PLAN.md)
-- [See the project's published work in a story dashboard](seeds/SEED-021-observe-published-story-progress.md#see-published-work) — SEED-021#see-published-work ([plan](./slice-plans/061-published-story-dashboard/PLAN.md#ordered-slices))
-
-## Backlog list
-
-- [Follow a record kept outside the planning directory](./seeds/../../docs/adrs/0001-ubiquitous-language-accepted.md#decision)
-- [Follow a record named from the repository root](/docs/release%20notes/2026.md)
-- [Read the hosting provider's note](https://status.example.com/notes/2026-09?view=full#api) — NOTE-7#api ([plan](http://plans.example.org/note-7))
-- [Reach outside the repository](../../elsewhere/secret.md#top)
-- [<img src=x onerror="document.title='title ran'">Run a script from a link](javascript:document.title='canonical-ran') — HOSTILE-1#x ([plan](data:text/html,<script>document.title='plan-ran'</script>))
-- [Point at an anchor and no file](#see-published-work)
-- [Walk back to the planning directory](seeds/..#top)
-- [Name a web address without a host](https://)
-- [Spell a path that cannot be decoded](seeds/%E0%A4%A.md)
-`;
+const linkedBacklog = describedBacklog(
+  makeMe.aRepository
+    .withRevision("linked", {
+      backlog: {
+        direction: `Trace each entry to its <img src=x onerror="document.title='direction ran'"> published source.`,
+        taken: [
+          linked(
+            "Repair the installer's update report",
+            "slice-plans/059-installer-update-report/PLAN.md",
+          ),
+          linked(
+            "See the project's published work in a story dashboard",
+            "seeds/SEED-021-observe-published-story-progress.md#see-published-work",
+            {
+              identity: "SEED-021#see-published-work",
+              plan: "./slice-plans/061-published-story-dashboard/PLAN.md#ordered-slices",
+            },
+          ),
+        ],
+        queued: [
+          linked(
+            "Follow a record kept outside the planning directory",
+            "./seeds/../../docs/adrs/0001-ubiquitous-language-accepted.md#decision",
+          ),
+          linked(
+            "Follow a record named from the repository root",
+            "/docs/release%20notes/2026.md",
+          ),
+          linked(
+            "Read the hosting provider's note",
+            "https://status.example.com/notes/2026-09?view=full#api",
+            { identity: "NOTE-7#api", plan: "http://plans.example.org/note-7" },
+          ),
+          linked(
+            "Reach outside the repository",
+            "../../elsewhere/secret.md#top",
+          ),
+          linked(
+            `<img src=x onerror="document.title='title ran'">Run a script from a link`,
+            "javascript:document.title='canonical-ran'",
+            {
+              identity: "HOSTILE-1#x",
+              plan: "data:text/html,<script>document.title='plan-ran'</script>",
+            },
+          ),
+          linked("Point at an anchor and no file", "#see-published-work"),
+          linked("Walk back to the planning directory", "seeds/..#top"),
+          linked("Name a web address without a host", "https://"),
+          linked("Spell a path that cannot be decoded", "seeds/%E0%A4%A.md"),
+        ],
+      },
+    })
+    .please(),
+);
 
 export async function openDashboard(page: Page) {
   const requested: string[] = [];

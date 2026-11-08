@@ -11,18 +11,7 @@ import type { CompletionReport } from "../../src/completionReport.ts";
 import type { SessionState } from "../../src/launchRecord.ts";
 import { unfinishedIntention } from "../../src/sessionShown.ts";
 
-const claude = (activity: "review" | "waiting"): SessionState => ({
-  kind: "available",
-  availability: "loaded",
-  activity,
-});
-
-// Literal held-screen words, so a changed Cursor label fails here.
-const cursorHeld = (label: string): SessionState => ({
-  kind: "unknown",
-  label,
-});
-
+// Cursor's held screens are literal words, so a changed Cursor label fails here.
 const cases: readonly {
   readonly reading: string;
   readonly sessionState: SessionState;
@@ -31,43 +20,47 @@ const cases: readonly {
 }[] = [
   {
     reading: "idle Claude, completed",
-    sessionState: claude("review"),
+    sessionState: makeMe.aSessionState.loaded("review").please(),
     outcome: "completed",
     says: undefined,
   },
   {
     reading: "Cursor at the follow-up prompt, completed",
-    sessionState: cursorHeld("at the follow-up prompt"),
+    sessionState: makeMe.aSessionState
+      .unknown("at the follow-up prompt")
+      .please(),
     outcome: "completed",
     says: undefined,
   },
   {
     reading: "Cursor held working, completed",
-    sessionState: cursorHeld("working"),
+    sessionState: makeMe.aSessionState.unknown("working").please(),
     outcome: "completed",
     says: stillWorking,
   },
   {
     reading: "Cursor held waiting for an answer, completed",
-    sessionState: cursorHeld("waiting for an answer"),
+    sessionState: makeMe.aSessionState
+      .unknown("waiting for an answer")
+      .please(),
     outcome: "completed",
     says: waitingForInput,
   },
   {
     reading: "Claude waiting, unfinished",
-    sessionState: claude("waiting"),
+    sessionState: makeMe.aSessionState.loaded("waiting").please(),
     outcome: "unfinished",
     says: waitingForInput,
   },
   {
     reading: "idle Claude, unfinished",
-    sessionState: claude("review"),
+    sessionState: makeMe.aSessionState.loaded("review").please(),
     outcome: "unfinished",
     says: "This session reported unfinished work.",
   },
   {
     reading: "idle Claude, no report",
-    sessionState: claude("review"),
+    sessionState: makeMe.aSessionState.loaded("review").please(),
     says: "This session has not reported its work complete. It reads Ready for review.",
   },
 ];

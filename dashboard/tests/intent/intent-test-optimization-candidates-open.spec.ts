@@ -1,7 +1,7 @@
-// Intent opens recorded test locations from a candidate entry on the
-// Optimization Candidates tab into the Intent tab's shared Purpose selection,
-// and choosing Optimization Candidates again returns to that entry without
-// rereading (SEED-192 examples 1 open/return, 2–6; outside-configured of 4).
+// Project Intent opens recorded test locations from a candidate entry on the
+// Optimization Candidates tab into the CI status tab's Purpose selection,
+// and choosing Optimization Candidates again returns the keyboard to that
+// entry without rereading (SEED-192 examples 1 open/return, 2–6; outside-configured of 4).
 
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
@@ -35,7 +35,7 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
 
   const record = candidatesRecord(intent);
   await expectCandidatesRevision(intent, openDough.revision);
-  const intentTab = intentModeTab(intent, "Intent");
+  const intentTab = intentModeTab(intent, "CI status");
   const candidatesTab = intentModeTab(intent, "Optimization Candidates");
 
   await test.step("Ex 1: open full path from agent-launch-poles; tree and Purpose agree; return keeps entry", async () => {
@@ -68,7 +68,7 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
     const returned = candidatesRecord(intent);
     await expect(
       returned.getByRole("article", { name: "agent-launch-poles" }),
-    ).toBeVisible();
+    ).toBeFocused();
     await expect(returned).toHaveAttribute(
       "data-candidates-reads",
       readsBefore ?? "",
