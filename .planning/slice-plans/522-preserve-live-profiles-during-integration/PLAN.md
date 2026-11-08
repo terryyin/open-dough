@@ -164,7 +164,7 @@ and history-preserving families stay green. The rule lives in
 
 **Type:** Behavior
 
-**Status:** planned
+**Status:** done
 
 After slices 1–2, ODF-430 and ODF-451 each gain a `### Delivered response`
 section with the date, story, commits, containing release, and the
@@ -172,6 +172,9 @@ ordinary-use criterion: the next observed concurrent integration in which
 one side completes a story while another is active keeps that profile in
 `agents/` and adds no profile to `done/`. Their **Follow-up** lines say the
 response is delivered and not yet resolved by ordinary use.
+
+Accepted: both findings carry `### Delivered response (2026-11-08)` and the
+updated **Follow-up** line. Refactor disposition: `records-only`.
 
 ## Preparation review
 
