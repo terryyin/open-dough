@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 448. Removed numbers are never reused.
+- Highest allocated local number: 449. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -718,6 +718,13 @@ Former local code: DD-431.
   - Open Dough release: 0.3.89 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
   - Evidence: slice 1's refactor split `dashboard/tests/preparingJourney.ts` into `preparationSteps.ts` for the 250-line rule and replaced the `refiningName` guard that source-review row 30 cited
   - Observed effect: the refactor report named the stale row; the coordinator re-recorded it with `story-obligations.mjs record` before delivery, and no stale citation was published
+- Execution: SEED-263#pilot-fluent-dashboard-page-objects (plan 506-pilot-fluent-dashboard-page-objects; first related implementation commit `df2702f6b45add64594f74a136d9c5f3d063f829`)
+  - Timestamp: unknown (after slice 1 acceptance, before `df2702f6b` at 2026-11-08T10:01:46+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.90 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: slice 1's refactor split `dashboard/tests/sidePanelPages.ts` into `sidePanelContentPages.ts` for the 250-line rule; source-review rows 12d, 13a, 13c, 14b and 16a cited the old file
+  - Observed effect: the coordinator retargeted the five rows from the refactor report before delivery. A first BSD `sed` attempt with `\|` alternation changed nothing, and a count check caught it. No stale citation was published
 
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 
@@ -918,3 +925,20 @@ consumer trace.
   - Evidence: Explore agent "list every caller of EvidenceLabel objects" (about 30k subagent tokens, 5 tool uses); its result was used only as the coordinator's acceptance cross-check
   - Observed effect: about 30k tokens with no change to delegation or acceptance
   - Inference: waiting on one agent invited parallel work that duplicated the next agent's required discovery; the Agent guidance's "don't delegate a check you could run inline" already covers it
+
+## DD-449 — A same-ref cancelled CI run reached the coordinator as unexplained incomplete
+
+The observer delivered `CI_INCOMPLETE` for a Story Branch increment whose run
+GitHub cancelled under the workflow's `cancel-in-progress` concurrency group,
+after the same observer had registered the superseding push. The coordinator
+had to inspect the run and workflow before it could ignore proven supersession.
+
+### Occurrences
+- Execution: SEED-263#pilot-fluent-dashboard-page-objects (plan 506-pilot-fluent-dashboard-page-objects; first related implementation commit `df2702f6b45add64594f74a136d9c5f3d063f829`)
+  - Timestamp: unknown (after slice 2's push of `ce269af5c` at about 2026-11-08T10:07+08:00, during slice 3 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.90 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: `CI_INCOMPLETE` for run 42436771496 (`df2702f6b`, `cancelled`); `gh run list` showed run 42437158620 for `ce269af5c` on the same branch succeeded; `.github/workflows/ci.yml` `concurrency.group` uses `github.ref` with `cancel-in-progress: true`
+  - Observed effect: two inspection commands and a read of the notification guidance before the coordinator recorded supersession and continued; no repair or pause. It recurred for `151281a43` (run 42438254144, cancelled once `c755e3952` was pushed and later succeeded) and needed one more `gh run view`
+  - Inference: qualified. The cost was small, but it recurs on every Story Branch execution that pushes slices faster than CI finishes. The observer already holds both registered revisions, so it may be able to classify the cancellation itself.

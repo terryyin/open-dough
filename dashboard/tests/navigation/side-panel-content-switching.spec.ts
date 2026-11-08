@@ -12,37 +12,29 @@
 // selecting another card leaves the panel as it is. The real `claude` is
 // never reached.
 
-import type { Locator } from "@playwright/test";
-import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
-import { expectFrameIconControl } from "../frameIconControl.ts";
-import { box, pressWhereShown } from "../pageLayout.ts";
-import { expectInspected, expectSelected } from "../storyCardSelection.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { type SidePanelPages, sidePanelPages } from "../sidePanelPages.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { otherQueuedIdentity, queuedIdentity } from "../support/startOrigin.ts";
 import {
   keptSession,
   listed,
-  sidePanelContents,
-  storyBLaunchRecord,
+  storyBBranch,
   storyBWorktree,
+  storyReviewReads,
 } from "../support/sidePanelContents.ts";
-import { storyWorktree } from "../support/storyReviewWorktree.ts";
-import {
-  keepLaunchRecords,
-  storyALaunchRecord,
-} from "../support/storyLaunchRecord.ts";
+import { branch, storyWorktree } from "../support/storyReviewWorktree.ts";
+import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
 
-function expectCovers(
-  found: { x: number; y: number; width: number; height: number },
-  room: { x: number; y: number; width: number; height: number },
+// Intent reads the Selected story; the page then goes back to the Board.
+function intentReads(
+  { perspective, intent }: SidePanelPages,
+  identity: string,
 ) {
-  expect(found.x).toBeCloseTo(room.x, 0);
-  expect(found.y).toBeCloseTo(room.y, 0);
-  expect(found.width).toBeCloseTo(room.width, 0);
-  expect(found.height).toBeCloseTo(room.height, 0);
+  perspective.choose("Intent");
+  intent.expectSelectedStory(identity);
+  perspective.choose("Development");
 }
 
 test("review and terminal take turns in the one side panel beside a usable Board", async ({
@@ -57,37 +49,25 @@ test("review and terminal take turns in the one side panel beside a usable Board
     cwd: workspaceA,
     startedAt: Date.now(),
   });
+  const now = new Date().toISOString();
   await keepLaunchRecords(dashboard, [
-    storyALaunchRecord(workspaceA, listed(sessionA)),
-    storyBLaunchRecord(workspaceB),
+    makeMe.aLaunchRecord
+      .executing({ identity: queuedIdentity, title: "Story A" })
+      .onStoryBranch({ workspace: workspaceA, branch })
+      .inClaudeSession(listed(sessionA))
+      .launchedAt(now)
+      .please(),
+    makeMe.aLaunchRecord
+      .executing({ identity: otherQueuedIdentity, title: "Story B" })
+      .onStoryBranch({ workspace: workspaceB, branch: storyBBranch })
+      .launchedAt(now)
+      .please(),
   ]);
-  // Every review read the page asks, by the story it names.
-  const reviewReads: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname === storyReviewEndpoint)
-      reviewReads.push(url.searchParams.get("identity") ?? "");
-  });
-  const cardA = await openBacklog(page, origin);
-  const cardB = parts(page).backlog.getByRole("article", { name: "Story B" });
-  const { banner, development, intentChoice, intent } = parts(page);
-  const expectIntentReads = async (identity: string) => {
-    await intentChoice.click();
-    await expect(intent).toHaveAttribute("data-selected-story", identity);
-    await development.click();
-  };
-  const sidebar = sessionsSidebarParts(page);
-  const items = sidePanelContents(page);
-  const terminal = page.getByRole("region", { name: "Terminal" });
-  const review = page.getByRole("region", { name: "Story review" });
-  const rows = terminal.locator(".xterm-rows");
-  const reviewOf = (card: Locator) =>
-    card.getByRole("button", { name: "Review changes" });
-  const openTerminal = storyCardSessions(cardA).getByRole("button", {
-    name: "Open terminal",
-  });
-  const control = (panel: Locator, name: string) =>
-    panel.getByRole("button", { name, exact: true });
+  const reviewReads = storyReviewReads(page);
+  await openBacklog(page, origin);
+  const journey = sidePanelPages(page);
+  const attachedA = `attached ${sessionA.slice(0, 8)}`;
+  // Story A's session's attachments the synthetic `claude` saw so far.
   const attachesOfA = () =>
     dashboard
       .claudeAttaches()
@@ -95,142 +75,165 @@ test("review and terminal take turns in the one side panel beside a usable Board
   const keptA = await keptSession(dashboard, sessionA);
   expect(keptA.doneAt).toBeUndefined();
 
-  await openTerminal.click();
-  await expect(rows).toContainText(`attached ${sessionA.slice(0, 8)}`);
-  await expect(items).toHaveCount(1);
-  await page.keyboard.type("keep this line");
-  await page.keyboard.press("Enter");
-  await expect(rows).toContainText("echo keep this line");
-  const shownMark = storyCardSessions(cardA).getByText("Shown in terminal");
-  await expect(shownMark).toBeVisible();
-  // Opening Story A's terminal selects and highlights Story A.
-  await expectSelected(cardA, true);
-  await expectSelected(cardB, false);
-  await expectIntentReads(queuedIdentity);
-  const splitPanel = await box(terminal);
-  await pressWhereShown(control(terminal, "Maximize"));
-  const maximizedRoom = await box(terminal);
-  await pressWhereShown(control(terminal, "Restore"));
-  await expect(banner).toBeVisible();
+  await journey.phase(
+    "Story A's terminal opens on its session and selects Story A",
+    (pages) => {
+      const { board, terminal } = pages;
+      board
+        .storyCard("Story A")
+        .openTerminal()
+        .expectText(attachedA)
+        .sidePanel.expectItems(1);
+      terminal.typeLine("keep this line").expectText("echo keep this line");
+      board.storyCard("Story A").expectShownInTerminal().expectSelected();
+      board.storyCard("Story B").expectSelected(false);
+      intentReads(pages, queuedIdentity);
+    },
+  );
+  const splitPanel = await journey.shownRoom();
+  await journey.phase("the terminal maximizes", ({ sidePanel }) =>
+    sidePanel.maximize(),
+  );
+  const maximizedRoom = await journey.shownRoom();
+  await journey.phase("the terminal restores to the split", ({ sidePanel }) =>
+    sidePanel.restore().expectInSplit(),
+  );
 
-  await test.step("a story's review replaces the terminal, which detaches without ending or marking the session done", async () => {
-    await reviewOf(cardB).click();
-    await expect(review.getByRole("heading", { level: 2 })).toHaveText(
-      "Story B",
-    );
-    await expect(review).toContainText(`Story review ${otherQueuedIdentity}`);
-    await expect(
-      review
-        .getByRole("list", { name: "1 changed file" })
-        .getByRole("button", { name: "Added story-b.txt" }),
-    ).toBeVisible();
-    await expect(review.locator(".story-review-body")).toBeFocused();
-    await expect(items).toHaveCount(1);
-    await expect(terminal).toHaveCount(0);
-    expectCovers(await box(review), splitPanel);
-    expect(attachesOfA()).toHaveLength(1);
-    await expect
-      .poll(() =>
-        attachesOfA().every((attached) => attached.endedBy !== undefined),
-      )
-      .toBe(true);
-    // A review is no session: no session entry is marked as shown. Story B's
-    // review moves the selection to Story B.
-    await expect(shownMark).toHaveCount(0);
-    await expectSelected(cardB, true);
-    await expectSelected(cardA, false);
-    expect(await keptSession(dashboard, sessionA)).toEqual(keptA);
-  });
+  await journey.phase(
+    "a story's review replaces the terminal, which detaches without ending or marking the session done",
+    ({ board }) => {
+      board
+        .storyCard("Story B")
+        .reviewChanges()
+        .expectStory("Story B")
+        .expectIdentity(otherQueuedIdentity)
+        .expectChangedFile("1 changed file", "Added story-b.txt")
+        .expectKeyboardInBody()
+        .sidePanel.expectItems(1)
+        .expectNotShowing("Terminal")
+        .expectFills(splitPanel);
+      // A review is no session: no session entry is marked as shown. Story
+      // B's review moves the selection to Story B.
+      board.storyCard("Story A").expectShownInTerminal(false);
+      board.storyCard("Story B").expectSelected();
+      board.storyCard("Story A").expectSelected(false);
+    },
+  );
+  // The detached terminal ended its one attachment; the session stays open
+  // and its kept record as it was.
+  expect(attachesOfA()).toHaveLength(1);
+  await expect
+    .poll(() =>
+      attachesOfA().every((attached) => attached.endedBy !== undefined),
+    )
+    .toBe(true);
+  expect(await keptSession(dashboard, sessionA)).toEqual(keptA);
 
-  await test.step("inspecting another card, or opening the shown review again, leaves its story selected", async () => {
-    await expectIntentReads(otherQueuedIdentity);
-    const inspect = cardA.getByRole("button", { name: "Inspect story" });
-    await inspect.click();
-    await expectInspected(cardA, true);
-    await cardA.getByRole("button", { name: "Hide detail" }).click();
-    await expectInspected(cardA, false);
-    await expectSelected(cardB, true);
-    await expectSelected(cardA, false);
-    await reviewOf(cardB).click();
-    await expectSelected(cardB, true);
-  });
+  await journey.phase(
+    "inspecting another card, or opening the shown review again, leaves its story selected",
+    (pages) => {
+      const { board } = pages;
+      intentReads(pages, otherQueuedIdentity);
+      board
+        .storyCard("Story A")
+        .inspect()
+        .expectInspected()
+        .hideDetail()
+        .expectInspected(false);
+      board.storyCard("Story B").expectSelected();
+      board.storyCard("Story A").expectSelected(false);
+      board.storyCard("Story B").reviewChanges();
+      board.storyCard("Story B").expectSelected();
+    },
+  );
 
-  await test.step("the dashboard stays usable beside the review", async () => {
+  await journey.phase(
+    "the dashboard stays usable beside the review",
     // Not a modal: the keyboard leaves the review for the page's controls.
-    await sidebar.button.click();
-    await expect(sidebar.button).toBeFocused();
-    await expect(sidebar.sidebar).toBeVisible();
-    await expect(sidebar.entry("Story A")).toBeVisible();
-    await expect(review.getByRole("heading", { level: 2 })).toHaveText(
-      "Story B",
-    );
-    await expect(items).toHaveCount(1);
-  });
+    ({ sessionsSidebar }) =>
+      sessionsSidebar
+        .toggle()
+        .expectToggleFocused()
+        .expectShown()
+        .expectEntry("Story A")
+        .sidePanel.storyReview.expectStory("Story B")
+        .sidePanel.expectItems(1),
+  );
 
-  await test.step("the review's header shares the terminal's frame icon controls, maximizes into the terminal's room, and restores its content", async () => {
-    await expectFrameIconControl(control(review, "Refresh"), "Refresh");
-    await expectFrameIconControl(control(review, "Maximize"), "Maximize");
-    await expectFrameIconControl(
-      control(review, "Close"),
-      "Close",
-      "Close (⌘⇧Esc)",
-    );
-    await sidebar.button.click();
-    await expect(sidebar.sidebar).toBeHidden();
-    await review
-      .getByRole("button", { name: "Added story-b.txt" })
-      .press("Enter");
-    await expect(
-      review.getByRole("region", { name: "Added story-b.txt" }),
-    ).toContainText("+story b");
-    const readsBefore = reviewReads.length;
-    await pressWhereShown(control(review, "Maximize"));
-    await expect(banner).toBeHidden();
-    expectCovers(await box(review), maximizedRoom);
-    await pressWhereShown(control(review, "Restore"));
-    await expect(banner).toBeVisible();
-    expectCovers(await box(review), splitPanel);
-    await expect(
-      review.getByRole("button", { name: "Added story-b.txt" }),
-    ).toHaveAttribute("aria-pressed", "true");
-    expect(reviewReads.length).toBe(readsBefore);
-  });
+  await journey.phase(
+    "the review's header shares the terminal's frame icon controls",
+    ({ sidePanel, sessionsSidebar }) => {
+      sidePanel
+        .expectFrameIconControl("Refresh")
+        .expectFrameIconControl("Maximize")
+        .expectFrameIconControl("Close", "Close (⌘⇧Esc)");
+      sessionsSidebar
+        .toggle()
+        .expectHidden()
+        .sidePanel.storyReview.chooseFileByKeyboard(
+          "1 changed file",
+          "Added story-b.txt",
+        )
+        .expectFileDiff("Added story-b.txt", "+story b");
+    },
+  );
+  const readsBeforeMaximizing = reviewReads.length;
+  await journey.phase(
+    "the review maximizes into the terminal's room and restores its content",
+    ({ sidePanel }) =>
+      sidePanel
+        .maximize()
+        .expectMaximized()
+        .expectFills(maximizedRoom)
+        .restore()
+        .expectInSplit()
+        .expectFills(splitPanel)
+        .storyReview.expectFileChosen("1 changed file", "Added story-b.txt"),
+  );
+  expect(reviewReads.length).toBe(readsBeforeMaximizing);
 
-  await test.step("opening the session from the sidebar beside a maximized review attaches to the same session in the normal split", async () => {
-    await sidebar.button.click();
-    await pressWhereShown(control(review, "Maximize"));
-    await expect(banner).toBeHidden();
-    const attachedBefore = attachesOfA().length;
-    await sidebar.entry("Story A").click();
-    await expect(rows).toContainText(`attached ${sessionA.slice(0, 8)}`);
-    await expect(items).toHaveCount(1);
-    await expect(review).toHaveCount(0);
-    await expect(control(terminal, "Maximize")).toBeVisible();
-    await expect(banner).toBeVisible();
-    expect(attachesOfA()).toHaveLength(attachedBefore + 1);
-    await expect(sidebar.entry("Story A")).toHaveAttribute(
-      "aria-current",
-      "true",
-    );
-    expect(await keptSession(dashboard, sessionA)).toEqual(keptA);
-    await sidebar.button.click();
-    await expect(sidebar.sidebar).toBeHidden();
-    await expectSelected(cardA, true);
-    await expectSelected(cardB, false);
-  });
+  await journey.phase(
+    "the review maximizes beside the open Sessions sidebar",
+    ({ sessionsSidebar }) =>
+      sessionsSidebar.toggle().sidePanel.maximize().expectMaximized(),
+  );
+  const attachedBefore = attachesOfA().length;
+  await journey.phase(
+    "opening the session from the sidebar beside a maximized review attaches to the same session in the normal split",
+    ({ sessionsSidebar }) => {
+      sessionsSidebar
+        .openEntry("Story A")
+        .expectText(attachedA)
+        .sidePanel.expectItems(1)
+        .expectNotShowing("Story review")
+        .expectInSplit();
+      sessionsSidebar.expectEntryCurrent("Story A");
+    },
+  );
+  // The same session, attached once more; its kept record as it was.
+  expect(attachesOfA()).toHaveLength(attachedBefore + 1);
+  expect(await keptSession(dashboard, sessionA)).toEqual(keptA);
+  await journey.phase(
+    "the sidebar closes on the reattached session, its story selected",
+    ({ sessionsSidebar, board }) => {
+      sessionsSidebar.toggle().expectHidden();
+      board.storyCard("Story A").expectSelected();
+      board.storyCard("Story B").expectSelected(false);
+    },
+  );
 
-  await test.step("an empty-area click selects another card and clears it, leaving the terminal and every detail as they are", async () => {
-    const heading = cardB.getByRole("heading", { level: 3 });
-    const details = page.getByRole("region", { name: /^Detail for / });
-    await heading.click();
-    await expectSelected(cardB, true);
-    await expectSelected(cardA, false);
-    await expect(rows).toContainText(`attached ${sessionA.slice(0, 8)}`);
-    await expectIntentReads(otherQueuedIdentity);
-    await heading.click();
-    await expectSelected(cardB, false);
-    await expectSelected(cardA, false);
-    await expect(terminal).toBeVisible();
-    await expect(details).toHaveCount(0);
-  });
+  await journey.phase(
+    "an empty-area click selects another card and clears it, leaving the terminal and every detail as they are",
+    (pages) => {
+      const { board, terminal } = pages;
+      board.storyCard("Story B").clickEmptyArea().expectSelected();
+      board.storyCard("Story A").expectSelected(false);
+      terminal.expectText(attachedA);
+      intentReads(pages, otherQueuedIdentity);
+      board.storyCard("Story B").clickEmptyArea().expectSelected(false);
+      board.storyCard("Story A").expectSelected(false);
+      terminal.expectShown();
+      board.expectNoStoryDetail();
+    },
+  );
 });

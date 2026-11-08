@@ -24,7 +24,7 @@ import {
 } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { box, pressWhereShown } from "../pageLayout.ts";
+import { box, expectFills, pressWhereShown } from "../pageLayout.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
 import { expectFrameIconControl } from "../frameIconControl.ts";
 
@@ -37,15 +37,6 @@ const windowOf = (page: Page) =>
     width: document.documentElement.clientWidth,
     height: window.innerHeight,
   }));
-
-// The box covers exactly this room, to within half a pixel.
-function expectCovers(
-  found: { x: number; y: number; width: number; height: number },
-  room: { x: number; y: number; width: number; height: number },
-) {
-  for (const key of ["x", "y", "width", "height"] as const)
-    expect(found[key]).toBeCloseTo(room[key], 0);
-}
 
 test.describe("maximizing the terminal", () => {
   let columnsJourney: StoryColumnsJourney;
@@ -123,7 +114,7 @@ test.describe("maximizing the terminal", () => {
       await expectFrameIconControl(control("Restore"), "Restore");
       await expect(control("Maximize")).toHaveCount(0);
       const room = await windowOf(page);
-      expectCovers(await box(panel), {
+      await expectFills(panel, {
         x: split.column.x,
         y: 0,
         width: room.width - split.column.x,
@@ -141,8 +132,8 @@ test.describe("maximizing the terminal", () => {
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();
       await expect(board).toBeVisible();
-      expectCovers(await box(pageColumn), split.column);
-      expectCovers(await box(panel), split.panel);
+      await expectFills(pageColumn, split.column);
+      await expectFills(panel, split.panel);
       await expect(rows).toContainText("echo keep this line");
       expect(attachCount()).toBe(attachedBefore);
     });
@@ -160,7 +151,7 @@ test.describe("maximizing the terminal", () => {
         width: room.width - side.x - side.width,
         height: room.height,
       };
-      expectCovers(await box(panel), besideSidebar);
+      await expectFills(panel, besideSidebar);
       await sidebar.entry(readyStory).click();
       const heading = panel.getByRole("heading", {
         level: 2,
@@ -191,7 +182,7 @@ test.describe("maximizing the terminal", () => {
       expect(splitBesideSidebar.width).toBeLessThan(besideSidebar.width - 1);
       await pressWhereShown(control("Maximize"));
       await expect(banner).toBeHidden();
-      expectCovers(await box(panel), besideSidebar);
+      await expectFills(panel, besideSidebar);
     });
 
     await test.step("Close hides the maximized panel, the session keeps running and is not marked done, and the next opened session shows in the split", async () => {
@@ -225,7 +216,7 @@ test.describe("maximizing the terminal", () => {
       await expectCovering(panel);
       await expect(banner).toBeHidden();
       await expect(board).toBeHidden();
-      expectCovers(await box(panel), {
+      await expectFills(panel, {
         x: 0,
         y: 0,
         width: room.width,

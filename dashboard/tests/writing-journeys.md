@@ -134,6 +134,24 @@ stalled addition read delays only its own profile's clock and human is
 `observation/profile-addition-latency.spec.ts`; the roster itself is
 `stories/agent-roster.spec.ts`, whose locators live in `dashboardPage.ts`.
 
+## Fluent phases in the Side panel content journeys
+
+The two Side panel content journeys
+(`navigation/side-panel-content-replacement.spec.ts` and
+`navigation/side-panel-content-switching.spec.ts`) are written as phases
+over fluent page objects. `sidePanelPages(page).phase(title, write)` in
+`sidePanelPages.ts` hands `write` the Board, Side panel, Panel divider,
+perspective choice, Intent, Terminal and Sessions sidebar objects. Each
+method writes one named cue without touching the page and returns the object
+the reader reaches next. The phase then runs those cues in order, each as its
+own `test.step` located at the spec line that wrote it, and stops at the
+first failure. `support/cueSheet.ts` is the runner. `storyCardPages.ts`,
+`sidePanelContentPages.ts` and `terminalPages.ts` own the parts' scoped
+locators, so a shared control such as the Story card's `Review changes` has
+one locator. A cue must not read a value it needs later. Measured widths and
+rooms, review read counts, transport holds (`holdReviewOf`), native attach
+evidence and kept records are read in the spec between phases.
+
 ## Process cleanup
 
 Nothing a run starts survives it: not the servers, synthetic hosts and

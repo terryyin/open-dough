@@ -3,44 +3,24 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { branch } from "./storyReviewWorktree.ts";
 
 // Story A's launch record, its start naming the worktree, of the session
-// given, as one the synthetic `claude` lists.
-export function storyALaunchRecord(
+// given, as one the synthetic `claude` lists, launched now.
+export const storyALaunchRecord = (
   workspace: string,
   { sessionId, shortId } = { sessionId: "story-a-session", shortId: "story-a" },
-): LaunchRecord {
-  return {
-    request: {
-      source: "open-dough",
-      identity: queuedIdentity,
-      title: "Story A",
-      workflow: "execution",
-      host: "claude",
-    },
-    session: {
-      host: "claude",
-      sessionId,
-      shortId,
-      name: "Story A",
-    },
-    start: {
-      identity: queuedIdentity,
-      publisherId: "a1b2c3",
-      workspace,
-      branch,
-      mode: "story-branch",
-      remote: "origin",
-      target: "main",
-      publishedSha: "b2".repeat(20),
-    },
-    launchedAt: new Date().toISOString(),
-  };
-}
+): LaunchRecord =>
+  makeMe.aLaunchRecord
+    .executing({ identity: queuedIdentity, title: "Story A" })
+    .onStoryBranch({ workspace, branch })
+    .inClaudeSession({ sessionId, shortId })
+    .launchedAt(new Date().toISOString())
+    .please();
 
 // The kept launch records of the project `source`, written into the machine
 // store.
