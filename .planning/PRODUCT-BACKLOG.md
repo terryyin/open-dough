@@ -38,6 +38,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Prove Recently done selection's check rules and tidy its catalog read](seeds/SEED-272-select-recently-done-sessions.md#prove-recently-done-check-supersession) — SEED-272#prove-recently-done-check-supersession
 - [Review a selected story in Intent tabs](seeds/SEED-275-story-intent-tabs.md#story-intent-tabs) — SEED-275#story-intent-tabs
 - [Build Node test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-backlog-scratch-repositories) — SEED-262#migrate-backlog-scratch-repositories
 - [Build shell release and native fixture repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-shell-release-and-native-fixtures) — SEED-262#migrate-shell-release-and-native-fixtures
