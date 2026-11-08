@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "identity": "SEED-264#reconcile-released-intent-coverage",
+  "mode": "story-branch",
+  "branch": "codex/reconcile-released-intent-coverage",
+  "host": "codex"
+}
