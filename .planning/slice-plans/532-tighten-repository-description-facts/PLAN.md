@@ -3,6 +3,7 @@
 **Identity:** SEED-262#tighten-repository-description-facts
 
 **Source:** [State each repository description fact once and keep native preparation evidence MakeMe-free](../../seeds/SEED-262-faster-dashboard-test-feedback.md#tighten-repository-description-facts)
+**Source review:** [source-review.md](source-review.md)
 
 ## Provenance
 
@@ -168,7 +169,7 @@ full run.
 
 Type: Structure
 
-Status: planned
+Status: done
 
 Proof: `node tests/support/native-import-closure.mjs . tests/support/execution-worktree-prep-native-{assess,observe,fixture}.mjs`
 lists no `tests/support/makeMe.mjs`, `repository-fixture.mjs`,
@@ -193,6 +194,17 @@ non-native tests at it. Delete the duplicated file-writing bodies in the
 native builders in favor of writing the shared maps. The weakness removed is
 a paid evidence identity that changes with every MakeMe edit, and two copies
 of the same project content.
+
+Accepted proof (2026-11-08): the closure lists 11 modules (assessor, project
+module, reuse fixtures, native assess/fixture/flat/builders/observe, host
+stream), none of the excluded ones. All four native kinds match the
+`db42e79a7` build in every compared fact and in the printed fixture JSON.
+`prep_native_input_hash_lines` is unchanged by a `makeMe.mjs` edit, where
+committed HEAD changed. The focused run plus the owned-context consumers
+(`tests/git-publication-native-owned-context.sh`, the owned-context,
+land-remote-context, publication-admission, default-checkout-session,
+fresh-candidate and supplier-integration tests) passed quietly. Refactor:
+one `digestFile`, one `usesNpmOrNix`, `artifactName` module-private.
 
 ### 2. A workspace's checkout identity stays with its worktree
 
