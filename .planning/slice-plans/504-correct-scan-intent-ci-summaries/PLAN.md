@@ -2,6 +2,7 @@
 
 **Identity:** SEED-259#correct-scan-intent-ci-summaries
 **Source:** [Correct Intent CI label announcements and summary sort fallback](../../seeds/SEED-259-scan-intent-ci-summaries.md#correct-scan-intent-ci-summaries)
+**Source review:** [Source-only review](source-review.md)
 
 Provenance: execution retrospective of
 Scan CI summaries in dashboard Intent (SEED-259#scan-intent-ci-summaries:
@@ -149,10 +150,10 @@ No premise is left open.
   technology), a visually hidden prefix where the visible words leave out
   what the label is (for example "Revision" before `abc1234`), the visible
   short words, and its full words as visually hidden text after them. The
-  `aria-label` goes. `title` stays for hover. A label whose visible words are
-  its whole name, such as **Completed ancestor**, gets no prefix.
-  `EvidenceLabel` keeps `name` as what is heard, so callers change only as far
-  as `name` must be split into a hidden prefix and the shown words.
+  `aria-label` goes. `title` stays for hover, on the label's inner content.
+  A label whose visible words are its whole name, such as **Completed
+  ancestor**, gets no prefix. `EvidenceLabel` holds `prefix` and `words`
+  in place of `name` and `shown`, so no words are stored twice.
 - **Fallback without loss.** `CiProofTable` falls back to default order at
   render time when it lacks the sorted column. It writes no state and shows no
   `aria-sort`. The kept sort applies again when a table with that column
@@ -178,8 +179,18 @@ No premise is left open.
 
 ### 1. Evidence labels carry their meaning in their content
 Type: Behavior
-Status: planned
-Proof: as mapped above for F1.
+Status: done
+Proof: as mapped above for F1. Accepted 2026-11-08: the gate's 47 spec files
+passed (111 passed, 0 flaky), the four units passed quietly through
+`bash scripts/test.sh`, and `npm run typecheck:dashboard` and `npm run lint`
+passed. Aria snapshots are in `intent-ci-proof-ancestor`,
+`intent-summary-ci-proof`, `intent-summary-story-comparison` and
+`intent-summary-ci-proof-gaps`.
+Learning: `title` on the `<li>` became the list item's accessible name. The
+hover `title` now sits on an inner `.intent-evidence-label-content` span that
+carries the pill's padding, so hover still covers the label. `EvidenceLabel`
+is `{prefix?, words, full?, announced?}`; `announced` puts `role="alert"` on
+a failure's full words.
 
 Behavior: CI status Proof, a Summary, a file's Proof or a story comparison
 shows evidence labels → a screen reader reading the strip in browse mode

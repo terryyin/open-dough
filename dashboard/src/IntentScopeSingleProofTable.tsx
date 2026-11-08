@@ -55,7 +55,7 @@ function OutsideExplanation({
     labels.push({
       key: "files",
       icon: FileQuestion,
-      name: `${files} not in the tree`,
+      words: `${files} not in the tree`,
       full: `Not in the tree: ${shown.join(", ")}${more}`,
     });
   }
@@ -63,7 +63,7 @@ function OutsideExplanation({
     labels.push({
       key: "unassigned",
       icon: CircleHelp,
-      name: "Unplaced results",
+      words: "Unplaced results",
       full: "Results CI could not place in a file",
     });
   }
@@ -73,7 +73,7 @@ function OutsideExplanation({
       labels.push({
         key: `part ${String(part.part)}`,
         icon: ListX,
-        name: words,
+        words,
         full: `Part ${String(part.part)} of ${String(entry.parts.length)} published no file breakdown`,
       });
     }
@@ -143,7 +143,7 @@ export function SingleProofTable({
             {
               key: "no breakdown",
               icon: ListX,
-              name: "No file breakdown",
+              words: "No file breakdown",
               full: `This CI proof summary does not break ${entry.path} down by file`,
             },
           ]}

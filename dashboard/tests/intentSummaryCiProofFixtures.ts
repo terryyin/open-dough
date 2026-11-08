@@ -18,6 +18,12 @@ import {
   trunkCi,
 } from "./intentCiStatusPage.ts";
 import { artifactId, run } from "./intentCiProofPage.ts";
+import {
+  evidenceLabels,
+  expectAttemptLinked,
+  expectEvidenceLabels,
+  expectLabelInFull,
+} from "./ciEvidenceLabelsPage.ts";
 import { openDough, openDoughSettings } from "./intentCodeBrowseFixtures.ts";
 import { intentLocationName } from "./intentPerspectivePage.ts";
 import { summaryRegion } from "./intentScopeProofPage.ts";
@@ -149,7 +155,7 @@ export const allParts = "2 of 2 parts present";
 // The label saying the tree shows a newer revision than the evidence.
 export const treeGap = `Tree at ${shortSha(openDough.revision)} — newer files unproved here`;
 
-// That label's full words, as its description.
+// That label's full words, heard after it and on hover.
 export const treeGapInFull = `Evidence at ${shortSha(judged)}, tree at ${shortSha(openDough.revision)}: a file added or changed since has no CI result here, or an earlier one.`;
 
 // How a Summary names the completed ancestor's proof, label by label: its
@@ -162,3 +168,28 @@ export const ancestorEvidence = [
   "Completed ancestor",
   treeGap,
 ] as const;
+
+// A Summary names the completed ancestor's proof in those labels, its run
+// linked and the tree gap in full; a screen reader in browse mode hears each
+// label from its content.
+export async function expectAncestorEvidence(summary: Locator) {
+  await expectEvidenceLabels(evidenceLabels(summary), ancestorEvidence);
+  await expectAttemptLinked(summary, "Run 41 · attempt 1", runUrl);
+  await expectLabelInFull(summary, treeGap, treeGapInFull);
+  await expect(evidenceLabels(summary)).toMatchAriaSnapshot(`
+    - list "CI evidence":
+      - listitem:
+        - link "Run 41 · attempt 1"
+      - listitem:
+        - text: Revision
+        - code: ${JSON.stringify(shortSha(judged))}
+      - listitem:
+        - text: Branch
+        - code: main
+      - listitem: Completed ancestor , The completed ancestor of the running result
+      - listitem:
+        - text: Tree at
+        - code: ${JSON.stringify(shortSha(openDough.revision))}
+        - text: "— newer files unproved here , ${treeGapInFull}"
+  `);
+}

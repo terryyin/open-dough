@@ -10,7 +10,9 @@ import {
   evidenceLabel,
   evidenceLabels,
   expectEvidenceLabels,
+  expectInFull,
   expectLeadingEvidenceLabels,
+  labelWords,
 } from "../ciEvidenceLabelsPage.ts";
 import { parts } from "../dashboardPage.ts";
 import {
@@ -129,8 +131,9 @@ test("a ciAdapter attempt without start and completion shows CI wall time not re
   await expect(panel.locator(".intent-ci-state")).toContainText("Passed");
   await expectLeadingEvidenceLabels(evidenceLabels(proof), [`Attempt ${uuid}`]);
   const wall = evidenceLabel(proof, notRecorded);
-  await expect(wall).toHaveText(notRecorded);
-  await expect(wall).toHaveAccessibleDescription(
+  await expect(labelWords(wall)).toHaveText(notRecorded);
+  await expectInFull(
+    wall,
     "This attempt's CI read has no start and completion times.",
   );
 });

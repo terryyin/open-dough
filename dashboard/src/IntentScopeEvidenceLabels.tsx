@@ -24,13 +24,11 @@ import type { KeptEvidence, ScopeEvidence } from "./IntentScopeEvidence.tsx";
 // verified. The failure itself is announced as the homepage announces it.
 function keptLabels(kept: KeptEvidence | undefined): EvidenceLabel[] {
   if (kept === undefined) return [];
-  const at = new Date(kept.checkedAt).toLocaleTimeString();
   const labels: EvidenceLabel[] = [
     {
       key: "kept",
       icon: Clock,
-      name: `Previously retrieved at ${at}`,
-      shown: <PreviouslyRetrieved checkedAt={kept.checkedAt} />,
+      words: <PreviouslyRetrieved checkedAt={kept.checkedAt} />,
       full: "Previously retrieved, not newly verified",
     },
   ];
@@ -39,16 +37,9 @@ function keptLabels(kept: KeptEvidence | undefined): EvidenceLabel[] {
     labels.push({
       key: "refresh failed",
       icon: CircleAlert,
-      name: "Refresh failed",
-      shown: (
-        <>
-          Refresh failed
-          <span role="alert" className="visually-hidden">
-            {failure}
-          </span>
-        </>
-      ),
+      words: "Refresh failed",
       full: failure,
+      announced: true,
       className: "intent-ci-refresh-failed intent-evidence-caution",
     });
   return labels;
@@ -66,8 +57,8 @@ function branchLabel(branch: string, story: string | undefined): EvidenceLabel {
   return {
     key: "branch",
     icon: GitBranch,
-    name: `Branch ${branch}`,
-    shown: <code>{branch}</code>,
+    prefix: "Branch",
+    words: <code>{branch}</code>,
     ...(story === undefined ? {} : { full: `The story branch of ${story}` }),
   };
 }
@@ -80,8 +71,7 @@ function treeLabel(evidenceRevision: string, revision: string): EvidenceLabel {
   return {
     key: "tree",
     icon: TriangleAlert,
-    name: `Tree at ${treeSha} — newer files unproved here`,
-    shown: (
+    words: (
       <>
         Tree at <code>{treeSha}</code> — newer files unproved here
       </>

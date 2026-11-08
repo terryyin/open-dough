@@ -60,7 +60,7 @@ const gapShortWords: Record<
 // An endpoint's identity as a short label's words: the requested revision's
 // status word, if any, before the short SHA of the build whose proof is used
 // ("Skipped abc1234"), or a gap's word ("Not landed yet"), with the full
-// status or explanation for its description.
+// status or explanation for its full words.
 export function slotShortWords(slot: StoryCiComparisonSlot): {
   readonly status: string | undefined;
   readonly revision: string | undefined;

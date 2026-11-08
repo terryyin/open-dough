@@ -32,9 +32,11 @@ folder summary names the selection by path and how many matching files the
 tree lists (a selected story's overlaid files included), gives an unusable
 location's explanation, and shows the CI proof that **CI status** shows, never
 local proof. With no story selected, it names
-that evidence once as a strip of short labels, each beside an icon whose name
-the label carries, with the full words as the label's hover text and
-accessible description: a judgment previously retrieved rather than newly
+that evidence once as a strip of short labels, each beside an icon. A
+screen reader hears each label from its own content: what the icon stands
+for where the short words leave it out (`Revision`, `Branch`), the short
+words, then any full words; those added words are not seen, and the full
+words are the label's hover text: a judgment previously retrieved rather than newly
 verified (`Previously retrieved at …`, as **CI status** says it) and any
 failed refresh (`Refresh failed`, its failure announced), the linked run and
 attempt (`Run 41 · attempt 2`), revision (`abc1234`), judged branch (`main`,
@@ -64,7 +66,7 @@ comparison the same way: `Provisional` while the story is Taken; **Baseline**,
 **Branch** and **Landed**, each with the requested revision's status word
 (`Skipped`, `Cancelled`, `No build`) before the short revision whose proof is
 used, or a gap's word (`Not applicable`, `Not landed yet`), its full status as
-description; and `Observed, not attributed` for the observed-not-attributed
+its full words; and `Observed, not attributed` for the observed-not-attributed
 statement; its group
 and table use **Baseline**, **Branch** and **Landed** for precise times with signed
 differences, shows counted-results differences in **Counts** (a gap endpoint
@@ -180,11 +182,12 @@ running, and when it was checked. History without a result and trunk history
 GitHub answers `404` for are **Could not be read** with the reason. Only
 story branches can be called no longer published. Below
 the judgment, **Proof** shows the CI proof of that run (for a running result,
-the completed ancestor's) as short labels once: the linked run and attempt
+the completed ancestor's) once as short labels, heard and hovered as a
+Summary's are: the linked run and attempt
 (`Run 41 · attempt 2`, or a `ciAdapter` attempt's `Attempt <attemptId>`), the
 revision, `Completed ancestor` for a running result, and that attempt's
 **CI wall time** from its start and completion (`CI wall time 3 min`, or
-`CI wall time not recorded` with why as its description when either is
+`CI wall time not recorded` with why as its full words when either is
 absent), then a table with one row per declared Intent location `path`, in
 declaration order, under the columns **Entry**, **Counts** (passed, failed
 and other with the runner's unit, tests or checks), **Test execution time**

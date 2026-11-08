@@ -13,7 +13,9 @@ import {
   evidenceLabel,
   evidenceLabels,
   expectEvidenceLabels,
+  expectInFull,
   expectLabelInFull,
+  labelWords,
 } from "../ciEvidenceLabelsPage.ts";
 import { proofOf, run } from "../intentCiProofPage.ts";
 import {
@@ -120,10 +122,16 @@ test("an entry-only summary keeps entry totals and labels the child breakdown un
   const { intent } = await openIntent(page, () => summaryTextZipAnswer(text));
   const summary = await openSummary(intent, "tests");
   const absent = evidenceLabel(summary, "No file breakdown");
-  await expect(absent).toHaveText("No file breakdown");
-  await expect(absent).toHaveAccessibleDescription(
+  await expect(labelWords(absent)).toHaveText("No file breakdown");
+  await expectInFull(
+    absent,
     "This CI proof summary does not break tests down by file",
   );
+  await expect(evidenceLabels(summary, "About these figures"))
+    .toMatchAriaSnapshot(`
+    - list "About these figures":
+      - listitem: No file breakdown , This CI proof summary does not break tests down by file
+  `);
   await expectScopeRows(summary, "tests", [
     ["tests", "2 passed checks", "3.0 s", "1 of 1 part present"],
     [

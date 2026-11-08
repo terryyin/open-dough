@@ -12,7 +12,7 @@
 // is ./intent-summary-story-comparison-file.spec.ts. Without a selected
 // story, ./intent-summary-ci-proof*.spec.ts stay the Summary consumers.
 
-import { test } from "../support/preparationPage.ts";
+import { expect, test } from "../support/preparationPage.ts";
 import {
   comparisonLabels,
   expectEvidenceLabels,
@@ -60,6 +60,22 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
       "Observed, not attributed",
     ]);
     await expectObservedNotAttributed(summary);
+    // A screen reader in browse mode hears each label from its content.
+    await expect(comparisonLabels(summary, setup.identity))
+      .toMatchAriaSnapshot(`
+      - list "CI timing comparison of ${setup.identity}":
+        - listitem:
+          - text: Baseline No build
+          - code: ${JSON.stringify(shortSha(setup.baseline))}
+          - text: /, No build at [0-9a-f]{7}:\\sthe workflow at that revision could not be read\\./
+        - listitem:
+          - text: Branch
+          - code: ${JSON.stringify(shortSha(setup.branchSide))}
+        - listitem:
+          - text: Landed
+          - code: ${JSON.stringify(shortSha(setup.completion))}
+        - listitem: Observed, not attributed , Observed builds; differences are not attributed to the story
+    `);
 
     await expectComparisonScopeRows(
       summary,

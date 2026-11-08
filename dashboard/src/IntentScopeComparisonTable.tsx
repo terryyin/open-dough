@@ -52,21 +52,17 @@ import {
 const outsideRowLabel = "Not in the rows above";
 
 // An endpoint as a label: "Baseline abc1234", "Landed Skipped def5678" or
-// "Landed Not landed yet", its full status or explanation as description --
+// "Landed Not landed yet", its full status or explanation heard after it --
 // the status words Intent's homepage comparison identity uses.
 function endpointLabel(
   endpoint: "Baseline" | "Branch" | "Landed",
   slot: StoryCiComparisonSlot,
 ): EvidenceLabel {
   const { status, revision, full } = slotShortWords(slot);
-  const name = [endpoint, status, revision]
-    .filter((word) => word !== undefined)
-    .join(" ");
   return {
     key: endpoint,
     icon: revision === undefined ? CircleDashed : GitCommitHorizontal,
-    name,
-    shown: (
+    words: (
       <>
         {endpoint}
         {status === undefined ? "" : ` ${status}`}
@@ -81,14 +77,14 @@ function endpointLabel(
 const provisionalLabel: EvidenceLabel = {
   key: "provisional",
   icon: Hourglass,
-  name: "Provisional",
+  words: "Provisional",
   full: "The story is still Taken: its latest build, not a final result",
 };
 
 const framingLabel: EvidenceLabel = {
   key: "framing",
   icon: Eye,
-  name: "Observed, not attributed",
+  words: "Observed, not attributed",
   full: observedNotAttributedInFull,
 };
 

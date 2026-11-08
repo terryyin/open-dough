@@ -116,6 +116,17 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
       "The completed ancestor of the running result",
     );
     await expectAttemptLinked(proof, "Run 12 · attempt 2", mainRun);
+    // A screen reader in browse mode hears each label from its content.
+    await expect(evidenceLabels(proof)).toMatchAriaSnapshot(`
+      - list "CI evidence":
+        - listitem:
+          - link "Run 12 · attempt 2"
+        - listitem:
+          - text: Revision
+          - code: d4e5f6a
+        - listitem: Completed ancestor , The completed ancestor of the running result
+        - listitem: CI wall time not recorded , This attempt's CI read has no start and completion times.
+    `);
     await expectProofRows(proof, [checksRow]);
     await expect(proof).not.toContainText("70a0001");
     expect(proofCalls(calls).slice(before)).toEqual([
