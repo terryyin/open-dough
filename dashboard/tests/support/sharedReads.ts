@@ -23,13 +23,17 @@ import { answeringFirst, holdingAnswer } from "./heldGitHubAnswer.ts";
 import { rawRequest, type RawResponse } from "./rawHttp.ts";
 import { headsAnswer, type OriginAnswer } from "../originAnswers.ts";
 import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 // How long a listing-reuse boundary case keeps a settled listing answerable.
 export const listingReuseWindowMs = 60_000;
 
 // A boundary server whose revision-check listings reuse for that window.
 export function listingReuseServer(
-  overrides: { readonly readTimeoutMs?: number } = {},
+  overrides: Pick<
+    Parameters<typeof startDashboardServer>[0],
+    "github" | "pathPrefix" | "requestOwnerRoot"
+  > = {},
 ): Promise<DashboardServer> {
   return startDashboardServer({
     ...developmentBoundary,
@@ -64,14 +68,11 @@ const backlog = `# Product backlog
 `;
 
 const onBranch = (name: string, identity: string, branch: string) =>
-  renderAgentProfile({
-    name,
-    identity,
-    mode: "story-branch",
-    branch,
-    host: undefined,
-    model: undefined,
-  });
+  renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({ name, identity, mode: "story-branch", branch })
+      .please(),
+  );
 
 // `revision` as every repository's ref and trunk head names it, with the
 // story branches' heads listed beside it.
@@ -133,7 +134,7 @@ export type SharedRead =
   string | { readonly source: string; readonly query: string };
 
 export function readAt(
-  server: DashboardServer,
+  server: Pick<DashboardServer, "baseURL" | "origin">,
   read: SharedRead,
 ): Promise<RawResponse> {
   const { source, query } =
@@ -162,7 +163,7 @@ function described(request: GhRequest): string {
 // The questions that reached GitHub since call `before`, in arrival order,
 // each named by repository when `withRepository` says so.
 export function askedSince(
-  server: DashboardServer,
+  server: Pick<DashboardServer, "github">,
   before: number,
   withRepository = false,
 ): string[] {

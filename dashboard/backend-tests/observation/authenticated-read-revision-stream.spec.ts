@@ -12,7 +12,6 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import { commitAnswer, rateLimitedAnswer } from "../../tests/originAnswers.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { everyRepository } from "../../tests/support/fakeGitHub.ts";
-import { heldInTurn } from "../../tests/support/heldGitHubAnswer.ts";
 import {
   heads,
   sharedReadsPublished,
@@ -23,10 +22,13 @@ import {
   revisionB,
 } from "./revisionCheckBoundary.ts";
 import {
+  controlledPaceMs,
+  controlledStreamServer,
+} from "./controlledRevisionStream.ts";
+import {
   answeringInstead,
   matchingRefsSince,
   openStream,
-  paceMs,
   settledWithin,
   streamServer,
   streamUrl,
@@ -57,56 +59,64 @@ test.describe("authenticated read boundary revision stream (development environm
   });
 
   test("two streams of one source at different revisions and watched branches cost one matching-refs per tick, each learning its own answer; after the last closes no further listing is asked", async () => {
-    const server = await streamServer();
+    const server = await controlledStreamServer();
     try {
       const published = sharedReadsPublished(revisionA);
       server.github.serve(everyRepository, published);
       await warmProfiles(server, revisionA);
-      // Each listing answers only when let, so every count is taken while one
-      // listing is outstanding and no other can start, however long the
-      // watched branch's own reads take against the pace.
-      const listings = heldInTurn(
-        published,
-        (request) => request.kind === "matching-refs",
-      );
-      server.github.serve(everyRepository, listings.answer);
+      await warmProfiles(server, revisionB);
+      const listings = server.holdListings(published);
 
       const before = server.github.calls.length;
-      // One stream watches a recorded branch at the shown revision; the other
-      // shows a different revision with no watch — each learns its own answer
-      // from one listing.
+      const openingListing = listings.nextArrival();
       const watching = openStream(
         server,
         `&at=${revisionA}&watch=${encodeURIComponent("story/one")}`,
       );
-      const moved = openStream(server, `&at=${revisionB}`);
+      const moved = openStream(
+        server,
+        `&at=${revisionB}&watch=${encodeURIComponent("story/two")}`,
+      );
       const watchingAnswer = {
         revision: revisionA,
         changed: false,
         branches: [{ branch: "story/one", head: heads["story/one"] }],
       };
-      const movedAnswer = { revision: revisionA, changed: true, branches: [] };
-      // Both open, so both wait on the opening listing.
+      const movedAnswer = {
+        revision: revisionA,
+        changed: true,
+        branches: [{ branch: "story/two", head: heads["story/two"] }],
+      };
+      // Both streams are open before their one listing is released.
       await Promise.all([watching.headers, moved.headers]);
-      await expect.poll(listings.held).toBe(1);
+      await openingListing;
+      expect(listings.held()).toBe(1);
       expect(matchingRefsSince(server, before)).toBe(1);
       listings.releaseOldest();
       expect(await watching.nextEvent()).toEqual(watchingAnswer);
       expect(await moved.nextEvent()).toEqual(movedAnswer);
 
-      // The next pace asks one listing, and that one answers both.
-      await expect.poll(listings.held).toBe(1);
+      await server.waitForPace();
+      expect(server.pendingPaces()).toBe(1);
+      expect(server.advance(controlledPaceMs - 1)).toBe(0);
+      expect(matchingRefsSince(server, before)).toBe(1);
+      const nextListing = listings.nextArrival();
+      expect(server.advance(1)).toBe(1);
+      await nextListing;
+      expect(listings.held()).toBe(1);
       expect(matchingRefsSince(server, before)).toBe(2);
       listings.releaseOldest();
       expect(await watching.nextEvent()).toEqual(watchingAnswer);
       expect(await moved.nextEvent()).toEqual(movedAnswer);
 
-      listings.releaseAll();
-      watching.close();
-      moved.close();
-      const afterClose = server.github.calls.length;
-      await new Promise((resolve) => setTimeout(resolve, paceMs * 3));
-      expect(matchingRefsSince(server, afterClose)).toBe(0);
+      await server.waitForPace();
+      expect(server.pendingPaces()).toBe(1);
+      await server.disconnect(watching);
+      expect(server.pendingPaces()).toBe(1);
+      await server.disconnect(moved);
+      expect(server.pendingPaces()).toBe(0);
+      expect(server.advance(controlledPaceMs * 3)).toBe(0);
+      expect(matchingRefsSince(server, before)).toBe(2);
     } finally {
       await server.close();
     }
@@ -128,23 +138,24 @@ test.describe("authenticated read boundary revision stream (development environm
   });
 
   test("closing the boundary ends open streams and stops the observation", async () => {
-    const server = await streamServer();
-    server.github.serve(everyRepository, sharedReadsPublished(revisionA));
-    const stream = openStream(server, `&at=${revisionA}`);
-    expect(await stream.nextEvent()).toMatchObject({ revision: revisionA });
-    const afterFirst = server.github.calls.length;
-    const ended = stream.nextEvent();
-    await server.close();
-    await Promise.race([
-      ended.then(
-        () => {
-          throw new Error("The stream answered after the boundary closed.");
-        },
-        () => undefined,
-      ),
-      new Promise((resolve) => setTimeout(resolve, paceMs * 3)),
-    ]);
-    expect(matchingRefsSince(server, afterFirst)).toBe(0);
+    const server = await controlledStreamServer();
+    try {
+      server.github.serve(everyRepository, sharedReadsPublished(revisionA));
+      const stream = openStream(server, `&at=${revisionA}`);
+      expect(await stream.nextEvent()).toMatchObject({ revision: revisionA });
+      expect(matchingRefsSince(server, 0)).toBe(1);
+      await server.waitForPace();
+      expect(server.pendingPaces()).toBe(1);
+
+      await server.closeBoundary();
+      expect(await stream.ended).toEqual({ kind: "ended", eventCount: 1 });
+      expect((await rawRequest({ url: server.origin })).status).toBe(404);
+      expect(server.pendingPaces()).toBe(0);
+      expect(server.advance(controlledPaceMs * 3)).toBe(0);
+      expect(matchingRefsSince(server, 0)).toBe(1);
+    } finally {
+      await server.close();
+    }
   });
 
   test("a 504 listing answers the ref alone without branches", async () => {

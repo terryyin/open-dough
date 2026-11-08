@@ -58,10 +58,11 @@ export function rawRequest(options: RawRequestOptions): Promise<RawResponse> {
   });
 }
 
-// Starts a GET and severs the connection before any response arrives, the
-// way a browser tab does when the person navigates away or the page's own
-// controller aborts: the server sees a premature close on this request, not
-// a discarded answer it can keep computing.
+type EventStreamEnd = {
+  readonly kind: "ended" | "aborted";
+  readonly eventCount: number;
+};
+
 // Opens a GET that stays open and yields each `data:` line of a
 // `text/event-stream` as its JSON payload, for revision-stream boundary
 // specs. Closing ends the request the way a page closes its EventSource.
@@ -73,12 +74,20 @@ export function openEventStream(options: RawRequestOptions): {
     }>
   >;
   readonly nextEvent: () => Promise<unknown>;
+  readonly ended: Promise<EventStreamEnd>;
   readonly close: () => void;
 } {
   const url = new URL(options.url);
   const events: unknown[] = [];
   const waiters: Array<(value: unknown) => void> = [];
   let buffer = "";
+  let eventCount = 0;
+  let finish!: (kind: EventStreamEnd["kind"]) => void;
+  const ended = new Promise<EventStreamEnd>((resolve) => {
+    finish = (kind) => {
+      resolve({ kind, eventCount });
+    };
+  });
   let headersResolve: (value: {
     status: number;
     headers: Readonly<Record<string, string | string[] | undefined>>;
@@ -103,6 +112,12 @@ export function openEventStream(options: RawRequestOptions): {
         status: res.statusCode ?? 0,
         headers: res.headers,
       });
+      res.once("end", () => {
+        finish("ended");
+      });
+      res.once("close", () => {
+        finish("aborted");
+      });
       res.setEncoding("utf8");
       res.on("data", (chunk: string) => {
         buffer += chunk;
@@ -117,6 +132,7 @@ export function openEventStream(options: RawRequestOptions): {
           const payload: unknown = JSON.parse(
             dataLine.slice("data:".length).trim(),
           );
+          eventCount += 1;
           const waiter = waiters.shift();
           if (waiter !== undefined) waiter(payload);
           else events.push(payload);
@@ -125,11 +141,12 @@ export function openEventStream(options: RawRequestOptions): {
     },
   );
   req.on("error", () => {
-    // Destroy races the server ending the stream; only the open is under test.
+    finish("aborted");
   });
   req.end(options.body);
   return {
     headers,
+    ended,
     nextEvent: () =>
       events.length > 0
         ? Promise.resolve(events.shift())
@@ -142,6 +159,10 @@ export function openEventStream(options: RawRequestOptions): {
   };
 }
 
+// Starts a GET and severs the connection before any response arrives, the
+// way a browser tab does when the person navigates away or the page's own
+// controller aborts: the server sees a premature close on this request, not
+// a discarded answer it can keep computing.
 export function abandonedRequest(options: RawRequestOptions): {
   readonly cutAfter: (ms: number) => void;
 } {

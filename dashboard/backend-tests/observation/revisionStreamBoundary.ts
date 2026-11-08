@@ -15,9 +15,8 @@ import type { OriginAnswer } from "../../tests/originAnswers.ts";
 import type { RepositoryAnswerer } from "../../tests/support/fakeGitHub.ts";
 import type { GhRequest } from "../../tests/support/ghRequest.ts";
 import { openEventStream, rawRequest } from "../../tests/support/rawHttp.ts";
-import { askedSince } from "../../tests/support/sharedReads.ts";
 
-export const paceMs = 80;
+type StreamEndpoint = Pick<DashboardServer, "baseURL" | "origin">;
 
 // Answers as `published` does, except each request kind in `fixed` with its
 // fixed answer, such as a failing matching-refs listing.
@@ -55,14 +54,14 @@ export async function streamServer(
       ? developmentBoundary
       : { mode: "preview", prebuilt: builtDashboardDir }),
     extraEnv: {
-      DOUGH_REVISION_STREAM_MS: String(paceMs),
+      DOUGH_REVISION_STREAM_MS: "80",
       ...extraEnv,
     },
   });
 }
 
 export function streamUrl(
-  server: DashboardServer,
+  server: StreamEndpoint,
   query: string,
   source = "open-dough",
 ): string {
@@ -70,7 +69,7 @@ export function streamUrl(
 }
 
 export function openStream(
-  server: DashboardServer,
+  server: StreamEndpoint,
   query: string,
   headers: Readonly<Record<string, string>> = {},
 ) {
@@ -81,15 +80,16 @@ export function openStream(
 }
 
 export function matchingRefsSince(
-  server: DashboardServer,
+  server: Pick<DashboardServer, "github">,
   before: number,
 ): number {
-  return askedSince(server, before).filter((ask) => ask === "matching-refs")
-    .length;
+  return server.github.calls
+    .slice(before)
+    .filter(({ request }) => request.kind === "matching-refs").length;
 }
 
 export async function warmProfiles(
-  server: DashboardServer,
+  server: StreamEndpoint,
   revision: string,
 ): Promise<void> {
   expect(

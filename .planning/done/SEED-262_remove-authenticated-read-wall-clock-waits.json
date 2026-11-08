@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-262#remove-authenticated-read-wall-clock-waits",
+  "title": "Remove wall-clock waits from authenticated-read backend specs",
+  "completedAt": "2026-11-08T03:22:17.356Z",
+  "developer": "Terry Yin",
+  "agent": "ivan-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

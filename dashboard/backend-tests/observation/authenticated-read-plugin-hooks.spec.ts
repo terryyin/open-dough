@@ -6,26 +6,11 @@
 // in ./authenticated-read-subprocess-lifecycle.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
-import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
-import {
-  endFakeGh,
-  fakeGhEnv,
-  installFakeGh,
-} from "../../tests/support/fakeGh.ts";
 import { processAlive, readPid } from "../../tests/support/processGroup.ts";
-import {
-  everyRepository,
-  hangs,
-  startFakeGitHub,
-} from "../../tests/support/fakeGitHub.ts";
+import { everyRepository, hangs } from "../../tests/support/fakeGitHub.ts";
 import { waitUntil } from "../../tests/support/waitUntil.ts";
 import { abandonedRequest } from "../../tests/support/rawHttp.ts";
-import { withRestoredEnv } from "../../tests/support/testEnv.ts";
-import { configureDevelopmentProjects } from "../../tests/support/projectConfiguration.ts";
-import { startInProcessBoundaryHttp } from "../../tests/support/inProcessBoundaryHttp.ts";
+import { startInProcessAuthenticatedRead } from "../../tests/support/inProcessAuthenticatedRead.ts";
 
 const knownSourceId = "open-dough";
 
@@ -46,24 +31,10 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
   // that calling only `closeServer()` is the sole possible cause of the
   // subprocess ending.
   test("closeServer, called alone with no client disconnect and no Vite httpServer.close(), ends the held gh subprocess", async () => {
-    const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-hook-wiring-"));
-    const gh = installFakeGh(tempRoot);
-    const github = await startFakeGitHub();
-    github.serve(everyRepository, hangs);
-
-    const home = path.join(tempRoot, "home");
-    configureDevelopmentProjects(home);
-    const restoreEnv = withRestoredEnv({
-      ...fakeGhEnv(gh, github.url),
-      HOME: home,
-    });
-
-    const boundary = await startInProcessBoundaryHttp({
-      name: "dough-authenticated-read",
-      install: installAuthenticatedReadMiddleware,
-    });
-
+    const boundary = await startInProcessAuthenticatedRead();
+    const { gh, github } = boundary;
     try {
+      github.serve(everyRepository, hangs);
       abandonedRequest({
         url: `${boundary.origin}/__authenticated-read?source=${knownSourceId}`,
         headers: { Origin: boundary.origin },
@@ -84,11 +55,7 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
       });
       expect(died).toBe(true);
     } finally {
-      await boundary.closeHttp();
-      restoreEnv();
-      await endFakeGh(gh);
-      await github.close();
-      rmSync(tempRoot, { recursive: true, force: true });
+      await boundary.close();
     }
   });
 });
