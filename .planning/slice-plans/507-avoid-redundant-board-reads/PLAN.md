@@ -141,7 +141,7 @@ record is not.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 With the same Board revision and the launched entries present, change the
 synthetic native listing and let the session-record observer receive its
@@ -154,6 +154,32 @@ Proof: Run
 Observe the same document and published revision, no new published snapshot
 during the local step, and the existing restoration evidence after that step.
 Run the two-spec matched selection and record the results for both journeys.
+
+Accepted proof (2026-11-08): the listing-failure step of
+`agent-launch-story-card-session-states.spec.ts` pauses the page clock, drives
+`passOnePace` instead of a reload, and checks the same document, the unchanged
+queued revision and that GitHub was asked only `matching-refs` during the
+step; the restart, reload and project round trip are unchanged. The spec
+passed four times alone. Matched two-spec `--workers=2` selection, four runs
+each against a detached baseline worktree at the story base `985b381a9` with
+the same disposable recorder (logs in the job temporary `s2/`), strict passed
+with three executed cases on both sides:
+
+| Measure | Card-session-state base → delivered | Attention base → delivered |
+| --- | --- | --- |
+| Document loads | 3 → 2 | 6 → 3 |
+| Full Board reads, Open Dough / Doughnut | 7 / 1 → 6 / 1 | 13 / 2 → 10 / 2 |
+| Pinned Board reads | 0 → 0 | 0 → 3 |
+| Browser `since` checks / gh `matching-refs` | 0 / 0 → 1 / 1 | 8 / 8 → 9 / 9 |
+| gh content calls | 15 → 14 | 51 → 51 |
+| Pinned detail reads | 32 → 25 | 70 → 70 |
+| Launch traffic / Actions calls | 12 / 4 → 12 / 4 | 29 / 10 → 29 / 10 |
+
+The listing-failure step took 213–229 ms before and 88–94 ms after; the
+attention transitions 554–681 ms before and 419–661 ms after. Two-spec wall
+was 14.49–17.77 s before and 14.14–15.23 s after under load 3.7–4.8, which is
+exploratory. The card-session-state journey's added heads check is the page's
+first `matching-refs` call, so it carries no `If-None-Match`.
 
 ## Design and readiness review
 

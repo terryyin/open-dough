@@ -3,8 +3,10 @@
 // its card beside the Start actions, which stay disabled for an open session
 // and keep their notes in their accessible description; an unavailable one
 // has no Open terminal, and every one is State unknown with Open terminal
-// while the listing cannot be read. A restarted dashboard server, a reload,
-// and a project switch keep every entry and its state. What each state shows is
+// while the listing cannot be read, shown in the open page once its steady
+// pace of page time passes, with no new read of the published work. A
+// restarted dashboard server, a reload, and a project switch keep every entry
+// and its state. What each state shows is
 // ./agent-launch-session-state-pace.spec.ts. Origin alone still places
 // every story. The server keeps its HOME and the synthetic `claude`'s state
 // (./fixtures/fake-claude) in a machine directory, so a restart answers the
@@ -14,9 +16,11 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
-import { test as base, expect } from "../dashboardTest.ts";
+import { test as base, expect, pausePageClockAt } from "../dashboardTest.ts";
 import {
   chooseProject,
+  parts,
+  shortRevision,
   storyCardSessionOf,
   storyCardSessions,
   expectMembership,
@@ -39,6 +43,13 @@ import {
   type DashboardServer,
 } from "../support/dashboardServer.ts";
 import type { ClaudeSessionChange } from "../support/fakeClaude.ts";
+import {
+  expectNotReloaded,
+  markNotReloaded,
+  watchRecordReads,
+} from "../sessionStatePace.ts";
+import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
+import { readsBesideChecks } from "../originObservation.ts";
 
 const projectFolders = ["open-dough"];
 
@@ -81,6 +92,8 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
     machine,
   }) => {
     dashboard.claudeScenario("launched");
+    await pausePageClockAt(page, new Date());
+    const { passOnePace } = await watchRecordReads(page);
     const { card, action, settled, launch } = await openStoryColumnsJourney(
       page,
       columnsJourney,
@@ -169,9 +182,10 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       dashboard.claudeSessionBecomes(sessionIds[index] ?? "?", change);
     }
 
-    await test.step("while Claude Code's listing cannot be read, every session stays on its card as State unknown with Open terminal", async () => {
-      await page.reload();
-      await settled();
+    await test.step("while Claude Code's listing cannot be read, every session stays on its card as State unknown with Open terminal, in the open page with no new read of the published work", async () => {
+      const asked = github.calls.length;
+      await markNotReloaded(page);
+      await passOnePace();
       for (const { title, workflow } of launches) {
         const entry = entryOf(title, workflow);
         await expect(sessionStateOf(entry)).toContainText("State unknown");
@@ -180,6 +194,13 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       await expect(storyCardSessions(page.locator("body"))).toHaveCount(
         launches.length,
       );
+      await untilPageReadsAnswered(page);
+      await expectNotReloaded(page);
+      await expect(parts(page).readRevision).toContainText(
+        shortRevision(columnsJourney.queued),
+      );
+      // GitHub is asked at most whether the heads moved.
+      expect(readsBesideChecks(github.calls.slice(asked))).toEqual([]);
       dashboard.claudeListingFails(false);
     });
 
