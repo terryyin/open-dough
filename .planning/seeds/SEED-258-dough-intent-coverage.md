@@ -85,32 +85,82 @@ use separately after observing developers use the manual skill.
 {"schemaVersion":1,"identity":"SEED-258#assess-intent-coverage-during-wrap-up","dependencies":[{"supplier":{"identity":"SEED-258#invoke-intent-coverage-manually","href":"seeds/SEED-258-dough-intent-coverage.md#invoke-intent-coverage-manually"},"implementation":"Invoke the public manual skill from wrap-up and store the returned result in the done-story record.","rationale":"Wrap-up consumes the same proven assessment that developers can invoke manually.","condition":"The public dough-intent-coverage skill can be invoked manually, returns its assessment as output, and has been demonstrated with different test stacks.","state":"waiting","resolution":{"revision":"3f5fdf1888448d520292624d934902b280ac660e","path":".planning/seeds/SEED-258-dough-intent-coverage.md#invoke-intent-coverage-manually","summary":"Plan 503 slices 2–4 proved direct manual invocation in fresh installed Codex with Open Dough Playwright and Cursor with Lizard Nix/pytest. Each returned a scoped caught result with the measured report interval after a passing baseline, the intended assertion failure and a restored pass. The promoted declaration and tagged install/update checks verified both runtime files in both managed roots. The latest public tag v0.3.89 does not include the skill. This agreement waits for a public tagged Open Dough release containing the promoted files under ADR 0003.\nCondition remains unresolved: The public dough-intent-coverage skill can be invoked manually, returns its assessment as output, and has been demonstrated with different test stacks.\nAccepted integration: 360c43923d7470247aeb57d057b85676cb2e1b68 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/509-assess-intent-coverage-during-wrap-up/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05fe7b65728d76d6fe9b3db572d80c805228be3bc664e4f6711809039ce8198d","plan":"c516acef296028bbb7e76b60b7ea74a5a797ec97dbf97f9fb80ddac14d81255f"}}
 ```
 
-- **For / why.** A developer can close an eligible story and read the
-  assessment afterward without a separate invocation.
-- **Evaluation.** Wrap-up calls the same assessment before cleaning up the
-  story's source records and stores the returned result, including its
-  timing and effort evidence, in the story's done-record JSON beside the
-  backlog. The rendered assessment for the recently done story shows the
-  recorded wall-clock time, separate test runtime, and any reported effort,
-  preserving the units, evidence labels, and unavailable values. A repeat
-  wrap-up leaves one result. The existing rolling 30-day cleanup prunes the
-  result with the record.
-  Settle eligibility and the handling of incomplete evidence in refinement.
-  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
-- **Prerequisite.** A usable manual skill and evidence from its use that
-  justifies the additional wrap-up cost.
-- **Effort and stopping point.** Narrower than public delivery, with
-  uncertainty around eligibility and recovery. The recent assessment stays
-  readable through the existing completion record.
+**Goal.** A developer who closes a feature story through wrap-up can later
+select it in Recently done and read one targeted intent coverage result for
+it, with its cost, without invoking the check separately. The results show
+how the targeted check performs on real stories and what it costs, which
+informs whether automatic use stays worthwhile.
+
+**Scope.**
+
+- *Eligibility.* Wrap-up runs the check for each completed feature story it
+  closes, planned or planless. Bounded retrospective corrections and
+  context-only instructions are excluded: neither adds a story promise to
+  check.
+- *Invocation.* Once execution completion is established and before the
+  before-cleanup commit, wrap-up invokes the installed `dough-intent-coverage`
+  skill with the story section, its plan when one exists, and the completed
+  work's revision. Prefer a plausible protection gap for an important
+  promise raised by the retrospective or another review of the story;
+  otherwise the check selects the most important promise from the story's
+  key examples.
+- *Storage.* `complete` stores the returned report verbatim in the story's
+  done record beside the backlog. One record holds at most one result. The
+  existing rolling 30-day cleanup prunes it with the record. Records
+  without a result, including older records, stay valid.
+- *Incomplete evidence.* Wrap-up stores whatever outcome the skill returns,
+  including **Insufficient evidence** and unavailable cost entries with their
+  reasons. When the invocation returns no report, wrap-up stores an
+  unavailable result naming the reason and continues closure. The check
+  never blocks or delays the remaining cleanup decisions.
+- *Rendering.* Selecting a completed story from Recently done shows its
+  stored result in Intent's story summary: the outcome, promise, fault, and
+  evidence, and the four cost entries as recorded, including test runtime,
+  human and agent effort, and invocation-to-report elapsed. Units,
+  measured or estimated labels, and unavailable values are shown as
+  recorded. A story without a result shows no assessment.
+- *Repeat.* A repeated wrap-up of the same story, or a repeated `complete`,
+  leaves one result. When the done record already holds a result, wrap-up
+  does not run the check again.
+- *Scope limits.* No assessment of more than one promise per story, no test
+  repair, no new finding records, and no change to the manual skill's
+  outcomes or cost entries. Whether automatic use continues is a later
+  decision informed by these results.
+- *Architecture.* The done record remains the durable published fact
+  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
+  describes. The dashboard reads it the same way it reads the title.
+
+**Key examples.**
+
+1. A completed planned feature story whose retrospective named a weak
+   assertion for its main promise → wrap-up runs the check on that promise and
+   gets **Caught** with a 2.1 s measured test runtime, unavailable human
+   effort, estimated agent effort, and a measured elapsed time. The developer
+   selects the story in Recently done and sees the same outcome and the four
+   entries with their labels.
+2. A completed guidance-only feature story with no maintained assertion for
+   its promise → the check returns **Insufficient evidence** naming the
+   missing assertion. The record stores it, and Recently done shows that
+   outcome and its reason.
+3. The check is interrupted before it returns a report → the done record holds
+   an unavailable result naming the interruption. Closure finishes, and
+   Recently done shows the result as unavailable with that reason.
+4. A bounded retrospective correction closes → no check runs, and its done
+   record has no assessment.
+5. Wrap-up of a story whose done record already holds a result is repeated →
+   no second check runs, and the record still holds one result.
+6. A done record completed 31 days ago → the next `complete` removes it with
+   its result, as before.
 
 ## Ordering and scope reduction
 
-The manual skill waits for evidence and a decision to generalize. Wrap-up
-waits for the manual skill, and its additional cost is evaluated before
-execution.
+Wrap-up waits for a public release that contains the manual skill. On
+2026-11-08 Terry chose to automate the check in wrap-up once that release
+ships, without waiting for further manual use. The stored results supply the
+cost evidence for later review.
 
 ## Separate test follow-up candidates from the trial
 
