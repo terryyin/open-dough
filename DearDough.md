@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 449. Removed numbers are never reused.
+- Highest allocated local number: 450. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -942,3 +942,18 @@ had to inspect the run and workflow before it could ignore proven supersession.
   - Evidence: `CI_INCOMPLETE` for run 42436771496 (`df2702f6b`, `cancelled`); `gh run list` showed run 42437158620 for `ce269af5c` on the same branch succeeded; `.github/workflows/ci.yml` `concurrency.group` uses `github.ref` with `cancel-in-progress: true`
   - Observed effect: two inspection commands and a read of the notification guidance before the coordinator recorded supersession and continued; no repair or pause. It recurred for `151281a43` (run 42438254144, cancelled once `c755e3952` was pushed and later succeeded) and needed one more `gh run view`
   - Inference: qualified. The cost was small, but it recurs on every Story Branch execution that pushes slices faster than CI finishes. The observer already holds both registered revisions, so it may be able to classify the cancellation itself.
+
+## DD-450 — A shell check gained a browser its CI job did not install
+
+The concurrent dashboard shell check switched to a Playwright browser case.
+The local check had Chromium available. The hosted shell job installed npm
+dependencies, while the separate dashboard job installed Chromium.
+
+### Occurrences
+- Execution: SEED-262#prepare-artifacts-on-demand (plan 513-prepare-dashboard-artifacts-on-demand; first related implementation commit `019b0e25014c2e6fbee8138e90503279a77191a6`)
+  - Timestamp: unknown (2026-11-08, CI attempt 42441494702/1)
+  - Tool: Codex
+  - Open Dough release: 0.3.90 (installed `.agents/skills/dough-update/VERSION` at the claim)
+  - Evidence: [CI test shard](https://github.com/terryyin/open-dough/actions/runs/42441494702/job/128611486924) reported missing Chromium in both selected cases. An empty `PLAYWRIGHT_BROWSERS_PATH` reproduced the failure, then passed with the browser-free real preview selection in `6b9bd99fbe5530ca273dafb1cdbde8c152538464`.
+  - Observed effect: one failed CI run, one repair publication, and a pause, stash and restore of the next slice.
+  - Inference: qualified. Comparing the new selection's prerequisites with the hosted job, then checking with the same relevant optional dependencies, could catch this kind of cross-suite change before publication.
