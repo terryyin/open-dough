@@ -351,3 +351,14 @@ their actual test entry points. The selected cases keep their strict proof,
 and focused comparisons support lower feedback time. Keep the separate
 MakeMe migration and other feedback priorities in their existing scope.
 The process retrospective recorded DD-450 from the repaired shell CI failure.
+
+The pre-landing local gate at `52d5f83394c2126390f6f8ec4397494eb220fcac`
+passed dashboard type-check, the unfiltered quiet dashboard suite
+(2,164 passed and one baseline-report case skipped, strict pass), and
+the concurrent shell check. The dashboard command used Homebrew Bash
+on PATH and `caffeinate -s -i` on AC power. Its proof record is
+`/tmp/dough-513-final-local.UxgID6/dashboard.json`.
+
+Branch [CI attempt 42443927290/1](https://github.com/terryyin/open-dough/actions/runs/42443927290)
+passed for `1121f82c05f397ae08fe78cc3626ec11cf6da142`. The exact
+completion receipt confirmed observer shutdown and no unread events.
