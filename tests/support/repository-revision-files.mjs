@@ -1,5 +1,11 @@
 // @ts-check
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import {
   agentIdentity,
@@ -74,6 +80,7 @@ export function writeRevisionFiles(integration, revision) {
   const {
     backlog,
     files = {},
+    executable = [],
     storyStates = [],
     agentProfiles = [],
     doneRecords,
@@ -89,6 +96,8 @@ export function writeRevisionFiles(integration, revision) {
     );
   for (const [path, content] of Object.entries(files))
     writeFixtureFile(fixturePath(integration, path), content);
+  for (const path of executable)
+    chmodSync(fixturePath(integration, path), 0o755);
   for (const state of storyStates) writeStoryState(planning, state);
   for (const profile of agentProfiles)
     writeFixtureFile(

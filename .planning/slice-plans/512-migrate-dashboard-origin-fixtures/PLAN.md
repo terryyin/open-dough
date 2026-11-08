@@ -3,6 +3,7 @@
 **Identity:** SEED-262#migrate-dashboard-origin-fixtures
 
 **Source:** [Build dashboard test repositories from explicit MakeMe data](../../seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures)
+**Source review:** [source review](source-review.md)
 
 ## Goal and boundaries
 
@@ -147,7 +148,7 @@ too, because MakeMe is shared with the Node tests.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Before changing anything, record two focused runs of
 `agent-launch-start-refusal.spec.ts` and the `startOriginTest` consumers.
@@ -161,6 +162,15 @@ global setup prepare the default and the shared queued description per layout
 through the materializer with the installation layer. Pass the description at
 every call site and in each fixture, and remove the dashboard's
 `writeQueuedStories` re-export and use.
+
+Accepted proof (2026-11-08): one focused run of the 352 specs importing the
+start-origin modules passed 827 of 827; `start-origin-default.spec.ts` observes
+the default origin; the prepared first commit keeps all 705 old entries and
+modes, adds only `trunk.txt`, and its message is now `base trunk commit`. The
+shared revision writer gained `executable` so installed scripts keep 100755.
+Fixtures name `queuedOriginRepository` from `startOrigin.ts` as their
+overridable `originRepository` option. After-times ran under heavier load
+(14.8–16.3 against 10.5), so G3 carries the timing comparison to slice 3.
 
 ### 2. Publishers declare the planning facts they add
 
@@ -221,3 +231,25 @@ with its own focused proof. Slice 1 settles the shared materialized origin
 before slices 2 and 3 build on it. No slice-specific concern remains beyond
 the dependency on plan 510's materializer, which the recorded agreement
 blocks on.
+
+
+## Story obligations
+
+### G1. Fixture description override not yet exercised
+Reported: slice 1 — "No spec overrides a fixture's description with test.use yet; the option exists in all seven fixtures."
+Story clause: "a spec that needs other facts overrides it with `test.use`"
+Disposition: receiving slice 2
+Commitment: 11
+
+
+### G2. Private materialization of a non-shared description not yet exercised
+Reported: slice 1 — "Only the no-owner isolation cases exercise private preparation; no third description reaches it yet."
+Story clause: "A description that is not prepared run-wide is materialized through the shared materializer's per-process reuse on top of the same installed skills."
+Disposition: receiving slice 2
+Commitment: 17
+
+### G3. Slice 1 after-times ran under heavier load
+Reported: slice 1 — "After-times ran at load 14.8-16.3 against about 10.5 before (refusal 9/8 s vs 9/6 s; startOriginTest consumers 73/81 s vs 60/68 s), so they cannot show no slowdown."
+Story clause: "Dashboard feedback must not get slower."
+Disposition: receiving slice 3
+Commitment: 6

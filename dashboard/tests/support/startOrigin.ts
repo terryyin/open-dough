@@ -1,6 +1,8 @@
 // A bare origin and project checkout with source skills installed for real
-// execution-start journeys. Git insteadOf routes catalog URLs to this local
-// origin; machine holds the fake HOME. No fixture operation reaches a network.
+// execution-start journeys. The caller names the repository description the
+// origin starts with; with none, it holds an empty valid backlog. Git
+// insteadOf routes catalog URLs to this local origin; machine holds the fake
+// HOME. No fixture operation reaches a network.
 
 import { execFile } from "node:child_process";
 import {
@@ -15,7 +17,12 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { installedSkillPath } from "../../server/launchHosts.ts";
-import { initializeStartOrigin } from "./startOriginPreparation.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import {
+  initializeStartOrigin,
+  type StartRepository,
+} from "./startOriginPreparation.ts";
 import {
   otherQueuedIdentity,
   queuedIdentity,
@@ -45,6 +52,20 @@ export type StartOrigin = {
   cleanup(): void;
 };
 
+// What every origin fixture provides: the origin, and the description it
+// starts with as an option a spec overrides with `test.use`.
+export type StartOriginFixtures = {
+  origin: StartOrigin;
+  originRepository: StartRepository;
+};
+
+// The origin fixtures' default description: Stories A and B queued, refined,
+// planned and Ready.
+export const queuedOriginRepository: [StartRepository, { option: true }] = [
+  queuedReadyRepository().please(),
+  { option: true },
+];
+
 export type TrunkStart = {
   readonly agent: string;
   readonly workspace: string;
@@ -61,15 +82,22 @@ async function git(cwd: string, ...args: string[]): Promise<string> {
 }
 
 export async function startOrigin(
-  repository = "terryyin/open-dough",
-  projectId = "open-dough",
-  host: "claude" | "codex" | "cursor" = "claude",
+  description: StartRepository = makeMe.aRepository.please(),
+  {
+    repository = "terryyin/open-dough",
+    projectId = "open-dough",
+    host = "claude",
+  }: {
+    readonly repository?: string;
+    readonly projectId?: string;
+    readonly host?: "claude" | "codex" | "cursor";
+  } = {},
 ): Promise<StartOrigin> {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-start-"));
   const origin = path.join(machine, "origin.git");
   const project = path.join(machine, "home", "git", projectId);
   try {
-    await initializeStartOrigin(origin, project, repository, host);
+    await initializeStartOrigin(origin, project, repository, host, description);
   } catch (error) {
     rmSync(machine, { recursive: true, force: true });
     throw error;

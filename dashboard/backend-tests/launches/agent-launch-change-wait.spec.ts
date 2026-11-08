@@ -10,6 +10,7 @@
 // ../../tests/launches/agent-launch-start-story-card.spec.ts and
 // ../../tests/launches/agent-launch-second-server.spec.ts.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   agentChangedEndpoint,
@@ -94,7 +95,7 @@ test("a wait naming the changes its asker saw answers at once a change told whil
 const observedChangeWaitMs = 500;
 
 test("a non-owner with nothing new to tell consumes the configured change bound", async () => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const push = origin.holdPushes();
   let owner: DashboardServer | undefined;
   let observer: DashboardServer | undefined;

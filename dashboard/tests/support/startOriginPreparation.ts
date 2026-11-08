@@ -1,14 +1,27 @@
-// One packed, path-free origin per installation layout, prepared from this
-// run's working-tree source. Only copies reach a test: Git never hardlinks
-// objects or reads alternates, and each checkout names its own bare origin.
+// One packed, path-free origin per installation layout and repository
+// description, materialized through the shared repository harness with this
+// run's working-tree skills installed. Only copies reach a test: Git never
+// hardlinks objects or reads alternates, and each checkout names its own bare
+// origin.
 
 import { execFile } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
+import type { RepositoryDescription } from "../../../tests/support/repositoryTestData.mjs";
 import { installedSkillPath } from "../../server/launchHosts.ts";
-import { writeQueuedStories } from "./queuedStories.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 import { requestRunArtifact } from "./runArtifacts.ts";
 
@@ -18,8 +31,27 @@ export const startOriginPreparationVariable =
 const startOriginLayouts = ["claude", "codex"] as const;
 type StartOriginLayout = (typeof startOriginLayouts)[number];
 
-export function startOriginArtifactKey(layout: StartOriginLayout): string {
-  return `start-origin-${layout}`;
+export type StartRepository = RepositoryDescription<string>;
+
+// The shared descriptions global setup prepares once per layout per run. Any
+// other description is materialized privately on top of the same installation.
+const runWideRepositories = {
+  default: makeMe.aRepository.please(),
+  queued: queuedReadyRepository().please(),
+} as const satisfies Record<string, StartRepository>;
+type RunWideRepository = keyof typeof runWideRepositories;
+const runWideNames = Object.keys(runWideRepositories) as RunWideRepository[];
+const runWideKeys = new Map(
+  runWideNames.map((name) => [JSON.stringify(runWideRepositories[name]), name]),
+);
+
+export function startOriginArtifactKey(
+  layout: StartOriginLayout,
+  repository: RunWideRepository = "default",
+): string {
+  return repository === "default"
+    ? `start-origin-${layout}`
+    : `start-origin-${layout}-${repository}`;
 }
 
 export const installedStartSkills = [
@@ -35,57 +67,97 @@ export function createStartOriginPreparationDirectory(): string {
 }
 
 export function startOriginArtifacts() {
-  return startOriginLayouts.map(
-    (layout) =>
-      [
-        startOriginArtifactKey(layout),
-        {
-          create: createStartOriginPreparationDirectory,
-          prepare: (directory: string) => prepareStartOrigin(directory, layout),
-        },
-      ] as const,
+  return startOriginLayouts.flatMap((layout) =>
+    runWideNames.map(
+      (repository) =>
+        [
+          startOriginArtifactKey(layout, repository),
+          {
+            create: createStartOriginPreparationDirectory,
+            prepare: (directory: string) =>
+              prepareStartOrigin(
+                directory,
+                layout,
+                runWideRepositories[repository],
+              ),
+          },
+        ] as const,
+    ),
   );
+}
+
+// The first commit's committer and author, and the project checkout's identity.
+const dashboardDeveloper = {
+  name: "Dashboard Developer",
+  email: "developer@example.test",
+};
+
+function sourceFiles(directory: string): string[] {
+  return readdirSync(directory, { recursive: true, encoding: "utf8" }).filter(
+    (file) => statSync(path.join(directory, file)).isFile(),
+  );
+}
+
+// The harness layer: `.gitignore` and the installed skills, read from source
+// now, join the description's first commit instead of a commit of their own.
+function withInstallation(
+  repository: StartRepository,
+  layout: StartOriginLayout,
+  source: string,
+): StartRepository {
+  const files: Record<string, string> = { ".gitignore": ".worktrees/\n" };
+  const executable: string[] = [];
+  const project = { path: "", shown: "" };
+  for (const skill of installedStartSkills) {
+    const installed = installedSkillPath(layout, project, skill);
+    const skillSource = path.join(source, skill);
+    for (const file of sourceFiles(skillSource)) {
+      const from = path.join(skillSource, file);
+      const to = path.join(installed, file);
+      files[to] = readFileSync(from, "utf8");
+      if (statSync(from).mode & 0o100) executable.push(to);
+    }
+  }
+  const [first, ...later] = repository.revisions;
+  return {
+    revisions: [
+      {
+        committer: dashboardDeveloper,
+        ...first,
+        files: { ...files, ...first.files },
+        executable: [...executable, ...(first.executable ?? [])],
+      },
+      ...later,
+    ],
+  };
 }
 
 export async function prepareStartOrigin(
   directory: string,
   layout: StartOriginLayout,
+  repository: StartRepository,
   source = path.join(repoRoot, "src", "skills"),
 ): Promise<void> {
-  const project = path.join(directory, "building");
   try {
-    mkdirSync(project);
-    await exec("git", ["init", "-b", "main", project]);
-    writeFileSync(path.join(project, ".gitignore"), ".worktrees/\n");
-    writeQueuedStories(project);
-    const folder = { path: project, shown: project };
-    for (const skill of installedStartSkills) {
-      cpSync(
-        path.join(source, skill),
-        installedSkillPath(layout, folder, skill),
-        {
-          recursive: true,
-        },
-      );
+    const built = await materializeRepository(
+      withInstallation(repository, layout, source),
+      { parent: directory },
+    );
+    try {
+      const origin = path.join(directory, layout);
+      // The transport produces one pack instead of copying loose objects.
+      await exec("git", [
+        "clone",
+        "--bare",
+        "--no-local",
+        built.origin,
+        origin,
+      ]);
+      await exec("git", ["-C", origin, "remote", "remove", "origin"]);
+      await exec("git", ["-C", origin, "config", "maintenance.auto", "false"]);
+    } finally {
+      await built.cleanup();
     }
-    await exec("git", ["-C", project, "add", "."]);
-    await exec("git", [
-      "-C",
-      project,
-      "-c",
-      "user.name=Dashboard Developer",
-      "-c",
-      "user.email=developer@example.test",
-      "commit",
-      "-m",
-      "queued story and installed skills",
-    ]);
-    const origin = path.join(directory, layout);
-    // The transport produces one pack instead of copying loose objects.
-    await exec("git", ["clone", "--bare", "--no-local", project, origin]);
-    await exec("git", ["-C", origin, "remote", "remove", "origin"]);
-    await exec("git", ["-C", origin, "config", "maintenance.auto", "false"]);
-    rmSync(project, { recursive: true, force: true });
   } catch (error) {
     rmSync(directory, { recursive: true, force: true });
     throw error;
@@ -97,16 +169,22 @@ export async function initializeStartOrigin(
   project: string,
   repository: string,
   host: "claude" | "codex" | "cursor",
+  description: StartRepository,
 ): Promise<void> {
   const layout = host === "claude" ? "claude" : "codex";
+  const runWide = runWideKeys.get(JSON.stringify(description));
   // An explicit fixture override still takes precedence over the run owner.
   const prepared =
     process.env[startOriginPreparationVariable] ??
-    (await requestRunArtifact(startOriginArtifactKey(layout)));
+    (runWide === undefined
+      ? undefined
+      : await requestRunArtifact(startOriginArtifactKey(layout, runWide)));
   const directory = prepared ?? createStartOriginPreparationDirectory();
   try {
-    // A configuration with no inherited owner prepares a private copy.
-    if (prepared === undefined) await prepareStartOrigin(directory, layout);
+    // A configuration with no inherited owner, or a description the run does
+    // not prepare, gets a private copy.
+    if (prepared === undefined)
+      await prepareStartOrigin(directory, layout, description);
     cpSync(path.join(directory, layout), origin, {
       recursive: true,
     });
@@ -116,9 +194,9 @@ export async function initializeStartOrigin(
       "clone",
       "--no-hardlinks",
       "-c",
-      "user.name=Dashboard Developer",
+      `user.name=${dashboardDeveloper.name}`,
       "-c",
-      "user.email=developer@example.test",
+      `user.email=${dashboardDeveloper.email}`,
       "-c",
       "maintenance.auto=false",
       "-c",

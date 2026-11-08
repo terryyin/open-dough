@@ -1,4 +1,5 @@
 // Cases registered by ./feedback-maintenance-due-row.spec.ts.
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -29,7 +30,7 @@ test("a launch held because Open Dough's default main has existing changes says 
   page,
   github,
 }) => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const moving = await publishMovingOrigin(github);
   const due = dayFromToday(-1);
   pushWatchList(moving, watchListDue(due));

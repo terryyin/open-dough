@@ -1,3 +1,4 @@
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import {
   acceptanceSchema,
   verifiedAnswerSchema,
@@ -33,7 +34,7 @@ const exec = promisify(execFile);
 for (const quiet of [false, true])
   for (const recheck of [false, true])
     test(`Claude early ${quiet ? "quiet completion" : "attention report"} binds through ${recheck ? "native Recheck" : "normal launch"} and survives late native writers`, async () => {
-      const origin = await startOrigin();
+      const origin = await startOrigin(queuedReadyRepository().please());
       const server = await startDashboardServer({
         mode: "boundary",
         machine: origin.machine,

@@ -5,12 +5,17 @@
 import type { Page } from "@playwright/test";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { test as base } from "../dashboardTest.ts";
-import { startOrigin, type StartOrigin } from "./startOrigin.ts";
+import {
+  queuedOriginRepository,
+  startOrigin,
+  type StartOrigin,
+  type StartOriginFixtures,
+} from "./startOrigin.ts";
 
-export const test = base.extend<{ origin: StartOrigin }>({
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin();
+export const test = base.extend<StartOriginFixtures>({
+  originRepository: queuedOriginRepository,
+  origin: async ({ originRepository }, use) => {
+    const origin = await startOrigin(originRepository);
     await use(origin);
     origin.cleanup();
   },

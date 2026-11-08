@@ -10,6 +10,7 @@
 // schema (no publisher ID, mode, or plan), and the sessions answer lists the
 // projects whose installed skill ships the start and formatter.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { existsSync, realpathSync, rmSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -55,7 +56,7 @@ for (const model of ["opus", undefined] as const) {
     let server: DashboardServer;
 
     test.beforeAll(async () => {
-      origin = await startOrigin();
+      origin = await startOrigin(queuedReadyRepository().please());
       server = await startDashboardServer({
         mode: "boundary",
         machine: origin.machine,
@@ -134,7 +135,7 @@ test.describe("refinement of a project whose installed skill lacks the preparati
   let server: DashboardServer;
 
   test.beforeAll(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     server = await startDashboardServer({
       mode: "boundary",
       machine: origin.machine,

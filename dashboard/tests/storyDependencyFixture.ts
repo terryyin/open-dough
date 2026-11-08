@@ -5,7 +5,12 @@ import path from "node:path";
 import type { normalizeStoryDependency } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { test as base } from "./dashboardTest.ts";
-import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
+import {
+  queuedOriginRepository,
+  startOrigin,
+  type StartOrigin,
+  type StartOriginFixtures,
+} from "./support/startOrigin.ts";
 import { recordAssessed, writePlanning } from "./storyReadinessCli.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
@@ -25,10 +30,10 @@ const cli = path.join(
   "src/skills/dough-product-backlog/scripts/product-backlog.mjs",
 );
 
-export const test = base.extend<{ origin: StartOrigin }>({
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin();
+export const test = base.extend<StartOriginFixtures>({
+  originRepository: queuedOriginRepository,
+  origin: async ({ originRepository }, use) => {
+    const origin = await startOrigin(originRepository);
     await use(origin);
     origin.cleanup();
   },

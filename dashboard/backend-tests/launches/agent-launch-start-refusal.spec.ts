@@ -7,6 +7,7 @@
 // ./agent-launch-start.spec.ts; the table's mapping of the remaining stop
 // statuses is ./execution-start-result.spec.ts.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -37,7 +38,7 @@ test.describe("execution start that cannot be established", () => {
   let server: DashboardServer;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     server = await startDashboardServer({
       mode: "boundary",
       machine: origin.machine,

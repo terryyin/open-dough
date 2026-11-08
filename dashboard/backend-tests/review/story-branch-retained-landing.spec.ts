@@ -1,5 +1,6 @@
 // Real installed start/publication/reporting and dashboard terminal/Done
 // boundaries. Synthetic Claude supplies only native session and follow-up work.
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -38,7 +39,7 @@ const pendingPlan =
 let origin: StartOrigin;
 let server: DashboardServer;
 test.beforeEach(async () => {
-  origin = await startOrigin();
+  origin = await startOrigin(queuedReadyRepository().please());
   server = await startBoundary(origin);
 });
 test.afterEach(async () => {

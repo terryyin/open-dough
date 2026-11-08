@@ -1,3 +1,4 @@
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { chooseProject, parts } from "../dashboardPage.ts";
@@ -125,7 +126,10 @@ test("each project's rendered pinned reference opens its own telling of the same
     revision,
     repository: "terryyin/open-dough",
   });
-  const pygardon = await startOrigin("terryyin/pygardon", "pygardon");
+  const pygardon = await startOrigin(queuedReadyRepository().please(), {
+    repository: "terryyin/pygardon",
+    projectId: "pygardon",
+  });
   afterGitHubStops(() => {
     pygardon.cleanup();
   });

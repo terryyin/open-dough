@@ -1,5 +1,6 @@
 // Update worktree and retry: apply the release updater to the kept launch
 // worktree, then Continue-equivalent resume — or refuse without launching.
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -45,7 +46,7 @@ test.describe("Update worktree and retry", () => {
   let server: DashboardServer | undefined;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
   });
 
   test.afterEach(async () => {

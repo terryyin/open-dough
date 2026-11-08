@@ -22,8 +22,10 @@ import {
 import {
   otherQueuedIdentity,
   queuedIdentity,
+  queuedOriginRepository,
   startOrigin,
   type StartOrigin,
+  type StartOriginFixtures,
 } from "./support/startOrigin.ts";
 import { serveOriginBaseCi } from "./support/serveOriginBaseCi.ts";
 import {
@@ -34,10 +36,10 @@ import {
 import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
 import { settledOutcome } from "./acceptedAttempts.ts";
 
-export const test = base.extend<{ origin: StartOrigin }>({
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin();
+export const test = base.extend<StartOriginFixtures>({
+  originRepository: queuedOriginRepository,
+  origin: async ({ originRepository }, use) => {
+    const origin = await startOrigin(originRepository);
     await use(origin);
     origin.cleanup();
   },

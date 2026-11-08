@@ -4,6 +4,7 @@
 // without the shared policy, or default main or automatic landing without
 // one-shot tracking.
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -25,7 +26,7 @@ test.describe("a policy the installation or tracking cannot take", () => {
   let server: DashboardServer;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     server = await startBoundary(origin);
   });
 

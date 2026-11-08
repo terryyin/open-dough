@@ -94,10 +94,15 @@ Put a check where it is cheapest to prove, and prove it once:
   test. Servers and fake GitHub stay per test: siblings vary `projectFolders`,
   `launchTimeoutMs`, viewport and usually launch or mark done.
 
-An installed start requests its layout, Claude or Codex/Cursor, on first use.
-The runner packs each requested layout once from current working-tree skills
-(`support/startOriginPreparation.ts`). Tests clone private copies with
-independent objects, refs, config, indexes and HOME. Nested configurations
+An installed start names the MakeMe repository description its origin starts
+with, at the `startOrigin` call or in its origin fixture's option, which a spec
+overrides with `test.use`; with none, the origin holds an empty valid backlog.
+The harness adds `.gitignore` and the installed skills to the description's
+first commit. The runner packs the default and the shared queued description
+once per requested layout, Claude or Codex/Cursor, from current working-tree
+skills (`support/startOriginPreparation.ts`); another description is
+materialized privately on top of the same installation. Tests clone private
+copies with independent objects, refs, config, indexes and HOME. Nested configurations
 can inherit the outer runner's artifacts. Without an owner, a start prepares
 only its layout and removes that preparation after initialization. An explicit
 prepared-origin fixture path takes precedence.

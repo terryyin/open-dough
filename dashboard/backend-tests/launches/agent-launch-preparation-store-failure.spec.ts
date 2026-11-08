@@ -1,6 +1,7 @@
 // A result-store failure is beyond the page's control: the real installed
 // script publishes, then a bare-origin hook denies machine-directory writes.
 // Shared started() must preserve its result, including past its warning threshold.
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { chmodSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -19,11 +20,9 @@ import {
 
 for (const expired of [false, true]) {
   test(`post-publication recording failure preserves preparation (${expired ? "slow start" : "ordinary wait"})`, async () => {
-    const origin = await startOrigin(
-      "terryyin/open-dough",
-      "open-dough",
-      "codex",
-    );
+    const origin = await startOrigin(queuedReadyRepository().please(), {
+      host: "codex",
+    });
     const previousHome = process.env["HOME"];
     const previousWait = process.env["DOUGH_START_TIMEOUT_MS"];
     process.env["HOME"] = path.join(origin.machine, "home");

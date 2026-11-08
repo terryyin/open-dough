@@ -1,3 +1,4 @@
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
@@ -101,7 +102,10 @@ test("leaving during a pending reference prevents the delayed read from moving f
     repository: "terryyin/open-dough",
     follows: true,
   });
-  const pygardon = await startOrigin("terryyin/pygardon", "pygardon");
+  const pygardon = await startOrigin(queuedReadyRepository().please(), {
+    repository: "terryyin/pygardon",
+    projectId: "pygardon",
+  });
   afterGitHubStops(() => {
     pygardon.cleanup();
   });

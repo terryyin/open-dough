@@ -21,6 +21,7 @@
  * @typedef {{
  *   backlog?: Backlog,
  *   files?: Readonly<Record<string, string | Buffer>>,
+ *   executable?: readonly string[],
  *   storyStates?: readonly StoryState[],
  *   agentProfiles?: readonly AgentProfile[],
  *   doneRecords?: readonly DoneRecord[],

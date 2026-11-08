@@ -31,3 +31,23 @@ test("the default repository has one main commit with an empty backlog the CLI r
   });
   assert.match(stdout, /All 0 active entries already record their identity/);
 });
+
+test("a described executable file is committed with its executable mode", async (t) => {
+  const { origin, cleanup } = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("base", {
+        files: { "bin/run": "#!/bin/sh\n", "notes.txt": "plain\n" },
+        executable: ["bin/run"],
+      })
+      .please(),
+  );
+  t.after(cleanup);
+
+  assert.equal(
+    (await git(origin, "ls-tree", "-r", "main")).stdout.replace(
+      /blob \w+/g,
+      "blob",
+    ),
+    "100644 blob\t.planning/PRODUCT-BACKLOG.md\n100755 blob\tbin/run\n100644 blob\tnotes.txt\n",
+  );
+});

@@ -1,5 +1,6 @@
 // A Continue waiting to select its own record must honor newer attempt facts
 // under the machine lock rather than replacing another server's run/result.
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
@@ -13,7 +14,7 @@ import { startOrigin } from "../../tests/support/startOrigin.ts";
 
 for (const state of ["running", "settled"] as const)
   test(`Continue preserves the ${state} attempt found after its own-record selection waited`, async () => {
-    const origin = await startOrigin();
+    const origin = await startOrigin(queuedReadyRepository().please());
     const hold = path.join(origin.machine, "hold-attempt-lock");
     const reached = path.join(origin.machine, "attempt-lock-reached");
     const env = fsPromisesHook(
@@ -94,7 +95,7 @@ for (const state of ["running", "settled"] as const)
   });
 
 test("Continue reads an own record again at admission after pre-acceptance", async () => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const hold = path.join(origin.machine, "hold-readmission");
   const reached = path.join(origin.machine, "readmission-reached");
   const count = path.join(origin.machine, "admission-count");
@@ -152,7 +153,7 @@ test("Continue reads an own record again at admission after pre-acceptance", asy
 });
 
 test("Continue with unreadable own records leaves both stores as read and starts nothing", async () => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const server = await startDashboardServer({
     mode: "boundary",
     machine: origin.machine,
