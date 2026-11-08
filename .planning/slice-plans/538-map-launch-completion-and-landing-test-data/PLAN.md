@@ -222,3 +222,14 @@ Slice-plan refinement was unnecessary. Each slice owns one consuming
 boundary and its proof, and later slices reuse the outcome builders instead
 of creating parallel models. This review found no remaining concern about
 the slice boundaries.
+
+## Execution complete
+
+Product advice: no change to priorities. The completion and landing outcome
+builders (`aCompletionReport`, `aCompletionSubmission`, `aLandingContext`,
+`aLandingSubmission`, `aLandingReceipt`, `aLandingAuthority`, `aLaunchLanding`)
+have no entry in `tests/README.md#test-data-architecture`, while the kept
+launch builder does. Wrap-up should assimilate them there. Process findings: an
+`ODF-429` occurrence in `DearDough.md`, and project finding `DD-473` in
+`ProjectFindings.md` for the load-sensitive `story-review-story-branch-landed`
+journey.

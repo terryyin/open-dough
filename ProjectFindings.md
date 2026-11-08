@@ -448,3 +448,20 @@ selects no new implementation story.
   - Evidence: slice 1 made four family identities hash about 380–410 inputs each and added startup and one-shot to the check's writers; its seven one-input supervision captures and per-line `awk` calls scaled with that. Job `test (3/3)` printed `OVER BUDGET: tests/native-evidence-identity.sh took 67.8s … the per-job ceiling is 64s (tests/time-budget)` (recorded 34.5 s in `tests/longest-first`). The slice's focused runs passed at 47–67 s locally under load 11–13 without a budget judgment; the plan's Local gates and the delegation brief did not name the ceiling. Repair `7d62c61b5` (one capture over all changed inputs) gave 16.2 CI seconds at `cd5b0ddb0`.
   - Observed effect: one CI failure, a stash/repair/restore cycle around paused slice 2 work, and about 93k repair-agent tokens.
   - Inference: a slice that adds work inside an existing check could compare its focused time against the check's `tests/longest-first` entry scaled by the local base run and stop before publishing when it approaches the ceiling. Later briefs in this execution named the ceiling and no further breach occurred.
+
+## A story-branch landed review journey runs at its timeout under external load (open, unqueued)
+
+<a id="dd-473"></a>
+
+### DD-473 — `story-review-story-branch-landed.spec.ts` timed out at the 30 s default in focused runs beside other worktrees' suites
+
+### Occurrences
+
+- Execution: SEED-261#map-launch-completion-and-landing-test-data (plan 538-map-launch-completion-and-landing-test-data, first implementation commit d8961926c19dee65667673596e9f46f61d31869a)
+  - Timestamp: unknown (2026-11-09, during slice 4 before `9addc7c44`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: The slice 4 implementer's focused selection timed out on `dashboard/tests/review/story-review-story-branch-landed.spec.ts:27` at 31.7, 32.4 and 34.4 s under load averages of 21 to 27 from other worktrees' Playwright runs. Base `9f5e2f29` passed at 16.8 to 29.1 s in a temporary worktree, and the change passed at 13.2 to 28.2 s. The spec drives a real start, `history-preserving-publication.mjs integrate` and retirement. It passed in both later full gates (2241 and 2257 passed) at lower load.
+  - Observed effect: Three focused failures that the change did not cause, plus base and diff comparison runs to show that.
+  - Inference: The journey's unloaded time is about half its timeout, so external load alone can push it past 30 s. Splitting the setup from the reviewed reading, or reusing a prepared integration, would restore margin. Load attribution rests on start and end load readings only (see DD-275).
