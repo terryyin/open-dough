@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 - [Preserve large CI proof reports and surface size failures](seeds/SEED-267-preserve-large-ci-proof-reports.md#preserve-large-ci-proof-reports) — SEED-267#preserve-large-ci-proof-reports ([plan](slice-plans/517-preserve-large-ci-proof-reports/PLAN.md))
 - [Set up test preconditions without replaying unrelated workflows](seeds/SEED-262-faster-dashboard-test-feedback.md#arrange-prerequisite-state) — SEED-262#arrange-prerequisite-state ([plan](slice-plans/518-arrange-prerequisite-state/PLAN.md))
 - [Recover dictation and Paste in the embedded terminal](seeds/SEED-269-recover-terminal-insert.md#recover-terminal-insert) — SEED-269#recover-terminal-insert ([plan](slice-plans/519-recover-terminal-insert/PLAN.md))
+- [Reduce the cost of private dashboard test fixtures](seeds/SEED-262-faster-dashboard-test-feedback.md#reduce-private-fixture-lifecycle-cost) — SEED-262#reduce-private-fixture-lifecycle-cost ([plan](slice-plans/520-reduce-private-fixture-lifecycle-cost/PLAN.md))
 
 ## Backlog list
 
@@ -48,5 +49,4 @@ intent introduced or affected by a newly developed story.
 - [Make launch and session test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data) — SEED-261#map-launch-and-session-test-data
 - [Make Intent and CI proof test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-intent-and-ci-proof-test-data) — SEED-261#map-intent-and-ci-proof-test-data
 - [Make installation and native test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-installation-and-native-test-data) — SEED-261#map-installation-and-native-test-data
-- [Reduce the cost of private dashboard test fixtures](seeds/SEED-262-faster-dashboard-test-feedback.md#reduce-private-fixture-lifecycle-cost) — SEED-262#reduce-private-fixture-lifecycle-cost
 - [Make dashboard polling tests advance on controlled time and observed replies](seeds/SEED-262-faster-dashboard-test-feedback.md#drive-polls-with-time-and-replies) — SEED-262#drive-polls-with-time-and-replies
