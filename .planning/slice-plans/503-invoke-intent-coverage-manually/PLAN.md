@@ -16,6 +16,8 @@
 - Codex observer `viktor-seed258`, GitHub Actions `ci.yml` (CI) on the
   execution branch of `terryyin/open-dough`, mailbox
   `/tmp/dough-ci-501/watch-iouCtG`, PID `36703`, session `97985`, cell `12`.
+- Slice 1 was accepted on the execution branch at
+  `db92104dbf589a9cc9e53f7e1fd067054371b984` with observation attached.
 
 ## Goal and boundaries
 
@@ -114,7 +116,7 @@ passed six reader tests. Independent refactor review found no changes needed.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: A fresh invocation returns the targeted browser result and its cost.
 Compare it to the pinned story, fixture, assertion, and baseline, broken,
@@ -127,6 +129,46 @@ the pinned revision. Supply the story, revision, and concern about the waiting
 answer. Verify the result against the actual observations. Check restoration
 and the evidence limits in the representative review. Keep the source
 Proposed while the second example is pending.
+
+Accepted proof used disposable tag `v0.3.89`, commit
+`845ab2c4da805a00064edfde63bb99a93ec6b442`, with the standalone skill at
+SHA-256 `fe61286cc2ebafe5121f3aa09768a636013b28baa60afbe2a540062ead01bef6`
+in both installed roots. The tagged fixture, invocation and snapshots were
+retained for review under `/tmp/dough-seed258-open-dough.wM6r9G0t/`.
+
+The first invocation returned **Insufficient evidence** without applying a
+fault. The historical test's teardown could not execute macOS `/bin/ps`
+inside the disposable native sandbox and ended with `EPERM`. A direct process
+listing reproduced and cleared that error with a narrow execution exception
+for `/bin/ps`. The native retry preserved the candidate bytes, project pin,
+and test timeouts. It ran using
+`caffeinate -s -i /opt/homebrew/bin/bash /tmp/dough-seed258-open-dough.wM6r9G0t/probe-ps.sh`.
+
+The completed fresh Codex stream shows the installed skill read and one
+Chromium case selected at Open Dough `1359d6fb76b8ff2b4295e2b4febe0e467ec72be1`:
+
+```sh
+caffeinate -s -i npm run test:dashboard -- dashboard/tests/intent/intent-ci-comparison-cancelled-landing-gaps.spec.ts --grep 'waits for a later trunk build and uses it once pushed' --workers=1 --reporter=list
+```
+
+The baseline passed. The temporary removal of the `awaitingLaterBuild`
+guard in `dashboard/server/intentCiComparisonAnswers.ts:38–42` froze the
+waiting answer. After the fixture served finished run 403 and proof, the
+first post-push assertion at
+`dashboard/tests/intent/intent-ci-comparison-cancelled-landing-gaps.spec.ts:112`
+received stale waiting text. The restored run passed the same case and the
+pre/post tracked, staged, and untracked snapshots matched. The session
+returned **Caught** for that fault and browser path. The independent elapsed
+time through the response was 166.987 s. The returned report separately
+recorded 152.5 s through its final clock read and case runtimes of 8.4 s,
+10.9 s, and 9.3 s. Active effort measurements were unavailable.
+
+Representative review exercised the missing-source request, failed-baseline
+stop, insufficient-evidence result for an unreached assertion, and the green
+assertion with independently observed wrong behavior. The first native
+attempt also confirmed the failed-baseline stop without a scratch edit.
+The consumer trace found no active wrap-up or dashboard integration for
+the Proposed source. The plan's later payload step owns managed delivery.
 
 ### 3. Verify the same check in Lizard
 
