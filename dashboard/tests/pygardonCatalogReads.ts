@@ -5,9 +5,11 @@
 import type { Page, Route } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 
-// Holds Pygardon's done catalog reads from now on: `asked` resolves once one
-// reaches the page's boundary, and `release` lets every held one through.
-export async function holdPygardonCatalog(page: Page) {
+// Holds Pygardon's done catalog reads from now on, after letting the first
+// `passing` through: `asked` resolves once a held one reaches the page's
+// boundary, and `release` lets every held one through.
+export async function holdPygardonCatalog(page: Page, passing = 0) {
+  let passed = 0;
   let asked: () => void = () => undefined;
   const askedOnce = new Promise<void>((resolve) => {
     asked = resolve;
@@ -17,6 +19,11 @@ export async function holdPygardonCatalog(page: Page) {
     release = resolve;
   });
   await page.route(isPygardonCatalog, async (route: Route) => {
+    if (passed < passing) {
+      passed += 1;
+      await route.fallback();
+      return;
+    }
     asked();
     await released;
     // The page may have abandoned the read meanwhile.

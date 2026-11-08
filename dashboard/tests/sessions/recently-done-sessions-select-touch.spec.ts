@@ -15,7 +15,7 @@ import {
   openSelectionPage,
   report,
 } from "../recentlyDoneSelectionJourney.ts";
-import { pygardonCatalogRead } from "../pygardonCatalogReads.ts";
+import { holdPygardonCatalog } from "../pygardonCatalogReads.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 
@@ -102,13 +102,16 @@ test.describe("on coarse input", () => {
 
     await test.step("a linked done story behind six newer Pygardon sessions", async () => {
       await reopenSection();
-      const read = pygardonCatalogRead(page);
+      // The row's check reads the catalog; the Board's own read of it is
+      // still under way when the overlay is closed.
+      const boardRead = await holdPygardonCatalog(page, 1);
       await shown.entry(linked.title).scrollIntoViewIfNeeded();
       await tapWhereShown(shown.entry(linked.title));
-      await read;
+      await boardRead.asked;
       await expectProjectChoice(page, "Pygardon");
       await tapWhereShown(shown.button);
       await expect(shown.sidebar).toBeHidden();
+      boardRead.release();
       const card = recentlyDone.getByRole("article", {
         name: linked.title,
         exact: true,

@@ -51,6 +51,10 @@ import { useHostStatus } from "./hostStatusReads.ts";
 import { keep, readKept } from "./keptPreference.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import {
+  sessionsButton,
+  sessionsSidebarId,
+} from "./sessionsSidebarElements.ts";
+import {
   attentionCount,
   attentionSummary,
   workingCount,
@@ -60,7 +64,6 @@ import "./agent-launch.css";
 import "./sessions-sidebar.css";
 import "./sessions-toggle.css";
 
-const sessionsSidebarId = "sessions-sidebar";
 const sessionsSidebarOpenKey = "open-dough.sessionsSidebar.open";
 
 // Unkept, the sidebar starts closed.
@@ -136,9 +139,6 @@ export function useSessionsSidebar(
   useCommandShortcut(toggleShortcut, toggle);
   return { open, toggle, closeOverPage, records, alerts };
 }
-
-const sessionsButton = () =>
-  document.querySelector<HTMLElement>(`[aria-controls="${sessionsSidebarId}"]`);
 
 export function SessionsButton() {
   const { open, toggle, records } = useSessionsSidebarContext();

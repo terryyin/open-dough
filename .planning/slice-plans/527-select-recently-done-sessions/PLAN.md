@@ -137,6 +137,15 @@ only `ci-proof` at `actions/setup-node` (HTTP 504 twice downloading Node
 every dashboard shard, passed, and other branches acquired Node in the same
 window. Ignored as infrastructure; slice 2 publication runs full CI.
 
+CI repair: run 42465219397 attempt 1 on `1980a44` failed the phone-overlay
+linked step of `recently-done-sessions-select-touch.spec.ts` ("viewport ratio
+0"). Cause: the tap closing the Sessions overlay counted as the developer's own
+move and dropped the pending reveal before the Board's catalog read answered.
+The step now holds that read until the overlay closes (failed before the
+fix, passes after); taps on the Sessions sidebar or its toggle no longer end a
+sidebar going or its keep-in-view. Its other failed jobs were GitHub release
+504s during setup.
+
 ## Preparation review
 
 Slice-plan refinement was unnecessary. Selection and Board reveal each have

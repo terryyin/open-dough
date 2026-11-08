@@ -2,12 +2,15 @@
 // project's stories are shown, keeping it visible until the developer moves.
 // A Recently done sessions row selected in Development goes the same way to
 // its selected session, or to its linked done story's card
-// (`./recentlyDoneSelection.ts`), leaving the keyboard on the row.
+// (`./recentlyDoneSelection.ts`), leaving the keyboard on the row. Moving
+// around the Sessions sidebar, or closing it over the page, is not a move
+// on the page, so the going holds through it.
 import { useLayoutEffect, useRef, useState } from "react";
 import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
 import { sessionKey } from "./sessionReference.ts";
 import { sessionEntry, storyShown } from "./pageEntries.ts";
 import type { RecentlyDoneRange } from "./recentlyDoneRange.ts";
+import { onSessionsSidebar } from "./sessionsSidebarElements.ts";
 import { keepInView, storyCard } from "./storyCardFocus.ts";
 
 // Where a going lands: the session's entry, or, given `story`, that done
@@ -68,9 +71,13 @@ export function useSessionNavigation(
     }
     if (answer === "pending") {
       const { demand } = going;
-      return range.givenUpOnOwnMove(demand, () => {
-        setGoing(undefined);
-      });
+      return range.givenUpOnOwnMove(
+        demand,
+        () => {
+          setGoing(undefined);
+        },
+        onSessionsSidebar,
+      );
     }
     const shown = landing(going);
     // Nothing to reveal yet leaves the going to a later rendering.
@@ -78,7 +85,7 @@ export function useSessionNavigation(
     revealed.current = going;
     // Kept in view until the developer moves, goes elsewhere, or another
     // project's stories are shown.
-    return keepInView(shown);
+    return keepInView(shown, onSessionsSidebar);
   }, [going, selected, shownSource, range.destination]);
   const goTo: GoToSession = (record, story) => {
     setGoing(record === undefined ? undefined : { to: record, story });
