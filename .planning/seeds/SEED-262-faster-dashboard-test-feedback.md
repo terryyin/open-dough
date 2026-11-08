@@ -172,7 +172,7 @@ times are the baseline for the reuse story.
 {"schemaVersion":1,"identity":"SEED-262#migrate-dashboard-origin-fixtures","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story passes makeMe.aRepository descriptions to startOrigin and its publishers, and materializes them through the shared harness materializer with its per-process reuse.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and checkout with per-process reuse, are published on trunk.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/511-migrate-dashboard-origin-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"715e4a34c9c41af039ad2e2beea2654566d9a7cdc696a21e1e015de390a8c92a","plan":"241d1bb68450d2d7abd3c2492d414c8148486af29affb31f2acd8727cf5ff66d"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"715e4a34c9c41af039ad2e2beea2654566d9a7cdc696a21e1e015de390a8c92a","plan":"241d1bb68450d2d7abd3c2492d414c8148486af29affb31f2acd8727cf5ff66d"}}
 ```
 
 #### Goal
