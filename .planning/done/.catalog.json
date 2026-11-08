@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-271_compact-intent-sidebar.json",
+      "identity": "SEED-271#compact-intent-sidebar",
+      "completedAt": "2026-11-08T10:09:59.421Z",
+      "blob": "79088c08386068adf6db959809bf56a3fa280905"
+    },
+    {
       "fileName": "SEED-262_build-explicit-git-fixtures.json",
       "identity": "SEED-262#build-explicit-git-fixtures",
       "completedAt": "2026-11-08T07:36:52.017Z",
