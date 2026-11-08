@@ -15,13 +15,7 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-**Maintenance assessment (2026-11-07):** No new project story. DD-378 is retired after `SEED-229#reduce-remote-sessions-traffic` (`e49035d31:.planning/slice-plans/462-reduce-remote-sessions-traffic/PLAN.md`, 2026-11-04) attributed four full-suite failures to base `e69e74cf7` and repaired all four in the execution ([history](docs/maintainer/project-findings-history.md#dd-378)). DD-412 records `SEED-241#load-intent-without-disruption-or-bulk-source-transfer` (plan 477, 2026-11-05) running the full dashboard suite under `caffeinate -s -i` (2,044 passed, 1 skipped), while its two settling observations remain open. DD-420, DD-421, DD-428, DD-429 and DD-430 moved here from DearDough.md (`8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md`) as repaired dashboard, fake-Cursor harness and server-bundle observations alongside DD-432 and DD-433; the misplaced `SEED-232#reduce-running-cursor-session-requests` occurrence under DD-414 (`2d80ac1fc`, shifted in merge `bd1b1afbd6`) is restored to ODF-367 in DearDough.md. DD-419/DD-432 (local suite admission across focused and container runs) and DD-426/DD-433 (6-minute job caps on slow runners and upload stalls) remain open pending design and budget decisions.
-
-**Maintenance assessment (2026-11-03):** No new project story. DD-376 is retired after 68 post-repair runs without an install failure ([history](docs/maintainer/project-findings-history.md#earlier-reviews)). DD-406's local facet is already repaired in project documentation and awaits a re-profile. DD-411's slow-setup shard breach is runner speed on a story branch, recorded under DD-279 without counting against its allocator criterion. DD-347's third row-pressure exposure keeps it open; its remedy reshapes shared guidance reads and is not selected here. DD-374 and DD-378's responses are on `main` and released in `v0.3.80`; their observations remain open.
-
-**Maintenance assessment (2026-10-25):** Select one new project response: SEED-151#balance-test-shares (since implemented and closed; story recoverable at `8dd20d66:.planning/seeds/SEED-151-test-share-reliability.md#balance-test-shares`), queued at the time, not resolved, for DD-279's renewed allocation failure in plan 350. This demonstrated CI failure outranks the strongest alternative, DD-336's one loaded-run missing-result failure whose cause remains unknown. The browser-restart and mouse-press repairs have no established post-fix recurrence; DD-320 still awaits a qualifying paid replay and is not duplicated. Direction and existing work remain unchanged. No new occurrence is created by this review.
-
-**Maintenance assessment (2026-10-21):** DD-309's measured repository-tooling response first ships in `v0.3.67`; later usage remains unobserved. DD-297's source-directory race was repaired at `059cda6920e0934f4288641d2f4cfa8927d6726b`, while its separate loaded child-start observation remains qualified. The selected response to DD-320's extra paid run and inconclusive replay is implemented at `fba97e9fbb90c4f97909a5e2ab899a0031c58308`: the [maintained pre-launch comparison](tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch) advances useful learning before spending another native run; its native outcome remains unobserved. The strongest alternative is the older browser-restart race (DD-296): its concrete failing callers were repaired, and the remaining related exposure has no new observed failure. Preserve that residual and other open findings without another implementation commitment. Existing repaired responses remain historical; incomplete exposure does not establish retirement. No new occurrence is added by this review.
+**Maintenance assessment (2026-11-08):** [DD-442](docs/maintainer/project-maintenance-findings.md#dd-442) belongs to this repository’s historical trial preflight. The corrected third checkout rejected a later object. [DD-445](docs/maintainer/project-test-findings.md#dd-445) records two repaired timeout regressions and remaining hosted variance, alongside the existing dashboard fixture-cost work. [DD-452](docs/maintainer/project-findings-history.md#dd-452) is a repaired mismatch between this repository’s shell CI job and its selected proof. No new local story was selected. The three source sections are recoverable at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6:DearDough.md`.
 
 1. **Proof-selection visibility — opt-in verified locally.** [DD-216/DD-243](#dd-216)
    repeats across five executions (plans 217, 261, 263, 264, 297), costing
@@ -65,11 +59,7 @@ new or residual causes above are not evidence that every earlier fix failed.
 
 ## Dashboard specs can lose a mouse press to a reflow (open, unqueued)
 
-<a id="dd-278"></a>
-
-### DD-278 — Two dashboard specs lost a mouse press to a reflow between press and release, on two CI runs in one day
-
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-278).
+<a id="dd-278"></a> [DD-278 — Two dashboard specs lost a mouse press to a reflow between press and release, on two CI runs in one day](docs/maintainer/project-test-findings.md#dd-278).
 
 ## Dashboard shards run at their time ceiling (response implemented, hosted outcome unobserved)
 
@@ -81,19 +71,11 @@ new or residual causes above are not evidence that every earlier fix failed.
 
 ## Concurrent dashboard runs lost a run's result file (open, unqueued)
 
-<a id="dd-336"></a>
-
-### DD-336 — `dashboard-concurrent-runs.sh` failed once in a loaded whole-suite run on a missing `.last-run.json`
-
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-336).
+<a id="dd-336"></a> [DD-336 — `dashboard-concurrent-runs.sh` failed once in a loaded whole-suite run on a missing `.last-run.json`](docs/maintainer/project-test-findings.md#dd-336).
 
 ## Focused proof bypasses the project test runner (open, unqueued)
 
-<a id="dd-330"></a>
-
-### DD-330 — Delegated focused proof ran `node --test` directly, so it missed both the runner's Git environment and its quiet-pass rule
-
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-330).
+<a id="dd-330"></a> [DD-330 — Delegated focused proof ran `node --test` directly, so it missed both the runner's Git environment and its quiet-pass rule](docs/maintainer/project-test-findings.md#dd-330).
 
 ## Quiet passing checks obscure the selected proof (opt-in verified locally)
 
@@ -103,18 +85,6 @@ new or residual causes above are not evidence that every earlier fix failed.
 
 [Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-216).
 
-**Observed outcome (2026-10-12):** The opt-in
-`OPEN_DOUGH_DASHBOARD_PROOF_RECORD` path retained the actual selection, attempts
-and strict verdict of one 24-test focused invocation without a counting rerun.
-The full reporter/capability proof passed in 21.999 seconds; the reporter stayed
-silent and its passing output directory was absent. Normal npm and direct
-config entry from another directory also retained their own outer selection
-across nested runs. [Usage and evidence interpretation](dashboard/tests/README.md)
-cover the remaining cost: supply an unused path before invocation, retain it,
-then read it alongside the strict command exit. Opt-out runs still have no count
-record. This verifies the repository tooling response, not universal adoption
-or a change to published proof-acceptance guidance.
-
 <a id="dd-243"></a>
 
 DD-243 remains the same finding; its later occurrences are
@@ -122,11 +92,7 @@ DD-243 remains the same finding; its later occurrences are
 
 ## Shell observations can invert a result on Linux (open, unqueued)
 
-<a id="dd-187"></a>
-
-### DD-187 — A `git log | grep -q` observation under `pipefail` flipped on CI when git lost the race to SIGPIPE
-
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-187).
+<a id="dd-187"></a> [DD-187 — A `git log | grep -q` observation under `pipefail` flipped on CI when git lost the race to SIGPIPE](docs/maintainer/project-test-findings.md#dd-187).
 
 ## Shell formatting can change harness semantics (open, unqueued)
 
@@ -191,51 +157,27 @@ historical 134 GB remains unknown.
 
 ## A limit-recovery spec counts one extra request under suite load (open, unqueued)
 
-<a id="dd-295"></a>
-
-### DD-295 — `limit-recovery-credit-history.spec.ts` saw an unrelated plan-history request after its recovery mark in one loaded whole-suite run
-
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-295).
+<a id="dd-295"></a> [DD-295 — `limit-recovery-credit-history.spec.ts` saw an unrelated plan-history request after its recovery mark in one loaded whole-suite run](docs/maintainer/project-test-findings.md#dd-295).
 
 ## Specs restart a server on a just-closed port (partly repaired, open, unqueued)
 
-<a id="dd-296"></a>
-
-### DD-296 — A spec that restarted its server on the fixture's closed port failed CI with "Port … is already in use"
-
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-296).
+<a id="dd-296"></a> [DD-296 — A spec that restarted its server on the fixture's closed port failed CI with "Port … is already in use"](docs/maintainer/project-test-findings.md#dd-296).
 
 ## Two checks fail only beside other work (open, unqueued)
 
-<a id="dd-297"></a>
-
-### DD-297 — A test writing into the source scripts directory and a five-second child-start poll each failed once in loaded whole-suite runs
-
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-297).
+<a id="dd-297"></a> [DD-297 — A test writing into the source scripts directory and a five-second child-start poll each failed once in loaded whole-suite runs](docs/maintainer/project-test-findings.md#dd-297).
 
 ## Loaded-suite evidence lacks within-run load (open, unqueued)
 
-<a id="dd-275"></a>
-
-### DD-275 — Acceptance runs recorded machine load only at their start and end, so a failure could not be placed against the story's load bound
-
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-275).
+<a id="dd-275"></a> [DD-275 — Acceptance runs recorded machine load only at their start and end, so a failure could not be placed against the story's load bound](docs/maintainer/project-test-findings.md#dd-275).
 
 ## Observer journeys wait on a judgement that can predate the test's provider change (repaired, unqueued)
 
-<a id="dd-302"></a>
-
-### DD-302 — An integrated-state journey's wait accepted a stale judgement and failed only in CI
-
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-302).
+<a id="dd-302"></a> [DD-302 — An integrated-state journey's wait accepted a stale judgement and failed only in CI](docs/maintainer/project-test-findings.md#dd-302).
 
 ## Installer declarations sit at the line limit beside a single-entry anchor convention (open, unqueued)
 
-<a id="dd-303"></a>
-
-### DD-303 — Joining `install.sh` lines to stay at 250 broke a test that treats single-entry lines as anchors
-
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-303).
+<a id="dd-303"></a> [DD-303 — Joining `install.sh` lines to stay at 250 broke a test that treats single-entry lines as anchors](docs/maintainer/project-test-findings.md#dd-303).
 
 ## A focused local run waits for another worktree's full suite (open, unqueued)
 
@@ -395,35 +337,11 @@ DD-171's delivered commit-hook typecheck and red/green evidence are
 
 ## Repository authoring and host observations
 
-<a id="dd-363"></a>
-
-### DD-363 — Coordinator source-review hard-breaks fail fresh delivery
-
-[Original evidence and local responsibility](docs/maintainer/project-maintenance-findings.md#dd-363).
-
-<a id="dd-365"></a>
-
-### DD-365 — Commit-specific preparation approval repeats after safe reconciliation
-
-[Original evidence and local responsibility](docs/maintainer/project-maintenance-findings.md#dd-365).
-
-<a id="dd-370"></a>
-
-### DD-370 — New Markdown docs with trailing blank EOF fail staged whitespace
-
-[Original evidence and local responsibility](docs/maintainer/project-maintenance-findings.md#dd-370).
-
-<a id="dd-371"></a>
-
-### DD-371 — Delivery typecheck first catches exactOptionalPropertyTypes after green proof
-
-[Original evidence and local responsibility](docs/maintainer/project-maintenance-findings.md#dd-371).
-
-<a id="dd-374"></a>
-
-### DD-374 — Delegation brief softened the project's failing-test policy to "fix or report"
-
-[Original evidence and local responsibility](docs/maintainer/project-maintenance-findings.md#dd-374).
+- <a id="dd-363"></a> [Coordinator source-review hard-breaks fail fresh delivery](docs/maintainer/project-maintenance-findings.md#dd-363)
+- <a id="dd-365"></a> [Commit-specific preparation approval repeats after safe reconciliation](docs/maintainer/project-maintenance-findings.md#dd-365)
+- <a id="dd-370"></a> [New Markdown docs with trailing blank EOF fail staged whitespace](docs/maintainer/project-maintenance-findings.md#dd-370)
+- <a id="dd-371"></a> [Delivery typecheck first catches exactOptionalPropertyTypes after green proof](docs/maintainer/project-maintenance-findings.md#dd-371)
+- <a id="dd-374"></a> [Delegation brief softened the project's failing-test policy to "fix or report"](docs/maintainer/project-maintenance-findings.md#dd-374)
 
 <a id="dd-378"></a>
 

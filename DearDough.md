@@ -840,17 +840,7 @@ Slice acceptance recorded an Intent-overlay commitment as observed by citing the
 
 ## DD-442 — A shallow historical checkout still inherited the host Git object store
 
-A scratch checkout can show one reachable commit and no remotes while Git can still read a host object alternate. For a bounded historical assessment, verify that the checkpoint can be read from its local object store with inherited alternates cleared and that a known later object is unavailable.
-
-### Occurrences
-- Execution: SEED-192#assess-story-intent-protection (plan 472, first report commit `ae07bb07aa1516a7d400cff6496f1c5c1cf0fc8f`)
-  - Timestamp: 2026-11-07T08:26:55.778Z (coordinator report during Slice 3 preflight)
-  - Tool: Codex
-  - Model: gpt-6.1-sol
-  - Open Dough release: 0.3.87 (execution checkout's installed guidance)
-  - Evidence: Codex session `01a1b509-fd39-79c2-a8b9-5fc768f51ded` at 08:26–08:27Z; `b0ad4c799d4b659ed072591e8dc0e66b4caefc2e:.planning/slice-plans/472-assess-story-intent-protection/PLAN.md` execution context and Slice 3 proof; [trial evidence limits](https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md#evidence-limits).
-  - Observed effect: The third assessor could not read HEAD with `GIT_ALTERNATE_OBJECT_DIRECTORIES` unset until the coordinator materialized the checkpoint locally. The corrected preflight resolved HEAD, counted one reachable commit and rejected a later object. The first two assessors' standalone Git checks had inherited the alternate. Their Playwright commands cleared it, and both assessors confirmed they used only their scoped inputs.
-  - Inference: Ref and remote checks alone cannot establish object isolation. No access to later evidence was observed, and the rework time was not measured.
+[Project evidence](docs/maintainer/project-maintenance-findings.md#dd-442).
 
 ## DD-443 — A shared tracking-ref update interrupted confirmation after a successful push
 
@@ -886,19 +876,7 @@ where the done reader rejects it.
 
 ## DD-445 — Timeout headroom judged from one hosted run missed run-to-run variance
 
-Overrides were removed when one hosted run showed a case at or under 15s, but
-the same unchanged cases ran up to about 2x slower in later hosted runs, so
-two removals timed out on CI and a hardening pass followed.
-
-### Occurrences
-- Execution: SEED-260#restore-default-test-timeouts (plan 502-restore-default-test-timeouts; first related implementation commit `6e6d16cef09551a1bd589ba1ec8be6c5cc970f1c`)
-  - Timestamp: 2026-11-08T01:20:03+08:00 (commit time of slice 8 revision `1f9d12446`; its hosted run 42395811294 timed out afterwards)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.88 (installed `.claude/skills/dough-update/VERSION`)
-  - Evidence: slice 1 margin rule used run 42372706379 only; runs 42395811294 (`agent-launch-story-card-sessions`, 25.2s before) and 42399373902 (`production-watcher-failures.spec.ts:84`) hit 30s; comparing 2,122 matched cases, median ratio 1.02 but p90 1.53, and `story-review-one-shot-choice-refresh` 13.8s → 26.5s unchanged
-  - Observed effect: two CI repairs (`acfe0ca9e`, `665c28053`) with stash and pause cycles, then a nine-journey hardening pass (`aad804b57`); 13 hosted cases still at 20–25s
-  - Inference: hosted shard co-scheduling and CPU contention dominate; a margin judged across several hosted runs, or against a loaded stand-in such as 16–24 traced local workers, would have found these before publication
+[Project evidence](docs/maintainer/project-test-findings.md#dd-445).
 
 ## DD-446 — Report-clock changes replayed already-proved scratch journeys
 
@@ -1008,17 +986,4 @@ across two runs.
 
 ## DD-452 — A shell check gained a browser its CI job did not install
 
-Execution-branch code DD-450 at `1121f82c05f397ae08fe78cc3626ec11cf6da142:DearDough.md`.
-
-The concurrent dashboard shell check switched to a Playwright browser case.
-The local check had Chromium available. The hosted shell job installed npm
-dependencies, while the separate dashboard job installed Chromium.
-
-### Occurrences
-- Execution: SEED-262#prepare-artifacts-on-demand (plan 513-prepare-dashboard-artifacts-on-demand; first related implementation commit `019b0e25014c2e6fbee8138e90503279a77191a6`)
-  - Timestamp: unknown (2026-11-08, CI attempt 42441494702/1)
-  - Tool: Codex
-  - Open Dough release: 0.3.90 (installed `.agents/skills/dough-update/VERSION` at the claim)
-  - Evidence: [CI test shard](https://github.com/terryyin/open-dough/actions/runs/42441494702/job/128611486924) reported missing Chromium in both selected cases. An empty `PLAYWRIGHT_BROWSERS_PATH` reproduced the failure, then passed with the browser-free real preview selection in `6b9bd99fbe5530ca273dafb1cdbde8c152538464`.
-  - Observed effect: one failed CI run, one repair publication, and a pause, stash and restore of the next slice.
-  - Inference: qualified. Comparing the new selection's prerequisites with the hosted job, then checking with the same relevant optional dependencies, could catch this kind of cross-suite change before publication.
+[Project evidence](docs/maintainer/project-findings-history.md#dd-452).

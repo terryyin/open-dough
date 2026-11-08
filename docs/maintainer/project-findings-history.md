@@ -261,3 +261,145 @@ DearDough.md on 2026-09-29.
   and 240, merged), DD-224, DD-229 (removed as resolved in the same review).
   Returned to `DearDough.md`: DD-169, DD-173 (recovery:
   `a5c0ded1:ProjectFindings.md`).
+
+<a id="dd-452"></a>
+
+## DD-452 — A shell check gained a browser its CI job did not install
+
+Execution-branch code DD-450 at `1121f82c05f397ae08fe78cc3626ec11cf6da142:DearDough.md`.
+
+The concurrent dashboard shell check switched to a Playwright browser case.
+The local check had Chromium available. The hosted shell job installed npm
+dependencies, while the separate dashboard job installed Chromium.
+
+### Occurrences
+- Execution: SEED-262#prepare-artifacts-on-demand (plan 513-prepare-dashboard-artifacts-on-demand; first related implementation commit `019b0e25014c2e6fbee8138e90503279a77191a6`)
+  - Timestamp: unknown (2026-11-08, CI attempt 42441494702/1)
+  - Tool: Codex
+  - Open Dough release: 0.3.90 (installed `.agents/skills/dough-update/VERSION` at the claim)
+  - Evidence: [CI test shard](https://github.com/terryyin/open-dough/actions/runs/42441494702/job/128611486924) reported missing Chromium in both selected cases. An empty `PLAYWRIGHT_BROWSERS_PATH` reproduced the failure, then passed with the browser-free real preview selection in `6b9bd99fbe5530ca273dafb1cdbde8c152538464`.
+  - Observed effect: one failed CI run, one repair publication, and a pause, stash and restore of the next slice.
+  - Inference: qualified. Comparing the new selection's prerequisites with the hosted job, then checking with the same relevant optional dependencies, could catch this kind of cross-suite change before publication.
+
+**Disposition:** The browser-free preview selection passed under the hosted shell job’s dependency boundary in `6b9bd99fbe5530ca273dafb1cdbde8c152538464`. The original occurrence remains above.
+
+## Quiet passing checks obscure the selected proof (opt-in verified locally)
+
+**Follow-up:** [Opt-in selection records](../../dashboard/tests/README.md)
+provide locally verified opt-in evidence through the same strict reporter. The
+caller still chooses an unused absolute path, reads the record after the run,
+checks its attribution/completeness alongside the command exit, and owns its
+retention. Opt-out runs retain the original silent behavior. This response
+changes repository proof tooling only; historical occurrences below remain.
+
+<a id="dd-216"></a>
+
+### DD-216 — Literal proof commands printed no pass counts, so agents reran passing suites
+
+The plan's focused Playwright commands used the default reporter. Under the agents' shell, a passing run printed no summary, and two agents reran the same selection with `--reporter` just to report counts.
+
+#### Same-run evidence evaluation (2026-10-12)
+
+In the execution checkout based on `a0886605`, Node 24.21.0 and locked
+Playwright 1.63.0 ran the normal strict configuration with two workers:
+
+```sh
+env -u NO_COLOR NODE_DISABLE_COMPILE_CACHE=1 OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/dough-proof-selection-Z5M7mc/final-proof.json npm run test:dashboard -- quiet-reporter.spec.ts proof-record.spec.ts proof-record-storage.spec.ts proof-record-verdict.spec.ts proof-record-interruption.spec.ts proof-record-entry.spec.ts --workers=2
+```
+
+The command exited 0. Reading the same invocation's record, without a listing
+or second counting execution, found 24 distinct selections and 24 passed
+attempts in six spec files, `phase: "completed"`, raw and strict passed
+verdicts, and duration 21,998.901 ms. The run ID was
+`d82b923a-f386-4aec-804d-e69e5caed6ba`; its config/checkout attribution matched
+this invocation. The reporter printed no output and its output directory had
+been removed while the requested file survived.
+
+The [capability journeys](../../dashboard/tests/proof-record.spec.ts) compare a
+filtered selection with a fixture's actual execution log and distinguish
+repetitions, retries, skips and listing. The normal npm/direct-config entry
+journeys selected one outer reporter test each; their inner Playwright runs
+did not replace the outer evidence. Verdict journeys observed passed
+assertions/raw runner status alongside strict failure for unexpected test and
+setup output. Deadline and SIGINT proof retained a completed first assertion
+separately from stopped work; SIGKILL after persisted selection left a running
+snapshot without a terminal verdict. Storage journeys verified separate
+overlapping records, byte-preserving destination refusal, canonical rejection
+of an output-directory alias, invalid/unwritable paths, and a controlled
+snapshot collision leaving incomplete evidence with the original passing exit.
+All six existing reporter specs, including the HTML deadline companion and
+literal final `Kept:` behavior, passed in that same selection.
+
+Discrimination: temporarily omitting the serialized `terminal.strictStatus`
+made `proof-record.spec.ts --grep 'a filtered quiet run' --workers=1` exit 1
+at its completed strict-success assertion. The source was restored before
+the passing complete invocation above. Dashboard typecheck and the actual
+twelve-share spec-discovery check also passed.
+
+The repeated counting execution is avoidable when callers opt in. Fresh-path
+selection and one file read remain manual; no automatic archive or universal
+adoption is claimed. Missing, malformed, listed or running evidence is not
+completed executed proof, and valid records do not replace the command exit.
+The [test guide](../../dashboard/tests/README.md) documents these decisions.
+
+#### Occurrences
+
+- Execution: `SEED-052#cursor-native-activity-and-controls` / plan 217, first related implementation commit `7053bc62`
+  - Timestamp: unknown (slice 1 implementation and refactor, between the claim at 2026-10-02T16:31:54+08:00 and `7053bc62` at 16:42:11+08:00)
+  - Tool: Cursor (delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.54 (installed `dough-update/VERSION`)
+  - Evidence: plan 217 slice 1 proof is `env -u NO_COLOR npm run test:dashboard -- … --workers=2` with no reporter. The slice 1 implementer reported "The run exited 0 but printed no summary, so I'm rerunning with the list reporter" (41 passed). The slice 1 refactor agent reported "The test run exited 0 but printed no pass count, so I'm rerunning it with the line reporter" (30 passed). From slice 2 the coordinator added `--reporter=line` to delegated commands, and there were no further count reruns.
+  - Observed effect: two extra Playwright runs of 30–41 tests each.
+  - Inference: Qualified. Diagnosed at refinement on 2026-10-03: the dashboard's quiet reporter (`dashboard/playwright.config.ts`) and the Node runner print nothing on a passing run by design; the shell was not the cause.
+
+<a id="dd-243"></a>
+
+**Same finding, later reports: DD-243.** Retained under DD-216 rather than
+counted as a second cause. Plans 261, 263, 264, and 297 are four additional
+executions; repeated agents within each execution count once.
+
+`npm run test:dashboard` prints nothing on a pass, so a delegated agent cannot see which or how many tests its filtered command selected, which proof acceptance asks it to report. Agents reran passing commands with `--reporter=line`, `--reporter=list`, or `--reporter=dot` to obtain the count.
+
+#### Additional occurrences
+
+- Execution: `SEED-113#share-repeated-observer-reads` / plan 261, first related implementation commit `a1c593a9`
+  - Timestamp: unknown (slice 3 and slice 4 refactor returns, 2026-10-06, before `74f6904b` and `572faa6f`)
+  - Tool: Claude Code (delegated refactor agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: slice 3's refactor return: "The first run of this command without `--reporter=line` cut off its output before the result, so I ran it again"; slice 4's refactor return: "The default reporter printed nothing on a pass, so I added `--reporter=list` to see the counts"; slice 4's implementation reported its whole-suite count from a `--reporter=dot` run.
+  - Observed effect: at least two repeated focused runs (seconds to tens of seconds each); counts were reported for acceptance.
+  - Inference: Qualified. The silence is the project's chosen contract for passing journeys; the cost is small but recurs per agent. Stating in the delegation which reporter yields a selection count would avoid the rerun.
+- Execution: `SEED-113#shared-read-waiter-residue-correction` / plan 263, first related implementation commit `11ddc3db`
+  - Timestamp: unknown (2026-10-07, before commit `11ddc3db`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 (installed `dough-update/VERSION`)
+  - Evidence: coordinator conversation: the plan's focused command `npm run test:dashboard -- <12 specs> --workers=2`, piped to `tail -8`, showed only the npm header; the coordinator reran it as `npx playwright test ... --reporter=line` to see `53 passed`.
+  - Observed effect: one repeated focused run (about 15 seconds).
+  - Inference: Qualified. The plan's literal proof command has the same gap as the delegation; naming a counting reporter in the plan's Proof section would avoid it.
+- Execution: `SEED-113#recover-consistently-from-rate-limits` / plan 264, first related implementation commit `a2d43dde`
+  - Timestamp: unknown (refactor returns of slices 1, 3, 5, and 7, 2026-10-07)
+  - Tool: Claude Code (delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.56 at claim `0edabd1c`; 0.3.57 after the merge at `fefab16d`
+  - Evidence: slice 1's refactor return: "the default reporter printed no summary", rerun with `--reporter=line`; slices 3, 5, and 7's refactor returns invoked `npx playwright test ... --reporter=line|list` directly "because the default reporter's output did not show".
+  - Observed effect: repeated or reshaped focused runs to obtain counts; counts were reported for acceptance.
+  - Inference: Qualified; the same recurring cost, unchanged by the release.
+- Execution: `SEED-088#review-trunk-mode-story-changes` / plan 297 (spent plan recoverable at `6fef8b6869a532a7a127d755fb3326b6dddd8ebd:.planning/slice-plans/297-trunk-mode-own-changes-review/PLAN.md`), first related implementation commit `0b6138cc`
+  - Timestamp: unknown (implementation returns of slices 1 to 4, 2026-10-11, between the claim `99898cd7` and `1c8329e4` at 11:57:40+09:00)
+  - Tool: Claude Code (delegated agents)
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.59 (installed guidance at `7b941f04`)
+  - Evidence: slice 1's return: "The reporter prints nothing on a pass, so I could not read the 92-test count"; slices 2, 3 and 4's returns each obtained their selection from a separate `npx playwright test --config dashboard/playwright.config.ts <paths> --list --reporter=list` or a `--reporter=list` rerun; the slice 1 and slice 4 refactor returns reported exit 0 alone for the suite.
+  - Observed effect: one listing or rerun per implementation return (seconds each); the coordinator reran the 90 to 100 test suite itself after each refactor to hold a final-state exit code.
+  - Inference: Qualified; the same recurring cost. From slice 2 the delegation named the `--list --reporter=list` listing, which replaced a second full run with a listing.
+
+**Maintenance assessment (2026-11-07):** No new project story. DD-378 is retired after `SEED-229#reduce-remote-sessions-traffic` (`e49035d31:.planning/slice-plans/462-reduce-remote-sessions-traffic/PLAN.md`, 2026-11-04) attributed four full-suite failures to base `e69e74cf7` and repaired all four in the execution ([history](project-findings-history.md#dd-378)). DD-412 records `SEED-241#load-intent-without-disruption-or-bulk-source-transfer` (plan 477, 2026-11-05) running the full dashboard suite under `caffeinate -s -i` (2,044 passed, 1 skipped), while its two settling observations remain open. DD-420, DD-421, DD-428, DD-429 and DD-430 moved here from DearDough.md (`8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md`) as repaired dashboard, fake-Cursor harness and server-bundle observations alongside DD-432 and DD-433; the misplaced `SEED-232#reduce-running-cursor-session-requests` occurrence under DD-414 (`2d80ac1fc`, shifted in merge `bd1b1afbd6`) is restored to ODF-367 in DearDough.md. DD-419/DD-432 (local suite admission across focused and container runs) and DD-426/DD-433 (6-minute job caps on slow runners and upload stalls) remain open pending design and budget decisions.
+
+**Maintenance assessment (2026-11-03):** No new project story. DD-376 is retired after 68 post-repair runs without an install failure ([history](project-findings-history.md#earlier-reviews)). DD-406's local facet is already repaired in project documentation and awaits a re-profile. DD-411's slow-setup shard breach is runner speed on a story branch, recorded under DD-279 without counting against its allocator criterion. DD-347's third row-pressure exposure keeps it open; its remedy reshapes shared guidance reads and is not selected here. DD-374 and DD-378's responses are on `main` and released in `v0.3.80`; their observations remain open.
+
+**Maintenance assessment (2026-10-25):** Select one new project response: SEED-151#balance-test-shares (since implemented and closed; story recoverable at `8dd20d66:.planning/seeds/SEED-151-test-share-reliability.md#balance-test-shares`), queued at the time, not resolved, for DD-279's renewed allocation failure in plan 350. This demonstrated CI failure outranks the strongest alternative, DD-336's one loaded-run missing-result failure whose cause remains unknown. The browser-restart and mouse-press repairs have no established post-fix recurrence; DD-320 still awaits a qualifying paid replay and is not duplicated. Direction and existing work remain unchanged. No new occurrence is created by this review.
+
+**Maintenance assessment (2026-10-21):** DD-309's measured repository-tooling response first ships in `v0.3.67`; later usage remains unobserved. DD-297's source-directory race was repaired at `059cda6920e0934f4288641d2f4cfa8927d6726b`, while its separate loaded child-start observation remains qualified. The selected response to DD-320's extra paid run and inconclusive replay is implemented at `fba97e9fbb90c4f97909a5e2ab899a0031c58308`: the [maintained pre-launch comparison](../../tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch) advances useful learning before spending another native run; its native outcome remains unobserved. The strongest alternative is the older browser-restart race (DD-296): its concrete failing callers were repaired, and the remaining related exposure has no new observed failure. Preserve that residual and other open findings without another implementation commitment. Existing repaired responses remain historical; incomplete exposure does not establish retirement. No new occurrence is added by this review.
