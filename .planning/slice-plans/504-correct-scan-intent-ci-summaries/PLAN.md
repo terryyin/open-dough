@@ -242,8 +242,13 @@ because both tables now share the outside strip.
 
 ### 4. The revision stream boundary spec fits the size limit
 Type: Structure
-Status: planned
-Proof: as mapped above for Size.
+Status: done
+Proof: as mapped above for Size. Accepted 2026-11-08: the spec is 236 lines.
+`answeringInstead` and `settledWithin` live in `revisionStreamBoundary.ts`,
+and the one `gatewayTimeout` lives in `revisionCheckBoundary.ts`, shared with
+the two failure specs. The three specs passed (14 passed). The listing-count
+test passed with `--repeat-each=5` after the refactor, and `npm run
+typecheck:dashboard` and `npm run lint` passed.
 
 Change: move one helper or fixture block of
 `authenticated-read-revision-stream.spec.ts`, for example the 504 and
