@@ -7,7 +7,8 @@
 ## Provenance and findings
 
 Retrospective correction of SEED-262#declare-fake-github-planning-data (plan
-530; commits `673fee7a4` through `3b8ae2b6e`).
+530 at `ca9edef63:.planning/slice-plans/530-declare-fake-github-planning-data/PLAN.md`;
+commits `673fee7a4` through `3b8ae2b6e`).
 
 - Slice 1 (`673fee7a4`) replaced the Git materializer's call to the product's
   `rebuildDoneCatalog` with `tests/support/revision-done-catalog.mjs`

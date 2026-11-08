@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_declare-fake-github-planning-data.json",
+      "identity": "SEED-262#declare-fake-github-planning-data",
+      "completedAt": "2026-11-08T16:33:31.465Z",
+      "blob": "8a414b7c386d1a8ccbf053dc32bfd39b3ad5c5d1"
+    },
+    {
       "fileName": "SEED-262_migrate-dashboard-origin-fixtures.json",
       "identity": "SEED-262#migrate-dashboard-origin-fixtures",
       "completedAt": "2026-11-08T13:07:31.452Z",
