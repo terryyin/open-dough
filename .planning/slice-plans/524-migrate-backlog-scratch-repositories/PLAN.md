@@ -240,11 +240,22 @@ does not commit them keeps doing so.
 ### 4. Lint and local suite repositories declare their checked files
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Record before times, then run the format changed files, lint file set,
 pre-commit lint hook, pre-commit typecheck hook, local test suite and local
 suite lifecycle tests. They pass with unchanged assertions, and the after time
 does not regress beyond noise.
+
+Accepted 2026-11-08: `materializeLocalCheckout` takes a harness `layer`
+(files and executables written into the first commit, part of the template
+cache key), and `copiedLayer(source, paths)` reads copied tooling into one.
+`committedLintFixture(t, description, options)` and the local-suite
+`fixture(t, count)` declare their checked files and materialize; linked
+dependencies are still added uncommitted afterwards. An equivalence check
+against the previous fixtures gave identical `git ls-tree -r HEAD` and status
+output. Six-file run: before 18.9 s and 18.8 s (load 17.1–18.4), after
+15.4–15.7 s (load 8.5–11.5). Noticed outside this slice:
+`local-test-suite.test.mjs` already waits with `await delay(150)`.
 
 Behavior: a lint or suite case declares its sample files and probe checks with
 exact bytes → the materializer adds the runner tooling as a harness layer in

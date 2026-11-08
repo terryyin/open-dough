@@ -28,7 +28,7 @@ test("local repository defaults to four jobs; explicit overrides and CI keep the
     spawnSync("getconf", ["_NPROCESSORS_ONLN"], { encoding: "utf8" }).stdout,
   );
   const cases = Math.max(cores, 4) + 1;
-  const { project, observe } = fixture(t, cases);
+  const { project, observe } = await fixture(t, cases);
   for (const [name, expected, env] of [
     ["local", 4, {}],
     ["override", 2, { OPEN_DOUGH_TEST_JOBS: "2" }],
@@ -54,7 +54,7 @@ test("local repository defaults to four jobs; explicit overrides and CI keep the
 });
 
 test("repository full suites serialize across spaced worktrees while focused and CI runs remain independent", async (t) => {
-  const { project, linked, observe } = fixture(t);
+  const { project, linked, observe } = await fixture(t);
   const first = observe("first"),
     second = observe("second");
   const owner = repository(t, project, first);
@@ -118,7 +118,7 @@ test("repository full suites serialize across spaced worktrees while focused and
 });
 
 test("native Playwright config shares repository admission and preserves dashboard defaults and overrides", async (t) => {
-  const { project, linked, observe } = fixture(t);
+  const { project, linked, observe } = await fixture(t);
   const first = observe("dashboard"),
     second = observe("repository");
   const owner = dashboard(t, linked, first);
@@ -157,7 +157,7 @@ test("native Playwright config shares repository admission and preserves dashboa
 });
 
 test("nested full invocations inherit actual ancestry without releasing their parent's admission", async (t) => {
-  const { project, linked, observe } = fixture(t);
+  const { project, linked, observe } = await fixture(t);
   const first = observe("outer"),
     second = observe("waiter");
   const owner = repository(t, project, first, {
@@ -182,8 +182,8 @@ test("nested full invocations inherit actual ancestry without releasing their pa
 });
 
 test("independent repositories and copied non-Git runner fixtures remain usable", async (t) => {
-  const first = fixture(t),
-    second = fixture(t);
+  const first = await fixture(t),
+    second = await fixture(t);
   const held = first.observe("held"),
     parallel = second.observe("parallel");
   const owner = repository(t, first.project, held);

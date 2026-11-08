@@ -21,8 +21,8 @@ Launched 2026-11-08 by the coordinator as a fresh general-purpose agent (no conv
 | 7 | Route the starting repository of each `tests/support` Node test that makes one through the shared description and materializer. | slice 5 | |
 | 7.1 | `scratchRepo` in the backlog Git fixture (43 calls in 18 merge, rebase, cherry-pick, done-catalog and driver tests) is routed through it (as of 2026-11-08). | slice 1 | observed: grep: no scratchRepo in tests/support; 42 call sites in 18 files use checkoutOf -> materializeLocalCheckout (plan's 43 was a miscount) |
 | 7.2 | `gitWorkspace` in the done fixture (7 calls in the done-record, intent-coverage and identity evidence tests) is routed through it. | slice 3 | observed: grep gitWorkspace tests/support: none; its 7 calls use checkoutOf -> materializeLocalCheckout |
-| 7.3 | `committedLintFixture` (4 test files) is routed through it. | slice 4 | |
-| 7.4 | The local-test-suite `fixture` (2) is routed through it. | slice 4 | |
+| 7.3 | `committedLintFixture` (4 test files) is routed through it. | slice 4 | observed: lint-runner-fixture.mjs committedLintFixture(t, description) materializes via materializeLocalCheckout; no git init; 4 lint test files pass |
+| 7.4 | The local-test-suite `fixture` (2) is routed through it. | slice 4 | observed: local-test-suite-fixtures.mjs fixture(t,count) declares controlledSuites(count) and materializes; both suite tests pass |
 | 7.5 | The later-trunk `trunk` and `trunkOf` (2) are routed through it. | slice 5 | |
 | 7.6 | The inline repository in `requested-revision-ci-status.test.mjs` is routed through it. | slice 5 | |
 | 8 | Arrangement backlogs come from `aBacklogEntry` and the production backlog encoder. | slice 1 | observed: linkedEntry/entries build makeMe.aBacklogEntry; repository-revision-files.mjs renders via renderPublishedBacklog |
@@ -36,8 +36,8 @@ Launched 2026-11-08 by the coordinator as a fresh general-purpose agent (no conv
 | 13.3 | A case whose subject is one of those commands still runs it for real. | slice 2 | observed: assertCatalogDoneAgrees still runs real catalog-done where the case proves it |
 | 14 | Branches, merges, rebases, cherry-picks, conflicts, linked worktrees, ongoing operation states and staged or unstaged changes stay Git operations in the test. | slice 5 | |
 | 15 | The file content of those Git-operation cases comes from MakeMe or literal bytes, as the starting revision's does. | slice 5 | |
-| 16 | Copied runner and lint tooling, linked dependencies, the merge driver registration and an init without templates are harness layers or materializer options, not description facts. | slice 4 | |
-| 17 | The sample files a lint or suite case checks are declared files with their exact bytes. | slice 4 | |
+| 16 | Copied runner and lint tooling, linked dependencies, the merge driver registration and an init without templates are harness layers or materializer options, not description facts. | slice 4 | observed: repository-fixture.mjs materializeLocalCheckout layer option (copiedLayer) for runner/lint tooling; node_modules linked by harness after materializing; gitTemplates option from slice 1 |
+| 17 | The sample files a lint or suite case checks are declared files with their exact bytes. | slice 4 | observed: lint-file-set.test.mjs and local-test-suite-fixtures.mjs controlledSuites declare checked files with exact bytes |
 | 18 | Remove a superseded helper or root builder once no consumer needs it. | slice 5 | |
 | 19 | Boundary assumption: execution starts after the shared repository builder lands `makeMe.aRepository` and its materializer on trunk. | slice 1 | observed: dependency satisfied at 0eb86657b; materializeRepository on trunk |
 | 20 | This story extends that description and materializer rather than adding a second one. | slice 5 | |
@@ -56,9 +56,9 @@ Launched 2026-11-08 by the coordinator as a fresh general-purpose agent (no conv
 | 24.2 | "Allocate SEED-090" adds its seed and done record. | slice 3 | observed: 'Allocate SEED-090' adds seed file and SEED-090#x_y done record |
 | 24.3 | "Clean up SEED-090" removes both. | slice 3 | observed: 'Clean up SEED-090' removes seed and record paths |
 | 24.4 | The evidence still names the allocating revision. | slice 3 | observed: identity-evidence.test.mjs asserts highest.commit === revisions['Allocate SEED-090']; passes |
-| 25 | Example 5, harness layer and literal files: a lint file-set test declares its sample programs with exact bytes. | slice 4 | |
-| 25.1 | The runner files and linked dependencies are added by the harness. | slice 4 | |
-| 25.2 | The pre-commit hook test still stages its change with Git. | slice 4 | |
+| 25 | Example 5, harness layer and literal files: a lint file-set test declares its sample programs with exact bytes. | slice 4 | observed: lint-file-set.test.mjs lintFixture declares src/ok.mjs and dist/assets/b.js bytes in makeMe.aRepository |
+| 25.1 | The runner files and linked dependencies are added by the harness. | slice 4 | observed: committedLintFixture adds runner config via copiedLayer layer and dependencies via linkDependencies; ls-tree equivalence with HEAD fixture identical |
+| 25.2 | The pre-commit hook test still stages its change with Git. | slice 4 | observed: pre-commit-hook-fixture.mjs stage() runs git add after materializing; hook tests pass |
 | 26 | Example 6, ancestry under proof: `trunkOf(count)` declares its landing and later revisions. | slice 5 | |
 | 26.1 | `trunk()` declares the landing and first later revision, then builds the side branch, the merge and the last two revisions with Git. | slice 5 | |
 | 26.2 | The forward walk's verdicts are unchanged. | slice 5 | |
@@ -66,5 +66,5 @@ Launched 2026-11-08 by the coordinator as a fresh general-purpose agent (no conv
 | 27.1 | No such test runs `complete` or `take` in setup unless it proves that command. | slice 5 | |
 | 28 | Evaluation: migrated tests keep their verdicts and assertions. | slice 5 | |
 | 29 | A reviewer can name each case's driving repository facts from its call site. | slice 5 | |
-| 30 | Record focused run times before and after, under comparable load, for the backlog Git family and the lint-runner family. | slice 4 | |
+| 30 | Record focused run times before and after, under comparable load, for the backlog Git family and the lint-runner family. | slice 4 | observed: backlog Git family before 26.9/21.7 s after 14.9-20.4 s (slice 1); lint-runner family before 18.9/18.8 s (load 17-18) after 15.4-15.7 s (load 8.5-11.5) |
 | 31 | Run times must not regress beyond run-to-run noise. | slice 5 | |

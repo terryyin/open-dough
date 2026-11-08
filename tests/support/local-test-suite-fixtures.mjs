@@ -2,22 +2,27 @@ import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import {
   closeSync,
-  cpSync,
   mkdirSync,
   mkdtempSync,
   openSync,
   readFileSync,
+  readdirSync,
   rmSync,
-  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { makeMe } from "./makeMe.mjs";
+import { materializeLocalCheckout } from "./repository-fixture.mjs";
+import { copiedLayer } from "./repository-revision-files.mjs";
 
 const source = fileURLToPath(new URL("../../", import.meta.url));
 const cli = path.join(source, "node_modules/playwright/cli.js");
 const bash = "bash";
+const framework = pathToFileURL(
+  path.join(source, "node_modules/@playwright/test/index.mjs"),
+).href;
 export const gateRef = "refs/dough/local-test-suite";
 
 export function git(directory, ...args) {
@@ -76,42 +81,66 @@ function launch(t, cwd, args, extra = {}, command = process.execPath) {
   return { child, result, output: () => output };
 }
 
-export function fixture(t, count = 1) {
-  const root = mkdtempSync(path.join(tmpdir(), "dough-local-suite-"));
-  const project = path.join(root, "main project");
-  mkdirSync(project);
-  git(project, "init", "-q", "-b", "main");
-  mkdirSync(path.join(project, "scripts"));
-  mkdirSync(path.join(project, "tests/support"), { recursive: true });
-  mkdirSync(path.join(project, "checks"));
-  const copied = spawnSync(
-    bash,
-    [
-      "-c",
-      'source "$1"; copy_runner "$2"',
-      "copy-runner",
-      path.join(source, "tests/helpers/copy-runner.bash"),
-      project,
-    ],
-    { encoding: "utf8" },
-  );
-  assert.equal(copied.status, 0, copied.stderr);
-  cpSync(
-    path.join(source, "scripts/test-budget.sh"),
-    path.join(project, "scripts/test-budget.sh"),
-  );
-  for (const name of [
-    "node-test-failures-reporter.mjs",
-    "check-stop-report.bash",
-  ])
-    cpSync(
-      path.join(source, "tests/support", name),
-      path.join(project, "tests/support", name),
+// The runner tooling a controlled suite runs, copied from this repository:
+// what `copy_runner` copies, the budget and reporter helpers, the dashboard
+// suite selection, and the Playwright configuration importing this
+// repository's framework. Read once per process.
+let runnerLayer;
+function suiteRunnerLayer() {
+  if (runnerLayer) return runnerLayer;
+  const staging = mkdtempSync(path.join(tmpdir(), "dough-local-suite-runner-"));
+  try {
+    mkdirSync(path.join(staging, "scripts"));
+    const copied = spawnSync(
+      bash,
+      [
+        "-c",
+        'source "$1"; copy_runner "$2"',
+        "copy-runner",
+        path.join(source, "tests/helpers/copy-runner.bash"),
+        staging,
+      ],
+      { encoding: "utf8" },
     );
+    assert.equal(copied.status, 0, copied.stderr);
+    const runner = copiedLayer(
+      staging,
+      readdirSync(path.join(staging, "scripts")).map(
+        (name) => `scripts/${name}`,
+      ),
+    );
+    const helpers = copiedLayer(source, [
+      "scripts/test-budget.sh",
+      "tests/support/node-test-failures-reporter.mjs",
+      "tests/support/check-stop-report.bash",
+      "dashboard/tests/support/testFiles.mjs",
+      "dashboard/tests/support/suiteDeadline.mjs",
+      "dashboard/tests/support/fullSuiteSelection.mjs",
+    ]);
+    runnerLayer = {
+      files: {
+        ...runner.files,
+        ...helpers.files,
+        "dashboard/playwright.config.mts": readFileSync(
+          path.join(source, "dashboard/playwright.config.ts"),
+          "utf8",
+        ).replace('"@playwright/test"', JSON.stringify(framework)),
+      },
+      executables: [...runner.executables, ...helpers.executables],
+    };
+    return runnerLayer;
+  } finally {
+    rmSync(staging, { recursive: true, force: true });
+  }
+}
+
+// The controlled suites a case runs: `count` probe checks that record their
+// start and wait for release, a nested check, and a dashboard probe spec
+// with its configuration.
+function controlledSuites(count) {
+  const files = {};
   for (let index = 0; index < count; index++)
-    writeFileSync(
-      path.join(project, `checks/probe-${index}.sh`),
-      `#!/usr/bin/env bash
+    files[`checks/probe-${index}.sh`] = `#!/usr/bin/env bash
 set -euo pipefail
 mkdir -p "$OBSERVE"
 if [[ \${IGNORE_TERM:-} == 1 ]]; then trap '' TERM; fi
@@ -126,44 +155,20 @@ if [[ -n \${NESTED_WORKTREE:-} ]]; then
 fi
 while [[ ! -e $OBSERVE/release ]]; do read -r -t 0.05 _ < "$OBSERVE/wakeup" || true; done
 exit "\${PROBE_EXIT:-0}"
-`,
-    );
-  mkdirSync(path.join(project, "nested"));
-  writeFileSync(
-    path.join(project, "nested/pass.sh"),
-    '#!/usr/bin/env bash\nmkdir -p "$OBSERVE"\ntouch "$OBSERVE/start"\n',
-  );
-  mkdirSync(path.join(project, "dashboard/tests/support"), { recursive: true });
-  for (const name of [
-    "testFiles.mjs",
-    "suiteDeadline.mjs",
-    "fullSuiteSelection.mjs",
-  ])
-    cpSync(
-      path.join(source, "dashboard/tests/support", name),
-      path.join(project, "dashboard/tests/support", name),
-    );
-  const framework = pathToFileURL(
-    path.join(source, "node_modules/@playwright/test/index.mjs"),
-  ).href;
-  writeFileSync(
-    path.join(project, "dashboard/playwright.config.mts"),
-    readFileSync(
-      path.join(source, "dashboard/playwright.config.ts"),
-      "utf8",
-    ).replace('"@playwright/test"', JSON.stringify(framework)),
-  );
-  writeFileSync(
-    path.join(project, "dashboard/controlled.config.mts"),
-    `
+`;
+  return makeMe.aRepository
+    .withRevision("controlled suites", {
+      backlog: undefined,
+      files: {
+        ...files,
+        "nested/pass.sh":
+          '#!/usr/bin/env bash\nmkdir -p "$OBSERVE"\ntouch "$OBSERVE/start"\n',
+        "dashboard/controlled.config.mts": `
 import config from './playwright.config.mts';
 export default { ...config, projects: [{name:'controlled'}], testMatch: /probe[.]spec[.]mts$/,
   timeout: 120_000, reporter: 'line', use: {}, globalSetup: './controlled-setup.mjs' };
 `,
-  );
-  writeFileSync(
-    path.join(project, "dashboard/controlled-setup.mjs"),
-    `
+        "dashboard/controlled-setup.mjs": `
 import {writeFileSync} from 'node:fs';
 import {releaseLocalSuites} from '../scripts/local-test-suite.mjs';
 export default async (resolved) => {
@@ -171,10 +176,7 @@ export default async (resolved) => {
     return releaseLocalSuites;
 };
 `,
-  );
-  writeFileSync(
-    path.join(project, "dashboard/tests/probe.spec.mts"),
-    `
+        "dashboard/tests/probe.spec.mts": `
 import {test} from ${JSON.stringify(framework)};
 import {existsSync, writeFileSync} from 'node:fs';
 import {setTimeout as delay} from 'node:timers/promises';
@@ -183,21 +185,24 @@ test('needle', async () => {
   while (!existsSync(process.env.OBSERVE + '/release')) await delay(20);
 });
 `,
-  );
-  git(project, "add", ".");
-  git(
-    project,
-    "-c",
-    "user.name=Fixture",
-    "-c",
-    "user.email=fixture@example.test",
-    "commit",
-    "-qm",
-    "controlled suites",
+      },
+    })
+    .please();
+}
+
+// A checkout under a directory whose name has a space, committed with the
+// controlled suites and the runner tooling, and a linked worktree of it.
+export async function fixture(t, count = 1) {
+  const root = mkdtempSync(path.join(tmpdir(), "dough-local-suite-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const parent = path.join(root, "main project");
+  mkdirSync(parent);
+  const { integration: project } = await materializeLocalCheckout(
+    controlledSuites(count),
+    { parent, layer: suiteRunnerLayer() },
   );
   const linked = path.join(root, "linked worktree");
   git(project, "worktree", "add", "-q", "-b", "linked", linked);
-  t.after(() => rmSync(root, { recursive: true, force: true }));
   const observe = (name) => {
     const directory = path.join(root, name);
     mkdirSync(directory);

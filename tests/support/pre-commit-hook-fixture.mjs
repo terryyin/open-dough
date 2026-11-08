@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { committedLintFixture, gitOk, write } from "./lint-runner-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
 
 // The fixture's typechecked program: a JavaScript module whose inferred
 // signature a TypeScript consumer depends on, as the dashboard's journeys
@@ -16,21 +17,31 @@ const consumer =
 // tracked hook, and its own small program behind `typecheck:dashboard`; the
 // fixture sets core.hooksPath directly. Without linked dependencies it has no
 // node_modules, like a fresh worktree.
-export function hookFixture(t, { dependencies = true, install = false } = {}) {
-  const fixture = committedLintFixture(t, {
-    prefix: "pre-commit-hook-",
-    dependencies,
-    repositoryFiles: [".githooks/pre-commit", "scripts/install-hooks.mjs"],
-    files: {
-      "package.json":
-        '{"private":true,"type":"module","scripts":{"lint":"node scripts/lint.mjs","typecheck:dashboard":"tsc -p tsconfig.json","prepare":"node scripts/install-hooks.mjs"}}\n',
-      "tsconfig.json":
-        '{"compilerOptions":{"strict":true,"module":"esnext","target":"esnext","moduleResolution":"bundler","allowJs":true,"checkJs":false,"noEmit":true},"include":["src"]}\n',
-      "src/ok.mjs": "export const ok = 1;\n",
-      [fixtureModule]: defaulted,
-      "src/consumer.ts": consumer,
+export async function hookFixture(
+  t,
+  { dependencies = true, install = false } = {},
+) {
+  const fixture = await committedLintFixture(
+    t,
+    makeMe.aRepository
+      .withRevision("fixture", {
+        backlog: undefined,
+        files: {
+          "package.json":
+            '{"private":true,"type":"module","scripts":{"lint":"node scripts/lint.mjs","typecheck:dashboard":"tsc -p tsconfig.json","prepare":"node scripts/install-hooks.mjs"}}\n',
+          "tsconfig.json":
+            '{"compilerOptions":{"strict":true,"module":"esnext","target":"esnext","moduleResolution":"bundler","allowJs":true,"checkJs":false,"noEmit":true},"include":["src"]}\n',
+          "src/ok.mjs": "export const ok = 1;\n",
+          [fixtureModule]: defaulted,
+          "src/consumer.ts": consumer,
+        },
+      })
+      .please(),
+    {
+      dependencies,
+      repositoryFiles: [".githooks/pre-commit", "scripts/install-hooks.mjs"],
     },
-  });
+  );
   if (!install) {
     gitOk(fixture, "config", "core.hooksPath", ".githooks");
   }

@@ -65,11 +65,15 @@ async function commitRevision(checkout, revision, checkoutIdentity) {
   return revParse(checkout, "HEAD");
 }
 
+/** @typedef {import("./repository-revision-files.mjs").HarnessLayer} HarnessLayer */
+
 /**
  * How the harness sets the history up, beside what the description states:
- * whether the checkout publishes to a bare origin, and whether `git init`
- * copies Git's templates (an init without them has no `info/` or hooks).
- * @typedef {{ origin: boolean, gitTemplates: boolean }} TemplateShape
+ * whether the checkout publishes to a bare origin, whether `git init`
+ * copies Git's templates (an init without them has no `info/` or hooks), and
+ * the harness layer its first commit also holds. Per-process reuse keys on
+ * the whole shape, layer bytes included.
+ * @typedef {{ origin: boolean, gitTemplates: boolean, layer?: HarnessLayer | undefined }} TemplateShape
  */
 
 /**
@@ -85,7 +89,7 @@ async function buildTemplate(
     checkoutIdentity = integrationDeveloper,
     workspace,
   },
-  { origin: published, gitTemplates },
+  { origin: published, gitTemplates, layer },
 ) {
   const { origin, integration } = layout(fixture);
   if (published) await createBareFixtureRemote(origin, trunkBranch);
@@ -103,7 +107,8 @@ async function buildTemplate(
   /** @type {Map<string, string>} */
   const commits = new Map();
   let trunkSha = "";
-  for (const revision of revisions) {
+  for (const [index, revision] of revisions.entries()) {
+    if (index === 0 && layer) writeRevisionFiles(integration, layer);
     writeRevisionFiles(integration, revision);
     trunkSha = await commitRevision(integration, revision, checkoutIdentity);
     if (published)
@@ -227,16 +232,17 @@ export async function materializeRepository(
  * The described history in one local checkout on its trunk branch, with no
  * origin, for a case that reads no remote. Built once per process like
  * `materializeRepository`; every caller gets its own mutable copy.
- * `gitTemplates: false` initializes it without Git's templates.
+ * `gitTemplates: false` initializes it without Git's templates; `layer` adds
+ * harness files to the first commit.
  * @template {string} Name
  * @param {import("./repositoryTestData.mjs").RepositoryDescription<Name>} description
- * @param {{ parent?: string, gitTemplates?: boolean }} [options]
+ * @param {{ parent?: string, gitTemplates?: boolean, layer?: HarnessLayer }} [options]
  */
 export async function materializeLocalCheckout(
   description,
-  { parent = tmpdir(), gitTemplates = true } = {},
+  { parent = tmpdir(), gitTemplates = true, layer } = {},
 ) {
-  const shape = { origin: false, gitTemplates };
+  const shape = { origin: false, gitTemplates, layer };
   const copy = await copyTemplate(description, { parent, ...shape });
   return { integration: layout(copy.fixture).integration, ...copy };
 }

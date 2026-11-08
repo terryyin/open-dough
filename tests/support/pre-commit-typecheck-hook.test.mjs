@@ -12,8 +12,8 @@ import {
   stage,
 } from "./pre-commit-hook-fixture.mjs";
 
-test("a staged signature break is refused with the consumer's diagnostic and nothing is changed", (t) => {
-  const fixture = hookFixture(t);
+test("a staged signature break is refused with the consumer's diagnostic and nothing is changed", async (t) => {
+  const fixture = await hookFixture(t);
   const before = head(fixture);
   stage(fixture, fixtureModule, required);
   const stagedDiff = gitOk(fixture, "diff", "--cached");
@@ -33,8 +33,8 @@ test("a staged signature break is refused with the consumer's diagnostic and not
   assert.equal(gitOk(fixture, "status", "--porcelain"), status);
 });
 
-test("a staged restored signature commits", (t) => {
-  const fixture = hookFixture(t);
+test("a staged restored signature commits", async (t) => {
+  const fixture = await hookFixture(t);
   stage(fixture, fixtureModule, required);
   gitOk(fixture, "commit", "--no-verify", "-qm", "break the consumer");
   stage(fixture, fixtureModule, defaulted);
@@ -45,8 +45,8 @@ test("a staged restored signature commits", (t) => {
   assert.equal(gitOk(fixture, "show", `HEAD:${fixtureModule}`), defaulted);
 });
 
-test("a staged TypeScript file with a wrong argument type is refused with its diagnostic", (t) => {
-  const fixture = hookFixture(t);
+test("a staged TypeScript file with a wrong argument type is refused with its diagnostic", async (t) => {
+  const fixture = await hookFixture(t);
   const before = head(fixture);
   stage(
     fixture,

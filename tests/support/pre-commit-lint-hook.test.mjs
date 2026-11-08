@@ -26,8 +26,8 @@ import { head, hookFixture, stage } from "./pre-commit-hook-fixture.mjs";
 
 const unformatted = "export const  drift = {a:1};\n";
 
-test("a staged lint violation refuses the commit with the finding and format pointer", (t) => {
-  const fixture = hookFixture(t);
+test("a staged lint violation refuses the commit with the finding and format pointer", async (t) => {
+  const fixture = await hookFixture(t);
   const before = head(fixture);
   stage(fixture, "src/bad.mjs", violation);
 
@@ -39,8 +39,8 @@ test("a staged lint violation refuses the commit with the finding and format poi
   assert.equal(head(fixture), before);
 });
 
-test("staged formatting drift is refused and nothing is changed", (t) => {
-  const fixture = hookFixture(t);
+test("staged formatting drift is refused and nothing is changed", async (t) => {
+  const fixture = await hookFixture(t);
   stage(fixture, "src/drift.mjs", unformatted);
   const stagedDiff = gitOk(fixture, "diff", "--cached");
 
@@ -57,8 +57,8 @@ test("staged formatting drift is refused and nothing is changed", (t) => {
   assert.equal(gitOk(fixture, "diff"), "");
 });
 
-function commitsCleanFilesUnchanged(t, contents) {
-  const fixture = hookFixture(t);
+async function commitsCleanFilesUnchanged(t, contents) {
+  const fixture = await hookFixture(t);
   for (const [file, content] of Object.entries(contents)) {
     stage(fixture, file, content);
   }
@@ -72,8 +72,8 @@ function commitsCleanFilesUnchanged(t, contents) {
   }
 }
 
-test("clean staged TypeScript and JSON files commit unchanged", (t) => {
-  commitsCleanFilesUnchanged(t, {
+test("clean staged TypeScript and JSON files commit unchanged", async (t) => {
+  await commitsCleanFilesUnchanged(t, {
     "src/a.ts": "export const a: number = 1;\n",
     "src/b.json": '{ "b": 1 }\n',
   });
@@ -82,15 +82,15 @@ test("clean staged TypeScript and JSON files commit unchanged", (t) => {
 test(
   "clean staged shell files commit unchanged",
   { skip: shellToolsMissing },
-  (t) => {
-    commitsCleanFilesUnchanged(t, {
+  async (t) => {
+    await commitsCleanFilesUnchanged(t, {
       "scripts/c.sh": '#!/bin/sh\nset -eu\nprintf "%s\\n" hello\n',
     });
   },
 );
 
-test("an unstaged violating file does not block a clean staged commit", (t) => {
-  const fixture = hookFixture(t);
+test("an unstaged violating file does not block a clean staged commit", async (t) => {
+  const fixture = await hookFixture(t);
   write(join(fixture, "src/untracked-bad.mjs"), violation);
   stage(fixture, "src/ok.mjs", "export const ok = 2;\n");
 
@@ -103,9 +103,9 @@ test("an unstaged violating file does not block a clean staged commit", (t) => {
   );
 });
 
-test("a records-only commit succeeds without lint tools", (t) => {
+test("a records-only commit succeeds without lint tools", async (t) => {
   const gitToolless = gitWith(toollessEnv(t));
-  const fixture = hookFixture(t, { dependencies: false });
+  const fixture = await hookFixture(t, { dependencies: false });
   stage(fixture, ".planning/agents/x.json", '{"a":  1}\n');
   stage(fixture, ".planning/seeds/SEED-1.md", "# Seed\n");
 
@@ -119,13 +119,13 @@ test("a records-only commit succeeds without lint tools", (t) => {
   );
 });
 
-test("a staged file whose tool is missing is refused naming the tool and npm ci", (t) => {
+test("a staged file whose tool is missing is refused naming the tool and npm ci", async (t) => {
   const gitToolless = gitWith(toollessEnv(t));
   for (const [file, content, tool] of [
     ["scripts/c.sh", '#!/bin/sh\nset -eu\nprintf "%s\\n" hello\n', "shfmt"],
     ["src/new.mjs", "export const n = 1;\n", "eslint"],
   ]) {
-    const fixture = hookFixture(t, { dependencies: false });
+    const fixture = await hookFixture(t, { dependencies: false });
     const before = head(fixture);
     stage(fixture, file, content);
 
@@ -155,8 +155,8 @@ function linkedWorktree(t, fixture, name) {
   return path;
 }
 
-test("prepare enables the hook in the checkout and a linked worktree, and a repeat leaves the config untouched", (t) => {
-  const fixture = hookFixture(t, { install: true });
+test("prepare enables the hook in the checkout and a linked worktree, and a repeat leaves the config untouched", async (t) => {
+  const fixture = await hookFixture(t, { install: true });
   assert.equal(git(fixture, "config", "--get", "core.hooksPath").status, 1);
 
   prepare(fixture);
@@ -183,8 +183,8 @@ test("prepare enables the hook in the checkout and a linked worktree, and a repe
   }
 });
 
-test("a linked worktree on a revision without the hook commits as before", (t) => {
-  const fixture = hookFixture(t, { install: true });
+test("a linked worktree on a revision without the hook commits as before", async (t) => {
+  const fixture = await hookFixture(t, { install: true });
   gitOk(fixture, "rm", "-q", ".githooks/pre-commit");
   gitOk(fixture, "commit", "-qm", "drop the hook");
   prepare(fixture);
