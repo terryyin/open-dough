@@ -37,6 +37,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Review a selected story in Intent tabs](seeds/SEED-275-story-intent-tabs.md#story-intent-tabs) — SEED-275#story-intent-tabs
 - [Let projects declare which tests Intent shows](seeds/SEED-274-declare-intent-test-sources.md#declare-intent-test-sources) — SEED-274#declare-intent-test-sources
 - [Build Node test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-backlog-scratch-repositories) — SEED-262#migrate-backlog-scratch-repositories
 - [Build shell release and native fixture repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-shell-release-and-native-fixtures) — SEED-262#migrate-shell-release-and-native-fixtures

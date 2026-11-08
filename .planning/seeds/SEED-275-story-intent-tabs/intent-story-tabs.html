@@ -1,0 +1,410 @@
+<section id="od-story-tabs-preview" aria-label="Open Dough Intent with a selected story">
+  <header class="od-chrome">
+    <div class="od-brand"><i data-lucide="circle-dot" aria-hidden="true"></i> Open Dough <span>/</span> Intent</div>
+    <span class="od-small">open-dough</span>
+  </header>
+
+  <section data-scope="story" aria-label="Selected story">
+    <header class="od-story-head">
+      <div class="od-crumb"><button class="od-link cursor-interaction" type="button" data-open-scope="project"><i data-lucide="layers" aria-hidden="true"></i> Project Intent</button><span aria-hidden="true">/</span> Selected story</div>
+      <div class="od-meta"><span class="od-done">Done</span> <span>SEED-262</span></div>
+      <h2>Make dashboard polling tests advance on controlled time and observed replies</h2>
+    </header>
+    <div class="od-tabbar">
+      <div class="od-tabs" role="tablist" aria-label="Story Intent views">
+        <button class="cursor-interaction" type="button" role="tab" id="od-story-ci-tab" aria-controls="od-story-ci" aria-selected="true">CI comparison</button>
+        <button class="cursor-interaction" type="button" role="tab" id="od-story-files-tab" aria-controls="od-story-files" aria-selected="false">Changed tests</button>
+        <button class="cursor-interaction" type="button" role="tab" id="od-story-coverage-tab" aria-controls="od-story-coverage" aria-selected="false">Intent coverage</button>
+      </div>
+      <button class="od-files-toggle cursor-interaction" type="button" aria-controls="od-story-tree" aria-expanded="true" aria-label="Hide files" hidden><i data-lucide="panel-left" aria-hidden="true"></i><span>Hide files</span></button>
+    </div>
+
+    <section id="od-story-ci" class="od-content" role="tabpanel" aria-labelledby="od-story-ci-tab">
+      <div class="od-ci-head">
+        <div><h3>Baseline compared with Landed</h3><p class="od-small">Observed changes across CI builds</p></div>
+        <div class="od-ci-actions">
+          <span class="od-small od-scale-label">← Faster <span aria-hidden="true">·</span> Slower →</span>
+          <label class="od-percent-switch cursor-interaction"><input type="checkbox" data-show-percent aria-label="Show percentages"> Show %</label>
+          <span class="od-tag">Sample CI data</span>
+        </div>
+      </div>
+      <dl class="od-ci-summary">
+        <div><dt>Tests and checks</dt><dd>2,090 → 2,092 tests <span>+2</span><br>5 → 8 checks <span>+3</span></dd></div>
+        <div><dt>CI time without runner waits</dt><dd class="od-time-change">+17 s <span class="od-time-mark" data-direction="slower" style="--od-extent: 5.8%" aria-hidden="true"></span><span class="od-percent">+6%</span></dd></div>
+        <div><dt>CI wall time</dt><dd class="od-time-change">+20 s <span class="od-time-mark" data-direction="slower" style="--od-extent: 6.7%" aria-hidden="true"></span><span class="od-percent">+7%</span></dd></div>
+      </dl>
+
+      <div class="od-table-wrap">
+        <table class="od-table" aria-label="CI builds and timing">
+          <thead><tr><th scope="col">Endpoint</th><th scope="col">Build</th><th scope="col">CI wall time</th><th scope="col">CI time without runner waits</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Baseline</th><td><code>5c12e91</code> <span class="od-build-icon" data-tooltip="Ancestor build"><i data-lucide="history" aria-hidden="true"></i><span class="od-visually-hidden">Ancestor build</span></span></td><td>4 min 59 s</td><td>4 min 55 s</td></tr>
+            <tr><th scope="row">Branch</th><td><code>81a6dc2</code> <span class="od-build-icon" data-tooltip="Exact build"><i data-lucide="git-commit-horizontal" aria-hidden="true"></i><span class="od-visually-hidden">Exact build</span></span></td><td>13 min 27 s</td><td>4 min 47 s</td></tr>
+            <tr><th scope="row">Landed</th><td><code>ecf3a40</code> <span class="od-build-icon" data-tooltip="Exact build"><i data-lucide="git-commit-horizontal" aria-hidden="true"></i><span class="od-visually-hidden">Exact build</span></span></td><td>5 min 19 s</td><td>5 min 12 s</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="od-section-head"><h3>CI entry timing comparison</h3><p class="od-small">Cumulative test time · New entries show measured time</p></div>
+      <div class="od-table-wrap">
+        <table class="od-table od-entry-table" aria-label="CI entry timing comparison">
+          <thead><tr>
+            <th scope="col"><button class="od-sort cursor-interaction" type="button" data-sort="entry">Entry <span aria-hidden="true">↕</span></button></th>
+            <th scope="col"><button class="od-sort cursor-interaction" type="button" data-sort="counts">Counts <span aria-hidden="true">↕</span></button></th>
+            <th scope="col"><button class="od-sort cursor-interaction" type="button" data-sort="baseline">Baseline <span aria-hidden="true">↕</span></button></th>
+            <th scope="col"><button class="od-sort cursor-interaction" type="button" data-sort="branch" aria-label="Branch change vs baseline">Branch <span aria-hidden="true">↕</span></button><span class="od-column-note" aria-hidden="true">vs baseline</span></th>
+            <th scope="col"><button class="od-sort cursor-interaction" type="button" data-sort="landed" aria-label="Landed change vs baseline">Landed <span aria-hidden="true">↕</span></button><span class="od-column-note" aria-hidden="true">vs baseline</span></th>
+          </tr></thead>
+          <tbody>
+            <tr data-entry="dashboard/tests" data-counts="2092" data-baseline="240" data-branch="270" data-landed="300"><th scope="row"><code>dashboard/<wbr>tests</code></th><td>2,090 → 2,092 tests <span class="od-delta">+2</span></td><td>4 min</td>
+              <td><span class="od-time-change">+30 s <span class="od-time-mark" data-direction="slower" style="--od-extent: 12.5%" aria-hidden="true"></span><span class="od-percent">+13%</span></span></td>
+              <td><span class="od-time-change">+1 min <span class="od-time-mark" data-direction="slower" style="--od-extent: 25%" aria-hidden="true"></span><span class="od-percent">+25%</span></span></td>
+            </tr>
+            <tr data-entry="tests" data-counts="5" data-baseline="120" data-branch="90" data-landed="60"><th scope="row"><code>tests</code></th><td>5 checks <span class="od-delta">No change</span></td><td>2 min</td>
+              <td><span class="od-time-change">−30 s <span class="od-time-mark" data-direction="faster" style="--od-extent: 25%" aria-hidden="true"></span><span class="od-percent">−25%</span></span></td>
+              <td><span class="od-time-change">−1 min <span class="od-time-mark" data-direction="faster" style="--od-extent: 50%" aria-hidden="true"></span><span class="od-percent">−50%</span></span></td>
+            </tr>
+            <tr data-entry="src/skills" data-counts="3" data-branch="30" data-landed="30"><th scope="row"><code>src/<wbr>skills</code></th><td>Added → 3 checks</td><td>Added</td><td>30 s</td><td>30 s</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="od-ci-footer"><button class="od-button cursor-interaction" type="button" data-refresh><i data-lucide="refresh-cw" aria-hidden="true"></i> Check again</button><span class="od-small" data-refresh-note role="status"></span></div>
+    </section>
+
+    <section id="od-story-files" role="tabpanel" aria-labelledby="od-story-files-tab" hidden>
+      <div class="od-reader-layout">
+        <aside id="od-story-tree" aria-label="Test locations">
+          <h3>Test locations</h3>
+          <details open>
+            <summary class="cursor-interaction">Frontend tests</summary>
+            <button class="od-file cursor-interaction" type="button" data-file="cursor" aria-pressed="true"><i data-lucide="file-code" aria-hidden="true"></i> <span>cursor-runner-sessions-ui.spec.ts</span></button>
+          </details>
+          <details open>
+            <summary class="cursor-interaction">Test support</summary>
+            <button class="od-file cursor-interaction" type="button" data-file="support" aria-pressed="false"><i data-lucide="file-code" aria-hidden="true"></i> <span>cursorSessionsDemand.ts</span></button>
+          </details>
+        </aside>
+        <section class="od-file-reader" aria-label="Test reader">
+          <p class="od-small" data-file-path>dashboard / frontend-tests</p>
+          <h3 data-file-name>cursor-runner-sessions-ui.spec.ts</h3>
+          <div class="od-tabs od-file-tabs" role="tablist" aria-label="File views">
+            <button class="cursor-interaction" type="button" role="tab" id="od-file-purpose-tab" aria-controls="od-file-purpose" aria-selected="true">Purpose</button>
+            <button class="cursor-interaction" type="button" role="tab" id="od-file-proof-tab" aria-controls="od-file-proof" aria-selected="false">Proof</button>
+          </div>
+          <div id="od-file-purpose" role="tabpanel" aria-labelledby="od-file-purpose-tab"><pre class="od-source"><code data-file-source>await answerNextRead(heldSessions);
+await expect(region).toContainText("The Cursor runner is running.");
+await expect(row).toContainText("working");
+
+await answerNextRead(noHeldSessions);
+await expect(region.getByRole("listitem")).toHaveCount(0);</code></pre></div>
+          <div id="od-file-proof" role="tabpanel" aria-labelledby="od-file-proof-tab" hidden><p class="od-small" data-file-proof>CI entry · dashboard/frontend-tests</p><button class="od-link cursor-interaction" type="button" data-to-ci>View story CI comparison <i data-lucide="arrow-right" aria-hidden="true"></i></button></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="od-story-coverage" class="od-content" role="tabpanel" aria-labelledby="od-story-coverage-tab" hidden>
+      <h3>Intent coverage</h3>
+      <p class="od-small od-report-caption" data-coverage-note>One targeted check · Saved report excerpt</p>
+      <pre class="od-report" data-report># Dough Intent Coverage: Running Cursor sessions recovery after unreachable
+
+**Outcome: Caught.**
+
+## Selected promise
+
+- Promise (third key example, "recovery" in the goal): after a controlled poll shows the unreachable state, the next poll's reply restores the working session ("The Cursor runner is running." with the `working` row). […]</pre>
+    </section>
+  </section>
+
+  <section data-scope="project" aria-label="Project Intent" hidden>
+    <header class="od-project-head"><div><p class="od-small">Project</p><h2>Project Intent</h2></div><button class="od-button cursor-interaction" type="button" data-open-scope="story"><i data-lucide="arrow-left" aria-hidden="true"></i> Back to selected story</button></header>
+    <div class="od-tabbar"><div class="od-tabs" role="tablist" aria-label="Project Intent views">
+      <button class="cursor-interaction" type="button" role="tab" id="od-project-ci-tab" aria-controls="od-project-ci" aria-selected="true">CI status</button>
+      <button class="cursor-interaction" type="button" role="tab" id="od-project-candidates-tab" aria-controls="od-project-candidates" aria-selected="false">Optimization Candidates</button>
+    </div></div>
+    <section class="od-content" id="od-project-ci" role="tabpanel" aria-labelledby="od-project-ci-tab"><h3>Project CI status</h3><p class="od-small">Published proof for the latest trunk build</p></section>
+    <section class="od-content" id="od-project-candidates" role="tabpanel" aria-labelledby="od-project-candidates-tab" hidden>
+      <div data-candidate-list><h3>Pending candidates</h3><div class="od-candidate"><div><strong>Pinned production deployment test</strong><p class="od-small">Runtime tests</p></div><button class="od-button cursor-interaction" type="button" data-open-candidate>Open test <i data-lucide="arrow-right" aria-hidden="true"></i></button></div></div>
+      <div data-candidate-test hidden><button class="od-link cursor-interaction" type="button" data-back-candidates><i data-lucide="arrow-left" aria-hidden="true"></i> Back to candidates</button><h3>production-deployment.spec.ts</h3><pre class="od-source"><code>test("deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries", async ({
+  request,
+}) =&gt; {
+  test.setTimeout(45_000);
+  const fixture = await publishedMainFixture(true);</code></pre></div>
+    </section>
+  </section>
+</section>
+
+<style>
+  #od-story-tabs-preview {
+    --od-bg: light-dark(#f7f8fc, #111722);
+    --od-surface: light-dark(#ffffff, #192130);
+    --od-ink: light-dark(#202b3f, #edf1fa);
+    --od-muted: light-dark(#57657b, #b0bdd2);
+    --od-line: light-dark(#dce3ed, #374358);
+    --od-band: light-dark(#eef2f8, #232e41);
+    --od-accent: light-dark(#394f92, #c4d2ff);
+    --od-accent-bg: light-dark(#e9efff, #29395d);
+    --od-good: light-dark(#286147, #a4dfc1);
+    --od-good-bg: light-dark(#e5f2eb, #233d35);
+    --od-faster: light-dark(#24765f, #79cdb0);
+    --od-slower: light-dark(#986024, #e9b571);
+    --od-inset: 18px;
+    color-scheme: light dark;
+    min-height: 400px;
+    border: 1px solid var(--od-line);
+    border-radius: 12px;
+    color: var(--od-ink);
+    background: var(--od-bg);
+    font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  #od-story-tabs-preview *, #od-story-tabs-preview { box-sizing: border-box; }
+  #od-story-tabs-preview [hidden] { display: none !important; }
+  #od-story-tabs-preview h2 { margin: 0; color: inherit; font: 650 clamp(19px, 2.45vw, 25px)/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: -.025em; }
+  #od-story-tabs-preview h3 { margin: 0; color: inherit; font: 650 15px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  #od-story-tabs-preview p, #od-story-tabs-preview dl, #od-story-tabs-preview dd { margin: 0; }
+  #od-story-tabs-preview code { color: inherit; font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
+  #od-story-tabs-preview svg { width: 15px; height: 15px; flex: 0 0 auto; vertical-align: middle; }
+  #od-story-tabs-preview button { font: inherit; color: inherit; }
+  #od-story-tabs-preview button:focus-visible, #od-story-tabs-preview summary:focus-visible { outline: 2px solid var(--od-accent); outline-offset: -2px; }
+  #od-story-tabs-preview .od-chrome, #od-story-tabs-preview .od-project-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; padding: 10px var(--od-inset); }
+  #od-story-tabs-preview .od-chrome { min-height: 45px; border-bottom: 1px solid var(--od-line); border-radius: 12px 12px 0 0; background: var(--od-surface); }
+  #od-story-tabs-preview .od-brand { display: flex; align-items: center; gap: 8px; font-weight: 650; }
+  #od-story-tabs-preview .od-brand > span, #od-story-tabs-preview .od-small { color: var(--od-muted); font-size: 12px; }
+  #od-story-tabs-preview .od-brand svg { color: var(--od-accent); }
+  #od-story-tabs-preview .od-story-head { padding: 5px var(--od-inset) 11px; }
+  #od-story-tabs-preview .od-story-head h2 { max-width: 750px; }
+  #od-story-tabs-preview .od-crumb { display: flex; align-items: center; gap: 8px; color: var(--od-muted); font-size: 12px; }
+  #od-story-tabs-preview .od-meta { display: flex; gap: 8px; align-items: center; margin: 5px 0 5px; color: var(--od-muted); font-size: 12px; }
+  #od-story-tabs-preview .od-done { padding: 2px 6px; border-radius: 4px; color: var(--od-good); background: var(--od-good-bg); font-weight: 650; }
+  #od-story-tabs-preview .od-button, #od-story-tabs-preview .od-files-toggle, #od-story-tabs-preview .od-link { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; min-height: 30px; border: 1px solid var(--od-line); border-radius: 6px; background: var(--od-surface); font-size: 12px; text-align: start; }
+  #od-story-tabs-preview .od-link { border-color: transparent; padding-inline: 0; color: var(--od-accent); background: transparent; }
+  #od-story-tabs-preview .od-button:hover, #od-story-tabs-preview .od-files-toggle:hover, #od-story-tabs-preview .od-file:hover { background: var(--od-band); }
+  #od-story-tabs-preview .od-link:hover { text-decoration: underline; }
+  #od-story-tabs-preview .od-tabbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px; align-items: end; padding: 0 var(--od-inset); border-bottom: 1px solid var(--od-line); }
+  #od-story-tabs-preview .od-tabs { display: flex; flex-wrap: wrap; gap: 0 6px; min-width: 0; }
+  #od-story-tabs-preview .od-tabs button { display: block; padding: 7px 9px; min-height: 35px; border: 0; border-bottom: 2px solid transparent; border-radius: 4px 4px 0 0; background: transparent; font-size: 13px; white-space: nowrap; }
+  #od-story-tabs-preview .od-tabs button:hover { background: var(--od-band); }
+  #od-story-tabs-preview .od-tabs button[aria-selected="true"] { color: var(--od-accent); border-bottom-color: var(--od-accent); font-weight: 650; }
+  #od-story-tabs-preview .od-files-toggle { margin-block: 0 5px; white-space: nowrap; }
+  #od-story-tabs-preview .od-content { padding: 14px var(--od-inset) 16px; }
+  #od-story-tabs-preview .od-ci-head, #od-story-tabs-preview .od-section-head, #od-story-tabs-preview .od-ci-footer { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 5px 12px; }
+  #od-story-tabs-preview .od-ci-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 11px; }
+  #od-story-tabs-preview .od-scale-label, #od-story-tabs-preview .od-percent-switch { white-space: nowrap; }
+  #od-story-tabs-preview .od-percent-switch { display: inline-flex; align-items: center; gap: 5px; padding: 4px 7px; border: 1px solid var(--od-line); border-radius: 5px; color: var(--od-ink); background: var(--od-surface); font-size: 12px; }
+  #od-story-tabs-preview .od-percent-switch input { margin: 0; accent-color: var(--od-accent); }
+  #od-story-tabs-preview .od-tag { border: 1px solid var(--od-line); border-radius: 5px; padding: 2px 6px; color: var(--od-muted); font-size: 11px; }
+  #od-story-tabs-preview .od-ci-summary { display: grid; grid-template-columns: .9fr 1.15fr 1fr; margin: 10px 0 13px; background: var(--od-surface); border: 1px solid var(--od-line); border-radius: 7px; }
+  #od-story-tabs-preview .od-ci-summary > div { min-width: 0; padding: 8px 10px; }
+  #od-story-tabs-preview .od-ci-summary > div + div { border-inline-start: 1px solid var(--od-line); }
+  #od-story-tabs-preview .od-ci-summary dt { margin-bottom: 3px; color: var(--od-muted); font-size: 12px; }
+  #od-story-tabs-preview .od-ci-summary dd { font-size: 13px; font-weight: 620; font-variant-numeric: tabular-nums; }
+  #od-story-tabs-preview .od-ci-summary dd:not(.od-time-change) span, #od-story-tabs-preview .od-delta, #od-story-tabs-preview .od-percent { color: var(--od-muted); font-size: 12px; font-weight: 400; white-space: nowrap; }
+  #od-story-tabs-preview .od-ci-summary dd:not(.od-time-change) span { margin-inline-start: 4px; }
+  #od-story-tabs-preview .od-time-change { display: inline-grid; grid-template-columns: 3.25em 56px auto; gap: 6px; align-items: center; white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 620; }
+  #od-story-tabs-preview .od-time-mark { position: relative; height: 6px; border-radius: 4px; background: var(--od-band); }
+  #od-story-tabs-preview .od-time-mark::before { content: ""; position: absolute; left: 50%; top: -2px; width: 1px; height: 10px; background: var(--od-muted); }
+  #od-story-tabs-preview .od-time-mark::after { content: ""; position: absolute; top: 0; width: var(--od-extent); height: 6px; }
+  #od-story-tabs-preview .od-time-mark[data-direction="faster"]::after { right: 50%; border-radius: 4px 0 0 4px; background: var(--od-faster); }
+  #od-story-tabs-preview .od-time-mark[data-direction="slower"]::after { left: 50%; border-radius: 0 4px 4px 0; background: var(--od-slower); }
+  #od-story-tabs-preview:not(:has([data-show-percent]:checked)) .od-percent { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); }
+  #od-story-tabs-preview .od-table-wrap { overflow-x: auto; border: 1px solid var(--od-line); border-radius: 7px; background: var(--od-surface); }
+  #od-story-tabs-preview .od-table { width: 100%; min-width: 415px; border-collapse: collapse; color: var(--od-ink); text-align: start; font-size: 13px; font-variant-numeric: tabular-nums; }
+  #od-story-tabs-preview .od-entry-table { min-width: 540px; }
+  #od-story-tabs-preview .od-table th, #od-story-tabs-preview .od-table td { padding: 5px 9px; border: 0; text-align: start; vertical-align: middle; }
+  #od-story-tabs-preview .od-table tr + tr > *, #od-story-tabs-preview .od-table tbody > tr:first-child > * { border-top: 1px solid var(--od-line); }
+  #od-story-tabs-preview .od-table thead { color: var(--od-muted); background: var(--od-band); }
+  #od-story-tabs-preview .od-table thead th { font-weight: 620; font-size: 12px; }
+  #od-story-tabs-preview .od-table tbody th { font-weight: 620; }
+  #od-story-tabs-preview .od-entry-table tbody td { padding-block: 6px; }
+  #od-story-tabs-preview .od-entry-table .od-delta { display: block; }
+  #od-story-tabs-preview .od-build-icon { display: inline-flex; align-items: center; vertical-align: middle; color: var(--od-muted); }
+  #od-story-tabs-preview .od-build-icon svg { width: 13px; height: 13px; }
+  #od-story-tabs-preview .od-sort { display: inline-flex; align-items: center; gap: 4px; padding: 0; border: 0; background: transparent; }
+  #od-story-tabs-preview .od-sort:hover, #od-story-tabs-preview th[aria-sort] .od-sort { color: var(--od-accent); }
+  #od-story-tabs-preview .od-sort span { font-size: 12px; }
+  #od-story-tabs-preview .od-column-note { display: block; font-size: 11px; font-weight: 400; }
+  #od-story-tabs-preview .od-section-head { margin: 13px 0 6px; }
+  #od-story-tabs-preview .od-ci-footer { justify-content: flex-start; margin-top: 10px; }
+  #od-story-tabs-preview .od-reader-layout { display: grid; grid-template-columns: minmax(155px, 25%) minmax(0, 1fr); min-height: 275px; }
+  #od-story-tabs-preview .od-reader-layout:has(aside[hidden]) { grid-template-columns: minmax(0, 1fr); }
+  #od-story-tabs-preview #od-story-tree { border-inline-end: 1px solid var(--od-line); padding: 10px 0; }
+  #od-story-tabs-preview #od-story-tree h3 { margin: 0 12px 8px; color: var(--od-muted); font-size: 12px; }
+  #od-story-tabs-preview #od-story-tree summary { padding: 5px 10px; color: var(--od-ink); background: var(--od-band); font-size: 12px; font-weight: 650; }
+  #od-story-tabs-preview .od-file { display: flex; align-items: start; gap: 6px; width: 100%; padding: 6px 9px 6px 15px; border: 0; background: transparent; font-size: 12px; text-align: start; overflow-wrap: anywhere; }
+  #od-story-tabs-preview .od-file[aria-pressed="true"] { color: var(--od-accent); background: var(--od-accent-bg); }
+  #od-story-tabs-preview .od-file-reader { min-width: 0; padding: 10px var(--od-inset) 14px; border-radius: 0 0 11px 0; background: var(--od-surface); }
+  #od-story-tabs-preview .od-file-reader h3 { overflow-wrap: anywhere; }
+  #od-story-tabs-preview .od-file-tabs { margin: 6px 0 9px; border-bottom: 1px solid var(--od-line); }
+  #od-story-tabs-preview .od-source, #od-story-tabs-preview .od-report { max-width: 780px; margin: 0; padding: 10px; border: 1px solid var(--od-line); border-radius: 7px; color: var(--od-ink); background: var(--od-surface); white-space: pre-wrap; overflow-wrap: anywhere; }
+  #od-story-tabs-preview .od-file-reader .od-source { background: var(--od-bg); }
+  #od-story-tabs-preview .od-report { font: inherit; }
+  #od-story-tabs-preview .od-report-caption { margin: 3px 0 8px; }
+  #od-story-tabs-preview .od-candidate { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; margin-top: 8px; padding: 10px; border: 1px solid var(--od-line); border-radius: 7px; background: var(--od-surface); }
+  #od-story-tabs-preview [data-candidate-test] h3 { margin: 6px 0 8px; }
+  #od-story-tabs-preview .od-visually-hidden { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); white-space: nowrap; }
+  @media (max-width: 575px) {
+    #od-story-tabs-preview { --od-inset: 11px; }
+    #od-story-tabs-preview .od-tabs { gap: 0 2px; }
+    #od-story-tabs-preview .od-tabs button { padding-inline: 5px; font-size: 12px; }
+    #od-story-tabs-preview .od-files-toggle { padding-inline: 6px; }
+    #od-story-tabs-preview .od-files-toggle span { display: none; }
+    #od-story-tabs-preview .od-ci-summary { grid-template-columns: minmax(0, 1fr); }
+    #od-story-tabs-preview .od-ci-summary > div + div { border-inline-start: 0; border-top: 1px solid var(--od-line); }
+    #od-story-tabs-preview .od-reader-layout { grid-template-columns: minmax(0, 1fr); }
+    #od-story-tabs-preview #od-story-tree { border-inline-end: 0; border-bottom: 1px solid var(--od-line); }
+  }
+  @media (pointer: coarse) {
+    #od-story-tabs-preview .od-button, #od-story-tabs-preview .od-link, #od-story-tabs-preview .od-tabs button, #od-story-tabs-preview .od-file, #od-story-tabs-preview .od-percent-switch, #od-story-tabs-preview summary { min-height: 44px; }
+    #od-story-tabs-preview .od-files-toggle { min-width: 44px; min-height: 44px; justify-content: center; }
+    #od-story-tabs-preview .od-sort { min-height: 35px; }
+  }
+</style>
+
+<script>
+  (() => {
+    const root = document.getElementById("od-story-tabs-preview");
+    const find = (selector) => root.querySelector(selector);
+    const tabs = (list) => Array.from(list.querySelectorAll('[role="tab"]'));
+    const tabPanel = (tab) => document.getElementById(tab.getAttribute("aria-controls"));
+    const story = find('[data-scope="story"]');
+    const project = find('[data-scope="project"]');
+    const ciTab = find("#od-story-ci-tab");
+    const filesTab = find("#od-story-files-tab");
+    const purposeTab = find("#od-file-purpose-tab");
+    const toggle = find(".od-files-toggle");
+    const tree = find("#od-story-tree");
+    const fileSource = find("[data-file-source]");
+    const files = {
+      cursor: {
+        path: "dashboard / frontend-tests",
+        name: "cursor-runner-sessions-ui.spec.ts",
+        entry: "dashboard/frontend-tests",
+        source: fileSource.textContent,
+      },
+      support: {
+        path: "dashboard / tests / support",
+        name: "cursorSessionsDemand.ts",
+        entry: "dashboard/tests",
+        source: `export function isCursorSessionsRead(request: Request): boolean {
+  return (
+    request.method() === "GET" &&
+    new URL(request.url()).pathname === cursorRunnerSessionsEndpoint
+  );
+}`,
+      },
+    };
+
+    function activate(tab) {
+      for (const sibling of tabs(tab.parentElement)) {
+        const active = sibling === tab;
+        sibling.setAttribute("aria-selected", String(active));
+        tabPanel(sibling).hidden = !active;
+      }
+      toggle.hidden = filesTab.getAttribute("aria-selected") !== "true";
+    }
+
+    function showCandidateTest(show) {
+      find("[data-candidate-list]").hidden = show;
+      find("[data-candidate-test]").hidden = !show;
+      find(show ? "[data-back-candidates]" : "[data-open-candidate]").focus();
+    }
+
+    const entryBody = find(".od-entry-table tbody");
+    const entryRows = Array.from(entryBody.rows);
+    function measuredSortValue(row, key) {
+      const value = Number(row.dataset[key]);
+      return key === "branch" || key === "landed" ? value - Number(row.dataset.baseline) : value;
+    }
+    function sortEntries(button) {
+      const header = button.closest("th");
+      const previous = header.getAttribute("aria-sort");
+      const direction = previous === "descending" ? undefined : previous === "ascending" ? "descending" : "ascending";
+      for (const other of header.parentElement.cells) {
+        other.removeAttribute("aria-sort");
+        other.querySelector("span").textContent = "↕";
+      }
+      if (!direction) {
+        entryBody.append(...entryRows);
+        return;
+      }
+      header.setAttribute("aria-sort", direction);
+      button.querySelector("span").textContent = direction === "ascending" ? "↑" : "↓";
+      const key = button.dataset.sort;
+      const sign = direction === "ascending" ? 1 : -1;
+      const sorted = [...entryRows].sort((a, b) => {
+        if (key === "entry") return sign * a.dataset.entry.localeCompare(b.dataset.entry);
+        const first = measuredSortValue(a, key);
+        const second = measuredSortValue(b, key);
+        const missing = Number.isNaN(first) - Number.isNaN(second);
+        return missing || sign * (first - second);
+      });
+      entryBody.append(...sorted);
+    }
+
+    root.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      if (button.getAttribute("role") === "tab") {
+        activate(button);
+      } else if (button === toggle) {
+        tree.hidden = !tree.hidden;
+        const label = tree.hidden ? "Show files" : "Hide files";
+        toggle.setAttribute("aria-label", label);
+        toggle.setAttribute("aria-expanded", String(!tree.hidden));
+        toggle.querySelector("span").textContent = label;
+      } else if (button.dataset.file) {
+        for (const fileButton of root.querySelectorAll("[data-file]")) fileButton.setAttribute("aria-pressed", String(fileButton === button));
+        const file = files[button.dataset.file];
+        find("[data-file-path]").textContent = file.path;
+        find("[data-file-name]").textContent = file.name;
+        find("[data-file-proof]").textContent = `CI entry · ${file.entry}`;
+        fileSource.textContent = file.source;
+        activate(purposeTab);
+      } else if (button.hasAttribute("data-to-ci")) {
+        activate(ciTab);
+        ciTab.focus();
+      } else if (button.dataset.openScope) {
+        const showProject = button.dataset.openScope === "project";
+        story.hidden = showProject;
+        project.hidden = !showProject;
+        find(showProject ? '[data-open-scope="story"]' : '[data-open-scope="project"]').focus();
+      } else if (button.dataset.sort) {
+        sortEntries(button);
+      } else if (button.hasAttribute("data-refresh")) {
+        find("[data-refresh-note]").textContent = "Sample comparison refreshed";
+      } else if (button.hasAttribute("data-open-candidate")) {
+        showCandidateTest(true);
+      } else if (button.hasAttribute("data-back-candidates")) {
+        showCandidateTest(false);
+      }
+    });
+
+    root.addEventListener("keydown", (event) => {
+      const current = event.target.closest('[role="tab"]');
+      if (!current || !["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      const group = tabs(current.parentElement);
+      const index = group.indexOf(current);
+      const next = event.key === "Home" ? group[0] : event.key === "End" ? group.at(-1)
+        : group[(index + (event.key === "ArrowRight" ? 1 : -1) + group.length) % group.length];
+      activate(next);
+      next.focus();
+    });
+
+    if (globalThis.Tweak) {
+      const report = find("[data-report]");
+      const original = report.textContent;
+      const note = find("[data-coverage-note]");
+      const state = { coverage: "Report available" };
+      const reports = {
+        "Report available": original,
+        "Unavailable": "Wrap Up finished before the check returned a report.",
+        "No saved assessment": "No Intent Coverage assessment was saved for this story.",
+      };
+      const tweak = new Tweak({ container: root, onChange: () => {
+        note.textContent = state.coverage === "Report available" ? "One targeted check · Saved report excerpt" : state.coverage;
+        report.textContent = reports[state.coverage];
+      } });
+      tweak.addSelect(state, "coverage", { label: "Saved coverage", options: Object.keys(reports) });
+    }
+  })();
+</script>
