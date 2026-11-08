@@ -46,6 +46,7 @@ import {
   projectEnvironmentOf,
 } from "./projectConfiguration.ts";
 import type { DashboardServerOptions } from "./dashboardServerOptions.ts";
+import { sharedServerBundle } from "./serverBundle.ts";
 
 // Callers find the shared-build resolver and the modes beside the server.
 export { sharedDashboardBuild } from "./dashboardBuild.ts";
@@ -69,6 +70,7 @@ export type DashboardServer = {
   // marker was ever written into them. `undefined` in dev mode, which serves
   // source on the fly and writes no build, and in boundary mode, no assets.
   readonly outDir: string | undefined;
+  readonly serverBundle: string | undefined;
   readonly github: FakeGitHub;
   readonly codex: FakeCodex;
   output(): string;
@@ -89,6 +91,8 @@ export async function startDashboardServer(
     options.mode === "preview" ? options.prebuilt : undefined;
   const prebuilt =
     typeof previewBuild === "function" ? await previewBuild() : previewBuild;
+  const serverBundle =
+    options.mode === "dev" ? undefined : await sharedServerBundle();
   const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-dashboard-"));
   const ownsMachine = options.machine === undefined;
   const ownsGitHub = options.github === undefined;
@@ -174,6 +178,7 @@ export async function startDashboardServer(
         environment,
         prebuilt,
         buildDir: path.join(tempRoot, "dist"),
+        serverBundle,
       },
       env,
     );
@@ -200,6 +205,7 @@ export async function startDashboardServer(
     origin: baseURL,
     pid: server.child.pid ?? 0,
     outDir,
+    serverBundle,
     github,
     codex,
     output: () => server.output(),

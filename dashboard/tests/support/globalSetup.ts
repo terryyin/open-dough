@@ -1,7 +1,6 @@
-// Workers request the production app build from this runner when they first
-// need it. One completed build is shared read-only across the run. The server
-// entries and installed origins are prepared during setup. All these
-// directories belong to this run and are removed when it ends.
+// Workers request the production app build and server bundle when they need
+// them. Each completed artifact is shared read-only across the run. Installed
+// origins are prepared during setup. The run removes its own directories.
 //
 // Before building, it runs the committed fixture executables once
 // (./fixtureExecutable.ts), so a fresh checkout's first run of each happens
@@ -28,7 +27,7 @@ import { startRunArtifacts } from "./runArtifacts.ts";
 import {
   bundleServerEntries,
   createServerBundleDirectory,
-  serverBundleVariable,
+  serverBundleArtifactKey,
 } from "./serverBundle.ts";
 import {
   describeRunProcesses,
@@ -46,11 +45,9 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
   runFixtureExecutablesOnce();
   const requests = mkdtempSync(path.join(tmpdir(), "dough-dashboard-gh-"));
   const ownerless = ownerlessRequestRoot(requests);
-  const bundle = createServerBundleDirectory();
   const origins = createStartOriginPreparationDirectory();
   const remove = (): void => {
     process.off("exit", remove);
-    rmSync(bundle, { recursive: true, force: true });
     rmSync(requests, { recursive: true, force: true });
     rmSync(origins, { recursive: true, force: true });
   };
@@ -59,7 +56,6 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
   process.once("exit", remove);
   const start = async () => {
     await prepareStartOrigins(origins);
-    await bundleServerEntries(bundle);
     return startRunArtifacts(
       new Map([
         [
@@ -70,6 +66,13 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
             prepare: buildDashboardTo,
           },
         ],
+        [
+          serverBundleArtifactKey,
+          {
+            create: createServerBundleDirectory,
+            prepare: bundleServerEntries,
+          },
+        ],
       ]),
     );
   };
@@ -78,7 +81,6 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
     await releaseLocalSuites();
     throw error;
   });
-  process.env[serverBundleVariable] = bundle;
   process.env[startOriginPreparationVariable] = origins;
   process.env["DOUGH_GITHUB_REQUEST_OWNER_ROOT"] = ownerless;
   const checkRun = async () => {

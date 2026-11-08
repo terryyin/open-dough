@@ -43,7 +43,7 @@ shared(
   "overlapping Running Cursor sessions asks share one runner read; settled asks reuse within one second, and a later ask reads again",
   async ({ dashboard, cursor }) => {
     // Installed before the launch, so every runner read passes through it.
-    const gate = await holdRunnerSessionsReads(dashboard.home);
+    const gate = await holdRunnerSessionsReads(dashboard);
     try {
       await holdSession(dashboard, cursor);
       // Past the launch's settled observation, so the overlapping asks start a

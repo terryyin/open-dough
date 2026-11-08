@@ -1,9 +1,5 @@
-// Dev and built preview mount the same local boundaries (../../server/localBoundaries.ts)
-// through ../../server/localBoundaryPlugin.ts. This is the suite's one comparison:
-// requests to each server must return the same status, headers and body.
-// Other journeys use preview; detailed boundary variants use this directory's
-// boundary server (../../tests/README.md#two-tiers-browser-journeys-and-boundary-tests).
-// Only dev has Vite's HMR socket, so its check runs there alone.
+// Dev and preview mount the same local boundaries through
+// ../../server/localBoundaryPlugin.ts. Only dev has Vite's HMR socket.
 
 import WebSocket from "ws";
 import { existsSync, readFileSync } from "node:fs";
@@ -34,17 +30,13 @@ import {
 } from "../../tests/support/cursorRunnerJourney.ts";
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 import { expectSuppliedIcons } from "../../tests/support/brandIcons.ts";
-import { serverBundleVariable } from "../../tests/support/serverBundle.ts";
 
 type ViteMode = Extract<DashboardServerMode, "dev" | "preview">;
 const modes = ["dev", "preview"] as const;
 const revision = "ab".repeat(20);
 const backlog = "# Product backlog\n\n## Taken\n\n## Backlog list\n";
 
-// The same answer from both servers: status, caching header and the body,
-// parsed when it is JSON (it names no machine-specific path) and kept as text
-// otherwise, so a server answering a page where the other answers a boundary
-// shows that difference.
+// Keep text responses as text so a page returned in place of JSON fails parity.
 type Answer = {
   readonly status: number;
   readonly cacheControl: string | string[] | undefined;
@@ -132,6 +124,7 @@ test.describe("serving modes mount the same boundaries", () => {
       hostCallsBefore,
     );
     const devRunner = await liveRunner(servers.dev.home);
+    expect(servers.dev.serverBundle).toBeUndefined();
     expect(runnerCommand(devRunner.pid)).toBe(
       [
         process.execPath,
@@ -141,11 +134,13 @@ test.describe("serving modes mount the same boundaries", () => {
       ].join(" "),
     );
     const previewRunner = await liveRunner(servers.preview.home);
+    const bundle = servers.preview.serverBundle ?? "";
+    expect(path.basename(bundle)).toMatch(/^\.dough-server-bundle-/);
+    expect(runnerCommand(servers.preview.pid)).toContain(
+      `--configLoader native --config ${path.join(bundle, "vite.config.mjs")}`,
+    );
     expect(runnerCommand(previewRunner.pid)).toBe(
-      [
-        process.execPath,
-        path.join(process.env[serverBundleVariable] ?? "", "runnerMain.mjs"),
-      ].join(" "),
+      [process.execPath, path.join(bundle, "runnerMain.mjs")].join(" "),
     );
   });
 

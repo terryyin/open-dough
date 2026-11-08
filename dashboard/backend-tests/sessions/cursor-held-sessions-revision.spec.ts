@@ -40,7 +40,7 @@ test("a Cursor record written while a held read is outstanding is labeled from a
   const cursor = installFakeCursor({ screen: "working" });
   await withCursorLaunch({ mode: "boundary" }, cursor, async (dashboard) => {
     // Installed before the launch, so every runner read passes through it.
-    const gate = await holdRunnerSessionsReads(dashboard.home);
+    const gate = await holdRunnerSessionsReads(dashboard);
     try {
       const launched = await launch(
         dashboard,
@@ -103,7 +103,7 @@ test("overlapping asks under unchanged documents still share one runner read", a
     { mode: "boundary" },
     cursor,
     async (dashboard) => {
-      const gate = await holdRunnerSessionsReads(dashboard.home);
+      const gate = await holdRunnerSessionsReads(dashboard);
       try {
         const launched = await launch(
           dashboard,

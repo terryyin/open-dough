@@ -1,10 +1,10 @@
-import { appendFileSync } from "node:fs";
 import { expect, test } from "../../support/pageTest.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
 } from "../../support/dashboardServer.ts";
 import { startFrontendAppServer } from "../../support/frontendAppServer.ts";
+import { observeArtifactConsumer } from "./observeArtifactConsumer.ts";
 
 async function serve(
   start: () => Promise<{
@@ -13,29 +13,12 @@ async function serve(
     close(): Promise<void>;
   }>,
 ) {
-  const record = process.env["OPEN_DOUGH_ARTIFACT_PROOF_CONSUMERS"];
-  if (record === undefined) throw new Error("Missing consumer record path");
-  let server;
-  try {
-    server = await start();
-  } catch (error) {
-    appendFileSync(
-      record,
-      `${JSON.stringify({ pid: process.pid, error: String(error) })}\n`,
-    );
-    throw error;
-  }
-  try {
+  await observeArtifactConsumer(start, async (server) => {
     const page = await fetch(server.baseURL);
     expect(page.status).toBe(200);
     expect(await page.text()).toMatch(/<script type="module".*\/assets\//);
-    appendFileSync(
-      record,
-      `${JSON.stringify({ pid: process.pid, directory: server.outDir })}\n`,
-    );
-  } finally {
-    await server.close();
-  }
+    return server.outDir;
+  });
 }
 
 test("serves the app with a static server", async () => {

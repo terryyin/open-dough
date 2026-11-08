@@ -15,7 +15,6 @@ import {
 import { repoRoot } from "./repositoryRoot.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 import { buildDashboardTo } from "./dashboardBuild.ts";
-import { serverBundleVariable } from "./serverBundle.ts";
 
 // Which server a test launches: Vite's dev server, Vite's preview of a
 // build, or the boundary server.
@@ -30,27 +29,12 @@ const restartingDevServer = path.join(
   "fixtures",
   "restarting-dev-server.mjs",
 );
-const bundle = process.env[serverBundleVariable];
 const boundaryServerEntry = path.join(
   repoRoot,
   "dashboard",
   "server",
   "boundaryServer.ts",
 );
-// Suite workers use the run's bundle. A nested configuration without global
-// setup can still start source, whose TypeScript needs transforming rather
-// than stripping (a parameter property in doneMarks.ts).
-export const boundaryServerCommand = {
-  command: process.execPath,
-  args:
-    bundle === undefined
-      ? [
-          "--experimental-transform-types",
-          "--disable-warning=ExperimentalWarning",
-          boundaryServerEntry,
-        ]
-      : [path.join(bundle, "boundaryServer.mjs")],
-} as const;
 
 // Any free port, chosen by Vite itself (`--port 0`), which probes one and then
 // binds it, failing with "Port N is already in use" if another listener took
@@ -66,18 +50,6 @@ export function listenArgs(port: number | undefined): string[] {
 // launched.
 export function spawnVite(args: readonly string[], env: NodeJS.ProcessEnv) {
   return spawnServer(viteBin, args, env);
-}
-
-// The boundary server the same way, with the listen args Vite takes.
-export function spawnBoundaryServer(
-  args: readonly string[],
-  env: NodeJS.ProcessEnv,
-) {
-  return spawnServer(
-    boundaryServerCommand.command,
-    [...boundaryServerCommand.args, ...args],
-    env,
-  );
 }
 
 function spawnServer(
@@ -117,6 +89,7 @@ export async function serverLaunch(
     readonly environment: ProjectEnvironment;
     readonly prebuilt: string | undefined;
     readonly buildDir: string;
+    readonly serverBundle: string | undefined;
   },
   env: NodeJS.ProcessEnv,
 ): Promise<{
@@ -124,11 +97,22 @@ export async function serverLaunch(
   readonly outDir: string | undefined;
 }> {
   const listen = listenArgs(options.port);
+  const bundle = options.serverBundle;
   if (options.mode === "boundary") {
-    // No page, so no build: the entry takes the listen args and the
-    // environment alone.
-    const args = [...listen, "--environment", options.environment];
-    return { spawn: () => spawnBoundaryServer(args, env), outDir: undefined };
+    // A custom configuration without a run owner uses transformed source.
+    const entry =
+      bundle === undefined
+        ? [
+            "--experimental-transform-types",
+            "--disable-warning=ExperimentalWarning",
+            boundaryServerEntry,
+          ]
+        : [path.join(bundle, "boundaryServer.mjs")];
+    const args = [...entry, ...listen, "--environment", options.environment];
+    return {
+      spawn: () => spawnServer(process.execPath, args, env),
+      outDir: undefined,
+    };
   }
   if (options.mode === "dev") {
     // Dev mode compiles on the fly; it never reads or writes `dist`.

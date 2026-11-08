@@ -20,6 +20,9 @@
   `dbs-chan-62beacc7`, observer directory `/tmp/dough-ci-501/watch-NqFOwg`,
   PID `98038`, shell session `87596`, cell `g71:8`. Claim CI is unobserved
   by this story-branch observer.
+- Slice 1 published and registered at `019b0e25014c2e6fbee8138e90503279a77191a6`
+  on the execution branch. Its CI repair was published and registered at
+  `6b9bd99fbe5530ca273dafb1cdbde8c152538464`.
 - No replanning override was supplied. Use the existing planning authority
   for refinement within scope. No numeric project slice budget is recorded.
 
@@ -215,7 +218,7 @@ reuses the prior refactor's concurrent-run and preview boundaries.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Compare a boundary-only selection, `serving-modes.spec.ts`, the
 built-frontend selection, and the integrated attention selection. Include
@@ -230,6 +233,35 @@ before handing its entries to descendants. Source-dev and static frontend
 consumers do not ask for it. Preserve source-relative paths, the real
 bundled entries and the intentional no-owner source path for custom
 configurations. Origin preparation stays eager until Slice 3.
+
+Accepted evidence: With `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i npm run
+--silent test:dashboard -- --project=chromium --workers=2`, the
+`boundary-server[.]spec[.]ts$` selection had two passing cases, two requests
+while the bundle was pending, one bundle completion and no app demand. The
+spec observed the real Node and Cursor bundle commands. The
+`(boundary-server|startup-host-words|serving-modes|agent-launch-attention)[.]spec[.]ts$`
+selection had 12 passes and one completion of each key. Preview kept its
+actual config, runner and replies. The frontend and in-process selection
+needed only the app. DOM-only, source-dev and in-process helper import
+checks needed neither key. The late incident restart requested its first
+bundle at the boundary successor. The seven direct runner cases used source
+and no producer, and the ten held-read cases used the appropriate per-server
+build identity.
+
+The same command selected
+`(dashboard-artifact-demand|compile-cache|run-processes)[.]spec[.]ts$`
+(10 passing). The new proof holds the second real bundle write while the first
+entry is on disk. Two workers then share the completed bundle or see the
+same write error, and the output path is removed. The ownerless smoke
+observed source commands and valid boundary and preview replies. The
+concurrent shell gate passed with an empty browser directory. Proof records
+and traces are under `/tmp/dough-513-slice2.ihXhZY` and
+`/tmp/dough-513-slice2-rest.gDJZ0n`. See the caller dispositions in
+`/tmp/dough-513-slice2-consumers-focused.md`.
+
+The independent refactor kept both nested fixture routes and their lifetime
+assertions, and reran all five artifact lifecycle cases successfully.
+See `/tmp/dough-513-refactor2.uDYYS0/proof.json` and its consumer trace.
 
 ### 3. Selected installed starts share only the origin layouts they use
 

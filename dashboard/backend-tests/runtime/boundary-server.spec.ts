@@ -11,8 +11,6 @@ import {
   otherProjectEnvironment,
   projectConfigurationFile,
 } from "../../tests/support/projectConfiguration.ts";
-import { boundaryServerCommand } from "../../tests/support/serverAddress.ts";
-import { serverBundleVariable } from "../../tests/support/serverBundle.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import {
   liveRunner,
@@ -20,13 +18,10 @@ import {
 } from "../../tests/support/cursorRunnerJourney.ts";
 
 test("a boundary-mode server is the Node entry alone, naming no Vite and serving no page", async () => {
-  const bundle = process.env[serverBundleVariable];
-  expect(bundle).toBeDefined();
-  expect(boundaryServerCommand.args).toEqual([
-    path.join(bundle ?? "", "boundaryServer.mjs"),
-  ]);
   const server = await startDashboardServer({ mode: "boundary" });
   try {
+    const bundle = server.serverBundle ?? "";
+    expect(path.basename(bundle)).toMatch(/^\.dough-server-bundle-/);
     const command = execFileSync(
       "ps",
       ["-o", "command=", "-p", String(server.pid)],
@@ -36,8 +31,8 @@ test("a boundary-mode server is the Node entry alone, naming no Vite and serving
     ).trim();
     expect(command).toBe(
       [
-        boundaryServerCommand.command,
-        ...boundaryServerCommand.args,
+        process.execPath,
+        path.join(bundle, "boundaryServer.mjs"),
         "--port",
         "0",
         "--environment",
@@ -47,7 +42,7 @@ test("a boundary-mode server is the Node entry alone, naming no Vite and serving
     expect(server.output()).not.toMatch(/vite/i);
     const runner = await liveRunner(server.home);
     expect(runnerCommand(runner.pid)).toBe(
-      [process.execPath, path.join(bundle ?? "", "runnerMain.mjs")].join(" "),
+      [process.execPath, path.join(bundle, "runnerMain.mjs")].join(" "),
     );
     expect(server.outDir).toBeUndefined();
     expect(
