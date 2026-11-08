@@ -104,28 +104,31 @@ holds. [Journey coverage ownership](../../dashboard/tests/native-host-fixtures.m
 
 <a id="refresh-without-unneeded-reloads"></a>
 
-### Exercise dashboard updates without unnecessary page reloads
+### Avoid redundant board reads
 
 **Identity:** SEED-262#refresh-without-unneeded-reloads
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-**Goal.** A developer running tests of dashboard state changes gets the next
-observable result sooner by using the relevant product update path and
-waiting for the answer the assertion depends on.
+**Goal.** A developer running dashboard journeys gets the next observable
+result sooner by avoiding repeated reads of published board data that the
+test already has or does not need for the behavior under test.
 
-**Scope.** Start with the six full page loads across the attention spec and
-inspect sibling journeys that reload or drain unrelated requests after an
-update. Keep real project switches and explicit reload coverage for
-rehydration. Preserve the checks that distinguish published facts at a
-revision from local session state.
+**Scope.** Start with the attention spec and related board journeys. The
+attention profile recorded six full page loads and 116 total fake `gh`
+requests. Identify the published-board reads and trace which actions cause
+them. Where a scripted reload forces a redundant read, use the normal
+in-page update path and wait for the specific published update or local
+session result the assertion depends on. Keep real project switches and
+explicit reloads where they prove isolation or restored state.
 
-**Evaluation.** Exercise a published column change while the board stays
-open and verify the correct revision and session placement. Keep a reload
-that checks restored state and a switch that proves project isolation.
-Compare full navigation count, requests triggered, and time to the
-asserted state across the affected journeys.
+**Evaluation.** Show fewer published-board reads in the attention spec and
+at least one related journey. Compare requests by project, revision, and
+path alongside time to the asserted state and focused command wall time.
+Verify that a published column change still shows the new revision and
+correct session placement, that a local session change preserves published
+facts, and that the reload and project-switch proofs still hold.
 [Board transition helper](../../dashboard/tests/storyColumnsPage.ts)
 
 <a id="reduce-private-fixture-lifecycle-cost"></a>
