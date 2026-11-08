@@ -300,3 +300,15 @@ Reported: slice 5 — "the dashboard has no dark theme; only the CI cue colours 
 Story clause: "Compare the implementation against the mockup in the light theme at desktop and narrow widths"
 Disposition: owner changed "Terry deferred the dark comparison on 2026-11-08"
 Commitment: V1
+
+## Execution complete
+
+Product advice: no change to the near-future direction. CI-first story review
+with relative timing and literal saved coverage directly serves "make a story's
+intent reviewable in context". The review left one candidate for Terry's
+judgment. Under ADR 0008, closing **Review changes** opened from the story
+header clears the Selected story, which cuts against "without losing their
+place". It follows existing approved semantics, so it is a possible future
+story, not a correction. The retrospective's bounded correction is
+[SEED-275#align-story-tabs-records](../537-align-story-tabs-records/PLAN.md).
+The dark-theme comparison is queued as SEED-277#dashboard-dark-theme.
