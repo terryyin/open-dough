@@ -316,51 +316,6 @@ while keeping the attention, membership, and session-management assertions.
 Run the journey that owns starting from a card to confirm its coverage still
 holds. [Journey coverage ownership](../../dashboard/tests/native-host-fixtures.md)
 
-<a id="refresh-without-unneeded-reloads"></a>
-
-### Avoid redundant board reads
-
-**Identity:** SEED-262#refresh-without-unneeded-reloads
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/507-avoid-redundant-board-reads/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5a65a26158daace7eeb1530382fe68baf66e923b8ad87c2e4aadf166cdf8d2a3","plan":"0fc16c0d73ed158e2106da62181d24ecd7d7da56eeb24bc9f23deae93b5259c6"}}
-```
-
-**Goal.** Developers running the dashboard’s Board and session journeys get to
-the same assertions sooner by avoiding full Board reads for steps that can
-observe the published revision or machine-local session change in place.
-
-**Scope.** Start with the attention journey and the related card-session-state
-journey. Drive revision changes through normal in-page published observation
-and session changes through the existing session-record observation. Preserve
-the integrated browser, committed fake origin, real launch and done actions,
-and existing membership and session assertions. Keep explicit reloads,
-server restart, and project switches that prove restored state or isolation.
-Production observation and caching, broader journey conversion, and fixture
-and polling changes owned by the other stories are outside this increment.
-
-**Key examples.**
-
-- With sessions already shown on the open Board, origin publishes Preparing,
-  Taken, or a revision where a story leaves all lists. The same document
-  shows the new revision and corresponding membership. Attention follows
-  the published card, and the removed story’s open session is still reachable
-  from local Taken.
-- With the published revision unchanged, the session listing fails. Open
-  entries become State unknown and retain Open terminal in the same
-  document without another published snapshot. The attention journey still
-  proves that local changes affect counts and leave published card facts intact.
-- Switching projects shows only that project’s sessions and attention.
-  Returning, deliberately reloading, or restarting where the journeys call
-  for it still proves restoration through the normal open path.
-
-**Evaluation.** Compare the same ordinary focused selection before and after.
-Both journeys must make fewer full Board reads that resolve the configured
-ref. Attribute requests by project, revision and path, and show separately
-the pinned snapshot reads needed for new revisions, conditional heads checks,
-and unrelated launch traffic. Compare elapsed time to the asserted result
-and focused command wall time with the same cases and proof intact.
-[Board transition helper](../../dashboard/tests/storyColumnsPage.ts)
-
 <a id="reduce-private-fixture-lifecycle-cost"></a>
 
 ### Reduce the cost of private dashboard test fixtures
