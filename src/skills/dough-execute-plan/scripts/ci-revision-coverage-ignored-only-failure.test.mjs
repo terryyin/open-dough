@@ -37,7 +37,7 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
     makeMe.aRepository
       // A: the only revision with a real CI attempt.
       .withRevision("a", {
-        backlog: undefined,
+        backlog: null,
         files: {
           "app.js": "console.log('base');\n",
           [workflowPath]: allBranchesWorkflow,

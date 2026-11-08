@@ -41,7 +41,7 @@ test("a blocker published after the card rendered refuses real startup before cl
   await expect(
     card.getByText("Ready for execution", { exact: true }),
   ).toBeVisible();
-  await twoDependencies(origin);
+  await origin.publishRevision(twoDependencies());
   // Deliberately retain the rendered revision: the installed start fetches
   // origin and must enforce the newly published agreement itself.
   await expect(card.locator(".story-dependencies")).toHaveCount(0);

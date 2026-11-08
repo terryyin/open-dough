@@ -29,7 +29,7 @@ function lintFixture(t) {
     t,
     makeMe.aRepository
       .withRevision("fixture", {
-        backlog: undefined,
+        backlog: null,
         files: {
           "src/ok.mjs": "export const ok = 1;\n",
           "dashboard/dashboard/dist/assets/b.js": violation,

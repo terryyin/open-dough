@@ -63,7 +63,7 @@ export function observerReceipt(output) {
 // the origin does not have yet. It is no Open Dough backlog project.
 const claimedWithIncrement = makeMe.aRepository
   .withRevision("claim", {
-    backlog: undefined,
+    backlog: null,
     files: { "claim.txt": "taken\n" },
   })
   .withWorkspace("exec/story", { from: "claim" })

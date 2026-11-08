@@ -59,7 +59,7 @@ function callOf(repo) {
 
 // A base revision holding `app.js`, and the workflow when one is stated.
 const base = (workflow) => ({
-  backlog: undefined,
+  backlog: null,
   files: {
     ...(workflow && { ".github/workflows/ci.yml": workflow }),
     "app.js": "base\n",

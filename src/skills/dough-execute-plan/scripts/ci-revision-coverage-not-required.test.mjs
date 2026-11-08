@@ -89,7 +89,7 @@ for (const declared of [false, true])
     } = await materializeRepository(
       makeMe.aRepository
         .withRevision("a", {
-          backlog: undefined,
+          backlog: null,
           files: {
             "app.js": "console.log('base');\n",
             [workflowPath]: acceptedWorkflow,

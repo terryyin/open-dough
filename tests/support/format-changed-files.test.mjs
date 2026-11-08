@@ -21,7 +21,7 @@ function formatFixture(t, { dependencies = true, files = {} } = {}) {
     t,
     makeMe.aRepository
       .withRevision("fixture", {
-        backlog: undefined,
+        backlog: null,
         files: {
           "src/edited.mjs": "export const edited = { a: 1 };\n",
           "src/untouched.mjs": unformatted,

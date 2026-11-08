@@ -3,8 +3,8 @@
 // and when the summary expands. The rest of the summary:
 // ./intent-story-changes.spec.ts.
 
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { storyA } from "../../../tests/support/queued-repository.mjs";
 import { shortRevision } from "../dashboardParts.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
@@ -19,12 +19,13 @@ test("a long story title is shortened on one line, in full on hover and when the
 }) => {
   const long =
     "Story A reads frontend tests in both projects and keeps every location's source beside the published revision";
-  const backlog = path.join(origin.project, ".planning/PRODUCT-BACKLOG.md");
-  writeFileSync(
-    backlog,
-    readFileSync(backlog, "utf8").replace("[Story A]", `[${long}]`),
+  const { intent, baseline } = await selectTakenStoryInIntent(
+    page,
+    origin,
+    undefined,
+    undefined,
+    makeMe.aBacklogEntry.with({ ...storyA, title: long }).please(),
   );
-  const { intent, baseline } = await selectTakenStoryInIntent(page, origin);
   const disclosure = storyDisclosure(intent);
   const name = disclosure.locator(".intent-story-name");
   await expect(name).toHaveText(`Story ${long}`);

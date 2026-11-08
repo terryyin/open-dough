@@ -62,7 +62,7 @@ export const applicableBase = (
   app = "console.log('base');\n",
 ) =>
   makeMe.aRepository.withRevision("base", {
-    backlog: undefined,
+    backlog: null,
     files: { "app.js": app, [workflowPath]: workflow },
   });
 

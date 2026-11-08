@@ -51,7 +51,7 @@ export async function publishSummaryComparisonStory(
   variant?: "own-conflict-extra",
 ): Promise<StoryCiComparisonSetup> {
   publishSummaryComparisonTrunk(origin.project);
-  const baseline = precedeClaimWithPlanning(origin);
+  const baseline = await precedeClaimWithPlanning(origin);
   const story = await completedPublishedStory(
     origin,
     "story-branch",

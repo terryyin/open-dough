@@ -1,3 +1,4 @@
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // A Claude Code session's quiet completion renames it once its receipt is
 // sent (../../server/doneMarks.ts): the receipt answers at once with the local
@@ -194,7 +195,7 @@ test.describe("within a short wait", () => {
 });
 
 test("a server closed during the wait leaves the pending mark and hangs up its attachment", async () => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const server = await startDashboardServer({
     mode: "preview",
     prebuilt: sharedDashboardBuild,

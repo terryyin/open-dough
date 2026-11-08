@@ -30,9 +30,13 @@ import {
   commitUnpublished,
   openTaken,
   publishLater,
+  trunkModeRepository,
   trunkModeStory,
 } from "../support/storyReviewTrunkMode.ts";
 import { git } from "../support/storyReviewWorktree.ts";
+
+// Trunk up to Yui-chan's claim of Story A in Trunk Mode.
+test.use({ originRepository: trunkModeRepository });
 
 const integrated = "Trunk was integrated since the mark";
 

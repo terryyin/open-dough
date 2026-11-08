@@ -10,6 +10,7 @@
 // and context, and origin is untouched at start (no profile, Take, branch, or
 // push).
 
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { realpathSync } from "node:fs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
@@ -41,7 +42,7 @@ for (const workflow of ["execution", "refinement"] as const) {
         let server: DashboardServer;
 
         test.beforeEach(async () => {
-          origin = await startOrigin();
+          origin = await startOrigin(queuedReadyRepository().please());
           server = await startBoundary(origin);
         });
 
@@ -86,7 +87,9 @@ for (const [workflow, policy] of [
     let server: DashboardServer;
 
     test.beforeEach(async () => {
-      origin = await startOrigin("terryyin/open-dough", "open-dough", "codex");
+      origin = await startOrigin(queuedReadyRepository().please(), {
+        host: "codex",
+      });
       native = await installFakeCodex(
         origin.machine,
         process.env["PATH"] ?? "",

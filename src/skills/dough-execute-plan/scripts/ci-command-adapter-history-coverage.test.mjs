@@ -33,7 +33,7 @@ for (const outcome of ["success", "failure", "pending", "incomplete"]) {
     } = await materializeRepository(
       makeMe.aRepository
         .withRevision("ancestor", {
-          backlog: undefined,
+          backlog: null,
           files: { [workflowPath]: acceptedWorkflow, "app.js": "base\n" },
         })
         .withRevision("descendant", {

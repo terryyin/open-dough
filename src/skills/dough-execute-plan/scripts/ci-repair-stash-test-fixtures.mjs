@@ -27,7 +27,7 @@ async function stashTool(...args) {
 // worktree beside it. It is no Open Dough backlog project.
 const sharedStashRepository = makeMe.aRepository
   .withRevision("base", {
-    backlog: undefined,
+    backlog: null,
     files: Object.fromEntries(
       ["tracked.txt", "staged.txt", "shared.txt"].map((name) => [
         name,
@@ -41,7 +41,7 @@ const sharedStashRepository = makeMe.aRepository
 // The repository a case adds as a submodule.
 const libraryRepository = makeMe.aRepository
   .withRevision("library", {
-    backlog: undefined,
+    backlog: null,
     files: { "lib.txt": "library base\n" },
   })
   .please();

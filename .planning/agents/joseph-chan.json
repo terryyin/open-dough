@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "joseph-chan",
+  "email": "joseph-chan@example.org",
+  "identity": "SEED-262#migrate-git-publication-native-fixtures",
+  "mode": "story-branch",
+  "branch": "claude/build-git-publication-native-fixture-repositorie",
+  "host": "claude",
+  "model": "opus"
+}

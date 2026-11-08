@@ -2,6 +2,24 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_migrate-dashboard-origin-fixtures.json",
+      "identity": "SEED-262#migrate-dashboard-origin-fixtures",
+      "completedAt": "2026-11-08T13:07:31.452Z",
+      "blob": "eded32ae3356c361eedd0b193b840d38257571c1"
+    },
+    {
+      "fileName": "SEED-262_tighten-repository-description-facts.json",
+      "identity": "SEED-262#tighten-repository-description-facts",
+      "completedAt": "2026-11-08T12:53:52.748Z",
+      "blob": "2da5ac630d8b6c71087b030b29941dce39f594b7"
+    },
+    {
+      "fileName": "SEED-276_guard-intent-per-file-highlighting.json",
+      "identity": "SEED-276#guard-intent-per-file-highlighting",
+      "completedAt": "2026-11-08T12:50:48.041Z",
+      "blob": "1ec9df7c369f3f85b7a8ba74152201576b54a718"
+    },
+    {
       "fileName": "SEED-273_lean-follow-up-listing.json",
       "identity": "SEED-273#lean-follow-up-listing",
       "completedAt": "2026-11-08T12:14:49.097Z",

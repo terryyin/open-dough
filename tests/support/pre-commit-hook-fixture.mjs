@@ -25,7 +25,7 @@ export async function hookFixture(
     t,
     makeMe.aRepository
       .withRevision("fixture", {
-        backlog: undefined,
+        backlog: null,
         files: {
           "package.json":
             '{"private":true,"type":"module","scripts":{"lint":"node scripts/lint.mjs","typecheck:dashboard":"tsc -p tsconfig.json","prepare":"node scripts/install-hooks.mjs"}}\n',

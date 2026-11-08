@@ -38,7 +38,7 @@ test("a non-ignored story-branch revision stays undiscovered until its own exact
   } = await materializeRepository(
     makeMe.aRepository
       .withRevision("a", {
-        backlog: undefined,
+        backlog: null,
         files: {
           "src/app.js": "console.log('A');\n",
           [workflowPath]: acceptedWorkflow,

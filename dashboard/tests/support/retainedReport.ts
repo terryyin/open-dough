@@ -8,6 +8,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { randomUUID } from "node:crypto";
+import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 import path from "node:path";
 import { expect, stored } from "./codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
@@ -139,12 +140,9 @@ export async function recordedCursor(
 export function plantTrackedClosureRepository(repository: string): {
   readonly revision: string;
 } {
-  mkdirSync(path.join(repository, ".planning"), { recursive: true });
+  mkdirSync(repository, { recursive: true });
   execFileSync("git", ["init", "-b", "main"], { cwd: repository });
-  writeFileSync(
-    path.join(repository, ".planning", "PRODUCT-BACKLOG.md"),
-    "# Product backlog\n\n## Taken\n\n## Backlog list\n",
-  );
+  writeRevisionFiles(repository, { backlog: {} });
   const git = (...args: string[]) =>
     execFileSync("git", args, { cwd: repository }).toString().trim();
   git("add", ".");

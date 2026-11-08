@@ -14,13 +14,13 @@ import {
 } from "../admittedWork.ts";
 
 let admission: Admission;
-const cleanups: Array<() => void> = [];
+const cleanups: Array<() => Promise<void>> = [];
 // Admitting runs the production commands against Git.
-test.beforeAll(() => {
-  admission = admitInvestigation((cleanup) => cleanups.push(cleanup));
+test.beforeAll(async () => {
+  admission = await admitInvestigation((cleanup) => cleanups.push(cleanup));
 });
-test.afterAll(() => {
-  for (const cleanup of cleanups) cleanup();
+test.afterAll(async () => {
+  for (const cleanup of cleanups) await cleanup();
 });
 
 test("an admitted investigation that was never queued shows its purpose, owner, and unselected preparation in Taken", async ({

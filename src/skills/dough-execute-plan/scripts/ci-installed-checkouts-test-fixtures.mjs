@@ -24,7 +24,7 @@ export function deployRuntime(root, platform = ".agents") {
 
 // A repository with one commit, which is no Open Dough backlog project.
 const oneCommit = makeMe.aRepository.withRevision("init", {
-  backlog: undefined,
+  backlog: null,
   files: { README: "checkout\n" },
 });
 

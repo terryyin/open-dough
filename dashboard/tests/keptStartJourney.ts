@@ -19,11 +19,13 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
+import { storyA, storyB } from "../../tests/support/queued-repository.mjs";
 import {
-  otherQueuedIdentity,
   queuedIdentity,
+  queuedOriginRepository,
   startOrigin,
   type StartOrigin,
+  type StartOriginFixtures,
 } from "./support/startOrigin.ts";
 import { serveOriginBaseCi } from "./support/serveOriginBaseCi.ts";
 import {
@@ -34,10 +36,10 @@ import {
 import { nextAcceptedAttemptId } from "./acceptedAttemptPage.ts";
 import { settledOutcome } from "./acceptedAttempts.ts";
 
-export const test = base.extend<{ origin: StartOrigin }>({
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin();
+export const test = base.extend<StartOriginFixtures>({
+  originRepository: queuedOriginRepository,
+  origin: async ({ originRepository }, use) => {
+    const origin = await startOrigin(originRepository);
     await use(origin);
     origin.cleanup();
   },
@@ -69,7 +71,12 @@ export async function reachKeptStart(
   dashboard: DashboardServer,
   origin: StartOrigin,
 ) {
-  await origin.takenByAnotherAgent(otherQueuedIdentity);
+  await origin.publishTake({
+    agent: "Yui",
+    story: storyB,
+    queued: [storyA],
+    mode: "story-branch",
+  });
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),

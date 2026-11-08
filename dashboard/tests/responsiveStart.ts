@@ -12,18 +12,20 @@ import { parts } from "./dashboardPage.ts";
 import { expect, test as base } from "./dashboardTest.ts";
 import {
   otherQueuedIdentity,
+  queuedOriginRepository,
   startOrigin,
   type StartOrigin,
+  type StartOriginFixtures,
 } from "./support/startOrigin.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { selectStory } from "./storyCardSelection.ts";
 
 // A test whose dashboard uses the machine of a real bare origin
 // (./support/startOrigin.ts) with the installed starts.
-export const test = base.extend<{ origin: StartOrigin }>({
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin();
+export const test = base.extend<StartOriginFixtures>({
+  originRepository: queuedOriginRepository,
+  origin: async ({ originRepository }, use) => {
+    const origin = await startOrigin(originRepository);
     await use(origin);
     origin.cleanup();
   },

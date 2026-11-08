@@ -127,6 +127,31 @@ test("each copy of a described workspace is its own worktree whose later commits
     );
 });
 
+test("a workspace's declared checkout identity stays with its worktree and leaves the integration checkout's own", async (t) => {
+  const integrationIdentity = { name: "Integ", email: "integ@example.test" };
+  const workspaceIdentity = { name: "Work", email: "work@example.test" };
+  const { integration, execution, cleanup } = await materializeRepository(
+    makeMe.aRepository
+      .withCheckoutIdentity(integrationIdentity)
+      .withRevision("trunk")
+      .withWorkspace("exec/story", {
+        from: "trunk",
+        checkoutIdentity: workspaceIdentity,
+      })
+      .please(),
+  );
+  t.after(cleanup);
+  const committer = async (checkout) => {
+    await git(checkout, "commit", "--allow-empty", "-m", "later work");
+    return (
+      await git(checkout, "log", "-1", "--format=%cn <%ce>")
+    ).stdout.trim();
+  };
+
+  assert.equal(await committer(integration), "Integ <integ@example.test>");
+  assert.equal(await committer(execution), "Work <work@example.test>");
+});
+
 test("a declared executable is published with the executable mode and other files are not", async (t) => {
   const { origin, cleanup } = await materializeRepository(
     makeMe.aRepository
@@ -151,4 +176,33 @@ test("a declared executable is published with the executable mode and other file
     ["100644", "notes.txt"],
     ["100755", "wrapper"],
   ]);
+});
+
+test("a first revision states no backlog with backlog: null, or the backlog bytes it publishes", async (t) => {
+  const bytes = "# Product Backlog\n\nStated bytes.\n";
+  const withoutBacklog = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("bare", { backlog: null, files: { "trunk.txt": "base\n" } })
+      .please(),
+  );
+  t.after(withoutBacklog.cleanup);
+  const withBytes = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("stated", {
+        files: { ".planning/PRODUCT-BACKLOG.md": bytes },
+      })
+      .please(),
+  );
+  t.after(withBytes.cleanup);
+
+  assert.equal(
+    (await git(withoutBacklog.origin, "ls-tree", "-r", "--name-only", "main"))
+      .stdout,
+    "trunk.txt\n",
+  );
+  assert.equal(
+    (await git(withBytes.origin, "show", "main:.planning/PRODUCT-BACKLOG.md"))
+      .stdout,
+    bytes,
+  );
 });

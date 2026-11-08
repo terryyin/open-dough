@@ -30,7 +30,7 @@ async function history(t) {
   } = await materializeRepository(
     makeMe.aRepository
       .withRevision("a", {
-        backlog: undefined,
+        backlog: null,
         files: { [workflowPath]: acceptedWorkflow, "app.js": "base\n" },
       })
       .withRevision("b", { files: { "docs/b.md": "B\n" } })

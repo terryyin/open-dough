@@ -1,19 +1,19 @@
-import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  digestFile,
   executionOwnsInstall,
   integritySnapshot,
   integrityUnchanged,
   prepTraceRel,
   readTraces,
   setupCountRel,
-} from "../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-test-fixtures.mjs";
+  usesNpmOrNix,
+} from "../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-project.mjs";
 
 const setupPattern = /(?:^|[\s;&|])(?:npm\s+ci\b|(?:\.\/)?wrapper\s+prepare\b)/;
 const commandPattern =
   /(?:^|[\s;&|])(?:npm\s+run\s+prove\b|(?:\.\/)?wrapper\s+prove\b)/;
-const npmOrNixPattern = /(?:^|[\s/\\])(?:npm|nix)(?:\s|$)/i;
 const greetingPattern = /greeting\.txt|\bhello-ok\b/;
 
 export function readOptional(path) {
@@ -112,9 +112,7 @@ function lockfileIntegrity(live) {
   if (live.wrapperDriven === true || live.variant === "wrapper") {
     const marker = join(live.origin, "origin-marker");
     const expected = live.before?.originMarker;
-    const markerDigest = existsSync(marker)
-      ? createHash("sha256").update(readFileSync(marker)).digest("hex")
-      : null;
+    const markerDigest = existsSync(marker) ? digestFile(marker) : null;
     return {
       originMarkerUnchanged: !expected || markerDigest === expected,
       originLockUnchanged: true,
@@ -145,9 +143,7 @@ export function observeNativePreparation(live) {
   const execution = live.execution;
   const missing =
     !origin || !execution || !existsSync(origin) || !existsSync(execution);
-  const usedNpmOrNix = (live.commands ?? []).some((text) =>
-    npmOrNixPattern.test(text),
-  );
+  const usedNpmOrNix = (live.commands ?? []).some(usesNpmOrNix);
   if (missing) {
     return {
       variant: live.variant,

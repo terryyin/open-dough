@@ -1,3 +1,4 @@
+import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { launch, recordsOf } from "../../tests/agentLaunchBoundary.ts";
@@ -45,7 +46,7 @@ test("shared reporting instruction preserves host input grammar and truly blank 
 });
 
 test("Claude native blank launch gains no reporting instruction despite an installed channel", async () => {
-  const origin = await startOrigin();
+  const origin = await startOrigin(queuedReadyRepository().please());
   const server = await startDashboardServer({
     mode: "boundary",
     machine: origin.machine,

@@ -1,17 +1,30 @@
 // Real writer publications; these supply repository facts, never card state.
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { normalizeStoryDependency } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import {
+  queuedSeedWithDependencies,
+  readyStoryState,
+  roughStoryC,
+  storyA,
+  storySeed,
+} from "../../tests/support/queued-repository.mjs";
+import type {
+  RevisionFacts,
+  StoryState,
+} from "../../tests/support/repositoryTestData.mjs";
 import { test as base } from "./dashboardTest.ts";
-import { startOrigin, type StartOrigin } from "./support/startOrigin.ts";
-import { recordAssessed, writePlanning } from "./storyReadinessCli.ts";
+import {
+  queuedOriginRepository,
+  startOrigin,
+  type StartOrigin,
+  type StartOriginFixtures,
+} from "./support/startOrigin.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
-export const consumer = makeMe.aBacklogEntry
-  .with({ identity: "SEED-A#a", href: "seeds/A.md#a", title: "Story A" })
-  .please();
+export const consumer = storyA;
 export const supplierB = { identity: "SEED-B#b", href: "seeds/B.md#b" };
 export const supplierC = { identity: "SEED-C#c", href: "seeds/C.md#c" };
 export const reason =
@@ -25,10 +38,10 @@ const cli = path.join(
   "src/skills/dough-product-backlog/scripts/product-backlog.mjs",
 );
 
-export const test = base.extend<{ origin: StartOrigin }>({
-  // eslint-disable-next-line no-empty-pattern
-  origin: async ({}, use) => {
-    const origin = await startOrigin();
+export const test = base.extend<StartOriginFixtures>({
+  originRepository: queuedOriginRepository,
+  origin: async ({ originRepository }, use) => {
+    const origin = await startOrigin(originRepository);
     await use(origin);
     origin.cleanup();
   },
@@ -45,27 +58,29 @@ function call(origin: StartOrigin, ...args: string[]) {
 }
 type Agreement = ReturnType<typeof normalizeStoryDependency>;
 
-export function recordDependency(
-  origin: StartOrigin,
-  facts: Pick<Agreement, "supplier" | "state" | "decision" | "resolution">,
-) {
+type AgreementFacts = Pick<
+  Agreement,
+  "supplier" | "state" | "decision" | "resolution"
+>;
+
+// The consumer's agreement with a supplier, as this fixture's stories state it.
+export function agreement(facts: AgreementFacts) {
+  return makeMe.aSupplierAgreement
+    .with({
+      implementation: "Shared endpoint contract",
+      rationale: reason,
+      condition,
+      ...facts,
+    })
+    .please();
+}
+
+export function recordDependency(origin: StartOrigin, facts: AgreementFacts) {
   const current = JSON.parse(
     call(origin, "read-dependencies", "--link", consumer.href),
   ) as { basis: string };
   const input = path.join(origin.machine, "dependency.json");
-  writeFileSync(
-    input,
-    JSON.stringify(
-      makeMe.aSupplierAgreement
-        .with({
-          implementation: "Shared endpoint contract",
-          rationale: reason,
-          condition,
-          ...facts,
-        })
-        .please(),
-    ),
-  );
+  writeFileSync(input, JSON.stringify(agreement(facts)));
   call(
     origin,
     "update-dependency",
@@ -116,44 +131,30 @@ export async function publishDependencies(origin: StartOrigin) {
   });
   return (await origin.originGit("rev-parse", "main")).trim();
 }
-export async function twoDependencies(
-  origin: StartOrigin,
-  review?: Pick<Parameters<typeof recordAssessed>[2], "assessment" | "reasons">,
-) {
-  writePlanning(
-    origin.project,
-    "seeds/C.md",
-    '---\nid: SEED-C\n---\n\n# Seed C\n\n<a id="c"></a>\n\n### Story C\n\n**Identity:** SEED-C#c\n\nDeliver another endpoint.\n',
-  );
-  recordDependency(origin, { supplier: supplierB, state: "waiting" });
-  recordDependency(origin, {
-    supplier: supplierC,
-    state: "decision-needed",
-    decision,
-  });
-  if (review)
-    recordAssessed(
-      origin.project,
-      consumer,
-      makeMe.aStoryPreparation
-        .with({
-          refinement: "refined",
-          approach: "planned",
-          plan: "../slice-plans/A/PLAN.md",
-          ...review,
-        })
-        .please(),
-    );
-  return publishDependencies(origin);
-}
-export async function publishMalformedDependencies(origin: StartOrigin) {
-  const file = path.join(origin.project, ".planning/seeds/A.md");
-  writeFileSync(
-    file,
-    readFileSync(file, "utf8").replace(
-      /```json dough-story-dependencies\n[^\n]+/,
-      "```json dough-story-dependencies\n{broken",
-    ),
-  );
-  return publishDependencies(origin);
+// Story A waits on Story B and needs a decision about Story C, a rough story
+// whose seed this revision adds; with a review, Story A's readiness is
+// recorded again with that judgment after the agreements.
+export function twoDependencies(
+  review?: Pick<StoryState, "assessment" | "reasons">,
+): RevisionFacts {
+  return {
+    message: "Publish story dependency facts",
+    files: {
+      ".planning/seeds/C.md": storySeed(
+        roughStoryC,
+        "Deliver another endpoint.",
+      ),
+      ".planning/seeds/A.md": queuedSeedWithDependencies(consumer, [
+        agreement({ supplier: supplierB, state: "waiting" }),
+        agreement({
+          supplier: supplierC,
+          state: "decision-needed",
+          decision,
+        }),
+      ]),
+    },
+    // The review judges Story A with its agreements in place.
+    storyStates:
+      review === undefined ? [] : [{ ...readyStoryState(consumer), ...review }],
+  };
 }

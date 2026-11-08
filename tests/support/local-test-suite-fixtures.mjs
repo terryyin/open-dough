@@ -158,7 +158,7 @@ exit "\${PROBE_EXIT:-0}"
 `;
   return makeMe.aRepository
     .withRevision("controlled suites", {
-      backlog: undefined,
+      backlog: null,
       files: {
         ...files,
         "nested/pass.sh":

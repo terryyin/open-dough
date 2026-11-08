@@ -107,7 +107,7 @@ test("shutdown retains a not_required revision's pending/incomplete applicable-a
               files: { [`.planning/b${n}.md`]: `b${n}\n` },
             }),
         makeMe.aRepository.withRevision("base", {
-          backlog: undefined,
+          backlog: null,
           files: {
             "app.js": "console.log('base');\n",
             [workflowPath]: allBranchesWorkflow,

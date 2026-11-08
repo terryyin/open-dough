@@ -7,19 +7,17 @@ import { fixtureTeardown } from "../../src/skills/dough-execute-plan/scripts/fix
 import {
   exec,
   git,
-  revParse,
 } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { writeRevisionFiles } from "./repository-revision-files.mjs";
+import {
+  commitDeclaredRevision,
+  configureIdentity,
+  integrationDeveloper,
+} from "./repository-revision-commit.mjs";
+
+export { commitDeclaredRevision, integrationDeveloper };
 
 /** @typedef {import("./repositoryTestData.mjs").RepositoryDescription} RepositoryDescription */
-/** @typedef {import("./repositoryTestData.mjs").RepositoryRevision} RepositoryRevision */
-/** @typedef {import("./repositoryTestData.mjs").GitPerson} GitPerson */
-
-/** @type {GitPerson} */
-export const integrationDeveloper = {
-  name: "Integration Checkout",
-  email: "integration@example.test",
-};
 
 /** @param {string} fixture */
 const layout = (fixture) => ({
@@ -29,41 +27,6 @@ const layout = (fixture) => ({
 
 /** @param {string} fixture */
 const workspacePath = (fixture) => join(fixture, "execution");
-
-/** @param {string} checkout @param {GitPerson} identity */
-async function configureIdentity(checkout, identity) {
-  await git(checkout, "config", "user.name", identity.name);
-  await git(checkout, "config", "user.email", identity.email);
-}
-
-/**
- * @param {string} checkout
- * @param {RepositoryRevision} revision
- * @param {GitPerson} checkoutIdentity
- */
-async function commitRevision(checkout, revision, checkoutIdentity) {
-  const {
-    name,
-    message = name,
-    committer = checkoutIdentity,
-    author = committer,
-  } = revision;
-  const env = {
-    ...process.env,
-    GIT_AUTHOR_NAME: author.name,
-    GIT_AUTHOR_EMAIL: author.email,
-    GIT_COMMITTER_NAME: committer.name,
-    GIT_COMMITTER_EMAIL: committer.email,
-    ...("date" in author && { GIT_AUTHOR_DATE: author.date }),
-    ...("date" in committer && { GIT_COMMITTER_DATE: committer.date }),
-  };
-  await git(checkout, "add", "--all");
-  await exec("git", ["commit", "--allow-empty", "--quiet", "-m", message], {
-    cwd: checkout,
-    env,
-  });
-  return revParse(checkout, "HEAD");
-}
 
 /** @typedef {import("./repository-revision-files.mjs").HarnessLayer} HarnessLayer */
 
@@ -109,8 +72,11 @@ async function buildTemplate(
   let trunkSha = "";
   for (const [index, revision] of revisions.entries()) {
     if (index === 0 && layer) writeRevisionFiles(integration, layer);
-    writeRevisionFiles(integration, revision);
-    trunkSha = await commitRevision(integration, revision, checkoutIdentity);
+    trunkSha = await commitDeclaredRevision(
+      integration,
+      revision,
+      checkoutIdentity,
+    );
     if (published)
       await git(integration, "push", "--quiet", "origin", trunkBranch);
     commits.set(revision.name, trunkSha);
@@ -129,14 +95,13 @@ async function buildTemplate(
   const execution = workspacePath(fixture);
   await git(integration, "branch", workspace.branch, start);
   await git(integration, "worktree", "add", execution, workspace.branch);
-  // Without per-worktree configuration Git keeps this in the configuration the
-  // checkouts share, so later commits in either checkout carry it.
   if (workspace.checkoutIdentity)
-    await configureIdentity(execution, workspace.checkoutIdentity);
+    await configureIdentity(execution, workspace.checkoutIdentity, {
+      worktreeOnly: true,
+    });
   let candidateSha = start;
   for (const revision of workspace.revisions) {
-    writeRevisionFiles(execution, revision);
-    candidateSha = await commitRevision(
+    candidateSha = await commitDeclaredRevision(
       execution,
       revision,
       workspace.checkoutIdentity ?? checkoutIdentity,

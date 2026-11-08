@@ -7,6 +7,11 @@
 // ./agent-launch-start.spec.ts; the table's mapping of the remaining stop
 // statuses is ./execution-start-result.spec.ts.
 
+import {
+  queuedReadyRepository,
+  storyA,
+  storyB,
+} from "../../../tests/support/queued-repository.mjs";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -37,7 +42,7 @@ test.describe("execution start that cannot be established", () => {
   let server: DashboardServer;
 
   test.beforeEach(async () => {
-    origin = await startOrigin();
+    origin = await startOrigin(queuedReadyRepository().please());
     server = await startDashboardServer({
       mode: "boundary",
       machine: origin.machine,
@@ -68,7 +73,12 @@ test.describe("execution start that cannot be established", () => {
   }
 
   test("a story Taken by another agent names its owner", async () => {
-    const owner = await origin.takenByAnotherAgent();
+    const { agent: owner } = await origin.publishTake({
+      agent: "Yui",
+      story: storyA,
+      queued: [storyB],
+      mode: "story-branch",
+    });
     expect(owner).not.toBe("undefined");
     expect(await refused(request)).toBe(
       `Taken by ${owner}, so this dashboard did not start it. Nothing was launched.`,
