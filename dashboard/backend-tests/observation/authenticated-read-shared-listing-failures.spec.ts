@@ -11,6 +11,7 @@ import {
   processRunning,
 } from "../../tests/support/processGroup.ts";
 import { abandonedRequest } from "../../tests/support/rawHttp.ts";
+import { inspect } from "../../tests/support/readDiagnostics.ts";
 import { rateLimitedAnswer, commitAnswer } from "../../tests/originAnswers.ts";
 import {
   askedSince,
@@ -66,14 +67,41 @@ test("a 504 listing, a timed-out listing, and a rate-limited listing keep nothin
 
   const timedOut = await listingReuseServer({ readTimeoutMs: 300 });
   try {
-    timedOut.github.serve(everyRepository, hangs);
+    const published = sharedReadsPublished(revision);
+    timedOut.github.serve(everyRepository, published);
+    // Warm the private request owner with a ref read, leaving no listing to reuse.
+    expect((await readAt(timedOut, "")).status).toBe(200);
+
+    let hungPid: number | undefined;
+    timedOut.github.serve(everyRepository, (call) => {
+      if (call.request.kind !== "matching-refs") return published(call);
+      hungPid = timedOut.ghPid();
+      return hangs(call);
+    });
+    const beforeTimeout = timedOut.github.calls.length;
     const hung = await readAt(timedOut, `&since=${revision}`);
     expect(hung.status).toBe(502);
-    expect(JSON.stringify(hung.body)).toContain("did not answer within");
+    expect(hung.body).toContain("did not answer within");
+    expect(askedSince(timedOut, beforeTimeout)).toEqual(["matching-refs"]);
+    expect(hungPid).toBeDefined();
+
     // The listing's own bound ends the hung observation after the waiter's;
     // once it has, a later check must ask GitHub again rather than reuse.
-    await pause(500);
-    timedOut.github.serve(everyRepository, sharedReadsPublished(revision));
+    await expect
+      .poll(() => inspect(timedOut))
+      .toMatchObject({
+        status: 200,
+        failures: expect.arrayContaining([
+          expect.objectContaining({
+            category: "revision-check",
+            pin: revision,
+            cause: "timed-out",
+          }),
+        ]),
+      });
+    await expect.poll(() => processRunning(hungPid)).toBe(false);
+
+    timedOut.github.serve(everyRepository, published);
     const afterTimeout = timedOut.github.calls.length;
     expect((await readAt(timedOut, `&since=${revision}`)).status).toBe(200);
     expect(askedSince(timedOut, afterTimeout)).toEqual(["matching-refs"]);

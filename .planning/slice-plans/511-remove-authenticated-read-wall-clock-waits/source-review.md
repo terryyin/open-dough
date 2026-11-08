@@ -15,10 +15,10 @@ edits, or slice ownership. There were no human amendments.
 | 3 | When developers advance the test clock to the relevant point, feedback is available as soon as they advance it. | slice 3 |  |
 | 4 | The shutdown checks distinguish correct shutdown from extra GitHub requests. | slice 1 | observed: revision stream spec, two-stream counts before/after each pace and both shutdown zero-firing checks |
 | 5 | The shutdown checks distinguish correct shutdown from missing GitHub requests. | slice 1 | observed: revision stream spec, two-stream opening and next-pace matching-refs counts and both SSE answers before shutdown |
-| 6 | The listing recovery checks distinguish correct recovery from extra GitHub requests. | slice 2 |  |
-| 7 | The listing recovery checks distinguish correct recovery from missing GitHub requests. | slice 2 |  |
+| 6 | The listing recovery checks distinguish correct recovery from extra GitHub requests. | slice 2 | observed: shared-listing failures spec, 504 and timeout recovery assertions each require exactly one matching-refs |
+| 7 | The listing recovery checks distinguish correct recovery from missing GitHub requests. | slice 2 | observed: shared-listing failures spec, recovery status 200 and exact one matching-refs require a new listing |
 | 8 | Replace the fixed shutdown waits in the revision stream spec. | slice 1 | observed: revision stream spec, last-disconnect and boundary-close journeys await observable events then advance the fixture clock |
-| 9 | Replace the listing-settlement waits in the shared listing failures spec. | slice 2 |  |
+| 9 | Replace the listing-settlement waits in the shared listing failures spec. | slice 2 | observed: shared-listing failures spec, real inspect diagnostics and captured subprocess exit replace the 500 ms pause |
 | 10 | Replace the cooldown waits in the shared listing failures spec. | slice 3 |  |
 | 11 | Keep the real HTTP boundary. | slice 3 |  |
 | 12 | Keep the synthetic GitHub request counts. | slice 3 |  |
@@ -43,11 +43,11 @@ edits, or slice ownership. There were no human amendments.
 | 31 | Closing the authenticated-read boundary ends the stream’s HTTP response. | slice 1 | observed: revision stream spec, real closeBoundary hook followed by stream.ended kind ended and one event |
 | 32 | The HTTP server can still answer when the stream’s response ends. | slice 1 | observed: revision stream spec, independent raw HTTP request returns 404 from the still-live listener after SSE end |
 | 33 | After the boundary closes, advancing across further paces causes no new listing. | slice 1 | observed: revision stream spec, after close there are zero pending timers, three further paces fire none, and the listing count remains one |
-| 34 | The GitHub listing is still unanswered when the HTTP check times out. | slice 2 |  |
-| 35 | After the listing itself times out, a later check succeeds. | slice 2 |  |
-| 36 | That later check makes exactly one fresh listing request. | slice 2 |  |
-| 37 | A 504 still falls back to the ref. | slice 2 |  |
-| 38 | A 504 leaves the next check eligible to request a fresh listing. | slice 2 |  |
+| 34 | The GitHub listing is still unanswered when the HTTP check times out. | slice 2 | observed: shared-listing failures spec, fake GitHub receives matching-refs and returns hangs; HTTP waiter then returns a timeout 502 |
+| 35 | After the listing itself times out, a later check succeeds. | slice 2 | observed: shared-listing failures spec, inspect matches the timed-out revision-check at the pin and the matching subprocess exits before the next check returns 200 |
+| 36 | That later check makes exactly one fresh listing request. | slice 2 | observed: shared-listing failures spec, askedSince afterTimeout equals one matching-refs |
+| 37 | A 504 still falls back to the ref. | slice 2 | observed: shared-listing failures spec, fake 504 on matching-refs followed by successful ref-only revision payload |
+| 38 | A 504 leaves the next check eligible to request a fresh listing. | slice 2 | observed: shared-listing failures spec, 504 recovery returns 200 and records exactly one fresh matching-refs |
 | 39 | GitHub answers the listing with a 429. | slice 3 |  |
 | 40 | The 429 carries a directed wait. | slice 3 |  |
 | 41 | During the wait, another check on the same server is held back. | slice 3 |  |
@@ -65,7 +65,7 @@ edits, or slice ownership. There were no human amendments.
 | 53 | Request counts are preserved. | slice 3 |  |
 | 54 | Verdicts are preserved. | slice 3 |  |
 | 55 | Shutdown uses no elapsed-time sleeps. | slice 1 | observed: revision stream spec, both shutdown journeys use explicit response/disconnect signals and controlled advance |
-| 56 | Timeout settlement uses no elapsed-time sleeps. | slice 2 |  |
+| 56 | Timeout settlement uses no elapsed-time sleeps. | slice 2 | observed: shared-listing failures spec, both timeout-settlement polls observe real diagnostic and subprocess state |
 | 57 | Cooldown uses no elapsed-time sleeps. | slice 3 |  |
 | 58 | The work follows `AGENTS.md#test-automation`. | slice 3 |  |
 | 59 | The work follows `AGENTS.md#failing-and-flaky-tests`. | slice 3 |  |

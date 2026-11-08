@@ -165,11 +165,16 @@ because their shared fixture paths were unchanged by this pass.
 caffeinate -s -i npm run --silent test:dashboard -- --project=chromium --workers=2 'dashboard/backend-tests/observation/authenticated-read-(revision-stream|revision-stream-setup-departure|plugin-hooks)\.spec\.ts$'
 ```
 
+Delivery corrected mechanical callback binding and error-cause lint findings.
+The focused selection and typecheck passed after the binding repair. The
+selective formatter and commit hook then passed, and the story branch accepted
+`583e29298cab6a1b02456ba80d26198d49d960bd` with its CI observer attached.
+
 ### 2. A settled listing timeout allows a fresh check
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 In the shared-listing failures spec, confirm the hung request was
 dispatched and the HTTP waiter timed out. Observe the listing's timeout
@@ -177,6 +182,23 @@ diagnostic and the subprocess exit in place of `pause(500)`. Keep the 200
 and single fresh listing after recovery, alongside the 504 fallback and
 recovery proof. Finish with the listing failures spec and affected
 shared-read consumers passing.
+
+The timeout case warms the real private request owner with a ref read.
+Fake GitHub holds only the incoming matching-refs request and captures its
+subprocess PID. After the HTTP 502 the real diagnostics endpoint reports
+`revision-check`, `timed-out` and the expected pin. The captured subprocess
+is then observed stopped before the next HTTP 200 with exactly one fresh
+matching-refs. The 504 fallback and one fresh matching-refs after that
+fallback still pass. The independent refactor needed no edits.
+
+The strict affected selection passed 12/12 attempts in 9.708 s. Five repeats
+of the changed case passed 5/5 in 13.214 s with default timeouts. Typecheck
+and `git diff --check` passed.
+
+```sh
+caffeinate -s -i npm run --silent test:dashboard -- --project=chromium --workers=2 'dashboard/backend-tests/observation/authenticated-read-(shared-listing-failures|shared-listing|shared-waiters|cooldown)\.spec\.ts$'
+caffeinate -s -i npm run --silent test:dashboard -- --project=chromium --workers=2 --repeat-each=5 'dashboard/backend-tests/observation/authenticated-read-shared-listing-failures\.spec\.ts$' --grep 'a 504 listing, a timed-out listing, and a rate-limited listing keep nothing'
+```
 
 ### 3. The request owner allows a fresh check when its cooldown expires
 
