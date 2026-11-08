@@ -20,7 +20,9 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
+  identity,
   launch,
   launchRequest,
   markDone,
@@ -33,8 +35,8 @@ import {
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
 import {
+  daysAgo,
   machineHome,
-  recordLaunchedDaysAgo,
   seedStore,
   storedRecords,
   storeFile,
@@ -46,11 +48,11 @@ import { alertReading, attentionCount } from "../../src/sessionShown.ts";
 
 const launchWaitMs = 4_000;
 
-// A machine directory this test owns, holding HOME and the fake `claude`'s
-// state across the servers it starts.
-function newMachine(): string {
-  return mkdtempSync(path.join(tmpdir(), "dough-machine-"));
-}
+// The story's execution, kept for the `claude` session `sessionId`.
+const execution = (sessionId: string) =>
+  makeMe.aLaunchRecord
+    .executing({ identity, title })
+    .inClaudeSession({ sessionId });
 
 test.describe("launch records kept on this machine", () => {
   let machine: string;
@@ -70,8 +72,10 @@ test.describe("launch records kept on this machine", () => {
     return server;
   }
 
+  // A machine directory each test owns, holding HOME and the fake `claude`'s
+  // state across the servers it starts.
   test.beforeEach(() => {
-    machine = newMachine();
+    machine = mkdtempSync(path.join(tmpdir(), "dough-machine-"));
   });
 
   test.afterEach(async () => {
@@ -102,7 +106,9 @@ test.describe("launch records kept on this machine", () => {
         `${String(index).padStart(8, "0")}-0000-4000-8000-000000000001`,
     );
     keepLaunchStore(machineHome(machine), {
-      "open-dough": sessionIds.map((id) => recordLaunchedDaysAgo(1, id)),
+      "open-dough": sessionIds.map((sessionId) =>
+        execution(sessionId).launchedAt(daysAgo(1)).please(),
+      ),
     });
     const development = await serverOn("development");
     const production = await serverOn("production");
@@ -167,20 +173,17 @@ test.describe("launch records kept on this machine", () => {
   });
 
   test("keeps an unclosed record however old, and a done one until 30 days after marking, dropping it on the next write", async () => {
-    const unclosed = recordLaunchedDaysAgo(
-      40,
-      "40000000-0000-4000-8000-000000000040",
-    );
-    const recentlyDone = recordLaunchedDaysAgo(
-      60,
-      "60000000-0000-4000-8000-000000000029",
-      29,
-    );
-    const longDone = recordLaunchedDaysAgo(
-      60,
-      "60000000-0000-4000-8000-000000000031",
-      31,
-    );
+    const unclosed = execution("40000000-0000-4000-8000-000000000040")
+      .launchedAt(daysAgo(40))
+      .please();
+    const recentlyDone = execution("60000000-0000-4000-8000-000000000029")
+      .launchedAt(daysAgo(60))
+      .markedDoneAt(daysAgo(29))
+      .please();
+    const longDone = execution("60000000-0000-4000-8000-000000000031")
+      .launchedAt(daysAgo(60))
+      .markedDoneAt(daysAgo(31))
+      .please();
     keepLaunchStore(machineHome(machine), {
       "open-dough": [longDone, unclosed, recentlyDone],
     });

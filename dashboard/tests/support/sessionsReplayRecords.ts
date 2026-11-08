@@ -10,10 +10,10 @@
 // retention keeps every done record.
 
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   launchAttemptSchema,
   launchRecordSchema,
-  type HostSession,
   type LaunchAttemptRecord,
   type LaunchRecord,
 } from "../../src/agentLaunch.ts";
@@ -35,27 +35,6 @@ const codexShare = (index: number) => index % 15 < 4;
 
 const identityAt = (index: number) =>
   `SEED-${String(1_000 + index)}#replay-story-${String(index)}`;
-
-function sessionAt(
-  index: number,
-  workspace: string,
-  codexEndpoint: string,
-  name: string,
-): HostSession {
-  const sessionId = uuidOf(`session:${String(index)}`);
-  return codexShare(index)
-    ? {
-        host: "codex",
-        sessionId,
-        name,
-        continuation: {
-          workspace,
-          endpoint: codexEndpoint,
-          args: ["codex", "resume", sessionId],
-        },
-      }
-    : { host: "claude", sessionId, shortId: sessionId.slice(0, 8), name };
-}
 
 function recordAt(
   home: string,
@@ -79,12 +58,47 @@ function recordAt(
   );
   const branch = `claude/replay-story-${String(index)}`;
   const target = "refs/heads/main";
-  const session = sessionAt(
-    index,
-    workspace,
-    codexEndpoint,
-    `Execute ${identity} ${prose(`name:${String(index)}`, 20)}`,
-  );
+  const sessionId = uuidOf(`session:${String(index)}`);
+  const execution = makeMe.aLaunchRecord.executing({
+    identity,
+    title: `Replay story ${String(index)} ${prose(`title:${String(index)}`, 24)}`,
+    source,
+  });
+  const launch = (
+    codexShare(index)
+      ? execution.inCodexSession({
+          sessionId,
+          continuation: {
+            workspace,
+            endpoint: codexEndpoint,
+            args: ["codex", "resume", sessionId],
+          },
+        })
+      : execution.inClaudeSession({ sessionId })
+  )
+    .reportingThrough({
+      origin,
+      reference: uuidOf(`reporting:${String(index)}`),
+      command: `node ~/.claude/skills/dough-execute-plan/scripts/report.mjs ${prose(`command:${String(index)}`, 180)}`,
+      landingContext: prose(`landing-context:${String(index)}`, 105),
+    })
+    .onStoryBranch({
+      workspace,
+      branch,
+      publisherId: uuidOf(`publisher:${String(index)}`),
+      publishedSha: commitOf(`published:${String(index)}`),
+      agent: "Tsubomi-chan",
+      plan: `.planning/slice-plans/${String(index)}-replay/PLAN.md`,
+      startingRevision: commitOf(`starting:${String(index)}`),
+    })
+    .launchedAt(at(0))
+    .withFirstInput({
+      state: "confirmed",
+      instruction: prose(`instruction:${String(index)}`, 1_250),
+    });
+  if (open) return launch.please();
+  // A done session's report, landing and landing reporting, each with its
+  // own receipts, as production keeps them.
   const landing = {
     repository,
     identity,
@@ -98,65 +112,29 @@ function recordAt(
     receivedAt: at(50 * minute),
   };
   return {
-    request: {
-      source,
-      identity,
-      title: `Replay story ${String(index)} ${prose(`title:${String(index)}`, 24)}`,
-      workflow: "execution",
-      host: session.host,
-      reporting: {
-        origin,
-        reference: uuidOf(`reporting:${String(index)}`),
-        command: `node ~/.claude/skills/dough-execute-plan/scripts/report.mjs ${prose(`command:${String(index)}`, 180)}`,
-        landingContext: prose(`landing-context:${String(index)}`, 105),
+    ...launch.markedDoneAt(at(60 * minute)).please(),
+    completion: {
+      delivery: uuidOf(`completion-delivery:${String(index)}`),
+      receipt: uuidOf(`completion-receipt:${String(index)}`),
+      reference: uuidOf(`reporting:${String(index)}`),
+      outcome: "completed",
+      message: prose(`message:${String(index)}`, 560),
+      receivedAt: at(45 * minute),
+    },
+    landing,
+    landingReporting: {
+      origin,
+      authority: {
+        repository,
+        workspace,
+        branch,
+        identity,
+        remote: "origin",
+        target,
       },
+      preparations: [landing],
+      settledAt: at(55 * minute),
     },
-    session,
-    start: {
-      identity,
-      publisherId: uuidOf(`publisher:${String(index)}`),
-      workspace,
-      branch,
-      mode: "story-branch",
-      remote: "origin",
-      target: "main",
-      publishedSha: commitOf(`published:${String(index)}`),
-      agent: "Tsubomi-chan",
-      plan: `.planning/slice-plans/${String(index)}-replay/PLAN.md`,
-      startingRevision: commitOf(`starting:${String(index)}`),
-    },
-    launchedAt: at(0),
-    firstInput: {
-      state: "confirmed",
-      instruction: prose(`instruction:${String(index)}`, 1_250),
-    },
-    ...(open
-      ? {}
-      : {
-          completion: {
-            delivery: uuidOf(`completion-delivery:${String(index)}`),
-            receipt: uuidOf(`completion-receipt:${String(index)}`),
-            reference: uuidOf(`reporting:${String(index)}`),
-            outcome: "completed" as const,
-            message: prose(`message:${String(index)}`, 560),
-            receivedAt: at(45 * minute),
-          },
-          landing,
-          landingReporting: {
-            origin,
-            authority: {
-              repository,
-              workspace,
-              branch,
-              identity,
-              remote: "origin",
-              target,
-            },
-            preparations: [landing],
-            settledAt: at(55 * minute),
-          },
-          doneAt: at(60 * minute),
-        }),
   };
 }
 

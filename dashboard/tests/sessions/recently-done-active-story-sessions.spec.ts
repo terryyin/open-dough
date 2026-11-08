@@ -34,25 +34,16 @@ test("an active story owns its open session even with a matching done card, whos
   const open = records.find(
     (record) => record.request.workflow === "execution",
   );
-  if (
-    open?.request.workflow !== "execution" ||
-    open.session.host !== "claude"
-  ) {
-    throw new Error("No queued Claude story session");
-  }
+  if (open === undefined) throw new Error("No queued story session");
   const closedId = "99999999-aaaa-bbbb-cccc-000000000009";
   keepLaunchRecords(dashboard, [
-    {
-      ...open,
-      request: { ...open.request, workflow: "refinement" },
-      session: {
-        ...open.session,
-        sessionId: closedId,
-        shortId: closedId.slice(0, 8),
-      },
-      launchedAt: at(now, placed.executedDoneSessionLaunched),
-      doneAt: at(now, placed.executedDoneSessionMarked),
-    },
+    // The story's refinement, closed before it was done.
+    makeMe.aLaunchRecord
+      .refining({ identity: queuedIdentity, title: queuedTitle })
+      .inClaudeSession({ sessionId: closedId })
+      .launchedAt(at(now, placed.executedDoneSessionLaunched))
+      .markedDoneAt(at(now, placed.executedDoneSessionMarked))
+      .please(),
     ...records,
   ]);
   await publishFiles(page, {

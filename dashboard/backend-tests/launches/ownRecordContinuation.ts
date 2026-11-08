@@ -10,6 +10,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { keptAttempts } from "../../tests/acceptedAttempts.ts";
@@ -18,11 +19,7 @@ import {
   launchRequest,
   runningStarts,
 } from "../../tests/agentLaunchBoundary.ts";
-import {
-  machineHome,
-  openStoryRecord,
-  storeFile,
-} from "../../tests/machineLaunchRecords.ts";
+import { machineHome, storeFile } from "../../tests/machineLaunchRecords.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
@@ -68,33 +65,31 @@ export function ownRecordContinuation(
   const kept = JSON.stringify({ "open-dough": [attempt] });
   writeFileSync(file, kept);
   const latestId = randomUUID();
+  // Open launches of Story A, or of another story, by their workflow,
+  // launched `offset` milliseconds after the attempt was accepted.
+  const openLaunch = (
+    launchWorkflow: "execution" | "refinement",
+    offset: number,
+    identity = queuedIdentity,
+  ) =>
+    makeMe.aLaunchRecord
+      .ofWorkflow(launchWorkflow, { identity, title: request.title })
+      .launchedAt(new Date(Date.parse(acceptedAt) + offset).toISOString());
+  const otherWorkflow = workflow === "execution" ? "refinement" : "execution";
   const records = [
-    {
-      ...openStoryRecord("codex", latestId, request),
-      launchedAt: new Date(Date.parse(acceptedAt) + 2).toISOString(),
-    },
-    {
-      ...openStoryRecord("claude", randomUUID(), request),
-      launchedAt: new Date(Date.parse(acceptedAt) + 1).toISOString(),
-    },
-    {
-      ...openStoryRecord("claude", randomUUID(), {
-        ...request,
-        workflow: workflow === "execution" ? "refinement" : "execution",
-      }),
-      launchedAt: new Date(Date.parse(acceptedAt) + 3).toISOString(),
-    },
-    {
-      ...openStoryRecord("claude", randomUUID(), {
-        ...request,
-        identity: "another-story",
-      }),
-      launchedAt: new Date(Date.parse(acceptedAt) + 4).toISOString(),
-    },
-    {
-      ...openStoryRecord("claude", randomUUID(), request),
-      launchedAt: new Date(Date.parse(acceptedAt) - 1).toISOString(),
-    },
+    openLaunch(workflow, 2).inCodexSession({ sessionId: latestId }).please(),
+    openLaunch(workflow, 1)
+      .inClaudeSession({ sessionId: randomUUID() })
+      .please(),
+    openLaunch(otherWorkflow, 3)
+      .inClaudeSession({ sessionId: randomUUID() })
+      .please(),
+    openLaunch(workflow, 4, "another-story")
+      .inClaudeSession({ sessionId: randomUUID() })
+      .please(),
+    openLaunch(workflow, -1)
+      .inClaudeSession({ sessionId: randomUUID() })
+      .please(),
   ];
   const stored = keepLaunchStore(machineHome(origin.machine), {
     "open-dough": records,

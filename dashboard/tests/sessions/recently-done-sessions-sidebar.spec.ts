@@ -1,8 +1,8 @@
 // Recently done sessions in the Sessions sidebar: collapsed by default,
 // completion-ordered across configured projects, completion ages, newest 20,
 // and opening through each row's Open control in PageFrame. Room sharing,
-// reopen, Board/final-report destinations, and older paging live beside this
-// file.
+// reopen, Board/final-report destinations, older paging, and which projects'
+// kept records it lists live beside this file.
 import {
   chooseProject,
   expectProjectChoice,

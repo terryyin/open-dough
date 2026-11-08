@@ -81,22 +81,12 @@ export async function openedWithHeldDoneRecord(
       adHoc: true,
       queued: true,
     }),
-    {
-      request: {
-        source: "open-dough",
-        workflow: "execution",
-        host: "claude",
-        ...executed,
-      },
-      session: {
-        host: "claude",
-        sessionId: closedId,
-        shortId: closedId.slice(0, 8),
-        name: executed.title,
-      },
-      launchedAt: new Date(opened.getTime() - 4 * hour).toISOString(),
-      doneAt: new Date(opened.getTime() - hour).toISOString(),
-    },
+    makeMe.aLaunchRecord
+      .executing(executed)
+      .inClaudeSession({ sessionId: closedId })
+      .launchedAt(new Date(opened.getTime() - 4 * hour).toISOString())
+      .markedDoneAt(new Date(opened.getTime() - hour).toISOString())
+      .please(),
   ]);
   await pausePageClockAt(page, opened);
   const published = publishes({

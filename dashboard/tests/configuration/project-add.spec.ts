@@ -3,14 +3,10 @@
 // host records the actual cwd chosen by the product.
 import { mkdirSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
-import { launchRequest } from "../agentLaunchBoundary.ts";
-import {
-  machineHome,
-  recordLaunchedDaysAgo,
-  storeFile,
-} from "../machineLaunchRecords.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { identity } from "../agentLaunchBoundary.ts";
+import { daysAgo, machineHome, storeFile } from "../machineLaunchRecords.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { addProjectOnPage } from "../support/projectAddPage.ts";
 import { expect, test } from "../support/pageTest.ts";
@@ -198,27 +194,17 @@ test("retained workspace explanations use the configured folder and keep actual 
 }) => {
   const workspace = path.join(fixture.checkout, ".worktrees", "topic");
   mkdirSync(workspace, { recursive: true });
-  const record = {
-    ...recordLaunchedDaysAgo(1, "01234567-retained-custom"),
-    request: {
-      ...launchRequest,
-      source: "sample-app",
+  const record = makeMe.aLaunchRecord
+    .executing({
+      identity,
       title: "Existing custom workspace",
-    },
-    start: {
-      identity: launchRequest.identity,
-      publisherId: "custom-publisher",
-      workspace,
-      branch: "claude/topic",
-      mode: "story-branch",
-      remote: "origin",
-      target: "main",
-      publishedSha: "ab".repeat(20),
-    },
-  };
-  keepLaunchStore(machineHome(fixture.machine), {
-    "sample-app": [record as LaunchRecord],
-  });
+      source: "sample-app",
+    })
+    .inClaudeSession({ sessionId: "01234567-retained-custom" })
+    .onStoryBranch({ workspace, branch: "claude/topic" })
+    .launchedAt(daysAgo(1))
+    .please();
+  keepLaunchStore(machineHome(fixture.machine), { "sample-app": [record] });
   const kept = readFileSync(storeFile(fixture.machine), "utf8");
   const server = await fixture.start("preview");
   await page.goto(server.baseURL);

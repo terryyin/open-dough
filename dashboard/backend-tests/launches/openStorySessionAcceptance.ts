@@ -1,5 +1,5 @@
 // Shared setup for open-story-session acceptance proof: the queued story
-// request, answer parsing, seeding an open record, and asserting nothing
+// request, answer parsing, seeding a kept attempt, and asserting nothing
 // started.
 
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -13,11 +13,6 @@ import {
   launchRequest,
   runningStarts,
 } from "../../tests/agentLaunchBoundary.ts";
-import {
-  machineHome,
-  openStoryRecord,
-} from "../../tests/machineLaunchRecords.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
   queuedIdentity,
@@ -44,22 +39,6 @@ export const answerOf = async (
   pending: ReturnType<typeof accept>,
 ): Promise<OpenSessionAnswer> =>
   JSON.parse((await pending).body) as OpenSessionAnswer;
-
-export const seedOpenSession = (
-  machine: string,
-  host: "claude" | "codex" | "cursor",
-  sessionId: string,
-  story: {
-    readonly source: string;
-    readonly identity: string;
-    readonly title: string;
-    readonly workflow: string;
-  } = openSessionRequest,
-): void => {
-  keepLaunchStore(machineHome(machine), {
-    "open-dough": [openStoryRecord(host, sessionId, story)],
-  });
-};
 
 export const nothingStarted = async (
   origin: StartOrigin,

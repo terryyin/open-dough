@@ -6,6 +6,7 @@
 // `./agent-launch-open-session-continue.spec.ts`.
 
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -19,27 +20,35 @@ import {
   deleteRecord,
   markDone,
 } from "../../tests/agentLaunchBoundary.ts";
+import type { LaunchRecord } from "../../src/agentLaunch.ts";
+import { machineHome, seedStore } from "../../tests/machineLaunchRecords.ts";
 import {
-  machineHome,
-  openStoryRecord,
-  seedStore,
-} from "../../tests/machineLaunchRecords.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+  keepLaunchRecords,
+  keepLaunchStore,
+} from "../../tests/support/launchStore.ts";
 import {
   answerOf,
   nothingStarted,
   openSessionRequest as request,
-  seedOpenSession,
 } from "./openStorySessionAcceptance.ts";
 import {
   startDashboardServer,
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
 import {
+  queuedIdentity,
+  queuedTitle,
   startOrigin,
   type PushHold,
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
+
+// The requested story's execution, still open in the session it names.
+const openExecution = () =>
+  makeMe.aLaunchRecord.executing({
+    identity: queuedIdentity,
+    title: queuedTitle,
+  });
 
 test.describe("an open story session on this machine", () => {
   let origin: StartOrigin;
@@ -67,12 +76,8 @@ test.describe("an open story session on this machine", () => {
     origin.cleanup();
   });
 
-  const seedOpen = (
-    host: "claude" | "codex" | "cursor",
-    sessionId: string,
-    story = request,
-  ) => {
-    seedOpenSession(origin.machine, host, sessionId, story);
+  const keepOpen = (open: LaunchRecord) => {
+    keepLaunchRecords(machineHome(origin.machine), [open]);
   };
 
   const noneStarted = (keptAttempts = true) =>
@@ -80,7 +85,7 @@ test.describe("an open story session on this machine", () => {
 
   test("refuses every workflow's start until marked done, and leaves other starts free", async () => {
     const sessionId = "aaaaaaaa-0000-4000-8000-000000000001";
-    seedOpen("claude", sessionId);
+    keepOpen(openExecution().inClaudeSession({ sessionId }).please());
     server.claudeScenario("launched");
 
     for (const workflow of ["execution", "refinement"] as const) {
@@ -135,12 +140,18 @@ test.describe("an open story session on this machine", () => {
     // Another project's open record of the same identity does not block once
     // this project's session is marked done.
     keepLaunchStore(machineHome(origin.machine), {
-      "open-dough": [openStoryRecord("claude", sessionId, request)],
+      "open-dough": [openExecution().inClaudeSession({ sessionId }).please()],
       "other-project": [
-        openStoryRecord("claude", "bbbbbbbb-0000-4000-8000-000000000002", {
-          ...request,
-          source: "other-project",
-        }),
+        makeMe.aLaunchRecord
+          .executing({
+            identity: queuedIdentity,
+            title: queuedTitle,
+            source: "other-project",
+          })
+          .inClaudeSession({
+            sessionId: "bbbbbbbb-0000-4000-8000-000000000002",
+          })
+          .please(),
       ],
     });
     expect(await answerOf(accept(server, request))).toEqual(sessionOpen);
@@ -163,7 +174,11 @@ test.describe("an open story session on this machine", () => {
 
   test("refuses a start for an open Codex or Cursor session until its record is deleted", async () => {
     server.claudeScenario("launched");
-    seedOpen("codex", "codex-open-session-1");
+    keepOpen(
+      openExecution()
+        .inCodexSession({ sessionId: "codex-open-session-1" })
+        .please(),
+    );
     expect(await answerOf(accept(server, request))).toEqual(sessionOpen);
     expect(
       await answerOf(accept(server, { ...request, host: "codex" })),
@@ -178,7 +193,17 @@ test.describe("an open story session on this machine", () => {
     ).toMatchObject({ status: 200 });
 
     const cursorSession = "cccccccc-0000-4000-8000-000000000003";
-    seedOpen("cursor", cursorSession);
+    keepOpen(
+      openExecution()
+        .inCursorSession({
+          sessionId: cursorSession,
+          continuation: {
+            workspace: "/tmp",
+            args: ["agent", "--resume", cursorSession],
+          },
+        })
+        .please(),
+    );
     expect(await answerOf(accept(server, request))).toEqual(sessionOpen);
     expect(
       await answerOf(accept(server, { ...request, host: "cursor" })),

@@ -47,6 +47,14 @@ export const replayWatchEnvironment = {
   DOUGH_INCIDENT_RECORD_BYTES: String(2 ** 30),
 } as const;
 
+// With `DOUGH_SESSIONS_REPLAY_PROFILE=<directory>`, every Node process the
+// server starts, itself included, writes its CPU profile there on exit.
+const profileDirectory = process.env["DOUGH_SESSIONS_REPLAY_PROFILE"];
+export const replayProfiling =
+  profileDirectory === undefined
+    ? {}
+    : { NODE_OPTIONS: `--cpu-prof --cpu-prof-dir=${profileDirectory}` };
+
 export type Asked = {
   readonly from: number;
   readonly until: number;

@@ -18,15 +18,14 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { identity, launch, title } from "../../tests/agentLaunchBoundary.ts";
 import {
   daysAgo,
   machineHome,
-  openStoryRecord,
   storedRecords,
 } from "../../tests/machineLaunchRecords.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { distinctStoryRequest } from "../../tests/openStorySessionSetup.ts";
 import {
   startDashboardServer,
@@ -101,35 +100,39 @@ test.describe("a scoped record dropped by retention expiry", () => {
     const recentlyDoneScope = makeScope("recently-done-scope", "composer-2.5");
     const unclosedScope = makeScope("unclosed-scope", "auto");
 
-    const scopedRecord = (
-      sessionId: string,
-      configScope: string,
-      doneDaysAgo: number | undefined,
-    ): object => {
-      const seeded = openStoryRecord("cursor", sessionId) as {
-        session: {
-          continuation: { workspace: string; args: string[] };
-        };
-      };
-      seeded.session.continuation = {
-        workspace: "/tmp",
-        args: ["cursor-agent", "--workspace", "/tmp", "--resume", sessionId],
-        configScope,
-      } as typeof seeded.session.continuation;
-      return {
-        ...seeded,
-        ...(doneDaysAgo === undefined ? {} : { doneAt: daysAgo(doneDaysAgo) }),
-      };
-    };
+    // A Cursor execution launched 60 days ago in a session with this
+    // configuration scope.
+    const scopedRecord = (sessionId: string, configScope: string) =>
+      makeMe.aLaunchRecord
+        .executing({ identity, title })
+        .inCursorSession({
+          sessionId,
+          continuation: {
+            workspace: "/tmp",
+            args: [
+              "cursor-agent",
+              "--workspace",
+              "/tmp",
+              "--resume",
+              sessionId,
+            ],
+            configScope,
+          },
+        })
+        .launchedAt(daysAgo(60));
     const expiredId = "a0000000-0000-4000-8000-000000000031";
     const recentlyDoneId = "a0000000-0000-4000-8000-000000000029";
     const unclosedId = "a0000000-0000-4000-8000-000000000040";
     keepLaunchStore(machineHome(machine), {
       "open-dough": [
-        scopedRecord(expiredId, expiredScope, 31),
-        scopedRecord(recentlyDoneId, recentlyDoneScope, 29),
-        scopedRecord(unclosedId, unclosedScope, undefined),
-      ] as LaunchRecord[],
+        scopedRecord(expiredId, expiredScope)
+          .markedDoneAt(daysAgo(31))
+          .please(),
+        scopedRecord(recentlyDoneId, recentlyDoneScope)
+          .markedDoneAt(daysAgo(29))
+          .please(),
+        scopedRecord(unclosedId, unclosedScope).please(),
+      ],
     });
     expect(existsSync(expiredScope)).toBe(true);
 

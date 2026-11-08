@@ -3,6 +3,7 @@ import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // sessions stay local Taken; completion time orders cards, and local retention
 // preserves a closed standalone session after its published card expires.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import {
   expectMembership,
@@ -46,22 +47,12 @@ test("a done story's card holds this machine's sessions for it, marked done, new
     dashboard,
     [
       ...sessionsOutsideDoneStories(dashboard, now, { adHoc: true }),
-      {
-        request: {
-          source: "open-dough",
-          workflow: "execution" as const,
-          host: "claude" as const,
-          ...executed,
-        },
-        session: {
-          host: "claude" as const,
-          sessionId: "newer-closed-card-session",
-          shortId: "newer-cl",
-          name: executed.title,
-        },
-        launchedAt: at(now, placed.adHocLaunched / 2),
-        doneAt: at(now, placed.adHocLaunched / 4),
-      },
+      makeMe.aLaunchRecord
+        .executing(executed)
+        .inClaudeSession({ sessionId: "newer-closed-card-session" })
+        .launchedAt(at(now, placed.adHocLaunched / 2))
+        .markedDoneAt(at(now, placed.adHocLaunched / 4))
+        .please(),
       ...doneStorySessions(now, {
         // Marked done and no longer listed by Claude Code.
         executedDone: "0e5c2d7a-done-session-of-card-shows-avatar",

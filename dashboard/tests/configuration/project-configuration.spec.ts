@@ -16,13 +16,10 @@ import {
 } from "../support/dashboardServer.ts";
 import { everyRepository, publishes } from "../support/fakeGitHub.ts";
 import { rawRequest } from "../support/rawHttp.ts";
-import {
-  machineHome,
-  recordLaunchedDaysAgo,
-  storeFile,
-} from "../machineLaunchRecords.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { daysAgo, machineHome, storeFile } from "../machineLaunchRecords.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
-import { title } from "../agentLaunchBoundary.ts";
+import { identity, title } from "../agentLaunchBoundary.ts";
 import { settings } from "../support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "../frameIconControl.ts";
 import {
@@ -74,7 +71,13 @@ test("production seeds its four projects and shows a previously saved session", 
   page,
 }) => {
   keepLaunchStore(machineHome(machine), {
-    "open-dough": [recordLaunchedDaysAgo(1, "01234567-previous-session")],
+    "open-dough": [
+      makeMe.aLaunchRecord
+        .executing({ identity, title })
+        .inClaudeSession({ sessionId: "01234567-previous-session" })
+        .launchedAt(daysAgo(1))
+        .please(),
+    ],
   });
   const records = readFileSync(storeFile(machine));
   const server = await start("preview");

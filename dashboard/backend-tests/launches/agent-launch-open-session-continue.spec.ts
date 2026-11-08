@@ -3,27 +3,26 @@
 // record is that attempt's own launched session.
 
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { sessionOpen } from "../../server/launchAttemptConflicts.ts";
 import { continueAttempt } from "../../tests/agentLaunchBoundary.ts";
-import {
-  machineHome,
-  openStoryRecord,
-} from "../../tests/machineLaunchRecords.ts";
-import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import { machineHome } from "../../tests/machineLaunchRecords.ts";
+import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 import {
   answerOf,
   nothingStarted,
   openSessionRequest as request,
   seedKeptAttempt,
-  seedOpenSession,
 } from "./openStorySessionAcceptance.ts";
 import {
   startDashboardServer,
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
 import {
+  queuedIdentity,
+  queuedTitle,
   startOrigin,
   type PushHold,
   type StartOrigin,
@@ -60,10 +59,12 @@ test.describe("continuing while a story session is open", () => {
     const acceptedAt = new Date().toISOString();
     // An open refinement session blocks continuing an execution attempt of the
     // same story: it is not that attempt's own launch.
-    seedOpenSession(origin.machine, "claude", openId, {
-      ...request,
-      workflow: "refinement",
-    });
+    keepLaunchRecords(machineHome(origin.machine), [
+      makeMe.aLaunchRecord
+        .refining({ identity: queuedIdentity, title: queuedTitle })
+        .inClaudeSession({ sessionId: openId })
+        .please(),
+    ]);
     seedKeptAttempt(server.home, {
       id: foreignAttempt,
       request,
@@ -81,9 +82,14 @@ test.describe("continuing while a story session is open", () => {
     );
     await nothingStarted(origin, server, push, false);
 
-    keepLaunchStore(machineHome(origin.machine), {
-      "open-dough": [openStoryRecord("claude", ownId, request)],
-    });
+    keepLaunchRecords(machineHome(origin.machine), [
+      makeMe.aLaunchRecord
+        .executing({ identity: queuedIdentity, title: queuedTitle })
+        .inClaudeSession({ sessionId: ownId })
+        // Launched once the attempt was accepted, as its own launch is.
+        .launchedAt(new Date(Date.parse(acceptedAt) + 1).toISOString())
+        .please(),
+    ]);
     seedKeptAttempt(server.home, {
       id: ownAttempt,
       request,

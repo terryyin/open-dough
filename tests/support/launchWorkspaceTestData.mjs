@@ -6,12 +6,18 @@
 // for review.
 
 /** @typedef {{ workspace: string, branch: string }} EstablishedBranch */
+/**
+ * A story branch, and what an execution's claim may also name: its
+ * publisher and published revision (fixed ones otherwise), its agent, its
+ * plan and the revision it started from.
+ * @typedef {EstablishedBranch & { publisherId?: string, publishedSha?: string, agent?: string, plan?: string, startingRevision?: string }} StoryBranch
+ */
 
 /**
  * The record fields of the story branch `storyBranch` the story's execution
  * or refinement established, with fixed published facts for an execution.
  * @param {{ workflow: "execution" | "refinement", identity: string }} story
- * @param {EstablishedBranch | undefined} storyBranch
+ * @param {StoryBranch | undefined} storyBranch
  */
 export function storyBranchFacts({ workflow, identity }, storyBranch) {
   if (!storyBranch) return {};
@@ -26,9 +32,14 @@ export function storyBranchFacts({ workflow, identity }, storyBranch) {
   return {
     start: {
       ...established,
-      publisherId: "a1b2c3",
+      publisherId: storyBranch.publisherId ?? "a1b2c3",
       mode: /** @type {const} */ ("story-branch"),
-      publishedSha: "b2".repeat(20),
+      publishedSha: storyBranch.publishedSha ?? "b2".repeat(20),
+      ...(storyBranch.agent !== undefined && { agent: storyBranch.agent }),
+      ...(storyBranch.plan !== undefined && { plan: storyBranch.plan }),
+      ...(storyBranch.startingRevision !== undefined && {
+        startingRevision: storyBranch.startingRevision,
+      }),
     },
   };
 }

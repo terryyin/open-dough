@@ -119,7 +119,7 @@ about 30 files still build the store path by hand to read it back.
 
 ### 2. History and Recently done start from kept records the builder states
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 1. `recently-done-sessions-sidebar*.spec.ts`, `agent-launch-done-listing.spec.ts`, `agent-launch-retained-history.spec.ts`, `agent-launch-sessions-listing.spec.ts`, and every other caller the trace lists for the converted helpers pass with unchanged assertions.
 
 Two projects each keep an execution launch, one marked Done yesterday →
@@ -130,6 +130,18 @@ Convert the remaining hand-built records in `recentlyDoneProgressive`,
 `machineLaunchRecords` (`recordLaunchedDaysAgo`, `openStoryRecord`,
 `seedEarlierDoneMark`), with launch and Done times visible where retention
 or ordering depends on them. Delete each displaced factory.
+
+Accepted: kept records in history, Recently done and the sessions listing
+are built by `makeMe.aLaunchRecord` (new variants: `adHoc`, `inCodexSession`,
+`markedDoneAt` problem, `reportingThrough`, `onStoryBranch` claim details).
+A dedicated E1 case in `recently-done-sessions-sidebar-projects.spec.ts` observes the
+key example. Learning for slice 3: a record's `launchedAt` drives own-launch
+matching (`server/ownLaunchRecord.ts`, launchedAt >= acceptedAt); state it at
+the call site when dropping an implicit now. Remaining G2 casts: slice 3
+(sharedLaunchRecord, claude-verification, own-record verification,
+project-remove, project-hide-sessions, project-restored-session,
+creation-gates, responsive-session-recovery-verification, avatar) and slice 4
+(host-identity).
 
 ### 3. Shared and story-card records keep a recorded request, not the launch body
 Type: Behavior
@@ -170,7 +182,7 @@ next Behavior. This review found no remaining slice-specific concern.
 ### G1. Opt-in Sessions replay measurement times out (first reported in slice 1)
 Reported: slice 1 — "DOUGH_SESSIONS_REPLAY=1 sessions-replay.spec.ts exceeds the 30 s test timeout; it fails identically at e75b693ab, before any change. It is skipped unless opted in."
 Story clause: "Evaluate each converted family against its original cases"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: dashboard/backend-tests/sessions/sessions-replay.spec.ts test.setTimeout(120_000) inside the test (its ~41 s of real pauses measure a separate server's event loop; 6e6d16cef removed the override by mistake); DOUGH_SESSIONS_REPLAY=1 run passed twice, 54 s and 49 s (tmp/slice2-replay*.log)
 
 ### G2. Stored setup gained type-only record casts (first reported in slice 1)
 Reported: slice 1 — "Typing the store as LaunchRecord | CreationRecord added launchRequest as LaunchRecord[\"request\"] in recordHolding and the own-record verification spec, and as LaunchRecord / as CreationRecord / as KeptLaunch casts in project-add, project-remove, project-hide-sessions, project-restored-session, creation-gates, host-identity, retention-scope, responsive-session-recovery-verification and avatar.establish."

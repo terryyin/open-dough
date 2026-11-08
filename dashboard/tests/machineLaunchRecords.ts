@@ -3,10 +3,7 @@
 // (./support/launchStore.ts), in the machine's `home`.
 
 import path from "node:path";
-import { launchRequest, title } from "./agentLaunchBoundary.ts";
-import type { LaunchRecord } from "../src/agentLaunch.ts";
 import {
-  changeLaunchStore,
   keepLaunchStoreText,
   keptLaunchStore,
   launchStoreFile,
@@ -39,89 +36,4 @@ export function daysAgo(days: number): string {
 // A Done mark still inside launch retention (lists under Recently done).
 export function retainedDoneAt(): string {
   return daysAgo(1);
-}
-
-// Marks this session's stored launch done a day ago with this problem, as an
-// earlier Mark as done that could not finish natively left it.
-export function seedEarlierDoneMark(
-  machine: string,
-  sessionId: string,
-  doneProblem: string,
-): void {
-  changeLaunchStore(machineHome(machine), (store) => {
-    const stored = Object.values(store)
-      .flat()
-      .find(
-        (record) =>
-          "session" in record && record.session.sessionId === sessionId,
-      );
-    if (stored === undefined || !("session" in stored))
-      throw new Error("The launch was not stored.");
-    stored.doneAt = retainedDoneAt();
-    stored.doneProblem = doneProblem;
-    return store;
-  });
-}
-
-export function recordLaunchedDaysAgo(
-  days: number,
-  sessionId: string,
-  doneDaysAgo?: number,
-): LaunchRecord {
-  return {
-    request: launchRequest as LaunchRecord["request"],
-    session: {
-      host: "claude",
-      sessionId,
-      shortId: sessionId.slice(0, 8),
-      name: `Open Dough · Execution · ${title}`,
-    },
-    launchedAt: daysAgo(days),
-    ...(doneDaysAgo === undefined ? {} : { doneAt: daysAgo(doneDaysAgo) }),
-  };
-}
-
-// An open launch record for a story, shaped for Claude, Codex, or Cursor so
-// acceptance tests can seed the machine store without launching.
-export function openStoryRecord(
-  host: "claude" | "codex" | "cursor",
-  sessionId: string,
-  story: {
-    readonly source: string;
-    readonly identity: string;
-    readonly title: string;
-    readonly workflow: string;
-  } = launchRequest,
-): LaunchRecord {
-  const name = `Open Dough · Execution · ${story.title}`;
-  const session =
-    host === "claude"
-      ? {
-          host,
-          sessionId,
-          shortId: sessionId.slice(0, 8),
-          name,
-        }
-      : host === "codex"
-        ? { host, sessionId, name }
-        : {
-            host,
-            sessionId,
-            name,
-            continuation: {
-              workspace: "/tmp",
-              args: ["agent", "--resume", sessionId],
-            },
-          };
-  return {
-    request: {
-      source: story.source,
-      identity: story.identity,
-      title: story.title,
-      workflow: story.workflow,
-      host,
-    },
-    session,
-    launchedAt: new Date().toISOString(),
-  } as LaunchRecord;
 }

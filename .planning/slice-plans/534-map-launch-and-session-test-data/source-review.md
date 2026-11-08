@@ -26,9 +26,9 @@ proof and stated at the call site; S6 keeps the existing clock source.
 | S1 | Every valid kept launch record in the machine launch store is built through `makeMe.aLaunchRecord`. | slice 4 | |
 | S1.1 | `makeMe.aLaunchRecord` is extended with the variants its new consumers need. | slice 4 | |
 | S1.2 | Conversion covers cases that keep records in the store across the three dashboard roots, including: | slice 3 | |
-| S1.2.1 | launch history | slice 2 | |
-| S1.2.2 | Recently done | slice 2 | |
-| S1.2.3 | the sessions listing | slice 2 | |
+| S1.2.1 | launch history | slice 2 | observed: agent-launch-records, retention-scope, open-session(-continue), story-card-open-session, project-configuration/add build kept records with makeMe.aLaunchRecord; slice 2 run 56 specs 128 passed (tmp/slice2-2.log) |
+| S1.2.2 | Recently done | slice 2 | observed: recentlyDoneSessions, recentlyDoneColumn, recentlyDoneProgressive, recentlyDoneReadLatencyFixture and recently-done-* specs build through makeMe.aLaunchRecord; tmp/slice2-2.log |
+| S1.2.3 | the sessions listing | slice 2 | observed: sessionsReplayRecords.recordAt builds through makeMe.aLaunchRecord; agent-launch-sessions-listing and opt-in sessions-replay pass (tmp/slice2-replay*.log) |
 | S1.2.4 | story cards and side panels | slice 3 | |
 | S1.2.5 | review | slice 3 | |
 | S1.2.6 | configuration | slice 3 | |
@@ -45,8 +45,8 @@ proof and stated at the call site; S6 keeps the existing clock source.
 | S4 | In valid setup, a record's host and its session's host are the same. | slice 4 | |
 | S4.1 | The launch-record session rules no longer wrap a Claude session in a Codex request, unless that contradiction is what the case proves. | slice 4 | |
 | S5 | Exact store text, malformed records, legacy records and retention-boundary records stay explicit where they are the subject, for example `seedStore` text and the launch-record schema specs. | slice 4 | |
-| S6 | Times that drive retention stay visible at the call site. | slice 2 | |
-| S6.1 | Those times are still measured from the server's clock wherever they are today. | slice 2 | |
+| S6 | Times that drive retention stay visible at the call site. | slice 2 | observed: retention and Done times stated at call sites, e.g. retention-scope daysAgo(31/29), dashboard/tests/sessions/recently-done-sessions-sidebar-projects.spec.ts E1 case retainedDoneAt() |
+| S6.1 | Those times are still measured from the server's clock wherever they are today. | slice 2 | observed: daysAgo/retainedDoneAt in dashboard/tests/machineLaunchRecords.ts still measure from Date.now(), the server's real clock |
 | S7 | Evaluate each converted family against its original cases: | slice 4 | |
 | S7.1 | the facts that drive each outcome stay visible; | slice 4 | |
 | S7.2 | assertions catch the same failure; | slice 4 | |
@@ -61,10 +61,10 @@ proof and stated at the call site; S6 keeps the existing clock source.
 | X3 | In a mixed case, the kept record is converted here and the other family's setup is left for its story. | slice 3 | |
 | X4 | Product contracts do not change. | slice 4 | |
 | X5 | UI behavior does not change. | slice 4 | |
-| E1 | Key example 1: two projects each keep an execution launch of one story, and one is marked Done yesterday. When the sessions sidebar loads, Recently done lists only the Done one, under its project. | slice 2 | |
-| E1.1 | In that test, both records are stated through `makeMe.aLaunchRecord`. | slice 2 | |
-| E1.2 | In that test, both records are written through the one store owner. | slice 2 | |
-| E1.3 | In that test, the expected rows are written independently of the builder. | slice 2 | |
+| E1 | Key example 1: two projects each keep an execution launch of one story, and one is marked Done yesterday. When the sessions sidebar loads, Recently done lists only the Done one, under its project. | slice 2 | observed: dashboard/tests/sessions/recently-done-sessions-sidebar-projects.spec.ts test 'of two projects' kept executions, Recently done lists only the one marked Done yesterday, under its project' (tmp/slice2-e1.log, 9/9 with --repeat-each=3) |
+| E1.1 | In that test, both records are stated through `makeMe.aLaunchRecord`. | slice 2 | observed: dashboard/tests/sessions/recently-done-sessions-sidebar-projects.spec.ts E1 case: both records built by makeMe.aLaunchRecord |
+| E1.2 | In that test, both records are written through the one store owner. | slice 2 | observed: dashboard/tests/sessions/recently-done-sessions-sidebar-projects.spec.ts E1 case: one keepLaunchStore(dashboard, {doughnut, pygardon}) call |
+| E1.3 | In that test, the expected rows are written independently of the builder. | slice 2 | observed: dashboard/tests/sessions/recently-done-sessions-sidebar-projects.spec.ts E1 case: literal 'Doughnut story done yesterday' and 'Doughnut · Execution', absence of 'Pygardon story still open' |
 | E2 | Key example 2: a dashboard server starts with a kept launch shared from the machine store. Its record is built as a recorded execution request with a Claude session, not as the incoming launch body cast to a record. | slice 3 | |
 | E2.1 | The server's answer matches that record. | slice 3 | |
 | E3 | Key example 3: the launch-record session rules accept a Claude session with its alias. The record wrapping it is a Claude record. | slice 4 | |

@@ -4,6 +4,7 @@ import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // Taken kept starts and already-open launch dialogs enforce the same refusal.
 // Uses the committed columns origin and synthetic Claude, without a real host.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
@@ -17,7 +18,6 @@ import {
 } from "../dashboardPage.ts";
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
 import { sessionOpenExplanation } from "../../src/launchOutcome.ts";
-import { openStoryRecord } from "../machineLaunchRecords.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
 import {
   notRefinedStory,
@@ -106,12 +106,16 @@ test.describe("a story's card while its session is open", () => {
       const cursorSession = "cccccccc-0000-4000-8000-0000000000c1";
       keepLaunchStore(dashboard, {
         "open-dough": [
-          openStoryRecord("cursor", cursorSession, {
-            source: "open-dough",
-            identity: identityB,
-            title: readyStory,
-            workflow: "execution",
-          }),
+          makeMe.aLaunchRecord
+            .executing({ identity: identityB, title: readyStory })
+            .inCursorSession({
+              sessionId: cursorSession,
+              continuation: {
+                workspace: "/tmp",
+                args: ["agent", "--resume", cursorSession],
+              },
+            })
+            .please(),
         ],
       });
       await page.reload();
@@ -152,12 +156,12 @@ test.describe("a story's card while its session is open", () => {
       );
       keepLaunchStore(dashboard, {
         "open-dough": [
-          openStoryRecord("claude", "dddddddd-0000-4000-8000-0000000000d1", {
-            source: "open-dough",
-            identity: identityB,
-            title: readyStory,
-            workflow: "refinement",
-          }),
+          makeMe.aLaunchRecord
+            .refining({ identity: identityB, title: readyStory })
+            .inClaudeSession({
+              sessionId: "dddddddd-0000-4000-8000-0000000000d1",
+            })
+            .please(),
         ],
       });
       await show(columnsJourney.taken);
