@@ -18,10 +18,10 @@ It had no inherited conversation and was instructed to read no project files.
 | 7 | Malformed store text stays explicit at the call site. | slice 2 | |
 | 8 | Legacy store text stays explicit at the call site. | slice 2 | |
 | 9 | Sibling stories’ helpers retain their own setup. | slice 2 | |
-| 10 | The terminal header portrait case keeps a launch the dashboard can record. The record belongs to the story and names its agent. A story execution record is one permitted journey example. | slice 1 | |
-| 11 | A story refinement record naming its agent is the other permitted terminal header portrait journey example. The source says execution or refinement. | slice 1 | |
-| 12 | Exclude an ad hoc record given a story’s start in the portrait case. | slice 1 | |
-| 13 | Exclude an ad hoc record given a story’s preparation in the portrait case. | slice 1 | |
+| 10 | The terminal header portrait case keeps a launch the dashboard can record. The record belongs to the story and names its agent. A story execution record is one permitted journey example. | slice 1 | observed: agent-terminal-avatar.spec.ts, stanly and ruuf execution steps keep the story, agent and original Claude session; attached terminal shows execution rows and the expected cartoon or its absence. |
+| 11 | A story refinement record naming its agent is the other permitted terminal header portrait journey example. The source says execution or refinement. | slice 1 | observed: agent-terminal-avatar.spec.ts, Yui refinement step keeps a refinement of the Taken story, attaches its Claude session, and observes Yui’s atlas tile and the refinement rows. |
+| 12 | Exclude an ad hoc record given a story’s start in the portrait case. | slice 1 | observed: agent-terminal-avatar.spec.ts, both start steps use the executing builder. The separate ad hoc step keeps no agent or story start and observes no portrait. |
+| 13 | Exclude an ad hoc record given a story’s preparation in the portrait case. | slice 1 | observed: agent-terminal-avatar.spec.ts, the Yui preparation uses the refining builder. The separate ad hoc step observes its original rows and no portrait. |
 | 14 | Final report admission keeps a coherent dashboard-recordable Claude launch record built through MakeMe. | slice 3 | |
 | 15 | Final report admission keeps a coherent dashboard-recordable Cursor launch record built through MakeMe. | slice 3 | |
 | 16 | Preserve the wrong-host request. | slice 3 | |

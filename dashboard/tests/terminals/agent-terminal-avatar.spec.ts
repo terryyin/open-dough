@@ -3,10 +3,9 @@
 // the title and session rows and proportionate to both, named and titled by the
 // agent; with no recorded agent, or no portrait for it, there is none, and
 // the rows are as before. No developer identity shows in the panel. The
-// session is an ad hoc one on the committed origin of
-// ./agent-launch-ad-hoc-terminal.spec.ts, given its agent by rewriting the
-// machine's kept launch store, which the dashboard server reads on every
-// request. An Odd-e nerds member's cartoon is answered by the test, since
+// Claude session starts through the dashboard without an agent. The portrait
+// cases keep it as the session of a story's execution or refinement.
+// An Odd-e nerds member's cartoon is answered by the test, since
 // the cartoons are never in the repository. The synthetic `claude`
 // (./fixtures/fake-claude) is attached; the real one is never reached.
 
@@ -21,24 +20,16 @@ import { expectServed } from "../agentPortrait.ts";
 import { avatarPng } from "../avatarAnswers.ts";
 import { expectTerminalPreviewFits } from "../terminalPortraitPreview.ts";
 import { box } from "../pageLayout.ts";
-import { changeLaunchStore } from "../support/launchStore.ts";
+import { takenIdentity, takenStory } from "../agentRosterRecords.ts";
+import {
+  keepLaunchRecords,
+  keptLaunchStore,
+  launchStoreFile,
+} from "../support/launchStore.ts";
+import type { LaunchRecord } from "../../src/agentLaunch.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });
-
-type Kept = Record<string, unknown>;
-
-// Replaces what the kept record of the project's one session establishes.
-function establish(home: string, established: Kept) {
-  changeLaunchStore(home, (store) => ({
-    ...store,
-    "open-dough": (store["open-dough"] ?? []).map((record) => ({
-      ...record,
-      start: undefined,
-      preparation: undefined,
-      ...established,
-    })),
-  }));
-}
 
 test("the header shows the recorded agent's portrait left of its two rows, proportionate to both, named by the agent, and none without an agent or a portrait", async ({
   page,
@@ -48,8 +39,6 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
   const where = {
     workspace: path.join(dashboard.home, "agent-workspace"),
     branch: "claude/agent-workspace",
-    remote: "origin",
-    target: "main",
   };
   mkdirSync(where.workspace);
   dashboard.claudeScenario("launched");
@@ -83,27 +72,22 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
   const sessionId = await sessionNamedBy(entry);
   const title =
     (await entry.getByRole("heading", { level: 3 }).textContent()) ?? "";
-  const storeFile = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-  await expect.poll(() => existsSync(storeFile)).toBe(true);
+  await expect.poll(() => existsSync(launchStoreFile(dashboard))).toBe(true);
+  const [adHoc] = keptLaunchStore(dashboard)["open-dough"] ?? [];
+  if (!adHoc || !("session" in adHoc))
+    throw new Error("Expected the kept ad hoc launch");
 
-  // The rows as an ad hoc session without an agent shows them.
-  const expectRowsUnchanged = async () => {
-    await expect(heading).toHaveText(title);
-    await expect(sessionRow).toHaveText("Ad hoc session");
+  const expectRows = async (storyTitle: string, sessionLabel: string) => {
+    await expect(heading).toHaveText(storyTitle);
+    await expect(sessionRow).toHaveText(sessionLabel);
   };
 
-  // Gives the session's record what it establishes, then opens its terminal
-  // on the reloaded page.
-  const reopenEstablishing = async (established: Kept) => {
-    establish(dashboard.home, established);
+  // Keep the story launch and reopen its Claude session on the reloaded page.
+  const reopen = async (record: LaunchRecord) => {
+    keepLaunchRecords(dashboard, [record]);
     await expect
       .poll(() => recordsOf(dashboard, "open-dough"))
-      .toEqual([expect.objectContaining(established)]);
+      .toEqual([expect.objectContaining(record)]);
     await page.reload();
     await entry.getByRole("button", { name: "Open terminal" }).click();
     await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
@@ -128,17 +112,20 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
     await expect(portrait).toHaveCount(0);
     await expect(panel.getByRole("img")).toHaveCount(0);
-    await expectRowsUnchanged();
+    await expectRows(title, "Ad hoc session");
   });
 
+  const story = { identity: takenIdentity, title: takenStory };
+  const { launchedAt } = adHoc;
   await test.step("a preparation by Yui-chan shows Yui's atlas tile, proportionate to both rows, named and titled Yui-chan", async () => {
-    await reopenEstablishing({
-      preparation: {
-        identity: "SEED-001#story",
-        ...where,
-        agent: "Yui-chan",
-      },
-    });
+    await reopen(
+      makeMe.aLaunchRecord
+        .refining(story)
+        .onStoryBranch({ ...where, agent: "Yui-chan" })
+        .inClaudeSession({ sessionId })
+        .launchedAt(launchedAt)
+        .please(),
+    );
     const yui = panel.getByRole("img", { name: "Yui-chan", exact: true });
     await expect(yui).toBeVisible();
     await expect(yui).toHaveAttribute("title", "Yui-chan");
@@ -155,49 +142,45 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     await expectServed(panel, image, "image/webp");
     await expectBesideBothRows(yui);
     await expectTerminalPreviewFits(yui, panel);
-    await expectRowsUnchanged();
+    await expectRows("See who owns Taken work", "Refinement session");
     // The agent is the only identity in the panel: no developer avatar or
     // name beside it.
     await expect(panel.getByRole("img")).toHaveCount(1);
     await expect(panel.locator("img")).toHaveCount(0);
     await expect(panel.locator(".terminal-identity")).toHaveText(
-      `${title}Ad hoc session`,
+      "See who owns Taken workRefinement session",
     );
   });
 
   await test.step("a start by an Odd-e nerds member whose cartoon is served shows that cartoon", async () => {
-    await reopenEstablishing({
-      start: {
-        identity: "SEED-001#story",
-        publisherId: "a1b2c3",
-        ...where,
-        mode: "story-branch",
-        publishedSha: "b2".repeat(20),
-        agent: "stanly-chan",
-      },
-    });
+    await reopen(
+      makeMe.aLaunchRecord
+        .executing(story)
+        .onStoryBranch({ ...where, agent: "stanly-chan" })
+        .inClaudeSession({ sessionId })
+        .launchedAt(launchedAt)
+        .please(),
+    );
     const stanly = panel.getByRole("img", { name: "stanly-chan", exact: true });
     await expect(stanly).toBeVisible();
     await expect(stanly).toHaveAttribute("title", "stanly-chan");
     await expect(stanly).toHaveCSS("background-image", /\/stanly\.webp"\)$/);
     await expectBesideBothRows(stanly);
-    await expectRowsUnchanged();
+    await expectRows("See who owns Taken work", "Execution session");
   });
 
   await test.step("a start by a member whose cartoon is not served shows no portrait and its two rows", async () => {
     const asked = page.waitForResponse(/\/cartoon\/ruuf\.webp$/);
-    await reopenEstablishing({
-      start: {
-        identity: "SEED-001#story",
-        publisherId: "a1b2c3",
-        ...where,
-        mode: "story-branch",
-        publishedSha: "b2".repeat(20),
-        agent: "ruuf-chan",
-      },
-    });
+    await reopen(
+      makeMe.aLaunchRecord
+        .executing(story)
+        .onStoryBranch({ ...where, agent: "ruuf-chan" })
+        .inClaudeSession({ sessionId })
+        .launchedAt(launchedAt)
+        .please(),
+    );
     expect((await asked).status()).toBe(404);
-    await expectRowsUnchanged();
+    await expectRows("See who owns Taken work", "Execution session");
     await expect(portrait).toHaveCount(0);
     await expect(panel.getByRole("img")).toHaveCount(0);
   });

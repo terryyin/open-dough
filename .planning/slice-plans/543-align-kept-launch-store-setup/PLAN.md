@@ -6,6 +6,15 @@
 
 **Identity:** SEED-261#align-kept-launch-store-setup
 
+## Execution context
+
+Story Branch Mode in `.worktrees/align-kept-launch-store-setup` on
+`codex/align-kept-launch-store-setup`, from preparation commit `3a72f075b`.
+The Take is `f72f6ccabed9cbfb4d5847289fa3ab84d55fb4b9`, owned by ruuf-chan.
+The authorized target is the story branch on origin, with origin/main for
+integration. The coordinator is `codex-plan-543-20261109` and its branch
+CI observer is `/tmp/dough-ci-501/watch-DTZBqS`.
+
 ## Provenance and findings
 
 Correction of SEED-261#map-launch-and-session-test-data
@@ -156,7 +165,7 @@ case's records are ones the dashboard records.
 
 ### 1. The terminal header portrait case keeps records the dashboard records
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/tests/terminals/agent-terminal-avatar.spec.ts` passes with every portrait, size, position and identity assertion unchanged; `npm run typecheck:dashboard`.
 
 An execution of the Taken story by stanly-chan is kept with its Claude
@@ -167,6 +176,12 @@ and ruuf-chan's executions), delete `establish` and `Kept`, and read or wait
 for the store through `launchStoreFile`/`keptLaunchStore` instead of the
 hand-built `storeFile` at `:86-92`. The no-agent ad hoc step and its rows
 stay as they are.
+
+
+Accepted proof: the full avatar spec passed in Chromium (one case and four
+steps) with the planned story rows in the agent steps. Dashboard typechecking
+passed. The consumer trace found no caller of the spec's local helpers
+outside the spec. Independent refactoring left the code and proof intact.
 
 ### 2. One store vocabulary reads and writes the kept launch store
 Type: Structure
