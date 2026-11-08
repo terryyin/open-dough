@@ -312,6 +312,13 @@ against the builder, materializer and revision writer; per-method defaults
 stay in the builder's comments. Lint passes. Before landing, the whole
 `npm test` at `f325b27f` passed quietly (exit 0, no output).
 
+## Execution complete
+
+Product advice: no change. The correction settled F1 to F5 with no new
+product finding. The sibling native-fixture migration and immutable-history
+caching stories keep their order. Process finding DD-463 is recorded in
+`DearDough.md`.
+
 ## Decisive premises
 
 | # | Premise | Consuming operation | Observation | Result |
