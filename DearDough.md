@@ -445,6 +445,15 @@ Former local code: DD-368. Former local code: DD-373. [Meaning, evidence and res
 
 Former local code: DD-369. Former local code: DD-392. [Meaning, evidence and response](docs/maintainer/findings/ODF-381.md).
 
+### Occurrences
+- Execution: SEED-267#preserve-large-ci-proof-reports (plan 517-preserve-large-ci-proof-reports; first related implementation commit `eb0653deafc4b73ae4e12582e06c2e66f98c43fe`)
+  - Timestamp: 2026-11-08T11:19:00+08:00 (approx.; source-review / Story obligations write before slice 1 delegation)
+  - Tool: Cursor
+  - Open Dough release: modified; source checkout skills; VERSION 0.3.90
+  - Evidence: coordinator transcript `ff7b9cfb-9073-4aa2-bdd5-ffbc665dab47` — first Story obligations block used `Reported: source review — "…"` (and G2's Story clause quoted the whole exclusion compound); after inspecting `story-obligation-reader.mjs`, rewritten to `Reported: slice 1 — "…"` with exact Scope substrings, then `story-obligations.mjs list --slice 1` accepted
+  - Observed effect: one local planning-record repair before the first accepted increment; no product rework and no incorrect slice completion published
+  - Inference: Reported-shape recurrence of ODF-381 after the `record` writer response; ordinary-use still hand-authored the wrong `Reported:` prefix on first write
+
 ## ODF-382 — First-pass helper-gone proof used address drift instead of a deleted wire helper
 
 Former local code: DD-372. [Meaning, evidence and response](docs/maintainer/findings/ODF-382.md).
