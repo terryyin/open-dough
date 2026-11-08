@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-262#reduce-private-fixture-lifecycle-cost",
+  "title": "Reduce the cost of private dashboard test fixtures",
+  "completedAt": "2026-11-08T05:01:47.389Z",
+  "developer": "Terry Yin",
+  "agent": "aki-chan",
+  "host": "cursor",
+  "model": "auto"
+}
