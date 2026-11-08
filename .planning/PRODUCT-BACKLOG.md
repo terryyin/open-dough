@@ -31,12 +31,14 @@ intent introduced or affected by a newly developed story.
 - [Make the Intent sidebar easier to scan and hide](seeds/SEED-271-compact-intent-sidebar.md#compact-intent-sidebar) — SEED-271#compact-intent-sidebar ([plan](slice-plans/525-compact-intent-sidebar/PLAN.md))
 - [Start a follow-up from recently done work](seeds/SEED-273-follow-up-from-done.md#follow-up-from-done) — SEED-273#follow-up-from-done ([plan](slice-plans/526-follow-up-from-done/PLAN.md))
 - [Select recently done sessions from the dashboard sidebar](seeds/SEED-272-select-recently-done-sessions.md#select-recently-done-sessions) — SEED-272#select-recently-done-sessions ([plan](slice-plans/527-select-recently-done-sessions/PLAN.md))
+- [Highlight the destination of a story link](seeds/SEED-270-highlight-linked-story-card.md#highlight-linked-story-card) — SEED-270#highlight-linked-story-card ([plan](slice-plans/525-highlight-linked-story-card/PLAN.md))
+- [Build dashboard test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures) — SEED-262#migrate-dashboard-origin-fixtures ([plan](slice-plans/512-migrate-dashboard-origin-fixtures/PLAN.md))
+- [Build clean-trunk and managed delivery repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures) — SEED-262#migrate-clean-trunk-fixtures ([plan](slice-plans/514-migrate-clean-trunk-fixtures/PLAN.md))
+- [Let projects declare which tests Intent shows](seeds/SEED-274-declare-intent-test-sources.md#declare-intent-test-sources) — SEED-274#declare-intent-test-sources ([plan](slice-plans/528-declare-intent-test-sources/PLAN.md))
 
 ## Backlog list
 
-- [Highlight the destination of a story link](seeds/SEED-270-highlight-linked-story-card.md#highlight-linked-story-card) — SEED-270#highlight-linked-story-card
-- [Build dashboard test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-dashboard-origin-fixtures) — SEED-262#migrate-dashboard-origin-fixtures
-- [Build clean-trunk and managed delivery repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-clean-trunk-fixtures) — SEED-262#migrate-clean-trunk-fixtures
+- [Review a selected story in Intent tabs](seeds/SEED-275-story-intent-tabs.md#story-intent-tabs) — SEED-275#story-intent-tabs
 - [Build Node test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-backlog-scratch-repositories) — SEED-262#migrate-backlog-scratch-repositories
 - [Build shell release and native fixture repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-shell-release-and-native-fixtures) — SEED-262#migrate-shell-release-and-native-fixtures
 - [Speed up Git fixture construction behind the builder](seeds/SEED-262-faster-dashboard-test-feedback.md#reuse-immutable-git-histories) — SEED-262#reuse-immutable-git-histories

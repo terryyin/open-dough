@@ -137,13 +137,70 @@ for stage in npm browser; do
   esac
 done
 
-# Workflow owns the action bounds and exact cache identity. Only cache restore
-# may fail and continue. The locked browser installation still gates the suite.
+# A failed release download must fall back to a verified, exact-version Node.
+if command -v timeout > /dev/null; then
+  node_fixture=${temporary_dir}/ci-node
+  mkdir -p "${node_fixture}/bin" "${node_fixture}/runner"
+  cp "${source_dir}/.node-version" "${node_fixture}/.node-version"
+  version=$(< "${node_fixture}/.node-version")
+  archive=node-v${version}-linux-x64
+  mkdir -p "${node_fixture}/${archive}/bin"
+  printf '#!/bin/bash\nprintf "v%s\\n"\n' "${version}" > "${node_fixture}/${archive}/bin/node"
+  chmod +x "${node_fixture}/${archive}/bin/node"
+  (cd "${node_fixture}" && tar -cJf "${archive}.tar.xz" "${archive}" \
+    && sha256sum "${archive}.tar.xz" > SHASUMS256.txt)
+  cat > "${node_fixture}/bin/curl" << 'CURL'
+#!/usr/bin/env bash
+url=${!#}
+case ${url} in
+  */versions-manifest.json)
+    printf '[{"version":"%s","files":[{"platform":"linux","arch":"x64","download_url":"https://github.com/actions/node-versions/releases/download/fixture/node.tar.gz"}]}]\n' "${FIXTURE_VERSION}"
+    ;;
+  https://github.com/actions/node-versions/releases/download/*)
+    echo 'controlled GitHub release HTTP 504' >&2
+    exit 22
+    ;;
+  https://nodejs.org/dist/*) cp "${FIXTURE_SOURCE}/${url##*/}" "${@: -2:1}" ;;
+  *) exit 99 ;;
+esac
+CURL
+  chmod +x "${node_fixture}/bin/curl"
+  ci_node() {
+    FIXTURE_VERSION=${version} FIXTURE_SOURCE="${node_fixture}" \
+      GITHUB_PATH="${node_fixture}/path" RUNNER_TEMP="${node_fixture}/runner" RUNNER_TOOL_CACHE='' \
+      OPEN_DOUGH_NODE_DEADLINE_MS="$1" PATH="${node_fixture}/bin:${PATH}" \
+      bash "${source_dir}/scripts/setup-ci-node.sh" "${node_fixture}/.node-version"
+  }
+  ci_node '' > "${node_fixture}/setup.log" 2>&1
+  expect_in_log "${node_fixture}/setup.log" -F -- 'controlled GitHub release HTTP 504'
+  expect_in_log "${node_fixture}/setup.log" -F -- "Using Node v${version} from nodejs.org."
+  expect_in_log "${node_fixture}/path" -Fx -- "${node_fixture}/runner/node-official/bin"
+  rm -- "${node_fixture}/path"
+  # shellcheck disable=SC2310 # ci_node returns the external installer status.
+  if ci_node 1 > "${node_fixture}/expired.log" 2>&1; then
+    echo 'FAIL: expired hosted Node setup succeeded.' >&2
+    exit 1
+  fi
+  expect_in_log "${node_fixture}/expired.log" -F -- 'Node acquisition deadline expired before download'
+  [[ ! -e ${node_fixture}/path ]]
+  printf 'corrupt\n' >> "${node_fixture}/${archive}.tar.xz"
+  # shellcheck disable=SC2310 # ci_node returns the external installer status.
+  if ci_node '' > "${node_fixture}/corrupt.log" 2>&1; then
+    echo 'FAIL: hosted Node setup accepted an invalid archive.' >&2
+    exit 1
+  fi
+  expect_in_log "${node_fixture}/corrupt.log" -F -- "${archive}.tar.xz: FAILED"
+  [[ ! -e ${node_fixture}/path ]]
+fi
+
+# Workflow owns the action bounds and exact cache identity. The locked browser
+# installation still gates the suite after a browser cache failure.
 workflow=${source_dir}/.github/workflows/ci.yml
 # shellcheck disable=SC2016 # Literal workflow expressions.
 expect_in_log "${workflow}" -F -- 'key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('\''package-lock.json'\'') }}'
 expect_in_log "${workflow}" -F -- 'timeout-minutes: 1'
-expect_in_log "${workflow}" -F -- 'node-version-file: .node-version'
+expect_in_log "${workflow}" -F -- 'bash scripts/setup-ci-node.sh .node-version'
+expect_in_log "${workflow}" -F -- '60000'
 expect_in_log "${workflow}" -F -- '180000'
 expect_in_log "${workflow}" -F -- 'node scripts/setup-native.mjs npm'
 expect_in_log "${workflow}" -F -- 'node scripts/setup-native.mjs browser'

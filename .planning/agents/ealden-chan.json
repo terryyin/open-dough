@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-262#migrate-dashboard-origin-fixtures",
+  "mode": "story-branch",
+  "branch": "claude/build-dashboard-test-repositories-from-explicit",
+  "host": "claude",
+  "model": "opus"
+}
