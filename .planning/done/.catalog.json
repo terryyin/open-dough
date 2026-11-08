@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-258_invoke-intent-coverage-manually.json",
+      "identity": "SEED-258#invoke-intent-coverage-manually",
+      "completedAt": "2026-11-08T01:01:14.918Z",
+      "blob": "f18786f61a72223ef81c911d8841a14d2d5e5c9b"
+    },
+    {
       "fileName": "SEED-260_restore-default-test-timeouts.json",
       "identity": "SEED-260#restore-default-test-timeouts",
       "completedAt": "2026-11-07T20:39:04.124Z",

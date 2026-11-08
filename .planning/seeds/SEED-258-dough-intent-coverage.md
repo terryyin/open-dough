@@ -76,69 +76,6 @@ use separately after observing developers use the manual skill.
 
 ## Story decomposition
 
-<a id="invoke-intent-coverage-manually"></a>
-
-### 2. Invoke Dough Intent Coverage manually across test mixes
-
-**Identity:** SEED-258#invoke-intent-coverage-manually
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-258#invoke-intent-coverage-manually","dependencies":[{"supplier":{"identity":"SEED-258#compare-manual-intent-coverage","href":"seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage"},"implementation":"Deliver the supported targeted scratch break check through the public manually invoked skill.","rationale":"The manual skill needs evidence for the on-demand technique it will offer during ordinary review.","condition":"The completed pilot demonstrates one targeted scratch break check with a passing baseline, a fault reaching the intended assertion, and a passing restored run, and Terry approves the Narrow method for the public manual skill.","state":"satisfied","resolution":{"revision":"72e0c2f318a4283bff32acd5767a27ecaa576ba8","path":".planning/seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage","summary":"The measured pilot supports one targeted scratch break check on demand during ordinary review. The assessment missed the proofless-then-running Landed defect, and comparable total effort is unavailable. The delegated decision was Narrow. Generalizing a public skill still requires evidence and a decision to proceed. The surviving pilot result links to the pinned comparison.\nCondition remains unresolved: The measured comparison records verified decisions, consequential misses, and total effort, and Terry records a decision to proceed with generalizing the method.\nAccepted integration: 98d9b8512b48ff91f629fb913dd29ba23067ff9e on origin/refs/heads/main.\nAgreement correction using 72e0c2f318a4283bff32acd5767a27ecaa576ba8:.planning/seeds/SEED-258-dough-intent-coverage.md#compare-manual-intent-coverage:\nThe retained comparison (Plan 498, comparison.md, Delegated decision) supports one targeted scratch break check. Its Open Dough focused run (assessment-254.md, Focused runs) passed at baseline, failed at the intended Landed assertion after the scratch edit, and passed after restoration. Terry approved Narrow on 2026-11-08 in the current seed's Terry's decision section. That explicit scope choice replaces the broader generalization and comparable-total-effort requirements. The missed proofless-then-running defect and unavailable comparable effort remain limits of the broader pilot. The consumer owns authoring and delivery of the manual skill.\nCondition satisfied: The completed pilot demonstrates one targeted scratch break check with a passing baseline, a fault reaching the intended assertion, and a passing restored run, and Terry approves the Narrow method for the public manual skill.\nAccepted integration: 98d9b8512b48ff91f629fb913dd29ba23067ff9e on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/503-invoke-intent-coverage-manually/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5e5dd752d150d03a6368bf2736338e2cf32a82a439495d6cec6b9cf64bd6ad8a","plan":"4a8cff7704d74af79db936f93b0093fd84a12d63ba34ff0920e9d999893145d8"}}
-```
-
-**Goal.** During ordinary review, a developer can invoke the installed
-`dough-intent-coverage` skill to find out whether an existing test catches one
-plausible fault in an important story promise. The result helps the developer
-decide whether to retain or strengthen that specific protection.
-
-**Scope.**
-
-- Identify the selected story, revision, promise, plausible fault, and
-  maintained assertion. Ask for the missing story source when the promise
-  cannot be established. Use this project's focused test command and an
-  isolated scratch checkout of the selected revision.
-- Establish a passing baseline, introduce one temporary fault, and check
-  whether it reaches the intended assertion. Restore the edit even when the
-  run fails, verify restoration, and rerun the focused check. Report whether
-  the assertion caught the fault, allowed the observed wrong behavior, or
-  yielded insufficient evidence. Cite the fixture, assertion, and run
-  observations that support the result. Limit the finding to that promise,
-  fault, and observed path.
-- Return the result directly to the caller with measured elapsed time from
-  invocation through reporting, including setup and runs. Show test runtime
-  separately when observed, and human and agent effort separately when
-  supported. Give the unit, basis, and measured or estimated label for each
-  figure. Mark unavailable values explicitly. The caller owns persistence.
-  [Architectural North Star](../NORTH-STAR.md#intent-assessment-results-carry-their-cost).
-- Demonstrate the same invocation in a project with browser and unit tests
-  and in a project with a different test stack. Use one shared source and
-  the normal versioned delivery path. [ADR 0003](../../docs/adrs/0003-tagged-release-versioning-accepted.md) ·
-  [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) ·
-  [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
-- The [wrap-up story](#assess-intent-coverage-during-wrap-up) owns any
-  automatic invocation, done-record storage, and dashboard rendering.
-  Test repairs and broader assessments are separate work.
-
-**Key examples.**
-
-- In Open Dough, a cancelled landing waiting for later proof must be able
-  to pick up a newly available build. A targeted scratch fault freezes the
-  waiting answer. The focused browser journey passes at baseline, fails at
-  the assertion for the newly available result, and passes after restoration.
-  The report credits that browser assertion for this fault and path.
-- In Lizard, a C lookup table with distinct designated initializer rows
-  should produce no duplicates. The focused pytest case catches a scratch
-  fault that stops counting designated fields and their values as data.
-  The report credits the duplicate-detector extension path exercised by
-  the case and returns its cost evidence.
-- If the focused run stays green while independent evidence shows the
-  fault changed the behavior under test, report the assertion gap. If
-  setup or reach cannot be established, report the missing observation and
-  the cost of the attempt. A failing baseline ends the probe before any
-  scratch fault is applied.
-
 <a id="assess-intent-coverage-during-wrap-up"></a>
 
 ### 3. Find the intent assessment in a recently done story

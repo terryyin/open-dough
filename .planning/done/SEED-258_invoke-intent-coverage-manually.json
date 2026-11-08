@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-258#invoke-intent-coverage-manually",
+  "title": "Invoke Dough Intent Coverage manually across test mixes",
+  "completedAt": "2026-11-08T01:01:14.918Z",
+  "developer": "Terry Yin",
+  "agent": "viktor-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
