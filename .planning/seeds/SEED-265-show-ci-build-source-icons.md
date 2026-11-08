@@ -14,7 +14,7 @@ scope: story
 **Identity:** SEED-265#show-ci-build-source-icons
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/515-show-ci-build-source-icons/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"89bedec15c1ad92737d9dc29180668538e398fc2f667561685e82c71a8af09a1","plan":"57e4f006d7ef39cf94cfba18c4d11719d0a9e717a15c5764d9b0b666b0d4d0f2"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/516-show-ci-build-source-icons/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"89bedec15c1ad92737d9dc29180668538e398fc2f667561685e82c71a8af09a1","plan":"57e4f006d7ef39cf94cfba18c4d11719d0a9e717a15c5764d9b0b666b0d4d0f2"}}
 ```
 
 **Goal.** A developer reviewing a story's CI timing in Intent can scan the
