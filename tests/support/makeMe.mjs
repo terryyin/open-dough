@@ -72,8 +72,18 @@ const withReport = (profile, { host, model }) => ({
   ...(model === undefined ? {} : { model }),
 });
 
+/** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
+
 export const makeMe = {
   get anAgentProfile() {
     return new AgentProfileBuilder();
+  },
+  get aBacklogEntry() {
+    return {
+      /** @param {BacklogEntry} facts */
+      with(facts) {
+        return { please: () => ({ ...facts }) };
+      },
+    };
   },
 };

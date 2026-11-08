@@ -2,6 +2,7 @@
 
 **Identity:** SEED-261#map-published-work-test-data
 **Source:** [Refined story](../../seeds/SEED-261-share-domain-test-data.md#map-published-work-test-data)
+**Source review:** [Independent source commitments](source-review.md)
 
 ## Goal and boundaries
 
@@ -75,11 +76,27 @@ across the runners. On fully awake macOS with AC power wrap each full run in
 instructions in [Machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
 Hosted CI and publication follow the selected execution mode.
 
+## Execution context
+
+Story Branch Mode on `codex/make-published-work-test-setup-map-directly-to-t`,
+with trunk `origin/main`. The established Take published
+`7b6947971c8a4a5d994562946fec3b9f61814940` to both refs. The readiness
+change records the fulfilled MakeMe dependency and leaves the reviewed goal
+and proof scope aligned. Locked checkout setup and dashboard type-check passed.
+The Codex coordinator `seed-261-map-published` observes GitHub Actions
+`ci.yml` on the story branch through `/tmp/dough-ci-501/watch-EnjBtZ`.
+
+For the final ADR 0010 evaluation, compare the original and converted
+published-work cases at their call sites. A worthwhile result makes the
+governing facts visible, keeps the existing observations independent, and
+removes fixture translations or duplicate constructors. Assess the ongoing
+cost of any added writer or builder against those gains.
+
 ## Slices
 
 ### 1. Backlog operations arrange canonical entries and homes
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seed example 2. Run `product-backlog-identity.test.mjs`, `product-backlog-refresh.test.mjs`, `product-backlog-take.test.mjs`, the affected merge and adoption suites, and the scoped shell consumers. Existing assertions show the moved home follows the same identity and the queue/Taken transitions preserve ordering.
 
 Start with valid story-home and backlog facts in
@@ -89,6 +106,31 @@ observe the same membership and stable identity through the real commands.
 Keep independently authored expected rows and malformed inputs literal.
 Reuse the renderer for arranged rows and keep Git-driven merges in their
 harness.
+
+Accepted proof on the macOS execution checkout:
+
+```zsh
+export PATH="/opt/homebrew/bin:$PATH"
+files=$(rg -l 'from "\./product-backlog-(fixture|refresh-fixture|merge-fixture|adoption-fixture|identity-evidence-fixture|lock-fixture)\.mjs"' tests/support --glob '*.test.mjs' | sort)
+OPEN_DOUGH_TEST_OUTCOMES=/tmp/od-seed261-slice1-outcomes.tsv bash scripts/test.sh ${=files} tests/product-backlog-payload-update.sh
+npm run typecheck:dashboard
+```
+
+All 55 selected jobs passed, along with the type-check. The real refresh
+follows moved and reanchored homes, preserves the original identity and list
+position, and leaves home bytes intact. Take and merge check ordered membership
+against independently authored rows. The installed shell proof checks the
+merged rows and Git parents. The consumer trace at
+`/tmp/od-seed261-slice1-consumer-trace.md` accounts for imported fixtures and
+shell setup. Legacy native merge rows and the native hook sentinel keep their
+literal inputs. The native Take fixture goes with the preparation setup in
+slice 3 (G1).
+
+The independent refactor moved the existing admission case into its own file
+and reused the canonical home fixture. The existing admission and Take
+assertions passed under
+`PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/support/product-backlog-take.test.mjs tests/support/product-backlog-admit.test.mjs`.
+Full runner discovery includes both files.
 
 ### 2. Catalog observation reads each pinned project's own work
 Type: Behavior
@@ -205,3 +247,12 @@ Slice-plan refinement was unnecessary. Each conversion owns one observable
 boundary and its proof, with no preparatory builder slice. This review found
 no remaining slice-specific concern. The shared-entry dependency is recorded
 on the story.
+
+
+## Story obligations
+
+### G1. Native Take uses a valid queued story with preparation
+Reported: slice 1 — "The Native Take writer still arranges valid backlog membership together with the preparation it gives the native agent. Its evidence currently has failure-transcript retention only."
+Story clause: "Where a native scenario changes its arranged input, update its evidence inputs."
+Disposition: receiving slice 3
+Commitment: P21

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2312 # pipefail (set by the sourcing test) covers piped reads.
+# shellcheck disable=SC2154,SC2312 # The sourcing test provides source_dir and pipefail.
 # Real installed use of the product backlog's scripts, invoked only from a
 # platform's own installed copy (never the source repository), proving no
 # relative import or path reaches back to the release source once it is
@@ -18,14 +18,12 @@ run_offline_ordinary_and_eisdir_proof() {
 
   custom_backlog="${claude_target}/planning-alt/TEAM-BACKLOG.md"
   mkdir -p -- "$(dirname -- "${custom_backlog}")"
-  cat > "${custom_backlog}" << 'EOF'
-# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [Existing queued item](seeds/EXISTING.md#existing) — EXISTING#existing
+  node "${source_dir}/tests/support/render-published-backlog.mjs" > "${custom_backlog}" << 'EOF'
+{
+  "queued": [
+    { "identity": "EXISTING#existing", "title": "Existing queued item", "href": "seeds/EXISTING.md#existing" }
+  ]
+}
 EOF
   launch_subdir="${claude_target}/work/nested"
   mkdir -p -- "${launch_subdir}"
@@ -98,7 +96,7 @@ EOF
 run_offline_git_merge_proof() {
   local scripts_root=$1
   local claude_target=$2
-  local git_project git_backlog_rel item_a item_b item_c
+  local git_project git_backlog_rel
   local merge_output resulting_backlog expected_backlog parents
   local merged_catalog record record_blob
 
@@ -107,23 +105,17 @@ run_offline_git_merge_proof() {
   git -C "${git_project}" init --quiet -b main
   configure_fixture_git "${git_project}"
   git_backlog_rel='docs/BACKLOG.md'
-  item_a='- [Item A](seeds/A.md#a) — A#a'
-  item_b='- [Item B](seeds/B.md#b) — B#b'
-  item_c='- [Item C](seeds/C.md#c) — C#c'
-
-  write_git_backlog() {
-    local taken=$1
-    local queue=$2
-    {
-      printf '%s\n\n' '# Product backlog'
-      printf '%s\n\n' '## Taken'
-      [[ -z "${taken}" ]] || printf '%s\n\n' "${taken}"
-      printf '%s\n\n' '## Backlog list'
-      printf '%s\n' "${queue}"
-    } > "${git_project}/${git_backlog_rel}"
-  }
-
-  write_git_backlog "$(printf '%s\n%s' "${item_a}" "${item_b}")" "${item_c}"
+  node "${source_dir}/tests/support/render-published-backlog.mjs" > "${git_project}/${git_backlog_rel}" << 'EOF'
+{
+  "taken": [
+    { "identity": "A#a", "title": "Item A", "href": "seeds/A.md#a" },
+    { "identity": "B#b", "title": "Item B", "href": "seeds/B.md#b" }
+  ],
+  "queued": [
+    { "identity": "C#c", "title": "Item C", "href": "seeds/C.md#c" }
+  ]
+}
+EOF
   git -C "${git_project}" add -A
   git -C "${git_project}" commit --quiet -m ancestor
 
@@ -155,7 +147,7 @@ run_offline_git_merge_proof() {
   fi
   resulting_backlog=$(cat "${git_project}/${git_backlog_rel}")
   expected_backlog=$(printf '%s\n\n%s\n\n%s\n\n%s\n' \
-    '# Product backlog' '## Taken' '## Backlog list' "${item_c}")
+    '# Product backlog' '## Taken' '## Backlog list' '- [Item C](seeds/C.md#c) — C#c')
   if [[ "${resulting_backlog}" != "${expected_backlog}" ]]; then
     echo 'FAIL: the installed Git merge adapter did not reconcile both independent closures.' >&2
     printf 'Expected:\n%s\nActual:\n%s\n' "${expected_backlog}" "${resulting_backlog}" >&2

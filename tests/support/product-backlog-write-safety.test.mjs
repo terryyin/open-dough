@@ -28,12 +28,12 @@ test("write safety: concurrent cooperating runs keep every update", async (t) =>
   const requests = ["a", "b", "c", "d"].map((suffix) => ({
     identity: `SEED-00${suffix.charCodeAt(0) - 96}#concurrent-${suffix}`,
     title: `Concurrent story ${suffix}`,
-    link: `seeds/SEED-00${suffix.charCodeAt(0) - 96}-concurrent.md#concurrent-${suffix}`,
+    href: `seeds/SEED-00${suffix.charCodeAt(0) - 96}-concurrent.md#concurrent-${suffix}`,
   }));
   // Each request's identity is exactly its seed's own "id:" composed with its
   // anchor, so the canonical home each one links already names it.
   for (const request of requests) {
-    const [file, anchor] = request.link.split("#");
+    const [file, anchor] = request.href.split("#");
     const seedId = /SEED-\d+/.exec(file)[0];
     projectFile(
       project,
@@ -57,7 +57,7 @@ test("write safety: concurrent cooperating runs keep every update", async (t) =>
 
   const lines = project.read().split("\n");
   for (const request of requests) {
-    const line = `- [${request.title}](${request.link}) — ${request.identity}`;
+    const line = `- [${request.title}](${request.href}) — ${request.identity}`;
     assert.equal(
       lines.filter((candidate) => candidate === line).length,
       1,

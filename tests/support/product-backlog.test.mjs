@@ -9,16 +9,20 @@ import {
   addedHome,
   addedLine,
   architecture,
+  arrangedBacklog,
   backlog,
+  direction,
   occurrences,
   plantAddedHome,
   queued,
   run,
   scratchProject,
   skipRetrospective,
+  takenBacklogEntry,
   takenStory,
   withEntry,
 } from "./product-backlog-fixture.mjs";
+import { renderPublishedBacklog } from "./published-backlog.mjs";
 
 test("add places one identified entry and preserves every other byte", async (t) => {
   const placements = [
@@ -46,7 +50,7 @@ test("add places one identified entry and preserves every other byte", async (t)
 test("add fills an empty queue and honors an explicit file path", async (t) => {
   const empty = scratchProject(
     t,
-    backlog.replace(`${queued.join("\n")}\n`, ""),
+    renderPublishedBacklog({ taken: [takenBacklogEntry], direction }),
   );
   addedHome(empty);
   const result = await run(empty, addArguments(added, ["--position", "last"]));
@@ -59,7 +63,7 @@ test("add fills an empty queue and honors an explicit file path", async (t) => {
   const elsewhere = scratchProject(t);
   const moved = join(elsewhere.directory, "docs", "BACKLOG.md");
   mkdirSync(dirname(moved), { recursive: true });
-  writeFileSync(moved, backlog, "utf8");
+  writeFileSync(moved, arrangedBacklog, "utf8");
   // The relocated backlog resolves its links from its own new directory, not
   // from the project's default one, so the canonical home is planted there.
   plantAddedHome(dirname(moved));
@@ -85,7 +89,7 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
         "--title",
         added.title,
         "--link",
-        added.link,
+        added.href,
         "--after",
         skipRetrospective,
       ],
@@ -99,7 +103,7 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
           identity: architecture,
           title:
             "Strengthen architectural review after using the lightweight guidance",
-          link: "seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design",
+          href: "seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design",
         },
         first,
       ),
@@ -112,7 +116,7 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
           identity: takenStory,
           title:
             "Update the product backlog without hand-editing the shared list",
-          link: "seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates",
+          href: "seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates",
         },
         first,
       ),
@@ -130,7 +134,7 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
         {
           identity: "SEED-004-extract#proudly-found-elsewhere-design",
           title: "Strengthen architectural review",
-          link: "seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design",
+          href: "seeds/SEED-004-extract-and-adopt-project-guidance.md#proudly-found-elsewhere-design",
         },
         first,
       ),

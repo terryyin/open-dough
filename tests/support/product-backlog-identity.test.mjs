@@ -5,6 +5,8 @@
 // names the work item it always named.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { identityLine } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
+import { makeMe } from "./makeMe.mjs";
 import {
   adopt,
   adoptedBacklog,
@@ -33,12 +35,14 @@ test("add records an identity the link no longer spells", async (t) => {
   // only where the canonical home is now, so neither the file name nor the
   // anchor has to spell the identity back — only the home's own explicit
   // record does, which is exactly what relocation looks like.
-  const relocated = {
-    identity: "SEED-002#publish-the-release-notes",
-    title: "Publish the release notes with the tagged release",
-    link: "seeds/release-the-guidance.md#tagged-release-notes",
-  };
-  const line = `- [${relocated.title}](${relocated.link}) — ${relocated.identity}`;
+  const relocated = makeMe.aBacklogEntry
+    .with({
+      identity: "SEED-002#publish-the-release-notes",
+      title: "Publish the release notes with the tagged release",
+      href: "seeds/release-the-guidance.md#tagged-release-notes",
+    })
+    .please();
+  const line = `- [${relocated.title}](${relocated.href}) — ${relocated.identity}`;
   const project = scratchProject(t);
   projectFile(
     project,
@@ -53,7 +57,7 @@ id: SEED-002
 
 ### Publish the release notes with the tagged release
 
-**Identity:** ${relocated.identity}
+${identityLine(relocated.identity)}
 
 Ship the notes once tagging completes.
 `,

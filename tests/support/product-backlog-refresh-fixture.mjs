@@ -5,9 +5,12 @@
 
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
+import { identityLine } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
+import { makeMe } from "./makeMe.mjs";
 import {
   adoptedBacklog,
   correctionLink,
+  direction,
   headings,
   homes,
   identities,
@@ -16,7 +19,12 @@ import {
   seedOne,
   takenLink,
 } from "./product-backlog-adoption-fixture.mjs";
-import { occurrences } from "./product-backlog-fixture.mjs";
+import {
+  occurrences,
+  queuedBacklogEntries,
+  takenBacklogEntry,
+} from "./product-backlog-fixture.mjs";
+import { renderPublishedBacklog } from "./published-backlog.mjs";
 
 // Where each document has already been renamed or moved to, before any run.
 // Nothing here moves a file: the command records a move a human has made.
@@ -30,8 +38,7 @@ export const renamedSeedEight = "seeds/SEED-008-trunk-sync.md";
 export const unspelledSeed = "seeds/install-open-dough.md";
 export const unspelledStory = `${unspelledSeed}#skip-process-retrospectives`;
 
-// The entry lines the starting backlog holds, spelled out so that a test
-// naming one does not take the product's own rendering as its expectation.
+// The entry lines in the independent adopted backlog expectation.
 export const lines = {
   taken:
     "- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008#script-product-backlog-list-updates ([plan](slice-plans/057-script-product-backlog/PLAN.md))",
@@ -42,6 +49,21 @@ export const lines = {
   correction:
     "- [Complete hook-registration corrections and deferred Claude Code acceptance](slice-plans/032-refuse-managed-hook-command-variants/PLAN.md)",
 };
+
+const correction = makeMe.aBacklogEntry
+  .with({
+    identity: identities.correction,
+    title:
+      "Complete hook-registration corrections and deferred Claude Code acceptance",
+    href: correctionLink,
+  })
+  .please();
+
+export const arrangedAdoptedBacklog = renderPublishedBacklog({
+  taken: [takenBacklogEntry],
+  queued: [queuedBacklogEntries[0], correction, queuedBacklogEntries[1]],
+  direction,
+});
 
 // The whole backlog with exactly one entry line rewritten in place. Every
 // other line, the order of both lists, and the direction come across
@@ -59,7 +81,7 @@ export function recording(relative, records) {
   for (const [heading, identity] of records) {
     source = source.replace(
       `${heading}\n`,
-      `${heading}\n\n**Identity:** ${identity}\n`,
+      `${heading}\n\n${identityLine(identity)}\n`,
     );
   }
   return source;
@@ -81,7 +103,7 @@ export const adoptedHomes = {
 
 export function adoptedProject(
   t,
-  { extra = {}, backlog = adoptedBacklog } = {},
+  { extra = {}, backlog = arrangedAdoptedBacklog } = {},
 ) {
   return legacyProject(t, { backlog, extra: { ...adoptedHomes, ...extra } });
 }

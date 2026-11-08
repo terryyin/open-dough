@@ -7,32 +7,56 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  added,
   addedLine,
+  arrangedBacklog,
   backlog,
   backlogOf,
+  direction,
   occurrences,
   queued,
+  queuedBacklogEntries,
   run,
   scratchProject,
+  takenBacklogEntry,
   takenEntry,
 } from "./product-backlog-fixture.mjs";
 import { versions } from "./product-backlog-merge-fixture.mjs";
+import { renderPublishedBacklog } from "./published-backlog.mjs";
 
 const [trunk, retrospective, review] = queued;
+const [trunkWork, retrospectiveWork, reviewWork] = queuedBacklogEntries;
+const afterClaim = renderPublishedBacklog({
+  taken: [takenBacklogEntry, trunkWork],
+  queued: [retrospectiveWork, reviewWork],
+  direction,
+});
+const afterClosure = renderPublishedBacklog({
+  taken: [takenBacklogEntry],
+  queued: [trunkWork, retrospectiveWork],
+  direction,
+});
 
 test("merge items keeps both branches' closures", async (t) => {
   // Two items are taken; each branch closes one of them and leaves the other
   // exactly as the ancestor wrote it.
-  const ancestor = backlogOf([takenEntry, trunk], [retrospective, review]);
-  const project = scratchProject(t, ancestor);
+  const project = scratchProject(t, afterClaim);
 
   const merged = await run(
     project,
     versions(
       project,
-      ancestor,
-      backlogOf([trunk], [retrospective, review]),
-      backlogOf([takenEntry], [retrospective, review]),
+      afterClaim,
+      renderPublishedBacklog({
+        taken: [trunkWork],
+        queued: [retrospectiveWork, reviewWork],
+        direction,
+      }),
+      renderPublishedBacklog({
+        taken: [takenBacklogEntry],
+        queued: [retrospectiveWork, reviewWork],
+        direction,
+      }),
     ),
   );
 
@@ -57,11 +81,11 @@ test("merge items combines a claim on one branch with a closure on the other", a
     project,
     versions(
       project,
-      backlog,
+      arrangedBacklog,
       // One branch took the trunk-integration story.
-      backlogOf([takenEntry, trunk], [retrospective, review]),
+      afterClaim,
       // The other closed the architecture story it had nothing to do with.
-      backlogOf([takenEntry], [trunk, retrospective]),
+      afterClosure,
     ),
   );
 
@@ -74,19 +98,16 @@ test("merge items combines a claim on one branch with a closure on the other", a
 
 test("merge items gives the same result whichever branch is named first", async (t) => {
   const project = scratchProject(t);
-  const claimed = backlogOf([takenEntry, trunk], [retrospective, review]);
-  const closed = backlogOf([takenEntry], [trunk, retrospective]);
-
   const forwards = await run(
     project,
-    versions(project, backlog, claimed, closed),
+    versions(project, arrangedBacklog, afterClaim, afterClosure),
   );
   assert.equal(forwards.code, 0, forwards.stderr);
   const result = project.read();
 
   const backwards = await run(
     project,
-    versions(project, backlog, closed, claimed),
+    versions(project, arrangedBacklog, afterClosure, afterClaim),
   );
   assert.equal(backwards.code, 0, backwards.stderr);
   assert.equal(project.read(), result);
@@ -95,12 +116,22 @@ test("merge items gives the same result whichever branch is named first", async 
 test("merge items applies an identical change on both branches once", async (t) => {
   const project = scratchProject(t);
   // Both branches closed the architecture story and queued the same new work.
-  const both = backlogOf([takenEntry], [trunk, retrospective, addedLine]);
+  const both = renderPublishedBacklog({
+    taken: [takenBacklogEntry],
+    queued: [trunkWork, retrospectiveWork, added],
+    direction,
+  });
 
-  const merged = await run(project, versions(project, backlog, both, both));
+  const merged = await run(
+    project,
+    versions(project, arrangedBacklog, both, both),
+  );
 
   assert.equal(merged.code, 0, merged.stderr);
-  assert.equal(project.read(), both);
+  assert.equal(
+    project.read(),
+    backlogOf([takenEntry], [trunk, retrospective, addedLine]),
+  );
   assert.equal(occurrences(project.read(), addedLine), 1);
   assert.equal(occurrences(project.read(), review), 0);
 });

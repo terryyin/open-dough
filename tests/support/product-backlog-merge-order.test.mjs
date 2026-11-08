@@ -15,6 +15,7 @@ import {
   branchFrom,
   item,
   list,
+  mergeBacklog,
   named,
   versions,
 } from "./product-backlog-merge-fixture.mjs";
@@ -23,7 +24,7 @@ test("merge order places each branch's addition where that branch put it", async
   // The queue both branches started from is A, B, C. One queued X between A
   // and B; the other queued Y between B and C. Both placements are explicit
   // priority decisions, and both survive.
-  const ancestor = backlogOf([], list("ABC"));
+  const ancestor = mergeBacklog({ queued: "ABC" });
   const project = scratchProject(t, ancestor);
 
   const merged = await run(
@@ -31,8 +32,8 @@ test("merge order places each branch's addition where that branch put it", async
     versions(
       project,
       ancestor,
-      backlogOf([], list("AXBC")),
-      backlogOf([], list("ABYC")),
+      mergeBacklog({ queued: "AXBC" }),
+      mergeBacklog({ queued: "ABYC" }),
     ),
   );
 
@@ -43,12 +44,12 @@ test("merge order places each branch's addition where that branch put it", async
 test("merge order keeps a reprioritization the other branch left alone", async (t) => {
   // One branch moved C to the front of the queue. The other branch wrote the
   // queue out exactly as the ancestor had it, which says nothing about C.
-  const ancestor = backlogOf([], list("ABC"));
+  const ancestor = mergeBacklog({ queued: "ABC" });
   const project = scratchProject(t, ancestor);
 
   const merged = await run(
     project,
-    versions(project, ancestor, backlogOf([], list("CAB")), ancestor),
+    versions(project, ancestor, mergeBacklog({ queued: "CAB" }), ancestor),
   );
 
   assert.equal(merged.code, 0, merged.stderr);
@@ -59,7 +60,7 @@ test("merge order does not read an untouched order as undoing a reprioritization
   // One branch reprioritized B above A; the other left that order alone and
   // completed C. Leaving an order alone is not an instruction to restore it,
   // so the reprioritization stands and the removal still applies.
-  const ancestor = backlogOf([], list("ABC"));
+  const ancestor = mergeBacklog({ queued: "ABC" });
   const project = scratchProject(t, ancestor);
 
   const merged = await run(
@@ -67,8 +68,8 @@ test("merge order does not read an untouched order as undoing a reprioritization
     versions(
       project,
       ancestor,
-      backlogOf([], list("BAC")),
-      backlogOf([], list("AB")),
+      mergeBacklog({ queued: "BAC" }),
+      mergeBacklog({ queued: "AB" }),
     ),
   );
 
@@ -83,7 +84,7 @@ test("merge order does not read work shifting up behind a removal as a repriorit
   // B. Every surviving entry ends up at a different numbered position than the
   // ancestor gave it, and only D and C had their place among the others
   // changed, so both closures apply and the one reprioritization stands.
-  const ancestor = backlogOf([], list("ABCD"));
+  const ancestor = mergeBacklog({ queued: "ABCD" });
   const project = scratchProject(t, ancestor);
   const reprioritized = await branchFrom(
     t,
@@ -110,7 +111,7 @@ test("merge order appends concurrent claims to Taken and will not order a queue 
   // Taken holds M. One branch claimed P; the other claimed N and then Z.
   // Survivors keep their order, each branch's additions keep theirs, and the
   // lexically smallest waiting identity goes next: M, N, P, Z.
-  const ancestor = backlogOf(list("M"), list("NPZK"));
+  const ancestor = mergeBacklog({ taken: "M", queued: "NPZK" });
   const project = scratchProject(t, ancestor);
 
   const merged = await run(
@@ -118,8 +119,8 @@ test("merge order appends concurrent claims to Taken and will not order a queue 
     versions(
       project,
       ancestor,
-      backlogOf(list("MP"), list("NZK")),
-      backlogOf(list("MNZ"), list("PK")),
+      mergeBacklog({ taken: "MP", queued: "NZK" }),
+      mergeBacklog({ taken: "MNZ", queued: "PK" }),
     ),
   );
 
@@ -128,15 +129,15 @@ test("merge order appends concurrent claims to Taken and will not order a queue 
 
   // The same two additions in the queue are two priority decisions in one
   // place, so the interleaving rule is not applied to them.
-  const queued = backlogOf([], list("KM"));
+  const queued = mergeBacklog({ queued: "KM" });
   const project2 = scratchProject(t, queued);
   const refused = await run(
     project2,
     versions(
       project2,
       queued,
-      backlogOf([], list("KMP")),
-      backlogOf([], list("KMN")),
+      mergeBacklog({ queued: "KMP" }),
+      mergeBacklog({ queued: "KMN" }),
     ),
   );
 
@@ -151,7 +152,7 @@ test("merge order appends concurrent claims to Taken and will not order a queue 
 
 test("merge order lists an entry that moved exactly once", async (t) => {
   // One branch moved B to the end of the queue; the other queued X after A.
-  const ancestor = backlogOf([], list("ABC"));
+  const ancestor = mergeBacklog({ queued: "ABC" });
   const project = scratchProject(t, ancestor);
 
   const moved = await run(
@@ -159,8 +160,8 @@ test("merge order lists an entry that moved exactly once", async (t) => {
     versions(
       project,
       ancestor,
-      backlogOf([], list("ACB")),
-      backlogOf([], list("AXBC")),
+      mergeBacklog({ queued: "ACB" }),
+      mergeBacklog({ queued: "AXBC" }),
     ),
   );
 
@@ -175,8 +176,8 @@ test("merge order lists an entry that moved exactly once", async (t) => {
     versions(
       project,
       ancestor,
-      backlogOf(list("B"), list("AC")),
-      backlogOf([], list("AXBC")),
+      mergeBacklog({ taken: "B", queued: "AC" }),
+      mergeBacklog({ queued: "AXBC" }),
     ),
   );
 
@@ -186,12 +187,12 @@ test("merge order lists an entry that moved exactly once", async (t) => {
 });
 
 test("merge order gives the same bytes whichever branch is named first", async (t) => {
-  const ancestor = backlogOf(list("M"), list("ABCNPZK"));
+  const ancestor = mergeBacklog({ taken: "M", queued: "ABCNPZK" });
   const project = scratchProject(t, ancestor);
   // One branch queued X after A and claimed P; the other queued Y after B,
   // reprioritized C to the front, and claimed N and then Z.
-  const one = backlogOf(list("MP"), list("AXBCNZK"));
-  const other = backlogOf(list("MNZ"), list("CABYPK"));
+  const one = mergeBacklog({ taken: "MP", queued: "AXBCNZK" });
+  const other = mergeBacklog({ taken: "MNZ", queued: "CABYPK" });
 
   const forwards = await run(project, versions(project, ancestor, one, other));
   assert.equal(forwards.code, 0, forwards.stderr);
@@ -208,12 +209,12 @@ test("merge order queues work at the head of the list the branch that put it the
   // above everything, and the other wrote the queue out as the ancestor had
   // it. An untouched queue says nothing about a place it never named, so X
   // keeps the head, and nothing else in the file moves.
-  const ancestor = backlogOf([], list("AB"));
+  const ancestor = mergeBacklog({ queued: "AB" });
   const project = scratchProject(t, ancestor);
 
   const merged = await run(
     project,
-    versions(project, ancestor, backlogOf([], list("XAB")), ancestor),
+    versions(project, ancestor, mergeBacklog({ queued: "XAB" }), ancestor),
   );
 
   assert.equal(merged.code, 0, merged.stderr);

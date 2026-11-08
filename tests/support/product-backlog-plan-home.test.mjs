@@ -73,14 +73,14 @@ test("plan home: take refuses the story's own home file as its plan", async (t) 
 // Startup admission uses this operation for accepted work no list holds yet.
 test("plan home: admission refuses the story's own home file as its plan", (t) => {
   const project = scratchProject(t);
-  const homeFile = added.link.split("#")[0];
+  const homeFile = added.href.split("#")[0];
   projectFile(project, homeFile, addedHomeSource);
   assert.throws(
     () =>
       admitEntry(backlog, {
         identity: added.identity,
         title: added.title,
-        href: added.link,
+        href: added.href,
         plan: homeFile,
         backlogDirectory: dirname(project.file),
       }),

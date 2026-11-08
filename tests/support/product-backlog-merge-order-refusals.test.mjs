@@ -11,14 +11,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  backlogOf,
   occurrences,
   run,
   scratchProject,
 } from "./product-backlog-fixture.mjs";
 import {
   branchFrom,
-  list,
+  mergeBacklog,
   named,
   versions,
 } from "./product-backlog-merge-fixture.mjs";
@@ -29,7 +28,7 @@ test("merge order refuses completing work the other branch reprioritized", async
   // other gave B the last place in the queue. Closing A moves everything
   // behind it up a place without reprioritizing any of it, so B's competing
   // removal and priority is the only thing in dispute.
-  const ancestor = backlogOf([], list("ABCD"));
+  const ancestor = mergeBacklog({ queued: "ABCD" });
   const project = scratchProject(t, ancestor);
   const closed = await branchFrom(
     t,
@@ -81,7 +80,7 @@ test("merge order refuses two branches moving one entry different ways", async (
   // The case an ordinary text merge accepts and then duplicates: each branch
   // moved B, to a different place. Neither move is the ancestor's order, so
   // nothing establishes which one holds.
-  const ancestor = backlogOf([], list("ABCD"));
+  const ancestor = mergeBacklog({ queued: "ABCD" });
   const project = scratchProject(t, ancestor);
 
   const refused = await run(
@@ -89,8 +88,8 @@ test("merge order refuses two branches moving one entry different ways", async (
     versions(
       project,
       ancestor,
-      backlogOf([], list("ACBD")),
-      backlogOf([], list("ACDB")),
+      mergeBacklog({ queued: "ACBD" }),
+      mergeBacklog({ queued: "ACDB" }),
     ),
   );
 
@@ -103,7 +102,7 @@ test("merge order refuses two branches moving one entry different ways", async (
 });
 
 test("merge order refuses a queue position the versions do not determine", async (t) => {
-  const ancestor = backlogOf([], list("ABC"));
+  const ancestor = mergeBacklog({ queued: "ABC" });
   const project = scratchProject(t, ancestor);
 
   // Both branches queued new work into the same gap, between B and C.
@@ -112,8 +111,8 @@ test("merge order refuses a queue position the versions do not determine", async
     versions(
       project,
       ancestor,
-      backlogOf([], list("ABXC")),
-      backlogOf([], list("ABYC")),
+      mergeBacklog({ queued: "ABXC" }),
+      mergeBacklog({ queued: "ABYC" }),
     ),
   );
   assert.equal(gap.code, 1);
@@ -130,8 +129,8 @@ test("merge order refuses a queue position the versions do not determine", async
     versions(
       project,
       ancestor,
-      backlogOf([], list("AXBC")),
-      backlogOf([], list("ABXC")),
+      mergeBacklog({ queued: "AXBC" }),
+      mergeBacklog({ queued: "ABXC" }),
     ),
   );
   assert.equal(apart.code, 1);
@@ -152,8 +151,8 @@ test("merge order refuses a queue position the versions do not determine", async
     versions(
       project,
       ancestor,
-      backlogOf([], list("AXYBC")),
-      backlogOf([], list("AYXBC")),
+      mergeBacklog({ queued: "AXYBC" }),
+      mergeBacklog({ queued: "AYXBC" }),
     ),
   );
   assert.equal(swapped.code, 1);
@@ -170,7 +169,7 @@ test("merge order refuses a queue position the versions do not determine", async
 test("merge order refuses two branches both queuing work at the head", async (t) => {
   // Each branch decided its own work was the most important thing in the
   // queue. Nothing in the three versions orders the two decisions.
-  const ancestor = backlogOf([], list("AB"));
+  const ancestor = mergeBacklog({ queued: "AB" });
   const project = scratchProject(t, ancestor);
 
   const refused = await run(
@@ -178,8 +177,8 @@ test("merge order refuses two branches both queuing work at the head", async (t)
     versions(
       project,
       ancestor,
-      backlogOf([], list("XAB")),
-      backlogOf([], list("YAB")),
+      mergeBacklog({ queued: "XAB" }),
+      mergeBacklog({ queued: "YAB" }),
     ),
   );
 
@@ -198,7 +197,7 @@ test("merge order refuses two branches both queuing work at the head", async (t)
 test("merge order refuses one entry queued at the head on one branch and below it on the other", async (t) => {
   // The head is a place like any other, so putting one entry there and
   // putting the same entry after A are two different priority decisions.
-  const ancestor = backlogOf([], list("AB"));
+  const ancestor = mergeBacklog({ queued: "AB" });
   const project = scratchProject(t, ancestor);
 
   const refused = await run(
@@ -206,8 +205,8 @@ test("merge order refuses one entry queued at the head on one branch and below i
     versions(
       project,
       ancestor,
-      backlogOf([], list("XAB")),
-      backlogOf([], list("AXB")),
+      mergeBacklog({ queued: "XAB" }),
+      mergeBacklog({ queued: "AXB" }),
     ),
   );
 
