@@ -9,10 +9,11 @@ import {
 } from "../dashboardPage.ts";
 import {
   commitAnswer,
-  emptyBacklog,
   publishOrigin,
   rawFileAnswer,
 } from "../publishedOrigin.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectSideBySideInOrder } from "../pageLayout.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 
@@ -206,7 +207,10 @@ test("published Board accepts successfully empty groups and no recorded directio
 }) => {
   await publishOrigin(page, {
     ref: commitAnswer(revision),
-    backlog: { revision, answer: rawFileAnswer(emptyBacklog) },
+    backlog: {
+      revision,
+      answer: rawFileAnswer(describedBacklog(makeMe.aRepository.please())),
+    },
   });
 
   await openUntilRead(page);

@@ -18,11 +18,12 @@ import {
 import { columnPagingControl, expectView, wheelTo } from "../boardPage.ts";
 import {
   commitAnswer,
-  emptyBacklog,
   publishMovingOrigin,
   publishOrigin,
   rawFileAnswer,
 } from "../publishedOrigin.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   compactProjectSelectCut,
   expectInside,
@@ -52,7 +53,7 @@ test.describe("touch reading", () => {
         ref: commitAnswer("d7".repeat(20)),
         backlog: {
           revision: "d7".repeat(20),
-          answer: rawFileAnswer(emptyBacklog),
+          answer: rawFileAnswer(describedBacklog(makeMe.aRepository.please())),
         },
       },
       "nerds-odd-e/doughnut",

@@ -14,6 +14,8 @@ import {
   doughnutSharedTitle,
   revisionDoughnut,
 } from "../doughnutProject.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   commitAnswer,
   httpErrorAnswer,
@@ -95,9 +97,10 @@ test("a malformed backlog stays a reload problem and is not asked again", async 
 }) => {
   await pausePageClockAt(page, opened);
   const origin = await publishMovingOrigin(page);
+  // An empty valid backlog followed by the literal malformed entry.
   origin.push(
     revisionA,
-    `# Product backlog\n\n## Taken\n\n## Backlog list\n\n- Queue trunk integration, without a link\n`,
+    `${describedBacklog(makeMe.aRepository.please())}- Queue trunk integration, without a link\n`,
   );
   await page.goto("/");
   await expectProblemAndNoSnapshot(

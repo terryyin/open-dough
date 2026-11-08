@@ -16,10 +16,11 @@ import {
 } from "../dashboardPage.ts";
 import {
   commitAnswer,
-  emptyBacklog,
   publishOrigin,
   rawFileAnswer,
 } from "../publishedOrigin.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectSelected } from "../storyCardSelection.ts";
 
 const openDoughRepository = "terryyin/open-dough";
@@ -219,7 +220,7 @@ test("project selection preserves empty Taken/Backlog groups and no-direction ha
       ref: commitAnswer(revisionDoughnut),
       backlog: {
         revision: revisionDoughnut,
-        answer: rawFileAnswer(emptyBacklog),
+        answer: rawFileAnswer(describedBacklog(makeMe.aRepository.please())),
       },
     },
     doughnutRepository,

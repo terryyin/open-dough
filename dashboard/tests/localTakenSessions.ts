@@ -4,17 +4,24 @@
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { recordsOf } from "./agentLaunchBoundary.ts";
 import { parts } from "./dashboardPage.ts";
-import { emptyBacklog, publishFiles } from "./publishedOrigin.ts";
+import { describedBacklog } from "./describedRevisions.ts";
+import { backlogPath, publishFiles } from "./publishedOrigin.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { repository, revision } from "./recentlyDoneRecords.ts";
 
+// Publishes the exact backlog bytes when given, or else a project stating no
+// planning facts, at the shared revision unless another is given.
 export const publishMembership = (
   page: Parameters<typeof publishFiles>[0],
-  backlog = emptyBacklog,
+  {
+    backlog = describedBacklog(makeMe.aRepository.please()),
+    at = revision,
+  }: { backlog?: string; at?: string } = {},
 ) =>
   publishFiles(page, {
     repository,
-    revision,
-    files: { ".planning/PRODUCT-BACKLOG.md": backlog },
+    revision: at,
+    files: { [backlogPath]: backlog },
   });
 export const localEntries = (page: Parameters<typeof parts>[0]) =>
   parts(page).taken.locator(":scope > ol > li > .session-entry");

@@ -3,6 +3,7 @@
 **Identity:** SEED-262#declare-fake-github-planning-data
 
 **Source:** [Serve fake GitHub planning files from explicit MakeMe data](../../seeds/SEED-262-faster-dashboard-test-feedback.md#declare-fake-github-planning-data)
+**Source review:** [source review](source-review.md)
 
 ## Goal and boundaries
 
@@ -113,7 +114,7 @@ before landing.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Before editing, record the served path lists of `refreshJourney.ts`
 and `emptyBacklog` consumers and two focused runs of the refresh family
@@ -134,6 +135,29 @@ Add the served-revisions helper. Migrate `refreshJourney.ts`, the
 backlog around it (`read-failure`, `project-read-isolation`,
 `project-read-recovery`, `read-turns-across-tabs`, `shared-observer-reads`,
 `transient-read-exclusions`), keeping exact bytes literal.
+
+Accepted proof (2026-11-08): the renderer-equality case in
+`tests/support/repository-revision-files.test.mjs` fails with each encoder
+skipped and passes; the 267 Node tests loading the renderer passed twice
+before refactoring, and the focused renderer, done-catalog and 15 supplier
+fixture tests after it; the refresh family (23 specs) passed 65 of 65 twice;
+the migrated specs, backend ad-hoc Codex spec and feedback-maintenance specs
+passed 53 of 53 after refactoring; Git-materializer dashboard consumers 22 of
+22; served-path logs of 103 tests equal before and after; typecheck clean.
+Refresh family times: before 71 s and 69 s (load 12.5, 11.7), after 64 s and
+63 s (load 11.6, 9.6).
+
+Learnings: `describedRevision(description, sha)` and
+`describedBacklog(description)` in `dashboard/tests/describedRevisions.ts`
+serve one-revision cases; `describedRevisions` and `publishedFile` serve
+moving ones. Grep consumers across `dashboard/`, not only `dashboard/tests`
+(`emptyBacklog` had a backend-test consumer). The pure done-catalog rebuild
+lives in `tests/support/revision-done-catalog.mjs`; it mirrors
+`product-backlog-complete.mjs`, pinned by the equality case. A temporary log
+in the four publishers (`publishMovingOrigin.push`, `publishOrigin`,
+`publishes`, `publishMovingFiles`) keyed by test title is a cheap served-path
+comparison. `revision-stream.spec.ts:186` exceeded its 20 000 ms page-time
+bound once at load 32 and passed 20 of 20 on rerun; watch it in the full run.
 
 ### 2. Navigation, session and board journeys declare their published facts
 

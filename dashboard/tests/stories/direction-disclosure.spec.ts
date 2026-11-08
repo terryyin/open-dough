@@ -7,11 +7,12 @@ import {
   parts,
 } from "../dashboardPage.ts";
 import {
-  emptyBacklog,
   pathsRead,
   publishMovingOrigin,
   noConnection,
 } from "../publishedOrigin.ts";
+import { describedBacklog } from "../describedRevisions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectFocusedAndIndicated } from "../accessibleReading.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 
@@ -141,7 +142,7 @@ test("changing projects removes previous direction while reading and starts each
   const origin = await publishMovingOrigin(page);
   origin.push(revisionA, withDirection(fullDirection));
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
-  doughnut.push(revisionB, emptyBacklog);
+  doughnut.push(revisionB, describedBacklog(makeMe.aRepository.please()));
   await page.goto("/");
   const {
     direction,

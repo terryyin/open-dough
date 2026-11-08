@@ -37,7 +37,6 @@ import { defaultPassingBaseCi } from "./support/baseCiActions.ts";
 
 export {
   commitAnswer,
-  emptyBacklog,
   httpErrorAnswer,
   noConnection,
   notFoundAnswer,

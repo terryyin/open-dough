@@ -21,7 +21,6 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../launchStoryCardPage.ts";
-import { emptyBacklog, publishFiles } from "../publishedOrigin.ts";
 import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
 import {
   briefDoneRenameWait,
@@ -35,7 +34,6 @@ import {
   publishedFiles,
   queuedIdentity,
   queuedTitle,
-  repository,
 } from "../recentlyDoneRecords.ts";
 import { keptSessions } from "../recentlyDoneSessions.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
@@ -76,7 +74,7 @@ test("one Taken story with two sessions and one local session means two entries;
   ]);
   await launched(dashboard, "doughnut");
   const backlog = `${publishedFiles()[".planning/PRODUCT-BACKLOG.md"]?.replace("## Taken\n\n## Backlog list", "## Taken")}\n## Backlog list\n`;
-  await publishMembership(page, backlog);
+  await publishMembership(page, { backlog });
   await page.setViewportSize({ width: 40 * rem, height: 900 });
   await page.goto("/");
   await expectMembership(page, { taken: [queuedTitle], backlog: [] });
@@ -102,11 +100,7 @@ test("one Taken story with two sessions and one local session means two entries;
   ).toHaveCount(0);
   await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
   await expect(taken).not.toContainText("No Taken entries");
-  await publishFiles(page, {
-    repository,
-    revision: "d3".repeat(20),
-    files: { ".planning/PRODUCT-BACKLOG.md": emptyBacklog },
-  });
+  await publishMembership(page, { at: "d3".repeat(20) });
   await page.reload();
   await expectMembership(page, { taken: [], backlog: [] });
   for (const [index, key] of [
