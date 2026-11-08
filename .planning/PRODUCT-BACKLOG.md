@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [State each repository description fact once and keep native preparation evidence MakeMe-free](seeds/SEED-262-faster-dashboard-test-feedback.md#tighten-repository-description-facts) — SEED-262#tighten-repository-description-facts ([plan](slice-plans/532-tighten-repository-description-facts/PLAN.md))
 - [Prove Recently done selection's check rules and tidy its catalog read](seeds/SEED-272-select-recently-done-sessions.md#prove-recently-done-check-supersession) — SEED-272#prove-recently-done-check-supersession ([plan](slice-plans/529-prove-recently-done-check-supersession/PLAN.md))
 - [Review a selected story in Intent tabs](seeds/SEED-275-story-intent-tabs.md#story-intent-tabs) — SEED-275#story-intent-tabs ([plan](slice-plans/531-review-story-intent-tabs/PLAN.md))
+- [Keep follow-up context out of listings and resume it after its source expires](seeds/SEED-273-follow-up-from-done.md#lean-follow-up-listing) — SEED-273#lean-follow-up-listing ([plan](slice-plans/529-lean-follow-up-listing/PLAN.md))
 
 ## Backlog list
 
-- [Keep follow-up context out of listings and resume it after its source expires](seeds/SEED-273-follow-up-from-done.md#lean-follow-up-listing) — SEED-273#lean-follow-up-listing
 - [Serve fake GitHub planning files from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#declare-fake-github-planning-data) — SEED-262#declare-fake-github-planning-data
 - [Guard per-file syntax highlighting in Intent](seeds/SEED-276-guard-intent-per-file-highlighting.md#guard-intent-per-file-highlighting) — SEED-276#guard-intent-per-file-highlighting
 - [Build Node test repositories from explicit MakeMe data](seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-backlog-scratch-repositories) — SEED-262#migrate-backlog-scratch-repositories
