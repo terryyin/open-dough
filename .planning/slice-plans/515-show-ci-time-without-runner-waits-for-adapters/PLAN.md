@@ -17,6 +17,8 @@
   PID 16410, session 28496 and cell `g79:7`.
 - Slice 1 published as `7b1dddda751d4a0eb04c315ac8954677c85a752f` on
   the story branch and registered on that observer.
+- Slice 2 published as `cb127b967f5559d7c1289be9a8bb1969889dcd81` on
+  the story branch and registered on the same observer.
 
 ## Goal and boundaries
 
@@ -178,6 +180,13 @@ Independent refactoring moved the comparison deadline case to the existing
 backend timing spec so it observes the assembled slot through
 `asComparisonSlot`. The adapter lookup Node checks, all 17 backend timing
 cases, and dashboard typecheck passed afterward.
+
+## Execution complete
+
+Product advice: no change. The optional adapter graph supplies the existing
+Intent comparison without expanding its endpoint or proof rules. The
+retrospective reviewed the two published implementation commits together
+and found no correction. Story-branch CI remains pending at review.
 
 ## Plan concerns
 
