@@ -138,6 +138,7 @@ test("complete in a workspace that names no developer records none", async (t) =
   assert.equal(result.code, 0, result.stderr);
   const record = readRecord(project, "SEED-008_same-machine-merge-queue.json");
   assert.equal(Object.hasOwn(record, "developer"), false);
+  assert.equal(Object.hasOwn(record, "intentCoverage"), false);
   assert.equal(record.identity, trunkQueue);
 });
 

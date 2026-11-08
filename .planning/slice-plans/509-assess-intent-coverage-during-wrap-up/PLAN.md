@@ -4,6 +4,28 @@
 
 **Source:** [Find the intent assessment in a recently done story](../../seeds/SEED-258-dough-intent-coverage.md#assess-intent-coverage-during-wrap-up)
 
+**Source review:** [Numbered source commitments](source-review.md)
+
+## Execution context
+
+- Mode and location: Story Branch Mode in the established dashboard worktree
+  `/Users/terryyin/git/open-dough/.worktrees/find-the-intent-assessment-in-a-recently-done-st`
+  on `codex/find-the-intent-assessment-in-a-recently-done-st`. Default checkout
+  `/Users/terryyin/git/open-dough`.
+- Publisher `dashboard-territory.local-open-dough`, agent `yilv-chan`.
+  Starting revision `08a6dcc035e0be54623daacd56f56c2a8b0b3a00`. The
+  established Take and story branch were both confirmed at
+  `9eeecc159add3cb43a8b0fb5fb53f8a05abdebde` on `origin`. Integration
+  target `main`.
+- Checkout setup: locked `npm ci` and `npm run lint -- --help` passed
+  with Homebrew Bash on PATH. The check-only commit hook checks staged lint
+  and dashboard types when scripts are staged.
+- CI: GitHub Actions `ci.yml` (CI), observing the authorized story branch.
+  Codex coordinator `wrap-up-coverage-ff303147`, cell `g36:9`, session
+  `40537`, directory `/tmp/dough-ci-501/watch-wGNgnp`, PID `22525`.
+- Replanning follows the existing planning authority. No numeric slice
+  budget or additional replanning option was supplied.
+
 ## Goal and boundaries
 
 Wrap-up runs one targeted Dough Intent Coverage check for each feature story
@@ -16,8 +38,9 @@ Test repairs, further findings, and the later decision on continued automatic
 use are outside this plan.
 
 The story's recorded dependency waits on a public tagged release that
-contains `dough-intent-coverage`. Terry is preparing that release
-(2026-11-08). The dependency agreement alone gates Take.
+contains `dough-intent-coverage`. The dependency agreement in the seed records public
+release `v0.3.90` and marks the condition satisfied. The dashboard has
+already published Take.
 
 ## Current decisions
 
@@ -125,11 +148,12 @@ module is loaded by both the skill scripts and the dashboard.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
-Proof: Extend
-[product-backlog-complete-done-record.test.mjs](../../../tests/support/product-backlog-complete-done-record.test.mjs)
-through the real CLI with:
+Proof: Drive the real CLI in
+[product-backlog-complete-intent-coverage.test.mjs](../../../tests/support/product-backlog-complete-intent-coverage.test.mjs)
+and preserve the existing
+[done-record checks](../../../tests/support/product-backlog-complete-done-record.test.mjs):
 
 - a report file stored verbatim and read back by `parseDoneRecordFile`;
 - an unavailable reason;
@@ -144,6 +168,11 @@ Run the done-catalog and Git done-catalog tests as consumers.
 Behavior: a Taken feature story and a saved report → `complete --identity <id>
 --intent-coverage <file>` → its done record holds `intentCoverage.report`
 equal to the file's text, and the shared parser returns it.
+
+Accepted proof after independent refactoring (Homebrew Bash on PATH):
+
+- `bash scripts/test.sh tests/support/product-backlog-complete-intent-coverage.test.mjs tests/support/product-backlog-complete-done-record.test.mjs tests/support/product-backlog-complete-done-catalog.test.mjs tests/support/product-backlog-done-catalog.test.mjs tests/support/product-backlog-git-done-catalog.test.mjs tests/support/product-backlog-git-done-catalog-agent-credit.test.mjs tests/support/product-backlog-git-done-catalog-replay.test.mjs tests/support/product-backlog-add-identity.test.mjs tests/support/product-backlog-identity-evidence.test.mjs src/skills/dough-execute-plan/scripts/publication-completed-identity.test.mjs src/skills/dough-execute-plan/scripts/workspace-publication-admission-refusal.test.mjs` passed. The assessment CLI tests arrange a scratch Taken entry and assert the stored text, interruption reason, refusal before any write, repeat preservation, and pruning with exact catalog rows. The other checks preserve catalog/Git rebuild, attribution, and identity and claim consumers.
+- `npm run typecheck:dashboard` and `git diff --check` passed. The existing completed Intent journey and authenticated done catalog specs passed across the shared parser and published record reads. Per-commitment observations are in the source review. The dashboard's assessment rendering is owned by slice 2.
 
 ### 2. Intent shows a completed story's stored Intent Coverage result
 
