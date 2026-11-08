@@ -3,6 +3,7 @@
 **Identity:** SEED-270#highlight-linked-story-card
 
 **Source:** [Highlight the destination of a story link](../../seeds/SEED-270-highlight-linked-story-card.md#highlight-linked-story-card)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and boundaries
 
@@ -90,7 +91,7 @@ emulation already used in those folders.
 ### 1. Destination cue on every story card reveal
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Outside-in proof table rows for examples 1–3 and existing reveal
 contracts. Discriminating observations: destination cue present after follow,
 absent (or ended) after the brief period / on other cards; Highlight and
@@ -107,9 +108,29 @@ Implement the cue in the shared `revealStory` path, document the Destination
 cue name in dashboard navigation guidance beside the existing reveal rules, and
 keep Highlight's meaning unchanged.
 
+Accepted proof (slice 1): `npm run typecheck:dashboard` pass;
+`npm run test:dashboard -- dashboard/tests/navigation/story-reference-navigation.spec.ts dashboard/tests/navigation/story-reference-done.spec.ts dashboard/tests/navigation/notification-story-navigation.spec.ts dashboard/tests/navigation/story-destination-repeat-cue.spec.ts --workers=2`
+15 passed after refactor; whole `dashboard/tests/navigation` folder 109
+passed on the unchanged reveal path. Fault checks: removing the restart or the
+reduced-motion `animation: none`, or cueing only a card's first reveal, each
+failed the matching spec. Refactor: duration lives only in `destinationCueMs`
+(CSS fallback removed); one duplicated focus/detail check removed.
+
 ## Concern evidence
 
 - Slice-plan refinement: not needed — one Behavior owns one cohesive reveal
   cue; no fragmented outcomes, no Structure ahead of a second Behavior, and no
   competing domain rules.
 - Remaining slice-specific concerns: none identified in this review.
+
+## Story obligations
+
+### G1. A full page load of the story URL cues the card but starts with no selection or open detail
+Reported: slice 1 — "a full page load of the story URL (or reload) shows the cue, but selection, open detail and the Side panel do not survive it, because the page load itself resets them, not the reveal."
+Story clause: "Existing selection, detail opening, scrolling, and keyboard focus follow"
+Disposition: no user cost "they can immediately tell which card the link brought into view": inspected `pageStorySelection.tsx` (selection is page-lifetime `useState`) and `dashboardRoute.ts` (popstate builds a fresh route so `StoryDestination` re-reveals); every in-page repeat route (Back, Settings → Back to dashboard) keeps Highlight, detail and Side panel while re-cueing (`story-destination-repeat-cue.spec.ts`), and a full page load still cues the arrived card (`notification-story-navigation.spec.ts` after `goto`). Reset on a new page is unchanged existing navigation, not caused by the reveal.
+
+### G2. A card className re-render during the cue ends it early
+Reported: slice 1 — "A React re-render that changes a card's className during the 1.6 s cue (for example a selection or startup change) would drop the cue early."
+Story clause: "shows a brief, noticeable"
+Disposition: no user cost "they can immediately tell which card the link brought into view": inspected the three `revealStory` callers; none changes the card's className during the cue (inspection and the already-selected Highlight keep the cue in `story-reference-navigation.spec.ts`), so the developer always sees the cue on arrival; only a later deliberate selection or a launch start shortens an already-seen mark.
