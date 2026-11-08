@@ -3,6 +3,7 @@
 **Identity:** SEED-263#pilot-fluent-dashboard-page-objects
 
 **Source:** [Selected story](../../seeds/SEED-263-fluent-dashboard-page-objects.md#pilot-fluent-dashboard-page-objects)
+**Source review:** [source-only review](source-review.md)
 
 ## Goal and boundaries
 
@@ -100,7 +101,7 @@ accepting proof.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 With the held Story A response, opening Story B and then a final report gives
 a reader explicit phase boundaries and browser observations for each replacement.
