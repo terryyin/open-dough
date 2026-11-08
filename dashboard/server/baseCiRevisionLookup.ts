@@ -50,13 +50,13 @@ function walkingProofAbsence(
 ): RevisionProofAbsence {
   return async (build) => {
     const run = proofRunOf(build);
-    if (run === undefined) return "none";
+    if (run === undefined) return { kind: "unavailable", reason: "none" };
     const proof = await readCiProofArtifact(
       source.repository,
       run,
       source.signal,
     );
-    return proof.kind === "summary" ? undefined : proof.reason;
+    return proof.kind === "summary" ? undefined : proof;
   };
 }
 

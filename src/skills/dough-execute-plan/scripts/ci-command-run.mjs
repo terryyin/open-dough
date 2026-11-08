@@ -1,7 +1,6 @@
 // One CI adapter invocation (`./ci-command-adapter.mjs`): the configured
 // command run in its folder with one JSON request on stdin and one JSON
-// answer on stdout, bounded in time and answer size alike for every
-// operation.
+// answer on stdout, bounded in time and, per call, in answer size.
 import { execFile } from "node:child_process";
 
 export const defaultAdapterTimeoutMs = 20_000;
@@ -9,10 +8,18 @@ export const adapterResponseBytes = 64 * 1024;
 
 // Answers the adapter's parsed JSON answer; a failed run rejects with the
 // child-process error, which keeps what the adapter wrote to stderr.
+// `answerBytes` is how much stdout this call may keep (default 64 KiB);
+// only the dashboard's proof read raises it to the collector contract's
+// summary read limit.
 export function runAdapter(
   command,
   request,
-  { signal, cwd, timeoutMs = defaultAdapterTimeoutMs },
+  {
+    signal,
+    cwd,
+    timeoutMs = defaultAdapterTimeoutMs,
+    answerBytes = adapterResponseBytes,
+  },
 ) {
   return new Promise((resolve, reject) => {
     const child = execFile(
@@ -22,7 +29,7 @@ export function runAdapter(
         cwd,
         signal,
         timeout: timeoutMs,
-        maxBuffer: adapterResponseBytes,
+        maxBuffer: answerBytes,
         encoding: "utf8",
       },
       (error, stdout, stderr) => {

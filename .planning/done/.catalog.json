@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-267_preserve-large-ci-proof-reports.json",
+      "identity": "SEED-267#preserve-large-ci-proof-reports",
+      "completedAt": "2026-11-08T04:24:08.195Z",
+      "blob": "b7036db322caca4dbd5dd7503df004c1826dfcb0"
+    },
+    {
       "fileName": "SEED-262_prepare-artifacts-on-demand.json",
       "identity": "SEED-262#prepare-artifacts-on-demand",
       "completedAt": "2026-11-08T04:18:21.230Z",

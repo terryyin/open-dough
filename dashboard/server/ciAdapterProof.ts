@@ -1,7 +1,7 @@
 // The CI proof of one ciAdapter attempt (`./intentCiProofRead.ts`): asked of
 // the project's configured adapter (`proof`), run from the project folder
-// with the shared adapter limits as discover is
-// (`ci-command-adapter.mjs` `readCommandProof`), then validated with the
+// (`ci-command-adapter.mjs` `readCommandProof`) with the collector
+// contract's summary read limit as `answerBytes`, then validated with the
 // collector's own contract and used only when it names the asked
 // repository, attempt (the text form of its `attemptId`) and revision
 // (ADR 0008: missing, outdated or conflicting evidence is never a result).
@@ -10,8 +10,15 @@
 // the GitHub Actions summary memory (`./ciProofArtifact.ts`); every other
 // answer is asked of the adapter again.
 import { readCommandProof } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
-import { summaryProblems } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import type { CiAdapterProofAttempt, CiProof } from "../src/ciProof.ts";
+import {
+  SUMMARY_READ_LIMIT_BYTES,
+  summaryProblems,
+} from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+import {
+  ciProofTooLarge,
+  type CiAdapterProofAttempt,
+  type CiProof,
+} from "../src/ciProof.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { ciAdapterFailureOf } from "./ciAdapterFailure.ts";
 import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
@@ -31,6 +38,14 @@ const unavailable = (
   reason: Extract<CiProof, { kind: "unavailable" }>["reason"],
   detail: string,
 ): CiProof => ({ kind: "unavailable", reason, detail });
+
+function isMaxBuffer(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    (error as { readonly code?: unknown }).code ===
+      "ERR_CHILD_PROCESS_STDIO_MAXBUFFER"
+  );
+}
 
 // Why `summary` is not the asked attempt's proof, undefined when it is.
 function mismatchOf(
@@ -86,10 +101,16 @@ export async function readCiAdapterProof(
         attemptId: attempt.attemptId,
         sha: attempt.revision,
       },
-      { signal, cwd: folder, timeoutMs },
+      {
+        signal,
+        cwd: folder,
+        timeoutMs,
+        answerBytes: SUMMARY_READ_LIMIT_BYTES,
+      },
     );
   } catch (error) {
     if (signal.aborted) throw error;
+    if (isMaxBuffer(error)) return ciProofTooLarge(SUMMARY_READ_LIMIT_BYTES);
     return unavailable("unreadable", ciAdapterFailureOf(error, timeoutMs));
   }
   const { summary } = answer;

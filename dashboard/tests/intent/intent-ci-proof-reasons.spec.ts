@@ -11,6 +11,7 @@
 // result's ancestor proof and the per-attempt memory:
 // ./intent-ci-proof-ancestor.spec.ts.
 
+import { SUMMARY_READ_LIMIT_BYTES } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { evidenceLabels, expectAttemptAt } from "../ciEvidenceLabelsPage.ts";
 import { judged, runUrl } from "../intentCiStatusPage.ts";
@@ -24,12 +25,18 @@ import {
   verdictOf,
 } from "../intentCiProofPage.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
+import { tokenColour } from "../pageColours.ts";
 import {
   counts,
   proofSummary,
   runArtifactsAnswer,
   summaryZipAnswer,
+  zipOf,
 } from "../support/ciProofArtifacts.ts";
+
+// 1.3 MiB of summary text: the zip stays small so listing size_in_bytes does
+// not refuse first; onlyZipEntry reports the uncompressed entry size.
+const oversizedSummaryBytes = 1_363_148;
 
 const unavailable = "This run's CI proof summary";
 
@@ -129,6 +136,36 @@ test("each proof that cannot be shown gives one reason under Proof, the verdict 
     await shows(
       `${unavailable} is for another run, attempt or revision. The summary names revision ${other.revision}.`,
     );
+  });
+  await test.step("too large: a 1.3 MiB summary names its size as a problem", async () => {
+    shownRun = run;
+    artifacts = () => runArtifactsAnswer(run, artifactId);
+    const text = "x".repeat(oversizedSummaryBytes);
+    expect(text.length).toBeGreaterThan(SUMMARY_READ_LIMIT_BYTES);
+    zip = () => ({
+      status: 200,
+      contentType: "application/zip",
+      encoding: "base64",
+      body: zipOf("ci-proof-summary.json", text).toString("base64"),
+    });
+    const before = listed();
+    await panel.getByRole("button", { name: "Check again" }).click();
+    await expect(reason).toHaveText(
+      "This run's CI proof summary is 1.3 MiB, larger than the 1 MiB proof limit.",
+    );
+    await expect(reason).toHaveClass(/intent-ci-proof-problem/);
+    expect(
+      await reason.evaluate((node) => getComputedStyle(node).borderColor),
+    ).toBe(await tokenColour(page, "--problem"));
+    await expect(reason).toHaveCount(1);
+    await expectNoProofRows(proof);
+    await expectAttemptAt(
+      proof,
+      `Run ${String(shownRun.runId)} · attempt 1`,
+      "a1b2c3d",
+    );
+    expect(listed() - before).toBe(2);
+    expect(await verdictOf(panel)).toBe(verdict);
   });
 });
 

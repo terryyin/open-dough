@@ -12,6 +12,7 @@ import {
   laterTrunkProofBuild,
 } from "../../dashboard/server/laterTrunkBuild.ts";
 import {
+  absent,
   lookupOf,
   run,
   trunk,
@@ -49,7 +50,7 @@ test("laterTrunkProofBuild passes cancelled, unbuilt and proofless builds and co
     repo.call,
     async (candidate) => {
       checked.push(candidate.runId);
-      return candidate.runId === 14 ? undefined : "none";
+      return candidate.runId === 14 ? undefined : absent("none");
     },
   );
   assert.equal(walk.kind, "found");
@@ -100,12 +101,12 @@ test("laterTrunkProofBuild says where it stopped: a running build, the read trun
     "main",
     running.lookup,
     repo.call,
-    async (build) => (build.runId === 31 ? "expired" : undefined),
+    async (build) => (build.runId === 31 ? absent("expired") : undefined),
   );
   assert.equal(walk.kind, "running");
   assert.equal(walk.build.runId, 32);
   assert.equal(walk.unavailable?.build.revision, later1);
-  assert.equal(walk.unavailable?.reason, "expired");
+  assert.deepEqual(walk.unavailable?.absence, absent("expired"));
   assert.deepEqual(running.listed, [later1, later2]);
 
   const atHead = lookupOf({});
@@ -132,12 +133,13 @@ test("laterTrunkProofBuild says where it stopped: a running build, the read trun
     "main",
     proofless.lookup,
     repo.call,
-    async (build) => (build.runId === 42 ? "none" : "unreadable"),
+    async (build) =>
+      build.runId === 42 ? absent("none") : absent("unreadable"),
   );
   assert.equal(ended.kind, "ended");
   assert.equal(ended.at, "head");
   assert.equal(ended.unavailable?.build.runId, 42);
-  assert.equal(ended.unavailable?.reason, "none");
+  assert.deepEqual(ended.unavailable?.absence, absent("none"));
 
   // Bound reached before the head.
   const bounded = await laterTrunkProofBuild(
@@ -145,7 +147,7 @@ test("laterTrunkProofBuild says where it stopped: a running build, the read trun
     "main",
     proofless.lookup,
     repo.call,
-    async () => "none",
+    async () => absent("none"),
     2,
   );
   assert.equal(bounded.kind, "ended");

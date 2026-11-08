@@ -7,12 +7,25 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
+import {
+  fragmentsFromOutcomes,
+  summarize,
+} from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import { parts } from "./dashboardPage.ts";
 import { chooseCiStatus } from "./intentCiStatusPage.ts";
 import { proofOf } from "./intentCiProofPage.ts";
 import { mainRun, publishStoryCi, repository } from "./intentCiStoryRecords.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { counts, proofSummary } from "./support/ciProofArtifacts.ts";
+
+// The collector is untyped JavaScript; these name the results it gives.
+type FragmentsFromOutcomes = (
+  text: string,
+  identity: Record<string, unknown>,
+  times: undefined,
+  options: { readonly byFile: boolean },
+) => readonly Record<string, unknown>[];
+type SummarizeFragments = (input: unknown) => { readonly summary: unknown };
 
 export const uuid = "9f1c2d3e-0000-4000-8000-000000000001";
 
@@ -160,6 +173,39 @@ export const testsSummary = (attemptId: string, revision: string) => ({
     [["tests", 1, 1, "tests", counts(1000, 0, 3)]],
   ),
 });
+
+// A valid matching summary with `--by-file` for `files` tests files, sized
+// as the collector writes it (over 64 KiB at 1,213 files).
+export const byFileTestsSummary = (
+  attemptId: string,
+  revision: string,
+  files = 1_213,
+) => {
+  const outcomes = [...Array(files).keys()]
+    .map((index) => `passed\ttests/${String(index).padStart(20, "x")}.sh\n`)
+    .join("");
+  const [value] = (fragmentsFromOutcomes as FragmentsFromOutcomes)(
+    outcomes,
+    {
+      entries: ["tests"],
+      part: 1,
+      of: 1,
+      attemptId,
+      revision,
+    },
+    undefined,
+    { byFile: true },
+  );
+  const { summary } = (summarize as SummarizeFragments)({
+    fragments: [{ source: "f.json", value }],
+    expect: [{ entry: "tests", parts: 1 }],
+    run: { repository, attemptId, revision },
+  });
+  return { summary };
+};
+
+export const byFileTestsRow = (files = 1_213) =>
+  ["tests", `${String(files)} passed checks`, "No timings"] as const;
 
 // Intent's CI status tab opened on trunk's judged result, and its Proof.
 export async function openAdapterProof(page: Page) {

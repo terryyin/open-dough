@@ -16,6 +16,7 @@ import {
 import { isFinalCiComparisonAnswer } from "../../dashboard/server/intentCiComparisonAnswers.ts";
 import { laterTrunkCancelledSlot } from "../../dashboard/server/laterTrunkBuild.ts";
 import {
+  absent,
   lookupOf,
   run,
   trunk,
@@ -132,7 +133,7 @@ test("a cancelled landing without later proof says why, and only a walk that may
     repo.call,
     "ci.yml",
     exactFor(),
-    async () => "none",
+    async () => absent("none"),
   );
   assert.deepEqual(prooflessBeforeRunning, {
     kind: "none",
@@ -157,7 +158,7 @@ test("a cancelled landing without later proof says why, and only a walk that may
     deep.call,
     "ci.yml",
     exactFor(),
-    async () => "none",
+    async () => absent("none"),
   );
   assert.deepEqual(capped, {
     kind: "none",

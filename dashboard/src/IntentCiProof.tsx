@@ -108,7 +108,15 @@ export function IntentCiProof({
               {state.line}
             </p>
           ) : (
-            <p className="intent-ci-proof-unavailable">{state.line}</p>
+            <p
+              className={
+                state.problem === true
+                  ? "intent-ci-proof-unavailable intent-ci-proof-problem"
+                  : "intent-ci-proof-unavailable"
+              }
+            >
+              {state.line}
+            </p>
           )}
         </>
       )}

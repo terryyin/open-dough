@@ -10,6 +10,8 @@
 // limits:
 // ../../../src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs.
 
+import { adapterResponseBytes } from "../../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
+import { SUMMARY_READ_LIMIT_BYTES } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import {
   expectAttemptAt,
@@ -18,6 +20,8 @@ import {
 } from "../ciEvidenceLabelsPage.ts";
 import {
   adapterProject,
+  byFileTestsRow,
+  byFileTestsSummary,
   openAdapterProof,
   passed,
   testsRow,
@@ -134,6 +138,32 @@ test("a running ciAdapter story branch shows its completed ancestor attempt's pr
       attempt: expect.objectContaining({ sha: started }),
     }),
   );
+});
+
+test("a ciAdapter proof answer over 64 KiB with a by-file summary reaches Intent whole and is remembered", async ({
+  page,
+  dashboard,
+}) => {
+  const adapter = adapterProject(dashboard.home);
+  const answer = byFileTestsSummary(uuid, login);
+  const answerBytes = Buffer.byteLength(JSON.stringify(answer));
+  expect(answerBytes).toBeGreaterThan(adapterResponseBytes);
+  expect(answerBytes).toBeLessThanOrEqual(SUMMARY_READ_LIMIT_BYTES);
+  adapter.answer({
+    discover: { main: [passed(uuid, uuid, login, "main")] },
+    proof: answer,
+  });
+  const { panel, proof } = await openAdapterProof(page);
+
+  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+  await expectProofRows(proof, [byFileTestsRow()]);
+  await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveCount(0);
+  expect(adapter.proofRequests()).toHaveLength(1);
+
+  await panel.getByRole("button", { name: "Check again" }).click();
+  await expectProofRows(proof, [byFileTestsRow()]);
+  await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveCount(0);
+  expect(adapter.proofRequests()).toHaveLength(1);
 });
 
 test("a slow adapter proof read never delays the verdict", async ({

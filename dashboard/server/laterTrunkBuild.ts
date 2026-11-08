@@ -20,7 +20,7 @@ import { runGit, type GitCall } from "./gitRunner.ts";
 import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
 import { asSlot, type RevisionBuildSlot } from "./revisionBuildSlot.ts";
 import { shortSha } from "../src/baseCiWording.ts";
-import type { CiProofUnavailableReason } from "../src/ciProof.ts";
+import type { CiProofUnavailable } from "../src/ciProof.ts";
 import { laterBuildUnavailableLine } from "../src/ciProofAbsenceWording.ts";
 
 // Trunk's first-parent revisions after `landing` up to `trunkHead`, nearest
@@ -48,12 +48,12 @@ export async function laterTrunkChain(
 // (`readCiProofArtifact`); undefined when its summary is usable.
 export type RevisionProofAbsence = (
   build: RevisionCiBuild,
-) => Promise<CiProofUnavailableReason | undefined>;
+) => Promise<CiProofUnavailable | undefined>;
 
 // The nearest later build whose proof could not be used, and why.
 export type LaterProofUnavailable = {
   readonly build: RevisionCiBuild;
-  readonly reason: CiProofUnavailableReason;
+  readonly absence: CiProofUnavailable;
 };
 
 // Where the forward walk ended: the nearest later build with usable proof
@@ -96,9 +96,9 @@ export async function laterTrunkProofBuild(
         build,
         ...(unavailable === undefined ? {} : { unavailable }),
       };
-    const reason = await proofAbsence(build);
-    if (reason !== undefined) {
-      unavailable ??= { build, reason };
+    const absence = await proofAbsence(build);
+    if (absence !== undefined) {
+      unavailable ??= { build, absence };
       continue;
     }
     return {
@@ -131,7 +131,7 @@ function noLaterProofWords(
       ? undefined
       : laterBuildUnavailableLine(
           runWords(walk.unavailable.build),
-          walk.unavailable.reason,
+          walk.unavailable.absence,
         );
   if (walk.kind === "running") {
     const running = `A later trunk build at ${runWords(walk.build)} is still running`;

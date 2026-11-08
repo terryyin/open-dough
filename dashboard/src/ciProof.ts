@@ -46,14 +46,17 @@ export function ciProofSubjectOf(subject: CiProofSubject): CiProofSubject {
 
 // Why no proof can be shown: the run has no summary, it has expired, it
 // could not be read (GitHub or the adapter refused or could not answer, or
-// its archive could not be opened), it is not a valid summary, or it names
-// another repository, run, attempt or revision.
+// its archive could not be opened), it is not a valid summary, it names
+// another repository, run, attempt or revision, or a size limit kept it
+// from being read (`too-large`, with `limitBytes` and `sizeBytes` when
+// known).
 export const ciProofUnavailableReasons = [
   "none",
   "expired",
   "unreadable",
   "invalid",
   "mismatched",
+  "too-large",
 ] as const;
 export type CiProofUnavailableReason =
   (typeof ciProofUnavailableReasons)[number];
@@ -127,6 +130,25 @@ export const ciProofSchema = z.discriminatedUnion("kind", [
     kind: z.literal("unavailable"),
     reason: z.enum(ciProofUnavailableReasons),
     detail: z.string().min(1).optional(),
+    // `too-large` only: the proof read's byte limit, and the actual size
+    // when the reader knows it (GitHub Actions listing or zip entry).
+    limitBytes: z.number().int().positive().optional(),
+    sizeBytes: z.number().int().positive().optional(),
   }),
 ]);
 export type CiProof = z.infer<typeof ciProofSchema>;
+export type CiProofUnavailable = Extract<CiProof, { kind: "unavailable" }>;
+
+// A size-limit refusal from either proof reader: the shared limit, and the
+// actual size when the reader knows it.
+export function ciProofTooLarge(
+  limitBytes: number,
+  sizeBytes?: number,
+): CiProofUnavailable {
+  return {
+    kind: "unavailable",
+    reason: "too-large",
+    limitBytes,
+    ...(sizeBytes === undefined ? {} : { sizeBytes }),
+  };
+}

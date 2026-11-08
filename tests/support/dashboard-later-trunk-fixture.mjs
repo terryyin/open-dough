@@ -54,6 +54,9 @@ export function trunkOf(count) {
 
 export const usable = async () => undefined;
 
+// A proof-absence fact the forward walk stores and names.
+export const absent = (reason) => ({ kind: "unavailable", reason });
+
 export function run(sha, id, conclusion, extra = {}) {
   return {
     databaseId: id,

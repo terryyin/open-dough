@@ -44,6 +44,18 @@
   margin: 0 0 var(--space-1);
 }
 
+/* A size-limit proof failure: the same problem tokens as `.read-problem`
+   (./frame-states.css), distinct from a quiet absence line. */
+.intent-ci-proof-unavailable.intent-ci-proof-problem,
+.intent-summary-evidence-absent.intent-ci-proof-problem {
+  border: 1px solid var(--problem);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  background: var(--problem-soft);
+  color: var(--problem);
+}
+
 /* A selected done story's CI timing comparison (./IntentCiComparison.tsx). */
 .intent-ci-comparison-framing {
   margin: 0 0 var(--space-2);

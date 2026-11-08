@@ -40,7 +40,7 @@ function unavailableWords(
   revision: string,
   proof: Extract<CiProof, { kind: "unavailable" }>,
 ): string {
-  return equivalentBuildUnavailableLine(revision, proof.reason);
+  return equivalentBuildUnavailableLine(revision, proof);
 }
 
 // Story Branch Mode Landed: exact-only options at the merge or fast-forward tip.

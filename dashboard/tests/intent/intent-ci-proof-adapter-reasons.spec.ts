@@ -8,6 +8,7 @@
 // time limit or non-JSON answer:
 // ../../../tests/support/dashboard-ci-adapter-proof.test.mjs.
 
+import { SUMMARY_READ_LIMIT_BYTES } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { expectAttemptAt } from "../ciEvidenceLabelsPage.ts";
 import {
@@ -21,6 +22,12 @@ import {
 } from "../intentCiAdapterProofProject.ts";
 import { expectNoProofRows, expectProofRows } from "../intentCiProofPage.ts";
 import { login, repository, signup } from "../intentCiStoryRecords.ts";
+import { tokenColour } from "../pageColours.ts";
+
+const oversizedProofLine =
+  "This attempt's CI proof is larger than the 1 MiB proof limit.";
+const noSummaryRetainedLine =
+  "This attempt's CI adapter gave no CI proof summary: no summary retained.";
 
 test("an adapter attempt whose adapter answers no proof of it gives one reason under Proof, no counts and an unchanged verdict, and Check again reads both again", async ({
   page,
@@ -38,10 +45,7 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
       "This attempt's CI adapter answered no proof read: it exited with status 2 (unknown operation: proof).",
       { proof: {}, proofStderr: "unknown operation: proof" },
     ],
-    [
-      "This attempt's CI adapter gave no CI proof summary: no summary retained.",
-      { proof: { unavailable: "no summary retained" } },
-    ],
+    [noSummaryRetainedLine, { proof: { unavailable: "no summary retained" } }],
     [
       "This attempt's CI proof summary is not a valid summary: schemaVersion is not 1.",
       { proof: { summary: { ...summary, schemaVersion: 2 } } },
@@ -59,9 +63,16 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
       { proof: { summary: { ...summary, revision: signup } } },
     ],
     [
-      // Past the runner's answer limit.
-      "This attempt's CI adapter answered no proof read: its answer is longer than 64 KiB.",
-      { proof: { summary: { ...summary, padding: "x".repeat(64 * 1024) } } },
+      // Past the proof call's answer limit (the collector contract's 1 MiB).
+      oversizedProofLine,
+      {
+        proof: {
+          summary: {
+            ...summary,
+            padding: "x".repeat(SUMMARY_READ_LIMIT_BYTES),
+          },
+        },
+      },
     ],
     [
       "This attempt's CI adapter answered no proof read: CI adapter proof must return summary or unavailable.",
@@ -71,6 +82,7 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
   adapter.answer({ discover, ...cases[0][1] });
   const { panel, proof } = await openAdapterProof(page);
   const reason = proof.locator(".intent-ci-proof-unavailable");
+  const problemBorder = await tokenColour(page, "--problem");
 
   for (const [index, [line, answer]] of cases.entries()) {
     await test.step(line, async () => {
@@ -86,6 +98,19 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
       await expectAttemptAt(proof, "Attempt 2", "4774f60");
       await expectNoProofRows(proof);
       await expect(proof).not.toContainText(/failed|passed/i);
+      if (line === oversizedProofLine) {
+        await expect(reason).toHaveClass(/intent-ci-proof-problem/);
+        expect(
+          await reason.evaluate((node) => getComputedStyle(node).borderColor),
+        ).toBe(problemBorder);
+      } else {
+        await expect(reason).not.toHaveClass(/intent-ci-proof-problem/);
+        if (line === noSummaryRetainedLine) {
+          expect(
+            await reason.evaluate((node) => getComputedStyle(node).borderColor),
+          ).not.toBe(problemBorder);
+        }
+      }
     });
   }
 });

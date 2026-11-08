@@ -1,8 +1,13 @@
 // Adapter comparison gaps are named by endpoint. Real published history
 // supplies the endpoint bounds; adapter fixtures only supply CI attempts.
+import { SUMMARY_READ_LIMIT_BYTES } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { adapterProject, passed } from "../intentCiAdapterProofProject.ts";
+import {
+  adapterProject,
+  passed,
+  testsSummary,
+} from "../intentCiAdapterProofProject.ts";
 import { completedPublishedStory } from "../support/completedPublishedStory.ts";
 import {
   expectAncestorSourceCue,
@@ -98,6 +103,40 @@ test("a Done Trunk Mode adapter story walks back from its completion to Landed",
   await expect(builds.nth(1)).toContainText("not applicable");
   await expect(builds.nth(2)).toContainText(shortSha(implementation));
   await expectAncestorSourceCue(builds.nth(2));
+});
+
+test("an adapter proof over the 1 MiB limit shows the build line's too-large words", async ({
+  page,
+  origin,
+  dashboard,
+}) => {
+  const story = await publishFastForwardLandedStory(page, origin);
+  const adapter = adapterProject(dashboard.home);
+  const baseline = passed("old", "1", story.baseline, "main");
+  const tip = passed("landing", "2", story.branchSide, story.branch);
+  const summary = testsSummary("2", story.branchSide).summary as Record<
+    string,
+    unknown
+  >;
+  adapter.answer({
+    discover: {
+      main: [baseline],
+      [story.branch]: [tip],
+    },
+    proof: {
+      summary: {
+        ...summary,
+        padding: "x".repeat(SUMMARY_READ_LIMIT_BYTES),
+      },
+    },
+  });
+  const { panel } = await selectDoneStoryForCiComparison(page);
+  const gaps = panel.locator(".intent-ci-comparison-entries");
+  const tooLarge =
+    "This attempt's CI proof is larger than the 1 MiB proof limit.";
+  await expect(gaps).toContainText(tooLarge);
+  for (const label of ["Baseline", "Branch", "Landed"])
+    await expect(gaps).toContainText(`${label} — ${tooLarge}`);
 });
 
 // The adapter limit is lowered for the timed-out case only, so the request

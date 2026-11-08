@@ -227,8 +227,7 @@ withdraws it. Without the declaration or these fields, completion stays exact.
 
 ## Runnable provider with optional reuse
 
-Follow [custom CI with validation reuse](custom-reuse-ci.md) for provider-side reuse:
-shared gate, target aggregates through the adapter contract above.
+Follow [custom CI with validation reuse](custom-reuse-ci.md) for provider-side reuse: shared gate, target aggregates through the adapter contract above.
 
 ## Outcomes, coverage, and failures
 
@@ -239,12 +238,13 @@ When the candidate's workflow trigger filter proves only ignored paths changed
 since an applicable ancestor, coverage records `not_required` with that
 ancestor's attempt state. Otherwise a revision stays undiscovered until its
 exact attempt is found; there is no three-poll coverage-unavailable report.
-Pending and success stay quiet; failure and incomplete can require attention.
-Shutdown lists unproved revisions as pending, undiscovered, or incomplete.
-Each adapter call has a 20-second timeout and 64 KiB stdout limit. Invalid JSON
-or attempts, nonzero exit, timeout, or oversized stdout is retried under the
-observer's bounded error policy, then unavailable; custom mode never falls back
-to GitHub. Failed diagnosis for a known failure still reports with diagnostics
-unavailable. Stopping the observer cancels its adapter child. Bound API calls,
-handle termination promptly, and leave triggering or retrying CI to this
-project's established delivery process.
+Pending and success stay quiet; failure and incomplete can require attention;
+shutdown lists unproved revisions as pending, undiscovered, or incomplete.
+Each adapter call has a 20-second timeout and a 64 KiB stdout limit, except the
+dashboard's `proof` read at 1 MiB (the collector contract's summary read limit).
+Invalid JSON or attempts, nonzero exit, timeout, or oversized stdout is retried
+under the observer's bounded error policy, then unavailable; custom mode never
+falls back to GitHub. Failed diagnosis for a known failure still reports with
+diagnostics unavailable. Stopping the observer cancels its adapter child. Bound
+API calls, handle termination promptly, and leave triggering or retrying CI to
+this project's established delivery process.

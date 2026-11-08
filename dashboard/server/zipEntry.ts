@@ -8,6 +8,22 @@ import { crc32, inflateRawSync } from "node:zlib";
 
 export class ZipEntryProblem extends Error {}
 
+// The archive's only file is larger than the caller's read limit; carries
+// the entry's uncompressed size from the central directory so a proof read
+// can name it without inflating.
+export class ZipEntryTooLarge extends ZipEntryProblem {
+  readonly entryName: string;
+  readonly sizeBytes: number;
+  readonly limitBytes: number;
+
+  constructor(entryName: string, sizeBytes: number, limitBytes: number) {
+    super(`${entryName} is larger than ${String(limitBytes)} bytes`);
+    this.entryName = entryName;
+    this.sizeBytes = sizeBytes;
+    this.limitBytes = limitBytes;
+  }
+}
+
 const endOfDirectory = 0x06054b50;
 const directoryEntry = 0x02014b50;
 const localEntry = 0x04034b50;
@@ -55,10 +71,7 @@ export function onlyZipEntry(
     throw new ZipEntryProblem(`the archive holds ${named}, not ${name}`);
   if ((flags & 0x1) !== 0)
     throw new ZipEntryProblem("the archive's file is encrypted");
-  if (size > limitBytes)
-    throw new ZipEntryProblem(
-      `${name} is larger than ${String(limitBytes)} bytes`,
-    );
+  if (size > limitBytes) throw new ZipEntryTooLarge(name, size, limitBytes);
   within(archive, local, 30);
   if (archive.readUInt32LE(local) !== localEntry)
     throw new ZipEntryProblem("the archive's file header is unreadable");

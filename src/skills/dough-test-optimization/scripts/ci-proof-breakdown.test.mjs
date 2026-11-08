@@ -2,7 +2,8 @@
 // (ci-proof-figures.mjs "File breakdown"): converters keep repository paths
 // and within-part timing coverage, and leave what is not a path inside the
 // entry unassigned. Summing and validation:
-// ci-proof-breakdown-summary.test.mjs.
+// ci-proof-breakdown-summary.test.mjs. Command line:
+// ci-proof-breakdown-summary-cli.test.mjs.
 import assert from "node:assert/strict";
 import test from "node:test";
 import { fragmentProblems } from "./ci-proof-contract.mjs";
