@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "identity": "SEED-274#declare-intent-test-sources",
+  "mode": "story-branch",
+  "branch": "claude/let-projects-declare-which-tests-intent-shows",
+  "host": "claude",
+  "model": "opus"
+}

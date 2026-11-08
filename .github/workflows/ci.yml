@@ -37,19 +37,27 @@ jobs:
           fetch-depth: 0
       - name: Start prerequisite acquisition deadline (180 seconds)
         run: echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( $(date +%s) * 1000 + 180000 ))" >> "$GITHUB_ENV"
-      # The Node setup and its diagnostic, shared by every job that installs npm.
-      - &setup-node
+      # Restoring the existing npm cache and installing Node share one minute.
+      - &start-node-setup
+        name: Start Node and npm cache deadline (60 seconds)
+        run: echo "OPEN_DOUGH_NODE_DEADLINE_MS=$(( $(date +%s) * 1000 + 60000 ))" >> "$GITHUB_ENV"
+      - &cache-npm
+        name: Restore npm cache
         uses: actions/setup-node@v7
-        id: node
+        id: npm-cache
         timeout-minutes: 1
         with:
-          node-version-file: .node-version
           cache: npm
+      - &setup-node
+        name: Install pinned Node
+        id: node
+        timeout-minutes: 1
+        run: bash scripts/setup-ci-node.sh .node-version
       - &diagnose-node
         name: Diagnose Node acquisition failure
-        if: failure() && steps.node.outcome == 'failure'
+        if: failure() && (steps.node.outcome == 'failure' || steps.npm-cache.outcome == 'failure')
         run: |
-          echo '::error::Infrastructure setup: Node/npm-cache acquisition failed or exceeded 60 seconds. Restore nodejs.org/cache connectivity and rerun setup before checks.'
+          echo '::error::Infrastructure setup: Node or npm cache acquisition failed within its 60-second deadline. Restore GitHub Releases, nodejs.org, or cache connectivity and rerun setup before checks.'
           exit 1
       - name: Install npm dependencies
         run: node scripts/setup-native.mjs npm
@@ -63,7 +71,7 @@ jobs:
       - name: Diagnose lint tool acquisition failure
         if: failure() && steps.lint-tools.outcome == 'failure'
         run: |
-          echo "::error::Infrastructure setup: GitHub lint tool release acquisition failed or exceeded its setup bound. Restore source connectivity and rerun setup before checks."
+          echo "::error::Infrastructure setup: shell lint tool acquisition failed or exceeded its setup bound. Restore GitHub Releases/Docker Hub connectivity and rerun setup before checks."
           exit 1
       - name: Run lint
         run: exec npm run lint
@@ -89,6 +97,8 @@ jobs:
           fetch-depth: 0
       - name: Start prerequisite acquisition deadline (180 seconds)
         run: echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( $(date +%s) * 1000 + 180000 ))" >> "$GITHUB_ENV"
+      - *start-node-setup
+      - *cache-npm
       - *setup-node
       - *diagnose-node
       - name: Install npm dependencies
@@ -151,6 +161,8 @@ jobs:
           started=$(( $(date +%s) * 1000 ))
           echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( started + 180000 ))" >> "$GITHUB_ENV"
           echo "OPEN_DOUGH_DASHBOARD_DEADLINE_MS=$(( started + 320000 ))" >> "$GITHUB_ENV"
+      - *start-node-setup
+      - *cache-npm
       - *setup-node
       - *diagnose-node
       - name: Install npm dependencies
@@ -229,16 +241,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
-        id: node
-        timeout-minutes: 1
-        with:
-          node-version-file: .node-version
-      - name: Diagnose Node acquisition failure
-        if: failure() && steps.node.outcome == 'failure'
-        run: |
-          echo '::error::Infrastructure setup: Node acquisition failed or exceeded 60 seconds. Restore nodejs.org/cache connectivity and rerun setup before checks.'
-          exit 1
+      - *setup-node
+      - *diagnose-node
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
