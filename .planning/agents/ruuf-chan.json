@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ruuf-chan",
+  "email": "ruuf-chan@example.org",
+  "identity": "SEED-268#adjust-fluent-side-panel-page-objects",
+  "mode": "story-branch",
+  "branch": "claude/make-fluent-side-panel-page-objects-easier-to-ex",
+  "host": "claude",
+  "model": "opus"
+}
