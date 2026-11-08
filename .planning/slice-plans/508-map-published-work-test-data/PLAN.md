@@ -263,6 +263,26 @@ six affected Node jobs passed, including the exact startup regression.
 Proof and dispositions are in
 `/tmp/od-seed261-refactor4-consumer-trace-with-dispositions.md`.
 
+Branch CI run `42440063442` attempt 1 on `7ecff946` passed the startup
+repair. Dashboard shard 12 hit its 276.374-second remaining suite budget
+after its type-check used 26 seconds. The report has 20 unfinished case
+IDs and zero unexpected cases. The repair moves the once-per-run
+type-check to lint and keeps the browser deadline, shard assignments, and
+proof collection. A scratch timing refresh increased the failed shard's
+estimated normalized load from 714.2 to 779.4 test-seconds, so this repair
+keeps the existing allocation.
+
+The updated container contract check rejected the original workflow and
+passed with the repair. The focused workflow, native setup, shard selection,
+and container checks passed. With `CI=true`, split `12/12`, four workers,
+and a 302.374-second remaining deadline, the local run passed all 198 case
+IDs across 61 specs in 117.69 seconds. The selection matches the hosted
+report, including its 20 unfinished IDs. Exact commands, retained report,
+and consumer dispositions are under
+`/tmp/od-seed261-ci-42440063442-QohM3B`. Hosted CI still owes the timing proof.
+The independent repair refactor found no edits necessary. The lint setup
+check is platform-skipped on macOS and remains covered by Linux CI.
+
 ### 5. Published assignment tests use the pilot profile facts
 Type: Behavior
 Status: planned

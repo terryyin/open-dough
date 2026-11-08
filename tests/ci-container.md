@@ -6,7 +6,7 @@ Git, check it on CI's platform:
 ```sh
 scripts/ci-container.sh tests/test-runner-bash.sh   # chosen checks
 scripts/ci-container.sh                             # the whole suite
-scripts/ci-container.sh --dashboard                 # the dashboard job
+scripts/ci-container.sh --dashboard                 # dashboard type-check and browser suite
 ```
 
 It is for diagnosis only: neither `npm test` nor CI uses it, and ordinary runs
@@ -32,7 +32,7 @@ Each run mounts the checkout, and a linked worktree's common Git directory, at
 their host paths, keeps `node_modules` in a container volume so host modules
 are neither used nor overwritten, runs `npm ci`, prints the Git and Node
 versions, and then runs `scripts/test.sh` with the given paths, or the
-dashboard job's commands unsharded with `CI=true` (so Playwright's
+dashboard type-check and browser suite unsharded with `CI=true` (so Playwright's
 `forbidOnly` and HTML report apply). `scripts/test.sh` runs with `CI` unset,
 as on any local run. A path or caller directory outside the checkout is
 refused by name. It runs as the host user with a container-local `HOME`, so

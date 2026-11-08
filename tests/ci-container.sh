@@ -111,29 +111,30 @@ if grep -vFx -- "ubuntu-${ubuntu_version}" "${temporary_dir}/runners" \
 fi
 
 # The diagnostic image bootstraps system libraries on bare Ubuntu; native CI
-# uses the runner's libraries and the locked local Playwright package. Both
-# install Chromium, then run the same dashboard commands in the same order.
+# uses the runner's libraries and the locked local Playwright package. The
+# diagnostic runs the workflow's type-check and browser suite together. In CI
+# the type-check belongs to lint so it cannot spend a shard's browser deadline.
 # Keep the bootstrap explicit rather than removing --with-deps from the image.
 dashboard_install=$(stated dashboard_install)
 if [[ ${dashboard_install} != 'npx playwright install --with-deps chromium' ]]; then
   echo 'FAIL: scripts/ci-container.sh must bootstrap Chromium system dependencies.' >&2
   exit 1
 fi
-{
-  printf '%s\n' 'node scripts/setup-native.mjs browser'
-  stated dashboard_steps
-} > "${temporary_dir}/stated-dashboard"
-awk '
-  /^  [^ #]/ { job = ($0 ~ /^  dashboard:[[:space:]]*$/); next }
-  job && /^[[:space:]]*(- )?run:/ {
+stated dashboard_steps | sed '1a\
+node scripts/setup-native.mjs browser
+' > "${temporary_dir}/stated-dashboard"
+if ! awk '
+  /^  [^ #]/ { job = $1; installed = 0; next }
+  /^[[:space:]]*(- )?run:/ {
     sub(/^[[:space:]]*(- )?run:[[:space:]]*/, "")
-    if (installed && $0 !~ /^\|$/) print
-    else if ($0 == "node scripts/setup-native.mjs npm") installed = 1
+    if ($0 == "node scripts/setup-native.mjs npm") installed = 1
+    else if ($0 == "npm run typecheck:dashboard") {
+      if (job != "lint:" || !installed) exit 1
+      print
+    } else if (job == "dashboard:" && installed && $0 !~ /^\|$/) print
   }
-' "${workflow}" | sed 's/ -- --shard[= ].*$//' > "${temporary_dir}/ci-dashboard"
-if [[ ! -s ${temporary_dir}/ci-dashboard ]] \
+' "${workflow}" > "${temporary_dir}/ci-dashboard" \
   || ! diff -- "${temporary_dir}/stated-dashboard" "${temporary_dir}/ci-dashboard" >&2; then
-  echo 'FAIL: the browser-only install and shared dashboard commands (<) are not' \
-    "ci.yml's dashboard job after npm ci (>)." >&2
+  echo 'FAIL: the workflow must type-check after npm ci in lint and install Chromium before the browser suite in each shard.' >&2
   exit 1
 fi
