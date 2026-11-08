@@ -2,14 +2,15 @@
 
 Browser-free dashboard tests live here, beside `../tests/` and
 `../frontend-tests/`. They exercise HTTP, WebSocket, stored-file, command and
-module boundaries. Shared fixtures remain in `../tests/`.
+module boundaries. Use the shared
+[MakeMe library](../../tests/README.md#test-data-architecture) for domain data.
 
 All three roots run once through `npm run test:dashboard`, with the same global
 setup, build and twelve CI shards. Run only this suite with
 `npm run test:dashboard -- backend-tests/`.
 
 Every backend `*.spec.ts` and case-definition module belongs to one service
-feature folder. Reusable fixtures that several features share stay in
+feature folder. Harness fixtures that several features share stay in
 `../tests/`. The inventory below names each group; choose the feature whose
 behavior the test proves, irrespective of an older filename prefix. The browser
 suite's [feature groups](../tests/feature-groups.md) reuse the same domain

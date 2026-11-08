@@ -11,9 +11,10 @@ explicit route/WebSocket service substitutes, without starting
   which serves the run's `builtDashboardDir` as static files and installs
   substitutes from `../tests/support/frontendServiceSubstitutes.ts`.
 
-Shared helpers and fixtures stay in `../tests/`; this directory does not
-duplicate the support tree. With ten or fewer extracted files, the tree stays
-flat (this layout). Integrated service journeys remain in `../tests/`.
+Dashboard harness helpers and fixtures stay in `../tests/`. Use the shared
+[MakeMe library](../../tests/README.md#test-data-architecture) for domain data.
+With ten or fewer extracted files, the tree stays flat (this layout).
+Integrated service journeys remain in `../tests/`.
 
 All three roots run once through `npm run test:dashboard`, with the same global
 setup, build and twelve CI shards. Run only this suite with

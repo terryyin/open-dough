@@ -31,8 +31,8 @@ form or touch variant stays with that feature.
 
 `../backend-tests/` uses the same domain vocabulary for service behavior, with
 eight feature folders and no browser-only `stories/` or `navigation/` groups.
-Case-definition modules live with their owning feature; shared fixtures stay in
-this `tests/` tree.
+Case-definition modules live with their owning feature. Shared dashboard harness
+fixtures stay in this `tests/` tree.
 
 | Folder | Responsibility |
 | --- | --- |

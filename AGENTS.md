@@ -100,6 +100,11 @@ Open Dough skills and rules must work in Codex, Cursor, and Claude Code.
 
 ## Test automation
 
+- Arrange domain data in every automated test through the shared MakeMe API
+  (`makeMe.aThing.please()`). Reuse, extend, or add the shared builder for the
+  canonical product shape. State the facts that drive the case at the call site.
+  Keep actions, independent expectations, and inputs whose exact form is under
+  test outside the builder. See [test data architecture](tests/README.md#test-data-architecture).
 - Never sleep or wait for wall-clock time to pass. Wait for an observable event
   or advance a controlled clock.
 - Never use `test.slow()`.

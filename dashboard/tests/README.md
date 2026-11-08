@@ -168,6 +168,9 @@ that API probe is skipped on supported Node versions without the API.
 
 ## Adding a test
 
+Use [MakeMe](../../tests/README.md#test-data-architecture) for domain data across
+all three dashboard test roots. Keep dashboard harness fixtures in this tree.
+
 A **boundary test** goes in `../backend-tests/<feature>/<behavior>.spec.ts`
 under one [backend feature group](feature-groups.md#backend-feature-groups). It
 imports `test` from `../tests/dashboardTest.ts` with `test.use({ serverMode:
