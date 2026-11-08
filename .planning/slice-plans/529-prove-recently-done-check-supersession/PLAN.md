@@ -7,8 +7,8 @@
 ## Provenance
 
 Execution retrospective of
-[Select recently done sessions](../../seeds/SEED-272-select-recently-done-sessions.md#select-recently-done-sessions)
-(plan 527), reviewing commits `2d8fcf4d7` (slice 1) and `1980a44f8`
+[Select recently done sessions](https://github.com/terryyin/open-dough/blob/9df95a37c74bdff3724a25b612b4db70eb807502/.planning/seeds/SEED-272-select-recently-done-sessions.md#select-recently-done-sessions)
+(plan 527, recoverable at before-cleanup revision `9df95a37c`), reviewing commits `2d8fcf4d7` (slice 1) and `1980a44f8`
 (slice 2) as the net diff from the Take `0e6d4e750`. That plan's decisions
 required ignoring "answers superseded by a later choice or navigation" and
 keeping "an unread or failed catalog distinct from a miss, including when it
@@ -45,7 +45,7 @@ names an unreadable file for that identity."
 ## Preserved promises and constraints
 
 All SEED-272#select-recently-done-sessions promises and its
-[source review](../527-select-recently-done-sessions/source-review.md)
+[source review](https://github.com/terryyin/open-dough/blob/9df95a37c74bdff3724a25b612b4db70eb807502/.planning/slice-plans/527-select-recently-done-sessions/source-review.md)
 observations stay as delivered: Select and Open distinct, linked and
 standalone selection, Intent reading kept, Development Board reveal with range
 extension, phone overlay kept on Select, checking and failed checks said apart
