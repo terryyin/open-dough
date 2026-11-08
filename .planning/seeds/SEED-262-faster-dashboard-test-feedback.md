@@ -168,21 +168,121 @@ times are the baseline for the reuse story.
 ### Build dashboard start origins from explicit MakeMe repository data
 
 **Identity:** SEED-262#migrate-dashboard-origin-fixtures
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-262#migrate-dashboard-origin-fixtures","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story passes makeMe.aRepository descriptions to startOrigin and its publishers, and materializes them through the shared harness materializer with its per-process reuse.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into a real bare origin and checkout with per-process reuse, are published on trunk.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/511-migrate-dashboard-origin-fixtures/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"715e4a34c9c41af039ad2e2beea2654566d9a7cdc696a21e1e015de390a8c92a","plan":"241d1bb68450d2d7abd3c2492d414c8148486af29affb31f2acd8727cf5ff66d"}}
 ```
 
-**Goal.** A maintainer reading a dashboard journey or backend spec can see at
-the call site which repository facts its start origin and later commits need.
+#### Goal
 
-**Scope.** Use [the shared repository builder](#build-explicit-git-fixtures)
-for `startOrigin` and `startOriginPreparation` and the helpers layered on them.
-These include story review worktrees and Trunk Mode commits, CI comparison
-publishers, readiness and dependency repositories, landing, retained-report
-and project-addition repositories, and replay projects. About 22 helpers serve
-roughly 300 Playwright and backend specs. Keep the run-wide preparation that
-global setup performs. Keep isolation, older Git and merge behaviour under
-proof as real Git operations. Remove superseded helpers.
+A maintainer reading a dashboard journey or backend spec can see at its call
+site which repository facts its start origin holds and which later commits
+it adds. Today every start origin silently holds Stories A and B queued,
+refined, planned and Ready. About 200 dashboard files name Story A or its
+identity, but those facts live only in `queuedStories.ts`. This story makes
+the start origin and its publishers state their facts through
+[the shared repository description](#build-explicit-git-fixtures). Dashboard
+feedback must not get slower.
+
+#### Scope
+
+- `startOrigin` takes a MakeMe repository description. With none, it holds
+  the description's default: one commit with an empty valid backlog and the
+  installed skills. Every call site and origin fixture that relies on the
+  queued stories passes a named shared description, such as two Ready queued
+  stories, from MakeMe. A Playwright fixture states its description in its
+  fixture file, and a spec that needs other facts overrides it with
+  `test.use`. On 2026-11-08, 47 files called `startOrigin`, including seven
+  Playwright fixtures that create it implicitly. 70 helper modules and 95
+  specs imported it.
+- Installed skills stay a harness layer, not a domain fact. The harness adds
+  them to the description's first commit, so the origin keeps one root commit
+  with the stories and skills together.
+- Keep the run-wide preparation that global setup performs. It prepares each
+  installation layout once per run from the named shared descriptions in use,
+  and each test copies the prepared origin as it does now. A description that
+  is not prepared run-wide is materialized through the shared materializer's
+  per-process reuse on top of the same installed skills.
+- Helpers that hand-write published planning facts declare them instead:
+  seeds, story state, backlog membership, agent profiles, dependency
+  agreements and done records. These include the story dependency, story
+  reference, recently done, Trunk Mode review, one-shot review, completion
+  closure and later-story publishers, and `publishChangedReview`.
+- Replace a real `start` that only arranges a Taken story or a claim commit
+  with a declared revision whose author is the agent and whose committer is
+  the developer. A spec whose subject is the start, its refusal or its resume
+  still runs it on the materialized origin.
+- Keep as real Git operations in the helper or test: story branches,
+  worktrees, merges, fast-forwards, first-parent rewrites, held pushes,
+  isolation and older Git behaviour. A CI comparison or completed-story
+  publisher takes its trunk facts from the description and builds the commit
+  graph it proves with Git on top.
+- Remove superseded helpers and `writeQueuedStories`. The queued identities
+  and titles live in the named shared description.
+- Boundary assumption: execution starts after
+  [the shared repository builder](#build-explicit-git-fixtures) lands
+  `makeMe.aRepository` and its materializer on trunk. This story extends that
+  description and materializer rather than adding a second one.
+- Scope limits: clean-trunk, Node and shell fixtures belong to their sibling
+  stories. Cross-description caching beyond today's per-process reuse belongs
+  to [faster Git fixture construction](#reuse-immutable-git-histories). The
+  description gains no branch or merge model.
+
+#### Key examples
+
+1. **Default start origin.** A backend spec calls `startOrigin()` with no
+   description. The project checkout has one commit holding the installed
+   skills and an empty valid product backlog. No story is queued.
+2. **Named shared stories.** The `origin` fixture in `startOriginTest.ts`
+   names the shared description of Stories A and B queued, refined, planned
+   and Ready. A spec that publishes the origin still shows both cards Ready,
+   and its assertions are unchanged. The prepared origin still comes from
+   global setup, and the test copies it as before.
+3. **Facts that differ.** A story dependency spec declares Story B waiting on
+   Story A in its description. Its origin's backlog, seeds and agreement come
+   from production encoders, and the helper no longer writes or commits them.
+4. **Command under proof.** A preparation-resume spec still runs the real
+   `start` on the materialized origin. A CI comparison fixture that only
+   needs Story A Taken declares the claim revision, authored by the agent and
+   committed by the developer, and runs no `start`.
+5. **Git under proof.** A later fast-forward comparison declares its trunk
+   stories, then makes its story branch, merge and first-parent rewrite with
+   Git. Intent's comparison verdicts are unchanged.
+6. **Superseded setup removed.** No dashboard helper calls
+   `writeQueuedStories`, and none hand-writes a published planning file
+   that the description can state.
+
+#### Evaluation
+
+Migrated specs keep their verdicts and assertions. A reviewer can name each
+case's driving repository facts from its call site or fixture file. Record
+focused run times before and after under comparable load for one Playwright
+journey family and one backend family that use the default origin. They must
+not regress beyond run-to-run noise.
+
+#### Architecture
+
+- **One description, one materializer.** This story extends the
+  [repository description and materializer](#build-explicit-git-fixtures)
+  and adds no dashboard-specific copy. MakeMe owns stories and records; the
+  harness owns Git, installation and teardown
+  ([test data architecture](../../tests/README.md#test-data-architecture)).
+- **Installation is a harness layer.** Installed skills come from this run's
+  working-tree source, as today. They join the first commit so the history
+  shape the dashboard reads does not change.
+- **Prepared once, copied per test.** Run-wide preparation keyed by
+  installation layout and named description keeps today's copy cost.
+  Committing the stories per test on a prepared skills-only origin was
+  observed at about 115 ms extra per test, roughly doubling the 95 ms copy.
+- **Commit graphs stay in Git.** The description holds ordered trunk
+  revisions only. Intent and CI comparison read ancestry and merges, so
+  those stay Git operations
+  ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)).
+- **No native evidence change.** Dashboard start origins are not inputs to
+  native evidence, so no paid run is needed
+  ([native family layers](../../tests/native-family-layers.md)).
 
 <a id="migrate-clean-trunk-fixtures"></a>
 
