@@ -187,3 +187,11 @@ Plan refinement was unnecessary. Each slice replaces one class of incidental
 reload with an existing observation path and preserves its independent proof.
 The shared helper change is part of the first journey that uses it. No
 remaining slice-specific concern surfaced in the matched scratch runs.
+
+## Execution complete
+
+Product advice: no change. Both journeys now reach their assertions with
+fewer full Board reads (attention 15→12, card-session-state 8→7) and faster
+converted steps, but command wall time moved within host noise. Keep the
+remaining SEED-262 stories in their current order; convert further journeys
+only when a later story finds the same incidental-reload pattern.
