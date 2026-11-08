@@ -18,7 +18,7 @@ import {
 } from "../support/sessionMessagePart.ts";
 import {
   startDashboardServer,
-  builtDashboardDir,
+  sharedDashboardBuild,
 } from "../support/dashboardServer.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
@@ -145,7 +145,7 @@ test("installed attention report stays open, durable and readable through column
   await dashboard.close();
   const restarted = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine: origin.machine,
     github: dashboard.github,
     codexProtocol: native,

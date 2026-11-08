@@ -28,7 +28,7 @@ import {
 } from "../launchStoryCardPage.ts";
 import { recoveryOf } from "../responsiveRecovery.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { dirty, status } from "../support/defaultCheckoutChanges.ts";
@@ -200,7 +200,7 @@ for (const when of ["before", "after"] as const) {
     await closing;
     const restarted = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       github,
       machine: origin.machine,
       projectFolders: ["open-dough"],

@@ -9,7 +9,7 @@ import { emptyBacklog, type MovingOrigin } from "../publishedOrigin.ts";
 import { feedbackWatchListPath as watchList } from "../../src/feedbackReview.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
@@ -64,7 +64,7 @@ export function serverOn(
   return startDashboardServer({
     mode,
     port,
-    ...(mode === "preview" ? { prebuilt: builtDashboardDir } : {}),
+    ...(mode === "preview" ? { prebuilt: sharedDashboardBuild } : {}),
     machine: origin.machine,
     github,
     projectFolders: ["open-dough"],

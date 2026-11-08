@@ -163,7 +163,7 @@ workingCursorTest(
     // (Freezing the held client with SIGSTOP cannot show this: the
     // runner ends its tracking on hangup whether or not the frozen
     // client has exited, so its next read already finds nothing held.)
-    const gate = await holdRunnerSessionsReads(dashboard.home);
+    const gate = await holdRunnerSessionsReads(dashboard);
     try {
       const entry = await openTakenCursorSession(page, origin);
       await closeTerminal(page);

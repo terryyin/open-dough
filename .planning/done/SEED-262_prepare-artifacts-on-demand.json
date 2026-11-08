@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-262#prepare-artifacts-on-demand",
+  "title": "Prepare dashboard test artifacts only when selected tests need them",
+  "completedAt": "2026-11-08T04:18:21.230Z",
+  "developer": "Terry Yin",
+  "agent": "dbs-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

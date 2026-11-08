@@ -10,7 +10,7 @@ import {
   machineFolder,
 } from "../agentLaunchBoundary.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
@@ -30,7 +30,7 @@ export const test = base.extend<{ machine: string; server: DashboardServer }>({
   server: async ({ machine }, use) => {
     const server = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       machine,
       projectFolders: ["open-dough"],
       alertCheckMs,

@@ -4,7 +4,7 @@ import path from "node:path";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { launch, machineSessions } from "../agentLaunchBoundary.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
@@ -79,7 +79,7 @@ for (const blank of [true, false]) {
     }
     const restarted = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       machine,
       github,
       codexProtocol,

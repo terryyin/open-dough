@@ -22,7 +22,7 @@ import { revisionStreamSlotLockNames } from "../src/revisionStreamSlot.ts";
 import { test as base, expect } from "./support/pageTest.ts";
 import type { FakeCodex } from "./support/fakeCodex.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
@@ -59,7 +59,7 @@ export type FixtureServerMode = "preview" | "boundary";
 // ./support/preparationPage.ts) starts its server the same way.
 export function fixtureServerMode(serverMode: FixtureServerMode) {
   return serverMode === "preview"
-    ? ({ mode: "preview", prebuilt: builtDashboardDir } as const)
+    ? ({ mode: "preview", prebuilt: sharedDashboardBuild } as const)
     : ({ mode: "boundary" } as const);
 }
 

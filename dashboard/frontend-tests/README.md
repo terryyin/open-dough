@@ -8,7 +8,7 @@ explicit route/WebSocket service substitutes, without starting
 - DOM-only specs import `test` from `../tests/support/pageTest.ts` and use
   `page.setContent(...)`.
 - Built-app UI specs import `test` from `../tests/support/frontendApp.ts`,
-  which serves the run's `builtDashboardDir` as static files and installs
+  which requests the run's shared app build, serves it as static files and installs
   substitutes from `../tests/support/frontendServiceSubstitutes.ts`.
 
 Dashboard harness helpers and fixtures stay in `../tests/`. Use the shared
@@ -16,8 +16,8 @@ Dashboard harness helpers and fixtures stay in `../tests/`. Use the shared
 With ten or fewer extracted files, the tree stays flat (this layout).
 Integrated service journeys remain in `../tests/`.
 
-All three roots run once through `npm run test:dashboard`, with the same global
-setup, build and twelve CI shards. Run only this suite with
+All three roots run through `npm run test:dashboard`, with shared setup and
+twelve CI shards. Run only this suite with
 `npm run test:dashboard -- frontend-tests/`.
 
 The [dashboard test guide](../tests/README.md) owns placement across the three

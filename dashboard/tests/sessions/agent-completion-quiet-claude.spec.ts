@@ -16,7 +16,7 @@ import { parts } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { storedRecords } from "../machineLaunchRecords.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
@@ -197,7 +197,7 @@ test("a server closed during the wait leaves the pending mark and hangs up its a
   const origin = await startOrigin();
   const server = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine: origin.machine,
     projectFolders: ["open-dough"],
     launchTimeoutMs: 30_000,

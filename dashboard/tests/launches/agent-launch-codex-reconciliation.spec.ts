@@ -4,7 +4,7 @@ import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
 import {
   startDashboardServer,
-  builtDashboardDir,
+  sharedDashboardBuild,
 } from "../support/dashboardServer.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import {
@@ -102,7 +102,7 @@ test("unreadable, missing, empty, unrelated and wrong-workspace history never au
   native.hold = true;
   const limited = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine,
     github: dashboard.github,
     codexProtocol: protocol,
@@ -126,7 +126,7 @@ test("unreadable, missing, empty, unrelated and wrong-workspace history never au
   native.failRead = true;
   const resumed = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine,
     github: dashboard.github,
     codexProtocol: protocol,

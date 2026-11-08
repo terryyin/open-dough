@@ -6,7 +6,7 @@
 
 import { expect } from "../../tests/support/pageTest.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
@@ -52,7 +52,7 @@ export async function streamServer(
   return startDashboardServer({
     ...(mode === "boundary"
       ? developmentBoundary
-      : { mode: "preview", prebuilt: builtDashboardDir }),
+      : { mode: "preview", prebuilt: sharedDashboardBuild }),
     extraEnv: {
       DOUGH_REVISION_STREAM_MS: "80",
       ...extraEnv,

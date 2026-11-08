@@ -9,7 +9,7 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { parts } from "../dashboardPage.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -102,7 +102,7 @@ test("the review still compares with the mark, saying when it was made, after th
   await dashboard.close();
   const restarted = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine: origin.machine,
     github: dashboard.github,
     projectFolders: ["open-dough"],

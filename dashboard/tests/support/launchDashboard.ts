@@ -6,7 +6,7 @@
 import type { SessionPolicy } from "../../src/agentLaunch.ts";
 import { launchRequest } from "../agentLaunchBoundary.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
@@ -36,7 +36,7 @@ type Mode = "preview" | "boundary";
 
 const serverOf = (origin: StartOrigin, mode: Mode) => ({
   mode,
-  ...(mode === "preview" ? { prebuilt: builtDashboardDir } : {}),
+  ...(mode === "preview" ? { prebuilt: sharedDashboardBuild } : {}),
   machine: origin.machine,
   projectFolders: ["open-dough"],
   launchTimeoutMs: 30_000,

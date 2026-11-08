@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import {
   startDashboardServer,
-  builtDashboardDir,
+  sharedDashboardBuild,
 } from "../support/dashboardServer.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
@@ -44,7 +44,7 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
     native.hold = true;
     const limited = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       machine,
       github: dashboard.github,
       codexProtocol: protocol,
@@ -103,7 +103,7 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
     expect(native.completeOnResume).toBe(false);
     const restarted = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       machine,
       github: dashboard.github,
       codexProtocol: protocol,

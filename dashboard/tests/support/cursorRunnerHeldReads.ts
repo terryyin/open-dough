@@ -4,7 +4,7 @@
 import http from "node:http";
 import net from "node:net";
 import type { Duplex } from "node:stream";
-import { existsSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import path from "node:path";
 import {
   cursorRunnerAddressFile,
@@ -17,7 +17,7 @@ import {
 } from "../../server/hosts/cursor/runnerClient.ts";
 import { acceptingCursorRunnerPort } from "../../server/hosts/cursor/runnerProcess.ts";
 import { cursorRunnerKeepResult } from "../../server/hosts/cursor/runnerProtocol.ts";
-import { serverBundleVariable } from "./serverBundle.ts";
+import type { DashboardServer } from "./dashboardServer.ts";
 import { rawRequest } from "./rawHttp.ts";
 import { cursorTerminalSize } from "../../server/hosts/cursor/terminal.ts";
 import { keptRecord } from "./cursorStart.ts";
@@ -43,22 +43,6 @@ export type HeldRunnerReads = {
 // example to have the runner hold a session again before that read is
 // answered — without a sleep: the held read itself is the synchronization.
 // The hold must stay well under the reading client's own answer timeout.
-// The build proof the dashboard serving this journey checks new work
-// against: the bundled runner's identity when this run bundles the server
-// (preview/boundary journeys), the source runner's otherwise. The real
-// runner below is started from source by this worker, so its own proof
-// names the source build; the stand-in forwards for that runner and must
-// present the proof the dashboard expects of a current runner, or new
-// work rightly replaces what it stands in for — by the address pid,
-// which here is this worker.
-function dashboardRunnerBuildId(): string {
-  const bundle = process.env[serverBundleVariable];
-  const bundled = bundle && path.join(bundle, "runnerMain.mjs");
-  return bundled && existsSync(bundled)
-    ? computeRunnerBuildId(bundled)
-    : computeRunnerBuildId();
-}
-
 function isSessionsRead(request: http.IncomingMessage): boolean {
   return (
     request.method === "GET" &&
@@ -66,9 +50,10 @@ function isSessionsRead(request: http.IncomingMessage): boolean {
   );
 }
 
-export async function holdRunnerSessionsReads(
-  home: string,
-): Promise<HeldRunnerReads> {
+export async function holdRunnerSessionsReads({
+  home,
+  serverBundle,
+}: Pick<DashboardServer, "home" | "serverBundle">): Promise<HeldRunnerReads> {
   if (!(await ensureCursorRunner(home))) {
     throw new Error("This home's Cursor runner could not start.");
   }
@@ -76,7 +61,14 @@ export async function holdRunnerSessionsReads(
   if (real === undefined) {
     throw new Error("This home has no Cursor runner to stand in for.");
   }
-  const buildId = dashboardRunnerBuildId();
+  // This worker starts the real runner from source. The stand-in presents
+  // the build ID the dashboard expects, so new work does not replace the
+  // stand-in by its address PID, which is this worker.
+  const buildId = computeRunnerBuildId(
+    serverBundle === undefined
+      ? undefined
+      : path.join(serverBundle, "runnerMain.mjs"),
+  );
   let holding = false;
   let sessionsReads = 0;
   const held: {

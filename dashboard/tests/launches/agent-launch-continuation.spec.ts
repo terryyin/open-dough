@@ -31,7 +31,7 @@ import { machineRecordNames } from "../support/machineRecordNames.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 
@@ -72,7 +72,7 @@ test("an attempt a closed server left unsettled blocks a fresh start of its stor
 
   const restarted = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine,
     github,
     codexProtocol,

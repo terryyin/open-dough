@@ -1,5 +1,5 @@
-// Playwright fixture for frontend-only app journeys: serves builtDashboardDir
-// with explicit service substitutes and never starts dashboardServer.
+// Playwright fixture for frontend-only app journeys: serves the shared app
+// build with explicit service substitutes and never starts dashboardServer.
 
 import type { Page } from "@playwright/test";
 import { expect, test as base } from "./pageTest.ts";

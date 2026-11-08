@@ -46,7 +46,7 @@ import {
   type OpenSession,
 } from "../storyCardOpenSessions.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
@@ -68,7 +68,7 @@ const test = base.extend<{ machine: string }>({
   dashboard: async ({ github, machine }, use) => {
     const server = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       github,
       machine,
       projectFolders,
@@ -214,7 +214,7 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
         await dashboard.close();
         restarted = await startDashboardServer({
           mode: "preview",
-          prebuilt: builtDashboardDir,
+          prebuilt: sharedDashboardBuild,
           github,
           machine,
           projectFolders,

@@ -105,8 +105,8 @@ test("a run that times out while a production process runs leaves none of its pr
 });
 
 test("a run's own teardown ends a process its workers could not reach and fails naming it", async () => {
-  // The inner run is a whole one under the suite's global setup: it builds
-  // the dashboard once, takes its own run identity, and sweeps at its end.
+  // The inner run uses the suite's global setup to take its own run identity
+  // and sweep at its end.
   const workDir = mkdtempSync(path.join(tmpdir(), "run-processes-"));
   const record = path.join(workDir, "orphan.json");
   try {

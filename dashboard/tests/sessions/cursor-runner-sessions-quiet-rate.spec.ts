@@ -30,7 +30,7 @@ const quiet = withRunningCursor({ screen: "working", becomeReady: true });
 quiet(
   "an expanded quiet section asks about once per second, shows a follow-up label within about one second, and collapse ends further asks",
   async ({ page, dashboard, origin, cursor }) => {
-    const gate = await holdRunnerSessionsReads(dashboard.home);
+    const gate = await holdRunnerSessionsReads(dashboard);
     try {
       const pid = await holdSession(dashboard, cursor);
       await pausePageClock(page);

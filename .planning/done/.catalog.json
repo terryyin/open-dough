@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_prepare-artifacts-on-demand.json",
+      "identity": "SEED-262#prepare-artifacts-on-demand",
+      "completedAt": "2026-11-08T04:18:21.230Z",
+      "blob": "cd59d74e90a647e31002bd41d17b29f742572b3d"
+    },
+    {
       "fileName": "SEED-262_arrange-prerequisite-state.json",
       "identity": "SEED-262#arrange-prerequisite-state",
       "completedAt": "2026-11-08T04:18:05.627Z",

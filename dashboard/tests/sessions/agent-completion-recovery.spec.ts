@@ -6,7 +6,7 @@ import { launch } from "../agentLaunchBoundary.ts";
 import { queuedIdentity, queuedTitle } from "../support/startOrigin.ts";
 import {
   startDashboardServer,
-  builtDashboardDir,
+  sharedDashboardBuild,
 } from "../support/dashboardServer.ts";
 import { withInstalledCompletionClosure } from "../support/installedCompletionClosure.ts";
 import {
@@ -83,7 +83,7 @@ test("retired closure retries unavailable receiver, real write fault and lost ac
       const fault = completionWriteFault(origin.machine);
       const restarted = await startDashboardServer({
         mode: "preview",
-        prebuilt: builtDashboardDir,
+        prebuilt: sharedDashboardBuild,
         machine: origin.machine,
         github: dashboard.github,
         codexProtocol: native,
@@ -123,7 +123,7 @@ test("retired closure retries unavailable receiver, real write fault and lost ac
       const last = stored(dashboard.home)[0];
       const again = await startDashboardServer({
         mode: "preview",
-        prebuilt: builtDashboardDir,
+        prebuilt: sharedDashboardBuild,
         machine: origin.machine,
         github: dashboard.github,
         codexProtocol: native,

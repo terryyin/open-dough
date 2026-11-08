@@ -9,7 +9,7 @@ import {
 } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-refusal-test-fixtures.mjs";
 import { ownerlessRequestRoot } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { openUntilRead } from "../pageRequestNotes.ts";
-import { builtDashboardDir } from "../support/dashboardServer.ts";
+import { sharedDashboardBuild } from "../support/dashboardServer.ts";
 import { endFakeGh, fakeGhEnv, installFakeGh } from "../support/fakeGh.ts";
 import { expect, test } from "../support/pageTest.ts";
 import {
@@ -51,7 +51,7 @@ for (const [fault, ownerCause, message] of [
       );
     const server = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       requestOwnerRoot,
       extraEnv: { GH_TOKEN: ownerSecret },
     });

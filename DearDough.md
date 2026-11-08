@@ -9,7 +9,6 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 451. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -722,34 +721,6 @@ Former local code: DD-431.
   - Evidence: slice 1 refactor dropped the file-list and `completion !== later` assertions in `dashboard/backend-tests/review/story-review-completed.spec.ts` that rows G4, 1.3, K3.1 and K3.2 cited; slice 2 refactor renamed fixture text `unattributed resolution` to `integration edit` cited by G2.
   - Observed effect: the coordinator retargeted the rows from the refactor reports before each delivery; no stale citation was published.
   - Inference: recurs whenever refactoring tightens or renames cited assertions, not only when files move.
-- Execution: SEED-254#use-later-ci-proof-for-cancelled-landings (plan 496-use-later-ci-proof-for-cancelled-landings; first related implementation commit `85946790e81e11d70d7ef1235a63d8a8d3aae1d2`)
-  - Timestamp: unknown (after slice 2 acceptance, before slice 2 commit at 2026-11-07T18:36:47+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.87 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
-  - Evidence: slice 2's refactor split `intent-ci-comparison-cancelled-landing.spec.ts` into a `-gaps` spec and `dashboard-later-trunk-build.test.mjs` into a `-landed` test for the 250-line rule; source-review rows 2, 2a, X1, 5a–5c, 9a–9c, E4 and E5 cited the old locations
-  - Observed effect: the refactor report listed the stale rows; the coordinator re-recorded them with `story-obligations.mjs record` before delivery, and no stale citation was published
-- Execution: SEED-118#retry-unavailable-ci-comparison-slots (plan 500-retry-unavailable-ci-comparison-slots; first related implementation commit `829d4170678aeeb8a6c48530669d3ebdea5b620f`)
-  - Timestamp: unknown (after slice 2 refactor return, before slice 2 commit `d45eee61319fc36bbd7659d659af2826ebc0d82d` at 2026-11-07T22:19:36+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.88 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
-  - Evidence: slice 2's refactor moved the unrecoverable-history journey from `intent-ci-comparison.spec.ts` into `intent-ci-comparison-retry.spec.ts` to keep both under 250 lines; source-review rows 1d, 3g and E4 (`8cab734f619f3c373e0416944ef4e19ff1438e0d:.planning/slice-plans/500-retry-unavailable-ci-comparison-slots/source-review.md`) cited the old file
-  - Observed effect: the coordinator noticed the move in the refactor report and retargeted the three rows before delivery; no stale citation was published
-- Execution: SEED-261#share-published-agent-profile-builders (plan 505-share-published-agent-profile-builders; first related implementation commit `ecf97385c2d8bcc9bdd8a5ab068ee02353d7eaa6`)
-  - Timestamp: unknown (after slice 1 acceptance, before `ecf97385c` at 2026-11-08T09:04:05+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.89 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
-  - Evidence: slice 1's refactor split `dashboard/tests/preparingJourney.ts` into `preparationSteps.ts` for the 250-line rule and replaced the `refiningName` guard that source-review row 30 cited
-  - Observed effect: the refactor report named the stale row; the coordinator re-recorded it with `story-obligations.mjs record` before delivery, and no stale citation was published
-- Execution: SEED-263#pilot-fluent-dashboard-page-objects (plan 506-pilot-fluent-dashboard-page-objects; first related implementation commit `df2702f6b45add64594f74a136d9c5f3d063f829`)
-  - Timestamp: unknown (after slice 1 acceptance, before `df2702f6b` at 2026-11-08T10:01:46+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.90 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
-  - Evidence: slice 1's refactor split `dashboard/tests/sidePanelPages.ts` into `sidePanelContentPages.ts` for the 250-line rule; source-review rows 12d, 13a, 13c, 14b and 16a cited the old file
-  - Observed effect: the coordinator retargeted the five rows from the refactor report before delivery. A first BSD `sed` attempt with `\|` alternation changed nothing, and a count check caught it. No stale citation was published
 
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 
@@ -1003,3 +974,26 @@ across two runs.
   - Evidence: plan 516 `source-review.md` at `5217098d1` launch note and row 24c; the coordinator extracted seed lines by a hand-picked `sed` range one line short
   - Observed effect: the reviewer flagged item 24c as cut off; the coordinator added its source text in brackets. No other cost
   - Inference: qualified one-off. Extracting the story section by its anchors rather than line numbers would avoid it.
+
+## Retention
+
+- Highest allocated local number: 452. Removed numbers are never reused.
+- Recovery: four repeated ODF-428 occurrences remain at `bc20663f48b911419be71875a903774a66220db4:DearDough.md`.
+- Occurrence history is partial.
+
+## DD-452 — A shell check gained a browser its CI job did not install
+
+Execution-branch code DD-450 at `1121f82c05f397ae08fe78cc3626ec11cf6da142:DearDough.md`.
+
+The concurrent dashboard shell check switched to a Playwright browser case.
+The local check had Chromium available. The hosted shell job installed npm
+dependencies, while the separate dashboard job installed Chromium.
+
+### Occurrences
+- Execution: SEED-262#prepare-artifacts-on-demand (plan 513-prepare-dashboard-artifacts-on-demand; first related implementation commit `019b0e25014c2e6fbee8138e90503279a77191a6`)
+  - Timestamp: unknown (2026-11-08, CI attempt 42441494702/1)
+  - Tool: Codex
+  - Open Dough release: 0.3.90 (installed `.agents/skills/dough-update/VERSION` at the claim)
+  - Evidence: [CI test shard](https://github.com/terryyin/open-dough/actions/runs/42441494702/job/128611486924) reported missing Chromium in both selected cases. An empty `PLAYWRIGHT_BROWSERS_PATH` reproduced the failure, then passed with the browser-free real preview selection in `6b9bd99fbe5530ca273dafb1cdbde8c152538464`.
+  - Observed effect: one failed CI run, one repair publication, and a pause, stash and restore of the next slice.
+  - Inference: qualified. Comparing the new selection's prerequisites with the hosted job, then checking with the same relevant optional dependencies, could catch this kind of cross-suite change before publication.

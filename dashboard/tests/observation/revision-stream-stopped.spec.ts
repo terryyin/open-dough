@@ -30,7 +30,7 @@ import { onBranch, revision } from "../branchProgressRecords.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 import { revisionStreamSilenceMs } from "../../src/revisionStreamSchedule.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
@@ -62,7 +62,7 @@ async function replaceOnPort(
   await dashboard.close();
   return startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     github,
     machine,
     port,

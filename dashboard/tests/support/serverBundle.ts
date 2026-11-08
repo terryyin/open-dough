@@ -7,8 +7,13 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { build } from "rolldown";
 import { repoRoot } from "./repositoryRoot.ts";
+import { requestRunArtifact } from "./runArtifacts.ts";
 
-export const serverBundleVariable = "OPEN_DOUGH_DASHBOARD_SERVER_BUNDLE";
+export const serverBundleArtifactKey = "server-bundle";
+
+export function sharedServerBundle(): Promise<string | undefined> {
+  return requestRunArtifact(serverBundleArtifactKey);
+}
 
 // Bare imports resolve from the repository's node_modules as from source.
 // Global setup owns removing this run's directory, including on interruption.
@@ -29,12 +34,16 @@ const keepImportMeta = {
   },
 };
 
-export async function bundleServerEntries(directory: string): Promise<void> {
+export async function bundleServerEntries(
+  directory: string,
+  signal: AbortSignal,
+): Promise<void> {
   for (const [input, file] of [
     ["dashboard/vite.config.mts", "vite.config.mjs"],
     ["dashboard/server/boundaryServer.ts", "boundaryServer.mjs"],
     ["dashboard/server/hosts/cursor/runnerMain.ts", "runnerMain.mjs"],
   ] as const) {
+    signal.throwIfAborted();
     await build({
       cwd: repoRoot,
       input: path.join(repoRoot, input),

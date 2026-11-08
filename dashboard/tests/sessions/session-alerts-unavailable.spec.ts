@@ -18,7 +18,7 @@ import {
   machineSessions,
 } from "../agentLaunchBoundary.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
@@ -34,7 +34,7 @@ const test = base.extend<{
   server: async ({ notifier }, use) => {
     const server = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       projectFolders: ["open-dough"],
       alertCheckMs: 100,
       notifier,

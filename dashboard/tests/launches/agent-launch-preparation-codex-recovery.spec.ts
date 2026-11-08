@@ -15,7 +15,7 @@ import {
 import { queuedIdentity } from "../support/startOrigin.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 
@@ -78,7 +78,7 @@ test("accepted input with lost acknowledgment resumes its prepared conversation 
   native.completeOnResume = true;
   const restarted = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     github,
     machine: origin.machine,
     projectFolders: ["open-dough"],

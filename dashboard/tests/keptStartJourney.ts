@@ -15,7 +15,7 @@ import { expect, test as base } from "./dashboardTest.ts";
 import { shortRevision, parts } from "./dashboardPage.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
@@ -45,7 +45,7 @@ export const test = base.extend<{ origin: StartOrigin }>({
     serveOriginBaseCi(github, origin);
     const server = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
       github,
       machine: origin.machine,
       projectFolders: ["open-dough"],

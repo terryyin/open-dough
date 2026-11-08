@@ -13,7 +13,7 @@ import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { expectProtected } from "./responsiveStart.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
@@ -114,7 +114,7 @@ function restartedOn(
 ): Promise<DashboardServer> {
   return startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     github,
     machine: origin.machine,
     projectFolders: ["open-dough"],

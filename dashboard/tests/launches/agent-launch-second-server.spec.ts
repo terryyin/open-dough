@@ -18,7 +18,7 @@ import {
 } from "../pageRequestNotes.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
@@ -50,7 +50,7 @@ test("a second server follows the live script and native worker, protects its ca
   await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
   const second = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine: origin.machine,
     github,
     projectFolders: ["open-dough"],

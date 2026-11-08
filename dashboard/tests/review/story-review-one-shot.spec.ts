@@ -15,7 +15,7 @@ import {
 } from "../support/oneShotReview.ts";
 import { readReview, refreshReview } from "../support/launchLandingReview.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { parts } from "../dashboardPage.ts";
@@ -113,7 +113,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   await dashboard.close();
   const restarted = await startDashboardServer({
     mode: "preview",
-    prebuilt: builtDashboardDir,
+    prebuilt: sharedDashboardBuild,
     machine: origin.machine,
     github: dashboard.github,
     projectFolders: ["open-dough"],

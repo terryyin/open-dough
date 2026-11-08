@@ -16,6 +16,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { requestRunArtifact } from "../../tests/support/runArtifacts.ts";
 import {
   startOrigin,
   type StartOrigin,
@@ -27,7 +28,8 @@ import {
 import {
   createStartOriginPreparationDirectory,
   installedStartSkills,
-  prepareStartOrigins,
+  prepareStartOrigin,
+  startOriginArtifactKey,
   startOriginPreparationVariable,
 } from "../../tests/support/startOriginPreparation.ts";
 
@@ -36,15 +38,15 @@ const git = async (cwd: string, ...args: string[]) =>
   (await exec("git", ["-C", cwd, ...args])).stdout.trim();
 test("concurrent installed starts edit, publish and clean private repositories without changing peers or later instances", async () => {
   const origins: StartOrigin[] = [];
-  const prepared = process.env[startOriginPreparationVariable];
-  assert(prepared);
-  const before = snapshot(prepared);
   try {
     const [first, second] = await Promise.all([
       startOrigin("someone/first", "first", "codex"),
       startOrigin("someone/second", "second", "cursor"),
     ]);
     origins.push(first, second);
+    const prepared = await requestRunArtifact(startOriginArtifactKey("codex"));
+    assert(prepared);
+    const before = snapshot(prepared);
     for (const origin of origins) {
       await expect(
         git(origin.project, "config", "--get", "branch.main.remote"),
@@ -125,9 +127,11 @@ test("successive preparations install current working-tree source without a pers
     path.join(tmpdir(), "dough-start-source-proof-"),
   );
   const inherited = process.env[startOriginPreparationVariable];
+  const owner = process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"];
   const origins: StartOrigin[] = [];
   try {
     const source = path.join(directory, "skills");
+    const installedMarker = ".claude/skills/dough-execute-plan/current-source";
     for (const skill of installedStartSkills) {
       cpSync(
         path.join(repoRoot, "src", "skills", skill),
@@ -142,18 +146,12 @@ test("successive preparations install current working-tree source without a pers
       );
       const prepared = createStartOriginPreparationDirectory();
       try {
-        await prepareStartOrigins(prepared, source);
+        await prepareStartOrigin(prepared, "claude", source);
         process.env[startOriginPreparationVariable] = prepared;
         const origin = await startOrigin();
         origins.push(origin);
         expect(
-          readFileSync(
-            path.join(
-              origin.project,
-              ".claude/skills/dough-execute-plan/current-source",
-            ),
-            "utf8",
-          ),
+          readFileSync(path.join(origin.project, installedMarker), "utf8"),
         ).toBe(value);
       } finally {
         rmSync(prepared, { recursive: true, force: true });
@@ -162,31 +160,21 @@ test("successive preparations install current working-tree source without a pers
     const initial = origins[0];
     assert(initial);
     expect(
-      readFileSync(
-        path.join(
-          initial.project,
-          ".claude/skills/dough-execute-plan/current-source",
-        ),
-        "utf8",
-      ),
+      readFileSync(path.join(initial.project, installedMarker), "utf8"),
     ).toBe("first run");
     Reflect.deleteProperty(process.env, startOriginPreparationVariable);
+    delete process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"];
     const fresh = await startOrigin();
     origins.push(fresh);
-    expect(
-      existsSync(
-        path.join(
-          fresh.project,
-          ".claude/skills/dough-execute-plan/current-source",
-        ),
-      ),
-    ).toBe(false);
+    expect(existsSync(path.join(fresh.project, installedMarker))).toBe(false);
     await fresh.takenByAnotherAgent();
     expect(await fresh.takenProfiles()).toHaveLength(1);
   } finally {
     if (inherited === undefined)
       Reflect.deleteProperty(process.env, startOriginPreparationVariable);
     else process.env[startOriginPreparationVariable] = inherited;
+    if (owner !== undefined)
+      process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"] = owner;
     for (const origin of origins) origin.cleanup();
     rmSync(directory, { recursive: true, force: true });
   }
@@ -201,10 +189,15 @@ test("failed preparation and initialization remove only owned state and retain u
   const peer = await startOrigin();
   const peerFiles = snapshot(peer.machine);
   try {
-    assert(inherited);
+    const shared = await requestRunArtifact(startOriginArtifactKey("claude"));
+    assert(shared);
     const prepared = createStartOriginPreparationDirectory();
     await expect(
-      prepareStartOrigins(prepared, path.join(directory, "missing-source")),
+      prepareStartOrigin(
+        prepared,
+        "claude",
+        path.join(directory, "missing-source"),
+      ),
     ).rejects.toMatchObject({ code: "ENOENT" });
     expect(existsSync(prepared)).toBe(false);
     process.env["TMPDIR"] = directory;
@@ -215,7 +208,7 @@ test("failed preparation and initialization remove only owned state and retain u
     await expect(startOrigin()).rejects.toMatchObject({ code: "ENOENT" });
     expect(readdirSync(directory)).toEqual([]);
     const broken = path.join(directory, "broken");
-    cpSync(path.join(inherited, "claude"), path.join(broken, "claude"), {
+    cpSync(path.join(shared, "claude"), path.join(broken, "claude"), {
       recursive: true,
     });
     writeFileSync(

@@ -13,7 +13,7 @@ import {
   stopTerminalClip,
 } from "../support/terminalVoicePage.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { noteTerminalTraffic } from "../touchTerminalPage.ts";
@@ -33,7 +33,7 @@ const test = base.extend<{ terminalServer: TerminalServer }>({
       start: async () => {
         active = await startDashboardServer({
           mode: "preview",
-          prebuilt: builtDashboardDir,
+          prebuilt: sharedDashboardBuild,
           github,
           machine: provider.machine,
           projectFolders: voiceBrowserOptions.projectFolders,

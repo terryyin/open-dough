@@ -26,7 +26,7 @@ import {
   titlesOfA,
 } from "../refreshJourney.ts";
 import {
-  builtDashboardDir,
+  sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { everyRepository, publishes } from "../support/fakeGitHub.ts";
@@ -141,7 +141,7 @@ machineTest(
   async ({ page }) => {
     const server = await startDashboardServer({
       mode: "preview",
-      prebuilt: builtDashboardDir,
+      prebuilt: sharedDashboardBuild,
     });
     const ref = holdingAnswer(
       publishes({ revision: revisionA, backlog: backlogA }),
