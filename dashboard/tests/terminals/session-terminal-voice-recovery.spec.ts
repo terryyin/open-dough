@@ -86,7 +86,9 @@ test("a retained transcript waits through reconnect, Insert offers it once, and 
   const input = panel.locator(".xterm-helper-textarea");
   await completeWhileDisconnected(page, panel, terminalServer);
   await expect(retained).toHaveValue(transcript);
-  await expect(panel.getByRole("status")).toContainText("was not inserted");
+  await expect(panel.getByRole("status")).toContainText(
+    "The transcript was not inserted. Reconnect, then insert it here or discard it.",
+  );
   await expect(record).toBeDisabled();
   await insert.click();
   await expect(retained).toHaveValue(transcript);

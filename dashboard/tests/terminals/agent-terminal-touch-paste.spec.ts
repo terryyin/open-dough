@@ -136,9 +136,7 @@ test.describe("phone Paste after the attachment disconnects", () => {
     await dashboard.close();
     await expect(status).toContainText("Disconnected from the session");
     await tapWhereShown(terminalKey(panel, "Paste"));
-    await expect(status).toContainText(
-      "Reconnect to the terminal, then tap Paste again.",
-    );
+    await expect(status).toContainText("Tap Reconnect, then tap Paste again.");
     expect(sent).toEqual([]);
 
     const restarted = await startDashboardServer({

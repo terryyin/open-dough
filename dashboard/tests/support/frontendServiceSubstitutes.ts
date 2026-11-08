@@ -193,14 +193,18 @@ export async function installFrontendServiceSubstitutes(
 }
 
 // Terminal WebSocket that reports attached and echoes input as text output.
+// With `opens`, the page's socket stays connecting until that settles.
 export async function installAttachedTerminalSubstitute(
   page: Page,
-  options: { readonly attachedLine?: string } = {},
+  options: {
+    readonly attachedLine?: string;
+    readonly opens?: Promise<void>;
+  } = {},
 ): Promise<{ readonly sent: string[] }> {
   const sent: string[] = [];
   const attachedLine =
     options.attachedLine ?? "attached abcdef12\r\nClaude Code\r\n";
-  await page.routeWebSocket(`**${agentTerminalEndpoint}**`, (ws) => {
+  await page.routeWebSocket(`**${agentTerminalEndpoint}**`, async (ws) => {
     ws.onMessage((message) => {
       if (typeof message !== "string") return;
       const parsed = JSON.parse(message) as { input?: unknown };
@@ -209,6 +213,9 @@ export async function installAttachedTerminalSubstitute(
         ws.send(parsed.input);
       }
     });
+    // Playwright opens a routed page socket once its handler returns or it
+    // first sends to the page.
+    await options.opens;
     // Binary readiness frame, then text output the page renders.
     ws.send(Buffer.from(JSON.stringify({ readiness: "attached" }), "utf8"));
     ws.send(attachedLine);

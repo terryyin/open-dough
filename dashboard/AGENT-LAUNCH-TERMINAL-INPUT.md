@@ -29,12 +29,14 @@ is never replayed automatically.
 Capture and pending results belong to the open session view. Close, switching
 sessions and a successful Mark as done that closes it cancel capture and pending
 requests, including late permission or transcript delivery. A result that cannot
-be offered because its attachment is closed or refused stays visible in full.
+be offered stays visible in full, with feedback naming the panel's **Reconnect**
+or **Open again** action, or saying the terminal is still connecting.
 **Insert transcript** offers it once to this session and focuses terminal input;
 an unavailable attachment keeps the text for another deliberate attempt.
 **Discard transcript** sends nothing. Settle it before recording again; closing
 or switching discards it.
-Reconnect leaves unsent text pending and never resends text already offered.
+Reconnecting or opening again leaves unsent text pending and sends nothing by
+itself; text already offered is never resent.
 
 ## Phone keyboard
 
@@ -47,7 +49,9 @@ soft keyboard’s current visibility.
 **Paste** reads the phone clipboard and offers its text as one terminal paste
 with control sequences removed and no trailing Enter. If the browser cannot
 read the clipboard, open Compose and use the keyboard’s own Paste. If the
-terminal is disconnected, reconnect and tap **Paste** again. When the
+terminal cannot accept input, the status names the panel's **Reconnect** or
+**Open again** action, or says it is still connecting; then tap **Paste**
+again. When the
 clipboard includes a PNG, JPEG, GIF or WebP image, the terminal offers its
 stored absolute path as one paste instead of the clipboard text. The status
 region identifies the stored file or shows the server’s refusal. Images use

@@ -142,7 +142,7 @@ with `locator.tap()` rather than `tapWhereShown`.
 
 **Type:** Behavior
 
-**Status:** planned
+**Status:** done
 
 Given an attachment that cannot accept input, dictation's pending-transcript
 feedback and Paste's feedback name the action the panel shows (**Reconnect**
@@ -150,6 +150,20 @@ or **Open again**), or that the terminal is still connecting; reopening sends
 nothing; clipboard-read failure keeps Compose guidance. Prove example 5 on the
 ended-terminal path and keep the existing disconnect and unreadable-clipboard
 assertions. Update the input guide's reconnect wording to match.
+
+**Accepted proof (2026-11-08, load ≈6–12).** `Terminal.tsx` passes a stable
+`recovery()` getter reading the shown `status.action` to dictation and Paste.
+New `dashboard/tests/terminals/agent-terminal-ended-input-recovery.spec.ts`
+proves example 5 (Open again for dictation and Paste; Open again sends
+nothing; Insert transcript offers once). A new still-connecting Paste test in
+`dashboard/frontend-tests/agent-terminal-touch-paste-image.spec.ts` holds the
+routed socket through `installAttachedTerminalSubstitute`'s `opens` option.
+The existing disconnect specs now assert the full Reconnect sentences, and the
+unreadable-clipboard Compose assertion is unchanged. With the old fixed
+sentences restored, the new assertions fail. Terminal, session and frontend
+families: 275 passed. Typecheck and lint pass. Refactor pass: no change.
+The dictation still-connecting sentence shares the getter but is not observed
+at page level, because frontend tests have no voice provider.
 
 ## Preparation review
 
