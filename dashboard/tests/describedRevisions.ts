@@ -4,7 +4,11 @@
 // (../../tests/support/repository-revision-files.mjs). The description states
 // the facts; the revision SHAs stay the harness's own.
 
-import type { RepositoryDescription } from "../../tests/support/repositoryTestData.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import type {
+  RepositoryDescription,
+  RevisionFacts,
+} from "../../tests/support/repositoryTestData.mjs";
 import { renderPublishedRevisions } from "../../tests/support/repository-revision-files.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { backlogPath } from "./publishedOriginBasics.ts";
@@ -52,6 +56,16 @@ export function describedRevision<Name extends string>(
     Name,
     string
   >)[name];
+}
+
+// The files one revision stating `facts` publishes, for a harness that serves
+// files alone. Its backlog is the description's own: an empty one unless
+// `facts` state theirs, or `backlog: null` for none.
+export function describedFiles(facts: RevisionFacts): Record<string, string> {
+  return describedRevision(
+    makeMe.aRepository.withRevision("published", facts).please(),
+    "",
+  ).files;
 }
 
 // The backlog text a description with one revision publishes, for a journey

@@ -3,21 +3,18 @@
 // auto-refresh-unusable-branch.spec.ts) publish, and the plan shapes
 // taken-execution-complete.spec.ts also publishes:
 // trunk at one revision, with Taken stories, their plans, and the agent
-// profiles recording where each is published (spelled by the shared
-// profile renderer), and the story branches published beside it, each at its
-// own head. Commit times, of plans and of the commits adding each profile
+// profiles recording where each is published, and the story branches
+// published beside it, each at its own head. Commit times, of plans and of the commits adding each profile
 // (its Take), are relative to the page's opening time.
 
-import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
+import { describedRevisions } from "./describedRevisions.ts";
 
 export const repository = "terryyin/open-dough";
-const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 const seedPath = ".planning/seeds/SEED-092-branch.md";
 export const revision = "d4".repeat(20);
 export const opened = new Date("2026-09-24T09:00:00.000Z");
@@ -92,27 +89,31 @@ export const planPath = (anchor: string) =>
 export const profilePath = (agent: string) =>
   `.planning/agents/${agent.toLowerCase()}-chan.json`;
 
-// The agent profile recording who took the story at `anchor`, in which mode
-// on which branch.
-export function agentProfile(
-  anchor: string,
-  { agent, mode, branch }: Story["owners"][number],
-): string {
-  return renderAgentProfile(
-    makeMe.anAgentProfile
-      .executing({
-        name: agent,
-        identity: `SEED-092#${anchor}`,
-        mode,
-        branch,
-        host: "claude",
-      })
-      .please(),
-  );
-}
+const seed = `# Branch progress fixture
 
-const backlog = renderPublishedBacklog(
-  {
+${stories
+  .map(
+    ({ title, anchor }) => `<a id="${anchor}"></a>
+
+### ${title}
+
+**Identity:** SEED-092#${anchor}
+`,
+  )
+  .join("\n")}`;
+
+// The plan with `statuses`.
+const planOf = (
+  statuses: Parameters<typeof makeMe.aSlicePlan.withStatuses>[0],
+) =>
+  renderSlicePlan(makeMe.aSlicePlan.withStatuses(statuses).please(), {
+    heading: "Slices",
+  });
+
+// Trunk's facts: each story Taken and planned, each owner's profile. Trunk's
+// copy of the branch story's plan is as it was at Take.
+const atTrunk = {
+  backlog: {
     taken: stories.map(({ title, anchor }) =>
       makeMe.aBacklogEntry
         .with({
@@ -123,49 +124,53 @@ const backlog = renderPublishedBacklog(
         .please(),
     ),
   },
-  { blankAfterEmptyQueue: false },
-);
+  files: {
+    [seedPath]: seed,
+    ...Object.fromEntries(
+      stories.map(({ anchor }) => [
+        planPath(anchor),
+        planOf(
+          anchor === "on-branch"
+            ? Array.from({ length: 8 }, () => "planned" as const)
+            : ["done", "planned"],
+        ),
+      ]),
+    ),
+  },
+  storyStates: stories.map(({ anchor }) => ({
+    identity: `SEED-092#${anchor}`,
+    href: `seeds/SEED-092-branch.md#${anchor}`,
+    ...makeMe.aStoryPreparation
+      .plannedIn(`../slice-plans/092-${anchor}/PLAN.md`)
+      .please(),
+  })),
+  agentProfiles: stories.flatMap(({ anchor, owners }) =>
+    owners.map(({ agent, mode, branch }) =>
+      makeMe.anAgentProfile
+        .executing({
+          name: agent,
+          identity: `SEED-092#${anchor}`,
+          mode,
+          branch,
+          host: "claude",
+        })
+        .please(),
+    ),
+  ),
+} satisfies RevisionFacts;
 
-const seed = `# Branch progress fixture
+// A revision at `sha` made from trunk's by `facts`: a branch head, or trunk
+// moved.
+export const fromTrunk = (sha: string, facts: RevisionFacts) =>
+  describedRevisions(
+    makeMe.aRepository
+      .withRevision("trunk", atTrunk)
+      .withRevision("head", facts)
+      .please(),
+    { trunk: revision, head: sha },
+  ).head;
 
-${stories
-  .map(
-    ({ title, anchor }) => `<a id="${anchor}"></a>
-
-### ${title}
-
-**Identity:** SEED-092#${anchor}
-${renderPublishedPreparation(
-  makeMe.aStoryPreparation
-    .with({
-      refinement: "refined",
-      approach: "planned",
-      plan: `../slice-plans/092-${anchor}/PLAN.md`,
-    })
-    .please(),
-)}
-`,
-  )
-  .join("\n")}`;
-
-const trunkFiles: Record<string, string> = {
-  [backlogPath]: backlog,
-  [seedPath]: seed,
-};
-for (const { anchor, owners } of stories) {
-  // Trunk's copy of the branch story's plan is as it was at Take.
-  const statuses =
-    anchor === "on-branch"
-      ? Array.from({ length: 8 }, () => "planned" as const)
-      : (["done", "planned"] as const);
-  trunkFiles[planPath(anchor)] = renderSlicePlan(
-    makeMe.aSlicePlan.withStatuses(statuses).please(),
-    { heading: "Slices" },
-  );
-  for (const owner of owners) {
-    trunkFiles[profilePath(owner.agent)] = agentProfile(anchor, owner);
-  }
-}
+const trunkFiles = fromTrunk(revision, {}).files;
 
 export const trunk: PublishedRevision = {
   revision,
@@ -188,60 +193,34 @@ export const similarlyNamed = "story/taken-before-agent-profiles";
 // The published branch heads. `story/deleted` is not among them.
 export const branches: Readonly<Record<string, PublishedRevision>> = {
   "story/example": {
-    revision: branchHead,
-    files: {
-      ...trunkFiles,
-      [planPath("on-branch")]: renderSlicePlan(
-        makeMe.aSlicePlan
-          .withStatuses([
-            "done",
-            "done",
-            "done",
-            "done",
-            "done",
-            "done",
-            "planned",
-            "planned",
-          ])
-          .please(),
-        { heading: "Slices" },
-      ),
-    },
+    ...fromTrunk(branchHead, {
+      files: {
+        [planPath("on-branch")]: planOf([
+          ...Array.from({ length: 6 }, () => "done" as const),
+          "planned",
+          "planned",
+        ]),
+      },
+    }),
     committed: { [planPath("on-branch")]: minutesBefore(7) },
   },
   "story/two-owners": { revision: "f1".repeat(20), files: trunkFiles },
   "story/two-owners-again": { revision: "f2".repeat(20), files: trunkFiles },
-  "story/plan-missing": {
-    revision: "f3".repeat(20),
-    files: Object.fromEntries(
-      Object.entries(trunkFiles).filter(
-        ([path]) => path !== planPath("plan-missing"),
-      ),
-    ),
-  },
-  "story/uninterpretable": {
-    revision: "f4".repeat(20),
+  "story/plan-missing": fromTrunk("f3".repeat(20), {
+    remove: [planPath("plan-missing")],
+  }),
+  "story/uninterpretable": fromTrunk("f4".repeat(20), {
     files: {
-      ...trunkFiles,
-      [planPath("plan-uninterpretable")]: `${renderSlicePlan(
-        makeMe.aSlicePlan.withStatuses(["done", "planned"]).please(),
-        { heading: "Slices" },
-      )}
+      // A slice status no reader interprets: the bytes the card's gap is about.
+      [planPath("plan-uninterpretable")]: `${planOf(["done", "planned"])}
 ### 3. Slice 3
 Type: Behavior
 Status: merged into slice 1
 Proof: A journey observes slice 3.
 `,
     },
-  },
-  [similarlyNamed]: {
-    revision: "f5".repeat(20),
-    files: {
-      ...trunkFiles,
-      [planPath("before-profiles")]: renderSlicePlan(
-        makeMe.aSlicePlan.withStatuses(["done", "done"]).please(),
-        { heading: "Slices" },
-      ),
-    },
-  },
+  }),
+  [similarlyNamed]: fromTrunk("f5".repeat(20), {
+    files: { [planPath("before-profiles")]: planOf(["done", "done"]) },
+  }),
 };

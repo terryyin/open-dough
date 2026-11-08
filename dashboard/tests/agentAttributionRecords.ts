@@ -14,12 +14,12 @@
 // by the first revision's credited account.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   openDough,
-  openDoughFiles,
+  openDoughFacts,
   takenIdentity,
 } from "./agentRosterRecords.ts";
+import { describedRevisions } from "./describedRevisions.ts";
 import {
   avatarPng,
   avatarServerError,
@@ -52,16 +52,44 @@ export const reallocatorWidth = 5;
 
 // The profiles naming work the backlog does not list, beside the roster's.
 const retired = (name: string) =>
-  renderAgentProfile(
-    makeMe.anAgentProfile
-      .executing({
-        name,
-        identity: "SEED-098#another-retired-story",
-        mode: "trunk",
-        branch: "origin/main",
-      })
-      .please(),
-  );
+  makeMe.anAgentProfile
+    .executing({
+      name,
+      identity: "SEED-098#another-retired-story",
+      mode: "trunk",
+      branch: "origin/main",
+    })
+    .please();
+
+// The roster's records with the retired profiles beside them at the first
+// revision; at the second, Akiho allocated again, in Codex.
+const published = describedRevisions(
+  makeMe.aRepository
+    .withRevision("first", {
+      ...openDoughFacts,
+      agentProfiles: [
+        ...openDoughFacts.agentProfiles,
+        retired("Sola"),
+        retired("Rina"),
+        retired("Nana"),
+      ],
+    })
+    .withRevision("second", {
+      agentProfiles: [
+        makeMe.anAgentProfile
+          .executing({
+            name: "Akiho",
+            identity: takenIdentity,
+            mode: "trunk",
+            branch: "origin/main",
+            host: "codex",
+          })
+          .please(),
+      ],
+    })
+    .please(),
+  { first: "c1".repeat(20), second: "c2".repeat(20) },
+);
 
 // Akiho's allocation for the Taken work, after an older allocation of the
 // same name was added by someone else and released.
@@ -107,33 +135,13 @@ const history: PathHistories = {
 
 export const firstRevision = {
   ...openDough,
-  revision: "c1".repeat(20),
-  files: {
-    ...openDoughFiles,
-    [`${agents}/sola-chan.json`]: retired("Sola"),
-    [`${agents}/rina-chan.json`]: retired("Rina"),
-    [`${agents}/nana-chan.json`]: retired("Nana"),
-  },
+  ...published.first,
   history,
 };
 
 export const secondRevision = {
   ...firstRevision,
-  revision: "c2".repeat(20),
-  files: {
-    ...firstRevision.files,
-    [`${agents}/akiho-chan.json`]: renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name: "Akiho",
-          identity: takenIdentity,
-          mode: "trunk",
-          branch: "origin/main",
-          host: "codex",
-        })
-        .please(),
-    ),
-  },
+  ...published.second,
   history: {
     ...history,
     [`${agents}/akiho-chan.json`]: [

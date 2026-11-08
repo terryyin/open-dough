@@ -7,6 +7,7 @@
 // listed at all; and a Pygardon revision that publishes no backlog.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
 import type { Locator, Page } from "@playwright/test";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { expect, githubFor } from "./dashboardTest.ts";
@@ -43,70 +44,69 @@ export const unlistedIdentity = "SEED-099#retired-story";
 const entry = (title: string, identity: string, href: string) =>
   makeMe.aBacklogEntry.with({ title, identity, href }).please();
 
-export const { files: openDoughFiles } = describedRevision(
-  makeMe.aRepository
-    .withRevision("roster", {
-      backlog: {
-        taken: [
-          entry(
-            takenStory,
-            takenIdentity,
-            "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
-          ),
-        ],
-        queued: [
-          entry(
-            queuedStory,
-            queuedIdentity,
-            "seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure",
-          ),
-        ],
-      },
-      agentProfiles: [
-        makeMe.anAgentProfile
-          .executing({
-            name: "Akiho",
-            identity: takenIdentity,
-            mode: "trunk",
-            branch: "origin/main",
-            host: "claude",
-            model: "claude-opus-5-5",
-          })
-          .please(),
-        makeMe.anAgentProfile
-          .preparing({
-            name: "Kirara",
-            identity: queuedIdentity,
-            host: "cursor",
-          })
-          .please(),
-        makeMe.anAgentProfile
-          .executing({
-            name: "Yuma",
-            identity: unlistedIdentity,
-            mode: "story-branch",
-            branch: "codex/retired-story",
-          })
-          .please(),
-      ],
-      // The bytes the roster's unreadable-profile gaps are about: a profile
-      // that is not JSON, and one filed under Yui whose text names Sola
-      // preparing the queued story, evidence about Yui that contradicts itself
-      // and no assignment for Sola or that story.
-      files: {
-        [`${agents}/mana-chan.json`]: '{ "agent": "Mana-chan", ',
-        [`${agents}/yui-chan.json`]: renderAgentProfile(
-          makeMe.anAgentProfile
-            .preparing({
-              name: "Sola",
-              identity: queuedIdentity,
-              host: "codex",
-            })
-            .please(),
-        ),
-      },
-    })
-    .please(),
+export const openDoughFacts = {
+  backlog: {
+    taken: [
+      entry(
+        takenStory,
+        takenIdentity,
+        "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
+      ),
+    ],
+    queued: [
+      entry(
+        queuedStory,
+        queuedIdentity,
+        "seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure",
+      ),
+    ],
+  },
+  agentProfiles: [
+    makeMe.anAgentProfile
+      .executing({
+        name: "Akiho",
+        identity: takenIdentity,
+        mode: "trunk",
+        branch: "origin/main",
+        host: "claude",
+        model: "claude-opus-5-5",
+      })
+      .please(),
+    makeMe.anAgentProfile
+      .preparing({
+        name: "Kirara",
+        identity: queuedIdentity,
+        host: "cursor",
+      })
+      .please(),
+    makeMe.anAgentProfile
+      .executing({
+        name: "Yuma",
+        identity: unlistedIdentity,
+        mode: "story-branch",
+        branch: "codex/retired-story",
+      })
+      .please(),
+  ],
+  // The bytes the roster's unreadable-profile gaps are about: a profile that
+  // is not JSON, and one filed under Yui whose text names Sola preparing the
+  // queued story (self-contradicting evidence about Yui, no Sola assignment).
+  files: {
+    [`${agents}/mana-chan.json`]: '{ "agent": "Mana-chan", ',
+    [`${agents}/yui-chan.json`]: renderAgentProfile(
+      makeMe.anAgentProfile
+        .preparing({
+          name: "Sola",
+          identity: queuedIdentity,
+          host: "codex",
+        })
+        .please(),
+    ),
+  },
+} satisfies RevisionFacts;
+
+const { files: openDoughFiles } = describedRevision(
+  makeMe.aRepository.withRevision("roster", openDoughFacts).please(),
   openDough.revision,
 );
 

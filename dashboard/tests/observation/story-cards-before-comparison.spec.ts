@@ -16,11 +16,11 @@ import { readsBesideChecks } from "../originObservation.ts";
 import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import {
   atA,
+  addedTitle,
   atB,
-  backlog,
   backlogPath,
   expectSettledAt,
-  files,
+  filesWithAddedStory,
   opened,
   productCodeCommit,
   queuedTitle,
@@ -28,7 +28,6 @@ import {
   repository,
   revisionA,
   revisionB,
-  seed,
   seedPath,
   takenTitle,
 } from "../unchangedRecordsRefresh.ts";
@@ -86,13 +85,10 @@ test("while the comparison is held, B's changed backlog shows its new membership
   await page.goto("/");
   await expectSettledAt(page, revisionA);
 
-  const addedTitle = "Newly queued";
-  const changedBacklog = `${backlog}- [${addedTitle}](seeds/SEED-271-refresh.md#added) — SEED-271#added\n`;
-  const changedSeed = `${seed}\n<a id="added"></a>\n\n### ${addedTitle}\n\n**Identity:** SEED-271#added\n`;
   const atChanged: PublishedRevision = {
     ...atA,
     revision: revisionB,
-    files: { ...files, [backlogPath]: changedBacklog, [seedPath]: changedSeed },
+    files: filesWithAddedStory,
   };
   const before = origin.requests.length;
   const release = origin.holdComparisons();

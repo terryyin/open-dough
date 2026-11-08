@@ -9,7 +9,6 @@
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
-import { renderDoneRecord } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { expect, githubFor, pausePageClockAt } from "../dashboardTest.ts";
 import { expectMembership, parts, shortRevision } from "../dashboardPage.ts";
 import { publishes } from "../support/fakeGitHub.ts";
@@ -33,7 +32,7 @@ import {
   executed,
   removedQueued,
 } from "../recentlyDoneRecords.ts";
-import { withDoneCatalog } from "../doneCatalogAnswers.ts";
+import { describedRevisions } from "../describedRevisions.ts";
 import { sessionsOutsideDoneStories } from "../recentlyDoneColumn.ts";
 
 const hour = 60 * 60_000;
@@ -45,26 +44,32 @@ const isHeldRecord = (request: GhRequest) =>
 export const isHeldCatalog = (request: GhRequest) =>
   request.kind === "content" &&
   request.path === `${doneDirectory}/.catalog.json`;
-const doneRecords = {
-  [heldRecord]: renderDoneRecord(
-    makeMe.aDoneRecord
-      .with({
-        ...executed,
-        completedAt: new Date(opened.getTime() - 2 * hour).toISOString(),
-        developer: "Terry Yin",
-      })
-      .please(),
-  ),
-  [doneRecordAt(removedQueued.identity)]: renderDoneRecord(
-    makeMe.aDoneRecord
-      .with({
-        ...removedQueued,
-        completedAt: new Date(opened.getTime() - 24 * hour).toISOString(),
-        developer: "Terry Yin",
-      })
-      .please(),
-  ),
-};
+// The slice clock records, then two done records beside them with the
+// catalog completion rebuilds.
+const { done } = describedRevisions(
+  makeMe.aRepository
+    .withRevision("clock", { files })
+    .withRevision("done", {
+      doneRecords: [
+        makeMe.aDoneRecord
+          .with({
+            ...executed,
+            completedAt: new Date(opened.getTime() - 2 * hour).toISOString(),
+            developer: "Terry Yin",
+          })
+          .please(),
+        makeMe.aDoneRecord
+          .with({
+            ...removedQueued,
+            completedAt: new Date(opened.getTime() - 24 * hour).toISOString(),
+            developer: "Terry Yin",
+          })
+          .please(),
+      ],
+    })
+    .please(),
+  { clock: revision, done: revision },
+);
 
 export async function openedWithHeldDoneRecord(
   page: Page,
@@ -101,7 +106,7 @@ export async function openedWithHeldDoneRecord(
   await pausePageClockAt(page, opened);
   const published = publishes({
     revision,
-    files: withDoneCatalog({ ...files, ...doneRecords }, doneDirectory),
+    files: done.files,
     committed,
     history,
   });

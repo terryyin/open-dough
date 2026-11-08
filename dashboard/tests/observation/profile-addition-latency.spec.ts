@@ -8,19 +8,18 @@
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Locator, Page } from "@playwright/test";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { inspectedDetail } from "../storyCardControls.ts";
 import { publishes } from "../support/fakeGitHub.ts";
 import { holdingAnswer } from "../support/heldGitHubAnswer.ts";
 import { pathChange } from "../pathHistoryAnswers.ts";
+import { describedFiles } from "../describedRevisions.ts";
 import type { GhRequest } from "../support/ghRequest.ts";
 import {
   afterTake,
-  backlogPath,
+  clockedFacts,
   committed,
-  files,
   history,
   justTaken,
   opened,
@@ -47,18 +46,24 @@ async function openedWithHeldAddition(page: Page, heldSha: string) {
   await pausePageClockAt(page, opened);
   const published = publishes({
     revision,
-    files: {
-      ...files,
-      [backlogPath]: `${files[backlogPath] ?? ""}- [${preparing}](seeds/SEED-091-clock.md#preparing) — SEED-091#preparing\n`,
-      [profilePath("Kirara")]: renderAgentProfile(
-        makeMe.anAgentProfile
-          .preparing({
-            name: "Kirara",
-            identity: "SEED-091#preparing",
-          })
-          .please(),
-      ),
-    },
+    files: describedFiles(
+      clockedFacts({
+        queued: [
+          makeMe.aBacklogEntry
+            .with({
+              identity: "SEED-091#preparing",
+              href: "seeds/SEED-091-clock.md#preparing",
+              title: preparing,
+            })
+            .please(),
+        ],
+        agentProfiles: [
+          makeMe.anAgentProfile
+            .preparing({ name: "Kirara", identity: "SEED-091#preparing" })
+            .please(),
+        ],
+      }),
+    ),
     committed,
     history: {
       ...history,

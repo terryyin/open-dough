@@ -264,7 +264,7 @@ equal. A refined, planned story state is
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Record served path lists and two paired before/after runs of the
 recently done and profile family (alternate the published slice-3 revision,
@@ -288,6 +288,23 @@ Delete `withDoneCatalog`, `doneCatalogOf` and other helpers that become
 unused. After the migration that search lists only Git helpers, encoders'
 own tests and call sites whose spec proves those bytes.
 
+Accepted proof (2026-11-08): 101 specs importing the migrated helpers plus
+the migrated specs passed 267 of 267 before and after; served paths equal for
+242 tests; the encoder search lists only Git-only helpers, readers and
+proving call sites; typecheck clean. Paired runs against trunk `24c881a5a`
+without this story: recently done and profile family B/A 0.95 wall (A 165 s,
+158 s; B 150 s, 156 s; load 10–15); refresh family B/A 1.046 wall (A 63–68 s,
+B 65–71 s; load 10–18), inside the base runs' 8 % spread, and 1.00 against the
+slice-3 tip. Whole suites on the refactored candidate: `npm test` passed;
+`npm run test:dashboard` passed 2236 with one failure,
+`runtime/production-watcher-failures.spec.ts:168` (`kill EPERM` while
+replacing a preview, load 21), which passed 50 of 50 on rerun and is repaired
+as its own increment.
+
+Learnings: `describedFiles(facts)` gives a one-revision description's files.
+`doneRecords: []` rebuilds the catalog over literal record files; a revision
+cannot add and remove a done record at once because `remove` applies first.
+
 ## Plan concerns
 
 Slice-plan refinement was not needed: the slices are one proof loop
@@ -302,4 +319,4 @@ current decision.
 ### G1. Helpers outside the inventory still compose published planning files (found at slice 3 acceptance)
 Reported: slice 3 — "withDoneCatalog and doneCatalogOf stay: 15 files outside this slice still use them"
 Story clause: "Helpers that already call `renderPublishedBacklog` but hand-write seeds or records, such as `catalogProjectRecords.ts`, move to the same description."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `grep -rlE 'renderPublishedBacklog|renderPublishedPreparation|dough-story-state|renderAgentProfile|renderDoneRecord|withDoneCatalog|doneCatalogOf' dashboard` lists only Git-only helpers, readers and proving call sites; `dashboard/tests/doneCatalogAnswers.ts` deleted; 101 affected specs passed 267 of 267
