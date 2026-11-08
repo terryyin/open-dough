@@ -4,6 +4,9 @@
 
 **Accepted:** 2026-10-27, by Terry Yin, including the dashboard UI concepts below.
 
+**Clarified:** 2026-11-08, at Terry Yin's direction, to include selection from
+Recently done sessions and preserve the current perspective.
+
 **Date:** 2026-09-19
 
 **Decision makers:** Terry Yin
@@ -96,9 +99,16 @@ evidence from an explicit negative result.
 | Side panel | The auxiliary region, normally to the Board's right, showing one terminal, final report, or story review at a time. |
 | Panel divider | The resize control between the Board and Side panel when they appear side by side. |
 | Scrollbar | A control that scrolls its owning region; qualify it by that region, such as Board scrollbar or Side panel scrollbar. |
-| Selected story | The page's one story, or none, that the dashboard is showing: set by opening that story's content in the Side panel or by its Story card's Select story toggle, cleared by closing the Side panel or showing a session attached to no story. Intent reads it. |
+| Selected story | The page's one story, or none, that the dashboard is showing. Opening that story's content in the Side panel, using its Story card's Select story toggle, or selecting a Recently done sessions row linked to the completed story can set it. Closing the Side panel or showing a session attached to no story clears it. Intent reads it. |
 | Highlight | The selected story's visual indication on its Story card. |
 | Inspect | Opening or closing a Story card's inline detail, which leaves the Selected story as it is. |
+
+In Recently done sessions, choosing a linked row selects its completed story.
+Choosing a standalone row selects the retained session and preserves the
+Selected story. The selection updates the current perspective and leaves the
+Side panel as it was. Development shows the selected story or session in its
+Board. Intent uses the Selected story and keeps its current reading when a
+standalone session is selected.
 
 Use these names directly across UI language, architecture, code, tests, and
 documentation, adapting casing only to programming syntax. Each concept has
