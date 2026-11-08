@@ -130,6 +130,17 @@ goes through `keepLaunchStoreText`.
 [Builder](support/launchTestData.mjs) ·
 [Launch store harness](../dashboard/tests/support/launchStore.ts)
 
+Build the host session a terminal or runner consumes on its own with
+`makeMe.aHostSession.claude`, `.codex` or `.cursor`; a kept launch's
+`inClaudeSession`, `inCodexSession` and `inCursorSession` use the same
+construction. State the conversation's identity and where it continues: a
+Codex thread's saved workspace and app-server endpoint, with its notice when
+the case needs it, or a Cursor chat's UUID and workspace, with its saved
+configuration scope when the case needs it. Resume arguments default to the
+host's current resume command for that conversation, so each session resumes
+its own identity. A Codex session without a continuation is a predecessor
+record. [Host session builder](support/hostSessionTestData.mjs)
+
 When a case needs another agent's claim only as a starting fact, declare it
 with `takeRevision`: the agent authors it and the developer commits it under
 `Take queued work: <identity>`, so claim readers find it as they find a real
