@@ -428,18 +428,132 @@ run-to-run noise.
 ### Build Node test repositories from explicit MakeMe data
 
 **Identity:** SEED-262#migrate-backlog-scratch-repositories
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-262#migrate-backlog-scratch-repositories","dependencies":[{"supplier":{"identity":"SEED-262#build-explicit-git-fixtures","href":"seeds/SEED-262-faster-dashboard-test-feedback.md#build-explicit-git-fixtures"},"implementation":"This story describes the backlog Git, done, identity evidence, lint-runner, local-suite and later-trunk starting repositories with makeMe.aRepository, and extends the shared materializer with a local checkout without an origin and a declared configured developer.","rationale":"The description and materializer are planned in plan 510 and not yet built. The test data architecture allows one MakeMe entry point and one Git harness, so building them here would duplicate and conflict with that story's work.","condition":"makeMe.aRepository with ordered named trunk revisions, and the shared materializer that turns a description into real Git with per-process reuse, are published on trunk.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/524-migrate-backlog-scratch-repositories/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"beccf6868649f138a6c38d7168f18af89739d9c18d680b664a79935b87a7ddd9","plan":"409b014c7c1b834331a9d21fcdf6a2c2ecf9df87402836ce4bcedfb784971700"}}
 ```
 
-**Goal.** A maintainer reading a `tests/support` Node test that needs Git can
-see the repository facts at its call site.
+#### Goal
 
-**Scope.** Route the backlog Git and done fixtures' `scratchRepo` and
-`gitWorkspace`, the lint-runner, local-test-suite and later-trunk fixtures,
-and inline setup in Node tests through
-[the shared repository builder](#build-explicit-git-fixtures). Merge, rebase
-and conflict states remain real Git operations in the tests that prove them.
+A maintainer reading a `tests/support` Node test that needs Git can
+see, at its call site, which repository facts drive the case. These facts are
+the published backlog, done records, agent profiles and seeds, the ordered
+revisions the product reads, and the developer and committer it credits.
+Today `scratchRepo` commits the starting backlog as "Test", and
+`gitWorkspace` configures "Terry Yin" as the developer by default. Done record
+tests assert that name although only the fixture states it. Setup helpers that run
+the real `complete` or `take` are called 33 times, to arrange done records
+and profiles for cases whose subject is a merge, rebase or cherry-pick.
+This story moves these repositories onto
+[the shared repository description](#build-explicit-git-fixtures). Node test
+feedback must not get slower.
+
+#### Scope
+
+- Route the starting repository of each `tests/support` Node test that makes
+  one through the shared description and materializer. On 2026-11-08 these
+  were `scratchRepo` in the backlog Git fixture (43 calls in 18 merge,
+  rebase, cherry-pick, done-catalog and driver tests) and `gitWorkspace` in
+  the done fixture (7 calls in the done-record, intent-coverage and identity
+  evidence tests). They also included `committedLintFixture` (4 test files),
+  the local-test-suite `fixture` (2), the later-trunk `trunk` and `trunkOf`
+  (2), and the inline repository in `requested-revision-ci-status.test.mjs`.
+- Arrangement backlogs come from `aBacklogEntry` and the production backlog
+  encoder. The near-future direction paragraph becomes a backlog fact when a
+  case reads it. `backlogOf` stays the independently written byte
+  expectation and is no longer the arrangement. Exact malformed or legacy
+  lines under proof, such as an entry with no link, stay literal file bytes.
+- The configured developer, the committer and an agent author are declared
+  at the call site when the product reads them.
+- Arrange a transition directly when the test does not prove it. A done
+  record and catalog come from `aDoneRecord`, `renderDoneRecord` and the
+  catalog derivation, and a profile from `anAgentProfile`, instead of running
+  `complete` or `take` in setup. A case whose subject is one of those commands
+  still runs it for real.
+- Branches, merges, rebases, cherry-picks, conflicts, linked worktrees,
+  ongoing operation states and staged or unstaged changes stay Git
+  operations in the test. Their file content comes from MakeMe or literal
+  bytes, as the starting revision's does.
+- Copied runner and lint tooling, linked dependencies, the merge driver
+  registration and an init without templates are harness layers or
+  materializer options. They are not description facts. The sample files a
+  lint or suite case checks are declared files with their exact bytes.
+- Remove a superseded helper or root builder once no consumer needs it.
+- Boundary assumption: execution starts after
+  [the shared repository builder](#build-explicit-git-fixtures) lands
+  `makeMe.aRepository` and its materializer on trunk. This story extends that
+  description and materializer rather than adding a second one.
+- Scope limits: skill tests under `src/skills`, dashboard helpers and shell
+  or native fixtures belong to their sibling stories, including the
+  shell-driven `story-dependencies-installed-observe.mjs`. Caching beyond the
+  materializer's per-process reuse belongs to
+  [faster Git fixture construction](#reuse-immutable-git-histories). The
+  description gains no branch or merge model.
+
+#### Key examples
+
+1. **Merge under proof.** A backlog merge test declares a trunk whose backlog
+   holds Items A and B Taken and Item C queued. It commits the `close-a` and
+   `close-b` branches with Git and runs the real merge. The merged bytes
+   still equal the `backlogOf` expectation, and the verdict is unchanged.
+2. **Developer under proof.** The done-record test declares Terry Yin as the
+   configured developer at its call site, and the real `complete` records
+   Terry Yin. No fixture default supplies that name.
+3. **Transition declared.** A done-catalog rebase case declares a `feature`
+   branch holding Story B's done record, completed at 2026-10-05, and the
+   rebuilt catalog. No `complete` runs during setup. The real rebase still
+   adds the same catalog commit as the agent and credits the developer once.
+4. **History the product reads.** The identity evidence case declares three
+   revisions. "Active work" holds the active seeds, "Allocate SEED-090" adds
+   its seed and done record, and "Clean up SEED-090" removes both. The
+   evidence still names the allocating revision.
+5. **Harness layer and literal files.** A lint file-set test declares its
+   sample programs with exact bytes. The runner files and linked
+   dependencies are added by the harness. The pre-commit hook test still
+   stages its change with Git.
+6. **Ancestry under proof.** `trunkOf(count)` declares its landing and later
+   revisions. `trunk()` declares the landing and first later revision, then
+   builds the side branch, the merge and the last two revisions with Git.
+   The forward walk's verdicts are unchanged.
+7. **Superseded setup removed.** No `tests/support` Node test keeps its own
+   `git init` for a starting repository, and none runs `complete` or `take`
+   in setup unless it proves that command.
+
+#### Evaluation
+
+Migrated tests keep their verdicts and assertions. A reviewer can name each
+case's driving repository facts from its call site. Record focused run times
+before and after under comparable load for the backlog Git family and the
+lint-runner family. They must not regress beyond run-to-run noise.
+
+#### Architecture
+
+- **One description, one materializer.** This story extends
+  [the repository description and materializer](#build-explicit-git-fixtures)
+  and adds no Node-specific copy. MakeMe owns the facts and the harness owns
+  Git, tooling copies and teardown
+  ([test data architecture](../../tests/README.md#test-data-architecture)).
+- **A local checkout when no remote is read.** On 2026-11-08, under load
+  about 5, a single scratch repository with one commit took 62–64 ms. A bare
+  origin with a pushed checkout took 128–131 ms, and copying a prepared
+  template took 17 ms. Most cases here declare different backlogs, so
+  per-process reuse rarely applies. The materializer therefore gives a
+  single checkout without an origin when the case reads no remote. The
+  product readers these tests prove read `HEAD` and the configured user
+  name, so an origin is not a fact under proof.
+- **Expectations stay independent.** Arrangement bytes come from production
+  encoders. Expected bytes stay hand-written, so an expectation cannot agree
+  with a wrongly rendered arrangement
+  ([ADR 0002 §5](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)).
+- **Commit graphs stay in Git.** The description holds ordered trunk
+  revisions only. Merge, rebase and cherry-pick inputs and ancestry walks
+  are built with Git in the test
+  ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)).
+- **No native evidence change.** No shell or native check loads these
+  fixture modules, so this story needs no paid run
+  ([native family layers](../../tests/native-family-layers.md)).
 
 <a id="migrate-shell-release-and-native-fixtures"></a>
 
