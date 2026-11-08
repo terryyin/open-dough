@@ -20,7 +20,6 @@ import {
   test,
 } from "../tests/support/frontendApp.ts";
 import {
-  emptyMachineAnswer,
   putFrontendMachine,
   type FrontendServiceState,
 } from "../tests/support/frontendServiceState.ts";
@@ -61,19 +60,17 @@ const noHeldSessions: RunningCursorSessions = {
 };
 
 function holdCursorSession(frontendServices: FrontendServiceState) {
-  putFrontendMachine(frontendServices, {
-    ...emptyMachineAnswer(),
-    records: [
-      {
-        ...heldRecord,
-        sessionState: {
-          kind: "available",
-          availability: "loaded",
-          activity: "working",
-        },
-      },
-    ],
-  });
+  putFrontendMachine(
+    frontendServices,
+    makeMe.aMachineAnswer
+      .observing(
+        makeMe.anObservedLaunch
+          .of(heldRecord)
+          .withSessionState(makeMe.aSessionState.loaded("working").please())
+          .please(),
+      )
+      .please(),
+  );
 }
 
 async function openRunningList(

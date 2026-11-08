@@ -16,7 +16,6 @@ import {
 export {
   defaultFrontendServiceState,
   doughnutSource,
-  emptyMachineAnswer,
   frontendRevision,
   openDoughSource,
   putFrontendCandidates,

@@ -28,14 +28,11 @@ test("predecessor without continuation gains no command; missing workspace prese
   if (native === undefined) throw new Error("Missing native fixture");
   const legacy = record(dashboard, native, "legacy-no-continuation");
   delete legacy.session.continuation;
-  const missing = record(dashboard, native, native.threadId);
-  if (missing.session.continuation === undefined)
-    throw new Error("Missing continuation");
-  missing.session.continuation.workspace = path.join(
-    dashboard.home,
-    "retired-workspace",
-  );
-  native.cwd = missing.session.continuation.workspace;
+  const retired = path.join(dashboard.home, "retired-workspace");
+  const missing = record(dashboard, native, native.threadId, {
+    workspace: retired,
+  });
+  native.cwd = retired;
   native.history = [
     {
       id: "final-turn",

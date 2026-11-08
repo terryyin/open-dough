@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_map-launch-observation-test-data.json",
+      "identity": "SEED-261#map-launch-observation-test-data",
+      "completedAt": "2026-11-08T18:09:38.445Z",
+      "blob": "79e1bcbbe539dabb5dd64948b48422489657f680"
+    },
+    {
       "fileName": "SEED-262_reuse-immutable-git-histories.json",
       "identity": "SEED-262#reuse-immutable-git-histories",
       "completedAt": "2026-11-08T17:14:35.036Z",

@@ -6,25 +6,30 @@ import { claudeHost } from "../../server/claudeHost.ts";
 import { codexHost } from "../../server/codexHost.ts";
 import { withStates } from "../../server/launchStates.ts";
 import { launchRequest } from "../../tests/agentLaunchBoundary.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const folder = { path: "/unused", shown: "unused" };
-const targets: readonly LaunchRecord[] = (["claude", "codex"] as const).map(
-  (host) => ({
-    request: { ...launchRequest, workflow: "execution", host },
-    session: {
-      host,
+// Two kept launches whose sessions share one native ID on different hosts.
+const story = { identity: launchRequest.identity, title: launchRequest.title };
+const launchedAt = "2026-10-01T00:00:00.000Z";
+const targets: readonly LaunchRecord[] = [
+  makeMe.aLaunchRecord
+    .executing(story)
+    .inClaudeSession({ sessionId: "same-native-id" })
+    .launchedAt(launchedAt)
+    .please(),
+  makeMe.aLaunchRecord
+    .executing(story)
+    .inCodexSession({
       sessionId: "same-native-id",
-      shortId: "alias",
-      name: host,
       continuation: {
         workspace: "/saved-workspace",
         endpoint: "/saved-endpoint",
-        args: [],
       },
-    },
-    launchedAt: "2026-10-01T00:00:00.000Z",
-  }),
-);
+    })
+    .launchedAt(launchedAt)
+    .please(),
+];
 
 // Only this test process's host objects are substituted; no native runtime or
 // server process is reached, and both boundaries are restored in finally.
@@ -46,19 +51,15 @@ test.describe("record-targeted host observations", () => {
         return Promise.resolve(
           records.map(({ session }) => ({
             session,
-            sessionState: {
-              kind: "available",
-              availability: "retained",
-              activity: "review",
-            },
+            sessionState: makeMe.aSessionState.retained("review").please(),
           })),
         );
       };
-      expect(
-        (await withStates(folder, targets)).map(
-          ({ sessionState }) => sessionState,
-        ),
-      ).toEqual([
+      const answer = await withStates(folder, targets);
+      expect(answer.map(({ session }) => session)).toEqual(
+        targets.map(({ session }) => session),
+      );
+      expect(answer.map(({ sessionState }) => sessionState)).toEqual([
         { kind: "unknown" },
         { kind: "available", availability: "retained", activity: "review" },
       ]);

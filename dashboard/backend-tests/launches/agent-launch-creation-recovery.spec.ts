@@ -6,6 +6,7 @@ import { launchRecordsSchema } from "../../src/agentLaunch.ts";
 import { creationProblem, creationView } from "../../server/launchCreation.ts";
 import { codexHost } from "../../server/codexHost.ts";
 import { shellCommand } from "../../src/sessionCapabilities.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const record = creationSchema.parse({
   request: {
@@ -44,16 +45,9 @@ test("declared stand-in evidence gates and projects its own safely quoted recove
   expect(unreadable).not.toContain("codex");
   expect(unreadable).not.toContain("--remote");
   const view = creationView(record, boundary);
-  const answer = launchRecordsSchema.parse({
-    records: [],
-    creations: [view],
-    alerts: { available: false, reason: "Test alerts unavailable" },
-    establishing: [],
-    establishingPreparation: [],
-    keptStarts: [],
-    starts: [],
-    definitions: [],
-  });
+  const answer = launchRecordsSchema.parse(
+    makeMe.aMachineAnswer.withCreations(view).please(),
+  );
   expect(answer.creations[0]?.recovery).toEqual({
     hostName: boundary.name,
     inspectionArgs: args,

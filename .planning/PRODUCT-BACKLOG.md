@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Make kept launch record test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data) — SEED-261#map-launch-and-session-test-data ([plan](slice-plans/534-map-launch-and-session-test-data/PLAN.md))
-- [Make live launch observation test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-observation-test-data) — SEED-261#map-launch-observation-test-data ([plan](slice-plans/536-map-launch-observation-test-data/PLAN.md))
 - [Make launch completion and landing test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-launch-completion-and-landing-test-data) — SEED-261#map-launch-completion-and-landing-test-data ([plan](slice-plans/538-map-launch-completion-and-landing-test-data/PLAN.md))
 - [Make Codex and Cursor session test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-host-continuation-test-data) — SEED-261#map-host-continuation-test-data ([plan](slice-plans/539-map-host-continuation-test-data/PLAN.md))
 

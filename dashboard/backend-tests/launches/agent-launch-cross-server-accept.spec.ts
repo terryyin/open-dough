@@ -12,7 +12,7 @@ import { queuedReadyRepository } from "../../../tests/support/queued-repository.
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { keptAttempts as keptOfMachine } from "../../tests/acceptedAttempts.ts";
 import { accept } from "../../tests/agentLaunchBoundary.ts";
 import { answerOf, openSessionRequest } from "./openStorySessionAcceptance.ts";
@@ -112,18 +112,18 @@ test.describe("cross-server accept of one story", () => {
     // attempt is visible.
     await expect.poll(() => existsSync(waited)).toBe(true);
 
-    const first: LaunchAttemptRecord = {
-      id: "aaaaaaaa-0000-4000-8000-0000000000aa",
-      request: {
+    // Another server's refinement start of the story, kept while its
+    // publication is not yet known.
+    const first = makeMe.anAcceptedAttempt
+      .withId("aaaaaaaa-0000-4000-8000-0000000000aa")
+      .refining({
         source: request.source,
         identity: request.identity,
         title: request.title,
-        workflow: "refinement",
-        host: "claude",
-      },
-      acceptedAt: new Date().toISOString(),
-      publication: { kind: "unknown" },
-    };
+      })
+      .acceptedAt(new Date().toISOString())
+      .publicationUnknown()
+      .please();
     writeFileSync(
       attemptsFile(),
       `${JSON.stringify({ "open-dough": [first] }, null, 2)}\n`,

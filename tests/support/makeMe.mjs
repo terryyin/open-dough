@@ -5,6 +5,13 @@
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
+import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
+import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
+import {
+  ObservedLaunchBuilder,
+  SessionStateBuilder,
+} from "./launchObservationTestData.mjs";
 import {
   CiAdapterAttemptBuilder,
   CiTimingJobBuilder,
@@ -153,6 +160,21 @@ export const makeMe = {
   },
   get aLaunchRecord() {
     return new LaunchRecordBuilder();
+  },
+  get aSessionState() {
+    return new SessionStateBuilder();
+  },
+  get anObservedLaunch() {
+    return new ObservedLaunchBuilder();
+  },
+  get anAcceptedAttempt() {
+    return new AcceptedAttemptBuilder();
+  },
+  get anAttemptObservation() {
+    return new AttemptObservationBuilder();
+  },
+  get aMachineAnswer() {
+    return new MachineAnswerBuilder();
   },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();

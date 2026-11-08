@@ -5,14 +5,13 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { workerAlive } from "../../server/launchAttemptWorker.ts";
 import { settleAttempt } from "../../server/launchAttemptSettlement.ts";
-import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const attempt: LaunchAttemptRecord = {
-  id: "12345678-1234-4123-8123-123456789abc",
-  request: { source: "open-dough", host: "claude", workflow: "ad-hoc" },
-  acceptedAt: new Date().toISOString(),
-  publication: { kind: "none" },
-};
+// Accepted now, so no observation finds its start past its warning threshold.
+const attempt = makeMe.anAcceptedAttempt
+  .adHoc()
+  .acceptedAt(new Date().toISOString())
+  .please();
 
 test("signal zero observes alive, dead and permission-denied workers", () => {
   expect(workerAlive(process.pid)).toBe(true);

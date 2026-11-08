@@ -63,45 +63,6 @@ const frontendPublished = backlogApart(
 
 export const takenBacklogMarkdown = frontendPublished.backlog;
 
-export const emptyMachineAnswer = (): MachineAnswer => ({
-  hostOperations: {
-    claude: {
-      attach: true,
-      stop: true,
-      doneStop: true,
-      localDone: false,
-      launchedSessions: true,
-    },
-    codex: {
-      attach: true,
-      stop: true,
-      doneStop: false,
-      localDone: false,
-      launchedSessions: true,
-    },
-    cursor: {
-      attach: true,
-      stop: true,
-      doneStop: false,
-      localDone: true,
-      launchedSessions: true,
-    },
-  },
-  attempts: [],
-  attemptsReadable: true,
-  records: [],
-  creations: [],
-  alerts: { available: false, reason: "Alerts are unused in frontend tests." },
-  establishing: [],
-  establishingPreparation: [],
-  keptStarts: [],
-  starts: [],
-  definitions: [],
-  establishingHosts: [],
-  sessionPolicies: [],
-  workspaces: [],
-});
-
 export type FrontendServiceState = {
   projects: PublishedSource[];
   revision: string;
@@ -142,7 +103,7 @@ export function defaultFrontendServiceState(
       revision: frontendRevision,
       candidates: openDoughCandidatesRecord,
     },
-    machine: options.machine ?? emptyMachineAnswer(),
+    machine: options.machine ?? makeMe.aMachineAnswer.please(),
     hostStatus: { cpuPercent: 12, freeBytes: 64_000_000_000 },
     hostOptions: { models: [] },
   };

@@ -9,7 +9,7 @@ import {
   reportingContext,
 } from "../../server/completionReporting.ts";
 import { missingReportingSupport } from "../../server/launchWorkspaceReporting.ts";
-import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 import {
   plantIncompleteInstall,
@@ -50,19 +50,11 @@ test.describe("reporting preparation from a launch-workspace install", () => {
     rmSync(home, { recursive: true, force: true });
   });
 
-  const attempt = (): LaunchAttemptRecord => ({
-    id: "12345678-1234-4123-8123-123456789abc",
-    reportingOrigin: "http://127.0.0.1:9",
-    request: {
-      source: "open-dough",
-      host: "claude",
-      workflow: "execution",
-      identity: "SEED-1#a",
-      title: "Story",
-    },
-    acceptedAt: new Date().toISOString(),
-    publication: { kind: "none" },
-  });
+  const attempt = () =>
+    makeMe.anAcceptedAttempt
+      .executing({ identity: "SEED-1#a", title: "Story" })
+      .reportingTo("http://127.0.0.1:9")
+      .please();
 
   test("landing present without its sibling helper is incomplete and refuses preparation", async () => {
     const missingPath = plantIncompleteInstall(workspace);

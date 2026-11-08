@@ -1,16 +1,13 @@
 // Recovery presentation can read a known host with no native-check advice.
 // Synthetic launch-record answers only; no dashboard backend or native host.
 
-import { launchRecordsSchema } from "../src/agentLaunch.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
   expect,
   openFrontendTakenBacklog,
   test,
 } from "../tests/support/frontendApp.ts";
-import {
-  emptyMachineAnswer,
-  putFrontendMachine,
-} from "../tests/support/frontendServiceState.ts";
+import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
 import { readyStory } from "../tests/launchJourney.ts";
 import { parts } from "../tests/dashboardPage.ts";
 import { recoveryOf } from "../tests/responsiveRecovery.ts";
@@ -27,36 +24,27 @@ test("without a reported phase, story startup keeps its host and the installed s
   for (const host of ["claude", "codex"] as const) {
     for (const workflow of ["execution", "refinement"] as const) {
       for (const establishes of [false, true]) {
-        putFrontendMachine(
-          frontendServices,
-          launchRecordsSchema.parse({
-            ...emptyMachineAnswer(),
-            starts: [],
-            establishing:
-              establishes && workflow === "execution" ? ["open-dough"] : [],
-            establishingPreparation:
-              establishes && workflow === "refinement" ? ["open-dough"] : [],
-            establishingHosts: establishes
-              ? [{ source: "open-dough", host, workflow }]
-              : [],
-            attempts: [
-              {
-                id: "12345678-1234-4123-8123-123456789abc",
-                request: {
+        // An owned attempt still running with no session yet.
+        const answer = makeMe.aMachineAnswer.answeringAttempts(
+          makeMe.anAttemptObservation
+            .of(
+              makeMe.anAcceptedAttempt
+                .requesting({
                   source: "open-dough",
                   identity: "SEED-B#b",
                   title: readyStory,
                   host,
                   workflow,
-                },
-                acceptedAt: "2026-10-02T00:00:00.000Z",
-                publication: { kind: "none" },
-                owned: true,
-                running: true,
-              },
-            ],
-          }),
+                })
+                .please(),
+            )
+            .owned(true)
+            .running(true)
+            .please(),
         );
+        if (establishes)
+          answer.establishing({ source: "open-dough", workflow, host });
+        putFrontendMachine(frontendServices, answer.please());
         await reloadUntilRead(page);
         const words = establishes
           ? `Preparing ${workflow}…`
@@ -88,23 +76,15 @@ test("a recovery host without native-check advice keeps its controls without bor
 }) => {
   putFrontendMachine(
     frontendServices,
-    launchRecordsSchema.parse({
-      ...emptyMachineAnswer(),
-      attempts: [
-        {
-          id: "12345678-1234-4123-8123-123456789abc",
-          request: {
-            source: "open-dough",
-            host: "cursor",
-            workflow: "ad-hoc",
-          },
-          acceptedAt: "2026-10-02T00:00:00.000Z",
-          publication: { kind: "none" },
-          owned: false,
-          running: false,
-        },
-      ],
-    }),
+    makeMe.aMachineAnswer
+      .answeringAttempts(
+        makeMe.anAttemptObservation
+          .of(makeMe.anAcceptedAttempt.adHoc({ host: "cursor" }).please())
+          .owned(false)
+          .running(false)
+          .please(),
+      )
+      .please(),
   );
   await openFrontendTakenBacklog(page);
   const recovery = recoveryOf(page);
