@@ -38,21 +38,12 @@ mkdir -- "${temporary_dir}/bin"
 mkfifo -- "${temporary_dir}/stalled-download"
 cat > "${temporary_dir}/bin/curl" << 'CURL'
 #!/usr/bin/env bash
-for arg; do
-  if [[ ${arg} == https://github.com/mvdan/sh/releases/download/* ]]; then
-    cat > "${!#}" << 'SHFMT'
-#!/bin/sh
-echo 3.14.0
-SHFMT
-    exit
-  fi
-done
 printf '%s\n' "$$" > "${SOURCE_PID}"
-printf '%s\n' "$*" > "${SOURCE_CALL}"
+printf '%s\n' "$*" >> "${SOURCE_CALL}"
 case ${SOURCE_BEHAVIOR} in
-  fallback | wrong-version | unavailable)
-    echo 'controlled GitHub release source unavailable' >&2
-    exit 7
+  fallback | wrong-version | unavailable | shfmt-unavailable)
+    echo 'controlled GitHub release source returned HTTP 504' >&2
+    exit 22
     ;;
   stalled)
     read -r _ < "${SOURCE_BLOCKER}"
@@ -63,15 +54,23 @@ cat > "${temporary_dir}/bin/docker" << 'DOCKER'
 #!/usr/bin/env bash
 case $1 in
   create)
-    printf '%s\n' "$*" > "${FALLBACK_CALL}"
+    printf '%s\n' "$*" >> "${FALLBACK_CALL}"
     [[ ${SOURCE_BEHAVIOR} != unavailable ]] || exit 7
+    if [[ ${SOURCE_BEHAVIOR} == shfmt-unavailable && ${!#} == docker.io/mvdan/shfmt@* ]]; then
+      exit 7
+    fi
     echo fixture-container
     ;;
   cp)
-    [[ $2 == fixture-container:/bin/shellcheck ]] || exit 1
-    version=0.11.0
-    [[ ${SOURCE_BEHAVIOR} != wrong-version ]] || version=0.9.0
-    printf '#!/bin/sh\necho "version: %s"\n' "${version}" > "$3"
+    case $2 in
+      fixture-container:/bin/shellcheck)
+        version='version: 0.11.0'
+        [[ ${SOURCE_BEHAVIOR} != wrong-version ]] || version='version: 0.9.0'
+        ;;
+      fixture-container:/bin/shfmt) version=v3.14.0 ;;
+      *) exit 1 ;;
+    esac
+    printf '#!/bin/sh\necho "%s"\n' "${version}" > "$3"
     chmod +x -- "$3"
     ;;
   rm) [[ $2 == fixture-container ]] ;;
@@ -84,7 +83,7 @@ cat > "${temporary_dir}/bin/sudo" << 'SUDO'
 install -m "$3" "$4" "${0%/*}/${5##*/}"
 SUDO
 chmod +x "${temporary_dir}/bin/"{curl,docker,sudo}
-for behavior in fallback wrong-version unavailable stalled expired; do
+for behavior in fallback wrong-version unavailable shfmt-unavailable stalled expired; do
   rm -f -- "${temporary_dir}/source-call" "${temporary_dir}/source-pid" \
     "${temporary_dir}/fallback-call" "${temporary_dir}/bin/shellcheck" "${temporary_dir}/bin/shfmt"
   case ${behavior} in
@@ -102,19 +101,20 @@ for behavior in fallback wrong-version unavailable stalled expired; do
   if [[ ${behavior} == fallback ]]; then
     if ((outcome != 0)); then
       cat "${temporary_dir}/${behavior}.log" >&2
-      echo 'FAIL: the pinned ShellCheck image did not recover lint setup after a release failure.' >&2
+      echo 'FAIL: pinned images did not recover lint setup after release failures.' >&2
       exit 1
     fi
     expect_in_log "${temporary_dir}/fallback-call" -Fx -- 'create --platform linux/amd64 docker.io/koalaman/shellcheck@sha256:b9389b73c8f26f710a7171cb7d8848a34a9c1e07a7865e727c9ec4ce99f9a83f'
+    expect_in_log "${temporary_dir}/fallback-call" -Fx -- 'create --platform linux/amd64 docker.io/mvdan/shfmt@sha256:5c7db7d33c6bc40fde46fc1157e36baa712e6ffe15fe33ff809f1193b4044c31'
     expect_in_log "${temporary_dir}/${behavior}.log" -Fx -- 'version: 0.11.0'
-    expect_in_log "${temporary_dir}/${behavior}.log" -Fx -- '3.14.0'
+    expect_in_log "${temporary_dir}/${behavior}.log" -Fx -- 'v3.14.0'
     continue
   fi
   if ((outcome == 0)); then
     echo "FAIL: ${behavior} lint acquisition succeeded." >&2
     exit 1
   fi
-  [[ ! -e ${temporary_dir}/bin/shellcheck ]]
+  [[ ! -e ${temporary_dir}/bin/shellcheck && ! -e ${temporary_dir}/bin/shfmt ]]
   if bash -euo pipefail "${temporary_dir}/diagnose.bash" >> "${temporary_dir}/${behavior}.log" 2>&1; then
     echo 'FAIL: lint acquisition diagnostic passed instead of preserving failure.' >&2
     exit 1
@@ -127,9 +127,12 @@ for behavior in fallback wrong-version unavailable stalled expired; do
       expect_in_log "${temporary_dir}/${behavior}.log" -F -- 'ShellCheck did not match pinned version 0.11.0.'
       ;;
     unavailable)
-      expect_in_log "${temporary_dir}/${behavior}.log" -F -- 'controlled GitHub release source unavailable'
-      expect_in_log "${temporary_dir}/source-call" -F -- '--connect-timeout 5 --max-time 20 --retry 0'
+      expect_in_log "${temporary_dir}/${behavior}.log" -F -- 'controlled GitHub release source returned HTTP 504'
+      expect_in_log "${temporary_dir}/source-call" -F -- '--connect-timeout 5 --max-time 12 --retry 0'
       [[ -s ${temporary_dir}/fallback-call ]]
+      ;;
+    shfmt-unavailable)
+      expect_in_log "${temporary_dir}/fallback-call" -F -- 'docker.io/mvdan/shfmt@sha256:'
       ;;
     expired)
       [[ ! -e ${temporary_dir}/source-call ]]
