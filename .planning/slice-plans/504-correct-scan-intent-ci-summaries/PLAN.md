@@ -256,6 +256,17 @@ rate-limited answer setup, into `revisionStreamBoundary.ts` or a neighbouring
 support module. No test changes behavior. This directly owns the size miss
 from plan 499's CI repair, and no later Behavior depends on it.
 
+## Execution complete
+
+Product advice: no change to this story's outcome. Before landing, the whole
+dashboard suite passed at `23cf04377` (2158 passed, 1 skipped). Recommend a
+follow-up story: older backend specs still prove absence by waiting on wall
+time, against the project's rule never to wait for wall-clock time. They are
+`authenticated-read-revision-stream.spec.ts`, after its last stream closes,
+and `authenticated-read-shared-listing-failures.spec.ts` with its
+`pause(500)` and `pause(1_100)`. These predate this execution. Process
+findings DD-446 and DD-447 are in `DearDough.md`.
+
 ## Refinement review
 
 Slice-plan refinement was not needed. Each Behavior slice owns one finding's

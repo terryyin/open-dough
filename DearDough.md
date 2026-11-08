@@ -9,7 +9,7 @@ Released responses await their specific ordinary-use observations; the
 [watch list](docs/maintainer/near-term-watch-list.md) preserves its contrary
 evidence. Source and catalog identities do not imply resolution.
 
-- Highest allocated local number: 445. Removed numbers are never reused.
+- Highest allocated local number: 447. Removed numbers are never reused.
 - Shared-feedback compaction recovery (2026-11-07): `626ecc24b28c398eaa4543e19936a415c526c0e9:DearDough.md`; its rows are retained at the linked Open Dough finding owners (`483d3a1e8f0ea24b929675b9a195faca48ac8f47:docs/maintainer/findings/`).
 - Shared-feedback compaction recovery (2026-11-03): `325f9de8a1f635a44b0071cf0660a2593a21f6b9:DearDough.md`; its rows are retained at the linked Open Dough finding owners. Terry approved consolidating DD-387 and DD-401 as ODF-333, DD-392 into ODF-381, DD-400 into ODF-074 and DD-408 into ODF-325; their former-code aliases remain and their distinct occurrences stay at the linked owners.
 - This compaction recovery: `a47f4814edb00038ef77d45e001cae1db9255cb6:DearDough.md`; distinct new rows are retained at linked finding owners. No finding is retired by compaction.
@@ -847,3 +847,36 @@ two removals timed out on CI and a hardening pass followed.
   - Evidence: slice 1 margin rule used run 42372706379 only; runs 42395811294 (`agent-launch-story-card-sessions`, 25.2s before) and 42399373902 (`production-watcher-failures.spec.ts:84`) hit 30s; comparing 2,122 matched cases, median ratio 1.02 but p90 1.53, and `story-review-one-shot-choice-refresh` 13.8s → 26.5s unchanged
   - Observed effect: two CI repairs (`acfe0ca9e`, `665c28053`) with stash and pause cycles, then a nine-journey hardening pass (`aad804b57`); 13 hosted cases still at 20–25s
   - Inference: hosted shard co-scheduling and CPU contention dominate; a margin judged across several hosted runs, or against a loaded stand-in such as 16–24 traced local workers, would have found these before publication
+
+## DD-446 — A refactor pass replaced a plan-named repeated proof with one run
+
+The refactor edited a spec whose plan proof named `--repeat-each=5` of one
+test, then gave a single combined run as the replacement proof. The repeat the
+plan required to show stability was not rerun on the refactored file.
+
+### Occurrences
+- Execution: SEED-259#correct-scan-intent-ci-summaries (plan 504-correct-scan-intent-ci-summaries; first related implementation commit `850013d247970387910218951efc45b297cc5ee8`)
+  - Timestamp: unknown (2026-11-08, slice 4 refactor return before commit `23cf04377`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.89 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: plan 504 slice 4 proof row "passes, and so does `--repeat-each=5` of its listing-count test"; the refactor return listed the repeat as invalidated and offered "14 passed" across three specs instead; the coordinator reran `--repeat-each=5` on `authenticated-read-revision-stream.spec.ts:59` (5 passed)
+  - Observed effect: one extra coordinator run before delivery; no wrong result published
+  - Inference: the refactor brief said "rerun only what your edits invalidate" without naming that plan-named proof shapes (repeats, filters) carry over to the replacement
+
+## DD-447 — The coordinator delegated a lookup the implementation brief already required
+
+While waiting on the source-only reviewer, the coordinator spawned a read-only
+agent to list every evidence label caller. The slice 1 implementation brief
+then required the implementer to find the same callers through grep and the
+consumer trace.
+
+### Occurrences
+- Execution: SEED-259#correct-scan-intent-ci-summaries (plan 504-correct-scan-intent-ci-summaries; first related implementation commit `850013d247970387910218951efc45b297cc5ee8`)
+  - Timestamp: unknown (2026-11-08, before slice 1 delegation)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.89 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: Explore agent "list every caller of EvidenceLabel objects" (about 30k subagent tokens, 5 tool uses); its result was used only as the coordinator's acceptance cross-check
+  - Observed effect: about 30k tokens with no change to delegation or acceptance
+  - Inference: waiting on one agent invited parallel work that duplicated the next agent's required discovery; the Agent guidance's "don't delegate a check you could run inline" already covers it
