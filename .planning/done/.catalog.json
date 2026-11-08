@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-274_declare-intent-test-sources.json",
+      "identity": "SEED-274#declare-intent-test-sources",
+      "completedAt": "2026-11-08T10:00:59.030Z",
+      "blob": "a791cb8e7784248b9f3c58021d13059dd396d826"
+    },
+    {
       "fileName": "SEED-262_build-explicit-git-fixtures.json",
       "identity": "SEED-262#build-explicit-git-fixtures",
       "completedAt": "2026-11-08T07:36:52.017Z",

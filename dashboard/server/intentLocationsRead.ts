@@ -19,8 +19,8 @@ import {
   type IntentSettingsProblem,
 } from "./intentLocationsSettings.ts";
 import {
-  extensionsOf,
-  locationSelectsRelativePath,
+  matchingSourceEntry,
+  sourceEntriesOf,
 } from "../src/intentLocationSelection.ts";
 
 export type {
@@ -71,7 +71,8 @@ async function filesUnderLocation(
   signal: AbortSignal,
   naming: (reading: string) => void,
 ): Promise<readonly string[]> {
-  if (extensionsOf(location.kind) === undefined) return [];
+  const sources = sourceEntriesOf(location);
+  if (sources === undefined) return [];
   naming(readingPathAt(location.path, revision));
   const entries = await pinned.treeLister(
     source,
@@ -80,36 +81,29 @@ async function filesUnderLocation(
   )(location.path);
   return entries.flatMap((entry) => {
     if (entry.type !== "blob") return [];
-    if (
-      !locationSelectsRelativePath(entry.path, location.kind, location.include)
-    ) {
-      return [];
-    }
+    if (matchingSourceEntry(entry.path, sources) === undefined) return [];
     return [`${location.path}/${entry.path}`];
   });
 }
 
+// A location's answer carries its declaration as settings gave it
+// (`./intentLocationsSettings.ts`): a kind with any include patterns, or its
+// source entries with no kind.
 function locationAnswer(
   location: DeclaredLocation,
   files: readonly string[],
 ): IntentLocation {
-  const fields = {
-    path: location.path,
-    kind: location.kind,
-    ...(location.label === undefined ? {} : { label: location.label }),
-    ...(location.include === undefined ? {} : { include: location.include }),
-  };
-  if (extensionsOf(location.kind) === undefined) {
-    return { ...fields, files: [], problem: "unsupported-kind" };
+  if (sourceEntriesOf(location) === undefined) {
+    return { ...location, files: [], problem: "unsupported-kind" };
   }
   if (files.length === 0) {
-    return { ...fields, files: [], problem: "no-matching-files" };
+    return { ...location, files: [], problem: "no-matching-files" };
   }
-  return { ...fields, files };
+  return { ...location, files };
 }
 
-// Performs one Intent locations read: the configured locations and their
-// kind's nested files, or not-configured / a settings problem when the
+// Performs one Intent locations read: the configured locations and the
+// nested files each selects, or not-configured / a settings problem when the
 // setting is absent, malformed, or unreadable.
 export async function performIntentLocationsRead(
   pinned: PinnedTexts,

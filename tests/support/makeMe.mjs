@@ -9,6 +9,10 @@ import {
   CiTimingJobBuilder,
 } from "./ciTimingTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
+import {
+  IntentLocationBuilder,
+  IntentSettingsBuilder,
+} from "./intentLocationTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
@@ -111,6 +115,12 @@ export const makeMe = {
   },
   get aDoneRecord() {
     return new DoneRecordBuilder();
+  },
+  get anIntentLocation() {
+    return new IntentLocationBuilder();
+  },
+  get intentSettings() {
+    return new IntentSettingsBuilder();
   },
   get aLaunchRecord() {
     return new LaunchRecordBuilder();

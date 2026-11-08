@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 456. Removed numbers are never reused.
+- Highest allocated local number: 457. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -408,3 +408,19 @@ Former local code: DD-451. [Evidence and current response](docs/maintainer/findi
 <a id="dd-452--a-shell-check-gained-a-browser-its-ci-job-did-not-install"></a> DD-452 — A shell check gained a browser its CI job did not install. [Project evidence](docs/maintainer/project-findings-history.md#dd-452).
 ## ODF-456 — Ready plan used an unsupported slice status
 [Evidence and current response](docs/maintainer/findings/ODF-456.md).
+
+## DD-457 — A refactor pass's scripted spec split dropped a moved test
+While moving new tests into separate spec files to stay under the 250-line
+limit, the refactor agent's script cut a test out of the old file without
+writing it into the new one. The agent noticed and rebuilt it from a diff it
+had captured earlier; the focused rerun passed.
+
+### Occurrences
+- Execution: SEED-274#declare-intent-test-sources (plan 528-declare-intent-test-sources; first related implementation commit `cedf9c92e0eb414b0c293153b151a7baa0b55e35`)
+  - Timestamp: unknown (2026-11-08, slice 2 refactor before commit `8f5ceaeece4e5a735d0f994fb50baf15e717df53`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.91
+  - Evidence: slice 2 refactor return; `dashboard/tests/intent/intent-ci-proof-sources.spec.ts` test "a published CI summary for a sources location shows its group and file results at their paths"
+  - Observed effect: a moved test was briefly lost; it was recovered only because the agent had saved the diff, and the coordinator saw only the agent's own account
+  - Inference: a mechanical move of tests can silently drop coverage; a check comparing test titles before and after a move would catch it, but the evidence is a single occurrence

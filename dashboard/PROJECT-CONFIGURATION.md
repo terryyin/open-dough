@@ -63,7 +63,26 @@ name: `gherkin` (`.feature`), `typescript` (`.ts`, `.tsx`), `javascript`
 (`.js`, `.mjs`, `.cjs`), `python` (`.py`), or `shell` (`.sh`, `.bash`). An
 optional `include` list of path patterns relative to the location narrows that
 set (`*` stays in one folder; `**` crosses folders). Without `include`, Intent
-lists every file of the kind under the folder. Absence of the `intent` key
+lists every file of the kind under the folder.
+
+A location can instead declare its files as source entries, for one folder
+holding different kinds of test source:
+`{ "path": "scripts", "sources": [{ "include": ["**/*.test"], "syntax": "shell" }, { "include": ["**/*.test.mjs"], "syntax": "javascript" }] }`.
+Each entry has a non-empty `include` list of patterns relative to the
+location, with the same `*` and `**` rules, and an optional `syntax` hint.
+A file belongs to the location when any entry's pattern matches it; no
+extension filter applies, so a new filename convention needs only a new
+pattern. A file takes the hint of the first entry, in declaration order,
+whose pattern matches it. Hints use the kind names above (`typescript` still
+highlights `.tsx` as TSX). A file whose entry has no hint, or a hint Intent
+has no grammar for, such as `java`, stays listed and reads as plain text.
+When `sources` is present it alone selects the location's files; `kind` and
+`include` are then not read. A `sources` list that is not a non-empty list of
+such entries leaves that location out, as a malformed `include` does. The
+location header names a `sources` location's patterns without a kind. CI
+proof for either form stays keyed by the location's path and its files' paths.
+
+Absence of the `intent` key
 means Intent shows that no locations are configured. An unreadable settings
 file and malformed JSON are distinct from that absence. The dashboard reads
 that setting and the listed source at Intent's reading revision, a revision

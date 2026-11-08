@@ -27,6 +27,7 @@ import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { storyDiffOf, useKeptFileReadingPlace } from "./IntentFileReading.tsx";
 import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
 import { intentLocationIdPrefix } from "./intentLocationIds.ts";
+import { sourceEntryOfRepositoryPath } from "./intentLocationSelection.ts";
 import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
@@ -159,8 +160,10 @@ export function IntentBrowser({
   });
 
   const selectedLocation = owningLocation(locations, selection);
-  const selectedLanguage =
-    scope === "file" ? selectedLocation?.kind : undefined;
+  const selectedSyntaxHint =
+    scope === "file" && selectedLocation !== undefined
+      ? sourceEntryOfRepositoryPath(selectedPath, selectedLocation)?.hint
+      : undefined;
 
   return (
     <>
@@ -213,7 +216,7 @@ export function IntentBrowser({
             missing={missing}
             selectedLocation={selectedLocation}
             selectedFile={selectedFile}
-            selectedLanguage={selectedLanguage}
+            selectedSyntaxHint={selectedSyntaxHint}
             treeFiles={treeFiles}
             story={story}
             read={fileRead.read}

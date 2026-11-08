@@ -87,7 +87,7 @@ export function IntentFileReading({
   revision,
   treeRevision,
   read,
-  kind,
+  syntaxHint,
   caseTarget,
   treeFile,
   story,
@@ -104,7 +104,8 @@ export function IntentFileReading({
   readonly failedRevision?: string | undefined;
   // The answered read of `path`, or undefined while it is being read.
   readonly read: FileRead | undefined;
-  readonly kind: string | undefined;
+  // The selected file's syntax hint (`./intentLocationSelection.ts`).
+  readonly syntaxHint: string | undefined;
   readonly caseTarget: string | undefined;
   // The selected file as the location's tree shows it.
   readonly treeFile: IntentTreeFile | undefined;
@@ -201,7 +202,7 @@ export function IntentFileReading({
                 text={text}
                 revision={revision}
                 path={path}
-                {...(kind === undefined ? {} : { language: kind })}
+                {...(syntaxHint === undefined ? {} : { syntaxHint })}
                 {...(targetLine === undefined ? {} : { targetLine })}
               />
             </>
