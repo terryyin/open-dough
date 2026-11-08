@@ -13,17 +13,15 @@ import { launch } from "../../tests/agentLaunchBoundary.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
 import { followUpOf } from "../../tests/support/followUpSources.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
-import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
 import { originMain } from "../../tests/support/sessionDialog.ts";
 import {
   isolatedSession,
-  sessionBlock,
   worktree,
 } from "../../tests/support/startSessionLanding.ts";
 import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
 import {
   answerOf,
-  partsOf,
+  expectFollowUpInput,
   quiet,
   quietContext,
   reported,
@@ -55,12 +53,12 @@ test("Default main · Wait for review sends the context, then the request, then 
   const [call, ...others] = dashboard.claudeLaunchCalls();
   expect(others).toEqual([]);
   expect(call?.cwd).toBe(realpathSync(origin.project));
-  const { before, after } = partsOf(call?.argv.at(-1), reportedContext);
-  expect(before).toEqual([]);
-  const [own, reporting, ...extra] = after;
-  expect(own).toBe(text);
-  expect(extra).toEqual([]);
-  expectReportingBlock(reporting, launched.record?.request, dashboard);
+  expectFollowUpInput(call?.argv.at(-1), {
+    context: reportedContext,
+    own: text,
+    request: launched.record?.request,
+    server: dashboard,
+  });
   expect(launched.record?.request).toMatchObject({
     title: text,
     instruction: text,
@@ -87,11 +85,11 @@ test("a blank follow-up on Default main sends the context and the reporting cont
 
   expect(launched.kind, JSON.stringify(launched)).toBe("launched");
   const [call] = dashboard.claudeLaunchCalls();
-  const { before, after } = partsOf(call?.argv.at(-1), quietContext);
-  expect(before).toEqual([]);
-  const [reporting, ...extra] = after;
-  expect(extra).toEqual([]);
-  expectReportingBlock(reporting, launched.record?.request, dashboard);
+  expectFollowUpInput(call?.argv.at(-1), {
+    context: quietContext,
+    request: launched.record?.request,
+    server: dashboard,
+  });
   expect(launched.record?.request.title).toMatch(
     /^\d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/,
   );
@@ -122,12 +120,13 @@ test("Isolated workspace sends its block and the reporting context, then the con
   expect(launched.record?.establishedSession).toEqual(session);
   const [call] = dashboard.claudeLaunchCalls();
   expect(call?.cwd).toBe(realpathSync(worktree(origin.project, slug)));
-  const { before: ahead, after } = partsOf(call?.argv.at(-1), reportedContext);
-  const [block, reporting, ...extra] = ahead;
-  expect(extra).toEqual([]);
-  expect(block).toBe(sessionBlock(session));
-  expectReportingBlock(reporting, launched.record?.request, dashboard);
-  expect(after).toEqual([text]);
+  expectFollowUpInput(call?.argv.at(-1), {
+    context: reportedContext,
+    own: text,
+    session,
+    request: launched.record?.request,
+    server: dashboard,
+  });
 });
 
 test("a final report longer than the instruction field's limit is sent whole beside a request at that limit", async ({

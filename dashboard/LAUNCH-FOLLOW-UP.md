@@ -41,8 +41,9 @@ anything starts. It keeps the resolved text on the request, so a retry,
 Startup recovery or rebuilt first input resends it after the source record
 is gone. The first input (`server/unattachedInput.ts`) carries it as its own
 block: `[context, request, reporting]` with no established session,
-`[established block, reporting, context, request]` with one; a blank
-follow-up sends the context and the reporting context. The context never
+`[established block, reporting, context, request]` with one, the same on
+Claude, Codex and Cursor; a blank follow-up sends the context and the
+reporting context, so Cursor admits a blank follow-up with a chosen model. The context never
 counts against the 4,000-character field. The launch is an ordinary ad hoc
 one, labelled by its request or launch time and listed in Taken without
 naming or grouping with its source; its identity and its attempt on the page

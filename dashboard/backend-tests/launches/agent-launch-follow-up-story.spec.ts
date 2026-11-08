@@ -24,12 +24,16 @@ import {
 } from "../../tests/support/followUpStories.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import { publishes } from "../../tests/support/publishedRepository.ts";
-import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
 import { originMain } from "../../tests/support/sessionDialog.ts";
 import type { StartOrigin } from "../../tests/support/startOrigin.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import { keepLaunchRecords } from "../../tests/support/storyLaunchRecord.ts";
-import { answerOf, partsOf, request } from "./followUpBoundaryCases.ts";
+import {
+  answerOf,
+  expectFollowUpInput,
+  partsOf,
+  request,
+} from "./followUpBoundaryCases.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
@@ -85,12 +89,12 @@ test("a done story's follow-up sends its published facts and each Done session i
   expect(launched.kind, JSON.stringify(launched)).toBe("launched");
   const [call, ...others] = dashboard.claudeLaunchCalls();
   expect(others).toEqual([]);
-  const { before, after } = partsOf(call?.argv.at(-1), context);
-  expect(before).toEqual([]);
-  const [own, reporting, ...extra] = after;
-  expect(own).toBe(text);
-  expect(extra).toEqual([]);
-  expectReportingBlock(reporting, launched.record?.request, dashboard);
+  expectFollowUpInput(call?.argv.at(-1), {
+    context,
+    own: text,
+    request: launched.record?.request,
+    server: dashboard,
+  });
   expect(launched.record?.request).toMatchObject({
     instruction: text,
     followUp: { ...storyFollowUpOf(recoverStory, revision), context },

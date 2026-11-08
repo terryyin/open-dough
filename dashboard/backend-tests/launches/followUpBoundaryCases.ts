@@ -1,9 +1,16 @@
 // The follow-up boundary specs' sources, requests and first-input reading:
-// agent-launch-follow-up-boundary.spec.ts (what the first input holds) and
-// agent-launch-follow-up-identity.spec.ts (identity, retries and refusals).
+// agent-launch-follow-up-boundary.spec.ts (what the first input holds),
+// agent-launch-follow-up-identity.spec.ts (identity, retries and refusals),
+// agent-launch-follow-up-story.spec.ts (a done story) and the Codex and
+// Cursor specs beside them.
 
 import type { LaunchRecord, LaunchWithState } from "../../src/launchRecord.ts";
+import type { RecordedLaunchRequest } from "../../src/launchRequest.ts";
+import type { EstablishedSession } from "../../src/unattachedSession.ts";
+import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import { expect } from "../../tests/support/preparationPage.ts";
+import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
+import { sessionBlock } from "../../tests/support/startSessionLanding.ts";
 import {
   followUpContextOf,
   quietSession,
@@ -64,3 +71,27 @@ export const partsOf = (input: string | undefined, context: string) => {
     after: (after ?? "").split("\n\n").filter((part) => part !== ""),
   };
 };
+
+// A follow-up's first input on any host: `[context, own, reporting]` with no
+// established session and `[block, reporting, context, own]` with one; a
+// blank request has no part of its own.
+export function expectFollowUpInput(
+  input: string | undefined,
+  expected: {
+    context: string;
+    own?: string;
+    session?: EstablishedSession;
+    request: RecordedLaunchRequest | undefined;
+    server: Pick<DashboardServer, "home" | "origin">;
+  },
+) {
+  const { context, own, session, request, server } = expected;
+  const { before, after } = partsOf(input, context);
+  const owned = own === undefined ? [] : [own];
+  const reporting = session === undefined ? after[owned.length] : before[1];
+  expect(before).toEqual(
+    session === undefined ? [] : [sessionBlock(session), reporting],
+  );
+  expect(after).toEqual(session === undefined ? [...owned, reporting] : owned);
+  expectReportingBlock(reporting, request, server);
+}

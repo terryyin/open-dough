@@ -12,8 +12,9 @@
 // session with no instruction still keeps the id and starts no client. The
 // stored resume command never carries `--model`, and Default omits it. A
 // blank start with a chosen model is refused before create-chat: no run
-// would apply it. An images-only start is not blank: its first prompt is the
-// attached-images list, so a chosen model is admitted. A chosen model first
+// would apply it. An images-only start or a follow-up is not blank: its first
+// prompt is the attached-images list or the follow-up's context, so a chosen
+// model is admitted. A chosen model first
 // establishes its session configuration scope (./sessionScope.ts), cloned
 // from the developer's current Cursor configuration and recorded on the
 // continuation, and the first client is kept with that scope; when the

@@ -187,11 +187,17 @@ its done record are unchanged.
 ### 3. Codex and Cursor follow-ups carry the same context
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Backend cases beside
 `backend-tests/launches/agent-launch-ad-hoc-codex-input.spec.ts` and
 `agent-launch-ad-hoc-cursor-established.spec.ts`, then the local gate
 selection.
+Accepted: new `agent-launch-follow-up-codex.spec.ts` and
+`agent-launch-follow-up-cursor.spec.ts`; gate selection 109 passed, follow-up
+backend specs 20 passed after the refactor pass moved the input-order check
+into `expectFollowUpInput`; typecheck exit 0. No product code changed: Codex
+and Cursor input already route through `unattachedInput`, and Cursor's
+blank-with-model refusal applies only when no prompt exists.
 
 Behavior: A follow-up started with Codex or Cursor, with and without an
 established session → Codex's input, including the one rebuilt from the
