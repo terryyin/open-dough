@@ -569,67 +569,6 @@ and coverage, and measure mixed end-to-end time so any material regression is
 visible before acceptance.
 [ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md)
 
-<a id="arrange-prerequisite-state"></a>
-
-### Set up test preconditions without replaying unrelated workflows
-
-**Identity:** SEED-262#arrange-prerequisite-state
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/518-arrange-prerequisite-state/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d64460653b9a8e5063b6b1220fe7b3a14ee0df6a2c64827a6af78e46a880ff04","plan":"967cefcda8cb81afa954fd71003f715d2220b6362600c943ad04d8381545c8d9"}}
-```
-
-**Goal.** A developer running a journey can get to the behavior it proves
-sooner when an unrelated workflow only supplies its initial state.
-
-**Scope.** Start the attention journeys and the related card session-state
-journey with already-open Claude sessions. Arrange the valid records and
-matching native listings in each case's own machine before the first page
-read. Include the Doughnut session used by the attention project-switch case.
-Keep real published membership reads, session observation, restart, reload,
-project switching, and Mark as done where the cases exercise them. Keep real
-Starts in the card Start and launch-to-listing journeys, which observe the
-result of a launch. The broader sidebar fixture migration, Git origin
-construction, artifact preparation, fixture lifetime, and polling cadence
-are separate work.
-
-**Key examples.**
-
-1. Three Open Dough sessions are already open when the page opens on the
-   Backlog. As Claude reports blocked, review, unavailable, or stopped
-   sessions, each card counts only the ones needing attention. An unreadable
-   listing suppresses the counts, and a readable one restores them. A
-   Preparing revision preserves the placement and counting rules. No Start
-   request is needed for this setup.
-2. Both projects already have sessions when the page opens. A published
-   Take moves a card, and Mark as done removes its last affected session
-   from the count. Project switching and reload show the current project's
-   counts. After origin removes a story from every list, its affected
-   session and reason stay visible in local Taken with Open terminal.
-3. Three already-open sessions change while their native listing is
-   unreadable. The page shows State unknown and keeps Open terminal and
-   the Start restrictions. After recovery, a real server restart and reload
-   show the actual states and actions. Switching away and back preserves
-   project isolation and the original entries.
-4. When a developer starts execution or refinement from a card, the Start
-   journey still drives the actual dialog and native launch and observes
-   the new card entry.
-
-**Architecture.** Keep the committed origin as the source of published
-placement and the persisted records and native listing as separate inputs
-for local session presentation. Build the canonical launch data through
-MakeMe, with a single project-keyed store write before navigation. Each
-listed session uses the same native identity as its persisted record.
-Existing fixture boundaries carry the state through the production
-reader. [ADR 0008, dashboard state](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
-and [ADR 0002, product intent and test design](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-
-**Evaluation.** Compare the same cases before and after under the same
-runner profile. Show lower elapsed arrangement time and fewer requests
-caused by starting workflows. Keep the existing attention, membership,
-and session-management assertions and rerun the real card Start journey.
-[Journey coverage ownership](../../dashboard/tests/native-host-fixtures.md)
-and [ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md)
-
 <a id="reduce-private-fixture-lifecycle-cost"></a>
 
 ### Reduce the cost of private dashboard test fixtures

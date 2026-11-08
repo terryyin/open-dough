@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-262#arrange-prerequisite-state",
+  "title": "Set up test preconditions without replaying unrelated workflows",
+  "completedAt": "2026-11-08T04:18:05.627Z",
+  "developer": "Terry Yin",
+  "agent": "stanly-chan",
+  "host": "claude",
+  "model": "opus"
+}
