@@ -35,49 +35,101 @@ expect_in_log "${temporary_dir}/install.bash" -Fx -- 'bash scripts/setup-lint-to
 extract_run 'Diagnose lint tool acquisition failure' > "${temporary_dir}/diagnose.bash"
 [[ -s ${temporary_dir}/diagnose.bash ]]
 mkdir -- "${temporary_dir}/bin"
+mkfifo -- "${temporary_dir}/stalled-download"
 cat > "${temporary_dir}/bin/curl" << 'CURL'
 #!/usr/bin/env bash
+for arg; do
+  if [[ ${arg} == https://github.com/mvdan/sh/releases/download/* ]]; then
+    cat > "${!#}" << 'SHFMT'
+#!/bin/sh
+echo 3.14.0
+SHFMT
+    exit
+  fi
+done
 printf '%s\n' "$$" > "${SOURCE_PID}"
 printf '%s\n' "$*" > "${SOURCE_CALL}"
 case ${SOURCE_BEHAVIOR} in
-  unavailable)
+  fallback | wrong-version | unavailable)
     echo 'controlled GitHub release source unavailable' >&2
     exit 7
     ;;
   stalled)
-    sleep 4
-    touch "${LATE_WRITE}"
+    read -r _ < "${SOURCE_BLOCKER}"
     ;;
 esac
 CURL
-chmod +x "${temporary_dir}/bin/curl"
-for behavior in unavailable stalled expired; do
+cat > "${temporary_dir}/bin/docker" << 'DOCKER'
+#!/usr/bin/env bash
+case $1 in
+  create)
+    printf '%s\n' "$*" > "${FALLBACK_CALL}"
+    [[ ${SOURCE_BEHAVIOR} != unavailable ]] || exit 7
+    echo fixture-container
+    ;;
+  cp)
+    [[ $2 == fixture-container:/bin/shellcheck ]] || exit 1
+    version=0.11.0
+    [[ ${SOURCE_BEHAVIOR} != wrong-version ]] || version=0.9.0
+    printf '#!/bin/sh\necho "version: %s"\n' "${version}" > "$3"
+    chmod +x -- "$3"
+    ;;
+  rm) [[ $2 == fixture-container ]] ;;
+  *) exit 1 ;;
+esac
+DOCKER
+cat > "${temporary_dir}/bin/sudo" << 'SUDO'
+#!/usr/bin/env bash
+[[ $1 == install && $2 == -m && $5 == /usr/local/bin/* ]] || exit 1
+install -m "$3" "$4" "${0%/*}/${5##*/}"
+SUDO
+chmod +x "${temporary_dir}/bin/"{curl,docker,sudo}
+for behavior in fallback wrong-version unavailable stalled expired; do
   rm -f -- "${temporary_dir}/source-call" "${temporary_dir}/source-pid" \
-    "${temporary_dir}/late-write" "${temporary_dir}/tests-started"
-  deadline=$(node -e 'console.log(Date.now()+1500)')
-  [[ ${behavior} != expired ]] || deadline=1
+    "${temporary_dir}/fallback-call" "${temporary_dir}/bin/shellcheck" "${temporary_dir}/bin/shfmt"
+  case ${behavior} in
+    stalled) deadline=$(node -e 'console.log(Date.now()+1500)') ;;
+    expired) deadline=1 ;;
+    *) deadline=$(node -e 'console.log(Date.now()+180000)') ;;
+  esac
   started=${EPOCHREALTIME}
-  if PATH="${temporary_dir}/bin:${PATH}" SOURCE_BEHAVIOR="${behavior}" \
+  outcome=0
+  PATH="${temporary_dir}/bin:${PATH}" SOURCE_BEHAVIOR="${behavior}" \
     SOURCE_CALL="${temporary_dir}/source-call" SOURCE_PID="${temporary_dir}/source-pid" \
-    LATE_WRITE="${temporary_dir}/late-write" \
+    SOURCE_BLOCKER="${temporary_dir}/stalled-download" FALLBACK_CALL="${temporary_dir}/fallback-call" \
     OPEN_DOUGH_SETUP_DEADLINE_MS="${deadline}" SHELLCHECK_VERSION=0.11.0 SHFMT_VERSION=3.14.0 \
-    bash "${acquire}" > "${temporary_dir}/${behavior}.log" 2>&1; then
-    touch "${temporary_dir}/tests-started"
+    bash "${acquire}" > "${temporary_dir}/${behavior}.log" 2>&1 || outcome=$?
+  if [[ ${behavior} == fallback ]]; then
+    if ((outcome != 0)); then
+      cat "${temporary_dir}/${behavior}.log" >&2
+      echo 'FAIL: the pinned ShellCheck image did not recover lint setup after a release failure.' >&2
+      exit 1
+    fi
+    expect_in_log "${temporary_dir}/fallback-call" -Fx -- 'create --platform linux/amd64 docker.io/koalaman/shellcheck@sha256:b9389b73c8f26f710a7171cb7d8848a34a9c1e07a7865e727c9ec4ce99f9a83f'
+    expect_in_log "${temporary_dir}/${behavior}.log" -Fx -- 'version: 0.11.0'
+    expect_in_log "${temporary_dir}/${behavior}.log" -Fx -- '3.14.0'
+    continue
+  fi
+  if ((outcome == 0)); then
     echo "FAIL: ${behavior} lint acquisition succeeded." >&2
     exit 1
   fi
-  [[ ! -e ${temporary_dir}/tests-started ]]
+  [[ ! -e ${temporary_dir}/bin/shellcheck ]]
   if bash -euo pipefail "${temporary_dir}/diagnose.bash" >> "${temporary_dir}/${behavior}.log" 2>&1; then
     echo 'FAIL: lint acquisition diagnostic passed instead of preserving failure.' >&2
     exit 1
   fi
   expect_in_log "${temporary_dir}/${behavior}.log" -F -- 'Infrastructure setup:'
-  expect_in_log "${temporary_dir}/${behavior}.log" -F -- 'GitHub lint tool release acquisition failed'
+  expect_in_log "${temporary_dir}/${behavior}.log" -F -- 'shell lint tool acquisition failed'
   expect_in_log "${temporary_dir}/${behavior}.log" -F -- 'rerun setup before checks'
   case ${behavior} in
+    wrong-version)
+      expect_in_log "${temporary_dir}/${behavior}.log" -F -- 'ShellCheck did not match pinned version 0.11.0.'
+      ;;
     unavailable)
       expect_in_log "${temporary_dir}/${behavior}.log" -F -- 'controlled GitHub release source unavailable'
       expect_in_log "${temporary_dir}/source-call" -F -- '--connect-timeout 5 --max-time 20 --retry 0'
+      [[ -s ${temporary_dir}/fallback-call ]]
       ;;
     expired)
       [[ ! -e ${temporary_dir}/source-call ]]
@@ -86,11 +138,8 @@ for behavior in unavailable stalled expired; do
     stalled)
       [[ -e ${temporary_dir}/source-call ]]
       node -e "if (Number('${EPOCHREALTIME}')-Number('${started}') > 4) process.exit(1)"
-      # A surviving source ends only by writing late; once it is gone, any
-      # late write has already happened.
       wait_for 'the stalled lint tool source to stop' 10 \
         "! process_running '$(< "${temporary_dir}/source-pid")'"
-      [[ ! -e ${temporary_dir}/late-write ]]
       ;;
     *) exit 1 ;;
   esac

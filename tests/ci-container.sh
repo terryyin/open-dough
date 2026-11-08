@@ -100,7 +100,7 @@ expect_in_log "${script}" -F -- 'base=https://nodejs.org/dist/v${node_version}'
 
 # Every job's runner and every Node setup in the workflow must agree.
 sed -n 's/^[[:space:]]*runs-on:[[:space:]]*//p' "${workflow}" > "${temporary_dir}/runners"
-sed -n 's/^[[:space:]]*node-version-file:[[:space:]]*//p' "${workflow}" > "${temporary_dir}/nodes"
+sed -n 's/^[[:space:]]*run: bash scripts\/setup-ci-node\.sh[[:space:]]*//p' "${workflow}" > "${temporary_dir}/nodes"
 expect_in_log "${temporary_dir}/runners" -Fx -- "ubuntu-${ubuntu_version}"
 expect_in_log "${temporary_dir}/nodes" -Fx -- ".node-version"
 if grep -vFx -- "ubuntu-${ubuntu_version}" "${temporary_dir}/runners" \
