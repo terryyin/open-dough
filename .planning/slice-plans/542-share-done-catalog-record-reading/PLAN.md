@@ -3,6 +3,7 @@
 **Identity:** SEED-262#share-done-catalog-record-reading
 
 **Source:** [Read done records for the catalog through one product rule](../../seeds/SEED-262-faster-dashboard-test-feedback.md#share-done-catalog-record-reading)
+**Source review:** [Source-only commitments](source-review.md)
 
 ## Provenance and findings
 
@@ -67,10 +68,21 @@ once before landing.
 
 Type: Structure
 
-Status: planned
+Status: done
 
 Proof: the observations in the table above.
 
 Move the record-name filter, name order and Git blob hash into one exported
 pure operation; make `readDoneRecordFiles`, `doneCatalogOf` and
 `listingAnswers.gitBlobSha` use it; delete the copies.
+
+Accepted proof: `doneRecordFilesOf` and `gitBlobHash` are exported from
+`product-backlog-complete.mjs`, not the done-catalog module, which the
+browser imports and keeps free of Node-only imports. The new named-bytes test
+in `tests/support/product-backlog-done-catalog.test.mjs` observes filter,
+order, text and a `git hash-object` blob. `bash scripts/test.sh` over the
+done-catalog, complete, done-record, git-done-catalog, identity-evidence and
+repository-revision-files tests, `npm run typecheck:dashboard`, and 84
+dashboard done-catalog, listed-records, revision-reuse, agent-settings and
+recently-done specs passed. Per-commitment observations are in
+[source-review.md](source-review.md). The refactor pass made no edits.

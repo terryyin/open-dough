@@ -12,6 +12,7 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { doneRecordFilesOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-complete.mjs";
 import {
   doneRecordFileName,
   renderDoneRecord,
@@ -50,6 +51,32 @@ function snapshot(directory) {
   walk("");
   return files;
 }
+
+test("the done record files among named bytes are those a record can take, in name order, each with its text and Git blob hash", () => {
+  const record = makeMe.aDoneRecord
+    .completed({ identity: "SEED-1#earlier" })
+    .please();
+  const recordText = renderDoneRecord(record);
+
+  const files = doneRecordFilesOf([
+    { fileName: "SEED-2_later.json", bytes: Buffer.from("hello\n") },
+    { fileName: ".catalog.json", bytes: Buffer.from("{}\n") },
+    { fileName: "notes.txt", bytes: Buffer.from("not a record\n") },
+    { fileName: "SEED-1_earlier.json", bytes: Buffer.from(recordText) },
+  ]);
+
+  assert.deepEqual(
+    files.map(({ fileName }) => fileName),
+    ["SEED-1_earlier.json", "SEED-2_later.json"],
+  );
+  assert.equal(files[0].text, recordText);
+  // `printf 'hello\n' | git hash-object --stdin`
+  assert.deepEqual(files[1], {
+    fileName: "SEED-2_later.json",
+    text: "hello\n",
+    blob: "ce013625030ba8dba906f756967f9e9ca394464a",
+  });
+});
 
 test("catalog-done rebuilds a catalog for existing records at another backlog location, changing no record or backlog byte", async (t) => {
   const project = scratchProject(t);
