@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_map-host-continuation-test-data.json",
+      "identity": "SEED-261#map-host-continuation-test-data",
+      "completedAt": "2026-11-08T20:29:20.985Z",
+      "blob": "df27b222bf57d0f050eea8b65d6b36c52d145ed6"
+    },
+    {
       "fileName": "SEED-261_map-launch-and-session-test-data.json",
       "identity": "SEED-261#map-launch-and-session-test-data",
       "completedAt": "2026-11-08T18:17:04.081Z",

@@ -236,68 +236,6 @@ and the landing delivery script, with each test's original proof still visible.
    supply its changes. The test arranges the unusable local comparison and
    obtains the fallback through the real published reader.
 
-<a id="map-host-continuation-test-data"></a>
-
-### Make Codex and Cursor session test setup map directly to the domain
-
-**Identity:** SEED-261#map-host-continuation-test-data
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/539-map-host-continuation-test-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"53b3efa3c327ad75e9dadcf76f825db2fbd02eecf57990c6f2e2f33a2902a6b1","plan":"fd6cd9cabe72929723126e462ff94cbcf02f8ddc6c5c5f2e90960f722f28cb67"}}
-```
-
-#### Goal
-
-Maintainers can read which saved Codex thread or Cursor conversation a test
-continues, where it resumes, and which host-specific facts drive the result.
-Use the same domain setup in terminal, recovery, and held-session tests so
-changes to continuation data can be made and reviewed in one place.
-
-#### Scope
-
-- Arrange valid Codex and Cursor sessions through shared MakeMe builders,
-  either on a kept launch or as the session a terminal or runner consumes
-  directly. Show the facts the case relies on. Codex has a thread ID, saved
-  workspace and endpoint, and resume arguments, with a notice when the case
-  needs it. Cursor has a native UUID, workspace and resume arguments, with
-  the saved configuration scope when the case needs it.
-- Convert arranged host and continuation facts in the Codex launch and
-  observation support, Cursor start and recovery support, kept Cursor turns,
-  Running Cursor sessions setup, and their terminal and runner consumers.
-  Remove displaced constructors or make harness helpers delegate to MakeMe.
-  A record actually produced by a launch, start, or recovery stays evidence
-  from that operation. Keep fake hosts, real runner operations, terminal
-  frames, process control and faults in their existing proof roles.
-- Keep exact predecessor omissions, malformed input and extraneous aliases
-  visible in the cases that verify how they are handled. Keep command,
-  identity, and terminal expectations independent of fixture construction.
-  Correct synthetic sessions whose resume arguments name a different
-  conversation from their stored identity.
-- The [kept record story](#map-launch-and-session-test-data) owns the machine
-  store writer and general kept-record setup. The
-  [live observation story](#map-launch-observation-test-data) owns passive
-  observation records and live session and attempt answers. The
-  [completion and landing story](#map-launch-completion-and-landing-test-data)
-  owns report and receipt setup. In mixed cases this story owns the
-  continuation or terminal facts needed to exercise those operations.
-
-#### Key examples
-
-1. A kept Codex thread has a saved endpoint and workspace. Opening its
-   terminal resumes that thread with the saved endpoint and working directory.
-   A schema case that supplies a predecessor record with no continuation or
-   an extra Claude alias still observes the current decoding behavior.
-2. A kept Cursor session has a saved model configuration scope. Recovering it
-   resumes the saved UUID in its workspace with that scope. When a replacement
-   runner considers several kept sessions, it revives the eligible one and
-   the existing controls still distinguish finished, never-held, and failed
-   revivals.
-3. A terminal joins an already held Cursor session. The saved session
-   identifies the conversation and the terminal assertions still observe its
-   replay before queued live output.
-4. A sidebar test arranges enough held Cursor sessions to overflow the list.
-   Each row's UUID and resume arguments refer to the same conversation, and
-   the test still observes that both lists can reach their last entries.
-
 <a id="map-project-configuration-test-data"></a>
 
 ### Make machine-local project configuration test setup map directly to the domain
