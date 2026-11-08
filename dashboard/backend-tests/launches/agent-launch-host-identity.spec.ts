@@ -1,13 +1,7 @@
 // A predecessor Claude record and another host's equal opaque ID remain
 // distinct across machine reads and host-qualified actions. No Codex runtime
 // is substituted: the older Codex record has no saved native endpoint.
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { machineRecordNames } from "../../tests/support/machineRecordNames.ts";
@@ -20,18 +14,19 @@ import {
 } from "../../tests/agentLaunchBoundary.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
 import { openCodexTerminal } from "../../tests/support/codexTerminal.ts";
+import { machineHome } from "../../tests/machineLaunchRecords.ts";
+import {
+  keepLaunchStore,
+  keptLaunchStore,
+  launchStoreFile,
+} from "../../tests/support/launchStore.ts";
+import type { LaunchRecord } from "../../src/agentLaunch.ts";
 
 const sessionId = "same-native-conversation-id";
 
 test("predecessor Claude evidence and an equal ID from another host retain distinct reads and actions without fallback", async () => {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-host-records-"));
-  const storeFile = path.join(
-    machine,
-    "home",
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
+  const home = machineHome(machine);
   const oldClaude = {
     request: launchRequest,
     session: {
@@ -47,11 +42,9 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
     request: { ...launchRequest, host: "codex" },
     session: { host: "codex", sessionId, name: "Another host" },
   };
-  mkdirSync(path.dirname(storeFile), { recursive: true });
-  writeFileSync(
-    storeFile,
-    JSON.stringify({ "open-dough": [oldClaude, other] }),
-  );
+  keepLaunchStore(home, {
+    "open-dough": [oldClaude, other] as LaunchRecord[],
+  });
   const server = await startDashboardServer({
     mode: "boundary",
     machine,
@@ -99,9 +92,7 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
       (await markDone(server, { source: "open-dough", session: sessionId }))
         .status,
     ).toBe(200);
-    const marked = (
-      JSON.parse(readFileSync(storeFile, "utf8")) as Record<string, unknown[]>
-    )["open-dough"] as unknown[];
+    const marked = keptLaunchStore(home)["open-dough"] as unknown[];
     expect(marked).toEqual([
       expect.objectContaining({ ...oldClaude, doneAt: expect.any(String) }),
       expect.objectContaining({
@@ -119,7 +110,7 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
     // The runner's address and log, the notification sender and the
     // incident record sit beside the store. They are not a quarantined copy
     // of these records.
-    expect(machineRecordNames(path.dirname(storeFile))).toEqual([
+    expect(machineRecordNames(path.dirname(launchStoreFile(home)))).toEqual([
       "agent-launches.json",
       "cursor-runner.json",
       "cursor-runner.log",
@@ -133,11 +124,7 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
     });
     expect(deleted.status).toBe(200);
     expect(JSON.parse(deleted.body)).toEqual({ kind: "deleted" });
-    expect(
-      (
-        JSON.parse(readFileSync(storeFile, "utf8")) as Record<string, unknown[]>
-      )["open-dough"],
-    ).toEqual([marked[0]]);
+    expect(keptLaunchStore(home)["open-dough"]).toEqual([marked[0]]);
   } finally {
     await server.close();
     rmSync(machine, { recursive: true, force: true });

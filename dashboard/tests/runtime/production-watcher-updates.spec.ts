@@ -14,6 +14,7 @@ import {
   holdBuildPath,
 } from "../support/productionBuildGate.ts";
 import { writeSharedLaunchRecord } from "../support/sharedLaunchRecord.ts";
+import { keepLaunchStoreText } from "../support/launchStore.ts";
 import {
   productionUpdateJourney,
   productionUpdateShutdown,
@@ -42,7 +43,7 @@ test("repeated checks of unchanged main stay quiet and keep the same preview and
   ]);
   // Supply an existing durable record after startup. Real server reads must
   // discover the same HOME file; the fixture does not answer record HTTP.
-  state.shared = await writeSharedLaunchRecord(fixture.home);
+  state.shared = writeSharedLaunchRecord(fixture.home);
   await journey.expectSharedRecord(request, state.developmentUrl);
   await journey.expectSharedRecord(request, state.served.url);
   const checksBefore = watcher.checks();
@@ -150,7 +151,7 @@ test("a commit held in its build is served exactly at the same URL while the nex
     launchesBefore + 1,
   );
   // Later steps compare the pre-existing shared record's bytes.
-  await writeFile(journey.shared().store, journey.shared().stored);
+  keepLaunchStoreText(fixture.home, journey.shared().stored);
   expect(watcher.output()).toContain(`Preparing production dashboard ${b}.`);
   await page.reload();
   await expect(page).toHaveTitle("MAIN B");

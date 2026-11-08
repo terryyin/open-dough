@@ -20,9 +20,11 @@ import {
   markDone,
 } from "../../tests/agentLaunchBoundary.ts";
 import {
+  machineHome,
   openStoryRecord,
   seedStore,
 } from "../../tests/machineLaunchRecords.ts";
+import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import {
   answerOf,
   nothingStarted,
@@ -132,18 +134,15 @@ test.describe("an open story session on this machine", () => {
 
     // Another project's open record of the same identity does not block once
     // this project's session is marked done.
-    seedStore(
-      origin.machine,
-      JSON.stringify({
-        "open-dough": [openStoryRecord("claude", sessionId, request)],
-        "other-project": [
-          openStoryRecord("claude", "bbbbbbbb-0000-4000-8000-000000000002", {
-            ...request,
-            source: "other-project",
-          }),
-        ],
-      }),
-    );
+    keepLaunchStore(machineHome(origin.machine), {
+      "open-dough": [openStoryRecord("claude", sessionId, request)],
+      "other-project": [
+        openStoryRecord("claude", "bbbbbbbb-0000-4000-8000-000000000002", {
+          ...request,
+          source: "other-project",
+        }),
+      ],
+    });
     expect(await answerOf(accept(server, request))).toEqual(sessionOpen);
     expect(
       await markDone(server, { source: "open-dough", session: sessionId }),

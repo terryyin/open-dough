@@ -33,11 +33,13 @@ import {
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
 import {
+  machineHome,
   recordLaunchedDaysAgo,
   seedStore,
   storedRecords,
   storeFile,
 } from "../../tests/machineLaunchRecords.ts";
+import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { launchWithStateSchema } from "../../src/agentLaunch.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 import { alertReading, attentionCount } from "../../src/sessionShown.ts";
@@ -99,12 +101,9 @@ test.describe("launch records kept on this machine", () => {
       (index) =>
         `${String(index).padStart(8, "0")}-0000-4000-8000-000000000001`,
     );
-    seedStore(
-      machine,
-      JSON.stringify({
-        "open-dough": sessionIds.map((id) => recordLaunchedDaysAgo(1, id)),
-      }),
-    );
+    keepLaunchStore(machineHome(machine), {
+      "open-dough": sessionIds.map((id) => recordLaunchedDaysAgo(1, id)),
+    });
     const development = await serverOn("development");
     const production = await serverOn("production");
     const replies = await Promise.all(
@@ -182,10 +181,9 @@ test.describe("launch records kept on this machine", () => {
       "60000000-0000-4000-8000-000000000031",
       31,
     );
-    seedStore(
-      machine,
-      JSON.stringify({ "open-dough": [longDone, unclosed, recentlyDone] }),
-    );
+    keepLaunchStore(machineHome(machine), {
+      "open-dough": [longDone, unclosed, recentlyDone],
+    });
     const server = await serverOn("production");
 
     // The fake `claude` never launched them, so it no longer lists them.

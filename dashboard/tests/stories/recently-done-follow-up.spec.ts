@@ -36,7 +36,7 @@ import {
   storyNameOf,
 } from "../support/followUpStories.ts";
 import { radio } from "../support/sessionDialog.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -67,7 +67,7 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
     .launchedAt(new Date(now - 50 * 60_000).toISOString())
     .markedDoneAt(doneAt.toISOString())
     .please();
-  await keepLaunchRecords(dashboard, [...quiet, reopenable]);
+  keepLaunchRecords(dashboard, [...quiet, reopenable]);
   await publishFiles(page, {
     repository,
     revision,

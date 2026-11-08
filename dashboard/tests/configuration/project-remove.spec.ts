@@ -6,7 +6,9 @@ import { projectAddMachine } from "../support/projectAddMachine.ts";
 import { addProjectOnPage } from "../support/projectAddPage.ts";
 import { launchRequest } from "../agentLaunchBoundary.ts";
 import { expectProjectChoice, parts } from "../dashboardPage.ts";
-import { seedStore, storeFile } from "../machineLaunchRecords.ts";
+import { machineHome, storeFile } from "../machineLaunchRecords.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
+import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { openUntilRead, untilPublishedWorkRead } from "../pageRequestNotes.ts";
 import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
 let fixture: ReturnType<typeof projectAddMachine>;
@@ -40,8 +42,9 @@ test("removing a configured project retains its checkout and records, hides sess
     },
     launchedAt: new Date().toISOString(),
   };
-  seedStore(fixture.machine, JSON.stringify({ "sample-app": [record] }));
-  const records = readFileSync(storeFile(fixture.machine), "utf8");
+  const records = keepLaunchStore(machineHome(fixture.machine), {
+    "sample-app": [record as LaunchRecord],
+  });
   const marker = path.join(fixture.checkout, "keep-this.txt");
   writeFileSync(marker, "local work stays\n");
   const gitConfig = readFileSync(

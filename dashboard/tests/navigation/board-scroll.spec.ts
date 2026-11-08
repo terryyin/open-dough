@@ -30,7 +30,7 @@ for (const viewport of [
   }, testInfo) => {
     await page.setViewportSize(viewport);
     const { workspace } = storyWorktree(origin);
-    await keepLaunchRecord(dashboard, workspace);
+    keepLaunchRecord(dashboard, workspace);
     git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
     appendFileSync(
       path.join(origin.project, ".planning/PRODUCT-BACKLOG.md"),

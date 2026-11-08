@@ -12,7 +12,7 @@ import {
 } from "../dashboardPage.ts";
 import { expectSessionEntrySetOff } from "../pageColours.ts";
 import { publishFiles } from "../publishedOrigin.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import { doneStorySessions } from "../recentlyDoneSessions.ts";
 import {
   executed,
@@ -42,7 +42,7 @@ test("a done story's card holds this machine's sessions for it, marked done, new
   const listedAs = (title: string, before: number) =>
     listed(dashboard, now, title, before);
   // Kept oldest first, as the machine keeps them.
-  await keepLaunchRecords(
+  keepLaunchRecords(
     dashboard,
     [
       ...sessionsOutsideDoneStories(dashboard, now, { adHoc: true }),

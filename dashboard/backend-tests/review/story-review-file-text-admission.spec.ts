@@ -52,7 +52,7 @@ test("the same admitted comparison returns file text at its trees without changi
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const before = observed(workspace);
 
   const snapshot = await getReview(

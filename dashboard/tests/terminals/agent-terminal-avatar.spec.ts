@@ -10,7 +10,7 @@
 // the cartoons are never in the repository. The synthetic `claude`
 // (./fixtures/fake-claude) is attached; the real one is never reached.
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
@@ -21,6 +21,7 @@ import { expectServed } from "../agentPortrait.ts";
 import { avatarPng } from "../avatarAnswers.ts";
 import { expectTerminalPreviewFits } from "../terminalPortraitPreview.ts";
 import { box } from "../pageLayout.ts";
+import { changeLaunchStore } from "../support/launchStore.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -28,23 +29,15 @@ type Kept = Record<string, unknown>;
 
 // Replaces what the kept record of the project's one session establishes.
 function establish(home: string, established: Kept) {
-  const file = path.join(
-    home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-  const store = JSON.parse(readFileSync(file, "utf8")) as Record<
-    string,
-    Kept[]
-  >;
-  store["open-dough"] = (store["open-dough"] ?? []).map((record) => ({
-    ...record,
-    start: undefined,
-    preparation: undefined,
-    ...established,
+  changeLaunchStore(home, (store) => ({
+    ...store,
+    "open-dough": (store["open-dough"] ?? []).map((record) => ({
+      ...record,
+      start: undefined,
+      preparation: undefined,
+      ...established,
+    })),
   }));
-  writeFileSync(file, JSON.stringify(store));
 }
 
 test("the header shows the recorded agent's portrait left of its two rows, proportionate to both, named by the agent, and none without an agent or a portrait", async ({

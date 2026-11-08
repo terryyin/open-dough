@@ -1,32 +1,32 @@
 // Launch-record persistence fixtures for an isolated machine directory.
-// Seeding and reading use the actual JSON file consumed by dashboard servers.
+// Seeding and reading use the machine launch store dashboard servers read
+// (./support/launchStore.ts), in the machine's `home`.
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { launchRequest, title } from "./agentLaunchBoundary.ts";
+import type { LaunchRecord } from "../src/agentLaunch.ts";
+import {
+  changeLaunchStore,
+  keepLaunchStoreText,
+  keptLaunchStore,
+  launchStoreFile,
+} from "./support/launchStore.ts";
+
+// The home directory of an isolated machine directory.
+export const machineHome = (machine: string) => path.join(machine, "home");
 
 export function storeFile(machine: string): string {
-  return path.join(
-    machine,
-    "home",
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
+  return launchStoreFile(machineHome(machine));
 }
 
+// Writes exactly `text` as the machine's store.
 export function seedStore(machine: string, text: string): void {
-  mkdirSync(path.dirname(storeFile(machine)), { recursive: true });
-  writeFileSync(storeFile(machine), text);
+  keepLaunchStoreText(machineHome(machine), text);
 }
 
 // The project's records as the store file holds them, before any retention.
 export function storedRecords(machine: string): unknown[] {
-  const store = JSON.parse(readFileSync(storeFile(machine), "utf8")) as Record<
-    string,
-    unknown[]
-  >;
-  return store["open-dough"] ?? [];
+  return keptLaunchStore(machineHome(machine))["open-dough"] ?? [];
 }
 
 // ISO times measured from the server's real clock. Launch retention drops a
@@ -48,30 +48,28 @@ export function seedEarlierDoneMark(
   sessionId: string,
   doneProblem: string,
 ): void {
-  const store = JSON.parse(readFileSync(storeFile(machine), "utf8")) as Record<
-    string,
-    Record<string, unknown>[]
-  >;
-  const stored = Object.values(store)
-    .flat()
-    .find(
-      (record) =>
-        (record["session"] as { sessionId?: string } | undefined)?.sessionId ===
-        sessionId,
-    );
-  if (stored === undefined) throw new Error("The launch was not stored.");
-  stored["doneAt"] = retainedDoneAt();
-  stored["doneProblem"] = doneProblem;
-  seedStore(machine, JSON.stringify(store));
+  changeLaunchStore(machineHome(machine), (store) => {
+    const stored = Object.values(store)
+      .flat()
+      .find(
+        (record) =>
+          "session" in record && record.session.sessionId === sessionId,
+      );
+    if (stored === undefined || !("session" in stored))
+      throw new Error("The launch was not stored.");
+    stored.doneAt = retainedDoneAt();
+    stored.doneProblem = doneProblem;
+    return store;
+  });
 }
 
 export function recordLaunchedDaysAgo(
   days: number,
   sessionId: string,
   doneDaysAgo?: number,
-): object {
+): LaunchRecord {
   return {
-    request: launchRequest,
+    request: launchRequest as LaunchRecord["request"],
     session: {
       host: "claude",
       sessionId,
@@ -94,7 +92,7 @@ export function openStoryRecord(
     readonly title: string;
     readonly workflow: string;
   } = launchRequest,
-): object {
+): LaunchRecord {
   const name = `Open Dough · Execution · ${story.title}`;
   const session =
     host === "claude"
@@ -125,5 +123,5 @@ export function openStoryRecord(
     },
     session,
     launchedAt: new Date().toISOString(),
-  };
+  } as LaunchRecord;
 }

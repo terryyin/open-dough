@@ -8,9 +8,10 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import { sessionOpen } from "../../server/launchAttemptConflicts.ts";
 import { continueAttempt } from "../../tests/agentLaunchBoundary.ts";
 import {
+  machineHome,
   openStoryRecord,
-  seedStore,
 } from "../../tests/machineLaunchRecords.ts";
+import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import {
   answerOf,
   nothingStarted,
@@ -80,12 +81,9 @@ test.describe("continuing while a story session is open", () => {
     );
     await nothingStarted(origin, server, push, false);
 
-    seedStore(
-      origin.machine,
-      JSON.stringify({
-        "open-dough": [openStoryRecord("claude", ownId, request)],
-      }),
-    );
+    keepLaunchStore(machineHome(origin.machine), {
+      "open-dough": [openStoryRecord("claude", ownId, request)],
+    });
     seedKeptAttempt(server.home, {
       id: ownAttempt,
       request,

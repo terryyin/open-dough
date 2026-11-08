@@ -25,7 +25,7 @@ import {
   storyReviewReads,
 } from "../support/sidePanelContents.ts";
 import { branch, storyWorktree } from "../support/storyReviewWorktree.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 
 // Intent reads the Selected story; the page then goes back to the Board.
 function intentReads(
@@ -50,7 +50,7 @@ test("review and terminal take turns in the one side panel beside a usable Board
     startedAt: Date.now(),
   });
   const now = new Date().toISOString();
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     makeMe.aLaunchRecord
       .executing({ identity: queuedIdentity, title: "Story A" })
       .onStoryBranch({ workspace: workspaceA, branch })

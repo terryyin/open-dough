@@ -13,7 +13,7 @@ import {
   type PreparingJourney,
 } from "../preparingJourney.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
-import { keepLaunchRecords } from "./storyLaunchRecord.ts";
+import { keepLaunchRecords } from "./launchStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { collectAuthenticatedReads } from "./historicalCreditReads.ts";
@@ -135,7 +135,7 @@ export async function openSessionAttributionBoard(
       receivedAt: new Date().toISOString(),
     },
   };
-  await keepLaunchRecords(dashboard, [record, legacy, unreadable, matching]);
+  keepLaunchRecords(dashboard, [record, legacy, unreadable, matching]);
   execFileSync("git", [
     "-C",
     journey.origin,

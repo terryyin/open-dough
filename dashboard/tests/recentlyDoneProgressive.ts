@@ -28,7 +28,7 @@ import {
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { standaloneSessionName } from "./dashboardPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { keepLaunchRecords } from "./support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "./support/launchStore.ts";
 import { backlog, repository } from "./recentlyDoneRecords.ts";
 
 export { repository };
@@ -152,7 +152,7 @@ export function publishedWithCatalog(
 // They are the sessions of the project `source`, which the synthetic `claude`
 // lists under `checkout`: the first project and the machine's home unless
 // given.
-export async function keepProgressiveSessions(
+export function keepProgressiveSessions(
   dashboard: DashboardServer,
   now: number,
   entries: readonly ProgressiveEntry[],
@@ -219,5 +219,5 @@ export async function keepProgressiveSessions(
       },
     );
   });
-  await keepLaunchRecords(dashboard, [...records, ...also], source);
+  keepLaunchRecords(dashboard, [...records, ...also], source);
 }

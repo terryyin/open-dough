@@ -22,7 +22,7 @@ import {
   startSessionField,
 } from "../launchStoryCardPage.ts";
 import { emptyBacklog, publishFiles } from "../publishedOrigin.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
@@ -61,7 +61,7 @@ test("one Taken story with two sessions and one local session means two entries;
   if (!story || !local || story.session.host !== "claude")
     throw new Error("Missing raw sessions");
   const secondId = id(queuedTitle, placed.executedOpenSessionLaunched);
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     {
       ...story,
       session: {

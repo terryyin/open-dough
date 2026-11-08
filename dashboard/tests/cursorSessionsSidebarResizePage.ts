@@ -102,7 +102,7 @@ export async function expandCrowded(
   await page.setViewportSize(wide);
   const pid = await holdSession(dashboard, cursor);
   const held = keptRecord(dashboard.home);
-  await keepCrowd(dashboard, held);
+  keepCrowd(dashboard, held);
   const asked = changesAsked(page);
   await showPage(page, origin);
   await answerCrowd(page, held);

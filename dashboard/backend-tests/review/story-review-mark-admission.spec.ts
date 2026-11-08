@@ -27,7 +27,7 @@ test("a mark request naming a path, a malformed object, or an absent tree keeps 
   origin,
 }) => {
   const { workspace, merged } = admissionWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const tree = git(workspace, "rev-parse", "HEAD^{tree}");
   const before = observed(workspace);
   const named = {

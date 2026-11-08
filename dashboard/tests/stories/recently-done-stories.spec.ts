@@ -20,7 +20,7 @@
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles, type ObservedRequest } from "../publishedOrigin.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import {
   doneDirectory,
@@ -63,8 +63,8 @@ function doneRecordsRead(requests: readonly ObservedRequest[]): string[] {
 }
 
 // Keeps this machine's two sessions, listed by the synthetic `claude`.
-async function keepSessions(dashboard: DashboardServer, now: number) {
-  await keepLaunchRecords(
+function keepSessions(dashboard: DashboardServer, now: number) {
+  keepLaunchRecords(
     dashboard,
     sessionsOutsideDoneStories(dashboard, now, { adHoc: true }),
   );
@@ -75,7 +75,7 @@ test("Recently done lists published done stories among the sessions, newest firs
   dashboard,
 }) => {
   const now = Date.now();
-  await keepSessions(dashboard, now);
+  keepSessions(dashboard, now);
   const requests = await publishFiles(page, {
     repository,
     revision,
@@ -142,7 +142,7 @@ test("a revision with no done records lists the sessions as before, and one whos
   dashboard,
 }) => {
   const now = Date.now();
-  await keepSessions(dashboard, now);
+  keepSessions(dashboard, now);
   const { recentlyDone: recent } = parts(page);
 
   await test.step("no done-record directory: only the sessions, with no error", async () => {

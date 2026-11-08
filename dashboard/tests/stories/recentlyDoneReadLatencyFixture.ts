@@ -15,7 +15,7 @@ import { expectMembership, parts, shortRevision } from "../dashboardPage.ts";
 import { publishes } from "../support/fakeGitHub.ts";
 import type { GhRequest } from "../support/ghRequest.ts";
 import { holdingAnswer } from "../support/heldGitHubAnswer.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import {
   afterTake,
@@ -76,7 +76,7 @@ export async function openedWithHeldDoneRecord(
     cwd: dashboard.home,
     startedAt: opened.getTime() - 4 * hour,
   });
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     ...sessionsOutsideDoneStories(dashboard, opened.getTime(), {
       adHoc: true,
       queued: true,

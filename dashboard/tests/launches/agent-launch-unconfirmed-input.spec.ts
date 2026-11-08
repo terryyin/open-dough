@@ -6,13 +6,11 @@
 // evidence is forged in this machine's records, as
 // ./agent-launch-codex-creation.spec.ts forges legacy evidence.
 
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { recoveryOf } from "../responsiveRecovery.ts";
+import { changeLaunchStore } from "../support/launchStore.ts";
 
 const request = {
   source: "open-dough",
@@ -33,23 +31,20 @@ test("a launch matching a kept conversation with unconfirmed first input starts 
   expect(JSON.parse((await launch(dashboard, request)).body)).toMatchObject({
     kind: "launched",
   });
-  const file = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/agent-launches.json",
-  );
-  const document = JSON.parse(readFileSync(file, "utf8")) as Record<
-    string,
-    LaunchRecord[]
-  >;
-  const [kept] = document["open-dough"] ?? [];
-  if (kept === undefined) throw new Error("Missing saved Claude record.");
-  document["open-dough"] = [
-    {
-      ...kept,
-      firstInput: { state: "uncertain", instruction: request.instruction },
-    },
-  ];
-  writeFileSync(file, JSON.stringify(document));
+  changeLaunchStore(dashboard, (document) => {
+    const [kept] = document["open-dough"] ?? [];
+    if (kept === undefined || !("session" in kept))
+      throw new Error("Missing saved Claude record.");
+    return {
+      ...document,
+      "open-dough": [
+        {
+          ...kept,
+          firstInput: { state: "uncertain", instruction: request.instruction },
+        },
+      ],
+    };
+  });
 
   expect(JSON.parse((await launch(dashboard, request)).body)).toEqual({
     kind: "uncertain",

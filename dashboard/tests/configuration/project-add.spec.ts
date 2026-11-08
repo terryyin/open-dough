@@ -5,10 +5,12 @@ import { mkdirSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { launchRequest } from "../agentLaunchBoundary.ts";
 import {
+  machineHome,
   recordLaunchedDaysAgo,
-  seedStore,
   storeFile,
 } from "../machineLaunchRecords.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
+import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { addProjectOnPage } from "../support/projectAddPage.ts";
 import { expect, test } from "../support/pageTest.ts";
@@ -214,7 +216,9 @@ test("retained workspace explanations use the configured folder and keep actual 
       publishedSha: "ab".repeat(20),
     },
   };
-  seedStore(fixture.machine, JSON.stringify({ "sample-app": [record] }));
+  keepLaunchStore(machineHome(fixture.machine), {
+    "sample-app": [record as LaunchRecord],
+  });
   const kept = readFileSync(storeFile(fixture.machine), "utf8");
   const server = await fixture.start("preview");
   await page.goto(server.baseURL);

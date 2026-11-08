@@ -15,7 +15,7 @@ test("an earlier pending range cannot answer the later chosen range", async ({
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const held = await holdNextReviewResponse(

@@ -1,13 +1,15 @@
 // Recheck trusts a launch's own durable record even when the host's listing
 // no longer names its session, using the latest record when several exist.
-import { mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { attempts } from "../agentLaunchBoundary.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
 import {
   openSessionStartReason,
   type LaunchAttemptRecord,
+  type LaunchRecord,
 } from "../../src/agentLaunch.ts";
+import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
 import {
   expect,
   test,
@@ -60,13 +62,8 @@ for (const count of [1, 2]) {
       running: false,
       worker: { pid: dashboard.pid },
     });
-    const file = path.join(
-      dashboard.home,
-      ".open-dough/dashboard/agent-launches.json",
-    );
-    mkdirSync(path.dirname(file), { recursive: true });
-    const records = [0, 1].slice(0, count).map((index) => ({
-      request: storyRequest,
+    const records = [0, 1].slice(0, count).map((index): LaunchRecord => ({
+      request: storyRequest as LaunchRecord["request"],
       session: {
         host: "claude",
         sessionId: `unlisted-own-session-${String(index)}`,
@@ -77,8 +74,9 @@ for (const count of [1, 2]) {
     }));
     const latest = records.at(-1);
     // Deliberately newest first: selection depends on time, not file order.
-    const stored = JSON.stringify({ "open-dough": records.toReversed() });
-    writeFileSync(file, stored);
+    const stored = keepLaunchStore(dashboard, {
+      "open-dough": records.toReversed(),
+    });
     expect(dashboard.claudeListing()).toEqual([]);
     // Page session reads use HOME; verification reads in the project folder.
     const verificationListings = () =>
@@ -111,7 +109,7 @@ for (const count of [1, 2]) {
     expect((await attempts(dashboard))[0]?.worker).toBeUndefined();
     expect((await attempts(dashboard))[0]?.slowSince).toBeUndefined();
     expect(verificationListings()).toEqual(before);
-    expect(readFileSync(file, "utf8")).toBe(stored);
+    expect(readFileSync(launchStoreFile(dashboard), "utf8")).toBe(stored);
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
   });
 }

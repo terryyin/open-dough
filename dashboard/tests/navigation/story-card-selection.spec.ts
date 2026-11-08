@@ -9,7 +9,7 @@
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   at,
   executed,
@@ -41,7 +41,7 @@ test("Select story and empty-area clicks toggle the selected story on active and
 }) => {
   const now = Date.now();
   // Done ad-hoc + this card's session only, so backlog Start stays clickable.
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     ...sessionsOutsideDoneStories(dashboard, now, { adHoc: true }).filter(
       (record) => record.request.workflow === "ad-hoc",
     ),

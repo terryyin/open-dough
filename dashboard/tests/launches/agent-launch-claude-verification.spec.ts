@@ -8,12 +8,13 @@
 // story protected with why. Recheck never launches again; the synthetic
 // `claude` (./fixtures/fake-claude) stands in for Claude Code.
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
 import type { Page } from "@playwright/test";
 import { accept, attempts, launchRequest } from "../agentLaunchBoundary.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
-import { openSessionStartReason } from "../../src/agentLaunch.ts";
+import {
+  openSessionStartReason,
+  type LaunchRecord,
+} from "../../src/agentLaunch.ts";
 import {
   expect,
   test,
@@ -23,6 +24,7 @@ import {
   useUncertainLaunch,
 } from "../claudeVerification.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
+import { changeLaunchStore } from "../support/launchStore.ts";
 import { selectStory } from "../storyCardSelection.ts";
 
 const openSessionDescription = new RegExp(
@@ -35,33 +37,22 @@ const answerKind = async (response: Promise<{ body: string }>) =>
 
 // Keeps a launch record of another story holding the listed `sessionId`.
 function recordHolding(dashboard: DashboardServer, sessionId: string) {
-  const file = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-  mkdirSync(path.dirname(file), { recursive: true });
-  let kept: Record<string, unknown[]> = {};
-  try {
-    kept = JSON.parse(readFileSync(file, "utf8")) as typeof kept;
-  } catch {
-    // None kept yet.
-  }
-  kept["open-dough"] = [
-    ...(kept["open-dough"] ?? []),
-    {
-      request: launchRequest,
-      session: {
-        host: "claude",
-        sessionId,
-        shortId: sessionId.slice(0, 8),
-        name: "another launch",
+  changeLaunchStore(dashboard, (kept) => ({
+    ...kept,
+    "open-dough": [
+      ...(kept["open-dough"] ?? []),
+      {
+        request: launchRequest as LaunchRecord["request"],
+        session: {
+          host: "claude",
+          sessionId,
+          shortId: sessionId.slice(0, 8),
+          name: "another launch",
+        },
+        launchedAt: new Date().toISOString(),
       },
-      launchedAt: new Date().toISOString(),
-    },
-  ];
-  writeFileSync(file, JSON.stringify(kept));
+    ],
+  }));
 }
 
 // Holds the page's reads of the project's ref asked once a launch is sent,

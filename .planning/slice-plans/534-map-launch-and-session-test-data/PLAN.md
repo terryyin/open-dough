@@ -2,6 +2,7 @@
 
 **Identity:** SEED-261#map-launch-and-session-test-data
 **Source:** [Refined story](../../seeds/SEED-261-share-domain-test-data.md#map-launch-and-session-test-data)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and boundaries
 
@@ -95,7 +96,7 @@ and a translation or duplicate constructor is gone.
 
 ### 1. One harness owner keeps launch records in the machine store
 Type: Structure
-Status: planned
+Status: done
 Proof: Every spec the consumer trace lists for the moved and removed writers passes; the bytes each writer produced are unchanged.
 
 Grow the existing store writer into the one owner described above and route
@@ -106,6 +107,15 @@ every valid-record write through it: `storyLaunchRecord`, `sharedLaunchRecord`,
 `agent-launches.json` themselves. Exact-text writes stay on `seedStore`.
 Record construction does not change in this slice. Enables slice 2, whose
 records reach the store only through this owner.
+
+Accepted: `dashboard/tests/support/launchStore.ts` is the one owner
+(`keepLaunchStore`, `keepLaunchRecords`, `keepMoreLaunchRecords`,
+`changeLaunchStore`, `keepLaunchStoreText` for exact text, `launchStoreFile`,
+`keptLaunchStore`), synchronous. 301 traced specs passed (796 tests); byte
+comparison of every rerouted writer identical. `codexLaunch` and
+`completionRecovery` only read or fault-hook the store. Learning for slices
+2–4: removing the G2 casts belongs with each family's builder conversion;
+about 30 files still build the store path by hand to read it back.
 
 ### 2. History and Recently done start from kept records the builder states
 Type: Behavior
@@ -154,3 +164,15 @@ text literal at the call site.
 Slice-plan refinement was not needed: the slices follow the story's four
 examples, each with one proof loop, and the one Structure slice enables the
 next Behavior. This review found no remaining slice-specific concern.
+
+## Story obligations
+
+### G1. Opt-in Sessions replay measurement times out (first reported in slice 1)
+Reported: slice 1 — "DOUGH_SESSIONS_REPLAY=1 sessions-replay.spec.ts exceeds the 30 s test timeout; it fails identically at e75b693ab, before any change. It is skipped unless opted in."
+Story clause: "Evaluate each converted family against its original cases"
+Disposition: receiving slice 2
+
+### G2. Stored setup gained type-only record casts (first reported in slice 1)
+Reported: slice 1 — "Typing the store as LaunchRecord | CreationRecord added launchRequest as LaunchRecord[\"request\"] in recordHolding and the own-record verification spec, and as LaunchRecord / as CreationRecord / as KeptLaunch casts in project-add, project-remove, project-hide-sessions, project-restored-session, creation-gates, host-identity, retention-scope, responsive-session-recovery-verification and avatar.establish."
+Story clause: "a record states its request through the builder"
+Disposition: interim until slices 2, 3, 4

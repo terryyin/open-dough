@@ -13,13 +13,8 @@ import {
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import {
-  report,
-  storeFile,
-  save,
-  retained,
-  passive,
-} from "../support/retainedReport.ts";
+import { report, save, retained, passive } from "../support/retainedReport.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 
@@ -37,7 +32,7 @@ test("card, Recently done and sidebar review the retained report with attention,
 }) => {
   if (native === undefined) throw new Error("Missing protocol fixture");
   const { record, workspace } = await retained(dashboard, native);
-  const baseline = readFileSync(storeFile(dashboard.home), "utf8");
+  const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   const since = native.calls.length;
   const { card, show } = await openStoryColumnsJourney(page, journey);
   const entry = storyCardSessions(card(notRefinedStory));
@@ -104,7 +99,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   await expect(sideOpen).toBeFocused();
   await reloadUntilRead(page);
   await expect(entry).toContainText("Ready for review");
-  expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
+  expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
   expect(existsSync(workspace)).toBe(false);
   passive(native, since);
 });

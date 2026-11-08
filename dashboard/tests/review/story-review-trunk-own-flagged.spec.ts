@@ -72,7 +72,7 @@ test("a file trunk rewrote where the story changed it is flagged as including tr
   origin,
 }) => {
   const { workspace, trunk: first } = trunkModeStory(origin, { published: 1 });
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
   const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -169,7 +169,7 @@ test("a flagged file two story commits changed is diffed from trunk before the o
   // Not the parent of `s2`, the commit whose line trunk rewrote.
   expect(git(workspace, "log", "-1", "--format=%s", "HEAD~1")).toBe("s2");
   expect(beforeStory).not.toBe(git(workspace, "rev-parse", "HEAD~2^{tree}"));
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openTaken(page, origin);
   const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);

@@ -17,10 +17,11 @@ import {
 import { everyRepository, publishes } from "../support/fakeGitHub.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import {
+  machineHome,
   recordLaunchedDaysAgo,
-  seedStore,
   storeFile,
 } from "../machineLaunchRecords.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import { title } from "../agentLaunchBoundary.ts";
 import { settings } from "../support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "../frameIconControl.ts";
@@ -72,12 +73,9 @@ async function start(mode: "dev" | "preview"): Promise<DashboardServer> {
 test("production seeds its four projects and shows a previously saved session", async ({
   page,
 }) => {
-  seedStore(
-    machine,
-    JSON.stringify({
-      "open-dough": [recordLaunchedDaysAgo(1, "01234567-previous-session")],
-    }),
-  );
+  keepLaunchStore(machineHome(machine), {
+    "open-dough": [recordLaunchedDaysAgo(1, "01234567-previous-session")],
+  });
   const records = readFileSync(storeFile(machine));
   const server = await start("preview");
   await openUntilRead(page, server.baseURL);

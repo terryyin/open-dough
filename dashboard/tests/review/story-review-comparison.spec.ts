@@ -125,7 +125,7 @@ test("a marked story with no later change says nothing changed since the review 
   origin,
 }) => {
   const { workspace } = twelveFileWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -158,7 +158,7 @@ test("an unmarked story's review opens on all its changes and offers Commits", a
   origin,
 }) => {
   const { workspace } = twelveFileWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);

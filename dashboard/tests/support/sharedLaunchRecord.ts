@@ -2,12 +2,11 @@
 // production servers share. Servers must discover it from that file; nothing
 // here answers record HTTP.
 import { expect, type APIRequestContext } from "@playwright/test";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { launchRequest } from "../agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
+import { keepLaunchStore, launchStoreFile } from "./launchStore.ts";
 
-export async function writeSharedLaunchRecord(home: string) {
+export function writeSharedLaunchRecord(home: string) {
   const record: LaunchRecord = {
     request: launchRequest as LaunchRecord["request"],
     session: {
@@ -18,11 +17,8 @@ export async function writeSharedLaunchRecord(home: string) {
     },
     launchedAt: new Date().toISOString(),
   };
-  const store = path.join(home, ".open-dough/dashboard/agent-launches.json");
-  await mkdir(path.dirname(store), { recursive: true });
-  const stored = JSON.stringify({ "open-dough": [record] });
-  await writeFile(store, stored);
-  return { record, store, stored };
+  const stored = keepLaunchStore(home, { "open-dough": [record] });
+  return { record, store: launchStoreFile(home), stored };
 }
 
 export async function expectSharedLaunchRecord(

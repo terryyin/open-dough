@@ -13,6 +13,7 @@ import type {
   LaunchRecord,
 } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "./fakeCodexTypes.ts";
+import { keepLaunchStore } from "./launchStore.ts";
 import { replayRecords, replayScale } from "./sessionsReplayRecords.ts";
 import { indices, uuidOf } from "./sessionsReplayValues.ts";
 
@@ -83,12 +84,8 @@ export function seedReplaySessions(
       };
     }),
   ];
+  keepLaunchStore(home, byProject(records));
   const dashboard = path.join(home, ".open-dough", "dashboard");
-  mkdirSync(dashboard, { recursive: true });
-  writeFileSync(
-    path.join(dashboard, "agent-launches.json"),
-    JSON.stringify(byProject(records)),
-  );
   writeFileSync(
     path.join(dashboard, "launch-attempts.json"),
     JSON.stringify(byProject(attempts)),

@@ -5,7 +5,7 @@ import { renderDoneRecord } from "../../../src/skills/dough-product-backlog/scri
 import { columnPagingControl, rem } from "../boardPage.ts";
 import { expectMembership, parts, sessionStateOf } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   at,
   doneDirectory,
@@ -41,7 +41,7 @@ test("an active story owns its open session even with a matching done card, whos
     throw new Error("No queued Claude story session");
   }
   const closedId = "99999999-aaaa-bbbb-cccc-000000000009";
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     {
       ...open,
       request: { ...open.request, workflow: "refinement" },

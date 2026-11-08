@@ -9,7 +9,9 @@ import {
   expectProjectChoice,
   parts,
 } from "../dashboardPage.ts";
-import { seedStore } from "../machineLaunchRecords.ts";
+import { machineHome } from "../machineLaunchRecords.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
+import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { openUntilRead, untilPublishedWorkRead } from "../pageRequestNotes.ts";
 import {
   openSessionsSidebar,
@@ -60,7 +62,9 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
     },
     launchedAt: new Date().toISOString(),
   };
-  seedStore(fixture.machine, JSON.stringify({ doughnut: [record] }));
+  keepLaunchStore(machineHome(fixture.machine), {
+    doughnut: [record as LaunchRecord],
+  });
 
   await openUntilRead(page, server.baseURL);
   await chooseProject(page, "Doughnut");

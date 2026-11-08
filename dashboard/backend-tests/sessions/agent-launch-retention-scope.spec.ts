@@ -21,10 +21,12 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
 import {
   daysAgo,
+  machineHome,
   openStoryRecord,
-  seedStore,
   storedRecords,
 } from "../../tests/machineLaunchRecords.ts";
+import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { distinctStoryRequest } from "../../tests/openStorySessionSetup.ts";
 import {
   startDashboardServer,
@@ -122,16 +124,13 @@ test.describe("a scoped record dropped by retention expiry", () => {
     const expiredId = "a0000000-0000-4000-8000-000000000031";
     const recentlyDoneId = "a0000000-0000-4000-8000-000000000029";
     const unclosedId = "a0000000-0000-4000-8000-000000000040";
-    seedStore(
-      machine,
-      JSON.stringify({
-        "open-dough": [
-          scopedRecord(expiredId, expiredScope, 31),
-          scopedRecord(recentlyDoneId, recentlyDoneScope, 29),
-          scopedRecord(unclosedId, unclosedScope, undefined),
-        ],
-      }),
-    );
+    keepLaunchStore(machineHome(machine), {
+      "open-dough": [
+        scopedRecord(expiredId, expiredScope, 31),
+        scopedRecord(recentlyDoneId, recentlyDoneScope, 29),
+        scopedRecord(unclosedId, unclosedScope, undefined),
+      ] as LaunchRecord[],
+    });
     expect(existsSync(expiredScope)).toBe(true);
 
     // An ordinary launch writes the record store; that write drops the

@@ -58,7 +58,7 @@ async function openReviewByTouch(
 ) {
   const { workspace } = largeWorktree(origin);
   writeFileSync(path.join(workspace, "touch-uncommitted.txt"), "uncommitted\n");
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await expectSettledPage(page);
   const action = card.getByRole("button", { name: "Review changes" });

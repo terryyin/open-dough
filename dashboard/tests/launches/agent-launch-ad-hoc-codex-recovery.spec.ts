@@ -1,6 +1,4 @@
 // Store/HTTP recovery owns intent and decisions; the fixture only answers native RPC.
-import { writeFileSync } from "node:fs";
-import path from "node:path";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { launch, machineSessions } from "../agentLaunchBoundary.ts";
 import {
@@ -10,6 +8,7 @@ import {
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 
 const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
 test.use({ projectFolders: ["open-dough"] });
@@ -56,10 +55,7 @@ for (const blank of [true, false]) {
     if (!blank) {
       // A genuine predecessor-shaped record is read through the actual store.
       expect(saved.firstInput).not.toHaveProperty("intent");
-      writeFileSync(
-        path.join(dashboard.home, ".open-dough/dashboard/agent-launches.json"),
-        JSON.stringify({ "open-dough": [saved] }),
-      );
+      keepLaunchStore(dashboard, { "open-dough": [saved] });
     }
     await reloadUntilRead(page);
     const recent = parts(page).taken.locator(".session-entry");

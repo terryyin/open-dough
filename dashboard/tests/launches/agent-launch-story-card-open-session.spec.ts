@@ -18,6 +18,7 @@ import {
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
 import { sessionOpenExplanation } from "../../src/launchOutcome.ts";
 import { openStoryRecord } from "../machineLaunchRecords.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
@@ -103,21 +104,16 @@ test.describe("a story's card while its session is open", () => {
 
     await test.step("Delete record on a Cursor session returns both Starts without a reload", async () => {
       const cursorSession = "cccccccc-0000-4000-8000-0000000000c1";
-      const storeDir = path.join(dashboard.home, ".open-dough", "dashboard");
-      mkdirSync(storeDir, { recursive: true });
-      writeFileSync(
-        path.join(storeDir, "agent-launches.json"),
-        JSON.stringify({
-          "open-dough": [
-            openStoryRecord("cursor", cursorSession, {
-              source: "open-dough",
-              identity: identityB,
-              title: readyStory,
-              workflow: "execution",
-            }),
-          ],
-        }),
-      );
+      keepLaunchStore(dashboard, {
+        "open-dough": [
+          openStoryRecord("cursor", cursorSession, {
+            source: "open-dough",
+            identity: identityB,
+            title: readyStory,
+            workflow: "execution",
+          }),
+        ],
+      });
       await page.reload();
       await settled();
       await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
@@ -154,19 +150,16 @@ test.describe("a story's card while its session is open", () => {
           },
         }),
       );
-      writeFileSync(
-        path.join(storeDir, "agent-launches.json"),
-        JSON.stringify({
-          "open-dough": [
-            openStoryRecord("claude", "dddddddd-0000-4000-8000-0000000000d1", {
-              source: "open-dough",
-              identity: identityB,
-              title: readyStory,
-              workflow: "refinement",
-            }),
-          ],
-        }),
-      );
+      keepLaunchStore(dashboard, {
+        "open-dough": [
+          openStoryRecord("claude", "dddddddd-0000-4000-8000-0000000000d1", {
+            source: "open-dough",
+            identity: identityB,
+            title: readyStory,
+            workflow: "refinement",
+          }),
+        ],
+      });
       await show(columnsJourney.taken);
       await expectMembership(page, {
         taken: [readyStory],
@@ -199,10 +192,7 @@ test.describe("a story's card while its session is open", () => {
         path.join(storeDir, "execution-starts.json"),
         JSON.stringify({ "open-dough": {} }),
       );
-      writeFileSync(
-        path.join(storeDir, "agent-launches.json"),
-        JSON.stringify({ "open-dough": [] }),
-      );
+      keepLaunchStore(dashboard, { "open-dough": [] });
       await show(columnsJourney.queued);
       await expectMembership(page, queued);
       await page.reload();

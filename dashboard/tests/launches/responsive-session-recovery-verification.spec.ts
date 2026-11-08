@@ -22,6 +22,7 @@ import {
 } from "../responsiveRecovery.ts";
 import { openStories, test } from "../responsiveStart.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
+import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 3_000 });
 
@@ -51,11 +52,9 @@ test("Recheck trusts the start's own record after its kept start was removed, ev
   >;
   const kept = starts["open-dough"]?.[queuedIdentity];
   expect(kept?.start).toBeDefined();
-  const file = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/agent-launches.json",
-  );
-  const stored = JSON.stringify({
+  // State left when keeping the launch and removing its start succeeded,
+  // but noting the attempt's launched outcome failed.
+  const stored = keepLaunchStore(dashboard, {
     "open-dough": [
       {
         request: uncertain?.request,
@@ -67,12 +66,9 @@ test("Recheck trusts the start's own record after its kept start was removed, ev
         },
         start: kept?.start,
         launchedAt: new Date().toISOString(),
-      },
+      } as LaunchRecord,
     ],
   });
-  // State left when keeping the launch and removing its start succeeded,
-  // but noting the attempt's launched outcome failed.
-  writeFileSync(file, stored);
   writeFileSync(startsFile, JSON.stringify({ "open-dough": {} }));
   const verificationListings = () =>
     dashboard
@@ -100,7 +96,7 @@ test("Recheck trusts the start's own record after its kept start was removed, ev
     session: { host: "claude", sessionId: listed?.sessionId },
   });
   expect(verificationListings()).toEqual(before);
-  expect(readFileSync(file, "utf8")).toBe(stored);
+  expect(readFileSync(launchStoreFile(dashboard), "utf8")).toBe(stored);
   expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
 });
 

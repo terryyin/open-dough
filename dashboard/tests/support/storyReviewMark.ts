@@ -214,7 +214,7 @@ export async function markedThenChanged(
   origin: StartOrigin,
 ) {
   const { workspace } = twelveFileWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);

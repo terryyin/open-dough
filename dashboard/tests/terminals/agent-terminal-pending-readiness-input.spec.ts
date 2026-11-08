@@ -24,7 +24,7 @@ import {
 } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
-import { keepProjectLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchStore } from "../support/launchStore.ts";
 import { retainedDoneAt } from "../machineLaunchRecords.ts";
 import { tapWhereShown } from "../pageLayout.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
@@ -68,7 +68,7 @@ test("dictation, Paste, composer Insert and toolbar keys reach a held Codex fram
     title: notRefinedStory,
     host: "codex",
   });
-  await keepProjectLaunchRecords(dashboard, {
+  keepLaunchStore(dashboard, {
     "open-dough": stored(dashboard.home).map((record) => ({
       ...record,
       doneAt: retainedDoneAt(),

@@ -14,9 +14,10 @@ import {
   runningStarts,
 } from "../../tests/agentLaunchBoundary.ts";
 import {
+  machineHome,
   openStoryRecord,
-  seedStore,
 } from "../../tests/machineLaunchRecords.ts";
+import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
   queuedIdentity,
@@ -55,12 +56,9 @@ export const seedOpenSession = (
     readonly workflow: string;
   } = openSessionRequest,
 ): void => {
-  seedStore(
-    machine,
-    JSON.stringify({
-      "open-dough": [openStoryRecord(host, sessionId, story)],
-    }),
-  );
+  keepLaunchStore(machineHome(machine), {
+    "open-dough": [openStoryRecord(host, sessionId, story)],
+  });
 };
 
 export const nothingStarted = async (

@@ -19,10 +19,11 @@ import {
   runningStarts,
 } from "../../tests/agentLaunchBoundary.ts";
 import {
+  machineHome,
   openStoryRecord,
-  seedStore,
   storeFile,
 } from "../../tests/machineLaunchRecords.ts";
+import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
   queuedIdentity,
@@ -95,8 +96,9 @@ export function ownRecordContinuation(
       launchedAt: new Date(Date.parse(acceptedAt) - 1).toISOString(),
     },
   ];
-  const stored = JSON.stringify({ "open-dough": records });
-  seedStore(origin.machine, stored);
+  const stored = keepLaunchStore(machineHome(origin.machine), {
+    "open-dough": records,
+  });
   const marker = path.join(origin.machine, "unexpected-start");
   const skill =
     workflow === "execution" ? "dough-execute-plan" : "dough-story-refinement";

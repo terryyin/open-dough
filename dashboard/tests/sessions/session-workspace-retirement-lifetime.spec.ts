@@ -8,7 +8,8 @@ import {
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import { storeFile, save, retained } from "../support/retainedReport.ts";
+import { save, retained } from "../support/retainedReport.ts";
+import { launchStoreFile } from "../support/launchStore.ts";
 import { codexAttaches } from "../support/codexTerminal.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -27,7 +28,7 @@ test("a disposed attachment cannot redirect or write into a current retry of the
   const { record, workspace } = await retained(dashboard, native);
   mkdirSync(workspace);
   save(dashboard.home, [record]);
-  const baseline = readFileSync(storeFile(dashboard.home), "utf8");
+  const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   // Keep real browser sockets and real native attachments. Only late delivery
   // from a disposed external socket is controlled, after the real retry opens.
   await page.addInitScript(() => {
@@ -89,5 +90,5 @@ test("a disposed attachment cannot redirect or write into a current retry of the
     0,
   );
   expect(resultReads).toBe(0);
-  expect(readFileSync(storeFile(dashboard.home), "utf8")).toBe(baseline);
+  expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
 });

@@ -4,8 +4,7 @@
 // Keeping the held revision after the action makes this fail: the poll would
 // answer unchanged and leave the page on the action's state.
 
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
+import { readFileSync } from "node:fs";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import { sessionsRevisionHeader } from "../../src/machineSessionsRevision.ts";
 import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
@@ -31,6 +30,10 @@ import {
 import { attempts } from "../agentLaunchBoundary.ts";
 import { idleBetweenSteps, markDoneAnyway } from "../support/markDone.ts";
 import { rawRequest } from "../support/rawHttp.ts";
+import {
+  keepLaunchStoreText,
+  launchStoreFile,
+} from "../support/launchStore.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -66,13 +69,7 @@ test("an action that changes a session clears the held revision so a machine ret
     .toBe(true);
   await passOnePace();
   expect(await answeredDuring()).toEqual({ held: true, unchanged: true });
-  const storePath = path.join(
-    dashboard.home,
-    ".open-dough",
-    "dashboard",
-    "agent-launches.json",
-  );
-  const storeAtA = readFileSync(storePath);
+  const storeAtA = readFileSync(launchStoreFile(dashboard), "utf8");
   const atA = await rawRequest({
     url: `${dashboard.baseURL}${agentLaunchEndpoint}`,
     headers: { Origin: dashboard.origin },
@@ -87,7 +84,7 @@ test("an action that changes a session clears the held revision so a machine ret
   await expect(sessionStateOf(inRecent)).toHaveText("Done");
 
   // The machine's body returns to A: same store and host reading as before.
-  writeFileSync(storePath, storeAtA);
+  keepLaunchStoreText(dashboard, storeAtA);
   dashboard.claudeSessionBecomes(session, "working");
   const backAtA = await rawRequest({
     url: `${dashboard.baseURL}${agentLaunchEndpoint}`,

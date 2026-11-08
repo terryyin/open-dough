@@ -27,7 +27,7 @@ import {
   storyReviewReads,
 } from "../support/sidePanelContents.ts";
 import { branch, storyWorktree } from "../support/storyReviewWorktree.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 
 test.use({ preparationHost: "codex" });
 
@@ -47,7 +47,7 @@ async function openStoriesAAndB({
 }) {
   const { workspace: workspaceA } = storyWorktree(origin);
   const workspaceB = storyBWorktree(origin.project);
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     makeMe.aLaunchRecord
       .executing({ identity: queuedIdentity, title: "Story A" })
       .onStoryBranch({ workspace: workspaceA, branch })

@@ -29,10 +29,8 @@ import type { FakeCodex } from "../support/fakeCodex.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import type { StartOrigin } from "../support/startOrigin.ts";
 import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
-import {
-  keepLaunchRecords,
-  storyALaunchRecord,
-} from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
+import { storyALaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
   comparison,
   expectShown,
@@ -66,7 +64,7 @@ async function landedThenTaken(
     landed.push(await capturedChoice(dashboard, origin, native, name));
   // The project's trunk follows the landing before Intent's trunk is added.
   git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     ...stored(dashboard.home),
     storyALaunchRecord(path.join(origin.machine, "another-agent-workspace")),
   ]);

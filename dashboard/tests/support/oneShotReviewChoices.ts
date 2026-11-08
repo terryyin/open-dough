@@ -13,7 +13,8 @@ import {
 } from "./oneShotReview.ts";
 import { commit, git } from "./launchLanding.ts";
 import { recordOperation } from "./completionRecovery.ts";
-import { keepLaunchRecords, storyALaunchRecord } from "./storyLaunchRecord.ts";
+import { keepLaunchRecords } from "./launchStore.ts";
+import { storyALaunchRecord } from "./storyLaunchRecord.ts";
 import { sessionKey } from "../../src/sessionReference.ts";
 
 export async function capturedChoice(
@@ -50,7 +51,7 @@ export async function reviewChoicesNamed<const Name extends string>(
   // A real launch predating the reporting capability has no optional handoff.
   const old = { ...legacy.record, request: { ...legacy.record.request } };
   delete old.request.reporting;
-  await keepLaunchRecords(dashboard, [old]);
+  keepLaunchRecords(dashboard, [old]);
   await recordOperation(dashboard, "setRecordDoneAt", [
     "open-dough",
     old.session,
@@ -76,7 +77,7 @@ export async function reviewChoicesNamed<const Name extends string>(
   );
   commit(workspace, "live.txt");
   const live = storyALaunchRecord(workspace);
-  await keepLaunchRecords(dashboard, [...stored(dashboard.home), live]);
+  keepLaunchRecords(dashboard, [...stored(dashboard.home), live]);
   return {
     ...captured,
     legacy: { ...old, key: sessionKey(old.session) },

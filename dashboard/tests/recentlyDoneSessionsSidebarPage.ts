@@ -27,7 +27,7 @@ import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect, keptRecord } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import type { FakeCursor } from "./support/fakeCursor.ts";
-import { keepMoreLaunchRecords } from "./support/storyLaunchRecord.ts";
+import { keepMoreLaunchRecords } from "./support/launchStore.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 
 export const recentlyDoneHeightKey =
@@ -143,7 +143,7 @@ export async function expandThreeCrowded(
   await page.setViewportSize({ width: 1440, height: 900 });
   const pid = await holdSession(dashboard, cursor);
   const held = keptRecord(dashboard.home);
-  await keepCrowd(dashboard, held);
+  keepCrowd(dashboard, held);
   const now = Date.now();
   const done = Array.from(Array(crowd).keys(), (index): LaunchRecord => {
     const title = `Done crowded ${String(index + 1)}`;
@@ -159,7 +159,7 @@ export async function expandThreeCrowded(
       .markedDoneAt(new Date(now - (index + 1) * 60_000).toISOString())
       .please();
   });
-  await keepMoreLaunchRecords(dashboard, done);
+  keepMoreLaunchRecords(dashboard, done);
   const asked = changesAsked(page);
   await showPage(page, origin);
   await answerCrowd(page, held);

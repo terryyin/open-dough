@@ -31,7 +31,7 @@ import {
 } from "../pageLayout.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { doneRecordFiles, executed } from "../recentlyDoneRecords.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
 
 const phoneWholeTextCut = [".owner-mark", ...compactProjectSelectCut] as const;
@@ -132,7 +132,7 @@ test.describe("touch reading", () => {
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const title = "Queue trunk integration for agents on the same machine";
-    await keepLaunchRecords(dashboard, [
+    keepLaunchRecords(dashboard, [
       {
         request: {
           source: "open-dough",

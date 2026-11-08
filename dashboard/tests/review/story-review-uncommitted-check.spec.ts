@@ -73,7 +73,7 @@ test("the check leaves uncommitted changes out of all changes and back without r
   origin,
 }) => {
   const { workspace } = storyWorktreeEditedAgain(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -126,7 +126,7 @@ test("the selected file stays selected while the committed files list it, and ot
   origin,
 }) => {
   const { workspace } = storyWorktreeEditedAgain(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -154,7 +154,7 @@ test("a worktree without uncommitted changes offers no check", async ({
   origin,
 }) => {
   const { workspace } = nestedWorktree(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -172,7 +172,7 @@ test("with nothing committed, the check off says so, lists no files, and stays t
 }) => {
   const { workspace } = unchangedWorktree(origin);
   writeFileSync(path.join(workspace, "wip.txt"), "work in progress\n");
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
@@ -201,7 +201,7 @@ test("Mark reviewed with the check off marks the whole snapshot, and the review 
   origin,
 }) => {
   const { workspace } = storyWorktreeEditedAgain(origin);
-  await keepLaunchRecord(dashboard, workspace);
+  keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);

@@ -20,7 +20,7 @@ import { openUntilRead } from "../pageRequestNotes.ts";
 import { sessionsOutsideDoneStories } from "../recentlyDoneColumn.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
-import { keepLaunchRecords } from "../support/storyLaunchRecord.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 
 // A kept execution record of the board's Taken story `anchor`, its saved
 // workspace gone.
@@ -62,7 +62,7 @@ test("the Side panel's content selects its story for Intent's lens and CI status
   dashboard,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  await keepLaunchRecords(dashboard, [
+  keepLaunchRecords(dashboard, [
     goneWorkspaceRecord(dashboard.home, failing),
     goneWorkspaceRecord(dashboard.home, running),
     ...sessionsOutsideDoneStories(dashboard, Date.now()).filter(
