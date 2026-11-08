@@ -164,7 +164,7 @@ export async function expectFailedPlanKeepsSupportedFacts(
   writePlanning(
     openDough.directory,
     "PRODUCT-BACKLOG.md",
-    openDoughProductBacklog(planReadyPath),
+    openDoughProductBacklog({ label: "plan", target: planReadyPath }),
   );
   const next = commitPaths(
     openDough.directory,

@@ -6,7 +6,10 @@
 // modifies one profile; and a revision D whose commits remove the planned
 // story's profile and re-add it with identical text, by another human.
 
-import { slicePlan } from "./branchProgressRecords.ts";
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import {
   pathChange,
@@ -45,19 +48,20 @@ export const titleOf = (agent: string) => `Credit kept for ${agent}`;
 const anchorOf = (agent: string) => agent.toLowerCase();
 export const planned = "Yua";
 
-const backlog = `# Product backlog
-
-## Taken
-
-${agents
-  .map(
-    (agent) =>
-      `- [${titleOf(agent)}](seeds/SEED-281-credit.md#${anchorOf(agent)}) — SEED-281#${anchorOf(agent)}`,
-  )
-  .join("\n")}
-
-## Backlog list
-`;
+const backlog = renderPublishedBacklog(
+  {
+    taken: agents.map((agent) =>
+      makeMe.aBacklogEntry
+        .with({
+          identity: `SEED-281#${anchorOf(agent)}`,
+          href: `seeds/SEED-281-credit.md#${anchorOf(agent)}`,
+          title: titleOf(agent),
+        })
+        .please(),
+    ),
+  },
+  { blankAfterEmptyQueue: false },
+);
 
 const seed = `# Credit fixture
 ${agents
@@ -70,9 +74,15 @@ ${agents
 **Identity:** SEED-281#${anchorOf(agent)}
 ${
   agent === planned
-    ? `\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/281-credit/PLAN.md"}
-\`\`\`
+    ? `${renderPublishedPreparation(
+        makeMe.aStoryPreparation
+          .with({
+            refinement: "refined",
+            approach: "planned",
+            plan: "../slice-plans/281-credit/PLAN.md",
+          })
+          .please(),
+      )}
 `
     : ""
 }`,
@@ -80,14 +90,17 @@ ${
   .join("")}`;
 
 const profileText = (agent: string, host = "claude") =>
-  renderAgentProfile({
-    name: agent,
-    identity: `SEED-281#${anchorOf(agent)}`,
-    mode: "trunk",
-    branch: "main",
-    host,
-    model: undefined,
-  });
+  renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({
+        name: agent,
+        identity: `SEED-281#${anchorOf(agent)}`,
+        mode: "trunk",
+        branch: "main",
+        host,
+      })
+      .please(),
+  );
 
 // Each profile's own addition by the same human, each by a commit of its
 // own, on the same account.
@@ -104,7 +117,12 @@ export const atA: PublishedRevision = {
   files: {
     [backlogPath]: backlog,
     [seedPath]: seed,
-    [planPath]: slicePlan(5, 2),
+    [planPath]: renderSlicePlan(
+      makeMe.aSlicePlan
+        .withStatuses(["done", "done", "planned", "planned", "planned"])
+        .please(),
+      { heading: "Slices" },
+    ),
     ...Object.fromEntries(
       agents.map((agent) => [profileOf(agent), profileText(agent)]),
     ),

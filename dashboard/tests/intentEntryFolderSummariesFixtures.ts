@@ -3,21 +3,11 @@
 // with `jobs/` and `reports/` folders, beside a packaged location of one
 // file.
 
-import { filesOf, type Project } from "./catalogProjectRecords.ts";
-import { publishFiles } from "./publishedOrigin.ts";
+import { catalogPublications } from "./catalogProjectRecords.ts";
 
-export const pygardon: Project = {
-  label: "Pygardon",
-  ref: "main",
-  repository: "terryyin/pygardon",
-  revision: "c1".repeat(20),
-  taken: "Pygardon's own taken story",
-  queued: "Pygardon's own queued story",
-  direction: "Show Pygardon's own published direction through local gh.",
-  purpose: "Read Pygardon's queued purpose at its own revision.",
-  takenPath: ".planning/slice-plans/303-taken/PLAN.md",
-  queuedPath: ".planning/seeds/SEED-303-queued.md",
-};
+export { publishIntentProject } from "./publishIntentProject.ts";
+
+export const pygardon = catalogPublications.pygardon;
 
 export const featuresPath = "e2e_test/features";
 export const jobsFolder = `${featuresPath}/jobs`;
@@ -89,24 +79,6 @@ export const pygardonSettings = JSON.stringify(
   null,
   2,
 );
-
-export function publishIntentProject(
-  page: Parameters<typeof publishFiles>[0],
-  published: Project,
-  settings: string,
-  sources: Readonly<Record<string, string>>,
-) {
-  return publishFiles(page, {
-    repository: published.repository,
-    ref: published.ref,
-    revision: published.revision,
-    files: {
-      ...filesOf(published),
-      ".planning/open-dough.json": `${settings}\n`,
-      ...sources,
-    },
-  });
-}
 
 export const pygardonFeatureSources = {
   [stooqPath]: stooqFeature,

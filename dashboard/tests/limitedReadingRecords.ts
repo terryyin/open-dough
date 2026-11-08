@@ -3,6 +3,10 @@
 // the limit withholds, and a planned story whose record is read beside it and
 // whose plan is asked only after the limit.
 
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 export const repository = "terryyin/open-dough";
 export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 export const revision = "6e".repeat(20);
@@ -16,15 +20,24 @@ export const plannedPlan = ".planning/slice-plans/264-planned/PLAN.md";
 export const titles = { taken: [], backlog: [withheldTitle, plannedTitle] };
 
 export const files = {
-  [backlogPath]: `# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [${withheldTitle}](seeds/SEED-264-withheld.md#withheld) — SEED-264#withheld
-- [${plannedTitle}](seeds/SEED-264-planned.md#planned) — SEED-264#planned
-`,
+  [backlogPath]: renderPublishedBacklog({
+    queued: [
+      makeMe.aBacklogEntry
+        .with({
+          identity: "SEED-264#withheld",
+          href: "seeds/SEED-264-withheld.md#withheld",
+          title: withheldTitle,
+        })
+        .please(),
+      makeMe.aBacklogEntry
+        .with({
+          identity: "SEED-264#planned",
+          href: "seeds/SEED-264-planned.md#planned",
+          title: plannedTitle,
+        })
+        .please(),
+    ],
+  }),
   [withheldSeed]: `# Withheld
 
 <a id="withheld"></a>
@@ -42,21 +55,34 @@ export const files = {
 ### ${plannedTitle}
 
 **Identity:** SEED-264#planned
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/264-planned/PLAN.md"}
-\`\`\`
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/264-planned/PLAN.md",
+    })
+    .please(),
+)}
 
 **Goal:** Its plan is asked only once the limit stands.
 `,
-  [plannedPlan]: `# Plan
-
-## Slices
-
-### 1. First slice
-Type: Behavior
-Status: planned
-Proof: A journey observes slice 1.
-`,
+  [plannedPlan]: renderSlicePlan(
+    makeMe.aSlicePlan
+      .with({
+        slices: [
+          makeMe.aPlanSlice
+            .with({
+              index: 1,
+              name: "First slice",
+              proof: "A journey observes slice 1.",
+            })
+            .please(),
+        ],
+      })
+      .please(),
+    { heading: "Slices" },
+  ),
 };
 
 // The same records with a third story whose record GitHub cannot be reached

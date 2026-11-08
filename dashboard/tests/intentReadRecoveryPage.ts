@@ -1,6 +1,5 @@
 // Shared inputs and page actions for Intent read recovery journeys.
 
-import { filesOf } from "./catalogProjectRecords.ts";
 import { expect } from "./dashboardTest.ts";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import {
@@ -8,7 +7,6 @@ import {
   testOptimizationCandidatesPath,
 } from "./intentCandidatesFixtures.ts";
 import {
-  doughnut,
   nodeTest,
   openDough,
   openDoughSettings,
@@ -38,8 +36,8 @@ export async function openDoughnut(page: Page) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await openUntilRead(page, "/?project=doughnut");
   await expectSettledPage(page, {
-    taken: [doughnut.taken],
-    backlog: [doughnut.queued],
+    taken: ["Doughnut's own taken story"],
+    backlog: ["Doughnut's own queued story"],
   });
   await untilPageRequestsAnswered(page);
   const { intent, intentChoice } = parts(page);
@@ -56,7 +54,7 @@ export function publishedCandidates() {
   return publishes({
     revision: openDough.revision,
     files: {
-      ...filesOf(openDough),
+      ...openDough.files,
       [settingsPath]: openDoughSettings,
       ...openDoughSources,
     },

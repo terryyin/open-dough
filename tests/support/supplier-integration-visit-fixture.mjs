@@ -1,12 +1,12 @@
 // A Story Branch supplier branched before a consumer existed on trunk. Every
 // dependency write and the integration use the real commands; tests supply
 // only the agent's per-consumer judgment, never the consumer list.
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import { appendFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   consumer,
-  dependency,
   git,
   plan,
   publish,
@@ -31,9 +31,9 @@ export async function branchedSupplier(t) {
   const trunk = await createQueuedTrunk();
   t.after(trunk.cleanup);
   const project = projectOf(trunk);
-  const third = { identity: "THIRD", link: "seeds/third.md" };
+  const third = { identity: "THIRD", href: "seeds/third.md" };
   writeFileSync(
-    join(trunk.integration, ".planning", third.link),
+    join(trunk.integration, ".planning", third.href),
     "# Third\n**Identity:** THIRD\n",
   );
   writeFileSync(join(trunk.integration, supplierPlan), plan("planned"));
@@ -68,16 +68,19 @@ export async function branchedSupplier(t) {
   await git(workspace, "commit", "-q", "-m", "supplier final closure");
   const closureTip = await revParse(workspace, "HEAD");
   await git(workspace, "push", "-q", "origin", executionBranch);
-  for (const entry of [supplier, third].map(dependency)) {
+  for (const prerequisite of [supplier, third]) {
+    const entry = makeMe.aSupplierAgreement
+      .with({ supplier: prerequisite, state: "waiting" })
+      .please();
     const result = await updateDependency(project, consumer, entry);
     assert.equal(result.code, 0, result.stderr);
   }
   const late = draftLateStory(trunk);
-  const sibling = { identity: late.identity, link: "seeds/A.md#late" };
+  const sibling = { identity: late.identity, href: "seeds/A.md#late" };
   const waiting = await updateDependency(
     project,
     sibling,
-    dependency(supplier),
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
   );
   assert.equal(waiting.code, 0, waiting.stderr);
   const lateTrunk = await publish(trunk, "late consumer waits on supplier B");

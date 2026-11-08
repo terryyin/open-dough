@@ -3,6 +3,7 @@
 // stops, and receipts match those of the full ID.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
   advanceOriginFromAnotherWriter,
@@ -26,11 +27,17 @@ async function publishOnFixture(t, { arrange, chooseBase, form, targetRef }) {
   const base = chooseBase(fixture);
   const receipts = [];
   const comparisons = [];
+  const publication = makeMe.anIncrementPublication
+    .with({
+      branch: "exec/story",
+      previouslyPublishedBase: base,
+      targetRef: targetRef ?? trunkTarget,
+    })
+    .please();
   const published = await publishExecutionIncrement({
     workspace: fixture.execution,
-    branch: "exec/story",
-    previouslyPublishedBase: form(base),
-    targetRef: targetRef ?? trunkTarget,
+    ...publication,
+    previouslyPublishedBase: form(publication.previouslyPublishedBase),
     register: (receipt) => receipts.push(receipt),
     beforePush: async (comparison) => comparisons.push(comparison),
   });

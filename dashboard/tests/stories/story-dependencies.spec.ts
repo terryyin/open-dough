@@ -7,6 +7,8 @@ import { expectDependencyAccessibly } from "../storyDependencyAccessible.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
 import {
   consumer,
+  supplierB,
+  supplierC,
   test,
   twoDependencies,
   recordDependency,
@@ -29,7 +31,10 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   origin,
   dashboard,
 }) => {
-  const revision = await twoDependencies(origin, true);
+  const revision = await twoDependencies(origin, {
+    assessment: "not-ready",
+    reasons: ["Unrelated consumer design decision remains."],
+  });
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,
@@ -95,7 +100,15 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   const list = card.getByRole("list", { name: "Story dependencies" });
   await expectDependencyAccessibly(page, card, revision);
 
-  recordDependency(origin, 0, "satisfied", revision);
+  recordDependency(origin, {
+    supplier: supplierB,
+    state: "satisfied",
+    resolution: {
+      revision,
+      path: ".planning/seeds/B.md",
+      summary: "Accepted supplier endpoint proof.",
+    },
+  });
   const one = await publishDependencies(origin);
   await card.focus();
   await passTimeUntilChecked(page);
@@ -117,7 +130,15 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
     `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/B.md`,
   );
 
-  recordDependency(origin, 1, "satisfied", revision);
+  recordDependency(origin, {
+    supplier: supplierC,
+    state: "satisfied",
+    resolution: {
+      revision,
+      path: ".planning/seeds/B.md",
+      summary: "Accepted supplier endpoint proof.",
+    },
+  });
   const both = await publishDependencies(origin);
   await passTimeUntilChecked(page);
   await expect(parts(page).readRevision).toContainText(shortRevision(both));

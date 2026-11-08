@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
+import { makeMe } from "./makeMe.mjs";
 import { test } from "node:test";
 import {
   supplier,
   resolveConsumer,
   readDependencies,
   updateDependency,
-  dependency,
 } from "./supplier-dependency-fixture.mjs";
 import {
   reconciliationFixture,
@@ -18,7 +18,7 @@ import {
 
 test("post-cleanup blocked outcomes still reject stale agreements and cannot author missing prerequisites", async (t) => {
   const f = await reconciliationFixture(t);
-  const before = textAt(f, `.planning/${decision.link}`);
+  const before = textAt(f, `.planning/${decision.href}`);
   const oldBasis = (await readDependencies(f.project, decision)).basis;
   const changed = await resolveConsumer(
     f,
@@ -30,7 +30,7 @@ test("post-cleanup blocked outcomes still reject stale agreements and cannot aut
     }),
   );
   assert.equal(changed.code, 0, changed.stderr);
-  const held = textAt(f, `.planning/${decision.link}`);
+  const held = textAt(f, `.planning/${decision.href}`);
   assert.notEqual(held, before);
   const stale = await resolveConsumer(
     f,
@@ -93,22 +93,22 @@ test("post-cleanup blocked outcomes still reject stale agreements and cannot aut
   const ordinaryWrite = await updateDependency(
     f.project,
     decision,
-    dependency(supplier),
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
   );
   assert.equal(ordinaryWrite.code, 1);
   assert.match(ordinaryWrite.stderr, /Supplier canonical home not found/);
-  assert.equal(textAt(f, `.planning/${decision.link}`), held);
+  assert.equal(textAt(f, `.planning/${decision.href}`), held);
   const absent = {
     identity: "ABSENT-AGREEMENT",
-    link: "seeds/absent-agreement.md",
+    href: "seeds/absent-agreement.md",
   };
   writeAt(
     f,
-    `.planning/${absent.link}`,
+    `.planning/${absent.href}`,
     "# New consumer\n**Identity:** ABSENT-AGREEMENT\n",
   );
   const missing = await resolveConsumer(f, absent, f.evidence, f.accepted, {
-    ...dependency(supplier),
+    ...makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
     ...outcome(f, "waiting", "Must not create a relationship from history."),
   });
   assert.equal(missing.code, 1);

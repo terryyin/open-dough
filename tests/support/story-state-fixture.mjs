@@ -4,21 +4,27 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { makeMe } from "./makeMe.mjs";
+import { recordPreparationArgs } from "./story-preparation.mjs";
 import { projectFile, run } from "./product-backlog-fixture.mjs";
 
 export const seedRelative = "seeds/SEED-021-two-stories.md";
 
-export const first = {
-  identity: "SEED-021#first-story",
-  link: `${seedRelative}#first-story`,
-  title: "First story",
-};
+export const first = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-021#first-story",
+    href: `${seedRelative}#first-story`,
+    title: "First story",
+  })
+  .please();
 
-export const second = {
-  identity: "SEED-021#second-story",
-  link: `${seedRelative}#second-story`,
-  title: "Second story",
-};
+export const second = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-021#second-story",
+    href: `${seedRelative}#second-story`,
+    title: "Second story",
+  })
+  .please();
 
 export const twoStorySeed = `---
 id: SEED-021
@@ -71,46 +77,21 @@ export function backlogBytes(project) {
   return project.read();
 }
 
-export function recordArgs(story, facts) {
-  const args = [
-    "record-state",
-    "--identity",
-    story.identity,
-    "--link",
-    story.link,
-    "--refinement",
-    facts.refinement,
-    "--approach",
-    facts.approach,
-  ];
-  if (facts.plan !== undefined) {
-    args.push("--plan", facts.plan);
-  }
-  if (facts.assessment !== undefined) {
-    args.push("--assessment", facts.assessment);
-  }
-  if (facts.expectDocument !== undefined) {
-    args.push("--expect-document", facts.expectDocument);
-  }
-  if (facts.expectPlan !== undefined) {
-    args.push("--expect-plan", facts.expectPlan);
-  }
-  for (const reason of facts.reasons ?? []) {
-    args.push("--reason", reason);
-  }
-  return args;
-}
+export { recordPreparationArgs as recordArgs };
 
-export function readArgs(story) {
-  return ["read-state", "--link", story.link];
+export function readArgs({ href }) {
+  return ["read-state", "--link", href];
 }
 
 export const correctionRelative = "slice-plans/075-correction/PLAN.md";
 
-export const correction = {
-  identity: "CORR-075-correction",
-  link: correctionRelative,
-};
+export const correction = makeMe.aBacklogEntry
+  .with({
+    identity: "CORR-075-correction",
+    href: correctionRelative,
+    title: "Correction plan",
+  })
+  .please();
 
 export function correctionPlan() {
   return `# Correction plan

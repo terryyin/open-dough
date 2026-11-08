@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { makeMe } from "./makeMe.mjs";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -13,7 +14,6 @@ import {
   consumer,
   supplier,
   readDependencies,
-  dependency,
   updateDependency,
   git,
   revParse,
@@ -83,9 +83,13 @@ test("correction refuses stale, retargeted, absent and unverified inputs without
       await updateDependency(
         f.project,
         consumer,
-        dependency(supplier, {
-          condition: "Another writer's selected endpoint requirement.",
-        }),
+        makeMe.aSupplierAgreement
+          .with({
+            supplier,
+            state: "waiting",
+            condition: "Another writer's selected endpoint requirement.",
+          })
+          .please(),
       )
     ).code,
     0,
@@ -146,7 +150,7 @@ test("correction refuses stale, retargeted, absent and unverified inputs without
       "absent relationship",
       evidence,
       correction(evidence, {
-        supplier: { identity: "ABSENT", href: supplier.link },
+        supplier: { identity: "ABSENT", href: supplier.href },
       }),
       [],
       /relationship is missing/,

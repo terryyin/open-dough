@@ -28,6 +28,19 @@ git_publication_write_evidence_identity() {
       native_result_input_hash_lines \
         src/skills/dough-execute-plan/references/publish-the-candidate.md
       ;;
+    admission)
+      git_publication_write_evidence_identity publication
+      native_result_input_hash_lines \
+        tests/support/git-publication-native-admission.sh \
+        tests/support/git-publication-native-admission-closure.sh \
+        tests/support/git-publication-native-admission-correction.sh \
+        tests/support/git-publication-native-admission-fixture.mjs \
+        tests/support/git-publication-native-admission-observe.mjs
+      native_import_closure_input_hash_lines \
+        src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs \
+        src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs \
+        src/skills/dough-execute-plan/scripts/execution-start.mjs
+      ;;
     owned-context)
       git_publication_write_evidence_identity publication
       native_result_input_hash_lines \
@@ -53,6 +66,8 @@ git_publication_write_evidence_identity() {
         tests/support/git-publication-native-one-shot.sh \
         tests/support/git-publication-native-one-shot-fixture.sh \
         tests/support/git-publication-native-one-shot-fixture.mjs \
+        tests/support/makeMe.mjs \
+        tests/support/published-plan.mjs \
         tests/support/git-publication-native-one-shot-unobserved.sh \
         tests/support/git-publication-native-one-shot-queued.sh \
         tests/support/git-publication-native-one-shot-queued-observe.mjs \
@@ -138,6 +153,8 @@ git_publication_evidence_profile() {
     echo land-default-checkout
   elif [[ $1 == one-shot-* ]]; then
     echo one-shot
+  elif [[ $1 == admission-* ]]; then
+    echo admission
   else
     echo publication
   fi

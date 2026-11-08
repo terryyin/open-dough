@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { makeMe } from "./makeMe.mjs";
 import { test } from "node:test";
 import {
   backlogOf,
@@ -6,9 +7,9 @@ import {
   run,
   scratchProject,
 } from "./product-backlog-fixture.mjs";
-import { dependency, updateDependency } from "./story-dependencies-fixture.mjs";
+import { updateDependency } from "./story-dependencies-fixture.mjs";
 
-const supplier = { identity: "SEED-S#supplier", link: "seeds/S.md#supplier" };
+const supplier = { identity: "SEED-S#supplier", href: "seeds/S.md#supplier" };
 
 async function discover(project) {
   const result = await run(project, [
@@ -48,7 +49,7 @@ test("documentation anchors leave neighboring unqueued consumers and plan-homed 
   for (const [number, anchor, prose] of examples) {
     const story = {
       identity: `SEED-${number}#consumer`,
-      link: `seeds/${number}.md#consumer`,
+      href: `seeds/${number}.md#consumer`,
     };
     projectFile(
       project,
@@ -58,24 +59,24 @@ test("documentation anchors leave neighboring unqueued consumers and plan-homed 
     const updated = await updateDependency(
       project,
       story,
-      dependency(supplier),
+      makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
     );
     assert.equal(updated.code, 0, updated.stderr);
     identities.push(story.identity);
   }
   const correction = {
     identity: "slice-plans/100-correction",
-    link: "slice-plans/100-correction/PLAN.md",
+    href: "slice-plans/100-correction/PLAN.md",
   };
   projectFile(
     project,
-    correction.link,
+    correction.href,
     `# Correction\n\n**Identity:** ${correction.identity}\n\n<a id="evidence"></a>\n\n## Evidence\n\nCompleted behavior.\n`,
   );
   const updated = await updateDependency(
     project,
     correction,
-    dependency(supplier),
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
   );
   assert.equal(updated.code, 0, updated.stderr);
   identities.push(correction.identity);

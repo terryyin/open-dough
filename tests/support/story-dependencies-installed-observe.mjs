@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { existsSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { makeMe } from "./makeMe.mjs";
 
 const [scripts, project, scratch] = process.argv.slice(2);
 const cli = join(scripts, "product-backlog.mjs");
@@ -18,17 +19,21 @@ const input = join(scratch, "installed-dependency.json");
 assert.deepEqual(read().blocking, []);
 writeFileSync(
   input,
-  JSON.stringify({
-    supplier: {
-      identity: "SEED-PAYLOAD#second-story",
-      href: "seeds/SEED-PAYLOAD-STATE.md#second-story",
-    },
-    implementation: "Installed shared contract",
-    rationale:
-      "The shared contract must be integrated before this consumer can validate its outcome; normal reconciliation cannot create that missing contract.",
-    condition: "The supplier contract is completed and integrated.",
-    state: "waiting",
-  }),
+  JSON.stringify(
+    makeMe.aSupplierAgreement
+      .with({
+        supplier: {
+          identity: "SEED-PAYLOAD#second-story",
+          href: "seeds/SEED-PAYLOAD-STATE.md#second-story",
+        },
+        implementation: "Installed shared contract",
+        rationale:
+          "The shared contract must be integrated before this consumer can validate its outcome; normal reconciliation cannot create that missing contract.",
+        condition: "The supplier contract is completed and integrated.",
+        state: "waiting",
+      })
+      .please(),
+  ),
 );
 call(
   "update-dependency",
@@ -149,16 +154,20 @@ const evidence = git("rev-parse", "HEAD");
 const original = read().dependencies[0];
 writeFileSync(
   input,
-  JSON.stringify({
-    ...original,
-    state: "satisfied",
-    resolution: {
-      revision: evidence,
-      path: ".planning/seeds/SEED-PAYLOAD-STATE.md#second-story",
-      summary:
-        "Observed supplier contract directly fulfills the selected condition.",
-    },
-  }),
+  JSON.stringify(
+    makeMe.aSupplierAgreement
+      .with({
+        ...original,
+        state: "satisfied",
+        resolution: {
+          revision: evidence,
+          path: ".planning/seeds/SEED-PAYLOAD-STATE.md#second-story",
+          summary:
+            "Observed supplier contract directly fulfills the selected condition.",
+        },
+      })
+      .please(),
+  ),
 );
 call(
   "resolve-dependency",

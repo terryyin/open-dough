@@ -6,6 +6,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { makeMe } from "./makeMe.mjs";
 import {
   projectFile,
   run,
@@ -35,13 +36,18 @@ function editSeed(project, from, to) {
 
 async function recordReady(project) {
   const prepared = await readState(project, first);
-  const result = await run(
-    project,
-    recordArgs(first, {
+  const preparation = makeMe.aStoryPreparation
+    .with({
       refinement: "refined",
       approach: "planless",
       assessment: "ready",
-      expectDocument: prepared.basis.document,
+    })
+    .please();
+  const result = await run(
+    project,
+    recordArgs(first, {
+      ...preparation,
+      expectedBasis: { document: prepared.basis.document },
     }),
   );
   assert.equal(result.code, 0, result.stderr);
@@ -92,7 +98,7 @@ test("story-state: preparing or editing a sibling story keeps a ready story read
       refinement: "refined",
       approach: "planless",
       assessment: "ready",
-      expectDocument: secondBasis,
+      expectedBasis: { document: secondBasis },
     }),
   );
   assert.equal(secondRecorded.code, 0, secondRecorded.stderr);

@@ -3,7 +3,6 @@
 // (`./intent/intent-ci-status-kept.spec.ts`,
 // `./intent/intent-test-optimization-candidates-revision.spec.ts`).
 
-import { filesOf } from "./catalogProjectRecords.ts";
 import {
   openDoughCandidatesRecord,
   openDoughSources,
@@ -13,7 +12,7 @@ import { openDough, openDoughSettings } from "./intentCodeBrowseFixtures.ts";
 import { publishMovingFiles, type MovingFiles } from "./publishedFiles.ts";
 
 const openDoughFiles = {
-  ...filesOf(openDough),
+  ...openDough.files,
   ".planning/open-dough.json": `${openDoughSettings}\n`,
   ...openDoughSources,
 };

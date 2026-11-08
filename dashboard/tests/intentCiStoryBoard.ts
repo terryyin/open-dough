@@ -6,6 +6,10 @@
 // Recently done story. The failing story has a counted plan, so the page
 // reads its progress on its branch and its revision check watches that head.
 
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   doneRecordPath,
@@ -68,47 +72,62 @@ function profile(
   branch: string,
 ): Record<string, string> {
   return {
-    [`.planning/agents/${agent.toLowerCase()}-chan.json`]: renderAgentProfile({
-      name: agent,
-      identity: identity(anchor),
-      mode,
-      branch,
-      host: "claude",
-      model: undefined,
-    }),
+    [`.planning/agents/${agent.toLowerCase()}-chan.json`]: renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: agent,
+          identity: identity(anchor),
+          mode,
+          branch,
+          host: "claude",
+        })
+        .please(),
+    ),
   };
 }
 
 const entry = ({ title, anchor }: { title: string; anchor: string }) =>
-  `- [${title}](seeds/SEED-219-story-ci.md#${anchor}) — ${identity(anchor)}`;
+  makeMe.aBacklogEntry
+    .with({
+      title,
+      href: `seeds/SEED-219-story-ci.md#${anchor}`,
+      identity: identity(anchor),
+    })
+    .please();
 
-const backlog = `# Product backlog
-
-## Taken
-
-${taken.map(entry).join("\n")}
-
-## Backlog list
-
-${entry(queued)}
-${entry(preparing)}
-`;
+const backlog = renderPublishedBacklog({
+  taken: taken.map(entry),
+  queued: [entry(queued), entry(preparing)],
+});
 
 const failingPlan = `.planning/slice-plans/219-${failing.anchor}/PLAN.md`;
-const plan = `# Plan
-
-## Slices
-
-### 1. Slice 1
-Type: Behavior
-Status: planned
-Proof: A journey observes slice 1.
-`;
+const plan = renderSlicePlan(
+  makeMe.aSlicePlan
+    .with({
+      slices: [
+        makeMe.aPlanSlice
+          .with({
+            index: 1,
+            name: "Slice 1",
+            proof: "A journey observes slice 1.",
+          })
+          .please(),
+      ],
+    })
+    .please(),
+  { heading: "Slices" },
+);
 const planned = (anchor: string) =>
   anchor === failing.anchor
-    ? `\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/219-${anchor}/PLAN.md"}
-\`\`\`
+    ? `${renderPublishedPreparation(
+        makeMe.aStoryPreparation
+          .with({
+            refinement: "refined",
+            approach: "planned",
+            plan: `../slice-plans/219-${anchor}/PLAN.md`,
+          })
+          .please(),
+      )}
 `
     : "";
 
@@ -143,18 +162,24 @@ export const storyBoardFiles: Record<string, string> = withDoneCatalog(
     ...profile("Tsubomi", twoOwners.anchor, "story-branch", "codex/two"),
     ...profile("Yumi", unusable.anchor, "story-branch", unusable.branch),
     ...profile("Rio", removed.anchor, "story-branch", removed.branch),
-    ".planning/agents/aino-chan.json": renderAgentProfile({
-      name: "Aino",
-      identity: identity(preparing.anchor),
-      activity: "preparation",
-      host: "claude",
-      model: undefined,
-    }),
-    [`.planning/${doneRecordPath(done.identity)}`]: renderDoneRecord({
-      ...done,
-      completedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-      developer: "Terry Yin",
-    }),
+    ".planning/agents/aino-chan.json": renderAgentProfile(
+      makeMe.anAgentProfile
+        .preparing({
+          name: "Aino",
+          identity: identity(preparing.anchor),
+          host: "claude",
+        })
+        .please(),
+    ),
+    [`.planning/${doneRecordPath(done.identity)}`]: renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          ...done,
+          completedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+          developer: "Terry Yin",
+        })
+        .please(),
+    ),
   },
   ".planning/done",
 );

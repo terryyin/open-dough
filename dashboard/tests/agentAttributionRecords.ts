@@ -13,6 +13,7 @@
 // allocated again by an account with another avatar, and the Preparing agent
 // by the first revision's credited account.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   openDough,
@@ -51,12 +52,16 @@ export const reallocatorWidth = 5;
 
 // The profiles naming work the backlog does not list, beside the roster's.
 const retired = (name: string) =>
-  renderAgentProfile({
-    name,
-    identity: "SEED-098#another-retired-story",
-    mode: "trunk",
-    branch: "origin/main",
-  });
+  renderAgentProfile(
+    makeMe.anAgentProfile
+      .executing({
+        name,
+        identity: "SEED-098#another-retired-story",
+        mode: "trunk",
+        branch: "origin/main",
+      })
+      .please(),
+  );
 
 // Akiho's allocation for the Taken work, after an older allocation of the
 // same name was added by someone else and released.
@@ -117,13 +122,17 @@ export const secondRevision = {
   revision: "c2".repeat(20),
   files: {
     ...firstRevision.files,
-    [`${agents}/akiho-chan.json`]: renderAgentProfile({
-      name: "Akiho",
-      identity: takenIdentity,
-      mode: "trunk",
-      branch: "origin/main",
-      host: "codex",
-    }),
+    [`${agents}/akiho-chan.json`]: renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "Akiho",
+          identity: takenIdentity,
+          mode: "trunk",
+          branch: "origin/main",
+          host: "codex",
+        })
+        .please(),
+    ),
   },
   history: {
     ...history,

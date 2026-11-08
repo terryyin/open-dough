@@ -6,7 +6,7 @@
 // calls.
 
 import { expect } from "./dashboardTest.ts";
-import { filesOf, type Project } from "./catalogProjectRecords.ts";
+import { type CatalogPublication } from "./catalogProjectRecords.ts";
 import { intentModeTab } from "./intentModePage.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
@@ -56,14 +56,14 @@ export function trunkCi(
 
 export function publishProject(
   page: Page,
-  project: Project,
+  project: CatalogPublication,
   extra: Readonly<Record<string, string>> = {},
 ) {
   return publishMovingFiles(page, {
     repository: project.repository,
     ref: project.ref,
     revision: project.revision,
-    files: { ...filesOf(project), ...extra },
+    files: { ...project.files, ...extra },
   });
 }
 

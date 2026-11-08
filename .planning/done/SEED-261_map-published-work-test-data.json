@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-261#map-published-work-test-data",
+  "title": "Make published work test setup map directly to the domain",
+  "completedAt": "2026-11-08T05:39:33.887Z",
+  "developer": "Terry Yin",
+  "agent": "steven-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

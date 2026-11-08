@@ -5,6 +5,9 @@
 // texts; the local read boundary, the shared story-state and plan readers, and
 // the page decide everything shown.
 
+import { renderPublishedPreparation } from "../../../tests/support/story-preparation.mjs";
+import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
@@ -28,24 +31,26 @@ const planPath = (anchor: string) =>
 const advice = `Queue a story to show <b>advice</b> on the card.
 - Keep the detail wording as it is.`;
 
-const slices = `# Plan
-
-## Ordered slices
-
-### 1. Only slice
-Type: Behavior
-Status: done
-Accepted: The journey passed.
-`;
+const slices = [
+  makeMe.aPlanSlice
+    .with({
+      index: 1,
+      name: "Only slice",
+      status: "done",
+      accepted: "The journey passed.",
+    })
+    .please(),
+];
+const unfinishedPlan = renderSlicePlan(
+  makeMe.aSlicePlan.with({ slices }).please(),
+);
 
 const plans: Record<string, string> = {
-  completed: `${slices}
-## Execution complete
-
-Product advice: ${advice}
-`,
-  unfinished: slices,
-  adviceless: `${slices}
+  completed: renderSlicePlan(
+    makeMe.aSlicePlan.with({ slices, completion: { advice } }).please(),
+  ),
+  unfinished: unfinishedPlan,
+  adviceless: `${unfinishedPlan}
 ## Execution complete
 
 The retrospective found nothing to record.
@@ -79,9 +84,15 @@ ${stories
 ### ${title}
 
 **Identity:** SEED-094#${anchor}
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/094-${anchor}/PLAN.md"}
-\`\`\``,
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: `../slice-plans/094-${anchor}/PLAN.md`,
+    })
+    .please(),
+)}`,
   )
   .join("\n")}
 `;

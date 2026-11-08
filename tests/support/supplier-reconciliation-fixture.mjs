@@ -1,4 +1,5 @@
 // Consumer intent is starting input; real commands own outcome records.
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -8,7 +9,6 @@ import {
   fixture,
   consumer,
   supplier,
-  dependency,
   updateDependency,
   supplierPlan,
   plan,
@@ -20,12 +20,12 @@ export const question =
   "Which endpoint compatibility behavior does the consumer promise?";
 export const decision = {
   identity: "RECON-DECISION",
-  link: "seeds/decision.md",
+  href: "seeds/decision.md",
   goal: "Show retry intervals; compatibility behavior is unspecified.",
 };
 export const missingCapability = {
   identity: "RECON-MISSING-CAPABILITY",
-  link: "seeds/missing-capability.md",
+  href: "seeds/missing-capability.md",
   goal: "Show fractional-second retry intervals in the consumer UI.",
 };
 export const supplierCondition =
@@ -58,15 +58,19 @@ export async function reconciliationFixture(t) {
   for (const story of [decision, missingCapability]) {
     writeAt(
       f,
-      `.planning/${story.link}`,
+      `.planning/${story.href}`,
       `# Consumer\n\n**Identity:** ${story.identity}\n\n**Goal:** ${story.goal}\n`,
     );
     const result = await updateDependency(
       f.project,
       story,
-      dependency(supplier, {
-        ...(story === missingCapability && { condition: supplierCondition }),
-      }),
+      makeMe.aSupplierAgreement
+        .with({
+          supplier,
+          state: "waiting",
+          ...(story === missingCapability && { condition: supplierCondition }),
+        })
+        .please(),
     );
     assert.equal(result.code, 0, result.stderr);
   }
@@ -79,8 +83,7 @@ export async function reconciliationFixture(t) {
       plan: "../slice-plans/late/PLAN.md",
       assessment: "not-ready",
       reasons: [unrelatedReason],
-      expectDocument: state.basis.document,
-      expectPlan: state.basis.plan,
+      expectedBasis: state.basis,
     }),
   );
   assert.equal(prepared.code, 0, prepared.stderr);
@@ -91,7 +94,7 @@ export async function reconciliationFixture(t) {
     "--title",
     "Retry consumer",
     "--link",
-    f.sibling.link,
+    f.sibling.href,
     "--position",
     "last",
   ]);
@@ -130,4 +133,4 @@ export function outcome(f, state, summary, extra = {}) {
 }
 
 export const startArgs = (story) =>
-  admitArgs(story.identity, story.link, story.identity);
+  admitArgs(story.identity, story.href, story.identity);

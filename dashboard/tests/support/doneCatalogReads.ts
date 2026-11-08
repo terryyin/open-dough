@@ -5,6 +5,7 @@
 // (../doneCatalogAnswers.ts), and how a test sends done catalog and record
 // reads to the boundary and observes the questions that reached GitHub.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { rawRequest } from "./rawHttp.ts";
 import { askedSince } from "./sharedReads.ts";
@@ -42,14 +43,18 @@ export function doneRecords(
       const identity = identityOf(label, index);
       return [
         pathOf(identity),
-        renderDoneRecord({
-          identity,
-          title: `Finish ${label} ${String(index)}`,
-          completedAt: new Date(
-            Date.UTC(2026, 9, 1, index, 0, 0),
-          ).toISOString(),
-          developer: "Terry Yin",
-        }),
+        renderDoneRecord(
+          makeMe.aDoneRecord
+            .with({
+              identity,
+              title: `Finish ${label} ${String(index)}`,
+              completedAt: new Date(
+                Date.UTC(2026, 9, 1, index, 0, 0),
+              ).toISOString(),
+              developer: "Terry Yin",
+            })
+            .please(),
+        ),
       ];
     }),
     [`${doneDirectory}/README.md`, "Not a done record.\n"],

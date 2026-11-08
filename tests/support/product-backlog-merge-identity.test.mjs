@@ -26,6 +26,7 @@ import {
 import { branchFrom, versions } from "./product-backlog-merge-fixture.mjs";
 import {
   afterMove,
+  arrangedAdoptedBacklog,
   backlogWith,
   lines,
   movedCorrection,
@@ -60,7 +61,7 @@ test("merge identity reconciles a relocated canonical home as the same work", as
   const retitled = "Finish the hook-registration corrections";
   const renamed = await branchFrom(
     t,
-    adoptedBacklog,
+    arrangedAdoptedBacklog,
     refresh(identities.correction, "--title", retitled),
   );
   assert.notEqual(relocated, renamed);
@@ -69,14 +70,14 @@ test("merge identity reconciles a relocated canonical home as the same work", as
     lines.correction,
     `- [${retitled}](${movedCorrection}) — ${identities.correction}`,
   );
-  const project = scratchProject(t, adoptedBacklog);
+  const project = scratchProject(t, arrangedAdoptedBacklog);
   for (const sides of [
     [relocated, renamed],
     [renamed, relocated],
   ]) {
     const merged = await run(
       project,
-      versions(project, adoptedBacklog, ...sides),
+      versions(project, arrangedAdoptedBacklog, ...sides),
     );
 
     assert.equal(merged.code, 0, merged.stderr);
@@ -98,7 +99,7 @@ test("merge identity refuses two recorded identities whose links coincide", asyn
   const successor = "SEED-008#gate-and-deliver-scripted-backlog";
   const replaced = await branchFrom(
     t,
-    adoptedBacklog,
+    arrangedAdoptedBacklog,
     ["complete", "--identity", identities.correction],
     [
       "add",
@@ -113,10 +114,10 @@ test("merge identity refuses two recorded identities whose links coincide", asyn
     ],
   );
 
-  const project = scratchProject(t, adoptedBacklog);
+  const project = scratchProject(t, arrangedAdoptedBacklog);
   const refused = await run(
     project,
-    versions(project, adoptedBacklog, relocated, replaced),
+    versions(project, arrangedAdoptedBacklog, relocated, replaced),
   );
 
   assert.equal(refused.code, 1);

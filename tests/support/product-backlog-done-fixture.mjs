@@ -8,7 +8,6 @@ import {
   doneCatalogMismatch,
   parseDoneCatalog,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
-import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 // Git reads only the scratch project's own configuration, never the machine's.
 export const isolatedGit = {
@@ -35,9 +34,6 @@ export function gitWorkspace(project, developer = "Terry Yin") {
   git(["config", "user.name", developer]);
   return project;
 }
-
-export const recordText = (identity, title, time) =>
-  renderDoneRecord({ identity, title, completedAt: time, developer: "Ann" });
 
 // The done catalog every completion rebuilds among the records it indexes.
 export const catalogFile = ".catalog.json";

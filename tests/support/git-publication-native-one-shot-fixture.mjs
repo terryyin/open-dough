@@ -36,6 +36,8 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { makeMe } from "./makeMe.mjs";
+import { renderSlicePlan } from "./published-plan.mjs";
 import { writeEscalationProduct } from "./git-publication-native-one-shot-escalation-fixture.mjs";
 
 const [sourceDir, journey, parent] = process.argv.slice(2);
@@ -80,17 +82,22 @@ async function describeStoryB() {
   );
   writeFileSync(
     join(integration, queued.planB),
-    `# Story B plan
-
-## Ordered slices
-
-### 1. Add the Story B line
-Type: Behavior
-Status: planned
-Proof: notes.txt ends with the line 'Story B line'.
-
-Append the line 'Story B line' to notes.txt.
-`,
+    `${renderSlicePlan(
+      makeMe.aSlicePlan
+        .with({
+          slices: [
+            makeMe.aPlanSlice
+              .with({
+                index: 1,
+                name: "Add the Story B line",
+                proof: "notes.txt ends with the line 'Story B line'.",
+              })
+              .please(),
+          ],
+        })
+        .please(),
+      { preamble: "# Story B plan" },
+    )}\nAppend the line 'Story B line' to notes.txt.\n`,
   );
   await queued.recordStoryBReady(integration);
 }

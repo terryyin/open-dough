@@ -5,8 +5,12 @@
 
 import type { Page } from "@playwright/test";
 import { z } from "zod";
+import {
+  readStoryDependencies,
+  updateStoryDependency,
+} from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
   readStoryState,
   recordStoryState,
@@ -16,11 +20,8 @@ import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import { branchRefAnswer } from "./originAnswers.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
 import { withDoneCatalog } from "./doneCatalogAnswers.ts";
-import {
-  doneDirectory,
-  doneRecordAt,
-  executed,
-} from "./recentlyDoneRecords.ts";
+import { doneDirectory, executed } from "./recentlyDoneRecords.ts";
+import { heldDoneRecords } from "./publishedFactsDoneRecords.ts";
 import {
   afterTake,
   backlogPath,
@@ -43,6 +44,7 @@ import {
 } from "./support/heldFactGroupAnswers.ts";
 
 export type { FactGroup } from "./support/heldFactGroupAnswers.ts";
+export { moreDoneTitle } from "./publishedFactsDoneRecords.ts";
 export const takenCanonicalPath = ".planning/seeds/SEED-091-clock.md";
 export const preparing = "Prepare beside independently read work";
 const preparingIdentity = "SEED-091#preparing";
@@ -53,7 +55,6 @@ export const purpose =
 const plan = files[planPath("after-take")] ?? "";
 const branch = "story/available-facts";
 const branchHead = "b4".repeat(20);
-const donePath = doneRecordAt(executed.identity);
 export const preparer = "Pat Preparer";
 const minutesBefore = (minutes: number) =>
   new Date(opened.getTime() - minutes * 60_000);
@@ -65,26 +66,26 @@ const preparingText = `<a id="preparing"></a>
 **Identity:** ${preparingIdentity}
 
 **Goal:** ${purpose}
-
-\`\`\`json dough-story-dependencies
-${JSON.stringify({
-  schemaVersion: 1,
-  identity: preparingIdentity,
-  dependencies: [
-    {
-      supplier: {
-        identity: "SEED-091#after-take",
-        href: "seeds/SEED-091-clock.md#after-take",
-      },
-      implementation: "Published preparation contract",
-      rationale: "The consumer needs the supplier's canonical contract.",
-      condition: "The supplier's contract is integrated and verified.",
-      state: "waiting",
-    },
-  ],
-})}
-\`\`\`
 `;
+const withAgreement = z.string().parse(
+  updateStoryDependency(preparingText, {
+    identity: preparingIdentity,
+    href: preparingHref,
+    expectedBasis: readStoryDependencies(preparingText, preparingHref).basis,
+    dependency: makeMe.aSupplierAgreement
+      .with({
+        supplier: {
+          identity: "SEED-091#after-take",
+          href: "seeds/SEED-091-clock.md#after-take",
+        },
+        implementation: "Published preparation contract",
+        rationale: "The consumer needs the supplier's canonical contract.",
+        condition: "The supplier's contract is integrated and verified.",
+        state: "waiting",
+      })
+      .please(),
+  }).source,
+);
 const preparationRequest = {
   identity: preparingIdentity,
   href: preparingHref,
@@ -95,7 +96,7 @@ const preparationRequest = {
 const unassessed = z
   .string()
   .parse(
-    recordStoryState(preparingText, preparationRequest, { planSource: plan })
+    recordStoryState(withAgreement, preparationRequest, { planSource: plan })
       .source,
   );
 const assessed = z.string().parse(
@@ -120,26 +121,6 @@ const groupOf = (request: GhRequest): FactGroup | undefined => {
   return undefined;
 };
 
-// Further done stories, completed in the hours before the page opened.
-export const moreDoneTitle = (place: number) =>
-  `Finished work number ${place} rests in Recently done`;
-function moreDoneRecords(count: number): Record<string, string> {
-  return Object.fromEntries(
-    [...Array(count).keys()].map((index) => {
-      const identity = `SEED-3${index + 1}#finished`;
-      return [
-        doneRecordAt(identity),
-        renderDoneRecord({
-          identity,
-          title: moreDoneTitle(index + 1),
-          completedAt: minutesBefore(90 + index * 10).toISOString(),
-          developer: "Terry Yin",
-        }),
-      ];
-    }),
-  );
-}
-
 export async function heldFactGroups(
   page: Page,
   { moreDone = 0 }: { readonly moreDone?: number } = {},
@@ -154,25 +135,27 @@ export async function heldFactGroups(
         [backlogPath]: `${files[backlogPath] ?? ""}- [${preparing}](${preparingHref}) — ${preparingIdentity}\n`,
         [preparingPath]: assessed,
         [planPath("preparing")]: plan,
-        [profilePath("Akiho")]: renderAgentProfile({
-          name: "Akiho",
-          identity: "SEED-091#after-take",
-          mode: "story-branch",
-          branch,
-          host: "claude",
-        }),
-        [profilePath("Kirara")]: renderAgentProfile({
-          name: "Kirara",
-          identity: preparingIdentity,
-          activity: "preparation",
-          host: "codex",
-        }),
-        [donePath]: renderDoneRecord({
-          ...executed,
-          completedAt: minutesBefore(60).toISOString(),
-          developer: "Terry Yin",
-        }),
-        ...moreDoneRecords(moreDone),
+        [profilePath("Akiho")]: renderAgentProfile(
+          makeMe.anAgentProfile
+            .executing({
+              name: "Akiho",
+              identity: "SEED-091#after-take",
+              mode: "story-branch",
+              branch,
+              host: "claude",
+            })
+            .please(),
+        ),
+        [profilePath("Kirara")]: renderAgentProfile(
+          makeMe.anAgentProfile
+            .preparing({
+              name: "Kirara",
+              identity: preparingIdentity,
+              host: "codex",
+            })
+            .please(),
+        ),
+        ...heldDoneRecords(moreDone, minutesBefore),
       },
       doneDirectory,
     ),

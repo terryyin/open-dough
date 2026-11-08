@@ -1,6 +1,8 @@
 // Shared setup and observations for runs of the real backlog CLI's
 // `identity-evidence` against a scratch project whose seed directory,
 // backlog, done records, and Git history each show identities already used.
+import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
@@ -14,7 +16,6 @@ import {
   at,
   gitWorkspace,
   isolatedGit,
-  recordText,
 } from "./product-backlog-done-fixture.mjs";
 
 const seed = (number) => `---\nid: SEED-${number}\n---\n\n# Seed ${number}\n`;
@@ -33,7 +34,16 @@ export function cleanedUpProject(t) {
     projectFile(
       project,
       `done/SEED-0${number}_story-1.json`,
-      recordText(identity, `Story ${number}`, doneTimes(number - 75)),
+      renderDoneRecord(
+        makeMe.aDoneRecord
+          .with({
+            identity,
+            title: `Story ${number}`,
+            completedAt: doneTimes(number - 75),
+            developer: "Ann",
+          })
+          .please(),
+      ),
     );
   }
   return project;
@@ -87,7 +97,16 @@ export function projectWithRemovedAllocation(t) {
   projectFile(
     project,
     "done/SEED-090_x~5Fy.json",
-    recordText("SEED-090#x_y", "Story 90", "2026-06-20T10:00:00.000Z"),
+    renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          identity: "SEED-090#x_y",
+          title: "Story 90",
+          completedAt: "2026-06-20T10:00:00.000Z",
+          developer: "Ann",
+        })
+        .please(),
+    ),
   );
   git(project.directory, "add", "-A");
   git(project.directory, "commit", "-q", "-m", "Allocate SEED-090");

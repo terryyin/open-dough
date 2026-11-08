@@ -2,6 +2,8 @@
 // enrichment as independently arriving fact groups. Raw published plans grow
 // above a focused source link through the built preview's real local boundary.
 
+import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { inspectedDetail } from "../storyCardControls.ts";
 import { expectView, rem, showColumn } from "../boardPage.ts";
 import { expect, test } from "../dashboardTest.ts";
@@ -13,7 +15,6 @@ import {
   planPath,
   repository,
   revision,
-  slicePlan,
   trunk,
 } from "../branchProgressRecords.ts";
 import { expectVisibleReadingFocus } from "../readingPlace.ts";
@@ -49,7 +50,28 @@ test("moved branch progress keeps a scrolled inspection and its visible focused 
   const now = await page.evaluate(() => Date.now());
   origin.moveBranch("story/example", {
     revision: movedHead,
-    files: { ...trunk.files, [planPath("on-branch")]: slicePlan(12, 7) },
+    files: {
+      ...trunk.files,
+      [planPath("on-branch")]: renderSlicePlan(
+        makeMe.aSlicePlan
+          .withStatuses([
+            "done",
+            "done",
+            "done",
+            "done",
+            "done",
+            "done",
+            "done",
+            "planned",
+            "planned",
+            "planned",
+            "planned",
+            "planned",
+          ])
+          .please(),
+        { heading: "Slices" },
+      ),
+    },
     committed: { [planPath("on-branch")]: new Date(now - 2 * 60_000) },
   });
   await passTimeUntilChecked(page);

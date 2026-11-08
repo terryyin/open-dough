@@ -2,14 +2,13 @@
 // the done records each completion leaves beside the backlog — expired ones
 // pruned, none for dropped work — and the done catalog it rebuilds from them,
 // checked against Git's own blob hashes.
+import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import {
-  agentIdentity,
-  renderAgentProfile,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { plantAgentProfile } from "./product-backlog-profile-fixture.mjs";
 import {
   assertCatalogMatchesRecords,
   at,
@@ -18,7 +17,6 @@ import {
   doneDirectory,
   gitBlob,
   readCatalog,
-  recordText,
 } from "./product-backlog-done-fixture.mjs";
 import {
   backlog,
@@ -36,12 +34,30 @@ test("completion rebuilds the catalog: a new row, a replaced row, and no row for
   projectFile(
     project,
     "done/SEED-900_expired.json",
-    recordText("SEED-900#expired", "Expired", daysBefore(31)),
+    renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          identity: "SEED-900#expired",
+          title: "Expired",
+          completedAt: daysBefore(31),
+          developer: "Ann",
+        })
+        .please(),
+    ),
   );
   projectFile(
     project,
     "done/SEED-901_recent.json",
-    recordText("SEED-901#recent", "Recent", daysBefore(29)),
+    renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          identity: "SEED-901#recent",
+          title: "Recent",
+          completedAt: daysBefore(29),
+          developer: "Ann",
+        })
+        .please(),
+    ),
   );
 
   const first = await run(
@@ -107,25 +123,39 @@ test("completion rebuilds the catalog: a new row, a replaced row, and no row for
 test("dropped work releases its profile and adds no record or catalog row, while expired records still go", async (t) => {
   const project = scratchProject(t);
   const done = doneDirectory(project);
-  projectFile(
+  plantAgentProfile(
     project,
-    agentIdentity("Akiho").path,
-    renderAgentProfile({
-      name: "Akiho",
-      identity: takenStory,
-      mode: "trunk",
-      branch: "origin/main",
-    }),
+    makeMe.anAgentProfile
+      .executing({ name: "Akiho", identity: takenStory })
+      .please(),
   );
   projectFile(
     project,
     "done/SEED-900_expired.json",
-    recordText("SEED-900#expired", "Expired", daysBefore(31)),
+    renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          identity: "SEED-900#expired",
+          title: "Expired",
+          completedAt: daysBefore(31),
+          developer: "Ann",
+        })
+        .please(),
+    ),
   );
   projectFile(
     project,
     "done/SEED-901_recent.json",
-    recordText("SEED-901#recent", "Recent", daysBefore(29)),
+    renderDoneRecord(
+      makeMe.aDoneRecord
+        .with({
+          identity: "SEED-901#recent",
+          title: "Recent",
+          completedAt: daysBefore(29),
+          developer: "Ann",
+        })
+        .please(),
+    ),
   );
 
   const result = await run(

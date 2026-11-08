@@ -4,6 +4,10 @@
 // when each plan was last committed, and when each profile was added (its
 // Take), relative to the page's opening time.
 
+import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
+import { renderPublishedPreparation } from "../../tests/support/story-preparation.mjs";
 import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { addedAt, type PathHistories } from "./pathHistoryAnswers.ts";
 
@@ -35,19 +39,20 @@ export const planPath = (anchor: string) =>
 export const profilePath = (agent: string) =>
   `.planning/agents/${agent.toLowerCase()}-chan.json`;
 
-const backlog = `# Product backlog
-
-## Taken
-
-${stories
-  .map(
-    ({ title, anchor }) =>
-      `- [${title}](seeds/SEED-091-clock.md#${anchor}) — SEED-091#${anchor}`,
-  )
-  .join("\n")}
-
-## Backlog list
-`;
+const backlog = renderPublishedBacklog(
+  {
+    taken: stories.map(({ title, anchor }) =>
+      makeMe.aBacklogEntry
+        .with({
+          identity: `SEED-091#${anchor}`,
+          href: `seeds/SEED-091-clock.md#${anchor}`,
+          title,
+        })
+        .please(),
+    ),
+  },
+  { blankAfterEmptyQueue: false },
+);
 
 const seed = `# Slice clock fixture
 
@@ -58,27 +63,43 @@ ${stories
 ### ${title}
 
 **Identity:** SEED-091#${anchor}
-\`\`\`json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/091-${anchor}/PLAN.md"}
-\`\`\`
+${renderPublishedPreparation(
+  makeMe.aStoryPreparation
+    .with({
+      refinement: "refined",
+      approach: "planned",
+      plan: `../slice-plans/091-${anchor}/PLAN.md`,
+    })
+    .please(),
+)}
 `,
   )
   .join("\n")}`;
 
-const plan = `# Plan
-
-## Slices
-
-### 1. First slice
-Type: Behavior
-Status: done
-Proof: A journey observes slice 1.
-
-### 2. Second slice
-Type: Behavior
-Status: planned
-Proof: A journey observes slice 2.
-`;
+const plan = renderSlicePlan(
+  makeMe.aSlicePlan
+    .with({
+      slices: [
+        makeMe.aPlanSlice
+          .with({
+            index: 1,
+            name: "First slice",
+            status: "done",
+            proof: "A journey observes slice 1.",
+          })
+          .please(),
+        makeMe.aPlanSlice
+          .with({
+            index: 2,
+            name: "Second slice",
+            proof: "A journey observes slice 2.",
+          })
+          .please(),
+      ],
+    })
+    .please(),
+  { heading: "Slices" },
+);
 
 export const files: Record<string, string> = {
   [backlogPath]: backlog,
@@ -89,14 +110,17 @@ for (const { anchor } of stories) {
 }
 for (const { anchor, agent } of stories) {
   if (agent !== undefined) {
-    files[profilePath(agent)] = renderAgentProfile({
-      name: agent,
-      identity: `SEED-091#${anchor}`,
-      mode: "trunk",
-      branch: "origin/main",
-      host: "claude",
-      model: undefined,
-    });
+    files[profilePath(agent)] = renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: agent,
+          identity: `SEED-091#${anchor}`,
+          mode: "trunk",
+          branch: "origin/main",
+          host: "claude",
+        })
+        .please(),
+    );
   }
 }
 

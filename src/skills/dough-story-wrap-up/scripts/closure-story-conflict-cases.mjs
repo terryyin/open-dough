@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { fileURLToPath } from "node:url";
 import { publishHistoryPreservingCandidate } from "../../dough-execute-plan/scripts/history-preserving-publication.mjs";
 import {
@@ -50,8 +51,9 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
   const publish = () =>
     publishHistoryPreservingCandidate({
       ownedWorkspace: execution,
-      publishedTip: closureSha,
-      branch: executionBranch,
+      ...makeMe.aPublishedIntegration
+        .with({ publishedTip: closureSha, branch: executionBranch })
+        .please(),
       beforePush: (comparison) => prepared.push(comparison),
       register: (receipt) => registered.push(receipt),
     });
@@ -152,8 +154,9 @@ test("a backlog conflict the merge adapter stops on is published once its `conti
   const publish = () =>
     publishHistoryPreservingCandidate({
       ownedWorkspace: execution,
-      publishedTip: closureSha,
-      branch: executionBranch,
+      ...makeMe.aPublishedIntegration
+        .with({ publishedTip: closureSha, branch: executionBranch })
+        .please(),
       beforePush: (comparison) => prepared.push(comparison),
     });
 

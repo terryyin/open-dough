@@ -13,6 +13,7 @@
 // behavior: ./auto-refresh-visibility.spec.ts and
 // ./auto-refresh-rate-limit.spec.ts.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, githubFor, test } from "../dashboardTest.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import {
@@ -25,15 +26,18 @@ import {
 import {
   branchHead,
   branches,
-  completedPlan,
   onBranch,
   planPath,
   repository,
   revision,
-  slicePlan,
   trunk,
 } from "../branchProgressRecords.ts";
-import { openedSettled, trunkMoved } from "../branchRefreshJourney.ts";
+import {
+  branchPlanPublication,
+  openedSettled,
+  sevenDoneOnBranch,
+  trunkMoved,
+} from "../branchRefreshJourney.ts";
 import { readsBesideChecks } from "../originObservation.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import type { PublishedRevision } from "../publishedFiles.ts";
@@ -86,13 +90,11 @@ test("the automatic check follows each recorded story branch, reading only the p
 
   await test.step("a new slice commit on the recorded branch shows its count and a restarted clock within the check pace, reading only its plan and commit time there", async () => {
     const now = await page.evaluate(() => Date.now());
-    published[example] = {
-      revision: movedHead,
-      files: { ...trunk.files, [planPath("on-branch")]: slicePlan(8, 7) },
-      committed: {
-        [planPath("on-branch")]: new Date(now - 2 * 60_000),
-      },
-    };
+    published[example] = branchPlanPublication(
+      movedHead,
+      new Date(now - 2 * 60_000),
+      sevenDoneOnBranch,
+    );
     origin.moveBranch(example, published[example]);
     const from = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));
@@ -148,16 +150,16 @@ test("the automatic check follows each recorded story branch, reading only the p
 
   await test.step("a completion commit on the recorded branch shows the story awaiting wrap-up within the check pace, reading only its plan and commit time there", async () => {
     const now = await page.evaluate(() => Date.now());
-    published[example] = {
-      revision: completedHead,
-      files: {
-        ...trunk.files,
-        [planPath("on-branch")]: completedPlan(8, "Queue the next story."),
-      },
-      committed: {
-        [planPath("on-branch")]: new Date(now - 60_000),
-      },
-    };
+    published[example] = branchPlanPublication(
+      completedHead,
+      new Date(now - 60_000),
+      makeMe.aSlicePlan
+        .withStatuses(
+          ["done", "done", "done", "done", "done", "done", "done", "done"],
+          { advice: "Queue the next story." },
+        )
+        .please(),
+    );
     origin.moveBranch(example, published[example]);
     const from = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));

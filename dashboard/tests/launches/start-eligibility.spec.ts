@@ -1,5 +1,6 @@
 // A card's start eligibility: a Ready assessment waits on its dependency and
 // becomes startable without any readiness write, in Backlog and in Taken.
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { passTimeUntilChecked, pausePageClock } from "../autoRefreshJourney.ts";
@@ -8,6 +9,7 @@ import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import {
   consumer,
+  supplierB,
   test,
   recordDependency,
   publishDependencies,
@@ -29,14 +31,20 @@ test("a ready story waits on its dependency and becomes startable once it is sat
   origin,
   dashboard,
 }) => {
-  recordDependency(origin, 0, "waiting");
+  recordDependency(origin, { supplier: supplierB, state: "waiting" });
   // The preparing agent reviews the story with its dependency agreement.
-  recordAssessed(origin.project, consumer, {
-    refinement: "refined",
-    approach: "planned",
-    plan: "../slice-plans/A/PLAN.md",
-    assessment: "ready",
-  });
+  recordAssessed(
+    origin.project,
+    consumer,
+    makeMe.aStoryPreparation
+      .with({
+        refinement: "refined",
+        approach: "planned",
+        plan: "../slice-plans/A/PLAN.md",
+        assessment: "ready",
+      })
+      .please(),
+  );
   const revision = await publishDependencies(origin);
   const readiness = storyStateRecord(origin.project);
   const published = await publishCommittedOrigin(page, {
@@ -60,7 +68,15 @@ test("a ready story waits on its dependency and becomes startable once it is sat
   await expect(execution).toBeDisabled();
   await expect(execution).toHaveAccessibleDescription(/1 blocking dependency/);
 
-  recordDependency(origin, 0, "satisfied", revision);
+  recordDependency(origin, {
+    supplier: supplierB,
+    state: "satisfied",
+    resolution: {
+      revision,
+      path: ".planning/seeds/B.md",
+      summary: "Accepted supplier endpoint proof.",
+    },
+  });
   const satisfied = await publishDependencies(origin);
   await passTimeUntilChecked(page);
   await expect(parts(page).readRevision).toContainText(
@@ -85,13 +101,19 @@ test("a Taken card's green badge waits on its dependency like a Backlog card's",
   page,
   origin,
 }) => {
-  recordDependency(origin, 0, "waiting");
-  recordAssessed(origin.project, consumer, {
-    refinement: "refined",
-    approach: "planned",
-    plan: "../slice-plans/A/PLAN.md",
-    assessment: "ready",
-  });
+  recordDependency(origin, { supplier: supplierB, state: "waiting" });
+  recordAssessed(
+    origin.project,
+    consumer,
+    makeMe.aStoryPreparation
+      .with({
+        refinement: "refined",
+        approach: "planned",
+        plan: "../slice-plans/A/PLAN.md",
+        assessment: "ready",
+      })
+      .please(),
+  );
   takeConsumer(origin);
   const revision = await publishDependencies(origin);
   await publishCommittedOrigin(page, {
@@ -111,7 +133,15 @@ test("a Taken card's green badge waits on its dependency like a Backlog card's",
   ).toBeVisible();
   await expect(card.locator(".badge-ready")).toHaveCount(0);
 
-  recordDependency(origin, 0, "satisfied", revision);
+  recordDependency(origin, {
+    supplier: supplierB,
+    state: "satisfied",
+    resolution: {
+      revision,
+      path: ".planning/seeds/B.md",
+      summary: "Accepted supplier endpoint proof.",
+    },
+  });
   const satisfied = await publishDependencies(origin);
   await passTimeUntilChecked(page);
   await expect(parts(page).readRevision).toContainText(

@@ -20,7 +20,10 @@ test("a dependency disclosure and its explanation text do not change the selecte
   page,
   origin,
 }) => {
-  const revision = await twoDependencies(origin, true);
+  const revision = await twoDependencies(origin, {
+    assessment: "not-ready",
+    reasons: ["Unrelated consumer design decision remains."],
+  });
   await publishCommittedOrigin(page, {
     repoDir: origin.project,
     revision,

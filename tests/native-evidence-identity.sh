@@ -42,6 +42,7 @@ identity_writers=(
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity scheduling'
   'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity amended'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity publication'
+  'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity admission'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity owned-context'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity land-default-checkout'
   'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity execution-review'
@@ -116,11 +117,7 @@ for index in "${!identity_writers[@]}"; do
   fi
 done
 
-# Guidance and commands each closure journey exercises beyond Dough Land's
-# inputs, including scripts its modules spawn: ci-host-bridge.mjs spawns
-# ci-host-hook.mjs, publication runs product-backlog-git-rebase.mjs, and the
-# backlog merge adapter registers product-backlog-git-driver.mjs. An identity
-# that omits one keeps its recorded evidence bound after that input changes.
+# Each journey must identify the guidance and runtime inputs it exercises.
 land_inputs=(
   src/skills/dough-land/SKILL.md
   src/skills/dough-land/references/completion-attention.md
@@ -132,53 +129,39 @@ land_inputs=(
   src/skills/dough-manual-testing/references/exploration-workspace.md
   src/skills/dough-execute-plan/references/maintain-default-checkout.md
 )
-closure_journey_inputs=(
-  'git_publication_write_evidence_identity owned-context|
-  src/skills/dough-story-refinement/references/preparation-workspace.md'
-  'git_publication_write_evidence_identity land-default-checkout|
-  src/skills/dough-execute-plan/references/publish-the-candidate.md'
-  'trunk_closure_write_evidence_identity|
+response_input=tests/support/native-response-field.sh
+journey_inputs=(
+  "git_publication_write_evidence_identity owned-context|${land_inputs[*]}
+  src/skills/dough-story-refinement/references/preparation-workspace.md"
+  "git_publication_write_evidence_identity land-default-checkout|${land_inputs[*]}
+  src/skills/dough-execute-plan/references/publish-the-candidate.md"
+  "trunk_closure_write_evidence_identity|${land_inputs[*]} ${response_input}
   src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
   src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs
   src/skills/dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
   src/skills/dough-story-wrap-up/scripts/trunk-closure-observer.mjs
   src/skills/dough-execute-plan/scripts/ci-host-hook.mjs
-  src/skills/dough-product-backlog/scripts/product-backlog-git-rebase.mjs'
-  'story_closure_write_evidence_identity|
+  src/skills/dough-product-backlog/scripts/product-backlog-git-rebase.mjs"
+  "story_closure_write_evidence_identity|${land_inputs[*]} ${response_input}
   src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
-  src/skills/dough-product-backlog/scripts/product-backlog-git-driver.mjs'
+  src/skills/dough-product-backlog/scripts/product-backlog-git-driver.mjs"
+  "git_publication_write_evidence_identity execution-review|${response_input}
+  src/skills/dough-land/references/completion-attention.md"
+  'git_publication_write_evidence_identity admission|
+  tests/support/makeMe.mjs
+  tests/support/story-preparation.mjs
+  src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs'
 )
-for entry in "${closure_journey_inputs[@]}"; do
+for entry in "${journey_inputs[@]}"; do
   for index in "${!identity_writers[@]}"; do
     [[ ${identity_writers[index]#* } == "${entry%%|*}" ]] || continue
-    for input in "${land_inputs[@]}" ${entry#*|}; do
+    for input in ${entry#*|}; do
       if ! lists_input "${identity_out}/baseline/${index}" "${input}"; then
-        printf 'FAIL: evidence identity %s omits %s, which its journey exercises.\n' \
+        printf 'FAIL: evidence identity %s omits journey input %s.\n' \
           "${entry%%|*}" "${input}" >&2
         identity_failures=1
       fi
     done
-  done
-done
-
-# Response observation and shared attention belong to the execution-review
-# identity too; closure's minimal-response reader has the same shared input.
-for index in "${!identity_writers[@]}"; do
-  case ${identity_writers[index]#* } in
-    'git_publication_write_evidence_identity execution-review')
-      inputs='tests/support/native-response-field.sh src/skills/dough-land/references/completion-attention.md'
-      ;;
-    trunk_closure_write_evidence_identity | story_closure_write_evidence_identity)
-      inputs='tests/support/native-response-field.sh'
-      ;;
-    *) continue ;;
-  esac
-  for input in ${inputs}; do
-    if ! lists_input "${identity_out}/baseline/${index}" "${input}"; then
-      printf 'FAIL: evidence identity %s omits response input %s.\n' \
-        "${identity_writers[index]}" "${input}" >&2
-      identity_failures=1
-    fi
   done
 done
 

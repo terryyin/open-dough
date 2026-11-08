@@ -6,10 +6,11 @@
 // explicit record still matches — is not a refusal; only a mismatch is. An
 // identity a done record beside the backlog names belongs to completed work
 // and is refused even when a recreated seed carries it again.
+import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { recordText } from "./product-backlog-done-fixture.mjs";
 import {
   backlog,
   backlogOf,
@@ -132,10 +133,15 @@ id: SEED-075
 Some body text.
 `,
   );
-  const record = recordText(
-    identity,
-    "Earlier story 1",
-    "2026-10-20T08:30:00.000Z",
+  const record = renderDoneRecord(
+    makeMe.aDoneRecord
+      .with({
+        identity,
+        title: "Earlier story 1",
+        completedAt: "2026-10-20T08:30:00.000Z",
+        developer: "Ann",
+      })
+      .please(),
   );
   const recordPath = projectFile(project, "done/SEED-075_story-1.json", record);
 

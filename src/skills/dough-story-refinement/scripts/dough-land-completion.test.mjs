@@ -1,6 +1,8 @@
 // Resolved-plan enforcement at the Git-model landing boundary. This invokes
 // the production completion checker; it does not claim native guidance use.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
+import { renderPlanSlice } from "../../../../tests/support/published-plan.mjs";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -20,11 +22,20 @@ const branch = "exec/story";
 const profile = ".planning/agents/jackson-chan.json";
 const claim = `# Product backlog\n\n## Taken\n- [${identity} Ongoing](story.md#ongoing) · [plan](PLAN.md)\n\n## Backlog list\n`;
 function planSource({ pending = false, obligation = false } = {}) {
+  const slices = [...Array(14).keys()].map((at) =>
+    makeMe.aPlanSlice
+      .with({
+        index: at + 1,
+        name: at === 13 ? "Release the result" : `Work ${at + 1}`,
+        status: pending && at === 13 ? "planned" : "done",
+      })
+      .please(),
+  );
   return `# Execution plan
 **Source:** [selected story](story.md#ongoing)
 
 ## Ordered slices
-${[...Array(14).keys()].map((i) => `### ${i + 1}. ${i === 13 ? "Release the result" : `Work ${i + 1}`}\nType: Behavior\nStatus: ${pending && i === 13 ? "planned" : "done"}`).join("\n\n")}
+${slices.map(renderPlanSlice).join("\n\n")}
 ${
   obligation
     ? `
@@ -51,12 +62,16 @@ async function executionFixture(t, source) {
   mkdirSync(join(f.execution, ".planning/agents"));
   writeFileSync(
     join(f.execution, profile),
-    renderAgentProfile({
-      name: "jackson",
-      identity,
-      mode: "story-branch",
-      branch,
-    }),
+    renderAgentProfile(
+      makeMe.anAgentProfile
+        .executing({
+          name: "jackson",
+          identity,
+          mode: "story-branch",
+          branch,
+        })
+        .please(),
+    ),
   );
   await git(f.execution, "add", ".planning");
   await git(f.execution, "commit", "-qm", "Record ongoing execution");

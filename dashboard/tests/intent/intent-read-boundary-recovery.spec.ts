@@ -1,7 +1,6 @@
 // Boundary-classified settings and listing failures recover through Intent's
 // existing locations Retry path at the same published revision.
 
-import { filesOf } from "../catalogProjectRecords.ts";
 import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
 import { doughnut, doughnutSettings } from "../intentCodeBrowseFixtures.ts";
 import {
@@ -26,7 +25,7 @@ for (const failure of ["settings", "listing"] as const) {
     const published = publishes({
       revision: doughnut.revision,
       files: {
-        ...filesOf(doughnut),
+        ...doughnut.files,
         [settingsPath]: doughnutSettings,
         ...locationFiles,
       },

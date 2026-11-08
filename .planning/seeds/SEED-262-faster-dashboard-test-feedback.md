@@ -156,10 +156,9 @@ times are the baseline for the reuse story.
 - **Native evidence is unchanged.** Native scenario fixtures are untouched
   here, so their evidence identities do not change and this story needs no
   paid run ([native family layers](../../tests/native-family-layers.md)).
-- **Relation to published-work conversion.** Repository construction moves
-  to these Git fixture stories. The remaining work in
-  [published work domain data conversion](SEED-261-share-domain-test-data.md#map-published-work-test-data)
-  uses this description for the domain facts it converts.
+- **Published work facts.** These Git fixture stories own repository
+  construction. Compose the existing published-work facts through
+  [MakeMe](../../tests/support/makeMe.mjs) when describing those repositories.
 
 [Inventory and profiling evidence](../TEST-OPTIMIZATION-CANDIDATES.md#card-attention-launch-and-origin-setup)
 

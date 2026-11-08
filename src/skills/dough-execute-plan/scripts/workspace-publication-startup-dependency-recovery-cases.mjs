@@ -1,10 +1,10 @@
 // Dependency changes distinguish an unpublished claim retry from continuing
 // the execution an already-published claim owns.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { dependency } from "../../../../tests/support/story-dependencies-fixture.mjs";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
 import {
   createQueuedTrunk,
@@ -29,7 +29,10 @@ test("a newly published blocker prevents retry of an interrupted unpublished Tak
   const interrupted = await startProcess(trunk, "a", identityA).result;
   assert.equal(interrupted.receipt.status, "unpublished");
   const { recovery } = interrupted.receipt;
-  const tip = await publishDependency(trunk, dependency(supplier));
+  const tip = await publishDependency(
+    trunk,
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
+  );
   const retry = await startProcess(trunk, "a", identityA, resumeArgs(recovery))
     .result;
   assert.equal(retry.receipt.status, "source-refused", JSON.stringify(retry));
@@ -53,7 +56,10 @@ test("an existing Taken session is not interrupted by a dependency added after i
   t.after(trunk.cleanup);
   const first = await startCliResult(trunk, "story-branch");
   assert.equal(first.code, 0, JSON.stringify(first));
-  await publishDependency(trunk, dependency(supplier));
+  await publishDependency(
+    trunk,
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
+  );
   const continuation = await startCliResult(trunk, "story-branch");
   assert.equal(continuation.code, 0, JSON.stringify(continuation));
   assert.equal(continuation.receipt.status, "existing");

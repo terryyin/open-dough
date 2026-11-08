@@ -42,8 +42,7 @@ test("story-state: content change retains ready and stale submit refuses", async
       approach: "planned",
       plan: planRelative,
       assessment: "ready",
-      expectDocument: prepared.basis.document,
-      expectPlan: prepared.basis.plan,
+      expectedBasis: prepared.basis,
     }),
   );
   assert.equal(ready.code, 0, ready.stderr);
@@ -78,8 +77,7 @@ test("story-state: content change retains ready and stale submit refuses", async
       approach: "planned",
       plan: planRelative,
       assessment: "ready",
-      expectDocument: staleBasis.document,
-      expectPlan: staleBasis.plan,
+      expectedBasis: staleBasis,
     }),
   );
   assert.equal(refused.code, 1);
@@ -95,8 +93,7 @@ test("story-state: content change retains ready and stale submit refuses", async
       approach: "planned",
       plan: planRelative,
       assessment: "ready",
-      expectDocument: outdated.basis.document,
-      expectPlan: outdated.basis.plan,
+      expectedBasis: outdated.basis,
     }),
   );
   assert.equal(reviewCurrentStory.code, 0, reviewCurrentStory.stderr);
@@ -121,8 +118,7 @@ test("story-state: content change retains ready and stale submit refuses", async
       plan: planRelative,
       assessment: "not-ready",
       reasons: ["Resolve the widened scope"],
-      expectDocument: afterPlanEdit.basis.document,
-      expectPlan: afterPlanEdit.basis.plan,
+      expectedBasis: afterPlanEdit.basis,
     }),
   );
   assert.equal(fresh.code, 0, fresh.stderr);
@@ -155,7 +151,7 @@ test("story-state: ready consistency refusals leave files unchanged", async (t) 
       refinement: "refined",
       approach: "unselected",
       assessment: "ready",
-      expectDocument: prepared.basis.document,
+      expectedBasis: { document: prepared.basis.document },
     }),
   );
   assert.equal(unselectedReady.code, 1);
@@ -169,7 +165,7 @@ test("story-state: ready consistency refusals leave files unchanged", async (t) 
       approach: "planless",
       assessment: "ready",
       reasons: ["should not be here"],
-      expectDocument: prepared.basis.document,
+      expectedBasis: { document: prepared.basis.document },
     }),
   );
   assert.equal(readyWithReason.code, 1);
@@ -182,7 +178,7 @@ test("story-state: ready consistency refusals leave files unchanged", async (t) 
       refinement: "refined",
       approach: "planless",
       assessment: "not-ready",
-      expectDocument: prepared.basis.document,
+      expectedBasis: { document: prepared.basis.document },
     }),
   );
   assert.equal(notReadyWithoutReason.code, 1);

@@ -2,12 +2,12 @@
 // races a writer adding a consumer on trunk. Every dependency write uses the
 // real commands; tests supply only the agent's per-consumer judgment, never
 // the consumer list.
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import { cpSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   consumer,
-  dependency,
   git,
   plan,
   revParse,
@@ -30,7 +30,7 @@ import { cloneAsAnotherWriter } from "../../src/skills/dough-execute-plan/script
 import { createQueuedTrunk } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { draftLateStory } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
 
-export const third = { identity: "THIRD", link: "seeds/third.md" };
+export const third = { identity: "THIRD", href: "seeds/third.md" };
 
 // Writes the queued backlog with consumer A waiting on supplier B and on the
 // unrelated THIRD, and B's completed plan, into `checkout`, and commits them
@@ -42,12 +42,17 @@ export async function commitCompletedSupplier(t, checkout, inputDirectory) {
     recursive: true,
   });
   writeFileSync(
-    join(checkout, ".planning", third.link),
+    join(checkout, ".planning", third.href),
     "# Third\n**Identity:** THIRD\n",
   );
   writeFileSync(join(checkout, supplierPlan), plan("done"));
   const project = { directory: checkout, inputDirectory };
-  for (const entry of [dependency(supplier), dependency(third)]) {
+  for (const entry of [
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
+    makeMe.aSupplierAgreement
+      .with({ supplier: third, state: "waiting" })
+      .please(),
+  ]) {
     const result = await updateDependency(project, consumer, entry);
     assert.equal(result.code, 0, result.stderr);
   }
@@ -61,11 +66,11 @@ export async function commitCompletedSupplier(t, checkout, inputDirectory) {
 export async function raceLateConsumer(origin, directory, inputDirectory) {
   await cloneAsAnotherWriter(origin, directory);
   const late = draftLateStory({ integration: directory });
-  const sibling = { identity: late.identity, link: "seeds/A.md#late" };
+  const sibling = { identity: late.identity, href: "seeds/A.md#late" };
   const waiting = await updateDependency(
     { directory, inputDirectory },
     sibling,
-    dependency(supplier),
+    makeMe.aSupplierAgreement.with({ supplier, state: "waiting" }).please(),
   );
   assert.equal(waiting.code, 0, waiting.stderr);
   await git(directory, "add", ".planning");

@@ -1,6 +1,8 @@
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { renderPlanSlice } from "../../../../tests/support/published-plan.mjs";
 
 // Decisive excerpts copied locally; tests never load the source repositories.
 // ODF-139: pygardon a4673f7b6, SEED-078-maintained-sharadar-daily-source.md
@@ -49,12 +51,21 @@ export function slicePlan(
   entries,
   { done = [], indices = [1, 2, 3, 4], review = false } = {},
 ) {
+  const slices = indices.map((index) =>
+    makeMe.aPlanSlice
+      .with({
+        index,
+        name: `Work ${index}`,
+        status: done.includes(index) ? "done" : "planned",
+      })
+      .please(),
+  );
   return `# Replay plan
 
 **Source:** [selected story](story.md#selected).
 ${review ? "**Source review:** [source review](source-review.md)\n" : ""}
 ## Ordered slices
-${indices.map((index) => `### ${index}. Work ${index}\nType: Behavior\nStatus: ${done.includes(index) ? "done" : "planned"}`).join("\n\n")}
+${slices.map(renderPlanSlice).join("\n\n")}
 
 ## Story obligations
 ${entries}

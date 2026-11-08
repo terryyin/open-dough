@@ -1,8 +1,8 @@
 // Correction starting agreements and proposed judgments; the real CLI owns writes.
+import { makeMe } from "./makeMe.mjs";
 import assert from "node:assert/strict";
 import {
   consumer,
-  dependency,
   supplier,
   updateDependency,
 } from "./supplier-dependency-fixture.mjs";
@@ -30,7 +30,9 @@ export async function mixedAgreement(f, story = consumer) {
   const written = await updateDependency(
     f.project,
     story,
-    dependency(supplier, { condition: mixedCondition }),
+    makeMe.aSupplierAgreement
+      .with({ supplier, state: "waiting", condition: mixedCondition })
+      .please(),
   );
   assert.equal(written.code, 0, written.stderr);
 }

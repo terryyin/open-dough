@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { makeMe } from "./makeMe.mjs";
 import { existsSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -14,7 +15,6 @@ import {
   consumer,
   supplier,
   readDependencies,
-  dependency,
   updateDependency,
   git,
   run,
@@ -135,7 +135,13 @@ test("stale condition and discovery gaps never invent fulfillment", async (t) =>
   const changed = await updateDependency(
     f.project,
     consumer,
-    dependency(supplier, { condition: "New supplier outcome requirement" }),
+    makeMe.aSupplierAgreement
+      .with({
+        supplier,
+        state: "waiting",
+        condition: "New supplier outcome requirement",
+      })
+      .please(),
   );
   assert.equal(changed.code, 0, changed.stderr);
   const changedBytes = homeBytes(f);

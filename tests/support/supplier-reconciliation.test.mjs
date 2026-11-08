@@ -143,7 +143,7 @@ test("supplier visit reconciles settled assumptions independently and retains ev
   const beforeRetry = new Map(
     [decision, missingCapability, f.sibling].map((story) => [
       story,
-      textAt(f, `.planning/${story.link.split("#")[0]}`),
+      textAt(f, `.planning/${story.href.split("#")[0]}`),
     ]),
   );
   for (const story of beforeRetry.keys()) {
@@ -158,7 +158,7 @@ test("supplier visit reconciles settled assumptions independently and retains ev
     assert.equal(result.code, 0, result.stderr);
   }
   for (const [story, bytes] of beforeRetry)
-    assert.equal(textAt(f, `.planning/${story.link.split("#")[0]}`), bytes);
+    assert.equal(textAt(f, `.planning/${story.href.split("#")[0]}`), bytes);
   await publish(f, "publish independent consumer outcomes");
   const remoteBefore = await revParse(f.origin, "refs/heads/main");
   for (const story of [decision, missingCapability, f.sibling]) {
