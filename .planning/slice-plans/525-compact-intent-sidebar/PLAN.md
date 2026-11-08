@@ -127,7 +127,7 @@ light surface and stays distinct from the dark cues.
 ### 2. The outside-locations count is an icon and a number
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-story-changes-gaps.spec.ts` and `intent-story-changes.spec.ts`
 expect the named button with text `2` on the title line, its opening of
 Review changes on All changes, and its absence at zero; the old sentence's
@@ -137,6 +137,13 @@ Behavior: A story whose comparison changed two files no location selects →
 the developer looks at the summary → its title line ends with an icon and `2`,
 named "2 changed files outside Intent locations — open Review changes";
 activating it opens Review changes on Intent's comparison. Guidance updated.
+
+Accepted (2026-11-08): `StoryOutsideLocations` is a button (Lucide
+`GitCompare` icon and the count) in a new `.intent-story-title-line` beside
+the disclosure, so it never toggles the disclosure; observed through
+`expectOutsideCount` in `dashboard/tests/support/intentStoryPage.ts`. Whole
+`tests/intent` (239) and the backend overlay spec passed. The outside sentence
+also had consumers in the changes-only, changes-moves and completed specs.
 
 ### 3. Hide files gives the reading pane the sidebar's room
 

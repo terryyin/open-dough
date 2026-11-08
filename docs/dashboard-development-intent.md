@@ -202,9 +202,13 @@ folders and the first changed location open and everything else collapses.
 **Selected story only**, off at first, leaves just the changed files and the
 locations and folders holding them, or says no test file in a location
 changed; toggling it opens the same folders again and collapses the rest.
-Changed files no location selects by either path are counted in the summary
-with a way to Review changes, which opens on Intent's comparison (All
-changes, uncommitted included) even for a story with a review mark. A changed
+Changed files no location selects by either path are counted at the end of
+the summary's title line, expanded or not, as one compact button: an icon and
+the number, whose accessible name and hover text explain it (for example "2
+changed files outside Intent locations — open Review changes"). It is absent
+when no changed file is outside the locations. Activating it opens Review
+changes on Intent's comparison (All changes, uncommitted included) even for a
+story with a review mark, without toggling the disclosure. A changed
 file's Purpose is Review changes' diff of it, and Proof holds that file's
 comparison when available. A story without a comparison, and a failed read
 with retry, each say so while the published tree stays usable; clearing the

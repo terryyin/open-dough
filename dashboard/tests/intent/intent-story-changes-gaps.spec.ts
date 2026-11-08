@@ -28,7 +28,9 @@ import { expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   expandStorySummary,
+  expectOutsideCount,
   intentFile,
+  outsideCount,
   selectTakenStoryInIntent,
   storyDisclosure,
   storyOnly,
@@ -44,7 +46,7 @@ async function expectPublishedTreeUsable(intent: Locator) {
   await expect(storyOnly(intent)).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
   await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
-  await expect(intent.locator(".intent-story-outside")).toHaveCount(0);
+  await expect(outsideCount(intent)).toHaveCount(0);
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
   await expandIntentGroup(intent, "dashboard/tests");
   await expandIntentFolders(intent, "dashboard/tests");
@@ -117,9 +119,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await expect(detail.locator(".intent-story-revisions")).toBeVisible();
   await expect(problem).toHaveCount(0);
   await expect(storyOnly(intent)).not.toBeChecked();
-  await expect(intent.locator(".intent-story-outside")).toContainText(
-    "2 changed files outside Intent locations",
-  );
+  await expectOutsideCount(intent, 2);
   await expect(intentFile(intent, changed.modified)).toBeVisible();
   await expect(intentFile(intent, changed.added)).toBeVisible();
 });
@@ -151,7 +151,7 @@ test("without configured Intent locations the Intent tab names the selected stor
     "No comparison is available.",
   );
   await expect(storyOnly(intent)).toHaveCount(0);
-  await expect(intent.locator(".intent-story-outside")).toHaveCount(0);
+  await expect(outsideCount(intent)).toHaveCount(0);
   const detail = await expandStorySummary(intent);
   await expect(detail.locator(".intent-story-full-title")).toHaveText(
     "Story A SEED-A#a",

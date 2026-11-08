@@ -59,6 +59,32 @@ export const storySummary = (intent: Locator) =>
 export const storyDisclosure = (intent: Locator) =>
   storySummary(intent).locator("button.intent-story-disclosure");
 
+// The count of changed files outside Intent locations ending the summary's
+// title line, beside the disclosure, and the name and hover text that explain
+// it.
+export const outsideCount = (intent: Locator) =>
+  storySummary(intent)
+    .locator(".intent-story-title-line")
+    .getByRole("button", { name: /outside Intent locations/ });
+export const outsideName = (count: number) =>
+  `${count} changed file${count === 1 ? "" : "s"} outside Intent locations — open Review changes`;
+
+// The count shows only the number, explained by its name and hover text, on
+// the disclosure's line; the sentence it replaced is gone.
+export async function expectOutsideCount(intent: Locator, count: number) {
+  const button = outsideCount(intent);
+  await expect(button).toHaveText(String(count));
+  await expect(button).toHaveAccessibleName(outsideName(count));
+  await expect(button).toHaveAttribute("title", outsideName(count));
+  await expect(intent.getByText(/shown in Review changes/)).toHaveCount(0);
+  const line = await storyDisclosure(intent).boundingBox();
+  const box = await button.boundingBox();
+  if (line === null || box === null) throw new Error("Not laid out.");
+  const middle = box.y + box.height / 2;
+  expect(middle).toBeGreaterThan(line.y);
+  expect(middle).toBeLessThan(line.y + line.height);
+}
+
 // Opens the summary's disclosure and returns what it reveals: the full
 // title, identity, and revisions or full explanation.
 export async function expandStorySummary(intent: Locator) {
@@ -139,12 +165,13 @@ export async function reviewDiff(page: Page, name: string) {
   return code.innerText();
 }
 
-// Opens Review changes from the summary's count outside Intent locations.
+// Opens Review changes from the summary's count outside Intent locations,
+// leaving the summary's disclosure as it was.
 export async function openReviewFromIntent(page: Page, intent: Locator) {
-  await intent
-    .locator(".intent-story-outside")
-    .getByRole("button", { name: "Review changes" })
-    .click();
+  const disclosure = storyDisclosure(intent);
+  const expanded = await disclosure.getAttribute("aria-expanded");
+  await outsideCount(intent).click();
+  await expect(disclosure).toHaveAttribute("aria-expanded", expanded ?? "");
   await expect(
     page
       .getByRole("region", { name: "Story review" })

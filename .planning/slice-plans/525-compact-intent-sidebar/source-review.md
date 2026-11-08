@@ -13,7 +13,7 @@ the last column are the coordinator's allocation and acceptance record.
 | --- | --- | --- | --- |
 | 1 | A developer reviewing a story in Intent can quickly spot the top-level entries. | slice 1 | observed: intent-gherkin-groups.spec.ts header step (fullWidth vs column, labelWeight>=600, bg apart from rows); slice-1 light/dark screenshots (job tmp slice1/intent-tree-*.png): violet band apart from green change mark/folder tint and blue selected fill |
 | 2 | The developer can give the reading pane more room. | slice 3 | |
-| 3 | The developer can see at a glance how many changed files fall outside Intent locations. | slice 2 | |
+| 3 | The developer can see at a glance how many changed files fall outside Intent locations. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry |
 | 4 | Intent's sidebar becomes easier to scan and costs less room while reading. | slice 3 | |
 | 5 | Reviewing a story's Purpose and Proof needs less scrolling and searching. | slice 3 | |
 | 6 | Each top-level Intent location header spans the sidebar edge to edge. | slice 1 | observed: intent-gherkin-groups.spec.ts header step (fullWidth vs column, labelWeight>=600, bg apart from rows) |
@@ -61,15 +61,15 @@ the last column are the coordinator's allocation and acceptance record.
 | 32 | Nothing else from the summary appears there. | slice 3 | |
 | 33 | Showing the sidebar removes the story name from the bar. | slice 3 | |
 | 34 | Showing the sidebar returns the full summary above the tree. | slice 3 | |
-| 35 | The summary replaces the sentence "N changed files outside Intent locations are shown in Review changes." and its separate button with one compact control. | slice 2 | |
-| 36 | The control sits on the story's title line. | slice 2 | |
-| 37 | The control shows an icon and the count. | slice 2 | |
-| 38 | Its accessible name and hover text explain the count and that it opens Review changes (for example, "2 changed files outside Intent locations — open Review changes"). | slice 2 | |
-| 38.1 | The quoted text is only an example of the wording. | slice 2 | |
-| 39 | Activating it opens Review changes on Intent's comparison (All changes, uncommitted included), as the button does now. | slice 2 | |
-| 40 | With no such files, the control is absent. | slice 2 | |
-| 41 | Example: a story whose comparison changed two files that no Intent location selects. The title line shows an icon and `2`. A screen reader hears "2 changed files outside Intent locations — open Review changes". Activating it opens Review changes on All changes for that story. | slice 2 | |
-| 42 | Example: a story whose changed files all fall inside locations shows no such control. | slice 2 | |
+| 35 | The summary replaces the sentence "N changed files outside Intent locations are shown in Review changes." and its separate button with one compact control. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry (old sentence and button gone) |
+| 36 | The control sits on the story's title line. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry (button inside .intent-story-title-line, centred on the disclosure box) |
+| 37 | The control shows an icon and the count. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry; IntentStorySummary.tsx GitCompare icon + count |
+| 38 | Its accessible name and hover text explain the count and that it opens Review changes (for example, "2 changed files outside Intent locations — open Review changes"). | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry |
+| 38.1 | The quoted text is only an example of the wording. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry (wording as example) |
+| 39 | Activating it opens Review changes on Intent's comparison (All changes, uncommitted included), as the button does now. | slice 2 | observed: intentStoryPage.ts openReviewFromIntent clicks the count; intent-story-changes-marked.spec.ts expectShown All changes + uncommitted checked; intent-story-changes.spec.ts review diffs untracked file |
+| 40 | With no such files, the control is absent. | slice 2 | observed: intent-story-changes-gaps.spec.ts no-workspace and no-locations cases: outsideCount count 0; intent-story-changes.spec.ts cleared story |
+| 41 | Example: a story whose comparison changed two files that no Intent location selects. The title line shows an icon and `2`. A screen reader hears "2 changed files outside Intent locations — open Review changes". Activating it opens Review changes on All changes for that story. | slice 2 | observed: intentStoryPage.ts expectOutsideCount (text = count, accessible name + title = full wording, on disclosure line, old sentence gone) in intent-story-changes.spec.ts collapsed/expanded and intent-story-changes-gaps.spec.ts after Retry; openReviewFromIntent in intent-story-changes.spec.ts |
+| 42 | Example: a story whose changed files all fall inside locations shows no such control. | slice 2 | observed: intent-story-changes-gaps.spec.ts outsideCount count 0 while all changes inside / published tree |
 | 43 | No resizable sidebar. | slice 3 | |
 | 44 | No keyboard shortcut. | slice 3 | |
 | 45 | No remembering the choice across reloads. | slice 3 | |
@@ -91,6 +91,6 @@ the last column are the coordinator's allocation and acceptance record.
 | 59.2 | The browser reads it rather than keeping its own copy. | slice 3 | |
 | 60 | The toggle reuses Review changes' `FileBrowserToggle`, moved to a shared home both surfaces import. | slice 3 | |
 | 60.1 | One control owns Hide files / Show files. | slice 3 | |
-| 61 | The outside-locations count stays computed where it is now. | slice 2 | |
-| 61.1 | Only its presentation changes. | slice 2 | |
+| 61 | The outside-locations count stays computed where it is now. | slice 2 | observed: backend-tests/intent/intent-story-overlay.spec.ts passes; slice-2 diff leaves scope.outside computation untouched |
+| 61.1 | Only its presentation changes. | slice 2 | observed: slice-2 diff: IntentStorySummary.tsx presentation only |
 | 62 | The Development and Intent guidance doc, which describes the current location browser and selected-story summary, is updated with this behavior. | slice 3 | |

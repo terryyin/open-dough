@@ -1,8 +1,8 @@
 /* The selected story's summary (./IntentStorySummary.tsx) heading the Intent
    mode's locations column, or the explanation shown in its place: the story's
-   title on one line as a disclosure, a brief comparison state, then the
-   "Selected story only" choice, its message when no location's test file
-   changed, and the count of changed files outside every location. Expanded,
+   title on one line as a disclosure ending in the count of changed files
+   outside every location, a brief comparison state, then the "Selected story
+   only" choice and its message when no location's test file changed. Expanded,
    the full title, identity, revisions or explanation, and any saved Intent
    Coverage assessment. A changed file's Purpose names its diff. */
 .intent-story-summary {
@@ -25,11 +25,18 @@
   margin: 0;
 }
 
+.intent-story-title-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
 .intent-story-disclosure {
   display: flex;
+  flex: 1;
   align-items: baseline;
   gap: 0.15rem;
-  width: 100%;
   min-width: 0;
   padding: 0;
   border: 0;
@@ -93,14 +100,34 @@
 .intent-story-summary .intent-story-state,
 .intent-story-summary .intent-story-detail,
 .intent-story-summary .intent-story-only,
-.intent-story-summary .intent-story-none,
-.intent-story-summary .intent-story-outside {
+.intent-story-summary .intent-story-none {
   margin: var(--space-1) 0 0 1.65rem;
 }
 
-.intent-story-state button,
-.intent-story-outside button {
+.intent-story-state button {
   margin-left: var(--space-1);
+}
+
+/* The count outside every location: a quiet icon and number that opens
+   Review changes. */
+.intent-story-outside {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0 var(--space-1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--quiet);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.intent-story-outside:hover {
+  color: var(--text);
+  background: var(--hover);
 }
 
 .intent-story-only {

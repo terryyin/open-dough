@@ -27,8 +27,10 @@ import {
   folderToggle,
   intentDiff,
   expandStorySummary,
+  expectOutsideCount,
   intentFile,
   openReviewFromIntent,
+  outsideCount,
   reviewDiff,
   storyDisclosure,
   storyOnly,
@@ -130,9 +132,7 @@ test("Intent overlays a completed story's published history comparison, naming i
       await expect(folderToggle(intent, "other", false)).toHaveCount(
         only ? 0 : 1,
       );
-      await expect(intent.locator(".intent-story-outside")).toHaveText(
-        "6 changed files outside Intent locations are shown in Review changes. Review changes",
-      );
+      await expectOutsideCount(intent, 6);
     });
   }
 
@@ -210,7 +210,7 @@ test("a completed story whose published comparison cannot be recovered says why,
   await expect(scoped.locator(".intent-story-revisions")).toHaveCount(0);
   await expect(storyOnly(intent)).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
-  await expect(intent.locator(".intent-story-outside")).toHaveCount(0);
+  await expect(outsideCount(intent)).toHaveCount(0);
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
   await expandIntentGroup(intent, "dashboard/tests");
   await intentFile(intent, "dashboard/tests/a.spec.ts").click();
