@@ -215,3 +215,18 @@ Plan refinement made each conversion own its maintainer-visible result
 and existing product proof, with shared setup introduced alongside a
 consumer. The observed contracts support the same host facts across slices.
 No slice-specific blocking concern was found.
+
+## Execution complete
+
+Product advice: no correction. Codex and Cursor continuation setup in the
+story's places now comes from `tests/support/hostSessionTestData.mjs`, and
+the merge removed the sibling's duplicate constructor. Remaining hand-built
+arranged sessions sit in completion and final-report setup
+(`retainedReport.ts`, `final-report-admission`, `final-report-codex`), which
+the still-active SEED-261#map-launch-completion-and-landing-test-data story
+owns. Two workspace-retirement specs keep Codex sessions with empty resume
+arguments, and deliberate predecessor cases (`agent-completion-binding`,
+`agent-launch-done-codex`) stay literal. Converting the retirement specs is
+a small candidate for that story or a later sweep. Untouched wall-clock
+delays remain in `cursor-held-sessions-revision.spec.ts` and
+`agent-terminal-cursor-exit.spec.ts`.
