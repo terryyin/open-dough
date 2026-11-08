@@ -3,7 +3,7 @@
 // the Git blob sha that names its content. A directory no file lies in is
 // answered with ./originAnswers.ts's not-found answer.
 
-import { createHash } from "node:crypto";
+import { gitBlobHash } from "../../src/skills/dough-product-backlog/scripts/product-backlog-complete.mjs";
 import { notFoundAnswer, type RawAnswer } from "./originAnswers.ts";
 
 // One file a directory lists, with the Git blob sha GitHub's listing gives it.
@@ -11,11 +11,7 @@ export type ListedPath = { readonly path: string; readonly sha: string };
 
 // The Git blob sha of `content`, as Git and GitHub's listing name it.
 export function gitBlobSha(content: string): string {
-  const bytes = Buffer.from(content, "utf8");
-  return createHash("sha1")
-    .update(`blob ${String(bytes.length)}\0`)
-    .update(bytes)
-    .digest("hex");
+  return gitBlobHash(Buffer.from(content, "utf8"));
 }
 
 // Each published file, by repository path, with the blob sha of its content.

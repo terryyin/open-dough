@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-262#share-done-catalog-record-reading",
+  "title": "Read done records for the catalog through one product rule",
+  "completedAt": "2026-11-08T23:49:54.428Z",
+  "developer": "Terry Yin",
+  "agent": "ealden-chan",
+  "host": "claude",
+  "model": "opus"
+}

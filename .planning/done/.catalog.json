@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_share-done-catalog-record-reading.json",
+      "identity": "SEED-262#share-done-catalog-record-reading",
+      "completedAt": "2026-11-08T23:49:54.428Z",
+      "blob": "c09a95a8d8145f75a3808168d15a474c7e29c9fb"
+    },
+    {
       "fileName": "SEED-261_align-kept-launch-store-setup.json",
       "identity": "SEED-261#align-kept-launch-store-setup",
       "completedAt": "2026-11-08T23:22:03.725Z",
