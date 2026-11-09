@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "DavidKo-chan",
+  "email": "davidko-chan@example.org",
+  "identity": "SEED-261#map-project-configuration-test-data",
+  "mode": "story-branch",
+  "branch": "claude/make-machine-local-project-configuration-test-se",
+  "host": "claude",
+  "model": "opus"
+}
