@@ -92,6 +92,12 @@ Learning: the new field joins the dialogs' tab order, so the two layout
 specs' tab sequences and the Codex host-switch case (which asserted Claude had
 no effort field) changed with it.
 
+## Execution complete
+
+Product advice: no change. The seed's exclusions stand; feedback maintenance's
+Codex-only effort stays unqueued, a candidate only if a developer wants
+maintenance runs at a chosen Claude Code effort.
+
 ## Decisive premises
 
 Observed on 2026-11-09 at `a25beb00a3332c24e088712bc6e322bbb4831ad4` in the
