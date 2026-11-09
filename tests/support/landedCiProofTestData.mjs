@@ -13,6 +13,17 @@ export class CiProofBuilder {
   };
   /** @type {import("../../dashboard/src/ciProof.ts").CiProofEntry[]} */
   #entries = [];
+  /** @type {Extract<CiProof, {kind: "unavailable"}> | undefined} */
+  #unavailable;
+  /** @param {Extract<CiProof, {kind: "unavailable"}>["reason"]} reason @param {string} [detail] */
+  unavailableBecause(reason, detail) {
+    this.#unavailable = {
+      kind: "unavailable",
+      reason,
+      ...(detail === undefined ? {} : { detail }),
+    };
+    return this;
+  }
   /** @param {Partial<{repository:string, revision:string, runId:number, runAttempt:number}>} run */
   forRun(run) {
     this.#run = { ...this.#run, ...run };
@@ -30,6 +41,7 @@ export class CiProofBuilder {
   }
   /** @returns {CiProof} */
   please() {
+    if (this.#unavailable !== undefined) return { ...this.#unavailable };
     return {
       kind: "summary",
       summary: { schemaVersion: 2, ...this.#run, entries: this.#entries },

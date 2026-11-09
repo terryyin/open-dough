@@ -68,7 +68,7 @@ and acquire no CI evidence.
 ### 3. Resume collected scope proof after interruption or restart
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Isolated collector/server restart, pending-resume, backfill and
 duplicate-report journeys read the persisted proof back through the public
 history boundary and shown scope.
@@ -126,7 +126,7 @@ essential override belongs only in its individual test.
 ## Execution evidence
 
 - [Execution identity, supplier integrations, CI observer and final reporting](execution-context.md).
-- Slice proof: [entry](slice-1-acceptance.md), [folder/file](slice-2-acceptance.md).
+- Slice proof: [entry](slice-1-acceptance.md), [folder/file](slice-2-acceptance.md), [recovery](slice-3-acceptance.md).
 - [Complete slice designs and next-slice proof routes](slice-design.md).
 - [Final independent refactor and mechanical gates](refactor-slice-1-final.md).
 - [Latest supplier reconciliation and proof](consumer-trace-slice-1-supplier-final.md).
@@ -158,7 +158,7 @@ Disposition: proved by slice 1: tests/support/dashboard-ci-scope-history-read.te
 ### G5. Resume temporarily unavailable retained proof
 Reported: slice 1 — "Coordinator inspected collection's retained.proof === undefined guard: a temporarily missing or unreadable proof becomes a retained gap and is not retried, although keepLandedCiProof permits replacing a non-summary. Slice 3 must distinguish transient from permanent unavailable reasons and prove background resumption without browsing acquisition."
 Story clause: "Older retained builds can acquire proof while it remains available, including builds whose wall-time resolution is already final; expired or missed evidence is a gap, not an invented reconstruction."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: slice-3-acceptance.md — actualnone/unanswered andadapter restart recovery, classifiedcorruptfinality barrier, persistedtri-state andatomiclatewriter protection; all35backend/40Nodepass
 
 ### G6. Use evidenced trunk order rather than receipt preparation time
 Reported: slice 1 — "Independent acceptance found scopeHistoryOf orders and cuts off by receivedAt. launchLandingReservation.ts assigns that time while preparing before publication and retains it on acceptance, so preparation order can differ from accepted trunk order: later unrelated landings can enter the selected cohort and earlier ones disappear. Require local/collected ancestry evidence and a reversed-preparation-order discrimination; no browsing acquisition or measured-date substitution."
@@ -223,4 +223,4 @@ Disposition: proved by slice 1: consumer-trace-slice-1-supplier-final.md — pub
 ### G17. Prove amended final-build backfill and bounded payload recovery
 Reported: slice 1 — "Main e623ab143 makes final wall-time observations and proof/build co-eviction explicit; existing slice3 already owns their restart/backfill proof."
 Story clause: "including builds whose wall-time resolution is already final"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: slice-3-acceptance.md — oldfinal/no-launch andlegacyunknown backfill, expiredrecord/twocollector resumption, realDone deliveryretry andactual21st proof/build/reference/order coeviction; all35backend/40Nodepass

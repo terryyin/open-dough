@@ -5,7 +5,6 @@ import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
   collectingLandedCi,
   keepLandedCiHistory,
-  landedCiHistory,
   restartAsLandedCiReader,
 } from "../../tests/support/landedCiHistory.ts";
 import {
@@ -15,15 +14,13 @@ import {
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import { actionsForRuns } from "../../tests/support/baseCiActions.ts";
 import { runArtifactsAnswer } from "../../tests/support/ciProofArtifacts.ts";
-import {
-  collectedSummary,
-  playwrightRecord,
-  summaryTextZipAnswer,
-} from "../../tests/support/ciProofCollected.ts";
+import { summaryTextZipAnswer } from "../../tests/support/ciProofCollected.ts";
+import { collectedScopeFileSummary } from "../../tests/support/scopeHistoryProofs.ts";
 import { retainedTrunkProofs } from "../../tests/support/retainedTrunkProofs.ts";
 import { publishes } from "../../tests/support/publishedRepository.ts";
 import { originMain } from "../../tests/support/sessionDialog.ts";
 import { resultToLand } from "../../tests/support/landedCiHistory.ts";
+import { expectProjectHistoryCohort } from "../../tests/support/scopeHistoryRetention.ts";
 import { land } from "../../tests/support/startSessionLandingContext.ts";
 
 test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
@@ -51,6 +48,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
     firstRunId: 100,
     firstDurationMs: 1000,
     scope: "dashboard/tests",
+    file: "dashboard/tests/folder/retained.spec.ts",
     linkedRuns: true,
     receiptAt: (index) => new Date(receiptStart - index * 60_000).toISOString(),
     measuredAt: (index) => new Date(buildStart + index * 60_000).toISOString(),
@@ -64,6 +62,20 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
   let history = makeMe.aLandedCiHistory;
   for (const { landing, key, build } of previous)
     history = history.recording(landing, key, build);
+  const shared = makeMe.aLaunchLanding
+    .capturedFrom({ repository: lastRetained.landing.repository })
+    .forLaunch("51000000-0000-4000-8000-000000000021")
+    .deliveredAs({
+      delivery: "51000000-0000-4000-8000-000000000021",
+      receipt: "51000000-0000-4000-8000-000000000021",
+    })
+    .comparing({
+      base: lastRetained.landing.base,
+      revision: lastRetained.landing.revision,
+    })
+    .receivedAt(lastRetained.landing.receivedAt)
+    .please();
+  history.recording(shared, lastRetained.key, lastRetained.build, "equivalent");
   const before = history.please();
   expect(before.trunkOrder).toBeUndefined();
   keepLandedCiHistory(dashboard.home, before);
@@ -88,21 +100,10 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
     attempt: 1,
     revision: newest.revision,
   };
-  const text = collectedSummary(
-    proofRun,
-    [["dashboard/tests", 1, "case"]],
-    [
-      {
-        entries: ["dashboard/tests"],
-        part: 1,
-        of: 1,
-        byFile: true,
-        record: playwrightRecord([
-          ["dashboard/tests/newest.spec.ts", "expected", [2100]],
-        ]),
-      },
-    ],
-  );
+  const text = collectedScopeFileSummary(proofRun, [
+    ["folder/newest.spec.ts", 2100, 210],
+    ["folder/zero.spec.ts", 0, 0],
+  ]);
   github.serve("terryyin/open-dough", async (call) => {
     if (call.request.kind === "actions-run-artifacts")
       return runArtifactsAnswer(proofRun, 1120);
@@ -124,6 +125,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
   const window = previous.slice(1);
   const expectedReceipts = [
     ...window.map(({ landing }) => landing.receipt),
+    shared.receipt,
     accepted.receipt,
   ].sort();
   // This is the first decisive assertion: a receipt-ordered walk keeps A
@@ -148,6 +150,14 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
   );
   expect(kept.landings).not.toHaveProperty(oldest.landing.receipt);
   expect(kept.builds).not.toHaveProperty(oldest.key);
+  const oldestProof = before.builds[oldest.key]?.proof;
+  assert(oldestProof?.kind === "summary");
+  expect(oldestProof.summary.entries[0]?.evidence[0]?.files).toEqual([
+    expect.objectContaining({
+      path: "dashboard/tests/folder/retained.spec.ts",
+      durationMs: 1000,
+    }),
+  ]);
   for (const { landing, key, build } of window) {
     expect(kept.landings[landing.receipt]).toEqual(
       before.landings[landing.receipt],
@@ -184,35 +194,26 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
     selected.body.entries.flatMap((entry) =>
       entry.landings.map(({ revision }) => revision),
     ),
-  ).toEqual(expectedOrder);
+  ).toEqual([
+    ...window.map(({ landing }) => landing.revision),
+    shared.revision,
+    newest.revision,
+  ]);
   expect(selected.body.entries.filter((entry) => entry.selected)).toEqual([
     expect.objectContaining({
       kind: "point",
       key: lastKey,
       readings: [
         expect.objectContaining({ kind: "point", unit: "case", ms: 2100 }),
+        expect.objectContaining({ kind: "point", unit: "file", ms: 210 }),
       ],
     }),
   ]);
-  const project = await landedCiHistory(dashboard);
-  expect(project.status).toBe(200);
-  const projectEntries = (
-    project.body as {
-      entries: {
-        kind: string;
-        revision: string;
-        landings?: { revision: string }[];
-      }[];
-    }
-  ).entries;
-  expect(projectEntries.map((entry) => [entry.kind, entry.revision])).toEqual(
-    expectedOrder.map((revision) => ["point", revision]),
-  );
-  expect(
-    projectEntries.flatMap(
-      (entry) => entry.landings?.map((landing) => landing.revision) ?? [],
-    ),
-  ).toEqual(expectedOrder);
+  await expectProjectHistoryCohort(dashboard, expectedOrder, [
+    ...window.map(({ landing }) => landing.revision),
+    shared.revision,
+    newest.revision,
+  ]);
   const evicted = await scopedHistory(
     dashboard.origin,
     oldest.landing.revision,

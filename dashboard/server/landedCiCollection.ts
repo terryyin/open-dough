@@ -53,7 +53,10 @@ import {
   mostCompleteLandingOrder,
 } from "./landedCiMeasuredBuilds.ts";
 import { readLandingOrder } from "./launchLandingGit.ts";
-import { collectedProofOf } from "./landedCiCollectedProof.ts";
+import {
+  collectedProofOf,
+  needsCollectedProof,
+} from "./landedCiCollectedProof.ts";
 
 import { landingResolution, passRead } from "./landedCiResolution.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
@@ -202,13 +205,22 @@ export class LandedCiCollection {
       const observed = history.landings[landing.receipt]?.observed;
       if (observed?.kind === "build") {
         const retained = history.builds[observed.build];
-        if (retained?.state === "pass" && retained.proof === undefined) {
+        if (retained !== undefined && needsCollectedProof(retained)) {
           const signal = AbortSignal.any([
             this.stopped.signal,
             AbortSignal.timeout(readWaitLimitMs),
           ]);
-          const proof = await collectedProofOf(source, retained, signal);
-          history = await keepLandedCiProof(source.id, observed.build, proof);
+          const { proof, pending } = await collectedProofOf(
+            source,
+            retained,
+            signal,
+          );
+          history = await keepLandedCiProof(
+            source.id,
+            observed.build,
+            proof,
+            pending,
+          );
         }
       }
       const build =

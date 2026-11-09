@@ -73,6 +73,8 @@ export const keptBuildSchema = z.object({
   startedAt: z.string().min(1).optional(),
   completedAt: z.string().min(1).optional(),
   proof: retainedProofSchema.optional(),
+  // Absent in older records; a classified final answer is not acquired again.
+  proofPending: z.boolean().optional(),
 });
 
 export type KeptBuild = z.infer<typeof keptBuildSchema>;

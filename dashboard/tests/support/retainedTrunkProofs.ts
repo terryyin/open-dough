@@ -15,6 +15,7 @@ type RetainedTrunkFacts = {
   readonly receiptAt: (index: number) => string;
   readonly measuredAt: (index: number) => string;
   readonly linkedRuns?: true;
+  readonly file?: string;
 };
 
 export function retainedTrunkProofs(
@@ -42,15 +43,17 @@ export function retainedTrunkProofs(
       .please();
     const runId = facts.firstRunId + index;
     const ms = facts.firstDurationMs + index;
+    const entry = makeMe.aCiProofEntry
+      .at(facts.scope)
+      .counting(1, "case")
+      .timed(ms);
+    if (facts.file !== undefined)
+      entry.brokenDownBy([
+        { path: facts.file, passed: 1, failed: 0, other: 0, durationMs: ms },
+      ]);
     const proof = makeMe.aCiProof
       .forRun({ revision, runId, runAttempt: 1 })
-      .entries([
-        makeMe.aCiProofEntry
-          .at(facts.scope)
-          .counting(1, "case")
-          .timed(ms)
-          .please(),
-      ])
+      .entries([entry.please()])
       .please();
     const startedAt = facts.measuredAt(index);
     return {

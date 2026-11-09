@@ -4,14 +4,18 @@
 
 ## Current checkpoint
 
-- HEAD and next published base: `d4130605530aa4aed22c3d2be0e7ff5ff89ad968`.
-  Slice1 done, committed asdbs-chan, accepted on the own execution branch;
-  `/tmp/trace-proof-285-slice1-delivery.json` retains commit/publication receipt.
+- HEAD and next published base: `6dd3948b12681f72480e1135f2c02eeadc13734a`.
+  Slices1/2 are done and published asdbs-chan on the own execution branch.
+  `/tmp/trace-proof-285-slice1-delivery.json` and slice2-delivery.json retain
+  exact accepted commit/publication/observer receipts. Slice2 fresh preparation
+  passed formatter, staged whitespace, hook and agent commit with no refusal.
 - Imported publishedmain e623ab143 via accepted8a9c7ed15. Developer approved the
   moved-link resolution; main’s explicit delivered-history amendment is kept.
-  Source-freshness returned unchanged before slice1done.119commitments retained;
+  Source-freshness remained unchanged at mainf73ae69b6 before slice2done.
+ 119commitments retained;
   G5/G17 and remaining slice3 observations stay explicitly owned by3.
-- Fresh `implement_slice2` owns folder/file reading and actual artifact proof.
+- Fresh `implement_slice3` owns final proof-retention recovery/backfill, actual
+  duplicateDone and bounded payload proof. G5/G17 remain receiving3.
   Root owns planning, independent refactor, delivery and CI coordination.
 - Live Codex observer: coordinatortrace-proof-285, directory
   `/tmp/dough-ci-501/watch-oKvBZU`, cellg327:6, session45196, PID77259.
@@ -19,9 +23,11 @@
   2026-11-09T13:13:02.886Z; no alternate provider polling. FinalCI remains a gate.
 - Current proof and consumer dispositions: [supplierfinal](consumer-trace-slice-1-supplier-final.md),
   [v2contract](consumer-trace-slice-1-v2-reconciliation.md),
-  [independentrefactor](refactor-slice-1-final.md). All writers were quiescent
-  for slice1publication. Formatter/hook/typecheck passed; staged whitespace
-  attempt first refused one trailing blank EOF, repaired before any commit.
+  [entryrefactor](refactor-slice-1-final.md), [folder/file](slice-2-acceptance.md)
+  and [slicetwo refactor](refactor-slice-2.md). Slice2 actual23browser+2Node
+  observations passed; refactor renewed3producerjourneys. Writers quiesced for
+  publication. Slice1’s initial trailing blank EOF refusal was repaired before
+  any commit; no proof or source judgment was bypassed.
 - Earlier temporary conflicts, observer and publication bases below are history.
 
 Supplier integration checklist from read-only contract review: preserve proof,

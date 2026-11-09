@@ -113,6 +113,13 @@ Opening, drilling or revisiting Summary or file Proof, including history Retry,
 never acquires historical CI proof. Folder readings include every published
 descendant, even files absent from the visible source tree; membership is the
 scope observed at each build.
+Collection can resume a known attempt's missing proof or unanswered acquisition
+after restart, including retained builds whose wall-time resolution was already
+final. It keeps proof acquisition separate from that final landing resolution.
+Validated summaries stay immutable; answered corrupt archives and explicit
+expired, invalid, mismatched or oversized proof remain explained gaps. Proof,
+builds and their landing references share the project's bounded retained cohort;
+browsing neither extends that window nor reconstructs evicted evidence.
 The cohort follows accepted recorded-landing ancestry across all merge
 parents, filtered to retained recorded revisions, independently of when
 landing reports arrive. A merge with the story as its first parent still

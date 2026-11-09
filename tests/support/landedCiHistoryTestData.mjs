@@ -149,6 +149,14 @@ export class LandedCiHistoryBuilder {
     return this;
   }
 
+  /** @param {string} key @param {NonNullable<KeptBuild["proof"]>} proof */
+  proofFor(key, proof) {
+    const build = this.#builds[key];
+    if (build === undefined) throw new Error(`No retained build ${key}`);
+    this.#builds[key] = { ...build, proof };
+    return this;
+  }
+
   /**
    * A retained explanation-only gap has no invented final classification.
    * @param {LaunchLanding} landing

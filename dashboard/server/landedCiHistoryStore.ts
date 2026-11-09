@@ -9,7 +9,6 @@ import type { CiProof } from "../src/ciProof.ts";
 import { commitIdSchema, type LaunchLanding } from "../src/launchLanding.ts";
 import {
   keptBuildSchema,
-  buildKeyOf,
   keptResolution,
   observationSchema,
   type LandedResolution,
@@ -25,10 +24,8 @@ import {
   measuredBuildOf,
   windowedHistory,
 } from "./landedCiMeasuredBuilds.ts";
-import {
-  compatibleAdapterProof,
-  withAdapterIdentity,
-} from "./landedCiHistoryIdentity.ts";
+import { withAdapterIdentity } from "./landedCiHistoryIdentity.ts";
+import { historyWithProof } from "./landedCiRetainedProof.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import {
   leaveMachineJson,
@@ -220,31 +217,15 @@ export async function keepLandedCiProof(
   sourceId: string,
   buildKey: string,
   proof: CiProof,
+  pending?: boolean,
 ): Promise<ProjectHistory> {
   let history = noHistory;
   await replaceMachineJson(historyStore(), (stored) => {
     const original = stored[sourceId] ?? noHistory;
-    const project = withAdapterIdentity(original);
-    const requested = original.builds[buildKey];
-    const key =
-      requested?.adapterAttempt === undefined
-        ? buildKey
-        : buildKeyOf(requested);
-    const build = project.builds[key];
-    history = windowedHistory(project);
-    if (
-      build === undefined ||
-      build.proof?.kind === "summary" ||
-      !compatibleAdapterProof(build, proof)
-    )
-      return isDeepStrictEqual(history, original)
-        ? leaveMachineJson
-        : { ...stored, [sourceId]: history };
-    history = windowedHistory({
-      ...project,
-      builds: { ...project.builds, [key]: { ...build, proof } },
-    });
-    return { ...stored, [sourceId]: history };
+    history = historyWithProof(original, buildKey, proof, pending);
+    return isDeepStrictEqual(history, original)
+      ? leaveMachineJson
+      : { ...stored, [sourceId]: history };
   });
   return history;
 }
