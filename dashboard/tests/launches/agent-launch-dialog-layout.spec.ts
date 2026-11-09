@@ -96,6 +96,7 @@ test("the instruction comes first, the summaries name the selection, and the com
     dialog.getByRole("button", { name: "Attach images" }),
     host,
     model,
+    dialog.getByRole("combobox", { name: "Reasoning effort" }),
     dialog.getByRole("radio", { name: "Standard" }),
     optionsSummary(dialog),
     commandSummary(dialog),

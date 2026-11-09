@@ -30,7 +30,7 @@ export function LaunchHostModel({
   effort,
   onEffort,
   // Feedback maintenance keeps Codex-only effort until that story lands.
-  effortHosts = ["codex", "cursor"],
+  effortHosts = launchHosts,
 }: {
   readonly catalog: {
     options?: LaunchHostOptions;

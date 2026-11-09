@@ -146,6 +146,9 @@ Claude runs `claude --bg --name '<project> · <kind> · <title>'` in the project
 established workspace. Its prompt is `/<skill> <identity> <flags>`, the installed
 handoff when present, then the developer's part (typed text and any attached-images
 path list from `developerPart`), separated by blank lines.
+A chosen model goes as `--model` and a chosen effort as `--effort <level>` before
+the prompt, for this session only; retries and continuations reuse the recorded
+request, and `claude attach` resends neither.
 It confirms through `claude agents --json --all`; an unreadable/unconfirmed
 answer is uncertain. Missing CLI, refusal and untrusted folder are explained
 without exposing raw stderr; timeout never establishes absence.
@@ -239,5 +242,7 @@ The durable identity is kept even if that check fails, with the explanation that
 no first input was sent. Blank startup still materializes without a model turn.
 Requested model IDs remain readable in records and kept starts when the catalog
 changes; predecessor records without a model retain configured-default behavior.
-Claude aliases continue to be admitted only from Claude’s static offerings.
+Claude aliases continue to be admitted only from Claude’s static offerings,
+and a Claude effort only from its static levels (low, medium, high, xhigh, max);
+any other effort is refused, naming those levels, before `claude` runs.
 Model and effort independently inherit Codex settings when omitted.

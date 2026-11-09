@@ -1,8 +1,8 @@
 // The Start session dialog's reading order and fit, with no story title to
-// stretch it: the text takes the keyboard first, Host and Model follow, then
-// the Session group with Workspace and After checks, the closed Command
-// details, and Cancel and Start with the line of what Start does always in
-// view. With Automatically land chosen in either workspace, whose lines are
+// stretch it: the text takes the keyboard first, Host, Model and Reasoning
+// effort follow, then the Session group with Workspace and After checks, the
+// closed Command details, and Cancel and Start with the line of what Start
+// does always in view. With Automatically land chosen in either workspace, whose lines are
 // the longest, and Command details open, nothing scrolls sideways and every
 // control is reachable at 320 CSS pixels and at 200% zoom
 // (../accessibleReading.ts's twiceZoomedWindow), where the choices of each
@@ -41,7 +41,7 @@ async function openStartSession(page: Page, origin: StartOrigin) {
   return startSessionDialog(page, "Open Dough");
 }
 
-test("the text comes first, then Attach images, Host and Model, the Session group, Command details, Cancel and Start", async ({
+test("the text comes first, then Attach images, Host, Model and Reasoning effort, the Session group, Command details, Cancel and Start", async ({
   page,
   origin,
 }) => {
@@ -58,6 +58,7 @@ test("the text comes first, then Attach images, Host and Model, the Session grou
     dialog.getByRole("button", { name: "Attach images" }),
     dialog.getByRole("combobox", { name: "Host" }),
     dialog.getByRole("combobox", { name: "Model" }),
+    dialog.getByRole("combobox", { name: "Reasoning effort" }),
     dialog.getByRole("radio", { name: "Default main" }),
     dialog.getByRole("radio", { name: "Wait for review" }),
     details,

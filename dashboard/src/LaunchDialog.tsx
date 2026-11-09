@@ -114,9 +114,7 @@ export function LaunchDialog({
             host,
             instruction: instruction.current?.value ?? "",
             ...(model === "" ? {} : { model }),
-            ...((host === "codex" || host === "cursor") && effort !== ""
-              ? { effort }
-              : {}),
+            ...(effort === "" ? {} : { effort }),
             ...(flags.length === 0 ? {} : { options: flags }),
             ...(attachments.files.length === 0
               ? {}

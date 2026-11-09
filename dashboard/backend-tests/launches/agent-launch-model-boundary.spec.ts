@@ -2,8 +2,10 @@
 // at the boundary server, for a launch that asks for a model: a story's or an ad
 // hoc session's `--model <alias>` goes before its instruction, a request
 // without a model starts exactly as before, the record keeps the alias, and a
-// model outside the table is refused before any `claude` runs. A refused
-// launch names the model asked for. The synthetic `claude`
+// model outside the table is refused before any `claude` runs. A chosen
+// effort goes as `--effort <level>` after the model, and one outside Claude
+// Code's levels is refused the same way. A refused launch names the model
+// asked for. The synthetic `claude`
 // (../../tests/fixtures/fake-claude) records every call.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -118,15 +120,56 @@ test.describe(`agent launch boundary, chosen model`, () => {
     ]);
   });
 
-  test("passes no model when the request names none, and its record has none", async () => {
+  test("starts a story session at the chosen effort after its model and keeps it", async () => {
+    const request = {
+      ...launchRequest,
+      model: "opus",
+      effort: "high",
+      instruction: "go",
+    };
+    const { record, argv } = await launched(request);
+
+    expect(argv).toEqual([
+      "--bg",
+      "--name",
+      `Open Dough · Execution · ${title}`,
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      `/dough-execute-plan ${launchRequest.identity}\n\ngo`,
+    ]);
+    expect(record.request).toEqual(request);
+  });
+
+  test("passes no model or effort when the request names none, and its record has none", async () => {
     const story = await launched(launchRequest);
     expect(story.argv).not.toContain("--model");
+    expect(story.argv).not.toContain("--effort");
     expect(story.record.request).not.toHaveProperty("model");
+    expect(story.record.request).not.toHaveProperty("effort");
 
     const adHoc = await launched(adHocRequest);
     expect(adHoc.argv).toHaveLength(3);
     expect(adHoc.argv).not.toContain("--model");
+    expect(adHoc.argv).not.toContain("--effort");
     expect(adHoc.record.request).not.toHaveProperty("model");
+    expect(adHoc.record.request).not.toHaveProperty("effort");
+  });
+
+  test("refuses a Claude Code effort outside its levels before starting claude, naming them", async () => {
+    server.claudeScenario("launched");
+    const callsBefore = server.claudeCalls().length;
+    const response = await launch(server, {
+      ...launchRequest,
+      effort: "extreme",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toContain(
+      "Claude Code reasoning effort must be one of low, medium, high, xhigh, max.",
+    );
+    expect(server.claudeCalls()).toHaveLength(callsBefore);
   });
 
   for (const [request, model] of [

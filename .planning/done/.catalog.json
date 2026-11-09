@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-280_choose-claude-code-effort.json",
+      "identity": "SEED-280#choose-claude-code-effort",
+      "completedAt": "2026-11-09T00:23:40.332Z",
+      "blob": "bdbe43475ad5d0f41c26e039443bfc6daa55be8b"
+    },
+    {
       "fileName": "SEED-262_share-done-catalog-record-reading.json",
       "identity": "SEED-262#share-done-catalog-record-reading",
       "completedAt": "2026-11-08T23:49:54.428Z",

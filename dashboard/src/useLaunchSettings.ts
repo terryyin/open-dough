@@ -5,7 +5,7 @@ import type { AgentLaunchRequest, LaunchModel } from "./agentLaunch.ts";
 import type { LaunchHostOptions } from "./launchHostOptions.ts";
 import { useLaunchHostOptions } from "./useLaunchHostOptions.ts";
 import { effortBlocked } from "./launchEffort.ts";
-import { hostDescription } from "./hostDescription.ts";
+import { hostDescription, launchHosts } from "./hostDescription.ts";
 
 export function useLaunchSettings(
   sourceId: string,
@@ -35,7 +35,7 @@ export function launchSettingsBlocked(
   model: LaunchModel,
   effort: string,
   options: LaunchHostOptions | undefined,
-  effortHosts: readonly AgentLaunchRequest["host"][] = ["codex", "cursor"],
+  effortHosts: readonly AgentLaunchRequest["host"][] = launchHosts,
 ): boolean {
   return (
     (hostDescription(host).modelCatalog !== undefined &&

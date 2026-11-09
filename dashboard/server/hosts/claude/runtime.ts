@@ -52,18 +52,21 @@ function execClaude(
   });
 }
 
-// `claude --bg --name <name> [--model <alias>] [<instruction>]` in the project
-// folder: one background session, whose short id it prints. With no
-// instruction the session starts without a first prompt; with no model,
-// Claude Code's own setting applies.
+// `claude --bg --name <name> [--model <alias>] [--effort <level>]
+// [<instruction>]` in the project folder: one background session, whose short
+// id it prints. With no instruction the session starts without a first prompt;
+// with no model or effort, Claude Code's own setting applies. A chosen effort
+// applies to this session only.
 export function startClaudeInBackground(
   name: string,
   {
     instruction,
     model,
+    effort,
   }: {
     readonly instruction: string | undefined;
     readonly model: string | undefined;
+    readonly effort: string | undefined;
   },
   folder: ProjectFolder,
   signal: AbortSignal,
@@ -74,6 +77,7 @@ export function startClaudeInBackground(
       "--name",
       name,
       ...(model === undefined ? [] : ["--model", model]),
+      ...(effort === undefined ? [] : ["--effort", effort]),
       ...(instruction === undefined ? [] : [instruction]),
     ],
     folder,
