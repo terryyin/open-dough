@@ -30,10 +30,10 @@ intent introduced or affected by a newly developed story.
 
 - [Trace a Done story’s timing history into test Proof](seeds/SEED-285-landed-ci-timing-history.md#trace-landed-proof-timing) — SEED-285#trace-landed-proof-timing ([plan](slice-plans/554-trace-landed-proof-timing/PLAN.md))
 - [Make the Intent CI comparison tests sub-second](seeds/SEED-286-fast-intent-ci-comparison-tests.md#fast-intent-ci-comparison-tests) — SEED-286#fast-intent-ci-comparison-tests ([plan](slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md))
+- [Read distinct attempts, an adapter’s selection, and waits a mean hides](seeds/SEED-284-optimize-tests-from-ci-proof.md#read-distinct-attempts-and-hidden-waits) — SEED-284#read-distinct-attempts-and-hidden-waits ([plan](slice-plans/559-read-distinct-attempts-and-hidden-waits/PLAN.md))
 
 ## Backlog list
 
-- [Read distinct attempts, an adapter’s selection, and waits a mean hides](seeds/SEED-284-optimize-tests-from-ci-proof.md#read-distinct-attempts-and-hidden-waits) — SEED-284#read-distinct-attempts-and-hidden-waits
 - [Keep Done CI comparisons refreshable while landed evidence is pending](seeds/SEED-288-landed-ci-evidence-follow-ups.md#refresh-pending-landed-evidence) — SEED-288#refresh-pending-landed-evidence
 - [Reuse equivalent CI adapter build timing for a skipped landing](seeds/SEED-288-landed-ci-evidence-follow-ups.md#reuse-adapter-equivalent-timing) — SEED-288#reuse-adapter-equivalent-timing
 - [Keep each unit's gaps and name visible in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#keep-unit-gaps-and-names-visible) — SEED-281#keep-unit-gaps-and-names-visible
