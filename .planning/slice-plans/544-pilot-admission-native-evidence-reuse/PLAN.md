@@ -584,3 +584,21 @@ Current rule and limits already live in `tests/native-admission-reuse.md`;
 spent measurements follow ordinary wrap-up rather than a permanent registry.
 
 Slice 2 accepted by coordinator: inspected the literal pilot procedure, expected path sets retained before implementation, source snapshot identity and clean/remove assertions, independent original-file digest checks, output facts, group reasons and four distinct pending judgments. No unsupported native/human-effort/savings claim is accepted. Pending historical applicability is the intended pilot outcome, not missing implementation. Delivery disposition: records-only (plan and source-review acceptance), so no new refactor pass or test rerun; the actual four CLI observations are terminal proof. No generated output or separate project summary applies.
+
+## Review and completion boundary
+
+Slice 2 publication accepted `708e00a91057b6ad1bd5e60e2cd130a6d0ada007` on the recorded origin execution branch, suffix base `5dcb5f10b5ef926c572f828921f8bf0a4b58369d`, no reconciliation; exact SHA registered on the same observer. This is completion publication's previously published base.
+
+Automatic `/root/retrospective` completed both enabled reviews against attributable claim `ca082e09f`, implementation `5dcb5f10b` and pilot `708e00a91`. No product defect or correction plan was found. Three supported occurrences were added to existing ODF-264/329/377 in DearDough.md (780 to 807 lines), with no new finding ids or guidance changes. Root inspected those records; they have settled retention, not unresolved developer attention. CI remains pending and no review result claims it passed.
+
+At the final source-freshness boundary, named sibling SEED-262#guard-native-fixture-identity-inputs had landed (`fc234b7f9`, closure `f3fa9e4a7`). Its one-line selected-story amendment replaces the spent sibling-story capture-owner link with the maintained fixture-family identity source. Installed `source-freshness.mjs absorb` wrote that exact amendment; goal, examples, exclusions and this pilot's sufficiency responsibility are unchanged. Root inspected the attributed writer/import-closure changes: tracked installer-shell enumeration preserves the writer/input-hash contract and the test mutation anchor; the postfix lexer fix preserves its output contract.
+
+Independent compatibility proof: an owned disposable detached snapshot combined published `708e00a91057b6ad1bd5e60e2cd130a6d0ada007` and pinned trunk `35b3db1a95ead4e19b5af3d5a907349c0fce7fa5`, tree `de936e2dcfdcd4cd77bbd871ddf81fd1f303394a`. Exact-checkout `npm ci` succeeded with Node 24.21.0. `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/admission-sibling-compat-times.txt caffeinate -s -i bash scripts/test.sh tests/support/native-admission-reuse.test.mjs` reached terminal pass (15.5s), all seven cases and three source-history subcases. Its committed fixture source layer satisfies the new Git-membership requirement. The scratch merge was aborted and owned checkout/parent removed; `/tmp/admission-sibling-compatibility.json` retains metadata. The actual paired pilot remains at ca082e09f; its source conditions and negative/inconclusive learning do not change.
+
+The same retrospective owner reconsidered only affected conclusions and returned unchanged product advice, no correction or new attention. Existing source commitments/observations remain sufficient; capture-owner wording is updated in source-review context without inventing a new promise. Final source freshness: unchanged at `479f6f3b112bb7ebe295a1a9724cfce85dc9664d`; no further writer/import-closure/MakeMe change after the compatibility snapshot. Completion obligations check passed (3 proved obligations, 67 observed commitments).
+
+Completion delivery disposition: records-only (selected plan/source review, absorbed canonical link and process occurrences); no additional refactor or behavior test is required. Existing accepted proof remains valid. Both slices are done; retain all records and owned resources until the applicable CI completion operation settles.
+
+## Execution complete
+
+Product advice: No additional product work. The pilot supports four independent pending judgments and zero avoided native runs; it establishes no worthwhile total-effort improvement or basis for expansion.

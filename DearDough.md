@@ -195,6 +195,13 @@ Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/find
   - Open Dough release: 0.3.91 (checkout-bound installed guidance)
   - Evidence: Dashboard launch `003878bc-4c9f-4dde-8085-d287fbd399c1` combined full delegation, execution decisions and related references in one startup read. The tool reported 11,478 original output tokens and truncated the human-judgment passage.
   - Observed effect: The coordinator retrieved that passage separately. The existing boundary and targeted-retrieval guidance already called for scoped reads. No elapsed-time or aggregate-token cost was measured.
+- Execution: SEED-262#pilot-admission-native-evidence-reuse (plan 544-pilot-admission-native-evidence-reuse; first related implementation commit `5dcb5f10b5ef926c572f828921f8bf0a4b58369d`)
+  - Timestamp: unknown (this execution on 2026-11-09, Asia/Singapore)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound `.agents/skills/dough-update/VERSION` at established claim `ca082e09ffec4b551a8389265305f469de2208a5`)
+  - Evidence: Dashboard launch `081f90f5-b454-4c5d-9a1a-8e49e448f471` startup combined full delegation, source-review, execution-decision, retrieval and obligation references with other context; the result reported 17,415 original tokens and truncation. A later raw `/tmp/admission-manual-baseline.json` read reported 48,290 original tokens and truncation; the coordinator then retrieved a bounded JSON summary.
+  - Observed effect: Scoped workflow passages and baseline facts were read again after the broad outputs. Existing boundary-row and targeted-retrieval instructions already applied. No total token or elapsed cost was measured.
+
 
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 Former local code: DD-323. [Meaning, evidence and response](docs/maintainer/findings/ODF-306.md).
@@ -269,6 +276,15 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Slice 1's first guarded fresh delivery returned `operation: formatting`: the formatter's ESLint fix removed an unnecessary `as KeptLaunch` assertion in `dashboard/tests/terminals/agent-terminal-avatar.spec.ts`, then `no-unused-vars` failed on the now-unused `type KeptLaunch` import. Implementation and refactor briefs forbade hook-owned lint; both ran typecheck and Prettier only. In slice 4 the refactor pass found Prettier and `no-unnecessary-type-parameters` failures the implementer returned, because that brief allowed `npx eslint` on touched files.
   - Observed effect: One withheld delivery; removing the import cleared it and the retry published `681a9d6f8`. Slices 2–4, whose refactor briefs allowed ESLint on touched files, delivered first time.
   - Inference: Same class as the earlier rows; letting the refactor pass run ESLint read-only on touched files moved the catch before delivery.
+- Execution: SEED-262#pilot-admission-native-evidence-reuse (plan 544-pilot-admission-native-evidence-reuse; first related implementation commit `5dcb5f10b5ef926c572f828921f8bf0a4b58369d`)
+  - Timestamp: unknown (this execution on 2026-11-09, Asia/Singapore)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound `.agents/skills/dough-update/VERSION` at established claim `ca082e09ffec4b551a8389265305f469de2208a5`)
+  - Evidence: Before accepted slice 1 `5dcb5f10b`, guarded fresh delivery returned `preparation-failed`, `operation: formatting`, with nine ESLint errors: `no-param-reassign` in the comparison entry and extracted identity/assessment helpers, and an unused fixture import. Both implementation and independent refactor briefs forbade hook-owned lint; their passing focused proof preceded this first lint feedback. The plan retained the refused operation and renewed refactor return.
+  - Observed effect: Commit/publication were withheld. The same refactor owner returned local result objects, resolved paths into local constants and removed the import; the affected CLI suite passed again (13.5s) before the same guarded preparation published. The gate worked, but one repair/proof/delivery loop followed the completed refactor.
+  - Inference: Same established late-feedback problem; this occurrence does not measure the counterfactual saving of a read-only lint check.
+
+
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 
@@ -305,6 +321,17 @@ Former local code: DD-348. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-349. [Meaning, evidence and response](docs/maintainer/findings/ODF-362.md).
 ## ODF-377 — Source-only review launched without the full seed examples
 Former local code: DD-364. [Meaning, evidence and response](docs/maintainer/findings/ODF-377.md).
+
+### Occurrences
+- Execution: SEED-262#pilot-admission-native-evidence-reuse (plan 544-pilot-admission-native-evidence-reuse; first related implementation commit `5dcb5f10b5ef926c572f828921f8bf0a4b58369d`)
+  - Timestamp: unknown (this execution on 2026-11-09, Asia/Singapore)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound `.agents/skills/dough-update/VERSION` at established claim `ca082e09ffec4b551a8389265305f469de2208a5`)
+  - Evidence: The launch of `/root/source_review` supplied condensed key examples. A later fresh `/root/source_exact_review` received the original Goal, Scope and complete example rows; `5dcb5f10b:.planning/slice-plans/544-pilot-admission-native-evidence-reuse/source-review.md` explicitly records the replacement and why. The retained history has the initial 45-commitment extraction and the replacement 67-commitment extraction.
+  - Observed effect: One corrective reviewer launch and commitment-table reallocation occurred before acceptance. All four examples were represented initially, so no final missing product promise is inferred; the first prompt still did not supply the full original source text the review contract requires.
+  - Inference: Matches incomplete source-only inputs, not an unnecessary unchanged-input repeat: the second launch corrected the input form. Counts describe the two extractions, not a measured coverage or token gain.
+
+
 ## ODF-378 — Story-branch increment publish blocked by trunk-targeted open first-landing expectation
 Former local code: DD-366. [Meaning, evidence and response](docs/maintainer/findings/ODF-378.md).
 ## ODF-379 — Delegated dashboard proof omitted its required sandbox wrapper

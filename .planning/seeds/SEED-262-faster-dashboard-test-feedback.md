@@ -98,7 +98,7 @@ release can leave that result eligible for reuse, saving a native rerun.
   potentially avoidable reruns, and reruns actually justified as avoided.
   Zero demonstrated real savings is a valid pilot finding; it establishes no
   observed improvement. The
-  [fixture identity guard](#guard-native-fixture-identity-inputs) owns capture
+  [fixture family identities](../../tests/support/git-publication-native-fixture-identity.sh) own capture
   completeness; this story owns the sufficiency of each reuse judgment.
 
 Deferred promises: fresh native baseline capture, automatic semantic
