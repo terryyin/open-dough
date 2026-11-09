@@ -14,6 +14,11 @@ scope: story
 
 **Identity:** SEED-286#fast-intent-ci-comparison-tests
 
+**Plan:** [Fast, trustworthy Intent CI comparison feedback](../slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md)
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9747081df5b0b802d811f729f950efbba18807cfda6265001b19ec99b23b3be4","plan":"bc9c4be838babfbd095d48d21c2fb319ebff8cf750db671a7b605169222a3f28"}}
+```
+
 **Goal.** Developers and agents changing Intent's CI timing comparison get a
 trustworthy result for each comparison rule in under a second, in any
 environment. Each test arranges only the minimal domain data that explains
@@ -38,27 +43,84 @@ real commits, and a server read that reads Git history and spawns one Node
 process per fake `gh` call (`dashboard/tests/fixtures/fake-gh`), just to prove
 one resolution or wording rule.
 
-**Starting direction.** Refinement settles the scope; these are hypotheses.
+**Scope.** Give each distinct comparison rule fast, deterministic proof at
+the cheapest boundary that still exercises the real behavior. This includes
+Done and Taken endpoints, Story Branch and Trunk Mode, merge and fast-forward
+ownership, skipped/equivalent/cancelled/later builds, proof and timing gaps,
+adapter attempts, retry and remembered answers, and the comparison's wording,
+counts, sorting, relative marks and navigation through Summary and file Proof.
+Preserve comparison visibility while other Intent reads are held or fail.
 
-- Prove the resolution, slot, retry and memory rules in
-  `dashboard/server/intentCiComparison{Resolve,Slots,Answers}.ts` and their
-  neighbors as browser-free `dashboard/backend-tests/intent/` specs. Arrange
-  history, runs and proofs as MakeMe domain data, and advance a controlled clock
-  for remembered and retried answers.
-- Prove the panel's wording and Check again behavior in
-  `dashboard/frontend-tests/` against the shared app build with service
-  substitutes that answer prepared comparisons.
-- Keep only the few integrated journeys that prove the real Git and `gh`
-  wiring, and make them cheap: build history once per worker and clone it per
-  test (for example an APFS `cp -c` clone), and reuse a warm worker-scoped
-  dashboard server.
-- Apply the same approach to
-  `dashboard/tests/review/story-review-one-shot-choice-refresh.spec.ts:86`,
-  whose four real launches only produce stored run records (DD-445): arrange
-  those records directly and keep one real launch elsewhere as the integrated
-  proof.
+At this preparation's revision the matching family contains **73 cases in 25
+files**, confirmed by the dashboard runner's list operation on 2026-11-09;
+the 60-case figure above belongs to the earlier diagnosis. Inventory the actual
+assertions before migrating them. Consolidation is allowed when the surviving
+proof detects the same fault; a smaller case count is not the outcome.
 
-**Constraints.** Preserve each rule's behavioral proof and independently
-stated expectations. Follow the [test automation rules](../../AGENTS.md#test-automation):
-no `test.setTimeout`, no `test.slow()`, no wall-clock waits. Recording these
-tests as Test Optimization Candidates does not satisfy this story.
+Use browser-free server/domain tests for resolution and read-lifecycle rules,
+and frontend tests for presentation and real UI actions against prepared
+service answers. Arrange only the history, attempts, proof or records that
+explain the case through the shared MakeMe API. Final-answer memory has no
+time-to-live: prove finality and request counts directly. Use controlled clocks
+only when elapsed time is itself relevant.
+
+Keep a small, explicitly mapped set of real Git, CI-provider and authenticated
+read journeys that proves the connections between these boundaries. Make their
+setup cheaper without sharing mutable state or relying on an APFS-only copying
+operation. A warm server or history snapshot is an experiment to justify with
+measurements and isolation proof, not a prescribed architecture.
+
+Also replace incidental launches in both cases of
+`dashboard/tests/review/story-review-one-shot-choice-refresh.spec.ts` with
+directly arranged stored launch/landing records. Preserve the chosen-run,
+replaced-session, deleted/expired-run and legacy-gap behavior, and retain an
+actual launch/capture journey as the integration owner. This is the adjacent
+cost already identified in [DD-445](../../docs/maintainer/project-test-findings.md#dd-445).
+
+**Performance evaluation.** Target less than 1,000 ms for each rule-focused
+test, including per-test arrangement, actions, assertions and cleanup. Report
+shared runner/build/worker setup and the retained real wiring journeys
+separately; moving work into a shared hook is not evidence of reduced total
+feedback time. Compare the normal local selection before and after with all
+replacement tests included, record host load and concurrency, and verify the
+same portable tests in CI. Loaded observations matter: one fast run does not
+establish environment independence. No retained test gains a raised timeout.
+
+**Scope limits.** This story does not change Intent's comparison semantics,
+add timing-history features, optimize the whole dashboard suite, or build a
+general test/mocking framework. It does not require one test per current file
+or per helper. Its measurement and proof cover the selected family and the
+named review-refresh cases.
+
+**Required restrictions.** Preserve each distinct rule's behavioral proof and
+independently stated expectations: speed without equivalent fault detection
+would make the developer feedback untrustworthy. Follow the
+[test automation rules](../../AGENTS.md#test-automation): no `test.setTimeout`,
+no `test.slow()`, no wall-clock waits. Do not add retries, skips or platform
+exceptions to meet the timing target. Recording candidates does not satisfy
+this story.
+
+**Key examples.**
+
+1. Given a nearer completed build without usable proof and an older usable
+   build, resolving Baseline selects the older build and names its provenance;
+   a result walk never crosses the story-start bound. Minimal arranged history
+   proves the rule without making commits or launching `gh`.
+2. Given a cancelled landing and later trunk revisions with missing or unusable
+   proof, resolution chooses the nearest later usable completed build. A running
+   build or the read head stops the search and leaves the answer refreshable;
+   timed-out or unexplained landings retain their exact-only behavior.
+3. Given a transient unavailable comparison or endpoint proof, Check again
+   disables while reading and recovers the displayed result. Subsequent reads
+   reuse a final Done answer and valid proof without another provider request;
+   Taken, running and unavailable results stay fresh.
+4. Given prepared comparison and proof evidence, opening the comparison,
+   Summary and file Proof retains the same active endpoints and fallback reason.
+   Signed timing changes, a measured zero, gaps, counts, sorting and Show % keep
+   their existing meaning, without extra CI reads during drilling. A held or
+   failed Changed tests read does not hide the comparison.
+5. Given stored captured runs and a legacy run, Refresh retains the selected
+   run after native-session replacement. Deleting that choice selects the
+   newest remaining captured run; expiring it selects the next, then the legacy
+   evidence gap. These state transitions need no native launch to arrange them;
+   a separate real launch/capture journey still proves record production.

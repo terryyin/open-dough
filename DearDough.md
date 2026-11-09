@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 474. Removed numbers are never reused.
+- Highest allocated local number: 476. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -61,6 +61,16 @@ Former local code: DD-127. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-128. [Evidence and current response](docs/maintainer/findings/ODF-158.md).
 ## ODF-106 — Colliding plan numbers <a id="odf-106"></a>
 Former local code: DD-155. [Meaning, evidence and response](docs/maintainer/findings/ODF-106.md).
+
+### Occurrences
+- Execution: SEED-261#map-project-configuration-test-data (plan 540-map-project-configuration-test-data; first related implementation commit `eefe28d82a86fdf380d0c0de63ce66ccb32886e5`)
+  - Timestamp: unknown (2026-11-09; this execution planted its seed after 12:55:32+08:00, and another session's `b0684aff7` took SEED-286 on trunk at 16:02:15+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: `product-backlog.mjs identity-evidence` in the execution checkout gave next `SEED-286`, and the coordinator planted and queued `SEED-286-dashboard-cases-within-default-timeout.md` locally. A recheck of fetched `origin/main` before the repair commit found trunk's `SEED-286-fast-intent-ci-comparison-tests.md`; the story was renumbered SEED-287 and published in `31fc793ac`.
+  - Observed effect: a seed-number collision caught before publication, at the cost of the renumbering and its record edits.
+  - Inference: the same checkout-visible allocation as this finding, for a seed rather than a plan: neither session could see the other's unpublished number.
 ## ODF-141 — Fixed refactor cost on small accepted slices <a id="odf-141"></a>
 Former local code: DD-192. [Meaning, evidence and response](docs/maintainer/findings/ODF-141.md).
 ## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
@@ -900,3 +910,20 @@ merge, that line would have published `[object Object]`.
   - Evidence: A three-way merge of the shared files kept trunk's new line at `intent-ci-status-homepage.spec.ts:201`. `npm run typecheck:dashboard` passed with it; the record also said `npm run lint` passed, but a reproduction on 2026-11-09 (the line restored on `main` at `d0c7af0f8`, then `npx eslint` on that file) failed with `@typescript-eslint/restrict-template-expressions` and `@typescript-eslint/no-base-to-string`, which `eslint.config.mjs` has enforced as errors since `d0a949570`. The coordinator found it only by grepping the converted exports' new uses after the merge, and replaced it with `intentSettingsText(openDoughSettings)` in `e693a8c24`.
   - Observed effect: The type change did not escape the project's static checks: the existing lint rules reject the merged line. The finding's report instead raised a decision about enabling a rule that was already enabled.
   - Inference: The lint result recorded for the merged tree most likely came from a run that did not include the merged line. Before reporting that a check missed a defect, rerun that check on the defective tree and record its output.
+
+## DD-475 — A CI repair duplicated a fix another active execution had in progress
+Before delegating a CI repair, the coordinator's ownership scan found another
+active worktree with uncommitted edits to the failing spec. It called them
+nearby edits without reading them and delegated the repair. That worktree
+published the same fix about an hour later; the duplicate surfaced only at the
+refactor pass and was dropped on the developer's decision.
+
+### Occurrences
+- Execution: SEED-261#map-project-configuration-test-data (plan 540-map-project-configuration-test-data; first related implementation commit `eefe28d82a86fdf380d0c0de63ce66ccb32886e5`)
+  - Timestamp: unknown (2026-11-09; ownership scan before 12:28:17+08:00, when the repair agent applied its Check again wait)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: CI run 42557657479 failed on `1da8db9a5`. The coordinator's `git status` scan listed `.worktrees/make-intent-location-source-and-candidate-test-s` with ` M dashboard/tests/intent/intent-ci-comparison-retry.spec.ts`; the repair brief called those files nearby and named no owner. The sibling SEED-261 Intent story published `acfd70db4` (`checkComparisonAgain`) at 13:04:30+08:00 on its branch. The refactor pass found it, a simulated merge gave 8 conflicts, and Terry chose to drop the duplicate.
+  - Observed effect: the Check again part of a 62-minute repair agent run, a revert and one developer question; nothing duplicated was published.
+  - Inference: `ci-monitor.md` "Handle a notification" makes unknown ownership of conflicting in-progress repair files a coordination stop, but names no check of what another worktree's overlapping uncommitted edits or published branch contain. Reading them before delegating would likely have found the concurrent repair.

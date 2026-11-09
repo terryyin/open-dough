@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_map-project-configuration-test-data.json",
+      "identity": "SEED-261#map-project-configuration-test-data",
+      "completedAt": "2026-11-09T08:37:04.669Z",
+      "blob": "6723cc67c175f0c2136f7ddab0db7527625acf44"
+    },
+    {
       "fileName": "SEED-261_map-intent-and-ci-proof-test-data.json",
       "identity": "SEED-261#map-intent-and-ci-proof-test-data",
       "completedAt": "2026-11-09T07:24:28.625Z",
@@ -1908,18 +1914,6 @@
       "identity": "SEED-128#continue-refinement-to-slice-planning",
       "completedAt": "2026-10-10T08:54:08.087Z",
       "blob": "7ab4f6d5e52d9c913c0c86598ab26cdb5e0c3210"
-    },
-    {
-      "fileName": "SEED-121_retain-execution-observer-owner.json",
-      "identity": "SEED-121#retain-execution-observer-owner",
-      "completedAt": "2026-10-10T07:37:16.533Z",
-      "blob": "deb3beb8f7efc87385b34f9653b7cd0f9025370f"
-    },
-    {
-      "fileName": "SEED-129_bounded-cursor-launch-wait.json",
-      "identity": "SEED-129#bounded-cursor-launch-wait",
-      "completedAt": "2026-10-10T07:27:33.620Z",
-      "blob": "9c91dd370ee8c0ef70c41748de70dc3b48819d4d"
     }
   ],
   "unreadable": []

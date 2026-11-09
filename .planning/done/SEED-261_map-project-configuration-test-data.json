@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-261#map-project-configuration-test-data",
+  "title": "Make machine-local project configuration test setup map directly to the domain",
+  "completedAt": "2026-11-09T08:37:04.669Z",
+  "developer": "Terry Yin",
+  "agent": "DavidKo-chan",
+  "host": "claude",
+  "model": "opus",
+  "intentCoverage": {
+    "unavailable": "The Intent Coverage check requested at wrap-up (started 2026-11-09 16:33 +08:00 in its own scratch checkout of a2499e19f) had not returned when closure was ready to complete."
+  }
+}

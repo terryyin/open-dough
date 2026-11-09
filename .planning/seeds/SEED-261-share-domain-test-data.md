@@ -149,60 +149,6 @@ gain needs measurement.
 Effort is relative. The four conversion blocks are large, with scope and sizing to refine against real
 consumers. No calibrated story effort bands are established.
 
-<a id="map-project-configuration-test-data"></a>
-
-### Make machine-local project configuration test setup map directly to the domain
-
-**Identity:** SEED-261#map-project-configuration-test-data
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/540-map-project-configuration-test-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0f90a5ca633c93868256435472a2f159e1801b84f1d22cc2bec9fb900f58d290","plan":"27d4042f05b3192fc2b42b7a1d60dd86b6e52c92bc72e93b8424742594455da0"}}
-```
-
-#### Goal
-
-Maintainers can see which projects a test configures, which published source
-each project reads, and which checkout the machine uses. Use shared MakeMe
-setup so the same configuration facts can be read and changed consistently
-across dashboard tests.
-
-#### Scope
-
-- Arrange valid synthetic entries in `projects-development.json` and
-  `projects-production.json` through a shared builder typed against
-  [ConfiguredProject](../../dashboard/server/projectConfiguration.ts). Keep
-  project order, environment, repository and ref, local path, and visibility
-  explicit wherever they drive the case. Remove displaced constructors or
-  have their harnesses delegate the data construction to MakeMe.
-- Cover the ordered saved catalog, configured predecessors for project
-  admission and settings, and the Sessions replay catalog. Keep real server
-  seeding, Add, Hide and Remove operations, Git checkout setup, and fake
-  GitHub responses at their existing boundaries. The default development
-  harness can reuse the real production seed for its ordinary starting list.
-- Preserve literal malformed, wrong-shape and empty-file examples, exact
-  Add inputs, write faults, and independent assertions. Keep any saved bytes
-  captured from a real operation as evidence. Project configuration selects
-  a published source and supplies a machine-local path. Source-only fixtures,
-  published Intent settings, launch records, and session evidence have their
-  own scope.
-
-#### Key examples
-
-1. A saved production catalog puts Zebra on `trunk` before Apple on
-   `default`. The dashboard starts and restarts with Zebra selected, reads
-   the configured repository and ref, and preserves the saved file.
-   Development and production each read their own environment's list.
-   An existing empty or malformed file retains its bytes and still gives
-   the corresponding empty or error result.
-2. A valid saved project already claims the repository or project ID in a
-   different case. Adding the same repository or ID is refused with the
-   predecessor intact.
-3. A configured long checkout path is shown in settings even at narrow
-   width, while the published project list omits checkout paths.
-4. The Sessions replay starts with six configured projects and their real
-   test checkouts. The server reads the same ordered sources, resolves their
-   configured paths to the checkouts holding 44 linked worktrees, and keeps
-   the existing open, Done, and history listing proof.
-
 <a id="map-github-actions-ci-test-data"></a>
 
 ### Make GitHub Actions run and attempt-job test setup map directly to the domain
