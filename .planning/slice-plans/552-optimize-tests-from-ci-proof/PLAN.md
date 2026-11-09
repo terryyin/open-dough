@@ -3,6 +3,13 @@
 **Identity:** SEED-284#optimize-tests-from-ci-proof
 
 **Source:** [Refined story](../../seeds/SEED-284-optimize-tests-from-ci-proof.md#optimize-tests-from-ci-proof)
+**Source review:** [source-review.md](source-review.md)
+
+**Execution:** Story Branch Mode, agent pyo-chan, publisher
+`dashboard-territory.local-open-dough`; workspace
+`.worktrees/optimize-tests-from-existing-ci-proof`, branch
+`claude/optimize-tests-from-existing-ci-proof`, target `origin/main`.
+Started from `ecd07dc8a`; the Take `766593b4f` is published on `main`.
 
 ## Goal and scope
 
@@ -94,9 +101,16 @@ conflicts.
 ### 1. Confirm the Pygardon pilot route
 
 Type: Behavior
-Status: planned
+Status: done
 Owner: executor; early probe, no product implementation.
 Proof: the route observations recorded in Learnings.
+
+Accepted 2026-11-09: the route works at Pygardon `a8a0d3a9d` in
+`/Users/terryyin/git/pygardon/.worktrees/optimize-tests-from-ci-proof`
+(branch `claude/optimize-tests-from-ci-proof`, no edits). Evidence: Learnings
+"Slice 1 route"; raw answers and summaries stayed in the job's scratch
+directory. The basis below was checked against Pygardon history and its one
+timing mismatch corrected. Refactor disposition: records-only.
 
 Behavior: at fetched Pygardon main → the executor prepares a subordinate
 Pygardon workspace as plan 459 did, reads the adapter's `discover` and
@@ -251,18 +265,23 @@ This is one exploratory observation; bound conclusions to it.
   pytest optimization gets a credible keep or stop sooner and at lower
   full-run cost than recorded passes, with protection retained.
 - **Comparison.** Plan 453, the Git fixture pass, ran ordinary-selection full
-  runs of 522.57 s and 485.22 s with `-n 4`. Its plan was committed at 21:48,
-  its first kept change landed at 21:57, and its result was recorded at 22:10
-  on 2026-10-29. Plan 470, the reranked pass, ran about 963 s and about 485 s
-  under heavy load, and its measurement was marked incomplete. Its plan was
-  committed at 08:51, its first kept change landed at 09:10, and it was
-  re-profiled at 09:48 on 2026-10-31. Neither pass recorded when it was
-  requested, and each profiled before planning. Time comparison is therefore
-  limited to those visible spans plus their full-run cost.
+  runs of 522.57 s and 485.22 s with `-n 4`. It was admitted at 21:34, its
+  plan was committed at 21:48, its first kept change was committed at 21:57
+  and reached `main` at 22:55, and its result was recorded at 22:10 on
+  2026-10-29. Plan 470, the reranked pass, ran about 963 s and about 485 s
+  under heavy load, and its measurement was marked incomplete. It was
+  admitted at 08:28, its plan was committed at 08:51, its first kept change
+  landed on `main` at 09:10, and it was re-profiled at 09:48 on 2026-10-31.
+  Neither pass recorded when it was requested, and each profiled before
+  planning. Time comparison is therefore limited to those visible spans plus
+  their full-run cost. A full-run figure compares only the selection both
+  passes ran:
+  `nix develop -c scripts/check-worktree.sh pytest -m 'not slow and not host_docker' -n 4 --dist loadfile --max-worker-restart=0`.
 - **Record.** The request time, the decision time, the evidence reads, and
   every local run with its command, wall time and load. For a keep, also
-  record the focused before and after under paired load, and a full local
-  claim only with a comparable before and after.
+  record the focused before and after under paired load, its replacement
+  proof, and a claim about the developer's ordinary wait only with a
+  comparable full-run before and after.
 - **Worth keeping.** A credible keep or stop with zero fresh profiling runs
   and the request-to-decision time recorded. A timely, evidenced stop counts.
 
@@ -304,14 +323,14 @@ row says otherwise.
 | --- | --- | --- |
 | Slice 3 can acquire this repository's summary through the shared request owner | A scratch module imported `readGitHubActions` and `askGitHubArchive` from `src/skills/dough-execute-plan/scripts/ci-github-actions.mjs`. Listing `repos/terryyin/open-dough/actions/runs/42550972063/artifacts?name=ci-proof-summary-attempt-1` returned artifact 13645811172 (17,473 bytes, not expired) in 551 ms. The archive returned 17,473 zip bytes at 2.1 s. | None for this repository. |
 | A refused GitHub route must become a gap, with `--summary` as the remedy | The same listing for `nerds-odd-e/doughnut` run 42498952903 failed `GitHubAcquisitionFailed … HTTP 403`. The `gh` on `PATH` is the dashboard's wrapper. A delegated probe downloaded the same artifact with `gh run download`. | Doughnut is outside the pilot. The refusal is this machine's token policy and is not this story's to repair. |
-| Pygardon's adapter answer lacks the breakdown, and the full summary is retrievable | Delegated probe, 2026-11-09: the adapter `proof` for attempt `993fe414-14da-41fc-b490-ac32bedf7d27` returned 32,081 bytes with `tests` totals only, because `scripts/pygardon-ci-attempt-evidence.mjs` drops breakdowns over 64 KiB. `curl` of the CI service's `/api/ci/attempts/<id>/diagnostics/ci-proof-summary.json` returned 171,882 bytes with 1,213 timed files. | Slice 1 rechecks at the pilot's revision. |
+| Pygardon's full summary is retrievable through its adapter | Slice 1 at Pygardon `a8a0d3a9d`: since `e430447dc` (2026-11-09 10:40) the adapter `proof` answer carries the whole summary with its breakdown: 171,893 bytes for `993fe414-14da-41fc-b490-ac32bedf7d27`, earlier 32,081 bytes of totals only. The CI service serves the same summary. `readCommandProof` needs `answerBytes: SUMMARY_READ_LIMIT_BYTES`; its 64 KiB default fails. | None. A breakdown-less adapter answer stays a story case without a live Pygardon instance (G1). |
 | Retained summaries carry per-file `durationMs` at the needed scale | Open Dough run 42550972063: 1,343 timed files and 11,142 s summed; the top 20 hold 9.8%; the summary is 173,945 bytes. Doughnut run 42498952903: 1,076 timed files. Pygardon `993fe414`: 1,213. One shard's Playwright report (`dashboard-playwright-report-5`, kept 7 days) put 26.4% of 926 s in before and after hooks. | None. |
 | Intent's parser and today's records | Node 24 imported `dashboard/src/testOptimizationCandidates.ts` and parsed the real files. A live-shape sample is `mismatched`. Open Dough's record is `mismatched` because of the `Repository baseline` label added in `0eb86657b`. Doughnut's is `mismatched` because of the mechanism paragraph under Profile-only exclusions. Pygardon's parses, with pending `None.`, 4 accepted, 1 profile-only and 23 transferred. | Slice 5 makes the mechanism note readable. Slice 6's conversion removes Open Dough's extra label. |
 | Slice 2's proof discriminates the moved identity checks | Baseline: the two reasons specs passed 5 in 33.8 s with `--workers=2`. With the revision checks scratch-disabled in both server modules, 2 failed at the adapter and GitHub revision steps and 3 passed. Reverted. `tests/support/dashboard-ci-proof-read.test.mjs` and `dashboard-ci-adapter-proof.test.mjs` stayed green under the same break. | Slice 2 adds discriminating payload unit tests at the new boundary. |
 | Skill-text consumers | `execution-increment-delivery.test.mjs` requires `dough-test-optimization/SKILL.md` to route to the increment and repair owner. `tests/update-adds-new-payload-skill.sh` lists the skill's payload files. The payload fixture reads `install.sh` `managed_files` directly. | Slices 3–6 run them. |
 | Open Dough's recorded candidates still cost what slice 6 judges | Run 42550972063: the production-watcher files take 115.3 s/10, 65.9 s/7 and 52.7 s/6 cases; second-server 15.7 s/1; ad-hoc terminal 18.9 s/3; completed review 8.3 s/1; completion attention 13.4 s/1; rate limit 26.4 s/1; pinned build 29.7 s/5. | Slice 6 rereads the current retained proof. |
-| The pilot route works in a subordinate Pygardon workspace | Plan 459 slice 4, retained at `5135735ff`: on 2026-11-04, a subordinate worktree at Pygardon `ac093aea6` collected 6,537 cases and the adapter check passed. Pygardon moved test files on 2026-11-08. | Bounded by early probe slice 1. |
-| Pygardon's ordinary local command and selection | Delegated probe: `AGENTS.md:24-28` names `nix develop -c scripts/check-worktree.sh pytest`, which runs serially. CI runs `-m "not slow and not host_docker"` with `-n auto`, and `-m` on the command line replaces `addopts`. | Slice 1 confirms the selection the pilot measures. |
+| The pilot route works in a subordinate Pygardon workspace | Plan 459 slice 4, retained at `5135735ff`: on 2026-11-04, a subordinate worktree at Pygardon `ac093aea6` collected 6,537 cases and the adapter check passed. Pygardon moved test files on 2026-11-08. | Settled by slice 1 at `a8a0d3a9d`. |
+| Pygardon's ordinary local command and selection | Delegated probe: `AGENTS.md:24-28` names `nix develop -c scripts/check-worktree.sh pytest`, which runs serially. CI runs `-m "not slow and not host_docker"` with `-n auto`, and `-m` on the command line replaces `addopts`. | Settled by slice 1: the pilot measures CI's marker selection (Learnings). |
 
 ## Current decisions
 
@@ -329,7 +348,34 @@ row says otherwise.
 
 ## Learnings
 
-None yet.
+### Slice 1 route (2026-11-09, Pygardon `a8a0d3a9d`)
+
+- Worktree `.worktrees/optimize-tests-from-ci-proof`, branch
+  `claude/optimize-tests-from-ci-proof`, from fetched `origin/main`. Nix needs
+  Terry's `~/.zshrc` `NIX_CONFIG`, which this agent's shell lacked.
+  Preparation exited 0 in 25 s; collect-only found 6,587/6,610; the adapter
+  `--check` passed.
+- `discover`: 36,294 bytes, 108 attempts, empty queue. Since `e430447dc`,
+  `proof` returns the whole summary with its breakdown, so the premise of a
+  breakdown-less adapter answer no longer holds. `readCommandProof` needs
+  `answerBytes: SUMMARY_READ_LIMIT_BYTES`; the 64 KiB default fails.
+- (a) Newest success on a `main` revision: `74a7dd32…` at HEAD's parent
+  `e430447dc` (branch `codex/return-full-ci-proof`): proof 172,235 bytes,
+  summary 172,224. Newest under `main`: `993fe414…` at `3cb29aaf9`: proof
+  171,893 (was 32,081), summary 171,882. Each times all 1,213 `tests` files
+  with `durationMs` and counts and names no selection. (b) HEAD has no
+  attempt (`path_excluded`, `.planning/` only). `tests/` files changed to
+  HEAD: 0 from (a), 4 from `3cb29aaf9`. So slice 3 picks an attempt by
+  revision ancestry and changed in-scope paths, not by its branch label.
+- The pilot measures CI's `-m 'not slow and not host_docker'` (6,412 cases in
+  the summary's 1,213 files), which plans 453 and 470 ran with `-n 4`. The
+  serial ordinary command adds 175 `host_docker` cases; `-m` replaces
+  `addopts`.
+- At load 22.93, `nix develop -c scripts/check-worktree.sh pytest
+  tests/service_runtime/test_cors.py` passed 2/2, exit 0, in 4.20 s.
+- Basis figures and times match their sources, except that plan 453's
+  `ef9e3b092`, committed at 21:57, reached `main` at 22:55 (`8b594464a`).
+  Admissions at 21:34 and 08:28 are earlier visible bounds.
 
 ## Preparation review
 
@@ -339,3 +385,19 @@ default path, Intent's record reading, Open Dough's adoption, and the pilot.
 Slice 2 is the Structure that slice 3 needs. Slice 4's interim four-section
 writing is replaced by slice 5. No slice-specific concern remains. The pilot
 route's remaining uncertainty is bounded by early probe slice 1.
+
+
+## Story obligations
+
+### G1. Pygardon's adapter now answers with the breakdown
+Reported: slice 1 — "`e430447dc` (2026-11-09 10:40) deleted the 64 KiB `fitProofAnswer` drop; the same attempt now gives a 171,893-byte adapter `proof` answer with the full breakdown, where the earlier probe got 32,081 bytes of totals only."
+Story clause: "Pygardon's adapter answers `proof` with totals only, to stay within 64 KiB"
+Disposition: receiving slice 3
+Commitment: K1.1
+
+
+### G2. The retained summary names no test selection
+Reported: slice 1 — "the contract (`ci-proof-contract.mjs`, `ci-proof-figures.mjs`) has no `selection` field and no Pygardon summary names one. The table's promised "selection" has no source in the summary and must come from elsewhere or be stated as a gap."
+Story clause: "name its repository, revision, attempt, and selection"
+Disposition: receiving slice 3
+Commitment: 7.4
