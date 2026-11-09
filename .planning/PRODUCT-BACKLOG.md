@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Maintain one complete pending landed-CI recovery integration journey](seeds/SEED-289-landed-proof-recovery-correction.md#consolidate-landed-proof-recovery) — SEED-289#consolidate-landed-proof-recovery
 - [Keep Done CI comparisons refreshable while landed evidence is pending](seeds/SEED-288-landed-ci-evidence-follow-ups.md#refresh-pending-landed-evidence) — SEED-288#refresh-pending-landed-evidence
 - [Reuse equivalent CI adapter build timing for a skipped landing](seeds/SEED-288-landed-ci-evidence-follow-ups.md#reuse-adapter-equivalent-timing) — SEED-288#reuse-adapter-equivalent-timing
 - [Keep each unit's gaps and name visible in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#keep-unit-gaps-and-names-visible) — SEED-281#keep-unit-gaps-and-names-visible

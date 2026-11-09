@@ -4,6 +4,21 @@
 
 ## Current checkpoint
 
+- Repair `c83bb626af3bb25bab263875d98cdfa34593200b` is accepted; receipt
+  `/tmp/trace-proof-285-ci-repair-delivery.json`. After the directed API wait,
+  resumed observation returned exact success, run42639319305/attempt1,
+  with confirmed shutdown. Completion receipt:
+  `/tmp/trace-proof-285-repair-recovered-completion.out`. The earlier timeout
+  left the revision unobserved; it was not treated as success. Recovery delivery
+  classified the same revision already-published and repeated no Git push.
+- Wrap-up queues ready SEED-289 first by its authorized default disposition,
+  preserves unrelated queue order and both active seed285 siblings, and keeps
+  their North Star topics. No follow-up execution is authorized by closure.
+- Independent knowledge audit found one lasting path/entry/unit matching rule
+  to make explicit in maintained CI comparison documentation. Existing matching
+  proof remains unchanged; this is an already-traced documentation clarification,
+  adding no representation or helper. Plan555 now links the delivered maintained
+  contract. No sole-source optimization finding needs migration; DearDough stays.
 - Latest accepted implementation publication:
   `65e40e9d64b71db19955b49be68160baea07a104`. All3slices done and published as
   dbs-chan. Exact slice receipts are `/tmp/trace-proof-285-slice{1,2,3}-delivery.json`.
