@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-281_distinguish-test-cases-and-files-in-ci-proof.json",
+      "identity": "SEED-281#distinguish-test-cases-and-files-in-ci-proof",
+      "completedAt": "2026-11-09T11:19:50.189Z",
+      "blob": "0412f660918a4a63dca27e0d34ad2eb2e6461c4c"
+    },
+    {
       "fileName": "SEED-261_map-project-configuration-test-data.json",
       "identity": "SEED-261#map-project-configuration-test-data",
       "completedAt": "2026-11-09T08:37:04.669Z",
@@ -1896,24 +1902,6 @@
       "identity": "SEED-128#land-planning-without-coordinator-questions",
       "completedAt": "2026-10-10T11:36:53.515Z",
       "blob": "4b5247361c7ab80ee5ad62ac67283df2d5b05b1a"
-    },
-    {
-      "fileName": "SEED-121_settle-observer-owner-edges.json",
-      "identity": "SEED-121#settle-observer-owner-edges",
-      "completedAt": "2026-10-10T10:45:51.891Z",
-      "blob": "7e98aaef23daeaec6901a5f3eb2083320d7a3784"
-    },
-    {
-      "fileName": "SEED-123_recently-done-waits-for-added-project-sessions.json",
-      "identity": "SEED-123#recently-done-waits-for-added-project-sessions",
-      "completedAt": "2026-10-10T09:57:45.937Z",
-      "blob": "dbfd1a7ab8db92fe1e43347a15a33a7b59104aa0"
-    },
-    {
-      "fileName": "SEED-128_continue-refinement-to-slice-planning.json",
-      "identity": "SEED-128#continue-refinement-to-slice-planning",
-      "completedAt": "2026-10-10T08:54:08.087Z",
-      "blob": "7ab4f6d5e52d9c913c0c86598ab26cdb5e0c3210"
     }
   ],
   "unreadable": []
