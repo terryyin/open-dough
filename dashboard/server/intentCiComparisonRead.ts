@@ -24,6 +24,10 @@ import {
   performTakenComparison,
 } from "./intentCiComparisonResolve.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
+import {
+  storyCiComparisonSource,
+  type StoryCiComparisonSource,
+} from "./storyCiComparisonSource.ts";
 
 export type { IntentCiComparisonRead, StoryCiComparisonAnswer };
 export { parseIntentCiComparisonRead };
@@ -39,6 +43,7 @@ export async function performIntentCiComparisonRead(
   source: PublishedSource,
   read: IntentCiComparisonRead,
   signal: AbortSignal,
+  evidence?: StoryCiComparisonSource,
 ): Promise<Outcome> {
   const key = ciComparisonAnswerKey(source.repository, read.identity);
   const kept = keptCiComparisonAnswer(key);
@@ -47,20 +52,15 @@ export async function performIntentCiComparisonRead(
   const bound = AbortSignal.timeout(readWaitLimitMs);
   const controller = AbortSignal.any([bound, signal]);
   const checkedAt = new Date().toISOString();
+  const acquisition = evidence ?? storyCiComparisonSource(source, controller);
   const done = await performDoneComparison(
-    source,
+    acquisition,
     read.identity,
-    controller,
     checkedAt,
   );
   const answer =
     done ??
-    (await performTakenComparison(
-      source,
-      read.identity,
-      controller,
-      checkedAt,
-    ));
+    (await performTakenComparison(acquisition, read.identity, checkedAt));
   signal.throwIfAborted();
   rememberCiComparisonAnswer(key, answer);
   return answered(answer);

@@ -1,3 +1,4 @@
+import { comparisonBuildSource } from "../../dashboard/server/comparisonBuildSource.ts";
 // The cancelled-landing forward walk in Story Branch Landed
 // (`lookupResultBuild`, `laterTrunkCancelledSlot`): a cancelled landing
 // without later proof keeps its explanation and says why; its answer is
@@ -23,12 +24,7 @@ import {
 } from "./dashboard-later-trunk-fixture.mjs";
 
 function exactFor() {
-  return storyBranchLandedExactLookup(
-    false,
-    "terryyin/open-dough",
-    new AbortController().signal,
-    "main",
-  );
+  return storyBranchLandedExactLookup(false, "main");
 }
 
 function answerWith(landed, slots = {}) {
@@ -87,11 +83,18 @@ test("a cancelled landing without later proof says why, and only a walk that may
   const atHead = await lookupResultBuild(
     head,
     head,
-    lookupOf({ [head]: [run(head, 61, "cancelled")] }).lookup,
-    repo.call,
-    "ci.yml",
+    comparisonBuildSource(
+      lookupOf({ [head]: [run(head, 61, "cancelled")] }).lookup,
+      repo.call,
+      "ci.yml",
+      {
+        repository: "terryyin/open-dough",
+        signal: new AbortController().signal,
+      },
+    ),
     "missing",
     exactFor(),
+    undefined,
   );
   assert.deepEqual(atHead, {
     kind: "none",
@@ -104,14 +107,21 @@ test("a cancelled landing without later proof says why, and only a walk that may
   const stillRunning = await lookupResultBuild(
     repo.landing,
     repo.landing,
-    lookupOf({
-      [repo.landing]: [run(repo.landing, 62, "cancelled")],
-      [later1]: [run(later1, 63, null, { status: "in_progress" })],
-    }).lookup,
-    repo.call,
-    "ci.yml",
+    comparisonBuildSource(
+      lookupOf({
+        [repo.landing]: [run(repo.landing, 62, "cancelled")],
+        [later1]: [run(later1, 63, null, { status: "in_progress" })],
+      }).lookup,
+      repo.call,
+      "ci.yml",
+      {
+        repository: "terryyin/open-dough",
+        signal: new AbortController().signal,
+      },
+    ),
     "missing",
     exactFor(),
+    undefined,
   );
   assert.deepEqual(stillRunning, {
     kind: "none",
@@ -124,12 +134,18 @@ test("a cancelled landing without later proof says why, and only a walk that may
   const prooflessBeforeRunning = await laterTrunkCancelledSlot(
     repo.landing,
     cancelledRuns,
-    lookupOf({
-      [later1]: [run(later1, 65, "success")],
-      [later2]: [run(later2, 66, null, { status: "in_progress" })],
-    }).lookup,
-    repo.call,
-    "ci.yml",
+    comparisonBuildSource(
+      lookupOf({
+        [later1]: [run(later1, 65, "success")],
+        [later2]: [run(later2, 66, null, { status: "in_progress" })],
+      }).lookup,
+      repo.call,
+      "ci.yml",
+      {
+        repository: "terryyin/open-dough",
+        signal: new AbortController().signal,
+      },
+    ),
     exactFor(),
     async () => absent("none"),
   );
@@ -151,9 +167,10 @@ test("a cancelled landing without later proof says why, and only a walk that may
   const capped = await laterTrunkCancelledSlot(
     deep.landing,
     runs[deep.landing],
-    lookupOf(runs).lookup,
-    deep.call,
-    "ci.yml",
+    comparisonBuildSource(lookupOf(runs).lookup, deep.call, "ci.yml", {
+      repository: "terryyin/open-dough",
+      signal: new AbortController().signal,
+    }),
     exactFor(),
     async () => absent("none"),
   );
@@ -175,11 +192,13 @@ test("Story Branch Landed keeps a rerun attempt's own build and a timed-out land
   const own = await lookupResultBuild(
     repo.landing,
     repo.landing,
-    rerun.lookup,
-    repo.call,
-    "ci.yml",
+    comparisonBuildSource(rerun.lookup, repo.call, "ci.yml", {
+      repository: "terryyin/open-dough",
+      signal: new AbortController().signal,
+    }),
     "missing",
     exact,
+    undefined,
   );
   assert.equal(own.kind, "build");
   assert.equal(own.runId, 41);
@@ -194,11 +213,13 @@ test("Story Branch Landed keeps a rerun attempt's own build and a timed-out land
   const slot = await lookupResultBuild(
     repo.landing,
     repo.landing,
-    timedOut.lookup,
-    repo.call,
-    "ci.yml",
+    comparisonBuildSource(timedOut.lookup, repo.call, "ci.yml", {
+      repository: "terryyin/open-dough",
+      signal: new AbortController().signal,
+    }),
     "missing",
     exact,
+    undefined,
   );
   assert.deepEqual(slot, {
     kind: "none",

@@ -3,6 +3,7 @@
 // stories), mode and branch from the live profile, and the live tip to look
 // up as a provisional result. No completion or landing — Landed stays
 // not-landed until wrap-up.
+import { publishedStoryHistory } from "./publishedStoryHistory.ts";
 import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   commitShaPattern,
@@ -172,7 +173,7 @@ export async function takenStoryEndpoints(
     const evidence = await publishedStoryEvidence(
       story,
       trunk,
-      call,
+      publishedStoryHistory(call),
       claiming.agent,
     );
     const [claim] = evidence.claims;

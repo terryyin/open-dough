@@ -5,6 +5,7 @@
 // through directory-rename heuristics, which the story branch did not change
 // and the merge kept as trunk had them, are neither; that exclusion needs a
 // known story side.
+import { publishedStoryHistory } from "./publishedStoryHistory.ts";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -36,7 +37,12 @@ export async function owningMergeEdits(
   const diffed = async (from: string, to: string) =>
     names(await git("diff", "--name-only", "--no-renames", "-z", from, to));
   const untouched = new Set<string>();
-  const side = await storySideOf(first, second, storyCommits, call);
+  const side = await storySideOf(
+    first,
+    second,
+    storyCommits,
+    publishedStoryHistory(call),
+  );
   // With the story side unknown, no path counts as untouched trunk.
   if (side !== undefined) {
     const [trunkParent, storyParent] =

@@ -42,13 +42,17 @@ export async function configureIdentity(
  * @param {string} checkout
  * @param {RevisionFacts & { name?: string }} revision
  * @param {GitPerson} [checkoutIdentity]
+ * @param {readonly string[]} [parents] Resolved explicit parent commits.
  * @returns {Promise<string>} the new commit
  */
 export async function commitDeclaredRevision(
   checkout,
   revision,
   checkoutIdentity = integrationDeveloper,
+  parents,
 ) {
+  if (parents !== undefined)
+    await git(checkout, "read-tree", "--reset", "-u", parents[0]);
   writeRevisionFiles(checkout, revision);
   const {
     name,
@@ -66,6 +70,24 @@ export async function commitDeclaredRevision(
     ...(committer.date !== undefined && { GIT_COMMITTER_DATE: committer.date }),
   };
   await git(checkout, "add", "--all");
+  if (parents !== undefined) {
+    const tree = (await git(checkout, "write-tree")).stdout.trim();
+    const commit = (
+      await exec(
+        "git",
+        [
+          "commit-tree",
+          tree,
+          ...parents.flatMap((parent) => ["-p", parent]),
+          "-m",
+          message,
+        ],
+        { cwd: checkout, env },
+      )
+    ).stdout.trim();
+    await git(checkout, "update-ref", "HEAD", commit);
+    return commit;
+  }
   await exec("git", ["commit", "--allow-empty", "--quiet", "-m", message], {
     cwd: checkout,
     env,

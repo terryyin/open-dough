@@ -2,18 +2,15 @@
 // Cancelled, or No build with the reason absence could not be confirmed —
 // named beside the build whose proof the endpoint uses (ADR 0008). Path
 // confirmation reuses `classifyPathChanges` from the execution classifier,
-// fed by this process's async `runGit` with the same `git show` /
-// `git diff --name-status -M` arguments. Proof selection stays elsewhere
+// fed by workflow text and changed paths from the comparison history reader.
+// Production acquires them with `git show` / `git diff --name-status -M`. Proof selection stays elsewhere
 // (`./baseCiRevisionLookup.ts`).
-import {
-  classifyPathChanges,
-  parseDiffNameStatus,
-} from "../../src/skills/dough-execute-plan/scripts/ci-path-applicability.mjs";
+import { classifyPathChanges } from "../../src/skills/dough-execute-plan/scripts/ci-path-applicability.mjs";
 import { readCiPathIgnorePolicy } from "../../src/skills/dough-execute-plan/scripts/ci-workflow-path-policy.mjs";
 import { shortSha } from "../src/baseCiWording.ts";
 import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
 import { newestRunFor, type ListedRun } from "./baseCiNearest.ts";
-import { GitFailure, runGit, type GitCall } from "./gitRunner.ts";
+import type { ComparisonHistory } from "./comparisonBuildSource.ts";
 
 const pushEvent = "push";
 
@@ -69,42 +66,11 @@ function noBuildExplanation(requested: string, reason: string): string {
   return `No build at ${shortSha(requested)}: ${noBuildReasonPhrase(reason)}.`;
 }
 
-async function readWorkflowAt(
-  call: GitCall,
-  sha: string,
-  path: string,
-): Promise<string | null> {
-  try {
-    return (await runGit(["show", `${sha}:${path}`], call)).stdout;
-  } catch (error) {
-    if (error instanceof GitFailure) return null;
-    throw error;
-  }
-}
-
-async function diffEntriesAt(
-  call: GitCall,
-  fromSha: string,
-  toSha: string,
-): Promise<string[][] | null> {
-  if (fromSha === toSha) return [];
-  try {
-    const { stdout } = await runGit(
-      ["diff", "--name-status", "-M", fromSha, toSha],
-      call,
-    );
-    return parseDiffNameStatus(stdout) as string[][];
-  } catch (error) {
-    if (error instanceof GitFailure) return null;
-    throw error;
-  }
-}
-
 // Classifies path changes from `basisSha` to `requestedSha` using the
-// workflow file at the requested revision. Same rule and git arguments as
-// `classifyRevisionApplicability`, with async `runGit` instead of sync.
-export async function classifyPathChangesViaRunGit(
-  call: GitCall,
+// workflow file at the requested revision. Shares the classifier and policy
+// parser with `classifyRevisionApplicability`; history acquisition stays outside.
+export async function classifyComparisonPathChanges(
+  history: ComparisonHistory,
   requestedSha: string,
   basisSha: string,
   workflowPath: string,
@@ -114,7 +80,7 @@ export async function classifyPathChangesViaRunGit(
   | { readonly verdict: "required" }
   | { readonly verdict: "indeterminate"; readonly reason: string }
 > {
-  const content = await readWorkflowAt(call, requestedSha, workflowPath);
+  const content = await history.workflowAt(requestedSha, workflowPath);
   if (content === null)
     return { verdict: "indeterminate", reason: "unreadable-revision" };
 
@@ -133,7 +99,7 @@ export async function classifyPathChangesViaRunGit(
 
   if (eventPolicy.pathsIgnore.length === 0) return { verdict: "required" };
 
-  const entries = await diffEntriesAt(call, basisSha, requestedSha);
+  const entries = await history.changesBetween(basisSha, requestedSha);
   const classified = classifyPathChanges(entries, eventPolicy.pathsIgnore) as
     | { readonly verdict: "not_required" }
     | { readonly verdict: "required" }
@@ -157,7 +123,7 @@ export async function requestedRevisionCiStatus(
   requestedSha: string,
   runsAtRequested: readonly ListedRun[],
   basisSha: string | undefined,
-  call: GitCall,
+  history: ComparisonHistory,
   workflow: string,
 ): Promise<RequestedRevisionCiStatus> {
   const conclusion = newestCompletedConclusion(runsAtRequested, requestedSha);
@@ -191,11 +157,12 @@ export async function requestedRevisionCiStatus(
     };
   }
 
-  const classified = await classifyPathChangesViaRunGit(
-    call,
+  const classified = await classifyComparisonPathChanges(
+    history,
     requestedSha,
     basisSha,
     path,
+    pushEvent,
   );
   if (classified.verdict === "not_required") {
     return {

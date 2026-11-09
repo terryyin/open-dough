@@ -5,6 +5,12 @@ import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import {
+  CiProofBuilder,
+  PublishedStoryEndpointBuilder,
+  RevisionCiRunBuilder,
+  TakenStoryEndpointBuilder,
+} from "./ciComparisonTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
@@ -39,12 +45,12 @@ import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
+import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
+import { StoryPreparationBuilder } from "./storyPreparationTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("./releaseTestData.mjs").Release} Release */
-/** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
-/** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
 /** @typedef {ReturnType<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs").normalizeStoryDependency>} SupplierAgreement */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
@@ -82,42 +88,14 @@ export const makeMe = {
     return { with: copyFacts };
   },
   get aPublishedSource() {
-    return {
-      /** @param {Omit<PublishedSource, "ref" | "backlogPath"> & Partial<Pick<PublishedSource, "ref" | "backlogPath">>} facts */
-      with({
-        ref = "main",
-        backlogPath = ".planning/PRODUCT-BACKLOG.md",
-        ...facts
-      }) {
-        return { please: () => ({ ...facts, ref, backlogPath }) };
-      },
-    };
+    return new PublishedSourceBuilder();
   },
   /** @returns {FactBuilder<PublishedRevision>} */
   get aPublishedRevision() {
     return { with: copyFacts };
   },
   get aStoryPreparation() {
-    return {
-      /**
-       * @template {StoryPreparation} Facts
-       * @param {Facts} facts
-       */
-      with(facts) {
-        return copyFacts(facts);
-      },
-      /**
-       * A refined story planned in `plan`, a path relative to its seed.
-       * @param {string} plan
-       */
-      plannedIn(plan) {
-        return this.with({
-          refinement: /** @type {const} */ ("refined"),
-          approach: /** @type {const} */ ("planned"),
-          plan,
-        });
-      },
-    };
+    return new StoryPreparationBuilder();
   },
   get aSupplierAgreement() {
     return {
@@ -207,6 +185,22 @@ export const makeMe = {
   },
   get aMachineAnswer() {
     return new MachineAnswerBuilder();
+  },
+  /** @returns {FactBuilder<import("../../dashboard/server/storyPublishedEvidence.ts").ReviewedStory>} */
+  get aReviewedStory() {
+    return { with: copyFacts };
+  },
+  get aPublishedStoryEndpoint() {
+    return new PublishedStoryEndpointBuilder();
+  },
+  get aTakenStoryEndpoint() {
+    return new TakenStoryEndpointBuilder();
+  },
+  get aRevisionCiRun() {
+    return new RevisionCiRunBuilder();
+  },
+  get aCiProof() {
+    return new CiProofBuilder();
   },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();

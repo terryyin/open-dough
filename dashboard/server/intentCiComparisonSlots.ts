@@ -123,9 +123,3 @@ export async function lookupContext(
     ),
   };
 }
-
-export function isUnreadJudgment(
-  value: Awaited<ReturnType<typeof revisionLookupOrGap>>,
-): value is BaseCiJudgment {
-  return "state" in value;
-}

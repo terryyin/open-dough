@@ -9,40 +9,18 @@ import {
   nearestRevisionBuild,
   proofRunOf,
   type RevisionCiBuild,
-  type RevisionCiLookup,
 } from "./baseCiRevisionNearest.ts";
 import type { ListedRun } from "./baseCiNearest.ts";
 import {
   baselineAncestorLimit,
   type ExactResultLookup,
 } from "./exactSkippedEquivalent.ts";
-import { runGit, type GitCall } from "./gitRunner.ts";
+import type { ComparisonBuildSource } from "./comparisonBuildSource.ts";
 import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
 import { asSlot, type RevisionBuildSlot } from "./revisionBuildSlot.ts";
 import { shortSha } from "../src/baseCiWording.ts";
 import type { CiProofUnavailable } from "../src/ciProof.ts";
 import { laterBuildUnavailableLine } from "../src/ciProofAbsenceWording.ts";
-
-// Trunk's first-parent revisions after `landing` up to `trunkHead`, nearest
-// first, capped at the Baseline bound.
-export async function laterTrunkChain(
-  landing: string,
-  trunkHead: string,
-  call: GitCall,
-  limit: number = baselineAncestorLimit,
-): Promise<string[]> {
-  const { stdout } = await runGit(
-    [
-      "rev-list",
-      "--first-parent",
-      "--reverse",
-      "--ancestry-path",
-      `${landing}..${trunkHead}`,
-    ],
-    call,
-  );
-  return stdout.trim().split("\n").filter(Boolean).slice(0, limit);
-}
 
 // Why a build's proof cannot be used, under the proof usability rule
 // (`readCiProofArtifact`); undefined when its summary is usable.
@@ -79,16 +57,15 @@ export type LaterTrunkProofWalk =
 export async function laterTrunkProofBuild(
   landing: string,
   trunkHead: string,
-  lookup: RevisionCiLookup,
-  call: GitCall,
+  source: ComparisonBuildSource,
   proofAbsence: RevisionProofAbsence,
   limit: number = baselineAncestorLimit,
 ): Promise<LaterTrunkProofWalk> {
-  const read = await laterTrunkChain(landing, trunkHead, call, limit + 1);
+  const read = await source.history.laterTrunk(landing, trunkHead, limit + 1);
   const chain = read.slice(0, limit);
   let unavailable: LaterProofUnavailable | undefined;
   for (const [index, sha] of chain.entries()) {
-    const build = await nearestRevisionBuild([sha], lookup);
+    const build = await nearestRevisionBuild([sha], source.lookup);
     if (build === undefined) continue;
     if (build.state === "running")
       return {
@@ -153,17 +130,14 @@ function noLaterProofWords(
 export async function laterTrunkCancelledSlot(
   landing: string,
   listed: readonly ListedRun[],
-  lookup: RevisionCiLookup,
-  call: GitCall,
-  workflow: string,
+  source: ComparisonBuildSource,
   exact: ExactResultLookup,
   proofAbsence: RevisionProofAbsence,
 ): Promise<RevisionBuildSlot> {
   const walk = await laterTrunkProofBuild(
     landing,
     exact.laterTrunkHead,
-    lookup,
-    call,
+    source,
     proofAbsence,
   );
   if (walk.kind === "found")
@@ -174,8 +148,8 @@ export async function laterTrunkCancelledSlot(
         landing,
         listed,
         undefined,
-        call,
-        workflow,
+        source.history,
+        source.workflow,
       ),
     );
   return {

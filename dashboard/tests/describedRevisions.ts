@@ -14,7 +14,7 @@ import type { PublishedRevision } from "./publishedFiles.ts";
 import { backlogPath } from "./publishedOriginBasics.ts";
 
 // One published revision per named revision, at the SHA given for that name,
-// each holding the files of every revision up to it.
+// each inheriting its first parent's files and applying its declared facts.
 export function describedRevisions<Name extends string>(
   description: RepositoryDescription<Name>,
   shas: Readonly<Record<Name, string>>,

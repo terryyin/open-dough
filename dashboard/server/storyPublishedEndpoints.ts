@@ -5,6 +5,7 @@
 // claim history without merge-resolution attribution; Review continues with
 // attribution for commits and resolutions, while comparison looks up builds
 // at these revisions.
+import { publishedStoryHistory } from "./publishedStoryHistory.ts";
 import path from "node:path";
 import { realpath } from "node:fs/promises";
 import {
@@ -149,7 +150,7 @@ export async function publishedStoryEndpoints(
       story,
       doneRecordAdded,
       at,
-      call,
+      publishedStoryHistory(call),
     );
     if (namedCompletion !== undefined && namedCompletion !== completion)
       return {
@@ -170,12 +171,12 @@ export async function publishedStoryEndpoints(
       for (const candidate of await publishedStoryAgents(
         story,
         doneRecordAdded,
-        call,
+        publishedStoryHistory(call),
       )) {
         const before = await publishedStoryEvidence(
           story,
           doneRecordAdded,
-          call,
+          publishedStoryHistory(call),
           candidate,
         );
         if (before.claims.length > 0) claiming.push(candidate);
@@ -221,7 +222,7 @@ export async function publishedStoryEndpoints(
             evidence.storyStart,
             evidence.owningMerges,
             evidence.commits.map((commit) => commit.commit),
-            call,
+            publishedStoryHistory(call),
           )
         : undefined;
     return {

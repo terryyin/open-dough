@@ -8,7 +8,8 @@ import {
   agentNameOf,
   parseAgentProfileFile,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { isAncestor, runGit, type GitCall } from "./gitRunner.ts";
+import { runGit, type GitCall } from "./gitRunner.ts";
+import type { PublishedStoryHistory } from "./publishedStoryHistory.ts";
 import {
   publishedStoryAgents,
   publishedStoryEvidence,
@@ -63,13 +64,13 @@ export async function storySideOf(
   first: string,
   second: string,
   storyCommits: readonly string[],
-  call: GitCall,
+  history: PublishedStoryHistory,
 ): Promise<"first" | "second" | undefined> {
   let firstExclusive = false;
   let secondExclusive = false;
   for (const commit of storyCommits) {
-    const inFirst = await isAncestor(commit, first, call);
-    const inSecond = await isAncestor(commit, second, call);
+    const inFirst = await history.isAncestor(commit, first);
+    const inSecond = await history.isAncestor(commit, second);
     if (inFirst && !inSecond) firstExclusive = true;
     if (inSecond && !inFirst) secondExclusive = true;
     if (firstExclusive && secondExclusive) return undefined;
@@ -82,23 +83,22 @@ export async function storySideOf(
 // Owning merges over the rev-list `range`, newest first, whose second parent
 // is the story side: the story's own trunk-first merges.
 async function* trunkFirstOwningMerges(
-  range: readonly string[],
+  head: string,
+  excluded: string,
   owningMerges: ReadonlySet<string>,
   storyCommits: readonly string[],
-  call: GitCall,
+  history: PublishedStoryHistory,
+  topological = false,
 ): AsyncGenerator<{ merge: string; first: string; second: string }> {
   if (owningMerges.size === 0) return;
-  const lines = (
-    await runGit(["rev-list", "--merges", "--parents", ...range], call)
-  ).stdout
-    .trim()
-    .split("\n")
-    .filter(Boolean);
-  for (const line of lines) {
-    const [merge = "", first, second] = line.split(" ");
+  const merges = await history.mergesBetween(head, excluded, topological);
+  for (const {
+    commit: merge,
+    parents: [first, second],
+  } of merges) {
     if (first === undefined || second === undefined) continue;
     if (!owningMerges.has(merge)) continue;
-    if ((await storySideOf(first, second, storyCommits, call)) !== "second")
+    if ((await storySideOf(first, second, storyCommits, history)) !== "second")
       continue;
     yield { merge, first, second };
   }
@@ -110,16 +110,11 @@ async function newestOwnRevision(
   completion: string,
   storyCommits: readonly string[],
   owningMerges: ReadonlySet<string>,
-  call: GitCall,
+  history: PublishedStoryHistory,
 ): Promise<string | undefined> {
   const own = new Set([...storyCommits, ...owningMerges]);
   if (own.size === 0) return undefined;
-  const ordered = (
-    await runGit(["rev-list", "--topo-order", completion], call)
-  ).stdout
-    .trim()
-    .split("\n")
-    .filter(Boolean);
+  const ordered = await history.orderedAt(completion);
   for (const revision of ordered) {
     if (own.has(revision)) return revision;
   }
@@ -137,20 +132,21 @@ export async function landingOf(
   storyStart: string,
   owningMerges: ReadonlySet<string>,
   storyCommits: readonly string[],
-  call: GitCall,
+  history: PublishedStoryHistory,
 ): Promise<PublishedLanding | undefined> {
   for await (const { merge, second } of trunkFirstOwningMerges(
-    [completion, `^${storyStart}`],
+    completion,
+    storyStart,
     owningMerges,
     storyCommits,
-    call,
+    history,
   ))
     return { merge, branchSide: second };
   const tip = await newestOwnRevision(
     completion,
     storyCommits,
     owningMerges,
-    call,
+    history,
   );
   if (tip === undefined) return undefined;
   return { merge: tip, branchSide: tip };
@@ -167,29 +163,31 @@ export async function deliveredCompletion(
   story: ReviewedStory,
   doneRecordAdded: string,
   published: string,
-  call: GitCall,
+  history: PublishedStoryHistory,
 ): Promise<string> {
   const storyCommits: string[] = [];
   const owningMerges = new Set<string>();
-  for (const agent of await publishedStoryAgents(story, published, call)) {
+  for (const agent of await publishedStoryAgents(story, published, history)) {
     const evidence = await publishedStoryEvidence(
       story,
       published,
-      call,
+      history,
       agent,
     );
     storyCommits.push(...evidence.commits.map(({ commit }) => commit));
     for (const merge of evidence.merges) owningMerges.add(merge);
   }
   for await (const { merge, first, second } of trunkFirstOwningMerges(
-    ["--topo-order", published, `^${doneRecordAdded}`],
+    published,
+    doneRecordAdded,
     owningMerges,
     storyCommits,
-    call,
+    history,
+    true,
   ))
     if (
-      (await isAncestor(doneRecordAdded, second, call)) &&
-      !(await isAncestor(doneRecordAdded, first, call))
+      (await history.isAncestor(doneRecordAdded, second)) &&
+      !(await history.isAncestor(doneRecordAdded, first))
     )
       return merge;
   return doneRecordAdded;

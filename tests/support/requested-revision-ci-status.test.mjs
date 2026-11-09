@@ -1,12 +1,12 @@
-// Module tests of Intent comparison's requested-revision CI status
-// (`../../dashboard/server/requestedRevisionCiStatus.ts`): Skipped via the
-// shared path classifier, Cancelled from the provider conclusion, and each
-// No-build reason the dashboard surfaces when a skip cannot be confirmed.
+import { comparisonHistory } from "../../dashboard/server/comparisonBuildSource.ts";
+// Intent requested-revision status: provider Skipped/Cancelled, path-confirmed
+// skips, and each surfaced No-build reason.
+// Production boundary: ../../dashboard/server/requestedRevisionCiStatus.ts.
 import assert from "node:assert/strict";
 import { tmpdir } from "node:os";
 import test from "node:test";
 import {
-  classifyPathChangesViaRunGit,
+  classifyComparisonPathChanges,
   noBuildReasonPhrase,
   requestedRevisionCiStatus,
   workflowFilePath,
@@ -88,7 +88,7 @@ test("noBuildReasonPhrase names each classifier and dashboard reason", () => {
   }
 });
 
-test("classifyPathChangesViaRunGit: ignored-only is not_required", async (t) => {
+test("classifyComparisonPathChanges: ignored-only is not_required", async (t) => {
   const {
     revisions: { base: basis, requested },
     call,
@@ -100,8 +100,8 @@ test("classifyPathChangesViaRunGit: ignored-only is not_required", async (t) => 
       .please(),
   );
   assert.deepEqual(
-    await classifyPathChangesViaRunGit(
-      call,
+    await classifyComparisonPathChanges(
+      comparisonHistory(call),
       requested,
       basis,
       ".github/workflows/ci.yml",
@@ -110,7 +110,7 @@ test("classifyPathChangesViaRunGit: ignored-only is not_required", async (t) => 
   );
 });
 
-test("classifyPathChangesViaRunGit: code change is required", async (t) => {
+test("classifyComparisonPathChanges: code change is required", async (t) => {
   const {
     revisions: { base: basis, requested },
     call,
@@ -122,8 +122,8 @@ test("classifyPathChangesViaRunGit: code change is required", async (t) => {
       .please(),
   );
   assert.deepEqual(
-    await classifyPathChangesViaRunGit(
-      call,
+    await classifyComparisonPathChanges(
+      comparisonHistory(call),
       requested,
       basis,
       ".github/workflows/ci.yml",
@@ -138,7 +138,7 @@ test("requestedRevisionCiStatus: provider skipped conclusion", async () => {
     sha,
     [{ headSha: sha, status: "completed", conclusion: "skipped" }],
     undefined,
-    callOf(tmpdir()),
+    comparisonHistory(callOf(tmpdir())),
     "ci.yml",
   );
   assert.equal(status.kind, "skipped");
@@ -152,7 +152,7 @@ test("requestedRevisionCiStatus: cancelled conclusion", async () => {
     sha,
     [{ headSha: sha, status: "completed", conclusion: "cancelled" }],
     "c".repeat(40),
-    callOf(tmpdir()),
+    comparisonHistory(callOf(tmpdir())),
     "ci.yml",
   );
   assert.deepEqual(status, {
@@ -176,7 +176,7 @@ test("requestedRevisionCiStatus: path-confirmed skip names the basis", async (t)
     requested,
     [],
     basis,
-    call,
+    comparisonHistory(call),
     "ci.yml",
   );
   assert.equal(status.kind, "skipped");
@@ -201,7 +201,7 @@ test("requestedRevisionCiStatus: code absence is No build with required reason",
     requested,
     [],
     basis,
-    call,
+    comparisonHistory(call),
     "ci.yml",
   );
   assert.equal(status.kind, "no-build");
@@ -226,7 +226,7 @@ test("requestedRevisionCiStatus: missing workflow is unreadable-revision", async
     requested,
     [],
     basis,
-    call,
+    comparisonHistory(call),
     "ci.yml",
   );
   assert.equal(status.kind, "no-build");
@@ -242,7 +242,7 @@ test("requestedRevisionCiStatus: numeric workflow cannot confirm a skip", async 
     sha,
     [],
     "e".repeat(40),
-    callOf(tmpdir()),
+    comparisonHistory(callOf(tmpdir())),
     "7001",
   );
   assert.equal(status.kind, "no-build");

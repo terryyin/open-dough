@@ -7,7 +7,7 @@ import {
   parseAgentProfileFile,
   profileAgentName,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { runGit, type GitCall } from "./gitRunner.ts";
+import type { PublishedStoryHistory } from "./publishedStoryHistory.ts";
 
 // Whether the profile published in the file named `fileName` names the story
 // as an execution claim: it records a `mode`, which preparation does not.
@@ -32,24 +32,13 @@ export interface ReviewedStory {
 export async function publishedStoryAgents(
   story: ReviewedStory,
   completion: string,
-  call: GitCall,
+  history: PublishedStoryHistory,
 ): Promise<string[]> {
-  const escaped = story.identity.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const files = (
-    await runGit(
-      [
-        "log",
-        "--full-history",
-        "--format=",
-        "--name-only",
-        `-G${escaped}`,
-        completion,
-        "--",
-        story.profileDirectory,
-      ],
-      call,
-    )
-  ).stdout.split("\n");
+  const files = await history.matchingProfilePaths(
+    completion,
+    story.profileDirectory,
+    story.identity,
+  );
   const agents = files.flatMap((file) => {
     const name = profileAgentName(file.split("/").at(-1) ?? "");
     return name === undefined ? [] : [agentIdentity(name).agent];
@@ -67,43 +56,13 @@ export interface PublishedCommit {
 
 // The agent the worktree's own config names as author: its Git email and its
 // profile's file name, or undefined when the worktree names none.
-async function worktreeAgent(call: GitCall) {
-  const read = async (key: string) => {
-    try {
-      return (
-        await runGit(["config", "--worktree", "--get", key], call)
-      ).stdout.trim();
-    } catch (error) {
-      if (call.signal?.aborted === true) throw error;
-      return "";
-    }
-  };
-  const name = agentNameOf(await read("author.name"));
+async function worktreeAgent(history: PublishedStoryHistory) {
+  const name = agentNameOf(await history.worktreeConfig("author.name"));
   if (name === undefined) return undefined;
   const { email, path } = agentIdentity(name);
-  if ((await read("author.email")) !== email) return undefined;
+  if ((await history.worktreeConfig("author.email")) !== email)
+    return undefined;
   return { email, fileName: path.slice(agentProfileDirectory.length + 1) };
-}
-
-// The blobs `git cat-file --batch` printed, by object ID: each a header line
-// naming the object, its type and its size in bytes, then that many bytes
-// and a newline.
-function printedBlobs(printed: string): ReadonlyMap<string, string> {
-  const bytes = Buffer.from(printed, "utf8");
-  const blobs = new Map<string, string>();
-  let at = 0;
-  while (at < bytes.length) {
-    const headerEnd = bytes.indexOf("\n", at);
-    if (headerEnd === -1) break;
-    const [object = "", type, size] = bytes
-      .toString("utf8", at, headerEnd)
-      .split(" ");
-    if (type !== "blob") break;
-    const end = headerEnd + 1 + Number(size);
-    blobs.set(object, bytes.toString("utf8", headerEnd + 1, end));
-    at = end + 1;
-  }
-  return blobs;
 }
 
 // Historical readers supply the recorded agent explicitly. The same walk also
@@ -111,7 +70,7 @@ function printedBlobs(printed: string): ReadonlyMap<string, string> {
 export async function publishedStoryEvidence(
   story: ReviewedStory,
   trunk: string,
-  call: GitCall,
+  history: PublishedStoryHistory,
   historicalAgent?: string,
 ) {
   const name =
@@ -119,7 +78,7 @@ export async function publishedStoryEvidence(
   const identity = name === undefined ? undefined : agentIdentity(name);
   const agent =
     historicalAgent === undefined
-      ? await worktreeAgent(call)
+      ? await worktreeAgent(history)
       : identity === undefined
         ? undefined
         : {
@@ -132,25 +91,7 @@ export async function publishedStoryEvidence(
     merges: [] as string[],
   };
   if (agent === undefined) return empty;
-  const authored = (
-    await runGit(
-      [
-        "rev-list",
-        "--topo-order",
-        "--parents",
-        "--fixed-strings",
-        `--author=<${agent.email}>`,
-        trunk,
-      ],
-      call,
-    )
-  ).stdout
-    .split("\n")
-    .filter((line) => line !== "")
-    .map((line) => {
-      const [commit = "", ...parents] = line.split(" ");
-      return { commit, parents };
-    });
+  const authored = await history.authoredAt(trunk, agent.email);
   if (authored.length === 0) return empty;
   // The agent's profile at each authored commit and at its first parent.
   const profile = `${story.profileDirectory}/${agent.fileName}`;
@@ -162,36 +103,10 @@ export async function publishedStoryEvidence(
       ]),
     ),
   ];
-  const checked = (
-    await runGit(["cat-file", "--batch-check"], {
-      ...call,
-      input: revisions.map((revision) => `${revision}:${profile}\n`).join(""),
-    })
-  ).stdout.split("\n");
-  const profileAt = new Map<string, string>();
-  for (const [index, revision] of revisions.entries()) {
-    const [object = "", type] = (checked[index] ?? "").split(" ");
-    if (type === "blob") profileAt.set(revision, object);
-  }
-  const distinct = [...new Set(profileAt.values())];
-  const blobs =
-    distinct.length === 0
-      ? new Map<string, string>()
-      : printedBlobs(
-          (
-            await runGit(["cat-file", "--batch"], {
-              ...call,
-              input: distinct.map((object) => `${object}\n`).join(""),
-            })
-          ).stdout,
-        );
+  const profileAt = await history.profileTextsAt(profile, revisions);
   const claiming = new Set(
-    distinct.filter((object) =>
-      namesExecutionClaim(
-        agent.fileName,
-        blobs.get(object) ?? "",
-        story.identity,
-      ),
+    [...new Set(profileAt.values())].filter((text) =>
+      namesExecutionClaim(agent.fileName, text, story.identity),
     ),
   );
   const claims = (revision: string | undefined) =>

@@ -1,4 +1,10 @@
 // @ts-check
+import {
+  assertKnownParents,
+  assertOneBacklogFact,
+  statesBacklog,
+} from "./repository-revision-facts.mjs";
+export { backlogPath } from "./repository-revision-facts.mjs";
 
 /** @typedef {Parameters<typeof import("./published-backlog.mjs").renderPublishedBacklog>[0]} Backlog */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs").renderAgentProfile>[0]} AgentProfile */
@@ -29,6 +35,7 @@
  *   agentProfiles?: readonly AgentProfile[],
  *   doneRecords?: readonly DoneRecord[],
  *   remove?: readonly string[],
+ *   parents?: readonly string[],
  *   message?: string,
  *   author?: GitPerson,
  *   committer?: GitPerson,
@@ -40,33 +47,6 @@
  * @template {string} Name
  * @typedef {RepositoryRevision & { name: Name }} NamedRevision
  */
-
-// Where a revision's backlog lives, whether stated as membership or bytes.
-export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
-
-/** @param {RepositoryRevision} revision */
-function statesBacklogBytes(revision) {
-  return (
-    revision.files !== undefined && Object.hasOwn(revision.files, backlogPath)
-  );
-}
-
-/** @param {RepositoryRevision} revision */
-function assertOneBacklogFact(revision) {
-  if (Object.hasOwn(revision, "backlog") && revision.backlog === undefined)
-    throw new Error(
-      `Repository revision ${revision.name} states an undefined backlog; state backlog: null for a revision without a backlog`,
-    );
-  if (revision.backlog && statesBacklogBytes(revision))
-    throw new Error(
-      `Repository revision ${revision.name} states its backlog twice: as backlog and as files["${backlogPath}"]`,
-    );
-}
-
-/** @param {RepositoryRevision} revision */
-function statesBacklog(revision) {
-  return Object.hasOwn(revision, "backlog") || statesBacklogBytes(revision);
-}
 
 /**
  * The execution workspace: a branch that starts from a named trunk revision
@@ -132,8 +112,10 @@ export class RepositoryBuilder {
   /**
    * A named commit's changes, in publication order. The first commit has
    * an empty backlog unless the description supplies its membership or bytes,
-   * or states `backlog: null` for a trunk without one. A revision states its
-   * backlog once: as `backlog` or as bytes at `.planning/PRODUCT-BACKLOG.md`.
+   * or states `backlog: null` for a trunk without one. Explicit `parents`
+   * name earlier published revisions; the tree inherits the first parent
+   * and applies the declared facts, without inventing merge resolutions.
+   * A revision states its backlog once: as `backlog` or as bytes at `.planning/PRODUCT-BACKLOG.md`.
    * A revision with a `release` is tagged `v<version>`, and `tags` names
    * further lightweight tags on it; `files` it states override the release's.
    * @template {string} NewName
@@ -143,6 +125,7 @@ export class RepositoryBuilder {
    */
   withRevision(name, facts = {}) {
     this.#assertNew(name);
+    assertKnownParents(name, facts, this.#revisions);
     /** @type {NamedRevision<Name | NewName>[]} */
     const revisions = [...this.#revisions, { ...facts, name }];
     return new RepositoryBuilder(revisions, this.#unpublished, this.#facts);
@@ -208,6 +191,7 @@ export class RepositoryBuilder {
         `Unpublished revision ${name} needs a workspace: call withWorkspace first`,
       );
     this.#assertNew(name);
+    assertKnownParents(name, facts, [...this.#revisions, ...this.#unpublished]);
     /** @type {NamedRevision<Name | NewName>[]} */
     const unpublished = [...this.#unpublished, { ...facts, name }];
     return new RepositoryBuilder(this.#revisions, unpublished, this.#facts);
