@@ -146,7 +146,8 @@ and [plan 331](https://github.com/terryyin/open-dough/blob/60c164841e0ca9178a807
 **For / outcome:** Developers using Codex, Cursor, or Claude Code can rely on
 installed execution and owned-repair guidance selecting the guarded fresh path,
 withholding dependent work after local failure, and retaining legitimate
-already-published recovery. Native acceptance is pending.
+already-published recovery. Native acceptance is pending. The ordering extension also covers
+[SEED-010 freshness settlement](https://github.com/terryyin/open-dough/blob/82a87e059e61ea6a8f4f7fb351e3c8bbd766f907/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#hold-delivery-on-freshness-before-expensive-proof).
 
 **Scope and evaluation:** Use installed guidance in a disposable repository
 with project-resolved requirements, real Git/hooks and an authorized local bare
@@ -165,6 +166,9 @@ edits, remote refs, and observer/registration evidence. Require:
 - Resume an already-published retained candidate, including a lost response and
   later remote tip representatively, without another commit or duplicate push;
   preserve candidate/base and the actual observer owner.
+
+**Freshness ordering extension:** [Cases and pending three-host evidence](SEED-053-native-guidance-acceptance/freshness-ordering.md)
+extend this acceptance home. No paid run is authorized.
 
 **Per-host evidence:** Native selection and follow-through remain pending on
 Codex, Cursor, and Claude Code. Each host must supply integration evidence for

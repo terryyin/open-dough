@@ -132,9 +132,12 @@ test("acceptance links the obligation owner and delivery includes its precommit 
   );
   assert.match(
     update,
-    /Before marking the slice done or committing[\s\S]+story-obligations\.mjs' check --plan '<PLAN\.md>' --slice N/,
+    /Before (?:marking the slice done or committing|the done mark or commit)[\s\S]+story-obligations\.mjs' check --plan '<PLAN\.md>' --slice N/,
   );
-  assert.match(update, /refusal blocks the done transition and commit/);
+  assert.match(
+    update,
+    /refusal blocks (?:the done transition and commit|both transitions)/,
+  );
 });
 
 test("completion checks all obligations before writing the execution-complete record", () => {

@@ -267,6 +267,13 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: coordinator conversation and `/tmp/seed288-slice2-refactor-return.md`; final slice-2 trace `/tmp/seed288-slice2-refactor-consumer-trace.md` and dispositions contain 624 located files, including 371 new matches caused only by dirty `PLAN.md`; slice-1 trace contained 651 per-file dispositions.
   - Observed effect: implementation/refactor owners repeatedly dispositioned unrelated planning, guidance and historical paths alongside meaningful runtime consumers. All affected proof was retained; no missed consumer was established.
   - Inference: automatically derived planning basenames materially enlarge a bounded dashboard trace even when explicit effect terms are supplied. The second refactor reported about ten minutes total, but isolated trace time or token cost was not measured. Preserve indirect proof while reducing generic derived-path noise.
+- Execution: SEED-010#hold-delivery-on-freshness-before-expensive-proof (plan 561; first implementation `931d31c108c97bee3a60076fad331f47bf66f486`)
+  - Timestamp: unknown (2026-11-10, slice-1 acceptance)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound `.agents/skills/dough-update/VERSION`)
+  - Evidence: implementation and refactor returns retain a whole-checkout trace against `14c211d14` with 732 consumers, including generic derived PLAN/SKILL/source-review terms. The initial consumer record was about 780 lines; the coordinator's combined read truncated at 12,943 original tokens. At `931d31c10`, `.planning/slice-plans/561-settle-trunk-freshness-before-proof/consumer-trace.md` retains 17 run, 13 reused and explicit grouped exclusions in 92 lines.
+  - Observed effect: broad enumeration required a second read and record compaction; actual guidance/CLI/replay consumers were inspected and passed focused proof. No missed consumer is established.
+  - Inference: automatic planning-basename noise recurred; exact time attributable to it is unmeasured. Grouped dispositions preserved relevant proof without the raw list.
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).

@@ -29,7 +29,7 @@ const discovery = flat(
 
 test("delivery classifies the change once before spawning a refactor agent", () => {
   const classify = delivery.search(/Classify the uncommitted change once/i);
-  const spawn = delivery.search(/spawn a fresh agent to run/i);
+  const spawn = delivery.search(/spawn a fresh agent (?:to run|for)/i);
   assert.ok(classify !== -1, "delivery classifies the change");
   assert.ok(spawn > classify, "classification precedes the fresh agent");
 });
@@ -37,7 +37,7 @@ test("delivery classifies the change once before spawning a refactor agent", () 
 test("a records-only change records the `records-only` disposition", () => {
   assert.match(
     delivery,
-    /Record `records-only` when it touches only planning, execution, finding or research records/i,
+    /Record `records-only` (?:when it touches only|for changes only to) planning, execution, finding or research records/i,
   );
   for (const record of [
     "plans",
@@ -53,21 +53,27 @@ test("a records-only change records the `records-only` disposition", () => {
 });
 
 test("an already-traced repair stays within the accepted return and names it", () => {
-  assert.match(delivery, /within a slice's accepted refactor return/i);
+  assert.match(delivery, /within (?:a slice's|an) accepted refactor return/i);
   assert.match(
     delivery,
     /adding no representation, helper, dependency or path/i,
   );
-  assert.match(delivery, /already-traced disposition naming that return/i);
-  assert.match(delivery, /Either replaces the agent/i);
+  assert.match(
+    delivery,
+    /already-traced disposition naming that return|name that return as already traced/i,
+  );
+  assert.match(
+    delivery,
+    /Either replaces the agent|unless one of those two dispositions applies/i,
+  );
 });
 
 test("the disposition is retained beside the slice or in the quick delivery boundary", () => {
-  assert.match(delivery, /retain the disposition beside the slice/i);
+  assert.match(delivery, /retain (?:the|either) disposition beside the slice/i);
   assert.match(delivery, /quick delivery boundary/i);
   assert.match(
     delivery,
-    /retain its delivery boundary in the execution conversation:[^.]*refactor disposition/i,
+    /retain (?:its delivery boundary in the execution conversation|the unfinished delivery boundary):[^.]*refactor disposition/i,
   );
 });
 
@@ -76,22 +82,25 @@ test("any other or uncertain change gets the fresh full pass", () => {
 });
 
 test("a triggered pass keeps whole-product reach", () => {
-  assert.match(delivery, /triggered pass keeps whole-product reach/i);
+  assert.match(
+    delivery,
+    /(?:triggered pass keeps|authority and) whole-product reach/i,
+  );
 });
 
 test("the commit check accepts a disposition in place of the marker for those cases only", () => {
   assert.match(
     delivery,
-    /require `## REFACTOR COMPLETE`[^;]*; only those two dispositions replace that marker/,
+    /[Rr]equire `## REFACTOR COMPLETE`(?:[^;]*; only those two dispositions replace that marker| unless one of those two dispositions applies)/,
   );
-  assert.match(delivery, /missing marker or disposition[^.]*prevents commit/i);
+  assert.match(
+    delivery,
+    /missing marker (?:or|or its) disposition[^.]*prevents commit/i,
+  );
 });
 
 test("the next fresh pass receives and discovers the dispositions since the last pass", () => {
-  assert.match(
-    delivery,
-    /Supply source[^.]*the dispositions since the last pass/i,
-  );
+  assert.match(delivery, /Supply source[^.]*dispositions since the last pass/i);
   assert.match(discovery, /dispositions recorded since the last pass/i);
   assert.match(
     discovery,
